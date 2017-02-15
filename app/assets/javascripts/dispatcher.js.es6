@@ -38,6 +38,7 @@
 /* global AdminEmailSelect */
 
 const ShortcutsBlob = require('./shortcuts_blob');
+const UserCallout = require('./user_callout');
 
 (function() {
   var Dispatcher;
@@ -284,6 +285,9 @@ const ShortcutsBlob = require('./shortcuts_blob');
         case 'ci:lints:show':
           new gl.CILintEditor();
           break;
+        case 'users:show':
+          new UserCallout();
+          break;
       }
       switch (path.first()) {
         case 'sessions':
@@ -323,6 +327,7 @@ const ShortcutsBlob = require('./shortcuts_blob');
         case 'dashboard':
         case 'root':
           shortcut_handler = new ShortcutsDashboardNavigation();
+          new UserCallout();
           break;
         case 'profiles':
           new NotificationsForm();
