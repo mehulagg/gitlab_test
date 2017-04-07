@@ -161,7 +161,7 @@ export default {
       return this.service.getPipelines(scope, pageNumber)
         .then(resp => ({
           headers: resp.headers,
-          body: resp.json(),
+          body: resp.body,
         }))
         .then((response) => {
           this.store.storeCount(response.body.count);

@@ -93,7 +93,7 @@ export default Vue.component('environment-folder-view', {
     return this.service.get()
       .then(resp => ({
         headers: resp.headers,
-        body: resp.json(),
+        body: resp.body,
       }))
       .then((response) => {
         this.store.storeAvailableCount(response.body.available_count);

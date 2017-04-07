@@ -86,7 +86,7 @@ require('./board_new_form');
         if (this.open && !this.boards.length) {
           gl.boardService.allBoards().then((resp) => {
             this.loading = false;
-            this.boards = resp.json();
+            this.boards = resp.body;
           });
         }
       },

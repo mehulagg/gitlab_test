@@ -95,7 +95,7 @@ export default {
         return resp;
       }
 
-      return resp.json();
+      return resp.body;
     })
     .then((response) => {
       this.store.storeDeployBoard(this.environmentID, response);

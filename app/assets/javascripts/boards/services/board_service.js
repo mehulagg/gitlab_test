@@ -110,7 +110,7 @@ class BoardService {
 
     return this.$http.get(this.milestonePath)
       .then((res) => {
-        this.milestones = res.json();
+        this.milestones = res.body;
         this.loading = false;
       });
   }

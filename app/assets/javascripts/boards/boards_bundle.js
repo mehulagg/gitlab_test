@@ -91,8 +91,8 @@ $(() => {
     mounted () {
       Store.disabled = this.disabled;
       gl.boardService.all()
-        .then((resp) => {
-          resp.json().forEach((board) => {
+        .then((body=> {
+          resp.body.forEach((board) => {
             const list = Store.addList(board);
 
             if (list.type === 'closed') {

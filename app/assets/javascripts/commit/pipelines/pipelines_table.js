@@ -87,7 +87,7 @@ export default Vue.component('pipelines-table', {
     fetchPipelines() {
       this.isLoading = true;
       return this.service.getPipelines()
-        .then(response => response.json())
+        .then(response => response.body)
         .then((json) => {
           // depending of the endpoint the response can either bring a `pipelines` key or not.
           const pipelines = json.pipelines || json;

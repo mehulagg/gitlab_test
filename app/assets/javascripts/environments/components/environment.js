@@ -119,7 +119,7 @@ export default Vue.component('environment-component', {
 
       gl.utils.visitUrl(param);
       return param;
-    },
+    },body
 
     fetchEnvironments() {
       const scope = gl.utils.getParameterByName('scope') || this.visibility;
@@ -130,7 +130,7 @@ export default Vue.component('environment-component', {
       return this.service.get(scope, pageNumber)
         .then(resp => ({
           headers: resp.headers,
-          body: resp.json(),
+          body: resp.body,
         }))
         .then((response) => {
           this.store.storeAvailableCount(response.body.available_count);
@@ -151,7 +151,7 @@ export default Vue.component('environment-component', {
       this.isLoadingFolderContent = true;
 
       this.service.getFolderContent(folderUrl)
-        .then(resp => resp.json())
+        .then(resp => resp.body)
         .then((response) => {
           this.store.setfolderContent(folder, response.environments);
           this.isLoadingFolderContent = false;
