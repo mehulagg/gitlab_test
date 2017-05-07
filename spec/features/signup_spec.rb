@@ -1,9 +1,19 @@
 require 'spec_helper'
 
 feature 'Signup', feature: true do
+  include Warden::Test::Helpers
+
   describe 'signup with no errors' do
     context "when sending confirmation email" do
-      before { allow_any_instance_of(ApplicationSetting).to receive(:send_user_confirmation_email).and_return(true) }
+      before do
+        Warden.test_mode!
+
+        allow_any_instance_of(ApplicationSetting).to receive(:send_user_confirmation_email).and_return(true)
+      end
+
+      after do
+        Warden.test_reset!
+      end
 
       it 'creates the user account and sends a confirmation email' do
         user = build(:user)
