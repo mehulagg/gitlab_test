@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe 'Issue Boards shortcut', feature: true, js: true do
-  include WaitForVueResource
+  include WaitForAjax
 
   let(:project) { create(:empty_project) }
 
@@ -17,6 +17,6 @@ describe 'Issue Boards shortcut', feature: true, js: true do
     find('body').native.send_keys('gb')
     expect(page).to have_selector('.boards-list')
 
-    wait_for_vue_resource
+    wait_for_ajax
   end
 end

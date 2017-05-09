@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 feature 'Create New Merge Request', feature: true, js: true do
-  include WaitForVueResource
+  include WaitForAjax
 
   let(:user) { create(:user) }
   let(:project) { create(:project, :public) }
@@ -175,7 +175,7 @@ feature 'Create New Merge Request', feature: true, js: true do
 
       page.within('.merge-request') do
         click_link 'Pipelines'
-        wait_for_vue_resource
+        wait_for_ajax
 
         expect(page).to have_content "##{pipeline.id}"
       end

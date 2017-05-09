@@ -731,7 +731,7 @@ describe 'Issues', feature: true do
   end
 
   describe 'title issue#show', js: true do
-    include WaitForVueResource
+    include WaitForAjax
 
     it 'updates the title', js: true do
       issue = create(:issue, author: @user, assignee: @user, project: project, title: 'new title')
@@ -742,7 +742,7 @@ describe 'Issues', feature: true do
 
       issue.update(title: "updated title")
 
-      wait_for_vue_resource
+      wait_for_ajax
       expect(page).to have_text("updated title")
     end
   end

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe 'Pipelines', :feature, :js do
-  include WaitForVueResource
+  include WaitForAjax
 
   let(:project) { create(:empty_project) }
 
@@ -54,7 +54,7 @@ describe 'Pipelines', :feature, :js do
       context 'header tabs' do
         before do
           visit namespace_project_pipelines_path(project.namespace, project)
-          wait_for_vue_resource
+          wait_for_ajax
         end
 
         it 'shows a tab for All pipelines and count' do
@@ -106,7 +106,7 @@ describe 'Pipelines', :feature, :js do
         context 'when canceling' do
           before do
             find('.js-pipelines-cancel-button').click
-            wait_for_vue_resource
+            wait_for_ajax
           end
 
           it 'indicated that pipelines was canceled' do
@@ -136,7 +136,7 @@ describe 'Pipelines', :feature, :js do
         context 'when retrying' do
           before do
             find('.js-pipelines-retry-button').click
-            wait_for_vue_resource
+            wait_for_ajax
           end
 
           it 'shows running pipeline that is not retryable' do
@@ -356,14 +356,14 @@ describe 'Pipelines', :feature, :js do
 
         it 'should render pagination' do
           visit namespace_project_pipelines_path(project.namespace, project)
-          wait_for_vue_resource
+          wait_for_ajax
 
           expect(page).to have_selector('.gl-pagination')
         end
 
         it 'should render second page of pipelines' do
           visit namespace_project_pipelines_path(project.namespace, project, page: '2')
-          wait_for_vue_resource
+          wait_for_ajax
 
           expect(page).to have_selector('.gl-pagination .page', count: 2)
         end
@@ -455,6 +455,6 @@ describe 'Pipelines', :feature, :js do
 
   def visit_project_pipelines(**query)
     visit namespace_project_pipelines_path(project.namespace, project, query)
-    wait_for_vue_resource
+    wait_for_ajax
   end
 end

@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe 'Issue Boards', feature: true, js: true do
-  include WaitForVueResource
+  include WaitForAjax
 
   let(:user)         { create(:user) }
   let(:project)      { create(:empty_project, :public) }
@@ -24,7 +24,7 @@ describe 'Issue Boards', feature: true, js: true do
     login_as(user)
 
     visit namespace_project_board_path(project.namespace, project, board)
-    wait_for_vue_resource
+    wait_for_ajax
   end
 
   after do
@@ -73,7 +73,7 @@ describe 'Issue Boards', feature: true, js: true do
       click_button 'Remove from board'
     end
 
-    wait_for_vue_resource
+    wait_for_ajax
 
     page.within(first('.board')) do
       expect(page).to have_selector('.card', count: 1)
@@ -92,7 +92,7 @@ describe 'Issue Boards', feature: true, js: true do
         page.within('.dropdown-menu-user') do
           click_link user.name
 
-          wait_for_vue_resource
+          wait_for_ajax
         end
 
         expect(page).to have_content(user.name)
@@ -113,7 +113,7 @@ describe 'Issue Boards', feature: true, js: true do
         page.within('.dropdown-menu-user') do
           click_link 'Unassigned'
 
-          wait_for_vue_resource
+          wait_for_ajax
         end
 
         expect(page).to have_content('No assignee')
@@ -130,7 +130,7 @@ describe 'Issue Boards', feature: true, js: true do
 
         click_link 'assign yourself'
 
-        wait_for_vue_resource
+        wait_for_ajax
 
         expect(page).to have_content(user.name)
       end
@@ -149,7 +149,7 @@ describe 'Issue Boards', feature: true, js: true do
         page.within('.dropdown-menu-user') do
           click_link user.name
 
-          wait_for_vue_resource
+          wait_for_ajax
         end
 
         expect(page).to have_content(user.name)
@@ -178,7 +178,7 @@ describe 'Issue Boards', feature: true, js: true do
 
         click_link milestone.title
 
-        wait_for_vue_resource
+        wait_for_ajax
 
         page.within('.value') do
           expect(page).to have_content(milestone.title)
@@ -196,7 +196,7 @@ describe 'Issue Boards', feature: true, js: true do
 
         click_link "No Milestone"
 
-        wait_for_vue_resource
+        wait_for_ajax
 
         page.within('.value') do
           expect(page).not_to have_content(milestone.title)
@@ -214,7 +214,7 @@ describe 'Issue Boards', feature: true, js: true do
 
         click_button Date.today.day
 
-        wait_for_vue_resource
+        wait_for_ajax
 
         expect(page).to have_content(Date.today.to_s(:medium))
       end
@@ -232,7 +232,7 @@ describe 'Issue Boards', feature: true, js: true do
 
         click_link bug.title
 
-        wait_for_vue_resource
+        wait_for_ajax
 
         find('.dropdown-menu-close-icon').click
 
@@ -257,7 +257,7 @@ describe 'Issue Boards', feature: true, js: true do
         click_link bug.title
         click_link regression.title
 
-        wait_for_vue_resource
+        wait_for_ajax
 
         find('.dropdown-menu-close-icon').click
 
@@ -283,7 +283,7 @@ describe 'Issue Boards', feature: true, js: true do
 
         click_link stretch.title
 
-        wait_for_vue_resource
+        wait_for_ajax
 
         find('.dropdown-menu-close-icon').click
 

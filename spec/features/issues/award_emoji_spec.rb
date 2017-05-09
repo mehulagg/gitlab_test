@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe 'Awards Emoji', feature: true do
-  include WaitForVueResource
+  include WaitForAjax
 
   let!(:project)   { create(:project, :public) }
   let!(:user)      { create(:user) }
@@ -22,7 +22,7 @@ describe 'Awards Emoji', feature: true do
         # The `heart_tip` emoji is not valid anymore so we need to skip validation
         issue.award_emoji.build(user: user, name: 'heart_tip').save!(validate: false)
         visit namespace_project_issue_path(project.namespace, project, issue)
-        wait_for_vue_resource
+        wait_for_ajax
       end
 
       # Regression test: https://gitlab.com/gitlab-org/gitlab-ce/issues/29529
@@ -36,7 +36,7 @@ describe 'Awards Emoji', feature: true do
 
       before do
         visit namespace_project_issue_path(project.namespace, project, issue)
-        wait_for_vue_resource
+        wait_for_ajax
       end
 
       it 'increments the thumbsdown emoji', js: true do
