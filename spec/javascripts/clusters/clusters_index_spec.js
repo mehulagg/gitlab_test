@@ -13,6 +13,10 @@ describe('Clusters table', () => {
     setClusterTableToggles();
   });
 
+  afterEach(() => {
+    mock.restore();
+  });
+
   describe('update cluster', () => {
     it('renders loading state while request is made', () => {
       const button = document.querySelector('.js-toggle-cluster-list');
@@ -21,10 +25,6 @@ describe('Clusters table', () => {
 
       expect(button.classList).toContain('is-loading');
       expect(button.getAttribute('disabled')).toEqual('true');
-    });
-
-    afterEach(() => {
-      mock.restore();
     });
 
     it('shows updated state after sucessfull request', (done) => {

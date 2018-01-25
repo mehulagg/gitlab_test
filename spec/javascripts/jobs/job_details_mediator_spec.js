@@ -5,11 +5,9 @@ import job from './mock_data';
 
 describe('JobMediator', () => {
   let mediator;
-  let mock;
 
   beforeEach(() => {
     mediator = new JobMediator({ endpoint: 'jobs/40291672.json' });
-    mock = new MockAdapter(axios);
   });
 
   it('should set defaults', () => {
@@ -20,7 +18,10 @@ describe('JobMediator', () => {
   });
 
   describe('request and store data', () => {
+    let mock;
+
     beforeEach(() => {
+      mock = new MockAdapter(axios);
       mock.onGet().reply(200, job, {});
     });
 
