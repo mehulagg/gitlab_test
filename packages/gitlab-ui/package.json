@@ -1,0 +1,13 @@
+{
+  "name": "gitlab-ui",
+  "version": "0.0.1",
+  "description": "GitLab UI Components",
+  "main": "index.js",
+  "repository": "git@gitlab.com:gitlab-org/frontend/gitlab-ui.git",
+  "author": "GitLab",
+  "private": true,
+  "dependencies": {
+    "@gitlab-org/gitlab-svgs": "^1.23.0",
+    "bootstrap-vue": "^2.0.0-rc.11"
+  }
+}
