@@ -1,5 +1,10 @@
 image: node:latest
 
+stages:
+    - build
+    - test
+    - release
+
 visual:
   stage: test
   script:
@@ -23,3 +28,10 @@ update_snapshots:
     - git add .
     - git commit -m "Update snapshots"
     - git push https://gitlab-bot:$GITLAB_BOT_TOKEN@gitlab.com/gitlab-org/frontend/gitlab-ui.git HEAD:$CI_COMMIT_REF_NAME &>/dev/null
+
+publish:
+  stage: release
+  when: manual
+  script:
+    - yarn global add semantic-release@15 @semantic-release/gitlab-config
+    - semantic-release -e @semantic-release/gitlab-config
