@@ -35,3 +35,5 @@ publish:
   script:
     - yarn global add semantic-release@15 @semantic-release/gitlab-config
     - semantic-release -e @semantic-release/gitlab-config
+  only:
+    - master
