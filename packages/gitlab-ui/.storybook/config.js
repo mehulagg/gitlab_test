@@ -3,7 +3,7 @@ import { configure } from '@storybook/vue';
 import Vue from 'vue';
 
 // Import your custom components.
-import progressBar from '../components/progressBar.vue';
+import progressBar from '../components/base/progress_bar.vue';
 
 // Register custom components.
 Vue.component('gl-progress-bar', progressBar);
