@@ -3,6 +3,7 @@ image: node:latest
 stages:
     - build
     - test
+    - deploy
     - release
 
 visual:
@@ -28,6 +29,17 @@ update_snapshots:
     - git add .
     - git commit -m "Update snapshots"
     - git push https://gitlab-bot:$GITLAB_BOT_TOKEN@gitlab.com/gitlab-org/frontend/gitlab-ui.git HEAD:$CI_COMMIT_REF_NAME &>/dev/null
+
+pages:
+  stage: deploy
+  script:
+  - yarn install
+  - yarn storybook-static
+  artifacts:
+    paths:
+    - storybook
+  only:
+    - master
 
 publish:
   stage: release
