@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "GitLab UI Components",
   "main": "index.js",
-  "repository": "git@gitlab.com:gitlab-org/frontend/gitlab-ui.git",
+  "repository": "git@gitlab.com:gitlab-org/gitlab-ui.git",
   "author": "GitLab",
   "private": true,
   "scripts": {
