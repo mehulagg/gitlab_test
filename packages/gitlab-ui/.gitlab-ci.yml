@@ -33,11 +33,11 @@ update_snapshots:
 pages:
   stage: deploy
   script:
-  - yarn install
-  - yarn storybook-static
+    - yarn install
+    - yarn storybook-static
   artifacts:
     paths:
-    - storybook
+      - storybook
   only:
     - master
 
