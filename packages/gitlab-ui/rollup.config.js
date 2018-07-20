@@ -3,7 +3,7 @@ import resolve from 'rollup-plugin-node-resolve';
 import glob from 'glob';
 
 export default glob
-  .sync('components/**.vue')
+  .sync('components/**/**.vue')
   .map((input) => {
     const vueFilename = input.slice('components/'.length);
     const outputFilename = vueFilename.slice(0, -1 * '.vue'.length);
