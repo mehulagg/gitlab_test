@@ -35,9 +35,11 @@ pages:
   script:
     - yarn install
     - yarn storybook-static
+    - mkdir public
+    - mv storybook/* public
   artifacts:
     paths:
-      - storybook
+      - public
   only:
     - master
 
