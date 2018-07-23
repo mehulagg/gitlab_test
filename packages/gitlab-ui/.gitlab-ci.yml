@@ -49,7 +49,6 @@ publish:
   script:
     - yarn install
     - $(yarn bin)/rollup -c
-    - yarn global add semantic-release@15 @semantic-release/gitlab-config
-    - semantic-release -e @semantic-release/gitlab-config
+    - semantic-release
   only:
     - master
