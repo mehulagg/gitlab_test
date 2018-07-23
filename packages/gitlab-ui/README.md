@@ -1,3 +1,10 @@
-### Just getting started so not really useable, yet ;-)
+# gitlab-ui
 
-This is the UI Frontend for GitLab with general and GitLab specific reusable components and also global utitilities.
+gitlab-ui is a UI component library written in Vue
+
+## Installation
+
+### Requirements
+* Node
+
+`$ npm install @gitlab-org/gitlab-ui`
