@@ -89,6 +89,8 @@
     "publish": [
       "@semantic-release/npm",
       "@semantic-release/gitlab"
-    ]
+    ],
+    "success": false,
+    "fail": false
   }
 }
