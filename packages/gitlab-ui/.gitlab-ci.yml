@@ -49,6 +49,6 @@ publish:
   script:
     - yarn install
     - $(yarn bin)/rollup -c
-    - semantic-release
+    - $(yarn bin)/semantic-release
   only:
     - master
