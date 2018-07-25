@@ -8,12 +8,6 @@ export default {
 };
 </script>
 
-<style>
-.progress {
-  height: 6px;
-}
-</style>
-
 <template>
   <b-progress v-bind="$attrs" />
 </template>
