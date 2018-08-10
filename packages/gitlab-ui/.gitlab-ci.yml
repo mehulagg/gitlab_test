@@ -6,6 +6,17 @@ stages:
     - deploy
     - release
 
+build:
+  stage: build
+  script:
+    - yarn install
+    - yarn storybook-static
+    - mkdir public
+    - mv storybook/* public
+  artifacts:
+    paths:
+      - public
+
 visual:
   stage: test
   script:
@@ -30,13 +41,48 @@ update_snapshots:
     - git commit -m "Update snapshots"
     - git push https://gitlab-bot:$GITLAB_TOKEN@gitlab.com/gitlab-org/frontend/gitlab-ui.git HEAD:$CI_COMMIT_REF_NAME &>/dev/null
 
-pages:
+review:
+  stage: deploy
+  dependencies:
+    - build
+  script:
+    - rsync -av --delete public /srv/nginx/pages/$CI_COMMIT_REF_SLUG
+  environment:
+    name: review/$CI_COMMIT_REF_SLUG
+    url: http://$CI_COMMIT_REF_SLUG.$APPS_DOMAIN
+    on_stop: review_stop
+  only:
+    - branches
+  except:
+    - master
+  tags:
+    - nginx
+    - review-apps
+    - deploy
+
+review_stop:
   stage: deploy
   script:
-    - yarn install
-    - yarn storybook-static
-    - mkdir public
-    - mv storybook/* public
+    - rm -rf public /srv/nginx/pages/$CI_COMMIT_REF_SLUG
+  when: manual
+  environment:
+    name: review/$CI_COMMIT_REF_SLUG
+    action: stop
+  only:
+    - branches
+  except:
+    - master
+  tags:
+    - nginx
+    - review-apps
+    - deploy
+
+pages:
+  stage: deploy
+  dependencies:
+    - build
+  script:
+    - echo "Deploying to Pages"
   artifacts:
     paths:
       - public
