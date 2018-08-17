@@ -89,6 +89,20 @@ pages:
   only:
     - master
 
+upload_artifacts:
+  stage: release
+  dependencies:
+    - build
+  script:
+    - yarn install
+    - $(yarn bin)/rollup -c
+    - yarn pack --filename gitlab-ui.$CI_COMMIT_REF_SLUG.tgz
+    - echo "The package.json dependency URL is https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/$CI_JOB_ID/artifacts/raw/gitlab-ui.$CI_COMMIT_REF_SLUG.tgz"
+  artifacts:
+    when: always
+    paths:
+      - gitlab-ui.$CI_COMMIT_REF_SLUG.tgz
+
 publish:
   stage: release
   when: manual
