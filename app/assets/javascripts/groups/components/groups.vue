@@ -1,6 +1,5 @@
 <script>
 import { mergeUrlParams } from '~/lib/utils/url_utility';
-import bp from '../../breakpoints';
 import { s__ } from '../../locale';
 
 export default {
@@ -23,7 +22,6 @@ export default {
     },
   },
   data: () => ({
-    breakpoint: bp.getBreakpointSize(),
     paginationText: {
       first: s__('Pagination|« First'),
       prev: s__('Pagination|Prev'),
@@ -31,30 +29,10 @@ export default {
       last: s__('Pagination|Last »'),
     },
   }),
-  computed: {
-    paginationLimit() {
-      switch (this.breakpoint) {
-        case 'xs':
-          return 1;
-        case 'sm':
-          return 5;
-        default:
-          return 11;
-      }
-    },
-  },
-  created() {
-    window.addEventListener('resize', this.setBreakpoint);
-  },
-  beforeDestroy() {
-    window.removeEventListener('resize', this.setBreakpoint);
-  },
+
   methods: {
     change(page) {
       return mergeUrlParams({ page }, window.location.href);
-    },
-    setBreakpoint() {
-      this.breakpoint = bp.getBreakpointSize();
     },
   },
 };
@@ -74,7 +52,6 @@ export default {
     />
     <gl-pagination
       v-if="!searchEmpty && pageInfo.totalPages > 1"
-      :limit="paginationLimit"
       :link-gen="change"
       :value="pageInfo.page"
       :number-of-pages="pageInfo.totalPages"
