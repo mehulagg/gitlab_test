@@ -3,7 +3,6 @@ import Vue from 'vue';
 import groupsComponent from '~/groups/components/groups.vue';
 import groupFolderComponent from '~/groups/components/group_folder.vue';
 import groupItemComponent from '~/groups/components/group_item.vue';
-import eventHub from '~/groups/event_hub';
 import mountComponent from 'spec/helpers/vue_mount_component_helper';
 import { mockGroups, mockPageInfo } from '../mock_data';
 
@@ -38,11 +37,9 @@ describe('GroupsComponent', () => {
 
   describe('methods', () => {
     describe('change', () => {
-      it('should emit `fetchPage` event when page is changed via pagination', () => {
-        spyOn(eventHub, '$emit').and.stub();
-
-        vm.change(2);
-        expect(eventHub.$emit).toHaveBeenCalledWith('fetchPage', 2, jasmine.any(Object), jasmine.any(Object), jasmine.any(Object));
+      it('should return the appropriate pagination results page url when provided a page number', () => {
+        const url = vm.change(2);
+        expect(url).toMatch(/^https?:\/\/localhost:\d+\/.*(?:\?.+&|\?)page=2(?:&|$)/);
       });
     });
   });

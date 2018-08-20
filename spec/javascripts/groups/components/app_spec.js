@@ -172,36 +172,6 @@ describe('AppComponent', () => {
       });
     });
 
-    describe('fetchPage', () => {
-      it('should fetch groups for provided page details and update window state', (done) => {
-        spyOn(vm, 'fetchGroups').and.returnValue(returnServicePromise(mockGroups));
-        spyOn(vm, 'updateGroups').and.callThrough();
-        const mergeUrlParams = spyOnDependency(appComponent, 'mergeUrlParams').and.callThrough();
-        spyOn(window.history, 'replaceState');
-        spyOn($, 'scrollTo');
-
-        vm.fetchPage(2, null, null, true);
-        expect(vm.isLoading).toBe(true);
-        expect(vm.fetchGroups).toHaveBeenCalledWith({
-          page: 2,
-          filterGroupsBy: null,
-          sortBy: null,
-          updatePagination: true,
-          archived: true,
-        });
-        setTimeout(() => {
-          expect(vm.isLoading).toBe(false);
-          expect($.scrollTo).toHaveBeenCalledWith(0);
-          expect(mergeUrlParams).toHaveBeenCalledWith({ page: 2 }, jasmine.any(String));
-          expect(window.history.replaceState).toHaveBeenCalledWith({
-            page: jasmine.any(String),
-          }, jasmine.any(String), jasmine.any(String));
-          expect(vm.updateGroups).toHaveBeenCalled();
-          done();
-        }, 0);
-      });
-    });
-
     describe('toggleChildren', () => {
       let groupItem;
 
