@@ -365,7 +365,6 @@ describe('AppComponent', () => {
       newVm.$mount();
 
       Vue.nextTick(() => {
-        expect(eventHub.$on).toHaveBeenCalledWith('fetchPage', jasmine.any(Function));
         expect(eventHub.$on).toHaveBeenCalledWith('toggleChildren', jasmine.any(Function));
         expect(eventHub.$on).toHaveBeenCalledWith('showLeaveGroupModal', jasmine.any(Function));
         expect(eventHub.$on).toHaveBeenCalledWith('updatePagination', jasmine.any(Function));
@@ -405,7 +404,6 @@ describe('AppComponent', () => {
       newVm.$destroy();
 
       Vue.nextTick(() => {
-        expect(eventHub.$off).toHaveBeenCalledWith('fetchPage', jasmine.any(Function));
         expect(eventHub.$off).toHaveBeenCalledWith('toggleChildren', jasmine.any(Function));
         expect(eventHub.$off).toHaveBeenCalledWith('showLeaveGroupModal', jasmine.any(Function));
         expect(eventHub.$off).toHaveBeenCalledWith('updatePagination', jasmine.any(Function));
