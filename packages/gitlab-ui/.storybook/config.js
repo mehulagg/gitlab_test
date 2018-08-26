@@ -1,4 +1,5 @@
 import { configure } from '@storybook/vue';
+import { setOptions } from '@storybook/addon-options';
 
 import Vue from 'vue';
 
@@ -10,7 +11,12 @@ Vue.component('gl-progress-bar', progressBar);
 
 function loadStories() {
   // You can require as many stories as you need.
-  require('../stories');
+  require('../stories/base/progress_bar');
 }
+
+setOptions({
+  name: 'gitlab-ui',
+  addonPanelInRight: true,
+});
 
 configure(loadStories, module);
