@@ -25,6 +25,12 @@ export default {
       required: true,
     },
   },
+  computed: {
+    paginate() {
+      return this.pageInfo.page
+        && this.pageInfo.total > this.pageInfo.perPage;
+    },
+  },
   methods: {
     change(page) {
       const filterGroupsParam = getParameterByName('filter_groups');
@@ -51,6 +57,7 @@ export default {
         :groups="groups"
       />
       <pagination-links
+        v-if="paginate"
         :change="change"
         :page-info="pageInfo"
         class="d-flex justify-content-center prepend-top-default"
