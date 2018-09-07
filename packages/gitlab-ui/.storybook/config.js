@@ -9,6 +9,7 @@ import modal from '../components/base/modal.vue';
 
 // Import your custom directives.
 import vModal from '../directives/modal';
+import vTooltip from '../directives/tooltip';
 
 // Register custom components.
 Vue.component('gl-progress-bar', progressBar);
@@ -16,11 +17,13 @@ Vue.component('gl-modal', modal);
 
 // Register custom directives.
 Vue.directive('gl-modal', vModal);
+Vue.directive('gl-tooltip', vTooltip);
 
 function loadStories() {
   // You can require as many stories as you need.
   require('../stories/base/progress_bar');
   require('../stories/base/modal');
+  require('../stories/tooltip');
 }
 
 setOptions({
