@@ -8,3 +8,7 @@ export const variantOptions = {
   light: 'light',
   dark: 'dark',
 };
+
+export const variantOptionsWithNoDefault = Object.assign({}, variantOptions, {
+  default: '',
+});
