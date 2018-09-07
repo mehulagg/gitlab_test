@@ -2,6 +2,7 @@
   "name": "@gitlab-org/gitlab-ui",
   "version": "1.0.5",
   "description": "GitLab UI Components",
+  "license": "MIT",
   "main": "index.js",
   "repository": "git@gitlab.com:gitlab-org/gitlab-ui.git",
   "author": "GitLab",
