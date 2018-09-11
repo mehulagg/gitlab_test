@@ -78,4 +78,17 @@ describe('pagination component', () => {
     mockResizeWidth(breakpoints.xl);
     expect(pagination.vm.paginationLimit).toBe(11);
   });
+
+  it('should not render when one page fits all items', () => {
+    const pagination = mountWithOptions({
+      propsData: {
+        change,
+        page: 1,
+        perPage: 10,
+        totalItems: 10,
+      }
+    });
+
+    expect(pagination.html()).toBeUndefined()
+  })
 });

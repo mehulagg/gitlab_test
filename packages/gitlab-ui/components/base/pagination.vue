@@ -65,7 +65,10 @@ export default {
     },
     paginationLimit() {
       return this.limits[this.breakpoint] || this.limits.default;
-    }
+    },
+    shouldRenderPagination() {
+      return this.page && this.totalItems > this.perPage;
+    },
   },
   watch: {
     currentPage: 'change',
@@ -86,6 +89,7 @@ export default {
 
 <template>
   <b-pagination
+    v-if="shouldRenderPagination"
     v-model="currentPage"
     v-bind="$attrs"
     :limit="paginationLimit"
