@@ -1,4 +1,4 @@
-image: node:latest
+image: "dev.gitlab.org:5005/gitlab/gitlab-build-images:gitlab-ui"
 
 stages:
     - build
@@ -20,7 +20,6 @@ build:
 visual:
   stage: test
   script:
-    - sh ./ci-scripts/workaround-puppeteer-issue-290.sh
     - yarn install
     - yarn test
   artifacts:
@@ -32,7 +31,6 @@ update_snapshots:
   stage: build
   when: manual
   script:
-    - sh ./ci-scripts/workaround-puppeteer-issue-290.sh
     - yarn install
     - yarn test --updateSnapshot
     - git config --global user.email "gitlab-bot@gitlab.com"
