@@ -8,7 +8,6 @@ const template = `
     :label="label"
     :size="size"
     :inline="inline"
-    :should-animate="shouldAnimate"
   />
 `;
 
@@ -28,10 +27,6 @@ function generateProps({
       type: Boolean,
       default: boolean('inline', inline),
     },
-    shouldAnimate: {
-      type: Boolean,
-      default: boolean('animate', false),
-    }
   };
 }
 

@@ -19,23 +19,13 @@
         required: false,
         default: false,
       },
-      shouldAnimate: {
-        type: Boolean,
-        default: true,
-      }
     },
     computed: {
       rootElementType() {
         return this.inline ? 'span' : 'div';
       },
       cssClass() {
-        return [
-          `fa-${this.size}x`,
-          {
-            'fa-spin': this.shouldAnimate,
-          },
-        ];
-
+        return `fa-${this.size}x fa-spin`;
       },
     },
   };

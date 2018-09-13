@@ -24,6 +24,7 @@ function generateTemplate({ visible = false } = {}) {
         :visible="${visible}"
         modal-id="test-modal-id"
         title="Example title"
+        no-fade
       >
         This is my content
       </gl-modal>

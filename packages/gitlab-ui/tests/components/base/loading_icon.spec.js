@@ -21,6 +21,11 @@ describe('loading icon component', () => {
   });
 
   describe('css class', () => {
+    it('should render fa-spin css class', () => {
+      const component = mountWithOptions({});
+      expect(component.vm.$el.querySelector('i').classList.contains('fa-spin')).toEqual(true);
+    });
+
     it('should render fa-1x css class by default', () => {
       const component = mountWithOptions({});
       expect(component.vm.$el.querySelector('i').classList.contains('fa-1x')).toEqual(true);
@@ -51,22 +56,6 @@ describe('loading icon component', () => {
       });
 
       expect(component.vm.$el.querySelector('i').getAttribute('aria-label')).toEqual(label);
-    });
-  });
-
-  describe('should animate', () => {
-    it('should spin by default', () => {
-      const component = mountWithOptions({});
-      expect(component.vm.$el.querySelector('i').classList.contains('fa-spin')).toEqual(true);
-    });
-
-    it('should not spin when prop is false', () => {
-      const component = mountWithOptions({
-        propsData: {
-          shouldAnimate: false,
-        },
-      });
-      expect(component.vm.$el.querySelector('i').classList.contains('fa-spin')).toEqual(false);
     });
   });
 });

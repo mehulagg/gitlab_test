@@ -2,17 +2,10 @@ import initStoryshots from '@storybook/addon-storyshots';
 import { imageSnapshot } from '@storybook/addon-storyshots-puppeteer';
 import { timeoutStoryBeforeScreenshot } from './config';
 
-const beforeScreenshot = (page, {context : {kind, story}, url}) => {
-  const shouldDelay = timeoutStoryBeforeScreenshot.includes(kind);
-
-  const delayedResolve = new Promise(resolve =>
-      setTimeout(() => {
-          resolve();
-      }, 600)
-  )
-
-  return shouldDelay ? delayedResolve : Promise.resolve;
-}
+const beforeScreenshot = (page) =>
+  page.addStyleTag({
+    path: 'tests/storyshots.css',
+  });
 
 initStoryshots({
   suite: 'Image storyshots',
