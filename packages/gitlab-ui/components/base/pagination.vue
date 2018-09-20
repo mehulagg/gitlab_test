@@ -72,6 +72,9 @@ export default {
   },
   watch: {
     currentPage: 'change',
+    page(pageNumber) {
+      this.currentPage = pageNumber;
+    },
   },
   created() {
     window.addEventListener('resize', this.setBreakpoint);

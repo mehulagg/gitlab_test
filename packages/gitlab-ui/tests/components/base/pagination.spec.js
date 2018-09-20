@@ -90,5 +90,12 @@ describe('pagination component', () => {
     });
 
     expect(pagination.html()).toBeUndefined()
-  })
+  });
+
+  it('should change currentPage when page prop changes', () => {
+    const pagination = mountWithOptions({ propsData });
+    pagination.setProps({ page: 10 });
+
+    expect(pagination.vm.currentPage).toBe(10);
+  });
 });
