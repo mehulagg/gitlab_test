@@ -16,6 +16,7 @@ export default {
       default: 'h4',
     },
   },
+  inheritAttrs: false,
 };
 </script>
 
