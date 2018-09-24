@@ -1,7 +1,8 @@
 import Vue from 'vue';
-import { storiesOf } from '@storybook/vue';
-import { withKnobs, text, boolean, select } from '@storybook/addon-knobs/vue';
+import { withKnobs, text, boolean, number } from '@storybook/addon-knobs/vue';
+import documentedStoriesOf from '../utils/documented_stories';
 import { variantOptions } from '../utils/constants';
+import readme from '../../documentation/loading_icon.md';
 
 const template = `
   <gl-loading-icon
@@ -21,7 +22,12 @@ function generateProps({
     },
     size: {
       type: Number,
-      default: select('size', [1,2,3,4,5], 1),
+      default: number('size', 1, {
+        range: true,
+        min: 1,
+        max: 5,
+        step: 1,
+      }),
     },
     inline: {
       type: Boolean,
@@ -30,7 +36,7 @@ function generateProps({
   };
 }
 
-storiesOf('loading-icon', module)
+documentedStoriesOf('loading-icon', readme)
   .addDecorator(withKnobs)
   .add('default', () => ({
     props: generateProps(),

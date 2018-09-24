@@ -10,7 +10,6 @@
 ## Props
 Progress bar uses the same props as [`<b-progress>`].
 
-
 ## Under the hood
 Progress bar uses [`<b-progress>`] internally.
 
