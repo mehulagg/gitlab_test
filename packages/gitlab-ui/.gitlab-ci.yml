@@ -103,7 +103,6 @@ upload_artifacts:
 
 publish:
   stage: release
-  when: manual
   script:
     - yarn install
     - $(yarn bin)/rollup -c
