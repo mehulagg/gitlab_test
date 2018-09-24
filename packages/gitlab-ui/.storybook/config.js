@@ -7,6 +7,7 @@ import Vue from "vue";
 import Pagination from '../components/base/pagination.vue';
 import progressBar from '../components/base/progress_bar.vue';
 import modal from '../components/base/modal.vue';
+import link from '../components/base/link.vue';
 import loadingIcon from '../components/base/loading_icon.vue';
 
 // Import your custom directives.
@@ -17,6 +18,7 @@ import vTooltip from '../directives/tooltip';
 Vue.component('gl-pagination', Pagination);
 Vue.component('gl-progress-bar', progressBar);
 Vue.component('gl-modal', modal);
+Vue.component('gl-link', link);
 Vue.component('gl-loading-icon', loadingIcon);
 
 // Register custom directives.
@@ -30,6 +32,7 @@ function loadStories() {
   require('../stories/base/modal');
   require('../stories/base/loading_icon');
   require('../stories/tooltip');
+  require('../stories/base/link');
 }
 
 setOptions({
