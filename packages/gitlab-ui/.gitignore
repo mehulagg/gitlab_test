@@ -1,6 +1,7 @@
+/dist/
 /node_modules/
+/storybook/
+/styles/application.css
 .idea
 .vscode
 yarn-error.log
-/styles/application.css
-/storybook/
