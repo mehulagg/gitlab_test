@@ -9,6 +9,7 @@ import progressBar from '../components/base/progress_bar.vue';
 import modal from '../components/base/modal.vue';
 import link from '../components/base/link.vue';
 import loadingIcon from '../components/base/loading_icon.vue';
+import skeletonLoading from '../components/base/skeleton_loading.vue';
 
 // Import your custom directives.
 import vModal from '../directives/modal';
@@ -20,6 +21,7 @@ Vue.component('gl-progress-bar', progressBar);
 Vue.component('gl-modal', modal);
 Vue.component('gl-link', link);
 Vue.component('gl-loading-icon', loadingIcon);
+Vue.component('gl-skeleton-loading', skeletonLoading);
 
 // Register custom directives.
 Vue.directive('gl-modal', vModal);
@@ -31,6 +33,7 @@ function loadStories() {
   require('../stories/base/progress_bar');
   require('../stories/base/modal');
   require('../stories/base/loading_icon');
+  require('../stories/base/skeleton_loading');
   require('../stories/tooltip');
   require('../stories/base/link');
 }
