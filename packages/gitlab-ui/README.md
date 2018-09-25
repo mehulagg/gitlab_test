@@ -17,5 +17,4 @@ See https://gitlab-org.gitlab.io/gitlab-ui/ for documentation.
 
 ## Contributing
 
-GitLab is an open source project and we are very happy to accept community contributions.
-Please refer to [CONTRIBUTING.md](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/CONTRIBUTING.md) for details.
+Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for details.
