@@ -1,6 +1,5 @@
 import initStoryshots from '@storybook/addon-storyshots';
 import { imageSnapshot } from '@storybook/addon-storyshots-puppeteer';
-import { timeoutStoryBeforeScreenshot } from './config';
 
 const beforeScreenshot = (page) =>
   page.addStyleTag({
