@@ -3,6 +3,11 @@ import { withKnobs, text, boolean, number, select } from '@storybook/addon-knobs
 import documentedStoriesOf from '../utils/documented_stories';
 import { variantOptions } from '../utils/constants';
 import readme from '../../documentation/progress_bar.md';
+import { ProgressBar } from '../../index';
+
+const components = {
+  'gl-progress-bar': ProgressBar,
+};
 
 const template = '<gl-progress-bar :value="value" :variant="variant" />';
 
@@ -26,11 +31,13 @@ documentedStoriesOf('progress-bar', readme)
   .addDecorator(withKnobs)
   .add('default', () => ({
     props: generateProps(),
+    components,
     template,
   }))
   .add('success variant', () => ({
     props: generateProps({
       variant: variantOptions.success,
     }),
+    components,
     template,
   }));

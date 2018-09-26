@@ -1,7 +1,13 @@
 import { storiesOf } from '@storybook/vue';
+import { TooltipDirective } from '../index';
+
+const directives = {
+  'gl-tooltip': TooltipDirective,
+};
 
 function makeTooltip(modifier = '') {
   return () => ({
+    directives,
     template: `
       <div class="d-flex align-items-center justify-content-center p-5 m-5">
         <button

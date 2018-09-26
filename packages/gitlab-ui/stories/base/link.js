@@ -2,6 +2,11 @@ import { withKnobs, text, select } from '@storybook/addon-knobs/vue';
 import documentedStoriesOf from '../utils/documented_stories';
 import { targetOptions } from '../utils/constants';
 import readme from '../../documentation/link.md';
+import { Link } from '../../index';
+
+const components = {
+  'gl-link': Link,
+};
 
 function generateProps({ href = '#' } = {}) {
   return {
@@ -20,6 +25,7 @@ documentedStoriesOf('link', readme)
   .addDecorator(withKnobs)
   .add('default link', () => ({
     props: generateProps(),
+    components,
     template: `
       <gl-link
         :href="href"

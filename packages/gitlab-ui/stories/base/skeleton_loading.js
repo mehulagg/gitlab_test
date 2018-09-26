@@ -3,6 +3,11 @@ import { withKnobs, boolean, number } from '@storybook/addon-knobs/vue';
 import documentedStoriesOf from '../utils/documented_stories';
 import { variantOptions } from '../utils/constants';
 import readme from '../../documentation/skeleton_loading.md';
+import { SkeletonLoading } from '../../index';
+
+const components = {
+  'gl-skeleton-loading': SkeletonLoading,
+};
 
 const template = '<gl-skeleton-loading :lines="lines" />';
 
@@ -25,5 +30,6 @@ documentedStoriesOf('skeleton-loading', readme)
   .addDecorator(withKnobs)
   .add('default', () => ({
     props: generateProps(),
+    components,
     template,
   }));

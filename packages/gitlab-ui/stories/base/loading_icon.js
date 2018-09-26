@@ -3,6 +3,11 @@ import { withKnobs, text, boolean, number } from '@storybook/addon-knobs/vue';
 import documentedStoriesOf from '../utils/documented_stories';
 import { variantOptions } from '../utils/constants';
 import readme from '../../documentation/loading_icon.md';
+import { LoadingIcon } from '../../index';
+
+const components = {
+  'gl-loading-icon': LoadingIcon,
+};
 
 const template = `
   <gl-loading-icon
@@ -40,11 +45,13 @@ documentedStoriesOf('loading-icon', readme)
   .addDecorator(withKnobs)
   .add('default', () => ({
     props: generateProps(),
+    components,
     template,
   }))
   .add('inline', () => ({
     props: generateProps({
       inline: true,
     }),
+    components,
     template,
   }));

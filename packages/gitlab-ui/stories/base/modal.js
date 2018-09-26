@@ -2,6 +2,15 @@ import Vue from 'vue';
 import { storiesOf } from '@storybook/vue';
 import { withKnobs, text, boolean, number, select } from '@storybook/addon-knobs/vue';
 import { variantOptionsWithNoDefault } from '../utils/constants';
+import { Modal, ModalDirective } from '../../index';
+
+const components = {
+  'gl-modal': Modal,
+};
+
+const directives = {
+  'gl-modal': ModalDirective,
+};
 
 function generateTemplate({ visible = false } = {}) {
   return `
@@ -75,9 +84,13 @@ storiesOf('modal', module)
   .addDecorator(withKnobs)
   .add('default', () => ({
     props: generateProps(),
+    components,
+    directives,
     template: generateTemplate(),
   }))
   .add('opened modal', () => ({
     props: generateProps(),
+    components,
+    directives,
     template: generateTemplate({ visible: true }),
   }));

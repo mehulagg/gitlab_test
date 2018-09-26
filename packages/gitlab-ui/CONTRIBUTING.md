@@ -7,7 +7,8 @@
    1. Be sure to name your MR `feat: <commit message>` as that is needed for our npm release CI job (don't forget to set the MR to squash commit)
    1. Create component.vue in `components/` directory
    1. Create a story `component.js` in stories/ directory
-   1. Import your component and story to `.storybook/config.js`
+   1. Import your story to `.storybook/config.js`
+   1. Import your component to `index.js`
    1. Create documentation.md in `documentation/` directory
    1. Run the manual CI job (update_snapshots) to generate your image snapshots for diffing
 
