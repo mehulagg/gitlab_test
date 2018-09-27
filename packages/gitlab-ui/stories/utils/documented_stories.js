@@ -17,7 +17,9 @@ const withCustomPreview = withDocs({
     template: `<div v-bind:style="styles"><slot></slot></div>`,
   },
   // Disable default footer's dashed bottom border
-  FooterComponent: {},
+  FooterComponent: {
+    render: () => {},
+  },
 });
 
 function documentedStoriesOf(storyName, readme) {
