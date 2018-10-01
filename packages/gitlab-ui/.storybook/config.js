@@ -12,6 +12,7 @@ function loadStories() {
   require('../stories/base/skeleton_loading');
   require('../stories/tooltip');
   require('../stories/base/link');
+  require('../stories/base/button');
 }
 
 setOptions({

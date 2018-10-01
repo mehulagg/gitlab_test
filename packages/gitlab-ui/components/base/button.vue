@@ -1,21 +1,21 @@
 <script>
-import BLink from 'bootstrap-vue/es/components/link/link';
+import BButton from 'bootstrap-vue/es/components/button/button';
 import RelMixin from '../mixins/rel_mixin';
 
 export default {
   components: {
-    BLink
+    BButton,
   },
   mixins: [RelMixin],
 };
 </script>
 <template>
-  <b-link
+  <b-button
     v-bind="$attrs"
     v-on="$listeners"
     :rel="relType"
     :target="target"
   >
     <slot></slot>
-  </b-link>
+  </b-button>
 </template>
