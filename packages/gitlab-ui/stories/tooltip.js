@@ -1,4 +1,5 @@
-import { storiesOf } from '@storybook/vue';
+import documentedStoriesOf from './utils/documented_stories';
+import readme from '../documentation/tooltip.md';
 import { TooltipDirective } from '../index';
 
 const directives = {
@@ -24,7 +25,7 @@ function makeTooltip(modifier = '') {
   });
 }
 
-storiesOf('tooltip', module)
+documentedStoriesOf('tooltip', readme)
   .add('defaults to top', makeTooltip())
   .add('to the right', makeTooltip('.right'))
   .add('to the bottom', makeTooltip('.bottom'))
