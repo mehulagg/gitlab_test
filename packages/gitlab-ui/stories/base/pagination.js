@@ -1,6 +1,7 @@
-import { storiesOf } from "@storybook/vue";
 import { withKnobs, number } from '@storybook/addon-knobs';
+import documentedStoriesOf from "../utils/documented_stories";
 import { Pagination } from '../../index';
+import readme from '../../documentation/pagination.md';
 
 const components = {
   'gl-pagination': Pagination,
@@ -33,7 +34,7 @@ function generateProps({
   };
 };
 
-storiesOf("pagination", module)
+documentedStoriesOf('pagination', readme)
   .addDecorator(withKnobs)
   .add("default", () => ({
     props: generateProps(),

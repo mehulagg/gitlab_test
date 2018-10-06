@@ -23,14 +23,6 @@ export default {
       type: Number,
       required: true,
     },
-    /**
-     * The limits prop is used to define pagination link limits
-     * based on Bootstrap's breakpoint sizes.
-     * It is strongly recommended you provide a 'default' property,
-     * even if you have accounted for all breakpoint sizes.
-     * While unlikely, it is possible breakpoints could change,
-     * thus, a default property ensures a graceful fallback.
-     */
     limits: {
       type: Object,
       require: false,
