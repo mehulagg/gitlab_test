@@ -1,4 +1,4 @@
-image: "dev.gitlab.org:5005/gitlab/gitlab-build-images:gitlab-ui"
+image: "dev.gitlab.org:5005/gitlab/gitlab-build-images:gitlab-puppeteer"
 
 stages:
     - build
