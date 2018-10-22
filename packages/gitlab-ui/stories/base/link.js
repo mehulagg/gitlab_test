@@ -2,10 +2,10 @@ import { withKnobs, text, select } from '@storybook/addon-knobs/vue';
 import documentedStoriesOf from '../utils/documented_stories';
 import { targetOptions } from '../utils/constants';
 import readme from '../../documentation/link.md';
-import { Link } from '../../index';
+import { glLink } from '../../index';
 
 const components = {
-  'gl-link': Link,
+  glLink,
 };
 
 function generateProps({ href = '#' } = {}) {

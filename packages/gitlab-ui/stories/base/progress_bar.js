@@ -3,10 +3,10 @@ import { withKnobs, text, boolean, number, select } from '@storybook/addon-knobs
 import documentedStoriesOf from '../utils/documented_stories';
 import { variantOptions } from '../utils/constants';
 import readme from '../../documentation/progress_bar.md';
-import { ProgressBar } from '../../index';
+import { glProgressBar } from '../../index';
 
 const components = {
-  'gl-progress-bar': ProgressBar,
+  glProgressBar,
 };
 
 const template = '<gl-progress-bar :value="value" :variant="variant" />';

@@ -6,10 +6,10 @@ import {
   targetOptions,
 } from "../utils/constants";
 import readme from '../../documentation/button.md';
-import { Button } from '../../index';
+import { glButton } from '../../index';
 
 const components = {
-  'gl-button': Button,
+  glButton,
 };
 
 function generateProps({

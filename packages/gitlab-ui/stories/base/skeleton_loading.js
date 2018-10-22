@@ -3,10 +3,10 @@ import { withKnobs, boolean, number } from '@storybook/addon-knobs/vue';
 import documentedStoriesOf from '../utils/documented_stories';
 import { variantOptions } from '../utils/constants';
 import readme from '../../documentation/skeleton_loading.md';
-import { SkeletonLoading } from '../../index';
+import { glSkeletonLoading } from '../../index';
 
 const components = {
-  'gl-skeleton-loading': SkeletonLoading,
+  glSkeletonLoading,
 };
 
 const template = '<gl-skeleton-loading :lines="lines" />';

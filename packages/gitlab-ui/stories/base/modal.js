@@ -2,14 +2,14 @@ import Vue from 'vue';
 import { storiesOf } from '@storybook/vue';
 import { withKnobs, text, boolean, number, select } from '@storybook/addon-knobs/vue';
 import { variantOptionsWithNoDefault } from '../utils/constants';
-import { Modal, ModalDirective } from '../../index';
+import { glModal, glModalDirective } from '../../index';
 
 const components = {
-  'gl-modal': Modal,
+  glModal,
 };
 
 const directives = {
-  'gl-modal': ModalDirective,
+  glModalDirective,
 };
 
 function generateTemplate({ visible = false } = {}) {
@@ -17,7 +17,7 @@ function generateTemplate({ visible = false } = {}) {
     <div>
       <button
         type="button"
-        v-gl-modal="'test-modal-id'"
+        v-gl-modal-directive="'test-modal-id'"
       >
         Open modal
       </button>

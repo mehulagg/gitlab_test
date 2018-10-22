@@ -1,9 +1,9 @@
 import documentedStoriesOf from './utils/documented_stories';
 import readme from '../documentation/tooltip.md';
-import { TooltipDirective } from '../index';
+import { glTooltipDirective } from '../index';
 
 const directives = {
-  'gl-tooltip': TooltipDirective,
+  glTooltipDirective,
 };
 
 function makeTooltip(modifier = '') {
@@ -12,7 +12,7 @@ function makeTooltip(modifier = '') {
     template: `
       <div class="d-flex align-items-center justify-content-center p-5 m-5">
         <button
-          v-gl-tooltip${modifier}
+          v-gl-tooltip-directive${modifier}
           title="some tooltip text"
         >
             Tooltip
