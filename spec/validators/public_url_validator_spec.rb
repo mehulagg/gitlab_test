@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe PublicUrlValidator do
-  include_examples 'url validator examples', described_class::DEFAULT_PROTOCOLS
+  include_examples 'url validator examples', AddressableUrlValidator::DEFAULT_OPTIONS[:schemes]
 
   context 'by default' do
     let(:validator) { described_class.new(attributes: [:link_url]) }
@@ -14,7 +14,7 @@ describe PublicUrlValidator do
 
       subject
 
-      expect(badge.errors.empty?).to be false
+      expect(badge.errors.empty?).to be_falsey
     end
 
     it 'blocks urls pointing to the local network' do
@@ -22,7 +22,7 @@ describe PublicUrlValidator do
 
       subject
 
-      expect(badge.errors.empty?).to be false
+      expect(badge.errors.empty?).to be_falsey
     end
   end
 end

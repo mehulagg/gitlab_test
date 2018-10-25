@@ -1,4 +1,4 @@
-RSpec.shared_examples 'url validator examples' do |protocols|
+RSpec.shared_examples 'url validator examples' do |schemes|
   let(:validator) { described_class.new(attributes: [:link_url], **options) }
   let!(:badge) { build(:badge, link_url: 'http://www.example.com') }
 
@@ -8,8 +8,8 @@ RSpec.shared_examples 'url validator examples' do |protocols|
     context 'with no options' do
       let(:options) { {} }
 
-      it "allows #{protocols.join(',')} protocols by default" do
-        expect(validator.send(:default_options)[:protocols]).to eq protocols
+      it "allows #{schemes.join(',')} schemes by default" do
+        expect(validator.options[:schemes]).to eq schemes
       end
 
       it 'checks that the url structure is valid' do
@@ -17,25 +17,25 @@ RSpec.shared_examples 'url validator examples' do |protocols|
 
         subject
 
-        expect(badge.errors.empty?).to be false
+        expect(badge.errors.empty?).to be_falsey
       end
     end
 
-    context 'with protocols' do
-      let(:options) { { protocols: %w[http] } }
+    context 'with schemes' do
+      let(:options) { { schemes: %w(http) } }
 
-      it 'allows urls with the defined protocols' do
+      it 'allows urls with the defined schemes' do
         subject
 
-        expect(badge.errors.empty?).to be true
+        expect(badge.errors.empty?).to be_truthy
       end
 
-      it 'add error if the url protocol does not match the selected ones' do
+      it 'add error if the url scheme does not match the selected ones' do
         badge.link_url = 'https://www.example.com'
 
         subject
 
-        expect(badge.errors.empty?).to be false
+        expect(badge.errors.empty?).to be_falsey
       end
     end
   end
