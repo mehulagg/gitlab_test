@@ -9,14 +9,25 @@ export default {
     target: {
       type: String,
       required: false,
-      default: null
-    }
+      default: null,
+    },
   },
   computed: {
     relType() {
-      if (this.$attrs.rel && this.$attrs.rel.length > 0) return this.$attrs.rel;
+      if (this.target === '_blank' && this.hostname !== window.location.hostname) {
+        return this.secureRel;
+      }
 
-      return this.target === "_blank" ? "noopener noreferrer" : "";
-    }
-  }
+      return this.$attrs.rel;
+    },
+    hostname() {
+      const anchor = document.createElement('a');
+      anchor.href = this.$attrs.href;
+
+      return anchor.hostname;
+    },
+    secureRel() {
+      return `${this.$attrs.rel || ''} noopener noreferrer`.trimStart();
+    },
+  },
 };
