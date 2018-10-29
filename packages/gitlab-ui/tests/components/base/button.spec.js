@@ -7,7 +7,9 @@ describe('button component', () => {
   describe('default settings', () => {
     let button;
 
-    beforeEach(() => button = mountWithOptions({ }));
+    beforeEach(() => {
+      button = mountWithOptions({});
+    });
 
     it('should not have a set rel attribute', () => {
       expect(
@@ -17,13 +19,13 @@ describe('button component', () => {
 
     it('should not have a target attribute', () => {
       expect(
-        button.vm.$el.getAttribute('target')
+        button.vm.$el.getAttribute('target'),
       ).toBe(null);
     });
 
     it('should not have a href attribute', () => {
       expect(
-        button.vm.$el.getAttribute('href')
+        button.vm.$el.getAttribute('href'),
       ).toBe(null);
     });
   });

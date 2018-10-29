@@ -1,7 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
 import BPagination from 'bootstrap-vue/es/components/pagination/pagination';
-import Pagination from '../../../components/base/pagination';
-import { breakpoints } from '../../../helpers/breakpoints.js';
+import Pagination from '../../../components/base/pagination.vue';
+import { breakpoints } from '../../../helpers/breakpoints';
 
 describe('pagination component', () => {
   const change = () => {};
@@ -9,7 +9,7 @@ describe('pagination component', () => {
     change,
     page: 3,
     perPage: 5,
-    totalItems: 30
+    totalItems: 30,
   };
   const mountWithOptions = shallowMount.bind(null, Pagination);
 
@@ -37,8 +37,8 @@ describe('pagination component', () => {
         change,
         page: 1,
         perPage: 10,
-        totalItems: 20
-      }
+        totalItems: 20,
+      },
     });
 
     expect(pagination.vm.hideGotoEndButtons).toBe(true);
@@ -50,8 +50,8 @@ describe('pagination component', () => {
         change,
         page: 1,
         perPage: 2,
-        totalItems: 50
-      }
+        totalItems: 50,
+      },
     });
 
     expect(pagination.vm.hideGotoEndButtons).toBe(false);
@@ -61,8 +61,8 @@ describe('pagination component', () => {
     const pagination = mountWithOptions({ propsData });
     const mockResizeWidth = width => {
       window.innerWidth = width;
-      const resizeEvent = document.createEvent("Event");
-      resizeEvent.initEvent("resize", true, true);
+      const resizeEvent = document.createEvent('Event');
+      resizeEvent.initEvent('resize', true, true);
       window.dispatchEvent(resizeEvent);
     };
 
@@ -86,10 +86,10 @@ describe('pagination component', () => {
         page: 1,
         perPage: 10,
         totalItems: 10,
-      }
+      },
     });
 
-    expect(pagination.html()).toBeUndefined()
+    expect(pagination.html()).toBeUndefined();
   });
 
   it('should change currentPage when page prop changes', () => {

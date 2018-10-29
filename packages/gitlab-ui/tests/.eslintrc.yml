@@ -1,0 +1,7 @@
+env:
+  jest: true
+extends: plugin:jest/recommended
+rules:
+  # We deactive the match-regex rule due to our jest files having the naming convention
+  # <spec_name>.spec.js
+  filenames/match-regex: off

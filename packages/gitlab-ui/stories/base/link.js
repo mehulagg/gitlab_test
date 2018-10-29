@@ -12,7 +12,7 @@ function generateProps({ href = '#' } = {}) {
   return {
     href: {
       type: String,
-      default: text('href', href)
+      default: text('href', href),
     },
     target: {
       type: String,
@@ -32,5 +32,5 @@ documentedStoriesOf('link', readme)
         :target="target"
       >
           This is a link
-      </gl-link>`
+      </gl-link>`,
   }));

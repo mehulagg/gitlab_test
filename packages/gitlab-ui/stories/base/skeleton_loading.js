@@ -1,7 +1,5 @@
-import Vue from 'vue';
-import { withKnobs, boolean, number } from '@storybook/addon-knobs/vue';
+import { withKnobs, number } from '@storybook/addon-knobs/vue';
 import documentedStoriesOf from '../utils/documented_stories';
-import { variantOptions } from '../utils/constants';
 import readme from '../../documentation/skeleton_loading.md';
 import { GlSkeletonLoading } from '../../index';
 
@@ -11,8 +9,7 @@ const components = {
 
 const template = '<gl-skeleton-loading :lines="lines" />';
 
-function generateProps({
-} = {}) {
+function generateProps() {
   return {
     lines: {
       type: Number,
@@ -22,7 +19,7 @@ function generateProps({
         max: 3,
         step: 1,
       }),
-    }
+    },
   };
 }
 

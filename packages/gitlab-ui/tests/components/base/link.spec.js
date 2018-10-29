@@ -7,7 +7,9 @@ describe('link component', () => {
   describe('default settings', () => {
     let link;
 
-    beforeEach(() => link = mountWithOptions({ }));
+    beforeEach(() => {
+      link = mountWithOptions({});
+    });
 
     it('should not have a set rel attribute', () => {
       expect(
@@ -17,7 +19,7 @@ describe('link component', () => {
 
     it('should not have a target attribute', () => {
       expect(
-        link.vm.$el.getAttribute('target')
+        link.vm.$el.getAttribute('target'),
       ).toBe(null);
     });
   });

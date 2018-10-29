@@ -1,8 +1,8 @@
 image: "dev.gitlab.org:5005/gitlab/gitlab-build-images:gitlab-puppeteer"
 
 stages:
-    - build
     - test
+    - build
     - deploy
     - release
 
@@ -16,6 +16,12 @@ build:
   artifacts:
     paths:
       - public
+
+lint:
+  stage: test
+  script:
+    - yarn install
+    - yarn lint
 
 visual:
   stage: test

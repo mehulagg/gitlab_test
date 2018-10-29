@@ -4,7 +4,7 @@ import {
   sizeOptionsWithNoDefault,
   buttonVariantOptions,
   targetOptions,
-} from "../utils/constants";
+} from '../utils/constants';
 import readme from '../../documentation/button.md';
 import { GlButton } from '../../index';
 
@@ -20,16 +20,16 @@ function generateProps({
   let props = {
     variant: {
       type: String,
-      default: select('variant', buttonVariantOptions, variant)
+      default: select('variant', buttonVariantOptions, variant),
     },
     size: {
       type: String,
-      default: select('size', sizeOptionsWithNoDefault, size)
+      default: select('size', sizeOptionsWithNoDefault, size),
     },
     disabled: {
       type: Boolean,
       default: boolean('disabled', false),
-    }
+    },
   };
 
   if (withLink) {
@@ -65,7 +65,7 @@ documentedStoriesOf('button', readme)
     `,
   }))
   .add('link button', () => ({
-    props: generateProps({ withLink: true}),
+    props: generateProps({ withLink: true }),
     components,
     template: `
       <gl-button

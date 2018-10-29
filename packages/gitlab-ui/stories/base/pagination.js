@@ -15,9 +15,7 @@ function generateProps({
   return {
     change: {
       type: Function,
-      default: (current, past) => console.log(
-        `switched from ${past} to ${current}`,
-      ),
+      default: () => {},
     },
     page: {
       type: Number,
@@ -32,11 +30,11 @@ function generateProps({
       default: number('total items', totalItems),
     },
   };
-};
+}
 
 documentedStoriesOf('pagination', readme)
   .addDecorator(withKnobs)
-  .add("default", () => ({
+  .add('default', () => ({
     props: generateProps(),
     components,
     template: `<gl-pagination
@@ -46,7 +44,7 @@ documentedStoriesOf('pagination', readme)
       :total-items="totalItems"
       />`,
   }))
-  .add("small", () => ({
+  .add('small', () => ({
     props: generateProps(),
     components,
     template: `<gl-pagination
@@ -57,7 +55,7 @@ documentedStoriesOf('pagination', readme)
       :total-items="totalItems"
       />`,
   }))
-  .add("large", () => ({
+  .add('large', () => ({
     props: generateProps(),
     components,
     template: `<gl-pagination

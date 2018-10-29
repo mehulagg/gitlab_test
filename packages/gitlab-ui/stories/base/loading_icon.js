@@ -1,7 +1,5 @@
-import Vue from 'vue';
 import { withKnobs, text, boolean, number } from '@storybook/addon-knobs/vue';
 import documentedStoriesOf from '../utils/documented_stories';
-import { variantOptions } from '../utils/constants';
 import readme from '../../documentation/loading_icon.md';
 import { GlLoadingIcon } from '../../index';
 

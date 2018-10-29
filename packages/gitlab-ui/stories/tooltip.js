@@ -1,8 +1,8 @@
+import { withKnobs, select } from '@storybook/addon-knobs/vue';
 import documentedStoriesOf from './utils/documented_stories';
 import readme from '../documentation/tooltip.md';
 import { tooltipPlacements } from './utils/constants';
 import { GlTooltip, GlTooltipDirective } from '../index';
-import { withKnobs, select } from '@storybook/addon-knobs/vue';
 
 const directives = {
   GlTooltipDirective,
@@ -26,8 +26,8 @@ function makeTooltip(modifier = '') {
       </div>
     `,
     mounted() {
-      this.$el.querySelector('button').focus()
-    }
+      this.$el.querySelector('button').focus();
+    },
   });
 }
 

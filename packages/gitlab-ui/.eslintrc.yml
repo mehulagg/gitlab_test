@@ -1,0 +1,13 @@
+---
+extends:
+  - '@gitlab'
+parserOptions:
+  parser: babel-eslint
+overrides:
+  files:
+    - rollup.config.js
+    - stories/*.js
+    - stories/**/*.js
+  rules:
+    filenames/match-regex: off
+    import/no-extraneous-dependencies: off

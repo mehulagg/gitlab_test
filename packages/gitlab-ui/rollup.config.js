@@ -13,11 +13,11 @@ export default glob
       input,
       output: {
         format: 'esm',
-        file: `dist/${outputFilename}.js`
+        file: `dist/${outputFilename}.js`,
       },
       plugins: [
         vue(),
         resolve(),
-      ]
+      ],
     };
   });

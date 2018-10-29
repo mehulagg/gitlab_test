@@ -1,6 +1,5 @@
-import Vue from 'vue';
 import { storiesOf } from '@storybook/vue';
-import { withKnobs, text, boolean, number, select } from '@storybook/addon-knobs/vue';
+import { withKnobs, select } from '@storybook/addon-knobs/vue';
 import { variantOptionsWithNoDefault } from '../utils/constants';
 import { GlModal, GlModalDirective } from '../../index';
 
@@ -42,7 +41,7 @@ function generateTemplate({ visible = false } = {}) {
 }
 
 function generateProps({
-  variant = variantOptionsWithNoDefault.default
+  variant = variantOptionsWithNoDefault.default,
 } = {}) {
   return {
     headerBgVariant: {
@@ -77,7 +76,7 @@ function generateProps({
       type: String,
       default: select('footer text', variantOptionsWithNoDefault, variant),
     },
-  }
+  };
 }
 
 storiesOf('modal', module)

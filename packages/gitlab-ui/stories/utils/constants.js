@@ -16,11 +16,11 @@ export const variantOptions = {
 };
 
 export const targetOptions = {
-  self: "_self",
-  blank: "_blank",
-  parent: "_parent",
-  top: "_top",
-  null: ""
+  self: '_self',
+  blank: '_blank',
+  parent: '_parent',
+  top: '_top',
+  null: '',
 };
 
 export const sizeOptions = {
