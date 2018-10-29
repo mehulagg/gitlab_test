@@ -1,9 +1,9 @@
 import documentedStoriesOf from './utils/documented_stories';
 import readme from '../documentation/tooltip.md';
-import { glTooltipDirective } from '../index';
+import { GlTooltipDirective } from '../index';
 
 const directives = {
-  glTooltipDirective,
+  GlTooltipDirective,
 };
 
 function makeTooltip(modifier = '') {

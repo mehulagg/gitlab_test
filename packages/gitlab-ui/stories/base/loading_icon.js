@@ -3,10 +3,10 @@ import { withKnobs, text, boolean, number } from '@storybook/addon-knobs/vue';
 import documentedStoriesOf from '../utils/documented_stories';
 import { variantOptions } from '../utils/constants';
 import readme from '../../documentation/loading_icon.md';
-import { glLoadingIcon } from '../../index';
+import { GlLoadingIcon } from '../../index';
 
 const components = {
-  glLoadingIcon,
+  GlLoadingIcon,
 };
 
 const template = `

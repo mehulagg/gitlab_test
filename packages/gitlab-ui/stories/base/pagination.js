@@ -1,10 +1,10 @@
 import { withKnobs, number } from '@storybook/addon-knobs';
 import documentedStoriesOf from "../utils/documented_stories";
-import { glPagination } from '../../index';
+import { GlPagination } from '../../index';
 import readme from '../../documentation/pagination.md';
 
 const components = {
-  glPagination,
+  GlPagination,
 };
 
 function generateProps({

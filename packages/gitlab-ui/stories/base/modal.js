@@ -2,14 +2,14 @@ import Vue from 'vue';
 import { storiesOf } from '@storybook/vue';
 import { withKnobs, text, boolean, number, select } from '@storybook/addon-knobs/vue';
 import { variantOptionsWithNoDefault } from '../utils/constants';
-import { glModal, glModalDirective } from '../../index';
+import { GlModal, GlModalDirective } from '../../index';
 
 const components = {
-  glModal,
+  GlModal,
 };
 
 const directives = {
-  glModalDirective,
+  GlModalDirective,
 };
 
 function generateTemplate({ visible = false } = {}) {
