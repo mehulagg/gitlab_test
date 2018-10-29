@@ -6,6 +6,7 @@ export { default as GlPagination } from './components/base/pagination.vue';
 export { default as GlProgressBar } from './components/base/progress_bar.vue';
 export { default as GlSkeletonLoading } from './components/base/skeleton_loading.vue';
 export { default as GlButton } from './components/base/button.vue';
+export { default as GlTooltip } from './components/base/tooltip.vue';
 
 // Directives
 export { default as GlModalDirective } from './directives/modal';

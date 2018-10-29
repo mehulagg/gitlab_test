@@ -42,5 +42,12 @@ export const buttonVariantOptions = {
   'outline-danger': 'outline-danger',
 };
 
+export const tooltipPlacements = {
+  top: 'top',
+  left: 'left',
+  right: 'right',
+  bottom: 'bottom',
+};
+
 export const variantOptionsWithNoDefault = appendDefaultOption(variantOptions);
 export const sizeOptionsWithNoDefault = appendDefaultOption(sizeOptions);
