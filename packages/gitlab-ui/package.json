@@ -26,6 +26,11 @@
     "@semantic-release/git": "^7.0.1",
     "@semantic-release/gitlab": "^2.1.4",
     "@semantic-release/npm": "^4.0.1",
+    "@storybook/addon-knobs": "^4.0.0-alpha.16",
+    "@storybook/addon-options": "^4.0.0-alpha.16",
+    "@storybook/addon-storyshots": "^4.0.0-alpha.16",
+    "@storybook/addon-storyshots-puppeteer": "^4.0.0-alpha.16",
+    "@storybook/vue": "^4.0.0-alpha.16",
     "@vue/test-utils": "^1.0.0-beta.20",
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.6",
@@ -39,14 +44,10 @@
     "moment": "^2.22.2",
     "puppeteer": "^1.5.0",
     "rollup": "^0.63.0",
+    "rollup-plugin-babel": "^3.0.7",
     "rollup-plugin-node-resolve": "^3.3.0",
     "rollup-plugin-vue": "^4.3.1",
     "semantic-release": "15",
-    "@storybook/addon-knobs": "^4.0.0-alpha.16",
-    "@storybook/addon-options": "^4.0.0-alpha.16",
-    "@storybook/addon-storyshots": "^4.0.0-alpha.16",
-    "@storybook/addon-storyshots-puppeteer": "^4.0.0-alpha.16",
-    "@storybook/vue": "^4.0.0-alpha.16",
     "storybook-readme": "^4.0.0-beta1",
     "vue-jest": "^2.6.0",
     "vue-loader": "^15.4.0",
@@ -64,7 +65,7 @@
     },
     "transform": {
       "^.+\\.js$": "babel-jest",
-      ".*\\.(vue)$": "vue-jest",
+      "^.+\\.vue$": "vue-jest",
       "^.+\\.md?$": "markdown-loader-jest"
     },
     "transformIgnorePatterns": [
@@ -75,6 +76,17 @@
     ]
   },
   "babel": {
+    "presets": [
+      [
+        "env",
+        {
+          "modules": false,
+          "targets": {
+            "ie": "11"
+          }
+        }
+      ]
+    ],
     "env": {
       "test": {
         "presets": [

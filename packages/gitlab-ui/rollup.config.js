@@ -1,3 +1,4 @@
+import babel from 'rollup-plugin-babel';
 import vue from 'rollup-plugin-vue';
 import resolve from 'rollup-plugin-node-resolve';
 import glob from 'glob';
@@ -17,6 +18,9 @@ export default glob
       },
       plugins: [
         vue(),
+        babel({
+          exclude: ['node_modules/**'],
+        }),
         resolve(),
       ],
     };
