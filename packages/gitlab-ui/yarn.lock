@@ -293,11 +293,6 @@
   resolved "https://registry.yarnpkg.com/@emotion/utils/-/utils-0.7.3.tgz#4240c5eee8af86843452af7497ac2808be04a77d"
   integrity sha512-1bGqG9IYJETOOqQEjWinGx1deLlAW/Fcew4GyrzZx0dJIgAjivZTmwzjrhB+Vhj7TgjMr0aTyj5byHmZezisZQ==
 
-"@gitlab-org/gitlab-svgs@^1.23.0":
-  version "1.26.0"
-  resolved "https://registry.yarnpkg.com/@gitlab-org/gitlab-svgs/-/gitlab-svgs-1.26.0.tgz#d89c633e866d031a9e4787b05eacc7144c3a7791"
-  integrity sha512-35/HRxhZwVbzXMFZgscPiOsyhsGQULRwMx57qBiMtnmntawsT5JL2n2MQIaDBklSZ2r8xT+Nn2BQyO/EYrDbYQ==
-
 "@gitlab/eslint-config@^1.1.0":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@gitlab/eslint-config/-/eslint-config-1.1.1.tgz#0f4b096ba0870e7f7180eff8cf856dfc4d19f5fd"
