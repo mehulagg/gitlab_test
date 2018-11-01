@@ -119,3 +119,6 @@ module QA
     end
   end
 end
+
+QA::Page::Project::WebIDE::Edit.prepend(QA::EE::Page::Component::WebIDE::WebTerminalPanel)
+QA::Page::Project::WebIDE::Edit.prepend(QA::Page::Component::WebIDE::Alert)
