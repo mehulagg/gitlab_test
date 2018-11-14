@@ -1,6 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import BPagination from 'bootstrap-vue/es/components/pagination/pagination';
-import Pagination from '../../../components/base/pagination.vue';
+import Pagination from '../../../components/base/pagination/pagination.vue';
 import { breakpoints } from '../../../helpers/breakpoints';
 
 describe('pagination component', () => {
@@ -17,18 +17,10 @@ describe('pagination component', () => {
     const pagination = mountWithOptions({ propsData });
     const bPagination = pagination.find(BPagination);
 
-    expect(
-      bPagination,
-    ).not.toBeUndefined();
-    expect(
-      bPagination.vm.perPage,
-    ).toBe(propsData.perPage);
-    expect(
-      bPagination.vm.totalRows,
-    ).toBe(propsData.totalItems);
-    expect(
-      bPagination.vm.$attrs.limit,
-    ).toBe(pagination.vm.paginationLimit);
+    expect(bPagination).not.toBeUndefined();
+    expect(bPagination.vm.perPage).toBe(propsData.perPage);
+    expect(bPagination.vm.totalRows).toBe(propsData.totalItems);
+    expect(bPagination.vm.$attrs.limit).toBe(pagination.vm.paginationLimit);
   });
 
   it('should hide go to end buttons', () => {

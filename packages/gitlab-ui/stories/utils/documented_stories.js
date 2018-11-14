@@ -1,5 +1,12 @@
+import camelCase from 'lodash/camelCase';
+import upperFirst from 'lodash/upperFirst';
+
 import { storiesOf } from '@storybook/vue';
 import { withDocs } from 'storybook-readme';
+
+import 'url-search-params-polyfill';
+
+import { GlExampleExplorer, GlComponentDocumentation } from '../../documentation';
 
 const withCustomPreview = withDocs({
   PreviewComponent: {
@@ -18,7 +25,23 @@ const withCustomPreview = withDocs({
   },
   // Disable default footer's dashed bottom border
   FooterComponent: {
-    render: () => {},
+    data() {
+      return {
+        componentName: 'Link',
+      };
+    },
+    components: {
+      GlComponentDocumentation,
+      GlExampleExplorer,
+    },
+    template: `<div>
+                <gl-example-explorer :componentName="componentName" /><br/>
+                <gl-component-documentation :componentName="componentName" />
+              </div>`,
+    mounted() {
+      const urlParams = new URLSearchParams(window.location.search);
+      this.componentName = `Gl${upperFirst(camelCase(urlParams.get('selectedKind')))}`;
+    },
   },
 });
 

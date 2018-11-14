@@ -1,10 +1,10 @@
 <script>
-import BPagination from "bootstrap-vue/es/components/pagination/pagination";
-import Breakpoints, { breakpoints } from "../../helpers/breakpoints.js";
+import BPagination from 'bootstrap-vue/es/components/pagination/pagination';
+import Breakpoints, { breakpoints } from '../../../helpers/breakpoints.js';
 
 export default {
   components: {
-    BPagination
+    BPagination,
   },
   props: {
     change: {
@@ -33,13 +33,10 @@ export default {
         default: 11,
       }),
       validator: value => {
-        const missingSizes = Object.keys(breakpoints)
-          .filter(size => !value.hasOwnProperty(size))
+        const missingSizes = Object.keys(breakpoints).filter(size => !value.hasOwnProperty(size))
           .length;
 
-        return missingSizes === 0
-          ? true
-          : value.hasOwnProperty('default');
+        return missingSizes === 0 ? true : value.hasOwnProperty('default');
       },
     },
   },
@@ -77,7 +74,7 @@ export default {
   methods: {
     setBreakpoint() {
       this.breakpoint = Breakpoints.getBreakpointSize();
-    }
+    },
   },
 };
 </script>

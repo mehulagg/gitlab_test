@@ -1,8 +1,8 @@
 import { withKnobs, select } from '@storybook/addon-knobs/vue';
-import documentedStoriesOf from './utils/documented_stories';
-import readme from '../documentation/tooltip.md';
-import { tooltipPlacements } from './utils/constants';
-import { GlTooltip, GlTooltipDirective } from '../index';
+import documentedStoriesOf from '../utils/documented_stories';
+import readme from '../../components/base/tooltip/tooltip.md';
+import { tooltipPlacements } from '../utils/constants';
+import { GlTooltip, GlTooltipDirective } from '../../index';
 
 const directives = {
   GlTooltipDirective,
@@ -31,14 +31,12 @@ function makeTooltip(modifier = '') {
   });
 }
 
-function generateProps({
-  placement = tooltipPlacements.top
-} = {}) {
+function generateProps({ placement = tooltipPlacements.top } = {}) {
   return {
     placement: {
       type: String,
       default: select('placement', tooltipPlacements, placement),
-    }
+    },
   };
 }
 
@@ -59,10 +57,8 @@ function generateTooltip() {
       </div>
     `,
     mounted() {
-      this.$nextTick(() => 
-        this.$el.querySelector('button').focus()
-      );
-    }
+      this.$nextTick(() => this.$el.querySelector('button').focus());
+    },
   });
 }
 

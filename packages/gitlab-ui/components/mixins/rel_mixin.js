@@ -2,7 +2,7 @@
  * Mixin that handles the rel attribute/property for _blank targets
  * adds the "noopener noreferrer" to the rel attribute if the target has the aforementioned value
  * and if the target or rel haven't been set before
-*/
+ */
 
 export default {
   props: {
@@ -27,7 +27,7 @@ export default {
       return anchor.hostname;
     },
     secureRel() {
-      return `${this.$attrs.rel || ''} noopener noreferrer`.trimStart();
+      return `${this.$attrs.rel || ''} noopener noreferrer`.trim();
     },
   },
 };

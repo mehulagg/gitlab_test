@@ -15,6 +15,6 @@ See https://gitlab-org.gitlab.io/gitlab-ui/ for documentation.
 
 `$ npm install @gitlab-org/gitlab-ui`
 
-## Contributing
+## Contributing guide
 
-Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to add new components and contribute in general.

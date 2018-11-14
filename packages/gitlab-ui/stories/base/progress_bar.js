@@ -1,7 +1,6 @@
 import { withKnobs, number, select } from '@storybook/addon-knobs/vue';
 import documentedStoriesOf from '../utils/documented_stories';
 import { variantOptions } from '../utils/constants';
-import readme from '../../documentation/progress_bar.md';
 import { GlProgressBar } from '../../index';
 
 const components = {
@@ -10,10 +9,7 @@ const components = {
 
 const template = '<gl-progress-bar :value="value" :variant="variant" />';
 
-function generateProps({
-  value = 30,
-  variant = variantOptions.primary,
-} = {}) {
+function generateProps({ value = 30, variant = variantOptions.primary } = {}) {
   return {
     value: {
       type: Number,
@@ -26,7 +22,7 @@ function generateProps({
   };
 }
 
-documentedStoriesOf('progress-bar', readme)
+documentedStoriesOf('progress-bar', '')
   .addDecorator(withKnobs)
   .add('default', () => ({
     props: generateProps(),

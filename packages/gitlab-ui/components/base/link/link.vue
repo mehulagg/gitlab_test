@@ -1,10 +1,10 @@
 <script>
 import BLink from 'bootstrap-vue/es/components/link/link';
-import RelMixin from '../mixins/rel_mixin';
+import RelMixin from '../../mixins/rel_mixin';
 
 export default {
   components: {
-    BLink
+    BLink,
   },
   mixins: [RelMixin],
 };
@@ -12,10 +12,10 @@ export default {
 <template>
   <b-link
     v-bind="$attrs"
-    v-on="$listeners"
     :rel="relType"
     :target="target"
+    v-on="$listeners"    
   >
-    <slot></slot>
+    <slot/>
   </b-link>
 </template>

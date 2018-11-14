@@ -6,11 +6,9 @@
 # Storybook
 /.storybook/
 /storybook/
-/stories/
 /public/
 
 # Misc
-/documentation/
 /styles/application.css
 
 # Test & Build

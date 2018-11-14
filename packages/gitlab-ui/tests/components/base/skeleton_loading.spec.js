@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import SkeletonLoading from '../../../components/base/skeleton_loading.vue';
+import SkeletonLoading from '../../../components/base/skeleton_loading/skeleton_loading.vue';
 
 describe('skeleton loading component', () => {
   const mountWithOptions = shallowMount.bind(null, SkeletonLoading);

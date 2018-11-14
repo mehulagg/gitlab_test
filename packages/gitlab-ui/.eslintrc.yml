@@ -1,4 +1,3 @@
----
 extends:
   - '@gitlab'
 parserOptions:
@@ -8,6 +7,9 @@ overrides:
     - rollup.config.js
     - stories/*.js
     - stories/**/*.js
+    - components/**/*.documentation.js
   rules:
+    # We deactive the match-regex rule due to our documentation files having the naming convention
+    # <component_name>.documentation.js
     filenames/match-regex: off
     import/no-extraneous-dependencies: off

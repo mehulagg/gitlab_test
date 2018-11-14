@@ -7,13 +7,6 @@
 <gl-loading-icon />
 ~~~
 
-## Props
-| Property | Type | Default Value | Validation |
-|---|---|---|---|
-| label | String | Loading | |
-| size | Number | 1 | 1 to 5 |
-| inline | Boolean | false | |
-
 ## Under the hood
 Loading icon uses [Font Awesome 4.7.0]'s `fa-spinner` to render the spinner.
 

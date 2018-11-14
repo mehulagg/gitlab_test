@@ -1,7 +1,7 @@
 import { withKnobs, text, select } from '@storybook/addon-knobs/vue';
 import documentedStoriesOf from '../utils/documented_stories';
 import { targetOptions } from '../utils/constants';
-import readme from '../../documentation/link.md';
+import readme from '../../components/base/link/link.md';
 import { GlLink } from '../../index';
 
 const components = {

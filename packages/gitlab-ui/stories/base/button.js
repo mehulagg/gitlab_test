@@ -5,7 +5,7 @@ import {
   buttonVariantOptions,
   targetOptions,
 } from '../utils/constants';
-import readme from '../../documentation/button.md';
+import readme from '../../components/base/button/button.md';
 import { GlButton } from '../../index';
 
 const components = {

@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import LoadingIcon from '../../../components/base/loading_icon.vue';
+import LoadingIcon from '../../../components/base/loading_icon/loading_icon.vue';
 
 describe('loading icon component', () => {
   const mountWithOptions = shallowMount.bind(null, LoadingIcon);

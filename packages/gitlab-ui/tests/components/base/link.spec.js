@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import Link from '../../../components/base/link.vue';
+import Link from '../../../components/base/link/link.vue';
 
 describe('link component', () => {
   const mountWithOptions = shallowMount.bind(null, Link);
@@ -12,9 +12,7 @@ describe('link component', () => {
     });
 
     it('should not have a set rel attribute', () => {
-      expect(
-        link.vm.relType
-      ).toBeUndefined();
+      expect(link.vm.relType).toBeUndefined();
     });
 
     it('should not have a target attribute', () => {
@@ -35,20 +33,16 @@ describe('link component', () => {
         },
         computed: {
           hostname: mockedHostFunction,
-        }
+        },
       });
 
-      expect(
-        link.vm.relType
-      ).toBe('noopener noreferrer');
+      expect(link.vm.relType).toBe('noopener noreferrer');
     });
 
     it('should keep rel attribute for hrefs in the same domain', () => {
       const linkWithRel = mountWithOptions({ attrs: { rel: 'noopener' } });
 
-      expect(
-        linkWithRel.vm.relType
-      ).toEqual('noopener');
+      expect(linkWithRel.vm.relType).toEqual('noopener');
     });
   });
 });

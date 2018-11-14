@@ -1,6 +1,6 @@
 import { withKnobs, text, boolean, number } from '@storybook/addon-knobs/vue';
 import documentedStoriesOf from '../utils/documented_stories';
-import readme from '../../documentation/loading_icon.md';
+import readme from '../../components/base/loading_icon/loading_icon.md';
 import { GlLoadingIcon } from '../../index';
 
 const components = {
@@ -15,9 +15,7 @@ const template = `
   />
 `;
 
-function generateProps({
-  inline,
-} = {}) {
+function generateProps({ inline } = {}) {
   return {
     label: {
       type: String,

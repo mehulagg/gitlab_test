@@ -1,6 +1,6 @@
 <script>
 import BButton from 'bootstrap-vue/es/components/button/button';
-import RelMixin from '../mixins/rel_mixin';
+import RelMixin from '../../mixins/rel_mixin';
 
 export default {
   components: {
@@ -12,10 +12,10 @@ export default {
 <template>
   <b-button
     v-bind="$attrs"
-    v-on="$listeners"
     :rel="relType"
     :target="target"
+    v-on="$listeners"
   >
-    <slot></slot>
+    <slot />
   </b-button>
 </template>
