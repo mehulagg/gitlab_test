@@ -19,8 +19,14 @@ import * as Documentation from '../components_documentation.js';
 // This is only for design.gitlab.com and shouldn't be done in our actual application
 Vue.use(BootstrapVue);
 Object.keys(gitlabComponents).forEach(comp => {
-  Vue.component(comp, gitlabComponents[comp]);
+  if (!comp.includes('Directive')) {
+    Vue.component(comp, gitlabComponents[comp]);
+  }
 });
+
+// We need to do Directives for now manually
+Vue.directive('gl-tooltip', gitlabComponents.GlTooltipDirective);
+Vue.directive('gl-modal', gitlabComponents.GlModalDirective);
 
 function findComponentExample(exampleName) {
   /* eslint-disable no-restricted-syntax */

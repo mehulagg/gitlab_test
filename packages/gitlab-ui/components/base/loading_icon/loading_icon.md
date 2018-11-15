@@ -1,12 +1,3 @@
-# Loading Icon
-
-<!-- STORY -->
-
-## Usage
-~~~js
-<gl-loading-icon />
-~~~
-
 ## Under the hood
 Loading icon uses [Font Awesome 4.7.0]'s `fa-spinner` to render the spinner.
 

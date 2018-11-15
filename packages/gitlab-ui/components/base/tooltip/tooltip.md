@@ -1,7 +1,3 @@
-# Tooltip
-
-<!-- STORY -->
-
 ## Usage
 Using the tooltip component is recommended if you have HTML content. In all other cases, please use the directive.
 
@@ -27,10 +23,6 @@ Using the tooltip component is recommended if you have HTML content. In all othe
   ...
 </element>
 ~~~
-
-## Props
-
-Tooltip uses the same props as [`<b-tooltip>`].
 
 ## Directive attributes
 

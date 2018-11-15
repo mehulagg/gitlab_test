@@ -1,7 +1,9 @@
 import * as description from './modal.md';
+import examples from './examples';
 
 export default {
   description,
+  examples,
   slots: [
     {
       name: 'modal-header',
