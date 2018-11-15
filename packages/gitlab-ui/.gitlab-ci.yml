@@ -1,8 +1,8 @@
 image: "dev.gitlab.org:5005/gitlab/gitlab-build-images:gitlab-puppeteer"
 
 stages:
-    - test
     - build
+    - test
     - deploy
     - release
 
