@@ -3,13 +3,11 @@ Using the tooltip component is recommended if you have HTML content. In all othe
 
 **Using the component**
 ~~~js
-<gl-button id="ref2">
+<gl-button ref="someButton">
   ...
 </gl-button>
 
-<gl-tooltip
-  target="ref2"
->
+<gl-tooltip :target="() => $refs.someButton">
   some <em>tooltip<em/> text
 </gl-tooltip>
 ~~~
