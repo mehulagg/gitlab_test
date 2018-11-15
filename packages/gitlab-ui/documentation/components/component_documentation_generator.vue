@@ -253,7 +253,7 @@ export default {
     <h3>Import</h3>
 
     <p>
-      <code>import { {{ componentName }} } from '@gitlab-org/gitlab-ui';</code>
+      <code>import { {{ componentName }} } from '@gitlab/ui';</code>
     </p>
 
     <template v-if="bootstrapComponentName">

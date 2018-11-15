@@ -13,7 +13,7 @@
    1. Run the manual CI job (update_snapshots) to generate your image snapshots for diffing
 
 1. Create a MR to gitlab-ce/ee to replace the scenario implementation (if any) that you previously selected
-1. Update your package.json dependency reference of @gitlab-org/gitlab-ui to the URL output of the upload_artifacts ci job in your gitlab-ui MR
+1. Update your package.json dependency reference of @gitlab/ui to the URL output of the upload_artifacts ci job in your gitlab-ui MR
 1. Run yarn install to make sure that the gitlab-ui contents are installed
 1. If your new component is used on every page, import to app/assets/javascripts/commons/gitlab_ui.js so that your component is globally registered
 1. Once you've verified that your integration MR to gitlab-ce/ee is working, assign a maintainer to review both gitlab-ui and gitlab-ce/ee MRs (a list of maintainers can be found on the [team](https://about.gitlab.com/team/) page)
