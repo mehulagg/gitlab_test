@@ -10,7 +10,7 @@
   "scripts": {
     "build": "rollup -c",
     "clean": "rm -r dist storybook",
-    "download-application-css": "sh .storybook/utils/download-application-css.sh",
+    "download-application-css": ".storybook/utils/download-application-css.sh",
     "storybook": "yarn run download-application-css && start-storybook -p 9001 -c .storybook -s ./styles",
     "storybook-static": "yarn run download-application-css && build-storybook -c .storybook -o storybook -s ./styles",
     "test": "NODE_ENV=test yarn run storybook-static && jest",
