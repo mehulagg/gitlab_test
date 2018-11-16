@@ -10,9 +10,8 @@
   "scripts": {
     "build": "rollup -c",
     "clean": "rm -r dist storybook",
-    "download-application-css": ".storybook/utils/download-application-css.sh",
-    "storybook": "yarn run download-application-css && start-storybook -p 9001 -c .storybook -s ./styles",
-    "storybook-static": "yarn run download-application-css && build-storybook -c .storybook -o storybook -s ./styles",
+    "storybook": "start-storybook -p 9001 -c .storybook",
+    "storybook-static": "build-storybook -c .storybook -o storybook",
     "test": "NODE_ENV=test yarn run storybook-static && jest",
     "lint": "eslint ."
   },

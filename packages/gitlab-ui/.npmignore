@@ -8,9 +8,6 @@
 /storybook/
 /public/
 
-# Misc
-/styles/application.css
-
 # Test & Build
 /tests/
 /.gitlab-ci.yml
