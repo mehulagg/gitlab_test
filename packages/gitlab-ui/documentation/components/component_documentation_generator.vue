@@ -194,7 +194,8 @@ export default {
           slot="required"
           slot-scope="data"
         >
-          <span v-if="data.value===true">X</span>
+          <span v-if="data.value===true">✅</span>
+          <span v-else>❎</span>
         </template>
         <template
           slot="val"
