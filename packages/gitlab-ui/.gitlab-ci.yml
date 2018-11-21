@@ -56,7 +56,7 @@ review:
     url: http://$CI_COMMIT_REF_SLUG.$APPS_DOMAIN
     on_stop: review_stop
   only:
-    - branches
+    - branches@gitlab-org/gitlab-ui
   except:
     - master
   tags:
@@ -73,7 +73,7 @@ review_stop:
     name: review/$CI_COMMIT_REF_SLUG
     action: stop
   only:
-    - branches
+    - branches@gitlab-org/gitlab-ui
   except:
     - master
   tags:
