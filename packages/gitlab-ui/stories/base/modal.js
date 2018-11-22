@@ -1,5 +1,5 @@
-import { storiesOf } from '@storybook/vue';
 import { withKnobs, select } from '@storybook/addon-knobs/vue';
+import documentedStoriesOf from '../utils/documented_stories';
 import { variantOptionsWithNoDefault } from '../utils/constants';
 import { GlModal, GlModalDirective } from '../../index';
 
@@ -40,9 +40,7 @@ function generateTemplate({ visible = false } = {}) {
   `;
 }
 
-function generateProps({
-  variant = variantOptionsWithNoDefault.default,
-} = {}) {
+function generateProps({ variant = variantOptionsWithNoDefault.default } = {}) {
   return {
     headerBgVariant: {
       type: String,
@@ -79,7 +77,7 @@ function generateProps({
   };
 }
 
-storiesOf('modal', module)
+documentedStoriesOf('modal', '')
   .addDecorator(withKnobs)
   .add('default', () => ({
     props: generateProps(),

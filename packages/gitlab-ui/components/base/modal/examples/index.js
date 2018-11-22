@@ -5,7 +5,7 @@ export default [
     name: 'Basic',
     items: [
       {
-        id: 'skeleton-loader-basic',
+        id: 'modal-basic',
         name: 'Basic',
         description: 'Basic Modal',
         component: ModalBasicExample,

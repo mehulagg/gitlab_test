@@ -26,7 +26,7 @@ Object.keys(gitlabComponents).forEach(comp => {
 
 // We need to do Directives for now manually
 Vue.directive('gl-tooltip', gitlabComponents.GlTooltipDirective);
-Vue.directive('gl-modal', gitlabComponents.GlModalDirective);
+Vue.directive('gl-modal-directive', gitlabComponents.GlModalDirective);
 
 function findComponentExample(exampleName) {
   /* eslint-disable no-restricted-syntax */

@@ -221,7 +221,6 @@ export default {
       <h4>Slots</h4>
       <b-table
         :items="displaySlots"
-        :fields="slotsFields"
         small
         head-variant="default"
         striped
