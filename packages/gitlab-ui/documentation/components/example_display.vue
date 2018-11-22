@@ -15,6 +15,8 @@ import * as gitlabComponents from '../../index.js';
 
 import * as Documentation from '../components_documentation.js';
 
+import JsfiddleButton from './jsfiddle_button.vue';
+
 // We need to register globally all components as we don't know the components that are used in the dynamically compiled .example.vue files
 // This is only for design.gitlab.com and shouldn't be done in our actual application
 Vue.use(BootstrapVue);
@@ -49,6 +51,9 @@ function findComponentExample(exampleName) {
 const animationTimeout = 2000;
 
 export default {
+  components: {
+    JsfiddleButton,
+  },
   props: {
     exampleName: {
       type: String,
@@ -179,6 +184,10 @@ export default {
               <b-button-group size="sm" class="mx-1">
                 <b-btn v-b-toggle.collapseSource>Source</b-btn>
                 <b-btn v-b-toggle.collapseHTML>HTML</b-btn>
+                <jsfiddle-button
+                  :example-name="exampleName"
+                  :source="source"
+                />
               </b-button-group>
             </b-col>
           </b-row>
