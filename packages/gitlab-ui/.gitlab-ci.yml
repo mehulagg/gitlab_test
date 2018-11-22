@@ -22,6 +22,7 @@ lint:
   script:
     - yarn install
     - yarn lint
+    - yarn prettier --list-different **/*.{js,vue}
 
 visual:
   stage: test
