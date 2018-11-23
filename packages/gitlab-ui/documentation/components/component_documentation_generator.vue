@@ -122,9 +122,6 @@ export default {
     displaySlots() {
       return this.documentationInfo.slots || [];
     },
-    followsDesignSystem() {
-      return this.documentationInfo.followsDesignSystem || false;
-    },
   },
   methods: {
     getPropsMap: props => {
@@ -165,14 +162,6 @@ export default {
 
 <template>
   <div v-if="actualComponent.options">
-    <b-alert 
-      v-if="!followsDesignSystem"
-      show
-      variant="warning"
-    >
-      This component does not yet conform to the correct styling defined in our <a href="https://design.gitlab.com/">Design System</a>. Refer to the <a href="https://design.gitlab.com/">Design System</a> documentation when referencing visuals for this component.
-    </b-alert>
-
     <div v-if="displayComponentProperties.length > 0">
       <h3>Props</h3>
       <b-table
