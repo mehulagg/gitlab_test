@@ -20,14 +20,17 @@ Vue.use(BootstrapVue);
 
 function getPropDefaultValue(defaultValue) {
   let returnValue = '';
+  if (isString(defaultValue)) {
+    returnValue = defaultValue;
+  }
   if (isFunction(defaultValue) && !isArray(defaultValue)) {
     returnValue = defaultValue();
   }
   if (!isString(defaultValue) && !isUndefined(defaultValue)) {
     returnValue = JSON.stringify(defaultValue);
   }
-  if (defaultValue === '' || defaultValue === null || defaultValue === 'null') {
-    returnValue = '';
+  if (defaultValue === null) {
+    returnValue = 'null';
   }
   if (isString(returnValue)) returnValue = returnValue.replace(/"/g, "'");
   return returnValue;
@@ -145,6 +148,7 @@ export default {
         }
 
         // Getting the defaultValue and setting it then also the value
+
         propsInfo.val = getPropDefaultValue(selProp.default);
 
         // If we have an enum on this property we assign it and look up its values in the constant file
@@ -184,7 +188,6 @@ export default {
           slot-scope="data"
         >
           <span v-if="data.value===true">✅</span>
-          <span v-else>❎</span>
         </template>
         <template
           slot="val"

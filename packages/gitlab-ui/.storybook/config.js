@@ -9,6 +9,7 @@ function loadStories() {
   require('../stories/base/progress_bar');
   require('../stories/base/modal');
   require('../stories/base/loading_icon');
+  require('../stories/base/popover');
   require('../stories/base/skeleton_loading');
   require('../stories/base/tooltip');
   require('../stories/base/link');

@@ -12,6 +12,9 @@ export {
   default as GlPaginationDocumentation,
 } from '../components/base/pagination/pagination.documentation';
 export {
+  default as GlPopoverDocumentation,
+} from '../components/base/popover/popover.documentation';
+export {
   default as GlProgressBarDocumentation,
 } from '../components/base/progress_bar/progress_bar.documentation';
 export {
