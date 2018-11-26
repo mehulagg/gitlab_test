@@ -1,9 +1,9 @@
 <script>
-import bPopover from 'bootstrap-vue/es/components/popover/popover';
+import BPopover from 'bootstrap-vue/es/components/popover/popover';
 
 export default {
   components: {
-    bPopover,
+    BPopover,
   },
   inheritAttrs: false,
 };

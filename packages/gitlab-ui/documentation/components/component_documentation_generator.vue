@@ -6,15 +6,14 @@ import camelCase from 'lodash/camelCase';
 import merge from 'lodash/merge';
 import isFunction from 'lodash/isFunction';
 import isArray from 'lodash/isArray';
-import isString from 'lodash/isString';
-import isUndefined from 'lodash/isString';
+import { isString, isUndefined } from 'lodash';
 
-import * as enumConstants from '../../stories/utils/constants.js';
-import { getValidationInfoText } from '../../stories/utils/validation_utils.js';
+import * as enumConstants from '../../stories/utils/constants';
+import { getValidationInfoText } from '../../stories/utils/validation_utils';
 
-import * as gitlabComponents from '../../index.js';
+import * as gitlabComponents from '../../index';
 
-import * as Documentation from '../components_documentation.js';
+import * as Documentation from '../components_documentation';
 
 Vue.use(BootstrapVue);
 
@@ -109,6 +108,7 @@ export default {
         const applyableBootstrapProps = bootstrapProps.reduce((actualProps, prop) => {
           const checkComp = returnProps.find(checkProp => checkProp.prop === prop.prop);
           if (!checkComp) {
+            // eslint-disable-next-line no-param-reassign, no-underscore-dangle
             prop._cellVariants = { prop: 'info' };
             actualProps.push(prop);
           }
@@ -127,8 +127,8 @@ export default {
     },
   },
   methods: {
-    getPropsMap: props => {
-      return Object.keys(props).map(prop => {
+    getPropsMap: props =>
+      Object.keys(props).map(prop => {
         const selProp = props[prop];
 
         // Copying over values if available from documentation definition
@@ -158,8 +158,7 @@ export default {
         }
 
         return propsInfo;
-      });
-    },
+      }),
   },
 };
 </script>
@@ -234,7 +233,8 @@ export default {
         >
           <div
             v-for="argument in field.value"
-            :key="`event-${field.item.event}-${argument.arg ? argument.arg : 'none'}`">
+            :key="`event-${field.item.event}-${argument.arg ? argument.arg : 'none'}`"
+          >
             <code v-if="argument.arg">{{ argument.arg }}</code>
             <span>{{ argument.description }}</span>>
           </div>
@@ -250,7 +250,10 @@ export default {
 
     <template v-if="bootstrapComponentName">
       <h3 id="under-the-hood">vue-bootstrap component</h3>
-      <p>This component uses <a :href="`https://bootstrap-vue.js.org/docs/components/${bootstrapComponentLink}`" target="blank"><code>&lt;{{ bootstrapComponentName }}&gt;</code></a> from vue-bootstrap internally. So please take a look also there at their extensive documentation.</p>
+      <p>This component uses <a 
+        :href="`https://bootstrap-vue.js.org/docs/components/${bootstrapComponentLink}`" 
+        target="blank"
+      ><code>&lt;{{ bootstrapComponentName }}&gt;</code></a> from vue-bootstrap internally. So please take a look also there at their extensive documentation.</p>
     </template>
   </div>
   <b-alert 

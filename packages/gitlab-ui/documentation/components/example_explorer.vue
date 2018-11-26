@@ -1,6 +1,6 @@
 <script>
-import * as Documentation from '../components_documentation.js';
-import { default as GlExampleDisplay } from './example_display';
+import * as Documentation from '../components_documentation';
+import GlExampleDisplay from './example_display.vue';
 
 export default {
   components: {
@@ -65,6 +65,9 @@ export default {
         </template>
       </template>
     </b-form-select>
-    <gl-example-display v-if="selectedExampleId" :example-name="selectedExampleId" />
+    <gl-example-display 
+      v-if="selectedExampleId" 
+      :example-name="selectedExampleId"
+    />
   </div>
 </template>

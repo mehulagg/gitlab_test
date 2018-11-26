@@ -16,6 +16,6 @@ export default {
     :target="target"
     v-on="$listeners"
   >
-    <slot />
+    <slot></slot>
   </b-button>
 </template>

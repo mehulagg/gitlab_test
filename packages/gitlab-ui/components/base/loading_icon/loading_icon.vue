@@ -33,12 +33,13 @@ export default {
 <template>
   <component
     :is="rootElementType"
-    class="loading-container text-center">
+    class="loading-container text-center"
+  >
     <i
       :class="cssClass"
       :aria-label="label"
       class="fa fa-spinner"
       aria-hidden="true"
-    />
+    ></i>
   </component>
 </template>

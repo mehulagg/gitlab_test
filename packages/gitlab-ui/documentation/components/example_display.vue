@@ -1,4 +1,6 @@
 <script>
+/* eslint-disable vue/no-v-html */
+
 import Vue from 'vue';
 import BootstrapVue from 'bootstrap-vue';
 
@@ -11,9 +13,9 @@ import 'highlight.js/styles/monokai.css';
 
 import copyToClipboard from 'copy-to-clipboard';
 
-import * as gitlabComponents from '../../index.js';
+import * as gitlabComponents from '../../index';
 
-import * as Documentation from '../components_documentation.js';
+import * as Documentation from '../components_documentation';
 
 import JsfiddleButton from './jsfiddle_button.vue';
 
@@ -96,10 +98,12 @@ export default {
 
           // Results in the original source of the template and the compiled and working Vue component
           compiled.template = parsed.template.content;
+          // eslint-disable-next-line vue/no-side-effects-in-computed-properties
           this.source = compiled.template;
 
           return Object.assign({}, base, compiled);
         } catch (e) {
+          // eslint-disable-next-line no-console
           console.log('ERR : ', e);
           return base;
         }
@@ -181,7 +185,10 @@ export default {
               <strong>{{ exampleName }}</strong>
             </b-col>
             <b-col class="text-right">
-              <b-button-group size="sm" class="mx-1">
+              <b-button-group 
+                size="sm" 
+                class="mx-1"
+              >
                 <b-btn v-b-toggle.collapseSource>Source</b-btn>
                 <b-btn v-b-toggle.collapseHTML>HTML</b-btn>
                 <jsfiddle-button
@@ -193,44 +200,69 @@ export default {
           </b-row>
         </div>
         <b-card-body>
-          <div ref="compiled" :is="currentExampleComponent" />
+          <div 
+            :is="currentExampleComponent" 
+            ref="compiled"
+          />
         </b-card-body>
         <b-list-group flush>
-          <b-collapse id="collapseSource" class="mt-2">
+          <b-collapse 
+            id="collapseSource" 
+            class="mt-2"
+          >
             <b-list-group-item>
               <b-row>
                 <b-col cols="8"><h6>Source</h6></b-col>
                 <b-col class="text-right">
                   <template v-if="copiedSource">Copied!</template>
                   <b-button-group size="sm">
-                    <b-button :disabled="copiedSource" @click="copySource">
+                    <b-button 
+                      :disabled="copiedSource" 
+                      @click="copySource"
+                    >
                       Copy
                     </b-button>
                   </b-button-group>
                 </b-col>
               </b-row>
-              <code class="hljs html" v-html="sourceFormatted"></code>
+              <code 
+                class="hljs html" 
+                v-html="sourceFormatted"
+              ></code>
             </b-list-group-item>
           </b-collapse>
-          <b-collapse id="collapseHTML" class="mt-2">
+          <b-collapse 
+            id="collapseHTML" 
+            class="mt-2"
+          >
             <b-list-group-item>
               <b-row>
                 <b-col cols="8"><h6>HTML Output</h6></b-col>
                 <b-col class="text-right">
                   <template v-if="copiedOutput">Copied!</template>
                   <b-button-group size="sm">
-                    <b-button :disabled="copiedOutput" @click="copyHtml">
+                    <b-button 
+                      :disabled="copiedOutput" 
+                      @click="copyHtml"
+                    >
                       Copy
                     </b-button>
                   </b-button-group>
                 </b-col>
               </b-row>
-              <code class="hljs html" v-html="renderedHtmlFormatted"></code>
+              <code 
+                class="hljs html" 
+                v-html="renderedHtmlFormatted"
+              ></code>
             </b-list-group-item>
           </b-collapse>
         </b-list-group>
       </b-card>
     </div>    
-    <b-alert v-else-if="exampleName" show variant="warning">No Example found with the name "{{ exampleName }}"</b-alert>
+    <b-alert 
+      v-else-if="exampleName" 
+      show 
+      variant="warning"
+    >No Example found with the name "{{ exampleName }}"</b-alert>
   </div>
 </template>

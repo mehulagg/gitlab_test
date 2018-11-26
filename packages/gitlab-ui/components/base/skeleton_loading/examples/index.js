@@ -1,5 +1,5 @@
-import SkeletonLoadingBasicExample from './skeleton-loading.basic.example.vue';
-import SkeletonLoadingOneLineExample from './skeleton-loading.one-line.example.vue';
+import SkeletonLoadingBasicExample from './skeleton_loading.basic.example.vue';
+import SkeletonLoadingOneLineExample from './skeleton_loading.one_line.example.vue';
 
 export default [
   {

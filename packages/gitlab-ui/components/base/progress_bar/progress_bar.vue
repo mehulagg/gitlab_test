@@ -1,9 +1,9 @@
 <script>
-import bProgress from 'bootstrap-vue/es/components/progress/progress';
+import BProgress from 'bootstrap-vue/es/components/progress/progress';
 
 export default {
   components: {
-    bProgress,
+    BProgress,
   },
 };
 </script>

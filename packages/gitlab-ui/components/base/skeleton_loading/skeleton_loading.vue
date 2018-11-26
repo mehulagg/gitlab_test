@@ -24,6 +24,6 @@ export default {
       v-for="(css, index) in lineClasses"
       :key="index"
       :class="css"
-    />
+    ></div>
   </div>
 </template>

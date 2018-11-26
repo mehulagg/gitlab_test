@@ -1,15 +1,10 @@
-extends:
-  - '@gitlab'
-parserOptions:
-  parser: babel-eslint
-overrides:
-  files:
-    - rollup.config.js
-    - stories/*.js
-    - stories/**/*.js
-    - components/**/*.documentation.js
+  root: true
+  extends:
+    - '@gitlab'
+  parserOptions:
+    parser: babel-eslint
   rules:
-    # We deactive the match-regex rule due to our documentation files having the naming convention
-    # <component_name>.documentation.js
-    filenames/match-regex: off
+    filenames/match-regex:
+    - error
+    - "^[a-z_]+(\\.config|\\.documentation|\\.[a-z_]+\\.example|\\.spec)?$"
     import/no-extraneous-dependencies: off

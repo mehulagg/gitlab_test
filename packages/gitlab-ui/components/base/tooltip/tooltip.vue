@@ -1,16 +1,16 @@
 <script>
-import bTooltip from 'bootstrap-vue/es/components/tooltip/tooltip';
+import BTooltip from 'bootstrap-vue/es/components/tooltip/tooltip';
 
 export default {
   components: {
-    bTooltip,
+    BTooltip,
   },
   inheritAttrs: false,
 };
 </script>
 
 <template>
-  <b-tooltip v-bind="$attrs" >
+  <b-tooltip v-bind="$attrs">
     <slot></slot>
   </b-tooltip>
 </template>
