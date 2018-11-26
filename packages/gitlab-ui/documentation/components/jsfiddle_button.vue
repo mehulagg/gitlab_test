@@ -52,6 +52,7 @@ export default {
       const hiddenForm = document.createElement('form');
       hiddenForm.method = 'POST';
       hiddenForm.action = 'https://jsfiddle.net/api/post/library/pure/';
+      hiddenForm.target = '_blank';
       hiddenForm.classList.add('hidden');
 
       const titleInput = document.createElement('input');
