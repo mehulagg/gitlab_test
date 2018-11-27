@@ -1,5 +1,5 @@
 import { withKnobs, number } from '@storybook/addon-knobs';
-import documentedStoriesOf from "../utils/documented_stories";
+import documentedStoriesOf from '../utils/documented_stories';
 import { GlPagination } from '../../index';
 import readme from '../../components/base/pagination/pagination.md';
 

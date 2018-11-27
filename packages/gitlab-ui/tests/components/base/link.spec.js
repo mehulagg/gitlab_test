@@ -16,9 +16,7 @@ describe('link component', () => {
     });
 
     it('should not have a target attribute', () => {
-      expect(
-        link.vm.$el.getAttribute('target'),
-      ).toBe(null);
+      expect(link.vm.$el.getAttribute('target')).toBe(null);
     });
   });
 

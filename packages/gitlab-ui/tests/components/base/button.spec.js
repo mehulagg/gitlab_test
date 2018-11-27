@@ -16,15 +16,11 @@ describe('button component', () => {
     });
 
     it('should not have a target attribute', () => {
-      expect(
-        button.vm.$el.getAttribute('target'),
-      ).toBe(null);
+      expect(button.vm.$el.getAttribute('target')).toBe(null);
     });
 
     it('should not have a href attribute', () => {
-      expect(
-        button.vm.$el.getAttribute('href'),
-      ).toBe(null);
+      expect(button.vm.$el.getAttribute('href')).toBe(null);
     });
   });
 
