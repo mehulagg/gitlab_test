@@ -1,4 +1,5 @@
 // Components
+export { default as GlChart } from './components/charts/chart/chart.vue';
 export { default as GlLink } from './components/base/link/link.vue';
 export { default as GlLoadingIcon } from './components/base/loading_icon/loading_icon.vue';
 export { default as GlModal } from './components/base/modal/modal.vue';

@@ -3,6 +3,7 @@ import vue from 'rollup-plugin-vue';
 import resolve from 'rollup-plugin-node-resolve';
 import string from 'rollup-plugin-string';
 import css from 'rollup-plugin-css-porter';
+import commonjs from 'rollup-plugin-commonjs';
 import glob from 'glob';
 
 export default glob
@@ -29,6 +30,11 @@ export default glob
           exclude: ['node_modules/**'],
         }),
         resolve(),
+        commonjs({
+          namedExports: {
+            echarts: ['echarts'],
+          },
+        }),
       ],
     };
   });

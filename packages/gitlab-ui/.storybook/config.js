@@ -5,6 +5,7 @@ const req = require.context('../stories/base', true, /js$/);
 
 function loadStories() {
   req.keys().forEach(filename => req(filename));
+  require('../stories/charts/chart');
 }
 
 setOptions({
