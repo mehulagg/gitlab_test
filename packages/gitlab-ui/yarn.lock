@@ -293,10 +293,10 @@
   resolved "https://registry.yarnpkg.com/@emotion/utils/-/utils-0.7.3.tgz#4240c5eee8af86843452af7497ac2808be04a77d"
   integrity sha512-1bGqG9IYJETOOqQEjWinGx1deLlAW/Fcew4GyrzZx0dJIgAjivZTmwzjrhB+Vhj7TgjMr0aTyj5byHmZezisZQ==
 
-"@gitlab/eslint-config@^1.1.0":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@gitlab/eslint-config/-/eslint-config-1.1.1.tgz#0f4b096ba0870e7f7180eff8cf856dfc4d19f5fd"
-  integrity sha512-qLbnRxMKfcg8u4fGZIiOOXIQ7z69NcpY6k0AH0Tunho3WoKeHMpadVv2GGPxC+Xq8NocegrXaaONU614vLQgEw==
+"@gitlab/eslint-config@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@gitlab/eslint-config/-/eslint-config-1.2.0.tgz#115568a70edabbc024f1bc13ba1ba499a9ba05a9"
+  integrity sha512-TnZO5T7JjLQjw30aIGtKIsAX4pRnSbqOir3Ji5zPwtCVWY53DnG6Lcesgy7WYdsnnkt3oQPXFTOZlkymUs2PsA==
   dependencies:
     babel-eslint "^10.0.1"
     eslint-config-airbnb-base "^13.1.0"

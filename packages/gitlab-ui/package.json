@@ -27,7 +27,7 @@
     "vue-loader": "^15.4.2"
   },
   "devDependencies": {
-    "@gitlab/eslint-config": "^1.1.0",
+    "@gitlab/eslint-config": "^1.2.0",
     "@semantic-release/git": "^7.0.1",
     "@semantic-release/gitlab": "^2.1.4",
     "@semantic-release/npm": "^4.0.1",
