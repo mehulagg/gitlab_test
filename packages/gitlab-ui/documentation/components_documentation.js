@@ -20,3 +20,16 @@ export {
 export {
   default as GlTooltipDocumentation,
 } from '../components/base/tooltip/tooltip.documentation';
+
+const componentList = Object.getPrototypeOf(module).exports;
+
+export const getDocumentationFor = componentName => {
+  const documentationKey = `${componentName}Documentation`;
+  const documentationObject = componentList[documentationKey];
+  if (!documentationObject) {
+    throw new Error(
+      `Could not find ${documentationKey} in documentation/components_documentation.js!`
+    );
+  }
+  return documentationObject;
+};

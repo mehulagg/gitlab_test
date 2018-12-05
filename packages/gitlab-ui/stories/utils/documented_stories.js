@@ -27,20 +27,21 @@ const withCustomPreview = withDocs({
   FooterComponent: {
     data() {
       return {
-        componentName: 'Link',
+        componentName: null,
       };
     },
     components: {
       GlComponentDocumentation,
       GlExampleExplorer,
     },
-    template: `<div>
+    template: `<div v-if="componentName">
                 <gl-example-explorer :componentName="componentName" /><br/>
                 <gl-component-documentation :componentName="componentName" />
               </div>`,
     mounted() {
       const urlParams = new URLSearchParams(window.location.search);
-      this.componentName = `Gl${upperFirst(camelCase(urlParams.get('selectedKind')))}`;
+      const storyName = urlParams.get('selectedKind').match(/[^/]*$/);
+      this.componentName = `Gl${upperFirst(camelCase(storyName))}`;
     },
   },
 });

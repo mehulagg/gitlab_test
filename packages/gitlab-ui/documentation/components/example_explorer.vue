@@ -1,5 +1,5 @@
 <script>
-import * as Documentation from '../components_documentation';
+import { getDocumentationFor } from '../components_documentation';
 import GlExampleDisplay from './example_display.vue';
 
 export default {
@@ -19,11 +19,7 @@ export default {
   },
   computed: {
     exampleGroups() {
-      return (
-        Documentation[
-          Object.keys(Documentation).find(component => component.indexOf(this.componentName) > -1)
-        ].examples || []
-      );
+      return getDocumentationFor(this.componentName).examples || [];
     },
     firstExampleId() {
       if (

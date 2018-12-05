@@ -13,7 +13,7 @@ import { getValidationInfoText } from '../../stories/utils/validation_utils';
 
 import * as gitlabComponents from '../../index';
 
-import * as Documentation from '../components_documentation';
+import { getDocumentationFor } from '../components_documentation';
 
 Vue.use(BootstrapVue);
 
@@ -53,11 +53,7 @@ export default {
       return this.actualComponent.options || {};
     },
     documentationInfo() {
-      return (
-        Documentation[
-          Object.keys(Documentation).find(component => component.indexOf(this.componentName) > -1)
-        ] || {}
-      );
+      return getDocumentationFor(this.componentName);
     },
     bootstrapComponentName() {
       return this.documentationInfo.bootstrapComponent || '';
