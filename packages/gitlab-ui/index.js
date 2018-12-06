@@ -11,6 +11,7 @@ export {
 } from './components/base/skeleton_loading/skeleton_loading.vue';
 export { default as GlButton } from './components/base/button/button.vue';
 export { default as GlTooltip } from './components/base/tooltip/tooltip.vue';
+export { default as GlEmptyState } from './components/regions/empty_state/empty_state.vue';
 
 // Directives
 export { default as GlModalDirective } from './directives/modal';

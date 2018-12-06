@@ -21,6 +21,9 @@ export {
 export {
   default as GlTooltipDocumentation,
 } from '../components/base/tooltip/tooltip.documentation';
+export {
+  default as GlEmptyStateDocumentation,
+} from '../components/regions/empty_state/empty_state.documentation';
 
 const componentList = Object.getPrototypeOf(module).exports;
 
