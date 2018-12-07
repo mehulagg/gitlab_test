@@ -1,5 +1,6 @@
 // Component documentation
-export { default as GlChart } from '../components/charts/chart/chart.documentation';
+export { default as GlChartDocumentation } from '../components/charts/chart/chart.documentation';
+export { default as GlAreaChartDocumentation } from '../components/charts/area/area.documentation';
 export {
   default as GlSkeletonLoadingDocumentation,
 } from '../components/base/skeleton_loading/skeleton_loading.documentation';
