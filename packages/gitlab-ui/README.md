@@ -1,19 +1,33 @@
 # gitlab-ui
 
-`gitlab-ui` is a UI component library written in [Vue.js](https://vuejs.org).  
+`gitlab-ui` is a UI component library written in [Vue.js](https://vuejs.org).
 See https://gitlab-org.gitlab.io/gitlab-ui/ for documentation.
+
+
+## Prerequisites
+
+Make sure you have [Node](https://nodejs.org/en/) 8.x (LTS) and [Yarn](https://yarnpkg.com/) 1.2 or newer.
 
 ## Quick start
 
-1. Clone the project with `git clone git@gitlab.com:gitlab-org/gitlab-ui.git`
-1. Install [yarn](https://yarnpkg.com/en/)
-1. Run `yarn storybook` to build and launch storybook to see the components in the browser
-1. Open `http://localhost:9001/`
+```sh
+# Clone the project
+git clone git@gitlab.com:gitlab-org/gitlab-ui.git
 
-### Requirements
-* Node
+# Install all the dependencies of the project
+yarn # or yarn install
 
-`$ npm install @gitlab-org/gitlab-ui`
+# Build and launch storybook to see the components in the browser
+yarn storybook
+```
+
+Go to http://localhost:9001/
+
+## Installation
+
+```sh
+npm install @gitlab-org/gitlab-ui
+```
 
 ## Contributing guide
 
