@@ -28,7 +28,7 @@ function generateProps({ page = 3, perPage = 10, totalItems = 200 } = {}) {
   };
 }
 
-documentedStoriesOf('pagination', readme)
+documentedStoriesOf('base|pagination', readme)
   .addDecorator(withKnobs)
   .add('default', () => ({
     props: generateProps(),

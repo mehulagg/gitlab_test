@@ -4,4 +4,5 @@
 /tests/__image_snapshots__/__diff_output__/
 .idea
 .vscode
+.DS_Store
 yarn-error.log

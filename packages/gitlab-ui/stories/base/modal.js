@@ -77,7 +77,7 @@ function generateProps({ variant = variantOptionsWithNoDefault.default } = {}) {
   };
 }
 
-documentedStoriesOf('modal', '')
+documentedStoriesOf('base|modal', '')
   .addDecorator(withKnobs)
   .add('default', () => ({
     props: generateProps(),

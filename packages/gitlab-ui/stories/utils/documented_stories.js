@@ -40,7 +40,7 @@ const withCustomPreview = withDocs({
               </div>`,
     mounted() {
       const urlParams = new URLSearchParams(window.location.search);
-      const storyName = urlParams.get('selectedKind').match(/[^/]*$/);
+      const storyName = urlParams.get('selectedKind').match(/[^/|]*$/);
       this.componentName = `Gl${upperFirst(camelCase(storyName))}`;
     },
   },

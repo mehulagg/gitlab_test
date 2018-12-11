@@ -22,7 +22,7 @@ function generateProps({ value = 30, variant = variantOptions.primary } = {}) {
   };
 }
 
-documentedStoriesOf('progress-bar', '')
+documentedStoriesOf('base|progress-bar', '')
   .addDecorator(withKnobs)
   .add('default', () => ({
     props: generateProps(),

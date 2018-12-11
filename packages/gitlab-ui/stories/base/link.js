@@ -21,7 +21,7 @@ function generateProps({ href = '#' } = {}) {
   };
 }
 
-documentedStoriesOf('link', readme)
+documentedStoriesOf('base|link', readme)
   .addDecorator(withKnobs)
   .add('default link', () => ({
     props: generateProps(),

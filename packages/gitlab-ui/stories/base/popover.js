@@ -14,7 +14,7 @@ const template = `
   </div>
   `;
 
-documentedStoriesOf('popover', '')
+documentedStoriesOf('base|popover', '')
   .addDecorator(withKnobs)
   .add('default', () => ({
     template,

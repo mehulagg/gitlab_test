@@ -13,6 +13,7 @@ setOptions({
   name: 'gitlab-ui',
   url: 'https://gitlab.com/gitlab-org/gitlab-ui',
   addonPanelInRight: true,
+  hierarchyRootSeparator: /\|/,
 });
 
 configure(loadStories, module);

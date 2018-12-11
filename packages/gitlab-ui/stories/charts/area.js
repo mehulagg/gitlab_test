@@ -6,7 +6,7 @@ const components = {
   GlAreaChart,
 };
 
-documentedStoriesOf('area-chart', readme).add('default', () => ({
+documentedStoriesOf('charts|area-chart', readme).add('default', () => ({
   props: {},
   components,
   data() {
