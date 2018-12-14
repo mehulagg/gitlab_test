@@ -13,6 +13,8 @@ export {
 export { default as GlButton } from './components/base/button/button.vue';
 export { default as GlTooltip } from './components/base/tooltip/tooltip.vue';
 export { default as GlEmptyState } from './components/regions/empty_state/empty_state.vue';
+export { default as GlFormInput } from './components/base/form/form_input.vue';
+export { default as GlSearchBox } from './components/base/search/search_box.vue';
 
 // Directives
 export { default as GlModalDirective } from './directives/modal';
