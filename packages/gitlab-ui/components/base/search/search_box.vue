@@ -46,7 +46,7 @@ export default {
   methods: {
     clearInput() {
       this.$refs.input.$el.value = '';
-      this.$refs.input.$emit('change', '');
+      this.$refs.input.$emit('input', '');
       this.focusInput();
     },
     focusInput() {
