@@ -71,7 +71,7 @@ export default {
     {
       name: 'modal-header',           // Name of the slot
       description:
-        'Entire modal header container contents. Also removes the top right X close button.',  // Description of the purpose of this slot
+        'Entire modal header container contents. Also removes the top right X close button.', // Description of the purpose of this slot
     },
   ]
 };
