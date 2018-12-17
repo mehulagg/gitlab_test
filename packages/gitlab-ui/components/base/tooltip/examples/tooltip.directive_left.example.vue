@@ -1,7 +1,7 @@
 <template>
-  <div class="d-flex align-items-center justify-content-center p-3">
+  <div id="tooltipcontainer" class="d-flex align-items-center justify-content-center p-3">
     <gl-button 
-      v-gl-tooltip.left
+      v-gl-tooltip:tooltipcontainer.left
       title="some tooltip text"
     >
       Testbutton

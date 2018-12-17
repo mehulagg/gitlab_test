@@ -34,6 +34,8 @@ In all other cases, please use the directive.
 ## Under the hood
 Tooltip uses [`<b-tooltip>`] and [`v-b-tooltip`] internally.
 
+The container in the examples is not needed in CE/EE, but at the moment we scope the styles for design.gitlab.com for the usage of application.css.
+
 [`<b-tooltip>`]: https://bootstrap-vue.js.org/docs/components/tooltip
 
 [`v-b-tooltip`]: https://bootstrap-vue.js.org/docs/directives/tooltip
