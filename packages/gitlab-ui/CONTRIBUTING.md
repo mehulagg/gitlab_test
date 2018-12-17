@@ -1,4 +1,4 @@
-# How to add a new component to gitlab-ui
+## How to add a new component to gitlab-ui
 
 1. Decide on a component you'd like to add to gitlab-ui
 1. Determine and document the scenarios (different types of implementations, if any) in which this component is used in gitlab-ce/ee in an issue in gitlab-ui
@@ -21,11 +21,21 @@
 1. (You or maintainer) will update your integration MR package.json dependency reference to the newly released gitlab-ui version
 1. Maintainer will merge the integration MR
 
-# Automatic documentation
+## Link local gitlab-ui with gitlab-ce
+
+During development, you can link your local gitlab-ui changes to gitlab-ce. This means you don't need to update `package.json`, and can easily test changes.
+
+1. `yarn link`
+1. `yarn build -w`
+1. (in gitab-ce directory) `yarn link "@gitlab/ui"`
+
+When you are finished, run `yarn unlink` in gitlab-ce directory.
+
+## Automatic documentation
 
 We have automated as much of our documentation as possible (for example props, inherited props, links to underlying documentation, etc.) and kept manual tasks (for example name of vue-bootstrap component, slot descriptions, etc.) at an absolute minimum. The target for our documentation components and exports is to have them automatically integrated into [design.gitlab.com](https://design.gitlab.com). The main component for documentation is called `component_documentation_generator.vue`.
 
-## Component documentation info
+### Component documentation info
 
 To add additional information to our documentation page we are using extra files which hold additional information, those have the format `(component).documentation.js` in the component directory. The following sample has a sample documentation attribute with all possibilities. All of these properties are optional.
 
@@ -68,5 +78,5 @@ export default {
 };
 ```
 
-# Contribution guidelines
+## Contribution guidelines
 Please refer to [gitlab-ce's CONTRIBUTING.md](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/CONTRIBUTING.md) for details.
