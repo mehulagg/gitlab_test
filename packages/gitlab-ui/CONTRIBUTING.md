@@ -7,7 +7,6 @@
    1. Be sure to name your MR `feat: <commit message>` as that is needed for our npm release CI job (don't forget to set the MR to squash commit)
    1. Create a directory and component.vue in `components/` directory
    1. Create a story `component.js` in stories/ directory
-   1. Import your story to `.storybook/config.js`
    1. Import your component to `index.js`
    1. Create documentation.md in `documentation/` directory
    1. Run the manual CI job (update_snapshots) to generate your image snapshots for diffing
@@ -33,7 +32,7 @@ When you are finished, run `yarn unlink` in gitlab-ce directory.
 
 ## Automatic documentation
 
-We have automated as much of our documentation as possible (for example props, inherited props, links to underlying documentation, etc.) and kept manual tasks (for example name of vue-bootstrap component, slot descriptions, etc.) at an absolute minimum. The target for our documentation components and exports is to have them automatically integrated into [design.gitlab.com](https://design.gitlab.com). The main component for documentation is called `component_documentation_generator.vue`.
+We have automated as much of our documentation as possible (for example props, inherited props, links to underlying documentation, etc.) and kept manual tasks (for example name of vue-bootstrap component, slot descriptions, etc.) to an absolute minimum. The target for our documentation components and exports is to have them automatically integrated into [design.gitlab.com](https://design.gitlab.com). The main component for documentation is called `component_documentation_generator.vue`.
 
 ### Component documentation info
 
