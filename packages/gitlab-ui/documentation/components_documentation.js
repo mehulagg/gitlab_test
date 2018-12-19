@@ -31,6 +31,18 @@ export {
 export {
   default as GlSearchBoxDocumentation,
 } from '../components/base/search/search_box.documentation';
+export {
+  default as GlDropdownItemDocumentation,
+} from '../components/base/dropdown/dropdown_item.documentation';
+export {
+  default as GlDropdownHeaderDocumentation,
+} from '../components/base/dropdown/dropdown_header.documentation';
+export {
+  default as GlDropdownDividerDocumentation,
+} from '../components/base/dropdown/dropdown_divider.documentation';
+export {
+  default as GlDropdownDocumentation,
+} from '../components/base/dropdown/dropdown.documentation';
 
 const componentList = Object.getPrototypeOf(module).exports;
 
