@@ -1,9 +1,30 @@
 <script>
+import { isVisible, selectAll } from 'bootstrap-vue/es/utils/dom';
 import BDropdown from 'bootstrap-vue/es/components/dropdown/dropdown';
+
+// Return an Array of visible items
+function filterVisible(els) {
+  return (els || []).filter(isVisible);
+}
+
+const Selector = {
+  ITEM_SELECTOR:
+    '.dropdown-item:not(.disabled):not([disabled]),.form-control:not(.disabled):not([disabled])',
+};
+
+// see https://gitlab.com/gitlab-org/gitlab-ui/merge_requests/130#note_126406721
+const ExtendedBDropdown = {
+  extends: BDropdown,
+  methods: {
+    getItems() {
+      return filterVisible(selectAll(Selector.ITEM_SELECTOR, this.$refs.menu));
+    },
+  },
+};
 
 export default {
   components: {
-    BDropdown,
+    BDropdown: ExtendedBDropdown,
   },
   inheritAttrs: false,
   props: {
