@@ -11,6 +11,9 @@ export default {
 
 <template>
   <b-popover v-bind="$attrs">
+    <template slot="title">
+      <slot name="title"></slot>
+    </template>
     <slot></slot>
   </b-popover>
 </template>
