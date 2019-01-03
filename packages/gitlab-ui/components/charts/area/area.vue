@@ -89,6 +89,9 @@ export default {
             },
           },
           series: this.series,
+          legend: {
+            itemWidth: 16,
+          },
         },
         this.option
       );
