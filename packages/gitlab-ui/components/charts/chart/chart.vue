@@ -20,6 +20,11 @@ export default {
       required: false,
       default: null,
     },
+    groupId: {
+      type: String,
+      required: false,
+      default: '',
+    },
     renderer: {
       type: String,
       required: false,
@@ -47,6 +52,10 @@ export default {
   },
   mounted() {
     this.chart = echarts.init(this.$refs.chart, null, { renderer: this.renderer });
+    if (this.groupId.length) {
+      this.chart.group = this.groupId;
+      echarts.connect(this.groupId);
+    }
     this.$emit('created', this.chart);
     this.draw();
     this.setChartSize();
