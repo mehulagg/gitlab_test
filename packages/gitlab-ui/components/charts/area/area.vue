@@ -1,14 +1,15 @@
 <script>
+import isEmpty from 'lodash/isEmpty';
 import merge from 'lodash/merge';
 import Chart from '../chart/chart.vue';
-import Tooltip from '../tooltip/tooltip.vue';
-import defaultChartOptions, { colors } from '../../../helpers/chart';
-import hexToRgba from '../../../helpers/colors';
+import ChartTooltip from '../tooltip/tooltip.vue';
+import defaultChartOptions, { colors, getThresholdConfig } from '../../../helpers/chart';
+import { hexToRgba, debounceByAnimationFrame } from '../../../helpers/utils';
 
 export default {
   components: {
     Chart,
-    Tooltip,
+    ChartTooltip,
   },
   inheritAttrs: false,
   props: {
@@ -19,7 +20,12 @@ export default {
     option: {
       type: Object,
       required: false,
-      default: () => {},
+      default: () => ({}),
+    },
+    thresholds: {
+      type: Object,
+      required: false,
+      default: () => ({}),
     },
     formatTooltipText: {
       type: Function,
@@ -29,36 +35,50 @@ export default {
   },
   data() {
     return {
+      chart: null,
+      showTooltip: false,
       tooltipTitle: '',
-      tooltipInfo: {},
+      tooltipContent: {},
+      tooltipPosition: {
+        left: '0',
+        top: '0',
+      },
+      debouncedMousemove: debounceByAnimationFrame(this.onMousemove),
     };
   },
   computed: {
+    hasTooltipContent() {
+      return !isEmpty(this.tooltipContent);
+    },
     series() {
       return Object.keys(this.data).map((key, index) => {
         let colorIndex = index;
-        while (colorIndex > 3) {
-          colorIndex -= 4;
+        const lineColorsCount = colors.lines.length;
+        while (colorIndex >= lineColorsCount) {
+          colorIndex -= lineColorsCount;
         }
         const lineColor = colors.lines[colorIndex];
 
-        return {
-          name: key,
-          data: Object.entries(this.data[key]),
-          type: 'line',
-          showSymbol: false,
-          symbol: 'circle',
-          symbolSize: 3,
-          lineStyle: {
-            width: 1,
+        return Object.assign(
+          {
+            name: key,
+            data: Object.entries(this.data[key]),
+            type: 'line',
+            showSymbol: false,
+            symbol: 'circle',
+            symbolSize: 3,
+            lineStyle: {
+              width: 1,
+            },
+            itemStyle: {
+              color: lineColor,
+            },
+            areaStyle: {
+              color: hexToRgba(lineColor, 0.2),
+            },
           },
-          itemStyle: {
-            color: lineColor,
-          },
-          areaStyle: {
-            color: hexToRgba(lineColor, 0.2),
-          },
-        };
+          this.thresholds === null ? {} : getThresholdConfig(this.thresholds)
+        );
       });
     },
     options() {
@@ -71,20 +91,14 @@ export default {
               margin: 20,
               verticalAlign: 'bottom',
             },
-          },
-          tooltip: {
-            trigger: 'axis',
-            formatter: this.renderTooltip,
-            backgroundColor: colors.tooltipBackground,
-            padding: 0,
-            borderWidth: 1,
-            borderColor: colors.textQuaternary,
-            textStyle: {
-              color: colors.textTertiary,
-            },
             axisPointer: {
+              show: true,
               lineStyle: {
                 color: colors.textTertiary,
+              },
+              label: {
+                show: false,
+                formatter: this.onLabelChange,
               },
             },
           },
@@ -97,11 +111,26 @@ export default {
       );
     },
   },
+  beforeDestroy() {
+    this.chart.getDom().removeEventListener('mousemove', this.debouncedMousemove);
+  },
   methods: {
-    renderTooltip(params, ticket, callback) {
-      const info = {};
+    onCreated(chart) {
+      chart.getDom().addEventListener('mousemove', this.debouncedMousemove);
+      this.chart = chart;
+      this.$emit('created', chart);
+    },
+    onMousemove(event) {
+      this.showTooltip =
+        this.chart.containPixel('grid', [event.zrX, event.zrY]) && this.hasTooltipContent;
+    },
+    onUpdated(chart) {
+      this.$emit('updated', chart);
+    },
+    onLabelChange(params) {
+      this.tooltipContent = {};
       const xLabels = [];
-      params.forEach(line => {
+      params.seriesData.forEach(line => {
         let title;
         let value;
         if (this.formatTooltipText) {
@@ -110,35 +139,51 @@ export default {
           [title, value] = line.value;
         }
 
-        info[line.seriesName] = value;
         if (!xLabels.includes(title)) {
           xLabels.push(title);
         }
+
+        this.$set(this.tooltipContent, line.seriesName, value);
       });
       this.tooltipTitle = xLabels.join(', ');
-      this.tooltipInfo = info;
 
-      this.$nextTick(() => callback(ticket, this.$refs.tooltip.$el.innerHTML));
-
-      return ' ';
+      if (params.seriesData.length) {
+        const [left, top] = this.chart.convertToPixel('grid', params.seriesData[0].data);
+        this.tooltipPosition = {
+          left: `${left}px`,
+          top: `${top}px`,
+        };
+      }
     },
   },
 };
 </script>
 
 <template>
-  <div>
+  <div class="position-relative">
     <chart
       v-bind="$attrs"
       :options="options"
-      @created="chart => $emit('created', chart)"
-      @updated="chart => $emit('updated', chart)"
+      @created="onCreated"
+      @updated="onUpdated"
     />
-    <tooltip
-      v-show="false"
-      ref="tooltip"
-      :title="tooltipTitle"
-      :info="tooltipInfo"
-    />
+    <chart-tooltip
+      v-if="chart"
+      :show="showTooltip"
+      :chart="chart"
+      :top="tooltipPosition.top"
+      :left="tooltipPosition.left"
+    >
+      <div slot="title">
+        {{ tooltipTitle }}
+      </div>
+      <div
+        v-for="(value, label) in tooltipContent"
+        :key="label + value"
+      >
+        {{ label }}
+        {{ value }}
+      </div>
+    </chart-tooltip>
   </div>
 </template>

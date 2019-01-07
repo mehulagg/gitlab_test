@@ -1,4 +1,5 @@
 import merge from 'lodash/merge';
+import { hexToRgba } from './utils';
 
 export const colors = {
   tooltipBackground: '#fff',
@@ -8,6 +9,7 @@ export const colors = {
   textQuaternary: '#d6d6d6',
   splitLine: '#dfdfdf',
   lines: ['#1F78D1', '#1aaa55', '#fc9403', '#6666c4'],
+  threshold: '#db3b21',
 };
 
 export const axes = {
@@ -72,6 +74,65 @@ export const grid = {
   left: 70,
   right: 24,
 };
+
+export function getThresholdConfig(thresholds) {
+  const keys = Object.keys(thresholds);
+  if (!keys.length) {
+    return {};
+  }
+
+  const lineData = [];
+  const areaData = [];
+  keys.forEach(key => {
+    const alert = thresholds[key];
+    const { threshold } = alert;
+
+    let minMax;
+    switch (alert.operator) {
+      case '>':
+      case '&gt;':
+        minMax = Infinity;
+        break;
+
+      case '<':
+      case '&lt;':
+        minMax = Number.NEGATIVE_INFINITY;
+        break;
+
+      case '=':
+      default:
+        minMax = threshold;
+        break;
+    }
+
+    lineData.push([{ xAxis: 'min', yAxis: threshold }, { xAxis: 'max', yAxis: threshold }]);
+    areaData.push([{ xAxis: 'min', yAxis: threshold }, { xAxis: 'max', yAxis: minMax }]);
+  });
+
+  return {
+    markLine: {
+      silent: true,
+      symbol: 'none',
+      label: {
+        show: false,
+      },
+      lineStyle: {
+        color: colors.threshold,
+        width: 1,
+        type: 'dashed',
+      },
+      data: lineData,
+    },
+    markArea: {
+      silent: true,
+      data: areaData,
+      itemStyle: {
+        color: hexToRgba(colors.threshold, 0.1),
+      },
+      zlevel: -1,
+    },
+  };
+}
 
 export default {
   xAxis,
