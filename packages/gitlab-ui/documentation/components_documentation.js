@@ -7,6 +7,7 @@ export {
 export {
   default as GlSkeletonLoadingDocumentation,
 } from '../components/base/skeleton_loading/skeleton_loading.documentation';
+export { default as GlBadgeDocumentation } from '../components/base/badge/badge.documentation';
 export { default as GlButtonDocumentation } from '../components/base/button/button.documentation';
 export { default as GlLinkDocumentation } from '../components/base/link/link.documentation';
 export {

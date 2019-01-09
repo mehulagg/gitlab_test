@@ -11,6 +11,7 @@ export { default as GlProgressBar } from './components/base/progress_bar/progres
 export {
   default as GlSkeletonLoading,
 } from './components/base/skeleton_loading/skeleton_loading.vue';
+export { default as GlBadge } from './components/base/badge/badge.vue';
 export { default as GlButton } from './components/base/button/button.vue';
 export { default as GlTooltip } from './components/base/tooltip/tooltip.vue';
 export { default as GlEmptyState } from './components/regions/empty_state/empty_state.vue';
