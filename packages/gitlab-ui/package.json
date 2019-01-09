@@ -11,8 +11,8 @@
     "build": "rollup -c",
     "build-preview-head": "node .storybook/generate-preview-head.js",
     "clean": "rm -r dist storybook",
-    "storybook": "yarn build-preview-head && start-storybook -p 9001 -c .storybook",
-    "storybook-static": "yarn build-preview-head && build-storybook -c .storybook -o storybook",
+    "storybook": "yarn build-preview-head && start-storybook -p 9001 -c .storybook -s ./styles",
+    "storybook-static": "yarn build-preview-head && build-storybook -c .storybook -o storybook  -s ./styles",
     "test": "NODE_ENV=test yarn run storybook-static && jest",
     "lint": "eslint --ext .js,.vue ."
   },
