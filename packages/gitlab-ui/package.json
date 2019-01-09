@@ -9,9 +9,10 @@
   "private": false,
   "scripts": {
     "build": "rollup -c",
+    "build-preview-head": "node .storybook/generate-preview-head.js",
     "clean": "rm -r dist storybook",
-    "storybook": "start-storybook -p 9001 -c .storybook",
-    "storybook-static": "build-storybook -c .storybook -o storybook",
+    "storybook": "yarn build-preview-head && start-storybook -p 9001 -c .storybook",
+    "storybook-static": "yarn build-preview-head && build-storybook -c .storybook -o storybook",
     "test": "NODE_ENV=test yarn run storybook-static && jest",
     "lint": "eslint --ext .js,.vue ."
   },
@@ -53,6 +54,7 @@
     "node-sass": "^4.9.4",
     "nodemon": "^1.11.0",
     "prettier": "1.14.3",
+    "pug": "^2.0.3",
     "puppeteer": "^1.5.0",
     "raw-loader": "^0.5.1",
     "rollup": "^0.63.0",
