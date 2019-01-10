@@ -43,7 +43,7 @@ export default {
         left: '0',
         top: '0',
       },
-      debouncedMousemove: debounceByAnimationFrame(this.onMousemove),
+      debouncedShowHideTooltip: debounceByAnimationFrame(this.showHideTooltip),
     };
   },
   computed: {
@@ -112,17 +112,19 @@ export default {
     },
   },
   beforeDestroy() {
-    this.chart.getDom().removeEventListener('mousemove', this.debouncedMousemove);
+    this.chart.getDom().removeEventListener('mousemove', this.debouncedShowHideTooltip);
+    this.chart.getDom().removeEventListener('mouseout', this.debouncedShowHideTooltip);
   },
   methods: {
     onCreated(chart) {
-      chart.getDom().addEventListener('mousemove', this.debouncedMousemove);
+      chart.getDom().addEventListener('mousemove', this.debouncedShowHideTooltip);
+      chart.getDom().addEventListener('mouseout', this.debouncedShowHideTooltip);
       this.chart = chart;
       this.$emit('created', chart);
     },
-    onMousemove(event) {
+    showHideTooltip(mouseEvent) {
       this.showTooltip =
-        this.chart.containPixel('grid', [event.zrX, event.zrY]) && this.hasTooltipContent;
+        this.chart.containPixel('grid', [mouseEvent.zrX, mouseEvent.zrY]) && this.hasTooltipContent;
     },
     onUpdated(chart) {
       this.$emit('updated', chart);
