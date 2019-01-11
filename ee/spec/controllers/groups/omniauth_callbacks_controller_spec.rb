@@ -46,14 +46,24 @@ describe Groups::OmniauthCallbacksController do
       stub_last_request_id(last_request_id)
     end
 
-    shared_examples "and identity already linked" do
-      let!(:user) { create_linked_user }
-
+    shared_examples "SAML session initiated" do
       it "redirects to RelayState" do
         post provider, params: { group_id: group, RelayState: '/explore' }
 
         expect(response).to redirect_to('/explore')
       end
+
+      it 'stores that a SAML session is active' do
+        expect do
+          post provider, params: { group_id: group }
+        end.to change { session[:group_saml_sign_ins] }.from(nil)
+      end
+    end
+
+    shared_examples "and identity already linked" do
+      let!(:user) { create_linked_user }
+
+      it_behaves_like "SAML session initiated"
 
       it "displays a flash message verifying group sign in" do
         post provider, params: { group_id: group }
@@ -82,6 +92,18 @@ describe Groups::OmniauthCallbacksController do
 
       it_behaves_like "and identity already linked"
 
+      context 'oauth linked with different NameID' do
+        before do
+          create(:identity, user: user, extern_uid: 'some-other-name-id', provider: provider, saml_provider: saml_provider)
+        end
+
+        it 'displays warning to user' do
+          post provider, params: { group_id: group }
+
+          expect(flash[:notice]).to match(/has already been taken*/)
+        end
+      end
+
       context 'oauth already linked to another account' do
         before do
           create_linked_user
@@ -101,11 +123,7 @@ describe Groups::OmniauthCallbacksController do
           expect(group).to be_member(user)
         end
 
-        it "redirects to RelayState" do
-          post provider, params: { group_id: group, RelayState: '/explore' }
-
-          expect(response).to redirect_to('/explore')
-        end
+        it_behaves_like "SAML session initiated"
 
         it "displays a flash indicating the account has been linked" do
           post provider, params: { group_id: group }

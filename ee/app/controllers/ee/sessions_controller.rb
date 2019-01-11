@@ -20,6 +20,13 @@ module EE
       end
     end
 
+    override :destroy
+    def destroy
+      ::Gitlab::Auth::GroupSaml::SessionEnforcer.clear(current_user.request_context.session)
+
+      super
+    end
+
     private
 
     def gitlab_geo_logout

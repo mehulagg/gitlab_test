@@ -622,6 +622,14 @@ class User < ApplicationRecord
     end
   end
 
+  def request_context=(context)
+    @request_context = context
+  end
+
+  def request_context
+    @request_context ||= DefaultRequestContext.new
+  end
+
   def namespace_move_dir_allowed
     if namespace&.any_project_has_container_registry_tags?
       errors.add(:username, 'cannot be changed if a personal project has container registry tags.')

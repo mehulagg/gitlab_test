@@ -3,6 +3,7 @@
 module EE
   module GroupPolicy
     extend ActiveSupport::Concern
+    extend ::Gitlab::Utils::Override
 
     prepended do
       with_scope :subject
@@ -79,6 +80,27 @@ module EE
       rule { security_dashboard_feature_disabled }.policy do
         prevent :read_group_security_dashboard
       end
+    end
+
+    override :lookup_access_level!
+    def lookup_access_level!
+      return ::GroupMember::NO_ACCESS if sso_enforcement_prevents_access?
+
+      super
+    end
+
+    def sso_enforcement_prevents_access?
+      return false if @user.admin?
+
+      ::Gitlab::Auth::GroupSaml::SessionEnforcer.new(@user.request_context.session, saml_provider).access_restricted?
+    end
+
+    def saml_provider
+      root_group.saml_provider
+    end
+
+    def root_group
+      subject.root_ancestor
     end
   end
 end

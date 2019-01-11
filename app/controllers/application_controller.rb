@@ -94,6 +94,18 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def authenticate_user!
+    super.tap do
+      set_request_context!
+    end
+  end
+
+  def set_request_context!
+    return unless current_user
+
+    current_user.request_context=(WebRequestContext.new(session))
+  end
+
   # By default, all sessions are given the same expiration time configured in
   # the session store (e.g. 1 week). However, unauthenticated users can
   # generate a lot of sessions, primarily for CSRF verification. It makes

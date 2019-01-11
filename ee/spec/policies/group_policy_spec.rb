@@ -72,6 +72,37 @@ describe GroupPolicy do
 
       it { is_expected.to be_allowed(:admin_group_saml) }
     end
+
+    context 'with sso enforcement enabled' do
+      let(:current_user) { guest }
+      let(:group) { create(:group, :private) }
+      let!(:saml_provider) { create(:saml_provider, group: group, enforced_sso: true) }
+
+      context 'when the user has an associated session' do
+        let(:session) { Hash.new }
+        let(:session_enforcer) { Gitlab::Auth::GroupSaml::SessionEnforcer.new(session, saml_provider) }
+
+        before do
+          current_user.request_context = WebRequestContext.new(session)
+        end
+
+        it 'prevents access without a SAML session' do
+          is_expected.not_to be_allowed(:read_group)
+        end
+
+        it 'allows access with a SAML session' do
+          session_enforcer.update_session
+
+          is_expected.to be_allowed(:read_group)
+        end
+      end
+
+      context 'when an associated session is missing' do
+        it "allows access because we haven't yet restricted all use cases" do
+          is_expected.to be_allowed(:read_group)
+        end
+      end
+    end
   end
 
   context 'when LDAP sync is not enabled' do
