@@ -29,6 +29,14 @@ Go to http://localhost:9001/
 npm install @gitlab-org/gitlab-ui
 ```
 
+## Configuring application.css
+
+This project uses GitLab CE's master branch `application.css` for styles. If you'd like to configure a different css file to load instead of the default `application.css`, you may set the `CSS_URL` environment variable with the css path before building storybook.
+
+```sh
+CSS_URL=https://example.com/application.css yarn storybook
+```
+
 ## Contributing guide
 
 Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to add new components and contribute in general.
