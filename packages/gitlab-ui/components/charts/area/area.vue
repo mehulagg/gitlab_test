@@ -1,5 +1,4 @@
 <script>
-import isEmpty from 'lodash/isEmpty';
 import merge from 'lodash/merge';
 import Chart from '../chart/chart.vue';
 import ChartTooltip from '../tooltip/tooltip.vue';
@@ -47,9 +46,6 @@ export default {
     };
   },
   computed: {
-    hasTooltipContent() {
-      return !isEmpty(this.tooltipContent);
-    },
     series() {
       return Object.keys(this.data).map((key, index) => {
         let colorIndex = index;
@@ -123,32 +119,32 @@ export default {
       this.$emit('created', chart);
     },
     showHideTooltip(mouseEvent) {
-      this.showTooltip =
-        this.chart.containPixel('grid', [mouseEvent.zrX, mouseEvent.zrY]) && this.hasTooltipContent;
+      this.showTooltip = this.chart.containPixel('grid', [mouseEvent.zrX, mouseEvent.zrY]);
     },
     onUpdated(chart) {
       this.$emit('updated', chart);
     },
     onLabelChange(params) {
-      this.tooltipContent = {};
-      const xLabels = [];
-      params.seriesData.forEach(line => {
-        let title;
-        let value;
-        if (this.formatTooltipText) {
-          [title, value] = this.formatTooltipText(line.value);
-        } else {
-          [title, value] = line.value;
-        }
-
-        if (!xLabels.includes(title)) {
-          xLabels.push(title);
-        }
-
-        this.$set(this.tooltipContent, line.seriesName, value);
-      });
-      this.tooltipTitle = xLabels.join(', ');
-
+      if (this.formatTooltipText) {
+        this.formatTooltipText(params);
+      } else {
+        const { xLabels, tooltipContent } = params.seriesData.reduce(
+          (acc, line) => {
+            const [title, value] = line.value;
+            acc.tooltipContent[line.seriesName] = value;
+            if (!acc.xLabels.includes(title)) {
+              acc.xLabels.push(title);
+            }
+            return acc;
+          },
+          {
+            xLabels: [],
+            tooltipContent: {},
+          }
+        );
+        this.$set(this, 'tooltipContent', tooltipContent);
+        this.tooltipTitle = xLabels.join(', ');
+      }
       if (params.seriesData.length) {
         const [left, top] = this.chart.convertToPixel('grid', params.seriesData[0].data);
         this.tooltipPosition = {
@@ -176,16 +172,22 @@ export default {
       :top="tooltipPosition.top"
       :left="tooltipPosition.left"
     >
-      <div slot="title">
-        {{ tooltipTitle }}
-      </div>
-      <div
-        v-for="(value, label) in tooltipContent"
-        :key="label + value"
-      >
-        {{ label }}
-        {{ value }}
-      </div>
+      <template v-if="formatTooltipText">
+        <slot slot="title" name="tooltipTitle"></slot>
+        <slot name="tooltipContent"></slot>
+      </template>
+      <template v-else>
+        <div slot="title">
+          {{ tooltipTitle }}
+        </div>
+        <div
+          v-for="(value, label) in tooltipContent"
+          :key="label + value"
+        >
+          {{ label }}
+          {{ value }}
+        </div>
+      </template>
     </chart-tooltip>
   </div>
 </template>
