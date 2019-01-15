@@ -1,6 +1,7 @@
 /dist/
 /node_modules/
 /storybook/
+/.storybook/preview-head.html
 /tests/__image_snapshots__/__diff_output__/
 .idea
 .vscode
