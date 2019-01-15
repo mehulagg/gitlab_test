@@ -157,7 +157,7 @@ module Ci
       run_after_commit { BuildHooksWorker.perform_async(build.id) }
     end
 
-    after_save :update_project_statistics_after_save, if: :artifacts_size_changed?
+    after_save :update_project_statistics_after_save, if: :saved_change_to_artifacts_size?
     after_destroy :update_project_statistics_after_destroy, unless: :project_destroyed?
 
     class << self
@@ -849,7 +849,7 @@ module Ci
     end
 
     def update_project_statistics_after_save
-      update_project_statistics(read_attribute(:artifacts_size).to_i - artifacts_size_was.to_i)
+      update_project_statistics(read_attribute(:artifacts_size).to_i - artifacts_size_before_last_save.to_i)
     end
 
     def update_project_statistics_after_destroy
