@@ -291,7 +291,7 @@ module EE
     end
 
     def has_ancestor?(epic)
-      ancestors.exists?(epic)
+      ancestors.exists?(epic.id)
     end
 
     def hierarchy
