@@ -13,6 +13,7 @@ export default glob
     const outputFilename = input.replace(/\.(vue|js)$/, '');
 
     return {
+      external: ['copy-to-clipboard', 'echarts', 'lodash', 'vue'],
       input,
       output: {
         format: 'esm',
