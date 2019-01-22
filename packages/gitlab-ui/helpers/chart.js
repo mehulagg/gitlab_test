@@ -75,6 +75,15 @@ export const grid = {
   right: 24,
 };
 
+/**
+ * Meant to be used with Lodash mergeWith
+ * Returning undefined will prompt the default merge strategy
+ * This function concatenates arrays and uses default merge for everything else
+ */
+export function additiveArrayMerge(objValue, srcValue) {
+  return Array.isArray(objValue) ? objValue.concat(srcValue) : undefined;
+}
+
 export function getThresholdConfig(thresholds) {
   const keys = Object.keys(thresholds);
   if (!keys.length) {

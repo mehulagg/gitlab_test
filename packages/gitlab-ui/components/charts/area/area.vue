@@ -1,8 +1,12 @@
 <script>
-import merge from 'lodash/merge';
+import mergeWith from 'lodash/mergeWith';
 import Chart from '../chart/chart.vue';
 import ChartTooltip from '../tooltip/tooltip.vue';
-import defaultChartOptions, { colors, getThresholdConfig } from '../../../helpers/chart';
+import defaultChartOptions, {
+  colors,
+  getThresholdConfig,
+  additiveArrayMerge,
+} from '../../../helpers/chart';
 import { hexToRgba, debounceByAnimationFrame } from '../../../helpers/utils';
 
 export default {
@@ -78,7 +82,7 @@ export default {
       });
     },
     options() {
-      return merge(
+      return mergeWith(
         {},
         defaultChartOptions,
         {
@@ -103,7 +107,8 @@ export default {
             itemWidth: 16,
           },
         },
-        this.option
+        this.option,
+        additiveArrayMerge
       );
     },
   },
