@@ -17,6 +17,7 @@ export { default as GlTooltip } from './components/base/tooltip/tooltip.vue';
 export { default as GlEmptyState } from './components/regions/empty_state/empty_state.vue';
 export { default as GlFormInput } from './components/base/form/form_input/form_input.vue';
 export { default as GlFormTextarea } from './components/base/form/form_textarea/form_textarea.vue';
+export { default as GlFormGroup } from './components/base/form/form_group/form_group.vue';
 export { default as GlSearchBox } from './components/base/search/search_box.vue';
 export { default as GlDropdownItem } from './components/base/dropdown/dropdown_item.vue';
 export { default as GlDropdownHeader } from './components/base/dropdown/dropdown_header.vue';

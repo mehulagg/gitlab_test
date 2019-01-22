@@ -36,6 +36,9 @@ export {
   default as GlFormTextareaDocumentation,
 } from '../components/base/form/form_textarea/form_textarea.documentation';
 export {
+  default as GlFormGroupDocumentation,
+} from '../components/base/form/form_group/form_group.documentation';
+export {
   default as GlSearchBoxDocumentation,
 } from '../components/base/search/search_box.documentation';
 export {
