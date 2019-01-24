@@ -4,6 +4,7 @@ module GroupsHelper
   def group_overview_nav_link_paths
     %w[
       groups#show
+      groups#details
       groups#activity
       groups#subgroups
       analytics#show
@@ -20,6 +21,18 @@ module GroupsHelper
 
   def group_sidebar_link?(link)
     group_sidebar_links.include?(link)
+  end
+
+  def group_view_nav_link_active?(_group_view)
+    # must be false; overridden in EE
+    # will be updated if the Group Overview content is ported to CE, see gitlab-ce/#57236
+    false
+  end
+
+  def group_view_nav_link(group_view:, **options, &block)
+    options = options.merge(active: true) if group_view_nav_link_active?(group_view)
+
+    nav_link(options, &block)
   end
 
   def can_change_group_visibility_level?(group)

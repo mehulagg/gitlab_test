@@ -3,6 +3,36 @@
 module EE
   module GroupsController
     extend ActiveSupport::Concern
+    extend ::Gitlab::Utils::Override
+
+    prepended do
+      include ::Groups::Security::DashboardPermissions
+
+      with_options only: :show, if: -> { current_user&.group_view_security_dashboard? } do
+        before_action :ensure_security_dashboard_feature_enabled
+        before_action :authorize_read_group_security_dashboard!
+      end
+
+      delegate :default_view, :default_view_supports_request_format?, to: :presenter
+    end
+
+    override :show
+    def show
+      respond_to do |format|
+        format.html do
+          render default_view
+        end
+
+        format.atom do
+          # rubocop:disable Cop/AvoidReturnFromBlocks
+          render :nothing && return unless default_view_supports_request_format?
+          # rubocop:enable Cop/AvoidReturnFromBlocks
+
+          load_events
+          render layout: 'xml.atom', template: default_view
+        end
+      end
+    end
 
     def group_params_attributes
       super + group_params_ee
@@ -23,6 +53,14 @@ module EE
 
     def current_group
       @group
+    end
+
+    # NOTE: currently unable to wrap a group in presenter and re-assign @group: SimpleDelegator doesn't substitute
+    # the class of a wrapped object
+    def presenter
+      strong_memoize(:presenter) do
+        group.present(current_user: current_user, request: request)
+      end
     end
   end
 end

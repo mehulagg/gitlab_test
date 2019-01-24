@@ -57,6 +57,10 @@ class GroupsController < Groups::ApplicationController
   end
 
   def show
+    render :details
+  end
+
+  def details
     respond_to do |format|
       format.html
 
