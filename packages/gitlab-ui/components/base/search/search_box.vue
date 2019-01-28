@@ -65,7 +65,7 @@ export default {
 </script>
 
 <template>
-  <div class="position-relative">
+  <div class="position-relative ms-no-clear">
     <gl-form-input
       ref="input"
       v-bind="inputAttributes"
