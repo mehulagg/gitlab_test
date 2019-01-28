@@ -62,7 +62,7 @@ export default {
         return Object.assign(
           {
             name: key,
-            data: Object.entries(this.data[key]),
+            data: this.data[key],
             type: 'line',
             showSymbol: false,
             symbol: 'circle',
