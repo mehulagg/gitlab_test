@@ -67,12 +67,9 @@ module Geo
     def load_pending_resources
       resources = find_project_ids_not_synced(batch_size: db_retrieve_batch_size)
       remaining_capacity = db_retrieve_batch_size - resources.size
+      return resources if remaining_capacity.zero?
 
-      if remaining_capacity.zero?
-        resources
-      else
-        resources + find_project_ids_updated_recently(batch_size: remaining_capacity)
-      end
+      resources + find_project_ids_updated_recently(batch_size: remaining_capacity)
     end
 
     # rubocop: disable CodeReuse/ActiveRecord

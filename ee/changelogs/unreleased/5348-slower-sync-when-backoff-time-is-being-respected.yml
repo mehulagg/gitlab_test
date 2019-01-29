@@ -1,0 +1,5 @@
+---
+title: "[Geo] Fix: Slower sync when backoff time is being respected"
+merge_request: 9553
+author:
+type: changed

@@ -644,6 +644,22 @@ describe Geo::ProjectRegistryFinder, :geo do
     include_examples 'finds all the things' do
       let(:method_prefix) { 'fdw' }
     end
+
+    describe '#find_projects_updated_recently' do
+      it 'returns all dirty projects (including projects with future *_retry_at) when *_retry_at nulls come first' do
+        project_repo_backoff = create(:project)
+        project_wiki_backoff = create(:project)
+        create(:geo_project_registry, :repository_dirty, project: project_repo_backoff, repository_retry_at: 1.day.from_now)
+        create(:geo_project_registry, :wiki_dirty, project: project_wiki_backoff, wiki_retry_at: 2.days.from_now)
+        create(:geo_project_registry, :repository_dirty, project: project_repository_dirty)
+        create(:geo_project_registry, :wiki_dirty, project: project_wiki_dirty)
+
+        projects = subject.find_projects_updated_recently(batch_size: 10).pluck(:id)
+
+        expected_order = [project_repository_dirty.id, project_wiki_dirty.id, project_repo_backoff.id, project_wiki_backoff.id]
+        expect(projects).to eq(expected_order)
+      end
+    end
   end
 
   context 'Legacy' do
@@ -655,6 +671,20 @@ describe Geo::ProjectRegistryFinder, :geo do
 
     include_examples 'finds all the things' do
       let(:method_prefix) { 'legacy' }
+    end
+
+    describe '#find_projects_updated_recently' do
+      it 'returns dirty projects (not including projects with future *_retry_at)' do
+        create(:geo_project_registry, :repository_dirty, :future_sync)
+        create(:geo_project_registry, :wiki_dirty, :future_sync)
+        create(:geo_project_registry, :repository_dirty, project: project_repository_dirty)
+        create(:geo_project_registry, :wiki_dirty, project: project_wiki_dirty)
+
+        projects = subject.find_projects_updated_recently(batch_size: 10).pluck(:id)
+
+        expected_projects = [project_repository_dirty.id, project_wiki_dirty.id]
+        expect(projects).to eq(expected_projects)
+      end
     end
   end
 end

@@ -132,5 +132,9 @@ module Gitlab
         true
       end
     end
+
+    def self.legacy_queries?
+      !Gitlab::Geo::Fdw.enabled? || current_node.selective_sync?
+    end
   end
 end

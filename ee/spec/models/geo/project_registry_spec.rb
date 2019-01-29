@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Geo::ProjectRegistry do
+describe Geo::ProjectRegistry, :geo do
   using RSpec::Parameterized::TableSyntax
 
   set(:project) { create(:project, description: 'kitten mittens') }

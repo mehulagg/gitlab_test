@@ -206,7 +206,7 @@ module Geo
     def fdw_find_projects_updated_recently
       Geo::Fdw::Project.joins("INNER JOIN project_registry ON project_registry.project_id = #{fdw_project_table.name}.id")
           .merge(Geo::ProjectRegistry.dirty)
-          .merge(Geo::ProjectRegistry.retry_due)
+          .order('LEAST(project_registry.repository_retry_at, project_registry.wiki_retry_at) ASC NULLS FIRST')
     end
     # rubocop: enable CodeReuse/ActiveRecord
 

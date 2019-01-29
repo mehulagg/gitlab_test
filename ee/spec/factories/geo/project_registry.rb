@@ -23,6 +23,11 @@ FactoryBot.define do
       resync_wiki true
     end
 
+    trait :future_sync do
+      repository_retry_at { 2.days.from_now }
+      wiki_retry_at { 2.days.from_now }
+    end
+
     trait :synced do
       last_repository_synced_at { 5.days.ago }
       last_repository_successful_sync_at { 5.days.ago }

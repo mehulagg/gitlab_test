@@ -10,9 +10,14 @@ describe Geo::RepositoryShardSyncWorker, :geo, :delete, :clean_gitlab_redis_cach
   let!(:secondary) { create(:geo_node) }
 
   let(:shard_name) { Gitlab.config.repositories.storages.keys.first }
+  let(:project) { create(:project) }
 
   before do
     stub_current_geo_node(secondary)
+
+    stub_exclusive_lease(renew: true)
+
+    Gitlab::ShardHealthCache.update([shard_name])
   end
 
   shared_examples '#perform' do |skip_tests|
@@ -23,12 +28,6 @@ describe Geo::RepositoryShardSyncWorker, :geo, :delete, :clean_gitlab_redis_cach
 
     before do
       skip('FDW is not configured') if skip_tests
-    end
-
-    before do
-      stub_exclusive_lease(renew: true)
-
-      Gitlab::ShardHealthCache.update([shard_name])
     end
 
     it 'performs Geo::ProjectSyncWorker for each project' do
@@ -105,8 +104,14 @@ describe Geo::RepositoryShardSyncWorker, :geo, :delete, :clean_gitlab_redis_cach
     end
 
     context 'multiple shards' do
-      it 'uses two loops to schedule jobs' do
+      it 'divides repos_max_capacity between all the healthy shards' do
         expect(subject).to receive(:schedule_jobs).twice.and_call_original
+
+        allow(Geo::ProjectSyncWorker).to receive(:perform_async) do |project_id|
+          Geo::ProjectRegistry.create!(project_id: project_id, resync_repository: false, resync_wiki: false)
+
+          'random-job-id-hash'
+        end
 
         Gitlab::ShardHealthCache.update([shard_name, 'shard2', 'shard3', 'shard4', 'shard5'])
         secondary.update!(repos_max_capacity: 5)
@@ -294,6 +299,24 @@ describe Geo::RepositoryShardSyncWorker, :geo, :delete, :clean_gitlab_redis_cach
   describe 'when PostgreSQL FDW is available', :geo do
     # Skip if FDW isn't activated on this database
     it_behaves_like '#perform', Gitlab::Database.postgresql? && !Gitlab::Geo::Fdw.enabled?
+
+    context 'scheduled for future' do
+      it 'performs Geo::ProjectSyncWorker for repo that is scheduled for future sync' do
+        create(:geo_project_registry, :synced, :repository_dirty, :future_sync, project: project)
+
+        expect(Geo::ProjectSyncWorker).to receive(:perform_async).with(project.id, { sync_repository: true, sync_wiki: false })
+
+        subject.perform(shard_name)
+      end
+
+      it 'performs Geo::ProjectSyncWorker for wiki that is scheduled for future sync' do
+        create(:geo_project_registry, :synced, :wiki_dirty, :future_sync, project: project)
+
+        expect(Geo::ProjectSyncWorker).to receive(:perform_async).with(project.id, { sync_repository: false, sync_wiki: true })
+
+        subject.perform(shard_name)
+      end
+    end
   end
 
   describe 'when PostgreSQL FDW is not enabled', :geo do
@@ -302,5 +325,26 @@ describe Geo::RepositoryShardSyncWorker, :geo, :delete, :clean_gitlab_redis_cach
     end
 
     it_behaves_like '#perform', false
+
+    context 'legacy behaviour' do
+      context 'scheduled for future' do
+        it 'does not perform Geo::ProjectSyncWorker for repo and wiki that are scheduled for future sync' do
+          create(:geo_project_registry, :synced, :repository_dirty, :future_sync)
+          create(:geo_project_registry, :synced, :wiki_dirty, :future_sync)
+
+          expect(Geo::ProjectSyncWorker).not_to receive(:perform_async)
+
+          subject.perform(shard_name)
+        end
+
+        it 'performs Geo::ProjectSyncWorker for repo that is scheduled for future sync but sets sync_repository flag to false' do
+          create(:geo_project_registry, :synced, :repository_dirty, repository_retry_at: 2.days.from_now, project: project)
+
+          expect(Geo::ProjectSyncWorker).to receive(:perform_async).with(project.id, { sync_repository: false, sync_wiki: false })
+
+          subject.perform(shard_name)
+        end
+      end
+    end
   end
 end

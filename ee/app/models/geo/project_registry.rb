@@ -225,7 +225,7 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
   def repository_sync_due?(scheduled_time)
     return true if last_repository_synced_at.nil?
     return false unless resync_repository?
-    return false if repository_retry_at && scheduled_time < repository_retry_at
+    return false if Gitlab::Geo.legacy_queries? && repository_retry_at && scheduled_time < repository_retry_at
 
     scheduled_time > last_repository_synced_at
   end
@@ -233,7 +233,7 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
   def wiki_sync_due?(scheduled_time)
     return true if last_wiki_synced_at.nil?
     return false unless resync_wiki?
-    return false if wiki_retry_at && scheduled_time < wiki_retry_at
+    return false if Gitlab::Geo.legacy_queries? && wiki_retry_at && scheduled_time < wiki_retry_at
 
     scheduled_time > last_wiki_synced_at
   end
