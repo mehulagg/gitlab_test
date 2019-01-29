@@ -148,4 +148,5 @@ export default {
   yAxis,
   legend,
   grid,
+  color: colors.lines,
 };
