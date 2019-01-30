@@ -271,3 +271,5 @@ module Gitlab
     end
   end
 end
+
+Gitlab::Workhorse.prepend(EE::Gitlab::Workhorse)
