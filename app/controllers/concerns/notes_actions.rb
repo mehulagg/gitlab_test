@@ -43,7 +43,10 @@ module NotesActions
 
   # rubocop:disable Gitlab/ModuleWithInstanceVariables
   def create
-    @note = Notes::CreateService.new(note_project, current_user, create_note_params).execute
+    @note = nil
+    for_database do
+      @note = Notes::CreateService.new(note_project, current_user, create_note_params).execute
+    end
 
     respond_to do |format|
       format.json do
