@@ -20,6 +20,7 @@ describe WebIdeTerminalEntity do
       stub_feature_flags(build_service_proxy: true)
     end
 
+    it { is_expected.to have_key(:proxy_path) }
     it { is_expected.to have_key(:proxy_websocket_path) }
   end
 
@@ -28,6 +29,7 @@ describe WebIdeTerminalEntity do
       stub_feature_flags(build_service_proxy: false)
     end
 
+    it { is_expected.not_to have_key(:proxy_path) }
     it { is_expected.not_to have_key(:proxy_websocket_path) }
   end
 end

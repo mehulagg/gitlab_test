@@ -6,8 +6,12 @@ module EE
       extend ActiveSupport::Concern
 
       prepended do
-        before_action :authorize_create_proxy_build!, only: :proxy_websocket_authorize
-        before_action :verify_proxy_request!, only: :proxy_websocket_authorize
+        before_action :authorize_create_proxy_build!, only: [:proxy_authorize, :proxy_websocket_authorize]
+        before_action :verify_proxy_request!, only: [:proxy_authorize, :proxy_websocket_authorize]
+      end
+
+      def proxy_authorize
+        render json: ::Gitlab::Workhorse.service_request(build_service_specification)
       end
 
       def proxy_websocket_authorize
