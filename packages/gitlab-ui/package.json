@@ -4,6 +4,8 @@
   "description": "GitLab UI Components",
   "license": "MIT",
   "main": "dist/index.js",
+  "module": "dist/index.js",
+  "jsnext:main": "dist/index.js",
   "repository": "git@gitlab.com:gitlab-org/gitlab-ui.git",
   "author": "GitLab",
   "private": false,

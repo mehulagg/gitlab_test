@@ -1,5 +1,6 @@
 <script>
-import { GlFormInput, GlLoadingIcon } from '../../../index';
+import GlFormInput from '../form/form_input/form_input.vue';
+import GlLoadingIcon from '../loading_icon/loading_icon.vue';
 
 export default {
   iconWrapperClasses: 'position-absolute sticky-top h-100 d-flex align-items-center text-muted',

@@ -1,6 +1,6 @@
 import { withKnobs, object } from '@storybook/addon-knobs';
 import documentedStoriesOf from '../utils/documented_stories';
-import { GlAreaChart } from '../../index';
+import { GlAreaChart } from '../../charts';
 import readme from '../../components/charts/area/area.md';
 
 const components = {

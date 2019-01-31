@@ -1,5 +1,5 @@
 import documentedStoriesOf from '../utils/documented_stories';
-import { GlChart } from '../../index';
+import { GlChart } from '../../charts';
 import readme from '../../components/charts/chart/chart.md';
 
 const components = {

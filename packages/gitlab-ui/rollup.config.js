@@ -8,6 +8,7 @@ import glob from 'glob';
 
 export default glob
   .sync('+(components|directives)/**/*.+(js|vue)')
+  .concat('charts.js')
   .concat('index.js')
   .map(input => {
     const outputFilename = input.replace(/\.(vue|js)$/, '');
