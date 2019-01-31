@@ -39,4 +39,4 @@ CSS_URL=https://example.com/application.css yarn storybook
 
 ## Contributing guide
 
-Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to add new components and contribute in general.
+Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to add new components and contribute in general to `gitlab-ui`.
