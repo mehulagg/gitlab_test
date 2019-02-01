@@ -79,10 +79,17 @@ export default {
     <div
       :class="$options.iconWrapperClasses"
       style="left: 0"
-      class="pl-3 pr-3"
+      class="pl-2 pr-2"
       @click="focusInput"
     >
+      <!--
+        To match the design spec, added 3px margin so the icon is even 16px wide now.
+        This can be removed once SVG based icons kick in.
+
+        Discussion: https://gitlab.com/gitlab-org/gitlab-ui/merge_requests/153#note_133591712
+      -->
       <i
+        style="margin: 0 1.5px"
         class="fa fa-search"
         aria-hidden="true"
       ></i>
@@ -91,7 +98,7 @@ export default {
       v-show="hasRightIcon"
       :class="$options.iconWrapperClasses"
       style="right: 0"
-      class="pr-3"
+      class="pr-2"
     >
       <gl-loading-icon
         v-show="isLoading"
@@ -99,7 +106,7 @@ export default {
       />
       <i
         v-show="isResetButtonVisible"
-        class="fa fa-times-circle fa-lg pl-3"
+        class="fa fa-times-circle fa-lg pl-2"
         aria-hidden="true"
         style="cursor: pointer;"
         @click="clearInput"
