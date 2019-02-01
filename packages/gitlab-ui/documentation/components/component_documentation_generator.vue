@@ -11,7 +11,7 @@ import { isString, isUndefined } from 'lodash';
 import * as enumConstants from '../../stories/utils/constants';
 import { getValidationInfoText } from '../../stories/utils/validation_utils';
 
-import * as gitlabComponents from '../../index';
+import { gitlabComponents, componentValidator } from '../all_components';
 
 import { getDocumentationFor } from '../components_documentation';
 
@@ -40,6 +40,7 @@ export default {
     componentName: {
       type: String,
       default: 'Link',
+      validator: componentValidator,
     },
   },
   computed: {
@@ -170,7 +171,7 @@ export default {
         head-variant="default"
         striped
       >
-        <template 
+        <template
           slot="prop"
           slot-scope="field"
         >
@@ -178,7 +179,7 @@ export default {
             <span :title="field.item._cellVariants ? 'Inherited from Vue Bootstrap' : ''">{{ field.value }}</span>
           </div>
         </template>
-        <template 
+        <template
           slot="required"
           slot-scope="data"
         >
@@ -190,7 +191,7 @@ export default {
         >
           <code v-if="data.value">
             {{ data.value }}
-          </code> 
+          </code>
           <template v-if="data.item.validationInfo">
             ({{ data.item.validationInfo }})
           </template>
@@ -246,13 +247,13 @@ export default {
 
     <template v-if="bootstrapComponentName">
       <h3 id="under-the-hood">vue-bootstrap component</h3>
-      <p>This component uses <a 
-        :href="`https://bootstrap-vue.js.org/docs/components/${bootstrapComponentLink}`" 
+      <p>This component uses <a
+        :href="`https://bootstrap-vue.js.org/docs/components/${bootstrapComponentLink}`"
         target="blank"
       ><code>&lt;{{ bootstrapComponentName }}&gt;</code></a> from vue-bootstrap internally. So please take a look also there at their extensive documentation.</p>
     </template>
   </div>
-  <b-alert 
+  <b-alert
     v-else
     show
     variant="warning"

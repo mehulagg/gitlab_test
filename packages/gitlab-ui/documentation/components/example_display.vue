@@ -13,7 +13,7 @@ import 'highlight.js/styles/monokai.css';
 
 import copyToClipboard from 'copy-to-clipboard';
 
-import * as gitlabComponents from '../../index';
+import { gitlabComponents } from '../all_components';
 
 import * as Documentation from '../components_documentation';
 
@@ -185,8 +185,8 @@ export default {
               <strong>{{ exampleName }}</strong>
             </b-col>
             <b-col class="text-right">
-              <b-button-group 
-                size="sm" 
+              <b-button-group
+                size="sm"
                 class="mx-1"
               >
                 <b-btn v-b-toggle.collapseSource>Source</b-btn>
@@ -200,14 +200,14 @@ export default {
           </b-row>
         </div>
         <b-card-body>
-          <div 
-            :is="currentExampleComponent" 
+          <div
+            :is="currentExampleComponent"
             ref="compiled"
           />
         </b-card-body>
         <b-list-group flush>
-          <b-collapse 
-            id="collapseSource" 
+          <b-collapse
+            id="collapseSource"
             class="mt-2"
           >
             <b-list-group-item>
@@ -216,8 +216,8 @@ export default {
                 <b-col class="text-right">
                   <template v-if="copiedSource">Copied!</template>
                   <b-button-group size="sm">
-                    <b-button 
-                      :disabled="copiedSource" 
+                    <b-button
+                      :disabled="copiedSource"
                       @click="copySource"
                     >
                       Copy
@@ -225,14 +225,14 @@ export default {
                   </b-button-group>
                 </b-col>
               </b-row>
-              <code 
-                class="hljs html" 
+              <code
+                class="hljs html"
                 v-html="sourceFormatted"
               ></code>
             </b-list-group-item>
           </b-collapse>
-          <b-collapse 
-            id="collapseHTML" 
+          <b-collapse
+            id="collapseHTML"
             class="mt-2"
           >
             <b-list-group-item>
@@ -241,8 +241,8 @@ export default {
                 <b-col class="text-right">
                   <template v-if="copiedOutput">Copied!</template>
                   <b-button-group size="sm">
-                    <b-button 
-                      :disabled="copiedOutput" 
+                    <b-button
+                      :disabled="copiedOutput"
                       @click="copyHtml"
                     >
                       Copy
@@ -250,18 +250,18 @@ export default {
                   </b-button-group>
                 </b-col>
               </b-row>
-              <code 
-                class="hljs html" 
+              <code
+                class="hljs html"
                 v-html="renderedHtmlFormatted"
               ></code>
             </b-list-group-item>
           </b-collapse>
         </b-list-group>
       </b-card>
-    </div>    
-    <b-alert 
-      v-else-if="exampleName" 
-      show 
+    </div>
+    <b-alert
+      v-else-if="exampleName"
+      show
       variant="warning"
     >No Example found with the name "{{ exampleName }}"</b-alert>
   </div>
