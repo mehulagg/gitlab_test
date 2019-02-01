@@ -3,7 +3,7 @@ import GlFormInput from '../form/form_input/form_input.vue';
 import GlLoadingIcon from '../loading_icon/loading_icon.vue';
 
 export default {
-  iconWrapperClasses: 'position-absolute sticky-top h-100 d-flex align-items-center text-muted',
+  iconWrapperClasses: 'position-absolute position-top-0 h-100 d-flex align-items-center text-muted',
   components: {
     GlFormInput,
     GlLoadingIcon,
@@ -78,8 +78,7 @@ export default {
     />
     <div
       :class="$options.iconWrapperClasses"
-      style="left: 0"
-      class="pl-2 pr-2"
+      class="pl-2 pr-2 position-left-0"
       @click="focusInput"
     >
       <!--
@@ -97,8 +96,7 @@ export default {
     <div
       v-show="hasRightIcon"
       :class="$options.iconWrapperClasses"
-      style="right: 0"
-      class="pr-2"
+      class="pr-2 position-right-0"
     >
       <gl-loading-icon
         v-show="isLoading"
