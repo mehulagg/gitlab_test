@@ -56,10 +56,9 @@ module Geo
         redownload_repository
         @new_repository = true
       elsif repository.exists?
-        fetch_geo_mirror(repository)
+        fetch_geo(repository)
       else
-        ensure_repository
-        fetch_geo_mirror(repository)
+        initial_fetch(repository)
         @new_repository = true
       end
     end
@@ -80,7 +79,7 @@ module Geo
         raise Gitlab::Shell::Error, 'Can not create a temporary repository'
       end
 
-      fetch_geo_mirror(temp_repo)
+      fetch_geo(temp_repo)
 
       set_temp_repository_as_main
     ensure
@@ -91,20 +90,19 @@ module Geo
       ::Gitlab::Geo.current_node
     end
 
-    def fetch_geo_mirror(repository)
-      # Fetch the repository, using a JWT header for authentication
-      repository.with_config(jwt_authentication_header) do
-        repository.fetch_as_mirror(remote_url, remote_name: GEO_REMOTE_NAME, forced: true)
-      end
+    def fetch_geo(repository)
+      repository.fetch_http_remote(GEO_REMOTE_NAME, remote_url, jwt_authorization_token)
     end
 
     # Build a JWT header for authentication
     def jwt_authentication_header
-      authorization = ::Gitlab::Geo::RepoSyncRequest.new(
+      { "http.#{remote_url}.extraHeader" => "Authorization: #{jwt_authorization_token}" }
+    end
+
+    def jwt_authorization_token
+      ::Gitlab::Geo::RepoSyncRequest.new(
         scope: project.repository.full_path
       ).authorization
-
-      { "http.#{remote_url}.extraHeader" => "Authorization: #{authorization}" }
     end
 
     def remote_url

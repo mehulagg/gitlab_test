@@ -436,7 +436,9 @@ group :ed25519 do
 end
 
 # Gitaly GRPC client
-gem 'gitaly-proto', '~> 1.13.0', require: 'gitaly'
+#gem 'gitaly-proto', '~> 1.14.0', require: 'gitaly'
+
+gem 'gitaly-proto', :git => "git@gitlab.com:gitlab-org/gitaly-proto.git", :branch => "jc-geo-fast-initial-fetch"
 
 gem 'grpc', '~> 1.15.0'
 

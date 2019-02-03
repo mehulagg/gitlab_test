@@ -231,4 +231,18 @@ describe Gitlab::GitalyClient::RepositoryService do
       client.raw_changes_between('deadbeef', 'deadpork')
     end
   end
+
+  describe '#pre_fetch' do
+    it 'sends a pre_fetch message' do
+      fork_repository = Gitlab::Git::Repository.new('default', TEST_REPO_PATH, '', 'group/project')
+      object_pool = create(:pool_repository).object_pool.gitaly_object_pool
+
+      expect_any_instance_of(Gitaly::RepositoryService::Stub)
+        .to receive(:pre_fetch)
+        .with(kind_of(Gitaly::PreFetchRequest), kind_of(Hash))
+        .and_return(double)
+
+      client.pre_fetch(fork_repository, object_pool)
+    end
+  end
 end

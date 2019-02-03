@@ -38,6 +38,15 @@ module Geo
       project.wiki.ensure_repository
     end
 
+    def fast_fetch?
+      false
+    end
+
+    def initial_fetch(repository)
+      ensure_repository
+      fetch_geo(repository)
+    end
+
     def expire_repository_caches
       log_info('Expiring caches')
       repository.after_sync

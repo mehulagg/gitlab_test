@@ -26,6 +26,26 @@ module Gitlab
         GitalyClient.call(@storage, :repository_service, :cleanup, request, timeout: GitalyClient.fast_timeout)
       end
 
+      def fetch_http_remote(remote_name, remote_url, jwt_authentication_token, timeout)
+        request = Gitaly::FetchHTTPRemoteRequest.new(repository: @gitaly_repo,
+                                                     timeout: timeout,
+                                                     remote: Gitaly::Remote.new(url: remote_url,
+                                                                                name: remote_name,
+                                                                                http_authorization_header: jwt_authentication_token))
+
+        GitalyClient.call(@storage, :repository_service, :fetch_http_remote, request)
+      end
+
+      def geo_fast_initial_fetch(object_pool, remote_name, remote_url, jwt_authentication_header, timeout)
+        request = Gitaly::GeoFastInitialFetchRequest.new(repository: @gitaly_repo,
+                                                         timeout: timeout,
+                                                         object_pool: object_pool,
+                                                         remote: Gitaly::Remote.new(url: remote_url,
+                                                                                    name: remote_name,
+                                                                                    http_authorization_header: jwt_authentication_header))
+        GitalyClient.call(@storage, :repository_service, :geo_fast_initial_fetch, request)
+      end
+
       def garbage_collect(create_bitmap)
         request = Gitaly::GarbageCollectRequest.new(repository: @gitaly_repo, create_bitmap: create_bitmap)
         GitalyClient.call(@storage, :repository_service, :garbage_collect, request)

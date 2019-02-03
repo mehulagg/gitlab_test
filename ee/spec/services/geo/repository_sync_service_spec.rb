@@ -3,6 +3,7 @@ require 'spec_helper'
 describe Geo::RepositorySyncService do
   include ::EE::GeoHelpers
   include ExclusiveLeaseHelpers
+  include ProjectForksHelper
 
   set(:primary) { create(:geo_node, :primary) }
   set(:secondary) { create(:geo_node) }
@@ -58,6 +59,22 @@ describe Geo::RepositorySyncService do
       expect_any_instance_of(Repository).to receive(:expire_all_method_caches).once
       expect_any_instance_of(Repository).to receive(:expire_branch_cache).once
       expect_any_instance_of(Repository).to receive(:expire_content_cache).once
+
+      subject.execute
+    end
+
+    it 'tries to prefetch' do
+      allow(repository).to receive(:exists?).and_return(false)
+
+      expect(project).to receive(:pre_fetch)
+
+      subject.execute
+    end
+
+    it 'ensures the repository exists' do
+      allow(repository).to receive(:exists?).and_return(false)
+
+      expect(project).to receive(:ensure_repository)
 
       subject.execute
     end

@@ -4,6 +4,8 @@ module Geo
   class RepositorySyncService < BaseSyncService
     self.type = :repository
 
+    delegate :pool_repository, :has_pool_repository?, to: :project
+
     private
 
     def sync_repository
@@ -45,6 +47,22 @@ module Geo
 
     def ensure_repository
       project.ensure_repository
+    end
+
+    def fast_initial_fetch?
+      return if !has_pool_repository? || !pool_repository.object_pool.exists? || repository.exists?
+
+      true
+    end
+
+    def fast_initial_geo_fetch(repository)
+      repository.geo_fast_initial_fetch(pool_repository, GEO_REMOTE_NAME, remote_url, jwt_authorization_token)
+    end
+
+    def initial_fetch(repository)
+      return fast_initial_geo_fetch(repository) if fast_initial_fetch?
+      ensure_repository
+      fetch_geo(repository)
     end
 
     def update_root_ref

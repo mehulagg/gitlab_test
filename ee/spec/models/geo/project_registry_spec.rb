@@ -1002,4 +1002,18 @@ describe Geo::ProjectRegistry do
       expect(registry.synchronization_state).to eq(:synced)
     end
   end
+
+  describe '#ever_successfully_synced_repository?' do
+    it 'returns false when repository has been synced' do
+      registry.update_column(:last_repository_successful_sync_at, Time.now)
+
+      expect(registry.ever_successfully_synced_repository?).to be true
+    end
+
+    it 'returns true when repository has not been synced' do
+      registry.update_column(:last_repository_successful_sync_at, nil)
+
+      expect(registry.ever_successfully_synced_repository?).to be false
+    end
+  end
 end

@@ -3,6 +3,8 @@ require 'spec_helper'
 describe Project do
   include ExternalAuthorizationServiceHelpers
   include ::EE::GeoHelpers
+  include ProjectForksHelper
+
   using RSpec::Parameterized::TableSyntax
 
   describe 'associations' do
@@ -1715,6 +1717,90 @@ describe Project do
 
     it 'returns false when object pool exists' do
       expect(subject.object_pool_missing?).to be false
+    end
+  end
+
+  describe '#pre_fetch' do
+    let(:network) { create(:fork_network) }
+    let(:root_project) { network.root_project }
+    let(:project) { fork_project(root_project) }
+    let(:registry) { create(:geo_project_registry, project: project) }
+
+    subject { project.pre_fetch }
+
+    it "calls pre_fetch on the repository when pre_fetchable? returns true" do
+      allow(project).to receive(:pre_fetchable?).and_return(true)
+
+      expect(project.repository).to receive(:pre_fetch)
+
+      subject
+    end
+
+    it "does not call pre_fetch on the repository when pre_fetchable? returns false" do
+      allow(project).to receive(:pre_fetchable?).and_return(false)
+
+      expect(project.repository).not_to receive(:pre_fetch)
+
+      subject
+    end
+  end
+
+  describe '#pre_fetchable?' do
+    let(:network) { create(:fork_network) }
+    let(:root_project) { network.root_project }
+    let(:pool) { create(:pool_repository, :ready) }
+    let(:project) { fork_project(root_project) }
+
+    subject { project.pre_fetchable? }
+
+    before do
+      create(:geo_project_registry, project: project)
+      allow(project).to receive(:pool_repository).and_return(pool)
+      allow(project.fork_source).to receive(:ever_successfully_synced_repository?).and_return(true)
+    end
+
+    it 'returns true' do
+      expect(subject).to be true
+    end
+
+    it 'returns false when not forked' do
+      allow(project).to receive(:forked?).and_return(false)
+
+      expect(subject).to be_falsey
+    end
+
+    it 'returns false when it is a source project' do
+      allow(project).to receive(:source_project?).and_return(true)
+
+      expect(subject).to be_falsey
+    end
+
+    it 'returns false when it is a fork source' do
+      allow(project).to receive(:fork_source?).and_return(true)
+
+      expect(subject).to be_falsey
+    end
+
+    it 'returns false when the repository already exists' do
+      allow(project.repository).to receive(:exists?).and_return(true)
+
+      expect(subject).to be_falsey
+    end
+  end
+
+  describe '#ever_successfully_synced_repository?' do
+    let(:project) { create(:project) }
+
+    before do
+      create(:geo_project_registry, project: project)
+    end
+
+    subject { project.ever_successfully_synced_repository? }
+
+    it 'delegates to project registry' do
+      expect(project.project_registry).to receive(:ever_successfully_synced_repository?).once.and_call_original
+
+      subject
     end
   end
 

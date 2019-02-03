@@ -889,6 +889,20 @@ module Gitlab
         end
       end
 
+      def fetch_http_remote(remote_name, remote_url, jwt_authentication_header)
+        wrapped_gitaly_errors do
+          gitaly_repository_client.fetch_http_remote(remote_name, remote_url, jwt_authentication_header, GITLAB_PROJECTS_TIMEOUT)
+        end
+      end
+
+      def geo_fast_initial_fetch(pool_repository, remote_url, remote_name, jwt_authentication_header)
+        wrapped_gitaly_errors do
+          gitaly_repository_client.geo_fast_initial_fetch(pool_repository.object_pool.gitaly_object_pool,
+                                                          remote_url, remote_name,
+                                                          jwt_authentication_header, GITLAB_PROJECTS_TIMEOUT)
+        end
+      end
+
       def gitaly_repository
         Gitlab::GitalyClient::Util.repository(@storage, @relative_path, @gl_repository, @gl_project_path)
       end

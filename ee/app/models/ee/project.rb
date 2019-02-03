@@ -125,6 +125,8 @@ module EE
       accepts_nested_attributes_for :alerting_setting, update_only: true
 
       alias_attribute :fallback_approvals_required, :approvals_before_merge
+
+      delegate :ever_successfully_synced_repository?, to: :project_registry
     end
 
     class_methods do
@@ -557,6 +559,14 @@ module EE
 
     def feature_usage
       super.presence || build_feature_usage
+    end
+
+    def fork_source?
+      fork_source.present? && fork_source.id == self.id
+    end
+
+    def source_project?
+      has_pool_repository? && pool_repository.source_project.id == self.id
     end
 
     private

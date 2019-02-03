@@ -2113,6 +2113,40 @@ describe Gitlab::Git::Repository, :seed_helper do
     end
   end
 
+  describe '#pre_fetch' do
+    let(:pool) { create(:pool_repository, :ready) }
+    let(:project) { create(:project, :repository, pool_repository: pool) }
+
+    subject do
+      fork.pre_fetch(project.repository, pool)
+    end
+
+    context 'when the source repository is linked to the pool' do
+      let(:fork) { Gitlab::Git::Repository.new('default', 'gitlab-test-fork-1.git', '', 'group/project') }
+
+      before do
+        pool.link_repository(project.repository)
+      end
+
+      it 'finds refs in the shared clone' do
+        subject
+
+        fork_path = File.join(TestEnv.repos_path, 'gitlab-test-fork-1.git')
+        fork_rugged = Rugged::Repository.new(fork_path)
+
+        expect(fork_rugged.refs.any? { |r| r.name == "refs/heads/feature" }).to be true
+      end
+    end
+
+    context 'when the source repository is not linked to the pool' do
+      let(:fork) { Gitlab::Git::Repository.new('default', 'gitlab-test-fork-2.git', '', 'group/project') }
+
+      it 'returns an error' do
+        expect { subject }.to raise_error(Gitlab::Git::CommandError, /source repository is not linked to pool repository/)
+      end
+    end
+  end
+
   def create_remote_branch(remote_name, branch_name, source_branch_name)
     source_branch = repository.branches.find { |branch| branch.name == source_branch_name }
     repository_rugged.references.create("refs/remotes/#{remote_name}/#{branch_name}", source_branch.dereferenced_target.sha)
