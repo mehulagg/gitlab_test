@@ -390,3 +390,21 @@ export const countIssues = ({ newIssues = [], resolvedIssues = [], allIssues = [
     fixed: resolvedIssues.length,
   };
 };
+
+/**
+ * Checks the different vulnerability types sequentially to see if the vulnerabiltiy is inside it
+ * Once there's a match, it returns it.
+ *
+ * @param {Object} vulnerability
+ * @param {Object} scanner
+ * @returns {{issueType:String, index:Number}}
+ */
+export const getIssueTypeAndIndex = (vulnerability, scanner) => {
+  const issueTypes = ['newIssues', 'resolvedIssues', 'allIssues'];
+  const issueType = issueTypes.find(
+    type => scanner[type] && findIssueIndex(scanner[type], vulnerability) !== -1,
+  );
+  const index = findIssueIndex(scanner[issueType], vulnerability);
+
+  return { issueType, index };
+};
