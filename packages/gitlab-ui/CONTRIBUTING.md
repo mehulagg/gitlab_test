@@ -78,4 +78,4 @@ export default {
 ```
 
 ## Contribution guidelines
-Please refer to [gitlab-ce's CONTRIBUTING.md](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/CONTRIBUTING.md) for details.
+Please refer to [gitlab-ce's CONTRIBUTING.md](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/CONTRIBUTING.md) for details on our guidelines.
