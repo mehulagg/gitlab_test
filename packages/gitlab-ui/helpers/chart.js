@@ -96,26 +96,25 @@ export function getThresholdConfig(thresholds) {
     const alert = thresholds[key];
     const { threshold } = alert;
 
-    let minMax;
     switch (alert.operator) {
       case '>':
       case '&gt;':
-        minMax = Infinity;
+        areaData.push([{ xAxis: 'min', yAxis: threshold }, { xAxis: 'max', yAxis: Infinity }]);
         break;
 
       case '<':
       case '&lt;':
-        minMax = Number.NEGATIVE_INFINITY;
+        areaData.push([
+          { xAxis: 'min', yAxis: Number.NEGATIVE_INFINITY },
+          { xAxis: 'max', yAxis: threshold },
+        ]);
         break;
 
-      case '=':
       default:
-        minMax = threshold;
         break;
     }
 
     lineData.push([{ xAxis: 'min', yAxis: threshold }, { xAxis: 'max', yAxis: threshold }]);
-    areaData.push([{ xAxis: 'min', yAxis: threshold }, { xAxis: 'max', yAxis: minMax }]);
   });
 
   return {
