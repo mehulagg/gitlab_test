@@ -1,0 +1,22 @@
+- templates =  []
+
+%section.settings.expanded.border-0.no-animate
+  .settings-header
+    %h4= _("Incidents")
+    %p
+      = _("Action to take when receiving an alert.")
+      = link_to help_page_path('administration/monitoring/prometheus/index', anchor: 'create-issues-from-alerts') do
+        = _("More information")
+  .settings-content
+    = form_for @project, url: project_settings_operations_path(@project), method: :patch do |f|
+      = form_errors(@project)
+      .form-group
+        = f.check_box :archived # TODO
+        = f.label :archived, _('Create an issue. Issues are created for each alert triggered.'), class: 'form-check-label'
+      .form-group
+        = f.label :first_day_of_week, _('Issue template')
+        = f.select :archived, templates, {}, class: 'form-control'
+      .form-group
+        = f.check_box :archived # TODO
+        = f.label :archived, _('Send an email notification to Developers.'), class: 'form-check-label'
+      = f.submit _('Save changes'), class: 'btn btn-success'
