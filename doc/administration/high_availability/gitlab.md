@@ -74,6 +74,10 @@
     web_server['gid'] = 9001
     registry['uid'] = 9002
     registry['gid'] = 9002
+
+    # Enable monitoring:
+    node_exporter['listen_address'] = '0.0.0.0:9100'
+    gitlab_rails['monitoring_whitelist'] = ['127.0.0.0/8', '10.1.0.0/16'] # Internal subnet
     ```
 
 1. [Enable monitoring](#enable-monitoring)
