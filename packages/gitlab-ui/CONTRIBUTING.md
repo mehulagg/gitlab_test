@@ -4,6 +4,7 @@
 1. Determine and document the scenarios (different types of implementations, if any) in which this component is used in gitlab-ce/ee in an issue in gitlab-ui
 1. Select a scenario that is implemented in gitlab-ce/ee that you will replace with your component
 1. Create a merge request (MR) in gitlab-ui implementing your new component
+
    1. Be sure to name your MR `feat: <commit message>` as that is needed for our npm release CI job (don't forget to set the MR to squash commit)
    1. Create a directory and component.vue in `components/` directory
    1. Create a story `component.js` in stories/ directory
@@ -78,4 +79,5 @@ export default {
 ```
 
 ## Contribution guidelines
+
 Please refer to [gitlab-ce's CONTRIBUTING.md](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/CONTRIBUTING.md) for details on our guidelines.
