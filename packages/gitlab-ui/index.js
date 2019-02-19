@@ -25,6 +25,7 @@ export { default as GlDropdownHeader } from './components/base/dropdown/dropdown
 export { default as GlDropdownDivider } from './components/base/dropdown/dropdown_divider.vue';
 export { default as GlDropdown } from './components/base/dropdown/dropdown.vue';
 export { default as GlTable } from './components/base/table/table.vue';
+export { default as GlBreadcrumb } from './components/base/breadcrumb/breadcrumb.vue';
 
 // Directives
 export { default as GlModalDirective } from './directives/modal';

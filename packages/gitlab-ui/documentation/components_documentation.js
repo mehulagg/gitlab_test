@@ -57,6 +57,9 @@ export {
   default as GlDropdownDocumentation,
 } from '../components/base/dropdown/dropdown.documentation';
 export { default as GlTableDocumentation } from '../components/base/table/table.documentation';
+export {
+  default as GlBreadcrumbDocumentation,
+} from '../components/base/breadcrumb/breadcrumb.documentation';
 
 const componentList = Object.getPrototypeOf(module).exports;
 
