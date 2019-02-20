@@ -38,7 +38,7 @@
 # `.buildpacks` that contains the URLs, one on each line, in order.
 # Note: Auto CI does not work with multiple buildpacks yet
 
-image: alpine:latest
+image: docker.io/alpine:latest
 
 variables:
   # KUBE_INGRESS_BASE_DOMAIN is the application deployment domain and should be set as a variable at the group or project level.
@@ -71,9 +71,9 @@ stages:
 
 build:
   stage: build
-  image: docker:stable-git
+  image: docker.io/docker:stable-git
   services:
-  - docker:stable-dind
+  - docker.io/docker:stable-dind
   script:
     - setup_docker
     - build
