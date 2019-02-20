@@ -138,7 +138,7 @@ performance:
   image: docker.io/docker:stable
   allow_failure: true
   services:
-    - docker:stable-dind
+    - docker.io/docker:stable-dind
   script:
     - setup_docker
     - performance
@@ -159,7 +159,7 @@ sast:
   image: docker.io/docker:stable
   allow_failure: true
   services:
-    - docker:stable-dind
+    - docker.io/docker:stable-dind
   script:
     - setup_docker
     - sast
@@ -180,7 +180,7 @@ dependency_scanning:
   image: docker.io/docker:stable
   allow_failure: true
   services:
-    - docker:stable-dind
+    - docker.io/docker:stable-dind
   script:
     - setup_docker
     - dependency_scanning
@@ -201,7 +201,7 @@ container_scanning:
   image: docker.io/docker:stable
   allow_failure: true
   services:
-    - docker:stable-dind
+    - docker.io/docker:stable-dind
   script:
     - setup_docker
     - container_scanning
