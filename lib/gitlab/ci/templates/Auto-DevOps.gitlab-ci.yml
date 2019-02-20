@@ -82,11 +82,11 @@ build:
 
 test:
   services:
-    - postgres:latest
+    - docker.io/postgres:latest
   variables:
     POSTGRES_DB: test
   stage: test
-  image: gliderlabs/herokuish:latest
+  image: docker.io/gliderlabs/herokuish:latest
   script:
     - setup_test_db
     - cp -R . /tmp/app
@@ -99,10 +99,10 @@ test:
 
 code_quality:
   stage: test
-  image: docker:stable
+  image: docker.io/docker:stable
   allow_failure: true
   services:
-    - docker:stable-dind
+    - docker.io/docker:stable-dind
   script:
     - setup_docker
     - code_quality
@@ -135,7 +135,7 @@ license_management:
 
 performance:
   stage: performance
-  image: docker:stable
+  image: docker.io/docker:stable
   allow_failure: true
   services:
     - docker:stable-dind
@@ -156,7 +156,7 @@ performance:
 
 sast:
   stage: test
-  image: docker:stable
+  image: docker.io/docker:stable
   allow_failure: true
   services:
     - docker:stable-dind
@@ -177,7 +177,7 @@ sast:
 
 dependency_scanning:
   stage: test
-  image: docker:stable
+  image: docker.io/docker:stable
   allow_failure: true
   services:
     - docker:stable-dind
@@ -198,7 +198,7 @@ dependency_scanning:
 
 container_scanning:
   stage: test
-  image: docker:stable
+  image: docker.io/docker:stable
   allow_failure: true
   services:
     - docker:stable-dind
