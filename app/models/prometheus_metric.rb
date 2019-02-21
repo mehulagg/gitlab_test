@@ -89,6 +89,25 @@ class PrometheusMetric < ActiveRecord::Base
     group_details(group).fetch(:required_metrics, []).map(&:to_s)
   end
 
+  def metric_info
+    {
+      title: title,
+      required_metrics: required_metrics,
+      weight: 0,
+      y_label: y_label
+    }.compact
+  end
+
+  def query_info
+    {
+      id: id,
+      query_range: query,
+      unit: unit,
+      label: legend,
+      series: query_series
+    }.compact
+  end
+
   def to_query_metric
     Gitlab::Prometheus::Metric.new(id: id, title: title, required_metrics: required_metrics, weight: 0, y_label: y_label, queries: queries)
   end
