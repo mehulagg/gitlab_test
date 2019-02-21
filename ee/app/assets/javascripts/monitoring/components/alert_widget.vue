@@ -103,6 +103,7 @@ export default {
             this.$emit('setAlerts', this.customMetricId, {
               ...this.alertData,
               [alertPath]: alertData,
+              prometheusMetricId: this.customMetricId,
             });
           }),
         ),
@@ -200,7 +201,10 @@ export default {
       <icon :name="alertIcon" :size="16" aria-hidden="true" />
       <icon :size="16" name="arrow-down" aria-hidden="true" class="chevron" />
     </button>
-    <div ref="dropdownMenu" class="dropdown-menu alert-dropdown-menu">
+    <div
+      ref="dropdownMenu"
+      :class="{ 'dropdown-menu': true, 'alert-dropdown-menu': true, show: isOpen }"
+    >
       <div class="dropdown-title">
         <span>{{ dropdownTitle }}</span>
         <button
@@ -218,6 +222,7 @@ export default {
           :disabled="formDisabled"
           :alert="firstAlert"
           :alert-data="firstAlertData"
+          :metrics="[{ id: 16, label: 'test' }, { id: 22, label: 'test2' }]"
           @create="handleCreate"
           @update="handleUpdate"
           @delete="handleDelete"
