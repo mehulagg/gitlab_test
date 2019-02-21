@@ -648,9 +648,9 @@ module Ci
     def all_merge_requests
       @all_merge_requests ||=
         if merge_request?
-          project.merge_requests.where(id: merge_request_id)
+          MergeRequest.where(id: merge_request_id)
         else
-          project.merge_requests.where(source_branch: ref)
+          MergeRequest.where(target_project: [project, project.default_merge_request_target], source_branch: ref)
         end
     end
 
