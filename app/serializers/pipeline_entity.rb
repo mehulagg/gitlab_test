@@ -52,6 +52,13 @@ class PipelineEntity < Grape::Entity
     expose :merge_request?, as: :merge_request
   end
 
+  expose :merge_request_pipeline, if: -> (pipeline, _) { pipeline.merge_request? } do
+    expose :detached_merge_pipeline?, as: :detached_merge_pipeline
+    expose :merge_pipeline?, as: :merge_pipeline
+    expose :mergeable_merge_pipeline?, as: :mergeable_merge_pipeline
+    expose :merge_request, with: MergeRequestBasicEntity
+  end
+
   expose :commit, using: CommitEntity
   expose :yaml_errors, if: -> (pipeline, _) { pipeline.has_yaml_errors? }
 
