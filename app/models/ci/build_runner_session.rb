@@ -28,7 +28,7 @@ module Ci
       return {} unless url.present? || port.present?
 
       {
-        url: "#{url}/proxy/#{service.presence || 'build'}/#{port}/#{requested_url}",
+        url: "#{url}/proxy/#{service.presence || 'build'}/#{port.presence || 80}/#{requested_url}",
         headers: { Authorization: [authorization.presence] }.compact,
         ca_pem: certificate.presence
       }

@@ -4,10 +4,13 @@ module Gitlab
   module Ci
     module Build
       class Port
-        attr_reader :externalport, :internalport, :ssl
+        DEFAULT_PORT_NAME = 'default_port'.freeze
+
+        attr_reader :externalport, :internalport, :ssl, :name
 
         def initialize(port)
           @ssl = true
+          @name = DEFAULT_PORT_NAME
 
           case port
           when Integer
@@ -18,6 +21,7 @@ module Gitlab
             @externalport = port[:externalport]
             @internalport = port.fetch(:internalport, @externalport)
             @ssl = port.fetch(:ssl, @ssl)
+            @name = port.fetch(:name, @name)
           end
         end
 

@@ -10,7 +10,7 @@ module Gitlab
         class Port < ::Gitlab::Config::Entry::Node
           include ::Gitlab::Config::Entry::Validatable
 
-          ALLOWED_KEYS = %i[externalport internalport ssl].freeze
+          ALLOWED_KEYS = %i[externalport internalport ssl name].freeze
 
           validations do
             validates :config, hash_or_array_or_integer: true
@@ -19,6 +19,7 @@ module Gitlab
             validates :externalport, type: Integer, presence: true
             validates :internalport, type: Integer, presence: true
             validates :ssl, boolean: true, presence: false
+            validates :name, type: String, presence: false, allow_nil: true
           end
 
           def externalport
@@ -31,6 +32,10 @@ module Gitlab
 
           def ssl
             value.fetch(:ssl, true)
+          end
+
+          def name
+            value[:name]
           end
 
           def array_of_integers?(size: nil)

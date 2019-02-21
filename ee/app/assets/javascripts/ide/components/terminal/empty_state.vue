@@ -1,5 +1,6 @@
 <script>
 import { GlLoadingIcon } from '@gitlab/ui';
+import axios from '~/lib/utils/axios_utils';
 
 export default {
   components: {
@@ -36,11 +37,33 @@ export default {
     onStart() {
       this.$emit('start');
     },
+    testws() {      
+      const { protocol, hostname, port } = window.location;
+      console.log(protocol)
+      console.log(hostname)      
+      console.log(port)
+      const wsProtocol = protocol === 'https:' ? 'wss://' : 'ws://';
+      // var path = `/root/testruneree/ide_terminals/1234/proxy.ws`;
+      var path = `/root/testrunneree/-/jobs/1234/terminal.ws`;
+      var url = `${wsProtocol}${hostname}:${port}${path}`;
+      console.log(url)
+      var socket = new WebSocket(url, ['terminal.gitlab.com']);
+      
+      // axios.get(url)
+      // new WebSocket(`${this.session.proxyPath}.ws`);
+      // new WebSocket($('#wssurl').val());
+    }
   },
 };
 </script>
-<template>
+<template>  
   <div class="text-center">
+    <div>
+      <input id="wssurl"></input>
+      <button @click="testws">
+        TestWSS
+      </button>
+    </div>
     <div v-if="illustrationPath" class="svg-content svg-130"><img :src="illustrationPath" /></div>
     <h4>{{ __('Web Terminal') }}</h4>
     <gl-loading-icon v-if="isLoading" :size="2" class="prepend-top-default" />

@@ -22,6 +22,11 @@ module Gitlab
             validates :alias, type: String, allow_nil: true
           end
 
+          entry :ports, Entry::Ports,
+            description: 'Ports used expose the service'
+
+          helpers :ports
+
           def alias
             value[:alias]
           end

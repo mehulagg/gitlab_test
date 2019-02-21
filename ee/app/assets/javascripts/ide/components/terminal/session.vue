@@ -36,11 +36,29 @@ export default {
         url: this.session.proxyPath,
         params: {
           requested_uri: $("input.requesteduri").val(),
+          port: $("input.proxyport").val(),
+          service: $("input.proxyservice").val(),
         }
+      }).then(({ data }) => {
+        var w = window.open();
+        $(w.document.body).html(data);
+      })
+      .catch(function (error) {
+        var w = window.open();
+        $(w.document.body).html(error.response.data);
       });
     },
-    testws() {
-      axios.get(this.session.proxy.replace("retry", "serviceaws"))
+    testws() {      
+      const { protocol, hostname, port } = window.location;
+      console.log(protocol)
+      console.log(hotname)
+      console.log(hotname)
+      console.log(port)
+      var url = `${this.session.proxyPath}.ws`
+      url.replace('http:','ws:')
+      console.log(url)
+      // axios.get(`${this.session.proxyPath}.ws`)
+      // new WebSocket(`${this.session.proxyPath}.ws`);
       // new WebSocket($('#wssurl').val());
     }
   },
@@ -65,6 +83,8 @@ export default {
       </div>
     </header>
     <div v-if="session.status == 'running'">
+      <input class="proxyservice" id="proxyservice" value="tete12"></input>
+      <input class="proxyport" id="proxyport" value="8080"></input>
       <input class="requesteduri" id="requesteduri"></input>
       <select id="request_method">
         <option value="get">

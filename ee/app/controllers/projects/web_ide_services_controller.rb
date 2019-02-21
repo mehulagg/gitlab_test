@@ -13,8 +13,10 @@ class Projects::WebIdeServicesController < Projects::ApplicationController
   end
 
   def proxy_authorize
+    puts "FRAAAAA"
+    puts "PROXY AUTHORIZE"
     set_workhorse_internal_api_content_type
-    render json: webide_service(build.service_specification(port: SERVICE_PORT, requested_url: params["requested_uri"]))
+    render json: webide_service(build.service_specification(service: params["service"], port: params["port"], requested_url: params["requested_uri"]))
   end
 
   private
