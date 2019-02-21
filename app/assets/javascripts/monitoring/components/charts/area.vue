@@ -51,7 +51,7 @@ export default {
     return {
       tooltip: {
         title: '',
-        content: '',
+        content: [],
         isDeployment: false,
         sha: '',
       },
@@ -62,8 +62,26 @@ export default {
   },
   computed: {
     chartData() {
+      // Input:
+      // {
+      //   queries: [ // contains one or many queries
+      //     {
+      //       id: 16,
+      //       result: [{ // contains one result
+      //         values: [['2:00', 0.001], ['2:01', 0.002]]
+      //       }]
+      //     }
+      //   ]
+      // }
+      // Output:
+      // {
+      //   16: [ // unit key
+      //     ['2:00', 0.001], // values key
+      //     ['2:01', 0.002]
+      //   ]
+      // }
       return this.graphData.queries.reduce((accumulator, query) => {
-        accumulator[query.unit] = query.result.reduce((acc, res) => acc.concat(res.values), []);
+        accumulator[query.id] = query.result.reduce((acc, res) => acc.concat(res.values), []);
         return accumulator;
       }, {});
     },
@@ -164,7 +182,12 @@ export default {
         );
         this.tooltip.sha = deploy.sha.substring(0, 8);
       } else {
-        this.tooltip.content = `${this.yAxisLabel} ${seriesData.value[1].toFixed(3)}`;
+        this.tooltip.content = params.seriesData.map((dataDescriptors, index) => {
+          const correspondingQuery = this.graphData.queries[index];
+          return `${correspondingQuery.label} (${
+            correspondingQuery.unit
+          }) ${dataDescriptors.value[1].toFixed(3)}`;
+        });
       }
     },
     getScatterSymbol() {
@@ -213,7 +236,9 @@ export default {
           {{ tooltip.sha }}
         </div>
         <template v-else>
-          {{ tooltip.content }}
+          <div v-for="(entry, index) in tooltip.content" :key="`${index}${entry}`">
+            <span>{{ entry }}</span>
+          </div>
         </template>
       </template>
     </gl-area-chart>
