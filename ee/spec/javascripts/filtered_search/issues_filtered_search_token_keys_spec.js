@@ -8,6 +8,7 @@ describe('Filtered Search Token Keys (Issues EE)', () => {
     symbol: '',
     icon: 'weight',
     tag: 'number',
+    rowClass: 'weight',
   };
 
   describe('get', () => {

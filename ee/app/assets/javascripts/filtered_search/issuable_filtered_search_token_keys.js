@@ -12,6 +12,7 @@ const weightTokenKey = {
   symbol: '',
   icon: 'weight',
   tag: 'number',
+  rowClass: 'weight',
 };
 
 const weightConditions = [
