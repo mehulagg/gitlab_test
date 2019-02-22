@@ -10,6 +10,7 @@ describe Gitlab::Template::GitlabCiYmlTemplate do
       all = subject.all.map(&:name)
 
       expect(all).to include('Dependency-Scanning')
+      expect(all).to include('Container-Scanning')
     end
   end
 end
