@@ -122,6 +122,36 @@ describe EE::DeploymentPlatform do
       end
     end
 
+    context 'Auto DevOps example in docs' do
+      let!(:default_cluster) { create(:cluster, :provided_by_user, projects: [project], environment_scope: '*') }
+      let!(:production_cluster) { create(:cluster, :provided_by_user, projects: [project], environment_scope: 'production') }
+      let!(:staging_cluster) { create(:cluster, :provided_by_user, projects: [project], environment_scope: 'staging') }
+
+      let(:environment) { 'production' }
+
+      subject { project.deployment_platform(environment: environment) }
+
+      before do
+        stub_licensed_features(multiple_clusters: true)
+      end
+
+      context 'production environment' do
+        it { is_expected.to eq(production_cluster.platform) }
+      end
+
+      context 'staging environment' do
+        let(:environment) { 'staging' }
+
+        it { is_expected.to eq(staging_cluster.platform) }
+      end
+
+      context 'review app environment' do
+        let(:environment) { 'review/my-branch' }
+
+        it { is_expected.to eq(default_cluster.platform) }
+      end
+    end
+
     context 'when environment is specified' do
       let!(:default_cluster) { create(:cluster, :provided_by_user, projects: [project], environment_scope: '*') }
       let!(:cluster) { create(:cluster, :provided_by_user, environment_scope: 'review/*', projects: [project]) }
