@@ -6,7 +6,7 @@ describe 'profiles/preferences/show' do
   before do
     assign(:user, user)
     allow(controller).to receive(:current_user).and_return(user)
-    view.extend ::Groups::Security::DashboardPermissions::HelperMethods
+    view.extend ::Groups::Security::DashboardHelper
   end
 
   let(:user) { build(:user) }

@@ -13,7 +13,6 @@ module Projects
 
       private
 
-      # TODO: use something similar to Groups::Security::DashboardPermissions concern to reduce code duplication
       def ensure_security_dashboard_feature_enabled
         render_404 unless @project.feature_available?(:security_dashboard)
       end

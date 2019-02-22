@@ -129,7 +129,7 @@ describe GroupsController do
 
   describe '"group overview content" preference behaviour' do
     describe 'GET #show' do
-      subject { get :show, id: group.to_param, format: format }
+      subject { get :show, params: { id: group.to_param }, format: format }
 
       let(:format) { :html }
 
@@ -141,24 +141,24 @@ describe GroupsController do
 
         context 'with group view set as default' do
           it 'should render the expected template' do
-            expect(subject).to render_template('groups/details') # 'show' action renders the 'details' action by default
+            expect(subject).to render_template('groups/show')
           end
         end
 
         context 'with group view set to security dashboard' do
-          let(:user) { super().tap { |u| u.update!(group_view: :security_dashboard) } }
+          let(:user) { create(:user, group_view: :security_dashboard) }
 
           context 'in HTML format' do
-            it 'should render the security dashboard' do
-              expect(subject).to render_template('groups/security/dashboard/show')
+            it 'should redirect to the security dashboard' do
+              expect(subject).to redirect_to(group_security_dashboard_url(group))
             end
           end
 
           context 'in Atom format' do
             let(:format) { :atom }
 
-            it 'should not render the security dashboard' do
-              expect(subject).not_to render_template('groups/security/dashboard/show')
+            it 'should not redirect to the security dashboard' do
+              expect(subject).to render_template('groups/show')
             end
           end
 
@@ -168,14 +168,10 @@ describe GroupsController do
             end
 
             it 'should render the expected template' do
-              expect(subject).to render_template('groups/details')
+              expect(subject).to render_template('groups/show')
             end
           end
         end
-      end
-
-      it_behaves_like 'ensures security dashboard permissions' do
-        let(:user) { create(:user, group_view: :security_dashboard) } # not a member of a group
       end
 
       context 'when feature flag is disabled' do

@@ -6,25 +6,17 @@ module EE
     extend ::Gitlab::Utils::Override
 
     prepended do
-      include ::Groups::Security::DashboardPermissions
-
-      with_options only: :show, if: :security_dashboard_access_authorized? do
-        before_action :ensure_security_dashboard_feature_enabled
-        before_action :authorize_read_group_security_dashboard!
-      end
-
-      delegate :default_view, :default_view_supports_request_format?, to: :presenter
-
-      def security_dashboard_access_authorized?
-        ::Feature.enabled?(:group_overview_security_dashboard) && current_user&.group_view_security_dashboard?
-      end
+      delegate :group_view_redirect_needed?, :group_view_supports_request_format?, :group_view_url,
+               to: :presenter
     end
 
     override :show
     def show
-      super && return unless ::Feature.enabled?(:group_overview_security_dashboard)
-
-      render_show_action
+      if ::Feature.enabled?(:group_overview_security_dashboard) && redirect_to_group_view?
+        redirect_to group_view_url(group)
+      else
+        super
+      end
     end
 
     def group_params_attributes
@@ -33,21 +25,8 @@ module EE
 
     private
 
-    def render_show_action
-      respond_to do |format|
-        format.html do
-          render default_view
-        end
-
-        format.atom do
-          # rubocop:disable Cop/AvoidReturnFromBlocks
-          render :nothing && return unless default_view_supports_request_format?
-          # rubocop:enable Cop/AvoidReturnFromBlocks
-
-          load_events
-          render layout: 'xml.atom', template: default_view
-        end
-      end
+    def redirect_to_group_view?
+      group_view_supports_request_format? && group_view_redirect_needed?
     end
 
     def group_params_ee
@@ -69,7 +48,7 @@ module EE
     # the class of a wrapped object; see gitlab-ce/#57299
     def presenter
       strong_memoize(:presenter) do
-        group.present(current_user: current_user, request: request)
+        group.present(current_user: current_user, request: request, helpers: helpers)
       end
     end
   end

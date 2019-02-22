@@ -3,26 +3,26 @@
 class GroupPresenter < Gitlab::View::Presenter::Delegated
   presents :group
 
-  def default_view
-    return anonymous_group_view unless current_user
-
-    case group_view
-    when 'security_dashboard'
-      'groups/security/dashboard/show'
-    when 'details'
-      'groups/details'
-    else
-      raise ArgumentError, "Unknown group_view setting '#{group_view}' for a user #{current_user}"
-    end
-  end
-
-  def default_view_supports_request_format?
+  def group_view_supports_request_format?
     if request.format.html?
       true
     elsif request.format.atom?
       supports_atom_request_format?
     else
       false
+    end
+  end
+
+  def group_view_redirect_needed?
+    group_view != EE::User::DEFAULT_GROUP_VIEW
+  end
+
+  def group_view_url(group)
+    case group_view
+    when 'security_dashboard'
+      helpers.group_security_dashboard_url(group)
+    else
+      raise ArgumentError, "Unknown non-default group_view setting '#{group_view}' for a user #{current_user}"
     end
   end
 
@@ -34,11 +34,7 @@ class GroupPresenter < Gitlab::View::Presenter::Delegated
     end
   end
 
-  def anonymous_group_view
-    'groups/details'
-  end
-
   def supports_atom_request_format?
-    group_view != 'security_dashboard'
+    group_view == EE::User::DEFAULT_GROUP_VIEW
   end
 end
