@@ -135,6 +135,102 @@ sast:
 You can supply many other [settings variables](https://gitlab.com/gitlab-org/security-products/sast#settings)
 via `docker run --env` to customize your job execution.
 
+## Customizing SAST execution
+
+SAST will make a best-effort attempt at compiling your project prior to scanning for vulnerabilities,
+however this approach does not work for all configurations.
+
+### Specifying analyzer image
+
+If your project requires [a specific language or
+framework](https://gitlab.com/gitlab-org/security-products/sast/blob/master/docs/analyzers.md),
+the base image for that analyzer can be used directly, rather than auto-detected through our `sast` container.
+
+This approach can also be used in the event that your runners are unable to use Docker-in-Docker or obtain privileged permissions.
+
+```yaml
+sast:
+  stage: test
+  image: registry.gitlab.com/gitlab-org/security-products/analyzers/find-sec-bugs:11-8
+  allow_failure: true
+  script:
+    - /analyzer run
+  artifacts:
+    reports:
+      sast: gl-sast-report.json
+```
+
+In the event that you need to generate reports from multiple analyzers, you can
+do so by defining multiple build jobs for each analyzer. These disparatee reports
+will be uploaded and combined to generate a single vulnerability set:
+
+```yaml
+sast_java:
+  stage: test
+  image: registry.gitlab.com/gitlab-org/security-products/analyzers/find-sec-bugs:11-8
+  allow_failure: true
+  script:
+    - /analyzer run
+  artifacts:
+    reports:
+      sast: gl-sast-report.json
+
+sast_javascript:
+  stage: test
+  image: registry.gitlab.com/gitlab-org/security-products/analyzers/nodejs-scan:11-8
+  allow_failure: true
+  script:
+    - /analyzer run
+  artifacts:
+    reports:
+      sast: gl-sast-report.json
+```
+
+### Pre-compilation
+
+If your project requires custom build configurations, it can be preferable to avoid
+compilation during your SAST execution and instead pass all build artifacts from an
+earlier stage within the pipeline.
+
+To pass your project's dependencies as artifacts, the dependencies must be included
+in the project's working directory and specified using the `artifacts:path` configuration.
+If all dependencies are present, the `-compile=false` flag can be provided to the
+analyzer and compilation will be skipped:
+
+```yaml
+image: maven:3.6-jdk-8-alpine
+
+stages:
+ - build
+ - test
+
+build:
+  stage: build
+  script:
+    - mvn package -Dmaven.repo.local=./.m2/repository
+  artifacts:
+    paths:
+      - .m2/
+      - target/
+
+sast:
+  stage: test
+  image: registry.gitlab.com/gitlab-org/security-products/analyzers/find-sec-bugs:11-8
+  allow_failure: true
+  script:
+    - /analyzer run -compile=false
+  variables:
+    MAVEN_REPO_PATH: ./.m2/repository
+  artifacts:
+    reports:
+      sast: gl-sast-report.json
+```
+
+NOTE: **Note:**
+Note that the path to the vendored directory must be specified explicitly to allow
+the analyzer to recognize the compiled artifacts, this configuration can vary per
+analyzer but in the case of Java above, we can use `MAVEN_REPO_PATH`.
+
 ## Previous job definitions
 
 CAUTION: **Caution:**
