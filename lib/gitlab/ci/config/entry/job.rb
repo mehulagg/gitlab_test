@@ -15,7 +15,7 @@ module Gitlab
           ALLOWED_KEYS = %i[tags script only except rules type image services
                             allow_failure type stage when start_in artifacts cache
                             dependencies needs before_script after_script variables
-                            environment coverage retry parallel extends].freeze
+                            environment coverage retry parallel extends interruptible].freeze
 
           REQUIRED_BY_NEEDS = %i[stage].freeze
 
@@ -122,10 +122,11 @@ module Gitlab
           helpers :before_script, :script, :stage, :type, :after_script,
                   :cache, :image, :services, :only, :except, :variables,
                   :artifacts, :environment, :coverage, :retry,
-                  :parallel, :needs
+                  :parallel, :needs, :interruptible
 
           attributes :script, :tags, :allow_failure, :when, :dependencies,
-                     :needs, :retry, :parallel, :extends, :start_in, :rules
+                     :needs, :retry, :parallel, :extends, :start_in, :rules,
+                     :interruptible
 
           def self.matching?(name, config)
             !name.to_s.start_with?('.') &&
@@ -207,6 +208,7 @@ module Gitlab
               coverage: coverage_defined? ? coverage_value : nil,
               retry: retry_defined? ? retry_value : nil,
               parallel: parallel_defined? ? parallel_value.to_i : nil,
+              interruptible: interruptible_defined? ? interruptible_value : nil,
               artifacts: artifacts_value,
               after_script: after_script_value,
               ignore: ignored?,

@@ -56,7 +56,8 @@ module Gitlab
             instance: job[:instance],
             start_in: job[:start_in],
             trigger: job[:trigger],
-            bridge_needs: job[:needs]
+            bridge_needs: job[:needs],
+            interruptible: job[:interruptible]
           }.compact }.compact
       end
 
