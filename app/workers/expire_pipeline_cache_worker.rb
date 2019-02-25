@@ -46,15 +46,10 @@ class ExpirePipelineCacheWorker
 
   def each_pipelines_merge_request_path(pipeline)
     pipeline.all_merge_requests.each do |merge_request|
-      paths = [path_for_merge_request(merge_request, merge_request.target_project)]
-      paths << path_for_merge_request(merge_request, merge_request.source_project) if merge_request.for_fork?
+      path = Gitlab::Routing.url_helpers.pipelines_project_merge_request_path(merge_request.target_project, merge_request, format: :json)
 
-      yield(paths)
+      yield(path)
     end
-  end
-
-  def path_for_merge_request(merge_request, project)
-    Gitlab::Routing.url_helpers.pipelines_project_merge_request_path(project, merge_request, format: :json)
   end
 
   # Updates ETag caches of a pipeline.
@@ -71,8 +66,8 @@ class ExpirePipelineCacheWorker
     store.touch(project_pipeline_path(project, pipeline))
     store.touch(commit_pipelines_path(project, pipeline.commit)) unless pipeline.commit.nil?
     store.touch(new_merge_request_pipelines_path(project))
-    each_pipelines_merge_request_path(pipeline) do |paths|
-      paths.each { |path| store.touch(path) }
+    each_pipelines_merge_request_path(pipeline) do |path|
+      store.touch(path)
     end
   end
 end

@@ -650,7 +650,7 @@ module Ci
         if merge_request?
           MergeRequest.where(id: merge_request_id)
         else
-          MergeRequest.where(target_project: [project, project.default_merge_request_target], source_branch: ref)
+          MergeRequest.where(source_project_id: project_id, source_branch: ref)
         end
     end
 
