@@ -48,18 +48,32 @@ export default {
         $(w.document.body).html(error.response.data);
       });
     },
-    testws() {      
+    testws() {
       const { protocol, hostname, port } = window.location;
-      console.log(protocol)
-      console.log(hotname)
-      console.log(hotname)
-      console.log(port)
-      var url = `${this.session.proxyPath}.ws`
-      url.replace('http:','ws:')
+      const wsProtocol = protocol === 'https:' ? 'wss://' : 'ws://';
+      var path = `${this.session.proxyPath}.ws?service=${$("input.proxyservice").val()}&port=${$("input.proxyport").val()}&requested_uri=${$("input.requesteduri").val()}`
+      var url = `${wsProtocol}${hostname}:${port}${path}`;
       console.log(url)
-      // axios.get(`${this.session.proxyPath}.ws`)
-      // new WebSocket(`${this.session.proxyPath}.ws`);
-      // new WebSocket($('#wssurl').val());
+      var socket = new WebSocket(url, ['terminal.gitlab.com']);
+      socket.binaryType = 'arraybuffer';
+      socket.onopen = () => {
+        console.log("Connected");
+      };
+      socket.onerror = () => {
+        console.log("Error connecting websocket");
+      };
+
+      const decoder = new TextDecoder('utf-8');
+      const encoder = new TextEncoder('utf-8');
+      var container = $('textarea.wssdata');
+      console.log(container)
+      container.bind('input propertychange', function() {
+        socket.send(encoder.encode("pepe"));
+      });
+
+      socket.addEventListener('message', ev => {
+        console.log(decoder.decode(ev.data));
+      });
     }
   },
 };
@@ -83,8 +97,11 @@ export default {
       </div>
     </header>
     <div v-if="session.status == 'running'">
-      <input class="proxyservice" id="proxyservice" value="tete12"></input>
-      <input class="proxyport" id="proxyport" value="8080"></input>
+      <label for="proxyservice">Service Name</label>
+      <input class="proxyservice" id="proxyservice" value="tete13"></input>
+      <label for="proxyport">Service External Port</label>
+      <input class="proxyport" id="proxyport" value="4004"></input>
+      <form action="requesteduri">Requested Uri</form>
       <input class="requesteduri" id="requesteduri"></input>
       <select id="request_method">
         <option value="get">
@@ -109,6 +126,7 @@ export default {
       <button @click="testws">
         TestWSS
       </button>
+      <textarea class="wssdata" id="wssdata"></textarea>
     </div>
     <terminal :terminal-path="session.terminalPath" :status="session.status" />
   </div>

@@ -28,7 +28,8 @@ module Ci
       return {} unless url.present? || port.present?
 
       {
-        url: "#{url}/proxy/#{service.presence || 'build'}/#{port.presence || 80}/#{requested_url}",
+        subprotocols: ['terminal.gitlab.com'].freeze,
+        url: "#{url}/proxy/#{service.presence || 'build'}/#{port.presence || 'default_port'}/#{requested_url}",
         headers: { Authorization: [authorization.presence] }.compact,
         ca_pem: certificate.presence
       }

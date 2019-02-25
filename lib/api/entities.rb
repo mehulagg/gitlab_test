@@ -1375,7 +1375,7 @@ module API
       end
 
       class Port < Grape::Entity
-        expose :externalport, :internalport, :ssl, :name
+        expose :externalport, :internalport, :insecure, :name
       end
 
       class Image < Grape::Entity

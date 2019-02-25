@@ -6,10 +6,9 @@ module Gitlab
       class Port
         DEFAULT_PORT_NAME = 'default_port'.freeze
 
-        attr_reader :externalport, :internalport, :ssl, :name
+        attr_reader :externalport, :internalport, :insecure, :name
 
         def initialize(port)
-          @ssl = true
           @name = DEFAULT_PORT_NAME
 
           case port
@@ -20,7 +19,7 @@ module Gitlab
           when Hash
             @externalport = port[:externalport]
             @internalport = port.fetch(:internalport, @externalport)
-            @ssl = port.fetch(:ssl, @ssl)
+            @insecure = port.fetch(:insecure, false)
             @name = port.fetch(:name, @name)
           end
         end
