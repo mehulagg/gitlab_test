@@ -1,7 +1,7 @@
-# Configuration of your jobs with .gitlab-ci.yml
+# Configuration of your pipelines with .gitlab-ci.yml
 
 This document describes the usage of `.gitlab-ci.yml`, the file that is used by
-GitLab Runner to manage your project's jobs.
+GitLab Runner to manage your project's pipelines.
 
 From version 7.12, GitLab CI uses a [YAML](https://en.wikipedia.org/wiki/YAML)
 file (`.gitlab-ci.yml`) for the project configuration. It is placed in the root
@@ -1208,7 +1208,7 @@ job:
 `expire_in` allows you to specify how long artifacts should live before they
 expire and therefore deleted, counting from the time they are uploaded and
 stored on GitLab. If the expiry time is not defined, it defaults to the
-[instance wide setting](../../user/admin_area/settings/continuous_integration.md#default-artifacts-expiration)
+[instance wide setting](../../user/admin_area/settings/continuous_integration.md#default-artifacts-expiration-core-only)
 (30 days by default, forever on GitLab.com).
 
 You can use the **Keep** button on the job page to override expiration and
@@ -1247,7 +1247,7 @@ this with [JUnit reports](#artifactsreportsjunit).
 
 NOTE: **Note:**
 The test reports are collected regardless of the job results (success or failure).
-You can use [`artifacts:expire_in`](#artifacts-expire_in) to set up an expiration
+You can use [`artifacts:expire_in`](#artifactsexpire_in) to set up an expiration
 date for their artifacts.
 
 NOTE: **Note:**
@@ -1427,7 +1427,7 @@ deploy:
 > Introduced in GitLab 10.3.
 
 If the artifacts of the job that is set as a dependency have been
-[expired](#artifacts-expire_in) or
+[expired](#artifactsexpire_in) or
 [erased](../../user/project/pipelines/job_artifacts.md#erasing-artifacts), then
 the dependent job will fail.
 

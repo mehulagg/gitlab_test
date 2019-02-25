@@ -68,7 +68,6 @@ class License < ActiveRecord::Base
     external_authorization_service
     ci_cd_projects
     protected_environments
-    system_header_footer
     custom_project_templates
     packages
     code_owner_as_approver_suggestion
@@ -87,7 +86,6 @@ class License < ActiveRecord::Base
     cluster_health
     dast
     epics
-    chatops
     pod_logs
     pseudonymizer
     prometheus_alerts
@@ -175,7 +173,6 @@ class License < ActiveRecord::Base
     object_storage
     repository_size_limit
     external_authorization_service
-    system_header_footer
     custom_project_templates
   ].freeze
 
@@ -384,7 +381,6 @@ class License < ActiveRecord::Base
 
   def reset_current
     self.class.reset_current
-    Gitlab::Chat.flush_available_cache
   end
 
   def reset_license

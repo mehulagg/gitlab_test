@@ -384,7 +384,7 @@ GEM
       thor
       tilt
     hangouts-chat (0.0.5)
-    hashdiff (0.3.4)
+    hashdiff (0.3.8)
     hashie (3.5.7)
     hashie-forbidden_attributes (0.1.1)
       hashie (>= 3.0)
@@ -946,7 +946,7 @@ GEM
     validates_hostname (1.0.6)
       activerecord (>= 3.0)
       activesupport (>= 3.0)
-    version_sorter (2.1.0)
+    version_sorter (2.2.4)
     virtus (1.0.5)
       axiom-types (~> 0.1)
       coercible (~> 1.0)
@@ -955,7 +955,7 @@ GEM
     vmstat (2.3.0)
     warden (1.2.7)
       rack (>= 1.0)
-    webmock (2.3.2)
+    webmock (3.5.1)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff
@@ -1211,10 +1211,10 @@ DEPENDENCIES
   unicorn (~> 5.4.1)
   unicorn-worker-killer (~> 0.4.4)
   validates_hostname (~> 1.0.6)
-  version_sorter (~> 2.1.0)
+  version_sorter (~> 2.2.4)
   virtus (~> 1.0.1)
   vmstat (~> 2.3.0)
-  webmock (~> 2.3.2)
+  webmock (~> 3.5.1)
   webpack-rails (~> 0.9.10)
   wikicloth (= 0.8.1)
 

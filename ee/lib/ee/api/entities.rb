@@ -267,6 +267,7 @@ module EE
         expose :approved_approvers, as: :approved_by, using: ::API::Entities::UserBasic
         expose :code_owner
         expose :source_rule, using: SourceRule
+        expose :approved?, as: :approved
       end
 
       # Decorates ApprovalState
@@ -630,6 +631,7 @@ module EE
       class NpmPackage < Grape::Entity
         expose :name
         expose :versions
+        expose :dist_tags, as: 'dist-tags'
       end
 
       class Package < Grape::Entity
