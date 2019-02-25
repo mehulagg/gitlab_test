@@ -14,7 +14,7 @@ class GroupPresenter < Gitlab::View::Presenter::Delegated
   end
 
   def group_view_redirect_needed?
-    group_view != EE::User::DEFAULT_GROUP_VIEW
+    group_view != default_group_view
   end
 
   def group_view_url(group)
@@ -30,11 +30,17 @@ class GroupPresenter < Gitlab::View::Presenter::Delegated
 
   def group_view
     strong_memoize(:group_view) do
-      current_user&.group_view
+      current_user&.group_view || default_group_view
     end
   end
 
   def supports_atom_request_format?
-    group_view == EE::User::DEFAULT_GROUP_VIEW
+    group_view == default_group_view
+  end
+
+  def default_group_view
+    strong_memoize(:default_group_view) do
+      EE::User::DEFAULT_GROUP_VIEW
+    end
   end
 end
