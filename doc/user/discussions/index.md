@@ -421,7 +421,7 @@ The **Reply to comment** button is only displayed if you have permissions to rep
 
 Clicking on the **Reply to comment** button will bring the reply area into focus and you can type your reply.
 
-[INSERT_IMAGE_OR_GIF]
+![Reply to comment feature](img/reply_to_comment.gif)
 
 Relying to a non-discussion comment will convert the non-discussion comment to a 
 threaded discussion once the reply is submitted.
