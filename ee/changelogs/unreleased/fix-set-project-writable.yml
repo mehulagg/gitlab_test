@@ -1,0 +1,5 @@
+---
+title: Fix project set_repository_writable
+merge_request: 9697
+author:
+type: fixed

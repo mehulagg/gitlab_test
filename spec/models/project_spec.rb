@@ -2753,6 +2753,15 @@ describe Project do
     end
   end
 
+  describe '#set_repository_writable!' do
+    it 'sets repository_read_only to false' do
+      project = create(:project)
+
+      expect(project.set_repository_writable!).to be_truthy
+      expect(project.repository_read_only).to be false
+    end
+  end
+
   describe '#pushes_since_gc' do
     let(:project) { create(:project) }
 
