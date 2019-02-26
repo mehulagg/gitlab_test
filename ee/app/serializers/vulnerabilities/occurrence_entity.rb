@@ -19,7 +19,7 @@ class Vulnerabilities::OccurrenceEntity < Grape::Entity
     expose :description
     expose :links
     expose :location
-    expose :remediation
+    expose :remediations
     expose :solution
   end
 

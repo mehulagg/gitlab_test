@@ -36,7 +36,8 @@ module Gitlab
                 remediation["fixes"].any? { |fix| fix["cve"] == vulnerability["cve"] }
               end
 
-              vulnerability["remediation"] = remediation if vulnerability
+              vulnerability["remediations"] ||= []
+              vulnerability["remediations"] << remediation if vulnerability
             end
           end
 

@@ -168,8 +168,8 @@ module Vulnerabilities
       metadata.fetch('links', [])
     end
 
-    def remediation
-      metadata.dig('remediation')
+    def remediations
+      metadata.dig('remediations')
     end
   end
 end

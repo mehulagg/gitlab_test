@@ -56,8 +56,8 @@ describe Gitlab::Ci::Parsers::Security::DependencyScanning do
         raw_metadata = JSON.parse!(occurrence[:raw_metadata])
 
         expect(occurrence[:name]).to eq("Authentication bypass via incorrect DOM traversal and canonicalization in saml2-js")
-        expect(raw_metadata.dig("remediation", "summary")).to eq("Upgrade saml2-js")
-        expect(raw_metadata.dig("remediation", "diff")).to start_with("ZGlmZiAtLWdpdCBhL3lhcm4")
+        expect(raw_metadata["remediations"].first["summary"]).to eq("Upgrade saml2-js")
+        expect(raw_metadata["remediations"].first["diff"]).to start_with("ZGlmZiAtLWdpdCBhL3lhcm4")
       end
     end
   end
