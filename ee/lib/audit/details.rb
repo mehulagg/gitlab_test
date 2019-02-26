@@ -20,13 +20,17 @@ module Audit
       end
     end
 
+    def human_text(details)
+      details.map { |key, value| select_keys(key, value) }.join(" ").humanize.html_safe
+    end
+
     private
 
     def action_text
-      action = @details.slice(*ACTIONS)
+      action = @details.slice(*ACTIONS).keys.first
       value = @details.values.first.tr('_', ' ')
 
-      case action.keys.first
+      case action
       when :add
         "Added #{value}#{@details[:as] ? " as #{@details[:as]}" : ''}"
       when :remove
@@ -35,8 +39,10 @@ module Audit
         "Failed to login with #{Gitlab::Auth::OAuth::Provider.label_for(value).upcase} authentication"
       when :custom_message
         value
-      else
+      when :change
         text_for_change(value)
+      else
+        human_text(@details)
       end
     end
 
@@ -47,6 +53,14 @@ module Audit
       changed << "to #{@details[:to]}" if @details[:to]
 
       changed.join(' ')
+    end
+
+    def select_keys(key, value)
+      if key =~ /^(author|target)_.*/
+        ""
+      else
+        "#{key} <strong>#{value}</strong>"
+      end
     end
   end
 end
