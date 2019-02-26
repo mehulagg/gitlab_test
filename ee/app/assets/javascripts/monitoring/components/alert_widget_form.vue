@@ -1,5 +1,6 @@
 <script>
 import { __ } from '~/locale';
+import _ from 'underscore';
 import Vue from 'vue';
 import Translate from '~/vue_shared/translate';
 import { GlDropdown, GlDropdownItem } from '@gitlab/ui';
@@ -34,26 +35,23 @@ export default {
       type: Boolean,
       required: true,
     },
-    alert: {
-      type: String,
-      required: false,
-      default: null,
-    },
-    // alertDataExample = {
-    //   alert_path: "/root/autodevops-deploy/prometheus/alerts/16.json?environment_id=37"
-    //   id: 1
-    //   operator: ">"
-    //   query: "avg(sum(rate(container_cpu_usage_seconds_total{container_name!="POD",pod_name=~"^%{ci_environment_slug}-(.*)",namespace="%{kube_namespace}"}[15m])) by (job)) without (job)"
-    //   threshold: 0.002
-    //   title: "Core Usage (Total)"
-    //   prometheusMetricId: 16
+    // alertsToManageExample = {
+    //   16: {
+    //     alert_path: "/root/autodevops-deploy/prometheus/alerts/16.json?environment_id=37"
+    //     id: 1
+    //     operator: ">"
+    //     query: "rate(http_requests_total[5m])[30m:1m]"
+    //     threshold: 0.002
+    //     title: "Core Usage (Total)"
+    //     prometheus_metric_id: 16
+    //   }
     // }
-    alertData: {
+    alertsToManage: {
       type: Object,
       required: false,
       default: () => ({}),
     },
-    // metricsExample = [
+    // queriesExample = [
     //   {
     //     id: 16,
     //     label: 'Total Cores'
@@ -63,19 +61,18 @@ export default {
     //     label: 'Sub-total Cores'
     //   }
     // ]
-    metrics: {
+    relevantQueries: {
       type: Array,
       required: true,
     },
   },
   data() {
-    console.log('AlertWidgetForm alertData on data():', this.alertData);
     return {
       operators: OPERATORS,
-      metrics: this.metrics,
-      operator: this.alertData.operator,
-      threshold: this.alertData.threshold,
-      prometheusMetricId: this.alertData.prometheusMetricId,
+      operator: null,
+      threshold: null,
+      prometheusMetricId: null,
+      selectedAlert: {},
     };
   },
   computed: {
@@ -83,13 +80,12 @@ export default {
       return (
         this.operator &&
         this.threshold === Number(this.threshold) &&
-        (this.operator !== this.alertData.operator ||
-          this.threshold !== this.alertData.threshold ||
-          this.prometheusMetricId !== this.alertData.prometheusMetricId)
+        (this.operator !== this.selectedAlert.operator ||
+          this.threshold !== this.selectedAlert.threshold)
       );
     },
     submitAction() {
-      if (!this.alert) return 'create';
+      if (_.isEmpty(this.selectedAlert)) return 'create';
       if (this.haveValuesChanged) return 'update';
       return 'delete';
     },
@@ -104,17 +100,34 @@ export default {
     },
   },
   watch: {
-    alertData() {
+    alertsToManage() {
       this.resetAlertData();
     },
   },
   methods: {
-    getLabelFromMetrics() {
-      const targetQueries = this.metrics.filter(metric => metric.id == this.prometheusMetricId);
-      // TODO: Add new string in a real way I'm not sure of.
-      // if (!targetQueries.length) return s__('PrometheusAlerts|Query');
-      if (!targetQueries.length) return 'Query';
-      return targetQueries[0].label;
+    getCurrentQuery() {
+      return this.relevantQueries.find(query => query.id === this.prometheusMetricId);
+    },
+    queryDropdownLabel() {
+      const targetQuery = this.getCurrentQuery() || {};
+      // TODO: Add new string in the real way I'm not sure of.
+      // return targetQuery.label || s__('PrometheusAlerts|Query');
+      return targetQuery.label || 'Query';
+    },
+    selectQuery(query_id) {
+      const existingAlert = this.alertsToManage[query_id.toString()];
+
+      if (existingAlert) {
+        this.selectedAlert = existingAlert;
+        this.operator = existingAlert.operator;
+        this.threshold = existingAlert.threshold;
+      } else {
+        this.selectedAlert = {};
+        this.operator = null;
+        this.threshold = null;
+      }
+
+      this.prometheusMetricId = query_id;
     },
     handleCancel() {
       this.resetAlertData();
@@ -123,16 +136,17 @@ export default {
     handleSubmit() {
       this.$refs.submitButton.blur();
       this.$emit(this.submitAction, {
-        alert: this.alert,
+        alert: this.selectedAlert.alert_path,
         operator: this.operator,
         threshold: this.threshold,
         prometheusMetricId: this.prometheusMetricId,
       });
     },
     resetAlertData() {
-      this.operator = this.alertData.operator;
-      this.threshold = this.alertData.threshold;
-      this.prometheusMetricId = this.alertData.prometheusMetricId;
+      this.operator = null;
+      this.threshold = null;
+      this.prometheusMetricId = null;
+      this.selectedAlert = {};
     },
   },
 };
@@ -140,13 +154,13 @@ export default {
 
 <template>
   <div class="alert-form">
-    <gl-dropdown :text="getLabelFromMetrics()" class="form-group">
+    <gl-dropdown :text="queryDropdownLabel()" class="form-group">
       <gl-dropdown-item
-        v-for="metric in metrics"
-        :key="metric.id"
-        @click="prometheusMetricId = metric.id"
+        v-for="query in relevantQueries"
+        :key="query.id"
+        @click="selectQuery(query.id)"
       >
-        {{ metric.label }}
+        {{ query.label }}
       </gl-dropdown-item>
     </gl-dropdown>
     <div :aria-label="s__('PrometheusAlerts|Operator')" class="form-group btn-group" role="group">

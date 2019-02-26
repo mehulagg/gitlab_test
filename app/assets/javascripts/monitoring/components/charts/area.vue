@@ -41,7 +41,7 @@ export default {
       required: false,
       default: () => [],
     },
-    alertData: {
+    thresholds: {
       type: Object,
       required: false,
       default: () => ({}),
@@ -153,9 +153,6 @@ export default {
         symbolSize: 14,
       };
     },
-    xAxisLabel() {
-      return this.graphData.queries.map(query => query.label).join(', ');
-    },
     yAxisLabel() {
       return `${this.graphData.y_label}`;
     },
@@ -182,11 +179,11 @@ export default {
         );
         this.tooltip.sha = deploy.sha.substring(0, 8);
       } else {
-        this.tooltip.content = params.seriesData.map((dataDescriptors, index) => {
-          const correspondingQuery = this.graphData.queries[index];
+        this.tooltip.content = params.seriesData.map(dataDescriptors => {
+          const correspondingQuery = this.graphData.queries[dataDescriptors.seriesIndex];
           return `${correspondingQuery.label} (${
             correspondingQuery.unit
-          }) ${dataDescriptors.value[1].toFixed(3)}`;
+          }): ${dataDescriptors.value[1].toFixed(3)}`;
         });
       }
     },
@@ -198,6 +195,10 @@ export default {
           }
         })
         .catch(() => {});
+    },
+    xAxisLabel(series_id) {
+      const query = this.graphData.queries.find(query => query.id.toString() === series_id);
+      return `${query.label} (${query.unit})`;
     },
     onResize() {
       const { width, height } = this.$refs.areaChart.$el.getBoundingClientRect();
@@ -220,7 +221,7 @@ export default {
       :data="chartData"
       :option="chartOptions"
       :format-tooltip-text="formatTooltipText"
-      :thresholds="alertData"
+      :thresholds="thresholds"
       :width="width"
       :height="height"
     >

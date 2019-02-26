@@ -415,6 +415,11 @@
   }
 }
 
+.prometheus-alert-widget {
+  display: flex;
+  align-items: center;
+}
+
 .prometheus-graph-cursor {
   position: absolute;
   background: $gray-600;

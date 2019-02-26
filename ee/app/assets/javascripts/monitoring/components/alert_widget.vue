@@ -16,24 +16,17 @@ export default {
       type: String,
       required: true,
     },
-    label: {
-      type: String,
-      required: true,
-    },
-    currentAlerts: {
-      type: Array,
-      require: false,
-      default: () => [],
-    },
-    customMetricId: {
-      type: Number,
-      require: false,
-      default: null,
-    },
-    alertData: {
+    // { [metric_id]: { alert_attributes } }. Populated from subsequent API calls.
+    // Includes only the metrics/alerts to be managed by this widget.
+    alertsToManage: {
       type: Object,
       required: false,
       default: () => ({}),
+    },
+    // [{ metric+query_attributes }]
+    relevantQueries: {
+      type: Array,
+      required: true,
     },
   },
   data() {
@@ -42,14 +35,22 @@ export default {
       errorMessage: null,
       isLoading: false,
       isOpen: false,
-      alerts: this.currentAlerts,
     };
   },
   computed: {
+    alertPaths() {
+      return this.relevantQueries.map(query => query.alert_path).filter(Boolean);
+    },
     alertSummary() {
-      const data = this.firstAlertData;
-      if (!data) return null;
-      return `${this.label} ${data.operator} ${data.threshold}`;
+      return Object.keys(this.alertsToManage)
+        .map(prometheusMetricId => {
+          const alert = this.alertsToManage[prometheusMetricId];
+          const alertQuery = this.relevantQueries.find(
+            query => query.id.toString() === prometheusMetricId,
+          );
+          return `${alertQuery.label} ${alert.operator} ${alert.threshold}`;
+        })
+        .join(', ');
     },
     alertIcon() {
       return this.hasAlerts ? 'notifications' : 'notifications-off';
@@ -65,13 +66,7 @@ export default {
         : s__('PrometheusAlerts|Add alert');
     },
     hasAlerts() {
-      return Object.keys(this.alertData).length > 0;
-    },
-    firstAlert() {
-      return this.hasAlerts ? this.alerts[0] : undefined;
-    },
-    firstAlertData() {
-      return this.hasAlerts ? this.alertData[this.alerts[0]] : undefined;
+      return this.alertPaths.length > 0;
     },
     formDisabled() {
       return !!(this.errorMessage || this.isLoading);
@@ -98,13 +93,9 @@ export default {
     fetchAlertData() {
       this.isLoading = true;
       return Promise.all(
-        this.alerts.map(alertPath =>
-          this.service.readAlert(alertPath).then(alertData => {
-            this.$emit('setAlerts', this.customMetricId, {
-              ...this.alertData,
-              [alertPath]: alertData,
-              prometheusMetricId: this.customMetricId,
-            });
+        this.alertPaths.map(alertPath =>
+          this.service.readAlert(alertPath).then(alertAttributes => {
+            this.$emit('setAlerts', alertAttributes.prometheus_metric_id, alertAttributes);
           }),
         ),
       )
@@ -127,18 +118,13 @@ export default {
         this.isOpen = false;
       }
     },
-    handleCreate({ operator, threshold }) {
-      const newAlert = { operator, threshold, prometheus_metric_id: this.customMetricId };
+    handleCreate({ operator, threshold, prometheusMetricId }) {
+      const newAlert = { operator, threshold, prometheus_metric_id: prometheusMetricId };
       this.isLoading = true;
       this.service
         .createAlert(newAlert)
-        .then(response => {
-          const alertPath = response.alert_path;
-          this.alerts.unshift(alertPath);
-          this.$emit('setAlerts', this.customMetricId, {
-            ...this.alertData,
-            [alertPath]: newAlert,
-          });
+        .then(alertAttributes => {
+          this.$emit('setAlerts', prometheusMetricId, alertAttributes);
           this.isLoading = false;
           this.handleDropdownClose();
         })
@@ -147,16 +133,13 @@ export default {
           this.isLoading = false;
         });
     },
-    handleUpdate({ alert, operator, threshold }) {
+    handleUpdate({ alert, operator, threshold, prometheusMetricId }) {
       const updatedAlert = { operator, threshold };
       this.isLoading = true;
       this.service
         .updateAlert(alert, updatedAlert)
-        .then(() => {
-          this.$emit('setAlerts', this.customMetricId, {
-            ...this.alertData,
-            [alert]: updatedAlert,
-          });
+        .then(alertAttributes => {
+          this.$emit('setAlerts', prometheusMetricId, alertAttributes);
           this.isLoading = false;
           this.handleDropdownClose();
         })
@@ -165,14 +148,12 @@ export default {
           this.isLoading = false;
         });
     },
-    handleDelete({ alert }) {
+    handleDelete({ alert, prometheusMetricId }) {
       this.isLoading = true;
       this.service
         .deleteAlert(alert)
-        .then(() => {
-          const { [alert]: _, ...otherItems } = this.alertData;
-          this.$emit('setAlerts', this.customMetricId, otherItems);
-          this.alerts = this.alerts.filter(alertPath => alert !== alertPath);
+        .then(alertAttributes => {
+          this.$emit('setAlerts', prometheusMetricId, null);
           this.isLoading = false;
           this.handleDropdownClose();
         })
@@ -220,9 +201,8 @@ export default {
         <alert-widget-form
           ref="widgetForm"
           :disabled="formDisabled"
-          :alert="firstAlert"
-          :alert-data="firstAlertData"
-          :metrics="[{ id: 16, label: 'test' }, { id: 22, label: 'test2' }]"
+          :alerts-to-manage="alertsToManage"
+          :relevant-queries="relevantQueries"
           @create="handleCreate"
           @update="handleUpdate"
           @delete="handleDelete"

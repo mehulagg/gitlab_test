@@ -149,8 +149,14 @@ export default {
     }
   },
   methods: {
-    getGraphAlerts(graphId) {
-      return this.alertData ? this.alertData[graphId] || {} : {};
+    getGraphAlerts(queries) {
+      if (!this.allAlerts) return {};
+      return queries.reduce((accumulator, query) => {
+        if (this.allAlerts[query.id]) {
+          accumulator[query.id] = this.allAlerts[query.id];
+        }
+        return accumulator;
+      }, {});
     },
     getGraphsData() {
       this.state = 'loading';
@@ -213,18 +219,16 @@ export default {
         :key="graphIndex"
         :graph-data="graphData"
         :deployment-data="store.deploymentData"
-        :alert-data="getGraphAlerts(graphData.id)"
+        :thresholds="getGraphAlerts(graphData.queries)"
         :container-width="elWidth"
         group-id="monitor-area-chart"
       >
         <!-- EE content -->
         <alert-widget
-          v-if="prometheusAlertsAvailable && alertsEndpoint && graphData.id"
+          v-if="prometheusAlertsAvailable && alertsEndpoint && graphData"
           :alerts-endpoint="alertsEndpoint"
-          :label="getGraphLabel(graphData)"
-          :current-alerts="getQueryAlerts(graphData)"
-          :custom-metric-id="graphData.id"
-          :alert-data="alertData[graphData.id]"
+          :relevant-queries="graphData.queries"
+          :alerts-to-manage="getGraphAlerts(graphData.queries)"
           @setAlerts="setAlerts"
         />
       </monitor-area-chart>
