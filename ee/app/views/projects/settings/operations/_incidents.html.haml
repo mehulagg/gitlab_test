@@ -1,22 +1,25 @@
-- templates =  []
+- setting = incident_management_setting
+- templates = [''] + setting.available_issue_templates.map { |t| [t.name, t.key] }
 
 %section.settings.expanded.border-0.no-animate
   .settings-header
-    %h4= _("Incidents")
+    %h4= _('Incidents')
     %p
-      = _("Action to take when receiving an alert.")
+      = _('Action to take when receiving an alert.')
       = link_to help_page_path('administration/monitoring/prometheus/index', anchor: 'create-issues-from-alerts') do
-        = _("More information")
+        = _('More information')
   .settings-content
     = form_for @project, url: project_settings_operations_path(@project), method: :patch do |f|
       = form_errors(@project)
       .form-group
-        = f.check_box :archived # TODO
-        = f.label :archived, _('Create an issue. Issues are created for each alert triggered.'), class: 'form-check-label'
-      .form-group
-        = f.label :first_day_of_week, _('Issue template')
-        = f.select :archived, templates, {}, class: 'form-control'
-      .form-group
-        = f.check_box :archived # TODO
-        = f.label :archived, _('Send an email notification to Developers.'), class: 'form-check-label'
+        = f.fields_for :incident_management_setting_attributes, setting do |form|
+          .form-check.form-group
+            = form.check_box :create_issue
+            = form.label :create_issue, _('Create an issue. Issues are created for each alert triggered.'), class: 'form-check-label'
+          .form-group
+            = form.label :issue_template_key, _('Issue template')
+            = form.select :issue_template_key, templates, {}, class: 'form-control'
+          .form-check.form-group
+            = form.check_box :send_email
+            = form.label :send_email, _('Send an email notification to Developers.'), class: 'form-check-label'
       = f.submit _('Save changes'), class: 'btn btn-success'
