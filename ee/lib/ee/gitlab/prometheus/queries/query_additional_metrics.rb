@@ -19,14 +19,14 @@ module EE
 
             proc do |group|
               group[:metrics] = group[:metrics]&.map do |metric|
-                key = metric[:id]
+                metric[:queries] = metric[:queries]&.map do |item|
+                  metric_id = item[:id] || metric[:id]
 
-                if key && alerts_map[key]
-                  metric[:queries] = metric[:queries]&.map do |item|
-                    item[:alert_path] = alert_path(alerts_map, key, project, environment)
-
-                    item
+                  if metric_id && alerts_map[metric_id]
+                    item[:alert_path] = alert_path(alerts_map, metric_id, project, environment)
                   end
+
+                  item
                 end
 
                 metric
