@@ -151,7 +151,7 @@ This approach can also be used in the event that your runners are unable to use 
 ```yaml
 sast:
   stage: test
-  image: registry.gitlab.com/gitlab-org/security-products/analyzers/find-sec-bugs:11-8
+  image: registry.gitlab.com/gitlab-org/security-products/analyzers/find-sec-bugs:$CI_SERVER_VERSION_MAJOR-$CI_SERVER_VERSION_MINOR-stable
   allow_failure: true
   script:
     - /analyzer run
@@ -167,7 +167,7 @@ will be uploaded and combined to generate a single vulnerability set:
 ```yaml
 sast_java:
   stage: test
-  image: registry.gitlab.com/gitlab-org/security-products/analyzers/find-sec-bugs:11-8
+  image: registry.gitlab.com/gitlab-org/security-products/analyzers/find-sec-bugs:$CI_SERVER_VERSION_MAJOR-$CI_SERVER_VERSION_MINOR-stable
   allow_failure: true
   script:
     - /analyzer run
@@ -177,7 +177,7 @@ sast_java:
 
 sast_javascript:
   stage: test
-  image: registry.gitlab.com/gitlab-org/security-products/analyzers/nodejs-scan:11-8
+  image: registry.gitlab.com/gitlab-org/security-products/analyzers/nodejs-scan:$CI_SERVER_VERSION_MAJOR-$CI_SERVER_VERSION_MINOR-stable
   allow_failure: true
   script:
     - /analyzer run
@@ -215,7 +215,7 @@ build:
 
 sast:
   stage: test
-  image: registry.gitlab.com/gitlab-org/security-products/analyzers/find-sec-bugs:11-8
+  image: registry.gitlab.com/gitlab-org/security-products/analyzers/find-sec-bugs:$CI_SERVER_VERSION_MAJOR-$CI_SERVER_VERSION_MINOR-stable
   allow_failure: true
   script:
     - /analyzer run -compile=false
