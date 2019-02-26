@@ -13,21 +13,7 @@ describe AuditEventsHelper do
     end
 
     it 'ignores keys that start with start with author_, or target_' do
-      expect(human_text(details)).to eq 'Remove <strong>user access</strong>    '
-    end
-  end
-
-  describe '#select_keys' do
-    it 'returns empty string if key starts with author_' do
-      expect(select_keys('author_name', 'John Doe')).to eq ''
-    end
-
-    it 'returns empty string if key starts with target_' do
-      expect(select_keys('target_name', 'John Doe')).to eq ''
-    end
-
-    it 'returns formatted text if key does not start with author_, or target_' do
-      expect(select_keys('remove', 'user_access')).to eq 'remove <strong>user_access</strong>'
+      expect(human_text(details)).to eq 'Removed user access'
     end
   end
 end

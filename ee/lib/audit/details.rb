@@ -20,10 +20,6 @@ module Audit
       end
     end
 
-    def human_text(details)
-      details.map { |key, value| select_keys(key, value) }.join(" ").humanize.html_safe
-    end
-
     private
 
     def action_text
@@ -53,6 +49,10 @@ module Audit
       changed << "to #{@details[:to]}" if @details[:to]
 
       changed.join(' ')
+    end
+
+    def human_text(details)
+      details.map { |key, value| select_keys(key, value) }.join(" ").humanize.html_safe
     end
 
     def select_keys(key, value)

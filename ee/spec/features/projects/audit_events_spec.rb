@@ -72,7 +72,7 @@ describe 'Projects > Audit Events', :js do
 
       visit project_audit_events_path(project)
 
-      expect(page).to have_content('Add deploy key')
+      expect(page).to have_content('Added deploy key')
 
       visit project_deploy_keys_path(project)
 
@@ -84,7 +84,7 @@ describe 'Projects > Audit Events', :js do
 
       visit project_audit_events_path(project)
 
-      expect(page).to have_content('Remove deploy key')
+      expect(page).to have_content('Removed deploy key')
     end
   end
 
@@ -108,7 +108,7 @@ describe 'Projects > Audit Events', :js do
       click_link 'Audit Events'
 
       page.within('table#audits') do
-        expect(page).to have_content 'Change access level from developer to maintainer'
+        expect(page).to have_content 'Changed access level from Developer to Maintainer'
         expect(page).to have_content(project.owner.name)
         expect(page).to have_content('Pete')
       end
