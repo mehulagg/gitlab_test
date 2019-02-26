@@ -42,8 +42,7 @@
 class AddressableUrlValidator < ActiveModel::EachValidator
   attr_reader :record
 
-  DEFAULT_OPTIONS = {
-    message: 'must be a valid URL',
+  BLOCKER_VALIDATE_OPTIONS = {
     schemes: %w(http https),
     ports: [],
     allow_localhost: true,
@@ -52,6 +51,10 @@ class AddressableUrlValidator < ActiveModel::EachValidator
     enforce_user: false,
     enforce_sanitization: false
   }.freeze
+
+  DEFAULT_OPTIONS = BLOCKER_VALIDATE_OPTIONS.merge({
+    message: 'must be a valid URL'
+  }).freeze
 
   def initialize(options)
     options.reverse_merge!(DEFAULT_OPTIONS)
@@ -62,12 +65,9 @@ class AddressableUrlValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
     @record = record
 
-    if value.nil?
-      record.errors.add(attribute, options.fetch(:message)) unless options[:allow_nil]
-      return options[:allow_nil]
-    elsif value.blank?
-      record.errors.add(attribute, options.fetch(:message)) unless options[:allow_blank]
-      return options[:allow_blank]
+    unless value.present?
+      record.errors.add(attribute, options.fetch(:message))
+      return
     end
 
     value = strip_value!(record, attribute, value)
@@ -93,15 +93,14 @@ class AddressableUrlValidator < ActiveModel::EachValidator
   end
 
   def blocker_args
-    blocker_validate_keys = Gitlab::UrlBlocker.method(:validate!).parameters.map { |_, key| key.to_sym}
-    current_options.slice(*blocker_validate_keys).tap do |args|
-      if allow_setting_local_requests?
+    current_options.slice(*BLOCKER_VALIDATE_OPTIONS.keys).tap do |args|
+      if self.class.allow_setting_local_requests?
         args[:allow_localhost] = args[:allow_local_network] = true
       end
     end
   end
 
-  def allow_setting_local_requests?
+  def self.allow_setting_local_requests?
     # We cannot use Gitlab::CurrentSettings as ApplicationSetting itself
     # uses UrlValidator to validate urls. This ends up in a cycle
     # when Gitlab::CurrentSettings creates an ApplicationSetting which then

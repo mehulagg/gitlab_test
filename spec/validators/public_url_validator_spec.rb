@@ -7,14 +7,14 @@ describe PublicUrlValidator do
     let(:validator) { described_class.new(attributes: [:link_url]) }
     let!(:badge) { build(:badge, link_url: 'http://www.example.com') }
 
-    subject { validator.validate_each(badge, :link_url, badge.link_url) }
+    subject { validator.validate(badge) }
 
     it 'blocks urls pointing to localhost' do
       badge.link_url = 'https://127.0.0.1'
 
       subject
 
-      expect(badge.errors.empty?).to be_falsey
+      expect(badge.errors).to be_present
     end
 
     it 'blocks urls pointing to the local network' do
@@ -22,7 +22,7 @@ describe PublicUrlValidator do
 
       subject
 
-      expect(badge.errors.empty?).to be_falsey
+      expect(badge.errors).to be_present
     end
   end
 end

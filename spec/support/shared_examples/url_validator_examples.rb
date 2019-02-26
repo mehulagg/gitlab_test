@@ -2,9 +2,9 @@ RSpec.shared_examples 'url validator examples' do |schemes|
   let(:validator) { described_class.new(attributes: [:link_url], **options) }
   let!(:badge) { build(:badge, link_url: 'http://www.example.com') }
 
-  subject { validator.validate_each(badge, :link_url, badge.link_url) }
+  subject { validator.validate(badge) }
 
-  describe '#validates_each' do
+  describe '#validate' do
     context 'with no options' do
       let(:options) { {} }
 
@@ -17,7 +17,7 @@ RSpec.shared_examples 'url validator examples' do |schemes|
 
         subject
 
-        expect(badge.errors.empty?).to be_falsey
+        expect(badge.errors).to be_present
       end
     end
 
@@ -27,7 +27,7 @@ RSpec.shared_examples 'url validator examples' do |schemes|
       it 'allows urls with the defined schemes' do
         subject
 
-        expect(badge.errors.empty?).to be_truthy
+        expect(badge.errors).to be_empty
       end
 
       it 'add error if the url scheme does not match the selected ones' do
@@ -35,7 +35,7 @@ RSpec.shared_examples 'url validator examples' do |schemes|
 
         subject
 
-        expect(badge.errors.empty?).to be_falsey
+        expect(badge.errors).to be_present
       end
     end
   end

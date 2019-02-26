@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe AddressableUrlValidator do
   let!(:badge) { build(:badge, link_url: 'http://www.example.com') }
-  subject { validator.validate_each(badge, :link_url, badge.link_url) }
+  subject { validator.validate(badge) }
 
   include_examples 'url validator examples', described_class::DEFAULT_OPTIONS[:schemes]
 
@@ -30,6 +30,17 @@ describe AddressableUrlValidator do
         end
       end
     end
+
+    it 'provides all arguments to UrlBlock validate' do
+      expect(Gitlab::UrlBlocker)
+          .to receive(:validate!)
+                  .with(badge.link_url, described_class::BLOCKER_VALIDATE_OPTIONS)
+                  .and_return(true)
+
+      subject
+
+      expect(badge.errors).to be_empty
+    end
   end
 
   context 'by default' do
@@ -40,7 +51,7 @@ describe AddressableUrlValidator do
 
       subject
 
-      expect(badge.errors.empty?).to be_truthy
+      expect(badge.errors).to be_empty
     end
 
     it 'does not block urls pointing to the local network' do
@@ -48,7 +59,7 @@ describe AddressableUrlValidator do
 
       subject
 
-      expect(badge.errors.empty?).to be_truthy
+      expect(badge.errors).to be_empty
     end
 
     it 'does block nil urls' do
@@ -56,7 +67,7 @@ describe AddressableUrlValidator do
 
       subject
 
-      expect(badge.errors.empty?).to be_falsey
+      expect(badge.errors).to be_present
     end
 
     it 'does block blank urls' do
@@ -64,7 +75,7 @@ describe AddressableUrlValidator do
 
       subject
 
-      expect(badge.errors.empty?).to be_falsey
+      expect(badge.errors).to be_present
     end
 
     it 'strips urls' do
@@ -101,7 +112,7 @@ describe AddressableUrlValidator do
 
       subject
 
-      expect(badge.errors.empty?).to be_truthy
+      expect(badge.errors).to be_empty
     end
   end
 
@@ -113,7 +124,7 @@ describe AddressableUrlValidator do
 
       subject
 
-      expect(badge.errors.empty?).to be_truthy
+      expect(badge.errors).to be_empty
     end
   end
 
@@ -125,7 +136,21 @@ describe AddressableUrlValidator do
 
       subject
 
-      expect(badge.errors.empty?).to be_falsey
+      expect(badge.errors).to be_present
+    end
+
+    context 'when allow_setting_local_requests is set to true' do
+      it 'does not block urls pointing to localhost' do
+        expect(described_class)
+          .to receive(:allow_setting_local_requests?)
+            .and_return(true)
+
+        badge.link_url = 'https://127.0.0.1'
+
+        subject
+
+        expect(badge.errors).to be_empty
+      end
     end
   end
 
@@ -137,7 +162,21 @@ describe AddressableUrlValidator do
 
       subject
 
-      expect(badge.errors.empty?).to be_falsey
+      expect(badge.errors).to be_present
+    end
+
+    context 'when allow_setting_local_requests is set to true' do
+      it 'does not block urls pointing to local network' do
+        expect(described_class)
+          .to receive(:allow_setting_local_requests?)
+            .and_return(true)
+
+        badge.link_url = 'https://192.168.1.1'
+
+        subject
+
+        expect(badge.errors).to be_empty
+      end
     end
   end
 
@@ -150,7 +189,7 @@ describe AddressableUrlValidator do
       it 'does not block any port' do
         subject
 
-        expect(badge.errors.empty?).to be_truthy
+        expect(badge.errors).to be_empty
       end
     end
 
@@ -160,7 +199,7 @@ describe AddressableUrlValidator do
       it 'blocks urls with a different port' do
         subject
 
-        expect(badge.errors.empty?).to be_falsey
+        expect(badge.errors).to be_present
       end
     end
   end
@@ -177,7 +216,7 @@ describe AddressableUrlValidator do
 
         subject
 
-        expect(badge.errors.empty?).to be_falsey
+        expect(badge.errors).to be_present
       end
     end
 
@@ -189,7 +228,7 @@ describe AddressableUrlValidator do
 
         subject
 
-        expect(badge.errors.empty?).to be_truthy
+        expect(badge.errors).to be_empty
       end
     end
   end
@@ -206,7 +245,7 @@ describe AddressableUrlValidator do
 
         subject
 
-        expect(badge.errors.empty?).to be_falsey
+        expect(badge.errors).to be_present
       end
     end
 
@@ -218,7 +257,7 @@ describe AddressableUrlValidator do
 
         subject
 
-        expect(badge.errors.empty?).to be_truthy
+        expect(badge.errors).to be_empty
       end
     end
   end
@@ -241,7 +280,7 @@ describe AddressableUrlValidator do
 
         subject
 
-        expect(badge.errors.empty?).to be_falsey
+        expect(badge.errors).to be_present
       end
 
       it 'prevents unsafe internal urls' do
@@ -249,7 +288,7 @@ describe AddressableUrlValidator do
 
         subject
 
-        expect(badge.errors.empty?).to be_falsey
+        expect(badge.errors).to be_present
       end
 
       it 'allows safe urls' do
@@ -257,7 +296,7 @@ describe AddressableUrlValidator do
 
         subject
 
-        expect(badge.errors.empty?).to be_truthy
+        expect(badge.errors).to be_empty
       end
     end
 
@@ -269,7 +308,7 @@ describe AddressableUrlValidator do
 
         subject
 
-        expect(badge.errors.empty?).to be_truthy
+        expect(badge.errors).to be_empty
       end
     end
   end
