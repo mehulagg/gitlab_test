@@ -11,7 +11,7 @@ module Gitlab
             report_data = parse_report(json_data)
             raise SecurityReportParserError, "Invalid report format" unless report_data.is_a?(Hash)
 
-            report_data["vulnerabilities"].each do |vulnerability|
+            collate_remediations(report_data).each do |vulnerability|
               create_vulnerability(report, vulnerability, report_data["version"])
             end
           rescue JSON::ParserError
@@ -25,6 +25,19 @@ module Gitlab
 
           def parse_report(json_data)
             JSON.parse!(json_data)
+          end
+
+          # map remediations to relevant vulnerabilities
+          def collate_remediations(report_data)
+            return report_data["vulnerabilities"] unless report_data["remediations"]
+
+            report_data["remediations"].each_with_object(report_data["vulnerabilities"]) do |remediation, vulnerabilities|
+              vulnerability = vulnerabilities.find do |vulnerability|
+                remediation["fixes"].any? { |fix| fix["cve"] == vulnerability["cve"] }
+              end
+
+              vulnerability["remediation"] = remediation if vulnerability
+            end
           end
 
           def create_vulnerability(report, data, version)

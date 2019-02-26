@@ -17,9 +17,10 @@ class Vulnerabilities::OccurrenceEntity < Grape::Entity
 
   expose :metadata, merge: true, if: ->(occurrence, _) { occurrence.raw_metadata } do
     expose :description
-    expose :solution
-    expose :location
     expose :links
+    expose :location
+    expose :remediation
+    expose :solution
   end
 
   alias_method :occurrence, :object
