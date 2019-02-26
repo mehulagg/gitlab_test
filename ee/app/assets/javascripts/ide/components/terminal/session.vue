@@ -122,7 +122,6 @@ export default {
       </button>
     </div>
     <div v-if="session.status == 'running'">
-      <input id="wssurl"></input>
       <button @click="testws">
         TestWSS
       </button>

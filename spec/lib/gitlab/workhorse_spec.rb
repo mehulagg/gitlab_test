@@ -101,14 +101,14 @@ describe Gitlab::Workhorse do
 
     def workhorse(ca_pem: nil)
       out = {
-        'Terminal' => {
+        'Channel' => {
           'Subprotocols' => ['foo'],
           'Url' => 'wss://example.com/terminal.ws',
           'Header' => { 'Authorization' => ['Token x'] },
           'MaxSessionTime' => 600
         }
       }
-      out['Terminal']['CAPem'] = ca_pem if ca_pem
+      out['Channel']['CAPem'] = ca_pem if ca_pem
       out
     end
 

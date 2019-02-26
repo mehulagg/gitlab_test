@@ -34,22 +34,22 @@ class Projects::WebIdeServicesController < Projects::ApplicationController
 
   def webide_service(service)
     details = {
-      'WebIdeService' => {
+      'Channel' => {
         'Url' => service[:url],
         'Header' => service[:headers]
       }
     }
 
-    details['WebIdeService']['CAPem'] = service[:ca_pem] if service.key?(:ca_pem)
+    details['Channel']['CAPem'] = service[:ca_pem] if service.key?(:ca_pem)
 
     details
   end
 
   def webide_websocket_service(service)
     webide_service(service).tap do |config|
-      config['WebIdeService']['Subprotocol'] = service[:subprotocols]
-      config['WebIdeService']['MaxSessionTime'] = 3000
-      config['WebIdeService']['Url'] = config['WebIdeService'].fetch('Url', '').sub("https://", "wss://")
+      config['Channel']['Subprotocols'] = service[:subprotocols]
+      config['Channel']['MaxSessionTime'] = 3000
+      config['Channel']['Url'] = config.dig('Channel', 'Url')&.sub("https://", "wss://")
     end
   end
 
