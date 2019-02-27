@@ -33,6 +33,11 @@ export default {
       required: false,
       default: '',
     },
+    noCaret: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
 };
 </script>
@@ -49,6 +54,7 @@ export default {
     >
       {{ text }}
       <i
+        v-if="!noCaret"
         class="fa fa-chevron-down"
         aria-hidden="true"
       ></i>
