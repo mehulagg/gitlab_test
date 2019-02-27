@@ -20,6 +20,9 @@ class BoardGroupRecentVisit < ActiveRecord::Base
   end
 
   def self.latest(user, group, count = nil)
-    by_user_group(user, group).order(updated_at: :desc).first(count)
+    visits = by_user_group(user, group).order(updated_at: :desc)
+    visits = visits.preload(:board) if count && count > 1
+
+    visits.first(count)
   end
 end

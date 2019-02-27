@@ -20,6 +20,9 @@ class BoardProjectRecentVisit < ActiveRecord::Base
   end
 
   def self.latest(user, project, count = nil)
-    by_user_project(user, project).order(updated_at: :desc).first(count)
+    visits = by_user_project(user, project).order(updated_at: :desc)
+    visits = visits.preload(:board) if count && count > 1
+
+    visits.first(count)
   end
 end
