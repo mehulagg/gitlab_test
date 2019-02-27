@@ -152,8 +152,8 @@ export default {
     getGraphAlerts(queries) {
       if (!this.allAlerts) return {};
       return queries.reduce((accumulator, query) => {
-        if (this.allAlerts[query.id]) {
-          accumulator[query.id] = this.allAlerts[query.id];
+        if (query.alert_path && this.allAlerts[query.alert_path]) {
+          accumulator[query.alert_path] = this.allAlerts[query.alert_path];
         }
         return accumulator;
       }, {});

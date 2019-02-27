@@ -27,8 +27,8 @@ export default {
       if (!graphData.queries || !graphData.queries[0]) return undefined;
       return graphData.queries[0].label || graphData.y_label || 'Average';
     },
-    setAlerts(metricId, alertAttributes) {
-      this.$set(this.allAlerts, metricId, alertAttributes);
+    setAlerts(alertPath, alertAttributes) {
+      this.$set(this.allAlerts, alertPath, alertAttributes);
     },
   },
 };

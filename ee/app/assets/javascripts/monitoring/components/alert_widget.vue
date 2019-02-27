@@ -16,7 +16,7 @@ export default {
       type: String,
       required: true,
     },
-    // { [metric_id]: { alert_attributes } }. Populated from subsequent API calls.
+    // { [alertPath]: { alert_attributes } }. Populated from subsequent API calls.
     // Includes only the metrics/alerts to be managed by this widget.
     alertsToManage: {
       type: Object,
@@ -43,11 +43,9 @@ export default {
     },
     alertSummary() {
       return Object.keys(this.alertsToManage)
-        .map(prometheusMetricId => {
-          const alert = this.alertsToManage[prometheusMetricId];
-          const alertQuery = this.relevantQueries.find(
-            query => query.id.toString() === prometheusMetricId,
-          );
+        .map(alertPath => {
+          const alert = this.alertsToManage[alertPath];
+          const alertQuery = this.relevantQueries.find(query => query.alert_path === alertPath);
           return `${alertQuery.label} ${alert.operator} ${alert.threshold}`;
         })
         .join(', ');
@@ -95,7 +93,7 @@ export default {
       return Promise.all(
         this.alertPaths.map(alertPath =>
           this.service.readAlert(alertPath).then(alertAttributes => {
-            this.$emit('setAlerts', alertAttributes.prometheus_metric_id, alertAttributes);
+            this.$emit('setAlerts', alertAttributes.alert_path, alertAttributes);
           }),
         ),
       )
@@ -124,7 +122,7 @@ export default {
       this.service
         .createAlert(newAlert)
         .then(alertAttributes => {
-          this.$emit('setAlerts', prometheusMetricId, alertAttributes);
+          this.$emit('setAlerts', alertAttributes.alert_path, alertAttributes);
           this.isLoading = false;
           this.handleDropdownClose();
         })
@@ -133,13 +131,13 @@ export default {
           this.isLoading = false;
         });
     },
-    handleUpdate({ alert, operator, threshold, prometheusMetricId }) {
+    handleUpdate({ alert, operator, threshold }) {
       const updatedAlert = { operator, threshold };
       this.isLoading = true;
       this.service
         .updateAlert(alert, updatedAlert)
         .then(alertAttributes => {
-          this.$emit('setAlerts', prometheusMetricId, alertAttributes);
+          this.$emit('setAlerts', alertAttributes.alert_path, alertAttributes);
           this.isLoading = false;
           this.handleDropdownClose();
         })
@@ -148,12 +146,12 @@ export default {
           this.isLoading = false;
         });
     },
-    handleDelete({ alert, prometheusMetricId }) {
+    handleDelete({ alert }) {
       this.isLoading = true;
       this.service
         .deleteAlert(alert)
         .then(alertAttributes => {
-          this.$emit('setAlerts', prometheusMetricId, null);
+          this.$emit('setAlerts', alert, null);
           this.isLoading = false;
           this.handleDropdownClose();
         })

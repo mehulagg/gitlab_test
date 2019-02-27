@@ -66,7 +66,8 @@ export default {
       // {
       //   queries: [ // contains one or many queries
       //     {
-      //       id: 16,
+      //       label: 'Title',
+      //       unit: 'units',
       //       result: [{ // contains one result
       //         values: [['2:00', 0.001], ['2:01', 0.002]]
       //       }]
@@ -75,13 +76,16 @@ export default {
       // }
       // Output:
       // {
-      //   16: [ // unit key
+      //   'Title (units)': [ // unit key
       //     ['2:00', 0.001], // values key
       //     ['2:01', 0.002]
       //   ]
       // }
       return this.graphData.queries.reduce((accumulator, query) => {
-        accumulator[query.id] = query.result.reduce((acc, res) => acc.concat(res.values), []);
+        accumulator[`${query.label} (${query.unit})`] = query.result.reduce(
+          (acc, res) => acc.concat(res.values),
+          [],
+        );
         return accumulator;
       }, {});
     },
@@ -108,9 +112,6 @@ export default {
           nameTextStyle: {
             padding: [0, 0, 36, 0],
           },
-        },
-        legend: {
-          formatter: this.xAxisLabel,
         },
         series: this.scatterSeries,
       };
@@ -195,10 +196,6 @@ export default {
           }
         })
         .catch(() => {});
-    },
-    xAxisLabel(series_id) {
-      const query = this.graphData.queries.find(query => query.id.toString() === series_id);
-      return `${query.label} (${query.unit})`;
     },
     onResize() {
       const { width, height } = this.$refs.areaChart.$el.getBoundingClientRect();

@@ -36,7 +36,7 @@ export default {
       required: true,
     },
     // alertsToManageExample = {
-    //   16: {
+    //   '/root/autodevops-deploy/prometheus/alerts/16.json?environment_id=37': {
     //     alert_path: "/root/autodevops-deploy/prometheus/alerts/16.json?environment_id=37"
     //     id: 1
     //     operator: ">"
@@ -106,7 +106,7 @@ export default {
   },
   methods: {
     getCurrentQuery() {
-      return this.relevantQueries.find(query => query.id === this.prometheusMetricId);
+      return this.relevantQueries.find(query => query.metricId === this.prometheusMetricId);
     },
     queryDropdownLabel() {
       const targetQuery = this.getCurrentQuery() || {};
@@ -114,8 +114,9 @@ export default {
       // return targetQuery.label || s__('PrometheusAlerts|Query');
       return targetQuery.label || 'Query';
     },
-    selectQuery(query_id) {
-      const existingAlert = this.alertsToManage[query_id.toString()];
+    selectQuery(queryId) {
+      const selectedQuery = this.relevantQueries.find(query => query.metricId === queryId);
+      const existingAlert = this.alertsToManage[selectedQuery.alert_path];
 
       if (existingAlert) {
         this.selectedAlert = existingAlert;
@@ -127,7 +128,7 @@ export default {
         this.threshold = null;
       }
 
-      this.prometheusMetricId = query_id;
+      this.prometheusMetricId = queryId;
     },
     handleCancel() {
       this.resetAlertData();
@@ -157,8 +158,8 @@ export default {
     <gl-dropdown :text="queryDropdownLabel()" class="form-group">
       <gl-dropdown-item
         v-for="query in relevantQueries"
-        :key="query.id"
-        @click="selectQuery(query.id)"
+        :key="query.metricId"
+        @click="selectQuery(query.metricId)"
       >
         {{ query.label }}
       </gl-dropdown-item>
