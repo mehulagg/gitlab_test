@@ -155,7 +155,7 @@ export default {
 
 <template>
   <div class="alert-form">
-    <gl-dropdown :text="queryDropdownLabel()" class="form-group">
+    <gl-dropdown :text="queryDropdownLabel()" class="form-group alert-query-dropdown">
       <gl-dropdown-item
         v-for="query in relevantQueries"
         :key="query.metricId"

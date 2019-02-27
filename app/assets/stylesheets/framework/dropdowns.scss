@@ -25,9 +25,8 @@
 }
 
 .show.dropdown {
-  // TODO: Come up with a test plan here. This could have sweeping repercussions.
-  .show.dropdown-menu,
-  .show.dropdown-menu {
+  .dropdown-menu,
+  .dropdown-menu {
     @include set-visible;
     min-height: $dropdown-min-height;
     max-height: $dropdown-max-height;

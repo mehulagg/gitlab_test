@@ -702,6 +702,18 @@
     font-weight: normal;
   }
 
+  // We have a dropdown inside a dropdown,
+  // so we handle visibility separately here.
+  .alert-query-dropdown {
+    .dropdown-menu {
+      @include set-invisible;
+    }
+
+    .show.dropdown-menu {
+      @include set-visible;
+    }
+  }
+
   .btn-group,
   .action-group {
     display: flex;
