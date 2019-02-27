@@ -43,7 +43,6 @@ export default {
     //     query: "rate(http_requests_total[5m])[30m:1m]"
     //     threshold: 0.002
     //     title: "Core Usage (Total)"
-    //     prometheus_metric_id: 16
     //   }
     // }
     alertsToManage: {
@@ -110,9 +109,7 @@ export default {
     },
     queryDropdownLabel() {
       const targetQuery = this.getCurrentQuery() || {};
-      // TODO: Add new string in the real way I'm not sure of.
-      // return targetQuery.label || s__('PrometheusAlerts|Query');
-      return targetQuery.label || 'Query';
+      return targetQuery.label || s__('PrometheusAlerts|Query');
     },
     selectQuery(queryId) {
       const selectedQuery = this.relevantQueries.find(query => query.metricId === queryId);

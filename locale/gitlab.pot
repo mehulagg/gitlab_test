@@ -7741,6 +7741,9 @@ msgstr ""
 msgid "PrometheusAlerts|Operator"
 msgstr ""
 
+msgid "PrometheusAlerts|Query"
+msgstr ""
+
 msgid "PrometheusAlerts|Threshold"
 msgstr ""
 

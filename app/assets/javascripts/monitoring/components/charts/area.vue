@@ -234,8 +234,8 @@ export default {
           {{ tooltip.sha }}
         </div>
         <template v-else>
-          <div v-for="(entry, index) in tooltip.content" :key="`${index}${entry}`">
-            <span>{{ entry }}</span>
+          <div v-for="(seriesLabel, index) in tooltip.content" :key="`${index}${seriesLabel}`">
+            <span>{{ seriesLabel }}</span>
           </div>
         </template>
       </template>

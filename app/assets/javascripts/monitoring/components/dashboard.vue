@@ -150,6 +150,8 @@ export default {
   },
   methods: {
     getGraphAlerts(queries) {
+      // Output looks like:
+      // { '/path/to/alert': { id, operator, query, title, etc... } }
       if (!this.allAlerts) return {};
       return queries.reduce((accumulator, query) => {
         if (query.alert_path && this.allAlerts[query.alert_path]) {
