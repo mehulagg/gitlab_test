@@ -74,7 +74,7 @@ module Elasticsearch
               edgeNGram_filter: {
                 type: 'edgeNGram',
                 min_gram: 2,
-                max_gram: 40
+                max_gram: 20
               }
             }
           }
