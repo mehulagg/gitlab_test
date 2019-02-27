@@ -15,25 +15,11 @@ module Gitlab
           MetricGroup.new(
             name: name,
             priority: metrics.map(&:priority).max,
-            metrics: group_queries_by_chart(metrics)
+            metrics: metrics.map(&:to_query_metric)
           )
         end
 
         all_groups.sort_by(&:priority).reverse
-      end
-
-      def self.group_queries_by_chart(metrics)
-        queries_by_metric = {}
-
-        metrics.each do |metric|
-          metric_info = metric.metric_info
-          queries_by_metric[metric_info] ||= []
-          queries_by_metric[metric_info] << metric.query_info
-        end
-
-        queries_by_metric.map do |metric_info, queries|
-          Gitlab::Prometheus::Metric.new(metric_info.merge(queries: queries))
-        end
       end
 
       # EE only
