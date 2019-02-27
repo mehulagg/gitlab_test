@@ -8,8 +8,6 @@ module EE
         extend ActiveSupport::Concern
 
         prepended do
-          include ::Gitlab::Utils::StrongMemoize
-
           before_action :authorize_read_prometheus_alerts!,
             only: [:reset_alerting_token]
 
@@ -27,7 +25,7 @@ module EE
             end
           end
 
-          helper_method :tracing_setting, :incident_management_setting
+          helper_method :tracing_setting
 
           private
 
@@ -36,24 +34,13 @@ module EE
           end
 
           def tracing_setting
-            strong_memoize(:tracing_setting) do
-              project.tracing_setting || project.build_tracing_setting
-            end
-          end
-
-          def incident_management_setting
-            strong_memoize(:incident_management_setting) do
-              project.incident_management_setting || project.build_incident_management_setting
-            end
+            @tracing_setting ||= project.tracing_setting || project.build_tracing_setting
           end
         end
 
         override :permitted_project_params
         def permitted_project_params
-          super.merge(
-            tracing_setting_attributes: [:external_url],
-            incident_management_setting_attributes: [:create_issue, :send_email, :issue_template_key]
-          )
+          super.merge(tracing_setting_attributes: [:external_url])
         end
       end
     end
