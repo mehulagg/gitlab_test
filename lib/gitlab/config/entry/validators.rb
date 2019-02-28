@@ -100,7 +100,7 @@ module Gitlab
 
           def validate_each(record, attribute, value)
             unless value.is_a?(Hash) || value.is_a?(Integer) || (value.is_a?(Array) && value.all? { |v| validate_integer(v) })
-              record.errors.add(attribute, 'should be a hash or an integer')
+              record.errors.add(attribute, 'should be a hash, an array or an integer')
             end
           end
         end

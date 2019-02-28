@@ -10,6 +10,7 @@ module Gitlab
         class Image < ::Gitlab::Ci::Config::Entry::Image
           include ::Gitlab::Config::Entry::Validatable
           include ::Gitlab::Config::Entry::Configurable
+          include ::Gitlab::Config::Entry::Attributable
 
           ALLOWED_KEYS = [:ports, *ALLOWED_KEYS].freeze
 
@@ -30,7 +31,7 @@ module Gitlab
           entry :ports, Entry::Ports,
             description: 'Ports used expose the service'
 
-          helpers :ports
+          attributes :ports
         end
       end
     end

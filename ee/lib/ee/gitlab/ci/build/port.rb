@@ -11,6 +11,7 @@ module EE
 
           def initialize(port)
             @name = DEFAULT_PORT_NAME
+            @insecure = false
 
             case port
             when Integer
@@ -20,7 +21,7 @@ module EE
             when Hash
               @external_port = port[:external_port]
               @internal_port = port.fetch(:internal_port, @external_port)
-              @insecure = port.fetch(:insecure, false)
+              @insecure = port.fetch(:insecure, @insecure)
               @name = port.fetch(:name, @name)
             end
           end

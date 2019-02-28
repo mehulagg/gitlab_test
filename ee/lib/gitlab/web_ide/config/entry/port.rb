@@ -27,7 +27,7 @@ module Gitlab
           end
 
           def internal_port
-            value.fetch(:internal_port, external_port)
+            value[:internal_port]
           end
 
           def insecure
@@ -43,9 +43,14 @@ module Gitlab
           end
 
           def value
-            return { external_port: @config } if integer?
+            return { external_port: @config, internal_port: @config } if integer?
             return { external_port: @config.first, internal_port: @config.last } if array_of_integers?(size: 2)
-            return @config if hash?
+
+            if hash?
+              @config[:internal_port] ||= @config[:external_port]
+
+              return @config
+            end
 
             {}
           end

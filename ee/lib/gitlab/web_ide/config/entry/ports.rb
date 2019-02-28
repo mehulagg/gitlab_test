@@ -14,10 +14,10 @@ module Gitlab
             validates :config, type: Array
 
             validate do
-              next if ports_size == 1
+              next if ports_size <= 1
 
               # If we only have 1 port we don't need this checkings because it will use
-              # the default port name (Port::DEFAULT_PORT_NAME)
+              # the default port name
               unless name_exist?
                 errors.add(:config, 'when there is more than one port, a unique name should be added')
               end
@@ -27,7 +27,7 @@ module Gitlab
               end
 
               unless unique_external_ports?
-                errors.add(:config, 'each external port can only be referenced one in the block')
+                errors.add(:config, 'each external port can only be referenced once in the block')
               end
 
               unless unique_internal_ports?
@@ -76,7 +76,7 @@ module Gitlab
             end
 
             def ports_size
-              @port_size ||= config.size
+              @port_size ||= config.is_a?(Array) ? config.size : 0
             end
 
             def port_names
