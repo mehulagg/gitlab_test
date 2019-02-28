@@ -50,6 +50,8 @@ lint:
 
 visual:
   extends: .yarn_install
+  tags:
+    - gitlab-org # This allows us to use higher performance runners
   dependencies: []
   stage: build-and-check
   script:
@@ -61,6 +63,8 @@ visual:
 
 update_snapshots:
   extends: .yarn_install
+  tags:
+    - gitlab-org # This allows us to use higher performance runners
   stage: pre-build
   when: manual
   script:
