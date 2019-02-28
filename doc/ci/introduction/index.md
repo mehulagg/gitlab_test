@@ -60,15 +60,15 @@ Once you've added your configuration file `.gitlab-ci.yml` to your repository, G
 
 GitLab CI/CD not only executes the scripts you've set but shows you what's happening, as you would see in your terminal.
 
-![job running]()<!-- illustration (gif?) TBA -->
+![job running](img/job_running.png)
 
 You create the strategy for your app and GitLab runs the pipeline for you according to what you've set. Your pipeline status is also displayed by GitLab:
 
-![pipeline status]()<!-- illustration TBA -->
+![pipeline status](img/pipeline_status.png)
 
 At the end, if anything goes wrong, you can easily [roll back](../environments.md#rolling-back-changes) all the changes.
 
-![rollback button]()<!-- illustration TBA -->
+![rollback button](img/rollback.png)
 
 <!--
 
