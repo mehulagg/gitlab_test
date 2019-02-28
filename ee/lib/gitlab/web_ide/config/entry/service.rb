@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
 module Gitlab
-  module Ci
+  module WebIde
     class Config
       module Entry
         ##
-        # Entry that represents a Docker image.
+        # Entry that represents a configuration of Docker service.
         #
-        class Image < ::Gitlab::Config::Entry::Node
+        class Service < Image
           include ::Gitlab::Config::Entry::Validatable
+          include ::Gitlab::Config::Entry::Attributable
 
-          ALLOWED_KEYS = %i[name entrypoint].freeze
+          ALLOWED_KEYS = [:command, :alias, :ports, *ALLOWED_KEYS].freeze
 
           validations do
             validates :config, hash_or_string: true
@@ -18,22 +19,11 @@ module Gitlab
 
             validates :name, type: String, presence: true
             validates :entrypoint, array_of_strings: true, allow_nil: true
+            validates :command, array_of_strings: true, allow_nil: true
+            validates :alias, type: String, allow_nil: true
           end
 
-          def name
-            value[:name]
-          end
-
-          def entrypoint
-            value[:entrypoint]
-          end
-
-          def value
-            return { name: @config } if string?
-            return @config if hash?
-
-            {}
-          end
+          attributes :alias, :command
         end
       end
     end

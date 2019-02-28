@@ -69,4 +69,22 @@ describe API::Jobs do
       end
     end
   end
+
+  describe 'GET /projects/:id/jobs/:job_id' do
+    context 'authorized by job_token' do
+      let(:job) { create(:ci_build, pipeline: pipeline, user: api_user) }
+
+      before do
+        get api("/projects/#{project.id}/jobs/#{job.id}", api_user)
+      end
+
+      context 'user is developer' do
+        let(:api_user) { user }
+
+        it '' do
+          binding.pry
+        end
+      end
+    end
+  end
 end

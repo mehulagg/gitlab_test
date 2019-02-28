@@ -1374,13 +1374,8 @@ module API
         expose :name, :script, :timeout, :when, :allow_failure
       end
 
-      class Port < Grape::Entity
-        expose :externalport, :internalport, :insecure, :name
-      end
-
       class Image < Grape::Entity
         expose :name, :entrypoint
-        expose :ports, using: Port
       end
 
       class Service < Image
@@ -1619,3 +1614,4 @@ API::Entities.prepend_entity(::API::Entities::ProtectedRefAccess, with: EE::API:
 API::Entities.prepend_entity(::API::Entities::UserPublic, with: EE::API::Entities::UserPublic)
 API::Entities.prepend_entity(::API::Entities::Variable, with: EE::API::Entities::Variable)
 API::Entities.prepend_entity(::API::Entities::Todo, with: EE::API::Entities::Todo)
+API::Entities.prepend_entity(::API::Entities::JobRequest::Image, with: EE::API::Entities::JobRequest::Image)

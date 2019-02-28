@@ -162,6 +162,16 @@ module EE
         end
       end
 
+      module JobRequest
+        module Image
+          extend ActiveSupport::Concern
+
+          prepended do
+            expose :ports, using: JobRequest::Port
+          end
+        end
+      end
+
       ########################
       # EE-specific entities #
       ########################
@@ -642,6 +652,12 @@ module EE
         expose :id, :package_id, :created_at
         expose :file_name, :size
         expose :file_md5, :file_sha1
+      end
+
+      module JobRequest
+        class Port < Grape::Entity
+          expose :externalport, :internalport, :insecure, :name
+        end
       end
     end
   end

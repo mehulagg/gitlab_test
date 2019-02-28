@@ -4,11 +4,11 @@ module Gitlab
   module Ci
     module Build
       class Image
-        attr_reader :alias, :command, :entrypoint, :name, :ports
+        attr_reader :alias, :command, :entrypoint, :name
 
         class << self
           def from_image(job)
-            image = Gitlab::Ci::Build::Image.new(job.options[:image])
+            image = Gitlab::Ci::Build::Image.new(job.options[:image], job)
             return unless image.valid?
 
             image
@@ -16,14 +16,14 @@ module Gitlab
 
           def from_services(job)
             services = job.options[:services].to_a.map do |service|
-              Gitlab::Ci::Build::Image.new(service)
+              Gitlab::Ci::Build::Image.new(service, job)
             end
 
             services.select(&:valid?).compact
           end
         end
 
-        def initialize(image)
+        def initialize(image, job)
           if image.is_a?(String)
             @name = image
           elsif image.is_a?(Hash)
@@ -31,7 +31,6 @@ module Gitlab
             @command = image[:command]
             @entrypoint = image[:entrypoint]
             @name = image[:name]
-            @ports = image[:ports].to_a.map { |port| Gitlab::Ci::Build::Port.new(port) }.select(&:valid?)
           end
         end
 
@@ -42,3 +41,5 @@ module Gitlab
     end
   end
 end
+
+::Gitlab::Ci::Build::Image.prepend(::EE::Gitlab::Ci::Build::Image)

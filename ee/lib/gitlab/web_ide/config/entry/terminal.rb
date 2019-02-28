@@ -16,10 +16,14 @@ module Gitlab
           # those seconds blocking the build from finishing inmediately.
           DEFAULT_SCRIPT = ['sleep 60'].freeze
 
-          ALLOWED_KEYS = %i[image services tags before_script script variables ports].freeze
+          ALLOWED_KEYS = %i[image services tags before_script script variables].freeze
 
           validations do
             validates :config, allowed_keys: ALLOWED_KEYS
+
+            validate do
+              # TODO check here the port config
+            end
 
             with_options allow_nil: true do
               validates :tags, array_of_strings: true
@@ -32,10 +36,10 @@ module Gitlab
           entry :script, ::Gitlab::Ci::Config::Entry::Commands,
             description: 'Commands that will be executed in this job.'
 
-          entry :image, ::Gitlab::Ci::Config::Entry::Image,
+          entry :image, Entry::Image,
             description: 'Image that will be used to execute this job.'
 
-          entry :services, ::Gitlab::Ci::Config::Entry::Services,
+          entry :services, Entry::Services,
             description: 'Services that will be used to execute this job.'
 
           entry :variables, ::Gitlab::Ci::Config::Entry::Variables,
