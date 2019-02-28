@@ -81,7 +81,8 @@ use of advanced features:
 ### GitLab Pages
 
 GitLab CI/CD can be used to build and host static websites. For more information, see the
-documentation on [GitLab Pages](../user/project/pages/index.md).
+documentation on [GitLab Pages](../user/project/pages/index.md),
+or dive right into the [CI/CD step-by-step guide for Pages](../user/project/pages/getting_started_part_four.md).
 
 ## Examples
 
