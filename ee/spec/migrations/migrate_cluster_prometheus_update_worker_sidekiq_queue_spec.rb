@@ -1,5 +1,5 @@
 require 'spec_helper'
-require Rails.root.join('db', 'post_migrate', '20190228114524_migrate_cluster_prometheus_update_worker_sidekiq_queue.rb')
+require Rails.root.join('ee', 'db', 'post_migrate', '20190228114524_migrate_cluster_prometheus_update_worker_sidekiq_queue.rb')
 
 describe MigrateClusterPrometheusUpdateWorkerSidekiqQueue, :sidekiq, :redis do
   include Gitlab::Database::MigrationHelpers
