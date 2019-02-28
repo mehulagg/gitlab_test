@@ -1,4 +1,4 @@
-import { withKnobs, text, select, boolean } from '@storybook/addon-knobs/vue';
+import { withKnobs, text, select, boolean } from '@storybook/addon-knobs';
 import documentedStoriesOf from '../../utils/documented_stories';
 import { sizeOptions } from '../../utils/constants';
 import readme from '../../../components/base/form/form_group/form_group.md';

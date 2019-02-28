@@ -1,4 +1,4 @@
-import { withKnobs, text, select } from '@storybook/addon-knobs/vue';
+import { withKnobs, text, select } from '@storybook/addon-knobs';
 import documentedStoriesOf from '../utils/documented_stories';
 import { targetOptions } from '../utils/constants';
 import readme from '../../components/base/link/link.md';

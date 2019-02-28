@@ -1,4 +1,4 @@
-import { withKnobs, boolean, select, text } from '@storybook/addon-knobs/vue';
+import { withKnobs, boolean, select, text } from '@storybook/addon-knobs';
 import documentedStoriesOf from '../utils/documented_stories';
 import { variantOptions } from '../utils/constants';
 import readme from '../../components/base/table/table.md';

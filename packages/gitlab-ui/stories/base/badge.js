@@ -1,4 +1,4 @@
-import { withKnobs } from '@storybook/addon-knobs/vue';
+import { withKnobs } from '@storybook/addon-knobs';
 import documentedStoriesOf from '../utils/documented_stories';
 
 const template = `

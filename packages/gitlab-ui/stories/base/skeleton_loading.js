@@ -1,4 +1,4 @@
-import { withKnobs, number } from '@storybook/addon-knobs/vue';
+import { withKnobs, number } from '@storybook/addon-knobs';
 import documentedStoriesOf from '../utils/documented_stories';
 import readme from '../../components/base/skeleton_loading/skeleton_loading.md';
 import { GlSkeletonLoading } from '../../index';

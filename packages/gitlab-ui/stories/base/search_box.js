@@ -1,4 +1,4 @@
-import { withKnobs, boolean, text } from '@storybook/addon-knobs/vue';
+import { withKnobs, boolean, text } from '@storybook/addon-knobs';
 import documentedStoriesOf from '../utils/documented_stories';
 import readme from '../../components/base/search/search_box.md';
 import { GlSearchBox } from '../../index';

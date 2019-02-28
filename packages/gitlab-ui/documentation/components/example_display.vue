@@ -4,7 +4,7 @@
 import Vue from 'vue';
 import BootstrapVue from 'bootstrap-vue';
 
-import * as Babel from 'babel-standalone';
+import * as Babel from '@babel/standalone';
 import { parseComponent } from 'vue-template-compiler';
 
 import { html } from 'js-beautify';

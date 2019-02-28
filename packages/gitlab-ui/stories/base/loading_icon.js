@@ -1,4 +1,4 @@
-import { withKnobs, text, boolean, number } from '@storybook/addon-knobs/vue';
+import { withKnobs, text, boolean, number } from '@storybook/addon-knobs';
 import documentedStoriesOf from '../utils/documented_stories';
 import readme from '../../components/base/loading_icon/loading_icon.md';
 import { GlLoadingIcon } from '../../index';

@@ -1,4 +1,4 @@
-import { withKnobs, select, boolean, text } from '@storybook/addon-knobs/vue';
+import { withKnobs, select, boolean, text } from '@storybook/addon-knobs';
 import documentedStoriesOf from '../utils/documented_stories';
 import { sizeOptionsWithNoDefault, buttonVariantOptions, targetOptions } from '../utils/constants';
 import readme from '../../components/base/button/button.md';

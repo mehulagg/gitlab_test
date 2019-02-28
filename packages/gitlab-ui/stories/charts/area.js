@@ -32,15 +32,15 @@ function generateProps({
   return {
     data: {
       type: Object,
-      default: () => object('Chart Data', data),
+      default: object('Chart Data', data),
     },
     option: {
       type: Object,
-      default: () => object('EChart Options', option),
+      default: object('EChart Options', option),
     },
     thresholds: {
       type: Object,
-      default: () => object('Thresholds', thresholds),
+      default: object('Thresholds', thresholds),
     },
   };
 }

@@ -1,4 +1,4 @@
-import { withKnobs, text } from '@storybook/addon-knobs/vue';
+import { withKnobs, text } from '@storybook/addon-knobs';
 import documentedStoriesOf from '../utils/documented_stories';
 import readme from '../../components/regions/empty_state/empty_state.md';
 import { GlEmptyState } from '../../index';
@@ -58,7 +58,10 @@ documentedStoriesOf('regions|empty-state', readme)
   .add('single button', () => ({
     props: {
       ...generateProps(),
-      secondaryButtonText: null,
+      secondaryButtonText: {
+        type: String,
+        default: null,
+      },
     },
     components,
     template,
@@ -66,7 +69,10 @@ documentedStoriesOf('regions|empty-state', readme)
   .add('no buttons', () => ({
     props: {
       ...generateProps(),
-      primaryButtonText: null,
+      primaryButtonText: {
+        type: String,
+        default: null,
+      },
     },
     components,
     template,
@@ -74,7 +80,10 @@ documentedStoriesOf('regions|empty-state', readme)
   .add('no illustration', () => ({
     props: {
       ...generateProps(),
-      svgPath: null,
+      svgPath: {
+        type: String,
+        default: null,
+      },
     },
     components,
     template,

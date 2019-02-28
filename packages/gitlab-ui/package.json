@@ -19,7 +19,7 @@
     "lint": "eslint --ext .js,.vue ."
   },
   "dependencies": {
-    "babel-standalone": "^6.26.0",
+    "@babel/standalone": "^7.0.0",
     "bootstrap-vue": "^2.0.0-rc.11",
     "copy-to-clipboard": "^3.0.8",
     "echarts": "^4.2.0-rc.2",
@@ -31,21 +31,24 @@
     "vue-loader": "^15.4.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
     "@gitlab/eslint-config": "^1.4.0",
     "@semantic-release/git": "^7.0.1",
     "@semantic-release/gitlab": "^2.1.4",
     "@semantic-release/npm": "^4.0.1",
-    "@storybook/addon-knobs": "^4.0.0-alpha.16",
-    "@storybook/addon-options": "^4.0.0-alpha.16",
-    "@storybook/addon-storyshots": "^4.0.0-alpha.16",
-    "@storybook/addon-storyshots-puppeteer": "^4.0.0-alpha.16",
-    "@storybook/vue": "^4.0.0-alpha.16",
+    "@storybook/addon-knobs": "^4.1.13",
+    "@storybook/addon-options": "^4.1.13",
+    "@storybook/addon-storyshots": "^4.1.13",
+    "@storybook/addon-storyshots-puppeteer": "^4.1.13",
+    "@storybook/vue": "^4.1.13",
     "@vue/test-utils": "^1.0.0-beta.20",
-    "babel-core": "^6.26.3",
-    "babel-eslint": "^8.2.6",
-    "babel-jest": "^23.2.0",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-eslint": "^9.0.0",
+    "babel-jest": "^23.4.2",
+    "babel-loader": "^8.0.5",
     "babel-plugin-require-context-hook": "^1.0.0",
-    "babel-preset-env": "^1.7.0",
+    "babel-preset-vue": "^2.0.2",
     "eslint": "^5.6.1",
     "eslint-plugin-jest": "^21.24.1",
     "identity-obj-proxy": "^3.0.0",
@@ -57,10 +60,10 @@
     "nodemon": "^1.11.0",
     "prettier": "1.14.3",
     "pug": "^2.0.3",
-    "puppeteer": "^1.9.0",
+    "puppeteer": "^1.11.0",
     "raw-loader": "^0.5.1",
     "rollup": "^0.63.0",
-    "rollup-plugin-babel": "^3.0.7",
+    "rollup-plugin-babel": "^4.0.1",
     "rollup-plugin-commonjs": "^9.2.0",
     "rollup-plugin-css-porter": "^0.1.2",
     "rollup-plugin-node-resolve": "^3.3.0",
@@ -95,36 +98,6 @@
     "snapshotSerializers": [
       "<rootDir>/node_modules/jest-serializer-vue"
     ]
-  },
-  "babel": {
-    "presets": [
-      [
-        "env",
-        {
-          "modules": false,
-          "targets": {
-            "ie": "11"
-          }
-        }
-      ]
-    ],
-    "env": {
-      "test": {
-        "presets": [
-          [
-            "env",
-            {
-              "targets": {
-                "node": "current"
-              }
-            }
-          ]
-        ],
-        "plugins": [
-          "require-context-hook"
-        ]
-      }
-    }
   },
   "release": {
     "verifyConditions": [
