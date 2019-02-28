@@ -58,7 +58,7 @@ To add scripts to that file, you'll need to organize them in a sequence that sui
 
 Once you've added your configuration file `.gitlab-ci.yml` to your repository, GitLab will identify it and run your scripts with the tool called [GitLab Runner](https://docs.gitlab.com/runner/), which works similarly to your terminal.
 
-GitLab CI/CD not only executes the scripts you've set but shows you what's happening, as you would see in your terminal.
+GitLab CI/CD not only executes the scripts you've set but shows you what's happening, as you would see on your terminal:
 
 ![job running](img/job_running.png)
 
@@ -66,7 +66,7 @@ You create the strategy for your app and GitLab runs the pipeline for you accord
 
 ![pipeline status](img/pipeline_status.png)
 
-At the end, if anything goes wrong, you can easily [roll back](../environments.md#rolling-back-changes) all the changes.
+At the end, if anything goes wrong, you can easily [roll back](../environments.md#rolling-back-changes) all the changes:
 
 ![rollback button](img/rollback.png)
 
@@ -85,7 +85,7 @@ A very simple workflow for using GitLab CI/CD could be:
 - Create an issue to discuss an implementation.
 - Submit your changes on a merge request in a feature branch.
 - Run automated scripts (sequential or parallel).
-  - Build, test and deploy to a staging environment.
+  - Build, test, and deploy to a staging environment.
   - Preview the changes with Review Apps.
 - Get your code reviewed and approved.
 - Merge the feature branch into the default branch.
@@ -94,11 +94,13 @@ A very simple workflow for using GitLab CI/CD could be:
 
 GitLab CI/CD is capable of a doing a lot more, but this workflow exemplifies the ability GitLab has to track the entire process, without the need of any external tool to deliver your software. And, most interestingly, you can visualize all the steps through the GitLab UI.
 
+<img src="../img/cicd_pipeline_infograph.png" alt="pipeline graph" class="image-noshadow">
+
 ### GitLab CI/CD feature set
 
 <!-- (maybe link back to the index instead of listing everything here again?) -->
 
-- Easily set everything up with [Auto DevOps](../../topics/autodevops/index.md).
+- Easily set your app's entire lifecycle up with [Auto DevOps](../../topics/autodevops/index.md).
 - Deploy static websites with [GitLab Pages](../../user/project/pages/index.md).
 - Deploy your app to different [environments](../environments.md).
 - Preview changes per merge request with [Review Apps](../review_apps/index.md).
