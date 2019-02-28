@@ -86,7 +86,7 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
 
           it 'returns the service ports' do
             request_job
-binding.pry
+
             expect(response).to have_http_status(:created)
             expect(json_response).to include(
               "id" => build.id,

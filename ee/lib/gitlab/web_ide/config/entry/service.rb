@@ -11,7 +11,7 @@ module Gitlab
           include ::Gitlab::Config::Entry::Validatable
           include ::Gitlab::Config::Entry::Attributable
 
-          ALLOWED_KEYS = [:command, :alias, :ports, *ALLOWED_KEYS].freeze
+          ALLOWED_KEYS = [:command, :alias, *ALLOWED_KEYS].freeze
 
           validations do
             validates :config, hash_or_string: true
