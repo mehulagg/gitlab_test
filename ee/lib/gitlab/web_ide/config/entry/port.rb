@@ -10,24 +10,24 @@ module Gitlab
         class Port < ::Gitlab::Config::Entry::Node
           include ::Gitlab::Config::Entry::Validatable
 
-          ALLOWED_KEYS = %i[externalport internalport insecure name].freeze
+          ALLOWED_KEYS = %i[external_port internal_port insecure name].freeze
 
           validations do
             validates :config, hash_or_array_or_integer: true
             validates :config, allowed_keys: ALLOWED_KEYS
 
-            validates :externalport, type: Integer, presence: true
-            validates :internalport, type: Integer, presence: true
+            validates :external_port, type: Integer, presence: true
+            validates :internal_port, type: Integer, presence: true
             validates :insecure, boolean: true, presence: false
             validates :name, type: String, presence: false, allow_nil: true
           end
 
-          def externalport
-            value[:externalport]
+          def external_port
+            value[:external_port]
           end
 
-          def internalport
-            value.fetch(:internalport, externalport)
+          def internal_port
+            value.fetch(:internal_port, external_port)
           end
 
           def insecure
@@ -43,8 +43,8 @@ module Gitlab
           end
 
           def value
-            return { externalport: @config } if integer?
-            return { externalport: @config.first, internalport: @config.last } if array_of_integers?(size: 2)
+            return { external_port: @config } if integer?
+            return { external_port: @config.first, internal_port: @config.last } if array_of_integers?(size: 2)
             return @config if hash?
 
             {}

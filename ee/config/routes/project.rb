@@ -22,7 +22,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           post :cancel
           post :retry
           match '/proxy/authorize', to: 'web_ide_services#proxy_authorize', constraints: { format: nil }, via: :all
-          get '/proxy.ws/authorize', to: 'web_ide_services#proxy_websocket_authorize', constraints: { format: nil }          
+          get '/proxy.ws/authorize', to: 'web_ide_services#proxy_websocket_authorize', constraints: { format: nil }
           match :proxy, constraints: { format: nil }, via: :all
         end
 

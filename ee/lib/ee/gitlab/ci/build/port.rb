@@ -7,26 +7,26 @@ module EE
         class Port
           DEFAULT_PORT_NAME = 'default_port'.freeze
 
-          attr_reader :externalport, :internalport, :insecure, :name
+          attr_reader :external_port, :internal_port, :insecure, :name
 
           def initialize(port)
             @name = DEFAULT_PORT_NAME
 
             case port
             when Integer
-              @externalport = @internalport = port
+              @external_port = @internal_port = port
             when Array
-              @externalport, @internalport = port
+              @external_port, @internal_port = port
             when Hash
-              @externalport = port[:externalport]
-              @internalport = port.fetch(:internalport, @externalport)
+              @external_port = port[:external_port]
+              @internal_port = port.fetch(:internal_port, @external_port)
               @insecure = port.fetch(:insecure, false)
               @name = port.fetch(:name, @name)
             end
           end
 
           def valid?
-            @externalport.present? && @internalport.present?
+            @external_port.present? && @internal_port.present?
           end
         end
       end

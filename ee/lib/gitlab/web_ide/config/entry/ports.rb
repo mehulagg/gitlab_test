@@ -13,11 +13,11 @@ module Gitlab
           validations do
             validates :config, type: Array
 
-            # If we only have 1 port we don't need this checkings because it will use
-            # the default port name (Port::DEFAULT_PORT_NAME)
             validate do
               next if ports_size == 1
 
+              # If we only have 1 port we don't need this checkings because it will use
+              # the default port name (Port::DEFAULT_PORT_NAME)
               unless name_exist?
                 errors.add(:config, 'when there is more than one port, a unique name should be added')
               end
@@ -53,7 +53,7 @@ module Gitlab
                 when Array
                   port[0]
                 when Hash
-                  port[:externalport]
+                  port[:external_port]
                 end
               end
 
@@ -68,7 +68,7 @@ module Gitlab
                 when Array
                   port[1]
                 when Hash
-                  port.fetch(:internalport, port[:externalport])
+                  port.fetch(:internal_port, port[:external_port])
                 end
               end
 

@@ -656,7 +656,7 @@ module EE
 
       module JobRequest
         class Port < Grape::Entity
-          expose :externalport, :internalport, :insecure, :name
+          expose :external_port, :internal_port, :insecure, :name
         end
       end
     end

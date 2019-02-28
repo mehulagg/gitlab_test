@@ -29,7 +29,7 @@ module Ci
 
       {
         subprotocols: ['terminal.gitlab.com'].freeze,
-        url: "#{url}/proxy/#{service.presence || 'build'}/#{port.presence || 'default_port'}/#{requested_url}",
+        url: "#{url}/proxy/#{service.presence || 'build'}/#{port}/#{requested_url}",
         headers: { Authorization: [authorization.presence] }.compact,
         ca_pem: certificate.presence
       }

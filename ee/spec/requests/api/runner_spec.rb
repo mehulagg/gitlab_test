@@ -74,14 +74,14 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
             expect(response).to have_http_status(:created)
             expect(json_response).to include(
               "id" => build.id,
-              "image" => a_hash_including("name" => "ruby", "ports" => [{ "externalport" => 80, "internalport" => 80, "insecure" => nil, "name" => "default_port"}]),
+              "image" => a_hash_including("name" => "ruby", "ports" => [{ "external_port" => 80, "internal_port" => 80, "insecure" => nil, "name" => "default_port" }]),
               "services" => all(a_hash_including("name" => 'mysql')))
           end
         end
 
         context 'when terminal services settings has ports' do
           let(:config_content) do
-            'terminal: { image: ruby, services: [{name: tomcat, ports: [{externalport: 8081, internalport: 8080, insecure: true, name: custom_port}]}] }'
+            'terminal: { image: ruby, services: [{name: tomcat, ports: [{external_port: 8081, internal_port: 8080, insecure: true, name: custom_port}]}] }'
           end
 
           it 'returns the service ports' do
@@ -91,7 +91,7 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
             expect(json_response).to include(
               "id" => build.id,
               "image" => a_hash_including("name" => "ruby"),
-              "services" => all(a_hash_including("name" => 'tomcat', "ports" => [{ "externalport" => 8081, "internalport" => 8080, "insecure" => true, "name" => "custom_port"}])))
+              "services" => all(a_hash_including("name" => 'tomcat', "ports" => [{ "external_port" => 8081, "internal_port" => 8080, "insecure" => true, "name" => "custom_port" }])))
           end
         end
       end

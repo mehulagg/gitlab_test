@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Projects::WebIdeServicesController < Projects::ApplicationController
-  SERVICE_PORT = 8080.freeze
-
   before_action :authenticate_user!
   before_action :build
   before_action :authorize_update_web_ide_terminal!
