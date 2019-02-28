@@ -155,8 +155,6 @@ the GitLab UI.
 
 ### GitLab CI/CD feature set
 
-<!-- (maybe link back to the index instead of listing everything here again?) -->
-
 - Easily set your app's entire lifecycle up with [Auto DevOps](../../topics/autodevops/index.md).
 - Deploy static websites with [GitLab Pages](../../user/project/pages/index.md).
 - Deploy your app to different [environments](../environments.md).
@@ -165,3 +163,5 @@ the GitLab UI.
 - Install your own [GitLab Runner](https://docs.gitlab.com/runner/).
 - [Schedule pipelines](../../user/project/pipelines/schedules.md).
 - Check the app vulnerability with [Security Test reports](https://docs.gitlab.com/ee/user/project/merge_requests/#security-reports-ultimate). **[ULTIMATE]**
+
+To see all CI/CD features, navigate back to the [CI/CD index](../README.md).
