@@ -5,7 +5,7 @@ description: "Learn how to use GitLab CI/CD, the GitLab built-in Continuous Inte
 
 # GitLab Continuous Integration (GitLab CI/CD)
 
-**GitLab CI/CD** is GitLab's built-in tool for software development using continuous methods. Read through [an overview of Continuous Integration, Continuous Delivery, Continuous Deployment, and an introduction to GitLab CI/CD](introduction/index.md) for conceptual information.
+**GitLab CI/CD** is GitLab's built-in tool for software development using continuous methods.
 
 ## Overview
 
@@ -13,7 +13,7 @@ CI/CD is a vast area, so GitLab provides documentation for all levels of experti
 
 | Level of expertise                  | Resource                                                                                                                                              |
 |:------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------|
-| New to the concepts of CI and CD    | For a high-level overview, see the [GitLab Continuous Integration & Delivery](https://about.gitlab.com/product/continuous-integration/) product page. |
+| New to the concepts of CI and CD    | For a high-level overview, read an [introduction to CI/CD with GitLab](introduction/index.md). |
 | Familiar with the purpose of CI/CD  | Delve into GitLab CI/CD by continuing down the page, starting with our [introduction](#introduction).                                                 |
 | Familiar with GitLab CI/CD concepts | After getting familiar with GitLab CI/CD, let us walk you through a simple example in our [quick start guide](quick_start/README.md).                 |
 | A GitLab CI/CD expert               | Jump straight to our [`.gitlab.yml`](yaml/README.md) reference.                                                                                       |
@@ -21,27 +21,6 @@ CI/CD is a vast area, so GitLab provides documentation for all levels of experti
 NOTE: **Note:**
 Within the [entire DevOps lifecycle](../README.md#the-entire-devops-lifecycle), GitLab CI/CD spans
 the [Verify (CI)](../README.md#verify) and [Release (CD)](../README.md#release) stages.
-
-## Introduction
-
-The following introduces the process of continuous integration (CI) and continuous delivery (CD):
-
-![Pipeline graph](img/cicd_pipeline_infograph.png)
-
-In this illustration:
-
-- New code is combined with existing code through a commit to a project's [repository](../user/project/repository/index.md).
-- The newly combined code is sent to a CI [pipeline](pipelines.md) where:
-  - The code is [built](../user/project/pipelines/job_artifacts.md).
-  - Unit and integration tests are run over the built code.
-- Assuming the build and tests are successful, a CD pipeline is triggered to allow for:
-  - Review using [Review Apps](review_apps/index.md).
-  - Deploying to configured [environments](environments.md).
-
-The benefits of CI/CD are vast, allowing automation to be an integral part of your workflow for testing, building, deploying, and monitoring your code.
-
-Because CI and CD with GitLab is broad topic with many possibilities, the rest of this section provides
-links to topics and resources needed to make use of GitLab CI/CD.
 
 ## Essentials
 
