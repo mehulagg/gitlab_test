@@ -28,10 +28,10 @@ describe Gitlab::BackgroundMigration::UpdatePrometheusApplication, :migration, s
     let!(:prometheus2) { create_prometheus(cluster: cluster2) }
 
     it 'schedules prometheus updates' do
-      expect(ClusterUpdateAppWorker)
+      expect(ClusterPrometheusUpdateWorker)
         .to receive(:perform_async)
         .with(app_name, prometheus1.id, project1.id, now)
-      expect(ClusterUpdateAppWorker)
+      expect(ClusterPrometheusUpdateWorker)
         .to receive(:perform_async)
         .with(app_name, prometheus2.id, project2.id, now)
 

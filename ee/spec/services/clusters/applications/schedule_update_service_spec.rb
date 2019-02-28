@@ -14,7 +14,7 @@ describe Clusters::Applications::ScheduleUpdateService do
           application = create(:clusters_applications_prometheus, :installed, last_update_started_at: Time.now + 5.minutes)
           service = described_class.new(application, project)
 
-          expect(::ClusterUpdateAppWorker).to receive(:perform_in).with(described_class::BACKOFF_DELAY, application.name, application.id, project.id, Time.now).once
+          expect(::ClusterPrometheusUpdateWorker).to receive(:perform_in).with(described_class::BACKOFF_DELAY, application.name, application.id, project.id, Time.now).once
 
           service.execute
         end
@@ -25,7 +25,7 @@ describe Clusters::Applications::ScheduleUpdateService do
           application = create(:clusters_applications_prometheus, :installed)
           service = described_class.new(application, project)
 
-          expect(::ClusterUpdateAppWorker).to receive(:perform_async).with(application.name, application.id, project.id, Time.now).once
+          expect(::ClusterPrometheusUpdateWorker).to receive(:perform_async).with(application.name, application.id, project.id, Time.now).once
 
           service.execute
         end

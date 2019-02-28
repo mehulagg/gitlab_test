@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe ClusterUpdateAppWorker do
+describe ClusterPrometheusUpdateWorker do
   let(:project) { create(:project) }
   let(:prometheus_update_service) { spy }
 

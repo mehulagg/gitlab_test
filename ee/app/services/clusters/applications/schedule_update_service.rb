@@ -25,7 +25,7 @@ module Clusters
       private
 
       def worker_class
-        ::ClusterUpdateAppWorker
+        ::ClusterPrometheusUpdateWorker
       end
 
       def recently_scheduled?

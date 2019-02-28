@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ClusterUpdateAppWorker
+class ClusterPrometheusUpdateWorker
   UpdateAlreadyInProgressError = Class.new(StandardError)
 
   include ApplicationWorker

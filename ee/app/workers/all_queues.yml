@@ -19,7 +19,7 @@
 - cronjob:pseudonymizer
 - cronjob:update_max_seats_used_for_gitlab_com_subscriptions
 
-- gcp_cluster:cluster_update_app
+- gcp_cluster:cluster_prometheus_update
 - gcp_cluster:cluster_wait_for_app_update
 
 - geo:geo_batch_project_registry
