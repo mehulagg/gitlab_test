@@ -1330,7 +1330,7 @@ describe MergeRequest do
                sha: shas.second)
       end
 
-      let!(:merge_request_pipeline) do
+      let!(:detached_merge_request_pipeline) do
         create(:ci_pipeline,
                source: :merge_request_event,
                project: project,
@@ -1356,7 +1356,7 @@ describe MergeRequest do
 
       it 'returns merge request pipeline first' do
         expect(merge_request.all_pipelines)
-          .to eq([merge_request_pipeline,
+          .to eq([detached_merge_request_pipeline,
                   branch_pipeline])
       end
 
@@ -1369,7 +1369,7 @@ describe MergeRequest do
                  sha: shas.first)
         end
 
-        let!(:merge_request_pipeline_2) do
+        let!(:detached_merge_request_pipeline_2) do
           create(:ci_pipeline,
                  source: :merge_request_event,
                  project: project,
@@ -1380,8 +1380,8 @@ describe MergeRequest do
 
         it 'returns merge request pipelines first' do
           expect(merge_request.all_pipelines)
-            .to eq([merge_request_pipeline_2,
-                    merge_request_pipeline,
+            .to eq([detached_merge_request_pipeline_2,
+                    detached_merge_request_pipeline,
                     branch_pipeline_2,
                     branch_pipeline])
         end
@@ -1396,7 +1396,7 @@ describe MergeRequest do
                  sha: shas.first)
         end
 
-        let!(:merge_request_pipeline_2) do
+        let!(:detached_merge_request_pipeline_2) do
           create(:ci_pipeline,
                  source: :merge_request_event,
                  project: project,
@@ -1419,14 +1419,33 @@ describe MergeRequest do
 
         it 'returns only related merge request pipelines' do
           expect(merge_request.all_pipelines)
-            .to eq([merge_request_pipeline,
+            .to eq([detached_merge_request_pipeline,
                     branch_pipeline_2,
                     branch_pipeline])
 
           expect(merge_request_2.all_pipelines)
-            .to eq([merge_request_pipeline_2,
+            .to eq([detached_merge_request_pipeline_2,
                     branch_pipeline_2,
                     branch_pipeline])
+        end
+      end
+
+      context 'when detached merge request pipeline is run on head ref of the merge request' do
+        let!(:detached_merge_request_pipeline) do
+          create(:ci_pipeline,
+                 source: :merge_request_event,
+                 project: project,
+                 ref: merge_request.ref_path,
+                 sha: shas.second,
+                 merge_request: merge_request)
+        end
+
+        it 'sets the head ref of the merge request to the pipeline ref' do
+          expect(detached_merge_request_pipeline.ref).to match(%r{refs/merge-requests/\d+/head})
+        end
+
+        it 'includes the detached merge request pipeline even though the ref is custom path' do
+          expect(merge_request.all_pipelines).to include(detached_merge_request_pipeline)
         end
       end
     end
@@ -1466,6 +1485,27 @@ describe MergeRequest do
               .not_to change { merge_request.reload.head_pipeline }
           end
         end
+      end
+    end
+
+    context 'when detached merge request pipeline is run on head ref of the merge request' do
+      let!(:pipeline) do
+        create(:ci_pipeline,
+               source: :merge_request_event,
+               project: merge_request.source_project,
+               ref: merge_request.ref_path,
+               sha: merge_request.diff_head_sha,
+               merge_request: merge_request)
+      end
+
+      it 'sets the head ref of the merge request to the pipeline ref' do
+        expect(pipeline.ref).to match(%r{refs/merge-requests/\d+/head})
+      end
+
+      it 'updates correctly even though the target branch name of the merge request is different from the pipeline ref' do
+        expect { subject }
+          .to change { merge_request.reload.head_pipeline }
+          .from(nil).to(pipeline)
       end
     end
 

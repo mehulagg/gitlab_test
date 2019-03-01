@@ -260,6 +260,52 @@ describe Ci::Pipeline, :mailer do
     end
   end
 
+  describe '.triggered_for_branch' do
+    subject { described_class.triggered_for_branch(ref, sha) }
+
+    let(:project) { create(:project, :repository) }
+    let(:ref) { 'feature' }
+    let(:sha) { project.repository.commit(ref).id }
+    let!(:pipeline) { create(:ci_pipeline, ref: ref, sha: sha) }
+
+    it 'returns the pipeline' do
+      is_expected.to eq([pipeline])
+    end
+
+    context 'when sha is not specified' do
+      it 'returns the pipeline' do
+        expect(described_class.triggered_for_branch(ref)).to eq([pipeline])
+      end
+    end
+
+    context 'when pipeline is triggered for tag' do
+      let(:ref) { 'v1.1.0' }
+      let(:sha) { project.repository.commit(ref).id }
+      let!(:pipeline) { create(:ci_pipeline, ref: ref, sha: sha, tag: true) }
+
+      it 'does not return the pipeline' do
+        is_expected.to be_empty
+      end
+    end
+
+    context 'when pipeline is triggered for merge_request' do
+      let!(:merge_request) do
+        create(:merge_request,
+          :with_merge_request_pipeline,
+          source_project: project,
+          source_branch: ref,
+          target_project: project,
+          target_branch: 'master')
+      end
+
+      let(:pipeline) { merge_request.merge_request_pipelines.first }
+
+      it 'does not return the pipeline' do
+        is_expected.to be_empty
+      end
+    end
+  end
+
   describe '.merge_request_event' do
     subject { described_class.merge_request_event }
 

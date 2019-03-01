@@ -13,6 +13,7 @@ module Ci
     include EnumWithNil
     include HasRef
     include ShaAttribute
+    include FromUnion
 
     sha_attribute :source_sha
     sha_attribute :target_sha
@@ -186,15 +187,6 @@ module Ci
 
     scope :for_user, -> (user) { where(user: user) }
 
-    scope :for_merge_request, -> (merge_request, ref, sha) do
-      ##
-      # We have to filter out unrelated MR pipelines.
-      # When merge request is empty, it selects general pipelines, such as push sourced pipelines.
-      # When merge request is matched, it selects MR pipelines.
-      where(merge_request: [nil, merge_request], ref: ref, sha: sha)
-        .sort_by_merge_request_pipelines
-    end
-
     scope :triggered_by_merge_request, -> (merge_request) do
       where(source: :merge_request_event, merge_request: merge_request)
     end
@@ -209,6 +201,12 @@ module Ci
 
     scope :mergeable_merge_request_pipelines, -> (merge_request) do
       triggered_by_merge_request(merge_request).where(target_sha: merge_request.target_branch_sha)
+    end
+
+    scope :triggered_for_branch, -> (ref, shas = nil) do
+      query = where(source: sources.keys - %w[merge_request_event]).where(ref: ref, tag: false)
+      query = query.where(sha: shas) if shas
+      query
     end
 
     # Returns the pipelines in descending order (= newest first), optionally
@@ -296,10 +294,6 @@ module Ci
 
     def self.internal_sources
       sources.reject { |source| source == "external" }.values
-    end
-
-    def self.latest_for_merge_request(merge_request, ref, sha)
-      for_merge_request(merge_request, ref, sha).first
     end
 
     def self.ci_sources_values
