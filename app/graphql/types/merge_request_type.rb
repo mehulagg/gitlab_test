@@ -47,6 +47,8 @@ module Types
     field :upvotes, GraphQL::INT_TYPE, null: false
     field :downvotes, GraphQL::INT_TYPE, null: false
     field :subscribed, GraphQL::BOOLEAN_TYPE, method: :subscribed?, null: false
+    field :ci_status, GraphQL::STRING_TYPE, null: true
+    field :state_human_name, GraphQL::STRING_TYPE, null: true
 
     field :head_pipeline, Types::Ci::PipelineType, null: true, method: :actual_head_pipeline, authorize: :read_pipeline
     field :pipelines, Types::Ci::PipelineType.connection_type,
