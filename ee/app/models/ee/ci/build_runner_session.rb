@@ -13,7 +13,7 @@ module EE
         return {} unless url.present? && port.present?
 
         url = "#{self.url}/proxy/#{service.presence || 'build'}/#{port}/#{requested_url}"
-        channel_specification(url, TERMINAL_SUPROTOCOL)
+        channel_specification(url, ::Ci::BuildRunnerSession::TERMINAL_SUBPROTOCOL)
       end
     end
   end

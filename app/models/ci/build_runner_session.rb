@@ -6,7 +6,7 @@ module Ci
   class BuildRunnerSession < ActiveRecord::Base
     extend Gitlab::Ci::Model
 
-    TERMINAL_SUBPROTOCOL = 'terminal.gitlab.com'
+    TERMINAL_SUBPROTOCOL = 'terminal.gitlab.com'.freeze
 
     self.table_name = 'ci_builds_runner_session'
 
