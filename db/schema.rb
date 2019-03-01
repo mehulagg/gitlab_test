@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190301081611) do
+ActiveRecord::Schema.define(version: 20190301182031) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -3602,7 +3602,7 @@ ActiveRecord::Schema.define(version: 20190301081611) do
   add_foreign_key "users_star_projects", "projects", name: "fk_22cd27ddfc", on_delete: :cascade
   add_foreign_key "vulnerability_feedback", "ci_pipelines", column: "pipeline_id", on_delete: :nullify
   add_foreign_key "vulnerability_feedback", "issues", on_delete: :nullify
-  add_foreign_key "vulnerability_feedback", "merge_requests", on_delete: :cascade
+  add_foreign_key "vulnerability_feedback", "merge_requests", name: "fk_563ff1912e", on_delete: :nullify
   add_foreign_key "vulnerability_feedback", "projects", on_delete: :cascade
   add_foreign_key "vulnerability_feedback", "users", column: "author_id", on_delete: :cascade
   add_foreign_key "vulnerability_identifiers", "projects", on_delete: :cascade
