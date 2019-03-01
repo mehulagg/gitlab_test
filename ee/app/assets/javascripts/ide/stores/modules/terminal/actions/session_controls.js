@@ -19,6 +19,7 @@ export const receiveStartSessionSuccess = ({ commit, dispatch }, data) => {
     retryPath: data.retry_path,
     terminalPath: data.terminal_path,
     proxyPath: data.proxy_path,
+    proxyWebsocketPath: data.proxy_websocket_path,
   });
 
   dispatch('pollSessionStatus');

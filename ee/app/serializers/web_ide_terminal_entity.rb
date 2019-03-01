@@ -8,4 +8,5 @@ class WebIdeTerminalEntity < Grape::Entity
   expose :retry_path
   expose :terminal_path
   expose :proxy_path
+  expose :proxy_websocket_path
 end

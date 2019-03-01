@@ -51,7 +51,7 @@ export default {
     testws() {
       const { protocol, hostname, port } = window.location;
       const wsProtocol = protocol === 'https:' ? 'wss://' : 'ws://';
-      var path = `${this.session.proxyPath}.ws?service=${$("input.proxyservice").val()}&port=${$("input.proxyport").val()}&requested_uri=${$("input.requesteduri").val()}`
+      var path = `${this.session.proxyWebsocketPath}?service=${$("input.proxyservice").val()}&port=${$("input.proxyport").val()}&requested_uri=${$("input.requesteduri").val()}`
       var url = `${wsProtocol}${hostname}:${port}${path}`;
       console.log(url)
       var socket = new WebSocket(url, ['terminal.gitlab.com']);
