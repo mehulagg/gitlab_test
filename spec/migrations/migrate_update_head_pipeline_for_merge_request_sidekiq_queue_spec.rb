@@ -3,6 +3,7 @@ require Rails.root.join('db', 'post_migrate', '20180307012445_migrate_update_hea
 
 describe MigrateUpdateHeadPipelineForMergeRequestSidekiqQueue, :sidekiq, :redis do
   include Gitlab::Database::MigrationHelpers
+  include StubWorker
 
   context 'when there are jobs in the queues' do
     it 'correctly migrates queue when migrating up' do
@@ -52,13 +53,6 @@ describe MigrateUpdateHeadPipelineForMergeRequestSidekiqQueue, :sidekiq, :redis 
 
     it 'does not raise error when migrating down' do
       expect { described_class.new.down }.not_to raise_error
-    end
-  end
-
-  def stubbed_worker(queue:)
-    Class.new do
-      include Sidekiq::Worker
-      sidekiq_options queue: queue
     end
   end
 end

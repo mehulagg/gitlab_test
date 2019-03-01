@@ -3,6 +3,7 @@ require Rails.root.join('db', 'post_migrate', '20181219145520_migrate_cluster_co
 
 describe MigrateClusterConfigureWorkerSidekiqQueue, :sidekiq, :redis do
   include Gitlab::Database::MigrationHelpers
+  include StubWorker
 
   context 'when there are jobs in the queue' do
     it 'correctly migrates queue when migrating up' do
@@ -56,13 +57,6 @@ describe MigrateClusterConfigureWorkerSidekiqQueue, :sidekiq, :redis do
 
     it 'does not raise error when migrating down' do
       expect { described_class.new.down }.not_to raise_error
-    end
-  end
-
-  def stubbed_worker(queue:)
-    Class.new do
-      include Sidekiq::Worker
-      sidekiq_options queue: queue
     end
   end
 end
