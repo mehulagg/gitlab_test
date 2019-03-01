@@ -22,4 +22,8 @@ describe WebIdeTerminal do
   it 'returns the terminal_path of the build' do
     expect(subject.terminal_path).to end_with("/jobs/#{build.id}/terminal.ws")
   end
+
+  it 'returns the proxy_path of the build' do
+    expect(subject.proxy_path).to end_with("/ide_terminals/#{build.id}/proxy")
+  end
 end

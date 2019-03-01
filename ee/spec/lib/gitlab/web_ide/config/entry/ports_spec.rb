@@ -68,4 +68,3 @@ describe Gitlab::WebIde::Config::Entry::Ports do
     end
   end
 end
-

@@ -6,10 +6,6 @@ class Projects::WebIdeServicesController < Projects::ApplicationController
   before_action :authorize_update_web_ide_terminal!
   before_action :verify_api_request!, only: [:proxy_authorize, :proxy_websocket_authorize]
 
-  # NOOP
-  def proxy
-  end
-
   def proxy_authorize
     set_workhorse_internal_api_content_type
     render json: webide_service(build_service_specification)
@@ -47,12 +43,12 @@ class Projects::WebIdeServicesController < Projects::ApplicationController
     webide_service(service).tap do |config|
       config['Channel']['Subprotocols'] = service[:subprotocols]
       config['Channel']['MaxSessionTime'] = 3000
-      config['Channel']['Url'] = config.dig('Channel', 'Url')&.sub("https://", "wss://")
+      config['Channel']['Url'] = config.dig('Channel', 'Url')&.sub('https://', 'wss://')
     end
   end
 
   def build_service_specification
-    build.service_specification(service: params["service"], port: params["port"], requested_url: params["requested_uri"])
+    build.service_specification(service: params['service'], port: params['port'], requested_url: params['requested_uri'])
   end
 
   def verify_api_request!

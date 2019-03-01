@@ -14,4 +14,5 @@ describe WebIdeTerminalEntity do
   it { is_expected.to have_key(:cancel_path) }
   it { is_expected.to have_key(:retry_path) }
   it { is_expected.to have_key(:terminal_path) }
+  it { is_expected.to have_key(:proxy_path) }
 end
