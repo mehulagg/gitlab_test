@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require Rails.root.join('ee', 'db', 'post_migrate', '20190228114524_migrate_cluster_prometheus_update_worker_sidekiq_queue.rb')
 
 describe MigrateClusterPrometheusUpdateWorkerSidekiqQueue, :sidekiq, :redis do
   include Gitlab::Database::MigrationHelpers
+  include StubWorker
 
   context 'when there are jobs in the queue' do
     it 'correctly migrates queue when migrating up' do
@@ -56,13 +59,6 @@ describe MigrateClusterPrometheusUpdateWorkerSidekiqQueue, :sidekiq, :redis do
 
     it 'does not raise error when migrating down' do
       expect { described_class.new.down }.not_to raise_error
-    end
-  end
-
-  def stubbed_worker(queue:)
-    Class.new do
-      include Sidekiq::Worker
-      sidekiq_options queue: queue
     end
   end
 end
