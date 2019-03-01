@@ -19,14 +19,29 @@ module Gitlab
           ALLOWED_KEYS = %i[image services tags before_script script variables].freeze
 
           validations do
-            validates :config, allowed_keys: ALLOWED_KEYS
+            include ::Gitlab::WebIde::Config::Entry::Validators
 
-            validate do
-              # TODO check here the port config
-            end
+            validates :config, allowed_keys: ALLOWED_KEYS
+            validates :config, internal_port_unique: { data: ->(record) { record.ports } }
 
             with_options allow_nil: true do
               validates :tags, array_of_strings: true
+            end
+
+            def ports
+              return unless config.is_a?(Hash)
+
+              (image_ports + services_ports).compact
+            end
+
+            def image_ports
+              return [] unless config[:image].is_a?(Hash)
+
+              config.dig(:image, :ports).to_a
+            end
+
+            def services_ports
+              config.dig(:services).to_a.flat_map { |service| service.is_a?(Hash) ? service[:ports] : nil }
             end
           end
 

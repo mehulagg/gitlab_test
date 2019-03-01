@@ -30,6 +30,21 @@ describe Gitlab::WebIde::Config::Entry::Terminal do
           expect(entry).to be_valid
         end
       end
+
+      context 'when same internal port is not duplicated' do
+        let(:config) do
+          {
+            image: { name: "ruby", ports: [80] },
+            services: [{ name: "mysql", ports: [81] }, { name: "mysql", ports: [82] }]
+          }
+        end
+
+        describe '#valid?' do
+          it 'is invalid' do
+            expect(entry).to be_valid
+          end
+        end
+      end
     end
 
     context 'when entry value is not correct' do
@@ -60,6 +75,23 @@ describe Gitlab::WebIde::Config::Entry::Terminal do
         describe '#valid' do
           it 'is not valid' do
             expect(entry).not_to be_valid
+          end
+        end
+      end
+
+      context 'when same internal port is duplicated' do
+        let(:config) do
+          {
+            image: { name: "ruby", ports: [80] },
+            services: [{ name: "mysql", ports: [80] }, { name: "mysql", ports: [81] }]
+          }
+        end
+
+        describe '#valid?' do
+          it 'is invalid' do
+            expect(entry).not_to be_valid
+            expect(entry.errors.count).to eq 1
+            expect(entry.errors.first).to match "the same internal port is referenced more than once"
           end
         end
       end

@@ -8,7 +8,6 @@ module Gitlab
         # Entry that represents a Docker image.
         #
         class Image < ::Gitlab::Ci::Config::Entry::Image
-          include ::Gitlab::Config::Entry::Validatable
           include ::Gitlab::Config::Entry::Configurable
           include ::Gitlab::Config::Entry::Attributable
 

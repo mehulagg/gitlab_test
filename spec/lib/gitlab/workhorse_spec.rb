@@ -87,7 +87,7 @@ describe Gitlab::Workhorse do
     end
   end
 
-  describe '.terminal_websocket' do
+  describe '.channel_websocket' do
     def terminal(ca_pem: nil)
       out = {
         subprotocols: ['foo'],

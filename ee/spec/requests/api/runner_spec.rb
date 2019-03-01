@@ -74,7 +74,7 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
             expect(response).to have_http_status(:created)
             expect(json_response).to include(
               "id" => build.id,
-              "image" => a_hash_including("name" => "ruby", "ports" => [{ "external_port" => 80, "internal_port" => 80, "insecure" => nil, "name" => "default_port" }]),
+              "image" => a_hash_including("name" => "ruby", "ports" => [{ "external_port" => 80, "internal_port" => 80, "insecure" => false, "name" => "default_port" }]),
               "services" => all(a_hash_including("name" => 'mysql')))
           end
         end

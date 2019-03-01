@@ -48,7 +48,7 @@ describe Gitlab::WebIde::Config::Entry::Ports do
 
         describe '#valid?' do
           it 'is invalid' do
-            expect(entry.errors.first).to eq "ports config each port name must be different"
+            expect(entry.errors.first).to match "each port name must be different"
           end
         end
       end
@@ -61,23 +61,11 @@ describe Gitlab::WebIde::Config::Entry::Ports do
 
         describe '#valid?' do
           it 'is invalid' do
-            expect(entry.errors.first).to eq "ports config each external port can only be referenced once in the block"
-          end
-        end
-      end
-
-      context 'have the same internal port' do
-        let(:config) do
-          [{ external_port: 80, internal_port: 80, insecure: false, name: 'foobar' },
-           { external_port: 81, internal_port: 80, insecure: false, name: 'foobar1' }]
-        end
-
-        describe '#valid?' do
-          it 'is invalid' do
-            expect(entry.errors.first).to eq "ports config the same internal port is referenced more than once"
+            expect(entry.errors.first).to match "each external port can only be referenced once in the block"
           end
         end
       end
     end
   end
 end
+
