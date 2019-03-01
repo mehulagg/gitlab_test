@@ -8,6 +8,7 @@ module BoardsHelper
   def board_data
     {
       boards_endpoint: @boards_endpoint,
+      recent_boards_endpoint: @recent_boards_endpoint,
       lists_endpoint: board_lists_path(board),
       board_id: board.id,
       disabled: "#{!can?(current_user, :admin_list, current_board_parent)}",

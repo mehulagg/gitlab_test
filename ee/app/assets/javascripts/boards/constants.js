@@ -1,0 +1,1 @@
+export const MIN_BOARDS_TO_VIEW_RECENT = 10;

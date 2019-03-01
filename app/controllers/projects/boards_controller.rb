@@ -31,6 +31,7 @@ class Projects::BoardsController < Projects::ApplicationController
 
   def assign_endpoint_vars
     @boards_endpoint = project_boards_path(project)
+    @recent_boards_endpoint = recent_project_boards_path(project)
     @bulk_issues_path = bulk_update_project_issues_path(project)
     @namespace_path = project.namespace.full_path
     @labels_endpoint = project_labels_path(project)
