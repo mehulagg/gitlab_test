@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190301081611) do
+ActiveRecord::Schema.define(version: 20190302033225) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -215,8 +215,8 @@ ActiveRecord::Schema.define(version: 20190301081611) do
     t.string "commit_email_hostname"
     t.boolean "protected_ci_variables", default: false, null: false
     t.string "runners_registration_token_encrypted"
-    t.integer "local_markdown_version", default: 0, null: false
     t.integer "first_day_of_week", default: 0, null: false
+    t.integer "local_markdown_version", default: 0, null: false
     t.index ["custom_project_templates_group_id"], name: "index_application_settings_on_custom_project_templates_group_id", using: :btree
     t.index ["file_template_project_id"], name: "index_application_settings_on_file_template_project_id", using: :btree
     t.index ["usage_stats_set_by_user_id"], name: "index_application_settings_on_usage_stats_set_by_user_id", using: :btree
@@ -2626,6 +2626,7 @@ ActiveRecord::Schema.define(version: 20190301081611) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["path"], name: "index_redirect_routes_on_path", unique: true, using: :btree
+    t.index ["path"], name: "index_redirect_routes_on_path_text_pattern_ops", using: :btree, opclasses: {"path"=>"varchar_pattern_ops"}
     t.index ["source_type", "source_id"], name: "index_redirect_routes_on_source_type_and_source_id", using: :btree
   end
 
@@ -2998,6 +2999,8 @@ ActiveRecord::Schema.define(version: 20190301081611) do
   create_table "user_callouts", force: :cascade do |t|
     t.integer "feature_name", null: false
     t.integer "user_id", null: false
+    t.integer "namespace_id"
+    t.index ["namespace_id"], name: "index_user_callouts_on_namespace_id", using: :btree
     t.index ["user_id", "feature_name"], name: "index_user_callouts_on_user_id_and_feature_name", unique: true, using: :btree
     t.index ["user_id"], name: "index_user_callouts_on_user_id", using: :btree
   end
@@ -3586,6 +3589,7 @@ ActiveRecord::Schema.define(version: 20190301081611) do
   add_foreign_key "todos", "users", name: "fk_d94154aa95", on_delete: :cascade
   add_foreign_key "trending_projects", "projects", on_delete: :cascade
   add_foreign_key "u2f_registrations", "users"
+  add_foreign_key "user_callouts", "namespaces", on_delete: :cascade
   add_foreign_key "user_callouts", "users", on_delete: :cascade
   add_foreign_key "user_custom_attributes", "users", on_delete: :cascade
   add_foreign_key "user_interacted_projects", "projects", name: "fk_722ceba4f7", on_delete: :cascade
