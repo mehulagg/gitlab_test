@@ -5,7 +5,7 @@ module Gitlab
     class Config
       module Entry
         ##
-        # Entry that represents a configuration of a Service Port.
+        # Entry that represents a configuration of an Image Port.
         #
         class Port < ::Gitlab::Config::Entry::Node
           include ::Gitlab::Config::Entry::Validatable

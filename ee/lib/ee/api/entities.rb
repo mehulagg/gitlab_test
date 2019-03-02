@@ -167,7 +167,7 @@ module EE
           extend ActiveSupport::Concern
 
           prepended do
-            # Not showing the params if nil
+            # Not showing the param if nil
             expose :ports, using: JobRequest::Port, unless: ->(image, _) { image.ports.nil? }
           end
         end
