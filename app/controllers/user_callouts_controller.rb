@@ -17,11 +17,15 @@ class UserCalloutsController < ApplicationController
 
   # rubocop: disable CodeReuse/ActiveRecord
   def ensure_callout
-    current_user.callouts.find_or_create_by(feature_name: UserCallout.feature_names[feature_name])
+    current_user.callouts.find_or_create_by(feature_name: UserCallout.feature_names[feature_name], namespace_id: namespace_id)
   end
   # rubocop: enable CodeReuse/ActiveRecord
 
   def feature_name
     params.require(:feature_name)
+  end
+
+  def namespace_id
+    params.require(:namespace_id)
   end
 end

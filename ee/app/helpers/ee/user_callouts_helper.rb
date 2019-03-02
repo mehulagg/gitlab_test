@@ -57,9 +57,9 @@ module EE
 
     def render_billings_gold_trial(user, namespace)
       return if namespace.gold_plan?
-      return unless show_gold_trial?(user, GOLD_TRIAL_BILLINGS)
+      return unless show_gold_trial?(user, GOLD_TRIAL_BILLINGS, namespace)
 
-      render 'shared/gold_trial_callout_content', is_dismissable: !namespace.free_plan?
+      render 'shared/gold_trial_callout_content', is_dismissable: !namespace.free_plan?, callout: GOLD_TRIAL_BILLINGS, namespace: namespace
     end
 
     private
@@ -90,10 +90,10 @@ module EE
       linked_message.html_safe
     end
 
-    def show_gold_trial?(user, callout = GOLD_TRIAL)
+    def show_gold_trial?(user, callout = GOLD_TRIAL, namespace = nil)
       return false unless user
       return false unless show_gold_trial_suitable_env?
-      return false if user_dismissed?(callout)
+      return false if user_dismissed?(callout, namespace)
 
       true
     end

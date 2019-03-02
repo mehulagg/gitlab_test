@@ -4,10 +4,11 @@ import Flash from './flash';
 
 export default class PersistentUserCallout {
   constructor(container) {
-    const { dismissEndpoint, featureId } = container.dataset;
+    const { dismissEndpoint, featureId, namespaceId } = container.dataset;
     this.container = container;
     this.dismissEndpoint = dismissEndpoint;
     this.featureId = featureId;
+    this.namespaceId = namespaceId;
 
     this.init();
   }
@@ -23,6 +24,7 @@ export default class PersistentUserCallout {
     axios
       .post(this.dismissEndpoint, {
         feature_name: this.featureId,
+        namespace_id: this.namespaceId,
       })
       .then(() => {
         this.container.remove();
