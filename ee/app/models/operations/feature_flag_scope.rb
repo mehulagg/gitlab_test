@@ -4,11 +4,11 @@ module Operations
   class FeatureFlagScope < ActiveRecord::Base
     prepend HasEnvironmentScope
 
-    attribute :user, User.new
+    attr_accessor :user
 
     self.table_name = 'operations_feature_flag_scopes'
 
-    AUDITABLE_ATTRIBUTES = %s[active environment_scope]
+    AUDITABLE_ATTRIBUTES = %w[active environment_scope]
 
     belongs_to :feature_flag
 
@@ -23,8 +23,10 @@ module Operations
 
     before_destroy :prevent_destroy_default_scope, if: :default_scope?
     after_create :audit_event_create
-    after_update :audit_event_update
-    after_destroy :audit_event_destroy
+    before_update :audit_event_update
+    before_destroy :audit_event_destroy
+
+    delegate :project, to: :feature_flag
 
     scope :ordered, -> { order(:id) }
     scope :enabled, -> { where(active: true) }
@@ -33,17 +35,17 @@ module Operations
     private
 
     def audit_event_create
-      return true unless auditable_changes && user
+      return true unless !auditable_changes.empty? && user
 
-      message = "Created feature flag scope <strong>#{environment_scope}</strong> with <strong>\"#{active}\"</strong>."
+      message = "Created scope <strong>#{environment_scope}</strong> with <strong>\"#{active}\"</strong>."
 
       ::AuditEventService.new(user, project, audit_event_base(message)).security_event
     end
 
     def audit_event_update
-      return true unless auditable_changes && user
+      return true unless !auditable_changes.empty? && user
 
-      message = "Updated feature flag "
+      message = "Updated scope "
       auditable_changes.each do |attribute, change|
         message += "#{attribute} of feature flag from #{change.first} to #{change.second}"
       end
@@ -52,23 +54,23 @@ module Operations
     end
 
     def audit_event_destroy
-      return true unless auditable_changes && user
+      return true unless user
 
-      message = "Destroyed feature flag"
+      message = "Destroyed scope"
 
       ::AuditEventService.new(user, project, audit_event_base(message)).security_event
     end
 
     def auditable_changes
-      @auditable_changes ||= previous_changes.select { |change| AUDITABLE_ATTRIBUTES.include?(change.key) }
+      @auditable_changes ||= changes.select { |attribute, _| AUDITABLE_ATTRIBUTES.include?(attribute) }
     end
 
     def audit_event_base(message)
       {
         custom_message: message,
-        target_id: self.id,
-        target_type: self.class.name,
-        target_details: self.name
+        target_id: self.feature_flag.id,
+        target_type: self.feature_flag.class.name,
+        target_details: self.feature_flag.name
       }
     end
 
