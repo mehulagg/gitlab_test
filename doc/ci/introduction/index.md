@@ -123,27 +123,27 @@ At the end, if anything goes wrong, you can easily
 
 ![rollback button](img/rollback.png)
 
-<!--
-
-## Setting up GitLab CI/CD for the first time
-
-Link to "hello-world" document (to be written).
-
--->
-
 ### Basic CI/CD Workflow
 
-A very simple workflow for using GitLab CI/CD could be:
+This is a very simple example for how GitLab CI/CD fits in a common
+development workflow.
 
-- Create an issue to discuss an implementation.
-- Submit your changes on a merge request in a feature branch.
-- Run automated scripts (sequential or parallel).
+Assume that you have discussed a code implementation in an issue
+and worked locally on your proposed changes. Once you push your
+commits to a feature branch in a remote repository in GitLab,
+it triggers the CI/CD pipeline set for your project. By doing
+so, GitLab CI/CD:
+
+- Runs automated scripts (sequential or parallel).
   - Build, test, and deploy to a staging environment.
   - Preview the changes with Review Apps.
+
+Once you're happy with your implementation:
+
 - Get your code reviewed and approved.
 - Merge the feature branch into the default branch.
-  - Deploy your changes automatically to a production environment.
--  Roll it back if something goes wrong.
+  - GitLab CI/CD deploys your changes automatically to a production environment.
+-  An you and your team can roll it back if something goes wrong.
 
 GitLab CI/CD is capable of a doing a lot more, but this workflow
 exemplifies the ability GitLab has to track the entire process,
@@ -151,7 +151,23 @@ without the need of any external tool to deliver your software.
 And, most interestingly, you can visualize all the steps through
 the GitLab UI.
 
+<!-- ONCE WE HAVE IT, LINK TO EXAMPLE WORKFLOWS FOR DEV TEAMS USING CI/CD. -->
+
 <img src="../img/cicd_pipeline_infograph.png" alt="pipeline graph" class="image-noshadow">
+
+### Setting up GitLab CI/CD for the first time
+
+To get started with GitLab CI/CD, you need to familiarize yourself
+with the configuration file ([`.gitlab-ci.yml`](../yaml/README.md))
+syntax and with its attributes.
+
+This document [introduces the concepts of GitLab CI/CD in the scope of GitLab Pages](../../user/project/pages/getting_started_part_four.md).
+Although it's meant for a user who wants to write their own Pages
+script from scratch, it covers the very first general steps of
+writing a CI/CD configuration file, therefore, we recommend you
+read through that doc to understand GitLab's CI/CD logic and to be able
+to write your own script (or tweak an existing one) for any
+application you wish to use GitLab CI/CD for.
 
 ### GitLab CI/CD feature set
 
