@@ -11,7 +11,6 @@ module EE
 
     prepended do
       include TokenAuthenticatable
-      include Presentable
 
       add_authentication_token_field :saml_discovery_token, unique: false, token_generator: -> { Devise.friendly_token(8) }
 

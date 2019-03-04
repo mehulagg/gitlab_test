@@ -5,15 +5,11 @@ module EE
     extend ActiveSupport::Concern
     extend ::Gitlab::Utils::Override
 
-    prepended do
-      delegate :group_view_redirect_needed?, :group_view_supports_request_format?, :group_view_url,
-               to: :presenter
-    end
-
-    override :show
-    def show
-      if ::Feature.enabled?(:group_overview_security_dashboard) && redirect_to_group_view?
-        redirect_to group_view_url(group)
+    override :render_details_html
+    def render_details_html
+      # this method is called for both 'show' and 'details' actions, must redirect only from the group 'landing page'
+      if action_name == 'show' && redirect_show_path
+        redirect_to redirect_show_path, status: :temporary_redirect
       else
         super
       end
@@ -24,10 +20,6 @@ module EE
     end
 
     private
-
-    def redirect_to_group_view?
-      group_view_supports_request_format? && group_view_redirect_needed?
-    end
 
     def group_params_ee
       [
@@ -44,12 +36,25 @@ module EE
       @group
     end
 
-    # NOTE: currently unable to wrap a group in presenter and re-assign @group: SimpleDelegator doesn't substitute
-    # the class of a wrapped object; see gitlab-ce/#57299
-    def presenter
-      strong_memoize(:presenter) do
-        group.present(current_user: current_user, request: request, helpers: helpers)
+    def redirect_show_path
+      strong_memoize(:redirect_show_path) do
+        next if !::Feature.enabled?(:group_overview_security_dashboard) || group_view == default_group_view
+
+        case group_view
+        when 'security_dashboard'
+          helpers.group_security_dashboard_path(group)
+        else
+          raise ArgumentError, "Unknown non-default group_view setting '#{group_view}' for a user #{current_user}"
+        end
       end
+    end
+
+    def group_view
+      current_user&.group_view || default_group_view
+    end
+
+    def default_group_view
+      EE::User::DEFAULT_GROUP_VIEW
     end
   end
 end

@@ -200,5 +200,34 @@ describe GroupsController do
         end
       end
     end
+
+    describe 'GET #details' do
+      subject { get :details, params: { id: group.to_param } }
+
+      context 'with user having proper permissions and feature enabled' do
+        before do
+          stub_licensed_features(security_dashboard: true)
+          group.add_developer(user)
+        end
+
+        context 'with group view set to security dashboard' do
+          let(:user) { create(:user, group_view: :security_dashboard) }
+
+          it 'should not redirect to the security dashboard' do
+            expect(subject).not_to redirect_to(group_security_dashboard_url(group))
+          end
+
+          context 'and the feature flag is disabled' do
+            before do
+              stub_feature_flags(group_overview_security_dashboard: false)
+            end
+
+            it 'should render the expected template' do
+              expect(subject).to render_template('groups/show')
+            end
+          end
+        end
+      end
+    end
   end
 end
