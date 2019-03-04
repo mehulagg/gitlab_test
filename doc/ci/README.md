@@ -30,6 +30,7 @@ The following documentation provides the minimum required knowledge for making u
 | [Getting started with GitLab CI/CD](quick_start/README.md)                                | Outlines the first steps for configuring GitLab CI/CD.                       |
 | [Introduction to pipelines and jobs](pipelines.md)                                        | Provides an overview of GitLab CI/CD and jobs.                               |
 | [Configuration of your pipelines with `.gitlab-ci.yml`](yaml/README.md)                   | A comprehensive reference for the `.gitlab-ci.yml` file.                     |
+| [`.gitlab-ci.yml` introduction](../user/project/pages/getting_started_part_four.md)       | A step-by-step introduction to writing GitLab's CI/CD configuration file (`.gitlab-ci.yml`) for the first time. |
 | [GitLab CI/CD for external repositories](ci_cd_for_external_repos/index.md) **[PREMIUM]** | Get the benefits of GitLab CI/CD with repositories hosted outside of GitLab. |
 
 NOTE: **Note:**
