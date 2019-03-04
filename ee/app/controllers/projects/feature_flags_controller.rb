@@ -98,12 +98,14 @@ class Projects::FeatureFlagsController < Projects::ApplicationController
     params.require(:operations_feature_flag)
           .permit(:name, :description, :active,
                   scopes_attributes: [:environment_scope, :active])
+          .merge(user: current_user)
   end
 
   def update_params
     params.require(:operations_feature_flag)
           .permit(:name, :description, :active,
                   scopes_attributes: [:id, :environment_scope, :active, :_destroy])
+          .merge(user: current_user)
   end
 
   def feature_flag_json
