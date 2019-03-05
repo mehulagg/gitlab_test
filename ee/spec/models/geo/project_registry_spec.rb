@@ -209,25 +209,26 @@ describe Geo::ProjectRegistry, :geo do
   end
 
   describe '#repository_sync_due?' do
-    where(:last_synced_at, :resync, :retry_at, :expected) do
+    where(:is_legacy, :last_synced_at, :resync, :retry_at, :expected) do
       now = Time.now
       past = now - 1.year
       future = now + 1.year
 
-      nil    | false | nil    | true
-      nil    | true  | nil    | true
-      nil    | true  | past   | true
-      nil    | true  | future | true
+      false | nil    | false | nil    | true
+      false | nil    | true  | nil    | true
+      false | nil    | true  | past   | true
+      false | nil    | true  | future | true
 
-      past   | false | nil    | false
-      past   | true  | nil    | true
-      past   | true  | past   | true
-      past   | true  | future | false
+      false | past   | false | nil    | false
+      false | past   | true  | nil    | true
+      false | past   | true  | past   | true
+      false | past   | true  | future | true
+      true  | past   | true  | future | false
 
-      future | false | nil    | false
-      future | true  | nil    | false
-      future | true  | past   | false
-      future | true  | future | false
+      false | future | false | nil    | false
+      false | future | true  | nil    | false
+      false | future | true  | past   | false
+      false | future | true  | future | false
     end
 
     with_them do
@@ -237,6 +238,8 @@ describe Geo::ProjectRegistry, :geo do
           resync_repository: resync,
           repository_retry_at: retry_at
         )
+
+        allow(Gitlab::Geo).to receive(:legacy_queries?).and_return(is_legacy)
       end
 
       it { expect(registry.repository_sync_due?(Time.now)).to eq(expected) }
@@ -244,25 +247,26 @@ describe Geo::ProjectRegistry, :geo do
   end
 
   describe '#wiki_sync_due?' do
-    where(:last_synced_at, :resync, :retry_at, :expected) do
+    where(:is_legacy, :last_synced_at, :resync, :retry_at, :expected) do
       now = Time.now
       past = now - 1.year
       future = now + 1.year
 
-      nil    | false | nil    | true
-      nil    | true  | nil    | true
-      nil    | true  | past   | true
-      nil    | true  | future | true
+      false | nil    | false | nil    | true
+      false | nil    | true  | nil    | true
+      false | nil    | true  | past   | true
+      false | nil    | true  | future | true
 
-      past   | false | nil    | false
-      past   | true  | nil    | true
-      past   | true  | past   | true
-      past   | true  | future | false
+      false | past   | false | nil    | false
+      false | past   | true  | nil    | true
+      false | past   | true  | past   | true
+      false | past   | true  | future | true
+      true  | past   | true  | future | false
 
-      future | false | nil    | false
-      future | true  | nil    | false
-      future | true  | past   | false
-      future | true  | future | false
+      false | future | false | nil    | false
+      false | future | true  | nil    | false
+      false | future | true  | past   | false
+      false | future | true  | future | false
     end
 
     with_them do
@@ -272,6 +276,8 @@ describe Geo::ProjectRegistry, :geo do
           resync_wiki: resync,
           wiki_retry_at: retry_at
         )
+
+        allow(Gitlab::Geo).to receive(:legacy_queries?).and_return(is_legacy)
       end
 
       it { expect(registry.wiki_sync_due?(Time.now)).to eq(expected) }
