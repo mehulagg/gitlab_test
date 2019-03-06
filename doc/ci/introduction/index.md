@@ -8,8 +8,6 @@ In this document we'll present an overview of Continuous Integration,
 Continuous Delivery, and Continuous Deployment, as well as an introduction to
 GitLab CI/CD.
 
-<!-- TBA: PM's introductory video? -->
-
 ## Introduction to continuous methods
 
 Read the sections below for an introduction to the continuous methodology of software development:
@@ -37,8 +35,6 @@ practical example of using Continuous Integration as a software
 development method. For every push to the project, there's a set
 of scripts the code is checked against.
 
-<!-- TBA: illustration -->
-
 ### Continuous Delivery
 
 [Continuous Delivery](https://continuousdelivery.com/) is a step
@@ -51,14 +47,6 @@ This method ensures the code is checked automatically but requires
 someone to manually and strategically trigger the deployment
 of the changes.
 
-> Continuous Delivery is a software engineering approach in
-which Continuous Integration, automated testing, and automated
-deployment capabilities allow software to be developed and
-deployed rapidly, reliably and repeatedly with minimal human
-intervention.
-
-<!-- TBA: illustration -->
-
 ### Continuous Deployment
 
 [Continuous Deployment](https://www.airpair.com/continuous-deployment/posts/continuous-deployment-for-practical-people)
@@ -66,14 +54,6 @@ is a further step beyond Continuous Integration, in the same light as
 Continuous Delivery. The difference is that instead of deploying your
 application manually, you set it up so that the deployment is also
 triggered automatically.
-
-> Continuous Deployment is a software development practice in which
-every code change goes through the entire pipeline and is put into
-production automatically, resulting in many production deployments
-every day. It does everything that Continuous Delivery does, but
-the final deployment step is also fully automated, with no human intervention at all.
-
-<!-- TBA: illustration -->
 
 ## Introduction to GitLab CI/CD
 
