@@ -172,33 +172,33 @@ export const receiveDismissVulnerabilityError = ({ commit }, { flashError }) => 
   }
 };
 
-export const revertDismissal = ({ dispatch }, { vulnerability, flashError }) => {
+export const undoDismiss = ({ dispatch }, { vulnerability, flashError }) => {
   const { vulnerability_feedback_dismissal_path, dismissal_feedback } = vulnerability;
   // eslint-disable-next-line camelcase
   const url = `${vulnerability_feedback_dismissal_path}/${dismissal_feedback.id}`;
 
-  dispatch('requestRevertDismissal');
+  dispatch('requestUndoDismiss');
 
   axios
     .delete(url)
     .then(() => {
       const { id } = vulnerability;
-      dispatch('receiveRevertDismissalSuccess', { id });
+      dispatch('receiveUndoDismissSuccess', { id });
     })
     .catch(() => {
-      dispatch('receiveRevertDismissalError', { flashError });
+      dispatch('receiveUndoDismissError', { flashError });
     });
 };
 
-export const requestRevertDismissal = ({ commit }) => {
+export const requestUndoDismiss = ({ commit }) => {
   commit(types.REQUEST_REVERT_DISMISSAL);
 };
 
-export const receiveRevertDismissalSuccess = ({ commit }, payload) => {
+export const receiveUndoDismissSuccess = ({ commit }, payload) => {
   commit(types.RECEIVE_REVERT_DISMISSAL_SUCCESS, payload);
 };
 
-export const receiveRevertDismissalError = ({ commit }, { flashError }) => {
+export const receiveUndoDismissError = ({ commit }, { flashError }) => {
   commit(types.RECEIVE_REVERT_DISMISSAL_ERROR);
   if (flashError) {
     createFlash(
@@ -231,6 +231,10 @@ export const fetchVulnerabilitiesHistory = ({ state, dispatch }, params = {}) =>
     .catch(() => {
       dispatch('receiveVulnerabilitiesHistoryError');
     });
+};
+
+export const setVulnerabilitiesHistoryDayRange = ({ commit }, days) => {
+  commit(types.SET_VULNERABILITIES_HISTORY_DAY_RANGE, days);
 };
 
 export const requestVulnerabilitiesHistory = ({ commit }) => {

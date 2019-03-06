@@ -1,4 +1,4 @@
-# Geo nodes admin area
+# Geo nodes admin area **[PREMIUM ONLY]**
 
 For more information about setting up GitLab Geo, read the
 [Geo documentation](../../gitlab-geo/README.md).
@@ -24,7 +24,7 @@ Secondaries have a number of additional settings available:
 
 | Setting                   | Description |
 |---------------------------|-------------|
-| Selective synchronization | Enable Geo [selective sync](../../gitlab-geo/configuration.md#selective-synchronization) for this secondary. |
+| Selective synchronization | Enable Geo [selective sync](../../administration/geo/replication/configuration.md#selective-synchronization) for this secondary. |
 | Repository sync capacity  | Number of concurrent requests this secondary will make to the primary when backfilling repositories. |
 | File sync capacity        | Number of concurrent requests this secondary will make to the primary when backfilling files. |
 

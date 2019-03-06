@@ -20,9 +20,9 @@ a link to the group settings. By clicking the last button you can leave that gro
 You can create groups for numerous reasons. To name a few:
 
 - Organize related projects under the same [namespace](#namespaces), add members to that
-group and grant access to all their projects at once
+  group and grant access to all their projects at once
 - Create a group, include members of your team, and make it easier to
-`@mention` all the team at once in issues and merge requests
+  `@mention` all the team at once in issues and merge requests
   - Create a group for your company members, and create [subgroups](subgroups/index.md)
     for each individual team. Let's say you create a group called `company-team`, and among others,
     you created subgroups in this group for each individual team `backend-team`,
@@ -45,11 +45,11 @@ In GitLab, a namespace is a unique name to be used as a user name, a group name,
 For example, consider a user named Alex:
 
 1. Alex creates an account on GitLab.com with the username `alex`;
-their profile will be accessed under `https://gitlab.example.com/alex`
-1. Alex creates a group for their team with the groupname `alex-team`;
-the group and its projects will be accessed under `https://gitlab.example.com/alex-team`
+   their profile will be accessed under `https://gitlab.example.com/alex`
+1. Alex creates a group for their team with the group name `alex-team`;
+   the group and its projects will be accessed under `https://gitlab.example.com/alex-team`
 1. Alex creates a subgroup of `alex-team` with the subgroup name `marketing`;
-this subgroup and its projects will be accessed under `https://gitlab.example.com/alex-team/marketing`
+   this subgroup and its projects will be accessed under `https://gitlab.example.com/alex-team/marketing`
 
 By doing so:
 
@@ -109,7 +109,7 @@ Consider we have a group with two projects:
 
 - On the **Group Members** page we can now add a new user to the group.
 - Now because this user is a **Developer** member of the group, he automatically
-gets **Developer** access to **all projects** within that group.
+  gets **Developer** access to **all projects** within that group.
 
 If necessary, you can increase the access level of an individual user for a specific project,
 by adding them again as a new member to the project with the new permission levels.
@@ -171,7 +171,7 @@ The setting can set to "None", "Maintainers", or "Developers + Maintainers".
 
 ## Transfer projects into groups
 
-Learn how to [transfer a project into a group](../project/index.md#transfer-an-existing-project-into-a-group).
+Learn how to [transfer a project into a group](../project/settings/index.md#transferring-an-existing-project-into-another-namespace).
 
 ## Sharing a project with a group
 
@@ -271,7 +271,7 @@ working together in a project.
 To inherit the group membership, you share the project between the
 two groups A and B. **Share with group lock** prevents any project within
 the group from being shared with another group. By doing so, you
-guarantee only the right group members have access to that projects.
+guarantee only the right group members have access to those projects.
 
 To enable this feature, navigate to the group settings page. Select
 **Share with group lock** and **Save the group**.
@@ -280,25 +280,26 @@ To enable this feature, navigate to the group settings page. Select
 
 #### Member Lock **[STARTER]**
 
-With **Member Lock** it is possible to lock membership in project to the
-level of members in group.
+With Member lock, it is possible to lock membership in a project to the
+level of members in the group.
 
-Member Lock lets a group owner to lock down any new project membership to all the
+Member lock lets a group owner lock down any new project membership to all the
 projects within the group, allowing tighter control over project membership.
-Learn more about [Member Lock](https://docs.gitlab.com/ee/user/group/index.html#member-lock).
 
 For instance, if you want to lock the group for an [Audit Event](../../administration/audit_events.md),
-you enable Member Lock to guarantee that any membership is added or changed
-during the audition.
+you enable Member lock to guarantee that membership of a project cannot be modified during that audit.
 
-To enable this feature, navigate to group settings page, select **Member lock**
-and **Save group**.
+To enable this feature:
 
-![Checkbox for membership lock](img/membership_lock.png)
+1. Navigate to the group's **Settings > General** page.
+1. Expand the **Permissions, LFS, 2FA** section and select **Member lock**.
+1. Click the **Save changes** button.
+
+![Checkbox for membership lock](img/member_lock.png)
 
 This will disable the option for all users who previously had permissions to
 operate project memberships so no new users can be added. Furthermore, any
-request to add new user to project through API will not be possible.
+request to add a new user to a project through API will not be possible.
 
 #### Group file templates **[PREMIUM]**
 
@@ -332,18 +333,18 @@ Define project templates at a group-level by setting a group as a template sourc
 ### Advanced settings
 
 - **Projects**: view all projects within that group, add members to each project,
-access each project's settings, and remove any project from the same screen.
+  access each project's settings, and remove any project from the same screen.
 - **Webhooks**: configure [webhooks](../project/integrations/webhooks.md) to your group.
 - **Kubernetes cluster integration**: connect your GitLab group with [Kubernetes clusters](clusters/index.md).
 - **Audit Events**: view [Audit Events](https://docs.gitlab.com/ee/administration/audit_events.html#audit-events)
-for the group. **[STARTER ONLY]**
+  for the group. **[STARTER ONLY]**
 - **Pipelines quota**: keep track of the [pipeline quota](../admin_area/settings/continuous_integration.md) for the group.
 
 ## User contribution analysis **[STARTER]**
 
 With [GitLab Contribution Analytics](contribution_analytics/index.md)
 you have an overview of the contributions (pushes, merge requests,
-and issues) performed my your group members.
+and issues) performed by your group members.
 
 ## Issues analytics **[PREMIUM]**
 

@@ -25,7 +25,9 @@ module Ci
         origin_ref: params[:ref],
         checkout_sha: params[:checkout_sha],
         after_sha: params[:after],
-        before_sha: params[:before],
+        before_sha: params[:before],          # The base SHA of the source branch (i.e merge_request.diff_base_sha).
+        source_sha: params[:source_sha],      # The HEAD SHA of the source branch (i.e merge_request.diff_head_sha).
+        target_sha: params[:target_sha],      # The HEAD SHA of the target branch.
         trigger_request: trigger_request,
         schedule: schedule,
         merge_request: merge_request,
@@ -36,7 +38,8 @@ module Ci
         project: project,
         current_user: current_user,
         push_options: params[:push_options],
-        **extra_options(**options))
+        chat_data: params[:chat_data],
+        **extra_options(options))
 
       sequence = Gitlab::Ci::Pipeline::Chain::Sequence
         .new(pipeline, command, SEQUENCE)
@@ -108,8 +111,13 @@ module Ci
     end
     # rubocop: enable CodeReuse/ActiveRecord
 
-    def extra_options
-      {} # overriden in EE
+    def extra_options(options = {})
+      # In Ruby 2.4, even when options is empty, f(**options) doesn't work when f
+      # doesn't have any parameters. We reproduce the Ruby 2.5 behavior by
+      # checking explicitly that no arguments are given.
+      raise ArgumentError if options.any?
+
+      {} # overridden in EE
     end
   end
 end

@@ -52,6 +52,23 @@ describe SendFileUpload do
       end
     end
 
+    context 'with inline image' do
+      let(:filename) { 'test.png' }
+      let(:params) { { disposition: 'inline', attachment: filename } }
+
+      it 'sends a file with inline disposition' do
+        # Notice the filename= is omitted from the disposition; this is because
+        # Rails 5 will append this header in send_file
+        expected_params = {
+          filename: 'test.png',
+          disposition: "inline; filename*=UTF-8''test.png"
+        }
+        expect(controller).to receive(:send_file).with(uploader.path, expected_params)
+
+        subject
+      end
+    end
+
     context 'with attachment' do
       let(:filename) { 'test.js' }
       let(:params) { { attachment: filename } }
@@ -95,7 +112,7 @@ describe SendFileUpload do
 
         it 'sends a file with a custom type' do
           headers = double
-          expected_headers = %r(response-content-disposition=attachment%3B%20filename%3D%22test.js%22%3B%20filename%2A%3DUTF-8%27%27test.js&response-content-type=application/ecmascript)
+          expected_headers = /response-content-disposition=attachment%3B%20filename%3D%22test.js%22%3B%20filename%2A%3DUTF-8%27%27test.js&response-content-type=application%2Fecmascript/
           expect(Gitlab::Workhorse).to receive(:send_url).with(expected_headers).and_call_original
           expect(headers).to receive(:store).with(Gitlab::Workhorse::SEND_DATA_HEADER, /^send-url:/)
 

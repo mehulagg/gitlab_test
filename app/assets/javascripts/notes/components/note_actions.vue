@@ -25,11 +25,6 @@ export default {
       type: [String, Number],
       required: true,
     },
-    discussionId: {
-      type: String,
-      required: false,
-      default: '',
-    },
     noteUrl: {
       type: String,
       required: false,
@@ -130,6 +125,11 @@ export default {
     onResolve() {
       this.$emit('handleResolve');
     },
+    closeTooltip() {
+      this.$nextTick(() => {
+        this.$root.$emit('bv::hide::tooltip');
+      });
+    },
   },
   showStaysResolved: true,
 };
@@ -140,6 +140,7 @@ export default {
     <span v-if="accessLevel" class="note-role user-access-role">{{ accessLevel }}</span>
     <div v-if="canResolve" class="note-actions-item">
       <button
+        ref="resolveButton"
         v-gl-tooltip
         :class="{ 'is-disabled': !resolvable, 'is-active': isResolved }"
         :title="resolveButtonTitle"
@@ -175,7 +176,7 @@ export default {
       v-if="showReplyButton"
       ref="replyButton"
       class="js-reply-button"
-      :note-id="discussionId"
+      @startReplying="$emit('startReplying')"
     />
     <div v-if="canEdit" class="note-actions-item">
       <button
@@ -206,6 +207,7 @@ export default {
         title="More actions"
         class="note-action-button more-actions-toggle btn btn-transparent"
         data-toggle="dropdown"
+        @click="closeTooltip"
       >
         <icon css-classes="icon" name="ellipsis_v" />
       </button>

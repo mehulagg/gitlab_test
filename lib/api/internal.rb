@@ -77,6 +77,7 @@ module API
         when ::Gitlab::GitAccessResult::Success
           payload = {
             gl_repository: gl_repository,
+            gl_project_path: gl_project_path,
             gl_id: Gitlab::GlId.gl_id(user),
             gl_username: user&.username,
             git_config_options: [],
@@ -117,13 +118,7 @@ module API
           raise ActiveRecord::RecordNotFound.new("No key_id or user_id passed!")
         end
 
-        token_handler = Gitlab::LfsToken.new(actor)
-
-        {
-          username: token_handler.actor_name,
-          lfs_token: token_handler.token,
-          repository_http_path: project.lfs_http_url_to_repo(params[:operation])
-        }
+        Gitlab::LfsToken.new(actor).authentication_payload(project.lfs_http_url_to_repo(params[:operation]))
       end
       # rubocop: enable CodeReuse/ActiveRecord
 

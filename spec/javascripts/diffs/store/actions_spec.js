@@ -29,6 +29,7 @@ import actions, {
   renderFileForDiscussionId,
   setRenderTreeList,
   setShowWhitespace,
+  setRenderIt,
 } from '~/diffs/store/actions';
 import eventHub from '~/notes/event_hub';
 import * as types from '~/diffs/store/mutation_types';
@@ -99,9 +100,10 @@ describe('DiffsStoreActions', () => {
   });
 
   describe('setHighlightedRow', () => {
-    it('should set lineHash and fileHash of highlightedRow', () => {
+    it('should mark currently selected diff and set lineHash and fileHash of highlightedRow', () => {
       testAction(setHighlightedRow, 'ABC_123', {}, [
         { type: types.SET_HIGHLIGHTED_ROW, payload: 'ABC_123' },
+        { type: types.UPDATE_CURRENT_DIFF_FILE_ID, payload: 'ABC' },
       ]);
     });
   });
@@ -262,12 +264,16 @@ describe('DiffsStoreActions', () => {
           {
             id: 1,
             renderIt: false,
-            collapsed: false,
+            viewer: {
+              collapsed: false,
+            },
           },
           {
             id: 2,
             renderIt: false,
-            collapsed: false,
+            viewer: {
+              collapsed: false,
+            },
           },
         ],
       };
@@ -708,22 +714,6 @@ describe('DiffsStoreActions', () => {
 
       expect(commit).toHaveBeenCalledWith(types.UPDATE_CURRENT_DIFF_FILE_ID, 'test');
     });
-
-    it('resets currentDiffId after timeout', () => {
-      const state = {
-        treeEntries: {
-          path: {
-            fileHash: 'test',
-          },
-        },
-      };
-
-      scrollToFile({ state, commit }, 'path');
-
-      jasmine.clock().tick(1000);
-
-      expect(commit.calls.argsFor(1)).toEqual([types.UPDATE_CURRENT_DIFF_FILE_ID, '']);
-    });
   });
 
   describe('toggleShowTreeList', () => {
@@ -766,7 +756,9 @@ describe('DiffsStoreActions', () => {
       diffFiles: [
         {
           file_hash: 'HASH',
-          collapsed,
+          viewer: {
+            collapsed,
+          },
           renderIt,
         },
       ],
@@ -847,6 +839,12 @@ describe('DiffsStoreActions', () => {
       setShowWhitespace({ commit() {} }, { showWhitespace: true, pushState: true });
 
       expect(window.history.pushState).toHaveBeenCalled();
+    });
+  });
+
+  describe('setRenderIt', () => {
+    it('commits RENDER_FILE', done => {
+      testAction(setRenderIt, 'file', {}, [{ type: types.RENDER_FILE, payload: 'file' }], [], done);
     });
   });
 });

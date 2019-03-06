@@ -511,13 +511,11 @@ flaky-examples-check:
 
 .assets-compile-cache: &assets-compile-cache
   cache:
-    key: "assets-compile:vendor_ruby:.yarn-cache:tmp_cache_assets_sprockets:v4"
+    key: "assets-compile:vendor_ruby:.yarn-cache:tmp_cache_assets_sprockets:v5"
     paths:
       - vendor/ruby/
       - .yarn-cache/
-      # We have disabled caching of sprockets for now, as it fails to pick up changes in SCSS:
-      # https://gitlab.com/gitlab-org/gitlab-ce/issues/57431
-      # - tmp/cache/assets/sprockets
+      - tmp/cache/assets/sprockets
 
 compile-assets:
   <<: *dedicated-runner
@@ -634,6 +632,7 @@ rspec-mysql:
   parallel: 50
 
 .rspec-quarantine: &rspec-quarantine
+  retry: 0
   script:
     - export CACHE_CLASSES=true
     - scripts/gitaly-test-spawn
@@ -663,6 +662,7 @@ rspec-pg-10 geo: *rspec-metadata-pg-geo-10-2
 
 
 .rspec-quarantine-ee: &rspec-quarantine-ee
+  retry: 0
   script:
     - export CACHE_CLASSES=true
     - scripts/gitaly-test-spawn
@@ -840,8 +840,8 @@ gitlab:assets:compile:
     - //@gitlab/gitlabhq
     - //@gitlab/gitlab-ee
   tags:
-    - gitlab-org-delivery
-    - high-cpu
+    - docker
+    - gitlab-org
 
 karma:
   <<: *dedicated-no-docs-pull-cache-job
@@ -1215,6 +1215,20 @@ review-qa-all:
   script:
     - gitlab-qa Test::Instance::Any "${QA_IMAGE}" "${CI_ENVIRONMENT_URL}"
   when: manual
+
+review-performance:
+  <<: *review-qa-base
+  script:
+    - mkdir gitlab-exporter
+    - wget -O ./gitlab-exporter/index.js https://gitlab.com/gitlab-org/gl-performance/raw/master/index.js
+    - mkdir sitespeed-results
+    - docker run --shm-size=1g --rm -v "$(pwd)":/sitespeed.io sitespeedio/sitespeed.io:6.3.1 --plugins.add ./gitlab-exporter --outputFolder sitespeed-results "$CI_ENVIRONMENT_URL"
+    - mv sitespeed-results/data/performance.json performance.json
+  artifacts:
+    paths:
+      - sitespeed-results/
+    reports:
+      performance: performance.json
 
 review-stop:
   <<: *review-base

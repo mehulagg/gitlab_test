@@ -41,7 +41,7 @@ The following languages and package managers are supported.
 ## How it works
 
 First of all, you need to define a job in your `.gitlab-ci.yml` file that generates the
-[License Management report artifact](../../../ci/yaml/README.md#artifactsreportslicense_management).
+[License Management report artifact](../../../ci/yaml/README.md#artifactsreportslicense_management-ultimate).
 For more information on how the License Management job should look like, check the
 example on [Dependencies license management with GitLab CI/CD](../../../ci/examples/license_management.md).
 
@@ -64,7 +64,7 @@ the choice to approve it or blacklist it.
 
 ![License approval decision](img/license_management_decision.png)
 
-### Manual license management
+### Project policies for license management
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/5940)
 in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.4.

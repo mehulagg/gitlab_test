@@ -21,6 +21,7 @@ module Geo
 
     def initialize(project)
       @project = project
+      @new_repository = false
     end
 
     def execute
@@ -53,22 +54,18 @@ module Geo
 
       if redownload?
         redownload_repository
-        schedule_repack
+        @new_repository = true
       elsif repository.exists?
         fetch_geo_mirror(repository)
       else
         ensure_repository
         fetch_geo_mirror(repository)
-        schedule_repack
+        @new_repository = true
       end
     end
 
     def redownload?
       registry.should_be_redownloaded?(type)
-    end
-
-    def schedule_repack
-      raise NotImplementedError
     end
 
     def redownload_repository
@@ -103,12 +100,11 @@ module Geo
 
     # Build a JWT header for authentication
     def jwt_authentication_header
-      authorization = ::Gitlab::Geo::RepoSyncRequest.new(scope: gl_repository).authorization
-      { "http.#{remote_url}.extraHeader" => "Authorization: #{authorization}" }
-    end
+      authorization = ::Gitlab::Geo::RepoSyncRequest.new(
+        scope: project.repository.full_path
+      ).authorization
 
-    def gl_repository
-      "#{type}-#{project.id}"
+      { "http.#{remote_url}.extraHeader" => "Authorization: #{authorization}" }
     end
 
     def remote_url
@@ -263,6 +259,10 @@ module Geo
         project.repository_storage,
         File.dirname(disk_path)
       )
+    end
+
+    def new_repository?
+      @new_repository
     end
   end
 end

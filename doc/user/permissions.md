@@ -14,7 +14,7 @@ be able to create issues, leave comments, and clone or download the project code
 When a member leaves the team all the assigned [Issues](project/issues/index.md) and [Merge Requests](project/merge_requests/index.md)
 will be unassigned automatically.
 
-GitLab [administrators](../README.md#administrator-documentation) receive all permissions.
+GitLab [administrators](../administration/index.md) receive all permissions.
 
 To add or import a user, you can follow the
 [project members documentation](../user/project/members/index.md).
@@ -60,6 +60,7 @@ The following table depicts the various user permission levels in a project.
 | Manage related issues **[STARTER]**   |         | ✓          | ✓           | ✓        | ✓      |
 | Lock issue discussions                |         | ✓          | ✓           | ✓        | ✓      |
 | Create issue from vulnerability **[ULTIMATE]** |         | ✓          | ✓           | ✓        | ✓      |
+| View Error Tracking list              |         | ✓          | ✓           | ✓        | ✓      |
 | Lock merge request discussions        |         |            | ✓           | ✓        | ✓      |
 | Create new environments               |         |            | ✓           | ✓        | ✓      |
 | Stop environments                     |         |            | ✓           | ✓        | ✓      |
@@ -76,7 +77,7 @@ The following table depicts the various user permission levels in a project.
 | Update a container registry           |         |            | ✓           | ✓        | ✓      |
 | Remove a container registry image     |         |            | ✓           | ✓        | ✓      |
 | Create/edit/delete project milestones |         |            | ✓           | ✓        | ✓      |
-| View approved/blacklisted licenses **[ULTIMATE]** |         |            | ✓           | ✓        | ✓      |
+| View approved/blacklisted licenses **[ULTIMATE]** | ✓       | ✓          | ✓           | ✓        | ✓      |
 | Use security dashboard **[ULTIMATE]** |         |            | ✓           | ✓        | ✓      |
 | Dismiss vulnerability **[ULTIMATE]**  |         |            | ✓           | ✓        | ✓      |
 | Apply code change suggestions         |         |            | ✓           | ✓        | ✓      |
@@ -96,19 +97,20 @@ The following table depicts the various user permission levels in a project.
 | Manage variables                      |         |            |             | ✓        | ✓      |
 | Manage GitLab Pages                   |         |            |             | ✓        | ✓      |
 | Manage GitLab Pages domains and certificates |         |            |             | ✓        | ✓      |
-| Remove GitLab Pages                   |         |            |             |          | ✓      |
+| Remove GitLab Pages                   |         |            |             | ✓        | ✓      |
 | View GitLab Pages protected by [access control](project/pages/introduction.md#gitlab-pages-access-control-core-only) | ✓       | ✓          | ✓           | ✓        | ✓      |
 | Manage clusters                       |         |            |             | ✓        | ✓      |
 | Manage license policy **[ULTIMATE]**  |         |            |             | ✓        | ✓      |
 | Edit comments (posted by any user)    |         |            |             | ✓        | ✓      |
+| Manage Error Tracking                 |         |            |             | ✓        | ✓      |
 | Switch visibility level               |         |            |             |          | ✓      |
 | Transfer project to another namespace |         |            |             |          | ✓      |
 | Remove project                        |         |            |             |          | ✓      |
 | Delete issues                         |         |            |             |          | ✓      |
-| Remove pages                          |         |            |             |          | ✓      |
 | Force push to protected branches [^4] |         |            |             |          |        |
 | Remove protected branches [^4]        |         |            |             |          |        |
 | View project Audit Events             |         |            |             | ✓        | ✓      |
+| View project statistics               |         |            |             | ✓        | ✓      |
 
 ## Project features permissions
 
@@ -180,7 +182,7 @@ group.
 | Browse group            | ✓     | ✓        | ✓         | ✓      | ✓     |
 | Edit group              |       |          |           |        | ✓     |
 | Create subgroup         |       |          |           |        | ✓     |
-| Create project in group |       |          |           | ✓      | ✓     |
+| Create project in group |       |          |  ✓         | ✓      | ✓     |
 | Manage group members    |       |          |           |        | ✓     |
 | Remove group            |       |          |           |        | ✓     |
 | Manage group labels     |       | ✓        | ✓         | ✓      | ✓     |

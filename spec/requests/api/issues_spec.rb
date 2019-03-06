@@ -49,7 +49,7 @@ describe API::Issues do
     create(:label, title: 'label', color: '#FFAABB', project: project)
   end
   let!(:label_link) { create(:label_link, label: label, target: issue) }
-  set(:milestone) { create(:milestone, title: '1.0.0', project: project) }
+  let(:milestone) { create(:milestone, title: '1.0.0', project: project) }
   set(:empty_milestone) do
     create(:milestone, title: '2.0.0', project: project)
   end
@@ -185,6 +185,18 @@ describe API::Issues do
         get api('/issues', user), params: { assignee_id: 'Any', scope: 'all' }
 
         expect_paginated_array_response([issue.id, confidential_issue.id, closed_issue.id])
+      end
+
+      it 'returns only confidential issues' do
+        get api('/issues', user), params: { confidential: true, scope: 'all' }
+
+        expect_paginated_array_response(confidential_issue.id)
+      end
+
+      it 'returns only public issues' do
+        get api('/issues', user), params: { confidential: false }
+
+        expect_paginated_array_response([issue.id, closed_issue.id])
       end
 
       it 'returns issues reacted by the authenticated user' do
@@ -358,15 +370,43 @@ describe API::Issues do
       end
 
       it 'returns an empty array if iid does not exist' do
-        get api("/issues", user), params: { iids: [99999] }
+        get api("/issues", user), params: { iids: [0] }
 
         expect_paginated_array_response([])
       end
 
-      it 'sorts by created_at descending by default' do
-        get api('/issues', user)
+      context 'without sort params' do
+        it 'sorts by created_at descending by default' do
+          get api('/issues', user)
 
-        expect_paginated_array_response([issue.id, closed_issue.id])
+          expect_paginated_array_response([issue.id, closed_issue.id])
+        end
+
+        context 'with 2 issues with same created_at' do
+          let!(:closed_issue2) do
+            create :closed_issue,
+                   author: user,
+                   assignees: [user],
+                   project: project,
+                   milestone: milestone,
+                   created_at: closed_issue.created_at,
+                   updated_at: 1.hour.ago,
+                   title: issue_title,
+                   description: issue_description
+          end
+
+          it 'page breaks first page correctly' do
+            get api('/issues?per_page=2', user)
+
+            expect_paginated_array_response([issue.id, closed_issue2.id])
+          end
+
+          it 'page breaks second page correctly' do
+            get api('/issues?per_page=2&page=2', user)
+
+            expect_paginated_array_response([closed_issue.id])
+          end
+        end
       end
 
       it 'sorts ascending when requested' do
@@ -396,6 +436,24 @@ describe API::Issues do
 
         expect(response).to have_gitlab_http_status(200)
         expect(response).to match_response_schema('public_api/v4/issues')
+      end
+
+      it 'returns a related merge request count of 0 if there are no related merge requests' do
+        get api('/issues', user)
+
+        expect(response).to have_gitlab_http_status(200)
+        expect(response).to match_response_schema('public_api/v4/issues')
+        expect(json_response.first).to include('merge_requests_count' => 0)
+      end
+
+      it 'returns a related merge request count > 0 if there are related merge requests' do
+        create(:merge_requests_closing_issues, issue: issue)
+
+        get api('/issues', user)
+
+        expect(response).to have_gitlab_http_status(200)
+        expect(response).to match_response_schema('public_api/v4/issues')
+        expect(json_response.first).to include('merge_requests_count' => 1)
       end
     end
   end
@@ -515,6 +573,18 @@ describe API::Issues do
         expect_paginated_array_response([group_confidential_issue.id, group_issue.id])
       end
 
+      it 'returns only confidential issues' do
+        get api(base_url, user), params: { confidential: true }
+
+        expect_paginated_array_response(group_confidential_issue.id)
+      end
+
+      it 'returns only public issues' do
+        get api(base_url, user), params: { confidential: false }
+
+        expect_paginated_array_response([group_closed_issue.id, group_issue.id])
+      end
+
       it 'returns an array of labeled group issues' do
         get api(base_url, user), params: { labels: group_label.title }
 
@@ -561,7 +631,7 @@ describe API::Issues do
       end
 
       it 'returns an empty array if iid does not exist' do
-        get api(base_url, user), params: { iids: [99999] }
+        get api(base_url, user), params: { iids: [0] }
 
         expect_paginated_array_response([])
       end
@@ -617,10 +687,38 @@ describe API::Issues do
         expect_paginated_array_response(group_confidential_issue.id)
       end
 
-      it 'sorts by created_at descending by default' do
-        get api(base_url, user)
+      context 'without sort params' do
+        it 'sorts by created_at descending by default' do
+          get api(base_url, user)
 
-        expect_paginated_array_response([group_closed_issue.id, group_confidential_issue.id, group_issue.id])
+          expect_paginated_array_response([group_closed_issue.id, group_confidential_issue.id, group_issue.id])
+        end
+
+        context 'with 2 issues with same created_at' do
+          let!(:group_issue2) do
+            create :issue,
+                   author: user,
+                   assignees: [user],
+                   project: group_project,
+                   milestone: group_milestone,
+                   updated_at: 1.hour.ago,
+                   title: issue_title,
+                   description: issue_description,
+                   created_at: group_issue.created_at
+          end
+
+          it 'page breaks first page correctly' do
+            get api("#{base_url}?per_page=3", user)
+
+            expect_paginated_array_response([group_closed_issue.id, group_confidential_issue.id, group_issue2.id])
+          end
+
+          it 'page breaks second page correctly' do
+            get api("#{base_url}?per_page=3&page=2", user)
+
+            expect_paginated_array_response([group_issue.id])
+          end
+        end
       end
 
       it 'sorts ascending when requested' do
@@ -712,6 +810,18 @@ describe API::Issues do
       expect_paginated_array_response([issue.id, confidential_issue.id, closed_issue.id])
     end
 
+    it 'returns only confidential issues' do
+      get api("#{base_url}/issues", author), params: { confidential: true }
+
+      expect_paginated_array_response(confidential_issue.id)
+    end
+
+    it 'returns only public issues' do
+      get api("#{base_url}/issues", author), params: { confidential: false }
+
+      expect_paginated_array_response([issue.id, closed_issue.id])
+    end
+
     it 'returns project confidential issues for assignee' do
       get api("#{base_url}/issues", assignee)
 
@@ -767,7 +877,7 @@ describe API::Issues do
     end
 
     it 'returns an empty array if iid does not exist' do
-      get api("#{base_url}/issues", user), params: { iids: [99999] }
+      get api("#{base_url}/issues", user), params: { iids: [0] }
 
       expect_paginated_array_response([])
     end
@@ -832,10 +942,38 @@ describe API::Issues do
       expect_paginated_array_response([issue.id, closed_issue.id])
     end
 
-    it 'sorts by created_at descending by default' do
-      get api("#{base_url}/issues", user)
+    context 'without sort params' do
+      it 'sorts by created_at descending by default' do
+        get api("#{base_url}/issues", user)
 
-      expect_paginated_array_response([issue.id, confidential_issue.id, closed_issue.id])
+        expect_paginated_array_response([issue.id, confidential_issue.id, closed_issue.id])
+      end
+
+      context 'with 2 issues with same created_at' do
+        let!(:closed_issue2) do
+          create :closed_issue,
+                 author: user,
+                 assignees: [user],
+                 project: project,
+                 milestone: milestone,
+                 created_at: closed_issue.created_at,
+                 updated_at: 1.hour.ago,
+                 title: issue_title,
+                 description: issue_description
+        end
+
+        it 'page breaks first page correctly' do
+          get api("#{base_url}/issues?per_page=3", user)
+
+          expect_paginated_array_response([issue.id, confidential_issue.id, closed_issue2.id])
+        end
+
+        it 'page breaks second page correctly' do
+          get api("#{base_url}/issues?per_page=3&page=2", user)
+
+          expect_paginated_array_response([closed_issue.id])
+        end
+      end
     end
 
     it 'sorts ascending when requested' do
@@ -1775,7 +1913,7 @@ describe API::Issues do
     end
 
     it "returns 404 when issue doesn't exists" do
-      get api("/projects/#{project.id}/issues/9999/closed_by", user)
+      get api("/projects/#{project.id}/issues/0/closed_by", user)
 
       expect(response).to have_gitlab_http_status(404)
     end
@@ -1796,7 +1934,7 @@ describe API::Issues do
         description: "See #{issue.to_reference}"
       }
       create(:merge_request, attributes).tap do |merge_request|
-        create(:note, :system, project: project, noteable: issue, author: user, note: merge_request.to_reference(full: true))
+        create(:note, :system, project: issue.project, noteable: issue, author: user, note: merge_request.to_reference(full: true))
       end
     end
 
@@ -1833,6 +1971,24 @@ describe API::Issues do
       expect_paginated_array_response(related_mr.id)
     end
 
+    it 'returns merge requests cross-project wide' do
+      project2 = create(:project, :public, creator_id: user.id, namespace: user.namespace)
+      merge_request = create_referencing_mr(user, project2, issue)
+
+      get_related_merge_requests(project.id, issue.iid, user)
+
+      expect_paginated_array_response([related_mr.id, merge_request.id])
+    end
+
+    it 'does not generate references to projects with no access' do
+      private_project = create(:project, :private)
+      create_referencing_mr(private_project.creator, private_project, issue)
+
+      get_related_merge_requests(project.id, issue.iid, user)
+
+      expect_paginated_array_response(related_mr.id)
+    end
+
     context 'no merge request mentioned a issue' do
       it 'returns empty array' do
         get_related_merge_requests(project.id, closed_issue.iid, user)
@@ -1842,7 +1998,7 @@ describe API::Issues do
     end
 
     it "returns 404 when issue doesn't exists" do
-      get_related_merge_requests(project.id, 999999, user)
+      get_related_merge_requests(project.id, 0, user)
 
       expect(response).to have_gitlab_http_status(404)
     end

@@ -435,7 +435,6 @@ describe MergeRequest do
       it 'does not cache issues from external trackers' do
         issue  = ExternalIssue.new('JIRA-123', subject.project)
         commit = double('commit1', safe_message: "Fixes #{issue.to_reference}")
-
         allow(subject).to receive(:commits).and_return([commit])
 
         expect { subject.cache_merge_request_closes_issues!(subject.author) }.not_to raise_error
@@ -1024,23 +1023,23 @@ describe MergeRequest do
     end
   end
 
-  describe '#committers' do
-    it 'returns all the committers of every commit in the merge request' do
-      users = subject.commits.map(&:committer_email).uniq.map do |email|
+  describe '#commit_authors' do
+    it 'returns all the authors of every commit in the merge request' do
+      users = subject.commits.map(&:author_email).uniq.map do |email|
         create(:user, email: email)
       end
 
-      expect(subject.committers).to match_array(users)
+      expect(subject.commit_authors).to match_array(users)
     end
 
-    it 'returns an empty array if no committer is associated with a user' do
-      expect(subject.committers).to be_empty
+    it 'returns an empty array if no author is associated with a user' do
+      expect(subject.commit_authors).to be_empty
     end
   end
 
   describe '#authors' do
-    it 'returns a list with all the committers in the merge request and author' do
-      users = subject.commits.map(&:committer_email).uniq.map do |email|
+    it 'returns a list with all the commit authors in the merge request and author' do
+      users = subject.commits.map(&:author_email).uniq.map do |email|
         create(:user, email: email)
       end
 
@@ -1333,7 +1332,7 @@ describe MergeRequest do
 
       let!(:merge_request_pipeline) do
         create(:ci_pipeline,
-               source: :merge_request,
+               source: :merge_request_event,
                project: project,
                ref: source_ref,
                sha: shas.second,
@@ -1372,7 +1371,7 @@ describe MergeRequest do
 
         let!(:merge_request_pipeline_2) do
           create(:ci_pipeline,
-                 source: :merge_request,
+                 source: :merge_request_event,
                  project: project,
                  ref: source_ref,
                  sha: shas.first,
@@ -1399,7 +1398,7 @@ describe MergeRequest do
 
         let!(:merge_request_pipeline_2) do
           create(:ci_pipeline,
-                 source: :merge_request,
+                 source: :merge_request_event,
                  project: project,
                  ref: source_ref,
                  sha: shas.first,
@@ -2600,33 +2599,14 @@ describe MergeRequest do
       }
     end
 
-    let(:project)       { create(:project, :public, :repository) }
-    let(:merge_request) { create(:merge_request, source_project: project) }
-
-    let!(:first_pipeline) { create(:ci_pipeline_without_jobs, pipeline_arguments) }
-    let!(:last_pipeline) { create(:ci_pipeline_without_jobs, pipeline_arguments) }
-
-    it 'returns latest pipeline' do
-      expect(merge_request.base_pipeline).to eq(last_pipeline)
-    end
-  end
-
-  describe '#base_pipeline' do
-    let(:pipeline_arguments) do
-      {
-        project: project,
-        ref: merge_request.target_branch,
-        sha: merge_request.diff_base_sha
-      }
-    end
-
     let(:project) { create(:project, :public, :repository) }
     let(:merge_request) { create(:merge_request, source_project: project) }
 
     let!(:first_pipeline) { create(:ci_pipeline_without_jobs, pipeline_arguments) }
     let!(:last_pipeline) { create(:ci_pipeline_without_jobs, pipeline_arguments) }
+    let!(:last_pipeline_with_other_ref) { create(:ci_pipeline_without_jobs, pipeline_arguments.merge(ref: 'other')) }
 
-    it 'returns latest pipeline' do
+    it 'returns latest pipeline for the target branch' do
       expect(merge_request.base_pipeline).to eq(last_pipeline)
     end
   end

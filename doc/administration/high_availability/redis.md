@@ -1,6 +1,103 @@
-# Configuring Redis for GitLab HA
+# Configuring Redis for Scaling and High Availability
 
-> Experimental Redis Sentinel support was [Introduced][ce-1877] in GitLab 8.11.
+## Provide your own Redis instance **[CORE ONLY]**
+
+The following are the requirements for providing your own Redis instance:
+
+- Redis version 2.8 or higher. Version 3.2 or higher is recommend as this is
+  what ships with the GitLab Omnibus package.
+- Standalone Redis or Redis high availability with Sentinel are supported. Redis
+  Cluster is not supported.
+- Managed Redis from cloud providers such as AWS Elasticache will work. If these
+  services support high availability, be sure it is not the Redis Cluster type.
+
+Note the Redis node's IP address or hostname, port, and password (if required).
+These will be necessary when configuring the GitLab application servers later.
+
+## Redis in a Scaled Environment
+
+This section is relevant for [Scaled Architecture](./README.md#scalable-architecture-examples)
+environments including [Basic Scaling](./README.md#basic-scaling) and
+[Full Scaling](./README.md#full-scaling).
+
+### Provide your own Redis instance **[CORE ONLY]**
+
+If you want to use your own deployed Redis instance(s), 
+see [Provide your own Redis instance](#provide-your-own-redis-instance-core-only) 
+for more details. However, you can use the GitLab Omnibus package to easily 
+deploy the bundled Redis.  
+
+### Standalone Redis using GitLab Omnibus **[CORE ONLY]**
+
+The GitLab Omnibus package can be used to configure a standalone Redis server.
+In this configuration Redis is not highly available, and represents a single
+point of failure. However, in a scaled environment the objective is to allow
+the environment to handle more users or to increase throughput. Redis itself
+is generally stable and can handle many requests so it is an acceptable
+trade off to have only a single instance. See [Scaling and High Availability](./README.md)
+for an overview of GitLab scaling and high availability options.
+
+The steps below are the minimum necessary to configure a Redis server with
+Omnibus:
+
+1. SSH into the Redis server.
+1. [Download/install](https://about.gitlab.com/installation) the Omnibus GitLab
+   package you want using **steps 1 and 2** from the GitLab downloads page.
+     - Do not complete any other steps on the download page.
+
+1. Edit `/etc/gitlab/gitlab.rb` and add the contents:
+
+    ```ruby
+    ## Enable Redis
+    redis['enable'] = true
+
+    ## Disable all other services
+    sidekiq['enable'] = false
+    gitlab_workhorse['enable'] = false
+    unicorn['enable'] = false
+    postgresql['enable'] = false
+    nginx['enable'] = false
+    prometheus['enable'] = false
+    alertmanager['enable'] = false
+    pgbouncer_exporter['enable'] = false
+    gitlab_monitor['enable'] = false
+    gitaly['enable'] = false
+ 
+    redis['bind'] = '0.0.0.0'
+    redis['port'] = '6379'
+    redis['password'] = 'SECRET_PASSWORD_HERE'
+ 
+    gitlab_rails['auto_migrate'] = false
+    ```
+
+1. [Reconfigure Omnibus GitLab][reconfigure] for the changes to take effect.
+1. Note the Redis node's IP address or hostname, port, and
+   Redis password. These will be necessary when configuring the GitLab
+   application servers later.
+
+Advanced configuration options are supported and can be added if
+needed.
+
+Continue configuration of other components by going
+[back to Scaled Architectures](./README.md#scalable-architecture-examples)
+
+## Redis with High Availability
+
+This section is relevant for [High Availability Architecture](./README.md#high-availability-architecture-examples)
+environments including [Horizontal](./README.md#horizontal),
+[Hybrid](./README.md#hybrid), and
+[Fully Distributed](./README.md#fully-distributed).
+
+### Provide your own Redis instance **[CORE ONLY]**
+
+If you want to use your own deployed Redis instance(s), 
+see [Provide your own Redis instance](#provide-your-own-redis-instance-core-only) 
+for more details. However, you can use the GitLab Omnibus package to easily 
+deploy the bundled Redis.  
+
+### High Availability with GitLab Omnibus **[PREMIUM ONLY]**
+
+> Experimental Redis Sentinel support was [introduced in GitLab 8.11][ce-1877].
 Starting with 8.14, Redis Sentinel is no longer experimental.
 If you've used it with versions `< 8.14` before, please check the updated
 documentation here.
@@ -51,8 +148,6 @@ failure.
 
 Make sure that you read this document once as a whole before configuring the
 components below.
-
-### High Availability with Sentinel
 
 > **Notes:**
 > - Starting with GitLab `8.11`, you can configure a list of Redis Sentinel
@@ -363,11 +458,17 @@ following section assumes you are using Omnibus GitLab Enterprise Edition.
 For the Omnibus Community Edition and installations from source, follow the
 [Redis HA source install](redis_source.md) guide.
 
+NOTE: **Note:** If you are using an external Redis Sentinel instance, be sure
+to exclude the `requirepass` parameter from the Sentinel
+configuration. This parameter will cause clients to report `NOAUTH
+Authentication required.`. [Redis Sentinel 3.2.x does not support
+password authentication](https://github.com/antirez/redis/issues/3279).
+
 Now that the Redis servers are all set up, let's configure the Sentinel
 servers.
 
 If you are not sure if your Redis servers are working and replicating
-correctly, please read the [Troubleshooting Replication](#troubleshooting-replication)
+correctly, please read the [Troubleshooting Replication](#troubleshooting-redis-replication)
 and fix it before proceeding with Sentinel setup.
 
 You must have at least `3` Redis Sentinel servers, and they need to
@@ -851,7 +952,6 @@ To make sure your configuration is correct:
 
     You should see a different port after a few seconds delay
     (the failover/reconnect time).
-
 
 ## Changelog
 

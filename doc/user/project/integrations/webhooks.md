@@ -48,9 +48,9 @@ Navigate to the webhooks page by going to your project's
 ## Use-cases
 
 - You can set up a webhook in GitLab to send a notification to
-[Slack](https://api.slack.com/incoming-webhooks) every time a build fails, for example
+  [Slack](https://api.slack.com/incoming-webhooks) every time a build fails, for example
 - You can [integrate with Twilio to be notified via SMS](https://www.datadoghq.com/blog/send-alerts-sms-customizable-webhooks-twilio/)
-every time an issue is created for a specific project or group within GitLab
+  every time an issue is created for a specific project or group within GitLab
 - You can use them to [automatically assign labels to merge requests](https://about.gitlab.com/2016/08/19/applying-gitlab-labels-automatically/).
 
 ## Webhook endpoint tips
@@ -1227,6 +1227,15 @@ by uncommenting or adding the following setting to your `/etc/gitlab/gitlab.rb`:
 ```
 gitlab_rails['webhook_timeout'] = 10
 ```
+
+### Troubleshooting: "Unable to get local issuer certificate"
+
+When SSL verification is enabled, this error indicates that GitLab isn't able to verify the SSL certificate of the webhook endpoint.
+Typically, this is because the root certificate isn't issued by a trusted certification authority as
+determined by [CAcert.org](http://www.cacert.org/).
+
+Should that not be the case, consider using [SSL Checker](https://www.sslshopper.com/ssl-checker.html) to identify faults.
+Missing intermediate certificates are a common point of verification failure.
 
 ## Example webhook receiver
 

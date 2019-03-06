@@ -32,7 +32,8 @@ describe DraftNotes::PublishService do
 
   context 'multiple draft notes' do
     before do
-      create_list(:draft_note, 2, merge_request: merge_request, author: user)
+      create(:draft_note, merge_request: merge_request, author: user, note: 'first note')
+      create(:draft_note, merge_request: merge_request, author: user, note: 'second note')
     end
 
     context 'when review fails to create' do
@@ -63,6 +64,10 @@ describe DraftNotes::PublishService do
     it 'publishes all draft notes for a user in a merge request' do
       expect { publish }.to change { DraftNote.count }.by(-2).and change { Note.count }.by(2).and change { Review.count }.by(1)
       expect(DraftNote.count).to eq(0)
+
+      notes = merge_request.notes.order(id: :asc)
+      expect(notes.first.note).to eq('first note')
+      expect(notes.last.note).to eq('second note')
     end
 
     it 'sends batch notification' do
@@ -71,6 +76,82 @@ describe DraftNotes::PublishService do
       end
 
       publish
+    end
+  end
+
+  context 'draft notes with suggestions' do
+    let(:project) { create(:project, :repository) }
+    let(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
+
+    let(:suggestion_note) do
+      <<-MARKDOWN.strip_heredoc
+        ```suggestion
+          foo
+        ```
+      MARKDOWN
+    end
+
+    let!(:draft) { create(:draft_note_on_text_diff, note: suggestion_note, merge_request: merge_request, author: user) }
+
+    it 'creates a suggestion with correct content' do
+      expect { publish(draft: draft) }.to change { Suggestion.count }.by(1)
+        .and change { DiffNote.count }.from(0).to(1)
+
+      suggestion = Suggestion.last
+
+      expect(suggestion.from_line).to eq(14)
+      expect(suggestion.to_line).to eq(14)
+      expect(suggestion.from_content).to eq("    vars = {\n")
+      expect(suggestion.to_content).to eq("  foo\n")
+    end
+
+    context 'when the diff is changed' do
+      let(:file_path) { 'files/ruby/popen.rb' }
+      let(:branch_name) { project.default_branch }
+      let(:commit) { project.repository.commit }
+
+      def update_file(file_path, new_content)
+        params = {
+          file_path: file_path,
+          commit_message: "Update File",
+          file_content: new_content,
+          start_project: project,
+          start_branch: project.default_branch,
+          branch_name: branch_name
+        }
+
+        Files::UpdateService.new(project, user, params).execute
+      end
+
+      before do
+        project.add_developer(user)
+      end
+
+      it 'creates a suggestion based on the latest diff content and positions' do
+        diff_file = merge_request.diffs(paths: [file_path]).diff_files.first
+        raw_data = diff_file.new_blob.data
+
+        # Add a line break to the beginning of the file
+        result = update_file(file_path, raw_data.prepend("\n"))
+        oldrev = merge_request.diff_head_sha
+        newrev = result[:result]
+
+        expect(newrev).to be_present
+
+        # Generates new MR revision at DB level
+        refresh = MergeRequests::RefreshService.new(project, user)
+        refresh.execute(oldrev, newrev, merge_request.source_branch_ref)
+
+        expect { publish(draft: draft) }.to change { Suggestion.count }.by(1)
+          .and change { DiffNote.count }.from(0).to(1)
+
+        suggestion = Suggestion.last
+
+        expect(suggestion.from_line).to eq(15)
+        expect(suggestion.to_line).to eq(15)
+        expect(suggestion.from_content).to eq("    vars = {\n")
+        expect(suggestion.to_content).to eq("  foo\n")
+      end
     end
   end
 

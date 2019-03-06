@@ -33,13 +33,11 @@ describe('Security Reports modal', () => {
         expect(vm.$el.textContent.trim()).toContain('#123');
       });
 
-      it('renders button to revert dismissal', () => {
-        expect(vm.$el.querySelector('.js-dismiss-btn').textContent.trim()).toEqual(
-          'Revert dismissal',
-        );
+      it('renders button to undo dismiss', () => {
+        expect(vm.$el.querySelector('.js-dismiss-btn').textContent.trim()).toEqual('Undo dismiss');
       });
 
-      it('emits revertDismissIssue when revert dismissal button is clicked', () => {
+      it('emits revertDismissIssue when undo dismiss button is clicked', () => {
         spyOn(vm, '$emit');
 
         const button = vm.$el.querySelector('.js-dismiss-btn');
@@ -151,6 +149,7 @@ describe('Security Reports modal', () => {
         props.modal.title = 'Arbitrary file existence disclosure in Action Pack';
         props.modal.data.file.value = 'Gemfile.lock';
         props.modal.data.file.url = `${TEST_HOST}/path/Gemfile.lock`;
+        props.modal.data.severity = { value: 'critical' };
         vm = mountComponent(Component, props);
       });
 
@@ -168,6 +167,12 @@ describe('Security Reports modal', () => {
         expect(
           vm.$el.querySelector('.js-link-vulnerabilityFeedbackHelpPath').getAttribute('href'),
         ).toEqual('feedbacksHelpPath');
+      });
+
+      it('renders severity with a badge', () => {
+        const badge = vm.$el.querySelector('.severity-badge');
+
+        expect(badge.textContent).toContain('critical');
       });
     });
   });

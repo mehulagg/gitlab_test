@@ -62,7 +62,7 @@ module EE
               ::Feature.disabled?(:parse_dependency_scanning_reports, default_enabled: true)
 
           next if file_type == "container_scanning" &&
-              ::Feature.disabled?(:parse_container_scanning_reports, default_enabled: false)
+              ::Feature.disabled?(:parse_container_scanning_reports, default_enabled: true)
 
           next if file_type == "dast" &&
               ::Feature.disabled?(:parse_dast_reports, default_enabled: false)
@@ -81,6 +81,10 @@ module EE
 
       def collect_license_management_reports!(license_management_report)
         each_report(::Ci::JobArtifact::LICENSE_MANAGEMENT_REPORT_FILE_TYPES) do |file_type, blob|
+          next if ::Feature.disabled?(:parse_license_management_reports, default_enabled: true)
+
+          next unless project.feature_available?(:license_management)
+
           ::Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, license_management_report)
         end
 

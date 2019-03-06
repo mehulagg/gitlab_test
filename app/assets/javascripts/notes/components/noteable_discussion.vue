@@ -6,8 +6,7 @@ import { truncateSha } from '~/lib/utils/text_utility';
 import { s__, __, sprintf } from '~/locale';
 import systemNote from '~/vue_shared/components/notes/system_note.vue';
 import icon from '~/vue_shared/components/icon.vue';
-import batchCommentsDiffLineNoteFormMixin from 'ee/batch_comments/mixins/diff_line_note_form';
-import DraftNote from 'ee/batch_comments/components/draft_note.vue';
+import diffLineNoteFormMixin from 'ee_else_ce/notes/mixins/diff_line_note_form';
 import TimelineEntryItem from '~/vue_shared/components/notes/timeline_entry_item.vue';
 import Flash from '../../flash';
 import { SYSTEM_NOTE } from '../constants';
@@ -27,7 +26,9 @@ import noteable from '../mixins/noteable';
 import resolvable from '../mixins/resolvable';
 import discussionNavigation from '../mixins/discussion_navigation';
 import ReplyPlaceholder from './discussion_reply_placeholder.vue';
+import ResolveWithIssueButton from './discussion_resolve_with_issue_button.vue';
 import jumpToNextDiscussionButton from './discussion_jump_to_next_button.vue';
+import eventHub from '../event_hub';
 
 export default {
   name: 'NoteableDiscussion',
@@ -45,20 +46,15 @@ export default {
     ReplyPlaceholder,
     placeholderNote,
     placeholderSystemNote,
+    ResolveWithIssueButton,
     systemNote,
-    DraftNote,
+    DraftNote: () => import('ee_component/batch_comments/components/draft_note.vue'),
     TimelineEntryItem,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
   },
-  mixins: [
-    autosave,
-    noteable,
-    resolvable,
-    discussionNavigation,
-    batchCommentsDiffLineNoteFormMixin,
-  ],
+  mixins: [autosave, noteable, resolvable, discussionNavigation, diffLineNoteFormMixin],
   props: {
     discussion: {
       type: Object,
@@ -96,13 +92,13 @@ export default {
     return {
       isReplying: false,
       isResolving: false,
-      isUnresolving: false,
       resolveAsThread: true,
       isRepliesCollapsed: Boolean(!isDiffDiscussion && resolved),
     };
   },
   computed: {
     ...mapGetters([
+      'convertedDisscussionIds',
       'getNoteableData',
       'nextUnresolvedDiscussionId',
       'unresolvedDiscussionsCount',
@@ -242,6 +238,9 @@ export default {
         url: this.discussion.discussion_path,
       };
     },
+    resolveWithIssuePath() {
+      return !this.discussionResolved && this.discussion.resolve_with_issue_path;
+    },
   },
   watch: {
     isReplying() {
@@ -255,6 +254,12 @@ export default {
       }
     },
   },
+  created() {
+    eventHub.$on('startReplying', this.onStartReplying);
+  },
+  beforeDestroy() {
+    eventHub.$off('startReplying', this.onStartReplying);
+  },
   methods: {
     ...mapActions([
       'saveNote',
@@ -262,6 +267,7 @@ export default {
       'removePlaceholderNotes',
       'toggleResolveNote',
       'expandDiscussion',
+      'removeConvertedDiscussion',
     ]),
     truncateSha,
     componentName(note) {
@@ -301,6 +307,10 @@ export default {
         }
       }
 
+      if (this.convertedDisscussionIds.includes(this.discussion.id)) {
+        this.removeConvertedDiscussion(this.discussion.id);
+      }
+
       this.isReplying = false;
       this.resetAutoSave();
     },
@@ -310,6 +320,10 @@ export default {
         target_type: this.getNoteableData.targetType,
         note: { note: noteText },
       };
+
+      if (this.convertedDisscussionIds.includes(this.discussion.id)) {
+        postData.return_discussion = true;
+      }
 
       if (this.discussion.for_commit) {
         postData.note_project_id = this.discussion.project_id;
@@ -350,6 +364,11 @@ Please check your network connection and try again.`;
     deleteNoteHandler(note) {
       this.$emit('noteDeleted', this.discussion, note);
     },
+    onStartReplying(discussionId) {
+      if (this.discussion.id === discussionId) {
+        this.showReplyForm();
+      }
+    },
   },
 };
 </script>
@@ -368,30 +387,32 @@ Please check your network connection and try again.`;
               :img-size="40"
             />
           </div>
-          <note-header
-            :author="author"
-            :created-at="initialDiscussion.created_at"
-            :note-id="initialDiscussion.id"
-            :include-toggle="true"
-            :expanded="discussion.expanded"
-            @toggleHandler="toggleDiscussionHandler"
-          >
-            <span v-html="actionText"></span>
-          </note-header>
-          <note-edited-text
-            v-if="discussion.resolved"
-            :edited-at="discussion.resolved_at"
-            :edited-by="discussion.resolved_by"
-            :action-text="resolvedText"
-            class-name="discussion-headline-light js-discussion-headline"
-          />
-          <note-edited-text
-            v-else-if="lastUpdatedAt"
-            :edited-at="lastUpdatedAt"
-            :edited-by="lastUpdatedBy"
-            action-text="Last updated"
-            class-name="discussion-headline-light js-discussion-headline"
-          />
+          <div class="timeline-content">
+            <note-header
+              :author="author"
+              :created-at="initialDiscussion.created_at"
+              :note-id="initialDiscussion.id"
+              :include-toggle="true"
+              :expanded="discussion.expanded"
+              @toggleHandler="toggleDiscussionHandler"
+            >
+              <span v-html="actionText"></span>
+            </note-header>
+            <note-edited-text
+              v-if="discussion.resolved"
+              :edited-at="discussion.resolved_at"
+              :edited-by="discussion.resolved_by"
+              :action-text="resolvedText"
+              class-name="discussion-headline-light js-discussion-headline"
+            />
+            <note-edited-text
+              v-else-if="lastUpdatedAt"
+              :edited-at="lastUpdatedAt"
+              :edited-by="lastUpdatedBy"
+              action-text="Last updated"
+              class-name="discussion-headline-light js-discussion-headline"
+            />
+          </div>
         </div>
         <div v-if="shouldShowDiscussions" class="discussion-body">
           <component
@@ -410,6 +431,7 @@ Please check your network connection and try again.`;
                     :help-page-path="helpPagePath"
                     :show-reply-button="canReply"
                     @handleDeleteNote="deleteNoteHandler"
+                    @startReplying="showReplyForm"
                   >
                     <note-edited-text
                       v-if="discussion.resolved"
@@ -477,16 +499,10 @@ Please check your network connection and try again.`;
                       class="btn-group discussion-actions ml-sm-2"
                       role="group"
                     >
-                      <div v-if="!discussionResolved" class="btn-group" role="group">
-                        <a
-                          v-gl-tooltip
-                          :href="discussion.resolve_with_issue_path"
-                          :title="s__('MergeRequests|Resolve this discussion in a new issue')"
-                          class="new-issue-for-discussion btn btn-default discussion-create-issue-btn"
-                        >
-                          <icon name="issue-new" />
-                        </a>
-                      </div>
+                      <resolve-with-issue-button
+                        v-if="resolveWithIssuePath"
+                        :url="resolveWithIssuePath"
+                      />
                       <jump-to-next-discussion-button
                         v-if="shouldShowJumpToNextDiscussion"
                         @onClick="jumpToNextDiscussion"

@@ -31,8 +31,7 @@ module API
 
         issues = IssuesFinder.new(current_user, args).execute
           .preload(:assignees, :labels, :notes, :timelogs, :project, :author, :closed_by)
-
-        issues.reorder(args[:order_by] => args[:sort])
+        issues.reorder(order_options_with_tie_breaker)
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
@@ -57,6 +56,7 @@ module API
         optional :scope, type: String, values: %w[created-by-me assigned-to-me created_by_me assigned_to_me all],
                          desc: 'Return issues for the given scope: `created_by_me`, `assigned_to_me` or `all`'
         optional :my_reaction_emoji, type: String, desc: 'Return issues reacted by the authenticated user by the given emoji'
+        optional :confidential, type: Boolean, desc: 'Filter confidential or public issues'
         use :pagination
 
         use :issues_params_ee
@@ -307,19 +307,14 @@ module API
       get ':id/issues/:issue_iid/related_merge_requests' do
         issue = find_project_issue(params[:issue_iid])
 
-        merge_request_iids = ::Issues::ReferencedMergeRequestsService.new(user_project, current_user)
+        merge_requests = ::Issues::ReferencedMergeRequestsService.new(user_project, current_user)
           .execute(issue)
           .flatten
-          .map(&:iid)
 
-        merge_requests =
-          if merge_request_iids.present?
-            MergeRequestsFinder.new(current_user, project_id: user_project.id, iids: merge_request_iids).execute
-          else
-            MergeRequest.none
-          end
-
-        present paginate(merge_requests), with: Entities::MergeRequestBasic, current_user: current_user, project: user_project
+        present paginate(::Kaminari.paginate_array(merge_requests)),
+          with: Entities::MergeRequestBasic,
+          current_user: current_user,
+          project: user_project
       end
 
       desc 'List merge requests closing issue' do

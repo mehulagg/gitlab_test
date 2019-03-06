@@ -51,6 +51,8 @@ module EE
 
       has_many :smartcard_identities
 
+      belongs_to :managing_group, class_name: 'Group', optional: true, inverse_of: :managed_users
+
       scope :excluding_guests, -> { joins(:members).where('members.access_level > ?', ::Gitlab::Access::GUEST).distinct }
 
       scope :subscribed_for_admin_email, -> { where(admin_email_unsubscribed_at: nil) }
@@ -66,6 +68,7 @@ module EE
       # User's Group preference
       # Note: When adding an option, it's value MUST equal to the last value + 1.
       enum group_view: { details: 1, security_dashboard: 2 }, _prefix: true
+      scope :group_view_details, -> { where('group_view = ? OR group_view IS NULL', group_view[:details]) }
     end
 
     class_methods do
@@ -228,6 +231,10 @@ module EE
       else
         group_saml_identities.where(saml_provider: group.saml_provider).any?
       end
+    end
+
+    def group_managed_account?
+      managing_group.present?
     end
 
     override :ldap_sync_time

@@ -40,6 +40,12 @@ module QA
           element :login_page
         end
 
+        def assert_page_loaded
+          unless page_loaded?
+            raise QA::Runtime::Browser::NotRespondingError, "Login page did not load at #{QA::Page::Main::Login.perform(&:current_url)}"
+          end
+        end
+
         def page_loaded?
           wait(max: 60) do
             has_element?(:login_page)
@@ -79,9 +85,9 @@ module QA
         end
 
         def sign_in_using_ldap_credentials(user)
-          # Don't try to log-in if we're already logged-in
-          return if Page::Main::Menu.perform do |page|
-            page.has_personal_area?(wait: 0)
+          # Log out if already logged in
+          Page::Main::Menu.perform do |menu|
+            menu.sign_out if menu.has_personal_area?(wait: 0)
           end
 
           using_wait_time 0 do

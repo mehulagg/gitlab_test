@@ -32,23 +32,26 @@ request widget area.
 
 The following languages and frameworks are supported.
 
-| Language / framework  | Scan tool                                                                              |
-|-----------------------|----------------------------------------------------------------------------------------|
-| C/C++                 | [Flawfinder](https://www.dwheeler.com/flawfinder/)                                     |
-| Python                | [bandit](https://github.com/PyCQA/bandit)                                              |
-| Ruby on Rails         | [brakeman](https://brakemanscanner.org)                                                |
-| Groovy (Gradle & Grail) | [find-sec-bugs](https://find-sec-bugs.github.io/)                                      |
-| Java (Maven & Gradle) | [find-sec-bugs](https://find-sec-bugs.github.io/)                                      |
-| Scala (sbt)           | [find-sec-bugs](https://find-sec-bugs.github.io/)                                      |
-| Go                    | [Gosec](https://github.com/securego/gosec)                                             |
-| PHP                   | [phpcs-security-audit](https://github.com/FloeDesignTechnologies/phpcs-security-audit) |
-| .NET                  | [Security Code Scan](https://security-code-scan.github.io)                             |
-| Node.js               | [NodeJsScan](https://github.com/ajinabraham/NodeJsScan)                                |
+| Language / framework    | Scan tool                                                                              |
+|-------------------------|----------------------------------------------------------------------------------------|
+| .NET                    | [Security Code Scan](https://security-code-scan.github.io)                             |
+| Any                     | [Gitleaks](https://github.com/zricethezav/gitleaks), [TruffleHog](https://github.com/dxa4481/truffleHog) and [Diffence](https://github.com/techjacker/diffence) (secret detectors) |
+| C/C++                   | [Flawfinder](https://www.dwheeler.com/flawfinder/)                                     |
+| Go                      | [Gosec](https://github.com/securego/gosec)                                             |
+| Groovy (Ant, Gradle, Maven and SBT) | [find-sec-bugs](https://find-sec-bugs.github.io/)                          |
+| Java (Ant, Gradle, Maven and SBT) | [find-sec-bugs](https://find-sec-bugs.github.io/)                            |
+| JavaScript              | [ESLint security plugin](https://github.com/nodesecurity/eslint-plugin-security)       |
+| Node.js                 | [NodeJsScan](https://github.com/ajinabraham/NodeJsScan)                                |
+| PHP                     | [phpcs-security-audit](https://github.com/FloeDesignTechnologies/phpcs-security-audit) |
+| Python                  | [bandit](https://github.com/PyCQA/bandit)                                              |
+| Ruby on Rails           | [brakeman](https://brakemanscanner.org)                                                |
+| Scala (Ant, Gradle, Maven and SBT) | [find-sec-bugs](https://find-sec-bugs.github.io/)                           |
+| Typescript              | [TSLint Config Security](https://github.com/webschik/tslint-config-security/)          |
 
 ## How it works
 
 First of all, you need to define a job in your `.gitlab-ci.yml` file that generates the
-[SAST report artifact](../../../ci/yaml/README.md#artifactsreportssast).
+[SAST report artifact](../../../ci/yaml/README.md#artifactsreportssast-ultimate).
 For more information on how the SAST job should look like, check the
 example on [Static Application Security Testing with GitLab CI/CD](../../../ci/examples/sast.md).
 

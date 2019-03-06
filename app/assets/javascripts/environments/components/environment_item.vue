@@ -47,12 +47,6 @@ export default {
       default: () => ({}),
     },
 
-    canCreateDeployment: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
-
     canReadEnvironment: {
       type: Boolean,
       required: false,
@@ -151,7 +145,7 @@ export default {
     },
 
     actions() {
-      if (!this.model || !this.model.last_deployment || !this.canCreateDeployment) {
+      if (!this.model || !this.model.last_deployment) {
         return [];
       }
 
@@ -576,7 +570,8 @@ export default {
         />
 
         <rollback-component
-          v-if="canRetry && canCreateDeployment"
+          v-if="canRetry"
+          :environment="model"
           :is-last-deployment="isLastDeployment"
           :retry-url="retryUrl"
         />

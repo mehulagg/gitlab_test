@@ -6,11 +6,13 @@ import eventHub from '../event_hub';
 import environmentsMixin from '../mixins/environments_mixin';
 import CIPaginationMixin from '../../vue_shared/mixins/ci_pagination_api_mixin';
 import StopEnvironmentModal from './stop_environment_modal.vue';
+import ConfirmRollbackModal from './confirm_rollback_modal.vue';
 
 export default {
   components: {
     emptyState,
     StopEnvironmentModal,
+    ConfirmRollbackModal,
   },
 
   mixins: [CIPaginationMixin, environmentsMixin],
@@ -21,10 +23,6 @@ export default {
       required: true,
     },
     canCreateEnvironment: {
-      type: Boolean,
-      required: true,
-    },
-    canCreateDeployment: {
       type: Boolean,
       required: true,
     },
@@ -123,6 +121,7 @@ export default {
 <template>
   <div :class="cssContainerClass">
     <stop-environment-modal :environment="environmentInStopModal" />
+    <confirm-rollback-modal :environment="environmentInRollbackModal" />
 
     <div class="top-area">
       <tabs :tabs="tabs" scope="environments" @onChangeTab="onChangeTab" />
@@ -138,7 +137,6 @@ export default {
       :is-loading="isLoading"
       :environments="state.environments"
       :pagination="state.paginationInformation"
-      :can-create-deployment="canCreateDeployment"
       :can-read-environment="canReadEnvironment"
       :canary-deployment-feature-id="canaryDeploymentFeatureId"
       :show-canary-deployment-callout="showCanaryDeploymentCallout"

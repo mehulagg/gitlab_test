@@ -38,6 +38,7 @@ Have a look at some of our most popular documentation resources:
 | [GitLab CI/CD examples](ci/examples/README.md)                  | Get up to speed quickly with common CI/CD scenarios.             |
 | [GitLab Container Registry](user/project/container_registry.md) | Host containers within GitLab.                                   |
 | [GitLab Pages](user/project/pages/index.md)                     | Host static websites for your projects with GitLab.              |
+| [GitLab.com settings](user/gitlab_com/index.md)                 | Settings for [GitLab.com](#gitlabcom).                           |
 | [Kubernetes integration](user/project/clusters/index.md)        | Use GitLab with Kubernetes.                                      |
 | [SSH authentication](ssh/README.md)                             | Secure your network communications.                              |
 | [Using Docker images](ci/docker/using_docker_images.md)         | Build and test your applications with Docker.                    |
@@ -303,11 +304,12 @@ The following documentation relates to the DevOps **Configure** stage:
 | [Auto DevOps](topics/autodevops/index.md)                                                                                          | Automatically employ a complete DevOps lifecycle.                         |
 | [Easy creation of Kubernetes<br/>clusters on GKE](user/project/clusters/index.md#adding-and-creating-a-new-gke-cluster-via-gitlab) | Use Google Kubernetes Engine and GitLab.                                  |
 | [Executable Runbooks](user/project/clusters/runbooks/index.md)                                                                     | Documented procedures that explain how to carry out particular processes. |
-| [GitLab ChatOps](ci/chatops/README.md) **[ULTIMATE]**                                                                              | Interact with CI/CD jobs through chat services.                           |
+| [GitLab ChatOps](ci/chatops/README.md)                                                                                             | Interact with CI/CD jobs through chat services.                           |
 | [Installing Applications](user/project/clusters/index.md#installing-applications)                                                  | Deploy Helm, Ingress, and Prometheus on Kubernetes.                       |
 | [Mattermost slash commands](user/project/integrations/mattermost_slash_commands.md)                                                | Enable and use slash commands from within Mattermost.                     |
 | [Multiple Kubernetes Clusters](user/project/clusters/index.md#multiple-kubernetes-clusters) **[PREMIUM]**                          | Associate more than one Kubernetes clusters to your project.              |
 | [Protected variables](ci/variables/README.md#protected-variables)                                                                  | Restrict variables to protected branches and tags.                        |
+| [Serverless](user/project/clusters/serverless/index.md)                                                                            | Run serverless workloads on Kubernetes.                                   |
 | [Slack slash commands](user/project/integrations/slack_slash_commands.md)                                                          | Enable and use slash commands from within Slack.                          |
 
 <div align="right">
@@ -364,7 +366,7 @@ The following documentation relates to the DevOps **Secure** stage:
 There are two ways to use GitLab:
 
 - [GitLab self-managed](#gitlab-self-managed): Install, administer, and maintain your own GitLab instance.
-- [GitLab.com](#gitlab-com): GitLab's SaaS offering. You don't need to install anything to use GitLab.com,
+- [GitLab.com](#gitlabcom): GitLab's SaaS offering. You don't need to install anything to use GitLab.com,
   you only need to [sign up](https://gitlab.com/users/sign_in) and start using GitLab straight away.
 
 The following sections outline tiers and features within GitLab self-managed and GitLab.com.

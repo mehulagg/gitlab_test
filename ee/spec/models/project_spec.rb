@@ -944,6 +944,94 @@ describe Project do
     end
   end
 
+  describe '#visible_regular_approval_rules' do
+    let(:project) { create(:project) }
+    let!(:approval_rules) { create_list(:approval_project_rule, 2, project: project) }
+
+    before do
+      stub_licensed_features(multiple_approval_rules: true)
+    end
+
+    it 'returns all approval rules' do
+      expect(project.visible_regular_approval_rules).to contain_exactly(*approval_rules)
+    end
+
+    context 'when multiple approval rules is not available' do
+      before do
+        stub_licensed_features(multiple_approval_rules: false)
+      end
+
+      it 'returns the first approval rule' do
+        expect(project.visible_regular_approval_rules).to contain_exactly(approval_rules.first)
+      end
+    end
+
+    context 'when approval rules are disabled' do
+      before do
+        stub_feature_flags(approval_rules: false)
+      end
+
+      it 'does not return any approval rules' do
+        expect(project.visible_regular_approval_rules).to be_empty
+      end
+    end
+  end
+
+  describe '#min_fallback_approvals' do
+    let(:project) { create(:project, approvals_before_merge: 1) }
+
+    it 'returns approvals before merge if there are no rules' do
+      expect(project.min_fallback_approvals).to eq(1)
+    end
+
+    context 'when approval rules are present' do
+      before do
+        create(:approval_project_rule, project: project, approvals_required: 2)
+        create(:approval_project_rule, project: project, approvals_required: 3)
+
+        stub_licensed_features(multiple_approval_rules: true)
+      end
+
+      it 'returns the maximum requirement' do
+        expect(project.min_fallback_approvals).to eq(3)
+      end
+
+      it 'returns the first rule requirement if there is a rule' do
+        stub_licensed_features(multiple_approval_rules: false)
+
+        expect(project.min_fallback_approvals).to eq(2)
+      end
+
+      it 'returns approvals before merge when code owner rules is disabled' do
+        stub_feature_flags(approval_rules: false)
+
+        expect(project.min_fallback_approvals).to eq(1)
+      end
+    end
+  end
+
+  describe '#merge_requests_require_code_owner_approval?' do
+    let(:project) { build(:project) }
+
+    where(:feature_available, :feature_enabled, :approval_required) do
+      true  | true  | true
+      false | true  | false
+      true  | false | false
+      true  | nil   | false
+    end
+
+    with_them do
+      before do
+        stub_licensed_features(code_owner_approval_required: feature_available)
+        project.merge_requests_require_code_owner_approval = feature_enabled
+      end
+
+      it 'requires code owner approval when needed' do
+        expect(project.merge_requests_require_code_owner_approval?).to eq(approval_required)
+      end
+    end
+  end
+
   shared_examples 'project with disabled services' do
     it 'has some disabled services' do
       stub_const('License::ANY_PLAN_FEATURES', [])
@@ -1579,6 +1667,54 @@ describe Project do
       expect(project.namespace).to receive(:store_security_reports_available?).once.and_call_original
 
       subject
+    end
+  end
+
+  describe '#has_pool_repository?' do
+    it 'returns false when there is no pool repository' do
+      project = create(:project)
+
+      expect(project.has_pool_repository?).to be false
+    end
+
+    it 'returns true when there is a pool repository' do
+      pool = create(:pool_repository, :ready)
+      project = create(:project, pool_repository: pool)
+
+      expect(project.has_pool_repository?).to be true
+    end
+  end
+
+  describe '#link_pool_repository' do
+    let(:project) { create(:project, :repository) }
+
+    subject  { project.link_pool_repository }
+
+    it 'logs geo event' do
+      expect(project.repository).to receive(:log_geo_updated_event)
+
+      subject
+    end
+  end
+
+  describe '#object_pool_missing?' do
+    let(:pool) { create(:pool_repository, :ready) }
+    subject { create(:project, :repository, pool_repository: pool) }
+
+    it 'returns true when object pool is missing' do
+      allow(pool.object_pool).to receive(:exists?).and_return(false)
+
+      expect(subject.object_pool_missing?).to be true
+    end
+
+    it "returns false when pool repository doesnt't exist" do
+      allow(subject).to receive(:has_pool_repository?).and_return(false)
+
+      expect(subject.object_pool_missing?).to be false
+    end
+
+    it 'returns false when object pool exists' do
+      expect(subject.object_pool_missing?).to be false
     end
   end
 

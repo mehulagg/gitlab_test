@@ -75,8 +75,8 @@ describe Ci::Build do
     subject { job.variables }
 
     context 'when environment specific variable is defined' do
-      let(:environment_varialbe) do
-        { key: 'ENV_KEY', value: 'environment', public: false }
+      let(:environment_variable) do
+        { key: 'ENV_KEY', value: 'environment', public: false, masked: false }
       end
 
       before do
@@ -85,7 +85,7 @@ describe Ci::Build do
 
         variable =
           build(:ci_variable,
-                environment_varialbe.slice(:key, :value)
+                environment_variable.slice(:key, :value)
                   .merge(project: project, environment_scope: 'stag*'))
 
         variable.save!
@@ -96,7 +96,7 @@ describe Ci::Build do
           stub_licensed_features(variable_environment_scope: true)
         end
 
-        it { is_expected.to include(environment_varialbe) }
+        it { is_expected.to include(environment_variable) }
       end
 
       context 'when variable environment scope is not available' do
@@ -104,12 +104,12 @@ describe Ci::Build do
           stub_licensed_features(variable_environment_scope: false)
         end
 
-        it { is_expected.not_to include(environment_varialbe) }
+        it { is_expected.not_to include(environment_variable) }
       end
 
       context 'when there is a plan for the group' do
         it 'GITLAB_FEATURES should include the features for that plan' do
-          is_expected.to include({ key: 'GITLAB_FEATURES', value: anything, public: true })
+          is_expected.to include({ key: 'GITLAB_FEATURES', value: anything, public: true, masked: false })
           features_variable = subject.find { |v| v[:key] == 'GITLAB_FEATURES' }
           expect(features_variable[:value]).to include('multiple_ldap_servers')
         end
@@ -265,6 +265,10 @@ describe Ci::Build do
 
     let(:license_management_report) { Gitlab::Ci::Reports::LicenseManagement::Report.new }
 
+    before do
+      stub_licensed_features(license_management: true)
+    end
+
     it { expect(license_management_report.licenses.count).to eq(0) }
 
     context 'when build has a license management report' do
@@ -289,6 +293,32 @@ describe Ci::Build do
 
         it 'raises an error' do
           expect { subject }.to raise_error(Gitlab::Ci::Parsers::LicenseManagement::LicenseManagement::LicenseManagementParserError)
+        end
+      end
+
+      context 'when Feature flag is disabled for License Management reports parsing' do
+        before do
+          stub_feature_flags(parse_license_management_reports: false)
+          create(:ee_ci_job_artifact, :license_management, job: job, project: job.project)
+        end
+
+        it 'does NOT parse license management report' do
+          subject
+
+          expect(license_management_report.licenses.count).to eq(0)
+        end
+      end
+
+      context 'when the license management feature is disabled' do
+        before do
+          stub_licensed_features(license_management: false)
+          create(:ee_ci_job_artifact, :license_management, job: job, project: job.project)
+        end
+
+        it 'does NOT parse license management report' do
+          subject
+
+          expect(license_management_report.licenses.count).to eq(0)
         end
       end
     end

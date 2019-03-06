@@ -76,7 +76,7 @@ export default {
       'fetchVulnerabilities',
       'fetchVulnerabilitiesCount',
       'fetchVulnerabilitiesHistory',
-      'revertDismissal',
+      'undoDismiss',
       'setVulnerabilitiesCountEndpoint',
       'setVulnerabilitiesEndpoint',
       'setVulnerabilitiesHistoryEndpoint',
@@ -90,9 +90,9 @@ export default {
   <div>
     <filters :dashboard-documentation="dashboardDocumentation" />
     <vulnerability-count-list />
-    <h4 class="my-4">{{ __('Vulnerability Chart') }}</h4>
+
     <vulnerability-chart />
-    <h4 class="my-4">{{ __('Vulnerability List') }}</h4>
+
     <security-dashboard-table
       :dashboard-documentation="dashboardDocumentation"
       :empty-state-svg-path="emptyStateSvgPath"
@@ -104,7 +104,7 @@ export default {
       :can-create-feedback-permission="canCreateFeedbackPermission"
       @createNewIssue="createIssue({ vulnerability: modal.vulnerability })"
       @dismissIssue="dismissVulnerability({ vulnerability: modal.vulnerability })"
-      @revertDismissIssue="revertDismissal({ vulnerability: modal.vulnerability })"
+      @revertDismissIssue="undoDismiss({ vulnerability: modal.vulnerability })"
     />
   </div>
 </template>

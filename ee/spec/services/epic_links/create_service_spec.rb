@@ -18,6 +18,14 @@ describe EpicLinks::CreateService, :postgresql do
         expect(epic.reload.children).to include(epic_to_add)
       end
 
+      it 'moves the new child epic to the top and moves the existing ones down' do
+        existing_child_epic = create(:epic, group: group, parent: epic, relative_position: 1000)
+
+        subject
+
+        expect(epic_to_add.reload.relative_position).to be < existing_child_epic.reload.relative_position
+      end
+
       it 'returns success status' do
         expect(subject).to eq(status: :success)
       end
@@ -89,6 +97,37 @@ describe EpicLinks::CreateService, :postgresql do
           subject { add_epic([valid_reference]) }
 
           include_examples 'returns not found error'
+        end
+
+        context 'when hierarchy is cyclic' do
+          context 'when given child epic is the same as given parent' do
+            subject { add_epic([epic.to_reference(full: true)]) }
+
+            include_examples 'returns not found error'
+          end
+
+          context 'when given child epic is parent of the given parent' do
+            before do
+              epic.update(parent: epic_to_add)
+            end
+
+            subject { add_epic([valid_reference]) }
+
+            include_examples 'returns not found error'
+          end
+
+          context 'when new child epic is an ancestor of the given parent' do
+            before do
+              # epic_to_add -> epic1 -> epic2 -> epic
+              epic1 = create(:epic, group: group, parent: epic_to_add)
+              epic2 = create(:epic, group: group, parent: epic1)
+              epic.update(parent: epic2)
+            end
+
+            subject { add_epic([valid_reference]) }
+
+            include_examples 'returns not found error'
+          end
         end
 
         context 'when multiple valid epics are given' do

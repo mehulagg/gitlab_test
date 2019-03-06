@@ -77,14 +77,15 @@ module GraphqlHelpers
   def query_graphql_field(name, attributes = {}, fields = nil)
     fields ||= all_graphql_fields_for(name.classify)
     attributes = attributes_to_graphql(attributes)
+    attributes = "(#{attributes})" if attributes.present?
     <<~QUERY
-      #{name}(#{attributes}) {
+      #{name}#{attributes} {
         #{fields}
       }
     QUERY
   end
 
-  def all_graphql_fields_for(class_name)
+  def all_graphql_fields_for(class_name, parent_types = Set.new)
     type = GitlabSchema.types[class_name.to_s]
     return "" unless type
 
@@ -92,8 +93,17 @@ module GraphqlHelpers
       # We can't guess arguments, so skip fields that require them
       next if required_arguments?(field)
 
+      singular_field_type = field_type(field)
+
+      # If field type is the same as parent type, then we're hitting into
+      # mutual dependency. Break it from infinite recursion
+      next if parent_types.include?(singular_field_type)
+
       if nested_fields?(field)
-        "#{name} { #{all_graphql_fields_for(field_type(field))} }"
+        fields =
+          all_graphql_fields_for(singular_field_type, parent_types | [type])
+
+        "#{name} { #{fields} }"
       else
         name
       end

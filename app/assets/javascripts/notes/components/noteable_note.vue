@@ -29,11 +29,6 @@ export default {
       type: Object,
       required: true,
     },
-    discussion: {
-      type: Object,
-      required: false,
-      default: null,
-    },
     line: {
       type: Object,
       required: false,
@@ -48,6 +43,11 @@ export default {
       type: Object,
       required: false,
       default: () => null,
+    },
+    showReplyButton: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   data() {
@@ -90,13 +90,6 @@ export default {
         return this.discussion.id;
       }
       return '';
-    },
-    showReplyButton() {
-      if (!this.discussion || !this.getNoteableData.current_user.can_create_note) {
-        return false;
-      }
-
-      return this.discussion.individual_note && !this.commentsDisabled;
     },
     actionText() {
       if (!this.commit) {
@@ -230,7 +223,7 @@ export default {
     :class="classNameBindings"
     :data-award-url="note.toggle_award_path"
     :data-note-id="note.id"
-    class="note note-wrapper"
+    class="note note-wrapper qa-noteable-note-item"
   >
     <div v-once class="timeline-icon">
       <user-avatar-link
@@ -273,6 +266,7 @@ export default {
           @handleEdit="editHandler"
           @handleDelete="deleteHandler"
           @handleResolve="resolveHandler"
+          @startReplying="$emit('startReplying')"
         />
       </div>
       <div class="timeline-discussion-body">

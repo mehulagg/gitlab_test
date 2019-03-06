@@ -414,7 +414,7 @@ Parameters:
 curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/snippets/11/discussions/636
 ```
 
-## Epics
+## Epics **[ULTIMATE]**
 
 ### List group epic discussions
 
@@ -847,7 +847,6 @@ Parameters:
 ```bash
 curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/merge_requests/11/discussions/6a9c1750b37d513a43987b574953fceb50b03ce7?resolved=true
 ```
-
 
 ### Add note to existing merge request discussion
 

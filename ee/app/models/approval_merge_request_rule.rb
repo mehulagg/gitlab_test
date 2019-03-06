@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class ApprovalMergeRequestRule < ApplicationRecord
+  include Gitlab::Utils::StrongMemoize
   include ApprovalRuleLike
 
   DEFAULT_NAME_FOR_CODE_OWNER = 'Code Owner'
@@ -12,7 +13,7 @@ class ApprovalMergeRequestRule < ApplicationRecord
 
   validates :name, uniqueness: { scope: [:merge_request, :code_owner] }
 
-  belongs_to :merge_request
+  belongs_to :merge_request, inverse_of: :approval_rules
 
   # approved_approvers is only populated after MR is merged
   has_and_belongs_to_many :approved_approvers, class_name: 'User', join_table: :approval_merge_request_rules_approved_approvers
@@ -43,13 +44,18 @@ class ApprovalMergeRequestRule < ApplicationRecord
   # enabled on project settings.
   # @return [Array<User>]
   def approvers
-    scope = super
+    strong_memoize(:approvers) do
+      scope_or_array = super
 
-    if merge_request.author && !project.merge_requests_author_approval?
-      scope = scope.where.not(id: merge_request.author)
+      next scope_or_array unless merge_request.author
+      next scope_or_array if project.merge_requests_author_approval?
+
+      if scope_or_array.respond_to?(:where)
+        scope_or_array.where.not(id: merge_request.author)
+      else
+        scope_or_array - [merge_request.author]
+      end
     end
-
-    scope
   end
 
   def sync_approved_approvers

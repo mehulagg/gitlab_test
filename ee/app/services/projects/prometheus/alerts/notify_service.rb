@@ -9,7 +9,7 @@ module Projects
           return false unless valid_alert_manager_token?(token)
 
           send_alert_email(project, firings) if firings.any?
-          persist_events(project, current_user, params)
+          persist_events(project, params)
 
           true
         end
@@ -62,7 +62,7 @@ module Projects
           alert_id = gitlab_alert_id
           return unless alert_id
 
-          alert = project.prometheus_alerts.for_metric(alert_id).first
+          alert = find_alert(project, alert_id)
           return unless alert
 
           cluster = alert.environment.deployment_platform&.cluster
@@ -70,6 +70,13 @@ module Projects
           return unless cluster.application_prometheus_available?
 
           cluster.application_prometheus
+        end
+
+        def find_alert(project, metric)
+          Projects::Prometheus::AlertsFinder
+            .new(project: project, metric: metric)
+            .execute
+            .first
         end
 
         def gitlab_alert_id
@@ -88,8 +95,8 @@ module Projects
             .prometheus_alerts_fired(project, firings)
         end
 
-        def persist_events(project, current_user, params)
-          CreateEventsService.new(project, current_user, params).execute
+        def persist_events(project, params)
+          CreateEventsService.new(project, nil, params).execute
         end
       end
     end

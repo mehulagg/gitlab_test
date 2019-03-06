@@ -10,7 +10,6 @@ describe Ci::Pipeline do
     create(:ci_empty_pipeline, status: :created, project: project)
   end
 
-  it { is_expected.to have_one(:chat_data) }
   it { is_expected.to have_many(:job_artifacts).through(:builds) }
   it { is_expected.to have_many(:vulnerabilities).through(:vulnerabilities_occurrence_pipelines).class_name('Vulnerabilities::Occurrence') }
   it { is_expected.to have_many(:vulnerabilities_occurrence_pipelines).class_name('Vulnerabilities::OccurrencePipeline') }
@@ -326,6 +325,10 @@ describe Ci::Pipeline do
   describe '#has_license_management_reports?' do
     subject { pipeline.has_license_management_reports? }
 
+    before do
+      stub_licensed_features(license_management: true)
+    end
+
     context 'when pipeline has builds with license_management reports' do
       before do
         create(:ee_ci_build, :license_management, pipeline: pipeline, project: project)
@@ -367,6 +370,10 @@ describe Ci::Pipeline do
 
   describe '#license_management_reports' do
     subject { pipeline.license_management_report }
+
+    before do
+      stub_licensed_features(license_management: true)
+    end
 
     context 'when pipeline has multiple builds with license management reports' do
       let!(:build_1) { create(:ci_build, :success, name: 'license_management', pipeline: pipeline, project: project) }

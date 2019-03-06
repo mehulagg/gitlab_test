@@ -1,5 +1,7 @@
 # Container Registry API
 
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/55978) in GitLab 11.8.
+
 This is the API docs of the [GitLab Container Registry](../user/project/container_registry.md).
 
 ## List registry repositories
@@ -13,7 +15,6 @@ GET /projects/:id/registry/repositories
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
 | `id`      | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user. |
-
 
 ```bash
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/5/registry/repositories"
@@ -42,7 +43,7 @@ Example response:
 
 ## Delete registry repository
 
-Get a list of repository commits in a project.
+Delete a repository in registry.
 
 This operation is executed asynchronously and might take some time to get executed.
 

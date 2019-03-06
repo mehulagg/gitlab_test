@@ -1,7 +1,7 @@
-# Configuration of your jobs with .gitlab-ci.yml
+# Configuration of your pipelines with .gitlab-ci.yml
 
 This document describes the usage of `.gitlab-ci.yml`, the file that is used by
-GitLab Runner to manage your project's jobs.
+GitLab Runner to manage your project's pipelines.
 
 From version 7.12, GitLab CI uses a [YAML](https://en.wikipedia.org/wiki/YAML)
 file (`.gitlab-ci.yml`) for the project configuration. It is placed in the root
@@ -77,6 +77,7 @@ A job is defined by a list of parameters that define the job behavior.
 | [coverage](#coverage)                            | no       | Define code coverage settings for a given job |
 | [retry](#retry)                                  | no       | Define when and how many times a job can be auto-retried in case of a failure |
 | [parallel](#parallel)                            | no       | Defines how many instances of a job should be run in parallel |
+| [trigger](#trigger)                              | no       | Defines a downstream pipeline trigger |
 
 ## `image` and `services`
 
@@ -96,9 +97,9 @@ This can be an array or a multi-line string.
 jobs, including failed ones. This has to be an array or a multi-line string.
 
 The `before_script` and the main `script` are concatenated and run in a single context/container.
-The `after_script` is run separately, so depending on the executor, changes done
-outside of the working tree might not be visible, e.g. software installed in the
-`before_script`.
+The `after_script` is run separately. The current working directory is set back to
+default. Depending on the executor, changes done outside of the working tree might
+not be visible, e.g. software installed in the `before_script`.
 
 It's possible to overwrite the globally defined `before_script` and `after_script`
 if you set it per-job:
@@ -204,6 +205,7 @@ job:
     - bundle exec rspec
 ```
 
+CAUTION: **Be careful with commands containing special characters:**
 Sometimes, `script` commands will need to be wrapped in single or double quotes.
 For example, commands that contain a colon (`:`) need to be wrapped in quotes so
 that the YAML parser knows to interpret the whole thing as a string rather than
@@ -423,10 +425,28 @@ connected with merge requests yet, and because GitLab is creating pipelines
 before an user can create a merge request we don't know a target branch at
 this point.
 
-Without a target branch, it is not possible to know what the common ancestor is,
-thus we always create a job in that case. This feature works best for stable
-branches like `master` because in that case GitLab uses the previous commit
-that is present in a branch to compare against the latest SHA that was pushed.
+#### Using `changes` with `merge_requests`
+
+With [pipelines for merge requests](../merge_request_pipelines/index.md),
+make it possible to define if a job should be created base on files modified
+in a merge request.
+
+For example:
+
+```
+docker build service one:
+  script: docker build -t my-service-one-image:$CI_COMMIT_REF_SLUG .
+  only:
+    refs:
+      - merge_requests
+    changes:
+      - Dockerfile
+      - service-one/**/*
+```
+
+In the scenario above, if you create or update a merge request that changes
+either files in `service-one` folder or `Dockerfile`, GitLab creates and triggers
+the `docker build service one` job.
 
 ## `tags`
 
@@ -600,9 +620,9 @@ action fails, the pipeline will eventually succeed.
 
 Manual actions are considered to be write actions, so permissions for
 [protected branches](../../user/project/protected_branches.md) are used when
-user wants to trigger an action. In other words, in order to trigger a manual
-action assigned to a branch that the pipeline is running for, user needs to
-have ability to merge to this branch.
+a user wants to trigger an action. In other words, in order to trigger a manual
+action assigned to a branch that the pipeline is running for, the user needs to
+have the ability to merge to this branch.
 
 ### `when:delayed`
 
@@ -776,7 +796,7 @@ In the above example we set up the `review_app` job to deploy to the `review`
 environment, and we also defined a new `stop_review_app` job under `on_stop`.
 Once the `review_app` job is successfully finished, it will trigger the
 `stop_review_app` job based on what is defined under `when`. In this case we
-set it up to `manual` so it will need a [manual action](#manual-actions) via
+set it up to `manual` so it will need a [manual action](#whenmanual) via
 GitLab's web interface in order to run.
 
 The `stop_review_app` job is **required** to have the following keywords defined:
@@ -1188,7 +1208,7 @@ job:
 `expire_in` allows you to specify how long artifacts should live before they
 expire and therefore deleted, counting from the time they are uploaded and
 stored on GitLab. If the expiry time is not defined, it defaults to the
-[instance wide setting](../../user/admin_area/settings/continuous_integration.md#default-artifacts-expiration)
+[instance wide setting](../../user/admin_area/settings/continuous_integration.md#default-artifacts-expiration-core-only)
 (30 days by default, forever on GitLab.com).
 
 You can use the **Keep** button on the job page to override expiration and
@@ -1227,7 +1247,7 @@ this with [JUnit reports](#artifactsreportsjunit).
 
 NOTE: **Note:**
 The test reports are collected regardless of the job results (success or failure).
-You can use [`artifacts:expire_in`](#artifacts-expire_in) to set up an expiration
+You can use [`artifacts:expire_in`](#artifactsexpire_in) to set up an expiration
 date for their artifacts.
 
 NOTE: **Note:**
@@ -1407,7 +1427,7 @@ deploy:
 > Introduced in GitLab 10.3.
 
 If the artifacts of the job that is set as a dependency have been
-[expired](#artifacts-expire_in) or
+[expired](#artifactsexpire_in) or
 [erased](../../user/project/pipelines/job_artifacts.md#erasing-artifacts), then
 the dependent job will fail.
 
@@ -1530,6 +1550,48 @@ test:
   parallel: 5
 ```
 
+## `trigger`
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/8997) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.8.
+
+`trigger` allows you to define downstream pipeline trigger. When a job created
+from `trigger` definition is started by GitLab, a downstream pipeline gets
+created.
+
+Learn more about [multi-project pipelines](../multi_project_pipelines.md#creating-cross-project-pipelines-from-gitlab-ci-yml).
+
+### Simple `trigger` syntax
+
+The most simple way to configure a downstream trigger to use `trigger` keyword
+with a full path to a downstream project:
+
+```yaml
+rspec:
+  stage: test
+  script: bundle exec rspec
+
+staging:
+  stage: deploy
+  trigger: my/deployment
+```
+
+### Complex `trigger` syntax
+
+It is possible to configure a branch name that GitLab will use to create
+a downstream pipeline with:
+
+```yaml
+rspec:
+  stage: test
+  script: bundle exec rspec
+
+staging:
+  stage: deploy
+  trigger:
+    project: my/deployment
+    branch: stable
+```
+
 ## `include`
 
 > - Introduced in [GitLab Premium](https://about.gitlab.com/pricing/) 10.5.
@@ -1576,6 +1638,9 @@ You can only use files that are currently tracked by Git on the same branch
 your configuration file is on. In other words, when using a `include:local`, make
 sure that both `.gitlab-ci.yml` and the local file are on the same branch.
 
+All [nested includes](#nested-includes) will be executed in the scope of the same project,
+so it is possible to use local, project, remote or template includes.
+
 NOTE: **Note:**
 Including local files through Git submodules paths is not supported.
 
@@ -1588,7 +1653,7 @@ include:
 
 ### `include:file`
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/53903) in GitLab 11.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/53903) in GitLab 11.9.
 
 To include files from another private project under the same GitLab instance,
 use `include:file`. This file is referenced using full  paths relative to the
@@ -1617,6 +1682,10 @@ include:
     file: '/templates/.gitlab-ci-template.yml'
 ```
 
+All nested includes will be executed in the scope of the target project,
+so it is possible to used local (relative to target project), project, remote
+or template includes.
+
 ### `include:template`
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/53445) in GitLab 11.7.
@@ -1632,6 +1701,9 @@ include:
   - template: Auto-DevOps.gitlab-ci.yml
 ```
 
+All nested includes will be executed only with the permission of the user,
+so it is possible to use project, remote or template includes.
+
 ### `include:remote`
 
 `include:remote` can be used to include a file from a different location,
@@ -1644,10 +1716,16 @@ include:
   - remote: 'https://gitlab.com/awesome-project/raw/master/.gitlab-ci-template.yml'
 ```
 
-NOTE: **Note for GitLab admins:**
-In order to include files from another repository inside your local network,
-you may need to enable the **Allow requests to the local network from hooks and services** checkbox
-located in the **Admin area > Settings > Network > Outbound requests** section.
+All nested includes will be executed without context as public user, so only another remote,
+or public project, or template is allowed.
+
+### Nested includes
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/53903) in GitLab 11.7.
+
+Nested includes allow you to compose a set of includes.
+A total of 50 includes is allowed.
+Duplicate includes are considered a configuration error.
 
 ### `include` examples
 
@@ -1815,6 +1893,51 @@ production:
 In this case, if `install_dependencies` and `deploy` were not repeated in
 `.gitlab-ci.yml`, they would not be part of the script for the `production`
 job in the combined CI configuration.
+
+#### Using nested includes
+
+The examples below show how includes can be nested from different sources
+using a combination of different methods.
+
+In this example, `.gitlab-ci.yml` includes local the file `/.gitlab-ci/another-config.yml`:
+
+```yaml
+includes:
+  - local: /.gitlab-ci/another-config.yml
+```
+
+The `/.gitlab-ci/another-config.yml` includes a template and the `/templates/docker-workflow.yml` file
+from another project:
+
+```yaml
+includes:
+  - template: Bash.gitlab-ci.yml
+  - project: /group/my-project
+    file: /templates/docker-workflow.yml
+```
+
+The `/templates/docker-workflow.yml` present in `/group/my-project` includes two local files
+of the `/group/my-project`:
+
+```yaml
+includes:
+  - local: : /templates/docker-build.yml
+  - local: : /templates/docker-testing.yml
+```
+
+Our `/templates/docker-build.yml` present in `/group/my-project` adds a `docker-build` job:
+
+```yaml
+docker-build:
+  script: docker build -t my-image .
+```
+
+Our second `/templates/docker-test.yml` present in `/group/my-project` adds a `docker-test` job:
+
+```yaml
+docker-test:
+  script: docker run my-image /run/tests.sh
+```
 
 ## `extends`
 
@@ -2314,7 +2437,9 @@ You can see that the hidden keys are conveniently used as templates.
 ## Triggers
 
 Triggers can be used to force a rebuild of a specific branch, tag or commit,
-with an API call.
+with an API call when a pipeline gets created using a trigger token.
+
+Not to be confused with [`trigger`](#trigger).
 
 [Read more in the triggers documentation.](../triggers/README.md)
 
