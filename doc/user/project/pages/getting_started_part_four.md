@@ -10,16 +10,16 @@ date: 2017-02-22
 # Creating and Tweaking GitLab CI/CD for GitLab Pages
 
 To [get started with GitLab Pages](index.md#getting-started), you can
-use one of the project templates, `.gitlab-ci.yml` templates,
-or fork an existing example project, therefore, you don't need to
-understand all the ins and odds of GitLab CI/CD to get your site
-deployed. But there are cases in which you want to write your own
-script or to tweak an existing one. This document guides you through
+use one of the project templates, a `.gitlab-ci.yml` template,
+or fork an existing example project. Therefore, you don't need to
+understand _all_ the ins and odds of GitLab CI/CD to get your site
+deployed. Still, there are cases where you want to write your own
+script or tweak an existing one. This document guides you through
 this process.
 
 This guide also provides a general overview and clear introduction
-for **getting familiar with `.gitlab-ci.yml` and writing it for the
-first time.**
+for **getting familiar with the `.gitlab-ci.yml` file and writing
+one for the first time.**
 
 [GitLab CI/CD](../../../ci/README.md) serves
 numerous purposes, to build, test, and deploy your app
