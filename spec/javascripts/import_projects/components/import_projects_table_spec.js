@@ -49,7 +49,7 @@ describe('ImportProjectsTable', () => {
   });
 
   it('renders a loading icon whilst repos are loading', done => {
-    mock.restore(); // Stop the mock adapter from responding to the request, keeping the spinner up
+    mock.onGet(reposPath).reply(() => setTimeoutPromise(Infinity));
 
     vm = createComponent();
 
