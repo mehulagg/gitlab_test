@@ -104,5 +104,17 @@ export default class FilteredSearchTokenKeys {
 
     this.tokenKeys.push(wipToken);
     this.tokenKeysWithAlternative.push(wipToken);
+
+    const targetBranchToken = {
+      key: 'target-branch',
+      type: 'string',
+      param: '',
+      symbol: '',
+      icon: 'arrow-right',
+      tag: 'branch',
+    };
+
+    this.tokenKeys.push(targetBranchToken);
+    this.tokenKeysWithAlternative.push(targetBranchToken);
   }
 }

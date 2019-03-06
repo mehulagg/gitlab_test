@@ -11,6 +11,7 @@ import DropdownUser from './dropdown_user';
 import DropdownAjaxFilter from './dropdown_ajax_filter';
 import NullDropdown from './null_dropdown';
 import FilteredSearchVisualTokens from './filtered_search_visual_tokens';
+import { mergeUrlParams } from '../lib/utils/url_utility';
 
 export default class FilteredSearchDropdownManager {
   constructor({
@@ -122,7 +123,15 @@ export default class FilteredSearchDropdownManager {
         },
         element: this.container.querySelector('#js-dropdown-runner-tag'),
       },
-
+      'target-branch': {
+        reference: null,
+        gl: DropdownNonUser,
+        extraArguments: {
+          endpoint: this.getMergeRequestTargetBranchesEndpoint(),
+          symbol: '',
+        },
+        element: this.container.querySelector('#js-dropdown-target-branch'),
+      },
       // EE-only start
       weight: {
         reference: null,
@@ -172,6 +181,26 @@ export default class FilteredSearchDropdownManager {
 
   getRunnerTagsEndpoint() {
     return `${this.baseEndpoint}/admin/runners/tag_list.json`;
+  }
+
+  getMergeRequestTargetBranchesEndpoint() {
+    const endpoint = `${gon.relative_url_root ||
+      ''}/autocomplete/merge_request_target_branches.json`;
+
+    const params = {
+      group_id: this.getGroupId(),
+      project_id: this.getProjectId(),
+    };
+
+    return mergeUrlParams(params, endpoint);
+  }
+
+  getGroupId() {
+    return this.filteredSearchInput.getAttribute('data-group-id') || '';
+  }
+
+  getProjectId() {
+    return this.filteredSearchInput.getAttribute('data-project-id') || '';
   }
 
   static addWordToInput(tokenName, tokenValue = '', clicked = false, options = {}) {
