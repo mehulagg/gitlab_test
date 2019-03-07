@@ -35,10 +35,17 @@ describe Gitlab::Ci::Config::Entry::Image do
         expect(entry.entrypoint).to be_nil
       end
     end
+
+    describe '#ports' do
+      it "returns image's ports" do
+        expect(entry.ports).to be_nil
+      end
+    end
   end
 
   context 'when configuration is a hash' do
-    let(:config) { { name: 'ruby:2.2', entrypoint: %w(/bin/sh run) } }
+    let(:ports) { [{ number: 80, insecure: false, name: 'foobar' }] }
+    let(:config) { { name: 'ruby:2.2', entrypoint: %w(/bin/sh run), ports: ports } }
 
     describe '#value' do
       it 'returns image hash' do
@@ -67,6 +74,12 @@ describe Gitlab::Ci::Config::Entry::Image do
     describe '#entrypoint' do
       it "returns image's entrypoint" do
         expect(entry.entrypoint).to eq %w(/bin/sh run)
+      end
+    end
+
+    describe '#ports' do
+      it "returns image's ports" do
+        expect(entry.ports).to eq ports
       end
     end
   end

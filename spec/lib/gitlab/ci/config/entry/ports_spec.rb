@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::WebIde::Config::Entry::Ports do
+describe Gitlab::Ci::Config::Entry::Ports do
   let(:entry) { described_class.new(config) }
 
   before do
@@ -10,7 +10,7 @@ describe Gitlab::WebIde::Config::Entry::Ports do
   end
 
   context 'when configuration is valid' do
-    let(:config) { [{ external_port: 80, internal_port: 80, insecure: false, name: 'foobar' }] }
+    let(:config) { [{ number: 80, insecure: false, name: 'foobar' }] }
 
     describe '#valid?' do
       it 'is valid' do
@@ -42,8 +42,8 @@ describe Gitlab::WebIde::Config::Entry::Ports do
 
       context 'have the same name' do
         let(:config) do
-          [{ external_port: 80, internal_port: 80, insecure: false, name: 'foobar' },
-           { external_port: 81, internal_port: 81, insecure: false, name: 'foobar' }]
+          [{ number: 80, insecure: false, name: 'foobar' },
+           { number: 81, insecure: false, name: 'foobar' }]
         end
 
         describe '#valid?' do
@@ -53,15 +53,16 @@ describe Gitlab::WebIde::Config::Entry::Ports do
         end
       end
 
-      context 'have the same external port' do
+      context 'have the same port' do
         let(:config) do
-          [{ external_port: 80, internal_port: 80, insecure: false, name: 'foobar' },
-           { external_port: 80, internal_port: 81, insecure: false, name: 'foobar1' }]
+          [{ number: 80, insecure: false, name: 'foobar' },
+           { number: 80, insecure: false, name: 'foobar1' }]
         end
 
         describe '#valid?' do
           it 'is invalid' do
-            expect(entry.errors.first).to match "each external port can only be referenced once in the block"
+            puts entry.errors.first
+            expect(entry.errors.first).to match "each port number can only be referenced once"
           end
         end
       end

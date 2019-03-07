@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Gitlab
-  module WebIde
+  module Ci
     class Config
       module Entry
         ##
@@ -10,24 +10,19 @@ module Gitlab
         class Port < ::Gitlab::Config::Entry::Node
           include ::Gitlab::Config::Entry::Validatable
 
-          ALLOWED_KEYS = %i[external_port internal_port insecure name].freeze
+          ALLOWED_KEYS = %i[number insecure name].freeze
 
           validations do
-            validates :config, hash_or_array_or_integer: true
+            validates :config, hash_or_integer: true
             validates :config, allowed_keys: ALLOWED_KEYS
 
-            validates :external_port, type: Integer, presence: true
-            validates :internal_port, type: Integer, presence: true
+            validates :number, type: Integer, presence: true
             validates :insecure, boolean: true, presence: false
             validates :name, type: String, presence: false, allow_nil: true
           end
 
-          def external_port
-            value[:external_port]
-          end
-
-          def internal_port
-            value[:internal_port]
+          def number
+            value[:number]
           end
 
           def insecure
@@ -43,14 +38,8 @@ module Gitlab
           end
 
           def value
-            return { external_port: @config, internal_port: @config } if integer?
-            return { external_port: @config.first, internal_port: @config.last } if array_of_integers?(size: 2)
-
-            if hash?
-              @config[:internal_port] ||= @config[:external_port]
-
-              return @config
-            end
+            return { number: @config } if integer?
+            return @config if hash?
 
             {}
           end

@@ -19,10 +19,8 @@ module Gitlab
           ALLOWED_KEYS = %i[image services tags before_script script variables].freeze
 
           validations do
-            include ::Gitlab::WebIde::Config::Entry::Validators
-
             validates :config, allowed_keys: ALLOWED_KEYS
-            validates :config, internal_port_unique: { data: ->(record) { record.ports } }
+            validates :config, port_unique: { data: ->(record) { record.ports } }
 
             with_options allow_nil: true do
               validates :tags, array_of_strings: true
@@ -51,10 +49,10 @@ module Gitlab
           entry :script, ::Gitlab::Ci::Config::Entry::Commands,
             description: 'Commands that will be executed in this job.'
 
-          entry :image, Entry::Image,
+          entry :image, ::Gitlab::Ci::Config::Entry::Image,
             description: 'Image that will be used to execute this job.'
 
-          entry :services, Entry::Services,
+          entry :services, ::Gitlab::Ci::Config::Entry::Services,
             description: 'Services that will be used to execute this job.'
 
           entry :variables, ::Gitlab::Ci::Config::Entry::Variables,

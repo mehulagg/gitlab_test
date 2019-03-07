@@ -55,3 +55,4 @@ class Projects::WebIdeServicesController < Projects::ApplicationController
     Gitlab::Workhorse.verify_api_request!(request.headers)
   end
 end
+

@@ -31,7 +31,7 @@ describe Gitlab::WebIde::Config::Entry::Terminal do
         end
       end
 
-      context 'when same internal port is not duplicated' do
+      context 'when the same port is not duplicated' do
         let(:config) do
           {
             image: { name: "ruby", ports: [80] },
@@ -79,7 +79,7 @@ describe Gitlab::WebIde::Config::Entry::Terminal do
         end
       end
 
-      context 'when same internal port is duplicated' do
+      context 'when the same port is duplicated' do
         let(:config) do
           {
             image: { name: "ruby", ports: [80] },
@@ -91,7 +91,7 @@ describe Gitlab::WebIde::Config::Entry::Terminal do
           it 'is invalid' do
             expect(entry).not_to be_valid
             expect(entry.errors.count).to eq 1
-            expect(entry.errors.first).to match "the same internal port is referenced more than once"
+            expect(entry.errors.first).to match "each port number can only be referenced once"
           end
         end
       end

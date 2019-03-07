@@ -162,17 +162,6 @@ module EE
         end
       end
 
-      module JobRequest
-        module Image
-          extend ActiveSupport::Concern
-
-          prepended do
-            # Not showing the param if nil
-            expose :ports, using: JobRequest::Port, unless: ->(image, _) { image.ports.nil? }
-          end
-        end
-      end
-
       ########################
       # EE-specific entities #
       ########################
@@ -653,12 +642,6 @@ module EE
         expose :id, :package_id, :created_at
         expose :file_name, :size
         expose :file_md5, :file_sha1
-      end
-
-      module JobRequest
-        class Port < Grape::Entity
-          expose :external_port, :internal_port, :insecure, :name
-        end
       end
     end
   end

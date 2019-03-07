@@ -10,7 +10,7 @@ module Gitlab
         class Service < Image
           include ::Gitlab::Config::Entry::Validatable
 
-          ALLOWED_KEYS = %i[name entrypoint command alias].freeze
+          ALLOWED_KEYS = %i[name entrypoint command alias ports].freeze
 
           validations do
             validates :config, hash_or_string: true

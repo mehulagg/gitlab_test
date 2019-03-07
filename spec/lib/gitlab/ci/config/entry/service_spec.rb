@@ -39,11 +39,18 @@ describe Gitlab::Ci::Config::Entry::Service do
         expect(entry.command).to be_nil
       end
     end
+
+    describe '#ports' do
+      it "returns service's ports" do
+        expect(entry.ports).to be_nil
+      end
+    end
   end
 
   context 'when configuration is a hash' do
+    let(:ports) { [{ number: 80, insecure: false, name: 'foobar' }] }
     let(:config) do
-      { name: 'postgresql:9.5', alias: 'db', command: %w(cmd run), entrypoint: %w(/bin/sh run) }
+      { name: 'postgresql:9.5', alias: 'db', command: %w(cmd run), entrypoint: %w(/bin/sh run), ports: ports }
     end
 
     describe '#valid?' do
@@ -79,6 +86,12 @@ describe Gitlab::Ci::Config::Entry::Service do
     describe '#entrypoint' do
       it "returns service's entrypoint" do
         expect(entry.entrypoint).to eq %w(/bin/sh run)
+      end
+    end
+
+    describe '#ports' do
+      it "returns service's ports" do
+        expect(entry.ports).to eq ports
       end
     end
   end

@@ -1,24 +1,26 @@
 # frozen_string_literal: true
 
 module Gitlab
-  module WebIde
+  module Ci
     class Config
       module Entry
         ##
         # Entry that represents a configuration of Docker services.
         #
-        class Services < ::Gitlab::Config::Entry::Node
+        class Ports < ::Gitlab::Config::Entry::Node
           include ::Gitlab::Config::Entry::Validatable
 
           validations do
             validates :config, type: Array
+            validates :config, port_name_present_and_unique: true
+            validates :config, port_unique: true
           end
 
           def compose!(deps = nil)
             super do
               @entries = []
               @config.each do |config|
-                @entries << ::Gitlab::Config::Entry::Factory.new(Entry::Service)
+                @entries << ::Gitlab::Config::Entry::Factory.new(Entry::Port)
                   .value(config || {})
                   .create!
               end

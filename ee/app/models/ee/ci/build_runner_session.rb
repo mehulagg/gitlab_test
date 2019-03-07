@@ -10,9 +10,12 @@ module EE
       extend ActiveSupport::Concern
 
       def service_specification(service: nil, requested_url: '', port:)
-        return {} unless url.present? && port.present?
+        return {} unless url.present?
 
-        url = "#{self.url}/proxy/#{service.presence || 'build'}/#{port}/#{requested_url}"
+        port = port.presence || Gitlab::Ci::Build::Port::DEFAULT_PORT_NAME
+        service = service.presence || Gitlab::Ci::Build::Port::DEFAULT_SERVICE_NAME
+
+        url = "#{self.url}/proxy/#{service}/#{port}/#{requested_url}"
         channel_specification(url, ::Ci::BuildRunnerSession::TERMINAL_SUBPROTOCOL)
       end
     end

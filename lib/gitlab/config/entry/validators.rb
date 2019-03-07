@@ -210,6 +210,57 @@ module Gitlab
             end
           end
         end
+
+        class PortNamePresentAndUniqueValidator < ActiveModel::EachValidator
+          def validate_each(record, attribute, value)
+            return unless value.is_a?(Array)
+
+            ports_size = value.count
+            return if ports_size <= 1
+
+            named_ports = value.select { |e| e.is_a?(Hash) }.map { |e| e[:name] }.compact.map(&:downcase)
+
+            if ports_size != named_ports.size
+              record.errors.add(attribute, 'when there is more than one port, a unique name should be added')
+            end
+
+            if ports_size != named_ports.uniq.size
+              record.errors.add(attribute, 'each port name must be different')
+            end
+          end
+        end
+
+        class PortUniqueValidator < ActiveModel::EachValidator
+          def validate_each(record, attribute, value)
+            value = data_pool(record, value)
+            return unless value.is_a?(Array)
+
+            ports_size = value.count
+            return if ports_size <= 1
+
+            if transform_ports(value).size != ports_size
+              record.errors.add(attribute, 'each port number can only be referenced once')
+            end
+          end
+
+          private
+
+          def data_pool(record, current_data)
+            data = options.fetch(:data, current_data)
+            data.is_a?(Proc) ? data.yield(record) : data
+          end
+
+          def transform_ports(raw_ports)
+            raw_ports.map do |port|
+              case port
+              when Integer
+                port
+              when Hash
+                port[:number]
+              end
+            end.uniq
+          end
+        end
       end
     end
   end
