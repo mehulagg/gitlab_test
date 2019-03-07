@@ -107,7 +107,6 @@ module EE
 
       rule { can?(:developer_access) }.policy do
         enable :admin_board
-        enable :admin_vulnerability_feedback
         enable :create_vulnerability_feedback_issue
         enable :create_vulnerability_feedback_merge_request
         enable :create_vulnerability_feedback_dismissal

@@ -175,9 +175,7 @@ module EE
         {
           empty_state_illustration_path: image_path('illustrations/security-dashboard_empty.svg'),
           security_dashboard_help_path: help_page_path("user/project/security_dashboard"),
-          has_pipeline_data: "false",
-          can_create_feedback: "false",
-          can_create_issue: "false"
+          has_pipeline_data: "false"
         }
       else
         {
@@ -203,8 +201,9 @@ module EE
           pipeline_path: pipeline_url(pipeline),
           pipeline_created: pipeline.created_at.to_s,
           has_pipeline_data: "true",
-          can_create_feedback: can?(current_user, :admin_vulnerability_feedback, project).to_s,
-          can_create_issue: can?(current_user, :create_issue, project).to_s
+          create_vulnerability_feedback_issue_path: can?(current_user, :create_vulnerability_feedback_issue, project) ? project_vulnerability_feedback_index_path(project) : nil,
+          create_vulnerability_feedback_merge_request_path: can?(current_user, :create_vulnerability_feedback_merge_request, project) ? project_vulnerability_feedback_index_path(project) : nil,
+          create_vulnerability_feedback_dismissal_path: can?(current_user, :create_vulnerability_feedback_dismissal, project) ? project_vulnerability_feedback_index_path(project) : nil
         }
       end
     end

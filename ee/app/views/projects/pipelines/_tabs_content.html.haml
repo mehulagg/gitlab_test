@@ -22,8 +22,9 @@
     dependency_scanning_help_path: help_page_path('user/project/merge_requests/dependency_scanning'),
     dast_help_path: help_page_path('user/project/merge_requests/dast'),
     sast_container_help_path: help_page_path('user/project/merge_requests/container_scanning'),
-    can_create_feedback: can?(current_user, :admin_vulnerability_feedback, project).to_s,
-    can_create_issue: show_new_issue_link?(project).to_s } }
+    create_vulnerability_feedback_issue_path: can?(current_user, :create_vulnerability_feedback_issue, project) ? project_vulnerability_feedback_index_path(project) : nil,
+    create_vulnerability_feedback_merge_request_path: can?(current_user, :create_vulnerability_feedback_merge_request, project) ? project_vulnerability_feedback_index_path(project) : nil,
+    create_vulnerability_feedback_dismissal_path: can?(current_user, :create_vulnerability_feedback_dismissal, project) ? project_vulnerability_feedback_index_path(project) : nil } }
 
 - if pipeline.expose_license_management_data?
   #js-tab-licenses.tab-pane

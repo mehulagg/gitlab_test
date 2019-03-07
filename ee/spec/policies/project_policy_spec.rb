@@ -256,7 +256,6 @@ describe ProjectPolicy do
     subject { described_class.new(current_user, project) }
 
     where(permission: %i[
-      admin_vulnerability_feedback
       create_vulnerability_feedback_issue
       create_vulnerability_feedback_dismissal
       create_vulnerability_feedback_merge_request
