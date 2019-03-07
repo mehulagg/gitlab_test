@@ -42,6 +42,7 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
 
             expect(build).to be_running
             expect(build.runner).to eq(runner)
+
             expect(response).to have_http_status(:created)
             expect(json_response).to include(
               "id" => build.id,
