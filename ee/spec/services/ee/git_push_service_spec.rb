@@ -36,6 +36,21 @@ describe GitPushService do
         stub_ee_application_setting(elasticsearch_indexing?: true)
       end
 
+      context 'when it is the first push in a new project' do
+        let(:oldrev) { blankrev }
+        let(:redis) { double('redis').as_null_object }
+
+        it 'locks down the project' do
+          allow(Gitlab::Redis::SharedState).to receive(:with).and_yield(redis)
+          allow(redis).to receive(:sismember).with(:elastic_projects_indexing, project.id).and_return(false)
+
+          expect(redis).to receive(:sadd).with(:elastic_projects_indexing, project.id)
+          expect(ElasticCommitIndexerWorker).to receive(:perform_async).with(project.id, blankrev, nil)
+
+          subject.execute
+        end
+      end
+
       context 'when the project is locked by elastic.rake', :clean_gitlab_redis_shared_state do
         before do
           Gitlab::Redis::SharedState.with { |redis| redis.sadd(:elastic_projects_indexing, project.id) }

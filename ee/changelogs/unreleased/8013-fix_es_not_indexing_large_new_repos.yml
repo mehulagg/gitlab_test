@@ -1,0 +1,5 @@
+---
+title: Fix Elasticsearch race condition during initial repo push
+merge_request: 9905
+author:
+type: fixed

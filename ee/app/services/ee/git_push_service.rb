@@ -9,7 +9,18 @@ module EE
     override :execute_related_hooks
     def execute_related_hooks
       if ::Gitlab::CurrentSettings.elasticsearch_indexing? && default_branch? && should_index_commits?
-        ::ElasticCommitIndexerWorker.perform_async(project.id, params[:oldrev], params[:newrev])
+        newrev = params[:newrev]
+
+        if params[:oldrev] == ::Gitlab::Git::BLANK_SHA
+          # Lock the project. This is a brand new repo and we don't want subsequent pushes to cause the
+          # possibly big initial push not to be indexed (Possible if the repo is large)
+          # We also set `params[:newrev]` to `nil` so that the Elastic indexer indexes everything up to the newest
+          # commit. This way any pushes that occur during the time the project is locked will still be indexed.
+          ::Gitlab::Redis::SharedState.with { |redis| redis.sadd(:elastic_projects_indexing, project.id) }
+          newrev = nil
+        end
+
+        ::ElasticCommitIndexerWorker.perform_async(project.id, params[:oldrev], newrev)
       end
 
       super
