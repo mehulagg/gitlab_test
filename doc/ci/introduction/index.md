@@ -8,13 +8,20 @@ In this document we'll present an overview of Continuous Integration,
 Continuous Delivery, and Continuous Deployment, as well as an introduction to
 GitLab CI/CD.
 
-## Introduction to continuous methods
+## Introduction to CI/CD methodologies
 
-Read the sections below for an introduction to the continuous methodology of software development:
+The continuous methodologies of software development are based on
+automating the execution of scripts to minimize the chance of
+introducing errors while developing applications. They require
+less human intervention or even no intervention at all, since the
+development of new code until its deployment.
 
-- [Continuous Integration](#continuous-integration)
-- [Continuous Delivery](#continuous-delivery)
-- [Continuous Deployment](#continuous-deployment)
+It involves continuously building, testing, and deploying code
+changes at every small iteration, reducing the chance of developing
+new code based on bugged or failed previous versions.
+
+There are three main approaches to this methodology, each of them
+to be applied according to what best suits your strategy.
 
 ### Continuous Integration
 
@@ -25,35 +32,36 @@ can create a set of scripts to build and test your application
 automatically, decreasing the chance of introducing errors to your app.
 
 This practice is known as [Continuous Integration](https://en.wikipedia.org/wiki/Continuous_integration);
-for every change submitted to a given application, it's built
-and tested automatically and continuously, making sure the introduced changes
-pass all tests, guidelines, and code compliances you established
-for your app.
+for every change submitted to an application - even to development branches -
+it's built and tested automatically and continuously, ensuring the
+introduced changes pass all tests, guidelines, and code compliance
+standards you established for your app.
 
-[GitLab itself](https://gitlab.com/gitlab-org/gitlab-ce) is a
-practical example of using Continuous Integration as a software
+[GitLab itself](https://gitlab.com/gitlab-org/gitlab-ce) is an
+example of using Continuous Integration as a software
 development method. For every push to the project, there's a set
 of scripts the code is checked against.
 
 ### Continuous Delivery
 
 [Continuous Delivery](https://continuousdelivery.com/) is a step
-beyond Continuous Integration, where you not only build
-and test your application at every code change pushed to your
-application's codebase, but, as an additional step, you also
-deploy it continuously, but the deployment is triggered manually.
+beyond Continuous Integration, where your application is not only
+built and tested at every code change pushed to the codebase,
+but, as an additional step, it's also deployed continuously, but
+the deployment is triggered manually.
 
 This method ensures the code is checked automatically but requires
-someone to manually and strategically trigger the deployment
+human intervention to manually and strategically trigger the deployment
 of the changes.
 
 ### Continuous Deployment
 
 [Continuous Deployment](https://www.airpair.com/continuous-deployment/posts/continuous-deployment-for-practical-people)
-is a further step beyond Continuous Integration, in the same light as
+is also a further step beyond Continuous Integration, similarly to
 Continuous Delivery. The difference is that instead of deploying your
-application manually, you set it up so that the deployment is also
-triggered automatically.
+application manually, you set it to be deployed automatically. It does
+not require human intervention at all to have your application
+deployed.
 
 ## Introduction to GitLab CI/CD
 
@@ -65,11 +73,11 @@ application or integration needed.
 ### How GitLab CI/CD works
 
 To use GitLab CI/CD, all you need is an application codebase hosted in a
-Git repository, and configure your build, test, and deployment
-scripts in a file called [`.gitlab-ci.yml`](../yaml/README.md),
-placed at the root of your repository.
+Git repository, and for your build, test, and deployment
+scripts to be specified in a file called [`.gitlab-ci.yml`](../yaml/README.md),
+located in the root path of your repository.
 
-In this file, you define the scripts you want to run, include and
+In this file, you can define the scripts you want to run, include and
 cache dependencies, choose what commands you want to run in sequence
 and those you want to run in parallel, define where you want to
 deploy your app to, and choose if you want to run the script automatically
@@ -87,13 +95,33 @@ repository, GitLab will detect it and run your scripts with the
 tool called [GitLab Runner](https://docs.gitlab.com/runner/), which
 works similarly to your terminal.
 
-GitLab CI/CD not only executes the scripts you've set, but also shows you
-what's happening during execution, as you would see in your terminal:
+The scripts are grouped into **jobs**, and together they compose
+a **pipeline**. A minimalist example of `.gitlab-ci.yml` file
+could contain:
+
+```yml
+before_script:
+  - apt-get install rubygems ruby-dev -y
+
+run-test:
+  script:
+    - ruby --version
+```
+
+The `before_script` attribute would install the dependencies
+for your app before running anything, and a  **job** called
+`run-test` would print the Ruby version of the current system.
+Both of them compose a **pipeline** triggered at every push
+to any branch of the repository.
+
+GitLab CI/CD not only executes the jobs you've
+set, but also shows you what's happening during execution, as you
+would see in your terminal:
 
 ![job running](img/job_running.png)
 
 You create the strategy for your app and GitLab runs the pipeline
-for you according to what you've set. Your pipeline status is also
+for you according to what you've defined. Your pipeline status is also
 displayed by GitLab:
 
 ![pipeline status](img/pipeline_status.png)
@@ -103,7 +131,7 @@ At the end, if anything goes wrong, you can easily
 
 ![rollback button](img/rollback.png)
 
-### Basic CI/CD Workflow
+### Basic CI/CD workflow
 
 This is a very simple example for how GitLab CI/CD fits in a common
 development workflow.
@@ -114,17 +142,18 @@ commits to a feature branch in a remote repository in GitLab,
 the CI/CD pipeline set for your project is triggered. By doing
 so, GitLab CI/CD:
 
-- Runs automated scripts (sequential or parallel):
+- Runs automated scripts (sequential or parallel) to:
   - Build and test your app.
   - Deploy to a staging environment.
-  - Preview the changes with Review Apps.
+  - Preview the changes per merge request with Review Apps, as you
+  would see in your `localhost`.
 
 Once you're happy with your implementation:
 
 - Get your code reviewed and approved.
 - Merge the feature branch into the default branch.
   - GitLab CI/CD deploys your changes automatically to a production environment.
--  And finally you and your team can easily roll it back if something goes wrong.
+-  And finally, you and your team can easily roll it back if something goes wrong.
 
 GitLab CI/CD is capable of a doing a lot more, but this workflow
 exemplifies GitLab's ability to track the entire process,
@@ -132,23 +161,22 @@ without the need of any external tool to deliver your software.
 And, most usefully, you can visualize all the steps through
 the GitLab UI.
 
-<!-- ONCE WE HAVE IT, LINK TO EXAMPLE WORKFLOWS FOR DEV TEAMS USING CI/CD. -->
-
-<img src="../img/cicd_pipeline_infograph.png" alt="pipeline graph" class="image-noshadow">
-
 ### Setting up GitLab CI/CD for the first time
 
 To get started with GitLab CI/CD, you need to familiarize yourself
 with the [`.gitlab-ci.yml`](../yaml/README.md) configuration file
 syntax and with its attributes.
 
-This document [introduces the concepts of GitLab CI/CD in the scope of GitLab Pages](../../user/project/pages/getting_started_part_four.md).
+This document [introduces the concepts of GitLab CI/CD in the scope of GitLab Pages](../../user/project/pages/getting_started_part_four.md), for deploying static websites.
 Although it's meant for users who want to write their own Pages
-script from scratch, it does a good job introducing the setup of GitLab CI/CD.
+script from scratch, it also serves as an introduction to the setup process for GitLab CI/CD.
 It covers the very first general steps of writing a CI/CD configuration
 file, so we recommend you read through it to understand GitLab's CI/CD
 logic, and learn how to write your own script (or tweak an
-existing one) for any application you wish to use GitLab CI/CD for.
+existing one) for any application.
+
+For an deep view of GitLab's CI/CD configuration options, check the
+[`.gitlab-ci.yml` full reference](../yaml/README.md).
 
 ### GitLab CI/CD feature set
 
