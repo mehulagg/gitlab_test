@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 class Vulnerabilities::FeedbackEntity < Grape::Entity
-  include Gitlab::Routing
-  include GitlabRoutingHelper
+  include RequestAwareEntity
 
   expose :id
   expose :project_id
@@ -33,10 +32,24 @@ class Vulnerabilities::FeedbackEntity < Grape::Entity
     project_merge_request_path(feedback.project, feedback.merge_request)
   end
 
+  expose :destroy_vulnerability_feedback_dismissal_path, if: ->(_, _) { feedback.dismissal? && can_destroy_dismissal_feedback? }
+
   expose :category
   expose :feedback_type
   expose :branch do |feedback|
     feedback&.pipeline&.ref
   end
   expose :project_fingerprint
+
+  alias_method :feedback, :object
+
+  private
+
+  def destroy_vulnerability_feedback_dismissal_path
+    project_vulnerability_feedback_path(feedback.project, feedback)
+  end
+
+  def can_destroy_dismissal_feedback?
+    can?(request.current_user, :destroy_vulnerability_feedback_dismissal, feedback.project)
+  end
 end

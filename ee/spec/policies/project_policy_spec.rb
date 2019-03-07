@@ -252,55 +252,86 @@ describe ProjectPolicy do
     end
   end
 
-  describe 'admin_vulnerability_feedback' do
+  describe 'vulnerability feedback permissions' do
     subject { described_class.new(current_user, project) }
 
-    context 'with admin' do
+    where(permission: %i[
+      admin_vulnerability_feedback
+      create_vulnerability_feedback_issue
+      create_vulnerability_feedback_dismissal
+      create_vulnerability_feedback_merge_request
+      destroy_vulnerability_feedback_dismissal
+    ])
+
+    with_them do
+      context 'with admin' do
+        let(:current_user) { admin }
+
+        it { is_expected.to be_allowed(permission) }
+      end
+
+      context 'with owner' do
+        let(:current_user) { owner }
+
+        it { is_expected.to be_allowed(permission) }
+      end
+
+      context 'with maintainer' do
+        let(:current_user) { maintainer }
+
+        it { is_expected.to be_allowed(permission) }
+      end
+
+      context 'with developer' do
+        let(:current_user) { developer }
+
+        it { is_expected.to be_allowed(permission) }
+      end
+
+      context 'with reporter' do
+        let(:current_user) { reporter }
+
+        it { is_expected.to be_disallowed(permission) }
+      end
+
+      context 'with guest' do
+        let(:current_user) { guest }
+
+        it { is_expected.to be_disallowed(permission) }
+      end
+
+      context 'with non member' do
+        let(:current_user) { create(:user) }
+
+        it { is_expected.to be_disallowed(permission) }
+      end
+
+      context 'with anonymous' do
+        let(:current_user) { nil }
+
+        it { is_expected.to be_disallowed(permission) }
+      end
+    end
+
+    context 'when issue cannot be created' do
       let(:current_user) { admin }
 
-      it { is_expected.to be_allowed(:admin_vulnerability_feedback) }
+      it 'does not allow to create issue feedback' do
+        project.issues_enabled = false
+        project.save!
+
+        is_expected.to be_disallowed(:create_vulnerability_feedback_issue)
+      end
     end
 
-    context 'with owner' do
-      let(:current_user) { owner }
+    context 'when merge request cannot be created' do
+      let(:current_user) { admin }
 
-      it { is_expected.to be_allowed(:admin_vulnerability_feedback) }
-    end
+      it 'does not allow to create merge request feedback' do
+        project.project_feature.update(merge_requests_access_level: ProjectFeature::DISABLED)
 
-    context 'with maintainer' do
-      let(:current_user) { maintainer }
-
-      it { is_expected.to be_allowed(:admin_vulnerability_feedback) }
-    end
-
-    context 'with developer' do
-      let(:current_user) { developer }
-
-      it { is_expected.to be_allowed(:admin_vulnerability_feedback) }
-    end
-
-    context 'with reporter' do
-      let(:current_user) { reporter }
-
-      it { is_expected.to be_disallowed(:admin_vulnerability_feedback) }
-    end
-
-    context 'with guest' do
-      let(:current_user) { guest }
-
-      it { is_expected.to be_disallowed(:admin_vulnerability_feedback) }
-    end
-
-    context 'with non member' do
-      let(:current_user) { create(:user) }
-
-      it { is_expected.to be_disallowed(:admin_vulnerability_feedback) }
-    end
-
-    context 'with anonymous' do
-      let(:current_user) { nil }
-
-      it { is_expected.to be_disallowed(:admin_vulnerability_feedback) }
+        is_expected.to be_disallowed(:create_vulnerability_feedback_merge_request)
+      end
     end
   end
 

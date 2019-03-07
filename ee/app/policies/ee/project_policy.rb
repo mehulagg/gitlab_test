@@ -108,6 +108,10 @@ module EE
       rule { can?(:developer_access) }.policy do
         enable :admin_board
         enable :admin_vulnerability_feedback
+        enable :create_vulnerability_feedback_issue
+        enable :create_vulnerability_feedback_merge_request
+        enable :create_vulnerability_feedback_dismissal
+        enable :destroy_vulnerability_feedback_dismissal
         enable :create_package
         enable :read_feature_flag
         enable :create_feature_flag
@@ -121,6 +125,9 @@ module EE
       rule { can?(:developer_access) }.policy do
         enable :read_project_security_dashboard
       end
+
+      rule { ~can?(:create_issue) }.prevent :create_vulnerability_feedback_issue
+      rule { ~can?(:create_merge_request_in) }.prevent :create_vulnerability_feedback_merge_request
 
       rule { security_dashboard_feature_disabled }.policy do
         prevent :read_project_security_dashboard
