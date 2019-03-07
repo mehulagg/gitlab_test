@@ -4,22 +4,17 @@
  */
 import { GlLoadingIcon } from '@gitlab/ui';
 import _ from 'underscore';
-import environmentItem from './environment_item.vue'; // eslint-disable-line import/order
-
-// ee-only start
-import deployBoard from 'ee/environments/components/deploy_board_component.vue';
-import CanaryDeploymentCallout from 'ee/environments/components/canary_deployment_callout.vue';
-// ee-only end
+import EnvironmentItem from './environment_item.vue';
+import environmentsTableMixin from 'ee_else_ce/environments/mixins/environments_table_mixin.js';
 
 export default {
   components: {
-    environmentItem,
-    deployBoard,
+    EnvironmentItem,
     GlLoadingIcon,
-    // ee-only start
-    CanaryDeploymentCallout,
-    // ee-only end
+    DeployBoard: () => import('ee_component/environments/components/deploy_board_component.vue'),
+    CanaryDeploymentCallout: () => import('ee_component/environments/components/canary_deployment_callout.vue'),
   },
+  mixins: [environmentsTableMixin],
 
   props: {
     environments: {
@@ -27,39 +22,11 @@ export default {
       required: true,
       default: () => [],
     },
-
     canReadEnvironment: {
       type: Boolean,
       required: false,
       default: false,
     },
-
-    // ee-only start
-    canaryDeploymentFeatureId: {
-      type: String,
-      required: true,
-    },
-
-    showCanaryDeploymentCallout: {
-      type: Boolean,
-      required: true,
-    },
-
-    userCalloutsPath: {
-      type: String,
-      required: true,
-    },
-
-    lockPromotionSvgPath: {
-      type: String,
-      required: true,
-    },
-
-    helpCanaryDeploymentsPath: {
-      type: String,
-      required: true,
-    },
-    // ee-only end
   },
   computed: {
     sortedEnvironments() {
@@ -101,11 +68,6 @@ export default {
         .sortBy(env => (env.isFolder ? -1 : 1))
         .value();
     },
-    // ee-only start
-    shouldShowCanaryCallout(env) {
-      return env.showCanaryCallout && this.showCanaryDeploymentCallout;
-    },
-    // ee-only end
   },
 };
 </script>
