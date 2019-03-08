@@ -412,8 +412,8 @@ describe "API::MergeRequestApprovals with approval_rule enabled" do
       get api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvals", user)
 
       expect(response).to have_gitlab_http_status(200)
-      expect(json_response['approvals_required']).to eq 2
-      expect(json_response['approvals_left']).to eq 1
+      expect(json_response['approvals_required']).to eq 1
+      expect(json_response['approvals_left']).to eq 0
       expect(json_response['approval_rules_left']).to be_empty
       expect(json_response['approved_by'][0]['user']['username']).to eq(approver.username)
       expect(json_response['user_can_approve']).to be false
@@ -432,8 +432,8 @@ describe "API::MergeRequestApprovals with approval_rule enabled" do
       get api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvals", approver)
 
       expect(response).to have_gitlab_http_status(200)
-      expect(json_response['approvals_required']).to eq 2
-      expect(json_response['approvals_left']).to eq 2
+      expect(json_response['approvals_required']).to eq 1
+      expect(json_response['approvals_left']).to eq 1
 
       short_approval = { "id" => rule.id, "name" => rule.name, "rule_type" => rule.rule_type.to_s }
       expect(json_response['approval_rules_left']).to eq([short_approval])
@@ -734,7 +734,7 @@ describe "API::MergeRequestApprovals with approval_rule enabled" do
   end
 
   describe 'POST :id/merge_requests/:merge_request_iid/approve' do
-    let!(:rule) { create(:approval_merge_request_rule, merge_request: merge_request, approvals_required: 2) }
+    let!(:rule) { create(:approval_merge_request_rule, merge_request: merge_request, approvals_required: 1) }
 
     context 'as the author of the merge request' do
       before do
@@ -766,7 +766,7 @@ describe "API::MergeRequestApprovals with approval_rule enabled" do
 
         it 'approves the merge request' do
           expect(response).to have_gitlab_http_status(201)
-          expect(json_response['approvals_left']).to eq(1)
+          expect(json_response['approvals_left']).to eq(0)
           expect(json_response['approved_by'][0]['user']['username']).to eq(approver.username)
           expect(json_response['user_has_approved']).to be true
           expect(json_response['approved']).to be true
@@ -780,7 +780,7 @@ describe "API::MergeRequestApprovals with approval_rule enabled" do
 
         it 'approves the merge request' do
           expect(response).to have_gitlab_http_status(201)
-          expect(json_response['approvals_left']).to eq(1)
+          expect(json_response['approvals_left']).to eq(0)
           expect(json_response['approved_by'][0]['user']['username']).to eq(approver.username)
           expect(json_response['user_has_approved']).to be true
           expect(json_response['approved']).to be true
@@ -797,7 +797,7 @@ describe "API::MergeRequestApprovals with approval_rule enabled" do
         end
 
         it 'does not approve the merge request' do
-          expect(merge_request.reload.approval_state.approvals_left).to eq(2)
+          expect(merge_request.reload.approval_state.approvals_left).to eq(1)
         end
       end
 
