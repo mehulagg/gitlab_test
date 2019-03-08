@@ -232,7 +232,7 @@ module Gitlab
 
         class PortUniqueValidator < ActiveModel::EachValidator
           def validate_each(record, attribute, value)
-            value = data_pool(record, value)
+            value = ports(value)
             return unless value.is_a?(Array)
 
             ports_size = value.count
@@ -245,9 +245,8 @@ module Gitlab
 
           private
 
-          def data_pool(record, current_data)
-            data = options.fetch(:data, current_data)
-            data.is_a?(Proc) ? data.yield(record) : data
+          def ports(current_data)
+            current_data
           end
 
           def transform_ports(raw_ports)
@@ -259,6 +258,26 @@ module Gitlab
                 port[:number]
               end
             end.uniq
+          end
+        end
+
+        class JobPortUniqueValidator < PortUniqueValidator
+          private
+
+          def ports(current_data)
+            return unless current_data.is_a?(Hash)
+
+            (image_ports(current_data) + services_ports(current_data)).compact
+          end
+
+          def image_ports(current_data)
+            return [] unless current_data[:image].is_a?(Hash)
+
+            current_data.dig(:image, :ports).to_a
+          end
+
+          def services_ports(current_data)
+            current_data.dig(:services).to_a.flat_map { |service| service.is_a?(Hash) ? service[:ports] : nil }
           end
         end
       end
