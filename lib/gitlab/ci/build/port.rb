@@ -5,7 +5,6 @@ module Gitlab
     module Build
       class Port
         DEFAULT_PORT_NAME = 'default_port'.freeze
-        DEFAULT_BUILD_NAME = 'build'.freeze
 
         attr_reader :number, :insecure, :name
 

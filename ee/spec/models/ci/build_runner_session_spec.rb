@@ -16,8 +16,8 @@ describe Ci::BuildRunnerSession, model: true do
     context 'when port is not present' do
       let(:port) { nil }
 
-      it 'returns empty hash' do
-        expect(specification).to be_empty
+      it 'uses the default port name' do
+        expect(specification[:url]).to eq "https://localhost/proxy/#{service}/default_port/#{requested_url}"
       end
     end
 
