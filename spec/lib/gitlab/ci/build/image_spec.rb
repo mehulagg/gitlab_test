@@ -20,7 +20,7 @@ describe Gitlab::Ci::Build::Image do
         end
 
         it 'does not populate the ports' do
-          expect(subject.ports).to be_nil
+          expect(subject.ports).to be_empty
         end
       end
 
@@ -81,7 +81,7 @@ describe Gitlab::Ci::Build::Image do
         end
 
         it 'does not populate the ports' do
-          expect(subject.first.ports).to be_nil
+          expect(subject.first.ports).to be_empty
         end
       end
 

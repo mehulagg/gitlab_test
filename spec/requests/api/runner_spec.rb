@@ -470,7 +470,7 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
             expect(json_response['git_info']).to eq(expected_git_info)
             expect(json_response['image']).to eq({ 'name' => 'ruby:2.1', 'entrypoint' => '/bin/sh', 'ports' => [] })
             expect(json_response['services']).to eq([{ 'name' => 'postgres', 'entrypoint' => nil,
-                                                       'alias' => nil, 'command' => nil , 'ports' => []},
+                                                       'alias' => nil, 'command' => nil, 'ports' => [] },
                                                      { 'name' => 'docker:stable-dind', 'entrypoint' => '/bin/sh',
                                                        'alias' => 'docker', 'command' => 'sleep 30', 'ports' => [] }])
             expect(json_response['steps']).to eq(expected_steps)
