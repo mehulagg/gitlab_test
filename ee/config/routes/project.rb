@@ -21,9 +21,9 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         member do
           post :cancel
           post :retry
-          match '/proxy/authorize', to: 'web_ide_services#proxy_authorize', constraints: { format: nil }, via: :all
-          get '/proxy.ws/authorize', to: 'web_ide_services#proxy_websocket_authorize', constraints: { format: nil }
-          match :proxy, constraints: { format: nil }, via: :all
+          # match '/proxy/authorize', to: 'web_ide_services#proxy_authorize', constraints: { format: nil }, via: :all
+          # get '/proxy.ws/authorize', to: 'web_ide_services#proxy_websocket_authorize', constraints: { format: nil }
+          # match :proxy, constraints: { format: nil }, via: :all
         end
 
         collection do
@@ -36,6 +36,14 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         resources :package_files, only: [], module: :packages do
           member do
             get :download
+          end
+        end
+
+        resources :jobs, only: [], constraints: { id: /\d+/ } do
+          member do
+            match '/proxy/authorize', to: 'jobs#proxy_authorize', constraints: { format: nil }, via: :all
+            get '/proxy.ws/authorize', to: 'jobs#proxy_websocket_authorize', constraints: { format: nil }
+            get :proxy
           end
         end
       end

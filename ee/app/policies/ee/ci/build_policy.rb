@@ -18,6 +18,7 @@ module EE
         rule { is_web_ide_terminal & can?(:create_web_ide_terminal) & (admin | owner_of_job) }.policy do
           enable :read_web_ide_terminal
           enable :update_web_ide_terminal
+          enable :create_proxy_build
         end
 
         rule { is_web_ide_terminal & ~can?(:update_web_ide_terminal) }.policy do

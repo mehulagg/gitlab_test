@@ -11,7 +11,22 @@ describe Ci::BuildRunnerSession, model: true do
     let(:service) { 'foo'}
     let(:port) { 80 }
     let(:requested_url) { 'requested_url' }
-    let(:specification) { subject.service_specification(service: service, port: port, requested_url: requested_url) }
+    let(:subprotocols) { nil }
+    let(:specification) { subject.service_specification(service: service, port: port, requested_url: requested_url, subprotocols: subprotocols) }
+
+    it 'returns service proxy url' do
+      expect(specification[:url]).to eq "https://localhost/proxy/#{service}/#{port}/#{requested_url}"
+    end
+
+    it 'returns default service proxy websocket subprotocol' do
+      expect(specification[:subprotocols]).to eq ["terminal.gitlab.com"]
+    end
+
+    it 'returns empty hash if no url' do
+      subject.url = ''
+
+      expect(specification).to be_empty
+    end
 
     context 'when port is not present' do
       let(:port) { nil }
@@ -29,16 +44,6 @@ describe Ci::BuildRunnerSession, model: true do
       end
     end
 
-    it 'returns service proxy url' do
-      expect(specification[:url]).to eq "https://localhost/proxy/#{service}/#{port}/#{requested_url}"
-    end
-
-    it 'returns empty hash if no url' do
-      subject.url = ''
-
-      expect(specification).to be_empty
-    end
-
     context 'when url is present' do
       it 'returns ca_pem nil if empty certificate' do
         subject.certificate = ''
@@ -47,9 +52,16 @@ describe Ci::BuildRunnerSession, model: true do
       end
 
       it 'adds Authorization header if authorization is present' do
-        subject.authorization = 'whatever'
+        subject.authorization = 'foobar'
 
-        expect(specification[:headers]).to include(Authorization: ['whatever'])
+        expect(specification[:headers]).to include(Authorization: ['foobar'])
+      end
+    end
+
+    context 'when subprotocol is present' do
+      let(:subprotocols) { 'foobar' }
+      it 'returns the new subprotocol' do
+        expect(specification[:subprotocols]).to eq ["foobar"]
       end
     end
   end

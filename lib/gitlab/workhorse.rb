@@ -163,6 +163,19 @@ module Gitlab
         details
       end
 
+      def service_request(service)
+        details = {
+          'Service' => {
+            'Url' => service[:url],
+            'Header' => service[:headers]
+          }
+        }
+
+        details['Service']['CAPem'] = service[:ca_pem] if service.key?(:ca_pem)
+
+        details
+      end
+
       def version
         path = Rails.root.join(VERSION_FILE)
         path.readable? ? path.read.chomp : 'unknown'

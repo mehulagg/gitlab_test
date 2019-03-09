@@ -29,11 +29,11 @@ class WebIdeTerminal
   end
 
   def proxy_path
-    web_ide_terminal_route_generator(:proxy)
+    proxy_project_job_path(project, build)
   end
 
   def proxy_websocket_path
-    web_ide_terminal_route_generator(:proxy, format: :ws)
+    proxy_project_job_path(project, build, format: :ws)
   end
 
   private

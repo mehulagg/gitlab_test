@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Projects::WebIdeServicesController do
+describe Projects::JobsController do
   let(:owner) { create(:owner) }
   let(:admin) { create(:admin) }
   let(:maintainer) { create(:user) }

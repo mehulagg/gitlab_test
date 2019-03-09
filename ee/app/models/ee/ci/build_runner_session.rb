@@ -11,14 +11,15 @@ module EE
 
       DEFAULT_SERVICE_NAME = 'build'.freeze
 
-      def service_specification(service: nil, requested_url: '', port:)
+      def service_specification(service: nil, requested_url: '', port: nil, subprotocols: nil)
         return {} unless url.present?
 
         port = port.presence || ::Gitlab::Ci::Build::Port::DEFAULT_PORT_NAME
         service = service.presence || DEFAULT_SERVICE_NAME
-
         url = "#{self.url}/proxy/#{service}/#{port}/#{requested_url}"
-        channel_specification(url, ::Ci::BuildRunnerSession::TERMINAL_SUBPROTOCOL)
+        subprotocols = subprotocols.presence || ::Ci::BuildRunnerSession::TERMINAL_SUBPROTOCOL
+
+        channel_specification(url, subprotocols)
       end
     end
   end
