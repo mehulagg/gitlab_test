@@ -146,7 +146,7 @@ If your project requires [a specific language or
 framework](https://gitlab.com/gitlab-org/security-products/sast/blob/master/docs/analyzers.md),
 the base image for that analyzer can be used directly, rather than auto-detected through our `sast` container.
 
-This approach can also be used in the event that your runners are unable to use Docker-in-Docker or obtain privileged permissions.
+This approach can also be used in the event that your Runners are unable to use Docker-in-Docker or obtain privileged permissions.
 
 ```yaml
 sast:
@@ -217,6 +217,7 @@ sast:
   stage: test
   image: registry.gitlab.com/gitlab-org/security-products/analyzers/spotbugs:2
   allow_failure: true
+  dependencies: build
   script:
     - /analyzer run -compile=false
   variables:
