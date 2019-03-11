@@ -3,6 +3,7 @@
 module Auth
   class ContainerRegistryAuthenticationService < BaseService
     AUDIENCE = 'container_registry'.freeze
+    SizeError = Class.new(StandardError)
 
     def execute(authentication_abilities:)
       @authentication_abilities = authentication_abilities
@@ -14,6 +15,8 @@ module Auth
       end
 
       { token: authorized_token(*scopes).encoded }
+    rescue SizeError => e
+      return error('DENIED', status: 413, message: e)
     end
 
     def self.full_access_token(*names)
@@ -36,6 +39,13 @@ module Auth
     end
 
     private
+
+    def limit_exceeded?(a_project)
+      return false unless a_project&.size_limit_enabled?
+      return false if a_project.statistics.blank?
+
+      a_project.statistics.storage_size >= a_project.actual_size_limit
+    end
 
     def authorized_token(*accesses)
       JSONWebToken::RSAToken.new(registry.key).tap do |token|
@@ -88,6 +98,10 @@ module Auth
       end
 
       return unless actions.present?
+
+      if actions.include?('push') && limit_exceeded?(requested_project)
+        raise SizeError, ::Gitlab::RepositorySizeError.new(requested_project).above_size_limit_message
+      end
 
       # At this point user/build is already authenticated.
       #
