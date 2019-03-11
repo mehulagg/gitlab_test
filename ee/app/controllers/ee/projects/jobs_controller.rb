@@ -21,7 +21,7 @@ module EE
       private
 
       def authorize_create_proxy_build!
-        return access_denied! unless can?(current_user, :create_proxy_build, build)
+        return access_denied! unless can?(current_user, :create_build_service_proxy, build)
       end
 
       def verify_proxy_request!
@@ -36,6 +36,8 @@ module EE
       end
 
       def build_service_specification
+        # This will allow to reuse the same subprotocol set
+        # in the original websocket connection
         subprotocol = request.headers['HTTP_SEC_WEBSOCKET_PROTOCOL']
 
         build.service_specification(service: params['service'],

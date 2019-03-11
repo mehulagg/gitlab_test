@@ -17,6 +17,8 @@ describe Projects::JobsController do
 
   before do
     stub_licensed_features(web_ide_terminal: true)
+    stub_feature_flags(build_service_proxy: true)
+    allow(job).to receive(:has_terminal?).and_return(true)
 
     project.add_maintainer(maintainer)
     project.add_developer(developer)
@@ -114,9 +116,7 @@ describe Projects::JobsController do
 
       context 'and valid id' do
         it 'returns the proxy data for the service running in the job' do
-          expect(controller)
-            .to receive(render_method)
-            .and_return(workhorse: :response)
+          expect(Gitlab::Workhorse).to receive(render_method).and_return(workhorse: :response)
 
           make_request
 
@@ -146,22 +146,37 @@ describe Projects::JobsController do
     end
   end
 
+  shared_examples 'feature flag "build_service_proxy" is disabled' do
+    let(:user) { admin }
+
+    it 'returns 404' do
+      allow(Gitlab::Workhorse).to receive(:verify_api_request!).and_return(nil)
+      stub_feature_flags(build_service_proxy: false)
+
+      make_request
+
+      expect(response).to have_gitlab_http_status(404)
+    end
+  end
+
   describe 'GET #proxy_authorize' do
     let(:path) { :proxy_authorize }
-    let(:render_method) { :webide_service }
+    let(:render_method) { :service_request }
 
     it_behaves_like 'proxy access rights'
     it_behaves_like 'when pipeline is not from a webide source'
     it_behaves_like 'validates workhorse signature'
+    it_behaves_like 'feature flag "build_service_proxy" is disabled'
   end
 
   describe 'GET #proxy_websocket_authorize' do
     let(:path) { :proxy_websocket_authorize }
-    let(:render_method) { :webide_websocket_service }
+    let(:render_method) { :channel_websocket }
 
     it_behaves_like 'proxy access rights'
     it_behaves_like 'when pipeline is not from a webide source'
     it_behaves_like 'validates workhorse signature'
+    it_behaves_like 'feature flag "build_service_proxy" is disabled'
   end
 
   def make_request

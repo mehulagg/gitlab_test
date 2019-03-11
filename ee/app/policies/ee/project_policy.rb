@@ -208,7 +208,12 @@ module EE
         @subject.feature_available?(:web_ide_terminal)
       end
 
+      condition(:build_service_proxy_enabled) do
+        ::Feature.enabled?(:build_service_proxy, @subject)
+      end
+
       rule { web_ide_terminal_available & can?(:create_pipeline) & can?(:maintainer_access) }.enable :create_web_ide_terminal
+      rule { build_service_proxy_enabled }.enable :build_service_proxy_enabled
     end
   end
 end
