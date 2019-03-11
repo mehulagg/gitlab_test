@@ -230,7 +230,9 @@ sast:
 NOTE: **Note:**
 Note that the path to the vendored directory must be specified explicitly to allow
 the analyzer to recognize the compiled artifacts, this configuration can vary per
-analyzer but in the case of Java above, we can use `MAVEN_REPO_PATH`.
+analyzer but in the case of Java above, we can use `MAVEN_REPO_PATH`. Please
+see [Analyzer settings](https://gitlab.com/gitlab-org/security-products/sast/tree/master#analyzer-settings)
+for complete list of available options.
 
 ## Previous job definitions
 
