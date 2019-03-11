@@ -4484,6 +4484,9 @@ msgstr ""
 msgid "Enable error tracking"
 msgstr ""
 
+msgid "Enable feature to choose access level"
+msgstr ""
+
 msgid "Enable for this project"
 msgstr ""
 
@@ -4947,6 +4950,9 @@ msgid "Every week (Sundays at 4:00am)"
 msgstr ""
 
 msgid "Everyone"
+msgstr ""
+
+msgid "Everyone With Access"
 msgstr ""
 
 msgid "Everyone can contribute"
