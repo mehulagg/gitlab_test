@@ -50,6 +50,14 @@ describe Gitlab::UserExtractor do
         expect(extractor.users).to contain_exactly(user_1, user_4, user_email)
       end
     end
+
+    context 'input has no matching e-mail or usernames' do
+      it 'returns an empty list of users' do
+        extractor = described_class.new('My test')
+
+        expect(extractor.users).to be_empty
+      end
+    end
   end
 
   describe '#matches' do
