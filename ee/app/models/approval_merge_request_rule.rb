@@ -47,6 +47,14 @@ class ApprovalMergeRequestRule < ApplicationRecord
     strong_memoize(:approvers) do
       scope_or_array = super
 
+      if approval_project_rule
+        if scope_or_array.respond_to?(:where) && approval_project_rule.approvers.respond_to?(:where)
+          scope_or_array = User.from_union([scope_or_array, approval_project_rule.approvers])
+        else
+          scope_or_array = scope_or_array + approval_project_rule.approvers
+        end
+      end
+
       next scope_or_array unless merge_request.author
       next scope_or_array if project.merge_requests_author_approval?
 

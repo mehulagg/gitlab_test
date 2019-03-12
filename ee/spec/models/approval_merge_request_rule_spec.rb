@@ -147,6 +147,24 @@ describe ApprovalMergeRequestRule do
         end
       end
     end
+
+    context 'when approval_project_rule exists' do
+      let(:group_member) { create(:user) }
+      let(:group) { create(:group, :private) }
+
+      before do
+        group.add_maintainer(group_member)
+      end
+
+      it 'includes approvers from approval_project_rule' do
+        project_rule = create(:approval_project_rule, project: merge_request.target_project, groups: [group])
+        subject = create(:approval_merge_request_rule, merge_request: merge_request, approval_project_rule_id: project_rule.id)
+
+        subject.reload
+
+        expect(subject.approvers).to contain_exactly(group_member)
+      end
+    end
   end
 
   describe '#sync_approved_approvers' do
