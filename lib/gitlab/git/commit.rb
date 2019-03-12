@@ -332,6 +332,14 @@ module Gitlab
       def tree_entry(path)
         return unless path.present?
 
+        if ENV['GITALY_COMMIT_TREE_ENTRY']
+          gitaly_tree_entry(path)
+        else
+          rugged_tree_entry(path)
+        end
+      end
+
+      def gitaly_tree_etry(path)
         # We're only interested in metadata, so limit actual data to 1 byte
         # since Gitaly doesn't support "send no data" option.
         entry = @repository.gitaly_commit_client.tree_entry(id, path, 1)
@@ -343,6 +351,21 @@ module Gitlab
         entry[:type] = entry[:type].downcase
 
         entry
+      end
+
+      # Is this the same as Blob.find_entry_by_path ?
+      def rugged_tree_entry(path)
+        rugged_commit.tree.path(path)
+      rescue Rugged::TreeError
+        nil
+      end
+
+      def rugged_commit
+        @rugged_commit ||= if raw_commit.is_a?(Rugged::Commit)
+                             raw_commit
+                           else
+                             @repository.rev_parse_target(id)
+                           end
       end
 
       def to_gitaly_commit
