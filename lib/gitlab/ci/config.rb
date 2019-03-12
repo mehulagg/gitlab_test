@@ -8,9 +8,12 @@ module Gitlab
     class Config
       ConfigError = Class.new(StandardError)
 
-      def initialize(config, project: nil, sha: nil, user: nil)
+      def initialize(config, project: nil, sha: nil, user: nil, with_ports: false)
+        excluded_keys = []
+        excluded_keys << :ports unless with_ports
+
         @config = Config::Extendable
-          .new(build_config(config, project: project, sha: sha, user: user))
+          .new(build_config(config, project: project, sha: sha, user: user, excluded_keys: excluded_keys))
           .to_hash
 
         @global = Entry::Global.new(@config)
@@ -70,8 +73,10 @@ module Gitlab
 
       private
 
-      def build_config(config, project:, sha:, user:)
+      def build_config(config, project:, sha:, user:, excluded_keys: [])
         initial_config = Gitlab::Config::Loader::Yaml.new(config).load!
+
+        exclude_config_keys!(initial_config, excluded_keys)
 
         if project
           process_external_files(initial_config, project: project, sha: sha, user: user)
@@ -85,6 +90,23 @@ module Gitlab
           project: project,
           sha: sha || project.repository.root_ref_sha,
           user: user).perform
+      end
+
+      def exclude_config_keys!(config, excluded_keys = [])
+        return if excluded_keys.empty?
+
+        case config
+        when Hash
+          config.each do |key, value|
+            if excluded_keys.include?(key)
+              config.delete(key)
+            else
+              exclude_config_keys!(value, excluded_keys)
+            end
+          end
+        when Array
+          config.map {|e| exclude_config_keys!(e, excluded_keys)}
+        end
       end
     end
   end
