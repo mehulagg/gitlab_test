@@ -9,6 +9,8 @@
     "id": { "type": "integer" },
     "environment_scope": { "type": "string" },
     "active": { "type": "boolean" },
+    "can_update": { "type": "boolean" },
+    "protected": { "type": "boolean" },
     "created_at": { "type": "date" },
     "updated_at": { "type": "date" }
   },

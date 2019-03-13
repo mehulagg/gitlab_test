@@ -24,12 +24,56 @@ describe ProtectedEnvironments::UpdateService, '#execute' do
   end
 
   context 'with valid params' do
-    it { is_expected.to be_truthy }
+    shared_examples 'succesfully updates protected environment' do
+      it { is_expected.to be_truthy }
 
-    it 'updates the deploy access levels' do
-      expect do
-        subject
-      end.to change { ProtectedEnvironment::DeployAccessLevel.count }.from(1).to(2)
+      it 'updates the deploy access levels' do
+        expect do
+          subject
+        end.to change { ProtectedEnvironment::DeployAccessLevel.count }.from(1).to(2)
+      end
+    end
+
+    include_examples 'succesfully updates protected environment'
+
+    context 'when there is a feature flag' do
+      let!(:feature_flag) { create(:operations_feature_flag, project: project) }
+
+      include_examples 'succesfully updates protected environment'
+
+      it 'creates scope for feature flag' do
+        expect do
+          subject
+        end.to change { feature_flag.reload.scopes.find_by_environment_scope('production') }.from(nil).to(be)
+      end
+
+      context 'when feature flag permissions are disabled' do
+        before do
+          stub_feature_flags(feature_flag_permissions: false)
+        end
+
+        include_examples 'succesfully updates protected environment'
+
+        it 'does not create scope for feature flag' do
+          expect do
+            subject
+          end.not_to change { feature_flag.reload.scopes.find_by_environment_scope('production') }.from(nil)
+        end
+      end
+
+      context 'when feature flag already has scope' do
+        before do
+          feature_flag.scopes.create!(environment_scope: 'production', active: true)
+        end
+
+        include_examples 'succesfully updates protected environment'
+
+        it 'does not create feature flag scope' do
+          expect do
+            subject
+          end.not_to change { feature_flag.reload.scopes.where(environment_scope: 'production').count }.from(1)
+        end
+      end
     end
   end
 

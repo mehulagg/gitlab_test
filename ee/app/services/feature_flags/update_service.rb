@@ -11,6 +11,9 @@ module FeatureFlags
       ActiveRecord::Base.transaction do
         feature_flag.assign_attributes(params)
 
+        permission_error = check_permissions(feature_flag)
+        next error(permission_error) if permission_error
+
         audit_event = audit_event(feature_flag)
 
         if feature_flag.save
@@ -69,6 +72,27 @@ module FeatureFlags
       end.join(' ')
 
       message + '.'
+    end
+
+    def check_permissions(feature_flag)
+      return unless permissions_enabled?
+
+      feature_flag.scopes.each do |scope|
+        next unless scope.changed? || scope.marked_for_destruction?
+
+        environment_name =
+          if scope.environment_scope_changed?
+            scope.environment_scope_was
+          else
+            scope.environment_scope
+          end
+
+        unless environment_accessible_to_user?(environment_name)
+          return permission_error_message(environment_name)
+        end
+      end
+
+      nil
     end
   end
 end

@@ -159,6 +159,58 @@ describe Operations::FeatureFlag do
     end
   end
 
+  describe '.active_on_environment' do
+    subject { feature_flag.active_on_environment(environment_name) }
+
+    context 'when feature flag is off on production' do
+      let(:feature_flag) do
+        feature_flag = create(:operations_feature_flag, active: true)
+        create_scope(feature_flag, 'production', false)
+        feature_flag
+      end
+
+      context 'when environment is production' do
+        let(:environment_name) { 'production' }
+
+        it 'returns ' do
+          is_expected.to eq(false)
+        end
+      end
+
+      context 'when environment is staging' do
+        let(:environment_name) { 'staging' }
+
+        it 'returns actual active value' do
+          is_expected.to eq(true)
+        end
+      end
+    end
+
+    context 'when feature flag is default disabled but enabled for review apps' do
+      let(:feature_flag) do
+        feature_flag = create(:operations_feature_flag, active: false)
+        create_scope(feature_flag, 'review/*', true)
+        feature_flag
+      end
+
+      context 'when environment is review app' do
+        let(:environment_name) { 'review/patch-1' }
+
+        it 'returns active value for review/* scope' do
+          is_expected.to eq(true)
+        end
+      end
+
+      context 'when environment is production' do
+        let(:environment_name) { 'production' }
+
+        it 'returns active value for * scope' do
+          is_expected.to eq(false)
+        end
+      end
+    end
+  end
+
   describe '.for_list' do
     subject { described_class.for_list }
 

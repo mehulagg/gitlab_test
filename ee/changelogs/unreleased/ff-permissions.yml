@@ -1,0 +1,5 @@
+---
+title: Add permission restrictions for feature flags based on protected environments
+merge_request: 14401
+author:
+type: added

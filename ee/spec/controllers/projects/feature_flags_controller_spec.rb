@@ -218,7 +218,7 @@ describe Projects::FeatureFlagsController do
       }
     end
 
-    it 'returns all feature flags as json response' do
+    it 'returns feature flag as json response' do
       subject
 
       expect(json_response['name']).to eq(feature_flag.name)

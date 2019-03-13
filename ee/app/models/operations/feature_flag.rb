@@ -53,6 +53,10 @@ module Operations
              ", COALESCE((#{join_enabled_scopes.to_sql}), FALSE) AS active")
     end
 
+    def active_on_environment(environment)
+      scopes.on_environment(environment, relevant_only: true).first.active
+    end
+
     class << self
       def actual_active_sql(environment)
         Operations::FeatureFlagScope

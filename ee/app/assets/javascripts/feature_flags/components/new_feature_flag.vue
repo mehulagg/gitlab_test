@@ -31,6 +31,8 @@ export default {
         {
           environment_scope: '*',
           active: true,
+          can_update: true,
+          protected: false
         },
       ];
     },
