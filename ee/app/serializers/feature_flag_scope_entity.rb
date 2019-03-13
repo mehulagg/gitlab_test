@@ -8,4 +8,15 @@ class FeatureFlagScopeEntity < Grape::Entity
   expose :environment_scope
   expose :created_at
   expose :updated_at
+
+  expose :can_update do |feature_flag_scope|
+    project = feature_flag_scope.feature_flag.project
+    project.protected_environment_accessible_to?(feature_flag_scope.environment_scope, current_user)
+  end
+
+  private
+
+  def current_user
+    request.current_user
+  end
 end
