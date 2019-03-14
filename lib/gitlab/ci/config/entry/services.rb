@@ -12,15 +12,16 @@ module Gitlab
 
           validations do
             validates :config, type: Array
+            validates :config, services_alias_unique: true, if: ->(record) { record.opt(:with_image_ports) }
           end
 
           def compose!(deps = nil)
             super do
               @entries = []
               @config.each do |config|
-                @entries << ::Gitlab::Config::Entry::Factory.new(service_klass)
+                @entries << ::Gitlab::Config::Entry::Factory.new(Entry::Service)
                   .value(config || {})
-                  .with(key: "service", parent: self, description: "service definition.")
+                  .with(key: "service", parent: self, description: "service definition.") # rubocop:disable CodeReuse/ActiveRecord
                   .create!
               end
 
@@ -36,12 +37,6 @@ module Gitlab
 
           def descendants
             @entries
-          end
-
-          protected
-
-          def service_klass
-            Entry::Service
           end
         end
       end

@@ -136,7 +136,7 @@ describe Gitlab::Ci::Config do
         end
 
         it 'raises an error' do
-          expect(config.errors).to include("image config contains unknown keys: ports")
+          expect(config.errors).to include("image config contains disallowed keys: ports")
         end
       end
 
@@ -155,7 +155,7 @@ describe Gitlab::Ci::Config do
         end
 
         it 'raises an error' do
-          expect(config.errors).to include("jobs:test:image config contains unknown keys: ports")
+          expect(config.errors).to include("jobs:test:image config contains disallowed keys: ports")
         end
       end
 
@@ -169,13 +169,14 @@ describe Gitlab::Ci::Config do
               image: ruby:2.2
               services:
                 - name: test
+                  alias: test
                   ports:
                     - 80
           EOS
         end
 
         it 'raises an error' do
-          expect(config.errors).to include("service config contains unknown keys: ports")
+          expect(config.errors).to include("jobs:test:services:service config contains disallowed keys: ports")
         end
       end
     end

@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Gitlab::WebIde::Config::Entry::Terminal do
-  let(:entry) { described_class.new(config) }
+  let(:entry) { described_class.new(config, with_image_ports: true) }
 
   describe '.nodes' do
     context 'when filtering all the entry/node names' do
@@ -35,12 +35,12 @@ describe Gitlab::WebIde::Config::Entry::Terminal do
         let(:config) do
           {
             image: { name: "ruby", ports: [80] },
-            services: [{ name: "mysql", ports: [81] }, { name: "mysql", ports: [82] }]
+            services: [{ name: "mysql", alias: "service1", ports: [81] }, { name: "mysql", alias: "service2", ports: [82] }]
           }
         end
 
         describe '#valid?' do
-          it 'is invalid' do
+          it 'is valid' do
             expect(entry).to be_valid
           end
         end

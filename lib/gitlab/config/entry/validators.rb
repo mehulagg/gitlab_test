@@ -291,6 +291,18 @@ module Gitlab
             current_data.dig(:services).to_a.flat_map { |service| service.is_a?(Hash) ? service[:ports] : nil }
           end
         end
+
+        class ServicesAliasUniqueValidator < ActiveModel::EachValidator
+          def validate_each(record, attribute, value)
+            aliases_with_port = value.select { |s| s.is_a?(Hash) }.pluck(:alias, :ports) # rubocop:disable CodeReuse/ActiveRecord
+            port_present = aliases_with_port.any? { |e| e[1].present? }
+            return unless port_present
+
+            if aliases_with_port.size != aliases_with_port.to_h.size
+              record.errors.add(:config, 'alias must be unique')
+            end
+          end
+        end
       end
     end
   end
