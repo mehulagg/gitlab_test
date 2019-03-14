@@ -528,7 +528,7 @@ compile-assets:
   stage: prepare
   script:
     - node --version
-    - yarn install --frozen-lockfile --cache-folder .yarn-cache
+    - yarn install --frozen-lockfile
     - free -m
     - bundle exec rake gitlab:assets:compile
     - scripts/clean-old-cached-assets
