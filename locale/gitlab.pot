@@ -2013,9 +2013,6 @@ msgstr ""
 msgid "Choose <strong>Next</strong> at the bottom of the page."
 msgstr ""
 
-msgid "Choose File ..."
-msgstr ""
-
 msgid "Choose a branch/tag (e.g. %{master}) or enter a commit (e.g. %{sha}) to see what's changed or to create a merge request."
 msgstr ""
 
@@ -2037,6 +2034,12 @@ msgstr ""
 msgid "Choose between <code>clone</code> or <code>fetch</code> to get the recent application code"
 msgstr ""
 
+<<<<<<< HEAD
+=======
+msgid "Choose file…"
+msgstr ""
+
+>>>>>>> 149dc121e71... Improve project avatar settings
 msgid "Choose the top-level group for your repository imports."
 msgstr ""
 
@@ -8271,12 +8274,15 @@ msgstr ""
 msgid "Project avatar"
 msgstr ""
 
+<<<<<<< HEAD
 msgid "Project configuration, including services"
 msgstr ""
 
 msgid "Project description (optional)"
 msgstr ""
 
+=======
+>>>>>>> 149dc121e71... Improve project avatar settings
 msgid "Project details"
 msgstr ""
 

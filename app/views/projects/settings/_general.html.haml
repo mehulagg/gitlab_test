@@ -33,7 +33,7 @@
     .avatar-container.s90
       = project_icon(@project, alt: _('Project avatar'), class: 'avatar project-avatar s90')
     = f.label :avatar, _('Project avatar'), class: 'label-bold d-block'
-    = render 'shared/choose_group_avatar_button', f: f
+    = render 'shared/choose_avatar_button', f: f
     - if @project.avatar?
       %hr
       = link_to _('Remove avatar'), project_avatar_path(@project), data: { confirm: _('Avatar will be removed. Are you sure?')}, method: :delete, class: 'btn btn-link'
