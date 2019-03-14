@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe ::API::Entities::JobRequest::Port do
-  let(:port) { double(number: 80, insecure: true, name: 'name')}
+  let(:port) { double(number: 80, protocol: 'http', name: 'name')}
   let(:entity) { described_class.new(port) }
 
   subject { entity.as_json }
@@ -12,11 +12,11 @@ describe ::API::Entities::JobRequest::Port do
     expect(subject[:number]).to eq 80
   end
 
-  it 'returns if the port is insecure' do
-    expect(subject[:insecure]).to eq true
+  it 'returns if the port protocol' do
+    expect(subject[:protocol]).to eq 'http'
   end
 
-  it 'returns the name' do
+  it 'returns the port name' do
     expect(subject[:name]).to eq 'name'
   end
 end

@@ -790,7 +790,7 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
               expect(response).to have_http_status(:created)
               expect(json_response).to include(
                 'id' => job.id,
-                'image' => a_hash_including('name' => 'ruby', 'ports' => [{ 'number' => 80, 'insecure' => false, 'name' => 'default_port' }]),
+                'image' => a_hash_including('name' => 'ruby', 'ports' => [{ 'number' => 80, 'protocol' => 'http', 'name' => 'default_port' }]),
                 'services' => all(a_hash_including('name' => 'mysql')))
             end
           end
@@ -802,7 +802,7 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
                 services: [
                   {
                     name: 'tomcat',
-                    ports: [{ number: 8081, insecure: true, name: 'custom_port' }]
+                    ports: [{ number: 8081, protocol: 'http', name: 'custom_port' }]
                   }
                 ]
               }
@@ -815,7 +815,7 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
               expect(json_response).to include(
                 'id' => job.id,
                 'image' => a_hash_including('name' => 'ruby'),
-                'services' => all(a_hash_including('name' => 'tomcat', 'ports' => [{ 'number' => 8081, 'insecure' => true, 'name' => 'custom_port' }])))
+                'services' => all(a_hash_including('name' => 'tomcat', 'ports' => [{ 'number' => 8081, 'protocol' => 'http', 'name' => 'custom_port' }])))
             end
           end
         end

@@ -89,7 +89,7 @@ describe Gitlab::Ci::Config::Entry::Service do
     end
 
     context 'when configuration has ports' do
-      let(:ports) { [{ number: 80, insecure: false, name: 'foobar' }] }
+      let(:ports) { [{ number: 80, protocol: 'http', name: 'foobar' }] }
       let(:config) do
         { name: 'postgresql:9.5', alias: 'db', command: %w(cmd run), entrypoint: %w(/bin/sh run), ports: ports }
       end
@@ -158,7 +158,7 @@ describe Gitlab::Ci::Config::Entry::Service do
   end
 
   context 'when service has ports' do
-    let(:ports) { [{ number: 80, insecure: false, name: 'foobar' }] }
+    let(:ports) { [{ number: 80, protocol: 'http', name: 'foobar' }] }
     let(:config) do
       { name: 'postgresql:9.5', command: %w(cmd run), entrypoint: %w(/bin/sh run), ports: ports }
     end

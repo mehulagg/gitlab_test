@@ -5,19 +5,20 @@ module Gitlab
     module Build
       class Port
         DEFAULT_PORT_NAME = 'default_port'.freeze
+        DEFAULT_PORT_PROTOCOL = 'http'.freeze
 
-        attr_reader :number, :insecure, :name
+        attr_reader :number, :protocol, :name
 
         def initialize(port)
           @name = DEFAULT_PORT_NAME
-          @insecure = false
+          @protocol = DEFAULT_PORT_PROTOCOL
 
           case port
           when Integer
             @number = port
           when Hash
             @number = port[:number]
-            @insecure = port.fetch(:insecure, @insecure)
+            @protocol = port.fetch(:protocol, @protocol)
             @name = port.fetch(:name, @name)
           end
         end

@@ -10,17 +10,17 @@ describe Gitlab::Ci::Build::Port do
 
     it 'populates the object' do
       expect(subject.number).to eq 80
-      expect(subject.insecure).to eq false
+      expect(subject.protocol).to eq described_class::DEFAULT_PORT_PROTOCOL
       expect(subject.name).to eq described_class::DEFAULT_PORT_NAME
     end
   end
 
   context 'when port is defined as hash' do
-    let(:port) { { number: 80, insecure: true, name: 'port_name' } }
+    let(:port) { { number: 80, protocol: 'https', name: 'port_name' } }
 
     it 'populates the object' do
       expect(subject.number).to eq 80
-      expect(subject.insecure).to eq true
+      expect(subject.protocol).to eq 'https'
       expect(subject.name).to eq 'port_name'
     end
   end

@@ -41,7 +41,7 @@ describe Gitlab::Ci::Build::Image do
         it 'does not populate the ports' do
           port = subject.ports.first
           expect(port.number).to eq 80
-          expect(port.insecure).to eq false
+          expect(port.protocol).to eq 'http'
           expect(port.name).to eq 'default_port'
         end
       end
@@ -108,7 +108,7 @@ describe Gitlab::Ci::Build::Image do
 
           port = subject.first.ports.first
           expect(port.number).to eq 80
-          expect(port.insecure).to eq false
+          expect(port.protocol).to eq 'http'
           expect(port.name).to eq 'default_port'
         end
       end

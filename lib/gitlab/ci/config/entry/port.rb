@@ -10,14 +10,14 @@ module Gitlab
         class Port < ::Gitlab::Config::Entry::Node
           include ::Gitlab::Config::Entry::Validatable
 
-          ALLOWED_KEYS = %i[number insecure name].freeze
+          ALLOWED_KEYS = %i[number protocol name].freeze
 
           validations do
             validates :config, hash_or_integer: true
             validates :config, allowed_keys: ALLOWED_KEYS
 
             validates :number, type: Integer, presence: true
-            validates :insecure, boolean: true, presence: false
+            validates :protocol, type: String, inclusion: { in: %w[http https], message: 'should be http or https' }, allow_blank: true
             validates :name, type: String, presence: false, allow_nil: true
           end
 
@@ -25,8 +25,8 @@ module Gitlab
             value[:number]
           end
 
-          def insecure
-            value.fetch(:insecure, false)
+          def protocol
+            value.fetch(:protocol, ::Gitlab::Ci::Build::Port::DEFAULT_PORT_PROTOCOL)
           end
 
           def name

@@ -25,19 +25,19 @@ describe Gitlab::Ci::Config::Entry::Port do
     end
 
     describe '#number' do
-      it "returns service's image port" do
+      it "returns service's image port number" do
         expect(entry.number).to eq 80
       end
     end
 
-    describe '#insecure' do
-      it "returns service's insecure" do
-        expect(entry.insecure).to be false
+    describe '#protocol' do
+      it "returns service's port protocol" do
+        expect(entry.protocol).to be 'http'
       end
     end
 
     describe '#name' do
-      it "returns service's name" do
+      it "returns service's port name" do
         expect(entry.name).to be_nil
       end
     end
@@ -47,7 +47,7 @@ describe Gitlab::Ci::Config::Entry::Port do
     context 'with the complete hash' do
       let(:config) do
         { number: 80,
-          insecure: true,
+          protocol: 'http',
           name:  'foobar' }
       end
 
@@ -64,19 +64,19 @@ describe Gitlab::Ci::Config::Entry::Port do
       end
 
       describe '#number' do
-        it "returns service's image port" do
+        it "returns service's port number" do
           expect(entry.number).to eq 80
         end
       end
 
-      describe '#insecure' do
-        it "returns service's insecure" do
-          expect(entry.insecure).to eq true
+      describe '#protocol' do
+        it "returns service's port protocol" do
+          expect(entry.protocol).to eq 'http'
         end
       end
 
       describe '#name' do
-        it "returns service's name" do
+        it "returns service's port name" do
           expect(entry.name).to eq 'foobar'
         end
       end
@@ -98,26 +98,26 @@ describe Gitlab::Ci::Config::Entry::Port do
       end
 
       describe '#number' do
-        it "returns service's image port" do
+        it "returns service's image port number" do
           expect(entry.number).to eq 80
         end
       end
 
-      describe '#insecure' do
-        it "returns service's insecure" do
-          expect(entry.insecure).to eq false
+      describe '#protocol' do
+        it "returns service's port protocol" do
+          expect(entry.protocol).to eq 'http'
         end
       end
 
       describe '#name' do
-        it "returns service's name" do
+        it "returns service's port name" do
           expect(entry.name).to be_nil
         end
       end
     end
 
     context 'without the number' do
-      let(:config) { { insecure: false } }
+      let(:config) { { protocol: 'http' } }
 
       describe '#valid?' do
         it 'is valid' do
@@ -133,6 +133,40 @@ describe Gitlab::Ci::Config::Entry::Port do
     describe '#valid?' do
       it 'is valid' do
         expect(entry).not_to be_valid
+      end
+    end
+  end
+
+  context 'when protocol' do
+    let(:config) { { number: 80, protocol: protocol, name: 'foobar' } }
+
+    context 'is http' do
+      let(:protocol) { 'http' }
+
+      describe '#valid?' do
+        it 'is valid' do
+          expect(entry).to be_valid
+        end
+      end
+    end
+
+    context 'is https' do
+      let(:protocol) { 'https' }
+
+      describe '#valid?' do
+        it 'is valid' do
+          expect(entry).to be_valid
+        end
+      end
+    end
+
+    context 'is neither http nor https' do
+      let(:protocol) { 'foo' }
+
+      describe '#valid?' do
+        it 'is invalid' do
+          expect(entry.errors).to include("port protocol should be http or https")
+        end
       end
     end
   end

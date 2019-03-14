@@ -10,7 +10,7 @@ describe Gitlab::Ci::Config::Entry::Ports do
   end
 
   context 'when configuration is valid' do
-    let(:config) { [{ number: 80, insecure: false, name: 'foobar' }] }
+    let(:config) { [{ number: 80, protocol: 'http', name: 'foobar' }] }
 
     describe '#valid?' do
       it 'is valid' do
@@ -42,8 +42,8 @@ describe Gitlab::Ci::Config::Entry::Ports do
 
       context 'have the same name' do
         let(:config) do
-          [{ number: 80, insecure: false, name: 'foobar' },
-           { number: 81, insecure: false, name: 'foobar' }]
+          [{ number: 80, protocol: 'http', name: 'foobar' },
+           { number: 81, protocol: 'http', name: 'foobar' }]
         end
 
         describe '#valid?' do
@@ -55,8 +55,8 @@ describe Gitlab::Ci::Config::Entry::Ports do
 
       context 'have the same port' do
         let(:config) do
-          [{ number: 80, insecure: false, name: 'foobar' },
-           { number: 80, insecure: false, name: 'foobar1' }]
+          [{ number: 80, protocol: 'http', name: 'foobar' },
+           { number: 80, protocol: 'http', name: 'foobar1' }]
         end
 
         describe '#valid?' do

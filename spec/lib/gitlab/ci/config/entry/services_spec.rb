@@ -34,7 +34,7 @@ describe Gitlab::Ci::Config::Entry::Services do
   end
 
   context 'when configuration has ports' do
-    let(:ports) { [{ number: 80, insecure: false, name: 'foobar' }] }
+    let(:ports) { [{ number: 80, protocol: 'http', name: 'foobar' }] }
     let(:config) { ['postgresql:9.5', { name: 'postgresql:9.1', alias: 'postgres_old', ports: ports }] }
     let(:entry) { described_class.new(config, { with_image_ports: image_ports }) }
     let(:image_ports) { false }

@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe API::Entities::JobRequest::Image do
-  let(:ports) { [{ number: 80, insecure: true, name: 'name' }]}
+  let(:ports) { [{ number: 80, protocol: 'http', name: 'name' }]}
   let(:image) { double(name: 'image_name', entrypoint: ['foo'], ports: ports)}
   let(:entity) { described_class.new(image) }
 
