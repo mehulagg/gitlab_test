@@ -10,7 +10,7 @@ module Gitlab
         class Service < Image
           include ::Gitlab::Config::Entry::Validatable
 
-          ALLOWED_KEYS_WITH_PORTS = %i[name entrypoint command alias ports].freeze
+          ALLOWED_KEYS = %i[name entrypoint command alias ports].freeze
 
           validations do
             include ::Gitlab::Ci::Config::Entry::Validations::Service

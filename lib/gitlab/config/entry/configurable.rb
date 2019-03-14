@@ -57,6 +57,7 @@ module Gitlab
           def nodes
             Hash[(@nodes || {}).map { |key, factory| [key, factory.dup] }]
           end
+
           private
 
           # rubocop: disable CodeReuse/ActiveRecord
