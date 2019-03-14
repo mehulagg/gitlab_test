@@ -413,6 +413,12 @@ msgstr ""
 msgid "A member of GitLab's abuse team will review your report as soon as possible."
 msgstr ""
 
+msgid "A merge commit is created for every merge, and merging is allowed as long as there are no conflicts."
+msgstr ""
+
+msgid "A merge commit is created for every merge, but merging is only allowed if fast-forward merge is possible. This way you could make sure that if this merge request would build, after merging to target branch it would also build."
+msgstr ""
+
 msgid "A new branch will be created in your fork and a new merge request will be started."
 msgstr ""
 
@@ -483,6 +489,9 @@ msgid "Account and limit"
 msgstr ""
 
 msgid "Action to take when receiving an alert."
+msgstr ""
+
+msgid "Activate Service Desk"
 msgstr ""
 
 msgid "Active"
@@ -880,10 +889,16 @@ msgstr ""
 msgid "An error occurred while detecting host keys"
 msgstr ""
 
+msgid "An error occurred while disabling Service Desk."
+msgstr ""
+
 msgid "An error occurred while dismissing the alert. Refresh the page and try again."
 msgstr ""
 
 msgid "An error occurred while dismissing the feature highlight. Refresh the page and try dismissing again."
+msgstr ""
+
+msgid "An error occurred while enabling Service Desk."
 msgstr ""
 
 msgid "An error occurred while fetching markdown preview"
@@ -896,6 +911,9 @@ msgid "An error occurred while fetching sidebar data"
 msgstr ""
 
 msgid "An error occurred while fetching stages."
+msgstr ""
+
+msgid "An error occurred while fetching the Service Desk address."
 msgstr ""
 
 msgid "An error occurred while fetching the job log."
@@ -1057,6 +1075,9 @@ msgstr ""
 msgid "Any Label"
 msgstr ""
 
+msgid "Any encrypted tokens"
+msgstr ""
+
 msgid "Appearance"
 msgstr ""
 
@@ -1149,13 +1170,25 @@ msgstr ""
 msgid "Archive jobs"
 msgstr ""
 
+msgid "Archive project"
+msgstr ""
+
 msgid "Archived project! Repository and other project resources are read-only"
 msgstr ""
 
 msgid "Archived projects"
 msgstr ""
 
+msgid "Archiving the project will make it entirely read-only. It is hidden from the dashboard and doesn't show up in searches. <strong>The repository cannot be committed to, and no issues, comments or other entities can be created.</strong>"
+msgstr ""
+
 msgid "Are you sure"
+msgstr ""
+
+msgid "Are you sure that you want to archive this project?"
+msgstr ""
+
+msgid "Are you sure that you want to unarchive this project?"
 msgstr ""
 
 msgid "Are you sure you want to delete this pipeline schedule?"
@@ -1356,6 +1389,9 @@ msgstr ""
 msgid "Automatically marked as default internal user"
 msgstr ""
 
+msgid "Automatically resolve merge request diff discussions when they become outdated"
+msgstr ""
+
 msgid "Automatically resolved"
 msgstr ""
 
@@ -1477,6 +1513,12 @@ msgid "BatchComments|Discard review?"
 msgstr ""
 
 msgid "BatchComments|You're about to discard your review which will delete all of your pending comments. The deleted comments %{strong_start}cannot%{strong_end} be restored."
+msgstr ""
+
+msgid "Be careful. Changing the project's namespace can have unintended side effects."
+msgstr ""
+
+msgid "Be careful. Renaming a project's repository can have unintended side effects."
 msgstr ""
 
 msgid "Begin with the selected commit"
@@ -1743,6 +1785,12 @@ msgstr ""
 msgid "Business metrics (Custom)"
 msgstr ""
 
+msgid "Buy EE"
+msgstr ""
+
+msgid "Buy GitLab Enterprise Edition"
+msgstr ""
+
 msgid "By %{user_name}"
 msgstr ""
 
@@ -1765,6 +1813,9 @@ msgid "CI / CD Settings"
 msgstr ""
 
 msgid "CI Lint"
+msgstr ""
+
+msgid "CI variables"
 msgstr ""
 
 msgid "CI will run using the credentials assigned above."
@@ -1875,6 +1926,9 @@ msgstr ""
 msgid "Change Weight"
 msgstr ""
 
+msgid "Change path"
+msgstr ""
+
 msgid "Change permissions"
 msgstr ""
 
@@ -1947,9 +2001,6 @@ msgstr ""
 msgid "Choose <strong>Next</strong> at the bottom of the page."
 msgstr ""
 
-msgid "Choose File ..."
-msgstr ""
-
 msgid "Choose a branch/tag (e.g. %{master}) or enter a commit (e.g. %{sha}) to see what's changed or to create a merge request."
 msgstr ""
 
@@ -1971,7 +2022,7 @@ msgstr ""
 msgid "Choose between <code>clone</code> or <code>fetch</code> to get the recent application code"
 msgstr ""
 
-msgid "Choose file..."
+msgid "Choose file…"
 msgstr ""
 
 msgid "Choose the top-level group for your repository imports."
@@ -2095,6 +2146,9 @@ msgid "CiVariable|Toggle protected"
 msgstr ""
 
 msgid "CiVariable|Validation failed"
+msgstr ""
+
+msgid "Classification Label (optional)"
 msgstr ""
 
 msgid "ClassificationLabelUnavailable|is unavailable: %{reason}"
@@ -2840,6 +2894,12 @@ msgstr ""
 msgid "Configure the way a user creates a new account."
 msgstr ""
 
+msgid "Confirm"
+msgstr ""
+
+msgid "Confirmation required"
+msgstr ""
+
 msgid "Connect"
 msgstr ""
 
@@ -2855,10 +2915,22 @@ msgstr ""
 msgid "Connecting..."
 msgstr ""
 
+msgid "Contact an owner of group %{namespace_name} to upgrade the plan."
+msgstr ""
+
+msgid "Contact owner %{link_start}%{owner_name}%{link_end} to upgrade the plan."
+msgstr ""
+
 msgid "Contact sales to upgrade"
 msgstr ""
 
+msgid "Contact your Administrator to upgrade your license."
+msgstr ""
+
 msgid "Container Registry"
+msgstr ""
+
+msgid "Container registry images"
 msgstr ""
 
 msgid "ContainerRegistry|Created"
@@ -2994,9 +3066,6 @@ msgid "Copy commit SHA to clipboard"
 msgstr ""
 
 msgid "Copy file path to clipboard"
-msgstr ""
-
-msgid "Copy incoming email address to clipboard"
 msgstr ""
 
 msgid "Copy link"
@@ -3185,9 +3254,6 @@ msgstr ""
 msgid "Customize language and region related settings."
 msgstr ""
 
-msgid "Customize your issue restrictions."
-msgstr ""
-
 msgid "Customize your pipeline configuration, view your pipeline status and coverage report."
 msgstr ""
 
@@ -3260,10 +3326,16 @@ msgstr ""
 msgid "Default classification label"
 msgstr ""
 
+msgid "Default description template for issues"
+msgstr ""
+
 msgid "Default first day of the week"
 msgstr ""
 
 msgid "Default first day of the week in calendars and date pickers."
+msgstr ""
+
+msgid "Default issue template"
 msgstr ""
 
 msgid "Default: Directly import the Google Code email address or username"
@@ -3469,6 +3541,9 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
+msgid "Description parsed with %{link_start}GitLab Flavored Markdown%{link_end}"
+msgstr ""
+
 msgid "Description templates allow you to define context-specific templates for issue and merge request description fields for your project."
 msgstr ""
 
@@ -3602,6 +3677,9 @@ msgid "Download artifacts"
 msgstr ""
 
 msgid "Download asset"
+msgstr ""
+
+msgid "Download export"
 msgstr ""
 
 msgid "Download tar"
@@ -3782,6 +3860,9 @@ msgid "Enable usage ping"
 msgstr ""
 
 msgid "Enable usage ping to get an overview of how you are using GitLab from a feature perspective."
+msgstr ""
+
+msgid "Enable/disable your service desk. %{link_start}Learn more about service desk%{link_end}."
 msgstr ""
 
 msgid "Enabled"
@@ -4234,6 +4315,12 @@ msgstr ""
 msgid "Export issues"
 msgstr ""
 
+msgid "Export project"
+msgstr ""
+
+msgid "Export this project with all its related data in order to move your project to a new GitLab instance. Once the export is finished, you can import the file from the \"New Project\" page."
+msgstr ""
+
 msgid "External Classification Policy Authorization"
 msgstr ""
 
@@ -4250,9 +4337,6 @@ msgid "External authorization denied access to this project"
 msgstr ""
 
 msgid "External authorization request timeout"
-msgstr ""
-
-msgid "ExternalAuthorizationService|Classification Label"
 msgstr ""
 
 msgid "ExternalAuthorizationService|Classification label"
@@ -4313,6 +4397,9 @@ msgid "Failed to upload object map file"
 msgstr ""
 
 msgid "Failure"
+msgstr ""
+
+msgid "Fast-forward merge"
 msgstr ""
 
 msgid "Fast-forward merge without a merge commit"
@@ -4436,6 +4523,9 @@ msgid "Feb"
 msgstr ""
 
 msgid "February"
+msgstr ""
+
+msgid "Fetching incoming email"
 msgstr ""
 
 msgid "Fields on this page are now uneditable, you can configure"
@@ -4611,6 +4701,9 @@ msgstr ""
 msgid "Format"
 msgstr ""
 
+msgid "Forward external support email address to"
+msgstr ""
+
 msgid "Found errors in your %{gitlab_ci_yml}:"
 msgstr ""
 
@@ -4672,6 +4765,9 @@ msgid "Generate a default set of labels"
 msgstr ""
 
 msgid "Generate key"
+msgstr ""
+
+msgid "Generate new export"
 msgstr ""
 
 msgid "Geo"
@@ -5450,6 +5546,9 @@ msgstr ""
 msgid "Hook was successfully created."
 msgstr ""
 
+msgid "Housekeeping"
+msgstr ""
+
 msgid "Housekeeping successfully started"
 msgstr ""
 
@@ -5645,6 +5744,9 @@ msgstr ""
 msgid "Improve Issue boards with GitLab Enterprise Edition."
 msgstr ""
 
+msgid "Improve Merge Requests and customer support with GitLab Enterprise Edition."
+msgstr ""
+
 msgid "Improve issues management with Issue weight and GitLab Enterprise Edition."
 msgstr ""
 
@@ -5806,9 +5908,6 @@ msgstr ""
 msgid "Issue events"
 msgstr ""
 
-msgid "Issue settings"
-msgstr ""
-
 msgid "Issue template (optional)"
 msgstr ""
 
@@ -5840,6 +5939,9 @@ msgid "Issues can be bugs, tasks or ideas to be discussed. Also, issues are sear
 msgstr ""
 
 msgid "Issues closed"
+msgstr ""
+
+msgid "Issues with comments, merge requests with diffs and comments, labels, milestones, snippets, and other project entities"
 msgstr ""
 
 msgid "Issues, merge requests, pushes, and comments."
@@ -5894,6 +5996,9 @@ msgid "Job has been erased"
 msgstr ""
 
 msgid "Job is stuck. Check runners."
+msgstr ""
+
+msgid "Job traces and artifacts"
 msgstr ""
 
 msgid "Job was retried"
@@ -6002,6 +6107,9 @@ msgid "LDAP settings"
 msgstr ""
 
 msgid "LFS"
+msgstr ""
+
+msgid "LFS objects"
 msgstr ""
 
 msgid "LFSStatus|Disabled"
@@ -6139,9 +6247,6 @@ msgid "Learn more about custom project templates"
 msgstr ""
 
 msgid "Learn more about group-level project templates"
-msgstr ""
-
-msgid "Learn more about incoming email addresses"
 msgstr ""
 
 msgid "Learn more about signing commits"
@@ -6470,13 +6575,22 @@ msgstr ""
 msgid "Merge Request"
 msgstr ""
 
+msgid "Merge Request Approvals"
+msgstr ""
+
 msgid "Merge Requests"
 msgstr ""
 
 msgid "Merge Requests created"
 msgstr ""
 
+msgid "Merge commit"
+msgstr ""
+
 msgid "Merge commit message"
+msgstr ""
+
+msgid "Merge commit with semi-linear history"
 msgstr ""
 
 msgid "Merge events"
@@ -6488,6 +6602,9 @@ msgstr ""
 msgid "Merge in progress"
 msgstr ""
 
+msgid "Merge method"
+msgstr ""
+
 msgid "Merge pipelines will try to validate the post-merge result prior to merging"
 msgstr ""
 
@@ -6495,6 +6612,9 @@ msgid "Merge request"
 msgstr ""
 
 msgid "Merge request approvals"
+msgstr ""
+
+msgid "Merge request approvals allow you to set the number of necessary approvals and predefine a list of approvers that will need to approve every merge request in a project."
 msgstr ""
 
 msgid "Merge requests"
@@ -6818,7 +6938,7 @@ msgstr ""
 msgid "Name:"
 msgstr ""
 
-msgid "Naming, tags, avatar"
+msgid "Naming, topics, avatar"
 msgstr ""
 
 msgid "Naming, visibility"
@@ -7030,6 +7150,9 @@ msgstr ""
 msgid "No matching results"
 msgstr ""
 
+msgid "No merge commits are created and all merges are fast-forwarded, which means that merging is only allowed if the branch could be fast-forwarded."
+msgstr ""
+
 msgid "No merge requests for the selected time period."
 msgstr ""
 
@@ -7225,6 +7348,12 @@ msgstr ""
 msgid "Once imported, repositories can be mirrored over SSH. Read more %{ssh_link}"
 msgstr ""
 
+msgid "Once removed, the fork relationship cannot be restored and you will no longer be able to send merge requests to the source."
+msgstr ""
+
+msgid "Once the exported file is ready, you will receive a notification email with a download link, or you can download it from this page."
+msgstr ""
+
 msgid "One more item"
 msgid_plural "%d more items"
 msgstr[0] ""
@@ -7237,6 +7366,12 @@ msgid "One or more of your Google Code projects cannot be imported into GitLab d
 msgstr ""
 
 msgid "Only admins"
+msgstr ""
+
+msgid "Only allow merge requests to be merged if all discussions are resolved"
+msgstr ""
+
+msgid "Only allow merge requests to be merged if the pipeline succeeds"
 msgstr ""
 
 msgid "Only mirror protected branches"
@@ -7399,6 +7534,9 @@ msgid "Paste issue link"
 msgstr ""
 
 msgid "Paste your public SSH key, which is usually contained in the file '~/.ssh/id_rsa.pub' and begins with 'ssh-rsa'. Don't use your private SSH key."
+msgstr ""
+
+msgid "Path"
 msgstr ""
 
 msgid "Path, transfer, remove"
@@ -7711,6 +7849,9 @@ msgid "Please upgrade PostgreSQL to version 9.6 or greater. The status of the re
 msgstr ""
 
 msgid "Please use this form to report users to GitLab who create spam issues, comments or behave inappropriately."
+msgstr ""
+
+msgid "Please wait a moment, this page will automatically refresh when ready."
 msgstr ""
 
 msgid "Please wait while we connect to your repository. Refresh at will."
@@ -8043,16 +8184,25 @@ msgstr ""
 msgid "Project Badges"
 msgstr ""
 
+msgid "Project ID"
+msgstr ""
+
 msgid "Project URL"
 msgstr ""
 
 msgid "Project access must be granted explicitly to each user."
 msgstr ""
 
+msgid "Project and wiki repositories"
+msgstr ""
+
 msgid "Project avatar"
 msgstr ""
 
-msgid "Project avatar in repository: %{link}"
+msgid "Project configuration, including services"
+msgstr ""
+
+msgid "Project description (optional)"
 msgstr ""
 
 msgid "Project details"
@@ -8083,6 +8233,12 @@ msgid "Project name"
 msgstr ""
 
 msgid "Project slug"
+msgstr ""
+
+msgid "Project uploads"
+msgstr ""
+
+msgid "Project visibility level will be changed to match namespace rules when transferring to a group."
 msgstr ""
 
 msgid "Project:"
@@ -8567,6 +8723,9 @@ msgstr ""
 msgid "Remove avatar"
 msgstr ""
 
+msgid "Remove fork relationship"
+msgstr ""
+
 msgid "Remove group"
 msgstr ""
 
@@ -8579,7 +8738,13 @@ msgstr ""
 msgid "Removed group can not be restored!"
 msgstr ""
 
+msgid "Removed projects cannot be restored!"
+msgstr ""
+
 msgid "Removing group will cause all child projects and resources to be removed."
+msgstr ""
+
+msgid "Removing the project will delete its repository and all related resources including issues, merge requests etc."
 msgstr ""
 
 msgid "Rename"
@@ -8757,6 +8922,9 @@ msgstr ""
 msgid "Response"
 msgstr ""
 
+msgid "Response didn't include `service_desk_address`"
+msgstr ""
+
 msgid "Response metrics (AWS ELB)"
 msgstr ""
 
@@ -8828,6 +8996,9 @@ msgstr ""
 msgid "Run CI/CD pipelines for external repositories"
 msgstr ""
 
+msgid "Run housekeeping"
+msgstr ""
+
 msgid "Run tests against your code live using the Web Terminal"
 msgstr ""
 
@@ -8891,6 +9062,9 @@ msgstr ""
 msgid "Running…"
 msgstr ""
 
+msgid "Runs a number of housekeeping tasks within the current repository, such as compressing file revisions and removing unreachable objects."
+msgstr ""
+
 msgid "SAML SSO"
 msgstr ""
 
@@ -8946,6 +9120,9 @@ msgid "Save pipeline schedule"
 msgstr ""
 
 msgid "Save variables"
+msgstr ""
+
+msgid "Saving project."
 msgstr ""
 
 msgid "Schedule a new pipeline"
@@ -9149,6 +9326,9 @@ msgstr ""
 msgid "Select a namespace to fork the project"
 msgstr ""
 
+msgid "Select a new namespace"
+msgstr ""
+
 msgid "Select a project to read Insights configuration file"
 msgstr ""
 
@@ -9221,6 +9401,9 @@ msgstr ""
 msgid "Sep"
 msgstr ""
 
+msgid "Separate topics with commas."
+msgstr ""
+
 msgid "September"
 msgstr ""
 
@@ -9282,6 +9465,9 @@ msgid "Session duration (minutes)"
 msgstr ""
 
 msgid "Session expiration, projects limit and attachment size."
+msgstr ""
+
+msgid "Set a default template for issue descriptions."
 msgstr ""
 
 msgid "Set a number of approvals required, the approvers and other approval settings."
@@ -9417,6 +9603,9 @@ msgid "Show file browser"
 msgstr ""
 
 msgid "Show latest version"
+msgstr ""
+
+msgid "Show link to create/view merge request when pushing from the command line"
 msgstr ""
 
 msgid "Show parent pages"
@@ -9812,6 +10001,9 @@ msgid "StarredProjectsEmptyState|You don't have starred projects yet."
 msgstr ""
 
 msgid "Stars"
+msgstr ""
+
+msgid "Start GitLab Ultimate trial"
 msgstr ""
 
 msgid "Start Web Terminal"
@@ -10225,6 +10417,12 @@ msgstr ""
 msgid "The deployment of this job to %{environmentLink} did not succeed."
 msgstr ""
 
+msgid "The following items will NOT be exported:"
+msgstr ""
+
+msgid "The following items will be exported:"
+msgstr ""
+
 msgid "The fork relationship has been removed."
 msgstr ""
 
@@ -10412,6 +10610,9 @@ msgid "This %{viewer} could not be displayed because %{reason}. You can %{option
 msgstr ""
 
 msgid "This GitLab instance does not provide any shared Runners yet. Instance administrators can register shared Runners in the admin area."
+msgstr ""
+
+msgid "This action can lead to data loss. To prevent accidental actions we ask you to confirm your intention."
 msgstr ""
 
 msgid "This application was created by %{link_to_owner}."
@@ -10625,6 +10826,9 @@ msgid "This user will be the author of all events in the activity feed that are 
 msgstr ""
 
 msgid "This will redirect you to an external sign in page."
+msgstr ""
+
+msgid "This will remove the fork relationship to source project"
 msgstr ""
 
 msgid "Those emails automatically become issues (with the comments becoming the email conversation) listed here."
@@ -10964,6 +11168,9 @@ msgstr ""
 msgid "Too many changes to show."
 msgstr ""
 
+msgid "Topics"
+msgstr ""
+
 msgid "Total Contributions"
 msgstr ""
 
@@ -10986,6 +11193,9 @@ msgid "Track groups of issues that share a theme, across projects and milestones
 msgstr ""
 
 msgid "Track time with quick actions"
+msgstr ""
+
+msgid "Transfer project"
 msgstr ""
 
 msgid "Tree view"
@@ -11055,6 +11265,12 @@ msgid "Unable to sign you in to the group with SAML due to \"%{reason}\""
 msgstr ""
 
 msgid "Unable to update this epic at this time."
+msgstr ""
+
+msgid "Unarchive project"
+msgstr ""
+
+msgid "Unarchiving the project will restore people's ability to make changes to it. The repository can be committed to, and issues, comments and other entities can be created. <strong>Once active this project shows up in the search and on the dashboard.</strong>"
 msgstr ""
 
 msgid "Unblock"
@@ -11141,7 +11357,7 @@ msgstr ""
 msgid "Update your group name, description, avatar, and visibility."
 msgstr ""
 
-msgid "Update your project name, tags, description and avatar."
+msgid "Update your project name, topics, description and avatar."
 msgstr ""
 
 msgid "Updated"
@@ -11151,6 +11367,9 @@ msgid "Updating"
 msgstr ""
 
 msgid "Upgrade plan to unlock Canary Deployments feature"
+msgstr ""
+
+msgid "Upgrade your plan"
 msgstr ""
 
 msgid "Upgrade your plan to activate Advanced Global Search."
@@ -11166,6 +11385,9 @@ msgid "Upgrade your plan to activate Issue weight."
 msgstr ""
 
 msgid "Upgrade your plan to improve Issue boards."
+msgstr ""
+
+msgid "Upgrade your plan to improve Merge Requests."
 msgstr ""
 
 msgid "Upload <code>GoogleCodeProjectHosting.json</code> here:"
@@ -11546,6 +11768,9 @@ msgstr ""
 msgid "Web terminal"
 msgstr ""
 
+msgid "Webhooks"
+msgstr ""
+
 msgid "Webhooks allow you to trigger a URL if, for example, new code is pushed or a new issue is created. You can configure webhooks to listen for specific events like pushes, issues or merge requests. Group webhooks will apply to all projects in a group, allowing you to standardize webhook functionality across your entire group."
 msgstr ""
 
@@ -11562,6 +11787,9 @@ msgid "When a runner is locked, it cannot be assigned to other projects"
 msgstr ""
 
 msgid "When enabled, users cannot use GitLab until the terms have been accepted."
+msgstr ""
+
+msgid "When fast-forward merge is not possible, the user is given the option to rebase."
 msgstr ""
 
 msgid "When leaving the URL blank, classification labels can still be specified without disabling cross project features or performing external authorization checks."
@@ -11807,6 +12035,9 @@ msgstr ""
 msgid "You can only merge once the items above are resolved"
 msgstr ""
 
+msgid "You can only transfer the project to namespaces you manage."
+msgstr ""
+
 msgid "You can resolve the merge conflict using either the Interactive mode, by choosing %{use_ours} or %{use_theirs} buttons, or by editing the files directly. Commit these changes into %{branch_name}"
 msgstr ""
 
@@ -11886,6 +12117,9 @@ msgid "You will lose all changes you've made to this file. This action cannot be
 msgstr ""
 
 msgid "You will lose all the unstaged changes you've made in this project. This action cannot be undone."
+msgstr ""
+
+msgid "You will need to update your local repositories to point to the new location."
 msgstr ""
 
 msgid "You will not get any notifications via email"
@@ -11976,6 +12210,9 @@ msgid "Your changes have been saved"
 msgstr ""
 
 msgid "Your comment will not be visible to the public."
+msgstr ""
+
+msgid "Your deployment services will be broken, you will need to manually fix the services after renaming."
 msgstr ""
 
 msgid "Your device was successfully set up! Give it a name and register it with the GitLab server."

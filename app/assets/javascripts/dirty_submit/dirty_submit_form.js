@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import $ from 'jquery';
 
 class DirtySubmitForm {
   constructor(form) {
@@ -11,7 +12,9 @@ class DirtySubmitForm {
 
   init() {
     this.inputs = this.form.querySelectorAll('input, textarea, select');
-    this.submits = this.form.querySelectorAll('input[type=submit], button[type=submit]');
+    this.submits = this.form.querySelectorAll(
+      'input[type=submit], button[type=submit], .js-dirty-submit',
+    );
 
     this.inputs.forEach(DirtySubmitForm.initInput);
     this.toggleSubmission();
@@ -26,6 +29,7 @@ class DirtySubmitForm {
     );
     this.form.addEventListener('input', throttledUpdateDirtyInput);
     this.form.addEventListener('change', throttledUpdateDirtyInput);
+    $(this.form).on('change.select2', throttledUpdateDirtyInput);
     this.form.addEventListener('submit', event => this.formSubmit(event));
   }
 
