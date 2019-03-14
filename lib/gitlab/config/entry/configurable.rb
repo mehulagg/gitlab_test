@@ -21,7 +21,7 @@ module Gitlab
           include Validatable
 
           validations do
-            validates :config, type: Hash
+            validates :config, type: Hash, unless: :skip_config_hash_validation?
           end
         end
 
@@ -49,11 +49,14 @@ module Gitlab
         end
         # rubocop: enable CodeReuse/ActiveRecord
 
+        def skip_config_hash_validation?
+          false
+        end
+
         class_methods do
           def nodes
             Hash[(@nodes || {}).map { |key, factory| [key, factory.dup] }]
           end
-
           private
 
           # rubocop: disable CodeReuse/ActiveRecord

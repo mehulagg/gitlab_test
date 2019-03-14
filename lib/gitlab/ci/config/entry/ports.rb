@@ -22,6 +22,7 @@ module Gitlab
               @config.each do |config|
                 @entries << ::Gitlab::Config::Entry::Factory.new(Entry::Port)
                   .value(config || {})
+                  .with(key: "port", parent: self, description: "port definition.")
                   .create!
               end
 

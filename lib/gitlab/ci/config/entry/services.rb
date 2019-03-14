@@ -20,6 +20,7 @@ module Gitlab
               @config.each do |config|
                 @entries << ::Gitlab::Config::Entry::Factory.new(service_klass)
                   .value(config || {})
+                  .with(key: "service", parent: self, description: "service definition.")
                   .create!
               end
 

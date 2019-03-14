@@ -17,6 +17,8 @@ module Gitlab
           @metadata = metadata
           @entries = {}
 
+          yield(self) if block_given?
+
           self.class.aspects.to_a.each do |aspect|
             instance_exec(&aspect)
           end
@@ -42,6 +44,12 @@ module Gitlab
 
         def ancestors
           @parent ? @parent.ancestors + [@parent] : []
+        end
+
+        def opt(key)
+          opt = metadata[key]
+          opt = @parent.opt(key) if opt.nil? && @parent
+          opt
         end
 
         def valid?

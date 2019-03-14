@@ -15,6 +15,17 @@ module Gitlab
           end
         end
 
+        class DisallowedKeysValidator < ActiveModel::EachValidator
+          def validate_each(record, attribute, value)
+            present_keys = value.try(:keys).to_a & options[:in]
+
+            if present_keys.any?
+              record.errors.add(attribute, "contains disallowed keys: " +
+                present_keys.join(', '))
+            end
+          end
+        end
+
         class AllowedValuesValidator < ActiveModel::EachValidator
           def validate_each(record, attribute, value)
             unless options[:in].include?(value.to_s)

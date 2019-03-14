@@ -33,10 +33,10 @@ module Gitlab
           entry :script, ::Gitlab::Ci::Config::Entry::Commands,
             description: 'Commands that will be executed in this job.'
 
-          entry :image, ::Gitlab::Ci::Config::Entry::ImageWithPorts,
+          entry :image, ::Gitlab::Ci::Config::Entry::Image,
             description: 'Image that will be used to execute this job.'
 
-          entry :services, ::Gitlab::Ci::Config::Entry::ServicesWithPorts,
+          entry :services, ::Gitlab::Ci::Config::Entry::Services,
             description: 'Services that will be used to execute this job.'
 
           entry :variables, ::Gitlab::Ci::Config::Entry::Variables,
