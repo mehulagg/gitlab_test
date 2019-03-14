@@ -8,29 +8,15 @@ module Gitlab
         # Entry that represents a Docker image.
         #
         class Image < ::Gitlab::Config::Entry::Node
-          include ::Gitlab::Config::Entry::Attributable
-          include ::Gitlab::Config::Entry::Configurable
+          include ::Gitlab::Config::Entry::Validatable
 
-          ALLOWED_KEYS = %i[name entrypoint ports].freeze
+          ALLOWED_KEYS = %i[name entrypoint].freeze
 
           validations do
-            # ::Gitlab::Config::Entry::Configurable adds a type validation
-            # to the config because a hash is expected.
-            # Nevertheless, we allow images to be a string or a hash
-            # Therefore we have to remove that first validation
-            reset_callbacks(:validate)
+            include ::Gitlab::Ci::Config::Entry::Validations::Image
 
-            validates :config, hash_or_string: true
             validates :config, allowed_keys: ALLOWED_KEYS
-
-            validates :name, type: String, presence: true
-            validates :entrypoint, array_of_strings: true, allow_nil: true
           end
-
-          entry :ports, Entry::Ports,
-            description: 'Ports used expose the service'
-
-          attributes :ports
 
           def name
             value[:name]

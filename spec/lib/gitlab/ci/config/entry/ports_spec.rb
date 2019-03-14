@@ -48,7 +48,7 @@ describe Gitlab::Ci::Config::Entry::Ports do
 
         describe '#valid?' do
           it 'is invalid' do
-            expect(entry.errors.first).to match "each port name must be different"
+            expect(entry.errors.first).to match /each port name must be different/
           end
         end
       end
@@ -61,8 +61,7 @@ describe Gitlab::Ci::Config::Entry::Ports do
 
         describe '#valid?' do
           it 'is invalid' do
-            puts entry.errors.first
-            expect(entry.errors.first).to match "each port number can only be referenced once"
+            expect(entry.errors.first).to match /each port number can only be referenced once/
           end
         end
       end

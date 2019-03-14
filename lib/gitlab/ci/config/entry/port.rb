@@ -33,10 +33,6 @@ module Gitlab
             value[:name]
           end
 
-          def array_of_integers?(size: nil)
-            @config.is_a?(Array) && (size.blank? || @config.size == size)
-          end
-
           def value
             return { number: @config } if integer?
             return @config if hash?

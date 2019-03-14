@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Gitlab::Ci::Config::Entry::Services do
+describe Gitlab::Ci::Config::Entry::ServicesWithPorts do
   let(:entry) { described_class.new(config) }
 
   before do
@@ -8,7 +8,8 @@ describe Gitlab::Ci::Config::Entry::Services do
   end
 
   context 'when configuration is valid' do
-    let(:config) { ['postgresql:9.5', { name: 'postgresql:9.1', alias: 'postgres_old' }] }
+    let(:ports) { [{ number: 80, insecure: false, name: 'foobar' }] }
+    let(:config) { ['postgresql:9.5', { name: 'postgresql:9.1', alias: 'postgres_old', ports: ports }] }
 
     describe '#valid?' do
       it 'is valid' do
@@ -18,7 +19,7 @@ describe Gitlab::Ci::Config::Entry::Services do
 
     describe '#value' do
       it 'returns valid array' do
-        expect(entry.value).to eq([{ name: 'postgresql:9.5' }, { name: 'postgresql:9.1', alias: 'postgres_old' }])
+        expect(entry.value).to eq([{ name: 'postgresql:9.5' }, { name: 'postgresql:9.1', alias: 'postgres_old', ports: ports }])
       end
     end
   end

@@ -18,7 +18,7 @@ module Gitlab
             super do
               @entries = []
               @config.each do |config|
-                @entries << ::Gitlab::Config::Entry::Factory.new(Entry::Service)
+                @entries << ::Gitlab::Config::Entry::Factory.new(service_klass)
                   .value(config || {})
                   .create!
               end
@@ -35,6 +35,12 @@ module Gitlab
 
           def descendants
             @entries
+          end
+
+          protected
+
+          def service_klass
+            Entry::Service
           end
         end
       end

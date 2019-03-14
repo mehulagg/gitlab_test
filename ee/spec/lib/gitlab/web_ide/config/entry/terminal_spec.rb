@@ -112,10 +112,6 @@ describe Gitlab::WebIde::Config::Entry::Terminal do
     end
 
     describe '#value' do
-      before do
-        entry.compose!
-      end
-
       context 'when entry is correct' do
         let(:config) do
           { before_script: %w[ls pwd],
