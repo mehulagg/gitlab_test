@@ -119,7 +119,7 @@ shared_examples 'merge requests list' do
       get api(endpoint_path, user)
 
       expect(response).to have_gitlab_http_status(200)
-      expect(response).to match_response_schema('public_api/v4/merge_requests')
+      expect(response).to match_response_schema('public_api/v4/merge_requests', dir: 'ee')
     end
 
     it 'returns an empty array if no issue matches milestone' do

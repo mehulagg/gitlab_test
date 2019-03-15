@@ -1,0 +1,17 @@
+{
+  "allOf": [
+    { "$ref": "../../../../../../../spec/fixtures/api/schemas/public_api/v4/merge_requests.json" },
+    {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "approvals_before_merge": { "type": ["integer", "null"] }
+        },
+        "required": [
+          "approvals_before_merge"
+        ]
+      }
+    }
+  ]
+}

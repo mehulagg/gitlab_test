@@ -18,6 +18,15 @@ describe API::MergeRequests do
     project.add_reporter(user)
   end
 
+  describe "GET /projects/:id/merge_requests" do
+    it 'matches V4 response schema' do
+      get api("/projects/#{project.id}/merge_requests", user)
+
+      expect(response).to have_gitlab_http_status(200)
+      expect(response).to match_response_schema('public_api/v4/merge_requests', dir: 'ee')
+    end
+  end
+
   describe 'PUT /projects/:id/merge_requests' do
     context 'when updating existing approval rules' do
       def update_merge_request(params)
@@ -127,6 +136,35 @@ describe API::MergeRequests do
             end
           end
         end
+      end
+    end
+  end
+
+  describe "GET /groups/:id/merge_requests" do
+    let!(:group) { create(:group, :public) }
+    let!(:project) { create(:project, :public, :repository, creator: user, namespace: group, only_allow_merge_if_pipeline_succeeds: false) }
+
+    before do
+      group.add_reporter(user)
+    end
+
+    it 'matches V4 response schema' do
+      get api("/groups/#{group.id}/merge_requests", user)
+
+      expect(response).to have_gitlab_http_status(200)
+      expect(response).to match_response_schema('public_api/v4/merge_requests', dir: 'ee')
+    end
+
+    context 'when have subgroups', :nested_groups do
+      let!(:group) { create(:group, :public) }
+      let!(:subgroup) { create(:group, parent: group) }
+      let!(:project) { create(:project, :public, :repository, creator: user, namespace: subgroup, only_allow_merge_if_pipeline_succeeds: false) }
+
+      it 'matches V4 response schema' do
+        get api("/groups/#{group.id}/merge_requests", user)
+
+        expect(response).to have_gitlab_http_status(200)
+        expect(response).to match_response_schema('public_api/v4/merge_requests', dir: 'ee')
       end
     end
   end
