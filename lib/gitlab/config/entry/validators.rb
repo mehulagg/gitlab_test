@@ -292,14 +292,14 @@ module Gitlab
           end
         end
 
-        class ServicesAliasUniqueValidator < ActiveModel::EachValidator
+        class ServicesWithPortsAliasUniqueValidator < ActiveModel::EachValidator
           def validate_each(record, attribute, value)
-            aliases_with_port = value.select { |s| s.is_a?(Hash) }.pluck(:alias, :ports) # rubocop:disable CodeReuse/ActiveRecord
-            port_present = aliases_with_port.any? { |e| e[1].present? }
-            return unless port_present
+            aliases_with_port = value.select { |s| s.is_a?(Hash) && s[:ports] }.pluck(:alias) # rubocop:disable CodeReuse/ActiveRecord
 
-            if aliases_with_port.size != aliases_with_port.to_h.size
-              record.errors.add(:config, 'alias must be unique')
+            return if aliases_with_port.empty?
+
+            if aliases_with_port.size != aliases_with_port.uniq.size
+              record.errors.add(:config, 'alias must be unique in services with ports')
             end
           end
         end

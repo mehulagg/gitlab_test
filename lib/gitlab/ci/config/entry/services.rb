@@ -12,7 +12,7 @@ module Gitlab
 
           validations do
             validates :config, type: Array
-            validates :config, services_alias_unique: true, if: ->(record) { record.opt(:with_image_ports) }
+            validates :config, services_with_ports_alias_unique: true, if: ->(record) { record.opt(:with_image_ports) }
           end
 
           def compose!(deps = nil)
