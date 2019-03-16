@@ -651,6 +651,19 @@ module QuickActions
       }
     end
 
+    desc 'Schedule action'
+    explanation "Schedule a quick action to be executed at a future date/time." # TODO: try to interpolate sub_action explaination
+    params "<quick action> <quick action params> in <defer duration>"
+    parse_params do |schedule_param|
+      _, sub_action, defer_duration = */^(.+?\s.+?)\sin\s(.+?)$/.match(schedule_param)
+      ["/#{sub_action}", Gitlab::TimeTrackingFormatter.parse(defer_duration)]
+    end
+    command :schedule do |schedule_params|
+      sub_action, defer_duration = schedule_params
+
+      QuickActionScheduleWorker.perform_in(defer_duration, project.id, current_user.id, sub_action, issuable.id)
+    end
+
     # rubocop: disable CodeReuse/ActiveRecord
     def extract_users(params)
       return [] if params.nil?
