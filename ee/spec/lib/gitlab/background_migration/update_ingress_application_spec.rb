@@ -2,41 +2,41 @@
 
 require 'spec_helper'
 
-describe Gitlab::BackgroundMigration::UpdatePrometheusApplication, :migration, schema: 20181115140251 do
+describe Gitlab::BackgroundMigration::UpdateIngressApplication, :migration, schema: 20190325091511 do
   let(:background_migration) { described_class.new }
 
   let(:projects) { table(:projects) }
   let(:clusters) { table(:clusters) }
   let(:cluster_projects) { table(:cluster_projects) }
-  let(:prometheus) { table(:clusters_applications_prometheus) }
+  let(:ingress) { table(:clusters_applications_ingress) }
   let(:namespaces) { table(:namespaces) }
   let(:namespace) { namespaces.create!(id: 1, name: 'gitlab', path: 'gitlab') }
-  let(:update_service) { Clusters::Applications::PrometheusUpdateService }
+  let(:update_service) { Clusters::Applications::IngressUpdateService }
 
   describe '#perform' do
     around do |example|
       Timecop.freeze { example.run }
     end
 
-    let(:app_name) { 'prometheus' }
+    let(:app_name) { 'ingress' }
     let(:now) { Time.now }
 
     let!(:project1) { create_project }
     let!(:project2) { create_project }
     let!(:cluster1) { create_cluster(project: project1) }
     let!(:cluster2) { create_cluster(project: project2) }
-    let!(:prometheus1) { create_prometheus(cluster: cluster1) }
-    let!(:prometheus2) { create_prometheus(cluster: cluster2) }
+    let!(:ingress1) { create_ingress(cluster: cluster1) }
+    let!(:ingress2) { create_ingress(cluster: cluster2) }
 
-    it 'schedules prometheus updates' do
+    it 'schedules ingress updates' do
       expect(ClusterUpdateAppWorker)
         .to receive(:perform_async)
-        .with(update_service, app_name, prometheus1.id, project1.id, now)
+        .with(update_service, app_name, ingress1.id, project1.id, now)
       expect(ClusterUpdateAppWorker)
         .to receive(:perform_async)
-        .with(update_service, app_name, prometheus2.id, project2.id, now)
+        .with(update_service, app_name, ingress2.id, project2.id, now)
 
-      background_migration.perform(prometheus1.id, prometheus2.id)
+      background_migration.perform(ingress1.id, ingress2.id)
     end
   end
 
@@ -52,11 +52,12 @@ describe Gitlab::BackgroundMigration::UpdatePrometheusApplication, :migration, s
     cluster
   end
 
-  def create_prometheus(cluster:)
-    prometheus.create!(
+  def create_ingress(cluster:)
+    ingress.create!(
       cluster_id: cluster.id,
       status: 3,
-      version: '1.2.3'
+      version: '1.1.2',
+      ingress_type: 1
     )
   end
 end

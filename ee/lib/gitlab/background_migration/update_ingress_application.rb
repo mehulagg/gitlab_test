@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Gitlab::BackgroundMigration::UpdatePrometheusApplication
+class Gitlab::BackgroundMigration::UpdateIngressApplication
   class Project < ActiveRecord::Base
     self.table_name = 'projects'
 
@@ -11,7 +11,7 @@ class Gitlab::BackgroundMigration::UpdatePrometheusApplication
   class Cluster < ActiveRecord::Base
     self.table_name = 'clusters'
 
-    has_one :application_prometheus, class_name: 'Prometheus'
+    has_one :application_ingress, class_name: 'Ingress'
   end
 
   class ClustersProject < ActiveRecord::Base
@@ -21,26 +21,26 @@ class Gitlab::BackgroundMigration::UpdatePrometheusApplication
     belongs_to :project, class_name: 'Project'
   end
 
-  class Prometheus < ActiveRecord::Base
-    self.table_name = 'clusters_applications_prometheus'
+  class Ingress < ActiveRecord::Base
+    self.table_name = 'clusters_applications_ingress'
   end
 
   def perform(from, to)
-    app_name = 'prometheus'
-    updade_service = Clusters::Applications::PrometheusUpdateService
+    app_name = 'ingress'
+    updade_service = Clusters::Applications::IngressUpdateService
     now = Time.now
 
-    project_prometheus(from, to).each do |project_id, app_id|
+    project_ingress(from, to).each do |project_id, app_id|
       ClusterUpdateAppWorker.perform_async(updade_service, app_name, app_id, project_id, now)
     end
   end
 
   private
 
-  def project_prometheus(from, to, &block)
+  def project_ingress(from, to, &block)
     Project
-      .joins(clusters: :application_prometheus)
-      .where('clusters_applications_prometheus.id IN (?)', from..to)
-      .pluck('projects.id, clusters_applications_prometheus.id')
+      .joins(clusters: :application_ingress)
+      .where('clusters_applications_ingress.id IN (?)', from..to)
+      .pluck('projects.id, clusters_applications_ingress.id')
   end
 end

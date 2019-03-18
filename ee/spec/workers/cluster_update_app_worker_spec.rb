@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe ClusterUpdateAppWorker do
   let(:project) { create(:project) }
+  let(:update_service) { ::Clusters::Applications::PrometheusUpdateService }
   let(:prometheus_update_service) { spy }
 
   subject { described_class.new }
@@ -11,7 +12,7 @@ describe ClusterUpdateAppWorker do
   end
 
   before do
-    allow(::Clusters::Applications::PrometheusUpdateService).to receive(:new).and_return(prometheus_update_service)
+    allow(update_service).to receive(:new).and_return(prometheus_update_service)
   end
 
   describe '#perform' do
@@ -21,7 +22,7 @@ describe ClusterUpdateAppWorker do
 
         expect(prometheus_update_service).not_to receive(:execute)
 
-        expect(subject.perform(application.name, application.id, project.id, Time.now - 5.minutes)).to be_nil
+        expect(subject.perform(update_service, application.name, application.id, project.id, Time.now - 5.minutes)).to be_nil
       end
     end
 
@@ -29,7 +30,7 @@ describe ClusterUpdateAppWorker do
       it 'returns nil' do
         application = create(:clusters_applications_prometheus, :updating)
 
-        expect(subject.perform(application.name, application.id, project.id, Time.now)).to be_nil
+        expect(subject.perform(update_service, application.name, application.id, project.id, Time.now)).to be_nil
       end
     end
 
@@ -38,7 +39,7 @@ describe ClusterUpdateAppWorker do
 
       expect(prometheus_update_service).to receive(:execute)
 
-      subject.perform(application.name, application.id, project.id, Time.now)
+      subject.perform(update_service, application.name, application.id, project.id, Time.now)
     end
   end
 end
