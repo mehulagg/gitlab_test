@@ -33,7 +33,7 @@ module HasStatus
       canceled = scope_relevant.canceled.select('count(*)').to_sql
       warnings = scope_warnings.select('count(*) > 0').to_sql.presence || 'false'
 
-      "(CASE
+      Arel.sql("(CASE
         WHEN (#{builds})=(#{skipped}) AND (#{warnings}) THEN 'success'
         WHEN (#{builds})=(#{skipped}) THEN 'skipped'
         WHEN (#{builds})=(#{success}) THEN 'success'
@@ -48,7 +48,7 @@ module HasStatus
         WHEN (#{preparing})>0 THEN 'preparing'
         WHEN (#{created})>0 THEN 'running'
         ELSE 'failed'
-      END)"
+      END)")
     end
 
     def status
