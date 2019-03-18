@@ -28,7 +28,7 @@ class SamlProvider < ActiveRecord::Base
   end
 
   def enforced_sso?
-    enabled? && super
+    enabled? && super && ::Feature.enabled?(:enforced_sso, group)
   end
 
   def enforced_group_managed_accounts?
