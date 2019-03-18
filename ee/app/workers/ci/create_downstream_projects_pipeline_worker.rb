@@ -5,12 +5,12 @@ module Ci
     include ::ApplicationWorker
     include ::PipelineQueue
 
-    def perform(pipeline_id)
-      ::Ci::Pipeline.find_by_id(pipeline_id).try do |pipeline|
-        pipeline.project.downstream_projects.each do |project|
+    def perform(upstream_pipeline_id)
+      ::Ci::Pipeline.find_by_id(upstream_pipeline_id).try do |upstream_pipeline|
+        upstream_pipeline.project.downstream_projects.each do |target_project|
           ::Ci::CreateDownstreamProjectPipelineService
-            .new(pipeline.project, pipeline.user)
-            .execute(project, pipeline.user)
+            .new(upstream_pipeline.project, upstream_pipeline.user)
+            .execute(target_project, upstream_pipeline)
         end
       end
     end
