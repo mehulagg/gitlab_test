@@ -29,12 +29,12 @@ describe Ci::CreateDownstreamProjectPipelineService, '#execute' do
       end
 
       it 'creates only one new pipeline' do
-        expect { service.execute(downstream_project, upstream_pipeline) }
+        expect { service.execute(downstream_project) }
           .to change { Ci::Pipeline.count }.by(1)
       end
 
       it 'creates a new pipeline in a downstream project' do
-        pipeline = service.execute(downstream_project, upstream_pipeline)
+        pipeline = service.execute(downstream_project)
 
         expect(pipeline.user).to eq user
         expect(pipeline.project).to eq downstream_project
@@ -43,7 +43,7 @@ describe Ci::CreateDownstreamProjectPipelineService, '#execute' do
 
     context 'when user can not access downstream project' do
       it 'raises an error' do
-        expect { service.execute(downstream_project, upstream_pipeline) }
+        expect { service.execute(downstream_project) }
           .to raise_error(Ci::CreateDownstreamProjectPipelineService::DownstreamPipelineCreationError)
       end
     end
@@ -54,7 +54,7 @@ describe Ci::CreateDownstreamProjectPipelineService, '#execute' do
       end
 
       it 'raises an error' do
-        expect { service.execute(downstream_project, upstream_pipeline) }
+        expect { service.execute(downstream_project) }
           .to raise_error(Ci::CreateDownstreamProjectPipelineService::DownstreamPipelineCreationError)
       end
     end
@@ -66,7 +66,7 @@ describe Ci::CreateDownstreamProjectPipelineService, '#execute' do
     end
 
     it 'raises an error' do
-      expect { service.execute(downstream_project, upstream_pipeline) }
+      expect { service.execute(downstream_project) }
         .to raise_error(Ci::CreateDownstreamProjectPipelineService::DownstreamPipelineCreationError)
     end
   end

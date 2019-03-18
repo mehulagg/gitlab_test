@@ -10,7 +10,7 @@ module Ci
         upstream_pipeline.project.downstream_projects.each do |target_project|
           ::Ci::CreateDownstreamProjectPipelineService
             .new(upstream_pipeline.project, upstream_pipeline.user)
-            .execute(target_project, upstream_pipeline)
+            .execute(target_project)
         end
       end
     end

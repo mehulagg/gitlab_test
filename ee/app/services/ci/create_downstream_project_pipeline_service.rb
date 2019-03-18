@@ -6,9 +6,8 @@ module Ci
 
     DownstreamPipelineCreationError = Class.new(StandardError)
 
-    def execute(target_project, upstream_pipeline)
+    def execute(target_project)
       @target_project = target_project
-      @upstream_pipeline = upstream_pipeline
 
       unless cross_project_pipelines_enabled?
         raise DownstreamPipelineCreationError, 'Cross project pipelines are not enabled'

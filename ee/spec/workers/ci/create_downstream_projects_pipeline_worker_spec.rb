@@ -24,7 +24,7 @@ describe Ci::CreateDownstreamProjectsPipelineWorker do
             .with(project, user)
             .and_return(service)
 
-          expect(service).to receive(:execute).with(downstream_project, pipeline)
+          expect(service).to receive(:execute).with(downstream_project)
 
           described_class.new.perform(pipeline.id)
         end
