@@ -9,16 +9,15 @@ module Gitlab
         end
 
         def can_add_user?(user)
-          return true unless ::Feature.enabled?(:enforced_sso, @group)
-          return true unless root_group&.saml_provider&.enforced_sso?
+          return true unless saml_provider&.enforced_sso?
 
-          GroupSamlIdentityFinder.new(user: user).find_linked(group: root_group)
+          GroupSamlIdentityFinder.new(user: user).find_linked(group: saml_provider.group)
         end
 
         private
 
-        def root_group
-          @root_group ||= @group&.root_ancestor
+        def saml_provider
+          @saml_provider ||= SamlProvider.for_group(@group)
         end
       end
     end
