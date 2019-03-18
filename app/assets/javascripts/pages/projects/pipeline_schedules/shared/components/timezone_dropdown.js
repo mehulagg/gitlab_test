@@ -17,17 +17,39 @@ const defaults = {
   onSelectTimezone: null,
 };
 
+export function formatUtcOffset(offset) {
+  let prefix = '';
+
+  if (offset > 0) {
+    prefix = '+';
+  } else if (offset < 0) {
+    prefix = '-';
+  }
+  return `${prefix} ${Math.abs(offset / 3600)}`;
+}
+
+export function formatTimezone(item) {
+  return `[UTC ${formatUtcOffset(item.offset)}] ${item.name}`;
+}
+
+const DEFAULT_OPTIONS = {
+  $inputEl: null,
+  onSelectTimezone: null,
+};
+
 export default class TimezoneDropdown {
-  constructor({ $dropdownEl, $inputEl, onSelectTimezone } = defaults) {
-    this.$dropdown = $dropdownEl;
+  constructor({ $inputEl, onSelectTimezone } = DEFAULT_OPTIONS) {
+    this.$dropdown = $('.js-timezone-dropdown');
     this.$dropdownToggle = this.$dropdown.find('.dropdown-toggle-text');
-    this.$input = $inputEl;
+    this.$input = $inputEl || $('#schedule_cron_timezone');
     this.timezoneData = this.$dropdown.data('data');
 
     this.initDefaultTimezone();
     this.initDropdown();
 
-    this.onSelectTimezone = onSelectTimezone;
+    if (onSelectTimezone) {
+      this.updateInputValue = (...args) => onSelectTimezone(this, ...args);
+    }
   }
 
   initDropdown() {
