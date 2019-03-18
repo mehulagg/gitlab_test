@@ -22,6 +22,7 @@ describe SessionsController do
       it 'clears active SAML session' do
         Gitlab::Auth::GroupSaml::SessionEnforcer.new(session, saml_provider).update_session
 
+        #TODO: recieve :clear with session where group_saml_sign_ins is set
         expect { get :destroy }.to change { session[:group_saml_sign_ins] }.to(nil)
       end
     end

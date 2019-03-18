@@ -90,6 +90,7 @@ module EE
     end
 
     def sso_enforcement_prevents_access?
+      return false unless subject.persisted?
       return false if @user.admin?
 
       ::Gitlab::Auth::GroupSaml::SessionEnforcer.new(@user.request_context.session, saml_provider).access_restricted?

@@ -54,9 +54,9 @@ describe Groups::OmniauthCallbacksController do
       end
 
       it 'stores that a SAML session is active' do
-        expect do
-          post provider, params: { group_id: group }
-        end.to change { session[:group_saml_sign_ins] }.from(nil)
+        expect_any_instance_of(Gitlab::Auth::GroupSaml::SessionEnforcer).to receive(:update_session)
+
+        post provider, params: { group_id: group }
       end
     end
 

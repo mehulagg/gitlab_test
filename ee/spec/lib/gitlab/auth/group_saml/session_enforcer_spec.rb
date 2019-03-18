@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Gitlab::Auth::GroupSaml::SessionEnforcer do
-  let(:saml_provider) { create(:saml_provider, enforced_sso: true) }
+  let(:saml_provider) { build_stubbed(:saml_provider, enforced_sso: true) }
   let(:session) { Hash.new }
 
   subject { described_class.new(session, saml_provider) }
@@ -13,12 +13,10 @@ describe Gitlab::Auth::GroupSaml::SessionEnforcer do
       expect{ subject.update_session }.to change { session[:group_saml_sign_ins] }
     end
 
-    it 'stores the current time for later comparison' do
-      Timecop.freeze do
-        subject.update_session
+    it 'stores the current time for later comparison', freeze: true do
+      subject.update_session
 
-        expect(session[:group_saml_sign_ins][saml_provider.id]).to eq DateTime.now
-      end
+      expect(session[:group_saml_sign_ins][saml_provider.id]).to eq DateTime.now
     end
   end
 

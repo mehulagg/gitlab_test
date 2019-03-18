@@ -18,10 +18,15 @@ class Groups::OmniauthCallbacksController < OmniauthCallbacksController
 
   private
 
+  override :link_identity
+  def link_identity(identity_linker)
+    super
+
+    store_active_saml_session unless identity_linker.failed?
+  end
+
   override :redirect_identity_linked
   def redirect_identity_linked
-    store_active_saml_session
-
     flash[:notice] = "SAML for #{@unauthenticated_group.name} was added to your connected accounts"
 
     redirect_to after_sign_in_path_for(current_user)
@@ -29,8 +34,6 @@ class Groups::OmniauthCallbacksController < OmniauthCallbacksController
 
   override :redirect_identity_exists
   def redirect_identity_exists
-    store_active_saml_session
-
     flash[:notice] = "Already signed in with SAML for #{@unauthenticated_group.name}"
 
     redirect_to after_sign_in_path_for(current_user)
@@ -45,9 +48,14 @@ class Groups::OmniauthCallbacksController < OmniauthCallbacksController
 
   override :sign_in_and_redirect
   def sign_in_and_redirect(user, *args)
-    store_active_saml_session
-
     flash[:notice] = "Signed in with SAML for #{@unauthenticated_group.name}"
+
+    super
+  end
+
+  override :sign_in
+  def sign_in(resource_or_scope, *args)
+    store_active_saml_session
 
     super
   end

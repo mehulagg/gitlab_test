@@ -20,8 +20,8 @@ module EE
       end
     end
 
-    override :destroy
-    def destroy
+    override :sign_out
+    def sign_out(*args)
       ::Gitlab::Auth::GroupSaml::SessionEnforcer.clear(current_user.request_context.session)
 
       super

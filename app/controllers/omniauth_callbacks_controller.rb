@@ -84,7 +84,7 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
       identity_linker ||= auth_module::IdentityLinker.new(current_user, oauth)
 
-      identity_linker.link
+      link_identity(identity_linker)
 
       if identity_linker.changed?
         redirect_identity_linked
@@ -96,6 +96,10 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
     else
       sign_in_user_flow(auth_module::User)
     end
+  end
+
+  def link_identity(identity_linker)
+    identity_linker.link
   end
 
   def redirect_identity_exists

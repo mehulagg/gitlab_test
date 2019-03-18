@@ -75,8 +75,8 @@ describe GroupPolicy do
 
     context 'with sso enforcement enabled' do
       let(:current_user) { guest }
-      let(:group) { create(:group, :private) }
-      let!(:saml_provider) { create(:saml_provider, group: group, enforced_sso: true) }
+      let(:group) { build_stubbed(:group, :private) }
+      let!(:saml_provider) { build_stubbed(:saml_provider, group: group, enforced_sso: true) }
 
       context 'when the user has an associated session' do
         let(:session) { Hash.new }

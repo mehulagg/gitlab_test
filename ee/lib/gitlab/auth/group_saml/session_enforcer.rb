@@ -33,7 +33,7 @@ module Gitlab
 
         def saml_enforced?
           #TODO: check license too
-          saml_provider&.enforced_sso? && ::Feature.enabled?(:enforced_sso, group)
+          saml_provider&.enforced_sso?
         end
 
         def group

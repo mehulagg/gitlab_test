@@ -136,7 +136,7 @@ describe GroupsController do
 
     context 'without SAML session' do
       it 'prevents access to group resources' do
-        get :show, params: { id: group.to_param }
+        get :show, params: { id: group }
 
         expect(response).to have_gitlab_http_status(404)
       end
@@ -150,7 +150,7 @@ describe GroupsController do
       end
 
       it 'allows access to group resources' do
-        get :show, params: { id: group.to_param }
+        get :show, params: { id: group }
 
         expect(response).to have_gitlab_http_status(200)
       end
