@@ -11,7 +11,6 @@ class CreatePipelineSourceProject < ActiveRecord::Migration[5.0]
   def change
     create_table :ci_sources_projects, force: :cascade do |t|
       t.integer :project_id
-
       t.integer :source_project_id
     end
   end
