@@ -79,7 +79,7 @@ describe GroupPolicy do
       let!(:saml_provider) { build_stubbed(:saml_provider, group: group, enforced_sso: true) }
 
       context 'when the user has an associated session' do
-        let(:session) { Hash.new }
+        let(:session) { {} }
         let(:session_enforcer) { Gitlab::Auth::GroupSaml::SessionEnforcer.new(session, saml_provider) }
 
         before do
