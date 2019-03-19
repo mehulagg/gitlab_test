@@ -41,7 +41,7 @@ describe 'Cross-Project Pipelines' do
       context 'when the user does not have permissions' do
         it 'does not trigger a downstream pipeline' do
           expect { upstream_project.ci_pipelines.first.succeed! }
-            .to raise_error(Ci::CreateDownstreamProjectPipelineService::DownstreamPipelineCreationError)
+            .to raise_error(Ci::CreateUpstreamDependentPipelineService::DownstreamPipelineCreationError)
 
           expect(downstream_project.ci_pipelines.count).to eq(0)
         end
@@ -73,7 +73,7 @@ describe 'Cross-Project Pipelines' do
 
     it 'does not trigger a downstream pipeline' do
       expect { upstream_project.ci_pipelines.first.succeed! }
-        .to raise_error(Ci::CreateDownstreamProjectPipelineService::DownstreamPipelineCreationError)
+        .to raise_error(Ci::CreateUpstreamDependentPipelineService::DownstreamPipelineCreationError)
 
       expect(downstream_project.ci_pipelines.count).to eq(0)
     end

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Ci::CreateDownstreamProjectPipelineService, '#execute' do
+describe Ci::CreateUpstreamDependentPipelineService, '#execute' do
   let(:user) { create(:user) }
   let(:upstream_project) { create(:project, :repository) }
   let(:downstream_project) { create(:project, :repository) }
@@ -44,7 +44,7 @@ describe Ci::CreateDownstreamProjectPipelineService, '#execute' do
     context 'when user can not access downstream project' do
       it 'raises an error' do
         expect { service.execute(downstream_project) }
-          .to raise_error(Ci::CreateDownstreamProjectPipelineService::DownstreamPipelineCreationError)
+          .to raise_error(Ci::CreateUpstreamDependentPipelineService::DownstreamPipelineCreationError)
       end
     end
 
@@ -55,7 +55,7 @@ describe Ci::CreateDownstreamProjectPipelineService, '#execute' do
 
       it 'raises an error' do
         expect { service.execute(downstream_project) }
-          .to raise_error(Ci::CreateDownstreamProjectPipelineService::DownstreamPipelineCreationError)
+          .to raise_error(Ci::CreateUpstreamDependentPipelineService::DownstreamPipelineCreationError)
       end
     end
   end
@@ -67,7 +67,7 @@ describe Ci::CreateDownstreamProjectPipelineService, '#execute' do
 
     it 'raises an error' do
       expect { service.execute(downstream_project) }
-        .to raise_error(Ci::CreateDownstreamProjectPipelineService::DownstreamPipelineCreationError)
+        .to raise_error(Ci::CreateUpstreamDependentPipelineService::DownstreamPipelineCreationError)
     end
   end
 end

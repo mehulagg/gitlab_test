@@ -108,9 +108,8 @@ module EE
             next unless pipeline.observed_ref?
             next unless pipeline.triggers_downstream_pipelines?
 
-
             pipeline.run_after_commit do
-              ::Ci::CreateDownstreamProjectsPipelineWorker.perform_async(pipeline.id)
+              ::Ci::CreateUpstreamDependentPipelineWorker.perform_async(pipeline.id)
             end
           end
         end

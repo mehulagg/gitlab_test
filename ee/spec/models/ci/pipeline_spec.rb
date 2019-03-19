@@ -508,7 +508,7 @@ describe Ci::Pipeline do
         end
 
         it 'calls the worker' do
-          expect(::Ci::CreateDownstreamProjectsPipelineWorker).not_to receive(:perform_async)
+          expect(::Ci::CreateUpstreamDependentPipelineWorker).not_to receive(:perform_async)
 
           pipeline.reload.succeed!
         end
@@ -520,7 +520,7 @@ describe Ci::Pipeline do
         end
 
         it 'does not call the worker' do
-          expect(::Ci::CreateDownstreamProjectsPipelineWorker).not_to receive(:perform_async)
+          expect(::Ci::CreateUpstreamDependentPipelineWorker).not_to receive(:perform_async)
 
           pipeline.reload.succeed!
         end
@@ -537,7 +537,7 @@ describe Ci::Pipeline do
       end
 
       it 'does not call the worker' do
-        expect(::Ci::CreateDownstreamProjectsPipelineWorker).not_to receive(:perform_async)
+        expect(::Ci::CreateUpstreamDependentPipelineWorker).not_to receive(:perform_async)
 
         pipeline.reload.succeed!
       end

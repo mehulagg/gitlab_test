@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class CreateDownstreamProjectPipelineService < ::BaseService
+  class CreateUpstreamDependentPipelineService < ::BaseService
     include Gitlab::Utils::StrongMemoize
 
     DownstreamPipelineCreationError = Class.new(StandardError)
