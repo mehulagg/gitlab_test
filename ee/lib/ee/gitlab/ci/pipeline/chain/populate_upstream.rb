@@ -14,7 +14,7 @@ module EE
                 bridges = pipeline.stages.map(&:bridges).flatten
 
                 project.upstream_projects = bridges.map do |bridge|
-                  ::Project.find_by_full_path(bridge.target_project_path) if bridge.upstream_bridge?
+                  ::Project.find_by_full_path(bridge.upstream_project_path) if bridge.upstream_bridge?
                 end.compact
               end
             end

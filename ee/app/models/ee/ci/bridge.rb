@@ -37,8 +37,12 @@ module EE
         self.user
       end
 
-      def target_project_path
-        downstream_project_path || upstream_project_path
+      def downstream_project_path
+        options&.dig(:trigger, :project)
+      end
+
+      def upstream_project_path
+        options&.dig(:triggered_by, :project)
       end
 
       def target_ref
@@ -51,16 +55,6 @@ module EE
 
       def upstream_bridge?
         options&.has_key?(:triggered_by)
-      end
-
-      private
-
-      def downstream_project_path
-        options&.dig(:trigger, :project)
-      end
-
-      def upstream_project_path
-        options&.dig(:triggered_by, :project)
       end
     end
   end
