@@ -11,19 +11,14 @@ class ElasticBatchProjectIndexerWorker
   sidekiq_options retry: 10
 
   def perform(start, finish, update_index = false)
-    projects = build_relation(start, finish)
+    projects = build_relation(start, finish, update_index)
 
-    projects.find_each { |project| run_indexer(project, update_index) }
+    projects.find_each { |project| run_indexer(project) }
   end
 
   private
 
-  def run_indexer(project, update_index)
-    # Ensure we remove the hold on the project, no matter what, so ElasticCommitIndexerWorker can do its thing
-    # We do this before the indexer starts to avoid the possibility of pushes coming in during this time not
-    # being indexed.
-    Gitlab::Redis::SharedState.with { |redis| redis.srem(:elastic_projects_indexing, project.id) }
-
+  def run_indexer(project)
     logger.info "Indexing #{project.full_name} (ID=#{project.id})..."
 
     # Get the last commit if we're updating indexed projects - otherwise we'll want to index everything
@@ -36,8 +31,12 @@ class ElasticBatchProjectIndexerWorker
   end
 
   # rubocop: disable CodeReuse/ActiveRecord
-  def build_relation(start, finish)
+  def build_relation(start, finish, update_index)
     relation = Project.includes(:index_status)
+
+    unless update_index
+      relation = relation.where('index_statuses.id IS NULL').references(:index_statuses)
+    end
 
     table = Project.arel_table
     relation = relation.where(table[:id].gteq(start)) if start
