@@ -62,8 +62,8 @@ project:
 - repository_state
 - source_pipelines
 - sourced_pipelines
-- source_projects
-- sourced_projects
+- upstream_project_sources
+- downstream_project_sources
 - upstream_projects
 - downstream_projects
 - prometheus_metrics

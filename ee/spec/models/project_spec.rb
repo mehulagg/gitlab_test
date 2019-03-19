@@ -23,6 +23,10 @@ describe Project do
     it { is_expected.to have_many(:vulnerability_feedback) }
     it { is_expected.to have_many(:sourced_pipelines) }
     it { is_expected.to have_many(:source_pipelines) }
+    it { is_expected.to have_many(:downstream_project_sources) }
+    it { is_expected.to have_many(:upstream_project_sources) }
+    it { is_expected.to have_many(:downstream_projects) }
+    it { is_expected.to have_many(:upstream_projects) }
     it { is_expected.to have_many(:audit_events).dependent(false) }
     it { is_expected.to have_many(:protected_environments) }
     it { is_expected.to have_many(:approvers).dependent(:destroy) }
