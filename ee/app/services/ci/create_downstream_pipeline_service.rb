@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class CreateCrossProjectPipelineService < ::BaseService
+  class CreateDownstreamPipelineService < ::BaseService
     include Gitlab::Utils::StrongMemoize
 
     def execute(bridge)

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Ci::CreateCrossProjectPipelineService, '#execute' do
+describe Ci::CreateDownstreamPipelineService, '#execute' do
   set(:user) { create(:user) }
   set(:upstream_project) { create(:project, :repository) }
   set(:downstream_project) { create(:project, :repository) }
