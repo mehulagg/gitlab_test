@@ -105,8 +105,9 @@ module EE
           end
 
           after_transition running: :success do |pipeline|
-            next unless pipeline.default_branch?
-            next if pipeline.project.downstream_projects.empty?
+            next unless pipeline.observed_ref?
+            next unless pipeline.triggers_downstream_pipelines?
+
 
             pipeline.run_after_commit do
               ::Ci::CreateDownstreamProjectsPipelineWorker.perform_async(pipeline.id)
@@ -117,6 +118,14 @@ module EE
 
       def bridge_triggered?
         source_bridge.present?
+      end
+
+      def observed_ref?
+        default_branch?
+      end
+
+      def triggers_downstream_pipelines?
+        !project.downstream_projects.empty?
       end
 
       def update_bridge_status!

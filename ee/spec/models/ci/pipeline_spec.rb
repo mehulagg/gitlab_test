@@ -483,4 +483,64 @@ describe Ci::Pipeline do
       end
     end
   end
+
+  describe 'downstream pipeline interaction' do
+    before do
+      pipeline.run!
+    end
+
+    context 'when pipeline is for an observed branch' do
+      before do
+        pipeline.update(ref: pipeline.project.default_branch)
+      end
+
+      describe '#observed_ref?' do
+        it { expect(pipeline.observed_ref?).to eq(true) }
+      end
+
+      context 'when pipeline triggers downstream pipelines' do
+        before do
+          pipeline.project.downstream_projects << create(:project)
+        end
+
+        describe '#triggers_downstream_pipelines?' do
+          it { expect(pipeline.triggers_downstream_pipelines?).to eq(true) }
+        end
+
+        it 'calls the worker' do
+          expect(::Ci::CreateDownstreamProjectsPipelineWorker).not_to receive(:perform_async)
+
+          pipeline.reload.succeed!
+        end
+      end
+
+      context 'when pipeline does not trigger downstream pipelines' do
+        describe '#triggers_downstream_pipelines?' do
+          it { expect(pipeline.triggers_downstream_pipelines?).to eq(false) }
+        end
+
+        it 'does not call the worker' do
+          expect(::Ci::CreateDownstreamProjectsPipelineWorker).not_to receive(:perform_async)
+
+          pipeline.reload.succeed!
+        end
+      end
+    end
+
+    context 'when pipeline is not for an observed branch' do
+      before do
+        pipeline.update(ref: 'not_an_observed_ref')
+      end
+
+      describe '#observed_ref?' do
+        it { expect(pipeline.observed_ref?).to eq(false) }
+      end
+
+      it 'does not call the worker' do
+        expect(::Ci::CreateDownstreamProjectsPipelineWorker).not_to receive(:perform_async)
+
+        pipeline.reload.succeed!
+      end
+    end
+  end
 end
