@@ -31,7 +31,11 @@ class ApplicationController < ActionController::Base
   after_action :set_page_title_header, if: :json_request?
   after_action :limit_unauthenticated_session_times
 
-  protect_from_forgery with: :exception, prepend: true
+  # protect_from_forgery with: :exception, prepend: true
+
+  # defining this so `skip_before_action :verify_authenticity_token` doesn't raise anything
+  before_action :verify_authenticity_token
+  def verify_authenticity_token; end
 
   helper_method :can?
   helper_method :import_sources_enabled?, :github_import_enabled?,

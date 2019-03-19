@@ -16,6 +16,7 @@ module Gitlab
     require_dependency Rails.root.join('lib/gitlab/current_settings')
     require_dependency Rails.root.join('lib/gitlab/middleware/read_only')
     require_dependency Rails.root.join('lib/gitlab/middleware/basic_health_check')
+    require_dependency Rails.root.join('lib/gitlab/middleware/geo_proxy')
 
     # This needs to be loaded before DB connection is made
     # to make sure that all connections have NO_ZERO_DATE
@@ -253,6 +254,9 @@ module Gitlab
 
     # GitLab Read-only middleware support
     config.middleware.insert_after ActionDispatch::Flash, ::Gitlab::Middleware::ReadOnly
+
+    # Geo proxy write actions to primary
+    config.middleware.insert_before ::Gitlab::Middleware::ReadOnly, ::Gitlab::Middleware::GeoProxy
 
     config.generators do |g|
       g.factory_bot false
