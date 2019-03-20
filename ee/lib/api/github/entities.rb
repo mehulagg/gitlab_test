@@ -176,15 +176,13 @@ module API
           ''
         end
         expose :id, as: :number
-        expose :pull_request, using: PullRequest do |merge_request|
+        expose :pull_request, using: PullRequest do |merge_request| # , as: 'pullRequest'
           merge_request
         end
       end
 
       class PullRequestEvent < Grape::Entity
-        expose :id do |merge_request|
-          "#{merge_request.id}-#{merge_request.created_at}"
-        end
+        expose :id
         expose :type do
           'PullRequestEvent'
         end
