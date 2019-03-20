@@ -169,7 +169,11 @@ module API
         # We need to respond with a 200 request to avoid breaking the
         # integration flow (fetching merge requests).
         get ':namespace/:project/events' do
-          present []
+          user_project = find_project_with_access(params)
+
+          merge_requests = MergeRequestsFinder.new(current_user, authorized_only: true, project_id: user_project.id).execute
+
+          present paginate(merge_requests), with: ::API::Github::Entities::PullRequestEvent
         end
 
         params do

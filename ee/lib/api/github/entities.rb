@@ -170,6 +170,29 @@ module API
           expose :target_project, as: :repo, using: Repository
         end
       end
+
+      class PullRequestPayload < Grape::Entity
+        expose :action do
+          ''
+        end
+        expose :id, as: :number
+        expose :pull_request, using: PullRequest do |merge_request|
+          merge_request
+        end
+      end
+
+      class PullRequestEvent < Grape::Entity
+        expose :id do |merge_request|
+          "#{merge_request.id}-#{merge_request.created_at}"
+        end
+        expose :type do
+          'PullRequestEvent'
+        end
+        expose :created_at
+        expose :payload, using: PullRequestPayload do |merge_request|
+          merge_request
+        end
+      end
     end
   end
 end
