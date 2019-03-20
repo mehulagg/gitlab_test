@@ -53,7 +53,11 @@ sudo gitlab-rails runner "puts Gitlab::Geo.current_node.inspect"
 and expect something like:
 
 ```
-#<GeoNode id: 2, schema: "https", host: "gitlab.example.com", port: 443, relative_url_root: "", primary: false, ...>
+#<GeoNode id: 2, 
+  schema: "https", 
+  host: "gitlab.example.com", 
+  port: 443, relative_url_root: "", 
+  primary: false, ...>
 ```
 
 By running the command above, `primary` should be `true` when executed in
@@ -83,7 +87,11 @@ Re-run `gitlab-ctl replicate-geo-database`, but include a larger value for
 `--backup-timeout`:
 
 ```sh
-sudo gitlab-ctl replicate-geo-database --host=primary.geo.example.com --slot-name=secondary_geo_example_com --backup-timeout=21600
+sudo gitlab-ctl \
+   replicate-geo-database \
+   --host=primary.geo.example.com \
+   --slot-name=secondary_geo_example_com \
+   --backup-timeout=21600
 ```
 
 This will give the initial replication up to six hours to complete, rather than
@@ -358,7 +366,13 @@ reload of the FDW schema. To manually reload the FDW schema:
    the `gitlab_geo` user:
 
     ```sh
-    sudo -u git /opt/gitlab/embedded/bin/psql -h /var/opt/gitlab/geo-postgresql -p 5431 -U gitlab_geo -W -d gitlabhq_geo_production
+    sudo \
+       -u git /opt/gitlab/embedded/bin/psql \
+       -h /var/opt/gitlab/geo-postgresql \
+       -p 5431 \
+       -U gitlab_geo \
+       -W \
+       -d gitlabhq_geo_production
     ```
 
     Be sure to adjust the port and hostname for your configuration. You

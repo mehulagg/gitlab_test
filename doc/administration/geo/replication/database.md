@@ -295,7 +295,12 @@ There is an [issue where support is being discussed](https://gitlab.com/gitlab-o
     Install the `server.crt` file:
 
     ```sh
-    install -D -o gitlab-psql -g gitlab-psql -m 0400 -T server.crt ~gitlab-psql/.postgresql/root.crt
+    install \
+       -D \
+       -o gitlab-psql \
+       -g gitlab-psql \
+       -m 0400 \
+       -T server.crt ~gitlab-psql/.postgresql/root.crt
     ```
 
     PostgreSQL will now only recognize that exact certificate when verifying TLS
@@ -305,7 +310,13 @@ There is an [issue where support is being discussed](https://gitlab.com/gitlab-o
 1. Test that the `gitlab-psql` user can connect to the **primary** node's database:
 
     ```sh
-    sudo -u gitlab-psql /opt/gitlab/embedded/bin/psql --list -U gitlab_replicator -d "dbname=gitlabhq_production sslmode=verify-ca" -W -h 198.51.100.1
+    sudo \
+       -u gitlab-psql /opt/gitlab/embedded/bin/psql \
+       --list \
+       -U gitlab_replicator \
+       -d "dbname=gitlabhq_production sslmode=verify-ca" \
+       -W \
+       -h 198.51.100.1
     ```
 
     When prompted enter the password you set in the first step for the
@@ -399,7 +410,9 @@ data before running `pg_basebackup`.
     Using the same slot name between two secondaries will break PostgreSQL replication.
 
     ```sh
-    gitlab-ctl replicate-geo-database --slot-name=secondary_example --host=198.51.100.1
+    gitlab-ctl replicate-geo-database \
+       --slot-name=secondary_example \
+       --host=198.51.100.1
     ```
 
     When prompted, enter the _plaintext_ password you set up for the `gitlab_replicator`
@@ -446,7 +459,9 @@ work:
     node that is running the PostgreSQL database:
 
     ```sh
-     sudo -u gitlab-psql /opt/gitlab/embedded/bin/psql -h /var/opt/gitlab/postgresql gitlabhq_production
+     sudo \
+        -u gitlab-psql /opt/gitlab/embedded/bin/psql \
+        -h /var/opt/gitlab/postgresql gitlabhq_production
     ```
 
 1. Then create the read-only user:

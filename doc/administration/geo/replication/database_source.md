@@ -75,7 +75,10 @@ There is an [issue where support is being discussed](https://gitlab.com/gitlab-o
 1. Make sure your the `gitlab` database user has a password defined:
 
     ```sh
-    sudo -u postgres psql -d template1 -c "ALTER USER gitlab WITH ENCRYPTED PASSWORD 'mydatabasepassword';"
+    sudo \
+       -u postgres psql \
+       -d template1 \
+       -c "ALTER USER gitlab WITH ENCRYPTED PASSWORD 'mydatabasepassword';"
     ```
 
 1. Edit the content of `database.yml` in `production:` and add the password like the example below:
@@ -110,7 +113,14 @@ There is an [issue where support is being discussed](https://gitlab.com/gitlab-o
     To generate a self-signed certificate and key, run this command:
 
     ```sh
-    openssl req -nodes -batch -x509 -newkey rsa:4096 -keyout server.key -out server.crt -days 3650
+    openssl req \
+       -nodes \
+       -batch \
+       -x509 \
+       -newkey rsa:4096 \
+       -keyout server.key \
+       -out server.crt \
+       -days 3650
     ```
 
     This will create two files - `server.key` and `server.crt` - that you can
