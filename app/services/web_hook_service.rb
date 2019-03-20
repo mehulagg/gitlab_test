@@ -41,7 +41,7 @@ class WebHookService
     {
       status: :success,
       http_status: response.code,
-      message: response.to_s
+      message: response.body.to_s
     }
   rescue SocketError, OpenSSL::SSL::SSLError, Errno::ECONNRESET, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Net::OpenTimeout, Net::ReadTimeout, Gitlab::HTTP::BlockedUrlError, Gitlab::HTTP::RedirectionTooDeep => e
     log_execution(

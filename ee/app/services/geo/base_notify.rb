@@ -12,7 +12,7 @@ module Geo
                                      'PRIVATE-TOKEN' => private_token
                                    })
 
-      [(response.code >= 200 && response.code < 300), ActionView::Base.full_sanitizer.sanitize(response.to_s)]
+      [(response.code >= 200 && response.code < 300), ActionView::Base.full_sanitizer.sanitize(response.body.to_s)]
     rescue Gitlab::HTTP::Error, Errno::ECONNREFUSED => e
       [false, ActionView::Base.full_sanitizer.sanitize(e.message)]
     end
