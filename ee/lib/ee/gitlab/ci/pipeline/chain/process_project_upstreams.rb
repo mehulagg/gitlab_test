@@ -16,7 +16,7 @@ module EE
               return unless pipeline.default_branch? && cross_project_pipelines_enabled?
 
               pipeline.stages.map(&:bridges).flatten.each do |bridge|
-                next unless bridge.upstream_bridge?
+                next unless bridge.type == 'Ci::Bridges::UpstreamBridge'
 
                 if (upstream_project = ::Project.find_by_full_path(bridge.upstream_project_path))
                   if can_create_cross_pipeline?(upstream_project)

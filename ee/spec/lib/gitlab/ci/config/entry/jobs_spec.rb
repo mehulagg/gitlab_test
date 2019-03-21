@@ -88,7 +88,8 @@ describe Gitlab::Ci::Config::Entry::Jobs do
           my_triggered_by: {
             name: :my_triggered_by,
             triggered_by: { project: 'other/project' },
-            stage: 'test'
+            stage: 'test',
+            ignore: false
           },
           regular_job: {
             script: %w[something],

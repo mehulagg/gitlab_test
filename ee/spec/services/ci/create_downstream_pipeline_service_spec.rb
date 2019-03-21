@@ -102,7 +102,7 @@ describe Ci::CreateDownstreamPipelineService, '#execute' do
       expect(bridge.sourced_pipelines.first.pipeline).to eq pipeline
       expect(pipeline.triggered_by_pipeline).to eq upstream_pipeline
       expect(pipeline.source_bridge).to eq bridge
-      expect(pipeline.source_bridge).to be_a ::Ci::Bridge
+      expect(pipeline.source_bridge).to be_a ::Ci::Bridges::DownstreamBridge
     end
 
     it 'updates bridge status when downstream pipeline gets proceesed' do

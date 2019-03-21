@@ -21,6 +21,29 @@ describe Ci::Pipeline do
     end
   end
 
+  describe '.processables' do
+    before do
+      create(:ci_upstream_bridge, name: 'upstream_bridge', pipeline: pipeline)
+      create(:ci_downstream_bridge, name: 'downstream_bridge', pipeline: pipeline)
+    end
+
+    it 'has an association with processable CI/CD entities' do
+      require 'pry'
+      binding.pry
+      pipeline.processables.pluck('name').yield_self do |processables|
+        expect(processables).to match_array %w[upstream_bridge downstream_bridge]
+      end
+    end
+
+    it 'makes it possible to append a new processable' do
+      pipeline.processables << build(:ci_downstream_bridge)
+
+      pipeline.save!
+
+      expect(pipeline.processables.reload.count).to eq 3
+    end
+  end
+
   describe '#with_legacy_security_reports scope' do
     let(:pipeline_1) { create(:ci_pipeline_without_jobs, project: project) }
     let(:pipeline_2) { create(:ci_pipeline_without_jobs, project: project) }

@@ -92,7 +92,7 @@ describe Ci::CreatePipelineService, '#execute' do
 
       expect(pipeline).to be_persisted
       expect(test).to be_a Ci::Build
-      expect(bridge).to be_a Ci::Bridge
+      expect(bridge).to be_a Ci::Bridges::DownstreamBridge
       expect(bridge.stage).to eq 'deploy'
       expect(pipeline.statuses).to match_array [test, bridge]
       expect(bridge.options).to eq('trigger' => { 'project' => 'my/project' })

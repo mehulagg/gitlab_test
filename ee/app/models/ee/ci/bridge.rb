@@ -12,6 +12,18 @@ module EE
         serialize :options
         serialize :yaml_variables, ::Gitlab::Serializer::Ci::Variables
         # rubocop:enable Cop/ActiveRecordSerialize
+
+        def self.fabricate(attributes)
+          hash_attributes = attributes.to_h
+
+          if hash_attributes.dig(:options, :trigger).present?
+            ::Ci::Bridges::DownstreamBridge.new(attributes)
+          elsif hash_attributes.dig(:options, :triggered_by).present?
+            ::Ci::Bridges::UpstreamBridge.new(attributes)
+          else
+            super(attributes)
+          end
+        end
       end
 
       def target_user

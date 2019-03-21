@@ -6,7 +6,7 @@ module Ci
     include ::PipelineQueue
 
     def perform(bridge_id)
-      ::Ci::Bridge.find_by_id(bridge_id).try do |bridge|
+      ::Ci::Bridges::DownstreamBridge.find_by_id(bridge_id).try do |bridge|
         ::Ci::CreateDownstreamPipelineService
           .new(bridge.project, bridge.user)
           .execute(bridge)
