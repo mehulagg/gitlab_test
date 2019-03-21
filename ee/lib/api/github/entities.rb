@@ -172,23 +172,27 @@ module API
       end
 
       class PullRequestPayload < Grape::Entity
-        expose :action do
-          ''
-        end
+        expose :action
         expose :id, as: :number
-        expose :pull_request, using: PullRequest do |merge_request| # , as: 'pullRequest'
+        expose :pull_request, using: PullRequest do |merge_request|
           merge_request
+        end
+
+        def action
+          'opened'
         end
       end
 
       class PullRequestEvent < Grape::Entity
         expose :id
-        expose :type do
-          'PullRequestEvent'
-        end
+        expose :type
         expose :created_at
         expose :payload, using: PullRequestPayload do |merge_request|
           merge_request
+        end
+
+        def type
+          'PullRequestEvent'
         end
       end
     end
