@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe ::Gitlab::Ci::Pipeline::Chain::PopulateUpstream do
+describe ::Gitlab::Ci::Pipeline::Chain::ProcessProjectUpstreams do
   let(:project) { create(:project, :repository) }
   let(:user) { create(:user) }
   let(:pipeline) { build(:ci_pipeline, project: project, ref: 'master') }

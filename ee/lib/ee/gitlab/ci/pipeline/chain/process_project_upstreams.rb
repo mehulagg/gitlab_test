@@ -5,7 +5,7 @@ module EE
     module Ci
       module Pipeline
         module Chain
-          module PopulateUpstream
+          module ProcessProjectUpstreams
             extend ::Gitlab::Utils::Override
 
             override :perform!
