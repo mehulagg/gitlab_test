@@ -442,7 +442,7 @@ describe 'Pipeline', :js do
     end
 
     let!(:bridge) do
-      create(:ci_bridge, pipeline: pipeline,
+      create(:ci_downstream_bridge, pipeline: pipeline,
                          name: 'cross-build',
                          user: user,
                          downstream: downstream)

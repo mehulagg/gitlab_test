@@ -19,10 +19,10 @@ describe Ci::CreateDownstreamPipelineService, '#execute' do
   end
 
   let(:bridge) do
-    create(:ci_bridge, status: :pending,
-                       user: user,
-                       options: trigger,
-                       pipeline: upstream_pipeline)
+    create(:ci_downstream_bridge, status: :pending,
+                                  user: user,
+                                  options: trigger,
+                                  pipeline: upstream_pipeline)
   end
 
   let(:service) { described_class.new(upstream_project, user) }
