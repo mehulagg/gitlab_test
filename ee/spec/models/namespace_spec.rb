@@ -147,15 +147,14 @@ describe Namespace do
   describe '#feature_available?' do
     let(:hosted_plan) { create(:bronze_plan) }
     let(:group) { create(:group) }
-    let(:licensed_feature) { :service_desk }
-    let(:feature) { licensed_feature }
+    let(:feature) { :service_desk }
 
     subject { group.feature_available?(feature) }
 
     before do
       create(:gitlab_subscription, namespace: group, hosted_plan: hosted_plan)
 
-      stub_licensed_features(licensed_feature => true)
+      stub_licensed_features(feature => true)
     end
 
     it 'uses the global setting when running on premise' do
@@ -206,24 +205,6 @@ describe Namespace do
         it 'returns false' do
           is_expected.to be_falsy
         end
-      end
-    end
-
-    context 'when the feature is temporarily available on the entire instance' do
-      let(:feature) { :ci_cd_projects }
-
-      before do
-        stub_application_setting_on_object(group, should_check_namespace_plan: true)
-      end
-
-      it 'returns true when the feature is available globally' do
-        stub_licensed_features(feature => true)
-
-        is_expected.to be_truthy
-      end
-
-      it 'returns `false` when the feature is not included in the global license' do
-        is_expected.to be_falsy
       end
     end
 
