@@ -74,7 +74,7 @@ module EE
               include ::Gitlab::Config::Entry::Configurable
               include ::Gitlab::Config::Entry::Attributable
 
-              ALLOWED_KEYS = %i[triggered_by stage].freeze
+              ALLOWED_KEYS = %i[triggered_by allow_failure stage].freeze
 
               validations do
                 validates :config, presence: true
@@ -100,6 +100,7 @@ module EE
               def value
                 { name: name,
                   triggered_by: triggered_by_value,
+                  ignore: !!allow_failure,
                   stage: stage_value }.compact
               end
             end

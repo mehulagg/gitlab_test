@@ -1,5 +1,4 @@
-require 'fast_spec_helper'
-require_dependency 'active_model'
+require 'spec_helper'
 
 describe EE::Gitlab::Ci::Config::Entry::Bridge do
   subject { described_class.new(config, name: :my_trigger) }
@@ -89,6 +88,7 @@ describe EE::Gitlab::Ci::Config::Entry::Bridge do
         it 'is returns a bridge job configuration' do
           expect(subject.value).to eq(name: :my_trigger,
                                       triggered_by: { project: 'some/project' },
+                                      ignore: false,
                                       stage: 'test')
         end
       end
