@@ -5,90 +5,18 @@ describe Ci::Bridge do
   set(:pipeline) { create(:ci_pipeline, project: project) }
 
   let(:bridge) do
-    create(:ci_bridge, :variables, status: :created,
-                                   options: options,
-                                   pipeline: pipeline)
+    create(:ci_downstream_bridge, :variables, status: :created,
+                                              options: options,
+                                              pipeline: pipeline)
   end
 
   let(:options) do
     { trigger: { project: 'my/project', branch: 'master' } }
   end
 
-  it 'has many sourced pipelines' do
-    expect(bridge).to have_many(:sourced_pipelines)
-  end
-
-  describe 'state machine transitions' do
-    context 'when it changes status from created to pending' do
-      context 'when it is a downstream bridge' do
-        it 'schedules downstream pipeline creation' do
-          expect(bridge).to receive(:schedule_downstream_pipeline!)
-
-          bridge.enqueue!
-        end
-      end
-
-      context 'when it is an upstream bridge' do
-        let(:options) { { triggered_by: { project: 'other/project' } } }
-
-        it 'does not schedule a downstream pipeline creation' do
-          expect(bridge).not_to receive(:schedule_downstream_pipeline!)
-
-          bridge.enqueue!
-        end
-
-        it 'marks the bridge as successful' do
-          bridge.enqueue!
-
-          expect(bridge.status).to eq('success')
-        end
-      end
-    end
-  end
-
   describe '#target_user' do
     it 'is the same as a user who created a pipeline' do
       expect(bridge.target_user).to eq bridge.user
-    end
-  end
-
-  describe '#downstream_project_path' do
-    context 'when trigger is defined' do
-      context 'when project is defined' do
-        let(:options) { { trigger: { project: 'my/project' } } }
-
-        it 'returns a full path of a project' do
-          expect(bridge.downstream_project_path).to eq 'my/project'
-        end
-      end
-
-      context 'when project is not defined' do
-        let(:options) { { trigger: {} } }
-
-        it 'returns nil' do
-          expect(bridge.downstream_project_path).to be_nil
-        end
-      end
-    end
-  end
-
-  describe '#upstream_project_path' do
-    context 'when triggered_by is defined' do
-      context 'when project is defined' do
-        let(:options) { { triggered_by: { project: 'other/project' } } }
-
-        it 'returns a full path of a project' do
-          expect(bridge.upstream_project_path).to eq 'other/project'
-        end
-      end
-
-      context 'when project is not defined' do
-        let(:options) { { triggered_by: {} } }
-
-        it 'returns nil' do
-          expect(bridge.upstream_project_path).to be_nil
-        end
-      end
     end
   end
 
