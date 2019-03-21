@@ -182,16 +182,19 @@ module API
             merge_request.state
           end
         end
-        expose :id, as: :number
+        expose :id
         expose :pull_request, using: PullRequest do |merge_request|
           merge_request
         end
       end
 
       class PullRequestEvent < Grape::Entity
-        expose :id
+        expose :id do |merge_request|
+          updated_at = merge_request.updated_at.to_i
+          "#{merge_request.id}-#{updated_at}"
+        end
         expose :type
-        expose :created_at
+        expose :updated_at, as: :created_at
         expose :payload, using: PullRequestPayload do |merge_request|
           merge_request
         end
