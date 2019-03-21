@@ -12,7 +12,8 @@ module EE
         super.merge(protected_environment_failure: 1_000,
                     downstream_insufficient_bridge_permissions: 1_001,
                     downstream_bridge_project_not_found: 1_002,
-                    downstream_invalid_bridge_trigger: 1_003)
+                    downstream_invalid_bridge_trigger: 1_003,
+                    upstream_bridge_project_not_found: 1_004)
       end
     end
   end

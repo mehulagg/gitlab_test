@@ -13,7 +13,8 @@ module EE
                 protected_environment_failure: 'protected environment failure',
                 downstream_invalid_bridge_trigger: 'downstream pipeline trigger definition is invalid',
                 downstream_bridge_project_not_found: 'downstream project could not be found',
-                downstream_insufficient_bridge_permissions: 'no permissions to trigger downstream pipeline'
+                downstream_insufficient_bridge_permissions: 'no permissions to trigger downstream pipeline',
+                upstream_bridge_project_not_found: 'upstream project could not be found'
               ).freeze
               EE::Gitlab::Ci::Status::Build::Failed.private_constant :EE_REASONS
             end

@@ -49,5 +49,13 @@ FactoryBot.define do
         )
       end
     end
+
+    trait :invalid_upstream do
+      after(:build) do |bridge, _|
+        bridge.options = bridge.options.to_h.merge(
+          triggered_by: { project: 'this_project/does_not_exist' }
+      )
+      end
+    end
   end
 end
