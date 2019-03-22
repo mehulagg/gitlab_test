@@ -11390,6 +11390,9 @@ msgstr ""
 msgid "Version"
 msgstr ""
 
+msgid "View %{alerts}"
+msgstr ""
+
 msgid "View app"
 msgstr ""
 

@@ -1,8 +1,8 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import ProjectHeader from 'ee/operations/components/dashboard/project_header.vue';
+import ProjectHeader from 'ee/operations/components/dashboard/new_project_header.vue';
 import ProjectAvatar from '~/vue_shared/components/project_avatar/default.vue';
 import { removeWhitespace } from 'spec/helpers/vue_component_helper';
-import { mockOneProject, mockText } from '../../mock_data';
+import { mockOneProject, mockText } from '../../new_mock_data';
 
 const localVue = createLocalVue();
 
@@ -28,9 +28,11 @@ describe('project header component', () => {
   });
 
   it('renders project name with namespace', () => {
-    const name = wrapper.find('.js-name-with-namespace').text();
+    const namespace = wrapper.find('.js-project-namespace').text();
+    const name = wrapper.find('.js-project-name').text();
 
-    expect(removeWhitespace(name).trim()).toBe(mockOneProject.name_with_namespace);
+    expect(removeWhitespace(namespace).trim()).toBe(`${mockOneProject.namespace.name} /`);
+    expect(removeWhitespace(name).trim()).toBe(mockOneProject.name);
   });
 
   it('links project name to project', () => {
@@ -62,7 +64,7 @@ describe('project header component', () => {
     });
 
     it('emits project removal link on click', () => {
-      wrapper.find('.js-remove-button').trigger('click');
+      wrapper.find('.js-remove-button').vm.$emit('click');
 
       expect(wrapper.emittedByOrder()).toEqual([
         { name: 'remove', args: [mockOneProject.remove_path] },
