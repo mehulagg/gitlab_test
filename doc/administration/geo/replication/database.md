@@ -45,10 +45,6 @@ The following guide assumes that:
   replicating from), running Omnibus' PostgreSQL (or equivalent version), and
   you have a new **secondary** server set up with the same versions of the OS,
   PostgreSQL, and GitLab on all nodes.
-- The IP of the **primary** server for our examples is `198.51.100.1`, whereas the
-  **secondary** node's IP is `198.51.100.2`. Note that the **primary** and **secondary** servers
-  **must** be able to communicate over these addresses. More on this in the
-  guide below.
 
 CAUTION: **Warning:**
 Geo works with streaming replication. Logical replication is not supported at this time.
@@ -76,8 +72,8 @@ There is an [issue where support is being discussed](https://gitlab.com/gitlab-o
 
     ```sh
     gitlab-ctl pg-password-md5 gitlab
-    # Enter password: mypassword
-    # Confirm password: mypassword
+    # Enter password: <your_password_here>
+    # Confirm password: <your_password_here>
     # fca0b89a972d69f00eb3ec98a5838484
     ```
 
@@ -90,7 +86,7 @@ There is an [issue where support is being discussed](https://gitlab.com/gitlab-o
     # Every node that runs Unicorn or Sidekiq needs to have the database
     # password specified as below. If you have a high-availability setup, this
     # must be present in all application nodes.
-    gitlab_rails['db_password'] = 'mypassword'
+    gitlab_rails['db_password'] = '<your_password_here>'
     ```
 
 1. Omnibus GitLab already has a [replication user]
@@ -170,16 +166,14 @@ There is an [issue where support is being discussed](https://gitlab.com/gitlab-o
 
     ##
     ## Primary address
-    ## - replace '198.51.100.1' with the public or VPC address of your Geo primary node
+    ## - replace '<primary_node_public_address>' with the public or VPC address of your Geo primary node
     ##
-    postgresql['listen_address'] = '198.51.100.1'
+    postgresql['listen_address'] = '<primary_node_public_address>'
 
+   ##
+    # Public or VPC primary and secondary addresses in CIDR format, for example ['198.51.100.1/32', '198.51.100.2/32'] 
     ##
-    # Primary and Secondary addresses
-    # - replace '198.51.100.1' with the public or VPC address of your Geo primary node
-    # - replace '198.51.100.2' with the public or VPC address of your Geo secondary node
-    ##
-    postgresql['md5_auth_cidr_addresses'] = ['198.51.100.1/32','198.51.100.2/32']
+    postgresql['md5_auth_cidr_addresses'] = ['<primary_address>/32', '<secondary_address>/32']
 
     ##
     ## Replication settings
@@ -199,7 +193,7 @@ There is an [issue where support is being discussed](https://gitlab.com/gitlab-o
 1. Optional: If you want to add another **secondary** node, the relevant setting would look like:
 
     ```ruby
-    postgresql['md5_auth_cidr_addresses'] = ['198.51.100.1/32', '198.51.100.2/32','198.51.100.3/32']
+    postgresql['md5_auth_cidr_addresses'] = ['<primary_address>/32', '<secondary_address>/32', '<another_secondary_address>/32']
     ```
 
     You may also want to edit the `wal_keep_segments` and `max_wal_senders` to
@@ -274,7 +268,7 @@ There is an [issue where support is being discussed](https://gitlab.com/gitlab-o
 1. [Check TCP connectivity][rake-maintenance] to the **primary** node's PostgreSQL server:
 
     ```sh
-    gitlab-rake gitlab:tcp_check[198.51.100.1,5432]
+    gitlab-rake gitlab:tcp_check[<primary_node_address>,5432]
     ```
 
     NOTE: **Note**:
@@ -316,7 +310,7 @@ There is an [issue where support is being discussed](https://gitlab.com/gitlab-o
        -U gitlab_replicator \
        -d "dbname=gitlabhq_production sslmode=verify-ca" \
        -W \
-       -h 198.51.100.1
+       -h <primary_node_address>
     ```
 
     When prompted enter the password you set in the first step for the
@@ -344,17 +338,17 @@ There is an [issue where support is being discussed](https://gitlab.com/gitlab-o
 
     ##
     ## Secondary address
-    ## - replace '198.51.100.2' with the public or VPC address of your Geo secondary node 
+    ## - replace '<secondary_node_address>' with the public or VPC address of your Geo secondary node 
     ##
-    postgresql['listen_address'] = '198.51.100.2'
-    postgresql['md5_auth_cidr_addresses'] = ['198.51.100.2/32']
+    postgresql['listen_address'] = '<secondary_node_address>'
+    postgresql['md5_auth_cidr_addresses'] = ['<secondary_node_address>/32']
 
     ##
     ## Database credentials password (defined previously in primary node)
     ## - replicate same values here as defined in primary node
     ##
     postgresql['sql_user_password'] = 'fca0b89a972d69f00eb3ec98a5838484'
-    gitlab_rails['db_password'] = 'mypassword'
+    gitlab_rails['db_password'] = '<your_password_here>'
 
     ##
     ## Enable FDW support for the Geo Tracking Database (improves performance)
@@ -411,8 +405,8 @@ data before running `pg_basebackup`.
 
     ```sh
     gitlab-ctl replicate-geo-database \
-       --slot-name=secondary_example \
-       --host=198.51.100.1
+       --slot-name=<secondary_node_name> \
+       --host=<secondary_node_address>
     ```
 
     When prompted, enter the _plaintext_ password you set up for the `gitlab_replicator`

@@ -103,8 +103,8 @@ follow the instructions below to use it:
     # make sure you define the same password in both
     gitlab_rails['db_password'] = 'mypassword'
 
-    geo_secondary['db_host'] = '<change to the tracking DB public IP>'
-    geo_secondary['db_port'] = 5431      # change to the correct port
+    geo_secondary['db_host'] = '<tracking_database_public_ip_address>'
+    geo_secondary['db_port'] = <tracking_database_port>      # change to the correct port
     geo_secondary['db_fdw'] = true       # enable FDW
     geo_postgresql['enable'] = false     # don't use internal managed instance
     ```
@@ -132,13 +132,13 @@ follow the instructions below to use it:
     #!/bin/bash
 
     # Secondary Database connection params:
-    DB_HOST="<change to the public IP or VPC private IP>"
+    DB_HOST="<public_IP_or_VPC_private_IP>"
     DB_NAME="gitlabhq_production"
     DB_USER="gitlab"
     DB_PORT="5432"
 
     # Tracking Database connection params:
-    GEO_DB_HOST="<change to the public IP or VPC private IP>"
+    GEO_DB_HOST="<public_IP_or_VPC_private_IP>"
     GEO_DB_NAME="gitlabhq_geo_production"
     GEO_DB_USER="gitlab_geo"
     GEO_DB_PORT="5432"
