@@ -99,13 +99,13 @@
               .input-group-prepend
                 .input-group-text
                   #{Gitlab::Utils.append_path(root_url, @project.namespace.full_path)}/
-              = f.text_field :path, class: 'form-control'
+              = f.text_field :path, class: 'form-control qa-project-path-field'
           %ul
             %li= _("Be careful. Renaming a project's repository can have unintended side effects.")
             %li= _('You will need to update your local repositories to point to the new location.')
             - if @project.deployment_platform.present?
               %li= _('Your deployment services will be broken, you will need to manually fix the services after renaming.')
-        = f.submit _('Change path'), class: "btn btn-warning"
+        = f.submit _('Change path'), class: "btn btn-warning qa-change-path-button"
 
     - if can?(current_user, :change_namespace, @project)
       .sub-section
