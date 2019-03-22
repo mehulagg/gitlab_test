@@ -166,8 +166,6 @@ module API
 
         # Self-hosted Jira (tested on 7.11.1) requests this endpoint right
         # after fetching branches.
-        # We need to respond with a 200 request to avoid breaking the
-        # integration flow (fetching merge requests).
         get ':namespace/:project/events' do
           user_project = find_project_with_access(params)
 

@@ -172,16 +172,12 @@ module API
       end
 
       class PullRequestPayload < Grape::Entity
-        expose :action do |merge_request|
-          case merge_request.state
-          when 'locked'
-            'opened'
-          when 'merged'
-            'closed'
-          else
-            merge_request.state
-          end
+        expose :action
+
+        def action
+          nil
         end
+
         expose :id
         expose :pull_request, using: PullRequest do |merge_request|
           merge_request
