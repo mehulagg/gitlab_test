@@ -6980,14 +6980,10 @@ msgstr ""
 msgid "Name:"
 msgstr ""
 
-<<<<<<< HEAD
 msgid "Namespaces to index"
 msgstr ""
 
-msgid "Naming, tags, avatar"
-=======
 msgid "Naming, topics, avatar"
->>>>>>> 84af1d0d162... Improve project settings page
 msgstr ""
 
 msgid "Naming, visibility"
