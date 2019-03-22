@@ -138,7 +138,7 @@ module Ci
 
     acts_as_taggable
 
-    add_authentication_token_field :token, encrypted: true, fallback: true
+    add_authentication_token_field :token, encrypted: :optional
 
     before_save :update_artifacts_size, if: :artifacts_file_changed?
     before_save :ensure_token
@@ -172,6 +172,10 @@ module Ci
     end
 
     state_machine :status do
+      event :enqueue do
+        transition [:created, :skipped, :manual, :scheduled] => :preparing, if: :any_unmet_prerequisites?
+      end
+
       event :actionize do
         transition created: :manual
       end
@@ -185,8 +189,12 @@ module Ci
       end
 
       event :enqueue_scheduled do
+        transition scheduled: :preparing, if: ->(build) do
+          build.scheduled_at&.past? && build.any_unmet_prerequisites?
+        end
+
         transition scheduled: :pending, if: ->(build) do
-          build.scheduled_at && build.scheduled_at < Time.now
+          build.scheduled_at&.past? && !build.any_unmet_prerequisites?
         end
       end
 
@@ -201,6 +209,12 @@ module Ci
       after_transition created: :scheduled do |build|
         build.run_after_commit do
           Ci::BuildScheduleWorker.perform_at(build.scheduled_at, build.id)
+        end
+      end
+
+      after_transition any => [:preparing] do |build|
+        build.run_after_commit do
+          Ci::BuildPrepareWorker.perform_async(id)
         end
       end
 
@@ -355,6 +369,16 @@ module Ci
       !retried?
     end
 
+    def any_unmet_prerequisites?
+      return false unless Feature.enabled?(:ci_preparing_state, default_enabled: true)
+
+      prerequisites.present?
+    end
+
+    def prerequisites
+      Gitlab::Ci::Build::Prerequisite::Factory.new(self).unmet
+    end
+
     def expanded_environment_name
       return unless has_environment?
 
@@ -426,11 +450,11 @@ module Ci
           .concat(pipeline.persisted_variables)
           .append(key: 'CI_JOB_ID', value: id.to_s)
           .append(key: 'CI_JOB_URL', value: Gitlab::Routing.url_helpers.project_job_url(project, self))
-          .append(key: 'CI_JOB_TOKEN', value: token.to_s, public: false)
+          .append(key: 'CI_JOB_TOKEN', value: token.to_s, public: false, masked: true)
           .append(key: 'CI_BUILD_ID', value: id.to_s)
-          .append(key: 'CI_BUILD_TOKEN', value: token.to_s, public: false)
+          .append(key: 'CI_BUILD_TOKEN', value: token.to_s, public: false, masked: true)
           .append(key: 'CI_REGISTRY_USER', value: CI_REGISTRY_USER)
-          .append(key: 'CI_REGISTRY_PASSWORD', value: token.to_s, public: false)
+          .append(key: 'CI_REGISTRY_PASSWORD', value: token.to_s, public: false, masked: true)
           .append(key: 'CI_REPOSITORY_URL', value: repo_url.to_s, public: false)
           .concat(deploy_token_variables)
       end
@@ -454,7 +478,7 @@ module Ci
         break variables unless gitlab_deploy_token
 
         variables.append(key: 'CI_DEPLOY_USER', value: gitlab_deploy_token.username)
-        variables.append(key: 'CI_DEPLOY_PASSWORD', value: gitlab_deploy_token.token, public: false)
+        variables.append(key: 'CI_DEPLOY_PASSWORD', value: gitlab_deploy_token.token, public: false, masked: true)
       end
     end
 
@@ -735,7 +759,7 @@ module Ci
 
     # Virtual deployment status depending on the environment status.
     def deployment_status
-      return nil unless starts_environment?
+      return unless starts_environment?
 
       if success?
         return successful_deployment_status

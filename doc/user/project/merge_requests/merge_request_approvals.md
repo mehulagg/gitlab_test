@@ -290,3 +290,12 @@ request itself. It belongs to the target branch's project.
 ## Approver suggestions
 
 Approvers are suggested for merge requests based on the previous authors of the files affected by the merge request.
+
+## Filtering merge requests by approvers
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/9468) in [GitLab Starter](https://about.gitlab.com/pricing/) 11.9.
+
+To filter merge requests by an individual approver, you can type (or select from
+the dropdown) `approver` and select the user.
+
+![Filter MRs by an approver](img/filter_approver_merge_requests.png)

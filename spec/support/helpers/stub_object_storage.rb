@@ -1,8 +1,4 @@
-require_relative '../../../ee/spec/support/helpers/ee/stub_object_storage'
-
 module StubObjectStorage
-  prepend EE::StubObjectStorage
-
   def stub_object_storage_uploader(
         config:,
         uploader:,
@@ -27,15 +23,13 @@ module StubObjectStorage
     Fog.mock!
 
     ::Fog::Storage.new(connection_params).tap do |connection|
-      begin
-        connection.directories.create(key: remote_directory)
+      connection.directories.create(key: remote_directory)
 
-        # Cleanup remaining files
-        connection.directories.each do |directory|
-          directory.files.map(&:destroy)
-        end
-      rescue Excon::Error::Conflict
+      # Cleanup remaining files
+      connection.directories.each do |directory|
+        directory.files.map(&:destroy)
       end
+    rescue Excon::Error::Conflict
     end
   end
 
@@ -78,9 +72,6 @@ module StubObjectStorage
         </InitiateMultipartUploadResult>
       EOS
   end
-
-  def stub_object_storage_pseudonymizer
-    stub_object_storage(connection_params: Pseudonymizer::Uploader.object_store_credentials,
-                        remote_directory: Pseudonymizer::Uploader.remote_directory)
-  end
 end
+
+StubObjectStorage.prepend(EE::StubObjectStorage)

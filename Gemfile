@@ -18,7 +18,7 @@ gem 'gitlab-default_value_for', '~> 3.1.1', require: 'default_value_for'
 gem 'mysql2', '~> 0.4.10', group: :mysql
 gem 'pg', '~> 1.1', group: :postgres
 
-gem 'rugged', '~> 0.27'
+gem 'rugged', '~> 0.28'
 gem 'grape-path-helpers', '~> 1.0'
 
 gem 'faraday', '~> 0.12'
@@ -42,14 +42,14 @@ gem 'omniauth-shibboleth', '~> 1.3.0'
 gem 'omniauth-twitter', '~> 1.4'
 gem 'omniauth_crowd', '~> 2.2.0'
 gem 'omniauth-authentiq', '~> 0.3.3'
-gem 'rack-oauth2', '~> 1.2.1'
+gem 'rack-oauth2', '~> 1.9.3'
 gem 'jwt', '~> 2.1.0'
 
 # Kerberos authentication. EE-only
 gem 'gssapi', group: :kerberos
 
 # Spam and anti-bot protection
-gem 'recaptcha', '~> 3.0', require: 'recaptcha/rails'
+gem 'recaptcha', '~> 4.11', require: 'recaptcha/rails'
 gem 'akismet', '~> 2.0'
 
 # Two-factor authentication
@@ -168,7 +168,7 @@ end
 gem 'state_machines-activerecord', '~> 0.5.1'
 
 # Issue tags
-gem 'acts-as-taggable-on', '~> 5.0'
+gem 'acts-as-taggable-on', '~> 6.0'
 
 # Background jobs
 gem 'sidekiq', '~> 5.2.1'
@@ -180,7 +180,7 @@ gem 'gitlab-sidekiq-fetcher', '~> 0.4.0', require: 'sidekiq-reliable-fetch'
 gem 'fugit', '~> 1.1'
 
 # HTTP requests
-gem 'httparty', '~> 0.13.3'
+gem 'httparty', '~> 0.16.4'
 
 # Colored output to console
 gem 'rainbow', '~> 3.0'
@@ -275,9 +275,7 @@ gem 'addressable', '~> 2.5.2'
 gem 'font-awesome-rails', '~> 4.7'
 gem 'gemojione', '~> 3.3'
 gem 'gon', '~> 6.2'
-gem 'jquery-atwho-rails', '~> 1.3.2'
 gem 'request_store', '~> 1.3'
-gem 'select2-rails', '~> 3.5.9'
 gem 'virtus', '~> 1.0.1'
 gem 'base32', '~> 0.3.0'
 
@@ -436,7 +434,7 @@ group :ed25519 do
 end
 
 # Gitaly GRPC client
-gem 'gitaly-proto', '~> 1.12.0', require: 'gitaly'
+gem 'gitaly-proto', '~> 1.13.0', require: 'gitaly'
 
 gem 'grpc', '~> 1.15.0'
 

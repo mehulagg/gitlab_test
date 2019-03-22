@@ -7,41 +7,23 @@ module Geo
     end
 
     def count_synced_repositories
-      relation =
-        if selective_sync?
-          legacy_find_synced_repositories
-        else
-          find_synced_repositories
-        end
-
-      relation.count
+      registries_for_synced_projects(:repository).count
     end
 
     def count_synced_wikis
-      relation =
-        if use_legacy_queries?
-          legacy_find_synced_wikis
-        else
-          fdw_find_synced_wikis
-        end
-
-      relation.count
+      registries_for_synced_projects(:wiki).count
     end
 
     def count_failed_repositories
-      find_failed_project_registries('repository').count
+      registries_for_failed_projects(:repository).count
     end
 
     def count_failed_wikis
-      find_failed_project_registries('wiki').count
+      registries_for_failed_projects(:wiki).count
     end
 
     def find_failed_project_registries(type = nil)
-      if selective_sync?
-        legacy_find_filtered_failed_projects(type)
-      else
-        find_filtered_failed_project_registries(type)
-      end
+      registries_for_failed_projects(type)
     end
 
     def count_verified_repositories
@@ -143,23 +125,36 @@ module Geo
 
     protected
 
-    def find_synced_repositories
-      Geo::ProjectRegistry.synced_repos
+    def finder_klass_for_synced_registries
+      if Gitlab::Geo::Fdw.enabled_for_selective_sync?
+        Geo::ProjectRegistrySyncedFinder
+      else
+        Geo::LegacyProjectRegistrySyncedFinder
+      end
+    end
+
+    def registries_for_synced_projects(type)
+      finder_klass_for_synced_registries
+        .new(current_node: current_node, type: type)
+        .execute
+    end
+
+    def finder_klass_for_failed_registries
+      if Gitlab::Geo::Fdw.enabled_for_selective_sync?
+        Geo::ProjectRegistrySyncFailedFinder
+      else
+        Geo::LegacyProjectRegistrySyncFailedFinder
+      end
+    end
+
+    def registries_for_failed_projects(type)
+      finder_klass_for_failed_registries
+        .new(current_node: current_node, type: type)
+        .execute
     end
 
     def find_verified_repositories
       Geo::ProjectRegistry.verified_repos
-    end
-
-    def find_filtered_failed_project_registries(type = nil)
-      case type
-      when 'repository'
-        Geo::ProjectRegistry.failed_repos
-      when 'wiki'
-        Geo::ProjectRegistry.failed_wikis
-      else
-        Geo::ProjectRegistry.failed
-      end
     end
 
     def find_filtered_verification_failed_project_registries(type = nil)
@@ -195,11 +190,6 @@ module Geo
         .where(project_registry: { project_id: nil })
     end
     # rubocop: enable CodeReuse/ActiveRecord
-
-    # @return [ActiveRecord::Relation<Geo::ProjectRegistry>]
-    def fdw_find_synced_wikis
-      Geo::ProjectRegistry.synced_wikis
-    end
 
     # @return [ActiveRecord::Relation<Geo::Fdw::Project>]
     # rubocop: disable CodeReuse/ActiveRecord
@@ -290,37 +280,15 @@ module Geo
       ::Gitlab::SQL::Glob.q(value)
     end
 
-    # @return [ActiveRecord::Relation<Geo::ProjectRegistry>] list of synced projects
-    def legacy_find_synced_repositories
-      legacy_find_project_registries(Geo::ProjectRegistry.synced_repos)
-    end
-
-    # @return [ActiveRecord::Relation<Geo::ProjectRegistry>] list of synced projects
-    # rubocop: disable CodeReuse/ActiveRecord
-    def legacy_find_synced_wikis
-      legacy_inner_join_registry_ids(
-        current_node.projects,
-          Geo::ProjectRegistry.synced_wikis.pluck(:project_id),
-          Project
-      )
-    end
-    # rubocop: enable CodeReuse/ActiveRecord
-
     # @return [ActiveRecord::Relation<Geo::ProjectRegistry>] list of verified projects
     def legacy_find_verified_repositories
       legacy_find_project_registries(Geo::ProjectRegistry.verified_repos)
     end
 
     # @return [ActiveRecord::Relation<Geo::ProjectRegistry>] list of verified wikis
-    # rubocop: disable CodeReuse/ActiveRecord
     def legacy_find_verified_wikis
-      legacy_inner_join_registry_ids(
-        current_node.projects,
-          Geo::ProjectRegistry.verified_wikis.pluck(:project_id),
-          Project
-      )
+      legacy_find_project_registries(Geo::ProjectRegistry.verified_wikis)
     end
-    # rubocop: enable CodeReuse/ActiveRecord
 
     # @return [ActiveRecord::Relation<Project>] list of synced projects
     # rubocop: disable CodeReuse/ActiveRecord
@@ -329,18 +297,6 @@ module Geo
         current_node.projects,
         project_registries.pluck(:project_id),
         Project
-      )
-    end
-    # rubocop: enable CodeReuse/ActiveRecord
-
-    # @return [ActiveRecord::Relation<Geo::ProjectRegistry>] list of projects that sync has failed
-    # rubocop: disable CodeReuse/ActiveRecord
-    def legacy_find_filtered_failed_projects(type = nil)
-      legacy_inner_join_registry_ids(
-        find_filtered_failed_project_registries(type),
-        current_node.projects.pluck(:id),
-        Geo::ProjectRegistry,
-        foreign_key: :project_id
       )
     end
     # rubocop: enable CodeReuse/ActiveRecord

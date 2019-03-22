@@ -17,7 +17,9 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
   ignore_column :wiki_verification_checksum
 
   sha_attribute :repository_verification_checksum_sha
+  sha_attribute :repository_verification_checksum_mismatched
   sha_attribute :wiki_verification_checksum_sha
+  sha_attribute :wiki_verification_checksum_mismatched
 
   belongs_to :project
 
@@ -86,6 +88,28 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
   # @param [String] query term that will search over :path, :name and :description
   def self.with_search(query)
     where(project: Geo::Fdw::Project.search(query))
+  end
+
+  def self.synced(type)
+    case type
+    when :repository
+      synced_repos
+    when :wiki
+      synced_wikis
+    else
+      none
+    end
+  end
+
+  def self.sync_failed(type)
+    case type
+    when :repository
+      failed_repos
+    when :wiki
+      failed_wikis
+    else
+      failed
+    end
   end
 
   def self.flag_repositories_for_resync!

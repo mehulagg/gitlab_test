@@ -138,13 +138,15 @@ module Vulnerabilities
       feedback(feedback_type: 'issue')
     end
 
+    def merge_request_feedback
+      feedback(feedback_type: 'merge_request')
+    end
+
     def metadata
       strong_memoize(:metadata) do
-        begin
-          JSON.parse(raw_metadata)
-        rescue JSON::ParserError
-          {}
-        end
+        JSON.parse(raw_metadata)
+      rescue JSON::ParserError
+        {}
       end
     end
 
@@ -162,6 +164,10 @@ module Vulnerabilities
 
     def links
       metadata.fetch('links', [])
+    end
+
+    def remediations
+      metadata.dig('remediations')
     end
   end
 end

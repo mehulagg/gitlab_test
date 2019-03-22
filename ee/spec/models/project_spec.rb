@@ -32,6 +32,17 @@ describe Project do
     it { is_expected.to have_many(:package_files).class_name('Packages::PackageFile') }
   end
 
+  context 'scopes' do
+    describe '.requiring_code_owner_approval' do
+      it 'only includes the right projects' do
+        create(:project)
+        expected_project = create(:project, merge_requests_require_code_owner_approval: true)
+
+        expect(described_class.requiring_code_owner_approval).to contain_exactly(expected_project)
+      end
+    end
+  end
+
   describe 'validations' do
     let(:project) { build(:project) }
 
@@ -194,7 +205,7 @@ describe Project do
 
           it 'returns variables from this service' do
             expect(project.deployment_variables(environment: 'review/name'))
-              .to include(key: 'KUBE_TOKEN', value: 'review-AAA', public: false)
+              .to include(key: 'KUBE_TOKEN', value: 'review-AAA', public: false, masked: true)
           end
         end
 
@@ -203,7 +214,7 @@ describe Project do
 
           it 'returns variables from this service' do
             expect(project.deployment_variables(environment: 'staging/name'))
-              .to include(key: 'KUBE_TOKEN', value: 'default-AAA', public: false)
+              .to include(key: 'KUBE_TOKEN', value: 'default-AAA', public: false, masked: true)
           end
         end
       end
@@ -1715,6 +1726,12 @@ describe Project do
 
     it 'returns false when object pool exists' do
       expect(subject.object_pool_missing?).to be false
+    end
+  end
+
+  describe '#insights_available?' do
+    it_behaves_like 'an entity with the Insights feature' do
+      let(:entity) { create(:project) }
     end
   end
 

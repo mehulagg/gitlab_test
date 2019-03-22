@@ -112,10 +112,16 @@ export default {
       return enableSquashBeforeMerge && commitsCount > 1;
     },
     isApprovalNeeded() {
-      return this.mr.approvalsRequired ? !this.mr.isApproved : false;
+      return this.mr.hasApprovalsAvailable ? !this.mr.isApproved : false;
     },
     shouldShowMergeControls() {
       return this.mr.isMergeAllowed || this.shouldShowMergeWhenPipelineSucceedsText;
+    },
+    shouldShowSquashEdit() {
+      return this.squashBeforeMerge && this.shouldShowSquashBeforeMerge;
+    },
+    shouldShowMergeEdit() {
+      return !this.mr.ffOnlyEnabled;
     },
   },
   methods: {
@@ -163,9 +169,12 @@ export default {
         });
     },
     initiateMergePolling() {
-      simplePoll((continuePolling, stopPolling) => {
-        this.handleMergePolling(continuePolling, stopPolling);
-      });
+      simplePoll(
+        (continuePolling, stopPolling) => {
+          this.handleMergePolling(continuePolling, stopPolling);
+        },
+        { timeout: 0 },
+      );
     },
     handleMergePolling(continuePolling, stopPolling) {
       this.service
@@ -196,6 +205,7 @@ export default {
         })
         .catch(() => {
           new Flash(__('Something went wrong while merging this merge request. Please try again.')); // eslint-disable-line
+          stopPolling();
         });
     },
     initiateRemoveSourceBranchPolling() {
@@ -325,43 +335,44 @@ export default {
       <div v-if="mr.ffOnlyEnabled" class="mr-fast-forward-message">
         {{ __('Fast-forward merge without a merge commit') }}
       </div>
-      <template v-else>
-        <commits-header
-          :is-squash-enabled="squashBeforeMerge"
-          :commits-count="mr.commitsCount"
-          :target-branch="mr.targetBranch"
-        >
-          <ul class="border-top content-list commits-list flex-list">
-            <commit-edit
-              v-if="squashBeforeMerge"
+      <commits-header
+        v-if="shouldShowSquashEdit || shouldShowMergeEdit"
+        :is-squash-enabled="squashBeforeMerge"
+        :commits-count="mr.commitsCount"
+        :target-branch="mr.targetBranch"
+        :is-fast-forward-enabled="mr.ffOnlyEnabled"
+      >
+        <ul class="border-top content-list commits-list flex-list">
+          <commit-edit
+            v-if="shouldShowSquashEdit"
+            v-model="squashCommitMessage"
+            :label="__('Squash commit message')"
+            input-id="squash-message-edit"
+            squash
+          >
+            <commit-message-dropdown
+              slot="header"
               v-model="squashCommitMessage"
-              :label="__('Squash commit message')"
-              input-id="squash-message-edit"
-              squash
-            >
-              <commit-message-dropdown
-                slot="header"
-                v-model="squashCommitMessage"
-                :commits="mr.commits"
+              :commits="mr.commits"
+            />
+          </commit-edit>
+          <commit-edit
+            v-if="shouldShowMergeEdit"
+            v-model="commitMessage"
+            :label="__('Merge commit message')"
+            input-id="merge-message-edit"
+          >
+            <label slot="checkbox">
+              <input
+                id="include-description"
+                type="checkbox"
+                @change="updateMergeCommitMessage($event.target.checked)"
               />
-            </commit-edit>
-            <commit-edit
-              v-model="commitMessage"
-              :label="__('Merge commit message')"
-              input-id="merge-message-edit"
-            >
-              <label slot="checkbox">
-                <input
-                  id="include-description"
-                  type="checkbox"
-                  @change="updateMergeCommitMessage($event.target.checked)"
-                />
-                {{ __('Include merge request description') }}
-              </label>
-            </commit-edit>
-          </ul>
-        </commits-header>
-      </template>
+              {{ __('Include merge request description') }}
+            </label>
+          </commit-edit>
+        </ul>
+      </commits-header>
     </template>
   </div>
 </template>

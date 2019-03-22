@@ -34,7 +34,7 @@ With GitLab merge requests, you can:
 With **[GitLab Enterprise Edition][ee]**, you can also:
 
 - Prepare a full review and submit it once it's ready with [Merge Request Reviews](../../discussions/index.md#merge-request-reviews-premium) **[PREMIUM]**
-- View the deployment process across projects with [Multi-Project Pipelines](../../../ci/multi_project_pipelines.md#multi-project-pipeline-graphs) **[PREMIUM]**
+- View the deployment process across projects with [Multi-Project Pipelines](../../../ci/multi_project_pipelines.md) **[PREMIUM]**
 - Request [approvals](merge_request_approvals.md) from your managers **[STARTER]**
 - Analyze the impact of your changes with [Code Quality reports](code_quality.md) **[STARTER]**
 - Manage the licenses of your dependencies with [License Management](#license-management-ultimate) **[ULTIMATE]**
@@ -375,6 +375,19 @@ Some Vulnerabilities can be fixed by applying a patch that is automatically gene
 4. Verify and commit the changes to your branch.
 
 ![Solutions for dependency scanning](img/vulnerability_solution.png)
+
+### Create a merge request from a vulnerability **[ULTIMATE]**
+
+> Introduced in [GitLab Ultimate][products] 11.9.
+
+CAUTION: **Warning:** Automatic Patch creation is only available for a subset of [Dependency Scanning](dependency_scanning.md). At the moment only Node.JS projects managed with yarn are supported.
+
+Any vulnerability that has a [solution](#solutions-for-dependency-scanning-ultimate) can have a merge request created to automatically solve the issue.
+
+If this action is available there will be a "Create merge request" button in the vulnerability modal.
+Clicking on this button will create a merge request to apply the solution onto the source branch.
+
+![Create merge request from vulnerability](img/create-issue-with-list-hover.png)
 
 ## Live preview with Review Apps
 

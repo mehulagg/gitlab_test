@@ -5,8 +5,6 @@ module Gitlab
     APPROXIMATE_COUNT_MODELS = [Label, MergeRequest, Note, Todo].freeze
 
     class << self
-      prepend EE::Gitlab::UsageData # rubocop: disable Cop/InjectEnterpriseEditionModule
-
       def data(force_refresh: false)
         Rails.cache.fetch('usage_data', force: force_refresh, expires_in: 2.weeks) { uncached_data }
       end
@@ -31,7 +29,7 @@ module Gitlab
           installation_type: Gitlab::INSTALLATION_TYPE,
           active_user_count: count(User.active),
           recorded_at: Time.now,
-          edition: 'EE'
+          edition: 'CE'
         }
 
         usage_data
@@ -56,6 +54,8 @@ module Gitlab
             auto_devops_disabled: count(::ProjectAutoDevops.disabled),
             deploy_keys: count(DeployKey),
             deployments: count(Deployment),
+            successful_deployments: count(Deployment.success),
+            failed_deployments: count(Deployment.failed),
             environments: count(::Environment),
             clusters: count(::Clusters::Cluster),
             clusters_enabled: count(::Clusters::Cluster.enabled),
@@ -190,3 +190,5 @@ module Gitlab
     end
   end
 end
+
+Gitlab::UsageData.prepend(EE::Gitlab::UsageData)

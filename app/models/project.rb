@@ -38,7 +38,6 @@ class Project < ActiveRecord::Base
   BoardLimitExceeded = Class.new(StandardError)
 
   STATISTICS_ATTRIBUTE = 'repositories_count'.freeze
-  NUMBER_OF_PERMITTED_BOARDS = 1
   UNKNOWN_IMPORT_URL = 'http://unknown.git'.freeze
   # Hashed Storage versions handle rolling out new storage to project and dependents models:
   # nil: legacy
@@ -85,7 +84,7 @@ class Project < ActiveRecord::Base
   default_value_for :snippets_enabled, gitlab_config_features.snippets
   default_value_for :only_allow_merge_if_all_discussions_are_resolved, false
 
-  add_authentication_token_field :runners_token, encrypted: true, migrating: true
+  add_authentication_token_field :runners_token, encrypted: -> { Feature.enabled?(:projects_tokens_optional_encryption, default_enabled: true) ? :optional : :required }
 
   before_validation :mark_remote_mirrors_for_removal, if: -> { RemoteMirror.table_exists? }
 
@@ -137,7 +136,7 @@ class Project < ActiveRecord::Base
   alias_attribute :parent_id, :namespace_id
 
   has_one :last_event, -> {order 'events.created_at DESC'}, class_name: 'Event'
-  has_many :boards, before_add: :validate_board_limit
+  has_many :boards
 
   # Project services
   has_one :campfire_service
@@ -631,12 +630,21 @@ class Project < ActiveRecord::Base
   end
 
   def has_auto_devops_implicitly_enabled?
-    auto_devops&.enabled.nil? &&
-      (Gitlab::CurrentSettings.auto_devops_enabled? || Feature.enabled?(:force_autodevops_on_by_default, self))
+    auto_devops_config = first_auto_devops_config
+
+    auto_devops_config[:scope] != :project && auto_devops_config[:status]
   end
 
   def has_auto_devops_implicitly_disabled?
-    auto_devops&.enabled.nil? && !(Gitlab::CurrentSettings.auto_devops_enabled? || Feature.enabled?(:force_autodevops_on_by_default, self))
+    auto_devops_config = first_auto_devops_config
+
+    auto_devops_config[:scope] != :project && !auto_devops_config[:status]
+  end
+
+  def first_auto_devops_config
+    return namespace.first_auto_devops_config if auto_devops&.enabled.nil?
+
+    { scope: :project, status: auto_devops&.enabled || Feature.enabled?(:force_autodevops_on_by_default, self) }
   end
 
   def daily_statistics_enabled?
@@ -1200,11 +1208,9 @@ class Project < ActiveRecord::Base
 
   def repo_exists?
     strong_memoize(:repo_exists) do
-      begin
-        repository.exists?
-      rescue
-        false
-      end
+      repository.exists?
+    rescue
+      false
     end
   end
 
@@ -1230,7 +1236,7 @@ class Project < ActiveRecord::Base
   end
 
   def fork_source
-    return nil unless forked?
+    return unless forked?
 
     forked_from_project || fork_network&.root_project
   end
@@ -1679,7 +1685,7 @@ class Project < ActiveRecord::Base
   end
 
   def export_path
-    return nil unless namespace.present? || hashed_storage?(:repository)
+    return unless namespace.present? || hashed_storage?(:repository)
 
     import_export_shared.archive_path
   end
@@ -2183,17 +2189,6 @@ class Project < ActiveRecord::Base
 
   def pushes_since_gc_redis_shared_state_key
     "projects/#{id}/pushes_since_gc"
-  end
-
-  # Similar to the normal callbacks that hook into the life cycle of an
-  # Active Record object, you can also define callbacks that get triggered
-  # when you add an object to an association collection. If any of these
-  # callbacks throw an exception, the object will not be added to the
-  # collection. Before you add a new board to the boards collection if you
-  # already have 1, 2, or n it will fail, but it if you have 0 that is lower
-  # than the number of permitted boards per project it won't fail.
-  def validate_board_limit(board)
-    raise BoardLimitExceeded, 'Number of permitted boards exceeded' if boards.size >= NUMBER_OF_PERMITTED_BOARDS
   end
 
   def update_project_statistics

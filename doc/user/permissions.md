@@ -23,6 +23,12 @@ To add or import a user, you can follow the
 
 See our [product handbook on permissions](https://about.gitlab.com/handbook/product#permissions-in-gitlab)
 
+## Instance-wide user permissions
+
+By default, users can create top-level groups and change their 
+usernames. A GitLab administrator can configure the GitLab instance to
+[modify this behavior](../administration/user_settings.md).
+
 ## Project members permissions
 
 NOTE: **Note:**
@@ -41,6 +47,8 @@ The following table depicts the various user permission levels in a project.
 | See a job log                         | ✓ [^3]  | ✓          | ✓           | ✓        | ✓      |
 | Download and browse job artifacts     | ✓ [^3]  | ✓          | ✓           | ✓        | ✓      |
 | View wiki pages                       | ✓ [^1]  | ✓          | ✓           | ✓        | ✓      |
+| Create and edit wiki pages            |         |            | ✓           | ✓        | ✓      |
+| Delete wiki pages                     |         |            |             | ✓        | ✓      |
 | View license management reports **[ULTIMATE]** | ✓ [^1]  | ✓          | ✓           | ✓        | ✓      |
 | View Security reports **[ULTIMATE]**  | ✓ [^1]  | ✓          | ✓           | ✓        | ✓      |
 | View project code                     | [^1]    | ✓          | ✓           | ✓        | ✓      |
@@ -61,6 +69,8 @@ The following table depicts the various user permission levels in a project.
 | Lock issue discussions                |         | ✓          | ✓           | ✓        | ✓      |
 | Create issue from vulnerability **[ULTIMATE]** |         | ✓          | ✓           | ✓        | ✓      |
 | View Error Tracking list              |         | ✓          | ✓           | ✓        | ✓      |
+| Pull from [Maven repository](https://docs.gitlab.com/ee/user/project/packages/maven_repository.html) or [NPM registry](https://docs.gitlab.com/ee/user/project/packages/npm_registry.html) **[PREMIUM]** |         | ✓          | ✓           | ✓        | ✓      |
+| Publish to [Maven repository](https://docs.gitlab.com/ee/user/project/packages/maven_repository.html) or [NPM registry](https://docs.gitlab.com/ee/user/project/packages/npm_registry.html) **[PREMIUM]** |         |            | ✓           | ✓        | ✓      |
 | Lock merge request discussions        |         |            | ✓           | ✓        | ✓      |
 | Create new environments               |         |            | ✓           | ✓        | ✓      |
 | Stop environments                     |         |            | ✓           | ✓        | ✓      |
@@ -71,7 +81,6 @@ The following table depicts the various user permission levels in a project.
 | Force push to non-protected branches  |         |            | ✓           | ✓        | ✓      |
 | Remove non-protected branches         |         |            | ✓           | ✓        | ✓      |
 | Add tags                              |         |            | ✓           | ✓        | ✓      |
-| Write a wiki                          |         |            | ✓           | ✓        | ✓      |
 | Cancel and retry jobs                 |         |            | ✓           | ✓        | ✓      |
 | Create or update commit status        |         |            | ✓           | ✓        | ✓      |
 | Update a container registry           |         |            | ✓           | ✓        | ✓      |
