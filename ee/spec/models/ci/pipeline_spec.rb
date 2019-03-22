@@ -28,8 +28,6 @@ describe Ci::Pipeline do
     end
 
     it 'has an association with processable CI/CD entities' do
-      require 'pry'
-      binding.pry
       pipeline.processables.pluck('name').yield_self do |processables|
         expect(processables).to match_array %w[upstream_bridge downstream_bridge]
       end
