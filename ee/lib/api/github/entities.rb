@@ -172,10 +172,13 @@ module API
       end
 
       class PullRequestPayload < Grape::Entity
-        expose :action
-
-        def action
-          nil
+        expose :action do |merge_request|
+          case merge_request.state
+          when 'merged', 'closed'
+            'closed'
+          else
+            'opened'
+          end
         end
 
         expose :id
@@ -187,7 +190,7 @@ module API
       class PullRequestEvent < Grape::Entity
         expose :id do |merge_request|
           updated_at = merge_request.updated_at.to_i
-          "#{merge_request.id}-#{updated_at}"
+          "#{merge_request.id}-#{updated_at}-#{Time.now.to_i}"
         end
         expose :type
         expose :updated_at, as: :created_at
