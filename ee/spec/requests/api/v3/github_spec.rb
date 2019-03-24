@@ -188,6 +188,17 @@ describe API::V3::Github do
         expect(response).to match_response_schema('entities/github/pull_requests', dir: 'ee')
       end
     end
+
+    describe 'GET /repos/:namespace/:project/pulls/:id' do
+      it 'returns the requested merge request in github format' do
+        stub_licensed_features(jira_dev_panel_integration: true)
+
+        jira_get v3_api("/repos/#{project.namespace.path}/#{project.path}/pulls/#{merge_request.id}", user)
+
+        expect(response).to have_gitlab_http_status(200)
+        expect(response).to match_response_schema('entities/github/pull_request', dir: 'ee')
+      end
+    end
   end
 
   describe 'GET /users/:namespace/repos' do
