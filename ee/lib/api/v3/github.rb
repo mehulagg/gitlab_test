@@ -142,14 +142,6 @@ module API
           present paginate(merge_requests), with: ::API::Github::Entities::PullRequest
         end
 
-        # def merge_request_by_params(params)
-        #   user_project = find_project_with_access(params)
-        #
-        #   merge_requests = MergeRequestsFinder.new(current_user, authorized_only: true, project_id: user_project.id).execute
-        #
-        #   merge_requests.where(id: params[:id])
-        # end
-
         params do
           use :project_full_path
         end
