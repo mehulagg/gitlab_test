@@ -131,6 +131,10 @@ module API
           present find_merge_requests, with: ::API::Github::Entities::PullRequest
         end
 
+        get '/-/jira/events' do
+          present []
+        end
+
         params do
           use :project_full_path
         end
