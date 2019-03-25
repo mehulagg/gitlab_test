@@ -190,7 +190,7 @@ module API
       class PullRequestEvent < Grape::Entity
         expose :id do |merge_request|
           updated_at = merge_request.updated_at.to_i
-          "#{merge_request.id}-#{updated_at}-#{Time.now.to_i}"
+          "#{merge_request.id}-#{updated_at}"
         end
         expose :type
         expose :updated_at, as: :created_at
