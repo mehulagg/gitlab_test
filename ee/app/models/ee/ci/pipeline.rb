@@ -128,6 +128,10 @@ module EE
         !project.downstream_projects.empty?
       end
 
+      def triggered_by_bridge?(bridge)
+        source_project.source_project.full_path == bridge.upstream_project_path
+      end
+
       def update_bridge_status!
         raise ArgumentError unless bridge_triggered?
         raise BridgeStatusError unless source_bridge.active?

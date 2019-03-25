@@ -20,7 +20,9 @@ module EE
 
                 if (upstream_project = ::Project.find_by_full_path(bridge.upstream_project_path))
                   if can_create_cross_pipeline?(upstream_project)
+                    # rubocop:disable CodeReuse/ActiveRecord
                     source = ::Ci::Sources::Project.find_or_initialize_by(project: project, source_project: upstream_project)
+                    # rubocop:enable CodeReuse/ActiveRecord
                     pipeline.source_project = source
                   else
                     return error('User does not have enough permissions to observe the upstream project')

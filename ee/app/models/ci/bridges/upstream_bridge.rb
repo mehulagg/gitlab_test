@@ -6,7 +6,11 @@ module Ci
       state_machine :status do
         after_transition created: :pending do |bridge|
           bridge.run_after_commit do
-            bridge.success!
+            if pipeline.triggered_by_bridge?(bridge)
+              bridge.success!
+            else
+              bridge.skip!
+            end
           end
         end
       end
