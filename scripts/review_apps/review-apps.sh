@@ -348,7 +348,7 @@ kubectl -n "$KUBE_NAMESPACE" exec -i ${task_runner_pod} -- /srv/gitlab/bin/rails
 kubectl -n "$KUBE_NAMESPACE" exec -i ${task_runner_pod} -- ls /srv/gitlab
 
   kubectl -n "$KUBE_NAMESPACE" exec ${task_runner_pod} -i -t -- bash -c \
-   'cd /srv/gitlab && bundle exec rake db:seed_fu FILTER=vulnerabilities,pipelines FIXTURE_PATH=db/fixtures/development'
++   'gitlab-rake db:seed_fu FILTER=vulnerabilities,pipelines FIXTURE_PATH=db/fixtures/development'
 
   kubectl -n "$KUBE_NAMESPACE" exec -i ${task_runner_pod} -- /srv/gitlab/bin/rails runner -e production 'puts "Added #{Vulnerabilities::Occurrence.count} vulnerabilities"'
 }
