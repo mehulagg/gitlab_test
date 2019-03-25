@@ -124,6 +124,7 @@ describe API::V3::Github do
     describe 'GET events' do
       let(:group) { create(:group) }
       let(:project) { create(:project, :empty_repo, group: group) }
+      let(:events_path) { "/repos/#{group.path}/#{project.path}/events" }
 
       before do
         stub_licensed_features(jira_dev_panel_integration: true)
@@ -131,7 +132,6 @@ describe API::V3::Github do
 
       context 'if there are no merge requests' do
         it 'returns an empty array' do
-          events_path = "/repos/#{group.path}/#{project.path}/events"
           jira_get v3_api(events_path, user)
 
           expect(response).to have_gitlab_http_status(200)
@@ -143,7 +143,6 @@ describe API::V3::Github do
         let!(:merge_request) { create(:merge_request, source_project: project, target_project: project, author: user) }
 
         it 'returns an event' do
-          events_path = "/repos/#{group.path}/#{project.path}/events"
           jira_get v3_api(events_path, user)
 
           expect(response).to have_gitlab_http_status(200)
