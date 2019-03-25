@@ -32,6 +32,8 @@ let autoEntriesCount = 0;
 let watchAutoEntries = [];
 const defaultEntries = ['./main'];
 
+const TerserPlugin = require('terser-webpack-plugin');
+
 function generateEntries() {
   // generate automatic entry points
   const autoEntries = {};
@@ -215,6 +217,12 @@ module.exports = {
 
   optimization: {
     runtimeChunk: 'single',
+    minimizer: [
+      new TerserPlugin({
+        parallel: false,
+        cache: false,
+      }),
+    ],
     splitChunks: {
       maxInitialRequests: 4,
       cacheGroups: {
