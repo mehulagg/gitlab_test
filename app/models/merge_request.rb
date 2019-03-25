@@ -1409,11 +1409,11 @@ class MergeRequest < ActiveRecord::Base
     source_project.repository.squash_in_progress?(id)
   end
 
-  private
-
   def find_actual_head_pipeline
-    all_pipelines.for_sha_or_source_sha(diff_head_sha).first
+    @find_actual_head_pipeline ||= all_pipelines.for_sha_or_source_sha(diff_head_sha).first
   end
+
+  private
 
   def source_project_variables
     Gitlab::Ci::Variables::Collection.new.tap do |variables|

@@ -60,8 +60,8 @@ module EE
       end
 
       def can_create_pipeline_for?(merge_request)
+        return false if merge_request.work_in_progress?
         return false unless project.merge_pipelines_enabled?
-        return false unless !merge_request.work_in_progress?
         return false unless can_use_merge_request_ref?
 
         super
