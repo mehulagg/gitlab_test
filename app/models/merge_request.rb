@@ -67,7 +67,7 @@ class MergeRequest < ActiveRecord::Base
     dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
 
   has_many :cached_closes_issues, through: :merge_requests_closing_issues, source: :issue
-  has_many :merge_request_pipelines, foreign_key: 'merge_request_id', class_name: 'Ci::Pipeline'
+  has_many :pipelines_for_merge_request, foreign_key: 'merge_request_id', class_name: 'Ci::Pipeline'
 
   has_many :merge_request_assignees
   # Will be deprecated at https://gitlab.com/gitlab-org/gitlab-ce/issues/59457
@@ -1189,10 +1189,6 @@ class MergeRequest < ActiveRecord::Base
       self.head_pipeline = pipeline
       update_column(:head_pipeline_id, head_pipeline.id) if head_pipeline_id_changed?
     end
-  end
-
-  def merge_request_pipeline_exists?
-    merge_request_pipelines.exists?(sha: diff_head_sha)
   end
 
   def has_test_reports?
