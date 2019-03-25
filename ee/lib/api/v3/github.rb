@@ -132,7 +132,7 @@ module API
         end
 
         get '/-/jira/events' do
-          present []
+          present find_merge_requests, with: ::API::Github::Entities::PullRequestEvent
         end
 
         params do
