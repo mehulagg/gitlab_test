@@ -77,13 +77,13 @@
       %input{ :type => 'hidden', :id => 'user_timezone', :class => 'hidden', :name => 'user[timezone]', value: ActiveSupport::TimeZone::MAPPING.key(@user.timezone) }
       %h5= ("Time format")
       .checkbox-icon-inline-wrapper
-        = f.check_box :time_format
+        = f.check_box :time_format_in_24h
         %label.form-check-label
           = s_("Profiles|Display time in 24 hour format")
           = link_to icon('question-circle'), help_page_path('user/profile/index.md', anchor: 'time-settings')
       %h5= ("Time display")
       .checkbox-icon-inline-wrapper
-        = f.check_box :time_display
+        = f.check_box :time_display_relative
         %label.form-check-label
           = s_("Profiles|Use relative times")
         = link_to icon('question-circle'), help_page_path('user/profile/index.md', anchor: 'time-settings')
