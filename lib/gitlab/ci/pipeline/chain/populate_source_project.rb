@@ -4,7 +4,7 @@ module Gitlab
   module Ci
     module Pipeline
       module Chain
-        class ProcessProjectUpstreams < Chain::Base
+        class PopulateSourceProject < Chain::Base
           def perform!
             # to be overriden in EE
           end
@@ -18,4 +18,4 @@ module Gitlab
   end
 end
 
-Gitlab::Ci::Pipeline::Chain::ProcessProjectUpstreams.prepend(EE::Gitlab::Ci::Pipeline::Chain::ProcessProjectUpstreams)
+Gitlab::Ci::Pipeline::Chain::PopulateSourceProject.prepend(EE::Gitlab::Ci::Pipeline::Chain::PopulateSourceProject)

@@ -5,7 +5,7 @@ module EE
     module Ci
       module Pipeline
         module Chain
-          module ProcessProjectUpstreams
+          module PopulateSourceProject
             extend ::Gitlab::Utils::Override
 
             include ::Gitlab::Ci::Pipeline::Chain::Helpers
@@ -16,11 +16,12 @@ module EE
               return unless pipeline.default_branch? && cross_project_pipelines_enabled?
 
               pipeline.stages.map(&:bridges).flatten.each do |bridge|
-                next unless bridge.type == 'Ci::Bridges::UpstreamBridge'
+                next unless bridge.instance_of?(::Ci::Bridges::UpstreamBridge)
 
                 if (upstream_project = ::Project.find_by_full_path(bridge.upstream_project_path))
                   if can_create_cross_pipeline?(upstream_project)
-                    project.upstream_projects << upstream_project
+                    source = ::Ci::Sources::Project.find_or_initialize_by(project: project, source_project: upstream_project)
+                    pipeline.source_project = source
                   else
                     return error('User does not have enough permissions to observe the upstream project')
                   end

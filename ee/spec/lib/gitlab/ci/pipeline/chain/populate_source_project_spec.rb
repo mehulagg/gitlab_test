@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe ::Gitlab::Ci::Pipeline::Chain::ProcessProjectUpstreams do
+describe ::Gitlab::Ci::Pipeline::Chain::PopulateSourceProject do
   let(:project) { create(:project, :repository) }
   let(:user) { create(:user) }
   let(:pipeline) { build(:ci_pipeline, project: project, ref: 'master') }
@@ -31,11 +31,11 @@ describe ::Gitlab::Ci::Pipeline::Chain::ProcessProjectUpstreams do
           project.add_developer(user)
         end
 
-        it 'populates the pipeline project upstream projects' do
+        it 'populates the pipeline project source' do
           subject
 
-          expect(project.reload.upstream_projects).to be_one
-          expect(project.reload.upstream_projects.first).to eq(upstream_project)
+          expect(pipeline.source_project).to be_present
+          expect(pipeline.source_project.source_project).to eq(upstream_project)
         end
 
         it 'does not break the chain' do
@@ -46,10 +46,10 @@ describe ::Gitlab::Ci::Pipeline::Chain::ProcessProjectUpstreams do
       end
 
       context 'when the user does not have permissions' do
-        it 'does not add upstream projects' do
+        it 'does not populate the pipeline project source' do
           subject
 
-          expect(project.reload.upstream_projects).to be_empty
+          expect(pipeline.source_project).not_to be_present
         end
 
         it 'breaks the chain' do
@@ -83,10 +83,10 @@ describe ::Gitlab::Ci::Pipeline::Chain::ProcessProjectUpstreams do
     context 'when the pipeline is not on the default branch' do
       let(:pipeline) { build(:ci_pipeline, project: project, ref: 'some_branch') }
 
-      it 'does not add upstream projects' do
+      it 'does not populate the pipeline project source' do
         subject
 
-        expect(project.upstream_projects).to be_empty
+        expect(pipeline.source_project).not_to be_present
       end
 
       it 'does not break the chain' do
@@ -100,10 +100,10 @@ describe ::Gitlab::Ci::Pipeline::Chain::ProcessProjectUpstreams do
   context 'when cross-project pipelines are not enabled' do
     let(:pipeline) { build(:ci_pipeline, project: project, ref: 'some_branch') }
 
-    it 'does not add upstream projects' do
+    it 'does not populate the pipeline project source' do
       subject
 
-      expect(project.upstream_projects).to be_empty
+      expect(pipeline.source_project).not_to be_present
     end
 
     it 'does not break the chain' do
