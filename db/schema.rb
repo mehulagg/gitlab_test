@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190322132835) do
+ActiveRecord::Schema.define(version: 20190325012710) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -653,6 +653,7 @@ ActiveRecord::Schema.define(version: 20190322132835) do
     t.integer "merge_request_id"
     t.binary "source_sha"
     t.binary "target_sha"
+    t.integer "source_project_id"
     t.index ["auto_canceled_by_id"], name: "index_ci_pipelines_on_auto_canceled_by_id", using: :btree
     t.index ["merge_request_id"], name: "index_ci_pipelines_on_merge_request_id", where: "(merge_request_id IS NOT NULL)", using: :btree
     t.index ["pipeline_schedule_id"], name: "index_ci_pipelines_on_pipeline_schedule_id", using: :btree
@@ -663,6 +664,7 @@ ActiveRecord::Schema.define(version: 20190322132835) do
     t.index ["project_id", "source"], name: "index_ci_pipelines_on_project_id_and_source", using: :btree
     t.index ["project_id", "status", "config_source"], name: "index_ci_pipelines_on_project_id_and_status_and_config_source", using: :btree
     t.index ["project_id"], name: "index_ci_pipelines_on_project_id", using: :btree
+    t.index ["source_project_id"], name: "index_ci_pipelines_on_source_project_id", using: :btree
     t.index ["status"], name: "index_ci_pipelines_on_status", using: :btree
     t.index ["user_id"], name: "index_ci_pipelines_on_user_id", using: :btree
   end
@@ -3435,6 +3437,7 @@ ActiveRecord::Schema.define(version: 20190322132835) do
   add_foreign_key "ci_pipeline_variables", "ci_pipelines", column: "pipeline_id", name: "fk_f29c5f4380", on_delete: :cascade
   add_foreign_key "ci_pipelines", "ci_pipeline_schedules", column: "pipeline_schedule_id", name: "fk_3d34ab2e06", on_delete: :nullify
   add_foreign_key "ci_pipelines", "ci_pipelines", column: "auto_canceled_by_id", name: "fk_262d4c2d19", on_delete: :nullify
+  add_foreign_key "ci_pipelines", "ci_sources_projects", column: "source_project_id", name: "fk_31191e8ea5", on_delete: :nullify
   add_foreign_key "ci_pipelines", "merge_requests", name: "fk_a23be95014", on_delete: :cascade
   add_foreign_key "ci_pipelines", "projects", name: "fk_86635dbd80", on_delete: :cascade
   add_foreign_key "ci_runner_namespaces", "ci_runners", column: "runner_id", on_delete: :cascade

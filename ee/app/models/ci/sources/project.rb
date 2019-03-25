@@ -8,6 +8,7 @@ module Ci
       belongs_to :project, class_name: '::Project'
 
       belongs_to :source_project, class_name: '::Project', foreign_key: :source_project_id
+      has_many :pipelines, class_name: '::Ci::Pipeline', foreign_key: :source_project_id
 
       validates :project, presence: true
       validates :source_project, presence: true

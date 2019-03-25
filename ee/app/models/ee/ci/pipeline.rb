@@ -19,6 +19,7 @@ module EE
 
         has_one :source_pipeline, class_name: ::Ci::Sources::Pipeline, inverse_of: :pipeline
         has_many :sourced_pipelines, class_name: ::Ci::Sources::Pipeline, foreign_key: :source_pipeline_id
+        belongs_to :source_project, class_name: ::Ci::Sources::Project, inverse_of: :pipelines
 
         has_one :triggered_by_pipeline, through: :source_pipeline, source: :source_pipeline
         has_one :source_job, through: :source_pipeline, source: :source_job

@@ -185,6 +185,8 @@ excluded_attributes:
     - :encrypted_token
     - :encrypted_token_iv
     - :enabled
+  ci_pipelines:
+    - :source_project_id
 
 methods:
   labels:

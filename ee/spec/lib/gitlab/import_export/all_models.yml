@@ -17,6 +17,7 @@ ci_pipelines:
 - source_pipeline
 - source_bridge
 - source_job
+- source_project
 - sourced_pipelines
 - triggered_by_pipeline
 - triggered_pipelines
