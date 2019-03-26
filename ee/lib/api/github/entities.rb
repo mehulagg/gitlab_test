@@ -192,14 +192,12 @@ module API
           updated_at = merge_request.updated_at.to_i
           "#{merge_request.id}-#{updated_at}"
         end
-        expose :type
+        expose :type do |_merge_request|
+          'PullRequestEvent'
+        end
         expose :updated_at, as: :created_at
         expose :payload, using: PullRequestPayload do |merge_request|
           merge_request
-        end
-
-        def type
-          'PullRequestEvent'
         end
       end
     end
