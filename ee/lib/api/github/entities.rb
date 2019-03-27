@@ -172,33 +172,16 @@ module API
       end
 
       class PullRequestPayload < Grape::Entity
-        expose :action do |merge_request|
-          case merge_request.state
-          when 'merged', 'closed'
-            'closed'
-          else
-            'opened'
-          end
-        end
-
         expose :id
-        expose :pull_request, using: PullRequest do |merge_request|
-          merge_request
-        end
+        expose :action
+        expose :pull_request, using: PullRequest
       end
 
       class PullRequestEvent < Grape::Entity
-        expose :id do |merge_request|
-          updated_at = merge_request.updated_at.to_i
-          "#{merge_request.id}-#{updated_at}"
-        end
-        expose :type do |_merge_request|
-          'PullRequestEvent'
-        end
-        expose :updated_at, as: :created_at
-        expose :payload, using: PullRequestPayload do |merge_request|
-          merge_request
-        end
+        expose :id
+        expose :type
+        expose :created_at
+        expose :payload, using: PullRequestPayload
       end
     end
   end

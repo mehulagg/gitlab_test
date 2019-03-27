@@ -177,6 +177,39 @@ module API
           present []
         end
 
+        # Wrapper class for merge requests to support PullRequestEvents
+        class MergeRequestEventWrapper
+          Payload = Struct.new(:id, :action, :pull_request)
+
+          attr_reader :created_at
+          attr_reader :id
+
+          def initialize(merge_request)
+            @created_at = merge_request.updated_at
+
+            updated_at = merge_request.updated_at.to_i
+            @id = "#{merge_request.id}-#{updated_at}"
+            @merge_request = merge_request
+          end
+
+          def event_action
+            case @merge_request.state
+            when 'merged', 'closed'
+              'closed'
+            else
+              'opened'
+            end
+          end
+
+          def payload
+            Payload.new(@merge_request.id, event_action, @merge_request)
+          end
+
+          def type
+            'PullRequestEvent'
+          end
+        end
+
         # Self-hosted Jira (tested on 7.11.1) requests this endpoint right
         # after fetching branches.
         get ':namespace/:project/events' do
@@ -184,7 +217,8 @@ module API
 
           merge_requests = MergeRequestsFinder.new(current_user, authorized_only: true, project_id: user_project.id).execute
 
-          present paginate(merge_requests), with: ::API::Github::Entities::PullRequestEvent
+          merge_request_events = paginate(merge_requests).map { |merge_request| MergeRequestEventWrapper.new(merge_request) }
+          present merge_request_events, with: ::API::Github::Entities::PullRequestEvent
         end
 
         params do
