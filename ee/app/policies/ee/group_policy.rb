@@ -93,7 +93,7 @@ module EE
       return false unless subject.persisted?
       return false if @user.admin?
 
-      ::Gitlab::Auth::GroupSaml::SessionEnforcer.new(@user.request_context.session, saml_provider).access_restricted?
+      ::Gitlab::Auth::GroupSaml::SessionEnforcer.new(saml_provider).access_restricted?
     end
 
     def saml_provider

@@ -8,17 +8,16 @@ module Gitlab
 
         attr_reader :saml_provider
 
-        def initialize(session, saml_provider)
-          @session = session
+        def initialize(saml_provider)
           @saml_provider = saml_provider
         end
 
         def update_session
-          saml_session[saml_provider.id] = DateTime.now
+          ActiveSsoState.update_sign_in(saml_provider.id, DateTime.now)
         end
 
         def active_session?
-          saml_session[saml_provider.id]
+          ActiveSsoState.sign_in_state(id)
         end
 
         def access_restricted?
@@ -26,7 +25,7 @@ module Gitlab
         end
 
         def self.clear(session)
-          session.delete(SESSION_KEY)
+          ActiveSsoState.clear_sign_ins
         end
 
         private
