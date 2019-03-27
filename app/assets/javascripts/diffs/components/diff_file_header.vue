@@ -215,71 +215,72 @@ export default {
       class="file-actions d-none d-sm-block"
     >
       <diff-stats :added-lines="diffFile.added_lines" :removed-lines="diffFile.removed_lines" />
-      <template v-if="diffFile.blob && diffFile.blob.readable_text">
-        <button
-          :disabled="!diffHasDiscussions(diffFile)"
-          :class="{ active: hasExpandedDiscussions }"
-          :title="s__('MergeRequests|Toggle comments for this file')"
-          class="js-btn-vue-toggle-comments btn"
-          type="button"
-          @click="handleToggleDiscussions"
+      <div class="btn-group" role="group">
+        <template v-if="diffFile.blob && diffFile.blob.readable_text">
+          <button
+            :disabled="!diffHasDiscussions(diffFile)"
+            :class="{ active: hasExpandedDiscussions }"
+            :title="s__('MergeRequests|Toggle comments for this file')"
+            class="js-btn-vue-toggle-comments btn"
+            type="button"
+            @click="handleToggleDiscussions"
+          >
+            <icon name="comment" />
+          </button>
+
+          <edit-button
+            v-if="!diffFile.deleted_file"
+            :can-current-user-fork="canCurrentUserFork"
+            :edit-path="diffFile.edit_path"
+            :can-modify-blob="diffFile.can_modify_blob"
+            @showForkMessage="showForkMessage"
+          />
+        </template>
+
+        <a
+          v-if="diffFile.replaced_view_path"
+          :href="diffFile.replaced_view_path"
+          class="btn view-file js-view-replaced-file"
+          v-html="viewReplacedFileButtonText"
         >
-          <icon name="comment" />
-        </button>
+        </a>
+        <gl-button
+          v-if="!diffFile.is_fully_expanded"
+          class="expand-file js-expand-file"
+          @click="toggleFullDiff(diffFile.file_path)"
+        >
+          <gl-loading-icon v-if="diffFile.isLoadingFullFile" inline />
+          <template v-else-if="diffFile.isShowingFullFile">
+            <icon :title="s__('MRDiff|Show changes only')" name="todo-add" />
+          </template>
+          <template v-else>
+            <icon :title="s__('MRDiff|Show full file')" name="todo-done" />
+          </template>
+        </gl-button>
+        <gl-button
+          ref="viewButton"
+          :href="diffFile.view_path"
+          target="blank"
+          class="view-file js-view-file-button"
+        >
+          <icon name="external-link" />
+        </gl-button>
 
-        <edit-button
-          v-if="!diffFile.deleted_file"
-          :can-current-user-fork="canCurrentUserFork"
-          :edit-path="diffFile.edit_path"
-          :can-modify-blob="diffFile.can_modify_blob"
-          @showForkMessage="showForkMessage"
-        />
-      </template>
-
-      <a
-        v-if="diffFile.replaced_view_path"
-        :href="diffFile.replaced_view_path"
-        class="btn view-file js-view-replaced-file"
-        v-html="viewReplacedFileButtonText"
-      >
-      </a>
-      <gl-button
-        v-if="!diffFile.is_fully_expanded"
-        class="expand-file js-expand-file"
-        @click="toggleFullDiff(diffFile.file_path)"
-      >
-        <gl-loading-icon v-if="diffFile.isLoadingFullFile" inline />
-        <template v-else-if="diffFile.isShowingFullFile">
-          <icon :title="s__('MRDiff|Show changes only')" name="todo-add" />
-        </template>
-        <template v-else>
-          <icon :title="s__('MRDiff|Show full file')" name="todo-done" />
-        </template>
-      </gl-button>
-
+        <a
+          v-if="diffFile.external_url"
+          v-gl-tooltip.hover
+          :href="diffFile.external_url"
+          :title="`View on ${diffFile.formatted_external_url}`"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-file-option js-external-url"
+        >
+          <icon name="external-link" />
+        </a>
+      </div>
       <gl-tooltip :target="() => $refs.viewButton" placement="bottom">
         <span v-html="viewFileButtonText"></span>
       </gl-tooltip>
-      <gl-button
-        ref="viewButton"
-        :href="diffFile.view_path"
-        target="blank"
-        class="view-file js-view-file-button"
-      >
-        <icon name="external-link" />
-      </gl-button>
-
-      <a
-        v-if="diffFile.external_url"
-        v-gl-tooltip.hover
-        :href="diffFile.external_url"
-        :title="`View on ${diffFile.formatted_external_url}`"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="btn btn-file-option js-external-url"
-      >
-        <icon name="external-link" />
-      </a>
     </div>
   </div>
 </template>
