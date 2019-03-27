@@ -1,7 +1,7 @@
 <script>
 import _ from 'underscore';
 import { mapActions, mapGetters } from 'vuex';
-import { polyfillSticky } from '~/lib/utils/sticky';
+import { polyfillSticky, stickyMonitor } from '~/lib/utils/sticky';
 import ClipboardButton from '~/vue_shared/components/clipboard_button.vue';
 import Icon from '~/vue_shared/components/icon.vue';
 import FileIcon from '~/vue_shared/components/file_icon.vue';
@@ -11,6 +11,7 @@ import { __, s__, sprintf } from '~/locale';
 import { diffViewerModes } from '~/ide/constants';
 import EditButton from './edit_button.vue';
 import DiffStats from './diff_stats.vue';
+import { contentTop } from '~/lib/utils/common_utils';
 
 export default {
   components: {
@@ -131,6 +132,8 @@ export default {
   },
   mounted() {
     polyfillSticky(this.$refs.header);
+    const fileHeaderHeight = this.$refs.header.clientHeight;
+    stickyMonitor(this.$refs.header, contentTop() - fileHeaderHeight - 1, false);
   },
   methods: {
     ...mapActions('diffs', ['toggleFileDiscussions', 'toggleFullDiff']),
