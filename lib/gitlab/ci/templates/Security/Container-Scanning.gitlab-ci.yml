@@ -27,7 +27,6 @@ container_scanning:
   script:
     - export CS_VERSION=${SP_VERSION:-$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')}
     - export CS_IMAGE=${CS_IMAGE:-${CS_IMAGE_REPOSITORY}:${CS_IMAGE_TAG}}
-    - export CS_OUTPUT_DIR=/output
     - docker run -d --name db arminc/clair-db:latest
     - docker run -p 6060:6060 --link db:postgres -d --name clair --restart on-failure arminc/clair-local-scan:v2.0.6
     - |
@@ -37,20 +36,18 @@ container_scanning:
       fi
     - docker pull ${CS_IMAGE}
     - |
-      if [[ -n "${CS_WHITELIST_FILE}" ]]; then
-        export CS_WHITELIST_FILE="${CS_OUTPUT_DIR}/${CS_WHITELIST_FILE}"
-      fi
-    - |
       docker run \
         -v /var/run/docker.sock:/var/run/docker.sock \
         -v "$PWD:/output" \
         -w /output \
         --link clair \
-        --env CS_WHITELIST_FILE \
-        --rm \
-        --name container-scanning \
         registry.gitlab.com/gitlab-org/security-products/container-scanning:${CS_VERSION} \
-        ${CS_IMAGE}
+        /analyze \
+        ${CS_WHITELIST_FILE:+-w "${CS_WHITELIST_FILE}"} \
+        ${CS_LOG_FILE:+-l "${CS_LOG_FILE}"} \
+        ${CS_REPORT_FILE:+-r "${CS_REPORT_FILE}"} \
+        ${CS_IMAGE} \
+        || true # always succeed to upload the artifacts
   artifacts:
     reports:
       container_scanning: gl-container-scanning-report.json
