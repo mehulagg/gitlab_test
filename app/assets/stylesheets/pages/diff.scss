@@ -7,7 +7,7 @@
     cursor: pointer;
 
     @media (min-width: map-get($grid-breakpoints, md)) {
-      $mr-file-header-top: $mr-version-controls-height + $header-height + $mr-tabs-height;
+      $mr-file-header-top: $mr-version-controls-height + $header-height + $mr-tabs-height - 1;
 
       position: -webkit-sticky;
       position: sticky;
