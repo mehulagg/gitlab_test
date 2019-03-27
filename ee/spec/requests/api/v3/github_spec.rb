@@ -150,6 +150,26 @@ describe API::V3::Github do
           expect(json_response.size).to eq(1)
         end
       end
+
+      context 'if there are more merge requests' do
+        let!(:merge_request) { create(:merge_request, id: 10000, source_project: project, target_project: project, author: user) }
+        let!(:merge_request2) { create(:merge_request, id: 10001, source_project: project, source_branch: generate(:branch), target_project: project, author: user) }
+
+        it 'returns the expected amount of events' do
+          jira_get v3_api(events_path, user)
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response).to be_an(Array)
+          expect(json_response.size).to eq(2)
+        end
+
+        it 'ensures each event has a unique id' do
+          jira_get v3_api(events_path, user)
+
+          ids = json_response.map { |event| event['id'] }.uniq
+          expect(ids.size).to eq(2)
+        end
+      end
     end
   end
 
