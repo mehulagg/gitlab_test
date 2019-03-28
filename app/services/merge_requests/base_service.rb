@@ -32,7 +32,9 @@ module MergeRequests
         title = params[:title] || merge_request.title
         params[:title] = case wip_event
                          when 'wip' then MergeRequest.wip_title(title)
-                         when 'unwip' then MergeRequest.wipless_title(title)
+                         when 'unwip'
+                           MergeRequest.wipless_title(title)
+                           create_pipeline_for(merge_request, user)
                          end
       end
     end
