@@ -114,6 +114,9 @@ export default {
     hideFileStats() {
       return this.treeWidth <= TREE_HIDE_STATS_WIDTH;
     },
+    isLimitedContainer() {
+      return !this.showTreeList && !this.isParallelView;
+    },
   },
   watch: {
     diffViewType() {
@@ -202,8 +205,6 @@ export default {
     adjustView() {
       if (this.shouldShow) {
         this.$nextTick(() => {
-          window.mrTabs.resetViewContainer();
-          window.mrTabs.expandViewContainer(this.showTreeList);
           this.setEventListeners();
         });
       } else {
@@ -256,6 +257,7 @@ export default {
         :merge-request-diffs="mergeRequestDiffs"
         :merge-request-diff="mergeRequestDiff"
         :target-branch="targetBranch"
+        :is-limited-container="isLimitedContainer"
       />
 
       <hidden-files-warning
@@ -285,7 +287,12 @@ export default {
           />
           <tree-list :hide-file-stats="hideFileStats" />
         </div>
-        <div class="diff-files-holder">
+        <div
+          :class="[
+            'diff-files-holder',
+            isLimitedContainer ? 'container-limited limit-container-width mx-auto px-3' : '',
+          ]"
+        >
           <commit-widget v-if="commit" :commit="commit" />
           <template v-if="renderDiffFiles">
             <diff-file
