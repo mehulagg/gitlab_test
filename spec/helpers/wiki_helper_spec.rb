@@ -18,4 +18,45 @@ describe WikiHelper do
       end
     end
   end
+
+  describe '#wiki_sort_controls' do
+    let(:project) { create(:project) }
+    let(:wiki_link) { helper.wiki_sort_controls(project, sort, direction) }
+    let(:classes) { "btn btn-default has-tooltip reverse-sort-btn qa-reverse-sort" }
+
+    def expected_link(sort, direction, icon_class)
+      path = "/#{project.full_path}/wikis/pages?direction=#{direction}&sort=#{sort}"
+
+      helper.link_to(path, type: 'button', class: classes, title: 'Sort direction') do
+        helper.sprite_icon("sort-#{icon_class}", size: 16)
+      end
+    end
+
+    context 'initial call' do
+      let(:sort) { nil }
+      let(:direction) { nil }
+
+      it 'renders with default values' do
+        expect(wiki_link).to eq(expected_link('title', 'desc', 'lowest'))
+      end
+    end
+
+    context 'sort by title' do
+      let(:sort) { 'title' }
+      let(:direction) { 'asc' }
+
+      it 'renders a link with opposite direction' do
+        expect(wiki_link).to eq(expected_link('title', 'desc', 'lowest'))
+      end
+    end
+
+    context 'sort by created_at' do
+      let(:sort) { 'created_at' }
+      let(:direction) { 'desc' }
+
+      it 'renders a link with opposite direction' do
+        expect(wiki_link).to eq(expected_link('created_at', 'asc', 'highest'))
+      end
+    end
+  end
 end
