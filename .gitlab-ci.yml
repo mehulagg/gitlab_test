@@ -38,6 +38,8 @@ variables:
   ES_JAVA_OPTS: "-Xms256m -Xmx256m"
   ELASTIC_URL: "http://elastic:changeme@docker.elastic.co-elasticsearch-elasticsearch:9200"
   EE_KNAPSACK_RSPEC_SUITE_REPORT_PATH: knapsack/${CI_PROJECT_NAME}/rspec_report-master-ee.json
+  SAST_DEFAULT_ANALYZERS: "secrets"
+  SAST_RUN_ANALYZER_TIMEOUT: "60m"
 
 before_script:
   - bundle --version
