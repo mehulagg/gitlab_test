@@ -988,7 +988,7 @@ sast:
     - export SP_VERSION=$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')
     - docker run
         --env SAST_DEFAULT_ANALYZERS="secrets"
-        --env SAST_RUN_ANALYZER_TIMEOUT="60m"
+        --env SAST_RUN_ANALYZER_TIMEOUT="90m"
         --env SAST_CONFIDENCE_LEVEL="${SAST_CONFIDENCE_LEVEL:-3}"
         --volume "$PWD:/code"
         --volume /var/run/docker.sock:/var/run/docker.sock
