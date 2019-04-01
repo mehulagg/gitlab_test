@@ -92,6 +92,7 @@ export default {
 <template>
   <div class="insights-page">
     <div v-if="hasChartsConfigured" class="insights-page-container">
+      <h4 class="text-center">{{ pageConfig.title }}</h4>
       <div v-if="!pageLoading" class="insights-charts">
         <div v-for="(insights, key, index) in store" :key="index" class="insights-chart">
           <component

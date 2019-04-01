@@ -61,8 +61,10 @@ describe('Insights component', () => {
 
     it('has the correct nav tabs', done => {
       vm.$nextTick(() => {
-        expect(vm.$el.querySelector('.nav-links')).not.toBe(null);
-        expect(vm.$el.querySelector('.nav-links li a').innerText.trim()).toBe(title);
+        expect(vm.$el.querySelector('#insights-dropdown')).not.toBe(null);
+        expect(vm.$el.querySelector('#insights-dropdown .dropdown-item').innerText.trim()).toBe(
+          title,
+        );
         done();
       });
     });
