@@ -27,7 +27,7 @@ describe DashboardOperationsProjectEntity do
     end
 
     context 'when there is an upstream status' do
-      let(:bridge) { create(:ci_bridge, status: :pending) }
+      let(:bridge) { create(:ci_downstream_bridge, status: :pending) }
 
       before do
         create(:ci_sources_pipeline, pipeline: pipeline, source_job: bridge)
@@ -63,7 +63,7 @@ describe DashboardOperationsProjectEntity do
 
     context 'when there are both an upstream and downstream pipelines' do
       let(:build) { create(:ci_build, pipeline: pipeline) }
-      let(:bridge) { create(:ci_bridge, status: :pending) }
+      let(:bridge) { create(:ci_downstream_bridge, status: :pending) }
 
       before do
         create(:ci_sources_pipeline, pipeline: pipeline, source_job: bridge)

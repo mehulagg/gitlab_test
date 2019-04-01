@@ -29,10 +29,10 @@ describe Ci::Bridges::Downstream do
     end
   end
 
-  describe '#downstream_project_path' do
+  describe '#target_project_path' do
     context 'when project is defined' do
       it 'returns a full path of a project' do
-        expect(bridge.downstream_project_path).to eq 'my/project'
+        expect(bridge.target_project_path).to eq 'my/project'
       end
     end
 
@@ -40,7 +40,7 @@ describe Ci::Bridges::Downstream do
       let(:options) { { trigger: {} } }
 
       it 'returns nil' do
-        expect(bridge.downstream_project_path).to be_nil
+        expect(bridge.target_project_path).to be_nil
       end
     end
   end

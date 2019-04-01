@@ -409,7 +409,7 @@ describe Ci::Pipeline do
   describe 'upstream status interactions' do
     context 'when a pipeline has an upstream status' do
       context 'when an upstream status is a bridge' do
-        let(:bridge) { create(:ci_bridge, status: :pending) }
+        let(:bridge) { create(:ci_downstream_bridge, status: :pending) }
 
         before do
           create(:ci_sources_pipeline, pipeline: pipeline, source_job: bridge)

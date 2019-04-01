@@ -19,10 +19,10 @@ describe Ci::CreateCrossProjectPipelineService, '#execute' do
   end
 
   let(:bridge) do
-    create(:ci_bridge, status: :pending,
-                       user: user,
-                       options: trigger,
-                       pipeline: upstream_pipeline)
+    create(:ci_downstream_bridge, status: :pending,
+                                  user: user,
+                                  options: trigger,
+                                  pipeline: upstream_pipeline)
   end
 
   let(:service) { described_class.new(upstream_project, user) }
@@ -102,7 +102,7 @@ describe Ci::CreateCrossProjectPipelineService, '#execute' do
       expect(bridge.sourced_pipelines.first.pipeline).to eq pipeline
       expect(pipeline.triggered_by_pipeline).to eq upstream_pipeline
       expect(pipeline.source_bridge).to eq bridge
-      expect(pipeline.source_bridge).to be_a ::Ci::Bridge
+      expect(pipeline.source_bridge).to be_a ::Ci::Bridges::Downstream
     end
 
     it 'updates bridge status when downstream pipeline gets proceesed' do

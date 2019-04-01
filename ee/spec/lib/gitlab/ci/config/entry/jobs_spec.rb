@@ -35,7 +35,7 @@ describe Gitlab::Ci::Config::Entry::Jobs do
           .to eq ::Gitlab::Ci::Config::Entry::Job
       end
 
-      it 'correctly identifies cross-project triggers' do
+      it 'correctly identifies downstream cross-project triggers' do
         expect(subject.node_type(:my_trigger))
           .to eq ::EE::Gitlab::Ci::Config::Entry::Bridge
       end
@@ -52,7 +52,7 @@ describe Gitlab::Ci::Config::Entry::Jobs do
     end
 
     describe '#hidden?' do
-      it 'does not claim that a bridge job is hidden' do
+      it 'does not claim that a downstream bridge job is hidden' do
         expect(subject.hidden?(:my_trigger)).to be false
       end
     end
@@ -100,14 +100,14 @@ describe Gitlab::Ci::Config::Entry::Jobs do
           .to eq ::Gitlab::Ci::Config::Entry::Job
       end
 
-      it 'does not identify trigger job as a bridge job' do
+      it 'does not identify downstream trigger job as a bridge job' do
         expect(subject.node_type(:my_trigger))
           .to eq ::Gitlab::Ci::Config::Entry::Job
       end
     end
 
     describe '#bridge?' do
-      it 'returns false even when a job is a trigger' do
+      it 'returns false even when a job is a downstream trigger' do
         expect(subject.bridge?(:my_trigger)).to be false
       end
 

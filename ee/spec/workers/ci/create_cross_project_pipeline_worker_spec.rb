@@ -4,7 +4,7 @@ describe Ci::CreateCrossProjectPipelineWorker do
   set(:user) { create(:user) }
   set(:project) { create(:project) }
   set(:pipeline) { create(:ci_pipeline, project: project) }
-  let(:bridge) { create(:ci_bridge, user: user, pipeline: pipeline) }
+  let(:bridge) { create(:ci_downstream_bridge, user: user, pipeline: pipeline) }
 
   let(:service) { double('pipeline creation service') }
 
