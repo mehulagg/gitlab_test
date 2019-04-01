@@ -11,6 +11,10 @@ module EE
         # rubocop:disable Cop/ActiveRecordSerialize
         serialize :options
         # rubocop:enable Cop/ActiveRecordSerialize
+
+        def self.fabricate(attributes)
+          ::Ci::Bridges::Downstream.new(attributes)
+        end
       end
 
       def target_project_path
