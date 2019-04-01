@@ -23,6 +23,8 @@ ci_pipelines:
 - job_artifacts
 - vulnerabilities_occurrence_pipelines
 - vulnerabilities
+stages:
+- downstream_bridges
 protected_branches:
 - unprotect_access_levels
 protected_environments:
