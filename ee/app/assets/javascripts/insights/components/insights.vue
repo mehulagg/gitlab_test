@@ -2,17 +2,13 @@
 import { mapActions, mapState } from 'vuex';
 import { GlLoadingIcon } from '@gitlab/ui';
 import NavigationTabs from '~/vue_shared/components/navigation_tabs.vue';
-import StackedBar from './chart_js/stacked_bar.vue';
-import Bar from './chart_js/bar.vue';
-import LineChart from './chart_js/line.vue';
+import InsightsPage from './insights_page.vue';
 
 export default {
   components: {
     GlLoadingIcon,
     NavigationTabs,
-    StackedBar,
-    Bar,
-    LineChart,
+    InsightsPage,
   },
   props: {
     endpoint: {
@@ -25,14 +21,7 @@ export default {
     },
   },
   computed: {
-    ...mapState('insights', [
-      'configData',
-      'configLoading',
-      'activeTab',
-      'activeChart',
-      'chartData',
-      'chartLoading',
-    ]),
+    ...mapState('insights', ['configData', 'configLoading', 'activeTab', 'activePage']),
     navigationTabs() {
       const { configData, activeTab } = this;
 
@@ -50,29 +39,12 @@ export default {
         isActive: this.activeTab === key,
       }));
     },
-    chartType() {
-      switch (this.activeChart.type) {
-        case 'line':
-          // Apparently Line clashes with another component
-          return 'line-chart';
-        default:
-          return this.activeChart.type;
-      }
-    },
-    drawChart() {
-      return this.chartData && this.activeChart && !this.chartLoading;
-    },
-  },
-  watch: {
-    activeChart() {
-      this.fetchChartData(this.queryEndpoint);
-    },
   },
   mounted() {
     this.fetchConfigData(this.endpoint);
   },
   methods: {
-    ...mapActions('insights', ['fetchConfigData', 'fetchChartData', 'setActiveTab']),
+    ...mapActions('insights', ['fetchConfigData', 'setActiveTab']),
     onChangeTab(scope) {
       this.setActiveTab(scope);
     },
@@ -88,12 +60,7 @@ export default {
       <div class="top-area scrolling-tabs-container inner-page-scroll-tabs">
         <navigation-tabs :tabs="navigationTabs" @onChangeTab="onChangeTab" />
       </div>
-      <div class="insights-chart">
-        <div v-if="chartLoading" class="insights-chart-loading text-center">
-          <gl-loading-icon :inline="true" :size="4" />
-        </div>
-        <component :is="chartType" v-if="drawChart" :info="activeChart" :data="chartData" />
-      </div>
+      <insights-page :query-endpoint="queryEndpoint" :page-config="activePage" />
     </div>
   </div>
 </template>
