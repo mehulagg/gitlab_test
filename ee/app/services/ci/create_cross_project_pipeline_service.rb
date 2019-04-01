@@ -12,11 +12,11 @@ module Ci
       end
 
       if target_project == project
-        return bridge.drop!(:invalid_bridge_trigger)
+        return bridge.drop!(:downstream_bridge_invalid_trigger)
       end
 
       unless can_create_cross_pipeline?
-        return bridge.drop!(:insufficient_bridge_permissions)
+        return bridge.drop!(:downstream_bridge_insufficient_permissions)
       end
 
       create_pipeline!

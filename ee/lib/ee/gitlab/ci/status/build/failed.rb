@@ -11,9 +11,9 @@ module EE
             prepended do
               EE_REASONS = const_get(:REASONS).merge(
                 protected_environment_failure: 'protected environment failure',
-                invalid_bridge_trigger: 'downstream pipeline trigger definition is invalid',
+                downstream_bridge_invalid_trigger: 'downstream pipeline trigger definition is invalid',
                 downstream_bridge_project_not_found: 'downstream project could not be found',
-                insufficient_bridge_permissions: 'no permissions to trigger downstream pipeline'
+                downstream_bridge_insufficient_permissions: 'no permissions to trigger downstream pipeline'
               ).freeze
               EE::Gitlab::Ci::Status::Build::Failed.private_constant :EE_REASONS
             end
