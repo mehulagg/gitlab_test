@@ -1,5 +1,4 @@
-require 'fast_spec_helper'
-require_dependency 'active_model'
+require 'spec_helper'
 
 describe EE::Gitlab::Ci::Config::Entry::Trigger do
   subject { described_class.new(config) }
