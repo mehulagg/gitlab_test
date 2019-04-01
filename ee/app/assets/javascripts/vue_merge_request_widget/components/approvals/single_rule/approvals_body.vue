@@ -9,12 +9,12 @@
  */
 
 import { n__, s__, sprintf } from '~/locale';
-import Flash from '~/flash';
+import Flash, { hideFlash } from '~/flash';
 import Icon from '~/vue_shared/components/icon.vue';
 import MrWidgetAuthor from '~/vue_merge_request_widget/components/mr_widget_author.vue';
 import tooltip from '~/vue_shared/directives/tooltip';
 import eventHub from '~/vue_merge_request_widget/event_hub';
-import { APPROVE_ERROR, OPTIONAL_CAN_APPROVE, OPTIONAL } from '../messages';
+import { APPROVE_ERROR, OPTIONAL_CAN_APPROVE, OPTIONAL, APPROVAL_PASSWORD_INVALID } from '../messages';
 
 export default {
   name: 'ApprovalsBody',
@@ -54,6 +54,11 @@ export default {
       required: false,
       default: false,
     },
+    forceAuthForApproval: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
     userHasApproved: {
       type: Boolean,
       required: false,
@@ -68,6 +73,8 @@ export default {
   data() {
     return {
       approving: false,
+      approvalPassword: null,
+      showApprovePasswordPrompt: false,
     };
   },
   computed: {
@@ -111,6 +118,12 @@ export default {
       }
       return approveButtonText;
     },
+    confirmButtonText() {
+        return s__('mrWidget|Confirm')
+    },
+    cancelButtonText() {
+        return s__('mrWidget|Cancel')
+    },
     approveButtonClass() {
       return {
         'btn-inverted': this.showApproveButton && this.approvalsLeft <= 0,
@@ -125,20 +138,43 @@ export default {
     showSuggestedApprovers() {
       return this.approvalsLeft > 0 && this.suggestedApprovers && this.suggestedApprovers.length;
     },
+    approvalPasswordPlaceholder() {
+      return s__('Password');
+    },
   },
   methods: {
     approveMergeRequest() {
+        if(!this.forceAuthForApproval) {
+            this.doApproveMergeRequest();
+            return;
+        }
+        this.showApprovePasswordPrompt = true;
+    },
+    cancelApprovePasswordPrompt() {
+        this.showApprovePasswordPrompt = false;
+    },
+    doApproveMergeRequest() {
+      const flashEl = document.querySelector('.flash-alert');
+      if(flashEl != null) {
+          hideFlash(flashEl);
+      }
       this.approving = true;
       this.service
-        .approveMergeRequest()
+        .approveMergeRequest(this.approvalPassword)
         .then(data => {
           this.mr.setApprovals(data);
           eventHub.$emit('MRWidgetUpdateRequested');
           this.approving = false;
+          this.showApprovePasswordPrompt = false;
         })
-        .catch(() => {
+        .catch((error) => {
+          if(error && error.response && error.response.status === 403) {
+            Flash(APPROVAL_PASSWORD_INVALID);
+          }
+          else {
+            Flash(APPROVE_ERROR);
+          }
           this.approving = false;
-          Flash(APPROVE_ERROR);
         });
     },
   },
@@ -147,7 +183,7 @@ export default {
 
 <template>
   <div class="approvals-body space-children">
-    <span v-if="showApproveButton" class="approvals-approve-button-wrap">
+    <span v-if="showApproveButton && !showApprovePasswordPrompt" class="approvals-approve-button-wrap">
       <button
         :disabled="approving"
         :class="approveButtonClass"
@@ -158,7 +194,38 @@ export default {
         {{ approveButtonText }}
       </button>
     </span>
-    <span :class="approvalsOptional ? 'text-muted' : 'bold'" class="approvals-required-text">
+    <div v-if="showApprovePasswordPrompt" class="force-approval-auth form-row align-items-center">
+        <div class="col-auto">
+            <input
+                id="force-auth-password"
+                v-model="approvalPassword"
+                type="password"
+                class="form-control"
+                autocomplete="new-password"
+                :placeholder="approvalPasswordPlaceholder" />
+        </div>
+        <div class="col-auto">
+            <button
+                :disabled="approving"
+                :class="approveButtonClass"
+                class="btn btn-primary btn-sm approve-btn"
+                @click="doApproveMergeRequest"
+            >
+                <i v-if="approving" class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                {{ confirmButtonText }}
+            </button>
+        </div>
+        <div class="col-auto">
+            <button
+                :disabled="approving"
+                class="btn btn-default btn-sm"
+                @click="cancelApprovePasswordPrompt"
+            >
+                {{ cancelButtonText }}
+            </button>
+        </div>
+    </div>
+    <span v-show="!showApprovePasswordPrompt" :class="approvalsOptional ? 'text-muted' : 'bold'" class="approvals-required-text" >
       {{ approvalsRequiredStringified }}
       <a
         v-if="showApprovalDocLink"

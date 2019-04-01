@@ -9,6 +9,7 @@ import MrWidgetIcon from '~/vue_merge_request_widget/components/mr_widget_icon.v
 import ApprovalsSummary from './approvals_summary.vue';
 import ApprovalsSummaryOptional from './approvals_summary_optional.vue';
 import ApprovalsFooter from './approvals_footer.vue';
+import ApprovalsAuth from './approvals_auth.vue';
 import { FETCH_LOADING, FETCH_ERROR, APPROVE_ERROR, UNAPPROVE_ERROR } from '../messages';
 
 export default {
@@ -20,6 +21,7 @@ export default {
     ApprovalsSummary,
     ApprovalsSummaryOptional,
     ApprovalsFooter,
+    ApprovalsAuth,
     GlButton,
     GlLoadingIcon,
   },
@@ -71,6 +73,15 @@ export default {
     },
     showUnapprove() {
       return this.userHasApproved && !this.userCanApprove && this.mr.state !== 'merged';
+    },
+    forceAuthForApproval() {
+      return this.mr.approvals.force_auth_for_approval;
+    },
+    showApprovalButton() {
+      return (this.action && !this.forceAuthForApproval) || (this.forceAuthForApproval && this.showUnapprove);
+    },
+    showApprovalWithAuthComponent() {
+      return this.showApprove && this.forceAuthForApproval;
     },
     action() {
       if (this.showApprove) {
@@ -167,7 +178,7 @@ export default {
       <div v-if="fetchingApprovals">{{ $options.FETCH_LOADING }}</div>
       <template v-else>
         <gl-button
-          v-if="action"
+          v-if="showApprovalButton"
           :variant="action.variant"
           :class="{ 'btn-inverted': action.inverted }"
           size="sm"
@@ -177,6 +188,13 @@ export default {
           <gl-loading-icon v-if="isApproving" inline />
           {{ action.text }}
         </gl-button>
+        <approvals-auth
+          v-if="showApprovalWithAuthComponent"
+          :approval-text="action.text"
+          :service="service"
+          :mr="mr"
+          :refresh-rules="refreshRules"
+        />
         <approvals-summary-optional
           v-if="isOptional"
           :can-approve="hasAction"

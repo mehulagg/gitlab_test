@@ -5,6 +5,8 @@ import Approvals from 'ee/vue_merge_request_widget/components/approvals/multiple
 import ApprovalsSummary from 'ee/vue_merge_request_widget/components/approvals/multiple_rule/approvals_summary.vue';
 import ApprovalsSummaryOptional from 'ee/vue_merge_request_widget/components/approvals/multiple_rule/approvals_summary_optional.vue';
 import ApprovalsFooter from 'ee/vue_merge_request_widget/components/approvals/multiple_rule/approvals_footer.vue';
+import ApprovalsAuth from 'ee/vue_merge_request_widget/components/approvals/multiple_rule/approvals_auth.vue';
+
 import {
   FETCH_LOADING,
   FETCH_ERROR,
@@ -24,6 +26,7 @@ const testApprovals = () => ({
   suggested_approvers: [],
   user_can_approve: true,
   user_has_approved: true,
+  force_auth_for_approval: false,
 });
 const testApprovalRulesResponse = () => ({ rules: [{ id: 2 }] });
 
@@ -281,6 +284,17 @@ describe('EE MRWidget approvals', () => {
           it('flashes error message', () => {
             expect(createFlash).toHaveBeenCalledWith(APPROVE_ERROR);
           });
+        });
+      });
+
+      describe('when project requires auth and approve action is clicked', () => {
+        beforeEach(() => {
+          mr.approvals.force_auth_for_approval = true;
+          createComponent();
+        });
+
+        it('shows approvals auth component', () => {
+          expect(wrapper.find(ApprovalsAuth).exists()).toBe(false);
         });
       });
     });

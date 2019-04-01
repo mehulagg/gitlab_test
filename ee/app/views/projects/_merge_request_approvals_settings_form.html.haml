@@ -33,3 +33,12 @@
       %strong= _('Enable self approval of merge requests')
       = link_to icon('question-circle'), help_page_path('user/project/merge_requests/merge_request_approvals',
         anchor: 'allowing-merge-request-authors-to-approve-their-own-merge-requests'), target: '_blank'
+
+- if Feature.enabled?(:approval_rules, project)
+  .form-group.self-approval
+    .form-check
+      = form.check_box :force_auth_for_approval, class: 'form-check-input'
+      = form.label :force_auth_for_approval, class: 'form-check-label' do
+        %strong= _('Force authentication for approvals')
+        = link_to icon('question-circle'), help_page_path('user/project/merge_requests/merge_request_approvals',
+          anchor: 'for-authentication-for-approvals'), target: '_blank'

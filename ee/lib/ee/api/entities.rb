@@ -369,6 +369,10 @@ module EE
 
         expose :approvals_left
 
+        expose :force_auth_for_approval?, as: :force_auth_for_approval do |approval_state|
+          approval_state.project.force_auth_for_approval
+        end
+
         expose :approved_by, using: EE::API::Entities::Approvals do |approval_state|
           approval_state.merge_request.approvals
         end
