@@ -36,6 +36,7 @@ The following languages and frameworks are supported.
 |-------------------------|----------------------------------------------------------------------------------------|
 | .NET                    | [Security Code Scan](https://security-code-scan.github.io)                             |
 | C/C++                   | [Flawfinder](https://www.dwheeler.com/flawfinder/)                                     |
+| Elixir (Phoenix)        | [sobelow](https://github.com/nccgroup/sobelow)                                         |
 | Go                      | [Gosec](https://github.com/securego/gosec)                                             |
 | Groovy (Ant, Gradle, Maven and SBT) | [find-sec-bugs](https://find-sec-bugs.github.io/)                          |
 | Java (Ant, Gradle, Maven and SBT) | [find-sec-bugs](https://find-sec-bugs.github.io/)                            |
