@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
-  factory :ci_bridge, class: Ci::Bridge do
+  factory :ci_downstream_bridge, class: ::Ci::Bridges::Downstream do
     name ' bridge'
     stage 'test'
     stage_idx 0
@@ -14,8 +16,16 @@ FactoryBot.define do
       yaml_variables [{ key: 'BRIDGE', value: 'cross', public: true }]
     end
 
-    after(:build) do |bridge, _|
+    transient { downstream nil }
+
+    after(:build) do |bridge, evaluator|
       bridge.project ||= bridge.pipeline.project
+
+      if evaluator.downstream.present?
+        bridge.options = bridge.options.to_h.merge(
+          trigger: { project: evaluator.downstream.full_path }
+        )
+      end
     end
   end
 end
