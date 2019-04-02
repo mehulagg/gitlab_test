@@ -243,10 +243,10 @@ and after that you also need two extra steps.
 
     ##
     # Primary and Secondary addresses
-    # - replace '198.51.100.1' with the public or VPC address of your Geo primary node
-    # - replace '198.51.100.2' with the public or VPC address of your Geo secondary node
+    # - replace '198.51.100.111' with the public or VPC address of your Geo primary node
+    # - replace '198.51.100.222' with the public or VPC address of your Geo secondary node
     ##
-    postgresql['md5_auth_cidr_addresses'] = ['198.51.100.1/32', '198.51.100.2/32']
+    postgresql['md5_auth_cidr_addresses'] = ['198.51.100.111/32', '198.51.100.222/32']
 
     # Every secondary server needs to have its own slot so specify the number of secondary nodes you're going to have
     postgresql['max_replication_slots'] = 1

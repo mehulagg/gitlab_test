@@ -39,13 +39,13 @@ The following guide assumes that:
   replicating from), running PostgreSQL 9.6 or later, and
   you have a new **secondary** server set up with the same versions of the OS,
   PostgreSQL, and GitLab on all nodes.
-- The IP of the **primary** server for our examples is `198.51.100.1`, whereas the
-  **secondary** node's IP is `198.51.100.2`. Note that the **primary** and **secondary** servers
+- The IP of the **primary** server for our examples is `198.51.100.111`, whereas the
+  **secondary** node's IP is `198.51.100.222`. Note that the **primary** and **secondary** servers
   **must** be able to communicate over these addresses. These IP addresses can either
   be public or private.
-  
+
 CAUTION: **Warning:**
-Geo works with streaming replication. Logical replication is not supported at this time. 
+Geo works with streaming replication. Logical replication is not supported at this time.
 There is an [issue where support is being discussed](https://gitlab.com/gitlab-org/gitlab-ee/issues/7420).
 
 ### Step 1. Configure the **primary** server
@@ -137,7 +137,7 @@ There is an [issue where support is being discussed](https://gitlab.com/gitlab-o
    (for Debian/Ubuntu that would be `/etc/postgresql/9.x/main/postgresql.conf`):
 
     ```
-    listen_address = '198.51.100.1'
+    listen_address = '198.51.100.111'
     wal_level = hot_standby
     max_wal_senders = 5
     min_wal_size = 80MB
@@ -171,19 +171,19 @@ There is an [issue where support is being discussed](https://gitlab.com/gitlab-o
    `/etc/postgresql/9.x/main/pg_hba.conf`):
 
     ```sh
-    host    all             all                      198.51.100.1/32      md5
-    host    replication     gitlab_replicator        198.51.100.2/32      md5
+    host    all             all                      198.51.100.111/32      md5
+    host    replication     gitlab_replicator        198.51.100.222/32      md5
     ```
 
-    Where `198.51.100.1` is the public IP address of the **primary** server, and `198.51.100.2`
+    Where `198.51.100.111` is the public IP address of the **primary** server, and `198.51.100.222`
     the public IP address of the **secondary** one. If you want to add another
     secondary, add one more row like the replication one and change the IP
     address:
 
     ```sh
-    host    all             all                      198.51.100.1/32      md5
-    host    replication     gitlab_replicator        198.51.100.2/32      md5
-    host    replication     gitlab_replicator        198.51.100.3/32  md5
+    host    all             all                      198.51.100.111/32      md5
+    host    replication     gitlab_replicator        198.51.100.222/32      md5
+    host    replication     gitlab_replicator        198.51.100.333/32  md5
     ```
 
 1. Restart PostgreSQL for the changes to take effect.
