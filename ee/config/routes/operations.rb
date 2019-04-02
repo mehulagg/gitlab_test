@@ -2,5 +2,6 @@
 
 get 'operations' => 'operations#index'
 get 'operations/list' => 'operations#list'
+get 'operations/environments_list' => 'operations#environments_list'
 post 'operations' => 'operations#create', as: :add_operations_project
 delete 'operations' => 'operations#destroy', as: :remove_operations_project
