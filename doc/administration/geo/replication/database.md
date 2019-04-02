@@ -326,6 +326,10 @@ There is an [issue where support is being discussed](https://gitlab.com/gitlab-o
 
     ```ruby
     ##
+    ## - Set the `external_url` value to the domain name you wish your GitLab geo instance to have
+    external_url 'http://gitlab-geo.example.com'
+
+    ##
     ## Geo Secondary role
     ## - configure dependent flags automatically to enable Geo
     ##
