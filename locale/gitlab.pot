@@ -8052,6 +8052,9 @@ msgstr ""
 msgid "Profiles|The maximum file size allowed is 200KB."
 msgstr ""
 
+msgid "Profiles|These settings will update how dates and times are displayed for you."
+msgstr ""
+
 msgid "Profiles|This doesn't look like a public SSH key, are you sure you want to add it?"
 msgstr ""
 
@@ -8065,9 +8068,6 @@ msgid "Profiles|This emoji and message will appear on your profile and throughou
 msgstr ""
 
 msgid "Profiles|This information will appear on your profile"
-msgstr ""
-
-msgid "Profiles|This settings will update how dates and times are displayed for you."
 msgstr ""
 
 msgid "Profiles|Time settings"
