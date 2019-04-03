@@ -45,7 +45,7 @@ module EE
       def proxy_subprotocol
         # This will allow to reuse the same subprotocol set
         # in the original websocket connection
-        request.headers['HTTP_SEC_WEBSOCKET_PROTOCOL'] || Ci::BuildRunnerSession::TERMINAL_SUBPROTOCOL
+        request.headers['HTTP_SEC_WEBSOCKET_PROTOCOL'] || ::Ci::BuildRunnerSession::TERMINAL_SUBPROTOCOL
       end
     end
   end
