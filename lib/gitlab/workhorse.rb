@@ -163,17 +163,14 @@ module Gitlab
         details
       end
 
-      def service_request(service)
-        details = {
-          'Service' => {
+      def build_service_request(service)
+        {
+          'BuildService' => {
             'Url' => service[:url],
-            'Header' => service[:headers]
+            'Header' => service[:headers],
+            'CAPem' => service[:ca_pem]
           }
         }
-
-        details['Service']['CAPem'] = service[:ca_pem] if service.key?(:ca_pem)
-
-        details
       end
 
       def version

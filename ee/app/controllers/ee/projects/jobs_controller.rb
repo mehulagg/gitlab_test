@@ -11,7 +11,7 @@ module EE
       end
 
       def proxy_authorize
-        render json: ::Gitlab::Workhorse.service_request(build_service_specification)
+        render json: ::Gitlab::Workhorse.build_service_request(build_service_specification)
       end
 
       def proxy_websocket_authorize
