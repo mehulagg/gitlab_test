@@ -62,13 +62,6 @@ describe PushRule do
 
         subject.branch_name_allowed?('ee-feature-ee')
       end
-
-      it 'falls back to ruby regex engine' do
-        push_rule.update_column(:branch_name_regex, '(ee|ce).*\1')
-
-        expect(subject.branch_name_allowed?('ee-feature-ee')).to be true
-        expect(subject.branch_name_allowed?('ee-feature-ce')).to be false
-      end
     end
   end
 

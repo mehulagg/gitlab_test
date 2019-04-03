@@ -122,7 +122,7 @@ class PushRule < ApplicationRecord
   def data_match?(data, regex, multiline: false)
     if regex.present?
       regexp = if allow_regex_fallback?
-                 Gitlab::UntrustedRegexp.with_fallback(regex, multiline: multiline)
+                 Gitlab::UntrustedRegexp::RubySyntax.fabricate!('/' + regex + '/')
                else
                  Gitlab::UntrustedRegexp.new(regex, multiline: multiline)
                end
