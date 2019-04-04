@@ -67,4 +67,20 @@ describe('Insights component', () => {
       });
     });
   });
+
+  describe('empty config', () => {
+    beforeEach(() => {
+      vm.$store.state.insights.configLoading = false;
+      vm.$store.state.insights.configData = null;
+    });
+
+    it('it displays a warning', done => {
+      vm.$nextTick(() => {
+        expect(vm.$el.querySelector('.empty-state').innerText.trim()).toContain(
+          'Invalid Insights config file detected',
+        );
+        done();
+      });
+    });
+  });
 });

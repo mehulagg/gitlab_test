@@ -5851,6 +5851,9 @@ msgstr ""
 msgid "Introducing Your Conversational Development Index"
 msgstr ""
 
+msgid "Invalid Insights config file detected"
+msgstr ""
+
 msgid "Invalid Login or password"
 msgstr ""
 
@@ -7786,6 +7789,9 @@ msgid "Please check the configuration file for this chart"
 msgstr ""
 
 msgid "Please check the configuration file to ensure that a collection of charts has been declared."
+msgstr ""
+
+msgid "Please check the configuration file to ensure that it is available and the YAML is valid"
 msgstr ""
 
 msgid "Please choose a group URL with no special characters."
