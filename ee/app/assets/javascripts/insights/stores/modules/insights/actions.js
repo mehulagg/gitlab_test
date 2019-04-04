@@ -28,8 +28,8 @@ export const receiveChartDataSuccess = ({ commit }, { chart, data }) =>
 export const receiveChartDataError = ({ commit }, { chart, error }) =>
   commit(types.RECEIVE_CHART_ERROR, { chart, error });
 
-export const fetchChartData = ({ dispatch }, { endpoint, chart }) => {
-  return axios
+export const fetchChartData = ({ dispatch }, { endpoint, chart }) =>
+  axios
     .post(endpoint, {
       query: chart.query,
       chart_type: chart.type,
@@ -45,7 +45,6 @@ export const fetchChartData = ({ dispatch }, { endpoint, chart }) => {
       createFlash(message);
       dispatch('receiveChartDataError', { chart, error: message });
     });
-};
 
 export const setActiveTab = ({ commit, state }, key) => {
   const { configData } = state;
