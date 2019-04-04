@@ -16,14 +16,12 @@ module Gitlab
               @method_name = method_name
               @param = param
               @path = path
-
-              @fingerprint = generate_fingerprint
             end
 
             private
 
-            def generate_fingerprint
-              Digest::SHA1.hexdigest("#{path}:#{method_name}:#{param}")
+            def fingerprint_data
+              "#{path}:#{method_name}:#{param}"
             end
           end
         end

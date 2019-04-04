@@ -18,14 +18,12 @@ module Gitlab
               @file_path = file_path
               @method_name = method_name
               @start_line = start_line
-
-              @fingerprint = generate_fingerprint
             end
 
             private
 
-            def generate_fingerprint
-              Digest::SHA1.hexdigest("#{file_path}:#{start_line}:#{end_line}")
+            def fingerprint_data
+              "#{file_path}:#{start_line}:#{end_line}"
             end
           end
         end

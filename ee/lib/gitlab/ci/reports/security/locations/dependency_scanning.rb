@@ -14,14 +14,12 @@ module Gitlab
               @file_path = file_path
               @package_name = package_name
               @package_version = package_version
-
-              @fingerprint = generate_fingerprint
             end
 
             private
 
-            def generate_fingerprint
-              Digest::SHA1.hexdigest("#{file_path}:#{package_name}")
+            def fingerprint_data
+              "#{file_path}:#{package_name}"
             end
           end
         end

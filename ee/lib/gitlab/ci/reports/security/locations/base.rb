@@ -6,16 +6,22 @@ module Gitlab
       module Security
         module Locations
           class Base
-            attr_reader :fingerprint
+            include ::Gitlab::Utils::StrongMemoize
 
             def ==(other)
               other.fingerprint == fingerprint
             end
 
+            def fingerprint
+              strong_memoize(:fingerprint) do
+                Digest::SHA1.hexdigest(fingerprint_data)
+              end
+            end
+
             private
 
-            def generate_fingerprint
-              raise NotImplementedError
+            def fingerprint_data
+              raise NotImplemented
             end
           end
         end

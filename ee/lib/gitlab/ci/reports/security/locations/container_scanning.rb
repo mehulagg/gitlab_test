@@ -16,14 +16,12 @@ module Gitlab
               @operating_system = operating_system
               @package_name = package_name
               @package_version = package_version
-
-              @fingerprint = generate_fingerprint
             end
 
             private
 
-            def generate_fingerprint
-              Digest::SHA1.hexdigest("#{operating_system}:#{package_name}")
+            def fingerprint_data
+              "#{operating_system}:#{package_name}"
             end
           end
         end
