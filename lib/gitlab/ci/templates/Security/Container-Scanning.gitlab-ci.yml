@@ -63,7 +63,7 @@ container_scanning:
         ${CS_LOG_FILE:+-l "${CS_LOG_FILE}"} \
         ${CS_REPORT_FILE:+-r "${CS_REPORT_FILE}"} \
         ${CS_IMAGE}
-    - if (($? == 125)) || (($? == 126)) || (($? == 127)); then exit $?; else true; fi # according to https://docs.docker.com/engine/reference/run/#exit-status
+    - if [ $? -eq 125 -o $? -eq 126 -o $? -eq 127 ]; then exit $?; else true; fi # according to https://docs.docker.com/engine/reference/run/#exit-status
   artifacts:
     reports:
       container_scanning: ${CS_REPORT_FILE:-gl-container-scanning-report.json}
