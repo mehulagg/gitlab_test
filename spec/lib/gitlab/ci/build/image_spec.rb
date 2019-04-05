@@ -38,11 +38,7 @@ describe Gitlab::Ci::Build::Image do
           expect(subject.entrypoint).to eq(entrypoint)
         end
 
-<<<<<<< HEAD
-        it 'does not populate the ports' do
-=======
         it 'populates the ports' do
->>>>>>> fj-5276-mirror-webide-changes
           port = subject.ports.first
           expect(port.number).to eq 80
           expect(port.protocol).to eq 'http'

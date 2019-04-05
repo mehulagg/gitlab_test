@@ -20,11 +20,7 @@ module Gitlab
 
           validations do
             validates :config, allowed_keys: ALLOWED_KEYS
-<<<<<<< HEAD
-            validates :config, job_port_unique: true
-=======
             validates :config, job_port_unique: { data: ->(record) { record.ports } }
->>>>>>> fj-5276-mirror-webide-changes
 
             with_options allow_nil: true do
               validates :tags, array_of_strings: true

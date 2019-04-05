@@ -5,11 +5,7 @@ module Gitlab
     class Config
       module Entry
         ##
-<<<<<<< HEAD
-        # Entry that represents a configuration of Docker services.
-=======
         # Entry that represents a configuration of the ports of a Docker service.
->>>>>>> fj-5276-mirror-webide-changes
         #
         class Ports < ::Gitlab::Config::Entry::Node
           include ::Gitlab::Config::Entry::Validatable

@@ -304,16 +304,6 @@ module Gitlab
 
         class ServicesWithPortsAliasUniqueValidator < ActiveModel::EachValidator
           def validate_each(record, attribute, value)
-<<<<<<< HEAD
-            aliases_with_port = value.select { |s| s.is_a?(Hash) && s[:ports] }.pluck(:alias) # rubocop:disable CodeReuse/ActiveRecord
-
-            return if aliases_with_port.empty?
-
-            if aliases_with_port.size != aliases_with_port.uniq.size
-              record.errors.add(:config, 'alias must be unique in services with ports')
-            end
-          end
-=======
             current_aliases = aliases(value)
             return if current_aliases.empty?
 
@@ -331,7 +321,6 @@ module Gitlab
           def aliases_unique?(aliases)
             aliases.size == aliases.uniq.size
           end
->>>>>>> fj-5276-mirror-webide-changes
         end
       end
     end

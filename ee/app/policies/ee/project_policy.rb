@@ -225,8 +225,6 @@ module EE
       end
 
       rule { web_ide_terminal_available & can?(:create_pipeline) & can?(:maintainer_access) }.enable :create_web_ide_terminal
-<<<<<<< HEAD
-=======
 
       # Design abilities could also be prevented in the issue policy.
       # If the user cannot read the issue, then they cannot see the designs.
@@ -236,7 +234,6 @@ module EE
         prevent :destroy_design
       end
 
->>>>>>> fj-5276-mirror-webide-changes
       rule { build_service_proxy_enabled }.enable :build_service_proxy_enabled
     end
   end

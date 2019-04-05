@@ -9,11 +9,7 @@ describe API::Entities::JobRequest::Image do
 
   subject { entity.as_json }
 
-<<<<<<< HEAD
-  it 'returns the image_name' do
-=======
   it 'returns the image name' do
->>>>>>> fj-5276-mirror-webide-changes
     expect(subject[:name]).to eq 'image_name'
   end
 

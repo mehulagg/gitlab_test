@@ -26,11 +26,7 @@ module Gitlab
           end
 
           def protocol
-<<<<<<< HEAD
-            value.fetch(:protocol, ::Gitlab::Ci::Build::Port::DEFAULT_PORT_PROTOCOL)
-=======
             value[:protocol]
->>>>>>> fj-5276-mirror-webide-changes
           end
 
           def name
