@@ -1,17 +1,5 @@
+# Values specific to EE installation of the Ingress app. Will be merged with vendor/ingress/values.yaml
 controller:
-  image:
-    tag: "0.10.2"
-    repository: "quay.io/kubernetes-ingress-controller/nginx-ingress-controller"
-  stats:
-    enabled: true
-  podAnnotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "10254"
   config:
     enable-modsecurity: "true"
     enable-owasp-modsecurity-crs: "true"
-
-rbac:
-  create: false
-  createRole: false
-  createClusterRole: false

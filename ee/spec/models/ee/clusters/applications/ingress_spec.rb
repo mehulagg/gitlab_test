@@ -54,7 +54,8 @@ describe Clusters::Applications::Ingress do
 
     subject { application.files }
 
-    it 'should include EE specific keys in values' do
+    it 'should include CE and EE specific keys in values' do
+      expect(values).to include('image')
       expect(values).to include('config')
       expect(values).to include('enable-modsecurity')
     end

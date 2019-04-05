@@ -11,7 +11,7 @@ describe Gitlab::BackgroundMigration::UpdateIngressApplication, :migration, sche
   let(:ingress) { table(:clusters_applications_ingress) }
   let(:namespaces) { table(:namespaces) }
   let(:namespace) { namespaces.create!(id: 1, name: 'gitlab', path: 'gitlab') }
-  let(:update_service) { Clusters::Applications::IngressUpdateService }
+  let(:update_service_name) { Clusters::Applications::UpgradeService.to_s }
 
   describe '#perform' do
     around do |example|
@@ -31,10 +31,10 @@ describe Gitlab::BackgroundMigration::UpdateIngressApplication, :migration, sche
     it 'schedules ingress updates' do
       expect(ClusterUpdateAppWorker)
         .to receive(:perform_async)
-        .with(update_service, app_name, ingress1.id, project1.id, now)
+        .with(update_service_name, app_name, ingress1.id, project1.id, now)
       expect(ClusterUpdateAppWorker)
         .to receive(:perform_async)
-        .with(update_service, app_name, ingress2.id, project2.id, now)
+        .with(update_service_name, app_name, ingress2.id, project2.id, now)
 
       background_migration.perform(ingress1.id, ingress2.id)
     end

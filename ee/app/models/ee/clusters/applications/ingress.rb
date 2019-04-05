@@ -15,9 +15,16 @@ module EE
             end
           end
 
-          def chart_values_file
-            "#{Rails.root}/ee/vendor/#{name}/values.yaml"
+          def values
+            # Add EE specific values
+            ce_values = YAML.load_file(chart_values_file)
+            ee_values = YAML.load_file(ee_chart_values_file)
+            ce_values.deep_merge(ee_values).to_yaml
           end
+        end
+
+        def ee_chart_values_file
+          "#{Rails.root}/ee/vendor/#{name}/values.yaml"
         end
 
         def updated_since?(timestamp)

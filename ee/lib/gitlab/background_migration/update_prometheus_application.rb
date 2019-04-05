@@ -27,11 +27,11 @@ class Gitlab::BackgroundMigration::UpdatePrometheusApplication
 
   def perform(from, to)
     app_name = 'prometheus'
-    updade_service = Clusters::Applications::PrometheusUpdateService
+    updade_service_name = Clusters::Applications::PrometheusUpdateService.to_s
     now = Time.now
 
     project_prometheus(from, to).each do |project_id, app_id|
-      ClusterUpdateAppWorker.perform_async(updade_service, app_name, app_id, project_id, now)
+      ClusterUpdateAppWorker.perform_async(updade_service_name, app_name, app_id, project_id, now)
     end
   end
 

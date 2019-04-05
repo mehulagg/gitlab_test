@@ -11,6 +11,7 @@ class ClusterUpdateAppWorker
 
   # rubocop: disable CodeReuse/ActiveRecord
   def perform(update_service, app_name, app_id, project_id, scheduled_time)
+    update_service = update_service.constantize if update_service.is_a?(String)
     project = Project.find_by(id: project_id)
     return unless project
 

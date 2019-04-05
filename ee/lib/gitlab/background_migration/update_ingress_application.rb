@@ -27,11 +27,11 @@ class Gitlab::BackgroundMigration::UpdateIngressApplication
 
   def perform(from, to)
     app_name = 'ingress'
-    updade_service = Clusters::Applications::IngressUpdateService
+    updade_service_name = Clusters::Applications::UpgradeService.to_s
     now = Time.now
 
     project_ingress(from, to).each do |project_id, app_id|
-      ClusterUpdateAppWorker.perform_async(updade_service, app_name, app_id, project_id, now)
+      ClusterUpdateAppWorker.perform_async(updade_service_name, app_name, app_id, project_id, now)
     end
   end
 
