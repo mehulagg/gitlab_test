@@ -14,10 +14,6 @@ module Gitlab
                 return error('Pipelines are disabled!')
               end
 
-              if @command.allow_mirror_update && !project.mirror_trigger_builds?
-                return error('Pipeline is disabled for mirror updates')
-              end
-
               unless allowed_to_trigger_pipeline?
                 if can?(current_user, :create_pipeline, project)
                   return error("Insufficient permissions for protected ref '#{command.ref}'")
@@ -48,6 +44,8 @@ module Gitlab
                 access.can_update_branch?(@command.ref)
               elsif @command.tag_exists?
                 access.can_create_tag?(@command.ref)
+              elsif @command.merge_request_ref_exists?
+                access.can_update_branch?(@command.merge_request.source_branch)
               else
                 true # Allow it for now and we'll reject when we check ref existence
               end
@@ -58,3 +56,5 @@ module Gitlab
     end
   end
 end
+
+Gitlab::Ci::Pipeline::Chain::Validate::Abilities.prepend(EE::Gitlab::Ci::Pipeline::Chain::Validate::Abilities)

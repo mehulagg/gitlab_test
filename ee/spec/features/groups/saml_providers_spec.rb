@@ -79,10 +79,10 @@ describe 'SAML provider settings' do
     context 'with existing SAML provider' do
       let!(:saml_provider) { create(:saml_provider, group: group) }
 
-      it 'allows provider to be disabled' do
+      it 'allows provider to be disabled', :js do
         visit group_saml_providers_path(group)
 
-        find('input#saml_provider_enabled').click
+        find('.js-group-saml-enable-toggle-area button').click
 
         expect { submit }.to change { saml_provider.reload.enabled }.to false
       end
@@ -92,7 +92,8 @@ describe 'SAML provider settings' do
 
         login_url = find('label', text: 'GitLab single sign on URL').find('~* a').text
 
-        expect(login_url).to end_with "/groups/#{group.full_path}/-/saml/sso"
+        expect(login_url).to include "/groups/#{group.full_path}/-/saml/sso"
+        expect(login_url).to end_with "?token=#{group.reload.saml_discovery_token}"
       end
 
       context 'enforced sso enabled' do
@@ -115,6 +116,32 @@ describe 'SAML provider settings' do
           visit group_saml_providers_path(group)
 
           expect(page).not_to have_selector('#saml_provider_enforced_sso')
+        end
+      end
+
+      context 'enforced_group_managed_accounts enabled' do
+        it 'updates the flag' do
+          stub_feature_flags(group_managed_accounts: true)
+
+          visit group_saml_providers_path(group)
+
+          find('input#saml_provider_enforced_group_managed_accounts').click
+
+          expect(page).to have_selector('#saml_provider_enforced_group_managed_accounts')
+          expect do
+            submit
+            saml_provider.reload
+          end.to change { saml_provider.enforced_group_managed_accounts }.to(true)
+        end
+      end
+
+      context 'enforced_group_managed_accounts disabled' do
+        it 'does not update the flag' do
+          stub_feature_flags(group_managed_accounts: false)
+
+          visit group_saml_providers_path(group)
+
+          expect(page).not_to have_selector('#saml_provider_enforced_group_managed_accounts')
         end
       end
     end
@@ -167,10 +194,12 @@ describe 'SAML provider settings' do
       end
 
       context 'when not signed in' do
-        it "doesn't show sso page" do
+        it "shows the sso page so user can sign in" do
           visit sso_group_saml_providers_path(group)
 
-          expect(current_path).to eq(new_user_session_path)
+          expect(page).to have_content('SAML SSO')
+          expect(page).to have_content("Sign in to \"#{group.full_name}\"")
+          expect(page).to have_content('Sign in with Single Sign-On')
         end
       end
 
@@ -218,6 +247,12 @@ describe 'SAML provider settings' do
             visit sso_group_saml_providers_path(group)
 
             expect(current_path).to eq(new_user_session_path)
+          end
+
+          it "shows the sso page if the token is given" do
+            visit sso_group_saml_providers_path(group, token: group.saml_discovery_token)
+
+            expect(current_path).to eq sso_group_saml_providers_path(group)
           end
         end
 

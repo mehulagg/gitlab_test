@@ -86,6 +86,10 @@ module API
       expose :admin?, as: :is_admin
     end
 
+    class UserDetailsWithAdmin < UserWithAdmin
+      expose :highest_role
+    end
+
     class UserStatus < Grape::Entity
       expose :emoji
       expose :message
@@ -156,7 +160,7 @@ module API
     class BasicProjectDetails < ProjectIdentity
       include ::API::ProjectsRelationBuilder
 
-      expose :default_branch
+      expose :default_branch, if: -> (project, options) { Ability.allowed?(options[:current_user], :download_code, project) }
       # Avoids an N+1 query: https://github.com/mbleigh/acts-as-taggable-on/issues/91#issuecomment-168273770
       expose :tag_list do |project|
         # project.tags.order(:name).pluck(:name) is the most suitable option
@@ -261,7 +265,7 @@ module API
       expose :open_issues_count, if: lambda { |project, options| project.feature_available?(:issues, options[:current_user]) }
       expose :runners_token, if: lambda { |_project, options| options[:user_can_admin_project] }
       expose :public_builds, as: :public_jobs
-      expose :ci_config_path
+      expose :ci_config_path, if: -> (project, options) { Ability.allowed?(options[:current_user], :download_code, project) }
       expose :shared_with_groups do |project, options|
         SharedGroup.represent(project.project_group_links, options)
       end
@@ -270,8 +274,9 @@ module API
       expose :only_allow_merge_if_all_discussions_are_resolved
       expose :printing_merge_request_link_enabled
       expose :merge_method
-
-      expose :statistics, using: 'API::Entities::ProjectStatistics', if: :statistics
+      expose :statistics, using: 'API::Entities::ProjectStatistics', if: -> (project, options) {
+        options[:statistics] && Ability.allowed?(options[:current_user], :read_statistics, project)
+      }
 
       # rubocop: disable CodeReuse/ActiveRecord
       def self.preload_relation(projects_relation, options = {})
@@ -298,6 +303,18 @@ module API
       expose :repository_size
       expose :lfs_objects_size
       expose :build_artifacts_size, as: :job_artifacts_size
+    end
+
+    class ProjectDailyFetches < Grape::Entity
+      expose :fetch_count, as: :count
+      expose :date
+    end
+
+    class ProjectDailyStatistics < Grape::Entity
+      expose :fetches do
+        expose :total_fetch_count, as: :total
+        expose :fetches, as: :days, using: ProjectDailyFetches
+      end
     end
 
     class Member < Grape::Entity
@@ -369,8 +386,9 @@ module API
     end
 
     class Commit < Grape::Entity
-      expose :id, :short_id, :title, :created_at
+      expose :id, :short_id, :created_at
       expose :parent_ids
+      expose :full_title, as: :title
       expose :safe_message, as: :message
       expose :author_name, :author_email, :authored_date
       expose :committer_name, :committer_email, :committed_date
@@ -389,6 +407,13 @@ module API
       expose :status
       expose :last_pipeline, using: 'API::Entities::PipelineBasic'
       expose :project_id
+    end
+
+    class CommitSignature < Grape::Entity
+      expose :gpg_key_id
+      expose :gpg_key_primary_keyid, :gpg_key_user_name, :gpg_key_user_email
+      expose :verification_status
+      expose :gpg_key_subkey_id
     end
 
     class BasicRef < Grape::Entity
@@ -465,6 +490,12 @@ module API
       expose(:project_id) { |entity| entity&.project.try(:id) }
       expose :title, :description
       expose :state, :created_at, :updated_at
+
+      # Avoids an N+1 query when metadata is included
+      def issuable_metadata(subject, options, method)
+        cached_subject = options.dig(:issuable_metadata, subject.id)
+        (cached_subject || subject).public_send(method) # rubocop: disable GitlabSecurity/PublicSend
+      end
     end
 
     class Diff < Grape::Entity
@@ -477,7 +508,6 @@ module API
 
     class ProtectedRefAccess < Grape::Entity
       expose :access_level
-
       expose :access_level_description do |protected_ref_access|
         protected_ref_access.humanize
       end
@@ -487,7 +517,6 @@ module API
       expose :name
       expose :push_access_levels, using: Entities::ProtectedRefAccess
       expose :merge_access_levels, using: Entities::ProtectedRefAccess
-      expose :unprotect_access_levels, using: Entities::ProtectedRefAccess
     end
 
     class ProtectedTag < Grape::Entity
@@ -512,39 +541,26 @@ module API
     class IssueBasic < ProjectEntity
       expose :closed_at
       expose :closed_by, using: Entities::UserBasic
-      expose :labels do |issue, options|
+      expose :labels do |issue|
         # Avoids an N+1 query since labels are preloaded
         issue.labels.map(&:title).sort
       end
       expose :milestone, using: Entities::Milestone
       expose :assignees, :author, using: Entities::UserBasic
 
-      expose :assignee, using: ::API::Entities::UserBasic do |issue, options|
+      expose :assignee, using: ::API::Entities::UserBasic do |issue|
         issue.assignees.first
       end
 
-      expose :user_notes_count
-      expose :upvotes do |issue, options|
-        if options[:issuable_metadata]
-          # Avoids an N+1 query when metadata is included
-          options[:issuable_metadata][issue.id].upvotes
-        else
-          issue.upvotes
-        end
-      end
-      expose :downvotes do |issue, options|
-        if options[:issuable_metadata]
-          # Avoids an N+1 query when metadata is included
-          options[:issuable_metadata][issue.id].downvotes
-        else
-          issue.downvotes
-        end
-      end
+      expose(:user_notes_count)     { |issue, options| issuable_metadata(issue, options, :user_notes_count) }
+      expose(:merge_requests_count) { |issue, options| issuable_metadata(issue, options, :merge_requests_count) }
+      expose(:upvotes)              { |issue, options| issuable_metadata(issue, options, :upvotes) }
+      expose(:downvotes)            { |issue, options| issuable_metadata(issue, options, :downvotes) }
       expose :due_date
       expose :confidential
       expose :discussion_locked
 
-      expose :web_url do |issue, options|
+      expose :web_url do |issue|
         Gitlab::UrlBuilder.build(issue)
       end
 
@@ -644,23 +660,12 @@ module API
         MarkupHelper.markdown_field(entity, :description)
       end
       expose :target_branch, :source_branch
-      expose :upvotes do |merge_request, options|
-        if options[:issuable_metadata]
-          options[:issuable_metadata][merge_request.id].upvotes
-        else
-          merge_request.upvotes
-        end
-      end
-      expose :downvotes do |merge_request, options|
-        if options[:issuable_metadata]
-          options[:issuable_metadata][merge_request.id].downvotes
-        else
-          merge_request.downvotes
-        end
-      end
+      expose(:user_notes_count) { |merge_request, options| issuable_metadata(merge_request, options, :user_notes_count) }
+      expose(:upvotes)          { |merge_request, options| issuable_metadata(merge_request, options, :upvotes) }
+      expose(:downvotes)        { |merge_request, options| issuable_metadata(merge_request, options, :downvotes) }
       expose :author, :assignee, using: Entities::UserBasic
       expose :source_project_id, :target_project_id
-      expose :labels do |merge_request, options|
+      expose :labels do |merge_request|
         # Avoids an N+1 query since labels are preloaded
         merge_request.labels.map(&:title).sort
       end
@@ -678,7 +683,6 @@ module API
       end
       expose :diff_head_sha, as: :sha
       expose :merge_commit_sha
-      expose :user_notes_count
       expose :discussion_locked
       expose :should_remove_source_branch?, as: :should_remove_source_branch
       expose :force_remove_source_branch?, as: :force_remove_source_branch
@@ -686,7 +690,11 @@ module API
       # Deprecated
       expose :allow_collaboration, as: :allow_maintainer_to_push, if: -> (merge_request, _) { merge_request.for_fork? }
 
-      expose :web_url do |merge_request, options|
+      expose :reference do |merge_request, options|
+        merge_request.to_reference(options[:project])
+      end
+
+      expose :web_url do |merge_request|
         Gitlab::UrlBuilder.build(merge_request)
       end
 
@@ -722,6 +730,8 @@ module API
         merge_request.metrics&.pipeline
       end
 
+      expose :head_pipeline, using: 'API::Entities::Pipeline'
+
       expose :diff_refs, using: Entities::DiffRefs
 
       # Allow the status of a rebase to be determined
@@ -732,6 +742,12 @@ module API
 
       def build_available?(options)
         options[:project]&.feature_available?(:builds, options[:current_user])
+      end
+
+      expose :user do
+        expose :can_merge do |merge_request, options|
+          merge_request.can_be_merged_by?(options[:current_user])
+        end
       end
     end
 
@@ -877,7 +893,8 @@ module API
       expose :target_type
 
       expose :target do |todo, options|
-        todo_target_class(todo.target_type).represent(todo.target, options)
+        todo_options = options.fetch(todo.target_type, {})
+        todo_target_class(todo.target_type).represent(todo.target, todo_options)
       end
 
       expose :target_url do |todo, options|
@@ -1005,7 +1022,7 @@ module API
     end
 
     class LabelBasic < Grape::Entity
-      expose :id, :name, :color, :description
+      expose :id, :name, :color, :description, :text_color
     end
 
     class Label < LabelBasic
@@ -1021,12 +1038,20 @@ module API
         label.open_merge_requests_count(options[:current_user])
       end
 
-      expose :priority do |label, options|
-        label.priority(options[:project])
-      end
-
       expose :subscribed do |label, options|
-        label.subscribed?(options[:current_user], options[:project])
+        label.subscribed?(options[:current_user], options[:parent])
+      end
+    end
+
+    class GroupLabel < Label
+    end
+
+    class ProjectLabel < Label
+      expose :priority do |label, options|
+        label.priority(options[:parent])
+      end
+      expose :is_project_label do |label, options|
+        label.is_a?(::ProjectLabel)
       end
     end
 
@@ -1248,6 +1273,9 @@ module API
       expose :created_at, :updated_at, :started_at, :finished_at, :committed_at
       expose :duration
       expose :coverage
+      expose :detailed_status, using: DetailedStatusEntity do |pipeline, options|
+        pipeline.detailed_status(options[:current_user])
+      end
     end
 
     class PipelineSchedule < Grape::Entity
@@ -1356,13 +1384,9 @@ module API
 
       class GitInfo < Grape::Entity
         expose :repo_url, :ref, :sha, :before_sha
-        expose :ref_type do |model|
-          if model.tag
-            'tag'
-          else
-            'branch'
-          end
-        end
+        expose :ref_type
+        expose :refspecs
+        expose :git_depth, as: :depth
       end
 
       class RunnerInfo < Grape::Entity
@@ -1532,19 +1556,6 @@ module API
       end
     end
 
-    def self.prepend_entity(klass, with: nil)
-      if with.nil?
-        raise ArgumentError, 'You need to pass either the :with or :namespace option!'
-      end
-
-      klass.descendants.each { |descendant| descendant.prepend(with) }
-      klass.prepend(with)
-    end
-
-    class ManagedLicense < Grape::Entity
-      expose :id, :name, :approval_status
-    end
-
     class ResourceLabelEvent < Grape::Entity
       expose :id
       expose :user, using: Entities::UserBasic
@@ -1561,8 +1572,6 @@ module API
 
     class Suggestion < Grape::Entity
       expose :id
-      expose :from_original_line
-      expose :to_original_line
       expose :from_line
       expose :to_line
       expose :appliable?, as: :appliable
@@ -1593,7 +1602,7 @@ module API
     end
 
     class Cluster < Grape::Entity
-      expose :id, :name, :created_at
+      expose :id, :name, :created_at, :domain
       expose :provider_type, :platform_type, :environment_scope, :cluster_type
       expose :user, using: Entities::UserBasic
       expose :platform_kubernetes, using: Entities::Platform::Kubernetes
@@ -1606,6 +1615,7 @@ module API
   end
 end
 
+API::Entities.prepend(EE::API::Entities::Entities) # rubocop: disable Cop/InjectEnterpriseEditionModule
 API::Entities.prepend_entity(::API::Entities::ApplicationSetting, with: EE::API::Entities::ApplicationSetting)
 API::Entities.prepend_entity(::API::Entities::Board, with: EE::API::Entities::Board)
 API::Entities.prepend_entity(::API::Entities::Group, with: EE::API::Entities::Group)
@@ -1619,3 +1629,4 @@ API::Entities.prepend_entity(::API::Entities::ProtectedRefAccess, with: EE::API:
 API::Entities.prepend_entity(::API::Entities::UserPublic, with: EE::API::Entities::UserPublic)
 API::Entities.prepend_entity(::API::Entities::Variable, with: EE::API::Entities::Variable)
 API::Entities.prepend_entity(::API::Entities::Todo, with: EE::API::Entities::Todo)
+API::Entities.prepend_entity(::API::Entities::ProtectedBranch, with: EE::API::Entities::ProtectedBranch)

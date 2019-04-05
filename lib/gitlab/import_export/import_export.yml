@@ -28,12 +28,12 @@ project_tree:
     - notes:
         :author
   - releases:
-    - :author
     - :links
   - project_members:
     - :user
   - merge_requests:
     - :metrics
+    - :suggestions
     - notes:
       - :author
       - events:
@@ -129,6 +129,8 @@ excluded_attributes:
     - :mirror_last_update_at
     - :mirror_last_successful_update_at
     - :bfg_object_map
+    - :detected_repository_languages
+    - :tag_list
   namespaces:
     - :runners_token
     - :runners_token_encrypted
@@ -146,7 +148,6 @@ excluded_attributes:
     - :external_diff
     - :stored_externally
     - :external_diff_store
-    - :st_diffs
   merge_request_diff_files:
     - :diff
     - :external_diff_offset

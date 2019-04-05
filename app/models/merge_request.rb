@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class MergeRequest < ActiveRecord::Base
+class MergeRequest < ApplicationRecord
   include AtomicInternalId
   include IidRoutes
   include Issuable
@@ -68,15 +68,22 @@ class MergeRequest < ActiveRecord::Base
 
   has_many :cached_closes_issues, through: :merge_requests_closing_issues, source: :issue
   has_many :merge_request_pipelines, foreign_key: 'merge_request_id', class_name: 'Ci::Pipeline'
+  has_many :suggestions, through: :notes
 
+  has_many :merge_request_assignees
+  # Will be deprecated at https://gitlab.com/gitlab-org/gitlab-ce/issues/59457
   belongs_to :assignee, class_name: "User"
 
   serialize :merge_params, Hash # rubocop:disable Cop/ActiveRecordSerialize
 
-  after_create :ensure_merge_request_diff, unless: :importing?
+  after_create :ensure_merge_request_diff
   after_update :clear_memoized_shas
   after_update :reload_diff_if_branch_changed
   after_save :ensure_metrics
+
+  # Required until the codebase starts using this relation for single or multiple assignees.
+  # TODO: Remove at gitlab-ee#2004 implementation.
+  after_save :refresh_merge_request_assignees, if: :assignee_id_changed?
 
   # When this attribute is true some MR validation is ignored
   # It allows us to close or modify broken merge requests
@@ -186,13 +193,43 @@ class MergeRequest < ActiveRecord::Base
   scope :assigned, -> { where("assignee_id IS NOT NULL") }
   scope :unassigned, -> { where("assignee_id IS NULL") }
   scope :assigned_to, ->(u) { where(assignee_id: u.id)}
+  scope :with_api_entity_associations, -> {
+    preload(:author, :assignee, :notes, :labels, :milestone, :timelogs,
+            latest_merge_request_diff: [:merge_request_diff_commits],
+            metrics: [:latest_closed_by, :merged_by],
+            target_project: [:route, { namespace: :route }],
+            source_project: [:route, { namespace: :route }])
+  }
 
   participant :assignee
 
   after_save :keep_around_commit
 
+  alias_attribute :project, :target_project
+  alias_attribute :project_id, :target_project_id
+
   def self.reference_prefix
     '!'
+  end
+
+  def self.available_states
+    @available_states ||= super.merge(merged: 3, locked: 4)
+  end
+
+  # Returns the top 100 target branches
+  #
+  # The returned value is a Array containing branch names
+  # sort by updated_at of merge request:
+  #
+  #     ['master', 'develop', 'production']
+  #
+  # limit - The maximum number of target branch to return.
+  def self.recent_target_branches(limit: 100)
+    group(:target_branch)
+      .select(:target_branch)
+      .reorder('MAX(merge_requests.updated_at) DESC')
+      .limit(limit)
+      .pluck(:target_branch)
   end
 
   def rebase_in_progress?
@@ -208,7 +245,7 @@ class MergeRequest < ActiveRecord::Base
   # branch head commit, for example checking if a merge request can be merged.
   # For more information check: https://gitlab.com/gitlab-org/gitlab-ce/issues/40004
   def actual_head_pipeline
-    head_pipeline&.sha == diff_head_sha ? head_pipeline : nil
+    head_pipeline&.matches_sha_or_source_sha?(diff_head_sha) ? head_pipeline : nil
   end
 
   def merge_pipeline
@@ -290,10 +327,6 @@ class MergeRequest < ActiveRecord::Base
 
   def committers
     @committers ||= commits.committers
-  end
-
-  def authors
-    User.from_union([committers, User.where(id: self.author_id)])
   end
 
   # Verifies if title has changed not taking into account WIP prefix
@@ -651,6 +684,15 @@ class MergeRequest < ActiveRecord::Base
     merge_request_diff || create_merge_request_diff
   end
 
+  def refresh_merge_request_assignees
+    transaction do
+      # Using it instead relation.delete_all in order to avoid adding a
+      # dependent: :delete_all (we already have foreign key cascade deletion).
+      MergeRequestAssignee.where(merge_request_id: self).delete_all
+      merge_request_assignees.create(user_id: assignee_id) if assignee_id
+    end
+  end
+
   def create_merge_request_diff
     fetch_ref!
 
@@ -766,6 +808,15 @@ class MergeRequest < ActiveRecord::Base
     true
   end
 
+  def mergeable_to_ref?
+    return false unless mergeable_state?(skip_ci_check: true, skip_discussions_check: true)
+
+    # Given the `merge_ref_path` will have the same
+    # state the `target_branch` would have. Ideally
+    # we need to check if it can be merged to it.
+    project.repository.can_be_merged?(diff_head_sha, target_branch)
+  end
+
   def ff_merge_possible?
     project.repository.ancestor?(target_branch_sha, diff_head_sha)
   end
@@ -809,15 +860,6 @@ class MergeRequest < ActiveRecord::Base
   end
 
   def related_notes
-    # Fetch comments only from last 100 commits
-    commits_for_notes_limit = 100
-    commit_ids = commit_shas.take(commits_for_notes_limit)
-
-    commit_notes = Note
-      .except(:order)
-      .where(project_id: [source_project_id, target_project_id])
-      .for_commit_id(commit_ids)
-
     # We're using a UNION ALL here since this results in better performance
     # compared to using OR statements. We're using UNION ALL since the queries
     # used won't produce any duplicates (e.g. a note for a commit can't also be
@@ -829,6 +871,16 @@ class MergeRequest < ActiveRecord::Base
 
   alias_method :discussion_notes, :related_notes
 
+  def commit_notes
+    # Fetch comments only from last 100 commits
+    commit_ids = commit_shas.take(100)
+
+    Note
+      .user
+      .where(project_id: [source_project_id, target_project_id])
+      .for_commit_id(commit_ids)
+  end
+
   def mergeable_discussions_state?
     return true unless project.only_allow_merge_if_all_discussions_are_resolved?
 
@@ -837,10 +889,6 @@ class MergeRequest < ActiveRecord::Base
 
   def for_fork?
     target_project != source_project
-  end
-
-  def project
-    target_project
   end
 
   # If the merge request closes any issues, save this information in the
@@ -1079,6 +1127,14 @@ class MergeRequest < ActiveRecord::Base
     "refs/#{Repository::REF_MERGE_REQUEST}/#{iid}/head"
   end
 
+  def merge_ref_path
+    "refs/#{Repository::REF_MERGE_REQUEST}/#{iid}/merge"
+  end
+
+  def self.merge_request_ref?(ref)
+    ref.start_with?("refs/#{Repository::REF_MERGE_REQUEST}/")
+  end
+
   def in_locked_state
     begin
       lock_mr
@@ -1115,12 +1171,18 @@ class MergeRequest < ActiveRecord::Base
     diverged_commits_count > 0
   end
 
-  def all_pipelines(shas: all_commit_shas)
+  def all_pipelines
     return Ci::Pipeline.none unless source_project
 
-    @all_pipelines ||=
-      source_project.ci_pipelines
-                    .for_merge_request(self, source_branch, all_commit_shas)
+    shas = all_commit_shas
+
+    strong_memoize(:all_pipelines) do
+      Ci::Pipeline.from_union(
+        [source_project.ci_pipelines.merge_request_pipelines(self, shas),
+         source_project.ci_pipelines.detached_merge_request_pipelines(self, shas),
+         source_project.ci_pipelines.triggered_for_branch(source_branch).for_sha(shas)],
+         remove_duplicates: false).sort_by_merge_request_pipelines
+    end
   end
 
   def update_head_pipeline
@@ -1142,35 +1204,16 @@ class MergeRequest < ActiveRecord::Base
     Gitlab::Ci::Variables::Collection.new.tap do |variables|
       variables.append(key: 'CI_MERGE_REQUEST_ID', value: id.to_s)
       variables.append(key: 'CI_MERGE_REQUEST_IID', value: iid.to_s)
-
-      variables.append(key: 'CI_MERGE_REQUEST_REF_PATH',
-                       value: ref_path.to_s)
-
-      variables.append(key: 'CI_MERGE_REQUEST_PROJECT_ID',
-                       value: project.id.to_s)
-
-      variables.append(key: 'CI_MERGE_REQUEST_PROJECT_PATH',
-                       value: project.full_path)
-
-      variables.append(key: 'CI_MERGE_REQUEST_PROJECT_URL',
-                       value: project.web_url)
-
-      variables.append(key: 'CI_MERGE_REQUEST_TARGET_BRANCH_NAME',
-                       value: target_branch.to_s)
-
-      if source_project
-        variables.append(key: 'CI_MERGE_REQUEST_SOURCE_PROJECT_ID',
-                         value: source_project.id.to_s)
-
-        variables.append(key: 'CI_MERGE_REQUEST_SOURCE_PROJECT_PATH',
-                         value: source_project.full_path)
-
-        variables.append(key: 'CI_MERGE_REQUEST_SOURCE_PROJECT_URL',
-                         value: source_project.web_url)
-
-        variables.append(key: 'CI_MERGE_REQUEST_SOURCE_BRANCH_NAME',
-                         value: source_branch.to_s)
-      end
+      variables.append(key: 'CI_MERGE_REQUEST_REF_PATH', value: ref_path.to_s)
+      variables.append(key: 'CI_MERGE_REQUEST_PROJECT_ID', value: project.id.to_s)
+      variables.append(key: 'CI_MERGE_REQUEST_PROJECT_PATH', value: project.full_path)
+      variables.append(key: 'CI_MERGE_REQUEST_PROJECT_URL', value: project.web_url)
+      variables.append(key: 'CI_MERGE_REQUEST_TARGET_BRANCH_NAME', value: target_branch.to_s)
+      variables.append(key: 'CI_MERGE_REQUEST_TITLE', value: title)
+      variables.append(key: 'CI_MERGE_REQUEST_ASSIGNEES', value: assignee.username) if assignee
+      variables.append(key: 'CI_MERGE_REQUEST_MILESTONE', value: milestone.title) if milestone
+      variables.append(key: 'CI_MERGE_REQUEST_LABELS', value: label_names.join(',')) if labels.present?
+      variables.concat(source_project_variables)
     end
   end
 
@@ -1302,7 +1345,7 @@ class MergeRequest < ActiveRecord::Base
   end
 
   def has_commits?
-    merge_request_diff && commits_count > 0
+    merge_request_diff && commits_count.to_i > 0
   end
 
   def has_no_commits?
@@ -1324,7 +1367,7 @@ class MergeRequest < ActiveRecord::Base
   def base_pipeline
     @base_pipeline ||= project.ci_pipelines
       .order(id: :desc)
-      .find_by(sha: diff_base_sha)
+      .find_by(sha: diff_base_sha, ref: target_branch)
   end
 
   def discussions_rendered_on_frontend?
@@ -1374,7 +1417,17 @@ class MergeRequest < ActiveRecord::Base
   private
 
   def find_actual_head_pipeline
-    source_project&.ci_pipelines
-                  &.latest_for_merge_request(self, source_branch, diff_head_sha)
+    all_pipelines.for_sha_or_source_sha(diff_head_sha).first
+  end
+
+  def source_project_variables
+    Gitlab::Ci::Variables::Collection.new.tap do |variables|
+      break variables unless source_project
+
+      variables.append(key: 'CI_MERGE_REQUEST_SOURCE_PROJECT_ID', value: source_project.id.to_s)
+      variables.append(key: 'CI_MERGE_REQUEST_SOURCE_PROJECT_PATH', value: source_project.full_path)
+      variables.append(key: 'CI_MERGE_REQUEST_SOURCE_PROJECT_URL', value: source_project.web_url)
+      variables.append(key: 'CI_MERGE_REQUEST_SOURCE_BRANCH_NAME', value: source_branch.to_s)
+    end
   end
 end

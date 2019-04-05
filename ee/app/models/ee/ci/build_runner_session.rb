@@ -2,19 +2,17 @@
 
 module EE
   module Ci
-    # Build EE mixin
-    #
-    # This module is intended to encapsulate EE-specific model logic
-    # and be included in the `Build` model
     module BuildRunnerSession
       extend ActiveSupport::Concern
 
       DEFAULT_SERVICE_NAME = 'build'.freeze
 
-      def service_specification(service: nil, requested_url: '', port: nil, subprotocols: nil)
+      DEFAULT_PORT_NAME = 'default_port'.freeze
+
+      def service_specification(service: nil, requested_url: nil, port: nil, subprotocols: nil)
         return {} unless url.present?
 
-        port = port.presence || ::Gitlab::Ci::Build::Port::DEFAULT_PORT_NAME
+        port = port.presence || DEFAULT_PORT_NAME
         service = service.presence || DEFAULT_SERVICE_NAME
         url = "#{self.url}/proxy/#{service}/#{port}/#{requested_url}"
         subprotocols = subprotocols.presence || ::Ci::BuildRunnerSession::TERMINAL_SUBPROTOCOL

@@ -25,19 +25,32 @@ describe Gitlab::Ci::Config::Entry::Port do
     end
 
     describe '#number' do
+<<<<<<< HEAD
       it "returns service's image port number" do
+=======
+      it "returns port number" do
+>>>>>>> fj-5276-mirror-webide-changes
         expect(entry.number).to eq 80
       end
     end
 
     describe '#protocol' do
+<<<<<<< HEAD
       it "returns service's port protocol" do
         expect(entry.protocol).to be 'http'
+=======
+      it "is nil" do
+        expect(entry.protocol).to be_nil
+>>>>>>> fj-5276-mirror-webide-changes
       end
     end
 
     describe '#name' do
+<<<<<<< HEAD
       it "returns service's port name" do
+=======
+      it "is nil" do
+>>>>>>> fj-5276-mirror-webide-changes
         expect(entry.name).to be_nil
       end
     end
@@ -64,19 +77,31 @@ describe Gitlab::Ci::Config::Entry::Port do
       end
 
       describe '#number' do
+<<<<<<< HEAD
         it "returns service's port number" do
+=======
+        it "returns port number" do
+>>>>>>> fj-5276-mirror-webide-changes
           expect(entry.number).to eq 80
         end
       end
 
       describe '#protocol' do
+<<<<<<< HEAD
         it "returns service's port protocol" do
+=======
+        it "returns port protocol" do
+>>>>>>> fj-5276-mirror-webide-changes
           expect(entry.protocol).to eq 'http'
         end
       end
 
       describe '#name' do
+<<<<<<< HEAD
         it "returns service's port name" do
+=======
+        it "returns port name" do
+>>>>>>> fj-5276-mirror-webide-changes
           expect(entry.name).to eq 'foobar'
         end
       end
@@ -98,19 +123,32 @@ describe Gitlab::Ci::Config::Entry::Port do
       end
 
       describe '#number' do
+<<<<<<< HEAD
         it "returns service's image port number" do
+=======
+        it "returns port number" do
+>>>>>>> fj-5276-mirror-webide-changes
           expect(entry.number).to eq 80
         end
       end
 
       describe '#protocol' do
+<<<<<<< HEAD
         it "returns service's port protocol" do
           expect(entry.protocol).to eq 'http'
+=======
+        it "is nil" do
+          expect(entry.protocol).to be_nil
+>>>>>>> fj-5276-mirror-webide-changes
         end
       end
 
       describe '#name' do
+<<<<<<< HEAD
         it "returns service's port name" do
+=======
+        it "is nil" do
+>>>>>>> fj-5276-mirror-webide-changes
           expect(entry.name).to be_nil
         end
       end
@@ -120,7 +158,11 @@ describe Gitlab::Ci::Config::Entry::Port do
       let(:config) { { protocol: 'http' } }
 
       describe '#valid?' do
+<<<<<<< HEAD
         it 'is valid' do
+=======
+        it 'is not valid' do
+>>>>>>> fj-5276-mirror-webide-changes
           expect(entry).not_to be_valid
         end
       end

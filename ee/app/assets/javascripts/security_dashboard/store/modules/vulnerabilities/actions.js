@@ -14,6 +14,9 @@ export const setVulnerabilitiesCountEndpoint = ({ commit }, endpoint) => {
 };
 
 export const fetchVulnerabilitiesCount = ({ state, dispatch }, params = {}) => {
+  if (!state.vulnerabilitiesCountEndpoint) {
+    return;
+  }
   dispatch('requestVulnerabilitiesCount');
 
   axios({
@@ -42,7 +45,14 @@ export const receiveVulnerabilitiesCountError = ({ commit }) => {
   commit(types.RECEIVE_VULNERABILITIES_COUNT_ERROR);
 };
 
+export const setVulnerabilitiesPage = ({ commit }, page) => {
+  commit(types.SET_VULNERABILITIES_PAGE, page);
+};
+
 export const fetchVulnerabilities = ({ state, dispatch }, params = {}) => {
+  if (!state.vulnerabilitiesEndpoint) {
+    return;
+  }
   dispatch('requestVulnerabilities');
 
   axios({
@@ -166,37 +176,86 @@ export const receiveDismissVulnerabilityError = ({ commit }, { flashError }) => 
   }
 };
 
-export const revertDismissal = ({ dispatch }, { vulnerability, flashError }) => {
+export const undoDismiss = ({ dispatch }, { vulnerability, flashError }) => {
   const { vulnerability_feedback_dismissal_path, dismissal_feedback } = vulnerability;
   // eslint-disable-next-line camelcase
   const url = `${vulnerability_feedback_dismissal_path}/${dismissal_feedback.id}`;
 
-  dispatch('requestRevertDismissal');
+  dispatch('requestUndoDismiss');
 
   axios
     .delete(url)
     .then(() => {
       const { id } = vulnerability;
-      dispatch('receiveRevertDismissalSuccess', { id });
+      dispatch('receiveUndoDismissSuccess', { id });
     })
     .catch(() => {
-      dispatch('receiveRevertDismissalError', { flashError });
+      dispatch('receiveUndoDismissError', { flashError });
     });
 };
 
-export const requestRevertDismissal = ({ commit }) => {
+export const requestUndoDismiss = ({ commit }) => {
   commit(types.REQUEST_REVERT_DISMISSAL);
 };
 
-export const receiveRevertDismissalSuccess = ({ commit }, payload) => {
+export const receiveUndoDismissSuccess = ({ commit }, payload) => {
   commit(types.RECEIVE_REVERT_DISMISSAL_SUCCESS, payload);
 };
 
-export const receiveRevertDismissalError = ({ commit }, { flashError }) => {
+export const receiveUndoDismissError = ({ commit }, { flashError }) => {
   commit(types.RECEIVE_REVERT_DISMISSAL_ERROR);
   if (flashError) {
     createFlash(
       s__('Security Reports|There was an error reverting this dismissal.'),
+      'alert',
+      document.querySelector('.ci-table'),
+    );
+  }
+};
+
+export const createMergeRequest = ({ dispatch }, { vulnerability, flashError }) => {
+  const {
+    report_type,
+    project_fingerprint,
+    vulnerability_feedback_merge_request_path,
+  } = vulnerability;
+
+  dispatch('requestCreateMergeRequest');
+
+  axios
+    .post(vulnerability_feedback_merge_request_path, {
+      vulnerability_feedback: {
+        feedback_type: 'merge_request',
+        category: report_type,
+        project_fingerprint,
+        vulnerability_data: {
+          ...vulnerability,
+          category: report_type,
+        },
+      },
+    })
+    .then(({ data }) => {
+      dispatch('receiveCreateMergeRequestSuccess', data);
+    })
+    .catch(() => {
+      dispatch('receiveCreateMergeRequestError', { flashError });
+    });
+};
+
+export const requestCreateMergeRequest = ({ commit }) => {
+  commit(types.REQUEST_CREATE_MERGE_REQUEST);
+};
+
+export const receiveCreateMergeRequestSuccess = ({ commit }, payload) => {
+  commit(types.RECEIVE_CREATE_MERGE_REQUEST_SUCCESS, payload);
+};
+
+export const receiveCreateMergeRequestError = ({ commit }, { flashError }) => {
+  commit(types.RECEIVE_CREATE_MERGE_REQUEST_ERROR);
+
+  if (flashError) {
+    createFlash(
+      s__('Security Reports|There was an error creating the merge request.'),
       'alert',
       document.querySelector('.ci-table'),
     );
@@ -208,6 +267,9 @@ export const setVulnerabilitiesHistoryEndpoint = ({ commit }, endpoint) => {
 };
 
 export const fetchVulnerabilitiesHistory = ({ state, dispatch }, params = {}) => {
+  if (!state.vulnerabilitiesHistoryEndpoint) {
+    return;
+  }
   dispatch('requestVulnerabilitiesHistory');
 
   axios({
@@ -222,6 +284,10 @@ export const fetchVulnerabilitiesHistory = ({ state, dispatch }, params = {}) =>
     .catch(() => {
       dispatch('receiveVulnerabilitiesHistoryError');
     });
+};
+
+export const setVulnerabilitiesHistoryDayRange = ({ commit }, days) => {
+  commit(types.SET_VULNERABILITIES_HISTORY_DAY_RANGE, days);
 };
 
 export const requestVulnerabilitiesHistory = ({ commit }) => {

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe PostReceive do
@@ -33,8 +35,8 @@ describe PostReceive do
   describe "#process_project_changes" do
     context 'empty changes' do
       it "does not call any PushService but runs after project hooks" do
-        expect(GitPushService).not_to receive(:new)
-        expect(GitTagPushService).not_to receive(:new)
+        expect(Git::BranchPushService).not_to receive(:new)
+        expect(Git::TagPushService).not_to receive(:new)
         expect_next_instance_of(SystemHooksService) { |service| expect(service).to receive(:execute_hooks) }
 
         described_class.new.perform(gl_repository, key_id, "")
@@ -45,8 +47,8 @@ describe PostReceive do
       let!(:key_id) { "" }
 
       it 'returns false' do
-        expect(GitPushService).not_to receive(:new)
-        expect(GitTagPushService).not_to receive(:new)
+        expect(Git::BranchPushService).not_to receive(:new)
+        expect(Git::TagPushService).not_to receive(:new)
 
         expect(described_class.new.perform(gl_repository, key_id, base64_changes)).to be false
       end
@@ -60,9 +62,9 @@ describe PostReceive do
       context "branches" do
         let(:changes) { "123456 789012 refs/heads/tést" }
 
-        it "calls GitPushService" do
-          expect_any_instance_of(GitPushService).to receive(:execute).and_return(true)
-          expect_any_instance_of(GitTagPushService).not_to receive(:execute)
+        it "calls Git::BranchPushService" do
+          expect_any_instance_of(Git::BranchPushService).to receive(:execute).and_return(true)
+          expect_any_instance_of(Git::TagPushService).not_to receive(:execute)
           described_class.new.perform(gl_repository, key_id, base64_changes)
         end
       end
@@ -70,9 +72,9 @@ describe PostReceive do
       context "tags" do
         let(:changes) { "123456 789012 refs/tags/tag" }
 
-        it "calls GitTagPushService" do
-          expect_any_instance_of(GitPushService).not_to receive(:execute)
-          expect_any_instance_of(GitTagPushService).to receive(:execute).and_return(true)
+        it "calls Git::TagPushService" do
+          expect_any_instance_of(Git::BranchPushService).not_to receive(:execute)
+          expect_any_instance_of(Git::TagPushService).to receive(:execute).and_return(true)
           described_class.new.perform(gl_repository, key_id, base64_changes)
         end
       end
@@ -81,8 +83,8 @@ describe PostReceive do
         let(:changes) { "123456 789012 refs/merge-requests/123" }
 
         it "does not call any of the services" do
-          expect_any_instance_of(GitPushService).not_to receive(:execute)
-          expect_any_instance_of(GitTagPushService).not_to receive(:execute)
+          expect_any_instance_of(Git::BranchPushService).not_to receive(:execute)
+          expect_any_instance_of(Git::TagPushService).not_to receive(:execute)
           described_class.new.perform(gl_repository, key_id, base64_changes)
         end
       end
@@ -125,7 +127,7 @@ describe PostReceive do
           allow_any_instance_of(Gitlab::DataBuilder::Repository).to receive(:update).and_return(fake_hook_data)
           # silence hooks so we can isolate
           allow_any_instance_of(Key).to receive(:post_create_hook).and_return(true)
-          allow_any_instance_of(GitPushService).to receive(:execute).and_return(true)
+          allow_any_instance_of(Git::BranchPushService).to receive(:execute).and_return(true)
         end
 
         it 'calls SystemHooksService' do
@@ -141,11 +143,18 @@ describe PostReceive do
     let(:gl_repository) { "wiki-#{project.id}" }
 
     it 'updates project activity' do
-      described_class.new.perform(gl_repository, key_id, base64_changes)
+      # Force Project#set_timestamps_for_create to initialize timestamps
+      project
 
-      expect { project.reload }
-        .to change(project, :last_activity_at)
-        .and change(project, :last_repository_updated_at)
+      # MySQL drops milliseconds in the timestamps, so advance at least
+      # a second to ensure we see changes.
+      Timecop.freeze(1.second.from_now) do
+        expect do
+          described_class.new.perform(gl_repository, key_id, base64_changes)
+          project.reload
+        end.to change(project, :last_activity_at)
+           .and change(project, :last_repository_updated_at)
+      end
     end
   end
 

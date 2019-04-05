@@ -21,6 +21,7 @@ module Geo
 
     def initialize(project)
       @project = project
+      @new_repository = false
     end
 
     def execute
@@ -53,22 +54,18 @@ module Geo
 
       if redownload?
         redownload_repository
-        schedule_repack
+        @new_repository = true
       elsif repository.exists?
         fetch_geo_mirror(repository)
       else
         ensure_repository
         fetch_geo_mirror(repository)
-        schedule_repack
+        @new_repository = true
       end
     end
 
     def redownload?
       registry.should_be_redownloaded?(type)
-    end
-
-    def schedule_repack
-      raise NotImplementedError
     end
 
     def redownload_repository
@@ -103,12 +100,11 @@ module Geo
 
     # Build a JWT header for authentication
     def jwt_authentication_header
-      authorization = ::Gitlab::Geo::RepoSyncRequest.new(scope: gl_repository).authorization
-      { "http.#{remote_url}.extraHeader" => "Authorization: #{authorization}" }
-    end
+      authorization = ::Gitlab::Geo::RepoSyncRequest.new(
+        scope: repository.full_path
+      ).authorization
 
-    def gl_repository
-      "#{type}-#{project.id}"
+      { "http.#{remote_url}.extraHeader" => "Authorization: #{authorization}" }
     end
 
     def remote_url
@@ -158,7 +154,11 @@ module Geo
     def reschedule_sync
       log_info("Reschedule #{type} sync because a RepositoryUpdateEvent was processed during the sync")
 
-      ::Geo::ProjectSyncWorker.perform_async(project.id, Time.now)
+      ::Geo::ProjectSyncWorker.perform_async(
+        project.id,
+        sync_repository: type.repository?,
+        sync_wiki: type.wiki?
+      )
     end
 
     def fail_registry!(message, error, attrs = {})
@@ -170,7 +170,7 @@ module Geo
     end
 
     def type
-      self.class.type
+      @type ||= self.class.type.to_s.inquiry
     end
 
     def update_delay_in_seconds
@@ -203,7 +203,7 @@ module Geo
     end
 
     def temp_repo
-      @temp_repo ||= ::Repository.new(repository.full_path, repository.project, disk_path: disk_path_temp, is_wiki: repository.is_wiki)
+      @temp_repo ||= ::Repository.new(repository.full_path, repository.project, disk_path: disk_path_temp, repo_type: repository.repo_type)
     end
 
     # rubocop: disable CodeReuse/ActiveRecord
@@ -259,6 +259,10 @@ module Geo
         project.repository_storage,
         File.dirname(disk_path)
       )
+    end
+
+    def new_repository?
+      @new_repository
     end
   end
 end

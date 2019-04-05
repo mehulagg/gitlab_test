@@ -26,6 +26,12 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
 
     resource :issues_analytics, only: [:show]
 
+    resource :insights, only: [:show] do
+      collection do
+        post :query
+      end
+    end
+
     resource :notification_setting, only: [:update]
 
     resources :ldap_group_links, only: [:index, :create, :destroy]
@@ -67,7 +73,11 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
     end
 
     resources :todos, only: [:create]
-    resources :boards, only: [:create, :update, :destroy]
+    resources :boards, only: [:create, :update, :destroy] do
+      collection do
+        get :recent
+      end
+    end
 
     namespace :security do
       resource :dashboard, only: [:show], controller: :dashboard
@@ -84,6 +94,8 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
       get :sso, to: 'sso#saml'
       delete :unlink, to: 'sso#unlink'
     end
+
+    resource :scim_oauth, only: [:show, :create], controller: :scim_oauth
 
     resource :roadmap, only: [:show], controller: 'roadmap'
 

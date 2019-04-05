@@ -9,21 +9,21 @@ module Search
     end
 
     def execute
-      if Gitlab::CurrentSettings.elasticsearch_search?
-        Gitlab::Elastic::ProjectSearchResults.new(current_user,
-                                                  params[:search],
-                                                  project.id,
-                                                  params[:repository_ref])
-      else
-        Gitlab::ProjectSearchResults.new(current_user,
-                                         project,
-                                         params[:search],
-                                         params[:repository_ref])
-      end
+      Gitlab::ProjectSearchResults.new(current_user,
+                                       project,
+                                       params[:search],
+                                       params[:repository_ref])
     end
 
     def scope
-      @scope ||= %w[notes issues merge_requests milestones wiki_blobs commits].delete(params[:scope]) { 'blobs' }
+      @scope ||= begin
+        allowed_scopes = %w[notes issues merge_requests milestones wiki_blobs commits]
+        allowed_scopes << 'users' if Feature.enabled?(:users_search, default_enabled: true)
+
+        allowed_scopes.delete(params[:scope]) { 'blobs' }
+      end
     end
   end
 end
+
+Search::ProjectService.prepend(EE::Search::ProjectService)

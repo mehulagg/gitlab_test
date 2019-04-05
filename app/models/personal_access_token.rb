@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
-class PersonalAccessToken < ActiveRecord::Base
+class PersonalAccessToken < ApplicationRecord
   include Expirable
   include TokenAuthenticatable
-  add_authentication_token_field :token, digest: true, fallback: true
+
+  add_authentication_token_field :token, digest: true
 
   REDIS_EXPIRY_TIME = 3.minutes
 

@@ -12,11 +12,13 @@ module EE
       LICENSED_PARSER_FEATURES = {
         sast: :sast,
         dependency_scanning: :dependency_scanning,
-        container_scanning: :container_scanning
+        container_scanning: :container_scanning,
+        dast: :dast
       }.with_indifferent_access.freeze
 
       prepended do
         after_save :stick_build_if_status_changed
+        delegate :service_specification, to: :runner_session, allow_nil: true
 
         has_many :sourced_pipelines,
           class_name: ::Ci::Sources::Pipeline,
@@ -61,22 +63,27 @@ module EE
               ::Feature.disabled?(:parse_dependency_scanning_reports, default_enabled: true)
 
           next if file_type == "container_scanning" &&
-              ::Feature.disabled?(:parse_container_scanning_reports, default_enabled: false)
+              ::Feature.disabled?(:parse_container_scanning_reports, default_enabled: true)
+
+          next if file_type == "dast" &&
+              ::Feature.disabled?(:parse_dast_reports, default_enabled: true)
 
           security_reports.get_report(file_type).tap do |security_report|
-            begin
-              next unless project.feature_available?(LICENSED_PARSER_FEATURES.fetch(file_type))
+            next unless project.feature_available?(LICENSED_PARSER_FEATURES.fetch(file_type))
 
-              ::Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, security_report)
-            rescue => e
-              security_report.error = e
-            end
+            ::Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, security_report)
+          rescue => e
+            security_report.error = e
           end
         end
       end
 
       def collect_license_management_reports!(license_management_report)
         each_report(::Ci::JobArtifact::LICENSE_MANAGEMENT_REPORT_FILE_TYPES) do |file_type, blob|
+          next if ::Feature.disabled?(:parse_license_management_reports, default_enabled: true)
+
+          next unless project.feature_available?(:license_management)
+
           ::Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, license_management_report)
         end
 

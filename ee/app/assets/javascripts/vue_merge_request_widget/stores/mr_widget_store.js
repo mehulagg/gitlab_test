@@ -1,5 +1,6 @@
 import CEMergeRequestStore from '~/vue_merge_request_widget/stores/mr_widget_store';
 import { filterByKey } from 'ee/vue_shared/security_reports/store/utils';
+import { mapApprovalsResponse, mapApprovalRulesResponse } from '../mappers';
 
 export default class MergeRequestStore extends CEMergeRequestStore {
   constructor(data) {
@@ -42,15 +43,31 @@ export default class MergeRequestStore extends CEMergeRequestStore {
   initApprovals(data) {
     this.isApproved = this.isApproved || false;
     this.approvals = this.approvals || null;
+    this.approvalRules = this.approvalRules || [];
+    this.hasApprovalsAvailable = Boolean(
+      data.has_approvals_available || this.hasApprovalsAvailable,
+    );
     this.approvalsPath = data.approvals_path || this.approvalsPath;
-    this.approvalsRequired = data.approvalsRequired || Boolean(this.approvalsPath);
+    this.apiApprovalsPath = data.api_approvals_path || this.apiApprovalsPath;
+    this.apiApprovalSettingsPath = data.api_approval_settings_path || this.apiApprovalSettingsPath;
+    this.apiApprovePath = data.api_approve_path || this.apiApprovePath;
+    this.apiUnapprovePath = data.api_unapprove_path || this.apiUnapprovePath;
   }
 
   setApprovals(data) {
-    this.approvals = data;
+    this.approvals = mapApprovalsResponse(data);
     this.approvalsLeft = !!data.approvals_left;
-    this.isApproved = !this.approvalsLeft || false;
-    this.preventMerge = this.approvalsRequired && this.approvalsLeft;
+    if (gon.features.approvalRules) {
+      this.isApproved = data.approved || false;
+      this.preventMerge = !this.isApproved;
+    } else {
+      this.isApproved = !this.approvalsLeft || false;
+      this.preventMerge = this.hasApprovalsAvailable && this.approvalsLeft;
+    }
+  }
+
+  setApprovalRules(data) {
+    this.approvalRules = mapApprovalRulesResponse(data.rules, this.approvals);
   }
 
   initCodeclimate(data) {
@@ -99,8 +116,6 @@ export default class MergeRequestStore extends CEMergeRequestStore {
 
         if (baseMetricsIndexed[subject] && baseMetricsIndexed[subject][metric]) {
           const baseMetricData = baseMetricsIndexed[subject][metric];
-          const metricDirection =
-            'desiredSize' in headMetricData && headMetricData.desiredSize === 'smaller' ? -1 : 1;
           const metricData = {
             name: metric,
             path: subject,
@@ -109,7 +124,12 @@ export default class MergeRequestStore extends CEMergeRequestStore {
           };
 
           if (metricData.delta !== 0) {
-            if (metricDirection > 0) {
+            const isImproved =
+              headMetricData.desiredSize === 'smaller'
+                ? metricData.delta < 0
+                : metricData.delta > 0;
+
+            if (isImproved) {
               improved.push(metricData);
             } else {
               degraded.push(metricData);

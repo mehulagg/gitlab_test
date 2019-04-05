@@ -7,7 +7,7 @@ import MrWidgetLicenses from 'ee/vue_shared/license_management/mr_widget_license
 
 import { n__, s__, __, sprintf } from '~/locale';
 import CEWidgetOptions from '~/vue_merge_request_widget/mr_widget_options.vue';
-import MrWidgetApprovals from './components/approvals/mr_widget_approvals.vue';
+import MrWidgetApprovals from './components/approvals';
 import MrWidgetGeoSecondaryNode from './components/states/mr_widget_secondary_geo_node.vue';
 
 export default {
@@ -32,7 +32,7 @@ export default {
   },
   computed: {
     shouldRenderApprovals() {
-      return this.mr.approvalsRequired && this.mr.state !== 'nothingToMerge';
+      return this.mr.hasApprovalsAvailable && this.mr.state !== 'nothingToMerge';
     },
     shouldRenderCodeQuality() {
       const { codeclimate } = this.mr;
@@ -144,6 +144,10 @@ export default {
       return {
         ...base,
         approvalsPath: store.approvalsPath,
+        apiApprovalsPath: store.apiApprovalsPath,
+        apiApprovalSettingsPath: store.apiApprovalSettingsPath,
+        apiApprovePath: store.apiApprovePath,
+        apiUnapprovePath: store.apiUnapprovePath,
       };
     },
     fetchCodeQuality() {
@@ -238,6 +242,7 @@ export default {
       <grouped-security-reports-app
         v-if="shouldRenderSecurityReport"
         :head-blob-path="mr.headBlobPath"
+        :source-branch="mr.sourceBranch"
         :base-blob-path="mr.baseBlobPath"
         :sast-head-path="mr.sast.head_path"
         :sast-base-path="mr.sast.base_path"

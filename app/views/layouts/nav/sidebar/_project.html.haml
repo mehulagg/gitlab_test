@@ -3,7 +3,7 @@
     - can_edit = can?(current_user, :admin_project, @project)
     .context-header
       = link_to project_path(@project), title: @project.name do
-        .avatar-container.s40.project-avatar
+        .avatar-container.rect-avatar.s40.project-avatar
           = project_icon(@project, alt: @project.name, class: 'avatar s40 avatar-tile', width: 40, height: 40)
         .sidebar-context-title
           = @project.name
@@ -40,6 +40,8 @@
             = nav_link(path: 'cycle_analytics#show') do
               = link_to project_cycle_analytics_path(@project), title: _('Cycle Analytics'), class: 'shortcuts-project-cycle-analytics' do
                 %span= _('Cycle Analytics')
+
+          = render_if_exists 'layouts/nav/project_insights_link'
 
       - if project_nav_tab? :files
         = nav_link(controller: sidebar_repository_paths) do
@@ -374,12 +376,12 @@
                 = link_to project_settings_repository_path(@project), title: _('Repository') do
                   %span
                     = _('Repository')
-              - if @project.feature_available?(:builds, current_user)
+              - if !@project.archived? && @project.feature_available?(:builds, current_user)
                 = nav_link(controller: :ci_cd) do
                   = link_to project_settings_ci_cd_path(@project), title: _('CI / CD') do
                     %span
                       = _('CI / CD')
-              - if settings_operations_available?
+              - if !@project.archived? && settings_operations_available?
                 = nav_link(controller: [:operations]) do
                   = link_to project_settings_operations_path(@project), title: _('Operations') do
                     = _('Operations')

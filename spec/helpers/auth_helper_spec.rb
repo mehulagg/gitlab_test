@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "spec_helper"
 
 describe AuthHelper do
@@ -10,11 +12,6 @@ describe AuthHelper do
     it 'does not return ldap provider' do
       allow(helper).to receive(:auth_providers) { [:twitter, :ldapmain] }
       expect(helper.button_based_providers).to include(:twitter)
-    end
-
-    it 'excludes group_saml' do
-      allow(helper).to receive(:auth_providers) { [:group_saml] }
-      expect(helper.button_based_providers).to eq([])
     end
 
     it 'returns empty array' do
@@ -33,11 +30,6 @@ describe AuthHelper do
       allow(helper).to receive(:auth_providers) { [:twitter, :ldapmain] }
       expect(helper.providers_for_base_controller).not_to include(:ldapmain)
     end
-
-    it 'excludes group_saml' do
-      allow(helper).to receive(:auth_providers) { [:group_saml] }
-      expect(helper.providers_for_base_controller).to eq([])
-    end
   end
 
   describe "form_based_providers" do
@@ -49,21 +41,6 @@ describe AuthHelper do
     it 'includes crowd provider' do
       allow(helper).to receive(:auth_providers) { [:twitter, :crowd] }
       expect(helper.form_based_providers).to eq %i(crowd)
-    end
-
-    it 'includes kerberos provider' do
-      allow(helper).to receive(:auth_providers) { [:twitter, :kerberos] }
-      expect(helper.form_based_providers).to eq %i(kerberos)
-    end
-  end
-
-  describe 'form_based_auth_provider_has_active_class?' do
-    it 'selects main LDAP server' do
-      allow(helper).to receive(:auth_providers) { [:twitter, :ldapprimary, :ldapsecondary, :kerberos] }
-      expect(helper.form_based_auth_provider_has_active_class?(:twitter)).to be(false)
-      expect(helper.form_based_auth_provider_has_active_class?(:ldapprimary)).to be(true)
-      expect(helper.form_based_auth_provider_has_active_class?(:ldapsecondary)).to be(false)
-      expect(helper.form_based_auth_provider_has_active_class?(:kerberos)).to be(false)
     end
   end
 
@@ -122,17 +99,37 @@ describe AuthHelper do
     end
   end
 
-  describe 'unlink_allowed?' do
-    [:saml, :cas3].each do |provider|
-      it "returns true if the provider is #{provider}" do
-        expect(helper.unlink_allowed?(provider)).to be false
-      end
+  describe '#link_provider_allowed?' do
+    let(:policy) { instance_double('IdentityProviderPolicy') }
+    let(:current_user) { instance_double('User') }
+    let(:provider) { double }
+
+    before do
+      allow(helper).to receive(:current_user).and_return(current_user)
+      allow(IdentityProviderPolicy).to receive(:new).with(current_user, provider).and_return(policy)
     end
 
-    [:twitter, :facebook, :google_oauth2, :gitlab, :github, :bitbucket, :crowd, :auth0, :authentiq].each do |provider|
-      it "returns false if the provider is #{provider}" do
-        expect(helper.unlink_allowed?(provider)).to be true
-      end
+    it 'delegates to identity provider policy' do
+      allow(policy).to receive(:can?).with(:link).and_return('policy_link_result')
+
+      expect(helper.link_provider_allowed?(provider)).to eq 'policy_link_result'
+    end
+  end
+
+  describe '#unlink_provider_allowed?' do
+    let(:policy) { instance_double('IdentityProviderPolicy') }
+    let(:current_user) { instance_double('User') }
+    let(:provider) { double }
+
+    before do
+      allow(helper).to receive(:current_user).and_return(current_user)
+      allow(IdentityProviderPolicy).to receive(:new).with(current_user, provider).and_return(policy)
+    end
+
+    it 'delegates to identity provider policy' do
+      allow(policy).to receive(:can?).with(:unlink).and_return('policy_unlink_result')
+
+      expect(helper.unlink_provider_allowed?(provider)).to eq 'policy_unlink_result'
     end
   end
 end

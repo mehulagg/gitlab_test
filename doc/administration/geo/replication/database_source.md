@@ -8,7 +8,7 @@ using the Omnibus GitLab packages, follow the
 
 NOTE: **Note:**
 The stages of the setup process must be completed in the documented order.
-Before attempting the steps in this stage, [complete all prior stages][toc].
+Before attempting the steps in this stage, [complete all prior stages](index.md#using-gitlab-installed-from-source-deprecated).
 
 This document describes the minimal steps you have to take in order to
 replicate your **primary** GitLab database to a **secondary** node's database. You may
@@ -39,8 +39,8 @@ The following guide assumes that:
   replicating from), running PostgreSQL 9.6 or later, and
   you have a new **secondary** server set up with the same versions of the OS,
   PostgreSQL, and GitLab on all nodes.
-- The IP of the **primary** server for our examples will be `1.2.3.4`, whereas the
-  **secondary** node's IP will be `5.6.7.8`. Note that the **primary** and **secondary** servers
+- The IP of the **primary** server for our examples is `198.51.100.1`, whereas the
+  **secondary** node's IP is `198.51.100.2`. Note that the **primary** and **secondary** servers
   **must** be able to communicate over these addresses. These IP addresses can either
   be public or private.
   
@@ -69,13 +69,16 @@ There is an [issue where support is being discussed](https://gitlab.com/gitlab-o
     CREATE USER gitlab_replicator;
 
     --- Set/change a password and grants replication privilege
-    ALTER USER gitlab_replicator WITH REPLICATION ENCRYPTED PASSWORD 'replicationpasswordhere';
+    ALTER USER gitlab_replicator WITH REPLICATION ENCRYPTED PASSWORD '<replication_password>';
     ```
 
 1. Make sure your the `gitlab` database user has a password defined:
 
     ```sh
-    sudo -u postgres psql -d template1 -c "ALTER USER gitlab WITH ENCRYPTED PASSWORD 'mydatabasepassword';"
+    sudo \
+       -u postgres psql \
+       -d template1 \
+       -c "ALTER USER gitlab WITH ENCRYPTED PASSWORD '<database_password>';"
     ```
 
 1. Edit the content of `database.yml` in `production:` and add the password like the example below:
@@ -90,7 +93,7 @@ There is an [issue where support is being discussed](https://gitlab.com/gitlab-o
       database: gitlabhq_production
       pool: 10
       username: gitlab
-      password: mydatabasepassword
+      password: <database_password>
       host: /var/opt/gitlab/geo-postgresql
     ```
 
@@ -110,7 +113,14 @@ There is an [issue where support is being discussed](https://gitlab.com/gitlab-o
     To generate a self-signed certificate and key, run this command:
 
     ```sh
-    openssl req -nodes -batch -x509 -newkey rsa:4096 -keyout server.key -out server.crt -days 3650
+    openssl req \
+       -nodes \
+       -batch \
+       -x509 \
+       -newkey rsa:4096 \
+       -keyout server.key \
+       -out server.crt \
+       -days 3650
     ```
 
     This will create two files - `server.key` and `server.crt` - that you can
@@ -137,7 +147,7 @@ There is an [issue where support is being discussed](https://gitlab.com/gitlab-o
    (for Debian/Ubuntu that would be `/etc/postgresql/9.x/main/postgresql.conf`):
 
     ```
-    listen_address = '1.2.3.4'
+    listen_address = '<primary_node_ip>'
     wal_level = hot_standby
     max_wal_senders = 5
     min_wal_size = 80MB
@@ -171,19 +181,17 @@ There is an [issue where support is being discussed](https://gitlab.com/gitlab-o
    `/etc/postgresql/9.x/main/pg_hba.conf`):
 
     ```sh
-    host    all             all                      1.2.3.4/32      md5
-    host    replication     gitlab_replicator        5.6.7.8/32      md5
+    host    all             all                      <primary_node_ip>/32      md5
+    host    replication     gitlab_replicator        <secondary_node_ip>/32      md5
     ```
 
-    Where `1.2.3.4` is the public IP address of the **primary** server, and `5.6.7.8`
-    the public IP address of the **secondary** one. If you want to add another
-    secondary, add one more row like the replication one and change the IP
-    address:
+    If you want to add another secondary, add one more row like the replication 
+    one and change the IP address:
 
     ```sh
-    host    all             all                      1.2.3.4/32      md5
-    host    replication     gitlab_replicator        5.6.7.8/32      md5
-    host    replication     gitlab_replicator        11.22.33.44/32  md5
+    host    all             all                      <primary_node_ip>/32      md5
+    host    replication     gitlab_replicator        <secondary_node_ip>/32      md5
+    host    replication     gitlab_replicator        <another_secondary_node_ip>/32  md5
     ```
 
 1. Restart PostgreSQL for the changes to take effect.
@@ -393,7 +401,7 @@ The replication process is now over.
 
     ```sql
     -- NOTE: Use the password defined earlier
-    CREATE USER gitlab_geo_fdw WITH password 'mypassword';
+    CREATE USER gitlab_geo_fdw WITH password '<your_password_here>';
     GRANT CONNECT ON DATABASE gitlabhq_production to gitlab_geo_fdw;
     GRANT USAGE ON SCHEMA public TO gitlab_geo_fdw;
     GRANT SELECT ON ALL TABLES IN SCHEMA public TO gitlab_geo_fdw;
@@ -423,7 +431,6 @@ Read the [troubleshooting document](troubleshooting.md).
 [pgback]: http://www.postgresql.org/docs/9.6/static/app-pgbasebackup.html
 [replication user]:https://wiki.postgresql.org/wiki/Streaming_Replication
 [FDW]: https://www.postgresql.org/docs/9.6/static/postgres-fdw.html
-[toc]: index.md#using-gitlab-installed-from-source
 [database]: database.md
 [add-geo-node]: configuration.md#step-3-add-the-secondary-gitlab-node
 [database-replication]: database.md#step-2-configure-the-secondary-server

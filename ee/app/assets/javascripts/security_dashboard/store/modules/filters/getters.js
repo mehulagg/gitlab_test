@@ -2,26 +2,23 @@ import { sprintf, __ } from '~/locale';
 
 export const getFilter = state => filterId => state.filters.find(filter => filter.id === filterId);
 
-export const getSelectedOptions = (state, getters) => filterId =>
-  getters.getFilter(filterId).options.filter(option => option.selected);
-
-export const getSelectedOptionIds = (state, getters) => filterId =>
-  getters.getSelectedOptions(filterId).map(option => option.id);
+export const getSelectedOptions = (state, getters) => filterId => {
+  const filter = getters.getFilter(filterId);
+  return filter.options.filter(option => filter.selection.has(option.id));
+};
 
 export const getSelectedOptionNames = (state, getters) => filterId => {
   const selectedOptions = getters.getSelectedOptions(filterId);
-  const [firstOption] = selectedOptions.map(option => option.name);
   const extraOptionCount = selectedOptions.length - 1;
+  const firstOption = selectedOptions.map(option => option.name)[0];
 
-  return extraOptionCount
-    ? sprintf(__('%{firstOption} +%{extraOptionCount} more'), {
-        firstOption,
-        extraOptionCount,
-      })
-    : firstOption;
+  return {
+    firstOption,
+    extraOptionCount: extraOptionCount
+      ? sprintf(__('+%{extraOptionCount} more'), { extraOptionCount })
+      : '',
+  };
 };
-
-export const getFilterIds = state => state.filters.map(filter => filter.id);
 
 /**
  * Loops through all the filters and returns all the active ones
@@ -29,14 +26,11 @@ export const getFilterIds = state => state.filters.map(filter => filter.id);
  * @returns Object
  * e.g. { type: ['sast'], severity: ['high', 'medium'] }
  */
-export const activeFilters = (state, getters) =>
-  getters.getFilterIds.reduce(
-    (result, filterId) => ({
-      ...result,
-      [filterId]: getters.getSelectedOptionIds(filterId).filter(option => option !== 'all'),
-    }),
-    {},
-  );
+export const activeFilters = state =>
+  state.filters.reduce((acc, filter) => {
+    acc[filter.id] = [...filter.selection].filter(option => option !== 'all');
+    return acc;
+  }, {});
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests
 // This is no longer needed after gitlab-ce#52179 is merged

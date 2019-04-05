@@ -37,7 +37,7 @@ public SSH keys for users allowed to access GitLab. However, to maintain a
 single source of truth, [Geo](../../gitlab-geo/README.md) needs to be configured to perform SSH fingerprint
 lookups via database lookup.
 
-As part of [setting up Geo](../../gitlab-geo/README.md#setup-instructions),
+As part of [setting up Geo](../geo/replication/index.md#setup-instructions),
 you will be required to follow the steps outlined below for both the primary and
 secondary nodes, but note that the `Write to "authorized keys" file` checkbox
 only needs to be unchecked on the primary node since it will be reflected
@@ -79,7 +79,7 @@ file will still be scanned. So git SSH performance will still be slow for many
 users as long as a large file exists.
 
 You can disable any more writes to the `authorized_keys` file by unchecking
-`Write to "authorized_keys" file` in the Application Settings of your GitLab
+`Write to "authorized_keys" file` in the **Admin Area > Settings > Network > Performance optimization** of your GitLab
 installation.
 
 ![Write to authorized keys setting](img/write_to_authorized_keys_setting.png)

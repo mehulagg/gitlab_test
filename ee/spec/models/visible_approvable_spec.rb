@@ -9,12 +9,6 @@ describe VisibleApprovable do
     stub_feature_flags(approval_rules: false)
   end
 
-  describe '#requires_approve' do
-    subject { resource.requires_approve? }
-
-    it { is_expected.to be true }
-  end
-
   describe '#approvers_left' do
     let!(:private_group) { create(:group_with_members, :private) }
     let!(:public_group) { create(:group_with_members) }
@@ -75,7 +69,7 @@ describe VisibleApprovable do
     end
 
     context 'when committer is approver' do
-      let(:user) { create(:user, email: resource.commits.first.committer_email) }
+      let(:user) { create(:user, email: resource.commits.without_merge_commits.first.committer_email) }
       let!(:committer_approver) { create(:approver, target: project, user: user) }
 
       before do
@@ -83,12 +77,12 @@ describe VisibleApprovable do
       end
 
       it 'excludes committer if committers cannot approve' do
+        project.update(merge_requests_disable_committers_approval: true)
+
         is_expected.not_to include(committer_approver.user)
       end
 
       it 'includes committer if committers are able to approve' do
-        project.update(merge_requests_author_approval: true)
-
         is_expected.to include(committer_approver.user)
       end
     end

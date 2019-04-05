@@ -1,5 +1,6 @@
 <script>
 /* eslint-disable vue/no-side-effects-in-computed-properties */
+import { GlLink } from '@gitlab/ui';
 import { s__ } from '~/locale';
 
 import NodeDetailsSectionMain from './node_detail_sections/node_details_section_main.vue';
@@ -9,6 +10,7 @@ import NodeDetailsSectionOther from './node_detail_sections/node_details_section
 
 export default {
   components: {
+    GlLink,
     NodeDetailsSectionMain,
     NodeDetailsSectionSync,
     NodeDetailsSectionVerification,
@@ -29,6 +31,10 @@ export default {
     },
     nodeEditAllowed: {
       type: Boolean,
+      required: true,
+    },
+    geoTroubleshootingHelpPath: {
+      type: String,
       required: true,
     },
   },
@@ -74,9 +80,18 @@ export default {
       :node-details="nodeDetails"
       :node-type-primary="node.primary"
     />
-    <node-details-section-other :node-details="nodeDetails" :node-type-primary="node.primary" />
+    <node-details-section-other
+      :node="node"
+      :node-details="nodeDetails"
+      :node-type-primary="node.primary"
+    />
     <div v-if="hasError || hasVersionMismatch" class="node-health-message-container">
-      <p class="node-health-message">{{ errorMessage }}</p>
+      <p class="node-health-message">
+        {{ errorMessage }}
+        <gl-link :href="geoTroubleshootingHelpPath">{{
+          s__('Geo|Please refer to Geo Troubleshooting.')
+        }}</gl-link>
+      </p>
     </div>
   </div>
 </template>

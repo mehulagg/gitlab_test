@@ -72,7 +72,7 @@ describe('Feature Flags', () => {
       const loadingElement = component.$el.querySelector('.js-loading-state');
 
       expect(loadingElement).not.toBeNull();
-      expect(loadingElement.querySelector('i').getAttribute('aria-label')).toEqual(
+      expect(loadingElement.querySelector('span').getAttribute('aria-label')).toEqual(
         'Loading Feature Flags',
       );
 
@@ -198,7 +198,7 @@ describe('Feature Flags', () => {
         it('should make an API request when page is clicked', done => {
           spyOn(component, 'updateFeatureFlagOptions');
           setTimeout(() => {
-            component.$el.querySelector('.gl-pagination li:nth-child(5) a').click();
+            component.$el.querySelector('.gl-pagination li:nth-child(5) .page-link').click();
 
             expect(component.updateFeatureFlagOptions).toHaveBeenCalledWith({
               scope: 'all',

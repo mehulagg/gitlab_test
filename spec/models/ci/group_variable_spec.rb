@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Ci::GroupVariable do
@@ -5,6 +7,7 @@ describe Ci::GroupVariable do
 
   it { is_expected.to include_module(HasVariable) }
   it { is_expected.to include_module(Presentable) }
+  it { is_expected.to include_module(Maskable) }
   it { is_expected.to validate_uniqueness_of(:key).scoped_to(:group_id).with_message(/\(\w+\) has already been taken/) }
 
   describe '.unprotected' do

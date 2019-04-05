@@ -28,6 +28,12 @@ module QA
           element :squash_checkbox
         end
 
+        view 'app/assets/javascripts/vue_merge_request_widget/components/mr_widget_header.vue' do
+          element :dropdown_toggle
+          element :download_email_patches
+          element :download_plain_diff
+        end
+
         view 'app/views/projects/merge_requests/show.html.haml' do
           element :notes_tab
           element :diffs_tab
@@ -140,16 +146,16 @@ module QA
           click_element :squash_checkbox
         end
 
-        def go_to_discussions_tab
+        def click_discussions_tab
           click_element :notes_tab
         end
 
-        def go_to_diffs_tab
+        def click_diffs_tab
           click_element :diffs_tab
         end
 
         def add_comment_to_diff(text)
-          wait(time: 5) do
+          wait(interval: 5) do
             has_text?("No newline at end of file")
           end
           all_elements(:new_diff_line).first.hover
@@ -165,6 +171,16 @@ module QA
           within_element :approver_list do
             all_elements(:approver).map(&:text)
           end
+        end
+
+        def view_email_patches
+          click_element :dropdown_toggle
+          visit_link_in_element(:download_email_patches)
+        end
+
+        def view_plain_diff
+          click_element :dropdown_toggle
+          visit_link_in_element(:download_plain_diff)
         end
       end
     end

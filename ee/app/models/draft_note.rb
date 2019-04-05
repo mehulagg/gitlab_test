@@ -1,7 +1,8 @@
 # frozen_string_literal: true
-class DraftNote < ActiveRecord::Base
+class DraftNote < ApplicationRecord
   include DiffPositionableNote
   include Gitlab::Utils::StrongMemoize
+  include Sortable
 
   PUBLISH_ATTRS = %i(noteable_id noteable_type type note).freeze
   DIFF_ATTRS = %i(position original_position change_position).freeze

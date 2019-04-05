@@ -4,12 +4,15 @@ import { GlButton } from '@gitlab/ui';
 import { s__, sprintf } from '~/locale';
 import ToggleButton from '~/vue_shared/components/toggle_button.vue';
 import Icon from '~/vue_shared/components/icon.vue';
+import EnvironmentsDropdown from './environments_dropdown.vue';
+import { internalKeyID } from '../store/modules/helpers';
 
 export default {
   components: {
     GlButton,
     ToggleButton,
     Icon,
+    EnvironmentsDropdown,
   },
   props: {
     name: {
@@ -32,6 +35,10 @@ export default {
       required: true,
     },
     submitText: {
+      type: String,
+      required: true,
+    },
+    environmentsEndpoint: {
       type: String,
       required: true,
     },
@@ -65,13 +72,6 @@ export default {
       return this.formScopes.filter(scope => !scope._destroy);
     },
   },
-  watch: {
-    newScope(newVal) {
-      if (!_.isEmpty(newVal)) {
-        this.addNewScope();
-      }
-    },
-  },
   methods: {
     isAllEnvironment(name) {
       return name === this.$options.all;
@@ -80,19 +80,26 @@ export default {
      * When the user updates the status of
      * an existing scope we toggle the status for
      * the `formScopes`
+     *
+     * @param {Object} scope
+     * @param {Number} index
+     * @param {Boolean} status
      */
-    onUpdateScopeStatus(scope, index, status) {
+    onUpdateScopeStatus(scope, status) {
+      const index = this.formScopes.findIndex(el => el.id === scope.id);
       this.formScopes.splice(index, 1, Object.assign({}, scope, { active: status }));
     },
-    addNewScope() {
-      const uniqueId = _.uniqueId('scope_');
-      this.formScopes.push({ environment_scope: this.newScope, active: false, uniqueId });
-
-      this.$nextTick(() => {
-        this.$refs[uniqueId][0].focus();
-
-        this.newScope = '';
-      });
+    /**
+     * When the user selects or creates a new scope in the environemnts dropdoown
+     * we update the selected value.
+     *
+     * @param {String} name
+     * @param {Object} scope
+     * @param {Number} index
+     */
+    updateScope(name, scope) {
+      const index = this.formScopes.findIndex(el => el.id === scope.id);
+      this.formScopes.splice(index, 1, Object.assign({}, scope, { environment_scope: name }));
     },
     /**
      * When the user clicks the toggle button in the new row,
@@ -104,6 +111,7 @@ export default {
       this.formScopes.push({
         active: value,
         environment_scope: this.newScope,
+        id: _.uniqueId(internalKeyID),
       });
 
       this.newScope = '';
@@ -114,14 +122,37 @@ export default {
      * If the scope has an ID, we need to add the `_destroy` flag
      * otherwise we can just remove it.
      * Backend needs the destroy flag only in the PUT request.
+     *
+     * @param {Number} index
+     * @param {Object} scope
      */
-    removeScope(index, scope) {
-      if (scope.id) {
-        this.formScopes.splice(index, 1, Object.assign({}, scope, { _destroy: true }));
-      } else {
+    removeScope(scope) {
+      const index = this.formScopes.findIndex(el => el.id === scope.id);
+      if (_.isString(scope.id) && scope.id.indexOf(internalKeyID) !== -1) {
         this.formScopes.splice(index, 1);
+      } else {
+        this.formScopes.splice(index, 1, Object.assign({}, scope, { _destroy: true }));
       }
     },
+
+    /**
+     * When the user selects a value or creates a new value in the environments
+     * dropdown in the creation row, we push a new entry with the selected value.
+     *
+     * @param {String}
+     */
+    createNewEnvironment(name) {
+      this.formScopes.push({
+        environment_scope: name,
+        active: false,
+        id: _.uniqueId(internalKeyID),
+      });
+      this.newScope = '';
+    },
+    /**
+     * When the user clicks the submit button
+     * it triggers an event with the form data
+     */
     handleSubmit() {
       this.$emit('handleSubmit', {
         name: this.formName,
@@ -161,7 +192,7 @@ export default {
           <h4>{{ s__('FeatureFlags|Target environments') }}</h4>
           <div v-html="$options.helpText"></div>
 
-          <div class="js-scopes-table table-holder prepend-top-default">
+          <div class="js-scopes-table prepend-top-default">
             <div class="gl-responsive-table-row table-row-header" role="row">
               <div class="table-section section-60" role="columnheader">
                 {{ s__('FeatureFlags|Environment Spec') }}
@@ -182,15 +213,18 @@ export default {
                   {{ s__('FeatureFlags|Environment Spec') }}
                 </div>
                 <div class="table-mobile-content js-feature-flag-status">
-                  <p v-if="isAllEnvironment(scope.environment_scope)" class="js-scope-all">
+                  <p v-if="isAllEnvironment(scope.environment_scope)" class="js-scope-all pl-3">
                     {{ $options.allEnvironments }}
                   </p>
-                  <input
+
+                  <environments-dropdown
                     v-else
-                    :ref="scope.uniqueId"
-                    v-model="scope.environment_scope"
-                    type="text"
-                    class="form-control col-md-6 prepend-left-4"
+                    class="col-md-6"
+                    :value="scope.environment_scope"
+                    :endpoint="environmentsEndpoint"
+                    @selectEnvironment="env => updateScope(env, scope, index)"
+                    @createClicked="env => updateScope(env, scope, index)"
+                    @clearInput="updateScope('', scope, index)"
                   />
                 </div>
               </div>
@@ -202,7 +236,7 @@ export default {
                 <div class="table-mobile-content js-feature-flag-status">
                   <toggle-button
                     :value="scope.active"
-                    @change="status => onUpdateScopeStatus(scope, index, status)"
+                    @change="status => onUpdateScopeStatus(scope, status)"
                   />
                 </div>
               </div>
@@ -215,7 +249,7 @@ export default {
                   <gl-button
                     v-if="!isAllEnvironment(scope.environment_scope)"
                     class="js-delete-scope btn-transparent"
-                    @click="removeScope(index, scope)"
+                    @click="removeScope(scope)"
                   >
                     <icon name="clear" />
                   </gl-button>
@@ -229,10 +263,12 @@ export default {
                   {{ s__('FeatureFlags|Environment Spec') }}
                 </div>
                 <div class="table-mobile-content js-feature-flag-status">
-                  <input
-                    v-model="newScope"
-                    type="text"
-                    class="js-new-scope-name form-control col-md-6 prepend-left-4"
+                  <environments-dropdown
+                    class="js-new-scope-name col-md-6"
+                    :endpoint="environmentsEndpoint"
+                    :value="newScope"
+                    @selectEnvironment="env => createNewEnvironment(env)"
+                    @createClicked="env => createNewEnvironment(env)"
                   />
                 </div>
               </div>

@@ -11,7 +11,7 @@ module EE
       end
 
       def proxy_authorize
-        render json: ::Gitlab::Workhorse.build_service_request(build_service_specification)
+        render json: ::Gitlab::Workhorse.service_request(build_service_specification)
       end
 
       def proxy_websocket_authorize
@@ -30,7 +30,7 @@ module EE
       end
 
       def proxy_websocket_service(service)
-        service[:url] = service[:url]&.sub('https://', 'wss://')
+        service[:url] = ::Gitlab::UrlHelpers.as_wss(service[:url])
 
         ::Gitlab::Workhorse.channel_websocket(service)
       end
@@ -45,7 +45,7 @@ module EE
       def proxy_subprotocol
         # This will allow to reuse the same subprotocol set
         # in the original websocket connection
-        request.headers['HTTP_SEC_WEBSOCKET_PROTOCOL'] || ::Ci::BuildRunnerSession::TERMINAL_SUBPROTOCOL
+        request.headers['HTTP_SEC_WEBSOCKET_PROTOCOL'].presence || ::Ci::BuildRunnerSession::TERMINAL_SUBPROTOCOL
       end
     end
   end

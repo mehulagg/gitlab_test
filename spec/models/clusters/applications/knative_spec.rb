@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe Clusters::Applications::Knative do
@@ -9,6 +11,7 @@ describe Clusters::Applications::Knative do
   include_examples 'cluster application core specs', :clusters_applications_knative
   include_examples 'cluster application status specs', :clusters_applications_knative
   include_examples 'cluster application helm specs', :clusters_applications_knative
+  include_examples 'cluster application version specs', :clusters_applications_knative
   include_examples 'cluster application initial status specs'
 
   before do
@@ -21,30 +24,6 @@ describe Clusters::Applications::Knative do
     let(:knative_no_rbac) { create(:clusters_applications_knative, cluster: cluster) }
 
     it { expect(knative_no_rbac).to be_not_installable }
-  end
-
-  describe '.installed' do
-    subject { described_class.installed }
-
-    let!(:cluster) { create(:clusters_applications_knative, :installed) }
-
-    before do
-      create(:clusters_applications_knative, :errored)
-    end
-
-    it { is_expected.to contain_exactly(cluster) }
-  end
-
-  describe '#make_installed' do
-    subject { described_class.installed }
-
-    let!(:cluster) { create(:clusters_applications_knative, :installed) }
-
-    before do
-      create(:clusters_applications_knative, :errored)
-    end
-
-    it { is_expected.to contain_exactly(cluster) }
   end
 
   describe 'make_installed with external_ip' do
@@ -87,11 +66,17 @@ describe Clusters::Applications::Knative do
         expect(ClusterWaitForIngressIpAddressWorker).not_to have_received(:perform_in)
       end
     end
+
+    context 'when there is already an external_hostname' do
+      let(:application) { create(:clusters_applications_knative, :installed, external_hostname: 'localhost.localdomain') }
+
+      it 'does not schedule a ClusterWaitForIngressIpAddressWorker' do
+        expect(ClusterWaitForIngressIpAddressWorker).not_to have_received(:perform_in)
+      end
+    end
   end
 
-  describe '#install_command' do
-    subject { knative.install_command }
-
+  shared_examples 'a command' do
     it 'should be an instance of Helm::InstallCommand' do
       expect(subject).to be_an_instance_of(Gitlab::Kubernetes::Helm::InstallCommand)
     end
@@ -99,7 +84,6 @@ describe Clusters::Applications::Knative do
     it 'should be initialized with knative arguments' do
       expect(subject.name).to eq('knative')
       expect(subject.chart).to eq('knative/knative')
-      expect(subject.version).to eq('0.2.2')
       expect(subject.files).to eq(knative.files)
     end
 
@@ -119,6 +103,27 @@ describe Clusters::Applications::Knative do
         expect(subject.postinstall[0]).to eql("kubectl apply -f #{Clusters::Applications::Knative::METRICS_CONFIG}")
       end
     end
+  end
+
+  describe '#install_command' do
+    subject { knative.install_command }
+
+    it 'should be initialized with latest version' do
+      expect(subject.version).to eq('0.3.0')
+    end
+
+    it_behaves_like 'a command'
+  end
+
+  describe '#update_command' do
+    let!(:current_installed_version) { knative.version = '0.1.0' }
+    subject { knative.update_command }
+
+    it 'should be initialized with current version' do
+      expect(subject.version).to eq(current_installed_version)
+    end
+
+    it_behaves_like 'a command'
   end
 
   describe '#files' do

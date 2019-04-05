@@ -1,7 +1,7 @@
 import DirtyFormChecker from 'ee/saml_providers/dirty_form_checker';
 
 describe('DirtyFormChecker', () => {
-  const FIXTURE = 'groups/saml_providers/show.html.raw';
+  const FIXTURE = 'groups/saml_providers/show.html';
   preloadFixtures(FIXTURE);
 
   beforeEach(() => {
@@ -25,7 +25,7 @@ describe('DirtyFormChecker', () => {
     it('tracks starting states for editable inputs', () => {
       const enabledStartState = dirtyFormChecker.startingStates['saml_provider[enabled]'];
 
-      expect(enabledStartState).toEqual('1');
+      expect(enabledStartState).toEqual('true');
     });
   });
 

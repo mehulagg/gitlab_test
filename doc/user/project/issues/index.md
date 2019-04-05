@@ -109,7 +109,7 @@ issue within your team only, you can make that
 [issue confidential](confidential_issues.md). Even if your project
 is public, that issue will be preserved. The browser will
 respond with a 404 error whenever someone who is not a project
-member with at least [Reporter level](../../permissions.md#project) tries to
+member with at least [Reporter level](../../permissions.md#project-members-permissions) tries to
 access that issue's URL.
 
 Learn more about them on the [confidential issues documentation](confidential_issues.md).
@@ -139,6 +139,9 @@ Find GitLab Issue Boards by navigating to your **Project's Dashboard** > **Issue
 Read through the documentation for [Issue Boards](../issue_board.md)
 to find out more about this feature.
 
+With [GitLab Starter](https://about.gitlab.com/pricing/), you can also
+create various boards per project with [Multiple Issue Boards](../issue_board.html#multiple-issue-boards-starter).
+
 ### Export Issues to CSV **[STARTER]**
 
 Issues can be [exported as CSV](csv_export.md) from GitLab and are sent to your email as an attachment.
@@ -166,7 +169,7 @@ For further details, see [Importing issues from CSV](csv_import.md)
 
 Alternatively to GitLab's built-in Issue Tracker, you can also use an [external
 tracker](../../../integration/external-issue-tracker.md) such as Jira, Redmine,
-or Bugzilla.
+YouTrack, or Bugzilla.
 
 ### Issue API
 

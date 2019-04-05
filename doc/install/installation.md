@@ -9,7 +9,8 @@ On heavily used GitLab instances the memory usage of the Sidekiq background work
 
 Omnibus packages solve this by [letting the Sidekiq terminate gracefully](../administration/operations/sidekiq_memory_killer.md) if it uses too much memory.
 After this termination Runit will detect Sidekiq is not running and will start it.
-Since installations from source don't have Runit, Sidekiq can't be terminated and its memory usage will grow over time.
+Since installations from source don't use Runit for process supervision, Sidekiq
+can't be terminated and its memory usage will grow over time.
 
 ## Select Version to Install
 
@@ -72,7 +73,8 @@ Install the required packages (needed to compile Ruby and native extensions to R
 ```sh
 sudo apt-get install -y build-essential zlib1g-dev libyaml-dev libssl-dev libgdbm-dev libre2-dev \
   libreadline-dev libncurses5-dev libffi-dev curl openssh-server checkinstall libxml2-dev \
-  libxslt-dev libcurl4-openssl-dev libicu-dev logrotate rsync python-docutils pkg-config cmake
+  libxslt-dev libcurl4-openssl-dev libicu-dev logrotate rsync python-docutils pkg-config cmake \
+  runit
 ```
 
 Ubuntu 14.04 (Trusty Tahr) doesn't have the `libre2-dev` package available, but
@@ -345,11 +347,15 @@ cd /home/git
 
 ```sh
 # Clone GitLab repository
-sudo -u git -H git clone https://gitlab.com/gitlab-org/gitlab-ce.git -b 11-7-stable gitlab
+sudo -u git -H git clone https://gitlab.com/gitlab-org/gitlab-ce.git -b X-Y-stable gitlab
 ```
 
+Make sure to replace `X-Y-stable` with the stable branch that matches the
+version you want to install. For example, if you want to install 11.8 you would
+use the branch name `11-8-stable`.
+
 CAUTION: **Caution:**
-You can change `11-7-stable` to `master` if you want the *bleeding edge* version, but never install `master` on a production server!
+You can change `X-Y-stable` to `master` if you want the *bleeding edge* version, but never install `master` on a production server!
 
 ### Configure It
 
@@ -690,6 +696,11 @@ sudo nginx -t
 ```
 
 You should receive `syntax is okay` and `test is successful` messages. If you receive errors check your `gitlab` or `gitlab-ssl` Nginx config file for typos, etc. as indicated in the error message given.
+
+NOTE: **Note:**
+Verify that the installed version is greater than 1.12.1 by running `nginx -v`. If it's lower, you may receive the error below:
+`nginx: [emerg] unknown "start$temp=[filtered]$rest" variable
+nginx: configuration file /etc/nginx/nginx.conf test failed`
 
 ### Restart
 

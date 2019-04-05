@@ -21,7 +21,8 @@ describe('Description component', () => {
     if (!document.querySelector('.issuable-meta')) {
       const metaData = document.createElement('div');
       metaData.classList.add('issuable-meta');
-      metaData.innerHTML = '<span id="task_status"></span><span id="task_status_short"></span>';
+      metaData.innerHTML =
+        '<div class="flash-container"></div><span id="task_status"></span><span id="task_status_short"></span>';
 
       document.body.appendChild(metaData);
     }
@@ -33,17 +34,21 @@ describe('Description component', () => {
     vm.$destroy();
   });
 
+  afterAll(() => {
+    $('.issuable-meta .flash-container').remove();
+  });
+
   it('animates description changes', done => {
     vm.descriptionHtml = 'changed';
 
     Vue.nextTick(() => {
       expect(
-        vm.$el.querySelector('.wiki').classList.contains('issue-realtime-pre-pulse'),
+        vm.$el.querySelector('.md').classList.contains('issue-realtime-pre-pulse'),
       ).toBeTruthy();
 
       setTimeout(() => {
         expect(
-          vm.$el.querySelector('.wiki').classList.contains('issue-realtime-trigger-pulse'),
+          vm.$el.querySelector('.md').classList.contains('issue-realtime-trigger-pulse'),
         ).toBeTruthy();
 
         done();
@@ -192,12 +197,11 @@ describe('Description component', () => {
     it('should create flash notification and emit an event to parent', () => {
       const msg =
         'Someone edited this issue at the same time you did. The description has been updated and you will need to make your changes again.';
-      spyOn(window, 'Flash');
       spyOn(vm, '$emit');
 
       vm.taskListUpdateError();
 
-      expect(window.Flash).toHaveBeenCalledWith(msg);
+      expect(document.querySelector('.flash-container .flash-text').innerText.trim()).toBe(msg);
       expect(vm.$emit).toHaveBeenCalledWith('taskListUpdateFailed');
     });
   });

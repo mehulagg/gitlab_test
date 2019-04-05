@@ -1,6 +1,6 @@
 import { s__ } from '../../locale';
 import { parseBoolean } from '../../lib/utils/common_utils';
-import { INGRESS, JUPYTER, KNATIVE, CERT_MANAGER } from '../constants';
+import { INGRESS, JUPYTER, KNATIVE, CERT_MANAGER, RUNNER } from '../constants';
 
 export default class ClusterStore {
   constructor() {
@@ -25,6 +25,7 @@ export default class ClusterStore {
           requestStatus: null,
           requestReason: null,
           externalIp: null,
+          externalHostname: null,
         },
         cert_manager: {
           title: s__('ClusterIntegration|Cert-Manager'),
@@ -40,6 +41,9 @@ export default class ClusterStore {
           statusReason: null,
           requestStatus: null,
           requestReason: null,
+          version: null,
+          chartRepo: 'https://gitlab.com/charts/gitlab-runner',
+          upgradeAvailable: null,
         },
         prometheus: {
           title: s__('ClusterIntegration|Prometheus'),
@@ -63,7 +67,9 @@ export default class ClusterStore {
           requestStatus: null,
           requestReason: null,
           hostname: null,
+          isEditingHostName: false,
           externalIp: null,
+          externalHostname: null,
         },
       },
     };
@@ -100,7 +106,13 @@ export default class ClusterStore {
     this.state.statusReason = serverState.status_reason;
 
     serverState.applications.forEach(serverAppEntry => {
-      const { name: appId, status, status_reason: statusReason } = serverAppEntry;
+      const {
+        name: appId,
+        status,
+        status_reason: statusReason,
+        version,
+        update_available: upgradeAvailable,
+      } = serverAppEntry;
 
       this.state.applications[appId] = {
         ...(this.state.applications[appId] || {}),
@@ -110,6 +122,7 @@ export default class ClusterStore {
 
       if (appId === INGRESS) {
         this.state.applications.ingress.externalIp = serverAppEntry.external_ip;
+        this.state.applications.ingress.externalHostname = serverAppEntry.external_hostname;
       } else if (appId === CERT_MANAGER) {
         this.state.applications.cert_manager.email =
           this.state.applications.cert_manager.email || serverAppEntry.email;
@@ -120,10 +133,17 @@ export default class ClusterStore {
             ? `jupyter.${this.state.applications.ingress.externalIp}.nip.io`
             : '');
       } else if (appId === KNATIVE) {
-        this.state.applications.knative.hostname =
-          serverAppEntry.hostname || this.state.applications.knative.hostname;
+        if (!this.state.applications.knative.isEditingHostName) {
+          this.state.applications.knative.hostname =
+            serverAppEntry.hostname || this.state.applications.knative.hostname;
+        }
         this.state.applications.knative.externalIp =
           serverAppEntry.external_ip || this.state.applications.knative.externalIp;
+        this.state.applications.knative.externalHostname =
+          serverAppEntry.external_hostname || this.state.applications.knative.externalHostname;
+      } else if (appId === RUNNER) {
+        this.state.applications.runner.version = version;
+        this.state.applications.runner.upgradeAvailable = upgradeAvailable;
       }
     });
   }

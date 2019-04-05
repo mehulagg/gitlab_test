@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-class SamlProvider < ActiveRecord::Base
+class SamlProvider < ApplicationRecord
+  USER_ATTRIBUTES_LOCKED_FOR_MANAGED_ACCOUNTS = %i(email public_email commit_email notification_email).freeze
+
   belongs_to :group
   has_many :identities
 
@@ -25,6 +27,14 @@ class SamlProvider < ActiveRecord::Base
 
   def defaults
     @defaults ||= DefaultOptions.new(group.full_path)
+  end
+
+  def enforced_sso?
+    enabled? && super
+  end
+
+  def enforced_group_managed_accounts?
+    enforced_sso? && super
   end
 
   class DefaultOptions

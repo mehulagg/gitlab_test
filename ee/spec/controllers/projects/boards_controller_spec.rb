@@ -29,6 +29,10 @@ describe Projects::BoardsController do
       subject { list_boards }
     end
 
+    it_behaves_like 'redirects to last visited board' do
+      let(:parent) { project }
+    end
+
     def list_boards(format: :html)
       get :index, params: {
                     namespace_id: project.namespace,
@@ -36,6 +40,12 @@ describe Projects::BoardsController do
                   },
                   format: format
     end
+  end
+
+  describe 'GET recent' do
+    let(:parent) { project }
+
+    it_behaves_like 'returns recently visited boards'
   end
 
   describe 'GET show' do
@@ -131,7 +141,7 @@ describe Projects::BoardsController do
     let(:board) { create(:board, project: project, name: 'Backend') }
     let(:user) { create(:user) }
     let(:milestone) { create(:milestone, project: project) }
-    let(:label) { create(:label) }
+    let(:label) { create(:label, project: project) }
 
     let(:update_params) do
       { name: 'Frontend',

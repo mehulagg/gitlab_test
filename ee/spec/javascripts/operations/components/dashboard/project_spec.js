@@ -1,104 +1,82 @@
-import Vue from 'vue';
-import { mountComponentWithStore } from 'spec/helpers/vue_mount_component_helper';
+import { shallowMount, createLocalVue } from '@vue/test-utils';
+import Vuex from 'vuex';
 import Commit from '~/vue_shared/components/commit.vue';
 import Project from 'ee/operations/components/dashboard/project.vue';
 import ProjectHeader from 'ee/operations/components/dashboard/project_header.vue';
-import Alerts from 'ee/operations/components/dashboard/alerts.vue';
-import { getChildInstances } from '../../helpers';
+import Alerts from 'ee/vue_shared/dashboards/components/alerts.vue';
+import store from 'ee/operations/store';
 import { mockOneProject } from '../../mock_data';
 
+const localVue = createLocalVue();
+localVue.use(Vuex);
+
 describe('project component', () => {
-  const ProjectComponent = Vue.extend(Project);
-  const ProjectHeaderComponent = Vue.extend(ProjectHeader);
-  const AlertsComponent = Vue.extend(Alerts);
-  const CommitComponent = Vue.extend(Commit);
-  let vm;
+  const ProjectComponent = localVue.extend(Project);
+  let wrapper;
 
   beforeEach(() => {
-    vm = mountComponentWithStore(ProjectComponent, {
-      props: {
-        project: mockOneProject,
-      },
+    wrapper = shallowMount(ProjectComponent, {
+      sync: false,
+      store,
+      localVue,
+      propsData: { project: mockOneProject },
     });
   });
 
   afterEach(() => {
-    vm.$destroy();
+    wrapper.destroy();
   });
 
   describe('wrapped components', () => {
     describe('project header', () => {
       it('binds project', () => {
-        const [header] = getChildInstances(vm, ProjectHeaderComponent);
+        const header = wrapper.find(ProjectHeader);
 
-        expect(header.project).toEqual(mockOneProject);
+        expect(header.props('project')).toEqual(mockOneProject);
       });
     });
 
     describe('alerts', () => {
-      let alert;
-
-      beforeEach(() => {
-        [alert] = getChildInstances(vm, AlertsComponent);
-      });
-
       it('binds alert count to count', () => {
-        expect(alert.count).toBe(mockOneProject.alert_count);
-      });
+        const alert = wrapper.find(Alerts);
 
-      it('binds last alert', () => {
-        expect(alert.lastAlert).toEqual(mockOneProject.last_alert);
+        expect(alert.props('count')).toBe(mockOneProject.alert_count);
       });
     });
 
     describe('commit', () => {
-      let commits;
       let commit;
 
       beforeEach(() => {
-        commits = getChildInstances(vm, CommitComponent);
-        [commit] = commits;
-      });
-
-      it('renders', () => {
-        expect(commits.length).toBe(1);
+        commit = wrapper.find(Commit);
       });
 
       it('binds commitRef', () => {
-        expect(commit.commitRef).toBe(vm.commitRef);
+        expect(commit.props('commitRef')).toBe(wrapper.vm.commitRef);
       });
 
       it('binds short_id to shortSha', () => {
-        expect(commit.shortSha).toBe(vm.project.last_deployment.commit.short_id);
+        expect(commit.props('shortSha')).toBe(
+          wrapper.props().project.last_pipeline.commit.short_id,
+        );
       });
 
       it('binds commitUrl', () => {
-        expect(commit.commitUrl).toBe(vm.project.last_deployment.commit.commit_url);
+        expect(commit.props('commitUrl')).toBe(
+          wrapper.props().project.last_pipeline.commit.commit_url,
+        );
       });
 
       it('binds title', () => {
-        expect(commit.title).toBe(vm.project.last_deployment.commit.title);
+        expect(commit.props('title')).toBe(wrapper.props().project.last_pipeline.commit.title);
       });
 
       it('binds author', () => {
-        expect(commit.author).toBe(vm.author);
+        expect(commit.props('author')).toBe(wrapper.props().project.last_pipeline.commit.author);
       });
 
       it('binds tag', () => {
-        expect(commit.tag).toBe(vm.project.last_deployment.tag);
-      });
-    });
-
-    describe('last deploy', () => {
-      it('renders calendar icon', () => {
-        expect(vm.$el.querySelector('.ic-calendar')).not.toBe(null);
-      });
-
-      it('renders time ago of last deploy', () => {
-        const timeago = '1 day ago';
-        const container = vm.$el.querySelector('.js-project-container');
-
-        expect(container.innerText.trim()).toBe(timeago);
+        expect(commit.props('tag')).toBe(wrapper.props().project.last_pipeline.ref.tag);
       });
     });
   });

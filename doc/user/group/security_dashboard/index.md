@@ -23,6 +23,8 @@ the risk. You can also action these vulnerabilities by creating an issue for the
 
 Having your vulnerabilities in GitLab allows you to keep track of them and action them, all in the same application.
 
+![dashboard with action buttons and metrics](img/dashboard.png)
+
 ## Use cases
 
 You want to measure how secure your projects are without having to look into
@@ -30,14 +32,18 @@ each one separately.
 
 ## Supported features
 
-The group security dashboard supports [SAST](../../project/merge_requests/sast.md), and [Dependency Scanning](../../project/merge_requests/dependency_scanning.md) reports.
+The group security dashboard supports [SAST](../../project/merge_requests/sast.md),
+[Dependency Scanning](../../project/merge_requests/dependency_scanning.md),
+[Container Scanning](../../project/merge_requests/container_scanning.md), 
+and [DAST](../../project/merge_requests/dast.md).
 
 ## Requirements
 
 To use the group security dashboard:
 
 1. At least one project inside a group must be configured with
-   [Static Application Security Testing](../../project/merge_requests/sast.md), or [Dependency Scanning](../../project/merge_requests/dependency_scanning.md).
+   [Static Application Security Testing](../../project/merge_requests/sast.md), or [Dependency Scanning](../../project/merge_requests/dependency_scanning.md), 
+   or [Container Scanning](../../project/merge_requests/container_scanning.md), or [Dynamic Application Security Testing](../../project/merge_requests/dast.md).
 2. The configured jobs must use the [new `reports` syntax](../../../ci/yaml/README.md#artifactsreports) (see an [example job](../../../ci/examples/sast.md)).
 3. [GitLab Runner](https://docs.gitlab.com/runner/) 11.5 or above must be used to execute the jobs.
 
@@ -61,14 +67,12 @@ Once you're on the dashboard, at the top you should see a series of filters for:
 - Report type
 - Project
 
-Selecting one or more of these will filter
-the results in the sectons below. The first section is an overview of all the
-vulnerabilities, grouped by severity. Underneath these overviews is a timeline
-chart that shows how many open vulnerabilities you had at various points in time.
-You can hover over the chart to get more details about the open vulnerabilities
-at that time.
-
-![dashboard with action buttons and metrics](img/dashboard.png)
+Selecting one or more filters will filter the results in this page.
+The first section is an overview of all the vulnerabilities, grouped by severity.
+Underneath this overview is a timeline chart that shows how many open
+vulnerabilities your projects had at various points in time. You can filter among 30, 60, and
+90 days, with the default being 90. Hover over the chart to get more details about
+the open vulnerabilities at a specific time.
 
 Finally, there is a list of all the vulnerabilities in the group, sorted by severity.
 In that list, you can see the severity of the vulnerability, its name, its
@@ -86,7 +90,8 @@ If you hover over a row, there will appear some actions you can take:
 Clicking the "More info" button opens a modal with more information about the
 selected vulnerability where you can get a better description, as well as the
 file it came from, and a possible solution. You get access to the
-["Dismiss vulnerability"](#dismissing-a-vulnerability) and
+["Dismiss vulnerability"](#dismissing-a-vulnerability),
+["Create merge request"](#create-a-merge-request-from-a-vulnerability), and
 ["Create issue"](#creating-an-issue-for-a-vulnerability) buttons inside this
 modal as well.
 
@@ -108,11 +113,26 @@ will now have an associated issue next to the name.
 You can get the same result if you select the **Create issue** button from inside
 the "More info" modal.
 
+### Create a Merge Request from a vulnerability
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/9224) in
+  [GitLab Ultimate](https://about.gitlab.com/pricing) 11.9.
+
+In certain cases, GitLab will allow you to create a merge request that will
+automatically remediate the vulnerability.
+
+Clicking on the "Create merge request" button inside the more info modal will create
+a merge request onto the default branch, then redirect you to that merge request.
+
+CAUTION: **Warning:** Automatic Patch creation is only available for a subset of
+[Dependency Scanning](../../project/merge_requests/dependency_scanning.md). At the moment only Node.JS projects
+managed with yarn are supported.
+
 ### Dismissing a vulnerability
 
 You can also dismiss vulnerabilities by clicking the "Dismiss vulnerability" button.
 This will dismiss the vulnerability and re-render it to reflect its dismissed state.
-If you wish to undo this dismissal, you can click the "Revert dismissal" button.
+If you wish to undo this dismissal, you can click the "Undo dismiss" button.
 
 You can get the same behaviour if you dismiss a vulnerability from within the
 "More info" modal.

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
+require_relative '../concerns/saml_authorization.rb'
 
 class Groups::SamlProvidersController < Groups::ApplicationController
+  include SamlAuthorization
   before_action :require_top_level_group
   before_action :authorize_manage_saml!
   before_action :check_group_saml_available!
@@ -8,6 +10,10 @@ class Groups::SamlProvidersController < Groups::ApplicationController
 
   def show
     @saml_provider = @group.saml_provider || @group.build_saml_provider
+
+    scim_token = ScimOauthAccessToken.find_by_group_id(@group.id)
+
+    @scim_token_url = scim_token.as_entity_json[:scim_api_url] if scim_token
   end
 
   def create
@@ -21,29 +27,18 @@ class Groups::SamlProvidersController < Groups::ApplicationController
   def update
     @saml_provider = @group.saml_provider
 
-    @saml_provider.update(saml_provider_params)
+    GroupSaml::SamlProvider::UpdateService.new(current_user, @saml_provider, params: saml_provider_params).execute
 
     render :show
   end
 
   private
 
-  def authorize_manage_saml!
-    render_404 unless can?(current_user, :admin_group_saml, @group)
-  end
-
-  def check_group_saml_configured
-    render_404 unless Gitlab::Auth::GroupSaml::Config.enabled?
-  end
-
-  def require_top_level_group
-    render_404 if @group.subgroup?
-  end
-
   def saml_provider_params
     allowed_params = %i[sso_url certificate_fingerprint enabled]
 
     allowed_params += [:enforced_sso] if Feature.enabled?(:enforced_sso, group)
+    allowed_params += [:enforced_group_managed_accounts] if Feature.enabled?(:group_managed_accounts, group)
 
     params.require(:saml_provider).permit(allowed_params)
   end

@@ -9,11 +9,6 @@ module EE
 
         private
 
-        override :should_run_diff_validations?
-        def should_run_diff_validations?
-          super || validate_path_locks? || push_rule_checks_commit?
-        end
-
         def validate_path_locks?
           strong_memoize(:validate_path_locks) do
             project.feature_available?(:file_locks) &&
@@ -32,7 +27,7 @@ module EE
         def validations_for_diff
           super.tap do |validations|
             validations.push(path_locks_validation) if validate_path_locks?
-            validations.push(file_name_validation) if push_rule
+            validations.push(file_name_validation) if push_rule_checks_commit?
           end
         end
 
@@ -50,15 +45,13 @@ module EE
 
         def file_name_validation
           lambda do |diff|
-            begin
-              if (diff.renamed_file || diff.new_file) && blacklisted_regex = push_rule.filename_blacklisted?(diff.new_path)
-                return nil unless blacklisted_regex.present?
+            if (diff.renamed_file || diff.new_file) && blacklisted_regex = push_rule.filename_blacklisted?(diff.new_path)
+              return unless blacklisted_regex.present?
 
-                "File name #{diff.new_path} was blacklisted by the pattern #{blacklisted_regex}."
-              end
-            rescue ::PushRule::MatchError => e
-              raise ::Gitlab::GitAccess::UnauthorizedError, e.message
+              "File name #{diff.new_path} was blacklisted by the pattern #{blacklisted_regex}."
             end
+          rescue ::PushRule::MatchError => e
+            raise ::Gitlab::GitAccess::UnauthorizedError, e.message
           end
         end
       end

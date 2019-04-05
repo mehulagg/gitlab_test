@@ -1,7 +1,59 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe ProjectsHelper do
   include ProjectForksHelper
+
+  describe '#error_tracking_setting_project_json' do
+    let(:project) { create(:project) }
+
+    context 'error tracking setting does not exist' do
+      before do
+        helper.instance_variable_set(:@project, project)
+      end
+
+      it 'returns nil' do
+        expect(helper.error_tracking_setting_project_json).to be_nil
+      end
+    end
+
+    context 'error tracking setting exists' do
+      let!(:error_tracking_setting) { create(:project_error_tracking_setting, project: project) }
+
+      context 'api_url present' do
+        let(:json) do
+          {
+            name: error_tracking_setting.project_name,
+            organization_name: error_tracking_setting.organization_name,
+            organization_slug: error_tracking_setting.organization_slug,
+            slug: error_tracking_setting.project_slug
+          }.to_json
+        end
+
+        before do
+          helper.instance_variable_set(:@project, project)
+        end
+
+        it 'returns error tracking json' do
+          expect(helper.error_tracking_setting_project_json).to eq(json)
+        end
+      end
+
+      context 'api_url not present' do
+        before do
+          project.error_tracking_setting.api_url = nil
+          project.error_tracking_setting.enabled = false
+
+          helper.instance_variable_set(:@project, project)
+        end
+
+        it 'returns nil' do
+          expect(helper.error_tracking_setting_project_json).to be_nil
+        end
+      end
+    end
+  end
 
   describe "#project_status_css_class" do
     it "returns appropriate class" do
@@ -298,15 +350,6 @@ describe ProjectsHelper do
         allow(helper).to receive(:current_user).and_return(nil)
 
         expect(helper.send(:default_clone_protocol)).to eq('https')
-      end
-    end
-
-    context 'when gitlab.config.kerberos is enabled and user is logged in' do
-      it 'returns krb5 as default protocol' do
-        allow(Gitlab.config.kerberos).to receive(:enabled).and_return(true)
-        allow(helper).to receive(:current_user).and_return(double)
-
-        expect(helper.send(:default_clone_protocol)).to eq('krb5')
       end
     end
   end

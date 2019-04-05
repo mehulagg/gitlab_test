@@ -6,7 +6,6 @@ import GfmAutoComplete from './gfm_auto_complete';
 import ZenMode from './zen_mode';
 import AutoWidthDropdownSelect from './issuable/auto_width_dropdown_select';
 import { parsePikadayDate, pikadayToString } from './lib/utils/datetime_utility';
-import groupsSelect from './groups_select';
 
 export default class IssuableForm {
   constructor(form) {
@@ -21,7 +20,6 @@ export default class IssuableForm {
       gl.GfmAutoComplete && gl.GfmAutoComplete.dataSources,
     ).setup();
     this.usersSelect = new UsersSelect();
-    groupsSelect();
     this.zenMode = new ZenMode();
 
     this.titleField = this.form.find('input[name*="[title]"]');
@@ -46,6 +44,7 @@ export default class IssuableForm {
         parse: dateString => parsePikadayDate(dateString),
         toString: date => pikadayToString(date),
         onSelect: dateText => $issuableDueDate.val(calendar.toString(dateText)),
+        firstDay: gon.first_day_of_week,
       });
       calendar.setDate(parsePikadayDate($issuableDueDate.val()));
     }

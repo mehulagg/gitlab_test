@@ -3,8 +3,8 @@ import Timeago from 'timeago.js';
 import _ from 'underscore';
 import { GlTooltipDirective } from '@gitlab/ui';
 import UserAvatarLink from '~/vue_shared/components/user_avatar/user_avatar_link.vue';
-import { humanize } from '~/lib/utils/text_utility';
 import Icon from '~/vue_shared/components/icon.vue';
+import environmentItemMixin from 'ee_else_ce/environments/mixins/environment_item_mixin';
 import ActionsComponent from './environment_actions.vue';
 import ExternalUrlComponent from './environment_external_url.vue';
 import StopComponent from './environment_stop.vue';
@@ -35,22 +35,16 @@ export default {
     TerminalButtonComponent,
     MonitoringButtonComponent,
   },
-
   directives: {
     GlTooltip: GlTooltipDirective,
   },
+  mixins: [environmentItemMixin],
 
   props: {
     model: {
       type: Object,
       required: true,
       default: () => ({}),
-    },
-
-    canCreateDeployment: {
-      type: Boolean,
-      required: false,
-      default: false,
     },
 
     canReadEnvironment: {
@@ -151,7 +145,7 @@ export default {
     },
 
     actions() {
-      if (!this.model || !this.model.last_deployment || !this.canCreateDeployment) {
+      if (!this.model || !this.model.last_deployment) {
         return [];
       }
 
@@ -162,7 +156,7 @@ export default {
       const combinedActions = (manualActions || []).concat(scheduledActions || []);
       return combinedActions.map(action => ({
         ...action,
-        name: humanize(action.name),
+        name: action.name,
       }));
     },
 
@@ -447,18 +441,11 @@ export default {
     folderIconName() {
       return this.model.isOpen ? 'chevron-down' : 'chevron-right';
     },
-
-    deployIconName() {
-      return this.model.isDeployBoardVisible ? 'chevron-down' : 'chevron-right';
-    },
   },
 
   methods: {
     onClickFolder() {
       eventHub.$emit('toggleFolder', this.model);
-    },
-    toggleDeployBoard() {
-      eventHub.$emit('toggleDeployBoard', this.model);
     },
   },
 };
@@ -472,27 +459,37 @@ export default {
     class="gl-responsive-table-row"
     role="row"
   >
-    <div
-      v-gl-tooltip
-      :title="model.name"
-      class="table-section section-wrap section-15 text-truncate"
-      role="gridcell"
-    >
+    <div class="table-section section-wrap section-15 text-truncate" role="gridcell">
       <div v-if="!model.isFolder" class="table-mobile-header" role="rowheader">
         {{ s__('Environments|Environment') }}
       </div>
 
-      <span v-if="model.hasDeployBoard" class="deploy-board-icon" @click="toggleDeployBoard">
+      <span v-if="shouldRenderDeployBoard" class="deploy-board-icon" @click="toggleDeployBoard">
         <icon :name="deployIconName" />
       </span>
 
-      <span v-if="!model.isFolder" class="environment-name table-mobile-content">
-        <a class="qa-environment-link" :href="environmentPath"> {{ model.name }} </a>
+      <span
+        v-if="!model.isFolder"
+        v-gl-tooltip
+        :title="model.name"
+        class="environment-name table-mobile-content"
+      >
+        <a class="qa-environment-link" :href="environmentPath">
+          <span v-if="model.size === 1">{{ model.name }}</span>
+          <span v-else>{{ model.name_without_type }}</span>
+        </a>
         <span v-if="isProtected" class="badge badge-success">
           {{ s__('Environments|protected') }}
         </span>
       </span>
-      <span v-else class="folder-name" role="button" @click="onClickFolder">
+      <span
+        v-else
+        v-gl-tooltip
+        :title="model.folderName"
+        class="folder-name"
+        role="button"
+        @click="onClickFolder"
+      >
         <icon :name="folderIconName" class="folder-icon" />
 
         <icon name="folder" class="folder-icon" />
@@ -576,7 +573,8 @@ export default {
         />
 
         <rollback-component
-          v-if="canRetry && canCreateDeployment"
+          v-if="canRetry"
+          :environment="model"
           :is-last-deployment="isLastDeployment"
           :retry-url="retryUrl"
         />

@@ -161,7 +161,7 @@ describe Projects::JobsController do
 
   describe 'GET #proxy_authorize' do
     let(:path) { :proxy_authorize }
-    let(:render_method) { :build_service_request }
+    let(:render_method) { :service_request }
 
     it_behaves_like 'proxy access rights'
     it_behaves_like 'when pipeline is not from a webide source'
@@ -177,6 +177,15 @@ describe Projects::JobsController do
     it_behaves_like 'when pipeline is not from a webide source'
     it_behaves_like 'validates workhorse signature'
     it_behaves_like 'feature flag "build_service_proxy" is disabled'
+
+    it 'converts the url scheme into wss' do
+      allow(Gitlab::Workhorse).to receive(:verify_api_request!).and_return(nil)
+
+      expect(job.runner_session_url).to start_with('https://')
+      expect(Gitlab::Workhorse).to receive(:channel_websocket).with(a_hash_including(url: "wss://localhost/proxy/build/default_port/"))
+
+      make_request
+    end
   end
 
   def make_request

@@ -1,8 +1,8 @@
 import Vue from 'vue';
 import store from 'ee/operations/store/index';
 import { mountComponentWithStore } from 'spec/helpers/vue_mount_component_helper';
-import ProjectSearch from 'ee/operations/components/dashboard/project_search.vue';
-import TokenizedInput from 'ee/operations/components/tokenized_input/input.vue';
+import ProjectSearch from 'ee/vue_shared/dashboards/components/project_search.vue';
+import TokenizedInput from 'ee/vue_shared/dashboards/components/input.vue';
 import { mockText, mockProjectData } from '../../mock_data';
 import { getChildInstances, mouseEvent, clearState } from '../../helpers';
 
@@ -13,7 +13,10 @@ describe('project search component', () => {
   const mockProjects = mockProjectData(1);
   const [mockOneProject] = mockProjects;
   const mockInputValue = 'mock-inputValue';
-  const mount = () => mountComponentWithStore(ProjectSearchComponent, { store });
+  const mount = () =>
+    mountComponentWithStore(ProjectSearchComponent, {
+      store,
+    });
   let vm;
 
   beforeEach(() => {
@@ -55,7 +58,9 @@ describe('project search component', () => {
 
     it('renders search description', () => {
       store.state.inputValue = mockInputValue;
-      vm = mountComponentWithStore(ProjectSearchComponent, { store });
+      vm = mountComponentWithStore(ProjectSearchComponent, {
+        store,
+      });
 
       expect(vm.$el.querySelector('.js-search-results').innerText.trim()).toBe(
         `"${mockInputValue}" ${mockText.SEARCH_DESCRIPTION_SUFFIX}`,

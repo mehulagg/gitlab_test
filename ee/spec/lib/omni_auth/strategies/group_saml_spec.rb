@@ -57,6 +57,14 @@ describe OmniAuth::Strategies::GroupSaml, type: :strategy do
         options = last_request.env['omniauth.strategy'].options
         expect(options['idp_cert_fingerprint']).to eq fingerprint
       end
+
+      it 'returns 404 when SAML is disabled for the group' do
+        saml_provider.update!(enabled: false)
+
+        expect do
+          post "/groups/my-group/-/saml/callback", SAMLResponse: saml_response
+        end.to raise_error(ActionController::RoutingError)
+      end
     end
 
     context 'with invalid SAMLResponse' do
@@ -110,6 +118,15 @@ describe OmniAuth::Strategies::GroupSaml, type: :strategy do
         post '/users/auth/group_saml'
       end.to raise_error(ActionController::RoutingError)
     end
+
+    it "stores request ID during request phase" do
+      request_id = double
+      allow_any_instance_of(OneLogin::RubySaml::Authrequest).to receive(:uuid).and_return(request_id)
+
+      post '/users/auth/group_saml', group_path: 'my-group'
+
+      expect(session['last_authn_request_id']).to eq(request_id)
+    end
   end
 
   describe 'POST /users/auth/group_saml/metadata' do
@@ -131,6 +148,15 @@ describe OmniAuth::Strategies::GroupSaml, type: :strategy do
       post '/users/auth/group_saml/metadata', group_path: 'my-group', token: group.saml_discovery_token
 
       expect(last_response.status).to eq 404
+    end
+
+    it 'suceeds when feature enabled for an individual group' do
+      stub_feature_flags(group_saml_metadata_available: false)
+      allow(Feature).to receive(:enabled?).with(:group_saml_metadata_available, group) { true }
+
+      post '/users/auth/group_saml/metadata', group_path: 'my-group', token: group.saml_discovery_token
+
+      expect(last_response.status).to eq 200
     end
 
     it 'returns metadata when a valid token is provided' do

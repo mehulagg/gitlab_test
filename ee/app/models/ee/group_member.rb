@@ -7,10 +7,14 @@ module EE
     prepended do
       extend ::Gitlab::Utils::Override
 
+      validate :sso_enforcement, if: :group
+
       scope :with_ldap_dn, -> { joins(user: :identities).where("identities.provider LIKE ?", 'ldap%') }
       scope :with_identity_provider, ->(provider) do
         joins(user: :identities).where(identities: { provider: provider })
       end
+
+      scope :non_owners, -> { where("members.access_level < ?", ::Gitlab::Access::OWNER) }
     end
   end
 end

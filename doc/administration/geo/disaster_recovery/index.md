@@ -177,7 +177,7 @@ secondary domain, like changing Git remotes and API URLs.
 
     ```ruby
     # Change the existing external_url configuration
-    external_url 'https://gitlab.example.com'
+    external_url 'https://<new_external_url>'
     ```
 
     NOTE: **Note**
@@ -214,16 +214,17 @@ To bring a new **secondary** node online, follow the [Geo setup instructions][se
 
 Every **secondary** has a special tracking database that is used to save the status of the synchronization of all the items from the **primary**.
 Because the **secondary** is already promoted, that data in the tracking database is no longer required.
+
 The data can be removed with the following command:
 
-    ```sh
-    sudo rm -rf /var/opt/gitlab/geo-postgresql
-    ```
+```sh
+sudo rm -rf /var/opt/gitlab/geo-postgresql
+```
 
 ## Promoting secondary Geo replica in multi-secondary configurations
 
 If you have more than one **secondary** node and you need to promote one of them, we suggest you follow
-[Promoting **secondary** Geo node in single-secondary configurations](#promoting-secondary-geo-node-in-single-secondary-configurations)
+[Promoting a **secondary** Geo node in single-secondary configurations](#promoting-a-secondary-geo-node-in-single-secondary-configurations)
 and after that you also need two extra steps.
 
 ### Step 1. Prepare the new **primary** node to serve one or more **secondary** nodes
@@ -241,11 +242,10 @@ and after that you also need two extra steps.
     roles ['geo_primary_role']
 
     ##
-    # Primary and Secondary addresses
-    # - replace '1.2.3.4' with the primary public or VPC address
-    # - replace '5.6.7.8' with the secondary public or VPC address
+    # Allow PostgreSQL client authentication from the primary and secondary IPs. These IPs may be
+    # public or VPC addresses in CIDR format, for example ['198.51.100.1/32', '198.51.100.2/32']
     ##
-    postgresql['md5_auth_cidr_addresses'] = ['1.2.3.4/32', '5.6.7.8/32']
+    postgresql['md5_auth_cidr_addresses'] = ['<primary_node_ip>/32', '<secondary_node_ip>/32']
 
     # Every secondary server needs to have its own slot so specify the number of secondary nodes you're going to have
     postgresql['max_replication_slots'] = 1

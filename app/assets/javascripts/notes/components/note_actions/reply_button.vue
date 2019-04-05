@@ -1,5 +1,4 @@
 <script>
-import { mapActions } from 'vuex';
 import { GlTooltipDirective, GlButton } from '@gitlab/ui';
 import Icon from '~/vue_shared/components/icon.vue';
 
@@ -12,15 +11,6 @@ export default {
   directives: {
     GlTooltip: GlTooltipDirective,
   },
-  props: {
-    noteId: {
-      type: String,
-      required: true,
-    },
-  },
-  methods: {
-    ...mapActions(['convertToDiscussion']),
-  },
 };
 </script>
 
@@ -28,11 +18,11 @@ export default {
   <div class="note-actions-item">
     <gl-button
       ref="button"
-      v-gl-tooltip.bottom
+      v-gl-tooltip
       class="note-action-button"
       variant="transparent"
       :title="__('Reply to comment')"
-      @click="convertToDiscussion(noteId)"
+      @click="$emit('startReplying')"
     >
       <icon name="comment" css-classes="link-highlight" />
     </gl-button>

@@ -22,6 +22,7 @@
   .detail-page-header,
   .page-content-header,
   .commit-box,
+  .info-well,
   .commit-ci-menu,
   .files-changed-inner,
   .limited-header-width,
@@ -69,14 +70,6 @@
   .btn-edit {
     margin-left: auto;
     height: $gl-padding * 2;
-  }
-
-  // Border around images in issue and MR descriptions.
-  .description img:not(.emoji) {
-    border: 1px solid $white-normal;
-    padding: 5px;
-    max-height: calc(100vh - 100px);
-    max-width: 100%;
   }
 
   .emoji-block {
@@ -136,7 +129,7 @@
       color: $blue-800;
 
       .avatar {
-        border-color: rgba($gray-normal, .2);
+        border-color: rgba($gray-normal, 0.2);
       }
 
     }
@@ -207,15 +200,6 @@
         }
       }
     }
-
-    &.weight {
-      .gl-field-error {
-        margin-top: $gl-padding-8;
-        margin-left: -6px;
-        display: flex;
-        align-items: center;
-      }
-    }
   }
 
   .block-first {
@@ -232,7 +216,7 @@
     }
 
     a.edit-link:not([href]):hover {
-      color: rgba($gray-normal, .2);
+      color: rgba($gray-normal, 0.2);
     }
 
     .lock-edit, // uses same style, different js behaviour
@@ -329,7 +313,8 @@
     }
 
     .no-value,
-    .btn-default-hover-link {
+    .btn-default-hover-link,
+    .btn-secondary-hover-link {
       color: $gl-text-color-secondary;
     }
 
@@ -723,14 +708,11 @@
 
 .issuable-list {
   li {
-
     .issue-box {
-      display: -webkit-flex;
       display: flex;
     }
 
     .issuable-info-container {
-      -webkit-flex: 1;
       flex: 1;
       display: flex;
       padding-right: $gl-padding;
@@ -827,7 +809,6 @@
 
 
   .sidebar-collapsed-icon {
-
     > .stopwatch-svg {
       display: inline-block;
     }
@@ -885,11 +866,11 @@
   }
 
   .help-state-toggle-enter-active {
-    transition: all .8s ease;
+    transition: all 0.8s ease;
   }
 
   .help-state-toggle-leave-active {
-    transition: all .5s ease;
+    transition: all 0.5s ease;
   }
 
   .help-state-toggle-enter,
@@ -939,53 +920,12 @@
   }
 }
 
-.add-issuable-form-input-wrapper {
-  height: auto;
-  padding: $gl-vert-padding $gl-vert-padding 0 $gl-input-padding;
-
-  &.focus,
-  &.focus:hover {
-    border-color: $blue-300;
-    box-shadow: 0 0 4px $dropdown-input-focus-shadow;
-  }
-}
-
-.add-issuable-form-input-token-list {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  list-style: none;
-  margin-bottom: 0;
-  padding-left: 0;
-}
-
-.add-issuable-form-token-list-item {
-  max-width: 100%;
-  margin-bottom: $gl-vert-padding;
-  margin-right: 5px;
-}
-
-.add-issuable-form-input-list-item {
-  flex: 1;
-  min-width: 200px;
-  margin-bottom: $gl-vert-padding;
-}
-
-.add-issuable-form-input {
-  width: 100%;
-  border: 0;
-
-  &:focus {
-    outline: none;
-  }
-}
-
-.add-issuable-form-actions {
-  margin-top: $gl-padding;
-}
-
 .right-sidebar-collapsed {
   .sidebar-grouped-item {
+    .sidebar-collapsed-icon {
+      margin-bottom: 0;
+    }
+
     .sidebar-collapsed-divider {
       line-height: 5px;
       font-size: 12px;

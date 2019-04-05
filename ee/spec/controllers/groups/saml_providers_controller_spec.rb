@@ -79,6 +79,23 @@ describe Groups::SamlProvidersController do
         expect(response).to render_template 'groups/saml_providers/show'
       end
 
+      it 'has no SCIM token URL' do
+        group.add_owner(user)
+
+        subject
+
+        expect(assigns(:scim_token_url)).to be_nil
+      end
+
+      it 'has the SCIM token URL when it exists' do
+        create(:scim_oauth_access_token, group: group)
+        group.add_owner(user)
+
+        subject
+
+        expect(assigns(:scim_token_url)).to eq("http://localhost/api/scim/v2/groups/#{group.full_path}")
+      end
+
       context 'not on a top level group', :nested_groups do
         let(:group) { create(:group, :nested) }
 
@@ -97,25 +114,61 @@ describe Groups::SamlProvidersController do
     end
 
     describe 'PUT #update' do
-      subject { put :update, params: { group_id: group, saml_provider: { enforced_sso: 'true' } } }
+      subject { put :update, params: { group_id: group, saml_provider: { enforced_sso: 'true', enforced_group_managed_accounts: 'true' } } }
 
       before do
         group.add_owner(user)
       end
 
-      context 'enforced sso enabled' do
-        it 'updates the flag' do
+      context 'enforced_sso feature flag enabled' do
+        before do
           stub_feature_flags(enforced_sso: true)
+        end
 
-          expect { subject }.to change { saml_provider.reload.enforced_sso }.to(true)
+        it 'updates the flags' do
+          expect do
+            subject
+            saml_provider.reload
+          end.to change { saml_provider.enforced_sso? }.to(true)
         end
       end
 
-      context 'enforced sso disabled' do
-        it 'does not update the flag' do
+      context 'enforced_sso feature flag disabled' do
+        before do
           stub_feature_flags(enforced_sso: false)
+        end
 
-          expect { subject }.not_to change { saml_provider.reload.enforced_sso }.from(false)
+        it 'does not update the setting' do
+          expect do
+            subject
+            saml_provider.reload
+          end.not_to change { saml_provider.enforced_sso? }.from(false)
+        end
+      end
+
+      context 'group_managed_accounts feature flag enabled' do
+        before do
+          stub_feature_flags(group_managed_accounts: true)
+        end
+
+        it 'updates the flags' do
+          expect do
+            subject
+            saml_provider.reload
+          end.to change { saml_provider.enforced_group_managed_accounts? }.to(true)
+        end
+      end
+
+      context 'group_managed_accounts feature flag disabled' do
+        before do
+          stub_feature_flags(group_managed_accounts: false)
+        end
+
+        it 'does not update the setting' do
+          expect do
+            subject
+            saml_provider.reload
+          end.not_to change { saml_provider.enforced_group_managed_accounts? }.from(false)
         end
       end
     end

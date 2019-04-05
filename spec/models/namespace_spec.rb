@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Namespace do
@@ -374,18 +376,6 @@ describe Namespace do
     end
   end
 
-  describe '#actual_size_limit' do
-    let(:namespace) { build(:namespace) }
-
-    before do
-      allow_any_instance_of(ApplicationSetting).to receive(:repository_size_limit).and_return(50)
-    end
-
-    it 'returns the correct size limit' do
-      expect(namespace.actual_size_limit).to eq(50)
-    end
-  end
-
   describe '#rm_dir', 'callback' do
     let(:repository_storage_path) do
       Gitlab::GitalyClient::StorageSettings.allow_disk_access do
@@ -705,118 +695,6 @@ describe Namespace do
     end
   end
 
-  describe '#membership_lock with subgroups', :nested_groups do
-    context 'when creating a subgroup' do
-      let(:subgroup) { create(:group, parent: root_group) }
-
-      context 'under a parent with "Membership lock" enabled' do
-        let(:root_group) { create(:group, membership_lock: true) }
-
-        it 'enables "Membership lock" on the subgroup' do
-          expect(subgroup.membership_lock).to be_truthy
-        end
-      end
-
-      context 'under a parent with "Membership lock" disabled' do
-        let(:root_group) { create(:group) }
-
-        it 'does not enable "Membership lock" on the subgroup' do
-          expect(subgroup.membership_lock).to be_falsey
-        end
-      end
-
-      context 'when enabling the parent group "Membership lock"' do
-        let(:root_group) { create(:group) }
-        let!(:subgroup) { create(:group, parent: root_group) }
-
-        it 'the subgroup "Membership lock" not changed' do
-          root_group.update!(membership_lock: true)
-
-          expect(subgroup.reload.membership_lock).to be_falsey
-        end
-      end
-
-      context 'when disabling the parent group "Membership lock" (which was already enabled)' do
-        let(:root_group) { create(:group, membership_lock: true) }
-
-        context 'and the subgroup "Membership lock" is enabled' do
-          let(:subgroup) { create(:group, parent: root_group, membership_lock: true) }
-
-          it 'the subgroup "Membership lock" does not change' do
-            root_group.update!(membership_lock: false)
-
-            expect(subgroup.reload.membership_lock).to be_truthy
-          end
-        end
-
-        context 'but the subgroup "Membership lock" is disabled' do
-          let(:subgroup) { create(:group, parent: root_group) }
-
-          it 'the subgroup "Membership lock" does not change' do
-            root_group.update!(membership_lock: false)
-
-            expect(subgroup.reload.membership_lock?).to be_falsey
-          end
-        end
-      end
-    end
-
-    # Note: Group transfers are not yet implemented
-    context 'when a group is transferred into a root group' do
-      context 'when the root group "Membership lock" is enabled' do
-        let(:root_group) { create(:group, membership_lock: true) }
-
-        context 'when the subgroup "Membership lock" is enabled' do
-          let(:subgroup) { create(:group, membership_lock: true) }
-
-          it 'the subgroup "Membership lock" does not change' do
-            subgroup.parent = root_group
-            subgroup.save!
-
-            expect(subgroup.membership_lock).to be_truthy
-          end
-        end
-
-        context 'when the subgroup "Membership lock" is disabled' do
-          let(:subgroup) { create(:group) }
-
-          it 'the subgroup "Membership lock" not changed' do
-            subgroup.parent = root_group
-            subgroup.save!
-
-            expect(subgroup.membership_lock).to be_falsey
-          end
-        end
-      end
-
-      context 'when the root group "Membership lock" is disabled' do
-        let(:root_group) { create(:group) }
-
-        context 'when the subgroup "Membership lock" is enabled' do
-          let(:subgroup) { create(:group, membership_lock: true) }
-
-          it 'the subgroup "Membership lock" does not change' do
-            subgroup.parent = root_group
-            subgroup.save!
-
-            expect(subgroup.membership_lock).to be_truthy
-          end
-        end
-
-        context 'when the subgroup "Membership lock" is disabled' do
-          let(:subgroup) { create(:group) }
-
-          it 'the subgroup "Membership lock" does not change' do
-            subgroup.parent = root_group
-            subgroup.save!
-
-            expect(subgroup.membership_lock).to be_falsey
-          end
-        end
-      end
-    end
-  end
-
   describe '#find_fork_of?' do
     let(:project) { create(:project, :public) }
     let!(:forked_project) { fork_project(project, namespace.owner, namespace: namespace) }
@@ -896,6 +774,30 @@ describe Namespace do
         new_parent = create(:group)
         group.parent = new_parent
         expect(group.full_path_was).to eq("#{parent.full_path}/#{group.path}")
+      end
+    end
+  end
+
+  describe '#auto_devops_enabled' do
+    context 'with users' do
+      let(:user) { create(:user) }
+
+      subject { user.namespace.auto_devops_enabled? }
+
+      before do
+        user.namespace.update!(auto_devops_enabled: auto_devops_enabled)
+      end
+
+      context 'when auto devops is explicitly enabled' do
+        let(:auto_devops_enabled) { true }
+
+        it { is_expected.to eq(true) }
+      end
+
+      context 'when auto devops is explicitly disabled' do
+        let(:auto_devops_enabled) { false }
+
+        it { is_expected.to eq(false) }
       end
     end
   end

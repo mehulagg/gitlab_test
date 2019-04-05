@@ -84,9 +84,9 @@ From the project issue/merge request list pages and the group issue/merge reques
 ### Filtering in issue boards
 
 - From [project issue boards](../issue_board.md), you can filter by both group milestones and project milestones in the [search and filter bar](../../search/index.md#issue-boards).
-- From [group issue boards](../issue_board.md#group-issue-boards), you can filter by only group milestones in the [search and filter bar](../../search/index.md#issue-boards). **[PREMIUM]**
-- From [project issue boards](../issue_board.md), you can filter by both group milestones and project milestones in the [issue board configuration](../issue_board.md#board-with-configuration). **[STARTER]**
-- From [group issue boards](../issue_board.md#group-issue-boards) you can filter by only group milestones in the [issue board configuration](../issue_board.md#board-with-configuration). **[PREMIUM]**
+- From [group issue boards](../issue_board.md#group-issue-boards-premium), you can filter by only group milestones in the [search and filter bar](../../search/index.md#issue-boards). **[PREMIUM]**
+- From [project issue boards](../issue_board.md), you can filter by both group milestones and project milestones in the [issue board configuration](../issue_board.md#configurable-issue-boards-starter). **[STARTER]**
+- From [group issue boards](../issue_board.md#group-issue-boards-premium) you can filter by only group milestones in the [issue board configuration](../issue_board.md#configurable-issue-boards-starter). **[STARTER]**
 
 
 
@@ -97,7 +97,7 @@ When filtering by milestone, in addition to choosing a specific project mileston
 - **None**: Show issues or merge requests with no assigned milestone.
 - **Any**: Show issues or merge requests that have an assigned milestone.
 - **Upcoming**: Show issues or merge requests that have been assigned the open milestone that has the next upcoming due date (i.e. nearest due date in the future).
-- **Started**: Show issues or merge requests that have an assigned milestone with a start date that is before today.
+- **Started**: Show issues or merge requests that have an open assigned milestone with a start date that is before today.
 
 ## Milestone view
 
@@ -124,7 +124,7 @@ These features are only available for project milestones and not group milestone
 - Issues assigned to the milestone are displayed in three columns: Unstarted issues, ongoing issues, and completed issues.
 - Merge requests assigned to the milestone are displayed in four columns: Work in progress merge requests, waiting for merge, rejected, and closed.
 - Participants and labels that are used in issues and merge requests that have the milestone assigned are displayed.
-- [Burndown chart](#burndown-charts).
+- [Burndown chart](#project-burndown-charts-starter).
 
 ### Project Burndown Charts **[STARTER]**
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe User do
@@ -18,10 +20,6 @@ describe User do
 
   describe 'delegations' do
     it { is_expected.to delegate_method(:path).to(:namespace).with_prefix }
-
-    # EE
-    it { is_expected.to delegate_method(:shared_runners_minutes_limit).to(:namespace) }
-    it { is_expected.to delegate_method(:shared_runners_minutes_limit=).to(:namespace).with_arguments(133) }
   end
 
   describe 'associations' do
@@ -42,7 +40,6 @@ describe User do
     it { is_expected.to have_many(:spam_logs).dependent(:destroy) }
     it { is_expected.to have_many(:todos) }
     it { is_expected.to have_many(:award_emoji).dependent(:destroy) }
-    it { is_expected.to have_many(:path_locks).dependent(:destroy) }
     it { is_expected.to have_many(:triggers).dependent(:destroy) }
     it { is_expected.to have_many(:builds).dependent(:nullify) }
     it { is_expected.to have_many(:pipelines).dependent(:nullify) }
@@ -98,10 +95,6 @@ describe User do
         expect(user.project_members).to be_empty
       end
     end
-  end
-
-  describe 'nested attributes' do
-    it { is_expected.to respond_to(:namespace_attributes=) }
   end
 
   describe 'validations' do
@@ -386,25 +379,6 @@ describe User do
         end
       end
     end
-
-    it 'does not allow a user to be both an auditor and an admin' do
-      user = build(:user, :admin, :auditor)
-
-      expect(user).to be_invalid
-    end
-  end
-
-  describe "non_ldap" do
-    it "retuns non-ldap user" do
-      described_class.delete_all
-      create :user
-      ldap_user = create :omniauth_user, provider: "ldapmain"
-      create :omniauth_user, provider: "gitlub"
-
-      users = described_class.non_ldap
-      expect(users.count).to eq 2
-      expect(users.detect { |user| user.username == ldap_user.username }).to be_nil
-    end
   end
 
   describe "scopes" do
@@ -688,6 +662,68 @@ describe User do
     end
   end
 
+  describe '#highest_role' do
+    let(:user) { create(:user) }
+
+    let(:group) { create(:group) }
+
+    it 'returns NO_ACCESS if none has been set' do
+      expect(user.highest_role).to eq(Gitlab::Access::NO_ACCESS)
+    end
+
+    it 'returns MAINTAINER if user is maintainer of a project' do
+      create(:project, group: group) do |project|
+        project.add_maintainer(user)
+      end
+
+      expect(user.highest_role).to eq(Gitlab::Access::MAINTAINER)
+    end
+
+    it 'returns the highest role if user is member of multiple projects' do
+      create(:project, group: group) do |project|
+        project.add_maintainer(user)
+      end
+
+      create(:project, group: group) do |project|
+        project.add_developer(user)
+      end
+
+      expect(user.highest_role).to eq(Gitlab::Access::MAINTAINER)
+    end
+
+    it 'returns MAINTAINER if user is maintainer of a group' do
+      create(:group) do |group|
+        group.add_user(user, GroupMember::MAINTAINER)
+      end
+
+      expect(user.highest_role).to eq(Gitlab::Access::MAINTAINER)
+    end
+
+    it 'returns the highest role if user is member of multiple groups' do
+      create(:group) do |group|
+        group.add_user(user, GroupMember::MAINTAINER)
+      end
+
+      create(:group) do |group|
+        group.add_user(user, GroupMember::DEVELOPER)
+      end
+
+      expect(user.highest_role).to eq(Gitlab::Access::MAINTAINER)
+    end
+
+    it 'returns the highest role if user is member of multiple groups and projects' do
+      create(:group) do |group|
+        group.add_user(user, GroupMember::DEVELOPER)
+      end
+
+      create(:project, group: group) do |project|
+        project.add_maintainer(user)
+      end
+
+      expect(user.highest_role).to eq(Gitlab::Access::MAINTAINER)
+    end
+  end
+
   describe '#update_tracked_fields!', :clean_gitlab_redis_shared_state do
     let(:request) { OpenStruct.new(remote_ip: "127.0.0.1") }
     let(:user) { create(:user) }
@@ -953,6 +989,21 @@ describe User do
           expect(user.manageable_groups).to contain_exactly(group, subgroup)
         end
       end
+
+      describe '#manageable_groups_with_routes' do
+        it 'eager loads routes from manageable groups' do
+          control_count =
+            ActiveRecord::QueryRecorder.new(skip_cached: false) do
+              user.manageable_groups_with_routes.map(&:route)
+            end.count
+
+          create(:group, parent: subgroup)
+
+          expect do
+            user.manageable_groups_with_routes.map(&:route)
+          end.not_to exceed_all_query_limit(control_count)
+        end
+      end
     end
   end
 
@@ -989,43 +1040,43 @@ describe User do
     end
   end
 
-  describe '.filter' do
+  describe '.filter_items' do
     let(:user) { double }
 
     it 'filters by active users by default' do
       expect(described_class).to receive(:active).and_return([user])
 
-      expect(described_class.filter(nil)).to include user
+      expect(described_class.filter_items(nil)).to include user
     end
 
     it 'filters by admins' do
       expect(described_class).to receive(:admins).and_return([user])
 
-      expect(described_class.filter('admins')).to include user
+      expect(described_class.filter_items('admins')).to include user
     end
 
     it 'filters by blocked' do
       expect(described_class).to receive(:blocked).and_return([user])
 
-      expect(described_class.filter('blocked')).to include user
+      expect(described_class.filter_items('blocked')).to include user
     end
 
     it 'filters by two_factor_disabled' do
       expect(described_class).to receive(:without_two_factor).and_return([user])
 
-      expect(described_class.filter('two_factor_disabled')).to include user
+      expect(described_class.filter_items('two_factor_disabled')).to include user
     end
 
     it 'filters by two_factor_enabled' do
       expect(described_class).to receive(:with_two_factor).and_return([user])
 
-      expect(described_class.filter('two_factor_enabled')).to include user
+      expect(described_class.filter_items('two_factor_enabled')).to include user
     end
 
     it 'filters by wop' do
       expect(described_class).to receive(:without_projects).and_return([user])
 
-      expect(described_class.filter('wop')).to include user
+      expect(described_class.filter_items('wop')).to include user
     end
   end
 
@@ -2524,60 +2575,6 @@ describe User do
       user = build(:user, :admin)
 
       expect(user.full_private_access?).to be_truthy
-    end
-  end
-
-  describe 'the GitLab_Auditor_User add-on' do
-    context 'creating an auditor user' do
-      it "does not allow creating an auditor user if the addon isn't enabled" do
-        stub_licensed_features(auditor_user: false)
-
-        expect(build(:user, :auditor)).to be_invalid
-      end
-
-      it "does not allow creating an auditor user if no license is present" do
-        allow(License).to receive(:current).and_return nil
-
-        expect(build(:user, :auditor)).to be_invalid
-      end
-
-      it "allows creating an auditor user if the addon is enabled" do
-        stub_licensed_features(auditor_user: true)
-
-        expect(build(:user, :auditor)).to be_valid
-      end
-
-      it "allows creating a regular user if the addon isn't enabled" do
-        stub_licensed_features(auditor_user: false)
-
-        expect(build(:user)).to be_valid
-      end
-    end
-
-    context '#auditor?' do
-      it "returns true for an auditor user if the addon is enabled" do
-        stub_licensed_features(auditor_user: true)
-
-        expect(build(:user, :auditor)).to be_auditor
-      end
-
-      it "returns false for an auditor user if the addon is not enabled" do
-        stub_licensed_features(auditor_user: false)
-
-        expect(build(:user, :auditor)).not_to be_auditor
-      end
-
-      it "returns false for an auditor user if a license is not present" do
-        stub_licensed_features(auditor_user: false)
-
-        expect(build(:user, :auditor)).not_to be_auditor
-      end
-
-      it "returns false for a non-auditor user even if the addon is present" do
-        stub_licensed_features(auditor_user: true)
-
-        expect(build(:user)).not_to be_auditor
-      end
     end
   end
 

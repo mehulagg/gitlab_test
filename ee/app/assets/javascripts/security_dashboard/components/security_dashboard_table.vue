@@ -43,9 +43,6 @@ export default {
       return this.pageInfo && this.pageInfo.total;
     },
   },
-  created() {
-    this.fetchVulnerabilities();
-  },
   methods: {
     ...mapActions('vulnerabilities', ['fetchVulnerabilities', 'openModal']),
     fetchPage(page) {
@@ -57,6 +54,8 @@ export default {
 
 <template>
   <div class="ci-table">
+    <h4 class="my-4">{{ __('Vulnerability List') }}</h4>
+
     <div
       class="gl-responsive-table-row table-row-header vulnerabilities-row-header px-2"
       role="row"

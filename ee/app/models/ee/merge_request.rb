@@ -7,6 +7,7 @@ module EE
 
     include ::Approvable
     include ::Gitlab::Utils::StrongMemoize
+    include FromUnion
     prepend ApprovableForRule
 
     prepended do
@@ -18,7 +19,7 @@ module EE
       has_many :approvers, as: :target, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
       has_many :approver_users, through: :approvers, source: :user
       has_many :approver_groups, as: :target, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
-      has_many :approval_rules, class_name: 'ApprovalMergeRequestRule'
+      has_many :approval_rules, class_name: 'ApprovalMergeRequestRule', inverse_of: :merge_request
       has_many :draft_notes
 
       validate :validate_approvals_before_merge, unless: :importing?
@@ -31,6 +32,12 @@ module EE
       participant :participant_approvers
 
       accepts_nested_attributes_for :approval_rules, allow_destroy: true
+    end
+
+    class_methods do
+      def select_from_union(relations)
+        from_union(relations, remove_duplicates: true)
+      end
     end
 
     override :mergeable?
@@ -114,7 +121,7 @@ module EE
       owners = code_owners
 
       if owners.present?
-        ActiveRecord::Base.transaction do
+        ApplicationRecord.transaction do
           rule = approval_rules.code_owner.first
           rule ||= approval_rules.code_owner.create!(name: ApprovalMergeRequestRule::DEFAULT_NAME_FOR_CODE_OWNER)
 

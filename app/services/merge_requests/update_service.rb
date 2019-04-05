@@ -2,8 +2,6 @@
 
 module MergeRequests
   class UpdateService < MergeRequests::BaseService
-    prepend ::EE::MergeRequests::UpdateService # rubocop: disable Cop/InjectEnterpriseEditionModule
-
     def execute(merge_request)
       # We don't allow change of source/target projects and source branch
       # after merge request was created
@@ -23,7 +21,7 @@ module MergeRequests
       end
 
       handle_wip_event(merge_request)
-      update(merge_request)
+      update_task_event(merge_request) || update(merge_request)
     end
 
     # rubocop:disable Metrics/AbcSize
@@ -85,6 +83,11 @@ module MergeRequests
     end
     # rubocop:enable Metrics/AbcSize
 
+    def handle_task_changes(merge_request)
+      todo_service.mark_pending_todos_as_done(merge_request, current_user)
+      todo_service.update_merge_request(merge_request, current_user)
+    end
+
     def merge_from_quick_action(merge_request)
       last_diff_sha = params.delete(:merge)
       return unless merge_request.mergeable_with_quick_action?(current_user, last_diff_sha: last_diff_sha)
@@ -131,3 +134,5 @@ module MergeRequests
     end
   end
 end
+
+MergeRequests::UpdateService.prepend(EE::MergeRequests::UpdateService)

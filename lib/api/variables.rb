@@ -7,6 +7,14 @@ module API
     before { authenticate! }
     before { authorize! :admin_build, user_project }
 
+    helpers do
+      def filter_variable_parameters(params)
+        # This method exists so that EE can more easily filter out certain
+        # parameters, without having to modify the source code directly.
+        params
+      end
+    end
+
     params do
       requires :id, type: String, desc: 'The ID of a project'
     end
@@ -48,15 +56,13 @@ module API
         requires :value, type: String, desc: 'The value of the variable'
         optional :protected, type: String, desc: 'Whether the variable is protected'
 
-        # EE
-        optional :environment_scope, type: String, desc: 'The environment_scope of the variable'
+        if Gitlab.ee?
+          optional :environment_scope, type: String, desc: 'The environment_scope of the variable'
+        end
       end
       post ':id/variables' do
         variable_params = declared_params(include_missing: false)
-
-        # EE
-        variable_params.delete(:environment_scope) unless
-            user_project.feature_available?(:variable_environment_scope)
+        variable_params = filter_variable_parameters(variable_params)
 
         variable = user_project.variables.create(variable_params)
 
@@ -75,8 +81,9 @@ module API
         optional :value, type: String, desc: 'The value of the variable'
         optional :protected, type: String, desc: 'Whether the variable is protected'
 
-        # EE
-        optional :environment_scope, type: String, desc: 'The environment_scope of the variable'
+        if Gitlab.ee?
+          optional :environment_scope, type: String, desc: 'The environment_scope of the variable'
+        end
       end
       # rubocop: disable CodeReuse/ActiveRecord
       put ':id/variables/:key' do
@@ -85,10 +92,7 @@ module API
         break not_found!('Variable') unless variable
 
         variable_params = declared_params(include_missing: false).except(:key)
-
-        # EE
-        variable_params.delete(:environment_scope) unless
-            user_project.feature_available?(:variable_environment_scope)
+        variable_params = filter_variable_parameters(variable_params)
 
         if variable.update(variable_params)
           present variable, with: Entities::Variable
@@ -117,3 +121,5 @@ module API
     end
   end
 end
+
+API::Variables.prepend(EE::API::Variables)

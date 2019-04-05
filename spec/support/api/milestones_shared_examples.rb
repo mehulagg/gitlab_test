@@ -72,6 +72,15 @@ shared_examples_for 'group and project milestones' do |route_definition|
       expect(json_response.first['id']).to eq closed_milestone.id
     end
 
+    it 'returns a milestone by title' do
+      get api(route, user), params: { title: 'version2' }
+
+      expect(response).to have_gitlab_http_status(200)
+      expect(json_response.size).to eq(1)
+      expect(json_response.first['title']).to eq milestone.title
+      expect(json_response.first['id']).to eq milestone.id
+    end
+
     it 'returns a milestone by searching for title' do
       get api(route, user), params: { search: 'version2' }
 
@@ -240,7 +249,7 @@ shared_examples_for 'group and project milestones' do |route_definition|
       get api(issues_route, user)
 
       expect(response).to have_gitlab_http_status(200)
-      expect(response).to match_response_schema('public_api/v4/issues', dir: 'ee')
+      expect(response).to match_response_schema('public_api/v4/issues')
     end
 
     it 'returns a 401 error if user not authenticated' do

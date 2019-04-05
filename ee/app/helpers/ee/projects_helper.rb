@@ -6,7 +6,10 @@ module EE
 
     override :sidebar_projects_paths
     def sidebar_projects_paths
-      super + %w(projects/security/dashboard#show)
+      super + %w[
+        projects/security/dashboard#show
+        projects/insights#show
+      ]
     end
 
     override :sidebar_settings_paths
@@ -42,6 +45,10 @@ module EE
 
       if can?(current_user, :read_feature_flag, project) && !nav_tabs.include?(:operations)
         nav_tabs << :operations
+      end
+
+      if project.insights_available?
+        nav_tabs << :project_insights
       end
 
       nav_tabs
@@ -116,6 +123,12 @@ module EE
 
     def ci_cd_projects_available?
       ::License.feature_available?(:ci_cd_projects) && import_sources_enabled?
+    end
+
+    def merge_pipelines_available?
+      return false unless @project.builds_enabled?
+
+      @project.feature_available?(:merge_pipelines)
     end
 
     def size_limit_message(project)
@@ -207,6 +220,11 @@ module EE
       return true if super
 
       @project.feature_available?(:tracing, current_user) && can?(current_user, :read_environment, @project)
+    end
+
+    def project_incident_management_setting
+      @project_incident_management_setting ||= @project.incident_management_setting ||
+        @project.build_incident_management_setting
     end
   end
 end

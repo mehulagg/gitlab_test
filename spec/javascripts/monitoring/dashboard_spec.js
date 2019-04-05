@@ -25,13 +25,25 @@ export default propsData;
 
 describe('Dashboard', () => {
   let DashboardComponent;
+  let mock;
 
   beforeEach(() => {
     setFixtures(`
       <div class="prometheus-graphs"></div>
       <div class="layout-page"></div>
     `);
+
+    window.gon = {
+      ...window.gon,
+      ee: false,
+    };
+
+    mock = new MockAdapter(axios);
     DashboardComponent = Vue.extend(Dashboard);
+  });
+
+  afterEach(() => {
+    mock.restore();
   });
 
   describe('no metrics are available yet', () => {
@@ -47,14 +59,8 @@ describe('Dashboard', () => {
   });
 
   describe('requests information to the server', () => {
-    let mock;
     beforeEach(() => {
-      mock = new MockAdapter(axios);
       mock.onGet(mockApiEndpoint).reply(200, metricsGroupsAPIResponse);
-    });
-
-    afterEach(() => {
-      mock.restore();
     });
 
     it('shows up a loading state', done => {
@@ -97,7 +103,7 @@ describe('Dashboard', () => {
       });
     });
 
-    it('renders the dropdown with a number of environments', done => {
+    it('renders the environments dropdown with a number of environments', done => {
       const component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
         propsData: { ...propsData, hasMetrics: true, showPanels: false },
@@ -106,14 +112,16 @@ describe('Dashboard', () => {
       component.store.storeEnvironmentsData(environmentData);
 
       setTimeout(() => {
-        const dropdownMenuEnvironments = component.$el.querySelectorAll('.dropdown-menu ul li a');
+        const dropdownMenuEnvironments = component.$el.querySelectorAll(
+          '.js-environments-dropdown .dropdown-item',
+        );
 
         expect(dropdownMenuEnvironments.length).toEqual(component.store.environmentsData.length);
         done();
       });
     });
 
-    it('hides the dropdown list when there is no environments', done => {
+    it('hides the environments dropdown list when there is no environments', done => {
       const component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
         propsData: { ...propsData, hasMetrics: true, showPanels: false },
@@ -122,14 +130,16 @@ describe('Dashboard', () => {
       component.store.storeEnvironmentsData([]);
 
       setTimeout(() => {
-        const dropdownMenuEnvironments = component.$el.querySelectorAll('.dropdown-menu ul');
+        const dropdownMenuEnvironments = component.$el.querySelectorAll(
+          '.js-environments-dropdown .dropdown-item',
+        );
 
         expect(dropdownMenuEnvironments.length).toEqual(0);
         done();
       });
     });
 
-    it('renders the dropdown with a single is-active element', done => {
+    it('renders the environments dropdown with a single is-active element', done => {
       const component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
         propsData: { ...propsData, hasMetrics: true, showPanels: false },
@@ -138,14 +148,12 @@ describe('Dashboard', () => {
       component.store.storeEnvironmentsData(environmentData);
 
       setTimeout(() => {
-        const dropdownIsActiveElement = component.$el.querySelectorAll(
-          '.dropdown-menu ul li a.is-active',
+        const dropdownItems = component.$el.querySelectorAll(
+          '.js-environments-dropdown .dropdown-item[active="true"]',
         );
 
-        expect(dropdownIsActiveElement.length).toEqual(1);
-        expect(dropdownIsActiveElement[0].textContent.trim()).toEqual(
-          component.currentEnvironmentName,
-        );
+        expect(dropdownItems.length).toEqual(1);
+        expect(dropdownItems[0].textContent.trim()).toEqual(component.currentEnvironmentName);
         done();
       });
     });
@@ -157,7 +165,7 @@ describe('Dashboard', () => {
           ...propsData,
           hasMetrics: true,
           showPanels: false,
-          showEnvironmentDropdown: false,
+          environmentsEndpoint: '',
         },
       });
 
@@ -171,15 +179,12 @@ describe('Dashboard', () => {
   });
 
   describe('when the window resizes', () => {
-    let mock;
     beforeEach(() => {
-      mock = new MockAdapter(axios);
       mock.onGet(mockApiEndpoint).reply(200, metricsGroupsAPIResponse);
       jasmine.clock().install();
     });
 
     afterEach(() => {
-      mock.restore();
       jasmine.clock().uninstall();
     });
 

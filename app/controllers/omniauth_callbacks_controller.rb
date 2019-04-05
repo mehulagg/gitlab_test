@@ -3,6 +3,7 @@
 class OmniauthCallbacksController < Devise::OmniauthCallbacksController
   include AuthenticatesWithTwoFactor
   include Devise::Controllers::Rememberable
+  include AuthHelper
 
   protect_from_forgery except: [:kerberos, :saml, :cas3, :failure], with: :exception, prepend: true
 
@@ -80,10 +81,11 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
     end
 
     if current_user
+      return render_403 unless link_provider_allowed?(oauth['provider'])
+
       log_audit_event(current_user, with: oauth['provider'])
 
       identity_linker ||= auth_module::IdentityLinker.new(current_user, oauth)
-
       identity_linker.link
 
       if identity_linker.changed?
@@ -116,8 +118,12 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
     session[:service_tickets][provider] = ticket
   end
 
+  def build_auth_user(auth_user_class)
+    auth_user_class.new(oauth)
+  end
+
   def sign_in_user_flow(auth_user_class)
-    auth_user = auth_user_class.new(oauth)
+    auth_user = build_auth_user(auth_user_class)
     user = auth_user.find_and_update!
 
     if auth_user.valid_sign_in?

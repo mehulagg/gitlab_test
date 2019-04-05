@@ -47,16 +47,19 @@ export default {
     },
   },
   computed: {
-    ...mapState('vulnerabilities', ['modal']),
+    ...mapState('vulnerabilities', ['modal', 'pageInfo']),
     ...mapState('projects', ['projects']),
     ...mapGetters('filters', ['activeFilters']),
     canCreateIssuePermission() {
-      const path = this.modal.vulnerability.vulnerability_feedback_issue_path;
+      const path = this.vulnerability.vulnerability_feedback_issue_path;
       return _.isString(path) && !_.isEmpty(path);
     },
     canCreateFeedbackPermission() {
-      const path = this.modal.vulnerability.vulnerability_feedback_dismissal_path;
+      const path = this.vulnerability.vulnerability_feedback_dismissal_path;
       return _.isString(path) && !_.isEmpty(path);
+    },
+    vulnerability() {
+      return this.modal.vulnerability;
     },
   },
   created() {
@@ -64,7 +67,9 @@ export default {
     this.setVulnerabilitiesEndpoint(this.vulnerabilitiesEndpoint);
     this.setVulnerabilitiesCountEndpoint(this.vulnerabilitiesCountEndpoint);
     this.setVulnerabilitiesHistoryEndpoint(this.vulnerabilitiesHistoryEndpoint);
-    this.fetchVulnerabilitiesCount();
+    this.fetchVulnerabilities({ ...this.activeFilters, page: this.pageInfo.page });
+    this.fetchVulnerabilitiesCount(this.activeFilters);
+    this.fetchVulnerabilitiesHistory(this.activeFilters);
     this.fetchProjects();
   },
   methods: {
@@ -74,28 +79,24 @@ export default {
       'fetchVulnerabilities',
       'fetchVulnerabilitiesCount',
       'fetchVulnerabilitiesHistory',
-      'revertDismissal',
+      'undoDismiss',
+      'createMergeRequest',
       'setVulnerabilitiesCountEndpoint',
       'setVulnerabilitiesEndpoint',
       'setVulnerabilitiesHistoryEndpoint',
     ]),
     ...mapActions('projects', ['setProjectsEndpoint', 'fetchProjects']),
-    filterChange() {
-      this.fetchVulnerabilities(this.activeFilters);
-      this.fetchVulnerabilitiesCount(this.activeFilters);
-      this.fetchVulnerabilitiesHistory(this.activeFilters);
-    },
   },
 };
 </script>
 
 <template>
   <div>
-    <filters :dashboard-documentation="dashboardDocumentation" @change="filterChange" />
+    <filters />
     <vulnerability-count-list />
-    <h4 class="my-4">{{ __('Vulnerability Chart') }}</h4>
+
     <vulnerability-chart />
-    <h4 class="my-4">{{ __('Vulnerability List') }}</h4>
+
     <security-dashboard-table
       :dashboard-documentation="dashboardDocumentation"
       :empty-state-svg-path="emptyStateSvgPath"
@@ -105,9 +106,10 @@ export default {
       :vulnerability-feedback-help-path="vulnerabilityFeedbackHelpPath"
       :can-create-issue-permission="canCreateIssuePermission"
       :can-create-feedback-permission="canCreateFeedbackPermission"
-      @createNewIssue="createIssue({ vulnerability: modal.vulnerability })"
-      @dismissIssue="dismissVulnerability({ vulnerability: modal.vulnerability })"
-      @revertDismissIssue="revertDismissal({ vulnerability: modal.vulnerability })"
+      @createNewIssue="createIssue({ vulnerability })"
+      @dismissIssue="dismissVulnerability({ vulnerability })"
+      @revertDismissIssue="undoDismiss({ vulnerability })"
+      @createMergeRequest="createMergeRequest({ vulnerability })"
     />
   </div>
 </template>

@@ -9,6 +9,11 @@ module API
         @current_setting ||=
           (ApplicationSetting.current_without_cache || ApplicationSetting.create_from_defaults)
       end
+
+      def filter_attributes_using_license(attrs)
+        # This method will be redefined in EE.
+        attrs
+      end
     end
 
     desc 'Get the current application settings' do
@@ -95,8 +100,8 @@ module API
       optional :prometheus_metrics_enabled, type: Boolean, desc: 'Enable Prometheus metrics'
       optional :recaptcha_enabled, type: Boolean, desc: 'Helps prevent bots from creating accounts'
       given recaptcha_enabled: ->(val) { val } do
-        requires :recaptcha_private_key, type: String, desc: 'Generate private key at http://www.google.com/recaptcha'
         requires :recaptcha_site_key, type: String, desc: 'Generate site key at http://www.google.com/recaptcha'
+        requires :recaptcha_private_key, type: String, desc: 'Generate private key at http://www.google.com/recaptcha'
       end
       optional :repository_checks_enabled, type: Boolean, desc: "GitLab will periodically run 'git fsck' in all project and wiki repositories to look for silent disk corruption issues."
       optional :repository_storages, type: Array[String], desc: 'Storage paths for new projects'
@@ -121,6 +126,7 @@ module API
       optional :terminal_max_session_time, type: Integer, desc: 'Maximum time for web terminal websocket connection (in seconds). Set to 0 for unlimited time.'
       optional :usage_ping_enabled, type: Boolean, desc: 'Every week GitLab will report license usage back to GitLab, Inc.'
       optional :instance_statistics_visibility_private, type: Boolean, desc: 'When set to `true` Instance statistics will only be available to admins'
+      optional :local_markdown_version, type: Integer, desc: "Local markdown version, increase this value when any cached markdown should be invalidated"
 
       ApplicationSetting::SUPPORTED_KEY_TYPES.each do |type|
         optional :"#{type}_key_restriction",
@@ -129,42 +135,47 @@ module API
                  desc: "Restrictions on the complexity of uploaded #{type.upcase} keys. A value of #{ApplicationSetting::FORBIDDEN_KEY_VALUE} disables all #{type.upcase} keys."
       end
 
-      ## EE-only START
-      optional :elasticsearch_aws, type: Boolean, desc: 'Enable support for AWS hosted elasticsearch'
-      given elasticsearch_aws: ->(val) { val } do
-        optional :elasticsearch_aws_access_key, type: String, desc: 'AWS IAM access key'
-        requires :elasticsearch_aws_region, type: String, desc: 'The AWS region the elasticsearch domain is configured'
-        optional :elasticsearch_aws_secret_access_key, type: String, desc: 'AWS IAM secret access key'
+      if Gitlab.ee?
+        optional :elasticsearch_aws, type: Boolean, desc: 'Enable support for AWS hosted elasticsearch'
+
+        given elasticsearch_aws: ->(val) { val } do
+          optional :elasticsearch_aws_access_key, type: String, desc: 'AWS IAM access key'
+          requires :elasticsearch_aws_region, type: String, desc: 'The AWS region the elasticsearch domain is configured'
+          optional :elasticsearch_aws_secret_access_key, type: String, desc: 'AWS IAM secret access key'
+        end
+
+        optional :elasticsearch_indexing, type: Boolean, desc: 'Enable Elasticsearch indexing'
+
+        given elasticsearch_indexing: ->(val) { val } do
+          optional :elasticsearch_search, type: Boolean, desc: 'Enable Elasticsearch search'
+          requires :elasticsearch_url, type: String, desc: 'The url to use for connecting to Elasticsearch. Use a comma-separated list to support clustering (e.g., "http://localhost:9200, http://localhost:9201")'
+        end
+
+        optional :email_additional_text, type: String, desc: 'Additional text added to the bottom of every email for legal/auditing/compliance reasons'
+        optional :help_text, type: String, desc: 'GitLab server administrator information'
+        optional :repository_size_limit, type: Integer, desc: 'Size limit per repository (MB)'
+        optional :file_template_project_id, type: Integer, desc: 'ID of project where instance-level file templates are stored.'
+        optional :repository_storages, type: Array[String], desc: 'A list of names of enabled storage paths, taken from `gitlab.yml`. New projects will be created in one of these stores, chosen at random.'
+        optional :snowplow_enabled, type: Boolean, desc: 'Enable Snowplow'
+
+        given snowplow_enabled: ->(val) { val } do
+          requires :snowplow_collector_uri, type: String, desc: 'Snowplow Collector URI'
+          optional :snowplow_cookie_domain, type: String, desc: 'Snowplow cookie domain'
+          optional :snowplow_site_id, type: String, desc: 'Snowplow Site/Application ID'
+        end
+
+        optional :usage_ping_enabled, type: Boolean, desc: 'Every week GitLab will report license usage back to GitLab, Inc.'
       end
-      optional :elasticsearch_indexing, type: Boolean, desc: 'Enable Elasticsearch indexing'
-      given elasticsearch_indexing: ->(val) { val } do
-        optional :elasticsearch_search, type: Boolean, desc: 'Enable Elasticsearch search'
-        requires :elasticsearch_url, type: String, desc: 'The url to use for connecting to Elasticsearch. Use a comma-separated list to support clustering (e.g., "http://localhost:9200, http://localhost:9201")'
-      end
-      optional :email_additional_text, type: String, desc: 'Additional text added to the bottom of every email for legal/auditing/compliance reasons'
-      optional :help_text, type: String, desc: 'GitLab server administrator information'
-      optional :repository_size_limit, type: Integer, desc: 'Size limit per repository (MB)'
-      optional :file_template_project_id, type: Integer, desc: 'ID of project where instance-level file templates are stored.'
-      optional :repository_storages, type: Array[String], desc: 'A list of names of enabled storage paths, taken from `gitlab.yml`. New projects will be created in one of these stores, chosen at random.'
-      optional :snowplow_enabled, type: Boolean, desc: 'Enable Snowplow'
-      given snowplow_enabled: ->(val) { val } do
-        requires :snowplow_collector_uri, type: String, desc: 'Snowplow Collector URI'
-        optional :snowplow_cookie_domain, type: String, desc: 'Snowplow cookie domain'
-        optional :snowplow_site_id, type: String, desc: 'Snowplow Site/Application ID'
-      end
-      optional :usage_ping_enabled, type: Boolean, desc: 'Every week GitLab will report license usage back to GitLab, Inc.'
-      ## EE-only END
 
       optional_attributes = ::ApplicationSettingsHelper.visible_attributes << :performance_bar_allowed_group_id
 
-      ## EE-only START
-      optional_attributes += EE::ApplicationSettingsHelper.possible_licensed_attributes
-      ## EE-only END
+      if Gitlab.ee?
+        optional_attributes += EE::ApplicationSettingsHelper.possible_licensed_attributes
+      end
 
       optional(*optional_attributes)
       at_least_one_of(*optional_attributes)
     end
-    # rubocop: disable CodeReuse/ActiveRecord
     put "application/settings" do
       attrs = declared_params(include_missing: false)
 
@@ -186,23 +197,7 @@ module API
         attrs[:password_authentication_enabled_for_web] = attrs.delete(:password_authentication_enabled)
       end
 
-      ## EE-only START: Remove unlicensed attributes
-      unless ::License.feature_available?(:repository_mirrors)
-        attrs = attrs.except(*::EE::ApplicationSettingsHelper.repository_mirror_attributes)
-      end
-
-      unless ::License.feature_available?(:external_authorization_service)
-        attrs = attrs.except(*::EE::ApplicationSettingsHelper.external_authorization_service_attributes)
-      end
-
-      unless ::License.feature_available?(:email_additional_text)
-        attrs = attrs.except(:email_additional_text)
-      end
-
-      unless ::License.feature_available?(:custom_file_templates)
-        attrs = attrs.except(:file_template_project_id)
-      end
-      ## EE-only END: Remove unlicensed attributes
+      attrs = filter_attributes_using_license(attrs)
 
       if ApplicationSettings::UpdateService.new(current_settings, current_user, attrs).execute
         present current_settings, with: Entities::ApplicationSetting
@@ -210,6 +205,7 @@ module API
         render_validation_error!(current_settings)
       end
     end
-    # rubocop: enable CodeReuse/ActiveRecord
   end
 end
+
+API::Settings.prepend(EE::API::Settings)

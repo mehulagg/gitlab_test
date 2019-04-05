@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  # https://gitlab.com/gitlab-org/quality/nightly/issues/49
-  context 'Manage', :orchestrated, :ldap_no_tls, :ldap_tls, :quarantine do
+  context 'Manage', :orchestrated, :ldap_no_tls, :ldap_tls do
     describe 'LDAP admin sync' do
       it 'Syncs admin users' do
         Runtime::Browser.visit(:gitlab, Page::Main::Login)
@@ -17,7 +16,7 @@ module QA
           expect(menu).to have_personal_area
 
           # The ldap_sync_worker_cron job is set to run every minute
-          admin_synchronised = menu.wait(max: 80, time: 1, reload: true) do
+          admin_synchronised = menu.wait(max: 80, interval: 1, reload: true) do
             menu.has_admin_area_link?
           end
 

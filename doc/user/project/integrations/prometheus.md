@@ -13,7 +13,7 @@ There are two ways to set up Prometheus integration, depending on where your app
 - For deployments on Kubernetes, GitLab can automatically [deploy and manage Prometheus](#managed-prometheus-on-kubernetes).
 - For other deployment targets, simply [specify the Prometheus server](#manual-configuration-of-prometheus).
 
-Once enabled, GitLab will automatically detect metrics from known services in the [metric library](#monitoring-ci-cd-environments). You are also able to [add your own metrics](#adding-additional-metrics) as well.
+Once enabled, GitLab will automatically detect metrics from known services in the [metric library](#monitoring-cicd-environments). You are also able to [add your own metrics](#adding-additional-metrics-premium) as well.
 
 ## Enabling Prometheus Integration
 
@@ -89,7 +89,7 @@ to integrate with.
 Once configured, GitLab will attempt to retrieve performance metrics for any
 environment which has had a successful deployment.
 
-GitLab will automatically scan the Prometheus server for metrics from known serves like Kubernetes and NGINX, and attempt to identify individual environment. The supported metrics and scan process is detailed in our [Prometheus Metrics Library documentation](prometheus_library/index.md).
+GitLab will automatically scan the Prometheus server for metrics from known servers like Kubernetes and NGINX, and attempt to identify individual environment. The supported metrics and scan process is detailed in our [Prometheus Metrics Library documentation](prometheus_library/index.md).
 
 You can view the performance dashboard for an environment by [clicking on the monitoring button](../../../ci/environments.md#monitoring-environments).
 
@@ -120,19 +120,74 @@ To specify a variable in a query, enclose it in curly braces with a leading perc
 
 ### Setting up alerts for Prometheus metrics **[ULTIMATE]**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/6590) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.2 for [custom metrics](#adding-additional-metrics), and 11.3 for [library metrics](prometheus_library/metrics.md).
+#### Managed Prometheus instances
 
-Alerts can be configured for [metricss](#adding-additional-metrics) directly in the performance dashboard.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/6590) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.2 for [custom metrics](#adding-additional-metrics-premium), and 11.3 for [library metrics](prometheus_library/metrics.md).
+
+For managed Prometheus instances using auto configuration, alerts for metrics [can be configured](#adding-additional-metrics-premium) directly in the performance dashboard.
 
 To set an alert, click on the alarm icon in the top right corner of the metric you want to create the alert for. A dropdown
 will appear, with options to set the threshold and operator. Click **Add** to save and activate the alert.
 
 ![Adding an alert](img/prometheus_alert.png)
 
-If the metric exceeds the threshold of the alert for over 5 minutes, an email
-will be sent to all [Maintainers and Owners](../../permissions.md#project-members-permissions) of the project.
-
 To remove the alert, click back on the alert icon for the desired metric, and click **Delete**.
+
+#### External Prometheus instances
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/9258) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.8.
+
+For manually configured Prometheus servers, a notify endpoint is provided to use with Prometheus webhooks. If you have manual configuration enabled, an **Alerts** section is added to **Settings > Integrations > Prometheus**. This contains the *URL* and *Authorization Key*. The **Reset Key** button will invalidate the key and generate a new one.
+
+![Prometheus service configuration of Alerts](img/prometheus_service_alerts.png)
+
+To send GitLab alert notifications, copy the *URL* and *Authorization Key* into the [`webhook_configs`](https://prometheus.io/docs/alerting/configuration/#webhook_config) section of your Prometheus Alertmanager configuration:
+
+```yaml
+receivers:
+  name: gitlab
+  webhook_configs:
+  - http_config:
+      bearer_token: 9e1cbfcd546896a9ea8be557caf13a76
+    send_resolved: true
+    url: http://192.168.178.31:3001/root/manual_prometheus/prometheus/alerts/notify.json
+  ...
+```
+
+### Taking action on an alert **[ULTIMATE]**
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/4925) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.9.
+
+Alerts can be used to trigger actions, like open an issue automatically. To configure the actions:
+
+1. Navigate to your project's **Settings > Operations > Incidents**.
+1. Enable the option to create issues.
+1. Choose the [issue template](../description_templates.md) to create the issue from.
+1. Optionally, select whether to send an email notification to the developers of the project.
+1. Click **Save changes**.
+
+Once enabled, an issue will be opened automatically when an alert is triggered. To further customize the issue, you can add labels, mentions, or any other supported [quick action](../quick_actions.md) in the selected issue template.
+
+If the metric exceeds the threshold of the alert for over 5 minutes, an email will be sent to all [Maintainers and Owners](../../permissions.md#project-members-permissions) of the project.
+
+**Note:**
+If you are running a self-managed instance, the new interface shown on
+this page will not be available unless the feature flag
+`incident_management` is enabled, which can be done from the Rails console by
+instance administrators.
+
+Use these commands to start the Rails console:
+
+```sh
+# Omnibus GitLab
+gitlab-rails console
+
+# Installation from source
+cd /home/git/gitlab
+sudo -u git -H bin/rails console RAILS_ENV=production
+```
+
+Then run `Feature.enable(:incident_management)` to enable the feature flag.
 
 ## Determining the performance impact of a merge
 
@@ -161,7 +216,7 @@ If the "No data found" screen continues to appear, it could be due to:
 - No successful deployments have occurred to this environment.
 - Prometheus does not have performance data for this environment, or the metrics
   are not labeled correctly. To test this, connect to the Prometheus server and
-  [run a query](#gitlab-prometheus-queries), replacing `$CI_ENVIRONMENT_SLUG`
+  [run a query](prometheus_library/kubernetes.html#metrics-supported), replacing `$CI_ENVIRONMENT_SLUG`
   with the name of your environment.
 
 [autodeploy]: ../../../ci/autodeploy/index.md

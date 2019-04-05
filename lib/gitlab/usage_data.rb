@@ -5,8 +5,6 @@ module Gitlab
     APPROXIMATE_COUNT_MODELS = [Label, MergeRequest, Note, Todo].freeze
 
     class << self
-      prepend EE::Gitlab::UsageData # rubocop: disable Cop/InjectEnterpriseEditionModule
-
       def data(force_refresh: false)
         Rails.cache.fetch('usage_data', force: force_refresh, expires_in: 2.weeks) { uncached_data }
       end
@@ -31,7 +29,7 @@ module Gitlab
           installation_type: Gitlab::INSTALLATION_TYPE,
           active_user_count: count(User.active),
           recorded_at: Time.now,
-          edition: 'EE'
+          edition: 'CE'
         }
 
         usage_data
@@ -56,6 +54,8 @@ module Gitlab
             auto_devops_disabled: count(::ProjectAutoDevops.disabled),
             deploy_keys: count(DeployKey),
             deployments: count(Deployment),
+            successful_deployments: count(Deployment.success),
+            failed_deployments: count(Deployment.failed),
             environments: count(::Environment),
             clusters: count(::Clusters::Cluster),
             clusters_enabled: count(::Clusters::Cluster.enabled),
@@ -66,12 +66,12 @@ module Gitlab
             group_clusters_disabled: count(::Clusters::Cluster.disabled.group_type),
             clusters_platforms_gke: count(::Clusters::Cluster.gcp_installed.enabled),
             clusters_platforms_user: count(::Clusters::Cluster.user_provided.enabled),
-            clusters_applications_helm: count(::Clusters::Applications::Helm.installed),
-            clusters_applications_ingress: count(::Clusters::Applications::Ingress.installed),
-            clusters_applications_cert_managers: count(::Clusters::Applications::CertManager.installed),
-            clusters_applications_prometheus: count(::Clusters::Applications::Prometheus.installed),
-            clusters_applications_runner: count(::Clusters::Applications::Runner.installed),
-            clusters_applications_knative: count(::Clusters::Applications::Knative.installed),
+            clusters_applications_helm: count(::Clusters::Applications::Helm.available),
+            clusters_applications_ingress: count(::Clusters::Applications::Ingress.available),
+            clusters_applications_cert_managers: count(::Clusters::Applications::CertManager.available),
+            clusters_applications_prometheus: count(::Clusters::Applications::Prometheus.available),
+            clusters_applications_runner: count(::Clusters::Applications::Runner.available),
+            clusters_applications_knative: count(::Clusters::Applications::Knative.available),
             in_review_folder: count(::Environment.in_review_folder),
             groups: count(Group),
             issues: count(Issue),
@@ -84,6 +84,7 @@ module Gitlab
             projects: count(Project),
             projects_imported_from_github: count(Project.where(import_type: 'github')),
             projects_with_repositories_enabled: count(ProjectFeature.where('repository_access_level > ?', ProjectFeature::DISABLED)),
+            projects_with_error_tracking_enabled: count(::ErrorTracking::ProjectErrorTrackingSetting.where(enabled: true)),
             protected_branches: count(ProtectedBranch),
             releases: count(Release),
             remote_mirrors: count(RemoteMirror),
@@ -92,8 +93,14 @@ module Gitlab
             todos: count(Todo),
             uploads: count(Upload),
             web_hooks: count(WebHook)
-          }.merge(services_usage).merge(approximate_counts)
-        }
+          }
+          .merge(services_usage)
+          .merge(approximate_counts)
+        }.tap do |data|
+          if Feature.enabled?(:group_overview_security_dashboard)
+            data[:counts][:user_preferences] = user_preferences_usage
+          end
+        end
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
@@ -161,6 +168,10 @@ module Gitlab
         }
       end
 
+      def user_preferences_usage
+        {} # augmented in EE
+      end
+
       def count(relation, fallback: -1)
         relation.count
       rescue ActiveRecord::StatementInvalid
@@ -180,3 +191,5 @@ module Gitlab
     end
   end
 end
+
+Gitlab::UsageData.prepend(EE::Gitlab::UsageData)

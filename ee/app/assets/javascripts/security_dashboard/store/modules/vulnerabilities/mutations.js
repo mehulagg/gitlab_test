@@ -2,6 +2,7 @@ import Vue from 'vue';
 import { s__ } from '~/locale';
 import { visitUrl } from '~/lib/utils/url_utility';
 import * as types from './mutation_types';
+import { DAYS } from './constants';
 
 export default {
   [types.SET_VULNERABILITIES_ENDPOINT](state, payload) {
@@ -23,6 +24,9 @@ export default {
   [types.SET_VULNERABILITIES_COUNT_ENDPOINT](state, payload) {
     state.vulnerabilitiesCountEndpoint = payload;
   },
+  [types.SET_VULNERABILITIES_PAGE](state, payload) {
+    state.pageInfo = { ...state.pageInfo, page: payload };
+  },
   [types.REQUEST_VULNERABILITIES_COUNT](state) {
     state.isLoadingVulnerabilitiesCount = true;
     state.errorLoadingVulnerabilitiesCount = false;
@@ -38,6 +42,18 @@ export default {
   [types.SET_VULNERABILITIES_HISTORY_ENDPOINT](state, payload) {
     state.vulnerabilitiesHistoryEndpoint = payload;
   },
+  [types.SET_VULNERABILITIES_HISTORY_DAY_RANGE](state, days) {
+    state.vulnerabilitiesHistoryDayRange = days;
+    state.vulnerabilitiesHistoryShowSplitLine = days <= DAYS.THIRTY;
+
+    if (days <= DAYS.THIRTY) {
+      state.vulnerabilitiesHistoryMaxDayInterval = 1;
+    } else if (days > DAYS.THIRTY && days <= DAYS.SIXTY) {
+      state.vulnerabilitiesHistoryMaxDayInterval = 7;
+    } else if (days > DAYS.SIXTY) {
+      state.vulnerabilitiesHistoryMaxDayInterval = 14;
+    }
+  },
   [types.REQUEST_VULNERABILITIES_HISTORY](state) {
     state.isLoadingVulnerabilitiesHistory = true;
     state.errorLoadingVulnerabilitiesHistory = false;
@@ -52,6 +68,7 @@ export default {
   },
   [types.SET_MODAL_DATA](state, payload) {
     const { vulnerability } = payload;
+    const { location } = vulnerability;
 
     Vue.set(state.modal, 'title', vulnerability.name);
     Vue.set(state.modal.data.description, 'value', vulnerability.description);
@@ -65,22 +82,54 @@ export default {
       'url',
       vulnerability.project && vulnerability.project.full_path,
     );
-    Vue.set(state.modal.data.file, 'value', vulnerability.location && vulnerability.location.file);
+
     Vue.set(
       state.modal.data.identifiers,
       'value',
       vulnerability.identifiers.length && vulnerability.identifiers,
     );
-    Vue.set(
-      state.modal.data.className,
-      'value',
-      vulnerability.location && vulnerability.location.class,
-    );
+
+    if (location) {
+      const {
+        file,
+        start_line: startLine,
+        end_line: endLine,
+        image,
+        operating_system: namespace,
+        class: className,
+      } = location;
+
+      let lineSuffix = '';
+
+      if (startLine) {
+        lineSuffix += `:${startLine}`;
+        if (endLine && startLine !== endLine) {
+          lineSuffix += `-${endLine}`;
+        }
+      }
+
+      Vue.set(state.modal.data.className, 'value', className);
+      Vue.set(state.modal.data.file, 'value', `${file}${lineSuffix}`);
+      Vue.set(state.modal.data.image, 'value', image);
+      Vue.set(state.modal.data.namespace, 'value', namespace);
+    }
+
     Vue.set(state.modal.data.severity, 'value', vulnerability.severity);
     Vue.set(state.modal.data.reportType, 'value', vulnerability.report_type);
     Vue.set(state.modal.data.confidence, 'value', vulnerability.confidence);
     Vue.set(state.modal, 'vulnerability', vulnerability);
-    Vue.set(state.modal.vulnerability, 'hasIssue', Boolean(vulnerability.issue_feedback));
+    Vue.set(
+      state.modal.vulnerability,
+      'hasIssue',
+      Boolean(vulnerability.issue_feedback && vulnerability.issue_feedback.issue_iid),
+    );
+    Vue.set(
+      state.modal.vulnerability,
+      'hasMergeRequest',
+      Boolean(
+        vulnerability.merge_request_feedback && vulnerability.merge_request.merge_request_iid,
+      ),
+    );
     Vue.set(state.modal.vulnerability, 'isDismissed', Boolean(vulnerability.dismissal_feedback));
     Vue.set(state.modal, 'error', null);
 
@@ -150,6 +199,24 @@ export default {
       state.modal,
       'error',
       s__('Security Reports|There was an error reverting the dismissal.'),
+    );
+  },
+  [types.REQUEST_CREATE_MERGE_REQUEST](state) {
+    state.isCreatingMergeRequest = true;
+    Vue.set(state.modal, 'isCreatingMergeRequest', true);
+    Vue.set(state.modal, 'error', null);
+  },
+  [types.RECEIVE_CREATE_MERGE_REQUEST_SUCCESS](state, payload) {
+    // We don't cancel the loading state here because we're navigating away from the page
+    visitUrl(payload.merge_request_path);
+  },
+  [types.RECEIVE_CREATE_MERGE_REQUEST_ERROR](state) {
+    state.isCreatingIssue = false;
+    Vue.set(state.modal, 'isCreatingMergeRequest', false);
+    Vue.set(
+      state.modal,
+      'error',
+      s__('security Reports|There was an error creating the merge request'),
     );
   },
 };

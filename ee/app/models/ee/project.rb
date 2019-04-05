@@ -18,6 +18,7 @@ module EE
       include Elastic::ProjectsSearch
       include EE::DeploymentPlatform # rubocop: disable Cop/InjectEnterpriseEditionModule
       include EachBatch
+      include InsightsFeature
 
       ignore_column :mirror_last_update_at,
         :mirror_last_successful_update_at,
@@ -41,6 +42,7 @@ module EE
       has_one :gitlab_slack_application_service
       has_one :tracing_setting, class_name: 'ProjectTracingSetting'
       has_one :alerting_setting, inverse_of: :project, class_name: 'Alerting::ProjectAlertingSetting'
+      has_one :incident_management_setting, inverse_of: :project, class_name: 'IncidentManagement::ProjectIncidentManagementSetting'
       has_one :feature_usage, class_name: 'ProjectFeatureUsage'
 
       has_many :reviews, inverse_of: :project
@@ -84,13 +86,13 @@ module EE
           .where("import_state.retry_count <= ?", ::Gitlab::Mirror::MAX_RETRY)
       end
 
-      scope :with_wiki_enabled,   -> { with_feature_enabled(:wiki) }
+      scope :with_wiki_enabled, -> { with_feature_enabled(:wiki) }
 
-      scope :verified_repos, -> { joins(:repository_state).merge(ProjectRepositoryState.verified_repos) }
-      scope :verified_wikis, -> { joins(:repository_state).merge(ProjectRepositoryState.verified_wikis) }
       scope :verification_failed_repos, -> { joins(:repository_state).merge(ProjectRepositoryState.verification_failed_repos) }
       scope :verification_failed_wikis, -> { joins(:repository_state).merge(ProjectRepositoryState.verification_failed_wikis) }
       scope :for_plan_name, -> (name) { joins(namespace: :plan).where(plans: { name: name }) }
+      scope :requiring_code_owner_approval,
+            -> { where(merge_requests_require_code_owner_approval: true) }
 
       delegate :shared_runners_minutes, :shared_runners_seconds, :shared_runners_seconds_last_reset,
         to: :statistics, allow_nil: true
@@ -103,6 +105,8 @@ module EE
         to: :import_state, prefix: :mirror, allow_nil: true
 
       delegate :log_jira_dvcs_integration_usage, :jira_dvcs_server_last_sync_at, :jira_dvcs_cloud_last_sync_at, to: :feature_usage
+
+      delegate :merge_pipelines_enabled, :merge_pipelines_enabled=, :merge_pipelines_enabled?, to: :ci_cd_settings
 
       validates :repository_size_limit,
         numericality: { only_integer: true, greater_than_or_equal_to: 0, allow_nil: true }
@@ -120,6 +124,7 @@ module EE
 
       accepts_nested_attributes_for :tracing_setting, update_only: true, allow_destroy: true
       accepts_nested_attributes_for :alerting_setting, update_only: true
+      accepts_nested_attributes_for :incident_management_setting, update_only: true
 
       alias_attribute :fallback_approvals_required, :approvals_before_merge
     end
@@ -195,9 +200,32 @@ module EE
       super && !shared_runners_limit_namespace.shared_runners_minutes_used?
     end
 
+    def link_pool_repository
+      super
+      repository.log_geo_updated_event
+    end
+
+    def object_pool_missing?
+      has_pool_repository? && !pool_repository.object_pool.exists?
+    end
+
     def shared_runners_minutes_limit_enabled?
       !public? && shared_runners_enabled? &&
         shared_runners_limit_namespace.shared_runners_minutes_limit_enabled?
+    end
+
+    # This makes the feature disabled by default, in contrary to how
+    # `#feature_available?` makes a feature enabled by default.
+    #
+    # This allows to:
+    # - Enable the feature flag for a given project, regardless of the license.
+    #   This is useful for early testing a feature in production on a given project.
+    # - Enable the feature flag globally and still check that the license allows
+    #   it. This is the case when we're ready to enable a feature for anyone
+    #   with the correct license.
+    def beta_feature_available?(feature)
+      ::Feature.enabled?(feature, self) ||
+        (::Feature.enabled?(feature) && feature_available?(feature))
     end
 
     def feature_available?(feature, user = nil)
@@ -213,13 +241,21 @@ module EE
       feature_available?(:multiple_project_issue_boards)
     end
 
+    def multiple_approval_rules_available?
+      feature_available?(:multiple_approval_rules)
+    end
+
+    def code_owner_approval_required_available?
+      feature_available?(:code_owner_approval_required)
+    end
+
     def service_desk_enabled
       ::EE::Gitlab::ServiceDesk.enabled?(project: self) && super
     end
     alias_method :service_desk_enabled?, :service_desk_enabled
 
     def service_desk_address
-      return nil unless service_desk_enabled?
+      return unless service_desk_enabled?
 
       config = ::Gitlab.config.incoming_email
       wildcard = ::Gitlab::IncomingEmail::WILDCARD_PLACEHOLDER
@@ -286,6 +322,25 @@ module EE
       super
     end
 
+    def visible_regular_approval_rules
+      return approval_rules.none unless ::Feature.enabled?(:approval_rules, self)
+
+      strong_memoize(:visible_regular_approval_rules) do
+        regular_rules = approval_rules.regular.order(:id)
+
+        next regular_rules.take(1) unless multiple_approval_rules_available?
+
+        regular_rules
+      end
+    end
+
+    def min_fallback_approvals
+      strong_memoize(:min_fallback_approvals) do
+        visible_regular_approval_rules.map(&:approvals_required).max ||
+          approvals_before_merge.to_i
+      end
+    end
+
     def reset_approvals_on_push
       super && feature_available?(:merge_request_approvers)
     end
@@ -301,6 +356,10 @@ module EE
       ::Gitlab::Utils.ensure_array_from_string(value).each do |group_id|
         approver_groups.find_or_initialize_by(group_id: group_id, target_id: id)
       end
+    end
+
+    def merge_requests_require_code_owner_approval?
+      super && code_owner_approval_required_available?
     end
 
     def find_path_lock(path, exact_match: false, downstream: false)
@@ -419,7 +478,7 @@ module EE
     end
 
     def external_authorization_classification_label
-      return nil unless License.feature_available?(:external_authorization_service)
+      return unless License.feature_available?(:external_authorization_service)
 
       super || ::Gitlab::CurrentSettings.current_application_settings
                  .external_authorization_service_default_label
@@ -446,7 +505,7 @@ module EE
     end
 
     def protected_environment_by_name(environment_name)
-      return nil unless protected_environments_feature_available?
+      return unless protected_environments_feature_available?
 
       protected_environments.find_by(name: environment_name)
     end
@@ -470,6 +529,10 @@ module EE
 
     def protected_environments_feature_available?
       feature_available?(:protected_environments)
+    end
+
+    def merge_pipelines_enabled?
+      feature_available?(:merge_pipelines) && super
     end
 
     # Because we use default_value_for we need to be sure
@@ -514,6 +577,13 @@ module EE
 
     def feature_usage
       super.presence || build_feature_usage
+    end
+
+    def design_management_enabled?
+      # Checking both feature availability on the license, as well as the feature
+      # flag, because we don't want to enable design_management by default on
+      # on prem installs yet.
+      feature_available?(:design_management) && ::Feature.enabled?(:design_management, self)
     end
 
     private

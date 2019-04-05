@@ -105,17 +105,19 @@ module API
         params do
           use :pagination
         end
-        # rubocop: disable CodeReuse/ActiveRecord
+
         get ':namespace/repos', requirements: NAMESPACE_ENDPOINT_REQUIREMENTS do
           namespace = Namespace.find_by_full_path(params[:namespace])
           not_found!('Namespace') unless namespace
 
-          projects = current_user.authorized_projects.where(namespace_id: namespace.self_and_descendants).to_a
+          projects = Project.public_or_visible_to_user(current_user)
+                            .in_namespace(namespace.self_and_descendants)
+                            .to_a
           projects.select! { |project| licensed_project?(project) }
           projects = ::Kaminari.paginate_array(projects)
+
           present paginate(projects), with: ::API::Github::Entities::Repository
         end
-        # rubocop: enable CodeReuse/ActiveRecord
       end
 
       # Jira dev panel integration weirdly requests for "/-/jira/pulls" instead
@@ -131,6 +133,10 @@ module API
           present find_merge_requests, with: ::API::Github::Entities::PullRequest
         end
 
+        get '/-/jira/events' do
+          present []
+        end
+
         params do
           use :project_full_path
         end
@@ -140,6 +146,15 @@ module API
           merge_requests = MergeRequestsFinder.new(current_user, authorized_only: true, project_id: user_project.id).execute
 
           present paginate(merge_requests), with: ::API::Github::Entities::PullRequest
+        end
+
+        params do
+          use :project_full_path
+        end
+        get ':namespace/:project/pulls/:id', requirements: PROJECT_ENDPOINT_REQUIREMENTS do
+          mr = find_merge_request_with_access(params[:id])
+
+          present mr, with: ::API::Github::Entities::PullRequest
         end
 
         # In Github, each Merge Request is automatically also an issue.
@@ -166,10 +181,12 @@ module API
 
         # Self-hosted Jira (tested on 7.11.1) requests this endpoint right
         # after fetching branches.
-        # We need to respond with a 200 request to avoid breaking the
-        # integration flow (fetching merge requests).
         get ':namespace/:project/events' do
-          present []
+          user_project = find_project_with_access(params)
+
+          merge_requests = MergeRequestsFinder.new(current_user, authorized_only: true, project_id: user_project.id).execute
+
+          present paginate(merge_requests), with: ::API::Github::Entities::PullRequestEvent
         end
 
         params do

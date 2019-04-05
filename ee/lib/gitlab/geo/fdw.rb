@@ -19,6 +19,10 @@ module Gitlab
           value.nil? ? true : value
         end
 
+        def enabled_for_selective_sync?
+          enabled? && Feature.enabled?(:use_fdw_queries_for_selective_sync)
+        end
+
         # Return full table name with foreign schema
         #
         # @param [String] table_name
@@ -37,10 +41,9 @@ module Gitlab
           Gitlab::Geo.cache_value(:geo_fdw_count_tables) do
             sql = <<~SQL
               SELECT COUNT(*)
-                FROM information_schema.tables
-               WHERE table_schema = '#{FOREIGN_SCHEMA}'
-                 AND table_type = 'FOREIGN TABLE'
-                 AND table_name NOT LIKE 'pg_%'
+                FROM information_schema.foreign_tables
+               WHERE foreign_table_schema = '#{FOREIGN_SCHEMA}'
+                 AND foreign_table_name NOT LIKE 'pg_%'
             SQL
 
             ::Geo::TrackingBase.connection.execute(sql).first.fetch('count').to_i

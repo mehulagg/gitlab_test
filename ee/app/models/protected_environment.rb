@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-class ProtectedEnvironment < ActiveRecord::Base
+class ProtectedEnvironment < ApplicationRecord
   include ::Gitlab::Utils::StrongMemoize
 
   belongs_to :project
@@ -9,6 +9,15 @@ class ProtectedEnvironment < ActiveRecord::Base
 
   validates :deploy_access_levels, length: { minimum: 1 }
   validates :name, :project, presence: true
+
+  scope :sorted_by_name, -> { order(:name) }
+
+  scope :with_environment_id, -> do
+    select('protected_environments.*, environments.id AS environment_id')
+      .joins('LEFT OUTER JOIN environments ON' \
+             ' protected_environments.name = environments.name ' \
+             ' AND protected_environments.project_id = environments.project_id')
+  end
 
   def accessible_to?(user)
     deploy_access_levels

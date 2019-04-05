@@ -31,7 +31,7 @@ describe Gitlab::Git::Repository, :seed_helper do
   describe '.create_hooks' do
     let(:repo_path) { File.join(storage_path, 'hook-test.git') }
     let(:hooks_dir) { File.join(repo_path, 'hooks') }
-    let(:target_hooks_dir) { Gitlab.config.gitlab_shell.hooks_path }
+    let(:target_hooks_dir) { Gitlab::Shell.new.hooks_path }
     let(:existing_target) { File.join(repo_path, 'foobar') }
 
     before do
@@ -152,13 +152,14 @@ describe Gitlab::Git::Repository, :seed_helper do
     let(:append_sha) { true }
     let(:ref) { 'master' }
     let(:format) { nil }
+    let(:path) { nil }
 
     let(:expected_extension) { 'tar.gz' }
     let(:expected_filename) { "#{expected_prefix}.#{expected_extension}" }
     let(:expected_path) { File.join(storage_path, cache_key, expected_filename) }
     let(:expected_prefix) { "gitlab-git-test-#{ref}-#{SeedRepo::LastCommit::ID}" }
 
-    subject(:metadata) { repository.archive_metadata(ref, storage_path, 'gitlab-git-test', format, append_sha: append_sha) }
+    subject(:metadata) { repository.archive_metadata(ref, storage_path, 'gitlab-git-test', format, append_sha: append_sha, path: path) }
 
     it 'sets CommitId to the commit SHA' do
       expect(metadata['CommitId']).to eq(SeedRepo::LastCommit::ID)
@@ -174,6 +175,14 @@ describe Gitlab::Git::Repository, :seed_helper do
       expect(expected_path).to include(File.join(repository.gl_repository, SeedRepo::LastCommit::ID))
 
       expect(metadata['ArchivePath']).to eq(expected_path)
+    end
+
+    context 'path is set' do
+      let(:path) { 'foo/bar' }
+
+      it 'appends the path to the prefix' do
+        expect(metadata['ArchivePrefix']).to eq("#{expected_prefix}-foo-bar")
+      end
     end
 
     context 'append_sha varies archive path and filename' do
@@ -280,6 +289,96 @@ describe Gitlab::Git::Repository, :seed_helper do
 
     it_behaves_like 'wrapping gRPC errors', Gitlab::GitalyClient::CommitService, :commit_count do
       subject { repository.commit_count('master') }
+    end
+  end
+
+  describe '#diverging_commit_count' do
+    it 'counts 0 for the same branch' do
+      expect(repository.diverging_commit_count('master', 'master', max_count: 1000)).to eq([0, 0])
+    end
+
+    context 'max count does not truncate results' do
+      where(:left, :right, :expected) do
+        1 | 1 | [1, 1]
+        4 | 4 | [4, 4]
+        2 | 2 | [2, 2]
+        2 | 4 | [2, 4]
+        4 | 2 | [4, 2]
+        10 | 10 | [10, 10]
+      end
+
+      with_them do
+        before do
+          repository.create_branch('left-branch', 'master')
+          repository.create_branch('right-branch', 'master')
+
+          left.times do
+            new_commit_edit_new_file_on_branch(repository_rugged, 'encoding/CHANGELOG', 'left-branch', 'some more content for a', 'some stuff')
+          end
+
+          right.times do
+            new_commit_edit_new_file_on_branch(repository_rugged, 'encoding/CHANGELOG', 'right-branch', 'some more content for b', 'some stuff')
+          end
+        end
+
+        after do
+          repository.delete_branch('left-branch')
+          repository.delete_branch('right-branch')
+        end
+
+        it 'returns the correct count bounding at max_count' do
+          branch_a_sha = repository_rugged.branches['left-branch'].target.oid
+          branch_b_sha = repository_rugged.branches['right-branch'].target.oid
+
+          count = repository.diverging_commit_count(branch_a_sha, branch_b_sha, max_count: 1000)
+
+          expect(count).to eq(expected)
+        end
+      end
+    end
+
+    context 'max count truncates results' do
+      where(:left, :right, :max_count) do
+        1 | 1 | 1
+        4 | 4 | 4
+        2 | 2 | 3
+        2 | 4 | 3
+        4 | 2 | 5
+        10 | 10 | 10
+      end
+
+      with_them do
+        before do
+          repository.create_branch('left-branch', 'master')
+          repository.create_branch('right-branch', 'master')
+
+          left.times do
+            new_commit_edit_new_file_on_branch(repository_rugged, 'encoding/CHANGELOG', 'left-branch', 'some more content for a', 'some stuff')
+          end
+
+          right.times do
+            new_commit_edit_new_file_on_branch(repository_rugged, 'encoding/CHANGELOG', 'right-branch', 'some more content for b', 'some stuff')
+          end
+        end
+
+        after do
+          repository.delete_branch('left-branch')
+          repository.delete_branch('right-branch')
+        end
+
+        it 'returns the correct count bounding at max_count' do
+          branch_a_sha = repository_rugged.branches['left-branch'].target.oid
+          branch_b_sha = repository_rugged.branches['right-branch'].target.oid
+
+          results = repository.diverging_commit_count(branch_a_sha, branch_b_sha, max_count: max_count)
+
+          expect(results[0] + results[1]).to eq(max_count)
+        end
+      end
+    end
+
+    it_behaves_like 'wrapping gRPC errors', Gitlab::GitalyClient::CommitService, :diverging_commit_count do
+      subject { repository.diverging_commit_count('master', 'master', max_count: 1000) }
     end
   end
 
@@ -527,16 +626,6 @@ describe Gitlab::Git::Repository, :seed_helper do
     it_should_behave_like 'search files by content' do
       let(:search_results) do
         repository.search_files_by_content('search-files-by-content', 'search-files-by-content-branch')
-      end
-    end
-
-    it_should_behave_like 'search files by content' do
-      let(:search_results) do
-        repository.gitaly_repository_client.search_files_by_content(
-          'search-files-by-content-branch',
-          'search-files-by-content',
-          chunked_response: false
-        )
       end
     end
   end
@@ -1608,9 +1697,45 @@ describe Gitlab::Git::Repository, :seed_helper do
 
       expect(repository.delete_config(*%w[does.not.exist test.foo1 test.foo2])).to be_nil
 
+      # Workaround for https://github.com/libgit2/rugged/issues/785: If
+      # Gitaly changes .gitconfig while Rugged has the file loaded
+      # Rugged::Repository#each_key will report stale values unless a
+      # lookup is done first.
+      expect(repository_rugged.config['test.foo1']).to be_nil
       config_keys = repository_rugged.config.each_key.to_a
       expect(config_keys).not_to include('test.foo1')
       expect(config_keys).not_to include('test.foo2')
+    end
+  end
+
+  describe '#merge_to_ref' do
+    let(:repository) { mutable_repository }
+    let(:branch_head) { '6d394385cf567f80a8fd85055db1ab4c5295806f' }
+    let(:left_sha) { 'cfe32cf61b73a0d5e9f13e774abde7ff789b1660' }
+    let(:right_branch) { 'test-master' }
+    let(:target_ref) { 'refs/merge-requests/999/merge' }
+
+    before do
+      repository.create_branch(right_branch, branch_head) unless repository.branch_exists?(right_branch)
+    end
+
+    def merge_to_ref
+      repository.merge_to_ref(user, left_sha, right_branch, target_ref, 'Merge message')
+    end
+
+    it 'generates a commit in the target_ref' do
+      expect(repository.ref_exists?(target_ref)).to be(false)
+
+      commit_sha = merge_to_ref
+      ref_head = repository.commit(target_ref)
+
+      expect(commit_sha).to be_present
+      expect(repository.ref_exists?(target_ref)).to be(true)
+      expect(ref_head.id).to eq(commit_sha)
+    end
+
+    it 'does not change the right branch HEAD' do
+      expect { merge_to_ref }.not_to change { repository.find_branch(right_branch).target }
     end
   end
 
@@ -1824,7 +1949,7 @@ describe Gitlab::Git::Repository, :seed_helper do
       imported_repo.create_from_bundle(valid_bundle_path)
       hooks_path = Gitlab::GitalyClient::StorageSettings.allow_disk_access { File.join(imported_repo.path, 'hooks') }
 
-      expect(File.readlink(hooks_path)).to eq(Gitlab.config.gitlab_shell.hooks_path)
+      expect(File.readlink(hooks_path)).to eq(Gitlab::Shell.new.hooks_path)
     end
 
     it 'raises an error if the bundle is an attempted malicious payload' do

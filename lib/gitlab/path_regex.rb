@@ -57,6 +57,7 @@ module Gitlab
       unsubscribes
       uploads
       users
+      v2
     ].freeze
 
     # This list should contain all words following `/*namespace_id/:project_id` in
@@ -233,10 +234,6 @@ module Gitlab
       }x
     end
 
-    def saml_callback_regex
-      @saml_callback_regex ||= %r(\A\/groups\/(?<group>#{full_namespace_route_regex})\/\-\/saml\/callback\z).freeze
-    end
-
     private
 
     def single_line_regexp(regex)
@@ -246,3 +243,5 @@ module Gitlab
     end
   end
 end
+
+Gitlab::PathRegex.prepend(EE::Gitlab::PathRegex)

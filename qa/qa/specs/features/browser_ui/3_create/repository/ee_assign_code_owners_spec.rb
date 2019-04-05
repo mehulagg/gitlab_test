@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Create' do
+  # https://gitlab.com/gitlab-org/quality/staging/issues/39
+  context 'Create', :quarantine do
     describe 'Codeowners' do
       it 'merge request assigns code owners as approvers' do
         Runtime::Browser.visit(:gitlab, Page::Main::Login)
@@ -18,7 +19,7 @@ module QA
         end
         project.visit!
 
-        Page::Project::Menu.perform(&:click_members_settings)
+        Page::Project::Menu.perform(&:go_to_members_settings)
         Page::Project::Settings::Members.perform do |members_page|
           members_page.add_member(approver.username)
           members_page.add_member(non_approver.username)
@@ -32,10 +33,6 @@ module QA
             CODEOWNERS @#{approver.username}
           CONTENT
           push.commit_message = 'Add CODEOWNERS and test files'
-        end
-
-        Page::Project::Show.perform do |project_page|
-          project_page.wait_for_push
         end
 
         # Push a new CODEOWNERS file and create a merge request

@@ -2,8 +2,6 @@ import Vue from 'vue';
 import component from 'ee/vue_shared/security_reports/components/modal.vue';
 import createState from 'ee/vue_shared/security_reports/store/state';
 import mountComponent from 'spec/helpers/vue_mount_component_helper';
-import { trimText } from 'spec/helpers/vue_component_helper';
-import { TEST_HOST } from 'spec/test_constants';
 
 describe('Security Reports modal', () => {
   const Component = Vue.extend(component);
@@ -33,13 +31,11 @@ describe('Security Reports modal', () => {
         expect(vm.$el.textContent.trim()).toContain('#123');
       });
 
-      it('renders button to revert dismissal', () => {
-        expect(vm.$el.querySelector('.js-dismiss-btn').textContent.trim()).toEqual(
-          'Revert dismissal',
-        );
+      it('renders button to undo dismiss', () => {
+        expect(vm.$el.querySelector('.js-dismiss-btn').textContent.trim()).toEqual('Undo dismiss');
       });
 
-      it('emits revertDismissIssue when revert dismissal button is clicked', () => {
+      it('emits revertDismissIssue when undo dismiss button is clicked', () => {
         spyOn(vm, '$emit');
 
         const button = vm.$el.querySelector('.js-dismiss-btn');
@@ -68,7 +64,7 @@ describe('Security Reports modal', () => {
         expect(vm.$el.querySelector('.js-create-issue-btn')).toBe(null);
       });
 
-      it('renders create issue button and footer', () => {
+      it('renders the dismiss button', () => {
         expect(vm.$el.querySelector('.js-dismiss-btn')).not.toBe(null);
       });
 
@@ -100,7 +96,7 @@ describe('Security Reports modal', () => {
       });
 
       it('renders create issue button', () => {
-        expect(vm.$el.querySelector('.js-create-issue-btn')).not.toBe(null);
+        expect(vm.$el.querySelector('.js-action-button')).not.toBe(null);
       });
 
       it('renders the footer', () => {
@@ -110,35 +106,10 @@ describe('Security Reports modal', () => {
       it('emits createIssue when create issue button is clicked', () => {
         spyOn(vm, '$emit');
 
-        const button = vm.$el.querySelector('.js-create-issue-btn');
+        const button = vm.$el.querySelector('.js-action-button');
         button.click();
 
         expect(vm.$emit).toHaveBeenCalledWith('createNewIssue');
-      });
-    });
-
-    describe('with instances', () => {
-      beforeEach(() => {
-        const props = {
-          modal: createState().modal,
-        };
-        props.modal.data.instances.value = [
-          { uri: 'http://192.168.32.236:3001/explore?sort=latest_activity_desc' },
-          { uri: 'http://192.168.32.236:3001/help/user/group/subgroups/index.md' },
-        ];
-        vm = mountComponent(Component, props);
-      });
-
-      it('renders instances list', () => {
-        const instances = vm.$el.querySelectorAll('.report-block-list li');
-
-        expect(instances[0].textContent).toContain(
-          'http://192.168.32.236:3001/explore?sort=latest_activity_desc',
-        );
-
-        expect(instances[1].textContent).toContain(
-          'http://192.168.32.236:3001/help/user/group/subgroups/index.md',
-        );
       });
     });
 
@@ -149,19 +120,11 @@ describe('Security Reports modal', () => {
           vulnerabilityFeedbackHelpPath: 'feedbacksHelpPath',
         };
         props.modal.title = 'Arbitrary file existence disclosure in Action Pack';
-        props.modal.data.file.value = 'Gemfile.lock';
-        props.modal.data.file.url = `${TEST_HOST}/path/Gemfile.lock`;
         vm = mountComponent(Component, props);
       });
 
-      it('renders keys in `data`', () => {
+      it('renders title', () => {
         expect(vm.$el.textContent).toContain('Arbitrary file existence disclosure in Action Pack');
-      });
-
-      it('renders link fields with link', () => {
-        expect(vm.$el.querySelector('.js-link-file').getAttribute('href')).toEqual(
-          `${TEST_HOST}/path/Gemfile.lock`,
-        );
       });
 
       it('renders help link', () => {
@@ -204,6 +167,21 @@ describe('Security Reports modal', () => {
     });
   });
 
+  describe('Vulnerability Details', () => {
+    it('is rendered', () => {
+      const props = {
+        modal: createState().modal,
+      };
+      props.modal.data.namespace.value = 'foobar';
+      vm = mountComponent(Component, props);
+
+      const vulnerabilityDetails = vm.$el.querySelector('.js-vulnerability-details');
+
+      expect(vulnerabilityDetails).not.toBeNull();
+      expect(vulnerabilityDetails.textContent).toContain('foobar');
+    });
+  });
+
   describe('Solution Card', () => {
     it('is rendered if the vulnerability has a solution', () => {
       const props = {
@@ -226,7 +204,7 @@ describe('Security Reports modal', () => {
         modal: createState().modal,
       };
       const summary = 'Upgrade to 123';
-      props.modal.vulnerability.remediation = { summary };
+      props.modal.vulnerability.remediations = [{ summary }];
       vm = mountComponent(Component, props);
 
       const solutionCard = vm.$el.querySelector('.js-solution-card');
@@ -246,69 +224,6 @@ describe('Security Reports modal', () => {
 
       expect(solutionCard).toBeNull();
       expect(vm.$el.querySelector('hr')).not.toBeNull();
-    });
-  });
-
-  describe('does not render XSS links', () => {
-    // eslint-disable-next-line no-script-url
-    const badUrl = 'javascript:alert("")';
-
-    beforeEach(() => {
-      const props = {
-        modal: createState().modal,
-      };
-
-      props.modal.data.file.value = 'badFile.lock';
-      props.modal.data.file.url = badUrl;
-      props.modal.data.links.value = [
-        {
-          url: badUrl,
-        },
-      ];
-      props.modal.data.identifiers.value = [
-        {
-          type: 'CVE',
-          name: 'BAD_URL',
-          url: badUrl,
-        },
-      ];
-      props.modal.data.instances.value = [
-        {
-          param: 'X-Content-Type-Options',
-          method: 'GET',
-          uri: badUrl,
-        },
-      ];
-
-      vm = mountComponent(Component, props);
-    });
-
-    it('for the link field', () => {
-      const linkEl = vm.$el.querySelector('.js-link-links');
-
-      expect(linkEl.tagName).not.toBe('A');
-      expect(trimText(linkEl.textContent)).toBe(badUrl);
-    });
-
-    it('for the identifiers field', () => {
-      const linkEl = vm.$el.querySelector('.js-link-identifiers');
-
-      expect(linkEl.tagName).not.toBe('A');
-      expect(trimText(linkEl.textContent)).toBe('BAD_URL');
-    });
-
-    it('for the file field', () => {
-      const linkEl = vm.$el.querySelector('.js-link-file');
-
-      expect(linkEl.tagName).not.toBe('A');
-      expect(trimText(linkEl.textContent)).toBe('badFile.lock');
-    });
-
-    it('for the instances field', () => {
-      const linkEl = vm.$el.querySelector('.report-block-list-issue-description-link .break-link');
-
-      expect(linkEl.tagName).not.toBe('A');
-      expect(trimText(linkEl.textContent)).toBe(badUrl);
     });
   });
 });

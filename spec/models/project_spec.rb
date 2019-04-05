@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Project do
@@ -41,7 +43,6 @@ describe Project do
     it { is_expected.to have_one(:pipelines_email_service) }
     it { is_expected.to have_one(:irker_service) }
     it { is_expected.to have_one(:pivotaltracker_service) }
-    it { is_expected.to have_one(:hipchat_service) }
     it { is_expected.to have_one(:flowdock_service) }
     it { is_expected.to have_one(:assembla_service) }
     it { is_expected.to have_one(:slack_slash_commands_service) }
@@ -50,8 +51,8 @@ describe Project do
     it { is_expected.to have_one(:bamboo_service) }
     it { is_expected.to have_one(:teamcity_service) }
     it { is_expected.to have_one(:jira_service) }
-    it { is_expected.to have_one(:github_service) }
     it { is_expected.to have_one(:redmine_service) }
+    it { is_expected.to have_one(:youtrack_service) }
     it { is_expected.to have_one(:custom_issue_tracker_service) }
     it { is_expected.to have_one(:bugzilla_service) }
     it { is_expected.to have_one(:gitlab_issue_tracker_service) }
@@ -156,18 +157,6 @@ describe Project do
     it { is_expected.to include_module(Sortable) }
   end
 
-  describe 'scopes' do
-    context '#with_wiki_enabled' do
-      it 'returns a project' do
-        project = create(:project_empty_repo, wiki_access_level: ProjectFeature::ENABLED)
-        project1 = create(:project, wiki_access_level: ProjectFeature::DISABLED)
-
-        expect(described_class.with_wiki_enabled).to include(project)
-        expect(described_class.with_wiki_enabled).not_to include(project1)
-      end
-    end
-  end
-
   describe '.missing_kubernetes_namespace' do
     let!(:project) { create(:project) }
     let!(:cluster) { create(:cluster, :provided_by_user, :group) }
@@ -256,28 +245,6 @@ describe Project do
         expect(project2).not_to be_valid
         expect(project2.errors[:repository_storage].first).to match(/is not included in the list/)
       end
-    end
-
-    context '#mark_stuck_remote_mirrors_as_failed!' do
-      it 'fails stuck remote mirrors' do
-        project = create(:project, :repository, :remote_mirror)
-
-        project.remote_mirrors.first.update(
-          update_status: :started,
-          last_update_at: 2.days.ago
-        )
-
-        expect do
-          project.mark_stuck_remote_mirrors_as_failed!
-        end.to change { project.remote_mirrors.stuck.count }.from(1).to(0)
-      end
-    end
-
-    context 'mirror' do
-      subject { build(:project, mirror: true) }
-
-      it { is_expected.to validate_presence_of(:import_url) }
-      it { is_expected.to validate_presence_of(:mirror_user) }
     end
 
     describe 'import_url' do
@@ -376,14 +343,6 @@ describe Project do
       end
     end
 
-    it 'creates import state when mirror gets enabled' do
-      project2 = create(:project)
-
-      expect do
-        project2.update(mirror: true, import_url: generate(:url), mirror_user: project.creator)
-      end.to change { ProjectImportState.where(project: project2).count }.from(0).to(1)
-    end
-
     describe 'project pending deletion' do
       let!(:project_pending_deletion) do
         create(:project,
@@ -463,6 +422,30 @@ describe Project do
     end
   end
 
+  describe '#ci_pipelines' do
+    let(:project) { create(:project) }
+
+    before do
+      create(:ci_pipeline, project: project, ref: 'master', source: :web)
+      create(:ci_pipeline, project: project, ref: 'master', source: :external)
+    end
+
+    it 'has ci pipelines' do
+      expect(project.ci_pipelines.size).to eq(2)
+    end
+
+    context 'when builds are disabled' do
+      before do
+        project.project_feature.update_attribute(:builds_access_level, ProjectFeature::DISABLED)
+      end
+
+      it 'should return .external pipelines' do
+        expect(project.ci_pipelines).to all(have_attributes(source: 'external'))
+        expect(project.ci_pipelines.size).to eq(1)
+      end
+    end
+  end
+
   describe 'project token' do
     it 'sets an random token if none provided' do
       project = FactoryBot.create(:project, runners_token: '')
@@ -493,6 +476,7 @@ describe Project do
     it { is_expected.to delegate_method(:name).to(:owner).with_prefix(true).with_arguments(allow_nil: true) }
     it { is_expected.to delegate_method(:group_clusters_enabled?).to(:group).with_arguments(allow_nil: true) }
     it { is_expected.to delegate_method(:root_ancestor).to(:namespace).with_arguments(allow_nil: true) }
+    it { is_expected.to delegate_method(:last_pipeline).to(:commit).with_arguments(allow_nil: true) }
   end
 
   describe '#to_reference_with_postfix' do
@@ -633,14 +617,6 @@ describe Project do
 
     it 'returns the full web URL for this repo' do
       expect(project.web_url).to eq("#{Gitlab.config.gitlab.url}/#{project.namespace.full_path}/somewhere")
-    end
-  end
-
-  describe "#kerberos_url_to_repo" do
-    let(:project) { create(:project, path: "somewhere") }
-
-    it 'returns valid kerberos url for this repo' do
-      expect(project.kerberos_url_to_repo).to eq("#{Gitlab.config.build_gitlab_kerberos_url}/#{project.namespace.path}/somewhere.git")
     end
   end
 
@@ -877,92 +853,6 @@ describe Project do
 
     it 'returns valid repo' do
       expect(project.repository).to be_kind_of(Repository)
-    end
-  end
-
-  describe 'repository size restrictions' do
-    let(:project) { build(:project) }
-
-    before do
-      allow_any_instance_of(ApplicationSetting).to receive(:repository_size_limit).and_return(50)
-    end
-
-    describe '#changes_will_exceed_size_limit?' do
-      before do
-        allow(project).to receive(:repository_and_lfs_size).and_return(49)
-      end
-      it 'returns true when changes go over' do
-        expect(project.changes_will_exceed_size_limit?(5)).to be_truthy
-      end
-    end
-
-    describe '#actual_size_limit' do
-      it 'returns the limit set in the application settings' do
-        expect(project.actual_size_limit).to eq(50)
-      end
-
-      it 'returns the value set in the group' do
-        group = create(:group, repository_size_limit: 100)
-        project.update_attribute(:namespace_id, group.id)
-
-        expect(project.actual_size_limit).to eq(100)
-      end
-
-      it 'returns the value set locally' do
-        project.update_attribute(:repository_size_limit, 75)
-
-        expect(project.actual_size_limit).to eq(75)
-      end
-    end
-
-    describe '#size_limit_enabled?' do
-      it 'returns false when disabled' do
-        project.update_attribute(:repository_size_limit, 0)
-
-        expect(project.size_limit_enabled?).to be_falsey
-      end
-
-      it 'returns true when a limit is set' do
-        project.update_attribute(:repository_size_limit, 75)
-
-        expect(project.size_limit_enabled?).to be_truthy
-      end
-    end
-
-    describe '#above_size_limit?' do
-      let(:project) do
-        create(:project,
-               statistics: build(:project_statistics))
-      end
-
-      it 'returns true when above the limit' do
-        allow(project).to receive(:repository_and_lfs_size).and_return(100)
-
-        expect(project.above_size_limit?).to be_truthy
-      end
-
-      it 'returns false when not over the limit' do
-        expect(project.above_size_limit?).to be_falsey
-      end
-    end
-
-    describe '#size_to_remove' do
-      it 'returns the correct value' do
-        allow(project).to receive(:repository_and_lfs_size).and_return(100)
-
-        expect(project.size_to_remove).to eq(50)
-      end
-    end
-  end
-
-  describe '#repository_size_limit column' do
-    it 'support values up to 8 exabytes' do
-      project = create(:project)
-      project.update_column(:repository_size_limit, 8.exabytes - 1)
-
-      project.reload
-
-      expect(project.repository_size_limit).to eql(8.exabytes - 1)
     end
   end
 
@@ -1968,24 +1858,12 @@ describe Project do
   end
 
   describe 'handling import URL' do
-    context 'when project is a mirror' do
-      it 'returns the full URL' do
-        project = create(:project, :mirror, import_url: 'http://user:pass@test.com')
+    it 'returns the sanitized URL' do
+      project = create(:project, :import_started, import_url: 'http://user:pass@test.com')
 
-        project.import_state.finish
+      project.import_state.finish
 
-        expect(project.reload.import_url).to eq('http://user:pass@test.com')
-      end
-    end
-
-    context 'when project is not a mirror' do
-      it 'returns the sanitized URL' do
-        project = create(:project, :import_started, import_url: 'http://user:pass@test.com')
-
-        project.import_state.finish
-
-        expect(project.reload.import_url).to eq('http://test.com')
-      end
+      expect(project.reload.import_url).to eq('http://test.com')
     end
   end
 
@@ -2266,28 +2144,11 @@ describe Project do
         expect(project.add_import_job).to eq(import_jid)
       end
 
-      context 'without mirror' do
-        it 'returns nil' do
-          project = create(:project)
-
-          expect(project.add_import_job).to be nil
-        end
-      end
-
       context 'without repository' do
         it 'schedules RepositoryImportWorker' do
           project = create(:project, import_url: generate(:url))
 
           expect(RepositoryImportWorker).to receive(:perform_async).with(project.id).and_return(import_jid)
-          expect(project.add_import_job).to eq(import_jid)
-        end
-      end
-
-      context 'with mirror' do
-        it 'schedules RepositoryUpdateMirrorWorker' do
-          project = create(:project, :mirror, :repository)
-
-          expect(RepositoryUpdateMirrorWorker).to receive(:perform_async).with(project.id).and_return(import_jid)
           expect(project.add_import_job).to eq(import_jid)
         end
       end
@@ -2502,79 +2363,15 @@ describe Project do
     end
   end
 
-  describe '.where_full_path_in' do
-    context 'without any paths' do
-      it 'returns an empty relation' do
-        expect(described_class.where_full_path_in([])).to eq([])
-      end
-    end
+  describe '#daily_statistics_enabled?' do
+    it { is_expected.to be_daily_statistics_enabled }
 
-    context 'without any valid paths' do
-      it 'returns an empty relation' do
-        expect(described_class.where_full_path_in(%w[foo])).to eq([])
-      end
-    end
-
-    context 'with valid paths' do
-      let!(:project1) { create(:project) }
-      let!(:project2) { create(:project) }
-
-      it 'returns the projects matching the paths' do
-        projects = described_class.where_full_path_in([project1.full_path,
-                                                       project2.full_path])
-
-        expect(projects).to contain_exactly(project1, project2)
+    context 'when :project_daily_statistics is disabled for the project' do
+      before do
+        stub_feature_flags(project_daily_statistics: { thing: subject, enabled: false })
       end
 
-      it 'returns projects regardless of the casing of paths' do
-        projects = described_class.where_full_path_in([project1.full_path.upcase,
-                                                       project2.full_path.upcase])
-
-        expect(projects).to contain_exactly(project1, project2)
-      end
-    end
-  end
-
-  describe '#change_repository_storage' do
-    let(:project) { create(:project, :repository) }
-    let(:read_only_project) { create(:project, :repository, repository_read_only: true) }
-
-    before do
-      FileUtils.mkdir('tmp/tests/extra_storage')
-      stub_storage_settings('extra' => { 'path' => 'tmp/tests/extra_storage' })
-    end
-
-    after do
-      FileUtils.rm_rf('tmp/tests/extra_storage')
-    end
-
-    it 'schedule the transfer of the repository to the new storage and locks the project' do
-      expect(ProjectUpdateRepositoryStorageWorker).to receive(:perform_async).with(project.id, 'extra')
-
-      project.change_repository_storage('extra')
-      project.save
-
-      expect(project).to be_repository_read_only
-    end
-
-    it "doesn't schedule the transfer if the repository is already read-only" do
-      expect(ProjectUpdateRepositoryStorageWorker).not_to receive(:perform_async)
-
-      read_only_project.change_repository_storage('extra')
-      read_only_project.save
-    end
-
-    it "doesn't lock or schedule the transfer if the storage hasn't changed" do
-      expect(ProjectUpdateRepositoryStorageWorker).not_to receive(:perform_async)
-
-      project.change_repository_storage(project.repository_storage)
-      project.save
-
-      expect(project).not_to be_repository_read_only
-    end
-
-    it 'throws an error if an invalid repository storage is provided' do
-      expect { project.change_repository_storage('unknown') }.to raise_error(ArgumentError)
+      it { is_expected.not_to be_daily_statistics_enabled }
     end
   end
 
@@ -2589,6 +2386,12 @@ describe Project do
     it 'calls the before_change_head and after_change_head methods' do
       expect(project.repository).to receive(:before_change_head)
       expect(project.repository).to receive(:after_change_head)
+
+      project.change_head(project.default_branch)
+    end
+
+    it 'updates commit count' do
+      expect(ProjectCacheWorker).to receive(:perform_async).with(project.id, [], [:commit_count])
 
       project.change_head(project.default_branch)
     end
@@ -2729,6 +2532,16 @@ describe Project do
     end
   end
 
+  describe '#set_repository_writable!' do
+    it 'sets repository_read_only to false' do
+      project = create(:project, :read_only)
+
+      expect { project.set_repository_writable! }
+        .to change(project, :repository_read_only)
+        .from(true).to(false)
+    end
+  end
+
   describe '#pushes_since_gc' do
     let(:project) { create(:project) }
 
@@ -2765,35 +2578,6 @@ describe Project do
     end
   end
 
-  describe '#repository_and_lfs_size' do
-    let(:project) { create(:project, :repository) }
-    let(:size) { 50 }
-
-    before do
-      allow(project.statistics).to receive(:total_repository_size).and_return(size)
-    end
-
-    it 'returns the total repository and lfs size' do
-      expect(project.repository_and_lfs_size).to eq(size)
-    end
-  end
-
-  describe '#approver_group_ids=' do
-    let(:project) { create(:project) }
-
-    it 'create approver_groups' do
-      group = create :group
-      group1 = create :group
-
-      project = create :project
-
-      project.approver_group_ids = "#{group.id}, #{group1.id}"
-      project.save!
-
-      expect(project.approver_groups.map(&:group)).to match_array([group, group1])
-    end
-  end
-
   describe '#reset_pushes_since_gc' do
     let(:project) { create(:project) }
 
@@ -2819,11 +2603,19 @@ describe Project do
       end
     end
 
+    context 'when project uses mock deployment service' do
+      let(:project) { create(:mock_deployment_project) }
+
+      it 'returns an empty array' do
+        expect(project.deployment_variables).to eq []
+      end
+    end
+
     context 'when project has a deployment service' do
       shared_examples 'same behavior between KubernetesService and Platform::Kubernetes' do
         it 'returns variables from this service' do
           expect(project.deployment_variables).to include(
-            { key: 'KUBE_TOKEN', value: project.deployment_platform.token, public: false }
+            { key: 'KUBE_TOKEN', value: project.deployment_platform.token, public: false, masked: true }
           )
         end
       end
@@ -2848,7 +2640,7 @@ describe Project do
 
         it 'should return token from kubernetes namespace' do
           expect(project.deployment_variables).to include(
-            { key: 'KUBE_TOKEN', value: kubernetes_namespace.service_account_token, public: false }
+            { key: 'KUBE_TOKEN', value: kubernetes_namespace.service_account_token, public: false, masked: true }
           )
         end
       end
@@ -2929,7 +2721,7 @@ describe Project do
   end
 
   describe '#any_lfs_file_locks?', :request_store do
-    set(:project) { create(:project) }
+    let!(:project) { create(:project) }
 
     it 'returns false when there are no LFS file locks' do
       expect(project.any_lfs_file_locks?).to be_falsey
@@ -3099,16 +2891,6 @@ describe Project do
       project.update(namespace: namespace)
 
       expect(project.statistics.namespace_id).to eq namespace.id
-    end
-  end
-
-  describe '#create_import_state' do
-    it 'it is called after save' do
-      project = create(:project)
-
-      expect(project).to receive(:create_import_state)
-
-      project.update(mirror: true, mirror_user: project.owner, import_url: 'http://foo.com')
     end
   end
 
@@ -3375,6 +3157,53 @@ describe Project do
         projects = described_class.all.public_or_visible_to_user
 
         expect(projects).to eq([public_project])
+      end
+    end
+
+    context 'with requested visibility levels' do
+      set(:internal_project) { create(:project, :internal, :repository) }
+      set(:private_project_2) { create(:project, :private) }
+
+      context 'with admin user' do
+        set(:admin) { create(:admin) }
+
+        it 'returns all projects' do
+          projects = described_class.all.public_or_visible_to_user(admin, [])
+
+          expect(projects).to match_array([public_project, private_project, private_project_2, internal_project])
+        end
+
+        it 'returns all public and private projects' do
+          projects = described_class.all.public_or_visible_to_user(admin, [Gitlab::VisibilityLevel::PUBLIC, Gitlab::VisibilityLevel::PRIVATE])
+
+          expect(projects).to match_array([public_project, private_project, private_project_2])
+        end
+
+        it 'returns all private projects' do
+          projects = described_class.all.public_or_visible_to_user(admin, [Gitlab::VisibilityLevel::PRIVATE])
+
+          expect(projects).to match_array([private_project, private_project_2])
+        end
+      end
+
+      context 'with regular user' do
+        it 'returns authorized projects' do
+          projects = described_class.all.public_or_visible_to_user(user, [])
+
+          expect(projects).to match_array([public_project, private_project, internal_project])
+        end
+
+        it "returns user's public and private projects" do
+          projects = described_class.all.public_or_visible_to_user(user, [Gitlab::VisibilityLevel::PUBLIC, Gitlab::VisibilityLevel::PRIVATE])
+
+          expect(projects).to match_array([public_project, private_project])
+        end
+
+        it 'returns one private project' do
+          projects = described_class.all.public_or_visible_to_user(user, [Gitlab::VisibilityLevel::PRIVATE])
+
+          expect(projects).to eq([private_project])
+        end
       end
     end
   end
@@ -3656,26 +3485,40 @@ describe Project do
         project.migrate_to_hashed_storage!
       end
 
-      it 'schedules ProjectMigrateHashedStorageWorker with delayed start when the project repo is in use' do
-        Gitlab::ReferenceCounter.new(project.gl_repository(is_wiki: false)).increase
+      it 'schedules HashedStorage::ProjectMigrateWorker with delayed start when the project repo is in use' do
+        Gitlab::ReferenceCounter.new(Gitlab::GlRepository::PROJECT.identifier_for_subject(project)).increase
 
-        expect(ProjectMigrateHashedStorageWorker).to receive(:perform_in)
-
-        project.migrate_to_hashed_storage!
-      end
-
-      it 'schedules ProjectMigrateHashedStorageWorker with delayed start when the wiki repo is in use' do
-        Gitlab::ReferenceCounter.new(project.gl_repository(is_wiki: true)).increase
-
-        expect(ProjectMigrateHashedStorageWorker).to receive(:perform_in)
+        expect(HashedStorage::ProjectMigrateWorker).to receive(:perform_in)
 
         project.migrate_to_hashed_storage!
       end
 
-      it 'schedules ProjectMigrateHashedStorageWorker' do
-        expect(ProjectMigrateHashedStorageWorker).to receive(:perform_async).with(project.id)
+      it 'schedules HashedStorage::ProjectMigrateWorker with delayed start when the wiki repo is in use' do
+        Gitlab::ReferenceCounter.new(Gitlab::GlRepository::WIKI.identifier_for_subject(project)).increase
+
+        expect(HashedStorage::ProjectMigrateWorker).to receive(:perform_in)
 
         project.migrate_to_hashed_storage!
+      end
+
+      it 'schedules HashedStorage::ProjectMigrateWorker' do
+        expect(HashedStorage::ProjectMigrateWorker).to receive(:perform_async).with(project.id)
+
+        project.migrate_to_hashed_storage!
+      end
+    end
+
+    describe '#rollback_to_legacy_storage!' do
+      let(:project) { create(:project, :empty_repo, :legacy_storage) }
+
+      it 'returns nil' do
+        expect(project.rollback_to_legacy_storage!).to be_nil
+      end
+
+      it 'does not run validations' do
+        expect(project).not_to receive(:valid?)
+
+        project.rollback_to_legacy_storage!
       end
     end
   end
@@ -3753,20 +3596,34 @@ describe Project do
           project = create(:project, storage_version: 1, skip_disk_validation: true)
 
           Sidekiq::Testing.fake! do
-            expect { project.migrate_to_hashed_storage! }.to change(ProjectMigrateHashedStorageWorker.jobs, :size).by(1)
+            expect { project.migrate_to_hashed_storage! }.to change(HashedStorage::ProjectMigrateWorker.jobs, :size).by(1)
           end
         end
       end
     end
-  end
 
-  describe '#gl_repository' do
-    let(:project) { create(:project) }
+    describe '#rollback_to_legacy_storage!' do
+      let(:project) { create(:project, :repository, skip_disk_validation: true) }
 
-    it 'delegates to Gitlab::GlRepository.gl_repository' do
-      expect(Gitlab::GlRepository).to receive(:gl_repository).with(project, true)
+      it 'returns true' do
+        expect(project.rollback_to_legacy_storage!).to be_truthy
+      end
 
-      project.gl_repository(is_wiki: true)
+      it 'does not run validations' do
+        expect(project).not_to receive(:valid?)
+
+        project.rollback_to_legacy_storage!
+      end
+
+      it 'does not flag as read-only' do
+        expect { project.rollback_to_legacy_storage! }.not_to change { project.repository_read_only }
+      end
+
+      it 'enqueues a job' do
+        Sidekiq::Testing.fake! do
+          expect { project.rollback_to_legacy_storage! }.to change(HashedStorage::ProjectRollbackWorker.jobs, :size).by(1)
+        end
+      end
     end
   end
 
@@ -3819,28 +3676,28 @@ describe Project do
 
     subject { project.auto_devops_enabled? }
 
+    context 'when explicitly enabled' do
+      before do
+        create(:project_auto_devops, project: project)
+      end
+
+      it { is_expected.to be_truthy }
+    end
+
+    context 'when explicitly disabled' do
+      before do
+        create(:project_auto_devops, project: project, enabled: false)
+      end
+
+      it { is_expected.to be_falsey }
+    end
+
     context 'when enabled in settings' do
       before do
         stub_application_setting(auto_devops_enabled: true)
       end
 
       it { is_expected.to be_truthy }
-
-      context 'when explicitly enabled' do
-        before do
-          create(:project_auto_devops, project: project)
-        end
-
-        it { is_expected.to be_truthy }
-      end
-
-      context 'when explicitly disabled' do
-        before do
-          create(:project_auto_devops, project: project, enabled: false)
-        end
-
-        it { is_expected.to be_falsey }
-      end
     end
 
     context 'when disabled in settings' do
@@ -3858,12 +3715,93 @@ describe Project do
         it { is_expected.to be_truthy }
       end
 
-      context 'when force_autodevops_on_by_default is enabled for the project' do
+      context 'when explicitly disabled' do
         before do
-          Feature.get(:force_autodevops_on_by_default).enable_percentage_of_actors(100)
+          create(:project_auto_devops, :disabled, project: project)
         end
 
-        it { is_expected.to be_truthy }
+        it { is_expected.to be_falsey }
+      end
+    end
+
+    context 'when force_autodevops_on_by_default is enabled for the project' do
+      it { is_expected.to be_truthy }
+    end
+
+    context 'with group parents' do
+      let(:instance_enabled) { true }
+
+      before do
+        stub_application_setting(auto_devops_enabled: instance_enabled)
+        project.update!(namespace: parent_group)
+      end
+
+      context 'when enabled on parent' do
+        let(:parent_group) { create(:group, :auto_devops_enabled) }
+
+        context 'when auto devops instance enabled' do
+          it { is_expected.to be_truthy }
+        end
+
+        context 'when auto devops instance disabled' do
+          let(:instance_disabled) { false }
+
+          it { is_expected.to be_truthy }
+        end
+      end
+
+      context 'when disabled on parent' do
+        let(:parent_group) { create(:group, :auto_devops_disabled) }
+
+        context 'when auto devops instance enabled' do
+          it { is_expected.to be_falsy }
+        end
+
+        context 'when auto devops instance disabled' do
+          let(:instance_disabled) { false }
+
+          it { is_expected.to be_falsy }
+        end
+      end
+
+      context 'when enabled on root parent', :nested_groups do
+        let(:parent_group) { create(:group, parent: create(:group, :auto_devops_enabled)) }
+
+        context 'when auto devops instance enabled' do
+          it { is_expected.to be_truthy }
+        end
+
+        context 'when auto devops instance disabled' do
+          let(:instance_disabled) { false }
+
+          it { is_expected.to be_truthy }
+        end
+
+        context 'when explicitly disabled on parent' do
+          let(:parent_group) { create(:group, :auto_devops_disabled, parent: create(:group, :auto_devops_enabled)) }
+
+          it { is_expected.to be_falsy }
+        end
+      end
+
+      context 'when disabled on root parent', :nested_groups do
+        let(:parent_group) { create(:group, parent: create(:group, :auto_devops_disabled)) }
+
+        context 'when auto devops instance enabled' do
+          it { is_expected.to be_falsy }
+        end
+
+        context 'when auto devops instance disabled' do
+          let(:instance_disabled) { false }
+
+          it { is_expected.to be_falsy }
+        end
+
+        context 'when explicitly disabled on parent' do
+          let(:parent_group) { create(:group, :auto_devops_disabled, parent: create(:group, :auto_devops_enabled)) }
+
+          it { is_expected.to be_falsy }
+        end
       end
     end
   end
@@ -3910,15 +3848,52 @@ describe Project do
         end
       end
     end
+
+    context 'when enabled on group' do
+      it 'has auto devops implicitly enabled' do
+        project.update(namespace: create(:group, :auto_devops_enabled))
+
+        expect(project).to have_auto_devops_implicitly_enabled
+      end
+    end
+
+    context 'when enabled on parent group' do
+      it 'has auto devops implicitly enabled' do
+        subgroup = create(:group, parent: create(:group, :auto_devops_enabled))
+        project.update(namespace: subgroup)
+
+        expect(project).to have_auto_devops_implicitly_enabled
+      end
+    end
   end
 
   describe '#has_auto_devops_implicitly_disabled?' do
+    set(:project) { create(:project) }
+
     before do
       allow(Feature).to receive(:enabled?).and_call_original
       Feature.get(:force_autodevops_on_by_default).enable_percentage_of_actors(0)
     end
 
-    set(:project) { create(:project) }
+    context 'when explicitly disabled' do
+      before do
+        create(:project_auto_devops, project: project, enabled: false)
+      end
+
+      it 'does not have auto devops implicitly disabled' do
+        expect(project).not_to have_auto_devops_implicitly_disabled
+      end
+    end
+
+    context 'when explicitly enabled' do
+      before do
+        create(:project_auto_devops, project: project, enabled: true)
+      end
+
+      it 'does not have auto devops implicitly disabled' do
+        expect(project).not_to have_auto_devops_implicitly_disabled
+      end
+    end
 
     context 'when enabled in settings' do
       before do
@@ -3941,6 +3916,8 @@ describe Project do
 
       context 'when force_autodevops_on_by_default is enabled for the project' do
         before do
+          create(:project_auto_devops, project: project, enabled: false)
+
           Feature.get(:force_autodevops_on_by_default).enable_percentage_of_actors(100)
         end
 
@@ -3949,23 +3926,20 @@ describe Project do
         end
       end
 
-      context 'when explicitly disabled' do
-        before do
-          create(:project_auto_devops, project: project, enabled: false)
-        end
+      context 'when disabled on group' do
+        it 'has auto devops implicitly disabled' do
+          project.update!(namespace: create(:group, :auto_devops_disabled))
 
-        it 'does not have auto devops implicitly disabled' do
-          expect(project).not_to have_auto_devops_implicitly_disabled
+          expect(project).to have_auto_devops_implicitly_disabled
         end
       end
 
-      context 'when explicitly enabled' do
-        before do
-          create(:project_auto_devops, project: project, enabled: true)
-        end
+      context 'when disabled on parent group' do
+        it 'has auto devops implicitly disabled' do
+          subgroup = create(:group, parent: create(:group, :auto_devops_disabled))
+          project.update!(namespace: subgroup)
 
-        it 'does not have auto devops implicitly disabled' do
-          expect(project).not_to have_auto_devops_implicitly_disabled
+          expect(project).to have_auto_devops_implicitly_disabled
         end
       end
     end
@@ -4873,6 +4847,21 @@ describe Project do
 
         expect(project.errors).to be_empty
       end
+    end
+  end
+
+  describe '#has_pool_repsitory?' do
+    it 'returns false when it does not have a pool repository' do
+      subject = create(:project, :repository)
+
+      expect(subject.has_pool_repository?).to be false
+    end
+
+    it 'returns true when it has a pool repository' do
+      pool    = create(:pool_repository, :ready)
+      subject = create(:project, :repository, pool_repository: pool)
+
+      expect(subject.has_pool_repository?).to be true
     end
   end
 

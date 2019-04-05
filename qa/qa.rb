@@ -17,6 +17,7 @@ module QA
     autoload :Env, 'qa/runtime/env'
     autoload :Address, 'qa/runtime/address'
     autoload :Path, 'qa/runtime/path'
+    autoload :Feature, 'qa/runtime/feature'
     autoload :Fixtures, 'qa/runtime/fixtures'
     autoload :Logger, 'qa/runtime/logger'
 
@@ -61,6 +62,12 @@ module QA
     autoload :File, 'qa/resource/file'
     autoload :Fork, 'qa/resource/fork'
     autoload :SSHKey, 'qa/resource/ssh_key'
+    autoload :Snippet, 'qa/resource/snippet'
+
+    module Events
+      autoload :Base, 'qa/resource/events/base'
+      autoload :Project, 'qa/resource/events/project'
+    end
 
     module Repository
       autoload :Push, 'qa/resource/repository/push'
@@ -83,6 +90,7 @@ module QA
     autoload :Bootable, 'qa/scenario/bootable'
     autoload :Actable, 'qa/scenario/actable'
     autoload :Template, 'qa/scenario/template'
+    autoload :SharedAttributes, 'qa/scenario/shared_attributes'
 
     ##
     # Test scenario entrypoints.
@@ -137,6 +145,12 @@ module QA
     module Dashboard
       autoload :Projects, 'qa/page/dashboard/projects'
       autoload :Groups, 'qa/page/dashboard/groups'
+
+      module Snippet
+        autoload :New, 'qa/page/dashboard/snippet/new'
+        autoload :Index, 'qa/page/dashboard/snippet/index'
+        autoload :Show, 'qa/page/dashboard/snippet/show'
+      end
     end
 
     module Group
@@ -255,6 +269,10 @@ module QA
       autoload :Sidebar, 'qa/page/issuable/sidebar'
     end
 
+    module Alert
+      autoload :AutoDevopsAlert, 'qa/page/alert/auto_devops_alert'
+    end
+
     module Layout
       autoload :Banner, 'qa/page/layout/banner'
     end
@@ -333,6 +351,10 @@ module QA
   module Specs
     autoload :Config, 'qa/specs/config'
     autoload :Runner, 'qa/specs/runner'
+
+    module Helpers
+      autoload :Quarantine, 'qa/specs/helpers/quarantine'
+    end
   end
 
   ##
@@ -361,6 +383,8 @@ module QA
       autoload :Logging, 'qa/support/page/logging'
     end
     autoload :Api, 'qa/support/api'
+    autoload :Waiter, 'qa/support/waiter'
+    autoload :Retrier, 'qa/support/retrier'
   end
 end
 

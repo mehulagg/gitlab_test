@@ -15,6 +15,7 @@ describe 'Protected Environments' do
     end
 
     create(:protected_environment, project: project, name: 'production')
+    create(:protected_environment, project: project, name: 'removed environment')
 
     sign_in(user)
   end
@@ -45,6 +46,7 @@ describe 'Protected Environments' do
     it 'allows seeing a list of protected environments' do
       within('.protected-environments-list') do
         expect(page).to have_content('production')
+        expect(page).to have_content('removed environment')
       end
     end
 
@@ -64,7 +66,7 @@ describe 'Protected Environments' do
     end
 
     it 'allows updating access to a protected environment', :js do
-      within('.protected-environments-list') do
+      within('.protected-environments-list tr', text: 'production') do
         set_allowed_to_deploy('Developers + Maintainers')
       end
 
@@ -76,7 +78,7 @@ describe 'Protected Environments' do
     end
 
     it 'allows unprotecting an environment', :js do
-      within('.protected-environments-list') do
+      within('.protected-environments-list tr', text: 'production') do
         accept_alert { click_on('Unprotect') }
       end
 
@@ -84,6 +86,25 @@ describe 'Protected Environments' do
 
       within('.protected-environments-list') do
         expect(page).not_to have_content('production')
+      end
+    end
+
+    context 'when projects_tokens_optional_encryption feature flag is false' do
+      before do
+        stub_feature_flags(projects_tokens_optional_encryption: false)
+      end
+
+      context 'when runners_token exists but runners_token_encrypted is empty' do
+        before do
+          project.update_column(:runners_token, 'abc')
+          project.update_column(:runners_token_encrypted, nil)
+        end
+
+        it 'shows setting page correctly' do
+          visit project_settings_ci_cd_path(project)
+
+          expect(page).to have_gitlab_http_status(200)
+        end
       end
     end
   end

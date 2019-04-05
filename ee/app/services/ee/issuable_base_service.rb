@@ -2,8 +2,12 @@
 
 module EE
   module IssuableBaseService
+    extend ::Gitlab::Utils::Override
+    include ::Gitlab::Utils::StrongMemoize
+
     private
 
+    override :filter_params
     def filter_params(issuable)
       # This security check is repeated here to avoid multiple backports,
       # this should be refactored to be reused from the base class.
@@ -14,6 +18,12 @@ module EE
       end
 
       super
+    end
+
+    def update_task_event?
+      strong_memoize(:update_task_event) do
+        params.key?(:update_task)
+      end
     end
   end
 end

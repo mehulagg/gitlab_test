@@ -179,6 +179,14 @@ $ide-commit-header-height: 48px;
     display: none;
   }
 
+  .monaco-editor .selected-text {
+    z-index: 1;
+  }
+
+  .monaco-editor .view-lines {
+    z-index: 2;
+  }
+
   .is-readonly,
   .editor.original {
     .view-lines {
@@ -680,25 +688,6 @@ $ide-commit-header-height: 48px;
 .ide {
   overflow: hidden;
   flex: 1;
-}
-
-.drag-handle {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-
-  &:hover {
-    background-color: $white-normal;
-  }
-
-  &.drag-right {
-    right: 0;
-  }
-
-  &.drag-left {
-    left: 0;
-  }
 }
 
 .ide-commit-list-container {

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Namespace do
@@ -11,6 +13,7 @@ describe Namespace do
   it { is_expected.to have_one(:gitlab_subscription).dependent(:destroy) }
   it { is_expected.to belong_to(:plan) }
 
+  it { is_expected.to delegate_method(:extra_shared_runners_minutes).to(:namespace_statistics) }
   it { is_expected.to delegate_method(:shared_runners_minutes).to(:namespace_statistics) }
   it { is_expected.to delegate_method(:shared_runners_seconds).to(:namespace_statistics) }
   it { is_expected.to delegate_method(:shared_runners_seconds_last_reset).to(:namespace_statistics) }
@@ -377,6 +380,20 @@ describe Namespace do
           is_expected.to eq(500)
         end
       end
+
+      context 'when extra minutes limit is set' do
+        before do
+          namespace.update_attribute(:extra_shared_runners_minutes_limit, 100)
+        end
+
+        it 'returns the extra minutes by default' do
+          is_expected.to eq(1100)
+        end
+
+        it 'can exclude the extra minutes if required' do
+          expect(namespace.actual_shared_runners_minutes_limit(include_extra: false)).to eq(1000)
+        end
+      end
     end
   end
 
@@ -493,6 +510,77 @@ describe Namespace do
       it "returns false" do
         is_expected.to eq(false)
       end
+    end
+  end
+
+  describe '#extra_shared_runners_minutes_used?' do
+    subject { namespace.extra_shared_runners_minutes_used? }
+
+    context 'with project' do
+      let!(:project) do
+        create(:project, namespace: namespace, shared_runners_enabled: true)
+      end
+
+      context 'shared_runners_minutes_limit is not enabled' do
+        before do
+          allow(namespace).to receive(:shared_runners_minutes_limit_enabled?).and_return(false)
+        end
+
+        it { is_expected.to be_falsey }
+      end
+
+      context 'shared_runners_minutes_limit is enabled' do
+        context 'when limit is defined' do
+          before do
+            namespace.update_attribute(:extra_shared_runners_minutes_limit, 100)
+          end
+
+          context "when usage is below the quota" do
+            before do
+              allow(namespace).to receive(:extra_shared_runners_minutes).and_return(50)
+            end
+
+            it { is_expected.to be_falsey }
+          end
+
+          context "when usage is above the quota" do
+            before do
+              allow(namespace).to receive(:extra_shared_runners_minutes).and_return(101)
+            end
+
+            it { is_expected.to be_truthy }
+          end
+
+          context 'and main limit is unlimited' do
+            before do
+              namespace.update_attribute(:shared_runners_minutes_limit, 0)
+            end
+
+            context "and it's above the quota" do
+              it { is_expected.to be_falsey }
+            end
+          end
+        end
+
+        context 'without limit' do
+          before do
+            namespace.update_attribute(:shared_runners_minutes_limit, 100)
+            namespace.update_attribute(:extra_shared_runners_minutes_limit, nil)
+          end
+
+          context 'when main usage is above the quota' do
+            before do
+              allow(namespace).to receive(:shared_runners_minutes).and_return(101)
+            end
+
+            it { is_expected.to be_falsey }
+          end
+        end
+      end
+    end
+
+    context 'without project' do
+      it { is_expected.to be_falsey }
     end
   end
 
@@ -683,6 +771,130 @@ describe Namespace do
 
       it 'returns false' do
         expect(subject).to be_falsey
+      end
+    end
+  end
+
+  describe '#actual_size_limit' do
+    let(:namespace) { build(:namespace) }
+
+    before do
+      allow_any_instance_of(ApplicationSetting).to receive(:repository_size_limit).and_return(50)
+    end
+
+    it 'returns the correct size limit' do
+      expect(namespace.actual_size_limit).to eq(50)
+    end
+  end
+
+  describe '#membership_lock with subgroups', :nested_groups do
+    context 'when creating a subgroup' do
+      let(:subgroup) { create(:group, parent: root_group) }
+
+      context 'under a parent with "Membership lock" enabled' do
+        let(:root_group) { create(:group, membership_lock: true) }
+
+        it 'enables "Membership lock" on the subgroup' do
+          expect(subgroup.membership_lock).to be_truthy
+        end
+      end
+
+      context 'under a parent with "Membership lock" disabled' do
+        let(:root_group) { create(:group) }
+
+        it 'does not enable "Membership lock" on the subgroup' do
+          expect(subgroup.membership_lock).to be_falsey
+        end
+      end
+
+      context 'when enabling the parent group "Membership lock"' do
+        let(:root_group) { create(:group) }
+        let!(:subgroup) { create(:group, parent: root_group) }
+
+        it 'the subgroup "Membership lock" not changed' do
+          root_group.update!(membership_lock: true)
+
+          expect(subgroup.reload.membership_lock).to be_falsey
+        end
+      end
+
+      context 'when disabling the parent group "Membership lock" (which was already enabled)' do
+        let(:root_group) { create(:group, membership_lock: true) }
+
+        context 'and the subgroup "Membership lock" is enabled' do
+          let(:subgroup) { create(:group, parent: root_group, membership_lock: true) }
+
+          it 'the subgroup "Membership lock" does not change' do
+            root_group.update!(membership_lock: false)
+
+            expect(subgroup.reload.membership_lock).to be_truthy
+          end
+        end
+
+        context 'but the subgroup "Membership lock" is disabled' do
+          let(:subgroup) { create(:group, parent: root_group) }
+
+          it 'the subgroup "Membership lock" does not change' do
+            root_group.update!(membership_lock: false)
+
+            expect(subgroup.reload.membership_lock?).to be_falsey
+          end
+        end
+      end
+    end
+
+    # Note: Group transfers are not yet implemented
+    context 'when a group is transferred into a root group' do
+      context 'when the root group "Membership lock" is enabled' do
+        let(:root_group) { create(:group, membership_lock: true) }
+
+        context 'when the subgroup "Membership lock" is enabled' do
+          let(:subgroup) { create(:group, membership_lock: true) }
+
+          it 'the subgroup "Membership lock" does not change' do
+            subgroup.parent = root_group
+            subgroup.save!
+
+            expect(subgroup.membership_lock).to be_truthy
+          end
+        end
+
+        context 'when the subgroup "Membership lock" is disabled' do
+          let(:subgroup) { create(:group) }
+
+          it 'the subgroup "Membership lock" not changed' do
+            subgroup.parent = root_group
+            subgroup.save!
+
+            expect(subgroup.membership_lock).to be_falsey
+          end
+        end
+      end
+
+      context 'when the root group "Membership lock" is disabled' do
+        let(:root_group) { create(:group) }
+
+        context 'when the subgroup "Membership lock" is enabled' do
+          let(:subgroup) { create(:group, membership_lock: true) }
+
+          it 'the subgroup "Membership lock" does not change' do
+            subgroup.parent = root_group
+            subgroup.save!
+
+            expect(subgroup.membership_lock).to be_truthy
+          end
+        end
+
+        context 'when the subgroup "Membership lock" is disabled' do
+          let(:subgroup) { create(:group) }
+
+          it 'the subgroup "Membership lock" does not change' do
+            subgroup.parent = root_group
+            subgroup.save!
+
+            expect(subgroup.membership_lock).to be_falsey
+          end
+        end
       end
     end
   end

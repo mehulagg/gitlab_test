@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe QA::Runtime::Env do
-  include Support::StubENV
+  include Helpers::StubENV
 
   shared_examples 'boolean method' do |**kwargs|
     it_behaves_like 'boolean method with parameter', kwargs
@@ -90,13 +90,13 @@ describe QA::Runtime::Env do
       described_class.instance_variable_set(:@personal_access_token, nil)
     end
 
-    context 'when PERSONAL_ACCESS_TOKEN is set' do
+    context 'when GITLAB_QA_ACCESS_TOKEN is set' do
       before do
-        stub_env('PERSONAL_ACCESS_TOKEN', 'a_token')
+        stub_env('GITLAB_QA_ACCESS_TOKEN', 'a_token_too')
       end
 
       it 'returns specified token from env' do
-        expect(described_class.personal_access_token).to eq 'a_token'
+        expect(described_class.personal_access_token).to eq 'a_token_too'
       end
     end
 

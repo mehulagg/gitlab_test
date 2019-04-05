@@ -1,6 +1,8 @@
 require 'spec_helper'
 
-describe GeoNodeStatus, :geo do
+# Disable transactions via :delete method because a foreign table
+# can't see changes inside a transaction of a different connection.
+describe GeoNodeStatus, :geo, :delete do
   include ::EE::GeoHelpers
 
   let!(:primary) { create(:geo_node, :primary) }
@@ -228,14 +230,14 @@ describe GeoNodeStatus, :geo do
   describe '#db_replication_lag_seconds' do
     it 'returns the set replication lag if secondary' do
       allow(Gitlab::Geo).to receive(:secondary?).and_return(true)
-      allow(Gitlab::Geo::HealthCheck).to receive(:db_replication_lag_seconds).and_return(1000)
+      geo_health_check = double('Gitlab::Geo::HealthCheck', perform_checks: '', db_replication_lag_seconds: 1000)
+      allow(Gitlab::Geo::HealthCheck).to receive(:new).and_return(geo_health_check)
 
       expect(subject.db_replication_lag_seconds).to eq(1000)
     end
 
     it "doesn't attempt to set replication lag if primary" do
       stub_current_geo_node(primary)
-      expect(Gitlab::Geo::HealthCheck).not_to receive(:db_replication_lag_seconds)
 
       expect(subject.db_replication_lag_seconds).to eq(nil)
     end

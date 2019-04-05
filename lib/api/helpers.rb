@@ -2,13 +2,11 @@
 
 module API
   module Helpers
-    prepend EE::API::Helpers # rubocop: disable Cop/InjectEnterpriseEditionModule
-
     include Gitlab::Utils
-    include Gitlab::Utils::StrongMemoize
     include Helpers::Pagination
 
     SUDO_HEADER = "HTTP_SUDO".freeze
+    GITLAB_SHARED_SECRET_HEADER = "Gitlab-Shared-Secret".freeze
     SUDO_PARAM = :sudo
     API_USER_ENV = 'gitlab.api.user'.freeze
 
@@ -87,8 +85,8 @@ module API
       page || not_found!('Wiki Page')
     end
 
-    def available_labels_for(label_parent)
-      search_params = { include_ancestor_groups: true }
+    def available_labels_for(label_parent, include_ancestor_groups: true)
+      search_params = { include_ancestor_groups: include_ancestor_groups }
 
       if label_parent.is_a?(Project)
         search_params[:project_id] = label_parent.id
@@ -118,12 +116,7 @@ module API
     def find_project!(id)
       project = find_project(id)
 
-      # CI job token authentication:
-      # this method grants limited privileged for admin users
-      # admin users can only access project if they are direct member
-      ability = job_token_authentication? ? :build_read_project : :read_project
-
-      if can?(current_user, ability, project)
+      if can?(current_user, :read_project, project)
         project
       else
         not_found!('Project')
@@ -141,10 +134,6 @@ module API
     # rubocop: enable CodeReuse/ActiveRecord
 
     def find_group!(id)
-      # CI job token authentication:
-      # currently we do not allow any group access for CI job token
-      not_found!('Group') if job_token_authentication?
-
       group = find_group(id)
 
       if can?(current_user, :read_group, group)
@@ -182,17 +171,9 @@ module API
       end
     end
 
-    def find_project_label(id)
-      labels = available_labels_for(user_project)
-      label = labels.find_by_id(id) || labels.find_by_title(id)
-
-      label || not_found!('Label')
-    end
-
     # rubocop: disable CodeReuse/ActiveRecord
-    def find_project_issue(iid, project_id = nil)
-      project = project_id ? find_project!(project_id) : user_project
-      IssuesFinder.new(current_user, project_id: project.id).find_by!(iid: iid)
+    def find_project_issue(iid)
+      IssuesFinder.new(current_user, project_id: user_project.id).find_by!(iid: iid)
     end
     # rubocop: enable CodeReuse/ActiveRecord
 
@@ -232,10 +213,12 @@ module API
     end
 
     def authenticate_by_gitlab_shell_token!
-      input = params['secret_token'].try(:chomp)
-      unless Devise.secure_compare(secret_token, input)
-        unauthorized!
-      end
+      input = params['secret_token']
+      input ||= Base64.decode64(headers[GITLAB_SHARED_SECRET_HEADER]) if headers.key?(GITLAB_SHARED_SECRET_HEADER)
+
+      input&.chomp!
+
+      unauthorized! unless Devise.secure_compare(secret_token, input)
     end
 
     def authenticated_with_full_private_access!
@@ -262,6 +245,10 @@ module API
 
     def authorize_read_builds!
       authorize! :read_build, user_project
+    end
+
+    def authorize_destroy_artifacts!
+      authorize! :destroy_artifacts, user_project
     end
 
     def authorize_update_builds!
@@ -315,8 +302,20 @@ module API
     end
     # rubocop: enable CodeReuse/ActiveRecord
 
+    # rubocop: disable CodeReuse/ActiveRecord
+    def filter_by_title(items, title)
+      items.where(title: title)
+    end
+    # rubocop: enable CodeReuse/ActiveRecord
+
     def filter_by_search(items, text)
       items.search(text)
+    end
+
+    def order_options_with_tie_breaker
+      order_options = { params[:order_by] => params[:sort] }
+      order_options['id'] ||= 'desc'
+      order_options
     end
 
     # error helpers
@@ -413,7 +412,7 @@ module API
 
     # rubocop: disable CodeReuse/ActiveRecord
     def reorder_projects(projects)
-      projects.reorder(params[:order_by] => params[:sort])
+      projects.reorder(order_options_with_tie_breaker)
     end
     # rubocop: enable CodeReuse/ActiveRecord
 
@@ -465,34 +464,12 @@ module API
 
     private
 
-    def private_token
-      params[APIGuard::PRIVATE_TOKEN_PARAM] || env[APIGuard::PRIVATE_TOKEN_HEADER]
-    end
-
-    def job_token_authentication?
-      initial_current_user && @job_token_authentication # rubocop:disable Gitlab/ModuleWithInstanceVariables
-    end
-
-    def warden
-      env['warden']
-    end
-
-    # Check if the request is GET/HEAD, or if CSRF token is valid.
-    def verified_request?
-      Gitlab::RequestForgeryProtection.verified?(env)
-    end
-
-    # Check the Rails session for valid authentication details
-    def find_user_from_warden
-      warden.try(:authenticate) if verified_request?
-    end
-
     # rubocop:disable Gitlab/ModuleWithInstanceVariables
     def initial_current_user
-      return @initial_current_user if defined?(@initial_current_user) # rubocop:disable Gitlab/ModuleWithInstanceVariables
+      return @initial_current_user if defined?(@initial_current_user)
 
       begin
-        @initial_current_user = Gitlab::Auth::UniqueIpsLimiter.limit_user! { find_current_user! } # rubocop:disable Gitlab/ModuleWithInstanceVariables
+        @initial_current_user = Gitlab::Auth::UniqueIpsLimiter.limit_user! { find_current_user! }
       rescue Gitlab::Auth::UnauthorizedError
         unauthorized!
       end
@@ -526,10 +503,6 @@ module API
 
     def secret_token
       Gitlab::Shell.secret_token
-    end
-
-    def geo_token
-      Gitlab::Geo.current_node.system_hook.token
     end
 
     def send_git_blob(repository, blob)
@@ -574,3 +547,5 @@ module API
     end
   end
 end
+
+API::Helpers.prepend(EE::API::Helpers)

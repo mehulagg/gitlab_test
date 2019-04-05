@@ -1,5 +1,287 @@
 Please view this file on the master branch, on stable branches it's out of date.
 
+## 11.9.6 (2019-04-04)
+
+### Fixed (3 changes)
+
+- Fix project approval rule with only private group being considered as approved when override is allowed. !10356
+- Fix approval rule sourcing from forked MR. !10474
+- Guard against ldap_sync_last_sync_at being nil. !10505
+
+### Added (1 change)
+
+- Add Insights frontend to retrieve and render chart. !9856
+
+
+## 11.9.5 (2019-04-03)
+
+### Fixed (3 changes)
+
+- Fix project approval rule with only private group being considered as approved when override is allowed. !10356
+- Fix approval rule sourcing from forked MR. !10474
+- Guard against ldap_sync_last_sync_at being nil. !10505
+
+### Added (1 change)
+
+- Add Insights frontend to retrieve and render chart. !9856
+
+
+## 11.9.3 (2019-03-27)
+
+### Security (1 change)
+
+- Check label_ids parent when updating issue board.
+
+
+## 11.9.2 (2019-03-26)
+
+### Security (2 changes)
+
+- Geo - Improve security while redirecting user back to the secondary after a logout & re-login via the primary.
+- Check label_ids parent when updating issue board.
+
+
+## 11.9.1 (2019-03-25)
+
+### Fixed (1 change)
+
+- Fix date save for Epic to reflect on UI immediately after save. !10321
+
+
+## 11.9.0 (2019-03-22)
+
+### Security (4 changes)
+
+- Prevent Group SAML authorizing sign in without prior user approval.
+- Respect group membership lock when importing a member from another group.
+- Remove the possibility to share a project with a group that a user is not a member of.
+- Prevent SAML access when disabled by group admin on GitLab.com.
+
+### Fixed (22 changes)
+
+- Allow assigning Prometheus alerts to multiple environments. !7361
+- Fix repo pushes while initial Elasticsearch indexing not permitting initial indexing to complete. !9478
+- Fix vulnerability occurrence scope to trailing 30 days. !9494
+- Skip whitelisted vulnerabilities in Container Scanning reports. !9528
+- Fix npm registry for yarn. !9599
+- Renders inline downstream & upstream pipelines. !9627
+- Prunes whole Geo event when there's only a primary. !9630
+- Fix alert notifications for non-public projects. !9636
+- Fix 500 error when visiting merged merge request. !9648
+- Allow plus symbol in maven package version. !9657
+- Show commands applied message when promoting issues to epics. !9669
+- Ensure comments from merge request review is displayed in the same order as user commenting order. !9684
+- Geo - Fix selective sync by namespace. !9732
+- Fix bridge jobs than can be hidden keys too. !9796
+- Fix approval-related UI showing up in free plan. !9819
+- Add 'No approvals required' view to approval rules (behind feature flag). !9899
+- Fix npm package install with a dot in the name. !9900
+- GroupSAML for GitLab.com prevents blank NameID. !9907
+- Fix protected environment initializer. !10150
+- Fix SSH pull mirrors not working. !10272
+- Fix HTML spew in Locked Files page.
+- Fixes Broken new/edit feature flag form.
+
+### Changed (9 changes, 1 of them is from the community)
+
+- Remove authorization from /managed_licenses. !8541
+- Consider dismissed items in security reports summary. !9275
+- Add backend for cross-project pipeline dashboard MVC. !9396
+- Create merge request approval rule for each code owner entry. !9455
+- Split severity and confidence values for vulnerabilities. !9495
+- Enforce Geo JWT tokens scope for file uploads and Geo API. !9502
+- Update cluster health empty state. !9540 (George Tsiolis)
+- Add extra graph spacing on the Security Dashboard Group Vulnerability Chart. !9780
+- Add Kerberos URL back to clone panel. !9840
+
+### Performance (1 change)
+
+- Eliminate N+1 queries in Epics API. !9897
+
+### Added (23 changes, 1 of them is from the community)
+
+- Enabled setting the Security Dashboard as a default view for groups. !7889
+- Add reordering of child epics. !9283
+- Create MR from Vulnerability Solution. !9326
+- Create pool repositories on Geo secondaries. !9428
+- Add date range for security dashboard graph. !9446
+- Add filtering merge requests by approvers. !9468
+- Add audit log for managing feature flags. !9487
+- Add DELETE package API endpoint. !9623
+- Enrich container scanning report. !9641
+- Adapt feedback for Container Scanning vulnerabilities. !9655
+- Enforce merge request approvals from code owners. !9656
+- Added vendored CI/CD template for Dependency Scanning job. !9660
+- Add Insights config behind the "group_insights" feature flag. !9665
+- Add single package API endpoint. !9667
+- Added GET /licenses and DELETE /license/:id endpoints. !9733
+- Add container scanning results to group security dashboard. !9736
+- Add an incident management settings form and create issues from alertmanager alerts. !9773
+- Add API for reordering child epics. !9781
+- Allow guests to comment on epics. !9783
+- Display Recent Boards in Board switcher. !9808
+- Add Ancestors in Epic Sidebar. !9817
+- Add vendored templates for SAST, DAST, Container Scanning and License Management job definitions. !9921
+- Add realtime validation for user fullname and username on validation. !25017 (Ehsan Abdulqader @EhsanZ)
+
+### Other (12 changes, 1 of them is from the community)
+
+- Use export-import svg from gitlab-svgs. !9453
+- Renames 'revert dismissal' to 'undo dismiss' on the Group security dashboard. !9500
+- Using positional arguments in request specs have been deprecated. !9506 (Jasper Maes)
+- Splits the severity and confidence constants in the group security dashboard frontend. !9535
+- Add Gitlab.com gold trial callout to /billings. !9611
+- Update project settings section titles and info. !9614
+- Improve visual consistency of values in vulnerability modal. !9616
+- Limit Group Security Dashboard to selected types of report. !9626
+- Make related issues components reusable. !9730
+- sidekiq-cluster: put each sidekiq in a new pgroup. !9775
+- License Management: Load up to a 100 licenses per default. !9913
+- Adds documentation for autoremediation. !10054
+
+
+## 11.8.3 (2019-03-19)
+
+- No changes.
+
+## 11.8.2 (2019-03-13)
+
+### Fixed (4 changes)
+
+- Fix 500 error when visiting merged merge request. !9648
+- Fix bridge jobs than can be hidden keys too. !9796
+- Fix approval-related UI showing up in free plan. !9819
+- Add 'No approvals required' view to approval rules (behind feature flag). !9899
+
+
+## 11.8.0 (2019-02-22)
+
+### Security (2 changes)
+
+- Sanitize user full name to clean up any URL to prevent mail clients from auto-linking URLs. !790
+- Hide personal access tokens from other maintainers.
+
+### Fixed (28 changes, 1 of them is from the community)
+
+- Add keyboard navigation to issue board switcher and remove duplicate scroll bar. !8591
+- Geo: Always update the default branch on the secondary. !9064
+- Fix public group milestones not shown in epics autocomplete. !9068
+- Check hosts file for nameserver IP. !9071
+- Fixes the icon for fixed vulnerability in Container Scanning report. !9120
+- Return 400 error instead of 500 when upload maven package with invalid version. !9125
+- Fix mirrors that have invalid SSH public auth mode set. !9135
+- Hide packages without version from UI. !9151
+- Remove duplicate "Operations Dashboard" header/breadcrumb. !9152 (Nathan Friend)
+- Create UTC date in subscription table. !9166
+- Display epic icon in related epics list. !9166
+- Don't validate Jenkins username if password is blank. !9198
+- Don't show Alert widget for non-licensed users. !9224
+- Group security dashboard: Fix overflow for Vulnerabilities with long titles. !9271
+- Geo - Respect shard restriction while loading new resources to verify on the Geo secondary node. !9343
+- When cleaning up repositories, ensure orphaned entries do not remain in the tracking database. !9344
+- Geo - Make sure project does not meet selective sync rule before deleting it. !9345
+- Fix alert notification emails are not being sent. !9393
+- Fix alert notifications for managed Prometheus. !9402
+- Replacing old blob methods in ElasticSerach module. !9418
+- Add checks to prevent cycling hierarchy in epics structure. !9438
+- Fix bug where users could not be added in protected branch rules. !9474
+- Avoid SAML required_groups indiscriminately unblocking users on login. !9489
+- Resolve Cannot scroll forwards in time for roadmap view. !9530
+- Fix unleash server side cannot return feature flags. !9532
+- Show alerts settings only for manual configuration. !9538
+- Fix access to constant Gitlab::RepositorySizeError. !9579
+- Clear our import data credentials when adding new mirrors. !24339
+
+### Deprecated (1 change)
+
+- Geo: Show hashed storage warnings on geo nodes page. !8433
+
+### Changed (14 changes)
+
+- Prevent commit authors from self approvaling merge requests. !9007
+- Add docs link to explain legacy and new email format. !9020
+- Recursively expands upstream and downstream pipelines. !9073
+- Geo: Don't show external link icon on current node. !9130
+- Issues created from vulnerabilities are now confidential by default. !9157
+- Validate custom metrics. !9178
+- Change paginate number to 20. !9213
+- Convert buttons to button group on Group Security Dashboard. !9220
+- Make it possible to edit Geo primary through API. !9328
+- Geo: Handle repository and wiki sync separately in Geo::ProjectSyncWorker. !9360
+- Geo: Add settings page empty state. !9415
+- Renders New and Edit forms for feature flag in Vue and allow to define scopes.
+- Improves title in feature flags empty states.
+- Adds environment column to the feature flags page.
+
+### Performance (5 changes)
+
+- Solve a N+1 issue in Groups::AnalyticsController. !4508
+- Refactored Epic app in Vuex for better performance and maintenance. !9361
+- Optimize slow pipelines.js response. !9387
+- Disable commit checks when no push rules are active. !9569
+- Enable some frozen string in ee/lib.
+
+### Added (22 changes, 1 of them is from the community)
+
+- Elasticsearch: Support for Gitaly. !7434
+- Canary deployment callout on the environments page. !8457
+- Allow to filter notes in epics. !8978
+- Multiple blocking merge request approval rules (behind feature flag). !9001
+- Add support for auto-expanding Roadmap timeline on horizontal scroll. !9018
+- Added Snowplow tracking to issues import. !9067
+- Persist Group Level Security Dashboard state in URL. !9108
+- Multiple environments support for feature flags (Unleash API standpoint). !9110
+- Shows the approval given/required counts and its status for each MR when viewing the Merge Requests page. !9142 (Glavin Wiechert, Andy Steele)
+- Support CURD operation for feature flag scopes. !9182
+- Add epic links API endpoints. !9188
+- Store DAST scan results in the database. !9192
+- Add LDAP integration to smartcard authentication. !9235
+- Allow SSO enforcement in group settings for GitLab.com. !9240
+- Add API endpoint for project packages. !9259
+- Add upvote/downvote information to epics API. !9264
+- Resolve Implement access controls when SSO enforcement enabled. !9270
+- Add package files API endpoint. !9305
+- Support alerts from external Prometheus servers. !9334
+- Cross-project pipelines support in .gitlab-ci.yml. !9374
+- Enable mails for external alerts. !9457
+- Moving repository across shards leaves the pool.
+
+### Other (13 changes, 7 of them are from the community)
+
+- Gather JIRA DVCS integration usage data. !8949
+- ActiveRecord::Migration -> ActiveRecord::Migration[5.0] for AddAlertManagerTokenToClustersApplicationPrometheus and EnqueuePrometheusUpdates. !9049 (Jasper Maes)
+- Track navbar links in Snowplow. !9059
+- Adds snowplough tracking for the group security dashboard filters. !9119
+- Support Ajax endpoints for FeatureFlagsController. !9127
+- Fix deprecation: Passing an argument to force an association to reload is now deprecated. !9140 (Jasper Maes)
+- Fix deprecation: #original_exception is deprecated. Use #cause instead. !9141 (Jasper Maes)
+- Uses GLDropdown for licence management. !9237
+- Replace deprecated render text. !9346 (Jasper Maes)
+- Fix several ActionController::Parameters deprecations. !9347 (Jasper Maes)
+- Fix deprecation: uniq is deprecated and will be removed from Rails 5.1. !9348 (Jasper Maes)
+- Turn on rubocop for frozen string in ee/. (gfyoung)
+- Creates an EE component for the pipeline graph.
+
+
+## 11.7.10 (2019-03-28)
+
+### Security (1 change)
+
+- Check label_ids parent when updating issue board.
+
+
+## 11.7.8 (2019-03-26)
+
+### Security (2 changes)
+
+- Geo - Improve security while redirecting user back to the secondary after a logout & re-login via the primary.
+- Check label_ids parent when updating issue board.
+
+
+## 11.7.7 (2019-03-19)
+
+- No changes.
+
 ## 11.7.5 (2019-02-05)
 
 ### Fixed (2 changes)
@@ -116,6 +398,17 @@ Please view this file on the master branch, on stable branches it's out of date.
 - Fix deprecation: Using positional arguments in specs for EE spes in spec/. !9040 (Jasper Maes)
 - Pass issuable-type in AddIssuableForm. !9111
 - Gather deepest epic relationship data.
+
+
+## 11.6.10 (2019-02-28)
+
+### Security (5 changes)
+
+- Remove the possibility to share a project with a group that a user is not a member of.
+- Prevent Group SAML authorizing sign in without prior user approval.
+- Prevent SAML access when disabled by group admin on GitLab.com.
+- Respect group membership lock when importing a member from another group.
+- Ignore out of range epic IDs.
 
 
 ## 11.6.9 (2019-02-04)

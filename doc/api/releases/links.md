@@ -3,6 +3,7 @@
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/41766) in GitLab 11.7.
 
 Using this API you can manipulate GitLab's [Release](../../user/project/releases/index.md) links. For manipulating other Release assets, see [Release API](index.md).
+GitLab supports links links to `http`, `https`, and `ftp` assets.
 
 ## Get links
 
@@ -14,7 +15,7 @@ GET /projects/:id/releases/:tag_name/assets/links
 
 | Attribute     | Type           | Required | Description                             |
 | ------------- | -------------- | -------- | --------------------------------------- |
-| `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding). |
+| `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](../README.md#namespaced-path-encoding). |
 | `tag_name`    | string         | yes      | The tag associated with the Release. |
 
 Example request:
@@ -52,7 +53,7 @@ GET /projects/:id/releases/:tag_name/assets/links/:link_id
 
 | Attribute     | Type           | Required | Description                             |
 | ------------- | -------------- | -------- | --------------------------------------- |
-| `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding). |
+| `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](../README.md#namespaced-path-encoding). |
 | `tag_name`    | string         | yes      | The tag associated with the Release. |
 | `link_id`    | integer         | yes      | The id of the link. |
 
@@ -83,7 +84,7 @@ POST /projects/:id/releases/:tag_name/assets/links
 
 | Attribute     | Type           | Required | Description                             |
 | ------------- | -------------- | -------- | --------------------------------------- |
-| `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding). |
+| `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](../README.md#namespaced-path-encoding). |
 | `tag_name`    | string         | yes      | The tag associated with the Release. |
 | `name`        | string         | yes      | The name of the link. |
 | `url`        | string         | yes      | The URL of the link. |
@@ -119,7 +120,7 @@ PUT /projects/:id/releases/:tag_name/assets/links/:link_id
 
 | Attribute     | Type           | Required | Description                             |
 | ------------- | -------------- | -------- | --------------------------------------- |
-| `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding). |
+| `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](../README.md#namespaced-path-encoding). |
 | `tag_name`    | string         | yes      | The tag associated with the Release. |
 | `link_id`    | integer         | yes      | The id of the link. |
 | `name`        | string         | no | The name of the link. |
@@ -155,7 +156,7 @@ DELETE /projects/:id/releases/:tag_name/assets/links/:link_id
 
 | Attribute     | Type           | Required | Description                             |
 | ------------- | -------------- | -------- | --------------------------------------- |
-| `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding). |
+| `id`          | integer/string | yes      | The ID or [URL-encoded path of the project](../README.md#namespaced-path-encoding). |
 | `tag_name`    | string         | yes      | The tag associated with the Release. |
 | `link_id`    | integer         | yes      | The id of the link. |
 

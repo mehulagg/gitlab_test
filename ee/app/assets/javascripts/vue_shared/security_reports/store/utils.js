@@ -24,17 +24,17 @@ const hasMatchingFix = (fixes, vulnerability) =>
 
 /**
  *
- * Returns the first remediation that fixes the given vulnerability or null
+ * Returns the remediations that fix the given vulnerability
  *
  * @param {Array} remediations
  * @param {Object} vulnerability
- * @returns {Object|null}
+ * @returns {Array}
  */
-export const findMatchingRemediation = (remediations, vulnerability) => {
+export const findMatchingRemediations = (remediations, vulnerability) => {
   if (!Array.isArray(remediations)) {
-    return null;
+    return [];
   }
-  return remediations.find(rem => hasMatchingFix(rem.fixes, vulnerability)) || null;
+  return remediations.filter(rem => hasMatchingFix(rem.fixes, vulnerability));
 };
 
 /**
@@ -43,8 +43,8 @@ export const findMatchingRemediation = (remediations, vulnerability) => {
  * @param {Object} vulnerability
  * @param {Array} feedback
  */
-function enrichVulnerabilityWithfeedback(vulnerability, feedback = []) {
-  return feedback
+export const enrichVulnerabilityWithfeedback = (vulnerability, feedback = []) =>
+  feedback
     .filter(fb => fb.project_fingerprint === vulnerability.project_fingerprint)
     .reduce((vuln, fb) => {
       if (fb.feedback_type === 'dismissal') {
@@ -53,16 +53,21 @@ function enrichVulnerabilityWithfeedback(vulnerability, feedback = []) {
           isDismissed: true,
           dismissalFeedback: fb,
         };
-      } else if (fb.feedback_type === 'issue') {
+      } else if (fb.feedback_type === 'issue' && fb.issue_iid) {
         return {
           ...vuln,
           hasIssue: true,
           issue_feedback: fb,
         };
+      } else if (fb.feedback_type === 'merge_request' && fb.merge_request_iid) {
+        return {
+          ...vuln,
+          hasMergeRequest: true,
+          merge_request_feedback: fb,
+        };
       }
       return vuln;
     }, vulnerability);
-}
 
 /**
  * Generates url to repository file and highlight section between start and end lines.
@@ -177,10 +182,10 @@ export const parseDependencyScanningIssues = (report = [], feedback = [], path =
       title: issue.message,
     };
 
-    const remediation = findMatchingRemediation(remediations, parsed);
+    const matchingRemediations = findMatchingRemediations(remediations, parsed);
 
-    if (remediation) {
-      parsed.remediation = remediation;
+    if (remediations) {
+      parsed.remediations = matchingRemediations;
     }
 
     return {
@@ -191,62 +196,6 @@ export const parseDependencyScanningIssues = (report = [], feedback = [], path =
     };
   });
 };
-
-/**
- * Parses Container Scanning results into a common format to allow to use the same Vue component.
- * Container Scanning report is currently the straigh output from the underlying tool
- * (clair scanner) hence the formatting happenning here.
- *
- * @param {Array} issues
- * @param {Array} feedback
- * @returns {Array}
- */
-export const parseSastContainer = (issues = [], feedback = []) =>
-  issues.map(issue => {
-    const parsed = {
-      ...issue,
-      category: 'container_scanning',
-      project_fingerprint: sha1(
-        `${issue.namespace}:${issue.vulnerability}:${issue.featurename}:${issue.featureversion}`,
-      ),
-      title: issue.vulnerability,
-      description: !_.isEmpty(issue.description)
-        ? issue.description
-        : sprintf(s__('ciReport|%{namespace} is affected by %{vulnerability}.'), {
-            namespace: issue.namespace,
-            vulnerability: issue.vulnerability,
-          }),
-      path: issue.namespace,
-      identifiers: [
-        {
-          type: 'CVE',
-          name: issue.vulnerability,
-          value: issue.vulnerability,
-          url: `https://cve.mitre.org/cgi-bin/cvename.cgi?name=${issue.vulnerability}`,
-        },
-      ],
-    };
-
-    // Generate solution
-    if (
-      !_.isEmpty(issue.fixedby) &&
-      !_.isEmpty(issue.featurename) &&
-      !_.isEmpty(issue.featureversion)
-    ) {
-      Object.assign(parsed, {
-        solution: sprintf(s__('ciReport|Upgrade %{name} from %{version} to %{fixed}.'), {
-          name: issue.featurename,
-          version: issue.featureversion,
-          fixed: issue.fixedby,
-        }),
-      });
-    }
-
-    return {
-      ...parsed,
-      ...enrichVulnerabilityWithfeedback(parsed, feedback),
-    };
-  });
 
 /**
  * Parses DAST into a common format to allow to use the same Vue component.
@@ -311,46 +260,86 @@ export const filterByKey = (firstArray = [], secondArray = [], key = '') =>
 export const getUnapprovedVulnerabilities = (issues = [], unapproved = []) =>
   issues.filter(item => unapproved.find(el => el === item.vulnerability));
 
-export const groupedTextBuilder = (
+export const groupedTextBuilder = ({
   reportType = '',
   paths = {},
-  newIssues = 0,
-  resolvedIssues = 0,
-  allIssues = 0,
+  added = 0,
+  fixed = 0,
+  existing = 0,
+  dismissed = 0,
   status = '',
-) => {
+}) => {
   let baseString = '';
 
   if (!paths.base) {
-    if (newIssues > 0) {
+    if (added && !dismissed) {
+      // added
       baseString = n__(
         'ciReport|%{reportType} %{status} detected %{newCount} vulnerability for the source branch only',
         'ciReport|%{reportType} %{status} detected %{newCount} vulnerabilities for the source branch only',
-        newIssues,
+        added,
+      );
+    } else if (!added && dismissed) {
+      // dismissed
+      baseString = n__(
+        'ciReport|%{reportType} %{status} detected %{dismissedCount} dismissed vulnerability for the source branch only',
+        'ciReport|%{reportType} %{status} detected %{dismissedCount} dismissed vulnerabilities for the source branch only',
+        dismissed,
+      );
+    } else if (added && dismissed) {
+      // added & dismissed
+      baseString = s__(
+        'ciReport|%{reportType} %{status} detected %{newCount} new, and %{dismissedCount} dismissed vulnerabilities for the source branch only',
       );
     } else {
+      // no vulnerabilities
       baseString = s__(
         'ciReport|%{reportType} %{status} detected no vulnerabilities for the source branch only',
       );
     }
-  } else if (paths.base && paths.head) {
-    if (newIssues > 0 && resolvedIssues > 0) {
-      baseString = s__(
-        'ciReport|%{reportType} %{status} detected %{newCount} new, and %{fixedCount} fixed vulnerabilities',
-      );
-    } else if (newIssues > 0 && resolvedIssues === 0) {
+  } else if (paths.head) {
+    if (added && !fixed && !dismissed) {
+      // added
       baseString = n__(
         'ciReport|%{reportType} %{status} detected %{newCount} new vulnerability',
         'ciReport|%{reportType} %{status} detected %{newCount} new vulnerabilities',
-        newIssues,
+        added,
       );
-    } else if (newIssues === 0 && resolvedIssues > 0) {
+    } else if (!added && fixed && !dismissed) {
+      // fixed
       baseString = n__(
         'ciReport|%{reportType} %{status} detected %{fixedCount} fixed vulnerability',
         'ciReport|%{reportType} %{status} detected %{fixedCount} fixed vulnerabilities',
-        resolvedIssues,
+        fixed,
       );
-    } else if (allIssues > 0) {
+    } else if (!added && !fixed && dismissed) {
+      // dismissed
+      baseString = n__(
+        'ciReport|%{reportType} %{status} detected %{dismissedCount} dismissed vulnerability',
+        'ciReport|%{reportType} %{status} detected %{dismissedCount} dismissed vulnerabilities',
+        dismissed,
+      );
+    } else if (added && fixed && !dismissed) {
+      // added & fixed
+      baseString = s__(
+        'ciReport|%{reportType} %{status} detected %{newCount} new, and %{fixedCount} fixed vulnerabilities',
+      );
+    } else if (added && !fixed && dismissed) {
+      // added & dismissed
+      baseString = s__(
+        'ciReport|%{reportType} %{status} detected %{newCount} new, and %{dismissedCount} dismissed vulnerabilities',
+      );
+    } else if (!added && fixed && dismissed) {
+      // fixed & dismissed
+      baseString = s__(
+        'ciReport|%{reportType} %{status} detected %{fixedCount} fixed, and %{dismissedCount} dismissed vulnerabilities',
+      );
+    } else if (added && fixed && dismissed) {
+      // added & fixed & dismissed
+      baseString = s__(
+        'ciReport|%{reportType} %{status} detected %{newCount} new, %{fixedCount} fixed, and %{dismissedCount} dismissed vulnerabilities',
+      );
+    } else if (existing) {
       baseString = s__('ciReport|%{reportType} %{status} detected no new vulnerabilities');
     } else {
       baseString = s__('ciReport|%{reportType} %{status} detected no vulnerabilities');
@@ -364,8 +353,9 @@ export const groupedTextBuilder = (
   return sprintf(baseString, {
     status,
     reportType,
-    newCount: newIssues,
-    fixedCount: resolvedIssues,
+    newCount: added,
+    fixedCount: fixed,
+    dismissedCount: dismissed,
   });
 };
 
@@ -379,4 +369,24 @@ export const statusIcon = (loading = false, failed = false, newIssues = 0, neutr
   }
 
   return 'success';
+};
+
+/**
+ * Counts issues. Simply returns the amount of existing and fixed Issues.
+ * New Issues are divided into dismissed and added.
+ *
+ * @param newIssues
+ * @param resolvedIssues
+ * @param allIssues
+ * @returns {{existing: number, added: number, dismissed: number, fixed: number}}
+ */
+export const countIssues = ({ newIssues = [], resolvedIssues = [], allIssues = [] } = {}) => {
+  const dismissed = newIssues.reduce((sum, issue) => (issue.isDismissed ? sum + 1 : sum), 0);
+
+  return {
+    added: newIssues.length - dismissed,
+    dismissed,
+    existing: allIssues.length,
+    fixed: resolvedIssues.length,
+  };
 };

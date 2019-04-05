@@ -113,7 +113,7 @@ If any objects are failing to replicate, this should be investigated before
 scheduling the maintenance window. Following a planned failover, anything that
 failed to replicate will be **lost**.
 
-You can use the [Geo status API][geo-status-api] to review failed objects and
+You can use the [Geo status API](../../../api/geo_nodes.md#retrieve-project-sync-or-verification-failures-that-occurred-on-the-current-node) to review failed objects and
 the reasons for failure.
 
 A common cause of replication failures is the data being missing on the
@@ -143,21 +143,19 @@ access to the **primary** node during the maintenance window.
    all HTTP, HTTPS and SSH traffic to/from the **primary** node, **except** for your IP and
    the **secondary** node's IP.
 
-    For instance, if your **secondary** node originates all its traffic from `5.6.7.8` and
-    your IP is `100.0.0.1`, you might run the following commands on the server(s)
-    making up your **primary** node:
+    For instance, you might run the following commands on the server(s) making up your **primary** node:
 
     ```sh
-    sudo iptables -A INPUT -p tcp -s 5.6.7.8 --destination-port 22 -j ACCEPT
-    sudo iptables -A INPUT -p tcp -s 100.0.0.1 --destination-port 22 -j ACCEPT
+    sudo iptables -A INPUT -p tcp -s <secondary_node_ip> --destination-port 22 -j ACCEPT
+    sudo iptables -A INPUT -p tcp -s <your_ip> --destination-port 22 -j ACCEPT
     sudo iptables -A INPUT --destination-port 22 -j REJECT
 
-    sudo iptables -A INPUT -p tcp -s 5.6.7.8 --destination-port 80 -j ACCEPT
-    sudo iptables -A INPUT -p tcp -s 100.0.0.1 --destination-port 80 -j ACCEPT
+    sudo iptables -A INPUT -p tcp -s <secondary_node_ip> --destination-port 80 -j ACCEPT
+    sudo iptables -A INPUT -p tcp -s <your_ip> --destination-port 80 -j ACCEPT
     sudo iptables -A INPUT --tcp-dport 80 -j REJECT
 
-    sudo iptables -A INPUT -p tcp -s 5.6.7.8 --destination-port 443 -j ACCEPT
-    sudo iptables -A INPUT -p tcp -s 100.0.0.1 --destination-port 443 -j ACCEPT
+    sudo iptables -A INPUT -p tcp -s <secondary_node_ip> --destination-port 443 -j ACCEPT
+    sudo iptables -A INPUT -p tcp -s <your_ip> --destination-port 443 -j ACCEPT
     sudo iptables -A INPUT --tcp-dport 443 -j REJECT
     ```
 
@@ -223,7 +221,6 @@ Don't forget to remove the broadcast message after failover is complete.
 [ee-5064]: https://gitlab.com/gitlab-org/gitlab-ee/issues/5064
 [foreground-verification]: ../../raketasks/check.md
 [background-verification]: background_verification.md
-[geo-status-api]: ../../../api/geo_nodes.html#retrieve-project-sync-failures-ocurred-on-the-current-node
 [limitations]: ../replication/index.md#current-limitations
 [moving-repositories]: ../../operations/moving_repositories.md
 [os-conf]: ../replication/object_storage.md#configuration

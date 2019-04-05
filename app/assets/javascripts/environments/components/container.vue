@@ -1,14 +1,16 @@
 <script>
 import { GlLoadingIcon } from '@gitlab/ui';
-import tablePagination from '../../vue_shared/components/table_pagination.vue';
-import environmentTable from '../components/environments_table.vue';
+import TablePagination from '~/vue_shared/components/table_pagination.vue';
+import containerMixin from 'ee_else_ce/environments/mixins/container_mixin';
+import EnvironmentTable from '../components/environments_table.vue';
 
 export default {
   components: {
-    environmentTable,
-    tablePagination,
+    EnvironmentTable,
+    TablePagination,
     GlLoadingIcon,
   },
+  mixins: [containerMixin],
   props: {
     isLoading: {
       type: Boolean,
@@ -22,36 +24,10 @@ export default {
       type: Object,
       required: true,
     },
-    canCreateDeployment: {
-      type: Boolean,
-      required: true,
-    },
     canReadEnvironment: {
       type: Boolean,
       required: true,
     },
-    // ee-only start
-    canaryDeploymentFeatureId: {
-      type: String,
-      required: true,
-    },
-    showCanaryDeploymentCallout: {
-      type: Boolean,
-      required: true,
-    },
-    userCalloutsPath: {
-      type: String,
-      required: true,
-    },
-    lockPromotionSvgPath: {
-      type: String,
-      required: true,
-    },
-    helpCanaryDeploymentsPath: {
-      type: String,
-      required: true,
-    },
-    // ee-only end
   },
   methods: {
     onChangePage(page) {
@@ -75,7 +51,6 @@ export default {
     <div v-if="!isLoading && environments.length > 0" class="table-holder">
       <environment-table
         :environments="environments"
-        :can-create-deployment="canCreateDeployment"
         :can-read-environment="canReadEnvironment"
         :canary-deployment-feature-id="canaryDeploymentFeatureId"
         :show-canary-deployment-callout="showCanaryDeploymentCallout"

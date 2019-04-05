@@ -115,14 +115,18 @@ describe Geo::RepositoryShardSyncWorker, :geo, :delete, :clean_gitlab_redis_cach
       end
     end
 
-    context 'when node has namespace restrictions' do
+    context 'when node has namespace restrictions', :request_store do
       before do
         secondary.update!(selective_sync_type: 'namespaces', namespaces: [restricted_group])
+
+        allow(::Gitlab::Geo).to receive(:current_node).and_call_original
+        Rails.cache.write(:current_node, secondary.to_json)
+        allow(::GeoNode).to receive(:current_node).and_return(secondary)
       end
 
       it 'does not perform Geo::ProjectSyncWorker for projects that do not belong to selected namespaces to replicate' do
         expect(Geo::ProjectSyncWorker).to receive(:perform_async)
-          .with(unsynced_project_in_restricted_group.id, within(1.minute).of(Time.now))
+          .with(unsynced_project_in_restricted_group.id, sync_repository: true, sync_wiki: true)
           .once
           .and_return(spy)
 
@@ -134,7 +138,7 @@ describe Geo::RepositoryShardSyncWorker, :geo, :delete, :clean_gitlab_redis_cach
         create(:geo_project_registry, :synced, :repository_dirty, project: unsynced_project)
 
         expect(Geo::ProjectSyncWorker).to receive(:perform_async)
-          .with(unsynced_project_in_restricted_group.id, within(1.minute).of(Time.now))
+          .with(unsynced_project_in_restricted_group.id, sync_repository: true, sync_wiki: false)
           .once
           .and_return(spy)
 
@@ -182,6 +186,32 @@ describe Geo::RepositoryShardSyncWorker, :geo, :delete, :clean_gitlab_redis_cach
       end
     end
 
+    context 'projects that require resync' do
+      context 'when project repository is dirty' do
+        it 'syncs repository only' do
+          create(:geo_project_registry, :synced, :repository_dirty, project: unsynced_project)
+          create(:geo_project_registry, :synced, :repository_dirty, project: unsynced_project_in_restricted_group)
+
+          expect(Geo::ProjectSyncWorker).to receive(:perform_async).with(unsynced_project.id, sync_repository: true, sync_wiki: false)
+          expect(Geo::ProjectSyncWorker).to receive(:perform_async).with(unsynced_project_in_restricted_group.id, sync_repository: true, sync_wiki: false)
+
+          subject.perform(shard_name)
+        end
+      end
+
+      context 'when project wiki is dirty' do
+        it 'syncs wiki only' do
+          create(:geo_project_registry, :synced, :wiki_dirty, project: unsynced_project)
+          create(:geo_project_registry, :synced, :wiki_dirty, project: unsynced_project_in_restricted_group)
+
+          expect(Geo::ProjectSyncWorker).to receive(:perform_async).with(unsynced_project.id, sync_repository: false, sync_wiki: true)
+          expect(Geo::ProjectSyncWorker).to receive(:perform_async).with(unsynced_project_in_restricted_group.id, sync_repository: false, sync_wiki: true)
+
+          subject.perform(shard_name)
+        end
+      end
+    end
+
     context 'all repositories fail' do
       let!(:project_list) { create_list(:project, 4, :random_last_repository_updated_at) }
 
@@ -195,6 +225,7 @@ describe Geo::RepositoryShardSyncWorker, :geo, :delete, :clean_gitlab_redis_cach
         allow_any_instance_of(Project).to receive(:ensure_repository).and_raise(Gitlab::Shell::Error.new('foo'))
         allow_any_instance_of(Geo::ProjectRegistry).to receive(:wiki_sync_due?).and_return(false)
         allow_any_instance_of(Geo::RepositorySyncService).to receive(:expire_repository_caches)
+        allow_any_instance_of(Geo::ProjectHousekeepingService).to receive(:do_housekeeping)
       end
 
       it 'tries to sync every project' do

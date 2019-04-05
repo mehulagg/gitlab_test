@@ -9,11 +9,12 @@ describe 'shared/issuable/_approvals.html.haml' do
   let(:form) { double('form') }
 
   before do
+    stub_feature_flags(approval_rules: false)
+
     allow(view).to receive(:can?).and_return(true)
     allow(view).to receive(:current_user).and_return(user)
     allow(form).to receive(:label)
     allow(form).to receive(:number_field)
-    allow(merge_request).to receive(:requires_approve?).and_return(true)
     allow(MergeRequestApproverPresenter).to receive(:new).and_return(approver_presenter)
     assign(:project, project)
   end

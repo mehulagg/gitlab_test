@@ -23,11 +23,13 @@ module Issuable
   include Sortable
   include CreatedAtFilterable
   include UpdatedAtFilterable
+  include IssuableStates
+  include ClosedAtFilterable
 
   # This object is used to gather issuable meta data for displaying
   # upvotes, downvotes, notes and closing merge requests count for issues and merge requests
   # lists avoiding n+1 queries and improving performance.
-  IssuableMeta = Struct.new(:upvotes, :downvotes, :notes_count, :merge_requests_count)
+  IssuableMeta = Struct.new(:upvotes, :downvotes, :user_notes_count, :merge_requests_count)
 
   included do
     cache_markdown_field :title, pipeline: :single_line
@@ -35,8 +37,8 @@ module Issuable
 
     redact_field :description
 
-    belongs_to :author, class_name: "User"
-    belongs_to :updated_by, class_name: "User"
+    belongs_to :author, class_name: 'User'
+    belongs_to :updated_by, class_name: 'User'
     belongs_to :last_edited_by, class_name: 'User'
     belongs_to :milestone
 
@@ -74,6 +76,7 @@ module Issuable
 
     validates :author, presence: true
     validates :title, presence: true, length: { maximum: 255 }
+    validate :milestone_is_valid
 
     scope :authored, ->(user) { where(author_id: user) }
     scope :recent, -> { reorder(id: :desc) }
@@ -117,6 +120,18 @@ module Issuable
     def has_multiple_assignees?
       assignees.count > 1
     end
+
+    def milestone_available?
+      return true if is_a?(Epic)
+
+      project_id == milestone&.project_id || project.ancestors_upto.compact.include?(milestone&.group)
+    end
+
+    private
+
+    def milestone_is_valid
+      errors.add(:milestone_id, message: "is invalid") if milestone_id.present? && !milestone_available?
+    end
   end
 
   class_methods do
@@ -129,6 +144,15 @@ module Issuable
     # Returns an ActiveRecord::Relation.
     def search(query)
       fuzzy_search(query, [:title])
+    end
+
+    # Available state values persisted in state_id column using state machine
+    #
+    # Override this on subclasses if different states are needed
+    #
+    # Check MergeRequest.available_states for example
+    def available_states
+      @available_states ||= { opened: 1, closed: 2 }.with_indifferent_access
     end
 
     # Searches for records with a matching title or description.

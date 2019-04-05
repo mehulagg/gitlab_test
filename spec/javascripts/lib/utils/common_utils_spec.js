@@ -2,6 +2,7 @@ import axios from '~/lib/utils/axios_utils';
 import * as commonUtils from '~/lib/utils/common_utils';
 import MockAdapter from 'axios-mock-adapter';
 import { faviconDataUrl, overlayDataUrl, faviconWithOverlayDataUrl } from './mock_data';
+import BreakpointInstance from '~/breakpoints';
 
 const PIXEL_TOLERANCE = 0.2;
 
@@ -380,6 +381,38 @@ describe('common_utils', () => {
     });
   });
 
+  describe('contentTop', () => {
+    it('does not add height for fileTitle or compareVersionsHeader if screen is too small', () => {
+      spyOn(BreakpointInstance, 'getBreakpointSize').and.returnValue('sm');
+
+      setFixtures(`
+        <div class="diff-file file-title-flex-parent">
+          blah blah blah
+        </div>
+        <div class="mr-version-controls">
+          more blah blah blah
+        </div>
+      `);
+
+      expect(commonUtils.contentTop()).toBe(0);
+    });
+
+    it('adds height for fileTitle and compareVersionsHeader screen is large enough', () => {
+      spyOn(BreakpointInstance, 'getBreakpointSize').and.returnValue('lg');
+
+      setFixtures(`
+        <div class="diff-file file-title-flex-parent">
+          blah blah blah
+        </div>
+        <div class="mr-version-controls">
+          more blah blah blah
+        </div>
+      `);
+
+      expect(commonUtils.contentTop()).toBe(18);
+    });
+  });
+
   describe('parseBoolean', () => {
     const { parseBoolean } = commonUtils;
 
@@ -406,13 +439,6 @@ describe('common_utils', () => {
 
         expect(parseBoolean(result)).toBe(result);
       });
-    });
-  });
-
-  describe('convertPermissionToBoolean', () => {
-    it('should convert a boolean in a string to a boolean', () => {
-      expect(commonUtils.convertPermissionToBoolean('true')).toEqual(true);
-      expect(commonUtils.convertPermissionToBoolean('false')).toEqual(false);
     });
   });
 
@@ -855,6 +881,7 @@ describe('common_utils', () => {
     });
 
     it('returns true when provided `el` is in viewport', () => {
+      el.setAttribute('style', `position: absolute; right: ${window.innerWidth + 0.2};`);
       document.body.appendChild(el);
 
       expect(commonUtils.isInViewport(el)).toBe(true);

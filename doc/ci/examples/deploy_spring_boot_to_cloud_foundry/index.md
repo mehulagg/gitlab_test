@@ -1,7 +1,7 @@
 ---
 author: Dylan Griffith
 author_gitlab: DylanGriffith
-level: intermediary
+level: intermediate
 article_type: tutorial
 date: 2018-06-07
 description: "Continuous Deployment of a Spring Boot application to Cloud Foundry with GitLab CI/CD"
@@ -99,7 +99,7 @@ We've used the `java:8` [docker
 image](../../docker/using_docker_images.md) to build
 our application as it provides the up-to-date Java 8 JDK on [Docker
 Hub](https://hub.docker.com/). We've also added the [`only`
-clause](../../yaml/README.md#only-and-except-simplified)
+clause](../../yaml/README.md#onlyexcept-basic)
 to ensure our deployments only happen when we push to the master branch.
 
 Now, since the steps defined in `.gitlab-ci.yml` require credentials to login
@@ -112,7 +112,7 @@ on GitLab CI/CD. To set the environment variables, navigate to your project's
 ![Variable Settings in GitLab](img/cloud_foundry_variables.png)
 
 Once set up, GitLab CI/CD will deploy your app to CF at every push to your
-repository's deafult branch. To see the build logs or watch your builds running
+repository's default branch. To see the build logs or watch your builds running
 live, navigate to **CI/CD > Pipelines**.
 
 CAUTION: **Caution:**

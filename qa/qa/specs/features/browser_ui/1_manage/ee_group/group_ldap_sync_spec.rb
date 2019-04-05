@@ -68,7 +68,7 @@ module QA
             page.click_add_sync_button
           end
 
-          EE::Page::Group::Menu.perform(&:go_to_members)
+          EE::Page::Group::Menu.perform(&:click_group_members_item)
         end
 
         it 'has LDAP users synced' do
@@ -117,7 +117,7 @@ module QA
             page.click_add_sync_button
           end
 
-          EE::Page::Group::Menu.perform(&:go_to_members)
+          EE::Page::Group::Menu.perform(&:click_group_members_item)
         end
 
         it 'has LDAP users synced' do
@@ -167,7 +167,7 @@ module QA
       def verify_users_synced(expected_users)
         EE::Page::Group::Members.perform do |page|
           page.click_sync_now
-          users_synchronised = page.with_retry(reload: true) do
+          users_synchronised = page.retry_until(reload: true) do
             expected_users.map { |user| page.has_content?(user) }.all?
           end
           expect(users_synchronised).to be_truthy

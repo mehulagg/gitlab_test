@@ -149,19 +149,21 @@ module Gitlab
             end
           end
 
+          protected
+
+          def fallback
+            false
+          end
+
           private
 
-          def look_like_regexp?(value)
-            value.is_a?(String) && value.start_with?('/') &&
-              value.end_with?('/')
+          def matches_syntax?(value)
+            Gitlab::UntrustedRegexp::RubySyntax.matches_syntax?(value)
           end
 
           def validate_regexp(value)
-            look_like_regexp?(value) &&
-              Regexp.new(value.to_s[1...-1]) &&
-              true
-          rescue RegexpError
-            false
+            matches_syntax?(value) &&
+              Gitlab::UntrustedRegexp::RubySyntax.valid?(value, fallback: fallback)
           end
         end
 
@@ -180,8 +182,16 @@ module Gitlab
 
           def validate_string_or_regexp(value)
             return false unless value.is_a?(String)
-            return validate_regexp(value) if look_like_regexp?(value)
+            return validate_regexp(value) if matches_syntax?(value)
 
+            true
+          end
+        end
+
+        class ArrayOfStringsOrRegexpsWithFallbackValidator < ArrayOfStringsOrRegexpsValidator
+          protected
+
+          def fallback
             true
           end
         end
@@ -294,6 +304,7 @@ module Gitlab
 
         class ServicesWithPortsAliasUniqueValidator < ActiveModel::EachValidator
           def validate_each(record, attribute, value)
+<<<<<<< HEAD
             aliases_with_port = value.select { |s| s.is_a?(Hash) && s[:ports] }.pluck(:alias) # rubocop:disable CodeReuse/ActiveRecord
 
             return if aliases_with_port.empty?
@@ -302,6 +313,25 @@ module Gitlab
               record.errors.add(:config, 'alias must be unique in services with ports')
             end
           end
+=======
+            current_aliases = aliases(value)
+            return if current_aliases.empty?
+
+            unless aliases_unique?(current_aliases)
+              record.errors.add(:config, 'alias must be unique in services with ports')
+            end
+          end
+
+          private
+
+          def aliases(value)
+            value.select { |s| s.is_a?(Hash) && s[:ports] }.pluck(:alias) # rubocop:disable CodeReuse/ActiveRecord
+          end
+
+          def aliases_unique?(aliases)
+            aliases.size == aliases.uniq.size
+          end
+>>>>>>> fj-5276-mirror-webide-changes
         end
       end
     end

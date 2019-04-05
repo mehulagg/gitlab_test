@@ -11,10 +11,6 @@ module Gitlab
     # https://dev.mysql.com/doc/refman/5.7/en/datetime.html
     MAX_TIMESTAMP_VALUE = Time.at((1 << 31) - 1).freeze
 
-    class << self
-      prepend EE::Gitlab::Database # rubocop: disable Cop/InjectEnterpriseEditionModule
-    end
-
     def self.config
       ActiveRecord::Base.configurations[Rails.env]
     end
@@ -29,6 +25,10 @@ module Gitlab
 
     def self.adapter_name
       config['adapter']
+    end
+
+    def self.human_adapter_name
+      postgresql? ? 'PostgreSQL' : 'MySQL'
     end
 
     def self.mysql?
@@ -80,7 +80,7 @@ module Gitlab
       postgresql? && version.to_f >= 9.4
     end
 
-    def self.pg_stat_wal_receiver_supported?
+    def self.postgresql_minimum_supported_version?
       postgresql? && version.to_f >= 9.6
     end
 
@@ -100,6 +100,10 @@ module Gitlab
 
     def self.pg_last_wal_replay_lsn
       Gitlab::Database.postgresql_9_or_less? ? 'pg_last_xlog_replay_location' : 'pg_last_wal_replay_lsn'
+    end
+
+    def self.pg_last_xact_replay_timestamp
+      'pg_last_xact_replay_timestamp'
     end
 
     def self.nulls_last_order(field, direction = 'ASC')
@@ -270,3 +274,5 @@ module Gitlab
     end
   end
 end
+
+Gitlab::Database.prepend(EE::Gitlab::Database)

@@ -392,6 +392,23 @@ describe ProjectsController do
         end
       end
 
+      it 'does not update namespace' do
+        controller.instance_variable_set(:@project, project)
+
+        params = {
+          namespace_id: 'test'
+        }
+
+        expect do
+          put :update,
+            params: {
+              namespace_id: project.namespace,
+              id: project.id,
+              project: params
+            }
+        end.not_to change { project.namespace.reload }
+      end
+
       def update_project(**parameters)
         put :update,
             params: {
@@ -733,6 +750,16 @@ describe ProjectsController do
       post :preview_markdown, params: { namespace_id: public_project.namespace, id: public_project, text: '*Markdown* text' }
 
       expect(JSON.parse(response.body).keys).to match_array(%w(body references))
+    end
+
+    context 'when not authorized' do
+      let(:private_project) { create(:project, :private) }
+
+      it 'returns 404' do
+        post :preview_markdown, params: { namespace_id: private_project.namespace, id: private_project, text: '*Markdown* text' }
+
+        expect(response).to have_gitlab_http_status(404)
+      end
     end
 
     context 'state filter on references' do

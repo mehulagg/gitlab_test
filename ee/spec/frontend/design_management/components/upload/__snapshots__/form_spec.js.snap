@@ -1,0 +1,78 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Design management upload form component hides button if cant upload 1`] = `
+<header
+  class="row-content-block border-top-0 p-2 d-flex"
+>
+  <div>
+    <!---->
+     
+    <input
+      accept="image/*"
+      class="hide"
+      multiple="multiple"
+      name="design_file"
+      type="file"
+    />
+  </div>
+</header>
+`;
+
+exports[`Design management upload form component renders loading icon 1`] = `
+<header
+  class="row-content-block border-top-0 p-2 d-flex"
+>
+  <div>
+    <glbutton-stub
+      class="btn-inverted"
+      disabled="true"
+      variant="primary"
+    >
+      
+      Upload designs
+      
+      <glloadingicon-stub
+        class="ml-1"
+        color="orange"
+        inline="true"
+        label="Loading"
+        size="sm"
+      />
+    </glbutton-stub>
+     
+    <input
+      accept="image/*"
+      class="hide"
+      multiple="multiple"
+      name="design_file"
+      type="file"
+    />
+  </div>
+</header>
+`;
+
+exports[`Design management upload form component renders upload design button 1`] = `
+<header
+  class="row-content-block border-top-0 p-2 d-flex"
+>
+  <div>
+    <glbutton-stub
+      class="btn-inverted"
+      variant="primary"
+    >
+      
+      Upload designs
+      
+      <!---->
+    </glbutton-stub>
+     
+    <input
+      accept="image/*"
+      class="hide"
+      multiple="multiple"
+      name="design_file"
+      type="file"
+    />
+  </div>
+</header>
+`;

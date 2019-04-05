@@ -1,23 +1,26 @@
 # frozen_string_literal: true
 
 module Clusters
-  class Cluster < ActiveRecord::Base
+  class Cluster < ApplicationRecord
     include Presentable
     include Gitlab::Utils::StrongMemoize
     include FromUnion
 
     self.table_name = 'clusters'
 
+    PROJECT_ONLY_APPLICATIONS = {
+      Applications::Jupyter.application_name => Applications::Jupyter,
+      Applications::Knative.application_name => Applications::Knative,
+      Applications::Prometheus.application_name => Applications::Prometheus
+    }.freeze
     APPLICATIONS = {
       Applications::Helm.application_name => Applications::Helm,
       Applications::Ingress.application_name => Applications::Ingress,
       Applications::CertManager.application_name => Applications::CertManager,
-      Applications::Prometheus.application_name => Applications::Prometheus,
-      Applications::Runner.application_name => Applications::Runner,
-      Applications::Jupyter.application_name => Applications::Jupyter,
-      Applications::Knative.application_name => Applications::Knative
-    }.freeze
+      Applications::Runner.application_name => Applications::Runner
+    }.merge(PROJECT_ONLY_APPLICATIONS).freeze
     DEFAULT_ENVIRONMENT = '*'.freeze
+    KUBE_INGRESS_BASE_DOMAIN = 'KUBE_INGRESS_BASE_DOMAIN'.freeze
 
     belongs_to :user
 
@@ -49,7 +52,7 @@ module Clusters
 
     validates :name, cluster_name: true
     validates :cluster_type, presence: true
-    validates :domain, allow_nil: true, hostname: { allow_numeric_hostname: true, require_valid_tld: true }
+    validates :domain, allow_blank: true, hostname: { allow_numeric_hostname: true }
 
     validate :restrict_modification, on: :update
     validate :no_groups, unless: :group_type?
@@ -65,6 +68,11 @@ module Clusters
     delegate :available?, to: :application_ingress, prefix: true, allow_nil: true
     delegate :available?, to: :application_prometheus, prefix: true, allow_nil: true
     delegate :available?, to: :application_knative, prefix: true, allow_nil: true
+    delegate :external_ip, to: :application_ingress, prefix: true, allow_nil: true
+    delegate :external_hostname, to: :application_ingress, prefix: true, allow_nil: true
+
+    alias_attribute :base_domain, :domain
+    alias_attribute :provided_by_user?, :user?
 
     enum cluster_type: {
       instance_type: 1,
@@ -95,7 +103,7 @@ module Clusters
       where('NOT EXISTS (?)', subquery)
     end
 
-    scope :with_knative_installed, -> { joins(:application_knative).merge(Clusters::Applications::Knative.installed) }
+    scope :with_knative_installed, -> { joins(:application_knative).merge(Clusters::Applications::Knative.available) }
 
     scope :preload_knative, -> {
       preload(
@@ -144,10 +152,6 @@ module Clusters
       return platform_kubernetes if kubernetes?
     end
 
-    def managed?
-      !user?
-    end
-
     def all_projects
       if project_type?
         projects
@@ -193,7 +197,41 @@ module Clusters
       project_type?
     end
 
+    def kube_ingress_domain
+      @kube_ingress_domain ||= domain.presence || instance_domain || legacy_auto_devops_domain
+    end
+
+    def predefined_variables
+      Gitlab::Ci::Variables::Collection.new.tap do |variables|
+        break variables unless kube_ingress_domain
+
+        variables.append(key: KUBE_INGRESS_BASE_DOMAIN, value: kube_ingress_domain)
+      end
+    end
+
     private
+
+    def instance_domain
+      @instance_domain ||= Gitlab::CurrentSettings.auto_devops_domain
+    end
+
+    # To keep backward compatibility with AUTO_DEVOPS_DOMAIN
+    # environment variable, we need to ensure KUBE_INGRESS_BASE_DOMAIN
+    # is set if AUTO_DEVOPS_DOMAIN is set on any of the following options:
+    # ProjectAutoDevops#Domain, project variables or group variables,
+    # as the AUTO_DEVOPS_DOMAIN is needed for CI_ENVIRONMENT_URL
+    #
+    # This method should is scheduled to be removed on
+    # https://gitlab.com/gitlab-org/gitlab-ce/issues/56959
+    def legacy_auto_devops_domain
+      if project_type?
+        project&.auto_devops&.domain.presence ||
+          project.variables.find_by(key: 'AUTO_DEVOPS_DOMAIN')&.value.presence ||
+          project.group&.variables&.find_by(key: 'AUTO_DEVOPS_DOMAIN')&.value.presence
+      elsif group_type?
+        group.variables.find_by(key: 'AUTO_DEVOPS_DOMAIN')&.value.presence
+      end
+    end
 
     def restrict_modification
       if provider&.on_creation?

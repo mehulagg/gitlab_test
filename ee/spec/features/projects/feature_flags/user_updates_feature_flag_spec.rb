@@ -43,6 +43,7 @@ describe 'User updates feature flag', :js do
       end
 
       click_button 'Save changes'
+      expect(page).to have_current_path(project_feature_flags_path(project))
     end
 
     it 'shows the updated feature flag' do
@@ -58,15 +59,27 @@ describe 'User updates feature flag', :js do
         end
       end
     end
+
+    it 'records audit event' do
+      visit(project_audit_events_path(project))
+
+      expect(page).to(
+        have_text("Updated feature flag ci live trace. Updated rule review/* active state from true to false.")
+      )
+    end
   end
 
   context 'when user adds a new scope' do
     before do
       within_scope_row(3) do
-        within_environment_spec { find('.js-new-scope-name').set('production') }
+        within_environment_spec do
+          find('.js-env-input').set('production')
+          find('.js-create-button').click
+        end
       end
 
       click_button 'Save changes'
+      expect(page).to have_current_path(project_feature_flags_path(project))
     end
 
     it 'shows the newly created scope' do
@@ -77,6 +90,14 @@ describe 'User updates feature flag', :js do
         end
       end
     end
+
+    it 'records audit event' do
+      visit(project_audit_events_path(project))
+
+      expect(page).to(
+        have_text("Updated feature flag ci live trace")
+      )
+    end
   end
 
   context 'when user deletes a scope' do
@@ -86,6 +107,7 @@ describe 'User updates feature flag', :js do
       end
 
       click_button 'Save changes'
+      expect(page).to have_current_path(project_feature_flags_path(project))
     end
 
     it 'shows the updated feature flag' do
@@ -95,6 +117,14 @@ describe 'User updates feature flag', :js do
           expect(page).not_to have_css('.badge:nth-child(2)')
         end
       end
+    end
+
+    it 'records audit event' do
+      visit(project_audit_events_path(project))
+
+      expect(page).to(
+        have_text("Updated feature flag ci live trace")
+      )
     end
   end
 end

@@ -96,12 +96,16 @@ module EE
     end
 
     def geo_updated_event_source
-      is_wiki ? Geo::RepositoryUpdatedEvent::WIKI : Geo::RepositoryUpdatedEvent::REPOSITORY
+      repo_type.wiki? ? Geo::RepositoryUpdatedEvent::WIKI : Geo::RepositoryUpdatedEvent::REPOSITORY
     end
 
     def code_owners_blob(ref: 'HEAD')
       possible_code_owner_blobs = ::Gitlab::CodeOwners::FILE_PATHS.map { |path| [ref, path] }
       blobs_at(possible_code_owner_blobs).compact.first
+    end
+
+    def insights_config_for(sha)
+      blob_data_at(sha, ::Gitlab::Insights::CONFIG_FILE_PATH)
     end
   end
 end

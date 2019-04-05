@@ -68,6 +68,7 @@ RSpec.configure do |config|
     metadata[:type] = match[1].singularize.to_sym if match
   end
 
+  config.include LicenseHelpers
   config.include ActiveJob::TestHelper
   config.include ActiveSupport::Testing::TimeHelpers
   config.include CycleAnalyticsHelpers
@@ -98,6 +99,7 @@ RSpec.configure do |config|
   config.include MigrationsHelpers, :migration
   config.include RedisHelpers
   config.include Rails.application.routes.url_helpers, type: :routing
+  config.include PolicyHelpers, type: :policy
 
   if ENV['CI']
     # This includes the first try, i.e. tests will be run 4 times before failing.
@@ -117,9 +119,16 @@ RSpec.configure do |config|
     TestEnv.clean_test_path
   end
 
-  config.before do
+  config.before do |example|
     # Enable all features by default for testing
     allow(Feature).to receive(:enabled?) { true }
+
+    enabled = example.metadata[:enable_rugged].present?
+
+    # Disable Rugged features by default
+    Gitlab::Git::RuggedImpl::Repository::FEATURE_FLAGS.each do |flag|
+      allow(Feature).to receive(:enabled?).with(flag).and_return(enabled)
+    end
 
     # The following can be removed when we remove the staged rollout strategy
     # and we can just enable it using instance wide settings

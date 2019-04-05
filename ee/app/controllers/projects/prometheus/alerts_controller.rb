@@ -7,17 +7,17 @@ module Projects
 
       protect_from_forgery except: [:notify]
 
+      skip_before_action :project, only: [:notify]
+
+      prepend_before_action :repository, :project_without_auth, only: [:notify]
+
       before_action :authorize_read_prometheus_alerts!, except: [:notify]
       before_action :authorize_admin_project!, except: [:notify]
       before_action :alert, only: [:update, :show, :destroy]
 
-      # rubocop: disable CodeReuse/ActiveRecord
       def index
-        alerts = project.prometheus_alerts.reorder(id: :asc)
-
         render json: serialize_as_json(alerts)
       end
-      # rubocop: enable CodeReuse/ActiveRecord
 
       def show
         render json: serialize_as_json(alert)
@@ -25,10 +25,8 @@ module Projects
 
       def notify
         token = extract_alert_manager_token(request)
-        notify = Projects::Prometheus::Alerts::NotifyService
-          .new(project, current_user, params.permit!)
 
-        if notify.execute(token)
+        if notify_service.execute(token)
           head :ok
         else
           head :unprocessable_entity
@@ -36,7 +34,7 @@ module Projects
       end
 
       def create
-        @alert = project.prometheus_alerts.create(alerts_params)
+        @alert = create_service.execute
 
         if @alert.persisted?
           schedule_prometheus_update!
@@ -48,7 +46,7 @@ module Projects
       end
 
       def update
-        if alert.update(alerts_params)
+        if update_service.execute(alert)
           schedule_prometheus_update!
 
           render json: serialize_as_json(alert)
@@ -58,7 +56,7 @@ module Projects
       end
 
       def destroy
-        if alert.destroy
+        if destroy_service.execute(alert)
           schedule_prometheus_update!
 
           head :ok
@@ -70,13 +68,27 @@ module Projects
       private
 
       def alerts_params
-        alerts_params = params.permit(:operator, :threshold, :environment_id, :prometheus_metric_id)
+        params.permit(:operator, :threshold, :environment_id, :prometheus_metric_id)
+      end
 
-        if alerts_params[:operator].present?
-          alerts_params[:operator] = PrometheusAlert.operator_to_enum(alerts_params[:operator])
-        end
+      def notify_service
+        Projects::Prometheus::Alerts::NotifyService
+          .new(project, current_user, params.permit!)
+      end
 
-        alerts_params
+      def create_service
+        Projects::Prometheus::Alerts::CreateService
+          .new(project, current_user, alerts_params)
+      end
+
+      def update_service
+        Projects::Prometheus::Alerts::UpdateService
+          .new(project, current_user, alerts_params)
+      end
+
+      def destroy_service
+        Projects::Prometheus::Alerts::DestroyService
+          .new(project, current_user, nil)
       end
 
       def schedule_prometheus_update!
@@ -88,11 +100,23 @@ module Projects
       end
 
       def serializer
-        PrometheusAlertSerializer.new(project: project, current_user: current_user)
+        PrometheusAlertSerializer
+          .new(project: project, current_user: current_user)
+      end
+
+      def alerts
+        alerts_finder.execute
       end
 
       def alert
-        @alert ||= project.prometheus_alerts.for_metric(params[:id]).first || render_404
+        @alert ||= alerts_finder(metric: params[:id]).execute.first || render_404
+      end
+
+      def alerts_finder(opts = {})
+        Projects::Prometheus::AlertsFinder.new({
+          project: project,
+          environment: params[:environment_id]
+        }.reverse_merge(opts))
       end
 
       def application
@@ -101,6 +125,19 @@ module Projects
 
       def extract_alert_manager_token(request)
         Doorkeeper::OAuth::Token.from_bearer_authorization(request)
+      end
+
+      def project_without_auth
+        return @project if @project
+
+        namespace = params[:namespace_id]
+        id = params[:project_id]
+
+        @project = Project.find_by_full_path("#{namespace}/#{id}")
+      end
+
+      def prometheus_alerts
+        project.prometheus_alerts.for_environment(params[:environment_id])
       end
     end
   end

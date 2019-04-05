@@ -218,7 +218,7 @@ describe Groups::Security::VulnerabilitiesController do
           group.add_developer(user)
         end
 
-        it 'returns vulnerabilities counts' do
+        it 'returns vulnerabilities counts for all report types' do
           subject
 
           expect(response).to have_gitlab_http_status(200)
@@ -292,6 +292,9 @@ describe Groups::Security::VulnerabilitiesController do
 
           create_list(:vulnerabilities_occurrence, 1,
             pipelines: [pipeline], project: project_dev, report_type: :dast, severity: :low)
+
+          create_list(:vulnerabilities_occurrence, 1,
+            pipelines: [pipeline], project: project_dev, report_type: :container_scanning, severity: :high)
         end
       end
 
@@ -319,9 +322,9 @@ describe Groups::Security::VulnerabilitiesController do
 
           expect(response).to have_gitlab_http_status(200)
           expect(json_response).to be_an(Hash)
-          expect(json_response['total']).to eq({ '2018-11-10' => 5, '2018-11-12' => 4 })
+          expect(json_response['total']).to eq({ '2018-11-10' => 5, '2018-11-12' => 5 })
           expect(json_response['critical']).to eq({ '2018-11-10' => 1 })
-          expect(json_response['high']).to eq({ '2018-11-10' => 2 })
+          expect(json_response['high']).to eq({ '2018-11-10' => 2, '2018-11-12' => 1 })
           expect(json_response['medium']).to eq({ '2018-11-12' => 1 })
           expect(json_response['low']).to eq({ '2018-11-10' => 2, '2018-11-12' => 3 })
           expect(response).to match_response_schema('vulnerabilities/history', dir: 'ee')
@@ -336,9 +339,8 @@ describe Groups::Security::VulnerabilitiesController do
           expect(json_response).to be_an(Hash)
           expect(json_response).to eq({
             "undefined" => {},
-            "ignore" => {},
+            "info" => {},
             "unknown" => {},
-            "experimental" => {},
             "low" => {},
             "medium" => {},
             "high" => {},
@@ -350,16 +352,16 @@ describe Groups::Security::VulnerabilitiesController do
 
         it 'returns filtered history if filters are enabled' do
           travel_to(Time.zone.parse('2019-02-10')) do
-            get :history, params: { group_id: group, report_type: %w[dependency_scanning sast] }, format: :json
+            get :history, params: { group_id: group, report_type: %w[dependency_scanning sast dast container_scanning] }, format: :json
           end
 
           expect(response).to have_gitlab_http_status(200)
           expect(json_response).to be_an(Hash)
-          expect(json_response['total']).to eq({ '2018-11-10' => 5, '2018-11-12' => 2 })
+          expect(json_response['total']).to eq({ '2018-11-10' => 5, '2018-11-12' => 5 })
           expect(json_response['critical']).to eq({ '2018-11-10' => 1 })
-          expect(json_response['high']).to eq({ '2018-11-10' => 2 })
-          expect(json_response['medium']).to eq({})
-          expect(json_response['low']).to eq({ '2018-11-10' => 2, '2018-11-12' => 2 })
+          expect(json_response['high']).to eq({ '2018-11-10' => 2, '2018-11-12' => 1 })
+          expect(json_response['medium']).to eq({ '2018-11-12' => 1 })
+          expect(json_response['low']).to eq({ '2018-11-10' => 2, '2018-11-12' => 3 })
           expect(response).to match_response_schema('vulnerabilities/history', dir: 'ee')
         end
       end

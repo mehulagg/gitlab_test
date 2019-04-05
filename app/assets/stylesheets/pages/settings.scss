@@ -23,7 +23,10 @@
 }
 
 .settings {
-  border-bottom: 1px solid $gray-darker;
+  // border-top for each item except the top one
+  + .settings {
+    border-top: 1px solid $border-color;
+  }
 
   &:first-of-type {
     margin-top: 10px;
@@ -289,6 +292,17 @@
     }
   }
 
+  .loading-metrics,
+  .empty-metrics {
+    padding: 30px 10px;
+
+    p,
+    .btn {
+      margin-top: 10px;
+      margin-bottom: 0;
+    }
+  }
+
   .loading-metrics .metrics-load-spinner {
     color: $gl-gray-700;
   }
@@ -357,8 +371,4 @@
 
 .push-pull-table {
   margin-top: 1em;
-
-  .mirror-action-buttons {
-    padding-right: 0;
-  }
 }

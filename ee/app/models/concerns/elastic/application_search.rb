@@ -13,6 +13,7 @@ module Elastic
 
       settings \
         index: {
+          codec: 'best_compression',
           analysis: {
             analyzer: {
               default: {
@@ -43,7 +44,7 @@ module Elastic
 
       # Since we can't have multiple types in ES6, but want to be able to use JOINs, we must declare all our
       # fields together instead of per model
-      mappings do
+      mappings dynamic: 'strict' do
         ### Shared fields
         indexes :id, type: :integer
         indexes :created_at, type: :date
@@ -144,6 +145,8 @@ module Elastic
 
         ### REPOSITORIES
         indexes :blob do
+          indexes :type, type: :keyword
+
           indexes :id, type: :text,
                        index_options: 'offsets',
                        analyzer: :sha_analyzer
@@ -167,6 +170,8 @@ module Elastic
         end
 
         indexes :commit do
+          indexes :type, type: :keyword
+
           indexes :id, type: :text,
                        index_options: 'offsets',
                        analyzer: :sha_analyzer
@@ -181,7 +186,7 @@ module Elastic
             indexes :time, type: :date, format: :basic_date_time_no_millis
           end
 
-          indexes :commiter do
+          indexes :committer do
             indexes :name, type: :text, index_options: 'offsets'
             indexes :email, type: :text, index_options: 'offsets'
             indexes :time, type: :date, format: :basic_date_time_no_millis
@@ -223,7 +228,11 @@ module Elastic
 
       # Should be overridden in the models where some records should be skipped
       def searchable?
-        true
+        self.use_elasticsearch?
+      end
+
+      def use_elasticsearch?
+        self.project&.use_elasticsearch?
       end
 
       def generic_attributes

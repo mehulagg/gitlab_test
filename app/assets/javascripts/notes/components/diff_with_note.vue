@@ -5,6 +5,7 @@ import DiffViewer from '~/vue_shared/components/diff_viewer/diff_viewer.vue';
 import ImageDiffOverlay from '~/diffs/components/image_diff_overlay.vue';
 import { GlSkeletonLoading } from '@gitlab/ui';
 import { getDiffMode } from '~/diffs/store/utils';
+import { diffViewerModes } from '~/ide/constants';
 
 export default {
   components: {
@@ -30,6 +31,12 @@ export default {
     }),
     diffMode() {
       return getDiffMode(this.discussion.diff_file);
+    },
+    diffViewerMode() {
+      return this.discussion.diff_file.viewer.name;
+    },
+    isTextFile() {
+      return this.diffViewerMode === diffViewerModes.text;
     },
     hasTruncatedDiffLines() {
       return (
@@ -58,19 +65,15 @@ export default {
 </script>
 
 <template>
-  <div :class="{ 'text-file': discussion.diff_file.text }" class="diff-file file-holder">
+  <div :class="{ 'text-file': isTextFile }" class="diff-file file-holder">
     <diff-file-header
       :discussion-path="discussion.discussion_path"
       :diff-file="discussion.diff_file"
       :can-current-user-fork="false"
-      :expanded="!discussion.diff_file.collapsed"
+      :expanded="!discussion.diff_file.viewer.collapsed"
     />
-    <div
-      v-if="discussion.diff_file.text"
-      :class="$options.userColorSchemeClass"
-      class="diff-content code"
-    >
-      <table>
+    <div v-if="isTextFile" class="diff-content">
+      <table class="code js-syntax-highlight" :class="$options.userColorSchemeClass">
         <template v-if="hasTruncatedDiffLines">
           <tr
             v-for="line in discussion.truncated_diff_lines"
@@ -78,8 +81,8 @@ export default {
             :key="line.line_code"
             class="line_holder"
           >
-            <td class="diff-line-num old_line">{{ line.old_line }}</td>
-            <td class="diff-line-num new_line">{{ line.new_line }}</td>
+            <td :class="line.type" class="diff-line-num old_line">{{ line.old_line }}</td>
+            <td :class="line.type" class="diff-line-num new_line">{{ line.new_line }}</td>
             <td :class="line.type" class="line_content" v-html="line.rich_text"></td>
           </tr>
         </template>
@@ -109,6 +112,7 @@ export default {
     <div v-else>
       <diff-viewer
         :diff-mode="diffMode"
+        :diff-viewer-mode="diffViewerMode"
         :new-path="discussion.diff_file.new_path"
         :new-sha="discussion.diff_file.diff_refs.head_sha"
         :old-path="discussion.diff_file.old_path"

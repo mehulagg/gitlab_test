@@ -30,6 +30,19 @@ describe Notify do
                    description: 'My awesome description!')
   end
 
+  describe 'with HTML-encoded entities' do
+    before do
+      described_class.test_email('test@test.com', 'Subject', 'Some body with &mdash;').deliver
+    end
+
+    subject { ActionMailer::Base.deliveries.last }
+
+    it 'retains 7bit encoding' do
+      expect(subject.body.ascii_only?).to eq(true)
+      expect(subject.body.encoding).to eq('7bit')
+    end
+  end
+
   context 'for a project' do
     shared_examples 'an assignee email' do
       it 'is sent to the assignee as the author' do
@@ -53,6 +66,8 @@ describe Notify do
         end
         it_behaves_like 'it should show Gmail Actions View Issue link'
         it_behaves_like 'an unsubscribeable thread'
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
 
         it 'has the correct subject and body' do
           aggregate_failures do
@@ -71,6 +86,9 @@ describe Notify do
 
         context 'when sent with a reason' do
           subject { described_class.new_issue_email(issue.assignees.first.id, issue.id, NotificationReason::ASSIGNED) }
+
+          it_behaves_like 'appearance header and footer enabled'
+          it_behaves_like 'appearance header and footer not enabled'
 
           it 'includes the reason in a header' do
             is_expected.to have_header('X-GitLab-NotificationReason', NotificationReason::ASSIGNED)
@@ -99,6 +117,8 @@ describe Notify do
         end
         it_behaves_like 'it should show Gmail Actions View Issue link'
         it_behaves_like 'an unsubscribeable thread'
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
 
         it 'is sent as the author' do
           sender = subject.header[:from].addrs[0]
@@ -118,6 +138,9 @@ describe Notify do
         context 'when sent with a reason' do
           subject { described_class.reassigned_issue_email(recipient.id, issue.id, [previous_assignee.id], current_user.id, NotificationReason::ASSIGNED) }
 
+          it_behaves_like 'appearance header and footer enabled'
+          it_behaves_like 'appearance header and footer not enabled'
+
           it 'includes the reason in a header' do
             is_expected.to have_header('X-GitLab-NotificationReason', NotificationReason::ASSIGNED)
           end
@@ -134,6 +157,8 @@ describe Notify do
         it_behaves_like 'it should show Gmail Actions View Issue link'
         it_behaves_like 'a user cannot unsubscribe through footer link'
         it_behaves_like 'an email with a labels subscriptions link in its footer'
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
 
         it 'is sent as the author' do
           sender = subject.header[:from].addrs[0]
@@ -173,6 +198,8 @@ describe Notify do
         end
         it_behaves_like 'it should show Gmail Actions View Issue link'
         it_behaves_like 'an unsubscribeable thread'
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
 
         it 'is sent as the author' do
           sender = subject.header[:from].addrs[0]
@@ -194,23 +221,53 @@ describe Notify do
         let(:new_issue) { create(:issue) }
         subject { described_class.issue_moved_email(recipient, issue, new_issue, current_user) }
 
-        it_behaves_like 'an answer to an existing thread with reply-by-email enabled' do
-          let(:model) { issue }
+        context 'when a user has permissions to access the new issue' do
+          before do
+            new_issue.project.add_developer(recipient)
+          end
+
+          it_behaves_like 'an answer to an existing thread with reply-by-email enabled' do
+            let(:model) { issue }
+          end
+          it_behaves_like 'it should show Gmail Actions View Issue link'
+          it_behaves_like 'an unsubscribeable thread'
+
+          it 'contains description about action taken' do
+            is_expected.to have_body_text 'Issue was moved to another project'
+          end
+
+          it 'has the correct subject and body' do
+            new_issue_url = project_issue_path(new_issue.project, new_issue)
+
+            aggregate_failures do
+              is_expected.to have_referable_subject(issue, reply: true)
+              is_expected.to have_body_text(new_issue_url)
+              is_expected.to have_body_text(project_issue_path(project, issue))
+            end
+          end
+
+          it 'contains the issue title' do
+            is_expected.to have_body_text new_issue.title
+          end
         end
-        it_behaves_like 'it should show Gmail Actions View Issue link'
-        it_behaves_like 'an unsubscribeable thread'
 
-        it 'contains description about action taken' do
-          is_expected.to have_body_text 'Issue was moved to another project'
-        end
+        context 'when a user does not permissions to access the new issue' do
+          it 'has the correct subject and body' do
+            new_issue_url = project_issue_path(new_issue.project, new_issue)
 
-        it 'has the correct subject and body' do
-          new_issue_url = project_issue_path(new_issue.project, new_issue)
+            aggregate_failures do
+              is_expected.to have_referable_subject(issue, reply: true)
+              is_expected.not_to have_body_text(new_issue_url)
+              is_expected.to have_body_text(project_issue_path(project, issue))
+            end
+          end
 
-          aggregate_failures do
-            is_expected.to have_referable_subject(issue, reply: true)
-            is_expected.to have_body_text(new_issue_url)
-            is_expected.to have_body_text(project_issue_path(project, issue))
+          it 'does not contain the issue title' do
+            is_expected.not_to have_body_text new_issue.title
+          end
+
+          it 'contains information about missing permissions' do
+            is_expected.to have_body_text "You don't have access to the project."
           end
         end
       end
@@ -226,6 +283,8 @@ describe Notify do
         end
         it_behaves_like 'it should show Gmail Actions View Merge request link'
         it_behaves_like 'an unsubscribeable thread'
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
 
         it 'has the correct subject and body' do
           aggregate_failures do
@@ -242,6 +301,9 @@ describe Notify do
 
         context 'when sent with a reason' do
           subject { described_class.new_merge_request_email(merge_request.assignee_id, merge_request.id, NotificationReason::ASSIGNED) }
+
+          it_behaves_like 'appearance header and footer enabled'
+          it_behaves_like 'appearance header and footer not enabled'
 
           it 'includes the reason in a header' do
             is_expected.to have_header('X-GitLab-NotificationReason', NotificationReason::ASSIGNED)
@@ -270,6 +332,8 @@ describe Notify do
         end
         it_behaves_like 'it should show Gmail Actions View Merge request link'
         it_behaves_like "an unsubscribeable thread"
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
 
         it 'is sent as the author' do
           sender = subject.header[:from].addrs[0]
@@ -288,6 +352,9 @@ describe Notify do
 
         context 'when sent with a reason' do
           subject { described_class.reassigned_merge_request_email(recipient.id, merge_request.id, previous_assignee.id, current_user.id, NotificationReason::ASSIGNED) }
+
+          it_behaves_like 'appearance header and footer enabled'
+          it_behaves_like 'appearance header and footer not enabled'
 
           it 'includes the reason in a header' do
             is_expected.to have_header('X-GitLab-NotificationReason', NotificationReason::ASSIGNED)
@@ -313,6 +380,8 @@ describe Notify do
 
         it_behaves_like 'it should show Gmail Actions View Merge request link'
         it_behaves_like "an unsubscribeable thread"
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
 
         it 'contains the description' do
           is_expected.to have_body_text(merge_request.description)
@@ -329,6 +398,8 @@ describe Notify do
         it_behaves_like 'it should show Gmail Actions View Merge request link'
         it_behaves_like 'a user cannot unsubscribe through footer link'
         it_behaves_like 'an email with a labels subscriptions link in its footer'
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
 
         it 'is sent as the author' do
           sender = subject.header[:from].addrs[0]
@@ -352,6 +423,8 @@ describe Notify do
         end
         it_behaves_like 'it should show Gmail Actions View Merge request link'
         it_behaves_like 'an unsubscribeable thread'
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
 
         it 'is sent as the author' do
           sender = subject.header[:from].addrs[0]
@@ -379,6 +452,8 @@ describe Notify do
         end
         it_behaves_like 'it should show Gmail Actions View Merge request link'
         it_behaves_like 'an unsubscribeable thread'
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
 
         it 'is sent as the merge author' do
           sender = subject.header[:from].addrs[0]
@@ -413,6 +488,8 @@ describe Notify do
         end
         it_behaves_like 'it should show Gmail Actions View Merge request link'
         it_behaves_like 'an unsubscribeable thread'
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
 
         it 'is sent as the merge request author' do
           sender = subject.header[:from].addrs[0]
@@ -442,6 +519,8 @@ describe Notify do
         end
         it_behaves_like 'it should show Gmail Actions View Merge request link'
         it_behaves_like 'an unsubscribeable thread'
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
 
         it 'is sent as the push user' do
           sender = subject.header[:from].addrs[0]
@@ -482,6 +561,9 @@ describe Notify do
 
         subject { described_class.note_issue_email(recipient.id, third_note.id) }
 
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
+
         it 'has In-Reply-To header pointing to previous note in discussion' do
           expect(subject.header['In-Reply-To'].message_ids).to eq(["note_#{second_note.id}@#{host}"])
         end
@@ -502,6 +584,9 @@ describe Notify do
 
         subject { described_class.note_issue_email(recipient.id, note.id) }
 
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
+
         it 'has In-Reply-To header pointing to the issue' do
           expect(subject.header['In-Reply-To'].message_ids).to eq(["issue_#{note.noteable.id}@#{host}"])
         end
@@ -517,6 +602,9 @@ describe Notify do
       let(:project_snippet_note) { create(:note_on_project_snippet, project: project, noteable: project_snippet) }
 
       subject { described_class.note_project_snippet_email(project_snippet_note.author_id, project_snippet_note.id) }
+
+      it_behaves_like 'appearance header and footer enabled'
+      it_behaves_like 'appearance header and footer not enabled'
 
       it_behaves_like 'an answer to an existing thread with reply-by-email enabled' do
         let(:model) { project_snippet }
@@ -535,6 +623,8 @@ describe Notify do
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
       it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'appearance header and footer enabled'
+      it_behaves_like 'appearance header and footer not enabled'
 
       it 'has the correct subject and body' do
         is_expected.to have_subject("#{project.name} | Project was moved")
@@ -559,6 +649,8 @@ describe Notify do
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
       it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'appearance header and footer enabled'
+      it_behaves_like 'appearance header and footer not enabled'
 
       it 'contains all the useful information' do
         to_emails = subject.header[:to].addrs.map(&:address)
@@ -582,6 +674,8 @@ describe Notify do
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
       it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'appearance header and footer enabled'
+      it_behaves_like 'appearance header and footer not enabled'
 
       it 'contains all the useful information' do
         is_expected.to have_subject "Access to the #{project.full_name} project was denied"
@@ -599,6 +693,8 @@ describe Notify do
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
       it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'appearance header and footer enabled'
+      it_behaves_like 'appearance header and footer not enabled'
 
       it 'contains all the useful information' do
         is_expected.to have_subject "Access to the #{project.full_name} project was granted"
@@ -629,6 +725,8 @@ describe Notify do
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
       it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'appearance header and footer enabled'
+      it_behaves_like 'appearance header and footer not enabled'
 
       it 'contains all the useful information' do
         is_expected.to have_subject "Invitation to join the #{project.full_name} project"
@@ -653,6 +751,8 @@ describe Notify do
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
       it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'appearance header and footer enabled'
+      it_behaves_like 'appearance header and footer not enabled'
 
       it 'contains all the useful information' do
         is_expected.to have_subject 'Invitation accepted'
@@ -676,6 +776,8 @@ describe Notify do
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
       it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'appearance header and footer enabled'
+      it_behaves_like 'appearance header and footer not enabled'
 
       it 'contains all the useful information' do
         is_expected.to have_subject 'Invitation declined'
@@ -708,6 +810,8 @@ describe Notify do
         end
         it_behaves_like 'it should show Gmail Actions View Commit link'
         it_behaves_like 'a user cannot unsubscribe through footer link'
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
 
         it 'has the correct subject and body' do
           aggregate_failures do
@@ -732,6 +836,8 @@ describe Notify do
         end
         it_behaves_like 'it should show Gmail Actions View Merge request link'
         it_behaves_like 'an unsubscribeable thread'
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
 
         it 'has the correct subject and body' do
           aggregate_failures do
@@ -756,6 +862,8 @@ describe Notify do
         end
         it_behaves_like 'it should show Gmail Actions View Issue link'
         it_behaves_like 'an unsubscribeable thread'
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
 
         it 'has the correct subject and body' do
           aggregate_failures do
@@ -819,6 +927,8 @@ describe Notify do
         end
         it_behaves_like 'it should show Gmail Actions View Commit link'
         it_behaves_like 'a user cannot unsubscribe through footer link'
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
 
         it 'has the correct subject' do
           is_expected.to have_subject "Re: #{project.name} | #{commit.title} (#{commit.short_id})"
@@ -845,6 +955,8 @@ describe Notify do
         end
         it_behaves_like 'it should show Gmail Actions View Merge request link'
         it_behaves_like 'an unsubscribeable thread'
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
 
         it 'has the correct subject' do
           is_expected.to have_referable_subject(merge_request, reply: true)
@@ -871,6 +983,8 @@ describe Notify do
         end
         it_behaves_like 'it should show Gmail Actions View Issue link'
         it_behaves_like 'an unsubscribeable thread'
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
 
         it 'has the correct subject' do
           is_expected.to have_referable_subject(issue, reply: true)
@@ -948,6 +1062,8 @@ describe Notify do
         it_behaves_like 'an email for a note on a diff discussion', :diff_note_on_commit
         it_behaves_like 'it should show Gmail Actions View Commit link'
         it_behaves_like 'a user cannot unsubscribe through footer link'
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
       end
 
       describe 'on a merge request' do
@@ -958,6 +1074,8 @@ describe Notify do
         it_behaves_like 'an email for a note on a diff discussion', :diff_note_on_merge_request
         it_behaves_like 'it should show Gmail Actions View Merge request link'
         it_behaves_like 'an unsubscribeable thread'
+        it_behaves_like 'appearance header and footer enabled'
+        it_behaves_like 'appearance header and footer not enabled'
       end
     end
   end
@@ -976,6 +1094,8 @@ describe Notify do
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
       it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'appearance header and footer enabled'
+      it_behaves_like 'appearance header and footer not enabled'
 
       it 'contains all the useful information' do
         to_emails = subject.header[:to].addrs.map(&:address)
@@ -998,6 +1118,8 @@ describe Notify do
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
       it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'appearance header and footer enabled'
+      it_behaves_like 'appearance header and footer not enabled'
 
       it 'contains all the useful information' do
         is_expected.to have_subject "Access to the #{group.name} group was denied"
@@ -1014,6 +1136,8 @@ describe Notify do
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
       it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'appearance header and footer enabled'
+      it_behaves_like 'appearance header and footer not enabled'
 
       it 'contains all the useful information' do
         is_expected.to have_subject "Access to the #{group.name} group was granted"
@@ -1044,6 +1168,8 @@ describe Notify do
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
       it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'appearance header and footer enabled'
+      it_behaves_like 'appearance header and footer not enabled'
 
       it 'contains all the useful information' do
         is_expected.to have_subject "Invitation to join the #{group.name} group"
@@ -1068,6 +1194,8 @@ describe Notify do
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
       it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'appearance header and footer enabled'
+      it_behaves_like 'appearance header and footer not enabled'
 
       it 'contains all the useful information' do
         is_expected.to have_subject 'Invitation accepted'
@@ -1091,6 +1219,8 @@ describe Notify do
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
       it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'appearance header and footer enabled'
+      it_behaves_like 'appearance header and footer not enabled'
 
       it 'contains all the useful information' do
         is_expected.to have_subject 'Invitation declined'
@@ -1140,6 +1270,8 @@ describe Notify do
     it_behaves_like 'a user cannot unsubscribe through footer link'
     it_behaves_like 'an email with X-GitLab headers containing project details'
     it_behaves_like 'an email that contains a header with author username'
+    it_behaves_like 'appearance header and footer enabled'
+    it_behaves_like 'appearance header and footer not enabled'
 
     it 'is sent as the author' do
       sender = subject.header[:from].addrs[0]
@@ -1165,6 +1297,8 @@ describe Notify do
     it_behaves_like "a user cannot unsubscribe through footer link"
     it_behaves_like 'an email with X-GitLab headers containing project details'
     it_behaves_like 'an email that contains a header with author username'
+    it_behaves_like 'appearance header and footer enabled'
+    it_behaves_like 'appearance header and footer not enabled'
 
     it 'is sent as the author' do
       sender = subject.header[:from].addrs[0]
@@ -1189,6 +1323,8 @@ describe Notify do
     it_behaves_like 'a user cannot unsubscribe through footer link'
     it_behaves_like 'an email with X-GitLab headers containing project details'
     it_behaves_like 'an email that contains a header with author username'
+    it_behaves_like 'appearance header and footer enabled'
+    it_behaves_like 'appearance header and footer not enabled'
 
     it 'is sent as the author' do
       sender = subject.header[:from].addrs[0]
@@ -1210,6 +1346,8 @@ describe Notify do
     it_behaves_like 'a user cannot unsubscribe through footer link'
     it_behaves_like 'an email with X-GitLab headers containing project details'
     it_behaves_like 'an email that contains a header with author username'
+    it_behaves_like 'appearance header and footer enabled'
+    it_behaves_like 'appearance header and footer not enabled'
 
     it 'is sent as the author' do
       sender = subject.header[:from].addrs[0]
@@ -1237,6 +1375,8 @@ describe Notify do
     it_behaves_like 'a user cannot unsubscribe through footer link'
     it_behaves_like 'an email with X-GitLab headers containing project details'
     it_behaves_like 'an email that contains a header with author username'
+    it_behaves_like 'appearance header and footer enabled'
+    it_behaves_like 'appearance header and footer not enabled'
 
     it 'is sent as the author' do
       sender = subject.header[:from].addrs[0]
@@ -1328,6 +1468,8 @@ describe Notify do
     it_behaves_like 'a user cannot unsubscribe through footer link'
     it_behaves_like 'an email with X-GitLab headers containing project details'
     it_behaves_like 'an email that contains a header with author username'
+    it_behaves_like 'appearance header and footer enabled'
+    it_behaves_like 'appearance header and footer not enabled'
 
     it 'is sent as the author' do
       sender = subject.header[:from].addrs[0]
@@ -1347,6 +1489,11 @@ describe Notify do
 
   describe 'HTML emails setting' do
     let(:multipart_mail) { described_class.project_was_moved_email(project.id, user.id, "gitlab/gitlab") }
+
+    subject { multipart_mail }
+
+    it_behaves_like 'appearance header and footer enabled'
+    it_behaves_like 'appearance header and footer not enabled'
 
     context 'when disabled' do
       it 'only sends the text template' do
@@ -1386,6 +1533,8 @@ describe Notify do
     subject { described_class.note_personal_snippet_email(personal_snippet_note.author_id, personal_snippet_note.id) }
 
     it_behaves_like 'a user cannot unsubscribe through footer link'
+    it_behaves_like 'appearance header and footer enabled'
+    it_behaves_like 'appearance header and footer not enabled'
 
     it 'has the correct subject and body' do
       is_expected.to have_referable_subject(personal_snippet, reply: true)

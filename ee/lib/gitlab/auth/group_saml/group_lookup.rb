@@ -13,7 +13,7 @@ module Gitlab
         end
 
         def group
-          Group.find_by_full_path(path)
+          @group ||= Group.find_by_full_path(path)
         end
 
         def saml_provider
@@ -21,7 +21,7 @@ module Gitlab
         end
 
         def group_saml_enabled?
-          saml_provider && group.feature_available?(:group_saml)
+          saml_provider&.enabled? && group.feature_available?(:group_saml)
         end
 
         def token_discoverable?

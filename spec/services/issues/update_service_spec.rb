@@ -356,7 +356,7 @@ describe Issues::UpdateService, :mailer do
         it_behaves_like 'system notes for milestones'
 
         it 'sends notifications for subscribers of changed milestone' do
-          issue.milestone = create(:milestone)
+          issue.milestone = create(:milestone, project: project)
 
           issue.save
 
@@ -380,7 +380,7 @@ describe Issues::UpdateService, :mailer do
         end
 
         it 'marks todos as done' do
-          update_issue(milestone: create(:milestone))
+          update_issue(milestone: create(:milestone, project: project))
 
           expect(todo.reload.done?).to eq true
         end
@@ -389,7 +389,7 @@ describe Issues::UpdateService, :mailer do
 
         it 'sends notifications for subscribers of changed milestone' do
           perform_enqueued_jobs do
-            update_issue(milestone: create(:milestone))
+            update_issue(milestone: create(:milestone, project: project))
           end
 
           should_email(subscriber)
@@ -471,6 +471,8 @@ describe Issues::UpdateService, :mailer do
 
       it { expect(issue.tasks?).to eq(true) }
 
+      it_behaves_like 'updating a single task'
+
       context 'when tasks are marked as completed' do
         before do
           update_issue(description: "- [x] Task 1\n- [X] Task 2")
@@ -543,76 +545,6 @@ describe Issues::UpdateService, :mailer do
       end
     end
 
-    context 'when updating a single task' do
-      before do
-        update_issue(description: "- [ ] Task 1\n- [ ] Task 2")
-      end
-
-      it { expect(issue.tasks?).to eq(true) }
-
-      context 'when a task is marked as completed' do
-        before do
-          update_issue(update_task: { index: 1, checked: true, line_source: '- [ ] Task 1', line_number: 1 })
-        end
-
-        it 'creates system note about task status change' do
-          note1 = find_note('marked the task **Task 1** as completed')
-
-          expect(note1).not_to be_nil
-
-          description_notes = find_notes('description')
-          expect(description_notes.length).to eq(1)
-        end
-      end
-
-      context 'when a task is marked as incomplete' do
-        before do
-          update_issue(description: "- [x] Task 1\n- [X] Task 2")
-          update_issue(update_task: { index: 2, checked: false, line_source: '- [X] Task 2', line_number: 2 })
-        end
-
-        it 'creates system note about task status change' do
-          note1 = find_note('marked the task **Task 2** as incomplete')
-
-          expect(note1).not_to be_nil
-
-          description_notes = find_notes('description')
-          expect(description_notes.length).to eq(1)
-        end
-      end
-
-      context 'when the task position has been modified' do
-        before do
-          update_issue(description: "- [ ] Task 1\n- [ ] Task 3\n- [ ] Task 2")
-        end
-
-        it 'raises an exception' do
-          expect(Note.count).to eq(2)
-          expect do
-            update_issue(update_task: { index: 2, checked: true, line_source: '- [ ] Task 2', line_number: 2 })
-          end.to raise_error(ActiveRecord::StaleObjectError)
-          expect(Note.count).to eq(2)
-        end
-      end
-
-      context 'when the content changes but not task line number' do
-        before do
-          update_issue(description: "Paragraph\n\n- [ ] Task 1\n- [x] Task 2")
-          update_issue(description: "Paragraph with more words\n\n- [ ] Task 1\n- [x] Task 2")
-          update_issue(update_task: { index: 2, checked: false, line_source: '- [x] Task 2', line_number: 4 })
-        end
-
-        it 'creates system note about task status change' do
-          note1 = find_note('marked the task **Task 2** as incomplete')
-
-          expect(note1).not_to be_nil
-
-          description_notes = find_notes('description')
-          expect(description_notes.length).to eq(2)
-        end
-      end
-    end
-
     context 'updating labels' do
       let(:label3) { create(:label, project: project) }
       let(:result) { described_class.new(project, user, params).execute(issue).reload }
@@ -658,6 +590,16 @@ describe Issues::UpdateService, :mailer do
 
         it 'removes the passed labels' do
           expect(result.label_ids).not_to include(label.id)
+        end
+      end
+
+      context 'when duplicate label titles are given' do
+        let(:params) do
+          { labels: [label3.title, label3.title] }
+        end
+
+        it 'assigns the label once' do
+          expect(result.labels).to contain_exactly(label3)
         end
       end
     end

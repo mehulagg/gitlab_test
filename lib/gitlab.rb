@@ -24,7 +24,7 @@ module Gitlab
       if File.exist?(root.join("REVISION"))
         File.read(root.join("REVISION")).strip.freeze
       else
-        result = Gitlab::Popen.popen_with_detail(%W[#{config.git.bin_path} log --pretty=format:%h -n 1])
+        result = Gitlab::Popen.popen_with_detail(%W[#{config.git.bin_path} log --pretty=format:%h --abbrev=11 -n 1])
 
         if result.status.success?
           result.stdout.chomp.freeze
@@ -56,6 +56,10 @@ module Gitlab
 
   def self.dev_env_or_com?
     Rails.env.development? || org? || com?
+  end
+
+  def self.ee?
+    Object.const_defined?(:License)
   end
 
   def self.process_name

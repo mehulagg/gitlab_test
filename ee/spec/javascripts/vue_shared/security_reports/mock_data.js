@@ -540,6 +540,7 @@ export const parsedDependencyScanningIssuesStore = [
     urlPath: 'path/Gemfile.lock#L5',
     category: 'dependency_scanning',
     project_fingerprint: 'f55331d66fd4f3bfb4237d48e9c9fa8704bd33c6',
+    remediations: [],
     location: {
       file: 'Gemfile.lock',
       start_line: 5,
@@ -563,6 +564,7 @@ export const parsedDependencyScanningIssuesStore = [
     urlPath: 'path/Gemfile.lock',
     category: 'dependency_scanning',
     project_fingerprint: 'a6b61a2eba59071178d5899b26dd699fb880de1e',
+    remediations: [],
     location: {
       file: 'Gemfile.lock',
       start_line: undefined,
@@ -586,6 +588,7 @@ export const parsedDependencyScanningIssuesStore = [
     urlPath: 'path/Gemfile.lock',
     category: 'dependency_scanning',
     project_fingerprint: '830f85e5fb011408bab365eb809cd97a45b0aa17',
+    remediations: [],
     location: {
       file: 'Gemfile.lock',
       start_line: undefined,
@@ -612,6 +615,7 @@ export const parsedDependencyScanningIssuesHead = [
     urlPath: 'path/Gemfile.lock#L5',
     category: 'dependency_scanning',
     project_fingerprint: 'f55331d66fd4f3bfb4237d48e9c9fa8704bd33c6',
+    remediations: [],
     location: {
       file: 'Gemfile.lock',
       start_line: 5,
@@ -635,6 +639,7 @@ export const parsedDependencyScanningIssuesHead = [
     urlPath: 'path/Gemfile.lock',
     category: 'dependency_scanning',
     project_fingerprint: '830f85e5fb011408bab365eb809cd97a45b0aa17',
+    remediations: [],
     location: {
       file: 'Gemfile.lock',
       start_line: undefined,
@@ -661,6 +666,7 @@ export const parsedDependencyScanningBaseStore = [
     urlPath: 'path/Gemfile.lock',
     category: 'dependency_scanning',
     project_fingerprint: '3f5608c99f0c7442ba59bc6c0c1864d0000f8e1a',
+    remediations: [],
     location: {
       file: 'Gemfile.lock',
       start_line: undefined,
@@ -676,7 +682,13 @@ export const parsedDependencyScanningBaseStore = [
 export const parsedSastContainerBaseStore = [
   {
     category: 'container_scanning',
+    message: 'CVE-2014-8130',
     description: 'debian:8 is affected by CVE-2014-8130.',
+    cve: 'CVE-2014-8130',
+    severity: 'Low',
+    confidence: 'Medium',
+    location: { image: 'registry.example.com/example/master:1234', operating_system: 'debian:8' },
+    scanner: { id: 'clair', name: 'Clair' },
     identifiers: [
       {
         name: 'CVE-2014-8130',
@@ -685,10 +697,7 @@ export const parsedSastContainerBaseStore = [
         value: 'CVE-2014-8130',
       },
     ],
-    namespace: 'debian:8',
-    path: 'debian:8',
     project_fingerprint: '20a19f706d82cec1c04d1c9a8858e89b142d602f',
-    severity: 'Negligible',
     title: 'CVE-2014-8130',
     vulnerability: 'CVE-2014-8130',
   },
@@ -710,6 +719,7 @@ export const allIssuesParsed = [
 ];
 
 export const dockerReport = {
+  image: 'registry.example.com/example/master:1234',
   unapproved: ['CVE-2017-12944', 'CVE-2017-16232'],
   vulnerabilities: [
     {
@@ -731,6 +741,7 @@ export const dockerReport = {
 };
 
 export const dockerBaseReport = {
+  image: 'registry.example.com/example/master:1234',
   unapproved: ['CVE-2017-12944', 'CVE-2014-8130'],
   vulnerabilities: [
     {
@@ -753,11 +764,14 @@ export const dockerBaseReport = {
 
 export const dockerNewIssues = [
   {
-    vulnerability: 'CVE-2017-16232',
-    namespace: 'debian:8',
-    severity: 'Negligible',
-    title: 'CVE-2017-16232',
-    path: 'debian:8',
+    category: 'container_scanning',
+    message: 'CVE-2017-16232',
+    description: 'debian:8 is affected by CVE-2017-16232.',
+    cve: 'CVE-2017-16232',
+    severity: 'Low',
+    confidence: 'Medium',
+    location: { image: 'registry.example.com/example/master:1234', operating_system: 'debian:8' },
+    scanner: { id: 'clair', name: 'Clair' },
     identifiers: [
       {
         type: 'CVE',
@@ -766,19 +780,22 @@ export const dockerNewIssues = [
         url: 'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-16232',
       },
     ],
-    category: 'container_scanning',
     project_fingerprint: '4e010f6d292364a42c6bb05dbd2cc788c2e5e408',
-    description: 'debian:8 is affected by CVE-2017-16232.',
+    title: 'CVE-2017-16232',
+    vulnerability: 'CVE-2017-16232',
   },
 ];
 
 export const dockerOnlyHeadParsed = [
   {
-    vulnerability: 'CVE-2017-12944',
-    namespace: 'debian:8',
+    category: 'container_scanning',
+    message: 'CVE-2017-12944',
+    description: 'debian:8 is affected by CVE-2017-12944.',
+    cve: 'CVE-2017-12944',
     severity: 'Medium',
-    title: 'CVE-2017-12944',
-    path: 'debian:8',
+    confidence: 'Medium',
+    location: { image: 'registry.example.com/example/master:1234', operating_system: 'debian:8' },
+    scanner: { id: 'clair', name: 'Clair' },
     identifiers: [
       {
         type: 'CVE',
@@ -787,16 +804,19 @@ export const dockerOnlyHeadParsed = [
         url: 'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-12944',
       },
     ],
-    category: 'container_scanning',
     project_fingerprint: '0693a82ef93c5e9d98c23a35ddcd8ed2cbd047d9',
-    description: 'debian:8 is affected by CVE-2017-12944.',
+    title: 'CVE-2017-12944',
+    vulnerability: 'CVE-2017-12944',
   },
   {
-    vulnerability: 'CVE-2017-16232',
-    namespace: 'debian:8',
-    severity: 'Negligible',
-    title: 'CVE-2017-16232',
-    path: 'debian:8',
+    category: 'container_scanning',
+    message: 'CVE-2017-16232',
+    description: 'debian:8 is affected by CVE-2017-16232.',
+    cve: 'CVE-2017-16232',
+    severity: 'Low',
+    confidence: 'Medium',
+    location: { image: 'registry.example.com/example/master:1234', operating_system: 'debian:8' },
+    scanner: { id: 'clair', name: 'Clair' },
     identifiers: [
       {
         type: 'CVE',
@@ -805,9 +825,9 @@ export const dockerOnlyHeadParsed = [
         url: 'https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-16232',
       },
     ],
-    category: 'container_scanning',
     project_fingerprint: '4e010f6d292364a42c6bb05dbd2cc788c2e5e408',
-    description: 'debian:8 is affected by CVE-2017-16232.',
+    title: 'CVE-2017-16232',
+    vulnerability: 'CVE-2017-16232',
   },
 ];
 
@@ -1190,7 +1210,7 @@ export const sastFeedbacks = [
     id: 3,
     project_id: 17,
     author_id: 1,
-    issue_id: null,
+    issue_iid: null,
     pipeline_id: 132,
     category: 'sast',
     feedback_type: 'dismissal',
@@ -1201,7 +1221,7 @@ export const sastFeedbacks = [
     id: 4,
     project_id: 17,
     author_id: 1,
-    issue_id: 123,
+    issue_iid: 123,
     pipeline_id: 132,
     category: 'sast',
     feedback_type: 'issue',
@@ -1215,7 +1235,7 @@ export const dependencyScanningFeedbacks = [
     id: 3,
     project_id: 17,
     author_id: 1,
-    issue_id: null,
+    issue_iid: null,
     pipeline_id: 132,
     category: 'dependency_scanning',
     feedback_type: 'dismissal',
@@ -1226,7 +1246,7 @@ export const dependencyScanningFeedbacks = [
     id: 4,
     project_id: 17,
     author_id: 1,
-    issue_id: 123,
+    issue_iid: 123,
     pipeline_id: 132,
     category: 'dependency_scanning',
     feedback_type: 'issue',
@@ -1240,7 +1260,7 @@ export const dastFeedbacks = [
     id: 3,
     project_id: 17,
     author_id: 1,
-    issue_id: null,
+    issue_iid: null,
     pipeline_id: 132,
     category: 'container_scanning',
     feedback_type: 'dismissal',
@@ -1251,7 +1271,7 @@ export const dastFeedbacks = [
     id: 4,
     project_id: 17,
     author_id: 1,
-    issue_id: 123,
+    issue_iid: 123,
     pipeline_id: 132,
     category: 'container_scanning',
     feedback_type: 'issue',
@@ -1265,7 +1285,7 @@ export const containerScanningFeedbacks = [
     id: 3,
     project_id: 17,
     author_id: 1,
-    issue_id: null,
+    issue_iid: null,
     pipeline_id: 132,
     category: 'container_scanning',
     feedback_type: 'dismissal',
@@ -1276,7 +1296,7 @@ export const containerScanningFeedbacks = [
     id: 4,
     project_id: 17,
     author_id: 1,
-    issue_id: 123,
+    issue_iid: 123,
     pipeline_id: 132,
     category: 'container_scanning',
     feedback_type: 'issue',

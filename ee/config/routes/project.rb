@@ -17,6 +17,12 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
       end
 
+      resources :boards, only: [:create, :update, :destroy] do
+        collection do
+          get :recent
+        end
+      end
+
       resources :web_ide_terminals, path: :ide_terminals, only: [:create, :show], constraints: { id: /\d+/, format: :json } do
         member do
           post :cancel
@@ -25,6 +31,12 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
         collection do
           post :check_config
+        end
+      end
+
+      resource :insights, only: [:show] do
+        collection do
+          post :query
         end
       end
 

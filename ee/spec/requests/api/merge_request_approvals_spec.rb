@@ -434,7 +434,10 @@ describe "API::MergeRequestApprovals with approval_rule enabled" do
       expect(response).to have_gitlab_http_status(200)
       expect(json_response['approvals_required']).to eq 2
       expect(json_response['approvals_left']).to eq 2
-      expect(json_response['approval_rules_left']).to eq(['foo'])
+
+      short_approval = { "id" => rule.id, "name" => rule.name, "rule_type" => rule.rule_type.to_s }
+      expect(json_response['approval_rules_left']).to eq([short_approval])
+
       expect(json_response['approved_by']).to be_empty
       expect(json_response['user_can_approve']).to be true
       expect(json_response['user_has_approved']).to be false
@@ -548,7 +551,7 @@ describe "API::MergeRequestApprovals with approval_rule enabled" do
 
         it 'allows you to override approvals required' do
           expect do
-            post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvals", current_user), approvals_required: 5
+            post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvals", current_user), params: { approvals_required: 5 }
           end.to change { merge_request.reload.approvals_before_merge }.from(nil).to(5)
 
           expect(response).to have_gitlab_http_status(201)
@@ -562,7 +565,7 @@ describe "API::MergeRequestApprovals with approval_rule enabled" do
 
           it 'does not include an error in the response' do
             expect do
-              post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvals", current_user), approvals_required: 0
+              post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvals", current_user), params: { approvals_required: 0 }
             end.to change {merge_request.reload.approvals_before_merge}.from(nil).to(0)
             expect(json_response['message']).to eq(nil)
           end
@@ -576,7 +579,7 @@ describe "API::MergeRequestApprovals with approval_rule enabled" do
 
         it 'does not allow you to override approvals required' do
           expect do
-            post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvals", current_user), approvals_required: 5
+            post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvals", current_user), params: { approvals_required: 5 }
           end.not_to change { merge_request.reload.approvals_before_merge }
 
           expect(response).to have_gitlab_http_status(422)
@@ -587,7 +590,7 @@ describe "API::MergeRequestApprovals with approval_rule enabled" do
         private_group = create(:group, :private)
         merge_request.approver_groups.create(group: private_group)
 
-        post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvals", current_user), approvals_required: 5
+        post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvals", current_user), params: { approvals_required: 5 }
 
         expect(response).to have_gitlab_http_status(201)
         expect(json_response['approver_groups'].size).to eq(expected_approver_group_size)
@@ -615,7 +618,7 @@ describe "API::MergeRequestApprovals with approval_rule enabled" do
 
       it 'does not allow you to override approvals required' do
         expect do
-          post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvals", user2), approvals_required: 5
+          post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvals", user2), params: { approvals_required: 5 }
         end.not_to change { merge_request.reload.approvals_before_merge }
 
         expect(response).to have_gitlab_http_status(403)
@@ -635,7 +638,7 @@ describe "API::MergeRequestApprovals with approval_rule enabled" do
         it 'does not allow overriding approvers' do
           expect do
             put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvers", current_user),
-              approver_ids: [approver.id], approver_group_ids: [group.id]
+              params: { approver_ids: [approver.id], approver_group_ids: [group.id] }
           end.to not_change { merge_request.approvers.count }.and not_change { merge_request.approver_groups.count }
         end
       end
@@ -648,7 +651,7 @@ describe "API::MergeRequestApprovals with approval_rule enabled" do
         it 'allows overriding approvers' do
           expect do
             put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvers", current_user),
-              approver_ids: [approver.id], approver_group_ids: [group.id]
+              params: { approver_ids: [approver.id], approver_group_ids: [group.id] }
           end.to change { merge_request.approvers.count }.from(0).to(1)
             .and change { merge_request.approver_groups.count }.from(0).to(1)
 
@@ -663,7 +666,7 @@ describe "API::MergeRequestApprovals with approval_rule enabled" do
 
           expect do
             put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvers", current_user),
-              { approver_ids: [], approver_group_ids: [] }.to_json, { CONTENT_TYPE: 'application/json' }
+              params: { approver_ids: [], approver_group_ids: [] }.to_json, headers: { CONTENT_TYPE: 'application/json' }
           end.to change { merge_request.approvers.count }.from(1).to(0)
             .and change { merge_request.approver_groups.count }.from(1).to(0)
 
@@ -678,7 +681,7 @@ describe "API::MergeRequestApprovals with approval_rule enabled" do
 
             expect do
               put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvers", current_user),
-                approver_ids: '', approver_group_ids: ''
+                params: { approver_ids: '', approver_group_ids: '' }
             end.to change { merge_request.approvers.count }.from(1).to(0)
               .and change { merge_request.approver_groups.count }.from(1).to(0)
 
@@ -693,7 +696,7 @@ describe "API::MergeRequestApprovals with approval_rule enabled" do
         merge_request.approver_groups.create(group: private_group)
 
         put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvers", current_user),
-          approver_ids: [approver.id], approver_group_ids: [private_group.id, group.id]
+          params: { approver_ids: [approver.id], approver_group_ids: [private_group.id, group.id] }
 
         expect(response).to have_gitlab_http_status(200)
         expect(json_response['approver_groups'].size).to eq(expected_group_size)
@@ -722,7 +725,7 @@ describe "API::MergeRequestApprovals with approval_rule enabled" do
       it 'does not allow overriding approvers' do
         expect do
           put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvers", user2),
-            approver_ids: [approver.id], approver_group_ids: [group.id]
+            params: { approver_ids: [approver.id], approver_group_ids: [group.id] }
         end.to not_change { merge_request.approvers.count }.and not_change { merge_request.approver_groups.count }
 
         expect(response).to have_gitlab_http_status(403)
@@ -753,7 +756,7 @@ describe "API::MergeRequestApprovals with approval_rule enabled" do
       end
 
       def approve(extra_params = {})
-        post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approve", approver), extra_params
+        post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approve", approver), params: extra_params
       end
 
       context 'when the sha param is not set' do

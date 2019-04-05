@@ -28,17 +28,11 @@ describe('Diffs tree list component', () => {
 
     localStorage.removeItem('mr_diff_tree_list');
 
-    vm = mountComponentWithStore(Component, { store });
+    vm = mountComponentWithStore(Component, { store, props: { hideFileStats: false } });
   });
 
   afterEach(() => {
     vm.$destroy();
-  });
-
-  it('renders diff stats', () => {
-    expect(vm.$el.textContent).toContain('1 changed file');
-    expect(vm.$el.textContent).toContain('10 additions');
-    expect(vm.$el.textContent).toContain('20 deletions');
   });
 
   it('renders empty text', () => {
@@ -81,6 +75,16 @@ describe('Diffs tree list component', () => {
       expect(vm.$el.querySelectorAll('.file-row').length).toBe(2);
       expect(vm.$el.querySelectorAll('.file-row')[0].textContent).toContain('index.js');
       expect(vm.$el.querySelectorAll('.file-row')[1].textContent).toContain('app');
+    });
+
+    it('hides file stats', done => {
+      vm.hideFileStats = true;
+
+      vm.$nextTick(() => {
+        expect(vm.$el.querySelector('.file-row-stats')).toBe(null);
+
+        done();
+      });
     });
 
     it('calls toggleTreeOpen when clicking folder', () => {

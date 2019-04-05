@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Plan' do
+  # Failure issue: https://gitlab.com/gitlab-org/quality/staging/issues/19
+  context 'Plan', :quarantine do
     describe 'Epics Creation' do
       before(:all) do
         Runtime::Browser.visit(:gitlab, Page::Main::Login)
@@ -21,7 +22,7 @@ module QA
         expect(page).to have_content('My First Epic')
 
         # Edit Epics
-        EE::Page::Group::Epic::Show.act { go_to_edit_page }
+        EE::Page::Group::Epic::Show.act { click_edit_button }
 
         EE::Page::Group::Epic::Edit.perform do |edit_page|
           edit_page.set_description('My Edited Epic Description')
@@ -72,7 +73,7 @@ module QA
         expect(page).to have_content('Open')
 
         # Delete Epics
-        EE::Page::Group::Epic::Show.act { go_to_edit_page }
+        EE::Page::Group::Epic::Show.act { click_edit_button }
 
         EE::Page::Group::Epic::Edit.perform do |edit_page|
           edit_page.delete_epic

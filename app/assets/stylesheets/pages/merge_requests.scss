@@ -38,9 +38,7 @@
 }
 
 .mr-widget-section {
-  .media {
-    align-items: center;
-  }
+  border-radius: $border-radius-default $border-radius-default 0 0;
 
   .code-text {
     flex: 1;
@@ -56,6 +54,11 @@
 .mr-widget-extension {
   border-top: 1px solid $border-color;
   background-color: $gray-light;
+
+  &.clickable:hover {
+    background-color: $gl-gray-200;
+    cursor: pointer;
+  }
 }
 
 .mr-widget-workflow {
@@ -78,7 +81,7 @@
   border-top: 0;
 }
 
-.mr-widget-section,
+.mr-widget-body,
 .mr-widget-content,
 .mr-widget-footer {
   padding: $gl-padding;
@@ -87,9 +90,36 @@
 .mr-state-widget {
   color: $gl-text-color;
 
+  .commit-message-edit {
+    border-radius: $border-radius-default;
+  }
+
   .mr-widget-section,
   .mr-widget-footer {
     border-top: solid 1px $border-color;
+  }
+
+  .mr-fast-forward-message {
+    padding-left: $gl-padding-50;
+    padding-bottom: $gl-padding;
+  }
+
+  .commits-list {
+    > li {
+      padding: $gl-padding;
+
+      @include media-breakpoint-up(md) {
+        padding-left: $gl-padding-50;
+      }
+    }
+  }
+
+  .mr-commit-dropdown {
+    .dropdown-menu {
+      @include media-breakpoint-up(md) {
+        width: 150%;
+      }
+    }
   }
 
   .mr-widget-footer {
@@ -136,6 +166,7 @@
       float: left;
 
       .accept-merge-request {
+        &.ci-preparing,
         &.ci-pending,
         &.ci-running {
           @include btn-blue;
@@ -405,7 +436,7 @@
   }
 
   .mr-widget-help {
-    padding: 10px 16px 10px 48px;
+    padding: 10px 16px 10px $gl-padding-50;
     font-style: italic;
   }
 
@@ -421,10 +452,6 @@
       color: $gl-text-color;
     }
   }
-}
-
-.mr-widget-body-controls {
-  flex-wrap: wrap;
 }
 
 .mr_source_commit,
@@ -465,11 +492,9 @@
   .merge-request {
     padding: 10px 0 10px 15px;
     position: relative;
-    display: -webkit-flex;
     display: flex;
 
     .issuable-info-container {
-      -webkit-flex: 1;
       flex: 1;
     }
 
@@ -708,9 +733,11 @@
 
 .mr-version-controls {
   position: relative;
-  z-index: 103;
+  z-index: 203;
   background: $gray-light;
   color: $gl-text-color;
+  margin-top: -1px;
+  border-top: 1px solid $border-color;
 
   .mr-version-menus-container {
     display: flex;
@@ -762,7 +789,6 @@
     position: sticky;
     top: $header-height + $mr-tabs-height;
     width: 100%;
-    border-top: 1px solid $border-color;
 
     &.is-fileTreeOpen {
       margin-left: -16px;
@@ -781,16 +807,13 @@
 
 .merge-request-tabs-holder {
   top: $header-height;
-  z-index: 200;
+  z-index: 250;
   background-color: $white-light;
-
-  @include media-breakpoint-down(md) {
-    border-bottom: 1px solid $border-color;
-  }
+  border-bottom: 1px solid $border-color;
 
   @include media-breakpoint-up(sm) {
-    position: sticky;
     position: -webkit-sticky;
+    position: sticky;
   }
 
   &.affix {
@@ -991,4 +1014,19 @@
   position: fixed;
   z-index: 99999;
   background: $black-transparent;
+}
+
+.source-branch-removal-status {
+  padding-left: 50px;
+  padding-bottom: $gl-padding;
+}
+
+.mr-compare {
+  .diff-file .file-title-flex-parent {
+    top: $header-height + 51px;
+
+    .with-performance-bar & {
+      top: $performance-bar-height + $header-height + 51px;
+    }
+  }
 }

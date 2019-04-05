@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class HistoricalData < ActiveRecord::Base
+class HistoricalData < ApplicationRecord
   validates :date, presence: true
 
   # HistoricalData.during((Date.today - 1.year)..Date.today).average(:active_user_count)
@@ -22,7 +22,9 @@ class HistoricalData < ActiveRecord::Base
     end
 
     def max_historical_user_count
-      HistoricalData.during(1.year.ago..Date.today).maximum(:active_user_count) || 0
+      exp_date = License.current&.expires_at || Date.today
+
+      HistoricalData.during(exp_date.ago(1.year)..exp_date).maximum(:active_user_count) || 0
     end
   end
 end

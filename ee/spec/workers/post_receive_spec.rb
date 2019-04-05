@@ -22,8 +22,8 @@ describe PostReceive do
         allow_any_instance_of(Gitlab::DataBuilder::Repository).to receive(:update).and_return(fake_hook_data)
         # silence hooks so we can isolate
         allow_any_instance_of(Key).to receive(:post_create_hook).and_return(true)
-        allow_any_instance_of(GitTagPushService).to receive(:execute).and_return(true)
-        allow_any_instance_of(GitPushService).to receive(:execute).and_return(true)
+        allow_any_instance_of(Git::TagPushService).to receive(:execute).and_return(true)
+        allow_any_instance_of(Git::BranchPushService).to receive(:execute).and_return(true)
       end
 
       it 'calls Geo::RepositoryUpdatedService when running on a Geo primary node' do
@@ -69,6 +69,56 @@ describe PostReceive do
       expect_any_instance_of(ProjectWiki).to receive(:index_blobs)
 
       described_class.new.perform(gl_repository, key_id, base64_changes)
+    end
+
+    context 'when limited indexing is on' do
+      before do
+        stub_ee_application_setting(
+          elasticsearch_search: true,
+          elasticsearch_indexing: true,
+          elasticsearch_limit_indexing: true
+        )
+      end
+
+      context 'when the project is not enabled specifically' do
+        it 'does not trigger wiki index update' do
+          expect(ProjectWiki).not_to receive(:new)
+
+          described_class.new.perform(gl_repository, key_id, base64_changes)
+        end
+      end
+
+      context 'when a project is enabled specifically' do
+        before do
+          create :elasticsearch_indexed_project, project: project
+        end
+
+        it 'triggers wiki index update' do
+          expect_next_instance_of(ProjectWiki) do |project_wiki|
+            expect(project_wiki).to receive(:index_blobs)
+          end
+
+          described_class.new.perform(gl_repository, key_id, base64_changes)
+        end
+      end
+
+      context 'when a group is enabled' do
+        let(:group) { create(:group) }
+        let(:project) { create(:project, group: group) }
+        let(:key) { create(:key, user: group.owner) }
+
+        before do
+          create :elasticsearch_indexed_namespace, namespace: group
+        end
+
+        it 'triggers wiki index update' do
+          expect_next_instance_of(ProjectWiki) do |project_wiki|
+            expect(project_wiki).to receive(:index_blobs)
+          end
+
+          described_class.new.perform(gl_repository, key_id, base64_changes)
+        end
+      end
     end
   end
 end

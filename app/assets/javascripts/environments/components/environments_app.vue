@@ -1,4 +1,5 @@
 <script>
+import envrionmentsAppMixin from 'ee_else_ce/environments/mixins/environments_app_mixin';
 import Flash from '../../flash';
 import { s__ } from '../../locale';
 import emptyState from './empty_state.vue';
@@ -6,14 +7,16 @@ import eventHub from '../event_hub';
 import environmentsMixin from '../mixins/environments_mixin';
 import CIPaginationMixin from '../../vue_shared/mixins/ci_pagination_api_mixin';
 import StopEnvironmentModal from './stop_environment_modal.vue';
+import ConfirmRollbackModal from './confirm_rollback_modal.vue';
 
 export default {
   components: {
     emptyState,
     StopEnvironmentModal,
+    ConfirmRollbackModal,
   },
 
-  mixins: [CIPaginationMixin, environmentsMixin],
+  mixins: [CIPaginationMixin, environmentsMixin, envrionmentsAppMixin],
 
   props: {
     endpoint: {
@@ -21,10 +24,6 @@ export default {
       required: true,
     },
     canCreateEnvironment: {
-      type: Boolean,
-      required: true,
-    },
-    canCreateDeployment: {
       type: Boolean,
       required: true,
     },
@@ -44,49 +43,17 @@ export default {
       type: String,
       required: true,
     },
-    // ee-only start
-    canaryDeploymentFeatureId: {
-      type: String,
-      required: true,
-    },
-    showCanaryDeploymentCallout: {
-      type: Boolean,
-      required: true,
-    },
-    userCalloutsPath: {
-      type: String,
-      required: true,
-    },
-    lockPromotionSvgPath: {
-      type: String,
-      required: true,
-    },
-    helpCanaryDeploymentsPath: {
-      type: String,
-      required: true,
-    },
-    // ee-only end
   },
 
   created() {
     eventHub.$on('toggleFolder', this.toggleFolder);
-    eventHub.$on('toggleDeployBoard', this.toggleDeployBoard);
   },
 
   beforeDestroy() {
     eventHub.$off('toggleFolder');
-    eventHub.$off('toggleDeployBoard');
   },
 
   methods: {
-    /**
-     * Toggles the visibility of the deploy boards of the clicked environment.
-     * @param {Object} model
-     */
-    toggleDeployBoard(model) {
-      this.store.toggleDeployBoard(model.id);
-    },
-
     toggleFolder(folder) {
       this.store.toggleFolder(folder);
 
@@ -123,14 +90,15 @@ export default {
 <template>
   <div :class="cssContainerClass">
     <stop-environment-modal :environment="environmentInStopModal" />
+    <confirm-rollback-modal :environment="environmentInRollbackModal" />
 
     <div class="top-area">
       <tabs :tabs="tabs" scope="environments" @onChangeTab="onChangeTab" />
 
       <div v-if="canCreateEnvironment && !isLoading" class="nav-controls">
-        <a :href="newEnvironmentPath" class="btn btn-success">{{
-          s__('Environments|New environment')
-        }}</a>
+        <a :href="newEnvironmentPath" class="btn btn-success">
+          {{ s__('Environments|New environment') }}
+        </a>
       </div>
     </div>
 
@@ -138,7 +106,6 @@ export default {
       :is-loading="isLoading"
       :environments="state.environments"
       :pagination="state.paginationInformation"
-      :can-create-deployment="canCreateDeployment"
       :can-read-environment="canReadEnvironment"
       :canary-deployment-feature-id="canaryDeploymentFeatureId"
       :show-canary-deployment-callout="showCanaryDeploymentCallout"

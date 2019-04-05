@@ -27,7 +27,7 @@ webpackConfig.devtool = 'cheap-inline-source-map';
 webpackConfig.plugins.push(
   new webpack.DefinePlugin({
     'process.env.BABEL_ENV': JSON.stringify(process.env.BABEL_ENV || process.env.NODE_ENV || null),
-  })
+  }),
 );
 
 const specFilters = argumentsParser
@@ -38,7 +38,7 @@ const specFilters = argumentsParser
       memo.push(filter, filter.replace(/\/?$/, '/**/*.js'));
       return memo;
     },
-    []
+    [],
   )
   .parse(process.argv).filterSpec;
 
@@ -50,7 +50,7 @@ const createContext = (specFiles, regex, suffix) => {
   }, {});
 
   webpackConfig.plugins.push(
-    new webpack.ContextReplacementPlugin(regex, path.join(ROOT_PATH, suffix), newContext)
+    new webpack.ContextReplacementPlugin(regex, path.join(ROOT_PATH, suffix), newContext),
   );
 };
 
@@ -62,7 +62,7 @@ if (specFilters.length) {
         root: ROOT_PATH,
         matchBase: true,
       })
-      .filter(path => path.endsWith('spec.js'))
+      .filter(path => path.endsWith('spec.js')),
   );
 
   // flatten
@@ -110,23 +110,45 @@ module.exports = function(config) {
     frameworks: ['jasmine'],
     files: [
       { pattern: 'spec/javascripts/test_bundle.js', watched: false },
-      { pattern: 'spec/javascripts/fixtures/**/*@(.json|.html|.html.raw|.png)', included: false },
+      { pattern: 'spec/javascripts/fixtures/**/*@(.json|.html|.png)', included: false },
     ],
     preprocessors: {
       'spec/javascripts/**/*.js': ['webpack', 'sourcemap'],
       'ee/spec/javascripts/**/*.js': ['webpack', 'sourcemap'],
     },
-    reporters: ['progress'],
+    reporters: ['mocha'],
     webpack: webpackConfig,
     webpackMiddleware: { stats: 'errors-only' },
+    plugins: [
+      'karma-chrome-launcher',
+      'karma-coverage-istanbul-reporter',
+      'karma-jasmine',
+      'karma-junit-reporter',
+      'karma-mocha-reporter',
+      'karma-sourcemap-loader',
+      'karma-webpack',
+    ],
   };
 
   if (process.env.CI) {
-    karmaConfig.reporters = ['mocha', 'junit'];
+    karmaConfig.reporters.push('junit');
     karmaConfig.junitReporter = {
       outputFile: 'junit_karma.xml',
       useBrowserName: false,
     };
+  } else {
+    // ignore 404s in local environment because we are not fixing them and they bloat the log
+    function ignore404() {
+      return (request, response /* next */) => {
+        response.writeHead(404);
+        return response.end('NOT FOUND');
+      };
+    }
+
+    karmaConfig.middleware = ['ignore-404'];
+    karmaConfig.plugins.push({
+      'middleware:ignore-404': ['factory', ignore404],
+    });
   }
 
   if (process.env.BABEL_ENV === 'coverage' || process.env.NODE_ENV === 'coverage') {

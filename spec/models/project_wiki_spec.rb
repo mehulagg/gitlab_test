@@ -1,4 +1,5 @@
-# coding: utf-8
+# frozen_string_literal: true
+
 require "spec_helper"
 
 describe ProjectWiki do
@@ -54,14 +55,6 @@ describe ProjectWiki do
     end
   end
 
-  describe "#kerberos_url_to_repo" do
-    it 'returns valid kerberos url for this repo' do
-      gitlab_kerberos_url = Gitlab.config.build_gitlab_kerberos_url
-      repo_kerberos_url = "#{gitlab_kerberos_url}/#{subject.full_path}.git"
-      expect(subject.kerberos_url_to_repo).to eq(repo_kerberos_url)
-    end
-  end
-
   describe "#wiki_base_path" do
     it "returns the wiki base path" do
       wiki_base_path = "#{Gitlab.config.gitlab.relative_url_root}/#{project.full_path}/wikis"
@@ -77,6 +70,14 @@ describe ProjectWiki do
 
     it "creates a new wiki repo if one does not yet exist" do
       expect(project_wiki.create_page("index", "test content")).to be_truthy
+    end
+
+    it "creates a new wiki repo with a default commit message" do
+      expect(project_wiki.create_page("index", "test content", :markdown, "")).to be_truthy
+
+      page = project_wiki.find_page('index')
+
+      expect(page.last_version.message).to eq("#{user.username} created page: index")
     end
 
     it "raises CouldNotCreateWikiError if it can't create the wiki repository" do

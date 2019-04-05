@@ -4,6 +4,7 @@ module EE
   module API
     module Helpers
       extend ::Gitlab::Utils::Override
+      include ::Gitlab::Utils::StrongMemoize
 
       def require_node_to_be_enabled!
         forbidden! 'Geo node is disabled.' unless ::Gitlab::Geo.current_node&.enabled?
@@ -14,15 +15,9 @@ module EE
       end
 
       def authenticate_by_gitlab_geo_node_token!
-        auth_header = headers['Authorization']
-
-        begin
-          unless auth_header && ::Gitlab::Geo::JwtRequestDecoder.new(auth_header).decode
-            unauthorized!
-          end
-        rescue ::Gitlab::Geo::InvalidDecryptionKeyError, ::Gitlab::Geo::InvalidSignatureTimeError => e
-          render_api_error!(e.to_s, 401)
-        end
+        unauthorized! unless authorization_header_valid?
+      rescue ::Gitlab::Geo::InvalidDecryptionKeyError, ::Gitlab::Geo::InvalidSignatureTimeError => e
+        render_api_error!(e.to_s, 401)
       end
 
       override :current_user
@@ -37,6 +32,14 @@ module EE
 
           user
         end
+      end
+
+      def authorization_header_valid?
+        auth_header = headers['Authorization']
+        return unless auth_header
+
+        scope = ::Gitlab::Geo::JwtRequestDecoder.new(auth_header).decode.try { |x| x[:scope] }
+        scope == ::Gitlab::Geo::API_SCOPE
       end
 
       def check_project_feature_available!(feature)
@@ -62,6 +65,82 @@ module EE
         forbidden! unless current_user.admin? ||
             ::Gitlab::CurrentSettings.current_application_settings
               .allow_group_owners_to_manage_ldap
+      end
+
+      override :find_project!
+      def find_project!(id)
+        project = find_project(id)
+
+        # CI job token authentication:
+        # this method grants limited privileged for admin users
+        # admin users can only access project if they are direct member
+        ability = job_token_authentication? ? :build_read_project : :read_project
+
+        if can?(current_user, ability, project)
+          project
+        else
+          not_found!('Project')
+        end
+      end
+
+      override :find_group!
+      def find_group!(id)
+        # CI job token authentication:
+        # currently we do not allow any group access for CI job token
+        if job_token_authentication?
+          not_found!('Group')
+        else
+          super
+        end
+      end
+
+      override :find_project_issue
+      # rubocop: disable CodeReuse/ActiveRecord
+      def find_project_issue(iid, project_id = nil)
+        project = project_id ? find_project!(project_id) : user_project
+
+        ::IssuesFinder.new(current_user, project_id: project.id).find_by!(iid: iid)
+      end
+      # rubocop: enable CodeReuse/ActiveRecord
+
+      private
+
+      def private_token
+        params[::APIGuard::PRIVATE_TOKEN_PARAM] || env[::APIGuard::PRIVATE_TOKEN_HEADER]
+      end
+
+      def job_token_authentication?
+        initial_current_user && @job_token_authentication # rubocop:disable Gitlab/ModuleWithInstanceVariables
+      end
+
+      def warden
+        env['warden']
+      end
+
+      # Check if the request is GET/HEAD, or if CSRF token is valid.
+      def verified_request?
+        ::Gitlab::RequestForgeryProtection.verified?(env)
+      end
+
+      # Check the Rails session for valid authentication details
+      def find_user_from_warden
+        warden.try(:authenticate) if verified_request?
+      end
+
+      def geo_token
+        ::Gitlab::Geo.current_node.system_hook.token
+      end
+
+      def authorize_manage_saml!(group)
+        unauthorized! unless can?(current_user, :admin_group_saml, group)
+      end
+
+      def check_group_scim_enabled(group)
+        forbidden!('Group SCIM not enabled.') unless ::Feature.enabled?(:group_scim, group)
+      end
+
+      def check_group_saml_configured
+        forbidden!('Group SAML not enabled.') unless ::Gitlab::Auth::GroupSaml::Config.enabled?
       end
     end
   end

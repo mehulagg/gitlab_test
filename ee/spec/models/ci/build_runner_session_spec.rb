@@ -19,7 +19,11 @@ describe Ci::BuildRunnerSession, model: true do
     end
 
     it 'returns default service proxy websocket subprotocol' do
+<<<<<<< HEAD
       expect(specification[:subprotocols]).to eq ["terminal.gitlab.com"]
+=======
+      expect(specification[:subprotocols]).to eq %w[terminal.gitlab.com]
+>>>>>>> fj-5276-mirror-webide-changes
     end
 
     it 'returns empty hash if no url' do
@@ -60,8 +64,14 @@ describe Ci::BuildRunnerSession, model: true do
 
     context 'when subprotocol is present' do
       let(:subprotocols) { 'foobar' }
+<<<<<<< HEAD
       it 'returns the new subprotocol' do
         expect(specification[:subprotocols]).to eq ["foobar"]
+=======
+
+      it 'returns the new subprotocol' do
+        expect(specification[:subprotocols]).to eq [subprotocols]
+>>>>>>> fj-5276-mirror-webide-changes
       end
     end
   end

@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Create' do
+  # Failure issue: https://gitlab.com/gitlab-org/quality/staging/issues/37
+  context 'Create', :quarantine do
     describe 'push after setting the file size limit via admin/application_settings' do
       before(:all) do
         push = Resource::Repository::ProjectPush.fabricate! do |p|
@@ -31,7 +32,7 @@ module QA
         set_file_size_limit(5)
         expect(page).to have_content("Application settings saved successfully")
 
-        push = push_new_file('oversize_file_1.bin')
+        push = push_new_file('oversize_file_1.bin', wait_for_push: true)
         expect(push.output).not_to have_content 'remote: fatal: pack exceeds maximum allowed size'
       end
 
@@ -39,12 +40,12 @@ module QA
         set_file_size_limit(1)
         expect(page).to have_content("Application settings saved successfully")
 
-        push = push_new_file('oversize_file_2.bin')
-        expect(push.output).to have_content 'remote: fatal: pack exceeds maximum allowed size'
+        expect { push_new_file('oversize_file_2.bin', wait_for_push: false) }
+          .to raise_error(QA::Git::Repository::RepositoryCommandError, /remote: fatal: pack exceeds maximum allowed size/)
       end
 
       def set_file_size_limit(limit)
-        Page::Main::Menu.perform(&:go_to_admin_area)
+        Page::Main::Menu.perform(&:click_admin_area)
         Page::Admin::Menu.perform(&:go_to_general_settings)
 
         Page::Admin::Settings::General.perform do |setting|
@@ -55,7 +56,7 @@ module QA
         end
       end
 
-      def push_new_file(file_name)
+      def push_new_file(file_name, wait_for_push: true)
         @project.visit!
 
         Resource::Repository::ProjectPush.fabricate! do |p|
@@ -63,6 +64,8 @@ module QA
           p.file_name = file_name
           p.file_content = SecureRandom.random_bytes(2000000)
           p.commit_message = 'Adding a new file'
+          p.wait_for_push = wait_for_push
+          p.new_branch = false
         end
       end
     end

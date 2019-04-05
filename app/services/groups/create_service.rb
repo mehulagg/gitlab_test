@@ -8,6 +8,8 @@ module Groups
     end
 
     def execute
+      remove_unallowed_params
+
       @group = Group.new(params)
 
       after_build_hook(@group, params)
@@ -33,7 +35,7 @@ module Groups
     private
 
     def after_build_hook(group, params)
-      # overriden in EE
+      # overridden in EE
     end
 
     def create_chat_team?

@@ -3,21 +3,15 @@
 class Geo::ProjectRegistry < Geo::BaseRegistry
   include ::Delay
   include ::EachBatch
-  include ::IgnorableColumn
   include ::ShaAttribute
 
   REGISTRY_TYPES = %i{repository wiki}.freeze
   RETRIES_BEFORE_REDOWNLOAD = 5
 
-  ignore_column :last_repository_verification_at
-  ignore_column :last_repository_verification_failed
-  ignore_column :last_wiki_verification_at
-  ignore_column :last_wiki_verification_failed
-  ignore_column :repository_verification_checksum
-  ignore_column :wiki_verification_checksum
-
   sha_attribute :repository_verification_checksum_sha
+  sha_attribute :repository_verification_checksum_mismatched
   sha_attribute :wiki_verification_checksum_sha
+  sha_attribute :wiki_verification_checksum_mismatched
 
   belongs_to :project
 
@@ -42,13 +36,6 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
     wiki_sync_failed = arel_table[:wiki_retry_count].gt(0)
 
     where(repository_sync_failed.or(wiki_sync_failed))
-  end
-
-  def self.verification_failed
-    repository_verification_failed = arel_table[:last_repository_verification_failure].not_eq(nil)
-    wiki_verification_failed = arel_table[:last_wiki_verification_failure].not_eq(nil)
-
-    where(repository_verification_failed.or(wiki_verification_failed))
   end
 
   def self.checksum_mismatch
@@ -86,6 +73,72 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
   # @param [String] query term that will search over :path, :name and :description
   def self.with_search(query)
     where(project: Geo::Fdw::Project.search(query))
+  end
+
+  def self.synced(type)
+    case type
+    when :repository
+      synced_repos
+    when :wiki
+      synced_wikis
+    else
+      none
+    end
+  end
+
+  def self.sync_failed(type)
+    case type
+    when :repository
+      failed_repos
+    when :wiki
+      failed_wikis
+    else
+      failed
+    end
+  end
+
+  def self.verified(type)
+    case type
+    when :repository
+      verified_repos
+    when :wiki
+      verified_wikis
+    else
+      none
+    end
+  end
+
+  def self.verification_failed(type)
+    case type
+    when :repository
+      verification_failed_repos
+    when :wiki
+      verification_failed_wikis
+    else
+      verification_failed_repos.or(verification_failed_wikis)
+    end
+  end
+
+  def self.retrying_verification(type)
+    case type
+    when :repository
+      repositories_retrying_verification
+    when :wiki
+      wikis_retrying_verification
+    else
+      none
+    end
+  end
+
+  def self.mismatch(type)
+    case type
+    when :repository
+      repository_checksum_mismatch
+    when :wiki
+      wiki_checksum_mismatch
+    else
+      repository_checksum_mismatch.or(wiki_checksum_mismatch)
+    end
   end
 
   def self.flag_repositories_for_resync!
@@ -223,11 +276,19 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
   end
 
   def repository_sync_due?(scheduled_time)
-    never_synced_repository? || repository_sync_needed?(scheduled_time)
+    return true if last_repository_synced_at.nil?
+    return false unless resync_repository?
+    return false if repository_retry_at && scheduled_time < repository_retry_at
+
+    scheduled_time > last_repository_synced_at
   end
 
   def wiki_sync_due?(scheduled_time)
-    never_synced_wiki? || wiki_sync_needed?(scheduled_time)
+    return true if last_wiki_synced_at.nil?
+    return false unless resync_wiki?
+    return false if wiki_retry_at && scheduled_time < wiki_retry_at
+
+    scheduled_time > last_wiki_synced_at
   end
 
   # Returns whether repository is pending verification check
@@ -363,28 +424,6 @@ class Geo::ProjectRegistry < Geo::BaseRegistry
 
   def fetches_since_gc_redis_key
     "projects/#{project_id}/fetches_since_gc"
-  end
-
-  def never_synced_repository?
-    last_repository_synced_at.nil?
-  end
-
-  def never_synced_wiki?
-    last_wiki_synced_at.nil?
-  end
-
-  def repository_sync_needed?(timestamp)
-    return false unless resync_repository?
-    return false if repository_retry_at && timestamp < repository_retry_at
-
-    last_repository_synced_at && timestamp > last_repository_synced_at
-  end
-
-  def wiki_sync_needed?(timestamp)
-    return false unless resync_wiki?
-    return false if wiki_retry_at && timestamp < wiki_retry_at
-
-    last_wiki_synced_at && timestamp > last_wiki_synced_at
   end
 
   # How many times have we retried syncing it?

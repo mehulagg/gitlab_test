@@ -14,7 +14,7 @@ module EE
 
         def merge_request_params_attributes
           attrs = super.push(
-            { approval_rules_attributes: [:id, :name, { user_ids: [] }, { group_ids: [] }, :approvals_required, :approval_project_rule_id, :_destroy] },
+            approval_rule_attributes,
             :approvals_before_merge,
             :approver_group_ids,
             :approver_ids
@@ -23,9 +23,25 @@ module EE
           attrs
         end
 
+        def approval_rule_attributes
+          {
+            approval_rules_attributes: [
+              :id,
+              :name,
+              { user_ids: [] },
+              { group_ids: [] },
+              :approvals_required,
+              :approval_project_rule_id,
+              :remove_hidden_groups,
+              :_destroy
+            ]
+          }
+        end
+
         # If the number of approvals is not greater than the project default, set to
-        # nil, so that we fall back to the project default. If it's not set, we can
-        # let the normal update logic handle this.
+        # the project default, so that we fall back to the project default. And
+        # still allow overriding rules defined at the project level but not allow
+        # a number of approvals lower than what the project defined.
         def clamp_approvals_before_merge(mr_params)
           return mr_params unless mr_params[:approvals_before_merge]
 
@@ -39,8 +55,8 @@ module EE
                              project
                            end
 
-          if mr_params[:approvals_before_merge].to_i <= target_project.approvals_before_merge
-            mr_params[:approvals_before_merge] = nil
+          if mr_params[:approvals_before_merge].to_i < target_project.min_fallback_approvals
+            mr_params[:approvals_before_merge] = target_project.min_fallback_approvals
           end
 
           mr_params

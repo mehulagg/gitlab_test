@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe GroupsHelper do
@@ -90,7 +92,7 @@ describe GroupsHelper do
     let(:deep_nested_group) { create(:group, parent: nested_group) }
     let!(:very_deep_nested_group) { create(:group, parent: deep_nested_group) }
 
-    it 'outputs the groups in the correct order', :postgresql do
+    it 'outputs the groups in the correct order' do
       expect(helper.group_title(very_deep_nested_group))
         .to match(%r{<li style="text-indent: 16px;"><a.*>#{deep_nested_group.name}.*</li>.*<a.*>#{very_deep_nested_group.name}</a>}m)
     end
@@ -225,6 +227,39 @@ describe GroupsHelper do
       end
 
       expect(helper.group_sidebar_links).not_to include(*cross_project_features)
+    end
+  end
+
+  describe 'parent_group_options', :nested_groups do
+    let(:current_user) { create(:user) }
+    let(:group) { create(:group, name: 'group') }
+    let(:group2) { create(:group, name: 'group2') }
+
+    before do
+      group.add_owner(current_user)
+      group2.add_owner(current_user)
+    end
+
+    it 'includes explicitly owned groups except self' do
+      expect(parent_group_options(group2)).to eq([{ id: group.id, text: group.human_name }].to_json)
+    end
+
+    it 'excludes parent group' do
+      subgroup = create(:group, parent: group2)
+
+      expect(parent_group_options(subgroup)).to eq([{ id: group.id, text: group.human_name }].to_json)
+    end
+
+    it 'includes subgroups with inherited ownership' do
+      subgroup = create(:group, parent: group)
+
+      expect(parent_group_options(group2)).to eq([{ id: group.id, text: group.human_name }, { id: subgroup.id, text: subgroup.human_name }].to_json)
+    end
+
+    it 'excludes own subgroups' do
+      create(:group, parent: group2)
+
+      expect(parent_group_options(group2)).to eq([{ id: group.id, text: group.human_name }].to_json)
     end
   end
 end

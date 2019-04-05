@@ -50,10 +50,6 @@ module Gitlab
         @data = data
       end
 
-      def self.inform_client_message(primary_repo_ssh)
-        "You're pushing to a Geo secondary.\nWe'll help you by proxying this request to the primary: #{primary_repo_ssh}"
-      end
-
       def info_refs
         ensure_secondary!
 
@@ -105,8 +101,12 @@ module Gitlab
       def base_headers
         @base_headers ||= {
           'Geo-GL-Id' => gl_id,
-          'Authorization' => Gitlab::Geo::BaseRequest.new.authorization
+          'Authorization' => Gitlab::Geo::BaseRequest.new(scope: auth_scope).authorization
         }
+      end
+
+      def auth_scope
+        URI.parse(primary_repo).path.gsub(%r{^\/|\.git$}, '')
       end
 
       def get(url, headers)

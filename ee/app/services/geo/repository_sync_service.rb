@@ -35,10 +35,6 @@ module Geo
       project.repository.after_sync
     end
 
-    def ssh_url_to_repo
-      "#{primary_ssh_path_prefix}#{project.full_path}.git"
-    end
-
     def repository
       project.repository
     end
@@ -54,12 +50,8 @@ module Geo
       end
     end
 
-    def schedule_repack
-      GitGarbageCollectWorker.perform_async(@project.id, :full_repack, lease_key)
-    end
-
     def execute_housekeeping
-      Geo::ProjectHousekeepingService.new(project).execute
+      Geo::ProjectHousekeepingService.new(project, new_repository: new_repository?).execute
     end
   end
 end

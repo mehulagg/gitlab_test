@@ -26,6 +26,7 @@ module EE
       validate :cannot_be_admin_and_auditor
 
       delegate :shared_runners_minutes_limit, :shared_runners_minutes_limit=,
+               :extra_shared_runners_minutes_limit, :extra_shared_runners_minutes_limit=,
                to: :namespace
 
       has_many :reviews,                  foreign_key: :author_id, inverse_of: :author
@@ -51,6 +52,8 @@ module EE
 
       has_many :smartcard_identities
 
+      belongs_to :managing_group, class_name: 'Group', optional: true, inverse_of: :managed_users
+
       scope :excluding_guests, -> { joins(:members).where('members.access_level > ?', ::Gitlab::Access::GUEST).distinct }
 
       scope :subscribed_for_admin_email, -> { where(admin_email_unsubscribed_at: nil) }
@@ -66,6 +69,7 @@ module EE
       # User's Group preference
       # Note: When adding an option, it's value MUST equal to the last value + 1.
       enum group_view: { details: 1, security_dashboard: 2 }, _prefix: true
+      scope :group_view_details, -> { where('group_view = ? OR group_view IS NULL', group_view[:details]) }
     end
 
     class_methods do
@@ -230,6 +234,10 @@ module EE
       end
     end
 
+    def group_managed_account?
+      managing_group.present?
+    end
+
     override :ldap_sync_time
     def ldap_sync_time
       ::Gitlab.config.ldap['sync_time']
@@ -237,6 +245,29 @@ module EE
 
     def admin_unsubscribe!
       update_column :admin_email_unsubscribed_at, Time.now
+    end
+
+    override :allow_password_authentication_for_web?
+    def allow_password_authentication_for_web?(*)
+      return false if group_managed_account?
+
+      super
+    end
+
+    override :allow_password_authentication_for_git?
+    def allow_password_authentication_for_git?(*)
+      return false if group_managed_account?
+
+      super
+    end
+
+    protected
+
+    override :password_required?
+    def password_required?(*)
+      return false if group_managed_account?
+
+      super
     end
 
     private

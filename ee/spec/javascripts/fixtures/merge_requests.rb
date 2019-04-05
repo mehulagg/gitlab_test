@@ -22,6 +22,8 @@ describe Projects::MergeRequestsController, '(JavaScript fixtures)', type: :cont
   end
 
   before do
+    stub_feature_flags(approval_rules: false)
+
     # Ensure some approver suggestions are displayed
     service = double(:service)
     expect(::Gitlab::AuthorityAnalyzer).to receive(:new).and_return(service)
@@ -31,6 +33,8 @@ describe Projects::MergeRequestsController, '(JavaScript fixtures)', type: :cont
     approver_group = create(:approver_group, target: project)
     approver_group.group.add_owner(create(:owner))
 
+    stub_feature_flags(approval_rules: false)
+
     sign_in(admin)
   end
 
@@ -38,7 +42,7 @@ describe Projects::MergeRequestsController, '(JavaScript fixtures)', type: :cont
     remove_repository(project)
   end
 
-  it 'merge_requests_ee/merge_request_edit.html.raw' do |example|
+  it 'merge_requests_ee/merge_request_edit.html' do |example|
     get :edit,
       params: {
         id: merge_request.id,

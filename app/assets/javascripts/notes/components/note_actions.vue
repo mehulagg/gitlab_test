@@ -25,11 +25,6 @@ export default {
       type: [String, Number],
       required: true,
     },
-    discussionId: {
-      type: String,
-      required: false,
-      default: '',
-    },
     noteUrl: {
       type: String,
       required: false,
@@ -93,9 +88,6 @@ export default {
   },
   computed: {
     ...mapGetters(['getUserDataByProp']),
-    showReplyButton() {
-      return gon.features && gon.features.replyToIndividualNotes && this.showReply;
-    },
     shouldShowActionsDropdown() {
       return this.currentUserId && (this.canEdit || this.canReportAsAbuse);
     },
@@ -130,6 +122,11 @@ export default {
     onResolve() {
       this.$emit('handleResolve');
     },
+    closeTooltip() {
+      this.$nextTick(() => {
+        this.$root.$emit('bv::hide::tooltip');
+      });
+    },
   },
   showStaysResolved: true,
 };
@@ -140,6 +137,7 @@ export default {
     <span v-if="accessLevel" class="note-role user-access-role">{{ accessLevel }}</span>
     <div v-if="canResolve" class="note-actions-item">
       <button
+        ref="resolveButton"
         v-gl-tooltip
         :class="{ 'is-disabled': !resolvable, 'is-active': isResolved }"
         :title="resolveButtonTitle"
@@ -156,14 +154,12 @@ export default {
     </div>
     <div v-if="canAwardEmoji" class="note-actions-item">
       <a
-        v-gl-tooltip.bottom
+        v-gl-tooltip
         :class="{ 'js-user-authored': isAuthoredByCurrentUser }"
         class="note-action-button note-emoji-button js-add-award js-note-emoji"
-        data-position="right"
         href="#"
         title="Add reaction"
       >
-        <gl-loading-icon inline />
         <icon
           css-classes="link-highlight award-control-icon-neutral"
           name="emoji_slightly_smiling_face"
@@ -173,14 +169,14 @@ export default {
       </a>
     </div>
     <reply-button
-      v-if="showReplyButton"
+      v-if="showReply"
       ref="replyButton"
       class="js-reply-button"
-      :note-id="discussionId"
+      @startReplying="$emit('startReplying')"
     />
     <div v-if="canEdit" class="note-actions-item">
       <button
-        v-gl-tooltip.bottom
+        v-gl-tooltip
         type="button"
         title="Edit comment"
         class="note-action-button js-note-edit btn btn-transparent"
@@ -191,7 +187,7 @@ export default {
     </div>
     <div v-if="showDeleteAction" class="note-actions-item">
       <button
-        v-gl-tooltip.bottom
+        v-gl-tooltip
         type="button"
         title="Delete comment"
         class="note-action-button js-note-delete btn btn-transparent"
@@ -202,11 +198,12 @@ export default {
     </div>
     <div v-else-if="shouldShowActionsDropdown" class="dropdown more-actions note-actions-item">
       <button
-        v-gl-tooltip.bottom
+        v-gl-tooltip
         type="button"
         title="More actions"
         class="note-action-button more-actions-toggle btn btn-transparent"
         data-toggle="dropdown"
+        @click="closeTooltip"
       >
         <icon css-classes="icon" name="ellipsis_v" />
       </button>

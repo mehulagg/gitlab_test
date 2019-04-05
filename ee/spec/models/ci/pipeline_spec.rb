@@ -10,7 +10,10 @@ describe Ci::Pipeline do
     create(:ci_empty_pipeline, status: :created, project: project)
   end
 
-  it { is_expected.to have_one(:chat_data) }
+  it { is_expected.to have_one(:source_pipeline) }
+  it { is_expected.to have_many(:sourced_pipelines) }
+  it { is_expected.to have_one(:triggered_by_pipeline) }
+  it { is_expected.to have_many(:triggered_pipelines) }
   it { is_expected.to have_many(:job_artifacts).through(:builds) }
   it { is_expected.to have_many(:vulnerabilities).through(:vulnerabilities_occurrence_pipelines).class_name('Vulnerabilities::Occurrence') }
   it { is_expected.to have_many(:vulnerabilities_occurrence_pipelines).class_name('Vulnerabilities::OccurrencePipeline') }
@@ -326,6 +329,10 @@ describe Ci::Pipeline do
   describe '#has_license_management_reports?' do
     subject { pipeline.has_license_management_reports? }
 
+    before do
+      stub_licensed_features(license_management: true)
+    end
+
     context 'when pipeline has builds with license_management reports' do
       before do
         create(:ee_ci_build, :license_management, pipeline: pipeline, project: project)
@@ -367,6 +374,10 @@ describe Ci::Pipeline do
 
   describe '#license_management_reports' do
     subject { pipeline.license_management_report }
+
+    before do
+      stub_licensed_features(license_management: true)
+    end
 
     context 'when pipeline has multiple builds with license management reports' do
       let!(:build_1) { create(:ci_build, :success, name: 'license_management', pipeline: pipeline, project: project) }
@@ -473,6 +484,27 @@ describe Ci::Pipeline do
               .to raise_error ArgumentError
           end
         end
+      end
+    end
+  end
+
+  describe '#ci_yaml_file_path' do
+    subject { pipeline.ci_yaml_file_path }
+
+    context 'the source is the repository' do
+      let(:implied_yml) { Gitlab::Template::GitlabCiYmlTemplate.find('Auto-DevOps').content }
+
+      before do
+        pipeline.repository_source!
+      end
+
+      it 'returns the configuration if found' do
+        allow(pipeline.project.repository).to receive(:gitlab_ci_yml_for)
+          .and_return('config')
+
+        expect(pipeline.ci_yaml_file).to be_a(String)
+        expect(pipeline.ci_yaml_file).not_to eq(implied_yml)
+        expect(pipeline.yaml_errors).to be_nil
       end
     end
   end

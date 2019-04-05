@@ -41,7 +41,7 @@ specific environment, there are lot of uses cases. To name a few:
 
 - You want to promote what's running in staging, to production. You go to the
   environments list, verify that what's running in staging is what you think is
-  running, then click on the [manual action] to deploy to production.
+  running, then click on the [manual action](../../ci/yaml/README.md#whenmanual) to deploy to production.
 - You trigger a deploy, and you've got lots of containers to upgrade so you know
   it'll take a while (you've also throttled your deploy to only take down X
   containers at a time). But you need to tell someone when it's deployed, so you
@@ -73,15 +73,21 @@ To display the Deploy Boards for a specific [environment] you should:
 1. Configure the [Kubernetes service][kube-service] in your project for the
    cluster. The Kubernetes namespace is of particular note as you will need it
    for your deployment scripts (exposed by the `KUBE_NAMESPACE` env variable).
-1. Ensure a Kubernetes label of `app: $CI_ENVIRONMENT_SLUG` is applied to the
-   deployments, replica sets, and pods, where `$CI_ENVIRONMENT_SLUG` the value
-   of the CI variable. This is so we can lookup the proper environment in a
-   cluster/namespace which may have more than one. These resources should be
-   contained in the namespace defined in the Kubernetes service setting.
-   You can use an [Autodeploy] `.gitlab-ci.yml` template which has predefined
-   stages and commands to use, and automatically applies the labeling.
-   Each project will need to have a unique namespace in Kubernetes as well.
-   The image below demonstrates how this is shown inside Kubernetes.
+1. Ensure Kubernetes annotations of `app.gitlab.com/env: $CI_ENVIRONMENT_SLUG`
+   and `app.gitlab.com/app: $CI_PROJECT_PATH_SLUG` are applied to the
+   deployments, replica sets, and pods, where `$CI_ENVIRONMENT_SLUG` and
+   `$CI_PROJECT_PATH_SLUG` are the values of the CI variables. This is so we can
+   lookup the proper environment in a cluster/namespace which may have more
+   than one. These resources should be contained in the namespace defined in
+   the Kubernetes service setting. You can use an [Autodeploy] `.gitlab-ci.yml`
+   template which has predefined stages and commands to use, and automatically
+   applies the annotations. Each project will need to have a unique namespace in
+   Kubernetes as well. The image below demonstrates how this is shown inside
+   Kubernetes.
+
+   NOTE: **Note:**
+   The Kubernetes label of `app` is deprecated and may be removed in next major
+   release, GitLab 12.0.
 
     ![Deploy Boards Kubernetes Label](img/deploy_boards_kubernetes_label.png)
 
@@ -123,5 +129,4 @@ version of your application.
 [variables]: ../../ci/variables/README.md "GitLab CI variables"
 [autodeploy]: ../../ci/autodeploy/index.md "GitLab Autodeploy"
 [kube-image]: https://gitlab.com/gitlab-examples/kubernetes-deploy/container_registry "Kubernetes deploy Container Registry"
-[manual action]: ../../ci/yaml/README.md#manual-actions
 [runners]: ../../ci/runners/README.md

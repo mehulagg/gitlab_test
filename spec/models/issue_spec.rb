@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Issue do
@@ -762,6 +764,15 @@ describe Issue do
       create(:issue, confidential: true)
 
       expect(described_class.public_only).to eq([public_issue])
+    end
+  end
+
+  describe '.confidential_only' do
+    it 'only returns confidential_only issues' do
+      create(:issue)
+      confidential_issue = create(:issue, confidential: true)
+
+      expect(described_class.confidential_only).to eq([confidential_issue])
     end
   end
 

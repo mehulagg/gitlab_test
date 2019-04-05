@@ -68,6 +68,7 @@
   - [background_migration, 1]
   - [gcp_cluster, 1]
   - [project_migrate_hashed_storage, 1]
+  - [project_rollback_hashed_storage, 1]
   - [hashed_storage, 1]
   - [pages_domain_verification, 1]
   - [object_storage_upload, 1]
@@ -85,12 +86,14 @@
   - [repository_cleanup, 1]
   - [delete_stored_files, 1]
   - [remote_mirror_notification, 2]
+  - [project_daily_statistics, 1]
   - [import_issues_csv, 2]
+  - [chat_notification, 2]
+  - [migrate_external_diffs, 1] 
 
   # EE-specific queues
   - [ldap_group_sync, 2]
   - [create_github_webhook, 2]
-  - [chat_notification, 2]
   - [geo, 1]
   - [repository_update_mirror, 1]
   - [new_epic, 2]
@@ -100,7 +103,9 @@
   - [elastic_batch_project_indexer, 1]
   - [elastic_indexer, 1]
   - [elastic_commit_indexer, 1]
+  - [elastic_namespace_indexer, 1]
   - [export_csv, 1]
+  - [incident_management, 2]
 
   # Deprecated queues: Remove after 10.7
   - geo_base_scheduler

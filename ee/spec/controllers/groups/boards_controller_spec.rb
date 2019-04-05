@@ -47,9 +47,19 @@ describe Groups::BoardsController do
       subject { list_boards }
     end
 
+    it_behaves_like 'redirects to last visited board' do
+      let(:parent) { group }
+    end
+
     def list_boards(format: :html)
       get :index, params: { group_id: group }, format: format
     end
+  end
+
+  describe 'GET recent' do
+    let(:parent) { group }
+
+    it_behaves_like 'returns recently visited boards'
   end
 
   describe 'GET show' do

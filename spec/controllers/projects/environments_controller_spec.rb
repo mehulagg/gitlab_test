@@ -54,9 +54,9 @@ describe Projects::EnvironmentsController do
 
         it 'responds with a flat payload describing available environments' do
           expect(environments.count).to eq 3
-          expect(environments.first['name']).to eq 'production'
-          expect(environments.second['name']).to eq 'staging/review-1'
-          expect(environments.third['name']).to eq 'staging/review-2'
+          expect(environments.first).to include('name' => 'production', 'name_without_type' => 'production')
+          expect(environments.second).to include('name' => 'staging/review-1', 'name_without_type' => 'review-1')
+          expect(environments.third).to include('name' => 'staging/review-2', 'name_without_type' => 'review-2')
           expect(json_response['available_count']).to eq 3
           expect(json_response['stopped_count']).to eq 1
         end
@@ -155,9 +155,9 @@ describe Projects::EnvironmentsController do
         expect(response).to be_ok
         expect(response).not_to render_template 'folder'
         expect(json_response['environments'][0])
-          .to include('name' => 'staging-1.0/review')
+          .to include('name' => 'staging-1.0/review', 'name_without_type' => 'review')
         expect(json_response['environments'][1])
-          .to include('name' => 'staging-1.0/zzz')
+          .to include('name' => 'staging-1.0/zzz', 'name_without_type' => 'zzz')
       end
     end
   end
@@ -392,7 +392,7 @@ describe Projects::EnvironmentsController do
 
       context 'when requesting metrics as JSON' do
         it 'returns a metrics JSON document' do
-          get :additional_metrics, params: environment_params(format: :json)
+          additional_metrics
 
           expect(response).to have_gitlab_http_status(204)
           expect(json_response).to eq({})
@@ -412,12 +412,38 @@ describe Projects::EnvironmentsController do
       end
 
       it 'returns a metrics JSON document' do
-        get :additional_metrics, params: environment_params(format: :json)
+        additional_metrics
 
         expect(response).to be_ok
         expect(json_response['success']).to be(true)
         expect(json_response['data']).to eq({})
         expect(json_response['last_update']).to eq(42)
+      end
+    end
+
+    context 'when only one time param is provided' do
+      context 'when :metrics_time_window feature flag is disabled' do
+        before do
+          stub_feature_flags(metrics_time_window: false)
+          expect(environment).to receive(:additional_metrics).with(no_args).and_return(nil)
+        end
+
+        it 'returns a time-window agnostic response' do
+          additional_metrics(start: '1552647300.651094')
+
+          expect(response).to have_gitlab_http_status(204)
+          expect(json_response).to eq({})
+        end
+      end
+
+      it 'raises an error when start is missing' do
+        expect { additional_metrics(start: '1552647300.651094') }
+          .to raise_error(ActionController::ParameterMissing)
+      end
+
+      it 'raises an error when end is missing' do
+        expect { additional_metrics(start: '1552647300.651094') }
+          .to raise_error(ActionController::ParameterMissing)
       end
     end
   end
@@ -499,5 +525,9 @@ describe Projects::EnvironmentsController do
     opts.reverse_merge(namespace_id: project.namespace,
                        project_id: project,
                        id: environment.id)
+  end
+
+  def additional_metrics(opts = {})
+    get :additional_metrics, params: environment_params(format: :json, **opts)
   end
 end

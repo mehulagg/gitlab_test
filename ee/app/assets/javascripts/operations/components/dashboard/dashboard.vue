@@ -1,14 +1,15 @@
 <script>
 import { mapState, mapActions } from 'vuex';
-import { GlLoadingIcon } from '@gitlab/ui';
+import { GlLoadingIcon, GlDashboardSkeleton } from '@gitlab/ui';
+import ProjectSearch from 'ee/vue_shared/dashboards/components/project_search.vue';
 import DashboardProject from './project.vue';
-import ProjectSearch from './project_search.vue';
 
 export default {
   components: {
     DashboardProject,
     ProjectSearch,
     GlLoadingIcon,
+    GlDashboardSkeleton,
   },
   props: {
     addPath: {
@@ -73,12 +74,8 @@ export default {
       </div>
     </div>
     <div class="prepend-top-default">
-      <div v-if="projects.length" class="row m-0 prepend-top-default">
-        <div
-          v-for="project in projects"
-          :key="project.id"
-          class="col-12 col-md-6 odds-md-pad-right evens-md-pad-left"
-        >
+      <div v-if="projects.length" class="row prepend-top-default dashboard-cards">
+        <div v-for="project in projects" :key="project.id" class="col-12 col-md-6 col-xl-4 px-2">
           <dashboard-project :project="project" />
         </div>
       </div>
@@ -106,7 +103,7 @@ export default {
           </a>
         </div>
       </div>
-      <gl-loading-icon v-else :size="2" class="prepend-top-20" />
+      <gl-dashboard-skeleton v-else />
     </div>
   </div>
 </template>

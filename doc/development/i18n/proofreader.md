@@ -47,6 +47,7 @@ are very appreciative of the work done by translators and proofreaders!
 - Hungarian
   - Proofreaders needed.
 - Indonesian
+  - Adi Ferdian - [GitLab](https://gitlab.com/adiferd), [Crowdin](https://crowdin.com/profile/adiferd)
   - Ahmad Naufal Mukhtar - [GitLab](https://gitlab.com/anaufalm), [Crowdin](https://crowdin.com/profile/anaufalm)
 - Italian
   - Paolo Falomo - [GitLab](https://gitlab.com/paolofalomo), [Crowdin](https://crowdin.com/profile/paolo.falomo)
@@ -85,7 +86,7 @@ are very appreciative of the work done by translators and proofreaders!
 - Spanish
   - Pedro Garcia - [GitLab](https://gitlab.com/pedgarrod), [Crowdin](https://crowdin.com/profile/breaking_pitt)
 - Turkish
-  - Proofreaders needed.
+  - Ali Demirtaş - [GitLab](https://gitlab.com/alidemirtas), [Crowdin](https://crowdin.com/profile/alidemirtas)
 - Ukrainian
   - Volodymyr Sobotovych - [GitLab](https://gitlab.com/wheleph), [Crowdin](https://crowdin.com/profile/wheleph)
   - Andrew Vityuk - [GitLab](https://gitlab.com/3_1_3_u), [Crowdin](https://crowdin.com/profile/andruwa13)
@@ -125,5 +126,8 @@ are very appreciative of the work done by translators and proofreaders!
    your previous translations by [GitLab team members](https://about.gitlab.com/team/)
    or [Core team members](https://about.gitlab.com/core-team/) who are fluent in
    the language or current proofreaders.
+   - When a request is made for the first proofreader for a lanuguage and there are no [GitLab team members](https://about.gitlab.com/team/)
+   or [Core team members](https://about.gitlab.com/core-team/) who speak the language, we will request links to previous translation work in other communities or projects.  
+
 
 [proofreader-src]: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/development/i18n/proofreader.md

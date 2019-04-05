@@ -11,12 +11,16 @@ module EE
 
     prepended do
       include TokenAuthenticatable
+      include InsightsFeature
 
       add_authentication_token_field :saml_discovery_token, unique: false, token_generator: -> { Devise.friendly_token(8) }
 
       has_many :epics
 
       has_one :saml_provider
+      has_one :insight, foreign_key: :namespace_id
+      accepts_nested_attributes_for :insight
+      has_one :scim_oauth_access_token
 
       has_many :ldap_group_links, foreign_key: 'group_id', dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
       has_many :hooks, dependent: :destroy, class_name: 'GroupHook' # rubocop:disable Cop/ActiveRecordDependent
@@ -26,6 +30,8 @@ module EE
       has_many :audit_events, -> { where(entity_type: ::Group.name) }, foreign_key: 'entity_id'
 
       has_many :project_templates, through: :projects, foreign_key: 'custom_project_templates_group_id'
+
+      has_many :managed_users, class_name: 'User', foreign_key: 'managing_group_id', inverse_of: :managing_group
 
       belongs_to :file_template_project, class_name: "Project"
 
@@ -125,11 +131,20 @@ module EE
       (::Gitlab.config.ldap.enabled && ldap_group_links.any?(&:active?)) || super
     end
 
-    def mark_ldap_sync_as_failed(error_message)
+    def mark_ldap_sync_as_failed(error_message, skip_validation: false)
       return false unless ldap_sync_started?
 
-      fail_ldap_sync
-      update_column(:ldap_sync_error, ::Gitlab::UrlSanitizer.sanitize(error_message))
+      error_message = ::Gitlab::UrlSanitizer.sanitize(error_message)
+
+      if skip_validation
+        # A group that does not validate cannot transition out of its
+        # current state, so manually set the ldap_sync_status
+        update_columns(ldap_sync_error: error_message,
+                       ldap_sync_status: 'failed')
+      else
+        fail_ldap_sync
+        update_column(:ldap_sync_error, error_message)
+      end
     end
 
     # This token conveys that the anonymous user is allowed to know of the group
@@ -162,7 +177,7 @@ module EE
     def checked_file_template_project(*args, &blk)
       project = file_template_project(*args, &blk)
 
-      return nil unless project && (
+      return unless project && (
           project_ids.include?(project.id) || shared_project_ids.include?(project.id))
 
       # The license check would normally be the cheapest to perform, so would
@@ -170,7 +185,7 @@ module EE
       # no SQL at all, but `feature_available?` will cause an ApplicationSetting
       # to be created if it doesn't already exist! This is mostly a problem in
       # the specs, but best avoided in any case.
-      return nil unless feature_available?(:custom_file_templates_for_namespace)
+      return unless feature_available?(:custom_file_templates_for_namespace)
 
       project
     end

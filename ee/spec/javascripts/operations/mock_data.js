@@ -1,3 +1,5 @@
+import mockPipelineData from 'ee_spec/vue_shared/dashboards/mock_data';
+
 export const mockText = {
   ADD_PROJECTS: 'Add projects',
   ADD_PROJECTS_ERROR: 'Something went wrong, unable to add projects to dashboard',
@@ -16,50 +18,37 @@ export const mockText = {
 
 export function mockProjectData(
   projectCount = 1,
-  deployTimeStamp = `${new Date(Date.now() - 86400000).getTime()}`,
-  alertCount = 1,
-  isTag = false,
+  currentPipelineStatus = 'success',
+  upstreamStatus = 'success',
+  alertCount = 0,
 ) {
   return Array(projectCount)
     .fill(null)
     .map((_, index) => ({
       id: index,
-      name: 'mock-name',
-      name_with_namespace: 'mock-namespace / mock-name',
-      path: 'mock-path',
-      path_with_namespace: 'mock-path_with-namespace',
+      description: '',
+      name: 'test-project',
+      name_with_namespace: 'Test / test-project',
+      path: 'test-project',
+      path_with_namespace: 'test/test-project',
+      created_at: '2019-02-01T15:40:27.522Z',
+      default_branch: 'master',
+      tag_list: [],
       avatar_url: null,
-      last_deployment: {
-        created_at: deployTimeStamp,
-        commit: {
-          short_id: 'mock-short_id',
-          title: 'mock-title',
-          commit_url: 'https://mock-commit_url/',
-        },
-        tag: isTag,
-        user: {
-          avatar_url: null,
-          path: 'mock-path',
-          username: 'mock-username',
-          web_url: 'https://mock-web_url/',
-        },
-        ref: {
-          name: 'mock-name',
-          ref_path: 'mock-ref_path',
-          web_url: 'https://mock-web_url/',
-        },
-      },
-      alert_count: alertCount,
-      alert_path: 'mock-alert_path',
-      last_alert: {
-        id: index,
-        title: 'mock-title',
-        threshold: 2,
-        operator: 'mock-operator',
-        alert_path: 'mock-alert_path',
-      },
-      remove_path: 'mock-remove_path',
       web_url: 'https://mock-web_url/',
+      namespace: {
+        id: 1,
+        name: 'test',
+        path: 'test',
+        kind: 'user',
+        full_path: 'user',
+        parent_id: null,
+      },
+      remove_path: '/-/operations?project_id=1',
+      last_pipeline: mockPipelineData(currentPipelineStatus),
+      upstream_pipeline: mockPipelineData(upstreamStatus),
+      downstream_pipelines: [],
+      alert_count: alertCount,
     }));
 }
 

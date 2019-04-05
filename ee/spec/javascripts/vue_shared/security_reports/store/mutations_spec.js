@@ -124,7 +124,6 @@ describe('security reports mutations', () => {
         expect(stateCopy.sast.isLoading).toEqual(false);
         expect(stateCopy.sast.newIssues).toEqual(parsedSastIssuesHead);
         expect(stateCopy.sast.resolvedIssues).toEqual(parsedSastBaseStore);
-        expect(stateCopy.summaryCounts).toEqual({ added: 2, fixed: 1, existing: 1 });
       });
     });
 
@@ -137,7 +136,6 @@ describe('security reports mutations', () => {
 
         expect(stateCopy.sast.isLoading).toEqual(false);
         expect(stateCopy.sast.newIssues).toEqual(parsedSastIssuesStore);
-        expect(stateCopy.summaryCounts).toEqual({ added: 3, fixed: 0, existing: 0 });
       });
     });
   });
@@ -186,7 +184,6 @@ describe('security reports mutations', () => {
         expect(stateCopy.sastContainer.isLoading).toEqual(false);
         expect(stateCopy.sastContainer.newIssues).toEqual(dockerNewIssues);
         expect(stateCopy.sastContainer.resolvedIssues).toEqual(parsedSastContainerBaseStore);
-        expect(stateCopy.summaryCounts).toEqual({ added: 1, fixed: 1, existing: 0 });
       });
     });
 
@@ -198,7 +195,6 @@ describe('security reports mutations', () => {
 
         expect(stateCopy.sastContainer.isLoading).toEqual(false);
         expect(stateCopy.sastContainer.newIssues).toEqual(dockerOnlyHeadParsed);
-        expect(stateCopy.summaryCounts).toEqual({ added: 2, fixed: 0, existing: 0 });
       });
     });
   });
@@ -248,7 +244,6 @@ describe('security reports mutations', () => {
 
         expect(stateCopy.dast.newIssues).toEqual(parsedDastNewIssues);
         expect(stateCopy.dast.resolvedIssues).toEqual([]);
-        expect(stateCopy.summaryCounts).toEqual({ added: 1, fixed: 0, existing: 0 });
       });
     });
 
@@ -260,7 +255,6 @@ describe('security reports mutations', () => {
 
         expect(stateCopy.dast.isLoading).toEqual(false);
         expect(stateCopy.dast.newIssues).toEqual(parsedDast);
-        expect(stateCopy.summaryCounts).toEqual({ added: 2, fixed: 0, existing: 0 });
       });
     });
   });
@@ -313,8 +307,6 @@ describe('security reports mutations', () => {
         expect(stateCopy.dependencyScanning.resolvedIssues).toEqual(
           parsedDependencyScanningBaseStore,
         );
-
-        expect(stateCopy.summaryCounts).toEqual({ added: 2, fixed: 1, existing: 1 });
       });
     });
 
@@ -327,7 +319,6 @@ describe('security reports mutations', () => {
 
         expect(stateCopy.dependencyScanning.isLoading).toEqual(false);
         expect(stateCopy.dependencyScanning.newIssues).toEqual(parsedDependencyScanningIssuesStore);
-        expect(stateCopy.summaryCounts).toEqual({ added: 3, fixed: 0, existing: 0 });
       });
     });
   });
@@ -405,11 +396,12 @@ describe('security reports mutations', () => {
         title: 'Arbitrary file existence disclosure in Action Pack',
         path: 'Gemfile.lock',
         urlPath: 'path/Gemfile.lock',
-        namespace: 'debian:8',
         location: {
           file: 'Gemfile.lock',
           class: 'User',
           method: 'do_something',
+          image: 'https://example.org/docker/example:v1.2.3',
+          operating_system: 'debian:8',
         },
         links: [
           {
@@ -443,7 +435,8 @@ describe('security reports mutations', () => {
       expect(stateCopy.modal.data.file.url).toEqual(issue.urlPath);
       expect(stateCopy.modal.data.className.value).toEqual(issue.location.class);
       expect(stateCopy.modal.data.methodName.value).toEqual(issue.location.method);
-      expect(stateCopy.modal.data.namespace.value).toEqual(issue.namespace);
+      expect(stateCopy.modal.data.namespace.value).toEqual(issue.location.operating_system);
+      expect(stateCopy.modal.data.image.value).toEqual(issue.location.image);
       expect(stateCopy.modal.data.identifiers.value).toEqual(issue.identifiers);
       expect(stateCopy.modal.data.severity.value).toEqual(issue.severity);
       expect(stateCopy.modal.data.confidence.value).toEqual(issue.confidence);
@@ -502,6 +495,34 @@ describe('security reports mutations', () => {
       mutations[types.RECEIVE_CREATE_ISSUE_ERROR](stateCopy, 'error');
 
       expect(stateCopy.modal.isCreatingNewIssue).toEqual(false);
+      expect(stateCopy.modal.error).toEqual('error');
+    });
+  });
+
+  describe('REQUEST_CREATE_MERGE_REQUEST', () => {
+    it('sets isCreatingMergeRequest prop to true and resets error', () => {
+      mutations[types.REQUEST_CREATE_MERGE_REQUEST](stateCopy);
+
+      expect(stateCopy.modal.isCreatingMergeRequest).toEqual(true);
+      expect(stateCopy.modal.error).toBeNull();
+    });
+  });
+
+  describe('RECEIVE_CREATE_MERGE_REQUEST_SUCCESS', () => {
+    it('should fire the visitUrl function on the merge request URL', () => {
+      const payload = { merge_request_path: 'fakepath.html' };
+      const visitUrl = spyOnDependency(mutations, 'visitUrl');
+      mutations[types.RECEIVE_CREATE_MERGE_REQUEST_SUCCESS](stateCopy, payload);
+
+      expect(visitUrl).toHaveBeenCalledWith(payload.merge_request_path);
+    });
+  });
+
+  describe('RECEIVE_CREATE_MERGE_REQUEST_ERROR', () => {
+    it('sets isCreatingMergeRequest prop to false and sets error', () => {
+      mutations[types.RECEIVE_CREATE_MERGE_REQUEST_ERROR](stateCopy, 'error');
+
+      expect(stateCopy.modal.isCreatingMergeRequest).toEqual(false);
       expect(stateCopy.modal.error).toEqual('error');
     });
   });
@@ -566,9 +587,9 @@ describe('security reports mutations', () => {
     });
 
     it('updates issue in the resolved issues list', () => {
-      stateCopy.sast.newIssues = [];
-      stateCopy.sast.resolvedIssues = parsedDependencyScanningIssuesHead;
-      stateCopy.sast.allIssues = [];
+      stateCopy.dependencyScanning.newIssues = [];
+      stateCopy.dependencyScanning.resolvedIssues = parsedDependencyScanningIssuesHead;
+      stateCopy.dependencyScanning.allIssues = [];
       const updatedIssue = {
         ...parsedDependencyScanningIssuesHead[0],
         foo: 'bar',
@@ -576,7 +597,7 @@ describe('security reports mutations', () => {
 
       mutations[types.UPDATE_DEPENDENCY_SCANNING_ISSUE](stateCopy, updatedIssue);
 
-      expect(stateCopy.sast.resolvedIssues[0]).toEqual(updatedIssue);
+      expect(stateCopy.dependencyScanning.resolvedIssues[0]).toEqual(updatedIssue);
     });
 
     it('updates issue in the all issues list', () => {
@@ -596,7 +617,6 @@ describe('security reports mutations', () => {
 
   describe('UPDATE_CONTAINER_SCANNING_ISSUE', () => {
     it('updates issue in the new issues list', () => {
-      // TODO pas dast
       stateCopy.sastContainer.newIssues = dockerNewIssues;
       stateCopy.sastContainer.resolvedIssues = [];
       const updatedIssue = {

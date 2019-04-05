@@ -6,11 +6,27 @@ module EE
       #######################
       # Entities extensions #
       #######################
+      module Entities
+        extend ActiveSupport::Concern
+
+        class_methods do
+          def prepend_entity(klass, with: nil)
+            if with.nil?
+              raise ArgumentError, 'You need to pass either the :with or :namespace option!'
+            end
+
+            klass.descendants.each { |descendant| descendant.prepend(with) }
+            klass.prepend(with)
+          end
+        end
+      end
+
       module UserPublic
         extend ActiveSupport::Concern
 
         prepended do
           expose :shared_runners_minutes_limit
+          expose :extra_shared_runners_minutes_limit
         end
       end
 
@@ -51,6 +67,7 @@ module EE
 
         prepended do
           expose :shared_runners_minutes_limit
+          expose :extra_shared_runners_minutes_limit
         end
       end
 
@@ -60,6 +77,14 @@ module EE
         prepended do
           expose :user_id
           expose :group_id
+        end
+      end
+
+      module ProtectedBranch
+        extend ActiveSupport::Concern
+
+        prepended do
+          expose :unprotect_access_levels, using: ::API::Entities::ProtectedRefAccess
         end
       end
 
@@ -84,6 +109,7 @@ module EE
 
         prepended do
           expose :shared_runners_minutes_limit, if: ->(_, options) { options[:current_user]&.admin? }
+          expose :extra_shared_runners_minutes_limit, if: ->(_, options) { options[:current_user]&.admin? }
           expose :billable_members_count do |namespace, options|
             namespace.billable_members_count(options[:requested_hosted_plan])
           end
@@ -205,17 +231,17 @@ module EE
           epic.labels.map(&:title).sort
         end
         expose :upvotes do |epic, options|
-          if options[:epics_metadata]
+          if options[:issuable_metadata]
             # Avoids an N+1 query when metadata is included
-            options[:epics_metadata][epic.id].upvotes
+            options[:issuable_metadata][epic.id].upvotes
           else
             epic.upvotes
           end
         end
         expose :downvotes do |epic, options|
-          if options[:epics_metadata]
+          if options[:issuable_metadata]
             # Avoids an N+1 query when metadata is included
-            options[:epics_metadata][epic.id].downvotes
+            options[:issuable_metadata][epic.id].downvotes
           else
             epic.downvotes
           end
@@ -243,17 +269,21 @@ module EE
         expose :title
       end
 
-      class ApprovalRule < Grape::Entity
+      class ApprovalRuleShort < Grape::Entity
+        expose :id, :name, :rule_type
+      end
+
+      class ApprovalRule < ApprovalRuleShort
         def initialize(object, options = {})
           presenter = ::ApprovalRulePresenter.new(object, current_user: options[:current_user])
           super(presenter, options)
         end
 
-        expose :id, :name
         expose :approvers, using: ::API::Entities::UserBasic
         expose :approvals_required
         expose :users, using: ::API::Entities::UserBasic
         expose :groups, using: ::API::Entities::Group
+        expose :contains_hidden_groups?, as: :contains_hidden_groups
       end
 
       class MergeRequestApprovalRule < ApprovalRule
@@ -264,6 +294,7 @@ module EE
         expose :approved_approvers, as: :approved_by, using: ::API::Entities::UserBasic
         expose :code_owner
         expose :source_rule, using: SourceRule
+        expose :approved?, as: :approved
       end
 
       # Decorates ApprovalState
@@ -273,16 +304,12 @@ module EE
         end
 
         expose :wrapped_approval_rules, as: :rules, using: MergeRequestApprovalRule
-        expose :fallback_approvals_required
-        expose :use_fallback do |approval_state|
-          approval_state.use_fallback?
-        end
       end
 
       # Decorates Project
       class ProjectApprovalRules < Grape::Entity
-        expose :approval_rules, as: :rules, using: ApprovalRule
-        expose :approvals_before_merge, as: :fallback_approvals_required
+        expose :visible_regular_approval_rules, as: :rules, using: ApprovalRule
+        expose :min_fallback_approvals, as: :fallback_approvals_required
       end
 
       # @deprecated
@@ -301,6 +328,7 @@ module EE
         expose :approvals_before_merge
         expose :reset_approvals_on_push
         expose :disable_overriding_approvers_per_merge_request
+        expose :merge_requests_author_approval
       end
 
       class Approvals < Grape::Entity
@@ -383,12 +411,18 @@ module EE
           approval_state.can_approve?(options[:current_user])
         end
 
-        expose :approval_rules_left do |approval_state, options|
-          approval_state.approval_rules_left.map(&:name)
-        end
+        expose :approval_rules_left, using: ApprovalRuleShort
 
         expose :has_approval_rules do |approval_state|
-          approval_state.has_approval_rules?
+          approval_state.has_non_fallback_rules?
+        end
+
+        expose :merge_request_approvers_available do |approval_state|
+          approval_state.project.feature_available?(:merge_request_approvers)
+        end
+
+        expose :multiple_approval_rules_available do |approval_state|
+          approval_state.project.multiple_approval_rules_available?
         end
       end
 
@@ -397,12 +431,27 @@ module EE
       end
 
       class GitlabLicense < Grape::Entity
-        expose :starts_at, :expires_at, :licensee, :add_ons
+        expose :id,
+          :plan,
+          :created_at,
+          :starts_at,
+          :expires_at,
+          :historical_max,
+          :licensee,
+          :add_ons
+
+        expose :expired?, as: :expired
+
+        expose :overage do |license, options|
+          license.expired? ? license.overage_with_historical_max : license.overage(options[:current_active_users_count])
+        end
 
         expose :user_limit do |license, options|
           license.restricted?(:active_user_count) ? license.restrictions[:active_user_count] : 0
         end
+      end
 
+      class GitlabLicenseWithActiveUsers < GitlabLicense
         expose :active_users do |license, options|
           ::User.active.count
         end
@@ -413,6 +462,7 @@ module EE
 
         expose :id
         expose :url
+        expose :alternate_url
         expose :primary?, as: :primary
         expose :enabled
         expose :current?, as: :current
@@ -629,6 +679,7 @@ module EE
       class NpmPackage < Grape::Entity
         expose :name
         expose :versions
+        expose :dist_tags, as: 'dist-tags'
       end
 
       class Package < Grape::Entity
@@ -642,6 +693,10 @@ module EE
         expose :id, :package_id, :created_at
         expose :file_name, :size
         expose :file_md5, :file_sha1
+      end
+
+      class ManagedLicense < Grape::Entity
+        expose :id, :name, :approval_status
       end
     end
   end

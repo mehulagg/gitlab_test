@@ -1,6 +1,7 @@
 import createState from 'ee/security_dashboard/store/modules/vulnerabilities/state';
 import * as types from 'ee/security_dashboard/store/modules/vulnerabilities/mutation_types';
 import mutations from 'ee/security_dashboard/store/modules/vulnerabilities/mutations';
+import { DAYS } from 'ee/security_dashboard/store/modules/vulnerabilities/constants';
 import mockData from './data/mock_data_vulnerabilities.json';
 
 describe('vulnerabilities module mutations', () => {
@@ -12,6 +13,17 @@ describe('vulnerabilities module mutations', () => {
       mutations[types.SET_VULNERABILITIES_ENDPOINT](state, endpoint);
 
       expect(state.vulnerabilitiesEndpoint).toEqual(endpoint);
+    });
+  });
+
+  describe('SET_VULNERABILITIES_PAGE', () => {
+    const page = 3;
+    it(`should set pageInfo.page to ${page}`, () => {
+      const state = createState();
+
+      mutations[types.SET_VULNERABILITIES_PAGE](state, page);
+
+      expect(state.pageInfo.page).toEqual(page);
     });
   });
 
@@ -191,6 +203,52 @@ describe('vulnerabilities module mutations', () => {
     });
   });
 
+  describe('SET_VULNERABILITIES_HISTORY_DAY_RANGE', () => {
+    let state;
+
+    beforeEach(() => {
+      state = createState();
+    });
+
+    it('should set the vulnerabilitiesHistoryDayRange to number of days', () => {
+      mutations[types.SET_VULNERABILITIES_HISTORY_DAY_RANGE](state, DAYS.THIRTY);
+
+      expect(state.vulnerabilitiesHistoryDayRange).toEqual(DAYS.THIRTY);
+    });
+
+    it('should set the vulnerabilitiesHistoryShowSplitLine to true if 30 days or under', () => {
+      mutations[types.SET_VULNERABILITIES_HISTORY_DAY_RANGE](state, DAYS.THIRTY);
+
+      expect(state.vulnerabilitiesHistoryShowSplitLine).toEqual(true);
+    });
+
+    it('should set the vulnerabilitiesHistoryShowSplitLine to false if 30 days or over', () => {
+      mutations[types.SET_VULNERABILITIES_HISTORY_DAY_RANGE](state, DAYS.SIXTY);
+
+      expect(state.vulnerabilitiesHistoryShowSplitLine).toEqual(false);
+    });
+
+    it('should set the vulnerabilitiesHistoryMaxDayInterval to 1 if days are 30 and under', () => {
+      mutations[types.SET_VULNERABILITIES_HISTORY_DAY_RANGE](state, DAYS.THIRTY);
+
+      expect(state.vulnerabilitiesHistoryMaxDayInterval).toEqual(1);
+    });
+
+    it('should set the vulnerabilitiesHistoryMaxDayInterval to 7 if between 30 and 60', () => {
+      const days = 45;
+
+      mutations[types.SET_VULNERABILITIES_HISTORY_DAY_RANGE](state, days);
+
+      expect(state.vulnerabilitiesHistoryMaxDayInterval).toEqual(7);
+    });
+
+    it('should set the vulnerabilitiesHistoryMaxDayInterval to 14 if over 60', () => {
+      mutations[types.SET_VULNERABILITIES_HISTORY_DAY_RANGE](state, DAYS.NINETY);
+
+      expect(state.vulnerabilitiesHistoryMaxDayInterval).toEqual(14);
+    });
+  });
+
   describe('SET_MODAL_DATA', () => {
     describe('with all the data', () => {
       const vulnerability = mockData[0];
@@ -217,7 +275,21 @@ describe('vulnerabilities module mutations', () => {
       });
 
       it('should set the modal file', () => {
-        expect(state.modal.data.file.value).toEqual(vulnerability.location.file);
+        expect(state.modal.data.file.value).toEqual(
+          `${vulnerability.location.file}:${vulnerability.location.start_line}`,
+        );
+      });
+
+      it('should set the modal className', () => {
+        expect(state.modal.data.className.value).toEqual(vulnerability.location.class);
+      });
+
+      it('should set the modal image', () => {
+        expect(state.modal.data.image.value).toEqual(vulnerability.location.image);
+      });
+
+      it('should set the modal namespace', () => {
+        expect(state.modal.data.namespace.value).toEqual(vulnerability.location.operating_system);
       });
 
       it('should set the modal identifiers', () => {
@@ -267,10 +339,31 @@ describe('vulnerabilities module mutations', () => {
       });
 
       it('should set hasIssue when the vulnerabilitiy has a related issue', () => {
-        const payload = { vulnerability: { ...vulnerability, issue_feedback: 'I am an issue' } };
+        const payload = {
+          vulnerability: {
+            ...vulnerability,
+            issue_feedback: {
+              issue_iid: 123,
+            },
+          },
+        };
         mutations[types.SET_MODAL_DATA](state, payload);
 
         expect(state.modal.vulnerability.hasIssue).toEqual(true);
+      });
+
+      it('should not set hasIssue when the issue_iid in null', () => {
+        const payload = {
+          vulnerability: {
+            ...vulnerability,
+            issue_feedback: {
+              issue_iid: null,
+            },
+          },
+        };
+        mutations[types.SET_MODAL_DATA](state, payload);
+
+        expect(state.modal.vulnerability.hasIssue).toEqual(false);
       });
 
       it('should nullify the modal links', () => {
@@ -339,6 +432,59 @@ describe('vulnerabilities module mutations', () => {
 
     it('should set the error state on the modal', () => {
       expect(state.modal.error).toEqual('There was an error creating the issue');
+    });
+  });
+
+  describe('REQUEST_CREATE_MERGE_REQUEST', () => {
+    let state;
+
+    beforeEach(() => {
+      state = createState();
+      mutations[types.REQUEST_CREATE_MERGE_REQUEST](state);
+    });
+
+    it('should set isCreatingMergeRequest to true', () => {
+      expect(state.isCreatingMergeRequest).toBe(true);
+    });
+
+    it('should set isCreatingMergeRequest in the modal data to true', () => {
+      expect(state.modal.isCreatingMergeRequest).toBe(true);
+    });
+
+    it('should nullify the error state on the modal', () => {
+      expect(state.modal.error).toBeNull();
+    });
+  });
+
+  describe('RECEIVE_CREATE_MERGE_REQUEST_SUCCESS', () => {
+    it('should fire the visitUrl function on the merge request URL', () => {
+      const state = createState();
+      const payload = { merge_request_path: 'fakepath.html' };
+      const visitUrl = spyOnDependency(mutations, 'visitUrl');
+      mutations[types.RECEIVE_CREATE_MERGE_REQUEST_SUCCESS](state, payload);
+
+      expect(visitUrl).toHaveBeenCalledWith(payload.merge_request_path);
+    });
+  });
+
+  describe('RECEIVE_CREATE_MERGE_REQUEST_ERROR', () => {
+    let state;
+
+    beforeEach(() => {
+      state = createState();
+      mutations[types.RECEIVE_CREATE_MERGE_REQUEST_ERROR](state);
+    });
+
+    it('should set isCreatingMergeRequest to false', () => {
+      expect(state.isCreatingMergeRequest).toBe(false);
+    });
+
+    it('should set isCreatingMergeRequest in the modal data to false', () => {
+      expect(state.modal.isCreatingMergeRequest).toBe(false);
+    });
+
+    it('should set the error state on the modal', () => {
+      expect(state.modal.error).toEqual('There was an error creating the merge request');
     });
   });
 

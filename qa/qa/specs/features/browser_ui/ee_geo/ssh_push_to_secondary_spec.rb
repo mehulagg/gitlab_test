@@ -49,7 +49,7 @@ module QA
               end
 
               # Ensure the SSH key has replicated
-              Page::Main::Menu.perform(&:go_to_profile_settings)
+              Page::Main::Menu.perform(&:click_settings_link)
               Page::Profile::Menu.perform do |menu|
                 menu.click_ssh_keys
                 menu.wait_for_key_to_replicate(key_title)
@@ -141,7 +141,7 @@ module QA
               end
 
               # Ensure the SSH key has replicated
-              Page::Main::Menu.perform(&:go_to_profile_settings)
+              Page::Main::Menu.perform(&:click_settings_link)
               Page::Profile::Menu.perform do |menu|
                 menu.click_ssh_keys
                 menu.wait_for_key_to_replicate(key_title)
@@ -177,7 +177,6 @@ module QA
               ssh_uri = project.repository_ssh_location.git_uri.to_s.gsub(%r{ssh://}, '')
               expect(push.output).to match(%r{GitLab: We'll help you by proxying this request to the primary: (?:ssh://)?#{ssh_uri}})
               expect(push.output).to match(/Locking support detected on remote "#{location.uri.to_s}"/)
-              expect(push.output).to match(%r{Uploading LFS objects: 100% \(2/2\)})
 
               # Validate git push worked and new content is visible
               Page::Project::Show.perform do |show|

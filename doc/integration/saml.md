@@ -1,5 +1,7 @@
 # SAML OmniAuth Provider
 
+> This topic is for SAML on self-managed GitLab instances. For SAML on GitLab.com, see [SAML SSO for GitLab.com Groups](../user/group/saml_sso/index.md).
+
 NOTE: **Note:**
 You need to [enable OmniAuth](omniauth.md) in order to use this.
 
@@ -320,7 +322,6 @@ If you want some SAML authentication methods to count as 2FA on a per session ba
     ```
 
 1. Save the file and [restart GitLab][] for the changes ot take effect
-
 
 In addition to the changes in GitLab, make sure that your Idp is returning the
 `AuthnContext`. For example:

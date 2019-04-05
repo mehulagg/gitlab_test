@@ -1,11 +1,12 @@
 <script>
 /* eslint-disable vue/require-default-prop */
+import { GlTooltipDirective, GlLink } from '@gitlab/ui';
 import { sprintf, __ } from '~/locale';
 import PipelineStage from '~/pipelines/components/stage.vue';
 import CiIcon from '~/vue_shared/components/ci_icon.vue';
 import Icon from '~/vue_shared/components/icon.vue';
 import TooltipOnTruncate from '~/vue_shared/components/tooltip_on_truncate.vue';
-import LinkedPipelinesMiniList from 'ee/vue_shared/components/linked_pipelines_mini_list.vue';
+import mrWidgetPipelineMixin from 'ee_else_ce/vue_merge_request_widget/mixins/mr_widget_pipeline';
 
 export default {
   name: 'MRWidgetPipeline',
@@ -14,8 +15,14 @@ export default {
     CiIcon,
     Icon,
     TooltipOnTruncate,
-    LinkedPipelinesMiniList,
+    GlLink,
+    LinkedPipelinesMiniList: () =>
+      import('ee_component/vue_shared/components/linked_pipelines_mini_list.vue'),
   },
+  directives: {
+    GlTooltip: GlTooltipDirective,
+  },
+  mixins: [mrWidgetPipelineMixin],
   props: {
     pipeline: {
       type: Object,
@@ -76,26 +83,20 @@ export default {
         false,
       );
     },
-    /* We typically set defaults ([]) in the store or prop declarations, but because triggered
-     * and triggeredBy are appended to `pipeline`, we can't set defaults in the store, and we
-     * need to check their length here to prevent initializing linked-pipeline-mini-lists
-     * unneccessarily. */
-    triggered() {
-      return this.pipeline.triggered || [];
+    isTriggeredByMergeRequest() {
+      return Boolean(this.pipeline.merge_request);
     },
-    triggeredBy() {
-      const response = this.pipeline.triggered_by;
-      return response ? [response] : [];
+    isMergeRequestPipeline() {
+      return Boolean(this.pipeline.flags && this.pipeline.flags.merge_request_pipeline);
     },
   },
 };
 </script>
 <template>
-  <div v-if="hasPipeline || hasCIError" class="ci-widget media">
+  <div v-if="hasPipeline || hasCIError" class="ci-widget media js-ci-widget">
     <template v-if="hasCIError">
       <div
-        class="add-border ci-status-icon ci-status-icon-failed ci-error
-        js-ci-error append-right-default"
+        class="add-border ci-status-icon ci-status-icon-failed ci-error js-ci-error append-right-default"
       >
         <icon :size="32" name="status_failed_borderless" />
       </div>
@@ -108,24 +109,58 @@ export default {
       <div class="ci-widget-container d-flex">
         <div class="ci-widget-content">
           <div class="media-body">
-            <div class="font-weight-bold">
-              Pipeline
-              <a :href="pipeline.path" class="pipeline-id font-weight-normal pipeline-number"
-                >#{{ pipeline.id }}</a
+            <div class="font-weight-bold js-pipeline-info-container">
+              {{ s__('Pipeline|Pipeline') }}
+              <gl-link :href="pipeline.path" class="pipeline-id font-weight-normal pipeline-number"
+                >#{{ pipeline.id }}</gl-link
               >
-
               {{ pipeline.details.status.label }}
-
               <template v-if="hasCommitInfo">
-                for
-                <a
+                {{ s__('Pipeline|for') }}
+                <gl-link
                   :href="pipeline.commit.commit_path"
                   class="commit-sha js-commit-link font-weight-normal"
+                  >{{ pipeline.commit.short_id }}</gl-link
                 >
-                  {{ pipeline.commit.short_id }}</a
-                >
-                on
+                {{ s__('Pipeline|on') }}
+                <template v-if="isTriggeredByMergeRequest">
+                  <gl-link
+                    v-gl-tooltip
+                    :href="pipeline.merge_request.path"
+                    :title="pipeline.merge_request.title"
+                    class="font-weight-normal"
+                    >!{{ pipeline.merge_request.iid }}</gl-link
+                  >
+                  {{ s__('Pipeline|with') }}
+                  <tooltip-on-truncate
+                    :title="pipeline.merge_request.source_branch"
+                    truncate-target="child"
+                    class="label-branch label-truncate"
+                  >
+                    <gl-link
+                      :href="pipeline.merge_request.source_branch_path"
+                      class="font-weight-normal"
+                      >{{ pipeline.merge_request.source_branch }}</gl-link
+                    >
+                  </tooltip-on-truncate>
+
+                  <template v-if="isMergeRequestPipeline">
+                    {{ s__('Pipeline|into') }}
+                    <tooltip-on-truncate
+                      :title="pipeline.merge_request.target_branch"
+                      truncate-target="child"
+                      class="label-branch label-truncate"
+                    >
+                      <gl-link
+                        :href="pipeline.merge_request.target_branch_path"
+                        class="font-weight-normal"
+                        >{{ pipeline.merge_request.target_branch }}</gl-link
+                      >
+                    </tooltip-on-truncate>
+                  </template>
+                </template>
                 <tooltip-on-truncate
+                  v-else
                   :title="sourceBranch"
                   truncate-target="child"
                   class="label-branch label-truncate"
@@ -133,7 +168,9 @@ export default {
                 />
               </template>
             </div>
-            <div v-if="pipeline.coverage" class="coverage">Coverage {{ pipeline.coverage }}%</div>
+            <div v-if="pipeline.coverage" class="coverage">
+              {{ s__('Pipeline|Coverage') }} {{ pipeline.coverage }}%
+            </div>
           </div>
         </div>
         <div>
@@ -145,10 +182,9 @@ export default {
                   v-for="(stage, i) in pipeline.details.stages"
                   :key="i"
                   :class="{
-                    'has-downstream': i === pipeline.details.stages.length - 1 && triggered.length,
+                    'has-downstream': hasDownstream(i),
                   }"
-                  class="stage-container dropdown js-mini-pipeline-graph
-                  mr-widget-pipeline-stages"
+                  class="stage-container dropdown js-mini-pipeline-graph mr-widget-pipeline-stages"
                 >
                   <pipeline-stage :stage="stage" />
                 </div>

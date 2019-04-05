@@ -37,10 +37,18 @@ describe Notify do
 
   context 'for a project' do
     context 'for service desk issues' do
+      before do
+        issue.update!(service_desk_reply_to: 'service.desk@example.com')
+      end
+
       describe 'thank you email' do
         subject { described_class.service_desk_thank_you_email(issue.id) }
 
         it_behaves_like 'an unsubscribeable thread'
+
+        it 'has the correct recipient' do
+          is_expected.to deliver_to('service.desk@example.com')
+        end
 
         it 'has the correct subject and body' do
           aggregate_failures do
@@ -56,6 +64,10 @@ describe Notify do
         subject { described_class.service_desk_new_note_email(issue.id, first_note.id) }
 
         it_behaves_like 'an unsubscribeable thread'
+
+        it 'has the correct recipient' do
+          is_expected.to deliver_to('service.desk@example.com')
+        end
 
         it 'has the correct subject and body' do
           aggregate_failures do
@@ -266,8 +278,8 @@ describe Notify do
   end
 
   describe 'merge request reviews' do
-    let(:review) { create(:review, project: project, merge_request: merge_request) }
-    let(:notes) { create_list(:notes, 3, review: review, project: project, author: review.author, noteable: merge_request) }
+    let!(:review) { create(:review, project: project, merge_request: merge_request) }
+    let!(:notes) { create_list(:note, 3, review: review, project: project, author: review.author, noteable: merge_request) }
 
     subject { described_class.new_review_email(recipient.id, review.id) }
 
@@ -290,6 +302,19 @@ describe Notify do
     it 'contains the message from the notes of the review' do
       review.notes.each do |note|
         is_expected.to have_body_text note.note
+      end
+    end
+
+    context 'when diff note' do
+      let!(:notes) { create_list(:diff_note_on_merge_request, 3, review: review, project: project, author: review.author, noteable: merge_request) }
+
+      it 'links to notes' do
+        review.notes.each do |note|
+          # Text part
+          expect(subject.text_part.body.raw_source).to include(
+            project_merge_request_url(project, merge_request, anchor: "note_#{note.id}")
+          )
+        end
       end
     end
 

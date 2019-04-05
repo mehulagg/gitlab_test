@@ -6,6 +6,7 @@ module Groups
 
     def execute
       reject_parent_id!
+      remove_unallowed_params
 
       return false unless valid_visibility_level_change?(group, params[:visibility_level])
 
@@ -31,7 +32,7 @@ module Groups
     private
 
     def before_assignment_hook(group, params)
-      # overriden in EE
+      # overridden in EE
     end
 
     def after_update

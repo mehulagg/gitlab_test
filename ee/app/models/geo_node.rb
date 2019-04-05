@@ -1,14 +1,15 @@
 # frozen_string_literal: true
 
-class GeoNode < ActiveRecord::Base
+class GeoNode < ApplicationRecord
   include Presentable
+  include Geo::SelectiveSync
 
   SELECTIVE_SYNC_TYPES = %w[namespaces shards].freeze
 
   # Array of repository storages to synchronize for selective sync by shards
   serialize :selective_sync_shards, Array # rubocop:disable Cop/ActiveRecordSerialize
 
-  belongs_to :oauth_application, class_name: 'Doorkeeper::Application', dependent: :destroy # rubocop: disable Cop/ActiveRecordDependent
+  belongs_to :oauth_application, class_name: 'Doorkeeper::Application', dependent: :destroy, autosave: true # rubocop: disable Cop/ActiveRecordDependent
 
   has_many :geo_node_namespace_links
   has_many :namespaces, through: :geo_node_namespace_links
@@ -18,7 +19,8 @@ class GeoNode < ActiveRecord::Base
                  primary: false
 
   validates :url, presence: true, uniqueness: { case_sensitive: false }
-  validate :check_url_is_valid
+  validate :url_is_http
+  validate :alternate_url_is_http
 
   validates :primary, uniqueness: { message: 'node already exists' }, if: :primary
   validates :enabled, if: :primary, acceptance: { message: 'Geo primary node cannot be disabled' }
@@ -121,22 +123,31 @@ class GeoNode < ActiveRecord::Base
   end
 
   def url
-    value = read_attribute(:url)
-    value += '/' if value.present? && !value.end_with?('/')
-
-    value
+    read_with_ending_slash(:url)
   end
 
   def url=(value)
-    value += '/' if value.present? && !value.end_with?('/')
-
-    write_attribute(:url, value)
+    write_with_ending_slash(:url, value)
 
     @uri = nil
   end
 
+  def alternate_url
+    read_with_ending_slash(:alternate_url)
+  end
+
+  def alternate_url=(value)
+    write_with_ending_slash(:alternate_url, value)
+
+    @alternate_uri = nil
+  end
+
   def uri
     @uri ||= URI.parse(url) if url.present?
+  end
+
+  def alternate_uri
+    @alternate_uri ||= URI.parse(alternate_url) if alternate_url.present?
   end
 
   def geo_transfers_url(file_type, file_id)
@@ -149,13 +160,19 @@ class GeoNode < ActiveRecord::Base
 
   def snapshot_url(repository)
     url = api_url("projects/#{repository.project.id}/snapshot")
-    url += "?wiki=1" if repository.is_wiki
+    url += "?wiki=1" if repository.repo_type.wiki?
 
     url
   end
 
   def oauth_callback_url
     Gitlab::Routing.url_helpers.oauth_geo_callback_url(url_helper_args)
+  end
+
+  def alternate_oauth_callback_url
+    return unless alternate_url.present?
+
+    Gitlab::Routing.url_helpers.oauth_geo_callback_url(alternate_url_helper_args)
   end
 
   def oauth_logout_url(state)
@@ -197,22 +214,10 @@ class GeoNode < ActiveRecord::Base
     end
   end
 
-  def selective_sync_by_namespaces?
-    selective_sync_type == 'namespaces'
-  end
-
-  def selective_sync_by_shards?
-    selective_sync_type == 'shards'
-  end
-
   def projects_include?(project_id)
     return true unless selective_sync?
 
     projects.where(id: project_id).exists?
-  end
-
-  def selective_sync?
-    selective_sync_type.present?
   end
 
   def replication_slots_count
@@ -257,7 +262,15 @@ class GeoNode < ActiveRecord::Base
   end
 
   def url_helper_args
-    { protocol: uri.scheme, host: uri.host, port: uri.port, script_name: uri.path }
+    url_helper_options(uri)
+  end
+
+  def alternate_url_helper_args
+    url_helper_options(alternate_uri)
+  end
+
+  def url_helper_options(given_uri)
+    { protocol: given_uri.scheme, host: given_uri.host, port: given_uri.port, script_name: given_uri.path }
   end
 
   def update_dependents_attributes
@@ -276,12 +289,22 @@ class GeoNode < ActiveRecord::Base
     end
   end
 
-  def check_url_is_valid
-    if uri.present? && !%w[http https].include?(uri.scheme)
-      errors.add(:url, 'scheme must be http or https')
+  def url_is_http
+    url_is_http_for(:url, uri)
+  end
+
+  def alternate_url_is_http
+    url_is_http_for(:alternate_url, alternate_uri)
+  end
+
+  def url_is_http_for(attribute, uri_value)
+    return unless uri_value
+
+    unless %w[http https].include?(uri_value.scheme)
+      errors.add(attribute, 'scheme must be http or https')
     end
   rescue URI::InvalidURIError
-    errors.add(:url, 'is invalid')
+    errors.add(attribute, 'is not a valid URI')
   end
 
   def update_clone_url
@@ -291,10 +314,29 @@ class GeoNode < ActiveRecord::Base
   def update_oauth_application!
     self.build_oauth_application if oauth_application.nil?
     self.oauth_application.name = "Geo node: #{self.url}"
-    self.oauth_application.redirect_uri = oauth_callback_url
+    self.oauth_application.redirect_uri = [oauth_callback_url, alternate_oauth_callback_url].compact.join("\n")
   end
 
   def expire_cache!
     Gitlab::Geo.expire_cache!
+  end
+
+  def read_with_ending_slash(attribute)
+    value = read_attribute(attribute)
+
+    add_ending_slash(value)
+  end
+
+  def write_with_ending_slash(attribute, value)
+    value = add_ending_slash(value)
+
+    write_attribute(attribute, value)
+  end
+
+  def add_ending_slash(value)
+    return value if value.blank?
+    return value if value.end_with?('/')
+
+    "#{value}/"
   end
 end

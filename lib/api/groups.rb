@@ -20,17 +20,20 @@ module API
         optional :share_with_group_lock, type: Boolean, desc: 'Prevent sharing a project with another group within this group'
       end
 
-      params :optional_params_ee do
-        optional :membership_lock, type: Boolean, desc: 'Prevent adding new members to project membership within this group'
-        optional :ldap_cn, type: String, desc: 'LDAP Common Name'
-        optional :ldap_access, type: Integer, desc: 'A valid access level'
-        optional :shared_runners_minutes_limit, type: Integer, desc: '(admin-only) Pipeline minutes quota for this group'
-        all_or_none_of :ldap_cn, :ldap_access
+      if Gitlab.ee?
+        params :optional_params_ee do
+          optional :membership_lock, type: Boolean, desc: 'Prevent adding new members to project membership within this group'
+          optional :ldap_cn, type: String, desc: 'LDAP Common Name'
+          optional :ldap_access, type: Integer, desc: 'A valid access level'
+          optional :shared_runners_minutes_limit, type: Integer, desc: '(admin-only) Pipeline minutes quota for this group'
+          optional :extra_shared_runners_minutes_limit, type: Integer, desc: '(admin-only) Extra pipeline minutes quota for this group'
+          all_or_none_of :ldap_cn, :ldap_access
+        end
       end
 
       params :optional_params do
         use :optional_params_ce
-        use :optional_params_ee
+        use :optional_params_ee if Gitlab.ee?
       end
 
       params :statistics_params do
@@ -57,8 +60,6 @@ module API
           find_params.fetch(:all_available, current_user&.full_private_access?)
 
         groups = GroupsFinder.new(current_user, find_params).execute
-        # EE-only
-        groups = groups.preload(:ldap_group_links)
         groups = groups.search(params[:search]) if params[:search].present?
         groups = groups.where.not(id: params[:skip_groups]) if params[:skip_groups].present?
         order_options = { params[:order_by] => params[:sort] }
@@ -68,6 +69,22 @@ module API
         groups
       end
       # rubocop: enable CodeReuse/ActiveRecord
+
+      def create_group
+        # This is a separate method so that EE can extend its behaviour, without
+        # having to modify this code directly.
+        ::Groups::CreateService
+          .new(current_user, declared_params(include_missing: false))
+          .execute
+      end
+
+      def update_group(group)
+        # This is a separate method so that EE can extend its behaviour, without
+        # having to modify this code directly.
+        ::Groups::UpdateService
+          .new(group, current_user, declared_params(include_missing: false))
+          .execute
+      end
 
       def find_group_projects(params)
         group = find_group!(params[:id])
@@ -138,25 +155,9 @@ module API
           authorize! :create_group
         end
 
-        ldap_link_attrs = {
-          cn: params.delete(:ldap_cn),
-          group_access: params.delete(:ldap_access)
-        }
-
-        # EE
-        authenticated_as_admin! if params[:shared_runners_minutes_limit]
-
-        group = ::Groups::CreateService.new(current_user, declared_params(include_missing: false)).execute
+        group = create_group
 
         if group.persisted?
-          # NOTE: add backwards compatibility for single ldap link
-          if ldap_link_attrs[:cn].present?
-            group.ldap_group_links.create(
-              cn: ldap_link_attrs[:cn],
-              group_access: ldap_link_attrs[:group_access]
-            )
-          end
-
           present group, with: Entities::GroupDetail, current_user: current_user
         else
           render_api_error!("Failed to save group #{group.errors.messages}", 400)
@@ -176,25 +177,15 @@ module API
         optional :path, type: String, desc: 'The path of the group'
         use :optional_params
 
-        # EE
-        optional :file_template_project_id, type: Integer, desc: 'The ID of a project to use for custom templates in this group'
+        if Gitlab.ee?
+          optional :file_template_project_id, type: Integer, desc: 'The ID of a project to use for custom templates in this group'
+        end
       end
       put ':id' do
         group = find_group!(params[:id])
         authorize! :admin_group, group
 
-        # Begin EE-specific block
-        if params[:shared_runners_minutes_limit].present? &&
-            group.shared_runners_minutes_limit.to_i !=
-                params[:shared_runners_minutes_limit].to_i
-          authenticated_as_admin!
-        end
-
-        params.delete(:file_template_project_id) unless
-          group.feature_available?(:custom_file_templates_for_namespace)
-        # End EE-specific block
-
-        if ::Groups::UpdateService.new(group, current_user, declared_params(include_missing: false)).execute
+        if update_group(group)
           present group, with: Entities::GroupDetail, current_user: current_user
         else
           render_validation_error!(group)
@@ -223,8 +214,6 @@ module API
 
       desc 'Remove a group.'
       delete ":id" do
-        Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ee/issues/4795')
-
         group = find_group!(params[:id])
         authorize! :admin_group, group
 
@@ -303,20 +292,8 @@ module API
           render_api_error!("Failed to transfer project #{project.errors.messages}", 400)
         end
       end
-
-      desc 'Sync a group with LDAP.'
-      post ":id/ldap_sync" do
-        not_found! unless Gitlab::Auth::LDAP::Config.group_sync_enabled?
-
-        group = find_group!(params[:id])
-        authorize! :admin_group, group
-
-        if group.pending_ldap_sync
-          LdapGroupSyncWorker.perform_async(group.id)
-        end
-
-        status 202
-      end
     end
   end
 end
+
+API::Groups.prepend(EE::API::Groups)

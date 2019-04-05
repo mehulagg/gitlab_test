@@ -130,6 +130,54 @@ describe Groups::UpdateService, '#execute' do
     end
   end
 
+  context 'repository_size_limit assignment as Bytes' do
+    let(:group) { create(:group, :public, repository_size_limit: 0) }
+
+    context 'when param present' do
+      let(:opts) { { repository_size_limit: '100' } }
+
+      it 'converts from MB to Bytes' do
+        update_group(group, user, opts)
+
+        expect(group.reload.repository_size_limit).to eql(100 * 1024 * 1024)
+      end
+    end
+
+    context 'when param not present' do
+      let(:opts) { { repository_size_limit: '' } }
+
+      it 'assign nil value' do
+        update_group(group, user, opts)
+
+        expect(group.reload.repository_size_limit).to be_nil
+      end
+    end
+  end
+
+  context 'updating protected params' do
+    let(:attrs) { { shared_runners_minutes_limit: 1000, extra_shared_runners_minutes_limit: 100 } }
+
+    context 'as an admin' do
+      let(:user) { create(:admin) }
+
+      it 'updates the attributes' do
+        update_group(group, user, attrs)
+
+        expect(group.shared_runners_minutes_limit).to eq(1000)
+        expect(group.extra_shared_runners_minutes_limit).to eq(100)
+      end
+    end
+
+    context 'as a regular user' do
+      it 'ignores the attributes' do
+        update_group(group, user, attrs)
+
+        expect(group.shared_runners_minutes_limit).to be_nil
+        expect(group.extra_shared_runners_minutes_limit).to be_nil
+      end
+    end
+  end
+
   def update_group(group, user, opts)
     Groups::UpdateService.new(group, user, opts).execute
   end

@@ -13,6 +13,7 @@ module EE
       include Awardable
       include LabelEventable
       include Descendant
+      include RelativePositioning
 
       enum state: { opened: 1, closed: 2 }
 
@@ -44,6 +45,11 @@ module EE
 
       validates :group, presence: true
 
+      alias_attribute :parent_ids, :parent_id
+
+      scope :in_parents, -> (parent_ids) { where(parent_id: parent_ids) }
+      scope :inc_group, -> { includes(:group) }
+
       scope :order_start_or_end_date_asc, -> do
         # mysql returns null values first in opposite to postgres which
         # returns them last by default
@@ -66,6 +72,12 @@ module EE
       scope :order_start_date_desc, -> do
         reorder(::Gitlab::Database.nulls_last_order('start_date', 'DESC'), 'id DESC')
       end
+
+      scope :order_relative_position, -> do
+        reorder('relative_position ASC', 'id DESC')
+      end
+
+      scope :with_api_entity_associations, -> { preload(:author, :labels, :group) }
 
       def etag_caching_enabled?
         true
@@ -118,6 +130,7 @@ module EE
         when 'start_date_desc' then order_start_date_desc
         when 'end_date_asc' then order_end_date_asc
         when 'end_date_desc' then order_end_date_desc
+        when 'relative_position' then order_relative_position
         else
           super
         end
@@ -125,6 +138,11 @@ module EE
 
       def parent_class
         ::Group
+      end
+
+      # Column name used by RelativePositioning for scoping. This is not related to `parent_class` above.
+      def parent_column
+        :parent_id
       end
 
       # Return the deepest relation level for an epic.
@@ -142,7 +160,7 @@ module EE
         return unless ::Group.supports_nested_objects?
 
         result =
-          ActiveRecord::Base.connection.execute(
+          ApplicationRecord.connection.execute(
             <<-SQL
               WITH RECURSIVE descendants AS (
                   SELECT id, 1 depth
@@ -265,11 +283,15 @@ module EE
     def ancestors
       return self.class.none unless parent_id
 
-      hierarchy.ancestors
+      hierarchy.ancestors(hierarchy_order: :asc)
     end
 
     def descendants
       hierarchy.descendants
+    end
+
+    def has_ancestor?(epic)
+      ancestors.exists?(epic)
     end
 
     def hierarchy

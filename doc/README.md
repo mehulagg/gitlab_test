@@ -38,6 +38,7 @@ Have a look at some of our most popular documentation resources:
 | [GitLab CI/CD examples](ci/examples/README.md)                  | Get up to speed quickly with common CI/CD scenarios.             |
 | [GitLab Container Registry](user/project/container_registry.md) | Host containers within GitLab.                                   |
 | [GitLab Pages](user/project/pages/index.md)                     | Host static websites for your projects with GitLab.              |
+| [GitLab.com settings](user/gitlab_com/index.md)                 | Settings for [GitLab.com](#gitlabcom).                           |
 | [Kubernetes integration](user/project/clusters/index.md)        | Use GitLab with Kubernetes.                                      |
 | [SSH authentication](ssh/README.md)                             | Secure your network communications.                              |
 | [Using Docker images](ci/docker/using_docker_images.md)         | Build and test your applications with Docker.                    |
@@ -236,7 +237,7 @@ The following documentation relates to the DevOps **Verify** stage:
 | [GitLab CI/CD](ci/README.md)                                                      | Explore the features and capabilities of Continuous Integration with GitLab.                            |
 | [JUnit test reports](ci/junit_test_reports.md)                                    | Display JUnit test reports on merge requests.                                                           |
 | [Multi-project pipelines](ci/multi_project_pipelines.md) **[PREMIUM]**            | Visualize entire pipelines that span multiple projects, including all cross-project inter-dependencies. |
-| [Pipeline Graphs](ci/pipelines.md#pipeline-graphs)                                | Visualize builds.                                                                                       |
+| [Pipeline Graphs](ci/pipelines.md#visualizing-pipelines)                          | Visualize builds.                                                                                       |
 | [Review Apps](ci/review_apps/index.md)                                            | Preview changes to your application right from a merge request.                                         |
 
 <div align="right">
@@ -278,7 +279,7 @@ The following documentation relates to the DevOps **Release** stage:
 | [Canary Deployments](user/project/canary_deployments.md) **[PREMIUM]**                                          | Employ a popular CI strategy where a small portion of the fleet is updated to the new version first.                                  |
 | [Deploy Boards](user/project/deploy_boards.md) **[PREMIUM]**                                                    | View the current health and status of each CI environment running on Kubernetes, displaying the status of the pods in the deployment. |
 | [Environments and deployments](ci/environments.md)                                                              | With environments, you can control the continuous deployment of your software within GitLab.                                          |
-| [Environment-specific variables](ci/variables/README.md#limiting-environment-scopes-of-variables) **[PREMIUM]** | Limit scope of variables to specific environments.                                                                                    |
+| [Environment-specific variables](ci/variables/README.md#limiting-environment-scopes-of-variables-premium) **[PREMIUM]** | Limit scope of variables to specific environments.                                                                                    |
 | [GitLab CI/CD](ci/README.md)                                                                                    | Explore the features and capabilities of Continuous Deployment and Delivery with GitLab.                                              |
 | [GitLab Pages](user/project/pages/index.md)                                                                     | Build, test, and deploy a static site directly from GitLab.                                                                           |
 | [Protected Runners](ci/runners/README.md#protected-runners)                                                     | Select Runners to only pick jobs for protected branches and tags.                                                                     |
@@ -303,11 +304,12 @@ The following documentation relates to the DevOps **Configure** stage:
 | [Auto DevOps](topics/autodevops/index.md)                                                                                          | Automatically employ a complete DevOps lifecycle.                         |
 | [Easy creation of Kubernetes<br/>clusters on GKE](user/project/clusters/index.md#adding-and-creating-a-new-gke-cluster-via-gitlab) | Use Google Kubernetes Engine and GitLab.                                  |
 | [Executable Runbooks](user/project/clusters/runbooks/index.md)                                                                     | Documented procedures that explain how to carry out particular processes. |
-| [GitLab ChatOps](ci/chatops/README.md) **[ULTIMATE]**                                                                              | Interact with CI/CD jobs through chat services.                           |
+| [GitLab ChatOps](ci/chatops/README.md)                                                                                             | Interact with CI/CD jobs through chat services.                           |
 | [Installing Applications](user/project/clusters/index.md#installing-applications)                                                  | Deploy Helm, Ingress, and Prometheus on Kubernetes.                       |
 | [Mattermost slash commands](user/project/integrations/mattermost_slash_commands.md)                                                | Enable and use slash commands from within Mattermost.                     |
-| [Multiple Kubernetes Clusters](user/project/clusters/index.md#multiple-kubernetes-clusters) **[PREMIUM]**                          | Associate more than one Kubernetes clusters to your project.              |
+| [Multiple Kubernetes Clusters](user/project/clusters/index.md#multiple-kubernetes-clusters-premium) **[PREMIUM]**                  | Associate more than one Kubernetes clusters to your project.              |
 | [Protected variables](ci/variables/README.md#protected-variables)                                                                  | Restrict variables to protected branches and tags.                        |
+| [Serverless](user/project/clusters/serverless/index.md)                                                                            | Run serverless workloads on Kubernetes.                                   |
 | [Slack slash commands](user/project/integrations/slack_slash_commands.md)                                                          | Enable and use slash commands from within Slack.                          |
 
 <div align="right">
@@ -364,8 +366,10 @@ The following documentation relates to the DevOps **Secure** stage:
 There are two ways to use GitLab:
 
 - [GitLab self-managed](#gitlab-self-managed): Install, administer, and maintain your own GitLab instance.
-- [GitLab.com](#gitlab-com): GitLab's SaaS offering. You don't need to install anything to use GitLab.com,
+- [GitLab.com](#gitlabcom): GitLab's SaaS offering. You don't need to install anything to use GitLab.com,
   you only need to [sign up](https://gitlab.com/users/sign_in) and start using GitLab straight away.
+
+For more information on managing your subscription and [Customers Portal](https://customers.gitlab.com) account, please see [Getting Started with Subscriptions](getting-started/subscription.md).
 
 The following sections outline tiers and features within GitLab self-managed and GitLab.com.
 
@@ -417,6 +421,12 @@ and teams in the following tiers:
 GitLab.com subscriptions grant access
 to the same features available in GitLab self-managed, **except
 [administration](administration/index.md) tools and settings**.
+
+GitLab.com allows you to apply your subscription to a group or your personal user.
+
+When applied to a **group**, the group, all subgroups, and all projects under the selected group on GitLab.com will have the features of the associated plan. It is recommended to go with a group plan when managing projects and users of an organization.
+
+When associated with a **personal userspace** instead, all projects will have features with the subscription applied, but as it is not a group, group features will not be available.
 
 TIP: **Tip:**
 To support the open source community and encourage the development of open source projects, GitLab grants access to **Gold** features for all GitLab.com **public** projects, regardless of the subscription.

@@ -52,15 +52,15 @@ describe('Security Dashboard Table Row', () => {
     });
 
     it('should render the severity', () => {
-      expect(vm.$el.querySelectorAll('.table-mobile-content')[0].textContent).toContain(
-        props.vulnerability.severity,
-      );
+      expect(
+        vm.$el.querySelectorAll('.table-mobile-content')[0].textContent.toLowerCase(),
+      ).toContain(props.vulnerability.severity);
     });
 
     it('should render the confidence', () => {
-      expect(vm.$el.querySelectorAll('.table-mobile-content')[2].textContent).toContain(
-        props.vulnerability.confidence,
-      );
+      expect(
+        vm.$el.querySelectorAll('.table-mobile-content')[2].textContent.toLowerCase(),
+      ).toContain(props.vulnerability.confidence);
     });
 
     describe('the project name', () => {
@@ -106,6 +106,57 @@ describe('Security Dashboard Table Row', () => {
 
     it('should render a `DISMISSED` tag', () => {
       expect(vm.$el.textContent).toContain('DISMISSED');
+    });
+  });
+
+  describe('with valid issue feedback', () => {
+    const vulnerability = mockDataVulnerabilities[3];
+
+    beforeEach(() => {
+      props = { vulnerability };
+      vm = mountComponentWithStore(Component, { store, props });
+    });
+
+    afterEach(() => {
+      vm.$destroy();
+    });
+
+    it('should have a `ic-issue-created` class', () => {
+      expect(vm.$el.querySelectorAll('.ic-issue-created')).toHaveLength(1);
+    });
+  });
+
+  describe('with invalid issue feedback', () => {
+    const vulnerability = mockDataVulnerabilities[6];
+
+    beforeEach(() => {
+      props = { vulnerability };
+      vm = mountComponentWithStore(Component, { store, props });
+    });
+
+    afterEach(() => {
+      vm.$destroy();
+    });
+
+    it('should not have a `ic-issue-created` class', () => {
+      expect(vm.$el.querySelectorAll('.ic-issue-created')).toHaveLength(0);
+    });
+  });
+
+  describe('with no issue feedback', () => {
+    const vulnerability = mockDataVulnerabilities[0];
+
+    beforeEach(() => {
+      props = { vulnerability };
+      vm = mountComponentWithStore(Component, { store, props });
+    });
+
+    afterEach(() => {
+      vm.$destroy();
+    });
+
+    it('should not have a `ic-issue-created` class', () => {
+      expect(vm.$el.querySelectorAll('.ic-issue-created')).toHaveLength(0);
     });
   });
 });

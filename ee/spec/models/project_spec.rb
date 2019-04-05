@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Project do
+  include ProjectForksHelper
   include ExternalAuthorizationServiceHelpers
   include ::EE::GeoHelpers
   using RSpec::Parameterized::TableSyntax
@@ -30,6 +33,29 @@ describe Project do
     it { is_expected.to have_many(:approver_groups).dependent(:destroy) }
     it { is_expected.to have_many(:packages).class_name('Packages::Package') }
     it { is_expected.to have_many(:package_files).class_name('Packages::PackageFile') }
+
+    it { is_expected.to have_one(:github_service) }
+  end
+
+  context 'scopes' do
+    describe '.requiring_code_owner_approval' do
+      it 'only includes the right projects' do
+        create(:project)
+        expected_project = create(:project, merge_requests_require_code_owner_approval: true)
+
+        expect(described_class.requiring_code_owner_approval).to contain_exactly(expected_project)
+      end
+    end
+
+    describe '.with_wiki_enabled' do
+      it 'returns a project' do
+        project = create(:project_empty_repo, wiki_access_level: ProjectFeature::ENABLED)
+        project1 = create(:project, wiki_access_level: ProjectFeature::DISABLED)
+
+        expect(described_class.with_wiki_enabled).to include(project)
+        expect(described_class.with_wiki_enabled).not_to include(project1)
+      end
+    end
   end
 
   describe 'validations' do
@@ -55,6 +81,36 @@ describe Project do
       context 'with same variable keys and different environment scope' do
         it { expect(project).to be_valid }
       end
+    end
+
+    context '#mark_stuck_remote_mirrors_as_failed!' do
+      it 'fails stuck remote mirrors' do
+        project = create(:project, :repository, :remote_mirror)
+
+        project.remote_mirrors.first.update(
+          update_status: :started,
+          last_update_at: 2.days.ago
+        )
+
+        expect do
+          project.mark_stuck_remote_mirrors_as_failed!
+        end.to change { project.remote_mirrors.stuck.count }.from(1).to(0)
+      end
+    end
+
+    context 'mirror' do
+      subject { build(:project, mirror: true) }
+
+      it { is_expected.to validate_presence_of(:import_url) }
+      it { is_expected.to validate_presence_of(:mirror_user) }
+    end
+
+    it 'creates import state when mirror gets enabled' do
+      project2 = create(:project)
+
+      expect do
+        project2.update(mirror: true, import_url: generate(:url), mirror_user: project.creator)
+      end.to change { ProjectImportState.where(project: project2).count }.from(0).to(1)
     end
   end
 
@@ -194,7 +250,7 @@ describe Project do
 
           it 'returns variables from this service' do
             expect(project.deployment_variables(environment: 'review/name'))
-              .to include(key: 'KUBE_TOKEN', value: 'review-AAA', public: false)
+              .to include(key: 'KUBE_TOKEN', value: 'review-AAA', public: false, masked: true)
           end
         end
 
@@ -203,7 +259,7 @@ describe Project do
 
           it 'returns variables from this service' do
             expect(project.deployment_variables(environment: 'staging/name'))
-              .to include(key: 'KUBE_TOKEN', value: 'default-AAA', public: false)
+              .to include(key: 'KUBE_TOKEN', value: 'default-AAA', public: false, masked: true)
           end
         end
       end
@@ -311,6 +367,12 @@ describe Project do
     it "returns false" do
       project.namespace.update(share_with_group_lock: true)
       expect(project.allowed_to_share_with_group?).to be_falsey
+    end
+  end
+
+  describe '#beta_feature_available?' do
+    it_behaves_like 'an entity with beta feature support' do
+      let(:entity) { create(:project) }
     end
   end
 
@@ -941,6 +1003,94 @@ describe Project do
       end
 
       it { is_expected.to eq(expected) }
+    end
+  end
+
+  describe '#visible_regular_approval_rules' do
+    let(:project) { create(:project) }
+    let!(:approval_rules) { create_list(:approval_project_rule, 2, project: project) }
+
+    before do
+      stub_licensed_features(multiple_approval_rules: true)
+    end
+
+    it 'returns all approval rules' do
+      expect(project.visible_regular_approval_rules).to contain_exactly(*approval_rules)
+    end
+
+    context 'when multiple approval rules is not available' do
+      before do
+        stub_licensed_features(multiple_approval_rules: false)
+      end
+
+      it 'returns the first approval rule' do
+        expect(project.visible_regular_approval_rules).to contain_exactly(approval_rules.first)
+      end
+    end
+
+    context 'when approval rules are disabled' do
+      before do
+        stub_feature_flags(approval_rules: false)
+      end
+
+      it 'does not return any approval rules' do
+        expect(project.visible_regular_approval_rules).to be_empty
+      end
+    end
+  end
+
+  describe '#min_fallback_approvals' do
+    let(:project) { create(:project, approvals_before_merge: 1) }
+
+    it 'returns approvals before merge if there are no rules' do
+      expect(project.min_fallback_approvals).to eq(1)
+    end
+
+    context 'when approval rules are present' do
+      before do
+        create(:approval_project_rule, project: project, approvals_required: 2)
+        create(:approval_project_rule, project: project, approvals_required: 3)
+
+        stub_licensed_features(multiple_approval_rules: true)
+      end
+
+      it 'returns the maximum requirement' do
+        expect(project.min_fallback_approvals).to eq(3)
+      end
+
+      it 'returns the first rule requirement if there is a rule' do
+        stub_licensed_features(multiple_approval_rules: false)
+
+        expect(project.min_fallback_approvals).to eq(2)
+      end
+
+      it 'returns approvals before merge when code owner rules is disabled' do
+        stub_feature_flags(approval_rules: false)
+
+        expect(project.min_fallback_approvals).to eq(1)
+      end
+    end
+  end
+
+  describe '#merge_requests_require_code_owner_approval?' do
+    let(:project) { build(:project) }
+
+    where(:feature_available, :feature_enabled, :approval_required) do
+      true  | true  | true
+      false | true  | false
+      true  | false | false
+      true  | nil   | false
+    end
+
+    with_them do
+      before do
+        stub_licensed_features(code_owner_approval_required: feature_available)
+        project.merge_requests_require_code_owner_approval = feature_enabled
+      end
+
+      it 'requires code owner approval when needed' do
+        expect(project.merge_requests_require_code_owner_approval?).to eq(approval_required)
+      end
     end
   end
 
@@ -1579,6 +1729,469 @@ describe Project do
       expect(project.namespace).to receive(:store_security_reports_available?).once.and_call_original
 
       subject
+    end
+  end
+
+  describe '#has_pool_repository?' do
+    it 'returns false when there is no pool repository' do
+      project = create(:project)
+
+      expect(project.has_pool_repository?).to be false
+    end
+
+    it 'returns true when there is a pool repository' do
+      pool = create(:pool_repository, :ready)
+      project = create(:project, pool_repository: pool)
+
+      expect(project.has_pool_repository?).to be true
+    end
+  end
+
+  describe '#link_pool_repository' do
+    let(:project) { create(:project, :repository) }
+
+    subject  { project.link_pool_repository }
+
+    it 'logs geo event' do
+      expect(project.repository).to receive(:log_geo_updated_event)
+
+      subject
+    end
+  end
+
+  describe '#object_pool_missing?' do
+    let(:pool) { create(:pool_repository, :ready) }
+    subject { create(:project, :repository, pool_repository: pool) }
+
+    it 'returns true when object pool is missing' do
+      allow(pool.object_pool).to receive(:exists?).and_return(false)
+
+      expect(subject.object_pool_missing?).to be true
+    end
+
+    it "returns false when pool repository doesnt't exist" do
+      allow(subject).to receive(:has_pool_repository?).and_return(false)
+
+      expect(subject.object_pool_missing?).to be false
+    end
+
+    it 'returns false when object pool exists' do
+      expect(subject.object_pool_missing?).to be false
+    end
+  end
+
+  describe '#merge_pipelines_enabled?' do
+    subject { project.merge_pipelines_enabled? }
+
+    let(:project) { create(:project) }
+    let(:merge_pipelines_enabled) { true }
+
+    before do
+      project.merge_pipelines_enabled = merge_pipelines_enabled
+    end
+
+    context 'when Merge pipelines (EEP) is available' do
+      before do
+        stub_licensed_features(merge_pipelines: true)
+      end
+
+      it { is_expected.to be_truthy }
+
+      context 'when project setting is disabled' do
+        let(:merge_pipelines_enabled) { false }
+
+        it { is_expected.to be_falsy }
+      end
+    end
+
+    context 'when Merge pipelines (EEP) is unavailable' do
+      before do
+        stub_licensed_features(merge_pipelines: false)
+      end
+
+      it { is_expected.to be_falsy }
+
+      context 'when project setting is disabled' do
+        let(:merge_pipelines_enabled) { false }
+
+        it { is_expected.to be_falsy }
+      end
+    end
+  end
+
+  describe "#insights_config" do
+    context 'when project has no Insights config file' do
+      let(:project) { create(:project) }
+
+      it 'returns the project default config' do
+        expect(project.insights_config).to eq(project.default_insights_config)
+      end
+
+      context 'when the project is inside a group' do
+        let(:group) { create(:group) }
+        let(:project) { create(:project, group: group) }
+
+        context 'when the group has no Insights config' do
+          it 'returns the group default config' do
+            expect(project.insights_config).to eq(group.default_insights_config)
+          end
+        end
+
+        context 'when the group has an Insights config from another project' do
+          let(:config_project) do
+            create(:project, :custom_repo, files: { ::Gitlab::Insights::CONFIG_FILE_PATH => insights_file_content })
+          end
+
+          before do
+            group.create_insight!(project: config_project)
+          end
+
+          context 'with a valid config file' do
+            let(:insights_file_content) { 'key: monthlyBugsCreated' }
+
+            it 'returns the group config data from the other project' do
+              expect(project.insights_config).to eq(config_project.insights_config)
+              expect(project.insights_config).to eq(group.insights_config)
+            end
+          end
+
+          context 'with an invalid config file' do
+            let(:insights_file_content) { ': foo bar' }
+
+            it 'returns nil' do
+              expect(project.insights_config).to be_nil
+            end
+          end
+        end
+      end
+    end
+
+    context 'when project has an Insights config file' do
+      let(:project) do
+        create(:project, :custom_repo, files: { ::Gitlab::Insights::CONFIG_FILE_PATH => insights_file_content })
+      end
+
+      context 'with a valid config file' do
+        let(:insights_file_content) { 'key: monthlyBugsCreated' }
+
+        it 'returns the insights config data' do
+          insights_config = project.insights_config
+
+          expect(insights_config).to eq(key: 'monthlyBugsCreated')
+        end
+
+        context 'when the project is inside a group having another config' do
+          let(:config_project) do
+            create(:project, :custom_repo, files: { ::Gitlab::Insights::CONFIG_FILE_PATH => ': foo bar' })
+          end
+
+          before do
+            project.group = create(:group)
+            project.group.create_insight!(project: config_project)
+          end
+
+          it 'returns the project insights config data' do
+            insights_config = project.insights_config
+
+            expect(insights_config).to eq(key: 'monthlyBugsCreated')
+          end
+        end
+      end
+
+      context 'with an invalid config file' do
+        let(:insights_file_content) { ': foo bar' }
+
+        it 'returns nil' do
+          expect(project.insights_config).to be_nil
+        end
+
+        context 'when the project is inside a group having another config' do
+          let(:config_project) do
+            create(:project, :custom_repo, files: { ::Gitlab::Insights::CONFIG_FILE_PATH => 'key: monthlyBugsCreated' })
+          end
+
+          before do
+            project.group = create(:group)
+            project.group.create_insight!(project: config_project)
+          end
+
+          it 'returns nil' do
+            expect(project.insights_config).to be_nil
+          end
+        end
+      end
+    end
+  end
+
+  describe "#design_management_enabled?" do
+    let(:project) { build(:project) }
+    where(:feature_enabled, :license_enabled, :expected) do
+      false | false | false
+      false | true  | false
+      true  | false | false
+      true  | true  | true
+    end
+
+    with_them do
+      before do
+        stub_licensed_features(design_management: license_enabled)
+        stub_feature_flags(design_management: feature_enabled)
+      end
+
+      it "knows if design management is available" do
+        expect(project.design_management_enabled?).to be(expected)
+      end
+    end
+  end
+
+  describe "#kerberos_url_to_repo" do
+    let(:project) { create(:project, path: "somewhere") }
+
+    it 'returns valid kerberos url for this repo' do
+      expect(project.kerberos_url_to_repo).to eq("#{Gitlab.config.build_gitlab_kerberos_url}/#{project.namespace.path}/somewhere.git")
+    end
+  end
+
+  describe 'repository size restrictions' do
+    let(:project) { build(:project) }
+
+    before do
+      allow_any_instance_of(ApplicationSetting).to receive(:repository_size_limit).and_return(50)
+    end
+
+    describe '#changes_will_exceed_size_limit?' do
+      before do
+        allow(project).to receive(:repository_and_lfs_size).and_return(49)
+      end
+      it 'returns true when changes go over' do
+        expect(project.changes_will_exceed_size_limit?(5)).to be_truthy
+      end
+    end
+
+    describe '#actual_size_limit' do
+      it 'returns the limit set in the application settings' do
+        expect(project.actual_size_limit).to eq(50)
+      end
+
+      it 'returns the value set in the group' do
+        group = create(:group, repository_size_limit: 100)
+        project.update_attribute(:namespace_id, group.id)
+
+        expect(project.actual_size_limit).to eq(100)
+      end
+
+      it 'returns the value set locally' do
+        project.update_attribute(:repository_size_limit, 75)
+
+        expect(project.actual_size_limit).to eq(75)
+      end
+    end
+
+    describe '#size_limit_enabled?' do
+      it 'returns false when disabled' do
+        project.update_attribute(:repository_size_limit, 0)
+
+        expect(project.size_limit_enabled?).to be_falsey
+      end
+
+      it 'returns true when a limit is set' do
+        project.update_attribute(:repository_size_limit, 75)
+
+        expect(project.size_limit_enabled?).to be_truthy
+      end
+    end
+
+    describe '#above_size_limit?' do
+      let(:project) do
+        create(:project,
+               statistics: build(:project_statistics))
+      end
+
+      it 'returns true when above the limit' do
+        allow(project).to receive(:repository_and_lfs_size).and_return(100)
+
+        expect(project.above_size_limit?).to be_truthy
+      end
+
+      it 'returns false when not over the limit' do
+        expect(project.above_size_limit?).to be_falsey
+      end
+    end
+
+    describe '#size_to_remove' do
+      it 'returns the correct value' do
+        allow(project).to receive(:repository_and_lfs_size).and_return(100)
+
+        expect(project.size_to_remove).to eq(50)
+      end
+    end
+  end
+
+  describe '#repository_size_limit column' do
+    it 'support values up to 8 exabytes' do
+      project = create(:project)
+      project.update_column(:repository_size_limit, 8.exabytes - 1)
+
+      project.reload
+
+      expect(project.repository_size_limit).to eql(8.exabytes - 1)
+    end
+  end
+
+  describe 'handling import URL' do
+    context 'when project is a mirror' do
+      it 'returns the full URL' do
+        project = create(:project, :mirror, import_url: 'http://user:pass@test.com')
+
+        project.import_state.finish
+
+        expect(project.reload.import_url).to eq('http://user:pass@test.com')
+      end
+    end
+  end
+
+  describe '#add_import_job' do
+    let(:import_jid) { '123' }
+
+    context 'forked' do
+      let(:forked_from_project) { create(:project, :repository) }
+      let(:project) { create(:project) }
+
+      before do
+        fork_project(forked_from_project, nil, target_project: project)
+      end
+
+      context 'without mirror' do
+        it 'returns nil' do
+          project = create(:project)
+
+          expect(project.add_import_job).to be nil
+        end
+      end
+
+      context 'with mirror' do
+        it 'schedules RepositoryUpdateMirrorWorker' do
+          project = create(:project, :mirror, :repository)
+
+          expect(RepositoryUpdateMirrorWorker).to receive(:perform_async).with(project.id).and_return(import_jid)
+          expect(project.add_import_job).to eq(import_jid)
+        end
+      end
+    end
+  end
+
+  describe '.where_full_path_in' do
+    context 'without any paths' do
+      it 'returns an empty relation' do
+        expect(described_class.where_full_path_in([])).to eq([])
+      end
+    end
+
+    context 'without any valid paths' do
+      it 'returns an empty relation' do
+        expect(described_class.where_full_path_in(%w[foo])).to eq([])
+      end
+    end
+
+    context 'with valid paths' do
+      let!(:project1) { create(:project) }
+      let!(:project2) { create(:project) }
+
+      it 'returns the projects matching the paths' do
+        projects = described_class.where_full_path_in([project1.full_path,
+                                                       project2.full_path])
+
+        expect(projects).to contain_exactly(project1, project2)
+      end
+
+      it 'returns projects regardless of the casing of paths' do
+        projects = described_class.where_full_path_in([project1.full_path.upcase,
+                                                       project2.full_path.upcase])
+
+        expect(projects).to contain_exactly(project1, project2)
+      end
+    end
+  end
+
+  describe '#change_repository_storage' do
+    let(:project) { create(:project, :repository) }
+    let(:read_only_project) { create(:project, :repository, repository_read_only: true) }
+
+    before do
+      FileUtils.mkdir('tmp/tests/extra_storage')
+      stub_storage_settings('extra' => { 'path' => 'tmp/tests/extra_storage' })
+    end
+
+    after do
+      FileUtils.rm_rf('tmp/tests/extra_storage')
+    end
+
+    it 'schedule the transfer of the repository to the new storage and locks the project' do
+      expect(ProjectUpdateRepositoryStorageWorker).to receive(:perform_async).with(project.id, 'extra')
+
+      project.change_repository_storage('extra')
+      project.save
+
+      expect(project).to be_repository_read_only
+    end
+
+    it "doesn't schedule the transfer if the repository is already read-only" do
+      expect(ProjectUpdateRepositoryStorageWorker).not_to receive(:perform_async)
+
+      read_only_project.change_repository_storage('extra')
+      read_only_project.save
+    end
+
+    it "doesn't lock or schedule the transfer if the storage hasn't changed" do
+      expect(ProjectUpdateRepositoryStorageWorker).not_to receive(:perform_async)
+
+      project.change_repository_storage(project.repository_storage)
+      project.save
+
+      expect(project).not_to be_repository_read_only
+    end
+
+    it 'throws an error if an invalid repository storage is provided' do
+      expect { project.change_repository_storage('unknown') }.to raise_error(ArgumentError)
+    end
+  end
+
+  describe '#repository_and_lfs_size' do
+    let(:project) { create(:project, :repository) }
+    let(:size) { 50 }
+
+    before do
+      allow(project.statistics).to receive(:total_repository_size).and_return(size)
+    end
+
+    it 'returns the total repository and lfs size' do
+      expect(project.repository_and_lfs_size).to eq(size)
+    end
+  end
+
+  describe '#approver_group_ids=' do
+    let(:project) { create(:project) }
+
+    it 'create approver_groups' do
+      group = create :group
+      group1 = create :group
+
+      project = create :project
+
+      project.approver_group_ids = "#{group.id}, #{group1.id}"
+      project.save!
+
+      expect(project.approver_groups.map(&:group)).to match_array([group, group1])
+    end
+  end
+
+  describe '#create_import_state' do
+    it 'it is called after save' do
+      project = create(:project)
+
+      expect(project).to receive(:create_import_state)
+
+      project.update(mirror: true, mirror_user: project.owner, import_url: 'http://foo.com')
     end
   end
 

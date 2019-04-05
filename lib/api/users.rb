@@ -26,7 +26,7 @@ module API
         # rubocop: disable CodeReuse/ActiveRecord
         def reorder_users(users)
           if params[:order_by] && params[:sort]
-            users.reorder(params[:order_by] => params[:sort])
+            users.reorder(order_options_with_tie_breaker)
           else
             users
           end
@@ -52,8 +52,10 @@ module API
           optional :private_profile, type: Boolean, desc: 'Flag indicating the user has a private profile'
           all_or_none_of :extern_uid, :provider
 
-          # EE
-          optional :shared_runners_minutes_limit, type: Integer, desc: 'Pipeline minutes quota for this user'
+          if Gitlab.ee?
+            optional :shared_runners_minutes_limit, type: Integer, desc: 'Pipeline minutes quota for this user'
+            optional :extra_shared_runners_minutes_limit, type: Integer, desc: '(admin-only) Extra pipeline minutes quota for this user'
+          end
         end
 
         params :sort_params do
@@ -84,8 +86,9 @@ module API
         use :pagination
         use :with_custom_attributes
 
-        # EE
-        optional :skip_ldap, type: Boolean, default: false, desc: 'Skip LDAP users'
+        if Gitlab.ee?
+          optional :skip_ldap, type: Boolean, default: false, desc: 'Skip LDAP users'
+        end
       end
       # rubocop: disable CodeReuse/ActiveRecord
       get do
@@ -130,7 +133,7 @@ module API
         user = User.find_by(id: params[:id])
         not_found!('User') unless user && can?(current_user, :read_user, user)
 
-        opts = { with: current_user&.admin? ? Entities::UserWithAdmin : Entities::User, current_user: current_user }
+        opts = { with: current_user&.admin? ? Entities::UserDetailsWithAdmin : Entities::User, current_user: current_user }
         user, opts = with_custom_attributes(user, opts)
 
         present user, opts

@@ -11,7 +11,7 @@ using the Omnibus GitLab packages, follow the
 NOTE: **Note:**
 This is the final step in setting up a **secondary** node. Stages of the setup
 process must be completed in the documented order. Before attempting the steps
-in this stage, [complete all prior stages][setup-geo-source].
+in this stage, [complete all prior stages](index.md#using-gitlab-installed-from-source-deprecated).
 
 The basic steps of configuring a **secondary** node are to:
 
@@ -88,7 +88,7 @@ the **secondary** node with the same credentials as used for the **primary** nod
 
 ### Step 2. Manually replicate the **primary** node's SSH host keys
 
-Read [Manually replicate the **primary** node's SSH host keys][configuration-replicate-ssh]
+Read [Manually replicate the **primary** node's SSH host keys](configuration.md#step-2-manually-replicate-the-primary-nodes-ssh-host-keys)
 
 ### Step 3. Add the **secondary** GitLab node
 
@@ -129,7 +129,7 @@ You can log in to the **secondary** node with the same credentials as used for t
 
 ### Step 4. Enabling Hashed Storage
 
-Read [Enabling Hashed Storage](configuration.md##step-4-enabling-hashed-storage).
+Read [Enabling Hashed Storage](configuration.md#step-4-enabling-hashed-storage).
 
 ### Step 5. (Optional) Configuring the secondary to trust the primary
 
@@ -138,12 +138,11 @@ You can safely skip this step if your **primary** node uses a CA-issued HTTPS ce
 If your **primary** node is using a self-signed certificate for *HTTPS* support, you will
 need to add that certificate to the **secondary** node's trust store. Retrieve the
 certificate from the **primary** node and follow your distribution's instructions for
-adding it to the **secondary** node's trust store. In Debian/Ubuntu, for example, with a
-certificate file of `primary.geo.example.com.crt`, you would follow these steps:
+adding it to the **secondary** node's trust store. In Debian/Ubuntu, you would follow these steps:
 
 ```sh
 sudo -i
-cp primary.geo.example.com.crt /usr/local/share/ca-certificates
+cp <primary_node_certification_file> /usr/local/share/ca-certificates
 update-ca-certificates
 ```
 
@@ -166,10 +165,8 @@ Read [Selective synchronization][configuration-selective-replication].
 
 Read the [troubleshooting document][troubleshooting].
 
-[setup-geo-source]: index.md#using-gitlab-installed-from-source
 [gitlab-org/gitlab-ee#3789]: https://gitlab.com/gitlab-org/gitlab-ee/issues/3789
 [configuration]: configuration.md
-[configuration-replicate-ssh]: configuration.md#step-2-manually-replicate-primary-ssh-host-keys
 [configuration-selective-replication]: configuration.md#selective-synchronization
 [configuration-verify-node]: configuration.md#step-7-verify-proper-functioning-of-the-secondary-node
 [troubleshooting]: troubleshooting.md

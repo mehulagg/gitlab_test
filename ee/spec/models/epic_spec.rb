@@ -1,6 +1,9 @@
 require 'spec_helper'
 
 describe Epic do
+  let(:group) { create(:group) }
+  let(:project) { create(:project, group: group) }
+
   describe 'associations' do
     subject { build(:epic) }
 
@@ -33,10 +36,10 @@ describe Epic do
   end
 
   describe 'ordering' do
-    let!(:epic1) { create(:epic, start_date: 7.days.ago, end_date: 3.days.ago, updated_at: 3.days.ago, created_at: 7.days.ago) }
-    let!(:epic2) { create(:epic, start_date: 3.days.ago, updated_at: 10.days.ago, created_at: 12.days.ago) }
-    let!(:epic3) { create(:epic, end_date: 5.days.ago, updated_at: 5.days.ago, created_at: 6.days.ago) }
-    let!(:epic4) { create(:epic) }
+    let!(:epic1) { create(:epic, start_date: 7.days.ago, end_date: 3.days.ago, updated_at: 3.days.ago, created_at: 7.days.ago, relative_position: 3) }
+    let!(:epic2) { create(:epic, start_date: 3.days.ago, updated_at: 10.days.ago, created_at: 12.days.ago, relative_position: 1) }
+    let!(:epic3) { create(:epic, end_date: 5.days.ago, updated_at: 5.days.ago, created_at: 6.days.ago, relative_position: 2) }
+    let!(:epic4) { create(:epic, relative_position: 4) }
 
     def epics(order_by)
       described_class.order_by(order_by)
@@ -77,16 +80,20 @@ describe Epic do
     it 'orders by created_at DESC' do
       expect(epics(:created_desc)).to eq([epic4, epic3, epic1, epic2])
     end
+
+    it 'orders by relative_position ASC' do
+      expect(epics(:relative_position)).to eq([epic2, epic3, epic1, epic4])
+    end
   end
 
   describe '#ancestors', :nested_groups do
-    let(:group) { create(:group) }
-    let(:epic1) { create(:epic, group: group) }
-    let(:epic2) { create(:epic, group: group, parent: epic1) }
-    let(:epic3) { create(:epic, group: group, parent: epic2) }
+    set(:group) { create(:group) }
+    set(:epic1) { create(:epic, group: group) }
+    set(:epic2) { create(:epic, group: group, parent: epic1) }
+    set(:epic3) { create(:epic, group: group, parent: epic2) }
 
     it 'returns all ancestors for an epic' do
-      expect(epic3.ancestors).to match_array([epic1, epic2])
+      expect(epic3.ancestors).to eq [epic2, epic1]
     end
 
     it 'returns an empty array if an epic does not have any parent' do
@@ -221,29 +228,32 @@ describe Epic do
     end
 
     context 'fixed date is not set' do
-      subject { create(:epic, start_date: nil, end_date: nil) }
+      subject { create(:epic, start_date: nil, end_date: nil, group: group) }
 
       let(:milestone1) do
         create(
           :milestone,
           start_date: Date.new(2000, 1, 1),
-          due_date: Date.new(2000, 1, 10)
+          due_date: Date.new(2000, 1, 10),
+          group: group
         )
       end
       let(:milestone2) do
         create(
           :milestone,
           start_date: Date.new(2000, 1, 3),
-          due_date: Date.new(2000, 1, 20)
+          due_date: Date.new(2000, 1, 20),
+          group: group
         )
       end
 
       context 'multiple milestones' do
         before do
-          epic_issue1 = create(:epic_issue, epic: subject)
-          epic_issue1.issue.update(milestone: milestone1)
-          epic_issue2 = create(:epic_issue, epic: subject)
-          epic_issue2.issue.update(milestone: milestone2)
+          issue1 = create(:issue, project: project, milestone: milestone1)
+          issue2 = create(:issue, project: project, milestone: milestone2)
+
+          create(:epic_issue, epic: subject, issue: issue1)
+          create(:epic_issue, epic: subject, issue: issue2)
         end
 
         context 'complete start and due dates' do
@@ -260,14 +270,16 @@ describe Epic do
             create(
               :milestone,
               start_date: Date.new(2000, 1, 1),
-              due_date: nil
+              due_date: nil,
+              group: group
             )
           end
           let(:milestone2) do
             create(
               :milestone,
               start_date: Date.new(2000, 1, 3),
-              due_date: nil
+              due_date: nil,
+              group: group
             )
           end
 
@@ -284,14 +296,16 @@ describe Epic do
             create(
               :milestone,
               start_date: nil,
-              due_date: nil
+              due_date: nil,
+              group: group
             )
           end
           let(:milestone2) do
             create(
               :milestone,
               start_date: nil,
-              due_date: nil
+              due_date: nil,
+              group: group
             )
           end
 
@@ -322,7 +336,7 @@ describe Epic do
       context 'single milestone' do
         before do
           epic_issue1 = create(:epic_issue, epic: subject)
-          epic_issue1.issue.update(milestone: milestone1)
+          epic_issue1.issue.update(milestone: milestone1, project: project)
         end
 
         context 'complete start and due dates' do
@@ -339,7 +353,8 @@ describe Epic do
             create(
               :milestone,
               start_date: Date.new(2000, 1, 1),
-              due_date: nil
+              due_date: nil,
+              group: group
             )
           end
 
@@ -356,7 +371,8 @@ describe Epic do
             create(
               :milestone,
               start_date: nil,
-              due_date: nil
+              due_date: nil,
+              group: group
             )
           end
 
@@ -373,12 +389,12 @@ describe Epic do
 
   describe '.update_start_and_due_dates' do
     def link_epic_to_milestone(epic, milestone)
-      create(:issue, epic: epic, milestone: milestone)
+      create(:issue, epic: epic, milestone: milestone, project: project)
     end
 
     it 'updates in bulk' do
-      milestone1 = create(:milestone, start_date: Date.new(2000, 1, 1), due_date: Date.new(2000, 1, 10))
-      milestone2 = create(:milestone, due_date: Date.new(2000, 1, 30))
+      milestone1 = create(:milestone, start_date: Date.new(2000, 1, 1), due_date: Date.new(2000, 1, 10), group: group)
+      milestone2 = create(:milestone, due_date: Date.new(2000, 1, 30), group: group)
 
       epics = [
         create(:epic),
@@ -414,8 +430,8 @@ describe Epic do
     end
 
     context 'query count check' do
-      let(:milestone) { create(:milestone, start_date: Date.new(2000, 1, 1), due_date: Date.new(2000, 1, 10)) }
-      let!(:epics) { [create(:epic)] }
+      let(:milestone) { create(:milestone, start_date: Date.new(2000, 1, 1), due_date: Date.new(2000, 1, 10), group: group) }
+      let!(:epics) { [create(:epic, group: group)] }
 
       def setup_control_group
         link_epic_to_milestone(epics[0], milestone)

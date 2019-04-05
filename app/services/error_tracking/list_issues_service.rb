@@ -6,15 +6,19 @@ module ErrorTracking
     DEFAULT_LIMIT = 20
 
     def execute
-      return error('not enabled') unless enabled?
-      return error('access denied') unless can_read?
+      return error('Error Tracking is not enabled') unless enabled?
+      return error('Access denied', :unauthorized) unless can_read?
 
       result = project_error_tracking_setting
         .list_sentry_issues(issue_status: issue_status, limit: limit)
 
       # our results are not yet ready
       unless result
-        return error('not ready', :no_content)
+        return error('Not ready. Try again later', :no_content)
+      end
+
+      if result[:error].present?
+        return error(result[:error], http_status_from_error_type(result[:error_type]))
       end
 
       success(issues: result[:issues])
@@ -25,6 +29,15 @@ module ErrorTracking
     end
 
     private
+
+    def http_status_from_error_type(error_type)
+      case error_type
+      when ErrorTracking::ProjectErrorTrackingSetting::SENTRY_API_ERROR_TYPE_MISSING_KEYS
+        :internal_server_error
+      else
+        :bad_request
+      end
+    end
 
     def project_error_tracking_setting
       project.error_tracking_setting

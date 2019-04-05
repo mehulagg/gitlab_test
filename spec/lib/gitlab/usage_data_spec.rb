@@ -14,6 +14,8 @@ describe Gitlab::UsageData do
       create(:service, project: projects[0], type: 'SlackSlashCommandsService', active: true)
       create(:service, project: projects[1], type: 'SlackService', active: true)
       create(:service, project: projects[2], type: 'SlackService', active: true)
+      create(:project_error_tracking_setting, project: projects[0])
+      create(:project_error_tracking_setting, project: projects[1], enabled: false)
 
       gcp_cluster = create(:cluster, :provided_by_gcp)
       create(:cluster, :provided_by_user)
@@ -80,6 +82,8 @@ describe Gitlab::UsageData do
         auto_devops_disabled
         deploy_keys
         deployments
+        successful_deployments
+        failed_deployments
         environments
         clusters
         clusters_enabled
@@ -116,6 +120,7 @@ describe Gitlab::UsageData do
         projects_slack_slash_active
         projects_prometheus_active
         projects_with_repositories_enabled
+        projects_with_error_tracking_enabled
         pages_domains
         protected_branches
         releases
@@ -125,7 +130,13 @@ describe Gitlab::UsageData do
         todos
         uploads
         web_hooks
+        user_preferences
       ))
+    end
+
+    it 'does not gather user preferences usage data when the feature is disabled' do
+      stub_feature_flags(group_overview_security_dashboard: false)
+      expect(subject[:counts].keys).not_to include(:user_preferences)
     end
 
     it 'gathers projects data correctly' do
@@ -139,6 +150,7 @@ describe Gitlab::UsageData do
       expect(count_data[:projects_slack_notifications_active]).to eq(2)
       expect(count_data[:projects_slack_slash_active]).to eq(1)
       expect(count_data[:projects_with_repositories_enabled]).to eq(2)
+      expect(count_data[:projects_with_error_tracking_enabled]).to eq(1)
 
       expect(count_data[:clusters_enabled]).to eq(7)
       expect(count_data[:project_clusters_enabled]).to eq(6)

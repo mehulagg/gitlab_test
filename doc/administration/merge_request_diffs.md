@@ -1,7 +1,6 @@
-# Merge request diffs administration
+# Merge request diffs storage **[CORE ONLY]**
 
-> **Notes:**
-> - External merge request diffs introduced in GitLab 11.8
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/52568) in GitLab 11.8.
 
 Merge request diffs are size-limited copies of diffs associated with merge
 requests. When viewing a merge request, diffs are sourced from these copies
@@ -16,9 +15,7 @@ large, in which case, switching to external storage is recommended.
 Merge request diffs can be stored on disk, or in object storage. In general, it
 is better to store the diffs in the database than on disk.
 
-To enable external storage of merge request diffs:
-
----
+To enable external storage of merge request diffs, follow the instructions below.
 
 **In Omnibus installations:**
 
@@ -29,17 +26,15 @@ To enable external storage of merge request diffs:
     ```
 
 1. _The external diffs will be stored in in
-   `/var/opt/gitlab/gitlab-rails/shared/external-diffs`._  To change the path,
-   for example to `/mnt/storage/external-diffs`, edit `/etc/gitlab/gitlab.rb`
+   `/var/opt/gitlab/gitlab-rails/shared/external-diffs`._ To change the path,
+   for example, to `/mnt/storage/external-diffs`, edit `/etc/gitlab/gitlab.rb`
    and add the following line:
 
     ```ruby
     gitlab_rails['external_diffs_storage_path'] = "/mnt/storage/external-diffs"
     ```
 
-1. Save the file and [reconfigure GitLab][] for the changes to take effect.
-
----
+1. Save the file and [reconfigure GitLab](restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 **In installations from source:**
 
@@ -52,7 +47,7 @@ To enable external storage of merge request diffs:
     ```
 
 1. _The external diffs will be stored in 
-   `/home/git/gitlab/shared/external-diffs`._ To change the path,  for example
+   `/home/git/gitlab/shared/external-diffs`._ To change the path, for example,
    to `/mnt/storage/external-diffs`, edit `/home/git/gitlab/config/gitlab.yml`
    and add or amend the following lines:
 
@@ -62,18 +57,18 @@ To enable external storage of merge request diffs:
       storage_path: /mnt/storage/external-diffs
     ```
 
-1. Save the file and [restart GitLab][] for the changes to take effect.
+1. Save the file and [restart GitLab](restart_gitlab.md#installations-from-source) for the changes to take effect.
 
 ### Using object storage
 
-Instead of storing the external diffs on disk, we recommended you use an object
+Instead of storing the external diffs on disk, we recommended the use of an object
 store like AWS S3 instead. This configuration relies on valid AWS credentials to
 be configured already.
 
 ### Object Storage Settings
 
 For source installations, these settings are nested under `external_diffs:` and
-then `object_store:`. On omnibus installs, they are prefixed by
+then `object_store:`. On Omnibus installations, they are prefixed by
 `external_diffs_object_store_`.
 
 | Setting | Description | Default |
@@ -118,7 +113,7 @@ The connection settings match those provided by [Fog](https://github.com/fog), a
     }
     ```
 
-    NOTE: if you are using AWS IAM profiles, be sure to omit the
+    Note that, if you are using AWS IAM profiles, be sure to omit the
     AWS access key and secret access key/value pairs. For example:
 
     ```ruby
@@ -129,9 +124,7 @@ The connection settings match those provided by [Fog](https://github.com/fog), a
     }
     ```
 
-1. Save the file and [reconfigure GitLab][] for the changes to take effect.
-
----
+1. Save the file and [reconfigure GitLab](restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 **In installations from source:**
 
@@ -151,4 +144,48 @@ The connection settings match those provided by [Fog](https://github.com/fog), a
           region: eu-central-1
     ```
 
-1. Save the file and [restart GitLab][] for the changes to take effect.
+1. Save the file and [restart GitLab](restart_gitlab.md#installations-from-source) for the changes to take effect.
+
+### Alternative in-database storage
+
+Enabling external diffs may reduce the performance of merge requests, as they
+must be retrieved in a separate operation to other data. A compromise may be
+reached by only storing outdated diffs externally, while keeping current diffs
+in the database.
+
+To enable this feature, perform the following steps:
+
+**In Omnibus installations:**
+
+1.  Edit `/etc/gitlab/gitlab.rb` and add the following line:
+
+    ```ruby
+    gitlab_rails['external_diffs_when'] = 'outdated'
+    ```
+
+1. Save the file and [reconfigure GitLab](restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
+
+**In installations from source:**
+
+1. Edit `/home/git/gitlab/config/gitlab.yml` and add or amend the following
+   lines:
+
+    ```yaml
+    external_diffs:
+      enabled: true
+      when: outdated
+    ```
+
+1. Save the file and [restart GitLab](restart_gitlab.md#installations-from-source) for the changes to take effect.
+
+With this feature enabled, diffs will initially stored in the database, rather
+than externally. They will be moved to external storage once any of these
+conditions become true:
+
+- A newer version of the merge request diff exists
+- The merge request was merged more than seven days ago
+- The merge request was closed more than seven day ago
+
+These rules strike a balance between space and performance by only storing
+frequently-accessed diffs in the database. Diffs that are less likely to be
+accessed are moved to external storage instead.

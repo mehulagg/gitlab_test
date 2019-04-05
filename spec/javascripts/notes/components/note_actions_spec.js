@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue, createWrapper } from '@vue/test-utils';
 import createStore from '~/notes/stores';
 import noteActions from '~/notes/components/note_actions.vue';
 import { TEST_HOST } from 'spec/test_constants';
@@ -10,7 +10,7 @@ describe('noteActions', () => {
   let store;
   let props;
 
-  const createWrapper = propsData => {
+  const shallowMountNoteActions = propsData => {
     const localVue = createLocalVue();
     return shallowMount(noteActions, {
       store,
@@ -44,7 +44,7 @@ describe('noteActions', () => {
     beforeEach(() => {
       store.dispatch('setUserData', userDataMock);
 
-      wrapper = createWrapper(props);
+      wrapper = shallowMountNoteActions(props);
     });
 
     it('should render access level badge', () => {
@@ -90,13 +90,27 @@ describe('noteActions', () => {
       it('should be possible to delete comment', () => {
         expect(wrapper.find('.js-note-delete').exists()).toBe(true);
       });
+
+      it('closes tooltip when dropdown opens', done => {
+        wrapper.find('.more-actions-toggle').trigger('click');
+
+        const rootWrapper = createWrapper(wrapper.vm.$root);
+        Vue.nextTick()
+          .then(() => {
+            const emitted = Object.keys(rootWrapper.emitted());
+
+            expect(emitted).toEqual(['bv::hide::tooltip']);
+            done();
+          })
+          .catch(done.fail);
+      });
     });
   });
 
   describe('user is not logged in', () => {
     beforeEach(() => {
       store.dispatch('setUserData', {});
-      wrapper = createWrapper({
+      wrapper = shallowMountNoteActions({
         ...props,
         canDelete: false,
         canEdit: false,
@@ -114,87 +128,33 @@ describe('noteActions', () => {
     });
   });
 
-  describe('with feature flag replyToIndividualNotes enabled', () => {
+  describe('for showReply = true', () => {
     beforeEach(() => {
-      gon.features = {
-        replyToIndividualNotes: true,
-      };
-    });
-
-    afterEach(() => {
-      gon.features = {};
-    });
-
-    describe('for showReply = true', () => {
-      beforeEach(() => {
-        wrapper = createWrapper({
-          ...props,
-          showReply: true,
-        });
-      });
-
-      it('shows a reply button', () => {
-        const replyButton = wrapper.find({ ref: 'replyButton' });
-
-        expect(replyButton.exists()).toBe(true);
+      wrapper = shallowMountNoteActions({
+        ...props,
+        showReply: true,
       });
     });
 
-    describe('for showReply = false', () => {
-      beforeEach(() => {
-        wrapper = createWrapper({
-          ...props,
-          showReply: false,
-        });
-      });
+    it('shows a reply button', () => {
+      const replyButton = wrapper.find({ ref: 'replyButton' });
 
-      it('does not show a reply button', () => {
-        const replyButton = wrapper.find({ ref: 'replyButton' });
-
-        expect(replyButton.exists()).toBe(false);
-      });
+      expect(replyButton.exists()).toBe(true);
     });
   });
 
-  describe('with feature flag replyToIndividualNotes disabled', () => {
+  describe('for showReply = false', () => {
     beforeEach(() => {
-      gon.features = {
-        replyToIndividualNotes: false,
-      };
-    });
-
-    afterEach(() => {
-      gon.features = {};
-    });
-
-    describe('for showReply = true', () => {
-      beforeEach(() => {
-        wrapper = createWrapper({
-          ...props,
-          showReply: true,
-        });
-      });
-
-      it('does not show a reply button', () => {
-        const replyButton = wrapper.find({ ref: 'replyButton' });
-
-        expect(replyButton.exists()).toBe(false);
+      wrapper = shallowMountNoteActions({
+        ...props,
+        showReply: false,
       });
     });
 
-    describe('for showReply = false', () => {
-      beforeEach(() => {
-        wrapper = createWrapper({
-          ...props,
-          showReply: false,
-        });
-      });
+    it('does not show a reply button', () => {
+      const replyButton = wrapper.find({ ref: 'replyButton' });
 
-      it('does not show a reply button', () => {
-        const replyButton = wrapper.find({ ref: 'replyButton' });
-
-        expect(replyButton.exists()).toBe(false);
-      });
+      expect(replyButton.exists()).toBe(false);
     });
   });
 });

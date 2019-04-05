@@ -146,9 +146,9 @@ you are introducing those changes to your branch.
 Via command line, you can commit multiple times before pushing.
 
 - **Commit message:**
-A commit message is important to identity what is being changed and,
-more importantly, why. In GitLab, you can add keywords to the commit
-message that will perform one of the actions below:
+  A commit message is important to identity what is being changed and,
+  more importantly, why. In GitLab, you can add keywords to the commit
+  message that will perform one of the actions below:
   - **Trigger a GitLab CI/CD pipeline:**
   If you have your project configured with [GitLab CI/CD](../../../ci/README.md),
   you will trigger a pipeline per push, not per commit.
@@ -162,14 +162,14 @@ message that will perform one of the actions below:
   If you mention an issue or a merge request in a commit message, they will be shown
   on their respective thread.
 - **Cherry-pick a commit:**
-In GitLab, you can
-[cherry-pick a commit](../merge_requests/cherry_pick_changes.md#cherry-picking-a-commit)
-right from the UI.
+  In GitLab, you can
+  [cherry-pick a commit](../merge_requests/cherry_pick_changes.md#cherry-picking-a-commit)
+  right from the UI.
 - **Revert a commit:**
-Easily [revert a commit](../merge_requests/revert_changes.md#reverting-a-commit)
-from the UI to a selected branch.
+  Easily [revert a commit](../merge_requests/revert_changes.md#reverting-a-commit)
+  from the UI to a selected branch.
 - **Sign a commit:**
-Use GPG to [sign your commits](gpg_signed_commits/index.md).
+  Use GPG to [sign your commits](gpg_signed_commits/index.md).
 
 ## Repository size
 
@@ -235,5 +235,25 @@ You can access your repos via [repository API](../../../api/repositories.md).
 Projects that contain a `.xcodeproj` or `.xcworkspace` directory can now be cloned
 in Xcode using the new **Open in Xcode** button, located next to the Git URL
 used for cloning your project. The button is only shown on macOS.
+
+## Download Source Code
+
+Source code stored in the repository can be downloaded.
+
+By clicking the download icon, a dropdown will open with links to download the following:
+
+![Download source code](img/download_source_code.png)
+
+- **Source Code:**
+  This allows users to download the source code on branch they're currently
+  viewing. Available zip, tar, tar.gz and tar.bz2.
+- **Directory:**
+  > [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/24704) in GitLab 11.10
+
+  Only shows up when viewing a sub-directory. This allows users to download
+  the specific directory they're currently viewing. Also available in zip, tar,
+  tar.gz and tar.bz2.
+- **Artifacts:**
+  This allows users to download the artifacts of the latest CI build.
 
 [jupyter]: https://jupyter.org

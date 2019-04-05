@@ -12,13 +12,13 @@ const Api = {
   projectsPath: '/api/:version/projects.json',
   projectPath: '/api/:version/projects/:id',
   projectLabelsPath: '/:namespace_path/:project_path/labels',
+  projectMergeRequestsPath: '/api/:version/projects/:id/merge_requests',
   projectMergeRequestPath: '/api/:version/projects/:id/merge_requests/:mrid',
   projectMergeRequestChangesPath: '/api/:version/projects/:id/merge_requests/:mrid/changes',
   projectMergeRequestVersionsPath: '/api/:version/projects/:id/merge_requests/:mrid/versions',
   projectRunnersPath: '/api/:version/projects/:id/runners',
   mergeRequestsPath: '/api/:version/merge_requests',
   groupLabelsPath: '/groups/:namespace_path/-/labels',
-  ldapGroupsPath: '/api/:version/ldap/:provider/groups.json',
   issuableTemplatePath: '/:namespace_path/:project_path/templates/:type/:key',
   projectTemplatePath: '/api/:version/projects/:id/templates/:type/:key',
   projectTemplatesPath: '/api/:version/projects/:id/templates/:type',
@@ -31,8 +31,6 @@ const Api = {
   commitPipelinesPath: '/:project_id/commit/:sha/pipelines',
   branchSinglePath: '/api/:version/projects/:id/repository/branches/:branch',
   createBranchPath: '/api/:version/projects/:id/repository/branches',
-  geoNodesPath: '/api/:version/geo_nodes',
-  subscriptionPath: '/api/:version/namespaces/:id/gitlab_subscription',
   releasesPath: '/api/:version/projects/:id/releases',
 
   group(groupId, callback) {
@@ -112,6 +110,22 @@ const Api = {
     const url = Api.buildUrl(Api.projectPath).replace(':id', encodeURIComponent(projectPath));
 
     return axios.get(url);
+  },
+
+  /**
+   * Get all Merge Requests for a project, eventually filtering based on
+   * supplied parameters
+   * @param projectPath
+   * @param params
+   * @returns {Promise}
+   */
+  projectMergeRequests(projectPath, params = {}) {
+    const url = Api.buildUrl(Api.projectMergeRequestsPath).replace(
+      ':id',
+      encodeURIComponent(projectPath),
+    );
+
+    return axios.get(url, { params });
   },
 
   // Return Merge Request for project
@@ -316,48 +330,6 @@ const Api = {
       emoji,
       message,
     });
-  },
-
-  approverUsers(search, options, callback = $.noop) {
-    const url = Api.buildUrl('/autocomplete/users.json');
-    return axios
-      .get(url, {
-        params: Object.assign(
-          {
-            search,
-            per_page: 20,
-          },
-          options,
-        ),
-      })
-      .then(({ data }) => {
-        callback(data);
-
-        return data;
-      });
-  },
-
-  ldap_groups(query, provider, callback) {
-    const url = Api.buildUrl(this.ldapGroupsPath).replace(':provider', provider);
-    return axios
-      .get(url, {
-        params: {
-          search: query,
-          per_page: 20,
-          active: true,
-        },
-      })
-      .then(({ data }) => {
-        callback(data);
-
-        return data;
-      });
-  },
-
-  userSubscription(namespaceId) {
-    const url = Api.buildUrl(this.subscriptionPath).replace(':id', encodeURIComponent(namespaceId));
-
-    return axios.get(url);
   },
 
   releases(id) {

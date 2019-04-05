@@ -33,7 +33,7 @@ updated automatically. Elasticsearch can be installed on the same machine as
 GitLab, or on a separate server, or you can use the [Amazon Elasticsearch](http://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-gsg.html)
 service.
 
-You can follow the steps as described in the [official web site](https://www.elastic.co/guide/en/elasticsearch/reference/current/_installation.html "Elasticsearch installation documentation") or
+You can follow the steps as described in the [official web site](https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html "Elasticsearch installation documentation") or
 use the packages that are available for your OS.
 
 ## Elasticsearch repository indexer (beta)
@@ -108,7 +108,7 @@ total are being tracked in this epic: [gitlab-org&153](https://gitlab.com/groups
 ## Enabling Elasticsearch
 
 In order to enable Elasticsearch, you need to have admin access. Go to
-**Admin > Settings** and find the "Elasticsearch" section.
+**Admin > Settings > Integrations** and find the "Elasticsearch" section.
 
 The following Elasticsearch settings are available:
 
@@ -118,16 +118,37 @@ The following Elasticsearch settings are available:
 | `Use the new repository indexer (beta)` | Perform repository indexing using [GitLab Elasticsearch Indexer](https://gitlab.com/gitlab-org/gitlab-elasticsearch-indexer). |
 | `Search with Elasticsearch enabled` | Enables/disables using Elasticsearch in search. |
 | `URL`                              | The URL to use for connecting to Elasticsearch. Use a comma-separated list to support clustering (e.g., "http://host1, https://host2:9200"). If your Elasticsearch instance is password protected, pass the `username:password` in the URL (e.g., `http://<username>:<password>@<elastic_host>:9200/`). |
+| `Limit namespaces and projects that can be indexed` | Enabling this will allow you to select namespaces and projects to index. All other namespaces and projects will use database search instead. Please note that if you enable this option but do not select any namespaces or projects, none will be indexed. [Read more below](#limiting-namespaces-and-projects).
 | `Using AWS hosted Elasticsearch with IAM credentials` | Sign your Elasticsearch requests using [AWS IAM authorization](http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html) or [AWS EC2 Instance Profile Credentials](http://docs.aws.amazon.com/codedeploy/latest/userguide/getting-started-create-iam-instance-profile.html#getting-started-create-iam-instance-profile-cli). The policies must be configured to allow `es:*` actions. |
 | `AWS Region` | The AWS region your Elasticsearch service is located in. |
 | `AWS Access Key` | The AWS access key. |
 | `AWS Secret Access Key` | The AWS secret access key. |
 
+### Limiting namespaces and projects
+
+If you select `Limit namespaces and projects that can be indexed`, more options will become available
+![limit namespaces and projects options](img/limit_namespaces_projects_options.png)
+
+You can select namespaces and projects to index exclusively. Please note that if the namespace is a group it will include
+any sub-groups and projects belonging to those sub-groups to be indexed as well.
+
+You can filter the selection dropdown by writing part of the namespace or project name you're interested in.
+![limit namespace filter](img/limit_namespace_filter.png)
+
+NOTE: **Note**:
+If no namespaces or projects are selected, no Elasticsearch indexing will take place.
+
+CAUTION: **Warning**:
+If you have already indexed your instance, you will have to regenerate the index in order to delete all existing data
+for filtering to work correctly. To do this run the rake tasks `gitlab:elastic:create_empty_index` and
+`gitlab:elastic:clear_index_status` Afterwards, removing a namespace or a projeect from the list will delete the data
+from the Elasticsearch index as expected.
+
 ## Disabling Elasticsearch
 
 To disable the Elasticsearch integration:
 
-1. Navigate to the **Admin area > Settings**
+1. Navigate to the **Admin > Settings > Integrations**
 1. Find the 'Elasticsearch' section and uncheck 'Search with Elasticsearch enabled'
    and 'Elasticsearch indexing'
 1. Click **Save** for the changes to take effect
@@ -136,7 +157,7 @@ To disable the Elasticsearch integration:
 
 ### Indexing small instances (database size less than 500 MiB, size of repos less than 5 GiB)
 
-Configure Elasticsearch's host and port in **Admin > Settings**. Then create empty indexes using one of the following commands:
+Configure Elasticsearch's host and port in **Admin > Settings > Integrations**. Then create empty indexes using one of the following commands:
 
 ```sh
 # Omnibus installations
@@ -163,7 +184,7 @@ Enable Elasticsearch search.
 NOTE: **Note**:
 After indexing the repositories asynchronously, you MUST index the database to be able to search.
 
-Configure Elasticsearch's host and port in **Admin > Settings**. Then create empty indexes using one of the following commands:
+Configure Elasticsearch's host and port in **Admin > Settings > Integrations**. Then create empty indexes using one of the following commands:
 
 ```sh
 # Omnibus installations
@@ -314,7 +335,7 @@ A force merge should be called after enabling the refreshing above:
 curl --request POST 'http://localhost:9200/_forcemerge?max_num_segments=5'
 ```
 
-Enable Elasticsearch search in **Admin > Settings**. That's it. Enjoy it!
+Enable Elasticsearch search in **Admin > Settings > Integrations**. That's it. Enjoy it!
 
 ## Tuning
 
@@ -365,6 +386,12 @@ Here are some common pitfalls and how to overcome them:
 - **I indexed all the repositories but then switched elastic search servers and now I can't find anything**
 
     You will need to re-run all the rake tasks to re-index the database, repositories, and wikis.
+
+- **No new data is added to the Elasticsearch index when I push code**
+
+    When performing the initial indexing of blobs, we lock all projects until the project finishes indexing. It could
+    happen that an error during the process causes one or multiple projects to remain locked. In order to unlock them,
+    run the `gitlab:elastic:clear_locked_projects` rake task.
 
 - **"Can't specify parent if no parent field has been configured"**
 

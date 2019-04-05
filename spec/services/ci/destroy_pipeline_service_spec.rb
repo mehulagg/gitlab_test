@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 describe ::Ci::DestroyPipelineService do
-  let(:project) { create(:project) }
-  let!(:pipeline) { create(:ci_pipeline, project: project) }
+  let(:project) { create(:project, :repository) }
+  let!(:pipeline) { create(:ci_pipeline, :success, project: project, sha: project.commit.id) }
 
   subject { described_class.new(project, user).execute(pipeline) }
 
@@ -15,16 +15,6 @@ describe ::Ci::DestroyPipelineService do
       subject
 
       expect { pipeline.reload }.to raise_error(ActiveRecord::RecordNotFound)
-    end
-
-    context 'when audit events is enabled' do
-      before do
-        stub_licensed_features(extended_audit_events: true, admin_audit_log: true)
-      end
-
-      it 'does not log an audit event' do
-        expect { subject }.not_to change { SecurityEvent.count }
-      end
     end
 
     context 'when the pipeline has jobs' do

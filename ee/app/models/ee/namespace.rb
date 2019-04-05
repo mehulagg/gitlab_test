@@ -36,9 +36,11 @@ module EE
       accepts_nested_attributes_for :gitlab_subscription
 
       scope :with_plan, -> { where.not(plan_id: nil) }
+      scope :with_shared_runners_minutes_limit, -> { where("namespaces.shared_runners_minutes_limit > 0") }
+      scope :with_extra_shared_runners_minutes_limit, -> { where("namespaces.extra_shared_runners_minutes_limit > 0") }
 
       delegate :shared_runners_minutes, :shared_runners_seconds, :shared_runners_seconds_last_reset,
-        to: :namespace_statistics, allow_nil: true
+        :extra_shared_runners_minutes, to: :namespace_statistics, allow_nil: true
 
       # Opportunistically clear the +file_template_project_id+ if invalid
       before_validation :clear_file_template_project_id
@@ -79,6 +81,20 @@ module EE
 
     def old_path_with_namespace_for(project)
       project.full_path.sub(/\A#{Regexp.escape(full_path)}/, full_path_was)
+    end
+
+    # This makes the feature disabled by default, in contrary to how
+    # `#feature_available?` makes a feature enabled by default.
+    #
+    # This allows to:
+    # - Enable the feature flag for a given group, regardless of the license.
+    #   This is useful for early testing a feature in production on a given group.
+    # - Enable the feature flag globally and still check that the license allows
+    #   it. This is the case when we're ready to enable a feature for anyone
+    #   with the correct license.
+    def beta_feature_available?(feature)
+      ::Feature.enabled?(feature, self) ||
+        (::Feature.enabled?(feature) && feature_available?(feature))
     end
 
     # Checks features (i.e. https://about.gitlab.com/pricing/) availabily
@@ -137,9 +153,14 @@ module EE
       end
     end
 
-    def actual_shared_runners_minutes_limit
-      shared_runners_minutes_limit ||
-        ::Gitlab::CurrentSettings.shared_runners_minutes
+    def actual_shared_runners_minutes_limit(include_extra: true)
+      extra_minutes = include_extra ? extra_shared_runners_minutes_limit.to_i : 0
+
+      if shared_runners_minutes_limit
+        shared_runners_minutes_limit + extra_minutes
+      else
+        ::Gitlab::CurrentSettings.shared_runners_minutes + extra_minutes
+      end
     end
 
     def shared_runners_minutes_limit_enabled?
@@ -151,6 +172,12 @@ module EE
     def shared_runners_minutes_used?
       shared_runners_minutes_limit_enabled? &&
         shared_runners_minutes.to_i >= actual_shared_runners_minutes_limit
+    end
+
+    def extra_shared_runners_minutes_used?
+      shared_runners_minutes_limit_enabled? &&
+        extra_shared_runners_minutes_limit &&
+        extra_shared_runners_minutes.to_i >= extra_shared_runners_minutes_limit
     end
 
     def shared_runners_enabled?
@@ -235,6 +262,30 @@ module EE
         feature_available?(:dependency_scanning) ||
         feature_available?(:sast_container) ||
         feature_available?(:dast))
+    end
+
+    def free_plan?
+      actual_plan_name == FREE_PLAN
+    end
+
+    def early_adopter_plan?
+      actual_plan_name == EARLY_ADOPTER_PLAN
+    end
+
+    def bronze_plan?
+      actual_plan_name == BRONZE_PLAN
+    end
+
+    def silver_plan?
+      actual_plan_name == SILVER_PLAN
+    end
+
+    def gold_plan?
+      actual_plan_name == GOLD_PLAN
+    end
+
+    def use_elasticsearch?
+      ::Gitlab::CurrentSettings.elasticsearch_indexes_namespace?(self)
     end
 
     private

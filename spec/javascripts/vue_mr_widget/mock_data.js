@@ -134,12 +134,23 @@ export default {
       yaml_errors: false,
       retryable: true,
       cancelable: false,
+      merge_request_pipeline: false,
+      detached_merge_request_pipeline: true,
     },
     ref: {
       name: 'daaaa',
       path: '/root/acets-app/tree/daaaa',
       tag: false,
       branch: true,
+    },
+    merge_request: {
+      iid: 1,
+      path: '/root/detached-merge-request-pipelines/merge_requests/1',
+      title: 'Update README.md',
+      source_branch: 'feature-1',
+      source_branch_path: '/root/detached-merge-request-pipelines/branches/feature-1',
+      target_branch: 'master',
+      target_branch_path: '/root/detached-merge-request-pipelines/branches/master',
     },
     commit: {
       id: '104096c51715e12e7ae41f9333e9fa35b73f385d',
@@ -215,6 +226,7 @@ export default {
   project_archived: false,
   default_merge_commit_message_with_description:
     "Merge branch 'daaaa' into 'master'\n\nUpdate README.md\n\nSee merge request !22",
+  default_squash_commit_message: 'Test squash commit message',
   diverged_commits_count: 0,
   only_allow_merge_if_pipeline_succeeds: false,
   commit_change_content_path: '/root/acets-app/merge_requests/22/commit_change_content',
@@ -231,6 +243,7 @@ export default {
   merge_commit_path:
     'http://localhost:3000/root/acets-app/commit/53027d060246c8f47e4a9310fb332aa52f221775',
   troubleshooting_docs_path: 'help',
+  squash: true,
 };
 // Codeclimate
 export const headIssues = [

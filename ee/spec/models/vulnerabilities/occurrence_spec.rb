@@ -3,7 +3,9 @@
 require 'spec_helper'
 
 describe Vulnerabilities::Occurrence do
+  it { is_expected.to define_enum_for(:confidence) }
   it { is_expected.to define_enum_for(:report_type) }
+  it { is_expected.to define_enum_for(:severity) }
 
   describe 'associations' do
     it { is_expected.to belong_to(:project) }
@@ -29,9 +31,7 @@ describe Vulnerabilities::Occurrence do
     it { is_expected.to validate_presence_of(:metadata_version) }
     it { is_expected.to validate_presence_of(:raw_metadata) }
     it { is_expected.to validate_presence_of(:severity) }
-    it { is_expected.to validate_inclusion_of(:severity).in_array(described_class::LEVELS.keys) }
     it { is_expected.to validate_presence_of(:confidence) }
-    it { is_expected.to validate_inclusion_of(:confidence).in_array(described_class::LEVELS.keys) }
   end
 
   context 'database uniqueness' do
@@ -46,15 +46,15 @@ describe Vulnerabilities::Occurrence do
       using RSpec::Parameterized::TableSyntax
 
       # we use block to delay object creations
-      where(:key, :value_block) do
-        :primary_identifier | -> { create(:vulnerabilities_identifier) }
-        :scanner | -> { create(:vulnerabilities_scanner) }
-        :project | -> { create(:project) }
+      where(:key, :factory_name) do
+        :primary_identifier | :vulnerabilities_identifier
+        :scanner | :vulnerabilities_scanner
+        :project | :project
       end
 
       with_them do
         it "is valid" do
-          expect { new_occurrence.update!({ key => value_block.call }) }.not_to raise_error
+          expect { new_occurrence.update!({ key => create(factory_name) }) }.not_to raise_error
         end
       end
     end
@@ -84,7 +84,7 @@ describe Vulnerabilities::Occurrence do
 
   describe '.count_by_day_and_severity' do
     let(:project) { create(:project) }
-    let(:date_1) { Time.zone.parse('2018-11-10') }
+    let(:date_1) { Time.zone.parse('2018-11-11') }
     let(:date_2) { Time.zone.parse('2018-11-12') }
 
     before do
@@ -111,18 +111,41 @@ describe Vulnerabilities::Occurrence do
 
     subject do
       travel_to(Time.zone.parse('2018-11-15')) do
-        described_class.count_by_day_and_severity(3.days)
+        described_class.count_by_day_and_severity(range)
       end
     end
 
-    it 'returns expected counts for occurrences within given period' do
-      first, second = subject
-      expect(first.day).to eq(date_2)
-      expect(first.severity).to eq('low')
-      expect(first.count).to eq(3)
-      expect(second.day).to eq(date_2)
-      expect(second.severity).to eq('medium')
-      expect(second.count).to eq(1)
+    context 'within 3-day period' do
+      let(:range) { 3.days }
+
+      it 'returns expected counts for occurrences' do
+        first, second = subject
+
+        expect(first.day).to eq(date_2)
+        expect(first.severity).to eq('low')
+        expect(first.count).to eq(3)
+        expect(second.day).to eq(date_2)
+        expect(second.severity).to eq('medium')
+        expect(second.count).to eq(1)
+      end
+    end
+
+    context 'within 4-day period' do
+      let(:range) { 4.days }
+
+      it 'returns expected counts for occurrences' do
+        first, second, third = subject
+
+        expect(first.day).to eq(date_1)
+        expect(first.severity).to eq('high')
+        expect(first.count).to eq(2)
+        expect(second.day).to eq(date_2)
+        expect(second.severity).to eq('low')
+        expect(second.count).to eq(3)
+        expect(third.day).to eq(date_2)
+        expect(third.severity).to eq('medium')
+        expect(third.count).to eq(1)
+      end
     end
   end
 
@@ -196,7 +219,7 @@ describe Vulnerabilities::Occurrence do
     end
   end
 
-  describe '.count_by_severity' do
+  describe '.counted_by_severity' do
     let!(:high_vulnerabilities) { create_list(:vulnerabilities_occurrence, 3, severity: :high) }
     let!(:medium_vulnerabilities) { create_list(:vulnerabilities_occurrence, 2, severity: :medium) }
     let!(:low_vulnerabilities) { create_list(:vulnerabilities_occurrence, 1, severity: :low) }
@@ -205,6 +228,83 @@ describe Vulnerabilities::Occurrence do
 
     it 'returns counts' do
       is_expected.to eq({ 4 => 1, 5 => 2, 6 => 3 })
+    end
+  end
+
+  describe 'feedback' do
+    set(:project) { create(:project) }
+    let(:occurrence) do
+      create(
+        :vulnerabilities_occurrence,
+        report_type: :dependency_scanning,
+        project: project
+      )
+    end
+
+    describe '#issue_feedback' do
+      let(:issue) { create(:issue, project: project) }
+      let!(:issue_feedback) do
+        create(
+          :vulnerability_feedback,
+          :dependency_scanning,
+          :issue,
+          issue: issue,
+          project: project,
+          project_fingerprint: occurrence.project_fingerprint
+        )
+      end
+
+      it 'returns associated feedback' do
+        feedback = occurrence.issue_feedback
+
+        expect(feedback).to be_present
+        expect(feedback[:project_id]).to eq project.id
+        expect(feedback[:feedback_type]).to eq 'issue'
+        expect(feedback[:issue_id]).to eq issue.id
+      end
+    end
+
+    describe '#dismissal_feedback' do
+      let!(:dismissal_feedback) do
+        create(
+          :vulnerability_feedback,
+          :dependency_scanning,
+          :dismissal,
+          project: project,
+          project_fingerprint: occurrence.project_fingerprint
+        )
+      end
+
+      it 'returns associated feedback' do
+        feedback = occurrence.dismissal_feedback
+
+        expect(feedback).to be_present
+        expect(feedback[:project_id]).to eq project.id
+        expect(feedback[:feedback_type]).to eq 'dismissal'
+      end
+    end
+
+    describe '#merge_request_feedback' do
+      let(:merge_request) { create(:merge_request, source_project: project) }
+      let!(:merge_request_feedback) do
+        create(
+          :vulnerability_feedback,
+          :dependency_scanning,
+          :merge_request,
+          merge_request: merge_request,
+          project: project,
+          project_fingerprint: occurrence.project_fingerprint
+        )
+      end
+
+      it 'returns associated feedback' do
+        feedback = occurrence.merge_request_feedback
+
+        expect(feedback).to be_present
+        expect(feedback[:project_id]).to eq project.id
+        expect(feedback[:feedback_type]).to eq 'merge_request'
+        expect(feedback[:merge_request_id]).to eq merge_request.id
+      end
     end
   end
 end

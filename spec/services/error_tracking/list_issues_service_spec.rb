@@ -45,7 +45,45 @@ describe ErrorTracking::ListIssuesService do
 
         it 'result is not ready' do
           expect(result).to eq(
-            status: :error, http_status: :no_content, message: 'not ready')
+            status: :error, http_status: :no_content, message: 'Not ready. Try again later')
+        end
+      end
+
+      context 'when list_sentry_issues returns error' do
+        before do
+          allow(error_tracking_setting)
+            .to receive(:list_sentry_issues)
+            .and_return(
+              error: 'Sentry response status code: 401',
+              error_type: ErrorTracking::ProjectErrorTrackingSetting::SENTRY_API_ERROR_TYPE_NON_20X_RESPONSE
+            )
+        end
+
+        it 'returns the error' do
+          expect(result).to eq(
+            status: :error,
+            http_status: :bad_request,
+            message: 'Sentry response status code: 401'
+          )
+        end
+      end
+
+      context 'when list_sentry_issues returns error with http_status' do
+        before do
+          allow(error_tracking_setting)
+            .to receive(:list_sentry_issues)
+            .and_return(
+              error: 'Sentry API response is missing keys. key not found: "id"',
+              error_type: ErrorTracking::ProjectErrorTrackingSetting::SENTRY_API_ERROR_TYPE_MISSING_KEYS
+            )
+        end
+
+        it 'returns the error with correct http_status' do
+          expect(result).to eq(
+            status: :error,
+            http_status: :internal_server_error,
+            message: 'Sentry API response is missing keys. key not found: "id"'
+          )
         end
       end
     end
@@ -58,7 +96,11 @@ describe ErrorTracking::ListIssuesService do
       it 'returns error' do
         result = subject.execute
 
-        expect(result).to include(status: :error, message: 'access denied')
+        expect(result).to include(
+          status: :error,
+          message: 'Access denied',
+          http_status: :unauthorized
+        )
       end
     end
 
@@ -70,7 +112,7 @@ describe ErrorTracking::ListIssuesService do
       it 'raises error' do
         result = subject.execute
 
-        expect(result).to include(status: :error, message: 'not enabled')
+        expect(result).to include(status: :error, message: 'Error Tracking is not enabled')
       end
     end
   end

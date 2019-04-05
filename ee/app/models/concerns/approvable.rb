@@ -7,6 +7,16 @@ module Approvable
   # such as approver_groups and target_project in presenters
   include ::VisibleApprovable
 
+  def approval_feature_available?
+    strong_memoize(:approval_feature_available) do
+      if project
+        project.feature_available?(:merge_request_approvers)
+      else
+        false
+      end
+    end
+  end
+
   def approval_state
     @approval_state ||= ApprovalState.new(self)
   end
@@ -40,7 +50,7 @@ module Approvable
   end
 
   def approvals_before_merge
-    return nil unless project&.feature_available?(:merge_request_approvers)
+    return unless approval_feature_available?
 
     super
   end
@@ -62,11 +72,12 @@ module Approvable
 
   def can_approve?(user)
     return false unless user
-    # The check below considers authors being able to approve the MR. That is,
-    # they're included/excluded from that list accordingly.
+    # The check below considers authors and committers being able to approve the MR.
+    # That is, they're included/excluded from that list accordingly.
     return true if approvers_left.include?(user)
-    # We can safely unauthorize authors if it reaches this guard clause.
-    return false if authors.include?(user)
+    # We can safely unauthorize authors and committers if it reaches this guard clause.
+    return false if author == user
+    return false if committers.include?(user)
     return false unless user.can?(:update_merge_request, self)
 
     any_approver_allowed? && approvals.where(user: user).empty?
@@ -90,6 +101,10 @@ module Approvable
 
   def authors_can_approve?
     target_project.merge_requests_author_approval?
+  end
+
+  def committers_can_approve?
+    !target_project.merge_requests_disable_committers_approval?
   end
 
   def approver_ids=(value)

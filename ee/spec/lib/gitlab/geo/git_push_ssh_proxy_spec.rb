@@ -35,12 +35,6 @@ describe Gitlab::Geo::GitPushSSHProxy, :geo do
     }
   end
 
-  describe '.inform_client_message' do
-    it 'returns a message, with the ssh address' do
-      expect(described_class.inform_client_message(primary_repo_ssh)).to eql("You're pushing to a Geo secondary.\nWe'll help you by proxying this request to the primary: #{primary_repo_ssh}")
-    end
-  end
-
   context 'instance methods' do
     subject { described_class.new(data) }
 
@@ -68,6 +62,20 @@ describe Gitlab::Geo::GitPushSSHProxy, :geo do
         let(:full_info_refs_url) { "#{primary_repo_http}/info/refs?service=git-receive-pack" }
         let(:info_refs_headers) { base_headers.merge('Content-Type' => 'application/x-git-upload-pack-request') }
         let(:info_refs_http_body_full) { "001f# service=git-receive-pack\n0000#{info_refs_body_short}" }
+
+        context 'authorization header is scoped' do
+          it 'passes the scope when .info_refs is called' do
+            expect(Gitlab::Geo::BaseRequest).to receive(:new).with(scope: project.repository.full_path)
+
+            subject.info_refs
+          end
+
+          it 'passes the scope when .push is called' do
+            expect(Gitlab::Geo::BaseRequest).to receive(:new).with(scope: project.repository.full_path)
+
+            subject.push(info_refs_body_short)
+          end
+        end
 
         context 'with a failed response' do
           let(:error_msg) { 'execution expired' }

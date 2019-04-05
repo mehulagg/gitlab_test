@@ -70,9 +70,8 @@ subgraph GCP `gitlab-review-apps` project
       you get a dedicated environment for your branch that's very close to what
       it would look in production.
 1. Once the [`review-deploy`][review-deploy] job succeeds, you should be able to
-  use your Review App thanks to the direct link to it from the MR widget. The
-  default username is `root` and its password can be found in the 1Password
-  secure note named **gitlab-{ce,ee} Review App's root password**.
+  use your Review App thanks to the direct link to it from the MR widget. To log
+  into the Review App, see "Log into my Review App?" below.
 
 **Additional notes:**
 
@@ -91,12 +90,31 @@ subgraph GCP `gitlab-review-apps` project
 ## QA runs
 
 On every [pipeline][gitlab-pipeline] during the `test` stage, the
-`review-qa-smoke` job is automatically started: it runs the smoke QA suite.
-You can also manually start the `review-qa-all`: it runs the full QA suite.
+`review-qa-smoke` job is automatically started: it runs the QA smoke suite.
+You can also manually start the `review-qa-all`: it runs the QA full suite.
 
 Note that both jobs first wait for the `review-deploy` job to be finished.
 
+## Performance Metrics
+
+On every [pipeline][gitlab-pipeline] during the `test` stage, the
+`review-performance` job is automatically started: this job does basic
+browser performance testing using [Sitespeed.io Container](https://docs.gitlab.com/ee/user/project/merge_requests/browser_performance_testing.html) .
+
+This job waits for the `review-deploy` job to be finished.
+
 ## How to?
+
+### Log into my Review App?
+
+The default username is `root` and its password can be found in the 1Password
+secure note named **gitlab-{ce,ee} Review App's root password**.
+
+### Enable a feature flag for my Review App?
+
+1. Open your Review App and log in as documented above.
+1. Create a personal access token.
+1. Enable the feature flag using the [Feature flag API](../../api/features.md).
 
 ### Find my Review App slug?
 
@@ -112,9 +130,9 @@ Note that both jobs first wait for the `review-deploy` job to be finished.
 1. Find and open the `task-runner` Deployment, e.g. `review-29951-issu-id2qax-task-runner`.
 1. Click on the Pod in the "Managed pods" section, e.g. `review-29951-issu-id2qax-task-runner-d5455cc8-2lsvz`.
 1. Click on the `KUBECTL` dropdown, then `Exec` -> `task-runner`.
-1. Replace `-c task-runner -- ls` with `-- /srv/gitlab/bin/rails c` from the
+1. Replace `-c task-runner -- ls` with `-it -- gitlab-rails console` from the
   default command or
-  - Run `kubectl exec --namespace review-apps-ce -it review-29951-issu-id2qax-task-runner-d5455cc8-2lsvz -- /srv/gitlab/bin/rails c`
+  - Run `kubectl exec --namespace review-apps-ce review-29951-issu-id2qax-task-runner-d5455cc8-2lsvz -it -- gitlab-rails console`
     and
   - Replace `review-apps-ce` with `review-apps-ee` if the Review App
     is running EE, and
@@ -143,16 +161,20 @@ thousands of unused Docker images.**
 **How big are the Kubernetes clusters (`review-apps-ce` and `review-apps-ee`)?**
 
   > The clusters are currently set up with a single pool of preemptible nodes,
-  with a minimum of 1 node and a maximum of 100 nodes.
+  with a minimum of 1 node and a maximum of 50 nodes.
 
 **What are the machine running on the cluster?**
 
-  > We're currently using `n1-standard-4` (4 vCPUs, 15 GB memory) machines.
+  > We're currently using `n1-standard-16` (16 vCPUs, 60 GB memory) machines.
 
 **How do we secure this from abuse? Apps are open to the world so we need to
 find a way to limit it to only us.**
 
   > This isn't enabled for forks.
+
+## Other resources
+
+* [Review Apps integration for CE/EE (presentation)](https://docs.google.com/presentation/d/1QPLr6FO4LduROU8pQIPkX1yfGvD13GEJIBOenqoKxR8/edit?usp=sharing)
 
 [charts-1068]: https://gitlab.com/charts/gitlab/issues/1068
 [gitlab-pipeline]: https://gitlab.com/gitlab-org/gitlab-ce/pipelines/44362587
