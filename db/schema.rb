@@ -217,9 +217,6 @@ ActiveRecord::Schema.define(version: 20190403161806) do
     t.string "runners_registration_token_encrypted"
     t.integer "local_markdown_version", default: 0, null: false
     t.integer "first_day_of_week", default: 0, null: false
-    t.boolean "elasticsearch_limit_indexing", default: false, null: false
-    t.index ["custom_project_templates_group_id"], name: "index_application_settings_on_custom_project_templates_group_id", using: :btree
-    t.index ["file_template_project_id"], name: "index_application_settings_on_file_template_project_id", using: :btree
     t.index ["usage_stats_set_by_user_id"], name: "index_application_settings_on_usage_stats_set_by_user_id", using: :btree
   end
 
@@ -2509,8 +2506,6 @@ ActiveRecord::Schema.define(version: 20190403161806) do
     t.string "bfg_object_map"
     t.boolean "merge_requests_require_code_owner_approval"
     t.boolean "detected_repository_languages"
-    t.boolean "merge_requests_disable_committers_approval"
-    t.index ["archived", "pending_delete", "merge_requests_require_code_owner_approval"], name: "projects_requiring_code_owner_approval", where: "((pending_delete = false) AND (archived = false) AND (merge_requests_require_code_owner_approval = true))", using: :btree
     t.index ["ci_id"], name: "index_projects_on_ci_id", using: :btree
     t.index ["created_at"], name: "index_projects_on_created_at", using: :btree
     t.index ["creator_id"], name: "index_projects_on_creator_id", using: :btree
