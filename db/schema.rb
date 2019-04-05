@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_09_02_160015) do
+ActiveRecord::Schema.define(version: 2019_09_03_223800) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -618,6 +618,7 @@ ActiveRecord::Schema.define(version: 2019_09_02_160015) do
     t.integer "project_id", null: false
     t.integer "timeout"
     t.integer "timeout_source", default: 1, null: false
+    t.boolean "interruptible"
     t.jsonb "config_options"
     t.jsonb "config_variables"
     t.index ["build_id"], name: "index_ci_builds_metadata_on_build_id", unique: true
