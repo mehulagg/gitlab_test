@@ -6,6 +6,7 @@ import MilestoneSelect from './milestone_select';
 import issueStatusSelect from './issue_status_select';
 import subscriptionSelect from './subscription_select';
 import LabelsSelect from './labels_select';
+import issuesListStore from '~/issues/stores';
 
 const HIDDEN_CLASS = 'hidden';
 const DISABLED_CONTENT_CLASS = 'disabled-content';
@@ -107,7 +108,12 @@ export default class IssuableBulkUpdateSidebar {
 
   toggleCheckboxDisplay(show) {
     this.$checkAllContainer.toggleClass(HIDDEN_CLASS, !show);
-    this.$issueChecks.toggleClass(HIDDEN_CLASS, !show);
+
+    if (gon.features.issuesVueComponent) {
+      issuesListStore.dispatch('issuesList/setBulkUpdateState', show);
+    } else {
+      this.$issueChecks.toggleClass(HIDDEN_CLASS, !show);
+    }
   }
 
   toggleOtherFiltersDisabled(disable) {
