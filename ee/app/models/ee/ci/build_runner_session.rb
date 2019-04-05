@@ -13,7 +13,7 @@ module EE
 
         port = port.presence || DEFAULT_PORT_NAME
         service = service.presence || DEFAULT_SERVICE_NAME
-        url = "#{self.url}/proxy/#{service}/#{port}/#{requested_url.to_s}"
+        url = "#{self.url}/proxy/#{service}/#{port}/#{requested_url}"
         subprotocols = subprotocols.presence || ::Ci::BuildRunnerSession::TERMINAL_SUBPROTOCOL
 
         channel_specification(url, subprotocols)

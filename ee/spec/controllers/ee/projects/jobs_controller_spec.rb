@@ -161,7 +161,7 @@ describe Projects::JobsController do
 
   describe 'GET #proxy_authorize' do
     let(:path) { :proxy_authorize }
-    let(:render_method) { :build_service_request }
+    let(:render_method) { :service_request }
 
     it_behaves_like 'proxy access rights'
     it_behaves_like 'when pipeline is not from a webide source'
