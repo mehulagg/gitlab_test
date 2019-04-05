@@ -2193,6 +2193,28 @@ describe API::Issues do
       expect_paginated_array_response(related_mr.id)
     end
 
+    context 'merge request closes a issue' do
+      let!(:closing_related_mr) do
+        create(:merge_request,
+          :simple,
+          author: user,
+          source_project: project,
+          target_project: project,
+          description: "Close #{issue.to_reference}")
+      end
+
+      before do
+        create(:note, :system, project: issue.project, noteable: issue, author: user, note: closing_related_mr.to_reference(full: true))
+        create(:merge_requests_closing_issues, issue: issue, merge_request: closing_related_mr)
+      end
+
+      it 'returns closing MR only once' do
+        get_related_merge_requests(project.id, issue.iid, user)
+
+        expect_paginated_array_response([related_mr.id, closing_related_mr.id])
+      end
+    end
+
     context 'no merge request mentioned a issue' do
       it 'returns empty array' do
         get_related_merge_requests(project.id, closed_issue.iid, user)
