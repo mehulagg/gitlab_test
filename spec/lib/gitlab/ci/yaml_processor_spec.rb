@@ -56,7 +56,7 @@ module Gitlab
               YAML.dump(rspec: { script: 'rspec', interruptible: true })
             end
 
-            it { expect(subject[:options][:interruptible]).to eq(true) }
+            it { expect(subject[:interruptible]).to be_truthy }
           end
 
           describe 'interruptible job with default value' do
@@ -64,7 +64,7 @@ module Gitlab
               YAML.dump(rspec: { script: 'rspec' })
             end
 
-            it { expect(subject[:options]).not_to have_key(:interruptible) }
+            it { expect(subject).not_to have_key(:interruptible) }
           end
 
           describe 'uninterruptible job' do
@@ -72,7 +72,7 @@ module Gitlab
               YAML.dump(rspec: { script: 'rspec', interruptible: false })
             end
 
-            it { expect(subject[:options][:interruptible]).to eq(false) }
+            it { expect(subject[:interruptible]).to be_falsy }
           end
         end
 

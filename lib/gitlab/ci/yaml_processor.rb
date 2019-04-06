@@ -41,6 +41,7 @@ module Gitlab
           coverage_regex: job[:coverage],
           yaml_variables: yaml_variables(name),
           needs_attributes: job[:needs]&.map { |need| { name: need } },
+          interruptible: job[:interruptible],
           options: {
             image: job[:image],
             services: job[:services],
@@ -56,8 +57,7 @@ module Gitlab
             instance: job[:instance],
             start_in: job[:start_in],
             trigger: job[:trigger],
-            bridge_needs: job[:needs],
-            interruptible: job[:interruptible]
+            bridge_needs: job[:needs]
           }.compact }.compact
       end
 

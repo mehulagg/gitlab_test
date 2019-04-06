@@ -37,6 +37,7 @@ module Gitlab
             with_options allow_nil: true do
               validates :tags, array_of_strings: true
               validates :allow_failure, boolean: true
+              validates :interruptible, boolean: true
               validates :parallel, numericality: { only_integer: true,
                                                    greater_than_or_equal_to: 2,
                                                    less_than_or_equal_to: 50 }
