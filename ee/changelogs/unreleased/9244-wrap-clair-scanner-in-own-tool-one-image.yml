@@ -1,0 +1,5 @@
+---
+title: Container Scanning vendored template now uses containerized CS tool
+merge_request: 10582
+author:
+type: added
