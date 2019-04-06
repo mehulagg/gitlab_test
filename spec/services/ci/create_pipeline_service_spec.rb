@@ -220,11 +220,11 @@ describe Ci::CreatePipelineService do
           expect(pipeline_on_previous_commit.reload).to have_attributes(status: 'canceled', auto_canceled_by_id: pipeline.id)
         end
 
-        it 'does not cancel running outdated pipelines' do
+        it 'cancels running outdated pipelines' do
           pipeline_on_previous_commit.run
-          execute_service
+          head_pipeline = execute_service
 
-          expect(pipeline_on_previous_commit.reload).to have_attributes(status: 'running', auto_canceled_by_id: nil)
+          expect(pipeline_on_previous_commit.reload).to have_attributes(status: 'canceled', auto_canceled_by_id: head_pipeline.id)
         end
 
         it 'cancel created outdated pipelines' do
@@ -242,6 +242,201 @@ describe Ci::CreatePipelineService do
           pipeline
 
           expect(pending_pipeline.reload).to have_attributes(status: 'pending', auto_canceled_by_id: nil)
+        end
+
+        context 'when the interruptible attribute is' do
+          context 'not defined' do
+            before do
+              config = YAML.dump(rspec: { script: 'echo' })
+              stub_ci_pipeline_yaml_file(config)
+            end
+
+            it 'is cancelable' do
+              pipeline = execute_service
+
+              expect(pipeline.builds.find_by(name: 'rspec').interruptible).to be_nil
+              expect(pipeline.builds.find_by(name: 'rspec').interruptible?).to be_truthy
+            end
+          end
+
+          context 'set to true' do
+            before do
+              config = YAML.dump(rspec: { script: 'echo', interruptible: true })
+              stub_ci_pipeline_yaml_file(config)
+            end
+
+            it 'is cancelable' do
+              pipeline = execute_service
+
+              expect(pipeline.builds.find_by(name: 'rspec').interruptible).to be_truthy
+              expect(pipeline.builds.find_by(name: 'rspec').interruptible?).to be_truthy
+            end
+          end
+
+          context 'set to false' do
+            before do
+              config = YAML.dump(rspec: { script: 'echo', interruptible: false })
+              stub_ci_pipeline_yaml_file(config)
+            end
+
+            it 'is not cancelable' do
+              pipeline = execute_service
+
+              expect(pipeline.builds.find_by(name: 'rspec').interruptible).to be_falsy
+              expect(pipeline.builds.find_by(name: 'rspec').interruptible?).to be_falsy
+            end
+          end
+
+          context 'not defined, but an environment is' do
+            before do
+              config = YAML.dump(rspec: { script: 'echo', environment: { name: "review/$CI_COMMIT_REF_NAME" } })
+              stub_ci_pipeline_yaml_file(config)
+            end
+
+            it 'is not cancelable' do
+              pipeline = execute_service
+
+              expect(pipeline.builds.find_by(name: 'rspec').interruptible).to be_nil
+              expect(pipeline.builds.find_by(name: 'rspec').interruptible?).to be_falsy
+            end
+          end
+
+          context 'overriding the environment definition' do
+            before do
+              config = YAML.dump(rspec: { script: 'echo', environment: { name: "review/$CI_COMMIT_REF_NAME" }, interruptible: true })
+              stub_ci_pipeline_yaml_file(config)
+            end
+
+            it 'is cancelable' do
+              pipeline = execute_service
+
+              expect(pipeline.builds.find_by(name: 'rspec').interruptible).to be_truthy
+              expect(pipeline.builds.find_by(name: 'rspec').interruptible?).to be_truthy
+            end
+          end
+        end
+
+        context 'interruptible builds' do
+          before do
+            stub_ci_pipeline_yaml_file(YAML.dump(config))
+          end
+
+          let(:config) do
+            {
+              stages: %w[stage1 stage2 stage3 stage4],
+
+              build_1_1: {
+                stage: 'stage1',
+                script: 'echo'
+              },
+              build_1_2: {
+                stage: 'stage1',
+                script: 'echo',
+                interruptible: true
+              },
+              build_2_1: {
+                stage: 'stage2',
+                script: 'echo',
+                when: 'delayed',
+                start_in: '10 minutes'
+              },
+              build_3_1: {
+                stage: 'stage3',
+                script: 'echo',
+                interruptible: false
+              },
+              build_4_1: {
+                stage: 'stage4',
+                script: 'echo'
+              }
+            }
+          end
+
+          def set_pipeline_status(status)
+            pipeline_on_previous_commit.run
+
+            status.each_with_index do |s, i|
+              current_build = pipeline_on_previous_commit.builds[i]
+              current_build.update(status: 'created')
+              current_build.fire_events!('enqueue')
+              current_build.update(status: 'pending')
+
+              if s != 'scheduled'
+                current_build.fire_events!('run')
+              end
+
+              current_build.update(status: s)
+            end
+
+            pipeline
+          end
+
+          context 'when the status is updated' do
+            it 'applies the transitions accordingly' do
+              set_pipeline_status(%w[success success success running])
+
+              expect(pipeline_on_previous_commit.builds[0].started?).to be_truthy
+              expect(pipeline_on_previous_commit.builds[1].started?).to be_truthy
+              expect(pipeline_on_previous_commit.builds[2].started?).to be_truthy
+              expect(pipeline_on_previous_commit.builds[3].started?).to be_truthy
+              expect(pipeline_on_previous_commit.builds[4].started?).to be_falsy
+              expect(pipeline_on_previous_commit.builds[0].interruptible).to be_nil
+              expect(pipeline_on_previous_commit.builds[1].interruptible).to be_truthy
+              expect(pipeline_on_previous_commit.builds[2].interruptible).to be_nil
+              expect(pipeline_on_previous_commit.builds[3].interruptible).to be_falsy
+              expect(pipeline_on_previous_commit.builds[4].interruptible).to be_nil
+              expect(pipeline_on_previous_commit.builds[0].interruptible?).to be_truthy
+              expect(pipeline_on_previous_commit.builds[1].interruptible?).to be_truthy
+              expect(pipeline_on_previous_commit.builds[2].interruptible?).to be_truthy
+              expect(pipeline_on_previous_commit.builds[3].interruptible?).to be_falsy
+              expect(pipeline_on_previous_commit.builds[4].interruptible?).to be_truthy
+            end
+          end
+
+          context 'when only interruptible builds are running' do
+            it 'cancels running outdated pipelines' do
+              pipeline_on_previous_commit.run
+              pipeline
+
+              expect(pipeline_on_previous_commit.reload).to have_attributes(status: 'canceled', auto_canceled_by_id: pipeline.id)
+            end
+          end
+
+          context 'when an uninterruptible build has been reached' do
+            it 'does not cancel running outdated pipelines' do
+              set_pipeline_status(%w[success success success running])
+              pipeline
+
+              expect(pipeline_on_previous_commit.reload).to have_attributes(status: 'running', auto_canceled_by_id: nil)
+            end
+          end
+
+          context 'when an build is waiting on an interruptible scheduled task' do
+            it 'cancels running outdated pipelines' do
+              set_pipeline_status(%w[success success scheduled])
+              pipeline
+
+              expect(pipeline_on_previous_commit.reload).to have_attributes(status: 'canceled', auto_canceled_by_id: pipeline.id)
+            end
+          end
+
+          context 'when an build is waiting on an interruptible scheduled task' do
+            it 'cancels running outdated pipelines' do
+              set_pipeline_status(%w[success success scheduled])
+              pipeline
+
+              expect(pipeline_on_previous_commit.reload).to have_attributes(status: 'canceled', auto_canceled_by_id: pipeline.id)
+            end
+          end
+
+          context 'when a uninterruptible build has been executed' do
+            it 'does not cancel running outdated pipelines' do
+              set_pipeline_status(%w[success success success success running])
+              pipeline
+
+              expect(pipeline_on_previous_commit.reload).to have_attributes(status: 'running', auto_canceled_by_id: nil)
+            end
+          end
         end
       end
 

@@ -95,7 +95,8 @@ module Ci
         .where(ref: pipeline.ref)
         .where.not(id: pipeline.id)
         .where.not(sha: project.commit(pipeline.ref).try(:id))
-        .created_or_pending
+        .alive_or_scheduled
+        .where('ci_pipelines.id NOT IN (?)', Pipeline.non_interruptible_pipeline_ids_for(pipeline.ref))
     end
     # rubocop: enable CodeReuse/ActiveRecord
 

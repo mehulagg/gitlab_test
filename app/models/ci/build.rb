@@ -88,6 +88,7 @@ module Ci
     validates :coverage, numericality: true, allow_blank: true
     validates :ref, presence: true
 
+    scope :not_interruptible, -> { joins('JOIN ci_builds_metadata ON ci_builds_metadata.build_id = ci_builds.id').where('ci_builds_metadata.interruptible = ?', false) }
     scope :unstarted, ->() { where(runner_id: nil) }
     scope :ignore_failures, ->() { where(allow_failure: false) }
     scope :with_artifacts_archive, ->() do
