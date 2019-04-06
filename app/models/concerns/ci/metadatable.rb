@@ -15,6 +15,7 @@ module Ci
                          autosave: true
 
       delegate :timeout, to: :metadata, prefix: true, allow_nil: true
+      delegate :interruptible, to: :metadata, prefix: false, allow_nil: true
       before_create :ensure_metadata
     end
 
@@ -28,7 +29,7 @@ module Ci
 
     def degenerate!
       self.class.transaction do
-        self.update!(options: nil, yaml_variables: nil)
+        self.update!(options: nil, yaml_variables: nil, interruptible: nil)
         self.needs.all.delete_all
         self.metadata&.destroy
       end
@@ -48,6 +49,14 @@ module Ci
 
     def yaml_variables=(value)
       write_metadata_attribute(:yaml_variables, :config_variables, value)
+    end
+
+    def interruptible
+      ensure_metadata.read_attribute(:interruptible, value)
+    end
+
+    def interruptible=(value)
+      ensure_metadata.write_attribute(:interruptible, value)
     end
 
     private

@@ -3797,6 +3797,42 @@ describe Ci::Build do
     end
   end
 
+  describe '#interruptible?' do
+    let(:build) { create(:ci_build) }
+
+    it 'is interruptible by default' do
+      expect(build.interruptible).to be_nil
+      expect(build.interruptible?).to be_truthy
+    end
+
+    context 'when build is uninterruptible' do
+      it 'is uninterruptible' do
+        build.update(interruptible: false)
+
+        expect(build.interruptible).to be_falsy
+        expect(build.interruptible?).to be_falsy
+      end
+    end
+
+    context 'when build has an environment' do
+      it 'is uninterruptible' do
+        build.update(environment: 'review')
+
+        expect(build.interruptible).to be_nil
+        expect(build.interruptible?).to be_falsy
+      end
+    end
+
+    context 'when build has an environment but is interruptible' do
+      it 'is interruptible' do
+        build.update(environment: 'review', interruptible: true)
+
+        expect(build.interruptible).to be_truthy
+        expect(build.interruptible?).to be_truthy
+      end
+    end
+  end
+
   describe '#archived?' do
     context 'when build is degenerated' do
       subject { create(:ci_build, :degenerated) }

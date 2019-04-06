@@ -685,6 +685,12 @@ module Ci
       super || project.try(:build_coverage_regex)
     end
 
+    def interruptible?
+      return !has_environment? if interruptible.nil?
+
+      interruptible
+    end
+
     def steps
       [Gitlab::Ci::Build::Step.from_commands(self),
        Gitlab::Ci::Build::Step.from_after_script(self)].compact
