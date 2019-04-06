@@ -27,18 +27,12 @@ export default {
       ISSUE_STATES,
     };
   },
-  computed: {
-    showFilterEmptyState() {
-      const { hasFilters, state } = this;
-      return hasFilters && ![ISSUE_STATES.OPENED, ISSUE_STATES.CLOSED].includes(state);
-    },
-  },
 };
 </script>
 
 <template>
   <gl-empty-state
-    v-if="showFilterEmptyState"
+    v-if="hasFilters"
     :title="__('Sorry, your filter produced no results')"
     :description="__('To widen your search, change or remove filters above')"
     :svg-path="imagePath"
