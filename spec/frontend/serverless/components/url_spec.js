@@ -3,13 +3,13 @@ import Vue from 'vue';
 import urlComponent from '~/serverless/components/url.vue';
 import mountComponent from 'spec/helpers/vue_mount_component_helper';
 
-const createComponent = uri => {
-  const component = Vue.extend(urlComponent);
-
-  return mountComponent(component, {
-    uri,
-  });
-};
+const createComponent = uri =>
+  shallowMount(Vue.extend(urlComponent), {
+    propsData: {
+      uri,
+    },
+    sync: false,
+  }).vm;
 
 describe('urlComponent', () => {
   it('should render correctly', () => {

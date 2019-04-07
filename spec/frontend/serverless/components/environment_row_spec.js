@@ -6,8 +6,8 @@ import ServerlessStore from '~/serverless/stores/serverless_store';
 
 import { mockServerlessFunctions, mockServerlessFunctionsDiffEnv } from '../mock_data';
 
-const createComponent = (env, envName) =>
-  mountComponent(Vue.extend(environmentRowComponent), { env, envName });
+const createComponent = (localVue, env, envName) =>
+  shallowMount(environmentRowComponent, { localVue, propsData: { env, envName }, sync: false }).vm;
 
 describe('environment row component', () => {
   describe('default global cluster case', () => {
