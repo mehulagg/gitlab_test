@@ -13,4 +13,7 @@
 
   = render 'shared/issuable/search_bar', type: :issues
 
-  = render 'shared/issues'
+  - if Feature.enabled?('issues_vue_component')
+    %div{ id: 'js-issues-list', data: { endpoint: expose_url(api_v4_groups_issues_path(id: @group.id)), 'can-update': @can_bulk_update.to_json, 'create-path': '' } }
+  - else
+    = render 'shared/issues'

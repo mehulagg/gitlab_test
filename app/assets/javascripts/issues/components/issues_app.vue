@@ -2,9 +2,10 @@
 import { mapActions, mapState, mapGetters } from 'vuex';
 import { GlPagination } from '@gitlab/ui';
 import IssuableIndex from '~/issuable_index';
+import projectSelect from '~/project_select';
 import { ISSUABLE_INDEX } from '~/pages/projects/constants';
 import { getParameterValues, mergeUrlParams } from '~/lib/utils/url_utility';
-import { scrollToElement } from '~/lib/utils/common_utils';
+import { scrollToElement, isInProjectPage, isInGroupsPage } from '~/lib/utils/common_utils';
 import Issue from './issue.vue';
 import IssuesEmptyState from './empty_state.vue';
 import IssuesLoadingState from './loading_state.vue';
@@ -64,6 +65,10 @@ export default {
     this.fetchIssues(this.endpoint);
     this.updateIssueStateTabs();
     this.setupExternalEvents();
+
+    if (isInGroupsPage()) {
+      projectSelect();
+    }
   },
   updated() {
     this.setupExternalEvents();
@@ -88,8 +93,10 @@ export default {
       }
     },
     setupExternalEvents() {
-      issuableIndex.bulkUpdateSidebar.initDomElements();
-      issuableIndex.bulkUpdateSidebar.bindEvents();
+      if (isInProjectPage()) {
+        issuableIndex.bulkUpdateSidebar.initDomElements();
+        issuableIndex.bulkUpdateSidebar.bindEvents();
+      }
     },
     updatePage(page) {
       this.filteredSearch.updateObject(mergeUrlParams({ page }, this.appliedFilters));

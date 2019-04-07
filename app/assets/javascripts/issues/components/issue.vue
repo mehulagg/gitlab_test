@@ -176,6 +176,15 @@ export default {
                 </span>
               </a>
             </span>
+            <span
+              v-if="issue.weight"
+              v-gl-tooltip
+              :title="__('Weight')"
+              class="issuable-weight d-none d-sm-inline-block has-tooltip"
+            >
+              <icon name="weight" class="align-text-bottom issue-weight-icon" />
+              {{ issue.weight }}
+            </span>
           </div>
         </div>
         <div class="issuable-meta">

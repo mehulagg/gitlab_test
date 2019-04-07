@@ -24,6 +24,8 @@ class GroupsController < Groups::ApplicationController
 
   before_action :user_actions, only: [:show]
 
+  before_action :set_issues_vue_component_feature_flags, only: [:issues]
+
   skip_cross_project_access_check :index, :new, :create, :edit, :update,
                                   :destroy, :projects
   # When loading show as an atom feed, we render events that could leak cross
@@ -227,6 +229,11 @@ class GroupsController < Groups::ApplicationController
 
     url_for(safe_params)
   end
+
+  def set_issues_vue_component_feature_flags
+    push_frontend_feature_flag(:issues_vue_component)
+  end
+
 end
 
 GroupsController.prepend(EE::GroupsController)
