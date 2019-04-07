@@ -1,5 +1,6 @@
-import Vue from 'vue';
-
+import Vuex from 'vuex';
+import AxiosMockAdapter from 'axios-mock-adapter';
+import axios from '~/lib/utils/axios_utils';
 import functionsComponent from '~/serverless/components/functions.vue';
 import mountComponent from 'spec/helpers/vue_mount_component_helper';
 import ServerlessStore from '~/serverless/stores/serverless_store';
@@ -58,9 +59,23 @@ describe('functionsComponent', () => {
   });
 
   it('should render the functions list', () => {
-    const store = new ServerlessStore(false, '/cluster_path', 'help_path');
-    store.updateFunctionsFromServer(mockServerlessFunctions);
-    const vm = createComponent(store.state.functions, true, false);
+    const statusPath = 'statusPath';
+    const axiosMock = new AxiosMockAdapter(axios);
+    axiosMock.onGet(statusPath).reply(200);
+
+    component = shallowMount(functionsComponent, {
+      localVue,
+      store,
+      propsData: {
+        installed: true,
+        clustersPath: 'clustersPath',
+        helpPath: 'helpPath',
+        statusPath,
+      },
+      sync: false,
+    });
+
+    component.vm.$store.dispatch('receiveFunctionsSuccess', mockServerlessFunctions);
 
     expect(vm.$el.querySelector('div.groups-list-tree-container')).not.toBe(null);
     expect(vm.$el.querySelector('#env-global').classList.contains('has-children')).toBe(true);

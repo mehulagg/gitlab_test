@@ -5,7 +5,8 @@ import mountComponent from 'spec/helpers/vue_mount_component_helper';
 
 import { mockServerlessFunction } from '../mock_data';
 
-const createComponent = func => mountComponent(Vue.extend(functionRowComponent), { func });
+const createComponent = func =>
+  shallowMount(functionRowComponent, { propsData: { func }, sync: false }).vm;
 
 describe('functionRowComponent', () => {
   it('Parses the function details correctly', () => {
