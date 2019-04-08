@@ -10,12 +10,12 @@ describe Ci::BuildRunnerSession, model: true do
   describe '#service_specification' do
     let(:service) { 'foo'}
     let(:port) { 80 }
-    let(:requested_url) { 'requested_url' }
+    let(:path) { 'path' }
     let(:subprotocols) { nil }
-    let(:specification) { subject.service_specification(service: service, port: port, requested_url: requested_url, subprotocols: subprotocols) }
+    let(:specification) { subject.service_specification(service: service, port: port, path: path, subprotocols: subprotocols) }
 
     it 'returns service proxy url' do
-      expect(specification[:url]).to eq "https://localhost/proxy/#{service}/#{port}/#{requested_url}"
+      expect(specification[:url]).to eq "https://localhost/proxy/#{service}/#{port}/#{path}"
     end
 
     it 'returns default service proxy websocket subprotocol' do
@@ -32,7 +32,7 @@ describe Ci::BuildRunnerSession, model: true do
       let(:port) { nil }
 
       it 'uses the default port name' do
-        expect(specification[:url]).to eq "https://localhost/proxy/#{service}/default_port/#{requested_url}"
+        expect(specification[:url]).to eq "https://localhost/proxy/#{service}/default_port/#{path}"
       end
     end
 
@@ -40,7 +40,7 @@ describe Ci::BuildRunnerSession, model: true do
       let(:service) { '' }
 
       it 'uses the service name "build" as default' do
-        expect(specification[:url]).to eq "https://localhost/proxy/build/#{port}/#{requested_url}"
+        expect(specification[:url]).to eq "https://localhost/proxy/build/#{port}/#{path}"
       end
     end
 

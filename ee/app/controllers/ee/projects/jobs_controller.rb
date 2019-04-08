@@ -38,7 +38,7 @@ module EE
       def build_service_specification
         build.service_specification(service: params['service'],
                                     port: params['port'],
-                                    requested_url: params['requested_uri'],
+                                    path: params['path'],
                                     subprotocols: proxy_subprotocol)
       end
 
