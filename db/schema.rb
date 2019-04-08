@@ -876,7 +876,6 @@ ActiveRecord::Schema.define(version: 20190404231137) do
     t.text "status_reason"
     t.string "external_ip"
     t.string "external_hostname"
-    t.datetime_with_timezone "last_update_started_at"
     t.index ["cluster_id"], name: "index_clusters_applications_ingress_on_cluster_id", unique: true, using: :btree
   end
 

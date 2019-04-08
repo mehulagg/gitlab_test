@@ -10,8 +10,7 @@ class ClusterUpdateAppWorker
   sidekiq_options retry: 3, dead: false
 
   # rubocop: disable CodeReuse/ActiveRecord
-  def perform(update_service, app_name, app_id, project_id, scheduled_time)
-    update_service = update_service.constantize if update_service.is_a?(String)
+  def perform(app_name, app_id, project_id, scheduled_time)
     project = Project.find_by(id: project_id)
     return unless project
 
@@ -19,7 +18,7 @@ class ClusterUpdateAppWorker
       break if app.updated_since?(scheduled_time)
       break if app.update_in_progress?
 
-      update_service.new(app, project).execute
+      Clusters::Applications::PrometheusUpdateService.new(app, project).execute
     end
   end
   # rubocop: enable CodeReuse/ActiveRecord

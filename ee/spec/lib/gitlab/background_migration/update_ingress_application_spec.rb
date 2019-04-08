@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::BackgroundMigration::UpdateIngressApplication, :migration, schema: 20190325091511 do
+describe Gitlab::BackgroundMigration::UpdateIngressApplication, :migration, schema: 20190328210840 do
   let(:background_migration) { described_class.new }
 
   let(:projects) { table(:projects) }
@@ -11,7 +11,6 @@ describe Gitlab::BackgroundMigration::UpdateIngressApplication, :migration, sche
   let(:ingress) { table(:clusters_applications_ingress) }
   let(:namespaces) { table(:namespaces) }
   let(:namespace) { namespaces.create!(id: 1, name: 'gitlab', path: 'gitlab') }
-  let(:update_service_name) { Clusters::Applications::UpgradeService.to_s }
 
   describe '#perform' do
     around do |example|
@@ -29,12 +28,12 @@ describe Gitlab::BackgroundMigration::UpdateIngressApplication, :migration, sche
     let!(:ingress2) { create_ingress(cluster: cluster2) }
 
     it 'schedules ingress updates' do
-      expect(ClusterUpdateAppWorker)
+      expect(ClusterUpgradeAppWorker)
         .to receive(:perform_async)
-        .with(update_service_name, app_name, ingress1.id, project1.id, now)
-      expect(ClusterUpdateAppWorker)
+        .with(app_name, ingress1.id)
+      expect(ClusterUpgradeAppWorker)
         .to receive(:perform_async)
-        .with(update_service_name, app_name, ingress2.id, project2.id, now)
+        .with(app_name, ingress2.id)
 
       background_migration.perform(ingress1.id, ingress2.id)
     end
