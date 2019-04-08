@@ -5,11 +5,16 @@ import IssuableIndex from '~/issuable_index';
 import projectSelect from '~/project_select';
 import { ISSUABLE_INDEX } from '~/pages/projects/constants';
 import { getParameterValues, mergeUrlParams } from '~/lib/utils/url_utility';
-import { scrollToElement, isInProjectPage, isInGroupsPage } from '~/lib/utils/common_utils';
+import {
+  scrollToElement,
+  isInProjectPage,
+  isInGroupsPage,
+  getPagePath,
+} from '~/lib/utils/common_utils';
 import Issue from './issue.vue';
 import IssuesEmptyState from './empty_state.vue';
 import IssuesLoadingState from './loading_state.vue';
-import { ISSUE_STATES, ACTIVE_TAB_CLASS, ISSUES_PER_PAGE } from '../constants';
+import { ISSUE_STATES, ACTIVE_TAB_CLASS, ISSUES_PER_PAGE, DASHBOARD_PAGE_NAME } from '../constants';
 
 const issuableIndex = new IssuableIndex(ISSUABLE_INDEX.ISSUE);
 
@@ -42,6 +47,10 @@ export default {
   data() {
     return {
       ISSUES_PER_PAGE,
+      isInGroupsPage: isInGroupsPage(),
+      isInProjectPage: isInProjectPage(),
+      isInDashboardPage: getPagePath() === DASHBOARD_PAGE_NAME,
+      isLoadingDisabled: false,
     };
   },
   computed: {
@@ -49,12 +58,12 @@ export default {
     ...mapGetters('issuesList', ['hasFilters', 'appliedFilters']),
 
     hasIssues() {
-      return !this.loading && this.issues && this.issues.length > 0;
+      return !this.isLoadingDisabled && !this.loading && this.issues && this.issues.length > 0;
     },
   },
   watch: {
     appliedFilters() {
-      this.fetchIssues(this.endpoint);
+      this.loadIssues();
       this.updateIssueStateTabs();
     },
     issues() {
@@ -62,11 +71,11 @@ export default {
     },
   },
   mounted() {
-    this.fetchIssues(this.endpoint);
+    this.loadIssues();
     this.updateIssueStateTabs();
     this.setupExternalEvents();
 
-    if (isInGroupsPage()) {
+    if (this.isInGroupsPage || this.isInDashboardPage) {
       projectSelect();
     }
   },
@@ -93,7 +102,7 @@ export default {
       }
     },
     setupExternalEvents() {
-      if (isInProjectPage()) {
+      if (this.isInProjectPage) {
         issuableIndex.bulkUpdateSidebar.initDomElements();
         issuableIndex.bulkUpdateSidebar.bindEvents();
       }
@@ -102,6 +111,18 @@ export default {
       this.filteredSearch.updateObject(mergeUrlParams({ page }, this.appliedFilters));
       this.setCurrentPage(page);
       scrollToElement('#content-body');
+    },
+    loadIssues() {
+      if (!this.isInDashboardPage) {
+        this.isLoadingDisabled = false;
+      } else {
+        const [authorUsername] = getParameterValues('author_username');
+        this.isLoadingDisabled = authorUsername !== gon.current_username;
+      }
+
+      if (!this.isLoadingDisabled) {
+        this.fetchIssues(this.endpoint);
+      }
     },
   },
 };
@@ -135,5 +156,6 @@ export default {
     :state="getCurrentState()"
     :button-path="createPath"
     :has-filters="hasFilters"
+    :loading-disabled="isLoadingDisabled"
   />
 </template>

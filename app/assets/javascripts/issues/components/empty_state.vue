@@ -20,10 +20,15 @@ export default {
       type: String,
       required: true,
     },
+    loadingDisabled: {
+      type: Boolean,
+      required: true,
+    },
   },
   data() {
     return {
       imagePath: imagePath('illustrations/issues.svg'),
+      loadingDisabledImage: imagePath('illustrations/issue-dashboard_results-without-filter.svg'),
       ISSUE_STATES,
     };
   },
@@ -32,7 +37,12 @@ export default {
 
 <template>
   <gl-empty-state
-    v-if="hasFilters"
+    v-if="loadingDisabled"
+    :title="__('Please select at least one filter to see results')"
+    :svg-path="loadingDisabledImage"
+  />
+  <gl-empty-state
+    v-else-if="hasFilters"
     :title="__('Sorry, your filter produced no results')"
     :description="__('To widen your search, change or remove filters above')"
     :svg-path="imagePath"

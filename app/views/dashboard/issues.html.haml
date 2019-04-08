@@ -23,4 +23,7 @@
 - if current_user && @no_filters_set
   = render 'shared/dashboard/no_filter_selected'
 - else
-  = render 'shared/issues'
+  - if Feature.enabled?('issues_vue_component')
+    %div{ id: 'js-issues-list', data: { endpoint: expose_url(api_v4_issues_path), 'can-update': false, 'create-path': '' } }
+  - else
+    = render 'shared/issues'

@@ -10,6 +10,7 @@ class DashboardController < Dashboard::ApplicationController
   before_action :projects, only: [:issues, :merge_requests]
   before_action :set_show_full_reference, only: [:issues, :merge_requests]
   before_action :check_filters_presence!, only: [:issues, :merge_requests]
+  before_action :set_issues_vue_component_feature_flags, only: [:issues]
 
   respond_to :html
 
@@ -61,4 +62,9 @@ class DashboardController < Dashboard::ApplicationController
       format.atom { head :bad_request }
     end
   end
+
+  def set_issues_vue_component_feature_flags
+    push_frontend_feature_flag(:issues_vue_component)
+  end
+
 end
