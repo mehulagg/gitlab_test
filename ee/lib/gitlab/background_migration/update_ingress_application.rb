@@ -29,6 +29,8 @@ class Gitlab::BackgroundMigration::UpdateIngressApplication
     app_name = 'ingress'
 
     project_ingress(from, to).each do |project_id, app_id|
+      app = Clusters::Applications::Ingress.find(app_id)
+      app.make_scheduled!
       ClusterUpgradeAppWorker.perform_async(app_name, app_id)
     end
   end
