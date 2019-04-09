@@ -40,6 +40,32 @@ include:
   template: Container-Scanning.gitlab-ci.yml
 ```
 
+#### Environment variables
+
+The job definition template recognizes the following [environment variables](https://docs.gitlab.com/ee/ci/variables/README.html):
+
+
+CS_IMAGE
+CLAIR_LOCAL_SCAN_VERSION
+CS_WHITELIST_FILE
+CS_LOG_FILE
+CS_REPORT_FILE
+
+| Environment variable  | Function                                                                                     |
+|-----------------------|----------------------------------------------------------------------------------------------|
+| CS_VERSION            | The version of the Container Scanning tool to download and use. Defaults to    |
+
+Also, some [predefined environment variables](https://docs.gitlab.com/ee/ci/variables/predefined_variables.html) can affect the job behavior.
+
+| Environment variable  | Function                                                                                     |
+|-----------------------|----------------------------------------------------------------------------------------------|
+| CI_REGISTRY           | If the Container Registry is enabled it returns the address of GitLab’s Container Registry.  |
+| CI_REGISTRY_USER      | The username to use to push containers to the GitLab Container Registry.                     |
+| CI_REGISTRY_PASSWORD  | The password to use to push containers to the GitLab Container Registry.                     |
+| CI_DEBUG_TRACE        | Whether debug tracing is enabled. If set to `"true"`, also enables the debug output of the Container Scanning wrapper script. |
+
+All of these variables can be overridden per your `container_scanning` job if you need further customization.
+
 If you want to whitelist some specific vulnerabilities, you can do so by defining
 them in a [YAML file](https://github.com/arminc/clair-scanner/blob/master/README.md#example-whitelist-yaml-file),
 in our case its named `clair-whitelist.yml`.
