@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class ProjectLabel < Label
+  include Presentable
+
   MAX_NUMBER_OF_PRIORITIES = 1
 
   belongs_to :project

@@ -5,7 +5,7 @@
     %li.is-not-draggable
       %span.label-row
         %span.label-name
-          = render_label(label, tooltip: false, link: milestones_label_path(options))
+          = render_label(label.present(issuable_subject: nil), tooltip: false, link: milestones_label_path(options))
         %span.prepend-description-left
           = markdown_field(label, :description)
 

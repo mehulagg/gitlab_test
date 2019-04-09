@@ -4,7 +4,7 @@ module EE
   module LabelsHelper
     def render_label(label, tooltip: true, link: nil, css: nil)
       content = super
-      content = scoped_label_wrapper(content, label) if label.scoped_label?
+      content = scoped_label_wrapper(content, label) if label.presenter_scoped_label?
 
       content
     end
@@ -25,7 +25,7 @@ module EE
       # can't use `super` because this is called also as a module method from
       # banzai
       tooltip = ::LabelsHelper.label_tooltip_title(label)
-      tooltip = %(<span class='font-weight-bold scoped-label-tooltip-title'>Scoped label</span><br />#{tooltip}) if label.scoped_label?
+      tooltip = %(<span class='font-weight-bold scoped-label-tooltip-title'>Scoped label</span><br />#{tooltip}) if label.presenter_scoped_label?
 
       tooltip
     end

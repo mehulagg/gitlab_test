@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class GroupLabel < Label
+  include Presentable
+
   belongs_to :group
 
   validates :group, presence: true

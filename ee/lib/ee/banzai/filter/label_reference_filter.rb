@@ -9,7 +9,13 @@ module EE
         override :wrap_link
         def wrap_link(link, label)
           content = super
-          content = ::EE::LabelsHelper.scoped_label_wrapper(content, label) if label.scoped_label?
+          # FIXME parent method defined for AbstracteferenceFilter depends on parent_type
+          # which is not set when rendering epic's labels in notes
+          parent = project || group
+          if label.scoped_label? && parent.feature_available?(:scoped_labels)
+            presenter = label.present(issuable_parent: parent)
+            content = ::EE::LabelsHelper.scoped_label_wrapper(content, presenter)
+          end
 
           content
         end
