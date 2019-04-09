@@ -65,7 +65,7 @@ module EE
                 if: :external_authorization_service_enabled?
 
       validates :external_authorization_service_url,
-                url: true, allow_blank: true,
+                addressable_url: true, allow_blank: true,
                 if: :external_authorization_service_enabled?
 
       validates :external_authorization_service_timeout,
