@@ -59,6 +59,9 @@ Style/FrozenStringLiteralComment:
     - 'scripts/**/*'
     - 'spec/**/*'
 
+RSpec/ExampleWording:
+  Enabled: true
+
 RSpec/FilePath:
   Exclude:
     - 'qa/**/*'
