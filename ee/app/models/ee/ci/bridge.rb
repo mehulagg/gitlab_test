@@ -10,6 +10,7 @@ module EE
 
         # rubocop:disable Cop/ActiveRecordSerialize
         serialize :options
+        serialize :yaml_variables, ::Gitlab::Serializer::Ci::Variables
         # rubocop:enable Cop/ActiveRecordSerialize
 
         def self.fabricate(attributes)
@@ -18,11 +19,11 @@ module EE
       end
 
       def target_project_path
-        raise NotImplementedError
+        options&.dig(:trigger, :project)
       end
 
       def target_ref
-        raise NotImplementedError
+        options&.dig(:trigger, :branch)
       end
 
       def target_user
