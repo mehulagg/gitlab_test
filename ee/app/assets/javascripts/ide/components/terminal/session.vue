@@ -35,7 +35,7 @@ export default {
         method: $('#request_method').val(),
         url: this.session.proxyPath,
         params: {
-          requested_uri: $("input.requesteduri").val(),
+          path: $("input.requesteduri").val(),
           port: $("input.proxyport").val(),
           service: $("input.proxyservice").val(),
         }
@@ -51,7 +51,7 @@ export default {
     testws() {
       const { protocol, hostname, port } = window.location;
       const wsProtocol = protocol === 'https:' ? 'wss://' : 'ws://';
-      var path = `${this.session.proxyWebsocketPath}?service=${$("input.proxyservice").val()}&port=${$("input.proxyport").val()}&requested_uri=${$("input.requesteduri").val()}`
+      var path = `${this.session.proxyWebsocketPath}?service=${$("input.proxyservice").val()}&port=${$("input.proxyport").val()}&path=${$("input.requesteduri").val()}`
       var url = `${wsProtocol}${hostname}:${port}${path}`;
       console.log(url)
       var socket = new WebSocket(url, ['terminal.gitlab.com']);
@@ -98,7 +98,7 @@ export default {
     </header>
     <div v-if="session.status == 'running'">
       <label for="proxyservice">Service Name</label>
-      <input class="proxyservice" id="proxyservice" value="tete13"></input>
+      <input class="proxyservice" id="proxyservice" value="websocket"></input>
       <label for="proxyport">Service External Port</label>
       <input class="proxyport" id="proxyport" value="4004"></input>
       <form action="requesteduri">Requested Uri</form>
