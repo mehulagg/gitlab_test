@@ -157,27 +157,6 @@ describe Projects::JobsController do
     end
   end
 
-  describe 'GET #proxy_authorize' do
-    let(:path) { :proxy_authorize }
-    let(:render_method) { :service_request }
-    let(:expected_data) do
-      {
-        'Service' => {
-          'Url' => 'https://localhost/proxy/build/default_port/',
-          'Header' => {
-            'Authorization' => [nil]
-          },
-          'CAPem' => nil
-        }
-      }.to_json
-    end
-
-    it_behaves_like 'proxy access rights'
-    it_behaves_like 'when pipeline is not from a webide source'
-    it_behaves_like 'validates workhorse signature'
-    it_behaves_like 'feature flag "build_service_proxy" is disabled'
-  end
-
   describe 'GET #proxy_websocket_authorize' do
     let(:path) { :proxy_websocket_authorize }
     let(:render_method) { :channel_websocket }

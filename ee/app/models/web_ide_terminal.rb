@@ -28,10 +28,6 @@ class WebIdeTerminal
     terminal_project_job_path(project, build, format: :ws)
   end
 
-  def proxy_path
-    proxy_project_job_path(project, build)
-  end
-
   def proxy_websocket_path
     proxy_project_job_path(project, build, format: :ws)
   end

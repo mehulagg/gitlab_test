@@ -50,7 +50,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
         resources :jobs, only: [], constraints: { id: /\d+/ } do
           member do
-            match '/proxy/authorize', to: 'jobs#proxy_authorize', constraints: { format: nil }, via: :all
             get '/proxy.ws/authorize', to: 'jobs#proxy_websocket_authorize', constraints: { format: nil }
             get :proxy
           end

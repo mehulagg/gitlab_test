@@ -176,16 +176,6 @@ module Gitlab
         details
       end
 
-      def service_request(service)
-        {
-          'Service' => {
-            'Url' => service[:url],
-            'Header' => service[:headers],
-            'CAPem' => service[:ca_pem]
-          }
-        }
-      end
-
       def version
         path = Rails.root.join(VERSION_FILE)
         path.readable? ? path.read.chomp : 'unknown'
