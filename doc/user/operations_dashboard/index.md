@@ -1,4 +1,4 @@
-# Operations Dashboard **[ULTIMATE]**
+# Operations Dashboard **[PREMIUM]**
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/5781)
 in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.5.
