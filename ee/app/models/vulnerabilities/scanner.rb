@@ -13,5 +13,6 @@ module Vulnerabilities
     validates :name, presence: true
 
     scope :with_external_id, -> (external_ids) { where(external_id: external_ids) }
+    scope :unused, -> { left_outer_joins(:occurrences).where(vulnerability_occurrences: {scanner_id: nil}) }
   end
 end
