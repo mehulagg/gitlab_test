@@ -23,10 +23,6 @@ describe WebIdeTerminal do
     expect(subject.terminal_path).to end_with("/jobs/#{build.id}/terminal.ws")
   end
 
-  it 'returns the proxy_path of the build' do
-    expect(subject.proxy_path).to end_with("/jobs/#{build.id}/proxy")
-  end
-
   it 'returns the proxy_websocket_path of the build' do
     expect(subject.proxy_websocket_path).to end_with("/jobs/#{build.id}/proxy.ws")
   end

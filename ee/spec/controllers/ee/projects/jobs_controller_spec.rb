@@ -116,13 +116,11 @@ describe Projects::JobsController do
 
       context 'and valid id' do
         it 'returns the proxy data for the service running in the job' do
-          expect(Gitlab::Workhorse).to receive(render_method).and_return(workhorse: :response)
-
           make_request
 
           expect(response).to have_gitlab_http_status(200)
           expect(response.headers["Content-Type"]).to eq(Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE)
-          expect(response.body).to eq('{"workhorse":"response"}')
+          expect(response.body).to eq(expected_data)
         end
       end
 
@@ -159,19 +157,22 @@ describe Projects::JobsController do
     end
   end
 
-  describe 'GET #proxy_authorize' do
-    let(:path) { :proxy_authorize }
-    let(:render_method) { :service_request }
-
-    it_behaves_like 'proxy access rights'
-    it_behaves_like 'when pipeline is not from a webide source'
-    it_behaves_like 'validates workhorse signature'
-    it_behaves_like 'feature flag "build_service_proxy" is disabled'
-  end
-
   describe 'GET #proxy_websocket_authorize' do
     let(:path) { :proxy_websocket_authorize }
     let(:render_method) { :channel_websocket }
+    let(:expected_data) do
+      {
+        'Channel' => {
+          'Subprotocols' => ["terminal.gitlab.com"],
+          'Url' => 'wss://localhost/proxy/build/default_port/',
+          'Header' => {
+            'Authorization' => [nil]
+          },
+          'MaxSessionTime' => nil,
+          'CAPem' => nil
+        }
+      }.to_json
+    end
 
     it_behaves_like 'proxy access rights'
     it_behaves_like 'when pipeline is not from a webide source'
