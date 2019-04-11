@@ -43,4 +43,21 @@ describe Vulnerabilities::Identifier do
       end
     end
   end
+
+  describe '.unused' do
+    let(:occurrence) { create(:vulnerabilities_occurrence) }
+    let!(:used_identifier) do
+      create(:vulnerabilities_occurrence_identifier,
+             occurrence: occurrence,
+             identifier: occurrence.primary_identifier)
+    end
+    let!(:unused_identifier) { create(:vulnerabilities_identifier) }
+
+    subject { described_class.unused }
+
+    it 'returns only identifier without occurrence' do
+      expect(subject.count).to eq 1
+      expect(subject.first).to eq unused_identifier
+    end
+  end
 end

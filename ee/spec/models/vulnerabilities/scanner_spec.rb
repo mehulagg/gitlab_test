@@ -39,7 +39,7 @@ describe Vulnerabilities::Scanner do
     end
   end
 
-  describe 'unused' do
+  describe '.unused' do
     let!(:occurrence) { create(:vulnerabilities_occurrence) }
     let!(:orphan_scanner) { create(:vulnerabilities_scanner) }
 
