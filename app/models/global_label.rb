@@ -25,4 +25,8 @@ class GlobalLabel
     @labels = labels
     @first_label = labels.find { |lbl| lbl.description.present? } || labels.first
   end
+
+  def present(attributes)
+    super(attributes.merge(presenter_class: ::LabelPresenter))
+  end
 end

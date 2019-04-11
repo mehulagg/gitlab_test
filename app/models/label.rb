@@ -234,6 +234,10 @@ class Label < ApplicationRecord
     attributes
   end
 
+  def present(attributes)
+    super(attributes.merge(presenter_class: ::LabelPresenter))
+  end
+
   private
 
   def issues_count(user, params = {})
