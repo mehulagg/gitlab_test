@@ -32,6 +32,11 @@ class LabelPresenter < Gitlab::View::Presenter::Delegated
                   label_name: [label.name])
     end
   end
+
+  def can_subscribe_to_label_in_different_levels?
+    # FIXME - replacement for defined?(@project)
+    issuable_subject.is_a?(Project) && label.is_a?(GroupLabel)
+  end
 end
 
 LabelPresenter.prepend(EE::LabelPresenter)

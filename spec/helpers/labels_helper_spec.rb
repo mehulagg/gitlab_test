@@ -80,7 +80,6 @@ describe LabelsHelper do
       let(:namespace) { build(:namespace, name: 'foo3') }
       let(:subject) { build(:project, namespace: namespace, name: 'bar3') }
 
-
       it 'links to project issues page' do
         expect(link_to_label(label_presenter)).to match %r{<a href="/foo3/bar3/issues\?label_name%5B%5D=#{label.name}">.*</a>}
       end
@@ -240,16 +239,24 @@ describe LabelsHelper do
     end
   end
 
-  describe 'labels_sorted_by_title' do
-    it 'sorts labels alphabetically' do
-      label1 = double(:label, title: 'a')
-      label2 = double(:label, title: 'B')
-      label3 = double(:label, title: 'c')
-      label4 = double(:label, title: 'D')
-      labels = [label1, label2, label3, label4]
+  describe 'presented_labels_sorted_by_title' do
+    let(:labels) do
+      [build(:label, title: 'a'),
+       build(:label, title: 'B'),
+       build(:label, title: 'c'),
+       build(:label, title: 'D')]
+    end
 
-      expect(labels_sorted_by_title(labels))
-        .to match_array([label2, label4, label1, label3])
+    it 'sorts labels alphabetically' do
+      sorted_ids = presented_labels_sorted_by_title(labels, nil).map(&:id)
+
+      expect(sorted_ids)
+        .to match_array([labels[1].id, labels[3].id, labels[0].id, labels[2].id])
+    end
+
+    it 'returns an array of label presenters' do
+      expect(presented_labels_sorted_by_title(labels, nil))
+        .to all(be_a(LabelPresenter))
     end
   end
 
