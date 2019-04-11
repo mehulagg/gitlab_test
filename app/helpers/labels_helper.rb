@@ -211,8 +211,8 @@ module LabelsHelper
     "#{action} at #{level} level"
   end
 
-  def labels_sorted_by_title(labels)
-    labels.sort_by(&:title)
+  def presented_labels_sorted_by_title(labels, subject)
+    labels.sort_by(&:title).map { |label| label.present(issuable_subject: subject) }
   end
 
   def label_dropdown_data(project, opts = {})
