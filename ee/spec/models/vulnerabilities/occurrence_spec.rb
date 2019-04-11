@@ -231,6 +231,24 @@ describe Vulnerabilities::Occurrence do
     end
   end
 
+  describe '.outdated' do
+    let!(:old_pipeline) { create(:ci_empty_pipeline) }
+    let!(:occurrences) { create_list(:vulnerabilities_occurrence_pipeline, 3, pipeline: old_pipeline) }
+    let!(:new_pipeline) { create(:ci_empty_pipeline) }
+    let!(:occurrences) { create_list(:vulnerabilities_occurrence_pipeline, 2, pipeline: new_pipeline) }
+
+    subject { described_class.outdated(1.day.ago) }
+
+    it 'returns occurrences for old pipeline' do
+      Vulnerabilities::Occurrence.all.each do |o|
+        p o.pipelines.count
+        p "#{o.pipelines.first.id}.to_s #{o.pipelines.first.created_at}"
+      end
+      puts old_pipeline.created_at.to_s
+      expect(subject.count).to eq 3
+    end
+  end
+
   describe 'feedback' do
     set(:project) { create(:project) }
     let(:occurrence) do

@@ -102,6 +102,10 @@ module Vulnerabilities
       end
     end
 
+    def self.outdated(date)
+      joins(:pipelines).where(::Ci::Pipeline.arel_table[:created_at].lt(date))
+    end
+
     def feedback(feedback_type:)
       params = {
         project_id: project_id,
