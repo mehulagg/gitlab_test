@@ -5,7 +5,7 @@ module EESpecificCheck
   WHITELIST = [
     'CHANGELOG-EE.md',
     'config/**/*', # https://gitlab.com/gitlab-org/gitlab-ee/issues/4946
-    'doc/**/*', # https://gitlab.com/gitlab-org/gitlab-ee/issues/4948#note_59945483
+    #'doc/**/*', # https://gitlab.com/gitlab-org/gitlab-ee/issues/4948#note_59945483
     'qa/**/*', # https://gitlab.com/gitlab-org/gitlab-ee/issues/4997#note_59764702
     'scripts/**/*',
     'vendor/assets/javascripts/jasmine-jquery.js',
