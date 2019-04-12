@@ -41,13 +41,13 @@ describe Vulnerabilities::Scanner do
 
   describe '.unused' do
     let!(:occurrence) { create(:vulnerabilities_occurrence) }
-    let!(:orphan_scanner) { create(:vulnerabilities_scanner) }
+    let!(:unused_scanner) { create(:vulnerabilities_scanner) }
 
 
     subject { described_class.unused }
 
     it 'returns unused entities' do
-      expect(subject.first).to eq orphan_scanner
+      expect(subject.first).to eq unused_scanner
       expect(subject.count).to eq 1
     end
   end

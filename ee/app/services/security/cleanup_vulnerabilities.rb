@@ -16,16 +16,16 @@ module Security
     private
 
     def delete_occurrences
-      #      vulnerability_occurrences records that only belong to pipelines older than the retention period (join with vulnerability_occurrence_pipelines join modelend
-
+      ::Vulnerabilities::OccurrencePipeline.outdated_from(RETENTION_POLICY)
+      ::Vulnerabilities::Occurrence.unused.destroy_all
     end
 
     def delete_scanners
-      Vulnerabilities::Scanner.unused.destroy_all
+      ::Vulnerabilities::Scanner.unused.destroy_all
     end
 
     def delete_identifiers
-      Vulnerabilities::Identifier.unused.destroy_all
+      ::Vulnerabilities::Identifier.unused.destroy_all
     end
 
   end
