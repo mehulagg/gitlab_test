@@ -10,5 +10,9 @@ module Vulnerabilities
     validates :occurrence, presence: true
     validates :pipeline, presence: true
     validates :pipeline_id, uniqueness: { scope: [:occurrence_id] }
+
+    def self.outdated_from(date)
+      joins(:pipeline).where(::Ci::Pipeline.arel_table[:created_at].lt(date))
+    end
   end
 end
