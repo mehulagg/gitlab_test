@@ -6,6 +6,7 @@ import projectSelect from '~/project_select';
 import { ISSUABLE_INDEX } from '~/pages/projects/constants';
 import { getParameterValues, mergeUrlParams } from '~/lib/utils/url_utility';
 import {
+  objectToQueryString,
   scrollToElement,
   isInProjectPage,
   isInGroupsPage,
@@ -97,7 +98,7 @@ export default {
       if (activeTabEl && !activeTabEl.querySelector(`[data-state="${this.getCurrentState()}"]`)) {
         activeTabEl.classList.remove(ACTIVE_TAB_CLASS);
         newActiveTabEl.parentElement.classList.add(ACTIVE_TAB_CLASS);
-      } else {
+      } else if (newActiveTabEl) {
         newActiveTabEl.parentElement.classList.add(ACTIVE_TAB_CLASS);
       }
     },
@@ -124,6 +125,13 @@ export default {
         this.fetchIssues(this.endpoint);
       }
     },
+    applyLabelFilter(label) {
+      this.filteredSearch.clearSearch();
+      this.filteredSearch.updateObject(
+        `?${objectToQueryString({ 'label_name[]': encodeURIComponent(label) })}`,
+      );
+      this.filteredSearch.loadSearchParamsFromURL();
+    },
   },
 };
 </script>
@@ -136,6 +144,7 @@ export default {
         :issue="issue"
         :is-bulk-updating="isBulkUpdating"
         :can-bulk-update="canBulkUpdate"
+        @issueLabelClicked="applyLabelFilter"
       />
     </ul>
     <div class="gl-pagination prepend-top-default">

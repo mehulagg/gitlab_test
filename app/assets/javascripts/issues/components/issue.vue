@@ -64,7 +64,7 @@ export default {
       return this.issue.assignees.length - this.maxRender;
     },
     assigneeCounterTooltip() {
-      return `+${this.moreAssigneesCount(this.issue.assignees)} more assignees`;
+      return `+${this.moreAssigneesCount} more assignees`;
     },
     issueCommentsURL() {
       return `${this.issue.web_url}#notes`;
@@ -86,7 +86,7 @@ export default {
     labelStyle(label) {
       return {
         backgroundColor: label.color,
-        color: label.textColor,
+        color: label.text_color,
       };
     },
   },
@@ -111,14 +111,13 @@ export default {
               <span
                 v-if="issue.confidential"
                 v-gl-tooltip
-                class="has-tooltip"
                 :title="__('Confidential')"
                 :aria-label="__('Confidential')"
               >
                 <Icon name="eye-slash" class="align-text-bottom" />
               </span>
               <a :href="issue.web_url">{{ issue.title }}</a>
-              <span v-if="issue.tasks" class="task-status d-none d-sm-inline-block">
+              <span v-if="issue.has_tasks" class="task-status d-none d-sm-inline-block">
                 &nbsp;
                 {{ issue.task_status }}
               </span>
@@ -150,7 +149,7 @@ export default {
             <span
               v-if="issue.due_date"
               v-gl-tooltip
-              class="issuable-due-date d-none d-sm-inline-block has-tooltip"
+              class="issuable-due-date d-none d-sm-inline-block"
               :title="__('Due date')"
               :class="{ cred: isIssueOverDue }"
             >
@@ -158,29 +157,29 @@ export default {
               <icon name="calendar" class="align-text-bottom" />
               {{ formatDueDate }}
             </span>
-            <span v-if="issue.labels.length">
-              &nbsp;
-              <a
+            <span v-if="issue.labels">
+              <span
                 v-for="label in issue.labels"
                 :key="label.id"
-                class="label-link"
-                :href="label.web_url"
+                ref="button"
+                class="label-link append-right-4 cursor-pointer"
+                @click="$emit('issueLabelClicked', label.name)"
               >
                 <span
                   v-gl-tooltip
-                  class="badge color-label has-tooltip"
+                  class="badge color-label"
                   :style="labelStyle(label)"
                   :title="label.description"
                 >
-                  {{ label.title }}
+                  {{ label.name }}
                 </span>
-              </a>
+              </span>
             </span>
             <span
               v-if="issue.weight"
               v-gl-tooltip
               :title="__('Weight')"
-              class="issuable-weight d-none d-sm-inline-block has-tooltip"
+              class="issuable-weight d-none d-sm-inline-block"
             >
               <icon name="weight" class="align-text-bottom issue-weight-icon" />
               {{ issue.weight }}
@@ -206,7 +205,7 @@ export default {
                 v-if="shouldAssigneeRenderCounter"
                 v-gl-tooltip
                 :title="assigneeCounterTooltip"
-                class="avatar-counter has-tooltip"
+                class="avatar-counter"
                 data-placement="bottom"
               >
                 +{{ moreAssigneesCount }}
@@ -214,7 +213,8 @@ export default {
             </li>
             <li
               v-if="issue.merge_requests_count > 0"
-              class="issuable-mr d-none d-sm-block has-tooltip"
+              v-gl-tooltip
+              class="issuable-mr d-none d-sm-block"
               :title="__('Related merge requests')"
             >
               <icon name="merge-request" class="align-text-bottom icon-merge-request-unmerged" />
@@ -223,7 +223,8 @@ export default {
 
             <li
               v-if="issue.upvotes > 0"
-              class="issuable-upvotes d-none d-sm-block has-tooltip"
+              v-gl-tooltip
+              class="issuable-upvotes d-none d-sm-block"
               :title="__('Upvotes')"
             >
               <icon name="thumb-up" class="align-text-bottom" />
@@ -232,7 +233,8 @@ export default {
 
             <li
               v-if="issue.downvotes > 0"
-              class="issuable-downvotes d-none d-sm-block has-tooltip"
+              v-gl-tooltip
+              class="issuable-downvotes d-none d-sm-block"
               :title="__('Upvotes')"
             >
               <icon name="thumb-down" class="align-text-bottom" />
@@ -241,7 +243,7 @@ export default {
 
             <li class="issuable-comments d-none d-sm-block">
               <a
-                class="has-tooltip"
+                v-gl-tooltip
                 :href="issueCommentsURL"
                 :class="{ 'no-comments': issue.note_count < 0 }"
                 :title="__('Comments')"
