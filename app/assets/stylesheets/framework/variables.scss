@@ -662,6 +662,11 @@ $feature-toggle-text-color: #fff;
 $feature-toggle-color-enabled: #4a8bee;
 
 /*
+ * Monitor Charts
+ */
+$chart-tooltip-max-width: 512px;
+
+/*
 Stat Graph
 */
 $stat-graph-common-bg: #f3f3f3;
@@ -805,3 +810,8 @@ $compare-branches-sticky-header-height: 68px;
  - Issue: https://gitlab.com/gitlab-org/design.gitlab.com/issues/242
  */
 $enable-validation-icons: false;
+
+/*
+Licenses
+*/
+$license-header-cell-width: 150px;

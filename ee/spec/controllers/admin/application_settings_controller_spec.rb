@@ -34,7 +34,8 @@ describe Admin::ApplicationSettingsController do
           slack_app_id: 'slack_app_id',
           slack_app_secret: 'slack_app_secret',
           slack_app_verification_token: 'slack_app_verification_token',
-          allow_group_owners_to_manage_ldap: false
+          allow_group_owners_to_manage_ldap: false,
+          geo_node_allowed_ips: '0.0.0.0/0, ::/0'
       }
 
       put :update, params: { application_setting: settings }
@@ -48,7 +49,7 @@ describe Admin::ApplicationSettingsController do
     end
 
     shared_examples 'settings for licensed features' do
-      it 'does not update settings when licesed feature is not available' do
+      it 'does not update settings when licensed feature is not available' do
         stub_licensed_features(feature => false)
         attribute_names = settings.keys.map(&:to_s)
 
@@ -76,23 +77,6 @@ describe Admin::ApplicationSettingsController do
         }
       end
       let(:feature) { :repository_mirrors }
-
-      it_behaves_like 'settings for licensed features'
-    end
-
-    context 'external policy classification settings' do
-      let(:settings) do
-        {
-          external_authorization_service_enabled: true,
-          external_authorization_service_url: 'https://custom.service/',
-          external_authorization_service_default_label: 'default',
-          external_authorization_service_timeout: 3,
-          external_auth_client_cert: File.read('ee/spec/fixtures/passphrase_x509_certificate.crt'),
-          external_auth_client_key: File.read('ee/spec/fixtures/passphrase_x509_certificate_pk.key'),
-          external_auth_client_key_pass: "5iveL!fe"
-        }
-      end
-      let(:feature) { :external_authorization_service }
 
       it_behaves_like 'settings for licensed features'
     end

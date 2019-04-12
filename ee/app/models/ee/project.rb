@@ -87,7 +87,7 @@ module EE
       end
 
       scope :with_wiki_enabled, -> { with_feature_enabled(:wiki) }
-
+      scope :within_shards, -> (shard_names) { where(repository_storage: Array(shard_names)) }
       scope :verification_failed_repos, -> { joins(:repository_state).merge(ProjectRepositoryState.verification_failed_repos) }
       scope :verification_failed_wikis, -> { joins(:repository_state).merge(ProjectRepositoryState.verification_failed_wikis) }
       scope :for_plan_name, -> (name) { joins(namespace: :plan).where(plans: { name: name }) }
@@ -477,13 +477,6 @@ module EE
         ::Gitlab::CurrentSettings.mirror_available
     end
 
-    def external_authorization_classification_label
-      return unless License.feature_available?(:external_authorization_service)
-
-      super || ::Gitlab::CurrentSettings.current_application_settings
-                 .external_authorization_service_default_label
-    end
-
     override :licensed_features
     def licensed_features
       return super unless License.current
@@ -583,7 +576,9 @@ module EE
       # Checking both feature availability on the license, as well as the feature
       # flag, because we don't want to enable design_management by default on
       # on prem installs yet.
-      feature_available?(:design_management) && ::Feature.enabled?(:design_management, self)
+      # GraphQL is also required for using Design Management
+      feature_available?(:design_management) && ::Feature.enabled?(:design_management, self) &&
+        ::Gitlab::Graphql.enabled?
     end
 
     private

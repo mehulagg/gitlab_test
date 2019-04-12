@@ -319,7 +319,7 @@ There are a few rules that apply to the usage of job policy:
 
 - `only` and `except` are inclusive. If both `only` and `except` are defined
    in a job specification, the ref is filtered by `only` and `except`.
-- `only` and `except` allow the use of regular expressions (using [Ruby regexp syntax](https://ruby-doc.org/core/Regexp.html)).
+- `only` and `except` allow the use of regular expressions ([supported regexp syntax](#supported-onlyexcept-regexp-syntax)).
 - `only` and `except` allow to specify a repository path to filter jobs for
    forks.
 
@@ -437,10 +437,6 @@ Feature.enable(:allow_unsafe_ruby_regexp)
 
 ### `only`/`except` (advanced)
 
-> - `refs` and `kubernetes` policies introduced in GitLab 10.0.
-> - `variables` policy introduced in GitLab 10.7.
-> - `changes` policy [introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/19232) in GitLab 11.4.
-
 CAUTION: **Warning:**
 This an _alpha_ feature, and it is subject to change at any time without
 prior notice!
@@ -461,6 +457,8 @@ If you use multiple keys under `only` or `except`, they act as an AND. The logic
 
 #### `only:refs`/`except:refs`
 
+> `refs` policy introduced in GitLab 10.0.
+
 The `refs` strategy can take the same values as the
 [simplified only/except configuration](#onlyexcept-basic).
 
@@ -477,6 +475,8 @@ deploy:
 
 #### `only:kubernetes`/`except:kubernetes`
 
+> `kubernetes` policy introduced in GitLab 10.0.
+
 The `kubernetes` strategy accepts only the `active` keyword.
 
 In the example below, the `deploy` job is going to be created only when the
@@ -489,6 +489,8 @@ deploy:
 ```
 
 #### `only:variables`/`except:variables`
+
+> `variables` policy introduced in GitLab 10.7.
 
 The `variables` keyword is used to define variables expressions. In other words,
 you can use predefined variables / project / group or
@@ -518,9 +520,11 @@ end-to-end:
       - $CI_COMMIT_MESSAGE =~ /skip-end-to-end-tests/
 ```
 
-Learn more about [variables expressions](../variables/README.md#variables-expressions).
+Learn more about [variables expressions](../variables/README.md#environment-variables-expressions).
 
 #### `only:changes`/`except:changes`
+
+> `changes` policy [introduced][ce-19232] in GitLab 11.4.
 
 Using the `changes` keyword with `only` or `except` makes it possible to define if
 a job should be created based on files modified by a git push event.
@@ -756,7 +760,7 @@ Manual actions are a special type of job that are not executed automatically,
 they need to be explicitly started by a user. An example usage of manual actions
 would be a deployment to a production environment. Manual actions can be started
 from the pipeline, job, environment, and deployment views. Read more at the
-[environments documentation](../environments.md#manually-deploying-to-environments).
+[environments documentation](../environments.md#configuring-manual-deployments).
 
 Manual actions can be either optional or blocking. Blocking manual actions will
 block the execution of the pipeline at the stage this action is defined in. It's
@@ -2249,7 +2253,7 @@ Runner itself](../variables/README.md#predefined-environment-variables).
 One example would be `CI_COMMIT_REF_NAME` which has the value of
 the branch or tag name for which project is built. Apart from the variables
 you can set in `.gitlab-ci.yml`, there are also the so called
-[Variables](../variables/README.md#variables)
+[Variables](../variables/README.md#gitlab-cicd-environment-variables)
 which can be set in GitLab's UI.
 
 Learn more about [variables and their priority][variables].
@@ -2697,6 +2701,15 @@ Not to be confused with [`trigger`](#trigger-premium).
 
 [Read more in the triggers documentation.](../triggers/README.md)
 
+## Processing Git pushes
+
+GitLab will create at most 4 branch and tags pipelines when
+doing pushing multiple changes in single `git push` invocation.
+
+This limitation does not affect any of the updated Merge Request pipelines,
+all updated Merge Requests will have a pipeline created when using
+[pipelines for merge requests](../merge_request_pipelines/index.md).
+
 ## Skipping jobs
 
 If your commit message contains `[ci skip]` or `[skip ci]`, using any
@@ -2714,6 +2727,7 @@ git push -o ci.skip
 [ce-7983]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/7983
 [ce-7447]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/7447
 [ce-12909]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/12909
+[ce-19232]: https://gitlab.com/gitlab-org/gitlab-ce/issues/19232
 [environment]: ../environments.md "CI/CD environments"
 [schedules]: ../../user/project/pipelines/schedules.md "Pipelines schedules"
 [variables]: ../variables/README.md "CI/CD variables"

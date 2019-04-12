@@ -1,8 +1,11 @@
 require 'spec_helper'
 
 describe Groups::GroupMembersController do
+  include ExternalAuthorizationServiceHelpers
+
   let(:user)  { create(:user) }
   let(:group) { create(:group, :public, :access_requestable) }
+  let(:membership) { create(:group_member, group: group) }
 
   describe 'GET index' do
     it 'renders index with 200 status code' do
@@ -52,14 +55,6 @@ describe Groups::GroupMembersController do
         expect(response).to set_flash.to 'Users were successfully added.'
         expect(response).to redirect_to(group_group_members_path(group))
         expect(group.users).to include group_user
-      end
-
-      it 'creates an audit event' do
-        expect do
-          post :create, params: { group_id: group,
-                                  user_ids: group_user.id,
-                                  access_level: Gitlab::Access::GUEST }
-        end.to change(AuditEvent, :count).by(1)
       end
 
       it 'adds no user to members' do
@@ -182,10 +177,6 @@ describe Groups::GroupMembersController do
           expect(response).to have_gitlab_http_status(200)
           expect(json_response['notice']).to eq "You left the \"#{group.name}\" group."
         end
-
-        it 'creates an audit event' do
-          expect { delete :leave, params: { group_id: group } }.to change(AuditEvent, :count).by(1)
-        end
       end
 
       context 'and is an owner' do
@@ -197,10 +188,6 @@ describe Groups::GroupMembersController do
           delete :leave, params: { group_id: group }
 
           expect(response).to have_gitlab_http_status(403)
-        end
-
-        it 'does not create an audit event' do
-          expect { delete :leave, params: { group_id: group } }.not_to change(AuditEvent, :count)
         end
       end
 
@@ -216,10 +203,6 @@ describe Groups::GroupMembersController do
           expect(response).to redirect_to(group_path(group))
           expect(group.requesters).to be_empty
           expect(group.users).not_to include user
-        end
-
-        it 'creates an audit event' do
-          expect { delete :leave, params: { group_id: group } }.to change(AuditEvent, :count).by(1)
         end
       end
     end
@@ -280,6 +263,89 @@ describe Groups::GroupMembersController do
           expect(response).to redirect_to(group_group_members_path(group))
           expect(group.members).to include member
         end
+      end
+    end
+  end
+
+  context 'with external authorization enabled' do
+    before do
+      enable_external_authorization_service_check
+      group.add_owner(user)
+      sign_in(user)
+    end
+
+    describe 'GET #index' do
+      it 'is successful' do
+        get :index, params: { group_id: group }
+
+        expect(response).to have_gitlab_http_status(200)
+      end
+    end
+
+    describe 'POST #create' do
+      it 'is successful' do
+        post :create, params: { group_id: group, users: user, access_level: Gitlab::Access::GUEST }
+
+        expect(response).to have_gitlab_http_status(302)
+      end
+    end
+
+    describe 'PUT #update' do
+      it 'is successful' do
+        put :update,
+            params: {
+              group_member: { access_level: Gitlab::Access::GUEST },
+              group_id: group,
+              id: membership
+            },
+            format: :js
+
+        expect(response).to have_gitlab_http_status(200)
+      end
+    end
+
+    describe 'DELETE #destroy' do
+      it 'is successful' do
+        delete :destroy, params: { group_id: group, id: membership }
+
+        expect(response).to have_gitlab_http_status(302)
+      end
+    end
+
+    describe 'POST #destroy' do
+      it 'is successful' do
+        sign_in(create(:user))
+
+        post :request_access, params: { group_id: group }
+
+        expect(response).to have_gitlab_http_status(302)
+      end
+    end
+
+    describe 'POST #approve_request_access' do
+      it 'is successful' do
+        access_request = create(:group_member, :access_request, group: group)
+        post :approve_access_request, params: { group_id: group, id: access_request }
+
+        expect(response).to have_gitlab_http_status(302)
+      end
+    end
+
+    describe 'DELETE #leave' do
+      it 'is successful' do
+        group.add_owner(create(:user))
+
+        delete :leave, params: { group_id: group }
+
+        expect(response).to have_gitlab_http_status(302)
+      end
+    end
+
+    describe 'POST #resend_invite' do
+      it 'is successful' do
+        post :resend_invite, params: { group_id: group, id: membership }
+
+        expect(response).to have_gitlab_http_status(302)
       end
     end
   end

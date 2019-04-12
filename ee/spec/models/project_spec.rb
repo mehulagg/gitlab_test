@@ -4,7 +4,6 @@ require 'spec_helper'
 
 describe Project do
   include ProjectForksHelper
-  include ExternalAuthorizationServiceHelpers
   include ::EE::GeoHelpers
   using RSpec::Parameterized::TableSyntax
 
@@ -1242,43 +1241,6 @@ describe Project do
     end
   end
 
-  describe '#external_authorization_classification_label' do
-    it 'falls back to the default when none is configured' do
-      enable_external_authorization_service_check
-
-      expect(build(:project).external_authorization_classification_label)
-        .to eq('default_label')
-    end
-
-    it 'returns `nil` if the feature is disabled' do
-      stub_licensed_features(external_authorization_service: false)
-
-      project = build(:project,
-                      external_authorization_classification_label: 'hello')
-
-      expect(project.external_authorization_classification_label)
-        .to eq(nil)
-    end
-
-    it 'returns the classification label if it was configured on the project' do
-      enable_external_authorization_service_check
-
-      project = build(:project,
-                      external_authorization_classification_label: 'hello')
-
-      expect(project.external_authorization_classification_label)
-        .to eq('hello')
-    end
-
-    it 'does not break when not stubbing the license check' do
-      enable_external_authorization_service_check
-      enable_namespace_license_check!
-      project = build(:project)
-
-      expect { project.external_authorization_classification_label }.not_to raise_error
-    end
-  end
-
   describe '#licensed_features' do
     let(:plan_license) { :free }
     let(:global_license) { create(:license) }
@@ -1925,17 +1887,18 @@ describe Project do
 
   describe "#design_management_enabled?" do
     let(:project) { build(:project) }
-    where(:feature_enabled, :license_enabled, :expected) do
-      false | false | false
-      false | true  | false
-      true  | false | false
-      true  | true  | true
+    where(:feature_enabled, :license_enabled, :graphql, :expected) do
+      false | false | false | false
+      false | true  | false | false
+      true  | false | false | false
+      false | false | true  | false
+      true  | true  | true  | true
     end
 
     with_them do
       before do
         stub_licensed_features(design_management: license_enabled)
-        stub_feature_flags(design_management: feature_enabled)
+        stub_feature_flags(design_management: feature_enabled, graphql: graphql)
       end
 
       it "knows if design management is available" do

@@ -1,5 +1,19 @@
 Please view this file on the master branch, on stable branches it's out of date.
 
+## 11.9.8 (2019-04-11)
+
+### Fixed (1 change)
+
+- Fix sorting by priority with filtering by approvers. !10446
+
+
+## 11.9.7 (2019-04-09)
+
+### Security (1 change)
+
+- Expose only basic group attributes in boards API.
+
+
 ## 11.9.6 (2019-04-04)
 
 ### Fixed (3 changes)
@@ -261,6 +275,13 @@ Please view this file on the master branch, on stable branches it's out of date.
 - Fix deprecation: uniq is deprecated and will be removed from Rails 5.1. !9348 (Jasper Maes)
 - Turn on rubocop for frozen string in ee/. (gfyoung)
 - Creates an EE component for the pipeline graph.
+
+
+## 11.7.11 (2019-04-09)
+
+### Security (1 change)
+
+- Expose only basic group attributes in boards API.
 
 
 ## 11.7.10 (2019-03-28)

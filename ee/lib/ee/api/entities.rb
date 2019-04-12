@@ -41,8 +41,6 @@ module EE
           expose :mirror_trigger_builds, if: ->(project, _) { project.mirror? }
           expose :only_mirror_protected_branches, if: ->(project, _) { project.mirror? }
           expose :mirror_overwrites_diverged_branches, if: ->(project, _) { project.mirror? }
-          expose :external_authorization_classification_label,
-                 if: ->(_, _) { License.feature_available?(:external_authorization_service) }
           expose :packages_enabled, if: ->(project, _) { project.feature_available?(:packages) }
         end
       end
@@ -125,7 +123,7 @@ module EE
         prepended do
           # Default filtering configuration
           expose :name
-          expose :group
+          expose :group, using: ::API::Entities::BasicGroupDetails
 
           with_options if: ->(board, _) { board.parent.feature_available?(:scoped_issue_board) } do
             expose :milestone do |board|
@@ -157,9 +155,6 @@ module EE
         prepended do
           expose(*EE::ApplicationSettingsHelper.repository_mirror_attributes, if: ->(_instance, _options) do
             ::License.feature_available?(:repository_mirrors)
-          end)
-          expose(*EE::ApplicationSettingsHelper.external_authorization_service_attributes, if: ->(_instance, _options) do
-            ::License.feature_available?(:external_authorization_service)
           end)
           expose :email_additional_text, if: ->(_instance, _opts) { ::License.feature_available?(:email_additional_text) }
           expose :file_template_project_id, if: ->(_instance, _opts) { ::License.feature_available?(:custom_file_templates) }
@@ -462,7 +457,6 @@ module EE
 
         expose :id
         expose :url
-        expose :alternate_url
         expose :internal_url
         expose :primary?, as: :primary
         expose :enabled

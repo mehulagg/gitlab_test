@@ -60,39 +60,9 @@ module EE
                 presence: true,
                 if: :snowplow_enabled
 
-      validates :external_authorization_service_default_label,
-                presence: true,
-                if: :external_authorization_service_enabled?
+      validates :geo_node_allowed_ips, length: { maximum: 255 }, presence: true
 
-      validates :external_authorization_service_url,
-                url: true, allow_blank: true,
-                if: :external_authorization_service_enabled?
-
-      validates :external_authorization_service_timeout,
-                numericality: { greater_than: 0, less_than_or_equal_to: 10 },
-                if: :external_authorization_service_enabled?
-
-      validates :external_auth_client_key,
-                presence: true,
-                if: -> (setting) { setting.external_auth_client_cert.present? }
-
-      validates_with X509CertificateCredentialsValidator,
-                     certificate: :external_auth_client_cert,
-                     pkey: :external_auth_client_key,
-                     pass: :external_auth_client_key_pass,
-                     if: -> (setting) { setting.external_auth_client_cert.present? }
-
-      attr_encrypted :external_auth_client_key,
-                     mode: :per_attribute_iv,
-                     key: Settings.attr_encrypted_db_key_base_truncated,
-                     algorithm: 'aes-256-gcm',
-                     encode: true
-
-      attr_encrypted :external_auth_client_key_pass,
-                     mode: :per_attribute_iv,
-                     key: Settings.attr_encrypted_db_key_base_truncated,
-                     algorithm: 'aes-256-gcm',
-                     encode: true
+      validate :check_geo_node_allowed_ips
     end
 
     class_methods do
@@ -119,7 +89,8 @@ module EE
           snowplow_cookie_domain: nil,
           snowplow_enabled: false,
           snowplow_site_id: nil,
-          custom_project_templates_group_id: nil
+          custom_project_templates_group_id: nil,
+          geo_node_allowed_ips: '0.0.0.0/0, ::/0'
         )
       end
     end
@@ -233,12 +204,6 @@ module EE
       EMAIL_ADDITIONAL_TEXT_CHARACTER_LIMIT
     end
 
-    def external_authorization_service_enabled
-      License.feature_available?(:external_authorization_service) && super
-    end
-    alias_method :external_authorization_service_enabled?,
-                 :external_authorization_service_enabled
-
     def custom_project_templates_enabled?
       License.feature_available?(:custom_project_templates)
     end
@@ -289,6 +254,12 @@ module EE
 
     def email_additional_text_column_exists?
       ::Gitlab::Database.cached_column_exists?(:application_settings, :email_additional_text)
+    end
+
+    def check_geo_node_allowed_ips
+      ::Gitlab::CIDR.new(geo_node_allowed_ips)
+    rescue ::Gitlab::CIDR::ValidationError => e
+      errors.add(:geo_node_allowed_ips, e.message)
     end
   end
 end

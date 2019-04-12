@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Manage', :orchestrated, :ldap_tls, :ldap_no_tls do
+  # Failure issue: https://gitlab.com/gitlab-org/quality/nightly/issues/95
+  context 'Manage', :orchestrated, :ldap_tls, :ldap_no_tls, :quarantine do
     describe 'LDAP Group sync' do
       include Support::Api
 

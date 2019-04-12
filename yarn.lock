@@ -658,15 +658,15 @@
     eslint-plugin-promise "^4.1.1"
     eslint-plugin-vue "^5.0.0"
 
-"@gitlab/svgs@^1.58.0":
-  version "1.58.0"
-  resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.58.0.tgz#bb05263ff2eb7ca09a25cd14d0b1a932d2ea9c2f"
-  integrity sha512-RlWSjjBT4lMIFuNC1ziCO1nws9zqZtxCjhrqK2DxDDTgp2W0At9M/BFkHp8RHyMCrO3g1fHTrLPUgzr5oR3Epg==
+"@gitlab/svgs@^1.59.0":
+  version "1.59.0"
+  resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.59.0.tgz#affcf9596d736836d37469bb4aea2226ac03e087"
+  integrity sha512-dokGyyLRRsoBKO70KP1g+ZsDGyTK/RIHWDmvWI6Bx5AxQ3UqAzVXn2OIb3owjJAexyRG1uBmJrriiVVyHznQ4g==
 
-"@gitlab/ui@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@gitlab/ui/-/ui-3.0.0.tgz#33ca2808dbd4395e69a366a219d1edc1f3dbccd5"
-  integrity sha512-pDEa2k6ln5GE/N2z0V7dNEeFtSTW0p9ipO2/N9q6QMxO7fhhOhpMC0QVbdIljKTbglspDWI5v6BcqUjzYri5Pg==
+"@gitlab/ui@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@gitlab/ui/-/ui-3.2.0.tgz#3a44ac806a22b87fe45e6edfa410cb9355164f04"
+  integrity sha512-If2ngMIw0jWAdQ1q3PfB8sDhCXz1r3DsRm1X5Vy767kZ2TeFd7SGBp5KP5ceMGGpQ4TTYU/V8IqYnQbTXfPKRw==
   dependencies:
     "@babel/standalone" "^7.0.0"
     bootstrap-vue "^2.0.0-rc.11"

@@ -13,7 +13,7 @@ describe MergeRequests::RefreshService do
       group = create(:group)
       group.add_owner(@user)
 
-      @project = create(:project, :repository, namespace: group, approvals_before_merge: 1, reset_approvals_on_push: true)
+      @project = create(:project, :repository, namespace: group)
       @fork_project = fork_project(@project, @user, repository: true)
 
       @merge_request = create(:merge_request,
@@ -37,9 +37,6 @@ describe MergeRequests::RefreshService do
                                    source_branch: 'master',
                                    target_branch: 'feature',
                                    target_project: @project)
-
-      @merge_request.approvals.create(user_id: user.id)
-      @fork_merge_request.approvals.create(user_id: user.id)
 
       @build_failed_todo = create(:todo,
                                   :build_failed,
@@ -90,9 +87,6 @@ describe MergeRequests::RefreshService do
         expect(@fork_merge_request.notes).to be_empty
         expect(@build_failed_todo).to be_done
         expect(@fork_build_failed_todo).to be_done
-        # EE-only
-        expect(@merge_request.approvals).to be_empty
-        expect(@fork_merge_request.approvals).not_to be_empty
       end
 
       it 'reloads source branch MRs memoization' do
@@ -152,7 +146,10 @@ describe MergeRequests::RefreshService do
         stub_ci_pipeline_yaml_file(YAML.dump(config))
       end
 
-      subject { service.new(@project, @user).execute(@oldrev, @newrev, 'refs/heads/master') }
+      subject { service.new(project, @user).execute(@oldrev, @newrev, ref) }
+
+      let(:ref) { 'refs/heads/master' }
+      let(:project) { @project }
 
       context "when .gitlab-ci.yml has merge_requests keywords" do
         let(:config) do
@@ -168,12 +165,15 @@ describe MergeRequests::RefreshService do
         it 'create detached merge request pipeline with commits' do
           expect { subject }
             .to change { @merge_request.merge_request_pipelines.count }.by(1)
-            .and change { @fork_merge_request.merge_request_pipelines.count }.by(1)
             .and change { @another_merge_request.merge_request_pipelines.count }.by(0)
 
           expect(@merge_request.has_commits?).to be_truthy
-          expect(@fork_merge_request.has_commits?).to be_truthy
           expect(@another_merge_request.has_commits?).to be_falsy
+        end
+
+        it 'does not create detached merge request pipeline for forked project' do
+          expect { subject }
+            .not_to change { @fork_merge_request.merge_request_pipelines.count }
         end
 
         it 'create detached merge request pipeline for non-fork merge request' do
@@ -183,11 +183,25 @@ describe MergeRequests::RefreshService do
             .to be_detached_merge_request_pipeline
         end
 
-        it 'create legacy detached merge request pipeline for fork merge request' do
-          subject
+        context 'when service is hooked by target branch' do
+          let(:ref) { 'refs/heads/feature' }
 
-          expect(@fork_merge_request.merge_request_pipelines.first)
-            .to be_legacy_detached_merge_request_pipeline
+          it 'does not create detached merge request pipeline' do
+            expect { subject }
+              .not_to change { @merge_request.merge_request_pipelines.count }
+          end
+        end
+
+        context 'when service runs on forked project' do
+          let(:project) { @fork_project }
+
+          it 'creates legacy detached merge request pipeline for fork merge request' do
+            expect { subject }
+              .to change { @fork_merge_request.merge_request_pipelines.count }.by(1)
+
+            expect(@fork_merge_request.merge_request_pipelines.first)
+              .to be_legacy_detached_merge_request_pipeline
+          end
         end
 
         context 'when ci_use_merge_request_ref feature flag is false' do
@@ -255,13 +269,11 @@ describe MergeRequests::RefreshService do
       end
     end
 
-    context 'push to origin repo source branch when an MR was reopened' do
+    context 'push to origin repo source branch' do
       let(:refresh_service) { service.new(@project, @user) }
       let(:notification_service) { spy('notification_service') }
 
       before do
-        @merge_request.update(state: :opened)
-
         allow(refresh_service).to receive(:execute_hooks)
         allow(NotificationService).to receive(:new) { notification_service }
         refresh_service.execute(@oldrev, @newrev, 'refs/heads/master')
@@ -301,9 +313,6 @@ describe MergeRequests::RefreshService do
           expect(@fork_merge_request.notes.last.note).to include('merged')
           expect(@build_failed_todo).to be_done
           expect(@fork_build_failed_todo).to be_done
-          # EE-only
-          expect(@merge_request.approvals).not_to be_empty
-          expect(@fork_merge_request.approvals).not_to be_empty
         end
       end
 
@@ -382,9 +391,6 @@ describe MergeRequests::RefreshService do
           expect(@fork_merge_request).to be_open
           expect(@build_failed_todo).to be_pending
           expect(@fork_build_failed_todo).to be_pending
-          # EE-only
-          expect(@merge_request.approvals).not_to be_empty
-          expect(@fork_merge_request.approvals).to be_empty
         end
 
         it 'outdates opened forked MR suggestions' do
@@ -416,9 +422,6 @@ describe MergeRequests::RefreshService do
           expect(@fork_merge_request).to be_closed
           expect(@build_failed_todo).to be_pending
           expect(@fork_build_failed_todo).to be_pending
-          # EE-only
-          expect(@merge_request.approvals).not_to be_empty
-          expect(@fork_merge_request.approvals).to be_empty
         end
       end
     end
@@ -437,9 +440,6 @@ describe MergeRequests::RefreshService do
           expect(@fork_merge_request).to be_open
           expect(@build_failed_todo).to be_pending
           expect(@fork_build_failed_todo).to be_pending
-          # EE-only
-          expect(@merge_request.approvals).not_to be_empty
-          expect(@fork_merge_request.approvals).not_to be_empty
         end
       end
 
@@ -526,82 +526,6 @@ describe MergeRequests::RefreshService do
         expect(@fork_merge_request.notes).to be_empty
         expect(@build_failed_todo).to be_done
         expect(@fork_build_failed_todo).to be_done
-        # EE-only
-        expect(@merge_request.approvals).not_to be_empty
-        expect(@fork_merge_request.approvals).not_to be_empty
-      end
-    end
-
-    context 'resetting approvals if they are enabled' do
-      context 'when approvals_before_merge is disabled' do
-        before do
-          @project.update(approvals_before_merge: 0)
-          refresh_service = service.new(@project, @user)
-          allow(refresh_service).to receive(:execute_hooks)
-          refresh_service.execute(@oldrev, @newrev, 'refs/heads/master')
-          reload_mrs
-        end
-
-        it 'resets approvals' do
-          expect(@merge_request.approvals).to be_empty
-        end
-      end
-
-      context 'when reset_approvals_on_push is disabled' do
-        before do
-          @project.update(reset_approvals_on_push: false)
-          refresh_service = service.new(@project, @user)
-          allow(refresh_service).to receive(:execute_hooks)
-          refresh_service.execute(@oldrev, @newrev, 'refs/heads/master')
-          reload_mrs
-        end
-
-        it 'does not reset approvals' do
-          expect(@merge_request.approvals).not_to be_empty
-        end
-      end
-
-      context 'when the rebase_commit_sha on the MR matches the pushed SHA' do
-        before do
-          @merge_request.update(rebase_commit_sha: @newrev)
-          refresh_service = service.new(@project, @user)
-          allow(refresh_service).to receive(:execute_hooks)
-          refresh_service.execute(@oldrev, @newrev, 'refs/heads/master')
-          reload_mrs
-        end
-
-        it 'does not reset approvals' do
-          expect(@merge_request.approvals).not_to be_empty
-        end
-      end
-
-      context 'when there are approvals' do
-        context 'closed merge request' do
-          before do
-            @merge_request.close!
-            refresh_service = service.new(@project, @user)
-            allow(refresh_service).to receive(:execute_hooks)
-            refresh_service.execute(@oldrev, @newrev, 'refs/heads/master')
-            reload_mrs
-          end
-
-          it 'resets the approvals' do
-            expect(@merge_request.approvals).to be_empty
-          end
-        end
-
-        context 'opened merge request' do
-          before do
-            refresh_service = service.new(@project, @user)
-            allow(refresh_service).to receive(:execute_hooks)
-            refresh_service.execute(@oldrev, @newrev, 'refs/heads/master')
-            reload_mrs
-          end
-
-          it 'resets the approvals' do
-            expect(@merge_request.approvals).to be_empty
-          end
-        end
       end
     end
 

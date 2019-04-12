@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190403161806) do
+ActiveRecord::Schema.define(version: 20190404231137) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -218,6 +218,7 @@ ActiveRecord::Schema.define(version: 20190403161806) do
     t.integer "first_day_of_week", default: 0, null: false
     t.boolean "elasticsearch_limit_indexing", default: false, null: false
     t.integer "default_project_creation", default: 2, null: false
+    t.string "geo_node_allowed_ips", default: "0.0.0.0/0, ::/0"
     t.index ["custom_project_templates_group_id"], name: "index_application_settings_on_custom_project_templates_group_id", using: :btree
     t.index ["file_template_project_id"], name: "index_application_settings_on_file_template_project_id", using: :btree
     t.index ["usage_stats_set_by_user_id"], name: "index_application_settings_on_usage_stats_set_by_user_id", using: :btree
@@ -990,6 +991,25 @@ ActiveRecord::Schema.define(version: 20190403161806) do
     t.float "percentage_service_desk_issues", default: 0.0, null: false
   end
 
+  create_table "dependency_proxy_blobs", force: :cascade do |t|
+    t.integer "group_id", null: false
+    t.datetime_with_timezone "created_at", null: false
+    t.datetime_with_timezone "updated_at", null: false
+    t.bigint "size"
+    t.integer "file_store"
+    t.string "file_name", null: false
+    t.text "file", null: false
+    t.index ["group_id", "file_name"], name: "index_dependency_proxy_blobs_on_group_id_and_file_name", using: :btree
+  end
+
+  create_table "dependency_proxy_group_settings", force: :cascade do |t|
+    t.integer "group_id", null: false
+    t.datetime_with_timezone "created_at", null: false
+    t.datetime_with_timezone "updated_at", null: false
+    t.boolean "enabled", default: false, null: false
+    t.index ["group_id"], name: "index_dependency_proxy_group_settings_on_group_id", using: :btree
+  end
+
   create_table "deploy_keys_projects", force: :cascade do |t|
     t.integer "deploy_key_id", null: false
     t.integer "project_id", null: false
@@ -1361,7 +1381,6 @@ ActiveRecord::Schema.define(version: 20190403161806) do
     t.text "selective_sync_shards"
     t.integer "verification_max_capacity", default: 100, null: false
     t.integer "minimum_reverification_interval", default: 7, null: false
-    t.string "alternate_url"
     t.string "internal_url"
     t.index ["access_key"], name: "index_geo_nodes_on_access_key", using: :btree
     t.index ["primary"], name: "index_geo_nodes_on_primary", using: :btree
@@ -2193,9 +2212,11 @@ ActiveRecord::Schema.define(version: 20190403161806) do
     t.datetime_with_timezone "verified_at"
     t.string "verification_code", null: false
     t.datetime_with_timezone "enabled_until"
+    t.datetime_with_timezone "remove_at"
     t.index ["domain"], name: "index_pages_domains_on_domain", unique: true, using: :btree
     t.index ["project_id", "enabled_until"], name: "index_pages_domains_on_project_id_and_enabled_until", using: :btree
     t.index ["project_id"], name: "index_pages_domains_on_project_id", using: :btree
+    t.index ["remove_at"], name: "index_pages_domains_on_remove_at", using: :btree
     t.index ["verified_at", "enabled_until"], name: "index_pages_domains_on_verified_at_and_enabled_until", using: :btree
     t.index ["verified_at"], name: "index_pages_domains_on_verified_at", using: :btree
   end
@@ -3477,6 +3498,8 @@ ActiveRecord::Schema.define(version: 20190403161806) do
   add_foreign_key "clusters_kubernetes_namespaces", "clusters", on_delete: :cascade
   add_foreign_key "clusters_kubernetes_namespaces", "projects", on_delete: :nullify
   add_foreign_key "container_repositories", "projects"
+  add_foreign_key "dependency_proxy_blobs", "namespaces", column: "group_id", on_delete: :cascade
+  add_foreign_key "dependency_proxy_group_settings", "namespaces", column: "group_id", on_delete: :cascade
   add_foreign_key "deploy_keys_projects", "projects", name: "fk_58a901ca7e", on_delete: :cascade
   add_foreign_key "deployments", "projects", name: "fk_b9a3851b82", on_delete: :cascade
   add_foreign_key "design_management_designs", "issues", on_delete: :cascade

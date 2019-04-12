@@ -55,7 +55,7 @@ describe Groups::BoardsController do
 
     context 'when format is JSON' do
       it 'return an array with one group board' do
-        create(:board, group: group, milestone: create(:milestone, group: group))
+        create(:board, group: group)
 
         expect(Boards::Visits::LatestService).not_to receive(:new)
 
@@ -80,6 +80,10 @@ describe Groups::BoardsController do
           expect(response.content_type).to eq 'application/json'
         end
       end
+    end
+
+    it_behaves_like 'disabled when using an external authorization service' do
+      subject { list_boards }
     end
 
     def list_boards(format: :html)
@@ -158,6 +162,10 @@ describe Groups::BoardsController do
 
         expect(response).to have_gitlab_http_status(404)
       end
+    end
+
+    it_behaves_like 'disabled when using an external authorization service' do
+      subject { read_board board: board }
     end
 
     def read_board(board:, format: :html)

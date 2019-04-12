@@ -2,7 +2,6 @@ require 'spec_helper'
 
 describe Projects::UpdateService, '#execute' do
   include EE::GeoHelpers
-  include ExternalAuthorizationServiceHelpers
 
   let(:user) { create(:user) }
   let(:project) { create(:project, :repository, creator: user, namespace: user.namespace) }
@@ -178,46 +177,6 @@ describe Projects::UpdateService, '#execute' do
     end
   end
 
-  context 'with external authorization enabled' do
-    before do
-      enable_external_authorization_service_check
-    end
-
-    it 'does not save the project with an error if the service denies access' do
-      expect(EE::Gitlab::ExternalAuthorization)
-        .to receive(:access_allowed?).with(user, 'new-label') { false }
-
-      result = update_project(project, user, { external_authorization_classification_label: 'new-label' })
-
-      expect(result[:message]).to be_present
-      expect(result[:status]).to eq(:error)
-    end
-
-    it 'saves the new label if the service allows access' do
-      expect(EE::Gitlab::ExternalAuthorization)
-        .to receive(:access_allowed?).with(user, 'new-label') { true }
-
-      result = update_project(project, user, { external_authorization_classification_label: 'new-label' })
-
-      expect(result[:status]).to eq(:success)
-      expect(project.reload.external_authorization_classification_label).to eq('new-label')
-    end
-
-    it 'checks the default label when the classification label was cleared' do
-      expect(EE::Gitlab::ExternalAuthorization)
-        .to receive(:access_allowed?).with(user, 'default_label') { true }
-
-      update_project(project, user, { external_authorization_classification_label: '' })
-    end
-
-    it 'does not check the label when it does not change' do
-      expect(EE::Gitlab::ExternalAuthorization)
-        .not_to receive(:access_allowed?)
-
-      update_project(project, user, { name: 'New name' })
-    end
-  end
-
   context 'with approval_rules' do
     context 'when approval_rules is disabled' do
       it "updates approval_rules' approvals_required" do
@@ -250,6 +209,72 @@ describe Projects::UpdateService, '#execute' do
         end.not_to change { rule.reload.approvals_required }
       end
     end
+  end
+
+  describe 'repository_storage' do
+    let(:admin_user) { create(:user, admin: true) }
+    let(:user) { create(:user) }
+    let(:project) { create(:project, :repository) }
+    let(:opts) { { repository_storage: 'b' } }
+
+    before do
+      FileUtils.mkdir('tmp/tests/storage_b')
+
+      storages = {
+          'default' => Gitlab.config.repositories.storages.default,
+          'b' => { 'path' => 'tmp/tests/storage_b' }
+      }
+      stub_storage_settings(storages)
+    end
+
+    after do
+      FileUtils.rm_rf('tmp/tests/storage_b')
+    end
+
+    it 'calls the change repository storage method if the storage changed' do
+      expect(project).to receive(:change_repository_storage).with('b')
+
+      update_project(project, admin_user, opts).inspect
+    end
+
+    it "doesn't call the change repository storage for non-admin users" do
+      expect(project).not_to receive(:change_repository_storage)
+
+      update_project(project, user, opts).inspect
+    end
+  end
+
+  context 'repository_size_limit assignment as Bytes' do
+    let(:admin_user) { create(:user, admin: true) }
+    let(:project) { create(:project, repository_size_limit: 0) }
+
+    context 'when param present' do
+      let(:opts) { { repository_size_limit: '100' } }
+
+      it 'converts from MB to Bytes' do
+        update_project(project, admin_user, opts)
+
+        expect(project.reload.repository_size_limit).to eql(100 * 1024 * 1024)
+      end
+    end
+
+    context 'when param not present' do
+      let(:opts) { { repository_size_limit: '' } }
+
+      it 'assign nil value' do
+        update_project(project, admin_user, opts)
+
+        expect(project.reload.repository_size_limit).to be_nil
+      end
+    end
+  end
+
+  it 'returns an error result when record cannot be updated' do
+    admin = create(:admin)
+
+    result = update_project(project, admin, { name: 'foo&bar' })
+
+    expect(result).to eq({ status: :error, message: "Name can contain only letters, digits, emojis, '_', '.', dash, space. It must start with letter, digit, emoji or '_'." })
   end
 
   def update_project(project, user, opts)
