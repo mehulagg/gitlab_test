@@ -49,7 +49,6 @@ module Gitlab
 
         def finder_args
           {
-            include_subgroups: true,
             state: opts[:issuable_state] || 'opened',
             label_name: opts[:filter_labels],
             sort: 'created_asc',
