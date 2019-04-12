@@ -32,7 +32,7 @@ export default {
   },
   data() {
     return {
-      maxRender: 4,
+      maxRender: 3,
       maxCounter: 99,
     };
   },
@@ -75,13 +75,13 @@ export default {
     issueIsClosed() {
       return this.issue.state === ISSUE_STATES.CLOSED;
     },
+    assigneesToRender() {
+      return this.issue.assignees.filter((assignee, index) => index < this.maxRender);
+    },
   },
   methods: {
     getAvatarTitle(assignee) {
       return `Assigned to ${assignee.name}`;
-    },
-    shouldRenderAssignee(currentIndex) {
-      return currentIndex < this.maxRender;
     },
     labelStyle(label) {
       return {
@@ -191,8 +191,7 @@ export default {
             <li v-if="issueIsClosed" class="issuable-status">CLOSED</li>
             <li v-if="issue.assignees.length">
               <user-avatar-link
-                v-for="(assignee, index) in issue.assignees"
-                v-if="shouldRenderAssignee(index)"
+                v-for="assignee in assigneesToRender"
                 :key="assignee.id"
                 :link-href="assignee.web_url"
                 :img-alt="getAvatarTitle(assignee)"
