@@ -74,6 +74,7 @@ module Vulnerabilities
 
     scope :report_type, -> (type) { where(report_type: self.report_types[type]) }
     scope :ordered, -> { order("severity desc", :id) }
+    scope :unused, -> { left_outer_joins(:occurrence_pipelines).where(vulnerability_occurrence_pipelines: {occurrence_id: nil}) }
 
     scope :by_report_types, -> (values) { where(report_type: values) }
     scope :by_projects, -> (values) { where(project_id: values) }
@@ -100,10 +101,6 @@ module Vulnerabilities
       group(:severity).count.each_with_object({}) do |(severity, count), accum|
         accum[SEVERITY_LEVELS[severity]] = count
       end
-    end
-
-    def self.outdated(date)
-      joins(:pipelines).where(::Ci::Pipeline.arel_table[:created_at].lt(date))
     end
 
     def feedback(feedback_type:)
