@@ -116,6 +116,10 @@ module GitlabRoutingHelper
     leave_project_project_members_path(project)
   end
 
+  def leave_project_members_url(project, *args)
+    leave_project_project_members_url(project, *args)
+  end
+
   def approve_access_request_project_member_path(project_member, *args)
     approve_access_request_project_project_member_path(project_member.source, project_member)
   end
@@ -141,6 +145,10 @@ module GitlabRoutingHelper
 
   def leave_group_members_path(group, *args)
     leave_group_group_members_path(group)
+  end
+
+  def leave_group_members_url(group, *args)
+    leave_group_group_members_url(group, *args)
   end
 
   def approve_access_request_group_member_path(group_member, *args)

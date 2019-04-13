@@ -19,6 +19,10 @@ describe GitlabRoutingHelper do
       it { expect(leave_project_members_path(project)).to eq leave_project_project_members_path(project) }
     end
 
+    describe '#leave_project_members_url' do
+      it { expect(leave_project_members_url(project)).to eq leave_project_project_members_url(project) }
+    end
+
     describe '#approve_access_request_project_member_path' do
       let(:project_member) { create(:project_member) }
 
@@ -49,6 +53,10 @@ describe GitlabRoutingHelper do
 
     describe '#leave_group_members_path' do
       it { expect(leave_group_members_path(group)).to eq leave_group_group_members_path(group) }
+    end
+
+    describe '#leave_group_members_url' do
+      it { expect(leave_group_members_url(group)).to eq leave_group_group_members_url(group) }
     end
 
     describe '#approve_access_request_group_member_path' do

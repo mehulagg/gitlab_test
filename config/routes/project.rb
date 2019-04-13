@@ -457,6 +457,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       resources :project_members, except: [:show, :new, :edit], constraints: { id: %r{[a-zA-Z./0-9_\-#%+]+} }, concerns: :access_requestable do
         collection do
           delete :leave
+          get :leave
 
           # Used for import team
           # from another project

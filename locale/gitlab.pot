@@ -6257,6 +6257,12 @@ msgstr ""
 msgid "If enabled, access to projects will be validated on an external service using their classification label."
 msgstr ""
 
+msgid "If this was a mistake you can %{leave_link_start}leave the %{source_type}%{link_end}."
+msgstr ""
+
+msgid "If this was a mistake you can leave the %{source_type}."
+msgstr ""
+
 msgid "If using GitHub, you’ll see pipeline statuses on GitHub for your commits and pull requests. %{more_info_link}"
 msgstr ""
 
@@ -13657,6 +13663,12 @@ msgid "You don't have any authorized applications"
 msgstr ""
 
 msgid "You don't have any deployments right now."
+msgstr ""
+
+msgid "You have been granted %{access_level} access to the %{source_link_start}%{source_name}%{link_end} %{source_type}."
+msgstr ""
+
+msgid "You have been granted %{access_level} access to the %{source_name} %{source_type}."
 msgstr ""
 
 msgid "You have been granted %{member_human_access} access to %{label}."

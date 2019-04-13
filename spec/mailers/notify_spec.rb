@@ -701,6 +701,8 @@ describe Notify do
         is_expected.to have_body_text project.full_name
         is_expected.to have_body_text project.web_url
         is_expected.to have_body_text project_member.human_access
+        is_expected.to have_body_text 'leave the project'
+        is_expected.to have_body_text leave_project_members_url(project)
       end
     end
 
@@ -1144,6 +1146,8 @@ describe Notify do
         is_expected.to have_body_text group.name
         is_expected.to have_body_text group.web_url
         is_expected.to have_body_text group_member.human_access
+        is_expected.to have_body_text 'leave the group'
+        is_expected.to have_body_text leave_group_members_url(group)
       end
     end
 

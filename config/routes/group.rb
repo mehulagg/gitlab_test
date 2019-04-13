@@ -60,6 +60,7 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
     resources :group_members, only: [:index, :create, :update, :destroy], concerns: :access_requestable do
       post :resend_invite, on: :member
       delete :leave, on: :collection
+      get :leave, on: :collection
     end
 
     resources :uploads, only: [:create] do
