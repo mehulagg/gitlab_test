@@ -103,7 +103,7 @@ export default {
       }
     },
     setupExternalEvents() {
-      if (this.isInProjectPage) {
+      if (this.isInProjectPage && issuableIndex.bulkUpdateSidebar) {
         issuableIndex.bulkUpdateSidebar.initDomElements();
         issuableIndex.bulkUpdateSidebar.bindEvents();
       }

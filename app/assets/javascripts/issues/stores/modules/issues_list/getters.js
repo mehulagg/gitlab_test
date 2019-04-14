@@ -9,6 +9,10 @@ const filterTokenKeys = IssuableFilteredSearchTokenKeys.tokenKeys.map(token => {
 });
 
 export const hasFilters = state => {
+  if (!state.filters) {
+    return false;
+  }
+
   const currenFilters = Object.keys(urlParamsToObject(state.filters));
 
   return currenFilters.reduce((acc, val) => {
