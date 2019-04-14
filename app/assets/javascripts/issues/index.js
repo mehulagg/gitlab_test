@@ -1,4 +1,7 @@
 import Vue from 'vue';
+import projectSelect from '~/project_select';
+import IssuableIndex from '~/issuable_index';
+import { ISSUABLE_INDEX } from '~/pages/projects/constants';
 import store from './stores';
 import IssuesApp from './components/issues_app.vue';
 import IssuesFilteredSearch from './issues_filtered_search';
@@ -17,6 +20,9 @@ export default () => {
   // Setup filterd search component
   const filteredSearch = new IssuesFilteredSearch(store.state.issuesList.filters);
 
+  // Setup issue page handlers
+  const issuableIndex = new IssuableIndex(ISSUABLE_INDEX.ISSUE);
+
   return new Vue({
     el,
     store,
@@ -30,8 +36,10 @@ export default () => {
       return createElement('issues-app', {
         props: {
           endpoint,
-          canBulkUpdate,
           createPath,
+          projectSelect,
+          canBulkUpdate,
+          issuableIndex,
           filteredSearch,
         },
       });

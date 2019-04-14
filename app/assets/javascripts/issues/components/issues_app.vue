@@ -1,12 +1,10 @@
 <script>
 import { mapActions, mapState, mapGetters } from 'vuex';
 import { GlPagination } from '@gitlab/ui';
-import IssuableIndex from '~/issuable_index';
-import projectSelect from '~/project_select';
-import { ISSUABLE_INDEX } from '~/pages/projects/constants';
-import { getParameterValues, mergeUrlParams } from '~/lib/utils/url_utility';
+import { mergeUrlParams } from '~/lib/utils/url_utility';
 import {
   objectToQueryString,
+  urlParamsToObject,
   scrollToElement,
   isInProjectPage,
   isInGroupsPage,
@@ -16,8 +14,6 @@ import Issue from './issue.vue';
 import IssuesEmptyState from './empty_state.vue';
 import IssuesLoadingState from './loading_state.vue';
 import { ISSUE_STATES, ACTIVE_TAB_CLASS, ISSUES_PER_PAGE, DASHBOARD_PAGE_NAME } from '../constants';
-
-const issuableIndex = new IssuableIndex(ISSUABLE_INDEX.ISSUE);
 
 export default {
   components: {
@@ -40,8 +36,16 @@ export default {
       required: false,
       default: '',
     },
+    issuableIndex: {
+      type: Object,
+      required: true,
+    },
     filteredSearch: {
       type: Object,
+      required: true,
+    },
+    projectSelect: {
+      type: Function,
       required: true,
     },
   },
@@ -77,7 +81,7 @@ export default {
     this.setupExternalEvents();
 
     if (this.isInGroupsPage || this.isInDashboardPage) {
-      projectSelect();
+      this.projectSelect();
     }
   },
   updated() {
@@ -86,7 +90,7 @@ export default {
   methods: {
     ...mapActions('issuesList', ['fetchIssues', 'setCurrentPage']),
     getCurrentState() {
-      const [state] = getParameterValues('state');
+      const { state } = urlParamsToObject(this.appliedFilters);
       return state || ISSUE_STATES.OPENED;
     },
     updateIssueStateTabs() {
@@ -103,9 +107,9 @@ export default {
       }
     },
     setupExternalEvents() {
-      if (this.isInProjectPage && issuableIndex.bulkUpdateSidebar) {
-        issuableIndex.bulkUpdateSidebar.initDomElements();
-        issuableIndex.bulkUpdateSidebar.bindEvents();
+      if (this.isInProjectPage && this.issuableIndex.bulkUpdateSidebar) {
+        this.issuableIndex.bulkUpdateSidebar.initDomElements();
+        this.issuableIndex.bulkUpdateSidebar.bindEvents();
       }
     },
     updatePage(page) {
@@ -117,8 +121,8 @@ export default {
       if (!this.isInDashboardPage) {
         this.isLoadingDisabled = false;
       } else {
-        const [authorUsername] = getParameterValues('author_username');
-        this.isLoadingDisabled = authorUsername !== gon.current_username;
+        const assigneeUsername = urlParamsToObject(this.appliedFilters).assignee_username;
+        this.isLoadingDisabled = assigneeUsername !== gon.current_username;
       }
 
       if (!this.isLoadingDisabled) {
