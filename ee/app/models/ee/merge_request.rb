@@ -64,8 +64,9 @@ module EE
     end
 
     def validate_merge_request_pipelines
-      return true unless project.merge_pipelines_enabled?
+      return true unless project.merge_train_enabled?
 
+      # TODO: Fix
       actual_head_pipeline&.latest_merge_request_pipeline?
     end
 

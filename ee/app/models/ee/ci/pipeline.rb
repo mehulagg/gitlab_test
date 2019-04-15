@@ -182,6 +182,11 @@ module EE
           target_sha == merge_request.target_branch_sha
       end
 
+      def ran_on_merge_train?
+        merge_request_pipeline? &&
+          ref == merge_request.train_ref_path
+      end
+
       private
 
       def available_licensed_report_type?(file_type)
