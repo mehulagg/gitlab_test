@@ -6,6 +6,7 @@ inherit_from: .rubocop_todo.yml
 require:
   - ./rubocop/rubocop
   - rubocop-rspec
+  - rubocop-i18n
 
 AllCops:
   TargetRubyVersion: 2.5
@@ -22,6 +23,62 @@ AllCops:
     - 'builds/**/*'
     - 'plugins/**/*'
   CacheRootDirectory: tmp
+
+GetText/DecorateString:
+  Enabled: true
+  Exclude:
+    - 'spec/**/*'
+    - 'lib/tasks/**/*'
+    - 'lib/system_check/**/*'
+    - 'lib/gitlab/setup_helper.rb'
+    - 'lib/gitlab/ee_compat_check.rb'
+    - 'lib/gitlab/database/migration_helpers.rb'
+    - 'lib/api/**/*'
+    - 'app/graphql/**/*'
+    - 'qa/**/*'
+    - 'db/**/*'
+    - 'danger/**/*'
+    - 'rubocop/**/*'
+    - 'scripts/**/*'
+    - 'config/**/*'
+GetText/DecorateFunctionMessage:
+  Enabled: false
+GetText/DecorateStringFormattingUsingInterpolation:
+  Enabled: true
+  Exclude:
+    - 'spec/**/*'
+    - 'lib/tasks/**/*'
+    - 'lib/system_check/**/*'
+    - 'lib/gitlab/setup_helper.rb'
+    - 'lib/gitlab/ee_compat_check.rb'
+    - 'lib/gitlab/database/migration_helpers.rb'
+    - 'lib/api/**/*'
+    - 'app/graphql/**/*'
+    - 'qa/**/*'
+    - 'db/**/*'
+    - 'danger/**/*'
+    - 'rubocop/**/*'
+    - 'scripts/**/*'
+    - 'config/**/*'
+GetText/DecorateStringFormattingUsingPercent:
+  Enabled: true
+  Exclude:
+    - 'spec/**/*'
+    - 'lib/tasks/**/*'
+    - 'lib/system_check/**/*'
+    - 'lib/gitlab/setup_helper.rb'
+    - 'lib/gitlab/ee_compat_check.rb'
+    - 'lib/gitlab/database/migration_helpers.rb'
+    - 'lib/api/**/*'
+    - 'app/graphql/**/*'
+    - 'qa/**/*'
+    - 'db/**/*'
+    - 'danger/**/*'
+    - 'rubocop/**/*'
+    - 'scripts/**/*'
+    - 'config/**/*'
+RailsI18n/DecorateString:
+  Enabled: false
 
 # This cop checks whether some constant value isn't a
 # mutable literal (e.g. array or hash).
