@@ -8,10 +8,6 @@ Documentation on existing components and how to best create a new component.
 
 Learn how to implement an accessible frontend.
 
-## [Performance](performance.md)
-
-Learn how to keep our frontend performant.
-
 ## [Testing](testing.md)
 
 Learn how to keep our frontend tested.
