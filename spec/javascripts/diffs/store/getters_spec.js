@@ -1,4 +1,4 @@
-import * as getters from '~/diffs/store/getters';
+import getters from '~/diffs/store/getters';
 import state from '~/diffs/store/modules/diff_state';
 import { PARALLEL_DIFF_VIEW_TYPE, INLINE_DIFF_VIEW_TYPE } from '~/diffs/constants';
 import discussion from '../mock_data/diff_discussions';

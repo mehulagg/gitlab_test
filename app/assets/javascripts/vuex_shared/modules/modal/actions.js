@@ -1,20 +1,8 @@
 import * as types from './mutation_types';
 
-export const open = ({ commit }, data) => {
-  commit(types.OPEN, data);
+export default {
+  open: ({ commit }, data) => commit(types.OPEN, data),
+  close: ({ commit }) => commit(types.CLOSE),
+  show: ({ commit }) => commit(types.SHOW),
+  hide: ({ commit }) => commit(types.HIDE),
 };
-
-export const close = ({ commit }) => {
-  commit(types.CLOSE);
-};
-
-export const show = ({ commit }) => {
-  commit(types.SHOW);
-};
-
-export const hide = ({ commit }) => {
-  commit(types.HIDE);
-};
-
-// prevent babel-plugin-rewire from generating an invalid default during karma tests
-export default () => {};

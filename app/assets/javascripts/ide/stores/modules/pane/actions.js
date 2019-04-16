@@ -1,30 +1,29 @@
 import * as types from './mutation_types';
 
-export const toggleOpen = ({ dispatch, state }, view) => {
-  if (state.isOpen) {
-    dispatch('close');
-  } else {
-    dispatch('open', view);
-  }
-};
-
-export const open = ({ commit }, view) => {
-  commit(types.SET_OPEN, true);
-
-  if (view) {
-    const { name, keepAlive } = view;
-
-    commit(types.SET_CURRENT_VIEW, name);
-
-    if (keepAlive) {
-      commit(types.KEEP_ALIVE_VIEW, name);
+export default {
+  toggleOpen: ({ dispatch, state }, view) => {
+    if (state.isOpen) {
+      dispatch('close');
+    } else {
+      dispatch('open', view);
     }
-  }
-};
+  },
 
-export const close = ({ commit }) => {
-  commit(types.SET_OPEN, false);
-};
+  open: ({ commit }, view) => {
+    commit(types.SET_OPEN, true);
 
-// prevent babel-plugin-rewire from generating an invalid default during karma tests
-export default () => {};
+    if (view) {
+      const { name, keepAlive } = view;
+
+      commit(types.SET_CURRENT_VIEW, name);
+
+      if (keepAlive) {
+        commit(types.KEEP_ALIVE_VIEW, name);
+      }
+    }
+  },
+
+  close: ({ commit }) => {
+    commit(types.SET_OPEN, false);
+  },
+};

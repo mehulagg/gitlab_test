@@ -1,5 +1,5 @@
 import base from '../base';
-import * as actions from './actions';
+import actions from './actions';
 
 export default () => ({
   ...base(),

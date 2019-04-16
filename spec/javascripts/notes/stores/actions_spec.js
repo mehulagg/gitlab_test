@@ -3,7 +3,7 @@ import $ from 'jquery';
 import _ from 'underscore';
 import { TEST_HOST } from 'spec/test_constants';
 import { headersInterceptor } from 'spec/helpers/vue_resource_helper';
-import * as actions from '~/notes/stores/actions';
+import actions from '~/notes/stores/actions';
 import * as mutationTypes from '~/notes/stores/mutation_types';
 import * as notesConstants from '~/notes/constants';
 import createStore from '~/notes/stores';

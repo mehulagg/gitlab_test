@@ -1,5 +1,5 @@
 import testAction from 'spec/helpers/vuex_action_helper';
-import * as actions from '~/projects/gke_cluster_dropdowns/store/actions';
+import actions from '~/projects/gke_cluster_dropdowns/store/actions';
 import { createStore } from '~/projects/gke_cluster_dropdowns/store';
 import { gapi } from '../helpers';
 import { selectedProjectMock, selectedZoneMock, selectedMachineTypeMock } from '../mock_data';

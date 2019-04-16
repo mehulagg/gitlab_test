@@ -1,4 +1,4 @@
-import * as getters from '~/ide/stores/getters';
+import getters from '~/ide/stores/getters';
 import state from '~/ide/stores/state';
 import { file } from '../helpers';
 

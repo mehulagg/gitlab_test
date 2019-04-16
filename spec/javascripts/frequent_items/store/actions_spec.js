@@ -2,7 +2,7 @@ import testAction from 'spec/helpers/vuex_action_helper';
 import MockAdapter from 'axios-mock-adapter';
 import axios from '~/lib/utils/axios_utils';
 import AccessorUtilities from '~/lib/utils/accessor';
-import * as actions from '~/frequent_items/store/actions';
+import actions from '~/frequent_items/store/actions';
 import * as types from '~/frequent_items/store/mutation_types';
 import state from '~/frequent_items/store/state';
 import {

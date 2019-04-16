@@ -1,5 +1,6 @@
-export const isLoading = state => state.isLoading;
-export const repos = state => state.repos;
+// TODO: Should this be a getter? It's not doing anything
 
-// prevent babel-plugin-rewire from generating an invalid default during karma tests
-export default () => {};
+export default {
+  isLoading: state => state.isLoading,
+  repos: state => state.repos,
+};

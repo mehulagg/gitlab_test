@@ -1,4 +1,4 @@
-import * as getters from '~/ide/stores/modules/pipelines/getters';
+import getters from '~/ide/stores/modules/pipelines/getters';
 import state from '~/ide/stores/modules/pipelines/state';
 
 describe('IDE pipeline getters', () => {

@@ -1,5 +1,5 @@
 import { CHECK_CONFIG, CHECK_RUNNERS } from 'ee/ide/constants';
-import * as getters from 'ee/ide/stores/modules/terminal/getters';
+import getters from 'ee/ide/stores/modules/terminal/getters';
 
 describe('EE IDE store terminal getters', () => {
   describe('allCheck', () => {

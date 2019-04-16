@@ -21,34 +21,32 @@ const getAllProjects = (url, page = '1', projects = []) =>
     return result;
   });
 
-export const setProjectsEndpoint = ({ commit }, endpoint) => {
-  commit(types.SET_PROJECTS_ENDPOINT, endpoint);
+export default {
+  setProjectsEndpoint: ({ commit }, endpoint) => {
+    commit(types.SET_PROJECTS_ENDPOINT, endpoint);
+  },
+
+  fetchProjects: ({ state, dispatch }) => {
+    dispatch('requestProjects');
+
+    getAllProjects(state.projectsEndpoint)
+      .then(projects => {
+        dispatch('receiveProjectsSuccess', { projects });
+      })
+      .catch(() => {
+        dispatch('receiveProjectsError');
+      });
+  },
+
+  requestProjects: ({ commit }) => {
+    commit(types.REQUEST_PROJECTS);
+  },
+
+  receiveProjectsSuccess: ({ commit }, { projects }) => {
+    commit(types.RECEIVE_PROJECTS_SUCCESS, { projects });
+  },
+
+  receiveProjectsError: ({ commit }) => {
+    commit(types.RECEIVE_PROJECTS_ERROR);
+  },
 };
-
-export const fetchProjects = ({ state, dispatch }) => {
-  dispatch('requestProjects');
-
-  getAllProjects(state.projectsEndpoint)
-    .then(projects => {
-      dispatch('receiveProjectsSuccess', { projects });
-    })
-    .catch(() => {
-      dispatch('receiveProjectsError');
-    });
-};
-
-export const requestProjects = ({ commit }) => {
-  commit(types.REQUEST_PROJECTS);
-};
-
-export const receiveProjectsSuccess = ({ commit }, { projects }) => {
-  commit(types.RECEIVE_PROJECTS_SUCCESS, { projects });
-};
-
-export const receiveProjectsError = ({ commit }) => {
-  commit(types.RECEIVE_PROJECTS_ERROR);
-};
-
-// prevent babel-plugin-rewire from generating an invalid default during karma tests
-// This is no longer needed after gitlab-ce#52179 is merged
-export default () => {};

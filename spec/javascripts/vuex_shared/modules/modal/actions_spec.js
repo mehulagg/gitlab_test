@@ -1,5 +1,5 @@
 import * as types from '~/vuex_shared/modules/modal/mutation_types';
-import * as actions from '~/vuex_shared/modules/modal/actions';
+import actions from '~/vuex_shared/modules/modal/actions';
 import testAction from 'spec/helpers/vuex_action_helper';
 
 describe('Vuex ModalModule actions', () => {

@@ -1,4 +1,4 @@
-import * as getters from '~/error_tracking_settings/store/getters';
+import getters from '~/error_tracking_settings/store/getters';
 import defaultState from '~/error_tracking_settings/store/state';
 import { projectList, projectWithHtmlTemplate, staleProject } from '../mock';
 

@@ -1,7 +1,7 @@
 import MockAdapter from 'axios-mock-adapter';
 
 import defaultState from 'ee/epic/store/state';
-import * as actions from 'ee/epic/store/actions';
+import actions from 'ee/epic/store/actions';
 import epicUtils from 'ee/epic/utils/epic_utils';
 import { statusType, dateTypes } from 'ee/epic/constants';
 

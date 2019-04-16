@@ -1,7 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
 import InstanceCardsList from 'ee/licenses/components/license_cards_list.vue';
-import * as getters from 'ee/licenses/store/getters';
+import getters from 'ee/licenses/store/getters';
 import createState from 'ee/licenses/store/state';
 
 describe('InstanceCardsList', () => {

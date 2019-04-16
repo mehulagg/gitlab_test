@@ -2,7 +2,7 @@ import Vue from 'vue';
 import MockAdapter from 'axios-mock-adapter';
 import axios from '~/lib/utils/axios_utils';
 import store from '~/ide/stores';
-import * as actions from '~/ide/stores/actions/file';
+import actions from '~/ide/stores/actions/file';
 import * as types from '~/ide/stores/mutation_types';
 import service from '~/ide/services';
 import router from '~/ide/ide_router';

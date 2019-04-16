@@ -1,4 +1,4 @@
-import * as getters from '~/notes/stores/getters';
+import getters from '~/notes/stores/getters';
 import {
   notesDataMock,
   userDataMock,

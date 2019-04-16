@@ -1,6 +1,6 @@
 import commitState from '~/ide/stores/modules/commit/state';
 import consts from '~/ide/stores/modules/commit/constants';
-import * as getters from '~/ide/stores/modules/commit/getters';
+import getters from '~/ide/stores/modules/commit/getters';
 
 describe('IDE commit module getters', () => {
   let state;

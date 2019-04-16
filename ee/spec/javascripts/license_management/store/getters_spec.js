@@ -1,4 +1,4 @@
-import * as getters from 'ee/vue_shared/license_management/store/getters';
+import getters from 'ee/vue_shared/license_management/store/getters';
 import { parseLicenseReportMetrics } from 'ee/vue_shared/license_management/store/utils';
 
 import {

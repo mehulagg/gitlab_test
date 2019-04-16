@@ -1,6 +1,6 @@
 import MockAdapter from 'axios-mock-adapter';
 import axios from '~/lib/utils/axios_utils';
-import * as actions from '~/registry/stores/actions';
+import actions from '~/registry/stores/actions';
 import * as types from '~/registry/stores/mutation_types';
 import state from '~/registry/stores/state';
 import { TEST_HOST } from 'spec/test_constants';

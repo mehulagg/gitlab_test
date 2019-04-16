@@ -1,4 +1,4 @@
-import * as getters from 'ee/approvals/stores/modules/base/getters';
+import getters from 'ee/approvals/stores/modules/base/getters';
 
 describe('EE store modules base getters', () => {
   describe('isEmpty', () => {

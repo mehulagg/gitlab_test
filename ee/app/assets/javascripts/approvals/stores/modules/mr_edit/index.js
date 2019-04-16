@@ -1,5 +1,5 @@
 import base from '../base';
-import * as actions from './actions';
+import actions from './actions';
 import mutations from './mutations';
 import createState from './state';
 

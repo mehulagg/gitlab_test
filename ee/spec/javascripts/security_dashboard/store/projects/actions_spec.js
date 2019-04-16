@@ -5,7 +5,7 @@ import { TEST_HOST } from 'spec/test_constants';
 
 import createState from 'ee/security_dashboard/store/modules/projects/state';
 import * as types from 'ee/security_dashboard/store/modules/projects/mutation_types';
-import * as actions from 'ee/security_dashboard/store/modules/projects/actions';
+import actions from 'ee/security_dashboard/store/modules/projects/actions';
 
 import mockData from './data/mock_data.json';
 

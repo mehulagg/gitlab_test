@@ -6,47 +6,47 @@ import { __, sprintf } from '~/locale';
 
 let eTagPoll;
 
-export function startPolling({ commit, dispatch }, endpoint) {
-  eTagPoll = new Poll({
-    resource: Service,
-    method: 'getErrorList',
-    data: { endpoint },
-    successCallback: ({ data }) => {
-      if (!data) {
-        return;
-      }
-      commit(types.SET_ERRORS, data.errors);
-      commit(types.SET_EXTERNAL_URL, data.external_url);
-      commit(types.SET_LOADING, false);
-      dispatch('stopPolling');
-    },
-    errorCallback: ({ response }) => {
-      let errorMessage = '';
-      if (response && response.data && response.data.message) {
-        errorMessage = response.data.message;
-      }
-      commit(types.SET_LOADING, false);
-      createFlash(
-        sprintf(__(`Failed to load errors from Sentry. Error message: %{errorMessage}`), {
-          errorMessage,
-        }),
-      );
-    },
-  });
+export default {
+  startPolling: ({ commit, dispatch }, endpoint) => {
+    eTagPoll = new Poll({
+      resource: Service,
+      method: 'getErrorList',
+      data: { endpoint },
+      successCallback: ({ data }) => {
+        if (!data) {
+          return;
+        }
+        commit(types.SET_ERRORS, data.errors);
+        commit(types.SET_EXTERNAL_URL, data.external_url);
+        commit(types.SET_LOADING, false);
+        dispatch('stopPolling');
+      },
+      errorCallback: ({ response }) => {
+        let errorMessage = '';
+        if (response && response.data && response.data.message) {
+          errorMessage = response.data.message;
+        }
+        commit(types.SET_LOADING, false);
+        createFlash(
+          sprintf(__(`Failed to load errors from Sentry. Error message: %{errorMessage}`), {
+            errorMessage,
+          }),
+        );
+      },
+    });
 
-  eTagPoll.makeRequest();
-}
+    eTagPoll.makeRequest();
+  },
 
-export const stopPolling = () => {
-  if (eTagPoll) eTagPoll.stop();
+  stopPolling: () => {
+    if (eTagPoll) eTagPoll.stop();
+  },
+
+  restartPolling: ({ commit }) => {
+    commit(types.SET_ERRORS, []);
+    commit(types.SET_EXTERNAL_URL, '');
+    commit(types.SET_LOADING, true);
+
+    if (eTagPoll) eTagPoll.restart();
+  },
 };
-
-export function restartPolling({ commit }) {
-  commit(types.SET_ERRORS, []);
-  commit(types.SET_EXTERNAL_URL, '');
-  commit(types.SET_LOADING, true);
-
-  if (eTagPoll) eTagPoll.restart();
-}
-
-export default () => {};

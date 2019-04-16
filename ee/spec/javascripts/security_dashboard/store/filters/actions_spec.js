@@ -2,7 +2,7 @@ import testAction from 'spec/helpers/vuex_action_helper';
 
 import createState from 'ee/security_dashboard/store/modules/filters/state';
 import * as types from 'ee/security_dashboard/store/modules/filters/mutation_types';
-import * as actions from 'ee/security_dashboard/store/modules/filters/actions';
+import actions from 'ee/security_dashboard/store/modules/filters/actions';
 
 describe('filters actions', () => {
   describe('setFilter', () => {

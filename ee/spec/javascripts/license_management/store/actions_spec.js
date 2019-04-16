@@ -1,6 +1,6 @@
 import axios from '~/lib/utils/axios_utils';
 import MockAdapter from 'axios-mock-adapter';
-import * as actions from 'ee/vue_shared/license_management/store/actions';
+import actions from 'ee/vue_shared/license_management/store/actions';
 import * as mutationTypes from 'ee/vue_shared/license_management/store/mutation_types';
 import createState from 'ee/vue_shared/license_management/store/state';
 import { LICENSE_APPROVAL_STATUS } from 'ee/vue_shared/license_management/constants';

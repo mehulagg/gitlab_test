@@ -1,4 +1,4 @@
-import * as getters from '~/jobs/store/getters';
+import getters from '~/jobs/store/getters';
 import state from '~/jobs/store/state';
 
 describe('Job Store Getters', () => {

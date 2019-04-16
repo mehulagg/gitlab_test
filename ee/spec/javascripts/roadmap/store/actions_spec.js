@@ -1,6 +1,6 @@
 import MockAdapter from 'axios-mock-adapter';
 
-import * as actions from 'ee/roadmap/store/actions';
+import actions from 'ee/roadmap/store/actions';
 import * as types from 'ee/roadmap/store/mutation_types';
 
 import defaultState from 'ee/roadmap/store/state';

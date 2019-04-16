@@ -6,7 +6,7 @@ import { DAYS } from 'ee/security_dashboard/store/modules/vulnerabilities/consta
 
 import initialState from 'ee/security_dashboard/store/modules/vulnerabilities/state';
 import * as types from 'ee/security_dashboard/store/modules/vulnerabilities/mutation_types';
-import * as actions from 'ee/security_dashboard/store/modules/vulnerabilities/actions';
+import actions from 'ee/security_dashboard/store/modules/vulnerabilities/actions';
 
 import mockDataVulnerabilities from './data/mock_data_vulnerabilities.json';
 import mockDataVulnerabilitiesCount from './data/mock_data_vulnerabilities_count.json';

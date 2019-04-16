@@ -1,5 +1,5 @@
 import createState from 'ee/security_dashboard/store/modules/filters/state';
-import * as getters from 'ee/security_dashboard/store/modules/filters/getters';
+import getters from 'ee/security_dashboard/store/modules/filters/getters';
 import { BASE_FILTERS } from 'ee/security_dashboard/store/modules/filters/constants';
 
 describe('filters module getters', () => {

@@ -1,4 +1,4 @@
-import * as getters from '~/ide/stores/modules/pane/getters';
+import getters from '~/ide/stores/modules/pane/getters';
 import state from '~/ide/stores/modules/pane/state';
 
 describe('IDE pane module getters', () => {

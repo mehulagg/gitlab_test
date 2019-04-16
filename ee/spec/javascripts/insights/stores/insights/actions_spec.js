@@ -1,7 +1,7 @@
 import axios from '~/lib/utils/axios_utils';
 import MockAdapter from 'axios-mock-adapter';
 import testAction from 'spec/helpers/vuex_action_helper';
-import * as actions from 'ee/insights/stores/modules/insights/actions';
+import actions from 'ee/insights/stores/modules/insights/actions';
 import store from 'ee/insights/stores/';
 
 describe('Insights store actions', () => {

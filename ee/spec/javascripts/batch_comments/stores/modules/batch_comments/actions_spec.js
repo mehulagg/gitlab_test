@@ -2,7 +2,7 @@ import Vue from 'vue';
 import VueResource from 'vue-resource';
 import _ from 'underscore';
 import testAction from 'spec/helpers/vuex_action_helper';
-import * as actions from 'ee/batch_comments/stores/modules/batch_comments/actions';
+import actions from 'ee/batch_comments/stores/modules/batch_comments/actions';
 
 Vue.use(VueResource);
 

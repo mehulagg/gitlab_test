@@ -1,4 +1,4 @@
-import * as getters from 'ee/roadmap/store/getters';
+import getters from 'ee/roadmap/store/getters';
 
 import { PRESET_TYPES } from 'ee/roadmap/constants';
 

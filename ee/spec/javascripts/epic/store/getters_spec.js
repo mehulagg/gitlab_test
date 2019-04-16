@@ -1,4 +1,4 @@
-import * as getters from 'ee/epic/store/getters';
+import getters from 'ee/epic/store/getters';
 import { statusType } from 'ee/epic/constants';
 
 describe('Epic Store Getters', () => {

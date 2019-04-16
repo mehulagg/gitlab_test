@@ -6,7 +6,7 @@ import { TEST_HOST } from 'spec/test_constants';
 import { CHECK_CONFIG, CHECK_RUNNERS, RETRY_RUNNERS_INTERVAL } from 'ee/ide/constants';
 import * as mutationTypes from 'ee/ide/stores/modules/terminal/mutation_types';
 import * as messages from 'ee/ide/stores/modules/terminal/messages';
-import * as actions from 'ee/ide/stores/modules/terminal/actions/checks';
+import actions from 'ee/ide/stores/modules/terminal/actions/checks';
 
 const TEST_PROJECT_PATH = 'lorem/root';
 const TEST_BRANCH_ID = 'master';

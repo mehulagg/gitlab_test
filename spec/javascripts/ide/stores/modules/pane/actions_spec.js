@@ -1,4 +1,4 @@
-import * as actions from '~/ide/stores/modules/pane/actions';
+import actions from '~/ide/stores/modules/pane/actions';
 import * as types from '~/ide/stores/modules/pane/mutation_types';
 import testAction from 'spec/helpers/vuex_action_helper';
 
