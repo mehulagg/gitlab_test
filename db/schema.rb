@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190404231137) do
+ActiveRecord::Schema.define(version: 20190416185130) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -2300,6 +2300,7 @@ ActiveRecord::Schema.define(version: 20190404231137) do
     t.integer "project_id", null: false
     t.boolean "group_runners_enabled", default: true, null: false
     t.boolean "merge_pipelines_enabled"
+    t.boolean "merge_trains_enabled"
     t.index ["project_id"], name: "index_project_ci_cd_settings_on_project_id", unique: true, using: :btree
   end
 
