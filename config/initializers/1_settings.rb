@@ -439,6 +439,10 @@ Settings.cron_jobs['update_max_seats_used_for_gitlab_com_subscriptions_worker'] 
 Settings.cron_jobs['update_max_seats_used_for_gitlab_com_subscriptions_worker']['cron'] ||= '0 12 * * *'
 Settings.cron_jobs['update_max_seats_used_for_gitlab_com_subscriptions_worker']['job_class'] = 'UpdateMaxSeatsUsedForGitlabComSubscriptionsWorker'
 
+Settings.cron_jobs['security_cleanup_vulnerabilities_worker'] ||= Settingslogic.new({})
+Settings.cron_jobs['security_cleanup_vulnerabilities_worker']['cron'] ||= '0 0 * * 0'
+Settings.cron_jobs['security_cleanup_vulnerabilities_worker']['job_class'] = 'Security::CleanupVulnerabilitiesWorker'
+
 #
 # Sidekiq
 #

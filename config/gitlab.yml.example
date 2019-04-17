@@ -391,6 +391,10 @@ production: &base
     pseudonymizer_worker:
       cron: "0 * * * *"
 
+    # Cleanup old vulnerabilities data stored in DB
+    security_cleanup_vulnerabilities_worker:
+      cron: "0 0 * * 0"
+
   registry:
     # enabled: true
     # host: registry.example.com
