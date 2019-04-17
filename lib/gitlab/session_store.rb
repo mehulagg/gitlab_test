@@ -35,7 +35,7 @@ module Gitlab
       end
     end
 
-    delegate :[], :[]=, to: :store
+    delegate :[], :[]=, :clear, to: :store
 
     def initialize(key)
       @key = key

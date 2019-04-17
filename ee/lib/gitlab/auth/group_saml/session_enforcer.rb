@@ -4,8 +4,6 @@ module Gitlab
   module Auth
     module GroupSaml
       class SessionEnforcer
-        SESSION_KEY = :group_saml_sign_ins
-
         attr_reader :saml_provider
 
         def initialize(saml_provider)
@@ -17,14 +15,15 @@ module Gitlab
         end
 
         def active_session?
-          ActiveSsoState.sign_in_state(id)
+          ActiveSsoState.sign_in_state(saml_provider.id)
         end
 
         def access_restricted?
-          saml_enforced? && @session && !active_session?
+          #TODO: don't check saml_session, or fix the check
+          saml_enforced? && saml_session && !active_session?
         end
 
-        def self.clear(session)
+        def self.clear
           ActiveSsoState.clear_sign_ins
         end
 
@@ -40,7 +39,7 @@ module Gitlab
         end
 
         def saml_session
-          @session[SESSION_KEY] ||= {}
+          ActiveSsoState.dynamic_store
         end
       end
     end

@@ -5,7 +5,7 @@ require 'spec_helper'
 describe 'SAML access enforcement' do
   let(:user) { create(:user) }
   let(:group) { create(:group, :private) }
-  let(:saml_provider) { create(:saml_provider, group: group, enforced_sso: true) }
+  let!(:saml_provider) { create(:saml_provider, group: group, enforced_sso: true) }
 
   before do
     group.add_guest(user)
@@ -22,7 +22,7 @@ describe 'SAML access enforcement' do
 
   context 'with active SAML session' do
     let(:session) { page.driver.browser.current_session.instance_variable_get(:"@rack_mock_session").last_request.env["rack.session"] } #TODO: alternate approach
-    let(:enforcer) { Gitlab::Auth::GroupSaml::SessionEnforcer.new(session, saml_provider) }
+    let(:enforcer) { Gitlab::Auth::GroupSaml::SessionEnforcer.new(saml_provider) }
 
     before do
       visit '/' #Ensures last_request

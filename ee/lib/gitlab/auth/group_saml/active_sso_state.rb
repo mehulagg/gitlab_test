@@ -9,22 +9,19 @@ module Gitlab
         delegate :with_store, to: :dynamic_store
 
         def self.dynamic_store
-          @dynamic_store ||= begin
-            store = DynamicStore.new(default_store: SessionStore.new(SESSION_STORE_KEY))
-            store.set({})
-          end
+          @dynamic_store ||= Gitlab::DynamicStore.new(default_store: Gitlab::SessionStore.new(SESSION_STORE_KEY))
         end
 
         def self.update_sign_in(id, value)
-          dynamic_store.get[id] = value
+          dynamic_store[id] = value
         end
 
         def self.sign_in_state(id)
-          dynamic_store.get[id]
+          dynamic_store[id]
         end
 
         def self.clear_sign_ins
-          dynamic_store.set({})
+          dynamic_store.clear
         end
       end
 

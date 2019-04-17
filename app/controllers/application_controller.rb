@@ -436,7 +436,7 @@ class ApplicationController < ActionController::Base
   end
 
   def set_session_storage(&block)
-    SessionStore.with_session(session, &block)
+    Gitlab::SessionStore.with_session(session, &block)
   end
 
   def set_page_title_header

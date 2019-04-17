@@ -6,17 +6,25 @@ describe Gitlab::Auth::GroupSaml::SessionEnforcer do
   let(:saml_provider) { build_stubbed(:saml_provider, enforced_sso: true) }
   let(:session) { {} }
 
-  subject { described_class.new(session, saml_provider) }
+  around do |example|
+    Gitlab::SessionStore.with_session(session) do
+      example.run
+    end
+  end
+
+  subject { described_class.new(saml_provider) }
 
   describe '#update_session' do
     it 'stores that a session is active for the given provider' do
-      expect { subject.update_session }.to change { session[:group_saml_sign_ins] }
+      expect { subject.update_session }.to change { session[:active_group_sso_sign_ins] }
     end
 
-    it 'stores the current time for later comparison', :freeze do
-      subject.update_session
+    it 'stores the current time for later comparison' do
+      Timecop.freeze do
+        subject.update_session
 
-      expect(session[:group_saml_sign_ins][saml_provider.id]).to eq DateTime.now
+        expect(session[:active_group_sso_sign_ins][saml_provider.id]).to eq DateTime.now
+      end
     end
   end
 
@@ -34,21 +42,25 @@ describe Gitlab::Auth::GroupSaml::SessionEnforcer do
 
   describe '#allows_access?' do
     it 'allows access when saml_provider is nil' do
-      subject = described_class.new({}, nil)
+      subject = described_class.new(nil)
 
       expect(subject).not_to be_access_restricted
     end
 
-    it 'allows access when saml_provider is disabled' do
-      saml_provider.update!(enabled: false)
+    context 'when sso enforcement is disabled' do
+      let(:saml_provider) { build_stubbed(:saml_provider, enforced_sso: false) }
 
-      expect(subject).not_to be_access_restricted
+      it 'allows access when sso enforcement is disabled' do
+        expect(subject).not_to be_access_restricted
+      end
     end
 
-    it 'allows access when sso enforcement is disabled' do
-      saml_provider.update!(enforced_sso: false)
+    context 'when saml_provider is disabled' do
+      let(:saml_provider) { build_stubbed(:saml_provider, enforced_sso: true, enabled: false) }
 
-      expect(subject).not_to be_access_restricted
+      it 'allows access when saml_provider is disabled' do
+        expect(subject).not_to be_access_restricted
+      end
     end
 
     it 'allows access when the sso enforcement feature is disabled' do
@@ -69,12 +81,12 @@ describe Gitlab::Auth::GroupSaml::SessionEnforcer do
   end
 
   describe '.clear' do
+    let(:session) { { active_group_sso_sign_ins: { saml_provider.id => DateTime.now } } }
+
     it 'clears active session information for all SAML providers' do
-      session = { group_saml_sign_ins: { saml_provider.id => DateTime.now } }
+      described_class.clear
 
-      described_class.clear(session)
-
-      expect(session).to eq({})
+      expect(session).to eq({ active_group_sso_sign_ins: {} })
     end
   end
 end

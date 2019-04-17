@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Gitlab
-  class DynamicStore
-    delegate :set, :get, to: :store
+  class DynamicStore #store with fallback, why??
+    delegate :[], :[]=, :clear, to: :store
 
     def initialize(default_store: nil)
       @default_store = default_store
