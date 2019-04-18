@@ -5,18 +5,32 @@ module RoutableActions
 
   def find_routable!(routable_klass, requested_full_path, extra_authorization_proc: nil, not_found_or_authorized_proc: nil)
     routable = routable_klass.find_by_full_path(requested_full_path, follow_redirects: request.get?)
+
     if routable_authorized?(routable, extra_authorization_proc)
       ensure_canonical_path(routable, requested_full_path)
       routable
     else
-      if not_found_or_authorized_proc
-        not_found_or_authorized_proc.call(routable)
-      end
-
-      route_not_found unless performed?
+      routable_not_found_thing(not_found_or_authorized_proc)
 
       nil
     end
+  end
+
+  def routable_not_found_thing(not_found_or_authorized_proc)
+    #TODO: loop over not_found_handlers until performed?
+    # [not_found_or_authorized_proc, method(:redirect_sign_in_if_sso_restricted), method(:not_found)]
+
+    #TODO: redirect_sign_in_if_sso_restricted(routable)
+
+    if not_found_or_authorized_proc && !performed?
+      not_found_or_authorized_proc.call(routable)
+    end
+
+    route_not_found unless performed?
+  end
+
+  def redirect_sign_in_if_sso_restricted(routable)
+    redirect_to sso_path_for(routable) if sso_restricted_resource(routable)
   end
 
   def routable_authorized?(routable, extra_authorization_proc)

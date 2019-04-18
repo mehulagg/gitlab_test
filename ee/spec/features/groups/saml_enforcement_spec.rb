@@ -19,7 +19,10 @@ describe 'SAML access enforcement' do
 
       expect(page).not_to have_content(group.name)
       expect(page).to have_content('Page Not Found')
+      #expect(current_path).to eq(new_user_session_path)
     end
+
+    it 'redirects to SAML sign in for that group'
   end
 
   context 'with active SAML session' do

@@ -12,16 +12,16 @@ module Gitlab
       @store || @default_store
     end
 
-    def store=(value)
-      @store = value
-    end
+    # def store=(value)
+    #   @store = value
+    # end
 
-    def with_store(store)
-      old = @store
-      @store = store
-      yield
-    ensure
-      @store = old
-    end
+    # def with_store(store)
+    #   old = @store
+    #   @store = store
+    #   yield
+    # ensure
+    #   @store = old
+    # end
   end
 end

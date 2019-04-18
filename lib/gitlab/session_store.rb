@@ -27,16 +27,17 @@ module Gitlab
       end
 
       def store
-        if RequestStore.active?
-          RequestStore
-        else
+        # if RequestStore.active?
+        #   RequestStore
+        # else
           Thread.current
-        end
+        # end
       end
     end
 
     delegate :[], :[]=, :clear, to: :store
 
+    #TODO: KeyedSessionStore? SessionSubKey
     def initialize(key)
       @key = key
     end
