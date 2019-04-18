@@ -562,6 +562,10 @@ class MergeRequest < ApplicationRecord
     @source_branch_sha || source_branch_head.try(:sha)
   end
 
+  def train_ref_sha
+    @train_ref_sha ||= project.repository.commit(train_ref_path)
+  end
+
   def diff_refs
     persisted? ? merge_request_diff.diff_refs : repository_diff_refs
   end
@@ -1086,6 +1090,10 @@ class MergeRequest < ApplicationRecord
 
   def merge_ref_path
     "refs/#{Repository::REF_MERGE_REQUEST}/#{iid}/merge"
+  end
+
+  def train_ref_path
+    "refs/#{Repository::REF_MERGE_REQUEST}/#{iid}/train"
   end
 
   def self.merge_request_ref?(ref)

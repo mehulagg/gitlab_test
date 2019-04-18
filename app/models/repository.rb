@@ -852,9 +852,7 @@ class Repository
     end
   end
 
-  def merge_to_ref(user, source_sha, merge_request, target_ref, message)
-    branch = merge_request.target_branch
-
+  def merge_to_ref(user, source_sha, branch, target_ref, message)
     raw.merge_to_ref(user, source_sha, branch, target_ref, message)
   end
 

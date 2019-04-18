@@ -27,7 +27,10 @@ module EE
       def create_merge_request_pipeline_for(merge_request, user)
         return unless can_create_merge_request_pipeline_for?(merge_request)
 
-        ret = ::MergeRequests::MergeToRefService.new(merge_request.project, user)
+        target_branch = merge_request.prev_merge_request&.train_ref_path || merge_request.target_branch
+
+        ret = ::MergeRequests::MergeToRefService.new(merge_request.project, user,
+          target_branch: target_branch, target_ref: merge_request.train_ref_path)
                                                 .execute(merge_request)
 
         if ret[:status] == :success

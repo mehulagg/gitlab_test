@@ -175,7 +175,7 @@ module EE
       def latest_merge_request_pipeline?
         merge_request_pipeline? &&
           source_sha == merge_request.diff_head_sha &&
-          target_sha == merge_request.target_branch_sha
+          (target_sha == merge_request.target_branch_sha || target_sha == merge_request.prev_merge_request.train_ref_sha)
       end
 
       private

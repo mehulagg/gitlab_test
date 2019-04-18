@@ -59,11 +59,15 @@ module MergeRequests
     end
 
     def target_ref
-      merge_request.merge_ref_path
+      params[:target_ref] || merge_request.merge_ref_path
+    end
+
+    def target_branch
+      params[:target_branch] || merge_request.target_branch
     end
 
     def commit
-      repository.merge_to_ref(current_user, source, merge_request, target_ref, commit_message)
+      repository.merge_to_ref(current_user, source, target_branch, target_ref, commit_message)
     rescue Gitlab::Git::PreReceiveError => error
       raise MergeError, error.message
     end
