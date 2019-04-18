@@ -16,16 +16,16 @@ module Security
     private
 
     def delete_occurrences
-      ::Vulnerabilities::OccurrencePipeline.outdated_from(RETENTION_POLICY.seconds.ago).destroy_all
-      ::Vulnerabilities::Occurrence.unused.destroy_all
+      ::Vulnerabilities::OccurrencePipeline.outdated_from(RETENTION_POLICY.seconds.ago).delete_all
+      ::Vulnerabilities::Occurrence.unused.delete_all
     end
 
     def delete_identifiers
-      ::Vulnerabilities::Identifier.unused.destroy_all
+      ::Vulnerabilities::Identifier.unused.delete_all
     end
 
     def delete_scanners
-      ::Vulnerabilities::Scanner.unused.destroy_all
+      ::Vulnerabilities::Scanner.unused.delete_all
     end
   end
 end

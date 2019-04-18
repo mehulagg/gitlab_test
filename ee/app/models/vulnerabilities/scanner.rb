@@ -13,6 +13,16 @@ module Vulnerabilities
     validates :name, presence: true
 
     scope :with_external_id, -> (external_ids) { where(external_id: external_ids) }
-    scope :unused, -> { left_outer_joins(:occurrences).where(vulnerability_occurrences: { scanner_id: nil }) }
+
+    def self.unused
+      scanners = arel_table
+      occurrences = Vulnerabilities::Occurrence.arel_table
+      left_outer_joins = scanners
+                           .join(occurrences, Arel::Nodes::OuterJoin)
+                           .on(scanners[:id].eq(occurrences[:scanner_id]))
+                           .join_sources
+      joins(left_outer_joins)
+        .where(occurrences[:scanner_id].eq(nil))
+    end
   end
 end

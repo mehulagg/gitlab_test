@@ -25,6 +25,16 @@ module Vulnerabilities
     validates :name, presence: true
 
     scope :with_fingerprint, -> (fingerprints) { where(fingerprint: fingerprints) }
-    scope :unused, -> { left_outer_joins(:occurrence_identifiers).where(vulnerability_occurrence_identifiers: { id: nil }) }
+
+    def self.unused
+      identifiers = arel_table
+      occurrence_ids = Vulnerabilities::OccurrenceIdentifier.arel_table
+      left_outer_joins = identifiers
+                           .join(occurrence_ids, Arel::Nodes::OuterJoin)
+                           .on(identifiers[:id].eq(occurrence_ids[:identifier_id]))
+                           .join_sources
+      joins(left_outer_joins)
+        .where(occurrence_ids[:identifier_id].eq(nil))
+    end
   end
 end

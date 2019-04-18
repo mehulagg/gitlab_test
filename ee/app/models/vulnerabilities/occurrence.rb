@@ -74,7 +74,6 @@ module Vulnerabilities
 
     scope :report_type, -> (type) { where(report_type: self.report_types[type]) }
     scope :ordered, -> { order("severity desc", :id) }
-    scope :unused, -> { left_outer_joins(:occurrence_pipelines).where(vulnerability_occurrence_pipelines: { occurrence_id: nil }) }
 
     scope :by_report_types, -> (values) { where(report_type: values) }
     scope :by_projects, -> (values) { where(project_id: values) }
@@ -101,6 +100,17 @@ module Vulnerabilities
       group(:severity).count.each_with_object({}) do |(severity, count), accum|
         accum[SEVERITY_LEVELS[severity]] = count
       end
+    end
+
+    def self.unused
+      occurrences = arel_table
+      occurrence_pipelines = Vulnerabilities::OccurrencePipeline.arel_table
+      left_outer_joins = occurrences
+                           .join(occurrence_pipelines, Arel::Nodes::OuterJoin)
+                           .on(occurrences[:id].eq(occurrence_pipelines[:occurrence_id]))
+                           .join_sources
+      joins(left_outer_joins)
+        .where(occurrence_pipelines[:occurrence_id].eq(nil))
     end
 
     def feedback(feedback_type:)
