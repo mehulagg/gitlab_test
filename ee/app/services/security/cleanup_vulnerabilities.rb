@@ -27,7 +27,5 @@ module Security
     def delete_scanners
       ::Vulnerabilities::Scanner.unused.destroy_all
     end
-
-
   end
 end

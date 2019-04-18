@@ -43,7 +43,6 @@ describe Vulnerabilities::Scanner do
     let!(:occurrence) { create(:vulnerabilities_occurrence) }
     let!(:unused_scanner) { create(:vulnerabilities_scanner) }
 
-
     subject { described_class.unused }
 
     it 'returns unused entities' do

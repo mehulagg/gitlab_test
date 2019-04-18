@@ -14,7 +14,7 @@ describe Security::CleanupVulnerabilities do
     let!(:old_scanner) { create(:vulnerabilities_scanner) }
     let!(:old_scanner2) { create(:vulnerabilities_scanner) }
     let!(:new_scanner) { create(:vulnerabilities_scanner) }
-    #identifiers
+
     let!(:old_identifier) { create(:vulnerabilities_identifier) }
     let!(:old_identifier2) { create(:vulnerabilities_identifier) }
     let!(:new_identifier) { create(:vulnerabilities_identifier) }

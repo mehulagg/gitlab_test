@@ -25,6 +25,6 @@ module Vulnerabilities
     validates :name, presence: true
 
     scope :with_fingerprint, -> (fingerprints) { where(fingerprint: fingerprints) }
-    scope :unused, -> { left_outer_joins(:occurrence_identifiers).where(vulnerability_occurrence_identifiers: {identifier_id: nil}) }
+    scope :unused, -> { left_outer_joins(:occurrence_identifiers).where(vulnerability_occurrence_identifiers: { id: nil }) }
   end
 end
