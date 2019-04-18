@@ -393,7 +393,7 @@ production: &base
 
     # Cleanup old vulnerabilities data stored in DB
     security_cleanup_vulnerabilities_worker:
-      cron: "* * * * *"
+      cron: "0 0 * * 0"
 
   registry:
     # enabled: true
