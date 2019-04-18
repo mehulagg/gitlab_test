@@ -1,0 +1,5 @@
+---
+title: Add service to cleanup old vulnerabilities data stored in DB
+merge_request: 11152
+author:
+type: added
