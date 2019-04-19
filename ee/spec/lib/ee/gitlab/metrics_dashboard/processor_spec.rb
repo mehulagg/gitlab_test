@@ -18,8 +18,18 @@ describe Gitlab::MetricsDashboard::Processor do
         it 'includes an alert path' do
           target_metric = all_metrics.find { |metric| metric[:metric_id] == persisted_metric.id }
 
-          p PrometheusAlert.all
-          p target_metric
+          STDOUT.puts "!!!!!!!!!!!!!!!!!!!!"
+          STDERR.puts "!!!!!!!!!!!!!!!!!!!!"
+          STDOUT.puts PrometheusAlert.all
+          $stdout.puts target_metric
+
+          $stderr.puts PrometheusAlert.all
+          $stderr.puts target_metric
+
+          Rails.logger.error("PrometheusAlert: #{PrometheusAlert.all}")
+          Rails.logger.error("target_metric: #{target_metric}")
+          Rails.logger.info("PrometheusAlert: #{PrometheusAlert.all}")
+          Rails.logger.info("target_metric: #{target_metric}")
 
           expect(target_metric).to be_a Hash
           expect(target_metric).to include(:alert_path)
