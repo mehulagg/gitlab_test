@@ -55,8 +55,7 @@ describe Vulnerabilities::Identifier do
     subject { described_class.unused }
 
     it 'returns only identifier without occurrence' do
-      expect(subject.count).to eq 1
-      expect(subject.first).to eq unused_identifier
+      is_expected.to contain_exactly(unused_identifier)
     end
   end
 end

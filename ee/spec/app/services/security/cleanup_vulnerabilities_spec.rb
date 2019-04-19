@@ -31,7 +31,7 @@ describe Security::CleanupVulnerabilities do
       described_class.new.execute
     end
 
-    it 'delete all old info' do
+    it 'deletes all old info' do
       expect(Ci::Pipeline.count).to eq 2
       expect(Vulnerabilities::OccurrencePipeline.count).to eq 2
       expect(Vulnerabilities::Occurrence.count).to eq 2

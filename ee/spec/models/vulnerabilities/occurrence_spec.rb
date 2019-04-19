@@ -89,7 +89,7 @@ describe Vulnerabilities::Occurrence do
     subject { described_class.unused }
 
     it 'returns only occurrences not connected to a pipeline' do
-      is_expected.to eq unused_occurrences
+      is_expected.to eq(unused_occurrences)
     end
   end
 

@@ -46,8 +46,7 @@ describe Vulnerabilities::Scanner do
     subject { described_class.unused }
 
     it 'returns unused entities' do
-      expect(subject.first).to eq unused_scanner
-      expect(subject.count).to eq 1
+      is_expected.to contain_exactly(unused_scanner)
     end
   end
 end
