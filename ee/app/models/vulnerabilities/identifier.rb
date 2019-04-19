@@ -29,12 +29,21 @@ module Vulnerabilities
     def self.unused
       identifiers = arel_table
       occurrence_ids = Vulnerabilities::OccurrenceIdentifier.arel_table
-      left_outer_joins = identifiers
-                           .join(occurrence_ids, Arel::Nodes::OuterJoin)
-                           .on(identifiers[:id].eq(occurrence_ids[:identifier_id]))
-                           .join_sources
-      joins(left_outer_joins)
+      occurrence_ids_joins = identifiers
+                               .join(occurrence_ids, Arel::Nodes::OuterJoin)
+                               .on(identifiers[:id].eq(occurrence_ids[:identifier_id]))
+                               .join_sources
+
+      occurrences = Vulnerabilities::Occurrence.arel_table
+      primary_joins = identifiers
+                        .join(occurrences, Arel::Nodes::OuterJoin)
+                        .on(identifiers[:id].eq(occurrences[:primary_identifier_id]))
+                        .join_sources
+
+      joins(occurrence_ids_joins)
         .where(occurrence_ids[:identifier_id].eq(nil))
+        .merge(joins(primary_joins)
+                 .where(occurrences[:primary_identifier_id].eq(nil)))
     end
   end
 end

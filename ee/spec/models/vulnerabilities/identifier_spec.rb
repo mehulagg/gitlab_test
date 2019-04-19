@@ -48,8 +48,7 @@ describe Vulnerabilities::Identifier do
     let(:occurrence) { create(:vulnerabilities_occurrence) }
     let!(:used_identifier) do
       create(:vulnerabilities_occurrence_identifier,
-             occurrence: occurrence,
-             identifier: occurrence.primary_identifier)
+             occurrence: occurrence)
     end
     let!(:unused_identifier) { create(:vulnerabilities_identifier) }
 
