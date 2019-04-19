@@ -19,12 +19,12 @@ describe Gitlab::MetricsDashboard::Processor do
           target_metric = all_metrics.find { |metric| metric[:metric_id] == persisted_metric.id }
 
           STDOUT.puts "!!!!!!!!!!!!!!!!!!!!"
-          STDERR.puts "!!!!!!!!!!!!!!!!!!!!"
-          STDOUT.puts PrometheusAlert.all
+          # STDERR.puts "!!!!!!!!!!!!!!!!!!!!"
+          STDOUT.puts PrometheusAlert.all.inspect
           $stdout.puts target_metric
 
-          $stderr.puts PrometheusAlert.all
-          $stderr.puts target_metric
+          # $stderr.puts PrometheusAlert.all
+          # $stderr.puts target_metric
 
           Rails.logger.error("PrometheusAlert: #{PrometheusAlert.all}")
           Rails.logger.error("target_metric: #{target_metric}")

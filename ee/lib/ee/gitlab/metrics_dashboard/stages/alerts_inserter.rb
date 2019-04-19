@@ -13,8 +13,8 @@ module EE
             for_metrics do |metric|
               s = "metric: #{metric}, alerts: #{alerts}"
               $stdout.puts s
-              $stderr.puts s
-              Rails.logger.info(s)
+              # $stderr.puts s
+              # Rails.logger.info(s)
               next unless alerts.include?(metric[:metric_id])
 
               metric[:alert_path] = alert_path(metric[:metric_id], project, environment)
