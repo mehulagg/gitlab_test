@@ -43,6 +43,7 @@ complexity.
 - Redis - Key/Value store (User sessions, cache, queue for Sidekiq)
   - Sentinel - Redis health check/failover manager
 - Gitaly - Provides high-level RPC access to Git repositories
+- Prometheus - Monitoring and alerting toolkit
 
 ## Scalable Architecture Examples
 
@@ -66,11 +67,12 @@ larger one.
 - 1 Redis node
 - 2 or more GitLab application nodes (Unicorn, Workhorse, Sidekiq)
 - 1 NFS/Gitaly storage server
+- 1 Prometheus node
 
 #### Installation Instructions
 
-Complete the following installation steps in order. A link at the end of each 
-section will bring you back to the Scalable Architecture Examples section so 
+Complete the following installation steps in order. A link at the end of each
+section will bring you back to the Scalable Architecture Examples section so
 you can continue with the next step.
 
 1. [PostgreSQL](./database.md#postgresql-in-a-scaled-environment)
@@ -182,4 +184,5 @@ separately:
    1. [NFS Client and Host setup](nfs_host_client_setup.md)
 1. [Configure the GitLab application servers](gitlab.md)
 1. [Configure the load balancers](load_balancer.md)
+1. [Configure prometheus](prometheus.md)
 
