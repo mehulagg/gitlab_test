@@ -45,3 +45,5 @@ module MergeRequests
     end
   end
 end
+
+MergeRequests::MergeWhenPipelineSucceedsService.prepend(EE::MergeRequests::MergeWhenPipelineSucceedsService)
