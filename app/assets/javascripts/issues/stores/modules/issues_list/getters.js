@@ -24,3 +24,5 @@ export const hasFilters = state => {
 };
 export const appliedFilters = state => state.filters;
 export const currentPage = state => state.currentPage;
+
+export default () => {};
