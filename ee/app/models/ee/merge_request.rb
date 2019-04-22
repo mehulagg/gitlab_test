@@ -48,7 +48,7 @@ module EE
 
     override :mergeable_ci_state?
     def mergeable_ci_state?
-      return false unless validate_merge_request_pipelines
+      return false unless validate_merge_train
 
       super
     end
@@ -62,10 +62,10 @@ module EE
       false
     end
 
-    def validate_merge_request_pipelines
-      return true unless project.merge_pipelines_enabled?
+    def validate_merge_train
+      return true unless project.merge_trains_enabled?
 
-      actual_head_pipeline&.latest_merge_request_pipeline?
+      merge_train&.first? && actual_head_pipeline&.latest_merge_request_pipeline?
     end
 
     def validate_approval_rule_source
