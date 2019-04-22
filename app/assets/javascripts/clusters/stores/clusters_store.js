@@ -21,6 +21,9 @@ const applicationInitialState = {
   requestReason: null,
   installed: false,
   installFailed: false,
+  uninstallable: false,
+  uninstallFailed: false,
+  uninstallSuccessful: false,
 };
 
 export default class ClusterStore {
@@ -150,8 +153,6 @@ export default class ClusterStore {
         ...nextApplicationState,
         statusReason,
         installed: isApplicationInstalled(nextApplicationState.status),
-        // Make sure uninstallable is always false until this feature is unflagged
-        uninstallable: false,
       };
 
       if (appId === INGRESS) {
