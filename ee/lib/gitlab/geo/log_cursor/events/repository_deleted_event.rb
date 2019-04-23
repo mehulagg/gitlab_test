@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Gitlab
   module Geo
     module LogCursor
@@ -10,7 +12,6 @@ module Gitlab
 
             unless skippable?
               job_id = destroy_repository
-              delete_project_registry_entries
             end
 
             log_event(job_id)
@@ -26,10 +27,6 @@ module Gitlab
               event.deleted_path,
               event.repository_storage_name
             ).async_execute
-          end
-
-          def delete_project_registry_entries
-            ::Geo::ProjectRegistry.where(project_id: event.project_id).delete_all
           end
 
           def log_event(job_id)

@@ -12,9 +12,9 @@ If enabled, version check will inform you if a new version is available and the
 importance of it through a status. This is shown on the help page (i.e. `/help`)
 for all signed in users, and on the admin pages. The statuses are:
 
-* Green: You are running the latest version of GitLab.
-* Orange: An updated version of GitLab is available.
-* Red: The version of GitLab you are running is vulnerable. You should install
+- Green: You are running the latest version of GitLab.
+- Orange: An updated version of GitLab is available.
+- Red: The version of GitLab you are running is vulnerable. You should install
   the latest version with security fixes as soon as possible.
 
 ![Orange version check example](img/update-available.png)
@@ -23,7 +23,7 @@ GitLab Inc. collects your instance's version and hostname (through the HTTP
 referer) as part of the version check. No other information is collected.
 
 This information is used, among other things, to identify to which versions
-patches will need to be back ported, making sure active GitLab instances remain
+patches will need to be backported, making sure active GitLab instances remain
 secure.
 
 If you disable version check, this information will not be collected.  Enable or
@@ -33,8 +33,8 @@ disable the version check at **Admin area > Settings > Usage statistics**.
 
 > [Introduced][ee-557] in GitLab Enterprise Edition 8.10. More statistics
 [were added][ee-735] in GitLab Enterprise Edition
-8.12. [Moved to GitLab Community Edition][ce-23361] in 9.1. More statistics
-[were added][[ee-6602] in 11.2
+8.12. [Moved to GitLab Core][ce-23361] in 9.1. More statistics
+[were added][ee-6602] in GitLab Ultimate 11.2.
 
 GitLab sends a weekly payload containing usage data to GitLab Inc. The usage
 ping uses high-level data to help our product, support, and sales teams. It does
@@ -42,7 +42,11 @@ not send any project names, usernames, or any other specific data. The
 information from the usage ping is not anonymous, it is linked to the hostname
 of the instance.
 
-You can view the exact JSON payload in the administration panel.
+You can view the exact JSON payload in the administration panel. To view the payload:
+
+1. Go to the **Admin area** (spanner symbol on the top bar).
+1. Expand **Settings** in the left sidebar and click on **Metrics and profiling**.
+1. Expand **Usage statistics** and click on the **Preview payload** button.
 
 ### Deactivate the usage ping
 

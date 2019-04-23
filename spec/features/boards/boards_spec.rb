@@ -6,9 +6,7 @@ describe 'Issue Boards', :js do
 
   let(:group) { create(:group, :nested) }
   let(:project) { create(:project, :public, namespace: group) }
-  let(:milestone) { create(:milestone, title: "v2.2", project: project) }
-  let!(:board)  { create(:board, project: project) }
-  let!(:board_with_milestone)  { create(:board, project: project, milestone: milestone) }
+  let(:board)   { create(:board, project: project) }
   let(:user)    { create(:user) }
   let!(:user2)  { create(:user) }
 
@@ -23,7 +21,7 @@ describe 'Issue Boards', :js do
 
   context 'no lists' do
     before do
-      visit project_boards_path(project)
+      visit project_board_path(project, board)
       wait_for_requests
       expect(page).to have_selector('.board', count: 3)
     end
@@ -70,7 +68,7 @@ describe 'Issue Boards', :js do
     let(:bug)         { create(:label, project: project, name: 'Bug') }
     let!(:backlog)    { create(:label, project: project, name: 'Backlog') }
     let!(:closed)       { create(:label, project: project, name: 'Closed') }
-    let!(:accepting)  { create(:label, project: project, name: 'Accepting Merge Requests') }
+    let!(:accepting) { create(:label, project: project, name: 'Accepting Merge Requests') }
     let!(:a_plus) { create(:label, project: project, name: 'A+') }
 
     let!(:list1) { create(:list, board: board, label: planning, position: 0) }
@@ -89,7 +87,7 @@ describe 'Issue Boards', :js do
     let!(:issue10) { create(:labeled_issue, project: project, title: 'issue +', description: 'A+ great issue', labels: [a_plus]) }
 
     before do
-      visit project_boards_path(project)
+      visit project_board_path(project, board)
 
       wait_for_requests
 
@@ -99,7 +97,7 @@ describe 'Issue Boards', :js do
       expect(find('.board:nth-child(4)')).to have_selector('.board-card')
     end
 
-    it 'shows description tooltip on list title' do
+    it 'shows description tooltip on list title', :quarantine do
       page.within('.board:nth-child(2)') do
         expect(find('.board-title span.has-tooltip')[:title]).to eq('Test')
       end
@@ -168,7 +166,7 @@ describe 'Issue Boards', :js do
         create(:labeled_issue, project: project, labels: [planning])
       end
 
-      visit project_boards_path(project)
+      visit project_board_path(project, board)
       wait_for_requests
 
       page.within(find('.board:nth-child(2)')) do
@@ -347,7 +345,7 @@ describe 'Issue Boards', :js do
 
           click_link 'Create project label'
 
-          fill_in('new_label_name', with: 'Testing New Label')
+          fill_in('new_label_name', with: 'Testing New Label - with list')
 
           first('.suggest-colors a').click
 
@@ -413,7 +411,7 @@ describe 'Issue Boards', :js do
         wait_for_empty_boards((2..4))
       end
 
-      it 'filters by label with space after reload' do
+      it 'filters by label with space after reload', :quarantine do
         set_filter("label", "\"#{accepting.title}")
         click_filter_link(accepting.title)
         submit_filter
@@ -479,7 +477,7 @@ describe 'Issue Boards', :js do
         end
       end
 
-      it 'filters by multiple labels' do
+      it 'filters by multiple labels', :quarantine do
         set_filter("label", testing.title)
         click_filter_link(testing.title)
 
@@ -528,25 +526,9 @@ describe 'Issue Boards', :js do
     end
   end
 
-  context 'locked milestone' do
-    before do
-      visit project_board_path(project, board_with_milestone)
-      wait_for_requests
-    end
-
-    it 'should not have remove button' do
-      expect(page).to have_selector('.js-visual-token .remove-token', count: 0)
-    end
-
-    it 'should not be able to be backspaced' do
-      find('.input-token .filtered-search').native.send_key(:backspace)
-      expect(page).to have_selector('.js-visual-token', count: 1)
-    end
-  end
-
   context 'keyboard shortcuts' do
     before do
-      visit project_boards_path(project)
+      visit project_board_path(project, board)
       wait_for_requests
     end
 

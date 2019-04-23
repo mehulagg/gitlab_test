@@ -5,10 +5,11 @@ describe API::MergeRequests do
 
   let(:base_time)   { Time.now }
   let(:user)        { create(:user) }
+  let(:user2)       { create(:user) }
   let!(:project)    { create(:project, :public, :repository, creator: user, namespace: user.namespace, only_allow_merge_if_pipeline_succeeds: false) }
   let(:milestone)   { create(:milestone, title: '1.0.0', project: project) }
-  let(:milestone1)   { create(:milestone, title: '0.9', project: project) }
-  let!(:merge_request) { create(:merge_request, :simple, milestone: milestone1, author: user, assignee: user, source_project: project, target_project: project, title: "Test", created_at: base_time) }
+  let(:milestone1) { create(:milestone, title: '0.9', project: project) }
+  let!(:merge_request) { create(:merge_request, :simple, milestone: milestone1, author: user, assignees: [user, user2], source_project: project, target_project: project, title: "Test", created_at: base_time) }
   let!(:label) do
     create(:label, title: 'label', color: '#FFAABB', project: project)
   end
@@ -16,6 +17,70 @@ describe API::MergeRequests do
 
   before do
     project.add_reporter(user)
+  end
+
+  describe 'PUT /projects/:id/merge_requests' do
+    def update_merge_request(params)
+      put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user), params: params
+    end
+
+    context 'multiple assignees' do
+      let(:other_user) { create(:user) }
+      let(:params) do
+        { assignee_ids: [user.id, other_user.id] }
+      end
+
+      context 'when licensed' do
+        before do
+          stub_licensed_features(multiple_merge_request_assignees: true)
+        end
+
+        it 'creates merge request with multiple assignees' do
+          update_merge_request(params)
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response['assignees'].size).to eq(2)
+          expect(json_response['assignees'].first['name']).to eq(user.name)
+          expect(json_response['assignees'].second['name']).to eq(other_user.name)
+          expect(json_response.dig('assignee', 'name')).to eq(user.name)
+        end
+      end
+
+      context 'when not licensed' do
+        before do
+          stub_licensed_features(multiple_merge_request_assignees: false)
+        end
+
+        it 'creates merge request with a single assignee' do
+          update_merge_request(params)
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response['assignees'].size).to eq(1)
+          expect(json_response['assignees'].first['name']).to eq(user.name)
+          expect(json_response.dig('assignee', 'name')).to eq(user.name)
+        end
+      end
+    end
+
+    context 'when updating existing approval rules' do
+      let!(:rule) { create(:approval_merge_request_rule, merge_request: merge_request, approvals_required: 1) }
+
+      it 'is successful' do
+        update_merge_request(
+          title: "New title",
+          approval_rules_attributes: [
+            { id: rule.id, approvals_required: 2 }
+          ]
+        )
+
+        expect(response).to have_gitlab_http_status(200)
+
+        merge_request.reload
+
+        expect(merge_request.approval_rules.size).to eq(1)
+        expect(merge_request.approval_rules.first.approvals_required).to eq(2)
+      end
+    end
   end
 
   describe "POST /projects/:id/merge_requests" do
@@ -29,8 +94,42 @@ describe API::MergeRequests do
           milestone_id: milestone.id
       }
       defaults = defaults.merge(args)
-      post api("/projects/#{project.id}/merge_requests", user), defaults
+      post api("/projects/#{project.id}/merge_requests", user), params: defaults
     end
+
+    context 'multiple assignees' do
+      context 'when licensed' do
+        before do
+          stub_licensed_features(multiple_merge_request_assignees: true)
+        end
+
+        it 'creates merge request with multiple assignees' do
+          create_merge_request(assignee_ids: [user.id, user2.id])
+
+          expect(response).to have_gitlab_http_status(201)
+          expect(json_response['assignees'].size).to eq(2)
+          expect(json_response['assignees'].first['name']).to eq(user.name)
+          expect(json_response['assignees'].second['name']).to eq(user2.name)
+          expect(json_response.dig('assignee', 'name')).to eq(user.name)
+        end
+      end
+
+      context 'when not licensed' do
+        before do
+          stub_licensed_features(multiple_merge_request_assignees: false)
+        end
+
+        it 'creates merge request with a single assignee' do
+          create_merge_request(assignee_ids: [user.id, user2.id])
+
+          expect(response).to have_gitlab_http_status(201)
+          expect(json_response['assignees'].size).to eq(1)
+          expect(json_response['assignees'].first['name']).to eq(user.name)
+          expect(json_response.dig('assignee', 'name')).to eq(user.name)
+        end
+      end
+    end
+
     context 'between branches projects' do
       it "returns merge_request" do
         create_merge_request(squash: true)
@@ -50,56 +149,85 @@ describe API::MergeRequests do
             create_merge_request(approvals_before_merge: 1)
           end
 
-          it 'does not update approvals_before_merge' do
+          it 'does not set approvals_before_merge' do
             expect(json_response['approvals_before_merge']).to eq(nil)
           end
         end
 
-        context 'when the target project has approvals_before_merge set to zero' do
+        context 'when the target project has disable_overriding_approvers_per_merge_request set to false' do
           before do
             project.update(approvals_before_merge: 0)
             create_merge_request(approvals_before_merge: 1)
           end
 
-          it 'returns a 201' do
+          it 'sets approvals_before_merge' do
             expect(response).to have_gitlab_http_status(201)
-          end
-
-          it 'does not include an error in the response' do
             expect(json_response['message']).to eq(nil)
+            expect(json_response['approvals_before_merge']).to eq(1)
           end
         end
+      end
+    end
+  end
 
-        context 'when the target project has a non-zero approvals_before_merge' do
-          context 'when the approvals_before_merge param is less than or equal to the value in the target project' do
-            before do
-              project.update(approvals_before_merge: 2)
-              create_merge_request(approvals_before_merge: 1)
-            end
+  context 'when authenticated' do
+    def expect_response_contain_exactly(*items)
+      expect(response).to have_gitlab_http_status(200)
+      expect(json_response.length).to eq(items.size)
+      expect(json_response.map { |element| element['id'] }).to contain_exactly(*items.map(&:id))
+    end
 
-            it 'returns a 400' do
-              expect(response).to have_gitlab_http_status(400)
-            end
+    let!(:merge_request_with_approver) do
+      create(:merge_request_with_approver, :simple, author: user, source_project: project, target_project: project, source_branch: 'other-branch')
+    end
 
-            it 'includes the error in the response' do
-              expect(json_response['message']['validate_approvals_before_merge']).not_to be_empty
-            end
-          end
+    context 'filter merge requests by assignee ID' do
+      let!(:merge_request2) do
+        create(:merge_request, :simple, assignees: [user2], source_project: project, target_project: project, source_branch: 'other-branch-2')
+      end
 
-          context 'when the approvals_before_merge param is greater than the value in the target project' do
-            before do
-              project.update(approvals_before_merge: 1)
-              create_merge_request(approvals_before_merge: 2)
-            end
+      it 'returns merge requests with given assignee ID' do
+        get api('/merge_requests', user), params: { assignee_id: user2.id }
 
-            it 'returns a created status' do
-              expect(response).to have_gitlab_http_status(201)
-            end
+        expect_response_contain_exactly(merge_request, merge_request2)
+      end
+    end
 
-            it 'sets approvals_before_merge of the newly-created MR' do
-              expect(json_response['approvals_before_merge']).to eq(2)
-            end
-          end
+    context 'filter merge requests by approver IDs' do
+      before do
+        get api('/merge_requests', user), params: { approver_ids: approvers_param, scope: :all }
+      end
+
+      context 'with specified approver id' do
+        let(:approvers_param) { [merge_request_with_approver.approvers.first.user_id] }
+
+        it 'returns an array of merge requests which have specified the user as an approver' do
+          expect_response_contain_exactly(merge_request_with_approver)
+        end
+      end
+
+      context 'with specified None as a param' do
+        let(:approvers_param) { 'None' }
+
+        it 'returns an array of merge requests with no approvers' do
+          expect_response_contain_exactly(merge_request)
+        end
+      end
+
+      context 'with specified Any as a param' do
+        let(:approvers_param) { 'Any' }
+
+        it 'returns an array of merge requests with any approver' do
+          expect_response_contain_exactly(merge_request_with_approver)
+        end
+      end
+
+      context 'with any other string as a param' do
+        let(:approvers_param) { 'any-other-string' }
+
+        it 'returns a validation error' do
+          expect(response).to have_gitlab_http_status(400)
+          expect(json_response['error']).to eq("approver_ids should be an array, 'None' or 'Any'")
         end
       end
     end

@@ -2,14 +2,14 @@ require 'spec_helper'
 
 describe Geo::FileDownloadDispatchWorker, :geo do
   include ::EE::GeoHelpers
+  include ExclusiveLeaseHelpers
 
   let(:primary)   { create(:geo_node, :primary, host: 'primary-geo-node') }
   let(:secondary) { create(:geo_node) }
 
   before do
     stub_current_geo_node(secondary)
-    allow_any_instance_of(Gitlab::ExclusiveLease).to receive(:try_obtain).and_return(true)
-    allow_any_instance_of(Gitlab::ExclusiveLease).to receive(:renew).and_return(true)
+    stub_exclusive_lease(renew: true)
     allow_any_instance_of(described_class).to receive(:over_time?).and_return(false)
     WebMock.stub_request(:get, /primary-geo-node/).to_return(status: 200, body: "", headers: {})
   end
@@ -47,18 +47,16 @@ describe Geo::FileDownloadDispatchWorker, :geo do
     end
 
     context 'with attachments (Upload records)' do
-      it 'performs Geo::FileDownloadWorker for unsynced attachments' do
-        upload = create(:upload)
+      let(:upload) { create(:upload) }
 
+      it 'performs Geo::FileDownloadWorker for unsynced attachments' do
         expect(Geo::FileDownloadWorker).to receive(:perform_async).with('avatar', upload.id)
 
         subject.perform
       end
 
       it 'performs Geo::FileDownloadWorker for failed-sync attachments' do
-        upload = create(:upload)
-
-        create(:geo_file_registry, :avatar, file_id: upload.id, bytes: 0, success: false)
+        create(:geo_file_registry, :avatar, :failed, file_id: upload.id, bytes: 0)
 
         expect(Geo::FileDownloadWorker).to receive(:perform_async)
           .with('avatar', upload.id).once.and_return(spy)
@@ -67,9 +65,7 @@ describe Geo::FileDownloadDispatchWorker, :geo do
       end
 
       it 'does not perform Geo::FileDownloadWorker for synced attachments' do
-        upload = create(:upload)
-
-        create(:geo_file_registry, :avatar, file_id: upload.id, bytes: 1234, success: true)
+        create(:geo_file_registry, :avatar, file_id: upload.id, bytes: 1234)
 
         expect(Geo::FileDownloadWorker).not_to receive(:perform_async)
 
@@ -77,9 +73,7 @@ describe Geo::FileDownloadDispatchWorker, :geo do
       end
 
       it 'does not perform Geo::FileDownloadWorker for synced attachments even with 0 bytes downloaded' do
-        upload = create(:upload)
-
-        create(:geo_file_registry, :avatar, file_id: upload.id, bytes: 0, success: true)
+        create(:geo_file_registry, :avatar, file_id: upload.id, bytes: 0)
 
         expect(Geo::FileDownloadWorker).not_to receive(:perform_async)
 
@@ -87,7 +81,7 @@ describe Geo::FileDownloadDispatchWorker, :geo do
       end
 
       context 'with a failed file' do
-        let(:failed_registry) { create(:geo_file_registry, :avatar, file_id: 999, success: false) }
+        let(:failed_registry) { create(:geo_file_registry, :avatar, :failed, file_id: 999) }
 
         it 'does not stall backfill' do
           unsynced = create(:upload)
@@ -107,7 +101,7 @@ describe Geo::FileDownloadDispatchWorker, :geo do
         end
 
         it 'does not retry failed files when retry_at is tomorrow' do
-          failed_registry = create(:geo_file_registry, :avatar, file_id: 999, success: false, retry_at: Date.tomorrow)
+          failed_registry = create(:geo_file_registry, :avatar, :failed, file_id: 999, retry_at: Date.tomorrow)
 
           expect(Geo::FileDownloadWorker).not_to receive(:perform_async).with('avatar', failed_registry.file_id)
 
@@ -115,7 +109,7 @@ describe Geo::FileDownloadDispatchWorker, :geo do
         end
 
         it 'retries failed files when retry_at is in the past' do
-          failed_registry = create(:geo_file_registry, :avatar, file_id: 999, success: false, retry_at: Date.yesterday)
+          failed_registry = create(:geo_file_registry, :avatar, :failed, file_id: 999, retry_at: Date.yesterday)
 
           expect(Geo::FileDownloadWorker).to receive(:perform_async).with('avatar', failed_registry.file_id)
 
@@ -311,6 +305,16 @@ describe Geo::FileDownloadDispatchWorker, :geo do
       end
     end
 
+    context 'backoff time' do
+      let(:cache_key) { "#{described_class.name.underscore}:skip" }
+
+      it 'does not set the back off time when there are no pending items' do
+        expect(Rails.cache).not_to receive(:write).with(cache_key, true, expires_in: 300.seconds)
+
+        subject.perform
+      end
+    end
+
     # Test the case where we have:
     #
     # 1. A total of 10 files in the queue, and we can load a maximimum of 5 and send 2 at a time.
@@ -343,15 +347,18 @@ describe Geo::FileDownloadDispatchWorker, :geo do
       end
     end
 
-    context 'when node has namespace restrictions' do
+    context 'when node has namespace restrictions', :request_store do
       let(:synced_group) { create(:group) }
       let(:project_in_synced_group) { create(:project, group: synced_group) }
       let(:unsynced_project) { create(:project) }
 
       before do
-        allow(ProjectCacheWorker).to receive(:perform_async).and_return(true)
-
         secondary.update!(selective_sync_type: 'namespaces', namespaces: [synced_group])
+
+        allow(ProjectCacheWorker).to receive(:perform_async).and_return(true)
+        allow(::Gitlab::Geo).to receive(:current_node).and_call_original
+        Rails.cache.write(:current_node, secondary.to_json)
+        allow(::GeoNode).to receive(:current_node).and_return(secondary)
       end
 
       it 'does not perform Geo::FileDownloadWorker for LFS object that does not belong to selected namespaces to replicate' do

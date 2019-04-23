@@ -4,7 +4,7 @@
 }
 
 .users-project-form {
-  .btn-create {
+  .btn-success {
     margin-right: 10px;
   }
 }
@@ -33,7 +33,6 @@
 
   .controls {
     @include media-breakpoint-up(sm) {
-      display: -webkit-flex;
       display: flex;
     }
 
@@ -130,7 +129,6 @@
 }
 
 .members-ldap {
-  -webkit-align-self: center;
   align-self: center;
   height: 100%;
   margin-right: 10px;
@@ -138,7 +136,7 @@
 }
 
 .alert-member-ldap {
-  background-color: $ldap-members-override-bg;
+  background-color: $orange-50;
 
   @include media-breakpoint-up(sm) {
     line-height: 40px;

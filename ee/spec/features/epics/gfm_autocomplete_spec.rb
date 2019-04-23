@@ -15,6 +15,32 @@ describe 'GFM autocomplete', :js do
     wait_for_requests
   end
 
+  context 'issuables' do
+    let(:project) { create(:project, :repository, namespace: group) }
+
+    context 'issues' do
+      it 'shows issues of group' do
+        issue_1 = create(:issue, project: project)
+        issue_2 = create(:issue, project: project)
+
+        type(find('#note-body'), '#')
+
+        expect_resources(shown: [issue_1, issue_2])
+      end
+    end
+
+    context 'merge requests' do
+      it 'shows merge requests of group' do
+        mr_1 = create(:merge_request, source_project: project)
+        mr_2 = create(:merge_request, source_project: project, source_branch: 'other-branch')
+
+        type(find('#note-body'), '!')
+
+        expect_resources(shown: [mr_1, mr_2])
+      end
+    end
+  end
+
   context 'epics' do
     let!(:epic2) { create(:epic, group: group, title: 'make tea') }
 
@@ -23,35 +49,64 @@ describe 'GFM autocomplete', :js do
 
       # It should show all the epics on "&".
       type(note, '&')
-      expect_epics(shown: [epic, epic2])
+      expect_resources(shown: [epic, epic2])
     end
   end
 
-  # This context has just one example in each contexts in order to improve spec performance.
+  context 'milestone' do
+    it 'shows group milestones' do
+      project = create(:project, namespace: group)
+      milestone_1 = create(:milestone, title: 'milestone_1', group: group)
+      milestone_2 = create(:milestone, title: 'milestone_2', group: group)
+      milestone_3 = create(:milestone, title: 'milestone_3', project: project)
+      note = find('#note-body')
+
+      type(note, '%')
+
+      expect_resources(shown: [milestone_1, milestone_2], not_shown: [milestone_3])
+    end
+  end
+
   context 'labels' do
     let!(:backend)          { create(:group_label, group: group, title: 'backend') }
     let!(:bug)              { create(:group_label, group: group, title: 'bug') }
     let!(:feature_proposal) { create(:group_label, group: group, title: 'feature proposal') }
 
     context 'when no labels are assigned' do
-      it 'shows labels' do
+      it 'shows all labels for ~' do
         note = find('#note-body')
 
-        # It should show all the labels on "~".
         type(note, '~')
-        expect_labels(shown: [backend, bug, feature_proposal])
+        wait_for_requests
 
-        # It should show all the labels on "/label ~".
+        expect_resources(shown: [backend, bug, feature_proposal])
+      end
+
+      it 'shows all labels for /label ~' do
+        note = find('#note-body')
+
         type(note, '/label ~')
-        expect_labels(shown: [backend, bug, feature_proposal])
+        wait_for_requests
 
-        # It should show all the labels on "/relabel ~".
+        expect_resources(shown: [backend, bug, feature_proposal])
+      end
+
+      it 'shows all labels for /relabel ~' do
+        note = find('#note-body')
+
         type(note, '/relabel ~')
-        expect_labels(shown: [backend, bug, feature_proposal])
+        wait_for_requests
 
-        # It should show no labels on "/unlabel ~".
+        expect_resources(shown: [backend, bug, feature_proposal])
+      end
+
+      it 'shows no labels for /unlabel ~' do
+        note = find('#note-body')
+
         type(note, '/unlabel ~')
-        expect_labels(not_shown: [backend, bug, feature_proposal])
+        wait_for_requests
+
+        expect_resources(not_shown: [backend, bug, feature_proposal])
       end
     end
 
@@ -60,24 +115,40 @@ describe 'GFM autocomplete', :js do
         epic.labels << [backend]
       end
 
-      skip 'shows labels' do
+      it 'shows all labels for ~' do
         note = find('#note-body')
 
-        # It should show all the labels on "~".
         type(note, '~')
-        expect_labels(shown: [backend, bug, feature_proposal])
+        wait_for_requests
 
-        # It should show only unset labels on "/label ~".
+        expect_resources(shown: [backend, bug, feature_proposal])
+      end
+
+      it 'shows only unset labels for /label ~' do
+        note = find('#note-body')
+
         type(note, '/label ~')
-        expect_labels(shown: [bug, feature_proposal], not_shown: [backend])
+        wait_for_requests
 
-        # It should show all the labels on "/relabel ~".
+        expect_resources(shown: [bug, feature_proposal], not_shown: [backend])
+      end
+
+      it 'shows all labels for /relabel ~' do
+        note = find('#note-body')
+
         type(note, '/relabel ~')
-        expect_labels(shown: [backend, bug, feature_proposal])
+        wait_for_requests
 
-        # It should show only set labels on "/unlabel ~".
+        expect_resources(shown: [backend, bug, feature_proposal])
+      end
+
+      it 'shows only set labels for /unlabel ~' do
+        note = find('#note-body')
+
         type(note, '/unlabel ~')
-        expect_labels(shown: [backend], not_shown: [bug, feature_proposal])
+        wait_for_requests
+
+        expect_resources(shown: [backend], not_shown: [bug, feature_proposal])
       end
     end
 
@@ -86,24 +157,40 @@ describe 'GFM autocomplete', :js do
         epic.labels << [backend, bug, feature_proposal]
       end
 
-      skip 'shows labels' do
+      it 'shows all labels for ~' do
         note = find('#note-body')
 
-        # It should show all the labels on "~".
         type(note, '~')
-        expect_labels(shown: [backend, bug, feature_proposal])
+        wait_for_requests
 
-        # It should show no labels on "/label ~".
+        expect_resources(shown: [backend, bug, feature_proposal])
+      end
+
+      it 'shows no labels for /label ~' do
+        note = find('#note-body')
+
         type(note, '/label ~')
-        expect_labels(not_shown: [backend, bug, feature_proposal])
+        wait_for_requests
 
-        # It should show all the labels on "/relabel ~".
+        expect_resources(not_shown: [backend, bug, feature_proposal])
+      end
+
+      it 'shows all labels for /relabel ~' do
+        note = find('#note-body')
+
         type(note, '/relabel ~')
-        expect_labels(shown: [backend, bug, feature_proposal])
+        wait_for_requests
 
-        # It should show all the labels on "/unlabel ~".
+        expect_resources(shown: [backend, bug, feature_proposal])
+      end
+
+      it 'shows all labels for /unlabel ~' do
+        note = find('#note-body')
+
         type(note, '/unlabel ~')
-        expect_labels(shown: [backend, bug, feature_proposal])
+        wait_for_requests
+
+        expect_resources(shown: [backend, bug, feature_proposal])
       end
     end
   end
@@ -123,30 +210,16 @@ describe 'GFM autocomplete', :js do
     end
   end
 
-  def expect_labels(shown: nil, not_shown: nil)
+  def expect_resources(shown: nil, not_shown: nil)
     page.within('.atwho-container') do
       if shown
         expect(page).to have_selector('.atwho-view li', count: shown.size)
-        shown.each { |label| expect(page).to have_content(label.title) }
+        shown.each { |resource| expect(page).to have_content(resource.title) }
       end
 
       if not_shown
         expect(page).not_to have_selector('.atwho-view li') unless shown
-        not_shown.each { |label| expect(page).not_to have_content(label.title) }
-      end
-    end
-  end
-
-  def expect_epics(shown: nil, not_shown: nil)
-    page.within('.atwho-container') do
-      if shown
-        expect(page).to have_selector('.atwho-view li', count: shown.size)
-        shown.each { |epic| expect(page).to have_content(epic.title) }
-      end
-
-      if not_shown
-        expect(page).not_to have_selector('.atwho-view li') unless shown
-        not_shown.each { |epic| expect(page).not_to have_content(epic.title) }
+        not_shown.each { |resource| expect(page).not_to have_content(resource.title) }
       end
     end
   end

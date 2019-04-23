@@ -103,7 +103,7 @@ export const createNewBranchFromDefault = ({ state, dispatch, getters }, branch)
     })
     .catch(() => {
       dispatch('setErrorMessage', {
-        text: __('An error occured creating the new branch.'),
+        text: __('An error occurred creating the new branch.'),
         action: payload => dispatch('createNewBranchFromDefault', payload),
         actionText: __('Please try again'),
         actionPayload: branch,
@@ -125,10 +125,7 @@ export const showBranchNotFoundError = ({ dispatch }, branchId) => {
   });
 };
 
-export const openBranch = (
-  { dispatch, state },
-  { projectId, branchId, basePath },
-) => {
+export const openBranch = ({ dispatch, state }, { projectId, branchId, basePath }) => {
   dispatch('setCurrentBranchId', branchId);
 
   dispatch('getBranchData', {
@@ -136,11 +133,10 @@ export const openBranch = (
     branchId,
   });
 
-  return (
-    dispatch('getFiles', {
-      projectId,
-      branchId,
-    })
+  return dispatch('getFiles', {
+    projectId,
+    branchId,
+  })
     .then(() => {
       if (basePath) {
         const path = basePath.slice(-1) === '/' ? basePath.slice(0, -1) : basePath;
@@ -151,8 +147,18 @@ export const openBranch = (
 
         if (treeEntry) {
           dispatch('handleTreeEntryAction', treeEntry);
+        } else {
+          dispatch('createTempEntry', {
+            name: path,
+            type: 'blob',
+          });
         }
       }
     })
-  );
+    .then(() => {
+      dispatch('getMergeRequestsForBranch', {
+        projectId,
+        branchId,
+      });
+    });
 };

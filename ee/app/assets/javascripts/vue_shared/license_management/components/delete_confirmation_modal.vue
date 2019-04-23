@@ -33,8 +33,6 @@ export default {
     @cancel="resetLicenseInModal"
     @submit="deleteLicense(currentLicenseInModal)"
   >
-    <span
-      v-if="currentLicenseInModal"
-      v-html="confirmationText"></span>
+    <span v-if="currentLicenseInModal" v-html="confirmationText"></span>
   </gl-modal>
 </template>

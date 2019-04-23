@@ -1,16 +1,31 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe EE::Ci::JobArtifact do
-  describe '#destroy' do
-    set(:primary) { create(:geo_node, :primary) }
-    set(:secondary) { create(:geo_node) }
+  describe '.license_management_reports' do
+    subject { Ci::JobArtifact.license_management_reports }
 
-    it 'creates a JobArtifactDeletedEvent' do
-      job_artifact = create(:ci_job_artifact, :archive)
+    context 'when there is a license management report' do
+      let!(:artifact) { create(:ee_ci_job_artifact, :license_management) }
 
-      expect do
-        job_artifact.destroy
-      end.to change { Geo::JobArtifactDeletedEvent.count }.by(1)
+      it { is_expected.to eq([artifact]) }
+    end
+  end
+
+  describe '.metrics_reports' do
+    subject { Ci::JobArtifact.metrics_reports }
+
+    context 'when there is a metrics report' do
+      let!(:artifact) { create(:ee_ci_job_artifact, :metrics) }
+
+      it { is_expected.to eq([artifact]) }
+    end
+
+    context 'when there is no metrics reports' do
+      let!(:artifact) { create(:ee_ci_job_artifact, :trace) }
+
+      it { is_expected.to be_empty }
     end
   end
 end

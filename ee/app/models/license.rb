@@ -1,4 +1,6 @@
-class License < ActiveRecord::Base
+# frozen_string_literal: true
+
+class License < ApplicationRecord
   include ActionView::Helpers::NumberHelper
 
   STARTER_PLAN = 'starter'.freeze
@@ -9,10 +11,10 @@ class License < ActiveRecord::Base
   EES_FEATURES = %i[
     audit_events
     burndown_charts
+    code_owners
     contribution_analytics
     elastic_search
     export_issues
-    external_files_in_gitlab_ci
     group_burndown_charts
     group_webhooks
     issuable_default_templates
@@ -24,9 +26,9 @@ class License < ActiveRecord::Base
     merge_request_approvers
     multiple_ldap_servers
     multiple_issue_assignees
+    multiple_merge_request_assignees
     multiple_project_issue_boards
     push_rules
-    project_creation_level
     protected_refs_for_users
     related_issues
     repository_mirrors
@@ -41,6 +43,7 @@ class License < ActiveRecord::Base
     board_milestone_lists
     cross_project_pipelines
     custom_file_templates
+    custom_file_templates_for_namespace
     email_additional_text
     db_load_balancing
     deploy_board
@@ -49,39 +52,55 @@ class License < ActiveRecord::Base
     geo
     github_project_service_integration
     jira_dev_panel_integration
+    scoped_labels
     ldap_group_sync_filter
     multiple_clusters
     multiple_group_issue_boards
+    multiple_approval_rules
     merge_request_performance_metrics
     object_storage
     group_saml
     service_desk
+    smartcard_auth
     unprotection_restrictions
     variable_environment_scope
     reject_unsigned_commits
     commit_committer_check
-    external_authorization_service
     ci_cd_projects
     protected_environments
-    system_header_footer
     custom_project_templates
     packages
-  ].freeze
+    code_owner_approval_required
+    feature_flags
+    batch_comments
+    issues_analytics
+    merge_pipelines
+    design_management
+    operations_dashboard
+    dependency_proxy
+    metrics_reports
+  ]
+  EEP_FEATURES.freeze
 
   EEU_FEATURES = EEP_FEATURES + %i[
+    security_dashboard
     dependency_scanning
     license_management
     sast
     sast_container
+    container_scanning
     cluster_health
     dast
     epics
-    ide
-    chatops
     pod_logs
     pseudonymizer
     prometheus_alerts
-  ].freeze
+    tracing
+    insights
+    web_ide_terminal
+    incident_management
+  ]
+  EEU_FEATURES.freeze
 
   # List all features available for early adopters,
   # i.e. users that started using GitLab.com before
@@ -161,8 +180,6 @@ class License < ActiveRecord::Base
     multiple_ldap_servers
     object_storage
     repository_size_limit
-    external_authorization_service
-    system_header_footer
     custom_project_templates
   ].freeze
 
@@ -177,6 +194,7 @@ class License < ActiveRecord::Base
   after_destroy :reset_current
 
   scope :previous, -> { order(created_at: :desc).offset(1) }
+  scope :recent, -> { reorder(id: :desc) }
 
   class << self
     def features_for_plan(plan)
@@ -241,7 +259,7 @@ class License < ActiveRecord::Base
   end
 
   def license
-    return nil unless self.data
+    return unless self.data
 
     @license ||=
       begin
@@ -291,6 +309,9 @@ class License < ActiveRecord::Base
 
   def feature_available?(feature)
     return false if trial? && expired?
+
+    # This feature might not be behind a feature flag at all, so default to true
+    return false unless ::Feature.enabled?(feature, default_enabled: true)
 
     features.include?(feature)
   end
@@ -358,6 +379,30 @@ class License < ActiveRecord::Base
     (expires_at - Date.today).to_i
   end
 
+  def overage(user_count = nil)
+    return 0 if restricted_user_count.nil?
+
+    user_count ||= current_active_users_count
+
+    [user_count - restricted_user_count, 0].max
+  end
+
+  def overage_with_historical_max
+    overage(historical_max_with_default_period)
+  end
+
+  def historical_max(from = nil, to = nil)
+    from ||= starts_at - 1.year
+    to   ||= starts_at
+
+    HistoricalData.during(from..to).maximum(:active_user_count) || 0
+  end
+
+  def historical_max_with_default_period
+    @historical_max_with_default_period ||=
+      historical_max
+  end
+
   private
 
   def restricted_attr(name, default = nil)
@@ -368,7 +413,6 @@ class License < ActiveRecord::Base
 
   def reset_current
     self.class.reset_current
-    Gitlab::Chat.flush_available_cache
   end
 
   def reset_license
@@ -379,13 +423,6 @@ class License < ActiveRecord::Base
     return if license?
 
     self.errors.add(:base, "The license key is invalid. Make sure it is exactly as you received it from GitLab Inc.")
-  end
-
-  def historical_max(from = nil, to = nil)
-    from ||= starts_at - 1.year
-    to   ||= starts_at
-
-    HistoricalData.during(from..to).maximum(:active_user_count) || 0
   end
 
   def empty_historical_max?
@@ -422,25 +459,25 @@ class License < ActiveRecord::Base
         add_limit_error(user_count: current_active_users_count)
       end
     else
-      message = "You have applied a True-up for #{trueup_qty} #{"user".pluralize(trueup_qty)} "
-      message << "but you need one for #{expected_trueup_qty} #{"user".pluralize(expected_trueup_qty)}. "
+      message = ["You have applied a True-up for #{trueup_qty} #{"user".pluralize(trueup_qty)}"]
+      message << "but you need one for #{expected_trueup_qty} #{"user".pluralize(expected_trueup_qty)}."
       message << "Please contact sales at renewals@gitlab.com"
 
-      self.errors.add(:base, message)
+      self.errors.add(:base, message.join(' '))
     end
   end
 
   def add_limit_error(current_period: true, user_count:)
-    overage = user_count - restricted_user_count
+    overage_count = overage(user_count)
 
-    message =  current_period ? "This GitLab installation currently has " : "During the year before this license started, this GitLab installation had "
-    message << "#{number_with_delimiter(user_count)} active #{"user".pluralize(user_count)}, "
-    message << "exceeding this license's limit of #{number_with_delimiter(restricted_user_count)} by "
-    message << "#{number_with_delimiter(overage)} #{"user".pluralize(overage)}. "
-    message << "Please upload a license for at least "
+    message =  [current_period ? "This GitLab installation currently has" : "During the year before this license started, this GitLab installation had"]
+    message << "#{number_with_delimiter(user_count)} active #{"user".pluralize(user_count)},"
+    message << "exceeding this license's limit of #{number_with_delimiter(restricted_user_count)} by"
+    message << "#{number_with_delimiter(overage_count)} #{"user".pluralize(overage_count)}."
+    message << "Please upload a license for at least"
     message << "#{number_with_delimiter(user_count)} #{"user".pluralize(user_count)} or contact sales at renewals@gitlab.com"
 
-    self.errors.add(:base, message)
+    self.errors.add(:base, message.join(' '))
   end
 
   def not_expired

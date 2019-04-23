@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module Groups
     module GroupMembersController
@@ -12,11 +14,16 @@ module EE
         end
       end
 
-      included do
+      prepended do
+        # This before_action needs to be redefined so we can use the new values
+        # from `admin_not_required_endpoints`.
+        before_action :authorize_admin_group_member!, except: admin_not_required_endpoints
+
         before_action :authorize_update_group_member!, only: [:update, :override]
       end
 
       # rubocop:disable Gitlab/ModuleWithInstanceVariables
+      # rubocop: disable CodeReuse/ActiveRecord
       def override
         member = @group.members.find_by!(id: params[:id])
         updated_member = ::Members::UpdateService.new(current_user, override_params)
@@ -28,6 +35,7 @@ module EE
           end
         end
       end
+      # rubocop: enable CodeReuse/ActiveRecord
       # rubocop:enable Gitlab/ModuleWithInstanceVariables
 
       protected

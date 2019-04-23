@@ -7,7 +7,7 @@
 #
 # Usage:
 #
-#     class Issue < ActiveRecord::Base
+#     class Issue < ApplicationRecord
 #       include Participable
 #
 #       # ...
@@ -25,9 +25,7 @@
 #     users = issue.participants
 module Participable
   extend ActiveSupport::Concern
-  prepend EE::Participable
-
-  module ClassMethods
+  class_methods do
     # Adds a list of participant attributes. Attributes can either be symbols or
     # Procs.
     #
@@ -113,3 +111,5 @@ module Participable
     end
   end
 end
+
+Participable.prepend(EE::Participable)

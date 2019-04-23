@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module Banzai
   module Pipeline
     class PostProcessPipeline < BasePipeline
-      prepend EE::Banzai::Pipeline::PostProcessPipeline
+      prepend EE::Banzai::Pipeline::PostProcessPipeline # rubocop: disable Cop/InjectEnterpriseEditionModule
 
       def self.filters
         @filters ||= FilterArray[
@@ -14,7 +16,8 @@ module Banzai
         [
           Filter::RedactorFilter,
           Filter::RelativeLinkFilter,
-          Filter::IssuableStateFilter
+          Filter::IssuableStateFilter,
+          Filter::SuggestionFilter
         ]
       end
 

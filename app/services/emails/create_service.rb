@@ -2,10 +2,14 @@
 
 module Emails
   class CreateService < ::Emails::BaseService
-    prepend ::EE::Emails::CreateService
-
     def execute(extra_params = {})
-      @user.emails.create(@params.merge(extra_params))
+      skip_confirmation = params.delete(:skip_confirmation)
+
+      user.emails.create(params.merge(extra_params)).tap do |email|
+        email&.confirm if skip_confirmation && current_user.admin?
+      end
     end
   end
 end
+
+Emails::CreateService.prepend(EE::Emails::CreateService)

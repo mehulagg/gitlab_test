@@ -1,10 +1,11 @@
+# frozen_string_literal: true
+
 class SessionsController < Devise::SessionsController
   include InternalRedirect
   include AuthenticatesWithTwoFactor
   include Devise::Controllers::Rememberable
   include Recaptcha::ClientHelper
   include Recaptcha::Verify
-  prepend EE::SessionsController
 
   skip_before_action :check_two_factor_requirement, only: [:destroy]
 
@@ -69,7 +70,7 @@ class SessionsController < Devise::SessionsController
       increment_failed_login_captcha_counter
 
       self.resource = resource_class.new
-      flash[:alert] = 'There was an error with the reCAPTCHA. Please solve the reCAPTCHA again.'
+      flash[:alert] = _('There was an error with the reCAPTCHA. Please solve the reCAPTCHA again.')
       flash.delete :recaptcha_error
 
       respond_with_navigational(resource) { render :new }
@@ -103,11 +104,12 @@ class SessionsController < Devise::SessionsController
   end
 
   def failed_login?
-    (options = env["warden.options"]) && options[:action] == "unauthenticated"
+    (options = request.env["warden.options"]) && options[:action] == "unauthenticated"
   end
 
   # Handle an "initial setup" state, where there's only one user, it's an admin,
   # and they require a password change.
+  # rubocop: disable CodeReuse/ActiveRecord
   def check_initial_setup
     return unless User.limit(2).count == 1 # Count as much 2 to know if we have exactly one
 
@@ -120,8 +122,9 @@ class SessionsController < Devise::SessionsController
     end
 
     redirect_to edit_user_password_path(reset_password_token: @token),
-      notice: "Please create a password for your new account."
+      notice: _("Please create a password for your new account.")
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 
   def user_params
     params.require(:user).permit(:login, :password, :remember_me, :otp_attempt, :device_response)
@@ -216,3 +219,5 @@ class SessionsController < Devise::SessionsController
     end
   end
 end
+
+SessionsController.prepend(EE::SessionsController)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Environment do
@@ -41,6 +43,76 @@ describe Environment do
     end
   end
 
+  describe '.for_name_like' do
+    subject { project.environments.for_name_like(query, limit: limit) }
+
+    let!(:environment) { create(:environment, name: 'production', project: project) }
+    let(:query) { 'pro' }
+    let(:limit) { 5 }
+
+    it 'returns a found name' do
+      is_expected.to include(environment)
+    end
+
+    context 'when query is production' do
+      let(:query) { 'production' }
+
+      it 'returns a found name' do
+        is_expected.to include(environment)
+      end
+    end
+
+    context 'when query is productionA' do
+      let(:query) { 'productionA' }
+
+      it 'returns empty array' do
+        is_expected.to be_empty
+      end
+    end
+
+    context 'when query is empty' do
+      let(:query) { '' }
+
+      it 'returns a found name' do
+        is_expected.to include(environment)
+      end
+    end
+
+    context 'when query is nil' do
+      let(:query) { }
+
+      it 'raises an error' do
+        expect { subject }.to raise_error(NoMethodError)
+      end
+    end
+
+    context 'when query is partially matched in the middle of environment name' do
+      let(:query) { 'duction' }
+
+      it 'returns empty array' do
+        is_expected.to be_empty
+      end
+    end
+
+    context 'when query contains a wildcard character' do
+      let(:query) { 'produc%' }
+
+      it 'prevents wildcard injection' do
+        is_expected.to be_empty
+      end
+    end
+  end
+
+  describe '.pluck_names' do
+    subject { described_class.pluck_names }
+
+    let!(:environment) { create(:environment, name: 'production', project: project) }
+
+    it 'plucks names' do
+      is_expected.to eq(%w[production])
+    end
+  end
+
   describe '#expire_etag_cache' do
     let(:store) { Gitlab::EtagCaching::Store.new }
 
@@ -50,6 +122,25 @@ describe Environment do
       environment.stop
 
       expect(store.get(environment.etag_cache_key)).not_to eq(old_value)
+    end
+  end
+
+  describe '.with_deployment' do
+    subject { described_class.with_deployment(sha) }
+
+    let(:environment) { create(:environment) }
+    let(:sha) { RepoHelpers.sample_commit.id }
+
+    context 'when deployment has the specified sha' do
+      let!(:deployment) { create(:deployment, environment: environment, sha: sha) }
+
+      it { is_expected.to eq([environment]) }
+    end
+
+    context 'when deployment does not have the specified sha' do
+      let!(:deployment) { create(:deployment, environment: environment, sha: 'abc') }
+
+      it { is_expected.to be_empty }
     end
   end
 
@@ -75,6 +166,28 @@ describe Environment do
     end
   end
 
+  describe '#name_without_type' do
+    context 'when it is inside a folder' do
+      subject(:environment) do
+        create(:environment, name: 'staging/review-1')
+      end
+
+      it 'returns name without folder' do
+        expect(environment.name_without_type).to eq 'review-1'
+      end
+    end
+
+    context 'when the environment if a top-level item itself' do
+      subject(:environment) do
+        create(:environment, name: 'production')
+      end
+
+      it 'returns full name' do
+        expect(environment.name_without_type).to eq 'production'
+      end
+    end
+  end
+
   describe '#nullify_external_url' do
     it 'replaces a blank url with nil' do
       env = build(:environment, external_url: "")
@@ -95,7 +208,7 @@ describe Environment do
 
     context 'with a last deployment' do
       let!(:deployment) do
-        create(:deployment, environment: environment, sha: project.commit('master').id)
+        create(:deployment, :success, environment: environment, sha: project.commit('master').id)
       end
 
       context 'in the same branch' do
@@ -136,8 +249,8 @@ describe Environment do
 
   describe '#first_deployment_for' do
     let(:project)       { create(:project, :repository) }
-    let!(:deployment)   { create(:deployment, environment: environment, ref: commit.parent.id) }
-    let!(:deployment1)  { create(:deployment, environment: environment, ref: commit.id) }
+    let!(:deployment)   { create(:deployment, :succeed, environment: environment, ref: commit.parent.id) }
+    let!(:deployment1)  { create(:deployment, :succeed, environment: environment, ref: commit.id) }
     let(:head_commit)   { project.commit }
     let(:commit)        { project.commit.parent }
 
@@ -181,7 +294,8 @@ describe Environment do
       let(:build) { create(:ci_build) }
 
       let!(:deployment) do
-        create(:deployment, environment: environment,
+        create(:deployment, :success,
+                            environment: environment,
                             deployable: build,
                             on_stop: 'close_app')
       end
@@ -249,7 +363,8 @@ describe Environment do
       let(:build) { create(:ci_build, pipeline: pipeline) }
 
       let!(:deployment) do
-        create(:deployment, environment: environment,
+        create(:deployment, :success,
+                            environment: environment,
                             deployable: build,
                             on_stop: 'close_app')
       end
@@ -304,7 +419,7 @@ describe Environment do
 
     context 'when last deployment to environment is the most recent one' do
       before do
-        create(:deployment, environment: environment, ref: 'feature')
+        create(:deployment, :success, environment: environment, ref: 'feature')
       end
 
       it { is_expected.to be true }
@@ -312,8 +427,8 @@ describe Environment do
 
     context 'when last deployment to environment is not the most recent' do
       before do
-        create(:deployment, environment: environment, ref: 'feature')
-        create(:deployment, environment: environment, ref: 'master')
+        create(:deployment, :success, environment: environment, ref: 'feature')
+        create(:deployment, :success, environment: environment, ref: 'master')
       end
 
       it { is_expected.to be false }
@@ -321,7 +436,7 @@ describe Environment do
   end
 
   describe '#actions_for' do
-    let(:deployment) { create(:deployment, environment: environment) }
+    let(:deployment) { create(:deployment, :success, environment: environment) }
     let(:pipeline) { deployment.deployable.pipeline }
     let!(:review_action) { create(:ci_build, :manual, name: 'review-apps', pipeline: pipeline, environment: 'review/$CI_COMMIT_REF_NAME' )}
     let!(:production_action) { create(:ci_build, :manual, name: 'production', pipeline: pipeline, environment: 'production' )}
@@ -331,14 +446,78 @@ describe Environment do
     end
   end
 
+  describe '.deployments' do
+    subject { environment.deployments }
+
+    context 'when there is a deployment record with created status' do
+      let(:deployment) { create(:deployment, :created, environment: environment) }
+
+      it 'does not return the record' do
+        is_expected.to be_empty
+      end
+    end
+
+    context 'when there is a deployment record with running status' do
+      let(:deployment) { create(:deployment, :running, environment: environment) }
+
+      it 'does not return the record' do
+        is_expected.to be_empty
+      end
+    end
+
+    context 'when there is a deployment record with success status' do
+      let(:deployment) { create(:deployment, :success, environment: environment) }
+
+      it 'returns the record' do
+        is_expected.to eq([deployment])
+      end
+    end
+  end
+
+  describe '.last_deployment' do
+    subject { environment.last_deployment }
+
+    before do
+      allow_any_instance_of(Deployment).to receive(:create_ref)
+    end
+
+    context 'when there is an old deployment record' do
+      let!(:previous_deployment) { create(:deployment, :success, environment: environment) }
+
+      context 'when there is a deployment record with created status' do
+        let!(:deployment) { create(:deployment, environment: environment) }
+
+        it 'returns the previous deployment' do
+          is_expected.to eq(previous_deployment)
+        end
+      end
+
+      context 'when there is a deployment record with running status' do
+        let!(:deployment) { create(:deployment, :running, environment: environment) }
+
+        it 'returns the previous deployment' do
+          is_expected.to eq(previous_deployment)
+        end
+      end
+
+      context 'when there is a deployment record with success status' do
+        let!(:deployment) { create(:deployment, :success, environment: environment) }
+
+        it 'returns the latest successful deployment' do
+          is_expected.to eq(deployment)
+        end
+      end
+    end
+  end
+
   describe '#has_terminals?' do
     subject { environment.has_terminals? }
 
-    context 'when the enviroment is available' do
+    context 'when the environment is available' do
       context 'with a deployment service' do
         shared_examples 'same behavior between KubernetesService and Platform::Kubernetes' do
           context 'and a deployment' do
-            let!(:deployment) { create(:deployment, environment: environment) }
+            let!(:deployment) { create(:deployment, :success, environment: environment) }
             it { is_expected.to be_truthy }
           end
 
@@ -378,10 +557,6 @@ describe Environment do
   end
 
   describe '#deployment_platform' do
-    before do
-      stub_licensed_features(multiple_clusters: true)
-    end
-
     context 'when there is a deployment platform for environment' do
       let!(:cluster) do
         create(:cluster, :provided_by_gcp,
@@ -417,7 +592,9 @@ describe Environment do
 
       shared_examples 'same behavior between KubernetesService and Platform::Kubernetes' do
         it 'returns the terminals from the deployment service' do
-          expect(environment.deployment_platform)
+          deployment_platform_target = Gitlab.ee? ? environment : project
+
+          expect(deployment_platform_target.deployment_platform)
             .to receive(:terminals).with(environment)
             .and_return(:fake_terminals)
 
@@ -448,51 +625,10 @@ describe Environment do
     end
   end
 
-  describe '#rollout_status' do
-    shared_examples 'same behavior between KubernetesService and Platform::Kubernetes' do
-      subject { environment.rollout_status }
-
-      context 'when the environment has rollout status' do
-        before do
-          allow(environment).to receive(:has_terminals?).and_return(true)
-        end
-
-        it 'returns the rollout status from the deployment service' do
-          expect(environment.deployment_platform)
-            .to receive(:rollout_status).with(environment)
-            .and_return(:fake_rollout_status)
-
-          is_expected.to eq(:fake_rollout_status)
-        end
-      end
-
-      context 'when the environment does not have rollout status' do
-        before do
-          allow(environment).to receive(:has_terminals?).and_return(false)
-        end
-
-        it { is_expected.to eq(nil) }
-      end
-    end
-
-    context 'when user configured kubernetes from Integration > Kubernetes' do
-      let(:project) { create(:kubernetes_project) }
-
-      it_behaves_like 'same behavior between KubernetesService and Platform::Kubernetes'
-    end
-
-    context 'when user configured kubernetes from CI/CD > Clusters' do
-      let!(:cluster) { create(:cluster, :project, :provided_by_gcp) }
-      let(:project) { cluster.project }
-
-      it_behaves_like 'same behavior between KubernetesService and Platform::Kubernetes'
-    end
-  end
-
   describe '#has_metrics?' do
     subject { environment.has_metrics? }
 
-    context 'when the enviroment is available' do
+    context 'when the environment is available' do
       context 'with a deployment service' do
         let(:project) { create(:prometheus_project) }
 
@@ -501,8 +637,8 @@ describe Environment do
           it { is_expected.to be_truthy }
         end
 
-        context 'but no deployments' do
-          it { is_expected.to be_falsy }
+        context 'and no deployments' do
+          it { is_expected.to be_truthy }
         end
       end
 
@@ -549,54 +685,36 @@ describe Environment do
     end
   end
 
-  describe '#has_metrics?' do
-    subject { environment.has_metrics? }
-
-    context 'when the enviroment is available' do
-      context 'with a deployment service' do
-        let(:project) { create(:prometheus_project) }
-
-        context 'and a deployment' do
-          let!(:deployment) { create(:deployment, environment: environment) }
-          it { is_expected.to be_truthy }
-        end
-
-        context 'but no deployments' do
-          it { is_expected.to be_falsy }
-        end
-      end
-
-      context 'without a monitoring service' do
-        it { is_expected.to be_falsy }
-      end
-    end
-
-    context 'when the environment is unavailable' do
-      let(:project) { create(:prometheus_project) }
-
-      before do
-        environment.stop
-      end
-
-      it { is_expected.to be_falsy }
-    end
-  end
-
   describe '#additional_metrics' do
     let(:project) { create(:prometheus_project) }
-    subject { environment.additional_metrics }
+    let(:metric_params) { [] }
+    subject { environment.additional_metrics(*metric_params) }
 
-    context 'when the environment has metrics' do
+    context 'when the environment has additional metrics' do
       before do
         allow(environment).to receive(:has_metrics?).and_return(true)
       end
 
       it 'returns the additional metrics from the deployment service' do
-        expect(environment.prometheus_adapter).to receive(:query)
-                                                .with(:additional_metrics_environment, environment)
-                                                .and_return(:fake_metrics)
+        expect(environment.prometheus_adapter)
+          .to receive(:query)
+          .with(:additional_metrics_environment, environment)
+          .and_return(:fake_metrics)
 
         is_expected.to eq(:fake_metrics)
+      end
+
+      context 'when time window arguments are provided' do
+        let(:metric_params) { [1552642245.067, Time.now] }
+
+        it 'queries with the expected parameters' do
+          expect(environment.prometheus_adapter)
+            .to receive(:query)
+            .with(:additional_metrics_environment, environment, *metric_params.map(&:to_f))
+            .and_return(:fake_metrics)
+
+          is_expected.to eq(:fake_metrics)
+        end
       end
     end
 

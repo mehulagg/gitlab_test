@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module SystemNoteHelper
     extend ::Gitlab::Utils::Override
@@ -13,7 +15,8 @@ module EE
       'issue_added_to_epic' => 'epic',
       'issue_removed_from_epic' => 'epic',
       'issue_changed_epic' => 'epic',
-      'epic_date_changed' => 'calendar'
+      'epic_date_changed' => 'calendar',
+      'weight' => 'weight'
     }.freeze
 
     override :system_note_icon_name

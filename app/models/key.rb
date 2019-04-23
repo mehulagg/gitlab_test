@@ -2,7 +2,7 @@
 
 require 'digest/md5'
 
-class Key < ActiveRecord::Base
+class Key < ApplicationRecord
   include AfterCommitQueue
   include Sortable
 
@@ -25,9 +25,6 @@ class Key < ActiveRecord::Base
 
   validate :key_meets_restrictions
 
-  # EE-only
-  scope :ldap, -> { where(type: 'LDAPKey') }
-
   delegate :name, :email, to: :user, prefix: true
 
   after_commit :add_to_shell, on: :create
@@ -36,6 +33,10 @@ class Key < ActiveRecord::Base
   after_commit :remove_from_shell, on: :destroy
   after_destroy :post_destroy_hook
   after_destroy :refresh_user_cache
+
+  def self.regular_keys
+    where(type: ['Key', nil])
+  end
 
   def key=(value)
     write_attribute(:key, value.present? ? Gitlab::SSHPublicKey.sanitize(value) : nil)
@@ -58,9 +59,11 @@ class Key < ActiveRecord::Base
     "key-#{id}"
   end
 
+  # rubocop: disable CodeReuse/ServiceClass
   def update_last_used_at
     Keys::LastUsedService.new(self).execute
   end
+  # rubocop: enable CodeReuse/ServiceClass
 
   def add_to_shell
     GitlabShellWorker.perform_async(
@@ -70,9 +73,11 @@ class Key < ActiveRecord::Base
     )
   end
 
+  # rubocop: disable CodeReuse/ServiceClass
   def post_create_hook
     SystemHooksService.new.execute_hooks_for(self, :create)
   end
+  # rubocop: enable CodeReuse/ServiceClass
 
   def remove_from_shell
     GitlabShellWorker.perform_async(
@@ -82,15 +87,19 @@ class Key < ActiveRecord::Base
     )
   end
 
+  # rubocop: disable CodeReuse/ServiceClass
   def refresh_user_cache
     return unless user
 
     Users::KeysCountService.new(user).refresh_cache
   end
+  # rubocop: enable CodeReuse/ServiceClass
 
+  # rubocop: disable CodeReuse/ServiceClass
   def post_destroy_hook
     SystemHooksService.new.execute_hooks_for(self, :destroy)
   end
+  # rubocop: enable CodeReuse/ServiceClass
 
   def public_key
     @public_key ||= Gitlab::SSHPublicKey.new(key)
@@ -126,3 +135,5 @@ class Key < ActiveRecord::Base
     "type is forbidden. Must be #{allowed_types}"
   end
 end
+
+Key.prepend(EE::Key)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Gitlab
   module Geo
     OauthApplicationUndefinedError = Class.new(StandardError)
@@ -6,24 +8,24 @@ module Gitlab
     InvalidSignatureTimeError = Class.new(StandardError)
 
     CACHE_KEYS = %i(
-      geo_primary_node
-      geo_secondary_nodes
-      geo_node_enabled
-      geo_node_primary
-      geo_node_secondary
-      geo_oauth_application
+      primary_node
+      secondary_nodes
+      node_enabled
+      oauth_application
     ).freeze
 
+    API_SCOPE = 'geo_api'
+
     def self.current_node
-      self.cache_value(:geo_node_current) { GeoNode.current_node }
+      self.cache_value(:current_node, as: GeoNode) { GeoNode.current_node }
     end
 
     def self.primary_node
-      self.cache_value(:geo_primary_node) { GeoNode.find_by(primary: true) }
+      self.cache_value(:primary_node, as: GeoNode) { GeoNode.primary_node }
     end
 
     def self.secondary_nodes
-      self.cache_value(:geo_secondary_nodes) { GeoNode.where(primary: false) }
+      self.cache_value(:secondary_nodes, as: GeoNode) { GeoNode.secondary_nodes }
     end
 
     def self.connected?
@@ -31,7 +33,7 @@ module Gitlab
     end
 
     def self.enabled?
-      cache_value(:geo_node_enabled) { GeoNode.exists? }
+      self.cache_value(:node_enabled) { GeoNode.exists? }
     end
 
     def self.primary?
@@ -46,7 +48,7 @@ module Gitlab
       # No caching of the enabled! If we cache it and an admin disables
       # this node, an active Geo::RepositorySyncWorker would keep going for up
       # to max run time after the node was disabled.
-      Gitlab::Geo.current_node.reload.enabled?
+      Gitlab::Geo.current_node.reset.enabled?
     end
 
     def self.geo_database_configured?
@@ -74,24 +76,34 @@ module Gitlab
     def self.oauth_authentication
       return false unless Gitlab::Geo.secondary?
 
-      self.cache_value(:geo_oauth_application) do
+      self.cache_value(:oauth_application) do
         Gitlab::Geo.current_node.oauth_application || raise(OauthApplicationUndefinedError)
       end
     end
 
-    def self.cache_value(key, &block)
-      return yield unless RequestStore.active?
+    def self.cache
+      @cache ||= Gitlab::JsonCache.new(namespace: :geo)
+    end
 
-      # We need a short expire time as we can't manually expire on a secondary node
-      RequestStore.fetch(key) { Rails.cache.fetch(key, expires_in: 15.seconds) { yield } }
+    def self.request_store_cache
+      @request_store_cache ||= Gitlab::JsonCache.new(namespace: :geo, backend: Gitlab::SafeRequestStore)
+    end
+
+    def self.cache_value(key, as: nil, &block)
+      return yield unless request_store_cache.active?
+
+      request_store_cache.fetch(key, as: as) do
+        # We need a short expire time as we can't manually expire on a secondary node
+        cache.fetch(key, as: as, expires_in: 15.seconds) { yield }
+      end
     end
 
     def self.expire_cache!
-      return true unless RequestStore.active?
+      return true unless request_store_cache.active?
 
       CACHE_KEYS.each do |key|
-        Rails.cache.delete(key)
-        RequestStore.delete(key)
+        cache.expire(key)
+        request_store_cache.expire(key)
       end
 
       true
@@ -111,14 +123,20 @@ module Gitlab
     end
 
     def self.repository_verification_enabled?
-      feature = Feature.get('geo_repository_verification')
+      feature = ::Feature.get('geo_repository_verification')
 
       # If the feature has been set, always evaluate
-      if Feature.persisted?(feature)
+      if ::Feature.persisted?(feature)
         return feature.enabled?
       else
         true
       end
+    end
+
+    def self.allowed_ip?(ip)
+      allowed_ips = ::Gitlab::CurrentSettings.current_application_settings.geo_node_allowed_ips
+
+      Gitlab::CIDR.new(allowed_ips).match?(ip)
     end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module Banzai
     module Filter
@@ -8,7 +10,7 @@ module EE
       module EpicReferenceFilter
         extend ActiveSupport::Concern
 
-        module ClassMethods
+        class_methods do
           def references_in(text, pattern = object_class.reference_pattern)
             text.gsub(pattern) do |match|
               symbol = $~[object_sym]
@@ -27,18 +29,20 @@ module EE
         end
 
         def data_attributes_for(text, group, object, link_content: false, link_reference: false)
-          data_attribute(
+          {
             original:       text,
             link:           link_content,
             link_reference: link_reference,
             group:          group.id,
             object_sym =>   object.id
-          )
+          }
         end
 
+        # rubocop: disable CodeReuse/ActiveRecord
         def parent_records(parent, ids)
           parent.epics.where(iid: ids.to_a)
         end
+        # rubocop: enable CodeReuse/ActiveRecord
 
         private
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Gitlab
   module Geo
     module LogCursor
@@ -6,21 +8,20 @@ module Gitlab
           include BaseEvent
 
           def process
-            log_event
-            ::Geo::FileRegistry.where(file_id: event.upload_id, file_type: event.upload_type).delete_all
+            job_id = ::Geo::FileRegistryRemovalWorker.perform_async(event.upload_type, event.upload_id)
+            log_event(job_id)
           end
 
-          private
-
-          def log_event
+          def log_event(job_id)
             logger.event_info(
               created_at,
-              'Deleted upload file',
+              'Delete upload file scheduled',
               upload_id: event.upload_id,
               upload_type: event.upload_type,
               file_path: event.file_path,
               model_id: event.model_id,
-              model_type: event.model_type)
+              model_type: event.model_type,
+              job_id: job_id)
           end
         end
       end

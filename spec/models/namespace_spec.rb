@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Namespace do
   include ProjectForksHelper
+  include GitHelpers
 
   let!(:namespace) { create(:namespace) }
   let(:gitlab_shell) { Gitlab::Shell.new }
@@ -60,6 +63,11 @@ describe Namespace do
     end
   end
 
+  describe 'delegate' do
+    it { is_expected.to delegate_method(:name).to(:owner).with_prefix.with_arguments(allow_nil: true) }
+    it { is_expected.to delegate_method(:avatar_url).to(:owner).with_arguments(allow_nil: true) }
+  end
+
   describe "Respond to" do
     it { is_expected.to respond_to(:human_name) }
     it { is_expected.to respond_to(:to_param) }
@@ -80,6 +88,27 @@ describe Namespace do
 
   describe '#human_name' do
     it { expect(namespace.human_name).to eq(namespace.owner_name) }
+  end
+
+  describe '#first_project_with_container_registry_tags' do
+    let(:container_repository) { create(:container_repository) }
+    let!(:project) { create(:project, namespace: namespace, container_repositories: [container_repository]) }
+
+    before do
+      stub_container_registry_config(enabled: true)
+    end
+
+    it 'returns the project' do
+      stub_container_registry_tags(repository: :any, tags: ['tag'])
+
+      expect(namespace.first_project_with_container_registry_tags).to eq(project)
+    end
+
+    it 'returns no project' do
+      stub_container_registry_tags(repository: :any, tags: nil)
+
+      expect(namespace.first_project_with_container_registry_tags).to be_nil
+    end
   end
 
   describe '.search' do
@@ -184,7 +213,8 @@ describe Namespace do
         end
 
         it 'raises an error about not movable project' do
-          expect { namespace.move_dir }.to raise_error(/Namespace cannot be moved/)
+          expect { namespace.move_dir }.to raise_error(Gitlab::UpdatePathError,
+                                                       /Namespace .* cannot be moved/)
         end
       end
     end
@@ -226,7 +256,7 @@ describe Namespace do
 
               move_dir_result
             end
-            expect(Gitlab::Sentry).to receive(:should_raise?).and_return(false) # like prod
+            expect(Gitlab::Sentry).to receive(:should_raise_for_dev?).and_return(false) # like prod
 
             namespace.update(path: namespace.full_path + '_new')
           end
@@ -314,46 +344,40 @@ describe Namespace do
       end
     end
 
-    it 'updates project full path in .git/config for each project inside namespace' do
-      parent = create(:group, name: 'mygroup', path: 'mygroup')
-      subgroup = create(:group, name: 'mysubgroup', path: 'mysubgroup', parent: parent)
-      project_in_parent_group = create(:project, :legacy_storage, :repository, namespace: parent, name: 'foo1')
-      hashed_project_in_subgroup = create(:project, :repository, namespace: subgroup, name: 'foo2')
-      legacy_project_in_subgroup = create(:project, :legacy_storage, :repository, namespace: subgroup, name: 'foo3')
+    context 'for each project inside the namespace' do
+      let!(:parent) { create(:group, name: 'mygroup', path: 'mygroup') }
+      let!(:subgroup) { create(:group, name: 'mysubgroup', path: 'mysubgroup', parent: parent) }
+      let!(:project_in_parent_group) { create(:project, :legacy_storage, :repository, namespace: parent, name: 'foo1') }
+      let!(:hashed_project_in_subgroup) { create(:project, :repository, namespace: subgroup, name: 'foo2') }
+      let!(:legacy_project_in_subgroup) { create(:project, :legacy_storage, :repository, namespace: subgroup, name: 'foo3') }
 
-      parent.update(path: 'mygroup_new')
+      it 'updates project full path in .git/config' do
+        parent.update(path: 'mygroup_new')
 
-      # Routes are loaded when creating the projects, so we need to manually
-      # reload them for the below code to be aware of the above UPDATE.
-      [
-        project_in_parent_group,
-        hashed_project_in_subgroup,
-        legacy_project_in_subgroup
-      ].each do |project|
+        expect(project_rugged(project_in_parent_group).config['gitlab.fullpath']).to eq "mygroup_new/#{project_in_parent_group.path}"
+        expect(project_rugged(hashed_project_in_subgroup).config['gitlab.fullpath']).to eq "mygroup_new/mysubgroup/#{hashed_project_in_subgroup.path}"
+        expect(project_rugged(legacy_project_in_subgroup).config['gitlab.fullpath']).to eq "mygroup_new/mysubgroup/#{legacy_project_in_subgroup.path}"
+      end
+
+      it 'updates the project storage location' do
+        repository_project_in_parent_group = create(:project_repository, project: project_in_parent_group)
+        repository_hashed_project_in_subgroup = create(:project_repository, project: hashed_project_in_subgroup)
+        repository_legacy_project_in_subgroup = create(:project_repository, project: legacy_project_in_subgroup)
+
+        parent.update(path: 'mygroup_moved')
+
+        expect(repository_project_in_parent_group.reload.disk_path).to eq "mygroup_moved/#{project_in_parent_group.path}"
+        expect(repository_hashed_project_in_subgroup.reload.disk_path).to eq hashed_project_in_subgroup.disk_path
+        expect(repository_legacy_project_in_subgroup.reload.disk_path).to eq "mygroup_moved/mysubgroup/#{legacy_project_in_subgroup.path}"
+      end
+
+      def project_rugged(project)
+        # Routes are loaded when creating the projects, so we need to manually
+        # reload them for the below code to be aware of the above UPDATE.
         project.route.reload
+
+        rugged_repo(project.repository)
       end
-
-      expect(project_rugged(project_in_parent_group).config['gitlab.fullpath']).to eq "mygroup_new/#{project_in_parent_group.path}"
-      expect(project_rugged(hashed_project_in_subgroup).config['gitlab.fullpath']).to eq "mygroup_new/mysubgroup/#{hashed_project_in_subgroup.path}"
-      expect(project_rugged(legacy_project_in_subgroup).config['gitlab.fullpath']).to eq "mygroup_new/mysubgroup/#{legacy_project_in_subgroup.path}"
-    end
-
-    def project_rugged(project)
-      Gitlab::GitalyClient::StorageSettings.allow_disk_access do
-        project.repository.rugged
-      end
-    end
-  end
-
-  describe '#actual_size_limit' do
-    let(:namespace) { build(:namespace) }
-
-    before do
-      allow_any_instance_of(ApplicationSetting).to receive(:repository_size_limit).and_return(50)
-    end
-
-    it 'returns the correct size limit' do
-      expect(namespace.actual_size_limit).to eq(50)
     end
   end
 
@@ -406,12 +430,6 @@ describe Namespace do
           child.destroy
         end
       end
-
-      it 'removes the exports folder' do
-        expect(namespace).to receive(:remove_exports!)
-
-        namespace.destroy
-      end
     end
 
     context 'hashed storage' do
@@ -425,12 +443,6 @@ describe Namespace do
         namespace.destroy
 
         expect(File.exist?(deleted_path_in_dir)).to be(false)
-      end
-
-      it 'removes the exports folder' do
-        expect(namespace).to receive(:remove_exports!)
-
-        namespace.destroy
       end
     end
   end
@@ -541,7 +553,7 @@ describe Namespace do
     it 'returns member users on every nest level without duplication' do
       group.add_developer(user_a)
       nested_group.add_developer(user_b)
-      deep_nested_group.add_developer(user_a)
+      deep_nested_group.add_maintainer(user_a)
 
       expect(group.users_with_descendants).to contain_exactly(user_a, user_b)
       expect(nested_group.users_with_descendants).to contain_exactly(user_a, user_b)
@@ -563,6 +575,18 @@ describe Namespace do
     let!(:project2) { create(:project_empty_repo, namespace: child) }
 
     it { expect(group.all_projects.to_a).to match_array([project2, project1]) }
+    it { expect(child.all_projects.to_a).to match_array([project2]) }
+  end
+
+  describe '#all_pipelines' do
+    let(:group) { create(:group) }
+    let(:child) { create(:group, parent: group) }
+    let!(:project1) { create(:project_empty_repo, namespace: group) }
+    let!(:project2) { create(:project_empty_repo, namespace: child) }
+    let!(:pipeline1) { create(:ci_empty_pipeline, project: project1) }
+    let!(:pipeline2) { create(:ci_empty_pipeline, project: project2) }
+
+    it { expect(group.all_pipelines.to_a).to match_array([pipeline1, pipeline2]) }
   end
 
   describe '#share_with_group_lock with subgroups', :nested_groups do
@@ -676,118 +700,6 @@ describe Namespace do
     end
   end
 
-  describe '#membership_lock with subgroups', :nested_groups do
-    context 'when creating a subgroup' do
-      let(:subgroup) { create(:group, parent: root_group) }
-
-      context 'under a parent with "Membership lock" enabled' do
-        let(:root_group) { create(:group, membership_lock: true) }
-
-        it 'enables "Membership lock" on the subgroup' do
-          expect(subgroup.membership_lock).to be_truthy
-        end
-      end
-
-      context 'under a parent with "Membership lock" disabled' do
-        let(:root_group) { create(:group) }
-
-        it 'does not enable "Membership lock" on the subgroup' do
-          expect(subgroup.membership_lock).to be_falsey
-        end
-      end
-
-      context 'when enabling the parent group "Membership lock"' do
-        let(:root_group) { create(:group) }
-        let!(:subgroup) { create(:group, parent: root_group) }
-
-        it 'the subgroup "Membership lock" not changed' do
-          root_group.update!(membership_lock: true)
-
-          expect(subgroup.reload.membership_lock).to be_falsey
-        end
-      end
-
-      context 'when disabling the parent group "Membership lock" (which was already enabled)' do
-        let(:root_group) { create(:group, membership_lock: true) }
-
-        context 'and the subgroup "Membership lock" is enabled' do
-          let(:subgroup) { create(:group, parent: root_group, membership_lock: true) }
-
-          it 'the subgroup "Membership lock" does not change' do
-            root_group.update!(membership_lock: false)
-
-            expect(subgroup.reload.membership_lock).to be_truthy
-          end
-        end
-
-        context 'but the subgroup "Membership lock" is disabled' do
-          let(:subgroup) { create(:group, parent: root_group) }
-
-          it 'the subgroup "Membership lock" does not change' do
-            root_group.update!(membership_lock: false)
-
-            expect(subgroup.reload.membership_lock?).to be_falsey
-          end
-        end
-      end
-    end
-
-    # Note: Group transfers are not yet implemented
-    context 'when a group is transferred into a root group' do
-      context 'when the root group "Membership lock" is enabled' do
-        let(:root_group) { create(:group, membership_lock: true) }
-
-        context 'when the subgroup "Membership lock" is enabled' do
-          let(:subgroup) { create(:group, membership_lock: true) }
-
-          it 'the subgroup "Membership lock" does not change' do
-            subgroup.parent = root_group
-            subgroup.save!
-
-            expect(subgroup.membership_lock).to be_truthy
-          end
-        end
-
-        context 'when the subgroup "Membership lock" is disabled' do
-          let(:subgroup) { create(:group) }
-
-          it 'the subgroup "Membership lock" not changed' do
-            subgroup.parent = root_group
-            subgroup.save!
-
-            expect(subgroup.membership_lock).to be_falsey
-          end
-        end
-      end
-
-      context 'when the root group "Membership lock" is disabled' do
-        let(:root_group) { create(:group) }
-
-        context 'when the subgroup "Membership lock" is enabled' do
-          let(:subgroup) { create(:group, membership_lock: true) }
-
-          it 'the subgroup "Membership lock" does not change' do
-            subgroup.parent = root_group
-            subgroup.save!
-
-            expect(subgroup.membership_lock).to be_truthy
-          end
-        end
-
-        context 'when the subgroup "Membership lock" is disabled' do
-          let(:subgroup) { create(:group) }
-
-          it 'the subgroup "Membership lock" does not change' do
-            subgroup.parent = root_group
-            subgroup.save!
-
-            expect(subgroup.membership_lock).to be_falsey
-          end
-        end
-      end
-    end
-  end
-
   describe '#find_fork_of?' do
     let(:project) { create(:project, :public) }
     let!(:forked_project) { fork_project(project, namespace.owner, namespace: namespace) }
@@ -824,42 +736,23 @@ describe Namespace do
       deep_nested_group = create(:group, parent: nested_group)
       very_deep_nested_group = create(:group, parent: deep_nested_group)
 
+      expect(root_group.root_ancestor).to eq(root_group)
       expect(nested_group.root_ancestor).to eq(root_group)
       expect(deep_nested_group.root_ancestor).to eq(root_group)
       expect(very_deep_nested_group.root_ancestor).to eq(root_group)
     end
   end
 
-  describe '#remove_exports' do
-    let(:legacy_project) { create(:project, :with_export, :legacy_storage, namespace: namespace) }
-    let(:hashed_project) { create(:project, :with_export, namespace: namespace) }
-    let(:export_path) { Dir.mktmpdir('namespace_remove_exports_spec') }
-    let(:legacy_export) { legacy_project.export_project_path }
-    let(:hashed_export) { hashed_project.export_project_path }
-
-    it 'removes exports for legacy and hashed projects' do
-      allow(Gitlab::ImportExport).to receive(:storage_path) { export_path }
-
-      expect(File.exist?(legacy_export)).to be_truthy
-      expect(File.exist?(hashed_export)).to be_truthy
-
-      namespace.remove_exports!
-
-      expect(File.exist?(legacy_export)).to be_falsy
-      expect(File.exist?(hashed_export)).to be_falsy
-    end
-  end
-
   describe '#full_path_was' do
     context 'when the group has no parent' do
-      it 'should return the path was' do
+      it 'returns the path was' do
         group = create(:group, parent: nil)
         expect(group.full_path_was).to eq(group.path_was)
       end
     end
 
     context 'when a parent is assigned to a group with no previous parent' do
-      it 'should return the path was' do
+      it 'returns the path was' do
         group = create(:group, parent: nil)
 
         parent = create(:group)
@@ -870,7 +763,7 @@ describe Namespace do
     end
 
     context 'when a parent is removed from the group' do
-      it 'should return the parent full path' do
+      it 'returns the parent full path' do
         parent = create(:group)
         group = create(:group, parent: parent)
         group.parent = nil
@@ -880,13 +773,54 @@ describe Namespace do
     end
 
     context 'when changing parents' do
-      it 'should return the previous parent full path' do
+      it 'returns the previous parent full path' do
         parent = create(:group)
         group = create(:group, parent: parent)
         new_parent = create(:group)
         group.parent = new_parent
         expect(group.full_path_was).to eq("#{parent.full_path}/#{group.path}")
       end
+    end
+  end
+
+  describe '#auto_devops_enabled' do
+    context 'with users' do
+      let(:user) { create(:user) }
+
+      subject { user.namespace.auto_devops_enabled? }
+
+      before do
+        user.namespace.update!(auto_devops_enabled: auto_devops_enabled)
+      end
+
+      context 'when auto devops is explicitly enabled' do
+        let(:auto_devops_enabled) { true }
+
+        it { is_expected.to eq(true) }
+      end
+
+      context 'when auto devops is explicitly disabled' do
+        let(:auto_devops_enabled) { false }
+
+        it { is_expected.to eq(false) }
+      end
+    end
+  end
+
+  describe '#user?' do
+    subject { namespace.user? }
+
+    context 'when type is a user' do
+      let(:user) { create(:user) }
+      let(:namespace) { user.namespace }
+
+      it { is_expected.to be_truthy }
+    end
+
+    context 'when type is a group' do
+      let(:namespace) { create(:group) }
+
+      it { is_expected.to be_falsy }
     end
   end
 end

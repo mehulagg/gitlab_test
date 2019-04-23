@@ -5,16 +5,12 @@ export default class PipelineService {
     this.pipeline = endpoint;
   }
 
-  getPipeline() {
-    return axios.get(this.pipeline);
+  getPipeline(params) {
+    return axios.get(this.pipeline, { params });
   }
 
   // eslint-disable-next-line class-methods-use-this
   postAction(endpoint) {
     return axios.post(`${endpoint}.json`);
-  }
-
-  static getSecurityReport(endpoint) {
-    return axios.get(endpoint);
   }
 }

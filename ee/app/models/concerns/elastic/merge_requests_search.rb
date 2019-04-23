@@ -1,29 +1,11 @@
+# frozen_string_literal: true
+
 module Elastic
   module MergeRequestsSearch
     extend ActiveSupport::Concern
 
     included do
       include ApplicationSearch
-
-      mappings _parent: { type: 'project' } do
-        indexes :id,                type: :integer
-        indexes :iid,               type: :integer
-        indexes :target_branch,     type: :text,
-                                    index_options: 'offsets'
-        indexes :source_branch,     type: :text,
-                                    index_options: 'offsets'
-        indexes :title,             type: :text,
-                                    index_options: 'offsets'
-        indexes :description,       type: :text,
-                                    index_options: 'offsets'
-        indexes :created_at,        type: :date
-        indexes :updated_at,        type: :date
-        indexes :state,             type: :text
-        indexes :merge_status,      type: :text
-        indexes :source_project_id, type: :integer
-        indexes :target_project_id, type: :integer
-        indexes :author_id,         type: :integer
-      end
 
       def as_indexed_json(options = {})
         # We don't use as_json(only: ...) because it calls all virtual and serialized attributtes
@@ -48,11 +30,11 @@ module Elastic
           data[attr.to_s] = safely_read_attribute_for_elasticsearch(attr)
         end
 
-        data
+        data.merge(generic_attributes)
       end
 
       def es_parent
-        target_project_id
+        "project_#{target_project_id}"
       end
 
       def self.nested?

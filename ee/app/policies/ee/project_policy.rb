@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module ProjectPolicy
     extend ActiveSupport::Concern
@@ -8,6 +10,8 @@ module EE
       approvers
       vulnerability_feedback
       license_management
+      feature_flag
+      design
     ].freeze
 
     prepended do
@@ -24,13 +28,7 @@ module EE
       condition(:deploy_board_disabled) { !@subject.feature_available?(:deploy_board) }
 
       with_scope :subject
-      condition(:classification_label_authorized, score: 32) do
-        EE::Gitlab::ExternalAuthorization.access_allowed?(
-          @user,
-          @subject.external_authorization_classification_label,
-          @subject.full_path
-        )
-      end
+      condition(:packages_disabled) { !@subject.packages_enabled }
 
       with_scope :global
       condition(:is_development) { Rails.env.development? }
@@ -51,7 +49,9 @@ module EE
       end
 
       with_scope :subject
-      condition(:security_reports_feature_available) { @subject.security_reports_feature_available? }
+      condition(:security_dashboard_feature_disabled) do
+        !@subject.feature_available?(:security_dashboard)
+      end
 
       condition(:prometheus_alerts_enabled) do
         @subject.feature_available?(:prometheus_alerts, @user)
@@ -62,7 +62,21 @@ module EE
         @subject.feature_available?(:license_management)
       end
 
+      with_scope :subject
+      condition(:feature_flags_disabled) do
+        !@subject.feature_available?(:feature_flags)
+      end
+
+      with_scope :subject
+      condition(:design_management_disabled) do
+        !@subject.design_management_enabled?
+      end
+
       rule { admin }.enable :change_repository_storage
+
+      rule { can?(:public_access) }.policy do
+        enable :read_design
+      end
 
       rule { support_bot }.enable :guest_access
       rule { support_bot & ~service_desk_enabled }.policy do
@@ -96,11 +110,24 @@ module EE
         enable :admin_board
         enable :admin_vulnerability_feedback
         enable :create_package
+        enable :read_feature_flag
+        enable :create_feature_flag
+        enable :update_feature_flag
+        enable :destroy_feature_flag
+        enable :admin_feature_flag
+        enable :create_design
+        enable :destroy_design
       end
 
       rule { can?(:public_access) }.enable :read_package
 
-      rule { can?(:developer_access) & security_reports_feature_available }.enable :read_project_security_dashboard
+      rule { can?(:developer_access) }.policy do
+        enable :read_project_security_dashboard
+      end
+
+      rule { security_dashboard_feature_disabled }.policy do
+        prevent :read_project_security_dashboard
+      end
 
       rule { can?(:read_project) }.enable :read_vulnerability_feedback
 
@@ -110,10 +137,19 @@ module EE
 
       rule { deploy_board_disabled & ~is_development }.prevent :read_deploy_board
 
+      rule { packages_disabled | repository_disabled }.policy do
+        prevent(*create_read_update_admin_destroy(:package))
+      end
+
+      rule { feature_flags_disabled | repository_disabled }.policy do
+        prevent(*create_read_update_admin_destroy(:feature_flag))
+      end
+
       rule { can?(:maintainer_access) }.policy do
         enable :push_code_to_protected_branches
         enable :admin_path_locks
         enable :update_approvers
+        enable :destroy_package
       end
 
       rule { license_management_enabled & can?(:maintainer_access) }.enable :admin_software_license_policy
@@ -146,30 +182,33 @@ module EE
 
       rule { owner | reporter }.enable :build_read_project
 
-      rule { ~can?(:read_cross_project) & ~classification_label_authorized }.policy do
-        # Preventing access here still allows the projects to be listed. Listing
-        # projects doesn't check the `:read_project` ability. But instead counts
-        # on the `project_authorizations` table.
-        #
-        # All other actions should explicitly check read project, which would
-        # trigger the `classification_label_authorized` condition.
-        #
-        # `:read_project_for_iids` is not prevented by this condition, as it is
-        # used for cross-project reference checks.
-        prevent :guest_access
-        prevent :public_access
-        prevent :public_user_access
-        prevent :reporter_access
-        prevent :developer_access
-        prevent :maintainer_access
-        prevent :owner_access
-      end
-
       rule { archived }.policy do
         READONLY_FEATURES_WHEN_ARCHIVED.each do |feature|
           prevent(*::ProjectPolicy.create_update_admin_destroy(feature))
         end
       end
+
+      condition(:web_ide_terminal_available) do
+        @subject.feature_available?(:web_ide_terminal)
+      end
+
+      condition(:build_service_proxy_enabled) do
+        ::Feature.enabled?(:build_service_proxy, @subject)
+      end
+
+      rule { web_ide_terminal_available & can?(:create_pipeline) & can?(:maintainer_access) }.enable :create_web_ide_terminal
+
+      # Design abilities could also be prevented in the issue policy.
+      # If the user cannot read the issue, then they cannot see the designs.
+      rule { design_management_disabled }.policy do
+        prevent :read_design
+        prevent :create_design
+        prevent :destroy_design
+      end
+
+      rule { build_service_proxy_enabled }.enable :build_service_proxy_enabled
     end
   end
 end
+
+EE::ProjectPolicy.include(EE::ClusterableActions)

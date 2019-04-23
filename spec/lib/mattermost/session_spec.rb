@@ -67,11 +67,13 @@ describe Mattermost::Session, type: :request do
             .with(query: hash_including({ 'state' => state }))
             .to_return do |request|
               post "/oauth/token",
-                client_id: doorkeeper.uid,
-                client_secret: doorkeeper.secret,
-                redirect_uri: params[:redirect_uri],
-                grant_type: 'authorization_code',
-                code: request.uri.query_values['code']
+                params: {
+                  client_id: doorkeeper.uid,
+                  client_secret: doorkeeper.secret,
+                  redirect_uri: params[:redirect_uri],
+                  grant_type: 'authorization_code',
+                  code: request.uri.query_values['code']
+                }
 
               if response.status == 200
                 { headers: { 'token' => 'thisworksnow' }, status: 202 }
@@ -82,7 +84,7 @@ describe Mattermost::Session, type: :request do
             .to_return(headers: { Authorization: 'token thisworksnow' }, status: 200)
         end
 
-        it 'can setup a session' do
+        it 'can set up a session' do
           subject.with_session do |session|
           end
 
@@ -106,7 +108,7 @@ describe Mattermost::Session, type: :request do
         expect_to_obtain_exclusive_lease(lease_key, 'uuid')
         expect_to_cancel_exclusive_lease(lease_key, 'uuid')
 
-        # Cannot setup a session, but we should still cancel the lease
+        # Cannot set up a session, but we should still cancel the lease
         expect { subject.with_session }.to raise_error(Mattermost::NoSessionError)
       end
 

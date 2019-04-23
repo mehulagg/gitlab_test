@@ -1,4 +1,4 @@
-# Geo Nodes API
+# Geo Nodes API **[PREMIUM ONLY]**
 
 In order to interact with Geo node endpoints, you need to authenticate yourself
 as an admin.
@@ -10,7 +10,7 @@ GET /geo_nodes
 ```
 
 ```bash
-curl --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/geo_nodes
+curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/geo_nodes
 ```
 
 Example response:
@@ -20,6 +20,7 @@ Example response:
   {
     "id": 1,
     "url": "https://primary.example.com/",
+    "internal_url": "https://internal.example.com/",
     "primary": true,
     "enabled": true,
     "current": true,
@@ -31,6 +32,7 @@ Example response:
   {
     "id": 2,
     "url": "https://secondary.example.com/",
+    "internal_url": "https://secondary.example.com/",
     "primary": false,
     "enabled": true,
     "current": false,
@@ -49,7 +51,7 @@ GET /geo_nodes/:id
 ```
 
 ```bash
-curl --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/geo_nodes/1
+curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/geo_nodes/1
 ```
 
 Example response:
@@ -58,6 +60,7 @@ Example response:
 {
   "id": 1,
   "url": "https://primary.example.com/",
+  "internal_url": "https://primary.example.com/",
   "primary": true,
   "enabled": true,
   "current": true,
@@ -70,7 +73,7 @@ Example response:
 
 ## Edit a Geo node
 
-Updates an existing Geo secondary node. The primary node cannot be edited.
+Updates settings of an existing Geo node.
 
 _This can only be run against a primary Geo node._
 
@@ -83,6 +86,7 @@ PUT /geo_nodes/:id
 | `id`                 | integer | yes       | The ID of the Geo node.                                                   |
 | `enabled`            | boolean | no        | Flag indicating if the Geo node is enabled.                               |
 | `url`                | string  | no        | The URL to connect to the Geo node.                                       |
+| `internal_url`       | string  | no        | The URL defined on the primary node that secondary nodes should use to contact it. Returns `url` if not set.|
 | `files_max_capacity` | integer | no        | Control the maximum concurrency of LFS/attachment backfill for this secondary node. |
 | `repos_max_capacity` | integer | no        | Control the maximum concurrency of repository backfill for this secondary node.     |
 | `verification_max_capacity` | integer | no | Control the maximum concurrency of verification for this node. |
@@ -92,8 +96,9 @@ Example response:
 ```json
 {
   "id": 1,
-  "url": "https://primary.example.com/",
-  "primary": true,
+  "url": "https://secondary.example.com/",
+  "internal_url": "https://secondary.example.com/",
+  "primary": false,
   "enabled": true,
   "current": true,
   "files_max_capacity": 10,
@@ -106,6 +111,9 @@ Example response:
 ## Delete a Geo node
 
 Removes the Geo node.
+
+NOTE: **Note:**
+Only a Geo primary node will accept this request.
 
 ```
 DELETE /geo_nodes/:id
@@ -131,6 +139,7 @@ Example response:
 {
   "id": 1,
   "url": "https://primary.example.com/",
+  "internal_url": "https://primary.example.com/",
   "primary": true,
   "enabled": true,
   "current": true,
@@ -148,7 +157,7 @@ GET /geo_nodes/status
 ```
 
 ```bash
-curl --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/geo_nodes/status
+curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/geo_nodes/status
 ```
 
 Example response:
@@ -294,7 +303,7 @@ GET /geo_nodes/:id/status
 ```
 
 ```bash
-curl --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/geo_nodes/2/status
+curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/geo_nodes/2/status
 ```
 
 Example response:
@@ -365,7 +374,7 @@ GET /geo_nodes/current/failures
 This endpoint uses [Pagination](README.md#pagination).
 
 ```bash
-curl --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/geo_nodes/current/failures
+curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/geo_nodes/current/failures
 ```
 
 Example response:

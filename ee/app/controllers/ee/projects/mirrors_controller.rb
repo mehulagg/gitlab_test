@@ -1,24 +1,10 @@
+# frozen_string_literal: true
+
 module EE
   module Projects
     module MirrorsController
       extend ::Gitlab::Utils::Override
       extend ActiveSupport::Concern
-
-      def ssh_host_keys
-        lookup = SshHostKey.new(project: project, url: params[:ssh_url])
-
-        if lookup.error.present?
-          # Failed to read keys
-          render json: { message: lookup.error }, status: :bad_request
-        elsif lookup.known_hosts.nil?
-          # Still working, come back later
-          render body: nil, status: :no_content
-        else
-          render json: lookup
-        end
-      rescue ArgumentError => err
-        render json: { message: err.message }, status: :bad_request
-      end
 
       override :update
       def update
@@ -27,11 +13,11 @@ module EE
         if result[:status] == :success
           flash[:notice] =
             if project.mirror?
-              "Mirroring settings were successfully updated. The project is being updated."
+              _('Mirroring settings were successfully updated. The project is being updated.')
             elsif project.previous_changes.key?('mirror')
-              "Mirroring was successfully disabled."
+              _('Mirroring was successfully disabled.')
             else
-              "Mirroring settings were successfully updated."
+              _('Mirroring settings were successfully updated.')
             end
         else
           flash[:alert] = project.errors.full_messages.join(', ').html_safe
@@ -53,10 +39,10 @@ module EE
       def update_now
         if params[:sync_remote]
           project.update_remote_mirrors
-          flash[:notice] = "The remote repository is being updated..."
+          flash[:notice] = _('The remote repository is being updated...')
         else
-          project.force_import_job!
-          flash[:notice] = "The repository is being updated..."
+          project.import_state.force_import_job!
+          flash[:notice] = _('The repository is being updated...')
         end
 
         redirect_to_repository_settings(project, anchor: 'js-push-remote-settings')
@@ -96,6 +82,7 @@ module EE
         params = mirror_params
 
         import_data = params[:import_data_attributes]
+
         if import_data.present?
           # Prevent Rails from destroying the existing import data
           import_data[:id] ||= project.import_data&.id

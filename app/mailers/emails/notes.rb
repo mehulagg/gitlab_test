@@ -2,8 +2,6 @@
 
 module Emails
   module Notes
-    prepend Emails::EE::Notes
-
     def note_commit_email(recipient_id, note_id)
       setup_note_mail(note_id, recipient_id)
 
@@ -28,7 +26,7 @@ module Emails
       mail_answer_note_thread(@merge_request, @note, note_thread_options(recipient_id))
     end
 
-    def note_snippet_email(recipient_id, note_id)
+    def note_project_snippet_email(recipient_id, note_id)
       setup_note_mail(note_id, recipient_id)
 
       @snippet = @note.noteable
@@ -70,3 +68,5 @@ module Emails
     end
   end
 end
+
+Emails::Notes.prepend(EE::Emails::Notes)

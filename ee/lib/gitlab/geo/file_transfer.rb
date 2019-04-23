@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Gitlab
   module Geo
     # This class is responsible for:
@@ -20,7 +22,9 @@ module Gitlab
         {
           id: upload.model_id,
           type: upload.model_type,
-          checksum: upload.checksum
+          checksum: upload.checksum,
+          file_type: @file_type,
+          file_id:  @file_id
         }
       end
     end

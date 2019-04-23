@@ -2,8 +2,8 @@ import Visibility from 'visibilityjs';
 import Flash from '../flash';
 import Poll from '../lib/utils/poll';
 import { __ } from '../locale';
-import PipelineStore from './stores/pipeline_store';
-import PipelineService from './services/pipeline_service';
+import PipelineService from '~/pipelines/services/pipeline_service';
+import PipelineStore from 'ee/pipelines/stores/pipeline_store'; // eslint-disable-line import/order
 
 export default class pipelinesMediator {
   constructor(options = {}) {
@@ -19,6 +19,7 @@ export default class pipelinesMediator {
     this.poll = new Poll({
       resource: this.service,
       method: 'getPipeline',
+      data: this.store.state.expandedPipelines ? this.getExpandedParameters() : undefined,
       successCallback: this.successCallback.bind(this),
       errorCallback: this.errorCallback.bind(this),
     });
@@ -56,6 +57,19 @@ export default class pipelinesMediator {
       .getPipeline()
       .then(response => this.successCallback(response))
       .catch(() => this.errorCallback())
-      .finally(() => this.poll.restart());
+      .finally(() =>
+        this.poll.restart(
+          this.store.state.expandedPipelines ? this.getExpandedParameters() : undefined,
+        ),
+      );
+  }
+
+  /**
+   * Backend expects paramets in the following format: `expanded[]=id&expanded[]=id`
+   */
+  getExpandedParameters() {
+    return {
+      expanded: this.store.state.expandedPipelines,
+    };
   }
 }

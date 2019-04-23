@@ -1,6 +1,10 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Issue do
+  include ExternalAuthorizationServiceHelpers
+
   describe "Associations" do
     it { is_expected.to belong_to(:milestone) }
     it { is_expected.to have_many(:assignees) }
@@ -84,15 +88,32 @@ describe Issue do
     end
   end
 
-  describe '#closed_at' do
-    it 'sets closed_at to Time.now when issue is closed' do
-      issue = create(:issue, state: 'opened')
+  describe '#close' do
+    subject(:issue) { create(:issue, state: 'opened') }
 
-      expect(issue.closed_at).to be_nil
+    it 'sets closed_at to Time.now when an issue is closed' do
+      expect { issue.close }.to change { issue.closed_at }.from(nil)
+    end
 
-      issue.close
+    it 'changes the state to closed' do
+      expect { issue.close }.to change { issue.state }.from('opened').to('closed')
+    end
+  end
 
-      expect(issue.closed_at).to be_present
+  describe '#reopen' do
+    let(:user) { create(:user) }
+    let(:issue) { create(:issue, state: 'closed', closed_at: Time.now, closed_by: user) }
+
+    it 'sets closed_at to nil when an issue is reopend' do
+      expect { issue.reopen }.to change { issue.closed_at }.to(nil)
+    end
+
+    it 'sets closed_by to nil when an issue is reopend' do
+      expect { issue.reopen }.to change { issue.closed_by }.from(user).to(nil)
+    end
+
+    it 'changes the state to opened' do
+      expect { issue.reopen }.to change { issue.state }.from('closed').to('opened')
     end
   end
 
@@ -188,98 +209,6 @@ describe Issue do
     end
   end
 
-  describe '#closed_by_merge_requests' do
-    let(:project) { create(:project, :repository) }
-    let(:issue) { create(:issue, project: project)}
-    let(:closed_issue) { build(:issue, :closed, project: project)}
-
-    let(:mr) do
-      opts = {
-        title: 'Awesome merge_request',
-        description: "Fixes #{issue.to_reference}",
-        source_branch: 'feature',
-        target_branch: 'master'
-      }
-      MergeRequests::CreateService.new(project, project.owner, opts).execute
-    end
-
-    let(:closed_mr) do
-      opts = {
-        title: 'Awesome merge_request 2',
-        description: "Fixes #{issue.to_reference}",
-        source_branch: 'feature',
-        target_branch: 'master',
-        state: 'closed'
-      }
-      MergeRequests::CreateService.new(project, project.owner, opts).execute
-    end
-
-    it 'returns the merge request to close this issue' do
-      expect(issue.closed_by_merge_requests(mr.author)).to eq([mr])
-    end
-
-    it "returns an empty array when the merge request is closed already" do
-      expect(issue.closed_by_merge_requests(closed_mr.author)).to eq([])
-    end
-
-    it "returns an empty array when the current issue is closed already" do
-      expect(closed_issue.closed_by_merge_requests(closed_issue.author)).to eq([])
-    end
-  end
-
-  describe '#referenced_merge_requests' do
-    let(:project) { create(:project, :public) }
-    let(:issue) do
-      create(:issue, description: merge_request.to_reference, project: project)
-    end
-    let!(:merge_request) do
-      create(:merge_request,
-             source_project: project,
-             source_branch:  'master',
-             target_branch:  'feature')
-    end
-
-    it 'returns the referenced merge requests' do
-      mr2 = create(:merge_request,
-                   source_project: project,
-                   source_branch:  'feature',
-                   target_branch:  'master')
-
-      create(:note_on_issue,
-             noteable:   issue,
-             note:       mr2.to_reference,
-             project_id: project.id)
-
-      expect(issue.referenced_merge_requests).to eq([merge_request, mr2])
-    end
-
-    it 'returns cross project referenced merge requests' do
-      other_project = create(:project, :public)
-      cross_project_merge_request = create(:merge_request, source_project: other_project)
-      create(:note_on_issue,
-             noteable:   issue,
-             note:       cross_project_merge_request.to_reference(issue.project),
-             project_id: issue.project.id)
-
-      expect(issue.referenced_merge_requests).to eq([merge_request, cross_project_merge_request])
-    end
-
-    it 'excludes cross project references if the user cannot read cross project' do
-      user = create(:user)
-      allow(Ability).to receive(:allowed?).and_call_original
-      expect(Ability).to receive(:allowed?).with(user, :read_cross_project) { false }
-
-      other_project = create(:project, :public)
-      cross_project_merge_request = create(:merge_request, source_project: other_project)
-      create(:note_on_issue,
-             noteable:   issue,
-             note:       cross_project_merge_request.to_reference(issue.project),
-             project_id: issue.project.id)
-
-      expect(issue.referenced_merge_requests(user)).to eq([merge_request])
-    end
-  end
-
   describe '#can_move?' do
     let(:user) { create(:user) }
     let(:issue) { create(:issue) }
@@ -340,77 +269,6 @@ describe Issue do
       let(:issue) { create(:issue, moved_to: moved_to_issue) }
 
       it { is_expected.to eq true }
-    end
-  end
-
-  describe '#related_branches' do
-    let(:user) { create(:admin) }
-
-    before do
-      allow(subject.project.repository).to receive(:branch_names)
-                                            .and_return(["mpempe", "#{subject.iid}mepmep", subject.to_branch_name, "#{subject.iid}-branch"])
-
-      # Without this stub, the `create(:merge_request)` above fails because it can't find
-      # the source branch. This seems like a reasonable compromise, in comparison with
-      # setting up a full repo here.
-      allow_any_instance_of(MergeRequest).to receive(:create_merge_request_diff)
-    end
-
-    it "selects the right branches when there are no referenced merge requests" do
-      expect(subject.related_branches(user)).to eq([subject.to_branch_name, "#{subject.iid}-branch"])
-    end
-
-    it "selects the right branches when there is a referenced merge request" do
-      merge_request = create(:merge_request, { description: "Closes ##{subject.iid}",
-                                               source_project: subject.project,
-                                               source_branch: "#{subject.iid}-branch" })
-      merge_request.create_cross_references!(user)
-      expect(subject.referenced_merge_requests(user)).not_to be_empty
-      expect(subject.related_branches(user)).to eq([subject.to_branch_name])
-    end
-
-    it 'excludes stable branches from the related branches' do
-      allow(subject.project.repository).to receive(:branch_names)
-        .and_return(["#{subject.iid}-0-stable"])
-
-      expect(subject.related_branches(user)).to eq []
-    end
-  end
-
-  describe '#related_issues' do
-    let(:user) { create(:user) }
-    let(:authorized_project) { create(:project) }
-    let(:authorized_project2) { create(:project) }
-    let(:unauthorized_project) { create(:project) }
-
-    let(:authorized_issue_a) { create(:issue, project: authorized_project) }
-    let(:authorized_issue_b) { create(:issue, project: authorized_project) }
-    let(:authorized_issue_c) { create(:issue, project: authorized_project2) }
-
-    let(:unauthorized_issue) { create(:issue, project: unauthorized_project) }
-
-    let!(:issue_link_a) { create(:issue_link, source: authorized_issue_a, target: authorized_issue_b) }
-    let!(:issue_link_b) { create(:issue_link, source: authorized_issue_a, target: unauthorized_issue) }
-    let!(:issue_link_c) { create(:issue_link, source: authorized_issue_a, target: authorized_issue_c) }
-
-    before do
-      authorized_project.add_developer(user)
-      authorized_project2.add_developer(user)
-    end
-
-    it 'returns only authorized related issues for given user' do
-      expect(authorized_issue_a.related_issues(user))
-        .to contain_exactly(authorized_issue_b, authorized_issue_c)
-    end
-
-    describe 'when a user cannot read cross project' do
-      it 'only returns issues within the same project' do
-        expect(Ability).to receive(:allowed?).with(user, :read_cross_project)
-                             .and_return(false)
-
-        expect(authorized_issue_a.related_issues(user))
-          .to contain_exactly(authorized_issue_b)
-      end
     end
   end
 
@@ -867,39 +725,28 @@ describe Issue do
     end
   end
 
-  describe '#check_for_spam' do
-    let(:project) { create :project, visibility_level: visibility_level }
-    let(:issue) { create :issue, project: project }
+  describe '#check_for_spam?' do
+    using RSpec::Parameterized::TableSyntax
 
-    subject do
-      issue.assign_attributes(description: description)
-      issue.check_for_spam?
+    where(:visibility_level, :confidential, :new_attributes, :check_for_spam?) do
+      Gitlab::VisibilityLevel::PUBLIC   | false | { description: 'woo' } | true
+      Gitlab::VisibilityLevel::PUBLIC   | false | { title: 'woo' } | true
+      Gitlab::VisibilityLevel::PUBLIC   | true  | { confidential: false } | true
+      Gitlab::VisibilityLevel::PUBLIC   | true  | { description: 'woo' } | false
+      Gitlab::VisibilityLevel::PUBLIC   | false | { title: 'woo', confidential: true } | false
+      Gitlab::VisibilityLevel::PUBLIC   | false | { description: 'original description' } | false
+      Gitlab::VisibilityLevel::INTERNAL | false | { description: 'woo' } | false
+      Gitlab::VisibilityLevel::PRIVATE  | false | { description: 'woo' } | false
     end
 
-    context 'when project is public and spammable attributes changed' do
-      let(:visibility_level) { Gitlab::VisibilityLevel::PUBLIC }
-      let(:description) { 'woo' }
+    with_them do
+      it 'checks for spam on issues that can be seen anonymously' do
+        project = create(:project, visibility_level: visibility_level)
+        issue = create(:issue, project: project, confidential: confidential, description: 'original description')
 
-      it 'returns true' do
-        is_expected.to be_truthy
-      end
-    end
+        issue.assign_attributes(new_attributes)
 
-    context 'when project is private' do
-      let(:visibility_level) { Gitlab::VisibilityLevel::PRIVATE }
-      let(:description) { issue.description }
-
-      it 'returns false' do
-        is_expected.to be_falsey
-      end
-    end
-
-    context 'when spammable attributes have not changed' do
-      let(:visibility_level) { Gitlab::VisibilityLevel::PUBLIC }
-      let(:description) { issue.description }
-
-      it 'returns false' do
-        is_expected.to be_falsey
+        expect(issue.check_for_spam?).to eq(check_for_spam?)
       end
     end
   end
@@ -922,7 +769,59 @@ describe Issue do
     end
   end
 
+  describe '.confidential_only' do
+    it 'only returns confidential_only issues' do
+      create(:issue)
+      confidential_issue = create(:issue, confidential: true)
+
+      expect(described_class.confidential_only).to eq([confidential_issue])
+    end
+  end
+
   it_behaves_like 'throttled touch' do
     subject { create(:issue, updated_at: 1.hour.ago) }
+  end
+
+  context 'when an external authentication service' do
+    before do
+      enable_external_authorization_service_check
+    end
+
+    describe '#visible_to_user?' do
+      it 'is `false` when an external authorization service is enabled' do
+        issue = build(:issue, project: build(:project, :public))
+
+        expect(issue).not_to be_visible_to_user
+      end
+
+      it 'checks the external service to determine if an issue is readable by a user' do
+        project = build(:project, :public,
+                        external_authorization_classification_label: 'a-label')
+        issue = build(:issue, project: project)
+        user = build(:user)
+
+        expect(::Gitlab::ExternalAuthorization).to receive(:access_allowed?).with(user, 'a-label') { false }
+        expect(issue.visible_to_user?(user)).to be_falsy
+      end
+
+      it 'does not check the external service if a user does not have access to the project' do
+        project = build(:project, :private,
+                        external_authorization_classification_label: 'a-label')
+        issue = build(:issue, project: project)
+        user = build(:user)
+
+        expect(::Gitlab::ExternalAuthorization).not_to receive(:access_allowed?)
+        expect(issue.visible_to_user?(user)).to be_falsy
+      end
+
+      it 'does not check the external webservice for admins' do
+        issue = build(:issue)
+        user = build(:admin)
+
+        expect(::Gitlab::ExternalAuthorization).not_to receive(:access_allowed?)
+
+        issue.visible_to_user?(user)
+      end
+    end
   end
 end

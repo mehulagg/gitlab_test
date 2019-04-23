@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# rubocop: disable CodeReuse/ActiveRecord
 
 module EESpecificCheck
   WHITELIST = [
@@ -7,7 +8,6 @@ module EESpecificCheck
     'doc/**/*', # https://gitlab.com/gitlab-org/gitlab-ee/issues/4948#note_59945483
     'qa/**/*', # https://gitlab.com/gitlab-org/gitlab-ee/issues/4997#note_59764702
     'scripts/**/*',
-    'spec/javascripts/**/*', # https://gitlab.com/gitlab-org/gitlab-ee/issues/3871
     'vendor/assets/javascripts/jasmine-jquery.js',
     '.gitlab-ci.yml',
     'db/schema.rb',
@@ -32,9 +32,9 @@ module EESpecificCheck
 
     ce_fetch_head = fetch_remote_ce_branch
     ee_fetch_head = head_commit_sha
-    ce_fetch_base = run_git_command("merge-base canonical-ce/master #{ce_fetch_head}")
-    ce_merge_base = run_git_command("merge-base canonical-ce/master canonical-ee/master")
-    ee_fetch_base = run_git_command("merge-base canonical-ee/master HEAD")
+    ce_fetch_base = find_merge_base('canonical-ce/master', ce_fetch_head)
+    ee_fetch_base = find_merge_base('canonical-ee/master', 'HEAD')
+    ce_merge_base = find_merge_base(ce_fetch_head, ee_fetch_head)
 
     ce_updated_head =
       find_ce_compare_head(ce_fetch_head, ce_fetch_base, ce_merge_base)
@@ -59,6 +59,28 @@ module EESpecificCheck
     run_git_command("fetch #{remote_to_fetch} #{branch_to_fetch} --quiet --depth=9999")
 
     "#{remote_to_fetch}/#{branch_to_fetch}"
+  end
+
+  def find_merge_base(left, right)
+    merge_base = run_git_command("merge-base #{left} #{right}")
+
+    return merge_base unless merge_base.empty?
+
+    say <<~MESSAGE
+      💥 Unfortunately we cannot find the merge-base for #{left} and #{right},
+      💥 and we'll try to fix that in:
+          https://gitlab.com/gitlab-org/gitlab-ee/issues/9120
+
+      💥 Before that, please run this job locally as a workaround:
+
+          ./scripts/ee-specific-lines-check
+
+      💥 And paste the result as a discussion to show it to the maintainer.
+      💥 If you have any questions, please ping @godfat to investigate and
+      💥 clarify.
+    MESSAGE
+
+    exit(253)
   end
 
   def find_ce_compare_head(ce_fetch_head, ce_fetch_base, ce_merge_base)
@@ -272,12 +294,14 @@ module EESpecificCheck
   def matching_ce_refs
     @matching_ce_refs ||=
       run_git_command("ls-remote #{ce_repo_url} \"*#{minimal_ce_branch_name}*\"")
-        .scan(%r{(?<=refs/heads/|refs/tags/).+}).sort_by(&:size)
+        .scan(%r{(?<=refs/heads/|refs/tags/).+})
+        .select { |branch| branch.match?(/\b#{minimal_ce_branch_name}\b/i) }
+        .sort_by(&:size)
   end
 
   def scan_diff_numstat(numstat)
     numstat.scan(/(\d+)\s+(\d+)\s+(.+)/)
-      .each_with_object({}) do |(added, deleted, file), result|
+      .each_with_object(Hash.new(0)) do |(added, deleted, file), result|
         result[file] = added.to_i + deleted.to_i
       end
   end
@@ -307,43 +331,133 @@ if $0 == __FILE__
   require 'rspec/autorun'
 
   RSpec.describe EESpecificCheck do
-    before do
-      extend EESpecificCheck
+    subject { Class.new { include EESpecificCheck }.new }
 
-      allow(self).to receive(:warn)
+    before do
+      allow(subject).to receive(:warn)
+
+      EESpecificCheck.private_instance_methods.each do |name|
+        subject.class.__send__(:public, name) # rubocop:disable GitlabSecurity/PublicSend
+      end
     end
 
     describe '.run_git_command' do
       it 'returns the single output when there is a single command' do
-        output = run_git_command('status')
+        output = subject.run_git_command('status')
 
         expect(output).to be_kind_of(String)
-        expect(self).to have_received(:warn).with(/git status/)
+        expect(subject).to have_received(:warn).with(/git status/)
       end
 
       it 'returns an array of output for more commands' do
-        output = run_git_command('status', 'help')
+        output = subject.run_git_command('status', 'help')
 
         expect(output).to all(be_a(String))
-        expect(self).to have_received(:warn).with(/git status/)
-        expect(self).to have_received(:warn).with(/git help/)
+        expect(subject).to have_received(:warn).with(/git status/)
+        expect(subject).to have_received(:warn).with(/git help/)
+      end
+    end
+
+    describe '.find_merge_base' do
+      context 'when it cannot find the merge base' do
+        before do
+          allow(subject).to receive(:say)
+          allow(subject).to receive(:exit)
+
+          expect(subject).to receive(:run_git_command).and_return('')
+        end
+
+        it 'calls exit(253) to fail the job and ask run it locally' do
+          subject.find_merge_base('master', 'HEAD')
+
+          expect(subject).to have_received(:say)
+            .with(Regexp.union('./scripts/ee-specific-lines-check'))
+          expect(subject).to have_received(:exit)
+            .with(253)
+        end
+      end
+
+      context 'when it found the merge base' do
+        before do
+          expect(subject).to receive(:run_git_command).and_return('deadbeef')
+        end
+
+        it 'returns the found merge base' do
+          output = subject.find_merge_base('master', 'HEAD')
+
+          expect(output).to eq('deadbeef')
+        end
       end
     end
 
     describe '.matching_ce_refs' do
       before do
-        expect(self).to receive(:current_branch).and_return('v9')
-        expect(self).to receive(:run_git_command)
-          .and_return(<<~OUTPUT)
-            d6602ec5194c87b0fc87103ca4d67251c76f233a\trefs/tags/v9
-            f25a265a342aed6041ab0cc484224d9ca54b6f41\trefs/tags/v9.12
-            c5db5456ae3b0873fc659c19fafdde22313cc441\trefs/tags/v9.123
-            0918385dbd9656cab0d1d81ba7453d49bbc16250\trefs/heads/v9.x
-          OUTPUT
+        expect(subject).to receive(:current_branch).and_return(ee_branch)
+        expect(subject).to receive(:run_git_command)
+          .and_return(ls_remote_output)
       end
 
-      it 'sorts by matching size' do
-        expect(matching_ce_refs).to eq(%w[v9 v9.x v9.12 v9.123])
+      describe 'simple cases' do
+        let(:ls_remote_output) do
+          <<~OUTPUT
+          d6602ec5194c87b0fc87103ca4d67251c76f233a\trefs/tags/v9
+          f25a265a342aed6041ab0cc484224d9ca54b6f41\trefs/tags/v9.12
+          c5db5456ae3b0873fc659c19fafdde22313cc441\trefs/tags/v9.123
+          0918385dbd9656cab0d1d81ba7453d49bbc16250\trefs/heads/v9.x
+          28862662b749fe981386814e2dba87b0e72c1eab\trefs/remotes/remote_mirror_3059/v9-to-fix-http-case-problems
+          5e3496802098c86050c5b463507f3a68a83a9f02\trefs/remotes/remote_mirror_3059/29036-use-slack-service-v9
+          OUTPUT
+        end
+
+        context 'with a ee- prefix' do
+          let(:ee_branch) { 'ee-v9' }
+
+          it 'sorts by matching size' do
+            expect(subject.matching_ce_refs).to eq(%w[v9 v9.x v9.12 v9.123])
+          end
+        end
+
+        context 'with a -ee suffix' do
+          let(:ee_branch) { 'v9-ee' }
+
+          it 'sorts by matching size' do
+            expect(subject.matching_ce_refs).to eq(%w[v9 v9.x v9.12 v9.123])
+          end
+        end
+      end
+
+      describe 'with ambiguous branch name' do
+        let(:ls_remote_output) do
+          <<~OUTPUT
+          954d7119384c9f2a3c862bac97beb641eb8755d6\trefs/heads/feature/sm/35954-expand-kubernetesservice-to-use-username-password
+          954d7119384c9f2a3c862bac97beb641eb8755d6\trefs/heads/ce-to-ee-231
+          954d7119384c9f2a3c862bac97beb641eb8755d6\trefs/heads/ce-to-ee-2
+          954d7119384c9f2a3c862bac97beb641eb8755d6\trefs/heads/ce-to-1
+          954d7119384c9f2a3c862bac97beb641eb8755d6\trefs/heads/ee-to-ce-123
+          954d7119384c9f2a3c862bac97beb641eb8755d6\trefs/heads/ee-to-ce-12
+          954d7119384c9f2a3c862bac97beb641eb8755d6\trefs/heads/to-ce-1
+          28862662b749fe981386814e2dba87b0e72c1eab\trefs/remotes/remote_mirror_3059/27056-upgrade-vue-resource-to-1-0-3-to-fix-http-case-problems
+          5e3496802098c86050c5b463507f3a68a83a9f02\trefs/remotes/remote_mirror_3059/29036-use-slack-service-to-notify-of-failed-pipelines
+          OUTPUT
+        end
+
+        context 'with a ee- prefix' do
+          let(:ee_branch) { 'ee-to-ce' }
+          let(:minimal_ce_branch) { 'to-ce' }
+
+          it 'sorts by matching size' do
+            expect(subject.matching_ce_refs).to eq(%w[to-ce-1 ee-to-ce-12 ee-to-ce-123])
+          end
+        end
+
+        context 'with a -ee suffix' do
+          let(:ee_branch) { 'ce-to-ee' }
+          let(:minimal_ce_branch) { 'ce-to' }
+
+          it 'sorts by matching size' do
+            expect(subject.matching_ce_refs).to eq(%w[ce-to-1 ce-to-ee-2 ce-to-ee-231])
+          end
+        end
       end
     end
   end

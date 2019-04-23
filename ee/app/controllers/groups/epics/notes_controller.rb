@@ -1,4 +1,8 @@
+# frozen_string_literal: true
+
 class Groups::Epics::NotesController < Groups::ApplicationController
+  extend ::Gitlab::Utils::Override
+
   include NotesActions
   include NotesHelper
   include ToggleAwardEmoji
@@ -17,6 +21,7 @@ class Groups::Epics::NotesController < Groups::ApplicationController
   end
   alias_method :awardable, :note
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def epic
     @epic ||= @group.epics.find_by(iid: params[:epic_id])
 
@@ -24,6 +29,7 @@ class Groups::Epics::NotesController < Groups::ApplicationController
 
     @epic
   end
+  # rubocop: enable CodeReuse/ActiveRecord
   alias_method :noteable, :epic
 
   def finder_params
@@ -36,5 +42,13 @@ class Groups::Epics::NotesController < Groups::ApplicationController
 
   def note_serializer
     EpicNoteSerializer.new(project: nil, noteable: noteable, current_user: current_user)
+  end
+
+  override :create_note_params
+  def create_note_params
+    params[:target_type] = 'Epic'
+    params[:target_id] = epic.id
+
+    super
   end
 end

@@ -41,6 +41,7 @@ describe Gitlab::UrlSanitizer do
       false | '123://invalid:url'
       false | 'valid@project:url.git'
       false | 'valid:pass@project:url.git'
+      false | %w(test array)
       true  | 'ssh://example.com'
       true  | 'ssh://:@example.com'
       true  | 'ssh://foo@example.com'
@@ -160,7 +161,7 @@ describe Gitlab::UrlSanitizer do
   end
 
   context 'when credentials contains special chars' do
-    it 'should parse the URL without errors' do
+    it 'parses the URL without errors' do
       url_sanitizer = described_class.new("https://foo:b?r@github.com/me/project.git")
 
       expect(url_sanitizer.sanitized_url).to eq("https://github.com/me/project.git")

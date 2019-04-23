@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Ci::PipelineVariable do
@@ -5,4 +7,13 @@ describe Ci::PipelineVariable do
 
   it { is_expected.to include_module(HasVariable) }
   it { is_expected.to validate_uniqueness_of(:key).scoped_to(:pipeline_id) }
+
+  describe '#hook_attrs' do
+    let(:variable) { create(:ci_pipeline_variable, key: 'foo', value: 'bar') }
+
+    subject { variable.hook_attrs }
+
+    it { is_expected.to be_a(Hash) }
+    it { is_expected.to eq({ key: 'foo', value: 'bar' }) }
+  end
 end

@@ -31,7 +31,7 @@ describe Gitlab::Elastic::SearchResults do
     it 'returns an unhighlighted blob when no highlight data is present' do
       parsed = described_class.parse_search_result('_source' => blob)
 
-      expect(parsed).to be_kind_of(::Gitlab::SearchResults::FoundBlob)
+      expect(parsed).to be_kind_of(::Gitlab::Search::FoundBlob)
       expect(parsed).to have_attributes(
         startline: 1,
         data: "foo\n"
@@ -48,7 +48,7 @@ describe Gitlab::Elastic::SearchResults do
 
       parsed = described_class.parse_search_result(result)
 
-      expect(parsed).to be_kind_of(::Gitlab::SearchResults::FoundBlob)
+      expect(parsed).to be_kind_of(::Gitlab::Search::FoundBlob)
       expect(parsed).to have_attributes(
         id: nil,
         filename: 'path/file.ext',
@@ -441,6 +441,8 @@ describe Gitlab::Elastic::SearchResults do
 
       results = described_class.new(user, 'def', [project_1.id])
       expect(results.blobs_count).to eq 7
+      result_project_ids = results.objects('blobs').map { |r| r.dig('_source', 'project_id') }
+      expect(result_project_ids.uniq).to eq([project_1.id])
 
       results = described_class.new(user, 'def', [project_1.id, project_2.id])
 
@@ -779,14 +781,14 @@ describe Gitlab::Elastic::SearchResults do
         results = described_class.new(user, 'term', limit_project_ids)
         blobs = results.objects('wiki_blobs')
 
-        expect(blobs.map {|blob| blob._parent.to_i }).to match_array [internal_project.id, private_project2.id, public_project.id]
+        expect(blobs.map { |blob| blob.join_field.parent }).to match_array [internal_project.es_id, private_project2.es_id, public_project.es_id]
         expect(results.wiki_blobs_count).to eq 3
 
         # Unauthenticated search
         results = described_class.new(nil, 'term', [])
         blobs = results.objects('wiki_blobs')
 
-        expect(blobs.first._parent.to_i).to eq public_project.id
+        expect(blobs.first.join_field.parent).to eq public_project.es_id
         expect(results.wiki_blobs_count).to eq 1
       end
     end
@@ -843,14 +845,14 @@ describe Gitlab::Elastic::SearchResults do
         results = described_class.new(user, 'tesla', limit_project_ids)
         blobs = results.objects('blobs')
 
-        expect(blobs.map { |blob| blob._parent.to_i }).to match_array [internal_project.id, private_project2.id, public_project.id]
+        expect(blobs.map { |blob| blob.join_field.parent }).to match_array [internal_project.es_id, private_project2.es_id, public_project.es_id]
         expect(results.blobs_count).to eq 3
 
         # Unauthenticated search
         results = described_class.new(nil, 'tesla', [])
         blobs = results.objects('blobs')
 
-        expect(blobs.first._parent.to_i).to eq public_project.id.to_i
+        expect(blobs.first.join_field.parent).to eq public_project.es_id
         expect(results.blobs_count).to eq 1
       end
     end

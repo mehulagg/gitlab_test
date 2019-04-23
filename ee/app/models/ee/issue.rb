@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module Issue
     extend ActiveSupport::Concern
@@ -9,15 +11,20 @@ module EE
       WEIGHT_ANY = 'Any'.freeze
       WEIGHT_NONE = 'None'.freeze
 
+      include Elastic::IssuesSearch
+
       scope :order_weight_desc, -> { reorder ::Gitlab::Database.nulls_last_order('weight', 'DESC') }
       scope :order_weight_asc, -> { reorder ::Gitlab::Database.nulls_last_order('weight') }
+
+      has_one :epic_issue
+      has_one :epic, through: :epic_issue
 
       validates :weight, allow_nil: true, numericality: { greater_than_or_equal_to: 0 }
     end
 
     # override
     def check_for_spam?
-      author.support_bot? || super
+      author.bot? || super
     end
 
     # override
@@ -41,7 +48,7 @@ module EE
       # Making the support bot subscribed to every issue is not as bad as it
       # seems, though, since it isn't permitted to :receive_notifications,
       # and doesn't actually show up in the participants list.
-      user.support_bot? || super
+      user.bot? || super
     end
 
     # override
@@ -49,28 +56,42 @@ module EE
       super if supports_weight?
     end
 
-    # The functionality here is duplicated from the `IssuePolicy` and the
-    # `EE::IssuePolicy` for better performace
-    #
-    # Make sure to keep this in sync with the policies.
-    override :readable_by?
-    def readable_by?(user)
-      return super if user.full_private_access?
-
-      super && ::EE::Gitlab::ExternalAuthorization
-                 .access_allowed?(user, project.external_authorization_classification_label)
-    end
-
-    override :publicly_visible?
-    def publicly_visible?
-      super && !::EE::Gitlab::ExternalAuthorization.enabled?
-    end
-
     def supports_weight?
       project&.feature_available?(:issue_weights)
     end
 
-    module ClassMethods
+    def related_issues(current_user, preload: nil)
+      related_issues = ::Issue
+                           .select(['issues.*', 'issue_links.id AS issue_link_id'])
+                           .joins("INNER JOIN issue_links ON
+                                 (issue_links.source_id = issues.id AND issue_links.target_id = #{id})
+                                 OR
+                                 (issue_links.target_id = issues.id AND issue_links.source_id = #{id})")
+                           .preload(preload)
+                           .reorder('issue_link_id')
+
+      cross_project_filter = -> (issues) { issues.where(project: project) }
+      Ability.issues_readable_by_user(related_issues,
+                                      current_user,
+                                      filters: { read_cross_project: cross_project_filter })
+    end
+
+    # Issue position on boards list should be relative to all group projects
+    def parent_ids
+      return super unless has_group_boards?
+
+      board_group.projects.select(:id)
+    end
+
+    def has_group_boards?
+      board_group && board_group.boards.any?
+    end
+
+    def board_group
+      @group ||= project.group
+    end
+
+    class_methods do
       # override
       def sort_by_attribute(method, excluded_labels: [])
         case method.to_s
@@ -80,10 +101,6 @@ module EE
         else
           super
         end
-      end
-
-      def weight_filter_options
-        WEIGHT_RANGE.to_a
       end
 
       def weight_options

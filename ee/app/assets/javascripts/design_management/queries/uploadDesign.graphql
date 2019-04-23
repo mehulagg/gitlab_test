@@ -1,0 +1,9 @@
+mutation addDesigns($files: [Upload!]!) {
+  uploadDesign(files: $files) @client {
+    id
+    image
+    name
+    updatedAt
+    commentsCount
+  }
+}

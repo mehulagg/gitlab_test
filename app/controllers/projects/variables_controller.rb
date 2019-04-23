@@ -1,6 +1,6 @@
-class Projects::VariablesController < Projects::ApplicationController
-  prepend ::EE::Projects::VariablesController
+# frozen_string_literal: true
 
+class Projects::VariablesController < Projects::ApplicationController
   before_action :authorize_admin_build!
 
   def show
@@ -38,6 +38,8 @@ class Projects::VariablesController < Projects::ApplicationController
   end
 
   def variable_params_attributes
-    %i[id key secret_value protected _destroy]
+    %i[id key secret_value protected masked _destroy]
   end
 end
+
+Projects::VariablesController.prepend(EE::Projects::VariablesController)

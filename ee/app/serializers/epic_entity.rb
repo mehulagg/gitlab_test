@@ -1,5 +1,8 @@
+# frozen_string_literal: true
+
 class EpicEntity < IssuableEntity
   expose :group_id
+
   expose :group_name do |epic|
     epic.group.name
   end
@@ -14,6 +17,8 @@ class EpicEntity < IssuableEntity
   expose :end_date, as: :due_date
   expose :due_date_is_fixed?, as: :due_date_is_fixed
   expose :due_date_fixed, :due_date_from_milestones
+  expose :state
+  expose :lock_version
 
   expose :web_url do |epic|
     group_epic_path(epic.group, epic)
@@ -24,6 +29,10 @@ class EpicEntity < IssuableEntity
     expose :can_create_note do |epic|
       can?(request.current_user, :create_note, epic)
     end
+
+    expose :can_update do |epic|
+      can?(request.current_user, :update_epic, epic)
+    end
   end
 
   expose :create_note_path do |epic|
@@ -31,6 +40,6 @@ class EpicEntity < IssuableEntity
   end
 
   expose :preview_note_path do |epic|
-    preview_markdown_path(epic.group, quick_actions_target_type: 'Epic', quick_actions_target_id: epic.id)
+    preview_markdown_path(epic.group, target_type: 'Epic', target_id: epic.id)
   end
 end

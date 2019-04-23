@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Projects::RepositoriesController < Projects::ApplicationController
   include ExtractsPath
 
@@ -21,7 +23,7 @@ class Projects::RepositoriesController < Projects::ApplicationController
       append_sha = false if @filename == shortname
     end
 
-    send_git_archive @repository, ref: @ref, format: params[:format], append_sha: append_sha
+    send_git_archive @repository, ref: @ref, path: params[:path], format: params[:format], append_sha: append_sha
   rescue => ex
     logger.error("#{self.class.name}: #{ex}")
     git_not_found!

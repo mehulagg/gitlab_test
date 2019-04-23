@@ -1,16 +1,12 @@
 import { s__ } from '~/locale';
 
 export default () => ({
-  summaryCounts: {
-    added: 0,
-    fixed: 0,
-  },
-
   blobPath: {
     head: null,
     base: null,
   },
 
+  sourceBranch: null,
   vulnerabilityFeedbackPath: null,
   vulnerabilityFeedbackHelpPath: null,
   pipelineId: null,
@@ -79,30 +75,15 @@ export default () => ({
         text: s__('ciReport|Description'),
         isLink: false,
       },
-      identifiers: {
-        value: [],
-        text: s__('ciReport|Identifiers'),
-        isLink: false,
-      },
       file: {
         value: null,
         url: null,
         text: s__('ciReport|File'),
         isLink: true,
       },
-      className: {
-        value: null,
-        text: s__('ciReport|Class'),
-        isLink: false,
-      },
-      methodName: {
-        value: null,
-        text: s__('ciReport|Method'),
-        isLink: false,
-      },
-      namespace: {
-        value: null,
-        text: s__('ciReport|Namespace'),
+      identifiers: {
+        value: [],
+        text: s__('ciReport|Identifiers'),
         isLink: false,
       },
       severity: {
@@ -115,9 +96,24 @@ export default () => ({
         text: s__('ciReport|Confidence'),
         isLink: false,
       },
-      solution: {
+      className: {
         value: null,
-        text: s__('ciReport|Solution'),
+        text: s__('ciReport|Class'),
+        isLink: false,
+      },
+      methodName: {
+        value: null,
+        text: s__('ciReport|Method'),
+        isLink: false,
+      },
+      image: {
+        value: null,
+        text: s__('ciReport|Image'),
+        isLink: false,
+      },
+      namespace: {
+        value: null,
+        text: s__('ciReport|Namespace'),
         isLink: false,
       },
       links: {
@@ -136,6 +132,7 @@ export default () => ({
     vulnerability: {
       isDismissed: false,
       hasIssue: false,
+      hasMergeRequest: false,
     },
 
     isCreatingNewIssue: false,

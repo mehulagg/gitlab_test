@@ -8,9 +8,7 @@ export default class GeoNodesStore {
   }
 
   setNodes(nodes) {
-    this.state.nodes = nodes.map(
-      node => GeoNodesStore.formatNode(node),
-    );
+    this.state.nodes = nodes.map(node => GeoNodesStore.formatNode(node));
   }
 
   getNodes() {
@@ -50,10 +48,12 @@ export default class GeoNodesStore {
       primary,
       current,
       enabled,
+      internalUrl: rawNode.internal_url || '',
       nodeActionActive: false,
       basePath: rawNode._links.self,
       repairPath: rawNode._links.repair,
       editPath: rawNode.web_edit_url,
+      geoProjectsUrl: rawNode.web_geo_projects_url,
       statusPath: rawNode._links.status,
     };
   }

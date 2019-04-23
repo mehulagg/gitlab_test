@@ -77,14 +77,14 @@ describe 'Projects > Audit Events', :js do
       visit project_deploy_keys_path(project)
 
       accept_confirm do
-        find('.ic-remove').click()
+        find('.ic-remove').click
       end
-
-      wait_for_all_requests
 
       visit project_audit_events_path(project)
 
-      expect(page).to have_content('Remove deploy key')
+      wait_for('Audit event background creation job is done', polling_interval: 0.5, reload: true) do
+        page.has_content?('Remove deploy key', wait: 0)
+      end
     end
   end
 
@@ -113,5 +113,9 @@ describe 'Projects > Audit Events', :js do
         expect(page).to have_content('Pete')
       end
     end
+  end
+
+  it_behaves_like 'audit event contains custom message' do
+    let(:audit_events_url) { project_audit_events_path(project) }
   end
 end

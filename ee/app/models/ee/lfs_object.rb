@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   # LFS Object EE mixin
   #
@@ -6,17 +8,19 @@ module EE
   module LfsObject
     extend ActiveSupport::Concern
 
-    prepended do
-      after_destroy :log_geo_event
+    STORE_COLUMN = :file_store
 
-      scope :geo_syncable, -> { with_files_stored_locally }
-      scope :with_files_stored_remotely, -> { where(file_store: LfsObjectUploader::Store::REMOTE) }
+    prepended do
+      include ObjectStorable
+
+      after_destroy :log_geo_deleted_event
+
+      scope :project_id_in, ->(ids) { joins(:projects).merge(::Project.id_in(ids)) }
+      scope :syncable, -> { with_files_stored_locally }
     end
 
-    private
-
-    def log_geo_event
-      ::Geo::LfsObjectDeletedEventStore.new(self).create
+    def log_geo_deleted_event
+      ::Geo::LfsObjectDeletedEventStore.new(self).create!
     end
   end
 end

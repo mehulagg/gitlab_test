@@ -1,4 +1,4 @@
-.new-epic-dropdown {
+.epic-create-dropdown {
   .dropdown-menu {
     padding-left: $gl-padding-top;
     padding-right: $gl-padding-top;
@@ -8,21 +8,18 @@
     width: 100%;
   }
 
-  .btn-save {
+  .btn-success {
     display: flex;
-    margin-top: $gl-btn-padding;
   }
 }
 
-.empty-state .new-epic-dropdown {
-  display: inline-flex;
+.empty-state {
+  .epic-create-dropdown {
+    display: inline-flex;
 
-  .btn-save {
-    margin-left: 0;
-    margin-bottom: 0;
-  }
-
-  .btn-new {
-    margin: 0;
+    .btn-success {
+      margin: 0;
+      margin-top: $gl-padding-top;
+    }
   }
 }

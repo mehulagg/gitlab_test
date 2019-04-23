@@ -1,17 +1,15 @@
+# frozen_string_literal: true
+
 module Geo
   class LfsObjectDeletedEventStore < EventStore
+    extend ::Gitlab::Utils::Override
+
     self.event_type = :lfs_object_deleted_event
 
     attr_reader :lfs_object
 
     def initialize(lfs_object)
       @lfs_object = lfs_object
-    end
-
-    def create
-      return unless lfs_object.local_store?
-
-      super
     end
 
     private
@@ -24,14 +22,8 @@ module Geo
       )
     end
 
-    def local_store_path
-      Pathname.new(LfsObjectUploader.root)
-    end
-
     def relative_file_path
-      return unless lfs_object.file.present?
-
-      Pathname.new(lfs_object.file.path).relative_path_from(local_store_path)
+      lfs_object.file.relative_path if lfs_object.file.present?
     end
 
     # This is called by ProjectLogHelpers to build json log with context info

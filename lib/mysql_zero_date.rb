@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Disable NO_ZERO_DATE mode for mysql in rails 5.
 # We use zero date as a default value
 # (config/initializers/active_record_mysql_timestamp.rb), in
@@ -15,4 +17,4 @@ module MysqlZeroDate
   end
 end
 
-ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter.prepend(MysqlZeroDate) if Gitlab.rails5?
+ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter.prepend(MysqlZeroDate)

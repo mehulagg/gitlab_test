@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
-class Namespace < ActiveRecord::Base
-  prepend EE::Namespace
+class Namespace < ApplicationRecord
   include CacheMarkdownField
   include Sortable
-  include Gitlab::ShellAdapter
   include Gitlab::VisibilityLevel
   include Routable
   include AfterCommitQueue
@@ -12,6 +10,8 @@ class Namespace < ActiveRecord::Base
   include Gitlab::SQL::Pattern
   include IgnorableColumn
   include FeatureGate
+  include FromUnion
+  include Gitlab::Utils::StrongMemoize
 
   ignore_column :deleted_at
 
@@ -51,6 +51,7 @@ class Namespace < ActiveRecord::Base
   validate :nesting_level_allowed
 
   delegate :name, to: :owner, allow_nil: true, prefix: true
+  delegate :avatar_url, to: :owner, allow_nil: true
 
   after_commit :refresh_access_of_projects_invited_groups, on: :update, if: -> { previous_changes.key?('share_with_group_lock') }
 
@@ -83,7 +84,7 @@ class Namespace < ActiveRecord::Base
       find_by('lower(path) = :value', value: path.downcase)
     end
 
-    # Case insensetive search for namespace by path or name
+    # Case insensitive search for namespace by path or name
     def find_by_path_or_name(path)
       find_by("lower(path) = :path OR lower(name) = :path", path: path.downcase)
     end
@@ -135,6 +136,10 @@ class Namespace < ActiveRecord::Base
     all_projects.any?(&:has_container_registry_tags?)
   end
 
+  def first_project_with_container_registry_tags
+    all_projects.find(&:has_container_registry_tags?)
+  end
+
   def send_update_instructions
     projects.each do |project|
       project.send_move_instructions("#{full_path_was}/#{project.path}")
@@ -145,11 +150,15 @@ class Namespace < ActiveRecord::Base
     type == 'Group' ? 'group' : 'user'
   end
 
-  def find_fork_of(project)
-    return nil unless project.fork_network
+  def user?
+    kind == 'user'
+  end
 
-    if RequestStore.active?
-      forks_in_namespace = RequestStore.fetch("namespaces:#{id}:forked_projects") do
+  def find_fork_of(project)
+    return unless project.fork_network
+
+    if Gitlab::SafeRequestStore.active?
+      forks_in_namespace = Gitlab::SafeRequestStore.fetch("namespaces:#{id}:forked_projects") do
         Hash.new do |found_forks, project|
           found_forks[project] = project.fork_network.find_forks_in(projects).first
         end
@@ -172,44 +181,44 @@ class Namespace < ActiveRecord::Base
 
   # Returns all ancestors, self, and descendants of the current namespace.
   def self_and_hierarchy
-    Gitlab::GroupHierarchy
+    Gitlab::ObjectHierarchy
       .new(self.class.where(id: id))
-      .all_groups
+      .all_objects
   end
 
   # Returns all the ancestors of the current namespaces.
   def ancestors
     return self.class.none unless parent_id
 
-    Gitlab::GroupHierarchy
+    Gitlab::ObjectHierarchy
       .new(self.class.where(id: parent_id))
       .base_and_ancestors
   end
 
-  # returns all ancestors upto but excluding the the given namespace
+  # returns all ancestors upto but excluding the given namespace
   # when no namespace is given, all ancestors upto the top are returned
-  def ancestors_upto(top = nil)
-    Gitlab::GroupHierarchy.new(self.class.where(id: id))
-      .ancestors(upto: top)
+  def ancestors_upto(top = nil, hierarchy_order: nil)
+    Gitlab::ObjectHierarchy.new(self.class.where(id: id))
+      .ancestors(upto: top, hierarchy_order: hierarchy_order)
   end
 
   def self_and_ancestors
     return self.class.where(id: id) unless parent_id
 
-    Gitlab::GroupHierarchy
+    Gitlab::ObjectHierarchy
       .new(self.class.where(id: id))
       .base_and_ancestors
   end
 
   # Returns all the descendants of the current namespace.
   def descendants
-    Gitlab::GroupHierarchy
+    Gitlab::ObjectHierarchy
       .new(self.class.where(parent_id: id))
       .base_and_descendants
   end
 
   def self_and_descendants
-    Gitlab::GroupHierarchy
+    Gitlab::ObjectHierarchy
       .new(self.class.where(id: id))
       .base_and_descendants
   end
@@ -228,12 +237,18 @@ class Namespace < ActiveRecord::Base
     Project.inside_path(full_path)
   end
 
+  # Includes pipelines from this namespace and pipelines from all subgroups
+  # that belongs to this namespace
+  def all_pipelines
+    Ci::Pipeline.where(project: all_projects)
+  end
+
   def has_parent?
     parent.present?
   end
 
   def root_ancestor
-    ancestors.reorder(nil).find_by(parent_id: nil)
+    self_and_ancestors.reorder(nil).find_by(parent_id: nil)
   end
 
   def subgroup?
@@ -254,20 +269,24 @@ class Namespace < ActiveRecord::Base
     end
   end
 
-  # Exports belonging to projects with legacy storage are placed in a common
-  # subdirectory of the namespace, so a simple `rm -rf` is sufficient to remove
-  # them.
-  #
-  # Exports of projects using hashed storage are placed in a location defined
-  # only by the project ID, so each must be removed individually.
-  def remove_exports!
-    remove_legacy_exports!
-
-    all_projects.with_storage_feature(:repository).find_each(&:remove_exports)
-  end
-
   def refresh_project_authorizations
     owner.refresh_authorized_projects
+  end
+
+  def auto_devops_enabled?
+    first_auto_devops_config[:status]
+  end
+
+  def first_auto_devops_config
+    return { scope: :group, status: auto_devops_enabled } unless auto_devops_enabled.nil?
+
+    strong_memoize(:first_auto_devops_config) do
+      if has_parent?
+        parent.first_auto_devops_config
+      else
+        { scope: :instance, status: Gitlab::CurrentSettings.auto_devops_enabled? }
+      end
+    end
   end
 
   private
@@ -296,7 +315,7 @@ class Namespace < ActiveRecord::Base
   end
 
   def force_share_with_group_lock_on_descendants
-    return unless Group.supports_nested_groups?
+    return unless Group.supports_nested_objects?
 
     # We can't use `descendants.update_all` since Rails will throw away the WITH
     # RECURSIVE statement. We also can't use WHERE EXISTS since we can't use
@@ -309,6 +328,9 @@ class Namespace < ActiveRecord::Base
   def write_projects_repository_config
     all_projects.find_each do |project|
       project.write_repository_config
+      project.track_project_repository
     end
   end
 end
+
+Namespace.prepend(EE::Namespace)

@@ -1,44 +1,78 @@
 require 'spec_helper'
 
 describe QuickActions::InterpretService do
+  let(:current_user) { create(:user) }
   let(:user) { create(:user) }
-  let(:developer) { create(:user) }
-  let(:developer2) { create(:user) }
-  let(:developer3) { create(:user) }
-  let(:project) { create(:project, :public) }
+  let(:user2) { create(:user) }
+  let(:user3) { create(:user) }
+  let(:group) { create(:group) }
+  let(:project) { create(:project, :repository, :public, group: group) }
   let(:issue) { create(:issue, project: project) }
-  let(:service) { described_class.new(project, developer) }
+  let(:service) { described_class.new(project, current_user) }
 
   before do
-    stub_licensed_features(multiple_issue_assignees: true)
+    stub_licensed_features(multiple_issue_assignees: true,
+                           multiple_merge_request_assignees: true)
 
-    project.add_developer(developer)
+    project.add_developer(current_user)
   end
 
   describe '#execute' do
-    context 'assign command' do
-      let(:content) { "/assign @#{developer.username}" }
+    let(:merge_request) { create(:merge_request, source_project: project) }
 
+    context 'assign command' do
       context 'Issue' do
         it 'fetches assignees and populates them if content contains /assign' do
-          issue.assignees << user
+          issue.update!(assignee_ids: [user.id, user2.id])
 
-          _, updates = service.execute(content, issue)
+          _, updates = service.execute("/unassign @#{user2.username}\n/assign @#{user3.username}", issue)
 
-          expect(updates[:assignee_ids]).to match_array([developer.id, user.id])
+          expect(updates[:assignee_ids]).to match_array([user.id, user3.id])
         end
 
         context 'assign command with multiple assignees' do
-          let(:content) { "/assign @#{developer.username} @#{developer2.username}" }
+          it 'fetches assignee and populates assignee_ids if content contains /assign' do
+            issue.update!(assignee_ids: [user.id])
 
-          before do
-            project.add_developer(developer2)
+            _, updates = service.execute("/unassign @#{user.username}\n/assign @#{user2.username} @#{user3.username}", issue)
+
+            expect(updates[:assignee_ids]).to match_array([user2.id, user3.id])
+          end
+        end
+      end
+
+      context 'Merge Request' do
+        let(:merge_request) { create(:merge_request, source_project: project) }
+
+        it 'fetches assignees and populates them if content contains /assign' do
+          merge_request.update(assignee_ids: [user.id])
+
+          _, updates = service.execute("/assign @#{user2.username}", merge_request)
+
+          expect(updates[:assignee_ids]).to match_array([user.id, user2.id])
+        end
+
+        context 'assign command with multiple assignees' do
+          it 'fetches assignee and populates assignee_ids if content contains /assign' do
+            merge_request.update(assignee_ids: [user.id])
+
+            _, updates = service.execute("/assign @#{user.username}\n/assign @#{user2.username} @#{user3.username}", issue)
+
+            expect(updates[:assignee_ids]).to match_array([user.id, user2.id, user3.id])
           end
 
-          it 'fetches assignee and populates assignee_ids if content contains /assign' do
-            _, updates = service.execute(content, issue)
+          context 'unlicensed' do
+            before do
+              stub_licensed_features(multiple_merge_request_assignees: false)
+            end
 
-            expect(updates[:assignee_ids]).to match_array([developer.id, developer2.id])
+            it 'does not recognize /assign with multiple user references' do
+              merge_request.update(assignee_ids: [user.id])
+
+              _, updates = service.execute("/assign @#{user2.username} @#{user3.username}", merge_request)
+
+              expect(updates[:assignee_ids]).to match_array([user2.id])
+            end
           end
         end
       end
@@ -49,51 +83,97 @@ describe QuickActions::InterpretService do
 
       context 'Issue' do
         it 'unassigns user if content contains /unassign @user' do
-          issue.update(assignee_ids: [developer.id, developer2.id])
+          issue.update!(assignee_ids: [user.id, user2.id])
 
-          _, updates = service.execute("/unassign @#{developer2.username}", issue)
+          _, updates = service.execute("/assign @#{user3.username}\n/unassign @#{user2.username}", issue)
 
-          expect(updates).to eq(assignee_ids: [developer.id])
+          expect(updates[:assignee_ids]).to match_array([user.id, user3.id])
         end
 
         it 'unassigns both users if content contains /unassign @user @user1' do
-          user = create(:user)
+          issue.update!(assignee_ids: [user.id, user2.id])
 
-          issue.update(assignee_ids: [developer.id, developer2.id, user.id])
+          _, updates = service.execute("/assign @#{user3.username}\n/unassign @#{user2.username} @#{user3.username}", issue)
 
-          _, updates = service.execute("/unassign @#{developer2.username} @#{developer.username}", issue)
-
-          expect(updates).to eq(assignee_ids: [user.id])
+          expect(updates[:assignee_ids]).to match_array([user.id])
         end
 
         it 'unassigns all the users if content contains /unassign' do
-          issue.update(assignee_ids: [developer.id, developer2.id])
+          issue.update!(assignee_ids: [user.id, user2.id])
 
-          _, updates = service.execute('/unassign', issue)
+          _, updates = service.execute("/assign @#{user3.username}\n/unassign", issue)
 
           expect(updates[:assignee_ids]).to be_empty
+        end
+      end
+
+      context 'Merge Request' do
+        let(:merge_request) { create(:merge_request, source_project: project) }
+
+        it 'unassigns user if content contains /unassign @user' do
+          merge_request.update(assignee_ids: [user.id, user2.id])
+
+          _, updates = service.execute("/unassign @#{user2.username}", merge_request)
+
+          expect(updates[:assignee_ids]).to match_array([user.id])
+        end
+
+        context 'unassign command with multiple assignees' do
+          it 'unassigns both users if content contains /unassign @user @user1' do
+            merge_request.update(assignee_ids: [user.id, user2.id, user3.id])
+
+            _, updates = service.execute("/unassign @#{user.username} @#{user2.username}", merge_request)
+
+            expect(updates[:assignee_ids]).to match_array([user3.id])
+          end
+
+          context 'unlicensed' do
+            before do
+              stub_licensed_features(multiple_merge_request_assignees: false)
+            end
+
+            it 'does not recognize /unassign @user' do
+              merge_request.update(assignee_ids: [user.id, user2.id, user3.id])
+
+              _, updates = service.execute("/unassign @#{user.username}", merge_request)
+
+              expect(updates[:assignee_ids]).to be_empty
+            end
+          end
         end
       end
     end
 
     context 'reassign command' do
-      let(:content) { "/reassign @#{user.username}" }
+      let(:content) { "/reassign @#{current_user.username}" }
 
       context 'Merge Request' do
         let(:merge_request) { create(:merge_request, source_project: project) }
 
-        it 'does not recognize /reassign @user' do
-          _, updates = service.execute(content, merge_request)
+        context 'unlicensed' do
+          before do
+            stub_licensed_features(multiple_merge_request_assignees: false)
+          end
 
-          expect(updates).to be_empty
+          it 'does not recognize /reassign @user' do
+            _, updates = service.execute(content, merge_request)
+
+            expect(updates).to be_empty
+          end
+        end
+
+        it 'reassigns user if content contains /reassign @user' do
+          _, updates = service.execute("/reassign @#{current_user.username}", merge_request)
+
+          expect(updates[:assignee_ids]).to match_array([current_user.id])
         end
       end
 
       context 'Issue' do
-        let(:content) { "/reassign @#{user.username}" }
+        let(:content) { "/reassign @#{current_user.username}" }
 
         before do
-          issue.update(assignee_ids: [developer.id])
+          issue.update!(assignee_ids: [user.id])
         end
 
         context 'unlicensed' do
@@ -109,10 +189,289 @@ describe QuickActions::InterpretService do
         end
 
         it 'reassigns user if content contains /reassign @user' do
-          _, updates = service.execute("/reassign @#{user.username}", issue)
+          _, updates = service.execute("/reassign @#{current_user.username}", issue)
 
-          expect(updates).to eq(assignee_ids: [user.id])
+          expect(updates[:assignee_ids]).to match_array([current_user.id])
         end
+      end
+    end
+
+    context 'epic command' do
+      let(:epic) { create(:epic, group: group)}
+      let(:content) { "/epic #{epic.to_reference(project)}" }
+
+      context 'when epics are enabled' do
+        before do
+          stub_licensed_features(epics: true)
+        end
+
+        it 'assigns an issue to an epic' do
+          _, updates = service.execute(content, issue)
+
+          expect(updates).to eq(epic: epic)
+        end
+
+        context 'when an issue belongs to a project without group' do
+          let(:user_project) { create(:project) }
+          let(:issue)        { create(:issue, project: user_project) }
+
+          before do
+            user_project.add_developer(user)
+          end
+
+          it 'does not assign an issue to an epic' do
+            _, updates = service.execute(content, issue)
+
+            expect(updates).to be_empty
+          end
+        end
+      end
+
+      context 'when epics are disabled' do
+        it 'does not recognize /epic' do
+          _, updates = service.execute(content, issue)
+
+          expect(updates).to be_empty
+        end
+      end
+    end
+
+    context 'promote command' do
+      let(:content) { "/promote" }
+
+      context 'when epics are enabled' do
+        context 'when a user does not have permissions to promote an issue' do
+          it 'does not promote an issue to an epic' do
+            expect { service.execute(content, issue) }.not_to change { Epic.count }
+          end
+        end
+
+        context 'when a user has permissions to promote an issue' do
+          before do
+            group.add_developer(current_user)
+          end
+
+          context 'when epics are enabled' do
+            before do
+              stub_licensed_features(epics: true)
+            end
+
+            it 'promotes an issue to an epic' do
+              expect { service.execute(content, issue) }.to change { Epic.count }.by(1)
+            end
+
+            context 'when an issue belongs to a project without group' do
+              let(:user_project) { create(:project) }
+              let(:issue)        { create(:issue, project: user_project) }
+
+              before do
+                user_project.add_developer(user)
+              end
+
+              it 'does not promote an issue to an epic' do
+                expect { service.execute(content, issue) }
+                  .to raise_error(Epics::IssuePromoteService::PromoteError)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when epics are disabled' do
+        it 'does not promote an issue to an epic' do
+          group.add_developer(current_user)
+
+          expect { service.execute(content, issue) }.not_to change { Epic.count }
+        end
+      end
+    end
+
+    context 'label command for epics' do
+      let(:epic) { create(:epic, group: group)}
+      let(:label) { create(:group_label, title: 'bug', group: group) }
+      let(:project_label) { create(:label, title: 'project_label') }
+      let(:content) { "/label ~#{label.title} ~#{project_label.title}" }
+
+      let(:service) { described_class.new(nil, current_user) }
+
+      context 'when epics are enabled' do
+        before do
+          stub_licensed_features(epics: true)
+        end
+
+        context 'when a user has permissions to label an epic' do
+          before do
+            group.add_developer(current_user)
+          end
+
+          it 'populates valid label ids' do
+            _, updates = service.execute(content, epic)
+
+            expect(updates).to eq(add_label_ids: [label.id])
+          end
+        end
+
+        context 'when a user does not have permissions to label an epic' do
+          it 'does not populate any lables' do
+            _, updates = service.execute(content, epic)
+
+            expect(updates).to be_empty
+          end
+        end
+      end
+
+      context 'when epics are disabled' do
+        it 'does not populate any lables' do
+          group.add_developer(current_user)
+
+          _, updates = service.execute(content, epic)
+
+          expect(updates).to be_empty
+        end
+      end
+    end
+
+    context 'remove_epic command' do
+      let(:epic) { create(:epic, group: group)}
+      let(:content) { "/remove_epic #{epic.to_reference(project)}" }
+
+      before do
+        issue.update!(epic: epic)
+      end
+
+      context 'when epics are disabled' do
+        it 'does not recognize /remove_epic' do
+          _, updates = service.execute(content, issue)
+
+          expect(updates).to be_empty
+        end
+      end
+
+      context 'when epics are enabled' do
+        before do
+          stub_licensed_features(epics: true)
+        end
+
+        it 'unassigns an issue from an epic' do
+          _, updates = service.execute(content, issue)
+
+          expect(updates).to eq(epic: nil)
+        end
+      end
+    end
+
+    context 'approve command' do
+      let(:merge_request) { create(:merge_request, source_project: project) }
+      let(:content) { '/approve' }
+
+      it 'approves the current merge request' do
+        service.execute(content, merge_request)
+
+        expect(merge_request.approved_by_users).to eq([current_user])
+      end
+
+      context "when the user can't approve" do
+        before do
+          project.team.truncate
+          project.add_guest(current_user)
+        end
+
+        it 'does not approve the MR' do
+          service.execute(content, merge_request)
+
+          expect(merge_request.approved_by_users).to be_empty
+        end
+      end
+    end
+
+    shared_examples 'weight command' do
+      it 'populates weight specified by the /weight command' do
+        _, updates = service.execute(content, issuable)
+
+        expect(updates).to eq(weight: weight)
+      end
+    end
+
+    shared_examples 'clear weight command' do
+      it 'populates weight: nil if content contains /clear_weight' do
+        issuable.update!(weight: 5)
+
+        _, updates = service.execute(content, issuable)
+
+        expect(updates).to eq(weight: nil)
+      end
+    end
+
+    context 'issuable weights licensed' do
+      before do
+        stub_licensed_features(issue_weights: true)
+      end
+
+      it_behaves_like 'weight command' do
+        let(:weight) { 5 }
+        let(:content) { "/weight #{weight}"}
+        let(:issuable) { issue }
+      end
+
+      it_behaves_like 'clear weight command' do
+        let(:content) { '/clear_weight' }
+        let(:issuable) { issue }
+      end
+    end
+
+    context 'issuable weights unlicensed' do
+      before do
+        stub_licensed_features(issue_weights: false)
+      end
+
+      it 'does not recognise /weight X' do
+        _, updates = service.execute('/weight 5', issue)
+
+        expect(updates).to be_empty
+      end
+
+      it 'does not recognise /clear_weight' do
+        _, updates = service.execute('/clear_weight', issue)
+
+        expect(updates).to be_empty
+      end
+    end
+
+    shared_examples 'empty command' do
+      it 'populates {} if content contains an unsupported command' do
+        _, updates = service.execute(content, issuable)
+
+        expect(updates).to be_empty
+      end
+    end
+
+    context 'not persisted merge request can not be merged' do
+      it_behaves_like 'empty command' do
+        let(:content) { "/merge" }
+        let(:issuable) { build(:merge_request, source_project: project) }
+      end
+    end
+
+    context 'not approved merge request can not be merged' do
+      before do
+        merge_request.target_project.update!(approvals_before_merge: 1)
+      end
+
+      it_behaves_like 'empty command' do
+        let(:content) { "/merge" }
+        let(:issuable) { build(:merge_request, source_project: project) }
+      end
+    end
+
+    context 'approved merge request can be merged' do
+      before do
+        merge_request.update!(approvals_before_merge: 1)
+        merge_request.approvals.create(user: current_user)
+      end
+
+      it_behaves_like 'empty command' do
+        let(:content) { "/merge" }
+        let(:issuable) { build(:merge_request, source_project: project) }
       end
     end
   end
@@ -120,34 +479,43 @@ describe QuickActions::InterpretService do
   describe '#explain' do
     describe 'unassign command' do
       let(:content) { '/unassign' }
-      let(:issue) { create(:issue, project: project, assignees: [developer, developer2]) }
+      let(:issue) { create(:issue, project: project, assignees: [user, user2]) }
 
       it "includes all assignees' references" do
         _, explanations = service.explain(content, issue)
 
-        expect(explanations).to eq(["Removes assignees @#{developer.username} and @#{developer2.username}."])
+        expect(explanations).to eq(["Removes assignees @#{user.username} and @#{user2.username}."])
       end
     end
 
     describe 'unassign command with assignee references' do
-      let(:content) { "/unassign @#{developer.username} @#{developer3.username}" }
-      let(:issue) { create(:issue, project: project, assignees: [developer, developer2, developer3]) }
+      let(:content) { "/unassign @#{user.username} @#{user3.username}" }
+      let(:issue) { create(:issue, project: project, assignees: [user, user2, user3]) }
 
       it 'includes only selected assignee references' do
         _, explanations = service.explain(content, issue)
 
-        expect(explanations).to eq(["Removes assignees @#{developer.username} and @#{developer3.username}."])
+        expect(explanations).to eq(["Removes assignees @#{user.username} and @#{user3.username}."])
       end
     end
 
     describe 'unassign command with non-existent assignee reference' do
-      let(:content) { "/unassign @#{developer.username} @#{developer3.username}" }
-      let(:issue) { create(:issue, project: project, assignees: [developer, developer2]) }
+      let(:content) { "/unassign @#{user.username} @#{user3.username}" }
+      let(:issue) { create(:issue, project: project, assignees: [user, user2]) }
 
       it 'ignores non-existent assignee references' do
         _, explanations = service.explain(content, issue)
 
-        expect(explanations).to eq(["Removes assignee @#{developer.username}."])
+        expect(explanations).to eq(["Removes assignee @#{user.username}."])
+      end
+    end
+
+    describe 'weight command' do
+      let(:content) { '/weight 4' }
+
+      it 'includes the number' do
+        _, explanations = service.explain(content, issue)
+        expect(explanations).to eq(['Sets weight to 4.'])
       end
     end
   end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Geo
   class RepositorySyncService < BaseSyncService
     self.type = :repository
@@ -6,16 +8,18 @@ module Geo
 
     def sync_repository
       fetch_repository
-
-      update_gitattributes
-
+      update_root_ref
       mark_sync_as_successful
-    rescue Gitlab::Shell::Error => e
+    rescue Gitlab::Shell::Error, Gitlab::Git::BaseError => e
       # In some cases repository does not exist, the only way to know about this is to parse the error text.
-      # If it does not exist we should consider it as successfully downloaded.
       if e.message.include? Gitlab::GitAccess::ERROR_MESSAGES[:no_repo]
-        log_info('Repository is not found, marking it as successfully synced')
-        mark_sync_as_successful(missing_on_primary: true)
+        if repository_presumably_exists_on_primary?
+          log_info('Repository is not found, but it seems to exist on the primary')
+          fail_registry!('Repository is not found', e)
+        else
+          log_info('Repository is not found, marking it as successfully synced')
+          mark_sync_as_successful(missing_on_primary: true)
+        end
       else
         fail_registry!('Error syncing repository', e)
       end
@@ -35,10 +39,6 @@ module Geo
       project.repository.after_sync
     end
 
-    def ssh_url_to_repo
-      "#{primary_ssh_path_prefix}#{project.full_path}.git"
-    end
-
     def repository
       project.repository
     end
@@ -47,19 +47,15 @@ module Geo
       project.ensure_repository
     end
 
-    # Update info/attributes file using the contents of .gitattributes file from the default branch
-    def update_gitattributes
-      return if project.default_branch.nil?
-
-      repository.copy_gitattributes(project.default_branch)
-    end
-
-    def schedule_repack
-      GitGarbageCollectWorker.perform_async(@project.id, :full_repack, lease_key)
+    def update_root_ref
+      # Find the remote root ref, using a JWT header for authentication
+      repository.with_config(jwt_authentication_header) do
+        project.update_root_ref(GEO_REMOTE_NAME)
+      end
     end
 
     def execute_housekeeping
-      Geo::ProjectHousekeepingService.new(project).execute
+      Geo::ProjectHousekeepingService.new(project, new_repository: new_repository?).execute
     end
   end
 end

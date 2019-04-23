@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe 'Login' do
   include TermsHelper
+  include UserLoginHelper
 
   before do
     stub_authentication_activity_metrics(debug: true)
@@ -433,16 +434,22 @@ describe 'Login' do
 
         context 'within the grace period' do
           it 'redirects to two-factor configuration page' do
-            expect(authentication_metrics)
-              .to increment(:user_authenticated_counter)
+            Timecop.freeze do
+              expect(authentication_metrics)
+                .to increment(:user_authenticated_counter)
 
-            gitlab_sign_in(user)
+              gitlab_sign_in(user)
 
-            expect(current_path).to eq profile_two_factor_auth_path
-            expect(page).to have_content(
-              'The group settings for Group 1 and Group 2 require you to enable ' \
-              'Two-Factor Authentication for your account. You need to do this ' \
-              'before ')
+              expect(current_path).to eq profile_two_factor_auth_path
+              expect(page).to have_content(
+                'The group settings for Group 1 and Group 2 require you to enable '\
+                'Two-Factor Authentication for your account. '\
+                'You can leave Group 1 and leave Group 2. '\
+                'You need to do this '\
+                'before '\
+                "#{(Time.zone.now + 2.days).strftime("%a, %d %b %Y %H:%M:%S %z")}"
+              )
+            end
           end
 
           it 'allows skipping two-factor configuration', :js do
@@ -499,7 +506,8 @@ describe 'Login' do
           expect(current_path).to eq profile_two_factor_auth_path
           expect(page).to have_content(
             'The group settings for Group 1 and Group 2 require you to enable ' \
-            'Two-Factor Authentication for your account.'
+            'Two-Factor Authentication for your account. '\
+            'You can leave Group 1 and leave Group 2.'
           )
         end
       end
@@ -545,29 +553,6 @@ describe 'Login' do
       it 'correctly renders tabs and panes' do
         ensure_tab_pane_correctness(false)
       end
-    end
-
-    def ensure_tab_pane_correctness(visit_path = true)
-      if visit_path
-        visit new_user_session_path
-      end
-
-      ensure_tab_pane_counts
-      ensure_one_active_tab
-      ensure_one_active_pane
-    end
-
-    def ensure_tab_pane_counts
-      tabs_count = page.all('[role="tab"]').size
-      expect(page).to have_selector('[role="tabpanel"]', count: tabs_count)
-    end
-
-    def ensure_one_active_tab
-      expect(page).to have_selector('ul.new-session-tabs > li > a.active', count: 1)
-    end
-
-    def ensure_one_active_pane
-      expect(page).to have_selector('.tab-pane.active', count: 1)
     end
   end
 

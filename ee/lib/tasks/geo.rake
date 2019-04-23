@@ -58,7 +58,7 @@ namespace :geo do
     desc 'Refresh Foreign Tables definition in Geo Secondary node'
     task refresh_foreign_tables: [:environment] do
       if Gitlab::Geo::GeoTasks.foreign_server_configured?
-        print "\nRefreshing foreign tables for FDW: #{Gitlab::Geo::Fdw::FDW_SCHEMA} ... "
+        print "\nRefreshing foreign tables for FDW: #{Gitlab::Geo::Fdw::FOREIGN_SCHEMA} ... "
         Gitlab::Geo::GeoTasks.refresh_foreign_tables!
         puts 'Done!'
       else
@@ -220,7 +220,7 @@ namespace :geo do
     puts GeoNode.current_node_url
     puts '-----------------------------------------------------'.color(:yellow)
 
-    unless Gitlab::Database.pg_stat_wal_receiver_supported?
+    unless Gitlab::Database.postgresql_minimum_supported_version?
       puts
       puts 'WARNING: Please upgrade PostgreSQL to version 9.6 or greater. The status of the replication cannot be determined reliably with the current version.'.color(:red)
       puts
@@ -261,13 +261,13 @@ namespace :geo do
 
     print 'Wikis: '.rjust(COLUMN_WIDTH)
     show_failed_value(current_node_status.wikis_failed_count)
-    print "#{current_node_status.wikis_synced_count}/#{current_node_status.wikis_count} "
+    print "#{current_node_status.wikis_synced_count}/#{current_node_status.projects_count} "
     puts using_percentage(current_node_status.wikis_synced_in_percentage)
 
     if Gitlab::Geo.repository_verification_enabled?
       print 'Verified Wikis: '.rjust(COLUMN_WIDTH)
       show_failed_value(current_node_status.wikis_verification_failed_count)
-      print "#{current_node_status.wikis_verified_count}/#{current_node_status.wikis_count} "
+      print "#{current_node_status.wikis_verified_count}/#{current_node_status.projects_count} "
       puts using_percentage(current_node_status.wikis_verified_in_percentage)
     end
 
@@ -281,6 +281,11 @@ namespace :geo do
     print "#{current_node_status.attachments_synced_count}/#{current_node_status.attachments_count} "
     puts using_percentage(current_node_status.attachments_synced_in_percentage)
 
+    print 'CI job artifacts: '.rjust(COLUMN_WIDTH)
+    show_failed_value(current_node_status.job_artifacts_failed_count)
+    print "#{current_node_status.job_artifacts_synced_count}/#{current_node_status.job_artifacts_count} "
+    puts using_percentage(current_node_status.job_artifacts_synced_in_percentage)
+
     if Gitlab::CurrentSettings.repository_checks_enabled
       print 'Repositories Checked: '.rjust(COLUMN_WIDTH)
       show_failed_value(current_node_status.repositories_checked_failed_count)
@@ -292,7 +297,7 @@ namespace :geo do
     puts  geo_node.namespaces.any? ? 'Selective' : 'Full'
 
     print 'Database replication lag: '.rjust(COLUMN_WIDTH)
-    puts "#{Gitlab::Geo::HealthCheck.db_replication_lag_seconds} seconds"
+    puts "#{Gitlab::Geo::HealthCheck.new.db_replication_lag_seconds} seconds"
 
     print 'Last event ID seen from primary: '.rjust(COLUMN_WIDTH)
     last_event = Geo::EventLog.last

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Gitlab
   module Geo
     module LogCursor
@@ -7,9 +9,8 @@ module Gitlab
 
           def process
             # Must always schedule, regardless of shard health
-            job_id = ::Geo::FileRemovalWorker.perform_async(file_path)
+            job_id = ::Geo::FileRegistryRemovalWorker.perform_async(:lfs, event.lfs_object_id, file_path)
             log_event(job_id)
-            ::Geo::FileRegistry.lfs_objects.where(file_id: event.lfs_object_id).delete_all
           end
 
           private
@@ -21,10 +22,10 @@ module Gitlab
           def log_event(job_id)
             logger.event_info(
               created_at,
-              'Deleted LFS object',
+              'Delete LFS object scheduled',
               oid: event.oid,
               file_id: event.lfs_object_id,
-              file_path: file_path,
+              file_path: event.file_path,
               job_id: job_id)
           end
         end

@@ -1,14 +1,11 @@
 require 'spec_helper'
 
 describe Projects::BoardsController do
-  include Rails.application.routes.url_helpers
-
   let(:project) { create(:project) }
   let(:user)    { create(:user) }
 
   before do
     project.add_maintainer(user)
-    allow(Ability).to receive(:allowed?).and_call_original
     sign_in(user)
   end
 
@@ -25,15 +22,23 @@ describe Projects::BoardsController do
       expect(parsed_response.length).to eq 2
     end
 
-    it_behaves_like 'unauthorized when external service denies access' do
-      subject { list_boards }
+    it_behaves_like 'redirects to last visited board' do
+      let(:parent) { project }
     end
 
     def list_boards(format: :html)
-      get :index, namespace_id: project.namespace,
-                  project_id: project,
+      get :index, params: {
+                    namespace_id: project.namespace,
+                    project_id: project
+                  },
                   format: format
     end
+  end
+
+  describe 'GET recent' do
+    let(:parent) { project }
+
+    it_behaves_like 'returns recently visited boards'
   end
 
   describe 'GET show' do
@@ -116,9 +121,11 @@ describe Projects::BoardsController do
     end
 
     def create_board(board_params)
-      post :create, namespace_id: project.namespace.to_param,
-                    project_id: project.to_param,
-                    board: board_params,
+      post :create, params: {
+                      namespace_id: project.namespace.to_param,
+                      project_id: project.to_param,
+                      board: board_params
+                    },
                     format: :json
     end
   end
@@ -127,7 +134,7 @@ describe Projects::BoardsController do
     let(:board) { create(:board, project: project, name: 'Backend') }
     let(:user) { create(:user) }
     let(:milestone) { create(:milestone, project: project) }
-    let(:label) { create(:label) }
+    let(:label) { create(:label, project: project) }
 
     let(:update_params) do
       { name: 'Frontend',
@@ -189,10 +196,12 @@ describe Projects::BoardsController do
     end
 
     def update_board(board, update_params)
-      patch :update, namespace_id: project.namespace.to_param,
-                     project_id: project.to_param,
-                     id: board.to_param,
-                     board: update_params,
+      patch :update, params: {
+                       namespace_id: project.namespace.to_param,
+                       project_id: project.to_param,
+                       id: board.to_param,
+                       board: update_params
+                     },
                      format: :json
     end
   end
@@ -235,9 +244,11 @@ describe Projects::BoardsController do
     end
 
     def remove_board(board:)
-      delete :destroy, namespace_id: project.namespace.to_param,
-                       project_id: project.to_param,
-                       id: board.to_param,
+      delete :destroy, params: {
+                         namespace_id: project.namespace.to_param,
+                         project_id: project.to_param,
+                         id: board.to_param
+                       },
                        format: :html
     end
   end

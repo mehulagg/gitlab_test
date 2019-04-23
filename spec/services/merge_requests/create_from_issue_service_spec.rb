@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe MergeRequests::CreateFromIssueService do
@@ -61,7 +63,15 @@ describe MergeRequests::CreateFromIssueService do
       expect(project.repository.branch_exists?(custom_source_branch)).to be_truthy
     end
 
-    it 'creates a system note' do
+    it 'creates the new_merge_request system note' do
+      expect(SystemNoteService).to receive(:new_merge_request).with(issue, project, user, instance_of(MergeRequest))
+
+      service.execute
+    end
+
+    it 'creates the new_issue_branch system note when the branch could be created but the merge_request cannot be created' do
+      project.project_feature.update!(merge_requests_access_level: ProjectFeature::DISABLED)
+
       expect(SystemNoteService).to receive(:new_issue_branch).with(issue, project, user, issue.to_branch_name)
 
       service.execute
@@ -110,7 +120,7 @@ describe MergeRequests::CreateFromIssueService do
 
       result = service.execute
 
-      expect(result[:merge_request].assignee).to eq(user)
+      expect(result[:merge_request].assignees).to eq([user])
     end
 
     context 'when ref branch is set' do

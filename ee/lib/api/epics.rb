@@ -1,50 +1,22 @@
+# frozen_string_literal: true
+
 module API
   class Epics < Grape::API
+    include PaginationParams
+
     before do
       authenticate!
       authorize_epics_feature!
     end
 
-    helpers do
-      def authorize_epics_feature!
-        forbidden! unless user_group.feature_available?(:epics)
-      end
-
-      def authorize_can_read!
-        authorize!(:read_epic, epic)
-      end
-
-      def authorize_can_admin!
-        authorize!(:admin_epic, epic)
-      end
-
-      def authorize_can_create!
-        authorize!(:admin_epic, user_group)
-      end
-
-      def authorize_can_destroy!
-        authorize!(:destroy_epic, epic)
-      end
-
-      def epic
-        @epic ||= user_group.epics.find_by(iid: params[:epic_iid])
-      end
-
-      def find_epics(args = {})
-        args = declared_params.merge(args)
-        args[:label_name] = args.delete(:labels)
-
-        epics = EpicsFinder.new(current_user, args).execute.preload(:labels)
-
-        epics.reorder(args[:order_by] => args[:sort])
-      end
-    end
+    helpers ::API::Helpers::EpicsHelpers
+    helpers ::Gitlab::IssuableMetadata
 
     params do
       requires :id, type: String, desc: 'The ID of a group'
     end
 
-    resource :groups, requirements: API::PROJECT_ENDPOINT_REQUIREMENTS do
+    resource :groups, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       desc 'Get epics for the group' do
         success EE::API::Entities::Epic
       end
@@ -54,11 +26,21 @@ module API
         optional :sort, type: String, values: %w[asc desc], default: 'desc',
                         desc: 'Return epics sorted in `asc` or `desc` order.'
         optional :search, type: String, desc: 'Search epics for text present in the title or description'
+        optional :state, type: String, values: %w[opened closed all], default: 'all',
+                         desc: 'Return opened, closed, or all epics'
         optional :author_id, type: Integer, desc: 'Return epics which are authored by the user with the given ID'
-        optional :labels, type: String, desc: 'Comma-separated list of label names'
+        optional :labels, type: Array[String], coerce_with: Validations::Types::LabelsList.coerce, desc: 'Comma-separated list of label names'
+        optional :created_after, type: DateTime, desc: 'Return epics created after the specified time'
+        optional :created_before, type: DateTime, desc: 'Return epics created before the specified time'
+        optional :updated_after, type: DateTime, desc: 'Return epics updated after the specified time'
+        optional :updated_before, type: DateTime, desc: 'Return epics updated before the specified time'
+        use :pagination
       end
       get ':id/(-/)epics' do
-        present find_epics(group_id: user_group.id), with: EE::API::Entities::Epic, user: current_user
+        epics = paginate(find_epics(finder_params: { group_id: user_group.id })).with_api_entity_associations
+
+        # issuable_metadata is the standard used by the Todo API
+        present epics, with: EE::API::Entities::Epic, user: current_user, issuable_metadata: issuable_meta_data(epics, 'Epic')
       end
 
       desc 'Get details of an epic' do
@@ -83,7 +65,7 @@ module API
         optional :start_date_is_fixed, type: Boolean, desc: 'Indicates start date should be sourced from start_date_fixed field not the issue milestones'
         optional :end_date, as: :due_date_fixed, type: String, desc: 'The due date of an epic'
         optional :due_date_is_fixed, type: Boolean, desc: 'Indicates due date should be sourced from due_date_fixed field not the issue milestones'
-        optional :labels, type: String, desc: 'Comma-separated list of label names'
+        optional :labels, type: Array[String], coerce_with: Validations::Types::LabelsList.coerce, desc: 'Comma-separated list of label names'
       end
       post ':id/(-/)epics' do
         authorize_can_create!
@@ -107,8 +89,9 @@ module API
         optional :start_date_is_fixed, type: Boolean, desc: 'Indicates start date should be sourced from start_date_fixed field not the issue milestones'
         optional :end_date, as: :due_date_fixed, type: String, desc: 'The due date of an epic'
         optional :due_date_is_fixed, type: Boolean, desc: 'Indicates due date should be sourced from due_date_fixed field not the issue milestones'
-        optional :labels, type: String, desc: 'Comma-separated list of label names'
-        at_least_one_of :title, :description, :start_date_fixed, :due_date_fixed, :labels
+        optional :labels, type: Array[String], coerce_with: Validations::Types::LabelsList.coerce, desc: 'Comma-separated list of label names'
+        optional :state_event, type: String, values: %w[reopen close], desc: 'State event for an epic'
+        at_least_one_of :title, :description, :start_date_fixed, :start_date_is_fixed, :due_date_fixed, :due_date_is_fixed, :labels, :state_event
       end
       put ':id/(-/)epics/:epic_iid' do
         authorize_can_admin!

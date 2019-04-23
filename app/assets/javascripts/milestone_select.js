@@ -1,4 +1,4 @@
-/* eslint-disable max-len, one-var, one-var-declaration-per-line, no-unused-vars, object-shorthand, no-else-return, no-self-compare, consistent-return, no-param-reassign, no-shadow */
+/* eslint-disable one-var, no-unused-vars, object-shorthand, no-else-return, no-self-compare, consistent-return, no-param-reassign, no-shadow */
 /* global Issuable */
 /* global ListMilestone */
 
@@ -9,6 +9,10 @@ import '~/gl_dropdown';
 import axios from './lib/utils/axios_utils';
 import { timeFor } from './lib/utils/datetime_utility';
 import ModalStore from './boards/stores/modal_store';
+import boardsStore, {
+  boardStoreIssueSet,
+  boardStoreIssueDelete,
+} from './boards/stores/boards_store';
 
 export default class MilestoneSelect {
   constructor(currentProject, els, options = {}) {
@@ -151,7 +155,7 @@ export default class MilestoneSelect {
           const { $el, e } = clickEvent;
           let selected = clickEvent.selectedObj;
 
-          let data, boardsStore;
+          let data, modalStoreFilter;
           if (!selected) return;
 
           if (options.handleClick) {
@@ -175,11 +179,11 @@ export default class MilestoneSelect {
           }
 
           if ($dropdown.closest('.add-issues-modal').length) {
-            boardsStore = ModalStore.store.filter;
+            modalStoreFilter = ModalStore.store.filter;
           }
 
-          if (boardsStore) {
-            boardsStore[$dropdown.data('fieldName')] = selected.name;
+          if (modalStoreFilter) {
+            modalStoreFilter[$dropdown.data('fieldName')] = selected.name;
             e.preventDefault();
           } else if ($dropdown.hasClass('js-filter-submit') && (isIssueIndex || isMRIndex)) {
             return Issuable.filterResults($dropdown.closest('form'));
@@ -187,7 +191,7 @@ export default class MilestoneSelect {
             return $dropdown.closest('form').submit();
           } else if ($dropdown.hasClass('js-issue-board-sidebar')) {
             if (selected.id !== -1 && isSelecting) {
-              gl.issueBoards.boardStoreIssueSet(
+              boardStoreIssueSet(
                 'milestone',
                 new ListMilestone({
                   id: selected.id,
@@ -195,13 +199,13 @@ export default class MilestoneSelect {
                 }),
               );
             } else {
-              gl.issueBoards.boardStoreIssueDelete('milestone');
+              boardStoreIssueDelete('milestone');
             }
 
             $dropdown.trigger('loading.gl.dropdown');
             $loading.removeClass('hidden').fadeIn();
 
-            gl.issueBoards.BoardsStore.detail.issue
+            boardsStore.detail.issue
               .update($dropdown.attr('data-issue-update'))
               .then(() => {
                 $dropdown.trigger('loaded.gl.dropdown');

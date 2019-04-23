@@ -1,13 +1,15 @@
 import projectSelect from '~/project_select';
 import initFilteredSearch from '~/pages/search/init_filtered_search';
 import { FILTERED_SEARCH } from '~/pages/constants';
-import FilteredSearchTokenKeysIssues from 'ee/filtered_search/filtered_search_token_keys_issues';
+import IssuableFilteredSearchTokenKeys from 'ee_else_ce/filtered_search/issuable_filtered_search_token_keys';
 
 document.addEventListener('DOMContentLoaded', () => {
+  IssuableFilteredSearchTokenKeys.addExtraTokensForIssues();
+
   initFilteredSearch({
     page: FILTERED_SEARCH.ISSUES,
-    filteredSearchTokenKeys: FilteredSearchTokenKeysIssues,
     isGroupDecendent: true,
+    filteredSearchTokenKeys: IssuableFilteredSearchTokenKeys,
   });
   projectSelect();
 });

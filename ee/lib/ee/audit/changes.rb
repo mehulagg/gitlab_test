@@ -1,9 +1,14 @@
+# frozen_string_literal: true
+
 module EE
   module Audit
     module Changes
       def audit_changes(column, options = {})
         column = options[:column] || column
-        @model = options[:model] # rubocop:disable Gitlab/ModuleWithInstanceVariables
+        # rubocop:disable Gitlab/ModuleWithInstanceVariables
+        @target_model = options[:target_model]
+        @model = options[:model]
+        # rubocop:enable Gitlab/ModuleWithInstanceVariables
 
         return unless changed?(column)
 
@@ -11,6 +16,10 @@ module EE
       end
 
       protected
+
+      def target_model
+        @target_model || model # rubocop:disable Gitlab/ModuleWithInstanceVariables
+      end
 
       def model
         @model
@@ -39,7 +48,7 @@ module EE
       end
 
       def audit_event(options)
-        ::AuditEventService.new(@current_user, model, options) # rubocop:disable Gitlab/ModuleWithInstanceVariables
+        ::AuditEventService.new(@current_user, target_model, options) # rubocop:disable Gitlab/ModuleWithInstanceVariables
           .for_changes.security_event
       end
     end

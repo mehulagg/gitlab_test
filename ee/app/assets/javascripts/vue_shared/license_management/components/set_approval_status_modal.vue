@@ -2,12 +2,13 @@
 import { s__ } from '~/locale';
 import { mapActions, mapState } from 'vuex';
 import GlModal from '~/vue_shared/components/gl_modal.vue';
+import SafeLink from 'ee/vue_shared/components/safe_link.vue';
 import LicensePackages from './license_packages.vue';
 import { LICENSE_APPROVAL_STATUS } from '../constants';
 
 export default {
   name: 'LicenseSetApprovalStatusModal',
-  components: { LicensePackages, GlModal },
+  components: { SafeLink, LicensePackages, GlModal },
   computed: {
     ...mapState(['currentLicenseInModal', 'canManageLicenses']),
     headerTitleText() {
@@ -51,9 +52,7 @@ export default {
         <label class="col-sm-3 text-right font-weight-bold">
           {{ s__('LicenseManagement|License') }}:
         </label>
-        <div class="col-sm-9 text-secondary">
-          {{ currentLicenseInModal.name }}
-        </div>
+        <div class="col-sm-9 text-secondary">{{ currentLicenseInModal.name }}</div>
       </div>
       <div
         v-if="currentLicenseInModal.url"
@@ -63,11 +62,12 @@ export default {
           {{ s__('LicenseManagement|URL') }}:
         </label>
         <div class="col-sm-9 text-secondary">
-          <a
+          <safe-link
             :href="currentLicenseInModal.url"
             target="_blank"
             rel="noopener noreferrer nofollow"
-          >{{ currentLicenseInModal.url }}</a>
+            >{{ currentLicenseInModal.url }}</safe-link
+          >
         </div>
       </div>
       <div class="row prepend-top-10 append-bottom-10 js-license-packages">

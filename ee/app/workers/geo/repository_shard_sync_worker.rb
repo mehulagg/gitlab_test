@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Geo
   class RepositoryShardSyncWorker < Geo::Scheduler::Secondary::SchedulerWorker
     sidekiq_options retry: false
@@ -13,6 +15,10 @@ module Geo
     end
 
     private
+
+    def skip_cache_key
+      "#{self.class.name.underscore}:shard:#{shard_name}:skip"
+    end
 
     def worker_metadata
       { shard: shard_name }
@@ -36,11 +42,19 @@ module Geo
       [1, capacity_per_shard.to_i].max
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def schedule_job(project_id)
-      job_id = Geo::ProjectSyncWorker.perform_async(project_id, Time.now)
+      registry = Geo::ProjectRegistry.find_or_initialize_by(project_id: project_id)
+
+      job_id = Geo::ProjectSyncWorker.perform_async(
+        project_id,
+        sync_repository: registry.repository_sync_due?(Time.now),
+        sync_wiki: registry.wiki_sync_due?(Time.now)
+      )
 
       { project_id: project_id, job_id: job_id } if job_id
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def scheduled_project_ids
       scheduled_jobs.map { |data| data[:project_id] }
@@ -61,22 +75,22 @@ module Geo
       end
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def find_project_ids_not_synced(batch_size:)
-      shard_restriction(finder.find_unsynced_projects(batch_size: batch_size))
-        .where.not(id: scheduled_project_ids)
+      finder.find_unsynced_projects(shard_name: shard_name, batch_size: batch_size)
+        .id_not_in(scheduled_project_ids)
         .reorder(last_repository_updated_at: :desc)
-        .pluck(:id)
+        .pluck_primary_key
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def find_project_ids_updated_recently(batch_size:)
-      shard_restriction(finder.find_projects_updated_recently(batch_size: batch_size))
-        .where.not(id: scheduled_project_ids)
+      finder.find_projects_updated_recently(shard_name: shard_name, batch_size: batch_size)
+        .id_not_in(scheduled_project_ids)
         .order('project_registry.last_repository_synced_at ASC NULLS FIRST, projects.last_repository_updated_at ASC')
-        .pluck(:id)
+        .pluck_primary_key
     end
-
-    def shard_restriction(relation)
-      relation.where(repository_storage: shard_name)
-    end
+    # rubocop: enable CodeReuse/ActiveRecord
   end
 end

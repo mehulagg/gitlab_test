@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Issues
   class ExportCsvService
     include Gitlab::Routing.url_helpers
@@ -19,10 +21,12 @@ module Issues
       Notify.issues_csv_email(user, project, csv_data, csv_builder.status).deliver_now
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def csv_builder
       @csv_builder ||=
         CsvBuilder.new(@issues.preload(:author, :assignees, :timelogs), header_to_value_hash)
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     private
 

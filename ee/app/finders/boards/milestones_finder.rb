@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Boards
   class MilestonesFinder
     def initialize(board, current_user = nil)
@@ -11,6 +13,7 @@ module Boards
 
     private
 
+    # rubocop: disable CodeReuse/Finder
     def finder_service
       parent = @board.parent
 
@@ -28,5 +31,6 @@ module Boards
 
       ::MilestonesFinder.new(finder_params)
     end
+    # rubocop: enable CodeReuse/Finder
   end
 end

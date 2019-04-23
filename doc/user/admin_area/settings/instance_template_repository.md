@@ -1,4 +1,4 @@
-# Instance-level Template Repository
+# Instance template repository **[PREMIUM ONLY]**
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/5986) in
 > [GitLab Premium](https://about.gitlab.com/pricing) 11.3.
@@ -7,41 +7,57 @@
 
 In hosted systems, enterprises often have a need to share their own templates
 across teams. This feature allows an administrator to pick a project to be the
-instance-wide collection of templates. These templates are then exposed to all
-users while the project remains secure. Currently supported templates: Licenses.
+instance-wide collection of file templates. These templates are then exposed to
+all users [via the web editor](../../project/repository/web_editor.md#template-dropdowns)
+while the project remains secure.
 
 ## Configuration
 
-An administrator can choose any project to be the template repository. This is
-done through the `Settings` page in the `Admin Area` or through the API. On the
-`Settings` page, there is a `Templates` section with a selection box for
-choosing a project:
+As an administrator, navigate to **Admin area > Settings > Templates** and
+select the project to serve as the custom template repository.
 
-![](img/file_template_admin_area.png)
+![File templates in the admin area](img/file_template_admin_area.png)
 
+Once a project has been selected, you can add custom templates to the repository,
+and they will appear in the appropriate places in the
+[frontend](../../project/repository/web_editor.md#template-dropdowns) and
+[API](../../../api/settings.md).
 
-Once a project has been selected you can add custom templates to the repository,
-and they will appear in the appropriate places in the frontend and API.
 Templates must be added to a specific subdirectory in the repository,
-corresponding to the kind of template. They must also have the correct extension
-for the template type.
+corresponding to the kind of template. The following types of custom templates
+are supported:
 
-Currently, only custom license templates are supported. This must go in the
-`LICENSE/` subdirectory, and must have `.txt` file extensions. So, the hierarchy
-should look like this:
+| Type              | Directory     | Extension     |
+| :---------------: | :-----------: | :-----------: |
+| `Dockerfile`      | `Dockerfile`  | `.dockerfile` |
+| `.gitignore`      | `gitignore`   | `.gitignore`  |
+| `.gitlab-ci.yml`  | `gitlab-ci`   | `.yml`        |
+| `LICENSE`         | `LICENSE`     | `.txt`        |
+
+Each template must go in its respective subdirectory, have the correct
+extension and not be empty. So, the hierarchy should look like this:
 
 ```text
 |-- README.md
+|-- Dockerfile
+    |-- custom_dockerfile.dockerfile
+    |-- another_dockerfile.dockerfile
+|-- gitignore
+    |-- custom_gitignore.gitignore
+    |-- another_gitignore.gitignore
+|-- gitlab-ci
+    |-- custom_gitlab-ci.yml
+    |-- another_gitlab-ci.yml
 |-- LICENSE
     |-- custom_license.txt
     |-- another_license.txt
 ```
 
-Once this is established, the list of `Custom` licenses will be included when
-creating a new file and the file type is `License`. These will appear at the
-bottom of the list:
+Once this is established, the list of custom templates will be included when
+creating a new file and the template type is selected. These will appear at the
+top of the list.
 
-![](img/file_template_user_dropdown.png)
+![Custom template dropdown menu](img/file_template_user_dropdown.png)
 
-If this feature has been disabled or no licenses are present, then there will be
-no `Custom` section in the selection dropdown.
+If this feature is disabled or no templates are present, there will be
+no "Custom" section in the selection dropdown.

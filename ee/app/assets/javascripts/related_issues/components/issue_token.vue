@@ -1,10 +1,10 @@
 <script>
 import { __ } from '~/locale';
-import relatedIssueMixin from '../mixins/related_issues_mixin';
+import relatedIssuableMixin from '~/vue_shared/mixins/related_issuable_mixin';
 
 export default {
   name: 'IssueToken',
-  mixins: [relatedIssueMixin],
+  mixins: [relatedIssuableMixin],
   props: {
     isCondensed: {
       type: Boolean,
@@ -35,47 +35,45 @@ export default {
   <div
     :class="{
       'issue-token': isCondensed,
-      'flex-row issue-info-container': !isCondensed,
+      'flex-row issuable-info-container': !isCondensed,
     }"
   >
     <component
-      v-tooltip
-      ref="link"
       :is="computedLinkElementType"
+      ref="link"
+      v-tooltip
       :class="{
         'issue-token-link': isCondensed,
-        'issue-main-info': !isCondensed,
+        'issuable-main-info': !isCondensed,
       }"
       :href="computedPath"
       :title="issueTitle"
       data-placement="top"
     >
       <component
+        :is="innerComponentType"
         v-if="hasTitle"
         ref="title"
-        :is="innerComponentType"
         :class="{
           'issue-token-title issue-token-end': isCondensed,
           'issue-title block-truncated': !isCondensed,
-          'issue-token-title-standalone': !canRemove
+          'issue-token-title-standalone': !canRemove,
         }"
         class="js-issue-token-title"
       >
-        <span class="issue-token-title-text">
-          {{ title }}
-        </span>
+        <span class="issue-token-title-text">{{ title }}</span>
       </component>
       <component
-        ref="reference"
         :is="innerComponentType"
+        ref="reference"
         :class="{
           'issue-token-reference': isCondensed,
           'issuable-info': !isCondensed,
         }"
       >
         <icon
-          v-tooltip
           v-if="hasState"
+          v-tooltip
           :css-classes="iconClass"
           :name="iconName"
           :size="12"
@@ -86,12 +84,12 @@ export default {
       </component>
     </component>
     <button
-      v-tooltip
       v-if="canRemove"
       ref="removeButton"
+      v-tooltip
       :class="{
         'issue-token-remove-button': isCondensed,
-        'btn btn-default': !isCondensed
+        'btn btn-default': !isCondensed,
       }"
       :title="removeButtonLabel"
       :aria-label="removeButtonLabel"
@@ -100,10 +98,7 @@ export default {
       class="js-issue-token-remove-button"
       @click="onRemoveRequest"
     >
-      <i
-        class="fa fa-times"
-        aria-hidden="true">
-      </i>
+      <i class="fa fa-times" aria-hidden="true"></i>
     </button>
   </div>
 </template>

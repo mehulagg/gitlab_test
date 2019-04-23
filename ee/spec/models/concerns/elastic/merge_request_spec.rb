@@ -5,6 +5,15 @@ describe MergeRequest, :elastic do
     stub_ee_application_setting(elasticsearch_search: true, elasticsearch_indexing: true)
   end
 
+  it_behaves_like 'limited indexing is enabled' do
+    set(:object) { create :merge_request, source_project: project }
+    set(:group) { create(:group) }
+    let(:group_object) do
+      project = create :project, name: 'test1', group: group
+      create :merge_request, source_project: project
+    end
+  end
+
   it "searches merge requests" do
     project = create :project, :repository
 
@@ -44,7 +53,13 @@ describe MergeRequest, :elastic do
       'source_project_id',
       'target_project_id',
       'author_id'
-    )
+    ).merge({
+              'join_field' => {
+                'name' => merge_request.es_type,
+                'parent' => merge_request.es_parent
+              },
+              'type' => merge_request.es_type
+            })
 
     expect(merge_request.as_indexed_json).to eq(expected_hash)
   end

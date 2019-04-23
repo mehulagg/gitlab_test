@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Prepended onto ::QA::Runtime::Env
 module QA
   module EE
@@ -9,6 +11,10 @@ module QA
 
         def geo_max_file_replication_time
           ENV['GEO_MAX_FILE_REPLICATION_TIME']
+        end
+
+        def simple_saml_hostname
+          ENV['SIMPLE_SAML_HOSTNAME']
         end
       end
     end

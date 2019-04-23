@@ -10,6 +10,10 @@ There is a `Gitlab::Profiler.profile` method, and corresponding
 `bin/profile-url` script, that enable profiling a GET or POST request to a
 specific URL, either as an anonymous user (the default) or as a specific user.
 
+NOTE: **Note:** The first argument to the profiler is either a full URL
+(including the instance hostname) or an absolute path, including the
+leading slash.
+
 When using the script, command-line documentation is available by passing no
 arguments.
 
@@ -70,6 +74,15 @@ Gitlab::Profiler.print_by_total_time(result, max_percent: 60, min_percent: 2)
 #   0.00      0.930     0.000     0.000     0.930       14   Hamlit::TemplateHandler#call
 #   0.00      0.928     0.000     0.000     0.928       14   Temple::Engine#call
 #   0.02      0.865     0.000     0.000     0.864      638  *Enumerable#inject
+```
+
+To print the profile in HTML format, use the following example:
+
+```ruby
+result = Gitlab::Profiler.profile('/my-user')
+
+printer = RubyProf::CallStackPrinter.new(result)
+printer.print(File.open('/tmp/profile.html', 'w'))
 ```
 
 [GitLab-Profiler](https://gitlab.com/gitlab-com/gitlab-profiler) is a project

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Projects
   class IssueLinksController < Projects::ApplicationController
     include IssuableLinks
@@ -7,10 +9,6 @@ module Projects
 
     private
 
-    def issues
-      IssueLinks::ListService.new(issue, current_user).execute
-    end
-
     def authorize_admin_issue_link!
       render_403 unless can?(current_user, :admin_issue_link, @project)
     end
@@ -19,10 +17,16 @@ module Projects
       render_404 if link.target != issue && link.source != issue
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def issue
       @issue ||=
         IssuesFinder.new(current_user, project_id: @project.id)
                     .find_by!(iid: params[:issue_id])
+    end
+    # rubocop: enable CodeReuse/ActiveRecord
+
+    def list_service
+      IssueLinks::ListService.new(issue, current_user)
     end
 
     def create_service

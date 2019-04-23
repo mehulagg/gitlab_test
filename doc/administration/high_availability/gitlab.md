@@ -1,8 +1,4 @@
-# Configuring GitLab for HA
-
-Assuming you have already configured a [database](database.md), [Redis](redis.md), and [NFS](nfs.md), you can
-configure the GitLab application server(s) now. Complete the steps below
-for each GitLab application server in your environment.
+# Configuring GitLab Scaling and High Availability
 
 > **Note:** There is some additional configuration near the bottom for
   additional GitLab application servers. It's important to read and understand
@@ -25,11 +21,11 @@ for each GitLab application server in your environment.
    options. Here is an example snippet to add to `/etc/fstab`:
 
     ```
-    10.1.0.1:/var/opt/gitlab/.ssh /var/opt/gitlab/.ssh nfs defaults,soft,rsize=1048576,wsize=1048576,noatime,nofail,lookupcache=positive 0 2
-    10.1.0.1:/var/opt/gitlab/gitlab-rails/uploads /var/opt/gitlab/gitlab-rails/uploads nfs defaults,soft,rsize=1048576,wsize=1048576,noatime,nofail,lookupcache=positive 0 2
-    10.1.0.1:/var/opt/gitlab/gitlab-rails/shared /var/opt/gitlab/gitlab-rails/shared nfs defaults,soft,rsize=1048576,wsize=1048576,noatime,nofail,lookupcache=positive 0 2
-    10.1.0.1:/var/opt/gitlab/gitlab-ci/builds /var/opt/gitlab/gitlab-ci/builds nfs defaults,soft,rsize=1048576,wsize=1048576,noatime,nofail,lookupcache=positive 0 2
-    10.1.0.1:/var/opt/gitlab/git-data /var/opt/gitlab/git-data nfs defaults,soft,rsize=1048576,wsize=1048576,noatime,nofail,lookupcache=positive 0 2
+    10.1.0.1:/var/opt/gitlab/.ssh /var/opt/gitlab/.ssh nfs4 defaults,soft,rsize=1048576,wsize=1048576,noatime,nofail,lookupcache=positive 0 2
+    10.1.0.1:/var/opt/gitlab/gitlab-rails/uploads /var/opt/gitlab/gitlab-rails/uploads nfs4 defaults,soft,rsize=1048576,wsize=1048576,noatime,nofail,lookupcache=positive 0 2
+    10.1.0.1:/var/opt/gitlab/gitlab-rails/shared /var/opt/gitlab/gitlab-rails/shared nfs4 defaults,soft,rsize=1048576,wsize=1048576,noatime,nofail,lookupcache=positive 0 2
+    10.1.0.1:/var/opt/gitlab/gitlab-ci/builds /var/opt/gitlab/gitlab-ci/builds nfs4 defaults,soft,rsize=1048576,wsize=1048576,noatime,nofail,lookupcache=positive 0 2
+    10.1.0.1:/var/opt/gitlab/git-data /var/opt/gitlab/git-data nfs4 defaults,soft,rsize=1048576,wsize=1048576,noatime,nofail,lookupcache=positive 0 2
     ```
 
 1. Create the shared directories. These may be different depending on your NFS
@@ -85,13 +81,13 @@ for each GitLab application server in your environment.
     servers should point to the external url that users will use to access GitLab.
     In a typical HA setup, this will be the url of the load balancer which will
     route traffic to all GitLab application servers in the HA cluster.
-
+    > 
     > **Note:** When you specify `https` in the `external_url`, as in the example
     above, GitLab assumes you have SSL certificates in `/etc/gitlab/ssl/`. If
     certificates are not present, Nginx will fail to start. See
     [Nginx documentation](http://docs.gitlab.com/omnibus/settings/nginx.html#enable-https)
     for more information.
-    
+    >
     > **Note:** It is best to set the `uid` and `gid`s prior to the initial reconfigure of GitLab. Omnibus will not recursively `chown` directories if set after the initial reconfigure.
 
 ## First GitLab application server
@@ -122,7 +118,7 @@ need some extra configuration.
     gitlab_rails['db_key_base'] = 'bf2e47b68d6cafaef1d767e628b619365becf27571e10f196f98dc85e7771042b9203199d39aff91fcb6837c8ed83f2a912b278da50999bb11a2fbc0fba52964'
     ```
 
-1. Run `touch /etc/gitlab/skip-auto-migrations` to prevent database migrations
+1. Run `touch /etc/gitlab/skip-auto-reconfigure` to prevent database migrations
    from running on upgrade. Only the primary GitLab application server should
    handle migrations.
 
@@ -145,6 +141,14 @@ This particular directory does not exist on the NFS server. Ensure
 the share is exported and exists on the NFS server and try to remount.
 
 ---
+
+## Upgrading GitLab HA
+
+GitLab HA installations can be upgraded with no downtime, but the
+upgrade process must be carefully coordinated to avoid failures. See the
+[Omnibus GitLab multi-node upgrade
+document](https://docs.gitlab.com/omnibus/update/#multi-node--ha-deployment)
+for more details.
 
 Read more on high-availability configuration:
 

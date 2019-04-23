@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import DeployBoardInstance from 'ee/environments/components/deploy_board_instance_component.vue';
-import { folder } from 'spec/environments/mock_data';
+import { folder } from './mock_data';
 
 describe('Deploy Board Instance', () => {
   let DeployBoardInstanceComponent;
@@ -56,6 +56,8 @@ describe('Deploy Board Instance', () => {
       },
     }).$mount();
 
-    expect(component.computedLogPath).toEqual('/root/review-app/environments/12/logs?pod_name=tanuki-1');
+    expect(component.computedLogPath).toEqual(
+      '/root/review-app/environments/12/logs?pod_name=tanuki-1',
+    );
   });
 });

@@ -569,11 +569,58 @@ describe License do
           end
         end
       end
+
+      context 'when feature is disabled by a feature flag' do
+        it 'returns false' do
+          feature = license.features.first
+          stub_feature_flags(feature => false)
+
+          expect(license.features).not_to receive(:include?)
+
+          expect(license.feature_available?(feature)).to eq(false)
+        end
+      end
+
+      context 'when feature is enabled by a feature flag' do
+        it 'returns true' do
+          feature = license.features.first
+          stub_feature_flags(feature => true)
+
+          expect(license.feature_available?(feature)).to eq(true)
+        end
+      end
     end
 
     def build_license_with_add_ons(add_ons, plan: nil)
       gl_license = build(:gitlab_license, restrictions: { add_ons: add_ons, plan: plan })
       build(:license, data: gl_license.export)
+    end
+  end
+
+  describe '#overage' do
+    it 'returns 0 if restricted_user_count is nil' do
+      allow(license).to receive(:restricted_user_count) { nil }
+
+      expect(license.overage).to eq(0)
+    end
+
+    it 'returns the difference between user_count and restricted_user_count' do
+      allow(license).to receive(:restricted_user_count) { 10 }
+
+      expect(license.overage(14)).to eq(4)
+    end
+
+    it 'returns the difference using current_active_users_count as user_count if no user_count argument provided' do
+      allow(license).to receive(:current_active_users_count) { 110 }
+      allow(license).to receive(:restricted_user_count) { 100 }
+
+      expect(license.overage).to eq(10)
+    end
+
+    it 'returns 0 if the difference is a negative number' do
+      allow(license).to receive(:restricted_user_count) { 2 }
+
+      expect(license.overage(1)).to eq(0)
     end
   end
 

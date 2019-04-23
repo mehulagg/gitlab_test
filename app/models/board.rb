@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-class Board < ActiveRecord::Base
-  prepend EE::Board
-
+class Board < ApplicationRecord
   belongs_to :group
   belongs_to :project
 
@@ -23,6 +21,10 @@ class Board < ActiveRecord::Base
     group_id.present?
   end
 
+  def project_board?
+    project_id.present?
+  end
+
   def backlog_list
     lists.merge(List.backlog).take
   end
@@ -35,3 +37,5 @@ class Board < ActiveRecord::Base
     false
   end
 end
+
+Board.prepend(EE::Board)

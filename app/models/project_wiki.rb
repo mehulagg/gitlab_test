@@ -4,9 +4,6 @@ class ProjectWiki
   include Gitlab::ShellAdapter
   include Storage::LegacyProjectWiki
 
-  # EE only modules
-  include Elastic::WikiRepositoriesSearch
-
   MARKUPS = {
     'Markdown' => :markdown,
     'RDoc'     => :rdoc,
@@ -15,6 +12,11 @@ class ProjectWiki
 
   CouldNotCreateWikiError = Class.new(StandardError)
   SIDEBAR = '_sidebar'
+
+  TITLE_ORDER = 'title'
+  CREATED_AT_ORDER = 'created_at'
+  DIRECTION_DESC = 'desc'
+  DIRECTION_ASC = 'asc'
 
   # Returns a string describing what went wrong after
   # an operation fails.
@@ -55,11 +57,6 @@ class ProjectWiki
     "#{Gitlab.config.gitlab.url}/#{full_path}.git"
   end
 
-  # No need to have a Kerberos Web url. Kerberos URL will be used only to clone
-  def kerberos_url_to_repo
-    [Gitlab.config.build_gitlab_kerberos_url, '/', full_path, '.git'].join('')
-  end
-
   def wiki_base_path
     [Gitlab.config.gitlab.relative_url_root, '/', @project.full_path, '/wikis'].join('')
   end
@@ -67,8 +64,8 @@ class ProjectWiki
   # Returns the Gitlab::Git::Wiki object.
   def wiki
     @wiki ||= begin
-      gl_repository = Gitlab::GlRepository.gl_repository(project, true)
-      raw_repository = Gitlab::Git::Repository.new(project.repository_storage, disk_path + '.git', gl_repository)
+      gl_repository = Gitlab::GlRepository::WIKI.identifier_for_subject(project)
+      raw_repository = Gitlab::Git::Repository.new(project.repository_storage, disk_path + '.git', gl_repository, full_path)
 
       create_repo!(raw_repository) unless raw_repository.exists?
 
@@ -88,10 +85,17 @@ class ProjectWiki
     pages(limit: 1).empty?
   end
 
-  # Returns an Array of Gitlab WikiPage instances or an
+  # Returns an Array of GitLab WikiPage instances or an
   # empty Array if this Wiki has no pages.
-  def pages(limit: 0)
-    wiki.pages(limit: limit).map { |page| WikiPage.new(self, page, true) }
+  def pages(limit: 0, sort: nil, direction: DIRECTION_ASC)
+    sort ||= TITLE_ORDER
+    direction_desc = direction == DIRECTION_DESC
+
+    wiki.pages(
+      limit: limit, sort: sort, direction_desc: direction_desc
+    ).map do |page|
+      WikiPage.new(self, page, true)
+    end
   end
 
   # Finds a page within the repository based on a tile
@@ -122,8 +126,6 @@ class ProjectWiki
 
     wiki.write_page(title, format.to_sym, content, commit)
 
-    update_elastic_index
-
     update_project_activity
   rescue Gitlab::Git::Wiki::DuplicatePageError => e
     @error_message = "Duplicate page: #{e.message}"
@@ -135,8 +137,6 @@ class ProjectWiki
 
     wiki.update_page(page.path, title || page.name, format.to_sym, content, commit)
 
-    update_elastic_index
-
     update_project_activity
   end
 
@@ -144,8 +144,6 @@ class ProjectWiki
     return unless page
 
     wiki.delete_page(page.path, commit_details(:deleted, message, page.title))
-
-    update_elastic_index
 
     update_project_activity
   end
@@ -165,7 +163,7 @@ class ProjectWiki
   end
 
   def repository
-    @repository ||= Repository.new(full_path, @project, disk_path: disk_path, is_wiki: true)
+    @repository ||= Repository.new(full_path, @project, disk_path: disk_path, repo_type: Gitlab::GlRepository::WIKI)
   end
 
   def default_branch
@@ -189,7 +187,7 @@ class ProjectWiki
   private
 
   def create_repo!(raw_repository)
-    gitlab_shell.create_repository(project.repository_storage, disk_path)
+    gitlab_shell.create_wiki_repository(project)
 
     raise CouldNotCreateWikiError unless raw_repository.exists?
 
@@ -197,12 +195,13 @@ class ProjectWiki
   end
 
   def commit_details(action, message = nil, title = nil)
-    commit_message = message || default_message(action, title)
+    commit_message = message.presence || default_message(action, title)
+    git_user = Gitlab::Git::User.from_gitlab(@user)
 
     Gitlab::Git::Wiki::CommitDetails.new(@user.id,
-                                         @user.username,
-                                         @user.name,
-                                         @user.email,
+                                         git_user.username,
+                                         git_user.name,
+                                         git_user.email,
                                          commit_message)
   end
 
@@ -213,16 +212,6 @@ class ProjectWiki
   def update_project_activity
     @project.touch(:last_activity_at, :last_repository_updated_at)
   end
-
-  # EE only
-
-  def update_elastic_index
-    index_blobs if Gitlab::CurrentSettings.elasticsearch_indexing?
-  end
-
-  def path_to_repo
-    @path_to_repo ||=
-      File.join(Gitlab.config.repositories.storages[project.repository_storage].legacy_disk_path,
-                "#{disk_path}.git")
-  end
 end
+
+ProjectWiki.prepend(EE::ProjectWiki)

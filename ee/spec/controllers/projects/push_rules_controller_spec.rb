@@ -12,14 +12,14 @@ describe Projects::PushRulesController do
 
   describe '#update' do
     def do_update
-      patch :update, namespace_id: project.namespace, project_id: project, id: 1, push_rule: { prevent_secrets: true }
+      patch :update, params: { namespace_id: project.namespace, project_id: project, id: 1, push_rule: { prevent_secrets: true } }
     end
 
     it 'updates the push rule' do
       do_update
 
       expect(response).to have_gitlab_http_status(302)
-      expect(project.push_rule(true).prevent_secrets).to be_truthy
+      expect(project.reload_push_rule.prevent_secrets).to be_truthy
     end
 
     context 'push rules unlicensed' do
@@ -40,9 +40,9 @@ describe Projects::PushRulesController do
           let(:user) { create(:admin) }
 
           it 'updates the setting' do
-            patch :update, namespace_id: project.namespace, project_id: project, id: 1, push_rule: { rule_attr => true }
+            patch :update, params: { namespace_id: project.namespace, project_id: project, id: 1, push_rule: { rule_attr => true } }
 
-            expect(project.push_rule(true).public_send(rule_attr)).to be_truthy
+            expect(project.reload_push_rule.public_send(rule_attr)).to be_truthy
           end
         end
 
@@ -53,9 +53,9 @@ describe Projects::PushRulesController do
 
           context 'when global setting is disabled' do
             it 'updates the setting' do
-              patch :update, namespace_id: project.namespace, project_id: project, id: 1, push_rule: { rule_attr => true }
+              patch :update, params: { namespace_id: project.namespace, project_id: project, id: 1, push_rule: { rule_attr => true } }
 
-              expect(project.push_rule(true).public_send(rule_attr)).to be_truthy
+              expect(project.reload_push_rule.public_send(rule_attr)).to be_truthy
             end
           end
 
@@ -65,9 +65,9 @@ describe Projects::PushRulesController do
             end
 
             it 'does not update the setting' do
-              patch :update, namespace_id: project.namespace, project_id: project, id: 1, push_rule: { rule_attr => false }
+              patch :update, params: { namespace_id: project.namespace, project_id: project, id: 1, push_rule: { rule_attr => false } }
 
-              expect(project.push_rule(true).public_send(rule_attr)).to be_truthy
+              expect(project.reload_push_rule.public_send(rule_attr)).to be_truthy
             end
           end
         end
@@ -78,9 +78,9 @@ describe Projects::PushRulesController do
           end
 
           it 'does not update the setting' do
-            patch :update, namespace_id: project.namespace, project_id: project, id: 1, push_rule: { rule_attr => true }
+            patch :update, params: { namespace_id: project.namespace, project_id: project, id: 1, push_rule: { rule_attr => true } }
 
-            expect(project.push_rule(true).public_send(rule_attr)).to be_falsy
+            expect(project.reload_push_rule.public_send(rule_attr)).to be_falsy
           end
         end
       end

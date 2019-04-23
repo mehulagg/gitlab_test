@@ -11,6 +11,7 @@ const createComponent = () => {
     nodes: mockNodes,
     nodeActionsAllowed: true,
     nodeEditAllowed: true,
+    geoTroubleshootingHelpPath: '/foo/bar',
   });
 };
 
@@ -18,6 +19,7 @@ describe('GeoNodesListComponent', () => {
   describe('template', () => {
     it('renders container element correctly', () => {
       const vm = createComponent();
+
       expect(vm.$el.classList.contains('card')).toBe(true);
       vm.$destroy();
     });

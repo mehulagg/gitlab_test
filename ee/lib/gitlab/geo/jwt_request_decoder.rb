@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Gitlab
   module Geo
     class JwtRequestDecoder
@@ -63,12 +65,14 @@ module Gitlab
         end
       end
 
+      # rubocop: disable CodeReuse/ActiveRecord
       def hmac_secret(access_key)
         @hmac_secret ||= begin
                            geo_node = GeoNode.find_by(access_key: access_key, enabled: true)
                            geo_node&.secret_access_key
                          end
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       def decode_auth_header
         return unless auth_header.present?
@@ -78,7 +82,7 @@ module Gitlab
         return unless tokens.count == 2
         return unless tokens[0] == Gitlab::Geo::BaseRequest::GITLAB_GEO_AUTH_TOKEN_TYPE
 
-        # Split at the first occurence of a colon
+        # Split at the first occurrence of a colon
         geo_tokens = tokens[1].split(':', 2)
 
         return unless geo_tokens.count == 2

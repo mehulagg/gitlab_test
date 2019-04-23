@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Lfs::LockFileService do
@@ -55,26 +57,6 @@ describe Lfs::LockFileService do
           allow_any_instance_of(described_class).to receive(:create_lock!).and_raise(StandardError)
 
           expect(subject.execute[:status]).to eq(:error)
-        end
-      end
-
-      context 'when File Locking is available' do
-        before do
-          stub_licensed_features(file_locks: true)
-        end
-
-        it 'creates the Path Lock' do
-          expect { subject.execute }.to change { PathLock.count }.to(1)
-        end
-      end
-
-      context 'when File Locking is not available' do
-        before do
-          stub_licensed_features(file_locks: false)
-        end
-
-        it 'creates the Path Lock' do
-          expect { subject.execute }.not_to change { PathLock.count }
         end
       end
     end

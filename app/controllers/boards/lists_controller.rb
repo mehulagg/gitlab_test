@@ -1,7 +1,7 @@
+# frozen_string_literal: true
+
 module Boards
   class ListsController < Boards::ApplicationController
-    prepend ::EE::Boards::ListsController
-
     include BoardsResponses
 
     before_action :authorize_admin_list, only: [:create, :update, :destroy, :generate]
@@ -83,3 +83,5 @@ module Boards
     end
   end
 end
+
+Boards::ListsController.prepend(EE::Boards::ListsController)

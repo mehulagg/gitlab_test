@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Gitlab
   module Elastic
     # Always prefer to use the full class namespace when specifying a
@@ -5,6 +7,9 @@ module Gitlab
     # different order between execution environments.
     class ProjectSearchResults < Gitlab::Elastic::SearchResults
       attr_reader :project, :repository_ref
+
+      delegate :users, to: :generic_search_results
+      delegate :limited_users_count, to: :generic_search_results
 
       def initialize(current_user, query, project_id, repository_ref = nil)
         @current_user = current_user
@@ -24,9 +29,15 @@ module Gitlab
           wiki_blobs.page(page).per(per_page)
         when 'commits'
           commits(page: page, per_page: per_page)
+        when 'users'
+          users.page(page).per(per_page)
         else
           super
         end
+      end
+
+      def generic_search_results
+        @generic_search_results ||= Gitlab::ProjectSearchResults.new(current_user, project, query, repository_ref)
       end
 
       def blobs_count
@@ -75,9 +86,9 @@ module Gitlab
         if project.wiki_enabled? && !project.wiki.empty? && query.present?
           project.wiki.search(
             query,
-            type: :blob,
+            type: :wiki_blob,
             options: { highlight: true }
-          )[:blobs][:results].response
+          )[:wiki_blobs][:results].response
         else
           Kaminari.paginate_array([])
         end

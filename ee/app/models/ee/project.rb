@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   # Project EE mixin
   #
@@ -8,11 +10,19 @@ module EE
     extend ::Gitlab::Utils::Override
     extend ::Gitlab::Cache::RequestCache
     include ::Gitlab::Utils::StrongMemoize
+    include ::EE::GitlabRoutingHelper # rubocop: disable Cop/InjectEnterpriseEditionModule
+
+    GIT_LFS_DOWNLOAD_OPERATION = 'download'.freeze
 
     prepended do
       include Elastic::ProjectsSearch
-      include EE::DeploymentPlatform
+      include EE::DeploymentPlatform # rubocop: disable Cop/InjectEnterpriseEditionModule
       include EachBatch
+      include InsightsFeature
+
+      ignore_column :mirror_last_update_at,
+        :mirror_last_successful_update_at,
+        :next_execution_timestamp
 
       before_save :set_override_pull_mirror_available, unless: -> { ::Gitlab::CurrentSettings.mirror_available }
       before_save :set_next_execution_timestamp_to_now, if: ->(project) { project.mirror? && project.mirror_changed? && project.import_state }
@@ -29,49 +39,74 @@ module EE
       has_one :jenkins_service
       has_one :jenkins_deprecated_service
       has_one :github_service
+      has_one :gitlab_slack_application_service
+      has_one :tracing_setting, class_name: 'ProjectTracingSetting'
+      has_one :alerting_setting, inverse_of: :project, class_name: 'Alerting::ProjectAlertingSetting'
+      has_one :incident_management_setting, inverse_of: :project, class_name: 'IncidentManagement::ProjectIncidentManagementSetting'
+      has_one :feature_usage, class_name: 'ProjectFeatureUsage'
 
+      has_many :reviews, inverse_of: :project
       has_many :approvers, as: :target, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
+      has_many :approver_users, through: :approvers, source: :user
       has_many :approver_groups, as: :target, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
+      has_many :approval_rules, class_name: 'ApprovalProjectRule'
       has_many :audit_events, as: :entity
       has_many :path_locks
-      has_many :vulnerability_feedback
+      has_many :vulnerability_feedback, class_name: 'Vulnerabilities::Feedback'
+      has_many :vulnerabilities, class_name: 'Vulnerabilities::Occurrence'
+      has_many :vulnerability_identifiers, class_name: 'Vulnerabilities::Identifier'
+      has_many :vulnerability_scanners, class_name: 'Vulnerabilities::Scanner'
       has_many :protected_environments
       has_many :software_license_policies, inverse_of: :project, class_name: 'SoftwareLicensePolicy'
       accepts_nested_attributes_for :software_license_policies, allow_destroy: true
       has_many :packages, class_name: 'Packages::Package'
+      has_many :package_files, through: :packages, class_name: 'Packages::PackageFile'
 
       has_many :sourced_pipelines, class_name: 'Ci::Sources::Pipeline', foreign_key: :source_project_id
 
       has_many :source_pipelines, class_name: 'Ci::Sources::Pipeline', foreign_key: :project_id
 
+      has_many :webide_pipelines, -> { webide_source }, class_name: 'Ci::Pipeline', inverse_of: :project
+
       has_many :prometheus_alerts, inverse_of: :project
+      has_many :prometheus_alert_events, inverse_of: :project
+
+      has_many :operations_feature_flags, class_name: 'Operations::FeatureFlag'
+      has_one :operations_feature_flags_client, class_name: 'Operations::FeatureFlagsClient'
 
       scope :with_shared_runners_limit_enabled, -> { with_shared_runners.non_public_only }
 
       scope :mirror, -> { where(mirror: true) }
 
-      scope :inner_joins_import_state, -> { joins("INNER JOIN project_mirror_data import_state ON import_state.project_id = projects.id") }
-
       scope :mirrors_to_sync, ->(freeze_at) do
         mirror
-          .inner_joins_import_state
+          .joins_import_state
           .where.not(import_state: { status: [:scheduled, :started] })
           .where("import_state.next_execution_timestamp <= ?", freeze_at)
           .where("import_state.retry_count <= ?", ::Gitlab::Mirror::MAX_RETRY)
       end
 
-      scope :with_wiki_enabled,   -> { with_feature_enabled(:wiki) }
-
-      scope :verified_repos, -> { joins(:repository_state).merge(ProjectRepositoryState.verified_repos) }
-      scope :verified_wikis, -> { joins(:repository_state).merge(ProjectRepositoryState.verified_wikis) }
+      scope :with_wiki_enabled, -> { with_feature_enabled(:wiki) }
+      scope :within_shards, -> (shard_names) { where(repository_storage: Array(shard_names)) }
       scope :verification_failed_repos, -> { joins(:repository_state).merge(ProjectRepositoryState.verification_failed_repos) }
       scope :verification_failed_wikis, -> { joins(:repository_state).merge(ProjectRepositoryState.verification_failed_wikis) }
+      scope :for_plan_name, -> (name) { joins(namespace: :plan).where(plans: { name: name }) }
+      scope :requiring_code_owner_approval,
+            -> { where(merge_requests_require_code_owner_approval: true) }
 
       delegate :shared_runners_minutes, :shared_runners_seconds, :shared_runners_seconds_last_reset,
         to: :statistics, allow_nil: true
 
       delegate :actual_shared_runners_minutes_limit,
         :shared_runners_minutes_used?, to: :shared_runners_limit_namespace
+
+      delegate :last_update_succeeded?, :last_update_failed?,
+        :ever_updated_successfully?, :hard_failed?,
+        to: :import_state, prefix: :mirror, allow_nil: true
+
+      delegate :log_jira_dvcs_integration_usage, :jira_dvcs_server_last_sync_at, :jira_dvcs_cloud_last_sync_at, to: :feature_usage
+
+      delegate :merge_pipelines_enabled, :merge_pipelines_enabled=, :merge_pipelines_enabled?, to: :ci_cd_settings
 
       validates :repository_size_limit,
         numericality: { only_integer: true, greater_than_or_equal_to: 0, allow_nil: true }
@@ -82,9 +117,19 @@ module EE
         validates :import_url, presence: true
         validates :mirror_user, presence: true
       end
+
+      default_value_for :packages_enabled, true
+
+      delegate :store_security_reports_available?, to: :namespace
+
+      accepts_nested_attributes_for :tracing_setting, update_only: true, allow_destroy: true
+      accepts_nested_attributes_for :alerting_setting, update_only: true
+      accepts_nested_attributes_for :incident_management_setting, update_only: true
+
+      alias_attribute :fallback_approvals_required, :approvals_before_merge
     end
 
-    module ClassMethods
+    class_methods do
       def search_by_visibility(level)
         where(visibility_level: ::Gitlab::VisibilityLevel.string_options[level])
       end
@@ -95,15 +140,13 @@ module EE
       end
     end
 
-    def security_reports_feature_available?
-      feature_available?(:sast) ||
-        feature_available?(:dependency_scanning) ||
-        feature_available?(:sast_container) ||
-        feature_available?(:dast)
+    def tracing_external_url
+      self.tracing_setting.try(:external_url)
     end
 
     def latest_pipeline_with_security_reports
-      pipelines.newest_first(default_branch).with_security_reports.first
+      ci_pipelines.newest_first(ref: default_branch).with_reports(::Ci::JobArtifact.security_reports).first ||
+        ci_pipelines.newest_first(ref: default_branch).with_legacy_security_reports.first
     end
 
     def environments_for_scope(scope)
@@ -119,7 +162,7 @@ module EE
     end
 
     def shared_runners_limit_namespace
-      if Feature.enabled?(:shared_runner_minutes_on_root_namespace)
+      if ::Feature.enabled?(:shared_runner_minutes_on_root_namespace)
         root_namespace
       else
         namespace
@@ -131,99 +174,8 @@ module EE
     end
     alias_method :mirror?, :mirror
 
-    def mirror_updated?
-      mirror? && self.mirror_last_update_at
-    end
-
-    def mirror_waiting_duration
-      return unless mirror?
-
-      (import_state.last_update_started_at.to_i -
-        import_state.last_update_scheduled_at.to_i).seconds
-    end
-
-    def mirror_update_duration
-      return unless mirror?
-
-      (mirror_last_update_at.to_i -
-        import_state.last_update_started_at.to_i).seconds
-    end
-
     def mirror_with_content?
       mirror? && !empty_repo?
-    end
-
-    def import_state_args
-      super.merge(last_update_at: self[:mirror_last_update_at],
-                  last_successful_update_at: self[:mirror_last_successful_update_at])
-    end
-
-    def mirror_last_update_at=(new_value)
-      ensure_import_state
-
-      import_state&.last_update_at = new_value
-    end
-
-    def mirror_last_update_at
-      ensure_import_state
-
-      import_state&.last_update_at
-    end
-
-    def mirror_last_successful_update_at=(new_value)
-      ensure_import_state
-
-      import_state&.last_successful_update_at = new_value
-    end
-
-    def mirror_last_successful_update_at
-      ensure_import_state
-
-      import_state&.last_successful_update_at
-    end
-
-    override :import_in_progress?
-    def import_in_progress?
-      # If we're importing while we do have a repository, we're simply updating the mirror.
-      super && !mirror_with_content?
-    end
-
-    def mirror_about_to_update?
-      return false unless mirror_with_content?
-      return false if mirror_hard_failed?
-      return false if updating_mirror?
-
-      self.import_state.next_execution_timestamp <= Time.now
-    end
-
-    def updating_mirror?
-      (import_scheduled? || import_started?) && mirror_with_content?
-    end
-
-    def mirror_last_update_status
-      return unless mirror_updated?
-
-      if self.mirror_last_update_at == self.mirror_last_successful_update_at
-        :success
-      else
-        :failed
-      end
-    end
-
-    def mirror_last_update_succeeded?
-      mirror_last_update_status == :success
-    end
-
-    def mirror_last_update_failed?
-      mirror_last_update_status == :failed
-    end
-
-    def mirror_ever_updated_successfully?
-      mirror_updated? && self.mirror_last_successful_update_at
-    end
-
-    def mirror_hard_failed?
-      self.import_state.retry_limit_exceeded?
     end
 
     def fetch_mirror
@@ -248,16 +200,39 @@ module EE
       super && !shared_runners_limit_namespace.shared_runners_minutes_used?
     end
 
+    def link_pool_repository
+      super
+      repository.log_geo_updated_event
+    end
+
+    def object_pool_missing?
+      has_pool_repository? && !pool_repository.object_pool.exists?
+    end
+
     def shared_runners_minutes_limit_enabled?
       !public? && shared_runners_enabled? &&
         shared_runners_limit_namespace.shared_runners_minutes_limit_enabled?
     end
 
+    # This makes the feature disabled by default, in contrary to how
+    # `#feature_available?` makes a feature enabled by default.
+    #
+    # This allows to:
+    # - Enable the feature flag for a given project, regardless of the license.
+    #   This is useful for early testing a feature in production on a given project.
+    # - Enable the feature flag globally and still check that the license allows
+    #   it. This is the case when we're ready to enable a feature for anyone
+    #   with the correct license.
+    def beta_feature_available?(feature)
+      ::Feature.enabled?(feature, self) ||
+        (::Feature.enabled?(feature) && feature_available?(feature))
+    end
+
     def feature_available?(feature, user = nil)
-      if ProjectFeature::FEATURES.include?(feature)
+      if ::ProjectFeature::FEATURES.include?(feature)
         super
       else
-        licensed_feature_available?(feature)
+        licensed_feature_available?(feature, user)
       end
     end
 
@@ -266,31 +241,26 @@ module EE
       feature_available?(:multiple_project_issue_boards)
     end
 
+    def multiple_approval_rules_available?
+      feature_available?(:multiple_approval_rules)
+    end
+
+    def code_owner_approval_required_available?
+      feature_available?(:code_owner_approval_required)
+    end
+
     def service_desk_enabled
       ::EE::Gitlab::ServiceDesk.enabled?(project: self) && super
     end
     alias_method :service_desk_enabled?, :service_desk_enabled
 
     def service_desk_address
-      return nil unless service_desk_enabled?
+      return unless service_desk_enabled?
 
       config = ::Gitlab.config.incoming_email
       wildcard = ::Gitlab::IncomingEmail::WILDCARD_PLACEHOLDER
 
-      config.address&.gsub(wildcard, full_path)
-    end
-
-    def force_import_job!
-      return if mirror_about_to_update? || updating_mirror?
-
-      import_state = self.import_state
-
-      import_state.set_next_execution_to_now
-      import_state.reset_retry_count if import_state.retry_limit_exceeded?
-
-      import_state.save!
-
-      UpdateAllMirrorsWorker.perform_async
+      config.address&.gsub(wildcard, "#{full_path_slug}-#{id}-issue-")
     end
 
     override :add_import_job
@@ -309,7 +279,7 @@ module EE
       end
     end
 
-    def secret_variables_for(ref:, environment: nil)
+    def ci_variables_for(ref:, environment: nil)
       return super.where(environment_scope: '*') unless
         environment && feature_available?(:variable_environment_scope)
 
@@ -352,6 +322,25 @@ module EE
       super
     end
 
+    def visible_regular_approval_rules
+      return approval_rules.none unless ::Feature.enabled?(:approval_rules, self, default_enabled: true)
+
+      strong_memoize(:visible_regular_approval_rules) do
+        regular_rules = approval_rules.regular.order(:id)
+
+        next regular_rules.take(1) unless multiple_approval_rules_available?
+
+        regular_rules
+      end
+    end
+
+    def min_fallback_approvals
+      strong_memoize(:min_fallback_approvals) do
+        visible_regular_approval_rules.map(&:approvals_required).max ||
+          approvals_before_merge.to_i
+      end
+    end
+
     def reset_approvals_on_push
       super && feature_available?(:merge_request_approvers)
     end
@@ -367,6 +356,10 @@ module EE
       ::Gitlab::Utils.ensure_array_from_string(value).each do |group_id|
         approver_groups.find_or_initialize_by(group_id: group_id, target_id: id)
       end
+    end
+
+    def merge_requests_require_code_owner_approval?
+      super && code_owner_approval_required_available?
     end
 
     def find_path_lock(path, exact_match: false, downstream: false)
@@ -484,13 +477,6 @@ module EE
         ::Gitlab::CurrentSettings.mirror_available
     end
 
-    def external_authorization_classification_label
-      return nil unless License.feature_available?(:external_authorization_service)
-
-      super || ::Gitlab::CurrentSettings.current_application_settings
-                 .external_authorization_service_default_label
-    end
-
     override :licensed_features
     def licensed_features
       return super unless License.current
@@ -512,7 +498,7 @@ module EE
     end
 
     def protected_environment_by_name(environment_name)
-      return nil unless protected_environments_feature_available?
+      return unless protected_environments_feature_available?
 
       protected_environments.find_by(name: environment_name)
     end
@@ -520,7 +506,8 @@ module EE
     override :after_import
     def after_import
       super
-      log_geo_events
+      repository.log_geo_updated_event
+      wiki.repository.log_geo_updated_event
     end
 
     override :import?
@@ -534,7 +521,64 @@ module EE
     end
 
     def protected_environments_feature_available?
-      Feature.enabled?('protected_environments') && feature_available?(:protected_environments)
+      feature_available?(:protected_environments)
+    end
+
+    def merge_pipelines_enabled?
+      feature_available?(:merge_pipelines) && super
+    end
+
+    # Because we use default_value_for we need to be sure
+    # packages_enabled= method does exist even if we rollback migration.
+    # Otherwise many tests from spec/migrations will fail.
+    def packages_enabled=(value)
+      if has_attribute?(:packages_enabled)
+        write_attribute(:packages_enabled, value)
+      end
+    end
+
+    # Update the default branch querying the remote to determine its HEAD
+    def update_root_ref(remote_name)
+      root_ref = repository.find_remote_root_ref(remote_name)
+      change_head(root_ref) if root_ref.present?
+    end
+
+    def feature_flags_client_token
+      instance = operations_feature_flags_client || create_operations_feature_flags_client!
+      instance.token
+    end
+
+    def root_namespace
+      if namespace.has_parent?
+        namespace.root_ancestor
+      else
+        namespace
+      end
+    end
+
+    def active_webide_pipelines(user:)
+      webide_pipelines.running_or_pending.for_user(user)
+    end
+
+    override :lfs_http_url_to_repo
+    def lfs_http_url_to_repo(operation)
+      return super unless ::Gitlab::Geo.secondary_with_primary?
+      return super if operation == GIT_LFS_DOWNLOAD_OPERATION # download always comes from secondary
+
+      geo_primary_http_url_to_repo(self)
+    end
+
+    def feature_usage
+      super.presence || build_feature_usage
+    end
+
+    def design_management_enabled?
+      # Checking both feature availability on the license, as well as the feature
+      # flag, because we don't want to enable design_management by default on
+      # on prem installs yet.
+      # GraphQL is also required for using Design Management
+      feature_available?(:design_management) && ::Feature.enabled?(:design_management, self) &&
+        ::Gitlab::Graphql.enabled?
     end
 
     private
@@ -548,10 +592,13 @@ module EE
       import_state.set_next_execution_to_now
     end
 
-    def licensed_feature_available?(feature)
+    def licensed_feature_available?(feature, user = nil)
+      # This feature might not be behind a feature flag at all, so default to true
+      return false unless ::Feature.enabled?(feature, user, default_enabled: true)
+
       available_features = strong_memoize(:licensed_feature_available) do
-        Hash.new do |h, feature|
-          h[feature] = load_licensed_feature_available(feature)
+        Hash.new do |h, f|
+          h[f] = load_licensed_feature_available(f)
         end
       end
 
@@ -571,24 +618,6 @@ module EE
 
     def validate_board_limit(board)
       # Board limits are disabled in EE, so this method is just a no-op.
-    end
-
-    def log_geo_events
-      return unless ::Gitlab::Geo.primary?
-
-      ::Geo::RepositoryUpdatedService.new(self, source: ::Geo::RepositoryUpdatedEvent::REPOSITORY).execute
-      ::Geo::RepositoryUpdatedService.new(self, source: ::Geo::RepositoryUpdatedEvent::WIKI).execute
-    end
-
-    override :after_rename_repository
-    def after_rename_repository(full_path_before, path_before)
-      super(full_path_before, path_before)
-
-      ::Geo::RepositoryRenamedEventStore.new(
-        self,
-        old_path: path_before,
-        old_path_with_namespace: full_path_before
-      ).create
     end
   end
 end

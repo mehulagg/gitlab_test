@@ -12,13 +12,13 @@ describe SearchHelper do
         allow(self).to receive(:current_user).and_return(nil)
       end
 
-      it "it returns nil" do
+      it "returns nil" do
         expect(search_autocomplete_opts("q")).to be_nil
       end
     end
 
     context "with a standard user" do
-      let(:user)   { create(:user) }
+      let(:user) { create(:user) }
 
       before do
         allow(self).to receive(:current_user).and_return(user)
@@ -133,6 +133,41 @@ describe SearchHelper do
 
       it 'includes group base-endpoint' do
         expect(search_filter_input_options('')[:data]['base-endpoint']).to eq("/groups#{group_path(@group)}")
+      end
+    end
+
+    context 'dashboard' do
+      it 'does not include group-id and project-id' do
+        expect(search_filter_input_options('')[:data]['project-id']).to eq(nil)
+        expect(search_filter_input_options('')[:data]['group-id']).to eq(nil)
+      end
+
+      it 'includes dashboard base-endpoint' do
+        expect(search_filter_input_options('')[:data]['base-endpoint']).to eq("/dashboard")
+      end
+    end
+  end
+
+  describe 'search_history_storage_prefix' do
+    context 'project' do
+      it 'returns project full_path' do
+        @project = create(:project, :repository)
+
+        expect(search_history_storage_prefix).to eq(@project.full_path)
+      end
+    end
+
+    context 'group' do
+      it 'returns group full_path' do
+        @group = create(:group, :nested, name: 'group-name')
+
+        expect(search_history_storage_prefix).to eq(@group.full_path)
+      end
+    end
+
+    context 'dashboard' do
+      it 'returns dashboard' do
+        expect(search_history_storage_prefix).to eq("dashboard")
       end
     end
   end

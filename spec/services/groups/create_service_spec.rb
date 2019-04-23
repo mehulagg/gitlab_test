@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Groups::CreateService, '#execute' do
@@ -55,7 +57,7 @@ describe Groups::CreateService, '#execute' do
 
       context 'when nested groups feature is disabled' do
         it 'does not save group and returns an error' do
-          allow(Group).to receive(:supports_nested_groups?).and_return(false)
+          allow(Group).to receive(:supports_nested_objects?).and_return(false)
 
           is_expected.not_to be_persisted
           expect(subject.errors[:parent_id]).to include('You don’t have permission to create a subgroup in this group.')
@@ -66,7 +68,7 @@ describe Groups::CreateService, '#execute' do
 
     context 'when nested groups feature is enabled' do
       before do
-        allow(Group).to receive(:supports_nested_groups?).and_return(true)
+        allow(Group).to receive(:supports_nested_objects?).and_return(true)
       end
 
       context 'as guest' do
@@ -88,28 +90,14 @@ describe Groups::CreateService, '#execute' do
     end
   end
 
-  context 'repository_size_limit assignment as Bytes' do
-    let(:admin_user) { create(:user, admin: true) }
-    let(:service) { described_class.new(admin_user, group_params.merge(opts)) }
+  describe "when visibility level is passed as a string" do
+    let(:service) { described_class.new(user, group_params) }
+    let(:group_params) { { path: 'group_path', visibility: 'public' } }
 
-    context 'when param present' do
-      let(:opts) { { repository_size_limit: '100' } }
+    it "assigns the correct visibility level" do
+      group = service.execute
 
-      it 'assign repository_size_limit as Bytes' do
-        group = service.execute
-
-        expect(group.repository_size_limit).to eql(100 * 1024 * 1024)
-      end
-    end
-
-    context 'when param not present' do
-      let(:opts) { { repository_size_limit: '' } }
-
-      it 'assign nil value' do
-        group = service.execute
-
-        expect(group.repository_size_limit).to be_nil
-      end
+      expect(group.visibility_level).to eq(Gitlab::VisibilityLevel::PUBLIC)
     end
   end
 

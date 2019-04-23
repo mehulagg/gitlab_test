@@ -24,7 +24,7 @@ describe 'Project mirror', :js do
         it 'forces import' do
           import_state.update(last_update_at: timestamp - 8.minutes)
 
-          expect_any_instance_of(EE::Project).to receive(:force_import_job!)
+          expect_any_instance_of(EE::ProjectImportState).to receive(:force_import_job!)
 
           Timecop.freeze(timestamp) do
             visit project_mirror_path(project)
@@ -38,7 +38,7 @@ describe 'Project mirror', :js do
         it 'does not force import' do
           import_state.update(last_update_at: timestamp - 3.minutes)
 
-          expect_any_instance_of(EE::Project).not_to receive(:force_import_job!)
+          expect_any_instance_of(EE::ProjectImportState).not_to receive(:force_import_job!)
 
           Timecop.freeze(timestamp) do
             visit project_mirror_path(project)
@@ -54,7 +54,7 @@ describe 'Project mirror', :js do
   describe 'configuration' do
     # Start from a project with no mirroring set up
     let(:project) { create(:project, :repository, creator: user) }
-    let(:import_data) { project.import_data(true) }
+    let(:import_data) { project.reload_import_data }
 
     before do
       project.add_maintainer(user)
@@ -98,6 +98,39 @@ describe 'Project mirror', :js do
         expect(import_data.auth_method).to eq('password')
         expect(project.import_url).to eq('http://2.example.com')
       end
+
+      it 'can be recreated after an SSH mirror is set' do
+        visit project_settings_repository_path(project)
+
+        page.within('.project-mirror-settings') do
+          fill_in 'Git repository URL', with: 'ssh://user@example.com'
+          select('Pull', from: 'Mirror direction')
+          select 'SSH public key', from: 'Authentication method'
+
+          # Generates an SSH public key with an asynchronous PUT and displays it
+          wait_for_requests
+
+          click_without_sidekiq 'Mirror repository'
+        end
+
+        expect(page).to have_content('Mirroring settings were successfully updated')
+
+        find('.js-delete-pull-mirror').click
+
+        page.within('.project-mirror-settings') do
+          fill_in 'Git repository URL', with: 'http://git@example.com'
+          select('Pull', from: 'Mirror direction')
+          fill_in 'Password', with: 'test_password'
+          click_without_sidekiq 'Mirror repository'
+        end
+
+        expect(page).to have_content('Mirroring settings were successfully updated')
+
+        project.reload
+        expect(import_data.auth_method).to eq('password')
+        expect(import_data.password).to eq('test_password')
+        expect(project.import_url).to eq('http://git:test_password@example.com')
+      end
     end
 
     describe 'SSH public key authentication' do
@@ -139,6 +172,7 @@ describe 'Project mirror', :js do
         # Check regenerating the public key works
         click_without_sidekiq 'Regenerate key'
         find('.js-regenerate-public-ssh-key-confirm-modal .js-confirm').click
+
         wait_for_requests
 
         expect(page).not_to have_content(first_key)
@@ -159,6 +193,7 @@ describe 'Project mirror', :js do
           fill_in 'Git repository URL', with: 'ssh://example.com'
           select('Pull', from: 'Mirror direction')
           click_on 'Detect host keys'
+
           wait_for_requests
 
           expect(page).to have_content(key.fingerprint)
@@ -166,6 +201,27 @@ describe 'Project mirror', :js do
           click_on 'Input host keys manually'
 
           expect(page).to have_field('SSH host keys', with: key.key_text)
+        end
+      end
+
+      it 'preserves the existing SSH key after generating it once' do
+        stub_reactive_cache(cache, known_hosts: key.key_text)
+
+        visit project_settings_repository_path(project)
+
+        page.within('.project-mirror-settings') do
+          fill_in 'Git repository URL', with: 'ssh://example.com'
+          select('Pull', from: 'Mirror direction')
+          select 'SSH public key', from: 'Authentication method'
+          click_on 'Detect host keys'
+
+          wait_for_requests
+
+          expect(page).to have_content(key.fingerprint)
+
+          wait_for_requests
+
+          expect { click_on 'Mirror repository' }.not_to change { import_data.reload.ssh_public_key }
         end
       end
 
@@ -178,6 +234,7 @@ describe 'Project mirror', :js do
           fill_in 'Git repository URL', with: 'ssh://example.com'
           select('Pull', from: 'Mirror direction')
           click_on 'Detect host keys'
+
           wait_for_requests
         end
 

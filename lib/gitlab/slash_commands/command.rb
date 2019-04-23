@@ -1,15 +1,16 @@
+# frozen_string_literal: true
+
 module Gitlab
   module SlashCommands
     class Command < BaseCommand
-      prepend EE::Gitlab::SlashCommands::Command
-
       def self.commands
         [
           Gitlab::SlashCommands::IssueShow,
           Gitlab::SlashCommands::IssueNew,
           Gitlab::SlashCommands::IssueSearch,
           Gitlab::SlashCommands::IssueMove,
-          Gitlab::SlashCommands::Deploy
+          Gitlab::SlashCommands::Deploy,
+          Gitlab::SlashCommands::Run
         ]
       end
 

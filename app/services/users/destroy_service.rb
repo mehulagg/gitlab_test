@@ -2,8 +2,6 @@
 
 module Users
   class DestroyService
-    prepend ::EE::Users::DestroyService
-
     DestroyError = Class.new(StandardError)
 
     attr_accessor :current_user
@@ -66,3 +64,5 @@ module Users
     end
   end
 end
+
+Users::DestroyService.prepend(EE::Users::DestroyService)

@@ -7,11 +7,6 @@
 #
 # A note of this type is never resolvable.
 class LegacyDiffNote < Note
-  # Elastic search configuration (it does not support STI properly)
-  document_type 'note'
-  index_name [Rails.application.class.parent_name.downcase, Rails.env].join('-')
-  include Elastic::NotesSearch
-
   include NoteOnDiff
 
   serialize :st_diff # rubocop:disable Cop/ActiveRecordSerialize
@@ -25,11 +20,7 @@ class LegacyDiffNote < Note
   end
 
   def project_repository
-    if RequestStore.active?
-      RequestStore.fetch("project:#{project_id}:repository") { self.project.repository }
-    else
-      self.project.repository
-    end
+    Gitlab::SafeRequestStore.fetch("project:#{project_id}:repository") { self.project.repository }
   end
 
   def diff_file_hash
@@ -82,7 +73,7 @@ class LegacyDiffNote < Note
   private
 
   def find_diff
-    return nil unless noteable
+    return unless noteable
     return @diff if defined?(@diff)
 
     @diff = noteable.raw_diffs(Commit.max_diff_options).find do |d|
@@ -120,3 +111,5 @@ class LegacyDiffNote < Note
     diffs.find { |d| d.new_path == self.diff.new_path }
   end
 end
+
+LegacyDiffNote.prepend(EE::LegacyDiffNote)

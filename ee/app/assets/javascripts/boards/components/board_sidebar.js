@@ -1,10 +1,10 @@
-import '~/boards/components/board_sidebar';
+import BoardSidebar from '~/boards/components/board_sidebar';
+import Weight from 'ee/sidebar/components/weight/weight.vue';
 import RemoveBtn from './sidebar/remove_issue';
 
-const base = gl.issueBoards.BoardSidebar;
-
-gl.issueBoards.BoardSidebar = base.extend({
+export default BoardSidebar.extend({
   components: {
     RemoveBtn,
+    Weight,
   },
 });

@@ -1,6 +1,6 @@
-class Groups::GroupMembersController < Groups::ApplicationController
-  prepend EE::Groups::GroupMembersController
+# frozen_string_literal: true
 
+class Groups::GroupMembersController < Groups::ApplicationController
   include MembershipActions
   include MembersPresentation
   include SortingHelper
@@ -12,6 +12,7 @@ class Groups::GroupMembersController < Groups::ApplicationController
   # Authorize
   before_action :authorize_admin_group_member!, except: admin_not_required_endpoints
 
+  skip_before_action :check_two_factor_requirement, only: :leave
   skip_cross_project_access_check :index, :create, :update, :destroy, :request_access,
                                   :approve_access_request, :leave, :resend_invite,
                                   :override
@@ -43,3 +44,5 @@ class Groups::GroupMembersController < Groups::ApplicationController
   # MembershipActions concern
   alias_method :membershipable, :group
 end
+
+Groups::GroupMembersController.prepend(EE::Groups::GroupMembersController)

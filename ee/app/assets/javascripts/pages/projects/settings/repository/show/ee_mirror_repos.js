@@ -1,14 +1,12 @@
 import $ from 'jquery';
 import { __ } from '~/locale';
 import Flash from '~/flash';
-import MirrorRepos from '~/pages/projects/settings/repository/show/mirror_repos';
-import MirrorPull from 'ee/mirrors/mirror_pull';
+import MirrorRepos from '~/mirrors/mirror_repos';
 
 export default class EEMirrorRepos extends MirrorRepos {
   constructor(...args) {
     super(...args);
 
-    this.$password = undefined;
     this.$mirrorDirectionSelect = $('.js-mirror-direction', this.$form);
     this.$insertionPoint = $('.js-form-insertion-point', this.$form);
     this.$repoCount = $('.js-mirrored-repo-count', this.$container);
@@ -67,26 +65,25 @@ export default class EEMirrorRepos extends MirrorRepos {
     this.updateUrl();
     this.updateProtectedBranches();
 
+    if (this.sshMirror) this.sshMirror.destroy();
     if (direction === 'pull') return this.initMirrorPull();
-    if (this.mirrorPull) this.mirrorPull.destroy();
     return this.initMirrorPush();
   }
 
   initMirrorPull() {
-    this.$password.off('input.updateUrl');
-    this.$password = undefined;
-
-    this.mirrorPull = new MirrorPull('.js-mirror-form');
-    this.mirrorPull.init();
-
+    this.initMirrorSSH();
     this.initSelect2();
   }
 
   initSelect2() {
-    $('.js-mirror-user', this.$form).select2({
-      width: 'resolve',
-      dropdownAutoWidth: true,
-    });
+    import(/* webpackChunkName: 'select2' */ 'select2/select2')
+      .then(() => {
+        $('.js-mirror-user', this.$form).select2({
+          width: 'resolve',
+          dropdownAutoWidth: true,
+        });
+      })
+      .catch(() => {});
   }
 
   registerUpdateListeners() {
@@ -107,10 +104,9 @@ export default class EEMirrorRepos extends MirrorRepos {
       };
     }
 
-    return super.deleteMirror(event, payload)
-      .then(() => {
-        if (isPullMirror) this.$mirrorDirectionSelect.removeAttr('disabled');
-      });
+    return super.deleteMirror(event, payload).then(() => {
+      if (isPullMirror) this.$mirrorDirectionSelect.removeAttr('disabled');
+    });
   }
 
   removeRow($target) {

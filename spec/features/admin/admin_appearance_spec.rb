@@ -10,10 +10,10 @@ describe 'Admin Appearance' do
     fill_in 'appearance_title', with: 'MyCompany'
     fill_in 'appearance_description', with: 'dev server'
     fill_in 'appearance_new_project_guidelines', with: 'Custom project guidelines'
-    click_button 'Save'
+    click_button 'Update appearance settings'
 
     expect(current_path).to eq admin_appearances_path
-    expect(page).to have_content 'Appearance settings'
+    expect(page).to have_content 'Appearance'
 
     expect(page).to have_field('appearance_title', with: 'MyCompany')
     expect(page).to have_field('appearance_description', with: 'dev server')
@@ -41,26 +41,33 @@ describe 'Admin Appearance' do
 
   context 'Custom system header and footer' do
     before do
-      appearance.update(header_message: "Foo", footer_message: "Bar")
       sign_in(create(:admin))
     end
 
-    it 'shows custom system header and footer when licensed' do
-      stub_licensed_features(system_header_footer: true)
+    context 'when system header and footer messages are empty' do
+      it 'shows custom system header and footer fields' do
+        visit admin_appearances_path
 
-      visit admin_appearances_path
-
-      expect(page).to have_content appearance.header_message
-      expect(page).to have_content appearance.footer_message
+        expect(page).to have_field('appearance_header_message', with: '')
+        expect(page).to have_field('appearance_footer_message', with: '')
+        expect(page).to have_field('appearance_message_background_color')
+        expect(page).to have_field('appearance_message_font_color')
+      end
     end
 
-    it 'does not show custom system header and footer when unlicensed' do
-      stub_licensed_features(system_header_footer: false)
+    context 'when system header and footer messages are not empty' do
+      before do
+        appearance.update(header_message: 'Foo', footer_message: 'Bar')
+      end
 
-      visit admin_appearances_path
+      it 'shows custom system header and footer fields' do
+        visit admin_appearances_path
 
-      expect(page).not_to have_content appearance.header_message
-      expect(page).not_to have_content appearance.footer_message
+        expect(page).to have_field('appearance_header_message', with: appearance.header_message)
+        expect(page).to have_field('appearance_footer_message', with: appearance.footer_message)
+        expect(page).to have_field('appearance_message_background_color')
+        expect(page).to have_field('appearance_message_font_color')
+      end
     end
   end
 
@@ -82,7 +89,7 @@ describe 'Admin Appearance' do
     visit admin_appearances_path
 
     attach_file(:appearance_logo, logo_fixture)
-    click_button 'Save'
+    click_button 'Update appearance settings'
     expect(page).to have_css(logo_selector)
 
     click_link 'Remove logo'
@@ -94,7 +101,7 @@ describe 'Admin Appearance' do
     visit admin_appearances_path
 
     attach_file(:appearance_header_logo, logo_fixture)
-    click_button 'Save'
+    click_button 'Update appearance settings'
     expect(page).to have_css(header_logo_selector)
 
     click_link 'Remove header logo'
@@ -106,7 +113,7 @@ describe 'Admin Appearance' do
     visit admin_appearances_path
 
     attach_file(:appearance_favicon, logo_fixture)
-    click_button 'Save'
+    click_button 'Update appearance settings'
 
     expect(page).to have_css('.appearance-light-logo-preview')
 
@@ -116,7 +123,7 @@ describe 'Admin Appearance' do
 
     # allowed file types
     attach_file(:appearance_favicon, Rails.root.join('spec', 'fixtures', 'sanitized.svg'))
-    click_button 'Save'
+    click_button 'Update appearance settings'
 
     expect(page).to have_content 'Favicon You are not allowed to upload "svg" files, allowed types: png, ico'
   end

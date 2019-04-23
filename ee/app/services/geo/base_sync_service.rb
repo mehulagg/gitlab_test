@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'securerandom'
 
 module Geo
@@ -19,6 +21,7 @@ module Geo
 
     def initialize(project)
       @project = project
+      @new_repository = false
     end
 
     def execute
@@ -51,22 +54,18 @@ module Geo
 
       if redownload?
         redownload_repository
-        schedule_repack
+        @new_repository = true
       elsif repository.exists?
         fetch_geo_mirror(repository)
       else
         ensure_repository
         fetch_geo_mirror(repository)
-        schedule_repack
+        @new_repository = true
       end
     end
 
     def redownload?
       registry.should_be_redownloaded?(type)
-    end
-
-    def schedule_repack
-      raise NotImplementedError
     end
 
     def redownload_repository
@@ -77,7 +76,7 @@ module Geo
       log_info("Attempting to fetch repository via git")
 
       # `git fetch` needs an empty bare repository to fetch into
-      unless gitlab_shell.create_repository(project.repository_storage, disk_path_temp)
+      unless gitlab_shell.create_repository(project.repository_storage, disk_path_temp, project.full_path)
         raise Gitlab::Shell::Error, 'Can not create a temporary repository'
       end
 
@@ -93,15 +92,23 @@ module Geo
     end
 
     def fetch_geo_mirror(repository)
-      url = Gitlab::Geo.primary_node.url + repository.full_path + '.git'
-
       # Fetch the repository, using a JWT header for authentication
-      authorization = ::Gitlab::Geo::RepoSyncRequest.new.authorization
-      header = { "http.#{url}.extraHeader" => "Authorization: #{authorization}" }
-
-      repository.with_config(header) do
-        repository.fetch_as_mirror(url, remote_name: GEO_REMOTE_NAME, forced: true)
+      repository.with_config(jwt_authentication_header) do
+        repository.fetch_as_mirror(remote_url, remote_name: GEO_REMOTE_NAME, forced: true)
       end
+    end
+
+    # Build a JWT header for authentication
+    def jwt_authentication_header
+      authorization = ::Gitlab::Geo::RepoSyncRequest.new(
+        scope: repository.full_path
+      ).authorization
+
+      { "http.#{remote_url}.extraHeader" => "Authorization: #{authorization}" }
+    end
+
+    def remote_url
+      Gitlab::Utils.append_path(Gitlab::Geo.primary_node.internal_url, "#{repository.full_path}.git")
     end
 
     # Use snapshotting for redownloads *only* when enabled.
@@ -111,20 +118,26 @@ module Geo
     # will be enqueued by the log cursor, which should resolve any problems
     # it is possible to fix.
     def fetch_snapshot
+      # Snapshots will miss the data that are shared in object pools, and snapshotting should
+      # be avoided to guard against data loss.
+      return if project.pool_repository
+
       log_info("Attempting to fetch repository via snapshot")
 
       temp_repo.create_from_snapshot(
         ::Gitlab::Geo.primary_node.snapshot_url(temp_repo),
-        ::Gitlab::Geo::RepoSyncRequest.new.authorization
+        ::Gitlab::Geo::RepoSyncRequest.new(scope: ::Gitlab::Geo::API_SCOPE).authorization
       )
     rescue => err
       log_error('Snapshot attempt failed', err)
       false
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def registry
       @registry ||= Geo::ProjectRegistry.find_or_initialize_by(project_id: project.id)
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def mark_sync_as_successful(missing_on_primary: false)
       log_info("Marking #{type} sync as successful")
@@ -141,7 +154,11 @@ module Geo
     def reschedule_sync
       log_info("Reschedule #{type} sync because a RepositoryUpdateEvent was processed during the sync")
 
-      ::Geo::ProjectSyncWorker.perform_async(project.id, Time.now)
+      ::Geo::ProjectSyncWorker.perform_async(
+        project.id,
+        sync_repository: type.repository?,
+        sync_wiki: type.wiki?
+      )
     end
 
     def fail_registry!(message, error, attrs = {})
@@ -153,7 +170,7 @@ module Geo
     end
 
     def type
-      self.class.type
+      @type ||= self.class.type.to_s.inquiry
     end
 
     def update_delay_in_seconds
@@ -186,9 +203,10 @@ module Geo
     end
 
     def temp_repo
-      @temp_repo ||= ::Repository.new(repository.full_path, repository.project, disk_path: disk_path_temp, is_wiki: repository.is_wiki)
+      @temp_repo ||= ::Repository.new(repository.full_path, repository.project, disk_path: disk_path_temp, repo_type: repository.repo_type)
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def clean_up_temporary_repository
       exists = gitlab_shell.exists?(project.repository_storage, disk_path_temp + '.git')
 
@@ -196,6 +214,7 @@ module Geo
         raise Gitlab::Shell::Error, "Temporary #{type} can not be removed"
       end
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def set_temp_repository_as_main
       log_info(
@@ -240,6 +259,18 @@ module Geo
         project.repository_storage,
         File.dirname(disk_path)
       )
+    end
+
+    def new_repository?
+      @new_repository
+    end
+
+    # If repository has a verification checksum, we can assume that it existed on the primary
+    def repository_presumably_exists_on_primary?
+      return false unless project.repository_state
+
+      checksum = project.repository_state.public_send("#{type}_verification_checksum") # rubocop:disable GitlabSecurity/PublicSend
+      checksum && checksum != Gitlab::Git::Repository::EMPTY_REPOSITORY_CHECKSUM
     end
   end
 end

@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Burndown do
   set(:user) { create(:user) }
-
+  set(:non_member) { create(:user) }
   let(:start_date) { "2017-03-01" }
   let(:due_date) { "2017-03-03" }
 
@@ -17,13 +17,13 @@ describe Burndown do
       end
     end
 
-    subject { described_class.new(milestone).to_json }
+    subject { described_class.new(milestone, user).to_json }
 
     it "generates an array with date, issue count and weight" do
       expect(subject).to eq([
-        ["2017-03-01", 3, 6],
-        ["2017-03-02", 4, 8],
-        ["2017-03-03", 2, 4]
+        ["2017-03-01", 4, 8],
+        ["2017-03-02", 5, 10],
+        ["2017-03-03", 3, 6]
       ].to_json)
     end
 
@@ -39,14 +39,14 @@ describe Burndown do
       expect(subject).to eq([].to_json)
     end
 
-    it "it counts until today if milestone due date > Date.today" do
+    it "counts until today if milestone due date > Date.today" do
       Timecop.travel(milestone.due_date - 1.day) do
         expect(JSON.parse(subject).last[0]).to eq(Time.now.strftime("%Y-%m-%d"))
       end
     end
 
     it "sets attribute accurate to true" do
-      burndown = described_class.new(milestone)
+      burndown = described_class.new(milestone, user)
 
       expect(burndown).to be_accurate
     end
@@ -58,14 +58,14 @@ describe Burndown do
 
       it "considers closed_at as milestone start date" do
         expect(subject).to eq([
-          ["2017-03-01", 3, 6],
-          ["2017-03-02", 3, 6],
-          ["2017-03-03", 3, 6]
+          ["2017-03-01", 4, 8],
+          ["2017-03-02", 4, 8],
+          ["2017-03-03", 4, 8]
         ].to_json)
       end
 
       it "sets attribute empty to true" do
-        burndown = described_class.new(milestone)
+        burndown = described_class.new(milestone, user)
 
         expect(burndown).to be_empty
       end
@@ -77,9 +77,40 @@ describe Burndown do
       end
 
       it "sets attribute accurate to false" do
-        burndown = described_class.new(milestone)
+        burndown = described_class.new(milestone, user)
 
         expect(burndown).not_to be_accurate
+      end
+    end
+
+    context 'when issues are created at the middle of the milestone' do
+      let(:creation_date) { "2017-03-02" }
+
+      it 'accounts for counts in issues created at the middle of the milestone' do
+        project = try(:group_project) || try(:project)
+
+        create(:issue, milestone: milestone, project: project, created_at: creation_date, weight: 2)
+        create(:issue, milestone: milestone, project: project, created_at: creation_date, weight: 3)
+
+        expect(subject).to eq([
+          ['2017-03-01', 4, 8],
+          ['2017-03-02', 7, 15],
+          ['2017-03-03', 5, 11]
+        ].to_json)
+      end
+    end
+
+    context 'when issues belong to a public project' do
+      it 'does not include confidential issues for users who are not project members' do
+        project.update(visibility_level: Gitlab::VisibilityLevel::PUBLIC)
+
+        expected_result = [
+            ["2017-03-01", 3, 6],
+            ["2017-03-02", 4, 8],
+            ["2017-03-03", 2, 4]
+        ].to_json
+
+        expect(described_class.new(milestone, non_member).to_json).to eq(expected_result)
       end
     end
   end
@@ -93,7 +124,8 @@ describe Burndown do
           milestone: milestone,
           weight: 2,
           project_id: project.id,
-          author: user
+          author: user,
+          created_at: milestone.start_date
         }
       end
       let(:scope) { project }
@@ -101,22 +133,28 @@ describe Burndown do
   end
 
   describe 'group milestone burndown' do
-    let(:group) { create(:group) }
-    let(:nested_group) { create(:group, parent: group) }
+    let(:parent_group) { create(:group) }
+    let(:group) { create(:group, parent: parent_group) }
+    let(:parent_group_project) { create(:project, group: parent_group) }
     let(:group_project) { create(:project, group: group) }
-    let(:nested_group_project) { create(:project, group: nested_group) }
-    let(:group_milestone) { create(:milestone, project: nil, group: group, start_date: start_date, due_date: due_date) }
-    let(:nested_group_milestone) { create(:milestone, group: nested_group, start_date: start_date, due_date: due_date) }
+    let(:parent_group_milestone) { create(:milestone, project: nil, group: parent_group, start_date: start_date, due_date: due_date) }
+    let(:group_milestone) { create(:milestone, group: group, start_date: start_date, due_date: due_date) }
 
     context 'when nested group milestone', :nested_groups do
+      before do
+        parent_group.add_developer(user)
+      end
+
       it_behaves_like 'burndown for milestone' do
-        let(:milestone) { nested_group_milestone }
+        let(:milestone) { group_milestone }
+        let(:project) { group_project }
         let(:issue_params) do
           {
             milestone: milestone,
             weight: 2,
-            project_id: nested_group_project.id,
-            author: user
+            project_id: group_project.id,
+            author: user,
+            created_at: milestone.start_date
           }
         end
         let(:scope) { group }
@@ -126,12 +164,14 @@ describe Burndown do
     context 'when non-nested group milestone' do
       it_behaves_like 'burndown for milestone' do
         let(:milestone) { group_milestone }
+        let(:project) { group_project }
         let(:issue_params) do
           {
             milestone: milestone,
             weight: 2,
             project_id: group_project.id,
-            author: user
+            author: user,
+            created_at: milestone.start_date
           }
         end
         let(:scope) { group }
@@ -141,6 +181,8 @@ describe Burndown do
 
   # Creates, closes and reopens issues only for odd days numbers
   def build_sample(milestone, issue_params)
+    project.add_master(user)
+
     milestone.start_date.upto(milestone.due_date) do |date|
       day = date.day
       next if day.even?
@@ -171,6 +213,9 @@ describe Burndown do
         issue_closed_twice = reopened_issues.last
         close_issue(issue_closed_twice)
         reopen_issue(issue_closed_twice)
+
+        # create one confidential issue
+        create(:issue, :confidential, issue_params) if Date.today == milestone.start_date
       end
     end
   end

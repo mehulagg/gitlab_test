@@ -2,8 +2,8 @@
 
 module Clusters
   module Applications
-    class Jupyter < ActiveRecord::Base
-      VERSION = 'v0.6'.freeze
+    class Jupyter < ApplicationRecord
+      VERSION = '0.9-174bbd5'.freeze
 
       self.table_name = 'clusters_applications_jupyter'
 
@@ -18,8 +18,10 @@ module Clusters
 
       def set_initial_status
         return unless not_installable?
+        return unless cluster&.application_ingress_available?
 
-        if cluster&.application_ingress_installed? && cluster.application_ingress.external_ip
+        ingress = cluster.application_ingress
+        if ingress.external_ip || ingress.external_hostname
           self.status = 'installable'
         end
       end
@@ -40,6 +42,7 @@ module Clusters
         Gitlab::Kubernetes::Helm::InstallCommand.new(
           name: name,
           version: VERSION,
+          rbac: cluster.platform_kubernetes_rbac?,
           chart: chart,
           files: files,
           repository: repository
@@ -55,7 +58,11 @@ module Clusters
       def specification
         {
           "ingress" => {
-            "hosts" => [hostname]
+            "hosts" => [hostname],
+            "tls" => [{
+              "hosts" => [hostname],
+              "secretName" => "jupyter-cert"
+            }]
           },
           "hub" => {
             "extraEnv" => {
@@ -70,10 +77,20 @@ module Clusters
             "gitlab" => {
               "clientId" => oauth_application.uid,
               "clientSecret" => oauth_application.secret,
-              "callbackUrl" => callback_url
+              "callbackUrl" => callback_url,
+              "gitlabProjectIdWhitelist" => [project_id]
+            }
+          },
+          "singleuser" => {
+            "extraEnv" => {
+              "GITLAB_CLUSTER_ID" => cluster.id.to_s
             }
           }
         }
+      end
+
+      def project_id
+        cluster&.project&.id
       end
 
       def gitlab_url

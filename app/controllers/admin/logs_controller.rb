@@ -1,6 +1,6 @@
-class Admin::LogsController < Admin::ApplicationController
-  prepend EE::Admin::LogsController
+# frozen_string_literal: true
 
+class Admin::LogsController < Admin::ApplicationController
   before_action :loggers
 
   def show
@@ -14,7 +14,10 @@ class Admin::LogsController < Admin::ApplicationController
       Gitlab::GitLogger,
       Gitlab::EnvironmentLogger,
       Gitlab::SidekiqLogger,
-      Gitlab::RepositoryCheckLogger
+      Gitlab::RepositoryCheckLogger,
+      Gitlab::ProjectServiceLogger
     ]
   end
 end
+
+Admin::LogsController.prepend(EE::Admin::LogsController)

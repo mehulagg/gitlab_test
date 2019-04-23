@@ -1,14 +1,13 @@
 <script>
-import LoadingIcon from '~/vue_shared/components/loading_icon.vue';
-
+import { GlLoadingIcon } from '@gitlab/ui';
 import ListFilter from './list_filter.vue';
 import ListContent from './list_content.vue';
 
 export default {
   components: {
-    LoadingIcon,
     ListFilter,
     ListContent,
+    GlLoadingIcon,
   },
   props: {
     loading: {
@@ -34,7 +33,7 @@ export default {
       if (!this.query) return this.items;
 
       const query = this.query.toLowerCase();
-      return this.items.filter((item) => {
+      return this.items.filter(item => {
         const name = item.name ? item.name.toLowerCase() : item.title.toLowerCase();
 
         if (this.listType === 'milestones') {
@@ -59,15 +58,8 @@ export default {
 
 <template>
   <div class="dropdown-assignees-list">
-    <div
-      v-if="loading"
-      class="dropdown-loading"
-    >
-      <loading-icon />
-    </div>
-    <list-filter
-      @onSearchInput="handleSearch"
-    />
+    <div v-if="loading" class="dropdown-loading"><gl-loading-icon /></div>
+    <list-filter @onSearchInput="handleSearch" />
     <list-content
       v-if="!loading"
       :items="filteredItems"

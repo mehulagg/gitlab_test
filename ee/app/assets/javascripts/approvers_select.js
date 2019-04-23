@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import _ from 'underscore';
-import Api from '~/api';
+import Api from 'ee/api';
 import { __ } from '~/locale';
 import Flash from '~/flash';
 import axios from '~/lib/utils/axios_utils';
@@ -76,45 +76,49 @@ export default class ApproversSelect {
   }
 
   initSelect2() {
-    this.$approverSelect
-      .select2({
-        placeholder: 'Search for users or groups',
-        multiple: true,
-        minimumInputLength: 0,
-        query: query => {
-          const fetchGroups = this.fetchGroups(query.term);
-          const fetchUsers = this.fetchUsers(query.term);
-          return Promise.all([fetchGroups, fetchUsers]).then(([groups, users]) => {
-            const data = {
-              results: groups.concat(users),
-            };
-            return query.callback(data);
-          });
-        },
-        formatResult: ApproversSelect.formatResult,
-        formatSelection: ApproversSelect.formatSelection,
-        dropdownCss() {
-          const $input = $('.js-select-user-and-group .select2-input');
-          const offset = $input.offset();
-          let { left } = offset;
-          const inputRightPosition = left + $input.outerWidth();
-          const $dropdown = $('.select2-drop-active');
+    import(/* webpackChunkName: 'select2' */ 'select2/select2')
+      .then(() => {
+        this.$approverSelect
+          .select2({
+            placeholder: 'Search for users or groups',
+            multiple: true,
+            minimumInputLength: 0,
+            query: query => {
+              const fetchGroups = this.fetchGroups(query.term);
+              const fetchUsers = this.fetchUsers(query.term);
+              return Promise.all([fetchGroups, fetchUsers]).then(([groups, users]) => {
+                const data = {
+                  results: groups.concat(users),
+                };
+                return query.callback(data);
+              });
+            },
+            formatResult: ApproversSelect.formatResult,
+            formatSelection: ApproversSelect.formatSelection,
+            dropdownCss() {
+              const $input = $('.js-select-user-and-group .select2-input');
+              const offset = $input.offset();
+              let { left } = offset;
+              const inputRightPosition = left + $input.outerWidth();
+              const $dropdown = $('.select2-drop-active');
 
-          if ($dropdown.outerWidth() > $input.outerWidth()) {
-            left = `${inputRightPosition - $dropdown.width()}px`;
-          }
-          return {
-            left,
-            right: 'auto',
-            width: 'auto',
-          };
-        },
+              if ($dropdown.outerWidth() > $input.outerWidth()) {
+                left = `${inputRightPosition - $dropdown.width()}px`;
+              }
+              return {
+                left,
+                right: 'auto',
+                width: 'auto',
+              };
+            },
+          })
+          .on('change', this.handleSelectChange);
       })
-      .on('change', this.handleSelectChange);
+      .catch(() => {});
   }
 
   static formatSelection(group) {
-    return group.full_name || group.name;
+    return _.escape(group.full_name || group.name);
   }
 
   static formatResult({
@@ -182,7 +186,7 @@ export default class ApproversSelect {
 
   static saveApproversComplete($input, $approverSelect, $loadWrapper) {
     $input.val('');
-    $approverSelect.select2('val', '');
+    $approverSelect.select2('val', '').trigger('change');
     $loadWrapper.addClass('hidden');
   }
 

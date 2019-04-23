@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module Gitlab
     module Auth
@@ -76,12 +78,14 @@ module EE
               end
             end
 
+            # rubocop: disable CodeReuse/ActiveRecord
             def groups_where_group_links_with_provider_ordered
               ::Group.where_group_links_with_provider(provider)
                 .preload(:ldap_group_links)
                 .reorder('ldap_sync_last_successful_update_at ASC, namespaces.id ASC')
                 .distinct
             end
+            # rubocop: enable CodeReuse/ActiveRecord
 
             def config
               proxy.adapter.config

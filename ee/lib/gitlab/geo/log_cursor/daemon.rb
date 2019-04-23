@@ -1,12 +1,12 @@
+# frozen_string_literal: true
+
 module Gitlab
   module Geo
     module LogCursor
       class Daemon
-        include Utils::StrongMemoize
-
         VERSION = '0.2.0'.freeze
         BATCH_SIZE = 250
-        SECONDARY_CHECK_INTERVAL = 1.minute
+        SECONDARY_CHECK_INTERVAL = 60
 
         attr_reader :options
 
@@ -85,7 +85,7 @@ module Gitlab
         def event_klass_for(event)
           event_klass_name = event.class.name.demodulize
           current_namespace = self.class.name.deconstantize
-          Object.const_get("#{current_namespace}::Events::#{event_klass_name}")
+          Object.const_get("#{current_namespace}::Events::#{event_klass_name}", false)
         end
 
         def trap_signals
@@ -104,6 +104,7 @@ module Gitlab
           @exit
         end
 
+        # rubocop: disable CodeReuse/ActiveRecord
         def can_replay?(event_log)
           return true if event_log.project_id.nil?
 
@@ -112,6 +113,7 @@ module Gitlab
 
           Gitlab::Geo.current_node&.projects_include?(event_log.project_id)
         end
+        # rubocop: enable CodeReuse/ActiveRecord
 
         # Sleeps for the expired TTL that remains on the lease plus some random seconds.
         #
@@ -126,9 +128,7 @@ module Gitlab
         end
 
         def logger
-          strong_memoize(:logger) do
-            Gitlab::Geo::LogCursor::Logger.new(self.class, log_level)
-          end
+          @logger ||= Gitlab::Geo::LogCursor::Logger.new(self.class, log_level)
         end
 
         def log_level

@@ -5,7 +5,6 @@ require_relative '../../../config/initializers/sentry'
 describe API::Helpers do
   include API::APIGuard::HelperMethods
   include described_class
-  include SentryHelper
   include TermsHelper
 
   let(:user) { create(:user) }
@@ -24,14 +23,11 @@ describe API::Helpers do
     }
   end
   let(:header) { }
-  let(:route_authentication_setting) { {} }
   let(:request) { Grape::Request.new(env)}
   let(:params) { request.params }
 
   before do
     allow_any_instance_of(self.class).to receive(:options).and_return({})
-    allow_any_instance_of(self.class).to receive(:route_authentication_setting)
-      .and_return(route_authentication_setting)
   end
 
   def warden_authenticate_returns(value)
@@ -209,49 +205,17 @@ describe API::Helpers do
 
         expect { current_user }.to raise_error Gitlab::Auth::ExpiredError
       end
-    end
 
-    describe "when authenticating using a job token" do
-      let(:job) { create(:ci_build, user: user) }
+      context 'when impersonation is disabled' do
+        let(:personal_access_token) { create(:personal_access_token, :impersonation, user: user) }
 
-      context 'when route is allowed to be authenticated' do
-        let(:route_authentication_setting) { { job_token_allowed: true } }
-
-        it "returns a 401 response for an invalid token" do
-          env[Gitlab::Auth::UserAuthFinders::JOB_TOKEN_HEADER] = 'invalid token'
-
-          expect { current_user }.to raise_error /401/
+        before do
+          stub_config_setting(impersonation_enabled: false)
+          env[Gitlab::Auth::UserAuthFinders::PRIVATE_TOKEN_HEADER] = personal_access_token.token
         end
 
-        it "returns a 403 response for a user without access" do
-          env[Gitlab::Auth::UserAuthFinders::JOB_TOKEN_HEADER] = job.token
-          allow_any_instance_of(Gitlab::UserAccess).to receive(:allowed?).and_return(false)
-
-          expect { current_user }.to raise_error /403/
-        end
-
-        it 'returns a 403 response for a user who is blocked' do
-          user.block!
-          env[Gitlab::Auth::UserAuthFinders::JOB_TOKEN_HEADER] = job.token
-
-          expect { current_user }.to raise_error /403/
-        end
-
-        it "sets current_user" do
-          env[Gitlab::Auth::UserAuthFinders::JOB_TOKEN_HEADER] = job.token
-
-          expect(current_user).to eq(user)
-        end
-      end
-
-      context 'when route is not allowed to be authenticated' do
-        let(:route_authentication_setting) { { job_token_allowed: false } }
-
-        it "sets current_user to nil" do
-          env[Gitlab::Auth::UserAuthFinders::JOB_TOKEN_HEADER] = job.token
-          allow_any_instance_of(Gitlab::UserAccess).to receive(:allowed?).and_return(true)
-
-          expect(current_user).to be_nil
+        it 'does not allow impersonation tokens' do
+          expect { current_user }.to raise_error Gitlab::Auth::ImpersonationDisabled
         end
       end
     end
@@ -259,8 +223,15 @@ describe API::Helpers do
 
   describe '.handle_api_exception' do
     before do
-      allow_any_instance_of(self.class).to receive(:sentry_enabled?).and_return(true)
       allow_any_instance_of(self.class).to receive(:rack_response)
+      allow(Gitlab::Sentry).to receive(:enabled?).and_return(true)
+
+      stub_application_setting(
+        sentry_enabled: true,
+        sentry_dsn: "dummy://12345:67890@sentry.localdomain/sentry/42"
+      )
+      configure_sentry
+      Raven.client.configuration.encoding = 'json'
     end
 
     it 'does not report a MethodNotAllowed exception to Sentry' do
@@ -276,10 +247,13 @@ describe API::Helpers do
       exception = RuntimeError.new('test error')
       allow(exception).to receive(:backtrace).and_return(caller)
 
-      expect_any_instance_of(self.class).to receive(:sentry_context)
-      expect(Raven).to receive(:capture_exception).with(exception, extra: {})
+      expect(Raven).to receive(:capture_exception).with(exception, tags: {
+        correlation_id: 'new-correlation-id'
+      }, extra: {})
 
-      handle_api_exception(exception)
+      Labkit::Correlation::CorrelationId.use_id('new-correlation-id') do
+        handle_api_exception(exception)
+      end
     end
 
     context 'with a personal access token given' do
@@ -290,7 +264,6 @@ describe API::Helpers do
         # We need to stub at a lower level than #sentry_enabled? otherwise
         # Sentry is not enabled when the request below is made, and the test
         # would pass even without the fix
-        expect(Gitlab::Sentry).to receive(:enabled?).twice.and_return(true)
         expect(ProjectsFinder).to receive(:new).and_raise('Runtime Error!')
 
         get api('/projects', personal_access_token: token)
@@ -307,20 +280,10 @@ describe API::Helpers do
       # Sentry events are an array of the form [auth_header, data, options]
       let(:event_data) { Raven.client.transport.events.first[1] }
 
-      before do
-        stub_application_setting(
-          sentry_enabled: true,
-          sentry_dsn: "dummy://12345:67890@sentry.localdomain/sentry/42"
-        )
-        configure_sentry
-        Raven.client.configuration.encoding = 'json'
-      end
-
       it 'sends the params, excluding confidential values' do
-        expect(Gitlab::Sentry).to receive(:enabled?).twice.and_return(true)
         expect(ProjectsFinder).to receive(:new).and_raise('Runtime Error!')
 
-        get api('/projects', user), password: 'dont_send_this', other_param: 'send_this'
+        get api('/projects', user), params: { password: 'dont_send_this', other_param: 'send_this' }
 
         expect(event_data).to include('other_param=send_this')
         expect(event_data).to include('password=********')
@@ -416,6 +379,14 @@ describe API::Helpers do
                 it_behaves_like 'successful sudo'
               end
 
+              context 'when providing username (case insensitive)' do
+                before do
+                  env[API::Helpers::SUDO_HEADER] = user.username.upcase
+                end
+
+                it_behaves_like 'successful sudo'
+              end
+
               context 'when providing user ID' do
                 before do
                   env[API::Helpers::SUDO_HEADER] = user.id.to_s
@@ -429,6 +400,14 @@ describe API::Helpers do
               context 'when providing username' do
                 before do
                   set_param(API::Helpers::SUDO_PARAM, user.username)
+                end
+
+                it_behaves_like 'successful sudo'
+              end
+
+              context 'when providing username (case insensitive)' do
+                before do
+                  set_param(API::Helpers::SUDO_PARAM, user.username.upcase)
                 end
 
                 it_behaves_like 'successful sudo'

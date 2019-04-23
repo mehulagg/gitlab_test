@@ -1,4 +1,4 @@
-/* eslint-disable func-names, no-underscore-dangle, no-var, one-var, one-var-declaration-per-line, max-len, vars-on-top, wrap-iife, no-unused-vars, no-shadow, no-cond-assign, prefer-arrow-callback, no-return-assign, no-else-return, camelcase, no-lonely-if, guard-for-in, no-restricted-syntax, consistent-return, prefer-template, no-param-reassign, no-loop-func */
+/* eslint-disable func-names, no-underscore-dangle, no-var, one-var, vars-on-top, no-unused-vars, no-shadow, no-cond-assign, prefer-arrow-callback, no-return-assign, no-else-return, camelcase, no-lonely-if, guard-for-in, no-restricted-syntax, consistent-return, prefer-template, no-param-reassign, no-loop-func */
 /* global fuzzaldrinPlus */
 
 import $ from 'jquery';
@@ -561,10 +561,9 @@ GitLabDropdown = (function() {
         !$target.data('isLink')
       ) {
         e.stopPropagation();
-        return false;
-      } else {
-        return true;
       }
+
+      return true;
     }
   };
 
@@ -656,23 +655,7 @@ GitLabDropdown = (function() {
     if (this.options.renderMenu) {
       return this.options.renderMenu(html);
     } else {
-      var ul = document.createElement('ul');
-
-      for (var i = 0; i < html.length; i += 1) {
-        var el = html[i];
-
-        if (el instanceof $) {
-          el = el.get(0);
-        }
-
-        if (typeof el === 'string') {
-          ul.innerHTML += el;
-        } else {
-          ul.appendChild(el);
-        }
-      }
-
-      return ul;
+      return $('<ul>').append(html);
     }
   };
 

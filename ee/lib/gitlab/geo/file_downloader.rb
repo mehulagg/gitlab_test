@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Gitlab
   module Geo
     # This class is responsible for:
@@ -19,13 +21,16 @@ module Gitlab
       #
       # Subclasses should return the number of bytes downloaded,
       # or nil or -1 if a failure occurred.
+      # rubocop: disable CodeReuse/ActiveRecord
       def execute
         upload = Upload.find_by(id: object_db_id)
         return fail_before_transfer unless upload.present?
+        return missing_on_primary if upload.model.nil?
 
         transfer = ::Gitlab::Geo::FileTransfer.new(object_type.to_sym, upload)
         Result.from_transfer_result(transfer.download_from_primary)
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       class Result
         attr_reader :success, :bytes_downloaded, :primary_missing_file, :failed_before_transfer
@@ -48,6 +53,10 @@ module Gitlab
 
       def fail_before_transfer
         Result.new(success: false, bytes_downloaded: 0, failed_before_transfer: true)
+      end
+
+      def missing_on_primary
+        Result.new(success: true, bytes_downloaded: 0, primary_missing_file: true)
       end
     end
   end

@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module Gitlab
   module Search
     class ParsedQuery
-      prepend EE::Gitlab::Search::ParsedQuery
+      prepend EE::Gitlab::Search::ParsedQuery # rubocop: disable Cop/InjectEnterpriseEditionModule
 
       attr_reader :term, :filters
 

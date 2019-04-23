@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Projects
   class UpdateMirrorService < BaseService
     Error = Class.new(StandardError)
@@ -19,7 +21,7 @@ module Projects
       update_branches
 
       success
-    rescue Gitlab::Shell::Error, UpdateError => e
+    rescue Gitlab::Shell::Error, Gitlab::Git::BaseError, UpdateError => e
       error(e.message)
     end
 
@@ -77,7 +79,7 @@ module Projects
 
         next if old_tag_target == tag_target
 
-        GitTagPushService.new(
+        Git::TagPushService.new(
           project,
           current_user,
           {

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module Projects
     module HashedStorage
@@ -12,7 +14,7 @@ module EE
               old_storage_version: old_storage_version,
               old_disk_path: old_disk_path,
               old_wiki_disk_path: old_wiki_disk_path
-            ).create
+            ).create!
           end
         end
       end

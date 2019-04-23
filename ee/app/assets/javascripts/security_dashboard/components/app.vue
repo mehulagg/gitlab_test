@@ -1,0 +1,115 @@
+<script>
+import _ from 'underscore';
+import { mapActions, mapState, mapGetters } from 'vuex';
+import IssueModal from 'ee/vue_shared/security_reports/components/modal.vue';
+import Filters from './filters.vue';
+import SecurityDashboardTable from './security_dashboard_table.vue';
+import VulnerabilityChart from './vulnerability_chart.vue';
+import VulnerabilityCountList from './vulnerability_count_list.vue';
+
+export default {
+  name: 'SecurityDashboardApp',
+  components: {
+    Filters,
+    IssueModal,
+    SecurityDashboardTable,
+    VulnerabilityChart,
+    VulnerabilityCountList,
+  },
+  props: {
+    dashboardDocumentation: {
+      type: String,
+      required: true,
+    },
+    emptyStateSvgPath: {
+      type: String,
+      required: true,
+    },
+    projectsEndpoint: {
+      type: String,
+      required: true,
+    },
+    vulnerabilitiesEndpoint: {
+      type: String,
+      required: true,
+    },
+    vulnerabilitiesCountEndpoint: {
+      type: String,
+      required: true,
+    },
+    vulnerabilitiesHistoryEndpoint: {
+      type: String,
+      required: true,
+    },
+    vulnerabilityFeedbackHelpPath: {
+      type: String,
+      required: true,
+    },
+  },
+  computed: {
+    ...mapState('vulnerabilities', ['modal', 'pageInfo']),
+    ...mapState('projects', ['projects']),
+    ...mapGetters('filters', ['activeFilters']),
+    canCreateIssuePermission() {
+      const path = this.vulnerability.vulnerability_feedback_issue_path;
+      return _.isString(path) && !_.isEmpty(path);
+    },
+    canCreateFeedbackPermission() {
+      const path = this.vulnerability.vulnerability_feedback_dismissal_path;
+      return _.isString(path) && !_.isEmpty(path);
+    },
+    vulnerability() {
+      return this.modal.vulnerability;
+    },
+  },
+  created() {
+    this.setProjectsEndpoint(this.projectsEndpoint);
+    this.setVulnerabilitiesEndpoint(this.vulnerabilitiesEndpoint);
+    this.setVulnerabilitiesCountEndpoint(this.vulnerabilitiesCountEndpoint);
+    this.setVulnerabilitiesHistoryEndpoint(this.vulnerabilitiesHistoryEndpoint);
+    this.fetchVulnerabilities({ ...this.activeFilters, page: this.pageInfo.page });
+    this.fetchVulnerabilitiesCount(this.activeFilters);
+    this.fetchVulnerabilitiesHistory(this.activeFilters);
+    this.fetchProjects();
+  },
+  methods: {
+    ...mapActions('vulnerabilities', [
+      'createIssue',
+      'dismissVulnerability',
+      'fetchVulnerabilities',
+      'fetchVulnerabilitiesCount',
+      'fetchVulnerabilitiesHistory',
+      'undoDismiss',
+      'createMergeRequest',
+      'setVulnerabilitiesCountEndpoint',
+      'setVulnerabilitiesEndpoint',
+      'setVulnerabilitiesHistoryEndpoint',
+    ]),
+    ...mapActions('projects', ['setProjectsEndpoint', 'fetchProjects']),
+  },
+};
+</script>
+
+<template>
+  <div>
+    <filters />
+    <vulnerability-count-list />
+
+    <vulnerability-chart />
+
+    <security-dashboard-table
+      :dashboard-documentation="dashboardDocumentation"
+      :empty-state-svg-path="emptyStateSvgPath"
+    />
+    <issue-modal
+      :modal="modal"
+      :vulnerability-feedback-help-path="vulnerabilityFeedbackHelpPath"
+      :can-create-issue-permission="canCreateIssuePermission"
+      :can-create-feedback-permission="canCreateFeedbackPermission"
+      @createNewIssue="createIssue({ vulnerability })"
+      @dismissIssue="dismissVulnerability({ vulnerability })"
+      @revertDismissIssue="undoDismiss({ vulnerability })"
+      @createMergeRequest="createMergeRequest({ vulnerability })"
+    />
+  </div>
+</template>

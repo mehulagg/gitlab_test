@@ -11,8 +11,12 @@ module Tags
       end
 
       if repository.rm_tag(current_user, tag_name)
-        release = project.releases.find_by(tag: tag_name)
-        release&.destroy
+        ##
+        # When a tag in a repository is destroyed,
+        # release assets will be destroyed too.
+        Releases::DestroyService
+          .new(project, current_user, tag: tag_name)
+          .execute
 
         push_data = build_push_data(tag)
         EventCreateService.new.push(project, current_user, push_data)

@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe Geo::RepositoryVerificationPrimaryService do
+  include EE::GeoHelpers
+
   let(:project) { create(:project) }
   let(:repository) { double(checksum: 'f123') }
   let(:wiki) { double(checksum: 'e321') }
@@ -16,8 +18,10 @@ describe Geo::RepositoryVerificationPrimaryService do
 
       expect(project.repository_state).to have_attributes(
         repository_verification_checksum: 'f123',
+        last_repository_verification_ran_at: be_present,
         last_repository_verification_failure: nil,
         wiki_verification_checksum: 'e321',
+        last_wiki_verification_ran_at: be_present,
         last_wiki_verification_failure: nil,
         repository_retry_at: nil,
         repository_retry_count: nil,
@@ -40,8 +44,10 @@ describe Geo::RepositoryVerificationPrimaryService do
 
       expect(repository_state.reload).to have_attributes(
         repository_verification_checksum: 'f123',
+        last_repository_verification_ran_at: be_present,
         last_repository_verification_failure: nil,
         wiki_verification_checksum: 'e321',
+        last_wiki_verification_ran_at: be_present,
         last_wiki_verification_failure: nil,
         repository_retry_at: nil,
         repository_retry_count: nil,
@@ -64,8 +70,10 @@ describe Geo::RepositoryVerificationPrimaryService do
 
       expect(repository_state.reload).to have_attributes(
         repository_verification_checksum: 'f123',
+        last_repository_verification_ran_at: be_present,
         last_repository_verification_failure: nil,
         wiki_verification_checksum: 'e321',
+        last_wiki_verification_ran_at: be_present,
         last_wiki_verification_failure: nil,
         repository_retry_at: nil,
         repository_retry_count: nil,
@@ -81,12 +89,19 @@ describe Geo::RepositoryVerificationPrimaryService do
       create(:repository_state,
         project: project,
         repository_verification_checksum: 'f079a831cab27bcda7d81cd9b48296d0c3dd92ee',
-        wiki_verification_checksum: 'e079a831cab27bcda7d81cd9b48296d0c3dd92ef')
+        last_repository_verification_ran_at: 1.day.ago,
+        wiki_verification_checksum: 'e079a831cab27bcda7d81cd9b48296d0c3dd92ef',
+        last_wiki_verification_ran_at: 1.day.ago)
 
       expect(repository).to receive(:checksum)
       expect(wiki).to receive(:checksum)
 
       subject.execute
+
+      expect(project.repository_state).to have_attributes(
+        last_repository_verification_ran_at: be_within(100.seconds).of(Time.now),
+        last_wiki_verification_ran_at: be_within(100.seconds).of(Time.now)
+      )
     end
 
     it 'calculates the wiki checksum even when wiki is not enabled for project' do
@@ -99,8 +114,10 @@ describe Geo::RepositoryVerificationPrimaryService do
 
       expect(project.repository_state).to have_attributes(
         repository_verification_checksum: 'f123',
+        last_repository_verification_ran_at: be_present,
         last_repository_verification_failure: nil,
         wiki_verification_checksum: 'e321',
+        last_wiki_verification_ran_at: be_present,
         last_wiki_verification_failure: nil,
         repository_retry_at: nil,
         repository_retry_count: nil,
@@ -114,8 +131,10 @@ describe Geo::RepositoryVerificationPrimaryService do
 
       expect(project.repository_state).to have_attributes(
         repository_verification_checksum: '0000000000000000000000000000000000000000',
+        last_repository_verification_ran_at: be_present,
         last_repository_verification_failure: nil,
         wiki_verification_checksum: '0000000000000000000000000000000000000000',
+        last_wiki_verification_ran_at: be_present,
         last_wiki_verification_failure: nil,
         repository_retry_at: nil,
         repository_retry_count: nil,
@@ -132,14 +151,34 @@ describe Geo::RepositoryVerificationPrimaryService do
 
       expect(project_broken_repo.repository_state).to have_attributes(
         repository_verification_checksum: '0000000000000000000000000000000000000000',
+        last_repository_verification_ran_at: be_present,
         last_repository_verification_failure: nil,
         wiki_verification_checksum: '0000000000000000000000000000000000000000',
+        last_wiki_verification_ran_at: be_present,
         last_wiki_verification_failure: nil,
         repository_retry_at: nil,
         repository_retry_count: nil,
         wiki_retry_at: nil,
         wiki_retry_count: nil
       )
+    end
+
+    context 'when running on a primary node' do
+      before do
+        stub_primary_node
+      end
+
+      it 'does not create a Geo::ResetChecksumEvent event if there are no secondary nodes' do
+        allow(Gitlab::Geo).to receive(:secondary_nodes) { [] }
+
+        expect { subject.execute }.not_to change(Geo::ResetChecksumEvent, :count)
+      end
+
+      it 'creates a Geo::ResetChecksumEvent event' do
+        allow(Gitlab::Geo).to receive(:secondary_nodes) { [build(:geo_node)] }
+
+        expect { subject.execute }.to change(Geo::ResetChecksumEvent, :count).by(1)
+      end
     end
 
     context 'when checksum calculation fails' do
@@ -156,8 +195,10 @@ describe Geo::RepositoryVerificationPrimaryService do
 
         expect(project.repository_state).to have_attributes(
           repository_verification_checksum: nil,
+          last_repository_verification_ran_at: be_present,
           last_repository_verification_failure: 'Something went wrong with repository',
           wiki_verification_checksum: nil,
+          last_wiki_verification_ran_at: be_present,
           last_wiki_verification_failure: 'Something went wrong with wiki',
           repository_retry_at: be_present,
           repository_retry_count: 1,
@@ -177,12 +218,14 @@ describe Geo::RepositoryVerificationPrimaryService do
 
         expect(repository_state.reload).to have_attributes(
           repository_verification_checksum: nil,
+          last_repository_verification_ran_at: be_present,
           last_repository_verification_failure: 'Something went wrong with repository',
           wiki_verification_checksum: nil,
+          last_wiki_verification_ran_at: be_present,
           last_wiki_verification_failure: 'Something went wrong with wiki',
-          repository_retry_at: be_within(100.seconds).of(Time.now + 7.days),
+          repository_retry_at: be_within(100.seconds).of(1.hour.from_now),
           repository_retry_count: 31,
-          wiki_retry_at: be_within(100.seconds).of(Time.now + 7.days),
+          wiki_retry_at: be_within(100.seconds).of(1.hour.from_now),
           wiki_retry_count: 31
         )
       end
@@ -202,7 +245,7 @@ describe Geo::RepositoryVerificationPrimaryService do
       project.wiki.full_path,
       project,
       disk_path: project.wiki.disk_path,
-      is_wiki: true
+      repo_type: Gitlab::GlRepository::WIKI
     ).and_return(repository)
   end
 end

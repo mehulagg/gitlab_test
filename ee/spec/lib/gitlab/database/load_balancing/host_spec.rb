@@ -19,15 +19,9 @@ describe Gitlab::Database::LoadBalancing::Host, :postgresql do
   end
 
   def wrapped_exception(wrapper, original)
-    if Gitlab.rails5?
-      begin
-        raise_and_wrap(wrapper, original.new)
-      rescue wrapper => error
-        error
-      end
-    else
-      wrapper.new('boom', original.new)
-    end
+    raise_and_wrap(wrapper, original.new)
+  rescue wrapper => error
+    error
   end
 
   describe '#connection' do
@@ -323,9 +317,23 @@ describe Gitlab::Database::LoadBalancing::Host, :postgresql do
       expect(host.caught_up?('foo')).to eq(true)
     end
 
+    it 'returns true when a host has caught up' do
+      allow(host).to receive(:connection).and_return(connection)
+      expect(connection).to receive(:select_all).and_return([{ 'result' => true }])
+
+      expect(host.caught_up?('foo')).to eq(true)
+    end
+
     it 'returns false when a host has not caught up' do
       allow(host).to receive(:connection).and_return(connection)
       expect(connection).to receive(:select_all).and_return([{ 'result' => 'f' }])
+
+      expect(host.caught_up?('foo')).to eq(false)
+    end
+
+    it 'returns false when a host has not caught up' do
+      allow(host).to receive(:connection).and_return(connection)
+      expect(connection).to receive(:select_all).and_return([{ 'result' => false }])
 
       expect(host.caught_up?('foo')).to eq(false)
     end

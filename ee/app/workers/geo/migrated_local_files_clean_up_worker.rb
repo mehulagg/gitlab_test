@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Geo
   class MigratedLocalFilesCleanUpWorker < ::Geo::Scheduler::Secondary::SchedulerWorker
     include ::CronjobQueue
@@ -42,6 +44,7 @@ module Geo
       take_batch(lfs_object_ids, attachment_ids, job_artifact_ids)
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def find_migrated_local_lfs_objects_ids(batch_size:)
       return [] unless lfs_objects_object_store_enabled?
 
@@ -49,7 +52,9 @@ module Geo
                         .pluck(:id)
                         .map { |id| ['lfs', id] }
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def find_migrated_local_attachments_ids(batch_size:)
       return [] unless attachments_object_store_enabled?
 
@@ -57,7 +62,9 @@ module Geo
                         .pluck(:uploader, :id)
                         .map { |uploader, id| [uploader.sub(/Uploader\z/, '').underscore, id] }
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def find_migrated_local_job_artifacts_ids(batch_size:)
       return [] unless job_artifacts_object_store_enabled?
 
@@ -65,6 +72,7 @@ module Geo
                           .pluck(:id)
                           .map { |id| ['job_artifact', id] }
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def scheduled_file_ids(file_types)
       file_types = Array(file_types)

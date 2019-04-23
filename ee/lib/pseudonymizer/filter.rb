@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'openssl'
 require 'digest'
 
@@ -27,6 +29,8 @@ module Pseudonymizer
     private
 
     def pseudo_fields(whitelisted, pseudonymized)
+      return [] unless pseudonymized
+
       pseudo_extra_fields = pseudonymized - whitelisted
       pseudo_extra_fields.each do |field|
         Rails.logger.warn("#{self.class.name} extraneous pseudo: #{@table}.#{field} is not whitelisted and will be ignored.")

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module Gitlab
     module Auth
@@ -6,10 +8,12 @@ module EE
           attr_accessor :adapter
           attr_reader :entry
 
+          # rubocop: disable CodeReuse/ActiveRecord
           def self.find_by_cn(cn, adapter)
             cn = Net::LDAP::Filter.escape(cn)
             adapter.group(cn)
           end
+          # rubocop: enable CodeReuse/ActiveRecord
 
           def initialize(entry, adapter = nil)
             Rails.logger.debug { "Instantiating #{self.class.name} with LDIF:\n#{entry.to_ldif}" }
@@ -160,11 +164,9 @@ module EE
             end
 
             members.select do |dn|
-              begin
-                ::Gitlab::Auth::LDAP::DN.new(dn).to_a.last(base.length) == base
-              rescue ::Gitlab::Auth::LDAP::DN::FormatError => e
-                Rails.logger.warn "Received invalid member DN from LDAP group '#{cn}': '#{dn}'. Error: \"#{e.message}\". Skipping"
-              end
+              ::Gitlab::Auth::LDAP::DN.new(dn).to_a.last(base.length) == base
+            rescue ::Gitlab::Auth::LDAP::DN::FormatError => e
+              Rails.logger.warn "Received invalid member DN from LDAP group '#{cn}': '#{dn}'. Error: \"#{e.message}\". Skipping"
             end
           end
 

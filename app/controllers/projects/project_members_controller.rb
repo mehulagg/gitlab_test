@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Projects::ProjectMembersController < Projects::ApplicationController
   include MembershipActions
   include MembersPresentation
@@ -5,7 +7,9 @@ class Projects::ProjectMembersController < Projects::ApplicationController
 
   # Authorize
   before_action :authorize_admin_project_member!, except: [:index, :leave, :request_access]
+  before_action :check_membership_lock!, only: [:create, :import, :apply_import]
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def index
     @sort = params[:sort].presence || sort_value_name
     @group_links = @project.project_group_links
@@ -25,6 +29,7 @@ class Projects::ProjectMembersController < Projects::ApplicationController
     @requesters = present_members(AccessRequestsFinder.new(@project).execute(current_user))
     @project_member = @project.project_members.new
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 
   def import
     @projects = current_user.authorized_projects.order_id_desc
@@ -46,4 +51,8 @@ class Projects::ProjectMembersController < Projects::ApplicationController
 
   # MembershipActions concern
   alias_method :membershipable, :project
+
+  def check_membership_lock!
+    access_denied!('Membership is locked by group settings') if membership_locked?
+  end
 end

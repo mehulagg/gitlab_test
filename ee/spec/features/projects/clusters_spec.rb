@@ -64,6 +64,9 @@ describe 'EE Clusters', :js do
             click_link 'Add existing cluster'
             fill_in 'cluster_name', with: 'staging-cluster'
             fill_in 'cluster_environment_scope', with: '*'
+            fill_in 'cluster_platform_kubernetes_attributes_api_url', with: 'https://0.0.0.0'
+            fill_in 'cluster_platform_kubernetes_attributes_token', with: 'token'
+
             click_button 'Add Kubernetes cluster'
           end
 
@@ -122,7 +125,7 @@ describe 'EE Clusters', :js do
           end
 
           it 'user sees a cluster details page' do
-            expect(page).to have_content('Kubernetes cluster integration is enabled for this project')
+            expect(page).to have_content('Enable or disable GitLab\'s connection to your Kubernetes cluster.')
             expect(page.find_field('cluster[environment_scope]').value).to eq('staging/*')
           end
         end

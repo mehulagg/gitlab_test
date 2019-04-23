@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module NavHelper
   def header_links
     @header_links ||= get_header_links
@@ -17,11 +19,7 @@ module NavHelper
   end
 
   def page_gutter_class
-    if current_path?('merge_requests#show') ||
-        current_path?('projects/merge_requests/conflicts#show') ||
-        current_path?('issues#show') ||
-        current_path?('milestones#show') ||
-        current_path?('epics#show')
+    if page_has_markdown?
 
       if cookies[:collapsed_gutter] == 'true'
         %w[page-gutter right-sidebar-collapsed]
@@ -49,6 +47,17 @@ module NavHelper
     class_names
   end
 
+  def has_extra_nav_icons?
+    Gitlab::Sherlock.enabled? || can?(current_user, :read_instance_statistics) || current_user.admin?
+  end
+
+  def page_has_markdown?
+    current_path?('merge_requests#show') ||
+      current_path?('projects/merge_requests/conflicts#show') ||
+      current_path?('issues#show') ||
+      current_path?('milestones#show')
+  end
+
   private
 
   def get_header_links
@@ -73,3 +82,5 @@ module NavHelper
     links
   end
 end
+
+NavHelper.prepend(EE::NavHelper)

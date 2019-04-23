@@ -5,6 +5,16 @@ describe Snippet, :elastic do
     stub_ee_application_setting(elasticsearch_search: true, elasticsearch_indexing: true)
   end
 
+  it 'always returns global result for Elasticsearch indexing for #use_elasticsearch?' do
+    snippet = create :snippet
+
+    expect(snippet.use_elasticsearch?).to eq(true)
+
+    stub_ee_application_setting(elasticsearch_indexing: false)
+
+    expect(snippet.use_elasticsearch?).to eq(false)
+  end
+
   context 'searching snippets by code' do
     let!(:author) { create(:user) }
     let!(:project) { create(:project) }
@@ -124,7 +134,7 @@ describe Snippet, :elastic do
       'project_id',
       'author_id',
       'visibility_level'
-    )
+    ).merge({ 'type' => snippet.es_type })
 
     expect(snippet.as_indexed_json).to eq(expected_hash)
   end

@@ -50,14 +50,26 @@ module ProtectedRef
         .map(&:"#{action}_access_levels").flatten
     end
 
+    # Returns all protected refs that match the given ref name.
+    # This checks all records from the scope built up so far, and does
+    # _not_ return a relation.
+    #
+    # This method optionally takes in a list of `protected_refs` to search
+    # through, to avoid calling out to the database.
     def matching(ref_name, protected_refs: nil)
-      ProtectedRefMatcher.matching(self, ref_name, protected_refs: protected_refs)
+      (protected_refs || self.all).select { |protected_ref| protected_ref.matches?(ref_name) }
     end
   end
 
   private
 
   def ref_matcher
-    @ref_matcher ||= ProtectedRefMatcher.new(self)
+    @ref_matcher ||= RefMatcher.new(self.name)
   end
 end
+
+# Prepending a module into a concern doesn't work very well for class methods,
+# since these are defined in a ClassMethods constant. As such, we prepend the
+# module directly into ProtectedRef::ClassMethods, instead of prepending it into
+# ProtectedRef.
+ProtectedRef::ClassMethods.prepend(EE::ProtectedRef)

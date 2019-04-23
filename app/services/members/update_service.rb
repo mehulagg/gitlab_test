@@ -2,8 +2,6 @@
 
 module Members
   class UpdateService < Members::BaseService
-    prepend EE::Members::UpdateService
-
     # returns the updated member
     def execute(member, permission: :update)
       raise Gitlab::Access::AccessDeniedError unless can?(current_user, action_member_permission(permission, member), member)
@@ -12,9 +10,20 @@ module Members
 
       if member.update(params)
         after_execute(action: permission, old_access_level: old_access_level, member: member)
+
+        # Deletes only confidential issues todos for guests
+        enqueue_delete_todos(member) if downgrading_to_guest?
       end
 
       member
     end
+
+    private
+
+    def downgrading_to_guest?
+      params[:access_level] == Gitlab::Access::GUEST
+    end
   end
 end
+
+Members::UpdateService.prepend(EE::Members::UpdateService)

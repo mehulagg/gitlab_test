@@ -2,8 +2,6 @@
 
 module Boards
   class CreateService < Boards::BaseService
-    prepend EE::Boards::CreateService
-
     def execute
       create_board! if can_create_board?
     end
@@ -11,7 +9,7 @@ module Boards
     private
 
     def can_create_board?
-      parent.boards.size == 0
+      parent.boards.empty?
     end
 
     def create_board!
@@ -26,3 +24,5 @@ module Boards
     end
   end
 end
+
+Boards::CreateService.prepend(EE::Boards::CreateService)

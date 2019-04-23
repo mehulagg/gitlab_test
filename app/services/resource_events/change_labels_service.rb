@@ -1,11 +1,7 @@
 # frozen_string_literal: true
 
-# This service is not used yet, it will be used for:
-# https://gitlab.com/gitlab-org/gitlab-ce/issues/48483
 module ResourceEvents
   class ChangeLabelsService
-    prepend EE::ResourceEvents::ChangeLabelsService
-
     attr_reader :resource, :user
 
     def initialize(resource, user)
@@ -16,7 +12,7 @@ module ResourceEvents
       label_hash = {
         resource_column(resource) => resource.id,
         user_id: user.id,
-        created_at: Time.now
+        created_at: resource.system_note_timestamp
       }
 
       labels = added_labels.map do |label|
@@ -27,6 +23,7 @@ module ResourceEvents
       end
 
       Gitlab::Database.bulk_insert(ResourceLabelEvent.table_name, labels)
+      resource.expire_note_etag_cache
     end
 
     private
@@ -43,3 +40,5 @@ module ResourceEvents
     end
   end
 end
+
+ResourceEvents::ChangeLabelsService.prepend(EE::ResourceEvents::ChangeLabelsService)

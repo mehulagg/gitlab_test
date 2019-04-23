@@ -1,13 +1,16 @@
+# frozen_string_literal: true
+
 class GithubService < Service
   include Gitlab::Routing
   include ActionView::Helpers::UrlHelper
 
   prop_accessor :token, :repository_url
+  boolean_accessor :static_context
 
   delegate :api_url, :owner, :repository_name, to: :remote_project
 
   validates :token, presence: true, if: :activated?
-  validates :repository_url, url: true, allow_blank: true
+  validates :repository_url, addressable_url: true, allow_blank: true
 
   default_value_for :pipeline_events, true
 
@@ -31,8 +34,20 @@ class GithubService < Service
 
   def fields
     [
-      { type: 'text', name: "token", required: true, placeholder: "e.g. 8d3f016698e...", help: 'Create a <a href="https://github.com/settings/tokens">personal access token</a> with  <code>repo:status</code> access granted and paste it here.'.html_safe },
-      { type: 'text', name: "repository_url", title: 'Repository URL', required: true, placeholder: 'e.g. https://github.com/owner/repository' }
+      { type: 'text',
+        name: "token",
+        required: true,
+        placeholder: "e.g. 8d3f016698e...",
+        help: 'Create a <a href="https://github.com/settings/tokens">personal access token</a> with  <code>repo:status</code> access granted and paste it here.'.html_safe },
+      { type: 'text',
+        name: "repository_url",
+        title: 'Repository URL',
+        required: true,
+        placeholder: 'e.g. https://github.com/owner/repository' },
+      { type: 'checkbox',
+        name: "static_context",
+        title: 'Static status check names',
+        help: 'GitHub status checks need static name in order to be marked as "required".' }
     ]
   end
 
@@ -41,23 +56,23 @@ class GithubService < Service
   end
 
   def can_test?
-    project.pipelines.any?
+    project.ci_pipelines.any?
   end
 
   def disabled_title
-    'Please setup a pipeline on your repository.'
+    'Please set up a pipeline on your repository.'
   end
 
   def execute(data)
     return if disabled?
 
-    status_message = StatusMessage.from_pipeline_data(project, data)
+    status_message = StatusMessage.from_pipeline_data(project, self, data)
 
     update_status(status_message)
   end
 
   def test_data(project, user)
-    pipeline = project.pipelines.newest_first.first
+    pipeline = project.ci_pipelines.newest_first.first
 
     raise disabled_title unless pipeline
 

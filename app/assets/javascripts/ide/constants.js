@@ -1,8 +1,3 @@
-// Fuzzy file finder
-export const MAX_FILE_FINDER_RESULTS = 40;
-export const FILE_FINDER_ROW_HEIGHT = 55;
-export const FILE_FINDER_EMPTY_ROW_HEIGHT = 33;
-
 export const MAX_WINDOW_HEIGHT_COMPACT = 750;
 
 // Commit message textarea
@@ -26,13 +21,30 @@ export const diffModes = {
   new: 'new',
   deleted: 'deleted',
   renamed: 'renamed',
+  mode_changed: 'mode_changed',
 };
 
+export const diffViewerModes = Object.freeze({
+  not_diffable: 'not_diffable',
+  no_preview: 'no_preview',
+  added: 'added',
+  deleted: 'deleted',
+  renamed: 'renamed',
+  mode_changed: 'mode_changed',
+  text: 'text',
+  image: 'image',
+});
+
+export const diffViewerErrors = Object.freeze({
+  too_large: 'too_large',
+  stored_externally: 'server_side_but_stored_externally',
+});
+
 export const rightSidebarViews = {
-  pipelines: 'pipelines-list',
-  jobsDetail: 'jobs-detail',
-  mergeRequestInfo: 'merge-request-info',
-  clientSidePreview: 'clientside',
+  pipelines: { name: 'pipelines-list', keepAlive: true },
+  jobsDetail: { name: 'jobs-detail', keepAlive: false },
+  mergeRequestInfo: { name: 'merge-request-info', keepAlive: true },
+  clientSidePreview: { name: 'clientside', keepAlive: false },
 };
 
 export const stageKeys = {

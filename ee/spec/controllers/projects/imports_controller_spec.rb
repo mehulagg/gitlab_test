@@ -11,15 +11,17 @@ describe Projects::ImportsController do
 
   context 'POST #create' do
     context 'mirror user is not the current user' do
-      it 'should only assign the current user' do
+      it 'only assigns the current user' do
         allow_any_instance_of(EE::Project).to receive(:add_import_job)
 
         new_user = create(:user)
         project.add_maintainer(new_user)
 
-        post :create, namespace_id: project.namespace.to_param,
-                      project_id: project,
-                      project: { mirror: true, mirror_user_id: new_user.id, import_url: 'http://local.dev' },
+        post :create, params: {
+                        namespace_id: project.namespace.to_param,
+                        project_id: project,
+                        project: { mirror: true, mirror_user_id: new_user.id, import_url: 'http://local.dev' }
+                      },
                       format: :json
 
         expect(project.reload.mirror).to eq(true)

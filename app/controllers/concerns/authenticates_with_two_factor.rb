@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == AuthenticatesWithTwoFactor
 #
 # Controller concern to handle two-factor authentication
@@ -34,7 +36,7 @@ module AuthenticatesWithTwoFactor
   end
 
   def locked_user_redirect(user)
-    flash.now[:alert] = 'Invalid Login or password'
+    flash.now[:alert] = _('Invalid Login or password')
     render 'devise/sessions/new'
   end
 
@@ -64,7 +66,7 @@ module AuthenticatesWithTwoFactor
     else
       user.increment_failed_attempts!
       Gitlab::AppLogger.info("Failed Login: user=#{user.username} ip=#{request.remote_ip} method=OTP")
-      flash.now[:alert] = 'Invalid two-factor code.'
+      flash.now[:alert] = _('Invalid two-factor code.')
       prompt_for_two_factor(user)
     end
   end
@@ -81,13 +83,14 @@ module AuthenticatesWithTwoFactor
     else
       user.increment_failed_attempts!
       Gitlab::AppLogger.info("Failed Login: user=#{user.username} ip=#{request.remote_ip} method=U2F")
-      flash.now[:alert] = 'Authentication via U2F device failed.'
+      flash.now[:alert] = _('Authentication via U2F device failed.')
       prompt_for_two_factor(user)
     end
   end
 
   # Setup in preparation of communication with a U2F (universal 2nd factor) device
   # Actual communication is performed using a Javascript API
+  # rubocop: disable CodeReuse/ActiveRecord
   def setup_u2f_authentication(user)
     key_handles = user.u2f_registrations.pluck(:key_handle)
     u2f = U2F::U2F.new(u2f_app_id)
@@ -99,4 +102,5 @@ module AuthenticatesWithTwoFactor
                       sign_requests: sign_requests })
     end
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 end

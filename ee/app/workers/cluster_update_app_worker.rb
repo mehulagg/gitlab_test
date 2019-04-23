@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ClusterUpdateAppWorker
   UpdateAlreadyInProgressError = Class.new(StandardError)
 
@@ -7,6 +9,7 @@ class ClusterUpdateAppWorker
 
   sidekiq_options retry: 3, dead: false
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def perform(app_name, app_id, project_id, scheduled_time)
     project = Project.find_by(id: project_id)
     return unless project
@@ -18,4 +21,5 @@ class ClusterUpdateAppWorker
       Clusters::Applications::PrometheusUpdateService.new(app, project).execute
     end
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module IssuableLinks
   class ListService
     include Gitlab::Routing
@@ -9,30 +11,17 @@ module IssuableLinks
     end
 
     def execute
-      issues.map do |referenced_issue|
-        to_hash(referenced_issue)
-      end
+      serializer.new(current_user: current_user, issuable: issuable).represent(child_issuables)
     end
 
     private
 
-    def relation_path(issue)
+    def serializer
       raise NotImplementedError
     end
 
-    def reference(issue)
-      issue.to_reference(issuable.project)
-    end
-
-    def to_hash(issue)
-      {
-        id: issue.id,
-        title: issue.title,
-        state: issue.state,
-        reference: reference(issue),
-        path: project_issue_path(issue.project, issue.iid),
-        relation_path: relation_path(issue)
-      }
+    def preload_for_collection
+      [{ project: :namespace }, :assignees]
     end
   end
 end

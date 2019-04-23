@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 module EE
   module ProtectedBranch
     extend ActiveSupport::Concern
 
-    included do
+    prepended do
       protected_ref_access_levels :unprotect
     end
 

@@ -25,9 +25,8 @@ module EE
         private
 
         def define_protected_env_variables
-          @protected_environments = @project.protected_environments.order(:name)
-          @protected_environments_count = @protected_environments.count
-          @protected_environment = @project.protected_environments.new
+          @protected_environments = @project.protected_environments.with_environment_id.sorted_by_name
+          @protected_environment = ProtectedEnvironment.new(project: @project)
         end
 
         def assign_variables_to_gon

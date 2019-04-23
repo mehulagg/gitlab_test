@@ -3,15 +3,17 @@ import Vue from 'vue';
 import NodeDetailsSectionOtherComponent from 'ee/geo_nodes/components/node_detail_sections/node_details_section_other.vue';
 import mountComponent from 'spec/helpers/vue_mount_component_helper';
 import { numberToHumanSize } from '~/lib/utils/number_utils';
-import { mockNodeDetails } from 'ee_spec/geo_nodes/mock_data';
+import { mockNode, mockNodeDetails } from 'ee_spec/geo_nodes/mock_data';
 
 const createComponent = (
+  node = Object.assign({}, mockNode),
   nodeDetails = Object.assign({}, mockNodeDetails),
   nodeTypePrimary = false,
 ) => {
   const Component = Vue.extend(NodeDetailsSectionOtherComponent);
 
   return mountComponent(Component, {
+    node,
     nodeDetails,
     nodeTypePrimary,
   });
@@ -37,15 +39,17 @@ describe('NodeDetailsSectionOther', () => {
   describe('computed', () => {
     describe('nodeDetailItems', () => {
       it('returns array containing items to show under primary node when prop `nodeTypePrimary` is true', () => {
-        const vmNodePrimary = createComponent(mockNodeDetails, true);
+        const vmNodePrimary = createComponent(mockNode, mockNodeDetails, true);
 
         const items = vmNodePrimary.nodeDetailItems;
 
-        expect(items.length).toBe(2);
+        expect(items.length).toBe(3);
         expect(items[0].itemTitle).toBe('Replication slots');
         expect(items[0].itemValue).toBe(mockNodeDetails.replicationSlots);
         expect(items[1].itemTitle).toBe('Replication slot WAL');
         expect(items[1].itemValue).toBe(numberToHumanSize(mockNodeDetails.replicationSlotWAL));
+        expect(items[2].itemTitle).toBe('Internal URL');
+        expect(items[2].itemValue).toBe(mockNode.internalUrl);
 
         vmNodePrimary.$destroy();
       });
@@ -59,7 +63,7 @@ describe('NodeDetailsSectionOther', () => {
     });
 
     describe('storageShardsStatus', () => {
-      it('returns `Unknown` when `nodeDetails.storageShardsMatch` is null', (done) => {
+      it('returns `Unknown` when `nodeDetails.storageShardsMatch` is null', done => {
         vm.nodeDetails.storageShardsMatch = null;
         Vue.nextTick()
           .then(() => {
@@ -69,7 +73,7 @@ describe('NodeDetailsSectionOther', () => {
           .catch(done.fail);
       });
 
-      it('returns `OK` when `nodeDetails.storageShardsMatch` is true', (done) => {
+      it('returns `OK` when `nodeDetails.storageShardsMatch` is true', done => {
         vm.nodeDetails.storageShardsMatch = true;
         Vue.nextTick()
           .then(() => {
@@ -85,7 +89,7 @@ describe('NodeDetailsSectionOther', () => {
     });
 
     describe('storageShardsCssClass', () => {
-      it('returns CSS class `node-detail-value-bold` when `nodeDetails.storageShardsMatch` is true', (done) => {
+      it('returns CSS class `node-detail-value-bold` when `nodeDetails.storageShardsMatch` is true', done => {
         vm.nodeDetails.storageShardsMatch = true;
         Vue.nextTick()
           .then(() => {
@@ -108,7 +112,9 @@ describe('NodeDetailsSectionOther', () => {
 
     it('renders show section button element', () => {
       expect(vm.$el.querySelector('.btn-show-section')).not.toBeNull();
-      expect(vm.$el.querySelector('.btn-show-section > span').innerText.trim()).toBe('Other information');
+      expect(vm.$el.querySelector('.btn-show-section > span').innerText.trim()).toBe(
+        'Other information',
+      );
     });
 
     it('renders section items container element', () => {

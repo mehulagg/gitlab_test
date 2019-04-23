@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module API
   class IssueLinks < Grape::API
     include PaginationParams
@@ -29,12 +31,13 @@ module API
         requires :target_project_id, type: String, desc: 'The ID of the target project'
         requires :target_issue_iid, type: Integer, desc: 'The IID of the target issue'
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       post ':id/issues/:issue_iid/links' do
         source_issue = find_project_issue(params[:issue_iid])
         target_issue = find_project_issue(declared_params[:target_issue_iid],
                                           declared_params[:target_project_id])
 
-        create_params = { target_issue: target_issue }
+        create_params = { target_issuable: target_issue }
 
         result = ::IssueLinks::CreateService
                    .new(source_issue, current_user, create_params)
@@ -48,6 +51,7 @@ module API
           render_api_error!(result[:message], result[:http_status])
         end
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Remove issues relation' do
         success EE::API::Entities::IssueLink

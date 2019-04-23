@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   # PostReceive EE mixin
   #
@@ -12,7 +14,7 @@ module EE
       super
 
       if ::Gitlab::Geo.primary?
-        ::Geo::RepositoryUpdatedService.new(post_received.project, refs: refs, changes: changes).execute
+        ::Geo::RepositoryUpdatedService.new(post_received.project.repository, refs: refs, changes: changes).execute
       end
     end
 
@@ -22,13 +24,12 @@ module EE
       update_wiki_es_indexes(post_received)
 
       if ::Gitlab::Geo.primary?
-        ::Geo::RepositoryUpdatedService.new(post_received.project, source: ::Geo::RepositoryUpdatedEvent::WIKI).execute
+        ::Geo::RepositoryUpdatedService.new(post_received.project.wiki.repository).execute
       end
     end
 
     def update_wiki_es_indexes(post_received)
-      return unless ::Gitlab::CurrentSettings.current_application_settings
-        .elasticsearch_indexing?
+      return unless post_received.project.use_elasticsearch?
 
       post_received.project.wiki.index_blobs
     end

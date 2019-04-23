@@ -2,6 +2,8 @@ resources :projects, only: [:index, :new, :create]
 
 draw :git_http
 
+get '/projects/:id' => 'projects#resolve'
+
 constraints(::Constraints::ProjectUrlConstrainer.new) do
   # If the route has a wildcard segment, the segment has a regex constraint,
   # the segment is potentially followed by _another_ wildcard segment, and
@@ -32,6 +34,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           get 'labels'
           get 'milestones'
           get 'commands'
+          get 'snippets'
         end
       end
 
@@ -101,6 +104,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
       end
 
+      resources :releases, only: [:index]
       resources :forks, only: [:index, :new, :create]
       resource :import, only: [:new, :create, :show]
 
@@ -155,7 +159,19 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
         ## EE-specific
         resources :approvers, only: :destroy
+        delete 'approvers', to: 'approvers#destroy_via_user_id', as: :approver_via_user_id
         resources :approver_groups, only: :destroy
+        ## EE-specific
+
+        ## EE-specific
+        scope module: :merge_requests do
+          resources :drafts, only: [:index, :update, :create, :destroy] do
+            collection do
+              post :publish
+              delete :discard
+            end
+          end
+        end
         ## EE-specific
 
         resources :discussions, only: [:show], constraints: { id: /\h{40}/ } do
@@ -166,7 +182,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
       end
 
-      controller 'merge_requests/creations', path: 'merge_requests' do
+      scope path: 'merge_requests', controller: 'merge_requests/creations' do
         post '', action: :create, as: nil
 
         scope path: 'new', as: :new_merge_request do
@@ -244,21 +260,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
       end
 
-      resources :clusters, except: [:edit, :create] do
-        collection do
-          post :create_gcp
-          post :create_user
-        end
-
-        member do
-          get :status, format: :json
-          get :metrics, format: :json
-
-          scope :applications do
-            post '/:application', to: 'clusters/applications#create', as: :install_applications
-          end
-        end
-      end
+      concerns :clusterable
 
       resources :environments, except: [:destroy] do
         member do
@@ -268,6 +270,8 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           get :additional_metrics
           get '/terminal.ws/authorize', to: 'environments#terminal_websocket_authorize', constraints: { format: nil }
 
+          get '/prometheus/api/v1/*proxy_path', to: 'environments/prometheus_api#proxy'
+
           # EE
           get :logs
         end
@@ -275,6 +279,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         collection do
           get :metrics, action: :metrics_redirect
           get :folder, path: 'folders/*id', constraints: { format: /(html|json)/ }
+          get :search
         end
 
         resources :deployments, only: [:index] do
@@ -307,13 +312,20 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
       end
 
+      namespace :serverless do
+        scope :functions do
+          get '/:environment_id/:id', to: 'functions#show'
+          get '/:environment_id/:id/metrics', to: 'functions#metrics', as: :metrics
+        end
+
+        resources :functions, only: [:index]
+      end
+
       scope '-' do
         get 'archive/*id', constraints: { format: Gitlab::PathRegex.archive_formats_regex, id: /.+?/ }, to: 'repositories#archive', as: 'archive'
 
         resources :jobs, only: [:index, :show], constraints: { id: /\d+/ } do
           collection do
-            post :cancel_all
-
             resources :artifacts, only: [] do
               collection do
                 get :latest_succeeded,
@@ -326,6 +338,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           member do
             get :status
             post :cancel
+            post :unschedule
             post :retry
             post :play
             post :erase
@@ -347,6 +360,10 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         namespace :ci do
           resource :lint, only: [:show, :create]
         end
+
+        ## EE-specific
+        resources :feature_flags
+        ## EE-specific
       end
 
       draw :legacy_builds
@@ -358,7 +375,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
         resources :hook_logs, only: [:show] do
           member do
-            get :retry
+            post :retry
           end
         end
       end
@@ -426,9 +443,12 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
         collection do
           post :bulk_update
-          post :export_csv
+          post :import_csv
 
-          get :service_desk ## EE-specific
+          ## EE-specific START
+          post :export_csv
+          get :service_desk
+          ## EE-specific END
         end
 
         resources :issue_links, only: [:index, :create, :destroy], as: 'links', path: 'links'
@@ -461,8 +481,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
       get 'noteable/:target_type/:target_id/notes' => 'notes#index', as: 'noteable_notes'
 
-      # On CE only index and show are needed
-      resources :boards, only: [:index, :show, :create, :update, :destroy]
+      resources :boards, only: [:index, :show], constraints: { id: /\d+/ }
 
       resources :todos, only: [:create]
 
@@ -512,6 +531,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         get :members, to: redirect("%{namespace_id}/%{project_id}/project_members")
         resource :ci_cd, only: [:show, :update], controller: 'ci_cd' do
           post :reset_cache
+          put :reset_registration_token
         end
         resource :integrations, only: [:show]
 
@@ -521,8 +541,14 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
         resource :repository, only: [:show], controller: :repository do
           post :create_deploy_token, path: 'deploy_token/create'
+          post :cleanup
         end
-        resources :badges, only: [:index]
+      end
+
+      resources :error_tracking, only: [:index], controller: :error_tracking do
+        collection do
+          post :list_projects
+        end
       end
 
       # Since both wiki and repository routing contains wildcard characters
@@ -533,6 +559,10 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       ## EE-specific
       resources :managed_licenses, only: [:index, :show, :new, :create, :edit, :update, :destroy]
       ## EE-specific
+
+      namespace :settings do
+        resource :operations, only: [:show, :update]
+      end
     end
 
     resources(:projects,
@@ -556,37 +586,5 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         put :new_issuable_address
       end
     end
-  end
-end
-
-# EE-specific
-scope path: '/-/jira', as: :jira do
-  scope path: '*namespace_id/:project_id',
-        namespace_id: Gitlab::Jira::Dvcs::ENCODED_ROUTE_REGEX,
-        project_id: Gitlab::Jira::Dvcs::ENCODED_ROUTE_REGEX do
-    get '/', to: redirect { |params, req|
-      ::Gitlab::Jira::Dvcs.restore_full_path(
-        namespace: params[:namespace_id],
-        project: params[:project_id]
-      )
-    }
-
-    get 'commit/:id', constraints: { id: /\h{7,40}/ }, to: redirect { |params, req|
-      project_full_path = ::Gitlab::Jira::Dvcs.restore_full_path(
-        namespace: params[:namespace_id],
-        project: params[:project_id]
-      )
-
-      "/#{project_full_path}/commit/#{params[:id]}"
-    }
-
-    get 'tree/*id', as: nil, to: redirect { |params, req|
-      project_full_path = ::Gitlab::Jira::Dvcs.restore_full_path(
-        namespace: params[:namespace_id],
-        project: params[:project_id]
-      )
-
-      "/#{project_full_path}/tree/#{params[:id]}"
-    }
   end
 end

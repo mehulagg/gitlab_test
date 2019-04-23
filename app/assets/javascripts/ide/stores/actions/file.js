@@ -5,7 +5,7 @@ import service from '../../services';
 import * as types from '../mutation_types';
 import router from '../../ide_router';
 import { setPageTitle } from '../utils';
-import { viewerTypes } from '../../constants';
+import { viewerTypes, stageKeys } from '../../constants';
 
 export const closeFile = ({ commit, state, dispatch }, file) => {
   const { path } = file;
@@ -56,7 +56,10 @@ export const setFileActive = ({ commit, state, getters, dispatch }, path) => {
   dispatch('scrollToTab');
 };
 
-export const getFileData = ({ state, commit, dispatch }, { path, makeFileActive = true }) => {
+export const getFileData = (
+  { state, commit, dispatch },
+  { path, makeFileActive = true, openFile = makeFileActive },
+) => {
   const file = state.entries[path];
 
   if (file.raw || (file.tempFile && !file.prevPath)) return Promise.resolve();
@@ -71,15 +74,15 @@ export const getFileData = ({ state, commit, dispatch }, { path, makeFileActive 
       const normalizedHeaders = normalizeHeaders(headers);
       setPageTitle(decodeURI(normalizedHeaders['PAGE-TITLE']));
 
-      commit(types.SET_FILE_DATA, { data, file });
-      if (makeFileActive) commit(types.TOGGLE_FILE_OPEN, path);
+      if (data) commit(types.SET_FILE_DATA, { data, file });
+      if (openFile) commit(types.TOGGLE_FILE_OPEN, path);
       if (makeFileActive) dispatch('setFileActive', path);
       commit(types.TOGGLE_LOADING, { entry: file });
     })
     .catch(() => {
       commit(types.TOGGLE_LOADING, { entry: file });
       dispatch('setErrorMessage', {
-        text: __('An error occured whilst loading the file.'),
+        text: __('An error occurred whilst loading the file.'),
         action: payload =>
           dispatch('getFileData', payload).then(() => dispatch('setErrorMessage', null)),
         actionText: __('Please try again'),
@@ -121,7 +124,7 @@ export const getRawFileData = ({ state, commit, dispatch, getters }, { path }) =
       })
       .catch(() => {
         dispatch('setErrorMessage', {
-          text: __('An error occured whilst loading the file content.'),
+          text: __('An error occurred whilst loading the file content.'),
           action: payload =>
             dispatch('getRawFileData', payload).then(() => dispatch('setErrorMessage', null)),
           actionText: __('Please try again'),
@@ -208,8 +211,9 @@ export const discardFileChanges = ({ dispatch, state, commit, getters }, path) =
   eventHub.$emit(`editor.update.model.dispose.unstaged-${file.key}`, file.content);
 };
 
-export const stageChange = ({ commit, state }, path) => {
+export const stageChange = ({ commit, state, dispatch }, path) => {
   const stagedFile = state.stagedFiles.find(f => f.path === path);
+  const openFile = state.openFiles.find(f => f.path === path);
 
   commit(types.STAGE_CHANGE, path);
   commit(types.SET_LAST_COMMIT_MSG, '');
@@ -217,20 +221,38 @@ export const stageChange = ({ commit, state }, path) => {
   if (stagedFile) {
     eventHub.$emit(`editor.update.model.new.content.staged-${stagedFile.key}`, stagedFile.content);
   }
+
+  if (openFile && openFile.active) {
+    const file = state.stagedFiles.find(f => f.path === path);
+
+    dispatch('openPendingTab', {
+      file,
+      keyPrefix: stageKeys.staged,
+    });
+  }
 };
 
-export const unstageChange = ({ commit }, path) => {
+export const unstageChange = ({ commit, dispatch, state }, path) => {
+  const openFile = state.openFiles.find(f => f.path === path);
+
   commit(types.UNSTAGE_CHANGE, path);
+
+  if (openFile && openFile.active) {
+    const file = state.changedFiles.find(f => f.path === path);
+
+    dispatch('openPendingTab', {
+      file,
+      keyPrefix: stageKeys.unstaged,
+    });
+  }
 };
 
-export const openPendingTab = ({ commit, getters, dispatch, state }, { file, keyPrefix }) => {
+export const openPendingTab = ({ commit, getters, state }, { file, keyPrefix }) => {
   if (getters.activeFile && getters.activeFile.key === `${keyPrefix}-${file.key}`) return false;
 
   state.openFiles.forEach(f => eventHub.$emit(`editor.update.model.dispose.${f.key}`));
 
   commit(types.ADD_PENDING_TAB, { file, keyPrefix });
-
-  dispatch('scrollToTab');
 
   router.push(`/project/${file.projectId}/tree/${state.currentBranchId}/`);
 

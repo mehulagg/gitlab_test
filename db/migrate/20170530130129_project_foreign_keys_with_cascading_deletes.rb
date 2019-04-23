@@ -1,7 +1,7 @@
 # See http://doc.gitlab.com/ce/development/migration_style_guide.html
 # for more information on how to write migrations for GitLab.
 
-class ProjectForeignKeysWithCascadingDeletes < ActiveRecord::Migration
+class ProjectForeignKeysWithCascadingDeletes < ActiveRecord::Migration[4.2]
   include Gitlab::Database::MigrationHelpers
 
   DOWNTIME = false
@@ -126,11 +126,10 @@ class ProjectForeignKeysWithCascadingDeletes < ActiveRecord::Migration
       queues.each do |queue|
         # Stealing is racy so it's possible a pop might be called on an
         # already-empty queue.
-        begin
-          remove_orphans(*queue.pop(true))
-          stolen = true
-        rescue ThreadError
-        end
+
+        remove_orphans(*queue.pop(true))
+        stolen = true
+      rescue ThreadError
       end
 
       break unless stolen

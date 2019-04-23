@@ -4,13 +4,14 @@ module API
   class ManagedLicenses < Grape::API
     include PaginationParams
 
-    before { authenticate! }
+    before { authenticate! unless route.settings[:skip_authentication] }
 
     helpers do
       # Make the software license policy specified by id in the request available
       def software_license_policy
         id = params[:managed_license_id]
-        @software_license_policy ||= SoftwareLicensePoliciesFinder.new(current_user, user_project).find_by_name_or_id(id)
+        @software_license_policy ||=
+          SoftwareLicensePoliciesFinder.new(current_user, user_project, name_or_id: id).find
       end
 
       def authorize_can_read!
@@ -26,10 +27,11 @@ module API
       requires :id, type: String, desc: 'The ID of a project'
     end
 
-    resource :projects, requirements: API::PROJECT_ENDPOINT_REQUIREMENTS  do
+    resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       desc 'Get project software license policies' do
-        success Entities::ManagedLicense
+        success EE::API::Entities::ManagedLicense
       end
+      route_setting :skip_authentication, true
       params do
         use :pagination
       end
@@ -37,21 +39,21 @@ module API
         authorize_can_read!
 
         software_license_policies = user_project.software_license_policies
-        present paginate(software_license_policies), with: Entities::ManagedLicense
+        present paginate(software_license_policies), with: EE::API::Entities::ManagedLicense
       end
 
       desc 'Get a specific software license policy from a project' do
-        success Entities::ManagedLicense
+        success EE::API::Entities::ManagedLicense
       end
       get ':id/managed_licenses/:managed_license_id', requirements: { managed_license_id: /.*/ } do
         authorize_can_read!
         break not_found!('SoftwareLicensePolicy') unless software_license_policy
 
-        present software_license_policy, with: Entities::ManagedLicense
+        present software_license_policy, with: EE::API::Entities::ManagedLicense
       end
 
       desc 'Create a new software license policy in a project' do
-        success Entities::ManagedLicense
+        success EE::API::Entities::ManagedLicense
       end
       params do
         requires :name, type: String, desc: 'The name of the license'
@@ -71,14 +73,14 @@ module API
         created_software_license_policy = result[:software_license_policy]
 
         if result[:status] == :success
-          present created_software_license_policy, with: Entities::ManagedLicense
+          present created_software_license_policy, with: EE::API::Entities::ManagedLicense
         else
           render_api_error!(result[:message], result[:http_status])
         end
       end
 
       desc 'Update an existing software license policy from a project' do
-        success Entities::ManagedLicense
+        success EE::API::Entities::ManagedLicense
       end
       params do
         optional :name, type: String, desc: 'The name of the license'
@@ -87,6 +89,7 @@ module API
           values: %w(approved blacklisted),
           desc: 'The approval status of the license. "blacklisted" or "approved".'
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       patch ':id/managed_licenses/:managed_license_id', requirements: { managed_license_id: /.*/ } do
         authorize_can_admin!
         break not_found!('SoftwareLicensePolicy') unless software_license_policy
@@ -98,14 +101,15 @@ module API
         ).execute(@software_license_policy)
 
         if result[:status] == :success
-          present @software_license_policy, with: Entities::ManagedLicense
+          present @software_license_policy, with: EE::API::Entities::ManagedLicense
         else
           render_api_error!(result[:message], result[:http_status])
         end
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Delete an existing software license policy from a project' do
-        success Entities::ManagedLicense
+        success EE::API::Entities::ManagedLicense
       end
       delete ':id/managed_licenses/:managed_license_id', requirements: { managed_license_id: /.*/ } do
         authorize_can_admin!

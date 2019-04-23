@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Epics
   class UpdateService < Epics::BaseService
     EPIC_DATE_FIELDS = %I[
@@ -12,9 +14,12 @@ module Epics
       # are composite fields managed by the system.
       params.except!(:start_date, :end_date)
 
-      update(epic)
+      update_task_event(epic) || update(epic)
 
-      epic.update_start_and_due_dates if have_epic_dates_changed?(epic)
+      if have_epic_dates_changed?(epic)
+        epic.update_start_and_due_dates
+        epic.reset
+      end
 
       epic
     end
@@ -29,6 +34,11 @@ module Epics
       end
 
       todo_service.update_epic(epic, current_user, old_mentioned_users)
+    end
+
+    def handle_task_changes(epic)
+      todo_service.mark_pending_todos_as_done(epic, current_user)
+      todo_service.update_epic(epic, current_user)
     end
 
     private

@@ -1,11 +1,13 @@
+# frozen_string_literal: true
+
 class JenkinsService < CiService
   prop_accessor :jenkins_url, :project_name, :username, :password
 
   before_update :reset_password
 
-  validates :jenkins_url, presence: true, url: true, if: :activated?
+  validates :jenkins_url, presence: true, addressable_url: true, if: :activated?
   validates :project_name, presence: true, if: :activated?
-  validates :username, presence: true, if: ->(service) { service.activated? && service.password_touched? }
+  validates :username, presence: true, if: ->(service) { service.activated? && service.password_touched? && service.password.present? }
 
   default_value_for :push_events, true
   default_value_for :merge_requests_events, false

@@ -29,7 +29,7 @@ module Banzai
           if label
             yield match, label.id, project, namespace, $~
           else
-            match
+            escape_html_entities(match)
           end
         end
       end
@@ -48,7 +48,7 @@ module Banzai
                      include_ancestor_groups: true,
                      only_group_labels: true }
                  else
-                   { project_id: parent.id,
+                   { project: parent,
                      include_ancestor_groups: true }
                  end
 
@@ -91,7 +91,11 @@ module Banzai
           label_suffix = " <i>in #{reference}</i>" if reference.present?
         end
 
-        LabelsHelper.render_colored_label(object, label_suffix)
+        LabelsHelper.render_colored_label(object, label_suffix: label_suffix, title: tooltip_title(object))
+      end
+
+      def tooltip_title(label)
+        nil
       end
 
       def full_path_ref?(matches)
@@ -102,6 +106,10 @@ module Banzai
         CGI.unescapeHTML(text.to_s)
       end
 
+      def escape_html_entities(text)
+        CGI.escapeHTML(text.to_s)
+      end
+
       def object_link_title(object, matches)
         # use title of wrapped element instead
         nil
@@ -109,3 +117,5 @@ module Banzai
     end
   end
 end
+
+Banzai::Filter::LabelReferenceFilter.prepend(EE::Banzai::Filter::LabelReferenceFilter)

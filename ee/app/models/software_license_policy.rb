@@ -3,7 +3,7 @@
 # This class represents a software license policy. Which means the fact that the user
 # approves or not of the use of a certain software license in their project.
 # For use in the License Management feature.
-class SoftwareLicensePolicy < ActiveRecord::Base
+class SoftwareLicensePolicy < ApplicationRecord
   include Presentable
 
   # Only allows modification of the approval status
@@ -30,6 +30,13 @@ class SoftwareLicensePolicy < ActiveRecord::Base
   validates :software_license, uniqueness: { scope: :project_id }
 
   scope :ordered, -> { SoftwareLicensePolicy.includes(:software_license).order("software_licenses.name ASC") }
+  scope :for_project, -> (project) { where(project: project) }
+  scope :with_license, -> { joins(:software_license) }
+  scope :including_license, -> { includes(:software_license) }
+
+  scope :with_license_by_name, -> (license_name) do
+    joins(:software_license).where(software_licenses: { name: license_name })
+  end
 
   def name
     software_license.name

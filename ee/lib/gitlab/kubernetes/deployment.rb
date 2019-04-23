@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Gitlab
   module Kubernetes
     class Deployment
@@ -16,6 +18,10 @@ module Gitlab
 
       def labels
         metadata.fetch('labels', {})
+      end
+
+      def annotations
+        metadata.fetch('annotations', {})
       end
 
       def track

@@ -7,6 +7,15 @@ describe Gitlab::Database::LoadBalancing::ServiceDiscovery do
     described_class.new(nameserver: 'localhost', port: 8600, record: 'foo')
   end
 
+  before do
+    resource = double(:resource, address: IPAddr.new('127.0.0.1'))
+    packet = double(:packet, answer: [resource])
+
+    allow(Net::DNS::Resolver).to receive(:start)
+      .with('localhost', Net::DNS::A)
+      .and_return(packet)
+  end
+
   describe '#start' do
     before do
       allow(service)
@@ -130,11 +139,12 @@ describe Gitlab::Database::LoadBalancing::ServiceDiscovery do
     it 'returns a TTL and ordered list of IP addresses' do
       res1 = double(:resource, address: '255.255.255.0', ttl: 90)
       res2 = double(:resource, address: '127.0.0.1', ttl: 90)
+      packet = double(:packet, answer: [res1, res2])
 
       allow(service.resolver)
-        .to receive(:getresources)
-        .with('foo', Resolv::DNS::Resource::IN::A)
-        .and_return([res1, res2])
+        .to receive(:search)
+        .with('foo', Net::DNS::A)
+        .and_return(packet)
 
       expect(service.addresses_from_dns)
         .to eq([90, %w[127.0.0.1 255.255.255.0]])

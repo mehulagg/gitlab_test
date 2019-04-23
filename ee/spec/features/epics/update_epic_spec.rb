@@ -47,14 +47,36 @@ describe 'Update Epic', :js do
         fill_in 'issue-description', with: 'New epic description'
 
         page.within('.detail-page-description') do
-          click_link('Preview')
-          expect(find('.md-preview')).to have_content('New epic description')
+          click_button('Preview')
+          expect(find('.md-preview-holder')).to have_content('New epic description')
         end
 
         click_button 'Save changes'
 
         expect(find('.issuable-details h2.title')).to have_content('New epic title')
         expect(find('.issuable-details .description')).to have_content('New epic description')
+      end
+
+      it 'updates the epic and keep the description saved across reload' do
+        fill_in 'issue-description', with: 'New epic description'
+
+        page.within('.detail-page-description') do
+          click_button('Preview')
+          expect(find('.md-preview-holder')).to have_content('New epic description')
+        end
+
+        visit group_epic_path(group, epic)
+
+        # Deal with the beforeunload browser popup
+        page.driver.browser.switch_to.alert.accept
+
+        wait_for_requests
+        find('.btn-edit').click
+
+        page.within('.detail-page-description') do
+          click_button('Preview')
+          expect(find('.md-preview-holder')).to have_content('New epic description')
+        end
       end
 
       it 'creates a todo only for mentioned users' do
@@ -97,10 +119,10 @@ describe 'Update Epic', :js do
         expect(page.find_field("issue-description").value).to have_content('banana_sample')
 
         page.within('.detail-page-description') do
-          click_link('Preview')
+          click_button('Preview')
           wait_for_requests
 
-          within('.md-preview') do
+          within('.md-preview-holder') do
             link = find(link_css)['src']
             expect(link).to match(link_match)
           end
@@ -117,6 +139,16 @@ describe 'Update Epic', :js do
         it 'opens atwho container' do
           find('#issue-description').native.send_keys('@')
           expect(page).to have_selector('.atwho-container')
+        end
+      end
+    end
+
+    context 'epic sidebar' do
+      it 'opens datepicker when clicking Edit button' do
+        page.within('.issuable-sidebar .block.start-date') do
+          click_button('Edit')
+          expect(find('.value-type-fixed')).to have_selector('.pikaday-container')
+          expect(find('.value-type-fixed')).to have_selector('.pikaday-container .pika-single.is-bound')
         end
       end
     end
@@ -139,10 +171,10 @@ describe 'Update Epic', :js do
       wait_for_requests
     end
 
-    it 'does not show delete button inside the edit form' do
+    it 'shows delete button inside the edit form' do
       find('.btn-edit').click
 
-      expect(page).not_to have_selector('.issuable-details .btn-danger')
+      expect(page).to have_selector('.issuable-details .btn-danger')
     end
   end
 end

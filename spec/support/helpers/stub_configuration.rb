@@ -1,11 +1,10 @@
 require 'active_support/core_ext/hash/transform_values'
 require 'active_support/hash_with_indifferent_access'
+require 'active_support/dependencies'
 
-require_dependency Gitlab.root.join('ee/spec/support/helpers/ee/stub_configuration')
+require_dependency 'gitlab'
 
 module StubConfiguration
-  prepend EE::StubConfiguration
-
   def stub_application_setting(messages)
     add_predicates(messages)
 
@@ -19,16 +18,6 @@ module StubConfiguration
     allow_any_instance_of(ApplicationSetting).to receive(:cached_html_up_to_date?).and_return(false)
   end
 
-  def stub_application_setting_on_object(object, messages)
-    add_predicates(messages)
-
-    allow(Gitlab::CurrentSettings.current_application_settings)
-      .to receive_messages(messages)
-    messages.each do |setting, value|
-      allow(object).to receive_message_chain(:current_application_settings, setting) { value }
-    end
-  end
-
   def stub_not_protect_default_branch
     stub_application_setting(
       default_branch_protection: Gitlab::Access::PROTECTION_NONE)
@@ -36,6 +25,11 @@ module StubConfiguration
 
   def stub_config_setting(messages)
     allow(Gitlab.config.gitlab).to receive_messages(to_settings(messages))
+  end
+
+  def stub_default_url_options(host: "localhost", protocol: "http")
+    url_options = { host: host, protocol: protocol }
+    allow(Rails.application.routes).to receive(:default_url_options).and_return(url_options)
   end
 
   def stub_gravatar_setting(messages)
@@ -62,6 +56,10 @@ module StubConfiguration
     allow(Gitlab.config.lfs).to receive_messages(to_settings(messages))
   end
 
+  def stub_external_diffs_setting(messages)
+    allow(Gitlab.config.external_diffs).to receive_messages(to_settings(messages))
+  end
+
   def stub_artifacts_setting(messages)
     allow(Gitlab.config.artifacts).to receive_messages(to_settings(messages))
   end
@@ -80,6 +78,14 @@ module StubConfiguration
     end
 
     allow(Gitlab.config.repositories).to receive(:storages).and_return(Settingslogic.new(messages))
+  end
+
+  def stub_kerberos_setting(messages)
+    allow(Gitlab.config.kerberos).to receive_messages(to_settings(messages))
+  end
+
+  def stub_gitlab_shell_setting(messages)
+    allow(Gitlab.config.gitlab_shell).to receive_messages(to_settings(messages))
   end
 
   private
@@ -114,3 +120,8 @@ module StubConfiguration
     end
   end
 end
+
+require_relative '../../../ee/spec/support/helpers/ee/stub_configuration' if
+  Dir.exist?("#{__dir__}/../../../ee")
+
+StubConfiguration.prepend(EE::StubConfiguration)

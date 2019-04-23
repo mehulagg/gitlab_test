@@ -1,12 +1,15 @@
-class GeoNode < ActiveRecord::Base
+# frozen_string_literal: true
+
+class GeoNode < ApplicationRecord
   include Presentable
+  include Geo::SelectiveSync
 
   SELECTIVE_SYNC_TYPES = %w[namespaces shards].freeze
 
   # Array of repository storages to synchronize for selective sync by shards
   serialize :selective_sync_shards, Array # rubocop:disable Cop/ActiveRecordSerialize
 
-  belongs_to :oauth_application, class_name: 'Doorkeeper::Application', dependent: :destroy # rubocop: disable Cop/ActiveRecordDependent
+  belongs_to :oauth_application, class_name: 'Doorkeeper::Application', dependent: :destroy, autosave: true # rubocop: disable Cop/ActiveRecordDependent
 
   has_many :geo_node_namespace_links
   has_many :namespaces, through: :geo_node_namespace_links
@@ -15,10 +18,11 @@ class GeoNode < ActiveRecord::Base
   default_values url: ->(record) { record.class.current_node_url },
                  primary: false
 
-  validates :url, presence: true, uniqueness: { case_sensitive: false }
-  validate :check_url_is_valid
+  validates :url, presence: true, uniqueness: { case_sensitive: false }, addressable_url: true
+  validates :internal_url, addressable_url: true, allow_blank: true, allow_nil: true
 
   validates :primary, uniqueness: { message: 'node already exists' }, if: :primary
+  validates :enabled, if: :primary, acceptance: { message: 'Geo primary node cannot be disabled' }
 
   validates :access_key, presence: true
   validates :encrypted_secret_access_key, presence: true
@@ -32,18 +36,20 @@ class GeoNode < ActiveRecord::Base
   validates :repos_max_capacity, numericality: { greater_than_or_equal_to: 0 }
   validates :files_max_capacity, numericality: { greater_than_or_equal_to: 0 }
   validates :verification_max_capacity, numericality: { greater_than_or_equal_to: 0 }
+  validates :minimum_reverification_interval, numericality: { greater_than_or_equal_to: 1 }
 
   validate :check_not_adding_primary_as_secondary, if: :secondary?
 
   after_save :expire_cache!
   after_destroy :expire_cache!
-  before_validation :update_dependents_attributes
 
+  before_validation :update_dependents_attributes
   before_validation :ensure_access_keys!
 
   alias_method :repair, :save # the `update_dependents_attributes` hook will take care of it
 
   scope :with_url_prefix, ->(prefix) { where('url LIKE ?', "#{prefix}%") }
+  scope :secondary_nodes, -> { where(primary: false) }
 
   attr_encrypted :secret_access_key,
                  key: Settings.attr_encrypted_db_key_base_truncated,
@@ -68,6 +74,39 @@ class GeoNode < ActiveRecord::Base
 
       GeoNode.find_by(url: current_node_url)
     end
+
+    def primary_node
+      find_by(primary: true)
+    end
+
+    def unhealthy_nodes
+      status_table = GeoNodeStatus.arel_table
+
+      query = status_table[:id].eq(nil)
+        .or(status_table[:cursor_last_event_id].eq(nil))
+        .or(status_table[:last_successful_status_check_at].eq(nil))
+        .or(status_table[:last_successful_status_check_at].lt(10.minutes.ago))
+
+      left_join_status.where(query)
+    end
+
+    def min_cursor_last_event_id
+      left_join_status.minimum(:cursor_last_event_id)
+    end
+
+    # Tries to find a GeoNode by oauth_application_id, returning nil if none could be found.
+    def find_by_oauth_application_id(oauth_application_id)
+      where(oauth_application_id: oauth_application_id).take
+    end
+
+    private
+
+    def left_join_status
+      join_statement = arel_table.join(GeoNodeStatus.arel_table, Arel::Nodes::OuterJoin)
+        .on(arel_table[:id].eq(GeoNodeStatus.arel_table[:geo_node_id]))
+
+      joins(join_statement.join_sources)
+    end
   end
 
   def current?
@@ -83,22 +122,31 @@ class GeoNode < ActiveRecord::Base
   end
 
   def url
-    value = read_attribute(:url)
-    value += '/' if value.present? && !value.end_with?('/')
-
-    value
+    read_with_ending_slash(:url)
   end
 
   def url=(value)
-    value += '/'  if value.present? && !value.end_with?('/')
-
-    write_attribute(:url, value)
+    write_with_ending_slash(:url, value)
 
     @uri = nil
   end
 
+  def internal_url
+    read_with_ending_slash(:internal_url).presence || read_with_ending_slash(:url)
+  end
+
+  def internal_url=(value)
+    value = add_ending_slash(value) != url ? value : nil
+    write_with_ending_slash(:internal_url, value)
+    @internal_uri = nil
+  end
+
   def uri
     @uri ||= URI.parse(url) if url.present?
+  end
+
+  def internal_uri
+    @internal_uri ||= URI.parse(internal_url) if internal_url.present?
   end
 
   def geo_transfers_url(file_type, file_id)
@@ -111,7 +159,7 @@ class GeoNode < ActiveRecord::Base
 
   def snapshot_url(repository)
     url = api_url("projects/#{repository.project.id}/snapshot")
-    url += "?wiki=1" if repository.is_wiki
+    url += "?wiki=1" if repository.repo_type.wiki?
 
     url
   end
@@ -122,6 +170,12 @@ class GeoNode < ActiveRecord::Base
 
   def oauth_logout_url(state)
     Gitlab::Routing.url_helpers.oauth_geo_logout_url(url_helper_args.merge(state: state))
+  end
+
+  def geo_projects_url
+    return unless self.secondary?
+
+    Gitlab::Routing.url_helpers.admin_geo_projects_url(url_helper_args)
   end
 
   def missing_oauth_application?
@@ -140,35 +194,29 @@ class GeoNode < ActiveRecord::Base
     end
   end
 
+  def lfs_objects
+    return LfsObject.all unless selective_sync?
+
+    LfsObject.project_id_in(projects)
+  end
+
   def projects
     return Project.all unless selective_sync?
 
     if selective_sync_by_namespaces?
-      query = Gitlab::GroupHierarchy.new(namespaces).base_and_descendants
-      Project.where(namespace_id: query.select(:id))
+      query = Gitlab::ObjectHierarchy.new(namespaces).base_and_descendants
+      Project.in_namespace(query.select(:id))
     elsif selective_sync_by_shards?
-      Project.where(repository_storage: selective_sync_shards)
+      Project.within_shards(selective_sync_shards)
     else
       Project.none
     end
-  end
-
-  def selective_sync_by_namespaces?
-    selective_sync_type == 'namespaces'
-  end
-
-  def selective_sync_by_shards?
-    selective_sync_type == 'shards'
   end
 
   def projects_include?(project_id)
     return true unless selective_sync?
 
     projects.where(id: project_id).exists?
-  end
-
-  def selective_sync?
-    selective_sync_type.present?
   end
 
   def replication_slots_count
@@ -200,7 +248,7 @@ class GeoNode < ActiveRecord::Base
   end
 
   def api_url(suffix)
-    URI.join(uri, "#{uri.path}", "api/#{API::API.version}/#{suffix}").to_s
+    Gitlab::Utils.append_path(internal_uri.to_s, "api/#{API::API.version}/#{suffix}")
   end
 
   def ensure_access_keys!
@@ -213,7 +261,11 @@ class GeoNode < ActiveRecord::Base
   end
 
   def url_helper_args
-    { protocol: uri.scheme, host: uri.host, port: uri.port, script_name: uri.path }
+    url_helper_options(uri)
+  end
+
+  def url_helper_options(given_uri)
+    { protocol: given_uri.scheme, host: given_uri.host, port: given_uri.port, script_name: given_uri.path }
   end
 
   def update_dependents_attributes
@@ -232,14 +284,6 @@ class GeoNode < ActiveRecord::Base
     end
   end
 
-  def check_url_is_valid
-    if uri.present? && !%w[http https].include?(uri.scheme)
-      errors.add(:url, 'scheme must be http or https')
-    end
-  rescue URI::InvalidURIError
-    errors.add(:url,  'is invalid')
-  end
-
   def update_clone_url
     self.clone_url_prefix = Gitlab.config.gitlab_shell.ssh_path_prefix
   end
@@ -252,5 +296,24 @@ class GeoNode < ActiveRecord::Base
 
   def expire_cache!
     Gitlab::Geo.expire_cache!
+  end
+
+  def read_with_ending_slash(attribute)
+    value = read_attribute(attribute)
+
+    add_ending_slash(value)
+  end
+
+  def write_with_ending_slash(attribute, value)
+    value = add_ending_slash(value)
+
+    write_attribute(attribute, value)
+  end
+
+  def add_ending_slash(value)
+    return value if value.blank?
+    return value if value.end_with?('/')
+
+    "#{value}/"
   end
 end

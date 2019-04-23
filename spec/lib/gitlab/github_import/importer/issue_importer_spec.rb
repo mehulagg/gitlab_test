@@ -78,11 +78,6 @@ describe Gitlab::GithubImport::Importer::IssueImporter, :clean_gitlab_redis_cach
         .to receive(:id_for)
         .with(issue)
         .and_return(milestone.id)
-
-      allow(importer.user_finder)
-        .to receive(:author_id_for)
-        .with(issue)
-        .and_return([user.id, true])
     end
 
     context 'when the issue author could be found' do
@@ -92,7 +87,7 @@ describe Gitlab::GithubImport::Importer::IssueImporter, :clean_gitlab_redis_cach
           .with(issue)
           .and_return([user.id, true])
 
-        expect(Gitlab::GithubImport)
+        expect(importer)
           .to receive(:insert_and_return_id)
           .with(
             {
@@ -121,7 +116,7 @@ describe Gitlab::GithubImport::Importer::IssueImporter, :clean_gitlab_redis_cach
           .with(issue)
           .and_return([project.creator_id, false])
 
-        expect(Gitlab::GithubImport)
+        expect(importer)
           .to receive(:insert_and_return_id)
           .with(
             {
@@ -150,7 +145,7 @@ describe Gitlab::GithubImport::Importer::IssueImporter, :clean_gitlab_redis_cach
           .with(issue)
           .and_return([user.id, true])
 
-        expect(Gitlab::GithubImport)
+        expect(importer)
           .to receive(:insert_and_return_id)
           .and_raise(ActiveRecord::InvalidForeignKey, 'invalid foreign key')
 
@@ -176,23 +171,6 @@ describe Gitlab::GithubImport::Importer::IssueImporter, :clean_gitlab_redis_cach
         .and_return([user.id, true])
 
       expect(importer.create_issue).to be_a_kind_of(Numeric)
-    end
-
-    it 'triggers internal_id functionality to track greatest iids' do
-      allow(importer.user_finder)
-        .to receive(:author_id_for)
-        .with(issue)
-        .and_return([user.id, true])
-
-      issue = build_stubbed(:issue, project: project)
-      allow(Gitlab::GithubImport)
-        .to receive(:insert_and_return_id)
-        .and_return(issue.id)
-      allow(project.issues).to receive(:find).with(issue.id).and_return(issue)
-
-      expect(issue).to receive(:ensure_project_iid!)
-
-      importer.create_issue
     end
   end
 

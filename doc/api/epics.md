@@ -12,11 +12,18 @@ The [epic issues API](epic_issues.md) allows you to interact with issues associa
 
 # Milestone dates integration
 
-> [Introduced][ee-6448] in GitLab 11.2.
+> [Introduced][ee-6448] in GitLab 11.3.
 
 Since start date and due date can be dynamically sourced from related issue milestones, when user has edit permission, additional fields will be shown. These include two boolean fields `start_date_is_fixed` and `due_date_is_fixed`, and four date fields `start_date_fixed`, `start_date_from_milestones`, `due_date_fixed` and `due_date_from_milestones`.
 
 `end_date` has been deprecated in favor of `due_date`.
+
+## Epics pagination
+
+By default, `GET` requests return 20 results at a time because the API results
+are paginated.
+
+Read more on [pagination](README.md#pagination).
 
 ## List epics for a group
 
@@ -26,19 +33,25 @@ Gets all epics of the requested group and its subgroups.
 GET /groups/:id/epics
 GET /groups/:id/epics?author_id=5
 GET /groups/:id/epics?labels=bug,reproduced
+GET /groups/:id/epics?state=opened
 ```
 
-| Attribute           | Type             | Required   | Description                                                                            |
-| ------------------- | ---------------- | ---------- | ---------------------------------------------------------------------------------------|
-| `id`                | integer/string   | yes        | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) owned by the authenticated user                |
-| `author_id`         | integer          | no         | Return epics created by the given user `id`                                                                                                        |
-| `labels`            | string           | no         | Return epics matching a comma separated list of labels names. Label names from the epic group or a parent group can be used                |
-| `order_by`          | string           | no         | Return epics ordered by `created_at` or `updated_at` fields. Default is `created_at`                                                               |
-| `sort`              | string           | no         | Return epics sorted in `asc` or `desc` order. Default is `desc`                                                                                    |
-| `search`            | string           | no         | Search epics against their `title` and `description`                                                                                               |
+| Attribute           | Type             | Required   | Description                                                                                                                 |
+| ------------------- | ---------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `id`                | integer/string   | yes        | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) owned by the authenticated user               |
+| `author_id`         | integer          | no         | Return epics created by the given user `id`                                                                                 |
+| `labels`            | string           | no         | Return epics matching a comma separated list of labels names. Label names from the epic group or a parent group can be used |
+| `order_by`          | string           | no         | Return epics ordered by `created_at` or `updated_at` fields. Default is `created_at`                                        |
+| `sort`              | string           | no         | Return epics sorted in `asc` or `desc` order. Default is `desc`                                                             |
+| `search`            | string           | no         | Search epics against their `title` and `description`                                                                        |
+| `state`             | string           | no         | Search epics against their `state`, possible filters: `opened`, `closed` and `all`, default: `all`                          |
+| `created_after`     | datetime         | no         | Return epics created on or after the given time                                                                             |
+| `created_before`    | datetime         | no         | Return epics created on or before the given time                                                                            |
+| `updated_after`     | datetime         | no         | Return epics updated on or after the given time                                                                             |
+| `updated_before`    | datetime         | no         | Return epics updated on or before the given time                                                                            |
 
 ```bash
-curl --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/groups/1/epics
+curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics
 ```
 
 Example response:
@@ -51,6 +64,7 @@ Example response:
   "group_id": 7,
   "title": "Accusamus iste et ullam ratione voluptatem omnis debitis dolor est.",
   "description": "Molestias dolorem eos vitae expedita impedit necessitatibus quo voluptatum.",
+  "state": "opened",
   "author": {
     "id": 10,
     "name": "Lu Mayer",
@@ -70,7 +84,9 @@ Example response:
   "due_date_from_milestones": "2018-07-31",
   "created_at": "2018-07-17T13:36:22.770Z",
   "updated_at": "2018-07-18T12:22:05.239Z",
-  "labels": []
+  "labels": [],
+  "upvotes": 4,
+  "downvotes": 0
   }
 ]
 ```
@@ -89,7 +105,7 @@ GET /groups/:id/epics/:epic_iid
 | `epic_iid`          | integer/string   | yes        | The internal ID  of the epic.  |
 
 ```bash
-curl --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/groups/1/epics/5
+curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics/5
 ```
 
 Example response:
@@ -101,6 +117,7 @@ Example response:
   "group_id": 7,
   "title": "Ea cupiditate dolores ut vero consequatur quasi veniam voluptatem et non.",
   "description": "Molestias dolorem eos vitae expedita impedit necessitatibus quo voluptatum.",
+  "state": "opened",
   "author":{
     "id": 7,
     "name": "Pamella Huel",
@@ -120,13 +137,20 @@ Example response:
   "due_date_from_milestones": "2018-07-31",
   "created_at": "2018-07-17T13:36:22.770Z",
   "updated_at": "2018-07-18T12:22:05.239Z",
-  "labels": []
+  "labels": [],
+  "upvotes": 4,
+  "downvotes": 0
 }
 ```
 
 ## New epic
 
-Creates a new epic
+Creates a new epic.
+
+NOTE: **Note:**
+Starting with GitLab [11.3][ee-6448], `start_date` and `end_date` should no longer be assigned
+directly, as they now represent composite values. You can configure it via the `*_is_fixed` and
+`*_fixed` fields instead.
 
 ```
 POST /groups/:id/epics
@@ -138,11 +162,13 @@ POST /groups/:id/epics
 | `title`             | string           | yes        | The title of the epic |
 | `labels`            | string           | no         | The comma separated list of labels |
 | `description`       | string           | no         | The description of the epic  |
-| `start_date`        | string           | no         | The start date of the epic  |
-| `end_date`          | string.          | no         | The end date of the epic |
+| `start_date_is_fixed` | boolean        | no         | Whether start date should be sourced from `start_date_fixed` or from milestones (since 11.3) |
+| `start_date_fixed`  | string           | no         | The fixed start date of an epic (since 11.3) |
+| `due_date_is_fixed` | boolean          | no         | Whether due date should be sourced from `due_date_fixed` or from milestones (since 11.3) |
+| `due_date_fixed`    | string           | no         | The fixed due date of an epic (since 11.3) |
 
 ```bash
-curl --header POST "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/groups/1/epics?title=Epic&description=Epic%20description
+curl --header POST "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics?title=Epic&description=Epic%20description
 ```
 
 Example response:
@@ -154,6 +180,7 @@ Example response:
   "group_id": 7,
   "title": "Epic",
   "description": "Epic description",
+  "state": "opened",
   "author": {
     "name" : "Alexandra Bashirian",
     "avatar_url" : null,
@@ -173,15 +200,20 @@ Example response:
   "due_date_from_milestones": "2018-07-31",
   "created_at": "2018-07-17T13:36:22.770Z",
   "updated_at": "2018-07-18T12:22:05.239Z",
-  "labels": []
+  "labels": [],
+  "upvotes": 4,
+  "downvotes": 0
 }
 ```
 
 ## Update epic
 
-Updates an epic
+Updates an epic.
 
-Note that after 11.2, `start_date` and `end_date` should no longer be updated directly, as they are now composite fields. User can configure the `_is_fixed` and `_fixed` fields instead.
+NOTE: **Note:**
+Starting with GitLab [11.3][ee-6448], `start_date` and `end_date` should no longer be assigned
+directly, as they now represent composite values. You can configure it via the `*_is_fixed` and
+`*_fixed` fields instead.
 
 ```
 PUT /groups/:id/epics/:epic_iid
@@ -194,13 +226,14 @@ PUT /groups/:id/epics/:epic_iid
 | `title`             | string           | no         | The title of an epic |
 | `description`       | string           | no         | The description of an epic  |
 | `labels`            | string           | no         | The comma separated list of labels |
-| `start_date_is_fixed` | boolean        | no         | Whether start date should be sourced from `start_date_fixed` |
-| `start_date_fixed`  | string           | no         | The fixed start date of an epic  |
-| `due_date_is_fixed` | boolean          | no         | Whether due date should be sourced from `due_date_fixed` |
-| `due_date_fixed`    | string           | no         | The fixed due date of an epic |
+| `start_date_is_fixed` | boolean        | no         | Whether start date should be sourced from `start_date_fixed` or from milestones (since 11.3) |
+| `start_date_fixed`  | string           | no         | The fixed start date of an epic (since 11.3) |
+| `due_date_is_fixed` | boolean          | no         | Whether due date should be sourced from `due_date_fixed` or from milestones (since 11.3) |
+| `due_date_fixed`    | string           | no         | The fixed due date of an epic (since 11.3) |
+| `state_event`       | string           | no         | State event for an epic. Set `close` to close the epic and `reopen` to reopen it (since 11.4) |
 
 ```bash
-curl --header PUT "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/groups/1/epics/5?title=New%20Title
+curl --header PUT "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics/5?title=New%20Title
 ```
 
 Example response:
@@ -212,6 +245,7 @@ Example response:
   "group_id": 7,
   "title": "New Title",
   "description": "Epic description",
+  "state": "opened",
   "author": {
     "name" : "Alexandra Bashirian",
     "avatar_url" : null,
@@ -231,7 +265,9 @@ Example response:
   "due_date_from_milestones": "2018-07-31",
   "created_at": "2018-07-17T13:36:22.770Z",
   "updated_at": "2018-07-18T12:22:05.239Z",
-  "labels": []
+  "labels": [],
+  "upvotes": 4,
+  "downvotes": 0
 }
 ```
 
@@ -249,7 +285,7 @@ DELETE /groups/:id/epics/:epic_iid
 | `epic_iid`          | integer/string   | yes        | The internal ID  of the epic.  |
 
 ```bash
-curl --header DELETE "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/groups/1/epics/5?title=New%20Title
+curl --header DELETE "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics/5
 ```
 
 ## Create a todo
@@ -268,7 +304,7 @@ POST /groups/:id/epics/:epic_iid/todo
 | `epic_iid ` | integer | yes          | The internal ID of a group's epic |
 
 ```bash
-curl --request POST --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/groups/1/epics/5/todo
+curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics/5/todo
 ```
 
 Example response:

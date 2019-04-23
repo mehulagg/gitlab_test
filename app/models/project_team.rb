@@ -3,8 +3,6 @@
 class ProjectTeam
   include BulkMemberAccessLoad
 
-  prepend EE::ProjectTeam
-
   attr_accessor :project
 
   def initialize(project)
@@ -75,6 +73,14 @@ class ProjectTeam
     @members ||= fetch_members
   end
   alias_method :users, :members
+
+  # `members` method uses project_authorizations table which
+  # is updated asynchronously, on project move it still contains
+  # old members who may not have access to the new location,
+  # so we filter out only members of project or project's group
+  def members_in_project_and_ancestors
+    members.where(id: member_user_ids)
+  end
 
   def guests
     @guests ||= fetch_members(Gitlab::Access::GUEST)
@@ -193,4 +199,10 @@ class ProjectTeam
   def group
     project.group
   end
+
+  def member_user_ids
+    Member.on_project_and_ancestors(project).select(:user_id)
+  end
 end
+
+ProjectTeam.prepend(EE::ProjectTeam)

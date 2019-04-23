@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module MergeRequestWidgetEntity
     include ::API::Helpers::RelatedResourcesHelpers
@@ -16,141 +18,93 @@ module EE
         end
       end
 
-      # expose_codeclimate_data? is deprecated and replaced with expose_code_quality_data?
-      expose :codeclimate, if: -> (mr, _) { mr.expose_codeclimate_data? } do
-        expose :head_path, if: -> (mr, _) { can?(current_user, :read_build, mr.head_codeclimate_artifact) } do |merge_request|
-          raw_project_build_artifacts_url(merge_request.source_project,
-                                          merge_request.head_codeclimate_artifact,
-                                          path: Ci::Build::CODECLIMATE_FILE)
+      expose :codeclimate, if: -> (mr, _) { head_pipeline_downloadable_path_for_report_type(:codequality) } do
+        expose :head_path do |merge_request|
+          head_pipeline_downloadable_path_for_report_type(:codequality)
         end
 
-        expose :base_path, if: -> (mr, _) { can?(current_user, :read_build, mr.base_codeclimate_artifact) } do |merge_request|
-          raw_project_build_artifacts_url(merge_request.target_project,
-                                          merge_request.base_codeclimate_artifact,
-                                          path: Ci::Build::CODECLIMATE_FILE)
+        expose :base_path do |merge_request|
+          base_pipeline_downloadable_path_for_report_type(:codequality)
         end
       end
 
-      # We still expose it as `codeclimate` to keep compatibility with Frontend
-      expose :codeclimate, if: -> (mr, _) { mr.expose_code_quality_data? } do
-        expose :head_path, if: -> (mr, _) { can?(current_user, :read_build, mr.head_code_quality_artifact) } do |merge_request|
-          raw_project_build_artifacts_url(merge_request.source_project,
-                                          merge_request.head_code_quality_artifact,
-                                          path: Ci::Build::CODE_QUALITY_FILE)
+      expose :performance, if: -> (mr, _) { head_pipeline_downloadable_path_for_report_type(:performance) } do
+        expose :head_path do |merge_request|
+          head_pipeline_downloadable_path_for_report_type(:performance)
         end
 
-        expose :base_path, if: -> (mr, _) { can?(current_user, :read_build, mr.base_code_quality_artifact) } do |merge_request|
-          raw_project_build_artifacts_url(merge_request.target_project,
-                                          merge_request.base_code_quality_artifact,
-                                          path: Ci::Build::CODE_QUALITY_FILE)
+        expose :base_path do |merge_request|
+          base_pipeline_downloadable_path_for_report_type(:performance)
         end
       end
 
-      expose :performance, if: -> (mr, _) { mr.expose_performance_data? } do
-        expose :head_path, if: -> (mr, _) { can?(current_user, :read_build, mr.head_performance_artifact) } do |merge_request|
-          raw_project_build_artifacts_url(merge_request.source_project,
-                                          merge_request.head_performance_artifact,
-                                          path: Ci::Build::PERFORMANCE_FILE)
+      expose :sast, if: -> (mr, _) { head_pipeline_downloadable_path_for_report_type(:sast) } do
+        expose :head_path do |merge_request|
+          head_pipeline_downloadable_path_for_report_type(:sast)
         end
 
-        expose :base_path, if: -> (mr, _) { can?(current_user, :read_build, mr.base_performance_artifact) } do |merge_request|
-          raw_project_build_artifacts_url(merge_request.target_project,
-                                          merge_request.base_performance_artifact,
-                                          path: Ci::Build::PERFORMANCE_FILE)
+        expose :base_path do |merge_request|
+          base_pipeline_downloadable_path_for_report_type(:sast)
         end
       end
 
-      expose :sast, if: -> (mr, _) { mr.expose_sast_data? } do
-        expose :head_path, if: -> (mr, _) { can?(current_user, :read_build, mr.head_sast_artifact) } do |merge_request|
-          raw_project_build_artifacts_url(merge_request.source_project,
-                                          merge_request.head_sast_artifact,
-                                          path: Ci::Build::SAST_FILE)
+      expose :dependency_scanning, if: -> (mr, _) { head_pipeline_downloadable_path_for_report_type(:dependency_scanning) } do
+        expose :head_path do |merge_request|
+          head_pipeline_downloadable_path_for_report_type(:dependency_scanning)
         end
 
-        expose :base_path, if: -> (mr, _) { mr.base_has_sast_data? && can?(current_user, :read_build, mr.base_sast_artifact) } do |merge_request|
-          raw_project_build_artifacts_url(merge_request.target_project,
-                                          merge_request.base_sast_artifact,
-                                          path: Ci::Build::SAST_FILE)
+        expose :base_path do |merge_request|
+          base_pipeline_downloadable_path_for_report_type(:dependency_scanning)
         end
       end
 
-      expose :dependency_scanning, if: -> (mr, _) { mr.expose_dependency_scanning_data? } do
-        expose :head_path, if: -> (mr, _) { can?(current_user, :read_build, mr.head_dependency_scanning_artifact) } do |merge_request|
-          raw_project_build_artifacts_url(merge_request.source_project,
-                                          merge_request.head_dependency_scanning_artifact,
-                                          path: Ci::Build::DEPENDENCY_SCANNING_FILE)
+      expose :license_management, if: -> (mr, _) { head_pipeline_downloadable_path_for_report_type(:license_management) } do
+        expose :head_path do |merge_request|
+          head_pipeline_downloadable_path_for_report_type(:license_management)
         end
 
-        expose :base_path, if: -> (mr, _) { mr.base_has_dependency_scanning_data? && can?(current_user, :read_build, mr.base_dependency_scanning_artifact) } do |merge_request|
-          raw_project_build_artifacts_url(merge_request.target_project,
-                                          merge_request.base_dependency_scanning_artifact,
-                                          path: Ci::Build::DEPENDENCY_SCANNING_FILE)
-        end
-      end
-
-      expose :license_management, if: -> (mr, _) { mr.expose_license_management_data? } do
-        expose :head_path, if: -> (mr, _) { can?(current_user, :read_build, mr.head_license_management_artifact) } do |merge_request|
-          raw_project_build_artifacts_url(merge_request.source_project,
-                                          merge_request.head_license_management_artifact,
-                                          path: Ci::Build::LICENSE_MANAGEMENT_FILE)
-        end
-
-        expose :base_path, if: -> (mr, _) { mr.base_has_license_management_data? && can?(current_user, :read_build, mr.base_license_management_artifact) } do |merge_request|
-          raw_project_build_artifacts_url(merge_request.target_project,
-                                          merge_request.base_license_management_artifact,
-                                          path: Ci::Build::LICENSE_MANAGEMENT_FILE)
+        expose :base_path do |merge_request|
+          base_pipeline_downloadable_path_for_report_type(:license_management)
         end
 
         expose :managed_licenses_path do |merge_request|
-          api_v4_projects_managed_licenses_path(id: merge_request.source_project.id)
+          api_v4_projects_managed_licenses_path(id: merge_request.target_project.id)
         end
 
         expose :can_manage_licenses do |merge_request|
           can?(current_user, :admin_software_license_policy, merge_request)
         end
-      end
 
-      # expose_sast_container_data? is deprecated and replaced with expose_container_scanning_data? (#5778)
-      expose :sast_container, if: -> (mr, _) { mr.expose_sast_container_data? } do
-        expose :head_path, if: -> (mr, _) { can?(current_user, :read_build, mr.head_sast_container_artifact) } do |merge_request|
-          raw_project_build_artifacts_url(merge_request.source_project,
-                                          merge_request.head_sast_container_artifact,
-                                          path: Ci::Build::SAST_CONTAINER_FILE)
+        expose :license_management_settings_path, if: -> (mr, _) { can?(current_user, :admin_software_license_policy, mr.target_project) } do |merge_request|
+          license_management_settings_path(merge_request.target_project)
         end
 
-        expose :base_path, if: -> (mr, _) { mr.base_has_sast_container_data? && can?(current_user, :read_build, mr.base_sast_container_artifact) } do |merge_request|
-          raw_project_build_artifacts_url(merge_request.target_project,
-                                          merge_request.base_sast_container_artifact,
-                                          path: Ci::Build::SAST_CONTAINER_FILE)
+        expose :license_management_full_report_path, if: -> (mr, _) { mr.head_pipeline } do |merge_request|
+          licenses_project_pipeline_path(merge_request.target_project, merge_request.head_pipeline)
         end
       end
 
-      # We still expose it as `sast_container` to keep compatibility with Frontend (#5778)
-      expose :sast_container, if: -> (mr, _) { mr.expose_container_scanning_data? } do
-        expose :head_path, if: -> (mr, _) { can?(current_user, :read_build, mr.head_container_scanning_artifact) } do |merge_request|
-          raw_project_build_artifacts_url(merge_request.source_project,
-                                          merge_request.head_container_scanning_artifact,
-                                          path: Ci::Build::CONTAINER_SCANNING_FILE)
+      expose :metrics_reports_path, if: -> (mr, _) { mr.has_metrics_reports? } do |merge_request|
+        metrics_reports_project_merge_request_path(merge_request.project, merge_request, format: :json)
+      end
+
+      expose :sast_container, if: -> (mr, _) { head_pipeline_downloadable_path_for_report_type(:container_scanning) } do
+        expose :head_path do |merge_request|
+          head_pipeline_downloadable_path_for_report_type(:container_scanning)
         end
 
-        expose :base_path, if: -> (mr, _) { mr.base_has_container_scanning_data? && can?(current_user, :read_build, mr.base_container_scanning_artifact) } do |merge_request|
-          raw_project_build_artifacts_url(merge_request.target_project,
-                                          merge_request.base_container_scanning_artifact,
-                                          path: Ci::Build::CONTAINER_SCANNING_FILE)
+        expose :base_path do |merge_request|
+          base_pipeline_downloadable_path_for_report_type(:container_scanning)
         end
       end
 
-      expose :dast, if: -> (mr, _) { mr.expose_dast_data? } do
-        expose :head_path, if: -> (mr, _) { can?(current_user, :read_build, mr.head_dast_artifact) } do |merge_request|
-          raw_project_build_artifacts_url(merge_request.source_project,
-                                          merge_request.head_dast_artifact,
-                                          path: Ci::Build::DAST_FILE)
+      expose :dast, if: -> (mr, _) { head_pipeline_downloadable_path_for_report_type(:dast) } do
+        expose :head_path do |merge_request|
+          head_pipeline_downloadable_path_for_report_type(:dast)
         end
 
-        expose :base_path, if: -> (mr, _) { mr.base_has_dast_data? && can?(current_user, :read_build, mr.base_dast_artifact) } do |merge_request|
-          raw_project_build_artifacts_url(merge_request.target_project,
-                                          merge_request.base_dast_artifact,
-                                          path: Ci::Build::DAST_FILE)
+        expose :base_path do |merge_request|
+          base_pipeline_downloadable_path_for_report_type(:dast)
         end
       end
 
@@ -169,8 +123,15 @@ module EE
       expose :rebase_commit_sha
       expose :rebase_in_progress?, as: :rebase_in_progress
 
+      expose :merge_pipelines_enabled?, as: :merge_pipelines_enabled do |merge_request|
+        merge_request.target_project.merge_pipelines_enabled?
+      end
+
       expose :can_push_to_source_branch do |merge_request|
         presenter(merge_request).can_push_to_source_branch?
+      end
+      expose :has_approvals_available do |merge_request|
+        merge_request.approval_feature_available?
       end
       expose :rebase_path do |merge_request|
         presenter(merge_request).rebase_path
@@ -178,6 +139,30 @@ module EE
       expose :approvals_path do |merge_request|
         presenter(merge_request).approvals_path
       end
+      expose :api_approvals_path do |merge_request|
+        presenter(merge_request).api_approvals_path
+      end
+      expose :api_approval_settings_path do |merge_request|
+        presenter(merge_request).api_approval_settings_path
+      end
+      expose :api_approve_path do |merge_request|
+        presenter(merge_request).api_approve_path
+      end
+      expose :api_unapprove_path do |merge_request|
+        presenter(merge_request).api_unapprove_path
+      end
+    end
+
+    private
+
+    def head_pipeline_downloadable_path_for_report_type(file_type)
+      object.head_pipeline&.present(current_user: current_user)
+        &.downloadable_path_for_report_type(file_type)
+    end
+
+    def base_pipeline_downloadable_path_for_report_type(file_type)
+      object.base_pipeline&.present(current_user: current_user)
+        &.downloadable_path_for_report_type(file_type)
     end
   end
 end

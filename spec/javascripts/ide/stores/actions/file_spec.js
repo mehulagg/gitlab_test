@@ -121,68 +121,48 @@ describe('IDE store file actions', () => {
       store._actions.scrollToTab = oldScrollToTab; // eslint-disable-line
     });
 
-    it('calls scrollToTab', done => {
-      store
-        .dispatch('setFileActive', localFile.path)
-        .then(() => {
-          expect(scrollToTabSpy).toHaveBeenCalled();
+    it('calls scrollToTab', () => {
+      const dispatch = jasmine.createSpy();
 
-          done();
-        })
-        .catch(done.fail);
+      actions.setFileActive(
+        { commit() {}, state: store.state, getters: store.getters, dispatch },
+        localFile.path,
+      );
+
+      expect(dispatch).toHaveBeenCalledWith('scrollToTab');
     });
 
-    it('sets the file active', done => {
-      store
-        .dispatch('setFileActive', localFile.path)
-        .then(() => {
-          expect(localFile.active).toBeTruthy();
+    it('commits SET_FILE_ACTIVE', () => {
+      const commit = jasmine.createSpy();
 
-          done();
-        })
-        .catch(done.fail);
+      actions.setFileActive(
+        { commit, state: store.state, getters: store.getters, dispatch() {} },
+        localFile.path,
+      );
+
+      expect(commit).toHaveBeenCalledWith('SET_FILE_ACTIVE', {
+        path: localFile.path,
+        active: true,
+      });
     });
 
-    it('returns early if file is already active', done => {
-      localFile.active = true;
-
-      store
-        .dispatch('setFileActive', localFile.path)
-        .then(() => {
-          expect(scrollToTabSpy).not.toHaveBeenCalled();
-
-          done();
-        })
-        .catch(done.fail);
-    });
-
-    it('sets current active file to not active', done => {
+    it('sets current active file to not active', () => {
       const f = file('newActive');
       store.state.entries[f.path] = f;
       localFile.active = true;
       store.state.openFiles.push(localFile);
 
-      store
-        .dispatch('setFileActive', f.path)
-        .then(() => {
-          expect(localFile.active).toBeFalsy();
+      const commit = jasmine.createSpy();
 
-          done();
-        })
-        .catch(done.fail);
-    });
+      actions.setFileActive(
+        { commit, state: store.state, getters: store.getters, dispatch() {} },
+        f.path,
+      );
 
-    it('resets location.hash for line highlighting', done => {
-      window.location.hash = 'test';
-
-      store
-        .dispatch('setFileActive', localFile.path)
-        .then(() => {
-          expect(window.location.hash).not.toBe('test');
-
-          done();
-        })
-        .catch(done.fail);
+      expect(commit).toHaveBeenCalledWith('SET_FILE_ACTIVE', {
+        path: localFile.path,
+        active: false,
+      });
     });
   });
 
@@ -296,7 +276,7 @@ describe('IDE store file actions', () => {
           .getFileData({ state: store.state, commit() {}, dispatch }, { path: localFile.path })
           .then(() => {
             expect(dispatch).toHaveBeenCalledWith('setErrorMessage', {
-              text: 'An error occured whilst loading the file.',
+              text: 'An error occurred whilst loading the file.',
               action: jasmine.any(Function),
               actionText: 'Please try again',
               actionPayload: {
@@ -408,7 +388,7 @@ describe('IDE store file actions', () => {
           .then(done.fail)
           .catch(() => {
             expect(dispatch).toHaveBeenCalledWith('setErrorMessage', {
-              text: 'An error occured whilst loading the file content.',
+              text: 'An error occurred whilst loading the file content.',
               action: jasmine.any(Function),
               actionText: 'Please try again',
               actionPayload: {
@@ -688,21 +668,6 @@ describe('IDE store file actions', () => {
         .dispatch('openPendingTab', { file: f, keyPrefix: 'pending' })
         .then(() => {
           expect(router.push).toHaveBeenCalledWith('/project/123/tree/master/');
-        })
-        .then(done)
-        .catch(done.fail);
-    });
-
-    it('calls scrollToTab', done => {
-      const scrollToTabSpy = jasmine.createSpy('scrollToTab');
-      const oldScrollToTab = store._actions.scrollToTab; // eslint-disable-line
-      store._actions.scrollToTab = [scrollToTabSpy]; // eslint-disable-line
-
-      store
-        .dispatch('openPendingTab', { file: f, keyPrefix: 'pending' })
-        .then(() => {
-          expect(scrollToTabSpy).toHaveBeenCalled();
-          store._actions.scrollToTab = oldScrollToTab; // eslint-disable-line
         })
         .then(done)
         .catch(done.fail);

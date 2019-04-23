@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 module Gitlab
   module Auth
     module Saml
       class Config
-        prepend ::EE::Gitlab::Auth::Saml::Config
+        prepend ::EE::Gitlab::Auth::Saml::Config # rubocop: disable Cop/InjectEnterpriseEditionModule
 
         class << self
           def options

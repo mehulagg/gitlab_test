@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # EE-specific code related to protected branch/tag access levels.
 #
 # Note: Don't directly include this concern into a model class.
@@ -10,18 +12,36 @@ module EE
     extend ActiveSupport::Concern
     extend ::Gitlab::Utils::Override
 
-    included do
-      belongs_to :user
-      belongs_to :group
+    module Scopes
+      extend ActiveSupport::Concern
 
-      protected_type = self.parent.model_name.singular
-      validates :group_id, uniqueness: { scope: protected_type, allow_nil: true }
-      validates :user_id, uniqueness: { scope: protected_type, allow_nil: true }
-      validates :access_level, uniqueness: { scope: protected_type, if: :role?,
-                                             conditions: -> { where(user_id: nil, group_id: nil) } }
-      validates :group, :user,
-               absence: true,
-               unless: :protected_refs_for_users_required_and_available
+      included do
+        belongs_to :user
+        belongs_to :group
+
+        protected_type = self.parent.model_name.singular
+        validates :group_id, uniqueness: { scope: protected_type, allow_nil: true }
+        validates :user_id, uniqueness: { scope: protected_type, allow_nil: true }
+        validates :access_level, uniqueness: { scope: protected_type, if: :role?,
+                                               conditions: -> { where(user_id: nil, group_id: nil) } }
+        validates :group, :user,
+                  absence: true,
+                  unless: :protected_refs_for_users_required_and_available
+
+        validate :validate_group_membership, if: :protected_refs_for_users_required_and_available
+        validate :validate_user_membership, if: :protected_refs_for_users_required_and_available
+      end
+    end
+
+    class_methods do
+      # We can't specify `override` here:
+      #   https://gitlab.com/gitlab-org/gitlab-ce/issues/50911
+      def allowed_access_levels
+        [
+          *super,
+          ::Gitlab::Access::ADMIN
+        ]
+      end
     end
 
     def type
@@ -63,6 +83,22 @@ module EE
     # if the feature is available
     def protected_refs_for_users_required_and_available
       type != :role && project.feature_available?(:protected_refs_for_users)
+    end
+
+    def validate_group_membership
+      return unless group
+
+      unless project.project_group_links.where(group: group).exists?
+        self.errors.add(:group, 'does not have access to the project')
+      end
+    end
+
+    def validate_user_membership
+      return unless user
+
+      unless project.team.member?(user)
+        self.errors.add(:user, 'is not a member of the project')
+      end
     end
   end
 end

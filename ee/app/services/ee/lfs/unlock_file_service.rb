@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 module EE
   module Lfs
     module UnlockFileService
+      # rubocop: disable CodeReuse/ActiveRecord
       def execute
         result = super
 
@@ -12,6 +15,7 @@ module EE
 
         result
       end
+      # rubocop: enable CodeReuse/ActiveRecord
     end
   end
 end

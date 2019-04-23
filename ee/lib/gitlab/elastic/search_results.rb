@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Gitlab
   module Elastic
     class SearchResults
@@ -5,11 +7,15 @@ module Gitlab
 
       # Limit search results by passed project ids
       # It allows us to search only for projects user has access to
-      attr_reader :limit_project_ids
+      attr_reader :limit_project_ids, :limit_projects
 
-      def initialize(current_user, query, limit_project_ids, public_and_internal_projects = true)
+      delegate :users, to: :generic_search_results
+      delegate :limited_users_count, to: :generic_search_results
+
+      def initialize(current_user, query, limit_project_ids, limit_projects = nil, public_and_internal_projects = true)
         @current_user = current_user
         @limit_project_ids = limit_project_ids
+        @limit_projects = limit_projects
         @query = query
         @public_and_internal_projects = public_and_internal_projects
       end
@@ -30,9 +36,15 @@ module Gitlab
           wiki_blobs.page(page).per(per_page)
         when 'commits'
           commits(page: page, per_page: per_page)
+        when 'users'
+          users.page(page).per(per_page)
         else
           Kaminari.paginate_array([])
         end
+      end
+
+      def generic_search_results
+        @generic_search_results ||= Gitlab::SearchResults.new(current_user, limit_projects, query)
       end
 
       def projects_count
@@ -77,7 +89,7 @@ module Gitlab
         extname = File.extname(filename)
         basename = filename.sub(/#{extname}$/, '')
         content = result["_source"]["blob"]["content"]
-        project_id = result["_parent"].to_i
+        project_id = result['_source']['project_id'].to_i
         total_lines = content.lines.size
 
         term =
@@ -109,7 +121,7 @@ module Gitlab
 
         data = content.lines[from..to]
 
-        ::Gitlab::SearchResults::FoundBlob.new(
+        ::Gitlab::Search::FoundBlob.new(
           filename: filename,
           basename: basename,
           ref: ref,
@@ -172,9 +184,9 @@ module Gitlab
 
           ProjectWiki.search(
             query,
-            type: :blob,
+            type: :wiki_blob,
             options: opt.merge({ highlight: true })
-          )[:blobs][:results].response
+          )[:wiki_blobs][:results].response
         end
       end
 
@@ -248,6 +260,7 @@ module Gitlab
         }
       end
 
+      # rubocop: disable CodeReuse/ActiveRecord
       def guest_project_ids
         if current_user
           current_user.authorized_projects
@@ -257,6 +270,7 @@ module Gitlab
           []
         end
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       def non_guest_project_ids
         if limit_project_ids == :any

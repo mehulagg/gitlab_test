@@ -1,24 +1,7 @@
 require 'spec_helper'
 
 describe GroupPolicy do
-  let(:guest) { create(:user) }
-  let(:reporter) { create(:user) }
-  let(:developer) { create(:user) }
-  let(:maintainer) { create(:user) }
-  let(:owner) { create(:user) }
-  let(:auditor) { create(:user, :auditor) }
-  let(:admin) { create(:admin) }
-  let(:group) { create(:group) }
-
-  before do
-    group.add_guest(guest)
-    group.add_reporter(reporter)
-    group.add_developer(developer)
-    group.add_maintainer(maintainer)
-    group.add_owner(owner)
-  end
-
-  subject { described_class.new(current_user, group) }
+  include_context 'GroupPolicy context'
 
   context 'when epics feature is disabled' do
     let(:current_user) { owner }
@@ -163,241 +146,106 @@ describe GroupPolicy do
     end
   end
 
-  context "create_projects" do
-    context 'project_creation_level enabled' do
-      before do
-        stub_licensed_features(project_creation_level: true)
-      end
+  describe 'read_group_security_dashboard' do
+    before do
+      stub_licensed_features(security_dashboard: true)
+    end
 
-      context 'when group has no project creation level set' do
-        let(:group) { create(:group, project_creation_level: nil) }
+    context 'with admin' do
+      let(:current_user) { admin }
 
-        context 'reporter' do
-          let(:current_user) { reporter }
+      it { is_expected.to be_allowed(:read_group_security_dashboard) }
+    end
 
-          it { is_expected.to be_disallowed(:create_projects) }
+    context 'with owner' do
+      let(:current_user) { owner }
+
+      it { is_expected.to be_allowed(:read_group_security_dashboard) }
+    end
+
+    context 'with maintainer' do
+      let(:current_user) { maintainer }
+
+      it { is_expected.to be_allowed(:read_group_security_dashboard) }
+    end
+
+    context 'with developer' do
+      let(:current_user) { developer }
+
+      it { is_expected.to be_allowed(:read_group_security_dashboard) }
+
+      context 'when security dashboard features is not available' do
+        before do
+          stub_licensed_features(security_dashboard: false)
         end
 
-        context 'developer' do
-          let(:current_user) { developer }
-
-          it { is_expected.to be_allowed(:create_projects) }
-        end
-
-        context 'maintainer' do
-          let(:current_user) { maintainer }
-
-          it { is_expected.to be_allowed(:create_projects) }
-        end
-
-        context 'owner' do
-          let(:current_user) { owner }
-
-          it { is_expected.to be_allowed(:create_projects) }
-        end
-      end
-
-      context 'when group has project creation level set to no one' do
-        let(:group) { create(:group, project_creation_level: ::EE::Gitlab::Access::NO_ONE_PROJECT_ACCESS) }
-
-        context 'reporter' do
-          let(:current_user) { reporter }
-
-          it { is_expected.to be_disallowed(:create_projects) }
-        end
-
-        context 'developer' do
-          let(:current_user) { developer }
-
-          it { is_expected.to be_disallowed(:create_projects) }
-        end
-
-        context 'maintainer' do
-          let(:current_user) { maintainer }
-
-          it { is_expected.to be_disallowed(:create_projects) }
-        end
-
-        context 'owner' do
-          let(:current_user) { owner }
-
-          it { is_expected.to be_disallowed(:create_projects) }
-        end
-      end
-
-      context 'when group has project creation level set to maintainer only' do
-        let(:group) { create(:group, project_creation_level: ::EE::Gitlab::Access::MAINTAINER_PROJECT_ACCESS) }
-
-        context 'reporter' do
-          let(:current_user) { reporter }
-
-          it { is_expected.to be_disallowed(:create_projects) }
-        end
-
-        context 'developer' do
-          let(:current_user) { developer }
-
-          it { is_expected.to be_disallowed(:create_projects) }
-        end
-
-        context 'maintainer' do
-          let(:current_user) { maintainer }
-
-          it { is_expected.to be_allowed(:create_projects) }
-        end
-
-        context 'owner' do
-          let(:current_user) { owner }
-
-          it { is_expected.to be_allowed(:create_projects) }
-        end
-      end
-
-      context 'when group has project creation level set to developers + maintainer' do
-        let(:group) { create(:group, project_creation_level: ::EE::Gitlab::Access::DEVELOPER_MAINTAINER_PROJECT_ACCESS) }
-
-        context 'reporter' do
-          let(:current_user) { reporter }
-
-          it { is_expected.to be_disallowed(:create_projects) }
-        end
-
-        context 'developer' do
-          let(:current_user) { developer }
-
-          it { is_expected.to be_allowed(:create_projects) }
-        end
-
-        context 'maintainer' do
-          let(:current_user) { maintainer }
-
-          it { is_expected.to be_allowed(:create_projects) }
-        end
-
-        context 'owner' do
-          let(:current_user) { owner }
-
-          it { is_expected.to be_allowed(:create_projects) }
-        end
+        it { is_expected.to be_disallowed(:read_group_security_dashboard) }
       end
     end
 
-    context 'project_creation_level disabled' do
-      before do
-        stub_licensed_features(project_creation_level: false)
+    context 'with reporter' do
+      let(:current_user) { reporter }
+
+      it { is_expected.to be_disallowed(:read_group_security_dashboard) }
+    end
+
+    context 'with guest' do
+      let(:current_user) { guest }
+
+      it { is_expected.to be_disallowed(:read_group_security_dashboard) }
+    end
+
+    context 'with non member' do
+      let(:current_user) { create(:user) }
+
+      it { is_expected.to be_disallowed(:read_group_security_dashboard) }
+    end
+
+    context 'with anonymous' do
+      let(:current_user) { nil }
+
+      it { is_expected.to be_disallowed(:read_group_security_dashboard) }
+    end
+  end
+
+  describe 'private nested group use the highest access level from the group and inherited permissions', :nested_groups do
+    let(:nested_group) { create(:group, :private, parent: group) }
+
+    before do
+      nested_group.add_guest(guest)
+      nested_group.add_guest(reporter)
+      nested_group.add_guest(developer)
+      nested_group.add_guest(maintainer)
+
+      group.owners.destroy_all # rubocop: disable DestroyAll
+
+      group.add_guest(owner)
+      nested_group.add_owner(owner)
+    end
+
+    subject { described_class.new(current_user, nested_group) }
+
+    context 'auditor' do
+      let(:current_user) { create(:user, :auditor) }
+
+      it do
+        expect_allowed(:read_group)
+        expect_disallowed(:upload_file)
+        expect_disallowed(*reporter_permissions)
+        expect_disallowed(*developer_permissions)
+        expect_disallowed(*maintainer_permissions)
+        expect_disallowed(*owner_permissions)
       end
+    end
+  end
 
-      context 'when group has no project creation level set' do
-        let(:group) { create(:group, project_creation_level: nil) }
-
-        context 'reporter' do
-          let(:current_user) { reporter }
-
-          it { is_expected.to be_disallowed(:create_projects) }
-        end
-
-        context 'developer' do
-          let(:current_user) { developer }
-
-          it { is_expected.to be_disallowed(:create_projects) }
-        end
-
-        context 'maintainer' do
-          let(:current_user) { maintainer }
-
-          it { is_expected.to be_allowed(:create_projects) }
-        end
-
-        context 'owner' do
-          let(:current_user) { owner }
-
-          it { is_expected.to be_allowed(:create_projects) }
-        end
-      end
-
-      context 'when group has project creation level set to no one' do
-        let(:group) { create(:group, project_creation_level: ::EE::Gitlab::Access::NO_ONE_PROJECT_ACCESS) }
-
-        context 'reporter' do
-          let(:current_user) { reporter }
-
-          it { is_expected.to be_disallowed(:create_projects) }
-        end
-
-        context 'developer' do
-          let(:current_user) { developer }
-
-          it { is_expected.to be_disallowed(:create_projects) }
-        end
-
-        context 'maintainer' do
-          let(:current_user) { maintainer }
-
-          it { is_expected.to be_allowed(:create_projects) }
-        end
-
-        context 'owner' do
-          let(:current_user) { owner }
-
-          it { is_expected.to be_allowed(:create_projects) }
-        end
-      end
-
-      context 'when group has project creation level set to maintainer only' do
-        let(:group) { create(:group, project_creation_level: ::EE::Gitlab::Access::MAINTAINER_PROJECT_ACCESS) }
-
-        context 'reporter' do
-          let(:current_user) { reporter }
-
-          it { is_expected.to be_disallowed(:create_projects) }
-        end
-
-        context 'developer' do
-          let(:current_user) { developer }
-
-          it { is_expected.to be_disallowed(:create_projects) }
-        end
-
-        context 'maintainer' do
-          let(:current_user) { maintainer }
-
-          it { is_expected.to be_allowed(:create_projects) }
-        end
-
-        context 'owner' do
-          let(:current_user) { owner }
-
-          it { is_expected.to be_allowed(:create_projects) }
-        end
-      end
-
-      context 'when group has project creation level set to developers + maintainer' do
-        let(:group) { create(:group, project_creation_level: ::EE::Gitlab::Access::DEVELOPER_MAINTAINER_PROJECT_ACCESS) }
-
-        context 'reporter' do
-          let(:current_user) { reporter }
-
-          it { is_expected.to be_disallowed(:create_projects) }
-        end
-
-        context 'developer' do
-          let(:current_user) { developer }
-
-          it { is_expected.to be_disallowed(:create_projects) }
-        end
-
-        context 'maintainer' do
-          let(:current_user) { maintainer }
-
-          it { is_expected.to be_allowed(:create_projects) }
-        end
-
-        context 'owner' do
-          let(:current_user) { owner }
-
-          it { is_expected.to be_allowed(:create_projects) }
-        end
-      end
+  it_behaves_like 'ee clusterable policies' do
+    let(:clusterable) { create(:group) }
+    let(:cluster) do
+      create(:cluster,
+             :provided_by_gcp,
+             :group,
+             groups: [clusterable])
     end
   end
 end

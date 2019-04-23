@@ -9,6 +9,8 @@ module Geo
     def execute
       verify_checksum(:repository, project.repository)
       verify_checksum(:wiki, project.wiki.repository)
+
+      Geo::ResetChecksumEventStore.new(project).create!
     end
 
     private
@@ -31,6 +33,7 @@ module Geo
 
       repository_state.update!(
         "#{type}_verification_checksum" => checksum,
+        "last_#{type}_verification_ran_at" => Time.now,
         "last_#{type}_verification_failure" => failure,
         "#{type}_retry_at" => retry_at,
         "#{type}_retry_count" => retry_count

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'json'
 
 module IconsHelper
@@ -40,16 +42,17 @@ module IconsHelper
   end
 
   def sprite_icon(icon_name, size: nil, css_class: nil)
-    if Gitlab::Sentry.should_raise?
+    if Gitlab::Sentry.should_raise_for_dev?
       unless known_sprites.include?(icon_name)
         exception = ArgumentError.new("#{icon_name} is not a known icon in @gitlab-org/gitlab-svg")
         raise exception
       end
     end
 
-    css_classes = size ? "s#{size}" : ""
-    css_classes << " #{css_class}" unless css_class.blank?
-    content_tag(:svg, content_tag(:use, "", { "xlink:href" => "#{sprite_icon_path}##{icon_name}" } ), class: css_classes.empty? ? nil : css_classes)
+    css_classes = []
+    css_classes << "s#{size}" if size
+    css_classes << "#{css_class}" unless css_class.blank?
+    content_tag(:svg, content_tag(:use, "", { "xlink:href" => "#{sprite_icon_path}##{icon_name}" } ), class: css_classes.empty? ? nil : css_classes.join(' '))
   end
 
   def external_snippet_icon(name)
@@ -70,10 +73,10 @@ module IconsHelper
   end
 
   def spinner(text = nil, visible = false)
-    css_class = 'loading'
-    css_class << ' hide' unless visible
+    css_class = ['loading']
+    css_class << 'hide' unless visible
 
-    content_tag :div, class: css_class do
+    content_tag :div, class: css_class.join(' ') do
       icon('spinner spin') + text
     end
   end
@@ -86,7 +89,7 @@ module IconsHelper
     end
   end
 
-  def visibility_level_icon(level, fw: true)
+  def visibility_level_icon(level, fw: true, options: {})
     name =
       case level
       when Gitlab::VisibilityLevel::PRIVATE
@@ -97,14 +100,17 @@ module IconsHelper
         'globe'
       end
 
-    name << " fw" if fw
+    name = [name]
+    name << "fw" if fw
 
-    icon(name)
+    icon(name.join(' '), options)
   end
 
   def file_type_icon_class(type, mode, name)
     if type == 'folder'
       icon_class = 'folder'
+    elsif type == 'archive'
+      icon_class = 'archive'
     elsif mode == '120000'
       icon_class = 'share'
     else
@@ -149,6 +155,6 @@ module IconsHelper
   private
 
   def known_sprites
-    @known_sprites ||= JSON.parse(File.read(Rails.root.join('node_modules/@gitlab-org/gitlab-svgs/dist/icons.json')))['icons']
+    @known_sprites ||= JSON.parse(File.read(Rails.root.join('node_modules/@gitlab/svgs/dist/icons.json')))['icons']
   end
 end

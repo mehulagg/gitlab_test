@@ -3,8 +3,6 @@
 require 'carrierwave/orm/activerecord'
 
 class Group < Namespace
-  prepend EE::Group
-
   include Gitlab::ConfigHelper
   include AfterCommitQueue
   include AccessRequestable
@@ -12,6 +10,7 @@ class Group < Namespace
   include Referable
   include SelectForProjectAuthorization
   include LoadedInGroupList
+  include Descendant
   include GroupDescendant
   include TokenAuthenticatable
   include WithUploads
@@ -43,6 +42,9 @@ class Group < Namespace
   has_many :boards
   has_many :badges, class_name: 'GroupBadge'
 
+  has_many :cluster_groups, class_name: 'Clusters::Group'
+  has_many :clusters, through: :cluster_groups, class_name: 'Clusters::Cluster'
+
   has_many :todos
 
   accepts_nested_attributes_for :variables, allow_destroy: true
@@ -54,7 +56,7 @@ class Group < Namespace
 
   validates :two_factor_grace_period, presence: true, numericality: { greater_than_or_equal_to: 0 }
 
-  add_authentication_token_field :runners_token
+  add_authentication_token_field :runners_token, encrypted: -> { Feature.enabled?(:groups_tokens_optional_encryption, default_enabled: true) ? :optional : :required }
 
   after_create :post_create_hook
   after_destroy :post_destroy_hook
@@ -62,10 +64,6 @@ class Group < Namespace
   after_update :path_changed_hook, if: :path_changed?
 
   class << self
-    def supports_nested_groups?
-      Gitlab::Database.postgresql?
-    end
-
     def sort_by_attribute(method)
       if method == 'storage_size_desc'
         # storage_size is a virtual column so we need to
@@ -84,18 +82,44 @@ class Group < Namespace
       User.reference_pattern
     end
 
-    def visible_to_user(user)
-      where(id: user.authorized_groups.select(:id).reorder(nil))
+    # WARNING: This method should never be used on its own
+    # please do make sure the number of rows you are filtering is small
+    # enough for this query
+    def public_or_visible_to_user(user)
+      return public_to_user unless user
+
+      public_for_user = public_to_user_arel(user)
+      visible_for_user = visible_to_user_arel(user)
+      public_or_visible = public_for_user.or(visible_for_user)
+
+      where(public_or_visible)
     end
 
     def select_for_project_authorization
       if current_scope.joins_values.include?(:shared_projects)
         joins('INNER JOIN namespaces project_namespace ON project_namespace.id = projects.namespace_id')
-          .where('project_namespace.share_with_group_lock = ?',  false)
+          .where('project_namespace.share_with_group_lock = ?', false)
           .select("projects.id AS project_id, LEAST(project_group_links.group_access, members.access_level) AS access_level")
       else
         super
       end
+    end
+
+    private
+
+    def public_to_user_arel(user)
+      self.arel_table[:visibility_level]
+        .in(Gitlab::VisibilityLevel.levels_for_user(user))
+    end
+
+    def visible_to_user_arel(user)
+      groups_table = self.arel_table
+      authorized_groups = user.authorized_groups.as('authorized')
+
+      groups_table.project(1)
+        .from(authorized_groups)
+        .where(authorized_groups[:id].eq(groups_table[:id]))
+        .exists
     end
   end
 
@@ -204,22 +228,21 @@ class Group < Namespace
   def has_owner?(user)
     return false unless user
 
-    members_with_parents.owners.where(user_id: user).any?
+    members_with_parents.owners.exists?(user_id: user)
   end
 
   def has_maintainer?(user)
     return false unless user
 
-    members_with_parents.maintainers.where(user_id: user).any?
+    members_with_parents.maintainers.exists?(user_id: user)
   end
 
   # @deprecated
   alias_method :has_master?, :has_maintainer?
 
   # Check if user is a last owner of the group.
-  # Parent owners are ignored for nested groups.
   def last_owner?(user)
-    owners.include?(user) && owners.size == 1
+    has_owner?(user) && members_with_parents.owners.size == 1
   end
 
   def ldap_synced?
@@ -238,14 +261,18 @@ class Group < Namespace
     system_hook_service.execute_hooks_for(self, :destroy)
   end
 
+  # rubocop: disable CodeReuse/ServiceClass
   def system_hook_service
     SystemHooksService.new
   end
+  # rubocop: enable CodeReuse/ServiceClass
 
+  # rubocop: disable CodeReuse/ServiceClass
   def refresh_members_authorized_projects(blocking: true)
     UserProjectAccessChangedService.new(user_ids_for_project_authorizations)
       .execute(blocking: blocking)
   end
+  # rubocop: enable CodeReuse/ServiceClass
 
   def user_ids_for_project_authorizations
     members_with_parents.pluck(:user_id)
@@ -302,14 +329,12 @@ class Group < Namespace
   # 3. They belong to a sub-group or project in such sub-group
   # 4. They belong to an ancestor group
   def direct_and_indirect_users
-    union = Gitlab::SQL::Union.new([
+    User.from_union([
       User
         .where(id: direct_and_indirect_members.select(:user_id))
         .reorder(nil),
       project_users_with_descendants
     ])
-
-    User.from("(#{union.to_sql}) #{User.table_name}")
   end
 
   # Returns all users that are members of projects
@@ -340,7 +365,7 @@ class Group < Namespace
     }
   end
 
-  def secret_variables_for(ref, project)
+  def ci_variables_for(ref, project)
     list_of_ids = [self] + ancestors
     variables = Ci::GroupVariable.where(group: list_of_ids)
     variables = variables.unprotected unless project.protected_for?(ref)
@@ -356,6 +381,10 @@ class Group < Namespace
     end
   end
 
+  def highest_group_member(user)
+    GroupMember.where(source_id: self_and_ancestors_ids, user_id: user.id).order(:access_level).last
+  end
+
   def hashed_storage?(_feature)
     false
   end
@@ -369,6 +398,14 @@ class Group < Namespace
   # solution.
   def runners_token
     ensure_runners_token!
+  end
+
+  def group_clusters_enabled?
+    Feature.enabled?(:group_clusters, root_ancestor, default_enabled: true)
+  end
+
+  def project_creation_level
+    super || ::Gitlab::CurrentSettings.default_project_creation
   end
 
   private
@@ -401,3 +438,5 @@ class Group < Namespace
     errors.add(:visibility_level, "#{visibility} is not allowed since there are sub-groups with higher visibility.")
   end
 end
+
+Group.prepend(EE::Group)

@@ -1,4 +1,6 @@
 # coding: utf-8
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Issues::UpdateService, :mailer do
@@ -77,7 +79,7 @@ describe Issues::UpdateService, :mailer do
       end
 
       it 'enqueues ConfidentialIssueWorker when an issue is made confidential' do
-        expect(TodosDestroyer::ConfidentialIssueWorker).to receive(:perform_in).with(1.hour, issue.id)
+        expect(TodosDestroyer::ConfidentialIssueWorker).to receive(:perform_in).with(Todo::WAIT_FOR_DELETE, issue.id)
 
         update_issue(confidential: true)
       end
@@ -189,11 +191,12 @@ describe Issues::UpdateService, :mailer do
           expect(note.note).to include "assigned to #{user2.to_reference}"
         end
 
-        it 'creates system note about issue label edit' do
-          note = find_note('added ~')
+        it 'creates a resource label event' do
+          event = issue.resource_label_events.last
 
-          expect(note).not_to be_nil
-          expect(note.note).to include "added #{label.to_reference} label"
+          expect(event).not_to be_nil
+          expect(event.label_id).to eq label.id
+          expect(event.user_id).to eq user.id
         end
 
         it 'creates system note about title change' do
@@ -342,14 +345,58 @@ describe Issues::UpdateService, :mailer do
         end
       end
 
-      context 'when the milestone change' do
+      context 'when the milestone is removed' do
+        let!(:non_subscriber) { create(:user) }
+
+        let!(:subscriber) do
+          create(:user) do |u|
+            issue.toggle_subscription(u, project)
+            project.add_developer(u)
+          end
+        end
+
+        it_behaves_like 'system notes for milestones'
+
+        it 'sends notifications for subscribers of changed milestone' do
+          issue.milestone = create(:milestone, project: project)
+
+          issue.save
+
+          perform_enqueued_jobs do
+            update_issue(milestone_id: "")
+          end
+
+          should_email(subscriber)
+          should_not_email(non_subscriber)
+        end
+      end
+
+      context 'when the milestone is changed' do
+        let!(:non_subscriber) { create(:user) }
+
+        let!(:subscriber) do
+          create(:user) do |u|
+            issue.toggle_subscription(u, project)
+            project.add_developer(u)
+          end
+        end
+
         it 'marks todos as done' do
-          update_issue(milestone: create(:milestone))
+          update_issue(milestone: create(:milestone, project: project))
 
           expect(todo.reload.done?).to eq true
         end
 
         it_behaves_like 'system notes for milestones'
+
+        it 'sends notifications for subscribers of changed milestone' do
+          perform_enqueued_jobs do
+            update_issue(milestone: create(:milestone, project: project))
+          end
+
+          should_email(subscriber)
+          should_not_email(non_subscriber)
+        end
       end
 
       context 'when the labels change' do
@@ -373,7 +420,7 @@ describe Issues::UpdateService, :mailer do
       let!(:non_subscriber) { create(:user) }
 
       let!(:subscriber) do
-        create(:user).tap do |u|
+        create(:user) do |u|
           label.toggle_subscription(u, project)
           project.add_developer(u)
         end
@@ -425,6 +472,8 @@ describe Issues::UpdateService, :mailer do
       end
 
       it { expect(issue.tasks?).to eq(true) }
+
+      it_behaves_like 'updating a single task'
 
       context 'when tasks are marked as completed' do
         before do
@@ -543,6 +592,16 @@ describe Issues::UpdateService, :mailer do
 
         it 'removes the passed labels' do
           expect(result.label_ids).not_to include(label.id)
+        end
+      end
+
+      context 'when duplicate label titles are given' do
+        let(:params) do
+          { labels: [label3.title, label3.title] }
+        end
+
+        it 'assigns the label once' do
+          expect(result.labels).to contain_exactly(label3)
         end
       end
     end

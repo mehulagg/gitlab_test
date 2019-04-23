@@ -1,16 +1,15 @@
-/* eslint-disable no-param-reassign */
-
 import Vue from 'vue';
 import * as types from './mutation_types';
 import {
   parseSastIssues,
   parseDependencyScanningIssues,
   filterByKey,
-  parseSastContainer,
   parseDastIssues,
   getUnapprovedVulnerabilities,
   findIssueIndex,
 } from './utils';
+import { parseSastContainer } from './utils/container_scanning';
+import { visitUrl } from '~/lib/utils/url_utility';
 
 export default {
   [types.SET_HEAD_BLOB_PATH](state, path) {
@@ -19,6 +18,10 @@ export default {
 
   [types.SET_BASE_BLOB_PATH](state, path) {
     Vue.set(state.blobPath, 'base', path);
+  },
+
+  [types.SET_SOURCE_BRANCH](state, branch) {
+    state.sourceBranch = branch;
   },
 
   [types.SET_VULNERABILITY_FEEDBACK_PATH](state, path) {
@@ -83,16 +86,11 @@ export default {
       Vue.set(state.sast, 'resolvedIssues', resolvedIssues);
       Vue.set(state.sast, 'allIssues', allIssues);
       Vue.set(state.sast, 'isLoading', false);
-
-      state.summaryCounts.added += newIssues.length;
-      state.summaryCounts.fixed += resolvedIssues.length;
     } else if (reports.head && !reports.base) {
       const newIssues = parseSastIssues(reports.head, reports.enrichData, state.blobPath.head);
 
       Vue.set(state.sast, 'newIssues', newIssues);
       Vue.set(state.sast, 'isLoading', false);
-
-      state.summaryCounts.added += newIssues.length;
     }
   },
 
@@ -120,11 +118,11 @@ export default {
   [types.RECEIVE_SAST_CONTAINER_REPORTS](state, reports) {
     if (reports.base && reports.head) {
       const headIssues = getUnapprovedVulnerabilities(
-        parseSastContainer(reports.head.vulnerabilities, reports.enrichData),
+        parseSastContainer(reports.head.vulnerabilities, reports.enrichData, reports.head.image),
         reports.head.unapproved,
       );
       const baseIssues = getUnapprovedVulnerabilities(
-        parseSastContainer(reports.base.vulnerabilities, reports.enrichData),
+        parseSastContainer(reports.base.vulnerabilities, reports.enrichData, reports.base.image),
         reports.base.unapproved,
       );
       const filterKey = 'vulnerability';
@@ -135,19 +133,14 @@ export default {
       Vue.set(state.sastContainer, 'newIssues', newIssues);
       Vue.set(state.sastContainer, 'resolvedIssues', resolvedIssues);
       Vue.set(state.sastContainer, 'isLoading', false);
-
-      state.summaryCounts.added += newIssues.length;
-      state.summaryCounts.fixed += resolvedIssues.length;
     } else if (reports.head && !reports.base) {
       const newIssues = getUnapprovedVulnerabilities(
-        parseSastContainer(reports.head.vulnerabilities, reports.enrichData),
+        parseSastContainer(reports.head.vulnerabilities, reports.enrichData, reports.head.image),
         reports.head.unapproved,
       );
 
       Vue.set(state.sastContainer, 'newIssues', newIssues);
       Vue.set(state.sastContainer, 'isLoading', false);
-
-      state.summaryCounts.added += newIssues.length;
     }
   },
 
@@ -181,16 +174,11 @@ export default {
       Vue.set(state.dast, 'newIssues', newIssues);
       Vue.set(state.dast, 'resolvedIssues', resolvedIssues);
       Vue.set(state.dast, 'isLoading', false);
-      state.summaryCounts.added += newIssues.length;
-
-      state.summaryCounts.fixed += resolvedIssues.length;
     } else if (reports.head && reports.head.site && !reports.base) {
       const newIssues = parseDastIssues(reports.head.site.alerts, reports.enrichData);
 
       Vue.set(state.dast, 'newIssues', newIssues);
       Vue.set(state.dast, 'isLoading', false);
-
-      state.summaryCounts.added += newIssues.length;
     }
   },
 
@@ -231,10 +219,16 @@ export default {
   [types.RECEIVE_DEPENDENCY_SCANNING_REPORTS](state, reports) {
     if (reports.base && reports.head) {
       const filterKey = 'cve';
-      const parsedHead = parseDependencyScanningIssues(reports.head, reports.enrichData,
-        state.blobPath.head);
-      const parsedBase = parseDependencyScanningIssues(reports.base, reports.enrichData,
-        state.blobPath.base);
+      const parsedHead = parseDependencyScanningIssues(
+        reports.head,
+        reports.enrichData,
+        state.blobPath.head,
+      );
+      const parsedBase = parseDependencyScanningIssues(
+        reports.base,
+        reports.enrichData,
+        state.blobPath.base,
+      );
 
       const newIssues = filterByKey(parsedHead, parsedBase, filterKey);
       const resolvedIssues = filterByKey(parsedBase, parsedHead, filterKey);
@@ -244,18 +238,16 @@ export default {
       Vue.set(state.dependencyScanning, 'resolvedIssues', resolvedIssues);
       Vue.set(state.dependencyScanning, 'allIssues', allIssues);
       Vue.set(state.dependencyScanning, 'isLoading', false);
-
-      state.summaryCounts.added += newIssues.length;
-      state.summaryCounts.fixed += resolvedIssues.length;
     }
 
     if (reports.head && !reports.base) {
-      const newIssues = parseDependencyScanningIssues(reports.head, reports.enrichData,
-        state.blobPath.head);
+      const newIssues = parseDependencyScanningIssues(
+        reports.head,
+        reports.enrichData,
+        state.blobPath.head,
+      );
       Vue.set(state.dependencyScanning, 'newIssues', newIssues);
       Vue.set(state.dependencyScanning, 'isLoading', false);
-
-      state.summaryCounts.added += newIssues.length;
     }
   },
 
@@ -273,7 +265,8 @@ export default {
     Vue.set(state.modal.data.file, 'url', issue.urlPath);
     Vue.set(state.modal.data.className, 'value', issue.location && issue.location.class);
     Vue.set(state.modal.data.methodName, 'value', issue.location && issue.location.method);
-    Vue.set(state.modal.data.namespace, 'value', issue.namespace);
+    Vue.set(state.modal.data.image, 'value', issue.location && issue.location.image);
+    Vue.set(state.modal.data.namespace, 'value', issue.location && issue.location.operating_system);
 
     if (issue.identifiers && issue.identifiers.length > 0) {
       Vue.set(state.modal.data.identifiers, 'value', issue.identifiers);
@@ -284,7 +277,6 @@ export default {
 
     Vue.set(state.modal.data.severity, 'value', issue.severity);
     Vue.set(state.modal.data.confidence, 'value', issue.confidence);
-    Vue.set(state.modal.data.solution, 'value', issue.solution);
 
     if (issue.links && issue.links.length > 0) {
       Vue.set(state.modal.data.links, 'value', issue.links);
@@ -401,5 +393,20 @@ export default {
   [types.RECEIVE_CREATE_ISSUE_ERROR](state, error) {
     Vue.set(state.modal, 'error', error);
     Vue.set(state.modal, 'isCreatingNewIssue', false);
+  },
+
+  [types.REQUEST_CREATE_MERGE_REQUEST](state) {
+    state.isCreatingMergeRequest = true;
+    Vue.set(state.modal, 'isCreatingMergeRequest', true);
+    Vue.set(state.modal, 'error', null);
+  },
+  [types.RECEIVE_CREATE_MERGE_REQUEST_SUCCESS](state, payload) {
+    // We don't cancel the loading state here because we're navigating away from the page
+    visitUrl(payload.merge_request_path);
+  },
+  [types.RECEIVE_CREATE_MERGE_REQUEST_ERROR](state, error) {
+    state.isCreatingMergeRequest = false;
+    Vue.set(state.modal, 'isCreatingMergeRequest', false);
+    Vue.set(state.modal, 'error', error);
   },
 };

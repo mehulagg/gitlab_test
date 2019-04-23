@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Projects::PushRulesController < Projects::ApplicationController
   include RepositorySettingsRedirect
 
@@ -14,7 +16,7 @@ class Projects::PushRulesController < Projects::ApplicationController
     @push_rule.update(push_rule_params)
 
     if @push_rule.valid?
-      flash[:notice] = 'Push Rules updated successfully.'
+      flash[:notice] = _('Push Rules updated successfully.')
     else
       flash[:alert] = @push_rule.errors.full_messages.join(', ').html_safe
     end

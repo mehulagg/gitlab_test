@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Gitlab
   module Database
     # The max value of INTEGER type is the same between MySQL and PostgreSQL:
@@ -25,6 +27,10 @@ module Gitlab
       config['adapter']
     end
 
+    def self.human_adapter_name
+      postgresql? ? 'PostgreSQL' : 'MySQL'
+    end
+
     def self.mysql?
       adapter_name.casecmp('mysql2').zero?
     end
@@ -33,21 +39,22 @@ module Gitlab
       adapter_name.casecmp('postgresql').zero?
     end
 
-    # Overridden in EE
     def self.read_only?
-      Gitlab::Geo.secondary?
+      false
     end
 
     def self.read_write?
       !self.read_only?
     end
 
-    # check whether the underlying database is in read-only mode
+    # Check whether the underlying database is in read-only mode
     def self.db_read_only?
       if postgresql?
-        ActiveRecord::Base.connection.execute('SELECT pg_is_in_recovery()')
-          .first
-          .fetch('pg_is_in_recovery') == 't'
+        pg_is_in_recovery =
+          ActiveRecord::Base.connection.execute('SELECT pg_is_in_recovery()')
+            .first.fetch('pg_is_in_recovery')
+
+        Gitlab::Utils.to_boolean(pg_is_in_recovery)
       else
         false
       end
@@ -73,7 +80,7 @@ module Gitlab
       postgresql? && version.to_f >= 9.4
     end
 
-    def self.pg_stat_wal_receiver_supported?
+    def self.postgresql_minimum_supported_version?
       postgresql? && version.to_f >= 9.6
     end
 
@@ -95,15 +102,19 @@ module Gitlab
       Gitlab::Database.postgresql_9_or_less? ? 'pg_last_xlog_replay_location' : 'pg_last_wal_replay_lsn'
     end
 
+    def self.pg_last_xact_replay_timestamp
+      'pg_last_xact_replay_timestamp'
+    end
+
     def self.nulls_last_order(field, direction = 'ASC')
       order = "#{field} #{direction}"
 
       if postgresql?
-        order << ' NULLS LAST'
+        order = "#{order} NULLS LAST"
       else
         # `field IS NULL` will be `0` for non-NULL columns and `1` for NULL
         # columns. In the (default) ascending order, `0` comes first.
-        order.prepend("#{field} IS NULL, ") if direction == 'ASC'
+        order = "#{field} IS NULL, #{order}" if direction == 'ASC'
       end
 
       order
@@ -113,11 +124,11 @@ module Gitlab
       order = "#{field} #{direction}"
 
       if postgresql?
-        order << ' NULLS FIRST'
+        order = "#{order} NULLS FIRST"
       else
         # `field IS NULL` will be `0` for non-NULL columns and `1` for NULL
         # columns. In the (default) ascending order, `0` comes first.
-        order.prepend("#{field} IS NULL, ") if direction == 'DESC'
+        order = "#{field} IS NULL, #{order}" if direction == 'DESC'
       end
 
       order
@@ -125,10 +136,6 @@ module Gitlab
 
     def self.random
       postgresql? ? "RANDOM()" : "RAND()"
-    end
-
-    def self.minute_interval(value)
-      postgresql? ? "#{value} * '1 minute'::interval" : "INTERVAL #{value} MINUTE"
     end
 
     def self.true_value
@@ -188,7 +195,7 @@ module Gitlab
       EOF
 
       if return_ids
-        sql << 'RETURNING id'
+        sql = "#{sql}RETURNING id"
       end
 
       result = connection.execute(sql)
@@ -224,14 +231,6 @@ module Gitlab
       ActiveRecord::ConnectionAdapters::ConnectionPool.new(spec)
     end
 
-    # Disables prepared statements for the current database connection.
-    def self.disable_prepared_statements
-      config = ActiveRecord::Base.configurations[Rails.env]
-      config['prepared_statements'] = false
-
-      ActiveRecord::Base.establish_connection(config)
-    end
-
     def self.connection
       ActiveRecord::Base.connection
     end
@@ -241,11 +240,7 @@ module Gitlab
     end
 
     def self.cached_table_exists?(table_name)
-      if Gitlab.rails5?
-        connection.schema_cache.data_source_exists?(table_name)
-      else
-        connection.schema_cache.table_exists?(table_name)
-      end
+      connection.schema_cache.data_source_exists?(table_name)
     end
 
     private_class_method :connection
@@ -261,5 +256,23 @@ module Gitlab
     end
 
     private_class_method :database_version
+
+    def self.add_post_migrate_path_to_rails(force: false)
+      return if ENV['SKIP_POST_DEPLOYMENT_MIGRATIONS'] && !force
+
+      Rails.application.config.paths['db'].each do |db_path|
+        path = Rails.root.join(db_path, 'post_migrate').to_s
+
+        unless Rails.application.config.paths['db/migrate'].include? path
+          Rails.application.config.paths['db/migrate'] << path
+
+          # Rails memoizes migrations at certain points where it won't read the above
+          # path just yet. As such we must also update the following list of paths.
+          ActiveRecord::Migrator.migrations_paths << path
+        end
+      end
+    end
   end
 end
+
+Gitlab::Database.prepend(EE::Gitlab::Database)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Gitlab
   module Geo
     # This class is responsible for:
@@ -7,6 +9,7 @@ module Gitlab
     #
     # TODO: Rearrange things so this class does not inherit FileDownloader
     class LfsDownloader < FileDownloader
+      # rubocop: disable CodeReuse/ActiveRecord
       def execute
         lfs_object = LfsObject.find_by(id: object_db_id)
         return fail_before_transfer unless lfs_object.present?
@@ -14,6 +17,7 @@ module Gitlab
         transfer = ::Gitlab::Geo::LfsTransfer.new(lfs_object)
         Result.from_transfer_result(transfer.download_from_primary)
       end
+      # rubocop: enable CodeReuse/ActiveRecord
     end
   end
 end

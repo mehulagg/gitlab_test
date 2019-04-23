@@ -7,12 +7,6 @@ Bundler.require(:default, Rails.env)
 require 'elasticsearch/rails/instrumentation'
 
 module Gitlab
-  # This method is used for smooth upgrading from the current Rails 4.x to Rails 5.0.
-  # https://gitlab.com/gitlab-org/gitlab-ce/issues/14286
-  def self.rails5?
-    ENV["RAILS5"].in?(%w[1 true])
-  end
-
   class Application < Rails::Application
     require_dependency Rails.root.join('lib/gitlab/redis/wrapper')
     require_dependency Rails.root.join('lib/gitlab/redis/cache')
@@ -21,6 +15,7 @@ module Gitlab
     require_dependency Rails.root.join('lib/gitlab/request_context')
     require_dependency Rails.root.join('lib/gitlab/current_settings')
     require_dependency Rails.root.join('lib/gitlab/middleware/read_only')
+    require_dependency Rails.root.join('lib/gitlab/middleware/basic_health_check')
 
     # This needs to be loaded before DB connection is made
     # to make sure that all connections have NO_ZERO_DATE
@@ -59,11 +54,14 @@ module Gitlab
       ee_path = config.root.join('ee', Pathname.new(path).relative_path_from(config.root))
       memo << ee_path.to_s if ee_path.exist?
     end
-    config.eager_load_paths.unshift(*ee_paths)
 
+    # Eager load should load CE first
+    config.eager_load_paths.push(*ee_paths)
+    config.helpers_paths.push "#{config.root}/ee/app/helpers"
+
+    # Other than Ruby modules we load EE first
     config.paths['lib/tasks'].unshift "#{config.root}/ee/lib/tasks"
     config.paths['app/views'].unshift "#{config.root}/ee/app/views"
-    config.helpers_paths.unshift "#{config.root}/ee/app/helpers"
     ## EE-specific paths config END
 
     # Rake tasks ignore the eager loading settings, so we need to set the
@@ -79,6 +77,12 @@ module Gitlab
     # config.i18n.default_locale = :de
     config.i18n.enforce_available_locales = false
 
+    # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
+    # the I18n.default_locale when a translation can not be found).
+    # We have to explicitly set default locale since 1.1.0 - see:
+    # https://github.com/svenfuchs/i18n/pull/415
+    config.i18n.fallbacks = [:en]
+
     # Translation for AR attrs is not working well for POROs like WikiPage
     config.gettext_i18n_rails.use_for_active_record_attributes = false
 
@@ -90,7 +94,7 @@ module Gitlab
     # namespaces/users.
     # https://github.com/rails/rails/blob/5-0-stable/actioncable/lib/action_cable.rb#L38
     # Please change this value when configuring ActionCable for real usage.
-    config.action_cable.mount_path = "/-/cable" if rails5?
+    config.action_cable.mount_path = "/-/cable"
 
     # Configure sensitive parameters which will be filtered from the log file.
     #
@@ -98,6 +102,7 @@ module Gitlab
     # - Any parameter ending with `token`
     # - Any parameter containing `password`
     # - Any parameter containing `secret`
+    # - Any parameter ending with `key`
     # - Two-factor tokens (:otp_attempt)
     # - Repo/Project Import URLs (:import_url)
     # - Build traces (:trace)
@@ -105,20 +110,23 @@ module Gitlab
     # - GitLab Pages SSL cert/key info (:certificate, :encrypted_key)
     # - Webhook URLs (:hook)
     # - Sentry DSN (:sentry_dsn)
-    # - Deploy keys (:key)
     # - File content from Web Editor (:content)
-    config.filter_parameters += [/token$/, /password/, /secret/]
+    # - Jira shared secret (:sharedSecret)
+    #
+    # NOTE: It is **IMPORTANT** to also update gitlab-workhorse's filter when adding parameters here to not
+    #       introduce another security vulnerability: https://gitlab.com/gitlab-org/gitlab-workhorse/issues/182
+    config.filter_parameters += [/token$/, /password/, /secret/, /key$/, /^note$/, /^text$/]
     config.filter_parameters += %i(
       certificate
       encrypted_key
       hook
       import_url
-      key
       otp_attempt
       sentry_dsn
       trace
       variables
       content
+      sharedSecret
     )
 
     # Enable escaping HTML in JSON.
@@ -148,6 +156,7 @@ module Gitlab
     config.assets.precompile << "notify.css"
     config.assets.precompile << "mailers/*.css"
     config.assets.precompile << "page_bundles/ide.css"
+    config.assets.precompile << "page_bundles/xterm.css"
     config.assets.precompile << "performance_bar.css"
     config.assets.precompile << "lib/ace.js"
     config.assets.precompile << "test.css"
@@ -155,9 +164,12 @@ module Gitlab
     config.assets.precompile << "locale/**/app.js"
     config.assets.precompile << "emoji_sprites.css"
     config.assets.precompile << "errors.css"
+    config.assets.precompile << "csslab.css"
+
+    config.assets.precompile << "highlight/themes/*.css"
 
     # Import gitlab-svgs directly from vendored directory
-    config.assets.paths << "#{config.root}/node_modules/@gitlab-org/gitlab-svgs/dist"
+    config.assets.paths << "#{config.root}/node_modules/@gitlab/svgs/dist"
     config.assets.precompile << "icons.svg"
     config.assets.precompile << "icons.json"
     config.assets.precompile << "illustrations/*.svg"
@@ -170,7 +182,9 @@ module Gitlab
     %w[images javascripts stylesheets].each do |path|
       config.assets.paths << "#{config.root}/ee/app/assets/#{path}"
     end
-    config.assets.precompile << "shared/snowplow/sp.js"
+
+    config.assets.paths << "#{config.root}/vendor/assets/javascripts/"
+    config.assets.precompile << "snowplow/sp.js"
 
     # Compile non-JS/CSS assets in the ee/app/assets folder by default
     # Mimic sprockets-rails default: https://github.com/rails/sprockets-rails/blob/v3.2.1/lib/sprockets/railtie.rb#L84-L87
@@ -184,11 +198,15 @@ module Gitlab
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
 
-    config.action_view.sanitized_allowed_protocols = %w(smb)
+    # Can be removed once upgraded to Rails 5.1 or higher
+    config.action_controller.raise_on_unfiltered_parameters = true
+
+    # Nokogiri is significantly faster and uses less memory than REXML
+    ActiveSupport::XmlMini.backend = 'Nokogiri'
 
     # This middleware needs to precede ActiveRecord::QueryCache and other middlewares that
     # connect to the database.
-    config.middleware.insert_after "Rails::Rack::Logger", "Gitlab::Middleware::BasicHealthCheck"
+    config.middleware.insert_after Rails::Rack::Logger, ::Gitlab::Middleware::BasicHealthCheck
 
     config.middleware.insert_after Warden::Manager, Rack::Attack
 
@@ -225,15 +243,13 @@ module Gitlab
 
     config.cache_store = :redis_store, caching_config_hash
 
-    config.active_record.raise_in_transactional_callbacks = true
-
     config.active_job.queue_adapter = :sidekiq
 
     # This is needed for gitlab-shell
     ENV['GITLAB_PATH_OUTSIDE_HOOK'] = ENV['PATH']
     ENV['GIT_TERMINAL_PROMPT'] = '0'
 
-    # Gitlab Read-only middleware support
+    # GitLab Read-only middleware support
     config.middleware.insert_after ActionDispatch::Flash, ::Gitlab::Middleware::ReadOnly
 
     config.generators do |g|

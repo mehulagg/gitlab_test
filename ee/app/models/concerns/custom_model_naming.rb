@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module CustomModelNaming
   # Extracted from: https://github.com/stevenbarragan/spree_random_subscriptions/blob/5426ccaf8a2084c495b2cac9dfbd27e30ade0cec/lib/custom_model_naming.rb
 
@@ -7,7 +9,7 @@ module CustomModelNaming
     self.class_attribute :singular_route_key, :route_key, :param_key
   end
 
-  module ClassMethods
+  class_methods do
     def model_name
       @_model_name ||= begin
         namespace = self.parents.detect do |n|

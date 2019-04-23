@@ -2,7 +2,7 @@
 
 class IssueEntity < IssuableEntity
   include TimeTrackableEntity
-  prepend ::EE::IssueEntity
+  prepend ::EE::IssueEntity # rubocop: disable Cop/InjectEnterpriseEditionModule
 
   expose :state
   expose :milestone_id
@@ -43,6 +43,6 @@ class IssueEntity < IssuableEntity
   end
 
   expose :preview_note_path do |issue|
-    preview_markdown_path(issue.project, quick_actions_target_type: 'Issue', quick_actions_target_id: issue.id)
+    preview_markdown_path(issue.project, target_type: 'Issue', target_id: issue.iid)
   end
 end

@@ -1,7 +1,7 @@
+# frozen_string_literal: true
+
 # Shorter routing method for some project items
 module GitlabRoutingHelper
-  include EE::GitlabRoutingHelper
-
   extend ActiveSupport::Concern
 
   included do
@@ -194,3 +194,5 @@ module GitlabRoutingHelper
     take_ownership_project_pipeline_schedule_path(project, schedule, *args)
   end
 end
+
+GitlabRoutingHelper.include(EE::GitlabRoutingHelper)

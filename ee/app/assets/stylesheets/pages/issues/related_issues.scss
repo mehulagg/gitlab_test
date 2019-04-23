@@ -2,6 +2,10 @@ $token-spacing-bottom: 0.5em;
 
 .related-issues-block {
   margin-top: 3 * $gl-vert-padding;
+
+  .card-slim {
+    overflow: auto;
+  }
 }
 
 .related-issues-header-help-icon {
@@ -31,11 +35,15 @@ $token-spacing-bottom: 0.5em;
     opacity: 0;
   }
 
-  li .issue-info-container {
+  li .issuable-info-container {
     padding-left: $gl-padding;
+
+    @include media-breakpoint-down(sm) {
+      padding-left: $gl-padding-8;
+    }
   }
 
-  a.issue-main-info:hover {
+  a.issuable-main-info:hover {
     text-decoration: none;
 
     .issue-token-title-text {

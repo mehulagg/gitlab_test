@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Members::CreateService do
@@ -34,6 +36,15 @@ describe Members::CreateService do
 
     expect(result[:status]).to eq(:error)
     expect(result[:message]).to be_present
+    expect(project.users).not_to include project_user
+  end
+
+  it 'does not add an invalid member' do
+    params = { user_ids: project_user.id.to_s, access_level: -1 }
+    result = described_class.new(user, params).execute(project)
+
+    expect(result[:status]).to eq(:error)
+    expect(result[:message]).to include(project_user.username)
     expect(project.users).not_to include project_user
   end
 end

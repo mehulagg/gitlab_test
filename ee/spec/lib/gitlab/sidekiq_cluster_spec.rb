@@ -58,21 +58,54 @@ describe Gitlab::SidekiqCluster do
   describe '.start' do
     it 'starts Sidekiq with the given queues and environment' do
       expect(described_class).to receive(:start_sidekiq)
-        .ordered.with(%w(foo), :production, 'foo/bar', dryrun: false)
+        .ordered.with(%w(foo), :production, 'foo/bar', 50, dryrun: false)
 
       expect(described_class).to receive(:start_sidekiq)
-        .ordered.with(%w(bar baz), :production, 'foo/bar', dryrun: false)
+        .ordered.with(%w(bar baz), :production, 'foo/bar', 50, dryrun: false)
 
-      described_class.start([%w(foo), %w(bar baz)], :production, 'foo/bar')
+      described_class.start([%w(foo), %w(bar baz)], :production, 'foo/bar', 50)
+    end
+
+    it 'starts Sidekiq with capped concurrency limits for each queue' do
+      expect(described_class).to receive(:start_sidekiq)
+        .ordered.with(%w(foo bar baz), :production, 'foo/bar', 2, dryrun: false)
+
+      expect(described_class).to receive(:start_sidekiq)
+        .ordered.with(%w(solo), :production, 'foo/bar', 2, dryrun: false)
+
+      described_class.start([%w(foo bar baz), %w(solo)], :production, 'foo/bar', 2)
     end
   end
 
   describe '.start_sidekiq' do
+    let(:env) { { "ENABLE_SIDEKIQ_CLUSTER" => "1" } }
+    let(:args) { ['bundle', 'exec', 'sidekiq', anything, '-eproduction', *([anything] * 5)] }
+
     it 'starts a Sidekiq process' do
       allow(Process).to receive(:spawn).and_return(1)
 
       expect(described_class).to receive(:wait_async).with(1)
       expect(described_class.start_sidekiq(%w(foo), :production)).to eq(1)
+    end
+
+    it 'handles duplicate queue names' do
+      allow(Process)
+        .to receive(:spawn)
+        .with(env, *args, anything)
+        .and_return(1)
+
+      expect(described_class).to receive(:wait_async).with(1)
+      expect(described_class.start_sidekiq(%w(foo foo bar baz), :production)).to eq(1)
+    end
+
+    it 'runs the sidekiq process in a new process group' do
+      expect(Process)
+        .to receive(:spawn)
+        .with(anything, *args, a_hash_including(pgroup: true))
+        .and_return(1)
+
+      allow(described_class).to receive(:wait_async)
+      expect(described_class.start_sidekiq(%w(foo bar baz), :production)).to eq(1)
     end
   end
 

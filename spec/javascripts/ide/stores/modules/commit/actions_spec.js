@@ -3,7 +3,7 @@ import store from '~/ide/stores';
 import service from '~/ide/services';
 import router from '~/ide/ide_router';
 import eventHub from '~/ide/eventhub';
-import * as consts from '~/ide/stores/modules/commit/constants';
+import consts from '~/ide/stores/modules/commit/constants';
 import { resetStore, file } from 'spec/ide/helpers';
 
 describe('IDE commit module actions', () => {
@@ -184,7 +184,7 @@ describe('IDE commit module actions', () => {
           branch,
         })
         .then(() => {
-          expect(f.lastCommit.message).toBe(data.message);
+          expect(f.lastCommitSha).toBe(data.id);
         })
         .then(done)
         .catch(done.fail);
@@ -266,19 +266,21 @@ describe('IDE commit module actions', () => {
     });
 
     describe('success', () => {
+      const COMMIT_RESPONSE = {
+        id: '123456',
+        short_id: '123',
+        message: 'test message',
+        committed_date: 'date',
+        stats: {
+          additions: '1',
+          deletions: '2',
+        },
+      };
+
       beforeEach(() => {
         spyOn(service, 'commit').and.returnValue(
           Promise.resolve({
-            data: {
-              id: '123456',
-              short_id: '123',
-              message: 'test message',
-              committed_date: 'date',
-              stats: {
-                additions: '1',
-                deletions: '2',
-              },
-            },
+            data: COMMIT_RESPONSE,
           }),
         );
       });
@@ -352,8 +354,8 @@ describe('IDE commit module actions', () => {
         store
           .dispatch('commit/commitChanges')
           .then(() => {
-            expect(store.state.entries[store.state.openFiles[0].path].lastCommit.message).toBe(
-              'test message',
+            expect(store.state.entries[store.state.openFiles[0].path].lastCommitSha).toBe(
+              COMMIT_RESPONSE.id,
             );
 
             done();
@@ -387,17 +389,33 @@ describe('IDE commit module actions', () => {
         it('redirects to new merge request page', done => {
           spyOn(eventHub, '$on');
 
-          store.state.commit.commitAction = '3';
+          store.state.commit.commitAction = consts.COMMIT_TO_NEW_BRANCH;
+          store.state.commit.shouldCreateMR = true;
 
           store
             .dispatch('commit/commitChanges')
             .then(() => {
               expect(visitUrl).toHaveBeenCalledWith(
                 `webUrl/merge_requests/new?merge_request[source_branch]=${
-                  store.getters['commit/newBranchName']
+                  store.getters['commit/placeholderBranchName']
                 }&merge_request[target_branch]=master`,
               );
 
+              done();
+            })
+            .catch(done.fail);
+        });
+
+        it('does not redirect to new merge request page when shouldCreateMR is not checked', done => {
+          spyOn(eventHub, '$on');
+
+          store.state.commit.commitAction = consts.COMMIT_TO_NEW_BRANCH;
+          store.state.commit.shouldCreateMR = false;
+
+          store
+            .dispatch('commit/commitChanges')
+            .then(() => {
+              expect(visitUrl).not.toHaveBeenCalled();
               done();
             })
             .catch(done.fail);

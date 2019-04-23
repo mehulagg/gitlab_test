@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module API
   class Users < Grape::API
     include PaginationParams
@@ -14,18 +16,22 @@ module API
       end
 
       helpers do
+        # rubocop: disable CodeReuse/ActiveRecord
         def find_user_by_id(params)
           id = params[:user_id] || params[:id]
           User.find_by(id: id) || not_found!('User')
         end
+        # rubocop: enable CodeReuse/ActiveRecord
 
+        # rubocop: disable CodeReuse/ActiveRecord
         def reorder_users(users)
           if params[:order_by] && params[:sort]
-            users.reorder(params[:order_by] => params[:sort])
+            users.reorder(order_options_with_tie_breaker)
           else
             users
           end
         end
+        # rubocop: enable CodeReuse/ActiveRecord
 
         params :optional_attributes do
           optional :skype, type: String, desc: 'The Skype username'
@@ -38,16 +44,18 @@ module API
           optional :provider, type: String, desc: 'The external provider'
           optional :bio, type: String, desc: 'The biography of the user'
           optional :location, type: String, desc: 'The location of the user'
+          optional :public_email, type: String, desc: 'The public email of the user'
           optional :admin, type: Boolean, desc: 'Flag indicating the user is an administrator'
           optional :can_create_group, type: Boolean, desc: 'Flag indicating the user can create groups'
           optional :external, type: Boolean, desc: 'Flag indicating the user is an external user'
           optional :avatar, type: File, desc: 'Avatar image for user'
           optional :private_profile, type: Boolean, desc: 'Flag indicating the user has a private profile'
-          optional :min_access_level, type: Integer, values: Gitlab::Access.all_values, desc: 'Limit by minimum access level of authenticated user'
           all_or_none_of :extern_uid, :provider
 
-          # EE
-          optional :shared_runners_minutes_limit, type: Integer, desc: 'Pipeline minutes quota for this user'
+          if Gitlab.ee?
+            optional :shared_runners_minutes_limit, type: Integer, desc: 'Pipeline minutes quota for this user'
+            optional :extra_shared_runners_minutes_limit, type: Integer, desc: '(admin-only) Extra pipeline minutes quota for this user'
+          end
         end
 
         params :sort_params do
@@ -78,9 +86,11 @@ module API
         use :pagination
         use :with_custom_attributes
 
-        # EE
-        optional :skip_ldap, type: Boolean, default: false, desc: 'Skip LDAP users'
+        if Gitlab.ee?
+          optional :skip_ldap, type: Boolean, default: false, desc: 'Skip LDAP users'
+        end
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       get do
         authenticated_as_admin! if params[:external].present? || (params[:extern_uid].present? && params[:provider].present?)
 
@@ -108,6 +118,7 @@ module API
 
         present paginate(users), options
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Get a single user' do
         success Entities::User
@@ -117,22 +128,24 @@ module API
 
         use :with_custom_attributes
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       get ":id" do
         user = User.find_by(id: params[:id])
         not_found!('User') unless user && can?(current_user, :read_user, user)
 
-        opts = { with: current_user&.admin? ? Entities::UserWithAdmin : Entities::User, current_user: current_user }
+        opts = { with: current_user&.admin? ? Entities::UserDetailsWithAdmin : Entities::User, current_user: current_user }
         user, opts = with_custom_attributes(user, opts)
 
         present user, opts
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc "Get the status of a user"
       params do
-        requires :id_or_username, type: String, desc: 'The ID or username of the user'
+        requires :user_id, type: String, desc: 'The ID or username of the user'
       end
-      get ":id_or_username/status" do
-        user = find_user(params[:id_or_username])
+      get ":user_id/status", requirements: API::USER_REQUIREMENTS do
+        user = find_user(params[:user_id])
         not_found!('User') unless user && can?(current_user, :read_user, user)
 
         present user.status || {}, with: Entities::UserStatus
@@ -161,12 +174,12 @@ module API
           present user, with: Entities::UserPublic, current_user: current_user
         else
           conflict!('Email has already been taken') if User
-              .where(email: user.email)
-              .count > 0
+            .by_any_email(user.email.downcase)
+            .any?
 
           conflict!('Username has already been taken') if User
-              .where(username: user.username)
-              .count > 0
+            .by_username(user.username)
+            .any?
 
           render_validation_error!(user)
         end
@@ -184,6 +197,7 @@ module API
         optional :username, type: String, desc: 'The username of the user'
         use :optional_attributes
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       put ":id" do
         authenticated_as_admin!
 
@@ -191,11 +205,11 @@ module API
         not_found!('User') unless user
 
         conflict!('Email has already been taken') if params[:email] &&
-            User.where(email: params[:email])
+            User.by_any_email(params[:email].downcase)
                 .where.not(id: user.id).count > 0
 
         conflict!('Username has already been taken') if params[:username] &&
-            User.where(username: params[:username])
+            User.by_username(params[:username])
                 .where.not(id: user.id).count > 0
 
         user_params = declared_params(include_missing: false)
@@ -222,6 +236,7 @@ module API
           render_validation_error!(user)
         end
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Add an SSH key to a specified user. Available only for admins.' do
         success Entities::SSHKey
@@ -231,6 +246,7 @@ module API
         requires :key, type: String, desc: 'The new SSH key'
         requires :title, type: String, desc: 'The title of the new SSH key'
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       post ":id/keys" do
         authenticated_as_admin!
 
@@ -245,22 +261,23 @@ module API
           render_validation_error!(key)
         end
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
-      desc 'Get the SSH keys of a specified user. Available only for admins.' do
+      desc 'Get the SSH keys of a specified user.' do
         success Entities::SSHKey
       end
       params do
         requires :id, type: Integer, desc: 'The ID of the user'
         use :pagination
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       get ':id/keys' do
-        authenticated_as_admin!
-
         user = User.find_by(id: params[:id])
-        not_found!('User') unless user
+        not_found!('User') unless user && can?(current_user, :read_user, user)
 
         present paginate(user.keys), with: Entities::SSHKey
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Delete an existing SSH key from a specified user. Available only for admins.' do
         success Entities::SSHKey
@@ -269,6 +286,7 @@ module API
         requires :id, type: Integer, desc: 'The ID of the user'
         requires :key_id, type: Integer, desc: 'The ID of the SSH key'
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       delete ':id/keys/:key_id' do
         authenticated_as_admin!
 
@@ -280,6 +298,7 @@ module API
 
         destroy_conditionally!(key)
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Add a GPG key to a specified user. Available only for admins.' do
         detail 'This feature was added in GitLab 10.0'
@@ -289,6 +308,7 @@ module API
         requires :id, type: Integer, desc: 'The ID of the user'
         requires :key, type: String, desc: 'The new GPG key'
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       post ':id/gpg_keys' do
         authenticated_as_admin!
 
@@ -303,6 +323,7 @@ module API
           render_validation_error!(key)
         end
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Get the GPG keys of a specified user. Available only for admins.' do
         detail 'This feature was added in GitLab 10.0'
@@ -312,6 +333,7 @@ module API
         requires :id, type: Integer, desc: 'The ID of the user'
         use :pagination
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       get ':id/gpg_keys' do
         authenticated_as_admin!
 
@@ -320,6 +342,7 @@ module API
 
         present paginate(user.gpg_keys), with: Entities::GPGKey
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Delete an existing GPG key from a specified user. Available only for admins.' do
         detail 'This feature was added in GitLab 10.0'
@@ -328,6 +351,7 @@ module API
         requires :id, type: Integer, desc: 'The ID of the user'
         requires :key_id, type: Integer, desc: 'The ID of the GPG key'
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       delete ':id/gpg_keys/:key_id' do
         authenticated_as_admin!
 
@@ -340,6 +364,7 @@ module API
         status 204
         key.destroy
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Revokes an existing GPG key from a specified user. Available only for admins.' do
         detail 'This feature was added in GitLab 10.0'
@@ -348,6 +373,7 @@ module API
         requires :id, type: Integer, desc: 'The ID of the user'
         requires :key_id, type: Integer, desc: 'The ID of the GPG key'
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       post ':id/gpg_keys/:key_id/revoke' do
         authenticated_as_admin!
 
@@ -360,6 +386,7 @@ module API
         key.revoke
         status :accepted
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Add an email address to a specified user. Available only for admins.' do
         success Entities::Email
@@ -367,7 +394,9 @@ module API
       params do
         requires :id, type: Integer, desc: 'The ID of the user'
         requires :email, type: String, desc: 'The email of the user'
+        optional :skip_confirmation, type: Boolean, desc: 'Skip confirmation of email and assume it is verified'
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       post ":id/emails" do
         authenticated_as_admin!
 
@@ -382,6 +411,7 @@ module API
           render_validation_error!(email)
         end
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Get the emails addresses of a specified user. Available only for admins.' do
         success Entities::Email
@@ -390,6 +420,7 @@ module API
         requires :id, type: Integer, desc: 'The ID of the user'
         use :pagination
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       get ':id/emails' do
         authenticated_as_admin!
         user = User.find_by(id: params[:id])
@@ -397,6 +428,7 @@ module API
 
         present paginate(user.emails), with: Entities::Email
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Delete an email address of a specified user. Available only for admins.' do
         success Entities::Email
@@ -405,6 +437,7 @@ module API
         requires :id, type: Integer, desc: 'The ID of the user'
         requires :email_id, type: Integer, desc: 'The ID of the email'
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       delete ':id/emails/:email_id' do
         authenticated_as_admin!
         user = User.find_by(id: params[:id])
@@ -417,6 +450,7 @@ module API
           Emails::DestroyService.new(current_user, user: user).execute(email)
         end
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Delete a user. Available only for admins.' do
         success Entities::Email
@@ -425,6 +459,7 @@ module API
         requires :id, type: Integer, desc: 'The ID of the user'
         optional :hard_delete, type: Boolean, desc: "Whether to remove a user's contributions"
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       delete ":id" do
         Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ce/issues/42279')
 
@@ -437,11 +472,13 @@ module API
           user.delete_async(deleted_by: current_user, params: params)
         end
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Block a user. Available only for admins.'
       params do
         requires :id, type: Integer, desc: 'The ID of the user'
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       post ':id/block' do
         authenticated_as_admin!
         user = User.find_by(id: params[:id])
@@ -453,11 +490,13 @@ module API
           forbidden!('LDAP blocked users cannot be modified by the API')
         end
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Unblock a user. Available only for admins.'
       params do
         requires :id, type: Integer, desc: 'The ID of the user'
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       post ':id/unblock' do
         authenticated_as_admin!
         user = User.find_by(id: params[:id])
@@ -469,6 +508,7 @@ module API
           user.activate
         end
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       params do
         requires :user_id, type: Integer, desc: 'The ID of the user'
@@ -482,7 +522,7 @@ module API
             end
 
             def find_impersonation_token
-              finder.find_by(id: declared_params[:impersonation_token_id]) || not_found!('Impersonation Token')
+              finder.find_by_id(declared_params[:impersonation_token_id]) || not_found!('Impersonation Token')
             end
           end
 
@@ -500,7 +540,7 @@ module API
 
           desc 'Create a impersonation token. Available only for admins.' do
             detail 'This feature was introduced in GitLab 9.0'
-            success Entities::ImpersonationToken
+            success Entities::ImpersonationTokenWithToken
           end
           params do
             requires :name, type: String, desc: 'The name of the impersonation token'
@@ -511,7 +551,7 @@ module API
             impersonation_token = finder.build(declared_params(include_missing: false))
 
             if impersonation_token.save
-              present impersonation_token, with: Entities::ImpersonationToken
+              present impersonation_token, with: Entities::ImpersonationTokenWithToken
             else
               render_validation_error!(impersonation_token)
             end
@@ -584,12 +624,14 @@ module API
       params do
         requires :key_id, type: Integer, desc: 'The ID of the SSH key'
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       get "keys/:key_id" do
         key = current_user.keys.find_by(id: params[:key_id])
         not_found!('Key') unless key
 
         present key, with: Entities::SSHKey
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Add a new SSH key to the currently authenticated user' do
         success Entities::SSHKey
@@ -614,12 +656,14 @@ module API
       params do
         requires :key_id, type: Integer, desc: 'The ID of the SSH key'
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       delete "keys/:key_id" do
         key = current_user.keys.find_by(id: params[:key_id])
         not_found!('Key') unless key
 
         destroy_conditionally!(key)
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc "Get the currently authenticated user's GPG keys" do
         detail 'This feature was added in GitLab 10.0'
@@ -639,12 +683,14 @@ module API
       params do
         requires :key_id, type: Integer, desc: 'The ID of the GPG key'
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       get 'gpg_keys/:key_id' do
         key = current_user.gpg_keys.find_by(id: params[:key_id])
         not_found!('GPG Key') unless key
 
         present key, with: Entities::GPGKey
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Add a new GPG key to the currently authenticated user' do
         detail 'This feature was added in GitLab 10.0'
@@ -669,6 +715,7 @@ module API
       params do
         requires :key_id, type: Integer, desc: 'The ID of the GPG key'
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       post 'gpg_keys/:key_id/revoke' do
         key = current_user.gpg_keys.find_by(id: params[:key_id])
         not_found!('GPG Key') unless key
@@ -676,6 +723,7 @@ module API
         key.revoke
         status :accepted
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Delete a GPG key from the currently authenticated user' do
         detail 'This feature was added in GitLab 10.0'
@@ -683,6 +731,7 @@ module API
       params do
         requires :key_id, type: Integer, desc: 'The ID of the SSH key'
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       delete 'gpg_keys/:key_id' do
         key = current_user.gpg_keys.find_by(id: params[:key_id])
         not_found!('GPG Key') unless key
@@ -690,6 +739,7 @@ module API
         status 204
         key.destroy
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc "Get the currently authenticated user's email addresses" do
         success Entities::Email
@@ -707,12 +757,14 @@ module API
       params do
         requires :email_id, type: Integer, desc: 'The ID of the email'
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       get "emails/:email_id" do
         email = current_user.emails.find_by(id: params[:email_id])
         not_found!('Email') unless email
 
         present email, with: Entities::Email
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Add new email address to the currently authenticated user' do
         success Entities::Email
@@ -734,6 +786,7 @@ module API
       params do
         requires :email_id, type: Integer, desc: 'The ID of the email'
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       delete "emails/:email_id" do
         email = current_user.emails.find_by(id: params[:email_id])
         not_found!('Email') unless email
@@ -742,12 +795,14 @@ module API
           Emails::DestroyService.new(current_user, user: current_user).execute(email)
         end
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Get a list of user activities'
       params do
         optional :from, type: DateTime, default: 6.months.ago, desc: 'Date string in the format YEAR-MONTH-DAY'
         use :pagination
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       get "activities" do
         authenticated_as_admin!
 
@@ -757,6 +812,7 @@ module API
 
         present paginate(activities), with: Entities::UserActivity
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Set the status of the current user' do
         success Entities::UserStatus

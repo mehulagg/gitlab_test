@@ -8,6 +8,7 @@ module SoftwareLicensePolicies
     end
 
     # Returns the created managed license.
+    # rubocop: disable CodeReuse/ActiveRecord
     def execute
       return error("", 403) unless can?(@current_user, :admin_software_license_policy, @project)
 
@@ -15,13 +16,11 @@ module SoftwareLicensePolicies
       name = params.delete(:name)
 
       software_license = SoftwareLicense.transaction do
-        begin
-          SoftwareLicense.transaction(requires_new: true) do
-            SoftwareLicense.find_or_create_by(name: name)
-          end
-        rescue ActiveRecord::RecordNotUnique
-          retry
+        SoftwareLicense.transaction(requires_new: true) do
+          SoftwareLicense.find_or_create_by(name: name)
         end
+      rescue ActiveRecord::RecordNotUnique
+        retry
       end
 
       # Add the software license to params
@@ -39,5 +38,6 @@ module SoftwareLicensePolicies
 
       success(software_license_policy: software_license_policy)
     end
+    # rubocop: enable CodeReuse/ActiveRecord
   end
 end

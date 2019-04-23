@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module QA
   module EE
     module Page
@@ -5,8 +7,8 @@ module QA
         module Geo
           module Nodes
             class Show < QA::Page::Base
-              view 'ee/app/views/admin/geo_nodes/index.html.haml' do
-                element :new_node_link, /link_to .*New node/
+              view 'ee/app/views/admin/geo/nodes/index.html.haml' do
+                element :new_node_link, /link_to .*New node/ # rubocop:disable QA/ElementWithPattern
               end
 
               def new_node!

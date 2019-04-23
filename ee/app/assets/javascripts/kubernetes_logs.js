@@ -78,11 +78,15 @@ export default class KubernetesPodLogs extends LogOutputBehaviours {
 
     this.$podDropdown
       .find('.dropdown-menu-toggle')
-      .html(`<span class="dropdown-toggle-text">${this.podName}</span><i class="fa fa-chevron-down"></i>`);
+      .html(
+        `<span class="dropdown-toggle-text">${
+          this.podName
+        }</span><i class="fa fa-chevron-down"></i>`,
+      );
     $podDropdownMenu.off('click');
     $podDropdownMenu.empty();
 
-    pods.forEach((pod) => {
+    pods.forEach(pod => {
       $podDropdownMenu.append(`
         <button class='dropdown-item'>
           ${_.escape(pod)}
@@ -90,7 +94,7 @@ export default class KubernetesPodLogs extends LogOutputBehaviours {
       `);
     });
 
-    $podDropdownMenu.find('li').on('click', this.changePodLog.bind(this));
+    $podDropdownMenu.find('button').on('click', this.changePodLog.bind(this));
   }
 
   changePodLog(el) {

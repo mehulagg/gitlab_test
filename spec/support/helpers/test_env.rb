@@ -31,6 +31,8 @@ module TestEnv
     'symlink-expand-diff'                => '81e6355',
     'expand-collapse-files'              => '025db92',
     'expand-collapse-lines'              => '238e82d',
+    'pages-deploy'                       => '7897d5b',
+    'pages-deploy-target'                => '7975be0',
     'video'                              => '8879059',
     'add-balsamiq-file'                  => 'b89b56d',
     'crlf-diff'                          => '5938907',
@@ -52,7 +54,17 @@ module TestEnv
     'add_images_and_changes'             => '010d106',
     'update-gitlab-shell-v-6-0-1'        => '2f61d70',
     'update-gitlab-shell-v-6-0-3'        => 'de78448',
-    '2-mb-file'                          => 'bf12d25'
+    'merge-commit-analyze-before'        => '1adbdef',
+    'merge-commit-analyze-side-branch'   => '8a99451',
+    'merge-commit-analyze-after'         => '646ece5',
+    '2-mb-file'                          => 'bf12d25',
+    'before-create-delete-modify-move'   => '845009f',
+    'between-create-delete-modify-move'  => '3f5f443',
+    'after-create-delete-modify-move'    => 'ba3faa7',
+    'with-codeowners'                    => '219560e',
+    'submodule_inside_folder'            => 'b491b92',
+    'png-lfs'                            => 'fe42f41',
+    'sha-starting-with-large-number'     => '8426165'
   }.freeze
 
   # gitlab-test-fork is a fork of gitlab-fork, but we don't necessarily
@@ -67,7 +79,6 @@ module TestEnv
 
   TMP_TEST_PATH = Rails.root.join('tmp', 'tests', '**')
   REPOS_STORAGE = 'default'.freeze
-  BROKEN_STORAGE = 'broken'.freeze
 
   # Test environment
   #
@@ -84,7 +95,7 @@ module TestEnv
 
     clean_test_path
 
-    # Setup GitLab shell for test instance
+    # Set up GitLab shell for test instance
     setup_gitlab_shell
 
     setup_gitaly
@@ -104,10 +115,6 @@ module TestEnv
   def enable_mailer
     allow_any_instance_of(NotificationService).to receive(:mailer)
       .and_call_original
-  end
-
-  def disable_pre_receive
-    allow_any_instance_of(Gitlab::Git::Hook).to receive(:trigger).and_return([true, nil])
   end
 
   # Clean /tmp/tests
@@ -140,12 +147,15 @@ module TestEnv
       version: Gitlab::Shell.version_required,
       task: 'gitlab:shell:install')
 
-    create_fake_git_hooks
+    # gitlab-shell hooks don't work in our test environment because they try to make internal API calls
+    sabotage_gitlab_shell_hooks
   end
 
-  def create_fake_git_hooks
-    # gitlab-shell hooks don't work in our test environment because they try to make internal API calls
-    hooks_dir = File.join(Gitlab.config.gitlab_shell.path, 'hooks')
+  def sabotage_gitlab_shell_hooks
+    create_fake_git_hooks(Gitlab::Shell.new.hooks_path)
+  end
+
+  def create_fake_git_hooks(hooks_dir)
     %w[pre-receive post-receive update].each do |hook|
       File.open(File.join(hooks_dir, hook), 'w', 0755) { |f| f.puts '#!/bin/sh' }
     end
@@ -154,18 +164,17 @@ module TestEnv
   def setup_gitaly
     socket_path = Gitlab::GitalyClient.address('default').sub(/\Aunix:/, '')
     gitaly_dir = File.dirname(socket_path)
+    install_gitaly_args = [gitaly_dir, repos_path, gitaly_url].compact.join(',')
 
     component_timed_setup('Gitaly',
       install_dir: gitaly_dir,
       version: Gitlab::GitalyClient.expected_server_version,
-      task: "gitlab:gitaly:install[#{gitaly_dir},#{repos_path}]") do
+      task: "gitlab:gitaly:install[#{install_gitaly_args}]") do
 
-      # Re-create config, to specify the broken storage path
-      storage_paths = { 'default' => repos_path, 'broken' => broken_path }
-      Gitlab::SetupHelper.create_gitaly_configuration(gitaly_dir, storage_paths, force: true)
-
-      start_gitaly(gitaly_dir)
-    end
+        Gitlab::SetupHelper.create_gitaly_configuration(gitaly_dir, { 'default' => repos_path }, force: true)
+        create_fake_git_hooks(File.join(gitaly_dir, 'ruby/git-hooks'))
+        start_gitaly(gitaly_dir)
+      end
   end
 
   def start_gitaly(gitaly_dir)
@@ -173,6 +182,8 @@ module TestEnv
       # Gitaly has been spawned outside this process already
       return
     end
+
+    FileUtils.mkdir_p("tmp/tests/second_storage") unless File.exist?("tmp/tests/second_storage")
 
     spawn_script = Rails.root.join('scripts/gitaly-test-spawn').to_s
     Bundler.with_original_env do
@@ -191,12 +202,10 @@ module TestEnv
     socket = Gitlab::GitalyClient.address('default').sub('unix:', '')
 
     Integer(sleep_time / sleep_interval).times do
-      begin
-        Socket.unix(socket)
-        return
-      rescue
-        sleep sleep_interval
-      end
+      Socket.unix(socket)
+      return
+    rescue
+      sleep sleep_interval
     end
 
     raise "could not connect to gitaly at #{socket.inspect} after #{sleep_time} seconds"
@@ -208,6 +217,10 @@ module TestEnv
     Process.kill('KILL', @gitaly_pid)
   rescue Errno::ESRCH
     # The process can already be gone if the test run was INTerrupted.
+  end
+
+  def gitaly_url
+    ENV.fetch('GITALY_REPO_URL', nil)
   end
 
   def setup_factory_repo
@@ -256,10 +269,6 @@ module TestEnv
 
   def repos_path
     @repos_path ||= Gitlab.config.repositories.storages[REPOS_STORAGE].legacy_disk_path
-  end
-
-  def broken_path
-    @broken_path ||= Gitlab.config.repositories.storages[BROKEN_STORAGE].legacy_disk_path
   end
 
   def backup_path
@@ -370,7 +379,7 @@ module TestEnv
     FileUtils.rm_rf(install_dir)
     exit 1
   ensure
-    puts "    #{component} setup in #{Time.now - start} seconds...\n"
+    puts "    #{component} set up in #{Time.now - start} seconds...\n"
   end
 
   def ensure_component_dir_name_is_correct!(component, path)

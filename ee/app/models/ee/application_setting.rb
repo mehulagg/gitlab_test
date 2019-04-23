@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   # ApplicationSetting EE mixin
   #
@@ -10,6 +12,12 @@ module EE
       include IgnorableColumn
 
       EMAIL_ADDITIONAL_TEXT_CHARACTER_LIMIT = 10_000
+      INSTANCE_REVIEW_MIN_USERS = 100
+
+      attr_accessor :elasticsearch_namespace_ids, :elasticsearch_project_ids
+
+      after_save -> { update_elasticsearch_containers(ElasticsearchIndexedNamespace, :namespace_id, elasticsearch_namespace_ids) }, on: [:create, :update]
+      after_save -> { update_elasticsearch_containers(ElasticsearchIndexedProject, :project_id, elasticsearch_project_ids) }, on: [:create, :update]
 
       belongs_to :file_template_project, class_name: "Project"
 
@@ -52,49 +60,18 @@ module EE
                 presence: true,
                 if: :snowplow_enabled
 
-      validates :external_authorization_service_default_label,
-                presence: true,
-                if: :external_authorization_service_enabled?
+      validates :geo_node_allowed_ips, length: { maximum: 255 }, presence: true
 
-      validates :external_authorization_service_url,
-                url: true, allow_blank: true,
-                if: :external_authorization_service_enabled?
-
-      validates :external_authorization_service_timeout,
-                numericality: { greater_than: 0, less_than_or_equal_to: 10 },
-                if: :external_authorization_service_enabled?
-
-      validates :external_auth_client_key,
-                presence: true,
-                if: -> (setting) { setting.external_auth_client_cert.present? }
-
-      validates_with X509CertificateCredentialsValidator,
-                     certificate: :external_auth_client_cert,
-                     pkey: :external_auth_client_key,
-                     pass: :external_auth_client_key_pass,
-                     if: -> (setting) { setting.external_auth_client_cert.present? }
-
-      attr_encrypted :external_auth_client_key,
-                     mode: :per_attribute_iv,
-                     key: Settings.attr_encrypted_db_key_base_truncated,
-                     algorithm: 'aes-256-gcm',
-                     encode: true
-
-      attr_encrypted :external_auth_client_key_pass,
-                     mode: :per_attribute_iv,
-                     key: Settings.attr_encrypted_db_key_base_truncated,
-                     algorithm: 'aes-256-gcm',
-                     encode: true
+      validate :check_geo_node_allowed_ips
     end
 
-    module ClassMethods
+    class_methods do
       extend ::Gitlab::Utils::Override
 
       override :defaults
       def defaults
         super.merge(
           allow_group_owners_to_manage_ldap: true,
-          default_project_creation: ::EE::Gitlab::Access::DEVELOPER_MAINTAINER_PROJECT_ACCESS,
           elasticsearch_aws: false,
           elasticsearch_aws_region: ENV['ELASTIC_REGION'] || 'us-east-1',
           elasticsearch_url: ENV['ELASTIC_URL'] || 'http://localhost:9200',
@@ -112,9 +89,63 @@ module EE
           snowplow_cookie_domain: nil,
           snowplow_enabled: false,
           snowplow_site_id: nil,
-          custom_project_templates_group_id: nil
+          custom_project_templates_group_id: nil,
+          geo_node_allowed_ips: '0.0.0.0/0, ::/0'
         )
       end
+    end
+
+    def update_elasticsearch_containers(klass, attribute, container_ids)
+      return unless elasticsearch_limit_indexing?
+
+      container_ids = container_ids&.split(",")
+      return unless container_ids.present?
+
+      # Destroy any containers that have been removed. This runs callbacks, etc
+      # #rubocop:disable Cop/DestroyAll
+      klass.where.not(attribute => container_ids).each_batch do |batch, _index|
+        batch.destroy_all
+      end
+      # #rubocop:enable Cop/DestroyAll
+
+      # Disregard any duplicates that are already present
+      container_ids -= klass.pluck(attribute)
+
+      # Add new containers
+      container_ids.each { |id| klass.create(attribute => id) }
+    end
+
+    def elasticsearch_indexes_project?(project)
+      return false unless elasticsearch_indexing?
+      return true unless elasticsearch_limit_indexing?
+
+      elasticsearch_limited_projects.exists?(project.id)
+    end
+
+    def elasticsearch_indexes_namespace?(namespace)
+      return false unless elasticsearch_indexing?
+      return true unless elasticsearch_limit_indexing?
+
+      elasticsearch_limited_namespaces.exists?(namespace.id)
+    end
+
+    def elasticsearch_limited_projects(ignore_namespaces = false)
+      return ::Project.where(id: ElasticsearchIndexedProject.select(:project_id)) if ignore_namespaces
+
+      union = ::Gitlab::SQL::Union.new([
+                                         ::Project.where(namespace_id: elasticsearch_limited_namespaces.select(:id)),
+                                         ::Project.where(id: ElasticsearchIndexedProject.select(:project_id))
+                                       ]).to_sql
+
+      ::Project.from("(#{union}) projects")
+    end
+
+    def elasticsearch_limited_namespaces(ignore_descendants = false)
+      namespaces = ::Namespace.where(id: ElasticsearchIndexedNamespace.select(:namespace_id))
+
+      return namespaces if ignore_descendants
+
+      ::Gitlab::ObjectHierarchy.new(namespaces).base_and_descendants
     end
 
     def pseudonymizer_available?
@@ -173,12 +204,6 @@ module EE
       EMAIL_ADDITIONAL_TEXT_CHARACTER_LIMIT
     end
 
-    def external_authorization_service_enabled
-      License.feature_available?(:external_authorization_service) && super
-    end
-    alias_method :external_authorization_service_enabled?,
-                 :external_authorization_service_enabled
-
     def custom_project_templates_enabled?
       License.feature_available?(:custom_project_templates)
     end
@@ -187,10 +212,22 @@ module EE
       custom_project_templates_enabled? && super
     end
 
-    def available_custom_project_templates
-      return [] unless group_id = custom_project_templates_group_id
+    def available_custom_project_templates(subgroup_id = nil)
+      group_id = subgroup_id || custom_project_templates_group_id
+
+      return ::Project.none unless group_id
 
       ::Project.where(namespace_id: group_id)
+    end
+
+    def instance_review_permitted?
+      return if License.current
+
+      users_count = Rails.cache.fetch('limited_users_count', expires_in: 1.day) do
+        ::User.limit(INSTANCE_REVIEW_MIN_USERS + 1).count(:all)
+      end
+
+      users_count >= INSTANCE_REVIEW_MIN_USERS
     end
 
     private
@@ -217,6 +254,12 @@ module EE
 
     def email_additional_text_column_exists?
       ::Gitlab::Database.cached_column_exists?(:application_settings, :email_additional_text)
+    end
+
+    def check_geo_node_allowed_ips
+      ::Gitlab::CIDR.new(geo_node_allowed_ips)
+    rescue ::Gitlab::CIDR::ValidationError => e
+      errors.add(:geo_node_allowed_ips, e.message)
     end
   end
 end

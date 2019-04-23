@@ -1,16 +1,20 @@
+# frozen_string_literal: true
+
 module QA
   module Page
     module File
       class Show < Page::Base
+        prepend QA::EE::Page::File::Show
+
         include Shared::CommitMessage
 
         view 'app/helpers/blob_helper.rb' do
-          element :edit_button, "_('Edit')"
-          element :delete_button, /label:\s+"Delete"/
+          element :edit_button, "_('Edit')" # rubocop:disable QA/ElementWithPattern
+          element :delete_button, '_("Delete")' # rubocop:disable QA/ElementWithPattern
         end
 
         view 'app/views/projects/blob/_remove.html.haml' do
-          element :delete_file_button, "button_tag 'Delete file'"
+          element :delete_file_button, "button_tag 'Delete file'" # rubocop:disable QA/ElementWithPattern
         end
 
         def click_edit

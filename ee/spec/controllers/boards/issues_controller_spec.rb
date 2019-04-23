@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Boards::IssuesController do
   include ExternalAuthorizationServiceHelpers
 
-  let(:group) { create(:group) }
+  let(:group) { create(:group, :private) }
   let(:project_1) { create(:project, namespace: group) }
   let(:project_2) { create(:project, namespace: group) }
   let(:board) { create(:board, group: group) }
@@ -79,34 +79,13 @@ describe Boards::IssuesController do
 
     context 'with unauthorized user' do
       before do
-        allow(Ability).to receive(:allowed?).and_call_original
-        allow(Ability).to receive(:allowed?).with(user, :read_group, group).and_return(false)
+        group.group_member(user).destroy
       end
 
       it 'returns a forbidden 403 response' do
         list_issues user: user, board: board, list: list2
 
         expect(response).to have_gitlab_http_status(403)
-      end
-    end
-
-    context 'with external authorization' do
-      before do
-        sign_in(user)
-        enable_external_authorization_service_check
-      end
-
-      it 'returns a 403 for group boards' do
-        get :index, board_id: board
-
-        expect(response).to have_gitlab_http_status(403)
-      end
-
-      it 'is successful for project boards' do
-        project_board = create(:board, project: project_1)
-        list_issues(user: user, board: project_board)
-
-        expect(response).to have_gitlab_http_status(200)
       end
     end
 
@@ -118,7 +97,7 @@ describe Boards::IssuesController do
         list_id: list.try(:to_param)
       }
 
-      get :index, params.compact
+      get :index, params: params.compact
     end
   end
 
@@ -184,9 +163,11 @@ describe Boards::IssuesController do
     def create_issue(user:, board:, list:, title:)
       sign_in(user)
 
-      post :create, board_id: board.to_param,
-                    list_id: list.to_param,
-                    issue: { title: title, project_id: project_1.id },
+      post :create, params: {
+                      board_id: board.to_param,
+                      list_id: list.to_param,
+                      issue: { title: title, project_id: project_1.id }
+                    },
                     format: :json
     end
   end
@@ -245,10 +226,12 @@ describe Boards::IssuesController do
     def move(user:, board:, issue:, from_list_id:, to_list_id:)
       sign_in(user)
 
-      patch :update, board_id: board.to_param,
-                     id: issue.id,
-                     from_list_id: from_list_id,
-                     to_list_id: to_list_id,
+      patch :update, params: {
+                       board_id: board.to_param,
+                       id: issue.id,
+                       from_list_id: from_list_id,
+                       to_list_id: to_list_id
+                     },
                      format: :json
     end
   end

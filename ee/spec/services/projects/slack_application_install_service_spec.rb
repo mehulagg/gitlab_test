@@ -28,7 +28,7 @@ describe Projects::SlackApplicationInstallService do
 
     result = service.execute
 
-    expect(result).to eq(message:  'Slack: something is wrong', status: :error)
+    expect(result).to eq(message: 'Slack: something is wrong', status: :error)
   end
 
   it 'returns success result and creates all the needed records' do
@@ -45,13 +45,5 @@ describe Projects::SlackApplicationInstallService do
     expect(result).to eq(status: :success)
     expect_slack_integration_is_created(project)
     expect_chat_name_is_created(project)
-  end
-
-  describe '#chat_responder' do
-    it 'returns the chat responder to use' do
-      srv = service
-
-      expect(srv.chat_responder).to eq(Gitlab::Chat::Responder::Slack)
-    end
   end
 end

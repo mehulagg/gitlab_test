@@ -1,4 +1,5 @@
-# coding: utf-8
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe QuickActions::InterpretService do
@@ -9,12 +10,14 @@ describe QuickActions::InterpretService do
   let(:milestone) { create(:milestone, project: project, title: '9.10') }
   let(:commit) { create(:commit, project: project) }
   let(:inprogress) { create(:label, project: project, title: 'In Progress') }
+  let(:helmchart) { create(:label, project: project, title: 'Helm Chart Registry') }
   let(:bug) { create(:label, project: project, title: 'Bug') }
   let(:note) { build(:note, commit_id: merge_request.diff_head_sha) }
   let(:service) { described_class.new(project, developer) }
 
   before do
-    stub_licensed_features(multiple_issue_assignees: false)
+    stub_licensed_features(multiple_issue_assignees: false,
+                           multiple_merge_request_assignees: false)
 
     project.add_developer(developer)
   end
@@ -91,6 +94,26 @@ describe QuickActions::InterpretService do
         _, updates = service.execute(content, issuable)
 
         expect(updates).to eq(add_label_ids: [inprogress.id])
+      end
+    end
+
+    shared_examples 'multiword label name starting without ~' do
+      it 'fetches label ids and populates add_label_ids if content contains /label' do
+        helmchart # populate the label
+        _, updates = service.execute(content, issuable)
+
+        expect(updates).to eq(add_label_ids: [helmchart.id])
+      end
+    end
+
+    shared_examples 'label name is included in the middle of another label name' do
+      it 'ignores the sublabel when the content contains the includer label name' do
+        helmchart # populate the label
+        create(:label, project: project, title: 'Chart')
+
+        _, updates = service.execute(content, issuable)
+
+        expect(updates).to eq(add_label_ids: [helmchart.id])
       end
     end
 
@@ -275,6 +298,28 @@ describe QuickActions::InterpretService do
       end
     end
 
+    shared_examples 'lock command' do
+      let(:issue) { create(:issue, project: project, discussion_locked: false) }
+      let(:merge_request) { create(:merge_request, source_project: project, discussion_locked: false) }
+
+      it 'returns discussion_locked: true if content contains /lock' do
+        _, updates = service.execute(content, issuable)
+
+        expect(updates).to eq(discussion_locked: true)
+      end
+    end
+
+    shared_examples 'unlock command' do
+      let(:issue) { create(:issue, project: project, discussion_locked: true) }
+      let(:merge_request) { create(:merge_request, source_project: project, discussion_locked: true) }
+
+      it 'returns discussion_locked: true if content contains /unlock' do
+        _, updates = service.execute(content, issuable)
+
+        expect(updates).to eq(discussion_locked: false)
+      end
+    end
+
     shared_examples 'empty command' do
       it 'populates {} if content contains an unsupported command' do
         _, updates = service.execute(content, issuable)
@@ -294,27 +339,10 @@ describe QuickActions::InterpretService do
     end
 
     shared_examples 'award command' do
-      it 'toggle award 100 emoji if content containts /award :100:' do
+      it 'toggle award 100 emoji if content contains /award :100:' do
         _, updates = service.execute(content, issuable)
 
         expect(updates).to eq(emoji_award: "100")
-      end
-    end
-
-    shared_examples 'weight command' do
-      it 'populates weight: 5 if content contains /weight 5' do
-        _, updates = service.execute(content, issuable)
-
-        expect(updates).to eq(weight: 5)
-      end
-    end
-
-    shared_examples 'clear weight command' do
-      it 'populates weight: nil if content contains /clear_weight' do
-        issuable.update(weight: 5)
-        _, updates = service.execute(content, issuable)
-
-        expect(updates).to eq(weight: nil)
       end
     end
 
@@ -373,6 +401,14 @@ describe QuickActions::InterpretService do
         _, updates = service.execute(content, issuable)
 
         expect(updates).to eq(tag_name: tag_name, tag_message: tag_message)
+      end
+    end
+
+    shared_examples 'assign command' do
+      it 'assigns to a single user' do
+        _, updates = service.execute(content, issuable)
+
+        expect(updates).to eq(assignee_ids: [developer.id])
       end
     end
 
@@ -453,29 +489,6 @@ describe QuickActions::InterpretService do
           let(:issuable) { build(:merge_request, source_project: project) }
         end
       end
-
-      context 'not approved merge request can not be merged' do
-        before do
-          merge_request.target_project.update(approvals_before_merge: 1)
-        end
-
-        it_behaves_like 'empty command' do
-          let(:content) { "/merge" }
-          let(:issuable) { build(:merge_request, source_project: project) }
-        end
-      end
-
-      context 'approved merge request can be merged' do
-        before do
-          merge_request.update(approvals_before_merge: 1)
-          merge_request.approvals.create(user: developer)
-        end
-
-        it_behaves_like 'empty command' do
-          let(:content) { "/merge" }
-          let(:issuable) { build(:merge_request, source_project: project) }
-        end
-      end
     end
 
     it_behaves_like 'title command' do
@@ -493,67 +506,56 @@ describe QuickActions::InterpretService do
       let(:issuable) { issue }
     end
 
-    context 'assign command' do
-      let(:content) { "/assign @#{developer.username}" }
-
-      context 'Issue' do
-        it 'fetches assignee and populates assignee_ids if content contains /assign' do
-          _, updates = service.execute(content, issue)
-
-          expect(updates[:assignee_ids]).to match_array([developer.id])
-        end
+    context 'assign command with one user' do
+      it_behaves_like 'assign command' do
+        let(:content) { "/assign @#{developer.username}" }
+        let(:issuable) { issue }
       end
 
-      context 'Merge Request' do
-        it 'fetches assignee and populates assignee_ids if content contains /assign' do
-          _, updates = service.execute(content, merge_request)
-
-          expect(updates).to eq(assignee_ids: [developer.id])
-        end
+      it_behaves_like 'assign command' do
+        let(:content) { "/assign @#{developer.username}" }
+        let(:issuable) { merge_request }
       end
     end
 
+    # CE does not have multiple assignees
     context 'assign command with multiple assignees' do
-      let(:content) { "/assign @#{developer.username} @#{developer2.username}" }
-
       before do
         project.add_developer(developer2)
       end
 
-      context 'Issue' do
-        it 'fetches assignee and populates assignee_ids if content contains /assign' do
-          _, updates = service.execute(content, issue)
-
-          expect(updates[:assignee_ids]).to match_array([developer.id])
-        end
+      it_behaves_like 'assign command' do
+        let(:content) { "/assign @#{developer.username} @#{developer2.username}" }
+        let(:issuable) { issue }
       end
 
-      context 'Merge Request' do
-        it 'fetches assignee and populates assignee_ids if content contains /assign' do
-          _, updates = service.execute(content, merge_request)
-
-          expect(updates).to eq(assignee_ids: [developer.id])
-        end
+      it_behaves_like 'assign command', :quarantine do
+        let(:content) { "/assign @#{developer.username} @#{developer2.username}" }
+        let(:issuable) { merge_request }
       end
     end
 
     context 'assign command with me alias' do
-      let(:content) { "/assign me" }
-
-      context 'Issue' do
-        it 'fetches assignee and populates assignee_ids if content contains /assign' do
-          _, updates = service.execute(content, issue)
-
-          expect(updates).to eq(assignee_ids: [developer.id])
-        end
+      it_behaves_like 'assign command' do
+        let(:content) { '/assign me' }
+        let(:issuable) { issue }
       end
 
-      context 'Merge Request' do
-        it 'fetches assignee and populates assignee_ids if content contains /assign' do
-          _, updates = service.execute(content, merge_request)
+      it_behaves_like 'assign command' do
+        let(:content) { '/assign me' }
+        let(:issuable) { merge_request }
+      end
+    end
 
-          expect(updates).to eq(assignee_ids: [developer.id])
-        end
+    context 'assign command with me alias and whitespace' do
+      it_behaves_like 'assign command' do
+        let(:content) { '/assign  me ' }
+        let(:issuable) { issue }
+      end
+
+      it_behaves_like 'assign command' do
+        let(:content) { '/assign  me ' }
+        let(:issuable) { merge_request }
       end
     end
 
@@ -572,7 +574,7 @@ describe QuickActions::InterpretService do
 
       context 'Issue' do
         it 'populates assignee_ids: [] if content contains /unassign' do
-          issue.update(assignee_ids: [developer.id])
+          issue.update!(assignee_ids: [developer.id])
           _, updates = service.execute(content, issue)
 
           expect(updates).to eq(assignee_ids: [])
@@ -581,7 +583,7 @@ describe QuickActions::InterpretService do
 
       context 'Merge Request' do
         it 'populates assignee_ids: [] if content contains /unassign' do
-          merge_request.update(assignee_ids: [developer.id])
+          merge_request.update!(assignee_ids: [developer.id])
           _, updates = service.execute(content, merge_request)
 
           expect(updates).to eq(assignee_ids: [])
@@ -643,6 +645,26 @@ describe QuickActions::InterpretService do
     it_behaves_like 'multiple label with same argument' do
       let(:content) { %(/label ~"#{inprogress.title}" \n/label ~#{inprogress.title}) }
       let(:issuable) { issue }
+    end
+
+    it_behaves_like 'multiword label name starting without ~' do
+      let(:content) { %(/label "#{helmchart.title}") }
+      let(:issuable) { issue }
+    end
+
+    it_behaves_like 'multiword label name starting without ~' do
+      let(:content) { %(/label "#{helmchart.title}") }
+      let(:issuable) { merge_request }
+    end
+
+    it_behaves_like 'label name is included in the middle of another label name' do
+      let(:content) { %(/label ~"#{helmchart.title}") }
+      let(:issuable) { issue }
+    end
+
+    it_behaves_like 'label name is included in the middle of another label name' do
+      let(:content) { %(/label ~"#{helmchart.title}") }
+      let(:issuable) { merge_request }
     end
 
     it_behaves_like 'unlabel command' do
@@ -829,38 +851,24 @@ describe QuickActions::InterpretService do
       let(:issuable) { issue }
     end
 
-    context 'issuable weights licensed' do
-      before do
-        stub_licensed_features(issue_weights: true)
-      end
-
-      it_behaves_like 'weight command' do
-        let(:content) { '/weight 5'}
-        let(:issuable) { issue }
-      end
-
-      it_behaves_like 'clear weight command' do
-        let(:content) { '/clear_weight' }
-        let(:issuable) { issue }
-      end
+    it_behaves_like 'lock command' do
+      let(:content) { '/lock' }
+      let(:issuable) { issue }
     end
 
-    context 'issuable weights unlicensed' do
-      before do
-        stub_licensed_features(issue_weights: false)
-      end
+    it_behaves_like 'lock command' do
+      let(:content) { '/lock' }
+      let(:issuable) { merge_request }
+    end
 
-      it 'does not recognise /weight X' do
-        _, updates = service.execute('/weight 5', issue)
+    it_behaves_like 'unlock command' do
+      let(:content) { '/unlock' }
+      let(:issuable) { issue }
+    end
 
-        expect(updates).to be_empty
-      end
-
-      it 'does not recognise /clear_weight' do
-        _, updates = service.execute('/clear_weight', issue)
-
-        expect(updates).to be_empty
-      end
+    it_behaves_like 'unlock command' do
+      let(:content) { '/unlock' }
+      let(:issuable) { merge_request }
     end
 
     context '/todo' do
@@ -892,6 +900,13 @@ describe QuickActions::InterpretService do
       it_behaves_like 'empty command' do
         let(:content) { '/copy_metadata' }
         let(:issuable) { issue }
+      end
+
+      it_behaves_like 'copy_metadata command' do
+        let(:source_issuable) { create(:labeled_issue, project: project, labels: [inreview_label, todo_label]) }
+
+        let(:content) { "/copy_metadata #{source_issuable.to_reference}" }
+        let(:issuable) { build(:issue, project: project) }
       end
 
       it_behaves_like 'copy_metadata command' do
@@ -1036,6 +1051,16 @@ describe QuickActions::InterpretService do
 
       it_behaves_like 'empty command' do
         let(:content) { '/duplicate #{issue.to_reference}' }
+        let(:issuable) { issue }
+      end
+
+      it_behaves_like 'empty command' do
+        let(:content) { '/lock' }
+        let(:issuable) { issue }
+      end
+
+      it_behaves_like 'empty command' do
+        let(:content) { '/unlock' }
         let(:issuable) { issue }
       end
     end
@@ -1232,6 +1257,46 @@ describe QuickActions::InterpretService do
         end
       end
     end
+
+    it 'limits to commands passed ' do
+      content = "/shrug\n/close"
+
+      text, commands = service.execute(content, issue, only: [:shrug])
+
+      expect(commands).to be_empty
+      expect(text).to eq("#{described_class::SHRUG}\n/close")
+    end
+
+    context '/create_merge_request command' do
+      let(:branch_name) { '1-feature' }
+      let(:content) { "/create_merge_request #{branch_name}" }
+      let(:issuable) { issue }
+
+      context 'if issuable is not an Issue' do
+        let(:issuable) { merge_request }
+
+        it_behaves_like 'empty command'
+      end
+
+      context "when logged user cannot create_merge_requests in the project" do
+        let(:project) { create(:project, :archived) }
+
+        it_behaves_like 'empty command'
+      end
+
+      context 'when logged user cannot push code to the project' do
+        let(:project) { create(:project, :private) }
+        let(:service) { described_class.new(project, create(:user)) }
+
+        it_behaves_like 'empty command'
+      end
+
+      it 'populates create_merge_request with branch_name and issue iid' do
+        _, updates = service.execute(content, issuable)
+
+        expect(updates).to eq(create_merge_request: { branch_name: branch_name, issue_iid: issuable.iid })
+      end
+    end
   end
 
   describe '#explain' do
@@ -1414,7 +1479,7 @@ describe QuickActions::InterpretService do
       it 'includes the formatted duration and proper verb' do
         _, explanations = service.explain(content, issue)
 
-        expect(explanations).to eq(['Substracts 2h spent time.'])
+        expect(explanations).to eq(['Subtracts 2h spent time.'])
       end
     end
 
@@ -1484,24 +1549,35 @@ describe QuickActions::InterpretService do
       end
     end
 
-    # EE-specific tests
+    describe 'create a merge request' do
+      context 'with no branch name' do
+        let(:content) { '/create_merge_request' }
 
-    describe 'weight command' do
-      let(:content) { '/weight 4' }
+        it 'uses the default branch name' do
+          _, explanations = service.explain(content, issue)
 
-      it 'includes the number' do
-        _, explanations = service.explain(content, issue)
-        expect(explanations).to eq(['Sets weight to 4.'])
+          expect(explanations).to eq(['Creates a branch and a merge request to resolve this issue'])
+        end
+      end
+
+      context 'with a branch name' do
+        let(:content) { '/create_merge_request foo' }
+
+        it 'uses the given branch name' do
+          _, explanations = service.explain(content, issue)
+
+          expect(explanations).to eq(["Creates branch 'foo' and a merge request to resolve this issue"])
+        end
       end
     end
 
-    describe 'move issue to another project command' do
-      let(:content) { '/move test/project' }
+    context "#commands_executed_count" do
+      it 'counts commands executed' do
+        content = "/close and \n/assign me and \n/title new title"
 
-      it 'includes the project name' do
-        _, explanations = service.explain(content, issue)
+        service.execute(content, issue)
 
-        expect(explanations).to eq(["Moves this issue to test/project."])
+        expect(service.commands_executed_count).to eq(3)
       end
     end
   end

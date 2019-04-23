@@ -1,12 +1,12 @@
+# frozen_string_literal: true
+
 module API
   module Helpers
-    prepend EE::API::Helpers
-
     include Gitlab::Utils
-    include Gitlab::Utils::StrongMemoize
     include Helpers::Pagination
 
     SUDO_HEADER = "HTTP_SUDO".freeze
+    GITLAB_SHARED_SECRET_HEADER = "Gitlab-Shared-Secret".freeze
     SUDO_PARAM = :sudo
     API_USER_ENV = 'gitlab.api.user'.freeze
 
@@ -85,8 +85,8 @@ module API
       page || not_found!('Wiki Page')
     end
 
-    def available_labels_for(label_parent)
-      search_params = { include_ancestor_groups: true }
+    def available_labels_for(label_parent, include_ancestor_groups: true)
+      search_params = { include_ancestor_groups: include_ancestor_groups }
 
       if label_parent.is_a?(Project)
         search_params[:project_id] = label_parent.id
@@ -98,36 +98,32 @@ module API
     end
 
     def find_user(id)
-      if id =~ /^\d+$/
-        User.find_by(id: id)
-      else
-        User.find_by(username: id)
-      end
+      UserFinder.new(id).find_by_id_or_username
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def find_project(id)
+      projects = Project.without_deleted
+
       if id.is_a?(Integer) || id =~ /^\d+$/
-        Project.find_by(id: id)
+        projects.find_by(id: id)
       elsif id.include?("/")
-        Project.find_by_full_path(id)
+        projects.find_by_full_path(id)
       end
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def find_project!(id)
       project = find_project(id)
 
-      # CI job token authentication:
-      # this method grants limited privileged for admin users
-      # admin users can only access project if they are direct member
-      ability = job_token_authentication? ? :build_read_project : :read_project
-
-      if can?(current_user, ability, project)
+      if can?(current_user, :read_project, project)
         project
       else
         not_found!('Project')
       end
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def find_group(id)
       if id.to_s =~ /^\d+$/
         Group.find_by(id: id)
@@ -135,12 +131,9 @@ module API
         Group.find_by_full_path(id)
       end
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def find_group!(id)
-      # CI job token authentication:
-      # currently we do not allow any group access for CI job token
-      not_found!('Group') if job_token_authentication?
-
       group = find_group(id)
 
       if can?(current_user, :read_group, group)
@@ -150,6 +143,7 @@ module API
       end
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def find_namespace(id)
       if id.to_s =~ /^\d+$/
         Namespace.find_by(id: id)
@@ -157,6 +151,7 @@ module API
         Namespace.find_by_full_path(id)
       end
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def find_namespace!(id)
       namespace = find_namespace(id)
@@ -168,21 +163,25 @@ module API
       end
     end
 
-    def find_project_label(id)
-      labels = available_labels_for(user_project)
-      label = labels.find_by_id(id) || labels.find_by_title(id)
-
-      label || not_found!('Label')
+    def find_branch!(branch_name)
+      if Gitlab::GitRefValidator.validate(branch_name)
+        user_project.repository.find_branch(branch_name) || not_found!('Branch')
+      else
+        render_api_error!('The branch refname is invalid', 400)
+      end
     end
 
-    def find_project_issue(iid, project_id = nil)
-      project = project_id ? find_project!(project_id) : user_project
-      IssuesFinder.new(current_user, project_id: project.id).find_by!(iid: iid)
+    # rubocop: disable CodeReuse/ActiveRecord
+    def find_project_issue(iid)
+      IssuesFinder.new(current_user, project_id: user_project.id).find_by!(iid: iid)
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def find_project_merge_request(iid)
       MergeRequestsFinder.new(current_user, project_id: user_project.id).find_by!(iid: iid)
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def find_project_commit(id)
       user_project.commit_by(oid: id)
@@ -193,11 +192,13 @@ module API
       SnippetsFinder.new(current_user, finder_params).find(id)
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def find_merge_request_with_access(iid, access_level = :read_merge_request)
       merge_request = user_project.merge_requests.find_by!(iid: iid)
       authorize! access_level, merge_request
       merge_request
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def find_build!(id)
       user_project.builds.find(id.to_i)
@@ -212,10 +213,12 @@ module API
     end
 
     def authenticate_by_gitlab_shell_token!
-      input = params['secret_token'].try(:chomp)
-      unless Devise.secure_compare(secret_token, input)
-        unauthorized!
-      end
+      input = params['secret_token']
+      input ||= Base64.decode64(headers[GITLAB_SHARED_SECRET_HEADER]) if headers.key?(GITLAB_SHARED_SECRET_HEADER)
+
+      input&.chomp!
+
+      unauthorized! unless Devise.secure_compare(secret_token, input)
     end
 
     def authenticated_with_full_private_access!
@@ -228,8 +231,8 @@ module API
       forbidden! unless current_user.admin?
     end
 
-    def authorize!(action, subject = :global)
-      forbidden! unless can?(current_user, action, subject)
+    def authorize!(action, subject = :global, reason = nil)
+      forbidden!(reason) unless can?(current_user, action, subject)
     end
 
     def authorize_push_project
@@ -242,6 +245,10 @@ module API
 
     def authorize_read_builds!
       authorize! :read_build, user_project
+    end
+
+    def authorize_destroy_artifacts!
+      authorize! :destroy_artifacts, user_project
     end
 
     def authorize_update_builds!
@@ -286,15 +293,29 @@ module API
         end
       end
       permitted_attrs = ActionController::Parameters.new(attrs).permit!
-      Gitlab.rails5? ? permitted_attrs.to_h : permitted_attrs
+      permitted_attrs.to_h
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def filter_by_iid(items, iid)
       items.where(iid: iid)
     end
+    # rubocop: enable CodeReuse/ActiveRecord
+
+    # rubocop: disable CodeReuse/ActiveRecord
+    def filter_by_title(items, title)
+      items.where(title: title)
+    end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def filter_by_search(items, text)
       items.search(text)
+    end
+
+    def order_options_with_tie_breaker
+      order_options = { params[:order_by] => params[:sort] }
+      order_options['id'] ||= 'desc'
+      order_options
     end
 
     # error helpers
@@ -361,18 +382,19 @@ module API
     end
 
     def handle_api_exception(exception)
-      if sentry_enabled? && report_exception?(exception)
+      if report_exception?(exception)
         define_params_for_grape_middleware
-        sentry_context
-        Raven.capture_exception(exception, extra: params)
+        Gitlab::Sentry.context(current_user)
+        Gitlab::Sentry.track_acceptable_exception(exception, extra: params)
       end
 
       # lifted from https://github.com/rails/rails/blob/master/actionpack/lib/action_dispatch/middleware/debug_exceptions.rb#L60
       trace = exception.backtrace
 
-      message = "\n#{exception.class} (#{exception.message}):\n"
+      message = ["\n#{exception.class} (#{exception.message}):\n"]
       message << exception.annoted_source_code.to_s if exception.respond_to?(:annoted_source_code)
       message << "  " << trace.join("\n  ")
+      message = message.join
 
       API.logger.add Logger::FATAL, message
 
@@ -388,12 +410,14 @@ module API
 
     # project helpers
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def reorder_projects(projects)
-      projects.reorder(params[:order_by] => params[:sort])
+      projects.reorder(order_options_with_tie_breaker)
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def project_finder_params
-      finder_params = {}
+      finder_params = { without_deleted: true }
       finder_params[:owned] = true if params[:owned].present?
       finder_params[:non_public] = true if params[:membership].present?
       finder_params[:starred] = true if params[:starred].present?
@@ -410,7 +434,7 @@ module API
 
     def present_disk_file!(path, filename, content_type = 'application/octet-stream')
       filename ||= File.basename(path)
-      header['Content-Disposition'] = "attachment; filename=#{filename}"
+      header['Content-Disposition'] = ::Gitlab::ContentDisposition.format(disposition: 'attachment', filename: filename)
       header['Content-Transfer-Encoding'] = 'binary'
       content_type content_type
 
@@ -440,34 +464,12 @@ module API
 
     private
 
-    def private_token
-      params[APIGuard::PRIVATE_TOKEN_PARAM] || env[APIGuard::PRIVATE_TOKEN_HEADER]
-    end
-
-    def job_token_authentication?
-      initial_current_user && @job_token_authentication # rubocop:disable Gitlab/ModuleWithInstanceVariables
-    end
-
-    def warden
-      env['warden']
-    end
-
-    # Check if the request is GET/HEAD, or if CSRF token is valid.
-    def verified_request?
-      Gitlab::RequestForgeryProtection.verified?(env)
-    end
-
-    # Check the Rails session for valid authentication details
-    def find_user_from_warden
-      warden.try(:authenticate) if verified_request?
-    end
-
     # rubocop:disable Gitlab/ModuleWithInstanceVariables
     def initial_current_user
-      return @initial_current_user if defined?(@initial_current_user) # rubocop:disable Gitlab/ModuleWithInstanceVariables
+      return @initial_current_user if defined?(@initial_current_user)
 
       begin
-        @initial_current_user = Gitlab::Auth::UniqueIpsLimiter.limit_user! { find_current_user! } # rubocop:disable Gitlab/ModuleWithInstanceVariables
+        @initial_current_user = Gitlab::Auth::UniqueIpsLimiter.limit_user! { find_current_user! }
       rescue Gitlab::Auth::UnauthorizedError
         unauthorized!
       end
@@ -503,13 +505,14 @@ module API
       Gitlab::Shell.secret_token
     end
 
-    def geo_token
-      Gitlab::Geo.current_node.system_hook.token
-    end
-
     def send_git_blob(repository, blob)
       env['api.format'] = :txt
       content_type 'text/plain'
+      header['Content-Disposition'] = ::Gitlab::ContentDisposition.format(disposition: 'inline', filename: blob.name)
+
+      # Let Workhorse examine the content and determine the better content disposition
+      header[Gitlab::Workhorse::DETECT_HEADER] = "true"
+
       header(*Gitlab::Workhorse.send_git_blob(repository, blob))
     end
 
@@ -525,7 +528,7 @@ module API
     # `request`. We workaround this by defining methods that returns the right
     # values.
     def define_params_for_grape_middleware
-      self.define_singleton_method(:request) { Rack::Request.new(env) }
+      self.define_singleton_method(:request) { ActionDispatch::Request.new(env) }
       self.define_singleton_method(:params) { request.params.symbolize_keys }
     end
 
@@ -544,3 +547,5 @@ module API
     end
   end
 end
+
+API::Helpers.prepend(EE::API::Helpers)

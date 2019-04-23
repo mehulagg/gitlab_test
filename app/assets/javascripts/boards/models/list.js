@@ -1,10 +1,11 @@
-/* eslint-disable no-underscore-dangle, class-methods-use-this, consistent-return, no-shadow, no-param-reassign, max-len */
+/* eslint-disable no-underscore-dangle, class-methods-use-this, consistent-return, no-shadow, no-param-reassign */
 /* global ListIssue */
 
 import { __ } from '~/locale';
 import ListLabel from '~/vue_shared/models/label';
 import ListAssignee from '~/vue_shared/models/assignee';
-import queryData from '../utils/query_data';
+import { isEE, urlParamsToObject } from '~/lib/utils/common_utils';
+import boardsStore from '../stores/boards_store';
 import ListMilestone from './milestone';
 
 const PER_PAGE = 20;
@@ -78,7 +79,7 @@ class List {
       entityType = 'label_id';
     } else if (this.assignee) {
       entityType = 'assignee_id';
-    } else if (this.milestone) {
+    } else if (isEE && this.milestone) {
       entityType = 'milestone_id';
     }
 
@@ -95,9 +96,9 @@ class List {
   }
 
   destroy() {
-    const index = gl.issueBoards.BoardsStore.state.lists.indexOf(this);
-    gl.issueBoards.BoardsStore.state.lists.splice(index, 1);
-    gl.issueBoards.BoardsStore.updateNewListDropdown(this.id);
+    const index = boardsStore.state.lists.indexOf(this);
+    boardsStore.state.lists.splice(index, 1);
+    boardsStore.updateNewListDropdown(this.id);
 
     gl.boardService.destroyList(this.id).catch(() => {
       // TODO: handle request error
@@ -121,7 +122,10 @@ class List {
   }
 
   getIssues(emptyIssues = true) {
-    const data = queryData(gl.issueBoards.BoardsStore.filter.path, { page: this.page });
+    const data = {
+      ...urlParamsToObject(boardsStore.filter.path),
+      page: this.page,
+    };
 
     if (this.label && data.label_name) {
       data.label_name = data.label_name.filter(label => label !== this.label.title);
@@ -194,7 +198,7 @@ class List {
         issue.addAssignee(this.assignee);
       }
 
-      if (this.milestone) {
+      if (isEE && this.milestone) {
         if (listFrom && listFrom.type === 'milestone') {
           issue.removeMilestone(listFrom.milestone);
         }
@@ -243,16 +247,17 @@ class List {
     });
   }
 
-  getTypeInfo (type) {
+  getTypeInfo(type) {
     return TYPES[type] || {};
   }
 
-  onNewIssueResponse (issue, data) {
+  onNewIssueResponse(issue, data) {
     issue.id = data.id;
     issue.iid = data.iid;
     issue.project = data.project;
     issue.path = data.real_path;
     issue.referencePath = data.reference_path;
+    issue.assignableLabelsEndpoint = data.assignable_labels_endpoint;
 
     if (this.issuesSize > 1) {
       const moveBeforeId = this.issues[1].id;

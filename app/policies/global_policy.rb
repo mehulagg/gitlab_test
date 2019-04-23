@@ -68,8 +68,14 @@ class GlobalPolicy < BasePolicy
     enable :read_users_list
   end
 
+  rule { ~anonymous }.policy do
+    enable :read_instance_metadata
+  end
+
   rule { admin }.policy do
     enable :read_custom_attribute
     enable :update_custom_attribute
   end
 end
+
+GlobalPolicy.prepend(EE::GlobalPolicy)

@@ -1,22 +1,9 @@
 require 'spec_helper'
 
 describe Projects::IssuesController do
-  include Rails.application.routes.url_helpers
-
   let(:namespace) { create(:group, :public) }
   let(:project)   { create(:project_empty_repo, :public, namespace: namespace) }
   let(:user) { create(:user) }
-
-  describe 'GET #index' do
-    before do
-      sign_in user
-      project.add_developer(user)
-    end
-
-    it_behaves_like 'unauthorized when external service denies access' do
-      subject { get :index, namespace_id: project.namespace, project_id: project }
-    end
-  end
 
   describe 'POST export_csv' do
     let(:viewer)            { user }
@@ -33,7 +20,7 @@ describe Projects::IssuesController do
     end
 
     def request_csv
-      post :export_csv, namespace_id: project.namespace.to_param, project_id: project.to_param
+      post :export_csv, params: { namespace_id: project.namespace.to_param, project_id: project.to_param }
     end
 
     context 'unlicensed' do
@@ -73,7 +60,8 @@ describe Projects::IssuesController do
 
     context 'licensed by namespace' do
       let(:globally_licensed) { true }
-      let(:namespace) { create(:group, :private, plan: :bronze_plan) }
+      let(:namespace) { create(:group, :private) }
+      let!(:gitlab_subscriptions) { create(:gitlab_subscription, :bronze, namespace: namespace) }
       let(:project) { create(:project, namespace: namespace) }
 
       before do
@@ -104,7 +92,7 @@ describe Projects::IssuesController do
     end
 
     def perform(method, action, opts = {})
-      send(method, action, opts.merge(namespace_id: project.namespace.to_param, project_id: project.to_param))
+      send(method, action, params: opts.merge(namespace_id: project.namespace.to_param, project_id: project.to_param))
     end
 
     context 'licensed' do
@@ -197,7 +185,7 @@ describe Projects::IssuesController do
 
   describe 'GET service_desk' do
     def get_service_desk(extra_params = {})
-      get :service_desk, extra_params.merge(namespace_id: project.namespace, project_id: project)
+      get :service_desk, params: extra_params.merge(namespace_id: project.namespace, project_id: project)
     end
 
     context 'when Service Desk is available on the project' do
@@ -250,7 +238,7 @@ describe Projects::IssuesController do
   end
 
   describe 'GET #discussions' do
-    let(:issue)   { create(:issue, project: project) }
+    let(:issue) { create(:issue, project: project) }
     let!(:discussion) { create(:discussion_note_on_issue, noteable: issue, project: issue.project) }
 
     context 'with a related system note' do
@@ -264,13 +252,13 @@ describe Projects::IssuesController do
           end
 
           it 'displays related notes' do
-            get :discussions, namespace_id: project.namespace, project_id: project, id: issue.iid
+            get :discussions, params: { namespace_id: project.namespace, project_id: project, id: issue.iid }
 
             discussions = json_response
             notes = discussions.flat_map {|d| d['notes']}
 
             expect(discussions.count).to equal(2)
-            expect(notes).to include(a_hash_including('id' => system_note.id))
+            expect(notes).to include(a_hash_including('id' => system_note.id.to_s))
           end
         end
       end
@@ -282,13 +270,13 @@ describe Projects::IssuesController do
           end
 
           it 'redacts note related to a confidential issue' do
-            get :discussions, namespace_id: project.namespace, project_id: project, id: issue.iid
+            get :discussions, params: { namespace_id: project.namespace, project_id: project, id: issue.iid }
 
             discussions = json_response
             notes = discussions.flat_map {|d| d['notes']}
 
             expect(discussions.count).to equal(1)
-            expect(notes).not_to include(a_hash_including('id' => system_note.id))
+            expect(notes).not_to include(a_hash_including('id' => system_note.id.to_s))
           end
         end
       end

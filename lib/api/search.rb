@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module API
   class Search < Grape::API
     include PaginationParams
@@ -15,10 +17,9 @@ module API
         blobs: Entities::Blob,
         wiki_blobs: Entities::Blob,
         snippet_titles: Entities::Snippet,
-        snippet_blobs: Entities::Snippet
+        snippet_blobs: Entities::Snippet,
+        users: Entities::UserBasic
       }.freeze
-
-      ELASTICSEARCH_SCOPES = %w(wiki_blobs blobs commits).freeze
 
       def search(additional_params = {})
         search_params = {
@@ -35,18 +36,7 @@ module API
       end
 
       def process_results(results)
-        return [] if results.empty?
-
-        if results.is_a?(Elasticsearch::Model::Response::Response)
-          return paginate(results).map { |blob| Gitlab::Elastic::SearchResults.parse_search_result(blob) }
-        end
-
-        case params[:scope]
-        when 'blobs', 'wiki_blobs'
-          paginate(results).map { |blob| blob[1] }
-        else
-          paginate(results)
-        end
+        paginate(results)
       end
 
       def snippets?
@@ -57,14 +47,16 @@ module API
         SCOPE_ENTITY[params[:scope].to_sym]
       end
 
-      def check_elasticsearch_scope!
-        if ELASTICSEARCH_SCOPES.include?(params[:scope]) && !elasticsearch?
-          render_api_error!({ error: 'Scope not supported without Elasticsearch!' }, 400)
-        end
+      def verify_search_scope!
+        # In EE we have additional validation requirements for searches.
+        # Defining this method here as a noop allows us to easily extend it in
+        # EE, without having to modify this file directly.
       end
 
-      def elasticsearch?
-        Gitlab::CurrentSettings.elasticsearch_search?
+      def check_users_search_allowed!
+        if params[:scope].to_sym == :users && Feature.disabled?(:users_search, default_enabled: true)
+          render_api_error!({ error: _("Scope not supported with disabled 'users_search' feature!") }, 400)
+        end
       end
     end
 
@@ -76,21 +68,19 @@ module API
         requires :search, type: String, desc: 'The expression it should be searched for'
         requires :scope,
           type: String,
-          desc: 'The scope of search, available scopes:
-            projects, issues, merge_requests, milestones, snippet_titles, snippet_blobs,
-            if Elasticsearch enabled: wiki_blobs, blobs, commits',
-          values: %w(projects issues merge_requests milestones snippet_titles snippet_blobs
-                     wiki_blobs blobs commits)
+          desc: 'The scope of the search',
+          values: Helpers::SearchHelpers.global_search_scopes
         use :pagination
       end
       get do
-        check_elasticsearch_scope!
+        verify_search_scope!
+        check_users_search_allowed!
 
         present search, with: entity
       end
     end
 
-    resource :groups, requirements: API::PROJECT_ENDPOINT_REQUIREMENTS do
+    resource :groups, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       desc 'Search on GitLab' do
         detail 'This feature was introduced in GitLab 10.5.'
       end
@@ -99,20 +89,19 @@ module API
         requires :search, type: String, desc: 'The expression it should be searched for'
         requires :scope,
           type: String,
-          desc: 'The scope of search, available scopes:
-            projects, issues, merge_requests, milestones,
-            if Elasticsearch enabled: wiki_blobs, blobs, commits',
-          values: %w(projects issues merge_requests milestones wiki_blobs blobs commits)
+          desc: 'The scope of the search',
+          values: Helpers::SearchHelpers.group_search_scopes
         use :pagination
       end
       get ':id/(-/)search' do
-        check_elasticsearch_scope!
+        verify_search_scope!
+        check_users_search_allowed!
 
         present search(group_id: user_group.id), with: entity
       end
     end
 
-    resource :projects, requirements: API::PROJECT_ENDPOINT_REQUIREMENTS do
+    resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       desc 'Search on GitLab' do
         detail 'This feature was introduced in GitLab 10.5.'
       end
@@ -121,14 +110,17 @@ module API
         requires :search, type: String, desc: 'The expression it should be searched for'
         requires :scope,
           type: String,
-          desc: 'The scope of search, available scopes:
-            issues, merge_requests, milestones, notes, wiki_blobs, commits, blobs',
-          values: %w(issues merge_requests milestones notes wiki_blobs commits blobs)
+          desc: 'The scope of the search',
+          values: Helpers::SearchHelpers.project_search_scopes
         use :pagination
       end
       get ':id/(-/)search' do
+        check_users_search_allowed!
+
         present search(project_id: user_project.id), with: entity
       end
     end
   end
 end
+
+API::Search.prepend(EE::API::Search)

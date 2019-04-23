@@ -12,26 +12,27 @@ module CacheableAttributes
       "#{name}:#{Gitlab::VERSION}:#{Rails.version}".freeze
     end
 
-    # Can be overriden
+    # Can be overridden
     def current_without_cache
       last
     end
 
-    # Can be overriden
+    # Can be overridden
     def defaults
       {}
     end
 
     def build_from_defaults(attributes = {})
-      new(defaults.merge(attributes))
+      final_attributes = defaults
+        .merge(attributes)
+        .stringify_keys
+        .slice(*column_names)
+
+      new(final_attributes)
     end
 
     def cached
-      if RequestStore.active?
-        RequestStore[:"#{name}_cached_attributes"] ||= retrieve_from_cache
-      else
-        retrieve_from_cache
-      end
+      Gitlab::SafeRequestStore[:"#{name}_cached_attributes"] ||= retrieve_from_cache
     end
 
     def retrieve_from_cache

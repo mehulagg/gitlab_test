@@ -15,7 +15,7 @@ describe Gitlab::BitbucketImport::Importer do
       "invalid",
       "duplicate",
       "wontfix",
-      "closed"  # undocumented status
+      "closed" # undocumented status
     ]
   end
 
@@ -95,6 +95,9 @@ describe Gitlab::BitbucketImport::Importer do
   subject { described_class.new(project) }
 
   describe '#import_pull_requests' do
+    let(:source_branch_sha) { sample.commits.last }
+    let(:target_branch_sha) { sample.commits.first }
+
     before do
       allow(subject).to receive(:import_wiki)
       allow(subject).to receive(:import_issues)
@@ -102,9 +105,9 @@ describe Gitlab::BitbucketImport::Importer do
       pull_request = instance_double(
         Bitbucket::Representation::PullRequest,
         iid: 10,
-        source_branch_sha: sample.commits.last,
+        source_branch_sha: source_branch_sha,
         source_branch_name: Gitlab::Git::BRANCH_REF_PREFIX + sample.source_branch,
-        target_branch_sha: sample.commits.first,
+        target_branch_sha: target_branch_sha,
         target_branch_name: Gitlab::Git::BRANCH_REF_PREFIX + sample.target_branch,
         title: 'This is a title',
         description: 'This is a test pull request',
@@ -162,6 +165,19 @@ describe Gitlab::BitbucketImport::Importer do
       expect(reply_note).to be_a(DiffNote)
       expect(reply_note.note).to eq(@reply.note)
     end
+
+    context "when branches' sha is not found in the repository" do
+      let(:source_branch_sha) { 'a' * Commit::MIN_SHA_LENGTH }
+      let(:target_branch_sha) { 'b' * Commit::MIN_SHA_LENGTH }
+
+      it 'uses the pull request sha references' do
+        expect { subject.execute }.to change { MergeRequest.count }.by(1)
+
+        merge_request_diff = MergeRequest.first.merge_request_diff
+        expect(merge_request_diff.head_commit_sha).to eq source_branch_sha
+        expect(merge_request_diff.start_commit_sha).to eq target_branch_sha
+      end
+    end
   end
 
   context 'issues statuses' do
@@ -218,7 +234,7 @@ describe Gitlab::BitbucketImport::Importer do
     describe 'wiki import' do
       it 'is skipped when the wiki exists' do
         expect(project.wiki).to receive(:repository_exists?) { true }
-        expect(importer.gitlab_shell).not_to receive(:import_repository)
+        expect(importer.gitlab_shell).not_to receive(:import_wiki_repository)
 
         importer.execute
 
@@ -227,11 +243,7 @@ describe Gitlab::BitbucketImport::Importer do
 
       it 'imports to the project disk_path' do
         expect(project.wiki).to receive(:repository_exists?) { false }
-        expect(importer.gitlab_shell).to receive(:import_repository).with(
-          project.repository_storage,
-          project.wiki.disk_path,
-          project.import_url + '/wiki'
-        )
+        expect(importer.gitlab_shell).to receive(:import_wiki_repository)
 
         importer.execute
 

@@ -1,8 +1,8 @@
+# frozen_string_literal: true
+
 class RegistrationsController < Devise::RegistrationsController
   include Recaptcha::Verify
   include AcceptsPendingInvitations
-
-  prepend EE::RegistrationsController
 
   before_action :whitelist_query_limiting, only: [:destroy]
   before_action :ensure_terms_accepted,
@@ -27,7 +27,7 @@ class RegistrationsController < Devise::RegistrationsController
         persist_accepted_terms_if_required(new_user)
       end
     else
-      flash[:alert] = 'There was an error with the reCAPTCHA. Please solve the reCAPTCHA again.'
+      flash[:alert] = s_('Profiles|There was an error with the reCAPTCHA. Please solve the reCAPTCHA again.')
       flash.delete :recaptcha_error
       render action: 'new'
     end
@@ -119,3 +119,5 @@ class RegistrationsController < Devise::RegistrationsController
     Gitlab::Utils.to_boolean(params[:terms_opt_in])
   end
 end
+
+RegistrationsController.prepend(EE::RegistrationsController)

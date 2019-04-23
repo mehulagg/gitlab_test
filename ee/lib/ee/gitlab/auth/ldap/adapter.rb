@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # LDAP connection adapter EE mixin
 #
 # This module is intended to encapsulate EE-specific adapter methods
@@ -52,6 +54,25 @@ module EE
             ldap_search(options).map do |entry|
               LDAP::Group.new(entry, self)
             end
+          end
+
+          def user_by_certificate_assertion(certificate_assertion)
+            options = user_options_for_cert(certificate_assertion)
+            users_search(options).first
+          end
+
+          private
+
+          def user_options_for_cert(certificate_assertion)
+            options = {
+              attributes: ::Gitlab::Auth::LDAP::Person.ldap_attributes(config),
+              base: config.base
+            }
+
+            filter = Net::LDAP::Filter.ex(
+              'userCertificate:certificateExactMatch', certificate_assertion)
+
+            options.merge(filter: user_filter(filter))
           end
         end
       end

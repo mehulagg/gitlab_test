@@ -1,20 +1,18 @@
 # frozen_string_literal: true
 
-class Label < ActiveRecord::Base
+class Label < ApplicationRecord
   include CacheMarkdownField
   include Referable
   include Subscribable
   include Gitlab::SQL::Pattern
-
-  # Represents a "No Label" state used for filtering Issues and Merge
-  # Requests that have no label assigned.
-  LabelStruct = Struct.new(:title, :name)
-  None = LabelStruct.new('No Label', 'No Label')
-  Any = LabelStruct.new('Any Label', '')
+  include OptionallySearch
+  include Sortable
+  include FromUnion
 
   cache_markdown_field :description, pipeline: :single_line
 
-  DEFAULT_COLOR = '#428BCA'.freeze
+  DEFAULT_COLOR = '#428BCA'
+  NONE = 'no label'
 
   default_value_for :color, DEFAULT_COLOR
 
@@ -38,8 +36,11 @@ class Label < ActiveRecord::Base
   scope :templates, -> { where(template: true) }
   scope :with_title, ->(title) { where(title: title) }
   scope :with_lists_and_board, -> { joins(lists: :board).merge(List.movable) }
-  scope :on_group_boards, ->(group_id) { with_lists_and_board.where(boards: { group_id: group_id }) }
   scope :on_project_boards, ->(project_id) { with_lists_and_board.where(boards: { project_id: project_id }) }
+  scope :on_board, ->(board_id) { with_lists_and_board.where(boards: { id: board_id }) }
+  scope :order_name_asc, -> { reorder(title: :asc) }
+  scope :order_name_desc, -> { reorder(title: :desc) }
+  scope :subscribed_by, ->(user_id) { joins(:subscriptions).where(subscriptions: { user_id: user_id, subscribed: true }) }
 
   def self.prioritized(project)
     joins(:priorities)
@@ -67,6 +68,14 @@ class Label < ActiveRecord::Base
                               .join_sources
 
     joins(label_priorities)
+  end
+
+  def self.optionally_subscribed_by(user_id)
+    if user_id
+      subscribed_by(user_id)
+    else
+      all
+    end
   end
 
   alias_attribute :name, :title
@@ -115,6 +124,17 @@ class Label < ActiveRecord::Base
   # Returns an ActiveRecord::Relation.
   def self.search(query)
     fuzzy_search(query, [:title, :description])
+  end
+
+  # Override Gitlab::SQL::Pattern.min_chars_for_partial_matching as
+  # label queries are never global, and so will not use a trigram
+  # index. That means we can have just one character in the LIKE.
+  def self.min_chars_for_partial_matching
+    1
+  end
+
+  def self.by_ids(ids)
+    where(id: ids)
   end
 
   def open_issues_count(user = nil)
@@ -205,6 +225,7 @@ class Label < ActiveRecord::Base
     super(options).tap do |json|
       json[:type] = self.try(:type)
       json[:priority] = priority(options[:project]) if options.key?(:project)
+      json[:textColor] = text_color
     end
   end
 
@@ -237,3 +258,5 @@ class Label < ActiveRecord::Base
     %w(color title).each { |attr| self[attr] = self[attr]&.strip }
   end
 end
+
+Label.prepend(EE::Label)

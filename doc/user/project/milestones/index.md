@@ -6,6 +6,26 @@ Milestones in GitLab are a way to track issues and merge requests created to ach
 
 Milestones allow you to organize issues and merge requests into a cohesive group, with an optional start date and an optional due date.
 
+## Milestones as Agile sprints
+
+Milestones can be used as Agile sprints.
+Set the milestone start date and due date to represent
+the start and end of your Agile sprint.
+Set the milestone title to the name of your Agile sprint,
+such as `November 2018 sprint`.
+Add an issue to your Agile sprint by associating
+the milestone to the issue.  
+
+## Milestones as releases
+
+Milestones can be used as releases.
+Set the milestone due date to represent the release date of your release. 
+(And leave the milestone start date blank.)
+Set the milestone title to the version of your release,
+such as `Version 9.4`.
+Add an issue to your release by associating
+the milestone to the issue.
+
 ## Project milestones and group milestones
 
 - **Project milestones** can be assigned to issues or merge requests in that project only. Navigate to **Issues > Milestones** in a project to view the project milestone list.
@@ -64,9 +84,9 @@ From the project issue/merge request list pages and the group issue/merge reques
 ### Filtering in issue boards
 
 - From [project issue boards](../issue_board.md), you can filter by both group milestones and project milestones in the [search and filter bar](../../search/index.md#issue-boards).
-- From [group issue boards](../issue_board.md#group-issue-boards), you can filter by only group milestones in the [search and filter bar](../../search/index.md#issue-boards). **[PREMIUM]**
-- From [project issue boards](../issue_board.md), you can filter by both group milestones and project milestones in the [issue board configuration](../issue_board.md#board-with-configuration). **[STARTER]**
-- From [group issue boards](../issue_board.md#group-issue-boards) you can filter by only group milestones in the [issue board configuration](../issue_board.md#board-with-configuration). **[PREMIUM]**
+- From [group issue boards](../issue_board.md#group-issue-boards-premium), you can filter by only group milestones in the [search and filter bar](../../search/index.md#issue-boards). **[PREMIUM]**
+- From [project issue boards](../issue_board.md), you can filter by both group milestones and project milestones in the [issue board configuration](../issue_board.md#configurable-issue-boards-starter). **[STARTER]**
+- From [group issue boards](../issue_board.md#group-issue-boards-premium) you can filter by only group milestones in the [issue board configuration](../issue_board.md#configurable-issue-boards-starter). **[STARTER]**
 
 
 
@@ -74,9 +94,10 @@ From the project issue/merge request list pages and the group issue/merge reques
 
 When filtering by milestone, in addition to choosing a specific project milestone or group milestone, you can choose a special milestone filter.
 
-- **No Milestone**: Show issues or merge requests with no assigned milestone.
+- **None**: Show issues or merge requests with no assigned milestone.
+- **Any**: Show issues or merge requests that have an assigned milestone.
 - **Upcoming**: Show issues or merge requests that have been assigned the open milestone that has the next upcoming due date (i.e. nearest due date in the future).
-- **Started**: Show issues or merge requests that have an assigned milestone with a start date that is before today.
+- **Started**: Show issues or merge requests that have an open assigned milestone with a start date that is before today.
 
 ## Milestone view
 
@@ -103,7 +124,7 @@ These features are only available for project milestones and not group milestone
 - Issues assigned to the milestone are displayed in three columns: Unstarted issues, ongoing issues, and completed issues.
 - Merge requests assigned to the milestone are displayed in four columns: Work in progress merge requests, waiting for merge, rejected, and closed.
 - Participants and labels that are used in issues and merge requests that have the milestone assigned are displayed.
-- [Burndown chart](#burndown-charts).
+- [Burndown chart](#project-burndown-charts-starter).
 
 ### Project Burndown Charts **[STARTER]**
 

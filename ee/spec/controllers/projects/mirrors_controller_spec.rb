@@ -29,7 +29,7 @@ describe Projects::MirrorsController do
       end
 
       context 'when trying to create a mirror with the same URL' do
-        it 'does not setup the mirror' do
+        it 'does not set up the mirror' do
           do_put(project, mirror: true, import_url: remote_mirror.url)
 
           expect(project.reload.mirror).to be_falsey
@@ -46,7 +46,7 @@ describe Projects::MirrorsController do
         end
 
         context 'mirror user is not the current user' do
-          it 'does not setup the mirror' do
+          it 'does not set up the mirror' do
             new_user = create(:user)
             project.add_maintainer(new_user)
 
@@ -120,9 +120,9 @@ describe Projects::MirrorsController do
       project = create(:project, :mirror)
       sign_in(project.owner)
 
-      expect_any_instance_of(EE::Project).to receive(:force_import_job!)
+      expect_any_instance_of(EE::ProjectImportState).to receive(:force_import_job!)
 
-      put :update_now, { namespace_id: project.namespace.to_param, project_id: project.to_param }
+      put :update_now, params: { namespace_id: project.namespace.to_param, project_id: project.to_param }
     end
   end
 
@@ -159,7 +159,7 @@ describe Projects::MirrorsController do
         do_put(project, { import_data_attributes: { password: 'update' } }, format: :json)
 
         expect(response).to have_gitlab_http_status(200)
-        expect(project.import_data(true).id).to eq(import_data_id)
+        expect(project.reload_import_data.id).to eq(import_data_id)
       end
 
       it 'sets ssh_known_hosts_verified_at and verified_by when the update sets known hosts' do
@@ -167,7 +167,7 @@ describe Projects::MirrorsController do
 
         expect(response).to have_gitlab_http_status(200)
 
-        import_data = project.import_data(true)
+        import_data = project.reload_import_data
         expect(import_data.ssh_known_hosts_verified_at).to be_within(1.minute).of(Time.now)
         expect(import_data.ssh_known_hosts_verified_by).to eq(project.owner)
       end
@@ -179,7 +179,7 @@ describe Projects::MirrorsController do
 
         expect(response).to have_gitlab_http_status(200)
 
-        import_data = project.import_data(true)
+        import_data = project.reload_import_data
         expect(import_data.ssh_known_hosts_verified_at).to be_nil
         expect(import_data.ssh_known_hosts_verified_by).to be_nil
       end
@@ -214,71 +214,10 @@ describe Projects::MirrorsController do
     end
   end
 
-  describe '#ssh_host_keys', :use_clean_rails_memory_store_caching do
-    let(:project) { create(:project) }
-    let(:cache) { SshHostKey.new(project: project, url: "ssh://example.com:22") }
-
-    before do
-      sign_in(project.owner)
-    end
-
-    context 'invalid URLs' do
-      where(url: %w[INVALID git@example.com:foo/bar.git ssh://git@example.com:foo/bar.git])
-
-      with_them do
-        it 'returns an error with a 400 response' do
-          do_get(project, url)
-
-          expect(response).to have_gitlab_http_status(400)
-          expect(json_response).to eq('message' => 'Invalid URL')
-        end
-      end
-    end
-
-    context 'no data in cache' do
-      it 'requests the cache to be filled and returns a 204 response' do
-        expect(ReactiveCachingWorker).to receive(:perform_async).with(cache.class, cache.id).at_least(:once)
-
-        do_get(project)
-
-        expect(response).to have_gitlab_http_status(204)
-      end
-    end
-
-    context 'error in the cache' do
-      it 'returns the error with a 400 response' do
-        stub_reactive_cache(cache, error: 'An error')
-
-        do_get(project)
-
-        expect(response).to have_gitlab_http_status(400)
-        expect(json_response).to eq('message' => 'An error')
-      end
-    end
-
-    context 'data in the cache' do
-      let(:ssh_key) { 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf' }
-      let(:ssh_fp) { { type: 'ed25519', bits: 256, fingerprint: '2e:65:6a:c8:cf:bf:b2:8b:9a:bd:6d:9f:11:5c:12:16', index: 0 } }
-
-      it 'returns the data with a 200 response' do
-        stub_reactive_cache(cache, known_hosts: ssh_key)
-
-        do_get(project)
-
-        expect(response).to have_gitlab_http_status(200)
-        expect(json_response).to eq('known_hosts' => ssh_key, 'fingerprints' => [ssh_fp.stringify_keys], 'changes_project_import_data' => true)
-      end
-    end
-
-    def do_get(project, url = 'ssh://example.com')
-      get :ssh_host_keys, namespace_id: project.namespace, project_id: project, ssh_url: url
-    end
-  end
-
   def do_put(project, options, extra_attrs = {})
     attrs = extra_attrs.merge(namespace_id: project.namespace.to_param, project_id: project.to_param)
     attrs[:project] = options
 
-    put :update, attrs
+    put :update, params: attrs
   end
 end

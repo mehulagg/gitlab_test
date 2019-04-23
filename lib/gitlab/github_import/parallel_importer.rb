@@ -5,7 +5,7 @@ module Gitlab
     # The ParallelImporter schedules the importing of a GitHub project using
     # Sidekiq.
     class ParallelImporter
-      prepend ::EE::Gitlab::GithubImport::ParallelImporter
+      prepend ::EE::Gitlab::GithubImport::ParallelImporter # rubocop: disable Cop/InjectEnterpriseEditionModule
 
       attr_reader :project
 
@@ -43,8 +43,7 @@ module Gitlab
         Gitlab::SidekiqStatus
           .set(jid, StuckImportJobsWorker::IMPORT_JOBS_EXPIRATION)
 
-        project.ensure_import_state
-        project.import_state&.update_column(:jid, jid)
+        project.import_state.update_column(:jid, jid)
 
         Stage::ImportRepositoryWorker
           .perform_async(project.id)

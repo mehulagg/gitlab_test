@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module Clusters
     module CreateService
@@ -5,7 +7,7 @@ module EE
 
       override :can_create_cluster?
       def can_create_cluster?
-        super || project.feature_available?(:multiple_clusters)
+        super || clusterable.feature_available?(:multiple_clusters)
       end
     end
   end

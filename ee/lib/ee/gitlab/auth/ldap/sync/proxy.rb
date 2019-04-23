@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'net/ldap/dn'
 
 module EE
@@ -108,6 +110,7 @@ module EE
               dn
             end
 
+            # rubocop: disable CodeReuse/ActiveRecord
             def member_uid_to_dn(uid)
               identity = ::Identity.with_secondary_extern_uid(provider, uid).take
 
@@ -118,7 +121,7 @@ module EE
                 ldap_user = ::Gitlab::Auth::LDAP::Person.find_by_uid(uid, adapter)
 
                 # Can't find a matching user
-                return nil unless ldap_user.present?
+                return unless ldap_user.present?
 
                 # Update user identity so we don't have to go through this again
                 update_identity(ldap_user.dn, uid)
@@ -126,7 +129,9 @@ module EE
                 ldap_user.dn
               end
             end
+            # rubocop: enable CodeReuse/ActiveRecord
 
+            # rubocop: disable CodeReuse/ActiveRecord
             def update_identity(dn, uid)
               identity = ::Identity.with_extern_uid(provider, dn).take
 
@@ -136,6 +141,7 @@ module EE
               identity.secondary_extern_uid = uid
               identity.save
             end
+            # rubocop: enable CodeReuse/ActiveRecord
 
             def logger
               Rails.logger

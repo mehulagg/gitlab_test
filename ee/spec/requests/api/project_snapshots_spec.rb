@@ -14,10 +14,10 @@ describe API::ProjectSnapshots do
     end
 
     it 'requests project repository raw archive from Geo primary as Geo secondary' do
-      req = Gitlab::Geo::BaseRequest.new
+      req = Gitlab::Geo::BaseRequest.new(scope: ::Gitlab::Geo::API_SCOPE)
       allow(req).to receive(:requesting_node) { secondary }
 
-      get api("/projects/#{project.id}/snapshot", nil), {}, req.headers
+      get api("/projects/#{project.id}/snapshot", nil), params: {}, headers: req.headers
 
       expect(response).to have_gitlab_http_status(200)
     end

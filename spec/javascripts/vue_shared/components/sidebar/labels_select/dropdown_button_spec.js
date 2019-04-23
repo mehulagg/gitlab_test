@@ -34,6 +34,7 @@ describe('DropdownButtonComponent', () => {
       it('returns text as `Label` when `labels` prop is empty array', () => {
         const mockEmptyLabels = Object.assign({}, componentConfig, { labels: [] });
         const vmEmptyLabels = createComponent(mockEmptyLabels);
+
         expect(vmEmptyLabels.dropdownToggleText).toBe('Label');
         vmEmptyLabels.$destroy();
       });
@@ -43,12 +44,22 @@ describe('DropdownButtonComponent', () => {
           labels: mockLabels.concat(mockLabels),
         });
         const vmMoreLabels = createComponent(mockMoreLabels);
-        expect(vmMoreLabels.dropdownToggleText).toBe('Foo Label +1 more');
+
+        expect(vmMoreLabels.dropdownToggleText).toBe(
+          `Foo Label +${mockMoreLabels.labels.length - 1} more`,
+        );
         vmMoreLabels.$destroy();
       });
 
       it('returns first label name when `labels` prop has only one item present', () => {
-        expect(vm.dropdownToggleText).toBe('Foo Label');
+        const singleLabel = Object.assign({}, componentConfig, {
+          labels: [mockLabels[0]],
+        });
+        const vmSingleLabel = createComponent(singleLabel);
+
+        expect(vmSingleLabel.dropdownToggleText).toBe(mockLabels[0].title);
+
+        vmSingleLabel.$destroy();
       });
     });
   });
@@ -69,12 +80,14 @@ describe('DropdownButtonComponent', () => {
 
     it('renders dropdown toggle text element', () => {
       const dropdownToggleTextEl = vm.$el.querySelector('.dropdown-toggle-text');
+
       expect(dropdownToggleTextEl).not.toBeNull();
-      expect(dropdownToggleTextEl.innerText.trim()).toBe('Foo Label');
+      expect(dropdownToggleTextEl.innerText.trim()).toBe('Foo Label +1 more');
     });
 
     it('renders dropdown button icon', () => {
       const dropdownIconEl = vm.$el.querySelector('i.fa');
+
       expect(dropdownIconEl).not.toBeNull();
       expect(dropdownIconEl.classList.contains('fa-chevron-down')).toBe(true);
     });

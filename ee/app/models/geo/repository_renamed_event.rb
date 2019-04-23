@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 module Geo
-  class RepositoryRenamedEvent < ActiveRecord::Base
+  class RepositoryRenamedEvent < ApplicationRecord
     include Geo::Model
+    include Geo::Eventable
 
     belongs_to :project
 

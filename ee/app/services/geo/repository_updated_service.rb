@@ -1,15 +1,17 @@
+# frozen_string_literal: true
+
 module Geo
   class RepositoryUpdatedService
     include ::Gitlab::Geo::ProjectLogHelpers
 
     RepositoryUpdateError = Class.new(StandardError)
 
-    def initialize(project, params = {})
-      @project = project
+    def initialize(repository, params = {})
+      @project = repository.project
       @params  = params
       @refs    = params.fetch(:refs, [])
       @changes = params.fetch(:changes, [])
-      @source  = params.fetch(:source, Geo::RepositoryUpdatedEvent::REPOSITORY)
+      @source  = repository.geo_updated_event_source
     end
 
     def execute
@@ -30,7 +32,7 @@ module Geo
     def create_repository_updated_event!
       Geo::RepositoryUpdatedEventStore.new(
         project, refs: refs, changes: changes, source: source
-      ).create
+      ).create!
     end
 
     def reset_repository_checksum!

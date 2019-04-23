@@ -2,8 +2,9 @@
 - page_title _("Repository")
 - @content_class = "limit-container-width" unless fluid_layout
 
+= render "projects/default_branch/show"
 = render "projects/push_rules/index"
-= render "projects/mirrors/show"
+= render "projects/mirrors/mirror_repos"
 
 -# Protected branches & tags use a lot of nested partials.
 -# The shared parts of the views can be found in the `shared` directory.
@@ -19,5 +20,6 @@
 
 = render @deploy_keys
 = render "projects/deploy_tokens/index"
+= render "projects/cleanup/show"
 
 = render 'shared/promotions/promote_repository_features'

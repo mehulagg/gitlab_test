@@ -14,7 +14,7 @@ describe EpicIssues::CreateService do
     let!(:existing_link) { create(:epic_issue, epic: epic, issue: issue3) }
 
     def assign_issue(references)
-      params = { issue_references: references }
+      params = { issuable_references: references }
 
       described_class.new(epic, user, params).execute
     end
@@ -22,8 +22,9 @@ describe EpicIssues::CreateService do
     shared_examples 'returns success' do
       let(:created_link) { EpicIssue.find_by!(issue_id: issue.id) }
 
-      it 'creates a new relationship' do
-        expect { subject }.to change(EpicIssue, :count).from(1).to(2)
+      it 'creates a new relationship and updates epic' do
+        expect(epic).to receive(:update_start_and_due_dates)
+        expect { subject }.to change(EpicIssue, :count).by(1)
 
         expect(created_link).to have_attributes(epic: epic)
       end
@@ -38,13 +39,13 @@ describe EpicIssues::CreateService do
         expect(subject).to eq(status: :success)
       end
 
-      it 'creates 2 system notes' do
-        expect { subject }.to change { Note.count }.from(0).to(2)
+      it 'creates 1 system note for epic and 1 system note for issue' do
+        expect { subject }.to change { Note.count }.by(2)
       end
 
       it 'creates a note for epic correctly' do
         subject
-        note = Note.find_by(noteable_id: epic.id, noteable_type: 'Epic')
+        note = Note.where(noteable_id: epic.id, noteable_type: 'Epic').last
 
         expect(note.note).to eq("added issue #{issue.to_reference(epic.group)}")
         expect(note.author).to eq(user)
@@ -92,9 +93,9 @@ describe EpicIssues::CreateService do
         end
 
         context 'when the reference list is empty' do
-          it 'returns an error' do
-            expect(assign_issue([])).to eq(message: 'No Issue found for given params', status: :error, http_status: 404)
-          end
+          subject { assign_issue([]) }
+
+          include_examples 'returns an error'
 
           it 'does not create a system note' do
             expect { assign_issue([]) }.not_to change { Note.count }
@@ -123,7 +124,7 @@ describe EpicIssues::CreateService do
               allow(extractor).to receive(:analyze)
               allow(extractor).to receive(:issues).and_return([issue])
 
-              params = { issue_references: [valid_reference] }
+              params = { issuable_references: [valid_reference] }
               control_count = ActiveRecord::QueryRecorder.new { described_class.new(epic, user, params).execute }.count
 
               user = create(:user)
@@ -134,14 +135,14 @@ describe EpicIssues::CreateService do
               group.add_developer(user)
 
               allow(extractor).to receive(:issues).and_return(issues)
-              params = { issue_references: issues.map { |i| i.to_reference(full: true) } }
+              params = { issuable_references: issues.map { |i| i.to_reference(full: true) } }
 
               # threshold 24 because 6 queries are generated for each insert
               # (savepoint, find, exists, relative_position get, insert, release savepoint)
               # and we insert 5 issues instead of 1 which we do for control count
               expect { described_class.new(epic, user, params).execute }
                 .not_to exceed_query_limit(control_count)
-                .with_threshold(24)
+                .with_threshold(28)
             end
           end
 
@@ -198,6 +199,36 @@ describe EpicIssues::CreateService do
         include_examples 'returns an error'
       end
 
+      context 'when assigning issue(s) to the same epic' do
+        before do
+          group.add_developer(user)
+          assign_issue([valid_reference])
+          epic.reload
+        end
+
+        subject { assign_issue([valid_reference]) }
+
+        it 'no relationship is created' do
+          expect { subject }.not_to change { EpicIssue.count }
+        end
+
+        it 'does not create notes' do
+          expect { subject }.not_to change { Note.count }
+        end
+
+        it 'returns an error' do
+          expect(subject).to eq(message: 'Issue(s) already assigned', status: :error, http_status: 409)
+        end
+
+        context 'when at least one of the issues is still not assigned to the epic' do
+          let(:valid_reference) { issue2.to_reference(full: true) }
+
+          subject { assign_issue([valid_reference, issue.to_reference(full: true)]) }
+
+          include_examples 'returns success'
+        end
+      end
+
       context 'when an issue is already assigned to another epic' do
         before do
           group.add_developer(user)
@@ -207,7 +238,7 @@ describe EpicIssues::CreateService do
         let(:another_epic) { create(:epic, group: group) }
 
         subject do
-          params = { issue_references: [valid_reference] }
+          params = { issuable_references: [valid_reference] }
 
           described_class.new(another_epic, user, params).execute
         end
@@ -226,6 +257,18 @@ describe EpicIssues::CreateService do
 
         it 'creates 3 system notes' do
           expect { subject }.to change { Note.count }.from(0).to(3)
+        end
+
+        it 'updates both old and new epic milestone dates' do
+          allow(EpicIssue).to receive(:find_or_initialize_by).with(issue: issue).and_wrap_original { |m, *args|
+            existing_epic_issue = m.call(*args)
+            expect(existing_epic_issue.epic).to receive(:update_start_and_due_dates)
+            existing_epic_issue
+          }
+
+          expect(another_epic).to receive(:update_start_and_due_dates)
+
+          subject
         end
 
         it 'creates a note correctly for the original epic' do
@@ -267,14 +310,6 @@ describe EpicIssues::CreateService do
         end
 
         include_examples 'returns an error'
-      end
-
-      context 'refresh epic dates' do
-        it 'calls epic#update_start_and_due_dates' do
-          expect(epic).to receive(:update_start_and_due_dates)
-
-          assign_issue([valid_reference])
-        end
       end
     end
   end

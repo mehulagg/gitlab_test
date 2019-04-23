@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module IssuableLinks
   class CreateService < BaseService
     attr_reader :issuable, :current_user, :params
@@ -7,47 +9,66 @@ module IssuableLinks
     end
 
     def execute
-      if referenced_issues.blank?
-        return error('No Issue found for given params', 404)
+      # If ALL referenced issues are already assigned to the given epic it renders a conflict status,
+      # otherwise create issue links for the issues which
+      # are still not assigned and return success message.
+      if render_conflict_error?
+        return error(issuables_assigned_message, 409)
       end
 
-      create_issue_links
+      if render_not_found_error?
+        return error(issuables_not_found_message, 404)
+      end
+
+      create_links
       success
     end
 
     private
 
-    def create_issue_links
-      referenced_issues.each do |referenced_issue|
-        relate_issues(referenced_issue) do |params|
-          create_notes(referenced_issue, params)
+    def render_conflict_error?
+      referenced_issuables.present? && (referenced_issuables - previous_related_issuables).empty?
+    end
+
+    def render_not_found_error?
+      linkable_issuables(referenced_issuables).empty?
+    end
+
+    def create_links
+      objects = linkable_issuables(referenced_issuables)
+
+      objects.each do |referenced_object|
+        relate_issuables(referenced_object) do |params|
+          create_notes(referenced_object, params)
         end
       end
     end
 
-    def referenced_issues
-      @referenced_issues ||= begin
-        target_issue = params[:target_issue]
+    def referenced_issuables
+      @referenced_issuables ||= begin
+        target_issuable = params[:target_issuable]
 
-        issues = if params[:issue_references].present?
-                   extract_issues_from_references
-                 elsif target_issue
-                   [target_issue]
-                 else
-                   []
-                 end
-
-        linkable_issues(issues)
+        if params[:issuable_references].present?
+          extract_references
+        elsif target_issuable
+          [target_issuable]
+        else
+          []
+        end
       end
     end
 
-    def extract_issues_from_references
-      issue_references = params[:issue_references]
-      text = issue_references.join(' ')
+    def extract_references
+      issuable_references = params[:issuable_references]
+      text = issuable_references.join(' ')
 
-      extractor = Gitlab::ReferenceExtractor.new(issuable.project, @current_user)
+      extractor = Gitlab::ReferenceExtractor.new(issuable.project, current_user)
       extractor.analyze(text, extractor_context)
 
+      references(extractor)
+    end
+
+    def references(extractor)
       extractor.issues
     end
 
@@ -55,12 +76,24 @@ module IssuableLinks
       {}
     end
 
-    def linkable_issues(issues)
+    def linkable_issuables(objects)
       raise NotImplementedError
     end
 
-    def relate_issues(referenced_issue)
+    def previous_related_issuables
       raise NotImplementedError
+    end
+
+    def relate_issuables(referenced_object)
+      raise NotImplementedError
+    end
+
+    def issuables_assigned_message
+      'Issue(s) already assigned'
+    end
+
+    def issuables_not_found_message
+      'No Issue found for given params'
     end
   end
 end

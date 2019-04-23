@@ -1,4 +1,6 @@
-class LdapGroupLink < ActiveRecord::Base
+# frozen_string_literal: true
+
+class LdapGroupLink < ApplicationRecord
   include Gitlab::Access
   belongs_to :group
 

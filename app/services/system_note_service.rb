@@ -5,7 +5,6 @@
 # Used for creating system notes (e.g., when a user references a merge request
 # from an issue, an issue's assignee changes, an issue is closed, etc.)
 module SystemNoteService
-  prepend EE::SystemNoteService
   extend self
 
   # Called when commits are added to a Merge Request
@@ -70,7 +69,7 @@ module SystemNoteService
 
   # Called when the assignees of an Issue is changed or removed
   #
-  # issue - Issue object
+  # issuable - Issuable object (responds to assignees)
   # project  - Project owning noteable
   # author   - User performing the change
   # assignees - Users being assigned, or nil
@@ -86,9 +85,9 @@ module SystemNoteService
   #   "assigned to @user1 and @user2"
   #
   # Returns the created Note object
-  def change_issue_assignees(issue, project, author, old_assignees)
-    unassigned_users = old_assignees - issue.assignees
-    added_users = issue.assignees.to_a - old_assignees
+  def change_issuable_assignees(issuable, project, author, old_assignees)
+    unassigned_users = old_assignees - issuable.assignees
+    added_users = issuable.assignees.to_a - old_assignees
 
     text_parts = []
     text_parts << "assigned to #{added_users.map(&:to_reference).to_sentence}" if added_users.any?
@@ -96,48 +95,7 @@ module SystemNoteService
 
     body = text_parts.join(' and ')
 
-    create_note(NoteSummary.new(issue, project, author, body, action: 'assignee'))
-  end
-
-  # Called when one or more labels on a Noteable are added and/or removed
-  #
-  # noteable       - Noteable object
-  # project        - Project owning noteable
-  # author         - User performing the change
-  # added_labels   - Array of Labels added
-  # removed_labels - Array of Labels removed
-  #
-  # Example Note text:
-  #
-  #   "added ~1 and removed ~2 ~3 labels"
-  #
-  #   "added ~4 label"
-  #
-  #   "removed ~5 label"
-  #
-  # Returns the created Note object
-  def change_label(noteable, project, author, added_labels, removed_labels)
-    labels_count = added_labels.count + removed_labels.count
-
-    references     = ->(label) { label.to_reference(format: :id) }
-    added_labels   = added_labels.map(&references).join(' ')
-    removed_labels = removed_labels.map(&references).join(' ')
-
-    text_parts = []
-
-    if added_labels.present?
-      text_parts << "added #{added_labels}"
-      text_parts << 'and' if removed_labels.present?
-    end
-
-    if removed_labels.present?
-      text_parts << "removed #{removed_labels}"
-    end
-
-    text_parts << 'label'.pluralize(labels_count)
-    body = text_parts.join(' ')
-
-    create_note(NoteSummary.new(noteable, project, author, body, action: 'label'))
+    create_note(NoteSummary.new(issuable, project, author, body, action: 'assignee'))
   end
 
   # Called when the milestone of a Noteable is changed
@@ -159,6 +117,26 @@ module SystemNoteService
     body = milestone.nil? ? 'removed milestone' : "changed milestone to #{milestone.to_reference(project, format: format)}"
 
     create_note(NoteSummary.new(noteable, project, author, body, action: 'milestone'))
+  end
+
+  # Called when the due_date of a Noteable is changed
+  #
+  # noteable  - Noteable object
+  # project   - Project owning noteable
+  # author    - User performing the change
+  # due_date  - Due date being assigned, or nil
+  #
+  # Example Note text:
+  #
+  #   "removed due date"
+  #
+  #   "changed due date to September 20, 2018"
+  #
+  # Returns the created Note object
+  def change_due_date(noteable, project, author, due_date)
+    body = due_date ? "changed due date to #{due_date.to_s(:long)}" : 'removed due date'
+
+    create_note(NoteSummary.new(noteable, project, author, body, action: 'due_date'))
   end
 
   # Called when the estimated time of a Noteable is changed
@@ -233,7 +211,7 @@ module SystemNoteService
   #   "closed via bc17db76"
   #
   # Returns the created Note object
-  def change_status(noteable, project, author, status, source)
+  def change_status(noteable, project, author, status, source = nil)
     body = status.dup
     body << " via #{source.gfm_reference(project)}" if source
 
@@ -280,7 +258,7 @@ module SystemNoteService
     body = "created #{issue.to_reference} to continue this discussion"
     note_attributes = discussion.reply_attributes.merge(project: project, author: author, note: body)
 
-    note = Note.create(note_attributes.merge(system: true))
+    note = Note.create(note_attributes.merge(system: true, created_at: issue.system_note_timestamp))
     note.system_note_metadata = SystemNoteMetadata.new(action: 'discussion')
 
     note
@@ -382,7 +360,7 @@ module SystemNoteService
   # author      - User performing the change
   # branch_type - 'source' or 'target'
   # old_branch  - old branch name
-  # new_branch  - new branch nmae
+  # new_branch  - new branch name
   #
   # Example Note text:
   #
@@ -429,9 +407,15 @@ module SystemNoteService
   def new_issue_branch(issue, project, author, branch)
     link = url_helpers.project_compare_url(project, from: project.default_branch, to: branch)
 
-    body = "created branch [`#{branch}`](#{link})"
+    body = "created branch [`#{branch}`](#{link}) to address this issue"
 
     create_note(NoteSummary.new(issue, project, author, body, action: 'branch'))
+  end
+
+  def new_merge_request(issue, project, author, merge_request)
+    body = "created merge request #{merge_request.to_reference} to address this issue"
+
+    create_note(NoteSummary.new(issue, project, author, body, action: 'merge'))
   end
 
   # Called when a Mentionable references a Noteable
@@ -602,6 +586,7 @@ module SystemNoteService
 
   private
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def notes_for_mentioner(mentioner, noteable, notes)
     if mentioner.is_a?(Commit)
       text = "#{cross_reference_note_prefix}%#{mentioner.to_reference(nil)}"
@@ -612,6 +597,7 @@ module SystemNoteService
       notes.where(note: [text, text.capitalize])
     end
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 
   def create_note(note_summary)
     note = Note.create(note_summary.note.merge(system: true))
@@ -697,3 +683,5 @@ module SystemNoteService
     ActionController::Base.helpers.content_tag(*args)
   end
 end
+
+SystemNoteService.prepend(EE::SystemNoteService)

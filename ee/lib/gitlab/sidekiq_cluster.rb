@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Gitlab
   module SidekiqCluster
     # The signals that should terminate both the master and workers.
@@ -54,7 +56,7 @@ module Gitlab
     #     start([ ['foo'], ['bar', 'baz'] ], :production)
     #
     # This would start two Sidekiq processes: one processing "foo", and one
-    # processing "bar" and "baz".
+    # processing "bar" and "baz". Each one is placed in its own process group.
     #
     # queues - An Array containing Arrays. Each sub Array should specify the
     #          queues to use for a single process.
@@ -62,22 +64,24 @@ module Gitlab
     # directory - The directory of the Rails application.
     #
     # Returns an Array containing the PIDs of the started processes.
-    def self.start(queues, env, directory = Dir.pwd, dryrun: false)
-      queues.map { |pair| start_sidekiq(pair, env, directory, dryrun: dryrun) }
+    def self.start(queues, env, directory = Dir.pwd, max_concurrency = 50, dryrun: false)
+      queues.map { |pair| start_sidekiq(pair, env, directory, max_concurrency, dryrun: dryrun) }
     end
 
     # Starts a Sidekiq process that processes _only_ the given queues.
     #
     # Returns the PID of the started process.
-    def self.start_sidekiq(queues, env, directory = Dir.pwd, dryrun: false)
+    def self.start_sidekiq(queues, env, directory = Dir.pwd, max_concurrency = 50, dryrun: false)
+      counts = count_by_queue(queues)
+
       cmd = %w[bundle exec sidekiq]
-      cmd << "-c #{queues.length + 1}"
+      cmd << "-c #{self.concurrency(queues, max_concurrency)}"
       cmd << "-e#{env}"
-      cmd << "-gqueues: #{queues.join(', ')}"
+      cmd << "-gqueues: #{proc_details(counts)}"
       cmd << "-r#{directory}"
 
-      queues.each do |q|
-        cmd << "-q#{q},1"
+      counts.each do |queue, count|
+        cmd << "-q#{queue},#{count}"
       end
 
       if dryrun
@@ -88,6 +92,7 @@ module Gitlab
       pid = Process.spawn(
         { 'ENABLE_SIDEKIQ_CLUSTER' => '1' },
         *cmd,
+        pgroup: true,
         err: $stderr,
         out: $stdout
       )
@@ -95,6 +100,28 @@ module Gitlab
       wait_async(pid)
 
       pid
+    end
+
+    def self.count_by_queue(queues)
+      queues.each_with_object(Hash.new(0)) { |element, hash| hash[element] += 1 }
+    end
+
+    def self.proc_details(counts)
+      counts.map do |queue, count|
+        if count == 1
+          queue
+        else
+          "#{queue} (#{count})"
+        end
+      end.join(', ')
+    end
+
+    def self.concurrency(queues, max_concurrency)
+      if max_concurrency.positive?
+        [queues.length + 1, max_concurrency].min
+      else
+        queues.length + 1
+      end
     end
 
     # Waits for the given process to complete using a separate thread.

@@ -1,17 +1,14 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Ci::Variable do
   subject { build(:ci_variable) }
 
   describe 'validations' do
-    # EE
-    before do
-      stub_licensed_features(variable_environment_scope: true)
-    end
-
-    it { is_expected.to include_module(HasEnvironmentScope) }
     it { is_expected.to include_module(HasVariable) }
     it { is_expected.to include_module(Presentable) }
+    it { is_expected.to include_module(Maskable) }
     it { is_expected.to validate_uniqueness_of(:key).scoped_to(:project_id, :environment_scope).with_message(/\(\w+\) has already been taken/) }
   end
 

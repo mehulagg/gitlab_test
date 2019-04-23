@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Elasticsearch
   module Git
     module Model
@@ -15,6 +17,8 @@ module Elasticsearch
               end
 
         index_name [self.name.downcase, 'index', env].compact.join('-')
+
+        document_type 'doc'
 
         settings \
           index: {
@@ -56,7 +60,7 @@ module Elasticsearch
             filter: {
               code: {
                 type: "pattern_capture",
-                preserve_original: 1,
+                preserve_original: true,
                 patterns: [
                   "(\\p{Ll}+|\\p{Lu}\\p{Ll}+|\\p{Lu}+)",
                   "(\\d+)",

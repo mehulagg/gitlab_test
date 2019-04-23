@@ -1,4 +1,6 @@
-# This controller's role is to mimic and rewire the Gitlab OAuth
+# frozen_string_literal: true
+
+# This controller's role is to mimic and rewire the GitLab OAuth
 # flow routes for Jira DVCS integration.
 # See https://gitlab.com/gitlab-org/gitlab-ee/issues/2381
 #
@@ -27,13 +29,20 @@ class Oauth::Jira::AuthorizationsController < ApplicationController
 
   # 3. Rewire and adjust access_token request accordingly.
   def access_token
-    auth_params = params
-                    .slice(:code, :client_id, :client_secret)
-                    .merge(grant_type: 'authorization_code', redirect_uri: oauth_jira_callback_url)
+    # We have to modify request.parameters because Doorkeeper::Server reads params from there
+    request.parameters[:redirect_uri] = oauth_jira_callback_url
 
-    auth_response = Gitlab::HTTP.post(oauth_token_url, body: auth_params, allow_local_requests: true)
-    token_type, scope, token = auth_response['token_type'], auth_response['scope'], auth_response['access_token']
+    strategy = Doorkeeper::Server.new(self).token_request('authorization_code')
+    response = strategy.authorize
 
-    render text: "access_token=#{token}&scope=#{scope}&token_type=#{token_type}"
+    if response.status == :ok
+      access_token, scope, token_type = response.body.values_at('access_token', 'scope', 'token_type')
+
+      render body: "access_token=#{access_token}&scope=#{scope}&token_type=#{token_type}"
+    else
+      render status: response.status, body: response.body
+    end
+  rescue Doorkeeper::Errors::DoorkeeperError => e
+    render status: :unauthorized, body: e.type
   end
 end

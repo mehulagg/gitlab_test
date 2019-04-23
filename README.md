@@ -11,7 +11,7 @@ The canonical source of GitLab Community Edition is [hosted on GitLab.com](https
 
 The source of GitLab Enterprise Edition is [hosted on GitLab.com](https://gitlab.com/gitlab-org/gitlab-ee).
 
-# ![logo](https://about.gitlab.com/images/gitlab_logo.png) GitLab
+# ![logo](https://about.gitlab.com/images/logo.png) GitLab
 
 ## Free trial
 
@@ -24,7 +24,7 @@ Thank you for purchasing a GitLab subscription!
 For standard subscribers, please see **emergency contact info and other useful information** in [the Standard subscribers README](https://gitlab.com/standard/standard-subscriber-information/tree/master#README).
 
 GitLab Enterprise Edition repository:
-https://gitlab.com/gitlab-com/gitlab-ee
+https://gitlab.com/gitlab-org/gitlab-ee
 
 Download GitLab Enterprise Edition:
 https://about.gitlab.com/downloads-ee
@@ -33,7 +33,7 @@ Documentation:
 http://doc.gitlab.com/ee/
 
 To upgrade from CE, just perform a normal upgrade, but use an EE package:
-https://about.gitlab.com/update/#ee
+https://about.gitlab.com/upgrade/
 
 If you need help with your GitLab installation and for any technical questions please see the [support page](https://about.gitlab.com/support/)
 
@@ -88,7 +88,7 @@ You can access a new installation with the login **`root`** and password **`5ive
 
 ## Contributing
 
-GitLab is an open source project and we are very happy to accept community contributions. Please refer to [CONTRIBUTING.md](/CONTRIBUTING.md) for details.
+GitLab is an open source project and we are very happy to accept community contributions. Please refer to [Contributing to GitLab page](https://about.gitlab.com/contributing/) for more details.
 
 ## Licensing
 
@@ -96,7 +96,7 @@ GitLab Community Edition (CE) is available freely under the MIT Expat license.
 
 All third party components incorporated into the GitLab Software are licensed under the original license provided by the owner of the applicable component.
 
-All Documentation content that resides under the doc/ directory of this repository is licensed under Creative Commons: CC BY-SA 4.0.
+All Documentation content that resides under the `doc/` directory of this repository is licensed under Creative Commons: CC BY-SA 4.0.
 
 ## Install a development environment
 
@@ -113,7 +113,7 @@ Instructions on how to start GitLab and how to run the tests can be found in the
 GitLab is a Ruby on Rails application that runs on the following software:
 
 - Ubuntu/Debian/CentOS/RHEL/OpenSUSE
-- Ruby (MRI) 2.3
+- Ruby (MRI) 2.4
 - Git 2.8.4+
 - Redis 2.8+
 - PostgreSQL (preferred) or MySQL

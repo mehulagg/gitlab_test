@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Geo
   module RepositoryVerification
     module Secondary
@@ -14,6 +16,7 @@ module Geo
 
         delegate :project, to: :registry
 
+        # rubocop: disable CodeReuse/ActiveRecord
         def perform(registry_id)
           return unless Gitlab::Geo.secondary?
 
@@ -25,6 +28,7 @@ module Geo
             verify_checksum(:wiki)
           end
         end
+        # rubocop: enable CodeReuse/ActiveRecord
 
         private
 

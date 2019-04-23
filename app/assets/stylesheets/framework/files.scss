@@ -4,6 +4,7 @@
  */
 .file-holder {
   border: 1px solid $border-color;
+  border-top: 0;
   border-radius: $border-radius-default;
 
   &.file-holder-no-border {
@@ -24,10 +25,6 @@
     }
   }
 
-  table {
-    @extend .table;
-  }
-
   .file-title {
     position: relative;
     background-color: $gray-light;
@@ -36,7 +33,6 @@
     text-align: left;
     padding: 10px $gl-padding;
     word-wrap: break-word;
-    border-radius: $border-radius-default $border-radius-default 0 0;
 
     &.file-title-clear {
       padding-left: 0;
@@ -52,6 +48,7 @@
       position: absolute;
       top: 5px;
       right: 15px;
+      margin-left: auto;
 
       .btn {
         padding: 0 10px;
@@ -122,7 +119,7 @@
       }
     }
 
-    &.wiki {
+    &.md {
       padding: $gl-padding;
 
       @include media-breakpoint-up(md) {
@@ -184,7 +181,7 @@
 
         &.line-numbers {
           float: none;
-          border-left: 1px solid $blame-line-numbers-border;
+          border-left: 1px solid $gl-gray-100;
 
           i {
             float: none;
@@ -312,11 +309,11 @@ span.idiff {
     text-decoration: none;
 
     .new-file {
-      color: $notify-new-file;
+      color: $green-600;
     }
 
     .deleted-file {
-      color: $notify-deleted-file;
+      color: $red-700;
     }
   }
 }
@@ -325,13 +322,19 @@ span.idiff {
   &,
   .file-holder & {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     background-color: $gray-light;
     border-bottom: 1px solid $border-color;
+    border-top: 1px solid $border-color;
     padding: 5px $gl-padding;
     margin: 0;
     border-radius: $border-radius-default $border-radius-default 0 0;
+
+    &.is-stuck {
+      border-radius: 0;
+    }
   }
 
   .file-header-content {
@@ -366,16 +369,12 @@ span.idiff {
     margin: 0 10px 0 0;
   }
 
-  .file-actions {
-    white-space: nowrap;
-
-    .btn {
-      padding: 0 10px;
-      font-size: 13px;
-      line-height: 28px;
-      display: inline-block;
-      float: none;
-    }
+  .file-actions .btn {
+    padding: 0 10px;
+    font-size: 13px;
+    line-height: 28px;
+    display: inline-block;
+    float: none;
   }
 
   @include media-breakpoint-down(xs) {
@@ -416,7 +415,6 @@ span.idiff {
 }
 
 .preview-container {
-  height: 100%;
   overflow: auto;
 
   .file-container {

@@ -1,5 +1,7 @@
 # SAML OmniAuth Provider
 
+> This topic is for SAML on self-managed GitLab instances. For SAML on GitLab.com, see [SAML SSO for GitLab.com Groups](../user/group/saml_sso/index.md).
+
 NOTE: **Note:**
 You need to [enable OmniAuth](omniauth.md) in order to use this.
 
@@ -123,9 +125,10 @@ in your SAML IdP:
 To ease configuration, most IdP accept a metadata URL for the application to provide
 configuration information to the IdP. To build the metadata URL for GitLab, append
 `users/auth/saml/metadata` to the HTTPS URL of your GitLab installation, for instance:
-   ```
-   https://gitlab.example.com/users/auth/saml/metadata
-   ```
+
+```
+https://gitlab.example.com/users/auth/saml/metadata
+```
 
 At a minimum the IdP *must* provide a claim containing the user's email address, using
 claim name `email` or `mail`. The email will be used to automatically generate the GitLab
@@ -235,6 +238,27 @@ considered `admin groups`.
         } }
 ```
 
+## Auditor Groups
+
+>**Note:**
+This setting is only available on GitLab 11.4 EE and above.
+
+This setting also follows the requirements documented for the `External Groups` setting.  GitLab uses the Group information provided by your IdP to determine if a user should be assigned the `auditor` role.
+
+```yaml
+{ name: 'saml',
+  label: 'Our SAML Provider',
+  groups_attribute: 'Groups',
+  auditor_groups: ['Auditors', 'Security'],
+  args: {
+          assertion_consumer_service_url: 'https://gitlab.example.com/users/auth/saml/callback',
+          idp_cert_fingerprint: '43:51:43:a1:b5:fc:8b:b7:0a:3a:a9:b1:0f:66:73:a8',
+          idp_sso_target_url: 'https://login.example.com/idp',
+          issuer: 'https://gitlab.example.com',
+          name_identifier_format: 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient'
+        } }
+```
+
 ## Bypass two factor authentication
 
 If you want some SAML authentication methods to count as 2FA on a per session basis, you can register them in the
@@ -299,7 +323,6 @@ If you want some SAML authentication methods to count as 2FA on a per session ba
 
 1. Save the file and [restart GitLab][] for the changes ot take effect
 
-
 In addition to the changes in GitLab, make sure that your Idp is returning the
 `AuthnContext`. For example:
 
@@ -337,7 +360,7 @@ so you will not be able to sign in using local credentials. Make sure that at le
 of the SAML users has admin permissions.
 
 You may also bypass the auto signin feature by browsing to
-https://gitlab.example.com/users/sign_in?auto_sign_in=false.
+`https://gitlab.example.com/users/sign_in?auto_sign_in=false`.
 
 ### `attribute_statements`
 
@@ -386,6 +409,23 @@ args: {
         name_identifier_format: 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
         attribute_statements: { email: ['EmailAddress'] },
         allowed_clock_drift: 1 # for one second clock drift
+}
+```
+
+### `uid_attribute`
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/43806) in GitLab 10.7.
+
+By default, the `uid` is set as the `name_id` in the SAML response. If you'd like to designate a unique attribute for the `uid`, you can set the `uid_attribute`. In the example below, the value of `uid` attribute in the SAML response is set as the `uid_attribute`.
+
+```yaml
+args: {
+        assertion_consumer_service_url: 'https://gitlab.example.com/users/auth/saml/callback',
+        idp_cert_fingerprint: '43:51:43:a1:b5:fc:8b:b7:0a:3a:a9:b1:0f:66:73:a8',
+        idp_sso_target_url: 'https://login.example.com/idp',
+        issuer: 'https://gitlab.example.com',
+        name_identifier_format: 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
+        uid_attribute: 'uid'
 }
 ```
 

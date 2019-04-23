@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module Users
     module DestroyService
@@ -11,7 +13,7 @@ module EE
       end
 
       def mirror_cleanup(user)
-        user_mirrors = ::Project.where(mirror_user: user)
+        user_mirrors = ::Project.where(mirror_user: user) # rubocop: disable CodeReuse/ActiveRecord
 
         user_mirrors.find_each do |mirror|
           new_mirror_user = first_mirror_owner(user, mirror)

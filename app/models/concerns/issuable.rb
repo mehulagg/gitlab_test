@@ -9,6 +9,7 @@
 module Issuable
   extend ActiveSupport::Concern
   include Gitlab::SQL::Pattern
+  include Redactable
   include CacheMarkdownField
   include Participable
   include Mentionable
@@ -22,18 +23,22 @@ module Issuable
   include Sortable
   include CreatedAtFilterable
   include UpdatedAtFilterable
+  include IssuableStates
+  include ClosedAtFilterable
 
   # This object is used to gather issuable meta data for displaying
   # upvotes, downvotes, notes and closing merge requests count for issues and merge requests
   # lists avoiding n+1 queries and improving performance.
-  IssuableMeta = Struct.new(:upvotes, :downvotes, :notes_count, :merge_requests_count)
+  IssuableMeta = Struct.new(:upvotes, :downvotes, :user_notes_count, :merge_requests_count)
 
   included do
     cache_markdown_field :title, pipeline: :single_line
     cache_markdown_field :description, issuable_state_filter_enabled: true
 
-    belongs_to :author, class_name: "User"
-    belongs_to :updated_by, class_name: "User"
+    redact_field :description
+
+    belongs_to :author, class_name: 'User'
+    belongs_to :updated_by, class_name: 'User'
     belongs_to :last_edited_by, class_name: 'User'
     belongs_to :milestone
 
@@ -49,7 +54,7 @@ module Issuable
       end
     end
 
-    has_many :label_links, as: :target, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
+    has_many :label_links, as: :target, dependent: :destroy, inverse_of: :target # rubocop:disable Cop/ActiveRecordDependent
     has_many :labels, through: :label_links
     has_many :todos, as: :target, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
 
@@ -62,33 +67,39 @@ module Issuable
              allow_nil: true,
              prefix: true
 
-    delegate :name,
-             :email,
-             :public_email,
-             to: :assignee,
-             allow_nil: true,
-             prefix: true
-
     validates :author, presence: true
     validates :title, presence: true, length: { maximum: 255 }
+    validate :milestone_is_valid
 
     scope :authored, ->(user) { where(author_id: user) }
     scope :recent, -> { reorder(id: :desc) }
     scope :of_projects, ->(ids) { where(project_id: ids) }
     scope :of_milestones, ->(ids) { where(milestone_id: ids) }
+    scope :any_milestone, -> { where('milestone_id IS NOT NULL') }
     scope :with_milestone, ->(title) { left_joins_milestones.where(milestones: { title: title }) }
     scope :opened, -> { with_state(:opened) }
     scope :only_opened, -> { with_state(:opened) }
     scope :closed, -> { with_state(:closed) }
-    scope :order_milestone_due_desc, -> { outer_join_milestone.reorder('milestones.due_date IS NULL ASC, milestones.due_date DESC, milestones.id DESC') }
-    scope :order_milestone_due_asc, -> { outer_join_milestone.reorder('milestones.due_date IS NULL ASC, milestones.due_date ASC, milestones.id ASC') }
-    scope :without_label, -> { joins("LEFT OUTER JOIN label_links ON label_links.target_type = '#{name}' AND label_links.target_id = #{table_name}.id").where(label_links: { id: nil }) }
+
+    # rubocop:disable GitlabSecurity/SqlInjection
+    # The `to_ability_name` method is not an user input.
+    scope :assigned, -> do
+      where("EXISTS (SELECT TRUE FROM #{to_ability_name}_assignees WHERE #{to_ability_name}_id = #{to_ability_name}s.id)")
+    end
+    scope :unassigned, -> do
+      where("NOT EXISTS (SELECT TRUE FROM #{to_ability_name}_assignees WHERE #{to_ability_name}_id = #{to_ability_name}s.id)")
+    end
+    scope :assigned_to, ->(u) do
+      where("EXISTS (SELECT TRUE FROM #{to_ability_name}_assignees WHERE user_id = ? AND #{to_ability_name}_id = #{to_ability_name}s.id)", u.id)
+    end
+    # rubocop:enable GitlabSecurity/SqlInjection
 
     scope :left_joins_milestones,    -> { joins("LEFT OUTER JOIN milestones ON #{table_name}.milestone_id = milestones.id") }
     scope :order_milestone_due_desc, -> { left_joins_milestones.reorder('milestones.due_date IS NULL, milestones.id IS NULL, milestones.due_date DESC') }
     scope :order_milestone_due_asc,  -> { left_joins_milestones.reorder('milestones.due_date IS NULL, milestones.id IS NULL, milestones.due_date ASC') }
 
     scope :without_label, -> { joins("LEFT OUTER JOIN label_links ON label_links.target_type = '#{name}' AND label_links.target_id = #{table_name}.id").where(label_links: { id: nil }) }
+    scope :any_label, -> { joins(:label_links).group(:id) }
     scope :join_project, -> { joins(:project) }
     scope :inc_notes_with_associations, -> { includes(notes: [:project, :author, :award_emoji]) }
     scope :references_project, -> { references(:project) }
@@ -99,6 +110,7 @@ module Issuable
 
     participant :author
     participant :notes_with_associations
+    participant :assignees
 
     strip_attributes :title
 
@@ -112,12 +124,18 @@ module Issuable
       false
     end
 
-    def etag_caching_enabled?
-      false
+    def has_multiple_assignees?
+      assignees.count > 1
+    end
+
+    private
+
+    def milestone_is_valid
+      errors.add(:milestone_id, message: "is invalid") if milestone_id.present? && !milestone_available?
     end
   end
 
-  module ClassMethods
+  class_methods do
     # Searches for records with a matching title.
     #
     # This method uses ILIKE on PostgreSQL and LIKE on MySQL.
@@ -129,28 +147,51 @@ module Issuable
       fuzzy_search(query, [:title])
     end
 
+    # Available state values persisted in state_id column using state machine
+    #
+    # Override this on subclasses if different states are needed
+    #
+    # Check MergeRequest.available_states for example
+    def available_states
+      @available_states ||= { opened: 1, closed: 2 }.with_indifferent_access
+    end
+
     # Searches for records with a matching title or description.
     #
     # This method uses ILIKE on PostgreSQL and LIKE on MySQL.
     #
     # query - The search query as a String
+    # matched_columns - Modify the scope of the query. 'title', 'description' or joining them with a comma.
     #
     # Returns an ActiveRecord::Relation.
-    def full_search(query)
-      fuzzy_search(query, [:title, :description])
+    def full_search(query, matched_columns: 'title,description')
+      allowed_columns = [:title, :description]
+      matched_columns = matched_columns.to_s.split(',').map(&:to_sym)
+      matched_columns &= allowed_columns
+
+      # Matching title or description if the matched_columns did not contain any allowed columns.
+      matched_columns = [:title, :description] if matched_columns.empty?
+
+      fuzzy_search(query, matched_columns)
+    end
+
+    def simple_sorts
+      super.except('name_asc', 'name_desc')
     end
 
     def sort_by_attribute(method, excluded_labels: [])
       sorted =
         case method.to_s
-        when 'downvotes_desc'     then order_downvotes_desc
-        when 'label_priority'     then order_labels_priority(excluded_labels: excluded_labels)
-        when 'milestone'          then order_milestone_due_asc
-        when 'milestone_due_asc'  then order_milestone_due_asc
-        when 'milestone_due_desc' then order_milestone_due_desc
-        when 'popularity'         then order_upvotes_desc
-        when 'priority'           then order_due_date_and_labels_priority(excluded_labels: excluded_labels)
-        when 'upvotes_desc'       then order_upvotes_desc
+        when 'downvotes_desc'                       then order_downvotes_desc
+        when 'label_priority'                       then order_labels_priority(excluded_labels: excluded_labels)
+        when 'label_priority_desc'                  then order_labels_priority('DESC', excluded_labels: excluded_labels)
+        when 'milestone', 'milestone_due_asc'       then order_milestone_due_asc
+        when 'milestone_due_desc'                   then order_milestone_due_desc
+        when 'popularity', 'popularity_desc'        then order_upvotes_desc
+        when 'popularity_asc'                       then order_upvotes_asc
+        when 'priority', 'priority_asc'             then order_due_date_and_labels_priority(excluded_labels: excluded_labels)
+        when 'priority_desc'                        then order_due_date_and_labels_priority('DESC', excluded_labels: excluded_labels)
+        when 'upvotes_desc'                         then order_upvotes_desc
         else order_by(method)
         end
 
@@ -158,7 +199,7 @@ module Issuable
       sorted.with_order_id_desc
     end
 
-    def order_due_date_and_labels_priority(excluded_labels: [])
+    def order_due_date_and_labels_priority(direction = 'ASC', excluded_labels: [])
       # The order_ methods also modify the query in other ways:
       #
       # - For milestones, we add a JOIN.
@@ -175,11 +216,11 @@ module Issuable
 
       order_milestone_due_asc
         .order_labels_priority(excluded_labels: excluded_labels, extra_select_columns: [milestones_due_date])
-        .reorder(Gitlab::Database.nulls_last_order(milestones_due_date, 'ASC'),
-                Gitlab::Database.nulls_last_order('highest_priority', 'ASC'))
+        .reorder(Gitlab::Database.nulls_last_order(milestones_due_date, direction),
+                Gitlab::Database.nulls_last_order('highest_priority', direction))
     end
 
-    def order_labels_priority(excluded_labels: [], extra_select_columns: [])
+    def order_labels_priority(direction = 'ASC', excluded_labels: [], extra_select_columns: [])
       params = {
         target_type: name,
         target_column: "#{table_name}.id",
@@ -196,7 +237,7 @@ module Issuable
 
       select(select_columns.join(', '))
         .group(arel_table[:id])
-        .reorder(Gitlab::Database.nulls_last_order('highest_priority', 'ASC'))
+        .reorder(Gitlab::Database.nulls_last_order('highest_priority', direction))
     end
 
     def with_label(title, sort = nil)
@@ -205,17 +246,6 @@ module Issuable
       else
         joins(:labels).where(labels: { title: title })
       end
-    end
-
-    def labels_hash
-      issue_labels = Hash.new { |h, k| h[k] = [] }
-
-      relation = unscoped.where(id: self.select(:id)).eager_load(:labels)
-      relation.pluck(:id, 'labels.title').each do |issue_id, label|
-        issue_labels[issue_id] << label
-      end
-
-      issue_labels
     end
 
     # Includes table keys in group by clause when sorting
@@ -241,6 +271,14 @@ module Issuable
     def parent_class
       ::Project
     end
+  end
+
+  def milestone_available?
+    project_id == milestone&.project_id || project.ancestors_upto.compact.include?(milestone&.group)
+  end
+
+  def assignee_or_author?(user)
+    author_id == user.id || assignees.exists?(user.id)
   end
 
   def today?
@@ -277,26 +315,25 @@ module Issuable
 
   def to_hook_data(user, old_associations: {})
     changes = previous_changes
-    old_labels = old_associations.fetch(:labels, [])
-    old_assignees = old_associations.fetch(:assignees, [])
 
-    if old_labels != labels
-      changes[:labels] = [old_labels.map(&:hook_attrs), labels.map(&:hook_attrs)]
-    end
+    if old_associations
+      old_labels = old_associations.fetch(:labels, [])
+      old_assignees = old_associations.fetch(:assignees, [])
 
-    if old_assignees != assignees
-      if self.is_a?(Issue)
-        changes[:assignees] = [old_assignees.map(&:hook_attrs), assignees.map(&:hook_attrs)]
-      else
-        changes[:assignee] = [old_assignees&.first&.hook_attrs, assignee&.hook_attrs]
+      if old_labels != labels
+        changes[:labels] = [old_labels.map(&:hook_attrs), labels.map(&:hook_attrs)]
       end
-    end
 
-    if self.respond_to?(:total_time_spent)
-      old_total_time_spent = old_associations.fetch(:total_time_spent, nil)
+      if old_assignees != assignees
+        changes[:assignees] = [old_assignees.map(&:hook_attrs), assignees.map(&:hook_attrs)]
+      end
 
-      if old_total_time_spent != total_time_spent
-        changes[:total_time_spent] = [old_total_time_spent, total_time_spent]
+      if self.respond_to?(:total_time_spent)
+        old_total_time_spent = old_associations.fetch(:total_time_spent, nil)
+
+        if old_total_time_spent != total_time_spent
+          changes[:total_time_spent] = [old_total_time_spent, total_time_spent]
+        end
       end
     end
 
@@ -325,8 +362,16 @@ module Issuable
   def card_attributes
     {
       'Author'   => author.try(:name),
-      'Assignee' => assignee.try(:name)
+      'Assignee' => assignee_list
     }
+  end
+
+  def assignee_list
+    assignees.map(&:name).to_sentence
+  end
+
+  def assignee_username_list
+    assignees.map(&:username).to_sentence
   end
 
   def notes_with_associations
@@ -373,9 +418,12 @@ module Issuable
   end
 
   ##
-  # Overriden in MergeRequest
+  # Overridden in MergeRequest
   #
   def wipless_title_changed(old_title)
     old_title != title
   end
 end
+
+Issuable.prepend(EE::Issuable) # rubocop: disable Cop/InjectEnterpriseEditionModule
+Issuable::ClassMethods.prepend(EE::Issuable::ClassMethods)

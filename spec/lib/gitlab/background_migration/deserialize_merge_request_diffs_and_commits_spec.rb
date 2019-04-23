@@ -1,6 +1,9 @@
 require 'spec_helper'
 
+# rubocop:disable RSpec/FactoriesInMigrationSpecs
 describe Gitlab::BackgroundMigration::DeserializeMergeRequestDiffsAndCommits, :migration, schema: 20171114162227 do
+  include GitHelpers
+
   let(:merge_request_diffs) { table(:merge_request_diffs) }
   let(:merge_requests) { table(:merge_requests) }
 
@@ -9,11 +12,7 @@ describe Gitlab::BackgroundMigration::DeserializeMergeRequestDiffsAndCommits, :m
     let(:merge_request) { merge_requests.create!(iid: 1, target_project_id: project.id, source_project_id: project.id, target_branch: 'feature', source_branch: 'master').becomes(MergeRequest) }
     let(:merge_request_diff) { MergeRequest.find(merge_request.id).create_merge_request_diff }
     let(:updated_merge_request_diff) { MergeRequestDiff.find(merge_request_diff.id) }
-    let(:rugged) do
-      Gitlab::GitalyClient::StorageSettings.allow_disk_access do
-        project.repository.rugged
-      end
-    end
+    let(:rugged) { rugged_repo(project.repository) }
 
     before do
       allow_any_instance_of(MergeRequestDiff)
@@ -173,10 +172,8 @@ describe Gitlab::BackgroundMigration::DeserializeMergeRequestDiffsAndCommits, :m
         let(:exception) { ActiveRecord::RecordNotFound }
 
         let(:perform_ignoring_exceptions) do
-          begin
-            subject.perform(start_id, stop_id)
-          rescue described_class::Error
-          end
+          subject.perform(start_id, stop_id)
+        rescue described_class::Error
         end
 
         before do
@@ -326,3 +323,4 @@ describe Gitlab::BackgroundMigration::DeserializeMergeRequestDiffsAndCommits, :m
     end
   end
 end
+# rubocop:enable RSpec/FactoriesInMigrationSpecs

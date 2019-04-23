@@ -1,14 +1,32 @@
+# frozen_string_literal: true
+
 module EE
   module API
     module Entities
       #######################
       # Entities extensions #
       #######################
+      module Entities
+        extend ActiveSupport::Concern
+
+        class_methods do
+          def prepend_entity(klass, with: nil)
+            if with.nil?
+              raise ArgumentError, 'You need to pass either the :with or :namespace option!'
+            end
+
+            klass.descendants.each { |descendant| descendant.prepend(with) }
+            klass.prepend(with)
+          end
+        end
+      end
+
       module UserPublic
         extend ActiveSupport::Concern
 
         prepended do
           expose :shared_runners_minutes_limit
+          expose :extra_shared_runners_minutes_limit
         end
       end
 
@@ -23,6 +41,7 @@ module EE
           expose :mirror_trigger_builds, if: ->(project, _) { project.mirror? }
           expose :only_mirror_protected_branches, if: ->(project, _) { project.mirror? }
           expose :mirror_overwrites_diverged_branches, if: ->(project, _) { project.mirror? }
+          expose :packages_enabled, if: ->(project, _) { project.feature_available?(:packages) }
         end
       end
 
@@ -32,8 +51,12 @@ module EE
         prepended do
           expose :ldap_cn, :ldap_access
           expose :ldap_group_links,
-          using: EE::API::Entities::LdapGroupLink,
-          if: ->(group, options) { group.ldap_group_links.any? }
+                 using: EE::API::Entities::LdapGroupLink,
+                 if: ->(group, options) { group.ldap_group_links.any? }
+
+          expose :checked_file_template_project_id,
+                 as: :file_template_project_id,
+                 if: ->(group, options) { group.feature_available?(:custom_file_templates_for_namespace) }
         end
       end
 
@@ -42,6 +65,7 @@ module EE
 
         prepended do
           expose :shared_runners_minutes_limit
+          expose :extra_shared_runners_minutes_limit
         end
       end
 
@@ -51,6 +75,14 @@ module EE
         prepended do
           expose :user_id
           expose :group_id
+        end
+      end
+
+      module ProtectedBranch
+        extend ActiveSupport::Concern
+
+        prepended do
+          expose :unprotect_access_levels, using: ::API::Entities::ProtectedRefAccess
         end
       end
 
@@ -74,10 +106,13 @@ module EE
         extend ActiveSupport::Concern
 
         prepended do
-          expose :trial_ends_on
           expose :shared_runners_minutes_limit, if: ->(_, options) { options[:current_user]&.admin? }
+          expose :extra_shared_runners_minutes_limit, if: ->(_, options) { options[:current_user]&.admin? }
+          expose :billable_members_count do |namespace, options|
+            namespace.billable_members_count(options[:requested_hosted_plan])
+          end
           expose :plan, if: ->(namespace, opts) { ::Ability.allowed?(opts[:current_user], :admin_namespace, namespace) } do |namespace, _|
-            namespace.plan&.name
+            namespace.actual_plan&.name
           end
         end
       end
@@ -86,17 +121,22 @@ module EE
         extend ActiveSupport::Concern
 
         prepended do
-          def scoped_issue_available?(board)
-            board.parent.feature_available?(:scoped_issue_board)
-          end
-
           # Default filtering configuration
           expose :name
-          expose :group
-          expose :milestone, using: ::API::Entities::Milestone, if: ->(board, _) { scoped_issue_available?(board) }
-          expose :assignee, using: ::API::Entities::UserBasic, if: ->(board, _) { scoped_issue_available?(board) }
-          expose :labels, using: ::API::Entities::LabelBasic, if: ->(board, _) { scoped_issue_available?(board) }
-          expose :weight, if: ->(board, _) { scoped_issue_available?(board) }
+          expose :group, using: ::API::Entities::BasicGroupDetails
+
+          with_options if: ->(board, _) { board.parent.feature_available?(:scoped_issue_board) } do
+            expose :milestone do |board|
+              if board.milestone.is_a?(Milestone)
+                ::API::Entities::Milestone.represent(board.milestone)
+              else
+                SpecialBoardFilter.represent(board.milestone)
+              end
+            end
+            expose :assignee, using: ::API::Entities::UserBasic
+            expose :labels, using: ::API::Entities::LabelBasic
+            expose :weight
+          end
         end
       end
 
@@ -115,9 +155,6 @@ module EE
         prepended do
           expose(*EE::ApplicationSettingsHelper.repository_mirror_attributes, if: ->(_instance, _options) do
             ::License.feature_available?(:repository_mirrors)
-          end)
-          expose(*EE::ApplicationSettingsHelper.external_authorization_service_attributes, if: ->(_instance, _options) do
-            ::License.feature_available?(:external_authorization_service)
           end)
           expose :email_additional_text, if: ->(_instance, _opts) { ::License.feature_available?(:email_additional_text) }
           expose :file_template_project_id, if: ->(_instance, _opts) { ::License.feature_available?(:custom_file_templates) }
@@ -170,6 +207,7 @@ module EE
         expose :id
         expose :iid
         expose :group_id
+        expose :parent_id
         expose :title
         expose :description
         expose :author, using: ::API::Entities::UserBasic
@@ -180,11 +218,28 @@ module EE
         expose :end_date, as: :due_date
         expose :due_date_is_fixed?, as: :due_date_is_fixed, if: can_admin_epic
         expose :due_date_fixed, :due_date_from_milestones, if: can_admin_epic
+        expose :state
         expose :created_at
         expose :updated_at
         expose :labels do |epic, options|
           # Avoids an N+1 query since labels are preloaded
           epic.labels.map(&:title).sort
+        end
+        expose :upvotes do |epic, options|
+          if options[:issuable_metadata]
+            # Avoids an N+1 query when metadata is included
+            options[:issuable_metadata][epic.id].upvotes
+          else
+            epic.upvotes
+          end
+        end
+        expose :downvotes do |epic, options|
+          if options[:issuable_metadata]
+            # Avoids an N+1 query when metadata is included
+            options[:issuable_metadata][epic.id].downvotes
+          else
+            epic.downvotes
+          end
         end
       end
 
@@ -205,16 +260,93 @@ module EE
         expose :target, as: :target_issue, using: ::API::Entities::IssueBasic
       end
 
+      class SpecialBoardFilter < Grape::Entity
+        expose :title
+      end
+
+      class ApprovalRuleShort < Grape::Entity
+        expose :id, :name, :rule_type
+      end
+
+      class ApprovalRule < ApprovalRuleShort
+        def initialize(object, options = {})
+          presenter = ::ApprovalRulePresenter.new(object, current_user: options[:current_user])
+          super(presenter, options)
+        end
+
+        expose :approvers, using: ::API::Entities::UserBasic
+        expose :approvals_required
+        expose :users, using: ::API::Entities::UserBasic
+        expose :groups, using: ::API::Entities::Group
+        expose :contains_hidden_groups?, as: :contains_hidden_groups
+      end
+
+      class MergeRequestApprovalRule < ApprovalRule
+        class SourceRule < Grape::Entity
+          expose :approvals_required
+        end
+
+        expose :approved_approvers, as: :approved_by, using: ::API::Entities::UserBasic
+        expose :code_owner
+        expose :source_rule, using: SourceRule
+        expose :approved?, as: :approved
+      end
+
+      # Decorates ApprovalState
+      class MergeRequestApprovalRules < Grape::Entity
+        expose :approval_rules_overwritten do |approval_state|
+          approval_state.approval_rules_overwritten?
+        end
+
+        expose :wrapped_approval_rules, as: :rules, using: MergeRequestApprovalRule
+      end
+
+      # Decorates Project
+      class ProjectApprovalRules < Grape::Entity
+        expose :visible_regular_approval_rules, as: :rules, using: ApprovalRule
+        expose :min_fallback_approvals, as: :fallback_approvals_required
+      end
+
+      # @deprecated
+      class Approver < Grape::Entity
+        expose :user, using: ::API::Entities::UserBasic
+      end
+
+      # @deprecated
+      class ApproverGroup < Grape::Entity
+        expose :group, using: ::API::Entities::Group
+      end
+
+      class ApprovalSettings < Grape::Entity
+        expose :approvers, using: EE::API::Entities::Approver
+        expose :approver_groups, using: EE::API::Entities::ApproverGroup
+        expose :approvals_before_merge
+        expose :reset_approvals_on_push
+        expose :disable_overriding_approvers_per_merge_request
+        expose :merge_requests_author_approval
+      end
+
       class Approvals < Grape::Entity
         expose :user, using: ::API::Entities::UserBasic
       end
 
+      # @deprecated, replaced with ApprovalState
       class MergeRequestApprovals < ::API::Entities::ProjectEntity
+        def initialize(merge_request, options = {})
+          presenter = merge_request.present(current_user: options[:current_user])
+
+          super(presenter, options)
+        end
+
         expose :merge_status
         expose :approvals_required
         expose :approvals_left
         expose :approvals, as: :approved_by, using: EE::API::Entities::Approvals
         expose :approvers_left, as: :suggested_approvers, using: ::API::Entities::UserBasic
+        # @deprecated
+        expose :approvers, using: EE::API::Entities::Approver
+        # @deprecated
+        expose :approver_groups, using: EE::API::Entities::ApproverGroup
 
         expose :user_has_approved do |merge_request, options|
           merge_request.has_approved?(options[:current_user])
@@ -225,17 +357,96 @@ module EE
         end
       end
 
+      class ApprovalState < Grape::Entity
+        expose :merge_request, merge: true, using: ::API::Entities::ProjectEntity
+        expose(:merge_status) { |approval_state| approval_state.merge_request.merge_status }
+
+        expose :approved?, as: :approved
+
+        expose :approvals_required
+
+        expose :approvals_left
+
+        expose :approved_by, using: EE::API::Entities::Approvals do |approval_state|
+          approval_state.merge_request.approvals
+        end
+
+        expose :suggested_approvers, using: ::API::Entities::UserBasic do |approval_state, options|
+          # TODO order by relevance
+          approval_state.unactioned_approvers
+        end
+
+        # @deprecated, reads from first regular rule instead
+        expose :approvers do |approval_state|
+          if rule = approval_state.first_regular_rule
+            rule.users.map do |user|
+              { user: ::API::Entities::UserBasic.represent(user) }
+            end
+          else
+            []
+          end
+        end
+        # @deprecated, reads from first regular rule instead
+        expose :approver_groups do |approval_state|
+          if rule = approval_state.first_regular_rule
+            presenter = ::ApprovalRulePresenter.new(rule, current_user: options[:current_user])
+            presenter.groups.map do |group|
+              { group: ::API::Entities::Group.represent(group) }
+            end
+          else
+            []
+          end
+        end
+
+        expose :user_has_approved do |approval_state, options|
+          approval_state.has_approved?(options[:current_user])
+        end
+
+        expose :user_can_approve do |approval_state, options|
+          approval_state.can_approve?(options[:current_user])
+        end
+
+        expose :approval_rules_left, using: ApprovalRuleShort
+
+        expose :has_approval_rules do |approval_state|
+          approval_state.has_non_fallback_rules?
+        end
+
+        expose :merge_request_approvers_available do |approval_state|
+          approval_state.project.feature_available?(:merge_request_approvers)
+        end
+
+        expose :multiple_approval_rules_available do |approval_state|
+          approval_state.project.multiple_approval_rules_available?
+        end
+      end
+
       class LdapGroup < Grape::Entity
         expose :cn
       end
 
       class GitlabLicense < Grape::Entity
-        expose :starts_at, :expires_at, :licensee, :add_ons
+        expose :id,
+          :plan,
+          :created_at,
+          :starts_at,
+          :expires_at,
+          :historical_max,
+          :licensee,
+          :add_ons
+
+        expose :expired?, as: :expired
+
+        expose :overage do |license, options|
+          license.expired? ? license.overage_with_historical_max : license.overage(options[:current_active_users_count])
+        end
 
         expose :user_limit do |license, options|
           license.restricted?(:active_user_count) ? license.restrictions[:active_user_count] : 0
         end
+      end
 
+      class GitlabLicenseWithActiveUsers < GitlabLicense
         expose :active_users do |license, options|
           ::User.active.count
         end
@@ -246,6 +457,7 @@ module EE
 
         expose :id
         expose :url
+        expose :internal_url
         expose :primary?, as: :primary
         expose :enabled
         expose :current?, as: :current
@@ -260,6 +472,10 @@ module EE
 
         expose :web_edit_url do |geo_node|
           ::Gitlab::Routing.url_helpers.edit_admin_geo_node_url(geo_node)
+        end
+
+        expose :web_geo_projects_url, if: ->(geo_node, _) { geo_node.secondary? } do |geo_node|
+          geo_node.geo_projects_url
         end
 
         expose :_links do
@@ -325,7 +541,7 @@ module EE
           number_to_percentage(node.repositories_synced_in_percentage, precision: 2)
         end
 
-        expose :wikis_count  # Deprecated
+        expose :wikis_count # Deprecated
         expose :wikis_failed_count
         expose :wikis_synced_count
         expose :wikis_synced_in_percentage do |node|
@@ -425,6 +641,57 @@ module EE
         def missing_oauth_application
           object.geo_node.missing_oauth_application?
         end
+      end
+
+      class UnleashFeature < Grape::Entity
+        expose :name
+        expose :description, unless: ->(feature) { feature.description.nil? }
+        expose :active, as: :enabled
+        expose :strategies
+      end
+
+      class GitlabSubscription < Grape::Entity
+        expose :plan do
+          expose :plan_name, as: :code
+          expose :plan_title, as: :name
+          expose :trial
+        end
+
+        expose :usage do
+          expose :seats, as: :seats_in_subscription
+          expose :seats_in_use
+          expose :max_seats_used
+          expose :seats_owed
+        end
+
+        expose :billing do
+          expose :start_date, as: :subscription_start_date
+          expose :end_date, as: :subscription_end_date
+          expose :trial_ends_on
+        end
+      end
+
+      class NpmPackage < Grape::Entity
+        expose :name
+        expose :versions
+        expose :dist_tags, as: 'dist-tags'
+      end
+
+      class Package < Grape::Entity
+        expose :id
+        expose :name
+        expose :version
+        expose :package_type
+      end
+
+      class PackageFile < Grape::Entity
+        expose :id, :package_id, :created_at
+        expose :file_name, :size
+        expose :file_md5, :file_sha1
+      end
+
+      class ManagedLicense < Grape::Entity
+        expose :id, :name, :approval_status
       end
     end
   end

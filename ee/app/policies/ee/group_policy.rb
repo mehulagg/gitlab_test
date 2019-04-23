@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module GroupPolicy
     extend ActiveSupport::Concern
@@ -10,19 +12,13 @@ module EE
         @subject.feature_available?(:contribution_analytics)
       end
 
-      condition(:project_creation_level_enabled) { @subject.feature_available?(:project_creation_level) }
-
-      condition(:create_projects_disabled) do
-        @subject.project_creation_level == ::EE::Gitlab::Access::NO_ONE_PROJECT_ACCESS
-      end
-
-      condition(:developer_maintainer_access) do
-        @subject.project_creation_level == ::EE::Gitlab::Access::DEVELOPER_MAINTAINER_PROJECT_ACCESS
-      end
-
       condition(:can_owners_manage_ldap, scope: :global) do
         ::Gitlab::CurrentSettings.current_application_settings
           .allow_group_owners_to_manage_ldap
+      end
+
+      condition(:security_dashboard_feature_disabled) do
+        !@subject.feature_available?(:security_dashboard)
       end
 
       rule { reporter }.policy do
@@ -49,6 +45,7 @@ module EE
         prevent :create_epic
         prevent :admin_epic
         prevent :update_epic
+        prevent :destroy_epic
       end
 
       rule { auditor }.enable :read_group
@@ -63,8 +60,15 @@ module EE
 
       rule { ldap_synced & (admin | (can_owners_manage_ldap & owner)) }.enable :override_group_member
 
-      rule { project_creation_level_enabled & developer & developer_maintainer_access }.enable :create_projects
-      rule { project_creation_level_enabled & create_projects_disabled }.prevent :create_projects
+      rule { developer }.policy do
+        enable :read_group_security_dashboard
+      end
+
+      rule { security_dashboard_feature_disabled }.policy do
+        prevent :read_group_security_dashboard
+      end
     end
   end
 end
+
+EE::GroupPolicy.include(EE::ClusterableActions)

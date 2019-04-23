@@ -1,12 +1,18 @@
 # frozen_string_literal: true
 
 class MemberPresenter < Gitlab::View::Presenter::Delegated
-  prepend EE::MemberPresenter
-
   presents :member
 
   def access_level_roles
     member.class.access_level_roles
+  end
+
+  def valid_level_roles
+    return access_level_roles unless member.highest_group_member
+
+    access_level_roles.reject do |_name, level|
+      member.highest_group_member.access_level > level
+    end
   end
 
   def can_resend_invite?
@@ -40,3 +46,5 @@ class MemberPresenter < Gitlab::View::Presenter::Delegated
     raise NotImplementedError
   end
 end
+
+MemberPresenter.prepend(EE::MemberPresenter)

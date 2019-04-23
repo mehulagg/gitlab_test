@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 module Gitlab
   module Prometheus
     module Queries
       module QueryAdditionalMetrics
-        prepend EE::Gitlab::Prometheus::Queries::QueryAdditionalMetrics
+        prepend EE::Gitlab::Prometheus::Queries::QueryAdditionalMetrics # rubocop: disable Cop/InjectEnterpriseEditionModule
 
         def query_metrics(project, environment, query_context)
           matched_metrics(project).map(&query_group(query_context))
@@ -83,11 +85,8 @@ module Gitlab
         end
 
         def common_query_context(environment, timeframe_start:, timeframe_end:)
-          base_query_context(timeframe_start, timeframe_end).merge({
-            ci_environment_slug: environment.slug,
-            kube_namespace: environment.deployment_platform&.actual_namespace || '',
-            environment_filter: %{container_name!="POD",environment="#{environment.slug}"}
-          })
+          base_query_context(timeframe_start, timeframe_end)
+            .merge(QueryVariables.call(environment))
         end
 
         def base_query_context(timeframe_start, timeframe_end)

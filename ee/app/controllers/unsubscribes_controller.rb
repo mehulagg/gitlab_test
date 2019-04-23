@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class UnsubscribesController < ApplicationController
   skip_before_action :authenticate_user!
 
@@ -17,8 +19,10 @@ class UnsubscribesController < ApplicationController
 
   protected
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def get_user
     @email = Base64.urlsafe_decode64(params[:email])
     User.where(email: @email).first
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 end

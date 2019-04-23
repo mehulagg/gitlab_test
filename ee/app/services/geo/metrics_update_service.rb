@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Geo
   class MetricsUpdateService
     METRIC_PREFIX = 'geo_'.freeze
@@ -12,7 +14,7 @@ module Geo
       update_prometheus_metrics(current_node, current_node_status) if prometheus_enabled?
 
       if Gitlab::Geo.primary? && prometheus_enabled?
-        Gitlab::Geo.secondary_nodes.find_each { |node| update_prometheus_metrics(node, node.status) }
+        Gitlab::Geo.secondary_nodes.each { |node| update_prometheus_metrics(node, node.status) }
       end
     end
 

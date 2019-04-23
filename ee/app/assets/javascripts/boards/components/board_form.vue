@@ -8,11 +8,8 @@ import { visitUrl } from '~/lib/utils/url_utility';
 import BoardMilestoneSelect from './milestone_select.vue';
 import BoardWeightSelect from './weight_select.vue';
 import AssigneeSelect from './assignee_select.vue';
+import boardsStore from '~/boards/stores/boards_store';
 
-window.gl = window.gl || {};
-window.gl.issueBoards = window.gl.issueBoards || {};
-
-const Store = gl.issueBoards.BoardsStore;
 const boardDefaults = {
   id: false,
   name: '',
@@ -60,9 +57,19 @@ export default {
       default: 0,
     },
     weights: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
+    enableScopedLabels: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    scopedLabelsDocumentationLink: {
       type: String,
       required: false,
-      default: '',
+      default: '#',
     },
   },
   data() {
@@ -70,8 +77,8 @@ export default {
       board: { ...boardDefaults, ...this.currentBoard },
       expanded: false,
       issue: {},
-      currentBoard: Store.state.currentBoard,
-      currentPage: Store.state.currentPage,
+      currentBoard: boardsStore.state.currentBoard,
+      currentPage: boardsStore.state.currentPage,
       milestones: [],
       milestoneDropdownOpen: false,
       isLoading: false,
@@ -129,9 +136,6 @@ export default {
     readonly() {
       return !this.canAdminBoard;
     },
-    weightsArray() {
-      return JSON.parse(this.weights);
-    },
     submitDisabled() {
       return this.isLoading || this.board.name.length === 0;
     },
@@ -168,7 +172,7 @@ export default {
         gl.boardService
           .deleteBoard(this.currentBoard)
           .then(() => {
-            visitUrl(Store.rootPath);
+            visitUrl(boardsStore.rootPath);
           })
           .catch(() => {
             Flash('Failed to delete board. Please try again.');
@@ -188,7 +192,7 @@ export default {
       }
     },
     cancel() {
-      Store.state.currentPage = '';
+      boardsStore.state.currentPage = '';
     },
     resetFormState() {
       if (this.isNewForm) {
@@ -215,24 +219,10 @@ export default {
     @submit="submit"
   >
     <template slot="body">
-      <p v-if="isDeleteForm">
-        Are you sure you want to delete this board?
-      </p>
-      <form
-        v-else
-        class="js-board-config-modal"
-        @submit.prevent
-      >
-        <div
-          v-if="!readonly"
-          class="append-bottom-20"
-        >
-          <label
-            class="form-section-title label-bold"
-            for="board-new-name"
-          >
-            Board name
-          </label>
+      <p v-if="isDeleteForm">Are you sure you want to delete this board?</p>
+      <form v-else class="js-board-config-modal" @submit.prevent>
+        <div v-if="!readonly" class="append-bottom-20">
+          <label class="form-section-title label-bold" for="board-new-name"> Board name </label>
           <input
             id="board-new-name"
             ref="name"
@@ -244,19 +234,9 @@ export default {
           />
         </div>
         <div v-if="scopedIssueBoardFeatureEnabled">
-          <div
-            v-if="canAdminBoard"
-            class="media append-bottom-10"
-          >
-            <label class="form-section-title label-bold media-body">
-              Board scope
-            </label>
-            <button
-              v-if="collapseScope"
-              type="button"
-              class="btn"
-              @click="expanded = !expanded"
-            >
+          <div v-if="canAdminBoard" class="media append-bottom-10">
+            <label class="form-section-title label-bold media-body"> Board scope </label>
+            <button v-if="collapseScope" type="button" class="btn" @click="expanded = !expanded">
               {{ expandButtonText }}
             </button>
           </div>
@@ -274,6 +254,8 @@ export default {
               :context="board"
               :labels-path="labelsPath"
               :can-edit="canAdminBoard"
+              :scoped-labels-documentation-link="scopedLabelsDocumentationLink"
+              :enable-scoped-labels="enableScopedLabels"
               ability-name="issue"
               @onLabelClick="handleLabelClick"
             >
@@ -294,9 +276,9 @@ export default {
             />
 
             <board-weight-select
-              :board="board"
-              :weights="weightsArray"
               v-model="board.weight"
+              :board="board"
+              :weights="weights"
               :can-edit="canAdminBoard"
             />
           </div>

@@ -4,7 +4,7 @@ require 'openssl'
 
 module Clusters
   module Applications
-    class Helm < ActiveRecord::Base
+    class Helm < ApplicationRecord
       self.table_name = 'clusters_applications_helm'
 
       attr_encrypted :ca_key,
@@ -32,7 +32,8 @@ module Clusters
       def install_command
         Gitlab::Kubernetes::Helm::InitCommand.new(
           name: name,
-          files: files
+          files: files,
+          rbac: cluster.platform_kubernetes_rbac?
         )
       end
 

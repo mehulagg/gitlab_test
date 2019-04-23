@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module Gitlab
     module Ci
@@ -35,7 +37,7 @@ module EE
             end
 
             def alive_pipelines_count
-              @project.pipelines.alive.count
+              @project.ci_pipelines.alive.count
             end
 
             def max_active_pipelines_count

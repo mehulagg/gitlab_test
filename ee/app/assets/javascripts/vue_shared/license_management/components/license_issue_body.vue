@@ -27,9 +27,6 @@ export default {
     >
       {{ issue.name }}
     </button>
-    <license-packages
-      :packages="issue.packages"
-      class="text-secondary"
-    />
+    <license-packages :packages="issue.packages" class="text-secondary" />
   </div>
 </template>

@@ -18,5 +18,12 @@ class IssuePolicy < IssuablePolicy
     prevent :read_issue_iid
     prevent :update_issue
     prevent :admin_issue
+    prevent :create_note
+  end
+
+  rule { locked }.policy do
+    prevent :reopen_issue
   end
 end
+
+IssuePolicy.prepend(::EE::IssuePolicy)

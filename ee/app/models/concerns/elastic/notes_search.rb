@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Elastic
   module NotesSearch
     extend ActiveSupport::Concern
@@ -5,30 +7,16 @@ module Elastic
     included do
       include ApplicationSearch
 
-      mappings _parent: { type: 'project' } do
-        indexes :id,          type: :integer
-        indexes :note,        type: :text,
-                              index_options: 'offsets'
-        indexes :project_id,  type: :integer
-        indexes :created_at,  type: :date
-        indexes :updated_at,  type: :date
-
-        indexes :issue do
-          indexes :assignee_id, type: :integer
-          indexes :author_id, type: :integer
-          indexes :confidential, type: :boolean
-        end
-
-        indexes :noteable_type,  type: :string, index: :not_analyzed
-        indexes :noteable_id,    type: :integer, index: :not_analyzed
-      end
-
       def self.inherited(subclass)
         super
 
         subclass.__elasticsearch__.index_name = self.index_name
         subclass.__elasticsearch__.document_type = self.document_type
         subclass.__elasticsearch__.instance_variable_set(:@mapping, self.mapping.dup)
+      end
+
+      def es_type
+        'note'
       end
 
       def as_indexed_json(options = {})
@@ -48,7 +36,7 @@ module Elastic
           }
         end
 
-        data
+        data.merge(generic_attributes)
       end
 
       def self.nested?

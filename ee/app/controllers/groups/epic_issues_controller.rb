@@ -1,11 +1,8 @@
-class Groups::EpicIssuesController < Groups::EpicsController
-  include IssuableLinks
+# frozen_string_literal: true
 
-  skip_before_action :authorize_destroy_issuable!
-  skip_before_action :authorize_create_epic!
-  skip_before_action :authorize_update_issuable!
+class Groups::EpicIssuesController < Groups::ApplicationController
+  include EpicRelations
 
-  before_action :authorize_admin_epic!, only: [:create, :destroy, :update]
   before_action :authorize_issue_link_association!, only: [:destroy, :update]
 
   def update
@@ -24,12 +21,8 @@ class Groups::EpicIssuesController < Groups::EpicsController
     EpicIssues::DestroyService.new(link, current_user)
   end
 
-  def issues
-    EpicIssues::ListService.new(epic, current_user).execute
-  end
-
-  def authorize_admin_epic!
-    render_403 unless can?(current_user, :admin_epic, epic)
+  def list_service
+    EpicIssues::ListService.new(epic, current_user)
   end
 
   def authorize_issue_link_association!

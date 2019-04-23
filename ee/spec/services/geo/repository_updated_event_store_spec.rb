@@ -1,8 +1,13 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Geo::RepositoryUpdatedEventStore do
-  set(:project)  { create(:project, :repository) }
+  include EE::GeoHelpers
+
+  set(:project) { create(:project, :repository) }
   set(:secondary_node) { create(:geo_node) }
+
   let(:blankrev) { Gitlab::Git::BLANK_SHA }
   let(:refs)     { ['refs/heads/tést', 'refs/tags/tag'] }
 
@@ -13,39 +18,19 @@ describe Geo::RepositoryUpdatedEventStore do
     ]
   end
 
-  describe '#create' do
-    it 'does not create a push event when not running on a primary node' do
-      allow(Gitlab::Geo).to receive(:primary?) { false }
+  subject { described_class.new(project, refs: refs, changes: changes) }
 
-      subject = described_class.new(project, refs: refs, changes: changes)
-
-      expect { subject.create }.not_to change(Geo::RepositoryUpdatedEvent, :count)
-    end
+  describe '#create!' do
+    it_behaves_like 'a Geo event store', Geo::RepositoryUpdatedEvent
 
     context 'when running on a primary node' do
       before do
-        allow(Gitlab::Geo).to receive(:primary?) { true }
-      end
-
-      it 'does not create an event when there are no secondary nodes' do
-        allow(Gitlab::Geo).to receive(:secondary_nodes) { [] }
-
-        subject = described_class.new(project, refs: refs, changes: changes)
-
-        expect { subject.create }.not_to change(Geo::RepositoryUpdatedEvent, :count)
-      end
-
-      it 'creates a push event' do
-        subject = described_class.new(project, refs: refs, changes: changes)
-
-        expect { subject.create }.to change(Geo::RepositoryUpdatedEvent, :count).by(1)
+        stub_primary_node
       end
 
       context 'when repository is being updated' do
         it 'does not track ref name when post-receive event affect multiple refs' do
-          subject = described_class.new(project, refs: refs, changes: changes)
-
-          subject.create
+          subject.create!
 
           expect(Geo::RepositoryUpdatedEvent.last.ref).to be_nil
         end
@@ -55,23 +40,19 @@ describe Geo::RepositoryUpdatedEventStore do
           changes = [{ before: '123456', after: blankrev, ref: 'refs/heads/tést' }]
           subject = described_class.new(project, refs: refs, changes: changes)
 
-          subject.create
+          subject.create!
 
           expect(Geo::RepositoryUpdatedEvent.last.ref).to eq 'refs/heads/tést'
         end
 
         it 'tracks number of branches post-receive event affects' do
-          subject = described_class.new(project, refs: refs, changes: changes)
-
-          subject.create
+          subject.create!
 
           expect(Geo::RepositoryUpdatedEvent.last.branches_affected).to eq 1
         end
 
         it 'tracks number of tags post-receive event affects' do
-          subject = described_class.new(project, refs: refs, changes: changes)
-
-          subject.create
+          subject.create!
 
           expect(Geo::RepositoryUpdatedEvent.last.tags_affected).to eq 1
         end
@@ -82,10 +63,9 @@ describe Geo::RepositoryUpdatedEventStore do
             { before: '123456', after: '789012', ref: 'refs/heads/tést' },
             { before: blankrev, after: '210987', ref: 'refs/heads/feature' }
           ]
-
           subject = described_class.new(project, refs: refs, changes: changes)
 
-          subject.create
+          subject.create!
 
           expect(Geo::RepositoryUpdatedEvent.last.new_branch).to eq true
         end
@@ -98,7 +78,7 @@ describe Geo::RepositoryUpdatedEventStore do
           ]
           subject = described_class.new(project, refs: refs, changes: changes)
 
-          subject.create
+          subject.create!
 
           expect(Geo::RepositoryUpdatedEvent.last.remove_branch).to eq true
         end
@@ -108,15 +88,15 @@ describe Geo::RepositoryUpdatedEventStore do
         it 'does not track any information' do
           subject = described_class.new(project, source: Geo::RepositoryUpdatedEvent::WIKI)
 
-          subject.create
+          subject.create!
 
-          push_event = Geo::RepositoryUpdatedEvent.last
-
-          expect(push_event.ref).to be_nil
-          expect(push_event.branches_affected).to be_zero
-          expect(push_event.tags_affected).to be_zero
-          expect(push_event.new_branch).to eq false
-          expect(push_event.remove_branch).to eq false
+          expect(Geo::RepositoryUpdatedEvent.last).to have_attributes(
+            ref: be_nil,
+            branches_affected: be_zero,
+            tags_affected: be_zero,
+            new_branch: false,
+            remove_branch: false
+          )
         end
       end
     end

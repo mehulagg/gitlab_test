@@ -2,19 +2,21 @@
 
 module ProtectedRefAccess
   extend ActiveSupport::Concern
-
-  ALLOWED_ACCESS_LEVELS = [
-    Gitlab::Access::MAINTAINER,
-    Gitlab::Access::DEVELOPER,
-    Gitlab::Access::NO_ACCESS,
-    Gitlab::Access::ADMIN
-  ].freeze
-
   HUMAN_ACCESS_LEVELS = {
     Gitlab::Access::MAINTAINER => "Maintainers".freeze,
     Gitlab::Access::DEVELOPER => "Developers + Maintainers".freeze,
     Gitlab::Access::NO_ACCESS => "No one".freeze
   }.freeze
+
+  class_methods do
+    def allowed_access_levels
+      [
+        Gitlab::Access::MAINTAINER,
+        Gitlab::Access::DEVELOPER,
+        Gitlab::Access::NO_ACCESS
+      ]
+    end
+  end
 
   included do
     scope :master, -> { maintainer } # @deprecated
@@ -27,7 +29,7 @@ module ProtectedRefAccess
     scope :for_group, -> { where.not(group_id: nil) }
 
     validates :access_level, presence: true, if: :role?, inclusion: {
-      in: ALLOWED_ACCESS_LEVELS
+      in: self.allowed_access_levels
     }
   end
 
@@ -48,3 +50,13 @@ module ProtectedRefAccess
       project.team.max_member_access(user.id) >= access_level
   end
 end
+
+ProtectedRefAccess.include(EE::ProtectedRefAccess::Scopes) # rubocop: disable Cop/InjectEnterpriseEditionModule
+ProtectedRefAccess.prepend(EE::ProtectedRefAccess) # rubocop: disable Cop/InjectEnterpriseEditionModule
+
+# When using `prepend` (or `include` for that matter), the `ClassMethods`
+# constants are not merged. This means that `class_methods` in
+# `EE::ProtectedRefAccess` would be ignored.
+#
+# To work around this, we prepend the `ClassMethods` constant manually.
+ProtectedRefAccess::ClassMethods.prepend(EE::ProtectedRefAccess::ClassMethods)

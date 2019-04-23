@@ -1,4 +1,4 @@
-/* global BoardService */
+import BoardService from '~/boards/services/board_service';
 
 export const boardObj = {
   id: 1,
@@ -34,7 +34,7 @@ export const listObjDuplicate = {
 
 export const BoardsMockData = {
   GET: {
-    '/test/-/boards/1/lists/300/issues?id=300&page=1&=': {
+    '/test/-/boards/1/lists/300/issues?id=300&page=1': {
       issues: [
         {
           title: 'Testing',
@@ -130,3 +130,12 @@ export const mockAssigneesList = [
     path: '/root',
   },
 ];
+
+export const mockMilestone = {
+  id: 1,
+  state: 'active',
+  title: 'Milestone title',
+  description: 'Harum corporis aut consequatur quae dolorem error sequi quia.',
+  start_date: '2018-01-01',
+  due_date: '2019-12-31',
+};

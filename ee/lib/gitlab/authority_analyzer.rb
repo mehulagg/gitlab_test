@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Gitlab
   class AuthorityAnalyzer
     COMMITS_TO_CONSIDER = 25
@@ -8,11 +10,11 @@ module Gitlab
       @users = Hash.new(0)
     end
 
-    def calculate(number_of_approvers)
+    def calculate
       involved_users
 
-      # Picks most active users from hash like: {user1: 2, user2: 6}
-      @users.sort_by { |user, count| -count }.map(&:first).take(number_of_approvers)
+      # Sort most active users from hash like: {user1: 2, user2: 6}
+      @users.sort_by { |user, count| -count }.map(&:first)
     end
 
     private

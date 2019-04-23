@@ -17,7 +17,7 @@ used to create and test an image:
 
 ```bash
 docker build -t my-image dockerfiles/
-docker run my-docker-image /script/to/run/tests
+docker run my-image /script/to/run/tests
 docker tag my-image my-registry:5000/my-image
 docker push my-registry:5000/my-image
 ```
@@ -46,18 +46,18 @@ GitLab Runner then executes job scripts as the `gitlab-runner` user.
       --description "My Runner"
     ```
 
-2. Install Docker Engine on server.
+1. Install Docker Engine on server.
 
     For more information how to install Docker Engine on different systems
     checkout the [Supported installations](https://docs.docker.com/engine/installation/).
 
-3. Add `gitlab-runner` user to `docker` group:
+1. Add `gitlab-runner` user to `docker` group:
 
     ```bash
     sudo usermod -aG docker gitlab-runner
     ```
 
-4. Verify that `gitlab-runner` has access to Docker:
+1. Verify that `gitlab-runner` has access to Docker:
 
     ```bash
     sudo -u gitlab-runner -H docker info
@@ -75,7 +75,7 @@ GitLab Runner then executes job scripts as the `gitlab-runner` user.
         - docker run my-docker-image /script/to/run/tests
     ```
 
-5. You can now use `docker` command and install `docker-compose` if needed.
+1. You can now use `docker` command and install `docker-compose` if needed.
 
 NOTE: **Note:**
 By adding `gitlab-runner` to the `docker` group you are effectively granting `gitlab-runner` full root permissions.
@@ -151,16 +151,16 @@ In order to do that, follow the steps:
       DOCKER_DRIVER: overlay2
 
     services:
-    - docker:dind
+      - docker:dind
 
     before_script:
-    - docker info
+      - docker info
 
     build:
       stage: build
       script:
-      - docker build -t my-docker-image .
-      - docker run my-docker-image /script/to/run/tests
+        - docker build -t my-docker-image .
+        - docker run my-docker-image /script/to/run/tests
     ```
 
 Docker-in-Docker works well, and is the recommended configuration, but it is
@@ -194,7 +194,7 @@ not without its own challenges:
       - docker run -v "$MOUNT_POINT:/mnt" my-docker-image
     ```
 
-An example project using this approach can be found here: https://gitlab.com/gitlab-examples/docker.
+An example project using this approach can be found here: <https://gitlab.com/gitlab-examples/docker>.
 
 ### Use Docker socket binding
 
@@ -246,13 +246,13 @@ In order to do that, follow the steps:
     image: docker:stable
 
     before_script:
-    - docker info
+      - docker info
 
     build:
       stage: build
       script:
-      - docker build -t my-docker-image .
-      - docker run my-docker-image /script/to/run/tests
+        - docker build -t my-docker-image .
+        - docker run my-docker-image /script/to/run/tests
     ```
 
 While the above method avoids using Docker in privileged mode, you should be
@@ -303,20 +303,19 @@ services:
   - docker:dind
 
 variables:
-  CONTAINER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH
   DOCKER_HOST: tcp://docker:2375
   DOCKER_DRIVER: overlay2
 
 before_script:
-  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
 build:
   stage: build
   script:
-    - docker pull $CONTAINER_IMAGE:latest || true
-    - docker build --cache-from $CONTAINER_IMAGE:latest --tag $CONTAINER_IMAGE:$CI_BUILD_REF --tag $CONTAINER_IMAGE:latest .
-    - docker push $CONTAINER_IMAGE:$CI_BUILD_REF
-    - docker push $CONTAINER_IMAGE:latest
+    - docker pull $CI_REGISTRY_IMAGE:latest || true
+    - docker build --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:latest .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE:latest
 ```
 
 The steps in the `script` section for the `build` stage can be summed up to:
@@ -324,7 +323,7 @@ The steps in the `script` section for the `build` stage can be summed up to:
 1. The first command tries to pull the image from the registry so that it can be
    used as a cache for the `docker build` command.
 1. The second command builds a Docker image using the pulled image as a
-   cache (notice the `--cache-from $CONTAINER_IMAGE:latest` argument) if
+   cache (notice the `--cache-from $CI_REGISTRY_IMAGE:latest` argument) if
    available, and tags it.
 1. The last two commands push the tagged Docker images to the container registry
    so that they may also be used as cache for subsequent builds.
@@ -381,42 +380,100 @@ environment = ["DOCKER_DRIVER=overlay2"]
 If you're running multiple Runners you will have to modify all configuration files.
 
 > **Notes:**
-- More information about the Runner configuration is available in the [Runner documentation](https://docs.gitlab.com/runner/configuration/).
-- For more information about using OverlayFS with Docker, you can read
-  [Use the OverlayFS storage driver](https://docs.docker.com/engine/userguide/storagedriver/overlayfs-driver/).
+>
+> - More information about the Runner configuration is available in the [Runner documentation](https://docs.gitlab.com/runner/configuration/).
+> - For more information about using OverlayFS with Docker, you can read
+>   [Use the OverlayFS storage driver](https://docs.docker.com/engine/userguide/storagedriver/overlayfs-driver/).
 
 ## Using the GitLab Container Registry
 
 > **Notes:**
-- This feature requires GitLab 8.8 and GitLab Runner 1.2.
-- Starting from GitLab 8.12, if you have [2FA] enabled in your account, you need
-  to pass a [personal access token][pat] instead of your password in order to
-  login to GitLab's Container Registry.
+>
+> - This feature requires GitLab 8.8 and GitLab Runner 1.2.
+> - Starting from GitLab 8.12, if you have [2FA] enabled in your account, you need
+>   to pass a [personal access token][pat] instead of your password in order to
+>   login to GitLab's Container Registry.
 
 Once you've built a Docker image, you can push it up to the built-in
-[GitLab Container Registry](../../user/project/container_registry.md). For example,
-if you're using docker-in-docker on your runners, this is how your `.gitlab-ci.yml`
+[GitLab Container Registry](../../user/project/container_registry.md).
+Some things you should be aware of:
+
+- You must [log in to the container registry](#authenticating-to-the-container-registry)
+  before running commands. You can do this in the `before_script` if multiple
+  jobs depend on it.
+- Using `docker build --pull` fetches any changes to base
+  images before building just in case your cache is stale. It takes slightly
+  longer, but means you don’t get stuck without security patches to base images.
+- Doing an explicit `docker pull` before each `docker run` fetches
+  the latest image that was just built. This is especially important if you are
+  using multiple runners that cache images locally. Using the git SHA in your
+  image tag makes this less necessary since each job will be unique and you
+  shouldn't ever have a stale image. However, it's still possible to have a
+  stale image if you re-build a given commit after a dependency has changed.
+- You don't want to build directly to `latest` tag in case there are multiple jobs
+  happening simultaneously.
+
+### Authenticating to the Container Registry
+
+There are three ways to authenticate to the Container Registry via GitLab CI/CD
+and depend on the visibility of your project.
+
+For all projects, mostly suitable for public ones:
+
+- **Using the special `$CI_REGISTRY_USER` variable**: The user specified by this variable is created for you in order to
+  push to the Registry connected to your project. Its password is automatically
+  set with the `$CI_REGISTRY_PASSWORD` variable. This allows you to automate building and deploying
+  your Docker images and has read/write access to the Registry. This is ephemeral,
+  so it's only valid for one job. You can use the following example as-is:
+
+    ```sh
+    docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    ```
+
+For private and internal projects:
+
+- **Using a personal access token**: You can create and use a
+  [personal access token](../../user/profile/personal_access_tokens.md)
+  in case your project is private:
+
+  - For read (pull) access, the scope should be `read_registry`.
+  - For read/write (pull/push) access, use `api`.
+
+  Replace the `<username>` and `<access_token>` in the following example:
+
+    ```sh
+    docker login -u <username> -p <access_token> $CI_REGISTRY
+    ```
+
+- **Using the GitLab Deploy Token**: You can create and use a
+  [special deploy token](../../user/project/deploy_tokens/index.md#gitlab-deploy-token)
+  with your private projects. It provides read-only (pull) access to the Registry.
+  Once created, you can use the special environment variables, and GitLab CI/CD
+  will fill them in for you. You can use the following example as-is:
+
+    ```sh
+    docker login -u $CI_DEPLOY_USER -p $CI_DEPLOY_PASSWORD $CI_REGISTRY
+    ```
+
+### Container Registry examples
+
+If you're using docker-in-docker on your Runners, this is how your `.gitlab-ci.yml`
 could look like:
 
 ```yaml
  build:
    image: docker:stable
    services:
-   - docker:dind
+     - docker:dind
    variables:
      DOCKER_HOST: tcp://docker:2375
      DOCKER_DRIVER: overlay2
    stage: build
    script:
-     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.example.com
-     - docker build -t registry.example.com/group/project/image:latest .
-     - docker push registry.example.com/group/project/image:latest
+     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+     - docker build -t $CI_REGISTRY/group/project/image:latest .
+     - docker push $CI_REGISTRY/group/project/image:latest
 ```
-
-You have to use the special `gitlab-ci-token` user created for you in order to
-push to the Registry connected to your project. Its password is provided in the
-`$CI_JOB_TOKEN` variable. This allows you to automate building and deployment
-of your Docker images.
 
 You can also make use of [other variables](../variables/README.md) to avoid hardcoding:
 
@@ -430,7 +487,7 @@ variables:
   IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
 
 before_script:
-  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
 build:
   stage: build
@@ -455,22 +512,22 @@ an application-specific deploy script:
 ```yaml
 image: docker:stable
 services:
-- docker:dind
+  - docker:dind
 
 stages:
-- build
-- test
-- release
-- deploy
+  - build
+  - test
+  - release
+  - deploy
 
 variables:
   DOCKER_HOST: tcp://docker:2375
   DOCKER_DRIVER: overlay2
-  CONTAINER_TEST_IMAGE: registry.example.com/my-group/my-project/my-image:$CI_COMMIT_REF_SLUG
-  CONTAINER_RELEASE_IMAGE: registry.example.com/my-group/my-project/my-image:latest
+  CONTAINER_TEST_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
 
 before_script:
-  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.example.com
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
 build:
   stage: build
@@ -506,22 +563,6 @@ deploy:
   only:
     - master
 ```
-
-Some things you should be aware of when using the Container Registry:
-
-- You must log in to the container registry before running commands. Putting
-  this in `before_script` will run it before each job.
-- Using `docker build --pull` makes sure that Docker fetches any changes to base
-  images before building just in case your cache is stale. It takes slightly
-  longer, but means you don’t get stuck without security patches to base images.
-- Doing an explicit `docker pull` before each `docker run` makes sure to fetch
-  the latest image that was just built. This is especially important if you are
-  using multiple runners that cache images locally. Using the git SHA in your
-  image tag makes this less necessary since each job will be unique and you
-  shouldn't ever have a stale image, but it's still possible if you re-build a
-  given commit after a dependency has changed.
-- You don't want to build directly to `latest` in case there are multiple jobs
-  happening simultaneously.
 
 [docker-in-docker]: https://blog.docker.com/2013/09/docker-can-now-run-within-docker/
 [docker-cap]: https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities

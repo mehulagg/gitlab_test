@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class LogFinder
   PER_PAGE = 25
   ENTITY_COLUMN_TYPES = {
@@ -10,14 +12,16 @@ class LogFinder
     @params = params
   end
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def execute
     AuditEvent.order(id: :desc).where(conditions).page(@params[:page]).per(PER_PAGE)
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 
   private
 
   def conditions
-    return nil unless entity_column
+    return unless entity_column
 
     { entity_type: @params[:event_type] }.tap do |hash|
       hash[:entity_id] = @params[entity_column] if entity_present?

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Gitlab::ImportSources module
 #
 # Define import sources that can be used
@@ -8,7 +10,7 @@ module Gitlab
     ImportSource = Struct.new(:name, :title, :importer)
 
     # We exclude `bare_repository` here as it has no import class associated
-    ImportTable = [
+    IMPORT_TABLE = [
       ImportSource.new('github',           'GitHub',           Gitlab::GithubImport::ParallelImporter),
       ImportSource.new('bitbucket',        'Bitbucket Cloud',  Gitlab::BitbucketImport::Importer),
       ImportSource.new('bitbucket_server', 'Bitbucket Server', Gitlab::BitbucketServerImport::Importer),
@@ -22,7 +24,7 @@ module Gitlab
     ].freeze
 
     class << self
-      prepend EE::Gitlab::ImportSources
+      prepend EE::Gitlab::ImportSources # rubocop: disable Cop/InjectEnterpriseEditionModule
 
       def options
         Hash[import_table.map { |importer| [importer.title, importer.name] }]
@@ -45,7 +47,7 @@ module Gitlab
       end
 
       def import_table
-        ImportTable
+        IMPORT_TABLE
       end
     end
   end

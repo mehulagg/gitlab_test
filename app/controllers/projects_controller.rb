@@ -1,20 +1,28 @@
+# frozen_string_literal: true
+
 class ProjectsController < Projects::ApplicationController
+  include API::Helpers::RelatedResourcesHelpers
   include IssuableCollections
   include ExtractsPath
   include PreviewMarkdown
   include SendFileUpload
-  prepend EE::ProjectsController
+  include RecordUserLastActivity
+
+  prepend_before_action(only: [:show]) { authenticate_sessionless_user!(:rss) }
+
+  around_action :allow_gitaly_ref_name_caching, only: [:index, :show]
 
   before_action :whitelist_query_limiting, only: [:create]
-  before_action :authenticate_user!, except: [:index, :show, :activity, :refs]
+  before_action :authenticate_user!, except: [:index, :show, :activity, :refs, :resolve]
   before_action :redirect_git_extension, only: [:show]
-  before_action :project, except: [:index, :new, :create]
-  before_action :repository, except: [:index, :new, :create]
+  before_action :project, except: [:index, :new, :create, :resolve]
+  before_action :repository, except: [:index, :new, :create, :resolve]
   before_action :assign_ref_vars, only: [:show], if: :repo_exists?
-  before_action :assign_tree_vars, only: [:show], if: [:repo_exists?, :project_view_files?]
   before_action :tree, only: [:show], if: [:repo_exists?, :project_view_files?]
   before_action :lfs_blob_ids, only: [:show], if: [:repo_exists?, :project_view_files?]
   before_action :project_export_enabled, only: [:export, :download_export, :remove_export, :generate_new_export]
+  before_action :present_project, only: [:edit]
+  before_action :authorize_download_code!, only: [:refs]
 
   # Authorize
   before_action :authorize_admin_project!, only: [:edit, :update, :housekeeping, :download_export, :export, :remove_export, :generate_new_export]
@@ -26,19 +34,22 @@ class ProjectsController < Projects::ApplicationController
     redirect_to(current_user ? root_path : explore_root_path)
   end
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def new
     namespace = Namespace.find_by(id: params[:namespace_id]) if params[:namespace_id]
     return access_denied! if namespace && !can?(current_user, :create_projects, namespace)
 
     @project = Project.new(namespace_id: namespace&.id)
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 
   def edit
+    @badge_api_endpoint = expose_url(api_v4_projects_badges_path(id: @project.id))
     render 'edit'
   end
 
   def create
-    @project = ::Projects::CreateService.new(current_user, project_params).execute
+    @project = ::Projects::CreateService.new(current_user, project_params(attributes: project_params_create_attributes)).execute
 
     if @project.saved?
       cookies[:issue_board_welcome_hidden] = { path: project_path(@project), value: nil, expires: Time.at(0) }
@@ -75,6 +86,7 @@ class ProjectsController < Projects::ApplicationController
     end
   end
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def transfer
     return access_denied! unless can?(current_user, :change_namespace, @project)
 
@@ -85,6 +97,7 @@ class ProjectsController < Projects::ApplicationController
       flash[:alert] = @project.errors[:new_namespace].first
     end
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 
   def remove_fork
     return access_denied! unless can?(current_user, :remove_fork_project, @project)
@@ -191,10 +204,8 @@ class ProjectsController < Projects::ApplicationController
   end
 
   def download_export
-    if export_project_object_storage?
-      send_upload(@project.import_export_upload.export_file)
-    elsif export_project_path
-      send_file export_project_path, disposition: 'attachment'
+    if @project.export_file_exists?
+      send_upload(@project.export_file, attachment: @project.export_file.filename)
     else
       redirect_to(
         edit_project_path(@project, anchor: 'js-export-project'),
@@ -226,13 +237,14 @@ class ProjectsController < Projects::ApplicationController
 
   def toggle_star
     current_user.toggle_star(@project)
-    @project.reload
+    @project.reset
 
     render json: {
       star_count: @project.star_count
     }
   end
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def refs
     find_refs = params['find']
 
@@ -267,9 +279,10 @@ class ProjectsController < Projects::ApplicationController
 
     render json: options.to_json
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 
   # Render project landing depending of which features are available
-  # So if page is not availble in the list it renders the next page
+  # So if page is not available in the list it renders the next page
   #
   # pages list order: repository readme, wiki home, issues list, customize workflow
   def render_landing_page
@@ -305,6 +318,7 @@ class ProjectsController < Projects::ApplicationController
     end
   end
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def load_events
     projects = Project.where(id: @project.id)
 
@@ -314,10 +328,11 @@ class ProjectsController < Projects::ApplicationController
 
     Events::RenderService.new(current_user).execute(@events, atom_request: request.format.atom?)
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 
-  def project_params
+  def project_params(attributes: [])
     params.require(:project)
-      .permit(project_params_attributes)
+      .permit(project_params_attributes + attributes)
   end
 
   def project_params_attributes
@@ -330,17 +345,17 @@ class ProjectsController < Projects::ApplicationController
       :container_registry_enabled,
       :default_branch,
       :description,
+      :external_authorization_classification_label,
       :import_url,
       :issues_tracker,
       :issues_tracker_id,
       :last_activity_at,
       :lfs_enabled,
       :name,
-      :namespace_id,
       :only_allow_merge_if_all_discussions_are_resolved,
       :only_allow_merge_if_pipeline_succeeds,
-      :printing_merge_request_link_enabled,
       :path,
+      :printing_merge_request_link_enabled,
       :public_builds,
       :request_access_enabled,
       :runners_token,
@@ -357,8 +372,13 @@ class ProjectsController < Projects::ApplicationController
         repository_access_level
         snippets_access_level
         wiki_access_level
+        pages_access_level
       ]
     ]
+  end
+
+  def project_params_create_attributes
+    [:namespace_id]
   end
 
   def custom_import_params
@@ -398,13 +418,6 @@ class ProjectsController < Projects::ApplicationController
     project.repository.root_ref
   end
 
-  # ExtractsPath will set @id = project.path on the show route, but it has to be the
-  # branch name for the tree view to work correctly.
-  def assign_tree_vars
-    @id = get_id
-    tree
-  end
-
   def project_view_files_allowed?
     !project.empty_repo? && can?(current_user, :download_code, project)
   end
@@ -433,11 +446,19 @@ class ProjectsController < Projects::ApplicationController
     Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ce/issues/42440')
   end
 
-  def export_project_path
-    @export_project_path ||= @project.export_project_path
+  def present_project
+    @project = @project.present(current_user: current_user)
   end
 
-  def export_project_object_storage?
-    @project.export_project_object_exists?
+  def resolve
+    @project = Project.find(params[:id])
+
+    if can?(current_user, :read_project, @project)
+      redirect_to @project
+    else
+      render_404
+    end
   end
 end
+
+ProjectsController.prepend(EE::ProjectsController)

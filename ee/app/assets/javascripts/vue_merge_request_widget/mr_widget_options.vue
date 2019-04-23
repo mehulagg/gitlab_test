@@ -1,13 +1,14 @@
 <script>
 import ReportSection from '~/reports/components/report_section.vue';
 import GroupedSecurityReportsApp from 'ee/vue_shared/security_reports/grouped_security_reports_app.vue';
+import GroupedMetricsReportsApp from 'ee/vue_shared/metrics_reports/grouped_metrics_reports_app.vue';
 import reportsMixin from 'ee/vue_shared/security_reports/mixins/reports_mixin';
 import { componentNames } from 'ee/vue_shared/components/reports/issue_body';
 import MrWidgetLicenses from 'ee/vue_shared/license_management/mr_widget_license_report.vue';
 
 import { n__, s__, __, sprintf } from '~/locale';
 import CEWidgetOptions from '~/vue_merge_request_widget/mr_widget_options.vue';
-import MrWidgetApprovals from './components/approvals/mr_widget_approvals.vue';
+import MrWidgetApprovals from './components/approvals';
 import MrWidgetGeoSecondaryNode from './components/states/mr_widget_secondary_geo_node.vue';
 
 export default {
@@ -16,6 +17,7 @@ export default {
     MrWidgetApprovals,
     MrWidgetGeoSecondaryNode,
     GroupedSecurityReportsApp,
+    GroupedMetricsReportsApp,
     ReportSection,
   },
   extends: CEWidgetOptions,
@@ -32,7 +34,7 @@ export default {
   },
   computed: {
     shouldRenderApprovals() {
-      return this.mr.approvalsRequired && this.mr.state !== 'nothingToMerge';
+      return this.mr.hasApprovalsAvailable && this.mr.state !== 'nothingToMerge';
     },
     shouldRenderCodeQuality() {
       const { codeclimate } = this.mr;
@@ -138,6 +140,18 @@ export default {
     }
   },
   methods: {
+    getServiceEndpoints(store) {
+      const base = CEWidgetOptions.methods.getServiceEndpoints(store);
+
+      return {
+        ...base,
+        approvalsPath: store.approvalsPath,
+        apiApprovalsPath: store.apiApprovalsPath,
+        apiApprovalSettingsPath: store.apiApprovalSettingsPath,
+        apiApprovePath: store.apiApprovePath,
+        apiUnapprovePath: store.apiUnapprovePath,
+      };
+    },
     fetchCodeQuality() {
       const { head_path, base_path } = this.mr.codeclimate;
 
@@ -190,97 +204,93 @@ export default {
 </script>
 <template>
   <div class="mr-state-widget prepend-top-default">
-    <mr-widget-header :mr="mr"/>
-    <mr-widget-pipeline
+    <mr-widget-header :mr="mr" />
+    <mr-widget-pipeline-container
       v-if="shouldRenderPipelines"
-      :pipeline="mr.pipeline"
-      :ci-status="mr.ciStatus"
-      :has-ci="mr.hasCI"
-      :source-branch-link="mr.sourceBranchLink"
-    />
-    <deployment
-      v-for="deployment in mr.deployments"
-      :key="deployment.id"
-      :deployment="deployment"
+      class="mr-widget-workflow"
+      :mr="mr"
     />
     <mr-widget-approvals
       v-if="shouldRenderApprovals"
+      class="mr-widget-workflow"
       :mr="mr"
       :service="service"
     />
-    <report-section
-      v-if="shouldRenderCodeQuality"
-      :status="codequalityStatus"
-      :loading-text="translateText('codeclimate').loading"
-      :error-text="translateText('codeclimate').error"
-      :success-text="codequalityText"
-      :unresolved-issues="mr.codeclimateMetrics.newIssues"
-      :resolved-issues="mr.codeclimateMetrics.resolvedIssues"
-      :has-issues="hasCodequalityIssues"
-      :component="$options.componentNames.CodequalityIssueBody"
-      class="js-codequality-widget mr-widget-border-top mr-report"
-    />
-    <report-section
-      v-if="shouldRenderPerformance"
-      :status="performanceStatus"
-      :loading-text="translateText('performance').loading"
-      :error-text="translateText('performance').error"
-      :success-text="performanceText"
-      :unresolved-issues="mr.performanceMetrics.degraded"
-      :resolved-issues="mr.performanceMetrics.improved"
-      :has-issues="hasPerformanceMetrics"
-      :component="$options.componentNames.PerformanceIssueBody"
-      class="js-performance-widget mr-widget-border-top mr-report"
-    />
-    <grouped-security-reports-app
-      v-if="shouldRenderSecurityReport"
-      :head-blob-path="mr.headBlobPath"
-      :base-blob-path="mr.baseBlobPath"
-      :sast-head-path="mr.sast.head_path"
-      :sast-base-path="mr.sast.base_path"
-      :sast-help-path="mr.sastHelp"
-      :dast-head-path="mr.dast.head_path"
-      :dast-base-path="mr.dast.base_path"
-      :dast-help-path="mr.dastHelp"
-      :sast-container-head-path="mr.sastContainer.head_path"
-      :sast-container-base-path="mr.sastContainer.base_path"
-      :sast-container-help-path="mr.sastContainerHelp"
-      :dependency-scanning-head-path="mr.dependencyScanning.head_path"
-      :dependency-scanning-base-path="mr.dependencyScanning.base_path"
-      :dependency-scanning-help-path="mr.dependencyScanningHelp"
-      :vulnerability-feedback-path="mr.vulnerabilityFeedbackPath"
-      :vulnerability-feedback-help-path="mr.vulnerabilityFeedbackHelpPath"
-      :pipeline-path="mr.pipeline.path"
-      :pipeline-id="mr.securityReportsPipelineId"
-      :can-create-issue="mr.canCreateIssue"
-      :can-create-feedback="mr.canCreateFeedback"
-    />
-    <mr-widget-licenses
-      v-if="shouldRenderLicenseReport"
-      :api-url="mr.licenseManagement.managed_licenses_path"
-      :pipeline-path="mr.pipeline.path"
-      :can-manage-licenses="mr.licenseManagement.can_manage_licenses"
-      :base-path="mr.licenseManagement.base_path"
-      :head-path="mr.licenseManagement.head_path"
-      report-section-class="mr-widget-border-top"
-    />
-    <div class="mr-section-container">
+    <div class="mr-section-container mr-widget-workflow">
+      <report-section
+        v-if="shouldRenderCodeQuality"
+        :status="codequalityStatus"
+        :loading-text="translateText('codeclimate').loading"
+        :error-text="translateText('codeclimate').error"
+        :success-text="codequalityText"
+        :unresolved-issues="mr.codeclimateMetrics.newIssues"
+        :resolved-issues="mr.codeclimateMetrics.resolvedIssues"
+        :has-issues="hasCodequalityIssues"
+        :component="$options.componentNames.CodequalityIssueBody"
+        class="js-codequality-widget mr-widget-border-top mr-report"
+      />
+      <report-section
+        v-if="shouldRenderPerformance"
+        :status="performanceStatus"
+        :loading-text="translateText('performance').loading"
+        :error-text="translateText('performance').error"
+        :success-text="performanceText"
+        :unresolved-issues="mr.performanceMetrics.degraded"
+        :resolved-issues="mr.performanceMetrics.improved"
+        :has-issues="hasPerformanceMetrics"
+        :component="$options.componentNames.PerformanceIssueBody"
+        class="js-performance-widget mr-widget-border-top mr-report"
+      />
+      <grouped-metrics-reports-app
+        v-if="mr.metricsReportsPath"
+        :endpoint="mr.metricsReportsPath"
+        class="js-metrics-reports-container"
+      />
+      <grouped-security-reports-app
+        v-if="shouldRenderSecurityReport"
+        :head-blob-path="mr.headBlobPath"
+        :source-branch="mr.sourceBranch"
+        :base-blob-path="mr.baseBlobPath"
+        :sast-head-path="mr.sast.head_path"
+        :sast-base-path="mr.sast.base_path"
+        :sast-help-path="mr.sastHelp"
+        :dast-head-path="mr.dast.head_path"
+        :dast-base-path="mr.dast.base_path"
+        :dast-help-path="mr.dastHelp"
+        :sast-container-head-path="mr.sastContainer.head_path"
+        :sast-container-base-path="mr.sastContainer.base_path"
+        :sast-container-help-path="mr.sastContainerHelp"
+        :dependency-scanning-head-path="mr.dependencyScanning.head_path"
+        :dependency-scanning-base-path="mr.dependencyScanning.base_path"
+        :dependency-scanning-help-path="mr.dependencyScanningHelp"
+        :vulnerability-feedback-path="mr.vulnerabilityFeedbackPath"
+        :vulnerability-feedback-help-path="mr.vulnerabilityFeedbackHelpPath"
+        :pipeline-path="mr.pipeline.path"
+        :pipeline-id="mr.securityReportsPipelineId"
+        :can-create-issue="mr.canCreateIssue"
+        :can-create-feedback="mr.canCreateFeedback"
+      />
+      <mr-widget-licenses
+        v-if="shouldRenderLicenseReport"
+        :api-url="mr.licenseManagement.managed_licenses_path"
+        :pipeline-path="mr.pipeline.path"
+        :can-manage-licenses="mr.licenseManagement.can_manage_licenses"
+        :full-report-path="mr.licenseManagement.license_management_full_report_path"
+        :license-management-settings-path="mr.licenseManagement.license_management_settings_path"
+        :base-path="mr.licenseManagement.base_path"
+        :head-path="mr.licenseManagement.head_path"
+        report-section-class="mr-widget-border-top"
+      />
       <grouped-test-reports-app
         v-if="mr.testResultsPath"
+        class="js-reports-container"
         :endpoint="mr.testResultsPath"
       />
       <div class="mr-widget-section">
-        <component
-          :is="componentName"
-          :mr="mr"
-          :service="service"
-        />
+        <component :is="componentName" :mr="mr" :service="service" />
 
-        <section
-          v-if="mr.allowCollaboration"
-          class="mr-info-list mr-links"
-        >
-          {{ s__("mrWidget|Allows commits from members who can merge to the target branch") }}
+        <section v-if="mr.allowCollaboration" class="mr-info-list mr-links">
+          {{ s__('mrWidget|Allows commits from members who can merge to the target branch') }}
         </section>
 
         <mr-widget-related-links
@@ -288,16 +298,40 @@ export default {
           :state="mr.state"
           :related-links="mr.relatedLinks"
         />
-        <source-branch-removal-status
-          v-if="shouldRenderSourceBranchRemovalStatus"
-        />
+
+        <mr-widget-alert-message
+          v-if="showMergePipelineForkWarning"
+          type="warning"
+          :help-path="mr.mergeRequestPipelinesHelpPath"
+        >
+          {{
+            s__(
+              'mrWidget|Fork merge requests do not create merge request pipelines which validate a post merge result',
+            )
+          }}
+        </mr-widget-alert-message>
+
+        <mr-widget-alert-message
+          v-if="showTargetBranchAdvancedError"
+          type="danger"
+          :help-path="mr.mergeRequestPipelinesHelpPath"
+        >
+          {{
+            s__(
+              'mrWidget|The target branch has advanced, which invalidates the merge request pipeline. Please update the source branch and retry merging',
+            )
+          }}
+        </mr-widget-alert-message>
+
+        <source-branch-removal-status v-if="shouldRenderSourceBranchRemovalStatus" />
       </div>
-      <div
-        v-if="shouldRenderMergeHelp"
-        class="mr-widget-footer"
-      >
-        <mr-widget-merge-help/>
-      </div>
+      <div v-if="shouldRenderMergeHelp" class="mr-widget-footer"><mr-widget-merge-help /></div>
     </div>
+    <mr-widget-pipeline-container
+      v-if="shouldRenderMergedPipeline"
+      class="js-post-merge-pipeline mr-widget-workflow"
+      :mr="mr"
+      :is-post-merge="true"
+    />
   </div>
 </template>

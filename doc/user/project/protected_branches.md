@@ -89,7 +89,7 @@ You can specify a wildcard protected branch, which will protect all branches
 matching the wildcard. For example:
 
 | Wildcard Protected Branch | Matching Branches                                      |
-|---------------------------+--------------------------------------------------------|
+|---------------------------|--------------------------------------------------------|
 | `*-stable`                | `production-stable`, `staging-stable`                  |
 | `production/*`            | `production/app-server`, `production/load-balancer`    |
 | `*gitlab*`                | `gitlab`, `gitlab/staging`, `master/gitlab/production` |
@@ -106,6 +106,25 @@ If you click on a protected branch's name, you will be presented with a list of
 all matching branches:
 
 ![Protected branch matches](img/protected_branches_matches.png)
+
+## Creating a protected branch
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/53361) in GitLab 11.9.
+
+When a protected branch or wildcard protected branches are set to
+[**No one** is **Allowed to push**](#using-the-allowed-to-merge-and-allowed-to-push-settings),
+Developers (and users with higher [permission levels](../permissions.md)) are allowed
+to create a new protected branch, but only via the UI or through the API (to avoid
+creating protected branches accidentally from the command line or from a Git
+client application).
+
+To create a new branch through the user interface:
+
+1. Visit **Repository > Branches**.
+1. Click on **New branch**.
+1. Fill in the branch name and select an existing branch, tag, or commit that
+   the new branch will be based off. Only existing protected branches and commits
+   that are already in protected branches will be accepted.
 
 ## Deleting a protected branch
 
@@ -137,6 +156,10 @@ See [Security on protected branches](../../ci/pipelines.md#security-on-protected
 for details about the pipelines security model.
 
 ## Changelog
+
+**11.9**
+
+- [Allow protected branches to be created](https://gitlab.com/gitlab-org/gitlab-ce/issues/53361) by Developers (and users with higher permission levels) through the API and the user interface.
 
 **9.2**
 

@@ -1,4 +1,6 @@
 import { parseIntPagination, normalizeHeaders } from '~/lib/utils/common_utils';
+import { setDeployBoard } from 'ee_else_ce/environments/stores/helpers';
+
 /**
  * Environments Store.
  *
@@ -20,7 +22,8 @@ export default class EnvironmentsStore {
    *
    * Stores the received environments.
    *
-   * In the main environments endpoint, each environment has the following schema
+   * In the main environments endpoint (with { nested: true } in params), each folder
+   * has the following schema:
    * { name: String, size: Number, latest: Object }
    * In the endpoint to retrieve environments from each folder, the environment does
    * not have the `latest` key and the data is all in the root level.
@@ -42,9 +45,9 @@ export default class EnvironmentsStore {
    * @returns {Array}
    */
   storeEnvironments(environments = []) {
-    const filteredEnvironments = environments.map((env) => {
-      const oldEnvironmentState = this.state.environments
-        .find((element) => {
+    const filteredEnvironments = environments.map(env => {
+      const oldEnvironmentState =
+        this.state.environments.find(element => {
           if (env.latest) {
             return element.id === env.latest.id;
           }
@@ -70,17 +73,7 @@ export default class EnvironmentsStore {
         filtered = Object.assign(filtered, env);
       }
 
-      if (filtered.size === 1 && filtered.rollout_status) {
-        filtered = Object.assign({}, filtered, {
-          hasDeployBoard: true,
-          isDeployBoardVisible: oldEnvironmentState.isDeployBoardVisible === false ?
-            oldEnvironmentState.isDeployBoardVisible :
-            true,
-          deployBoardData: filtered.rollout_status.status === 'found' ? filtered.rollout_status : {},
-          isLoadingDeployBoard: filtered.rollout_status.status === 'loading',
-          isEmptyDeployBoard: filtered.rollout_status.status === 'not_found',
-        });
-      }
+      filtered = setDeployBoard(oldEnvironmentState, filtered);
       return filtered;
     });
 
@@ -133,12 +126,12 @@ export default class EnvironmentsStore {
     return count;
   }
 
-  /*
-    * Toggles folder open property for the given folder.
-    *
-    * @param  {Object} folder
-    * @return {Array}
-    */
+  /**
+   * Toggles folder open property for the given folder.
+   *
+   * @param  {Object} folder
+   * @return {Array}
+   */
   toggleFolder(folder) {
     return this.updateEnvironmentProp(folder, 'isOpen', !folder.isOpen);
   }
@@ -152,7 +145,7 @@ export default class EnvironmentsStore {
    * @return {Object}
    */
   setfolderContent(folder, environments) {
-    const updatedEnvironments = environments.map((env) => {
+    const updatedEnvironments = environments.map(env => {
       let updated = env;
 
       if (env.latest) {
@@ -181,7 +174,7 @@ export default class EnvironmentsStore {
   updateEnvironmentProp(environment, prop, newValue) {
     const { environments } = this.state;
 
-    const updatedEnvironments = environments.map((env) => {
+    const updatedEnvironments = environments.map(env => {
       const updateEnv = Object.assign({}, env);
       if (env.id === environment.id) {
         updateEnv[prop] = newValue;
@@ -197,26 +190,5 @@ export default class EnvironmentsStore {
     const { environments } = this.state;
 
     return environments.filter(env => env.isFolder && env.isOpen);
-  }
-
-  /**
-   * Toggles deploy board visibility for the provided environment ID.
-   *
-   * @param  {Object} environment
-   * @return {Array}
-   */
-  toggleDeployBoard(environmentID) {
-    const environments = this.state.environments.slice();
-
-    this.state.environments = environments.map((env) => {
-      let updated = Object.assign({}, env);
-
-      if (env.id === environmentID) {
-        updated = Object.assign({}, updated, { isDeployBoardVisible: !env.isDeployBoardVisible });
-      }
-      return updated;
-    });
-
-    return this.state.environments;
   }
 }

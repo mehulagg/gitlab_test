@@ -36,21 +36,44 @@ describe API::Issues, :mailer do
         expect(response).to have_gitlab_http_status(200)
         expect(response).to match_response_schema('public_api/v4/issues', dir: 'ee')
       end
+
+      describe "filtering by weight" do
+        let!(:issue1) { create(:issue, author: user2, project: project, weight: 1, created_at: 3.days.ago) }
+        let!(:issue2) { create(:issue, author: user2, project: project, weight: 5, created_at: 2.days.ago) }
+        let!(:issue3) { create(:issue, author: user2, project: project, weight: 3, created_at: 1.day.ago) }
+
+        it 'returns issues with specific weight' do
+          get api('/issues', user), params: { weight: 5, scope: 'all' }
+
+          expect_paginated_array_response(issue2.id)
+        end
+
+        it 'returns issues with no weight' do
+          get api('/issues', user), params: { weight: 'None', scope: 'all' }
+
+          expect_paginated_array_response(issue.id)
+        end
+
+        it 'returns issues with any weight' do
+          get api('/issues', user), params: { weight: 'Any', scope: 'all' }
+
+          expect_paginated_array_response([issue3.id, issue2.id, issue1.id])
+        end
+      end
     end
   end
 
   describe "POST /projects/:id/issues" do
     it 'creates a new project issue' do
       post api("/projects/#{project.id}/issues", user),
-        title: 'new issue', labels: 'label, label2', weight: 3,
-        assignee_ids: [user2.id]
+        params: { title: 'new issue', labels: 'label, label2', weight: 101, assignee_ids: [user2.id] }
 
       expect(response).to have_gitlab_http_status(201)
       expect(json_response['title']).to eq('new issue')
       expect(json_response['description']).to be_nil
       expect(json_response['labels']).to eq(%w(label label2))
       expect(json_response['confidential']).to be_falsy
-      expect(json_response['weight']).to eq(3)
+      expect(json_response['weight']).to eq(101)
       expect(json_response['assignee']['name']).to eq(user2.name)
       expect(json_response['assignees'].first['name']).to eq(user2.name)
     end
@@ -58,38 +81,31 @@ describe API::Issues, :mailer do
 
   describe 'PUT /projects/:id/issues/:issue_id to update weight' do
     it 'updates an issue with no weight' do
-      put api("/projects/#{project.id}/issues/#{issue.iid}", user), weight: 5
+      put api("/projects/#{project.id}/issues/#{issue.iid}", user), params: { weight: 101 }
 
       expect(response).to have_gitlab_http_status(200)
-      expect(json_response['weight']).to eq(5)
+      expect(json_response['weight']).to eq(101)
     end
 
     it 'removes a weight from an issue' do
       weighted_issue = create(:issue, project: project, weight: 2)
 
-      put api("/projects/#{project.id}/issues/#{weighted_issue.iid}", user), weight: nil
+      put api("/projects/#{project.id}/issues/#{weighted_issue.iid}", user), params: { weight: nil }
 
       expect(response).to have_gitlab_http_status(200)
       expect(json_response['weight']).to be_nil
     end
 
     it 'returns 400 if weight is less than minimum weight' do
-      put api("/projects/#{project.id}/issues/#{issue.iid}", user), weight: -1
+      put api("/projects/#{project.id}/issues/#{issue.iid}", user), params: { weight: -1 }
 
       expect(response).to have_gitlab_http_status(400)
-      expect(json_response['error']).to eq('weight does not have a valid value')
-    end
-
-    it 'returns 400 if weight is more than maximum weight' do
-      put api("/projects/#{project.id}/issues/#{issue.iid}", user), weight: 10
-
-      expect(response).to have_gitlab_http_status(400)
-      expect(json_response['error']).to eq('weight does not have a valid value')
+      expect(json_response['message']['weight']).to be_present
     end
 
     it 'adds a note when the weight is changed' do
       expect do
-        put api("/projects/#{project.id}/issues/#{issue.iid}", user), weight: 9
+        put api("/projects/#{project.id}/issues/#{issue.iid}", user), params: { weight: 9 }
       end.to change { Note.count }.by(1)
 
       expect(response).to have_gitlab_http_status(200)
@@ -102,19 +118,12 @@ describe API::Issues, :mailer do
       end
 
       it 'ignores the update' do
-        put api("/projects/#{project.id}/issues/#{issue.iid}", user), weight: 5
+        put api("/projects/#{project.id}/issues/#{issue.iid}", user), params: { weight: 5 }
 
         expect(response).to have_gitlab_http_status(200)
         expect(json_response['weight']).to be_nil
         expect(issue.reload.read_attribute(:weight)).to be_nil
       end
     end
-  end
-
-  def expect_paginated_array_response(size: nil)
-    expect(response).to have_gitlab_http_status(200)
-    expect(response).to include_pagination_headers
-    expect(json_response).to be_an Array
-    expect(json_response.length).to eq(size) if size
   end
 end

@@ -1,6 +1,7 @@
+# frozen_string_literal: true
+
 class Projects::ImportsController < Projects::ApplicationController
   include ContinueParams
-  include SafeMirrorParams
 
   # Authorize
   before_action :authorize_admin_project!
@@ -12,8 +13,8 @@ class Projects::ImportsController < Projects::ApplicationController
   end
 
   def create
-    if @project.update(safe_import_params)
-      @project.reload.import_schedule
+    if @project.update(import_params)
+      @project.import_state.reset.schedule
     end
 
     redirect_to project_import_path(@project)
@@ -21,7 +22,7 @@ class Projects::ImportsController < Projects::ApplicationController
 
   def show
     if @project.import_finished?
-      if continue_params
+      if continue_params&.key?(:to)
         redirect_to continue_params[:to], notice: continue_params[:notice]
       else
         redirect_to project_path(@project), notice: finished_notice
@@ -41,9 +42,9 @@ class Projects::ImportsController < Projects::ApplicationController
 
   def finished_notice
     if @project.forked?
-      'The project was successfully forked.'
+      _('The project was successfully forked.')
     else
-      'The project was successfully imported.'
+      _('The project was successfully imported.')
     end
   end
 
@@ -65,13 +66,13 @@ class Projects::ImportsController < Projects::ApplicationController
     end
   end
 
-  def import_params
-    params.require(:project).permit(:import_url, :mirror, :mirror_user_id)
+  def import_params_attributes
+    [:import_url]
   end
 
-  def safe_import_params
-    return import_params if valid_mirror_user?(import_params)
-
-    import_params.merge(mirror_user_id: current_user.id)
+  def import_params
+    params.require(:project).permit(import_params_attributes)
   end
 end
+
+Projects::ImportsController.prepend(EE::Projects::ImportsController)

@@ -27,15 +27,20 @@ describe('DropdownValueCollapsedComponent', () => {
 
   describe('computed', () => {
     describe('labelsList', () => {
-      it('returns empty text when `labels` prop is empty array', () => {
+      it('returns default text when `labels` prop is empty array', () => {
         const vmEmptyLabels = createComponent([]);
+
         expect(vmEmptyLabels.labelsList).toBe('Labels');
         vmEmptyLabels.$destroy();
       });
 
       it('returns labels names separated by coma when `labels` prop has more than one item', () => {
-        const vmMoreLabels = createComponent(mockLabels.concat(mockLabels));
-        expect(vmMoreLabels.labelsList).toBe('Foo Label, Foo Label');
+        const labels = mockLabels.concat(mockLabels);
+        const vmMoreLabels = createComponent(labels);
+
+        const expectedText = labels.map(label => label.title).join(', ');
+
+        expect(vmMoreLabels.labelsList).toBe(expectedText);
         vmMoreLabels.$destroy();
       });
 
@@ -46,12 +51,20 @@ describe('DropdownValueCollapsedComponent', () => {
         }
 
         const vmMoreLabels = createComponent(mockMoreLabels);
-        expect(vmMoreLabels.labelsList).toBe('Foo Label, Foo Label, Foo Label, Foo Label, Foo Label, and 2 more');
+
+        const expectedText = `${mockMoreLabels
+          .slice(0, 5)
+          .map(label => label.title)
+          .join(', ')}, and ${mockMoreLabels.length - 5} more`;
+
+        expect(vmMoreLabels.labelsList).toBe(expectedText);
         vmMoreLabels.$destroy();
       });
 
       it('returns first label name when `labels` prop has only one item present', () => {
-        expect(vm.labelsList).toBe('Foo Label');
+        const text = mockLabels.map(label => label.title).join(', ');
+
+        expect(vm.labelsList).toBe(text);
       });
     });
   });
@@ -61,6 +74,7 @@ describe('DropdownValueCollapsedComponent', () => {
       it('emits onValueClick event on component', () => {
         spyOn(vm, '$emit');
         vm.handleClick();
+
         expect(vm.$emit).toHaveBeenCalledWith('onValueClick');
       });
     });

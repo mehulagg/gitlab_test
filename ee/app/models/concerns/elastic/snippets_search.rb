@@ -1,25 +1,11 @@
+# frozen_string_literal: true
+
 module Elastic
   module SnippetsSearch
     extend ActiveSupport::Concern
 
     included do
       include ApplicationSearch
-
-      mappings do
-        indexes :id,               type: :integer
-        indexes :title,            type: :text,
-                                   index_options: 'offsets'
-        indexes :file_name,        type: :text,
-                                   index_options: 'offsets'
-        indexes :content,          type: :text,
-                                   index_options: 'offsets'
-        indexes :created_at,       type: :date
-        indexes :updated_at,       type: :date
-        indexes :state,            type: :text
-        indexes :project_id,       type: :integer
-        indexes :author_id,        type: :integer
-        indexes :visibility_level, type: :integer
-      end
 
       def as_indexed_json(options = {})
         # We don't use as_json(only: ...) because it calls all virtual and serialized attributtes
@@ -40,7 +26,14 @@ module Elastic
           data[attr.to_s] = safely_read_attribute_for_elasticsearch(attr)
         end
 
+        # ES6 is now single-type per index, so we implement our own typing
+        data['type'] = es_type
+
         data
+      end
+
+      def use_elasticsearch?
+        ::Gitlab::CurrentSettings.elasticsearch_indexing?
       end
 
       def self.elastic_search(query, options: {})

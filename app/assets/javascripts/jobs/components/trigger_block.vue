@@ -1,84 +1,78 @@
 <script>
-  export default {
-    props: {
-      shortToken: {
-        type: String,
-        required: false,
-        default: null,
-      },
+import { __ } from '~/locale';
+import { GlButton } from '@gitlab/ui';
 
-      variables: {
-        type: Object,
-        required: false,
-        default: () => ({}),
-      },
+const HIDDEN_VALUE = '••••••';
+
+export default {
+  components: {
+    GlButton,
+  },
+  props: {
+    trigger: {
+      type: Object,
+      required: true,
     },
-    data() {
-      return {
-        areVariablesVisible: false,
-      };
+  },
+  data() {
+    return {
+      showVariableValues: false,
+    };
+  },
+  computed: {
+    hasVariables() {
+      return this.trigger.variables && this.trigger.variables.length > 0;
     },
-    computed: {
-      hasVariables() {
-        return Object.keys(this.variables).length > 0;
-      },
+    getToggleButtonText() {
+      return this.showVariableValues ? __('Hide values') : __('Reveal values');
     },
-    methods: {
-      revealVariables() {
-        this.areVariablesVisible = true;
-      },
+    hasValues() {
+      return this.trigger.variables.some(v => v.value);
     },
-  };
+  },
+  methods: {
+    toggleValues() {
+      this.showVariableValues = !this.showVariableValues;
+    },
+    getDisplayValue(value) {
+      return this.showVariableValues ? value : HIDDEN_VALUE;
+    },
+  },
+};
 </script>
 
 <template>
   <div class="build-widget block">
-    <h4 class="title">
-      {{ __('Trigger') }}
-    </h4>
-
     <p
-      v-if="shortToken"
+      v-if="trigger.short_token"
       class="js-short-token"
+      :class="{ 'append-bottom-5': hasVariables, 'append-bottom-0': !hasVariables }"
     >
-      <span class="build-light-text">
-        {{ __('Token') }}
-      </span>
-      {{ shortToken }}
+      <span class="font-weight-bold">{{ __('Trigger token:') }}</span> {{ trigger.short_token }}
     </p>
 
-    <p v-if="hasVariables">
-      <button
-        type="button"
-        class="btn btn-default group js-reveal-variables"
-        @click="revealVariables"
-      >
-        {{ __('Reveal Variables') }}
-      </button>
+    <template v-if="hasVariables">
+      <p class="trigger-variables-btn-container d-flex">
+        <span class="font-weight-bold">{{ __('Trigger variables:') }}</span>
 
-    </p>
-
-    <dl
-      v-if="areVariablesVisible"
-      class="js-build-variables trigger-build-variables"
-    >
-      <template
-        v-for="(value, key) in variables"
-      >
-        <dt
-          :key="`${key}-variable`"
-          class="js-build-variable trigger-build-variable"
+        <gl-button
+          v-if="hasValues"
+          class="btn-sm group js-reveal-variables trigger-variables-btn"
+          @click="toggleValues"
+          >{{ getToggleButtonText }}</gl-button
         >
-          {{ key }}
-        </dt>
+      </p>
 
-        <dd
-          :key="`${key}-value`"
-          class="js-build-value trigger-build-value"
-        >
-          {{ value }}
-        </dd>
-      </template>
-    </dl>
+      <table class="js-build-variables trigger-build-variables">
+        <tr v-for="(variable, index) in trigger.variables" :key="`${variable.key}-${index}`">
+          <td class="js-build-variable trigger-build-variable trigger-variables-table-cell">
+            {{ variable.key }}
+          </td>
+          <td class="js-build-value trigger-build-value trigger-variables-table-cell">
+            {{ getDisplayValue(variable.value) }}
+          </td>
+        </tr>
+      </table>
+    </template>
   </div>
 </template>

@@ -1,28 +1,28 @@
 # Webhooks
 
->**Note:**
-Starting from GitLab 8.5:
-- the `repository` key is deprecated in favor of the `project` key
-- the `project.ssh_url` key is deprecated in favor of the `project.git_ssh_url` key
-- the `project.http_url` key is deprecated in favor of the `project.git_http_url` key
-
->**Note:**
-Starting from GitLab 11.1, the logs of web hooks are automatically removed after
-one month.
-
->**Note**
-Starting from GitLab 11.2:
-- The `description` field for issues, merge requests, comments, and wiki pages
-  is rewritten so that simple Markdown image references (like
-  `![](/uploads/...)`) have their target URL changed to an absolute URL. See
-  [image URL rewriting](#image-url-rewriting) for more details.
+> **Note:**
+> Starting from GitLab 8.5:
+> - the `repository` key is deprecated in favor of the `project` key
+> - the `project.ssh_url` key is deprecated in favor of the `project.git_ssh_url` key
+> - the `project.http_url` key is deprecated in favor of the `project.git_http_url` key
+>
+> **Note:**
+> Starting from GitLab 11.1, the logs of webhooks are automatically removed after
+> one month.
+>
+> **Note:**
+> Starting from GitLab 11.2:
+> - The `description` field for issues, merge requests, comments, and wiki pages
+>   is rewritten so that simple Markdown image references (like
+>   `![](/uploads/...)`) have their target URL changed to an absolute URL. See
+>   [image URL rewriting](#image-url-rewriting) for more details.
 
 Project webhooks allow you to trigger a URL if for example new code is pushed or
 a new issue is created. You can configure webhooks to listen for specific events
 like pushes, issues or merge requests. GitLab will send a POST request with data
 to the webhook URL.
 
-In most cases, you'll need to setup your own [webhook receiver](#example-webhook-receiver)
+In most cases, you'll need to set up your own [webhook receiver](#example-webhook-receiver)
 to receive information from GitLab, and send it to another app, according to your needs.
 We already have a [built-in receiver](http://docs.gitlab.com/ce/project_services/slack.html)
 for sending [Slack](https://api.slack.com/incoming-webhooks) notifications _per project_.
@@ -47,10 +47,10 @@ Navigate to the webhooks page by going to your project's
 
 ## Use-cases
 
-- You can setup a webhook in GitLab to send a notification to
-[Slack](https://api.slack.com/incoming-webhooks) every time a build fails, for example
+- You can set up a webhook in GitLab to send a notification to
+  [Slack](https://api.slack.com/incoming-webhooks) every time a job fails.
 - You can [integrate with Twilio to be notified via SMS](https://www.datadoghq.com/blog/send-alerts-sms-customizable-webhooks-twilio/)
-every time an issue is created for a specific project or group within GitLab
+  every time an issue is created for a specific project or group within GitLab
 - You can use them to [automatically assign labels to merge requests](https://about.gitlab.com/2016/08/19/applying-gitlab-labels-automatically/).
 
 ## Webhook endpoint tips
@@ -82,6 +82,14 @@ You can turn this off in the webhook settings in your GitLab projects.
 
 ![SSL Verification](img/webhooks_ssl.png)
 
+## Branch filtering
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/20338) in GitLab 11.3.
+
+Push events can be filtered by branch using a branch name or wildcard pattern
+to limit which push events are sent to your webhook endpoint. By default the
+field is blank causing all push events to be sent to your webhook endpoint.
+
 ## Events
 
 Below are described the supported events.
@@ -90,7 +98,7 @@ Below are described the supported events.
 
 Triggered when you push to the repository except when pushing tags.
 
-> **Note:** When more than 20 commits are pushed at once, the `commits` web hook
+> **Note:** When more than 20 commits are pushed at once, the `commits` webhook
   attribute will only contain the first 20 for performance reasons. Loading
   detailed commit data is expensive. Note that despite only 20 commits being
   present in the `commits` attribute, the `total_commits_count` attribute will
@@ -345,7 +353,7 @@ X-Gitlab-Event: Issue Hook
 }
 ```
 
-**Note**: `assignee` and `assignee_id` keys are deprecated and now show the first assignee only.
+> **Note**: `assignee` and `assignee_id` keys are deprecated and now show the first assignee only.
 
 ### Comment events
 
@@ -355,10 +363,10 @@ payload will also include information about the target of the comment. For examp
 a comment on an issue will include the specific issue information under the `issue` key.
 Valid target types:
 
-1. `commit`
-2. `merge_request`
-3. `issue`
-4. `snippet`
+- `commit`
+- `merge_request`
+- `issue`
+- `snippet`
 
 #### Comment on commit
 
@@ -644,7 +652,7 @@ X-Gitlab-Event: Note Hook
 }
 ```
 
-**Note**: `assignee_id` field is deprecated and now shows the first assignee only.
+> **Note**: `assignee_id` field is deprecated and now shows the first assignee only.
 
 #### Comment on code snippet
 
@@ -960,7 +968,13 @@ X-Gitlab-Event: Pipeline Hook
       ],
       "created_at": "2016-08-12 15:23:28 UTC",
       "finished_at": "2016-08-12 15:26:29 UTC",
-      "duration": 63
+      "duration": 63,
+      "variables": [
+        {
+          "key": "NESTOR_PROD_ENVIRONMENT",
+          "value": "us-west-1"
+        }
+      ]
    },
    "user":{
       "name": "Administrator",
@@ -990,7 +1004,7 @@ X-Gitlab-Event: Pipeline Hook
          "email": "user@gitlab.com"
       }
    },
-   "builds":[
+   "jobs":[
       {
          "id": 380,
          "stage": "deploy",
@@ -1027,7 +1041,12 @@ X-Gitlab-Event: Pipeline Hook
             "username": "root",
             "avatar_url": "http://www.gravatar.com/avatar/e32bd13e2add097461cb96824b7a829c?s=80\u0026d=identicon"
          },
-         "runner": null,
+         "runner": {
+            "id":380987,
+            "description":"shared-runners-manager-6.gitlab.com",
+            "active":true,
+            "is_shared":true
+         },
          "artifacts_file":{
             "filename": null,
             "size": null
@@ -1048,7 +1067,12 @@ X-Gitlab-Event: Pipeline Hook
             "username": "root",
             "avatar_url": "http://www.gravatar.com/avatar/e32bd13e2add097461cb96824b7a829c?s=80\u0026d=identicon"
          },
-         "runner": null,
+         "runner": {
+            "id":380987,
+            "description":"shared-runners-manager-6.gitlab.com",
+            "active":true,
+            "is_shared":true
+         },
          "artifacts_file":{
             "filename": null,
             "size": null
@@ -1069,7 +1093,12 @@ X-Gitlab-Event: Pipeline Hook
             "username": "root",
             "avatar_url": "http://www.gravatar.com/avatar/e32bd13e2add097461cb96824b7a829c?s=80\u0026d=identicon"
          },
-         "runner": null,
+         "runner": {
+            "id":380987,
+            "description":"shared-runners-manager-6.gitlab.com",
+            "active":true,
+            "is_shared":true
+         },
          "artifacts_file":{
             "filename": null,
             "size": null
@@ -1100,33 +1129,34 @@ X-Gitlab-Event: Pipeline Hook
 }
 ```
 
-### Build events
+### Job events
 
-Triggered on status change of a Build.
+Triggered on status change of a job.
 
 **Request Header**:
 
 ```
-X-Gitlab-Event: Build Hook
+X-Gitlab-Event: Job Hook
 ```
 
 **Request Body**:
 
 ```json
 {
-  "object_kind": "build",
+  "object_kind": "job",
   "ref": "gitlab-script-trigger",
   "tag": false,
   "before_sha": "2293ada6b400935a1378653304eaf6221e0fdb8f",
   "sha": "2293ada6b400935a1378653304eaf6221e0fdb8f",
-  "build_id": 1977,
-  "build_name": "test",
-  "build_stage": "test",
-  "build_status": "created",
-  "build_started_at": null,
-  "build_finished_at": null,
-  "build_duration": null,
-  "build_allow_failure": false,
+  "job_id": 1977,
+  "job_name": "test",
+  "job_stage": "test",
+  "job_status": "created",
+  "job_started_at": null,
+  "job_finished_at": null,
+  "job_duration": null,
+  "job_allow_failure": false,
+  "job_failure_reason": "script_failure",
   "project_id": 380,
   "project_name": "gitlab-org/gitlab-test",
   "user": {
@@ -1167,10 +1197,11 @@ its description:
 ```
 
 It will appear in the webhook body as the below (assuming that GitLab is
-installed at gitlab.example.com):
+installed at gitlab.example.com, and the project is at
+example-group/example-project):
 
 ```markdown
-![image](https://gitlab.example.com/uploads/$sha/image.png)
+![image](https://gitlab.example.com/example-group/example-project/uploads/$sha/image.png)
 ```
 
 This will not rewrite URLs that already are pointing to HTTP, HTTPS, or
@@ -1186,7 +1217,7 @@ You can trigger the webhook manually. Sample data from the project will be used.
 
 ## Troubleshoot webhooks
 
-Gitlab stores each perform of the webhook.
+GitLab stores each perform of the webhook.
 You can find records for last 2 days in "Recent Deliveries" section on the edit page of each webhook.
 
 ![Recent deliveries](img/webhook_logs.png)
@@ -1198,9 +1229,9 @@ On this page, you can see data that GitLab sends (request headers and body) and 
 
 From this page, you can repeat delivery with the same data by clicking `Resend Request` button.
 
->**Note:** If URL or secret token of the webhook were updated, data will be delivered to the new address.
+> **Note:** If URL or secret token of the webhook were updated, data will be delivered to the new address.
 
-### Receiving duplicate or multiple web hook requests triggered by one event
+### Receiving duplicate or multiple webhook requests triggered by one event
 
 When GitLab sends a webhook it expects a response in 10 seconds (set default value). If it does not receive one, it'll retry the webhook.
 If the endpoint doesn't send its HTTP response within those 10 seconds, GitLab may decide the hook failed and retry it.
@@ -1211,6 +1242,15 @@ by uncommenting or adding the following setting to your `/etc/gitlab/gitlab.rb`:
 ```
 gitlab_rails['webhook_timeout'] = 10
 ```
+
+### Troubleshooting: "Unable to get local issuer certificate"
+
+When SSL verification is enabled, this error indicates that GitLab isn't able to verify the SSL certificate of the webhook endpoint.
+Typically, this is because the root certificate isn't issued by a trusted certification authority as
+determined by [CAcert.org](http://www.cacert.org/).
+
+Should that not be the case, consider using [SSL Checker](https://www.sslshopper.com/ssl-checker.html) to identify faults.
+Missing intermediate certificates are a common point of verification failure.
 
 ## Example webhook receiver
 

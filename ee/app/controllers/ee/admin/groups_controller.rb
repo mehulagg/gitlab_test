@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # rubocop:disable Gitlab/ModuleWithInstanceVariables
 module EE
   module Admin
@@ -6,9 +8,9 @@ module EE
         group
 
         if ClearNamespaceSharedRunnersMinutesService.new(@group).execute
-          redirect_to [:admin, @group], notice: 'Group pipeline minutes were successfully reset.'
+          redirect_to [:admin, @group], notice: _('Group pipeline minutes were successfully reset.')
         else
-          flash.now[:error] = 'There was an error resetting group pipeline minutes.'
+          flash.now[:error] = _('There was an error resetting group pipeline minutes.')
           render "edit"
         end
       end
@@ -19,10 +21,8 @@ module EE
         super + [
           :repository_size_limit,
           :shared_runners_minutes_limit,
-          :plan_id
-        ].tap do |params_ee|
-          params_ee << :project_creation_level if @group&.feature_available?(:project_creation_level)
-        end
+          gitlab_subscription_attributes: [:hosted_plan_id]
+        ]
       end
     end
   end

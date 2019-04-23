@@ -1,20 +1,13 @@
 require 'spec_helper'
 
 describe EnvironmentEntity do
-  include KubernetesHelpers
-
-  let(:user) { create(:user) }
-  let(:environment) { create(:environment) }
-
+  let(:request) { double('request') }
   let(:entity) do
-    described_class.new(environment, request: double(current_user: user))
+    described_class.new(environment, request: spy('request'))
   end
 
+  let(:environment) { create(:environment) }
   subject { entity.as_json }
-
-  before do
-    environment.project.add_maintainer(user)
-  end
 
   it 'exposes latest deployment' do
     expect(subject).to include(:last_deployment)
@@ -48,26 +41,33 @@ describe EnvironmentEntity do
     end
   end
 
-  context 'with deployment service ready' do
-    before do
-      stub_licensed_features(deploy_board: true)
-      allow(environment).to receive(:has_terminals?).and_return(true)
-      allow(environment).to receive(:rollout_status).and_return(kube_deployment_rollout_status)
+  context 'with deployment platform' do
+    let(:project) { create(:project, :repository) }
+    let(:environment) { create(:environment, project: project) }
+
+    context 'when deployment platform is a cluster' do
+      before do
+        create(:cluster,
+               :provided_by_gcp,
+               :project,
+               environment_scope: '*',
+               projects: [project])
+      end
+
+      it 'includes cluster_type' do
+        expect(subject).to include(:cluster_type)
+        expect(subject[:cluster_type]).to eq('project_type')
+      end
     end
 
-    it 'exposes rollout_status' do
-      expect(subject).to include(:rollout_status)
-    end
-  end
+    context 'when deployment platform is a Kubernetes Service' do
+      before do
+        create(:kubernetes_service, project: project)
+      end
 
-  context 'when license does not has the GitLab_DeployBoard add-on' do
-    before do
-      stub_licensed_features(deploy_board: false)
-      allow(environment).to receive(:has_terminals?).and_return(true)
-    end
-
-    it 'does not expose rollout_status' do
-      expect(subject[:rollout_status_path]).to be_blank
+      it 'does not include cluster_type' do
+        expect(subject).not_to include(:cluster_type)
+      end
     end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # SAML extension for User model
 #
 # * Find GitLab user based on SAML uid and provider
@@ -7,7 +9,7 @@ module Gitlab
   module Auth
     module Saml
       class User < Gitlab::Auth::OAuth::User
-        prepend ::EE::Gitlab::Auth::Saml::User
+        prepend ::EE::Gitlab::Auth::Saml::User # rubocop: disable Cop/InjectEnterpriseEditionModule
 
         extend ::Gitlab::Utils::Override
 

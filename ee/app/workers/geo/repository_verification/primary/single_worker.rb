@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Geo
   module RepositoryVerification
     module Primary
@@ -10,6 +12,7 @@ module Geo
 
         attr_reader :project
 
+        # rubocop: disable CodeReuse/ActiveRecord
         def perform(project_id)
           return unless Gitlab::Geo.primary?
 
@@ -20,6 +23,7 @@ module Geo
             Geo::RepositoryVerificationPrimaryService.new(project).execute
           end
         end
+        # rubocop: enable CodeReuse/ActiveRecord
 
         private
 

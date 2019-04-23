@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Geo
   # This class is responsible for:
   #   * Finding the appropriate Downloader class for a FileRegistry record
@@ -47,9 +49,10 @@ module Geo
       log_info("File download", metadata)
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def update_registry(bytes_downloaded, mark_as_synced:, missing_on_primary: false)
       registry =
-        if object_type.to_sym == :job_artifact
+        if job_artifact?
           Geo::JobArtifactRegistry.find_or_initialize_by(artifact_id: object_db_id)
         else
           Geo::FileRegistry.find_or_initialize_by(
@@ -67,7 +70,7 @@ module Geo
       if retry_later
         # We don't limit the amount of retries
         registry.retry_count = (registry.retry_count || 0) + 1
-        registry.retry_at = Time.now + delay(registry.retry_count).seconds
+        registry.retry_at = next_retry_time(registry.retry_count)
       else
         registry.retry_count = 0
         registry.retry_at = nil
@@ -75,6 +78,7 @@ module Geo
 
       registry.save
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def lease_key
       "file_download_service:#{object_type}:#{object_db_id}"

@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 module Geo
-  class RepositoryDeletedEvent < ActiveRecord::Base
+  class RepositoryDeletedEvent < ApplicationRecord
     include Geo::Model
+    include Geo::Eventable
 
     belongs_to :project
 

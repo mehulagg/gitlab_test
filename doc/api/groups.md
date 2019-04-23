@@ -37,6 +37,7 @@ GET /groups
     "request_access_enabled": false,
     "full_name": "Foobar Group",
     "full_path": "foo-bar",
+    "file_template_project_id": 1,
     "parent_id": null
   }
 ]
@@ -62,6 +63,7 @@ GET /groups?statistics=true
     "request_access_enabled": false,
     "full_name": "Foobar Group",
     "full_path": "foo-bar",
+    "file_template_project_id": 1,
     "parent_id": null,
     "statistics": {
       "storage_size" : 212,
@@ -82,7 +84,7 @@ You can filter by [custom attributes](custom_attributes.md) with:
 GET /groups?custom_attributes[key]=value&custom_attributes[other_key]=other_value
 ```
 
-## List a groups's subgroups
+## List a group's subgroups
 
 > [Introduced][ce-15142] in GitLab 10.3.
 
@@ -122,6 +124,7 @@ GET /groups/:id/subgroups
     "request_access_enabled": false,
     "full_name": "Foobar Group",
     "full_path": "foo-bar",
+    "file_template_project_id": 1,
     "parent_id": 123
   }
 ]
@@ -149,8 +152,10 @@ Parameters:
 | `simple` | boolean | no | Return only the ID, URL, name, and path of each project |
 | `owned` | boolean | no | Limit by projects owned by the current user |
 | `starred` | boolean | no | Limit by projects starred by the current user |
-| `with_issues_enabled` | boolean | no | Limit by enabled issues feature |
-| `with_merge_requests_enabled` | boolean | no | Limit by enabled merge requests feature |
+| `with_issues_enabled` | boolean | no | Limit by projects with issues feature enabled. Default is `false` |
+| `with_merge_requests_enabled` | boolean | no | Limit by projects with merge requests feature enabled. Default is `false` |
+| `with_shared` | boolean | no | Include projects shared to this group. Default is `true` |
+| `include_subgroups` | boolean | no | Include projects in subgroups of this group. Default is `false` |
 | `with_custom_attributes` | boolean | no | Include [custom attributes](custom_attributes.md) in response (admins only) |
 
 Example response:
@@ -215,7 +220,7 @@ Parameters:
 | `with_projects` | boolean | no | Include details from projects that belong to the specified group (defaults to `true`). |
 
 ```bash
-curl --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/groups/4
+curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/4
 ```
 
 Example response:
@@ -232,8 +237,10 @@ Example response:
   "request_access_enabled": false,
   "full_name": "Twitter",
   "full_path": "twitter",
+  "file_template_project_id": 1,
   "parent_id": null,
   "shared_runners_minutes_limit": 133,
+  "extra_shared_runners_minutes_limit": 133,
   "projects": [
     {
       "id": 7,
@@ -352,12 +359,16 @@ Example response:
         {
           "group_id": 4,
           "group_name": "Twitter",
-          "group_access_level": 30
+          "group_full_path": "twitter",
+          "group_access_level": 30,
+          "expires_at": null
         },
         {
           "group_id": 3,
           "group_name": "Gitlab Org",
-          "group_access_level": 10
+          "group_full_path": "gitlab-org",
+          "group_access_level": 10,
+          "expires_at": "2018-08-14"
         }
       ]
     }
@@ -368,7 +379,7 @@ Example response:
 When adding the parameter `with_projects=false`, projects will not be returned.
 
 ```bash
-curl --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/groups/4?with_projects=false
+curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/4?with_projects=false
 ```
 
 Example response:
@@ -385,6 +396,7 @@ Example response:
   "request_access_enabled": false,
   "full_name": "Twitter",
   "full_path": "twitter",
+  "file_template_project_id": 1,
   "parent_id": null
 }
 ```
@@ -409,6 +421,7 @@ Parameters:
 | `request_access_enabled` | boolean | no | Allow users to request member access. |
 | `parent_id` | integer | no | The parent group id for creating nested group. |
 | `shared_runners_minutes_limit` | integer | no | (admin-only) Pipeline minutes quota for this group. |
+| `extra_shared_runners_minutes_limit` | integer | no | (admin-only) Extra pipeline minutes quota for this group. |
 
 ## Transfer project to group
 
@@ -444,10 +457,12 @@ PUT /groups/:id
 | `visibility` | string | no | The visibility level of the group. Can be `private`, `internal`, or `public`. |
 | `lfs_enabled` (optional) | boolean | no | Enable/disable Large File Storage (LFS) for the projects in this group |
 | `request_access_enabled` | boolean | no | Allow users to request member access. |
+| `file_template_project_id` | integer | no | **(Premium)** The ID of a project to load custom file templates from |
 | `shared_runners_minutes_limit` | integer | no | (admin-only) Pipeline minutes quota for this group |
+| `extra_shared_runners_minutes_limit` | integer | no | (admin-only) Extra pipeline minutes quota for this group |
 
 ```bash
-curl --request PUT --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" "https://gitlab.example.com/api/v4/groups/5?name=Experimental"
+curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/5?name=Experimental"
 
 ```
 
@@ -465,6 +480,7 @@ Example response:
   "request_access_enabled": false,
   "full_name": "Foobar Group",
   "full_path": "foo-bar",
+  "file_template_project_id": 1,
   "parent_id": null,
   "projects": [
     {

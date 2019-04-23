@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
 module EE
   module Projects
     module LfsApiController
       extend ::Gitlab::Utils::Override
+      include GitlabRoutingHelper
 
       override :batch_operation_disallowed?
       def batch_operation_disallowed?

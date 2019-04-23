@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Geo
   class NodeUpdateService
     attr_reader :geo_node, :old_namespace_ids, :old_shards, :params
@@ -15,7 +17,7 @@ module Geo
     def execute
       return false unless geo_node.update(params)
 
-      Geo::RepositoriesChangedEventStore.new(geo_node).create if selective_sync_changed?
+      Geo::RepositoriesChangedEventStore.new(geo_node).create! if selective_sync_changed?
 
       true
     end

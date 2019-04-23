@@ -2,15 +2,46 @@ require 'spec_helper'
 
 RSpec.describe Geo::EventLog, type: :model do
   describe 'relationships' do
+    it { is_expected.to belong_to(:cache_invalidation_event).class_name('Geo::CacheInvalidationEvent').with_foreign_key('cache_invalidation_event_id') }
     it { is_expected.to belong_to(:repositories_changed_event).class_name('Geo::RepositoriesChangedEvent').with_foreign_key('repositories_changed_event_id') }
     it { is_expected.to belong_to(:repository_created_event).class_name('Geo::RepositoryCreatedEvent').with_foreign_key('repository_created_event_id') }
     it { is_expected.to belong_to(:repository_deleted_event).class_name('Geo::RepositoryDeletedEvent').with_foreign_key('repository_deleted_event_id') }
     it { is_expected.to belong_to(:repository_renamed_event).class_name('Geo::RepositoryRenamedEvent').with_foreign_key('repository_renamed_event_id') }
     it { is_expected.to belong_to(:repository_updated_event).class_name('Geo::RepositoryUpdatedEvent').with_foreign_key('repository_updated_event_id') }
+    it { is_expected.to belong_to(:reset_checksum_event).class_name('Geo::ResetChecksumEvent').with_foreign_key('reset_checksum_event_id') }
     it { is_expected.to belong_to(:hashed_storage_migrated_event).class_name('Geo::HashedStorageMigratedEvent').with_foreign_key('hashed_storage_migrated_event_id') }
     it { is_expected.to belong_to(:hashed_storage_attachments_event).class_name('Geo::HashedStorageAttachmentsEvent').with_foreign_key('hashed_storage_attachments_event_id') }
     it { is_expected.to belong_to(:lfs_object_deleted_event).class_name('Geo::LfsObjectDeletedEvent').with_foreign_key('lfs_object_deleted_event_id') }
     it { is_expected.to belong_to(:job_artifact_deleted_event).class_name('Geo::JobArtifactDeletedEvent').with_foreign_key('job_artifact_deleted_event_id') }
+  end
+
+  describe '.next_unprocessed_event' do
+    it 'returns next unprocessed event' do
+      processed_event = create(:geo_event_log)
+      unprocessed_event = create(:geo_event_log)
+      create(:geo_event_log_state, event_id: processed_event.id)
+
+      expect(described_class.next_unprocessed_event).to eq unprocessed_event
+    end
+
+    it 'returns the oldest event when there are no processed events yet' do
+      oldest_event = create(:geo_event_log)
+      create(:geo_event_log)
+
+      expect(described_class.next_unprocessed_event).to eq oldest_event
+    end
+
+    it 'returns nil when there are no events yet' do
+      expect(described_class.next_unprocessed_event).to be_nil
+    end
+  end
+
+  describe '.event_classes' do
+    it 'returns all event class reflections' do
+      reflections = described_class.reflections.map { |_k, v| v.class_name.constantize }
+
+      expect(described_class.event_classes).to contain_exactly(*reflections)
+    end
   end
 
   describe '#event' do
@@ -86,6 +117,20 @@ RSpec.describe Geo::EventLog, type: :model do
       subject.upload_deleted_event = upload_deleted_event
 
       expect(subject.event).to eq upload_deleted_event
+    end
+
+    it 'returns reset_checksum_event when set' do
+      reset_checksum_event = build(:geo_reset_checksum_event)
+      subject.reset_checksum_event = reset_checksum_event
+
+      expect(subject.event).to eq reset_checksum_event
+    end
+
+    it 'returns cache_invalidation_event when set' do
+      cache_invalidation_event = build(:geo_cache_invalidation_event)
+      subject.cache_invalidation_event = cache_invalidation_event
+
+      expect(subject.event).to eq cache_invalidation_event
     end
   end
 

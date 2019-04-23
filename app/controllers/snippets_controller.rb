@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SnippetsController < ApplicationController
   include RendersNotes
   include ToggleAwardEmoji
@@ -26,9 +28,7 @@ class SnippetsController < ApplicationController
 
   def index
     if params[:username].present?
-      @user = User.find_by(username: params[:username])
-
-      return render_404 unless @user
+      @user = UserFinder.new(params[:username]).find_by_username!
 
       @snippets = SnippetsFinder.new(current_user, author: @user, scope: params[:scope])
         .execute.page(params[:page])
@@ -80,7 +80,13 @@ class SnippetsController < ApplicationController
         render_blob_json(blob)
       end
 
-      format.js { render 'shared/snippets/show' }
+      format.js do
+        if @snippet.embeddable?
+          render 'shared/snippets/show'
+        else
+          head :not_found
+        end
+      end
     end
   end
 
@@ -94,9 +100,11 @@ class SnippetsController < ApplicationController
 
   protected
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def snippet
     @snippet ||= PersonalSnippet.inc_relations_for_view.find_by(id: params[:id])
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 
   alias_method :awardable, :snippet
   alias_method :spammable, :snippet

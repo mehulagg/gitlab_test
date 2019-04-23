@@ -29,7 +29,7 @@ class Projects::ManagedLicensesController < Projects::ApplicationController
     result = SoftwareLicensePolicies::CreateService.new(
       @project,
       current_user,
-      software_license_policies_params
+      software_license_policies_params.to_h
     ).execute
 
     if result[:status] == :success
@@ -52,7 +52,7 @@ class Projects::ManagedLicensesController < Projects::ApplicationController
     result = SoftwareLicensePolicies::UpdateService.new(
       @project,
       current_user,
-      software_license_policies_params
+      software_license_policies_params.to_h
     ).execute(@software_license_policy)
 
     if result[:status] == :success
@@ -84,7 +84,7 @@ class Projects::ManagedLicensesController < Projects::ApplicationController
   def software_license_policy
     id = params[:id]
     id = CGI.unescape(id) unless id.is_a?(Integer) || id =~ /^\d+$/
-    @software_license_policy ||= SoftwareLicensePoliciesFinder.new(current_user, project).find_by_name_or_id(id)
+    @software_license_policy ||= SoftwareLicensePoliciesFinder.new(current_user, project, name_or_id: id).find
 
     if @software_license_policy.nil?
       # The license was not found
@@ -93,7 +93,7 @@ class Projects::ManagedLicensesController < Projects::ApplicationController
   end
 
   def render_ok
-    render status: :ok, nothing: true
+    head :ok
   end
 
   def render_software_license_policy

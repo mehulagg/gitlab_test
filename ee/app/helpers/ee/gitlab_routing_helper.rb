@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module GitlabRoutingHelper
     include ::ProjectsHelper
@@ -29,45 +31,28 @@ module EE
       group_epic_path(entity.group, entity, *args)
     end
 
-    def sast_artifact_url(pipeline)
-      raw_project_build_artifacts_url(pipeline.project,
-                                      pipeline.sast_artifact,
-                                      path: Ci::Build::SAST_FILE)
-    end
-
-    def dependency_scanning_artifact_url(pipeline)
-      raw_project_build_artifacts_url(pipeline.project,
-                                      pipeline.dependency_scanning_artifact,
-                                      path: Ci::Build::DEPENDENCY_SCANNING_FILE)
-    end
-
-    # sast_container_artifact_url is deprecated and replaced with container_scanning_artifact_url (#5778)
-    def sast_container_artifact_url(pipeline)
-      raw_project_build_artifacts_url(pipeline.project,
-                                      pipeline.sast_container_artifact,
-                                      path: Ci::Build::SAST_CONTAINER_FILE)
-    end
-
-    def container_scanning_artifact_url(pipeline)
-      raw_project_build_artifacts_url(pipeline.project,
-                                      pipeline.container_scanning_artifact,
-                                      path: Ci::Build::CONTAINER_SCANNING_FILE)
-    end
-
-    def dast_artifact_url(pipeline)
-      raw_project_build_artifacts_url(pipeline.project,
-                                      pipeline.dast_artifact,
-                                      path: Ci::Build::DAST_FILE)
-    end
-
-    def license_management_artifact_url(pipeline)
-      raw_project_build_artifacts_url(pipeline.project,
-                                      pipeline.license_management_artifact,
-                                      path: Ci::Build::LICENSE_MANAGEMENT_FILE)
-    end
-
     def license_management_api_url(project)
       api_v4_projects_managed_licenses_path(id: project.id)
+    end
+
+    def license_management_settings_path(project)
+      project_settings_ci_cd_path(project, anchor: 'js-license-management')
+    end
+
+    def self.url_helper(route_name)
+      define_method("#{route_name}_url") do |*args|
+        path = public_send(:"#{route_name}_path", *args) # rubocop:disable GitlabSecurity/PublicSend
+        options = Rails.application.routes.default_url_options.merge(path: path)
+        ActionDispatch::Http::URL.full_url_for(options)
+      end
+    end
+
+    url_helper :user_group_saml_omniauth_metadata
+    def user_group_saml_omniauth_metadata_path(group)
+      params = { group_path: group.path, token: group.saml_discovery_token }
+      path = '/users/auth/group_saml/metadata'
+
+      ActionDispatch::Http::URL.path_for(path: path, params: params)
     end
   end
 end

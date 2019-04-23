@@ -2,9 +2,9 @@
   .issue-box
     - if @can_bulk_update
       .issue-check.hidden
-        = check_box_tag dom_id(issue, "selected"), nil, false, 'data-id' => issue.id, class: "selected_issue"
-    .issue-info-container
-      .issue-main-info
+        = check_box_tag dom_id(issue, "selected"), nil, false, 'data-id' => issue.id, class: "selected-issuable"
+    .issuable-info-container
+      .issuable-main-info
         .issue-title.title
           %span.issue-title-text
             - if issue.confidential?
@@ -36,13 +36,13 @@
               = issue.due_date.to_s(:medium)
           - if issue.labels.any?
             &nbsp;
-            - issue.labels.each do |label|
+            - labels_sorted_by_title(issue.labels).each do |label|
               = link_to_label(label, subject: issue.project, css_class: 'label-link')
 
           - if issue.weight
-            %span.issuable-weight.has-tooltip{ data: { container: 'body' }, title: _('Weight') }
+            %span.issuable-weight.d-none.d-sm-inline-block.has-tooltip{ data: { container: 'body' }, title: _('Weight') }
               &nbsp;
-              = icon('balance-scale')
+              = sprite_icon('weight', size: 16, css_class: 'issue-weight-icon')
               = issue.weight
 
       .issuable-meta
@@ -52,7 +52,7 @@
               CLOSED
           - if issue.assignees.any?
             %li
-              = render 'shared/issuable/assignees', project: @project, issue: issue
+              = render 'shared/issuable/assignees', project: @project, issuable: issue
 
           = render 'shared/issuable_meta_data', issuable: issue
 

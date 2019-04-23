@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe ApplicationSetting do
+  using RSpec::Parameterized::TableSyntax
+
   subject(:setting) { described_class.create_from_defaults }
 
   describe 'validations' do
@@ -34,49 +36,23 @@ describe ApplicationSetting do
       it { is_expected.not_to allow_value("a" * (subject.email_additional_text_character_limit + 1)).for(:email_additional_text) }
     end
 
-    describe 'when external authorization service is enabled' do
-      before do
-        stub_licensed_features(external_authorization_service: true)
-        setting.external_authorization_service_enabled = true
+    context 'when validating allowed_ips' do
+      where(:allowed_ips, :is_valid) do
+        "192.1.1.1"                   | true
+        "192.1.1.0/24"                | true
+        "192.1.1.0/24, 192.1.20.23"   | true
+        "192.1.1.0/24, 192.23.0.0/16" | true
+        "192.1.1.0/34"                | false
+        "192.1.1.257"                 | false
+        "192.1.1.257, 192.1.1.1"      | false
+        "300.1.1.0/34"                | false
       end
 
-      it { is_expected.not_to allow_value('not a URL').for(:external_authorization_service_url) }
-      it { is_expected.to allow_value('https://example.com').for(:external_authorization_service_url) }
-      it { is_expected.to allow_value('').for(:external_authorization_service_url) }
-      it { is_expected.not_to allow_value(nil).for(:external_authorization_service_default_label) }
-      it { is_expected.not_to allow_value(11).for(:external_authorization_service_timeout) }
-      it { is_expected.not_to allow_value(0).for(:external_authorization_service_timeout) }
-      it { is_expected.not_to allow_value('not a certificate').for(:external_auth_client_cert) }
-      it { is_expected.to allow_value('').for(:external_auth_client_cert) }
-      it { is_expected.to allow_value('').for(:external_auth_client_key) }
+      with_them do
+        it do
+          setting.update_column(:geo_node_allowed_ips, allowed_ips)
 
-      context 'when setting a valid client certificate for external authorization' do
-        let(:certificate_data)  { File.read('ee/spec/fixtures/passphrase_x509_certificate.crt') }
-
-        before do
-          setting.external_auth_client_cert = certificate_data
-        end
-
-        it 'requires a valid client key when a certificate is set' do
-          expect(setting).not_to allow_value('fefefe').for(:external_auth_client_key)
-        end
-
-        it 'requires a matching certificate' do
-          other_private_key = File.read('ee/spec/fixtures/x509_certificate_pk.key')
-
-          expect(setting).not_to allow_value(other_private_key).for(:external_auth_client_key)
-        end
-
-        it 'the credentials are valid when the private key can be read and matches the certificate' do
-          tls_attributes = [:external_auth_client_key_pass,
-                            :external_auth_client_key,
-                            :external_auth_client_cert]
-          setting.external_auth_client_key = File.read('ee/spec/fixtures/passphrase_x509_certificate_pk.key')
-          setting.external_auth_client_key_pass = '5iveL!fe'
-
-          setting.validate
-
-          expect(setting.errors).not_to include(*tls_attributes)
+          expect(setting.reload.valid?).to eq(is_valid)
         end
       end
     end
@@ -209,6 +185,79 @@ describe ApplicationSetting do
         aws_secret_access_key: 'test-secret-access-key'
       )
     end
+
+    context 'limiting namespaces and projects' do
+      before do
+        setting.update!(elasticsearch_indexing: true)
+        setting.update!(elasticsearch_limit_indexing: true)
+      end
+
+      context 'namespaces' do
+        let(:namespaces) { create_list(:namespace, 3) }
+
+        it 'creates ElasticsearchIndexedNamespace objects when given elasticsearch_namespace_ids' do
+          expect do
+            setting.update!(elasticsearch_namespace_ids: namespaces.map(&:id).join(','))
+          end.to change { ElasticsearchIndexedNamespace.count }.by(3)
+        end
+
+        it 'deletes ElasticsearchIndexedNamespace objects not in elasticsearch_namespace_ids' do
+          create :elasticsearch_indexed_namespace, namespace: namespaces.last
+
+          expect do
+            setting.update!(elasticsearch_namespace_ids: namespaces.first(2).map(&:id).join(','))
+          end.to change { ElasticsearchIndexedNamespace.count }.from(1).to(2)
+
+          expect(ElasticsearchIndexedNamespace.where(namespace_id: namespaces.last.id)).not_to exist
+        end
+
+        it 'tells you if a namespace is allowed to be indexed' do
+          create :elasticsearch_indexed_namespace, namespace: namespaces.last
+
+          expect(setting.elasticsearch_indexes_namespace?(namespaces.last)).to be_truthy
+          expect(setting.elasticsearch_indexes_namespace?(namespaces.first)).to be_falsey
+        end
+      end
+
+      context 'projects' do
+        let(:projects) { create_list(:project, 3) }
+
+        it 'creates ElasticsearchIndexedProject objects when given elasticsearch_project_ids' do
+          expect do
+            setting.update!(elasticsearch_project_ids: projects.map(&:id).join(','))
+          end.to change { ElasticsearchIndexedProject.count }.by(3)
+        end
+
+        it 'deletes ElasticsearchIndexedProject objects not in elasticsearch_project_ids' do
+          create :elasticsearch_indexed_project, project: projects.last
+
+          expect do
+            setting.update!(elasticsearch_project_ids: projects.first(2).map(&:id).join(','))
+          end.to change { ElasticsearchIndexedProject.count }.from(1).to(2)
+
+          expect(ElasticsearchIndexedProject.where(project_id: projects.last.id)).not_to exist
+        end
+
+        it 'tells you if a project is allowed to be indexed' do
+          create :elasticsearch_indexed_project, project: projects.last
+
+          expect(setting.elasticsearch_indexes_project?(projects.last)).to be_truthy
+          expect(setting.elasticsearch_indexes_project?(projects.first)).to be_falsey
+        end
+      end
+
+      it 'returns projects that are allowed to be indexed' do
+        project1 = create(:project)
+        projects = create_list(:project, 3)
+
+        setting.update!(
+          elasticsearch_project_ids: projects.map(&:id).join(','),
+          elasticsearch_namespace_ids: project1.namespace.id.to_s
+        )
+
+        expect(setting.elasticsearch_limited_projects).to match_array(projects << project1)
+      end
+    end
   end
 
   describe 'custom project templates' do
@@ -271,6 +320,47 @@ describe ApplicationSetting do
       describe '#available_custom_project_templates' do
         it 'returns an empty relation' do
           expect(setting.available_custom_project_templates).to be_empty
+        end
+      end
+    end
+  end
+
+  describe '#instance_review_permitted?' do
+    subject { setting.instance_review_permitted? }
+
+    context 'for instances with a valid license' do
+      before do
+        license = create(:license, plan: ::License::PREMIUM_PLAN)
+        allow(License).to receive(:current).and_return(license)
+      end
+
+      it 'is not permitted' do
+        expect(subject).to be_falsey
+      end
+    end
+
+    context 'for instances without a valid license' do
+      before do
+        allow(License).to receive(:current).and_return(nil)
+      end
+
+      context 'when there are more users than minimum count' do
+        before do
+          expect(Rails.cache).to receive(:fetch).and_return(101)
+        end
+
+        it 'is permitted' do
+          expect(subject).to be_truthy
+        end
+      end
+
+      context 'when there are less users than minimum count' do
+        before do
+          create(:user)
+        end
+
+        it 'is not permitted' do
+          expect(subject).to be_falsey
         end
       end
     end

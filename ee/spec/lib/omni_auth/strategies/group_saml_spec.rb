@@ -50,6 +50,21 @@ describe OmniAuth::Strategies::GroupSaml, type: :strategy do
 
         expect(auth_hash[:info]['email']).to eq("user@example.com")
       end
+
+      it 'sets omniauth setings from configured settings' do
+        post "/groups/my-group/-/saml/callback", SAMLResponse: saml_response
+
+        options = last_request.env['omniauth.strategy'].options
+        expect(options['idp_cert_fingerprint']).to eq fingerprint
+      end
+
+      it 'returns 404 when SAML is disabled for the group' do
+        saml_provider.update!(enabled: false)
+
+        expect do
+          post "/groups/my-group/-/saml/callback", SAMLResponse: saml_response
+        end.to raise_error(ActionController::RoutingError)
+      end
     end
 
     context 'with invalid SAMLResponse' do
@@ -103,19 +118,72 @@ describe OmniAuth::Strategies::GroupSaml, type: :strategy do
         post '/users/auth/group_saml'
       end.to raise_error(ActionController::RoutingError)
     end
+
+    it "stores request ID during request phase" do
+      request_id = double
+      allow_any_instance_of(OneLogin::RubySaml::Authrequest).to receive(:uuid).and_return(request_id)
+
+      post '/users/auth/group_saml', group_path: 'my-group'
+
+      expect(session['last_authn_request_id']).to eq(request_id)
+    end
   end
 
   describe 'POST /users/auth/group_saml/metadata' do
     it 'returns 404 when the group is not found' do
-      post '/users/auth/group_saml/metadata', group_path: 'not-a-group'
-
-      expect(last_response).to be_not_found
+      expect do
+        post '/users/auth/group_saml/metadata', group_path: 'not-a-group'
+      end.to raise_error(ActionController::RoutingError)
     end
 
     it 'returns 404 to avoid disclosing group existence' do
-      post '/users/auth/group_saml/metadata', group_path: 'my-group'
+      expect do
+        post '/users/auth/group_saml/metadata', group_path: 'my-group'
+      end.to raise_error(ActionController::RoutingError)
+    end
 
-      expect(last_response).to be_not_found
+    it 'returns 404 when feature disabled' do
+      stub_feature_flags(group_saml_metadata_available: false)
+
+      post '/users/auth/group_saml/metadata', group_path: 'my-group', token: group.saml_discovery_token
+
+      expect(last_response.status).to eq 404
+    end
+
+    it 'suceeds when feature enabled for an individual group' do
+      stub_feature_flags(group_saml_metadata_available: false)
+      allow(Feature).to receive(:enabled?).with(:group_saml_metadata_available, group) { true }
+
+      post '/users/auth/group_saml/metadata', group_path: 'my-group', token: group.saml_discovery_token
+
+      expect(last_response.status).to eq 200
+    end
+
+    it 'returns metadata when a valid token is provided' do
+      post '/users/auth/group_saml/metadata', group_path: 'my-group', token: group.saml_discovery_token
+
+      expect(last_response.status).to eq 200
+      expect(last_response.body).to start_with('<?xml')
+      expect(last_response.header["Content-Type"]).to eq "application/xml"
+    end
+
+    it 'returns 404 when an invalid token is provided' do
+      expect do
+        post '/users/auth/group_saml/metadata', group_path: 'my-group', token: 'invalidtoken'
+      end.to raise_error(ActionController::RoutingError)
+    end
+
+    it 'returns 404 when if group is not found but a token is provided' do
+      expect do
+        post '/users/auth/group_saml/metadata', group_path: 'not-a-group', token: 'dummytoken'
+      end.to raise_error(ActionController::RoutingError)
+    end
+
+    it 'sets omniauth setings from default settings' do
+      post '/users/auth/group_saml/metadata', group_path: 'my-group', token: group.saml_discovery_token
+
+      options = last_request.env['omniauth.strategy'].options
+      expect(options['assertion_consumer_service_url']).to end_with "/groups/my-group/-/saml/callback"
     end
   end
 

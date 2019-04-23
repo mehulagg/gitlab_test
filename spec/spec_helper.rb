@@ -22,7 +22,7 @@ if rspec_profiling_is_configured && (!ENV.key?('CI') || branch_can_be_profiled)
   require 'rspec_profiling/rspec'
 end
 
-if ENV['CI'] && !ENV['NO_KNAPSACK']
+if ENV['CI'] && ENV['KNAPSACK_GENERATE_REPORT'] && !ENV['NO_KNAPSACK']
   require 'knapsack'
   Knapsack::Adapters::RSpecAdapter.bind
 end
@@ -36,6 +36,11 @@ require_relative '../ee/spec/spec_helper'
 # Requires supporting ruby files with custom matchers and macros, etc,
 # in spec/support/ and its subdirectories.
 # Requires helpers, and shared contexts/examples first since they're used in other support files
+
+# Load these first since they may be required by other helpers
+require Rails.root.join("spec/support/helpers/git_helpers.rb")
+
+# Then the rest
 Dir[Rails.root.join("spec/support/helpers/*.rb")].each { |f| require f }
 Dir[Rails.root.join("spec/support/shared_contexts/*.rb")].each { |f| require f }
 Dir[Rails.root.join("spec/support/shared_examples/*.rb")].each { |f| require f }
@@ -44,6 +49,7 @@ Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 RSpec.configure do |config|
   config.use_transactional_fixtures = false
   config.use_instantiated_fixtures  = false
+  config.fixture_path = Rails.root
 
   config.verbose_retry = true
   config.display_try_failure_messages = true
@@ -62,6 +68,7 @@ RSpec.configure do |config|
     metadata[:type] = match[1].singularize.to_sym if match
   end
 
+  config.include LicenseHelpers
   config.include ActiveJob::TestHelper
   config.include ActiveSupport::Testing::TimeHelpers
   config.include CycleAnalyticsHelpers
@@ -78,6 +85,7 @@ RSpec.configure do |config|
   config.include Devise::Test::IntegrationHelpers, type: :feature
   config.include LoginHelpers, type: :feature
   config.include SearchHelpers, type: :feature
+  config.include WaitHelpers, type: :feature
   config.include EmailHelpers, :mailer, type: :mailer
   config.include Warden::Test::Helpers, type: :request
   config.include Gitlab::Routing, type: :routing
@@ -92,6 +100,7 @@ RSpec.configure do |config|
   config.include MigrationsHelpers, :migration
   config.include RedisHelpers
   config.include Rails.application.routes.url_helpers, type: :routing
+  config.include PolicyHelpers, type: :policy
 
   if ENV['CI']
     # This includes the first try, i.e. tests will be run 4 times before failing.
@@ -111,9 +120,16 @@ RSpec.configure do |config|
     TestEnv.clean_test_path
   end
 
-  config.before(:example) do
+  config.before do |example|
     # Enable all features by default for testing
     allow(Feature).to receive(:enabled?) { true }
+
+    enabled = example.metadata[:enable_rugged].present?
+
+    # Disable Rugged features by default
+    Gitlab::Git::RuggedImpl::Repository::FEATURE_FLAGS.each do |flag|
+      allow(Feature).to receive(:enabled?).with(flag).and_return(enabled)
+    end
 
     # The following can be removed when we remove the staged rollout strategy
     # and we can just enable it using instance wide settings
@@ -121,6 +137,11 @@ RSpec.configure do |config|
     allow(Feature).to receive(:enabled?)
       .with(:force_autodevops_on_by_default, anything)
       .and_return(false)
+  end
+
+  config.before(:example, :quarantine) do
+    # Skip tests in quarantine unless we explicitly focus on them.
+    skip('In quarantine') unless config.inclusion_filter[:quarantine]
   end
 
   config.before(:example, :request_store) do
@@ -132,8 +153,12 @@ RSpec.configure do |config|
     RequestStore.clear!
   end
 
-  config.after(:example) do
+  config.after do
     Fog.unmock! if Fog.mock?
+  end
+
+  config.after do
+    Gitlab::CurrentSettings.clear_in_memory_application_settings!
   end
 
   config.before(:example, :mailer) do
@@ -208,15 +233,19 @@ RSpec.configure do |config|
 
   # Each example may call `migrate!`, so we must ensure we are migrated down every time
   config.before(:each, :migration) do
+    use_fake_application_settings
+
     schema_migrate_down!
   end
 
   config.after(:context, :migration) do
     schema_migrate_up!
+
+    Gitlab::CurrentSettings.clear_in_memory_application_settings!
   end
 
   config.around(:each, :nested_groups) do |example|
-    example.run if Group.supports_nested_groups?
+    example.run if Group.supports_nested_objects?
   end
 
   config.around(:each, :postgresql) do |example|

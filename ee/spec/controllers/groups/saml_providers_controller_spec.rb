@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Groups::SamlProvidersController do
   let(:saml_provider) { create(:saml_provider, group: group) }
-  let(:group) { create(:group, :private) }
+  let(:group) { create(:group, :private, parent_id: nil) }
   let(:user) { create(:user) }
 
   before do
@@ -26,19 +26,19 @@ describe Groups::SamlProvidersController do
 
   shared_examples 'configuration is prevented' do
     describe 'GET #show' do
-      subject { get :show, group_id: group }
+      subject { get :show, params: { group_id: group } }
 
       it_behaves_like '404 status'
     end
 
     describe 'POST #create' do
-      subject { post :create, group_id: group, saml_provider: { enabled: 'false' } }
+      subject { post :create, params: { group_id: group, saml_provider: { enabled: 'false' } } }
 
       it_behaves_like '404 status'
     end
 
     describe 'PUT #update' do
-      subject { put :update, group_id: group, saml_provider: { enabled: 'false' } }
+      subject { put :update, params: { group_id: group, saml_provider: { enabled: 'false' } } }
 
       it_behaves_like '404 status'
     end
@@ -69,7 +69,7 @@ describe Groups::SamlProvidersController do
     end
 
     describe 'GET #show' do
-      subject { get :show, group_id: group }
+      subject { get :show, params: { group_id: group } }
 
       it 'shows configuration page' do
         group.add_owner(user)
@@ -77,6 +77,23 @@ describe Groups::SamlProvidersController do
         subject
 
         expect(response).to render_template 'groups/saml_providers/show'
+      end
+
+      it 'has no SCIM token URL' do
+        group.add_owner(user)
+
+        subject
+
+        expect(assigns(:scim_token_url)).to be_nil
+      end
+
+      it 'has the SCIM token URL when it exists' do
+        create(:scim_oauth_access_token, group: group)
+        group.add_owner(user)
+
+        subject
+
+        expect(assigns(:scim_token_url)).to eq("http://localhost/api/scim/v2/groups/#{group.full_path}")
       end
 
       context 'not on a top level group', :nested_groups do
@@ -92,6 +109,66 @@ describe Groups::SamlProvidersController do
           subject
 
           expect(response).to have_http_status(404)
+        end
+      end
+    end
+
+    describe 'PUT #update' do
+      subject { put :update, params: { group_id: group, saml_provider: { enforced_sso: 'true', enforced_group_managed_accounts: 'true' } } }
+
+      before do
+        group.add_owner(user)
+      end
+
+      context 'enforced_sso feature flag enabled' do
+        before do
+          stub_feature_flags(enforced_sso: true)
+        end
+
+        it 'updates the flags' do
+          expect do
+            subject
+            saml_provider.reload
+          end.to change { saml_provider.enforced_sso? }.to(true)
+        end
+      end
+
+      context 'enforced_sso feature flag disabled' do
+        before do
+          stub_feature_flags(enforced_sso: false)
+        end
+
+        it 'does not update the setting' do
+          expect do
+            subject
+            saml_provider.reload
+          end.not_to change { saml_provider.enforced_sso? }.from(false)
+        end
+      end
+
+      context 'group_managed_accounts feature flag enabled' do
+        before do
+          stub_feature_flags(group_managed_accounts: true)
+        end
+
+        it 'updates the flags' do
+          expect do
+            subject
+            saml_provider.reload
+          end.to change { saml_provider.enforced_group_managed_accounts? }.to(true)
+        end
+      end
+
+      context 'group_managed_accounts feature flag disabled' do
+        before do
+          stub_feature_flags(group_managed_accounts: false)
+        end
+
+        it 'does not update the setting' do
+          expect do
+            subject
+            saml_provider.reload
+          end.not_to change { saml_provider.enforced_group_managed_accounts? }.from(false)
         end
       end
     end

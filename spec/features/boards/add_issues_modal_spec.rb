@@ -34,14 +34,6 @@ describe 'Issue Boards add issue modal', :js do
     end
   end
 
-  it 'shows weight filter' do
-    click_button('Add issues')
-    wait_for_requests
-    find('.add-issues-search .filtered-search').click
-
-    expect(page.find('.filter-dropdown')).to have_content 'weight'
-  end
-
   context 'modal interaction' do
     it 'opens modal' do
       click_button('Add issues')
@@ -168,7 +160,7 @@ describe 'Issue Boards add issue modal', :js do
 
       it 'changes button text with plural' do
         page.within('.add-issues-modal') do
-          all('.board-card .board-card-number').each do |el|
+          all('.board-card .js-board-card-number-container').each do |el|
             el.click
           end
 

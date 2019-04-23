@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
 module EE
   module Users
     module UpdateService
-      include EE::Audit::Changes
+      extend ::Gitlab::Utils::Override
+      include EE::Audit::Changes # rubocop: disable Cop/InjectEnterpriseEditionModule
 
       private
 
@@ -16,6 +19,12 @@ module EE
 
       def model
         @user
+      end
+
+      override :assign_attributes
+      def assign_attributes
+        params.reject! { |key, _| SamlProvider::USER_ATTRIBUTES_LOCKED_FOR_MANAGED_ACCOUNTS.include?(key.to_sym) } if model.group_managed_account?
+        super
       end
     end
   end

@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 module Geo
   class NodeStatusPostService
     include Gitlab::Geo::LogHelpers
 
     def execute(status)
-      response = Gitlab::HTTP.post(primary_status_url, body: status.attributes, allow_local_requests: true, headers: headers, timeout: timeout)
+      response = Gitlab::HTTP.post(primary_status_url, body: payload(status), allow_local_requests: true, headers: headers, timeout: timeout)
 
       unless response.success?
         handle_failure_for(response)
@@ -23,6 +25,10 @@ module Geo
     end
 
     private
+
+    def payload(status)
+      status.attributes.except('id') # rubocop: disable CodeReuse/ActiveRecord
+    end
 
     def handle_failure_for(response)
       message = "Could not connect to Geo primary node - HTTP Status Code: #{response.code} #{response.message}"
@@ -46,7 +52,7 @@ module Geo
     end
 
     def headers
-      Gitlab::Geo::BaseRequest.new.headers
+      Gitlab::Geo::BaseRequest.new(scope: ::Gitlab::Geo::API_SCOPE).headers
     end
 
     def timeout

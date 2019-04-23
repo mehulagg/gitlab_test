@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module Gitlab
     module Auth
@@ -15,6 +17,7 @@ module EE
               @proxy = proxy
             end
 
+            # rubocop: disable CodeReuse/ActiveRecord
             def update_permissions
               dns = member_dns
               return true if dns.empty?
@@ -40,6 +43,7 @@ module EE
 
               false
             end
+            # rubocop: enable CodeReuse/ActiveRecord
 
             private
 

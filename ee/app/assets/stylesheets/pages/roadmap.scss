@@ -1,6 +1,7 @@
 $header-item-height: 60px;
 $item-height: 50px;
 $details-cell-width: 320px;
+$timeline-cell-width: 180px;
 $border-style: 1px solid $border-gray-normal;
 $roadmap-gradient-dark-gray: rgba(0, 0, 0, 0.15);
 $roadmap-gradient-gray: rgba(255, 255, 255, 0.001);
@@ -8,10 +9,73 @@ $scroll-top-gradient: linear-gradient(to bottom, $roadmap-gradient-dark-gray 0%,
 $scroll-bottom-gradient: linear-gradient(to bottom, $roadmap-gradient-gray 0%, $roadmap-gradient-dark-gray 100%);
 $column-right-gradient: linear-gradient(to right, $roadmap-gradient-dark-gray 0%, $roadmap-gradient-gray 100%);
 
+@keyframes colorTransitionDetailsCell {
+  from {
+    background-color: $blue-100;
+  }
+
+  to {
+    background-color: $white-light;
+  }
+}
+
+@keyframes fadeInDetails {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeinTimelineBar {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 0.75;
+  }
+}
+
 @mixin roadmap-scroll-mixin {
   height: $grid-size;
   width: $details-cell-width;
   pointer-events: none;
+}
+
+.epics-details-filters {
+  .btn-group {
+    .dropdown-toggle {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    .btn-sort-direction {
+      border-left: 0;
+
+      &:hover {
+        border-color: $gray-darkest;
+      }
+    }
+
+    @include media-breakpoint-down(xs) {
+      display: flex;
+
+      .dropdown-menu-sort {
+        // This is a hack to fix dropdown alignment in small screens
+        // where Bootstrap applies inline `transform: translate3d(...)`
+        // and since our dropdown button has sort direction button
+        // present, alignment needs to compensate for that space
+        // without which it appears shifted towards left.
+        //
+        // One more approach is to override `transform` using `!important`
+        // but that too involves using magic number
+        margin-left: 27px;
+      }
+    }
+  }
 }
 
 .epics-roadmap-filters {
@@ -43,7 +107,23 @@ $column-right-gradient: linear-gradient(to right, $roadmap-gradient-dark-gray 0%
 }
 
 .roadmap-shell {
+  position: relative;
   overflow-x: auto;
+
+  .skeleton-loader {
+    position: absolute;
+    top: $header-item-height;
+    left: $timeline-cell-width / 2;
+    width: $details-cell-width;
+    height: 100%;
+    padding-top: $gl-padding-top;
+    padding-left: $gl-padding;
+    z-index: 4;
+
+    &::after {
+      height: 100%;
+    }
+  }
 
   &.prevent-vertical-scroll {
     overflow-y: hidden;
@@ -51,7 +131,8 @@ $column-right-gradient: linear-gradient(to right, $roadmap-gradient-dark-gray 0%
 }
 
 .roadmap-timeline-section .timeline-header-blank::after,
-.epics-list-section .epic-details-cell::after {
+.epics-list-section .epic-details-cell::after,
+.skeleton-loader::after {
   content: '';
   position: absolute;
   top: 0;
@@ -96,11 +177,11 @@ $column-right-gradient: linear-gradient(to right, $roadmap-gradient-dark-gray 0%
 
     .item-label,
     .item-sublabel .sublabel-value {
-      color: $theme-gray-600;
+      color: $gray-600;
       font-weight: 400;
 
       &.label-dark {
-        color: $theme-gray-900;
+        color: $gray-900;
       }
 
       &.label-bold {
@@ -164,7 +245,7 @@ $column-right-gradient: linear-gradient(to right, $roadmap-gradient-dark-gray 0%
     &:hover {
       .epic-details-cell,
       .epic-timeline-cell {
-        background-color: $theme-gray-100;
+        background-color: $gray-100;
       }
     }
 
@@ -181,6 +262,12 @@ $column-right-gradient: linear-gradient(to right, $roadmap-gradient-dark-gray 0%
       .epic-details-cell::after,
       .epic-timeline-cell {
         height: 100%;
+      }
+    }
+
+    &.newly-added-epic {
+      .epic-details-cell {
+        animation: colorTransitionDetailsCell 3s;
       }
     }
 
@@ -206,6 +293,11 @@ $column-right-gradient: linear-gradient(to right, $roadmap-gradient-dark-gray 0%
         height: $item-height;
       }
 
+      .epic-title,
+      .epic-group-timeframe {
+        animation: fadeInDetails 1s;
+      }
+
       .epic-title {
         display: table;
         table-layout: fixed;
@@ -213,7 +305,7 @@ $column-right-gradient: linear-gradient(to right, $roadmap-gradient-dark-gray 0%
 
         .epic-url {
           display: table-cell;
-          color: $theme-gray-900;
+          color: $gray-900;
           font-weight: 600;
           white-space: nowrap;
           overflow: hidden;
@@ -222,7 +314,7 @@ $column-right-gradient: linear-gradient(to right, $roadmap-gradient-dark-gray 0%
       }
 
       .epic-group-timeframe {
-        color: $theme-gray-700;
+        color: $gray-700;
         width: 100%;
         white-space: nowrap;
         overflow: hidden;
@@ -249,23 +341,10 @@ $column-right-gradient: linear-gradient(to right, $roadmap-gradient-dark-gray 0%
         background-color: $blue-500;
         border-radius: $border-radius-default;
         opacity: 0.75;
+        animation: fadeinTimelineBar 1s;
 
         &:hover {
           opacity: 1;
-        }
-
-        &.start-date-outside::before,
-        &.end-date-outside::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          height: 100%;
-        }
-
-        &.start-date-outside::before,
-        &.end-date-outside::after {
-          border-top: 12px solid transparent;
-          border-bottom: 12px solid transparent;
         }
 
         &.start-date-undefined {
@@ -274,31 +353,6 @@ $column-right-gradient: linear-gradient(to right, $roadmap-gradient-dark-gray 0%
 
         &.end-date-undefined {
           background: linear-gradient(to right, $blue-500 0%, $blue-200 50%, $roadmap-gradient-gray 100%);
-        }
-
-        &.start-date-outside {
-          border-top-left-radius: 0;
-          border-bottom-left-radius: 0;
-
-          &::before {
-            left: -$grid-size;
-            border-right: $grid-size solid $blue-500;
-          }
-        }
-
-        &.end-date-outside {
-          border-top-right-radius: 0;
-          border-bottom-right-radius: 0;
-
-          &::after {
-            right: -$grid-size;
-            border-left: $grid-size solid $blue-500;
-          }
-        }
-
-        &.start-date-outside,
-        &.start-date-undefined.end-date-outside {
-          left: $grid-size;
         }
       }
 

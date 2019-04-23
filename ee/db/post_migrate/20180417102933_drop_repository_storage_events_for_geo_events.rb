@@ -1,7 +1,7 @@
 # See http://doc.gitlab.com/ce/development/migration_style_guide.html
 # for more information on how to write migrations for GitLab.
 
-class DropRepositoryStorageEventsForGeoEvents < ActiveRecord::Migration
+class DropRepositoryStorageEventsForGeoEvents < ActiveRecord::Migration[4.2]
   include Gitlab::Database::MigrationHelpers
 
   disable_ddl_transaction!
@@ -29,7 +29,6 @@ class DropRepositoryStorageEventsForGeoEvents < ActiveRecord::Migration
   private
 
   def update_repository_storage_path(table)
-    # rubocop:disable Migration/UpdateColumnInBatches
     update_column_in_batches(table, :repository_storage_path, update_statement) do |t, q|
       q.where(t[:repository_storage_path].eq(nil))
     end

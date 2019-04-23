@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Label do
@@ -153,6 +155,42 @@ describe Label do
 
     it 'returns nothing' do
       expect(described_class.search('feature')).to be_empty
+    end
+  end
+
+  describe '.subscribed_by' do
+    let!(:user)   { create(:user) }
+    let!(:label)  { create(:label) }
+    let!(:label2) { create(:label) }
+
+    before do
+      label.subscribe(user)
+    end
+
+    it 'returns subscribed labels' do
+      expect(described_class.subscribed_by(user.id)).to eq([label])
+    end
+
+    it 'returns nothing' do
+      expect(described_class.subscribed_by(0)).to be_empty
+    end
+  end
+
+  describe '.optionally_subscribed_by' do
+    let!(:user)   { create(:user) }
+    let!(:label)  { create(:label) }
+    let!(:label2) { create(:label) }
+
+    before do
+      label.subscribe(user)
+    end
+
+    it 'returns subscribed labels' do
+      expect(described_class.optionally_subscribed_by(user.id)).to eq([label])
+    end
+
+    it 'returns all labels if user_id is nil' do
+      expect(described_class.optionally_subscribed_by(nil)).to match_array([label, label2])
     end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Groups::UpdateService do
@@ -23,6 +25,12 @@ describe Groups::UpdateService do
           expect(public_group.errors.count).to eq(1)
 
           expect(TodosDestroyer::GroupPrivateWorker).not_to receive(:perform_in)
+        end
+
+        it "returns false if save failed" do
+          allow(public_group).to receive(:save).and_return(false)
+
+          expect(service.execute).to be_falsey
         end
       end
 
@@ -50,7 +58,7 @@ describe Groups::UpdateService do
           create(:project, :private, group: internal_group)
 
           expect(TodosDestroyer::GroupPrivateWorker).to receive(:perform_in)
-            .with(1.hour, internal_group.id)
+            .with(Todo::WAIT_FOR_DELETE, internal_group.id)
         end
 
         it "changes permission level to private" do
@@ -72,31 +80,6 @@ describe Groups::UpdateService do
         updated_group = public_group.reload
 
         expect(updated_group.parent_id).to be_nil
-      end
-    end
-  end
-
-  context 'repository_size_limit assignment as Bytes' do
-    let(:group) { create(:group, :public, repository_size_limit: 0) }
-    let(:service) { described_class.new(group, user, opts) }
-
-    context 'when param present' do
-      let(:opts) { { repository_size_limit: '100' } }
-
-      it 'converts from MB to Bytes' do
-        service.execute
-
-        expect(group.reload.repository_size_limit).to eql(100 * 1024 * 1024)
-      end
-    end
-
-    context 'when param not present' do
-      let(:opts) { { repository_size_limit: '' } }
-
-      it 'assign nil value' do
-        service.execute
-
-        expect(group.reload.repository_size_limit).to be_nil
       end
     end
   end

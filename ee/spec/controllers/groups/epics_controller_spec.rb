@@ -20,19 +20,19 @@ describe Groups::EpicsController do
     end
 
     describe 'GET #index' do
-      subject { get :index, group_id: group }
+      subject { get :index, params: { group_id: group } }
 
       it_behaves_like '404 status'
     end
 
     describe 'GET #show' do
-      subject { get :show, group_id: group, id: epic.to_param }
+      subject { get :show, params: { group_id: group, id: epic.to_param } }
 
       it_behaves_like '404 status'
     end
 
     describe 'PUT #update' do
-      subject { put :update, group_id: group, id: epic.to_param }
+      subject { put :update, params: { group_id: group, id: epic.to_param } }
 
       it_behaves_like '404 status'
     end
@@ -52,9 +52,43 @@ describe Groups::EpicsController do
       end
 
       it "returns index" do
-        get :index, group_id: group
+        get :index, params: { group_id: group }
 
         expect(response).to have_gitlab_http_status(200)
+      end
+
+      context 'when there is no logged in user' do
+        it 'stores sorting param in a cookie' do
+          group.update!(visibility_level: Gitlab::VisibilityLevel::PUBLIC)
+          sign_out(user)
+
+          get :index, params: { group_id: group, sort: 'start_date_asc' }
+
+          expect(cookies['epic_sort']).to eq('start_date_asc')
+          expect(response).to have_gitlab_http_status(200)
+        end
+      end
+
+      context 'when there is a logged in user' do
+        context 'when epics_sort is nil' do
+          it 'stores sorting param in user preferences' do
+            get :index, params: { group_id: group, sort: 'start_date_asc' }
+
+            expect(user.user_preference.epics_sort).to eq('start_date_asc')
+            expect(response).to have_gitlab_http_status(200)
+          end
+        end
+
+        context 'when epics_sort is present' do
+          it 'update epics_sort with current value' do
+            user.user_preference.update(epics_sort: 'created_desc')
+
+            get :index, params: { group_id: group, sort: 'start_date_asc' }
+
+            expect(user.reload.user_preference.epics_sort).to eq('start_date_asc')
+            expect(response).to have_gitlab_http_status(200)
+          end
+        end
       end
 
       context 'with page param' do
@@ -65,20 +99,20 @@ describe Groups::EpicsController do
         end
 
         it 'redirects to last_page if page number is larger than number of pages' do
-          get :index, group_id: group, page: (last_page + 1).to_param
+          get :index, params: { group_id: group, page: (last_page + 1).to_param }
 
           expect(response).to redirect_to(group_epics_path(page: last_page, state: controller.params[:state], scope: controller.params[:scope]))
         end
 
         it 'renders the specified page' do
-          get :index, group_id: group, page: last_page.to_param
+          get :index, params: { group_id: group, page: last_page.to_param }
 
           expect(assigns(:epics).current_page).to eq(last_page)
           expect(response).to have_gitlab_http_status(200)
         end
 
         it_behaves_like 'disabled when using an external authorization service' do
-          subject { get :index, group_id: group }
+          subject { get :index, params: { group_id: group } }
         end
       end
 
@@ -88,7 +122,7 @@ describe Groups::EpicsController do
         end
 
         def list_epics
-          get :index, group_id: group, format: :json
+          get :index, params: { group_id: group }, format: :json
         end
 
         it 'returns a list of epics' do
@@ -114,12 +148,27 @@ describe Groups::EpicsController do
           expect(item['web_url']).to eq(group_epic_path(group, epic))
         end
 
+        context 'with parent_id filter' do
+          let(:parent_epic) { create(:epic, group: group) }
+
+          it 'returns child epics of the given parent' do
+            child_epics = create_list(:epic, 2, group: group, parent: parent_epic)
+            # descendant epic that should not be included
+            create(:epic, group: group, parent: child_epics.first)
+
+            get :index, params: { group_id: group, parent_id: parent_epic.id }, format: :json
+
+            expect(json_response.size).to eq(2)
+            expect(json_response.map { |e| e['id'] }).to match_array(child_epics.map(&:id))
+          end
+        end
+
         context 'using label_name filter' do
           let(:label) { create(:label) }
           let!(:labeled_epic) { create(:labeled_epic, group: group, labels: [label]) }
 
           it 'returns all epics with given label' do
-            get :index, group_id: group, label_name: label.title, format: :json
+            get :index, params: { group_id: group, label_name: label.title }, format: :json
 
             expect(json_response.size).to eq(1)
             expect(json_response.first['id']).to eq(labeled_epic.id)
@@ -128,9 +177,58 @@ describe Groups::EpicsController do
       end
     end
 
+    describe 'GET #discussions' do
+      before do
+        sign_in(user)
+        group.add_developer(user)
+      end
+
+      context 'when issue note is returned' do
+        before do
+          SystemNoteService.epic_issue(epic, issue, user, :added)
+        end
+
+        shared_examples 'issue link presence' do
+          let(:issue) { create(:issue, project: project, description: "Project Issue") }
+
+          it 'the link to the issue is included' do
+            get :discussions, params: { group_id: group, id: epic.to_param }
+
+            expect(response).to have_gitlab_http_status(200)
+            expect(json_response.size).to eq(1)
+            discussion = json_response[0]
+            notes = discussion["notes"]
+            expect(notes.size).to eq(1)
+            expect(notes[0]["note_html"]).to include(project_issue_path(project, issue))
+          end
+        end
+
+        describe 'project default namespace' do
+          it_behaves_like 'issue link presence' do
+            let(:project) { create(:project, :public) }
+          end
+        end
+
+        describe 'project group namespace' do
+          it_behaves_like 'issue link presence' do
+            let(:project) {create(:project, namespace: group)}
+          end
+        end
+      end
+
+      context 'setting notes filter' do
+        let(:issuable) { epic }
+        let(:issuable_parent) { group }
+        let!(:discussion_note) { create(:note, :system, noteable: issuable) }
+        let!(:discussion_comment) { create(:note, noteable: issuable) }
+
+        it_behaves_like 'issuable notes filter'
+      end
+    end
+
     describe 'GET #show' do
       def show_epic(format = :html)
-        get :show, group_id: group, id: epic.to_param, format: format
+        get :show, params: { group_id: group, id: epic.to_param }, format: format
       end
 
       context 'when format is HTML' do
@@ -181,30 +279,76 @@ describe Groups::EpicsController do
     end
 
     describe 'PUT #update' do
-      let(:date) { Date.new(2002, 1, 1)}
+      let(:date) { Date.new(2002, 1, 1) }
+      let(:params) do
+        {
+          title: 'New title',
+          label_ids: [label.id],
+          start_date_fixed: '2002-01-01',
+          start_date_is_fixed: true
+        }
+      end
 
       before do
         group.add_developer(user)
-        put :update, group_id: group, id: epic.to_param, epic: { title: 'New title', label_ids: [label.id], start_date_fixed: '2002-01-01', start_date_is_fixed: true }, format: :json
       end
 
-      it 'returns status 200' do
-        expect(response.status).to eq(200)
+      context 'with correct basic params' do
+        it 'returns status 200' do
+          update_epic(epic, params)
+
+          expect(response.status).to eq(200)
+        end
+
+        it 'updates the epic correctly' do
+          update_epic(epic, params)
+
+          expect(epic.reload).to have_attributes(
+            title: 'New title',
+            labels: [label],
+            start_date_fixed: date,
+            start_date: date,
+            start_date_is_fixed: true,
+            state: 'opened'
+          )
+        end
       end
 
-      it 'updates the epic correctly' do
-        epic.reload
+      context 'when state_event param is close' do
+        it 'allows epic to be closed' do
+          update_epic(epic, params.merge(state_event: 'close'))
 
-        expect(epic.title).to eq('New title')
-        expect(epic.labels).to eq([label])
-        expect(epic.start_date_fixed).to eq(date)
-        expect(epic.start_date).to eq(date)
-        expect(epic.start_date_is_fixed).to eq(true)
+          epic.reload
+
+          expect(epic).to be_closed
+          expect(epic.closed_at).not_to be_nil
+          expect(epic.closed_by).to eq(user)
+        end
+      end
+
+      context 'when state_event param is reopen' do
+        before do
+          epic.update!(state: 'closed', closed_at: Time.now, closed_by: user)
+        end
+
+        it 'allows epic to be reopened' do
+          update_epic(epic, params.merge(state_event: 'reopen'))
+
+          epic.reload
+
+          expect(epic).to be_opened
+          expect(epic.closed_at).to be_nil
+          expect(epic.closed_by).to be_nil
+        end
+      end
+
+      def update_epic(epic, params)
+        put :update, params: { group_id: epic.group.to_param, id: epic.to_param, epic: params }, format: :json
       end
     end
 
     describe 'GET #realtime_changes' do
-      subject { get :realtime_changes, group_id: group, id: epic.to_param }
+      subject { get :realtime_changes, params: { group_id: group, id: epic.to_param } }
 
       it 'returns epic' do
         group.add_developer(user)
@@ -231,7 +375,7 @@ describe Groups::EpicsController do
 
     describe '#create' do
       subject do
-        post :create, group_id: group, epic: { title: 'new epic', description: 'some descripition', label_ids: [label.id] }
+        post :create, params: { group_id: group, epic: { title: 'new epic', description: 'some descripition', label_ids: [label.id] } }
       end
 
       context 'when user has permissions to create an epic' do
@@ -265,7 +409,7 @@ describe Groups::EpicsController do
 
         context 'when required parameter is missing' do
           before do
-            post :create, group_id: group, epic: { description: 'some descripition' }
+            post :create, params: { group_id: group, epic: { description: 'some descripition' } }
           end
 
           it 'returns 422 response' do
@@ -295,14 +439,14 @@ describe Groups::EpicsController do
 
       it "rejects a developer to destroy an epic" do
         group.add_developer(user)
-        delete :destroy, group_id: group, id: epic.to_param
+        delete :destroy, params: { group_id: group, id: epic.to_param }
 
         expect(response).to have_gitlab_http_status(404)
       end
 
       it "deletes the epic" do
         group.add_owner(user)
-        delete :destroy, group_id: group, id: epic.to_param
+        delete :destroy, params: { group_id: group, id: epic.to_param }
 
         expect(response).to have_gitlab_http_status(302)
         expect(controller).to set_flash[:notice].to(/The epic was successfully deleted\./)

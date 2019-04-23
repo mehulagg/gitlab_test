@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 module EE
   module Projects
     module CreateService
       extend ::Gitlab::Utils::Override
-      include ValidatesClassificationLabel
 
       override :execute
       def execute
@@ -11,6 +12,7 @@ module EE
         mirror_user_id = current_user.id if mirror
         mirror_trigger_builds = params.delete(:mirror_trigger_builds)
         ci_cd_only = ::Gitlab::Utils.to_boolean(params.delete(:ci_cd_only))
+        group_with_project_templates_id = params.delete(:group_with_project_templates_id) if params[:template_name].blank?
 
         project = super do |project|
           # Repository size limit comes as MB from the view
@@ -22,7 +24,7 @@ module EE
             project.mirror_user_id = mirror_user_id
           end
 
-          validate_classification_label(project, :external_authorization_classification_label)
+          validate_namespace_used_with_template(project, group_with_project_templates_id)
         end
 
         if project&.persisted?
@@ -38,7 +40,7 @@ module EE
       private
 
       def log_geo_event(project)
-        ::Geo::RepositoryCreatedEventStore.new(project).create
+        ::Geo::RepositoryCreatedEventStore.new(project).create!
       end
 
       override :after_create_actions
@@ -50,6 +52,7 @@ module EE
         project.group&.refresh_members_authorized_projects
       end
 
+      # rubocop: disable CodeReuse/ActiveRecord
       def create_predefined_push_rule
         return unless project.feature_available?(:push_rules)
 
@@ -60,6 +63,22 @@ module EE
           project.push_rule = push_rule
         end
       end
+
+      # When using a project template from a Group, the new project can only be created
+      # under the top level group or any subgroup
+      def validate_namespace_used_with_template(project, group_with_project_templates_id)
+        return unless project.group
+
+        subgroup_with_templates_id = group_with_project_templates_id || params[:group_with_project_templates_id]
+        return if subgroup_with_templates_id.blank?
+
+        templates_owner = ::Group.find(subgroup_with_templates_id)
+
+        unless templates_owner.self_and_hierarchy.exists?(id: project.namespace_id)
+          project.errors.add(:namespace, _("is out of the hierarchy of the Group owning the template"))
+        end
+      end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       def setup_ci_cd_project
         return unless ::License.feature_available?(:ci_cd_projects)

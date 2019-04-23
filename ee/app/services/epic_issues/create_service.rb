@@ -1,28 +1,31 @@
+# frozen_string_literal: true
+
 module EpicIssues
   class CreateService < IssuableLinks::CreateService
-    def execute
-      result = super
-      issuable.update_start_and_due_dates
-      result
-    end
-
     private
 
-    def relate_issues(referenced_issue)
+    # rubocop: disable CodeReuse/ActiveRecord
+    def relate_issuables(referenced_issue)
       link = EpicIssue.find_or_initialize_by(issue: referenced_issue)
 
-      params = if link.persisted?
-                 { issue_moved: true, original_epic: link.epic }
-               else
-                 {}
-               end
+      affected_epics = [issuable]
+
+      if link.persisted?
+        affected_epics << link.epic
+        params = { issue_moved: true, original_epic: link.epic }
+      else
+        params = {}
+      end
 
       link.epic = issuable
       link.move_to_start
       link.save!
 
+      affected_epics.each(&:update_start_and_due_dates)
+
       yield params
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def create_notes(referenced_issue, params)
       if params[:issue_moved]
@@ -40,10 +43,18 @@ module EpicIssues
       { group: issuable.group }
     end
 
-    def linkable_issues(issues)
-      return [] unless can?(current_user, :admin_epic, issuable.group)
+    def linkable_issuables(issues)
+      @linkable_issues ||= begin
+        return [] unless can?(current_user, :admin_epic, issuable.group)
 
-      issues.select { |issue| issuable_group_descendants.include?(issue.project.group) }
+        issues.select do |issue|
+          issuable_group_descendants.include?(issue.project.group) && !previous_related_issuables.include?(issue)
+        end
+      end
+    end
+
+    def previous_related_issuables
+      @related_issues ||= issuable.issues.to_a
     end
 
     def issuable_group_descendants

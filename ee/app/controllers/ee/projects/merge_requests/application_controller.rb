@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module Projects
     module MergeRequests
@@ -6,21 +8,13 @@ module EE
 
         private
 
-        def set_suggested_approvers
-          if merge_request.requires_approve?
-            @suggested_approvers = ::Gitlab::AuthorityAnalyzer.new( # rubocop:disable Gitlab/ModuleWithInstanceVariables
-              merge_request,
-              merge_request.author || current_user
-            ).calculate(merge_request.approvals_required)
-          end
-        end
-
         def merge_request_params
           clamp_approvals_before_merge(super)
         end
 
         def merge_request_params_attributes
           attrs = super.push(
+            approval_rule_attributes,
             :approvals_before_merge,
             :approver_group_ids,
             :approver_ids
@@ -29,9 +23,25 @@ module EE
           attrs
         end
 
+        def approval_rule_attributes
+          {
+            approval_rules_attributes: [
+              :id,
+              :name,
+              { user_ids: [] },
+              { group_ids: [] },
+              :approvals_required,
+              :approval_project_rule_id,
+              :remove_hidden_groups,
+              :_destroy
+            ]
+          }
+        end
+
         # If the number of approvals is not greater than the project default, set to
-        # nil, so that we fall back to the project default. If it's not set, we can
-        # let the normal update logic handle this.
+        # the project default, so that we fall back to the project default. And
+        # still allow overriding rules defined at the project level but not allow
+        # a number of approvals lower than what the project defined.
         def clamp_approvals_before_merge(mr_params)
           return mr_params unless mr_params[:approvals_before_merge]
 
@@ -45,8 +55,8 @@ module EE
                              project
                            end
 
-          if mr_params[:approvals_before_merge].to_i <= target_project.approvals_before_merge
-            mr_params[:approvals_before_merge] = nil
+          if mr_params[:approvals_before_merge].to_i < target_project.min_fallback_approvals
+            mr_params[:approvals_before_merge] = target_project.min_fallback_approvals
           end
 
           mr_params

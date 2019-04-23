@@ -16,12 +16,14 @@ describe API::Settings, 'EE Settings' do
       stub_licensed_features(custom_file_templates: true)
 
       put api("/application/settings", admin),
-        help_text: 'Help text',
-        snowplow_collector_uri: 'https://snowplow.example.com',
-        snowplow_cookie_domain: '.example.com',
-        snowplow_enabled: true,
-        snowplow_site_id:  'site_id',
-        file_template_project_id: project.id
+        params: {
+          help_text: 'Help text',
+          snowplow_collector_uri: 'https://snowplow.example.com',
+          snowplow_cookie_domain: '.example.com',
+          snowplow_enabled: true,
+          snowplow_site_id:  'site_id',
+          file_template_project_id: project.id
+        }
 
       expect(response).to have_gitlab_http_status(200)
       expect(json_response['help_text']).to eq('Help text')
@@ -56,7 +58,7 @@ describe API::Settings, 'EE Settings' do
       end
 
       it 'does not update application settings' do
-        expect { put api("/application/settings", admin), settings }
+        expect { put api("/application/settings", admin), params: settings }
           .not_to change { ApplicationSetting.current.reload.attributes.slice(*attribute_names) }
       end
     end
@@ -76,7 +78,7 @@ describe API::Settings, 'EE Settings' do
       end
 
       it 'allows updating the settings' do
-        put api("/application/settings", admin), settings
+        put api("/application/settings", admin), params: settings
         expect(response).to have_gitlab_http_status(200)
 
         settings.each do |attribute, value|
@@ -89,23 +91,6 @@ describe API::Settings, 'EE Settings' do
   context 'mirroring settings' do
     let(:settings) { { mirror_max_capacity: 15 } }
     let(:feature) { :repository_mirrors }
-
-    it_behaves_like 'settings for licensed features'
-  end
-
-  context 'external policy classification settings' do
-    let(:settings) do
-      {
-        external_authorization_service_enabled: true,
-        external_authorization_service_url: 'https://custom.service/',
-        external_authorization_service_default_label: 'default',
-        external_authorization_service_timeout: 9.99,
-        external_auth_client_cert: File.read('ee/spec/fixtures/passphrase_x509_certificate.crt'),
-        external_auth_client_key: File.read('ee/spec/fixtures/passphrase_x509_certificate_pk.key'),
-        external_auth_client_key_pass: "5iveL!fe"
-      }
-    end
-    let(:feature) { :external_authorization_service }
 
     it_behaves_like 'settings for licensed features'
   end
@@ -126,7 +111,7 @@ describe API::Settings, 'EE Settings' do
 
   context "missing snowplow_collector_uri value when snowplow_enabled is true" do
     it "returns a blank parameter error message" do
-      put api("/application/settings", admin), snowplow_enabled: true
+      put api("/application/settings", admin), params: { snowplow_enabled: true }
 
       expect(response).to have_gitlab_http_status(400)
       expect(json_response['error']).to eq('snowplow_collector_uri is missing')

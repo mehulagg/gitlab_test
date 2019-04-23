@@ -1,13 +1,15 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Clusters::Applications::PrometheusUpdateService do
   describe '#execute' do
     let(:project) { create(:project) }
     let(:environment) { create(:environment, project: project) }
-    let(:cluster) { create(:cluster, :with_installed_helm, projects: [project]) }
+    let(:cluster) { create(:cluster, :provided_by_user, :with_installed_helm, projects: [project]) }
     let(:application) { create(:clusters_applications_prometheus, :installed, cluster: cluster) }
-    let!(:get_command_values) { OpenStruct.new(data: OpenStruct.new('values.yaml': application.values)) }
-    let!(:upgrade_command) { application.upgrade_command("") }
+    let(:values_yaml) { application.values }
+    let!(:upgrade_command) { application.upgrade_command('') }
     let(:helm_client) { instance_double(::Gitlab::Kubernetes::Helm::Api) }
 
     subject(:service) { described_class.new(application, project) }
@@ -19,27 +21,11 @@ describe Clusters::Applications::PrometheusUpdateService do
 
     context 'when there are no errors' do
       before do
-        expect(helm_client).to receive(:get_config_map).with("values-content-configuration-prometheus").and_return(get_command_values)
         expect(helm_client).to receive(:update).with(upgrade_command)
-        allow(::ClusterWaitForAppUpdateWorker).to receive(:perform_in).and_return(nil)
-      end
 
-      context 'when prometheus alerts exist' do
-        it 'generates the alert manager values' do
-          create(:prometheus_alert, project: project, environment: environment)
-
-          expect(service).to receive(:generate_alert_manager).once
-
-          service.execute
-        end
-      end
-
-      context 'when prometheus alerts do not exist' do
-        it 'resets the alert manager values' do
-          expect(service).to receive(:reset_alert_manager).once
-
-          service.execute
-        end
+        allow(::ClusterWaitForAppUpdateWorker)
+          .to receive(:perform_in)
+          .and_return(nil)
       end
 
       it 'make the application updating' do
@@ -50,6 +36,22 @@ describe Clusters::Applications::PrometheusUpdateService do
         expect(application).to be_updating
       end
 
+      it 'updates current config' do
+        prometheus_config_service = spy(:prometheus_config_service)
+        values = YAML.safe_load(values_yaml)
+
+        expect(Clusters::Applications::PrometheusConfigService)
+          .to receive(:new)
+          .with(project, cluster, application)
+          .and_return(prometheus_config_service)
+
+        expect(prometheus_config_service)
+          .to receive(:execute)
+          .with(values)
+
+        service.execute
+      end
+
       it 'schedules async update status check' do
         expect(::ClusterWaitForAppUpdateWorker).to receive(:perform_in).once
 
@@ -58,10 +60,12 @@ describe Clusters::Applications::PrometheusUpdateService do
     end
 
     context 'when k8s cluster communication fails' do
-      it 'make the application update errored' do
+      before do
         error = ::Kubeclient::HttpError.new(500, 'system failure', nil)
-        allow(helm_client).to receive(:get_config_map).and_raise(error)
+        allow(helm_client).to receive(:update).and_raise(error)
+      end
 
+      it 'make the application update errored' do
         service.execute
 
         expect(application).to be_update_errored
@@ -72,10 +76,12 @@ describe Clusters::Applications::PrometheusUpdateService do
     context 'when application cannot be persisted' do
       let(:application) { build(:clusters_applications_prometheus, :installed) }
 
-      it 'make the application update errored' do
-        allow(application).to receive(:make_updating!).once.and_raise(ActiveRecord::RecordInvalid)
+      before do
+        allow(application).to receive(:make_updating!).once
+          .and_raise(ActiveRecord::RecordInvalid.new(application))
+      end
 
-        expect(helm_client).not_to receive(:get_config_map)
+      it 'make the application update errored' do
         expect(helm_client).not_to receive(:update)
 
         service.execute

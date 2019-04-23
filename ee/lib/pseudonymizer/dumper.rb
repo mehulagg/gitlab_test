@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Pseudonymizer
   class Dumper
     attr_accessor :config, :output_dir
@@ -86,7 +88,7 @@ module Pseudonymizer
       type_results = type_results.map do |c|
         data_type = c.sql_type
 
-        if table_config[:pseudo].include?(c.name)
+        if table_config[:pseudo]&.include?(c.name)
           data_type = "character varying"
         end
 

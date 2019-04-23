@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This calls helps to authenticate to Kerberos by providing username and password
 module Gitlab
   module Kerberos
@@ -43,10 +45,12 @@ module Gitlab
 
       private
 
+      # rubocop: disable CodeReuse/ActiveRecord
       def find_by_login(login)
         identity = ::Identity.with_extern_uid(:kerberos, login).take
         identity && identity.user
       end
+      # rubocop: enable CodeReuse/ActiveRecord
     end
   end
 end

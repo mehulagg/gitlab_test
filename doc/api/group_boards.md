@@ -18,7 +18,7 @@ GET /groups/:id/boards
 | `id` | integer/string | yes | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) owned by the authenticated user |
 
 ```bash
-curl --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/groups/5/boards
+curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/5/boards
 ```
 
 Example response:
@@ -31,32 +31,7 @@ Example response:
     "group": {
       "id": 5,
       "name": "Documentcloud",
-      "path": "documentcloud",
-      "owner_id": null,
-      "created_at": "2018-05-07T06:52:45.788Z",
-      "updated_at": "2018-07-03T06:48:17.005Z",
-      "description": "Consequatur aut a aperiam ut.",
-      "avatar": {
-        "url": null
-      },
-      "membership_lock": false,
-      "share_with_group_lock": false,
-      "visibility_level": 20,
-      "request_access_enabled": false,
-      "ldap_sync_status": "ready",
-      "ldap_sync_error": null,
-      "ldap_sync_last_update_at": null,
-      "ldap_sync_last_successful_update_at": null,
-      "ldap_sync_last_sync_at": null,
-      "lfs_enabled": null,
-      "parent_id": null,
-      "shared_runners_minutes_limit": null,
-      "repository_size_limit": null,
-      "require_two_factor_authentication": false,
-      "two_factor_grace_period": 48,
-      "plan_id": null,
-      "project_creation_level": 2,
-      "runners_token": "rgeeL-nv4wa9YdRvuMid"
+      "web_url": "http://example.com/groups/documentcloud"
     },
     "milestone":   {
       "id": 12
@@ -109,7 +84,7 @@ GET /groups/:id/boards/:board_id
 | `board_id` | integer | yes | The ID of a board |
 
 ```bash
-curl --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/groups/5/boards/1
+curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/5/boards/1
 ```
 
 Example response:
@@ -121,32 +96,7 @@ Example response:
     "group": {
       "id": 5,
       "name": "Documentcloud",
-      "path": "documentcloud",
-      "owner_id": null,
-      "created_at": "2018-05-07T06:52:45.788Z",
-      "updated_at": "2018-07-03T06:48:17.005Z",
-      "description": "Consequatur aut a aperiam ut.",
-      "avatar": {
-        "url": null
-      },
-      "membership_lock": false,
-      "share_with_group_lock": false,
-      "visibility_level": 20,
-      "request_access_enabled": false,
-      "ldap_sync_status": "ready",
-      "ldap_sync_error": null,
-      "ldap_sync_last_update_at": null,
-      "ldap_sync_last_successful_update_at": null,
-      "ldap_sync_last_sync_at": null,
-      "lfs_enabled": null,
-      "parent_id": null,
-      "shared_runners_minutes_limit": null,
-      "repository_size_limit": null,
-      "require_two_factor_authentication": false,
-      "two_factor_grace_period": 48,
-      "plan_id": null,
-      "project_creation_level": 2,
-      "runners_token": "rgeeL-nv4wa9YdRvuMid"
+      "web_url": "http://example.com/groups/documentcloud"
     },
     "milestone":   {
       "id": 12
@@ -198,7 +148,7 @@ POST /groups/:id/boards
 | `name` | string | yes | The name of the new board |
 
 ```bash
-curl --request POST --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/groups/5/boards?name=newboard
+curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/5/boards?name=newboard
 ```
 
 Example response:
@@ -210,32 +160,7 @@ Example response:
     "group": {
       "id": 5,
       "name": "Documentcloud",
-      "path": "documentcloud",
-      "owner_id": null,
-      "created_at": "2018-05-07T06:52:45.788Z",
-      "updated_at": "2018-07-03T06:48:17.005Z",
-      "description": "Consequatur aut a aperiam ut.",
-      "avatar": {
-        "url": null
-      },
-      "membership_lock": false,
-      "share_with_group_lock": false,
-      "visibility_level": 20,
-      "request_access_enabled": false,
-      "ldap_sync_status": "ready",
-      "ldap_sync_error": null,
-      "ldap_sync_last_update_at": null,
-      "ldap_sync_last_successful_update_at": null,
-      "ldap_sync_last_sync_at": null,
-      "lfs_enabled": null,
-      "parent_id": null,
-      "shared_runners_minutes_limit": null,
-      "repository_size_limit": null,
-      "require_two_factor_authentication": false,
-      "two_factor_grace_period": 48,
-      "plan_id": null,
-      "project_creation_level": 2,
-      "runners_token": "rgeeL-nv4wa9YdRvuMid"
+      "web_url": "http://example.com/groups/documentcloud"
     },
     "milestone":   {
       "id": 12
@@ -295,7 +220,7 @@ PUT /groups/:id/boards/:board_id
 
 
 ```bash
-curl --request PUT --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/groups/5/boards/1?name=new_name&milestone_id=44&assignee_id=1&labels=GroupLabel&weight=4
+curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/5/boards/1?name=new_name&milestone_id=44&assignee_id=1&labels=GroupLabel&weight=4
 ```
 
 Example response:
@@ -309,32 +234,7 @@ Example response:
     "group": {
       "id": 5,
       "name": "Documentcloud",
-      "path": "documentcloud",
-      "owner_id": null,
-      "created_at": "2018-05-07T06:52:45.788Z",
-      "updated_at": "2018-07-03T06:48:17.005Z",
-      "description": "Consequatur aut a aperiam ut.",
-      "avatar": {
-        "url": null
-      },
-      "membership_lock": false,
-      "share_with_group_lock": false,
-      "visibility_level": 20,
-      "request_access_enabled": false,
-      "ldap_sync_status": "ready",
-      "ldap_sync_error": null,
-      "ldap_sync_last_update_at": null,
-      "ldap_sync_last_successful_update_at": null,
-      "ldap_sync_last_sync_at": null,
-      "lfs_enabled": null,
-      "parent_id": null,
-      "shared_runners_minutes_limit": null,
-      "repository_size_limit": null,
-      "require_two_factor_authentication": false,
-      "two_factor_grace_period": 48,
-      "plan_id": null,
-      "project_creation_level": 2,
-      "runners_token": "rgeeL-nv3wa6YdRvuMid"
+      "web_url": "http://example.com/groups/documentcloud"
     },
     "milestone": {
       "id": 44,
@@ -381,7 +281,7 @@ DELETE /groups/:id/boards/:board_id
 | `board_id` | integer | yes | The ID of a board |
 
 ```bash
-curl --request DELETE --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/groups/5/boards/1
+curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/5/boards/1
 ```
 
 ## List board lists
@@ -399,7 +299,7 @@ GET /groups/:id/boards/:board_id/lists
 | `board_id` | integer | yes | The ID of a board |
 
 ```bash
-curl --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/groups/5/boards/1/lists
+curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/5/boards/1/lists
 ```
 
 Example response:
@@ -451,7 +351,7 @@ GET /groups/:id/boards/:board_id/lists/:list_id
 | `list_id` | integer | yes | The ID of a board's list |
 
 ```bash
-curl --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/groups/5/boards/1/lists/1
+curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/5/boards/1/lists/1
 ```
 
 Example response:
@@ -483,7 +383,7 @@ POST /groups/:id/boards/:board_id/lists
 | `label_id` | integer | yes | The ID of a label |
 
 ```bash
-curl --request POST --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/groups/5/boards/1/lists?label_id=5
+curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/5/boards/1/lists?label_id=5
 ```
 
 Example response:
@@ -516,7 +416,7 @@ PUT /groups/:id/boards/:board_id/lists/:list_id
 | `position` | integer | yes | The position of the list |
 
 ```bash
-curl --request PUT --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/group/5/boards/1/lists/1?position=2
+curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/group/5/boards/1/lists/1?position=2
 ```
 
 Example response:
@@ -548,7 +448,7 @@ DELETE /groups/:id/boards/:board_id/lists/:list_id
 | `list_id` | integer | yes | The ID of a board's list |
 
 ```bash
-curl --request DELETE --header "PRIVATE-TOKEN: 9koXpg98eAheJpvBs5tK" https://gitlab.example.com/api/v4/groups/5/boards/1/lists/1
+curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/5/boards/1/lists/1
 ```
 
 [ee-5954]: https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/5954

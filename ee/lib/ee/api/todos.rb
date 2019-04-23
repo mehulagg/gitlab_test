@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module API
     module Todos
@@ -5,16 +7,18 @@ module EE
 
       prepended do
         helpers do
+          # rubocop: disable CodeReuse/ActiveRecord
           def epic
             @epic ||= user_group.epics.find_by(iid: params[:epic_iid])
           end
+          # rubocop: enable CodeReuse/ActiveRecord
 
           def authorize_can_read!
             authorize!(:read_epic, epic)
           end
         end
 
-        resource :groups, requirements: ::API::API::PROJECT_ENDPOINT_REQUIREMENTS do
+        resource :groups, requirements: ::API::API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
           desc 'Create a todo on an epic' do
             success ::API::Entities::Todo
           end

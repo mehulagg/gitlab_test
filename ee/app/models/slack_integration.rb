@@ -1,4 +1,6 @@
-class SlackIntegration < ActiveRecord::Base
+# frozen_string_literal: true
+
+class SlackIntegration < ApplicationRecord
   belongs_to :service
 
   validates :team_id, presence: true

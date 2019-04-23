@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Snippets::NotesController < ApplicationController
   include NotesActions
   include ToggleAwardEmoji
@@ -17,14 +19,12 @@ class Snippets::NotesController < ApplicationController
     nil
   end
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def snippet
     PersonalSnippet.find_by(id: params[:snippet_id])
   end
+  # rubocop: enable CodeReuse/ActiveRecord
   alias_method :noteable, :snippet
-
-  def note_params
-    super.merge(noteable_id: params[:snippet_id])
-  end
 
   def finder_params
     params.merge(last_fetched_at: last_fetched_at, target_id: snippet.id, target_type: 'personal_snippet')

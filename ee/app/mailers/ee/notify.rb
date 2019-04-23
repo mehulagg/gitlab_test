@@ -1,16 +1,22 @@
+# frozen_string_literal: true
+
 module EE
   module Notify
     extend ActiveSupport::Concern
     extend ::Gitlab::Utils::Override
 
-    included do
+    # We need to put includes in prepended block due to the magical
+    # interaction between ActiveSupport::Concern and ActionMailer::Base
+    # See https://gitlab.com/gitlab-org/gitlab-ee/issues/7846
+    prepended do
       include ::Emails::AdminNotification
       include ::Emails::CsvExport
       include ::Emails::ServiceDesk
       include ::Emails::Epics
-
-      attr_reader :group
+      include ::Emails::Reviews
     end
+
+    attr_reader :group
 
     private
 

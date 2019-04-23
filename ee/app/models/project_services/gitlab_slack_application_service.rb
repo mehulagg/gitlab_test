@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class GitlabSlackApplicationService < Service
   default_value_for :category, 'chat'
 
@@ -37,5 +39,9 @@ class GitlabSlackApplicationService < Service
 
   def fields
     []
+  end
+
+  def chat_responder
+    Gitlab::Chat::Responder::Slack
   end
 end

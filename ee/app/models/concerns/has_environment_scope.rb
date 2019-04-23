@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module HasEnvironmentScope
   extend ActiveSupport::Concern
 
@@ -9,7 +11,18 @@ module HasEnvironmentScope
                 message: ::Gitlab::Regex.environment_scope_regex_message }
     )
 
-    scope :on_environment, -> (environment_name) do
+    ##
+    # Select rows which have a scope that matches the given environment name.
+    # Rows are ordered by relevance, by default. The most relevant row is
+    # placed at the end of a list.
+    #
+    # options:
+    #   - relevant_only: (boolean)
+    #     You can get the most relevant row only. Other rows are not be
+    #     selected even if its scope matches the environment name.
+    #     This is equivalent to using `#last` from SQL standpoint.
+    #
+    scope :on_environment, -> (environment_name, relevant_only: false) do
       where = <<~SQL
         environment_scope IN (:wildcard, :environment_name) OR
           :environment_name LIKE
@@ -33,7 +46,7 @@ module HasEnvironmentScope
         # Note that the connection could be
         # Gitlab::Database::LoadBalancing::ConnectionProxy
         # which supports `quote` via `method_missing`
-        ActiveRecord::Base.connection.quote(value)
+        ApplicationRecord.connection.quote(value)
       end
 
       # The query is trying to find variables with scopes matching the
@@ -53,8 +66,12 @@ module HasEnvironmentScope
       # In this case, B, C, and D would match. We also want to prioritize
       # the exact matched name, and put * last, and everything else in the
       # middle. So the order should be: D < C < B
-      where(where, values)
+      relation = where(where, values)
         .order(order % quoted_values) # `order` cannot escape for us!
+
+      relation = relation.reverse_order.limit(1) if relevant_only
+
+      relation
     end
   end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Gitlab
   module Geo
     # This class is responsible for:
@@ -6,6 +8,7 @@ module Gitlab
     #
     # TODO: Rearrange things so this class does not inherit from FileUploader
     class JobArtifactUploader < ::Gitlab::Geo::FileUploader
+      # rubocop: disable CodeReuse/ActiveRecord
       def execute
         job_artifact = ::Ci::JobArtifact.find_by(id: object_db_id)
 
@@ -21,6 +24,7 @@ module Gitlab
 
         success(job_artifact.file)
       end
+      # rubocop: enable CodeReuse/ActiveRecord
     end
   end
 end

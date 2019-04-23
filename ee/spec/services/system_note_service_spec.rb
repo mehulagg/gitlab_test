@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe SystemNoteService do
@@ -6,11 +8,11 @@ describe SystemNoteService do
   include RepoHelpers
 
   set(:group)    { create(:group) }
-  let(:project)  { create(:project, :repository, group: group) }
+  set(:project)  { create(:project, :repository, group: group) }
   set(:author)   { create(:user) }
   let(:noteable) { create(:issue, project: project) }
   let(:issue)    { noteable }
-  let(:epic)     { create(:epic) }
+  let(:epic)     { create(:epic, group: group) }
 
   shared_examples_for 'a system note' do
     let(:expected_noteable) { noteable }
@@ -34,6 +36,68 @@ describe SystemNoteService do
     end
 
     it_behaves_like 'a system note'
+  end
+
+  describe '.relate_issue' do
+    let(:noteable_ref) { create(:issue) }
+
+    subject { described_class.relate_issue(noteable, noteable_ref, author) }
+
+    it_behaves_like 'a system note' do
+      let(:action) { 'relate' }
+    end
+
+    context 'when issue marks another as related' do
+      it 'sets the note text' do
+        expect(subject.note).to eq "marked this issue as related to #{noteable_ref.to_reference(project)}"
+      end
+    end
+  end
+
+  describe '.unrelate_issue' do
+    let(:noteable_ref) { create(:issue) }
+
+    subject { described_class.unrelate_issue(noteable, noteable_ref, author) }
+
+    it_behaves_like 'a system note' do
+      let(:action) { 'unrelate' }
+    end
+
+    context 'when issue relation is removed' do
+      it 'sets the note text' do
+        expect(subject.note).to eq "removed the relation with #{noteable_ref.to_reference(project)}"
+      end
+    end
+  end
+
+  describe '.approve_mr' do
+    let(:noteable) { create(:merge_request, source_project: project) }
+    subject { described_class.approve_mr(noteable, author) }
+
+    it_behaves_like 'a system note' do
+      let(:action) { 'approved' }
+    end
+
+    context 'when merge request approved' do
+      it 'sets the note text' do
+        expect(subject.note).to eq "approved this merge request"
+      end
+    end
+  end
+
+  describe '.unapprove_mr' do
+    let(:noteable) { create(:merge_request, source_project: project) }
+    subject { described_class.unapprove_mr(noteable, author) }
+
+    it_behaves_like 'a system note' do
+      let(:action) { 'unapproved' }
+    end
+
+    context 'when merge request approved' do
+      it 'sets the note text' do
+        expect(subject.note).to eq "unapproved this merge request"
+      end
+    end
   end
 
   describe '.change_weight_note' do
@@ -94,6 +158,102 @@ describe SystemNoteService do
 
       it 'sets the note text' do
         expect(subject.note).to eq 'removed the start date'
+      end
+    end
+
+    context '.issue_promoted' do
+      context 'note on the epic' do
+        subject { described_class.issue_promoted(epic, issue, author, direction: :from) }
+
+        it_behaves_like 'a system note' do
+          let(:action) { 'moved' }
+          let(:expected_noteable) { epic }
+        end
+
+        it 'sets the note text' do
+          expect(subject.note).to eq("promoted from issue #{issue.to_reference(group)}")
+        end
+      end
+
+      context 'note on the issue' do
+        subject { described_class.issue_promoted(issue, epic, author, direction: :to) }
+
+        it_behaves_like 'a system note' do
+          let(:action) { 'moved' }
+        end
+
+        it 'sets the note text' do
+          expect(subject.note).to eq("promoted to epic #{epic.to_reference(project)}")
+        end
+      end
+    end
+  end
+
+  describe '.epic_issue' do
+    let(:noteable) { epic }
+    let(:project) { nil }
+
+    context 'issue added to an epic' do
+      subject { described_class.epic_issue(epic, issue, author, :added) }
+
+      it_behaves_like 'a system note' do
+        let(:action) { 'epic_issue_added' }
+      end
+
+      it 'creates the note text correctly' do
+        expect(subject.note).to eq("added issue #{issue.to_reference(epic.group)}")
+      end
+    end
+
+    context 'issue removed from an epic' do
+      subject { described_class.epic_issue(epic, issue, author, :removed) }
+
+      it_behaves_like 'a system note' do
+        let(:action) { 'epic_issue_removed' }
+      end
+
+      it 'creates the note text correctly' do
+        expect(subject.note).to eq("removed issue #{issue.to_reference(epic.group)}")
+      end
+    end
+
+    context 'invalid type' do
+      it 'raises an error' do
+        expect { described_class.issue_on_epic(issue, epic, author, :invalid) }
+          .not_to change { Note.count }
+      end
+    end
+  end
+
+  describe '.issue_on_epic' do
+    context 'issue added to an epic' do
+      subject { described_class.issue_on_epic(issue, epic, author, :added) }
+
+      it_behaves_like 'a system note' do
+        let(:action) { 'issue_added_to_epic' }
+      end
+
+      it 'creates the note text correctly' do
+        expect(subject.note).to eq("added to epic #{epic.to_reference(issue.project)}")
+      end
+    end
+
+    context 'issue removed from an epic' do
+      subject { described_class.issue_on_epic(issue, epic, author, :removed) }
+
+      it_behaves_like 'a system note' do
+        let(:action) { 'issue_removed_from_epic' }
+      end
+
+      it 'creates the note text correctly' do
+        expect(subject.note).to eq("removed from epic #{epic.to_reference(issue.project)}")
+      end
+    end
+
+    context 'invalid type' do
+      it 'does not create a new note' do
+        expect { described_class.issue_on_epic(issue, epic, author, :invalid) }
+          .not_to change { Note.count }
       end
     end
   end

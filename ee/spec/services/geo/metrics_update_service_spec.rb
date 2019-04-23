@@ -15,11 +15,9 @@ describe Geo::MetricsUpdateService, :geo, :prometheus do
     {
       status_message: nil,
       db_replication_lag_seconds: 0,
-      repositories_count: 10,
       projects_count: 10,
       repositories_synced_count: 1,
       repositories_failed_count: 2,
-      wikis_count: 10,
       wikis_synced_count: 2,
       wikis_failed_count: 3,
       lfs_objects_count: 100,
@@ -56,7 +54,6 @@ describe Geo::MetricsUpdateService, :geo, :prometheus do
     {
       status_message: nil,
       repositories_count: 10,
-      wikis_count: 10,
       projects_count: 10,
       lfs_objects_count: 100,
       job_artifacts_count: 100,
@@ -127,6 +124,16 @@ describe Geo::MetricsUpdateService, :geo, :prometheus do
       it 'updates the GeoNodeStatus entry' do
         expect { subject.execute }.to change { GeoNodeStatus.count }.by(1)
       end
+
+      it 'updates metrics when secondary nodes are cached', :request_store do
+        allow(subject).to receive(:update_prometheus_metrics).and_call_original
+        expect(subject).to receive(:update_prometheus_metrics).with(secondary, anything).twice
+        expect(subject).to receive(:update_prometheus_metrics).with(another_secondary, anything).twice
+
+        2.times do
+          subject.execute
+        end
+      end
     end
 
     context 'when node is a secondary' do
@@ -149,7 +156,6 @@ describe Geo::MetricsUpdateService, :geo, :prometheus do
         expect(metric_value(:geo_repositories)).to eq(10)
         expect(metric_value(:geo_repositories_synced)).to eq(1)
         expect(metric_value(:geo_repositories_failed)).to eq(2)
-        expect(metric_value(:geo_wikis)).to eq(10)
         expect(metric_value(:geo_wikis_synced)).to eq(2)
         expect(metric_value(:geo_wikis_failed)).to eq(3)
         expect(metric_value(:geo_lfs_objects)).to eq(100)

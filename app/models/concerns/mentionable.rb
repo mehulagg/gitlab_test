@@ -10,7 +10,7 @@
 module Mentionable
   extend ActiveSupport::Concern
 
-  module ClassMethods
+  class_methods do
     # Indicate which attributes of the Mentionable to search for GFM references.
     def attr_mentionable(attr, options = {})
       attr = attr.to_s
@@ -86,21 +86,20 @@ module Mentionable
     return [] unless matches_cross_reference_regex?
 
     refs = all_references(current_user)
-    refs = (refs.issues + refs.merge_requests + refs.commits + refs.epics)
 
     # We're using this method instead of Array diffing because that requires
     # both of the object's `hash` values to be the same, which may not be the
     # case for otherwise identical Commit objects.
-    refs.reject { |ref| ref == local_reference }
+    extracted_mentionables(refs).reject { |ref| ref == local_reference }
   end
 
   # Uses regex to quickly determine if mentionables might be referenced
   # Allows heavy processing to be skipped
   def matches_cross_reference_regex?
     reference_pattern = if !project || project.default_issues_tracker?
-                          ReferenceRegexes::DEFAULT_PATTERN
+                          ReferenceRegexes.default_pattern
                         else
-                          ReferenceRegexes::EXTERNAL_PATTERN
+                          ReferenceRegexes.external_pattern
                         end
 
     self.class.mentionable_attrs.any? do |attr, _|
@@ -134,6 +133,10 @@ module Mentionable
 
   private
 
+  def extracted_mentionables(refs)
+    refs.issues + refs.merge_requests + refs.commits
+  end
+
   # Returns a Hash of changed mentionable fields
   #
   # Preference is given to the `changes` Hash, but falls back to
@@ -166,3 +169,5 @@ module Mentionable
     {}
   end
 end
+
+Mentionable.prepend(EE::Mentionable)

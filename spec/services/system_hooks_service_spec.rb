@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe SystemHooksService do
@@ -34,7 +36,7 @@ describe SystemHooksService do
     end
 
     it do
-      project.old_path_with_namespace = 'transfered_from_path'
+      project.old_path_with_namespace = 'transferred_from_path'
       expect(event_data(project, :transfer)).to include(
         :event_name, :name, :created_at, :updated_at, :path, :project_id,
         :owner_name, :owner_email, :project_visibility,

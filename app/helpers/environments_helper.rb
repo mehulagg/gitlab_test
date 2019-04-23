@@ -1,9 +1,19 @@
+# frozen_string_literal: true
+
 module EnvironmentsHelper
-  prepend ::EE::EnvironmentsHelper
+  prepend ::EE::EnvironmentsHelper # rubocop: disable Cop/InjectEnterpriseEditionModule
 
   def environments_list_data
     {
       endpoint: project_environments_path(@project, format: :json)
+    }
+  end
+
+  def environments_folder_list_view_data
+    {
+      "endpoint" => folder_project_environments_path(@project, @folder, format: :json),
+      "folder-name" => @folder,
+      "can-read-environment" => can?(current_user, :read_environment, @project).to_s
     }
   end
 

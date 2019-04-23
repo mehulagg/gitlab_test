@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module API
   class GeoNodes < Grape::API
     include PaginationParams
@@ -77,11 +79,8 @@ module API
 
           def geo_node_status
             strong_memoize(:geo_node_status) do
-              if geo_node.current?
-                GeoNodeStatus.fast_current_node_status
-              else
-                geo_node.status
-              end
+              status = GeoNodeStatus.fast_current_node_status if geo_node.current?
+              status || geo_node.status
             end
           end
         end
@@ -139,12 +138,13 @@ module API
         #
         # Example request:
         #   PUT /geo_nodes/:id
-        desc 'Edit an existing Geo secondary node' do
+        desc 'Update an existing Geo node' do
           success EE::API::Entities::GeoNode
         end
         params do
           optional :enabled, type: Boolean, desc: 'Flag indicating if the Geo node is enabled'
           optional :url, type: String, desc: 'The URL to connect to the Geo node'
+          optional :internal_url, type: String, desc: 'The URL defined on the primary node that secondary nodes should use to contact it. Defaults to url'
           optional :files_max_capacity, type: Integer, desc: 'Control the maximum concurrency of LFS/attachment backfill for this secondary node'
           optional :repos_max_capacity, type: Integer, desc: 'Control the maximum concurrency of repository backfill for this secondary node'
           optional :verification_max_capacity, type: Integer, desc: 'Control the maximum concurrency of repository verification for this node'
@@ -154,9 +154,7 @@ module API
 
           update_params = declared_params(include_missing: false)
 
-          if geo_node.primary?
-            forbidden!('Primary node cannot be edited')
-          elsif geo_node.update(update_params)
+          if geo_node.update(update_params)
             present geo_node, with: EE::API::Entities::GeoNode
           else
             render_validation_error!(geo_node)

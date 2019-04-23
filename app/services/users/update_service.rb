@@ -3,7 +3,6 @@
 module Users
   class UpdateService < BaseService
     include NewUserNotifier
-    prepend EE::Users::UpdateService
 
     def initialize(current_user, params = {})
       @current_user = current_user
@@ -17,7 +16,7 @@ module Users
 
       user_exists = @user.persisted?
 
-      assign_attributes(&block)
+      assign_attributes
 
       if @user.save(validate: validate) && update_status
         notify_success(user_exists)
@@ -49,12 +48,16 @@ module Users
       success
     end
 
-    def assign_attributes(&block)
-      if @user.user_synced_attributes_metadata
-        params.except!(*@user.user_synced_attributes_metadata.read_only_attributes)
+    def assign_attributes
+      if (metadata = @user.user_synced_attributes_metadata)
+        read_only = metadata.read_only_attributes
+
+        params.reject! { |key, _| read_only.include?(key.to_sym) }
       end
 
-      @user.assign_attributes(params) if params.any?
+      @user.assign_attributes(params) unless params.empty?
     end
   end
 end
+
+Users::UpdateService.prepend(EE::Users::UpdateService)

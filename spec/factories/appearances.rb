@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :appearance do
-    title "GitLab Enterprise Edition"
+    title "GitLab Community Edition"
     description "Open source software to collaborate on code"
     new_project_guidelines "Custom project guidelines"
   end
@@ -13,6 +13,10 @@ FactoryBot.define do
 
   trait :with_header_logo do
     header_logo { fixture_file_upload('spec/fixtures/dk.png') }
+  end
+
+  trait :with_favicon do
+    favicon { fixture_file_upload('spec/fixtures/dk.png') }
   end
 
   trait :with_logos do

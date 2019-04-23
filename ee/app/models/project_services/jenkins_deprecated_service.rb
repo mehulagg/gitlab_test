@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'uri'
 
 class JenkinsDeprecatedService < CiService
@@ -45,7 +47,7 @@ class JenkinsDeprecatedService < CiService
     [
       { type: 'text', name: 'project_url', placeholder: 'Jenkins project URL like http://jenkins.example.com/job/my-project/' },
       { type: 'checkbox', name: 'multiproject_enabled', title: "Multi-project setup enabled?",
-        help: "Multi-project mode is configured in Jenkins Gitlab Hook plugin." },
+        help: "Multi-project mode is configured in Jenkins GitLab Hook plugin." },
       { type: 'checkbox', name: 'pass_unstable', title: 'Should unstable builds be treated as passing?',
         help: 'Unstable builds will be treated as passing.' }
     ]
@@ -76,7 +78,7 @@ class JenkinsDeprecatedService < CiService
   # we just parse the URL and make sure it's how we want it.
   def base_project_url
     url = URI.parse(project_url)
-    URI.join(url, '/job').to_s
+    URI.join(url, '/job').to_s # It's intended to discard paths in project_url
   end
 
   def calculate_reactive_cache(sha, ref)

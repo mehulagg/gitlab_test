@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Ci::Build do
@@ -13,33 +15,7 @@ describe Ci::Build do
 
   let(:job) { create(:ci_build, pipeline: pipeline) }
 
-  describe '.code_quality' do
-    subject { described_class.code_quality }
-
-    context 'when a job name is codeclimate' do
-      let!(:job) { create(:ci_build, pipeline: pipeline, name: 'codeclimate') }
-
-      it { is_expected.to include(job) }
-    end
-
-    context 'when a job name is codequality' do
-      let!(:job) { create(:ci_build, pipeline: pipeline, name: 'codequality') }
-
-      it { is_expected.to include(job) }
-    end
-
-    context 'when a job name is code_quality' do
-      let!(:job) { create(:ci_build, pipeline: pipeline, name: 'code_quality') }
-
-      it { is_expected.to include(job) }
-    end
-
-    context 'when a job name is irrelevant' do
-      let!(:job) { create(:ci_build, pipeline: pipeline, name: 'codechecker') }
-
-      it { is_expected.not_to include(job) }
-    end
-  end
+  it { is_expected.to have_many(:sourced_pipelines) }
 
   describe '#shared_runners_minutes_limit_enabled?' do
     subject { job.shared_runners_minutes_limit_enabled? }
@@ -101,8 +77,8 @@ describe Ci::Build do
     subject { job.variables }
 
     context 'when environment specific variable is defined' do
-      let(:environment_varialbe) do
-        { key: 'ENV_KEY', value: 'environment', public: false }
+      let(:environment_variable) do
+        { key: 'ENV_KEY', value: 'environment', public: false, masked: false }
       end
 
       before do
@@ -111,7 +87,7 @@ describe Ci::Build do
 
         variable =
           build(:ci_variable,
-                environment_varialbe.slice(:key, :value)
+                environment_variable.slice(:key, :value)
                   .merge(project: project, environment_scope: 'stag*'))
 
         variable.save!
@@ -122,7 +98,7 @@ describe Ci::Build do
           stub_licensed_features(variable_environment_scope: true)
         end
 
-        it { is_expected.to include(environment_varialbe) }
+        it { is_expected.to include(environment_variable) }
       end
 
       context 'when variable environment scope is not available' do
@@ -130,12 +106,12 @@ describe Ci::Build do
           stub_licensed_features(variable_environment_scope: false)
         end
 
-        it { is_expected.not_to include(environment_varialbe) }
+        it { is_expected.not_to include(environment_variable) }
       end
 
       context 'when there is a plan for the group' do
         it 'GITLAB_FEATURES should include the features for that plan' do
-          is_expected.to include({ key: 'GITLAB_FEATURES', value: anything, public: true })
+          is_expected.to include({ key: 'GITLAB_FEATURES', value: anything, public: true, masked: false })
           features_variable = subject.find { |v| v[:key] == 'GITLAB_FEATURES' }
           expect(features_variable[:value]).to include('multiple_ldap_servers')
         end
@@ -143,50 +119,209 @@ describe Ci::Build do
     end
   end
 
-  BUILD_ARTIFACTS_METHODS = {
-    # has_codeclimate_json? is deprecated and replaced with code_quality_artifact (#5779)
-    has_codeclimate_json?: Ci::Build::CODECLIMATE_FILE,
-    has_code_quality_json?: Ci::Build::CODE_QUALITY_FILE,
-    has_performance_json?: Ci::Build::PERFORMANCE_FILE,
-    has_sast_json?: Ci::Build::SAST_FILE,
-    has_dependency_scanning_json?: Ci::Build::DEPENDENCY_SCANNING_FILE,
-    has_license_management_json?: Ci::Build::LICENSE_MANAGEMENT_FILE,
-    # has_sast_container_json? is deprecated and replaced with has_container_scanning_json (#5778)
-    has_sast_container_json?: Ci::Build::SAST_CONTAINER_FILE,
-    has_container_scanning_json?: Ci::Build::CONTAINER_SCANNING_FILE,
-    has_dast_json?: Ci::Build::DAST_FILE
-  }.freeze
+  describe '#collect_security_reports!' do
+    let(:security_reports) { ::Gitlab::Ci::Reports::Security::Reports.new(pipeline.sha) }
 
-  BUILD_ARTIFACTS_METHODS.each do |method, filename|
-    describe "##{method}" do
-      context 'valid build' do
-        let!(:build) do
-          create(
-            :ci_build,
-            :artifacts,
-            pipeline: pipeline,
-            options: {
-              artifacts: {
-                paths: [filename, 'some-other-artifact.txt']
-              }
-            }
-          )
+    subject { job.collect_security_reports!(security_reports) }
+
+    before do
+      stub_licensed_features(sast: true, dependency_scanning: true, container_scanning: true, dast: true)
+    end
+
+    context 'when build has a security report' do
+      context 'when there is a sast report' do
+        before do
+          create(:ee_ci_job_artifact, :sast, job: job, project: job.project)
         end
 
-        it { expect(build.send(method)).to be_truthy }
+        it 'parses blobs and add the results to the report' do
+          subject
+
+          expect(security_reports.get_report('sast').occurrences.size).to eq(33)
+        end
       end
 
-      context 'invalid build' do
-        let!(:build) do
-          create(
-            :ci_build,
-            :artifacts,
-            pipeline: pipeline,
-            options: {}
-          )
+      context 'when there are multiple report' do
+        before do
+          create(:ee_ci_job_artifact, :sast, job: job, project: job.project)
+          create(:ee_ci_job_artifact, :dependency_scanning, job: job, project: job.project)
+          create(:ee_ci_job_artifact, :container_scanning, job: job, project: job.project)
+          create(:ee_ci_job_artifact, :dast, job: job, project: job.project)
         end
 
-        it { expect(build.send(method)).to be_falsey }
+        it 'parses blobs and add the results to the reports' do
+          subject
+
+          expect(security_reports.get_report('sast').occurrences.size).to eq(33)
+          expect(security_reports.get_report('dependency_scanning').occurrences.size).to eq(4)
+          expect(security_reports.get_report('container_scanning').occurrences.size).to eq(8)
+          expect(security_reports.get_report('dast').occurrences.size).to eq(2)
+        end
+      end
+
+      context 'when Feature flag is disabled for Dependency Scanning reports parsing' do
+        before do
+          stub_feature_flags(parse_dependency_scanning_reports: false)
+          create(:ee_ci_job_artifact, :sast, job: job, project: job.project)
+          create(:ee_ci_job_artifact, :dependency_scanning, job: job, project: job.project)
+        end
+
+        it 'does NOT parse dependency scanning report' do
+          subject
+
+          expect(security_reports.reports.keys).to contain_exactly('sast')
+        end
+      end
+
+      context 'when Feature flag is disabled for Container Scanning reports parsing' do
+        before do
+          stub_feature_flags(parse_container_scanning_reports: false)
+          create(:ee_ci_job_artifact, :sast, job: job, project: job.project)
+          create(:ee_ci_job_artifact, :container_scanning, job: job, project: job.project)
+        end
+
+        it 'does NOT parse container scanning report' do
+          subject
+
+          expect(security_reports.reports.keys).to contain_exactly('sast')
+        end
+      end
+
+      context 'when Feature flag is disabled for DAST reports parsing' do
+        before do
+          stub_feature_flags(parse_dast_reports: false)
+          create(:ee_ci_job_artifact, :sast, job: job, project: job.project)
+          create(:ee_ci_job_artifact, :dast, job: job, project: job.project)
+        end
+
+        it 'does NOT parse dast report' do
+          subject
+
+          expect(security_reports.reports.keys).to contain_exactly('sast')
+        end
+      end
+
+      context 'when there is a corrupted sast report' do
+        before do
+          create(:ee_ci_job_artifact, :sast_with_corrupted_data, job: job, project: job.project)
+        end
+
+        it 'stores an error' do
+          subject
+
+          expect(security_reports.get_report('sast')).to be_errored
+        end
+      end
+    end
+
+    context 'when there is unsupported file type' do
+      before do
+        stub_const("Ci::JobArtifact::SECURITY_REPORT_FILE_TYPES", %w[codequality])
+        create(:ee_ci_job_artifact, :codequality, job: job, project: job.project)
+      end
+
+      it 'stores an error' do
+        subject
+
+        expect(security_reports.get_report('codequality')).to be_errored
+      end
+    end
+  end
+
+  describe '#collect_license_management_reports!' do
+    subject { job.collect_license_management_reports!(license_management_report) }
+
+    let(:license_management_report) { Gitlab::Ci::Reports::LicenseManagement::Report.new }
+
+    before do
+      stub_licensed_features(license_management: true)
+    end
+
+    it { expect(license_management_report.licenses.count).to eq(0) }
+
+    context 'when build has a license management report' do
+      context 'when there is a license management report' do
+        before do
+          create(:ee_ci_job_artifact, :license_management, job: job, project: job.project)
+        end
+
+        it 'parses blobs and add the results to the report' do
+          expect { subject }.not_to raise_error
+
+          expect(license_management_report.licenses.count).to eq(4)
+          expect(license_management_report.licenses[0].name).to eq('MIT')
+          expect(license_management_report.licenses[0].dependencies.count).to eq(52)
+        end
+      end
+
+      context 'when there is a corrupted license management report' do
+        before do
+          create(:ee_ci_job_artifact, :corrupted_license_management_report, job: job, project: job.project)
+        end
+
+        it 'raises an error' do
+          expect { subject }.to raise_error(Gitlab::Ci::Parsers::LicenseManagement::LicenseManagement::LicenseManagementParserError)
+        end
+      end
+
+      context 'when Feature flag is disabled for License Management reports parsing' do
+        before do
+          stub_feature_flags(parse_license_management_reports: false)
+          create(:ee_ci_job_artifact, :license_management, job: job, project: job.project)
+        end
+
+        it 'does NOT parse license management report' do
+          subject
+
+          expect(license_management_report.licenses.count).to eq(0)
+        end
+      end
+
+      context 'when the license management feature is disabled' do
+        before do
+          stub_licensed_features(license_management: false)
+          create(:ee_ci_job_artifact, :license_management, job: job, project: job.project)
+        end
+
+        it 'does NOT parse license management report' do
+          subject
+
+          expect(license_management_report.licenses.count).to eq(0)
+        end
+      end
+    end
+  end
+
+  describe '#collect_metrics_reports!' do
+    subject { job.collect_metrics_reports!(metrics_report) }
+
+    let(:metrics_report) { Gitlab::Ci::Reports::Metrics::Report.new }
+
+    context 'when there is a metrics report' do
+      before do
+        create(:ee_ci_job_artifact, :metrics, job: job, project: job.project)
+      end
+
+      context 'when license has metrics_reports' do
+        before do
+          stub_licensed_features(metrics_reports: true)
+        end
+
+        it 'parses blobs and add the results to the report' do
+          expect { subject }.to change { metrics_report.metrics.count }.from(0).to(2)
+        end
+      end
+
+      context 'when license does not have metrics_reports' do
+        before do
+          stub_licensed_features(license_management: false)
+        end
+
+        it 'does not parse metrics report' do
+          subject
+
+          expect(metrics_report.metrics.count).to eq(0)
+        end
       end
     end
   end

@@ -1,15 +1,13 @@
 # Custom Git Hooks
 
+> **Note:** Custom Git hooks must be configured on the filesystem of the GitLab
+> server. Only GitLab server administrators will be able to complete these tasks.
+> Please explore [webhooks] and [CI] as an option if you do not
+> have filesystem access. For a user configurable Git hook interface, see
+> [Push Rules](https://docs.gitlab.com/ee/push_rules/push_rules.html),
+> available in GitLab Enterprise Edition.
 >
-**Note:** Custom Git hooks must be configured on the filesystem of the GitLab
-server. Only GitLab server administrators will be able to complete these tasks.
-Please explore [webhooks] and [CI] as an option if you do not
-have filesystem access. For a user configurable Git hook interface, see
-[Push Rules](https://docs.gitlab.com/ee/push_rules/push_rules.html),
-available in GitLab Enterprise Edition.
-
->
-**Note:** Custom Git hooks won't be replicated to secondary nodes if you use [GitLab Geo][gitlab-geo]
+> **Note:** Custom Git hooks won't be replicated to secondary nodes if you use [GitLab Geo][gitlab-geo]
 
 Git natively supports hooks that are executed on different actions.
 Examples of server-side git hooks include pre-receive, post-receive, and update.
@@ -54,6 +52,9 @@ Hooks can be also placed in `hooks/<hook_name>.d` (global) or
 `custom_hooks/<hook_name>.d` (per project) directories supporting chained
 execution of the hooks.
 
+NOTE: **Note:** `<hook_name>.d` would need to be either `pre-receive.d`,
+`post-receive.d`, or `update.d` to work properly. Any other names will be ignored.
+
 To look in a different directory for the global custom hooks (those in
 `hooks/<hook_name.d>`), set `custom_hooks_dir` in gitlab-shell config. For
 Omnibus installations, this can be set in `gitlab.rb`; and in source
@@ -61,7 +62,7 @@ installations, this can be set in `gitlab-shell/config.yml`.
 
 The hooks are searched and executed in this order:
 
-1. `<project>.git/hooks/` - symlink to `gitlab-shell/hooks` global dir
+1. `gitlab-shell/hooks` directory as known to Gitaly
 1. `<project>.git/hooks/<hook_name>` -  executed by `git` itself, this is `gitlab-shell/hooks/<hook_name>`
 1. `<project>.git/custom_hooks/<hook_name>` - per project hook (this is already existing behavior)
 1. `<project>.git/custom_hooks/<hook_name>.d/*` - per project hooks
@@ -77,9 +78,21 @@ first script exiting with a non-zero value.
 
 > [Introduced][5073] in GitLab 8.10.
 
-If the commit is declined or an error occurs during the Git hook check,
-the STDERR or STDOUT message of the hook will be present in GitLab's UI.
-STDERR takes precedence over STDOUT.
+To have custom error messages appear in GitLab's UI when the commit is
+declined or an error occurs during the Git hook, your script should:
+
+- Send the custom error messages to either the script's `stdout` or `stderr`.
+- Prefix each message with `GL-HOOK-ERR:` with no characters appearing before the prefix.
+
+### Example custom error message
+
+This hook script written in bash will generate the following message in GitLab's UI:
+
+```bash
+#!/bin/sh
+echo "GL-HOOK-ERR: My custom error message.";
+exit 1
+```
 
 ![Custom message from custom Git hook](img/custom_hooks_error_msg.png)
 

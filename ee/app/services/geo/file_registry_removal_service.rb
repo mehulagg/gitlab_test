@@ -1,8 +1,19 @@
+# frozen_string_literal: true
+
 module Geo
   class FileRegistryRemovalService < FileService
     include ::Gitlab::Utils::StrongMemoize
 
     LEASE_TIMEOUT = 8.hours.freeze
+
+    # It's possible that LfsObject or Ci::JobArtifact record does not exists anymore
+    # In this case, you need to pass file_path parameter explicitly
+    #
+    def initialize(object_type, object_db_id, file_path = nil)
+      @object_type = object_type.to_sym
+      @object_db_id = object_db_id
+      @object_file_path = file_path
+    end
 
     def execute
       log_info('Executing')
@@ -25,25 +36,28 @@ module Geo
 
         log_info('Local file & registry removed')
       end
-    rescue SystemCallError
+    rescue SystemCallError => e
       log_error('Could not remove file', e.message)
       raise
     end
 
     private
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def file_registry
       strong_memoize(:file_registry) do
-        if object_type.to_sym == :job_artifact
+        if job_artifact?
           ::Geo::JobArtifactRegistry.find_by(artifact_id: object_db_id)
         else
           ::Geo::FileRegistry.find_by(file_type: object_type, file_id: object_db_id)
         end
       end
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def file_path
       strong_memoize(:file_path) do
+        next @object_file_path if @object_file_path
         # When local storage is used, just rely on the existing methods
         next file_uploader.file.path if file_uploader.object_store == ObjectStorage::Store::LOCAL
 
@@ -59,13 +73,13 @@ module Geo
 
     def file_uploader
       strong_memoize(:file_uploader) do
-        case object_type.to_s
-        when 'lfs'
-          LfsObject.find_by!(id: object_db_id).file
-        when 'job_artifact'
-          Ci::JobArtifact.find_by!(id: object_db_id).file
+        case object_type
+        when :lfs
+          LfsObject.find(object_db_id).file
+        when :job_artifact
+          Ci::JobArtifact.find(object_db_id).file
         when *Geo::FileService::DEFAULT_OBJECT_TYPES
-          Upload.find_by!(id: object_db_id).build_uploader
+          Upload.find(object_db_id).build_uploader
         else
           raise NameError, "Unrecognized type: #{object_type}"
         end
@@ -73,10 +87,6 @@ module Geo
     rescue NameError, ActiveRecord::RecordNotFound => err
       log_error('Could not build uploader', err.message)
       raise
-    end
-
-    def upload?
-      Geo::FileService::DEFAULT_OBJECT_TYPES.include?(object_type.to_s)
     end
 
     def lease_key

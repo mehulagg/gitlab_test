@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module Gitlab
     module ImportExport
@@ -28,16 +30,12 @@ module EE
             ::RepositoryImportWorker.new.perform(export_into_project_id)
           ensure
             export_file.close if export_file.respond_to?(:close)
-            project.remove_exported_project_file
+            project.remove_exports
           end
 
           def export_file
             strong_memoize(:export_file) do
-              if object_storage?
-                project.import_export_upload.export_file&.file
-              else
-                File.open(project.export_project_path)
-              end
+              project.export_file&.file
             end
           end
 
@@ -45,9 +43,11 @@ module EE
             ::Project.update(export_into_project_id, params)
           end
 
+          # rubocop: disable CodeReuse/ActiveRecord
           def export_into_project_exists?
             ::Project.exists?(export_into_project_id)
           end
+          # rubocop: enable CodeReuse/ActiveRecord
         end
       end
     end

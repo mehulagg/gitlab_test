@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class SystemHooksService
-  prepend EE::SystemHooksService
-
   def execute_hooks_for(model, event)
     data = build_event_data(model, event)
 
@@ -132,7 +130,6 @@ class SystemHooksService
     {
       group_name: model.group.name,
       group_path: model.group.path,
-      group_plan: model.group.plan&.name,
       group_id: model.group.id,
       user_username: model.user.username,
       user_name: model.user.name,
@@ -151,3 +148,5 @@ class SystemHooksService
     }
   end
 end
+
+SystemHooksService.prepend(EE::SystemHooksService)

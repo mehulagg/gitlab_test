@@ -1,9 +1,8 @@
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex';
-import createFlash from '~/flash';
 import { s__ } from '~/locale';
+import diffLineNoteFormMixin from 'ee_else_ce/notes/mixins/diff_line_note_form';
 import noteForm from '../../notes/components/note_form.vue';
-import { getNoteFormData } from '../store/utils';
 import autosave from '../../notes/mixins/autosave';
 import { DIFF_NOTE_TYPE } from '../constants';
 
@@ -11,7 +10,7 @@ export default {
   components: {
     noteForm,
   },
-  mixins: [autosave],
+  mixins: [autosave, diffLineNoteFormMixin],
   props: {
     diffFileHash: {
       type: String,
@@ -21,7 +20,7 @@ export default {
       type: Object,
       required: true,
     },
-    position: {
+    linePosition: {
       type: String,
       required: false,
       default: '',
@@ -29,6 +28,11 @@ export default {
     noteTargetLine: {
       type: Object,
       required: true,
+    },
+    helpPagePath: {
+      type: String,
+      required: false,
+      default: '',
     },
   },
   computed: {
@@ -38,6 +42,19 @@ export default {
     }),
     ...mapGetters('diffs', ['getDiffFileByHash']),
     ...mapGetters(['isLoggedIn', 'noteableType', 'getNoteableData', 'getNotesDataByProp']),
+    formData() {
+      return {
+        noteableData: this.noteableData,
+        noteableType: this.noteableType,
+        noteTargetLine: this.noteTargetLine,
+        diffViewType: this.diffViewType,
+        diffFile: this.diffFile,
+        linePosition: this.linePosition,
+      };
+    },
+    diffFile() {
+      return this.getDiffFileByHash(this.diffFileHash);
+    },
   },
   mounted() {
     if (this.isLoggedIn) {
@@ -45,15 +62,14 @@ export default {
         this.noteableData.diff_head_sha,
         DIFF_NOTE_TYPE,
         this.noteableData.source_project_id,
-        this.line.lineCode,
+        this.line.line_code,
       ];
 
       this.initAutoSave(this.noteableData, keys);
     }
   },
   methods: {
-    ...mapActions('diffs', ['cancelCommentForm']),
-    ...mapActions(['saveNote', 'refetchDiscussionById']),
+    ...mapActions('diffs', ['cancelCommentForm', 'assignDiscussionsToDiff', 'saveDiffDiscussion']),
     handleCancelCommentForm(shouldConfirm, isDirty) {
       if (shouldConfirm && isDirty) {
         const msg = s__('Notes|Are you sure you want to cancel creating this comment?');
@@ -65,54 +81,34 @@ export default {
       }
 
       this.cancelCommentForm({
-        lineCode: this.line.lineCode,
+        lineCode: this.line.line_code,
+        fileHash: this.diffFileHash,
       });
       this.$nextTick(() => {
         this.resetAutoSave();
       });
     },
     handleSaveNote(note) {
-      const selectedDiffFile = this.getDiffFileByHash(this.diffFileHash);
-      const postData = getNoteFormData({
-        note,
-        noteableData: this.noteableData,
-        noteableType: this.noteableType,
-        noteTargetLine: this.noteTargetLine,
-        diffViewType: this.diffViewType,
-        diffFile: selectedDiffFile,
-        linePosition: this.position,
-      });
-
-      this.saveNote(postData)
-        .then(result => {
-          const endpoint = this.getNotesDataByProp('discussionsPath');
-
-          this.refetchDiscussionById({ path: endpoint, discussionId: result.discussion_id })
-            .then(() => {
-              this.handleCancelCommentForm();
-            })
-            .catch(() => {
-              createFlash(s__('MergeRequests|Updating discussions failed'));
-            });
-        })
-        .catch(() => {
-          createFlash(s__('MergeRequests|Saving the comment failed'));
-        });
+      return this.saveDiffDiscussion({ note, formData: this.formData }).then(() =>
+        this.handleCancelCommentForm(),
+      );
     },
   },
 };
 </script>
 
 <template>
-  <div
-    class="content discussion-form discussion-form-container discussion-notes"
-  >
+  <div class="content discussion-form discussion-form-container discussion-notes">
     <note-form
       ref="noteForm"
       :is-editing="true"
-      :line-code="line.lineCode"
+      :line-code="line.line_code"
+      :line="line"
+      :help-page-path="helpPagePath"
+      :diff-file="diffFile"
       save-button-title="Comment"
       class="diff-comment-form"
+      @handleFormUpdateAddToReview="addToReview"
       @cancelForm="handleCancelCommentForm"
       @handleFormUpdate="handleSaveNote"
     />

@@ -2,10 +2,10 @@
 
 # To add new service you should build a class inherited from Service
 # and implement a set of methods
-class Service < ActiveRecord::Base
-  prepend EE::Service
+class Service < ApplicationRecord
   include Sortable
   include Importable
+  include ProjectServicesLoggable
 
   serialize :properties, JSON # rubocop:disable Cop/ActiveRecordSerialize
 
@@ -210,11 +210,7 @@ class Service < ActiveRecord::Base
       class_eval %{
         def #{arg}?
           # '!!' is used because nil or empty string is converted to nil
-          if Gitlab.rails5?
-            !!ActiveRecord::Type::Boolean.new.cast(#{arg})
-          else
-            !!ActiveRecord::Type::Boolean.new.type_cast_from_database(#{arg})
-          end
+          !!ActiveRecord::Type::Boolean.new.cast(#{arg})
         end
       }
     end
@@ -253,6 +249,7 @@ class Service < ActiveRecord::Base
       bugzilla
       campfire
       custom_issue_tracker
+      discord
       drone_ci
       emails_on_push
       external_wiki
@@ -270,18 +267,15 @@ class Service < ActiveRecord::Base
       prometheus
       pushover
       redmine
-      slack
+      youtrack
       slack_slash_commands
+      slack
       teamcity
       microsoft_teams
     ]
 
     if Rails.env.development?
       service_names += %w[mock_ci mock_deployment mock_monitoring]
-    end
-
-    if Gitlab.com? || Rails.env.development?
-      service_names.push('gitlab_slack_application')
     end
 
     service_names.sort_by(&:downcase)
@@ -348,3 +342,5 @@ class Service < ActiveRecord::Base
     activated? && !importing?
   end
 end
+
+Service.prepend(EE::Service)

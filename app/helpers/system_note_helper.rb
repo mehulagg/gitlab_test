@@ -1,6 +1,6 @@
-module SystemNoteHelper
-  prepend EE::SystemNoteHelper
+# frozen_string_literal: true
 
+module SystemNoteHelper
   ICON_NAMES_BY_ACTION = {
     'commit' => 'commit',
     'description' => 'pencil-square',
@@ -23,7 +23,8 @@ module SystemNoteHelper
     'outdated' => 'pencil-square',
     'duplicate' => 'issue-duplicate',
     'locked' => 'lock',
-    'unlocked' => 'lock-open'
+    'unlocked' => 'lock-open',
+    'due_date' => 'calendar'
   }.freeze
 
   def system_note_icon_name(note)
@@ -37,3 +38,9 @@ module SystemNoteHelper
 
   extend self
 end
+
+SystemNoteHelper.prepend(EE::SystemNoteHelper) # rubocop: disable Cop/InjectEnterpriseEditionModule
+
+# The methods in `EE::SystemNoteHelper` should be available as both instance and
+# class methods.
+SystemNoteHelper.extend(EE::SystemNoteHelper)

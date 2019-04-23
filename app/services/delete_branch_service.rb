@@ -14,7 +14,7 @@ class DeleteBranchService < BaseService
     end
 
     if repository.rm_branch(current_user, branch_name)
-      success('Branch was removed')
+      success('Branch was deleted')
     else
       error('Failed to remove branch')
     end
@@ -28,15 +28,5 @@ class DeleteBranchService < BaseService
 
   def success(message)
     super().merge(message: message)
-  end
-
-  def build_push_data(branch)
-    Gitlab::DataBuilder::Push.build(
-      project,
-      current_user,
-      branch.dereferenced_target.sha,
-      Gitlab::Git::BLANK_SHA,
-      "#{Gitlab::Git::BRANCH_REF_PREFIX}#{branch.name}",
-      [])
   end
 end

@@ -34,10 +34,11 @@ describe Admin::ApplicationSettingsController do
           slack_app_id: 'slack_app_id',
           slack_app_secret: 'slack_app_secret',
           slack_app_verification_token: 'slack_app_verification_token',
-          allow_group_owners_to_manage_ldap: false
+          allow_group_owners_to_manage_ldap: false,
+          geo_node_allowed_ips: '0.0.0.0/0, ::/0'
       }
 
-      put :update, application_setting: settings
+      put :update, params: { application_setting: settings }
 
       expect(response).to redirect_to(admin_application_settings_path)
       settings.except(:elasticsearch_url, :repository_size_limit).each do |setting, value|
@@ -48,18 +49,18 @@ describe Admin::ApplicationSettingsController do
     end
 
     shared_examples 'settings for licensed features' do
-      it 'does not update settings when licesed feature is not available' do
+      it 'does not update settings when licensed feature is not available' do
         stub_licensed_features(feature => false)
         attribute_names = settings.keys.map(&:to_s)
 
-        expect { put :update, application_setting: settings }
+        expect { put :update, params: { application_setting: settings } }
           .not_to change { ApplicationSetting.current.reload.attributes.slice(*attribute_names) }
       end
 
       it 'updates settings when the feature is available' do
         stub_licensed_features(feature => true)
 
-        put :update, application_setting: settings
+        put :update, params: { application_setting: settings }
 
         settings.each do |attribute, value|
           expect(ApplicationSetting.current.public_send(attribute)).to eq(value)
@@ -80,23 +81,6 @@ describe Admin::ApplicationSettingsController do
       it_behaves_like 'settings for licensed features'
     end
 
-    context 'external policy classification settings' do
-      let(:settings) do
-        {
-          external_authorization_service_enabled: true,
-          external_authorization_service_url: 'https://custom.service/',
-          external_authorization_service_default_label: 'default',
-          external_authorization_service_timeout: 3,
-          external_auth_client_cert: File.read('ee/spec/fixtures/passphrase_x509_certificate.crt'),
-          external_auth_client_key: File.read('ee/spec/fixtures/passphrase_x509_certificate_pk.key'),
-          external_auth_client_key_pass: "5iveL!fe"
-        }
-      end
-      let(:feature) { :external_authorization_service }
-
-      it_behaves_like 'settings for licensed features'
-    end
-
     context 'additional email footer' do
       let(:settings) { { email_additional_text: 'scary legal footer' } }
       let(:feature) { :email_additional_text }
@@ -112,12 +96,32 @@ describe Admin::ApplicationSettingsController do
       it_behaves_like 'settings for licensed features'
     end
 
-    it 'updates the default_project_creation for string value' do
-      stub_licensed_features(project_creation_level: true)
-      put :update, application_setting: { default_project_creation: ::EE::Gitlab::Access::MAINTAINER_PROJECT_ACCESS }
+    it 'updates repository_size_limit' do
+      put :update, params: { application_setting: { repository_size_limit: '100' } }
 
       expect(response).to redirect_to(admin_application_settings_path)
-      expect(ApplicationSetting.current.default_project_creation).to eq(::EE::Gitlab::Access::MAINTAINER_PROJECT_ACCESS)
+      expect(response).to set_flash[:notice].to('Application settings saved successfully')
+    end
+
+    it 'does not accept negative repository_size_limit' do
+      put :update, params: { application_setting: { repository_size_limit: '-100' } }
+
+      expect(response).to render_template(:show)
+      expect(assigns(:application_setting).errors[:repository_size_limit]).to be_present
+    end
+
+    it 'does not accept invalid repository_size_limit' do
+      put :update, params: { application_setting: { repository_size_limit: 'one thousand' } }
+
+      expect(response).to render_template(:show)
+      expect(assigns(:application_setting).errors[:repository_size_limit]).to be_present
+    end
+
+    it 'does not accept empty repository_size_limit' do
+      put :update, params: { application_setting: { repository_size_limit: '' } }
+
+      expect(response).to render_template(:show)
+      expect(assigns(:application_setting).errors[:repository_size_limit]).to be_present
     end
   end
 end

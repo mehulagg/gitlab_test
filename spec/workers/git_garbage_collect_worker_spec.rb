@@ -1,8 +1,12 @@
+# frozen_string_literal: true
+
 require 'fileutils'
 
 require 'spec_helper'
 
 describe GitGarbageCollectWorker do
+  include GitHelpers
+
   let(:project) { create(:project, :repository) }
   let(:shell) { Gitlab::Shell.new }
   let!(:lease_uuid) { SecureRandom.uuid }
@@ -68,6 +72,17 @@ describe GitGarbageCollectWorker do
           expect_any_instance_of(Gitlab::Git::Repository).to receive(:has_visible_content?).and_call_original
 
           subject.perform(project.id)
+        end
+
+        context 'when the repository has joined a pool' do
+          let!(:pool) { create(:pool_repository, :ready) }
+          let(:project) { pool.source_project }
+
+          it 'ensures the repositories are linked' do
+            expect_any_instance_of(PoolRepository).to receive(:link_repository).once
+
+            subject.perform(project.id)
+          end
         end
       end
 
@@ -197,9 +212,7 @@ describe GitGarbageCollectWorker do
 
   # Create a new commit on a random new branch
   def create_objects(project)
-    rugged = Gitlab::GitalyClient::StorageSettings.allow_disk_access do
-      project.repository.rugged
-    end
+    rugged = rugged_repo(project.repository)
     old_commit = rugged.branches.first.target
     new_commit_sha = Rugged::Commit.create(
       rugged,

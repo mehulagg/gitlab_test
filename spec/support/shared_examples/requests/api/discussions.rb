@@ -42,7 +42,7 @@ shared_examples 'discussions API' do |parent_type, noteable_type, id_name|
 
   describe "POST /#{parent_type}/:id/#{noteable_type}/:noteable_id/discussions" do
     it "creates a new note" do
-      post api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions", user), body: 'hi!'
+      post api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions", user), params: { body: 'hi!' }
 
       expect(response).to have_gitlab_http_status(201)
       expect(json_response['notes'].first['body']).to eq('hi!')
@@ -56,7 +56,7 @@ shared_examples 'discussions API' do |parent_type, noteable_type, id_name|
     end
 
     it "returns a 401 unauthorized error if user not authenticated" do
-      post api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions"), body: 'hi!'
+      post api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions"), params: { body: 'hi!' }
 
       expect(response).to have_gitlab_http_status(401)
     end
@@ -65,7 +65,7 @@ shared_examples 'discussions API' do |parent_type, noteable_type, id_name|
       it 'accepts the creation date to be set' do
         creation_time = 2.weeks.ago
         post api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions", user),
-          body: 'hi!', created_at: creation_time
+          params: { body: 'hi!', created_at: creation_time }
 
         expect(response).to have_gitlab_http_status(201)
         expect(json_response['notes'].first['body']).to eq('hi!')
@@ -81,9 +81,40 @@ shared_examples 'discussions API' do |parent_type, noteable_type, id_name|
 
       it 'responds with 404' do
         post api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions", private_user),
-          body: 'Foo'
+          params: { body: 'Foo' }
 
         expect(response).to have_gitlab_http_status(404)
+      end
+    end
+
+    context 'when a project is public with private repo access' do
+      let!(:parent) { create(:project, :public, :repository, :repository_private, :snippets_private) }
+      let!(:user_without_access) { create(:user) }
+
+      context 'when user is not a team member of private repo' do
+        before do
+          project.team.truncate
+        end
+
+        context "creating a new note" do
+          before do
+            post api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions", user_without_access), params: { body: 'hi!' }
+          end
+
+          it 'raises 404 error' do
+            expect(response).to have_gitlab_http_status(404)
+          end
+        end
+
+        context "fetching a discussion" do
+          before do
+            get api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions/#{note.discussion_id}", user_without_access)
+          end
+
+          it 'raises 404 error' do
+            expect(response).to have_gitlab_http_status(404)
+          end
+        end
       end
     end
   end
@@ -91,7 +122,7 @@ shared_examples 'discussions API' do |parent_type, noteable_type, id_name|
   describe "POST /#{parent_type}/:id/#{noteable_type}/:noteable_id/discussions/:discussion_id/notes" do
     it 'adds a new note to the discussion' do
       post api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/"\
-               "discussions/#{note.discussion_id}/notes", user), body: 'Hello!'
+               "discussions/#{note.discussion_id}/notes", user), params: { body: 'Hello!' }
 
       expect(response).to have_gitlab_http_status(201)
       expect(json_response['body']).to eq('Hello!')
@@ -109,7 +140,7 @@ shared_examples 'discussions API' do |parent_type, noteable_type, id_name|
       note.update_attribute(:type, nil)
 
       post api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/"\
-               "discussions/#{note.discussion_id}/notes", user), body: 'hi!'
+               "discussions/#{note.discussion_id}/notes", user), params: { body: 'hi!' }
 
       expect(response).to have_gitlab_http_status(400)
     end
@@ -118,7 +149,7 @@ shared_examples 'discussions API' do |parent_type, noteable_type, id_name|
   describe "PUT /#{parent_type}/:id/#{noteable_type}/:noteable_id/discussions/:discussion_id/notes/:note_id" do
     it 'returns modified note' do
       put api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/"\
-              "discussions/#{note.discussion_id}/notes/#{note.id}", user), body: 'Hello!'
+              "discussions/#{note.discussion_id}/notes/#{note.id}", user), params: { body: 'Hello!' }
 
       expect(response).to have_gitlab_http_status(200)
       expect(json_response['body']).to eq('Hello!')
@@ -127,7 +158,7 @@ shared_examples 'discussions API' do |parent_type, noteable_type, id_name|
     it 'returns a 404 error when note id not found' do
       put api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/"\
               "discussions/#{note.discussion_id}/notes/12345", user),
-              body: 'Hello!'
+              params: { body: 'Hello!' }
 
       expect(response).to have_gitlab_http_status(404)
     end

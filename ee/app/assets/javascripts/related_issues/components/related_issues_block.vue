@@ -1,12 +1,14 @@
 <script>
 import Sortable from 'sortablejs';
-import loadingIcon from '~/vue_shared/components/loading_icon.vue';
 import tooltip from '~/vue_shared/directives/tooltip';
 import Icon from '~/vue_shared/components/icon.vue';
+import RelatedIssuableItem from '~/vue_shared/components/issue/related_issuable_item.vue';
+import IssueWeight from 'ee/boards/components/issue_card_weight.vue';
+import IssueDueDate from '~/boards/components/issue_due_date.vue';
 import sortableConfig from 'ee/sortable/sortable_config';
-import eventHub from '../event_hub';
-import issueItem from './issue_item.vue';
-import addIssuableForm from './add_issuable_form.vue';
+import { GlLoadingIcon } from '@gitlab/ui';
+import AddIssuableForm from './add_issuable_form.vue';
+import { issuableIconMap, issuableQaClassMap } from '../constants';
 
 export default {
   name: 'RelatedIssuesBlock',
@@ -15,9 +17,11 @@ export default {
   },
   components: {
     Icon,
-    loadingIcon,
-    addIssuableForm,
-    issueItem,
+    AddIssuableForm,
+    RelatedIssuableItem,
+    GlLoadingIcon,
+    IssueWeight,
+    IssueDueDate,
   },
   props: {
     isFetching: {
@@ -60,6 +64,10 @@ export default {
       required: false,
       default: '',
     },
+    pathIdSeparator: {
+      type: String,
+      required: true,
+    },
     helpPath: {
       type: String,
       required: false,
@@ -74,6 +82,10 @@ export default {
       type: String,
       required: false,
       default: 'Related issues',
+    },
+    issuableType: {
+      type: String,
+      required: true,
     },
   },
   computed: {
@@ -92,6 +104,12 @@ export default {
     hasHelpPath() {
       return this.helpPath.length > 0;
     },
+    issuableTypeIcon() {
+      return issuableIconMap[this.issuableType];
+    },
+    qaClass() {
+      return issuableQaClassMap[this.issuableType];
+    },
   },
   mounted() {
     if (this.canReorder) {
@@ -105,16 +123,13 @@ export default {
     }
   },
   methods: {
-    toggleAddRelatedIssuesForm() {
-      eventHub.$emit('toggleAddRelatedIssuesForm');
-    },
     getBeforeAfterId(itemEl) {
       const prevItemEl = itemEl.previousElementSibling;
       const nextItemEl = itemEl.nextElementSibling;
 
       return {
-        beforeId: prevItemEl && parseInt(prevItemEl.dataset.epicIssueId, 0),
-        afterId: nextItemEl && parseInt(nextItemEl.dataset.epicIssueId, 0),
+        beforeId: prevItemEl && parseInt(prevItemEl.dataset.orderingId, 0),
+        afterId: nextItemEl && parseInt(nextItemEl.dataset.orderingId, 0),
       };
     },
     reordered(event) {
@@ -136,43 +151,31 @@ export default {
     removeDraggingCursor() {
       document.body.classList.remove('is-dragging');
     },
+    issuableOrderingId({ epic_issue_id: epicIssueId, id }) {
+      return this.issuableType === 'issue' ? epicIssueId : id;
+    },
   },
 };
 </script>
 
 <template>
   <div class="related-issues-block">
-    <div
-      class="card-slim"
-    >
-      <div
-        :class="{ 'panel-empty-heading border-bottom-0': !hasBody }"
-        class="card-header"
-      >
-        <h3 class="card-title mt-0 mb-0">
+    <div class="card-slim">
+      <div :class="{ 'panel-empty-heading border-bottom-0': !hasBody }" class="card-header">
+        <h3 class="card-title mt-0 mb-0 h5">
           {{ title }}
-          <a
-            v-if="hasHelpPath"
-            :href="helpPath"
-          >
+          <a v-if="hasHelpPath" :href="helpPath">
             <i
-              class="related-issues-header-help-icon
-fa fa-question-circle"
-              aria-label="Read more about related issues">
-            </i>
+              class="related-issues-header-help-icon fa fa-question-circle"
+              aria-label="Read more about related issues"
+            ></i>
           </a>
           <div class="d-inline-flex lh-100 align-middle">
             <div
-              class="js-related-issues-header-issue-count
-  related-issues-header-issue-count issue-count-badge mx-1"
+              class="js-related-issues-header-issue-count related-issues-header-issue-count issue-count-badge mx-1"
             >
-              <span
-                class="issue-count-badge-count"
-              >
-                <icon
-                  name="issues"
-                  class="mr-1 text-secondary"
-                />
+              <span class="issue-count-badge-count">
+                <icon :name="issuableTypeIcon" class="mr-1 text-secondary" />
                 {{ badgeLabel }}
               </span>
             </div>
@@ -180,16 +183,13 @@ fa fa-question-circle"
               v-if="canAdmin"
               ref="issueCountBadgeAddButton"
               type="button"
-              class="js-issue-count-badge-add-button
-issue-count-badge-add-button btn btn-sm btn-default"
+              :class="qaClass"
+              class="js-issue-count-badge-add-button issue-count-badge-add-button btn btn-sm btn-default"
               aria-label="Add an issue"
               data-placement="top"
-              @click="toggleAddRelatedIssuesForm"
+              @click="$emit('toggleAddRelatedIssuesForm', $event)"
             >
-              <i
-                class="fa fa-plus"
-                aria-hidden="true">
-              </i>
+              <i class="fa fa-plus" aria-hidden="true"></i>
             </button>
           </div>
         </h3>
@@ -197,60 +197,83 @@ issue-count-badge-add-button btn btn-sm btn-default"
       <div
         v-if="isFormVisible"
         :class="{
-          'related-issues-add-related-issues-form-with-break': hasRelatedIssues
+          'related-issues-add-related-issues-form-with-break': hasRelatedIssues,
         }"
         class="js-add-related-issues-form-area card-body"
       >
         <add-issuable-form
           :is-submitting="isSubmitting"
+          :issuable-type="issuableType"
           :input-value="inputValue"
           :pending-references="pendingReferences"
           :auto-complete-sources="autoCompleteSources"
+          :path-id-separator="pathIdSeparator"
+          @pendingIssuableRemoveRequest="$emit('pendingIssuableRemoveRequest', $event)"
+          @addIssuableFormInput="$emit('addIssuableFormInput', $event)"
+          @addIssuableFormBlur="$emit('addIssuableFormBlur', $event)"
+          @addIssuableFormSubmit="$emit('addIssuableFormSubmit', $event)"
+          @addIssuableFormCancel="$emit('addIssuableFormCancel', $event)"
         />
       </div>
       <div
         :class="{
-          'collapsed': !shouldShowTokenBody,
-          'sortable-container': canReorder
+          collapsed: !shouldShowTokenBody,
+          'sortable-container': canReorder,
         }"
-        class="related-issues-token-body card-body"
+        class="related-issues-token-body"
       >
-        <div
-          v-if="isFetching"
-          class="related-issues-loading-icon">
-          <loadingIcon
+        <div v-if="isFetching" class="related-issues-loading-icon qa-related-issues-loading-icon">
+          <gl-loading-icon
             ref="loadingIcon"
             label="Fetching related issues"
             class="prepend-top-5"
           />
         </div>
-        <ul
-          ref="list"
-          :class="{ 'content-list' : !canReorder }"
-          class="flex-list issuable-list"
-        >
+        <ul ref="list" :class="{ 'content-list': !canReorder }" class="related-items-list">
           <li
             v-for="issue in relatedIssues"
             :key="issue.id"
             :class="{
               'user-can-drag': canReorder,
               'sortable-row': canReorder,
-              'card-slim': canReorder
+              'card-slim': canReorder,
             }"
             :data-key="issue.id"
-            :data-epic-issue-id="issue.epic_issue_id"
-            class="js-related-issues-token-list-item"
+            :data-ordering-id="issuableOrderingId(issue)"
+            class="js-related-issues-token-list-item list-item pt-0 pb-0"
           >
-            <issue-item
+            <related-issuable-item
               :id-key="issue.id"
               :display-reference="issue.reference"
+              :confidential="issue.confidential"
               :title="issue.title"
               :path="issue.path"
               :state="issue.state"
+              :milestone="issue.milestone"
+              :assignees="issue.assignees"
+              :created-at="issue.created_at"
+              :closed-at="issue.closed_at"
               :can-remove="canAdmin"
               :can-reorder="canReorder"
+              :path-id-separator="pathIdSeparator"
               event-namespace="relatedIssue"
-            />
+              @relatedIssueRemoveRequest="$emit('relatedIssueRemoveRequest', $event)"
+            >
+              <issue-weight
+                v-if="issue.weight"
+                slot="weight"
+                :weight="issue.weight"
+                class="item-weight d-flex align-items-center ml-2 mr-0"
+                tag-name="span"
+              />
+              <issue-due-date
+                v-if="issue.due_date"
+                slot="dueDate"
+                :date="issue.due_date"
+                tooltip-placement="top"
+                css-class="item-due-date d-flex align-items-center ml-2 mr-0"
+              />
+            </related-issuable-item>
           </li>
         </ul>
       </div>

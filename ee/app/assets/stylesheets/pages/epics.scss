@@ -11,8 +11,17 @@
       color: $gl-text-color-secondary;
     }
 
+    .btn-sidebar-action {
+      line-height: $gl-font-size;
+    }
+
+    .btn-sidebar-date-remove {
+      height: $gl-font-size;
+      line-height: $gl-btn-horz-padding;
+    }
+
     .date-warning-icon {
-      color: $gl-warning;
+      color: $orange-500;
       margin-top: -1px;
     }
 
@@ -30,6 +39,34 @@
           font-weight: $gl-font-weight-bold;
         }
       }
+    }
+  }
+}
+
+.epic-tabs-content {
+  .roadmap-container {
+    min-height: 600px;
+
+    .roadmap-shell {
+      border: 1px solid $white-dark;
+      border-top: 0;
+    }
+
+    .empty-state {
+      margin-top: 0;
+    }
+  }
+}
+
+@include media-breakpoint-down(xs) {
+  .epic-page-container {
+    .detail-page-header {
+      display: flex;
+    }
+
+    .detail-page-header-actions {
+      width: auto;
+      margin-top: 0;
     }
   }
 }

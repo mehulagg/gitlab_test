@@ -60,6 +60,15 @@ describe JenkinsService do
 
         it { is_expected.to validate_presence_of :username }
       end
+
+      context 'when password is blank' do
+        it 'does not validate the username' do
+          expect(subject).not_to validate_presence_of :username
+
+          subject.password = ''
+          subject.save
+        end
+      end
     end
 
     context 'when the service is inactive' do
@@ -191,7 +200,8 @@ describe JenkinsService do
         end
 
         context 'when namespace has a plan' do
-          let(:namespace) { create(:group, :private, plan: :bronze_plan) }
+          let(:namespace) { create(:group, :private) }
+          let!(:gitlab_subscription) { create(:gitlab_subscription, :bronze, namespace: namespace) }
 
           it 'adds default web hook headers to the request' do
             jenkins_service.execute(push_sample_data)

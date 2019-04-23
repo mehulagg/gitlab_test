@@ -7,7 +7,7 @@ describe 'Promotions', :js do
   let(:group) { create(:group) }
   let(:project) { create(:project, :repository, namespace: group) }
   let(:milestone) { create(:milestone, project: project, start_date: Date.today, due_date: 7.days.from_now) }
-  let!(:issue)  { create(:issue, project: project, author: user) }
+  let!(:issue) { create(:issue, project: project, author: user) }
   let(:otherproject) { create(:project, :repository, namespace: otherdeveloper.namespace) }
 
   describe 'if you have a license' do
@@ -15,7 +15,7 @@ describe 'Promotions', :js do
       project.add_maintainer(user)
     end
 
-    it 'should show no promotion at all' do
+    it 'shows no promotion at all' do
       sign_in(user)
       visit edit_project_path(project)
 
@@ -31,14 +31,14 @@ describe 'Promotions', :js do
         project.add_maintainer(user)
       end
 
-      it 'should have the contact admin line' do
+      it 'has the contact admin line' do
         sign_in(user)
         visit edit_project_path(project)
 
         expect(find('#promote_service_desk')).to have_content 'Contact your Administrator to upgrade your license.'
       end
 
-      it 'should have the start trial button' do
+      it 'has the start trial button' do
         sign_in(admin)
         visit edit_project_path(project)
 
@@ -59,13 +59,13 @@ describe 'Promotions', :js do
         sign_in(user)
       end
 
-      it 'should have the Upgrade your plan button' do
+      it "has the 'Upgrade your plan' button" do
         visit edit_project_path(project)
 
         expect(find('#promote_service_desk')).to have_content 'Upgrade your plan'
       end
 
-      it 'should have the contact owner line' do
+      it 'has the contact owner line' do
         visit edit_project_path(otherproject)
 
         expect(find('#promote_service_desk')).to have_content 'Contact owner'
@@ -82,7 +82,7 @@ describe 'Promotions', :js do
       sign_in(user)
     end
 
-    it 'should appear in project edit page' do
+    it 'appears in project edit page' do
       visit edit_project_path(project)
 
       expect(find('#promote_service_desk')).to have_content 'Improve customer support with GitLab Service Desk.'
@@ -112,7 +112,7 @@ describe 'Promotions', :js do
       sign_in(user)
     end
 
-    it 'should appear in project edit page' do
+    it 'appears in project edit page' do
       visit edit_project_path(project)
 
       expect(find('#promote_mr_features')).to have_content 'Improve Merge Requests'
@@ -142,7 +142,7 @@ describe 'Promotions', :js do
       sign_in(user)
     end
 
-    it 'should appear in repository settings page' do
+    it 'appears in repository settings page' do
       visit project_settings_repository_path(project)
 
       expect(find('#promote_repository_features')).to have_content 'Improve repositories with GitLab Enterprise Edition'
@@ -170,7 +170,7 @@ describe 'Promotions', :js do
       sign_in(user)
     end
 
-    it 'should appear in milestone page' do
+    it 'appears in milestone page' do
       visit project_milestone_path(project, milestone)
 
       expect(find('#promote_burndown_charts')).to have_content "Upgrade your plan to improve milestones with Burndown Charts."
@@ -198,7 +198,7 @@ describe 'Promotions', :js do
       sign_in(user)
     end
 
-    it 'should appear in milestone page' do
+    it 'appears in milestone page' do
       visit project_boards_path(project)
 
       expect(find('.board-promotion-state')).to have_content "Upgrade your plan to improve Issue boards"
@@ -226,7 +226,7 @@ describe 'Promotions', :js do
       sign_in(user)
     end
 
-    it 'should appear on export modal' do
+    it 'appears on export modal' do
       visit project_issues_path(project)
 
       click_on 'Export as CSV'
@@ -236,53 +236,71 @@ describe 'Promotions', :js do
   end
 
   describe 'for epics in issues sidebar', :js do
-    before do
-      allow(License).to receive(:current).and_return(nil)
-      stub_application_setting(check_namespace_plan: false)
+    shared_examples 'Epics promotion' do
+      it 'appears on the page' do
+        visit project_issue_path(project, issue)
+        wait_for_requests
 
-      project.add_maintainer(user)
-      sign_in(user)
+        click_epic_link
+
+        expect(find('.promotion-issue-sidebar-message')).to have_content 'Epics let you manage your portfolio of projects more efficiently'
+      end
+
+      it 'is removed after dismissal' do
+        visit project_issue_path(project, issue)
+        wait_for_requests
+
+        click_epic_link
+        find('.js-epics-sidebar-callout .js-close-callout').click
+
+        expect(page).not_to have_selector('.promotion-issue-sidebar-message')
+      end
+
+      it 'does not appear on page after dismissal and reload' do
+        visit project_issue_path(project, issue)
+        wait_for_requests
+
+        click_epic_link
+        find('.js-epics-sidebar-callout .js-close-callout').click
+        visit project_issue_path(project, issue)
+
+        expect(page).not_to have_selector('.js-epics-sidebar-callout')
+      end
+
+      it 'closes dialog when clicking on X, but not dismiss it' do
+        visit project_issue_path(project, issue)
+        wait_for_requests
+
+        click_epic_link
+        find('.js-epics-sidebar-callout .dropdown-menu-close').click
+
+        expect(page).to have_selector('.js-epics-sidebar-callout')
+        expect(page).to have_selector('.promotion-issue-sidebar-message', visible: false)
+      end
     end
 
-    it 'should appear on the page' do
-      visit project_issue_path(project, issue)
-      wait_for_requests
+    context 'gitlab.com' do
+      before do
+        stub_application_setting(check_namespace_plan: true)
+        allow(Gitlab).to receive(:com?) { true }
 
-      find('.js-epics-sidebar-callout .btn-link').click
+        project.add_maintainer(user)
+        sign_in(user)
+      end
 
-      expect(find('.promotion-issue-sidebar-message')).to have_content 'Epics let you manage your portfolio of projects more efficiently'
+      it_behaves_like 'Epics promotion'
     end
 
-    it 'should be removed after dismissal' do
-      visit project_issue_path(project, issue)
-      wait_for_requests
+    context 'self hosted' do
+      before do
+        allow(License).to receive(:current).and_return(nil)
+        stub_application_setting(check_namespace_plan: false)
 
-      find('.js-epics-sidebar-callout .btn-link').click
-      find('.js-epics-sidebar-callout .js-close-callout').click
+        project.add_maintainer(user)
+        sign_in(user)
+      end
 
-      expect(page).not_to have_selector('.js-epics-sidebar-callout')
-    end
-
-    it 'should not appear on page after dismissal and reload' do
-      visit project_issue_path(project, issue)
-      wait_for_requests
-
-      find('.js-epics-sidebar-callout .btn-link').click
-      find('.js-epics-sidebar-callout .js-close-callout').click
-      visit project_issue_path(project, issue)
-
-      expect(page).not_to have_selector('.js-epics-sidebar-callout')
-    end
-
-    it 'should close dialog when clicking on X, but not dismiss it' do
-      visit project_issue_path(project, issue)
-      wait_for_requests
-
-      find('.js-epics-sidebar-callout .btn-link').click
-      find('.js-epics-sidebar-callout .dropdown-menu-close').click
-
-      expect(page).to have_selector('.js-epics-sidebar-callout')
-      expect(page).to have_selector('.promotion-issue-sidebar-message', visible: false)
+      it_behaves_like 'Epics promotion'
     end
   end
 
@@ -295,7 +313,7 @@ describe 'Promotions', :js do
       sign_in(user)
     end
 
-    it 'should appear on the page', :js do
+    it 'appears on the page', :js do
       visit project_issue_path(project, issue)
       wait_for_requests
 
@@ -304,7 +322,7 @@ describe 'Promotions', :js do
       expect(find('.promotion-issue-sidebar-message')).to have_content 'Improve issues management with Issue weight and GitLab Enterprise Edition'
     end
 
-    it 'should be removed after dismissal' do
+    it 'is removed after dismissal' do
       visit project_issue_path(project, issue)
       wait_for_requests
 
@@ -314,7 +332,7 @@ describe 'Promotions', :js do
       expect(page).not_to have_selector('.js-weight-sidebar-callout')
     end
 
-    it 'should not appear on page after dismissal and reload' do
+    it 'does not appear on page after dismissal and reload' do
       visit project_issue_path(project, issue)
       wait_for_requests
 
@@ -325,7 +343,7 @@ describe 'Promotions', :js do
       expect(page).not_to have_selector('.js-weight-sidebar-callout')
     end
 
-    it 'should close dialog when clicking on X, but not dismiss it' do
+    it 'closes dialog when clicking on X, but not dismiss it' do
       visit project_issue_path(project, issue)
       wait_for_requests
 
@@ -346,7 +364,7 @@ describe 'Promotions', :js do
       sign_in(user)
     end
 
-    it 'should appear on the page', :js do
+    it 'appears on the page', :js do
       visit new_project_issue_path(project)
       wait_for_requests
 
@@ -365,7 +383,7 @@ describe 'Promotions', :js do
       sign_in(user)
     end
 
-    it 'should appear on the page' do
+    it 'appears on the page' do
       visit project_audit_events_path(project)
 
       expect(find('.user-callout-copy')).to have_content 'Track your project with Audit Events'
@@ -381,7 +399,7 @@ describe 'Promotions', :js do
       sign_in(user)
     end
 
-    it 'should appear on the page' do
+    it 'appears on the page' do
       visit group_analytics_path(group)
 
       expect(find('.user-callout-copy')).to have_content 'Track activity with Contribution Analytics.'
@@ -397,7 +415,7 @@ describe 'Promotions', :js do
       sign_in(user)
     end
 
-    it 'should appear on the page' do
+    it 'appears on the page' do
       visit group_hooks_path(group)
 
       expect(find('.user-callout-copy')).to have_content 'Add Group Webhooks'
@@ -412,7 +430,7 @@ describe 'Promotions', :js do
       sign_in(user)
     end
 
-    it 'should appear on seearch page' do
+    it 'appears on seearch page' do
       visit search_path
 
       fill_in 'search', with: 'chosen'
@@ -438,5 +456,9 @@ describe 'Promotions', :js do
 
       expect(page).not_to have_selector('#promote_advanced_search')
     end
+  end
+
+  def click_epic_link
+    find('.js-epics-sidebar-callout .btn-link').click
   end
 end

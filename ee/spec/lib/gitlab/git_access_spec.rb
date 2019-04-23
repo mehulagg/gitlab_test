@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe Gitlab::GitAccess do
+  include EE::GeoHelpers
+
   set(:user) { create(:user) }
 
   let(:actor) { user }
@@ -18,25 +20,10 @@ describe Gitlab::GitAccess do
       allow(Gitlab::Database).to receive(:read_only?) { true }
     end
 
-    it 'denies push access' do
-      project.add_maintainer(user)
+    let(:primary_repo_url) { geo_primary_http_url_to_repo(project) }
+    let(:primary_repo_ssh_url) { geo_primary_ssh_url_to_repo(project) }
 
-      expect { push_changes }.to raise_unauthorized("You can't push code to a read-only GitLab instance.")
-    end
-
-    it 'denies push access with primary present' do
-      error_message = "You can't push code to a read-only GitLab instance."\
-"\nPlease use the primary node URL instead: https://localhost:3000/gitlab/#{project.full_path}.git.
-For more information: #{EE::Gitlab::GeoGitAccess::GEO_SERVER_DOCS_URL}"
-
-      primary_node = create(:geo_node, :primary, url: 'https://localhost:3000/gitlab')
-      allow(Gitlab::Geo).to receive(:primary).and_return(primary_node)
-      allow(Gitlab::Geo).to receive(:secondary_with_primary?).and_return(true)
-
-      project.add_maintainer(user)
-
-      expect { push_changes }.to raise_unauthorized(error_message)
-    end
+    it_behaves_like 'a read-only GitLab instance'
   end
 
   describe "push_rule_check" do
@@ -264,10 +251,53 @@ For more information: #{EE::Gitlab::GeoGitAccess::GEO_SERVER_DOCS_URL}"
     end
   end
 
+  describe 'Geo' do
+    let(:actor) { :geo }
+
+    context 'git pull' do
+      it { expect { pull_changes }.not_to raise_error }
+
+      context 'for a secondary' do
+        let(:current_replication_lag) { nil }
+
+        before do
+          stub_licensed_features(geo: true)
+          stub_current_geo_node(create(:geo_node))
+
+          allow_any_instance_of(Gitlab::Geo::HealthCheck).to receive(:db_replication_lag_seconds).and_return(current_replication_lag)
+        end
+
+        context 'that has no DB replication lag' do
+          let(:current_replication_lag) { 0 }
+
+          it 'does not return a replication lag message in the console messages' do
+            expect(pull_changes.console_messages).to be_empty
+          end
+        end
+
+        context 'that has DB replication lag > 0' do
+          let(:current_replication_lag) { 7 }
+
+          it 'returns a replication lag message in the console messages' do
+            expect(pull_changes.console_messages).to eq(['Current replication lag: 7 seconds'])
+          end
+        end
+      end
+    end
+
+    context 'git push' do
+      it { expect { push_changes }.to raise_unauthorized(Gitlab::GitAccess::ERROR_MESSAGES[:upload]) }
+    end
+  end
+
   private
 
   def push_changes(changes = '_any')
     access.check('git-receive-pack', changes)
+  end
+
+  def pull_changes(changes = '_any')
+    access.check('git-upload-pack', changes)
   end
 
   def raise_unauthorized(message)

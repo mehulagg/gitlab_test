@@ -39,7 +39,7 @@ describe Gitlab::GitalyClient::OperationService do
 
     context "when pre_receive_error is present" do
       let(:response) do
-        Gitaly::UserCreateBranchResponse.new(pre_receive_error: "something failed")
+        Gitaly::UserCreateBranchResponse.new(pre_receive_error: "GitLab: something failed")
       end
 
       it "throws a PreReceive exception" do
@@ -80,7 +80,7 @@ describe Gitlab::GitalyClient::OperationService do
 
     context "when pre_receive_error is present" do
       let(:response) do
-        Gitaly::UserUpdateBranchResponse.new(pre_receive_error: "something failed")
+        Gitaly::UserUpdateBranchResponse.new(pre_receive_error: "GitLab: something failed")
       end
 
       it "throws a PreReceive exception" do
@@ -117,7 +117,7 @@ describe Gitlab::GitalyClient::OperationService do
 
     context "when pre_receive_error is present" do
       let(:response) do
-        Gitaly::UserDeleteBranchResponse.new(pre_receive_error: "something failed")
+        Gitaly::UserDeleteBranchResponse.new(pre_receive_error: "GitLab: something failed")
       end
 
       it "throws a PreReceive exception" do
@@ -175,7 +175,7 @@ describe Gitlab::GitalyClient::OperationService do
 
   shared_examples 'cherry pick and revert errors' do
     context 'when a pre_receive_error is present' do
-      let(:response) { response_class.new(pre_receive_error: "something failed") }
+      let(:response) { response_class.new(pre_receive_error: "GitLab: something failed") }
 
       it 'raises a PreReceiveError' do
         expect { subject }.to raise_error(Gitlab::Git::PreReceiveError, "something failed")
@@ -313,7 +313,7 @@ describe Gitlab::GitalyClient::OperationService do
       end
 
       context 'when a pre_receive_error is present' do
-        let(:response) { Gitaly::UserCommitFilesResponse.new(pre_receive_error: "something failed") }
+        let(:response) { Gitaly::UserCommitFilesResponse.new(pre_receive_error: "GitLab: something failed") }
 
         it 'raises a PreReceiveError' do
           expect { subject }.to raise_error(Gitlab::Git::PreReceiveError, "something failed")
@@ -332,6 +332,39 @@ describe Gitlab::GitalyClient::OperationService do
         let(:response) { Gitaly::UserCommitFilesResponse.new }
 
         it { expect(subject).to be_nil }
+      end
+    end
+  end
+
+  describe '#user_commit_patches' do
+    let(:patches_folder) { Rails.root.join('spec/fixtures/patchfiles') }
+    let(:patch_content) do
+      patch_names.map { |name| File.read(File.join(patches_folder, name)) }.join("\n")
+    end
+    let(:patch_names) { %w(0001-This-does-not-apply-to-the-feature-branch.patch) }
+    let(:branch_name) { 'branch-with-patches' }
+
+    subject(:commit_patches) do
+      client.user_commit_patches(user, branch_name, patch_content)
+    end
+
+    it 'applies the patch correctly' do
+      branch_update = commit_patches
+
+      expect(branch_update).to be_branch_created
+
+      commit = repository.commit(branch_update.newrev)
+      expect(commit.author_email).to eq('patchuser@gitlab.org')
+      expect(commit.committer_email).to eq(user.email)
+      expect(commit.message.chomp).to eq('This does not apply to the `feature` branch')
+    end
+
+    context 'when the patch could not be applied' do
+      let(:patch_names) { %w(0001-This-does-not-apply-to-the-feature-branch.patch) }
+      let(:branch_name) { 'feature' }
+
+      it 'raises the correct error' do
+        expect { commit_patches }.to raise_error(GRPC::FailedPrecondition)
       end
     end
   end

@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 module Gitlab
   module SlashCommands
     module Presenters
       module IssueBase
-        prepend EE::Gitlab::SlashCommands::Presenters::IssueBase
+        prepend EE::Gitlab::SlashCommands::Presenters::IssueBase # rubocop: disable Cop/InjectEnterpriseEditionModule
 
         def color(issuable)
           issuable.open? ? '#38ae67' : '#d22852'

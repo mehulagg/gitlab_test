@@ -1,4 +1,4 @@
-class CanonicalizeKerberosIdentities < ActiveRecord::Migration
+class CanonicalizeKerberosIdentities < ActiveRecord::Migration[4.2]
   # This migration can be performed online without errors.
   # It makes sure that all Kerberos identities are in canonical form
   # with a realm name (`username` => `username@DEFAULT.REALM`).
@@ -12,7 +12,7 @@ class CanonicalizeKerberosIdentities < ActiveRecord::Migration
       default_realm = krb5.get_default_realm
       krb5.close # release memory allocated by the krb5 library
       default_realm || ''
-    rescue StandardError
+    rescue StandardError, LoadError
       '' # could not find the system's default realm, maybe there's no Kerberos at all
     end
   end

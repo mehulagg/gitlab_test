@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
-class NotificationSetting < ActiveRecord::Base
-  prepend EE::NotificationSetting
+class NotificationSetting < ApplicationRecord
   include IgnorableColumn
 
   ignore_column :events
 
-  enum level: { global: 3, watch: 2, mention: 4, participating: 1, disabled: 0, custom: 5 }
+  enum level: { global: 3, watch: 2, participating: 1, mention: 4, disabled: 0, custom: 5 }
 
   default_value_for :level, NotificationSetting.levels[:global]
 
@@ -88,3 +87,5 @@ class NotificationSetting < ActiveRecord::Base
     respond_to?(event) && !!public_send(event) # rubocop:disable GitlabSecurity/PublicSend
   end
 end
+
+NotificationSetting.prepend(EE::NotificationSetting)

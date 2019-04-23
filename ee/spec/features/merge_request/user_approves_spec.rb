@@ -5,6 +5,10 @@ describe 'Merge request > User approves', :js do
   let(:project) { create(:project, :public, :repository, approvals_before_merge: 1) }
   let(:merge_request) { create(:merge_request, source_project: project) }
 
+  before do
+    stub_feature_flags(approval_rules: false)
+  end
+
   context 'Approving by approvers from groups' do
     let(:other_user) { create(:user) }
     let(:group) { create :group }
@@ -27,14 +31,14 @@ describe 'Merge request > User approves', :js do
         approve_merge_request
 
         expect(page).to have_content('Approved by')
-        expect(page).to have_css('.approver-avatar')
+        expect(page).to have_css('.js-approver-list-member')
       end
 
       it 'I am able to unapprove' do
         approve_merge_request
         unapprove_merge_request
 
-        expect(page).to have_no_css('.approver-avatar')
+        expect(page).to have_no_css('.js-approver-list-member')
       end
     end
 
@@ -48,19 +52,20 @@ describe 'Merge request > User approves', :js do
         approve_merge_request
 
         expect(page).to have_content('Approved by')
-        expect(page).to have_css('.approver-avatar')
+        expect(page).to have_css('.js-approver-list-member')
       end
 
       it 'I am able to unapprove' do
         approve_merge_request
         unapprove_merge_request
 
-        expect(page).to have_no_css('.approver-avatar')
+        expect(page).to have_no_css('.js-approver-list-member')
       end
     end
 
     context 'when CI is running but no approval given' do
       before do
+        stub_feature_flags(approval_rules: false) # TODO check in !9001 when feature enabled
         create :approver_group, group: group, target: merge_request
         pipeline = create(:ci_empty_pipeline, project: project, sha: merge_request.diff_head_sha, ref: merge_request.source_branch)
         merge_request.update(head_pipeline: pipeline)
@@ -94,8 +99,8 @@ describe 'Merge request > User approves', :js do
     end
 
     it 'does not show checking ability text' do
-      expect(find('.mr-widget-approvals-container')).not_to have_text('Checking ability to merge automatically')
-      expect(find('.mr-widget-approvals-container')).to have_selector('.approvals-body')
+      expect(find('.js-mr-approvals')).not_to have_text('Checking ability to merge automatically')
+      expect(find('.js-mr-approvals')).to have_selector('.approvals-body')
     end
   end
 end

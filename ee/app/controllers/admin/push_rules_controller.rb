@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Admin::PushRulesController < Admin::ApplicationController
   before_action :check_push_rules_available!
   before_action :push_rule
@@ -11,7 +13,7 @@ class Admin::PushRulesController < Admin::ApplicationController
     @push_rule.update(push_rule_params)
 
     if @push_rule.valid?
-      redirect_to admin_push_rule_path, notice: 'Push Rule updated successfully.'
+      redirect_to admin_push_rule_path, notice: _('Push Rule updated successfully.')
     else
       render :show
     end
@@ -39,7 +41,9 @@ class Admin::PushRulesController < Admin::ApplicationController
     params.require(:push_rule).permit(allowed_fields)
   end
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def push_rule
     @push_rule ||= PushRule.find_or_initialize_by(is_sample: true)
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 end

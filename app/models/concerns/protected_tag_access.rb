@@ -2,11 +2,9 @@
 
 module ProtectedTagAccess
   extend ActiveSupport::Concern
+  include ProtectedRefAccess
 
   included do
-    include ProtectedRefAccess
-    include EE::ProtectedRefAccess
-
     belongs_to :protected_tag
 
     delegate :project, to: :protected_tag

@@ -1,6 +1,98 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe ApplicationHelper do
+  include EE::GeoHelpers
+
+  describe '#read_only_message', :geo do
+    context 'when not in a Geo secondary' do
+      it 'returns a fallback message if database is readonly' do
+        expect(Gitlab::Database).to receive(:read_only?) { true }
+
+        expect(helper.read_only_message).to match('You are on a read-only GitLab instance')
+      end
+
+      it 'returns nil when database is not read_only' do
+        expect(helper.read_only_message).to be_nil
+      end
+    end
+
+    context 'when in a Geo Secondary' do
+      before do
+        stub_current_geo_node(create(:geo_node))
+      end
+
+      context 'when there is no Geo Primary node configured' do
+        it 'returns a read-only Geo message without a link to a primary node' do
+          expect(helper.read_only_message).to match(/If you want to make changes, you must visit this page on the .*primary node/)
+          expect(helper.read_only_message).not_to include('http://')
+        end
+      end
+
+      context 'when there is a Geo Primary node configured' do
+        let!(:geo_primary) { create(:geo_node, :primary) }
+
+        it 'returns a read-only Geo message with a link to primary node' do
+          expect(helper.read_only_message).to match(/If you want to make changes, you must visit this page on the .*primary node/)
+          expect(helper.read_only_message).to include(geo_primary.url)
+        end
+
+        it 'returns a limited actions message when @limited_actions_message is true' do
+          assign(:limited_actions_message, true)
+
+          expect(helper.read_only_message).to match(/You may be able to make a limited amount of changes or perform a limited amount of actions on this page/)
+          expect(helper.read_only_message).not_to include('http://')
+        end
+
+        it 'includes a warning about database lag' do
+          allow_any_instance_of(::Gitlab::Geo::HealthCheck).to receive(:db_replication_lag_seconds).and_return(120)
+
+          expect(helper.read_only_message).to match(/If you want to make changes, you must visit this page on the .*primary node/)
+          expect(helper.read_only_message).to match(/The database is currently 2 minutes behind the primary node/)
+          expect(helper.read_only_message).to include(geo_primary.url)
+        end
+
+        context 'event lag' do
+          it 'includes a lag warning about a node lag' do
+            event_log = create(:geo_event_log, created_at: 4.minutes.ago)
+            create(:geo_event_log, created_at: 3.minutes.ago)
+            create(:geo_event_log_state, event_id: event_log.id)
+
+            expect(helper.read_only_message).to match(/If you want to make changes, you must visit this page on the .*primary node/)
+            expect(helper.read_only_message).to match(/The node is currently 3 minutes behind the primary/)
+            expect(helper.read_only_message).to include(geo_primary.url)
+          end
+
+          it 'does not include a lag warning because the last event is too fresh' do
+            event_log = create(:geo_event_log, created_at: 3.minutes.ago)
+            create(:geo_event_log)
+            create(:geo_event_log_state, event_id: event_log.id)
+
+            expect(helper.read_only_message).to match(/If you want to make changes, you must visit this page on the .*primary node/)
+            expect(helper.read_only_message).not_to match(/The node is currently 3 minutes behind the primary/)
+            expect(helper.read_only_message).to include(geo_primary.url)
+          end
+
+          it 'does not include a lag warning because the last event is processed' do
+            event_log = create(:geo_event_log, created_at: 3.minutes.ago)
+            create(:geo_event_log_state, event_id: event_log.id)
+
+            expect(helper.read_only_message).to match(/If you want to make changes, you must visit this page on the .*primary node/)
+            expect(helper.read_only_message).not_to match(/The node is currently 3 minutes behind the primary/)
+            expect(helper.read_only_message).to include(geo_primary.url)
+          end
+
+          it 'does not include a lag warning because there are no events yet' do
+            expect(helper.read_only_message).to match(/If you want to make changes, you must visit this page on the .*primary node/)
+            expect(helper.read_only_message).not_to match(/minutes behind the primary/)
+            expect(helper.read_only_message).to include(geo_primary.url)
+          end
+        end
+      end
+    end
+  end
+
   describe '#autocomplete_data_sources' do
     def expect_autocomplete_data_sources(object, noteable_type, source_keys)
       sources = helper.autocomplete_data_sources(object, noteable_type)
@@ -15,7 +107,7 @@ describe ApplicationHelper do
       let(:noteable_type) { Epic }
 
       it 'returns paths for autocomplete_sources_controller' do
-        expect_autocomplete_data_sources(object, noteable_type, [:members, :labels, :epics])
+        expect_autocomplete_data_sources(object, noteable_type, [:members, :issues, :mergeRequests, :labels, :epics, :commands, :milestones])
       end
     end
 
@@ -23,8 +115,26 @@ describe ApplicationHelper do
       let(:object) { create(:project) }
       let(:noteable_type) { Issue }
 
-      it 'returns paths for autocomplete_sources_controller' do
-        expect_autocomplete_data_sources(object, noteable_type, [:members, :issues, :mergeRequests, :labels, :milestones, :commands])
+      context 'when epics are enabled' do
+        before do
+          stub_licensed_features(epics: true)
+        end
+
+        it 'returns paths for autocomplete_sources_controller for personal projects' do
+          expect_autocomplete_data_sources(object, noteable_type, [:members, :issues, :mergeRequests, :labels, :milestones, :commands, :snippets])
+        end
+
+        it 'returns paths for autocomplete_sources_controller including epics for group projects' do
+          object.update(group: create(:group))
+
+          expect_autocomplete_data_sources(object, noteable_type, [:members, :issues, :mergeRequests, :labels, :milestones, :commands, :snippets, :epics])
+        end
+      end
+
+      context 'when epics are disabled' do
+        it 'returns paths for autocomplete_sources_controller' do
+          expect_autocomplete_data_sources(object, noteable_type, [:members, :issues, :mergeRequests, :labels, :milestones, :commands, :snippets])
+        end
       end
     end
   end

@@ -1,17 +1,27 @@
+# frozen_string_literal: true
+
 require 'digest/md5'
 require 'uri'
 
 module ApplicationHelper
-  prepend EE::ApplicationHelper
-
   # See https://docs.gitlab.com/ee/development/ee_features.html#code-in-app-views
+  # rubocop: disable CodeReuse/ActiveRecord
   def render_if_exists(partial, locals = {})
-    render(partial, locals) if lookup_context.exists?(partial, [], true)
+    render(partial, locals) if partial_exists?(partial)
   end
+
+  def partial_exists?(partial)
+    lookup_context.exists?(partial, [], true)
+  end
+
+  def template_exists?(template)
+    lookup_context.exists?(template, [], false)
+  end
+  # rubocop: enable CodeReuse/ActiveRecord
 
   # Check if a particular controller is the current one
   #
-  # args - One or more controller names to check
+  # args - One or more controller names to check (using path notation when inside namespaces)
   #
   # Examples
   #
@@ -19,6 +29,11 @@ module ApplicationHelper
   #   current_controller?(:tree)           # => true
   #   current_controller?(:commits)        # => false
   #   current_controller?(:commits, :tree) # => true
+  #
+  #   # On Admin::ApplicationController
+  #   current_controller?(:application)         # => true
+  #   current_controller?('admin/application')  # => true
+  #   current_controller?('gitlab/application') # => false
   def current_controller?(*args)
     args.any? do |v|
       v.to_s.downcase == controller.controller_name || v.to_s.downcase == controller.controller_path
@@ -51,6 +66,7 @@ module ApplicationHelper
 
   # Define whenever show last push event
   # with suggestion to create MR
+  # rubocop: disable CodeReuse/ActiveRecord
   def show_last_push_widget?(event)
     # Skip if event is not about added or modified non-master branch
     return false unless event && event.last_push_to_non_root? && !event.rm_ref?
@@ -66,11 +82,9 @@ module ApplicationHelper
     # Skip if user removed branch right after that
     return false unless project.repository.branch_exists?(event.branch_name)
 
-    # Skip if this was a mirror update
-    return false if project.mirror? && project.repository.up_to_date_with_upstream?(event.branch_name)
-
     true
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 
   def hexdigest(string)
     Digest::SHA1.hexdigest string
@@ -111,11 +125,11 @@ module ApplicationHelper
   #
   # Returns an HTML-safe String
   def time_ago_with_tooltip(time, placement: 'top', html_class: '', short_format: false)
-    css_classes = short_format ? 'js-short-timeago' : 'js-timeago'
-    css_classes << " #{html_class}" unless html_class.blank?
+    css_classes = [short_format ? 'js-short-timeago' : 'js-timeago']
+    css_classes << html_class unless html_class.blank?
 
     element = content_tag :time, l(time, format: "%b %d, %Y"),
-      class: css_classes,
+      class: css_classes.join(' '),
       title: l(time.to_time.in_time_zone, format: :timeago_tooltip),
       datetime: time.to_time.getutc.iso8601,
       data: {
@@ -157,20 +171,8 @@ module ApplicationHelper
 
   def page_filter_path(options = {})
     without = options.delete(:without)
-    add_label = options.delete(:label)
 
-    exist_opts = {
-      state: params[:state],
-      scope: params[:scope],
-      milestone_title: params[:milestone_title],
-      assignee_id: params[:assignee_id],
-      author_id: params[:author_id],
-      search: params[:search],
-      label_name: params[:label_name],
-      weight: params[:weight]
-    }
-
-    options = exist_opts.merge(options)
+    options = request.query_parameters.merge(options)
 
     if without.present?
       without.each do |key|
@@ -178,11 +180,7 @@ module ApplicationHelper
       end
     end
 
-    params = options.compact
-
-    params.delete(:label_name) unless add_label
-
-    "#{request.path}?#{params.to_param}"
+    "#{request.path}?#{options.compact.to_param}"
   end
 
   def outdated_browser?
@@ -216,12 +214,19 @@ module ApplicationHelper
     class_names = []
     class_names << 'issue-boards-page' if current_controller?(:boards)
     class_names << 'with-performance-bar' if performance_bar_enabled?
-
+    class_names << system_message_class
     class_names
   end
 
-  # EE feature: System header and footer, unavailable in CE
   def system_message_class
+    class_names = []
+
+    return class_names unless appearance
+
+    class_names << 'with-system-header' if appearance.show_header?
+    class_names << 'with-system-footer' if appearance.show_footer?
+
+    class_names
   end
 
   # Returns active css class when condition returns true
@@ -270,6 +275,17 @@ module ApplicationHelper
     _('You are on a read-only GitLab instance.')
   end
 
+  def client_class_list
+    "gl-browser-#{browser.id} gl-platform-#{browser.platform.id}"
+  end
+
+  def client_js_flags
+    {
+      "is#{browser.id.to_s.titlecase}": true,
+      "is#{browser.platform.id.to_s.titlecase}": true
+    }
+  end
+
   def autocomplete_data_sources(object, noteable_type)
     return {} unless object && noteable_type
 
@@ -279,7 +295,16 @@ module ApplicationHelper
       mergeRequests: merge_requests_project_autocomplete_sources_path(object),
       labels: labels_project_autocomplete_sources_path(object, type: noteable_type, type_id: params[:id]),
       milestones: milestones_project_autocomplete_sources_path(object),
-      commands: commands_project_autocomplete_sources_path(object, type: noteable_type, type_id: params[:id])
+      commands: commands_project_autocomplete_sources_path(object, type: noteable_type, type_id: params[:id]),
+      snippets: snippets_project_autocomplete_sources_path(object)
     }
   end
+
+  private
+
+  def appearance
+    ::Appearance.current
+  end
 end
+
+ApplicationHelper.prepend(EE::ApplicationHelper)

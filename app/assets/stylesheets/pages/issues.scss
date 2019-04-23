@@ -58,8 +58,6 @@ form.edit-issue {
 }
 
 ul.related-merge-requests > li {
-  display: -ms-flexbox;
-  display: -webkit-flex;
   display: flex;
   align-items: center;
 
@@ -80,7 +78,6 @@ ul.related-merge-requests > li {
   }
 }
 
-.merge-requests-title,
 .related-branches-title {
   font-size: 16px;
   font-weight: $gl-font-weight-bold;
@@ -91,23 +88,16 @@ ul.related-merge-requests > li {
 }
 
 .merge-request-status {
-  font-size: 13px;
-  padding: 0 5px;
-  color: $white-light;
-  height: 20px;
-  border-radius: 3px;
-  line-height: 18px;
-
   &.merged {
-    background: $blue-500;
+    color: $blue-500;
   }
 
   &.closed {
-    background: $red-500;
+    color: $red-500;
   }
 
   &.open {
-    background: $green-500;
+    color: $green-500;
   }
 }
 
@@ -160,47 +150,11 @@ ul.related-merge-requests > li {
   padding-bottom: 37px;
 }
 
-.issues-export-modal {
-  .modal-header {
-    justify-content: flex-start;
+.issues-nav-controls {
+  font-size: 0;
 
-    .export-svg-container {
-      flex-grow: 1;
-
-      > svg {
-        float: right;
-      }
-    }
-  }
-
-  .modal-body {
-    padding: 0;
-
-    .export-modal-subheader {
-      justify-content: flex-start;
-      align-items: center;
-      border-bottom: 1px solid $modal-border-color;
-      padding: 14px;
-    }
-
-    .export-modal-text {
-      padding: 24px 16px;
-      line-height: 1.5;
-      min-height: $modal-body-height;
-    }
-  }
-
-  .export-svg-container {
-    height: 56px;
-    padding: 10px 10px 0;
-  }
-
-  svg {
-    height: 100%;
-  }
-
-  .export-checkmark {
-    color: $green-400;
+  .btn-group:empty {
+    display: none;
   }
 }
 
@@ -234,7 +188,17 @@ ul.related-merge-requests > li {
 }
 
 .new-branch-col {
-  padding-top: 10px;
+  font-size: 0;
+
+  .discussion-filter-container {
+    &:not(:only-child) {
+      margin-right: $gl-padding-8;
+    }
+
+    @include media-breakpoint-down(md) {
+      margin-top: $gl-padding-8;
+    }
+  }
 }
 
 .create-mr-dropdown-wrap {
@@ -254,6 +218,10 @@ ul.related-merge-requests > li {
 
   .btn-group:not(.hidden) {
     display: flex;
+
+    @include media-breakpoint-down(md) {
+      margin-top: $gl-padding-8;
+    }
   }
 
   .js-create-merge-request {
@@ -294,13 +262,22 @@ ul.related-merge-requests > li {
   display: block;
 }
 
+.issue-sort-dropdown {
+  .btn-group {
+    width: 100%;
+  }
+
+  .reverse-sort-btn {
+    color: $gl-text-color-secondary;
+  }
+}
+
 @include media-breakpoint-up(sm) {
   .emoji-block .row {
     display: flex;
 
     .new-branch-col {
       padding-top: 0;
-      text-align: right;
       align-self: center;
     }
 
@@ -312,110 +289,8 @@ ul.related-merge-requests > li {
   }
 }
 
-
-.issue-token {
-  display: inline-flex;
-  align-items: stretch;
-  max-width: 100%;
-  line-height: 1.75;
-  white-space: nowrap;
-}
-
-.issue-token-link {
-  display: inline-flex;
-  min-width: 0;
-
-  color: $gl-text-color-secondary;
-
-  &[href] {
-    color: $blue-600;
-  }
-
-  &:hover,
-  &:focus {
-    outline: none;
-    text-decoration: none;
-  }
-}
-
-.issue-token-reference {
-  display: flex;
-  align-items: center;
-  margin-right: 1px;
-  padding-left: 0.5em;
-  padding-right: 0.5em;
-  background-color: $gray-lighter;
-  border-top-left-radius: 2px;
-  border-bottom-left-radius: 2px;
-  transition: background $general-hover-transition-duration $general-hover-transition-curve, color $general-hover-transition-duration $general-hover-transition-curve;
-
-  .issue-token:hover &,
-  .issue-token-link:focus > & {
-    background-color: $gray-normal;
-    color: $blue-800;
-    text-decoration: none;
-  }
-}
-
-.issue-token-state-icon-open {
-  color: $green-500;
-}
-
-.issue-token-state-icon-closed {
-  color: $blue-500;
-}
-
-.issue-token-title {
-  overflow: hidden;
-  display: flex;
-  align-items: baseline;
-  padding-left: 0.5em;
-  background-color: $gray-normal;
-  color: $gl-text-color-secondary;
-  transition: background $general-hover-transition-duration $general-hover-transition-curve;
-
-  .issue-token:hover &,
-  .issue-token-link:focus > & {
-    background-color: $border-gray-normal;
-  }
-
-  > .fa {
-    line-height: inherit;
-  }
-}
-
-.issue-token-title-standalone {
-  padding-right: 0.5em;
-  border-top-right-radius: 2px;
-  border-bottom-right-radius: 2px;
-}
-
-.issue-token-title-text {
-  overflow: hidden;
-  max-width: 264px;
-  text-overflow: ellipsis;
-}
-
-.issue-token-remove-button {
-  display: flex;
-  align-items: center;
-  padding: 0 0.5em;
-  background-color: $gray-normal;
-  border: 0;
-  border-top-right-radius: 2px;
-  border-bottom-right-radius: 2px;
-  color: $gl-text-color-secondary;
-  transition: background $general-hover-transition-duration $general-hover-transition-curve;
-
-  &:hover,
-  &:focus,
-  .issue-token:hover &,
-  .issue-token-link:focus + & {
-    background-color: $border-gray-normal;
-    outline: none;
-  }
-
-  > .fa {
-    font-size: 0.9em;
+@include media-breakpoint-up(lg) {
+  .new-branch-col {
+    text-align: right;
   }
 }

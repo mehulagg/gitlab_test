@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 class Projects::PathLocksController < Projects::ApplicationController
   include PathLocksHelper
   include ExtractsPath
 
   # Authorize
   before_action :require_non_empty_project
+  before_action :authorize_download_code!
   before_action :authorize_push_code!, only: [:toggle]
 
   before_action :check_license
@@ -14,6 +17,7 @@ class Projects::PathLocksController < Projects::ApplicationController
     @path_locks = @project.path_locks.page(params[:page])
   end
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def toggle
     path_lock = @project.path_locks.find_by(path: params[:path])
 
@@ -27,6 +31,7 @@ class Projects::PathLocksController < Projects::ApplicationController
   rescue PathLocks::UnlockService::AccessDenied, PathLocks::LockService::AccessDenied
     access_denied!
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 
   def destroy
     path_lock = @project.path_locks.find(params[:id])

@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 module Geo
-  class UploadDeletedEvent < ActiveRecord::Base
+  class UploadDeletedEvent < ApplicationRecord
     include Geo::Model
+    include Geo::Eventable
 
     belongs_to :upload
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   # BroadcastMessage EE mixin
   #
@@ -6,7 +8,7 @@ module EE
   module BroadcastMessage
     extend ActiveSupport::Concern
 
-    module ClassMethods
+    class_methods do
       extend ::Gitlab::Utils::Override
 
       override :cache_expires_in

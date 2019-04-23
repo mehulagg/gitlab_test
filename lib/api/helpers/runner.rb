@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module API
   module Helpers
     module Runner
-      prepend EE::API::Helpers::Runner
+      prepend EE::API::Helpers::Runner # rubocop: disable Cop/InjectEnterpriseEditionModule
 
       JOB_TOKEN_HEADER = 'HTTP_JOB_TOKEN'.freeze
       JOB_TOKEN_PARAM = :token
@@ -26,7 +28,7 @@ module API
       end
 
       def get_runner_ip
-        { ip_address: request.ip }
+        { ip_address: env["action_dispatch.remote_ip"].to_s || request.ip }
       end
 
       def current_runner

@@ -4,6 +4,7 @@ require 'email_spec'
 describe Notify do
   include EmailSpec::Helpers
   include EmailSpec::Matchers
+  include EmailHelpers
   include RepoHelpers
 
   include_context 'gitlab email notification'
@@ -11,13 +12,21 @@ describe Notify do
   set(:user) { create(:user) }
   set(:current_user) { create(:user, email: "current@email.com") }
   set(:assignee) { create(:user, email: 'assignee@example.com', name: 'John Doe') }
+  set(:assignee2) { create(:user, email: 'assignee2@example.com', name: 'Jane Doe') }
 
   set(:merge_request) do
     create(:merge_request, source_project: project,
                            target_project: project,
                            author: current_user,
-                           assignee: assignee,
+                           assignees: [assignee, assignee2],
                            description: 'Awesome description')
+  end
+
+  set(:issue) do
+    create(:issue, author: current_user,
+                   assignees: [assignee],
+                   project: project,
+                   description: 'My awesome description!')
   end
 
   set(:project2) { create(:project, :repository) }
@@ -28,6 +37,48 @@ describe Notify do
   end
 
   context 'for a project' do
+    context 'for service desk issues' do
+      before do
+        issue.update!(service_desk_reply_to: 'service.desk@example.com')
+      end
+
+      describe 'thank you email' do
+        subject { described_class.service_desk_thank_you_email(issue.id) }
+
+        it_behaves_like 'an unsubscribeable thread'
+
+        it 'has the correct recipient' do
+          is_expected.to deliver_to('service.desk@example.com')
+        end
+
+        it 'has the correct subject and body' do
+          aggregate_failures do
+            is_expected.to have_referable_subject(issue, include_project: false, reply: true)
+            is_expected.to have_body_text("Thank you for your support request! We are tracking your request as ticket #{issue.to_reference}, and will respond as soon as we can.")
+          end
+        end
+      end
+
+      describe 'new note email' do
+        set(:first_note) { create(:discussion_note_on_issue, note: 'Hello world') }
+
+        subject { described_class.service_desk_new_note_email(issue.id, first_note.id) }
+
+        it_behaves_like 'an unsubscribeable thread'
+
+        it 'has the correct recipient' do
+          is_expected.to deliver_to('service.desk@example.com')
+        end
+
+        it 'has the correct subject and body' do
+          aggregate_failures do
+            is_expected.to have_referable_subject(issue, include_project: false, reply: true)
+            is_expected.to have_body_text(first_note.note)
+          end
+        end
+      end
+    end
+
     context 'for merge requests' do
       describe "that are new with approver" do
         before do
@@ -35,9 +86,7 @@ describe Notify do
         end
 
         subject do
-          described_class.new_merge_request_email(
-            merge_request.assignee_id, merge_request.id
-          )
+          described_class.new_merge_request_email(assignee.id, merge_request.id)
         end
 
         it "contains the approvers list" do
@@ -50,7 +99,7 @@ describe Notify do
         subject { described_class.approved_merge_request_email(recipient.id, merge_request.id, last_approver.id) }
 
         before do
-          merge_request.approvals.create(user: merge_request.assignee)
+          merge_request.approvals.create(user: assignee)
           merge_request.approvals.create(user: last_approver)
         end
 
@@ -80,13 +129,20 @@ describe Notify do
         end
 
         it 'contains the names of all of the approvers' do
-          is_expected.to have_body_text /#{merge_request.assignee.name}/
-          is_expected.to have_body_text /#{last_approver.name}/
+          merge_request.approvals.each do |approval|
+            is_expected.to have_body_text /#{approval.user.name}/
+          end
+        end
+
+        it 'contains the names of all assignees' do
+          merge_request.assignees.each do |assignee|
+            is_expected.to have_body_text /#{assignee.name}/
+          end
         end
 
         context 'when merge request has no assignee' do
           before do
-            merge_request.update(assignee: nil)
+            merge_request.update(assignees: [])
           end
 
           it 'does not show the assignee' do
@@ -100,7 +156,7 @@ describe Notify do
         subject { described_class.unapproved_merge_request_email(recipient.id, merge_request.id, last_unapprover.id) }
 
         before do
-          merge_request.approvals.create(user: merge_request.assignee)
+          merge_request.approvals.create(user: assignee)
         end
 
         it_behaves_like 'a multiple recipients email'
@@ -129,7 +185,15 @@ describe Notify do
         end
 
         it 'contains the names of all of the approvers' do
-          is_expected.to have_body_text /#{merge_request.assignee.name}/
+          merge_request.approvals.each do |approval|
+            is_expected.to have_body_text /#{approval.user.name}/
+          end
+        end
+
+        it 'contains the names of all assignees' do
+          merge_request.assignees.each do |assignee|
+            is_expected.to have_body_text /#{assignee.name}/
+          end
         end
       end
     end
@@ -140,7 +204,7 @@ describe Notify do
         subject { described_class.unapproved_merge_request_email(recipient.id, merge_request_without_assignee.id, last_unapprover.id) }
 
         before do
-          merge_request_without_assignee.approvals.create(user: merge_request_without_assignee.assignee)
+          merge_request_without_assignee.approvals.create(user: merge_request_without_assignee.assignees.first)
         end
 
         it 'contains the new status' do
@@ -223,6 +287,60 @@ describe Notify do
             is_expected.to have_body_text(epic_note_path)
           end
         end
+      end
+    end
+  end
+
+  describe 'merge request reviews' do
+    let!(:review) { create(:review, project: project, merge_request: merge_request) }
+    let!(:notes) { create_list(:note, 3, review: review, project: project, author: review.author, noteable: merge_request) }
+
+    subject { described_class.new_review_email(recipient.id, review.id) }
+
+    it_behaves_like 'an answer to an existing thread with reply-by-email enabled' do
+      let(:model) { review.merge_request }
+    end
+    it_behaves_like 'it should show Gmail Actions View Merge request link'
+    it_behaves_like 'an unsubscribeable thread'
+
+    it 'is sent to the given recipient as the author' do
+      sender = subject.header[:from].addrs[0]
+
+      aggregate_failures do
+        expect(sender.display_name).to eq(review.author_name)
+        expect(sender.address).to eq(gitlab_sender)
+        expect(subject).to deliver_to(recipient.notification_email)
+      end
+    end
+
+    it 'contains the message from the notes of the review' do
+      review.notes.each do |note|
+        is_expected.to have_body_text note.note
+      end
+    end
+
+    context 'when diff note' do
+      let!(:notes) { create_list(:diff_note_on_merge_request, 3, review: review, project: project, author: review.author, noteable: merge_request) }
+
+      it 'links to notes' do
+        review.notes.each do |note|
+          # Text part
+          expect(subject.text_part.body.raw_source).to include(
+            project_merge_request_url(project, merge_request, anchor: "note_#{note.id}")
+          )
+        end
+      end
+    end
+
+    it 'contains review author name' do
+      is_expected.to have_body_text review.author_name
+    end
+
+    it 'has the correct subject and body' do
+      aggregate_failures do
+        is_expected.to have_subject "Re: #{project.name} | #{merge_request.title} (#{merge_request.to_reference})"
+
+        is_expected.to have_body_text project_merge_request_path(project, merge_request)
       end
     end
   end

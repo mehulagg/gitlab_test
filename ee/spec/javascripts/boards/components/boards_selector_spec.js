@@ -1,69 +1,92 @@
 import Vue from 'vue';
 import BoardService from 'ee/boards/services/board_service';
-import 'ee/boards/components/boards_selector';
-import setTimeoutPromiseHelper from 'spec/helpers/set_timeout_promise_helper';
+import BoardsSelector from 'ee/boards/components/boards_selector.vue';
 import mountComponent from 'spec/helpers/vue_mount_component_helper';
+import { TEST_HOST } from 'spec/test_constants';
 
 const throttleDuration = 1;
 
-function waitForScroll() {
-  return Vue.nextTick()
-    .then(() => setTimeoutPromiseHelper(throttleDuration))
-    .then(() => Vue.nextTick());
+function boardGenerator(n) {
+  return new Array(n).fill().map((board, id) => {
+    const name = `board${id}`;
+
+    return {
+      id,
+      name,
+    };
+  });
 }
 
 describe('BoardsSelector', () => {
   let vm;
-  let scrollContainer;
-  let scrollFade;
-  let boardServiceResponse;
-  const boards = new Array(20).fill()
-    .map((board, id) => {
-      const name = `board${id}`;
+  let allBoardsResponse;
+  let recentBoardsResponse;
+  let fillSearchBox;
+  const boards = boardGenerator(20);
+  const recentBoards = boardGenerator(5);
 
-      return {
-        id,
-        name,
-      };
-    });
-
-  beforeEach((done) => {
-    loadFixtures('boards/show.html.raw');
-
+  beforeEach(done => {
+    setFixtures('<div class="js-boards-selector"></div>');
     window.gl = window.gl || {};
 
     window.gl.boardService = new BoardService({
       boardsEndpoint: '',
+      recentBoardsEndpoint: '',
       listsEndpoint: '',
       bulkUpdatePath: '',
       boardId: '',
     });
 
-    boardServiceResponse = Promise.resolve({
+    allBoardsResponse = Promise.resolve({
       data: boards,
     });
+    recentBoardsResponse = Promise.resolve({
+      data: recentBoards,
+    });
 
-    spyOn(BoardService.prototype, 'allBoards').and.returnValue(boardServiceResponse);
+    spyOn(BoardService.prototype, 'allBoards').and.returnValue(allBoardsResponse);
+    spyOn(BoardService.prototype, 'recentBoards').and.returnValue(recentBoardsResponse);
 
-    vm = mountComponent(gl.issueBoards.BoardsSelector, {
-      throttleDuration,
-      currentBoard: {},
-      milestonePath: '',
-    }, document.querySelector('.js-boards-selector'));
+    const Component = Vue.extend(BoardsSelector);
+    vm = mountComponent(
+      Component,
+      {
+        throttleDuration,
+        currentBoard: {
+          id: 1,
+          name: 'Development',
+          milestone_id: null,
+          weight: null,
+          assignee_id: null,
+          labels: [],
+        },
+        milestonePath: `${TEST_HOST}/milestone/path`,
+        boardBaseUrl: `${TEST_HOST}/board/base/url`,
+        hasMissingBoards: false,
+        canAdminBoard: true,
+        multipleIssueBoardsAvailable: true,
+        labelsPath: `${TEST_HOST}/labels/path`,
+        projectId: 42,
+        groupId: 19,
+        scopedIssueBoardFeatureEnabled: true,
+        weights: [],
+      },
+      document.querySelector('.js-boards-selector'),
+    );
 
     vm.$el.querySelector('.js-dropdown-toggle').click();
 
-    boardServiceResponse
+    Promise.all([allBoardsResponse, recentBoardsResponse])
       .then(() => vm.$nextTick())
-      .then(() => {
-        scrollFade = vm.$el.querySelector('.js-scroll-fade');
-        scrollContainer = scrollFade.querySelector('.js-dropdown-list');
-
-        scrollContainer.style.maxHeight = '100px';
-        scrollContainer.style.overflowY = 'scroll';
-      })
       .then(done)
       .catch(done.fail);
+
+    fillSearchBox = filterTerm => {
+      const { searchBox } = vm.$refs;
+      const searchBoxInput = searchBox.$el.querySelector('input');
+      searchBoxInput.value = filterTerm;
+      searchBoxInput.dispatchEvent(new Event('input'));
+    };
   });
 
   afterEach(() => {
@@ -71,25 +94,110 @@ describe('BoardsSelector', () => {
     window.gl.boardService = undefined;
   });
 
-  it('shows the scroll fade if isScrolledUp', (done) => {
-    scrollContainer.scrollTop = 0;
+  describe('filtering', () => {
+    it('shows all boards without filtering', done => {
+      vm.$nextTick()
+        .then(() => {
+          const dropdownItem = vm.$el.querySelectorAll('.js-dropdown-item');
 
-    waitForScroll()
-      .then(() => {
-        expect(scrollFade.classList.contains('fade-out')).toEqual(false);
-      })
-      .then(done)
-      .catch(done.fail);
+          expect(dropdownItem.length).toBe(boards.length + recentBoards.length);
+        })
+        .then(done)
+        .catch(done.fail);
+    });
+
+    it('shows only matching boards when filtering', done => {
+      const filterTerm = 'board1';
+      const expectedCount = boards.filter(board => board.name.includes(filterTerm)).length;
+
+      fillSearchBox(filterTerm);
+
+      vm.$nextTick()
+        .then(() => {
+          const dropdownItems = vm.$el.querySelectorAll('.js-dropdown-item');
+
+          expect(dropdownItems.length).toBe(expectedCount);
+        })
+        .then(done)
+        .catch(done.fail);
+    });
+
+    it('shows message if there are no matching boards', done => {
+      fillSearchBox('does not exist');
+
+      vm.$nextTick()
+        .then(() => {
+          const dropdownItems = vm.$el.querySelectorAll('.js-dropdown-item');
+
+          expect(dropdownItems.length).toBe(0);
+          expect(vm.$el).toContainText('No matching boards found');
+        })
+        .then(done)
+        .catch(done.fail);
+    });
   });
 
-  it('hides the scroll fade if not isScrolledUp', (done) => {
-    scrollContainer.scrollTop = scrollContainer.scrollHeight;
+  describe('recent boards section', () => {
+    it('shows only when boards are greater than 10', done => {
+      vm.$nextTick()
+        .then(() => {
+          const headerEls = vm.$el.querySelectorAll('.dropdown-bold-header');
 
-    waitForScroll()
-      .then(() => {
-        expect(scrollFade.classList.contains('fade-out')).toEqual(true);
-      })
-      .then(done)
-      .catch(done.fail);
+          const expectedCount = 2; // Recent + All
+
+          expect(expectedCount).toBe(headerEls.length);
+        })
+        .then(done)
+        .catch(done.fail);
+    });
+
+    it('does not show when boards are less than 10', done => {
+      spyOn(vm, 'initScrollFade');
+      spyOn(vm, 'setScrollFade');
+
+      vm.$nextTick()
+        .then(() => {
+          vm.boards = vm.boards.slice(0, 5);
+        })
+        .then(vm.$nextTick)
+        .then(() => {
+          const headerEls = vm.$el.querySelectorAll('.dropdown-bold-header');
+          const expectedCount = 0;
+
+          expect(expectedCount).toBe(headerEls.length);
+        })
+        .then(done)
+        .catch(done.fail);
+    });
+
+    it('does not show when recentBoards api returns empty array', done => {
+      vm.$nextTick()
+        .then(() => {
+          vm.recentBoards = [];
+        })
+        .then(vm.$nextTick)
+        .then(() => {
+          const headerEls = vm.$el.querySelectorAll('.dropdown-bold-header');
+          const expectedCount = 0;
+
+          expect(expectedCount).toBe(headerEls.length);
+        })
+        .then(done)
+        .catch(done.fail);
+    });
+
+    it('does not show when search is active', done => {
+      fillSearchBox('Random string');
+
+      vm.$nextTick()
+        .then(() => {
+          const headerEls = vm.$el.querySelectorAll('.dropdown-bold-header');
+          const expectedCount = 0;
+
+          expect(expectedCount).toBe(headerEls.length);
+        })
+        .then(done)
+        .catch(done.fail);
+    });
   });
 });

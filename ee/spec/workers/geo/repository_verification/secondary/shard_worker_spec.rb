@@ -12,7 +12,7 @@ describe Geo::RepositoryVerification::Secondary::ShardWorker, :postgresql, :clea
 
   before do
     stub_current_geo_node(secondary)
-    allow(Gitlab::Geo::Fdw).to receive(:enabled?).and_return(false)
+    stub_fdw_disabled
   end
 
   describe '#perform' do
@@ -22,7 +22,15 @@ describe Geo::RepositoryVerification::Secondary::ShardWorker, :postgresql, :clea
       Gitlab::ShardHealthCache.update([shard_name])
     end
 
-    it 'schedules job for each project' do
+    context 'shard worker scheduler' do
+      it 'acquires lock namespacing it per shard name' do
+        subject.perform(shard_name)
+
+        expect(subject.lease_key).to include(shard_name)
+      end
+    end
+
+    it 'schedule a job for each project' do
       other_project = create(:project)
       create(:repository_state, :repository_verified, project: project)
       create(:repository_state, :repository_verified, project: other_project)
@@ -34,7 +42,7 @@ describe Geo::RepositoryVerification::Secondary::ShardWorker, :postgresql, :clea
       subject.perform(shard_name)
     end
 
-    it 'schedules job for projects missing repository verification' do
+    it 'schedule jobs for projects missing repository verification' do
       create(:repository_state, :repository_verified, :wiki_verified, project: project)
       missing_repository_verification = create(:geo_project_registry, :synced, :wiki_verified, project: project)
 
@@ -43,11 +51,22 @@ describe Geo::RepositoryVerification::Secondary::ShardWorker, :postgresql, :clea
       subject.perform(shard_name)
     end
 
-    it 'schedules job for projects missing wiki verification' do
+    it 'schedule jobs for projects missing wiki verification' do
       create(:repository_state, :repository_verified, :wiki_verified, project: project)
       missing_wiki_verification = create(:geo_project_registry, :synced, :repository_verified, project: project)
 
       expect(secondary_singleworker).to receive(:perform_async).with(missing_wiki_verification.id)
+
+      subject.perform(shard_name)
+    end
+
+    it 'does not schedule jobs for projects on other shards' do
+      project_other_shard = create(:project)
+      project_other_shard.update_column(:repository_storage, 'other')
+      create(:repository_state, :repository_verified, :wiki_verified, project: project_other_shard)
+      registry_other_shard = create(:geo_project_registry, :synced, :wiki_verified, project: project_other_shard)
+
+      expect(secondary_singleworker).not_to receive(:perform_async).with(registry_other_shard.id)
 
       subject.perform(shard_name)
     end
@@ -73,7 +92,7 @@ describe Geo::RepositoryVerification::Secondary::ShardWorker, :postgresql, :clea
 
       let(:project1_repo_verified) { create(:repository_state, :repository_verified).project }
       let(:project2_repo_verified) { create(:repository_state, :repository_verified).project }
-      let(:project3_repo_failed)   { create(:repository_state, :repository_failed).project }
+      let(:project3_repo_failed) { create(:repository_state, :repository_failed).project }
       let(:project4_wiki_verified) { create(:repository_state, :wiki_verified).project }
       let(:project5_both_verified) { create(:repository_state, :repository_verified, :wiki_verified).project }
       let(:project6_both_verified) { create(:repository_state, :repository_verified, :wiki_verified).project }
@@ -162,6 +181,27 @@ describe Geo::RepositoryVerification::Secondary::ShardWorker, :postgresql, :clea
       is_expected.not_to receive(:schedule_job)
 
       Sidekiq::Testing.inline! { subject.perform(shard_name) }
+    end
+
+    context 'backoff time' do
+      let(:cache_key) { "#{described_class.name.underscore}:shard:#{shard_name}:skip" }
+
+      it 'sets the back off time when there are no pending items' do
+        expect(Rails.cache).to receive(:write).with(cache_key, true, expires_in: 300.seconds).once
+
+        subject.perform(shard_name)
+      end
+
+      it 'does not perform Geo::RepositoryVerification::Secondary::SingleWorker when the backoff time is set' do
+        create(:repository_state, :repository_verified, project: project)
+        create(:geo_project_registry, :synced, :repository_verification_outdated, project: project)
+
+        expect(Rails.cache).to receive(:read).with(cache_key).and_return(true)
+
+        expect(Geo::RepositoryVerification::Secondary::SingleWorker).not_to receive(:perform_async)
+
+        subject.perform(shard_name)
+      end
     end
   end
 end

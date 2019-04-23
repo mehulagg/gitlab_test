@@ -1,6 +1,16 @@
+# frozen_string_literal: true
+
 module EE
   module GroupsHelper
     extend ::Gitlab::Utils::Override
+
+    override :group_overview_nav_link_paths
+    def group_overview_nav_link_paths
+      super + %w[
+        groups/security/dashboard#show
+        groups/insights#show
+      ]
+    end
 
     override :group_nav_link_paths
     def group_nav_link_paths
@@ -28,6 +38,14 @@ module EE
 
       if can?(current_user, :read_epic, @group)
         links << :epics
+      end
+
+      if @group.feature_available?(:issues_analytics)
+        links << :analytics
+      end
+
+      if @group.insights_available?
+        links << :group_insights
       end
 
       links

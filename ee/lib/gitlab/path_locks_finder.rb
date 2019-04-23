@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # The database stores locked paths as following:
 # 'app/models/user.rb' or 'app/models'
 # To determine that 'app/models/user.rb' is locked we need to generate
@@ -49,6 +51,7 @@ class Gitlab::PathLocksFinder
     tokens
   end
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def find_by_token(token)
     if @non_locked_paths.include?(token)
       return false
@@ -62,8 +65,11 @@ class Gitlab::PathLocksFinder
 
     lock
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def find_downstream(path)
     @project.path_locks.find_by("path LIKE ?", "#{sanitize_sql_like(path)}%")
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class GroupHook < ProjectHook
   include CustomModelNaming
   include TriggerableHooks
@@ -19,5 +21,5 @@ class GroupHook < ProjectHook
   belongs_to :group
 
   clear_validators!
-  validates :url, presence: true, url: true
+  validates :url, presence: true, addressable_url: true
 end

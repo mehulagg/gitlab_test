@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Simplified version of Github API entities.
 # It's mainly used to mimic Github API and integrate with Jira Development Panel.
 #
@@ -113,8 +115,14 @@ module API
       class User < Grape::Entity
         expose :id
         expose :username, as: :login
-        expose :url do |user|
-          Gitlab::Routing.url_helpers.user_url(user)
+        expose :user_url, as: :url
+        expose :user_url, as: :html_url
+        expose :avatar_url
+
+        private
+
+        def user_url
+          Gitlab::Routing.url_helpers.user_url(object)
         end
       end
 
@@ -127,7 +135,9 @@ module API
 
       class PullRequest < Grape::Entity
         expose :title
-        expose :assignee, using: User
+        expose :assignee, using: User do |merge_request|
+          merge_request.assignee
+        end
         expose :author, as: :user, using: User
         expose :created_at
         expose :description, as: :body
@@ -166,6 +176,38 @@ module API
           expose :target_branch, as: :label
           expose :target_branch, as: :ref
           expose :target_project, as: :repo, using: Repository
+        end
+      end
+
+      class PullRequestPayload < Grape::Entity
+        expose :action do |merge_request|
+          case merge_request.state
+          when 'merged', 'closed'
+            'closed'
+          else
+            'opened'
+          end
+        end
+
+        expose :id
+        expose :pull_request, using: PullRequest do |merge_request|
+          merge_request
+        end
+      end
+
+      class PullRequestEvent < Grape::Entity
+        expose :id do |merge_request|
+          updated_at = merge_request.updated_at.to_i
+          "#{merge_request.id}-#{updated_at}"
+        end
+        expose :type do |_merge_request|
+          'PullRequestEvent'
+        end
+        expose :updated_at, as: :created_at
+        expose :payload, using: PullRequestPayload do |merge_request|
+          # The merge request data is used by PullRequestPayload and PullRequest, so we just provide it
+          # here. Otherwise Grape::Entity would try to access a field "payload" on Merge Request.
+          merge_request
         end
       end
     end

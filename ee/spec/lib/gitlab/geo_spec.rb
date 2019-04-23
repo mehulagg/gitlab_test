@@ -1,24 +1,46 @@
 require 'spec_helper'
 
-describe Gitlab::Geo, :geo do
+describe Gitlab::Geo, :geo, :request_store do
+  using RSpec::Parameterized::TableSyntax
   include ::EE::GeoHelpers
 
   set(:primary_node)   { create(:geo_node, :primary) }
   set(:secondary_node) { create(:geo_node) }
 
-  describe 'current_node' do
+  shared_examples 'a Geo cached value' do |method, key|
+    it 'includes Rails.version in the cache key' do
+      expect(Rails.cache).to receive(:write)
+        .with("geo:#{key}:#{Rails.version}", an_instance_of(String), expires_in: 15.seconds)
+
+      described_class.public_send(method)
+    end
+  end
+
+  describe '.current_node' do
     it 'returns a GeoNode instance' do
       expect(described_class.current_node).to eq(primary_node)
     end
+
+    it_behaves_like 'a Geo cached value', :current_node, :current_node
   end
 
-  describe 'primary_node' do
+  describe '.primary_node' do
     it 'returns a GeoNode primary instance' do
       expect(described_class.primary_node).to eq(primary_node)
     end
+
+    it_behaves_like 'a Geo cached value', :primary_node, :primary_node
   end
 
-  describe 'primary?' do
+  describe '.secondary_nodes' do
+    it 'returns a list of Geo secondary nodes' do
+      expect(described_class.secondary_nodes).to match_array(secondary_node)
+    end
+
+    it_behaves_like 'a Geo cached value', :secondary_nodes, :secondary_nodes
+  end
+
+  describe '.primary?' do
     context 'when current node is a primary node' do
       it 'returns true' do
         expect(described_class.primary?).to be_truthy
@@ -32,7 +54,7 @@ describe Gitlab::Geo, :geo do
     end
   end
 
-  describe 'primary_node_configured?' do
+  describe '.primary_node_configured?' do
     context 'when current node is a primary node' do
       it 'returns true' do
         expect(described_class.primary_node_configured?).to be_truthy
@@ -46,7 +68,7 @@ describe Gitlab::Geo, :geo do
     end
   end
 
-  describe 'secondary?' do
+  describe '.secondary?' do
     context 'when current node is a secondary node' do
       before do
         stub_current_geo_node(secondary_node)
@@ -64,7 +86,9 @@ describe Gitlab::Geo, :geo do
     end
   end
 
-  describe 'enabled?' do
+  describe '.enabled?' do
+    it_behaves_like 'a Geo cached value', :enabled?, :node_enabled
+
     context 'when any GeoNode exists' do
       it 'returns true' do
         expect(described_class.enabled?).to be_truthy
@@ -92,7 +116,16 @@ describe Gitlab::Geo, :geo do
     end
   end
 
-  describe 'connected?' do
+  describe '.oauth_authentication' do
+    before do
+      stub_secondary_node
+      stub_current_geo_node(secondary_node)
+    end
+
+    it_behaves_like 'a Geo cached value', :oauth_authentication, :oauth_application
+  end
+
+  describe '.connected?' do
     context 'when there is a database issue' do
       it 'returns false when database connection is down' do
         allow(GeoNode).to receive(:connected?) { false }
@@ -114,7 +147,7 @@ describe Gitlab::Geo, :geo do
     end
   end
 
-  describe 'secondary?' do
+  describe '.secondary?' do
     context 'when current node is secondary' do
       it 'returns true' do
         stub_current_geo_node(secondary_node)
@@ -129,7 +162,17 @@ describe Gitlab::Geo, :geo do
     end
   end
 
-  describe 'license_allows?' do
+  describe '.expire_cache!' do
+    it 'clears the Geo cache keys', :request_store do
+      described_class::CACHE_KEYS.each do |raw_key|
+        expect(Rails.cache).to receive(:delete).with("geo:#{raw_key}:#{Rails.version}")
+      end
+
+      described_class.expire_cache!
+    end
+  end
+
+  describe '.license_allows?' do
     it 'returns true if license has Geo addon' do
       stub_licensed_features(geo: true)
       expect(described_class.license_allows?).to be_truthy
@@ -197,6 +240,26 @@ describe Gitlab::Geo, :geo do
 
           expect(described_class.repository_verification_enabled?).to eq false
         end
+      end
+    end
+  end
+
+  context '.allowed_ip?' do
+    where(:allowed_ips, :ip, :allowed) do
+      "192.1.1.1"                  | "192.1.1.1"     | true
+      "192.1.1.1, 192.1.2.1"       | "192.1.2.1"     | true
+      "192.1.1.0/24"               | "192.1.1.223"   | true
+      "192.1.0.0/16"               | "192.1.223.223" | true
+      "192.1.0.0/16, 192.1.2.0/24" | "192.1.2.223"   | true
+      "192.1.0.0/16"               | "192.2.1.1"     | false
+      "192.1.0.1"                  | "192.2.1.1"     | false
+    end
+
+    with_them do
+      it do
+        stub_application_setting(geo_node_allowed_ips: allowed_ips)
+
+        expect(described_class.allowed_ip?(ip)).to eq(allowed)
       end
     end
   end

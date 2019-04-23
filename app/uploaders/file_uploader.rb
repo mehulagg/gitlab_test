@@ -122,12 +122,6 @@ class FileUploader < GitlabUploader
     }
   end
 
-  def markdown_link
-    markdown = +"[#{markdown_name}](#{secure_url})"
-    markdown.prepend("!") if image_or_video? || dangerous?
-    markdown
-  end
-
   def to_h
     {
       alt:      markdown_name,
@@ -155,9 +149,9 @@ class FileUploader < GitlabUploader
 
   # return a new uploader with a file copy on another project
   def self.copy_to(uploader, to_project)
-    moved = uploader.dup.tap do |u|
-      u.model = to_project
-    end
+    moved = self.new(to_project)
+    moved.object_store = uploader.object_store
+    moved.filename = uploader.filename
 
     moved.copy_file(uploader.file)
     moved
@@ -190,10 +184,6 @@ class FileUploader < GitlabUploader
 
   def prune_store_dir
     storage.delete_dir!(store_dir) # only remove when empty
-  end
-
-  def markdown_name
-    (image_or_video? ? File.basename(filename, File.extname(filename)) : filename).gsub("]", "\\]")
   end
 
   def identifier

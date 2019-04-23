@@ -1,5 +1,5 @@
 shared_context 'gitlab email notification' do
-  set(:project) { create(:project, :repository) }
+  set(:project) { create(:project, :repository, name: 'a-known-name') }
   set(:recipient) { create(:user, email: 'recipient@example.com') }
 
   let(:gitlab_sender_display_name) { Gitlab.config.gitlab.email_display_name }
@@ -45,12 +45,28 @@ shared_examples 'an email that contains a header with author username' do
   end
 end
 
+shared_examples 'an email with X-GitLab headers containing IDs' do
+  it 'has X-GitLab-*-ID header' do
+    is_expected.to have_header "X-GitLab-#{model.class.name}-ID", "#{model.id}"
+  end
+
+  it 'has X-GitLab-*-IID header if model has iid defined' do
+    if model.respond_to?(:iid)
+      is_expected.to have_header "X-GitLab-#{model.class.name}-IID", "#{model.iid}"
+    else
+      expect(subject.header["X-GitLab-#{model.class.name}-IID"]).to eq nil
+    end
+  end
+end
+
 shared_examples 'an email with X-GitLab headers containing project details' do
   it 'has X-GitLab-Project headers' do
     aggregate_failures do
+      full_path_as_domain = "#{project.name}.#{project.namespace.path}"
       is_expected.to have_header('X-GitLab-Project', /#{project.name}/)
       is_expected.to have_header('X-GitLab-Project-Id', /#{project.id}/)
       is_expected.to have_header('X-GitLab-Project-Path', /#{project.full_path}/)
+      is_expected.to have_header('List-Id', "#{project.full_path} <#{project.id}.#{full_path_as_domain}.#{Gitlab.config.gitlab.host}>")
     end
   end
 end
@@ -69,6 +85,7 @@ end
 
 shared_examples 'a thread answer email with reply-by-email enabled' do
   include_examples 'an email with X-GitLab headers containing project details'
+  include_examples 'an email with X-GitLab headers containing IDs'
 
   it 'has the characteristics of a threaded reply' do
     host = Gitlab.config.gitlab.host
@@ -85,6 +102,7 @@ end
 
 shared_examples 'an email starting a new thread with reply-by-email enabled' do
   include_examples 'an email with X-GitLab headers containing project details'
+  include_examples 'an email with X-GitLab headers containing IDs'
   include_examples 'a new thread email with reply-by-email enabled'
 
   it 'includes "Reply to this email directly or <View it on GitLab>"' do
@@ -109,6 +127,7 @@ end
 
 shared_examples 'an answer to an existing thread with reply-by-email enabled' do
   include_examples 'an email with X-GitLab headers containing project details'
+  include_examples 'an email with X-GitLab headers containing IDs'
   include_examples 'a thread answer email with reply-by-email enabled'
 
   context 'when reply-by-email is enabled with incoming address with %{key}' do
@@ -230,6 +249,34 @@ shared_examples 'a note email' do
 
     it 'contains a link to note author' do
       is_expected.to have_body_text note.author_name
+    end
+  end
+end
+
+shared_examples 'appearance header and footer enabled' do
+  it "contains header and footer" do
+    create :appearance, header_message: "Foo", footer_message: "Bar", email_header_and_footer_enabled: true
+
+    aggregate_failures do
+      expect(subject.html_part).to have_body_text("<div class=\"header-message\" style=\"\"><p>Foo</p></div>")
+      expect(subject.html_part).to have_body_text("<div class=\"footer-message\" style=\"\"><p>Bar</p></div>")
+
+      expect(subject.text_part).to have_body_text(/^Foo/)
+      expect(subject.text_part).to have_body_text(/Bar$/)
+    end
+  end
+end
+
+shared_examples 'appearance header and footer not enabled' do
+  it "does not contain header and footer" do
+    create :appearance, header_message: "Foo", footer_message: "Bar", email_header_and_footer_enabled: false
+
+    aggregate_failures do
+      expect(subject.html_part).not_to have_body_text("<div class=\"header-message\" style=\"\"><p>Foo</p></div>")
+      expect(subject.html_part).not_to have_body_text("<div class=\"footer-message\" style=\"\"><p>Bar</p></div>")
+
+      expect(subject.text_part).not_to have_body_text(/^Foo/)
+      expect(subject.text_part).not_to have_body_text(/Bar$/)
     end
   end
 end

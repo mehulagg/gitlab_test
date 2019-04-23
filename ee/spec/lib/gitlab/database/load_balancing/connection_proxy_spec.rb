@@ -12,6 +12,13 @@ describe Gitlab::Database::LoadBalancing::ConnectionProxy do
   end
 
   describe '#select_all' do
+    let(:override_proxy) { ActiveRecord::Base.connection.class }
+
+    # We can't use :Gitlab::Utils::Override because this method is dynamically prepended
+    it 'method signatures match' do
+      expect(proxy.method(:select_all).parameters).to eq(override_proxy.instance_method(:select_all).parameters)
+    end
+
     describe 'using a SELECT query' do
       it 'runs the query on a secondary' do
         arel = double(:arel)
@@ -133,7 +140,7 @@ describe Gitlab::Database::LoadBalancing::ConnectionProxy do
         .and_return(session)
     end
 
-    it 'it uses but does not stick to the primary when sticking is disabled' do
+    it 'uses but does not stick to the primary when sticking is disabled' do
       expect(proxy.load_balancer).to receive(:read_write).and_yield(connection)
       expect(connection).to receive(:foo).with('foo')
       expect(session).not_to receive(:write!)

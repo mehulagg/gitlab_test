@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'net/ldap/dn'
 
 module EE
@@ -19,9 +21,14 @@ module EE
               nil
             end
 
+            def find_by_certificate_issuer_and_serial(issuer_dn, serial, adapter)
+              certificate_assertion = "{ serialNumber #{serial}, issuer \"#{issuer_dn}\" }"
+              adapter.user_by_certificate_assertion(certificate_assertion)
+            end
+
             def find_by_kerberos_principal(principal, adapter)
               uid, domain = principal.split('@', 2)
-              return nil unless uid && domain
+              return unless uid && domain
 
               # In multi-forest setups, there may be several users with matching
               # uids but differing DNs, so skip adapters configured to connect to
@@ -66,7 +73,7 @@ module EE
           # We assume that the Kerberos username matches the configured uid
           # attribute in LDAP. For Active Directory, this is `sAMAccountName`
           def kerberos_principal
-            return nil unless uid
+            return unless uid
 
             uid + '@' + self.class.domain_from_dn(dn).upcase
           end

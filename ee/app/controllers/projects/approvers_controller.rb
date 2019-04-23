@@ -1,8 +1,17 @@
+# frozen_string_literal: true
+
 class Projects::ApproversController < Projects::ApplicationController
   before_action :authorize_for_subject!
 
+  # @deprecated
   def destroy
     subject.approvers.find(params[:id]).destroy
+
+    redirect_back_or_default(default: { action: 'index' })
+  end
+
+  def destroy_via_user_id
+    subject.approvers.find_by_user_id(params[:user_id]).destroy
 
     redirect_back_or_default(default: { action: 'index' })
   end
@@ -13,6 +22,7 @@ class Projects::ApproversController < Projects::ApplicationController
     access_denied! unless can?(current_user, :update_approvers, subject)
   end
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def subject
     @subject ||=
       if params[:merge_request_id]
@@ -21,4 +31,5 @@ class Projects::ApproversController < Projects::ApplicationController
         project
       end
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 end

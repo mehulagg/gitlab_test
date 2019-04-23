@@ -1,5 +1,5 @@
-/* eslint-disable no-restricted-properties, func-names, no-var, wrap-iife, camelcase,
-no-unused-expressions, max-len, one-var, one-var-declaration-per-line, default-case,
+/* eslint-disable no-restricted-properties, func-names, no-var, camelcase,
+no-unused-expressions, one-var, default-case,
 prefer-template, consistent-return, no-alert, no-return-assign,
 no-param-reassign, prefer-arrow-callback, no-else-return, vars-on-top,
 no-unused-vars, no-shadow, no-useless-escape, class-methods-use-this */
@@ -11,12 +11,12 @@ import $ from 'jquery';
 import _ from 'underscore';
 import Cookies from 'js-cookie';
 import Autosize from 'autosize';
-import 'vendor/jquery.caret'; // required by jquery.atwho
-import 'vendor/jquery.atwho';
+import 'jquery.caret'; // required by at.js
+import 'at.js';
 import AjaxCache from '~/lib/utils/ajax_cache';
 import Vue from 'vue';
 import syntaxHighlight from '~/syntax_highlight';
-import SkeletonLoadingContainer from '~/vue_shared/components/skeleton_loading_container.vue';
+import { GlSkeletonLoading } from '@gitlab/ui';
 import axios from './lib/utils/axios_utils';
 import { getLocationHash } from './lib/utils/url_utility';
 import Flash from './flash';
@@ -138,8 +138,6 @@ export default class Notes {
     this.$wrapperEl.on('click', '.js-note-delete', this.removeNote);
     // delete note attachment
     this.$wrapperEl.on('click', '.js-note-attachment-delete', this.removeAttachment);
-    // reset main target form when clicking discard
-    this.$wrapperEl.on('click', '.js-note-discard', this.resetMainTargetForm);
     // update the file name when an attachment is selected
     this.$wrapperEl.on('change', '.js-note-attachment-input', this.updateFormAttachment);
     // reply to diff/discussion notes
@@ -154,7 +152,11 @@ export default class Notes {
     this.$wrapperEl.on('click', '.system-note-commit-list-toggler', this.toggleCommitList);
 
     this.$wrapperEl.on('click', '.js-toggle-lazy-diff', this.loadLazyDiff);
-    this.$wrapperEl.on('click', '.js-toggle-lazy-diff-retry-button', this.onClickRetryLazyLoad.bind(this));
+    this.$wrapperEl.on(
+      'click',
+      '.js-toggle-lazy-diff-retry-button',
+      this.onClickRetryLazyLoad.bind(this),
+    );
 
     // fetch notes when tab becomes visible
     this.$wrapperEl.on('visibilitychange', this.visibilityChange);
@@ -187,7 +189,6 @@ export default class Notes {
     this.$wrapperEl.off('keyup input', '.js-note-text');
     this.$wrapperEl.off('click', '.js-note-target-reopen');
     this.$wrapperEl.off('click', '.js-note-target-close');
-    this.$wrapperEl.off('click', '.js-note-discard');
     this.$wrapperEl.off('keydown', '.js-note-text');
     this.$wrapperEl.off('click', '.js-comment-resolve-button');
     this.$wrapperEl.off('click', '.system-note-commit-list-toggler');
@@ -252,9 +253,7 @@ export default class Notes {
         discussionNoteForm = $textarea.closest('.js-discussion-note-form');
         if (discussionNoteForm.length) {
           if ($textarea.val() !== '') {
-            if (
-              !window.confirm('Are you sure you want to cancel creating this comment?')
-            ) {
+            if (!window.confirm('Are you sure you want to cancel creating this comment?')) {
               return;
             }
           }
@@ -266,9 +265,7 @@ export default class Notes {
           originalText = $textarea.closest('form').data('originalNote');
           newText = $textarea.val();
           if (originalText !== newText) {
-            if (
-              !window.confirm('Are you sure you want to cancel editing this comment?')
-            ) {
+            if (!window.confirm('Are you sure you want to cancel editing this comment?')) {
               return;
             }
           }
@@ -509,7 +506,7 @@ export default class Notes {
           var contentContainerClass =
             '.' +
             $notes
-              .closest('.notes_content')
+              .closest('.notes-content')
               .attr('class')
               .split(' ')
               .join('.');
@@ -631,7 +628,7 @@ export default class Notes {
    *
    * deactivates the submit button when text is empty
    * hides the preview button when text is empty
-   * setup GFM auto complete
+   * set up GFM auto complete
    * show the form
    */
   setupNoteForm(form, enableGFM = defaultAutocompleteConfig) {
@@ -954,7 +951,7 @@ export default class Notes {
    * Note: dataHolder must have the "discussionId" and "lineCode" data attributes set.
    */
   setupDiscussionNoteForm(dataHolder, form) {
-    // setup note target
+    // set up note target
     let diffFileData = dataHolder.closest('.text-file');
 
     if (diffFileData.length === 0) {
@@ -986,11 +983,9 @@ export default class Notes {
     form.find('#note_position').val(dataHolder.attr('data-position'));
 
     form
-      .find('.js-note-discard')
+      .find('.js-close-discussion-note-form')
       .show()
-      .removeClass('js-note-discard')
-      .addClass('js-close-discussion-note-form')
-      .text(form.find('.js-close-discussion-note-form').data('cancelText'));
+      .removeClass('hide');
     form.find('.js-note-target-close').remove();
     form.find('.js-note-new-discussion').remove();
     this.setupNoteForm(form);
@@ -1036,7 +1031,7 @@ export default class Notes {
 
     $diffFile[0].dispatchEvent(clickEvent);
 
-    // Setup comment form
+    // Set up comment form
     let newForm;
     const $noteContainer = $link.closest('.diff-viewer').find('.note-container');
     const $form = $noteContainer.find('> .discussion-form');
@@ -1074,14 +1069,14 @@ export default class Notes {
     addForm = false;
     let lineTypeSelector = '';
     rowCssToAdd =
-      '<tr class="notes_holder js-temp-notes-holder"><td class="notes_line" colspan="2"></td><td class="notes_content"><div class="content"></div></td></tr>';
+      '<tr class="notes_holder js-temp-notes-holder"><td class="notes-content" colspan="3"><div class="content"></div></td></tr>';
     // In parallel view, look inside the correct left/right pane
     if (this.isParallelView()) {
       lineTypeSelector = `.${lineType}`;
       rowCssToAdd =
-        '<tr class="notes_holder js-temp-notes-holder"><td class="notes_line old"></td><td class="notes_content parallel old"><div class="content"></div></td><td class="notes_line new"></td><td class="notes_content parallel new"><div class="content"></div></td></tr>';
+        '<tr class="notes_holder js-temp-notes-holder"><td class="notes_line old"></td><td class="notes-content parallel old"><div class="content"></div></td><td class="notes_line new"></td><td class="notes-content parallel new"><div class="content"></div></td></tr>';
     }
-    const notesContentSelector = `.notes_content${lineTypeSelector} .content`;
+    const notesContentSelector = `.notes-content${lineTypeSelector} .content`;
     let notesContent = targetRow.find(notesContentSelector);
 
     if (hasNotes && showReplyInput) {
@@ -1194,12 +1189,11 @@ export default class Notes {
   }
 
   updateTargetButtons(e) {
-    var closebtn, closetext, discardbtn, form, reopenbtn, reopentext, textarea;
+    var closebtn, closetext, form, reopenbtn, reopentext, textarea;
     textarea = $(e.target);
     form = textarea.parents('form');
     reopenbtn = form.find('.js-note-target-reopen');
     closebtn = form.find('.js-note-target-close');
-    discardbtn = form.find('.js-note-discard');
 
     if (textarea.val().trim().length > 0) {
       reopentext = reopenbtn.attr('data-alternative-text');
@@ -1216,9 +1210,6 @@ export default class Notes {
       if (closebtn.is(':not(.btn-comment-and-close)')) {
         closebtn.addClass('btn-comment-and-close');
       }
-      if (discardbtn.is(':hidden')) {
-        return discardbtn.show();
-      }
     } else {
       reopentext = reopenbtn.data('originalText');
       closetext = closebtn.data('originalText');
@@ -1234,9 +1225,6 @@ export default class Notes {
       if (closebtn.is('.btn-comment-and-close')) {
         closebtn.removeClass('btn-comment-and-close');
       }
-      if (discardbtn.is(':visible')) {
-        return discardbtn.hide();
-      }
     }
   }
 
@@ -1251,15 +1239,13 @@ export default class Notes {
     var postUrl = $originalContentEl.data('postUrl');
     var targetId = $originalContentEl.data('targetId');
     var targetType = $originalContentEl.data('targetType');
-    var markdownVersion = $originalContentEl.data('markdownVersion');
 
     this.glForm = new GLForm($editForm.find('form'), this.enableGFM);
 
     $editForm
       .find('form')
       .attr('action', `${postUrl}?html=true`)
-      .attr('data-remote', 'true')
-      .attr('data-markdown-version', markdownVersion);
+      .attr('data-remote', 'true');
     $editForm.find('.js-form-target-id').val(targetId);
     $editForm.find('.js-form-target-type').val(targetType);
     $editForm
@@ -1293,10 +1279,10 @@ export default class Notes {
     new Vue({
       el,
       components: {
-        SkeletonLoadingContainer,
+        GlSkeletonLoading,
       },
       render(createElement) {
-        return createElement('skeleton-loading-container');
+        return createElement('gl-skeleton-loading');
       },
     });
   }
@@ -1316,8 +1302,7 @@ export default class Notes {
 
     $retryButton.prop('disabled', true);
 
-    return this.loadLazyDiff(e)
-    .then(() => {
+    return this.loadLazyDiff(e).then(() => {
       $retryButton.prop('disabled', false);
     });
   }
@@ -1343,18 +1328,18 @@ export default class Notes {
      */
     if (url) {
       return axios
-      .get(url)
-      .then(({ data }) => {
-        // Reset state in case last request returned error
-        $successContainer.removeClass('hidden');
-        $errorContainer.addClass('hidden');
+        .get(url)
+        .then(({ data }) => {
+          // Reset state in case last request returned error
+          $successContainer.removeClass('hidden');
+          $errorContainer.addClass('hidden');
 
-        Notes.renderDiffContent($container, data);
-      })
-      .catch(() => {
-        $successContainer.addClass('hidden');
-        $errorContainer.removeClass('hidden');
-      });
+          Notes.renderDiffContent($container, data);
+        })
+        .catch(() => {
+          $successContainer.addClass('hidden');
+          $errorContainer.removeClass('hidden');
+        });
     }
     return Promise.resolve();
   }
@@ -1545,12 +1530,8 @@ export default class Notes {
                <div class="note-header">
                   <div class="note-header-info">
                      <a href="/${_.escape(currentUsername)}">
-                       <span class="d-none d-sm-inline-block">${_.escape(
-                         currentUsername,
-                       )}</span>
-                       <span class="note-headline-light">${_.escape(
-                         currentUsername,
-                       )}</span>
+                       <span class="d-none d-sm-inline-block">${_.escape(currentUsername)}</span>
+                       <span class="note-headline-light">${_.escape(currentUsername)}</span>
                      </a>
                   </div>
                </div>
@@ -1565,9 +1546,7 @@ export default class Notes {
     );
 
     $tempNote.find('.d-none.d-sm-inline-block').text(_.escape(currentUserFullname));
-    $tempNote
-      .find('.note-headline-light')
-      .text(`@${_.escape(currentUsername)}`);
+    $tempNote.find('.note-headline-light').text(`@${_.escape(currentUsername)}`);
 
     return $tempNote;
   }

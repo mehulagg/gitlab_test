@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module SystemCheck
   module Geo
     class FdwSchemaUpToDateCheck < SystemCheck::BaseCheck
@@ -23,7 +25,7 @@ module SystemCheck
       end
 
       def check?
-        Gitlab::Geo::Fdw.fdw_up_to_date?
+        Gitlab::Geo::Fdw.foreign_tables_up_to_date?
       end
 
       def show_error

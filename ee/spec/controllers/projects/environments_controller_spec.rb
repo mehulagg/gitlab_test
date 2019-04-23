@@ -19,8 +19,8 @@ describe Projects::EnvironmentsController do
   describe 'GET index' do
     context 'when requesting JSON response for folders' do
       before do
-        allow_any_instance_of(Environment).to receive(:has_terminals?).and_return(true)
-        allow_any_instance_of(Environment).to receive(:rollout_status).and_return(kube_deployment_rollout_status)
+        allow_any_instance_of(EE::Environment).to receive(:has_terminals?).and_return(true)
+        allow_any_instance_of(EE::Environment).to receive(:rollout_status).and_return(kube_deployment_rollout_status)
 
         create(:environment, project: project,
                              name: 'staging/review-1',
@@ -41,7 +41,7 @@ describe Projects::EnvironmentsController do
         before do
           stub_licensed_features(deploy_board: true)
 
-          get :index, environment_params(format: :json, scope: :available)
+          get :index, params: environment_params(format: :json, nested: true, scope: :available)
         end
 
         it 'responds with matching schema' do
@@ -63,7 +63,7 @@ describe Projects::EnvironmentsController do
         before do
           stub_licensed_features(deploy_board: false)
 
-          get :index, environment_params(format: :json)
+          get :index, params: environment_params(format: :json, nested: true)
         end
 
         it 'does not return the rollout_status_path attribute' do
@@ -82,7 +82,7 @@ describe Projects::EnvironmentsController do
 
       create(:cluster, :provided_by_gcp,
              environment_scope: '*', projects: [project])
-      create(:deployment, environment: environment)
+      create(:deployment, :success, environment: environment)
 
       allow_any_instance_of(EE::KubernetesService).to receive(:read_pod_logs).with(pod_name).and_return(kube_logs_body)
       allow_any_instance_of(Gitlab::Kubernetes::RolloutStatus).to receive(:instances).and_return([{ pod_name: pod_name }])
@@ -94,7 +94,7 @@ describe Projects::EnvironmentsController do
       end
 
       it 'renders forbidden' do
-        get :logs, environment_params(pod_name: pod_name)
+        get :logs, params: environment_params(pod_name: pod_name)
 
         expect(response).to have_gitlab_http_status(:not_found)
       end
@@ -102,7 +102,7 @@ describe Projects::EnvironmentsController do
 
     context 'when using HTML format' do
       it 'renders logs template' do
-        get :logs, environment_params(pod_name: pod_name)
+        get :logs, params: environment_params(pod_name: pod_name)
 
         expect(response).to be_ok
         expect(response).to render_template 'logs'
@@ -111,11 +111,17 @@ describe Projects::EnvironmentsController do
 
     context 'when using JSON format' do
       it 'returns the logs for a specific pod' do
-        get :logs, environment_params(pod_name: pod_name, format: :json)
+        get :logs, params: environment_params(pod_name: pod_name, format: :json)
 
         expect(response).to be_ok
         expect(json_response["logs"]).to match_array(["Log 1", "Log 2", "Log 3"])
         expect(json_response["pods"]).to match_array([pod_name])
+      end
+
+      it 'registers a usage of the endpoint' do
+        expect(::Gitlab::PodLogsUsageCounter).to receive(:increment).with(project.id)
+
+        get :logs, params: environment_params(pod_name: pod_name, format: :json)
       end
     end
   end
@@ -133,10 +139,10 @@ describe Projects::EnvironmentsController do
         before do
           protected_environment
 
-          get :terminal, environment_params
+          get :terminal, params: environment_params
         end
 
-        it 'should response with access denied' do
+        it 'responds with access denied' do
           expect(response).to have_gitlab_http_status(404)
         end
       end
@@ -145,18 +151,18 @@ describe Projects::EnvironmentsController do
         before do
           protected_environment.deploy_access_levels.create(user: user)
 
-          get :terminal, environment_params
+          get :terminal, params: environment_params
         end
 
-        it 'should be successful' do
+        it 'is successful' do
           expect(response).to have_gitlab_http_status(200)
         end
       end
     end
 
     context 'when environment is not protected' do
-      it 'should be successful' do
-        get :terminal, environment_params
+      it 'is successful' do
+        get :terminal, params: environment_params
 
         expect(response).to have_gitlab_http_status(200)
       end

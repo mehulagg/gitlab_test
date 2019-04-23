@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # rubocop:disable Gitlab/ModuleWithInstanceVariables
 module EE
   module Admin
@@ -6,9 +8,9 @@ module EE
         user
 
         if ClearNamespaceSharedRunnersMinutesService.new(@user.namespace).execute
-          redirect_to [:admin, @user], notice: 'User pipeline minutes were successfully reset.'
+          redirect_to [:admin, @user], notice: _('User pipeline minutes were successfully reset.')
         else
-          flash.now[:error] = 'There was an error resetting user pipeline minutes.'
+          flash.now[:error] = _('There was an error resetting user pipeline minutes.')
           render "edit"
         end
       end
@@ -18,7 +20,11 @@ module EE
       def allowed_user_params
         super + [
           :note,
-          namespace_attributes: [:id, :shared_runners_minutes_limit, :plan_id]
+          namespace_attributes: [
+            :id,
+            :shared_runners_minutes_limit,
+            gitlab_subscription_attributes: [:hosted_plan_id]
+          ]
         ]
       end
     end

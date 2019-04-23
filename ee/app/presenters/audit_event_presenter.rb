@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 class AuditEventPresenter < Gitlab::View::Presenter::Simple
   presents :audit_event
 
   def author_name
     user = audit_event.user
 
-    return nil unless user
+    return unless user
 
     link_to(user.name, user_path(user))
   end
@@ -24,7 +26,7 @@ class AuditEventPresenter < Gitlab::View::Presenter::Simple
   def object
     entity = audit_event.entity
 
-    return nil unless entity
+    return unless entity
 
     link_to(details[:entity_path] || entity.name, entity).html_safe
   end

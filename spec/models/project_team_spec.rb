@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "spec_helper"
 
 describe ProjectTeam do
@@ -175,6 +177,21 @@ describe ProjectTeam do
       it { expect(project.team.find_member(guest.id)).to be_a(GroupMember) }
       it { expect(project.team.find_member(nonmember.id)).to be_nil }
       it { expect(project.team.find_member(requester.id)).to be_nil }
+    end
+  end
+
+  describe '#members_in_project_and_ancestors' do
+    context 'group project' do
+      it 'filters out users who are not members of the project' do
+        group = create(:group)
+        project = create(:project, group: group)
+        group_member = create(:group_member, group: group)
+        old_user = create(:user)
+
+        ProjectAuthorization.create!(project: project, user: old_user, access_level: Gitlab::Access::GUEST)
+
+        expect(project.team.members_in_project_and_ancestors).to contain_exactly(group_member.user)
+      end
     end
   end
 

@@ -4,18 +4,19 @@ describe GeoNode, type: :model do
   using RSpec::Parameterized::TableSyntax
   include ::EE::GeoHelpers
 
-  let(:new_node) { create(:geo_node, url: 'https://localhost:3000/gitlab') }
-  let(:new_primary_node) { create(:geo_node, :primary, url: 'https://localhost:3000/gitlab') }
+  let(:dummy_url) { 'https://localhost:3000/gitlab' }
+  let(:new_node_attrs) { { url: dummy_url } }
+  let(:new_node) { create(:geo_node, new_node_attrs) }
+  let(:new_primary_node) { create(:geo_node, :primary, new_node_attrs) }
   let(:empty_node) { described_class.new }
   let(:primary_node) { create(:geo_node, :primary) }
   let(:node) { create(:geo_node) }
 
-  let(:dummy_url) { 'https://localhost:3000/gitlab' }
   let(:url_helpers) { Gitlab::Routing.url_helpers }
   let(:api_version) { API::API.version }
 
   context 'associations' do
-    it { is_expected.to belong_to(:oauth_application).dependent(:destroy) }
+    it { is_expected.to belong_to(:oauth_application).class_name('Doorkeeper::Application').dependent(:destroy).autosave(true) }
 
     it { is_expected.to have_many(:geo_node_namespace_links) }
     it { is_expected.to have_many(:namespaces).through(:geo_node_namespace_links) }
@@ -26,6 +27,60 @@ describe GeoNode, type: :model do
     it { is_expected.to validate_numericality_of(:repos_max_capacity).is_greater_than_or_equal_to(0) }
     it { is_expected.to validate_numericality_of(:files_max_capacity).is_greater_than_or_equal_to(0) }
     it { is_expected.to validate_numericality_of(:verification_max_capacity).is_greater_than_or_equal_to(0) }
+    it { is_expected.to validate_numericality_of(:minimum_reverification_interval).is_greater_than_or_equal_to(1) }
+
+    context 'when validating primary node' do
+      it 'cannot be disabled' do
+        primary_node.enabled = false
+
+        expect(primary_node).not_to be_valid
+        expect(primary_node.errors).to include(:enabled)
+      end
+    end
+
+    context 'when validating url' do
+      subject { build(:geo_node, url: url) }
+
+      context 'when url is http' do
+        let(:url) { 'http://foo' }
+
+        it { is_expected.to be_valid }
+      end
+
+      context 'when url is https' do
+        let(:url) { 'https://foo' }
+
+        it { is_expected.to be_valid }
+      end
+
+      context 'when url is not http or https' do
+        let(:url) { 'nothttp://foo' }
+
+        it { is_expected.not_to be_valid }
+      end
+    end
+
+    context 'when validating internal_url' do
+      subject { build(:geo_node, internal_url: internal_url) }
+
+      context 'when internal_url is http' do
+        let(:internal_url) { 'http://foo' }
+
+        it { is_expected.to be_valid }
+      end
+
+      context 'when internal_url is https' do
+        let(:internal_url) { 'https://foo' }
+
+        it { is_expected.to be_valid }
+      end
+
+      context 'when internal_url is not http or https' do
+        let(:internal_url) { 'nothttp://foo' }
+
+        it { is_expected.not_to be_valid }
+      end
+    end
   end
 
   context 'default values' do
@@ -52,18 +107,93 @@ describe GeoNode, type: :model do
   end
 
   context 'dependent models and attributes for GeoNode' do
-    context 'on create' do
-      it 'saves a corresponding oauth application if it is a secondary node' do
-        expect(node.oauth_application).to be_persisted
-      end
-
-      context 'when is a primary node' do
-        it 'has no oauth_application' do
-          expect(primary_node.oauth_application).not_to be_present
+    context 'when validating' do
+      context 'when it is a secondary node' do
+        before do
+          node
         end
 
-        it 'persists current clone_url_prefix' do
-          expect(primary_node.clone_url_prefix).to eq(Gitlab.config.gitlab_shell.ssh_path_prefix)
+        context 'when the oauth_application is missing' do
+          before do
+            node.oauth_application.destroy
+            node.oauth_application = nil
+          end
+
+          it 'builds an oauth_application' do
+            expect(node).to be_valid
+
+            expect(node.oauth_application).to be_present
+            expect(node.oauth_application.redirect_uri).to eq(node.oauth_callback_url)
+          end
+        end
+
+        it 'overwrites redirect_uri' do
+          node.oauth_application.redirect_uri = 'http://wrong-callback-url'
+          node.oauth_application.save!
+
+          expect(node).to be_valid
+
+          expect(node.oauth_application.redirect_uri).to eq(node.oauth_callback_url)
+        end
+      end
+
+      context 'when it is a primary node' do
+        before do
+          primary_node
+        end
+
+        context 'when it does not have an oauth_application' do
+          it 'does not create an oauth_application' do
+            primary_node.oauth_application = nil
+
+            expect(primary_node).to be_valid
+
+            expect(primary_node.oauth_application).to be_nil
+          end
+        end
+
+        context 'when it has an oauth_application' do
+          # TODO Should it instead be destroyed?
+          # https://gitlab.com/gitlab-org/gitlab-ee/issues/10225
+          it 'disassociates the oauth_application' do
+            primary_node.oauth_application = create(:oauth_application)
+
+            expect(primary_node).to be_valid
+
+            expect(primary_node.oauth_application).to be_nil
+          end
+        end
+
+        context 'when clone_url_prefix is nil' do
+          it 'sets current clone_url_prefix' do
+            primary_node.clone_url_prefix = nil
+
+            expect(primary_node).to be_valid
+
+            expect(primary_node.clone_url_prefix).to eq(Gitlab.config.gitlab_shell.ssh_path_prefix)
+          end
+        end
+
+        context 'when clone_url_prefix has changed' do
+          it 'sets current clone_url_prefix' do
+            primary_node.clone_url_prefix = 'foo'
+
+            expect(primary_node).to be_valid
+
+            expect(primary_node.clone_url_prefix).to eq(Gitlab.config.gitlab_shell.ssh_path_prefix)
+          end
+        end
+      end
+    end
+
+    context 'when saving' do
+      let(:oauth_application) { node.oauth_application }
+
+      context 'when url is changed' do
+        it "updates the associated OAuth application's redirect_uri" do
+          node.update!(url: 'http://modified-url')
+
+          expect(oauth_application.reload.redirect_uri).to eq('http://modified-url/oauth/geo/callback')
         end
       end
     end
@@ -82,6 +212,97 @@ describe GeoNode, type: :model do
       expect(node).to receive(:expire_cache!) # 1 for creation 1 for deletion
 
       node.destroy
+    end
+  end
+
+  describe '.primary_node' do
+    before do
+      create(:geo_node)
+    end
+
+    it 'returns the primary' do
+      primary = create(:geo_node, :primary)
+
+      expect(described_class.primary_node).to eq(primary)
+    end
+
+    it 'returns nil if there is no primary' do
+      expect(described_class.primary_node).to be_nil
+    end
+  end
+
+  describe '.secondary_nodes' do
+    before do
+      create(:geo_node, :primary)
+    end
+
+    it 'returns all secondary nodes' do
+      secondaries = create_list(:geo_node, 2)
+
+      expect(described_class.secondary_nodes).to match_array(secondaries)
+    end
+
+    it 'returns empty array if there are not any secondary nodes' do
+      expect(described_class.secondary_nodes).to be_empty
+    end
+  end
+
+  describe '.unhealthy_nodes' do
+    before do
+      create(:geo_node_status, :healthy)
+    end
+
+    subject(:unhealthy_nodes) { described_class.unhealthy_nodes }
+
+    it 'returns a node without status' do
+      geo_node = create(:geo_node)
+
+      expect(unhealthy_nodes).to contain_exactly(geo_node)
+    end
+
+    it 'returns a node not having a cursor last event id' do
+      geo_node_status = create(:geo_node_status, :healthy, cursor_last_event_id: nil)
+
+      expect(unhealthy_nodes).to contain_exactly(geo_node_status.geo_node)
+    end
+
+    it 'returns a node with missing status check timestamp' do
+      geo_node_status = create(:geo_node_status, :healthy, last_successful_status_check_at: nil)
+
+      expect(unhealthy_nodes).to contain_exactly(geo_node_status.geo_node)
+    end
+
+    it 'returns a node with an old status check timestamp' do
+      geo_node_status = create(:geo_node_status, :healthy, last_successful_status_check_at: 16.minutes.ago)
+
+      expect(unhealthy_nodes).to contain_exactly(geo_node_status.geo_node)
+    end
+  end
+
+  describe '.min_cursor_last_event_id' do
+    it 'returns the minimum of cursor_last_event_id across all nodes' do
+      create(:geo_node_status, cursor_last_event_id: 10)
+      create(:geo_node_status, cursor_last_event_id: 8)
+
+      expect(described_class.min_cursor_last_event_id).to eq(8)
+    end
+  end
+
+  describe '.find_by_oauth_application_id' do
+    context 'when the Geo node exists' do
+      it 'returns the Geo node' do
+        found = described_class.find_by_oauth_application_id(node.oauth_application_id)
+
+        expect(found).to eq(node)
+      end
+    end
+
+    context 'when the Geo node does not exist' do
+      it 'returns nil' do
+        found = described_class.find_by_oauth_application_id(-1)
+
+        expect(found).to be_nil
+      end
     end
   end
 
@@ -144,18 +365,13 @@ describe GeoNode, type: :model do
       stub_config_setting(port: 443)
       stub_config_setting(protocol: 'https')
       stub_config_setting(relative_url_root: '/gitlab')
-      node = GeoNode.new
 
-      expect(node.url).to eq('https://localhost/gitlab/')
+      expect(empty_node.url).to eq('https://localhost/gitlab/')
     end
   end
 
   describe '#url=' do
-    subject { GeoNode.new }
-
-    before do
-      subject.url = dummy_url
-    end
+    subject { new_node }
 
     it 'sets schema field based on url' do
       expect(subject.uri.scheme).to eq('https')
@@ -169,20 +385,88 @@ describe GeoNode, type: :model do
       expect(subject.uri.port).to eq(3000)
     end
 
-    context 'when unspecified ports' do
+    context 'when using unspecified ports' do
       let(:dummy_http) { 'http://example.com/' }
       let(:dummy_https) { 'https://example.com/' }
 
-      it 'sets port 80 when http and no port is specified' do
-        subject.url = dummy_http
+      context 'when schema is http' do
+        it 'sets port 80' do
+          subject.url = dummy_http
 
-        expect(subject.uri.port).to eq(80)
+          expect(subject.uri.port).to eq(80)
+        end
       end
 
-      it 'sets port 443 when https and no port is specified' do
-        subject.url = dummy_https
+      context 'when schema is https' do
+        it 'sets port 443' do
+          subject.url = dummy_https
 
-        expect(subject.uri.port).to eq(443)
+          expect(subject.uri.port).to eq(443)
+        end
+      end
+    end
+  end
+
+  describe '#internal_url' do
+    let(:internal_url) { 'https://foo:3003/bar' }
+    let(:node) { create(:geo_node, url: dummy_url, internal_url: internal_url) }
+
+    it 'returns a string' do
+      expect(node.internal_url).to be_a String
+    end
+
+    it 'includes schema home port and relative_url with a terminating /' do
+      expect(node.internal_url).to eq("#{internal_url}/")
+    end
+
+    it 'falls back to url' do
+      empty_node.url = dummy_url
+      empty_node.internal_url = nil
+
+      expect(empty_node.internal_url).to eq "#{dummy_url}/"
+    end
+
+    it 'resets internal_url if it matches #url' do
+      empty_node.url = dummy_url
+      empty_node.internal_url = dummy_url
+
+      expect(empty_node.attributes[:internal_url]).to be_nil
+    end
+  end
+
+  describe '#internal_url=' do
+    subject { described_class.new(internal_url: 'https://foo:3003/bar') }
+
+    it 'sets schema field based on url' do
+      expect(subject.internal_uri.scheme).to eq('https')
+    end
+
+    it 'sets host field based on url' do
+      expect(subject.internal_uri.host).to eq('foo')
+    end
+
+    it 'sets port field based on specified by url' do
+      expect(subject.internal_uri.port).to eq(3003)
+    end
+
+    context 'when using unspecified ports' do
+      let(:dummy_http) { 'http://example.com/' }
+      let(:dummy_https) { 'https://example.com/' }
+
+      context 'when schema is http' do
+        it 'sets port 80' do
+          subject.internal_url = dummy_http
+
+          expect(subject.internal_uri.port).to eq(80)
+        end
+      end
+
+      context 'when schema is https' do
+        it 'sets port 443' do
+          subject.internal_url = dummy_https
+
+          expect(subject.internal_uri.port).to eq(443)
+        end
       end
     end
   end
@@ -255,6 +539,18 @@ describe GeoNode, type: :model do
     end
   end
 
+  describe '#geo_projects_url' do
+    it 'returns the Geo Projects url for the specific node' do
+      expected_url = 'https://localhost:3000/gitlab/admin/geo/projects'
+
+      expect(new_node.geo_projects_url).to eq(expected_url)
+    end
+
+    it 'returns nil when node is a primary one' do
+      expect(primary_node.geo_projects_url).to be_nil
+    end
+  end
+
   describe '#missing_oauth_application?' do
     context 'on a primary node' do
       it 'returns false' do
@@ -274,7 +570,7 @@ describe GeoNode, type: :model do
   end
 
   describe '#projects_include?' do
-    let(:unsynced_project) { create(:project, repository_storage: 'broken') }
+    let(:unsynced_project) { create(:project, :broken_storage) }
 
     it 'returns true without selective sync' do
       expect(node.projects_include?(unsynced_project.id)).to eq true
@@ -321,7 +617,7 @@ describe GeoNode, type: :model do
     let(:nested_group_1) { create(:group, parent: group_1) }
     let!(:project_1) { create(:project, group: group_1) }
     let!(:project_2) { create(:project, group: nested_group_1) }
-    let!(:project_3) { create(:project, group: group_2, repository_storage: 'broken') }
+    let!(:project_3) { create(:project, :broken_storage, group: group_2) }
 
     it 'returns all projects without selective sync' do
       expect(node.projects).to match_array([project_1, project_2, project_3])

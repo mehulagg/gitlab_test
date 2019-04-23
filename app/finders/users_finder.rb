@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # UsersFinder
 #
 # Used to filter users by set of params
@@ -12,7 +14,6 @@
 #     active: boolean
 #     blocked: boolean
 #     external: boolean
-#     skip_ldap: boolean
 #
 class UsersFinder
   include CreatedAtFilter
@@ -36,7 +37,6 @@ class UsersFinder
     users = by_2fa(users)
     users = by_created_at(users)
     users = by_custom_attributes(users)
-    users = by_non_ldap(users)
 
     users
   end
@@ -46,7 +46,7 @@ class UsersFinder
   def by_username(users)
     return users unless params[:username]
 
-    users.where(username: params[:username])
+    users.by_username(params[:username])
   end
 
   def by_search(users)
@@ -67,24 +67,22 @@ class UsersFinder
     users.active
   end
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def by_external_identity(users)
     return users unless current_user&.admin? && params[:extern_uid] && params[:provider]
 
     users.joins(:identities).merge(Identity.with_extern_uid(params[:provider], params[:extern_uid]))
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def by_external(users)
     return users = users.where.not(external: true) unless current_user&.admin?
     return users unless params[:external]
 
     users.external
   end
-
-  def by_non_ldap(users)
-    return users unless params[:skip_ldap]
-
-    users.non_ldap
-  end
+  # rubocop: enable CodeReuse/ActiveRecord
 
   def by_2fa(users)
     case params[:two_factor]
@@ -97,3 +95,5 @@ class UsersFinder
     end
   end
 end
+
+UsersFinder.prepend(EE::UsersFinder)

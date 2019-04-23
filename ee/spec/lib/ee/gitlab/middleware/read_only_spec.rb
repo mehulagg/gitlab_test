@@ -8,7 +8,6 @@ describe Gitlab::Middleware::ReadOnly do
     rack = Rack::Builder.new do
       use ActionDispatch::Session::CacheStore
       use ActionDispatch::Flash
-      use ActionDispatch::ParamsParser
     end
 
     rack.run(subject)
@@ -34,21 +33,39 @@ describe Gitlab::Middleware::ReadOnly do
     end
   end
 
-  context 'normal requests to a read-only Gitlab instance' do
+  context 'normal requests to a read-only GitLab instance' do
     let(:fake_app) { lambda { |env| [200, { 'Content-Type' => 'text/plain' }, ['OK']] } }
 
     before do
       allow(Gitlab::Database).to receive(:read_only?) { true }
     end
 
-    context 'whitelisted requests' do
-      it 'expects a PATCH request to geo_nodes update URL to be allowed' do
+    shared_examples 'whitelisted request' do |request_type, request_url|
+      it "expects a #{request_type.upcase} request to #{request_url} to be allowed" do
         expect(Rails.application.routes).to receive(:recognize_path).and_call_original
-        response = request.patch('/admin/geo_nodes/1')
+        response = request.send(request_type, request_url)
 
         expect(response).not_to be_redirect
         expect(subject).not_to disallow_request
       end
+    end
+
+    context 'whitelisted requests' do
+      it_behaves_like 'whitelisted request', :patch, '/admin/geo/nodes/1'
+
+      it_behaves_like 'whitelisted request', :delete, '/admin/geo/projects/1'
+
+      it_behaves_like 'whitelisted request', :post, '/admin/geo/projects/1/resync'
+
+      it_behaves_like 'whitelisted request', :post, '/admin/geo/projects/1/recheck'
+
+      it_behaves_like 'whitelisted request', :post, '/admin/geo/projects/recheck_all'
+
+      it_behaves_like 'whitelisted request', :post, '/admin/geo/projects/resync_all'
+
+      it_behaves_like 'whitelisted request', :post, '/admin/geo/projects/1/force_redownload'
+
+      it_behaves_like 'whitelisted request', :delete, '/admin/geo/uploads/1'
     end
   end
 end

@@ -2,14 +2,11 @@
 import { s__, sprintf } from '~/locale';
 import { dateInWords } from '~/lib/utils/datetime_utility';
 
-import { PRESET_TYPES, PRESET_DEFAULTS } from '../constants';
+import { PRESET_TYPES, emptyStateDefault, emptyStateWithFilters } from '../constants';
 
-import NewEpic from '../../epics/new_epic/components/new_epic.vue';
+import initEpicCreate from '../../epic/epic_bundle';
 
 export default {
-  components: {
-    NewEpic,
-  },
   props: {
     presetType: {
       type: String,
@@ -34,6 +31,11 @@ export default {
     emptyStateIllustrationPath: {
       type: String,
       required: true,
+    },
+    isChildEpics: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   computed: {
@@ -81,17 +83,40 @@ export default {
       return s__('GroupRoadmap|The roadmap shows the progress of your epics along a timeline');
     },
     subMessage() {
+      if (this.isChildEpics) {
+        return sprintf(
+          s__(
+            'GroupRoadmap|To view the roadmap, add a start or due date to one of the %{linkStart}child epics%{linkEnd}.',
+          ),
+          {
+            linkStart:
+              '<a href="https://docs.gitlab.com/ee/user/group/epics/#multi-level-child-epics" target="_blank" rel="noopener noreferrer nofollow">',
+            linkEnd: '</a>',
+          },
+          false,
+        );
+      }
+
       if (this.hasFiltersApplied) {
-        return sprintf(PRESET_DEFAULTS[this.presetType].emptyStateWithFilters, {
+        return sprintf(emptyStateWithFilters, {
           startDate: this.timeframeRange.startDate,
           endDate: this.timeframeRange.endDate,
         });
       }
-      return sprintf(PRESET_DEFAULTS[this.presetType].emptyStateDefault, {
+      return sprintf(emptyStateDefault, {
         startDate: this.timeframeRange.startDate,
         endDate: this.timeframeRange.endDate,
       });
     },
+  },
+  mounted() {
+    // If filters are not applied and yet user
+    // is seeing empty state, we need to show
+    // `New epic` button, so boot-up Epic app
+    // in create mode.
+    if (!this.hasFiltersApplied) {
+      initEpicCreate(true);
+    }
   },
 };
 </script>
@@ -99,27 +124,22 @@ export default {
 <template>
   <div class="row empty-state">
     <div class="col-12">
-      <div class="svg-content">
-        <img
-          :src="emptyStateIllustrationPath"
-        />
-      </div>
+      <div class="svg-content"><img :src="emptyStateIllustrationPath" /></div>
     </div>
     <div class="col-12">
       <div class="text-content">
         <h4>{{ message }}</h4>
         <p v-html="subMessage"></p>
-        <new-epic
-          v-if="!hasFiltersApplied"
-          :endpoint="newEpicEndpoint"
-        />
-        <a
-          :title="__('List')"
-          :href="newEpicEndpoint"
-          class="btn btn-default"
-        >
-          <span>{{ s__('View epics list') }}</span>
-        </a>
+        <div class="text-center">
+          <div
+            v-if="!hasFiltersApplied"
+            id="epic-create-root"
+            :data-endpoint="newEpicEndpoint"
+          ></div>
+          <a :title="__('List')" :href="newEpicEndpoint" class="btn btn-default">
+            <span>{{ s__('View epics list') }}</span>
+          </a>
+        </div>
       </div>
     </div>
   </div>

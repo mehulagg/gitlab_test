@@ -91,7 +91,7 @@ describe 'Issue Boards', :js do
 
         wait_for_requests
 
-        expect(page).to have_content('No assignee')
+        expect(find('.qa-assign-yourself')).to have_content('None')
       end
 
       expect(card_two).not_to have_selector('.avatar')
@@ -101,7 +101,7 @@ describe 'Issue Boards', :js do
       click_card(card2)
 
       page.within(find('.assignee')) do
-        expect(page).to have_content('No assignee')
+        expect(find('.qa-assign-yourself')).to have_content('None')
 
         click_button 'assign yourself'
 
@@ -230,6 +230,21 @@ describe 'Issue Boards', :js do
         page.within '.value' do
           expect(page).to have_content 'None'
         end
+      end
+    end
+
+    context 'unlicensed' do
+      before do
+        stub_licensed_features(issue_weights: false)
+        visit project_board_path(project, board)
+        wait_for_requests
+      end
+
+      it 'hides weight' do
+        click_card(card1)
+        wait_for_requests
+
+        expect(page).not_to have_selector('.js-weight-weight-label')
       end
     end
   end

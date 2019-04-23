@@ -5,7 +5,7 @@ module RepositoryCheck
     include ApplicationWorker
     include RepositoryCheckQueue
 
-    prepend ::EE::RepositoryCheck::SingleRepositoryWorker
+    prepend ::EE::RepositoryCheck::SingleRepositoryWorker # rubocop: disable Cop/InjectEnterpriseEditionModule
 
     def perform(project_id)
       project = Project.find(project_id)
@@ -50,9 +50,11 @@ module RepositoryCheck
       false
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def has_changes?(project)
       Project.with_push.exists?(project.id)
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def has_wiki_changes?(project)
       return false unless project.wiki_enabled?

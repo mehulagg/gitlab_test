@@ -29,6 +29,11 @@ export default {
       required: false,
       default: null,
     },
+    sourceBranch: {
+      type: String,
+      required: false,
+      default: null,
+    },
     sastHeadPath: {
       type: String,
       required: false,
@@ -120,7 +125,16 @@ export default {
   },
   componentNames,
   computed: {
-    ...mapState(['sast', 'sastContainer', 'dast', 'dependencyScanning', 'summaryCounts']),
+    ...mapState([
+      'sast',
+      'sastContainer',
+      'dast',
+      'dependencyScanning',
+      'summaryCounts',
+      'modal',
+      'canCreateIssuePermission',
+      'canCreateFeedbackPermission',
+    ]),
     ...mapGetters([
       'groupedSastText',
       'groupedSummaryText',
@@ -141,6 +155,7 @@ export default {
   created() {
     this.setHeadBlobPath(this.headBlobPath);
     this.setBaseBlobPath(this.baseBlobPath);
+    this.setSourceBranch(this.sourceBranch);
 
     this.setVulnerabilityFeedbackPath(this.vulnerabilityFeedbackPath);
     this.setVulnerabilityFeedbackHelpPath(this.vulnerabilityFeedbackHelpPath);
@@ -190,6 +205,7 @@ export default {
       'setAppType',
       'setHeadBlobPath',
       'setBaseBlobPath',
+      'setSourceBranch',
       'setSastHeadPath',
       'setSastBasePath',
       'setSastContainerHeadPath',
@@ -207,6 +223,10 @@ export default {
       'setPipelineId',
       'setCanCreateIssuePermission',
       'setCanCreateFeedbackPermission',
+      'dismissIssue',
+      'revertDismissIssue',
+      'createNewIssue',
+      'createMergeRequest',
     ]),
   },
 };
@@ -220,27 +240,17 @@ export default {
     :has-issues="true"
     class="mr-widget-border-top grouped-security-reports mr-report"
   >
-    <div
-      v-if="pipelinePath"
-      slot="actionButtons"
-    >
+    <div v-if="pipelinePath" slot="actionButtons">
       <a
         :href="securityTab"
         target="_blank"
-        class="btn btn-default btn-sm float-right"
+        class="btn btn-default btn-sm float-right append-right-default"
       >
-        <span>{{ s__("ciReport|View full report") }}</span>
-        <icon
-          :size="16"
-          name="external-link"
-        />
+        <span>{{ s__('ciReport|View full report') }}</span> <icon :size="16" name="external-link" />
       </a>
     </div>
 
-    <div
-      slot="body"
-      class="mr-widget-grouped-section report-block"
-    >
+    <div slot="body" class="mr-widget-grouped-section report-block">
       <template v-if="sastHeadPath">
         <summary-row
           :summary="groupedSastText"
@@ -271,7 +281,6 @@ export default {
           v-if="dependencyScanning.newIssues.length || dependencyScanning.resolvedIssues.length"
           :unresolved-issues="dependencyScanning.newIssues"
           :resolved-issues="dependencyScanning.resolvedIssues"
-          :all-issues="dependencyScanning.allIssues"
           :component="$options.componentNames.SastIssueBody"
           class="js-dss-issue-list report-block-group-list"
         />
@@ -288,7 +297,7 @@ export default {
         <issues-list
           v-if="sastContainer.newIssues.length || sastContainer.resolvedIssues.length"
           :unresolved-issues="sastContainer.newIssues"
-          :neutral-issues="sastContainer.resolvedIssues"
+          :resolved-issues="sastContainer.resolvedIssues"
           :component="$options.componentNames.SastContainerIssueBody"
           class="report-block-group-list"
         />
@@ -311,7 +320,16 @@ export default {
         />
       </template>
 
-      <issue-modal />
+      <issue-modal
+        :modal="modal"
+        :vulnerability-feedback-help-path="vulnerabilityFeedbackHelpPath"
+        :can-create-issue-permission="canCreateIssuePermission"
+        :can-create-feedback-permission="canCreateFeedbackPermission"
+        @createNewIssue="createNewIssue"
+        @dismissIssue="dismissIssue"
+        @createMergeRequest="createMergeRequest"
+        @revertDismissIssue="revertDismissIssue"
+      />
     </div>
   </report-section>
 </template>

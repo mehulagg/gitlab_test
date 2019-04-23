@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module Board
     extend ActiveSupport::Concern
@@ -33,7 +35,7 @@ module EE
     end
 
     def milestone
-      return nil unless parent.feature_available?(:scoped_issue_board)
+      return unless parent.feature_available?(:scoped_issue_board)
 
       case milestone_id
       when ::Milestone::Upcoming.id

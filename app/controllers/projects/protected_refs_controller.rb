@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Projects::ProtectedRefsController < Projects::ApplicationController
   include RepositorySettingsRedirect
 
@@ -60,6 +62,8 @@ class Projects::ProtectedRefsController < Projects::ApplicationController
   end
 
   def access_level_attributes
-    %i(access_level id user_id _destroy group_id)
+    %i[access_level id]
   end
 end
+
+Projects::ProtectedRefsController.prepend(EE::Projects::ProtectedRefsController)

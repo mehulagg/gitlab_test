@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 module EE
   module Service
     extend ActiveSupport::Concern
 
-    module ClassMethods
+    class_methods do
       extend ::Gitlab::Utils::Override
 
       override :available_services_names
@@ -12,6 +14,10 @@ module EE
           jenkins
           jenkins_deprecated
         ]
+
+        if ::Gitlab.com? || Rails.env.development?
+          ee_service_names.push('gitlab_slack_application')
+        end
 
         (super + ee_service_names).sort_by(&:downcase)
       end

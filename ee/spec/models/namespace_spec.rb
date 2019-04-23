@@ -1,14 +1,24 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Namespace do
   let!(:namespace) { create(:namespace) }
+  let!(:free_plan) { create(:free_plan) }
+  let!(:bronze_plan) { create(:bronze_plan) }
+  let!(:silver_plan) { create(:silver_plan) }
+  let!(:gold_plan) { create(:gold_plan) }
 
   it { is_expected.to have_one(:namespace_statistics) }
+  it { is_expected.to have_one(:gitlab_subscription).dependent(:destroy) }
   it { is_expected.to belong_to(:plan) }
 
+  it { is_expected.to delegate_method(:extra_shared_runners_minutes).to(:namespace_statistics) }
   it { is_expected.to delegate_method(:shared_runners_minutes).to(:namespace_statistics) }
   it { is_expected.to delegate_method(:shared_runners_seconds).to(:namespace_statistics) }
   it { is_expected.to delegate_method(:shared_runners_seconds_last_reset).to(:namespace_statistics) }
+  it { is_expected.to delegate_method(:trial?).to(:gitlab_subscription) }
+  it { is_expected.to delegate_method(:trial_ends_on).to(:gitlab_subscription) }
 
   context 'scopes' do
     describe '.with_plan' do
@@ -138,14 +148,16 @@ describe Namespace do
   end
 
   describe '#feature_available?' do
-    let(:plan_license) { :bronze_plan }
-    let(:group) { create(:group, plan: plan_license) }
+    let(:hosted_plan) { create(:bronze_plan) }
+    let(:group) { create(:group) }
     let(:licensed_feature) { :service_desk }
     let(:feature) { licensed_feature }
 
     subject { group.feature_available?(feature) }
 
     before do
+      create(:gitlab_subscription, namespace: group, hosted_plan: hosted_plan)
+
       stub_licensed_features(licensed_feature => true)
     end
 
@@ -171,7 +183,7 @@ describe Namespace do
       end
 
       context 'when feature available on the plan' do
-        let(:plan_license) { :gold_plan }
+        let(:hosted_plan) { create(:gold_plan) }
 
         context 'when feature available for current group' do
           it 'returns true' do
@@ -179,7 +191,7 @@ describe Namespace do
           end
         end
 
-        if Group.supports_nested_groups?
+        if Group.supports_nested_objects?
           context 'when license is applied to parent group' do
             let(:child_group) { create :group, parent: group }
 
@@ -192,7 +204,7 @@ describe Namespace do
 
       context 'when feature not available in the plan' do
         let(:feature) { :deploy_board }
-        let(:plan_license) { :bronze_plan }
+        let(:hosted_plan) { create(:bronze_plan) }
 
         it 'returns false' do
           is_expected.to be_falsy
@@ -201,7 +213,6 @@ describe Namespace do
     end
 
     context 'when the feature is temporarily available on the entire instance' do
-      let(:license_plan) { :free_plan }
       let(:feature) { :ci_cd_projects }
 
       before do
@@ -218,6 +229,22 @@ describe Namespace do
         is_expected.to be_falsy
       end
     end
+
+    context 'when feature is disabled by a feature flag' do
+      it 'returns false' do
+        stub_feature_flags(feature => false)
+
+        is_expected.to eq(false)
+      end
+    end
+
+    context 'when feature is enabled by a feature flag' do
+      it 'returns true' do
+        stub_feature_flags(feature => true)
+
+        is_expected.to eq(true)
+      end
+    end
   end
 
   describe '#max_active_pipelines' do
@@ -229,7 +256,7 @@ describe Namespace do
 
     context 'when free plan has limit defined' do
       before do
-        create(:free_plan, active_pipelines_limit: 40)
+        free_plan.update_column(:active_pipelines_limit, 40)
       end
 
       it 'returns a free plan limits' do
@@ -239,7 +266,7 @@ describe Namespace do
 
     context 'when associated plan has no limit defined' do
       before do
-        namespace.plan = create(:gold_plan)
+        create(:gitlab_subscription, namespace: namespace, hosted_plan: gold_plan)
       end
 
       it 'returns zero' do
@@ -249,8 +276,8 @@ describe Namespace do
 
     context 'when limit is defined' do
       before do
-        namespace.plan = create(:gold_plan)
-        namespace.plan.update_column(:active_pipelines_limit, 10)
+        gold_plan.update_column(:active_pipelines_limit, 10)
+        create(:gitlab_subscription, namespace: namespace, hosted_plan: gold_plan)
       end
 
       it 'returns a number of maximum active pipelines' do
@@ -268,7 +295,7 @@ describe Namespace do
 
     context 'when free plan has limit defined' do
       before do
-        create(:free_plan, pipeline_size_limit: 40)
+        free_plan.update_column(:pipeline_size_limit, 40)
       end
 
       it 'returns a free plan limits' do
@@ -278,7 +305,7 @@ describe Namespace do
 
     context 'when associated plan has no limits defined' do
       before do
-        namespace.plan = create(:gold_plan)
+        create(:gitlab_subscription, namespace: namespace, hosted_plan: gold_plan)
       end
 
       it 'returns zero' do
@@ -288,8 +315,8 @@ describe Namespace do
 
     context 'when limit is defined' do
       before do
-        namespace.plan = create(:gold_plan)
-        namespace.plan.update_column(:pipeline_size_limit, 15)
+        gold_plan.update_column(:pipeline_size_limit, 15)
+        create(:gitlab_subscription, namespace: namespace, hosted_plan: gold_plan)
       end
 
       it 'returns a number of maximum pipeline size' do
@@ -351,6 +378,20 @@ describe Namespace do
 
         it 'returns namespace limit' do
           is_expected.to eq(500)
+        end
+      end
+
+      context 'when extra minutes limit is set' do
+        before do
+          namespace.update_attribute(:extra_shared_runners_minutes_limit, 100)
+        end
+
+        it 'returns the extra minutes by default' do
+          is_expected.to eq(1100)
+        end
+
+        it 'can exclude the extra minutes if required' do
+          expect(namespace.actual_shared_runners_minutes_limit(include_extra: false)).to eq(1000)
         end
       end
     end
@@ -472,6 +513,77 @@ describe Namespace do
     end
   end
 
+  describe '#extra_shared_runners_minutes_used?' do
+    subject { namespace.extra_shared_runners_minutes_used? }
+
+    context 'with project' do
+      let!(:project) do
+        create(:project, namespace: namespace, shared_runners_enabled: true)
+      end
+
+      context 'shared_runners_minutes_limit is not enabled' do
+        before do
+          allow(namespace).to receive(:shared_runners_minutes_limit_enabled?).and_return(false)
+        end
+
+        it { is_expected.to be_falsey }
+      end
+
+      context 'shared_runners_minutes_limit is enabled' do
+        context 'when limit is defined' do
+          before do
+            namespace.update_attribute(:extra_shared_runners_minutes_limit, 100)
+          end
+
+          context "when usage is below the quota" do
+            before do
+              allow(namespace).to receive(:extra_shared_runners_minutes).and_return(50)
+            end
+
+            it { is_expected.to be_falsey }
+          end
+
+          context "when usage is above the quota" do
+            before do
+              allow(namespace).to receive(:extra_shared_runners_minutes).and_return(101)
+            end
+
+            it { is_expected.to be_truthy }
+          end
+
+          context 'and main limit is unlimited' do
+            before do
+              namespace.update_attribute(:shared_runners_minutes_limit, 0)
+            end
+
+            context "and it's above the quota" do
+              it { is_expected.to be_falsey }
+            end
+          end
+        end
+
+        context 'without limit' do
+          before do
+            namespace.update_attribute(:shared_runners_minutes_limit, 100)
+            namespace.update_attribute(:extra_shared_runners_minutes_limit, nil)
+          end
+
+          context 'when main usage is above the quota' do
+            before do
+              allow(namespace).to receive(:shared_runners_minutes).and_return(101)
+            end
+
+            it { is_expected.to be_falsey }
+          end
+        end
+      end
+    end
+
+    context 'without project' do
+      it { is_expected.to be_falsey }
+    end
+  end
+
   describe '#shared_runners_minutes_used?' do
     subject { namespace.shared_runners_minutes_used? }
 
@@ -515,31 +627,38 @@ describe Namespace do
   describe '#actual_plan' do
     context 'when namespace has a plan associated' do
       before do
-        namespace.plan = create(:gold_plan)
+        namespace.update_attribute(:plan, gold_plan)
       end
 
-      it 'returns an associated plan' do
-        expect(namespace.plan).not_to be_nil
-        expect(namespace.actual_plan.name).to eq 'gold'
+      it 'generates a subscription with that plan code' do
+        expect(namespace.actual_plan).to eq(gold_plan)
+        expect(namespace.gitlab_subscription).to be_present
       end
     end
 
-    context 'when namespace does not have plan associated' do
+    context 'when namespace has a subscription associated' do
       before do
-        create(:free_plan)
+        create(:gitlab_subscription, namespace: namespace, hosted_plan: gold_plan)
       end
 
-      it 'returns a free plan object' do
-        expect(namespace.plan).to be_nil
-        expect(namespace.actual_plan.name).to eq 'free'
+      it 'returns the plan from the subscription' do
+        expect(namespace.actual_plan).to eq(gold_plan)
+        expect(namespace.gitlab_subscription).to be_present
+      end
+    end
+
+    context 'when namespace does not have a subscription associated' do
+      it 'generates a subscription with the Free plan' do
+        expect(namespace.actual_plan).to eq(free_plan)
+        expect(namespace.gitlab_subscription).to be_present
       end
     end
   end
 
   describe '#actual_plan_name' do
-    context 'when namespace has a plan associated' do
+    context 'when namespace has a subscription associated' do
       before do
-        namespace.plan = create(:gold_plan)
+        create(:gitlab_subscription, namespace: namespace, hosted_plan: gold_plan)
       end
 
       it 'returns an associated plan name' do
@@ -547,9 +666,235 @@ describe Namespace do
       end
     end
 
-    context 'when namespace does not have plan associated' do
+    context 'when namespace does not have subscription associated' do
       it 'returns a free plan name' do
         expect(namespace.actual_plan_name).to eq 'free'
+      end
+    end
+  end
+
+  describe '#billable_members_count' do
+    context 'with a user namespace' do
+      let(:user) { create(:user) }
+
+      it 'returns 1' do
+        expect(user.namespace.billable_members_count).to eq(1)
+      end
+    end
+
+    context 'with a group namespace' do
+      let(:group) { create(:group) }
+      let(:developer) { create(:user) }
+      let(:guest) { create(:user) }
+
+      before do
+        group.add_developer(developer)
+        group.add_guest(guest)
+      end
+
+      context 'with a gold plan' do
+        it 'does not count guest users' do
+          create(:gitlab_subscription, namespace: group, hosted_plan: gold_plan)
+
+          expect(group.billable_members_count).to eq(1)
+        end
+      end
+
+      context 'with other plans' do
+        %i[bronze_plan silver_plan].each do |plan|
+          it 'counts guest users' do
+            create(:gitlab_subscription, namespace: group, hosted_plan: send(plan))
+
+            expect(group.billable_members_count).to eq(2)
+          end
+        end
+      end
+    end
+  end
+
+  describe '#file_template_project_id' do
+    it 'is cleared before validation' do
+      project = create(:project, namespace: namespace)
+
+      namespace.file_template_project_id = project.id
+
+      expect(namespace).to be_valid
+      expect(namespace.file_template_project_id).to be_nil
+    end
+  end
+
+  describe '#checked_file_template_project' do
+    it 'is always nil' do
+      namespace.file_template_project_id = create(:project, namespace: namespace).id
+
+      expect(namespace.checked_file_template_project).to be_nil
+    end
+  end
+
+  describe '#checked_file_template_project_id' do
+    it 'is always nil' do
+      namespace.file_template_project_id = create(:project, namespace: namespace).id
+
+      expect(namespace.checked_file_template_project_id).to be_nil
+    end
+  end
+
+  describe '#store_security_reports_available?' do
+    subject { namespace.store_security_reports_available? }
+
+    context 'when store_security_reports feature is enabled' do
+      before do
+        stub_feature_flags(store_security_reports: true)
+        stub_licensed_features(sast: true)
+      end
+
+      it 'returns true' do
+        expect(subject).to be_truthy
+      end
+    end
+
+    context 'when store_security_reports feature is disabled' do
+      before do
+        stub_feature_flags(store_security_reports: false)
+        stub_licensed_features(sast: true)
+      end
+
+      it 'returns false' do
+        expect(subject).to be_falsey
+      end
+    end
+
+    context 'when no security report feature is available' do
+      before do
+        stub_feature_flags(store_security_reports: true)
+      end
+
+      it 'returns false' do
+        expect(subject).to be_falsey
+      end
+    end
+  end
+
+  describe '#actual_size_limit' do
+    let(:namespace) { build(:namespace) }
+
+    before do
+      allow_any_instance_of(ApplicationSetting).to receive(:repository_size_limit).and_return(50)
+    end
+
+    it 'returns the correct size limit' do
+      expect(namespace.actual_size_limit).to eq(50)
+    end
+  end
+
+  describe '#membership_lock with subgroups', :nested_groups do
+    context 'when creating a subgroup' do
+      let(:subgroup) { create(:group, parent: root_group) }
+
+      context 'under a parent with "Membership lock" enabled' do
+        let(:root_group) { create(:group, membership_lock: true) }
+
+        it 'enables "Membership lock" on the subgroup' do
+          expect(subgroup.membership_lock).to be_truthy
+        end
+      end
+
+      context 'under a parent with "Membership lock" disabled' do
+        let(:root_group) { create(:group) }
+
+        it 'does not enable "Membership lock" on the subgroup' do
+          expect(subgroup.membership_lock).to be_falsey
+        end
+      end
+
+      context 'when enabling the parent group "Membership lock"' do
+        let(:root_group) { create(:group) }
+        let!(:subgroup) { create(:group, parent: root_group) }
+
+        it 'the subgroup "Membership lock" not changed' do
+          root_group.update!(membership_lock: true)
+
+          expect(subgroup.reload.membership_lock).to be_falsey
+        end
+      end
+
+      context 'when disabling the parent group "Membership lock" (which was already enabled)' do
+        let(:root_group) { create(:group, membership_lock: true) }
+
+        context 'and the subgroup "Membership lock" is enabled' do
+          let(:subgroup) { create(:group, parent: root_group, membership_lock: true) }
+
+          it 'the subgroup "Membership lock" does not change' do
+            root_group.update!(membership_lock: false)
+
+            expect(subgroup.reload.membership_lock).to be_truthy
+          end
+        end
+
+        context 'but the subgroup "Membership lock" is disabled' do
+          let(:subgroup) { create(:group, parent: root_group) }
+
+          it 'the subgroup "Membership lock" does not change' do
+            root_group.update!(membership_lock: false)
+
+            expect(subgroup.reload.membership_lock?).to be_falsey
+          end
+        end
+      end
+    end
+
+    # Note: Group transfers are not yet implemented
+    context 'when a group is transferred into a root group' do
+      context 'when the root group "Membership lock" is enabled' do
+        let(:root_group) { create(:group, membership_lock: true) }
+
+        context 'when the subgroup "Membership lock" is enabled' do
+          let(:subgroup) { create(:group, membership_lock: true) }
+
+          it 'the subgroup "Membership lock" does not change' do
+            subgroup.parent = root_group
+            subgroup.save!
+
+            expect(subgroup.membership_lock).to be_truthy
+          end
+        end
+
+        context 'when the subgroup "Membership lock" is disabled' do
+          let(:subgroup) { create(:group) }
+
+          it 'the subgroup "Membership lock" not changed' do
+            subgroup.parent = root_group
+            subgroup.save!
+
+            expect(subgroup.membership_lock).to be_falsey
+          end
+        end
+      end
+
+      context 'when the root group "Membership lock" is disabled' do
+        let(:root_group) { create(:group) }
+
+        context 'when the subgroup "Membership lock" is enabled' do
+          let(:subgroup) { create(:group, membership_lock: true) }
+
+          it 'the subgroup "Membership lock" does not change' do
+            subgroup.parent = root_group
+            subgroup.save!
+
+            expect(subgroup.membership_lock).to be_truthy
+          end
+        end
+
+        context 'when the subgroup "Membership lock" is disabled' do
+          let(:subgroup) { create(:group) }
+
+          it 'the subgroup "Membership lock" does not change' do
+            subgroup.parent = root_group
+            subgroup.save!
+
+            expect(subgroup.membership_lock).to be_falsey
+          end
+        end
       end
     end
   end

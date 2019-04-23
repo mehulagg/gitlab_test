@@ -1,34 +1,40 @@
+# frozen_string_literal: true
+
 module SystemCheck
   module Geo
     class HttpConnectionCheck < SystemCheck::BaseCheck
       set_name 'GitLab Geo HTTP(S) connectivity'
-      set_skip_reason 'Geo is not enabled'
+
+      NOT_SECONDARY_NODE = 'not a secondary node'.freeze
+      GEO_NOT_ENABLED = 'Geo is not enabled'.freeze
 
       def skip?
-        !Gitlab::Geo.enabled?
+        unless Gitlab::Geo.enabled?
+          self.skip_reason = GEO_NOT_ENABLED
+
+          return true
+        end
+
+        unless Gitlab::Geo.secondary?
+          self.skip_reason = NOT_SECONDARY_NODE
+
+          return true
+        end
+
+        false
       end
 
       def multi_check
         $stdout.puts
-
-        if Gitlab::Geo.primary?
-          Gitlab::Geo.secondary_nodes.each do |node|
-            $stdout.print "* Can connect to secondary node: '#{node.url}' ... "
-            check_gitlab_geo_node(node)
-          end
-        end
-
-        if Gitlab::Geo.secondary?
-          $stdout.print '* Can connect to the primary node ... '
-          check_gitlab_geo_node(Gitlab::Geo.primary_node)
-        end
+        $stdout.print '* Can connect to the primary node ... '
+        check_gitlab_geo_node(Gitlab::Geo.primary_node)
       end
 
       private
 
       def check_gitlab_geo_node(node)
-        response = Net::HTTP.start(node.uri.host, node.uri.port, use_ssl: (node.uri.scheme == 'https')) do |http|
-          http.request(Net::HTTP::Get.new(node.uri))
+        response = Net::HTTP.start(node.internal_uri.host, node.internal_uri.port, use_ssl: (node.internal_uri.scheme == 'https')) do |http|
+          http.request(Net::HTTP::Get.new(node.internal_uri))
         end
 
         if response.code_type == Net::HTTPFound
@@ -42,7 +48,7 @@ module SystemCheck
         try_fixing_it(
           'Check if the machine is online and GitLab is running',
           'Check your firewall rules and make sure this machine can reach the target machine',
-          "Make sure port and protocol are correct: '#{node.url}', or change it in Admin > Geo Nodes"
+          "Make sure port and protocol are correct: '#{node.internal_url}', or change it in Admin > Geo Nodes"
         )
       rescue SocketError => e
         display_exception(e)
@@ -50,7 +56,7 @@ module SystemCheck
         if e.cause && e.cause.message.starts_with?('getaddrinfo')
           try_fixing_it(
             'Check if your machine can connect to a DNS server',
-            "Check if your machine can resolve DNS for: '#{node.uri.host}'",
+            "Check if your machine can resolve DNS for: '#{node.internal_uri.host}'",
             'If machine host is incorrect, change it in Admin > Geo Nodes'
           )
         end
@@ -73,6 +79,10 @@ module SystemCheck
         $stdout.puts 'no'.color(:red)
         $stdout.puts '  Reason:'.color(:blue)
         $stdout.puts "  #{exception.message}"
+      end
+
+      def see_custom_certificate_doc
+        'https://docs.gitlab.com/omnibus/common_installation_problems/README.html#using-self-signed-certificate-or-custom-certificate-authorities'
       end
     end
   end

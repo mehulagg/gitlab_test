@@ -2,20 +2,20 @@
 
 NOTE: **Note:**
 Automatic background verification of repositories and wikis was added in
-GitLab EE 10.6 but is enabled by default only on Gitlab EE 11.1. You can
+GitLab EE 10.6 but is enabled by default only on GitLab EE 11.1. You can
 disable or enable this feature manually by following
-[these instructions][feature-flag].
+[these instructions](#disabling-or-enabling-the-automatic-background-verification).
 
-Automatic backgorund verification ensures that the transferred data matches a
-calculated checksum, proving that the content on the **secondary** matches that
-on the **primary**. Following a planned failover, any corrupted data may be
-**lost**, depending on the extent of the corruption.
+Automatic background verification ensures that the transferred data matches a
+calculated checksum. If the checksum of the data on the **primary** node matches checksum of the
+data on the **secondary** node, the data transferred successfully. Following a planned failover,
+any corrupted data may be **lost**, depending on the extent of the corruption.
 
-If verification fails on the **primary**, this indicates that Geo is
+If verification fails on the **primary** node, this indicates that Geo is
 successfully replicating a corrupted object; restore it from backup or remove it
-it from the primary to resolve the issue.
+it from the **primary** node to resolve the issue.
 
-If verification succeeds on the **primary** but fails on the **secondary**,
+If verification succeeds on the **primary** node but fails on the **secondary** node,
 this indicates that the object was corrupted during the replication process.
 Geo actively try to correct verification failures marking the repository to
 be resynced with a backoff period. If you want to reset the verification for
@@ -24,10 +24,9 @@ these failures, so you should follow [these instructions][reset-verification].
 If verification is lagging significantly behind replication, consider giving
 the node more time before scheduling a planned failover.
 
-### Disabling or enabling the automatic background verification
+## Disabling or enabling the automatic background verification
 
-The following commands are to be issues in a Rails console on
-the **primary**:
+Run the following commands in a Rails console on the **primary** node:
 
 ```sh
 # Omnibus GitLab
@@ -38,90 +37,127 @@ cd /home/git/gitlab
 sudo -u git -H bin/rails console RAILS_ENV=production
 ```
 
-**To check if automatic background verification is enabled:**
+To check if automatic background verification is enabled:
 
 ```ruby
-Feature.enabled?('geo_repository_verification')
+Gitlab::Geo.repository_verification_enabled?
 ```
 
-**To disable automatic background verification:**
+To disable automatic background verification:
 
 ```ruby
 Feature.disable('geo_repository_verification')
 ```
 
-**To enable automatic background verification:**
+To enable automatic background verification:
 
 ```ruby
 Feature.enable('geo_repository_verification')
 ```
 
-NOTE: **Note:**
-Until [issue #5699][ee-5699] is completed, we need to reset the cache for this
-feature flag on each **secondary**, to do this run
-`sudo gitlab-rails runner 'Rails.cache.expire('flipper/v1/feature/geo_repository_verification', 0)'`.
+## Repository verification
 
-# Repository verification
-
-Visit the **Admin Area ➔ Geo nodes** dashboard on the **primary** and expand
+Navigate to the **Admin Area > Geo** dashboard on the **primary** node and expand
 the **Verification information** tab for that node to view automatic checksumming
 status for repositories and wikis. Successes are shown in green, pending work
 in grey, and failures in red.
 
 ![Verification status](img/verification-status-primary.png)
 
-Visit the **Admin Area ➔ Geo nodes** dashboard on the **secondary** and expand
-the **Verification information** tab for that node to view automatic verifcation
+Navigate to the **Admin Area > Geo** dashboard on the **secondary** node and expand
+the **Verification information** tab for that node to view automatic verification
 status for repositories and wikis. As with checksumming, successes are shown in
 green, pending work in grey, and failures in red.
 
 ![Verification status](img/verification-status-secondary.png)
 
-# Using checksums to compare Geo nodes
+## Using checksums to compare Geo nodes
 
-To check the health of Geo secondary nodes, we use a checksum over the list of
-Git references and theirs values. Right now the checksum only includes `heads`
-and `tags`. We should include all references ([issue #5196][ee-5196]), including
-GitLab-specific references to ensure true consistency. If two nodes have the
-same checksum, then they definitely hold the same data. We compute the checksum
-for every node after every update to make sure that they are all in sync.
+To check the health of Geo **secondary** nodes, we use a checksum over the list of
+Git references and their values. The checksum includes `HEAD`, `heads`, `tags`,
+`notes`, and GitLab-specific references to ensure true consistency. If two nodes
+have the same checksum, then they definitely hold the same references. We compute
+the checksum for every node after every update to make sure that they are all
+in sync.
 
-# Reset verification for projects where verification has failed
+## Repository re-verification
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/8550) in GitLab Enterprise Edition 11.6. Available in [GitLab Premium](https://about.gitlab.com/pricing/).
+
+Due to bugs or transient infrastructure failures, it is possible for Git
+repositories to change unexpectedly without being marked for verification.
+Geo constantly reverifies the repositories to ensure the integrity of the
+data. The default and recommended re-verification interval is 7 days, though
+an interval as short as 1 day can be set. Shorter intervals reduce risk but
+increase load and vice versa.
+
+Navigate to the **Admin Area > Geo** dashboard on the **primary** node, and
+click the **Edit** button for the **primary** node to customize the minimum
+re-verification interval:
+
+![Re-verification interval](img/reverification-interval.png)
+
+The automatic background re-verification is enabled by default, but you can
+disable if you need. Run the following commands in a Rails console on the
+**primary** node:
+
+```sh
+# Omnibus GitLab
+gitlab-rails console
+
+# Installation from source
+cd /home/git/gitlab
+sudo -u git -H bin/rails console RAILS_ENV=production
+```
+
+To disable automatic background re-verification:
+
+```ruby
+Feature.disable('geo_repository_reverification')
+```
+
+To enable automatic background re-verification:
+
+```ruby
+Feature.enable('geo_repository_reverification')
+```
+
+## Reset verification for projects where verification has failed
 
 Geo actively try to correct verification failures marking the repository to
 be resynced with a backoff period. If you want to reset them manually, this
 rake task marks projects where verification has failed or the checksum mismatch
 to be resynced without the backoff period:
 
-#### For repositories:
+For repositories:
 
-**Omnibus Installation**
+- Omnibus Installation
 
-```
-sudo gitlab-rake geo:verification:repository:reset
-```
+    ```sh
+    sudo gitlab-rake geo:verification:repository:reset
+    ```
 
-**Source Installation**
+- Source Installation
 
-```bash
-sudo -u git -H bundle exec rake geo:verification:repository:reset RAILS_ENV=production
-```
+    ```sh
+    sudo -u git -H bundle exec rake geo:verification:repository:reset RAILS_ENV=production
+    ```
 
-#### For wikis:
+For wikis:
 
-**Omnibus Installation**
+- Omnibus Installation
 
-```
-sudo gitlab-rake geo:verification:wiki:reset
-```
+    ```sh
+    sudo gitlab-rake geo:verification:wiki:reset
+    ```
 
-**Source Installation**
+- Source Installation
 
-```bash
-sudo -u git -H bundle exec rake geo:verification:wiki:reset RAILS_ENV=production
-```
+    ```sh
+    sudo -u git -H bundle exec rake geo:verification:wiki:reset RAILS_ENV=production
+    ```
 
-# Current limitations
+## Current limitations
 
 Until [issue #5064][ee-5064] is completed, background verification doesn't cover
 CI job artifacts and traces, LFS objects, or user uploads in file storage.
@@ -131,11 +167,6 @@ on both nodes, and comparing the output between them.
 Data in object storage is **not verified**, as the object store is responsible
 for ensuring the integrity of the data.
 
-[disaster-recovery]: index.md
-[feature-flag]: background_verification.md#enabling-or-disabling-the-automatic-background-verification
 [reset-verification]: background_verification.md#reset-verification-for-projects-where-verification-has-failed
 [foreground-verification]: ../../raketasks/check.md
 [ee-5064]: https://gitlab.com/gitlab-org/gitlab-ee/issues/5064
-[ee-5699]: https://gitlab.com/gitlab-org/gitlab-ee/issues/5699
-[ee-5195]: https://gitlab.com/gitlab-org/gitlab-ee/issues/5195
-[ee-5196]: https://gitlab.com/gitlab-org/gitlab-ee/issues/5196

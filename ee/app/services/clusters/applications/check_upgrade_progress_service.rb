@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Clusters
   module Applications
     class CheckUpgradeProgressService < BaseHelmService
@@ -19,7 +21,7 @@ module Clusters
       private
 
       def on_success
-        app.make_updated!
+        app.make_installed!
       ensure
         remove_pod
       end

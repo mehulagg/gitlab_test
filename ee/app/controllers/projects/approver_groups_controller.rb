@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Projects::ApproverGroupsController < Projects::ApplicationController
   before_action :authorize_for_subject!
 
@@ -13,6 +15,7 @@ class Projects::ApproverGroupsController < Projects::ApplicationController
     access_denied! unless can?(current_user, :update_approvers, subject)
   end
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def subject
     @subject ||=
       if params[:merge_request_id]
@@ -21,4 +24,5 @@ class Projects::ApproverGroupsController < Projects::ApplicationController
         project
       end
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 end

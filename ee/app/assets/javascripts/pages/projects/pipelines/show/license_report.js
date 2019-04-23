@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Translate from '~/vue_shared/translate';
 import LicenseReportApp from 'ee/vue_shared/license_management/mr_widget_license_report.vue';
-import { convertPermissionToBoolean } from '~/lib/utils/common_utils';
+import { parseBoolean } from '~/lib/utils/common_utils';
 import { updateBadgeCount } from './utils';
 
 Vue.use(Translate);
@@ -10,7 +10,12 @@ export default () => {
   const licensesTab = document.getElementById('js-licenses-app');
 
   if (licensesTab) {
-    const { licenseHeadPath, canManageLicenses, apiUrl } = licensesTab.dataset;
+    const {
+      licenseHeadPath,
+      canManageLicenses,
+      apiUrl,
+      licenseManagementSettingsPath,
+    } = licensesTab.dataset;
 
     // eslint-disable-next-line no-new
     new Vue({
@@ -22,13 +27,14 @@ export default () => {
         return createElement('license-report-app', {
           props: {
             apiUrl,
+            licenseManagementSettingsPath,
             headPath: licenseHeadPath,
-            canManageLicenses: convertPermissionToBoolean(canManageLicenses),
+            canManageLicenses: parseBoolean(canManageLicenses),
             alwaysOpen: true,
             reportSectionClass: 'split-report-section',
           },
           on: {
-            updateBadgeCount: (count) => {
+            updateBadgeCount: count => {
               updateBadgeCount('.js-licenses-counter', count);
             },
           },

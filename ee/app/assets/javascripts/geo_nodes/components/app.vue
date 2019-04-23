@@ -1,7 +1,6 @@
 <script>
 import { s__ } from '~/locale';
 import Flash from '~/flash';
-import loadingIcon from '~/vue_shared/components/loading_icon.vue';
 import DeprecatedModal from '~/vue_shared/components/deprecated_modal.vue';
 import SmartInterval from '~/smart_interval';
 
@@ -10,12 +9,13 @@ import eventHub from '../event_hub';
 import { NODE_ACTIONS } from '../constants';
 
 import GeoNodeItem from './geo_node_item.vue';
+import { GlLoadingIcon } from '@gitlab/ui';
 
 export default {
   components: {
-    loadingIcon,
     DeprecatedModal,
     GeoNodeItem,
+    GlLoadingIcon,
   },
   props: {
     store: {
@@ -32,6 +32,10 @@ export default {
     },
     nodeEditAllowed: {
       type: Boolean,
+      required: true,
+    },
+    geoTroubleshootingHelpPath: {
+      type: String,
       required: true,
     },
   },
@@ -110,19 +114,15 @@ export default {
           eventHub.$emit('nodeDetailsLoaded', this.store.getNodeDetails(nodeId));
         })
         .catch(err => {
-          if (err.response && err.response.data) {
-            this.store.setNodeDetails(nodeId, {
-              geo_node_id: nodeId,
-              health: err.message,
-              health_status: 'Unknown',
-              missing_oauth_application: false,
-              sync_status_unavailable: true,
-              storage_shards_match: null,
-            });
-            eventHub.$emit('nodeDetailsLoaded', this.store.getNodeDetails(nodeId));
-          } else {
-            eventHub.$emit('nodeDetailsLoadFailed', nodeId, err);
-          }
+          this.store.setNodeDetails(nodeId, {
+            geo_node_id: nodeId,
+            health: err.message,
+            health_status: 'Unknown',
+            missing_oauth_application: null,
+            sync_status_unavailable: true,
+            storage_shards_match: null,
+          });
+          eventHub.$emit('nodeDetailsLoaded', this.store.getNodeDetails(nodeId));
         });
     },
     repairNode(targetNode) {
@@ -204,11 +204,11 @@ export default {
 
 <template>
   <div class="geo-nodes-container">
-    <loading-icon
+    <gl-loading-icon
       v-if="isLoading"
       :label="s__('GeoNodes|Loading nodes')"
+      :size="2"
       class="loading-animation prepend-top-20 append-bottom-20"
-      size="2"
     />
     <geo-node-item
       v-for="(node, index) in nodes"
@@ -217,6 +217,7 @@ export default {
       :primary-node="node.primary"
       :node-actions-allowed="nodeActionsAllowed"
       :node-edit-allowed="nodeEditAllowed"
+      :geo-troubleshooting-help-path="geoTroubleshootingHelpPath"
     />
     <deprecated-modal
       v-show="showModal"

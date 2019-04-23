@@ -5,7 +5,7 @@ import axios from '~/lib/utils/axios_utils';
 import { logMockData, podMockData } from './kubernetes_mock_data';
 
 describe('Kubernetes Logs', () => {
-  const fixtureTemplate = 'static/environments_logs.html.raw';
+  const fixtureTemplate = 'static/environments_logs.html';
   const mockPodName = 'production-tanuki-1';
   const logMockPath = '/root/kubernetes-app/environments/1/logs';
   let kubernetesLogContainer;
@@ -30,7 +30,7 @@ describe('Kubernetes Logs', () => {
       mock.restore();
     });
 
-    it('has the pod name placed on the dropdown', (done) => {
+    it('has the pod name placed on the dropdown', done => {
       kubernetesLog = new KubernetesLogs(kubernetesLogContainer);
       kubernetesLog.getPodLogs();
 
@@ -44,7 +44,7 @@ describe('Kubernetes Logs', () => {
       }, 0);
     });
 
-    it('queries the pod log data and sets the dom elements', (done) => {
+    it('queries the pod log data and sets the dom elements', done => {
       const scrollSpy = spyOnDependency(KubernetesLogs, 'scrollDown').and.callThrough();
       const toggleDisableSpy = spyOnDependency(KubernetesLogs, 'toggleDisableButton').and.stub();
       kubernetesLog = new KubernetesLogs(kubernetesLogContainer);
@@ -59,7 +59,7 @@ describe('Kubernetes Logs', () => {
       }, 0);
     });
 
-    it('asks for the pod logs from another pod', (done) => {
+    it('asks for the pod logs from another pod', done => {
       const changePodLogSpy = spyOn(KubernetesLogs.prototype, 'getPodLogs').and.callThrough();
       kubernetesLog = new KubernetesLogs(kubernetesLogContainer);
 
@@ -70,12 +70,12 @@ describe('Kubernetes Logs', () => {
 
         anotherPod.click();
 
-        expect(changePodLogSpy).toHaveBeenCalled();
+        expect(changePodLogSpy.calls.count()).toEqual(2);
         done();
       }, 0);
     });
 
-    it('clears the pod dropdown contents when pod logs are requested', (done) => {
+    it('clears the pod dropdown contents when pod logs are requested', done => {
       const emptySpy = spyOn($.prototype, 'empty').and.callThrough();
       kubernetesLog = new KubernetesLogs(kubernetesLogContainer);
 
@@ -108,7 +108,10 @@ describe('Kubernetes Logs', () => {
 
     it('escapes the pod name', () => {
       kubernetesLog = new KubernetesLogs(kubernetesLogContainer);
-      expect(kubernetesLog.podName).toContain('&quot;&gt;&amp;lt;img src=x onerror=alert(document.domain)&amp;gt; production');
+
+      expect(kubernetesLog.podName).toContain(
+        '&quot;&gt;&amp;lt;img src=x onerror=alert(document.domain)&amp;gt; production',
+      );
     });
   });
 

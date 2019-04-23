@@ -1,10 +1,22 @@
+# frozen_string_literal: true
+
 module EE
   module Note
     extend ActiveSupport::Concern
     extend ::Gitlab::Utils::Override
 
     prepended do
-      include ObjectStorage::BackgroundMove
+      include ::ObjectStorage::BackgroundMove
+      include Elastic::NotesSearch
+
+      belongs_to :review, inverse_of: :notes
+
+      scope :searchable, -> { where(system: false) }
+    end
+
+    # Original method in Elastic::ApplicationSearch
+    def searchable?
+      !system && super
     end
 
     def for_epic?
@@ -14,15 +26,6 @@ module EE
     override :for_project_noteable?
     def for_project_noteable?
       !for_epic? && super
-    end
-
-    override :etag_key
-    def etag_key
-      if for_epic?
-        return ::Gitlab::Routing.url_helpers.group_epic_notes_path(noteable.group, noteable)
-      end
-
-      super
     end
 
     override :banzai_render_context
@@ -42,6 +45,11 @@ module EE
     override :for_issuable?
     def for_issuable?
       for_epic? || super
+    end
+
+    override :parent
+    def parent
+      for_epic? ? noteable.group : super
     end
 
     private

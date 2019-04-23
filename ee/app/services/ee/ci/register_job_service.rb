@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module Ci
     # RegisterJobService EE mixin
@@ -23,33 +25,40 @@ module EE
         end
       end
 
+      # rubocop: disable CodeReuse/ActiveRecord
       def builds_for_shared_runner
         return super unless shared_runner_build_limits_feature_enabled?
 
         # select projects which have allowed number of shared runner minutes or are public
         super
-          .where("projects.visibility_level=? OR (#{builds_check_limit.to_sql})=1",  # rubocop:disable GitlabSecurity/SqlInjection
+          .where("projects.visibility_level=? OR (#{builds_check_limit.to_sql})=1", # rubocop:disable GitlabSecurity/SqlInjection
                 ::Gitlab::VisibilityLevel::PUBLIC)
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
+      # rubocop: disable CodeReuse/ActiveRecord
       def builds_check_limit
         all_namespaces
           .joins('LEFT JOIN namespace_statistics ON namespace_statistics.namespace_id = namespaces.id')
           .where('COALESCE(namespaces.shared_runners_minutes_limit, ?, 0) = 0 OR ' \
-            'COALESCE(namespace_statistics.shared_runners_seconds, 0) < COALESCE(namespaces.shared_runners_minutes_limit, ?, 0) * 60',
+                 'COALESCE(namespace_statistics.shared_runners_seconds, 0) < ' \
+                 'COALESCE((namespaces.shared_runners_minutes_limit + COALESCE(namespaces.extra_shared_runners_minutes_limit, 0)), ?, 0) * 60',
                 application_shared_runners_minutes, application_shared_runners_minutes)
           .select('1')
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
+      # rubocop: disable CodeReuse/ActiveRecord
       def all_namespaces
         namespaces = ::Namespace.reorder(nil).where('namespaces.id = projects.namespace_id')
 
-        if Feature.enabled?(:shared_runner_minutes_on_root_namespace)
-          namespaces = ::Gitlab::GroupHierarchy.new(namespaces).roots
+        if ::Feature.enabled?(:shared_runner_minutes_on_root_namespace)
+          namespaces = ::Gitlab::ObjectHierarchy.new(namespaces).roots
         end
 
         namespaces
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       def application_shared_runners_minutes
         ::Gitlab::CurrentSettings.shared_runners_minutes

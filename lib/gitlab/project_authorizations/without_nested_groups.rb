@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Gitlab
   module ProjectAuthorizations
     # Calculating new project authorizations when not supporting nested groups.
@@ -24,11 +26,9 @@ module Gitlab
           user.groups.joins(:shared_projects).select_for_project_authorization
         ]
 
-        union = Gitlab::SQL::Union.new(relations)
-
         ProjectAuthorization
           .unscoped
-          .select_from_union(union)
+          .select_from_union(relations)
       end
     end
   end

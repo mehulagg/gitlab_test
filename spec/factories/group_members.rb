@@ -8,8 +8,8 @@ FactoryBot.define do
     trait(:reporter)  { access_level GroupMember::REPORTER }
     trait(:developer) { access_level GroupMember::DEVELOPER }
     trait(:maintainer) { access_level GroupMember::MAINTAINER }
-    trait(:owner)     { access_level GroupMember::OWNER }
-    trait(:access_request) { requested_at Time.now }
+    trait(:owner) { access_level GroupMember::OWNER }
+    trait(:access_request) { requested_at { Time.now } }
 
     trait(:invited) do
       user_id nil

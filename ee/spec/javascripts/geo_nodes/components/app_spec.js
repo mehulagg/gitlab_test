@@ -26,6 +26,7 @@ const createComponent = () => {
     service,
     nodeActionsAllowed: true,
     nodeEditAllowed: true,
+    geoTroubleshootingHelpPath: '/foo/bar',
   });
 };
 
@@ -80,6 +81,7 @@ describe('AppComponent', () => {
           nodeActionActive: false,
         };
         vm.setNodeActionStatus(node, true);
+
         expect(node.nodeActionActive).toBe(true);
       });
     });
@@ -87,6 +89,7 @@ describe('AppComponent', () => {
     describe('initNodeDetailsPolling', () => {
       it('initializes SmartInterval and sets it to component', () => {
         vm.initNodeDetailsPolling(2);
+
         expect(vm.nodePollingInterval).toBeDefined();
       });
     });
@@ -95,8 +98,7 @@ describe('AppComponent', () => {
       it('calls service.getGeoNodes and sets response to the store on success', done => {
         spyOn(vm.store, 'setNodes');
 
-        vm
-          .fetchGeoNodes()
+        vm.fetchGeoNodes()
           .then(() => {
             expect(vm.store.setNodes).toHaveBeenCalledWith(mockNodes);
             expect(vm.isLoading).toBe(false);
@@ -109,8 +111,7 @@ describe('AppComponent', () => {
         response = 'Something went wrong';
         statusCode = 500;
 
-        vm
-          .fetchGeoNodes()
+        vm.fetchGeoNodes()
           .then(() => {
             expect(vm.isLoading).toBe(false);
             expect(document.querySelector('.flash-text').innerText.trim()).toBe(
@@ -127,8 +128,7 @@ describe('AppComponent', () => {
         mock.onGet(mockNode.statusPath).reply(200, rawMockNodeDetails);
         spyOn(vm.service, 'getGeoNodeDetails').and.callThrough();
 
-        vm
-          .fetchNodeDetails(mockNode)
+        vm.fetchNodeDetails(mockNode)
           .then(() => {
             expect(vm.service.getGeoNodeDetails).toHaveBeenCalled();
             expect(Object.keys(vm.store.state.nodeDetails).length).not.toBe(0);
@@ -143,11 +143,11 @@ describe('AppComponent', () => {
         mock.onGet(mockNode.statusPath).reply(404, {});
         spyOn(vm.service, 'getGeoNodeDetails').and.callThrough();
 
-        vm
-          .fetchNodeDetails(mockNode)
+        vm.fetchNodeDetails(mockNode)
           .then(() => {
             expect(eventHub.$emit).toHaveBeenCalledWith('nodeDetailsLoaded', jasmine.any(Object));
             const nodeDetails = vm.store.state.nodeDetails['1'];
+
             expect(nodeDetails).toBeDefined();
             expect(nodeDetails.syncStatusUnavailable).toBe(true);
             expect(nodeDetails.health).toBe('Request failed with status code 404');
@@ -156,38 +156,37 @@ describe('AppComponent', () => {
           .catch(done.fail);
       });
 
-      it('emits `nodeDetailsLoaded` event with fake nodeDetails object on 500 failure', done => {
+      it('emits `nodeDetailsLoaded` event with fake nodeDetails object when a network error occurs', done => {
         spyOn(eventHub, '$emit');
-        mock.onGet(mockNode.statusPath).reply(500, {});
+        mock.onGet(mockNode.statusPath).networkError();
         spyOn(vm.service, 'getGeoNodeDetails').and.callThrough();
 
-        vm
-          .fetchNodeDetails(mockNode)
+        vm.fetchNodeDetails(mockNode)
           .then(() => {
             expect(eventHub.$emit).toHaveBeenCalledWith('nodeDetailsLoaded', jasmine.any(Object));
             const nodeDetails = vm.store.state.nodeDetails['1'];
+
             expect(nodeDetails).toBeDefined();
             expect(nodeDetails.syncStatusUnavailable).toBe(true);
-            expect(nodeDetails.health).toBe('Request failed with status code 500');
+            expect(nodeDetails.health).toBe('Network Error');
           })
           .then(done)
           .catch(done.fail);
       });
 
-      it('emits `nodeDetailsLoadFailed` event on failure when there is no response', done => {
+      it('emits `nodeDetailsLoaded` event with fake nodeDetails object when a timeout occurs', done => {
         spyOn(eventHub, '$emit');
-        mock.onGet(mockNode.statusPath).reply(500, null);
+        mock.onGet(mockNode.statusPath).timeout();
         spyOn(vm.service, 'getGeoNodeDetails').and.callThrough();
 
-        vm
-          .fetchNodeDetails(mockNode)
+        vm.fetchNodeDetails(mockNode)
           .then(() => {
-            expect(eventHub.$emit).toHaveBeenCalledWith(
-              'nodeDetailsLoadFailed',
-              mockNode.id,
-              jasmine.any(Object),
-            );
-            done();
+            expect(eventHub.$emit).toHaveBeenCalledWith('nodeDetailsLoaded', jasmine.any(Object));
+            const nodeDetails = vm.store.state.nodeDetails['1'];
+
+            expect(nodeDetails).toBeDefined();
+            expect(nodeDetails.syncStatusUnavailable).toBe(true);
+            expect(nodeDetails.health).toBe('timeout of 0ms exceeded');
           })
           .then(done)
           .catch(done.fail);
@@ -203,13 +202,13 @@ describe('AppComponent', () => {
         });
         spyOn(vm.service, 'repairNode').and.callThrough();
 
-        vm
-          .repairNode(node)
+        vm.repairNode(node)
           .then(() => {
             expect(vm.service.repairNode).toHaveBeenCalledWith(node);
             expect(document.querySelector('.flash-text').innerText.trim()).toBe(
               'Node Authentication was successfully repaired.',
             );
+
             expect(node.nodeActionActive).toBe(false);
           })
           .then(done)
@@ -224,13 +223,13 @@ describe('AppComponent', () => {
         });
         spyOn(vm.service, 'repairNode').and.callThrough();
 
-        vm
-          .repairNode(node)
+        vm.repairNode(node)
           .then(() => {
             expect(vm.service.repairNode).toHaveBeenCalledWith(node);
             expect(document.querySelector('.flash-text').innerText.trim()).toBe(
               'Something went wrong while repairing node',
             );
+
             expect(node.nodeActionActive).toBe(false);
           })
           .then(done)
@@ -253,8 +252,7 @@ describe('AppComponent', () => {
         spyOn(vm.service, 'toggleNode').and.callThrough();
         node.enabled = false;
 
-        vm
-          .toggleNode(node)
+        vm.toggleNode(node)
           .then(() => {
             expect(vm.service.toggleNode).toHaveBeenCalledWith(node);
             expect(node.enabled).toBe(true);
@@ -273,13 +271,13 @@ describe('AppComponent', () => {
         spyOn(vm.service, 'toggleNode').and.callThrough();
         node.enabled = false;
 
-        vm
-          .toggleNode(node)
+        vm.toggleNode(node)
           .then(() => {
             expect(vm.service.toggleNode).toHaveBeenCalledWith(node);
             expect(document.querySelector('.flash-text').innerText.trim()).toBe(
               'Something went wrong while changing node status',
             );
+
             expect(node.nodeActionActive).toBe(false);
           })
           .then(done)
@@ -297,8 +295,7 @@ describe('AppComponent', () => {
         spyOn(vm.service, 'removeNode').and.callThrough();
         spyOn(vm.store, 'removeNode').and.stub();
 
-        vm
-          .removeNode(node)
+        vm.removeNode(node)
           .then(() => {
             expect(vm.service.removeNode).toHaveBeenCalledWith(node);
             expect(vm.store.removeNode).toHaveBeenCalledWith(node);
@@ -319,8 +316,7 @@ describe('AppComponent', () => {
         spyOn(vm.service, 'removeNode').and.callThrough();
         spyOn(vm.store, 'removeNode').and.stub();
 
-        vm
-          .removeNode(node)
+        vm.removeNode(node)
           .then(() => {
             expect(vm.service.removeNode).toHaveBeenCalledWith(node);
             expect(vm.store.removeNode).not.toHaveBeenCalled();
@@ -341,6 +337,7 @@ describe('AppComponent', () => {
         spyOn(vm, 'toggleNode').and.stub();
 
         vm.handleNodeAction();
+
         expect(vm.showModal).toBe(false);
         expect(vm.toggleNode).toHaveBeenCalledWith(vm.targetNode);
       });
@@ -352,6 +349,7 @@ describe('AppComponent', () => {
         spyOn(vm, 'removeNode').and.stub();
 
         vm.handleNodeAction();
+
         expect(vm.showModal).toBe(false);
         expect(vm.removeNode).toHaveBeenCalledWith(vm.targetNode);
       });
@@ -378,6 +376,7 @@ describe('AppComponent', () => {
           modalMessage,
           modalActionLabel,
         });
+
         expect(vm.targetNode).toBe(node);
         expect(vm.targetNodeActionType).toBe(NODE_ACTIONS.TOGGLE);
         expect(vm.modalKind).toBe(modalKind);
@@ -394,6 +393,7 @@ describe('AppComponent', () => {
           modalMessage,
           modalActionLabel,
         });
+
         expect(vm.showModal).toBe(true);
       });
 
@@ -408,6 +408,7 @@ describe('AppComponent', () => {
           modalMessage,
           modalActionLabel,
         });
+
         expect(vm.toggleNode).toHaveBeenCalledWith(vm.targetNode);
       });
 
@@ -420,6 +421,7 @@ describe('AppComponent', () => {
           modalMessage,
           modalActionLabel,
         });
+
         expect(vm.showModal).toBe(true);
       });
     });
@@ -428,6 +430,7 @@ describe('AppComponent', () => {
       it('sets `showModal` to `false`', () => {
         vm.showModal = true;
         vm.hideNodeActionModal();
+
         expect(vm.showModal).toBe(false);
       });
     });
@@ -437,6 +440,7 @@ describe('AppComponent', () => {
     it('binds event handler for `pollNodeDetails`', () => {
       spyOn(eventHub, '$on');
       const vmX = createComponent();
+
       expect(eventHub.$on).toHaveBeenCalledWith('pollNodeDetails', jasmine.any(Function));
       expect(eventHub.$on).toHaveBeenCalledWith('showNodeActionModal', jasmine.any(Function));
       expect(eventHub.$on).toHaveBeenCalledWith('repairNode', jasmine.any(Function));
@@ -449,6 +453,7 @@ describe('AppComponent', () => {
       spyOn(eventHub, '$off');
       const vmX = createComponent();
       vmX.$destroy();
+
       expect(eventHub.$off).toHaveBeenCalledWith('pollNodeDetails', jasmine.any(Function));
       expect(eventHub.$off).toHaveBeenCalledWith('showNodeActionModal', jasmine.any(Function));
       expect(eventHub.$off).toHaveBeenCalledWith('repairNode', jasmine.any(Function));
@@ -462,6 +467,7 @@ describe('AppComponent', () => {
 
     it('renders loading animation when `isLoading` is true', () => {
       vm.isLoading = true;
+
       expect(
         vm.$el.querySelectorAll('.loading-animation.prepend-top-20.append-bottom-20').length,
       ).not.toBe(0);

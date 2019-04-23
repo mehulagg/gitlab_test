@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 module EE
   module ConfirmationsController
-    include EE::Audit::Changes
+    include EE::Audit::Changes # rubocop: disable Cop/InjectEnterpriseEditionModule
     extend ::Gitlab::Utils::Override
 
     protected

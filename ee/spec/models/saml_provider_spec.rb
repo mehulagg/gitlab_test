@@ -16,6 +16,15 @@ describe SamlProvider do
       expect(subject).not_to allow_value('http://example.com').for(:sso_url)
     end
 
+    it 'prevents homoglyph phishing attacks by only allowing ascii URLs' do
+      expect(subject).to allow_value('https://gitlab.com/adfs/ls').for(:sso_url)
+      expect(subject).not_to allow_value('https://𝕘itⅼaƄ.ᴄοｍ/adfs/ls').for(:sso_url)
+    end
+
+    it 'allows unicode domain names when encoded as ascii punycode' do
+      expect(subject).to allow_value('https://xn--gitl-ocb944a.xn--m-rmb025q/adfs/ls').for(:sso_url)
+    end
+
     it 'expects certificate_fingerprint to be in an accepted format' do
       expect(subject).to allow_value('000030EDC285E01D6B5EA33010A79ADD142F5004').for(:certificate_fingerprint)
       expect(subject).to allow_value('00:00:30:ED:C2:85:E0:1D:6B:5E:A3:30:10:A7:9A:DD:14:2F:50:04').for(:certificate_fingerprint)
@@ -58,7 +67,7 @@ describe SamlProvider do
     subject(:saml_provider) { create(:saml_provider, group: group) }
 
     before do
-      stub_config_setting(url: 'https://localhost')
+      stub_default_url_options(protocol: "https")
     end
 
     it 'generates callback URL' do
@@ -79,6 +88,64 @@ describe SamlProvider do
 
     it 'includes SSO URL' do
       expect(settings[:idp_sso_target_url]).to eq saml_provider.sso_url
+    end
+  end
+
+  describe '#enforced_sso?' do
+    context 'when provider is enabled' do
+      before do
+        subject.enabled = true
+      end
+
+      it 'matches attribute' do
+        subject.enforced_sso = true
+        expect(subject).to be_enforced_sso
+        subject.enforced_sso = false
+        expect(subject).not_to be_enforced_sso
+      end
+    end
+
+    context 'when provider is disabled' do
+      before do
+        subject.enabled = false
+      end
+
+      it 'ignores attribute value' do
+        subject.enforced_sso = true
+        expect(subject).not_to be_enforced_sso
+        subject.enforced_sso = false
+        expect(subject).not_to be_enforced_sso
+      end
+    end
+  end
+
+  describe '#enforced_group_managed_accounts?' do
+    context 'when enforced_sso is enabled' do
+      before do
+        subject.enabled = true
+        subject.enforced_sso = true
+      end
+
+      it 'matches attribute' do
+        subject.enforced_group_managed_accounts = true
+        expect(subject).to be_enforced_group_managed_accounts
+        subject.enforced_group_managed_accounts = false
+        expect(subject).not_to be_enforced_group_managed_accounts
+      end
+    end
+
+    context 'when enforced_sso is disabled' do
+      before do
+        subject.enabled = true
+        subject.enforced_sso = false
+      end
+
+      it 'ignores attribute value' do
+        subject.enforced_group_managed_accounts = true
+        expect(subject).not_to be_enforced_group_managed_accounts
+        subject.enforced_group_managed_accounts = false
+        expect(subject).not_to be_enforced_group_managed_accounts
+      end
     end
   end
 end

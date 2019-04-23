@@ -1,15 +1,15 @@
 <script>
 import $ from 'jquery';
 import GfmAutoComplete from '~/gfm_auto_complete';
-import loadingIcon from '~/vue_shared/components/loading_icon.vue';
-import eventHub from '../event_hub';
+import { GlLoadingIcon } from '@gitlab/ui';
 import issueToken from './issue_token.vue';
+import { autoCompleteTextMap, inputPlaceholderTextMap } from '../constants';
 
 export default {
   name: 'AddIssuableForm',
   components: {
     issueToken,
-    loadingIcon,
+    GlLoadingIcon,
   },
   props: {
     inputValue: {
@@ -31,6 +31,15 @@ export default {
       required: false,
       default: false,
     },
+    pathIdSeparator: {
+      type: String,
+      required: true,
+    },
+    issuableType: {
+      type: String,
+      required: false,
+      default: 'issue',
+    },
   },
 
   data() {
@@ -42,11 +51,14 @@ export default {
 
   computed: {
     inputPlaceholder() {
-      return `Paste issue link${this.allowAutoComplete ? ' or <#issue id>' : ''}`;
+      const { issuableType, allowAutoComplete } = this;
+      const allowAutoCompleteText = autoCompleteTextMap[allowAutoComplete][issuableType];
+      return `${inputPlaceholderTextMap[issuableType]}${allowAutoCompleteText}`;
     },
     isSubmitButtonDisabled() {
-      return (this.inputValue.length === 0 && this.pendingReferences.length === 0)
-        || this.isSubmitting;
+      return (
+        (this.inputValue.length === 0 && this.pendingReferences.length === 0) || this.isSubmitting
+      );
     },
     allowAutoComplete() {
       return Object.keys(this.autoCompleteSources).length > 0;
@@ -55,7 +67,6 @@ export default {
 
   mounted() {
     const $input = $(this.$refs.input);
-
     if (this.allowAutoComplete) {
       this.gfmAutoComplete = new GfmAutoComplete(this.autoCompleteSources);
       this.gfmAutoComplete.setup($input, {
@@ -78,7 +89,10 @@ export default {
   methods: {
     onInput() {
       const { value } = this.$refs.input;
-      eventHub.$emit('addIssuableFormInput', value, $(this.$refs.input).caret('pos'));
+      this.$emit('addIssuableFormInput', {
+        newValue: value,
+        caretPos: $(this.$refs.input).caret('pos'),
+      });
     },
     onFocus() {
       this.isInputFocused = true;
@@ -89,7 +103,7 @@ export default {
       // Avoid tokenizing partial input when clicking an autocomplete item
       if (!this.isAutoCompleteOpen) {
         const { value } = this.$refs.input;
-        eventHub.$emit('addIssuableFormBlur', value);
+        this.$emit('addIssuableFormBlur', value);
       }
     },
     onAutoCompleteToggled(isOpen) {
@@ -98,12 +112,15 @@ export default {
     onInputWrapperClick() {
       this.$refs.input.focus();
     },
+    onPendingIssuableRemoveRequest(params) {
+      this.$emit('pendingIssuableRemoveRequest', params);
+    },
     onFormSubmit() {
       const { value } = this.$refs.input;
-      eventHub.$emit('addIssuableFormSubmit', value);
+      this.$emit('addIssuableFormSubmit', value);
     },
     onFormCancel() {
-      eventHub.$emit('addIssuableFormCancel');
+      this.$emit('addIssuableFormCancel');
     },
   },
 };
@@ -116,7 +133,8 @@ export default {
       :class="{ focus: isInputFocused }"
       class="add-issuable-form-input-wrapper form-control"
       role="button"
-      @click="onInputWrapperClick">
+      @click="onInputWrapperClick"
+    >
       <ul class="add-issuable-form-input-token-list">
         <!--
           We need to ensure this key changes any time the pendingReferences array is updated
@@ -133,7 +151,9 @@ export default {
             :display-reference="reference"
             :can-remove="true"
             :is-condensed="true"
+            :path-id-separator="pathIdSeparator"
             event-namespace="pendingIssuable"
+            @pendingIssuableRemoveRequest="onPendingIssuableRemoveRequest"
           />
         </li>
         <li class="add-issuable-form-input-list-item">
@@ -142,10 +162,11 @@ export default {
             :value="inputValue"
             :placeholder="inputPlaceholder"
             type="text"
-            class="js-add-issuable-form-input add-issuable-form-input"
+            class="js-add-issuable-form-input add-issuable-form-input qa-add-issue-input"
             @input="onInput"
             @focus="onFocus"
-            @blur="onBlur" />
+            @blur="onBlur"
+          />
         </li>
       </ul>
     </div>
@@ -154,17 +175,12 @@ export default {
         ref="addButton"
         :disabled="isSubmitButtonDisabled"
         type="submit"
-        class="js-add-issuable-form-add-button btn btn-new float-left">
+        class="js-add-issuable-form-add-button btn btn-success float-left qa-add-issue-button"
+      >
         Add
-        <loading-icon
-          v-if="isSubmitting"
-          ref="loadingIcon"
-          :inline="true" />
+        <gl-loading-icon v-if="isSubmitting" ref="loadingIcon" :inline="true" />
       </button>
-      <button
-        type="button"
-        class="btn btn-default float-right"
-        @click="onFormCancel">
+      <button type="button" class="btn btn-default float-right" @click="onFormCancel">
         Cancel
       </button>
     </div>

@@ -1,9 +1,13 @@
+# frozen_string_literal: true
+
 # Create a separate process, which does not load the Rails environment, to index
 # each repository. This prevents memory leaks in the indexer from affecting the
 # rest of the application.
 module Gitlab
   module Elastic
     class Indexer
+      include Gitlab::Utils::StrongMemoize
+
       EXPERIMENTAL_INDEXER = 'gitlab-elasticsearch-indexer'.freeze
 
       Error = Class.new(StandardError)
@@ -12,7 +16,7 @@ module Gitlab
         Gitlab::Utils.which(EXPERIMENTAL_INDEXER).present?
       end
 
-      attr_reader :project
+      attr_reader :project, :index_status
 
       def initialize(project)
         @project = project
@@ -23,9 +27,18 @@ module Gitlab
           'ELASTIC_CONNECTION_INFO' => Gitlab::CurrentSettings.elasticsearch_config.to_json,
           'RAILS_ENV'               => Rails.env
         }
+
+        if use_experimental_indexer?
+          @vars['GITALY_CONNECTION_INFO'] = {
+            storage: project.repository_storage
+          }.merge(Gitlab::GitalyClient.connection_data(project.repository_storage)).to_json
+        end
+
+        # Use the eager-loaded association if available.
+        @index_status = project.index_status
       end
 
-      def run(from_sha = nil, to_sha = nil)
+      def run(to_sha = nil)
         to_sha = nil if to_sha == Gitlab::Git::BLANK_SHA
 
         head_commit = repository.try(:commit)
@@ -35,7 +48,7 @@ module Gitlab
           return
         end
 
-        run_indexer!(from_sha, to_sha)
+        run_indexer!(to_sha)
         update_index_status(to_sha)
 
         true
@@ -48,17 +61,26 @@ module Gitlab
       end
 
       def path_to_indexer
-        if Gitlab::CurrentSettings.elasticsearch_experimental_indexer? && self.class.experimental_indexer_present?
+        if use_experimental_indexer?
           EXPERIMENTAL_INDEXER
         else
           Rails.root.join('bin', 'elastic_repo_indexer').to_s
         end
       end
 
-      def run_indexer!(from_sha, to_sha)
-        command = ::Gitlab::GitalyClient::StorageSettings.allow_disk_access do
-          [path_to_indexer, project.id.to_s, repository.path_to_repo]
+      def use_experimental_indexer?
+        strong_memoize(:use_experimental_indexer) do
+          Gitlab::CurrentSettings.elasticsearch_experimental_indexer? && self.class.experimental_indexer_present?
         end
+      end
+
+      def run_indexer!(to_sha)
+        if index_status && !repository_contains_last_indexed_commit?
+          project.repository.delete_index_for_commits_and_blobs
+        end
+
+        command = [path_to_indexer, project.id.to_s, repository_path]
+
         vars = @vars.merge('FROM_SHA' => from_sha, 'TO_SHA' => to_sha)
 
         output, status = Gitlab::Popen.popen(command, nil, vars)
@@ -66,14 +88,36 @@ module Gitlab
         raise Error, output unless status&.zero?
       end
 
+      def last_commit
+        index_status&.last_commit
+      end
+
+      def from_sha
+        repository_contains_last_indexed_commit? ? last_commit : Gitlab::Git::EMPTY_TREE_ID
+      end
+
+      def repository_contains_last_indexed_commit?
+        strong_memoize(:repository_contains_last_indexed_commit) do
+          last_commit.present? && repository.commit(last_commit).present?
+        end
+      end
+
+      def repository_path
+        # Go indexer needs relative path while ruby indexer needs absolute one
+        if use_experimental_indexer?
+          "#{repository.disk_path}.git"
+        else
+          ::Gitlab::GitalyClient::StorageSettings.allow_disk_access { repository.path_to_repo }
+        end
+      end
+
+      # rubocop: disable CodeReuse/ActiveRecord
       def update_index_status(to_sha)
         head_commit = repository.try(:commit)
 
-        # Use the eager-loaded association if available. An index_status should
-        # always be created, even if the repository is empty, so we know it's
-        # been looked at.
-        index_status = project.index_status
-        index_status ||=
+        # An index_status should always be created,
+        # even if the repository is empty, so we know it's been looked at.
+        @index_status ||=
           begin
             IndexStatus.find_or_create_by(project_id: project.id)
           rescue ActiveRecord::RecordNotUnique
@@ -85,9 +129,10 @@ module Gitlab
 
         sha = head_commit.try(:sha)
         sha ||= Gitlab::Git::BLANK_SHA
-        index_status.update(last_commit: sha, indexed_at: Time.now)
-        project.index_status(true)
+        @index_status.update(last_commit: sha, indexed_at: Time.now)
+        project.reload_index_status
       end
+      # rubocop: enable CodeReuse/ActiveRecord
     end
   end
 end

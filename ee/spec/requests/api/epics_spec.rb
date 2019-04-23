@@ -4,7 +4,8 @@ describe API::Epics do
   let(:user) { create(:user) }
   let(:group) { create(:group) }
   let(:project) { create(:project, :public, group: group) }
-  let(:epic) { create(:epic, group: group) }
+  let(:label) { create(:label) }
+  let(:epic) { create(:labeled_epic, group: group, labels: [label]) }
   let(:params) { nil }
 
   shared_examples 'error requests' do
@@ -12,7 +13,7 @@ describe API::Epics do
       it 'returns 403 forbidden error' do
         group.add_developer(user)
 
-        get api(url, user), params
+        get api(url, user), params: params
 
         expect(response).to have_gitlab_http_status(403)
       end
@@ -23,7 +24,7 @@ describe API::Epics do
         end
 
         it 'returns 401 unauthorized error for non authenticated user' do
-          get api(url), params
+          get api(url), params: params
 
           expect(response).to have_gitlab_http_status(401)
         end
@@ -32,7 +33,7 @@ describe API::Epics do
           project.update(visibility_level: Gitlab::VisibilityLevel::PRIVATE)
           group.update(visibility_level: Gitlab::VisibilityLevel::PRIVATE)
 
-          get api(url, user), params
+          get api(url, user), params: params
 
           expect(response).to have_gitlab_http_status(404)
         end
@@ -47,7 +48,7 @@ describe API::Epics do
       RSpec::Matchers.define_negated_matcher :exclude, :include
 
       it 'returns epic with extra date fields' do
-        get api(url, user), params
+        get api(url, user), params: params
 
         expect(Array.wrap(JSON.parse(response.body))).to all(exclude(*extra_date_fields))
       end
@@ -59,7 +60,7 @@ describe API::Epics do
       end
 
       it 'returns epic with extra date fields' do
-        get api(url, user), params
+        get api(url, user), params: params
 
         expect(Array.wrap(JSON.parse(response.body))).to all(include(*extra_date_fields))
       end
@@ -85,6 +86,22 @@ describe API::Epics do
       it 'matches the response schema' do
         expect(response).to match_response_schema('public_api/v4/epics', dir: 'ee')
       end
+
+      it 'avoids N+1 queries', :request_store do
+        epic
+        # Avoid polluting queries with inserts for personal access token
+        pat = create(:personal_access_token, user: user)
+
+        control = ActiveRecord::QueryRecorder.new(skip_cached: false) do
+          get api(url, personal_access_token: pat)
+        end
+
+        label_2 = create(:label)
+        create_list(:labeled_epic, 2, group: group, labels: [label_2])
+
+        expect { get api(url, personal_access_token: pat) }.not_to exceed_all_query_limit(control)
+        expect(response).to have_gitlab_http_status(200)
+      end
     end
 
     context 'with multiple epics' do
@@ -92,6 +109,7 @@ describe API::Epics do
       let!(:epic) do
         create(:epic,
                group: group,
+               state: :closed,
                created_at: 3.days.ago,
                updated_at: 2.days.ago)
       end
@@ -111,61 +129,258 @@ describe API::Epics do
         stub_licensed_features(epics: true)
       end
 
-      def expect_array_response(expected)
-        items = json_response.map { |i| i['id'] }
-
-        expect(items).to eq(expected)
-      end
-
       it 'returns epics authored by the given author id' do
-        get api(url, user), author_id: user2.id
+        get api(url, user), params: { author_id: user2.id }
 
-        expect_array_response([epic2.id])
+        expect_paginated_array_response([epic2.id])
       end
 
       it 'returns epics matching given search string for title' do
-        get api(url, user), search: epic2.title
+        get api(url, user), params: { search: epic2.title }
 
-        expect_array_response([epic2.id])
+        expect_paginated_array_response([epic2.id])
       end
 
       it 'returns epics matching given search string for description' do
-        get api(url, user), search: epic2.description
+        get api(url, user), params: { search: epic2.description }
 
-        expect_array_response([epic2.id])
+        expect_paginated_array_response([epic2.id])
+      end
+
+      it 'returns epics matching given status' do
+        get api(url, user), params: { state: :opened }
+
+        expect_paginated_array_response([epic2.id])
+      end
+
+      it 'returns all epics when state set to all' do
+        get api(url, user), params: { state: :all }
+
+        expect_paginated_array_response([epic2.id, epic.id])
+      end
+
+      it 'has upvote/downvote information' do
+        epic.create_award_emoji('thumbsup', user)
+        epic2.create_award_emoji('thumbsdown', user)
+
+        get api(url, user)
+
+        expect(response).to have_gitlab_http_status(200)
+
+        expect(json_response).to contain_exactly(
+          a_hash_including('upvotes' => 1, 'downvotes' => 0),
+          a_hash_including('upvotes' => 0, 'downvotes' => 1)
+        )
       end
 
       it 'sorts by created_at descending by default' do
         get api(url, user)
 
-        expect_array_response([epic2.id, epic.id])
+        expect_paginated_array_response([epic2.id, epic.id])
       end
 
       it 'sorts ascending when requested' do
-        get api(url, user), sort: :asc
+        get api(url, user), params: { sort: :asc }
 
-        expect_array_response([epic.id, epic2.id])
+        expect_paginated_array_response([epic.id, epic2.id])
       end
 
       it 'sorts by updated_at descending when requested' do
-        get api(url, user), order_by: :updated_at
+        get api(url, user), params: { order_by: :updated_at }
 
-        expect_array_response([epic.id, epic2.id])
+        expect_paginated_array_response([epic.id, epic2.id])
       end
 
       it 'sorts by updated_at ascending when requested' do
-        get api(url, user), order_by: :updated_at, sort: :asc
+        get api(url, user), params: { order_by: :updated_at, sort: :asc }
 
-        expect_array_response([epic2.id, epic.id])
+        expect_paginated_array_response([epic2.id, epic.id])
       end
 
       it 'returns an array of labeled epics' do
-        get api(url, user), labels: label.title
+        get api(url, user), params: { labels: label.title }
 
-        expect_array_response([epic2.id])
+        expect_paginated_array_response([epic2.id])
+      end
+
+      it 'returns an array of labeled epics with labels param as array' do
+        get api(url, user), params: { labels: [label.title] }
+
+        expect_paginated_array_response([epic2.id])
+      end
+
+      it 'returns an array of labeled epics when all labels matches' do
+        label_b = create(:group_label, title: 'foo', group: group)
+        label_c = create(:label, title: 'bar', project: project)
+
+        create(:label_link, label: label_b, target: epic2)
+        create(:label_link, label: label_c, target: epic2)
+
+        get api(url, user), params: { labels: "#{label.title},#{label_b.title},#{label_c.title}" }
+
+        expect_paginated_array_response([epic2.id])
+        expect(json_response.first['labels']).to match_array([label.title, label_b.title, label_c.title])
+      end
+
+      it 'returns an array of labeled epics when all labels matches with labels param as array' do
+        label_b = create(:group_label, title: 'foo', group: group)
+        label_c = create(:label, title: 'bar', project: project)
+
+        create(:label_link, label: label_b, target: epic2)
+        create(:label_link, label: label_c, target: epic2)
+
+        get api(url, user), params: { labels: [label.title, label_b.title, label_c.title] }
+
+        expect_paginated_array_response([epic2.id])
+        expect(json_response.first['labels']).to match_array([label.title, label_b.title, label_c.title])
+      end
+
+      it 'returns an empty array if no epic matches labels' do
+        get api(url, user), params: { labels: 'foo,bar' }
+
+        expect_paginated_array_response([])
+      end
+
+      it 'returns an empty array if no epic matches labels with labels param as array' do
+        get api(url, user), params: { labels: %w(foo bar) }
+
+        expect_paginated_array_response([])
+      end
+
+      it 'returns an array of labeled epics matching given state' do
+        get api(url, user), params: { labels: label.title, state: :opened }
+
+        expect_paginated_array_response(epic2.id)
+        expect(json_response.first['labels']).to eq([label.title])
+        expect(json_response.first['state']).to eq('opened')
+      end
+
+      it 'returns an array of labeled epics matching given state with labels param as array' do
+        get api(url, user), params: { labels: [label.title], state: :opened }
+
+        expect_paginated_array_response(epic2.id)
+        expect(json_response.first['labels']).to eq([label.title])
+        expect(json_response.first['state']).to eq('opened')
+      end
+
+      it 'returns an empty array if no epic matches labels and state filters' do
+        get api(url, user), params: { labels: label.title, state: :closed }
+
+        expect_paginated_array_response([])
+      end
+
+      it 'returns an array of epics with any label' do
+        get api(url, user), params: { labels: IssuesFinder::FILTER_ANY }
+
+        expect_paginated_array_response(epic2.id)
+      end
+
+      it 'returns an array of epics with any label with labels param as array' do
+        get api(url, user), params: { labels: [IssuesFinder::FILTER_ANY] }
+
+        expect_paginated_array_response(epic2.id)
+      end
+
+      it 'returns an array of epics with no label' do
+        get api(url, user), params: { labels: IssuesFinder::FILTER_NONE }
+
+        expect_paginated_array_response(epic.id)
+      end
+
+      it 'returns an array of epics with no label with labels param as array' do
+        get api(url, user), params: { labels: [IssuesFinder::FILTER_NONE] }
+
+        expect_paginated_array_response(epic.id)
+      end
+
+      it 'returns an array of epics with no label when using the legacy No+Label filter' do
+        get api(url, user), params: { labels: 'No Label' }
+
+        expect_paginated_array_response(epic.id)
+      end
+
+      it 'returns an array of epics with no label when using the legacy No+Label filter with labels param as array' do
+        get api(url, user), params: { labels: ['No Label'] }
+
+        expect_paginated_array_response(epic.id)
       end
 
       it_behaves_like 'can admin epics'
+    end
+
+    context 'filtering before a specific date' do
+      let!(:epic) { create(:epic, group: group, created_at: Date.new(2000, 1, 1), updated_at: Date.new(2000, 1, 1)) }
+
+      before do
+        stub_licensed_features(epics: true)
+      end
+
+      it 'returns epics created before a specific date' do
+        get api(url, user), params: { created_before: '2000-01-02T00:00:00.060Z' }
+
+        expect_paginated_array_response(epic.id)
+      end
+
+      it 'returns epics updated before a specific date' do
+        get api(url, user), params: { updated_before: '2000-01-02T00:00:00.060Z' }
+
+        expect_paginated_array_response(epic.id)
+      end
+    end
+
+    context 'filtering after a specific date' do
+      let!(:epic) { create(:epic, group: group, created_at: 1.week.from_now, updated_at: 1.week.from_now) }
+
+      before do
+        stub_licensed_features(epics: true)
+      end
+
+      it 'returns epics created after a specific date' do
+        get api(url, user), params: { created_after: epic.created_at }
+
+        expect_paginated_array_response(epic.id)
+      end
+
+      it 'returns epics updated after a specific date' do
+        get api(url, user), params: { updated_after: epic.updated_at }
+
+        expect_paginated_array_response(epic.id)
+      end
+    end
+
+    context 'with pagination params' do
+      let(:page) { 1 }
+      let(:per_page) { 2 }
+      let!(:epic1) { create(:epic, group: group, created_at: 3.days.ago) }
+      let!(:epic2) { create(:epic, group: group, created_at: 2.days.ago) }
+      let!(:epic3) { create(:epic, group: group, created_at: 1.day.ago) }
+
+      before do
+        stub_licensed_features(epics: true)
+      end
+
+      shared_examples 'paginated API endpoint' do
+        it 'returns the correct page' do
+          get api(url, user), params: { page: page, per_page: per_page }
+
+          expect(response.headers['X-Page']).to eq(page.to_s)
+          expect_paginated_array_response(expected)
+        end
+      end
+
+      context 'when viewing the first page' do
+        let(:expected) { [epic3.id, epic2.id] }
+        let(:page) { 1 }
+
+        it_behaves_like 'paginated API endpoint'
+      end
+
+      context 'viewing the second page' do
+        let(:expected) { [epic1.id] }
+        let(:page) { 2 }
+
+        it_behaves_like 'paginated API endpoint'
+      end
     end
   end
 
@@ -197,20 +412,27 @@ describe API::Epics do
 
   describe 'POST /groups/:id/epics' do
     let(:url) { "/groups/#{group.path}/epics" }
-    let(:params) { { title: 'new epic', description: 'epic description', labels: 'label1' } }
+    let(:params) do
+      {
+        title: 'new epic',
+        description: 'epic description',
+        labels: 'label1',
+        due_date_fixed: '2018-07-17',
+        due_date_is_fixed: true
+      }
+    end
 
     it_behaves_like 'error requests'
 
     context 'when epics feature is enabled' do
       before do
         stub_licensed_features(epics: true)
+        group.add_developer(user)
       end
 
       context 'when required parameter is missing' do
         it 'returns 400' do
-          group.add_developer(user)
-
-          post api(url, user), description: 'epic description'
+          post api(url, user), params: { description: 'epic description' }
 
           expect(response).to have_gitlab_http_status(400)
         end
@@ -218,9 +440,7 @@ describe API::Epics do
 
       context 'when the request is correct' do
         before do
-          group.add_developer(user)
-
-          post api(url, user), params
+          post api(url, user), params: params
         end
 
         it 'returns 201 status' do
@@ -236,6 +456,10 @@ describe API::Epics do
 
           expect(epic.title).to eq('new epic')
           expect(epic.description).to eq('epic description')
+          expect(epic.start_date_fixed).to eq(nil)
+          expect(epic.start_date_is_fixed).to be_falsey
+          expect(epic.due_date_fixed).to eq(Date.new(2018, 7, 17))
+          expect(epic.due_date_is_fixed).to eq(true)
           expect(epic.labels.first.title).to eq('label1')
         end
 
@@ -252,12 +476,36 @@ describe API::Epics do
           end
         end
       end
+
+      it 'creates a new epic with labels param as array' do
+        params[:labels] = ['label1', 'label2', 'foo, bar', '&,?']
+
+        post api(url, user), params: params
+
+        expect(response.status).to eq(201)
+        expect(json_response['title']).to include 'new epic'
+        expect(json_response['description']).to include 'epic description'
+        expect(json_response['labels']).to include 'label1'
+        expect(json_response['labels']).to include 'label2'
+        expect(json_response['labels']).to include 'foo'
+        expect(json_response['labels']).to include 'bar'
+        expect(json_response['labels']).to include '&'
+        expect(json_response['labels']).to include '?'
+      end
     end
   end
 
   describe 'PUT /groups/:id/epics/:epic_iid' do
     let(:url) { "/groups/#{group.path}/epics/#{epic.iid}" }
-    let(:params) { { title: 'new title', description: 'new description', labels: 'label2', start_date_fixed: "2018-07-17", start_date_is_fixed: true } }
+    let(:params) do
+      {
+        title: 'new title',
+        description: 'new description',
+        labels: 'label2',
+        start_date_fixed: "2018-07-17",
+        start_date_is_fixed: true
+      }
+    end
 
     it_behaves_like 'error requests'
 
@@ -268,7 +516,7 @@ describe API::Epics do
 
       context 'when a user does not have permissions to create an epic' do
         it 'returns 403 forbidden error' do
-          put api(url, user), params
+          put api(url, user), params: params
 
           expect(response).to have_gitlab_http_status(403)
         end
@@ -287,40 +535,95 @@ describe API::Epics do
       context 'when the request is correct' do
         before do
           group.add_developer(user)
-
-          put api(url, user), params
         end
 
-        it 'returns 200 status' do
-          expect(response).to have_gitlab_http_status(200)
+        context 'with basic params' do
+          before do
+            put api(url, user), params: params
+          end
+
+          it 'returns 200 status' do
+            expect(response).to have_gitlab_http_status(200)
+          end
+
+          it 'matches the response schema' do
+            expect(response).to match_response_schema('public_api/v4/epic', dir: 'ee')
+          end
+
+          it 'updates the epic' do
+            result = epic.reload
+
+            expect(result.title).to eq('new title')
+            expect(result.description).to eq('new description')
+            expect(result.labels.first.title).to eq('label2')
+            expect(result.start_date).to eq(Date.new(2018, 7, 17))
+            expect(result.start_date_fixed).to eq(Date.new(2018, 7, 17))
+            expect(result.start_date_is_fixed).to eq(true)
+            expect(result.due_date_fixed).to eq(nil)
+            expect(result.due_date_is_fixed).to be_falsey
+          end
         end
 
-        it 'matches the response schema' do
-          expect(response).to match_response_schema('public_api/v4/epic', dir: 'ee')
+        it 'updates the epic with labels param as array' do
+          params[:labels] = ['label1', 'label2', 'foo, bar', '&,?']
+
+          put api(url, user), params: params
+
+          expect(response.status).to eq(200)
+          expect(json_response['title']).to include 'new title'
+          expect(json_response['description']).to include 'new description'
+          expect(json_response['labels']).to include 'label1'
+          expect(json_response['labels']).to include 'label2'
+          expect(json_response['labels']).to include 'foo'
+          expect(json_response['labels']).to include 'bar'
+          expect(json_response['labels']).to include '&'
+          expect(json_response['labels']).to include '?'
         end
 
-        it 'updates the epic' do
-          result = epic.reload
+        context 'when state_event is close' do
+          it 'allows epic to be closed' do
+            put api(url, user), params: { state_event: 'close' }
 
-          expect(result.title).to eq('new title')
-          expect(result.description).to eq('new description')
-          expect(result.labels.first.title).to eq('label2')
-          expect(result.start_date).to eq(Date.new(2018, 7, 17))
-          expect(result.start_date_fixed).to eq(Date.new(2018, 7, 17))
-          expect(result.start_date_is_fixed).to eq(true)
+            expect(epic.reload).to be_closed
+          end
+        end
+
+        context 'when state_event is reopen' do
+          it 'allows epic to be reopend' do
+            epic.update!(state: 'closed')
+
+            put api(url, user), params: { state_event: 'reopen' }
+
+            expect(epic.reload).to be_opened
+          end
         end
 
         context 'when deprecated start_date and end_date params are present' do
           let(:epic) { create(:epic, :use_fixed_dates, group: group) }
           let(:new_start_date) { epic.start_date + 1.day }
           let(:new_due_date) { epic.end_date + 1.day }
-          let!(:params) { { start_date: new_start_date, end_date: new_due_date } }
 
           it 'updates start_date_fixed and due_date_fixed' do
+            put api(url, user), params: { start_date: new_start_date, end_date: new_due_date }
+
             result = epic.reload
 
             expect(result.start_date_fixed).to eq(new_start_date)
             expect(result.due_date_fixed).to eq(new_due_date)
+          end
+        end
+
+        context 'when updating start_date_is_fixed by itself' do
+          let(:epic) { create(:epic, :use_fixed_dates, group: group) }
+          let(:new_start_date) { epic.start_date + 1.day }
+          let(:new_due_date) { epic.end_date + 1.day }
+
+          it 'updates start_date_is_fixed' do
+            put api(url, user), params: { start_date_is_fixed: false }
+
+            result = epic.reload
+
+            expect(result.start_date_is_fixed).to eq(false)
           end
         end
       end

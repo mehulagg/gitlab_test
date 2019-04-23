@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import DeployBoard from 'ee/environments/components/deploy_board_component.vue';
-import { deployBoardMockData, environment } from 'spec/environments/mock_data';
+import { environment } from 'spec/environments/mock_data';
+import { deployBoardMockData } from './mock_data';
 
 describe('Deploy Board', () => {
   let DeployBoardComponent;
@@ -29,13 +30,22 @@ describe('Deploy Board', () => {
       ).toEqual(`${deployBoardMockData.completion}%`);
     });
 
+    it('should render total instance count', () => {
+      const renderedTotal = component.$el.querySelector('.deploy-board-instances .total-instances');
+      const actualTotal = deployBoardMockData.instances.length;
+
+      expect(renderedTotal.textContent).toEqual(`(${actualTotal})`);
+    });
+
     it('should render all instances', () => {
       const instances = component.$el.querySelectorAll('.deploy-board-instances-container a');
 
       expect(instances.length).toEqual(deployBoardMockData.instances.length);
 
       expect(
-        instances[2].classList.contains(`deploy-board-instance-${deployBoardMockData.instances[2].status}`),
+        instances[2].classList.contains(
+          `deploy-board-instance-${deployBoardMockData.instances[2].status}`,
+        ),
       ).toBe(true);
     });
 
@@ -63,7 +73,11 @@ describe('Deploy Board', () => {
 
     it('should render the empty state', () => {
       expect(component.$el.querySelector('.deploy-board-empty-state-svg svg')).toBeDefined();
-      expect(component.$el.querySelector('.deploy-board-empty-state-text .title').textContent).toContain('Kubernetes deployment not found');
+      expect(
+        component.$el.querySelector(
+          '.deploy-board-empty-state-text .deploy-board-empty-state-title',
+        ).textContent,
+      ).toContain('Kubernetes deployment not found');
     });
   });
 

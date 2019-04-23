@@ -41,12 +41,12 @@ describe 'Dropdown weight', :js do
 
     it 'closes when the search bar is unfocused' do
       filtered_search.set('weight:')
-      find('body').click()
+      find('body').click
 
       expect(page).to have_css(js_dropdown_weight, visible: false)
     end
 
-    it 'should load all the weights when opened' do
+    it 'loads all the weights when opened' do
       send_keys_to_filtered_search('weight:')
 
       expect(page.all('#js-dropdown-weight .filter-dropdown .filter-dropdown-item').size).to eq(21)

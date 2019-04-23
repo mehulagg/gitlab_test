@@ -1,14 +1,14 @@
 require 'spec_helper'
 
 describe EpicsFinder do
-  let(:user) { create(:user)  }
-  let(:search_user) { create(:user)  }
+  let(:user) { create(:user) }
+  let(:search_user) { create(:user) }
   let(:group) { create(:group, :private) }
   let(:another_group) { create(:group) }
-  let!(:epic1) { create(:epic, group: group, title: 'This is awesome epic', created_at: 1.week.ago) }
-  let!(:epic2) { create(:epic, group: group, created_at: 4.days.ago, author: user, start_date: 2.days.ago) }
-  let!(:epic3) { create(:epic, group: group, description: 'not so awesome', start_date: 5.days.ago, end_date: 3.days.ago) }
-  let!(:epic4) { create(:epic, group: another_group) }
+  let!(:epic1) { create(:epic, :opened, group: group, title: 'This is awesome epic', created_at: 1.week.ago) }
+  let!(:epic2) { create(:epic, :opened, group: group, created_at: 4.days.ago, author: user, start_date: 2.days.ago, end_date: 3.days.from_now) }
+  let!(:epic3) { create(:epic, :closed, group: group, description: 'not so awesome', start_date: 5.days.ago, end_date: 3.days.ago) }
+  let!(:epic4) { create(:epic, :closed, group: another_group) }
 
   describe '#execute' do
     def epics(params = {})
@@ -61,6 +61,16 @@ describe EpicsFinder do
           expect(amount).to be <= 7
         end
 
+        context 'sorting' do
+          it 'sorts correctly when supported sorting param provided' do
+            expect(epics(sort: :start_date_asc)).to eq([epic3, epic2, epic1])
+          end
+
+          it 'sorts by id when not supported sorting param provided' do
+            expect(epics(sort: :not_supported_param)).to eq([epic3, epic2, epic1])
+          end
+        end
+
         context 'by created_at' do
           it 'returns all epics created before the given date' do
             expect(epics(created_before: 2.days.ago)).to contain_exactly(epic1, epic2)
@@ -96,6 +106,12 @@ describe EpicsFinder do
           end
         end
 
+        context 'by state' do
+          it 'returns all epics with given state' do
+            expect(epics(state: :closed)).to contain_exactly(epic3)
+          end
+        end
+
         context 'when subgroups are supported', :nested_groups do
           let(:subgroup) { create(:group, :private, parent: group) }
           let(:subgroup2) { create(:group, :private, parent: subgroup) }
@@ -117,7 +133,7 @@ describe EpicsFinder do
               .to receive(:should_check_namespace_plan?)
               .and_return(true)
 
-            group.update(plan: create(:gold_plan))
+            create(:gitlab_subscription, :gold, namespace: group)
 
             amount = ActiveRecord::QueryRecorder.new { epics.to_a }.count
 
@@ -153,6 +169,21 @@ describe EpicsFinder do
             expect(epics(params)).to contain_exactly(epic3)
           end
         end
+
+        context 'by parent' do
+          before do
+            epic2.update(parent: epic1)
+            epic3.update(parent: epic2)
+          end
+
+          it 'returns direct children of the parent' do
+            params = {
+              parent_id: epic1.id
+            }
+
+            expect(epics(params)).to contain_exactly(epic2)
+          end
+        end
       end
     end
   end
@@ -172,6 +203,36 @@ describe EpicsFinder do
       params = { group_id: group.id, label_name: [label.title, label2.title] }
 
       expect(described_class.new(search_user, params).row_count).to eq(1)
+    end
+  end
+
+  describe '#count_by_state' do
+    before do
+      group.add_developer(search_user)
+      stub_licensed_features(epics: true)
+    end
+
+    it 'returns correct counts' do
+      results = described_class.new(search_user, group_id: group.id).count_by_state
+
+      expect(results).to eq('opened' => 2, 'closed' => 1, 'all' => 3)
+    end
+
+    context 'when using group cte for search' do
+      before do
+        stub_feature_flags(use_subquery_for_group_issues_search: false)
+      end
+
+      it 'returns correct counts when search string is used' do
+        results = described_class.new(
+          search_user,
+          group_id: group.id,
+          search: 'awesome',
+          attempt_group_search_optimizations: true
+        ).count_by_state
+
+        expect(results).to eq('opened' => 1, 'closed' => 1, 'all' => 2)
+      end
     end
   end
 end

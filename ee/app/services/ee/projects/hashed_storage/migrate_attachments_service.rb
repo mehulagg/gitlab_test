@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module Projects
     module HashedStorage
@@ -7,11 +9,13 @@ module EE
         override :execute
         def execute
           super do
+            break true if skipped?
+
             ::Geo::HashedStorageAttachmentsEventStore.new(
               project,
               old_attachments_path: old_disk_path,
               new_attachments_path: new_disk_path
-            ).create
+            ).create!
           end
         end
       end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module Projects
     module ClustersController
@@ -22,7 +24,7 @@ module EE
       private
 
       def prometheus_adapter
-        return unless cluster&.application_prometheus&.installed?
+        return unless cluster&.application_prometheus_available?
 
         cluster.application_prometheus
       end

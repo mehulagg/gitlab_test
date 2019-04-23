@@ -1,9 +1,9 @@
 # Jenkins CI (deprecated) service
 
 >**Note:** In GitLab 8.3, Jenkins integration using the
-[GitLab Hook Plugin](https://wiki.jenkins-ci.org/display/JENKINS/GitLab+Hook+Plugin)
+[GitLab Hook Plugin](https://wiki.jenkins.io/display/JENKINS/GitLab+Hook+Plugin)
 was deprecated in favor of the
-[GitLab Plugin](https://wiki.jenkins-ci.org/display/JENKINS/GitLab+Plugin).
+[GitLab Plugin](https://wiki.jenkins.io/display/JENKINS/GitLab+Plugin).
 Please use documentation for the new [Jenkins CI service](jenkins.md).
 
 Integration includes:
@@ -13,13 +13,13 @@ Integration includes:
 
 Requirements:
 
-* [Jenkins GitLab Hook plugin](https://wiki.jenkins-ci.org/display/JENKINS/GitLab+Hook+Plugin)
+* [Jenkins GitLab Hook plugin](https://wiki.jenkins.io/display/JENKINS/GitLab+Hook+Plugin)
 * git clone access for Jenkins from GitLab repo (via ssh key)
 
 ## Jenkins
 
-1. Install [GitLab Hook plugin](https://wiki.jenkins-ci.org/display/JENKINS/GitLab+Hook+Plugin)
-2. Setup jenkins project
+1. Install [GitLab Hook plugin](https://wiki.jenkins.io/display/JENKINS/GitLab+Hook+Plugin)
+2. Set up jenkins project
 
 ![screen](jenkins_project.png)
 
@@ -32,7 +32,7 @@ In GitLab, perform the following steps.
 Jenkins needs read access to the GitLab repository. We already specified a
 private key to use in Jenkins, now we need to add a public one to the GitLab
 project. For that case we will need a Deploy key. Read the documentation on
-[how to setup a Deploy key](../ssh/README.md#deploy-keys).
+[how to set up a Deploy key](../ssh/README.md#deploy-keys).
 
 ### Jenkins service
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module Epic
     extend ActiveSupport::Concern
@@ -6,15 +8,35 @@ module EE
       include AtomicInternalId
       include IidRoutes
       include ::Issuable
-      include Noteable
+      include ::Noteable
       include Referable
       include Awardable
       include LabelEventable
+      include Descendant
+      include RelativePositioning
+
+      enum state: { opened: 1, closed: 2 }
+
+      belongs_to :closed_by, class_name: 'User'
+
+      def reopen
+        return if opened?
+
+        update(state: :opened, closed_at: nil, closed_by: nil)
+      end
+
+      def close
+        return if closed?
+
+        update(state: :closed, closed_at: Time.zone.now)
+      end
 
       belongs_to :assignee, class_name: "User"
       belongs_to :group
       belongs_to :start_date_sourcing_milestone, class_name: 'Milestone'
       belongs_to :due_date_sourcing_milestone, class_name: 'Milestone'
+      belongs_to :parent, class_name: "Epic"
+      has_many :children, class_name: "Epic", foreign_key: :parent_id
 
       has_internal_id :iid, scope: :group, init: ->(s) { s&.group&.epics&.maximum(:iid) }
 
@@ -23,15 +45,46 @@ module EE
 
       validates :group, presence: true
 
+      alias_attribute :parent_ids, :parent_id
+
+      scope :in_parents, -> (parent_ids) { where(parent_id: parent_ids) }
+      scope :inc_group, -> { includes(:group) }
+
       scope :order_start_or_end_date_asc, -> do
         # mysql returns null values first in opposite to postgres which
         # returns them last by default
         nulls_first = ::Gitlab::Database.postgresql? ? 'NULLS FIRST' : ''
         reorder("COALESCE(start_date, end_date) ASC #{nulls_first}")
       end
+
+      scope :order_start_date_asc, -> do
+        reorder(::Gitlab::Database.nulls_last_order('start_date'), 'id DESC')
+      end
+
+      scope :order_end_date_asc, -> do
+        reorder(::Gitlab::Database.nulls_last_order('end_date'), 'id DESC')
+      end
+
+      scope :order_end_date_desc, -> do
+        reorder(::Gitlab::Database.nulls_last_order('end_date', 'DESC'), 'id DESC')
+      end
+
+      scope :order_start_date_desc, -> do
+        reorder(::Gitlab::Database.nulls_last_order('start_date', 'DESC'), 'id DESC')
+      end
+
+      scope :order_relative_position, -> do
+        reorder('relative_position ASC', 'id DESC')
+      end
+
+      scope :with_api_entity_associations, -> { preload(:author, :labels, :group) }
+
+      def etag_caching_enabled?
+        true
+      end
     end
 
-    module ClassMethods
+    class_methods do
       # We support internal references (&epic_id) and cross-references (group.full_path&epic_id)
       #
       # Escaped versions with `&amp;` will be extracted too
@@ -71,8 +124,13 @@ module EE
       end
 
       def order_by(method)
-        if method.to_s == 'start_or_end_date'
-          order_start_or_end_date_asc
+        case method.to_s
+        when 'start_or_end_date' then order_start_or_end_date_asc
+        when 'start_date_asc' then order_start_date_asc
+        when 'start_date_desc' then order_start_date_desc
+        when 'end_date_asc' then order_end_date_asc
+        when 'end_date_desc' then order_end_date_desc
+        when 'relative_position' then order_relative_position
         else
           super
         end
@@ -82,34 +140,68 @@ module EE
         ::Group
       end
 
+      # Column name used by RelativePositioning for scoping. This is not related to `parent_class` above.
+      def parent_column
+        :parent_id
+      end
+
+      # Return the deepest relation level for an epic.
+      # Example 1:
+      # epic1 - parent: nil
+      # epic2 - parent: epic1
+      # epic3 - parent: epic 2
+      # Returns: 3
+      # ------------
+      # Example 2:
+      # epic1 - parent: nil
+      # epic2 - parent: epic1
+      # Returns: 2
+      def deepest_relationship_level
+        return unless supports_nested_objects?
+
+        ::Gitlab::ObjectHierarchy.new(self.where(parent_id: nil)).max_descendants_depth
+      end
+
       def update_start_and_due_dates(epics)
-        groups = epics.includes(:issues).group_by do |epic|
-          milestone_ids = epic.issues.map(&:milestone_id)
-          milestone_ids.compact!
-          milestone_ids.uniq!
-          milestone_ids
-        end
+        # In MySQL, we cannot use a subquery that references the table being updated
+        epics = epics.pluck(:id) if ::Gitlab::Database.mysql? && epics.is_a?(ActiveRecord::Relation)
 
-        groups.each do |milestone_ids, epics|
-          next if milestone_ids.empty?
+        self.where(id: epics).update_all(
+          [
+            %{
+              start_date = CASE WHEN start_date_is_fixed = true THEN start_date_fixed ELSE (?) END,
+              start_date_sourcing_milestone_id = (?),
+              end_date = CASE WHEN due_date_is_fixed = true THEN due_date_fixed ELSE (?) END,
+              due_date_sourcing_milestone_id = (?)
+            },
+            start_date_milestone_query.select(:start_date),
+            start_date_milestone_query.select(:id),
+            due_date_milestone_query.select(:due_date),
+            due_date_milestone_query.select(:id)
+          ]
+        )
+      end
 
-          results = Epics::DateSourcingMilestonesFinder.new(epics.first.id)
+      private
 
-          self.where(id: epics.map(&:id)).update_all(
-            [
-              %{
-                start_date = CASE WHEN start_date_is_fixed = true THEN start_date ELSE ? END,
-                start_date_sourcing_milestone_id = ?,
-                end_date = CASE WHEN due_date_is_fixed = true THEN end_date ELSE ? END,
-                due_date_sourcing_milestone_id = ?
-              },
-              results.start_date,
-              results.start_date_sourcing_milestone_id,
-              results.due_date,
-              results.due_date_sourcing_milestone_id
-            ]
-          )
-        end
+      def start_date_milestone_query
+        source_milestones_query
+          .where.not(start_date: nil)
+          .order(:start_date, :id)
+          .limit(1)
+      end
+
+      def due_date_milestone_query
+        source_milestones_query
+          .where.not(due_date: nil)
+          .order(due_date: :desc, id: :desc)
+          .limit(1)
+      end
+
+      def source_milestones_query
+        ::Milestone
+          .joins(issues: :epic_issue)
+          .where('epic_issues.epic_id = epics.id')
       end
     end
 
@@ -143,14 +235,7 @@ module EE
     alias_attribute(:due_date, :end_date)
 
     def update_start_and_due_dates
-      results = Epics::DateSourcingMilestonesFinder.new(id)
-
-      self.start_date = start_date_is_fixed? ? start_date_fixed : results.start_date
-      self.start_date_sourcing_milestone_id = results.start_date_sourcing_milestone_id
-      self.due_date = due_date_is_fixed? ? due_date_fixed : results.due_date
-      self.due_date_sourcing_milestone_id = results.due_date_sourcing_milestone_id
-
-      save if changed?
+      self.class.update_start_and_due_dates([self])
     end
 
     def start_date_from_milestones
@@ -164,7 +249,7 @@ module EE
     def to_reference(from = nil, full: false)
       reference = "#{self.class.reference_prefix}#{iid}"
 
-      return reference unless cross_reference?(from) || full
+      return reference unless (cross_reference?(from) && !group.projects.include?(from)) || full
 
       "#{group.full_path}#{reference}"
     end
@@ -173,13 +258,32 @@ module EE
       from && from != group
     end
 
+    def ancestors
+      return self.class.none unless parent_id
+
+      hierarchy.ancestors(hierarchy_order: :asc)
+    end
+
+    def descendants
+      hierarchy.descendants
+    end
+
+    def has_ancestor?(epic)
+      ancestors.exists?(epic)
+    end
+
+    def hierarchy
+      ::Gitlab::ObjectHierarchy.new(self.class.where(id: id))
+    end
+
     # we don't support project epics for epics yet, planned in the future #4019
     def update_project_counter_caches
     end
 
-    def issues_readable_by(current_user)
+    def issues_readable_by(current_user, preload: nil)
       related_issues = ::Issue.select('issues.*, epic_issues.id as epic_issue_id, epic_issues.relative_position')
         .joins(:epic_issue)
+        .preload(preload)
         .where("epic_issues.epic_id = #{id}")
         .order('epic_issues.relative_position, epic_issues.id')
 

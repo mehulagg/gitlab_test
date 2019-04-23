@@ -1,58 +1,60 @@
 <script>
-  import ciStatus from '~/vue_shared/components/ci_icon.vue';
-  import tooltip from '~/vue_shared/directives/tooltip';
+import { GlLoadingIcon, GlTooltipDirective, GlButton } from '@gitlab/ui';
+import CiStatus from '~/vue_shared/components/ci_icon.vue';
 
-  export default {
-    directives: {
-      tooltip,
+export default {
+  directives: {
+    GlTooltip: GlTooltipDirective,
+  },
+  components: {
+    CiStatus,
+    GlLoadingIcon,
+    GlButton,
+  },
+  props: {
+    pipeline: {
+      type: Object,
+      required: true,
     },
-    components: {
-      ciStatus,
+  },
+  computed: {
+    tooltipText() {
+      return `${this.projectName} - ${this.pipelineStatus.label}`;
     },
-    props: {
-      pipelineId: {
-        type: Number,
-        required: true,
-      },
-      pipelinePath: {
-        type: String,
-        required: true,
-      },
-      pipelineStatus: {
-        type: Object,
-        required: true,
-      },
-      projectName: {
-        type: String,
-        required: true,
-      },
+    buttonId() {
+      return `js-linked-pipeline-${this.pipeline.id}`;
     },
-    computed: {
-      tooltipText() {
-        return `${this.projectName} - ${this.pipelineStatus.label}`;
-      },
+    pipelineStatus() {
+      return this.pipeline.details.status;
     },
-  };
+    projectName() {
+      return this.pipeline.project.name;
+    },
+  },
+  methods: {
+    onClickLinkedPipeline() {
+      this.$root.$emit('bv::hide::tooltip', this.buttonId);
+      this.$emit('pipelineClicked');
+    },
+  },
+};
 </script>
 
 <template>
   <li class="linked-pipeline build">
     <div class="curve"></div>
-    <div>
-      <a
-        v-tooltip
-        :href="pipelinePath"
-        :title="tooltipText"
-        class="linked-pipeline-content"
-        data-container="body"
-      >
-        <span class="linked-pipeline-status ci-status-text">
-          <ci-status :status="pipelineStatus" />
-        </span>
-        <span class="linked-pipeline-project-name">{{ projectName }}</span>
-        <span class="project-name-pipeline-id-separator">&#8226;</span>
-        <span class="linked-pipeline-id">#{{ pipelineId }}</span>
-      </a>
-    </div>
+    <gl-button
+      :id="buttonId"
+      v-gl-tooltip
+      :title="tooltipText"
+      class="js-linked-pipeline-content linked-pipeline-content"
+      :class="`js-pipeline-expand-${pipeline.id}`"
+      @click="onClickLinkedPipeline"
+    >
+      <gl-loading-icon v-if="pipeline.isLoading" class="js-linked-pipeline-loading d-inline" />
+      <ci-status v-else :status="pipelineStatus" class="js-linked-pipeline-status" />
+
+      <span class="str-truncated align-bottom"> {{ projectName }} &#8226; #{{ pipeline.id }} </span>
+    </gl-button>
   </li>
 </template>

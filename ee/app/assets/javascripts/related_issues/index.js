@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { convertPermissionToBoolean } from '~/lib/utils/common_utils';
+import { parseBoolean } from '~/lib/utils/common_utils';
 import RelatedIssuesRoot from './components/related_issues_root.vue';
 
 export default function initRelatedIssues() {
@@ -11,15 +11,14 @@ export default function initRelatedIssues() {
       components: {
         relatedIssuesRoot: RelatedIssuesRoot,
       },
-      render: createElement => createElement('related-issues-root', {
-        props: {
-          endpoint: relatedIssuesRootElement.dataset.endpoint,
-          canAdmin: convertPermissionToBoolean(
-            relatedIssuesRootElement.dataset.canAddRelatedIssues,
-          ),
-          helpPath: relatedIssuesRootElement.dataset.helpPath,
-        },
-      }),
+      render: createElement =>
+        createElement('related-issues-root', {
+          props: {
+            endpoint: relatedIssuesRootElement.dataset.endpoint,
+            canAdmin: parseBoolean(relatedIssuesRootElement.dataset.canAddRelatedIssues),
+            helpPath: relatedIssuesRootElement.dataset.helpPath,
+          },
+        }),
     });
   }
 }

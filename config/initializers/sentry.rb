@@ -19,9 +19,24 @@ def configure_sentry
       config.sanitize_fields = Rails.application.config.filter_parameters.map(&:to_s)
       # Sanitize authentication headers
       config.sanitize_http_headers = %w[Authorization Private-Token]
-      config.tags = { program: Gitlab::Sentry.program_context }
+      config.tags = { program: Gitlab.process_name }
+      # Debugging for https://gitlab.com/gitlab-org/gitlab-ce/issues/57727
+      config.before_send = lambda do |event, hint|
+        if ActiveModel::MissingAttributeError === hint[:exception]
+          columns_hash = ActiveRecord::Base
+                           .connection
+                           .schema_cache
+                           .instance_variable_get(:@columns_hash)
+                           .map { |k, v| [k, v.map(&:first)] }
+                           .to_h
+
+          event.extra.merge!(columns_hash)
+        end
+
+        event
+      end
     end
   end
 end
 
-configure_sentry if Rails.env.production?
+configure_sentry if Rails.env.production? || Rails.env.development?

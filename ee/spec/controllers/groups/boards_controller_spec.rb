@@ -43,13 +43,19 @@ describe Groups::BoardsController do
       end
     end
 
-    it_behaves_like 'disabled when using an external authorization service' do
-      subject { list_boards }
+    it_behaves_like 'redirects to last visited board' do
+      let(:parent) { group }
     end
 
     def list_boards(format: :html)
-      get :index, group_id: group, format: format
+      get :index, params: { group_id: group }, format: format
     end
+  end
+
+  describe 'GET recent' do
+    let(:parent) { group }
+
+    it_behaves_like 'returns recently visited boards'
   end
 
   describe 'GET show' do

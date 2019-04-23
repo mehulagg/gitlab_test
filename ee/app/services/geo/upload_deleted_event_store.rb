@@ -1,17 +1,15 @@
+# frozen_string_literal: true
+
 module Geo
   class UploadDeletedEventStore < EventStore
+    extend ::Gitlab::Utils::Override
+
     self.event_type = :upload_deleted_event
 
     attr_reader :upload
 
     def initialize(upload)
       @upload = upload
-    end
-
-    def create
-      return unless upload.local?
-
-      super
     end
 
     private

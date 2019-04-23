@@ -1,7 +1,7 @@
 - type = local_assigns.fetch(:type)
 - hide_sort_dropdown = local_assigns.fetch(:hide_sort_dropdown, false)
 - show_roadmap_presets = local_assigns.fetch(:show_roadmap_presets, false)
-- full_path = @project.present? ? @project.full_path : @group.full_path
+- hide_extra_sort_options = local_assigns.fetch(:hide_extra_sort_options, false)
 - preset_layout = roadmap_layout
 - is_quarters = preset_layout == "QUARTERS"
 - is_months = preset_layout == "MONTHS"
@@ -20,7 +20,9 @@
         %label.btn.btn-default.btn-roadmap-preset{ class: ("active" if is_weeks) }
           %input{ type: 'radio', name: 'presetType', autocomplete: 'off', checked: ("checked" if is_weeks), value: 'WEEKS' }
             = _('Weeks')
-    = form_tag page_filter_path(without: [:author_id, :search]), method: :get, class: 'flex-fill filter-form js-filter-form' do
+      .filter-dropdown-container.append-right-default
+        = render 'shared/epic/state_dropdown'
+    = form_tag page_filter_path, method: :get, class: 'flex-fill filter-form js-filter-form' do
       - if params[:search].present?
         = hidden_field_tag :search, params[:search]
       .epics-other-filters.filtered-search-wrapper
@@ -31,7 +33,7 @@
             dropdown_class: "filtered-search-history-dropdown",
             content_class: "filtered-search-history-dropdown-content",
             title: "Recent searches" }) do
-            .js-filtered-search-history-dropdown{ data: { full_path: full_path } }
+            .js-filtered-search-history-dropdown{ data: { full_path: search_history_storage_prefix } }
           .filtered-search-box-input-container.droplab-dropdown
             .scroll-container
               %ul.tokens-container.list-unstyled
@@ -41,7 +43,7 @@
               %ul{ data: { dropdown: true } }
                 %li.filter-dropdown-item{ data: { action: 'submit' } }
                   %button.btn.btn-link{ type: 'button' }
-                    = icon('search')
+                    = sprite_icon('search')
                     %span
                       Press Enter or click to search
               %ul.filter-dropdown{ data: { dynamic: true, dropdown: true } }
@@ -49,7 +51,8 @@
                   %button.btn.btn-link{ type: 'button' }
                     -# Encapsulate static class name `{{icon}}` inside #{} to bypass
                     -# haml lint's ClassAttributeWithStaticValue
-                    %i.fa{ class: "#{'{{icon}}'}" }
+                    %svg
+                      %use{ 'xlink:href': "#{'{{icon}}'}" }
                     %span.js-filter-hint
                       {{hint}}
                     %span.js-filter-tag.dropdown-light-content
@@ -80,4 +83,4 @@
             = icon('times')
         - unless hide_sort_dropdown
           .filter-dropdown-container
-            = render 'shared/epic/sort_dropdown'
+            = render 'shared/epic/sort_dropdown', hide_extra_sort_options: hide_extra_sort_options

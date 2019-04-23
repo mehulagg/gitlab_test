@@ -1,4 +1,4 @@
-/* eslint-disable no-param-reassign */
+import Vue from 'vue';
 import * as types from './mutation_types';
 import projectMutations from './mutations/project';
 import mergeRequestMutation from './mutations/merge_request';
@@ -146,13 +146,7 @@ export default {
       staged: false,
       prevPath: '',
       moved: false,
-      lastCommit: Object.assign(state.entries[file.path].lastCommit, {
-        id: lastCommit.commit.id,
-        url: lastCommit.commit_path,
-        message: lastCommit.commit.message,
-        author: lastCommit.commit.author_name,
-        updatedAt: lastCommit.commit.authored_date,
-      }),
+      lastCommitSha: lastCommit.commit.id,
     });
 
     if (prevPath) {
@@ -170,11 +164,6 @@ export default {
   [types.BURST_UNUSED_SEAL](state) {
     Object.assign(state, {
       unusedSeal: false,
-    });
-  },
-  [types.SET_RIGHT_PANE](state, view) {
-    Object.assign(state, {
-      rightPane: state.rightPane === view ? null : view,
     });
   },
   [types.SET_LINKS](state, links) {
@@ -217,28 +206,27 @@ export default {
       }
     }
   },
-  [types.RENAME_ENTRY](state, { path, name, entryPath = null }) {
+  [types.RENAME_ENTRY](state, { path, name, entryPath = null, parentPath }) {
     const oldEntry = state.entries[entryPath || path];
-    const nameRegex =
-      !entryPath && oldEntry.type === 'blob'
-        ? new RegExp(`${oldEntry.name}$`)
-        : new RegExp(`^${path}`);
-    const newPath = oldEntry.path.replace(nameRegex, name);
-    const parentPath = oldEntry.parentPath ? oldEntry.parentPath.replace(nameRegex, name) : '';
+    const slashedParentPath = parentPath ? `${parentPath}/` : '';
+    const newPath = entryPath
+      ? `${slashedParentPath}${oldEntry.name}`
+      : `${slashedParentPath}${name}`;
 
-    state.entries[newPath] = {
+    Vue.set(state.entries, newPath, {
       ...oldEntry,
       id: newPath,
-      key: `${name}-${oldEntry.type}-${oldEntry.id}`,
+      key: `${newPath}-${oldEntry.type}-${oldEntry.id}`,
       path: newPath,
       name: entryPath ? oldEntry.name : name,
       tempFile: true,
-      prevPath: oldEntry.path,
+      prevPath: oldEntry.tempFile ? null : oldEntry.path,
       url: oldEntry.url.replace(new RegExp(`${oldEntry.path}/?$`), newPath),
       tree: [],
       parentPath,
       raw: '',
-    };
+    });
+
     oldEntry.moved = true;
     oldEntry.movedPath = newPath;
 
@@ -252,7 +240,22 @@ export default {
     if (newEntry.type === 'blob') {
       state.changedFiles = state.changedFiles.concat(newEntry);
     }
+
+    if (state.entries[newPath].opened) {
+      state.openFiles.push(state.entries[newPath]);
+    }
+
+    if (oldEntry.tempFile) {
+      const filterMethod = f => f.path !== oldEntry.path;
+
+      state.openFiles = state.openFiles.filter(filterMethod);
+      state.changedFiles = state.changedFiles.filter(filterMethod);
+      parent.tree = parent.tree.filter(filterMethod);
+
+      Vue.delete(state.entries, oldEntry.path);
+    }
   },
+
   ...projectMutations,
   ...mergeRequestMutation,
   ...fileMutations,

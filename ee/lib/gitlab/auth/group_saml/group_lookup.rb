@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Gitlab
   module Auth
     module GroupSaml
@@ -11,7 +13,7 @@ module Gitlab
         end
 
         def group
-          Group.find_by_full_path(path)
+          @group ||= Group.find_by_full_path(path)
         end
 
         def saml_provider
@@ -19,7 +21,11 @@ module Gitlab
         end
 
         def group_saml_enabled?
-          saml_provider && group.feature_available?(:group_saml)
+          saml_provider&.enabled? && group.feature_available?(:group_saml)
+        end
+
+        def token_discoverable?
+          group&.saml_discovery_token_matches?(params['token'])
         end
 
         private
@@ -33,9 +39,11 @@ module Gitlab
           path.match(path_regex).try(:[], :group)
         end
 
-        def path_from_params
-          params = Rack::Request.new(env).params
+        def params
+          @params ||= ActionDispatch::Request.new(env).params
+        end
 
+        def path_from_params
           params['group_path']
         end
       end

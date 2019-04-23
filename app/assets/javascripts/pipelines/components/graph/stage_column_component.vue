@@ -1,55 +1,39 @@
 <script>
 import _ from 'underscore';
-import JobComponent from './job_component.vue';
-import DropdownJobComponent from './dropdown_job_component.vue';
+import stageColumnMixin from 'ee_else_ce/pipelines/mixins/stage_column_mixin';
+import JobItem from './job_item.vue';
+import JobGroupDropdown from './job_group_dropdown.vue';
 
 export default {
   components: {
-    JobComponent,
-    DropdownJobComponent,
+    JobItem,
+    JobGroupDropdown,
   },
+  mixins: [stageColumnMixin],
   props: {
     title: {
       type: String,
       required: true,
     },
-
-    jobs: {
+    groups: {
       type: Array,
       required: true,
     },
-
     isFirstColumn: {
       type: Boolean,
       required: false,
       default: false,
     },
-
     stageConnectorClass: {
       type: String,
       required: false,
       default: '',
     },
-
-    hasTriggeredBy: {
-      type: Boolean,
-      required: true,
-    },
   },
-
   methods: {
-    firstJob(list) {
-      return list[0];
+    groupId(group) {
+      return `ci-badge-${_.escape(group.name)}`;
     },
-
-    jobId(job) {
-      return `ci-badge-${_.escape(job.name)}`;
-    },
-
-    buildConnnectorClass(index) {
-      return index === 0 && !this.isFirstColumn ? 'left-connector' : '';
-    },
-
     pipelineActionRequestComplete() {
       this.$emit('refreshPipelineGraph');
     },
@@ -57,39 +41,31 @@ export default {
 };
 </script>
 <template>
-  <li
-    :class="stageConnectorClass"
-    class="stage-column">
-    <div class="stage-name">
-      {{ title }}
-    </div>
+  <li :class="stageConnectorClass" class="stage-column">
+    <div class="stage-name">{{ title }}</div>
     <div class="builds-container">
       <ul>
         <li
-          v-for="(job, index) in jobs"
-          :key="job.id"
-          :class="{
-            'left-connector': index === 0 && (!isFirstColumn || hasTriggeredBy)
-          }"
-          :id="jobId(job)"
+          v-for="(group, index) in groups"
+          :id="groupId(group)"
+          :key="group.id"
+          :class="buildConnnectorClass(index)"
           class="build"
         >
-
           <div class="curve"></div>
 
-          <job-component
-            v-if="job.size === 1"
-            :job="job"
+          <job-item
+            v-if="group.size === 1"
+            :job="group.jobs[0]"
             css-class-job-name="build-content"
             @pipelineActionRequestComplete="pipelineActionRequestComplete"
           />
 
-          <dropdown-job-component
-            v-if="job.size > 1"
-            :job="job"
+          <job-group-dropdown
+            v-if="group.size > 1"
+            :group="group"
             @pipelineActionRequestComplete="pipelineActionRequestComplete"
           />
-
         </li>
       </ul>
     </div>

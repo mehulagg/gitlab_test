@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Gitlab
   module Geo
     # This class is responsible for:
@@ -15,7 +17,11 @@ module Gitlab
       private
 
       def lfs_request_data(lfs_object)
-        { checksum: lfs_object.oid }
+        {
+          checksum: lfs_object.oid,
+          file_type: @file_type,
+          file_id:  @file_id
+        }
       end
     end
   end

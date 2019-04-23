@@ -1,4 +1,4 @@
-# High Availability
+# Scaling and High Availability
 
 GitLab supports several different types of clustering and high-availability.
 The solution you choose will be based on the level of scalability and
@@ -13,7 +13,7 @@ of Git, developers can still commit code locally even when GitLab is not
 available. However, some GitLab features such as the issue tracker and
 Continuous Integration are not available when GitLab is down.
 
-**Keep in mind that all Highly Available solutions come with a trade-off between
+**Keep in mind that all highly-available solutions come with a trade-off between
 cost/complexity and uptime**. The more uptime you want, the more complex the
 solution. And the more complex the solution, the more work is involved in
 setting up and maintaining it. High availability is not free and every HA
@@ -31,25 +31,81 @@ engineers, and live questions coming in from some of our customers.
 
 ## GitLab Components
 
-The following components need to be considered for an HA environment. In many
-cases components can be combined on the same nodes to reduce complexity.
+The following components need to be considered for a scaled or highly-available
+environment. In many cases components can be combined on the same nodes to reduce
+complexity.
 
 - Unicorn/Workhorse - Web-requests (UI, API, Git over HTTP)
 - Sidekiq - Asynchronous/Background jobs
-- [PostgreSQL](database.md) - Database
-  - [Consul](consul.md) - Database service discovery and health checks/failover
-  - [PGBouncer](pgbouncer.md) - Database pool manager
-- [Redis](redis.md) - Key/Value store (User sessions, cache, queue for Sidekiq)
+- PostgreSQL - Database
+  - Consul - Database service discovery and health checks/failover
+  - PGBouncer - Database pool manager
+- Redis - Key/Value store (User sessions, cache, queue for Sidekiq)
   - Sentinel - Redis health check/failover manager
+- Gitaly - Provides high-level RPC access to Git repositories
 
-## Architecture Examples
+## Scalable Architecture Examples
+
+When an organization reaches a certain threshold it will be necessary to scale
+the GitLab instance. Still, true high availability may not be necessary. There
+are options for scaling GitLab instances relatively easily without incurring the
+infrastructure and maintenance costs of full high availability.
+
+### Basic Scaling
+
+This is the simplest form of scaling and will work for the majority of
+cases. Backend components such as PostgreSQL, Redis and storage are offloaded
+to their own nodes while the remaining GitLab components all run on 2 or more
+application nodes.
+
+This form of scaling also works well in a cloud environment when it is more
+cost-effective to deploy several small nodes rather than a single
+larger one.
+
+- 1 PostgreSQL node
+- 1 Redis node
+- 2 or more GitLab application nodes (Unicorn, Workhorse, Sidekiq)
+- 1 NFS/Gitaly storage server
+
+#### Installation Instructions
+
+Complete the following installation steps in order. A link at the end of each 
+section will bring you back to the Scalable Architecture Examples section so 
+you can continue with the next step.
+
+1. [PostgreSQL](./database.md#postgresql-in-a-scaled-environment)
+1. [Redis](./redis.md#redis-in-a-scaled-environment)
+1. [Gitaly](./gitaly.md) (recommended) or [NFS](./nfs.md)
+1. [GitLab application nodes](./gitlab.md)
+
+### Full Scaling
+
+For very large installations it may be necessary to further split components
+for maximum scalability. In a fully-scaled architecture the application node
+is split into separate Sidekiq and Unicorn/Workhorse nodes. One indication that
+this architecture is required is if Sidekiq queues begin to periodically increase
+in size, indicating that there is contention or not enough resources.
+
+- 1 PostgreSQL node
+- 1 Redis node
+- 2 or more GitLab application nodes (Unicorn, Workhorse)
+- 2 or more Sidekiq nodes
+- 2 or more NFS/Gitaly storage servers
+
+## High Availability Architecture Examples
+
+When organizations require scaling *and* high availability the following
+architectures can be utilized. As the introduction section at the top of this
+page mentions, there is a tradeoff between cost/complexity and uptime. Be sure
+this complexity is absolutely required before taking the step into full
+high availability.
 
 For all examples below, we recommend running Consul and Redis Sentinel on
 dedicated nodes. If Consul is running on PostgreSQL nodes or Sentinel on
 Redis nodes there is a potential that high resource usage by PostgreSQL or
 Redis could prevent communication between the other Consul and Sentinel nodes.
 This may lead to the other nodes believing a failure has occurred and automated
-failover is necessary. Isolating them away from the services they monitor reduces
+failover is necessary. Isolating them from the services they monitor reduces
 the chances of split-brain.
 
 The examples below do not really address high availability of NFS. Some enterprises
@@ -73,11 +129,11 @@ number of enqueued Sidekiq jobs, etc. If this happens you should consider
 moving to a hybrid or fully distributed architecture depending on what is causing
 the contention.
 
-- 2 PostgreSQL nodes
+- 3 PostgreSQL nodes
 - 2 Redis nodes
 - 3 Consul/Sentinel nodes
 - 2 or more GitLab application nodes (Unicorn, Workhorse, Sidekiq, PGBouncer)
-- 1 NFS server/appliance
+- 1 NFS/Gitaly server
 
 ![Horizontal architecture diagram](../img/high_availability/horizontal.png)
 
@@ -88,12 +144,12 @@ resource usage of one component does not interfere with others. In larger
 environments this is a good architecture to consider if you foresee or do have
 contention due to certain workloads.
 
-- 2 PostgreSQL nodes
+- 3 PostgreSQL nodes
 - 2 Redis nodes
 - 3 Consul/Sentinel nodes
 - 2 or more Sidekiq nodes
 - 2 or more Web nodes (Unicorn, Workhorse, PGBouncer)
-- 1 or more NFS servers/appliances
+- 1 or more NFS/Gitaly servers
 
 ![Hybrid architecture diagram](../img/high_availability/hybrid.png)
 
@@ -103,7 +159,7 @@ This architecture scales to hundreds of thousands of users and projects and is
 the basis of the GitLab.com architecture. While this scales well it also comes
 with the added complexity of many more nodes to configure, manage and monitor.
 
-- 2 PostgreSQL nodes
+- 3 PostgreSQL nodes
 - 4 or more Redis nodes (2 separate clusters for persistent and cache data)
 - 3 Consul nodes
 - 3 Sentinel nodes
@@ -112,7 +168,7 @@ with the added complexity of many more nodes to configure, manage and monitor.
 - 2 or more Git nodes (Git over SSH/Git over HTTP)
 - 2 or more API nodes (All requests to `/api`)
 - 2 or more Web nodes (All other web requests)
-- 2 or more NFS servers/appliances
+- 2 or more NFS/Gitaly servers
 
 ![Fully Distributed architecture diagram](../img/high_availability/fully-distributed.png)
 
@@ -121,9 +177,9 @@ separately:
 
 1. [Configure the database](database.md)
 1. [Configure Redis](redis.md)
-  1. [Configure Redis for GitLab source installations](redis_source.md)
+   1. [Configure Redis for GitLab source installations](redis_source.md)
 1. [Configure NFS](nfs.md)
-  1. [NFS Client and Host setup](nfs_host_client_setup.md)
+   1. [NFS Client and Host setup](nfs_host_client_setup.md)
 1. [Configure the GitLab application servers](gitlab.md)
 1. [Configure the load balancers](load_balancer.md)
 

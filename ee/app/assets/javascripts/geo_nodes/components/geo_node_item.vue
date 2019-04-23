@@ -1,4 +1,6 @@
 <script>
+import { GlLink } from '@gitlab/ui';
+
 import eventHub from '../event_hub';
 
 import GeoNodeHeader from './geo_node_header.vue';
@@ -6,6 +8,7 @@ import GeoNodeDetails from './geo_node_details.vue';
 
 export default {
   components: {
+    GlLink,
     GeoNodeHeader,
     GeoNodeDetails,
   },
@@ -24,6 +27,10 @@ export default {
     },
     nodeEditAllowed: {
       type: Boolean,
+      required: true,
+    },
+    geoTroubleshootingHelpPath: {
+      type: String,
       required: true,
     },
   },
@@ -46,14 +53,12 @@ export default {
   },
   created() {
     eventHub.$on('nodeDetailsLoaded', this.handleNodeDetails);
-    eventHub.$on('nodeDetailsLoadFailed', this.handleNodeDetailsFailure);
   },
   mounted() {
     this.handleMounted();
   },
   beforeDestroy() {
     eventHub.$off('nodeDetailsLoaded', this.handleNodeDetails);
-    eventHub.$off('nodeDetailsLoadFailed', this.handleNodeDetailsFailure);
   },
   methods: {
     handleNodeDetails(nodeDetails) {
@@ -65,13 +70,6 @@ export default {
         this.nodeHealthStatus = nodeDetails.health;
       }
     },
-    handleNodeDetailsFailure(nodeId, err) {
-      if (this.node.id === nodeId) {
-        this.isNodeDetailsLoading = false;
-        this.isNodeDetailsFailed = true;
-        this.errorMessage = err.message;
-      }
-    },
     handleMounted() {
       eventHub.$emit('pollNodeDetails', this.node);
     },
@@ -80,10 +78,7 @@ export default {
 </script>
 
 <template>
-  <div
-    :class="{ 'node-action-active': node.nodeActionActive }"
-    class="card geo-node-item"
-  >
+  <div :class="{ 'node-action-active': node.nodeActionActive }" class="card geo-node-item">
     <geo-node-header
       :node="node"
       :node-details="nodeDetails"
@@ -96,13 +91,14 @@ export default {
       :node-details="nodeDetails"
       :node-edit-allowed="nodeEditAllowed"
       :node-actions-allowed="nodeActionsAllowed"
+      :geo-troubleshooting-help-path="geoTroubleshootingHelpPath"
     />
-    <div
-      v-if="isNodeDetailsFailed"
-      class="node-health-message-container"
-    >
-      <p class="health-message node-health-message">
-        {{ errorMessage }}
+    <div v-if="isNodeDetailsFailed" class="node-health-message-container">
+      <p class="node-health-message">
+        {{ errorMessage
+        }}<gl-link :href="geoTroubleshootingHelpPath">{{
+          s__('Geo|Please refer to Geo Troubleshooting.')
+        }}</gl-link>
       </p>
     </div>
   </div>

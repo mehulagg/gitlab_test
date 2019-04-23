@@ -21,7 +21,7 @@
       }
     }
 
-    svg {
+    .svg-container svg {
       width: 136px;
       height: 136px;
     }
@@ -285,7 +285,7 @@
 
     .total-time {
       font-size: $cycle-analytics-big-font;
-      color: $cycle-analytics-dark-text;
+      color: $gl-text-color;
 
       span {
         color: $gl-text-color;
@@ -330,7 +330,6 @@
 
   // Custom Styles for stage items
   .item-build-component {
-
     .item-title {
       .icon-build-status {
         float: left;

@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 module EE
   module Projects
     module UpdateService
       extend ::Gitlab::Utils::Override
-      include ValidatesClassificationLabel
       include CleanupApprovers
 
       override :execute
@@ -24,8 +25,6 @@ module EE
           if changing_storage_size?
             project.change_repository_storage(params.delete(:repository_storage))
           end
-
-          validate_classification_label(project, :external_authorization_classification_label)
         end
 
         if result[:status] == :success
@@ -34,7 +33,9 @@ module EE
           log_audit_events
 
           sync_wiki_on_enable if !wiki_was_enabled && project.wiki_enabled?
-          project.force_import_job! if params[:mirror].present? && project.mirror?
+          project.import_state.force_import_job! if params[:mirror].present? && project.mirror?
+
+          sync_approval_rules
         end
 
         result
@@ -63,7 +64,15 @@ module EE
       end
 
       def sync_wiki_on_enable
-        ::Geo::RepositoryUpdatedService.new(project, source: ::Geo::RepositoryUpdatedEvent::WIKI).execute
+        ::Geo::RepositoryUpdatedService.new(project.wiki.repository).execute
+      end
+
+      # TODO remove after #1979 is closed
+      def sync_approval_rules
+        return if ::Feature.enabled?(:approval_rules, project, default_enabled: true)
+        return unless project.previous_changes.include?(:approvals_before_merge)
+
+        project.approval_rules.update_all(approvals_required: project.approvals_before_merge)
       end
     end
   end

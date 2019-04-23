@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-class Upload < ActiveRecord::Base
-  prepend EE::Upload
-
+class Upload < ApplicationRecord
   # Upper limit for foreground checksum processing
   CHECKSUM_THRESHOLD = 100.megabytes
 
@@ -13,7 +11,7 @@ class Upload < ActiveRecord::Base
   validates :model, presence: true
   validates :uploader, presence: true
 
-  scope :with_files_stored_locally, -> { where(store: [nil, ObjectStorage::Store::LOCAL]) }
+  scope :with_files_stored_locally, -> { where(store: ObjectStorage::Store::LOCAL) }
   scope :with_files_stored_remotely, -> { where(store: ObjectStorage::Store::REMOTE) }
 
   before_save  :calculate_checksum!, if: :foreground_checksummable?
@@ -27,8 +25,27 @@ class Upload < ActiveRecord::Base
     Digest::SHA256.file(path).hexdigest
   end
 
+  class << self
+    ##
+    # FastDestroyAll concerns
+    def begin_fast_destroy
+      {
+        Uploads::Local => Uploads::Local.new.keys(with_files_stored_locally),
+        Uploads::Fog => Uploads::Fog.new.keys(with_files_stored_remotely)
+      }
+    end
+
+    ##
+    # FastDestroyAll concerns
+    def finalize_fast_destroy(keys)
+      keys.each do |store_class, paths|
+        store_class.new.delete_keys_async(paths)
+      end
+    end
+  end
+
   def absolute_path
-    raise ObjectStorage::RemoteStoreError, "Remote object has no absolute path." unless local?
+    raise ObjectStorage::RemoteStoreError, _("Remote object has no absolute path.") unless local?
     return path unless relative_path?
 
     uploader_class.absolute_path(self)
@@ -54,10 +71,10 @@ class Upload < ActiveRecord::Base
     # Help sysadmins find missing upload files
     if persisted? && !exist
       if Gitlab::Sentry.enabled?
-        Raven.capture_message("Upload file does not exist", extra: self.attributes)
+        Raven.capture_message(_("Upload file does not exist"), extra: self.attributes)
       end
 
-      Gitlab::Metrics.counter(:upload_file_does_not_exist_total, 'The number of times an upload record could not find its file').increment
+      Gitlab::Metrics.counter(:upload_file_does_not_exist_total, _('The number of times an upload record could not find its file')).increment
     end
 
     exist
@@ -71,8 +88,6 @@ class Upload < ActiveRecord::Base
   end
 
   def local?
-    return true if store.nil?
-
     store == ObjectStorage::Store::LOCAL
   end
 
@@ -110,3 +125,5 @@ class Upload < ActiveRecord::Base
     super&.to_sym
   end
 end
+
+Upload.prepend(EE::Upload)

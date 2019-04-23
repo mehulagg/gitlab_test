@@ -1,12 +1,12 @@
 - if Gitlab::Auth::LDAP::Config.group_sync_enabled? && can?(current_user, :admin_ldap_group_links, @group)
   = nav_link(path: 'ldap_group_links#index') do
-    = link_to group_ldap_group_links_path(@group), title: 'LDAP Group' do
+    = link_to group_ldap_group_links_path(@group), title: 'LDAP Group', class: 'qa-ldap-synchronization-link' do
       %span
         LDAP Synchronization
 
 - if show_saml_in_sidebar?(@group)
   = nav_link(path: 'saml_providers#show') do
-    = link_to group_saml_providers_path(@group), title: 'SAML SSO' do
+    = link_to group_saml_providers_path(@group), title: 'SAML SSO', class: 'qa-group-saml-sso-link' do
       %span
         SAML SSO
 

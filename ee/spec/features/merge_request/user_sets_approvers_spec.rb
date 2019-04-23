@@ -1,8 +1,14 @@
 require 'rails_helper'
 
 describe 'Merge request > User sets approvers', :js do
+  include ProjectForksHelper
+
   let(:user) { create(:user) }
   let(:project) { create(:project, :public, :repository, approvals_before_merge: 1) }
+
+  before do
+    stub_feature_flags(approval_rules: false)
+  end
 
   context 'when editing an MR with a different author' do
     let(:author) { create(:user) }
@@ -27,12 +33,9 @@ describe 'Merge request > User sets approvers', :js do
   context 'when creating an MR from a fork' do
     let(:other_user) { create(:user) }
     let(:non_member) { create(:user) }
-    let(:forked_project) { create(:project, :public, :repository, creator: user) }
+    let(:forked_project) { fork_project(project, user, repository: true) }
 
     before do
-      create(:forked_project_link, forked_to_project: forked_project, forked_from_project: project)
-
-      forked_project.add_developer(user)
       project.add_developer(user)
       project.add_developer(other_user)
 
@@ -54,6 +57,7 @@ describe 'Merge request > User sets approvers', :js do
       let(:other_user) { create(:user) }
 
       before do
+        stub_feature_flags(approval_rules: false) # TODO https://gitlab.com/gitlab-org/gitlab-ee/issues/9430
         project.add_developer(user)
         project.add_developer(other_user)
 
@@ -109,6 +113,7 @@ describe 'Merge request > User sets approvers', :js do
       let(:merge_request) { create(:merge_request, source_project: project) }
 
       before do
+        stub_feature_flags(approval_rules: false) # TODO https://gitlab.com/gitlab-org/gitlab-ee/issues/9430
         project.add_developer(user)
 
         sign_in(user)

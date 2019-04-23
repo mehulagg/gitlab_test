@@ -1,12 +1,14 @@
+# frozen_string_literal: true
+
 module SelectsHelper
   def users_select_tag(id, opts = {})
-    css_class = "ajax-users-select "
-    css_class << "multiselect " if opts[:multiple]
-    css_class << "skip_ldap " if opts[:skip_ldap]
+    css_class = ["ajax-users-select"]
+    css_class << "multiselect" if opts[:multiple]
+    css_class << "skip_ldap" if opts[:skip_ldap]
     css_class << (opts[:class] || '')
     value = opts[:selected] || ''
     html = {
-      class: css_class,
+      class: css_class.join(' '),
       data: users_select_data_attributes(opts)
     }
 
@@ -23,30 +25,27 @@ module SelectsHelper
     hidden_field_tag(id, value, html)
   end
 
-  def ldap_server_select_options
-    options_from_collection_for_select(
-      Gitlab::Auth::LDAP::Config.available_servers,
-      'provider_name',
-      'label'
-    )
-  end
-
   def groups_select_tag(id, opts = {})
-    opts[:class] ||= ''
-    opts[:class] << ' ajax-groups-select'
-    opts[:class] << ' multiselect' if opts[:multiple]
+    classes = Array.wrap(opts[:class])
+    classes << 'ajax-groups-select'
+
+    # EE requires this line to be present, but there is no easy way of injecting
+    # this into EE without causing merge conflicts. Given this line is very
+    # simple and not really EE specific on its own, we just include it in CE.
+    classes << 'multiselect' if opts[:multiple]
+
+    opts[:class] = classes.join(' ')
+
     select2_tag(id, opts)
   end
 
   def namespace_select_tag(id, opts = {})
-    opts[:class] ||= ''
-    opts[:class] << ' ajax-namespace-select'
+    opts[:class] = [*opts[:class], 'ajax-namespace-select'].join(' ')
     select2_tag(id, opts)
   end
 
   def project_select_tag(id, opts = {})
-    opts[:class] ||= ''
-    opts[:class] << ' ajax-project-select'
+    opts[:class] = [*opts[:class], 'ajax-project-select'].join(' ')
 
     unless opts.delete(:scope) == :all
       if @group
@@ -66,18 +65,13 @@ module SelectsHelper
   end
 
   def select2_tag(id, opts = {})
-    opts[:class] << ' multiselect' if opts[:multiple]
+    klass_opts = [opts[:class]]
+    klass_opts << 'multiselect' if opts[:multiple]
+
+    opts[:class] = klass_opts.join(' ')
     value = opts[:selected] || ''
+
     hidden_field_tag(id, value, opts)
-  end
-
-  def admin_email_select_tag(id, opts = {})
-    css_class = "ajax-admin-email-select "
-    css_class << "multiselect " if opts[:multiple]
-    css_class << (opts[:class] || '')
-    value = opts[:selected] || ''
-
-    hidden_field_tag(id, value, class: css_class)
   end
 
   private
@@ -95,3 +89,5 @@ module SelectsHelper
     }
   end
 end
+
+SelectsHelper.prepend(EE::SelectsHelper)

@@ -2,8 +2,6 @@
 
 module Commits
   class CreateService < ::BaseService
-    prepend EE::Commits::CreateService
-
     ValidationError = Class.new(StandardError)
     ChangeError = Class.new(StandardError)
 
@@ -13,6 +11,7 @@ module Commits
       @start_project = params[:start_project] || @project
       @start_branch = params[:start_branch]
       @branch_name = params[:branch_name]
+      @force = params[:force] || false
     end
 
     def execute
@@ -21,7 +20,12 @@ module Commits
       new_commit = create_commit!
 
       success(result: new_commit)
-    rescue ValidationError, ChangeError, Gitlab::Git::Index::IndexError, Gitlab::Git::CommitError, Gitlab::Git::PreReceiveError => ex
+    rescue ValidationError,
+           ChangeError,
+           Gitlab::Git::Index::IndexError,
+           Gitlab::Git::CommitError,
+           Gitlab::Git::PreReceiveError,
+           Gitlab::Git::CommandError => ex
       error(ex.message)
     end
 
@@ -39,10 +43,14 @@ module Commits
       @start_branch != @branch_name || @start_project != @project
     end
 
+    def force?
+      !!@force
+    end
+
     def validate!
       validate_permissions!
       validate_on_branch!
-      validate_branch_existance!
+      validate_branch_existence!
 
       validate_new_branch_name! if different_branch?
     end
@@ -61,14 +69,14 @@ module Commits
       end
     end
 
-    def validate_branch_existance!
-      if !project.empty_repo? && different_branch? && repository.branch_exists?(@branch_name)
+    def validate_branch_existence!
+      if !project.empty_repo? && different_branch? && repository.branch_exists?(@branch_name) && !force?
         raise_error("A branch called '#{@branch_name}' already exists. Switch to that branch in order to make changes")
       end
     end
 
     def validate_new_branch_name!
-      result = ValidateNewBranchService.new(project, current_user).execute(@branch_name)
+      result = ValidateNewBranchService.new(project, current_user).execute(@branch_name, force: force?)
 
       if result[:status] == :error
         raise_error("Something went wrong when we tried to create '#{@branch_name}' for you: #{result[:message]}")
@@ -76,3 +84,5 @@ module Commits
     end
   end
 end
+
+Commits::CreateService.prepend(EE::Commits::CreateService)

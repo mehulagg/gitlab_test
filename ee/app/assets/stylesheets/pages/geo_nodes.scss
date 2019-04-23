@@ -29,15 +29,15 @@
 }
 
 .geo-node-healthy {
-  color: $gl-success;
+  color: $green-500;
 }
 
 .geo-node-unhealthy {
-  color: $gl-danger;
+  color: $red-500;
 }
 
 .geo-node-offline {
-  color: $theme-gray-950;
+  color: $gray-950;
 }
 
 .geo-node-disabled {
@@ -54,11 +54,11 @@
   }
 
   .status-icon-warning {
-    fill: $gl-warning;
+    fill: $orange-500;
   }
 
   .status-icon-failure {
-    fill: $gl-danger;
+    fill: $red-500;
   }
 
   .card-body {
@@ -85,7 +85,7 @@
 
     .node-health-message {
       margin-bottom: 0;
-      padding: 2px $gl-padding-8;
+      padding: $gl-padding;
       background-color: $red-100;
       color: $red-500;
     }
@@ -96,7 +96,7 @@
   .detail-section-item,
   .section-items-container {
     .node-detail-title {
-      color: $theme-gray-700;
+      color: $gray-700;
 
       .node-detail-help-text {
         color: $blue-600;
@@ -112,7 +112,7 @@
     }
 
     .detail-value-stale-icon {
-      color: $gl-warning;
+      color: $orange-500;
     }
 
     .node-detail-value-bold {
@@ -120,7 +120,7 @@
     }
 
     .node-detail-value-error {
-      color: $gl-danger;
+      color: $red-500;
     }
   }
 
@@ -177,13 +177,10 @@
   }
 }
 
-.geo-admin-projects {
+.geo-admin-projects,
+.geo-admin-uploads,
+.admin-projects {
   .card-header {
-    .header-text-primary,
-    .header-text-secondary {
-      color: $blue-600;
-    }
-
     .header-text-primary {
       line-height: 28px;
       text-overflow: ellipsis;
@@ -212,12 +209,13 @@
   }
 
   .card-body {
-    .project-container {
+    .project-container,
+    .upload-container {
       margin-left: 0;
       padding-left: 0;
     }
 
-    .project-status-content {
+    .geo-status-content {
       &.status-type-success {
         color: $green-600;
       }
@@ -228,7 +226,8 @@
     }
 
     @include media-breakpoint-down(xs) {
-      .project-status-container + .project-status-container {
+      .project-status-container + .project-status-container,
+      .upload-status-container + .upload-status-container {
         margin-top: 15px;
       }
     }

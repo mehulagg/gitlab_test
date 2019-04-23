@@ -17,10 +17,7 @@ GitLab monitors its own internal service metrics, and makes them available at th
 `/-/metrics` endpoint. Unlike other [Prometheus] exporters, in order to access
 it, the client IP needs to be [included in a whitelist][whitelist].
 
-Currently the embedded Prometheus server is not automatically configured to
-collect metrics from this endpoint. We recommend setting up another Prometheus
-server, because the embedded server configuration is overwritten once every
-[reconfigure of GitLab][reconfigure]. In the future this will not be required.
+For Omnibus and Chart installations, these metrics are automatically enabled and collected as of [GitLab 9.4](https://gitlab.com/gitlab-org/omnibus-gitlab/merge_requests/1702). For source installations or earlier versions, these metrics will need to be enabled manually and collected by a Prometheus server.
 
 ## Unicorn Metrics available
 
@@ -45,12 +42,11 @@ The following metrics are available:
 | redis_ping_success                | Gauge     | 9.4   | Whether or not the last redis ping succeeded |
 | redis_ping_latency_seconds        | Gauge     | 9.4   | Round trip time of the redis ping |
 | user_session_logins_total         | Counter   | 9.4   | Counter of how many users have logged in |
-| filesystem_circuitbreaker_latency_seconds | Gauge | 9.5 | Time spent validating if a storage is accessible |
-| filesystem_circuitbreaker         | Gauge     | 9.5   | Whether or not the circuit for a certain shard is broken or not |
-| circuitbreaker_storage_check_duration_seconds | Histogram | 10.3 | Time a single storage probe took |
-| upload_file_does_not_exist                    | Counter   | 10.7  | Number of times an upload record could not find its file |
+| upload_file_does_not_exist        | Counter   | 10.7 in EE, 11.5 in CE  | Number of times an upload record could not find its file |
 | failed_login_captcha_total        | Gauge | 11.0 | Counter of failed CAPTCHA attempts during login |
 | successful_login_captcha_total    | Gauge | 11.0 | Counter of successful CAPTCHA attempts during login |
+| unicorn_active_connections        | Gauge | 11.0 | The number of active Unicorn connections (workers) |
+| unicorn_queued_connections        | Gauge | 11.0 | The number of queued Unicorn connections |
 
 ## Sidekiq Metrics available
 

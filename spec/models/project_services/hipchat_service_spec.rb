@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe HipchatService do
@@ -147,7 +149,6 @@ describe HipchatService do
       let(:merge_request) { create(:merge_request, description: '**please** fix', title: 'Awesome merge request', target_project: project, source_project: project) }
       let(:merge_service) { MergeRequests::CreateService.new(project, user) }
       let(:merge_sample_data) { merge_service.hook_data(merge_request, 'open') }
-      let(:approved_merge_sample_data) { merge_service.hook_data(merge_request, 'approved') }
 
       it "calls Hipchat API for merge requests events" do
         hipchat.execute(merge_sample_data)
@@ -155,28 +156,16 @@ describe HipchatService do
         expect(WebMock).to have_requested(:post, api_url).once
       end
 
-      context 'merge request message' do
-        it "creates a merge request message" do
-          message = hipchat.send(:create_merge_request_message, merge_sample_data)
+      it "creates a merge request message" do
+        message = hipchat.send(:create_merge_request_message,
+                               merge_sample_data)
 
-          obj_attr = merge_sample_data[:object_attributes]
-          expect(message).to eq("#{user.name} opened " \
-            "<a href=\"#{obj_attr[:url]}\">merge request !#{obj_attr['iid']}</a> in " \
+        obj_attr = merge_sample_data[:object_attributes]
+        expect(message).to eq("#{user.name} opened " \
+            "<a href=\"#{obj_attr[:url]}\">merge request !#{obj_attr["iid"]}</a> in " \
             "<a href=\"#{project.web_url}\">#{project_name}</a>: " \
             "<b>Awesome merge request</b>" \
             "<pre><strong>please</strong> fix</pre>")
-        end
-
-        it 'creates a message for approved merge requests' do
-          message = hipchat.send(:create_merge_request_message, approved_merge_sample_data)
-
-          obj_attr = approved_merge_sample_data[:object_attributes]
-          expect(message).to eq("#{user.name} approved " \
-            "<a href=\"#{obj_attr[:url]}\">merge request !#{obj_attr['iid']}</a> in " \
-            "<a href=\"#{project.web_url}\">#{project_name}</a>: " \
-            '<b>Awesome merge request</b>' \
-            '<pre><strong>please</strong> fix</pre>')
-        end
       end
     end
 
@@ -397,6 +386,24 @@ describe HipchatService do
 
           expect(hipchat.__send__(:message_options, data)).to eq({ notify: false, color: 'red' })
         end
+      end
+    end
+  end
+
+  context 'with UrlBlocker' do
+    let(:user)    { create(:user) }
+    let(:project) { create(:project, :repository) }
+    let(:hipchat) { create(:hipchat_service, project: project, properties: { room: 'test' }) }
+    let(:push_sample_data) { Gitlab::DataBuilder::Push.build_sample(project, user) }
+
+    describe '#execute' do
+      before do
+        hipchat.server = 'http://localhost:9123'
+      end
+
+      it 'raises UrlBlocker for localhost' do
+        expect(Gitlab::UrlBlocker).to receive(:validate!).and_call_original
+        expect { hipchat.execute(push_sample_data) }.to raise_error(Gitlab::HTTP::BlockedUrlError)
       end
     end
   end

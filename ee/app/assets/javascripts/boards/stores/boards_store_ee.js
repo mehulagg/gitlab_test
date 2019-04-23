@@ -5,6 +5,7 @@ import { __ } from '~/locale';
 import BoardService from 'ee/boards/services/board_service';
 import sidebarEventHub from '~/sidebar/event_hub';
 import createFlash from '~/flash';
+import { parseBoolean } from '~/lib/utils/common_utils';
 
 class BoardsStoreEE {
   initEESpecific(boardsStore) {
@@ -21,19 +22,39 @@ class BoardsStoreEE {
     this.store.create = () => {
       baseCreate();
       if (this.$boardApp) {
+        const {
+          dataset: {
+            boardMilestoneId,
+            boardMilestoneTitle,
+            boardAssigneeUsername,
+            labels,
+            boardWeight,
+            weightFeatureAvailable,
+            scopedLabels,
+            scopedLabelsDocumentationLink,
+          },
+        } = this.$boardApp;
         this.store.boardConfig = {
-          milestoneId: parseInt(this.$boardApp.dataset.boardMilestoneId, 10),
-          milestoneTitle: this.$boardApp.dataset.boardMilestoneTitle || '',
-          assigneeUsername: this.$boardApp.dataset.boardAssigneeUsername,
-          labels: JSON.parse(this.$boardApp.dataset.labels || []),
-          weight: parseInt(this.$boardApp.dataset.boardWeight, 10),
+          milestoneId: parseInt(boardMilestoneId, 10),
+          milestoneTitle: boardMilestoneTitle || '',
+          assigneeUsername: boardAssigneeUsername,
+          labels: JSON.parse(labels || []),
+          weight: parseInt(boardWeight, 10),
         };
         this.store.cantEdit = [];
+        this.store.weightFeatureAvailable = parseBoolean(weightFeatureAvailable);
+        this.store.scopedLabels = {
+          enabled: parseBoolean(scopedLabels),
+          helpLink: scopedLabelsDocumentationLink,
+        };
         this.initBoardFilters();
       }
     };
 
     this.store.updateFiltersUrl = (replaceState = false) => {
+      if (!this.store.filter.path) {
+        return;
+      }
       if (replaceState) {
         window.history.replaceState(null, null, `?${this.store.filter.path}`);
       } else {
@@ -74,7 +95,6 @@ class BoardsStoreEE {
         weight = 'No+Weight';
       }
       updateFilterPath('weight', weight);
-      this.store.cantEdit.push('weight');
     }
     updateFilterPath('assignee_username', this.store.boardConfig.assigneeUsername);
     if (this.store.boardConfig.assigneeUsername) {
@@ -107,8 +127,9 @@ class BoardsStoreEE {
       !this.$boardApp.hasAttribute('data-show-promotion') ||
       this.promotionIsHidden() ||
       this.store.disabled
-    )
+    ) {
       return;
+    }
 
     this.store.addList({
       id: 'promotion',
@@ -130,7 +151,7 @@ class BoardsStoreEE {
   }
 
   promotionIsHidden() {
-    return Cookies.get('promotion_issue_board_hidden') === 'true';
+    return parseBoolean(Cookies.get('promotion_issue_board_hidden'));
   }
 
   updateWeight(newWeight, id) {

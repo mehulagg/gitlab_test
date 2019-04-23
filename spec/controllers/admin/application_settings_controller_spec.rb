@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Admin::ApplicationSettingsController do
@@ -52,93 +54,85 @@ describe Admin::ApplicationSettingsController do
     end
 
     it 'updates the password_authentication_enabled_for_git setting' do
-      put :update, application_setting: { password_authentication_enabled_for_git: "0" }
+      put :update, params: { application_setting: { password_authentication_enabled_for_git: "0" } }
 
       expect(response).to redirect_to(admin_application_settings_path)
       expect(ApplicationSetting.current.password_authentication_enabled_for_git).to eq(false)
     end
 
     it 'updates the default_project_visibility for string value' do
-      put :update, application_setting: { default_project_visibility: "20" }
+      put :update, params: { application_setting: { default_project_visibility: "20" } }
 
       expect(response).to redirect_to(admin_application_settings_path)
       expect(ApplicationSetting.current.default_project_visibility).to eq(Gitlab::VisibilityLevel::PUBLIC)
     end
 
     it 'update the restricted levels for string values' do
-      put :update, application_setting: { restricted_visibility_levels: %w[10 20] }
+      put :update, params: { application_setting: { restricted_visibility_levels: %w[10 20] } }
 
       expect(response).to redirect_to(admin_application_settings_path)
       expect(ApplicationSetting.current.restricted_visibility_levels).to eq([10, 20])
     end
 
     it 'updates the restricted_visibility_levels when empty array is passed' do
-      put :update, application_setting: { restricted_visibility_levels: [""] }
+      put :update, params: { application_setting: { restricted_visibility_levels: [""] } }
 
       expect(response).to redirect_to(admin_application_settings_path)
       expect(ApplicationSetting.current.restricted_visibility_levels).to be_empty
     end
 
-    it 'updates repository_size_limit' do
-      put :update, application_setting: { repository_size_limit: '100' }
+    it 'updates the receive_max_input_size setting' do
+      put :update, params: { application_setting: { receive_max_input_size: "1024" } }
 
       expect(response).to redirect_to(admin_application_settings_path)
-      expect(response).to set_flash[:notice].to('Application settings saved successfully')
+      expect(ApplicationSetting.current.receive_max_input_size).to eq(1024)
     end
 
-    it 'does not accept negative repository_size_limit' do
-      put :update, application_setting: { repository_size_limit: '-100' }
+    it 'updates the default_project_creation for string value' do
+      put :update, params: { application_setting: { default_project_creation: ::Gitlab::Access::MAINTAINER_PROJECT_ACCESS } }
 
-      expect(response).to render_template(:show)
-      expect(assigns(:application_setting).errors[:repository_size_limit]).to be_present
+      expect(response).to redirect_to(admin_application_settings_path)
+      expect(ApplicationSetting.current.default_project_creation).to eq(::Gitlab::Access::MAINTAINER_PROJECT_ACCESS)
     end
 
-    it 'does not accept invalid repository_size_limit' do
-      put :update, application_setting: { repository_size_limit: 'one thousand' }
+    context 'external policy classification settings' do
+      let(:settings) do
+        {
+          external_authorization_service_enabled: true,
+          external_authorization_service_url: 'https://custom.service/',
+          external_authorization_service_default_label: 'default',
+          external_authorization_service_timeout: 3,
+          external_auth_client_cert: File.read('spec/fixtures/passphrase_x509_certificate.crt'),
+          external_auth_client_key: File.read('spec/fixtures/passphrase_x509_certificate_pk.key'),
+          external_auth_client_key_pass: "5iveL!fe"
+        }
+      end
 
-      expect(response).to render_template(:show)
-      expect(assigns(:application_setting).errors[:repository_size_limit]).to be_present
-    end
+      it 'updates settings when the feature is available' do
+        put :update, params: { application_setting: settings }
 
-    it 'does not accept empty repository_size_limit' do
-      put :update, application_setting: { repository_size_limit: '' }
-
-      expect(response).to render_template(:show)
-      expect(assigns(:application_setting).errors[:repository_size_limit]).to be_present
-    end
-  end
-
-  describe 'GET #usage_data with no access' do
-    before do
-      sign_in(user)
-    end
-
-    it 'returns 404' do
-      get :usage_data, format: :html
-
-      expect(response.status).to eq(404)
+        settings.each do |attribute, value|
+          expect(ApplicationSetting.current.public_send(attribute)).to eq(value)
+        end
+      end
     end
   end
 
-  describe 'GET #usage_data' do
+  describe 'PUT #reset_registration_token' do
     before do
       sign_in(admin)
     end
 
-    it 'returns HTML data' do
-      get :usage_data, format: :html
+    subject { put :reset_registration_token }
 
-      expect(response.body).to start_with('<span')
-      expect(response.status).to eq(200)
+    it 'resets runner registration token' do
+      expect { subject }.to change { ApplicationSetting.current.runners_registration_token }
     end
 
-    it 'returns JSON data' do
-      get :usage_data, format: :json
+    it 'redirects the user to admin runners page' do
+      subject
 
-      body = JSON.parse(response.body)
-      expect(body["version"]).to eq(Gitlab::VERSION)
-      expect(body).to include('counts')
-      expect(response.status).to eq(200)
+      expect(response).to redirect_to(admin_runners_path)
     end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   # Namespace EE mixin
   #
@@ -29,19 +31,32 @@ module EE
       belongs_to :plan
 
       has_one :namespace_statistics
+      has_one :gitlab_subscription, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
+
+      accepts_nested_attributes_for :gitlab_subscription
 
       scope :with_plan, -> { where.not(plan_id: nil) }
+      scope :with_shared_runners_minutes_limit, -> { where("namespaces.shared_runners_minutes_limit > 0") }
+      scope :with_extra_shared_runners_minutes_limit, -> { where("namespaces.extra_shared_runners_minutes_limit > 0") }
 
       delegate :shared_runners_minutes, :shared_runners_seconds, :shared_runners_seconds_last_reset,
-        to: :namespace_statistics, allow_nil: true
+        :extra_shared_runners_minutes, to: :namespace_statistics, allow_nil: true
+
+      # Opportunistically clear the +file_template_project_id+ if invalid
+      before_validation :clear_file_template_project_id
 
       validate :validate_plan_name
       validate :validate_shared_runner_minutes_support
 
+      delegate :trial?, :trial_ends_on, to: :gitlab_subscription, allow_nil: true
+
       before_create :sync_membership_lock_with_parent
+
+      # Changing the plan or other details may invalidate this cache
+      before_save :clear_feature_available_cache
     end
 
-    module ClassMethods
+    class_methods do
       def plans_with_feature(feature)
         LICENSE_PLANS_TO_NAMESPACE_PLANS.values_at(*License.plans_with_feature(feature))
       end
@@ -57,7 +72,7 @@ module EE
             project,
             old_path: project.path,
             old_path_with_namespace: old_path_with_namespace_for(project)
-          ).create
+          ).create!
         end
       end
 
@@ -68,13 +83,30 @@ module EE
       project.full_path.sub(/\A#{Regexp.escape(full_path)}/, full_path_was)
     end
 
+    # This makes the feature disabled by default, in contrary to how
+    # `#feature_available?` makes a feature enabled by default.
+    #
+    # This allows to:
+    # - Enable the feature flag for a given group, regardless of the license.
+    #   This is useful for early testing a feature in production on a given group.
+    # - Enable the feature flag globally and still check that the license allows
+    #   it. This is the case when we're ready to enable a feature for anyone
+    #   with the correct license.
+    def beta_feature_available?(feature)
+      ::Feature.enabled?(feature, self) ||
+        (::Feature.enabled?(feature) && feature_available?(feature))
+    end
+
     # Checks features (i.e. https://about.gitlab.com/pricing/) availabily
     # for a given Namespace plan. This method should consider ancestor groups
     # being licensed.
     def feature_available?(feature)
+      # This feature might not be behind a feature flag at all, so default to true
+      return false unless ::Feature.enabled?(feature, default_enabled: true)
+
       available_features = strong_memoize(:feature_available) do
-        Hash.new do |h, feature|
-          h[feature] = load_feature_available(feature)
+        Hash.new do |h, f|
+          h[f] = load_feature_available(f)
         end
       end
 
@@ -85,19 +117,18 @@ module EE
       return true if ::License::ANY_PLAN_FEATURES.include?(feature)
 
       available_features = strong_memoize(:features_available_in_plan) do
-        Hash.new do |h, feature|
-          h[feature] = (plans.map(&:name) & self.class.plans_with_feature(feature)).any?
+        Hash.new do |h, f|
+          h[f] = (plans.map(&:name) & self.class.plans_with_feature(f)).any?
         end
       end
 
       available_features[feature]
     end
 
-    # The main difference between the "plan" column and this method is that "plan"
-    # returns nil / "" when it has no plan. Having no plan means it's a "free" plan.
-    #
     def actual_plan
-      self.plan || Plan.find_by(name: FREE_PLAN)
+      subscription = find_or_create_subscription
+
+      subscription&.hosted_plan
     end
 
     def actual_plan_name
@@ -116,15 +147,20 @@ module EE
 
     def shared_runner_minutes_supported?
       if has_parent?
-        !Feature.enabled?(:shared_runner_minutes_on_root_namespace)
+        !::Feature.enabled?(:shared_runner_minutes_on_root_namespace)
       else
         true
       end
     end
 
-    def actual_shared_runners_minutes_limit
-      shared_runners_minutes_limit ||
-        ::Gitlab::CurrentSettings.shared_runners_minutes
+    def actual_shared_runners_minutes_limit(include_extra: true)
+      extra_minutes = include_extra ? extra_shared_runners_minutes_limit.to_i : 0
+
+      if shared_runners_minutes_limit
+        shared_runners_minutes_limit + extra_minutes
+      else
+        ::Gitlab::CurrentSettings.shared_runners_minutes + extra_minutes
+      end
     end
 
     def shared_runners_minutes_limit_enabled?
@@ -138,8 +174,14 @@ module EE
         shared_runners_minutes.to_i >= actual_shared_runners_minutes_limit
     end
 
+    def extra_shared_runners_minutes_used?
+      shared_runners_minutes_limit_enabled? &&
+        extra_shared_runners_minutes_limit &&
+        extra_shared_runners_minutes.to_i >= extra_shared_runners_minutes_limit
+    end
+
     def shared_runners_enabled?
-      if Feature.enabled?(:shared_runner_minutes_on_root_namespace)
+      if ::Feature.enabled?(:shared_runner_minutes_on_root_namespace)
         all_projects.with_shared_runners.any?
       else
         projects.with_shared_runners.any?
@@ -174,10 +216,18 @@ module EE
     def plans
       @plans ||=
         if parent_id
-          Plan.where(id: self_and_ancestors.with_plan.reorder(nil).select(:plan_id))
+          Plan.hosted_plans_for_namespaces(self_and_ancestors.select(:id))
         else
-          Array(plan)
+          Plan.hosted_plans_for_namespaces(self)
         end
+    end
+
+    # When a purchasing a GL.com plan for a User namespace
+    # we only charge for a single user.
+    # This method is overwritten in Group where we made the calculation
+    # for Group namespaces.
+    def billable_members_count(_requested_hosted_plan = nil)
+      1
     end
 
     def eligible_for_trial?
@@ -188,13 +238,60 @@ module EE
     end
 
     def trial_active?
-      trial_ends_on.present? && trial_ends_on >= Date.today
+      trial? && trial_ends_on.present? && trial_ends_on >= Date.today
     end
 
     def trial_expired?
       trial_ends_on.present? &&
         trial_ends_on < Date.today &&
         actual_plan_name == FREE_PLAN
+    end
+
+    # A namespace may not have a file template project
+    def checked_file_template_project
+      nil
+    end
+
+    def checked_file_template_project_id
+      checked_file_template_project&.id
+    end
+
+    def store_security_reports_available?
+      ::Feature.enabled?(:store_security_reports, self, default_enabled: true) && (
+        feature_available?(:sast) ||
+        feature_available?(:dependency_scanning) ||
+        feature_available?(:sast_container) ||
+        feature_available?(:dast))
+    end
+
+    def free_plan?
+      actual_plan_name == FREE_PLAN
+    end
+
+    def early_adopter_plan?
+      actual_plan_name == EARLY_ADOPTER_PLAN
+    end
+
+    def bronze_plan?
+      actual_plan_name == BRONZE_PLAN
+    end
+
+    def silver_plan?
+      actual_plan_name == SILVER_PLAN
+    end
+
+    def gold_plan?
+      actual_plan_name == GOLD_PLAN
+    end
+
+    def paid_plan?
+      return false if trial?
+
+      !(free_plan? || early_adopter_plan?)
+    end
+
+    def use_elasticsearch?
+      ::Gitlab::CurrentSettings.elasticsearch_indexes_namespace?(self)
     end
 
     private
@@ -213,6 +310,10 @@ module EE
       end
     end
 
+    def clear_feature_available_cache
+      clear_memoization(:feature_available)
+    end
+
     def load_feature_available(feature)
       globally_available = License.feature_available?(feature)
 
@@ -221,6 +322,29 @@ module EE
       else
         globally_available
       end
+    end
+
+    def clear_file_template_project_id
+      return unless has_attribute?(:file_template_project_id)
+      return if checked_file_template_project_id.present?
+
+      self.file_template_project_id = nil
+    end
+
+    def find_or_create_subscription
+      # Hosted subscriptions are only available for root groups for now.
+      return if parent_id
+
+      gitlab_subscription || generate_subscription
+    end
+
+    def generate_subscription
+      create_gitlab_subscription(
+        plan_code: plan&.name,
+        trial: trial_active?,
+        start_date: created_at,
+        seats: 0
+      )
     end
   end
 end

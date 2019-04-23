@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe PrometheusAdapter, :use_clean_rails_memory_store_caching do
@@ -76,25 +78,24 @@ describe PrometheusAdapter, :use_clean_rails_memory_store_caching do
       end
     end
 
-    describe 'validate_query' do
+    describe 'additional_metrics' do
+      let(:additional_metrics_environment_query) { Gitlab::Prometheus::Queries::AdditionalMetricsEnvironmentQuery }
       let(:environment) { build_stubbed(:environment, slug: 'env-slug') }
-      let(:validation_query) { Gitlab::Prometheus::Queries::ValidateQuery.name }
-      let(:query) { 'avg(response)' }
-      let(:validation_respone) { { data: { valid: true } } }
+      let(:time_window) { [1552642245.067, 1552642095.831] }
 
       around do |example|
         Timecop.freeze { example.run }
       end
 
       context 'with valid data' do
-        subject { service.query(:validate, query) }
+        subject { service.query(:additional_metrics_environment, environment, *time_window) }
 
         before do
-          stub_reactive_cache(service, validation_respone, validation_query, query)
+          stub_reactive_cache(service, prometheus_data, additional_metrics_environment_query, environment.id, *time_window)
         end
 
-        it 'returns query data' do
-          is_expected.to eq(query: { valid: true })
+        it 'returns reactive data' do
+          expect(subject).to eq(prometheus_data)
         end
       end
     end
@@ -139,6 +140,26 @@ describe PrometheusAdapter, :use_clean_rails_memory_store_caching do
         end
 
         it { is_expected.to eq(success: false, result: %(#{status} - "QUERY FAILED!")) }
+      end
+    end
+  end
+
+  describe '#build_query_args' do
+    subject { service.build_query_args(*args) }
+
+    context 'when active record models are included' do
+      let(:args) { [double(:environment, id: 12)] }
+
+      it 'serializes by id' do
+        is_expected.to eq [12]
+      end
+    end
+
+    context 'when args are safe for serialization' do
+      let(:args) { ['stringy arg', 5, 6.0, :symbolic_arg] }
+
+      it 'does nothing' do
+        is_expected.to eq args
       end
     end
   end

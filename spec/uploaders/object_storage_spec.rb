@@ -375,7 +375,7 @@ describe ObjectStorage do
   describe '#fog_public' do
     subject { uploader.fog_public }
 
-    it { is_expected.to eq(false) }
+    it { is_expected.to eq(nil) }
   end
 
   describe '.workhorse_authorize' do
@@ -716,7 +716,7 @@ describe ObjectStorage do
           end
 
           let!(:fog_file) do
-            fog_connection.directories.get('uploads').files.create(
+            fog_connection.directories.new(key: 'uploads').files.create(
               key: 'tmp/uploads/test/123123',
               body: 'content'
             )

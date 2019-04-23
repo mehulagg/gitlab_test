@@ -27,19 +27,17 @@ Rails.application.routes.draw do
                 authorizations: 'oauth/authorizations'
   end
 
-  scope path: '/-/jira/login/oauth', controller: 'oauth/jira/authorizations', as: :oauth_jira do
+  # This prefixless path is required because Jira gets confused if we set it up with a path
+  # More information: https://gitlab.com/gitlab-org/gitlab-ee/issues/6752
+  scope path: '/login/oauth', controller: 'oauth/jira/authorizations', as: :oauth_jira do
     get :authorize, action: :new
     get :callback
     post :access_token
+    # This helps minimize merge conflicts with CE for this scope block
+    match '*all', via: [:get, :post], to: proc { [404, {}, ['']] }
   end
 
-  namespace :oauth do
-    scope path: 'geo', controller: :geo_auth, as: :geo do
-      get 'auth'
-      get 'callback'
-      get 'logout'
-    end
-  end
+  draw :oauth
 
   use_doorkeeper_openid_connect
 
@@ -49,6 +47,7 @@ Rails.application.routes.draw do
   get '/autocomplete/projects' => 'autocomplete#projects'
   get '/autocomplete/award_emojis' => 'autocomplete#award_emojis'
   get '/autocomplete/project_groups' => 'autocomplete#project_groups'
+  get '/autocomplete/merge_request_target_branches' => 'autocomplete#merge_request_target_branches'
 
   # Search
   get 'search' => 'search#show'
@@ -64,7 +63,6 @@ Rails.application.routes.draw do
     # '/-/health' implemented by BasicHealthMiddleware
     get 'liveness' => 'health#liveness'
     get 'readiness' => 'health#readiness'
-    post 'storage_check' => 'health#storage_check'
     resources :metrics, only: [:index]
     mount Peek::Railtie => '/peek', as: 'peek_routes'
 
@@ -90,11 +88,39 @@ Rails.application.routes.draw do
     get 'ide' => 'ide#index'
     get 'ide/*vueroute' => 'ide#index', format: false
 
+    draw :operations
     draw :instance_statistics
+    draw :smartcard
+    draw :jira_connect
+
+    if ENV['GITLAB_ENABLE_CHAOS_ENDPOINTS']
+      get '/chaos/leakmem' => 'chaos#leakmem'
+      get '/chaos/cpuspin' => 'chaos#cpuspin'
+      get '/chaos/sleep' => 'chaos#sleep'
+      get '/chaos/kill' => 'chaos#kill'
+    end
   end
 
-  # Koding route
-  get 'koding' => 'koding#index'
+  concern :clusterable do
+    resources :clusters, only: [:index, :new, :show, :update, :destroy] do
+      collection do
+        post :create_user
+        post :create_gcp
+      end
+
+      member do
+        # EE specific
+        get :metrics, format: :json
+
+        scope :applications do
+          post '/:application', to: 'clusters/applications#create', as: :install_applications
+          patch '/:application', to: 'clusters/applications#update', as: :update_applications
+        end
+
+        get :cluster_status, format: :json
+      end
+    end
+  end
 
   draw :api
   draw :sidekiq

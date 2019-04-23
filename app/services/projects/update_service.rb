@@ -3,17 +3,19 @@
 module Projects
   class UpdateService < BaseService
     include UpdateVisibilityLevel
-
-    prepend ::EE::Projects::UpdateService
+    include ValidatesClassificationLabel
 
     ValidationError = Class.new(StandardError)
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def execute
       validate!
 
       ensure_wiki_exists if enabling_wiki?
 
       yield if block_given?
+
+      validate_classification_label(project, :external_authorization_classification_label)
 
       # If the block added errors, don't try to save the project
       return update_failed! if project.errors.any?
@@ -28,6 +30,7 @@ module Projects
     rescue ValidationError => e
       error(e.message)
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def run_auto_devops_pipeline?
       return false if project.repository.gitlab_ci_yml || !project.auto_devops&.previous_changes&.include?('enabled')
@@ -39,15 +42,15 @@ module Projects
 
     def validate!
       unless valid_visibility_level_change?(project, params[:visibility_level])
-        raise ValidationError.new('New visibility level not allowed!')
+        raise ValidationError.new(s_('UpdateProject|New visibility level not allowed!'))
       end
 
       if renaming_project_with_container_registry_tags?
-        raise ValidationError.new('Cannot rename project because it contains container registry tags!')
+        raise ValidationError.new(s_('UpdateProject|Cannot rename project because it contains container registry tags!'))
       end
 
       if changing_default_branch?
-        raise ValidationError.new("Could not set the default branch") unless project.change_head(params[:default_branch])
+        raise ValidationError.new(s_("UpdateProject|Could not set the default branch")) unless project.change_head(params[:default_branch])
       end
     end
 
@@ -61,23 +64,34 @@ module Projects
 
       if project.previous_changes.include?(:visibility_level) && project.private?
         # don't enqueue immediately to prevent todos removal in case of a mistake
-        TodosDestroyer::ProjectPrivateWorker.perform_in(1.hour, project.id)
+        TodosDestroyer::ProjectPrivateWorker.perform_in(Todo::WAIT_FOR_DELETE, project.id)
       elsif (project_changed_feature_keys & todos_features_changes).present?
-        TodosDestroyer::PrivateFeaturesWorker.perform_in(1.hour, project.id)
+        TodosDestroyer::PrivateFeaturesWorker.perform_in(Todo::WAIT_FOR_DELETE, project.id)
       end
 
       if project.previous_changes.include?('path')
-        project.rename_repo
+        after_rename_service(project).execute
       else
         system_hook_service.execute_hooks_for(project, :update)
       end
 
-      update_pages_config if changing_pages_https_only?
+      update_pages_config if changing_pages_related_config?
+    end
+
+    def after_rename_service(project)
+      # The path slug the project was using, before the rename took place.
+      path_before = project.previous_changes['path'].first
+
+      AfterRenameService.new(project, path_before: path_before, full_path_before: project.full_path_was)
+    end
+
+    def changing_pages_related_config?
+      changing_pages_https_only? || changing_pages_access_level?
     end
 
     def update_failed!
       model_errors = project.errors.full_messages.to_sentence
-      error_message = model_errors.presence || 'Project could not be updated!'
+      error_message = model_errors.presence || s_('UpdateProject|Project could not be updated!')
 
       error(error_message)
     end
@@ -102,6 +116,10 @@ module Projects
       params.dig(:project_feature_attributes, :wiki_access_level).to_i > ProjectFeature::DISABLED
     end
 
+    def changing_pages_access_level?
+      params.dig(:project_feature_attributes, :pages_access_level)
+    end
+
     def ensure_wiki_exists
       ProjectWiki.new(project, project.owner).wiki
     rescue ProjectWiki::CouldNotCreateWikiError
@@ -118,3 +136,5 @@ module Projects
     end
   end
 end
+
+Projects::UpdateService.prepend(EE::Projects::UpdateService)

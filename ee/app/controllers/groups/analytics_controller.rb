@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Groups::AnalyticsController < Groups::ApplicationController
   before_action :group
   before_action :check_contribution_analytics_available!
@@ -28,16 +30,20 @@ class Groups::AnalyticsController < Groups::ApplicationController
     users.map { |user| data.fetch(user.id, 0) }
   end
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def users
     @users ||= @group.users.select(:id, :name, :username).reorder(:id)
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def load_events
     @start_date = params[:start_date] || Date.today - 1.week
     @events = Event.contributions
                 .where("created_at > ?", @start_date)
                 .where(project_id: @group.projects)
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 
   def event_totals
     @event_totals ||= {

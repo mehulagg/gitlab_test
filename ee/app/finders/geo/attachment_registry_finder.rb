@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Geo
   class AttachmentRegistryFinder < FileRegistryFinder
     def syncable
@@ -46,6 +48,7 @@ module Geo
     #
     # @param [Integer] batch_size used to limit the results returned
     # @param [Array<Integer>] except_file_ids ids that will be ignored from the query
+    # rubocop: disable CodeReuse/ActiveRecord
     def find_unsynced(batch_size:, except_file_ids: [])
       relation =
         if use_legacy_queries?
@@ -56,7 +59,9 @@ module Geo
 
       relation.limit(batch_size)
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def find_migrated_local(batch_size:, except_file_ids: [])
       relation =
         if use_legacy_queries?
@@ -67,23 +72,29 @@ module Geo
 
       relation.limit(batch_size)
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def find_retryable_failed_registries(batch_size:, except_file_ids: [])
       find_failed_registries
         .retry_due
         .where.not(file_id: except_file_ids)
         .limit(batch_size)
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def find_retryable_synced_missing_on_primary_registries(batch_size:, except_file_ids: [])
       find_synced_missing_on_primary_registries
         .retry_due
         .where.not(file_id: except_file_ids)
         .limit(batch_size)
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     private
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def all
       if selective_sync?
         Upload.where(group_uploads.or(project_uploads).or(other_uploads))
@@ -91,14 +102,16 @@ module Geo
         Upload.all
       end
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def group_uploads
       namespace_ids =
         if current_node.selective_sync_by_namespaces?
-          Gitlab::GroupHierarchy.new(current_node.namespaces).base_and_descendants.select(:id)
+          Gitlab::ObjectHierarchy.new(current_node.namespaces).base_and_descendants.select(:id)
         elsif current_node.selective_sync_by_shards?
           leaf_groups = Namespace.where(id: current_node.projects.select(:namespace_id))
-          Gitlab::GroupHierarchy.new(leaf_groups).base_and_ancestors.select(:id)
+          Gitlab::ObjectHierarchy.new(leaf_groups).base_and_ancestors.select(:id)
         else
           Namespace.none
         end
@@ -110,6 +123,7 @@ module Geo
 
       upload_table[:model_type].eq('Namespace').and(namespace_ids_in_sql)
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def project_uploads
       project_ids = current_node.projects.select(:id)
@@ -170,12 +184,15 @@ module Geo
       fdw_find_syncable.merge(Geo::FileRegistry.failed)
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def fdw_find_syncable
       fdw_all.joins("INNER JOIN file_registry ON file_registry.file_id = #{fdw_table}.id")
         .geo_syncable
         .merge(Geo::FileRegistry.attachments)
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def fdw_find_unsynced(except_file_ids:)
       upload_types = Geo::FileService::DEFAULT_OBJECT_TYPES.map { |val| "'#{val}'" }.join(',')
 
@@ -186,11 +203,13 @@ module Geo
         .where(file_registry: { id: nil })
         .where.not(id: except_file_ids)
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def fdw_find_synced_missing_on_primary
       fdw_find_synced.merge(Geo::FileRegistry.missing_on_primary)
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def fdw_all
       if selective_sync?
         Geo::Fdw::Upload.where(group_uploads.or(project_uploads).or(other_uploads))
@@ -198,22 +217,26 @@ module Geo
         Geo::Fdw::Upload.all
       end
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def fdw_table
       Geo::Fdw::Upload.table_name
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def fdw_find_migrated_local(except_file_ids:)
       fdw_all.joins("INNER JOIN file_registry ON file_registry.file_id = #{fdw_table}.id")
         .with_files_stored_remotely
         .merge(Geo::FileRegistry.attachments)
         .where.not(id: except_file_ids)
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     #
     # Legacy accessors (non FDW)
     #
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def legacy_find_synced
       legacy_inner_join_registry_ids(
         syncable,
@@ -221,7 +244,9 @@ module Geo
         Upload
       )
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def legacy_find_failed
       legacy_inner_join_registry_ids(
         syncable,
@@ -229,7 +254,9 @@ module Geo
         Upload
       )
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def legacy_find_unsynced(except_file_ids:)
       registry_file_ids = Geo::FileRegistry.attachments.pluck(:file_id) | except_file_ids
 
@@ -239,7 +266,9 @@ module Geo
         Upload
       )
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def legacy_find_migrated_local(except_file_ids:)
       registry_file_ids = Geo::FileRegistry.attachments.pluck(:file_id) - except_file_ids
 
@@ -249,7 +278,9 @@ module Geo
         Upload
       )
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def legacy_find_synced_missing_on_primary
       legacy_inner_join_registry_ids(
         syncable,
@@ -257,5 +288,6 @@ module Geo
         Upload
       )
     end
+    # rubocop: enable CodeReuse/ActiveRecord
   end
 end

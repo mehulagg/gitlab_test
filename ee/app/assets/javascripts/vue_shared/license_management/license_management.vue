@@ -1,7 +1,8 @@
 <script>
 import { mapState, mapActions } from 'vuex';
+import { GlButton, GlLoadingIcon } from '@gitlab/ui';
 import { s__ } from '~/locale';
-import LoadingIcon from '~/vue_shared/components/loading_icon.vue';
+import AddLicenseForm from './components/add_license_form.vue';
 import LicenseManagementRow from './components/license_management_row.vue';
 import DeleteConfirmationModal from './components/delete_confirmation_modal.vue';
 import createStore from './store/index';
@@ -11,15 +12,20 @@ const store = createStore();
 export default {
   name: 'LicenseManagement',
   components: {
+    AddLicenseForm,
     DeleteConfirmationModal,
-    LoadingIcon,
     LicenseManagementRow,
+    GlButton,
+    GlLoadingIcon,
   },
   props: {
     apiUrl: {
       type: String,
       required: true,
     },
+  },
+  data() {
+    return { formIsOpen: false };
   },
   store,
   emptyMessage: s__(
@@ -35,29 +41,38 @@ export default {
     this.loadManagedLicenses();
   },
   methods: {
-    ...mapActions(['setAPISettings', 'loadManagedLicenses']),
+    ...mapActions(['loadManagedLicenses', 'setAPISettings', 'setLicenseApproval']),
+    openAddLicenseForm() {
+      this.formIsOpen = true;
+    },
+    closeAddLicenseForm() {
+      this.formIsOpen = false;
+    },
   },
 };
 </script>
 <template>
   <div class="license-management">
-    <delete-confirmation-modal/>
-    <loading-icon v-if="isLoadingManagedLicenses"/>
-    <ul
-      v-if="managedLicenses.length"
-      class="list-group list-group-flush"
-    >
+    <delete-confirmation-modal />
+    <gl-loading-icon v-if="isLoadingManagedLicenses" />
+    <ul v-if="managedLicenses.length" class="list-group list-group-flush">
       <license-management-row
         v-for="license in managedLicenses"
         :key="license.name"
         :license="license"
       />
     </ul>
-    <div
-      v-else
-      class="bs-callout bs-callout-warning"
-    >
-      {{ $options.emptyMessage }}
+    <div v-else class="bs-callout bs-callout-warning">{{ $options.emptyMessage }}</div>
+    <div class="prepend-top-default">
+      <add-license-form
+        v-if="formIsOpen"
+        :managed-licenses="managedLicenses"
+        @addLicense="setLicenseApproval"
+        @closeForm="closeAddLicenseForm"
+      />
+      <gl-button v-else class="js-open-form" variant="default" @click="openAddLicenseForm">
+        {{ s__('LicenseManagement|Add a license') }}
+      </gl-button>
     </div>
   </div>
 </template>

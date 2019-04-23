@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EE
   module Projects
     module Prometheus
@@ -7,10 +9,10 @@ module EE
             format.json do
               result = prometheus_adapter.query(:validate, params[:query])
 
-              if result.any?
+              if result
                 render json: result
               else
-                head :no_content
+                head :accepted
               end
             end
           end
@@ -20,6 +22,7 @@ module EE
           @metric = project.prometheus_metrics.new # rubocop:disable Gitlab/ModuleWithInstanceVariables
         end
 
+        # rubocop: disable CodeReuse/ActiveRecord
         def index
           respond_to do |format|
             format.json do
@@ -34,12 +37,13 @@ module EE
             end
           end
         end
+        # rubocop: enable CodeReuse/ActiveRecord
 
         def create
           @metric = project.prometheus_metrics.create(metrics_params) # rubocop:disable Gitlab/ModuleWithInstanceVariables
           if @metric.persisted? # rubocop:disable Gitlab/ModuleWithInstanceVariables
             redirect_to edit_project_service_path(project, ::PrometheusService),
-                        notice: 'Metric was successfully added.'
+                        notice: _('Metric was successfully added.')
           else
             render 'new'
           end
@@ -51,7 +55,7 @@ module EE
 
           if @metric.persisted? # rubocop:disable Gitlab/ModuleWithInstanceVariables
             redirect_to edit_project_service_path(project, ::PrometheusService),
-                        notice: 'Metric was successfully updated.'
+                        notice: _('Metric was successfully updated.')
           else
             render 'edit'
           end

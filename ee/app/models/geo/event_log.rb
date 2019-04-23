@@ -1,7 +1,26 @@
+# frozen_string_literal: true
+
 module Geo
-  class EventLog < ActiveRecord::Base
+  class EventLog < ApplicationRecord
     include Geo::Model
     include ::EachBatch
+
+    EVENT_CLASSES = %w[Geo::CacheInvalidationEvent
+                       Geo::RepositoryCreatedEvent
+                       Geo::RepositoryUpdatedEvent
+                       Geo::RepositoryDeletedEvent
+                       Geo::RepositoryRenamedEvent
+                       Geo::RepositoriesChangedEvent
+                       Geo::ResetChecksumEvent
+                       Geo::HashedStorageMigratedEvent
+                       Geo::HashedStorageAttachmentsEvent
+                       Geo::LfsObjectDeletedEvent
+                       Geo::JobArtifactDeletedEvent
+                       Geo::UploadDeletedEvent].freeze
+
+    belongs_to :cache_invalidation_event,
+      class_name: 'Geo::CacheInvalidationEvent',
+      foreign_key: :cache_invalidation_event_id
 
     belongs_to :repository_created_event,
       class_name: 'Geo::RepositoryCreatedEvent',
@@ -43,8 +62,23 @@ module Geo
       class_name: 'Geo::UploadDeletedEvent',
       foreign_key: :upload_deleted_event_id
 
+    belongs_to :reset_checksum_event,
+      class_name: 'Geo::ResetChecksumEvent',
+      foreign_key: :reset_checksum_event_id
+
     def self.latest_event
       order(id: :desc).first
+    end
+
+    def self.next_unprocessed_event
+      last_processed = Geo::EventLogState.last_processed
+      return first unless last_processed
+
+      where('id > ?', last_processed.event_id).first
+    end
+
+    def self.event_classes
+      EVENT_CLASSES.map(&:constantize)
     end
 
     def self.includes_events
@@ -61,7 +95,9 @@ module Geo
         hashed_storage_attachments_event ||
         lfs_object_deleted_event ||
         job_artifact_deleted_event ||
-        upload_deleted_event
+        upload_deleted_event ||
+        reset_checksum_event ||
+        cache_invalidation_event
     end
 
     def project_id

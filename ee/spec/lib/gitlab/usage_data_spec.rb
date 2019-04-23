@@ -3,7 +3,12 @@
 require 'spec_helper'
 
 describe Gitlab::UsageData do
-  let(:projects) { create_list(:project, 3) }
+  before do
+    projects.last.creator.block # to get at least one non-active User
+  end
+
+  # using Array.new to create a different creator User for each of the projects
+  let(:projects) { Array.new(3) { create(:project, creator: create(:user, group_view: :security_dashboard)) } }
   let!(:board) { create(:board, project: projects[0]) }
 
   describe '#data' do
@@ -14,6 +19,21 @@ describe Gitlab::UsageData do
       create(:ci_build, name: 'dependency_scanning', pipeline: pipeline)
       create(:ci_build, name: 'license_management', pipeline: pipeline)
       create(:ci_build, name: 'sast', pipeline: pipeline)
+
+      create(:prometheus_alert, project: projects[0])
+      create(:prometheus_alert, project: projects[0])
+      create(:prometheus_alert, project: projects[1])
+
+      create(:package, project: projects[0])
+      create(:package, project: projects[0])
+      create(:package, project: projects[1])
+
+      create(:project_tracing_setting, project: projects[0])
+      create(:operations_feature_flag, project: projects[0])
+
+      # for group_view testing
+      create(:user) # user with group_view = NULL (should be counted as having default value 'details')
+      create(:user, group_view: :details)
     end
 
     subject { described_class.data }
@@ -32,6 +52,7 @@ describe Gitlab::UsageData do
         license_id
         elasticsearch_enabled
         geo_enabled
+        pod_logs_usages
       ))
     end
 
@@ -54,7 +75,24 @@ describe Gitlab::UsageData do
         dependency_scanning_jobs
         license_management_jobs
         sast_jobs
+        projects_with_prometheus_alerts
+        projects_with_packages
+        projects_with_tracing_enabled
+        projects_jira_dvcs_cloud_active
+        projects_jira_dvcs_server_active
+        feature_flags
+        operations_dashboard
       ))
+
+      expect(count_data[:projects_with_prometheus_alerts]).to eq(2)
+      expect(count_data[:projects_with_packages]).to eq(2)
+      expect(count_data[:feature_flags]).to eq(1)
+    end
+
+    it 'gathers deepest epic relationship level', :postgresql do
+      count_data = subject[:counts]
+
+      expect(count_data.keys).to include(:epics_deepest_relationship_level)
     end
 
     it 'gathers security products usage data' do
@@ -65,6 +103,18 @@ describe Gitlab::UsageData do
       expect(count_data[:dependency_scanning_jobs]).to eq(1)
       expect(count_data[:license_management_jobs]).to eq(1)
       expect(count_data[:sast_jobs]).to eq(1)
+    end
+
+    it 'gathers group overview preferences usage data' do
+      expect(subject[:counts][:user_preferences]).to eq(
+        group_overview_details: User.active.count - 2, # we have exactly 2 active users with security dashboard set
+        group_overview_security_dashboard: 2
+      )
+    end
+
+    it 'does not gather group overview preferences usage data when the feature is disabled' do
+      stub_feature_flags(group_overview_security_dashboard: false)
+      expect(subject[:counts].keys).not_to include(:user_preferences)
     end
   end
 
@@ -142,6 +192,44 @@ describe Gitlab::UsageData do
         expect(subject).to eq(service_desk_enabled_projects: 3,
                               service_desk_issues: 3)
       end
+    end
+  end
+
+  describe 'code owner approval required' do
+    before do
+      create(:project, :archived, :requiring_code_owner_approval)
+      create(:project, :requiring_code_owner_approval, pending_delete: true)
+      create(:project, :requiring_code_owner_approval)
+    end
+
+    it 'counts the projects actively requiring code owner approval' do
+      expect(described_class.system_usage_data[:counts][:projects_enforcing_code_owner_approval]).to eq(1)
+    end
+  end
+
+  describe '#operations_dashboard_usage' do
+    subject { described_class.operations_dashboard_usage }
+
+    before do
+      blocked_user = create(:user, :blocked, dashboard: 'operations')
+      user_with_ops_dashboard = create(:user, dashboard: 'operations')
+
+      create(:users_ops_dashboard_project, user: blocked_user)
+      create(:users_ops_dashboard_project, user: user_with_ops_dashboard)
+      create(:users_ops_dashboard_project, user: user_with_ops_dashboard)
+      create(:users_ops_dashboard_project)
+    end
+
+    it 'gathers data on operations dashboard' do
+      expect(subject.keys).to include(*%i(
+        default_dashboard
+        users_with_projects_added
+      ))
+    end
+
+    it 'bases counts on active users' do
+      expect(subject[:default_dashboard]).to eq(1)
+      expect(subject[:users_with_projects_added]).to eq(2)
     end
   end
 end

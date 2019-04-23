@@ -2,19 +2,17 @@
 
 module Groups
   class CreateService < Groups::BaseService
-    prepend ::EE::Groups::CreateService
-
     def initialize(user, params = {})
       @current_user, @params = user, params.dup
       @chat_team = @params.delete(:create_chat_team)
     end
 
     def execute
+      remove_unallowed_params
+
       @group = Group.new(params)
 
-      # Repository size limit comes as MB from the view
-      limit = params.delete(:repository_size_limit)
-      @group.repository_size_limit = Gitlab::Utils.try_megabytes_to_bytes(limit) if limit
+      after_build_hook(@group, params)
 
       unless can_use_visibility_level? && can_create_group?
         return @group
@@ -36,6 +34,10 @@ module Groups
 
     private
 
+    def after_build_hook(group, params)
+      # overridden in EE
+    end
+
     def create_chat_team?
       Gitlab.config.mattermost.enabled && @chat_team && group.chat_team.nil?
     end
@@ -44,13 +46,13 @@ module Groups
       if @group.subgroup?
         unless can?(current_user, :create_subgroup, @group.parent)
           @group.parent = nil
-          @group.errors.add(:parent_id, 'You don’t have permission to create a subgroup in this group.')
+          @group.errors.add(:parent_id, s_('CreateGroup|You don’t have permission to create a subgroup in this group.'))
 
           return false
         end
       else
         unless can?(current_user, :create_group)
-          @group.errors.add(:base, 'You don’t have permission to create groups.')
+          @group.errors.add(:base, s_('CreateGroup|You don’t have permission to create groups.'))
 
           return false
         end
@@ -60,12 +62,18 @@ module Groups
     end
 
     def can_use_visibility_level?
-      unless Gitlab::VisibilityLevel.allowed_for?(current_user, params[:visibility_level])
+      unless Gitlab::VisibilityLevel.allowed_for?(current_user, visibility_level)
         deny_visibility_level(@group)
         return false
       end
 
       true
     end
+
+    def visibility_level
+      params[:visibility].present? ? Gitlab::VisibilityLevel.level_value(params[:visibility]) : params[:visibility_level]
+    end
   end
 end
+
+Groups::CreateService.prepend(EE::Groups::CreateService)

@@ -5,7 +5,6 @@
 # The latter will under the hood just import an archive supplied by GitLab.
 module Projects
   class GitlabProjectsImportService
-    prepend ::EE::Projects::GitlabProjectsImportService
     include Gitlab::Utils::StrongMemoize
     include Gitlab::TemplateHelper
 
@@ -33,11 +32,13 @@ module Projects
       Project.find_by_full_path("#{current_namespace.full_path}/#{params[:path]}").present?
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def current_namespace
       strong_memoize(:current_namespace) do
         Namespace.find_by(id: params[:namespace_id])
       end
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def overwrite?
       strong_memoize(:overwrite) do
@@ -68,3 +69,5 @@ module Projects
     end
   end
 end
+
+Projects::GitlabProjectsImportService.prepend(EE::Projects::GitlabProjectsImportService)

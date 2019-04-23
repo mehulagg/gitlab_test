@@ -3,7 +3,7 @@
 module ShaAttribute
   extend ActiveSupport::Concern
 
-  module ClassMethods
+  class_methods do
     def sha_attribute(name)
       return if ENV['STATIC_VERIFICATION']
 
@@ -16,6 +16,8 @@ module ShaAttribute
     # the column is the correct type.  In production it should behave like any other attribute.
     # See https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/5502 for more discussion
     def validate_binary_column_exists!(name)
+      return unless database_exists?
+
       unless table_exists?
         warn "WARNING: sha_attribute #{name.inspect} is invalid since the table doesn't exist - you may need to run database migrations"
         return
@@ -31,14 +33,19 @@ module ShaAttribute
       unless column.type == :binary
         raise ArgumentError.new("sha_attribute #{name.inspect} is invalid since the column type is not :binary")
       end
-
-    # EE-specific start
-    rescue Geo::TrackingBase::SecondaryNotConfigured
-    # EE specific end
-
     rescue => error
       Gitlab::AppLogger.error "ShaAttribute initialization: #{error.message}"
       raise
     end
+
+    def database_exists?
+      ApplicationRecord.connection
+
+      true
+    rescue
+      false
+    end
   end
 end
+
+ShaAttribute::ClassMethods.prepend(EE::ShaAttribute)

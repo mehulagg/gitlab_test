@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module SlashCommands
   class GlobalSlackHandler
     attr_reader :project_alias, :params
@@ -46,9 +48,11 @@ module SlashCommands
       params[:original_command] == 'help'
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def find_integration
       SlackIntegration.find_by(team_id: params[:team_id], alias: project_alias)
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     # Splits the command
     # '/gitlab help' => [nil, 'help']

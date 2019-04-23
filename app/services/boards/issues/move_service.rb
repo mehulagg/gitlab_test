@@ -3,8 +3,6 @@
 module Boards
   module Issues
     class MoveService < Boards::BaseService
-      prepend EE::Boards::Issues::MoveService
-
       def execute(issue)
         return false unless can?(current_user, :update_issue, issue)
         return false if issue_params(issue).empty?
@@ -23,13 +21,17 @@ module Boards
           moving_from_list != moving_to_list
       end
 
+      # rubocop: disable CodeReuse/ActiveRecord
       def moving_from_list
         @moving_from_list ||= board.lists.find_by(id: params[:from_list_id])
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
+      # rubocop: disable CodeReuse/ActiveRecord
       def moving_to_list
         @moving_to_list ||= board.lists.find_by(id: params[:to_list_id])
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       def update(issue)
         ::Issues::UpdateService.new(issue.project, current_user, issue_params(issue)).execute(issue)
@@ -48,7 +50,7 @@ module Boards
 
         if move_between_ids
           attrs[:move_between_ids] = move_between_ids
-          attrs[:board_group_id] =  board.group&.id
+          attrs[:board_group_id] = board.group&.id
         end
 
         attrs
@@ -63,18 +65,18 @@ module Boards
         [moving_to_list.label_id].compact
       end
 
+      # rubocop: disable CodeReuse/ActiveRecord
       def remove_label_ids
         label_ids =
           if moving_to_list.movable?
             moving_from_list.label_id
-          elsif board.group_board?
-            ::Label.on_group_boards(parent.id).pluck(:label_id)
           else
-            ::Label.on_project_boards(parent.id).pluck(:label_id)
+            ::Label.on_board(board.id).pluck(:label_id)
           end
 
         Array(label_ids).compact
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       def move_between_ids
         return unless params[:move_after_id] || params[:move_before_id]
@@ -84,3 +86,5 @@ module Boards
     end
   end
 end
+
+Boards::Issues::MoveService.prepend(EE::Boards::Issues::MoveService)

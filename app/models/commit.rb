@@ -11,6 +11,7 @@ class Commit
   include Mentionable
   include Referable
   include StaticModel
+  include Presentable
   include ::Gitlab::Utils::StrongMemoize
 
   attr_mentionable :safe_message, pipeline: :single_line
@@ -22,6 +23,7 @@ class Commit
   attr_accessor :project, :author
   attr_accessor :redacted_description_html
   attr_accessor :redacted_title_html
+  attr_accessor :redacted_full_title_html
   attr_reader :gpg_commit
 
   DIFF_SAFE_LINES = Gitlab::Git::DiffCollection::DEFAULT_LIMITS[:max_lines]
@@ -176,7 +178,9 @@ class Commit
   def title
     return full_title if full_title.length < 100
 
-    full_title.truncate(81, separator: ' ', omission: '…')
+    # Use three dots instead of the ellipsis Unicode character because
+    # some clients show the raw Unicode value in the merge commit.
+    full_title.truncate(81, separator: ' ', omission: '...')
   end
 
   # Returns the full commits title
@@ -193,6 +197,7 @@ class Commit
   # otherwise returns commit message without first line
   def description
     return safe_message if full_title.length >= 100
+    return no_commit_message if safe_message.blank?
 
     safe_message.split("\n", 2)[1].try(:chomp)
   end
@@ -228,24 +233,13 @@ class Commit
 
   def lazy_author
     BatchLoader.for(author_email.downcase).batch do |emails, loader|
-      # A Hash that maps user Emails to the corresponding User objects. The
-      # Emails at this point are the _primary_ Emails of the Users.
-      users_for_emails = User
-        .by_any_email(emails)
-        .each_with_object({}) { |user, hash| hash[user.email] = user }
+      users = User.by_any_email(emails).includes(:emails)
 
-      users_for_ids = users_for_emails
-        .values
-        .each_with_object({}) { |user, hash| hash[user.id] = user }
+      emails.each do |email|
+        user = users.find { |u| u.any_email?(email) }
 
-      # Some commits may have used an alternative Email address. In this case we
-      # need to query the "emails" table to map those addresses to User objects.
-      Email
-        .where(email: emails - users_for_emails.keys)
-        .pluck(:email, :user_id)
-        .each { |(email, id)| users_for_emails[email] = users_for_ids[id] }
-
-      users_for_emails.each { |email, user| loader.call(email, user) }
+        loader.call(email, user)
+      end
     end
   end
 
@@ -258,7 +252,7 @@ class Commit
   request_cache(:author) { author_email.downcase }
 
   def committer
-    @committer ||= User.find_by_any_email(committer_email.downcase)
+    @committer ||= User.find_by_any_email(committer_email)
   end
 
   def parents
@@ -307,17 +301,23 @@ class Commit
   end
 
   def pipelines
-    project.pipelines.where(sha: sha)
+    project.ci_pipelines.where(sha: sha)
   end
 
   def last_pipeline
-    @last_pipeline ||= pipelines.last
+    strong_memoize(:last_pipeline) do
+      pipelines.last
+    end
   end
 
   def status(ref = nil)
     return @statuses[ref] if @statuses.key?(ref)
 
-    @statuses[ref] = project.pipelines.latest_status_per_commit(id, ref)[id]
+    @statuses[ref] = status_for_project(ref, project)
+  end
+
+  def status_for_project(ref, pipeline_project)
+    pipeline_project.ci_pipelines.latest_status_per_commit(id, ref)[id]
   end
 
   def set_status_for_ref(ref, status)
@@ -379,7 +379,7 @@ class Commit
   end
 
   def merge_commit?
-    parents.size > 1
+    parent_ids.size > 1
   end
 
   def merged_merge_request(current_user)
@@ -470,6 +470,10 @@ class Commit
 
   def merged_merge_request?(user)
     !!merged_merge_request(user)
+  end
+
+  def cache_key
+    "commit:#{sha}"
   end
 
   private

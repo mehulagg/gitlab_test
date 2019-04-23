@@ -1,39 +1,8 @@
+# frozen_string_literal: true
+
 module EE
   module ApplicationSettingsHelper
     extend ::Gitlab::Utils::Override
-
-    def external_authorization_description
-      _("If enabled, access to projects will be validated on an external service"\
-        " using their classification label.")
-    end
-
-    def external_authorization_timeout_help_text
-      _("Time in seconds GitLab will wait for a response from the external "\
-        "service. When the service does not respond in time, access will be "\
-        "denied.")
-    end
-
-    def external_authorization_url_help_text
-      _("When leaving the URL blank, classification labels can still be "\
-        "specified without disabling cross project features or performing "\
-        "external authorization checks.")
-    end
-
-    def external_authorization_client_certificate_help_text
-      _("The X509 Certificate to use when mutual TLS is required to communicate "\
-        "with the external authorization service. If left blank, the server "\
-        "certificate is still validated when accessing over HTTPS.")
-    end
-
-    def external_authorization_client_key_help_text
-      _("The private key to use when a client certificate is provided. This value "\
-        "is encrypted at rest.")
-    end
-
-    def external_authorization_client_pass_help_text
-      _("The passphrase required to decrypt the private key. This is optional "\
-        "and the value is encrypted at rest.")
-    end
 
     def pseudonymizer_enabled_help_text
       _("Enable Pseudonymizer data collection")
@@ -60,7 +29,11 @@ module EE
         :elasticsearch_indexing,
         :elasticsearch_search,
         :elasticsearch_url,
+        :elasticsearch_limit_indexing,
+        :elasticsearch_namespace_ids,
+        :elasticsearch_project_ids,
         :geo_status_timeout,
+        :geo_node_allowed_ips,
         :help_text,
         :pseudonymizer_enabled,
         :repository_size_limit,
@@ -76,6 +49,18 @@ module EE
       ]
     end
 
+    def elasticsearch_objects_options(objects)
+      objects.map { |g| { id: g.id, text: g.full_name } }
+    end
+
+    def elasticsearch_namespace_ids
+      ElasticsearchIndexedNamespace.namespace_ids.join(',')
+    end
+
+    def elasticsearch_project_ids
+      ElasticsearchIndexedProject.project_ids.join(',')
+    end
+
     def self.repository_mirror_attributes
       [
         :mirror_max_capacity,
@@ -84,20 +69,8 @@ module EE
       ]
     end
 
-    def self.external_authorization_service_attributes
-      [
-        :external_auth_client_cert,
-        :external_auth_client_key,
-        :external_auth_client_key_pass,
-        :external_authorization_service_default_label,
-        :external_authorization_service_enabled,
-        :external_authorization_service_timeout,
-        :external_authorization_service_url
-      ]
-    end
-
     def self.possible_licensed_attributes
-      repository_mirror_attributes + external_authorization_service_attributes + %i[
+      repository_mirror_attributes + %i[
         email_additional_text
         file_template_project_id
       ]

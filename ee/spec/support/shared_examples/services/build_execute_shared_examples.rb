@@ -13,13 +13,14 @@ RSpec.shared_examples 'restricts access to protected environments' do |developer
       allow(project).to receive(:feature_available?).and_call_original
       allow(project).to receive(:feature_available?)
         .with(:protected_environments).and_return(true)
+      allow(build).to receive(:project) { project }
 
       project.add_developer(user)
       protected_environment
     end
 
     context 'when user does not have access to the environment' do
-      it 'should raise Gitlab::Access::DeniedError' do
+      it 'raises Gitlab::Access::DeniedError' do
         expect { service.execute(build) }
           .to raise_error Gitlab::Access::AccessDeniedError
       end

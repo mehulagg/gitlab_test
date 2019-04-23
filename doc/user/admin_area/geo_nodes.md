@@ -1,9 +1,9 @@
-# Geo nodes admin area
+# Geo nodes admin area **[PREMIUM ONLY]**
 
 For more information about setting up GitLab Geo, read the
 [Geo documentation](../../gitlab-geo/README.md).
 
-When you're done, you can navigate to **Admin area ➔ Geo nodes** (`/admin/geo_nodes`).
+When you're done, you can navigate to **Admin area > Geo** (`/admin/geo/nodes`).
 
 ## Common settings
 
@@ -24,7 +24,7 @@ Secondaries have a number of additional settings available:
 
 | Setting                   | Description |
 |---------------------------|-------------|
-| Selective synchronization | Enable Geo [selective sync](../../gitlab-geo/configuration.md#selective-synchronization) for this secondary. |
+| Selective synchronization | Enable Geo [selective sync](../../administration/geo/replication/configuration.md#selective-synchronization) for this secondary. |
 | Repository sync capacity  | Number of concurrent requests this secondary will make to the primary when backfilling repositories. |
 | File sync capacity        | Number of concurrent requests this secondary will make to the primary when backfilling files. |
 
@@ -45,3 +45,13 @@ the limits are configurable - if your primary node has lots of surplus capacity,
 you can increase the values to complete backfill in a shorter time. If it's
 under heavy load and backfill is reducing its availability for normal requests,
 you can decrease them.
+
+## Using a different URL for synchronization
+
+The **primary** node's Internal URL is used by **secondary** nodes to contact it
+(to sync repositories, for example). The name Internal URL distinguishes it from
+[External URL](https://docs.gitlab.com/omnibus/settings/configuration.html#configuring-the-external-url-for-gitlab)
+which is used by users. Internal URL does not need to be a private address.
+
+Internal URL defaults to External URL, but you can customize it under
+**Admin area > Geo Nodes**.

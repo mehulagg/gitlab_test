@@ -1,8 +1,8 @@
+# frozen_string_literal: true
+
 module Projects
   module Prometheus
     class MetricsController < Projects::ApplicationController
-      prepend EE::Projects::Prometheus::MetricsController
-
       before_action :authorize_admin_project!
       before_action :require_prometheus_metrics!
 
@@ -32,3 +32,5 @@ module Projects
     end
   end
 end
+
+Projects::Prometheus::MetricsController.prepend(EE::Projects::Prometheus::MetricsController)

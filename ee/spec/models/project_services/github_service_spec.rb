@@ -80,7 +80,10 @@ describe GithubService do
     it 'uses StatusMessage to build message' do
       allow(subject).to receive(:update_status)
 
-      expect(GithubService::StatusMessage).to receive(:from_pipeline_data).with(project, pipeline_sample_data).and_return(status_message)
+      expect(GithubService::StatusMessage)
+        .to receive(:from_pipeline_data)
+        .with(project, subject, pipeline_sample_data)
+        .and_return(status_message)
 
       subject.execute(pipeline_sample_data)
     end
@@ -164,7 +167,7 @@ describe GithubService do
 
   describe '#can_test?' do
     it 'is false if there are no pipelines' do
-      project.pipelines.delete_all
+      project.ci_pipelines.delete_all
 
       expect(subject.can_test?).to eq false
     end
@@ -181,9 +184,9 @@ describe GithubService do
     let(:test_data) { subject.test_data(project, user) }
 
     it 'raises error if no pipeline found' do
-      project.pipelines.delete_all
+      project.ci_pipelines.delete_all
 
-      expect { test_data }.to raise_error 'Please setup a pipeline on your repository.'
+      expect { test_data }.to raise_error 'Please set up a pipeline on your repository.'
     end
 
     it 'generates data for latest pipeline' do

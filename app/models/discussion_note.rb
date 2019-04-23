@@ -4,10 +4,15 @@
 #
 # A note of this type can be resolvable.
 class DiscussionNote < Note
-  # Names of all implementers of `Noteable` that support discussions.
-  NOTEABLE_TYPES = %w(MergeRequest Issue Commit Snippet Epic).freeze
+  # This prepend must stay here because the `validates` below depends on it.
+  prepend EE::DiscussionNote # rubocop: disable Cop/InjectEnterpriseEditionModule
 
-  validates :noteable_type, inclusion: { in: NOTEABLE_TYPES }
+  # Names of all implementers of `Noteable` that support discussions.
+  def self.noteable_types
+    %w(MergeRequest Issue Commit Snippet)
+  end
+
+  validates :noteable_type, inclusion: { in: noteable_types }
 
   def discussion_class(*)
     Discussion

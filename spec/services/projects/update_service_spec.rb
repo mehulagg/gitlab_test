@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
-describe Projects::UpdateService, '#execute' do
-  include StubConfiguration
+describe Projects::UpdateService do
+  include ExternalAuthorizationServiceHelpers
   include ProjectForksHelper
 
   let(:user) { create(:user) }
@@ -42,7 +44,7 @@ describe Projects::UpdateService, '#execute' do
         end
 
         it 'updates the project to private' do
-          expect(TodosDestroyer::ProjectPrivateWorker).to receive(:perform_in).with(1.hour, project.id)
+          expect(TodosDestroyer::ProjectPrivateWorker).to receive(:perform_in).with(Todo::WAIT_FOR_DELETE, project.id)
 
           result = update_project(project, user, visibility_level: Gitlab::VisibilityLevel::PRIVATE)
 
@@ -192,7 +194,7 @@ describe Projects::UpdateService, '#execute' do
     context 'when changing feature visibility to private' do
       it 'updates the visibility correctly' do
         expect(TodosDestroyer::PrivateFeaturesWorker)
-          .to receive(:perform_in).with(1.hour, project.id)
+          .to receive(:perform_in).with(Todo::WAIT_FOR_DELETE, project.id)
 
         result = update_project(project, user, project_feature_attributes:
                                  { issues_access_level: ProjectFeature::PRIVATE }
@@ -233,7 +235,7 @@ describe Projects::UpdateService, '#execute' do
         let(:project) { create(:project, :legacy_storage, :repository, creator: user, namespace: user.namespace) }
 
         before do
-          gitlab_shell.create_repository(repository_storage, "#{user.namespace.full_path}/existing")
+          gitlab_shell.create_repository(repository_storage, "#{user.namespace.full_path}/existing", user.namespace.full_path)
         end
 
         after do
@@ -250,9 +252,20 @@ describe Projects::UpdateService, '#execute' do
           expect(project.errors.messages[:base]).to include('There is already a repository with that name on disk')
         end
 
-        context 'when hashed storage enabled' do
+        it 'renames the project without upgrading it' do
+          result = update_project(project, admin, path: 'new-path')
+
+          expect(result).not_to include(status: :error)
+          expect(project).to be_valid
+          expect(project.errors).to be_empty
+          expect(project.disk_path).to include('new-path')
+          expect(project.reload.hashed_storage?(:repository)).to be_falsey
+        end
+
+        context 'when hashed storage is enabled' do
           before do
             stub_application_setting(hashed_storage_enabled: true)
+            stub_feature_flags(skip_hashed_storage_upgrade: false)
           end
 
           it 'migrates project to a hashed storage instead of renaming the repo to another legacy name' do
@@ -262,6 +275,22 @@ describe Projects::UpdateService, '#execute' do
             expect(project).to be_valid
             expect(project.errors).to be_empty
             expect(project.reload.hashed_storage?(:repository)).to be_truthy
+          end
+
+          context 'when skip_hashed_storage_upgrade feature flag is enabled' do
+            before do
+              stub_feature_flags(skip_hashed_storage_upgrade: true)
+            end
+
+            it 'renames the project without upgrading it' do
+              result = update_project(project, admin, path: 'new-path')
+
+              expect(result).not_to include(status: :error)
+              expect(project).to be_valid
+              expect(project.errors).to be_empty
+              expect(project.disk_path).to include('new-path')
+              expect(project.reload.hashed_storage?(:repository)).to be_falsey
+            end
           end
         end
       end
@@ -312,6 +341,67 @@ describe Projects::UpdateService, '#execute' do
           .and_call_original
 
         call_service
+      end
+    end
+
+    context 'when updating #pages_access_level' do
+      subject(:call_service) do
+        update_project(project, admin, project_feature_attributes: { pages_access_level: ProjectFeature::PRIVATE })
+      end
+
+      it 'updates the attribute' do
+        expect { call_service }
+          .to change { project.project_feature.pages_access_level }
+          .to(ProjectFeature::PRIVATE)
+      end
+
+      it 'calls Projects::UpdatePagesConfigurationService' do
+        expect(Projects::UpdatePagesConfigurationService)
+          .to receive(:new)
+          .with(project)
+          .and_call_original
+
+        call_service
+      end
+    end
+
+    context 'with external authorization enabled' do
+      before do
+        enable_external_authorization_service_check
+      end
+
+      it 'does not save the project with an error if the service denies access' do
+        expect(::Gitlab::ExternalAuthorization)
+          .to receive(:access_allowed?).with(user, 'new-label') { false }
+
+        result = update_project(project, user, { external_authorization_classification_label: 'new-label' })
+
+        expect(result[:message]).to be_present
+        expect(result[:status]).to eq(:error)
+      end
+
+      it 'saves the new label if the service allows access' do
+        expect(::Gitlab::ExternalAuthorization)
+          .to receive(:access_allowed?).with(user, 'new-label') { true }
+
+        result = update_project(project, user, { external_authorization_classification_label: 'new-label' })
+
+        expect(result[:status]).to eq(:success)
+        expect(project.reload.external_authorization_classification_label).to eq('new-label')
+      end
+
+      it 'checks the default label when the classification label was cleared' do
+        expect(::Gitlab::ExternalAuthorization)
+          .to receive(:access_allowed?).with(user, 'default_label') { true }
+
+        update_project(project, user, { external_authorization_classification_label: '' })
+      end
+
+      it 'does not check the label when it does not change' do
+        expect(::Gitlab::ExternalAuthorization)
+          .not_to receive(:access_allowed?)
+
+        update_project(project, user, { name: 'New name' })
       end
     end
   end
@@ -369,72 +459,6 @@ describe Projects::UpdateService, '#execute' do
         it { is_expected.to eq(false) }
       end
     end
-  end
-
-  describe 'repository_storage' do
-    let(:admin_user) { create(:user, admin: true) }
-    let(:user) { create(:user) }
-    let(:project) { create(:project, :repository) }
-    let(:opts) { { repository_storage: 'b' } }
-
-    before do
-      FileUtils.mkdir('tmp/tests/storage_b')
-
-      storages = {
-        'default' => Gitlab.config.repositories.storages.default,
-        'b' => { 'path' => 'tmp/tests/storage_b' }
-      }
-      stub_storage_settings(storages)
-    end
-
-    after do
-      FileUtils.rm_rf('tmp/tests/storage_b')
-    end
-
-    it 'calls the change repository storage method if the storage changed', :disable_gitaly do
-      expect(project).to receive(:change_repository_storage).with('b')
-
-      update_project(project, admin_user, opts).inspect
-    end
-
-    it "doesn't call the change repository storage for non-admin users", :disable_gitaly do
-      expect(project).not_to receive(:change_repository_storage)
-
-      update_project(project, user, opts).inspect
-    end
-  end
-
-  context 'repository_size_limit assignment as Bytes' do
-    let(:admin_user) { create(:user, admin: true) }
-    let(:project) { create(:project, repository_size_limit: 0) }
-
-    context 'when param present' do
-      let(:opts) { { repository_size_limit: '100' } }
-
-      it 'converts from MB to Bytes' do
-        update_project(project, admin_user, opts)
-
-        expect(project.reload.repository_size_limit).to eql(100 * 1024 * 1024)
-      end
-    end
-
-    context 'when param not present' do
-      let(:opts) { { repository_size_limit: '' } }
-
-      it 'assign nil value' do
-        update_project(project, admin_user, opts)
-
-        expect(project.reload.repository_size_limit).to be_nil
-      end
-    end
-  end
-
-  it 'returns an error result when record cannot be updated' do
-    admin = create(:admin)
-
-    result = update_project(project, admin, { name: 'foo&bar' })
-
-    expect(result).to eq({ status: :error, message: "Name can contain only letters, digits, emojis, '_', '.', dash, space. It must start with letter, digit, emoji or '_'." })
   end
 
   def update_project(project, user, opts)

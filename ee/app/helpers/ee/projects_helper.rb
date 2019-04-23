@@ -1,20 +1,79 @@
+# frozen_string_literal: true
+
 module EE
   module ProjectsHelper
     extend ::Gitlab::Utils::Override
 
     override :sidebar_projects_paths
     def sidebar_projects_paths
-      super + %w(projects/security/dashboard#show)
+      super + %w[
+        projects/security/dashboard#show
+        projects/insights#show
+      ]
     end
 
     override :sidebar_settings_paths
     def sidebar_settings_paths
-      super + %w(audit_events#index)
+      super + %w[
+        audit_events#index
+        operations#show
+      ]
     end
 
     override :sidebar_repository_paths
     def sidebar_repository_paths
       super + %w(path_locks)
+    end
+
+    override :sidebar_operations_paths
+    def sidebar_operations_paths
+      super + %w[
+        tracings
+        feature_flags
+      ]
+    end
+
+    override :get_project_nav_tabs
+    def get_project_nav_tabs(project, current_user)
+      nav_tabs = super
+
+      if ::Gitlab.config.packages.enabled &&
+          project.feature_available?(:packages) &&
+          can?(current_user, :read_package, project)
+        nav_tabs << :packages
+      end
+
+      if can?(current_user, :read_feature_flag, project) && !nav_tabs.include?(:operations)
+        nav_tabs << :operations
+      end
+
+      if project.insights_available?
+        nav_tabs << :project_insights
+      end
+
+      nav_tabs
+    end
+
+    override :tab_ability_map
+    def tab_ability_map
+      tab_ability_map = super
+      tab_ability_map[:feature_flags] = :read_feature_flag
+      tab_ability_map
+    end
+
+    override :project_permissions_settings
+    def project_permissions_settings(project)
+      super.merge(
+        packagesEnabled: !!project.packages_enabled
+      )
+    end
+
+    override :project_permissions_panel_data
+    def project_permissions_panel_data(project)
+      super.merge(
+        packagesAvailable: ::Gitlab.config.packages.enabled && project.feature_available?(:packages),
+        packagesHelpPath: help_page_path('user/project/packages/maven_repository')
+      )
     end
 
     override :default_url_to_repo
@@ -36,6 +95,11 @@ module EE
       end
     end
 
+    override :sidebar_operations_link_path
+    def sidebar_operations_link_path(project = @project)
+      super || project_feature_flags_path(project)
+    end
+
     # Given the current GitLab configuration, check whether the GitLab URL for Kerberos is going to be different than the HTTP URL
     def alternative_kerberos_url?
       ::Gitlab.config.alternative_gitlab_kerberos_url?
@@ -47,18 +111,14 @@ module EE
       can?(current_user, :"change_#{rule}", @project)
     end
 
-    def external_classification_label_help_message
-      default_label = ::Gitlab::CurrentSettings.current_application_settings
-                        .external_authorization_service_default_label
-
-      s_(
-        "ExternalAuthorizationService|When no classification label is set the "\
-        "default label `%{default_label}` will be used."
-      ) % { default_label: default_label }
-    end
-
     def ci_cd_projects_available?
       ::License.feature_available?(:ci_cd_projects) && import_sources_enabled?
+    end
+
+    def merge_pipelines_available?
+      return false unless @project.builds_enabled?
+
+      @project.feature_available?(:merge_pipelines)
     end
 
     def size_limit_message(project)
@@ -83,17 +143,23 @@ module EE
       end
     end
 
+    def group_project_templates_count(group_id)
+      allowed_subgroups = current_user.available_subgroups_with_custom_project_templates(group_id)
+
+      ::Project.in_namespace(allowed_subgroups).count
+    end
+
     def share_project_description
       share_with_group   = @project.allowed_to_share_with_group?
       share_with_members = !membership_locked?
       project_name       = content_tag(:strong, @project.name)
-      member_message     = "You can add a new member to #{project_name}"
+      member_message     = "You can invite a new member to #{project_name}"
 
       description =
         if share_with_group && share_with_members
-          "#{member_message} or share it with another group."
+          "#{member_message} or invite another group."
         elsif share_with_group
-          "You can share #{project_name} with another group."
+          "You can invite another group to #{project_name}."
         elsif share_with_members
           "#{member_message}."
         end
@@ -111,28 +177,19 @@ module EE
           can_create_issue: "false"
         }
       else
-        # Handle old job and artifact names for container scanning
-        sast_container_head_path = if pipeline.expose_sast_container_data?
-                                     sast_container_artifact_url(pipeline)
-                                   elsif pipeline.expose_container_scanning_data?
-                                     container_scanning_artifact_url(pipeline)
-                                   else
-                                     nil
-                                   end
-
         {
           head_blob_path: project_blob_path(project, pipeline.sha),
-          sast_head_path: pipeline.expose_sast_data? ? sast_artifact_url(pipeline) : nil,
-          dependency_scanning_head_path: pipeline.expose_dependency_scanning_data? ? dependency_scanning_artifact_url(pipeline) : nil,
-          dast_head_path: pipeline.expose_dast_data? ? dast_artifact_url(pipeline) : nil,
-          sast_container_head_path: sast_container_head_path,
+          sast_head_path: pipeline.downloadable_path_for_report_type(:sast),
+          dependency_scanning_head_path: pipeline.downloadable_path_for_report_type(:dependency_scanning),
+          dast_head_path: pipeline.downloadable_path_for_report_type(:dast),
+          sast_container_head_path: pipeline.downloadable_path_for_report_type(:container_scanning),
           vulnerability_feedback_path: project_vulnerability_feedback_index_path(project),
           pipeline_id: pipeline.id,
           vulnerability_feedback_help_path: help_page_path("user/project/merge_requests/index", anchor: "interacting-with-security-reports-ultimate"),
           sast_help_path: help_page_path('user/project/merge_requests/sast'),
           dependency_scanning_help_path: help_page_path('user/project/merge_requests/dependency_scanning'),
           dast_help_path: help_page_path('user/project/merge_requests/dast'),
-          sast_container_help_path: help_page_path('user/project/merge_requests/sast_container'),
+          sast_container_help_path: help_page_path('user/project/merge_requests/container_scanning'),
           user_path: user_url(pipeline.user),
           user_avatar_path: pipeline.user.avatar_url,
           user_name: pipeline.user.name,
@@ -147,6 +204,17 @@ module EE
           can_create_issue: can?(current_user, :create_issue, project).to_s
         }
       end
+    end
+
+    def settings_operations_available?
+      return true if super
+
+      @project.feature_available?(:tracing, current_user) && can?(current_user, :read_environment, @project)
+    end
+
+    def project_incident_management_setting
+      @project_incident_management_setting ||= @project.incident_management_setting ||
+        @project.build_incident_management_setting
     end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Groups::PipelineQuotaController < Groups::ApplicationController
   before_action :authorize_admin_group!
   before_action :validate_shared_runner_minutes_support!
@@ -11,7 +13,7 @@ class Groups::PipelineQuotaController < Groups::ApplicationController
   private
 
   def all_projects
-    if Feature.enabled?(:shared_runner_minutes_on_root_namespace)
+    if ::Feature.enabled?(:shared_runner_minutes_on_root_namespace)
       @group.all_projects
     else
       @group.projects

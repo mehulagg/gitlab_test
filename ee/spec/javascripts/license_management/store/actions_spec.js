@@ -229,6 +229,7 @@ describe('License store actions', () => {
       it('dispatches requestSetLicenseApproval and receiveSetLicenseApproval for successful response', done => {
         putEndpointMock.replyOnce(req => {
           const { approval_status, name } = JSON.parse(req.data);
+
           expect(req.url).toBe(apiUrlManageLicenses);
           expect(approval_status).toBe(newStatus);
           expect(name).toBe(name);
@@ -280,6 +281,7 @@ describe('License store actions', () => {
         patchEndpointMock.replyOnce(req => {
           expect(req.url).toBe(licenseUrl);
           const { approval_status, name } = JSON.parse(req.data);
+
           expect(approval_status).toBe(newStatus);
           expect(name).toBeUndefined();
           return [200, ''];
@@ -442,7 +444,7 @@ describe('License store actions', () => {
     let endpointMock;
 
     beforeEach(() => {
-      endpointMock = axiosMock.onGet(apiUrlManageLicenses);
+      endpointMock = axiosMock.onGet(apiUrlManageLicenses, { params: { per_page: 100 } });
     });
 
     it('dispatches requestLoadManagedLicenses and receiveLoadManagedLicenses for successful response', done => {

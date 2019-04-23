@@ -1,4 +1,22 @@
+# frozen_string_literal: true
+
 class EpicsFinder < IssuableFinder
+  def self.scalar_params
+    @scalar_params ||= %i[
+      parent_id
+      author_id
+      author_username
+      label_name
+      start_date
+      end_date
+      search
+    ]
+  end
+
+  def self.array_params
+    @array_params ||= { label_name: [] }
+  end
+
   def klass
     Epic
   end
@@ -8,33 +26,19 @@ class EpicsFinder < IssuableFinder
 
     items = init_collection
     items = by_created_at(items)
+    items = by_updated_at(items)
     items = by_search(items)
     items = by_author(items)
     items = by_timeframe(items)
+    items = by_state(items)
     items = by_label(items)
+    items = by_parent(items)
 
     sort(items)
   end
 
-  def row_count
-    count = execute.count
-
-    # When filtering by multiple labels, count returns a hash of
-    # records grouped by id - so we just have to get length of the Hash.
-    # Once we have state for epics, we can use default issuables row_count
-    # method.
-    count.is_a?(Hash) ? count.length : count
-  end
-
-  # we don't have states for epics for now this method (#4017)
-  def count_by_state
-    {
-      all: row_count
-    }
-  end
-
   def group
-    return nil unless params[:group_id]
+    return unless params[:group_id]
     return @group if defined?(@group)
 
     group = Group.find(params[:group_id])
@@ -43,14 +47,27 @@ class EpicsFinder < IssuableFinder
     @group = group
   end
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def init_collection
     groups = groups_user_can_read_epics(group.self_and_descendants)
 
     Epic.where(group: groups)
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 
   private
 
+  def count_key(value)
+    last_value = Array(value).last
+
+    if last_value.is_a?(Integer)
+      Epic.states.invert[last_value].to_sym
+    else
+      last_value.to_sym
+    end
+  end
+
+  # rubocop: disable CodeReuse/ActiveRecord
   def groups_user_can_read_epics(groups)
     groups = Gitlab::GroupPlansPreloader.new.preload(groups)
 
@@ -58,7 +75,9 @@ class EpicsFinder < IssuableFinder
       groups.select { |g| Ability.allowed?(current_user, :read_epic, g) }
     end
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def by_timeframe(items)
     return items unless params[:start_date] && params[:end_date]
 
@@ -72,4 +91,17 @@ class EpicsFinder < IssuableFinder
   rescue ArgumentError
     items
   end
+  # rubocop: enable CodeReuse/ActiveRecord
+
+  def parent_id?
+    params[:parent_id].present?
+  end
+
+  # rubocop: disable CodeReuse/ActiveRecord
+  def by_parent(items)
+    return items unless parent_id?
+
+    items.where(parent_id: params[:parent_id])
+  end
+  # rubocop: enable CodeReuse/ActiveRecord
 end

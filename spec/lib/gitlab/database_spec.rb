@@ -17,6 +17,20 @@ describe Gitlab::Database do
     end
   end
 
+  describe '.human_adapter_name' do
+    it 'returns PostgreSQL when using PostgreSQL' do
+      allow(described_class).to receive(:postgresql?).and_return(true)
+
+      expect(described_class.human_adapter_name).to eq('PostgreSQL')
+    end
+
+    it 'returns MySQL when using MySQL' do
+      allow(described_class).to receive(:postgresql?).and_return(false)
+
+      expect(described_class.human_adapter_name).to eq('MySQL')
+    end
+  end
+
   # These are just simple smoke tests to check if the methods work (regardless
   # of what they may return).
   describe '.mysql?' do
@@ -84,6 +98,38 @@ describe Gitlab::Database do
       allow(described_class).to receive(:version).and_return('10')
 
       expect(described_class.postgresql_9_or_less?).to eq(false)
+    end
+  end
+
+  describe '.postgresql_minimum_supported_version?' do
+    it 'returns false when not using PostgreSQL' do
+      allow(described_class).to receive(:postgresql?).and_return(false)
+
+      expect(described_class.postgresql_minimum_supported_version?).to eq(false)
+    end
+
+    context 'when using PostgreSQL' do
+      before do
+        allow(described_class).to receive(:postgresql?).and_return(true)
+      end
+
+      it 'returns false when using PostgreSQL 9.5' do
+        allow(described_class).to receive(:version).and_return('9.5')
+
+        expect(described_class.postgresql_minimum_supported_version?).to eq(false)
+      end
+
+      it 'returns true when using PostgreSQL 9.6' do
+        allow(described_class).to receive(:version).and_return('9.6')
+
+        expect(described_class.postgresql_minimum_supported_version?).to eq(true)
+      end
+
+      it 'returns true when using PostgreSQL 10 or newer' do
+        allow(described_class).to receive(:version).and_return('10')
+
+        expect(described_class.postgresql_minimum_supported_version?).to eq(true)
+      end
     end
   end
 
@@ -192,6 +238,12 @@ describe Gitlab::Database do
       allow(described_class).to receive(:version).and_return('10')
 
       expect(described_class.pg_last_wal_replay_lsn).to eq('pg_last_wal_replay_lsn')
+    end
+  end
+
+  describe '.pg_last_xact_replay_timestamp' do
+    it 'returns pg_last_xact_replay_timestamp' do
+      expect(described_class.pg_last_xact_replay_timestamp).to eq('pg_last_xact_replay_timestamp')
     end
   end
 
@@ -400,13 +452,8 @@ describe Gitlab::Database do
 
   describe '.cached_table_exists?' do
     it 'only retrieves data once per table' do
-      if Gitlab.rails5?
-        expect(ActiveRecord::Base.connection).to receive(:data_source_exists?).with(:projects).once.and_call_original
-        expect(ActiveRecord::Base.connection).to receive(:data_source_exists?).with(:bogus_table_name).once.and_call_original
-      else
-        expect(ActiveRecord::Base.connection).to receive(:table_exists?).with(:projects).once.and_call_original
-        expect(ActiveRecord::Base.connection).to receive(:table_exists?).with(:bogus_table_name).once.and_call_original
-      end
+      expect(ActiveRecord::Base.connection).to receive(:data_source_exists?).with(:projects).once.and_call_original
+      expect(ActiveRecord::Base.connection).to receive(:data_source_exists?).with(:bogus_table_name).once.and_call_original
 
       2.times do
         expect(described_class.cached_table_exists?(:projects)).to be_truthy
@@ -443,51 +490,9 @@ describe Gitlab::Database do
     end
   end
 
-  describe '#disable_prepared_statements' do
-    it 'disables prepared statements' do
-      config = {}
-
-      expect(ActiveRecord::Base.configurations).to receive(:[])
-        .with(Rails.env)
-        .and_return(config)
-
-      expect(ActiveRecord::Base).to receive(:establish_connection)
-        .with({ 'prepared_statements' => false })
-
-      described_class.disable_prepared_statements
-
-      expect(config['prepared_statements']).to eq(false)
-    end
-  end
-
   describe '.read_only?' do
-    context 'with Geo enabled' do
-      before do
-        allow(Gitlab::Geo).to receive(:enabled?) { true }
-        allow(Gitlab::Geo).to receive(:current_node) { geo_node }
-      end
-
-      context 'is Geo secondary node' do
-        let(:geo_node) { create(:geo_node) }
-
-        it 'returns true' do
-          expect(described_class.read_only?).to be_truthy
-        end
-      end
-
-      context 'is Geo primary node' do
-        let(:geo_node) { create(:geo_node, :primary) }
-
-        it 'returns false when is Geo primary node' do
-          expect(described_class.read_only?).to be_falsey
-        end
-      end
-    end
-
-    context 'with Geo disabled' do
-      it 'returns false' do
-        expect(described_class.read_only?).to be_falsey
-      end
+    it 'returns false' do
+      expect(described_class.read_only?).to be_falsey
     end
   end
 
@@ -495,7 +500,7 @@ describe Gitlab::Database do
     context 'when using PostgreSQL' do
       before do
         allow(ActiveRecord::Base.connection).to receive(:execute).and_call_original
-        expect(described_class).to receive(:postgresql?).and_return(true)
+        allow(described_class).to receive(:postgresql?).and_return(true)
       end
 
       it 'detects a read only database' do
@@ -504,8 +509,20 @@ describe Gitlab::Database do
         expect(described_class.db_read_only?).to be_truthy
       end
 
+      it 'detects a read only database' do
+        allow(ActiveRecord::Base.connection).to receive(:execute).with('SELECT pg_is_in_recovery()').and_return([{ "pg_is_in_recovery" => true }])
+
+        expect(described_class.db_read_only?).to be_truthy
+      end
+
       it 'detects a read write database' do
         allow(ActiveRecord::Base.connection).to receive(:execute).with('SELECT pg_is_in_recovery()').and_return([{ "pg_is_in_recovery" => "f" }])
+
+        expect(described_class.db_read_only?).to be_falsey
+      end
+
+      it 'detects a read write database' do
+        allow(ActiveRecord::Base.connection).to receive(:execute).with('SELECT pg_is_in_recovery()').and_return([{ "pg_is_in_recovery" => false }])
 
         expect(described_class.db_read_only?).to be_falsey
       end

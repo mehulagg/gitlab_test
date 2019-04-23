@@ -17,6 +17,7 @@ const createComponent = ({
     nodeDetails,
     nodeActionsAllowed,
     nodeEditAllowed,
+    geoTroubleshootingHelpPath: '/foo/bar',
   });
 };
 
@@ -47,6 +48,7 @@ describe('GeoNodeDetailsComponent', () => {
           healthy: false,
         });
         const vmX = createComponent({ nodeDetails });
+
         expect(vmX.errorMessage).toBe('Something went wrong.');
         expect(vmX.hasError).toBeTruthy();
         vmX.$destroy();
@@ -64,6 +66,7 @@ describe('GeoNodeDetailsComponent', () => {
           primaryRevision: 'b93c51850b',
         });
         const vmX = createComponent({ nodeDetails });
+
         expect(vmX.errorMessage).toBe('GitLab version does not match the primary node version');
         expect(vmX.hasVersionMismatch).toBeTruthy();
         vmX.$destroy();
@@ -77,6 +80,18 @@ describe('GeoNodeDetailsComponent', () => {
   describe('template', () => {
     it('renders container elements correctly', () => {
       expect(vm.$el.classList.contains('card-body')).toBe(true);
+    });
+
+    it('renders troubleshooting URL within error message section', done => {
+      vm.nodeDetails.healthy = false;
+      vm.errorMessage = 'Foobar';
+
+      vm.$nextTick(() => {
+        expect(vm.$el.querySelector('.node-health-message-container a').getAttribute('href')).toBe(
+          '/foo/bar',
+        );
+        done();
+      });
     });
   });
 });

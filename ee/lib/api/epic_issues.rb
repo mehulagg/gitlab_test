@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module API
   class EpicIssues < Grape::API
     before do
@@ -5,23 +7,9 @@ module API
       authorize_epics_feature!
     end
 
+    helpers ::API::Helpers::EpicsHelpers
+
     helpers do
-      def authorize_epics_feature!
-        forbidden! unless user_group.feature_available?(:epics)
-      end
-
-      def authorize_can_read!
-        authorize!(:read_epic, epic)
-      end
-
-      def authorize_can_admin!
-        authorize!(:admin_epic, epic)
-      end
-
-      def epic
-        @epic ||= user_group.epics.find_by(iid: params[:epic_iid])
-      end
-
       def link
         @link ||= epic.epic_issues.find(params[:epic_issue_id])
       end
@@ -31,7 +19,7 @@ module API
       requires :id, type: String, desc: 'The ID of a group'
     end
 
-    resource :groups, requirements: API::PROJECT_ENDPOINT_REQUIREMENTS do
+    resource :groups, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       desc 'Update epic issue association' do
       end
       params do
@@ -81,12 +69,13 @@ module API
       params do
         requires :epic_iid, type: Integer, desc: 'The iid of the epic'
       end
+      # rubocop: disable CodeReuse/ActiveRecord
       post ':id/(-/)epics/:epic_iid/issues/:issue_id' do
         authorize_can_admin!
 
         issue = Issue.find(params[:issue_id])
 
-        create_params = { target_issue: issue }
+        create_params = { target_issuable: issue }
 
         result = ::EpicIssues::CreateService.new(epic, current_user, create_params).execute
 
@@ -98,6 +87,7 @@ module API
           render_api_error!(result[:message], result[:http_status])
         end
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Remove an issue from the epic' do
         success EE::API::Entities::EpicIssueLink

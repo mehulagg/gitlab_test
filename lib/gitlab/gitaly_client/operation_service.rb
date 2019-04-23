@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Gitlab
   module GitalyClient
     class OperationService
@@ -60,7 +62,7 @@ module Gitlab
         end
 
         branch = response.branch
-        return nil unless branch
+        return unless branch
 
         target_commit = Gitlab::Git::Commit.decorate(@repository, branch.target_commit)
         Gitlab::Git::Branch.new(@repository, branch.name, target_commit.id, target_commit)
@@ -96,6 +98,25 @@ module Gitlab
         if pre_receive_error = response.pre_receive_error.presence
           raise Gitlab::Git::PreReceiveError, pre_receive_error
         end
+      end
+
+      def user_merge_to_ref(user, source_sha, branch, target_ref, message)
+        request = Gitaly::UserMergeToRefRequest.new(
+          repository: @gitaly_repo,
+          source_sha: source_sha,
+          branch: encode_binary(branch),
+          target_ref: encode_binary(target_ref),
+          user: Gitlab::Git::User.from_gitlab(user).to_gitaly,
+          message: message
+        )
+
+        response = GitalyClient.call(@repository.storage, :operation_service, :user_merge_to_ref, request)
+
+        if pre_receive_error = response.pre_receive_error.presence
+          raise Gitlab::Git::PreReceiveError, pre_receive_error
+        end
+
+        response.commit_id
       end
 
       def user_merge_branch(user, source_sha, target_branch, message)
@@ -230,14 +251,40 @@ module Gitlab
         response.squash_sha
       end
 
+      def user_update_submodule(user:, submodule:, commit_sha:, branch:, message:)
+        request = Gitaly::UserUpdateSubmoduleRequest.new(
+          repository: @gitaly_repo,
+          user: Gitlab::Git::User.from_gitlab(user).to_gitaly,
+          commit_sha: commit_sha,
+          branch: encode_binary(branch),
+          submodule: encode_binary(submodule),
+          commit_message: encode_binary(message)
+        )
+
+        response = GitalyClient.call(
+          @repository.storage,
+          :operation_service,
+          :user_update_submodule,
+          request
+        )
+
+        if response.pre_receive_error.present?
+          raise Gitlab::Git::PreReceiveError, response.pre_receive_error
+        elsif response.commit_error.present?
+          raise Gitlab::Git::CommitError, response.commit_error
+        else
+          Gitlab::Git::OperationService::BranchUpdate.from_gitaly(response.branch_update)
+        end
+      end
+
+      # rubocop:disable Metrics/ParameterLists
       def user_commit_files(
         user, branch_name, commit_message, actions, author_email, author_name,
-        start_branch_name, start_repository)
-
+        start_branch_name, start_repository, force = false)
         req_enum = Enumerator.new do |y|
           header = user_commit_files_request_header(user, branch_name,
           commit_message, actions, author_email, author_name,
-          start_branch_name, start_repository)
+          start_branch_name, start_repository, force)
 
           y.yield Gitaly::UserCommitFilesRequest.new(header: header)
 
@@ -247,7 +294,7 @@ module Gitlab
               action: Gitaly::UserCommitFilesAction.new(header: action_header)
             )
 
-            reader = binary_stringio(action[:content])
+            reader = binary_io(action[:content])
 
             until reader.eof?
               chunk = reader.read(MAX_MSG_SIZE)
@@ -269,6 +316,30 @@ module Gitlab
         if (index_error = response.index_error.presence)
           raise Gitlab::Git::Index::IndexError, index_error
         end
+
+        Gitlab::Git::OperationService::BranchUpdate.from_gitaly(response.branch_update)
+      end
+      # rubocop:enable Metrics/ParameterLists
+
+      def user_commit_patches(user, branch_name, patches)
+        header = Gitaly::UserApplyPatchRequest::Header.new(
+          repository: @gitaly_repo,
+          user: Gitlab::Git::User.from_gitlab(user).to_gitaly,
+          target_branch: encode_binary(branch_name)
+        )
+        reader = binary_io(patches)
+
+        chunks = Enumerator.new do |chunk|
+          chunk.yield Gitaly::UserApplyPatchRequest.new(header: header)
+
+          until reader.eof?
+            patch_chunk = reader.read(MAX_MSG_SIZE)
+
+            chunk.yield(Gitaly::UserApplyPatchRequest.new(patches: patch_chunk))
+          end
+        end
+
+        response = GitalyClient.call(@repository.storage, :operation_service, :user_apply_patch, chunks)
 
         Gitlab::Git::OperationService::BranchUpdate.from_gitaly(response.branch_update)
       end
@@ -312,9 +383,10 @@ module Gitlab
         Gitlab::Git::OperationService::BranchUpdate.from_gitaly(response.branch_update)
       end
 
+      # rubocop:disable Metrics/ParameterLists
       def user_commit_files_request_header(
         user, branch_name, commit_message, actions, author_email, author_name,
-        start_branch_name, start_repository)
+        start_branch_name, start_repository, force)
 
         Gitaly::UserCommitFilesRequestHeader.new(
           repository: @gitaly_repo,
@@ -324,16 +396,20 @@ module Gitlab
           commit_author_name: encode_binary(author_name),
           commit_author_email: encode_binary(author_email),
           start_branch_name: encode_binary(start_branch_name),
-          start_repository: start_repository.gitaly_repository
+          start_repository: start_repository.gitaly_repository,
+          force: force
         )
       end
+      # rubocop:enable Metrics/ParameterLists
 
       def user_commit_files_action_header(action)
         Gitaly::UserCommitFilesActionHeader.new(
           action: action[:action].upcase.to_sym,
           file_path: encode_binary(action[:file_path]),
           previous_path: encode_binary(action[:previous_path]),
-          base64_content: action[:encoding] == 'base64'
+          base64_content: action[:encoding] == 'base64',
+          execute_filemode: !!action[:execute_filemode],
+          infer_content: !!action[:infer_content]
         )
       rescue RangeError
         raise ArgumentError, "Unknown action '#{action[:action]}'"

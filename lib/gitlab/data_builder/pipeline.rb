@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Gitlab
   module DataBuilder
     module Pipeline
@@ -26,7 +28,8 @@ module Gitlab
           stages: pipeline.stages_names,
           created_at: pipeline.created_at,
           finished_at: pipeline.finished_at,
-          duration: pipeline.duration
+          duration: pipeline.duration,
+          variables: pipeline.variables.map(&:hook_attrs)
         }
       end
 
@@ -44,7 +47,7 @@ module Gitlab
           user: build.user.try(:hook_attrs),
           runner: build.runner && runner_hook_attrs(build.runner),
           artifacts_file: {
-            filename: build.artifacts_file.filename,
+            filename: build.artifacts_file&.filename,
             size: build.artifacts_size
           }
         }

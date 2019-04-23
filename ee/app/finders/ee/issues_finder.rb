@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 module EE
   module IssuesFinder
     extend ActiveSupport::Concern
     extend ::Gitlab::Utils::Override
     include ::Gitlab::Utils::StrongMemoize
 
-    module ClassMethods
+    class_methods do
       extend ::Gitlab::Utils::Override
 
       override :scalar_params
@@ -20,6 +22,7 @@ module EE
 
     private
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def by_weight(items)
       return items unless weights?
 
@@ -31,17 +34,18 @@ module EE
         items.where(weight: params[:weight])
       end
     end
+    # rubocop: enable CodeReuse/ActiveRecord
 
     def weights?
       params[:weight].present? && params[:weight] != ::Issue::WEIGHT_ALL
     end
 
     def filter_by_no_weight?
-      params[:weight] == ::Issue::WEIGHT_NONE
+      params[:weight].to_s.downcase == ::IssuesFinder::FILTER_NONE
     end
 
     def filter_by_any_weight?
-      params[:weight] == ::Issue::WEIGHT_ANY
+      params[:weight].to_s.downcase == ::IssuesFinder::FILTER_ANY
     end
 
     override :by_assignee
@@ -57,6 +61,7 @@ module EE
       super
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def assignees
       strong_memoize(:assignees) do
         if params[:assignee_ids]
@@ -68,5 +73,6 @@ module EE
         end
       end
     end
+    # rubocop: enable CodeReuse/ActiveRecord
   end
 end
