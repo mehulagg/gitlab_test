@@ -10,7 +10,7 @@ milestones.
 
 ## Use cases
 
-- Track a group of issues together that contribute to a single feature.
+- Suppose your team is working on a large feature that involves multiple discussions throughout different issues created in distinct projects within a [Group][/user/group]. With Epics, you can track all the related activities that together contribute to that single feature.
 - Track when the work for the group of issues is targeted to begin, and when it is targeted to end.
 - Discuss and collaborate on feature ideas and scope at a high-level.
 
