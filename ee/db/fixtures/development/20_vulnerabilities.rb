@@ -1,8 +1,4 @@
-<<<<<<< HEAD:ee/db/fixtures/development/20_vulnerabilities.rb
-#require './spec/support/sidekiq_middleware'
-=======
-require './spec/support/sidekiq'
->>>>>>> Try requiring sidekiq again:db/fixtures/development/20_vulnerabilities.rb
+# require './spec/support/sidekiq_middleware'
 
 class Gitlab::Seeder::Vulnerabilities
   attr_reader :project
