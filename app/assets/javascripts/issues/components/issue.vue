@@ -114,7 +114,7 @@ export default {
                 :title="__('Confidential')"
                 :aria-label="__('Confidential')"
               >
-                <Icon name="eye-slash" class="align-text-bottom" />
+                <icon name="eye-slash" class="align-text-bottom js-issue-confidential-icon" />
               </span>
               <a :href="issue.web_url">{{ issue.title }}</a>
               <span v-if="issue.has_tasks" class="task-status d-none d-sm-inline-block">
@@ -126,7 +126,7 @@ export default {
           <div class="issuable-info">
             <span class="issuable-reference">{{ issue.reference_path }}</span>
             <span class="issuable-authored d-none d-sm-inline-block">
-              &middot; opened
+              &middot; {{ __('opened') }}
               <time-ago-tooltip :time="issue.created_at" tooltip-placement="bottom" />
               by
               <a
@@ -188,7 +188,7 @@ export default {
         </div>
         <div class="issuable-meta">
           <ul class="controls">
-            <li v-if="issueIsClosed" class="issuable-status">CLOSED</li>
+            <li v-if="issueIsClosed" class="issuable-status">{{ __('CLOSED') }}</li>
             <li v-if="issue.assignees.length">
               <user-avatar-link
                 v-for="assignee in assigneesToRender"
