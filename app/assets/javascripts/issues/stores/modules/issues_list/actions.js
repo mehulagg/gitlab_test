@@ -42,3 +42,6 @@ export const setCurrentPage = ({ commit }, value) => {
 export const setTotalItems = ({ commit }, value) => {
   commit(types.SET_TOTAL_ITEMS, value);
 };
+
+// prevent babel-plugin-rewire from generating an invalid default during karma tests
+export default () => {};

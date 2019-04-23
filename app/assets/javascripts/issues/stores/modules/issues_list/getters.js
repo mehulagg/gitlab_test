@@ -25,4 +25,5 @@ export const hasFilters = state => {
 export const appliedFilters = state => state.filters;
 export const currentPage = state => state.currentPage;
 
+// prevent babel-plugin-rewire from generating an invalid default during karma tests
 export default () => {};
