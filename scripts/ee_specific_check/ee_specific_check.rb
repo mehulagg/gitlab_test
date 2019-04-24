@@ -150,7 +150,7 @@ module EESpecificCheck
     'doc/migrate_ci_to_ce/**/*',
     'doc/project_services/**/*',
     'doc/policy/**/*',
-    'doc/update/**/*',
+    #'doc/update/**/*',
     'doc/permissions/**/*',
     'doc/logs/**/*',
     'doc/tools/**/*',
