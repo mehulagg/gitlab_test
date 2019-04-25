@@ -1,0 +1,5 @@
+---
+title: Fix protected branch access inherited from parent group
+merge_request: 11616
+author:
+type: fixed

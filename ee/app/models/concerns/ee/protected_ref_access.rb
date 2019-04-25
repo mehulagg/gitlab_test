@@ -72,7 +72,7 @@ module EE
     def check_access(user)
       return true if user.admin?
       return user.id == self.user_id if self.user.present?
-      return group.users.exists?(user.id) if self.group.present?
+      return group.users_with_parents.exists?(user.id) if self.group.present?
 
       super
     end

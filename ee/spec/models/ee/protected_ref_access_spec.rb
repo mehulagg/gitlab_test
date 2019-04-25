@@ -85,6 +85,34 @@ describe EE::ProtectedRefAccess do
 
           expect(access_level).to be_valid
         end
+
+        # This tests the following case:
+        #
+        # 1. A subgroup `hello/world`
+        # 2. A subgroup `hello/mergers`
+        # 3. Project `hello/world/my-project` has invited group `hello/world` to access protected branches.
+        # 4. User `newuser` has Owner access to the parent group `hello`.
+        #
+        # Even though `newuser` doesn't belong to `hello/world`, the
+        # user does belong to `hello`, and so should have permission to
+        # access protected branches. Besides, the user can't be added
+        # directly to `hello/world` because he is already an Owner.
+        it 'allows users access through invited subgroups' do
+          new_user = create(:user)
+          parent = create(:group)
+          subgroup_with_perms = create(:group, parent: parent)
+          subgroup_with_project = create(:group, parent: parent)
+          create(:project_group_link, project: project, group: subgroup_with_perms)
+
+          parent.add_owner(new_user)
+          project.group = subgroup_with_project
+          project.save
+
+          access_level.group = subgroup_with_perms
+
+          expect(access_level).to be_valid
+          expect(access_level.check_access(new_user)).to be_truthy
+        end
       end
 
       it 'requires access_level if no user or group is specified' do
