@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190416185130) do
+ActiveRecord::Schema.define(version: 20190418183045) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1943,6 +1943,15 @@ ActiveRecord::Schema.define(version: 20190416185130) do
     t.index ["merge_request_id"], name: "index_merge_requests_closing_issues_on_merge_request_id", using: :btree
   end
 
+  create_table "merge_trains", force: :cascade do |t|
+    t.integer "project_id", null: false
+    t.integer "merge_request_id", null: false
+    t.string "target_branch", null: false
+    t.integer "iid", null: false
+    t.index ["project_id", "merge_request_id"], name: "index_merge_trains_on_project_id_and_merge_request_id", unique: true, using: :btree
+    t.index ["project_id", "target_branch", "iid"], name: "index_merge_trains_on_project_id_and_target_branch_and_iid", unique: true, using: :btree
+  end
+
   create_table "milestones", id: :serial, force: :cascade do |t|
     t.string "title", null: false
     t.integer "project_id"
@@ -3623,6 +3632,8 @@ ActiveRecord::Schema.define(version: 20190416185130) do
   add_foreign_key "merge_requests", "users", column: "updated_by_id", name: "fk_641731faff", on_delete: :nullify
   add_foreign_key "merge_requests_closing_issues", "issues", on_delete: :cascade
   add_foreign_key "merge_requests_closing_issues", "merge_requests", on_delete: :cascade
+  add_foreign_key "merge_trains", "merge_requests", on_delete: :cascade
+  add_foreign_key "merge_trains", "projects", on_delete: :cascade
   add_foreign_key "milestones", "namespaces", column: "group_id", name: "fk_95650a40d4", on_delete: :cascade
   add_foreign_key "milestones", "projects", name: "fk_9bd0a0c791", on_delete: :cascade
   add_foreign_key "namespace_statistics", "namespaces", on_delete: :cascade
