@@ -5321,6 +5321,9 @@ msgstr ""
 msgid "FeatureFlags|Try again in a few moments or contact your support team."
 msgstr ""
 
+msgid "Features"
+msgstr ""
+
 msgid "Feb"
 msgstr ""
 
@@ -6461,6 +6464,9 @@ msgid "Help page text and support page url."
 msgstr ""
 
 msgid "Hide archived projects"
+msgstr ""
+
+msgid "Hide avatar, license and features settings"
 msgstr ""
 
 msgid "Hide file browser"
@@ -8645,6 +8651,9 @@ msgid "One or more of your Bitbucket projects cannot be imported into GitLab dir
 msgstr ""
 
 msgid "One or more of your Google Code projects cannot be imported into GitLab directly because they use Subversion or Mercurial for version control, rather than Git."
+msgstr ""
+
+msgid "Only Project Members"
 msgstr ""
 
 msgid "Only admins"
@@ -11355,6 +11364,9 @@ msgstr ""
 msgid "Share"
 msgstr ""
 
+msgid "Share code pastes with others out of Git repository"
+msgstr ""
+
 msgid "Share the <strong>%{sso_label}</strong> with members so they can sign in to your group through your identity provider"
 msgstr ""
 
@@ -11383,6 +11395,9 @@ msgid "Show archived projects"
 msgstr ""
 
 msgid "Show archived projects only"
+msgstr ""
+
+msgid "Show avatar, license and features settings"
 msgstr ""
 
 msgid "Show command"
@@ -13830,6 +13845,9 @@ msgid "Verified"
 msgstr ""
 
 msgid "Version"
+msgstr ""
+
+msgid "View and edit files in this project"
 msgstr ""
 
 msgid "View app"
