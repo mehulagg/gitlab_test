@@ -1,0 +1,4 @@
+- if Feature.enabled?(:bill_of_materials, default_enabled: false)
+  = nav_link(path: 'projects/security/dependencies#show') do
+    = link_to project_security_dependencies_path(@project), title: _('Dependency List'), class: 'shortcuts-project-dependencies' do
+      %span= _('Dependency List')

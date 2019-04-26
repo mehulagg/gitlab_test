@@ -452,6 +452,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       # EE-specific start
       namespace :security do
         resource :dashboard, only: [:show], controller: :dashboard
+        resource :dependencies, only: [:show]
       end
       # EE-specific end
 

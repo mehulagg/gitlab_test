@@ -8,6 +8,7 @@ module EE
     def sidebar_projects_paths
       super + %w[
         projects/security/dashboard#show
+        projects/security/dependencies#show
         projects/insights#show
       ]
     end
