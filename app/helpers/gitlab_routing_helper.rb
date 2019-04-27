@@ -113,7 +113,7 @@ module GitlabRoutingHelper
   end
 
   def leave_project_members_path(project, *args)
-    leave_project_project_members_path(project)
+    leave_project_project_members_path(project, *args)
   end
 
   def leave_project_members_url(project, *args)
@@ -144,7 +144,7 @@ module GitlabRoutingHelper
   end
 
   def leave_group_members_path(group, *args)
-    leave_group_group_members_path(group)
+    leave_group_group_members_path(group, *args)
   end
 
   def leave_group_members_url(group, *args)

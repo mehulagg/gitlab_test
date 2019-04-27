@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190426180107) do
+ActiveRecord::Schema.define(version: 20190427153608) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -3263,6 +3263,7 @@ ActiveRecord::Schema.define(version: 20190426180107) do
     t.integer "group_view"
     t.integer "managing_group_id"
     t.integer "bot_type", limit: 2
+    t.string "email_token"
     t.index ["accepted_term_id"], name: "index_users_on_accepted_term_id", using: :btree
     t.index ["admin"], name: "index_users_on_admin", using: :btree
     t.index ["bot_type"], name: "index_users_on_bot_type", using: :btree
@@ -3270,6 +3271,7 @@ ActiveRecord::Schema.define(version: 20190426180107) do
     t.index ["created_at"], name: "index_users_on_created_at", using: :btree
     t.index ["email"], name: "index_users_on_email", unique: true, using: :btree
     t.index ["email"], name: "index_users_on_email_trigram", using: :gin, opclasses: {"email"=>"gin_trgm_ops"}
+    t.index ["email_token"], name: "index_users_on_email_token", using: :btree
     t.index ["feed_token"], name: "index_users_on_feed_token", using: :btree
     t.index ["ghost"], name: "index_users_on_ghost", using: :btree
     t.index ["group_view"], name: "index_users_on_group_view", using: :btree

@@ -56,9 +56,9 @@ describe 'Groups > Members > Leave group' do
     expect(find(:css, '.project-members-page li', text: user.name)).not_to have_selector(:css, 'a.btn-remove')
   end
 
-  it 'user leaves group visiting link directly' do
+  it 'user leaves group visiting link directly with email_token' do
     group.add_guest(user)
-    visit leave_group_members_path(group)
+    visit leave_group_members_path(group, email_token: user.email_token)
 
     expect(current_path).to eq(dashboard_groups_path)
     expect(group.users.exists?(user.id)).to be_falsey

@@ -46,6 +46,16 @@ class ProfilesController < Profiles::ApplicationController
     redirect_to profile_personal_access_tokens_path
   end
 
+  def reset_email_token
+    Users::UpdateService.new(current_user, user: @user).execute! do |user|
+      user.reset_email_token!
+    end
+
+    flash[:notice] = 'Email token was successfully reset'
+
+    redirect_to profile_personal_access_tokens_path
+  end
+
   # rubocop: disable CodeReuse/ActiveRecord
   def audit_log
     @events = AuditEvent.where(entity_type: "User", entity_id: current_user.id)

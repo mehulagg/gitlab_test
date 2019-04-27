@@ -4,6 +4,10 @@ module MembershipActions
   include MembersPresentation
   extend ActiveSupport::Concern
 
+  included do
+    before_action :authenticate_email_token, only: [:leave]
+  end
+
   def create
     create_params = params.permit(:user_ids, :access_level, :expires_at)
     result = Members::CreateService.new(current_user, create_params).execute(membershipable)
@@ -104,6 +108,13 @@ module MembershipActions
   end
 
   protected
+
+  def authenticate_email_token
+    return unless request.get?
+    return redirect_to_login_or_register unless current_user
+    return access_denied!(_('Email token authentication failed: No token provided.'), 401) unless params[:email_token]
+    return access_denied!(_('Email token authentication failed: Invalid token provided.'), 401) unless current_user.email_token_matches?(params[:email_token])
+  end
 
   def membershipable
     raise NotImplementedError

@@ -30,6 +30,7 @@ class User < ApplicationRecord
 
   add_authentication_token_field :incoming_email_token, token_generator: -> { SecureRandom.hex.to_i(16).to_s(36) }
   add_authentication_token_field :feed_token
+  add_authentication_token_field :email_token
 
   default_value_for :admin, false
   default_value_for(:external) { Gitlab::CurrentSettings.user_default_external }
@@ -1383,6 +1384,10 @@ class User < ApplicationRecord
   # solution.
   def feed_token
     ensure_feed_token!
+  end
+
+  def email_token
+    ensure_email_token!
   end
 
   def sync_attribute?(attribute)

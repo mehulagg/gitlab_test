@@ -18,8 +18,8 @@ describe 'Projects > Members > Member leaves project' do
     expect(project.users.exists?(user.id)).to be_falsey
   end
 
-  it 'user leaves project visiting link directly' do
-    visit leave_project_members_path(project)
+  it 'user leaves project visiting link directly with an email_token' do
+    visit leave_project_members_path(project, email_token: user.email_token)
 
     expect(current_path).to eq(dashboard_projects_path)
     expect(project.users.exists?(user.id)).to be_falsey

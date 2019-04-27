@@ -896,6 +896,16 @@ describe User do
     end
   end
 
+  describe '#email_token' do
+    it 'ensures an email token on read' do
+      user = create(:user, email_token: nil)
+      email_token = user.email_token
+
+      expect(email_token).not_to be_blank
+      expect(user.reload.email_token).to eq email_token
+    end
+  end
+
   describe '#recently_sent_password_reset?' do
     it 'is false when reset_password_sent_at is nil' do
       user = build_stubbed(:user, reset_password_sent_at: nil)

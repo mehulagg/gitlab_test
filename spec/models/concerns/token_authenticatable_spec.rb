@@ -12,12 +12,24 @@ shared_examples 'TokenAuthenticatable' do
 end
 
 describe User, 'TokenAuthenticatable' do
-  let(:token_field) { :feed_token }
-  it_behaves_like 'TokenAuthenticatable'
+  describe 'feed_token' do
+    let(:token_field) { :feed_token }
+    it_behaves_like 'TokenAuthenticatable'
 
-  describe 'ensures authentication token' do
-    subject { create(:user).send(token_field) }
-    it { is_expected.to be_a String }
+    describe 'ensures authentication token' do
+      subject { create(:user).send(token_field) }
+      it { is_expected.to be_a String }
+    end
+  end
+
+  describe 'email_token' do
+    let(:token_field) { :email_token }
+    it_behaves_like 'TokenAuthenticatable'
+
+    describe 'ensures authentication token' do
+      subject { create(:user).send(token_field) }
+      it { is_expected.to be_a String }
+    end
   end
 end
 

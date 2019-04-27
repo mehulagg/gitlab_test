@@ -38,6 +38,24 @@
       = link_to 'reset it', [:reset, :feed_token, :profile], method: :put, data: { confirm: 'Are you sure? Any RSS or calendar URLs currently in use will stop working.' }
       if that ever happens.
 
+%hr
+.row.prepend-top-default
+  .col-lg-4.profile-settings-sidebar
+    %h4.prepend-top-0
+      Email token
+    %p
+      Your email token is used to authenticate you when you click a link in an email that needs authentication.
+    %p
+      It cannot be used to access any other data.
+  .col-lg-8.email-token-reset
+    = label_tag :email_token, 'Feed token', class: "label-bold"
+    = text_field_tag :email_token, current_user.email_token, class: 'form-control', readonly: true, onclick: 'this.select()'
+    %p.form-text.text-muted
+      Keep this token secret. Anyone who gets ahold of it can perform certain actions as if they were you.
+      You should
+      = link_to 'reset it', [:reset, :email_token, :profile], method: :put, data: { confirm: 'Are you sure? Any previously received email links that require authentication will stop working.' }
+      if that ever happens.
+
 - if incoming_email_token_enabled?
   %hr
   .row.prepend-top-default
