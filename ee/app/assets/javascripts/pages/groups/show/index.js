@@ -1,10 +1,8 @@
-import initGroupDetails from '~/pages/groups/shared/group_details';
 import initSecurityDashboard from 'ee/security_dashboard/index';
+import '~/pages/groups/show';
 
 document.addEventListener('DOMContentLoaded', () => {
   if (document.querySelector('#js-group-security-dashboard')) {
     initSecurityDashboard();
-  } else {
-    initGroupDetails();
   }
 });
