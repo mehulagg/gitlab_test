@@ -1,6 +1,6 @@
 import mockData, { mockStore } from 'spec/vue_mr_widget/mock_data';
 
-export default Object.assign(mockData, {
+export default Object.assign({}, mockData, {
   codeclimate: {
     head_path: 'head.json',
     base_path: 'base.json',
