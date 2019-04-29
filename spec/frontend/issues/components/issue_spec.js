@@ -179,18 +179,45 @@ describe('Issue component', () => {
 
       factory({ issue });
 
-      const issuedownvotes = wrapper.find('.issuable-downvotes');
+      const issueDownvotes = wrapper.find('.issuable-downvotes');
 
-      expect(issuedownvotes.exists()).toBe(false);
+      expect(issueDownvotes.exists()).toBe(false);
     });
 
     it('renders downvotes count', () => {
       factory({ issue });
 
-      const issuedownvotes = wrapper.find('.issuable-downvotes');
+      const issueDownvotes = wrapper.find('.issuable-downvotes');
 
-      expect(issuedownvotes.exists()).toBe(true);
-      expect(issuedownvotes.text()).toBe(issue.downvotes);
+      expect(issueDownvotes.exists()).toBe(true);
+      expect(issueDownvotes.text()).toBe(issue.downvotes);
+    });
+  });
+
+  describe('Issue comments', () => {
+    let issue;
+
+    beforeEach(() => {
+      issue = { ...singleIssueData };
+      issue.note_count = '5';
+    });
+
+
+    it('renders 0 if the issue has no comments', () => {
+      issue.note_count = null;
+  
+      factory({ issue });
+  
+      const issueComments = wrapper.find('.issuable-comments');
+  
+      expect(issueComments.text()).toBe('0');
+    });
+
+    it('renders issue comments count', () => {  
+      factory({ issue });
+  
+      const issueComments = wrapper.find('.issuable-comments');
+      expect(issueComments.text()).toBe(issue.note_count);
     });
   });
 });
