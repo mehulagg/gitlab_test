@@ -7,6 +7,8 @@ Rails.application.configure do |config|
     case opts[:event]
     when :authentication
       activity.user_authenticated!
+      #auth.request.controller_class
+      #auth.winning_strategy.authentication_type
     when :set_user
       activity.user_authenticated!
       activity.user_session_override!

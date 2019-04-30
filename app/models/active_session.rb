@@ -33,6 +33,8 @@ class ActiveSession
         created_at: user.current_sign_in_at || timestamp,
         updated_at: timestamp,
         session_id: session_id,
+        # source: somehow determine source,
+        # sso_state: session[:sso_state]
         is_impersonated: request.session[:impersonator_id].present?
       )
 

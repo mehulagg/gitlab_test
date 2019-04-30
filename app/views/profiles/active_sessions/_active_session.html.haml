@@ -23,3 +23,7 @@
       %strong Signed in
       on
       = l(active_session.created_at, format: :short)
+
+    %div
+      %strong Via
+      = l(active_session.source, format: :short)
