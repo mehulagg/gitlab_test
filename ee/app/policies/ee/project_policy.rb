@@ -200,7 +200,7 @@ module EE
       end
 
       condition(:needs_new_sso_session) do
-        ::Gitlab::Auth::GroupSaml::SsoEnforcer.group_access_restricted?(subject.group)
+        ::Gitlab::Auth::GroupSaml::SsoEnforcer.group_access_restricted?(subject.group, @user)
       end
 
       rule { web_ide_terminal_available & can?(:create_pipeline) & can?(:maintainer_access) }.enable :create_web_ide_terminal

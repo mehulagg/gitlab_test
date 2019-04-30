@@ -14,23 +14,28 @@ module Gitlab
           SsoState.new(saml_provider.id).update_active(DateTime.now)
         end
 
-        def active_session?
-          SsoState.new(saml_provider.id).active?
+        def active_session?(user)
+          SsoState.new(saml_provider.id).active?(user)
         end
 
-        def access_restricted?
-          saml_enforced? && !active_session? && ::Feature.enabled?(:enforced_sso_requires_session, group)
+        def access_restricted?(user)
+          saml_enforced? && !active_session?(user) && ::Feature.enabled?(:enforced_sso_requires_session, group)
         end
 
-        def self.group_access_restricted?(group)
-          return false unless ::Feature.enabled?(:enforced_sso_requires_session, group)
+
+        def self.clear
+          SsoState.clear_sign_ins
+        end
+
+        def self.group_access_restricted?(group, user)
           return false unless group
+          return false unless ::Feature.enabled?(:enforced_sso_requires_session, group)
 
           saml_provider = group&.root_ancestor&.saml_provider
 
           return false unless saml_provider
 
-          new(saml_provider).access_restricted?
+          new(saml_provider).access_restricted?(user)
         end
 
         private

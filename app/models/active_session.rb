@@ -92,6 +92,17 @@ class ActiveSession
     "#{Gitlab::Redis::SharedState::USER_SESSIONS_LOOKUP_NAMESPACE}:#{user_id}"
   end
 
+  def self.list_sessions(user)
+    Gitlab::Redis::SharedState.with do |redis|
+      session_ids = redis.smembers(lookup_key_name(user.id))
+
+      session_keys = session_ids.map { |session_id| "#{Gitlab::Redis::SharedState::SESSION_NAMESPACE}:#{session_id}" }
+      return [] if session_keys.empty?
+
+      sessions = redis.mget(session_keys).compact.map{|raw_session| Marshal.load(raw_session) }
+    end
+  end
+
   def self.cleaned_up_lookup_entries(redis, user_id)
     lookup_key = lookup_key_name(user_id)
 

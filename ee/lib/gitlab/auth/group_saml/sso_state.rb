@@ -12,8 +12,20 @@ module Gitlab
           @saml_provider_id = saml_provider_id
         end
 
-        def active?
-          !session_available? || active_session_data[saml_provider_id]
+        def active?(user)
+          if session_available?
+            session_active?
+          else
+            background_sso_session?
+          end
+        end
+
+        def session_active?
+          active_session_data[saml_provider_id]
+        end
+
+        def background_sso_session?
+          background_session_state(user)[saml_provider_id]
         end
 
         def update_active(value)
@@ -28,6 +40,24 @@ module Gitlab
 
         def session_available?
           active_session_data.initiated?
+        end
+
+        def self.background_session_state(user)
+          combine_most_recent(all_states(user)) || {}
+        end
+
+        def self.all_states(user)
+          ActiveSession.list_sessions(user)
+                       .map{|session| session[SESSION_STORE_KEY.to_s]}
+                       .compact
+        end
+
+        def self.combine_most_recent(sessions)
+          sessions.compact.inject do |memo, session|
+            memo.merge(session) do |_, first_date, second_date|
+              [first_date, second_date].max
+            end
+          end
         end
       end
     end
