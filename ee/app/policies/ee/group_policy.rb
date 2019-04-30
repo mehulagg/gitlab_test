@@ -120,7 +120,7 @@ module EE
       return false unless subject.persisted?
       return false if user&.admin?
 
-      ::Gitlab::Auth::GroupSaml::SsoEnforcer.group_access_restricted?(subject)
+      ::Gitlab::Auth::GroupSaml::SsoEnforcer.group_access_restricted?(subject, user)
     end
   end
 end

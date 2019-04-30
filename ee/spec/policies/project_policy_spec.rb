@@ -257,8 +257,20 @@ describe ProjectPolicy do
       end
 
       context 'when there is no global session or sso state' do
-        it "allows access because we haven't yet restricted all use cases" do
-          is_expected.to be_allowed(:read_project)
+        context 'with background SAML session' do
+          before do
+            allow_any_instance_of(Gitlab::Auth::GroupSaml::SsoState).to receive(:background_sso_session?).and_return(true)
+          end
+
+          it 'allows access' do
+            is_expected.to be_allowed(:read_project)
+          end
+        end
+
+        context 'without background SAML session' do
+          it 'prevents access' do
+            is_expected.not_to be_allowed(:read_project)
+          end
         end
       end
     end

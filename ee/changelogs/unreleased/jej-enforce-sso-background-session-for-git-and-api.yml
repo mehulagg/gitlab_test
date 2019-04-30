@@ -1,0 +1,5 @@
+---
+title: SAML SSO enforcement applies to access over Git and API
+merge_request: 12594
+author:
+type: added

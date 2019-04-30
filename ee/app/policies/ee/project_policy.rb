@@ -227,7 +227,7 @@ module EE
       end
 
       condition(:needs_new_sso_session) do
-        ::Gitlab::Auth::GroupSaml::SsoEnforcer.group_access_restricted?(subject.group)
+        ::Gitlab::Auth::GroupSaml::SsoEnforcer.group_access_restricted?(subject.group, @user)
       end
 
       condition(:ip_enforcement_prevents_access) do

@@ -12,8 +12,20 @@ module Gitlab
           @saml_provider_id = saml_provider_id
         end
 
-        def active?
-          !session_available? || active_session_data[saml_provider_id]
+        def active?(user, skip_background_session_check: false)
+          if session_available?
+            session_active?
+          else
+            skip_background_session_check || background_sso_session?(user)
+          end
+        end
+
+        def session_active?
+          active_session_data[saml_provider_id]
+        end
+
+        def background_sso_session?(user)
+          BackgroundSsoState.new(user).most_recent(saml_provider_id)
         end
 
         def update_active(value)
