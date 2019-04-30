@@ -89,10 +89,14 @@ module EE
 
         state_machine :status do
           after_transition any => ::Ci::Pipeline.completed_statuses do |pipeline|
-            next unless pipeline.has_reports?(::Ci::JobArtifact.security_reports) && pipeline.default_branch?
-
             pipeline.run_after_commit do
-              StoreSecurityReportsWorker.perform_async(pipeline.id)
+              if pipeline.has_reports?(::Ci::JobArtifact.security_reports) && pipeline.default_branch?
+                StoreSecurityReportsWorker.perform_async(pipeline.id)
+              end
+
+              if pipeline.triggered_by_merge_request?
+                MergeTrain.process_async(pipeline.merge_request)
+              end
             end
           end
 

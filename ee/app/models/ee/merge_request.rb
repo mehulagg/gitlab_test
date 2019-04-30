@@ -44,6 +44,12 @@ module EE
       participant :participant_approvers
 
       accepts_nested_attributes_for :approval_rules, allow_destroy: true
+
+      state_machine :state, initial: :opened do
+        after_transition any => [:merged, :closed] do |merge_request|
+          merge_request.run_after_commit { MergeTrain.process_async(merge_request) }
+        end
+      end
     end
 
     class_methods do

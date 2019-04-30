@@ -93,6 +93,7 @@
   - [update_project_statistics, 1]
 
   # EE-specific queues
+  - [merge_train, 3]
   - [ldap_group_sync, 2]
   - [create_github_webhook, 2]
   - [geo, 1]

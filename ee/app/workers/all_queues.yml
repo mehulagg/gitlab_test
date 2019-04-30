@@ -42,6 +42,8 @@
 - geo:geo_scheduler_primary_scheduler
 - geo:geo_scheduler_secondary_scheduler
 
+- merge_train:merge_trains_process
+
 - pipeline_default:store_security_reports
 - pipeline_default:ci_create_cross_project_pipeline
 - pipeline_default:ci_pipeline_bridge_status
