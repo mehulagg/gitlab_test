@@ -2,6 +2,9 @@ import { shallowMount } from '@vue/test-utils';
 import UninstallApplicationConfirmationModal from '~/clusters/components/uninstall_application_confirmation_modal.vue';
 import { GlModal } from '@gitlab/ui';
 import { INGRESS } from '~/clusters/constants';
+import stats from 'ee/stats';
+
+jest.mock('ee/stats');
 
 describe('UninstallApplicationConfirmationModal', () => {
   let wrapper;
@@ -29,10 +32,18 @@ describe('UninstallApplicationConfirmationModal', () => {
     expect(wrapper.find(GlModal).attributes('ok-title')).toEqual(`Uninstall ${appTitle}`);
   });
 
-  it('triggers confirm event when ok button is clicked', () => {
-    wrapper.find(GlModal).vm.$emit('ok');
+  describe('when ok button is clicked', () => {
+    beforeEach(() => {
+      wrapper.find(GlModal).vm.$emit('ok');
+    });
 
-    expect(wrapper.emitted('confirm')).toBeTruthy();
+    it('triggers confirm event when ok button is clicked', () => {
+      expect(wrapper.emitted('confirm')).toBeTruthy();
+    });
+
+    it('tracks event using stats package', () => {
+      expect(stats.trackEvent).toHaveBeenCalledWith('k8s_cluster', 'uninstall', { label: INGRESS });
+    });
   });
 
   it('displays a warning text indicating the app will be uninstalled', () => {

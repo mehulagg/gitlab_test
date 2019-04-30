@@ -2,6 +2,7 @@
 import { GlModal } from '@gitlab/ui';
 import { sprintf, s__ } from '~/locale';
 import { INGRESS, CERT_MANAGER, PROMETHEUS, RUNNER, KNATIVE, JUPYTER } from '../constants';
+import stats from 'ee/stats';
 
 const CUSTOM_APP_WARNING_TEXT = {
   [INGRESS]: s__(
@@ -54,6 +55,12 @@ export default {
       return `uninstall-${this.application}`;
     },
   },
+  methods: {
+    confirmUninstall() {
+      stats.trackEvent('k8s_cluster', 'uninstall', { label: this.application });
+      this.$emit('confirm');
+    },
+  },
 };
 </script>
 <template>
@@ -64,7 +71,7 @@ export default {
     :ok-title="okButtonLabel"
     :modal-id="modalId"
     :title="title"
-    @ok="$emit('confirm')"
+    @ok="confirmUninstall()"
     >{{ warningText }} {{ customAppWarningText }}</gl-modal
   >
 </template>
