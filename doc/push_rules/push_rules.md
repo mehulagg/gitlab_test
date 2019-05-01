@@ -44,6 +44,13 @@ branch names globally in Push Rules, you can now sleep without the anxiety
 of your developers' mistakes. Every branch that doesn't match your push rule
 will get rejected.
 
+Note that your default branch is always allowed, regardless of the branch name
+regular expression (regex) specified. GitLab is configured this way
+because typically, merges have the default branch as their target.
+If you have a different target branch, include it in your regex. (See [Enabling push rules](#enabling-push-rules.)
+The default branch is a [protected branch](../user/project/protected_branches.md) by default, which already limits users to
+push directly.
+
 ## Enabling push rules
 
 >**Note:**
@@ -66,7 +73,7 @@ The following options are available.
 | Prevent committing secrets to Git | **Starter** 8.12 | GitLab will reject any files that are likely to contain secrets. Read [what files are forbidden](#prevent-pushing-secrets-to-the-repository). |
 | Restrict by commit message | **Starter** 7.10 | Only commit messages that match this regular expression are allowed to be pushed. Leave empty to allow any commit message. Uses multiline mode, which can be disabled using `(?-m)`. |
 | Restrict by commit message (negative match)| **Starter** 11.1 | Only commit messages that do not match this regular expression are allowed to be pushed. Leave empty to allow any commit message. Uses multiline mode, which can be disabled using `(?-m)`. |
-| Restrict by branch name | **Starter** 9.3 | Only branch names that match this regular expression are allowed to be pushed. Leave empty to allow any branch name. |
+| Restrict by branch name | **Starter** 9.3 | Only branch names that match this regular expression are allowed to be pushed. Leave empty to allow any branch name. The default branch is always allowed. |
 | Restrict by commit author's email | **Starter** 7.10 | Only commit author's email that match this regular expression are allowed to be pushed. Leave empty to allow any email. |
 | Prohibited file names | **Starter** 7.10 | Any committed filenames that match this regular expression are not allowed to be pushed. Leave empty to allow any filenames. |
 | Maximum file size | **Starter** 7.12 | Pushes that contain added or updated files that exceed this file size (in MB) are rejected. Set to 0 to allow files of any size. |
