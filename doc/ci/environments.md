@@ -615,7 +615,7 @@ versions of the app, all without leaving GitLab.
 
 #### Link to external dashboard
 
-Add a [button to the Monitoring dashboard](../user/project/operations/external_dashboard.md) linking directly to your existing external dashboards.
+Add a [button to the Monitoring dashboard](../user/project/operations/link_to_external_dashboard.md) linking directly to your existing external dashboards.
 
 ### Web terminals
 
