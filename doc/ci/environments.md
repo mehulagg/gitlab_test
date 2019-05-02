@@ -613,18 +613,9 @@ versions of the app, all without leaving GitLab.
 
 ![Monitoring dashboard](img/environments_monitoring.png)
 
-#### Link to external dashboard **[CORE]**
+#### Link to external dashboard
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/57171) in GitLab 11.11.
-
-You can add a link to an external dashboard on the monitoring dashboard.
-
-1. Go to **Settings > Operations** and scroll to the section titled **External dashboard**.
-
-1. Fill in the URL to your external dashboard and click **Save changes**.
-
-1. There should now be a button on your Monitoring dashboard which will open the
-URL you entered in the above step.
+Add a [button to the Monitoring dashboard](../user/project/operations/external_dashboard.md) linking directly to your existing external dashboards.
 
 ### Web terminals
 
