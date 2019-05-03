@@ -33,11 +33,19 @@ module Gitlab
       end
 
       def reschedule_immediately?
-        available_spots = available_capacity
-        return false if available_spots < capacity_threshold
+        # This method is called rather frequently by multiple concurrent jobs
+        # We cache the result for a few seconds in order to reduce the query frequency
+        # for .mirrors_ready_to_sync_count below
+        Rails.cache.fetch('project/mirrors_reschedule_immediately', expires_in: 10.seconds) do
+          available_spots = available_capacity
 
-        # Only reschedule if we are able to completely fill up the available spots.
-        mirrors_ready_to_sync_count >= available_spots
+          if available_spots < capacity_threshold
+            false
+          else
+            # Only reschedule if we are able to completely fill up the available spots.
+            mirrors_ready_to_sync_count >= available_spots
+          end
+        end
       end
 
       def mirrors_ready_to_sync_count
