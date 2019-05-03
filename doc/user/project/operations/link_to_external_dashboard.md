@@ -10,5 +10,6 @@ You can add a button to the Monitoring dashboard linking directly to your existi
 
 1. Fill in the URL to your external dashboard and click **Save changes**.
 
-1. There should now be a button on your Monitoring dashboard which will open the
-URL you entered in the above step.
+1. There should now be a button on your
+[Monitoring dashboard](../../../ci/environments.md#monitoring-environments) which
+will open the URL you entered in the above step.
