@@ -43,13 +43,15 @@ module Gitlab
             false
           else
             # Only reschedule if we are able to completely fill up the available spots.
-            mirrors_ready_to_sync_count >= available_spots
+            mirrors_ready_to_sync_count(available_spots+1) >= available_spots
           end
         end
       end
 
-      def mirrors_ready_to_sync_count
-        Project.mirrors_to_sync(Time.now).count
+      def mirrors_ready_to_sync_count(up_to = nil)
+        # The limit is a query optimization here so that we stop the counting
+        # after having reached the limit
+        Project.mirrors_to_sync(Time.now).limit(up_to).count
       end
 
       def available_capacity
