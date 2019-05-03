@@ -2389,6 +2389,9 @@ msgstr ""
 msgid "CiVariables|Remove variable row"
 msgstr ""
 
+msgid "CiVariables|Scope"
+msgstr ""
+
 msgid "CiVariables|State"
 msgstr ""
 
