@@ -95,7 +95,7 @@ export default {
               data-html="true"
               class="d-xl-none"
               />
-            <span  v-tooltip :title="itemPath" class="path-id-text d-inline-block">{{ itemPath }}this is an unreasonably long project path</span>
+            <span  v-tooltip :title="itemPath" class="path-id-text d-inline-block">{{ itemPath }}</span>
             <span>{{ pathIdSeparator }}{{ itemId }}</span>
           </div>
 
