@@ -49,7 +49,9 @@ export default {
     class="item-body d-flex align-items-center p-2 p-lg-3 p-xl-2 pl-xl-3"
   >
     <div class="item-contents d-flex align-items-center flex-wrap flex-grow-1 flex-xl-nowrap">
-      <div class="item-title d-flex align-items-center mb-1 mb-xl-0">
+
+      <!-- Title area: Status icon (XL) and title -->
+      <div class="item-title d-flex align-items-center mb-xl-0">
         <icon
           v-if="hasState"
           v-tooltip
@@ -71,49 +73,64 @@ export default {
         />
         <a :href="computedPath" class="sortable-link">{{ title }}</a>
       </div>
-      <div class="item-meta d-flex flex-wrap mt-xl-0 justify-content-xl-end flex-xl-nowrap">
-        <div
-          class="d-flex align-items-center item-path-id order-md-0 mt-md-0 mt-1 ml-xl-2 mr-xl-auto"
-        >
-          <icon
-            v-if="hasState"
-            v-tooltip
-            :css-classes="iconClass"
-            :name="iconName"
-            :size="16"
-            :title="stateTitle"
-            :aria-label="state"
-            data-html="true"
-            class="d-xl-none"
-          />
-          <span v-tooltip :title="itemPath" class="path-id-text d-inline-block">{{
-            itemPath
-          }}</span>
-          {{ pathIdSeparator }}{{ itemId }}
+
+      <!-- Info area: meta, path, and assignees -->
+      <div class="item-info-area d-flex">
+
+        <!-- Meta area: path and attributes -->
+        <!-- If there is no room beside the path, meta attributes are put ABOVE it (flex-wrap-reverse). -->
+        <!-- See design: https://gitlab-org.gitlab.io/gitlab-design/hosted/pedro/%2383-issue-mr-rows-cards-spec-previews/#artboard16 -->
+        <div class="item-meta d-flex flex-wrap-reverse justify-content-between">
+
+          <!-- Path area: status icon (<XL), path, issue # -->
+          <div class="item-path-area item-path-id d-flex align-items-center mr-2 mt-2 mt-xl-0">
+            <icon
+              v-if="hasState"
+              v-tooltip
+              :css-classes="iconClass"
+              :name="iconName"
+              :size="16"
+              :title="stateTitle"
+              :aria-label="state"
+              data-html="true"
+              class="d-xl-none"
+              />
+            <span v-if="itemPath" v-tooltip :title="itemPath" class="path-id-text d-inline-block">{{ itemPath }}</span>
+            <span>{{ pathIdSeparator }}{{ itemId }}</span>
+          </div>
+
+          <!-- Attributes area: CI, epic count, weight, milestone -->
+          <!-- They have a different order on large screen sizes -->
+          <div class="item-attributes-area d-flex align-items-center mt-2 mt-xl-0 ">
+            <span v-if="hasPipeline" class="mr-ci-status order-md-last mr-2">
+              <a :href="pipelineStatus.details_path">
+                <ci-icon v-gl-tooltip :status="pipelineStatus" :title="pipelineStatusTooltip" />
+              </a>
+            </span>
+            <slot name="weight" class="order-md-2"></slot>
+            <slot name="dueDate" class="order-md-3"></slot>
+            <issue-milestone
+              v-if="hasMilestone"
+              :milestone="milestone"
+              class="d-flex align-items-center item-milestone order-md-first mr-2"
+              />
+            <issue-assignees
+              v-if="assignees.length !== 0"
+              :assignees="assignees"
+              class="item-assignees align-items-center align-self-end flex-shrink-0 order-sm-1 d-none d-md-flex mr-2"
+            />
+          </div>
         </div>
-        <div
-          class="item-meta-child d-flex align-items-center order-0 flex-wrap mr-md-1 ml-md-auto ml-xl-2 flex-xl-nowrap"
-        >
-          <span v-if="hasPipeline" class="mr-ci-status pr-2">
-            <a :href="pipelineStatus.details_path">
-              <ci-icon v-gl-tooltip :status="pipelineStatus" :title="pipelineStatusTooltip" />
-            </a>
-          </span>
-          <issue-milestone
-            v-if="hasMilestone"
-            :milestone="milestone"
-            class="d-flex align-items-center item-milestone"
-          />
-          <slot name="dueDate"></slot>
-          <slot name="weight"></slot>
-        </div>
+
+        <!-- Assignees. On small layouts, these are put here, at the end of the card. -->
         <issue-assignees
-          v-if="assignees.length"
+          v-if="assignees.length !== 0"
           :assignees="assignees"
-          class="item-assignees d-inline-flex align-items-center align-self-end ml-auto ml-md-0 mb-md-0 order-2 flex-xl-grow-0 mt-xl-0 mr-xl-1"
-        />
+          class="item-assignees d-flex align-items-center align-self-end flex-shrink-0 d-md-none"
+          />
       </div>
     </div>
+
     <button
       v-if="canRemove"
       ref="removeButton"
@@ -127,5 +144,9 @@ export default {
     >
       <icon :size="16" class="btn-item-remove-icon" name="close" />
     </button>
+
+    <!-- This element serves to set the issue card's height at a minimum of 32 px. -->
+    <!-- It fixes #59594: when the remove button is missing, issues have inconsistent heights. -->
+    <span style="min-height: 32px; width: 0; visibility: hidden;"></span>
   </div>
 </template>
