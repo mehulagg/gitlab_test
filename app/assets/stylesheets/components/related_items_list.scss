@@ -87,10 +87,26 @@ $item-weight-max-width: 48px;
     flex-basis: 100%;
   }
 
+  @include media-breakpoint-up(md) {
+    .item-attributes-area {
+      // Cancels the margin-right of the last flex element to align better with the remove button.
+      // We can't use ::last-child because children are flex-ordered depending on breakpoint.
+      //margin-right: -8px;
+    }
+  }
+
   .item-attributes-area {
-    // Cancels the margin-right of the last flex element.
-    // We can't use ::last-child because children are flex-ordered depending on breakpoint.
-    margin-right: -8px;
+    > * {
+      margin-left: 8px !important;
+    }
+
+    .board-card-info {
+      margin-right: 0;
+    }
+
+    @include media-breakpoint-down(sm) {
+      margin-left: -8px;
+    }
   }
 
   .item-milestone,
@@ -159,12 +175,6 @@ $item-weight-max-width: 48px;
   .issue-token-state-icon-open,
   .issue-token-state-icon-closed {
     display: block;
-  }
-
-  @include media-breakpoint-down(sm) {
-    &:not(.mr-item-path) {
-      order: 1;
-    }
   }
 }
 

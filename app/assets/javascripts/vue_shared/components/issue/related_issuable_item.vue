@@ -46,7 +46,7 @@ export default {
       'issuable-info-container': !canReorder,
       'card-body': canReorder,
     }"
-    class="item-body d-flex align-items-center p-2 p-lg-3 p-xl-2 pl-xl-3"
+    class="item-body d-flex align-items-center p-2 p-lg-3 py-xl-2 px-xl-3"
   >
     <div class="item-contents d-flex align-items-center flex-wrap flex-grow-1 flex-xl-nowrap">
 
@@ -80,7 +80,7 @@ export default {
         <!-- Meta area: path and attributes -->
         <!-- If there is no room beside the path, meta attributes are put ABOVE it (flex-wrap-reverse). -->
         <!-- See design: https://gitlab-org.gitlab.io/gitlab-design/hosted/pedro/%2383-issue-mr-rows-cards-spec-previews/#artboard16 -->
-        <div class="item-meta d-flex flex-wrap-reverse justify-content-between">
+        <div class="item-meta d-flex flex-wrap-reverse justify-content-start justify-content-md-between">
 
           <!-- Path area: status icon (<XL), path, issue # -->
           <div class="item-path-area item-path-id d-flex align-items-center mr-2 mt-2 mt-xl-0">
@@ -95,29 +95,32 @@ export default {
               data-html="true"
               class="d-xl-none"
               />
-            <span v-if="itemPath" v-tooltip :title="itemPath" class="path-id-text d-inline-block">{{ itemPath }}</span>
+            <span  v-tooltip :title="itemPath" class="path-id-text d-inline-block">{{ itemPath }}this is an unreasonably long project path</span>
             <span>{{ pathIdSeparator }}{{ itemId }}</span>
           </div>
 
           <!-- Attributes area: CI, epic count, weight, milestone -->
           <!-- They have a different order on large screen sizes -->
           <div class="item-attributes-area d-flex align-items-center mt-2 mt-xl-0 ">
-            <span v-if="hasPipeline" class="mr-ci-status order-md-last mr-2">
+            <span v-if="hasPipeline" class="mr-ci-status order-md-last">
               <a :href="pipelineStatus.details_path">
                 <ci-icon v-gl-tooltip :status="pipelineStatus" :title="pipelineStatusTooltip" />
               </a>
             </span>
-            <slot name="weight" class="order-md-2"></slot>
-            <slot name="dueDate" class="order-md-3"></slot>
+
+            <!-- Flex order for slots is defined in the parent component: e.g. related_issues_block.vue -->
+            <slot name="weight"></slot>
+            <slot name="dueDate"></slot>
+
             <issue-milestone
               v-if="hasMilestone"
               :milestone="milestone"
-              class="d-flex align-items-center item-milestone order-md-first mr-2"
+              class="d-flex align-items-center item-milestone order-md-first"
               />
             <issue-assignees
               v-if="assignees.length !== 0"
               :assignees="assignees"
-              class="item-assignees align-items-center align-self-end flex-shrink-0 order-sm-1 d-none d-md-flex mr-2"
+              class="item-assignees align-items-center align-self-end flex-shrink-0 order-md-1 d-none d-md-flex"
             />
           </div>
         </div>
@@ -126,7 +129,7 @@ export default {
         <issue-assignees
           v-if="assignees.length !== 0"
           :assignees="assignees"
-          class="item-assignees d-flex align-items-center align-self-end flex-shrink-0 d-md-none"
+          class="item-assignees d-flex align-items-center align-self-end flex-shrink-0 d-md-none ml-2"
           />
       </div>
     </div>

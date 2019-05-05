@@ -260,20 +260,21 @@ export default {
               event-namespace="relatedIssue"
               @relatedIssueRemoveRequest="$emit('relatedIssueRemoveRequest', $event)"
             >
-              <issue-weight
-                v-if="issue.weight"
-                slot="weight"
-                :weight="issue.weight"
-                class="item-weight d-flex align-items-center"
-                tag-name="span"
-              />
-              <issue-due-date
-                v-if="issue.due_date"
-                slot="dueDate"
-                :date="issue.due_date"
-                tooltip-placement="top"
-                css-class="item-due-date d-flex align-items-center"
-              />
+              <span v-if="issue.weight" slot="weight" class="order-md-2">
+                <issue-weight
+                  :weight="issue.weight"
+                  class="item-weight d-flex align-items-center"
+                  tag-name="span"
+                />
+              </span>
+
+              <span v-if="issue.due_date" slot="dueDate" class="order-md-2">
+                <issue-due-date
+                  :date="issue.due_date"
+                  tooltip-placement="top"
+                  css-class="item-due-date d-flex align-items-center"
+                />
+              </span>
             </related-issuable-item>
           </li>
         </ul>
