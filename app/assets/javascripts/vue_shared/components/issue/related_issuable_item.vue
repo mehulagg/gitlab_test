@@ -101,26 +101,27 @@ export default {
 
           <!-- Attributes area: CI, epic count, weight, milestone -->
           <!-- They have a different order on large screen sizes -->
-          <div class="item-attributes-area d-flex align-items-center mt-2 mt-xl-0 ">
+          <div class="item-attributes-area d-flex align-items-center mt-2 mt-xl-0">
             <span v-if="hasPipeline" class="mr-ci-status order-md-last">
               <a :href="pipelineStatus.details_path">
                 <ci-icon v-gl-tooltip :status="pipelineStatus" :title="pipelineStatusTooltip" />
               </a>
             </span>
 
-            <!-- Flex order for slots is defined in the parent component: e.g. related_issues_block.vue -->
-            <slot name="weight"></slot>
-            <slot name="dueDate"></slot>
-
             <issue-milestone
-              v-if="hasMilestone"
-              :milestone="milestone"
-              class="d-flex align-items-center item-milestone order-md-first"
-              />
+                    v-if="hasMilestone"
+                    :milestone="milestone"
+                    class="d-flex align-items-center item-milestone order-md-first"
+            />
+
+            <!-- Flex order for slots is defined in the parent component: e.g. related_issues_block.vue -->
+            <slot name="dueDate"></slot>
+            <slot name="weight"></slot>
+
             <issue-assignees
               v-if="assignees.length !== 0"
               :assignees="assignees"
-              class="item-assignees align-items-center align-self-end flex-shrink-0 order-md-1 d-none d-md-flex"
+              class="item-assignees align-items-center align-self-end flex-shrink-0 order-md-2 d-none d-md-flex"
             />
           </div>
         </div>

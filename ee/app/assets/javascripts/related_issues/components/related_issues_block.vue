@@ -260,7 +260,7 @@ export default {
               event-namespace="relatedIssue"
               @relatedIssueRemoveRequest="$emit('relatedIssueRemoveRequest', $event)"
             >
-              <span v-if="issue.weight" slot="weight" class="order-md-2">
+              <span v-if="issue.weight" slot="weight" class="order-md-1">
                 <issue-weight
                   :weight="issue.weight"
                   class="item-weight d-flex align-items-center"
@@ -268,7 +268,7 @@ export default {
                 />
               </span>
 
-              <span v-if="issue.due_date" slot="dueDate" class="order-md-2">
+              <span v-if="issue.due_date" slot="dueDate" class="order-md-1">
                 <issue-due-date
                   :date="issue.due_date"
                   tooltip-placement="top"
