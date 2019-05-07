@@ -20,6 +20,10 @@ namespace :gitlab do
       backup.pack
       backup.cleanup
       backup.remove_old
+
+      puts "Warning: Your gitlab.rb and gitlab-secrets.json files are not included in this backup.".color(:red)
+      puts "You will need these files to restore a backup. Please back them up manually.".color(:red)
+
     end
 
     # Restore backup of GitLab system
