@@ -349,6 +349,10 @@ class License < ApplicationRecord
   end
 
   def current_active_users_count
+    # These count queries are too expensive on .com.
+    # See https://gitlab.com/gitlab-org/gitlab-ee/issues/11534
+    return 1 if Gitlab.com?
+
     @current_active_users_count ||= begin
       if exclude_guests_from_active_count?
         User.active.excluding_guests.count

@@ -617,6 +617,13 @@ describe License do
       expect(license.overage).to eq(10)
     end
 
+    it 'returns the difference using current_active_users_count as 1 if Gitlab.com' do
+      expect(Gitlab).to receive(:com?).and_return(true).at_least(:once)
+      allow(license).to receive(:restricted_user_count) { 0 }
+
+      expect(license.overage).to eq(1)
+    end
+
     it 'returns 0 if the difference is a negative number' do
       allow(license).to receive(:restricted_user_count) { 2 }
 
