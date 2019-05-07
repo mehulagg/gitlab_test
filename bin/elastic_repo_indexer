@@ -69,8 +69,9 @@ class Repository
 end
 
 repo = Repository.new
+last_indexed_commit = IndexStatus.for_project(repo.project_id).first.last_commit
 
-params = { from_rev: FROM_SHA, to_rev: TO_SHA }.compact
+params = { from_rev: FROM_SHA, to_rev: TO_SHA, last_indexed_commit: last_indexed_commit }.compact
 
 commit_thr = Thread.new do
   LOGGER.info("Indexing commits started")

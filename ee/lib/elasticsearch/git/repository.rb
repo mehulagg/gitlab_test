@@ -36,8 +36,8 @@ module Elasticsearch
         # }
         #
         # For search from blobs use type 'blob'
-        def index_blobs(from_rev: nil, to_rev: repository_for_indexing.last_commit.oid)
-          from, to = parse_revs(from_rev, to_rev)
+        def index_blobs(from_rev: nil, to_rev: repository_for_indexing.last_commit.oid, last_indexed_rev: nil)
+          from, to = parse_revs(from_rev, to_rev, last_indexed_rev)
 
           diff = repository_for_indexing.diff(from, to)
           deltas = diff.deltas
@@ -153,8 +153,8 @@ module Elasticsearch
         # }
         #
         # For search from commits use type 'commit'
-        def index_commits(from_rev: nil, to_rev: repository_for_indexing.last_commit.oid)
-          from, to = parse_revs(from_rev, to_rev)
+        def index_commits(from_rev: nil, to_rev: repository_for_indexing.last_commit.oid, last_indexed_rev: nil)
+          from, to = parse_revs(from_rev, to_rev, last_indexed_rev)
           range = [from, to].compact.join('..')
           out, err, status = Open3.capture3("git log #{range} --format=\"%H\"", chdir: repository_for_indexing.path)
 
@@ -212,15 +212,17 @@ module Elasticsearch
           }
         end
 
-        def parse_revs(from_rev, to_rev)
+        def parse_revs(from_rev, to_rev, last_indexed_rev)
           from = if index_new_branch?(from_rev)
-                   if to_rev == repository_for_indexing.last_commit.oid
-                     nil
-                   else
+                   if last_indexed_rev
+                     # skip commits prior to merge base,
+                     # which has already been indexed.
                      repository_for_indexing.merge_base(
                        to_rev,
-                       repository_for_indexing.last_commit.oid
+                       last_indexed_rev
                      )
+                   else
+                     nil
                    end
                  else
                    from_rev
