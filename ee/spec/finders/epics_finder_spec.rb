@@ -55,8 +55,8 @@ describe EpicsFinder do
           expect(epics).to contain_exactly(epic1, epic2, epic3)
         end
 
-        it 'does not execute more than 8 SQL queries' do
-          expect { epics.to_a }.not_to exceed_all_query_limit(8)
+        it 'does not execute more than 7 SQL queries', :request_store do
+          expect { epics.to_a }.not_to exceed_all_query_limit(7)
         end
 
         context 'sorting' do
@@ -120,18 +120,18 @@ describe EpicsFinder do
             expect(epics).to contain_exactly(epic1, epic2, epic3, subepic1, subepic2)
           end
 
-          it 'does not execute more than 14 SQL queries' do
-            expect { epics.to_a }.not_to exceed_all_query_limit(14)
+          it 'does not execute more than 9 SQL queries', :request_store do
+            expect { epics.to_a }.not_to exceed_all_query_limit(9)
           end
 
-          it 'does not execute more than 15 SQL queries when checking namespace plans' do
+          it 'does not execute more than 11 SQL queries when checking namespace plans', :request_store do
             allow(Gitlab::CurrentSettings)
               .to receive(:should_check_namespace_plan?)
               .and_return(true)
 
             create(:gitlab_subscription, :gold, namespace: group)
 
-            expect { epics.to_a }.not_to exceed_all_query_limit(15)
+            expect { epics.to_a }.not_to exceed_all_query_limit(11)
           end
         end
 

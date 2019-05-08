@@ -24,9 +24,9 @@ module Gitlab
 
         def self.group_access_restricted?(group)
           return false unless ::Feature.enabled?(:enforced_sso_requires_session, group)
-          return false unless group
 
-          saml_provider = group&.root_ancestor&.saml_provider
+          saml_provider = SamlProviderFinder.for_group(group)
+          # saml_provider = group&.root_ancestor&.saml_provider
 
           return false unless saml_provider
 
