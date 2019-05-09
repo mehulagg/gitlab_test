@@ -32,4 +32,16 @@ describe '[EE] Internal Group access' do
     it { is_expected.to be_denied_for(:external) }
     it { is_expected.to be_denied_for(:visitor) }
   end
+
+  describe 'GET /groups/:path/group_members' do
+    subject { group_group_members_path(group) }
+
+    it { is_expected.to be_allowed_for(:auditor) }
+  end
+
+  describe 'GET /groups/:path/edit' do
+    subject { edit_group_path(group) }
+
+    it { is_expected.to be_denied_for(:auditor) }
+  end
 end
