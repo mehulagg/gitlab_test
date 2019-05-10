@@ -9,13 +9,19 @@ module RoutableActions
       ensure_canonical_path(routable, requested_full_path)
       routable
     else
-      if not_found_or_authorized_proc
-        not_found_or_authorized_proc.call(routable)
-      end
+      perform_not_found_checks(routable, [not_found_or_authorized_proc])
 
       route_not_found unless performed?
 
       nil
+    end
+  end
+
+  def perform_not_found_checks(routable, checks)
+    checks.compact.each do |check|
+      break if performed?
+
+      check.call(routable)
     end
   end
 
