@@ -15,5 +15,9 @@ module Types
     field :visibility, GraphQL::STRING_TYPE, null: true
     field :lfs_enabled, GraphQL::BOOLEAN_TYPE, null: true, method: :lfs_enabled?
     field :request_access_enabled, GraphQL::BOOLEAN_TYPE, null: true
+
+    field :statistics, NamespaceStatisticsType, null: true, resolve: -> (namespace, _, _) do
+      Gitlab::Graphql::Loaders::NamespaceStatisticsLoader.new(namespace.id).find
+    end
   end
 end

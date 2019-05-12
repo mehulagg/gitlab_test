@@ -14,9 +14,9 @@ module Types
           resolver: Resolvers::GroupResolver,
           description: "Find a group"
 
-    field :namespace_statistics, Types::NamespaceStatisticsType,
+    field :namespace, Types::NamespaceType,
           null: true,
-          resolver: Resolvers::NamespaceStatisticsResolver,
+          resolver: Resolvers::NamespaceResolver,
           description: "Find a namespace statistics"
 
     field :metadata, Types::MetadataType,

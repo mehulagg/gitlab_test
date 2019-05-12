@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Types
-  class NamespaceStatisticsType < NamespaceType
+  class NamespaceStatisticsType < BaseObject
     graphql_name 'NamespaceStatistics'
 
     authorize :read_statistics
