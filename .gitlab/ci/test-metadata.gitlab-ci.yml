@@ -30,8 +30,10 @@ retrieve-tests-metadata:
     - wget -O $EE_KNAPSACK_RSPEC_SUITE_REPORT_PATH http://${TESTS_METADATA_S3_BUCKET}.s3.amazonaws.com/$EE_KNAPSACK_RSPEC_SUITE_REPORT_PATH || rm $EE_KNAPSACK_RSPEC_SUITE_REPORT_PATH
     - '[[ -f $EE_KNAPSACK_RSPEC_SUITE_REPORT_PATH ]] || echo "{}" > ${EE_KNAPSACK_RSPEC_SUITE_REPORT_PATH}'
   except:
-    - /(^docs[\/-].*|.*-docs$)/
-    - /(^qa[\/-].*|.*-qa$)/
+    refs:
+      - /(^qa[\/-].*|.*-qa$)/
+    changes:
+      - "doc/**/*.md"
 
 update-tests-metadata:
   <<: *tests-metadata-state
@@ -79,8 +81,9 @@ flaky-examples-check:
   except:
     refs:
       - master
-      - /(^docs[\/-].*|.*-docs$)/
       - /(^qa[\/-].*|.*-qa$)/
+    changes:
+      - "doc/**/*.md"
   artifacts:
     expire_in: 30d
     paths:

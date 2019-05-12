@@ -207,8 +207,9 @@ downtime_check:
       - master
       - tags
       - /^[\d-]+-stable(-ee)?$/
-      - /(^docs[\/-].*|.*-docs$)/
       - /(^qa[\/-].*|.*-qa$)/
+    changes:
+      - "doc/**/*.md"
   dependencies:
     - setup-test-env
 
@@ -286,8 +287,10 @@ coverage:
       - coverage/assets/
       - tmp/memory_test/
   except:
-    - /(^docs[\/-].*|.*-docs$)/
-    - /(^qa[\/-].*|.*-qa$)/
+    refs:
+      - /(^qa[\/-].*|.*-qa$)/
+    changes:
+      - "doc/**/*.md"
 
 ## EE-specific content
 .use-pg-with-elasticsearch: &use-pg-with-elasticsearch
@@ -355,18 +358,22 @@ rspec geo pg ee:
   <<: *use-pg
   parallel: 3
   except:
-    - /(^geo[\/-].*|.*-geo$)/
-    - /(^docs[\/-].*|.*-docs$)/
-    - /(^qa[\/-].*|.*-qa$)/
+    refs:
+      - /(^geo[\/-].*|.*-geo$)/
+      - /(^qa[\/-].*|.*-qa$)/
+    changes:
+      - "doc/**/*.md"
 
 rspec geo pg-10 ee:
   <<: *rspec-metadata-pg-geo
   <<: *use-pg-10
   parallel: 3
   except:
-    - /(^geo[\/-].*|.*-geo$)/
-    - /(^docs[\/-].*|.*-docs$)/
-    - /(^qa[\/-].*|.*-qa$)/
+    refs:
+      - /(^geo[\/-].*|.*-geo$)/
+      - /(^qa[\/-].*|.*-qa$)/
+    changes:
+      - "doc/**/*.md"
 
 quick-rspec geo pg ee:
   <<: *rspec-metadata-pg-geo
