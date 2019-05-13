@@ -17,7 +17,7 @@ module Types
     field :namespace, Types::NamespaceType,
           null: true,
           resolver: Resolvers::NamespaceResolver,
-          description: "Find a namespace statistics"
+          description: "Find a namespace"
 
     field :metadata, Types::MetadataType,
           null: true,
