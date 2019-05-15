@@ -828,7 +828,7 @@ msgstr "Todas as issues para este marco estão fechadas. Você pode fechar este 
 msgid "All merge conflicts were resolved. The merge request can now be merged."
 msgstr "Todos os conflitos de merge foram resolvidos. A merge request pode agora ter o merge realizado."
 
-msgid "All todos were marked as done."
+msgid "Everything on your to-do-list is marked as done."
 msgstr "Todos os afazeres foram marcados como concluídos."
 
 msgid "All users"
@@ -4341,10 +4341,10 @@ msgstr "Erro ao salvar alteração de etiqueta."
 msgid "Error updating %{issuableType}"
 msgstr "Erro ao atualizar %{issuableType}"
 
-msgid "Error updating status for all todos."
+msgid "Error updating status for all to-do items."
 msgstr "Erro ao atualizar status para todas as tarefas."
 
-msgid "Error updating todo status."
+msgid "Error updating status of to-do item."
 msgstr "Erro ao atualizar status das tarefas."
 
 msgid "Error uploading file"
@@ -6850,7 +6850,7 @@ msgstr "Mar"
 msgid "March"
 msgstr "Março"
 
-msgid "Mark todo as done"
+msgid "Mark as done"
 msgstr "Marcar como concluído"
 
 msgid "Markdown"
@@ -10518,7 +10518,7 @@ msgstr "Marcar como favorito"
 msgid "Starred Projects"
 msgstr "Projetos favoritos"
 
-msgid "Starred Projects' Activity"
+msgid "Starred Project Activity"
 msgstr "Atividade dos projetos favoritos"
 
 msgid "Starred projects"
@@ -11195,10 +11195,10 @@ msgstr "Não há mudanças na lista para commit"
 msgid "There are no unstaged changes"
 msgstr "Não há mudanças fora da lista para commit"
 
-msgid "There was an error adding a todo."
+msgid "There was an error adding the to do."
 msgstr "Houve um erro ao adicionar uma tarefa."
 
-msgid "There was an error deleting the todo."
+msgid "There was an error deleting the to do."
 msgstr "Houve um erro ao excluir a tarefa."
 
 msgid "There was an error fetching configuration for charts"
@@ -11766,7 +11766,7 @@ msgstr "Para ampliar sua pesquisa, alterar ou remover filtros."
 msgid "Today"
 msgstr "Hoje"
 
-msgid "Todo"
+msgid "To do"
 msgstr "Pendente"
 
 msgid "Todo was successfully marked as done."
@@ -12959,10 +12959,10 @@ msgstr "As informações do cluster do Kubernetes nesta página ainda são edit�
 msgid "Your Projects (default)"
 msgstr "Seus projetos (padrão)"
 
-msgid "Your Projects' Activity"
+msgid "Your Project Activity"
 msgstr "Atividade dos seus projetos"
 
-msgid "Your Todos"
+msgid "Your To-Do List"
 msgstr "Seus lembretes"
 
 msgid "Your U2F device needs to be set up. Plug it in (if not already) and click the button on the left."

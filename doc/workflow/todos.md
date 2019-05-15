@@ -97,9 +97,9 @@ corresponding **Done** button, and it will disappear from your Todo list.
 ![A Todo in the Todos dashboard](img/todo_list_item.png)
 
 A Todo can also be marked as done from the issue, merge request or epic sidebar using
-the "Mark todo as done" button.
+the "Mark as done" button.
 
-![Mark todo as done from the issuable sidebar](img/todos_mark_done_sidebar.png)
+![Mark as done from the issuable sidebar](img/todos_mark_done_sidebar.png)
 
 You can mark all your Todos as done at once by clicking on the **Mark all as
 done** button.

@@ -828,7 +828,7 @@ msgstr ""
 msgid "All merge conflicts were resolved. The merge request can now be merged."
 msgstr ""
 
-msgid "All todos were marked as done."
+msgid "Everything on your to-do-list is marked as done."
 msgstr ""
 
 msgid "All users"
@@ -4341,10 +4341,10 @@ msgstr "Fehler beim Speichern der Label-Aktualisierung."
 msgid "Error updating %{issuableType}"
 msgstr ""
 
-msgid "Error updating status for all todos."
+msgid "Error updating status for all to-do items."
 msgstr "Fehler beim Aktualisieren des Status für alle To-dos."
 
-msgid "Error updating todo status."
+msgid "Error updating status of to-do item."
 msgstr "Fehler beim Aktualisieren des To-do-Status."
 
 msgid "Error uploading file"
@@ -6850,7 +6850,7 @@ msgstr "März"
 msgid "March"
 msgstr "März"
 
-msgid "Mark todo as done"
+msgid "Mark as done"
 msgstr "To-do als erledigt markieren"
 
 msgid "Markdown"
@@ -10518,7 +10518,7 @@ msgstr "Favorisieren"
 msgid "Starred Projects"
 msgstr "Markierte Projekte"
 
-msgid "Starred Projects' Activity"
+msgid "Starred Project Activity"
 msgstr "Aktivität markierter Projekte"
 
 msgid "Starred projects"
@@ -11195,10 +11195,10 @@ msgstr "Es gibt keine vorgemerkten Änderungen"
 msgid "There are no unstaged changes"
 msgstr "Es gibt keine nicht vorgemerkten Änderungen"
 
-msgid "There was an error adding a todo."
+msgid "There was an error adding the to do."
 msgstr "Beim Hinzufügen eines To-dos ist ein Fehler aufgetreten."
 
-msgid "There was an error deleting the todo."
+msgid "There was an error deleting the to do."
 msgstr "Beim Löschen des To-dos ist ein Fehler aufgetreten."
 
 msgid "There was an error fetching configuration for charts"
@@ -11766,7 +11766,7 @@ msgstr "Um deine Suche zu erweitern, verändere oder entferne Filter."
 msgid "Today"
 msgstr "Heute"
 
-msgid "Todo"
+msgid "To do"
 msgstr "To-do"
 
 msgid "Todo was successfully marked as done."
@@ -12959,10 +12959,10 @@ msgstr "Die Informationen zu deinem Kubernetes-Cluster auf dieser Seite können 
 msgid "Your Projects (default)"
 msgstr "Deine Projekte (Standard)"
 
-msgid "Your Projects' Activity"
+msgid "Your Project Activity"
 msgstr "Aktivitäten deiner Projekte"
 
-msgid "Your Todos"
+msgid "Your To-Do List"
 msgstr "Deine To-dos"
 
 msgid "Your U2F device needs to be set up. Plug it in (if not already) and click the button on the left."

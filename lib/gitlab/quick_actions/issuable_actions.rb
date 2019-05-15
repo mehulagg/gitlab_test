@@ -146,7 +146,7 @@ module Gitlab
           @updates[:todo_event] = 'add'
         end
 
-        desc _('Mark todo as done')
+        desc _('Mark as done')
         explanation _('Marks todo as done.')
         types Issuable
         condition do

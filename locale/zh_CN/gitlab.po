@@ -792,7 +792,7 @@ msgstr "这个里程碑的所有议题都已关闭。现在您可以关闭这个
 msgid "All merge conflicts were resolved. The merge request can now be merged."
 msgstr ""
 
-msgid "All todos were marked as done."
+msgid "Everything on your to-do-list is marked as done."
 msgstr ""
 
 msgid "All users"
@@ -4299,10 +4299,10 @@ msgstr "保存标记更新时出错。"
 msgid "Error updating %{issuableType}"
 msgstr "更新 %{issuableType} 时出错"
 
-msgid "Error updating status for all todos."
+msgid "Error updating status for all to-do items."
 msgstr "更新所有待办事项的状态时出错。"
 
-msgid "Error updating todo status."
+msgid "Error updating status of to-do item."
 msgstr "更新待办事项状态时出错。"
 
 msgid "Error uploading file"
@@ -6803,7 +6803,7 @@ msgstr "3月"
 msgid "March"
 msgstr "3月"
 
-msgid "Mark todo as done"
+msgid "Mark as done"
 msgstr "标记为已完成"
 
 msgid "Markdown"
@@ -10464,7 +10464,7 @@ msgstr "星标"
 msgid "Starred Projects"
 msgstr "星标项目"
 
-msgid "Starred Projects' Activity"
+msgid "Starred Project Activity"
 msgstr "星标项目动态"
 
 msgid "Starred projects"
@@ -11140,10 +11140,10 @@ msgstr "无已暂存的修改"
 msgid "There are no unstaged changes"
 msgstr "无未暂存的修改"
 
-msgid "There was an error adding a todo."
+msgid "There was an error adding the to do."
 msgstr "添加待办事项时出现错误"
 
-msgid "There was an error deleting the todo."
+msgid "There was an error deleting the to do."
 msgstr "删除待办事项时出现错误。"
 
 msgid "There was an error fetching configuration for charts"
@@ -11709,7 +11709,7 @@ msgstr "需要扩大搜索范围，请更改或移除过滤条件。"
 msgid "Today"
 msgstr "今日"
 
-msgid "Todo"
+msgid "To do"
 msgstr "待办事项"
 
 msgid "Todo was successfully marked as done."
@@ -12901,10 +12901,10 @@ msgstr "在此页面上的Kubernetes集群信息仍可编辑，但建议您禁�
 msgid "Your Projects (default)"
 msgstr "您的项目 (默认值)"
 
-msgid "Your Projects' Activity"
+msgid "Your Project Activity"
 msgstr "您的项目动态"
 
-msgid "Your Todos"
+msgid "Your To-Do List"
 msgstr "您的待办事项"
 
 msgid "Your U2F device needs to be set up. Plug it in (if not already) and click the button on the left."

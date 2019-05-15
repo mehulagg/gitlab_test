@@ -792,7 +792,7 @@ msgstr "현재 마일스톤에 관련된 모든 이슈들이 마감되었습니�
 msgid "All merge conflicts were resolved. The merge request can now be merged."
 msgstr ""
 
-msgid "All todos were marked as done."
+msgid "Everything on your to-do-list is marked as done."
 msgstr ""
 
 msgid "All users"
@@ -4299,10 +4299,10 @@ msgstr "레이블 갱신 중 오류 발생"
 msgid "Error updating %{issuableType}"
 msgstr ""
 
-msgid "Error updating status for all todos."
+msgid "Error updating status for all to-do items."
 msgstr "모든 해야할 일의 상태를 변경하던 중 오류"
 
-msgid "Error updating todo status."
+msgid "Error updating status of to-do item."
 msgstr "해야할 일 상태 갱신 중 오류 발생"
 
 msgid "Error uploading file"
@@ -6803,7 +6803,7 @@ msgstr "3월"
 msgid "March"
 msgstr "3월"
 
-msgid "Mark todo as done"
+msgid "Mark as done"
 msgstr "할 일을 완료로 표시"
 
 msgid "Markdown"
@@ -10464,7 +10464,7 @@ msgstr "별표"
 msgid "Starred Projects"
 msgstr "별표 표시된 프로젝트"
 
-msgid "Starred Projects' Activity"
+msgid "Starred Project Activity"
 msgstr "별표 표시된 프로젝트 활동"
 
 msgid "Starred projects"
@@ -11140,10 +11140,10 @@ msgstr ""
 msgid "There are no unstaged changes"
 msgstr ""
 
-msgid "There was an error adding a todo."
+msgid "There was an error adding the to do."
 msgstr "할 일을 추가하는 중에 오류가 발생했습니다."
 
-msgid "There was an error deleting the todo."
+msgid "There was an error deleting the to do."
 msgstr "할 일을 삭제하는 중에 오류가 발생했습니다."
 
 msgid "There was an error fetching configuration for charts"
@@ -11709,7 +11709,7 @@ msgstr ""
 msgid "Today"
 msgstr "오늘"
 
-msgid "Todo"
+msgid "To do"
 msgstr "Todo"
 
 msgid "Todo was successfully marked as done."
@@ -12901,10 +12901,10 @@ msgstr "이 페이지에서 Kubernetes 클러스터 정보를 계속해서 편�
 msgid "Your Projects (default)"
 msgstr "당신의 프로젝트 (기본값)"
 
-msgid "Your Projects' Activity"
+msgid "Your Project Activity"
 msgstr "당신의 프로젝트 활동"
 
-msgid "Your Todos"
+msgid "Your To-Do List"
 msgstr "당신의 할일"
 
 msgid "Your U2F device needs to be set up. Plug it in (if not already) and click the button on the left."

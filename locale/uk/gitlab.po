@@ -900,7 +900,7 @@ msgstr "Всі задачі для цього етапу закриті. Ви м
 msgid "All merge conflicts were resolved. The merge request can now be merged."
 msgstr ""
 
-msgid "All todos were marked as done."
+msgid "Everything on your to-do-list is marked as done."
 msgstr ""
 
 msgid "All users"
@@ -4425,10 +4425,10 @@ msgstr "Помилка при збереженні мітки."
 msgid "Error updating %{issuableType}"
 msgstr "Помилка при оновленні %{issuableType}"
 
-msgid "Error updating status for all todos."
+msgid "Error updating status for all to-do items."
 msgstr "Помилка оновлення статусу для всіх нагадувань."
 
-msgid "Error updating todo status."
+msgid "Error updating status of to-do item."
 msgstr "Помилка при оновленні статусу нагадування."
 
 msgid "Error uploading file"
@@ -6944,7 +6944,7 @@ msgstr "бер."
 msgid "March"
 msgstr "березень"
 
-msgid "Mark todo as done"
+msgid "Mark as done"
 msgstr "Відмітити завдання виконаним"
 
 msgid "Markdown"
@@ -10626,7 +10626,7 @@ msgstr "В обрані"
 msgid "Starred Projects"
 msgstr "Обрані Проекти"
 
-msgid "Starred Projects' Activity"
+msgid "Starred Project Activity"
 msgstr "Активність в обраних проектах"
 
 msgid "Starred projects"
@@ -11305,10 +11305,10 @@ msgstr "Немає індексованих змін"
 msgid "There are no unstaged changes"
 msgstr "Немає неіндексованих змін"
 
-msgid "There was an error adding a todo."
+msgid "There was an error adding the to do."
 msgstr "Помилка при додаванні нагадування."
 
-msgid "There was an error deleting the todo."
+msgid "There was an error deleting the to do."
 msgstr "Помилка при видаленні задачі."
 
 msgid "There was an error fetching configuration for charts"
@@ -11880,7 +11880,7 @@ msgstr "Щоб розширити пошук, змініть або видалі
 msgid "Today"
 msgstr "Сьогодні"
 
-msgid "Todo"
+msgid "To do"
 msgstr "Нагдування"
 
 msgid "Todo was successfully marked as done."
@@ -13075,10 +13075,10 @@ msgstr "Інформація про ваш Kubernetes-кластер все ще
 msgid "Your Projects (default)"
 msgstr "Ваші проекти (за замовчуванням)"
 
-msgid "Your Projects' Activity"
+msgid "Your Project Activity"
 msgstr "Активність ваших проектів"
 
-msgid "Your Todos"
+msgid "Your To-Do List"
 msgstr "Ваші Нагадування"
 
 msgid "Your U2F device needs to be set up. Plug it in (if not already) and click the button on the left."

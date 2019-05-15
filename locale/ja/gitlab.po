@@ -792,7 +792,7 @@ msgstr "このマイルストーンに関する課題はすべて解決されま
 msgid "All merge conflicts were resolved. The merge request can now be merged."
 msgstr ""
 
-msgid "All todos were marked as done."
+msgid "Everything on your to-do-list is marked as done."
 msgstr ""
 
 msgid "All users"
@@ -4299,10 +4299,10 @@ msgstr "ラベルの更新中にエラーが発生しました。"
 msgid "Error updating %{issuableType}"
 msgstr ""
 
-msgid "Error updating status for all todos."
+msgid "Error updating status for all to-do items."
 msgstr "すべての TODO のステータスを更新中にエラーが発生しました。"
 
-msgid "Error updating todo status."
+msgid "Error updating status of to-do item."
 msgstr "TODO のステータスを更新中にエラーが発生しました。"
 
 msgid "Error uploading file"
@@ -6803,7 +6803,7 @@ msgstr "3月"
 msgid "March"
 msgstr "3月"
 
-msgid "Mark todo as done"
+msgid "Mark as done"
 msgstr "Todo を完了にする"
 
 msgid "Markdown"
@@ -10464,7 +10464,7 @@ msgstr "スターを付ける"
 msgid "Starred Projects"
 msgstr "スター付きプロジェクト"
 
-msgid "Starred Projects' Activity"
+msgid "Starred Project Activity"
 msgstr "スター付きプロジェクトの活動"
 
 msgid "Starred projects"
@@ -11140,10 +11140,10 @@ msgstr ""
 msgid "There are no unstaged changes"
 msgstr ""
 
-msgid "There was an error adding a todo."
+msgid "There was an error adding the to do."
 msgstr ""
 
-msgid "There was an error deleting the todo."
+msgid "There was an error deleting the to do."
 msgstr ""
 
 msgid "There was an error fetching configuration for charts"
@@ -11709,7 +11709,7 @@ msgstr "検索範囲を広げるには、フィルターを変更または削除
 msgid "Today"
 msgstr "今日"
 
-msgid "Todo"
+msgid "To do"
 msgstr "Todo"
 
 msgid "Todo was successfully marked as done."
@@ -12901,10 +12901,10 @@ msgstr "このページの Kubernetes クラスター情報は編集可能です
 msgid "Your Projects (default)"
 msgstr "プロジェクト(デフォルト)"
 
-msgid "Your Projects' Activity"
+msgid "Your Project Activity"
 msgstr "プロジェクトの活動"
 
-msgid "Your Todos"
+msgid "Your To-Do List"
 msgstr "あなたのTodo"
 
 msgid "Your U2F device needs to be set up. Plug it in (if not already) and click the button on the left."

@@ -284,7 +284,7 @@ describe('Epic Store Actions', () => {
       );
     });
 
-    it('Should show flash error with message "There was an error deleting the todo." when `state.todoExists` is `true`', () => {
+    it('Should show flash error with message "There was an error deleting the to do." when `state.todoExists` is `true`', () => {
       actions.requestEpicTodoToggleFailure(
         {
           commit: () => {},
@@ -294,11 +294,11 @@ describe('Epic Store Actions', () => {
       );
 
       expect(document.querySelector('.flash-container .flash-text').innerText.trim()).toBe(
-        'There was an error deleting the todo.',
+        'There was an error deleting the to do.',
       );
     });
 
-    it('Should show flash error with message "There was an error adding a todo." when `state.todoExists` is `false`', () => {
+    it('Should show flash error with message "There was an error adding the to do." when `state.todoExists` is `false`', () => {
       actions.requestEpicTodoToggleFailure(
         {
           commit: () => {},
@@ -308,7 +308,7 @@ describe('Epic Store Actions', () => {
       );
 
       expect(document.querySelector('.flash-container .flash-text').innerText.trim()).toBe(
-        'There was an error adding a todo.',
+        'There was an error adding the to do.',
       );
     });
   });

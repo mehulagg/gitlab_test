@@ -828,7 +828,7 @@ msgstr ""
 msgid "All merge conflicts were resolved. The merge request can now be merged."
 msgstr ""
 
-msgid "All todos were marked as done."
+msgid "Everything on your to-do-list is marked as done."
 msgstr ""
 
 msgid "All users"
@@ -4341,10 +4341,10 @@ msgstr ""
 msgid "Error updating %{issuableType}"
 msgstr ""
 
-msgid "Error updating status for all todos."
+msgid "Error updating status for all to-do items."
 msgstr ""
 
-msgid "Error updating todo status."
+msgid "Error updating status of to-do item."
 msgstr ""
 
 msgid "Error uploading file"
@@ -6850,7 +6850,7 @@ msgstr ""
 msgid "March"
 msgstr ""
 
-msgid "Mark todo as done"
+msgid "Mark as done"
 msgstr ""
 
 msgid "Markdown"
@@ -10518,7 +10518,7 @@ msgstr "Звезда"
 msgid "Starred Projects"
 msgstr ""
 
-msgid "Starred Projects' Activity"
+msgid "Starred Project Activity"
 msgstr ""
 
 msgid "Starred projects"
@@ -11195,10 +11195,10 @@ msgstr ""
 msgid "There are no unstaged changes"
 msgstr ""
 
-msgid "There was an error adding a todo."
+msgid "There was an error adding the to do."
 msgstr ""
 
-msgid "There was an error deleting the todo."
+msgid "There was an error deleting the to do."
 msgstr ""
 
 msgid "There was an error fetching configuration for charts"
@@ -11766,7 +11766,7 @@ msgstr ""
 msgid "Today"
 msgstr ""
 
-msgid "Todo"
+msgid "To do"
 msgstr ""
 
 msgid "Todo was successfully marked as done."
@@ -12959,10 +12959,10 @@ msgstr ""
 msgid "Your Projects (default)"
 msgstr ""
 
-msgid "Your Projects' Activity"
+msgid "Your Project Activity"
 msgstr ""
 
-msgid "Your Todos"
+msgid "Your To-Do List"
 msgstr ""
 
 msgid "Your U2F device needs to be set up. Plug it in (if not already) and click the button on the left."

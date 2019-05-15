@@ -13,10 +13,10 @@ module PreferencesHelper
   DASHBOARD_CHOICES = {
     projects: _("Your Projects (default)"),
     stars:    _("Starred Projects"),
-    project_activity: _("Your Projects' Activity"),
-    starred_project_activity: _("Starred Projects' Activity"),
+    project_activity: _("Your Project Activity"),
+    starred_project_activity: _("Starred Project Activity"),
     groups: _("Your Groups"),
-    todos: _("Your Todos"),
+    todos: _("Your To-Do List"),
     issues: _("Assigned Issues"),
     merge_requests: _("Assigned Merge Requests"),
     operations: _("Operations Dashboard")

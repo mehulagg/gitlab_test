@@ -211,7 +211,7 @@ describe 'Dashboard Todos' do
     describe 'restoring the todo' do
       before do
         within first('.todo') do
-          click_link 'Add todo'
+          click_link 'Add to do'
         end
       end
 
