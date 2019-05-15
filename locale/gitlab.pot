@@ -911,7 +911,7 @@ msgstr ""
 msgid "All projects"
 msgstr ""
 
-msgid "Everything on your to-do-list is marked as done."
+msgid "Everything on your to-do list is marked as done."
 msgstr ""
 
 msgid "All users"

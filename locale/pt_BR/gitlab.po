@@ -828,7 +828,7 @@ msgstr "Todas as issues para este marco estão fechadas. Você pode fechar este 
 msgid "All merge conflicts were resolved. The merge request can now be merged."
 msgstr "Todos os conflitos de merge foram resolvidos. A merge request pode agora ter o merge realizado."
 
-msgid "Everything on your to-do-list is marked as done."
+msgid "Everything on your to-do list is marked as done."
 msgstr "Todos os afazeres foram marcados como concluídos."
 
 msgid "All users"

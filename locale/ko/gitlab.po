@@ -792,7 +792,7 @@ msgstr "현재 마일스톤에 관련된 모든 이슈들이 마감되었습니�
 msgid "All merge conflicts were resolved. The merge request can now be merged."
 msgstr ""
 
-msgid "Everything on your to-do-list is marked as done."
+msgid "Everything on your to-do list is marked as done."
 msgstr ""
 
 msgid "All users"

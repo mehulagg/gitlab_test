@@ -24,7 +24,7 @@ describe PreferencesHelper do
     it 'provides better option descriptions' do
       expect(helper.dashboard_choices).to match_array [
         ['Your Projects (default)', 'projects'],
-        ['Starred Projects,        'stars'],
+        ['Starred Projects',        'stars'],
         ["Your Project Activity", 'project_activity'],
         ["Starred Project Activity", 'starred_project_activity'],
         ["Your Groups", 'groups'],
