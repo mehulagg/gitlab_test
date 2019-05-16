@@ -174,7 +174,6 @@ the merge request. To enable this feature:
 1. Navigate to your project's **Settings > General** and expand
    **Merge request approvals**.
 1. Tick the **Require approval from code owners** checkbox
-   checkbox.
 1. Click **Save changes**.
 
 When this feature is enabled, all merge requests will need approval
