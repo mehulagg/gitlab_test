@@ -168,6 +168,24 @@ describe QA::Runtime::Env do
     end
   end
 
+  describe '.knapsack?' do
+    it 'returns true if KNAPSACK_GENERATE_REPORT is defined' do
+      stub_env('KNAPSACK_GENERATE_REPORT', 'true')
+
+      expect(described_class.knapsack?).to be_truthy
+    end
+
+    it 'returns true if KNAPSACK_REPORT_PATH is defined' do
+      stub_env('KNAPSACK_REPORT_PATH', '/a/path')
+
+      expect(described_class.knapsack?).to be_truthy
+    end
+
+    it 'returns false if neither KNAPSACK_GENERATE_REPORT nor KNAPSACK_REPORT_PATH are defined' do
+      expect(described_class.knapsack?).to be_falsey
+    end
+  end
+
   describe '.require_github_access_token!' do
     it 'raises ArgumentError if GITHUB_ACCESS_TOKEN is not defined' do
       stub_env('GITHUB_ACCESS_TOKEN', nil)

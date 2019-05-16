@@ -138,6 +138,10 @@ module QA
         ENV['GITLAB_QA_PASSWORD_2']
       end
 
+      def knapsack?
+        !!(ENV['KNAPSACK_GENERATE_REPORT'] || ENV['KNAPSACK_REPORT_PATH'])
+      end
+
       def ldap_username
         @ldap_username ||= ENV['GITLAB_LDAP_USERNAME']
       end
