@@ -12,7 +12,7 @@ class Packages::Package < ApplicationRecord
     presence: true,
     format: { with: Gitlab::Regex.package_name_regex }
 
-  enum package_type: { maven: 1, npm: 2 }
+  enum package_type: { maven: 1, npm: 2, gem: 3 }
 
   scope :with_name, ->(name) { where(name: name) }
   scope :has_version, -> { where.not(version: nil) }

@@ -698,6 +698,12 @@ module EE
         expose :dist_tags, as: 'dist-tags'
       end
 
+      class GemPackage < Grape::Entity
+        expose :name
+        expose :versions
+        expose :dist_tags, as: 'dist-tags'
+      end
+
       class Package < Grape::Entity
         expose :id
         expose :name

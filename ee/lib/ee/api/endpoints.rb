@@ -24,6 +24,7 @@ module EE
         mount ::API::ProjectPushRule
         mount ::API::MavenPackages
         mount ::API::NpmPackages
+        mount ::API::GemPackages
         mount ::API::Packages
         mount ::API::PackageFiles
         mount ::API::Scim
