@@ -77,7 +77,7 @@ request approval rules:
 
 1. Navigate to your project's **Settings > General** and expand **Merge request approvals**.
 1. Click **Add approvers** to create a new approval rule.
-1. Just like in [GitLab Starter](#editing-approvals), select the approval members and aprovals required.
+1. Just like in [GitLab Starter](#editing-approvals), select the approval members and approvals required.
 1. Give the approval rule a name that describes the set of approvers selected.
 1. Click **Add approvers** to submit the new rule.
 
