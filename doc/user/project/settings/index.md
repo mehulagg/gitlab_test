@@ -100,8 +100,8 @@ Only project Owners and Admin users have the [permissions] to transfer a project
 
 You can transfer an existing project into a [group](../../group/index.md) if:
 
-1. you have at least **Maintainer** [permissions] to that group
-1. you are an **Owner** of the project.
+1. You have at least **Maintainer** [permissions] to that group.
+1. The project is in a subgroup and you are an **Owner** of it or if the project is under your personal namespace and you are a **Maintainer** of it.
 
 Similarly, if you are an owner of a group, you can transfer any of its projects
 under your own user.
