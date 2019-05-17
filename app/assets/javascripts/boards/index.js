@@ -4,12 +4,12 @@ import Vue from 'vue';
 
 import Flash from '~/flash';
 import { __ } from '~/locale';
-import '~/boards/models/label';
-import '~/boards/models/assignee';
 
 import FilteredSearchBoards from './filtered_search_boards';
 import eventHub from './eventhub';
 import sidebarEventHub from '~/sidebar/event_hub';
+import './models/assignee';
+import './models/label';
 import './models/milestone';
 import './models/project';
 import boardsStore from './stores/boards_store';
