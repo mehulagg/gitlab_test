@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'rendering namespace statistics' do
@@ -12,7 +13,7 @@ describe 'rendering namespace statistics' do
   let(:query) do
     graphql_query_for('namespace',
                       { 'fullPath' => group.full_path },
-                      'statistics { packagesSize }')
+                      "statistics { #{all_graphql_fields_for('NamespaceStatistics')} }")
   end
 
   before do
