@@ -1,3 +1,6 @@
+// Duplicated in app/assets/javascripts/boards/models/label.js
+// See issue gitlab-ce#61293
+
 export default class ListLabel {
   constructor(obj) {
     this.id = obj.id;

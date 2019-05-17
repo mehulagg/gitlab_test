@@ -2,8 +2,8 @@
 /* global ListIssue */
 
 import { __ } from '~/locale';
-import ListLabel from '~/vue_shared/models/label';
-import ListAssignee from '~/vue_shared/models/assignee';
+import ListLabel from '~/boards/models/label';
+import ListAssignee from '~/boards/models/assignee';
 import { isEE, urlParamsToObject } from '~/lib/utils/common_utils';
 import boardsStore from '../stores/boards_store';
 import ListMilestone from './milestone';
