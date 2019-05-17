@@ -23,5 +23,5 @@ export const REPORT_STATUS = {
 };
 
 export const FETCH_ERROR_MESSAGE = __(
-  'Error fetching the Bill of Materials. Please check your network connection and try again.',
+  'Error fetching the Dependency List. Please check your network connection and try again.',
 );
