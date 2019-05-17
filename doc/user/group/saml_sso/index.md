@@ -27,7 +27,7 @@ SAML SSO for groups is used only as a convenient way to add users and does not s
 SSO enforcement was:
 
 - [Introduced in GitLab 11.8](https://gitlab.com/gitlab-org/gitlab-ee/issues/5291).
-- [Added to <something> in GitLab 11.11](https://gitlab.com/gitlab-org/gitlab-ee/issues/9255).
+- [Improved upon in GitLab 11.11 with ongoing enforcement in the GitLab UI](https://gitlab.com/gitlab-org/gitlab-ee/issues/9255).
 
 With this option enabled, users must use your group's GitLab single sign on URL to be added to the group or be added via SCIM. Users cannot be added manually, and may only access project/group resources via the UI by signing in through the SSO URL.
 
