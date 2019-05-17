@@ -48,19 +48,19 @@ describe '[EE] Internal Group access' do
   describe 'GET /groups/:path' do
     subject { group_path(group) }
 
-    it { is_expected.to be_denied_for(:auditor) }
+    it { is_expected.to be_allowed_for(:auditor) }
   end
 
   describe 'GET /groups/:path/issues' do
     subject { issues_group_path(group) }
 
-    it { is_expected.to be_denied_for(:auditor) }
+    it { is_expected.to be_allowed_for(:auditor) }
   end
 
   describe 'GET /groups/:path/merge_requests' do
     let(:project) { create(:project, :internal, :repository, group: group) }
     subject { merge_requests_group_path(group) }
 
-    it { is_expected.to be_denied_for(:auditor) }
+    it { is_expected.to be_allowed_for(:auditor) }
   end
 end
