@@ -1,0 +1,74 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DependenciesActions component matches snapshot 1`] = `
+<div
+  class="btn-toolbar"
+>
+  <div
+    class="btn-group flex-grow-1 mr-2"
+  >
+    <gldropdown-stub
+      class="flex-grow-1 text-center"
+      right=""
+      text="Component name"
+    >
+      <gldropdownitem-stub>
+        <span
+          class="d-flex"
+        >
+          <icon-stub
+            class="flex-shrink-0 js-check"
+            cssclasses=""
+            name="mobile-issue-close"
+            size="16"
+          />
+           
+          <span
+            class="prepend-left-4"
+          >
+            Component name
+          </span>
+        </span>
+      </gldropdownitem-stub>
+      <gldropdownitem-stub>
+        <span
+          class="d-flex"
+        >
+          <!---->
+           
+          <span
+            class="prepend-left-20"
+          >
+            Packager
+          </span>
+        </span>
+      </gldropdownitem-stub>
+    </gldropdown-stub>
+     
+    <glbutton-stub
+      class="flex-grow-0"
+      data-original-title="Sort direction"
+      title=""
+    >
+      <icon-stub
+        cssclasses=""
+        name="sort-lowest"
+        size="16"
+      />
+    </glbutton-stub>
+  </div>
+   
+  <glbutton-stub
+    data-original-title="Export as JSON"
+    download="dependencies.json"
+    href=""
+    title=""
+  >
+    <icon-stub
+      cssclasses=""
+      name="download"
+      size="16"
+    />
+  </glbutton-stub>
+</div>
+`;
