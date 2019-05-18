@@ -152,6 +152,10 @@ module API
 
         Gitlab::Metrics.add_event(:update_build)
 
+        if params[:state].in?(%w[success failed])
+          ::Ci::ExpirePipelineCacheService.new.execute(job.pipeline)
+        end
+
         case params[:state].to_s
         when 'running'
           job.touch if job.needs_touch?

@@ -941,9 +941,17 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
 
       before do
         job.run!
+
+        allow(::Ci::ExpirePipelineCacheService).to receive_message_chain(:new, :execute)
       end
 
       context 'when status is given' do
+        it 'expires the pipeline cache' do
+          expect(::Ci::ExpirePipelineCacheService).to receive_message_chain(:new, :execute)
+
+          update_job(state: 'success')
+        end
+
         it 'mark job as succeeded' do
           update_job(state: 'success')
 
