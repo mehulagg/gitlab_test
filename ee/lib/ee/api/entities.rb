@@ -445,6 +445,27 @@ module EE
         end
       end
 
+      class MergeTrainsSummary < Grape::Entity
+        expose :total_count do |merge_request|
+          MergeTrain.all_in_train(merge_request).count
+        end
+
+        expose :create_path do |merge_request|
+          create_train_project_merge_request_path(merge_request.project, merge_request)
+        end
+      end
+
+      class MergeTrain < Grape::Entity
+        expose :index
+        expose :user, using: UserEntity
+        expose :pipeline, using: PipelineEntity
+        expose :created_at
+
+        expose :cancel_path do |merge_train|
+          cancel_train_project_merge_request_path(merge_train.project, merge_train.merge_request)
+        end
+      end
+
       class LdapGroup < Grape::Entity
         expose :cn
       end

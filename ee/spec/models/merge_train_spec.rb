@@ -114,6 +114,22 @@ describe MergeTrain do
     end
   end
 
+  describe '#index' do
+    subject { merge_train.index }
+
+    let(:merge_train) { merge_request.merge_train }
+    let!(:merge_request) { create_merge_request_on_train }
+
+    it { is_expected.to eq(0) }
+
+    context 'when the merge train is at the second queue' do
+      let(:merge_train) { merge_request_2.merge_train }
+      let!(:merge_request_2) { create_merge_request_on_train(source_branch: 'improve/awesome') }
+
+      it { is_expected.to eq(1) }
+    end
+  end
+
   def create_merge_request_on_train(target_project: project, target_branch: 'master', source_project: project, source_branch: 'feature')
     create(:merge_request,
       :on_train,

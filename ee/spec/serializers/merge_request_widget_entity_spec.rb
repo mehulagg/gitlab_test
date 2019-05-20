@@ -195,7 +195,42 @@ describe MergeRequestWidgetEntity do
     expect(subject.as_json).to include(:pipeline_id)
   end
 
-  it 'has merge trains flag' do
-    expect(subject.as_json).to include(:merge_trains_enabled)
+  describe 'Merge Trains' do
+    let!(:merge_train) { create(:merge_train, merge_request: merge_request) }
+
+    before do
+      stub_licensed_features(merge_pipelines: true, merge_trains: true)
+      project.update!(merge_pipelines_enabled: true)
+      project.update!(merge_trains_enabled: true)
+    end
+
+    it 'has merge train entity' do
+      expect(subject.as_json[:merge_train]).to include(:index)
+      expect(subject.as_json[:merge_train]).to include(:user)
+      expect(subject.as_json[:merge_train]).to include(:pipeline)
+      expect(subject.as_json[:merge_train]).to include(:created_at)
+    end
+
+    it 'has merge train summary entity' do
+      expect(subject.as_json[:merge_trains_summary]).to include(:total_count)
+    end
+
+    context 'when the merge request is not on a merge train' do
+      let!(:merge_train) { }
+
+      it 'does not have merge_train entity' do
+        expect(subject.as_json).not_to include(:merge_train)
+      end
+    end
+
+    context 'when the merge train feature is disabled' do
+      before do
+        project.update!(merge_trains_enabled: false)
+      end
+
+      it 'does not have merge train summary entity' do
+        expect(subject.as_json).not_to include(:merge_trains_summary)
+      end
+    end
   end
 end
