@@ -1,6 +1,7 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import { GlDropdownItem } from '@gitlab/ui';
 import createStore from 'ee/dependencies/store';
+import { SORT_FIELDS } from 'ee/dependencies/store/constants';
 import DependenciesActions from 'ee/dependencies/components/dependencies_actions.vue';
 
 describe('DependenciesActions component', () => {
@@ -14,7 +15,7 @@ describe('DependenciesActions component', () => {
 
     store = createStore();
     jest.spyOn(store, 'dispatch');
-    wrapper = mount(localVue.extend(DependenciesActions), {
+    wrapper = shallowMount(localVue.extend(DependenciesActions), {
       localVue,
       store,
       sync: false,
@@ -33,13 +34,25 @@ describe('DependenciesActions component', () => {
     expect(wrapper.element).toMatchSnapshot();
   });
 
-  it('dispatches the setSortField action on clicking item in dropdown', () => {
-    const item = wrapper.find(GlDropdownItem);
-    item.trigger('click');
-    expect(store.dispatch).toHaveBeenCalledWith('setSortField', expect.any(String));
+  it('dispatches the right setSortField action on clicking each item in the dropdown', () => {
+    const dropdownItems = wrapper.findAll(GlDropdownItem).wrappers;
+
+    dropdownItems.forEach(item => {
+      // trigger() does not work on stubbed/shallow mounted components
+      // https://github.com/vuejs/vue-test-utils/issues/919
+      item.vm.$emit('click');
+    });
+
+    expect(store.dispatch.mock.calls).toEqual(
+      expect.arrayContaining(Object.keys(SORT_FIELDS).map(field => ['setSortField', field])),
+    );
   });
 
-  it.todo('dispatches the setSortOrder action on clicking item in dropdown');
+  it('dispatches the toggleSortOrder action on clicking the sort order button', () => {
+    const sortButton = wrapper.find('.js-sort-order');
+    sortButton.vm.$emit('click');
+    expect(store.dispatch).toHaveBeenCalledWith('toggleSortOrder');
+  });
 
   it.todo('has a button to export the dependency list');
 });
