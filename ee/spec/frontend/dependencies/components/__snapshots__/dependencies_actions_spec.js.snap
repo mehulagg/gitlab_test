@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`DependenciesActions component matches snapshot 1`] = `
+exports[`DependenciesActions component matches the snapshot 1`] = `
 <div
   class="btn-toolbar"
 >
