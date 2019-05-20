@@ -1,0 +1,5 @@
+---
+title: 'Geo: Remove Gitlab::LfsToken::LegacyRedisDeviseToken implementation and usage'
+merge_request: 12996
+author:
+type: changed
