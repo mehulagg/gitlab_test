@@ -35,7 +35,7 @@ module MergeRequests
     # Cancels the automatic merge
     def cancel(merge_request)
       if merge_request.merge_when_pipeline_succeeds? && merge_request.open?
-        merge_request.reset_merge_when_pipeline_succeeds
+        merge_request.reset_auto_merge
         SystemNoteService.cancel_merge_when_pipeline_succeeds(merge_request, @project, @current_user)
 
         success

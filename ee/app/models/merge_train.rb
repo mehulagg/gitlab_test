@@ -5,6 +5,8 @@ class MergeTrain < ApplicationRecord
   belongs_to :user
   belongs_to :pipeline, class_name: 'Ci::Pipeline'
 
+  delegate :project, to: :merge_request
+
   class << self
     def all_in_train(merge_request)
       joined_merge_requests(merge_request).order('merge_trains.id ASC')
@@ -23,6 +25,10 @@ class MergeTrain < ApplicationRecord
 
   def all_next
     self.class.all_in_train(merge_request).where('merge_trains.id > ?', id)
+  end
+
+  def index
+    self.class.all_in_train(merge_request).where('merge_trains.id < ?', id).count
   end
 
   def first_in_train?

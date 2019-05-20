@@ -145,14 +145,18 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
     render partial: 'projects/merge_requests/widget/commit_change_content', layout: false
   end
 
-  def cancel_merge_when_pipeline_succeeds
-    unless @merge_request.can_cancel_merge_when_pipeline_succeeds?(current_user)
+  def cancel_auto_merge
+    unless @merge_request.can_cancel_auto_merge?(current_user)
       return access_denied!
     end
 
-    ::MergeRequests::MergeWhenPipelineSucceedsService
-      .new(@project, current_user)
-      .cancel(@merge_request)
+    if @merge_request.merge_params[:merge_when_pipeline_succeeds]
+      ::MergeRequests::MergeWhenPipelineSucceedsService
+        .new(@project, current_user)
+        .cancel(@merge_request)
+    elsif @merge_request.merge_params[:merge_when_target_succeeds]
+      ::MergeTrains::ProcessService.new(@project, current_user).cancel(@merge_request)
+    end
 
     render json: serialize_widget(@merge_request)
   end

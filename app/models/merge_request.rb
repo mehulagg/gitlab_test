@@ -782,7 +782,7 @@ class MergeRequest < ApplicationRecord
     project.ff_merge_must_be_possible? && !ff_merge_possible?
   end
 
-  def can_cancel_merge_when_pipeline_succeeds?(current_user)
+  def can_cancel_auto_merge?(current_user)
     can_be_merged_by?(current_user) || self.author == current_user
   end
 
@@ -973,11 +973,12 @@ class MergeRequest < ApplicationRecord
     end
   end
 
-  def reset_merge_when_pipeline_succeeds
-    return unless merge_when_pipeline_succeeds?
+  def reset_auto_merge
+    return unless merge_when_pipeline_succeeds? || on_train?
 
     self.merge_when_pipeline_succeeds = false
     self.merge_user = nil
+    get_off_train!
     if merge_params
       merge_params.delete('should_remove_source_branch')
       merge_params.delete('commit_message')
