@@ -35,8 +35,9 @@ describe('LicenseManagement', () => {
   });
 
   describe('License Form', () => {
-    it('should render the form if the form is open', done => {
+    it('should render the form if the form is open and disable the form button', done => {
       vm.formIsOpen = true;
+      store.replaceState({ ...store.state, isLoadingManagedLicenses: false });
 
       return Vue.nextTick()
         .then(() => {
@@ -45,7 +46,7 @@ describe('LicenseManagement', () => {
           expect(formEl).not.toBeNull();
           const buttonEl = vm.$el.querySelector('.js-open-form');
 
-          expect(buttonEl).toBeNull();
+          expect(buttonEl).toHaveClass('disabled');
           done();
         })
         .catch(done.fail);
@@ -53,6 +54,7 @@ describe('LicenseManagement', () => {
 
     it('should render the button if the form is closed', done => {
       vm.formIsOpen = false;
+      store.replaceState({ ...store.state, isLoadingManagedLicenses: false });
 
       return Vue.nextTick()
         .then(() => {
@@ -67,14 +69,21 @@ describe('LicenseManagement', () => {
         .catch(done.fail);
     });
 
-    it('clicking the Add a license button opens the form', () => {
-      const linkEl = vm.$el.querySelector('.js-open-form');
+    it('clicking the Add a license button opens the form', done => {
+      store.replaceState({ ...store.state, isLoadingManagedLicenses: false });
 
-      expect(vm.formIsOpen).toBe(false);
+      return Vue.nextTick()
+        .then(() => {
+          const linkEl = vm.$el.querySelector('.js-open-form');
 
-      linkEl.click();
+          expect(vm.formIsOpen).toBe(false);
 
-      expect(vm.formIsOpen).toBe(true);
+          linkEl.click();
+
+          expect(vm.formIsOpen).toBe(true);
+          done();
+        })
+        .catch(done.fail);
     });
   });
 
@@ -83,7 +92,7 @@ describe('LicenseManagement', () => {
 
     return Vue.nextTick()
       .then(() => {
-        expect(vm.$el.querySelector('.loading-container')).not.toBeNull();
+        expect(vm.$el.classList.contains('loading-container')).toEqual(true);
         done();
       })
       .catch(done.fail);
@@ -104,7 +113,7 @@ describe('LicenseManagement', () => {
   });
 
   it('should render delete confirmation modal', done => {
-    store.replaceState({ ...store.state });
+    store.replaceState({ ...store.state, isLoadingManagedLicenses: false });
 
     return Vue.nextTick()
       .then(() => {

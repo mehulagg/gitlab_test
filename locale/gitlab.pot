@@ -7668,6 +7668,9 @@ msgstr ""
 msgid "LicenseManagement|There are currently no approved or blacklisted licenses in this project."
 msgstr ""
 
+msgid "LicenseManagement|There are currently no approved or blacklisted licenses that match in this project."
+msgstr ""
+
 msgid "LicenseManagement|This license already exists in this project."
 msgstr ""
 
@@ -9076,6 +9079,12 @@ msgid "Pages Domains"
 msgstr ""
 
 msgid "Pages getting started guide"
+msgstr ""
+
+msgid "PaginatedList|Sorry, your filter produced no results."
+msgstr ""
+
+msgid "PaginatedList|There are currently no items in this list."
 msgstr ""
 
 msgid "Pagination|Last »"
