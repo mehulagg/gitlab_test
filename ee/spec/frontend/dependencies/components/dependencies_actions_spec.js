@@ -5,8 +5,6 @@ import { SORT_FIELDS } from 'ee/dependencies/store/constants';
 import DependenciesActions from 'ee/dependencies/components/dependencies_actions.vue';
 
 describe('DependenciesActions component', () => {
-  test.todo('needs testing');
-
   let store;
   let wrapper;
 
@@ -54,5 +52,13 @@ describe('DependenciesActions component', () => {
     expect(store.dispatch).toHaveBeenCalledWith('toggleSortOrder');
   });
 
-  it.todo('has a button to export the dependency list');
+  it('has a button to export the dependency list', () => {
+    const download = wrapper.find('.js-download');
+    expect(download.attributes()).toEqual(
+      expect.objectContaining({
+        href: expect.any(String),
+        download: expect.any(String),
+      }),
+    );
+  });
 });
