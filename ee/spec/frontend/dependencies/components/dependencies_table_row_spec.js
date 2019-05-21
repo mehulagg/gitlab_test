@@ -1,5 +1,6 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import DependenciesTableRow from 'ee/dependencies/components/dependencies_table_row.vue';
+import { makeDependency } from './utils';
 
 describe('DependenciesTableRow component', () => {
   let wrapper;
@@ -44,14 +45,7 @@ describe('DependenciesTableRow component', () => {
     beforeEach(() => {
       factory({
         isLoading: false,
-        dependency: {
-          name: 'left-pad',
-          version: '0.0.3',
-          type: 'npm',
-          location: {
-            blob_path: 'yarn.lock',
-          },
-        },
+        dependency: makeDependency(),
       });
     });
 

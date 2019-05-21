@@ -1,6 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import DependenciesTable from 'ee/dependencies/components/dependencies_table.vue';
 import DependenciesTableRow from 'ee/dependencies/components/dependencies_table_row.vue';
+import { makeDependency } from './utils';
 
 describe('DependenciesTable component', () => {
   let wrapper;
@@ -14,15 +15,6 @@ describe('DependenciesTable component', () => {
       propsData: { ...props },
     });
   };
-
-  // TODO: move this into utils or helpers and update table row spec to use it
-  const makeDependency = (changes = {}) => ({
-    name: 'left-pad',
-    version: '0.0.3',
-    type: 'npm',
-    location: { blob_path: 'yarn.lock' },
-    ...changes,
-  });
 
   afterEach(() => {
     wrapper.destroy();
