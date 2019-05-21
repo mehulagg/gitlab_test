@@ -25,6 +25,7 @@ describe('DependenciesTable component', () => {
       factory({
         dependencies: [],
         isLoading: false,
+        // TODO: remove hasError prop?
         hasError: false,
       });
     });
