@@ -10,11 +10,13 @@ export default {
   props: {
     dependency: {
       type: Object,
-      required: true,
+      required: false,
+      default: null,
     },
     isLoading: {
       type: Boolean,
-      required: true,
+      required: false,
+      default: true,
     },
   },
   computed: {
