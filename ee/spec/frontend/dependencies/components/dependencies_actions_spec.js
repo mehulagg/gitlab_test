@@ -8,7 +8,7 @@ describe('DependenciesActions component', () => {
   let store;
   let wrapper;
 
-  const factory = (props = {}) => {
+  const factory = () => {
     const localVue = createLocalVue();
 
     store = createStore();
