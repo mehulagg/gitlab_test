@@ -15,6 +15,7 @@ export default {
       type: Boolean,
       required: true,
     },
+    // TODO: remove this? probably doesn't belong here anymore.
     hasError: {
       type: Boolean,
       required: true,
