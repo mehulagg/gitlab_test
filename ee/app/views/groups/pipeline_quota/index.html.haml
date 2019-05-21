@@ -1,18 +1,20 @@
-- page_title "Pipelines quota"
+- page_title s_("UsageQuota|Usage")
 
 %h3.page-title
-  Group pipelines quota
+  = s_('UsageQuota|Usage Quotas')
   = link_to icon('question-circle'), help_page_path("user/admin_area/settings/continuous_integration", anchor: "shared-runners-build-minutes-quota"), target: '_blank'
 
 .row
   .col-sm-6
-    Monthly pipeline minutes usage across shared Runners for the
-    %strong= @group.name
-    group
-
+    = s_('UsageQuota|Usage of group resources across the projects in the %{strong_start}%{group_name}%{strong_end} group').html_safe % { strong_start: '<strong>'.html_safe, strong_end: '</strong>'.html_safe, group_name: @group.name }
   .col-sm-6
     %p.text-right
       = link_to 'Buy additional minutes', EE::SUBSCRIPTIONS_PLANS_URL, target: '_blank', class: 'btn btn-inverted btn-success right text-right'
+
+%ul.nav-links.scrolling-tabs.separator
+  = nav_link(page: group_pipeline_quota_path) do
+    = link_to(group_pipeline_quota_path, anchor: 'pipelines-quota') do
+      Pipelines Quota
 
 = render "namespaces/pipelines_quota/list",
   locals: { namespace: @group, projects: @projects }
