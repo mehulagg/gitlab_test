@@ -5,7 +5,7 @@ import ToggleButton from '~/vue_shared/components/toggle_button.vue';
 import EnvironmentsDropdown from 'ee/feature_flags/components/environments_dropdown.vue';
 import { internalKeyID } from 'ee/feature_flags/store/modules/helpers';
 
-fdescribe('feature flag form', () => {
+describe('feature flag form', () => {
   let wrapper;
   const requiredProps = {
     cancelPath: 'feature_flags',
