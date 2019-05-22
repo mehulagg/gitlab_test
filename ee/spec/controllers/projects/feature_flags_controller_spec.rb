@@ -678,6 +678,35 @@ describe Projects::FeatureFlagsController do
           .to be_falsy
       end
     end
+
+    context "when saving a percentage roll out" do
+      let!(:production_scope) { create_scope(feature_flag, 'production', true) }
+      let(:params) do
+        {
+          namespace_id: project.namespace,
+          project_id: project,
+          id: feature_flag.id,
+          operations_feature_flag: {
+            scopes_attributes: [
+              {
+                id: production_scope.id,
+                percentage: 50
+              }
+            ]
+          }
+        }
+      end
+
+      it 'saves the percentage value' do
+        put(:update, params: params, format: :json)
+
+        production_scope = json_response['scopes'].select do |s|
+          s['environment_scope'] == 'production'
+        end.first
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(production_scope['percentage']).to eq(50)
+      end
+    end
   end
 
   private

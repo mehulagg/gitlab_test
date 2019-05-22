@@ -2199,6 +2199,7 @@ ActiveRecord::Schema.define(version: 20190603124955) do
     t.datetime_with_timezone "updated_at", null: false
     t.boolean "active", null: false
     t.string "environment_scope", default: "*", null: false
+    t.integer "percentage"
     t.index ["feature_flag_id", "environment_scope"], name: "index_feature_flag_scopes_on_flag_id_and_environment_scope", unique: true, using: :btree
   end
 

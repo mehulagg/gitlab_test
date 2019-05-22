@@ -7,6 +7,22 @@
   "properties": {
     "name": {
       "type": "string"
+    },
+    "parameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "groupId",
+        "percentage"
+      ],
+      "properties": {
+        "groupId": {
+          "type": "string"
+        },
+        "percentage": {
+          "type": "integer"
+        }
+      }
     }
   }
 }

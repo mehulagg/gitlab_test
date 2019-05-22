@@ -44,8 +44,8 @@ module Operations
     end
 
     scope :for_environment, -> (environment) do
-      select("operations_feature_flags.*" \
-             ", (#{actual_active_sql(environment)}) AS active")
+      sql = "operations_feature_flags.*, (#{actual_active_sql(environment)}) AS active, (#{percentage_sql(environment)}) AS percentage"
+      select(sql)
     end
 
     scope :for_list, -> do
@@ -56,10 +56,17 @@ module Operations
     class << self
       def actual_active_sql(environment)
         Operations::FeatureFlagScope
-          .where('operations_feature_flag_scopes.feature_flag_id = ' \
-                 'operations_feature_flags.id')
+          .where('operations_feature_flag_scopes.feature_flag_id = operations_feature_flags.id')
           .on_environment(environment, relevant_only: true)
           .select('active')
+          .to_sql
+      end
+
+      def percentage_sql(environment)
+        Operations::FeatureFlagScope
+          .where('operations_feature_flag_scopes.feature_flag_id = operations_feature_flags.id')
+          .on_environment(environment, relevant_only: true)
+          .select('percentage')
           .to_sql
       end
 
@@ -75,9 +82,21 @@ module Operations
     end
 
     def strategies
-      [
-        { name: 'default' }
-      ]
+      if percentage
+        [
+          {
+            name: 'gradualRolloutUserId',
+            parameters: {
+              groupId: 'default',
+              percentage: percentage
+            }
+          }
+        ]
+      else
+        [
+          { name: 'default' }
+        ]
+      end
     end
 
     private
