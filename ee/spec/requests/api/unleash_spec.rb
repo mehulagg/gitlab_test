@@ -178,7 +178,7 @@ describe API::Unleash do
         client = create(:operations_feature_flags_client, project: project)
         headers = { "UNLEASH-INSTANCEID" => client.token, "UNLEASH-APPNAME" => "sandbox" }
         feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', active: true)
-        feature_flag_scope = create(:operations_feature_flag_scope, feature_flag: feature_flag, environment_scope: 'sandbox', active: true, percentage: 40)
+        create(:operations_feature_flag_scope, feature_flag: feature_flag, environment_scope: 'sandbox', active: true, percentage: 40)
 
         get api("/feature_flags/unleash/#{project_id}/features"), params: nil, headers: headers
 
