@@ -12,18 +12,11 @@ describe('Dependencies mutations', () => {
   });
 
   describe(types.SET_DEPENDENCIES_ENDPOINT, () => {
-    it('sets the endpoint', () => {
+    it('sets the endpoint and download endpoint', () => {
       mutations[types.SET_DEPENDENCIES_ENDPOINT](state, TEST_HOST);
 
       expect(state.endpoint).toBe(TEST_HOST);
-    });
-  });
-
-  describe(types.SET_DEPENDENCIES_DOWNLOAD_ENDPOINT, () => {
-    it('sets the download endpoint', () => {
-      mutations[types.SET_DEPENDENCIES_DOWNLOAD_ENDPOINT](state, TEST_HOST);
-
-      expect(state.dependenciesDownloadEndpoint).toBe(TEST_HOST);
+      expect(state.dependenciesDownloadEndpoint).toBe(TEST_HOST + '.json');
     });
   });
 

@@ -17,10 +17,6 @@ export default {
     Pagination,
   },
   props: {
-    dependenciesDownloadEndpoint: {
-      type: String,
-      required: true,
-    },
     endpoint: {
       type: String,
       required: true,
@@ -44,15 +40,10 @@ export default {
   },
   created() {
     this.setDependenciesEndpoint(this.endpoint);
-    this.setDependenciesDownloadEndpoint(this.dependenciesDownloadEndpoint);
     this.fetchDependencies();
   },
   methods: {
-    ...mapActions([
-      'setDependenciesEndpoint',
-      'setDependenciesDownloadEndpoint',
-      'fetchDependencies',
-    ]),
+    ...mapActions(['setDependenciesEndpoint', 'fetchDependencies']),
     fetchPage(page) {
       this.fetchDependencies({ page });
     },

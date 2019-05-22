@@ -54,24 +54,6 @@ describe('Dependencies actions', () => {
     });
   });
 
-  describe('setDependenciesDownloadEndpoint', () => {
-    it('commits the correct mutation', done => {
-      testAction(
-        actions.setDependenciesDownloadEndpoint,
-        TEST_HOST,
-        getInitialState(),
-        [
-          {
-            type: types.SET_DEPENDENCIES_DOWNLOAD_ENDPOINT,
-            payload: TEST_HOST,
-          },
-        ],
-        [],
-        done,
-      );
-    });
-  });
-
   describe('requestDependencies', () => {
     it('commits the correct mutation', done => {
       testAction(

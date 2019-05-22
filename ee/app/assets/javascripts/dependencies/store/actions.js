@@ -18,9 +18,6 @@ if (process.env.NODE_ENV === 'test') {
 export const setDependenciesEndpoint = ({ commit }, endpoint) =>
   commit(types.SET_DEPENDENCIES_ENDPOINT, endpoint);
 
-export const setDependenciesDownloadEndpoint = ({ commit }, endpoint) =>
-  commit(types.SET_DEPENDENCIES_DOWNLOAD_ENDPOINT, endpoint);
-
 export const requestDependencies = ({ commit }) => commit(types.REQUEST_DEPENDENCIES);
 
 export const receiveDependenciesSuccess = ({ commit }, { headers, data }) => {

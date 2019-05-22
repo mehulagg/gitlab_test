@@ -4,9 +4,7 @@ import { SORT_ORDER } from './constants';
 export default {
   [types.SET_DEPENDENCIES_ENDPOINT](state, payload) {
     state.endpoint = payload;
-  },
-  [types.SET_DEPENDENCIES_DOWNLOAD_ENDPOINT](state, payload) {
-    state.dependenciesDownloadEndpoint = payload;
+    state.dependenciesDownloadEndpoint = `${payload}.json`;
   },
   [types.REQUEST_DEPENDENCIES](state) {
     state.isLoading = true;
