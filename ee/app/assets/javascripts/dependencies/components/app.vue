@@ -1,6 +1,6 @@
 <script>
 import { mapActions, mapState } from 'vuex';
-import { GlBadge, GlEmptyState, GlLoadingIcon } from '@gitlab/ui';
+import { GlBadge, GlButton, GlEmptyState, GlLoadingIcon } from '@gitlab/ui';
 import Pagination from '~/vue_shared/components/pagination_links.vue';
 import DependenciesActions from './dependencies_actions.vue';
 import DependenciesTable from './dependencies_table.vue';
@@ -66,6 +66,40 @@ export default {
   />
 
   <div v-else>
+    <div class="warning_message">
+      <h4>{{ __('Unsupported file(s) detected') }}</h4>
+      <p>
+        {{
+          __(
+            'One or more of your dependency files are not supported, and the dependency list may be incomplete. Below is a list of supported file types.',
+          )
+        }}
+      </p>
+      <ul>
+        <li>package-lock.json</li>
+        <li>composer.lock</li>
+        <li>Gemfile.lock</li>
+        <li>gems.locked</li>
+        <li>yarn.lock</li>
+        <li>requirements.txt</li>
+        <li>pom.xml</li>
+      </ul>
+    </div>
+
+    <div class="danger_message">
+      <h4>{{ __('Job failed to generate the dependency list') }}</h4>
+      <p>
+        {{
+          __(
+            'The dependency_list job has failed and cannot generate the list. Please ensure the job is running properly and run the pipeline again.',
+          )
+        }}
+      </p>
+      <gl-button :href="'#'">
+        {{ __('View job') }}
+      </gl-button>
+    </div>
+
     <div class="d-sm-flex justify-content-between align-items-baseline my-2">
       <h4 class="h5">
         {{ __('Dependencies') }}
