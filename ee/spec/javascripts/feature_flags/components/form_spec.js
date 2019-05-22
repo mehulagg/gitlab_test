@@ -5,7 +5,7 @@ import ToggleButton from '~/vue_shared/components/toggle_button.vue';
 import EnvironmentsDropdown from 'ee/feature_flags/components/environments_dropdown.vue';
 import { internalKeyID } from 'ee/feature_flags/store/modules/helpers';
 
-describe('feature flag form', () => {
+fdescribe('feature flag form', () => {
   let wrapper;
   const requiredProps = {
     cancelPath: 'feature_flags',
@@ -158,6 +158,16 @@ describe('feature flag form', () => {
             expect(wrapper.vm.newScope).toEqual('');
           });
         });
+
+        describe('entering a value for the scope rollout', () => {
+          it('updates the scope', () => {
+            wrapper.find('.js-scope-percentage input').setValue('60');
+
+            const productionScope = wrapper.vm.formScopes[0];
+
+            expect(productionScope.percentage).toEqual('60');
+          });
+        });
       });
 
       describe('deleting an existing scope', () => {
@@ -299,6 +309,11 @@ describe('feature flag form', () => {
         wrapper.find('#feature-flag-name').setValue('feature_flag_2');
 
         wrapper
+          .find('.js-add-new-scope')
+          .find('.js-scope-percentage input')
+          .setValue('35');
+
+        wrapper
           .find('.js-new-scope-name')
           .find(EnvironmentsDropdown)
           .vm.$emit('selectEnvironment', 'review');
@@ -311,6 +326,7 @@ describe('feature flag form', () => {
         wrapper.vm.handleSubmit();
 
         const data = wrapper.emitted().handleSubmit[0][0];
+        const newScope = data.scopes.filter(scope => scope.environment_scope == 'review')[0];
 
         expect(data.name).toEqual('feature_flag_2');
         expect(data.description).toEqual('this is a feature flag');
@@ -321,6 +337,7 @@ describe('feature flag form', () => {
           can_update: true,
           protected: true,
         });
+        expect(newScope.percentage).toEqual('35');
       });
     });
   });

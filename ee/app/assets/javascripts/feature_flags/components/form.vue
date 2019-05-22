@@ -51,6 +51,7 @@ export default {
       formScopes: this.scopes || [],
 
       newScope: '',
+      newScopePercentage: '',
     };
   },
   helpText: sprintf(
@@ -159,10 +160,12 @@ export default {
     createNewEnvironment(name) {
       this.formScopes.push({
         environment_scope: name,
+        percentage: this.newScopePercentage,
         active: false,
         id: _.uniqueId(internalKeyID),
       });
       this.newScope = '';
+      this.newScopePercentage = '';
     },
     /**
      * When the user clicks the submit button
@@ -219,11 +222,14 @@ export default {
 
           <div class="js-scopes-table prepend-top-default">
             <div class="gl-responsive-table-row table-row-header" role="row">
-              <div class="table-section section-60" role="columnheader">
+              <div class="table-section section-70" role="columnheader">
                 {{ s__('FeatureFlags|Environment Spec') }}
               </div>
-              <div class="table-section section-20" role="columnheader">
+              <div class="table-section section-10" role="columnheader">
                 {{ s__('FeatureFlags|Status') }}
+              </div>
+              <div class="table-section section-10" role="columnheader">
+                {{ s__('FeatureFlags|Rollout') }}
               </div>
             </div>
 
@@ -233,7 +239,7 @@ export default {
               class="gl-responsive-table-row"
               role="row"
             >
-              <div class="table-section section-60" role="gridcell">
+              <div class="table-section section-70" role="gridcell">
                 <div class="table-mobile-header" role="rowheader">
                   {{ s__('FeatureFlags|Environment Spec') }}
                 </div>
@@ -261,7 +267,7 @@ export default {
                 </div>
               </div>
 
-              <div class="table-section section-20" role="gridcell">
+              <div class="table-section section-10" role="gridcell">
                 <div class="table-mobile-header" role="rowheader">
                   {{ s__('FeatureFlags|Status') }}
                 </div>
@@ -274,7 +280,19 @@ export default {
                 </div>
               </div>
 
-              <div class="table-section section-20" role="gridcell">
+              <div class="table-section section-10" role="gridcell">
+                <div class="table-mobile-header" role="rowheader">
+                  {{ s__('FeatureFlags|Rollout') }}
+                </div>
+                <div class="table-mobile-content js-scope-percentage">
+                  <input
+                    class="form-control"
+                    v-model="scope.percentage"
+                  />
+                </div>
+              </div>
+
+              <div class="table-section section-10" role="gridcell">
                 <div class="table-mobile-header" role="rowheader">
                   {{ s__('FeatureFlags|Status') }}
                 </div>
@@ -291,7 +309,7 @@ export default {
             </div>
 
             <div class="js-add-new-scope gl-responsive-table-row" role="row">
-              <div class="table-section section-60" role="gridcell">
+              <div class="table-section section-70" role="gridcell">
                 <div class="table-mobile-header" role="rowheader">
                   {{ s__('FeatureFlags|Environment Spec') }}
                 </div>
@@ -306,12 +324,21 @@ export default {
                 </div>
               </div>
 
-              <div class="table-section section-20" role="gridcell">
+              <div class="table-section section-10" role="gridcell">
                 <div class="table-mobile-header" role="rowheader">
                   {{ s__('FeatureFlags|Status') }}
                 </div>
                 <div class="table-mobile-content js-feature-flag-status">
                   <toggle-button :value="false" @change="onChangeNewScopeStatus" />
+                </div>
+              </div>
+
+              <div class="table-section section-10" role="gridcell">
+                <div class="table-mobile-header" role="rowheader">
+                  {{ s__('FeatureFlags|Rollout') }}
+                </div>
+                <div class="table-mobile-content js-scope-percentage">
+                  <input class="form-control" v-model="newScopePercentage" />
                 </div>
               </div>
             </div>
