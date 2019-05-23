@@ -65,8 +65,12 @@ export default {
           })
         : '';
     },
-    scopeName(name) {
-      return name === '*' ? s__('FeatureFlags|* (All environments)') : name;
+    badgeText(scope) {
+      const name = scope.environment_scope;
+      const percentage = scope.percentage;
+      const displayName = name === '*' ? s__('FeatureFlags|* (All environments)') : name;
+      const displayPercentage = percentage ? `: ${percentage}%` : '';
+      return displayName + displayPercentage;
     },
     canDeleteFlag(flag) {
       return !this.permissions || (flag.scopes || []).every(scope => scope.can_update);
@@ -132,7 +136,7 @@ export default {
               v-gl-tooltip.hover="scopeTooltipText(scope)"
               class="badge append-right-8 prepend-top-2"
               :class="{ 'badge-active': scope.active, 'badge-inactive': !scope.active }"
-              >{{ scopeName(scope.environment_scope) }}</span
+              >{{ badgeText(scope) }}</span
             >
           </div>
         </div>

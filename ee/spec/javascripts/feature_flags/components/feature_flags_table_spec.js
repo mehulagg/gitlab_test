@@ -67,6 +67,15 @@ describe('Feature Flag table', () => {
     );
   });
 
+  it('renders an environment spec badge with a percentage rollout', () => {
+    const envColumn = vm.$el.querySelector('.js-feature-flag-environments .badge-inactive');
+    const scope = featureFlag.scopes[1];
+
+    expect(envColumn.textContent.trim()).toContain(
+      `${scope.environment_scope}: ${scope.percentage}%`,
+    );
+  });
+
   it('Should render an actions column', () => {
     expect(vm.$el.querySelector('.table-action-buttons')).not.toBeNull();
     expect(vm.$el.querySelector('.js-feature-flag-delete-button')).not.toBeNull();
