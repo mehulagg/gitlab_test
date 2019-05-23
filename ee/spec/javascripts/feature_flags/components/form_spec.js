@@ -326,7 +326,7 @@ describe('feature flag form', () => {
         wrapper.vm.handleSubmit();
 
         const data = wrapper.emitted().handleSubmit[0][0];
-        const newScope = data.scopes.filter(scope => scope.environment_scope == 'review')[0];
+        const newScope = data.scopes.filter(scope => scope.environment_scope === 'review')[0];
 
         expect(data.name).toEqual('feature_flag_2');
         expect(data.description).toEqual('this is a feature flag');
@@ -337,6 +337,7 @@ describe('feature flag form', () => {
           can_update: true,
           protected: true,
         });
+
         expect(newScope.percentage).toEqual('35');
       });
     });
