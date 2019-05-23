@@ -285,10 +285,7 @@ export default {
                   {{ s__('FeatureFlags|Rollout') }}
                 </div>
                 <div class="table-mobile-content js-scope-percentage">
-                  <input
-                    class="form-control"
-                    v-model="scope.percentage"
-                  />
+                  <input class="form-control" v-model="scope.percentage" />
                 </div>
               </div>
 
