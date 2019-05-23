@@ -1,7 +1,7 @@
 import { normalizeHeaders, parseIntPagination } from '~/lib/utils/common_utils';
 import createFlash from '~/flash';
 import { FETCH_ERROR_MESSAGE } from './constants';
-import { isValidResponse } from './utils';
+import { isDependenciesList, hasReportStatus } from './utils';
 import * as types from './mutation_types';
 import realAxios from '~/lib/utils/axios_utils';
 import mockAxios from './mock_axios';
@@ -21,12 +21,15 @@ export const setDependenciesEndpoint = ({ commit }, endpoint) =>
 export const requestDependencies = ({ commit }) => commit(types.REQUEST_DEPENDENCIES);
 
 export const receiveDependenciesSuccess = ({ commit }, { headers, data }) => {
-  const normalizedHeaders = normalizeHeaders(headers);
-  const pageInfo = parseIntPagination(normalizedHeaders);
-  const { dependencies } = data;
+  if (isDependenciesList(data)) {
+    const normalizedHeaders = normalizeHeaders(headers);
+    const pageInfo = parseIntPagination(normalizedHeaders);
+    const dependencies = data;
 
-  commit(types.RECEIVE_DEPENDENCIES_SUCCESS, { dependencies, pageInfo });
-  commit(types.SET_REPORT_STATUS, data.report);
+    commit(types.RECEIVE_DEPENDENCIES_SUCCESS, { dependencies, pageInfo });
+  } else if (hasReportStatus(data)) {
+    commit(types.SET_REPORT_STATUS, data.report_status);
+  }
 };
 
 export const receiveDependenciesError = ({ commit }, error) =>
@@ -48,7 +51,8 @@ export const fetchDependencies = ({ state, dispatch }, params = {}) => {
       },
     })
     .then(response => {
-      if (isValidResponse(response)) {
+      const { data } = response;
+      if (isDependenciesList(data) || hasReportStatus(data)) {
         dispatch('receiveDependenciesSuccess', response);
       } else {
         throw new Error('Invalid server response');
