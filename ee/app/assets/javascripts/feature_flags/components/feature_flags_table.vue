@@ -66,8 +66,7 @@ export default {
         : '';
     },
     badgeText(scope) {
-      const name = scope.environment_scope;
-      const percentage = scope.percentage;
+      const { environment_scope: name, percentage } = scope;
       const displayName = name === '*' ? s__('FeatureFlags|* (All environments)') : name;
       const displayPercentage = percentage ? `: ${percentage}%` : '';
       return displayName + displayPercentage;
