@@ -99,7 +99,10 @@ describe Environment do
   end
 
   describe '#rollout_status' do
-    shared_examples 'same behavior between KubernetesService and Platform::Kubernetes' do
+    context 'when user configured kubernetes from CI/CD > Clusters' do
+      let!(:cluster) { create(:cluster, :project, :provided_by_gcp) }
+      let(:project) { cluster.project }
+
       subject { environment.rollout_status }
 
       context 'when the environment has rollout status' do
@@ -123,19 +126,6 @@ describe Environment do
 
         it { is_expected.to eq(nil) }
       end
-    end
-
-    context 'when user configured kubernetes from Integration > Kubernetes' do
-      let(:project) { create(:kubernetes_project) }
-
-      it_behaves_like 'same behavior between KubernetesService and Platform::Kubernetes'
-    end
-
-    context 'when user configured kubernetes from CI/CD > Clusters' do
-      let!(:cluster) { create(:cluster, :project, :provided_by_gcp) }
-      let(:project) { cluster.project }
-
-      it_behaves_like 'same behavior between KubernetesService and Platform::Kubernetes'
     end
   end
 end
