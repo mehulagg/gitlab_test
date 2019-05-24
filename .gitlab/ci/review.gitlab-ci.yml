@@ -178,6 +178,11 @@ review-qa-all:
     - echo "${CI_NODE_TOTAL}"
     - echo "${CI_NODE_INDEX}"
     - gitlab-qa Test::Instance::Any "${QA_IMAGE}" "${CI_ENVIRONMENT_URL}"
+  artifacts:
+    paths:
+      - rspec.xml
+    expire_in: 2 days
+    when: always
 
 .review-performance-base: &review-performance-base
   <<: *review-qa-base

@@ -1,3 +1,6 @@
---color
 --format documentation
+--out rspec.xml
+--format documentation
+--no-profile
+--color
 --require spec_helper
