@@ -143,7 +143,7 @@ module EE
         MergeTrain.total_count_in_train(merge_request)
       end
 
-      expose :merge_train_index, if: -> (merge_request) { merge_request.on_train? } do |merge_request|
+      expose :merge_train_index, if: -> (merge_request) { merge_request.merge_train } do |merge_request|
         merge_request.merge_train.index
       end
 

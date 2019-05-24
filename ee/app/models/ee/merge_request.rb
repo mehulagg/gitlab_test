@@ -78,18 +78,6 @@ module EE
       super
     end
 
-    def get_on_train!(user)
-      create_merge_train!(user: user, target_project: target_project, target_branch: target_branch)
-    end
-
-    def get_off_train!
-      merge_train.destroy!
-    end
-
-    def on_train?
-      merge_train.present?
-    end
-
     def allows_multiple_assignees?
       project.multiple_mr_assignees_enabled? &&
         project.feature_available?(:multiple_merge_request_assignees)
