@@ -377,32 +377,14 @@ rspec system pg ee:
 
 rspec unit mysql ee:
   <<: *rspec-metadata-mysql-ee
-  <<: *only-schedules-master
   parallel: 7
 
 rspec integration mysql ee:
   <<: *rspec-metadata-mysql-ee
-  <<: *only-schedules-master
   parallel: 3
 
 rspec system mysql ee:
   <<: *rspec-metadata-mysql-ee
-  <<: *only-schedules-master
-  parallel: 5
-
-rspec unit mysql ee on-demand:
-  <<: *rspec-metadata-mysql-ee
-  <<: *rspec-mysql-on-demand
-  parallel: 7
-
-rspec integration mysql ee on-demand:
-  <<: *rspec-metadata-mysql-ee
-  <<: *rspec-mysql-on-demand
-  parallel: 3
-
-rspec system mysql ee on-demand:
-  <<: *rspec-metadata-mysql-ee
-  <<: *rspec-mysql-on-demand
   parallel: 5
 
 .rspec-metadata-pg-geo: &rspec-metadata-pg-geo
@@ -465,7 +447,6 @@ rspec quarantine pg ee:
 rspec quarantine mysql ee:
   <<: *rspec-quarantine-ee
   <<: *rspec-metadata-mysql
-  <<: *only-schedules-master
 
 .migration-paths-upgrade-ce-to-ee: &migration-paths-upgrade-ce-to-ee
   extends: .dedicated-no-docs-and-no-qa-pull-cache-job
