@@ -68,6 +68,28 @@ module Gitlab
     # autoload paths explicitly
     config.autoload_paths = config.eager_load_paths.dup
 
+    ## EE-Components
+    config.autoload_paths += Dir[Rails.root.join('ee_components', '*', '*')].sort
+    config.eager_load_paths += Dir[Rails.root.join('ee_components', '*', '*')].sort.reject { |f| f[%r{/migrate$}] || f[%r{/spec$}] || f[%r{/seeds.rb}] }
+
+    paths.add 'ee_components', eager_load: true, glob: "*/*/concerns"
+    config.autoload_paths += paths['ee_components'].existent_directories
+    config.eager_load_paths += paths['ee_components'].existent_directories
+
+    paths['app/controllers'].concat(Dir[File.join('ee_components', '*', 'controllers')].sort)
+    paths['app/helpers'].concat(Dir[File.join('ee_components', '*', 'helpers')].sort)
+    paths['app/models'].concat(Dir[File.join('ee_components', '*', 'models')].sort)
+    paths['app/models'].concat(Dir[File.join('ee_components', '*', 'models', 'concerns')].sort)
+    paths['app/views'].concat(Dir[File.join('ee_components', '*', 'views')].sort)
+    paths['app/mailers'].concat(Dir[File.join('ee_components', '*', 'mailers')].sort)
+    paths['app/channels'].concat(Dir[File.join('ee_components', '*', 'channels')].sort)
+    paths['config'].concat(Dir[File.join('ee_components', '*', 'config')].sort)
+    paths['lib'].concat(Dir[File.join('ee_components', '*', 'lib')].sort)
+    paths['lib/tasks'].concat(Dir[File.join('ee_components', '*', 'lib', 'tasks')].sort)
+    paths['db/migrate'].concat(Dir[File.join('ee_components', '*', 'migrate')].sort)
+    paths['config/routes.rb'].concat(Dir[File.join('ee_components', '*', 'routes.rb')].sort)
+
+
     # Only load the plugins named here, in the order given (default is alphabetical).
     # :all can be used as a placeholder for all plugins not explicitly named.
     # config.plugins = [ :exception_notification, :ssl_requirement, :all ]
