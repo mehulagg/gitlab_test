@@ -84,6 +84,7 @@ class License < ApplicationRecord
     dependency_proxy
     metrics_reports
     custom_prometheus_metrics
+    required_template_inclusion
   ]
   EEP_FEATURES.freeze
 
@@ -187,6 +188,7 @@ class License < ApplicationRecord
     object_storage
     repository_size_limit
     custom_project_templates
+    required_template_inclusion
   ].freeze
 
   validate :valid_license
