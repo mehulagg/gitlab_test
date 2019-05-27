@@ -21,30 +21,30 @@ describe 'Merge request > User uses quick actions', :js do
     let(:issuable) { create(:merge_request, source_project: project) }
     let(:source_issuable) { create(:issue, project: project, milestone: milestone, labels: [label_bug, label_feature])}
 
-    it_behaves_like 'assign quick action', :merge_request
-    it_behaves_like 'unassign quick action', :merge_request
-    it_behaves_like 'close quick action', :merge_request
-    it_behaves_like 'reopen quick action', :merge_request
-    it_behaves_like 'title quick action', :merge_request
-    it_behaves_like 'todo quick action', :merge_request
-    it_behaves_like 'done quick action', :merge_request
-    it_behaves_like 'subscribe quick action', :merge_request
-    it_behaves_like 'unsubscribe quick action', :merge_request
-    it_behaves_like 'lock quick action', :merge_request
-    it_behaves_like 'unlock quick action', :merge_request
-    it_behaves_like 'milestone quick action', :merge_request
-    it_behaves_like 'remove_milestone quick action', :merge_request
     it_behaves_like 'label quick action', :merge_request
-    it_behaves_like 'unlabel quick action', :merge_request
-    it_behaves_like 'relabel quick action', :merge_request
-    it_behaves_like 'award quick action', :merge_request
-    it_behaves_like 'estimate quick action', :merge_request
-    it_behaves_like 'remove_estimate quick action', :merge_request
-    it_behaves_like 'spend quick action', :merge_request
-    it_behaves_like 'remove_time_spent quick action', :merge_request
-    it_behaves_like 'shrug quick action', :merge_request
-    it_behaves_like 'tableflip quick action', :merge_request
-    it_behaves_like 'copy_metadata quick action', :merge_request
+    # it_behaves_like 'assign quick action', :merge_request
+    # it_behaves_like 'unassign quick action', :merge_request
+    # it_behaves_like 'close quick action', :merge_request
+    # it_behaves_like 'reopen quick action', :merge_request
+    # it_behaves_like 'title quick action', :merge_request
+    # it_behaves_like 'todo quick action', :merge_request
+    # it_behaves_like 'done quick action', :merge_request
+    # it_behaves_like 'subscribe quick action', :merge_request
+    # it_behaves_like 'unsubscribe quick action', :merge_request
+    # it_behaves_like 'lock quick action', :merge_request
+    # it_behaves_like 'unlock quick action', :merge_request
+    # it_behaves_like 'milestone quick action', :merge_request
+    # it_behaves_like 'remove_milestone quick action', :merge_request
+    # it_behaves_like 'unlabel quick action', :merge_request
+    # it_behaves_like 'relabel quick action', :merge_request
+    # it_behaves_like 'award quick action', :merge_request
+    # it_behaves_like 'estimate quick action', :merge_request
+    # it_behaves_like 'remove_estimate quick action', :merge_request
+    # it_behaves_like 'spend quick action', :merge_request
+    # it_behaves_like 'remove_time_spent quick action', :merge_request
+    # it_behaves_like 'shrug quick action', :merge_request
+    # it_behaves_like 'tableflip quick action', :merge_request
+    # it_behaves_like 'copy_metadata quick action', :merge_request
     it_behaves_like 'issuable time tracker', :merge_request
   end
 

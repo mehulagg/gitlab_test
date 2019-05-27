@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Notes::CreateService do
-  let(:project) { create(:project) }
+  let(:project) { create(:project, :repository) }
   let(:issue) { create(:issue, project: project) }
   let(:user) { create(:user) }
   let(:opts) do
@@ -198,28 +198,90 @@ describe Notes::CreateService do
 
     context 'note with commands' do
       context 'as a user who can update the target' do
-        context '/close, /label, /assign & /milestone' do
-          let(:note_text) { %(HELLO\n/close\n/assign @#{user.username}\nWORLD) }
+        context 'all quick actions' do
+          QuickAction = Struct.new(:action_text, :attribute, :expected_value)
 
-          it 'saves the note and does not alter the note text' do
-            service = double(:service)
-            allow(Issues::UpdateService).to receive(:new).and_return(service)
-            expect(service).to receive(:execute)
+          let!(:milestone) { create(:milestone, project: project, title: "sprint") }
+          let!(:label) { create(:label, project: project, title: 'bug') }
+          let!(:label_1) { create(:label, project: project, title: 'to be copied') }
+          let!(:issue_2) { create(:issue, project: project, labels: [label, label_1]) }
 
-            note = described_class.new(project, user, opts.merge(note: note_text)).execute
-
-            expect(note.note).to eq "HELLO\nWORLD"
+          let(:issuable_quick_actions) do
+            [
+              # QuickAction.new("/close", "state", "closed"),
+              # QuickAction.new("/reopen", "state", "opened"),
+              # QuickAction.new("/assign @#{user.username}", "assignees", [user]),
+              # QuickAction.new("/unassign @#{user.username}", "assignees", []),
+              # QuickAction.new("/title new title", "title", "new title"),
+              # QuickAction.new("/todo", "todos.count", 1),
+              # QuickAction.new("/done", "todos.first.state", "done"),
+              # QuickAction.new("/unsubscribe", "subscriptions.first.subscribed", false),
+              # QuickAction.new("/subscribe", "subscriptions.first.subscribed", true),
+              # QuickAction.new("/lock", "discussion_locked", true),
+              # QuickAction.new("/unlock", "discussion_locked", false),
+              # QuickAction.new("/milestone %\"sprint\"", "milestone.id", milestone.id),
+              # QuickAction.new("/remove_milestone", "milestone", nil),
+              # QuickAction.new("/label ~bug", "labels.first.id", label.id),
+              # QuickAction.new("/unlabel", "labels", []),
+              # QuickAction.new("/award :100:", "award_emoji.last.name", "100"),
+              # QuickAction.new("/estimate 1d 2h 3m", "time_estimate", 36180),
+              # QuickAction.new("/remove_estimate", "time_estimate", 0),
+              # QuickAction.new("/spend 1d 2h 3m", "total_time_spent", 36180),
+              # QuickAction.new("/remove_time_spent", "total_time_spent", 0),
+              # QuickAction.new("/shrug oops", "notes.last.note", "HELLO\noops ¯\\＿(ツ)＿/¯\nWORLD"),
+              # QuickAction.new("/tableflip oops", "notes.last.note", "HELLO\noops (╯°□°)╯︵ ┻━┻\nWORLD"),
+              # QuickAction.new("/copy_metadata #{issue_2.to_reference}", "labels", issue_2.labels)
+            ]
           end
-        end
 
-        context '/merge with sha option' do
-          let(:note_text) { %(HELLO\n/merge\nWORLD) }
-          let(:params) { opts.merge(note: note_text, merge_request_diff_head_sha: 'sha') }
+          shared_examples 'issuable quick actions' do
+            it 'saves the note and updates the issue' do
+              quick_actions.each do |quick_action|
+                note_text = %(HELLO\n#{quick_action.action_text}\nWORLD)
 
-          it 'saves the note and exectues merge command' do
-            note = described_class.new(project, user, params).execute
+                note = described_class.new(project, user, note_params.merge(note: note_text)).execute
+                noteable = note.noteable
 
-            expect(note.note).to eq "HELLO\nWORLD"
+                if !quick_action.action_text["shrug"] && !quick_action.action_text["tableflip"]
+                  expect(note.note).to eq "HELLO\nWORLD"
+                end
+                expect(noteable.instance_eval(quick_action.attribute)).to eq(quick_action.expected_value)
+              end
+            end
+          end
+
+          context 'for issue' do
+            let(:note_params) { opts }
+            let(:issue_quick_actions) do
+              [
+                QuickAction.new("/confidential", "confidential", true),
+                QuickAction.new("/due 2016-08-28", "due_date", Date.new(2016, 8, 28)),
+                QuickAction.new("/remove_due_date", "due_date", nil),
+                QuickAction.new("/duplicate #{issue_2.to_reference}", "state", "closed"),
+              ]
+            end
+            let(:quick_actions) { issuable_quick_actions + issue_quick_actions }
+
+            it_behaves_like 'issuable quick actions'
+          end
+
+          context 'for merge request' do
+            let(:merge_request) { create(:merge_request, source_project: project) }
+            let(:note_params) do
+              opts.merge(
+                noteable_type: 'MergeRequest',
+                noteable_id: merge_request.id,
+                merge_request_diff_head_sha: merge_request.diff_head_sha
+              )
+            end
+            let(:merge_request_quick_actions) do
+              [
+                QuickAction.new("/merge", "state", "merged"),
+              ]
+            end
+            let(:quick_actions) { issuable_quick_actions + merge_request_quick_actions }
+
+            it_behaves_like 'issuable quick actions'
           end
         end
 
