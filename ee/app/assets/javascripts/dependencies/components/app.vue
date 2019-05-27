@@ -24,6 +24,7 @@ export default {
     },
   },
   computed: {
+    ...mapGetters(['jobNotSetUp', 'jobFailed', 'isIncomplete']),
     ...mapState([
       'initialized',
       'isLoading',
@@ -32,9 +33,6 @@ export default {
       'pageInfo',
       'reportStatus',
     ]),
-    shouldRenderEmptyState() {
-      return this.reportStatus === REPORT_STATUS.notSetUp;
-    },
     shouldShowPagination() {
       return Boolean(!this.isLoading && !this.errorLoading && this.pageInfo && this.pageInfo.total);
     },
@@ -57,7 +55,7 @@ export default {
 
   <!-- TODO: add correct documentation link and SVG path -->
   <gl-empty-state
-    v-else-if="shouldRenderEmptyState"
+    v-else-if="jobNotSetUp"
     :title="__('View dependency information for your project')"
     :description="
       __('The dependency list details information about the components used within your project.')
@@ -67,7 +65,7 @@ export default {
   />
 
   <div v-else>
-    <div class="warning_message">
+    <div v-if="isIncomplete" class="warning_message">
       <h4>{{ __('Unsupported file(s) detected') }}</h4>
       <p>
         {{
@@ -87,7 +85,7 @@ export default {
       </ul>
     </div>
 
-    <div class="danger_message">
+    <div v-if="jobFailed" class="danger_message">
       <h4>{{ __('Job failed to generate the dependency list') }}</h4>
       <p>
         {{
