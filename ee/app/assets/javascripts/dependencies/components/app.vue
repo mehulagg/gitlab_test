@@ -1,5 +1,5 @@
 <script>
-import { mapActions, mapState } from 'vuex';
+import { mapActions, mapGetters, mapState } from 'vuex';
 import { GlBadge, GlButton, GlEmptyState, GlLoadingIcon } from '@gitlab/ui';
 import Pagination from '~/vue_shared/components/pagination_links.vue';
 import DependenciesActions from './dependencies_actions.vue';

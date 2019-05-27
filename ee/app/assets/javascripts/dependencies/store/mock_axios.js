@@ -2,7 +2,7 @@
 // available
 
 import _ from 'underscore';
-import { PACKAGE_TYPES, SORT_ORDER } from './constants';
+import { REPORT_STATUS, PACKAGE_TYPES, SORT_ORDER } from './constants';
 
 const perPage = 20;
 
