@@ -12,6 +12,7 @@ export default {
     DependenciesActions,
     DependenciesTable,
     GlBadge,
+    GlButton,
     GlEmptyState,
     GlLoadingIcon,
     Pagination,
