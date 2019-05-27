@@ -1,5 +1,5 @@
 import * as types from './mutation_types';
-import { SORT_ORDER } from './constants';
+import { REPORT_STATUS, SORT_ORDER } from './constants';
 
 export default {
   [types.SET_DEPENDENCIES_ENDPOINT](state, payload) {
@@ -10,12 +10,13 @@ export default {
     state.isLoading = true;
     state.errorLoading = false;
   },
-  [types.RECEIVE_DEPENDENCIES_SUCCESS](state, { dependencies, pageInfo }) {
+  [types.RECEIVE_DEPENDENCIES_SUCCESS](state, { dependencies, reportInfo, pageInfo }) {
     state.dependencies = dependencies;
     state.pageInfo = pageInfo;
     state.isLoading = false;
     state.errorLoading = false;
-    state.reportStatus = '';
+    state.reportInfo.status = reportInfo.status;
+    state.reportInfo.jobPath = reportInfo.job_path;
     state.initialized = true;
   },
   [types.RECEIVE_DEPENDENCIES_ERROR](state) {
@@ -23,6 +24,10 @@ export default {
     state.errorLoading = true;
     state.dependencies = [];
     state.pageInfo = {};
+    state.reportInfo = {
+      status: REPORT_STATUS.ok,
+      jobPath: '',
+    };
     state.initialized = true;
   },
   [types.SET_REPORT_STATUS](state, payload) {

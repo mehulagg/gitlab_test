@@ -35,6 +35,7 @@
     }
   ],
   "report": {
-    "status": "ok"
+    "status": "",
+    "job_path": ""
   }
 }

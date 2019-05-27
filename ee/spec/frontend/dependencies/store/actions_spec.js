@@ -9,7 +9,7 @@ import getInitialState from 'ee/dependencies/store/state';
 import { SORT_ORDER, FETCH_ERROR_MESSAGE } from 'ee/dependencies/store/constants';
 import createFlash from '~/flash';
 
-import mockDependencies from './data/mock_dependencies';
+import mockDependenciesResponse from './data/mock_dependencies';
 
 jest.mock('~/flash', () => jest.fn());
 
@@ -75,12 +75,16 @@ describe('Dependencies actions', () => {
     it('commits the RECEIVE_DEPENDENCIES_SUCCESS mutation', done => {
       testAction(
         actions.receiveDependenciesSuccess,
-        { headers, data: mockDependencies },
+        { headers, data: mockDependenciesResponse },
         getInitialState(),
         [
           {
             type: types.RECEIVE_DEPENDENCIES_SUCCESS,
-            payload: { pageInfo, dependencies: mockDependencies },
+            payload: {
+              dependencies: mockDependenciesResponse.dependencies,
+              reportInfo: mockDependenciesResponse.report,
+              pageInfo,
+            },
           },
         ],
         [],
@@ -110,7 +114,10 @@ describe('Dependencies actions', () => {
   });
 
   describe('fetchDependencies', () => {
-    const dependenciesTypeDescending = _.sortBy(mockDependencies, 'type').reverse();
+    const dependenciesTypeDescending = {
+      ...mockDependenciesResponse,
+      dependencies: _.sortBy(mockDependenciesResponse.dependencies, 'type').reverse(),
+    };
     let state;
     let mock;
 
@@ -134,7 +141,7 @@ describe('Dependencies actions', () => {
 
           mock
             .onGet(state.endpoint, { params: sortParamsDefault })
-            .replyOnce(200, mockDependencies, headers);
+            .replyOnce(200, mockDependenciesResponse, headers);
         });
 
         it('uses default sorting params from state', done => {
@@ -149,7 +156,7 @@ describe('Dependencies actions', () => {
               },
               {
                 type: 'receiveDependenciesSuccess',
-                payload: expect.objectContaining({ data: mockDependencies, headers }),
+                payload: expect.objectContaining({ data: mockDependenciesResponse, headers }),
               },
             ],
             done,

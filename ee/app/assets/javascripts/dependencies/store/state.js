@@ -10,7 +10,7 @@ export default () => ({
   pageInfo: {},
   reportInfo: {
     status: REPORT_STATUS.ok,
-    job_path: '',
+    jobPath: '',
   },
   sortField: 'name',
   sortFields: SORT_FIELDS,
