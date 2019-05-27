@@ -72,8 +72,23 @@ function wait(ms = 1000) {
 
 export default {
   get(url, config) {
-    if (window.mockDependencies === 'empty') {
-      return wait().then(() => ({ data: { report_status: 'file_not_found' } }));
+    if (window.mockDependencies === 'jobNotSetUp') {
+      return this.doGet(url, config).then(res => {
+        res.dependencies = [];
+        res.report.status = 'job_not_set_up';
+        return res;
+      });
+    } else if (window.mockDependencies === 'incomplete') {
+      return this.doGet(url, config).then(res => {
+        res.report.status = 'no_dependency_files';
+        return res;
+      });
+    } else if (window.mockDependencies === 'jobFailed') {
+      return this.doGet(url, config).then(res => {
+        res.dependencies = [];
+        res.report.status = 'job_failed';
+        return res;
+      });
     } else if (window.mockDependencies === 'error') {
       return wait().then(() => {
         throw new Error('500 Some error');
@@ -94,6 +109,14 @@ export default {
     const sortedDependencies = _.sortBy(dependencies, sort_by);
     if (sort === SORT_ORDER.descending) sortedDependencies.reverse();
 
-    return wait().then(() => ({ data: sortedDependencies, headers: pageInfoHeaders.copy() }));
+    const data = {
+      dependencies: sortedDependencies,
+      report: {
+        status: '',
+        job_path: '',
+      },
+    };
+
+    return wait().then(() => ({ data, headers: pageInfoHeaders.copy() }));
   },
 };
