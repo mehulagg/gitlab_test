@@ -30,10 +30,6 @@ export default {
     };
     state.initialized = true;
   },
-  [types.SET_REPORT_STATUS](state, payload) {
-    state.reportStatus = payload;
-    state.initialized = true;
-  },
   [types.SET_SORT_FIELD](state, payload) {
     state.sortField = payload;
   },
