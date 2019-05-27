@@ -19,7 +19,10 @@ export const PACKAGE_TYPES = {
 };
 
 export const REPORT_STATUS = {
-  notSetUp: 'file_not_found',
+  ok: '',
+  jobNotSetUp: 'job_not_set_up',
+  jobFailed: 'job_failed',
+  incomplete: 'no_dependency_files',
 };
 
 export const FETCH_ERROR_MESSAGE = __(
