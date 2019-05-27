@@ -74,19 +74,21 @@ export default {
   get(url, config) {
     if (window.mockDependencies === 'jobNotSetUp') {
       return this.doGet(url, config).then(res => {
-        res.dependencies = [];
-        res.report.status = 'job_not_set_up';
+        res.data.dependencies = [];
+        res.data.report.status = REPORT_STATUS.jobNotSetUp;
+        res.headers = new PageHeaders(0).copy();
         return res;
       });
     } else if (window.mockDependencies === 'incomplete') {
       return this.doGet(url, config).then(res => {
-        res.report.status = 'no_dependency_files';
+        res.data.report.status = REPORT_STATUS.incomplete;
         return res;
       });
     } else if (window.mockDependencies === 'jobFailed') {
       return this.doGet(url, config).then(res => {
-        res.dependencies = [];
-        res.report.status = 'job_failed';
+        res.data.dependencies = [];
+        res.data.report.status = REPORT_STATUS.jobFailed;
+        res.headers = new PageHeaders(0).copy();
         return res;
       });
     } else if (window.mockDependencies === 'error') {
