@@ -7,7 +7,7 @@ describe('Dependencies getters', () => {
       it('returns the correct boolean value', () => {
         expect(
           getters[getterName]({
-            report: {
+            reportInfo: {
               status: reportStatus,
             },
           }),
@@ -15,7 +15,7 @@ describe('Dependencies getters', () => {
 
         expect(
           getters[getterName]({
-            report: {
+            reportInfo: {
               status: 'foo',
             },
           }),
