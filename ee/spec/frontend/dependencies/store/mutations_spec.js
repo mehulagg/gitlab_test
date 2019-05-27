@@ -1,7 +1,7 @@
 import * as types from 'ee/dependencies/store/mutation_types';
 import mutations from 'ee/dependencies/store/mutations';
 import getInitialState from 'ee/dependencies/store/state';
-import { SORT_ORDER } from 'ee/dependencies/store/constants';
+import { REPORT_STATUS, SORT_ORDER } from 'ee/dependencies/store/constants';
 import { TEST_HOST } from 'helpers/test_constants';
 
 describe('Dependencies mutations', () => {
@@ -39,9 +39,13 @@ describe('Dependencies mutations', () => {
   describe(types.RECEIVE_DEPENDENCIES_SUCCESS, () => {
     const dependencies = [];
     const pageInfo = {};
+    const reportInfo = {
+      status: REPORT_STATUS.jobFailed,
+      job_path: '',
+    };
 
     beforeEach(() => {
-      mutations[types.RECEIVE_DEPENDENCIES_SUCCESS](state, { dependencies, pageInfo });
+      mutations[types.RECEIVE_DEPENDENCIES_SUCCESS](state, { dependencies, reportInfo, pageInfo });
     });
 
     it('sets isLoading to false', () => {
@@ -60,8 +64,8 @@ describe('Dependencies mutations', () => {
       expect(state.pageInfo).toBe(pageInfo);
     });
 
-    it('sets reportStatus to ""', () => {
-      expect(state.reportStatus).toBe('');
+    it('sets reportInfo', () => {
+      expect(state.reportInfo).toBe(reportInfo);
     });
 
     it('sets initialized to true', () => {
@@ -93,25 +97,12 @@ describe('Dependencies mutations', () => {
     it('sets initialized to true', () => {
       expect(state.initialized).toBe(true);
     });
-  });
 
-  describe(types.SET_REPORT_STATUS, () => {
-    const reportStatus = 'file_not_found';
-
-    beforeEach(() => {
-      mutations[types.SET_REPORT_STATUS](state, reportStatus);
-    });
-
-    it('resets the dependencies list', () => {
-      expect(state.dependencies).toEqual([]);
-    });
-
-    it('sets the reportStatus', () => {
-      expect(state.reportStatus).toBe(reportStatus);
-    });
-
-    it('sets initialized to true', () => {
-      expect(state.initialized).toBe(true);
+    it('resets the report info', () => {
+      expect(state.report).toEqual({
+        status: REPORT_STATUS.ok,
+        jobPath: '',
+      });
     });
   });
 
