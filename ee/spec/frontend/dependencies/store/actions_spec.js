@@ -72,42 +72,20 @@ describe('Dependencies actions', () => {
   });
 
   describe('receiveDependenciesSuccess', () => {
-    describe('given an array of dependencies', () => {
-      it('commits the RECEIVE_DEPENDENCIES_SUCCESS mutation', done => {
-        testAction(
-          actions.receiveDependenciesSuccess,
-          { headers, data: mockDependencies },
-          getInitialState(),
-          [
-            {
-              type: types.RECEIVE_DEPENDENCIES_SUCCESS,
-              payload: { pageInfo, dependencies: mockDependencies },
-            },
-          ],
-          [],
-          done,
-        );
-      });
-    });
-
-    describe('given a report_status response', () => {
-      it('commits the SET_REPORT_STATUS mutation', done => {
-        const response = { report_status: 'file_not_found' };
-
-        testAction(
-          actions.receiveDependenciesSuccess,
-          { data: response },
-          getInitialState(),
-          [
-            {
-              type: types.SET_REPORT_STATUS,
-              payload: response.report_status,
-            },
-          ],
-          [],
-          done,
-        );
-      });
+    it('commits the RECEIVE_DEPENDENCIES_SUCCESS mutation', done => {
+      testAction(
+        actions.receiveDependenciesSuccess,
+        { headers, data: mockDependencies },
+        getInitialState(),
+        [
+          {
+            type: types.RECEIVE_DEPENDENCIES_SUCCESS,
+            payload: { pageInfo, dependencies: mockDependencies },
+          },
+        ],
+        [],
+        done,
+      );
     });
   });
 
@@ -201,33 +179,6 @@ describe('Dependencies actions', () => {
               {
                 type: 'receiveDependenciesSuccess',
                 payload: expect.objectContaining({ data: dependenciesTypeDescending, headers }),
-              },
-            ],
-            done,
-          );
-        });
-      });
-
-      describe('a response with report_status', () => {
-        const fileNotFoundResponse = { report_status: 'file_not_found' };
-
-        beforeEach(() => {
-          mock.onGet(state.endpoint).replyOnce(200, fileNotFoundResponse);
-        });
-
-        it('dispatches the receiveDependenciesSuccess action', done => {
-          testAction(
-            actions.fetchDependencies,
-            undefined,
-            state,
-            [],
-            [
-              {
-                type: 'requestDependencies',
-              },
-              {
-                type: 'receiveDependenciesSuccess',
-                payload: expect.objectContaining({ data: fileNotFoundResponse }),
               },
             ],
             done,
