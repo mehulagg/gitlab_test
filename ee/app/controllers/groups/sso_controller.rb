@@ -49,26 +49,31 @@ class Groups::SsoController < Groups::ApplicationController
   private
 
   def new_user
-    @new_user ||= User.new(new_user_params.merge(idp_user_data))
+    @new_user ||= User.new(new_user_params)
   end
   # Devise compatible name
   alias_method :resource, :new_user
   helper_method :resource
 
   def new_user_params
-    params.fetch(:new_user, {}).permit(:username, :name)
-  end
+    new_user_params = params.fetch(:new_user, {}).permit(:username, :name).merge(email: oauth_data.email, name: oauth_data.name)
+    unless new_user_params[:username]
+      new_user_params[:username] = Uniquify.new.string(oauth_data.username) { |s| !NamespacePathValidator.valid_path?(s) }
+    end
 
-  def idp_user_data
-    return {} unless session['oauth_data'] && session['oauth_group_id'] == unauthenticated_group.id
-
-    data = Gitlab::Auth::OAuth::AuthHash.new(session['oauth_data'])
-
-    { email: data.email, name: data.name }
+    new_user_params
   end
 
   def check_oauth_data
-    route_not_found unless unauthenticated_group.saml_provider.enforced_group_managed_accounts? && idp_user_data.present?
+    route_not_found unless unauthenticated_group.saml_provider.enforced_group_managed_accounts? && oauth_data.present?
+  end
+
+  def oauth_data
+    @oauth_data ||= begin
+      if session['oauth_data'] && session['oauth_group_id'] == unauthenticated_group.id
+        Gitlab::Auth::OAuth::AuthHash.new(session['oauth_data'])
+      end
+    end
   end
 
   def render_sign_up_form
