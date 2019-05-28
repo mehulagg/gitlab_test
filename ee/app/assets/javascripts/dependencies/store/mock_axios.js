@@ -36,7 +36,8 @@ function makeDependency() {
     version: randomVersion(),
     packager: random(packagers),
     location: {
-      blob_path: 'gitlab-org/gitlab-ee/blob/master/Gemfile.lock#L1248',
+      blob_path: '/gitlab-org/gitlab-ee/blob/master/Gemfile.lock#L1248',
+      path: 'Gemfile.lock',
     },
   };
 }
