@@ -17,11 +17,16 @@ export default {
       dismissed: false,
     };
   },
+  methods: {
+    dismiss() {
+      this.dismissed = true;
+    },
+  },
 };
 </script>
 
 <template>
-  <div v-if="!closed" class="danger_message">
+  <div v-if="!dismissed" class="danger_message">
     <h4>{{ __('Job failed to generate the dependency list') }}</h4>
     <p>
       {{
@@ -30,8 +35,14 @@ export default {
         )
       }}
     </p>
-    <gl-button :href="jobPath">
+    <gl-button :href="jobPath" class="mb-2">
       {{ __('View job') }}
     </gl-button>
   </div>
 </template>
+
+<style scoped>
+h4 {
+  color: inherit;
+}
+</style>
