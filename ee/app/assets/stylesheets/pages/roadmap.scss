@@ -143,8 +143,7 @@ $column-right-gradient: linear-gradient(to right, $roadmap-gradient-dark-gray 0%
 }
 
 .roadmap-timeline-section {
-  position: sticky;
-  position: -webkit-sticky;
+  @include position-sticky;
   top: 0;
   z-index: 3;
 
@@ -158,8 +157,7 @@ $column-right-gradient: linear-gradient(to right, $roadmap-gradient-dark-gray 0%
   }
 
   .timeline-header-blank {
-    position: sticky;
-    position: -webkit-sticky;
+    @include position-sticky;
     top: 0;
     left: 0;
     width: $details-cell-width;
@@ -280,8 +278,7 @@ $column-right-gradient: linear-gradient(to right, $roadmap-gradient-dark-gray 0%
     }
 
     .epic-details-cell {
-      position: sticky;
-      position: -webkit-sticky;
+      @include position-sticky;
       left: 0;
       width: $details-cell-width;
       padding: $gl-padding-8 $gl-padding;
