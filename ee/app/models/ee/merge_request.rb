@@ -99,6 +99,15 @@ module EE
       false
     end
 
+    def visible_blocking_merge_requests(user)
+      blocking_merge_requests.select { |mr| user.can?(:read_merge_request, mr) }
+    end
+
+    def hidden_blocking_merge_requests_count(user)
+      hidden = blocking_merge_requests - visible_blocking_merge_requests(user)
+      hidden.select { |mr| !mr.merged? }.count
+    end
+
     def validate_merge_request_pipelines
       return true unless project.merge_pipelines_enabled?
 

@@ -1,0 +1,14 @@
+- merge_request = local_assigns.fetch(:issuable)
+- form = local_assigns.fetch(:form)
+- project = merge_request.target_project
+
+- return unless project.feature_available?(:blocking_merge_requests)
+
+.form-group.row.blocking-merge-requests
+  = form.label :blocking_merge_request_refs, "Blocking MRs", class: "col-form-label col-sm-2"
+  .col-sm-10
+    %ul
+      - merge_request.visible_blocking_merge_requests(current_user).each do |mr|
+        %li= mr.to_reference
+      %li= "Plus #{merge_request.hidden_blocking_merge_requests_count(current_user)} hidden"
+

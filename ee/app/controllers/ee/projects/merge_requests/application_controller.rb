@@ -23,6 +23,7 @@ module EE
 
         def merge_request_params_attributes
           attrs = super.push(
+            { blocking_merge_request_refs: [] },
             approval_rule_attributes,
             :approvals_before_merge,
             :approver_group_ids,
