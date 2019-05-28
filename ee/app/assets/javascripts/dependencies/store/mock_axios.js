@@ -2,9 +2,10 @@
 // available
 
 import _ from 'underscore';
-import { REPORT_STATUS, PACKAGE_TYPES, SORT_ORDER } from './constants';
+import { REPORT_STATUS, SORT_ORDER } from './constants';
 
 const perPage = 20;
+const packagers = ['JavaScript (yarn)', 'JavaScript (npm)', 'Ruby (gem)', 'PHP (composer)'];
 
 function randomName() {
   const charCodeA = 'a'.charCodeAt(0);
@@ -33,7 +34,7 @@ function makeDependency() {
   return {
     name: randomName(),
     version: randomVersion(),
-    type: random(Object.keys(PACKAGE_TYPES)),
+    packager: random(packagers),
     location: {
       blob_path: 'gitlab-org/gitlab-ee/blob/master/Gemfile.lock#L1248',
     },
