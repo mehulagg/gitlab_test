@@ -101,6 +101,7 @@ export default {
       return this.doGet(url, config).then(res => {
         res.data.dependencies = [];
         res.data.report.status = REPORT_STATUS.jobFailed;
+        res.data.report.job_path = '/job/foo/1234';
         res.headers = new PageHeaders(0).copy();
         return res;
       });
