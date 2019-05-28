@@ -70,28 +70,38 @@ function wait(ms = 1000) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+window.mockDependencies = {
+  state: '',
+};
+
+['jobNotSetUp', 'incomplete', 'jobFailed', 'error'].forEach(state => {
+  window.mockDependencies[state] = () => {
+    window.mockDependencies.state = state;
+  };
+});
+
 export default {
   get(url, config) {
-    if (window.mockDependencies === 'jobNotSetUp') {
+    if (window.mockDependencies.state === 'jobNotSetUp') {
       return this.doGet(url, config).then(res => {
         res.data.dependencies = [];
         res.data.report.status = REPORT_STATUS.jobNotSetUp;
         res.headers = new PageHeaders(0).copy();
         return res;
       });
-    } else if (window.mockDependencies === 'incomplete') {
+    } else if (window.mockDependencies.state === 'incomplete') {
       return this.doGet(url, config).then(res => {
         res.data.report.status = REPORT_STATUS.incomplete;
         return res;
       });
-    } else if (window.mockDependencies === 'jobFailed') {
+    } else if (window.mockDependencies.state === 'jobFailed') {
       return this.doGet(url, config).then(res => {
         res.data.dependencies = [];
         res.data.report.status = REPORT_STATUS.jobFailed;
         res.headers = new PageHeaders(0).copy();
         return res;
       });
-    } else if (window.mockDependencies === 'error') {
+    } else if (window.mockDependencies.state === 'error') {
       return wait().then(() => {
         throw new Error('500 Some error');
       });
