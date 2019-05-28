@@ -7,10 +7,7 @@
         "blob_path": "/a/b/blob/da39a3ee5e6b4b0d3255bfef95601890afd80709/web/yarn.lock",
         "path": "web/yarn.lock"
       },
-      "version": "1.9.0",
-      "requirements": [
-        "^1.9.0"
-      ]
+      "version": "1.9.0"
     },
     {
       "name": "rails",
@@ -19,10 +16,7 @@
         "blob_path": "/c/d/blob/b6589fc6ab0dc82cf12099d1c2d40ab994e8410c/Gemfile.lock",
         "path": "Gemfile.lock"
       },
-      "version": "5.2.3",
-      "requirements": [
-        "~>5.2.3"
-      ]
+      "version": "5.2.3"
     },
     {
       "name": "accepts",
@@ -31,10 +25,7 @@
         "blob_path": "/e/f/blob/356a192b7913b04c54574d18c28d46e6395428ab/src/server/Pom.xml",
         "path": "src/server/Pom.xml"
       },
-      "version": "1.3.4",
-      "requirements": [
-        "1.3.4"
-      ]
+      "version": "1.3.4"
     }
   ],
   "report": {
