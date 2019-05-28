@@ -69,7 +69,7 @@ exports[`DependenciesTableRow component when a dependency is loaded matches the 
       class="table-mobile-content"
     >
       <a
-        href="yarn.lock"
+        href="/a-group/a-project/blob/da39a3ee5e6b4b0d3255bfef95601890afd80709/yarn.lock"
       >
         yarn.lock
       </a>
