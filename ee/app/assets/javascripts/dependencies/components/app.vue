@@ -1,9 +1,10 @@
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex';
-import { GlBadge, GlButton, GlEmptyState, GlLoadingIcon } from '@gitlab/ui';
+import { GlBadge, GlEmptyState, GlLoadingIcon } from '@gitlab/ui';
 import Pagination from '~/vue_shared/components/pagination_links.vue';
 import DependenciesActions from './dependencies_actions.vue';
 import DependenciesTable from './dependencies_table.vue';
+import JobFailedAlert from './job_failed_alert.vue';
 import { REPORT_STATUS } from '../store/constants';
 
 export default {
@@ -12,9 +13,9 @@ export default {
     DependenciesActions,
     DependenciesTable,
     GlBadge,
-    GlButton,
     GlEmptyState,
     GlLoadingIcon,
+    JobFailedAlert,
     Pagination,
   },
   props: {
@@ -85,19 +86,7 @@ export default {
       </ul>
     </div>
 
-    <div v-if="jobFailed" class="danger_message">
-      <h4>{{ __('Job failed to generate the dependency list') }}</h4>
-      <p>
-        {{
-          __(
-            'The dependency_list job has failed and cannot generate the list. Please ensure the job is running properly and run the pipeline again.',
-          )
-        }}
-      </p>
-      <gl-button :href="'#'">
-        {{ __('View job') }}
-      </gl-button>
-    </div>
+    <job-failed-alert v-if="jobFailed" :job-path="reportInfo.jobPath" />
 
     <div class="d-sm-flex justify-content-between align-items-baseline my-2">
       <h4 class="h5">
