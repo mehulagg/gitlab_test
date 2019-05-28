@@ -59,7 +59,7 @@ export default {
 </script>
 
 <template>
-  <div v-if="!closed" :class="alertClass">
+  <div v-if="!closed" :class="[alertClass, textClass]">
     <button
       class="btn-blank float-right mr-1 mt-1"
       :class="textClass"
