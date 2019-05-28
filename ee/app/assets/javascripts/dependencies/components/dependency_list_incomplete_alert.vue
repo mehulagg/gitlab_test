@@ -1,32 +1,16 @@
 <script>
+import DependencyListAlert from './dependency_list_alert.vue';
+
 export default {
   name: 'DependencyListIncompeteAlert',
   components: {
-    GlButton,
-    Icon,
-  },
-  props: {
-    jobPath: {
-      type: String,
-      required: true,
-    },
-  },
-  data() {
-    return {
-      closed: false,
-    };
-  },
-  methods: {
-    close() {
-      this.closed = true;
-    },
+    DependencyListAlert,
   },
 };
 </script>
 
 <template>
-  <div v-if="!closed" class="warning_message">
-    <h4>{{ __('Unsupported file(s) detected') }}</h4>
+  <dependency-list-alert type="warning" :header="__('Unsupported file(s) detected')">
     <p>
       {{
         __(
@@ -43,5 +27,5 @@ export default {
       <li>requirements.txt</li>
       <li>pom.xml</li>
     </ul>
-  </div>
+  </dependency-list-alert>
 </template>
