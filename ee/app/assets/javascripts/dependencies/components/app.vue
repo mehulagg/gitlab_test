@@ -31,7 +31,7 @@ export default {
       'errorLoading',
       'dependencies',
       'pageInfo',
-      'reportStatus',
+      'reportInfo',
     ]),
     shouldShowPagination() {
       return Boolean(!this.isLoading && !this.errorLoading && this.pageInfo && this.pageInfo.total);
