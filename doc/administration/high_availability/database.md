@@ -33,6 +33,7 @@ deploy the bundled PostgreSQL.
 1. SSH into the PostgreSQL server.
 1. [Download/install](https://about.gitlab.com/installation) the Omnibus GitLab
    package you want using **steps 1 and 2** from the GitLab downloads page.
+   
      - Do not complete any other steps on the download page.
 1. Generate a password hash for PostgreSQL. This assumes you will use the default
    username of `gitlab` (recommended). The command will request a password
@@ -42,7 +43,7 @@ deploy the bundled PostgreSQL.
     ```sh
     sudo gitlab-ctl pg-password-md5 gitlab
     ```
-    
+   
 1. Edit `/etc/gitlab/gitlab.rb` and add the contents below, updating placeholder
    values appropriately. 
    
@@ -55,34 +56,37 @@ deploy the bundled PostgreSQL.
     # Disable all components except PostgreSQL
     roles ['postgres_role']
     repmgr['enable'] = false
+    patroni['enable'] = false
     consul['enable'] = false
     prometheus['enable'] = false
     alertmanager['enable'] = false
     pgbouncer_exporter['enable'] = false
     redis_exporter['enable'] = false
-    gitlab_monitor['enable'] = false
-
+ gitlab_monitor['enable'] = false
+   
     postgresql['listen_address'] = '0.0.0.0'
-    postgresql['port'] = 5432
-
+ postgresql['port'] = 5432
+   
     # Replace POSTGRESQL_PASSWORD_HASH with a generated md5 value 
-    postgresql['sql_user_password'] = 'POSTGRESQL_PASSWORD_HASH'
-
+ postgresql['sql_user_password'] = 'POSTGRESQL_PASSWORD_HASH'
+   
     # Replace XXX.XXX.XXX.XXX/YY with Network Address
     # ????  
-    postgresql['trust_auth_cidr_addresses'] = %w(APPLICATION_SERVER_IP_BLOCKS)
-
+ postgresql['trust_auth_cidr_addresses'] = %w(APPLICATION_SERVER_IP_BLOCKS)
+   
     # Disable automatic database migrations
     gitlab_rails['auto_migrate'] = false
     ```
 
+   
     NOTE: **Note:** The role `postgres_role` was introduced with GitLab 10.3
-    
+   
 1. [Reconfigure GitLab] for the changes to take effect.
 1. Note the PostgreSQL node's IP address or hostname, port, and
    plain text password. These will be necessary when configuring the GitLab
    application servers later.
    
+
 Advanced configuration options are supported and can be added if
 needed.
 
@@ -123,7 +127,7 @@ The recommended configuration for a PostgreSQL HA requires:
 - A minimum of three database nodes
   - Each node will run the following services:
      - `PostgreSQL` - The database itself
-     - `repmgrd` - A service to monitor, and handle failover in case of a failure
+     - `repmgrd`/`patroni` - A service to monitor, and handle failover in case of a failure.
      - `Consul` agent - Used for service discovery, to alert other nodes when failover occurs
 - A minimum of three `Consul` server nodes
 - A minimum of one `pgbouncer` service node
@@ -138,15 +142,15 @@ otherwise the networks will become a single point of failure.
 
 Database nodes run two services with PostgreSQL:
 
-- Repmgrd. Monitors the cluster and handles failover when issues with the master occur. The failover consists of:
+- Repmgrd/Patroni. Monitors the cluster and handles failover when issues with the master occur. The failover consists of:
   - Selecting a new master for the cluster.
   - Promoting the new node to master.
   - Instructing remaining servers to follow the new master node.
   
   On failure, the old master node is automatically evicted from the cluster, and should be rejoined manually once recovered.
-- Consul. Monitors the status of each node in the database cluster and tracks its health in a service definition on the consul cluster.
+- Consul. Monitors the status of each node in the database cluster and tracks its health in a service definition on the consul cluster. Patroni also relies on consul as the source of truth.
 
-Alongside pgbouncer, there is a consul agent that watches the status of the PostgreSQL service. If that status changes, consul runs a script which updates the configuration and reloads pgbouncer
+Alongside pgbouncer, there is a consul agent that watches the status of the PostgreSQL service. If that status changes, consul runs a script which updates the configuration and reloads pgbouncer. 
 
 ##### Connection flow
 
@@ -154,7 +158,7 @@ Each service in the package comes with a set of [default ports](https://docs.git
 
 - Application servers connect to [PgBouncer default port](https://docs.gitlab.com/omnibus/package-information/defaults.html#pgbouncer)
 - PgBouncer connects to the primary database servers [PostgreSQL default port](https://docs.gitlab.com/omnibus/package-information/defaults.html#postgresql)
-- Repmgr connects to the database servers [PostgreSQL default port](https://docs.gitlab.com/omnibus/package-information/defaults.html#postgresql)
+- Repmgr/Patroni connects to the database servers [PostgreSQL default port](https://docs.gitlab.com/omnibus/package-information/defaults.html#postgresql)
 - Postgres secondaries connect to the primary database servers [PostgreSQL default port](https://docs.gitlab.com/omnibus/package-information/defaults.html#postgresql)
 - Consul servers and agents connect to each others [Consul default ports](https://docs.gitlab.com/omnibus/package-information/defaults.html#consul)
 
@@ -221,6 +225,7 @@ This is used to prevent replication from using up all of the
 available database connections.
 
 > Note:
+>
 > - In this document we are assuming 3 database nodes, which makes this configuration:
 
 ```
@@ -280,6 +285,54 @@ Few notes on the service itself:
   -  In the package, this is by default `gitlab-psql`
 - The service will have a superuser database user account generated for it
   - This defaults to `gitlab_repmgr`
+
+##### Patroni information
+
+When using default setup, you will only have to prepare the network subnets that will
+be allowed to authenticate with the service.
+
+Few notes on the service itself:
+
+- The service runs under the same system account as the database
+
+  - In the package, this is by default `gitlab-psql`
+
+- The service will have a superuser database user account generated for it
+
+  - This defaults to `gitlab_superuser`
+
+- Patroni service will take over starting and stopping PostgreSQL service, thus the runit service that was controlling PostgreSQL service will be disabled
+
+- Patroni service overrides some PostgreSQL attributes and controls the PostgreSQL configuration file `postgresql.conf`.  Read about patroni configurations in [patroni document](https://patroni.readthedocs.io/en/latest/dynamic_configuration.html) 
+
+  - Patroni overrides some PostgreSQL attributes that must hold the same value on the master and replicas. Those values are set in patroni configuration file `patroni.yml`. Below is the list of those attributes 
+
+    - max_connections: 100
+    - max_locks_per_transaction: 64
+    - max_worker_processes: 8
+    - max_prepared_transactions: 0
+    - wal_level: hot_standby
+    - wal_log_hints: on
+    - track_commit_timestamp: off
+    - max_wal_senders: 5
+    - max_replication_slots: 5
+    - wal_keep_segments: 8
+    - listen_addresses - is set either from `postgresql.listen` or from `PATRONI_POSTGRESQL_LISTEN`environment variable
+    - port - is set either from `postgresql.listen` or from `PATRONI_POSTGRESQL_LISTEN` environment variable
+    - cluster_name - is set either from `scope` or from `PATRONI_SCOPE` environment variable
+    - hot_standby: on
+
+  - Patroni controls potgresql.conf file. When applying the local or dynamic configuration options, the following actions are taken:
+
+    - The node first checks if there is a postgresql.base.conf or if the `custom_conf` parameter is set.
+    - If the custom_conf parameter is set, it will take the file specified on it as a base configuration, ignoring postgresql.base.conf and postgresql.conf.
+    - If the custom_conf parameter is not set and postgresql.base.conf exists, it contains the renamed “original” configuration and it will be used as a base configuration.
+    - If there is no custom_conf nor postgresql.base.conf, the original postgresql.conf is taken and renamed to postgresql.base.conf.
+    - The dynamic options (with the exceptions above) are dumped into the postgresql.conf and an include is set in postgresql.conf to the used base configuration (either postgresql.base.conf or what is on `custom_conf`). Therefore, we would be able to apply new options without re-reading the configuration file to check if the include is present not.
+    - Some parameters that are essential for Patroni to manage the cluster are overridden using the command line.
+    - If some of the options that require restart are changed (we should look at the context in pg_settings and at the actual values of those options), a pending_restart flag of a given node is set. This flag is reset on any restart.
+
+     
 
 #### Installing Omnibus GitLab
 
@@ -352,19 +405,23 @@ check the [Troubleshooting section](#troubleshooting) before proceeding.
     ```ruby
     # Disable all components except PostgreSQL and Repmgr and Consul
     roles ['postgres_role']
-
+    
+    # if use Patroni instead of Repmgr
+    # repmrg['enabled'] = false
+    # patroni['enabled'] = true
+    
     # PostgreSQL configuration
     postgresql['listen_address'] = '0.0.0.0'
     postgresql['hot_standby'] = 'on'
     postgresql['wal_level'] = 'replica'
     postgresql['shared_preload_libraries'] = 'repmgr_funcs'
-
+    
     # Disable automatic database migrations
     gitlab_rails['auto_migrate'] = false
-
+    
     # Configure the consul agent
     consul['services'] = %w(postgresql)
-
+    
     # START user configuration
     # Please set the real values as explained in Required Information section
     #
@@ -372,13 +429,31 @@ check the [Troubleshooting section](#troubleshooting) before proceeding.
     postgresql['pgbouncer_user_password'] = 'PGBOUNCER_PASSWORD_HASH'
     # Replace POSTGRESQL_PASSWORD_HASH with a generated md5 value
     postgresql['sql_user_password'] = 'POSTGRESQL_PASSWORD_HASH'
+    ### Replication user settings
+    postgresql['sql_replication_user'] = "gitlab_replicator"
+    postgresql['sql_replication_password'] = "PGREPLICATION_PASSWORD_HASH" # You can generate with `gitlab-ctl pg-password-md5 <dbuser>`
+    
+    ### Patroni user settings
+    # patroni['users'] = {
+    # 	'superuser' => {
+    # 	  'username' => 'gitlab_superuser',
+    # 	  'password' => 'gitlab_superuser_password'  # this is the clear text password
+    # 	},
+    # 	'replication' => {
+    # 	  'username' => 'gitlab_replicator',
+    # 	  'password' => 'replicator'        # this is the clear text of postgresql['sql_replication_password'] password
+    # 	}
+    # }
+    
     # Replace X with value of number of db nodes + 1
     postgresql['max_wal_senders'] = X
-
+    
     # Replace XXX.XXX.XXX.XXX/YY with Network Address
     postgresql['trust_auth_cidr_addresses'] = %w(XXX.XXX.XXX.XXX/YY)
     repmgr['trust_auth_cidr_addresses'] = %w(127.0.0.1/32 XXX.XXX.XXX.XXX/YY)
-
+    ### Patroni network bing interface
+    # patroni['bind_interface'] = 'eth1'
+    
     # Replace placeholders:
     #
     # Y.Y.Y.Y consul1.gitlab.example.com Z.Z.Z.Z
@@ -389,8 +464,8 @@ check the [Troubleshooting section](#troubleshooting) before proceeding.
     #
     # END user configuration
     ```
-
-    > `postgres_role` was introduced with GitLab 10.3
+    
+> `postgres_role` was introduced with GitLab 10.3
 
 1. On secondary nodes, add all the configuration specified above for primary node
    to `/etc/gitlab/gitlab.rb`. In addition, append the following configuration
@@ -399,8 +474,10 @@ check the [Troubleshooting section](#troubleshooting) before proceeding.
    ```
    # HA setting to specify if a node should attempt to be master on initialization
    repmgr['master_on_initialization'] = false
+   # If use patroni
+   # patroni['master_on_initialization'] = false
    ```
-
+   
 1. [Reconfigure GitLab] for te changes to take effect.
 
 > Please note:
@@ -420,7 +497,7 @@ Select one node as a primary node.
 
     ```sh
     gitlab-psql -d gitlabhq_production
-    ```
+   ```
 
 1. Enable the `pg_trgm` extension:
 
@@ -444,6 +521,20 @@ Select one node as a primary node.
     * master  | HOSTNAME |          | host=HOSTNAME user=gitlab_repmgr dbname=gitlab_repmgr
     ```
 
+1. Verify the cluster is initialized when using patroni:
+  
+   ```sh
+   gitlab-ctl patroni list
+   ```
+   
+   The output should be similar to the following:
+   
+   ```
+   |    Cluster    |  Member   |      Host       |  Role  |  State  | Lag in MB |
+   +---------------+-----------+-----------------+--------+---------+-----------+
+   | pg-ha-cluster | HOSTNAME  | XXX.XXX.XXX.XXX | Leader | running |         0 |
+   ```
+   
 1. Note down the hostname/ip in the connection string: `host=HOSTNAME`. We will
    refer to the hostname in the next section as `MASTER_NODE_NAME`. If the value
    is not an IP address, it will need to be a resolvable name (via DNS or
@@ -477,7 +568,7 @@ Select one node as a primary node.
     ok: run: repmgrd: (pid 19068) 0s
     ```
 
-1. Verify the node now appears in the cluster:
+    Verify the node now appears in the cluster:
 
     ```sh
     gitlab-ctl repmgr cluster show
@@ -492,13 +583,32 @@ Select one node as a primary node.
       standby | STANDBY | MASTER    | host=STANDBY_HOSTNAME user=gitlab_repmgr dbname=gitlab_repmgr
     ```
 
-Repeat the above steps on all secondary nodes.
+
+
+
+2. Setup partoni standby. If use patroni as the HA solution, there's no additional steps needed after `gitlab-ctl reconfigure`. It should automatically create replica node and join the master node. Verify the node as below:
+
+ ```sh
+   gitlab-ctl patroni list
+ ```
+
+   The output should be similar to the following:
+
+   ```
+   |    Cluster    |  Member   |      Host       |  Role  |  State  | Lag in MB |
+   +---------------+-----------+-----------------+--------+---------+-----------+
+   | pg-ha-cluster | MASTER    | XXX.XXX.XXX.XXX | Leader | running |         0 |
+   | pg-ha-cluster | REPLICA   | XXX.XXX.XXX.XXX |        | running |         1 |
+   ```
+
+3. Repeat the above steps on all secondary nodes.
 
 ##### Database checkpoint
 
-Before moving on, make sure the databases are configured correctly. Run the
-following command on the **primary** node to verify that replication is working
-properly:
+Before moving on, make sure the databases are configured correctly. 
+
+1. Check repmgr cluster. Run the following command on the **primary** node to verify that replication is working
+   properly:
 
 ```
 gitlab-ctl repmgr cluster show
@@ -528,6 +638,21 @@ or secondary. The most important thing here is that this command does not produc
 If there are errors it's most likely due to incorrect `gitlab-consul` database user permissions.
 Check the [Troubleshooting section](#troubleshooting) before proceeding.
 
+2. Check patroni cluster. When use patroni as the HA solution, check the patroni status from **any** node to verify the replication is working properly:
+
+```sh
+   gitlab-ctl patroni list
+```
+
+   The output should be similar to the following:
+
+   ```
+   |    Cluster    |  Member   |      Host       |  Role  |  State  | Lag in MB |
+   +---------------+-----------+-----------------+--------+---------+-----------+
+   | pg-ha-cluster | MASTER    | XXX.XXX.XXX.XXX | Leader | running |         0 |
+   | pg-ha-cluster | REPLICA   | XXX.XXX.XXX.XXX |        | running |         1 |
+   ```
+
 #### Configuring the Pgbouncer node
 
 1. Make sure you collect [`CONSUL_SERVER_NODES`](#consul-information), [`CONSUL_PASSWORD_HASH`](#consul-information), and [`PGBOUNCER_PASSWORD_HASH`](#pgbouncer-information) before executing the next step.
@@ -537,13 +662,13 @@ Check the [Troubleshooting section](#troubleshooting) before proceeding.
     ```ruby
     # Disable all components except Pgbouncer and Consul agent
     roles ['pgbouncer_role']
-
+    
     # Configure Pgbouncer
     pgbouncer['admin_users'] = %w(pgbouncer gitlab-consul)
-
+    
     # Configure Consul agent
     consul['watchers'] = %w(postgresql)
-
+    
     # START user configuration
     # Please set the real values as explained in Required Information section
     # Replace CONSUL_PASSWORD_HASH with with a generated md5 value
@@ -705,6 +830,10 @@ On primary node edit `/etc/gitlab/gitlab.rb`:
 # Disable all components except PostgreSQL and Repmgr and Consul
 roles ['postgres_role']
 
+# if use Patroni instead of Repmgr
+# repmgr['enabled'] = false
+# patroni['enabled'] = true
+
 # PostgreSQL configuration
 postgresql['listen_address'] = '0.0.0.0'
 postgresql['hot_standby'] = 'on'
@@ -720,6 +849,18 @@ consul['services'] = %w(postgresql)
 postgresql['pgbouncer_user_password'] = '771a8625958a529132abe6f1a4acb19c'
 postgresql['sql_user_password'] = '450409b85a0223a214b5fb1484f34d0f'
 postgresql['max_wal_senders'] = 4
+
+### Patroni user settings
+# patroni['users'] = {
+# 	'superuser' => {
+# 	  'username' => 'gitlab_superuser',
+# 	  'password' => 'gitlab_superuser_password'  # this is the clear text password
+# 	},
+# 	'replication' => {
+# 	  'username' => 'gitlab_replicator',
+# 	  'password' => 'replicator'        # this is the clear text of postgresql['sql_replication_password'] password
+# 	}
+# }
 
 postgresql['trust_auth_cidr_addresses'] = %w(10.6.0.0/16)
 repmgr['trust_auth_cidr_addresses'] = %w(10.6.0.0/16)
@@ -740,6 +881,8 @@ configuration
 ```
 # HA setting to specify if a node should attempt to be master on initialization
 repmgr['master_on_initialization'] = false
+# If use patroni
+# patroni['master_on_initialization'] = false
 ```
 
 [Reconfigure Omnibus GitLab][reconfigure GitLab] for the changes to take effect.
@@ -800,19 +943,21 @@ After deploying the configuration follow these steps:
 
 1. On `10.6.0.22`, our first standby database
 
-    Make this node a standby of the primary
+    If using repmgr, run below command to make this node a standby of the primary.
 
     ```sh
     gitlab-ctl repmgr standby setup 10.6.0.21
     ```
+    If using patroni, no addition steps needed.
 
 1. On `10.6.0.23`, our second standby database
 
-    Make this node a standby of the primary
+    If using repmgr, run below command to make this node a standby of the primary
 
     ```sh
     gitlab-ctl repmgr standby setup 10.6.0.21
     ```
+    If using patroni, no addition steps needed.
 
 1. On `10.6.0.31`, our application server
 
@@ -859,6 +1004,10 @@ On primary database node edit `/etc/gitlab/gitlab.rb`:
 # Disable all components except PostgreSQL, Repmgr, and Consul
 roles ['postgres_role']
 
+# if use Patroni instead of Repmgr
+# repmgr['enabled'] = false
+# patroni['enabled'] = true
+
 # PostgreSQL configuration
 postgresql['listen_address'] = '0.0.0.0'
 postgresql['hot_standby'] = 'on'
@@ -874,6 +1023,18 @@ consul['services'] = %w(postgresql)
 postgresql['pgbouncer_user_password'] = '771a8625958a529132abe6f1a4acb19c'
 postgresql['sql_user_password'] = '450409b85a0223a214b5fb1484f34d0f'
 postgresql['max_wal_senders'] = 4
+
+### Patroni user settings
+# patroni['users'] = {
+# 	'superuser' => {
+# 	  'username' => 'gitlab_superuser',
+# 	  'password' => 'gitlab_superuser_password'  # this is the clear text password
+# 	},
+# 	'replication' => {
+# 	  'username' => 'gitlab_replicator',
+# 	  'password' => 'replicator'        # this is the clear text of postgresql['sql_replication_password'] password
+# 	}
+# }
 
 postgresql['trust_auth_cidr_addresses'] = %w(10.6.0.0/16)
 repmgr['trust_auth_cidr_addresses'] = %w(10.6.0.0/16)
@@ -894,6 +1055,8 @@ to primary node, noted above. In addition, append the following configuration
 ```
 # HA setting to specify if a node should attempt to be master on initialization
 repmgr['master_on_initialization'] = false
+# If use patroni
+# patroni['master_on_initialization'] = false
 ```
 
 ##### Example minimal configuration for application server
@@ -940,40 +1103,61 @@ The manual steps for this configuration are the same as for the [example recomme
 
 #### Failover procedure
 
-By default, if the master database fails, `repmgrd` should promote one of the
+By default, if the master database fails, `repmgrd` or `patroni` should promote one of the
 standby nodes to master automatically, and consul will update pgbouncer with
 the new master.
 
+##### Repmgr failover procedure
+
 If you need to failover manually, you have two options:
 
-**Shutdown the current master database**
+1. **Shutdown the current master database**
 
-Run:
+   Run:
 
-```sh
-gitlab-ctl stop postgresql
-```
+   ```sh
+   gitlab-ctl stop postgresql
+   ```
 
-The automated failover process will see this and failover to one of the
-standby nodes.
+   The automated failover process will see this and failover to one of the
+   standby nodes.
 
-**Or perform a manual failover**
+2. **Or perform a manual failover**
 
-1. Ensure the old master node is not still active.
-1. Login to the server that should become the new master and run:
+   1. Ensure the old master node is not still active.
 
-    ```sh
-    gitlab-ctl repmgr standby promote
-    ```
+   2. Login to the server that should become the new master and run:
 
-1. If there are any other standby servers in the cluster, have them follow
-   the new master server:
+       ```sh
+       gitlab-ctl repmgr standby promote
+       ```
 
-    ```sh
-    gitlab-ctl repmgr standby follow NEW_MASTER
-    ```
+   3. If there are any other standby servers in the cluster, have them follow
+      the new master server:
+
+       ```sh
+       gitlab-ctl repmgr standby follow NEW_MASTER
+       ```
+
+##### Patroni failover procedure
+
+Patroni provides a command to manually failover to any replica node without the need to shut down current master database. Below command can be executed from any node in the cluster.
+
+1. Failover to replica:
+
+   ```sh
+   /opt/gitlab/embedded/bin/gitlab-patronictl failover pg-ha-cluster --candidate REPLICA_NAME
+   ```
+
+2. At this point, all nodes should automatically switch to replicating from the new master node. Check patroni cluster to ensure the status of all nodes are `running`.
+
+   ```sh
+   /opt/gitlab/embedded/bin/gitlab-patronictl list
+   ```
 
 #### Restore procedure
+
+##### Repmgr restore procedure
 
 If a node fails, it can be removed from the cluster, or added back as a standby
 after it has been restored to service.
@@ -1017,6 +1201,22 @@ after it has been restored to service.
     If there are any clients that are still attempting to write to the old master,
     this will cause a split, and the old master will need to be resynced from
     scratch by performing a `gitlab-ctl repmgr standby setup NEW_MASTER`.
+
+##### Patroni restore procedure
+
+When a failed node comes back, patroni will try to add it back to the cluster automatically. However, it may fail to do so due to various reasons. To manually reinitialize a node:
+
+```
+/opt/gitlab/embedded/bin/gitlab-patronictl reinit pg-ha-cluster REPLICA_NAME
+```
+
+This will restore the data directory of the failed replica node from the current master node and re-establish replication to the current master node. 
+
+Monitor the process with until the status of all nodes are `running`:
+
+```sh
+/opt/gitlab/embedded/bin/gitlab-patronictl list
+```
 
 #### Alternate configurations
 
