@@ -253,7 +253,7 @@ describe('Dependencies actions', () => {
 
   describe('setSortField', () => {
     it('commits the SET_SORT_FIELD mutation and dispatch the fetchDependencies action', done => {
-      const field = 'type';
+      const field = 'packager';
 
       testAction(
         actions.setSortField,
