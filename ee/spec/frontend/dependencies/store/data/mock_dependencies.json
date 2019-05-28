@@ -2,7 +2,7 @@
   "dependencies": [
     {
       "name": "underscore",
-      "type": "npm",
+      "packager": "JavaScript (npm)",
       "location": {
         "blob_path": "yarn.lock"
       },
@@ -13,7 +13,7 @@
     },
     {
       "name": "rails",
-      "type": "gem",
+      "packager": "Ruby (gem)",
       "location": {
         "blob_path": "Gemfile.lock"
       },
@@ -24,7 +24,7 @@
     },
     {
       "name": "accepts",
-      "type": "maven",
+      "packager": "Java (maven)",
       "location": {
         "blob_path": "Pom.xml"
       },
