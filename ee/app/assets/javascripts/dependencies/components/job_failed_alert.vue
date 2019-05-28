@@ -35,16 +35,10 @@ export default {
 
 <template>
   <div v-if="!dismissed" class="danger_message">
-    <h4>{{ __('Job failed to generate the dependency list') }}</h4>
+    <h4 class="text-danger-900">{{ __('Job failed to generate the dependency list') }}</h4>
     <p v-html="message" />
     <gl-button :href="jobPath" class="btn-inverted btn-danger mb-2">
       {{ __('View job') }}
     </gl-button>
   </div>
 </template>
-
-<style scoped>
-h4 {
-  color: inherit;
-}
-</style>
