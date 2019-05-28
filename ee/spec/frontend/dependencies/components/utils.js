@@ -2,7 +2,7 @@
 export const makeDependency = (changes = {}) => ({
   name: 'left-pad',
   version: '0.0.3',
-  type: 'npm',
+  packager: 'JavaScript (yarn)',
   location: { blob_path: 'yarn.lock' },
   ...changes,
 });

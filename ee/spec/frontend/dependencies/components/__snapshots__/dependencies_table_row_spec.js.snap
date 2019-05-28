@@ -51,7 +51,7 @@ exports[`DependenciesTableRow component when a dependency is loaded matches the 
     <div
       class="table-mobile-content"
     >
-      npm (JavaScript)
+      JavaScript (yarn)
     </div>
   </div>
    
