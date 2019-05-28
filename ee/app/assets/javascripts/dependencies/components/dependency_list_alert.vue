@@ -2,10 +2,10 @@
 import Icon from '~/vue_shared/components/icon.vue';
 import {
   DANGER,
-  DANGER_MESSAGE_CLASS,
+  DANGER_ALERT_CLASS,
   DANGER_TEXT_CLASS,
   WARNING,
-  WARNING_MESSAGE_CLASS,
+  WARNING_ALERT_CLASS,
   WARNING_TEXT_CLASS,
 } from '../constants';
 

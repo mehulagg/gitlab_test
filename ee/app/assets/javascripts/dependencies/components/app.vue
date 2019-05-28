@@ -4,7 +4,7 @@ import { GlBadge, GlEmptyState, GlLoadingIcon } from '@gitlab/ui';
 import Pagination from '~/vue_shared/components/pagination_links.vue';
 import DependenciesActions from './dependencies_actions.vue';
 import DependenciesTable from './dependencies_table.vue';
-import DependencyListIncompeteAlert from './dependency_list_incomplete_alert.vue';
+import DependencyListIncompleteAlert from './dependency_list_incomplete_alert.vue';
 import DependencyListJobFailedAlert from './dependency_list_job_failed_alert.vue';
 import { REPORT_STATUS } from '../store/constants';
 
@@ -16,6 +16,7 @@ export default {
     GlBadge,
     GlEmptyState,
     GlLoadingIcon,
+    DependencyListIncompleteAlert,
     DependencyListJobFailedAlert,
     Pagination,
   },

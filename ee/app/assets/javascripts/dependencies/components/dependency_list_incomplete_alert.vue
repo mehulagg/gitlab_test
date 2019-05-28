@@ -2,7 +2,7 @@
 import DependencyListAlert from './dependency_list_alert.vue';
 
 export default {
-  name: 'DependencyListIncompeteAlert',
+  name: 'DependencyListIncompleteAlert',
   components: {
     DependencyListAlert,
   },
@@ -10,7 +10,7 @@ export default {
 </script>
 
 <template>
-  <dependency-list-alert type="warning" :header="__('Unsupported file(s) detected')">
+  <dependency-list-alert type="warning" :header-text="__('Unsupported file(s) detected')">
     <p>
       {{
         __(
