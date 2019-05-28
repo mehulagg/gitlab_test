@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DependenciesApp component matches the snapshot 1`] = `
+<glloadingicon-stub
+  class="mt-4"
+  color="orange"
+  label="Loading"
+  size="md"
+/>
+`;
