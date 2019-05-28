@@ -451,8 +451,8 @@ check the [Troubleshooting section](#troubleshooting) before proceeding.
     # Replace XXX.XXX.XXX.XXX/YY with Network Address
     postgresql['trust_auth_cidr_addresses'] = %w(XXX.XXX.XXX.XXX/YY)
     repmgr['trust_auth_cidr_addresses'] = %w(127.0.0.1/32 XXX.XXX.XXX.XXX/YY)
-    ### Patroni network bing interface
-    # patroni['bind_interface'] = 'eth1'
+    ### Patroni connection ip address
+    # patroni['private_ipaddress'] = '127.0.0.1'
     
     # Replace placeholders:
     #
@@ -524,7 +524,7 @@ Select one node as a primary node.
 1. Verify the cluster is initialized when using patroni:
   
    ```sh
-   gitlab-ctl patroni list
+   /opt/gitlab/embedded/bin/gitlab-patronictl list
    ```
    
    The output should be similar to the following:
@@ -641,7 +641,7 @@ Check the [Troubleshooting section](#troubleshooting) before proceeding.
 2. Check patroni cluster. When use patroni as the HA solution, check the patroni status from **any** node to verify the replication is working properly:
 
 ```sh
-   gitlab-ctl patroni list
+   /opt/gitlab/embedded/bin/gitlab-patronictl list
 ```
 
    The output should be similar to the following:
