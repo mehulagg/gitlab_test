@@ -114,9 +114,9 @@ describe('Dependencies actions', () => {
   });
 
   describe('fetchDependencies', () => {
-    const dependenciesTypeDescending = {
+    const dependenciesPackagerDescending = {
       ...mockDependenciesResponse,
-      dependencies: _.sortBy(mockDependenciesResponse.dependencies, 'type').reverse(),
+      dependencies: _.sortBy(mockDependenciesResponse.dependencies, 'packager').reverse(),
     };
     let state;
     let mock;
@@ -165,18 +165,18 @@ describe('Dependencies actions', () => {
       });
 
       describe('given sorting params', () => {
-        const sortParamsTypeDescending = { sort_by: 'type', sort: SORT_ORDER.descending };
+        const sortParamsPackagerDescending = { sort_by: 'packager', sort: SORT_ORDER.descending };
 
         beforeEach(() => {
           mock
-            .onGet(state.endpoint, { params: sortParamsTypeDescending })
-            .replyOnce(200, dependenciesTypeDescending, headers);
+            .onGet(state.endpoint, { params: sortParamsPackagerDescending })
+            .replyOnce(200, dependenciesPackagerDescending, headers);
         });
 
         it('overrides default sorting params', done => {
           testAction(
             actions.fetchDependencies,
-            sortParamsTypeDescending,
+            sortParamsPackagerDescending,
             state,
             [],
             [
@@ -185,7 +185,7 @@ describe('Dependencies actions', () => {
               },
               {
                 type: 'receiveDependenciesSuccess',
-                payload: expect.objectContaining({ data: dependenciesTypeDescending, headers }),
+                payload: expect.objectContaining({ data: dependenciesPackagerDescending, headers }),
               },
             ],
             done,
