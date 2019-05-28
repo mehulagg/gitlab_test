@@ -37,7 +37,7 @@ export default {
   <div v-if="!dismissed" class="danger_message">
     <h4>{{ __('Job failed to generate the dependency list') }}</h4>
     <p v-html="message" />
-    <gl-button :href="jobPath" class="mb-2">
+    <gl-button :href="jobPath" class="btn-inverted btn-danger mb-2">
       {{ __('View job') }}
     </gl-button>
   </div>
