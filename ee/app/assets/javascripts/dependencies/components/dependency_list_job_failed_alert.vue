@@ -4,7 +4,7 @@ import { sprintf } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
 
 export default {
-  name: 'JobFailedAlert',
+  name: 'DependencyListJobFailedAlert',
   components: {
     GlButton,
     Icon,

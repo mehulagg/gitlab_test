@@ -4,7 +4,7 @@ import { GlBadge, GlEmptyState, GlLoadingIcon } from '@gitlab/ui';
 import Pagination from '~/vue_shared/components/pagination_links.vue';
 import DependenciesActions from './dependencies_actions.vue';
 import DependenciesTable from './dependencies_table.vue';
-import JobFailedAlert from './job_failed_alert.vue';
+import DependencyListJobFailedAlert from './dependency_list_job_failed_alert.vue';
 import { REPORT_STATUS } from '../store/constants';
 
 export default {
@@ -15,7 +15,7 @@ export default {
     GlBadge,
     GlEmptyState,
     GlLoadingIcon,
-    JobFailedAlert,
+    DependencyListJobFailedAlert,
     Pagination,
   },
   props: {
@@ -86,7 +86,7 @@ export default {
       </ul>
     </div>
 
-    <job-failed-alert v-if="jobFailed" :job-path="reportInfo.jobPath" />
+    <dependency-list-job-failed-alert v-if="jobFailed" :job-path="reportInfo.jobPath" />
 
     <div class="d-sm-flex justify-content-between align-items-baseline my-2">
       <h4 class="h5">
