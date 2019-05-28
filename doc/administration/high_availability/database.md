@@ -62,17 +62,17 @@ deploy the bundled PostgreSQL.
     alertmanager['enable'] = false
     pgbouncer_exporter['enable'] = false
     redis_exporter['enable'] = false
- gitlab_monitor['enable'] = false
+    gitlab_monitor['enable'] = false
    
     postgresql['listen_address'] = '0.0.0.0'
- postgresql['port'] = 5432
+    postgresql['port'] = 5432
    
     # Replace POSTGRESQL_PASSWORD_HASH with a generated md5 value 
- postgresql['sql_user_password'] = 'POSTGRESQL_PASSWORD_HASH'
+    postgresql['sql_user_password'] = 'POSTGRESQL_PASSWORD_HASH'
    
     # Replace XXX.XXX.XXX.XXX/YY with Network Address
     # ????  
- postgresql['trust_auth_cidr_addresses'] = %w(APPLICATION_SERVER_IP_BLOCKS)
+    postgresql['trust_auth_cidr_addresses'] = %w(APPLICATION_SERVER_IP_BLOCKS)
    
     # Disable automatic database migrations
     gitlab_rails['auto_migrate'] = false
@@ -465,7 +465,7 @@ check the [Troubleshooting section](#troubleshooting) before proceeding.
     # END user configuration
     ```
     
-> `postgres_role` was introduced with GitLab 10.3
+    > `postgres_role` was introduced with GitLab 10.3
 
 1. On secondary nodes, add all the configuration specified above for primary node
    to `/etc/gitlab/gitlab.rb`. In addition, append the following configuration
@@ -607,8 +607,7 @@ Select one node as a primary node.
 
 Before moving on, make sure the databases are configured correctly. 
 
-1. Check repmgr cluster. Run the following command on the **primary** node to verify that replication is working
-   properly:
+1. Check repmgr cluster. Run the following command on the **primary** node to verify that replication is working properly:
 
 ```
 gitlab-ctl repmgr cluster show
@@ -1141,7 +1140,7 @@ If you need to failover manually, you have two options:
 
 ##### Patroni failover procedure
 
-Patroni provides a command to manually failover to any replica node without the need to shut down current master database. Below command can be executed from any node in the cluster.
+Patroni provides a command to manually failover to any replica node without shutting down current master database manually. Below command can be executed from any node in the cluster.
 
 1. Failover to replica:
 
