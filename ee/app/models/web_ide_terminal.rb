@@ -2,14 +2,14 @@
 
 class WebIdeTerminal
   include ::Gitlab::Routing
+  DOMAIN_KEY = "services".freeze
 
-  attr_reader :build, :project
+  attr_reader :build, :project, :user
 
-  delegate :id, :status, to: :build
-
-  def initialize(build)
+  def initialize(user, build)
     @build = build
     @project = build.project
+    @user = user
   end
 
   def show_path
@@ -26,6 +26,15 @@ class WebIdeTerminal
 
   def terminal_path
     terminal_project_job_path(project, build, format: :ws)
+  end
+
+  # The proxy url goes through GitLab Pages, therefore we build the url
+  # using the user's username, a special prefix, the build id, and the rest
+  # of the Pages domain
+  def proxy_path
+    Addressable::URI.parse(Gitlab.config.pages.url).tap do |u|
+      u.host = [user.username, DOMAIN_KEY, build.id, u.host].join('.')
+    end.to_s
   end
 
   def proxy_websocket_path

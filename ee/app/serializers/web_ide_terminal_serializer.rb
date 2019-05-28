@@ -4,7 +4,7 @@ class WebIdeTerminalSerializer < BaseSerializer
   entity WebIdeTerminalEntity
 
   def represent(resource, opts = {})
-    resource = WebIdeTerminal.new(resource) if resource.is_a?(Ci::Build)
+    resource = WebIdeTerminal.new(params[:current_user], resource) if resource.is_a?(Ci::Build)
 
     super
   end

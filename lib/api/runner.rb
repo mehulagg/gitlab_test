@@ -231,6 +231,30 @@ module API
         JobArtifactUploader.workhorse_authorize(has_length: false, maximum_size: max_artifacts_size)
       end
 
+      params do
+        requires :id, type: Integer, desc: %q(Job's ID)
+        optional :service, type: String, desc: %q(Service name running in the job to proxy to)
+        optional :port, type: String, desc: %q(Service port running in the job to proxy to)
+        optional :path, type: String, desc: %q(Service Path running in the job to proxy to)
+      end
+      get '/:id/proxy/authorize' do
+        require_pages_config_enabled!
+        require_gitlab_workhorse!
+        Gitlab::Workhorse.verify_api_request!(headers)
+
+        job = Ci::Build.find(params[:id])
+        authorize! :create_build_service_proxy, job
+
+        runner_session = job.build_runner_session(url: "http://google.es")
+
+        spec = job.service_specification(service: params['service'],
+          port: params['port'],
+          path: params['path'])
+
+        present ::Gitlab::Workhorse.service_request(spec)
+        content_type Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE
+      end
+
       desc 'Upload artifacts for job' do
         success Entities::JobRequest::Response
         http_codes [[201, 'Artifact uploaded'],

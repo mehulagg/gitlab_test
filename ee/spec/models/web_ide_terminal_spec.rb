@@ -4,8 +4,9 @@ require 'spec_helper'
 
 describe WebIdeTerminal do
   let(:build) { create(:ci_build) }
+  let(:user) { create(:user) }
 
-  subject { described_class.new(build) }
+  subject { described_class.new(user, build) }
 
   it 'returns the show_path of the build' do
     expect(subject.show_path).to end_with("/ide_terminals/#{build.id}")
@@ -24,7 +25,7 @@ describe WebIdeTerminal do
   end
 
   it 'returns the proxy_path of the build' do
-    expect(subject.proxy_path).to end_with("/jobs/#{build.id}/proxy")
+    expect(subject.proxy_path).to eq "http://#{user.username}.#{described_class::DOMAIN_KEY}.#{build.id}.example.com"
   end
 
   it 'returns the proxy_websocket_path of the build' do
