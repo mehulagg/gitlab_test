@@ -35,7 +35,10 @@ describe('DependenciesApp component', () => {
 
   it('dispatches the correct initial actions', () => {
     factory();
-    expect(store.calls).toHaveLength(2);
+    expect(store.dispatch.mock.calls).toEqual([
+      ['setDependenciesEndpoint', basicAppProps.endpoint],
+      ['fetchDependencies'],
+    ]);
   });
 
   // it('matches the snapshot', () => {
