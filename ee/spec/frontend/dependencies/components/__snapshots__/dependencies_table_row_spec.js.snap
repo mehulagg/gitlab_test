@@ -2,7 +2,7 @@
 
 exports[`DependenciesTableRow component when a dependency is loaded matches the snapshot 1`] = `
 <div
-  class="gl-responsive-table-row vulnerabilities-row p-2"
+  class="gl-responsive-table-row p-2"
 >
   <div
     class="table-section section-20 section-wrap"
@@ -80,7 +80,7 @@ exports[`DependenciesTableRow component when a dependency is loaded matches the 
 
 exports[`DependenciesTableRow component when loading matches the snapshot 1`] = `
 <div
-  class="gl-responsive-table-row vulnerabilities-row p-2"
+  class="gl-responsive-table-row p-2"
 >
   <glskeletonloading-stub
     class="d-flex flex-column justify-content-center"
@@ -91,7 +91,7 @@ exports[`DependenciesTableRow component when loading matches the snapshot 1`] = 
 
 exports[`DependenciesTableRow component when passed no props matches the snapshot 1`] = `
 <div
-  class="gl-responsive-table-row vulnerabilities-row p-2"
+  class="gl-responsive-table-row p-2"
 >
   <glskeletonloading-stub
     class="d-flex flex-column justify-content-center"
