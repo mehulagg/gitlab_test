@@ -62,10 +62,10 @@ export const fetchDependencies = ({ state, dispatch }, params = {}) => {
 
 export const setSortField = ({ commit, dispatch }, id) => {
   commit(types.SET_SORT_FIELD, id);
-  dispatch('fetchDependencies');
+  dispatch('fetchDependencies', { page: 1 });
 };
 
 export const toggleSortOrder = ({ commit, dispatch }) => {
   commit(types.TOGGLE_SORT_ORDER);
-  dispatch('fetchDependencies');
+  dispatch('fetchDependencies', { page: 1 });
 };

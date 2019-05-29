@@ -281,6 +281,7 @@ describe('Dependencies actions', () => {
         [
           {
             type: 'fetchDependencies',
+            payload: { page: 1 },
           },
         ],
         done,
@@ -302,6 +303,7 @@ describe('Dependencies actions', () => {
         [
           {
             type: 'fetchDependencies',
+            payload: { page: 1 },
           },
         ],
         done,
