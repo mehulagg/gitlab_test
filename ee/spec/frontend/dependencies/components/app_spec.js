@@ -2,14 +2,14 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import { TEST_HOST } from 'helpers/test_constants';
 import createStore from 'ee/dependencies/store';
 import { REPORT_STATUS } from 'ee/dependencies/store/constants';
+import DependenciesActions from 'ee/dependencies/components/dependencies_actions.vue';
 import DependenciesApp from 'ee/dependencies/components/app.vue';
 import DependenciesTable from 'ee/dependencies/components/dependencies_table.vue';
+import DependencyListIncompleteAlert from 'ee/dependencies/components/dependency_list_incomplete_alert.vue';
 import DependencyListJobFailedAlert from 'ee/dependencies/components/dependency_list_job_failed_alert.vue';
 import Pagination from '~/vue_shared/components/pagination_links.vue';
 
 describe('DependenciesApp component', () => {
-  test.todo('needs testing');
-
   let store;
   let wrapper;
 
@@ -246,8 +246,4 @@ describe('DependenciesApp component', () => {
       });
     });
   });
-
-  test.todo('renders empty state');
-  test.todo('renders job failure');
-  test.todo('renders incomplete job');
 });
