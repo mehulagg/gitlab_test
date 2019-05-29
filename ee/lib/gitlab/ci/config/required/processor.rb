@@ -12,13 +12,14 @@ module Gitlab
           end
 
           def perform
+            return @config unless ::License.feature_available?(:required_template_inclusion)
             return @config unless required_template_name
 
             merge_required_template!
           end
 
           def merge_required_template!
-            raise RequiredError, 'Required template not found!', unless required_template
+            raise RequiredError, 'Required template not found!' unless required_template
 
             @config.deep_merge!(required_template)
           end

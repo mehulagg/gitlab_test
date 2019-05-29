@@ -9,7 +9,7 @@ module EE
         override :initialize
         def initialize(config, project: nil, sha: nil, user: nil)
           super
-        rescue ::Gitlab::Ci::Required::Processor::RequiredError => e
+        rescue ::Gitlab::Ci::Config::Required::Processor::RequiredError => e
           raise ::Gitlab::Ci::Config::ConfigError, e.message
         end
 
