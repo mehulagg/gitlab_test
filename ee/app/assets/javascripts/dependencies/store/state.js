@@ -2,7 +2,6 @@ import { REPORT_STATUS, SORT_FIELDS, SORT_ORDER } from './constants';
 
 export default () => ({
   endpoint: '',
-  dependenciesDownloadEndpoint: '',
   initialized: false,
   isLoading: false,
   errorLoading: false,

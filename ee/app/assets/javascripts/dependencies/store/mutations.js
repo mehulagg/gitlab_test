@@ -4,7 +4,6 @@ import { REPORT_STATUS, SORT_ORDER } from './constants';
 export default {
   [types.SET_DEPENDENCIES_ENDPOINT](state, payload) {
     state.endpoint = payload;
-    state.dependenciesDownloadEndpoint = `${payload}.json`;
   },
   [types.REQUEST_DEPENDENCIES](state) {
     state.isLoading = true;

@@ -16,9 +16,6 @@ describe('Dependencies mutations', () => {
       mutations[types.SET_DEPENDENCIES_ENDPOINT](state, TEST_HOST);
 
       expect(state.endpoint).toBe(TEST_HOST);
-
-      // TODO: find out correct endpoint/params for download
-      expect(state.dependenciesDownloadEndpoint).toBe(`${TEST_HOST}.json`);
     });
   });
 
