@@ -1,0 +1,2 @@
+- requesters.each do |member|
+  = render_ce 'shared/members/member', force_mobile_view: force_mobile_view, member: member, override?: member.override?
