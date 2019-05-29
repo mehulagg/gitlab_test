@@ -11,7 +11,7 @@ export const SORT_ORDER = {
 };
 
 export const REPORT_STATUS = {
-  ok: '',
+  ok: 'ok',
   jobNotSetUp: 'job_not_set_up',
   jobFailed: 'job_failed',
   incomplete: 'no_dependency_files',
