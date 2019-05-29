@@ -15,7 +15,7 @@ jest.mock('~/flash', () => jest.fn());
 
 describe('Dependencies actions', () => {
   const pageInfo = {
-    page: 1,
+    page: 3,
     nextPage: 2,
     previousPage: 1,
     perPage: 20,
@@ -144,13 +144,16 @@ describe('Dependencies actions', () => {
     describe('on success', () => {
       describe('given no params', () => {
         beforeEach(() => {
-          const sortParamsDefault = {
+          state.pageInfo = { ...pageInfo };
+
+          const paramsDefault = {
             sort_by: state.sortField,
             sort: state.sortOrder,
+            page: state.pageInfo.page,
           };
 
           mock
-            .onGet(state.endpoint, { params: sortParamsDefault })
+            .onGet(state.endpoint, { params: paramsDefault })
             .replyOnce(200, mockDependenciesResponse, headers);
         });
 
@@ -174,19 +177,19 @@ describe('Dependencies actions', () => {
         });
       });
 
-      describe('given sorting params', () => {
-        const sortParamsPackagerDescending = { sort_by: 'packager', sort: SORT_ORDER.descending };
+      describe('given params', () => {
+        const paramsGiven = { sort_by: 'packager', sort: SORT_ORDER.descending, page: 4 };
 
         beforeEach(() => {
           mock
-            .onGet(state.endpoint, { params: sortParamsPackagerDescending })
+            .onGet(state.endpoint, { params: paramsGiven })
             .replyOnce(200, dependenciesPackagerDescending, headers);
         });
 
-        it('overrides default sorting params', done => {
+        it('overrides default params', done => {
           testAction(
             actions.fetchDependencies,
-            sortParamsPackagerDescending,
+            paramsGiven,
             state,
             [],
             [

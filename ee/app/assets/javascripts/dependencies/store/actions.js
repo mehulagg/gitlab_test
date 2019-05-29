@@ -43,6 +43,7 @@ export const fetchDependencies = ({ state, dispatch }, params = {}) => {
       params: {
         sort_by: state.sortField,
         sort: state.sortOrder,
+        page: state.pageInfo.page || 1,
         ...params,
       },
     })
