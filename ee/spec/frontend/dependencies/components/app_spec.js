@@ -37,6 +37,8 @@ describe('DependenciesApp component', () => {
   });
 
   describe('on creation', () => {
+    let dependencies;
+
     beforeEach(() => {
       factory();
     });
@@ -53,8 +55,6 @@ describe('DependenciesApp component', () => {
     });
 
     describe('given a list of dependencies and ok report', () => {
-      let dependencies;
-
       beforeEach(() => {
         dependencies = ['foo', 'bar'];
 
@@ -93,6 +93,26 @@ describe('DependenciesApp component', () => {
             change: wrapper.vm.fetchPage,
           }),
         );
+      });
+    });
+
+    describe('given the dependency list job has not yet run', () => {
+      beforeEach(() => {
+        dependencies = [];
+
+        Object.assign(store.state, {
+          initialized: true,
+          isLoading: false,
+          dependencies,
+        });
+        store.state.pageInfo.total = 0;
+        store.state.reportInfo.status = REPORT_STATUS.jobNotSetUp;
+
+        return wrapper.vm.$nextTick();
+      });
+
+      it('matches the snapshot', () => {
+        expect(wrapper.element).toMatchSnapshot();
       });
     });
   });

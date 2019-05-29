@@ -37,6 +37,16 @@ exports[`DependenciesApp component on creation given a list of dependencies and 
 </div>
 `;
 
+exports[`DependenciesApp component on creation given the dependency list job has not yet run matches the snapshot 1`] = `
+<glemptystate-stub
+  description="The dependency list details information about the components used within your project."
+  primarybuttonlink="http://test.host"
+  primarybuttontext="Learn more about the dependency list"
+  svgpath="/bar.svg"
+  title="View dependency details for your project"
+/>
+`;
+
 exports[`DependenciesApp component on creation matches the snapshot 1`] = `
 <glloadingicon-stub
   class="mt-4"
