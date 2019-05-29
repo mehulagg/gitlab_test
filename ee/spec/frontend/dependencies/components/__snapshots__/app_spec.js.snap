@@ -37,6 +37,39 @@ exports[`DependenciesApp component on creation given a dependency list which is 
 </div>
 `;
 
+exports[`DependenciesApp component on creation given a fetch error matches the snapshot 1`] = `
+<div>
+  <!---->
+   
+  <!---->
+   
+  <div
+    class="d-sm-flex justify-content-between align-items-baseline my-2"
+  >
+    <h4
+      class="h5"
+    >
+      
+      Dependencies
+      
+      <glbadge-stub
+        pill=""
+      >
+        
+      </glbadge-stub>
+    </h4>
+     
+    <dependenciesactions-stub />
+  </div>
+   
+  <dependenciestable-stub
+    dependencies=""
+  />
+   
+  <!---->
+</div>
+`;
+
 exports[`DependenciesApp component on creation given a list of dependencies and ok report matches the snapshot 1`] = `
 <div>
   <!---->

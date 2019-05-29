@@ -210,10 +210,44 @@ describe('DependenciesApp component', () => {
         );
       });
     });
+
+    describe('given a fetch error', () => {
+      beforeEach(() => {
+        dependencies = [];
+
+        Object.assign(store.state, {
+          initialized: true,
+          isLoading: false,
+          errorLoading: true,
+          dependencies,
+        });
+
+        return wrapper.vm.$nextTick();
+      });
+
+      it('matches the snapshot', () => {
+        expect(wrapper.element).toMatchSnapshot();
+      });
+
+      it('passes the correct props to the dependencies table', () => {
+        const table = wrapper.find(DependenciesTable);
+        expect(table.isVisible()).toBe(true);
+        expect(table.props()).toEqual(
+          expect.objectContaining({
+            dependencies,
+            isLoading: false,
+          }),
+        );
+      });
+
+      it('does not show pagination', () => {
+        const pagination = wrapper.find(Pagination);
+        expect(pagination.exists()).toBe(false);
+      });
+    });
   });
 
   test.todo('renders empty state');
   test.todo('renders job failure');
   test.todo('renders incomplete job');
-  test.todo('renders error');
 });
