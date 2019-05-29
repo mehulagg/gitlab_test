@@ -17,30 +17,29 @@ exports[`DependenciesActions component matches the snapshot 1`] = `
           class="d-flex"
         >
           <icon-stub
-            class="flex-shrink-0 js-check"
+            class="flex-shrink-0 append-right-4"
             cssclasses=""
             name="mobile-issue-close"
             size="16"
           />
-           
-          <span
-            class="prepend-left-4"
-          >
-            Component name
-          </span>
+          
+          Component name
+        
         </span>
       </gldropdownitem-stub>
       <gldropdownitem-stub>
         <span
           class="d-flex"
         >
-          <!---->
-           
-          <span
-            class="prepend-left-20"
-          >
-            Packager
-          </span>
+          <icon-stub
+            class="flex-shrink-0 append-right-4 invisible"
+            cssclasses=""
+            name="mobile-issue-close"
+            size="16"
+          />
+          
+          Packager
+        
         </span>
       </gldropdownitem-stub>
     </gldropdown-stub>
