@@ -131,6 +131,16 @@ describe('Dependencies actions', () => {
       mock.restore();
     });
 
+    describe('when endpoint is empty', () => {
+      beforeEach(() => {
+        state.endpoint = '';
+      });
+
+      it('does nothing', done => {
+        testAction(actions.fetchDependencies, undefined, state, [], [], done);
+      });
+    });
+
     describe('on success', () => {
       describe('given no params', () => {
         beforeEach(() => {
