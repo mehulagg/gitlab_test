@@ -77,19 +77,16 @@ module Operations
       end
 
       def preload_relations
-        preload(:scopes)
+        preload(scopes: :strategy)
       end
     end
 
     def strategies
-      if percentage
+      if strategy_name
         [
           {
-            name: 'gradualRolloutUserId',
-            parameters: {
-              groupId: 'default',
-              percentage: percentage
-            }
+            name: strategy_name,
+            parameters: JSON.parse(strategy_parameters)
           }
         ]
       else

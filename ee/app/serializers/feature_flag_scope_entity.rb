@@ -6,7 +6,7 @@ class FeatureFlagScopeEntity < Grape::Entity
   expose :id
   expose :active
   expose :environment_scope
-  expose :percentage
   expose :created_at
   expose :updated_at
+  expose :strategy, with: FeatureFlagStrategyEntity
 end

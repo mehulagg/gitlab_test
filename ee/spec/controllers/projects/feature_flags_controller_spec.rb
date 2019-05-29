@@ -690,21 +690,28 @@ describe Projects::FeatureFlagsController do
             scopes_attributes: [
               {
                 id: production_scope.id,
-                percentage: 50
+                strategy_attributes: {
+                  name: "gradualRolloutUserId",
+                  parameters: {
+                    percentage: "70"
+                  }
+                }
               }
             ]
           }
         }
       end
 
-      it 'saves the percentage value' do
+      it 'saves the strategy' do
         put(:update, params: params, format: :json)
 
         production_scope = json_response['scopes'].select do |s|
           s['environment_scope'] == 'production'
         end.first
+        strategy = production_scope['strategy']
         expect(response).to have_gitlab_http_status(:ok)
-        expect(production_scope['percentage']).to eq(50)
+        expect(strategy['name']).to eq('gradualRolloutUserId')
+        expect(strategy['parameters']).to eq({ "percentage" => "70", "groupId" => "default" })
       end
     end
   end
