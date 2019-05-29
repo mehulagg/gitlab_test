@@ -5,6 +5,8 @@ module Gitlab
     class Config
       module Required
         class Processor
+          RequiredError = Class.new(StandardError)
+
           def initialize(config)
             @config = config
           end
@@ -16,6 +18,8 @@ module Gitlab
           end
 
           def merge_required_template!
+            raise RequiredError, 'Required template not found!', unless required_template
+
             @config.deep_merge!(required_template)
           end
 
