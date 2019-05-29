@@ -52,11 +52,7 @@ exports[`DependenciesApp component on creation given a fetch error matches the s
       
       Dependencies
       
-      <glbadge-stub
-        pill=""
-      >
-        
-      </glbadge-stub>
+      <!---->
     </h4>
      
     <dependenciesactions-stub />
@@ -124,11 +120,7 @@ exports[`DependenciesApp component on creation given the dependency list job fai
       
       Dependencies
       
-      <glbadge-stub
-        pill=""
-      >
-        0
-      </glbadge-stub>
+      <!---->
     </h4>
      
     <dependenciesactions-stub />
