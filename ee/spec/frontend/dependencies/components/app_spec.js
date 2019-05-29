@@ -4,6 +4,7 @@ import createStore from 'ee/dependencies/store';
 import { REPORT_STATUS } from 'ee/dependencies/store/constants';
 import DependenciesApp from 'ee/dependencies/components/app.vue';
 import DependenciesTable from 'ee/dependencies/components/dependencies_table.vue';
+import DependencyListJobFailedAlert from 'ee/dependencies/components/dependency_list_job_failed_alert.vue';
 import Pagination from '~/vue_shared/components/pagination_links.vue';
 
 describe('DependenciesApp component', () => {
@@ -113,6 +114,37 @@ describe('DependenciesApp component', () => {
 
       it('matches the snapshot', () => {
         expect(wrapper.element).toMatchSnapshot();
+      });
+    });
+
+    describe('given the dependency list job failed', () => {
+      beforeEach(() => {
+        dependencies = [];
+
+        Object.assign(store.state, {
+          initialized: true,
+          isLoading: false,
+          dependencies,
+        });
+        store.state.pageInfo.total = 0;
+        store.state.reportInfo.status = REPORT_STATUS.jobFailed;
+        store.state.reportInfo.jobPath = '/jobs/foo/321';
+
+        return wrapper.vm.$nextTick();
+      });
+
+      it('matches the snapshot', () => {
+        expect(wrapper.element).toMatchSnapshot();
+      });
+
+      it('passes the correct props to the job failure alert', () => {
+        const alert = wrapper.find(DependencyListJobFailedAlert);
+        expect(alert.isVisible()).toBe(true);
+        expect(alert.props()).toEqual(
+          expect.objectContaining({
+            jobPath: store.state.reportInfo.jobPath,
+          }),
+        );
       });
     });
   });
