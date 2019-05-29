@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DependencyListAlert component given no type prop matches the snapshot 1`] = `
+<div
+  class="danger_message text-danger-900"
+>
+  <button
+    aria-label="Close"
+    class="btn-blank float-right mr-1 mt-1 js-close text-danger-900"
+    type="button"
+  >
+    <icon-stub
+      aria-hidden="true"
+      cssclasses=""
+      name="close"
+      size="16"
+    />
+  </button>
+   
+  <h4
+    class="text-danger-900"
+  >
+    
+  </h4>
+   
+  <p>
+    foo 
+    <span>
+      bar
+    </span>
+  </p>
+</div>
+`;
+
+exports[`DependencyListAlert component given the warning type prop matches the snapshot 1`] = `
+<div
+  class="warning_message text-warning-900"
+>
+  <button
+    aria-label="Close"
+    class="btn-blank float-right mr-1 mt-1 js-close text-warning-900"
+    type="button"
+  >
+    <icon-stub
+      aria-hidden="true"
+      cssclasses=""
+      name="close"
+      size="16"
+    />
+  </button>
+   
+  <h4
+    class="text-warning-900"
+  >
+    
+  </h4>
+   
+  <p>
+    foo 
+    <span>
+      bar
+    </span>
+  </p>
+</div>
+`;

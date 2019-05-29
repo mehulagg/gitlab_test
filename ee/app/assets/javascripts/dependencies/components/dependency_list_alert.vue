@@ -61,7 +61,7 @@ export default {
 <template>
   <div v-if="!closed" :class="[alertClass, textClass]">
     <button
-      class="btn-blank float-right mr-1 mt-1"
+      class="btn-blank float-right mr-1 mt-1 js-close"
       :class="textClass"
       type="button"
       :aria-label="__('Close')"
