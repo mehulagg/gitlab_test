@@ -163,6 +163,53 @@ describe('DependenciesApp component', () => {
         expect(pagination.exists()).toBe(false);
       });
     });
+
+    describe('given a dependency list which is known to be incomplete', () => {
+      beforeEach(() => {
+        dependencies = ['foo', 'bar'];
+
+        Object.assign(store.state, {
+          initialized: true,
+          isLoading: false,
+          dependencies,
+        });
+        store.state.pageInfo.total = 100;
+        store.state.reportInfo.status = REPORT_STATUS.incomplete;
+
+        return wrapper.vm.$nextTick();
+      });
+
+      it('matches the snapshot', () => {
+        expect(wrapper.element).toMatchSnapshot();
+      });
+
+      it('passes the correct props to the incomplete-list alert', () => {
+        const alert = wrapper.find(DependencyListIncompleteAlert);
+        expect(alert.isVisible()).toBe(true);
+      });
+
+      it('passes the correct props to the dependencies table', () => {
+        const table = wrapper.find(DependenciesTable);
+        expect(table.isVisible()).toBe(true);
+        expect(table.props()).toEqual(
+          expect.objectContaining({
+            dependencies,
+            isLoading: false,
+          }),
+        );
+      });
+
+      it('passes the correct props to the pagination', () => {
+        const pagination = wrapper.find(Pagination);
+        expect(pagination.isVisible()).toBe(true);
+        expect(pagination.props()).toEqual(
+          expect.objectContaining({
+            pageInfo: store.state.pageInfo,
+            change: wrapper.vm.fetchPage,
+          }),
+        );
+      });
+    });
   });
 
   test.todo('renders empty state');
