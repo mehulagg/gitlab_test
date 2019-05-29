@@ -146,6 +146,22 @@ describe('DependenciesApp component', () => {
           }),
         );
       });
+
+      it('passes the correct props to the dependencies table', () => {
+        const table = wrapper.find(DependenciesTable);
+        expect(table.isVisible()).toBe(true);
+        expect(table.props()).toEqual(
+          expect.objectContaining({
+            dependencies,
+            isLoading: false,
+          }),
+        );
+      });
+
+      it('does not show pagination', () => {
+        const pagination = wrapper.find(Pagination);
+        expect(pagination.exists()).toBe(false);
+      });
     });
   });
 
