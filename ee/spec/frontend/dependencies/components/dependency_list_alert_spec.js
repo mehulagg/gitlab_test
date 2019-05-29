@@ -22,7 +22,7 @@ describe('DependencyListAlert component', () => {
     wrapper.destroy();
   });
 
-  describe('given no type prop', () => {
+  describe('given no props', () => {
     beforeEach(() => {
       factory();
     });
@@ -32,9 +32,19 @@ describe('DependencyListAlert component', () => {
     });
   });
 
-  describe('given the warning type prop', () => {
+  describe('given the warning type and headerText props', () => {
     beforeEach(() => {
-      factory({ type: WARNING });
+      factory({ type: WARNING, headerText: 'Some header' });
+    });
+
+    it('matches the snapshot', () => {
+      expect(wrapper.element).toMatchSnapshot();
+    });
+  });
+
+  describe('given the headerText prop', () => {
+    beforeEach(() => {
+      factory({ headerText: 'A header' });
     });
 
     it('matches the snapshot', () => {

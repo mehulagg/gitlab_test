@@ -69,7 +69,7 @@ export default {
     >
       <icon name="close" aria-hidden="true" />
     </button>
-    <h4 :class="textClass">{{ headerText }}</h4>
+    <h4 v-if="headerText" :class="textClass">{{ headerText }}</h4>
     <slot />
   </div>
 </template>
