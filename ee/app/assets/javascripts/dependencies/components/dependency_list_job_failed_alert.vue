@@ -20,9 +20,9 @@ export default {
       message: sprintf(
         __(
           'The %{jobName} job has failed and cannot generate the list. Please ensure the job is running properly and run the pipeline again.',
-          { jobName: '<code>dependency_list</code>' },
-          false,
         ),
+        { jobName: '<code>dependency_list</code>' },
+        false,
       ),
     };
   },
@@ -32,7 +32,7 @@ export default {
 <template>
   <dependency-list-alert
     type="danger"
-    :header-text="__('Dependencies|Job failed to generate the dependency list')"
+    :header-text="s__('Dependencies|Job failed to generate the dependency list')"
   >
     <p v-html="message" />
     <gl-button :href="jobPath" class="btn-inverted btn-danger mb-2">
