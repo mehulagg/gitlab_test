@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DependenciesApp component on creation given a list of dependencies and ok report matches the snapshot 1`] = `
+<div>
+  <!---->
+   
+  <!---->
+   
+  <div
+    class="d-sm-flex justify-content-between align-items-baseline my-2"
+  >
+    <h4
+      class="h5"
+    >
+      
+      Dependencies
+      
+      <glbadge-stub
+        pill=""
+      >
+        100
+      </glbadge-stub>
+    </h4>
+     
+    <dependenciesactions-stub />
+  </div>
+   
+  <dependenciestable-stub
+    dependencies="foo,bar"
+  />
+   
+  <pagination-stub
+    change="function () { [native code] }"
+    class="justify-content-center prepend-top-default"
+    pageinfo="[object Object]"
+  />
+</div>
+`;
+
+exports[`DependenciesApp component on creation matches the snapshot 1`] = `
+<glloadingicon-stub
+  class="mt-4"
+  color="orange"
+  label="Loading"
+  size="md"
+/>
+`;
