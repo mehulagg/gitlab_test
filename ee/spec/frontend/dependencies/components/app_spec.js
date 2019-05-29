@@ -33,6 +33,12 @@ describe('DependenciesApp component', () => {
     });
   };
 
+  const expectComponentWithProps = (Component, props = {}) => {
+    const componentWrapper = wrapper.find(Component);
+    expect(componentWrapper.isVisible()).toBe(true);
+    expect(componentWrapper.props()).toEqual(expect.objectContaining(props));
+  };
+
   afterEach(() => {
     wrapper.destroy();
   });
@@ -75,25 +81,17 @@ describe('DependenciesApp component', () => {
       });
 
       it('passes the correct props to the dependencies table', () => {
-        const table = wrapper.find(DependenciesTable);
-        expect(table.isVisible()).toBe(true);
-        expect(table.props()).toEqual(
-          expect.objectContaining({
-            dependencies,
-            isLoading: false,
-          }),
-        );
+        expectComponentWithProps(DependenciesTable, {
+          dependencies,
+          isLoading: false,
+        });
       });
 
       it('passes the correct props to the pagination', () => {
-        const pagination = wrapper.find(Pagination);
-        expect(pagination.isVisible()).toBe(true);
-        expect(pagination.props()).toEqual(
-          expect.objectContaining({
-            pageInfo: store.state.pageInfo,
-            change: wrapper.vm.fetchPage,
-          }),
-        );
+        expectComponentWithProps(Pagination, {
+          pageInfo: store.state.pageInfo,
+          change: wrapper.vm.fetchPage,
+        });
       });
     });
 
@@ -138,29 +136,20 @@ describe('DependenciesApp component', () => {
       });
 
       it('passes the correct props to the job failure alert', () => {
-        const alert = wrapper.find(DependencyListJobFailedAlert);
-        expect(alert.isVisible()).toBe(true);
-        expect(alert.props()).toEqual(
-          expect.objectContaining({
-            jobPath: store.state.reportInfo.jobPath,
-          }),
-        );
+        expectComponentWithProps(DependencyListJobFailedAlert, {
+          jobPath: store.state.reportInfo.jobPath,
+        });
       });
 
       it('passes the correct props to the dependencies table', () => {
-        const table = wrapper.find(DependenciesTable);
-        expect(table.isVisible()).toBe(true);
-        expect(table.props()).toEqual(
-          expect.objectContaining({
-            dependencies,
-            isLoading: false,
-          }),
-        );
+        expectComponentWithProps(DependenciesTable, {
+          dependencies,
+          isLoading: false,
+        });
       });
 
       it('does not show pagination', () => {
-        const pagination = wrapper.find(Pagination);
-        expect(pagination.exists()).toBe(false);
+        expect(wrapper.find(Pagination).exists()).toBe(false);
       });
     });
 
@@ -189,25 +178,17 @@ describe('DependenciesApp component', () => {
       });
 
       it('passes the correct props to the dependencies table', () => {
-        const table = wrapper.find(DependenciesTable);
-        expect(table.isVisible()).toBe(true);
-        expect(table.props()).toEqual(
-          expect.objectContaining({
-            dependencies,
-            isLoading: false,
-          }),
-        );
+        expectComponentWithProps(DependenciesTable, {
+          dependencies,
+          isLoading: false,
+        });
       });
 
       it('passes the correct props to the pagination', () => {
-        const pagination = wrapper.find(Pagination);
-        expect(pagination.isVisible()).toBe(true);
-        expect(pagination.props()).toEqual(
-          expect.objectContaining({
-            pageInfo: store.state.pageInfo,
-            change: wrapper.vm.fetchPage,
-          }),
-        );
+        expectComponentWithProps(Pagination, {
+          pageInfo: store.state.pageInfo,
+          change: wrapper.vm.fetchPage,
+        });
       });
     });
 
@@ -230,19 +211,14 @@ describe('DependenciesApp component', () => {
       });
 
       it('passes the correct props to the dependencies table', () => {
-        const table = wrapper.find(DependenciesTable);
-        expect(table.isVisible()).toBe(true);
-        expect(table.props()).toEqual(
-          expect.objectContaining({
-            dependencies,
-            isLoading: false,
-          }),
-        );
+        expectComponentWithProps(DependenciesTable, {
+          dependencies,
+          isLoading: false,
+        });
       });
 
       it('does not show pagination', () => {
-        const pagination = wrapper.find(Pagination);
-        expect(pagination.exists()).toBe(false);
+        expect(wrapper.find(Pagination).exists()).toBe(false);
       });
     });
   });
