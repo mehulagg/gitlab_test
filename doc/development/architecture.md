@@ -94,6 +94,8 @@ graph TB
   Registry -- TCP 443 --> ObjectStorage
   Geo -- TCP 5432 --> PostgreSQL
 ```
+aaa
+A simplified version from the above architecture diagram can be found [here](./img/architecture_overview.jpg).
 
 ### Component legend
 
