@@ -492,6 +492,18 @@ describe Projects::FeatureFlagsController do
         expect { subject }.to change { Operations::FeatureFlagScope.count }.by(-2)
       end
     end
+
+    context 'when there is an additional scope with a strategy' do
+      let!(:scope) { create_scope(feature_flag, 'production', false) }
+      let!(:strategy) { create(:operations_feature_flag_strategy, feature_flag_scope: scope) }
+
+      it 'destroys both scopes and the strategy' do
+        subject
+
+        expect(Operations::FeatureFlagScope.count).to eq(0)
+        expect(Operations::FeatureFlagStrategy.count).to eq(0)
+      end
+    end
   end
 
   describe 'PUT update.json' do
