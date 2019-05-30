@@ -98,7 +98,7 @@ module API
         optional :start_branch, type: String, desc: 'Name of the branch to start the new commit from'
         optional :author_email, type: String, desc: 'Author email for commit'
         optional :author_name, type: String, desc: 'Author name for commit'
-        optional :stats, type: Boolean, default: true, desc: 'Include commit stats'
+        optional :stats, type: Boolean, default: false, desc: 'Include commit stats'
       end
       post ':id/repository/commits' do
         authorize_push_to_branch!(params[:branch])
