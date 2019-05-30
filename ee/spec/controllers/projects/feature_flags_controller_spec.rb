@@ -691,7 +691,6 @@ describe Projects::FeatureFlagsController do
               {
                 id: production_scope.id,
                 strategy_attributes: {
-                  name: "gradualRolloutUserId",
                   parameters: {
                     percentage: "70"
                   }
@@ -702,7 +701,7 @@ describe Projects::FeatureFlagsController do
         }
       end
 
-      it 'saves the strategy' do
+      it 'creates a new strategy' do
         put(:update, params: params, format: :json)
 
         production_scope = json_response['scopes'].select do |s|

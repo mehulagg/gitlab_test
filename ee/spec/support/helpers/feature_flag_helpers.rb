@@ -43,6 +43,12 @@ module FeatureFlagHelpers
     end
   end
 
+  def within_rollout
+    within '.table-section:nth-child(3)' do
+      yield
+    end
+  end
+
   def within_delete
     within '.table-section:nth-child(4)' do
       yield

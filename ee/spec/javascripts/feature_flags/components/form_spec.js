@@ -159,13 +159,13 @@ describe('feature flag form', () => {
           });
         });
 
-        describe('entering a value for the scope rollout', () => {
-          it('updates the scope', () => {
+        describe('entering a value for the scope rollout percentage', () => {
+          it('updates the scope strategy', () => {
             wrapper.find('.js-scope-percentage input').setValue('60');
 
             const productionScope = wrapper.vm.formScopes[0];
 
-            expect(productionScope.percentage).toEqual('60');
+            expect(productionScope.strategy.parameters.percentage).toEqual('60');
           });
         });
       });
@@ -338,7 +338,7 @@ describe('feature flag form', () => {
           protected: true,
         });
 
-        expect(newScope.percentage).toEqual('35');
+        expect(newScope.strategy).toEqual({ parameters: { percentage: '35' } });
       });
     });
   });

@@ -37,6 +37,25 @@ describe 'User updates feature flag', :js do
     end
   end
 
+  context 'when user updates a scope rollout percentage' do
+    before do
+      within_scope_row(2) do
+        within_rollout { find('.js-scope-percentage').fill_in with: "12"}
+      end
+
+      click_button 'Save changes'
+      expect(page).to have_current_path(project_feature_flags_path(project))
+    end
+
+    it 'shows the percentage on the overview page' do
+      within_feature_flag_row(1) do
+        within_feature_flag_scopes do
+          expect(page.find('.badge:nth-child(2)')).to have_content('review/*: 12%')
+        end
+      end
+    end
+  end
+
   context 'when user updates a status of a scope' do
     before do
       within_scope_row(2) do

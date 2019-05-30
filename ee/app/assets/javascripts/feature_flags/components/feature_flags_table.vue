@@ -58,6 +58,13 @@ export default {
     },
   },
   methods: {
+    percentageRollout(scope) {
+      const { strategy } = scope;
+      if (strategy && strategy.parameters) {
+        return strategy.parameters.percentage;
+      }
+      return '';
+    },
     scopeTooltipText(scope) {
       return !scope.active
         ? sprintf(s__('FeatureFlags|Inactive flag for %{scope}'), {
@@ -66,7 +73,8 @@ export default {
         : '';
     },
     badgeText(scope) {
-      const { environment_scope: name, percentage } = scope;
+      const { environment_scope: name } = scope;
+      const percentage = this.percentageRollout(scope);
       const displayName = name === '*' ? s__('FeatureFlags|* (All environments)') : name;
       const displayPercentage = percentage ? `: ${percentage}%` : '';
       return displayName + displayPercentage;

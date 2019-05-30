@@ -51,7 +51,7 @@ export default {
       formScopes: this.scopes || [],
 
       newScope: '',
-      newScopePercentage: '',
+      newStrategy: { parameters: {} },
     };
   },
   helpText: sprintf(
@@ -160,12 +160,24 @@ export default {
     createNewEnvironment(name) {
       this.formScopes.push({
         environment_scope: name,
-        percentage: this.newScopePercentage,
+        strategy: this.newStrategy,
         active: false,
         id: _.uniqueId(internalKeyID),
       });
       this.newScope = '';
-      this.newScopePercentage = '';
+      this.newStrategy = { parameters: {} };
+    },
+    strategyPercentage(scope) {
+      if (scope.strategy && scope.strategy.parameters) {
+        return scope.strategy.parameters.percentage;
+      }
+      return '';
+    },
+    onUpdateRolloutPercentage(scope, event) {
+      const percentage = event.target.value;
+      const index = this.formScopes.findIndex(el => el.id === scope.id);
+      const updatedScope = Object.assign({}, scope, { strategy: { parameters: { percentage } } });
+      this.formScopes.splice(index, 1, updatedScope);
     },
     /**
      * When the user clicks the submit button
@@ -285,7 +297,11 @@ export default {
                   {{ s__('FeatureFlags|Rollout') }}
                 </div>
                 <div class="table-mobile-content js-scope-percentage">
-                  <input v-model="scope.percentage" class="form-control" />
+                  <input
+                    class="form-control"
+                    :value="strategyPercentage(scope)"
+                    @change="event => onUpdateRolloutPercentage(scope, event)"
+                  />
                 </div>
               </div>
 
@@ -335,7 +351,7 @@ export default {
                   {{ s__('FeatureFlags|Rollout') }}
                 </div>
                 <div class="table-mobile-content js-scope-percentage">
-                  <input v-model="newScopePercentage" class="form-control" />
+                  <input v-model="newStrategy.parameters.percentage" class="form-control" />
                 </div>
               </div>
             </div>

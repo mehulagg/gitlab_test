@@ -72,7 +72,7 @@ describe('Feature Flag table', () => {
     const scope = featureFlag.scopes[1];
 
     expect(envColumn.textContent.trim()).toContain(
-      `${scope.environment_scope}: ${scope.percentage}%`,
+      `${scope.environment_scope}: ${scope.strategy.parameters.percentage}%`,
     );
   });
 
