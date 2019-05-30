@@ -8,9 +8,17 @@ module Operations
 
     serialize :parameters, JSON # rubocop:disable Cop/ActiveRecordSerialize
 
-    before_create do
-      self.name = "gradualRolloutUserId"
-      self.parameters = { groupId: "default" }.merge(self.parameters)
+    before_create :set_data
+    before_update :set_data
+
+    def set_data
+      if self.parameters['percentage'].blank?
+        self.name = "default"
+        self.parameters = {}
+      else
+        self.name = "gradualRolloutUserId"
+        self.parameters = { groupId: "default" }.merge(self.parameters)
+      end
     end
   end
 end

@@ -107,7 +107,7 @@ class Projects::FeatureFlagsController < Projects::ApplicationController
     params.require(:operations_feature_flag)
           .permit(:name, :description, :active,
                   scopes_attributes: [:id, :environment_scope, :active, :_destroy,
-                                      strategy_attributes: [parameters: [:percentage]]])
+                                      strategy_attributes: [:id, parameters: [:percentage]]])
   end
 
   def feature_flag_json(feature_flag)
