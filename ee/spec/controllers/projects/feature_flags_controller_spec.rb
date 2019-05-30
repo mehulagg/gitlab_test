@@ -415,6 +415,31 @@ describe Projects::FeatureFlagsController do
         end
       end
     end
+
+    context 'when creates additional scope with a percentage rollout' do
+      let(:params) do
+        view_params.merge({
+          operations_feature_flag: {
+            name: 'my_feature_flag',
+            active: true,
+            scopes_attributes: [{ environment_scope: '*', active: true },
+                                { environment_scope: 'production', active: false,
+                                  strategy_attributes: { parameters: { percentage: "42" } } }]
+          }
+        })
+      end
+
+      it 'creates a strategy for the scope' do
+        expect { subject }.to change { Operations::FeatureFlagStrategy.count }.by(1)
+
+        default_strategy_json = json_response['scopes'].first['strategy']
+        production_strategy_json = json_response['scopes'].second['strategy']
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(default_strategy_json).to be_nil
+        expect(production_strategy_json['name']).to eq('gradualRolloutUserId')
+        expect(production_strategy_json['parameters']).to eq({ "groupId" => "default", "percentage" => "42" })
+      end
+    end
   end
 
   describe 'DELETE destroy.json' do

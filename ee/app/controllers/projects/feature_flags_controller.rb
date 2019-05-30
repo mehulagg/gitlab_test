@@ -99,8 +99,9 @@ class Projects::FeatureFlagsController < Projects::ApplicationController
 
   def create_params
     params.require(:operations_feature_flag)
-          .permit(:name, :description, :active,
-                  scopes_attributes: [:environment_scope, :active])
+      .permit(:name, :description, :active,
+              scopes_attributes: [:environment_scope, :active,
+                                  strategy_attributes: [parameters: [:percentage]]])
   end
 
   def update_params
