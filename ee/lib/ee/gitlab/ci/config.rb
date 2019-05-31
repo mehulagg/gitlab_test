@@ -6,11 +6,9 @@ module EE
       module Config
         extend ::Gitlab::Utils::Override
 
-        override :initialize
-        def initialize(config, project: nil, sha: nil, user: nil)
-          super
-        rescue ::Gitlab::Ci::Config::Required::Processor::RequiredError => e
-          raise ::Gitlab::Ci::Config::ConfigError, e.message
+        override :rescue_errors
+        def rescue_errors
+          [*super, ::Gitlab::Ci::Config::Required::Processor::RequiredError]
         end
 
         override :build_config
