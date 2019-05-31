@@ -893,6 +893,31 @@ describe Projects::FeatureFlagsController do
           expect(Operations::FeatureFlagStrategy.count).to eq(1)
         end
       end
+
+      context 'when there is a strategy and the request has parameters without an id' do
+        let!(:strategy) do
+          create(:operations_feature_flag_strategy,
+                 feature_flag_scope: production_scope,
+                 name: "default",
+                 parameters: {})
+        end
+
+        it 'does not orphan a record' do
+          params = request_params({ parameters: { percentage: "15" } })
+
+          put(:update, params: params, format: :json)
+
+          production_scope = json_response['scopes'].select do |s|
+            s['environment_scope'] == 'production'
+          end.first
+          strategy_json = production_scope['strategy']
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(strategy_json['id']).not_to eq(strategy.id)
+          expect(strategy_json['name']).to eq('gradualRolloutUserId')
+          expect(strategy_json['parameters']).to eq({ "groupId" => "default", "percentage" => "15" })
+          expect(Operations::FeatureFlagStrategy.count).to eq(1)
+        end
+      end
     end
   end
 

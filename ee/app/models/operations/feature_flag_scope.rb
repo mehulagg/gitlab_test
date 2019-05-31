@@ -7,7 +7,7 @@ module Operations
     self.table_name = 'operations_feature_flag_scopes'
 
     belongs_to :feature_flag
-    has_one :strategy, class_name: 'Operations::FeatureFlagStrategy'
+    has_one :strategy, class_name: 'Operations::FeatureFlagStrategy', dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
 
     validates :environment_scope, uniqueness: {
       scope: :feature_flag,
