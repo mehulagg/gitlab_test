@@ -162,6 +162,7 @@ describe('feature flag form', () => {
         describe('entering a value for the scope rollout percentage', () => {
           it('updates the scope strategy', () => {
             wrapper.find('.js-scope-percentage input').setValue('60');
+            wrapper.find('.js-scope-percentage input').trigger('change');
 
             const productionScope = wrapper.vm.formScopes[0];
 
