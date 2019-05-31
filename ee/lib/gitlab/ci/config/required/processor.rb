@@ -21,16 +21,16 @@ module Gitlab
           def merge_required_template
             raise RequiredError, "Required template '#{required_template_name}' not found!" unless required_template
 
-            @config.deep_merge(required_template)
+            @config.deep_merge(required_template_hash)
           end
 
           private
 
-          def required_template
-            ::YAML.safe_load(File.read(required_template_path))
+          def required_template_hash
+            YAML.safe_load(required_template.content).deep_symbolize_keys
           end
 
-          def required_template_path
+          def required_template
             ::TemplateFinder.build(:gitlab_ci_ymls, nil, name: required_template_name).execute
           end
 
