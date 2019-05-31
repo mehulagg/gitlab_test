@@ -44,8 +44,8 @@ module Operations
     end
 
     scope :for_environment, -> (environment) do
-      sql = "operations_feature_flags.*, (#{actual_active_sql(environment)}) AS active, (#{percentage_sql(environment)}) AS percentage"
-      select(sql)
+      select("operations_feature_flags.*" \
+             ", (#{actual_active_sql(environment)}) AS active")
     end
 
     scope :for_list, -> do
@@ -59,14 +59,6 @@ module Operations
           .where('operations_feature_flag_scopes.feature_flag_id = operations_feature_flags.id')
           .on_environment(environment, relevant_only: true)
           .select('active')
-          .to_sql
-      end
-
-      def percentage_sql(environment)
-        Operations::FeatureFlagScope
-          .where('operations_feature_flag_scopes.feature_flag_id = operations_feature_flags.id')
-          .on_environment(environment, relevant_only: true)
-          .select('percentage')
           .to_sql
       end
 
