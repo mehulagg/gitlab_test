@@ -181,5 +181,57 @@ describe FeatureFlags::UpdateService do
         end
       end
     end
+
+    context 'when an unset rollout percentage is set to a value' do
+      let(:scope) { create(:operations_feature_flag_scope, feature_flag: feature_flag, environment_scope: 'sandbox') }
+      let(:strategy) { create(:operations_feature_flag_strategy, feature_flag_scope: scope, name: 'default', parameters: {}) }
+      let(:params) do
+        {
+          scopes_attributes: [{
+            id: scope.id,
+            environment_scope: 'sandbox',
+            strategy_attributes: {
+              id: strategy.id,
+              parameters: {
+                percentage: "40"
+              }
+            }
+          }]
+        }
+      end
+
+      it 'creates an audit event' do
+        expect { subject }.to change { AuditEvent.count }.by(1)
+        expect(audit_event_message).to(
+          include("Updated rule <strong>sandbox</strong> rollout "\
+                  "from <strong>unset</strong> to <strong>40%</strong>.")
+        )
+      end
+    end
+
+    context 'when a new strategy is created with a percentage' do
+      let(:scope) { create(:operations_feature_flag_scope, feature_flag: feature_flag, environment_scope: 'sandbox') }
+      let(:params) do
+        {
+          scopes_attributes: [{
+            id: scope.id,
+            environment_scope: 'sandbox',
+            strategy_attributes: {
+              parameters: {
+                percentage: "55"
+              }
+            }
+          }]
+        }
+      end
+
+      it 'creates an audit event' do
+        expect { subject }.to change { AuditEvent.count }.by(1)
+        expect(audit_event_message).to(
+          include("Updated rule <strong>sandbox</strong> rollout "\
+                  "from <strong>unset</strong> to <strong>55%</strong>.")
+        )
+      end
+    end
   end
 end

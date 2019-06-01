@@ -28,6 +28,7 @@ module FeatureFlags
     def audit_message(feature_flag)
       changes = changed_attributes_messages(feature_flag)
       changes += changed_scopes_messages(feature_flag)
+      changes += changed_strategy_messages(feature_flag)
 
       return if changes.empty?
 
@@ -52,6 +53,13 @@ module FeatureFlags
           updated_scope_message(scope)
         end
       end.compact # updated_scope_message can return nil if nothing has been changed
+    end
+
+    def changed_strategy_messages(feature_flag)
+      feature_flag.scopes.map do |scope|
+        changes = scope.strategy && scope.strategy.changes.slice(:parameters)
+        AuditMessages.strategy_message(scope.environment_scope, changes)
+      end.compact
     end
 
     def deleted_scope_message(scope)
