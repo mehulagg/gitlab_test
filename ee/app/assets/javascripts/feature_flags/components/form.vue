@@ -176,7 +176,8 @@ export default {
     onUpdateRolloutPercentage(scope, event) {
       const percentage = event.target.value;
       const index = this.formScopes.findIndex(el => el.id === scope.id);
-      const updatedScope = Object.assign({}, scope, { strategy: { parameters: { percentage } } });
+      const updatedStrategy = Object.assign({}, scope.strategy, { parameters: { percentage } });
+      const updatedScope = Object.assign({}, scope, { strategy: updatedStrategy });
       this.formScopes.splice(index, 1, updatedScope);
     },
     /**

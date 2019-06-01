@@ -168,6 +168,39 @@ describe('feature flag form', () => {
 
             expect(productionScope.strategy.parameters.percentage).toEqual('60');
           });
+
+          it('preserves an existing strategy id', () => {
+            factory({
+              ...requiredProps,
+              name: 'feature_flag_1',
+              description: 'this is a feature flag',
+              scopes: [
+                {
+                  environment_scope: 'production',
+                  active: false,
+                  can_update: true,
+                  protected: true,
+                  id: 2,
+                  strategy: {
+                    id: 10,
+                    name: 'gradualRolloutUserId',
+                    parameters: {
+                      groupId: 'default',
+                      percentage: '20',
+                    },
+                  },
+                },
+              ],
+            });
+
+            wrapper.find('.js-scope-percentage input').setValue('30');
+            wrapper.find('.js-scope-percentage input').trigger('change');
+
+            const productionScope = wrapper.vm.formScopes[0];
+
+            expect(productionScope.strategy.id).toEqual(10);
+            expect(productionScope.strategy.parameters.percentage).toEqual('30');
+          });
         });
       });
 
