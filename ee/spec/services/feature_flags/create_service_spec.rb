@@ -56,5 +56,25 @@ describe FeatureFlags::CreateService do
         expect(AuditEvent.last.present.action).to eq(expected_message)
       end
     end
+
+    context 'when feature flag is created with a gradual rollout strategy' do
+      let(:params) do
+        {
+          name: 'feature_flag',
+          description: 'description',
+          scopes_attributes: [{ environment_scope: '*', active: true,
+                                strategy_attributes: { parameters: { percentage: "" } } },
+                              { environment_scope: 'production', active: true,
+                                strategy_attributes: { parameters: { percentage: "40" } } }]
+        }
+      end
+
+      it 'includes the strategy in the audit message' do
+        subject
+
+        expect(AuditEvent.last.present.action).to include('Created rule <strong>*</strong> and set it as <strong>active</strong>')
+        expect(AuditEvent.last.present.action).to include('Created rule <strong>production</strong> with <strong>40%</strong> rollout and set it as <strong>active</strong>')
+      end
+    end
   end
 end
