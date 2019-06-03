@@ -6,8 +6,6 @@ module Operations
 
     belongs_to :feature_flag_scope
 
-    serialize :parameters, JSON # rubocop:disable Cop/ActiveRecordSerialize
-
     validates :name, inclusion: { in: %w(default gradualRolloutUserId) }
     validate :parameters_validation
 

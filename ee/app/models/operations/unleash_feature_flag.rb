@@ -13,7 +13,7 @@ module Operations
         [
           {
             name: strategy_name,
-            parameters: JSON.parse(strategy_parameters)
+            parameters: strategy_parameters
           }
         ]
       else
