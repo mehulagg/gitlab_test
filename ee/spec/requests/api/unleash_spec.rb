@@ -179,7 +179,10 @@ describe API::Unleash do
 
         strategies = json_response['features'].first['strategies']
         expect(response).to have_gitlab_http_status(:ok)
-        expect(strategies).to eq([{ "name" => "default" }])
+        expect(strategies).to eq([{
+          "name" => "default",
+          "parameters" => {}
+        }])
       end
 
       it 'returns a feature flag strategy' do

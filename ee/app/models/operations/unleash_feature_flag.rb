@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Operations
-  class UnleashFeatureFlag < ActiveRecord::Base
+  class UnleashFeatureFlag < ApplicationRecord
     self.table_name = 'operations_feature_flags'
 
     def readonly?
@@ -18,7 +18,10 @@ module Operations
         ]
       else
         [
-          { name: 'default' }
+          {
+            name: 'default',
+            parameters: {}
+          }
         ]
       end
     end
