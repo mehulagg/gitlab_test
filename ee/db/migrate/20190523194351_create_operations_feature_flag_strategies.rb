@@ -9,9 +9,10 @@ class CreateOperationsFeatureFlagStrategies < ActiveRecord::Migration[5.1]
     create_table :operations_feature_flag_strategies do |t|
       t.references :feature_flag_scope,
         foreign_key: { to_table: :operations_feature_flag_scopes, on_delete: :cascade },
-        index: { name: :index_ops_feature_flag_strategies_on_feature_flag_scope_id }
+        index: { name: :index_ops_feature_flag_strategies_on_feature_flag_scope_id },
+        null: false
       t.string :name, null: false
-      t.json :parameters
+      t.jsonb :parameters
     end
   end
 end
