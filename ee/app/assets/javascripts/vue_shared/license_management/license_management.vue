@@ -1,10 +1,9 @@
 <script>
 import { mapState, mapActions } from 'vuex';
-import { GlButton, GlLoadingIcon } from '@gitlab/ui';
+import { GlButton, GlLoadingIcon, GlPaginatedList } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import AddLicenseForm from './components/add_license_form.vue';
 import LicenseManagementRow from './components/license_management_row.vue';
-import PaginatedList from '~/vue_shared/components/paginated_list.vue';
 import DeleteConfirmationModal from './components/delete_confirmation_modal.vue';
 import createStore from './store/index';
 
@@ -15,10 +14,10 @@ export default {
   components: {
     AddLicenseForm,
     DeleteConfirmationModal,
-    PaginatedList,
     LicenseManagementRow,
     GlButton,
     GlLoadingIcon,
+    GlPaginatedList
   },
   props: {
     apiUrl: {
@@ -61,11 +60,15 @@ export default {
   <div v-else class="license-management">
     <delete-confirmation-modal />
 
-    <paginated-list
+    <gl-paginated-list
       :list="managedLicenses"
       :empty-search-message="$options.emptySearchMessage"
       :empty-message="$options.emptyMessage"
       :filter-key="'name'"
+      :first-text="s__('Pagination|« First')"
+      :prev-text="s__('Pagination|Prev')"
+      :next-text="s__('Pagination|Next')"
+      :last-text="s__('Pagination|Last »')"
     >
       <template #header>
         <gl-button
@@ -89,6 +92,6 @@ export default {
       </template>
 
       <license-management-row slot-scope="{ listItem }" :license="listItem" />
-    </paginated-list>
+    </gl-paginated-list>
   </div>
 </template>
