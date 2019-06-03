@@ -26,21 +26,6 @@ module Operations
     scope :enabled, -> { where(active: true) }
     scope :disabled, -> { where(active: false) }
 
-    def strategies
-      if strategy && strategy.name == 'gradualRolloutUserId'
-        [
-          {
-            name: 'gradualRolloutUserId',
-            parameters: strategy.parameters
-          }
-        ]
-      else
-        [
-          { name: 'default' }
-        ]
-      end
-    end
-
     private
 
     def default_scope?

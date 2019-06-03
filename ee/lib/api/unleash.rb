@@ -69,46 +69,14 @@ module API
         forbidden! unless project.feature_available?(:feature_flags)
       end
 
-      # rubocop: disable CodeReuse/ActiveRecord
       def feature_flags
         return [] unless unleash_app_name.present?
 
-        raw_sql = <<~SQL
-        WITH
-          feature_flag_scopes_with_precedence AS (
-            SELECT *,
-            CASE
-              WHEN environment_scope = '*' THEN 1
-              WHEN environment_scope = ? THEN 3
-              WHEN ? LIKE REPLACE(REPLACE(REPLACE(environment_scope, '%', '\%'), '_', '\_'), '*', '%') THEN 2
-              ELSE 0
-            END AS precedence
-            FROM operations_feature_flag_scopes
-          ),
-          max_precedence_per_feature_flag AS (
-            SELECT feature_flag_id, MAX(precedence) AS max_precedence
-            FROM feature_flag_scopes_with_precedence
-            GROUP BY feature_flag_id
-          )
-        SELECT
-          operations_feature_flags.name,
-          operations_feature_flags.description,
-          feature_flag_scopes_with_precedence.active,
-          operations_feature_flag_strategies.name AS strategy_name,
-          operations_feature_flag_strategies.parameters AS strategy_parameters
-        FROM operations_feature_flags
-        JOIN feature_flag_scopes_with_precedence ON operations_feature_flags.id = feature_flag_scopes_with_precedence.feature_flag_id
-        LEFT JOIN operations_feature_flag_strategies ON feature_flag_scopes_with_precedence.id = operations_feature_flag_strategies.feature_flag_scope_id
-        JOIN max_precedence_per_feature_flag
-          ON max_precedence_per_feature_flag.feature_flag_id = operations_feature_flags.id
-          AND max_precedence_per_feature_flag.max_precedence = feature_flag_scopes_with_precedence.precedence
-        WHERE operations_feature_flags.project_id = ?
-        ORDER BY operations_feature_flags.name
-        SQL
-
-        Operations::FeatureFlag.find_by_sql([raw_sql, unleash_app_name, unleash_app_name, project.id])
+        Operations::UnleashFeatureFlag.find_all_for(
+          project: project,
+          environment_scope: unleash_app_name
+        )
       end
-      # rubocop: enable CodeReuse/ActiveRecord
     end
   end
 end

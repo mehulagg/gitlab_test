@@ -73,21 +73,6 @@ module Operations
       end
     end
 
-    def strategies
-      if strategy_name
-        [
-          {
-            name: strategy_name,
-            parameters: JSON.parse(strategy_parameters)
-          }
-        ]
-      else
-        [
-          { name: 'default' }
-        ]
-      end
-    end
-
     private
 
     def first_default_scope
