@@ -408,11 +408,9 @@ describe('feature flag form', () => {
       it('should emit handleSubmit with the updated data', () => {
         wrapper.find('#feature-flag-name').setValue('feature_flag_2');
 
-        wrapper
-          .find('.js-add-new-scope')
-          .find('.js-scope-percentage input')
-          .setValue('35')
-          .trigger('change');
+        const rolloverInput = wrapper.find('.js-add-new-scope .js-scope-percentage input');
+        rolloverInput.setValue('35');
+        rolloverInput.trigger('change');
 
         wrapper
           .find('.js-new-scope-name')
