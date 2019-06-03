@@ -138,9 +138,9 @@ describe API::Unleash do
 
   %w(/feature_flags/unleash/:project_id/features /feature_flags/unleash/:project_id/client/features).each do |features_endpoint|
     describe "GET #{features_endpoint}" do
-      let(:features_url) { features_endpoint.sub(':project_id', project_id) }
+      let(:features_url) { features_endpoint.sub(':project_id', project_id.to_s) }
 
-      subject { get api("/feature_flags/unleash/#{project_id}/features"), params: params, headers: headers }
+      subject { get api(features_url), params: params, headers: headers }
 
       it_behaves_like 'authenticated request'
       it_behaves_like 'support multiple environments'
