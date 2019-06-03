@@ -51,7 +51,7 @@ export default {
       formScopes: this.scopes || [],
 
       newScope: '',
-      newStrategy: { parameters: {} },
+      newStrategy: { name: 'default', parameters: {} },
     };
   },
   helpText: sprintf(
@@ -165,20 +165,32 @@ export default {
         id: _.uniqueId(internalKeyID),
       });
       this.newScope = '';
-      this.newStrategy = { parameters: {} };
+      this.newStrategy = { name: 'default', parameters: {} };
     },
-    strategyPercentage(scope) {
-      if (scope.strategy && scope.strategy.parameters) {
-        return scope.strategy.parameters.percentage;
+    strategyPercentage(strategy) {
+      if (strategy && strategy.parameters) {
+        return strategy.parameters.percentage;
       }
       return '';
     },
     onUpdateRolloutPercentage(scope, event) {
       const percentage = event.target.value;
       const index = this.formScopes.findIndex(el => el.id === scope.id);
-      const updatedStrategy = Object.assign({}, scope.strategy, { parameters: { percentage } });
+      const updates =
+        percentage === ''
+          ? { name: 'default', parameters: {} }
+          : { name: 'gradualRolloutUserId', parameters: { groupId: 'default', percentage } };
+      const updatedStrategy = Object.assign({}, scope.strategy, updates);
       const updatedScope = Object.assign({}, scope, { strategy: updatedStrategy });
       this.formScopes.splice(index, 1, updatedScope);
+    },
+    onUpdateNewRolloutPercentage(strategy, event) {
+      const percentage = event.target.value;
+      const updates =
+        percentage === ''
+          ? { name: 'default', parameters: {} }
+          : { name: 'gradualRolloutUserId', parameters: { groupId: 'default', percentage } };
+      this.newStrategy = updates;
     },
     /**
      * When the user clicks the submit button
@@ -300,7 +312,7 @@ export default {
                 <div class="table-mobile-content js-scope-percentage">
                   <input
                     class="form-control"
-                    :value="strategyPercentage(scope)"
+                    :value="strategyPercentage(scope.strategy)"
                     @change="event => onUpdateRolloutPercentage(scope, event)"
                   />
                 </div>
@@ -352,7 +364,11 @@ export default {
                   {{ s__('FeatureFlags|Rollout') }}
                 </div>
                 <div class="table-mobile-content js-scope-percentage">
-                  <input v-model="newStrategy.parameters.percentage" class="form-control" />
+                  <input
+                    class="form-control"
+                    :value="strategyPercentage(newStrategy)"
+                    @change="event => onUpdateNewRolloutPercentage(newStrategy, event)"
+                  />
                 </div>
               </div>
             </div>

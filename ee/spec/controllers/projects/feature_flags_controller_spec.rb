@@ -424,7 +424,8 @@ describe Projects::FeatureFlagsController do
             active: true,
             scopes_attributes: [{ environment_scope: '*', active: true },
                                 { environment_scope: 'production', active: false,
-                                  strategy_attributes: { parameters: { percentage: "42" } } }]
+                                  strategy_attributes: { name: 'gradualRolloutUserId',
+                                                         parameters: { groupId: 'default', percentage: '42' } } }]
           }
         })
       end
@@ -741,39 +742,40 @@ describe Projects::FeatureFlagsController do
 
           put(:update, params: params, format: :json)
 
+          expect(response).to have_gitlab_http_status(:ok)
           production_scope = json_response['scopes'].select do |s|
             s['environment_scope'] == 'production'
           end.first
-          expect(response).to have_gitlab_http_status(:ok)
           expect(production_scope['strategy']).to be_nil
           expect(Operations::FeatureFlagStrategy.count).to eq(0)
         end
 
-        it 'creates a default strategy when the percentage is an empty string' do
-          params = request_params({ parameters: { percentage: "" } })
+        it 'creates a default strategy' do
+          params = request_params({ name: 'default', parameters: {} })
 
           put(:update, params: params, format: :json)
 
+          expect(response).to have_gitlab_http_status(:ok)
           production_scope = json_response['scopes'].select do |s|
             s['environment_scope'] == 'production'
           end.first
           strategy_json = production_scope['strategy']
-          expect(response).to have_gitlab_http_status(:ok)
           expect(strategy_json['name']).to eq('default')
           expect(strategy_json['parameters']).to eq({})
           expect(Operations::FeatureFlagStrategy.count).to eq(1)
         end
 
-        it 'creates a gradualRolloutUserId strategy when the percentage is a number' do
-          params = request_params({ parameters: { percentage: "70" } })
+        it 'creates a gradualRolloutUserId strategy' do
+          params = request_params({ name: 'gradualRolloutUserId',
+                                   parameters: { groupId: 'default', percentage: "70" } })
 
           put(:update, params: params, format: :json)
 
+          expect(response).to have_gitlab_http_status(:ok)
           production_scope = json_response['scopes'].select do |s|
             s['environment_scope'] == 'production'
           end.first
           strategy_json = production_scope['strategy']
-          expect(response).to have_gitlab_http_status(:ok)
           expect(strategy_json['name']).to eq('gradualRolloutUserId')
           expect(strategy_json['parameters']).to eq({ "percentage" => "70", "groupId" => "default" })
           expect(Operations::FeatureFlagStrategy.count).to eq(1)
@@ -793,43 +795,47 @@ describe Projects::FeatureFlagsController do
 
           put(:update, params: params, format: :json)
 
+          expect(response).to have_gitlab_http_status(:ok)
           production_scope = json_response['scopes'].select do |s|
             s['environment_scope'] == 'production'
           end.first
           strategy_json = production_scope['strategy']
-          expect(response).to have_gitlab_http_status(:ok)
           expect(strategy_json['id']).to eq(strategy.id)
           expect(strategy_json['name']).to eq('default')
           expect(strategy_json['parameters']).to eq({})
           expect(Operations::FeatureFlagStrategy.count).to eq(1)
         end
 
-        it 'does not change the strategy when the percentage is an empty string' do
-          params = request_params({ id: strategy.id, parameters: { percentage: "" } })
+        it 'does not change the strategy when given a default strategy' do
+          params = request_params({ id: strategy.id,
+                                    name: 'default',
+                                    parameters: {} })
 
           put(:update, params: params, format: :json)
 
+          expect(response).to have_gitlab_http_status(:ok)
           production_scope = json_response['scopes'].select do |s|
             s['environment_scope'] == 'production'
           end.first
           strategy_json = production_scope['strategy']
-          expect(response).to have_gitlab_http_status(:ok)
           expect(strategy_json['id']).to eq(strategy.id)
           expect(strategy_json['name']).to eq('default')
           expect(strategy_json['parameters']).to eq({})
           expect(Operations::FeatureFlagStrategy.count).to eq(1)
         end
 
-        it 'changes the strategy to gradualRolloutUserId when the percentage is a number' do
-          params = request_params({ id: strategy.id, parameters: { percentage: "5" } })
+        it 'changes the strategy to gradualRolloutUserId' do
+          params = request_params({ id: strategy.id,
+                                    name: 'gradualRolloutUserId',
+                                    parameters: { groupId: 'default', percentage: "5" } })
 
           put(:update, params: params, format: :json)
 
+          expect(response).to have_gitlab_http_status(:ok)
           production_scope = json_response['scopes'].select do |s|
             s['environment_scope'] == 'production'
           end.first
           strategy_json = production_scope['strategy']
-          expect(response).to have_gitlab_http_status(:ok)
           expect(strategy_json['id']).to eq(strategy.id)
           expect(strategy_json['name']).to eq('gradualRolloutUserId')
           expect(strategy_json['parameters']).to eq({ "groupId" => "default", "percentage" => "5" })
@@ -850,43 +856,47 @@ describe Projects::FeatureFlagsController do
 
           put(:update, params: params, format: :json)
 
+          expect(response).to have_gitlab_http_status(:ok)
           production_scope = json_response['scopes'].select do |s|
             s['environment_scope'] == 'production'
           end.first
           strategy_json = production_scope['strategy']
-          expect(response).to have_gitlab_http_status(:ok)
           expect(strategy_json['id']).to eq(strategy.id)
           expect(strategy_json['name']).to eq('gradualRolloutUserId')
           expect(strategy_json['parameters']).to eq({ "percentage" => "80", "groupId" => "default" })
           expect(Operations::FeatureFlagStrategy.count).to eq(1)
         end
 
-        it 'changes the strategy to default when the percentage is an empty string' do
-          params = request_params({ id: strategy.id, parameters: { percentage: "" } })
+        it 'changes the strategy to default' do
+          params = request_params({ id: strategy.id,
+                                    name: 'default',
+                                    parameters: {} })
 
-          put(:update, params: params, format: :json)
+          put(:update, params: params, format: :json, as: :json)
 
+          expect(response).to have_gitlab_http_status(:ok)
           production_scope = json_response['scopes'].select do |s|
             s['environment_scope'] == 'production'
           end.first
           strategy_json = production_scope['strategy']
-          expect(response).to have_gitlab_http_status(:ok)
           expect(strategy_json['id']).to eq(strategy.id)
           expect(strategy_json['name']).to eq('default')
           expect(strategy_json['parameters']).to eq({})
           expect(Operations::FeatureFlagStrategy.count).to eq(1)
         end
 
-        it 'updates the strategy when the percentage is a number' do
-          params = request_params({ id: strategy.id, parameters: { percentage: "50" } })
+        it 'updates the the percentage' do
+          params = request_params({ id: strategy.id,
+                                    name: 'gradualRolloutUserId',
+                                    parameters: { groupId: 'default', percentage: "50" } })
 
           put(:update, params: params, format: :json)
 
+          expect(response).to have_gitlab_http_status(:ok)
           production_scope = json_response['scopes'].select do |s|
             s['environment_scope'] == 'production'
           end.first
           strategy_json = production_scope['strategy']
-          expect(response).to have_gitlab_http_status(:ok)
           expect(strategy_json['id']).to eq(strategy.id)
           expect(strategy_json['name']).to eq('gradualRolloutUserId')
           expect(strategy_json['parameters']).to eq({ "percentage" => "50", "groupId" => "default" })
@@ -903,15 +913,16 @@ describe Projects::FeatureFlagsController do
         end
 
         it 'does not orphan a record' do
-          params = request_params({ parameters: { percentage: "15" } })
+          params = request_params({ name: 'gradualRolloutUserId',
+                                   parameters: { groupId: 'default', percentage: "15" } })
 
           put(:update, params: params, format: :json)
 
+          expect(response).to have_gitlab_http_status(:ok)
           production_scope = json_response['scopes'].select do |s|
             s['environment_scope'] == 'production'
           end.first
           strategy_json = production_scope['strategy']
-          expect(response).to have_gitlab_http_status(:ok)
           expect(strategy_json['id']).not_to eq(strategy.id)
           expect(strategy_json['name']).to eq('gradualRolloutUserId')
           expect(strategy_json['parameters']).to eq({ "groupId" => "default", "percentage" => "15" })
