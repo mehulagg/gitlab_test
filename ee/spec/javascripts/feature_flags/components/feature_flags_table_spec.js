@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import featureFlagsTableComponent from 'ee/feature_flags/components/feature_flags_table.vue';
 import mountComponent from 'spec/helpers/vue_mount_component_helper';
+import { trimText } from 'spec/helpers/text_helper';
 import { featureFlag } from '../mock_data';
 
 describe('Feature Flag table', () => {
@@ -68,10 +69,10 @@ describe('Feature Flag table', () => {
   });
 
   it('renders an environment spec badge with a percentage rollout', () => {
-    const envColumn = vm.$el.querySelector('.js-feature-flag-environments .badge-inactive');
+    const envColumn = vm.$el.querySelector('.js-feature-flag-environments .js-badge:last-child');
     const scope = featureFlag.scopes[1];
 
-    expect(envColumn.textContent.trim()).toContain(
+    expect(trimText(envColumn.textContent)).toContain(
       `${scope.environment_scope}: ${scope.strategy.parameters.percentage}%`,
     );
   });
