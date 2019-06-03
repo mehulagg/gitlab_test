@@ -85,4 +85,39 @@ describe('Feature Flag table', () => {
       featureFlag.edit_path,
     );
   });
+
+  describe('.badgeText', () => {
+    it('returns text for a scope with a gradualRolloutUserId strategy', () => {
+      const scope = {
+        environment_scope: 'production',
+        strategy: {
+          name: 'gradualRolloutUserId',
+          parameters: {
+            groupId: 'default',
+            percentage: '40',
+          },
+        },
+      };
+
+      expect(vm.badgeText(scope)).toEqual('production: 40%');
+    });
+
+    it('returns text for a scope with a default strategy', () => {
+      const scope = {
+        environment_scope: 'staging',
+        strategy: {
+          name: 'default',
+          parameters: {},
+        },
+      };
+
+      expect(vm.badgeText(scope)).toEqual('staging');
+    });
+
+    it('returns text for a scope without a strategy', () => {
+      const scope = { environment_scope: 'review' };
+
+      expect(vm.badgeText(scope)).toEqual('review');
+    });
+  });
 });
