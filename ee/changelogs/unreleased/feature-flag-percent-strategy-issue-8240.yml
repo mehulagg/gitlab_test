@@ -1,0 +1,5 @@
+---
+title: Add gradualRolloutUserId strategy to Feature Flags
+merge_request: 13185
+author:
+type: added

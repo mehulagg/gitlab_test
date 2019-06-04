@@ -81,6 +81,7 @@ describe 'User creates feature flag', :js do
 
       within_scope_row(2) do
         within_status { find('.project-feature-toggle').click }
+        within_rollout { find('.js-scope-percentage').fill_in with: "25"}
       end
 
       click_button 'Create feature flag'
@@ -94,7 +95,7 @@ describe 'User creates feature flag', :js do
         within_feature_flag_scopes do
           expect(page.find('.badge:nth-child(1)')).to have_content('*')
           expect(page.find('.badge:nth-child(1)')['class']).to include('badge-active')
-          expect(page.find('.badge:nth-child(2)')).to have_content('review/*')
+          expect(page.find('.badge:nth-child(2)')).to have_content('review/*: 25%')
           expect(page.find('.badge:nth-child(2)')['class']).to include('badge-active')
         end
       end

@@ -158,6 +158,116 @@ describe('feature flag form', () => {
             expect(wrapper.vm.newScope).toEqual('');
           });
         });
+
+        describe('entering a value for the scope rollout percentage', () => {
+          it('updates the scope strategy', () => {
+            wrapper.find('.js-scope-percentage input').setValue('60');
+            wrapper.find('.js-scope-percentage input').trigger('change');
+
+            const productionScope = wrapper.vm.formScopes[0];
+            const { strategy } = productionScope;
+
+            expect(strategy.name).toEqual('gradualRolloutUserId');
+            expect(strategy.parameters).toEqual({
+              groupId: 'default',
+              percentage: '60',
+            });
+          });
+
+          it('preserves an existing strategy id', () => {
+            factory({
+              ...requiredProps,
+              name: 'feature_flag_1',
+              description: 'this is a feature flag',
+              scopes: [
+                {
+                  environment_scope: 'production',
+                  active: false,
+                  can_update: true,
+                  protected: true,
+                  id: 2,
+                  strategy: {
+                    id: 10,
+                    name: 'gradualRolloutUserId',
+                    parameters: {
+                      groupId: 'default',
+                      percentage: '20',
+                    },
+                  },
+                },
+              ],
+            });
+
+            wrapper.find('.js-scope-percentage input').setValue('30');
+            wrapper.find('.js-scope-percentage input').trigger('change');
+
+            const productionScope = wrapper.vm.formScopes[0];
+
+            expect(productionScope.strategy.id).toEqual(10);
+            expect(productionScope.strategy.parameters.percentage).toEqual('30');
+          });
+        });
+
+        describe('clearing the value for the scope rollout percentage', () => {
+          it('updates the scope strategy', () => {
+            factory({
+              ...requiredProps,
+              name: 'feature_flag_1',
+              description: 'this is a feature flag',
+              scopes: [
+                {
+                  environment_scope: 'production',
+                  active: false,
+                  can_update: true,
+                  protected: true,
+                  id: 2,
+                  strategy: {
+                    id: 10,
+                    name: 'gradualRolloutUserId',
+                    parameters: {
+                      groupId: 'default',
+                      percentage: '20',
+                    },
+                  },
+                },
+              ],
+            });
+
+            wrapper.find('.js-scope-percentage input').setValue('');
+            wrapper.find('.js-scope-percentage input').trigger('change');
+
+            const productionScope = wrapper.vm.formScopes[0];
+            const { strategy } = productionScope;
+
+            expect(strategy.id).toEqual(10);
+            expect(strategy.name).toEqual('default');
+            expect(strategy.parameters).toEqual({});
+          });
+        });
+      });
+
+      describe('new scope', () => {
+        it('creates a default strategy', () => {
+          factory({
+            ...requiredProps,
+            name: 'feature_flag_1',
+            description: 'this is a feature flag',
+            scopes: [],
+          });
+
+          wrapper
+            .find('.js-new-scope-name')
+            .find(EnvironmentsDropdown)
+            .vm.$emit('selectEnvironment', 'review');
+
+          const reviewScope = wrapper.vm.formScopes[0];
+          const { strategy } = reviewScope;
+
+          expect(strategy).toEqual({
+            name: 'default',
+            parameters: {},
+          });
+        });
       });
 
       describe('deleting an existing scope', () => {
@@ -298,6 +408,10 @@ describe('feature flag form', () => {
       it('should emit handleSubmit with the updated data', () => {
         wrapper.find('#feature-flag-name').setValue('feature_flag_2');
 
+        const rolloverInput = wrapper.find('.js-add-new-scope .js-scope-percentage input');
+        rolloverInput.setValue('35');
+        rolloverInput.trigger('change');
+
         wrapper
           .find('.js-new-scope-name')
           .find(EnvironmentsDropdown)
@@ -311,6 +425,7 @@ describe('feature flag form', () => {
         wrapper.vm.handleSubmit();
 
         const data = wrapper.emitted().handleSubmit[0][0];
+        const newScope = data.scopes.filter(scope => scope.environment_scope === 'review')[0];
 
         expect(data.name).toEqual('feature_flag_2');
         expect(data.description).toEqual('this is a feature flag');
@@ -320,6 +435,11 @@ describe('feature flag form', () => {
           environment_scope: 'production',
           can_update: true,
           protected: true,
+        });
+
+        expect(newScope.strategy).toEqual({
+          name: 'gradualRolloutUserId',
+          parameters: { groupId: 'default', percentage: '35' },
         });
       });
     });
