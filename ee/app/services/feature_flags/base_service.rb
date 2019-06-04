@@ -33,8 +33,18 @@ module FeatureFlags
     end
 
     def created_scope_message(scope)
-      "Created rule <strong>#{scope.environment_scope}</strong> "\
+      strategy_text = created_strategy_text(scope.strategy)
+      "Created rule <strong>#{scope.environment_scope}</strong> #{strategy_text}"\
       "and set it as <strong>#{scope.active ? "active" : "inactive"}</strong>."
+    end
+
+    def created_strategy_text(strategy)
+      template = "with <strong>%s%%</strong> rollout "
+      if strategy && strategy['parameters'] && !strategy['parameters']['percentage'].blank?
+        sprintf(template, strategy['parameters']['percentage'])
+      else
+        ""
+      end
     end
   end
 end

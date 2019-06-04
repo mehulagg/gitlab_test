@@ -56,8 +56,7 @@ module Operations
     class << self
       def actual_active_sql(environment)
         Operations::FeatureFlagScope
-          .where('operations_feature_flag_scopes.feature_flag_id = ' \
-                 'operations_feature_flags.id')
+          .where('operations_feature_flag_scopes.feature_flag_id = operations_feature_flags.id')
           .on_environment(environment, relevant_only: true)
           .select('active')
           .to_sql
@@ -70,14 +69,8 @@ module Operations
       end
 
       def preload_relations
-        preload(:scopes)
+        preload(scopes: :strategy)
       end
-    end
-
-    def strategies
-      [
-        { name: 'default' }
-      ]
     end
 
     private

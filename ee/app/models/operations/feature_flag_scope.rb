@@ -7,6 +7,7 @@ module Operations
     self.table_name = 'operations_feature_flag_scopes'
 
     belongs_to :feature_flag
+    has_one :strategy, class_name: 'Operations::FeatureFlagStrategy', dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
 
     validates :environment_scope, uniqueness: {
       scope: :feature_flag,
@@ -18,6 +19,8 @@ module Operations
       inclusion: { in: %w(*), message: 'cannot be changed from default scope' }
 
     before_destroy :prevent_destroy_default_scope, if: :default_scope?
+
+    accepts_nested_attributes_for :strategy
 
     scope :ordered, -> { order(:id) }
     scope :enabled, -> { where(active: true) }

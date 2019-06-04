@@ -74,11 +74,11 @@ describe API::Unleash do
     let(:headers) { base_headers.merge({ "UNLEASH-APPNAME" => "test" }) }
 
     let!(:feature_flag_1) do
-      create(:operations_feature_flag, project: project, active: true)
+      create(:operations_feature_flag, name: "feature_flag_1", project: project, active: true)
     end
 
     let!(:feature_flag_2) do
-      create(:operations_feature_flag, project: project, active: false)
+      create(:operations_feature_flag, name: "feature_flag_2", project: project, active: false)
     end
 
     before do
@@ -90,12 +90,6 @@ describe API::Unleash do
       recorded = ActiveRecord::QueryRecorder.new { subject }
 
       expect(recorded.count).to be_within(8).of(10)
-    end
-
-    it 'calls for_environment method' do
-      expect(Operations::FeatureFlag).to receive(:for_environment)
-
-      subject
     end
 
     context 'when app name is staging' do
@@ -144,9 +138,9 @@ describe API::Unleash do
 
   %w(/feature_flags/unleash/:project_id/features /feature_flags/unleash/:project_id/client/features).each do |features_endpoint|
     describe "GET #{features_endpoint}" do
-      let(:features_url) { features_endpoint.sub(':project_id', project_id) }
+      let(:features_url) { features_endpoint.sub(':project_id', project_id.to_s) }
 
-      subject { get api("/feature_flags/unleash/#{project_id}/features"), params: params, headers: headers }
+      subject { get api(features_url), params: params, headers: headers }
 
       it_behaves_like 'authenticated request'
       it_behaves_like 'support multiple environments'
@@ -157,13 +151,14 @@ describe API::Unleash do
         let!(:enable_feature_flag) { create(:operations_feature_flag, project: project, name: 'feature1', active: true) }
         let!(:disabled_feature_flag) { create(:operations_feature_flag, project: project, name: 'feature2', active: false) }
 
-        it 'responds with a list' do
+        it 'responds with a list ordered by feature flag name' do
           subject
 
           expect(response).to have_gitlab_http_status(200)
           expect(json_response['version']).to eq(1)
           expect(json_response['features']).not_to be_empty
           expect(json_response['features'].first['name']).to eq('feature1')
+          expect(json_response['features'].second['name']).to eq('feature2')
         end
 
         it 'matches json schema' do
@@ -172,6 +167,42 @@ describe API::Unleash do
           expect(response).to have_gitlab_http_status(:ok)
           expect(response).to match_response_schema('unleash/unleash', dir: 'ee')
         end
+      end
+
+      it 'returns the default strategy when the feature flag scope does not have a strategy' do
+        client = create(:operations_feature_flags_client, project: project)
+        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', active: true)
+        create(:operations_feature_flag_scope, feature_flag: feature_flag, environment_scope: 'sandbox', active: true)
+        headers = { "UNLEASH-INSTANCEID" => client.token, "UNLEASH-APPNAME" => "sandbox" }
+
+        get api("/feature_flags/unleash/#{project_id}/features"), headers: headers
+
+        strategies = json_response['features'].first['strategies']
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(strategies).to eq([{
+          "name" => "default",
+          "parameters" => {}
+        }])
+      end
+
+      it 'returns a feature flag strategy' do
+        client = create(:operations_feature_flags_client, project: project)
+        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', active: true)
+        feature_flag_scope = create(:operations_feature_flag_scope, feature_flag: feature_flag, environment_scope: 'sandbox', active: true)
+        create(:operations_feature_flag_strategy, feature_flag_scope: feature_flag_scope, name: "gradualRolloutUserId", parameters: { groupId: "default", percentage: "50" })
+        headers = { "UNLEASH-INSTANCEID" => client.token, "UNLEASH-APPNAME" => "sandbox" }
+
+        get api("/feature_flags/unleash/#{project_id}/features"), headers: headers
+
+        strategies = json_response['features'].first['strategies']
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(strategies).to eq([{
+          "name" => "gradualRolloutUserId",
+          "parameters" => {
+            "percentage" => "50",
+            "groupId" => "default"
+          }
+        }])
       end
     end
   end
