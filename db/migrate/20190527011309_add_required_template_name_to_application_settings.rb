@@ -10,6 +10,6 @@ class AddRequiredTemplateNameToApplicationSettings < ActiveRecord::Migration[5.1
   DOWNTIME = false
 
   def change
-    add_column :application_settings, :required_template_name, :string, null: true
+    add_column :application_settings, :required_ci_template, :string, null: true
   end
 end

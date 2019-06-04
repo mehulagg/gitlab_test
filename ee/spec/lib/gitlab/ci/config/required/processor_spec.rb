@@ -11,12 +11,12 @@ describe Gitlab::Ci::Config::Required::Processor do
     before do
       stub_licensed_features(required_template_inclusion: true)
 
-      allow(Gitlab::CurrentSettings.current_application_settings).to receive(:required_template_name) { required_template_name }
+      stub_application_setting(required_ci_template: required_ci_template_name)
     end
 
     context 'when template is set' do
       context 'when template can not be found' do
-        let(:required_template_name) { 'invalid_template_name' }
+        let(:required_ci_template_name) { 'invalid_template_name' }
 
         it 'raises an error' do
           expect { subject }.to raise_error(Gitlab::Ci::Config::Required::Processor::RequiredError)
@@ -24,7 +24,7 @@ describe Gitlab::Ci::Config::Required::Processor do
       end
 
       context 'when template can be found' do
-        let(:required_template_name) { 'Android' }
+        let(:required_ci_template_name) { 'Android' }
 
         it 'merges the template content with the config' do
           expect(subject).to include(image: 'openjdk:8-jdk')
@@ -33,7 +33,7 @@ describe Gitlab::Ci::Config::Required::Processor do
     end
 
     context 'when template is not set' do
-      let(:required_template_name) { nil }
+      let(:required_ci_template_name) { nil }
 
       it 'returns the unmodified config' do
         expect(subject).to eq(config)
