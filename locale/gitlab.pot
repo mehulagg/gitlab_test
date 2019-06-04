@@ -13641,6 +13641,7 @@ msgstr ""
 msgid "score"
 msgstr ""
 
+<<<<<<< HEAD
 msgid "security Reports|There was an error creating the merge request"
 msgstr ""
 
@@ -13665,6 +13666,8 @@ msgstr ""
 msgid "severity|Unknown"
 msgstr ""
 
+=======
+>>>>>>> ad7dc610de2125ac42460ebfc6fd00f2139b76f6
 msgid "should be greater than or equal to %{access} inherited membership from group %{group_name}"
 msgstr ""
 
