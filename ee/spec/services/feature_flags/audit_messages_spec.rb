@@ -5,7 +5,12 @@ require 'spec_helper'
 describe FeatureFlags::AuditMessages do
   describe '.strategy_message' do
     it 'returns a message for a cleared rollout percentage' do
-      changes = { "parameters" => [{ "percentage" => "35" }, { "percentage" => "" }] }
+      changes = {
+        "strategies" => [
+          [{ "name" => "gradualRolloutUserId", "parameters" => { "groupId" => "default", "percentage" => "35" } }],
+          [{ "name" => "default", "parameters" => {} }]
+]
+      }
 
       actual_text = described_class.strategy_message('sandbox', changes)
       expected_text = "Updated rule <strong>sandbox</strong> rollout "\
@@ -15,7 +20,12 @@ describe FeatureFlags::AuditMessages do
     end
 
     it 'returns a message for a changed rollout percentage' do
-      changes = { "parameters" => [{ "percentage" => "20" }, { "percentage" => "50" }] }
+      changes = {
+        "strategies" => [
+          [{ "name" => "gradualRolloutUserId", "parameters" => { "groupId" => "default", "percentage" => "20" } }],
+          [{ "name" => "gradualRolloutUserId", "parameters" => { "groupId" => "default", "percentage" => "50" } }]
+        ]
+      }
 
       actual_text = described_class.strategy_message('sandbox', changes)
       expected_text = "Updated rule <strong>sandbox</strong> rollout "\
@@ -25,7 +35,12 @@ describe FeatureFlags::AuditMessages do
     end
 
     it 'does not return a message when the percentages are the same' do
-      changes = { "parameters" => [{ "groupId" => "default", "percentage" => "20" }, { "percentage" => "20" }] }
+      changes = {
+        "strategies" => [
+          [{ "name" => "gradualRolloutUserId", "parameters" => { "groupId" => "default", "percentage" => "75" } }],
+          [{ "name" => "gradualRolloutUserId", "parameters" => { "groupId" => "default", "percentage" => "75" } }]
+        ]
+      }
 
       expect(described_class.strategy_message('sandbox', changes)).to be_nil
     end

@@ -5746,7 +5746,7 @@ msgstr ""
 msgid "FeatureFlags|Protected"
 msgstr ""
 
-msgid "FeatureFlags|Rollout"
+msgid "FeatureFlags|Rollout %"
 msgstr ""
 
 msgid "FeatureFlags|Status"

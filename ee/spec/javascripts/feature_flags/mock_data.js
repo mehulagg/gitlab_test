@@ -32,13 +32,15 @@ export const featureFlag = {
       id: 2,
       active: false,
       environment_scope: 'production',
-      strategy: {
-        name: 'gradualRolloutUserId',
-        parameters: {
-          groupId: 'default',
-          percentage: '50',
+      strategies: [
+        {
+          name: 'gradualRolloutUserId',
+          parameters: {
+            groupId: 'default',
+            percentage: '50',
+          },
         },
-      },
+      ],
       created_at: '2019-01-14T06:41:40.987Z',
       updated_at: '2019-01-14T06:41:40.987Z',
     },

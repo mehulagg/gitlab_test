@@ -183,21 +183,19 @@ describe FeatureFlags::UpdateService do
     end
 
     context 'when the strategy is changed from default to gradualRolloutUserId' do
-      let(:scope) { create(:operations_feature_flag_scope, feature_flag: feature_flag, environment_scope: 'sandbox') }
-      let(:strategy) { create(:operations_feature_flag_strategy, feature_flag_scope: scope, name: 'default', parameters: {}) }
+      let(:scope) { create(:operations_feature_flag_scope, feature_flag: feature_flag, environment_scope: 'sandbox', strategies: [{ name: "default", parameters: {} }]) }
       let(:params) do
         {
           scopes_attributes: [{
             id: scope.id,
             environment_scope: 'sandbox',
-            strategy_attributes: {
-              id: strategy.id,
+            strategies: [{
               name: 'gradualRolloutUserId',
               parameters: {
                 groupId: 'mygroup',
                 percentage: "40"
               }
-            }
+            }]
           }]
         }
       end
@@ -218,13 +216,13 @@ describe FeatureFlags::UpdateService do
           scopes_attributes: [{
             id: scope.id,
             environment_scope: 'sandbox',
-            strategy_attributes: {
+            strategies: [{
               name: 'gradualRolloutUserId',
               parameters: {
                 groupId: 'mygroup',
                 percentage: "55"
               }
-            }
+            }]
           }]
         }
       end

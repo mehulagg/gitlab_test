@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import Vue from 'vue';
 import featureFlagsTableComponent from 'ee/feature_flags/components/feature_flags_table.vue';
 import mountComponent from 'spec/helpers/vue_mount_component_helper';
@@ -71,9 +72,10 @@ describe('Feature Flag table', () => {
   it('renders an environment spec badge with a percentage rollout', () => {
     const envColumn = vm.$el.querySelector('.js-feature-flag-environments .js-badge:last-child');
     const scope = featureFlag.scopes[1];
+    const strategy = _.first(scope.strategies);
 
-    expect(trimText(envColumn.textContent)).toContain(
-      `${scope.environment_scope}: ${scope.strategy.parameters.percentage}%`,
+    expect(trimText(envColumn.textContent)).toEqual(
+      `${scope.environment_scope}: ${strategy.parameters.percentage}%`,
     );
   });
 
@@ -90,13 +92,15 @@ describe('Feature Flag table', () => {
     it('returns text for a scope with a gradualRolloutUserId strategy', () => {
       const scope = {
         environment_scope: 'production',
-        strategy: {
-          name: 'gradualRolloutUserId',
-          parameters: {
-            groupId: 'default',
-            percentage: '40',
+        strategies: [
+          {
+            name: 'gradualRolloutUserId',
+            parameters: {
+              groupId: 'default',
+              percentage: '40',
+            },
           },
-        },
+        ],
       };
 
       expect(vm.badgeText(scope)).toEqual('production: 40%');
@@ -105,16 +109,18 @@ describe('Feature Flag table', () => {
     it('returns text for a scope with a default strategy', () => {
       const scope = {
         environment_scope: 'staging',
-        strategy: {
-          name: 'default',
-          parameters: {},
-        },
+        strategies: [
+          {
+            name: 'default',
+            parameters: {},
+          },
+        ],
       };
 
       expect(vm.badgeText(scope)).toEqual('staging');
     });
 
-    it('returns text for a scope without a strategy', () => {
+    it('returns text for a scope without any strategies', () => {
       const scope = { environment_scope: 'review' };
 
       expect(vm.badgeText(scope)).toEqual('review');

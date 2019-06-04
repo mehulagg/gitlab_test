@@ -101,14 +101,14 @@ class Projects::FeatureFlagsController < Projects::ApplicationController
     params.require(:operations_feature_flag)
       .permit(:name, :description, :active,
               scopes_attributes: [:environment_scope, :active,
-                                  strategy_attributes: [:name, parameters: [:groupId, :percentage]]])
+                                  strategies: [:name, parameters: [:groupId, :percentage]]])
   end
 
   def update_params
     params.require(:operations_feature_flag)
           .permit(:name, :description, :active,
                   scopes_attributes: [:id, :environment_scope, :active, :_destroy,
-                                      strategy_attributes: [:id, :name, parameters: [:groupId, :percentage]]])
+                                      strategies: [:name, parameters: [:groupId, :percentage]]])
   end
 
   def feature_flag_json(feature_flag)

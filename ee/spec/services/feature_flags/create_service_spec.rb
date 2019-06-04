@@ -63,9 +63,9 @@ describe FeatureFlags::CreateService do
           name: 'feature_flag',
           description: 'description',
           scopes_attributes: [{ environment_scope: '*', active: true,
-                                strategy_attributes: { name: 'default', parameters: {} } },
+                                strategies: [{ name: 'default', parameters: {} }] },
                               { environment_scope: 'production', active: true,
-                                strategy_attributes: { name: 'gradualRolloutUserId', parameters: { groupId: 'group', percentage: '40' } } }]
+                                strategies: [{ name: 'gradualRolloutUserId', parameters: { groupId: 'group', percentage: '40' } }] }]
         }
       end
 

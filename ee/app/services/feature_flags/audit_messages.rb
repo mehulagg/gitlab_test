@@ -5,15 +5,24 @@ module FeatureFlags
     def self.strategy_message(environment_name, strategy_changes)
       return if strategy_changes.nil? || strategy_changes.empty?
 
-      previous_parameters, new_parameters = strategy_changes["parameters"]
-      previous_percentage = previous_parameters && previous_parameters["percentage"]
-      new_percentage = new_parameters["percentage"]
-      previous_text = previous_percentage ? "#{previous_percentage}%" : "unset"
-      new_text = new_percentage.blank? ? "unset" : "#{new_percentage}%"
-
+      previous_strategies, new_strategies = strategy_changes["strategies"]
+      previous_percentage = percentage(previous_strategies)
+      new_percentage = percentage(new_strategies)
       template = "Updated rule <strong>%s</strong> rollout from <strong>%s</strong> to <strong>%s</strong>."
+      sprintf(template, environment_name, text(previous_percentage), text(new_percentage)) unless previous_percentage == new_percentage
+    end
 
-      sprintf(template, environment_name, previous_text, new_text) unless previous_percentage == new_percentage
+    class << self
+      private
+
+      def percentage(strategies)
+        strategy = strategies && strategies.first
+        strategy && strategy.dig('parameters', 'percentage')
+      end
+
+      def text(percentage)
+        percentage ? "#{percentage}%" : "unset"
+      end
     end
   end
 end

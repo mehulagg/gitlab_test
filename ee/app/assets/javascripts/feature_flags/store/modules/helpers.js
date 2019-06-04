@@ -11,7 +11,6 @@ export const parseFeatureFlagsParams = params => ({
       if (_.isString(scopeCopy.id) && scopeCopy.id.indexOf(internalKeyID) !== -1) {
         delete scopeCopy.id;
       }
-      scopeCopy.strategy_attributes = scopeCopy.strategy;
       return scopeCopy;
     }),
   },

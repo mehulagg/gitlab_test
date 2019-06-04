@@ -59,7 +59,8 @@ export default {
   },
   methods: {
     percentageRollout(scope) {
-      const { strategy } = scope;
+      const { strategies } = scope;
+      const strategy = _.first(strategies);
       if (strategy && strategy.parameters) {
         return strategy.parameters.percentage;
       }

@@ -12,10 +12,7 @@
     "percentage": { "type": ["integer", "null"] },
     "created_at": { "type": "date" },
     "updated_at": { "type": "date" },
-    "strategy": { "oneOf": [
-      { "type": "null" },
-      { "$ref": "feature_flag_strategy.json" }
-    ]}
+    "strategies": { "type": "array", "items": { "$ref": "feature_flag_strategy.json" } }
   },
   "additionalProperties": false
 }

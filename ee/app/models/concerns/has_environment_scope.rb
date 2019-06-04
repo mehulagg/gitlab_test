@@ -65,9 +65,7 @@ module HasEnvironmentScope
       # * C: review/%
       # * D: %
       # Note that we'll match % and _ literally therefore we'll escape them.
-      # In this case, B, C, and D would match. We also want to prioritize
-      # the exact matched name, and put * last, and everything else in the
-      # middle. So the order should be: D < C < B
+      # In this case, B, C, and D would match.
       relation = where(where, values)
         .order(order % quoted_values) # `order` cannot escape for us!
 

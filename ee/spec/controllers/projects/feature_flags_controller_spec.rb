@@ -417,28 +417,44 @@ describe Projects::FeatureFlagsController do
     end
 
     context 'when creates additional scope with a percentage rollout' do
-      let(:params) do
-        view_params.merge({
+      it 'creates a strategy for the scope' do
+        params = view_params.merge({
           operations_feature_flag: {
             name: 'my_feature_flag',
             active: true,
             scopes_attributes: [{ environment_scope: '*', active: true },
                                 { environment_scope: 'production', active: false,
-                                  strategy_attributes: { name: 'gradualRolloutUserId',
-                                                         parameters: { groupId: 'default', percentage: '42' } } }]
+                                  strategies: [{ name: 'gradualRolloutUserId',
+                                                 parameters: { groupId: 'default', percentage: '42' } }] }]
           }
         })
-      end
 
-      it 'creates a strategy for the scope' do
-        expect { subject }.to change { Operations::FeatureFlagStrategy.count }.by(1)
+        post(:create, params: params, format: :json)
 
-        default_strategy_json = json_response['scopes'].first['strategy']
-        production_strategy_json = json_response['scopes'].second['strategy']
         expect(response).to have_gitlab_http_status(:ok)
-        expect(default_strategy_json).to be_nil
-        expect(production_strategy_json['name']).to eq('gradualRolloutUserId')
-        expect(production_strategy_json['parameters']).to eq({ "groupId" => "default", "percentage" => "42" })
+        production_strategies_json = json_response['scopes'].second['strategies']
+        expect(production_strategies_json).to eq([{
+          'name' => 'gradualRolloutUserId',
+          'parameters' => { "groupId" => "default", "percentage" => "42" }
+        }])
+      end
+    end
+
+    context 'when creates an additional scope without a strategy' do
+      it 'creates a default strategy' do
+        params = view_params.merge({
+          operations_feature_flag: {
+            name: 'my_feature_flag',
+            active: true,
+            scopes_attributes: [{ environment_scope: '*', active: true }]
+          }
+        })
+
+        post(:create, params: params, format: :json)
+
+        expect(response).to have_gitlab_http_status(:ok)
+        default_strategies_json = json_response['scopes'].first['strategies']
+        expect(default_strategies_json).to eq([{ "name" => "default", "parameters" => {} }])
       end
     end
   end
@@ -491,18 +507,6 @@ describe Projects::FeatureFlagsController do
 
       it 'destroys the default scope and production scope' do
         expect { subject }.to change { Operations::FeatureFlagScope.count }.by(-2)
-      end
-    end
-
-    context 'when there is an additional scope with a strategy' do
-      let!(:scope) { create_scope(feature_flag, 'production', false) }
-      let!(:strategy) { create(:operations_feature_flag_strategy, feature_flag_scope: scope) }
-
-      it 'destroys both scopes and the strategy' do
-        subject
-
-        expect(Operations::FeatureFlagScope.count).to eq(0)
-        expect(Operations::FeatureFlagStrategy.count).to eq(0)
       end
     end
   end
@@ -717,10 +721,8 @@ describe Projects::FeatureFlagsController do
       end
     end
 
-    context "updating the strategy" do
-      let!(:production_scope) { create_scope(feature_flag, 'production', true) }
-
-      def request_params(strategy_attributes = nil)
+    describe "updating the strategy" do
+      def request_params(scope, strategies)
         {
           namespace_id: project.namespace,
           project_id: project,
@@ -728,206 +730,128 @@ describe Projects::FeatureFlagsController do
           operations_feature_flag: {
             scopes_attributes: [
               {
-                id: production_scope.id,
-                strategy_attributes: strategy_attributes
+                id: scope.id,
+                strategies: strategies
               }
             ]
           }
         }
       end
 
-      context 'when there is no strategy' do
-        it 'does not create a strategy when there are no strategy_attributes' do
-          params = request_params
+      it 'creates a default strategy' do
+        scope = create_scope(feature_flag, 'production', true, [])
+        params = request_params(scope, [{ name: 'default', parameters: {} }])
 
-          put(:update, params: params, format: :json)
+        put(:update, params: params, format: :json, as: :json)
 
-          expect(response).to have_gitlab_http_status(:ok)
-          production_scope = json_response['scopes'].select do |s|
-            s['environment_scope'] == 'production'
-          end.first
-          expect(production_scope['strategy']).to be_nil
-          expect(Operations::FeatureFlagStrategy.count).to eq(0)
-        end
-
-        it 'creates a default strategy' do
-          params = request_params({ name: 'default', parameters: {} })
-
-          put(:update, params: params, format: :json)
-
-          expect(response).to have_gitlab_http_status(:ok)
-          production_scope = json_response['scopes'].select do |s|
-            s['environment_scope'] == 'production'
-          end.first
-          strategy_json = production_scope['strategy']
-          expect(strategy_json['name']).to eq('default')
-          expect(strategy_json['parameters']).to eq({})
-          expect(Operations::FeatureFlagStrategy.count).to eq(1)
-        end
-
-        it 'creates a gradualRolloutUserId strategy' do
-          params = request_params({ name: 'gradualRolloutUserId',
-                                   parameters: { groupId: 'default', percentage: "70" } })
-
-          put(:update, params: params, format: :json)
-
-          expect(response).to have_gitlab_http_status(:ok)
-          production_scope = json_response['scopes'].select do |s|
-            s['environment_scope'] == 'production'
-          end.first
-          strategy_json = production_scope['strategy']
-          expect(strategy_json['name']).to eq('gradualRolloutUserId')
-          expect(strategy_json['parameters']).to eq({ "percentage" => "70", "groupId" => "default" })
-          expect(Operations::FeatureFlagStrategy.count).to eq(1)
-        end
+        expect(response).to have_gitlab_http_status(:ok)
+        scope_json = json_response['scopes'].select do |s|
+          s['environment_scope'] == 'production'
+        end.first
+        expect(scope_json['strategies']).to eq([{
+          "name" => "default",
+          "parameters" => {}
+        }])
       end
 
-      context 'when there is a default strategy' do
-        let!(:strategy) do
-          create(:operations_feature_flag_strategy,
-                 feature_flag_scope: production_scope,
-                 name: "default",
-                 parameters: {})
-        end
+      it 'creates a gradualRolloutUserId strategy' do
+        scope = create_scope(feature_flag, 'production', true, [])
+        params = request_params(scope, [{ name: 'gradualRolloutUserId',
+                                          parameters: { groupId: 'default', percentage: "70" } }])
 
-        it 'does not change the strategy when there are no strategy_attributes' do
-          params = request_params
+        put(:update, params: params, format: :json)
 
-          put(:update, params: params, format: :json)
-
-          expect(response).to have_gitlab_http_status(:ok)
-          production_scope = json_response['scopes'].select do |s|
-            s['environment_scope'] == 'production'
-          end.first
-          strategy_json = production_scope['strategy']
-          expect(strategy_json['id']).to eq(strategy.id)
-          expect(strategy_json['name']).to eq('default')
-          expect(strategy_json['parameters']).to eq({})
-          expect(Operations::FeatureFlagStrategy.count).to eq(1)
-        end
-
-        it 'does not change the strategy when given a default strategy' do
-          params = request_params({ id: strategy.id,
-                                    name: 'default',
-                                    parameters: {} })
-
-          put(:update, params: params, format: :json)
-
-          expect(response).to have_gitlab_http_status(:ok)
-          production_scope = json_response['scopes'].select do |s|
-            s['environment_scope'] == 'production'
-          end.first
-          strategy_json = production_scope['strategy']
-          expect(strategy_json['id']).to eq(strategy.id)
-          expect(strategy_json['name']).to eq('default')
-          expect(strategy_json['parameters']).to eq({})
-          expect(Operations::FeatureFlagStrategy.count).to eq(1)
-        end
-
-        it 'changes the strategy to gradualRolloutUserId' do
-          params = request_params({ id: strategy.id,
-                                    name: 'gradualRolloutUserId',
-                                    parameters: { groupId: 'default', percentage: "5" } })
-
-          put(:update, params: params, format: :json)
-
-          expect(response).to have_gitlab_http_status(:ok)
-          production_scope = json_response['scopes'].select do |s|
-            s['environment_scope'] == 'production'
-          end.first
-          strategy_json = production_scope['strategy']
-          expect(strategy_json['id']).to eq(strategy.id)
-          expect(strategy_json['name']).to eq('gradualRolloutUserId')
-          expect(strategy_json['parameters']).to eq({ "groupId" => "default", "percentage" => "5" })
-          expect(Operations::FeatureFlagStrategy.count).to eq(1)
-        end
+        expect(response).to have_gitlab_http_status(:ok)
+        scope_json = json_response['scopes'].select do |s|
+          s['environment_scope'] == 'production'
+        end.first
+        expect(scope_json['strategies']).to eq([{
+          "name" => "gradualRolloutUserId",
+          "parameters" => {
+            "groupId" => "default",
+            "percentage" => "70"
+          }
+        }])
       end
 
-      context 'when there is a gradualRolloutUserId strategy' do
-        let!(:strategy) do
-          create(:operations_feature_flag_strategy,
-                 feature_flag_scope: production_scope,
-                 name: "gradualRolloutUserId",
-                 parameters: { groupId: 'default', percentage: "80" })
-        end
+      it 'updates an existing strategy' do
+        scope = create_scope(feature_flag, 'production', true, [{ name: 'default', parameters: {} }])
+        params = request_params(scope, [{ name: 'gradualRolloutUserId',
+                                          parameters: { groupId: 'default', percentage: "50" } }])
 
-        it 'does not change the strategy when there are no strategy_attributes' do
-          params = request_params
+        put(:update, params: params, format: :json)
 
-          put(:update, params: params, format: :json)
-
-          expect(response).to have_gitlab_http_status(:ok)
-          production_scope = json_response['scopes'].select do |s|
-            s['environment_scope'] == 'production'
-          end.first
-          strategy_json = production_scope['strategy']
-          expect(strategy_json['id']).to eq(strategy.id)
-          expect(strategy_json['name']).to eq('gradualRolloutUserId')
-          expect(strategy_json['parameters']).to eq({ "percentage" => "80", "groupId" => "default" })
-          expect(Operations::FeatureFlagStrategy.count).to eq(1)
-        end
-
-        it 'changes the strategy to default' do
-          params = request_params({ id: strategy.id,
-                                    name: 'default',
-                                    parameters: {} })
-
-          put(:update, params: params, format: :json, as: :json)
-
-          expect(response).to have_gitlab_http_status(:ok)
-          production_scope = json_response['scopes'].select do |s|
-            s['environment_scope'] == 'production'
-          end.first
-          strategy_json = production_scope['strategy']
-          expect(strategy_json['id']).to eq(strategy.id)
-          expect(strategy_json['name']).to eq('default')
-          expect(strategy_json['parameters']).to eq({})
-          expect(Operations::FeatureFlagStrategy.count).to eq(1)
-        end
-
-        it 'updates the the percentage' do
-          params = request_params({ id: strategy.id,
-                                    name: 'gradualRolloutUserId',
-                                    parameters: { groupId: 'default', percentage: "50" } })
-
-          put(:update, params: params, format: :json)
-
-          expect(response).to have_gitlab_http_status(:ok)
-          production_scope = json_response['scopes'].select do |s|
-            s['environment_scope'] == 'production'
-          end.first
-          strategy_json = production_scope['strategy']
-          expect(strategy_json['id']).to eq(strategy.id)
-          expect(strategy_json['name']).to eq('gradualRolloutUserId')
-          expect(strategy_json['parameters']).to eq({ "percentage" => "50", "groupId" => "default" })
-          expect(Operations::FeatureFlagStrategy.count).to eq(1)
-        end
+        expect(response).to have_gitlab_http_status(:ok)
+        scope_json = json_response['scopes'].select do |s|
+          s['environment_scope'] == 'production'
+        end.first
+        expect(scope_json['strategies']).to eq([{
+          "name" => "gradualRolloutUserId",
+          "parameters" => {
+            "groupId" => "default",
+            "percentage" => "50"
+          }
+        }])
       end
 
-      context 'when there is a strategy and the request has parameters without an id' do
-        let!(:strategy) do
-          create(:operations_feature_flag_strategy,
-                 feature_flag_scope: production_scope,
-                 name: "default",
-                 parameters: {})
-        end
+      it 'clears an existing strategy' do
+        scope = create_scope(feature_flag, 'production', true, [{ name: 'default', parameters: {} }])
+        params = request_params(scope, [])
 
-        it 'does not orphan a record' do
-          params = request_params({ name: 'gradualRolloutUserId',
-                                   parameters: { groupId: 'default', percentage: "15" } })
+        put(:update, params: params, format: :json, as: :json)
 
-          put(:update, params: params, format: :json)
+        expect(response).to have_gitlab_http_status(:ok)
+        scope_json = json_response['scopes'].select do |s|
+          s['environment_scope'] == 'production'
+        end.first
+        expect(scope_json['strategies']).to eq([])
+      end
 
-          expect(response).to have_gitlab_http_status(:ok)
-          production_scope = json_response['scopes'].select do |s|
-            s['environment_scope'] == 'production'
-          end.first
-          strategy_json = production_scope['strategy']
-          expect(strategy_json['id']).not_to eq(strategy.id)
-          expect(strategy_json['name']).to eq('gradualRolloutUserId')
-          expect(strategy_json['parameters']).to eq({ "groupId" => "default", "percentage" => "15" })
-          expect(Operations::FeatureFlagStrategy.count).to eq(1)
-        end
+      it 'does not modify strategies when there is no strategies key in the params' do
+        scope = create_scope(feature_flag, 'production', true, [{ name: 'default', parameters: {} }])
+        params = {
+          namespace_id: project.namespace,
+          project_id: project,
+          id: feature_flag.id,
+          operations_feature_flag: {
+            scopes_attributes: [{ id: scope.id }]
+          }
+        }
+
+        put(:update, params: params, format: :json)
+
+        expect(response).to have_gitlab_http_status(:ok)
+        scope_json = json_response['scopes'].select do |s|
+          s['environment_scope'] == 'production'
+        end.first
+        expect(scope_json['strategies']).to eq([{
+          "name" => "default",
+          "parameters" => {}
+        }])
+      end
+
+      it 'leaves an existing strategy when there are no strategies in the params' do
+        scope = create_scope(feature_flag, 'production', true, [{ name: 'gradualRolloutUserId',
+                                                                  parameters: { groupId: 'default', percentage: '10' } }])
+        params = {
+          namespace_id: project.namespace,
+          project_id: project,
+          id: feature_flag.id,
+          operations_feature_flag: {
+            scopes_attributes: [{ id: scope.id }]
+          }
+        }
+
+        put(:update, params: params, format: :json, as: :json)
+
+        expect(response).to have_gitlab_http_status(:ok)
+        scope_json = json_response['scopes'].select do |s|
+          s['environment_scope'] == 'production'
+        end.first
+        expect(scope_json['strategies']).to eq([{
+          "name" => "gradualRolloutUserId",
+          "parameters" => { "groupId" => "default", "percentage" => "10" }
+        }])
       end
     end
   end

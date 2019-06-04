@@ -98,8 +98,11 @@ describe API::Unleash do
       it 'returns correct active values' do
         subject
 
-        expect(json_response['features'].first['enabled']).to be_truthy
-        expect(json_response['features'].second['enabled']).to be_falsy
+        feature_flag_1 = json_response['features'].select { |f| f['name'] == 'feature_flag_1' }.first
+        feature_flag_2 = json_response['features'].select { |f| f['name'] == 'feature_flag_2' }.first
+
+        expect(feature_flag_1['enabled']).to eq(true)
+        expect(feature_flag_2['enabled']).to eq(false)
       end
     end
 
@@ -109,8 +112,11 @@ describe API::Unleash do
       it 'returns correct active values' do
         subject
 
-        expect(json_response['features'].first['enabled']).to be_falsy
-        expect(json_response['features'].second['enabled']).to be_falsy
+        feature_flag_1 = json_response['features'].select { |f| f['name'] == 'feature_flag_1' }.first
+        feature_flag_2 = json_response['features'].select { |f| f['name'] == 'feature_flag_2' }.first
+
+        expect(feature_flag_1['enabled']).to eq(false)
+        expect(feature_flag_2['enabled']).to eq(false)
       end
     end
 
@@ -120,8 +126,11 @@ describe API::Unleash do
       it 'returns correct active values' do
         subject
 
-        expect(json_response['features'].first['enabled']).to be_truthy
-        expect(json_response['features'].second['enabled']).to be_truthy
+        feature_flag_1 = json_response['features'].select { |f| f['name'] == 'feature_flag_1' }.first
+        feature_flag_2 = json_response['features'].select { |f| f['name'] == 'feature_flag_2' }.first
+
+        expect(feature_flag_1['enabled']).to eq(true)
+        expect(feature_flag_2['enabled']).to eq(true)
       end
     end
 
@@ -151,14 +160,13 @@ describe API::Unleash do
         let!(:enable_feature_flag) { create(:operations_feature_flag, project: project, name: 'feature1', active: true) }
         let!(:disabled_feature_flag) { create(:operations_feature_flag, project: project, name: 'feature2', active: false) }
 
-        it 'responds with a list ordered by feature flag name' do
+        it 'responds with a list of features' do
           subject
 
           expect(response).to have_gitlab_http_status(200)
           expect(json_response['version']).to eq(1)
           expect(json_response['features']).not_to be_empty
-          expect(json_response['features'].first['name']).to eq('feature1')
-          expect(json_response['features'].second['name']).to eq('feature2')
+          expect(json_response['features'].map { |f| f['name'] }.sort).to eq(%w[feature1 feature2])
         end
 
         it 'matches json schema' do
@@ -169,33 +177,16 @@ describe API::Unleash do
         end
       end
 
-      it 'returns the default strategy when the feature flag scope does not have a strategy' do
-        client = create(:operations_feature_flags_client, project: project)
-        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', active: true)
-        create(:operations_feature_flag_scope, feature_flag: feature_flag, environment_scope: 'sandbox', active: true)
-        headers = { "UNLEASH-INSTANCEID" => client.token, "UNLEASH-APPNAME" => "sandbox" }
-
-        get api("/feature_flags/unleash/#{project_id}/features"), headers: headers
-
-        strategies = json_response['features'].first['strategies']
-        expect(response).to have_gitlab_http_status(:ok)
-        expect(strategies).to eq([{
-          "name" => "default",
-          "parameters" => {}
-        }])
-      end
-
       it 'returns a feature flag strategy' do
         client = create(:operations_feature_flags_client, project: project)
         feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', active: true)
-        feature_flag_scope = create(:operations_feature_flag_scope, feature_flag: feature_flag, environment_scope: 'sandbox', active: true)
-        create(:operations_feature_flag_strategy, feature_flag_scope: feature_flag_scope, name: "gradualRolloutUserId", parameters: { groupId: "default", percentage: "50" })
+        create(:operations_feature_flag_scope, feature_flag: feature_flag, environment_scope: 'sandbox', active: true, strategies: [{ name: "gradualRolloutUserId", parameters: { groupId: "default", percentage: "50" } }])
         headers = { "UNLEASH-INSTANCEID" => client.token, "UNLEASH-APPNAME" => "sandbox" }
 
-        get api("/feature_flags/unleash/#{project_id}/features"), headers: headers
+        get api(features_url), headers: headers
 
-        strategies = json_response['features'].first['strategies']
         expect(response).to have_gitlab_http_status(:ok)
+        strategies = json_response['features'].first['strategies']
         expect(strategies).to eq([{
           "name" => "gradualRolloutUserId",
           "parameters" => {
@@ -203,6 +194,19 @@ describe API::Unleash do
             "groupId" => "default"
           }
         }])
+      end
+
+      it 'returns a default strategy when the scope has no strategies' do
+        client = create(:operations_feature_flags_client, project: project)
+        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', active: true)
+        create(:operations_feature_flag_scope, feature_flag: feature_flag, environment_scope: 'sandbox', active: true)
+        headers = { "UNLEASH-INSTANCEID" => client.token, "UNLEASH-APPNAME" => "sandbox" }
+
+        get api(features_url), headers: headers
+
+        expect(response).to have_gitlab_http_status(:ok)
+        strategies = json_response['features'].first['strategies']
+        expect(strategies).to eq([{ "name" => "default", "parameters" => {} }])
       end
     end
   end

@@ -57,7 +57,7 @@ module FeatureFlags
 
     def changed_strategy_messages(feature_flag)
       feature_flag.scopes.map do |scope|
-        changes = scope.strategy && scope.strategy.changes.slice(:parameters)
+        changes = scope.changes.slice(:strategies)
         AuditMessages.strategy_message(scope.environment_scope, changes)
       end.compact
     end

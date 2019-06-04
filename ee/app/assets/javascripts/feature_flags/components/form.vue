@@ -51,7 +51,7 @@ export default {
       formScopes: this.scopes || [],
 
       newScope: '',
-      newStrategy: { name: 'default', parameters: {} },
+      newStrategies: [{ name: 'default', parameters: {} }],
     };
   },
   helpText: sprintf(
@@ -160,37 +160,34 @@ export default {
     createNewEnvironment(name) {
       this.formScopes.push({
         environment_scope: name,
-        strategy: this.newStrategy,
+        strategies: this.newStrategies,
         active: false,
         id: _.uniqueId(internalKeyID),
       });
       this.newScope = '';
-      this.newStrategy = { name: 'default', parameters: {} };
+      this.newStrategies = [{ name: 'default', parameters: {} }];
     },
-    strategyPercentage(strategy) {
+    strategyPercentage(strategies) {
+      const strategy = _.first(strategies);
       if (strategy && strategy.parameters) {
         return strategy.parameters.percentage;
       }
       return '';
     },
     onUpdateRolloutPercentage(scope, event) {
-      const percentage = event.target.value;
+      const updatedStrategies = this.strategyUpdatesFor(event);
+      const updatedScope = Object.assign({}, scope, { strategies: updatedStrategies });
       const index = this.formScopes.findIndex(el => el.id === scope.id);
-      const updates =
-        percentage === ''
-          ? { name: 'default', parameters: {} }
-          : { name: 'gradualRolloutUserId', parameters: { groupId: 'default', percentage } };
-      const updatedStrategy = Object.assign({}, scope.strategy, updates);
-      const updatedScope = Object.assign({}, scope, { strategy: updatedStrategy });
       this.formScopes.splice(index, 1, updatedScope);
     },
-    onUpdateNewRolloutPercentage(strategy, event) {
+    onUpdateNewRolloutPercentage(event) {
+      this.newStrategies = this.strategyUpdatesFor(event);
+    },
+    strategyUpdatesFor(event) {
       const percentage = event.target.value;
-      const updates =
-        percentage === ''
-          ? { name: 'default', parameters: {} }
-          : { name: 'gradualRolloutUserId', parameters: { groupId: 'default', percentage } };
-      this.newStrategy = updates;
+      return percentage === ''
+        ? [{ name: 'default', parameters: {} }]
+        : [{ name: 'gradualRolloutUserId', parameters: { groupId: 'default', percentage } }];
     },
     /**
      * When the user clicks the submit button
@@ -254,7 +251,7 @@ export default {
                 {{ s__('FeatureFlags|Status') }}
               </div>
               <div class="table-section section-10" role="columnheader">
-                {{ s__('FeatureFlags|Rollout') }}
+                {{ s__('FeatureFlags|Rollout %') }}
               </div>
             </div>
 
@@ -307,12 +304,12 @@ export default {
 
               <div class="table-section section-10" role="gridcell">
                 <div class="table-mobile-header" role="rowheader">
-                  {{ s__('FeatureFlags|Rollout') }}
+                  {{ s__('FeatureFlags|Rollout %') }}
                 </div>
                 <div class="table-mobile-content js-scope-percentage">
                   <input
                     class="form-control"
-                    :value="strategyPercentage(scope.strategy)"
+                    :value="strategyPercentage(scope.strategies)"
                     @change="event => onUpdateRolloutPercentage(scope, event)"
                   />
                 </div>
@@ -361,13 +358,13 @@ export default {
 
               <div class="table-section section-10" role="gridcell">
                 <div class="table-mobile-header" role="rowheader">
-                  {{ s__('FeatureFlags|Rollout') }}
+                  {{ s__('FeatureFlags|Rollout %') }}
                 </div>
                 <div class="table-mobile-content js-scope-percentage">
                   <input
                     class="form-control"
-                    :value="strategyPercentage(newStrategy)"
-                    @change="event => onUpdateNewRolloutPercentage(newStrategy, event)"
+                    :value="strategyPercentage(newStrategies)"
+                    @change="onUpdateNewRolloutPercentage"
                   />
                 </div>
               </div>

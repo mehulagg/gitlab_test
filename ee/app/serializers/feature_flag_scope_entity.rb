@@ -8,5 +8,5 @@ class FeatureFlagScopeEntity < Grape::Entity
   expose :environment_scope
   expose :created_at
   expose :updated_at
-  expose :strategy, with: FeatureFlagStrategyEntity
+  expose :strategies
 end
