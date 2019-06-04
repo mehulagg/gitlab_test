@@ -174,23 +174,20 @@ export default {
       return '';
     },
     onUpdateRolloutPercentage(scope, event) {
-      const percentage = event.target.value;
-      const index = this.formScopes.findIndex(el => el.id === scope.id);
-      const updates =
-        percentage === ''
-          ? { name: 'default', parameters: {} }
-          : { name: 'gradualRolloutUserId', parameters: { groupId: 'default', percentage } };
+      const updates = this.strategyUpdatesFor(event);
       const updatedStrategy = Object.assign({}, scope.strategy, updates);
       const updatedScope = Object.assign({}, scope, { strategy: updatedStrategy });
+      const index = this.formScopes.findIndex(el => el.id === scope.id);
       this.formScopes.splice(index, 1, updatedScope);
     },
     onUpdateNewRolloutPercentage(strategy, event) {
+      this.newStrategy = this.strategyUpdatesFor(event);
+    },
+    strategyUpdatesFor(event) {
       const percentage = event.target.value;
-      const updates =
-        percentage === ''
-          ? { name: 'default', parameters: {} }
-          : { name: 'gradualRolloutUserId', parameters: { groupId: 'default', percentage } };
-      this.newStrategy = updates;
+      return percentage === ''
+        ? { name: 'default', parameters: {} }
+        : { name: 'gradualRolloutUserId', parameters: { groupId: 'default', percentage } };
     },
     /**
      * When the user clicks the submit button
