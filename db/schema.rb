@@ -2205,7 +2205,7 @@ ActiveRecord::Schema.define(version: 20190603124955) do
   create_table "operations_feature_flag_strategies", force: :cascade do |t|
     t.bigint "feature_flag_scope_id", null: false
     t.string "name", null: false
-    t.jsonb "parameters"
+    t.jsonb "parameters", null: false
     t.index ["feature_flag_scope_id"], name: "index_ops_feature_flag_strategies_on_feature_flag_scope_id", using: :btree
   end
 

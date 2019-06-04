@@ -12,7 +12,7 @@ class CreateOperationsFeatureFlagStrategies < ActiveRecord::Migration[5.1]
         index: { name: :index_ops_feature_flag_strategies_on_feature_flag_scope_id },
         null: false
       t.string :name, null: false
-      t.jsonb :parameters
+      t.jsonb :parameters, null: false
     end
   end
 end
