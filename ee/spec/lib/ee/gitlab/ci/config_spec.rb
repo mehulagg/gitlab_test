@@ -3,19 +3,32 @@
 require 'spec_helper'
 
 describe Gitlab::Ci::Config do
-  subject { described_class.new(yml) }
+  let(:template_name) { 'test_template.yml' }
+  let(:template_repository) { create(:project, :custom_repo, files: { "gitlab-ci/#{template_name}" => template_yml }) }
 
-  let(:yml) do
+  let(:ci_yml) do
     <<-EOS
     sample_job:
       script:
         - echo 'test'
     EOS
   end
+  let(:template_yml) do
+    <<-EOS
+    sample_job:
+      script:
+        - echo 'not test'
+    EOS
+  end
+
+  subject { described_class.new(ci_yml) }
+
+  before do
+    stub_application_setting(file_template_project: template_repository, required_ci_template: template_name.split('.')[0])
+    stub_licensed_features(custom_file_templates: true, required_template_inclusion: true)
+  end
 
   it 'processes the required includes' do
-    expect(::Gitlab::Ci::Config::Required::Processor).to receive_message_chain(:new, :perform)
-
-    subject
+    expect(subject.to_hash[:sample_job][:script]).to eq(["echo 'not test'"])
   end
 end
