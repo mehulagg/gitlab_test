@@ -58,6 +58,13 @@ export default {
     },
   },
   methods: {
+    percentageRollout(scope) {
+      const { strategy } = scope;
+      if (strategy && strategy.parameters) {
+        return strategy.parameters.percentage;
+      }
+      return '';
+    },
     scopeTooltipText(scope) {
       return !scope.active
         ? sprintf(s__('FeatureFlags|Inactive flag for %{scope}'), {
@@ -65,8 +72,12 @@ export default {
           })
         : '';
     },
-    scopeName(name) {
-      return name === '*' ? s__('FeatureFlags|* (All environments)') : name;
+    badgeText(scope) {
+      const { environment_scope: name } = scope;
+      const percentage = this.percentageRollout(scope);
+      const displayName = name === '*' ? s__('FeatureFlags|* (All environments)') : name;
+      const displayPercentage = percentage ? `: ${percentage}%` : '';
+      return displayName + displayPercentage;
     },
     canDeleteFlag(flag) {
       return !this.permissions || (flag.scopes || []).every(scope => scope.can_update);
@@ -130,9 +141,9 @@ export default {
               v-for="scope in featureFlag.scopes"
               :key="scope.id"
               v-gl-tooltip.hover="scopeTooltipText(scope)"
-              class="badge append-right-8 prepend-top-2"
+              class="js-badge badge append-right-8 prepend-top-2"
               :class="{ 'badge-active': scope.active, 'badge-inactive': !scope.active }"
-              >{{ scopeName(scope.environment_scope) }}</span
+              >{{ badgeText(scope) }}</span
             >
           </div>
         </div>

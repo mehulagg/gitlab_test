@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import featureFlagsTableComponent from 'ee/feature_flags/components/feature_flags_table.vue';
 import mountComponent from 'spec/helpers/vue_mount_component_helper';
+import { trimText } from 'spec/helpers/text_helper';
 import { featureFlag } from '../mock_data';
 
 describe('Feature Flag table', () => {
@@ -67,6 +68,15 @@ describe('Feature Flag table', () => {
     );
   });
 
+  it('renders an environment spec badge with a percentage rollout', () => {
+    const envColumn = vm.$el.querySelector('.js-feature-flag-environments .js-badge:last-child');
+    const scope = featureFlag.scopes[1];
+
+    expect(trimText(envColumn.textContent)).toContain(
+      `${scope.environment_scope}: ${scope.strategy.parameters.percentage}%`,
+    );
+  });
+
   it('Should render an actions column', () => {
     expect(vm.$el.querySelector('.table-action-buttons')).not.toBeNull();
     expect(vm.$el.querySelector('.js-feature-flag-delete-button')).not.toBeNull();
@@ -74,5 +84,40 @@ describe('Feature Flag table', () => {
     expect(vm.$el.querySelector('.js-feature-flag-edit-button').getAttribute('href')).toEqual(
       featureFlag.edit_path,
     );
+  });
+
+  describe('.badgeText', () => {
+    it('returns text for a scope with a gradualRolloutUserId strategy', () => {
+      const scope = {
+        environment_scope: 'production',
+        strategy: {
+          name: 'gradualRolloutUserId',
+          parameters: {
+            groupId: 'default',
+            percentage: '40',
+          },
+        },
+      };
+
+      expect(vm.badgeText(scope)).toEqual('production: 40%');
+    });
+
+    it('returns text for a scope with a default strategy', () => {
+      const scope = {
+        environment_scope: 'staging',
+        strategy: {
+          name: 'default',
+          parameters: {},
+        },
+      };
+
+      expect(vm.badgeText(scope)).toEqual('staging');
+    });
+
+    it('returns text for a scope without a strategy', () => {
+      const scope = { environment_scope: 'review' };
+
+      expect(vm.badgeText(scope)).toEqual('review');
+    });
   });
 });
