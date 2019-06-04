@@ -1,9 +1,9 @@
 import Vue from 'vue';
 import MockAdapter from 'axios-mock-adapter';
 import Dashboard from '~/monitoring/components/dashboard.vue';
-import { timeWindows, timeWindowsKeyNames } from '~/monitoring/constants';
-import * as types from '~/monitoring/stores/mutation_types';
 import { createStore } from '~/monitoring/stores';
+import * as types from '~/monitoring/stores/mutation_types';
+import { timeWindows, timeWindowsKeyNames } from '~/monitoring/constants';
 import axios from '~/lib/utils/axios_utils';
 import {
   metricsGroupsAPIResponse,
@@ -27,6 +27,7 @@ const propsData = {
   emptyUnableToConnectSvgPath: '/path/to/unable-to-connect.svg',
   environmentsEndpoint: '/root/hello-prometheus/environments/35',
   currentEnvironmentName: 'production',
+  usePrometheusEndpoint: false,
   customMetricsAvailable: false,
   customMetricsPath: '',
   validateQueryPath: '',
@@ -198,7 +199,10 @@ describe('Dashboard', () => {
         .catch(done.fail);
     });
 
-    it('renders the environments dropdown with a single active element', done => {
+    it('renders the environments dropdown with a single is-active element', done => {
+      store.commit(types.SET_ENVIRONMENTS_ENDPOINT, '/environments');
+      store.commit(types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS, environmentData);
+
       const component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
         propsData: {

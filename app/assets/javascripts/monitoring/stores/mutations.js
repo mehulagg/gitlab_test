@@ -1,3 +1,4 @@
+import Vue from 'vue';
 import * as types from './mutation_types';
 import { normalizeMetrics, sortMetrics } from './utils';
 
@@ -38,8 +39,27 @@ export default {
     state.metricsEndpoint = endpoints.metricsEndpoint;
     state.environmentsEndpoint = endpoints.environmentsEndpoint;
     state.deploymentsEndpoint = endpoints.deploymentsEndpoint;
+    state.dashboardEndpoint = endpoints.dashboardEndpoint;
+    state.prometheusEndpoint = endpoints.prometheusEndpoint;
+  },
+  [types.SET_QUERY_RESULT](state, { metricId, result }) {
+    if (!metricId || !result) {
+      return;
+    }
+    state.showEmptyState = false;
+    Vue.set(state.queryResults, metricId, Object.freeze(result));
+  },
+  [types.SET_GROUPS](state, groups) {
+    state.groups = groups;
+  },
+  [types.SET_DASHBOARD_ENABLED](state, enabled) {
+    state.useDashboardEndpoint = enabled;
   },
   [types.SET_GETTING_STARTED_EMPTY_STATE](state) {
     state.emptyState = 'gettingStarted';
+  },
+  [types.SET_NO_DATA_EMPTY_STATE](state) {
+    state.showEmptyState = true;
+    state.emptyState = 'noData';
   },
 };

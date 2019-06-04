@@ -4,9 +4,12 @@ export default () => ({
   metricsEndpoint: null,
   environmentsEndpoint: null,
   deploymentsEndpoint: null,
+  prometheusEndpoint: null,
   emptyState: 'gettingStarted',
   showEmptyState: true,
+  useDashboardEndpoint: false,
   groups: [],
   deploymentData: [],
   environments: [],
+  queryResults: {},
 });

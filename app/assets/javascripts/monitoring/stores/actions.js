@@ -35,11 +35,27 @@ export const setEndpoints = ({ commit }, endpoints) => {
   commit(types.SET_ENDPOINTS, endpoints);
 };
 
+export const setDashboardEnabled = ({ commit }, enabled) => {
+  commit(types.SET_DASHBOARD_ENABLED, enabled);
+};
+
 export const requestMetricsData = ({ commit }) => commit(types.REQUEST_METRICS_DATA);
 export const receiveMetricsDataSuccess = ({ commit }, data) =>
   commit(types.RECEIVE_METRICS_DATA_SUCCESS, data);
 export const receiveMetricsDataFailure = ({ commit }, error) =>
   commit(types.RECEIVE_METRICS_DATA_FAILURE, error);
+
+export const requestMetricsDashboard = ({ commit }) => {
+  commit(types.REQUEST_METRICS_DASHBOARD);
+};
+export const receiveMetricsDashboardSuccess = ({ commit, dispatch }, { response, params }) => {
+  commit(types.SET_GROUPS, response.dashboard.panel_groups);
+  dispatch('fetchPrometheusMetrics', params);
+};
+export const receiveMetricsDashboardFailure = ({ commit }, error) => {
+  commit(types.RECEIVE_METRICS_DASHBOARD_FAILURE, error);
+};
+
 export const receiveDeploymentsDataSuccess = ({ commit }, data) =>
   commit(types.RECEIVE_DEPLOYMENTS_DATA_SUCCESS, data);
 export const receiveDeploymentsDataFailure = ({ commit }) =>
@@ -56,6 +72,10 @@ export const fetchData = ({ dispatch }, params) => {
 };
 
 export const fetchMetricsData = ({ state, dispatch }, params) => {
+  if (state.useDashboardEndpoint) {
+    return dispatch('fetchDashboard', params);
+  }
+
   dispatch('requestMetricsData');
 
   return backOffRequest(() => axios.get(state.metricsEndpoint, { params }))
@@ -71,6 +91,85 @@ export const fetchMetricsData = ({ state, dispatch }, params) => {
       dispatch('receiveMetricsDataFailure', error);
       createFlash(s__('Metrics|There was an error while retrieving metrics'));
     });
+};
+
+export const fetchDashboard = ({ state, dispatch }, params) => {
+  dispatch('requestMetricsDashboard');
+
+  return axios
+    .get(state.dashboardEndpoint, { params })
+    .then(resp => resp.data)
+    .then(response => {
+      if (!response || response.status !== 'success') {
+        throw new Error(s__('Metrics|Unexpected metrics data response from prometheus endpoint'));
+      }
+
+      dispatch('receiveMetricsDashboardSuccess', { response, params });
+    })
+    .catch(error => {
+      dispatch('receiveMetricsDashboardFailure', error);
+      createFlash(s__('Metrics|There was an error while retrieving metrics'));
+    });
+};
+
+function fetchPrometheusResult(prometheusEndpoint, params) {
+  return backOffRequest(() => axios.get(prometheusEndpoint, { params }))
+    .then(res => res.data)
+    .then(response => {
+      if (response.status === 'error') {
+        throw new Error(response.error);
+      }
+
+      return response.data.result;
+    });
+}
+
+/**
+ * Returns list of metrics in data.result
+ * {"status":"success", "data":{"resultType":"matrix","result":[]}}
+ *
+ * @param {metric} metric
+ */
+export const fetchPrometheusMetric = ({ state, commit }, { metric, params }) => {
+  const queryType = Object.keys(metric).find(key => ['query', 'query_range'].includes(key));
+  const query = metric[queryType];
+  const prometheusEndpoint = state.prometheusEndpoint.replace(':proxy_path', queryType);
+
+  const { start, end } = params;
+  const timeDiff = end - start;
+
+  const minStep = 60;
+  const queryDataPoints = 600;
+  const step = Math.max(minStep, Math.ceil(timeDiff / queryDataPoints));
+
+  const queryParams = {
+    query,
+    start,
+    end,
+    step,
+  };
+
+  return fetchPrometheusResult(prometheusEndpoint, queryParams).then(result => {
+    commit(types.SET_QUERY_RESULT, { metricId: metric.metric_id, result });
+  });
+};
+
+export const fetchPrometheusMetrics = ({ state, commit, dispatch }, params) => {
+  const promises = [];
+  state.groups.forEach(group => {
+    group.panels.forEach(panel => {
+      panel.queries = panel.metrics;
+      panel.queries.forEach(metric => {
+        promises.push(dispatch('fetchPrometheusMetric', { metric, params }));
+      });
+    });
+  });
+
+  return Promise.all(promises).then(() => {
+    if (Object.keys(state.queryResults).length === 0) {
+      commit(types.SET_NO_DATA_EMPTY_STATE);
+    }
+  });
 };
 
 export const fetchDeploymentsData = ({ state, dispatch }) => {

@@ -79,21 +79,23 @@ export default {
             ? appearance.line.width
             : undefined;
 
-        const series = makeDataSeries(query.result, {
-          name: this.formatLegendLabel(query),
-          lineStyle: {
-            type: lineType,
-            width: lineWidth,
-          },
-          areaStyle: {
-            opacity:
-              appearance && appearance.area && typeof appearance.area.opacity === 'number'
-                ? appearance.area.opacity
-                : undefined,
-          },
-        });
-
-        return acc.concat(series);
+        if (query.result) {
+          const series = makeDataSeries(query.result, {
+            name: this.formatLegendLabel(query),
+            lineStyle: {
+              type: lineType,
+              width: lineWidth,
+            },
+            areaStyle: {
+              opacity:
+                appearance && appearance.area && typeof appearance.area.opacity === 'number'
+                  ? appearance.area.opacity
+                  : undefined,
+            },
+          });
+          return acc.concat(series);
+        }
+        return acc;
       }, []);
     },
     chartOptions() {
@@ -227,6 +229,7 @@ export default {
       [this.primaryColor] = chart.getOption().color;
     },
     onResize() {
+      if (!this.$refs.areaChart) return;
       const { width } = this.$refs.areaChart.$el.getBoundingClientRect();
       this.width = width;
     },

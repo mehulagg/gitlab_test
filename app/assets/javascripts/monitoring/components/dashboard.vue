@@ -8,7 +8,7 @@ import {
   GlLink,
 } from '@gitlab/ui';
 import _ from 'underscore';
-import { mapActions, mapState } from 'vuex';
+import { mapActions, mapState, mapGetters } from 'vuex';
 import { s__ } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
 import '~/vue_shared/mixins/is_ee';
@@ -110,6 +110,20 @@ export default {
       type: Boolean,
       required: true,
     },
+    usePrometheusEndpoint: {
+      type: Boolean,
+      required: true,
+    },
+    dashboardEndpoint: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    prometheusEndpoint: {
+      type: String,
+      required: false,
+      default: '',
+    },
     customMetricsAvailable: {
       type: Boolean,
       required: false,
@@ -117,11 +131,13 @@ export default {
     },
     customMetricsPath: {
       type: String,
-      required: true,
+      required: false,
+      default: '',
     },
     validateQueryPath: {
       type: String,
-      required: true,
+      required: false,
+      default: '',
     },
   },
   data() {
@@ -134,11 +150,11 @@ export default {
     };
   },
   computed: {
+    ...mapGetters('monitoringDashboard', ['groups', 'groupsWithData']),
     canAddMetrics() {
       return this.customMetricsAvailable && this.customMetricsPath.length;
     },
     ...mapState('monitoringDashboard', [
-      'groups',
       'emptyState',
       'showEmptyState',
       'environments',
@@ -146,10 +162,13 @@ export default {
     ]),
   },
   created() {
+    this.setDashboardEnabled(this.usePrometheusEndpoint);
     this.setEndpoints({
       metricsEndpoint: this.metricsEndpoint,
       environmentsEndpoint: this.environmentsEndpoint,
       deploymentsEndpoint: this.deploymentEndpoint,
+      dashboardEndpoint: this.dashboardEndpoint,
+      prometheusEndpoint: this.prometheusEndpoint,
     });
 
     this.timeWindows = timeWindows;
@@ -187,6 +206,7 @@ export default {
       'fetchData',
       'setGettingStartedEmptyState',
       'setEndpoints',
+      'setDashboardEnabled',
     ]),
     getGraphAlerts(queries) {
       if (!this.allAlerts) return {};
@@ -215,6 +235,15 @@ export default {
     },
     setTimeWindowParameter(key) {
       return `?time_window=${key}`;
+    },
+    metricsWithResults(metrics) {
+      return metrics.filter(
+        m =>
+          m.queries &&
+          m.queries.length > 0 &&
+          m.queries[0].result &&
+          m.queries[0].result.length > 0,
+      );
     },
   },
   addMetric: {
@@ -310,14 +339,14 @@ export default {
       </div>
     </div>
     <graph-group
-      v-for="(groupData, index) in groups"
+      v-for="(groupData, index) in groupsWithData"
       :key="index"
       :name="groupData.group"
       :show-panels="showPanels"
     >
       <monitor-area-chart
-        v-for="(graphData, graphIndex) in groupData.metrics"
-        :key="graphIndex"
+        v-for="(graphData, graphIndex) in metricsWithResults(groupData.metrics)"
+        :key="`area-${graphIndex}`"
         :graph-data="graphData"
         :deployment-data="deploymentData"
         :thresholds="getGraphAlertValues(graphData.queries)"
