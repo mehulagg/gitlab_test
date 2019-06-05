@@ -72,7 +72,7 @@ describe('Feature Flag table', () => {
     const envColumn = vm.$el.querySelector('.js-feature-flag-environments .js-badge:last-child');
     const scope = featureFlag.scopes[1];
 
-    expect(trimText(envColumn.textContent)).toContain(
+    expect(trimText(envColumn.textContent)).toEqual(
       `${scope.environment_scope}: ${scope.strategy.parameters.percentage}%`,
     );
   });

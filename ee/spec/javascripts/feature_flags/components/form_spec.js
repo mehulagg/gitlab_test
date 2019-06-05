@@ -164,7 +164,7 @@ describe('feature flag form', () => {
             wrapper.find('.js-scope-percentage input').setValue('60');
             wrapper.find('.js-scope-percentage input').trigger('change');
 
-            const productionScope = wrapper.vm.formScopes[0];
+            const productionScope = _.first(wrapper.vm.formScopes);
             const { strategy } = productionScope;
 
             expect(strategy.name).toEqual('gradualRolloutUserId');
