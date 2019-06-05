@@ -364,7 +364,7 @@ group :development, :test do
 
   gem 'capybara', '~> 2.18.0'
   gem 'capybara-screenshot', '~> 1.0.22'
-  gem 'selenium-webdriver', '~> 3.141'
+  gem 'selenium-webdriver', '~> 3.141.0'
 
   gem 'spring', '~> 2.0.0'
   gem 'spring-commands-rspec', '~> 1.0.4'
