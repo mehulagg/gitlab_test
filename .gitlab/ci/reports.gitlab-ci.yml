@@ -18,6 +18,7 @@ sast:
   variables:
     SAST_CONFIDENCE_LEVEL: 2
     DOCKER_DRIVER: overlay2
+    GIT_DEPTH: "1"
   allow_failure: true
   tags: []
   before_script: []
