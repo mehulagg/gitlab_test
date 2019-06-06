@@ -66,6 +66,14 @@ describe MergeRequests::CreatePipelineService do
 
     it_behaves_like 'creates a merge request pipeline'
 
+    context 'when merge-status is out of sync with the merge-ref' do
+      before do
+        merge_request.mark_as_unmergeable!
+      end
+
+      it_behaves_like 'creates a merge request pipeline'
+    end
+
     context 'when merge request is WIP' do
       before do
         merge_request.update!(title: merge_request.wip_title)

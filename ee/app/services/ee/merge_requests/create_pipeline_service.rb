@@ -13,7 +13,7 @@ module EE
       def create_merge_request_pipeline_for(merge_request)
         return unless can_create_merge_request_pipeline_for?(merge_request)
 
-        result = ::MergeRequests::MergeabilityCheckService.new(merge_request).execute
+        result = ::MergeRequests::MergeabilityCheckService.new(merge_request).execute(recheck: true)
 
         if result.success? && merge_request.mergeable_state?(skip_ci_check: true, skip_discussions_check: true)
           merge_ref_head_payload = result.payload.fetch(:merge_ref_head, {})
