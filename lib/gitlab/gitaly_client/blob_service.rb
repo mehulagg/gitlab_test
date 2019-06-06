@@ -34,8 +34,8 @@ module Gitlab
         Gitlab::Git::Blob.new(
           id: blob.oid,
           size: blob.size,
-          # data: data,
-          # binary: Gitlab::Git::Blob.binary?(data)
+          data: data,
+          binary: Gitlab::Git::Blob.binary?(data)
         )
       end
 
@@ -126,8 +126,7 @@ module Gitlab
             Gitlab::Git::Blob.new(
               id: lfs_pointer.oid,
               size: lfs_pointer.size,
-              data: lfs_pointer.data,
-              binary: Gitlab::Git::Blob.binary?(lfs_pointer.data)
+              data: lfs_pointer.data
             )
           end
         end
