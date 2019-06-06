@@ -34,7 +34,7 @@ module Gitlab
         Gitlab::Git::Blob.new(
           id: blob.oid,
           size: blob.size,
-          data: data,
+          # data: data,
           # binary: Gitlab::Git::Blob.binary?(data)
         )
       end
