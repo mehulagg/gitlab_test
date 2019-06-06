@@ -68,7 +68,9 @@
     - scripts/gitaly-test-spawn
     - date
     - 'export KNAPSACK_TEST_FILE_PATTERN=$(ruby -r./lib/quality/test_level.rb -e "puts Quality::TestLevel.new.pattern(:${TEST_LEVEL})")'
-    - knapsack rspec "--color --format documentation --format RspecJunitFormatter --out junit_rspec.xml --tag level:${TEST_LEVEL} --tag ~geo"
+    - mkdir -p chrome
+    - export CHROME_LOG_FILE=chrome/chrome_debug.log
+    - bundle exec rspec --color --format documentation --format RspecJunitFormatter --out junit_rspec.xml spec/features/projects/files/user_browses_files_spec.rb
     - date
   artifacts:
     expire_in: 31d
@@ -146,17 +148,16 @@ setup-test-env:
   except:
     - /(^docs[\/-].*|.*-docs$)/
 
-rspec unit pg:
-  <<: *rspec-metadata-pg
-  parallel: 20
-
-rspec integration pg:
-  <<: *rspec-metadata-pg
-  parallel: 6
-
 rspec system pg:
   <<: *rspec-metadata-pg
   parallel: 24
+  artifacts:
+    when: on_failure
+    expire_in: 1d
+    paths:
+      - log/test.log
+      - log/test_json.log
+      - chrome
 
 rspec unit pg-10:
   <<: *rspec-metadata-pg-10
@@ -388,18 +389,6 @@ coverage:
   <<: *rspec-metadata-ee
   <<: *use-mysql-with-elasticsearch
 
-rspec unit pg ee:
-  <<: *rspec-metadata-pg-ee
-  parallel: 7
-
-rspec integration pg ee:
-  <<: *rspec-metadata-pg-ee
-  parallel: 3
-
-rspec system pg ee:
-  <<: *rspec-metadata-pg-ee
-  parallel: 5
-
 rspec unit mysql ee:
   <<: *rspec-metadata-mysql-ee
   <<: *only-schedules-master
@@ -442,24 +431,6 @@ rspec system mysql ee on-demand:
     - source scripts/prepare_postgres_fdw.sh
     - scripts/gitaly-test-spawn
     - knapsack rspec "-Ispec --color --format documentation --format RspecJunitFormatter --out junit_rspec.xml --tag geo"
-
-rspec geo pg ee:
-  <<: *rspec-metadata-pg-geo
-  <<: *use-pg
-  parallel: 3
-  except:
-    - /(^geo[\/-].*|.*-geo$)/
-    - /(^docs[\/-].*|.*-docs$)/
-    - /(^qa[\/-].*|.*-qa$)/
-
-rspec geo pg-10 ee:
-  <<: *rspec-metadata-pg-geo
-  <<: *use-pg-10
-  parallel: 3
-  except:
-    - /(^geo[\/-].*|.*-geo$)/
-    - /(^docs[\/-].*|.*-docs$)/
-    - /(^qa[\/-].*|.*-qa$)/
 
 quick-rspec geo pg ee:
   <<: *rspec-metadata-pg-geo
