@@ -265,6 +265,7 @@ module API
 
       expose :open_issues_count, if: lambda { |project, options| project.feature_available?(:issues, options[:current_user]) }
       expose :runners_token, if: lambda { |_project, options| options[:user_can_admin_project] }
+      expose :ci_cd_settings, using: 'API::Entities::ProjectCiCdSettings'
       expose :public_builds, as: :public_jobs
       expose :ci_config_path, if: -> (project, options) { Ability.allowed?(options[:current_user], :download_code, project) }
       expose :shared_with_groups do |project, options|
@@ -287,6 +288,7 @@ module API
         # N+1 is solved then by using `subject.tags.map(&:name)`
         # MR describing the solution: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/20555
         super(projects_relation).preload(:group)
+                                .preload(:ci_cd_settings)
                                 .preload(project_group_links: { group: :route },
                                          fork_network: :root_project,
                                          fork_network_member: :forked_from_project,
@@ -318,6 +320,10 @@ module API
         expose :total_fetch_count, as: :total
         expose :fetches, as: :days, using: ProjectDailyFetches
       end
+    end
+
+    class ProjectCiCdSettings < Grape::Entity
+      expose :default_git_depth
     end
 
     class Member < Grape::Entity

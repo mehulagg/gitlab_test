@@ -1125,6 +1125,7 @@ describe API::Projects do
         expect(json_response['shared_with_groups'][0]['expires_at']).to be_nil
         expect(json_response['only_allow_merge_if_pipeline_succeeds']).to eq(project.only_allow_merge_if_pipeline_succeeds)
         expect(json_response['only_allow_merge_if_all_discussions_are_resolved']).to eq(project.only_allow_merge_if_all_discussions_are_resolved)
+        expect(json_response['ci_cd_settings']['default_git_depth']).to eq(project.ci_default_git_depth)
         expect(json_response['merge_method']).to eq(project.merge_method.to_s)
         expect(json_response['readme_url']).to eq(project.readme_url)
       end
@@ -1963,13 +1964,18 @@ describe API::Projects do
                           snippets_enabled: true,
                           merge_requests_enabled: true,
                           merge_method: 'ff',
+                          ci_default_git_depth: 20,
                           description: 'new description' }
 
         put api("/projects/#{project3.id}", user4), params: project_param
         expect(response).to have_gitlab_http_status(200)
-        project_param.each_pair do |k, v|
-          expect(json_response[k.to_s]).to eq(v)
-        end
+        expect(json_response['issues_enabled']).to eq(project_param[:issues_enabled])
+        expect(json_response['wiki_enabled']).to eq(project_param[:wiki_enabled])
+        expect(json_response['snippets_enabled']).to eq(project_param[:snippets_enabled])
+        expect(json_response['merge_requests_enabled']).to eq(project_param[:merge_requests_enabled])
+        expect(json_response['merge_method']).to eq(project_param[:merge_method])
+        expect(json_response['description']).to eq(project_param[:description])
+        expect(json_response['ci_cd_settings']['default_git_depth']).to eq(project_param[:ci_default_git_depth])
       end
 
       it 'does not update path to existing path' do
