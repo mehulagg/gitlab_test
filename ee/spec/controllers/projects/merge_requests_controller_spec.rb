@@ -5,12 +5,11 @@ shared_examples 'approvals' do
     JSON.parse(response.body)
   end
 
-  let!(:approver) { create(:approver, target: project) }
-  let!(:user_approver) { create(:approver, target: project, user: user) }
+  let!(:approver) { create(:user) }
+  let!(:approval_rule) { create(:approval_project_rule, project: project, users: [approver, user], approvals_required: 2) }
 
   before do
-    merge_request.update_attribute :approvals_before_merge, 2
-    project.add_developer(approver.user)
+    project.add_developer(approver)
   end
 
   describe 'approve' do
@@ -34,12 +33,12 @@ shared_examples 'approvals' do
       expect(approvals['user_has_approved']).to be true
       expect(approvals['user_can_approve']).to be false
       expect(approvals['suggested_approvers'].size).to eq 1
-      expect(approvals['suggested_approvers'][0]['username']).to eq approver.user.username
+      expect(approvals['suggested_approvers'][0]['username']).to eq approver.username
     end
   end
 
   describe 'approvals' do
-    let!(:approval) { create(:approval, merge_request: merge_request, user: approver.user) }
+    let!(:approval) { create(:approval, merge_request: merge_request, user: approver) }
 
     def get_approvals
       get :approvals,
@@ -59,28 +58,11 @@ shared_examples 'approvals' do
       expect(response).to be_success
       expect(approvals['approvals_left']).to eq 1
       expect(approvals['approved_by'].size).to eq 1
-      expect(approvals['approved_by'][0]['user']['username']).to eq approver.user.username
+      expect(approvals['approved_by'][0]['user']['username']).to eq approver.username
       expect(approvals['user_has_approved']).to be false
       expect(approvals['user_can_approve']).to be true
       expect(approvals['suggested_approvers'].size).to eq 1
       expect(approvals['suggested_approvers'][0]['username']).to eq user.username
-    end
-
-    context 'with unauthorized group' do
-      let(:private_group) { create(:group_with_members, :private) }
-
-      before do
-        create(:approver_group, target: merge_request, group: private_group)
-      end
-
-      it 'does not expose approvers from a private group the current user has no access to' do
-        get_approvals
-
-        approvals = json_response
-
-        expect(response).to be_success
-        expect(approvals['suggested_approvers'].size).to eq(0)
-      end
     end
   end
 
@@ -119,7 +101,6 @@ describe Projects::MergeRequestsController do
   let(:viewer)        { user }
 
   before do
-    stub_feature_flags(approval_rules: false)
     sign_in(viewer)
   end
 
@@ -399,6 +380,92 @@ describe Projects::MergeRequestsController do
       end
 
       it_behaves_like 'approvals'
+    end
+  end
+
+  describe 'GET #metrics_reports' do
+    let(:merge_request) { create(:ee_merge_request, :with_metrics_reports, source_project: project, author: create(:user)) }
+
+    let(:params) do
+      {
+        namespace_id: project.namespace.to_param,
+        project_id: project,
+        id: merge_request.iid
+      }
+    end
+
+    subject { get :metrics_reports, params: params, format: :json }
+
+    before do
+      allow_any_instance_of(::MergeRequest).to receive(:compare_reports)
+        .with(::Ci::CompareMetricsReportsService).and_return(comparison_status)
+    end
+
+    context 'when comparison is being processed' do
+      let(:comparison_status) { { status: :parsing } }
+
+      it 'sends polling interval' do
+        expect(::Gitlab::PollingInterval).to receive(:set_header)
+
+        subject
+      end
+
+      it 'returns 204 HTTP status' do
+        subject
+
+        expect(response).to have_gitlab_http_status(:no_content)
+      end
+    end
+
+    context 'when comparison is done' do
+      let(:comparison_status) { { status: :parsed, data: { summary: 1 } } }
+
+      it 'does not send polling interval' do
+        expect(::Gitlab::PollingInterval).not_to receive(:set_header)
+
+        subject
+      end
+
+      it 'returns 200 HTTP status' do
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response).to eq({ 'summary' => 1 })
+      end
+    end
+
+    context 'when user created corrupted test reports' do
+      let(:comparison_status) { { status: :error, status_reason: 'Failed to parse test reports' } }
+
+      it 'does not send polling interval' do
+        expect(::Gitlab::PollingInterval).not_to receive(:set_header)
+
+        subject
+      end
+
+      it 'returns 400 HTTP status' do
+        subject
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response).to eq({ 'status_reason' => 'Failed to parse test reports' })
+      end
+    end
+
+    context 'when something went wrong on our system' do
+      let(:comparison_status) { {} }
+
+      it 'does not send polling interval' do
+        expect(::Gitlab::PollingInterval).not_to receive(:set_header)
+
+        subject
+      end
+
+      it 'returns 500 HTTP status' do
+        subject
+
+        expect(response).to have_gitlab_http_status(:internal_server_error)
+        expect(json_response).to eq({ 'status_reason' => 'Unknown error' })
+      end
     end
   end
 end

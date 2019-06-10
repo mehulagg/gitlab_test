@@ -19,7 +19,7 @@ GET /search
 
 Search the expression within the specified scope. Currently these scopes are supported: projects, issues, merge_requests, milestones, snippet_titles, snippet_blobs, users.
 
-If Elasticsearch is enabled additional scopes available are blobs, wiki_blobs and commits. Find more about [the feature](../integration/elasticsearch.md).
+If Elasticsearch is enabled additional scopes available are blobs, wiki_blobs and commits. Find more about [the feature](../integration/elasticsearch.md). **[STARTER]**
 
 The response depends on the requested scope.
 
@@ -255,7 +255,7 @@ Example response:
 ### Scope: snippet_blobs
 
 ```bash
-curl --request GET --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/search?scope=snippet_blos&search=test
+curl --request GET --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/search?scope=snippet_blobs&search=test
 ```
 
 Example response:
@@ -283,9 +283,9 @@ Example response:
 ]
 ```
 
-### Scope: wiki_blobs
+### Scope: wiki_blobs **[STARTER]**
 
-This scope is available only if [Elasticsearch](../integration/elasticsearch.md) is enabled.
+This scope is available only if [Elasticsearch](../integration/elasticsearch.md) is enabled. 
 
 ```bash
 curl --request GET --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/search?scope=wiki_blobs&search=bye
@@ -308,7 +308,7 @@ Example response:
 ]
 ```
 
-### Scope: commits
+### Scope: commits **[STARTER]**
 
 This scope is available only if [Elasticsearch](../integration/elasticsearch.md) is enabled.
 
@@ -341,7 +341,7 @@ Example response:
 ]
 ```
 
-### Scope: blobs
+### Scope: blobs **[STARTER]**
 
 This scope is available only if [Elasticsearch](../integration/elasticsearch.md) is enabled.
 
@@ -414,7 +414,7 @@ GET /groups/:id/search
 
 Search the expression within the specified scope. Currently these scopes are supported: projects, issues, merge_requests, milestones, users.
 
-If Elasticsearch is enabled additional scopes available are blobs, wiki_blobs and commits. Find more about [the feature](../integration/elasticsearch.md).
+If Elasticsearch is enabled additional scopes available are blobs, wiki_blobs and commits. Find more about [the feature](../integration/elasticsearch.md). **[STARTER]**
 
 The response depends on the requested scope.
 
@@ -616,7 +616,7 @@ Example response:
 ]
 ```
 
-### Scope: wiki_blobs
+### Scope: wiki_blobs **[STARTER]**
 
 This scope is available only if [Elasticsearch](../integration/elasticsearch.md) is enabled.
 
@@ -641,7 +641,7 @@ Example response:
 ]
 ```
 
-### Scope: commits
+### Scope: commits **[STARTER]**
 
 This scope is available only if [Elasticsearch](../integration/elasticsearch.md) is enabled.
 
@@ -674,7 +674,7 @@ Example response:
 ]
 ```
 
-### Scope: blobs
+### Scope: blobs **[STARTER]**
 
 This scope is available only if [Elasticsearch](../integration/elasticsearch.md) is enabled.
 

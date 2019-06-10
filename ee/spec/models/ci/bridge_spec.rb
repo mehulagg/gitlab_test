@@ -14,6 +14,10 @@ describe Ci::Bridge do
     { trigger: { project: 'my/project', branch: 'master' } }
   end
 
+  it 'belongs to an upstream pipeline' do
+    expect(bridge).to belong_to(:upstream_pipeline)
+  end
+
   it 'has many sourced pipelines' do
     expect(bridge).to have_many(:sourced_pipelines)
   end
@@ -77,6 +81,28 @@ describe Ci::Bridge do
     it 'returns variables that are going to be passed downstream' do
       expect(bridge.downstream_variables)
         .to include(key: 'BRIDGE', value: 'cross')
+    end
+
+    context 'when using variables interpolation' do
+      before do
+        bridge.yaml_variables << { key: 'EXPANDED', value: '$BRIDGE-bridge', public: true }
+      end
+
+      it 'correctly expands variables with interpolation' do
+        expect(bridge.downstream_variables)
+          .to include(key: 'EXPANDED', value: 'cross-bridge')
+      end
+    end
+
+    context 'when recursive interpolation has been used' do
+      before do
+        bridge.yaml_variables << { key: 'EXPANDED', value: '$EXPANDED', public: true }
+      end
+
+      it 'does not expand variable recursively' do
+        expect(bridge.downstream_variables)
+          .to include(key: 'EXPANDED', value: '$EXPANDED')
+      end
     end
   end
 

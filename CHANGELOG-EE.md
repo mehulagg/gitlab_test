@@ -1,5 +1,307 @@
 Please view this file on the master branch, on stable branches it's out of date.
 
+## 11.11.3 (2019-06-10)
+
+### Fixed (1 change)
+
+- Fix create mr from vuln modal regression. !13524
+
+
+## 11.11.2 (2019-06-04)
+
+### Performance (1 change)
+
+- Geo - Does not apply selective sync restrictions while counting registries on the tracking database. !13257
+
+
+## 11.11.0 (2019-05-22)
+
+### Security (1 change)
+
+- Destroy project remote pull mirrors instead of disabling. !10355
+
+### Fixed (26 changes)
+
+- Add missing endpoint for user information to GitHub API. !10482
+- Remove slack slash commands double up. !10555
+- Display Scoped Labels on Issue Board. !10669
+- Ensure custom group template feature is available only for groups on gold and silver. !10678
+- Fix removing and updating insights config, and foreign key constraints. !11030
+- Geo: Fix broken button to delete orphaned upload registries through Admin. !11156
+- Resolve: Epic labels in system notes point to the epic itself. !11234
+- Geo: Fix: Project sync failures usually double-increment *_retry_count. !11381
+- Fix unauthenticated GET of public Epics API. !11485
+- Hide ScopedBadge overflow notes. !11548
+- Fixes a CI failure in jest. !11586
+- Fix error when reordering/deleting subgroup epics. !11837
+- Fix some filter bar tokens not showing up when multiple assignees are enabled. !11939
+- Geo: Fix OAuth authentication with relative URLs. !11976
+- Fix for not being able to remove the last namespace/project from elasticsearch limited namespaces/projects. !11989
+- Fix approvals project settings section when merge requests disabled. !12070
+- Enable alert bot to use quick actions. !12127
+- Geo: Remove counts over geo_event_log table. !12146
+- Geo: Prevent RegistryFinder calls on the primary. !12183
+- Fix placement of LDAP icon in members list. !12304
+- Use path instead of a URL for accessing approval settings. !12414
+- Remove non-semantic use of `.row` in member listing controls. !12466
+- Force tag overwrite on mirror update. !12491
+- Fixes the feedback paths on the project security dashboard. !12849
+- Fixed starting a review on images.
+- Fix updating board attributes through API.
+
+### Changed (13 changes)
+
+- Group SAML enforcement requires active SSO session for group access. !10034
+- Geo: Rename "Disable" to "Pause|Resume" (Admin > Geo Nodes). !10297
+- Upgrade group security dashboard to use gitlab-ui line chart. !10479
+- Geo - Implement selective sync support for the LFS objects FDW queries. !10757
+- Documentation : Improve selective sync documentation. !11072
+- Geo: Implement selective sync support for the FDW queries to count the number of attachments to sync. !11107
+- Allowing Elasticsearch indexing gap recovering. !11408
+- Geo - Implement selective sync support for the FDW queries to count attachments. !11518
+- Geo - Implement selective sync support for the FDW queries to find attachments. !11544
+- Geo - Add selective sync support for the job artifacts FDW queries. !11892
+- Fetch all available groups when creating MR approval rule. !12096
+- SSO enforcement requires active SAML session for web access to project resources. !12109
+- Perform LDAP group sync on sign in only for new users.
+
+### Performance (3 changes)
+
+- Swap conditions to reduce frequency of database query. !11217
+- Add index for mirror_user_id to projects table. !11422
+- Geo - Improve performance of the selective sync cleanup worker. !11998
+
+### Added (27 changes, 2 of them are from the community)
+
+- Proxy websocket requests to build services. !9723
+- Add dependency proxy for containers. !9750
+- Added gitlab:elastic:projects_not_indexed rake task. !9854 (Jason Colyer)
+- Added Snowplow tracking to notes. !10104
+- Support multiple assignees for merge requests. !10161
+- Add UI to enable/disable a dependency proxy on a group level. !10386
+- Let the GitLab Alert bot open incident issues. !10460
+- Remove feature flag `:incident_management`. !10569
+- Allow multiple secondary nodes behind a load balancer. !10755
+- Copy LFS objects from pull mirror. !10779
+- Geo: Inform users about current replication lag in the UI on secondaries. !10807
+- Autosave description in epics. !10844
+- Keep track of packages_file in ProjectStatistics. !11020
+- Adds a dismissal item to the vulnerability modal. !11028
+- Add project level config for merge train. !11065
+- Support pie charts in Insights. !11186
+- Create ActiveRecordModel and table for Merge Train feature. !11204
+- Allow adding GitLab license at installation time. !11244
+- Added ZAP Full Scan support for DAST. !11269
+- Add created_at and updated_at filters to Epics API. !11315 (jramsay)
+- Add API to retrieve security vulnerabilities. !11539
+- Basic Rails implementation for BOM. !11613
+- Add Frontend Store and UI For Environments Dashboard MVC. !11702
+- Track clicks on uninstall button for kubernetes implementation. !12048
+- Add Vulnerabilities API scoping: severity, confidence, and dismissal. !12076
+- Alert users that protected environments affects feature flags. !12168
+- Support creating a new child epic from the API.
+
+### Other (8 changes, 1 of them is from the community)
+
+- Improve project settings page layout and UX. !10388
+- Uses the more explicit vulnerability feedback endpoints on the front end. !10461
+- Automatically enable multiple MR assignees feature flag. !10558
+- Move geo_log_cursor binary to the ee folder. !10821
+- Move sidekiq-cluster to ee/bin. !11001
+- Move ee-specific code from boards/components/issue_card_inner.vue. !11032 (Roman Rodionov)
+- Make all billing cards fit in view. !11602
+- Extracted EE specific lines for spec/javascripts/vue_mr_widget/mock_data.js. !11847
+
+
+## 11.10.6 (2019-06-04)
+
+### Fixed (5 changes, 1 of them is from the community)
+
+- Fix removing and updating insights config, and foreign key constraints. !11030
+- Fix the group's epic page. The Paste issue link placeholder shown as 'undefinedundefinedundefined' in Chinese environment. And the error message showed nothing. !11312 (wdmcheng)
+- Fix approvals project settings section when merge requests disabled. !12070
+- Use path instead of a URL for accessing approval settings. !12414
+- Fix relative url root issues with license management. !12488
+
+
+## 11.10.4 (2019-05-01)
+
+### Fixed (1 change, 1 of them is from the community)
+
+- Fix error retrieving licenses when relative URL in use. !11717 (Hiroyuki Sato)
+
+### Changed (1 change)
+
+- [Insights] Change the default weeks period limit to 12. !11498
+
+
+## 11.10.3 (2019-04-30)
+
+- No changes.
+
+## 11.10.2 (2019-04-25)
+
+### Security (1 change)
+
+- Handle race condition when creating an MR approval.
+
+
+## 11.10.1 (2019-04-23)
+
+### Fixed (4 changes)
+
+- Fix approval rules when used with relative url root. !10819
+- Fix add/remove pipeline dashboard issue. !11029
+- Fix JWT token check when repository does not exist. !11033
+- Fix preventing approval of merge requests by an author. !11263
+
+### Changed (2 changes)
+
+- Improve SAML settings with validation, design, and help text. !10450
+- Use a single color for the Insights time series bar charts. !11076
+
+
+## 11.10.0 (2019-04-22)
+
+### Security (3 changes)
+
+- Check label_ids parent when updating issue board.
+- Geo - Improve security while redirecting user back to the secondary after a logout & re-login via the primary.
+- Expose only basic group attributes in boards API.
+
+### Fixed (25 changes)
+
+- User Statistics in Admin Dashboard now a button. !8807
+- Fix misalignment of dropdowns in edit board modal of issue boards. !9909
+- Geo: Support archive recovery or streaming replication types in health check. !9935
+- Geo: Only display Geo-specific clone instructions button on a Geo Secondary node. !10007
+- Resolve Deletion of vulnerability-associated issuables prevents security report from loading. !10016
+- Elasticsearch API: Fix project_id showing as 0 for all blobs. A reindex will be required. !10020
+- Make editing the filters in the Group Security Dashboard easier. !10138
+- Geo - Reset the verification checksum after deployment refs are created. !10160
+- Search snippets via elasticsearch. !10325
+- Fixed bug preventing users from adding child epics with multiple children. !10331
+- Fix merge requests being added to Jira Development Panel. !10342
+- Fix authors of merge commits being excluded from approving an MR. !10359
+- Fix ChatOps Slack responder for gitlab.com. !10416
+- Fix sorting by priority with filtering by approvers. !10446
+- Make UpdateRepositoryStorageService idempotent. !10457
+- Fix broken links to protected environments on the CI/CD settings page. !10470
+- Notify owner that group is invalid when LDAP "Sync now" fails. !10509
+- Fix user agent string for Hosted Jira. !10545
+- Fix query used to calculate number of users over license. !10556
+- Fix pipeline bridge serialization error. !10565
+- Correct path to cluster health partial. !10638
+- Ensure Insights charts show all periods even if there are no data. !10733
+- Hide scoped labels help text without corresponding license. !10737
+- Fix merge request operation failure (e.g. assigning user) when project approvers required increases. !10766
+- Include subgroups when finding Insights issuables. !10801
+
+### Changed (27 changes)
+
+- Move project search bar into modal dialog on Operations Dashboard page. !9260
+- Geo - Add selective sync support for the FDW queries to count synced registries. !9445
+- Geo - Add selective sync support for the FDW queries to count failed registries. !9527
+- Convert enable group authentication checkbox to toggle button. !9816
+- Geo: Limit max backoff time by 1 hour, instead of 7 days. !9893
+- Documented Guide to using Geo in HA with RDS cross-region replicas. !9985
+- Dynamically resize security group dashboard vuln graph. !10028
+- Add self approval of merge requests setting to merge requests approvals API. !10050
+- elasticsearch: Switch from LZ4 to DEFLATE compression. !10072
+- Geo - Store the invalid checksum when we have a mismatch. !10101
+- Add requested resources to cluster health metrics. !10135
+- Allow self-approvals in fallback approval rules. !10218
+- Geo - Add selective sync support for FDW queries to find verified registries. !10255
+- Add file line number to vuln modal. !10265
+- Geo - Add selective sync support for FDW queries to find registries where verification has failed. !10266
+- Enforce Geo JWT tokens scope for repository sync. !10303
+- Display link to review note in text email, similar to HTML email. !10401
+- Geo - Add selective sync support for the FDW queries to find mismatch registries. !10434
+- Geo - Add selective sync support for queries to find registries retrying verification. !10436
+- Geo - Add selective sync support for the FDW queries to find registries to verify. !10438
+- Improve DAST location fingerprints. !10487
+- Change order in dast location fingerprint. !10487
+- Geo: Add selective sync support for the FDW queries to find unsynced projects. !10522
+- Enrich container scanning with more data on the frontend. !10526
+- [Geo] Don't mark sync as successful if repo does not exist because of some problems. !10578
+- Move operations dashboard from Ultimate to Premium. !10586
+- Support multiple chart per page for Insights.
+
+### Performance (3 changes)
+
+- Avoid a Gitaly N+1 when loading commits for Elasticsearch search results. !9760
+- Geo: Optimize repository and wiki verification counts. !9939
+- Avoid N+1 when loading Code search results with Elasticsearch enabled. !10394
+
+### Added (31 changes, 1 of them is from the community)
+
+- Add approval and unapproval webhooks. !8742
+- Adding pipelines to the operations dashboard. !9197
+- Add operations dashboard usage counts to usage data. !9291
+- Automatically deprovision and update users from a configured identity via SCIM. !9388
+- Add SCIM Token section to SAML SSO Settings. !9619
+- Use merge request MERGE ref for attached merge request pipelines. !9622
+- Geo: Support syncing over non-publicly accessible URLs. !9634
+- Prevent merge if the merge request pipeline is stale. !9643
+- Block possibility to change email for users with group managed account. !9712
+- Geo admin panel for upload verification. !9720
+- Geo: Create separate models for different registries. !9755
+- Add ability to purchase extra CI minutes. !9815
+- Update Web IDE config to accept ports. !9818
+- Allow per-project and per-group enabling of Elasticsearch indexing. !9861
+- Geo: Help admins diagnose configuration problems. !9988
+- Added MAVEN_CLI_OPTS env var support to License Management CI job. !10012
+- Show DAST vulnerabilities in the Group Security Dashboard. !10271
+- Show DAST in Group Security Dashboard Back-End. !10277
+- Removing pipeline dashboard feature flag. !10302
+- Update user name upon LDAP sync. !10316 (@icode1)
+- Collect usage of pod logs feature. !10370
+- Added metrics reports widget to merge request page. !10380
+- IP whitelisting for Geo-enabling functionality in the primary. !10383
+- Persist in the URL the page and day range of vulnerabilities viewed in the Group Security Dashboard. !10402
+- Add 'Metrics' job artifact report type. !10452
+- Create a user via SCIM. !10456
+- Geo: Display secondary replication lag on console (if lag > 0 seconds). !10471
+- Add Roadmap to Epic page. !10488
+- Expose merge request pipeline parameters for MR widget. !10502
+- Allow instance admins to link all projects to Jira DVCS. !10541
+- Added mutually exclusive key value labels.
+
+### Other (4 changes)
+
+- Simplify admin instance licenses page. !9785
+- Extract EE specific files and externalize strings in admin application settings. !9930
+- Add specs for coerced labels parameter in Epics API. !9932
+- Improve project service desk settings. !10381
+
+
+## 11.9.12 (2019-05-30)
+
+### Security (3 changes, 1 of them is from the community)
+
+- Filter relative links in wiki for XSS. (kerrizor)
+- Fix XSS in Ancestor tooltip title.
+- Ignore out of range epic IDs.
+
+
+## 11.9.10 (2019-04-26)
+
+### Security (1 change)
+
+- Handle race condition when creating an MR approval.
+
+### Fixed (1 change, 1 of them is from the community)
+
+- Fix the group's epic page. The Paste issue link placeholder shown as 'undefinedundefinedundefined' in Chinese environment. And the error message showed nothing. !11312 (wdmcheng)
+
+
+## 11.9.9 (2019-04-23)
+
+### Fixed (1 change)
+
+- Fix approval rules when used with relative url root. !10819
+
+
 ## 11.9.8 (2019-04-11)
 
 ### Fixed (1 change)
@@ -154,6 +456,10 @@ Please view this file on the master branch, on stable branches it's out of date.
 - Adds documentation for autoremediation. !10054
 
 
+## 11.8.10 (2019-04-30)
+
+- No changes.
+
 ## 11.8.3 (2019-03-19)
 
 - No changes.
@@ -276,6 +582,10 @@ Please view this file on the master branch, on stable branches it's out of date.
 - Turn on rubocop for frozen string in ee/. (gfyoung)
 - Creates an EE component for the pipeline graph.
 
+
+## 11.7.12 (2019-04-23)
+
+- No changes.
 
 ## 11.7.11 (2019-04-09)
 
@@ -420,6 +730,10 @@ Please view this file on the master branch, on stable branches it's out of date.
 - Pass issuable-type in AddIssuableForm. !9111
 - Gather deepest epic relationship data.
 
+
+## 11.6.11 (2019-04-23)
+
+- No changes.
 
 ## 11.6.10 (2019-02-28)
 
@@ -574,6 +888,13 @@ Please view this file on the master branch, on stable branches it's out of date.
 - Add count of projects with at least one package to a usage ping data. !8641
 - Added recommendations for handling deleted documents in Elasticsearch.
 - Use new information-o icon for Security Dashboard.
+
+
+## 11.5.11 (2019-04-23)
+
+### Security (1 change)
+
+- Respect group membership lock when importing a member from another group.
 
 
 ## 11.5.8 (2019-01-28)

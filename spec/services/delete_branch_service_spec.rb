@@ -14,7 +14,7 @@ describe DeleteBranchService do
 
       result = service.execute(branch_name)
 
-      expect(result[:status]).to eq :success
+      expect(result.status).to eq :success
       expect(branch_exists?(branch_name)).to be false
     end
   end
@@ -34,19 +34,10 @@ describe DeleteBranchService do
 
         result = service.execute('feature')
 
-        expect(result[:status]).to eq :error
-        expect(result[:message]).to eq 'You dont have push access to repo'
+        expect(result.status).to eq :error
+        expect(result.message).to eq 'You dont have push access to repo'
         expect(branch_exists?('feature')).to be true
       end
-    end
-
-    context 'when there is a push rule matching the branch name' do
-      before do
-        project.add_developer(user)
-        create(:push_rule, branch_name_regex: '^(w*)$')
-      end
-
-      it_behaves_like 'a deleted branch', 'add-pdf-file'
     end
   end
 

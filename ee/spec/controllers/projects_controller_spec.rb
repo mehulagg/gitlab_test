@@ -9,6 +9,41 @@ describe ProjectsController do
     sign_in(user)
   end
 
+  describe "GET show" do
+    let(:public_project) { create(:project, :public, :repository) }
+
+    render_views
+
+    it 'shows the over size limit warning message if above_size_limit' do
+      allow_any_instance_of(EE::Project).to receive(:above_size_limit?).and_return(true)
+      allow(controller).to receive(:current_user).and_return(user)
+
+      get :show, params: { namespace_id: public_project.namespace.path, id: public_project.path }
+
+      expect(response.body).to match(/The size of this repository.+exceeds the limit/)
+    end
+
+    it 'does not show an over size warning if not above_size_limit' do
+      get :show, params: { namespace_id: public_project.namespace.path, id: public_project.path }
+
+      expect(response.body).not_to match(/The size of this repository.+exceeds the limit/)
+    end
+  end
+
+  describe 'GET edit' do
+    it 'does not allow an auditor user to access the page' do
+      sign_in(create(:user, :auditor))
+
+      get :edit,
+          params: {
+            namespace_id: project.namespace.path,
+            id: project.path
+          }
+
+      expect(response).to have_gitlab_http_status(404)
+    end
+  end
+
   describe 'POST create' do
     let!(:params) do
       {
@@ -220,6 +255,48 @@ describe ProjectsController do
           request
 
           expect(project.reload.merge_pipelines_enabled).to be_falsy
+        end
+      end
+    end
+
+    context 'when merge_trains_enabled param is specified' do
+      let(:params) { { merge_trains_enabled: true } }
+
+      let(:request) do
+        put :update, params: { namespace_id: project.namespace, id: project, project: params }
+      end
+
+      before do
+        stub_licensed_features(merge_trains: true)
+      end
+
+      it 'updates the attribute' do
+        request
+
+        expect(project.reload.merge_trains_enabled).to be_truthy
+      end
+
+      context 'when feature flag is disabled' do
+        before do
+          stub_feature_flags(merge_trains: false)
+        end
+
+        it 'does not update the attribute' do
+          request
+
+          expect(project.reload.merge_trains_enabled).to be_falsy
+        end
+      end
+
+      context 'when license is not sufficient' do
+        before do
+          stub_licensed_features(merge_trains: false)
+        end
+
+        it 'does not update the attribute' do
+          request
+
+          expect(project.reload.merge_trains_enabled).to be_falsy
         end
       end
     end

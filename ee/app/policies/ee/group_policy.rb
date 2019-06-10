@@ -3,6 +3,7 @@
 module EE
   module GroupPolicy
     extend ActiveSupport::Concern
+    extend ::Gitlab::Utils::Override
 
     prepended do
       with_scope :subject
@@ -21,13 +22,28 @@ module EE
         !@subject.feature_available?(:security_dashboard)
       end
 
+      condition(:needs_new_sso_session) do
+        sso_enforcement_prevents_access?
+      end
+
+      condition(:dependency_proxy_available) do
+        @subject.feature_available?(:dependency_proxy)
+      end
+
       rule { reporter }.policy do
         enable :admin_list
         enable :admin_board
       end
 
+      rule { maintainer }.policy do
+        enable :create_jira_connect_subscription
+      end
+
       rule { can?(:read_group) & contribution_analytics_available }
         .enable :read_group_contribution_analytics
+
+      rule { can?(:read_group) & dependency_proxy_available }
+        .enable :read_dependency_proxy
 
       rule { can?(:read_group) & epics_available }.enable :read_epic
 
@@ -67,6 +83,24 @@ module EE
       rule { security_dashboard_feature_disabled }.policy do
         prevent :read_group_security_dashboard
       end
+
+      rule { needs_new_sso_session }.policy do
+        prevent :read_group
+      end
+    end
+
+    override :lookup_access_level!
+    def lookup_access_level!
+      return ::GroupMember::NO_ACCESS if needs_new_sso_session?
+
+      super
+    end
+
+    def sso_enforcement_prevents_access?
+      return false unless subject.persisted?
+      return false if user&.admin?
+
+      ::Gitlab::Auth::GroupSaml::SsoEnforcer.group_access_restricted?(subject)
     end
   end
 end

@@ -4,7 +4,7 @@ class Groups::Security::VulnerabilitiesController < Groups::Security::Applicatio
   HISTORY_RANGE = 3.months
 
   def index
-    vulnerabilities = found_vulnerabilities.ordered.page(params[:page])
+    vulnerabilities = found_vulnerabilities(:with_sha).ordered.page(params[:page])
 
     respond_to do |format|
       format.json do
@@ -39,7 +39,7 @@ class Groups::Security::VulnerabilitiesController < Groups::Security::Applicatio
   private
 
   def filter_params
-    params.permit(report_type: [], project_id: [], severity: [])
+    params.permit(report_type: [], confidence: [], project_id: [], severity: [])
       .merge(hide_dismissed: Gitlab::Utils.to_boolean(params[:hide_dismissed]))
   end
 

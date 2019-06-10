@@ -1,8 +1,6 @@
 import $ from 'jquery';
+import 'at.js';
 import _ from 'underscore';
-
-// EE-specific
-import setupAutoCompleteEpics from 'ee/gfm_auto_complete_ee';
 
 import glRegexp from './lib/utils/regexp';
 import AjaxCache from './lib/utils/ajax_cache';
@@ -56,9 +54,6 @@ class GfmAutoComplete {
     if (this.enableMap.mergeRequests) this.setupMergeRequests($input);
     if (this.enableMap.labels) this.setupLabels($input);
     if (this.enableMap.snippets) this.setupSnippets($input);
-
-    // EE-specific
-    if (this.enableMap.epics) setupAutoCompleteEpics($input, this.getDefaultCallbacks());
 
     // We don't instantiate the quick actions autocomplete for note and issue/MR edit forms
     $input.filter('[data-supports-quick-actions="true"]').atwho({
@@ -468,7 +463,10 @@ class GfmAutoComplete {
         // We can ignore this for quick actions because they are processed
         // before Markdown.
         if (!this.setting.skipMarkdownCharacterTest) {
-          withoutAt = withoutAt.replace(/([~\-_*`])/g, '\\$&');
+          withoutAt = withoutAt
+            .replace(/(~~|`|\*)/g, '\\$1')
+            .replace(/(\b)(_+)/g, '$1\\$2') // only escape underscores at the start
+            .replace(/(_+)(\b)/g, '\\$1$2'); // or end of words
         }
 
         return `${at}${withoutAt}`;
@@ -480,6 +478,16 @@ class GfmAutoComplete {
           return match[1];
         }
         return null;
+      },
+      highlighter(li, query) {
+        // override default behaviour to escape dot character
+        // see https://github.com/ichord/At.js/pull/576
+        if (!query) {
+          return li;
+        }
+        const escapedQuery = query.replace(/[.+]/, '\\$&');
+        const regexp = new RegExp(`>\\s*([^<]*?)(${escapedQuery})([^<]*)\\s*<`, 'ig');
+        return li.replace(regexp, (str, $1, $2, $3) => `> ${$1}<strong>${$2}</strong>${$3} <`);
       },
     };
   }

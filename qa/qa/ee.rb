@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module QA
   ##
   # GitLab EE extensions
@@ -66,6 +68,10 @@ module QA
         module Settings
           autoload :ProtectedBranches, 'qa/ee/page/project/settings/protected_branches'
           autoload :MirroringRepositories, 'qa/ee/page/project/settings/mirroring_repositories'
+        end
+
+        module Pipeline
+          autoload :Show, 'qa/ee/page/project/pipeline/show'
         end
       end
 

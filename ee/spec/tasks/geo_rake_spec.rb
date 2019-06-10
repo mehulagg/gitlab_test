@@ -10,7 +10,8 @@ describe 'geo rake tasks', :geo do
 
   describe 'set_primary_node task' do
     before do
-      stub_config_setting(protocol: 'https')
+      stub_config_setting(url: 'https://example.com:1234/relative_part')
+      stub_geo_setting(node_name: 'Region 1 node')
     end
 
     it 'creates a GeoNode' do
@@ -22,7 +23,9 @@ describe 'geo rake tasks', :geo do
 
       node = GeoNode.first
 
+      expect(node.name).to eq('Region 1 node')
       expect(node.uri.scheme).to eq('https')
+      expect(node.url).to eq('https://example.com:1234/relative_part/')
       expect(node.primary).to be_truthy
     end
   end
@@ -58,9 +61,7 @@ describe 'geo rake tasks', :geo do
     end
   end
 
-  # Disable transactions via :delete method because a foreign table
-  # can't see changes inside a transaction of a different connection.
-  describe 'status task', :delete do
+  describe 'status task', :geo_fdw do
     let!(:current_node) { create(:geo_node) }
     let!(:primary_node) { create(:geo_node, :primary) }
     let!(:geo_event_log) { create(:geo_event_log) }

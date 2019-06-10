@@ -191,6 +191,17 @@ describe Project do
 
         expect(described_class.mirrors_to_sync(timestamp)).to be_empty
       end
+
+      context 'when a limit is applied' do
+        before do
+          another_project = create(:project)
+          create(:import_state, :mirror, :finished, project: another_project)
+        end
+
+        it 'returns project if next_execution_timestamp is not in the future' do
+          expect(described_class.mirrors_to_sync(timestamp, limit: 1)).to match_array(project)
+        end
+      end
     end
 
     context 'when project is failed' do
@@ -376,11 +387,10 @@ describe Project do
   end
 
   describe '#feature_available?' do
-    let(:namespace) { create(:namespace) }
+    let(:namespace) { build(:namespace) }
     let(:plan_license) { nil }
-    let!(:gitlab_subscription) { create(:gitlab_subscription, namespace: namespace, hosted_plan: plan_license) }
-    let(:project) { create(:project, namespace: namespace) }
-    let(:user) { create(:user) }
+    let(:project) { build(:project, namespace: namespace) }
+    let(:user) { build(:user) }
 
     subject { project.feature_available?(feature, user) }
 
@@ -402,7 +412,11 @@ describe Project do
 
               context 'allowed by Plan License AND Global License' do
                 let(:allowed_on_global_license) { true }
-                let(:plan_license) { create(:gold_plan) }
+                let(:plan_license) { build(:gold_plan) }
+
+                before do
+                  allow(namespace).to receive(:plans) { [plan_license] }
+                end
 
                 it 'returns true' do
                   is_expected.to eq(true)
@@ -419,7 +433,7 @@ describe Project do
 
               context 'not allowed by Plan License but project and namespace are public' do
                 let(:allowed_on_global_license) { true }
-                let(:plan_license) { create(:bronze_plan) }
+                let(:plan_license) { build(:bronze_plan) }
 
                 it 'returns true' do
                   allow(namespace).to receive(:public?) { true }
@@ -432,7 +446,7 @@ describe Project do
               unless License.plan_includes_feature?(License::STARTER_PLAN, feature_sym)
                 context 'not allowed by Plan License' do
                   let(:allowed_on_global_license) { true }
-                  let(:plan_license) { create(:bronze_plan) }
+                  let(:plan_license) { build(:bronze_plan) }
 
                   it 'returns false' do
                     is_expected.to eq(false)
@@ -442,7 +456,7 @@ describe Project do
 
               context 'not allowed by Global License' do
                 let(:allowed_on_global_license) { false }
-                let(:plan_license) { create(:gold_plan) }
+                let(:plan_license) { build(:gold_plan) }
 
                 it 'returns false' do
                   is_expected.to eq(false)
@@ -503,7 +517,7 @@ describe Project do
       let(:project) { build(:project, :mirror, import_url: import_url, import_data_attributes: { auth_method: auth_method } ) }
 
       it do
-        expect(project.repository).to receive(:fetch_upstream).with(expected)
+        expect(project.repository).to receive(:fetch_upstream).with(expected, forced: false)
 
         project.fetch_mirror
       end
@@ -599,31 +613,15 @@ describe Project do
     end
   end
 
-  describe '#shared_runners_limit_namespace' do
+  describe '#shared_runners_limit_namespace', :nested_groups do
     set(:root_ancestor) { create(:group) }
     set(:group) { create(:group, parent: root_ancestor) }
     let(:project) { create(:project, namespace: group) }
 
     subject { project.shared_runners_limit_namespace }
 
-    context 'when shared_runner_minutes_on_root_namespace is disabled' do
-      before do
-        stub_feature_flags(shared_runner_minutes_on_root_namespace: false)
-      end
-
-      it 'returns parent namespace' do
-        is_expected.to eq(group)
-      end
-    end
-
-    context 'when shared_runner_minutes_on_root_namespace is enabled', :nested_groups do
-      before do
-        stub_feature_flags(shared_runner_minutes_on_root_namespace: true)
-      end
-
-      it 'returns root namespace' do
-        is_expected.to eq(root_ancestor)
-      end
+    it 'returns root namespace' do
+      is_expected.to eq(root_ancestor)
     end
   end
 
@@ -1026,16 +1024,6 @@ describe Project do
         expect(project.visible_regular_approval_rules).to contain_exactly(approval_rules.first)
       end
     end
-
-    context 'when approval rules are disabled' do
-      before do
-        stub_feature_flags(approval_rules: false)
-      end
-
-      it 'does not return any approval rules' do
-        expect(project.visible_regular_approval_rules).to be_empty
-      end
-    end
   end
 
   describe '#min_fallback_approvals' do
@@ -1061,12 +1049,6 @@ describe Project do
         stub_licensed_features(multiple_approval_rules: false)
 
         expect(project.min_fallback_approvals).to eq(2)
-      end
-
-      it 'returns approvals before merge when code owner rules is disabled' do
-        stub_feature_flags(approval_rules: false)
-
-        expect(project.min_fallback_approvals).to eq(1)
       end
     end
   end
@@ -1739,45 +1721,6 @@ describe Project do
 
     it 'returns false when object pool exists' do
       expect(subject.object_pool_missing?).to be false
-    end
-  end
-
-  describe '#merge_pipelines_enabled?' do
-    subject { project.merge_pipelines_enabled? }
-
-    let(:project) { create(:project) }
-    let(:merge_pipelines_enabled) { true }
-
-    before do
-      project.merge_pipelines_enabled = merge_pipelines_enabled
-    end
-
-    context 'when Merge pipelines (EEP) is available' do
-      before do
-        stub_licensed_features(merge_pipelines: true)
-      end
-
-      it { is_expected.to be_truthy }
-
-      context 'when project setting is disabled' do
-        let(:merge_pipelines_enabled) { false }
-
-        it { is_expected.to be_falsy }
-      end
-    end
-
-    context 'when Merge pipelines (EEP) is unavailable' do
-      before do
-        stub_licensed_features(merge_pipelines: false)
-      end
-
-      it { is_expected.to be_falsy }
-
-      context 'when project setting is disabled' do
-        let(:merge_pipelines_enabled) { false }
-
-        it { is_expected.to be_falsy }
-      end
     end
   end
 

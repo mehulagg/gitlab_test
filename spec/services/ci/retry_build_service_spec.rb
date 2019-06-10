@@ -23,14 +23,14 @@ describe Ci::RetryBuildService do
 
   REJECT_ACCESSORS =
     %i[id status user token token_encrypted coverage trace runner
-       artifacts_expire_at artifacts_file artifacts_metadata artifacts_size
+       artifacts_expire_at
        created_at updated_at started_at finished_at queued_at erased_by
        erased_at auto_canceled_by job_artifacts job_artifacts_archive
        job_artifacts_metadata job_artifacts_trace job_artifacts_junit
        job_artifacts_sast job_artifacts_dependency_scanning
        job_artifacts_container_scanning job_artifacts_dast
        job_artifacts_license_management job_artifacts_performance
-       job_artifacts_codequality scheduled_at].freeze
+       job_artifacts_codequality job_artifacts_metrics scheduled_at].freeze
 
   IGNORE_ACCESSORS =
     %i[type lock_version target_url base_tags trace_sections
@@ -38,7 +38,8 @@ describe Ci::RetryBuildService do
        runner_id tag_taggings taggings tags trigger_request_id
        user_id auto_canceled_by_id retried failure_reason
        sourced_pipelines artifacts_file_store artifacts_metadata_store
-       metadata runner_session trace_chunks].freeze
+       metadata runner_session trace_chunks upstream_pipeline_id
+       artifacts_file artifacts_metadata artifacts_size].freeze
 
   shared_examples 'build duplication' do
     let(:another_pipeline) { create(:ci_empty_pipeline, project: project) }

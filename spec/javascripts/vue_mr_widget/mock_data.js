@@ -62,6 +62,7 @@ export default {
     "Merge branch 'daaaa' into 'master'\n\nUpdate README.md\n\nSee merge request !22",
   pipeline: {
     id: 172,
+    iid: 32,
     user: {
       name: 'Administrator',
       username: 'root',
@@ -230,194 +231,53 @@ export default {
   diverged_commits_count: 0,
   only_allow_merge_if_pipeline_succeeds: false,
   commit_change_content_path: '/root/acets-app/merge_requests/22/commit_change_content',
-  codeclimate: {
-    head_path: 'head.json',
-    base_path: 'base.json',
-  },
-  blob_path: {
-    base_path: 'blob_path',
-    head_path: 'blob_path',
-  },
-  vulnerability_feedback_help_path:
-    '/help/user/project/merge_requests/index#interacting-with-security-reports-ultimate',
   merge_commit_path:
     'http://localhost:3000/root/acets-app/commit/53027d060246c8f47e4a9310fb332aa52f221775',
   troubleshooting_docs_path: 'help',
+  merge_request_pipelines_docs_path: '/help/ci/merge_request_pipelines/index.md',
   squash: true,
+  visual_review_app_available: true,
 };
-// Codeclimate
-export const headIssues = [
-  {
-    check_name: 'Rubocop/Lint/UselessAssignment',
-    description: 'Insecure Dependency',
-    location: {
-      path: 'lib/six.rb',
-      lines: {
-        begin: 6,
-        end: 7,
-      },
-    },
-    fingerprint: 'e879dd9bbc0953cad5037cde7ff0f627',
-  },
-  {
-    categories: ['Security'],
-    check_name: 'Insecure Dependency',
-    description: 'Insecure Dependency',
-    location: {
-      path: 'Gemfile.lock',
-      lines: {
-        begin: 22,
-        end: 22,
-      },
-    },
-    fingerprint: 'ca2e59451e98ae60ba2f54e3857c50e5',
-  },
-];
-// Codeclimate
-export const parsedHeadIssues = [
-  {
-    check_name: 'Rubocop/Lint/UselessAssignment',
-    description: 'Insecure Dependency',
-    location: {
-      path: 'lib/six.rb',
-      lines: {
-        begin: 6,
-        end: 7,
-      },
-    },
-    fingerprint: 'e879dd9bbc0953cad5037cde7ff0f627',
-    name: 'Insecure Dependency',
-    path: 'lib/six.rb',
-    urlPath: 'headPath/lib/six.rb#L6',
-    line: 6,
-  },
-];
-
-export const baseIssues = [
-  {
-    categories: ['Security'],
-    check_name: 'Insecure Dependency',
-    description: 'Insecure Dependency',
-    location: {
-      path: 'Gemfile.lock',
-      lines: {
-        begin: 22,
-        end: 22,
-      },
-    },
-    fingerprint: 'ca2e59451e98ae60ba2f54e3857c50e5',
-  },
-  {
-    categories: ['Security'],
-    check_name: 'Insecure Dependency',
-    description: 'Insecure Dependency',
-    location: {
-      path: 'Gemfile.lock',
-      lines: {
-        begin: 21,
-        end: 21,
-      },
-    },
-    fingerprint: 'ca2354534dee94ae60ba2f54e3857c50e5',
-  },
-];
-
-export const parsedBaseIssues = [
-  {
-    categories: ['Security'],
-    check_name: 'Insecure Dependency',
-    description: 'Insecure Dependency',
-    location: {
-      path: 'Gemfile.lock',
-      lines: {
-        begin: 21,
-        end: 21,
-      },
-    },
-    fingerprint: 'ca2354534dee94ae60ba2f54e3857c50e5',
-    name: 'Insecure Dependency',
-    path: 'Gemfile.lock',
-    line: 21,
-    urlPath: 'basePath/Gemfile.lock#L21',
-  },
-];
-
-export const headPerformance = [
-  {
-    subject: '/some/path',
-    metrics: [
-      {
-        name: 'Sitespeed Score',
-        value: 85,
-      },
-    ],
-  },
-  {
-    subject: '/some/other/path',
-    metrics: [
-      {
-        name: 'Sitespeed Score',
-        value: 79,
-        desiredSize: 'larger',
-      },
-      {
-        name: 'Requests',
-        value: 3,
-        desiredSize: 'smaller',
-      },
-    ],
-  },
-  {
-    subject: '/yet/another/path',
-    metrics: [
-      {
-        name: 'Sitespeed Score',
-        value: 80,
-      },
-    ],
-  },
-];
-
-export const basePerformance = [
-  {
-    subject: '/some/path',
-    metrics: [
-      {
-        name: 'Sitespeed Score',
-        value: 84,
-      },
-    ],
-  },
-  {
-    subject: '/some/other/path',
-    metrics: [
-      {
-        name: 'Sitespeed Score',
-        value: 80,
-        desiredSize: 'larger',
-      },
-      {
-        name: 'Requests',
-        value: 4,
-        desiredSize: 'smaller',
-      },
-    ],
-  },
-];
-
-export const codequalityParsedIssues = [
-  {
-    name: 'Insecure Dependency',
-    fingerprint: 'ca2e59451e98ae60ba2f54e3857c50e5',
-    path: 'Gemfile.lock',
-    line: 12,
-    urlPath: 'foo/Gemfile.lock',
-  },
-];
 
 export const mockStore = {
-  pipeline: { id: 0 },
-  mergePipeline: { id: 1 },
+  pipeline: {
+    id: 0,
+    iid: 0,
+    path: '/root/acets-app/pipelines/0',
+    details: {
+      status: {
+        details_path: '/root/review-app-tester/pipelines/66',
+        favicon:
+          '/assets/ci_favicons/favicon_status_success-8451333011eee8ce9f2ab25dc487fe24a8758c694827a582f17f42b0a90446a2. png',
+        group: 'success-with-warnings',
+        has_details: true,
+        icon: 'status_warning',
+        illustration: null,
+        label: 'passed with warnings',
+        text: 'passed',
+        tooltip: 'passed',
+      },
+    },
+  },
+  mergePipeline: {
+    id: 1,
+    iid: 1,
+    path: '/root/acets-app/pipelines/0',
+    details: {
+      status: {
+        details_path: '/root/review-app-tester/pipelines/66',
+        favicon:
+          '/assets/ci_favicons/favicon_status_success-8451333011eee8ce9f2ab25dc487fe24a8758c694827a582f17f42b0a90446a2. png',
+        group: 'success-with-warnings',
+        has_details: true,
+        icon: 'status_warning',
+        illustration: null,
+        label: 'passed with warnings',
+        text: 'passed',
+        tooltip: 'passed',
+      },
+    },
+  },
   targetBranch: 'target-branch',
   sourceBranch: 'source-branch',
   sourceBranchLink: 'source-branch-link',

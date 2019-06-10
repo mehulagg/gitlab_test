@@ -81,16 +81,35 @@ export default {
       required: false,
       default: '',
     },
+    createVulnerabilityFeedbackIssuePath: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    createVulnerabilityFeedbackMergeRequestPath: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    createVulnerabilityFeedbackDismissalPath: {
+      type: String,
+      required: false,
+      default: '',
+    },
     pipelineId: {
       type: Number,
       required: false,
       default: null,
     },
-    canCreateFeedback: {
+    canCreateIssue: {
       type: Boolean,
       required: true,
     },
-    canCreateIssue: {
+    canCreateMergeRequest: {
+      type: Boolean,
+      required: true,
+    },
+    canDismissVulnerability: {
       type: Boolean,
       required: true,
     },
@@ -149,6 +168,11 @@ export default {
     this.setSourceBranch(this.sourceBranch);
     this.setVulnerabilityFeedbackPath(this.vulnerabilityFeedbackPath);
     this.setVulnerabilityFeedbackHelpPath(this.vulnerabilityFeedbackHelpPath);
+    this.setCreateVulnerabilityFeedbackIssuePath(this.createVulnerabilityFeedbackIssuePath);
+    this.setCreateVulnerabilityFeedbackMergeRequestPath(
+      this.createVulnerabilityFeedbackMergeRequestPath,
+    );
+    this.setCreateVulnerabilityFeedbackDismissalPath(this.createVulnerabilityFeedbackDismissalPath);
     this.setPipelineId(this.pipelineId);
     this.setCanCreateIssuePermission(this.canCreateIssue);
     this.setCanCreateFeedbackPermission(this.canCreateFeedback);
@@ -200,13 +224,18 @@ export default {
       'fetchDastReports',
       'setVulnerabilityFeedbackPath',
       'setVulnerabilityFeedbackHelpPath',
+      'setCreateVulnerabilityFeedbackIssuePath',
+      'setCreateVulnerabilityFeedbackMergeRequestPath',
+      'setCreateVulnerabilityFeedbackDismissalPath',
       'setPipelineId',
       'setCanCreateIssuePermission',
       'setCanCreateFeedbackPermission',
-      'dismissIssue',
-      'revertDismissIssue',
+      'dismissVulnerability',
+      'revertDismissVulnerability',
       'createNewIssue',
       'createMergeRequest',
+      'openDismissalCommentBox',
+      'closeDismissalCommentBox',
     ]),
     summaryTextBuilder(reportType, issuesCount = 0) {
       if (issuesCount === 0) {
@@ -253,7 +282,7 @@ export default {
       :unresolved-issues="dependencyScanning.newIssues"
       :has-issues="dependencyScanning.newIssues.length > 0"
       :popover-options="dependencyScanningPopover"
-      class="js-dss-widget split-report-section"
+      class="js-dss-widget split-report-section qa-dependency-scanning-report"
     />
 
     <report-section
@@ -287,12 +316,15 @@ export default {
     <issue-modal
       :modal="modal"
       :vulnerability-feedback-help-path="vulnerabilityFeedbackHelpPath"
-      :can-create-issue-permission="canCreateIssuePermission"
-      :can-create-feedback-permission="canCreateFeedbackPermission"
+      :can-create-issue="canCreateIssue"
+      :can-create-merge-request="canCreateMergeRequest"
+      :can-dismiss-vulnerability="canDismissVulnerability"
+      @closeDismissalCommentBox="closeDismissalCommentBox()"
       @createNewIssue="createNewIssue"
       @createMergeRequest="createMergeRequest"
-      @dismissIssue="dismissIssue"
-      @revertDismissIssue="revertDismissIssue"
+      @dismissVulnerability="dismissVulnerability"
+      @openDismissalCommentBox="openDismissalCommentBox()"
+      @revertDismissVulnerability="revertDismissVulnerability"
     />
   </div>
 </template>

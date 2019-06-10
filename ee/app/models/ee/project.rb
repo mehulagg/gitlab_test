@@ -51,6 +51,7 @@ module EE
       has_many :approver_groups, as: :target, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
       has_many :approval_rules, class_name: 'ApprovalProjectRule'
       has_many :audit_events, as: :entity
+      has_many :designs, inverse_of: :project, class_name: 'DesignManagement::Design'
       has_many :path_locks
       has_many :vulnerability_feedback, class_name: 'Vulnerabilities::Feedback'
       has_many :vulnerabilities, class_name: 'Vulnerabilities::Occurrence'
@@ -61,6 +62,7 @@ module EE
       accepts_nested_attributes_for :software_license_policies, allow_destroy: true
       has_many :packages, class_name: 'Packages::Package'
       has_many :package_files, through: :packages, class_name: 'Packages::PackageFile'
+      has_many :merge_trains
 
       has_many :sourced_pipelines, class_name: 'Ci::Sources::Pipeline', foreign_key: :source_project_id
 
@@ -78,16 +80,18 @@ module EE
 
       scope :mirror, -> { where(mirror: true) }
 
-      scope :mirrors_to_sync, ->(freeze_at) do
+      scope :mirrors_to_sync, ->(freeze_at, limit: nil) do
         mirror
           .joins_import_state
           .where.not(import_state: { status: [:scheduled, :started] })
           .where("import_state.next_execution_timestamp <= ?", freeze_at)
           .where("import_state.retry_count <= ?", ::Gitlab::Mirror::MAX_RETRY)
+          .limit(limit)
       end
 
       scope :with_wiki_enabled, -> { with_feature_enabled(:wiki) }
       scope :within_shards, -> (shard_names) { where(repository_storage: Array(shard_names)) }
+      scope :outside_shards, -> (shard_names) { where.not(repository_storage: Array(shard_names)) }
       scope :verification_failed_repos, -> { joins(:repository_state).merge(ProjectRepositoryState.verification_failed_repos) }
       scope :verification_failed_wikis, -> { joins(:repository_state).merge(ProjectRepositoryState.verification_failed_wikis) }
       scope :for_plan_name, -> (name) { joins(namespace: :plan).where(plans: { name: name }) }
@@ -107,6 +111,7 @@ module EE
       delegate :log_jira_dvcs_integration_usage, :jira_dvcs_server_last_sync_at, :jira_dvcs_cloud_last_sync_at, to: :feature_usage
 
       delegate :merge_pipelines_enabled, :merge_pipelines_enabled=, :merge_pipelines_enabled?, to: :ci_cd_settings
+      delegate :merge_trains_enabled, :merge_trains_enabled=, :merge_trains_enabled?, to: :ci_cd_settings
 
       validates :repository_size_limit,
         numericality: { only_integer: true, greater_than_or_equal_to: 0, allow_nil: true }
@@ -145,7 +150,7 @@ module EE
     end
 
     def latest_pipeline_with_security_reports
-      ci_pipelines.newest_first(ref: default_branch).with_security_reports.first ||
+      ci_pipelines.newest_first(ref: default_branch).with_reports(::Ci::JobArtifact.security_reports).first ||
         ci_pipelines.newest_first(ref: default_branch).with_legacy_security_reports.first
     end
 
@@ -162,11 +167,7 @@ module EE
     end
 
     def shared_runners_limit_namespace
-      if ::Feature.enabled?(:shared_runner_minutes_on_root_namespace)
-        root_namespace
-      else
-        namespace
-      end
+      root_namespace
     end
 
     def mirror
@@ -178,7 +179,7 @@ module EE
       mirror? && !empty_repo?
     end
 
-    def fetch_mirror
+    def fetch_mirror(forced: false)
       return unless mirror?
 
       # Only send the password if it's needed
@@ -189,7 +190,7 @@ module EE
           username_only_import_url
         end
 
-      repository.fetch_upstream(url)
+      repository.fetch_upstream(url, forced: forced)
     end
 
     def can_override_approvers?
@@ -323,8 +324,6 @@ module EE
     end
 
     def visible_regular_approval_rules
-      return approval_rules.none unless ::Feature.enabled?(:approval_rules, self, default_enabled: true)
-
       strong_memoize(:visible_regular_approval_rules) do
         regular_rules = approval_rules.regular.order(:id)
 
@@ -362,6 +361,11 @@ module EE
       super && code_owner_approval_required_available?
     end
 
+    def require_password_to_approve
+      super && password_authentication_enabled_for_web?
+    end
+    alias_method :require_password_to_approve?, :require_password_to_approve
+
     def find_path_lock(path, exact_match: false, downstream: false)
       path_lock_finder = strong_memoize(:path_lock_finder) do
         ::Gitlab::PathLocksFinder.new(self)
@@ -372,7 +376,7 @@ module EE
 
     def import_url_updated?
       # check if import_url has been updated and it's not just the first assignment
-      import_url_changed? && changes['import_url'].first
+      saved_change_to_import_url? && saved_changes['import_url'].first
     end
 
     def remove_mirror_repository_reference
@@ -524,10 +528,6 @@ module EE
       feature_available?(:protected_environments)
     end
 
-    def merge_pipelines_enabled?
-      feature_available?(:merge_pipelines) && super
-    end
-
     # Because we use default_value_for we need to be sure
     # packages_enabled= method does exist even if we rollback migration.
     # Otherwise many tests from spec/migrations will fail.
@@ -579,6 +579,10 @@ module EE
       # GraphQL is also required for using Design Management
       feature_available?(:design_management) && ::Feature.enabled?(:design_management, self) &&
         ::Gitlab::Graphql.enabled?
+    end
+
+    def design_repository
+      @design_repository ||= DesignManagement::Repository.new(self)
     end
 
     private

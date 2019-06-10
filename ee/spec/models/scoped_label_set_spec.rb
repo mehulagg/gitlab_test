@@ -71,7 +71,7 @@ describe ScopedLabelSet do
       expect(set.contains_any?([kv_label2.id])).to eq(true)
     end
 
-    it 'returns true if any of label ids is in set' do
+    it 'returns false if certain label ids is not in set' do
       set = described_class.new('key', [kv_label1])
 
       expect(set.contains_any?([kv_label2.id])).to eq(false)
@@ -83,6 +83,12 @@ describe ScopedLabelSet do
       set = described_class.new('key', [kv_label1, kv_label3])
 
       expect(set.last_id_by_order([kv_label1.id, kv_label3.id, kv_label2.id])).to eq(kv_label3.id)
+    end
+
+    it 'returns last label present in the set ordered by custom order if there is single item' do
+      set = described_class.new('key', [kv_label1, kv_label3])
+
+      expect(set.last_id_by_order([kv_label3.id])).to eq(kv_label3.id)
     end
   end
 end

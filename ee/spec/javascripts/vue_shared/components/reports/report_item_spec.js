@@ -4,7 +4,7 @@ import { STATUS_FAILED, STATUS_SUCCESS } from '~/reports/constants';
 import { componentNames } from 'ee/vue_shared/components/reports/issue_body';
 import store from 'ee/vue_shared/security_reports/store';
 import mountComponent, { mountComponentWithStore } from 'spec/helpers/vue_mount_component_helper';
-import { codequalityParsedIssues } from 'spec/vue_mr_widget/mock_data';
+import { codequalityParsedIssues } from 'ee_spec/vue_mr_widget/mock_data';
 import {
   sastParsedIssues,
   dockerReportParsed,
@@ -123,6 +123,35 @@ describe('Report issue', () => {
       expect(vm.$el.textContent).toContain(
         `${parsedDast[0].severity} (${parsedDast[0].confidence})`,
       );
+    });
+  });
+
+  describe('showReportSectionStatusIcon', () => {
+    it('does not render CI Status Icon when showReportSectionStatusIcon is false', () => {
+      vm = mountComponentWithStore(ReportIssue, {
+        store,
+        props: {
+          issue: parsedDast[0],
+          component: componentNames.DastIssueBody,
+          status: STATUS_SUCCESS,
+          showReportSectionStatusIcon: false,
+        },
+      });
+
+      expect(vm.$el.querySelectorAll('.report-block-list-icon')).toHaveLength(0);
+    });
+
+    it('shows status icon when unspecified', () => {
+      vm = mountComponentWithStore(ReportIssue, {
+        store,
+        props: {
+          issue: parsedDast[0],
+          component: componentNames.DastIssueBody,
+          status: STATUS_SUCCESS,
+        },
+      });
+
+      expect(vm.$el.querySelectorAll('.report-block-list-icon')).toHaveLength(1);
     });
   });
 });

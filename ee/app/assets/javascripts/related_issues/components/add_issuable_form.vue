@@ -1,9 +1,11 @@
 <script>
 import $ from 'jquery';
-import GfmAutoComplete from '~/gfm_auto_complete';
+import GfmAutoComplete from 'ee_else_ce/gfm_auto_complete';
 import { GlLoadingIcon } from '@gitlab/ui';
 import issueToken from './issue_token.vue';
 import { autoCompleteTextMap, inputPlaceholderTextMap } from '../constants';
+
+const SPACE_FACTOR = 1;
 
 export default {
   name: 'AddIssuableForm',
@@ -71,6 +73,7 @@ export default {
       this.gfmAutoComplete = new GfmAutoComplete(this.autoCompleteSources);
       this.gfmAutoComplete.setup($input, {
         issues: true,
+        epics: true,
       });
       $input.on('shown-issues.atwho', this.onAutoCompleteToggled.bind(this, true));
       $input.on('hidden-issues.atwho', this.onAutoCompleteToggled.bind(this, false));
@@ -89,9 +92,31 @@ export default {
   methods: {
     onInput() {
       const { value } = this.$refs.input;
+      const caretPos = $(this.$refs.input).caret('pos');
+      const rawRefs = value.split(/\s/);
+      let touchedReference;
+      let position = 0;
+
+      const untouchedRawRefs = rawRefs
+        .filter(ref => {
+          let isTouched = false;
+          if (caretPos >= position && caretPos <= position + ref.length) {
+            touchedReference = ref;
+            isTouched = true;
+          }
+
+          // `+ SPACE_FACTOR` to factor in the missing space we split at earlier
+          position = position + ref.length + SPACE_FACTOR;
+
+          return !isTouched;
+        })
+        .filter(ref => ref.trim().length > 0);
+
       this.$emit('addIssuableFormInput', {
         newValue: value,
-        caretPos: $(this.$refs.input).caret('pos'),
+        untouchedRawReferences: untouchedRawRefs,
+        touchedReference,
+        caretPos,
       });
     },
     onFocus() {
@@ -143,7 +168,7 @@ export default {
         -->
         <li
           v-for="(reference, index) in pendingReferences"
-          :key="`related-issues-token-${index}`"
+          :key="`related-issues-token-${reference}`"
           class="js-add-issuable-form-token-list-item add-issuable-form-token-list-item"
         >
           <issue-token
@@ -166,6 +191,7 @@ export default {
             @input="onInput"
             @focus="onFocus"
             @blur="onBlur"
+            @keyup.escape.exact="onFormCancel"
           />
         </li>
       </ul>

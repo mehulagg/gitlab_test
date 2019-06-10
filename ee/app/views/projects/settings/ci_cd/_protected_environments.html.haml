@@ -1,4 +1,4 @@
-- expanded = Rails.env.test?
+- expanded = expanded_by_default?
 - can_admin_project = can?(current_user, :admin_project, @project)
 
 - if protected_environments_enabled?(@project)
@@ -9,7 +9,7 @@
       %button.btn.js-settings-toggle{ type: 'button' }
         = expanded ? _('Collapse') : _('Expand')
       %p
-        = s_('ProtectedEnvironment|Protect Environments in order to restrict who can execute deployments.')
+        = s_('ProtectedEnvironment|Protecting an environment restricts the users who can execute deployments.')
     .settings-content
       = render 'projects/protected_environments/form'
 

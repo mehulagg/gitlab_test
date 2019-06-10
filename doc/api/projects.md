@@ -154,8 +154,10 @@ When the user is authenticated and `simple` is not set this returns something li
       "commit_count": 37,
       "storage_size": 1038090,
       "repository_size": 1038090,
+      "wiki_size" : 0,
       "lfs_objects_size": 0,
-      "job_artifacts_size": 0
+      "job_artifacts_size": 0,
+      "packages_size": 0
     },
     "_links": {
       "self": "http://example.com/api/v4/projects",
@@ -236,8 +238,10 @@ When the user is authenticated and `simple` is not set this returns something li
       "commit_count": 12,
       "storage_size": 2066080,
       "repository_size": 2066080,
+      "wiki_size" : 0,
       "lfs_objects_size": 0,
-      "job_artifacts_size": 0
+      "job_artifacts_size": 0,
+      "packages_size": 0
     },
     "_links": {
       "self": "http://example.com/api/v4/projects",
@@ -344,8 +348,10 @@ GET /users/:user_id/projects
       "commit_count": 37,
       "storage_size": 1038090,
       "repository_size": 1038090,
+      "wiki_size" : 0,
       "lfs_objects_size": 0,
-      "job_artifacts_size": 0
+      "job_artifacts_size": 0,
+      "packages_size": 0
     },
     "_links": {
       "self": "http://example.com/api/v4/projects",
@@ -425,8 +431,10 @@ GET /users/:user_id/projects
       "commit_count": 12,
       "storage_size": 2066080,
       "repository_size": 2066080,
+      "wiki_size" : 0,
       "lfs_objects_size": 0,
-      "job_artifacts_size": 0
+      "job_artifacts_size": 0,
+      "packages_size": 0
     },
     "_links": {
       "self": "http://example.com/api/v4/projects",
@@ -496,7 +504,9 @@ GET /projects/:id
     "name": "Diaspora",
     "path": "diaspora",
     "kind": "group",
-    "full_path": "diaspora"
+    "full_path": "diaspora",
+    "avatar_url": "http://localhost:3000/uploads/group/avatar/3/foo.jpg",
+    "web_url": "http://localhost:3000/groups/diaspora"
   },
   "import_status": "none",
   "import_error": null,
@@ -550,8 +560,10 @@ GET /projects/:id
     "commit_count": 37,
     "storage_size": 1038090,
     "repository_size": 1038090,
+    "wiki_size" : 0,
     "lfs_objects_size": 0,
-    "job_artifacts_size": 0
+    "job_artifacts_size": 0,
+    "packages_size": 0
   },
   "_links": {
     "self": "http://example.com/api/v4/projects",
@@ -564,6 +576,8 @@ GET /projects/:id
   }
 }
 ```
+
+**Note**: The `web_url` and `avatar_url` attributes on `namespace` were [introduced][ce-27427] in GitLab 11.11.
 
 If the project is a fork, and you provide a valid token to authenticate, the
 `forked_from_project` field will appear in the response.
@@ -1585,7 +1599,7 @@ GET /projects/:id/push_rule
 {
   "id": 1,
   "project_id": 3,
-  "commit_message_regex": "Fixes \d +\",
+  "commit_message_regex": "Fixes \d+\..*",
   "branch_name_regex": "",
   "deny_delete_tag": false,
   "created_at": "2012-10-12T17:04:47Z",
@@ -1593,9 +1607,15 @@ GET /projects/:id/push_rule
   "prevent_secrets": false,
   "author_email_regex": "",
   "file_name_regex": "",
-  "max_file_size": 5
+  "max_file_size": 5,
+  "commit_committer_check": false
 }
 ```
+
+The following attributes are restricted to certain plans, and will not appear if
+you do not have access to those features:
+
+* `commit_committer_check` only available on **[PREMIUM]**
 
 ### Add project push rule
 
@@ -1605,17 +1625,18 @@ Adds a push rule to a specified project.
 POST /projects/:id/push_rule
 ```
 
-| Attribute | Type | Required | Description |
-| --------- | ---- | -------- | ----------- |
-| `id` | integer/string | yes | The ID of the project or NAMESPACE/PROJECT_NAME |
-| `deny_delete_tag` | boolean | no | Deny deleting a tag |
-| `member_check` | boolean | no | Restrict commits by author (email) to existing GitLab users |
-| `prevent_secrets` | boolean | no | GitLab will reject any files that are likely to contain secrets |
-| `commit_message_regex` | string | no | All commit messages must match this, e.g. `Fixed \d+\..*` |
-| `branch_name_regex` | string | no | All branch names must match this, e.g. `(feature|hotfix)\/*` |
-| `author_email_regex` | string | no | All commit author emails must match this, e.g. `@my-company.com$` |
-| `file_name_regex` | string | no | All commited filenames must **not** match this, e.g. `(jar|exe)$` |
-| `max_file_size` | integer | no | Maximum file size (MB) |
+| Attribute                              | Type           | Required | Description |
+| -------------------------------------- | -------------- | -------- | ----------- |
+| `id`                                   | integer/string | yes      | The ID of the project or NAMESPACE/PROJECT_NAME |
+| `deny_delete_tag` **[STARTER]**        | boolean        | no       | Deny deleting a tag |
+| `member_check` **[STARTER]**           | boolean        | no       | Restrict commits by author (email) to existing GitLab users |
+| `prevent_secrets` **[STARTER]**        | boolean        | no       | GitLab will reject any files that are likely to contain secrets |
+| `commit_message_regex` **[STARTER]**   | string         | no       | All commit messages must match this, e.g. `Fixed \d+\..*` |
+| `branch_name_regex` **[STARTER]**      | string         | no       | All branch names must match this, e.g. `(feature|hotfix)\/*` |
+| `author_email_regex` **[STARTER]**     | string         | no       | All commit author emails must match this, e.g. `@my-company.com$` |
+| `file_name_regex` **[STARTER]**        | string         | no       | All commited filenames must **not** match this, e.g. `(jar|exe)$` |
+| `max_file_size` **[STARTER]**          | integer        | no       | Maximum file size (MB) |
+| `commit_committer_check` **[PREMIUM]** | boolean        | no       | Users can only push commits to this repository that were committed with one of their own verified emails. |
 
 ### Edit project push rule
 
@@ -1625,17 +1646,18 @@ Edits a push rule for a specified project.
 PUT /projects/:id/push_rule
 ```
 
-| Attribute | Type | Required | Description |
-| --------- | ---- | -------- | ----------- |
-| `id` | integer/string | yes | The ID of the project or NAMESPACE/PROJECT_NAME |
-| `deny_delete_tag` | boolean | no | Deny deleting a tag |
-| `member_check` | boolean | no | Restrict commits by author (email) to existing GitLab users |
-| `prevent_secrets` | boolean | no | GitLab will reject any files that are likely to contain secrets |
-| `commit_message_regex` | string | no | All commit messages must match this, e.g. `Fixed \d+\..*` |
-| `branch_name_regex` | string | no | All branch names must match this, e.g. `(feature|hotfix)\/*` |
-| `author_email_regex` | string | no | All commit author emails must match this, e.g. `@my-company.com$` |
-| `file_name_regex` | string | no | All commited filenames must **not** match this, e.g. `(jar|exe)$` |
-| `max_file_size` | integer | no | Maximum file size (MB) |
+| Attribute                              | Type           | Required | Description |
+| -------------------------------------- | -------------- | -------- | ----------- |
+| `id`                                   | integer/string | yes      | The ID of the project or NAMESPACE/PROJECT_NAME |
+| `deny_delete_tag` **[STARTER]**        | boolean        | no       | Deny deleting a tag |
+| `member_check` **[STARTER]**           | boolean        | no       | Restrict commits by author (email) to existing GitLab users |
+| `prevent_secrets` **[STARTER]**        | boolean        | no       | GitLab will reject any files that are likely to contain secrets |
+| `commit_message_regex` **[STARTER]**   | string         | no       | All commit messages must match this, e.g. `Fixed \d+\..*` |
+| `branch_name_regex` **[STARTER]**      | string         | no       | All branch names must match this, e.g. `(feature|hotfix)\/*` |
+| `author_email_regex` **[STARTER]**     | string         | no       | All commit author emails must match this, e.g. `@my-company.com$` |
+| `file_name_regex` **[STARTER]**        | string         | no       | All commited filenames must **not** match this, e.g. `(jar|exe)$` |
+| `max_file_size` **[STARTER]**          | integer        | no       | Maximum file size (MB) |
+| `commit_committer_check` **[PREMIUM]** | boolean        | no       | Users can only push commits to this repository that were committed with one of their own verified emails. |
 
 ### Delete project push rule
 
@@ -1724,3 +1746,4 @@ GET /projects/:id/snapshot
 
 [eep]: https://about.gitlab.com/pricing/ "Available only in GitLab Premium"
 [ee-6137]: https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/6137
+[ce-27427]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/27427

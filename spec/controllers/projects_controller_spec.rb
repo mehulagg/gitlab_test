@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require('spec_helper')
 
 describe ProjectsController do
@@ -235,29 +237,6 @@ describe ProjectsController do
         get :show, params: { namespace_id: public_project.namespace, id: public_project }
         expect(response).to render_template('_readme')
       end
-
-      context 'project repo over limit' do
-        before do
-          allow_any_instance_of(EE::Project)
-            .to receive(:above_size_limit?).and_return(true)
-
-          project.add_maintainer(user)
-        end
-
-        it 'shows the over size limit warning message for project members' do
-          allow(controller).to receive(:current_user).and_return(user)
-
-          get :show, params: { namespace_id: public_project.namespace.path, id: public_project.path }
-
-          expect(response).to render_template('_above_size_limit_warning')
-        end
-
-        it 'does not show the message for non members' do
-          get :show, params: { namespace_id: public_project.namespace.path, id: public_project.path }
-
-          expect(response).not_to render_template('_above_size_limit_warning')
-        end
-      end
     end
 
     context "when the url contains .atom" do
@@ -313,6 +292,18 @@ describe ProjectsController do
   end
 
   describe 'GET edit' do
+    it 'allows an admin user to access the page' do
+      sign_in(create(:user, :admin))
+
+      get :edit,
+          params: {
+            namespace_id: project.namespace.path,
+            id: project.path
+          }
+
+      expect(response).to have_gitlab_http_status(200)
+    end
+
     it 'sets the badge API endpoint' do
       sign_in(user)
       project.add_maintainer(user)
@@ -748,32 +739,6 @@ describe ProjectsController do
           expect(response).to have_gitlab_http_status(404)
         end
       end
-    end
-  end
-
-  describe 'GET edit' do
-    it 'does not allow an auditor user to access the page' do
-      sign_in(create(:user, :auditor))
-
-      get :edit,
-          params: {
-            namespace_id: project.namespace.path,
-            id: project.path
-          }
-
-      expect(response).to have_gitlab_http_status(404)
-    end
-
-    it 'allows an admin user to access the page' do
-      sign_in(create(:user, :admin))
-
-      get :edit,
-          params: {
-            namespace_id: project.namespace.path,
-            id: project.path
-          }
-
-      expect(response).to have_gitlab_http_status(200)
     end
   end
 

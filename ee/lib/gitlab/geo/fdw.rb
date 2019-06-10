@@ -19,8 +19,12 @@ module Gitlab
           value.nil? ? true : value
         end
 
+        def disabled?
+          !enabled?
+        end
+
         def enabled_for_selective_sync?
-          enabled? && Feature.enabled?(:use_fdw_queries_for_selective_sync)
+          enabled? && Feature.enabled?(:use_fdw_queries_for_selective_sync, default_enabled: true)
         end
 
         # Return full table name with foreign schema
@@ -58,6 +62,8 @@ module Gitlab
 
         def fdw_capable?
           has_foreign_server? && has_foreign_schema? && foreign_schema_tables_count.positive?
+        rescue ::Geo::TrackingBase::SecondaryNotConfigured
+          false
         end
 
         # Check if there is at least one foreign server configured

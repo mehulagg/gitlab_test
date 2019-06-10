@@ -29,6 +29,8 @@ module EE
         mount ::API::Scim
         mount ::API::ManagedLicenses
         mount ::API::ProjectApprovals
+        mount ::API::Vulnerabilities
+        mount ::API::MergeRequestApprovals
 
         version 'v3', using: :path do
           # Although the following endpoints are kept behind V3 namespace,

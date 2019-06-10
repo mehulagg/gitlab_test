@@ -1,7 +1,7 @@
 <script>
-import _ from 'underscore';
 import { mapActions } from 'vuex';
 import { GlButton, GlSkeletonLoading } from '@gitlab/ui';
+import Icon from '~/vue_shared/components/icon.vue';
 import SeverityBadge from 'ee/vue_shared/security_reports/components/severity_badge.vue';
 import VulnerabilityActionButtons from './vulnerability_action_buttons.vue';
 import VulnerabilityIssueLink from './vulnerability_issue_link.vue';
@@ -9,9 +9,10 @@ import VulnerabilityIssueLink from './vulnerability_issue_link.vue';
 export default {
   name: 'SecurityDashboardTableRow',
   components: {
-    SeverityBadge,
     GlButton,
     GlSkeletonLoading,
+    Icon,
+    SeverityBadge,
     VulnerabilityActionButtons,
     VulnerabilityIssueLink,
   },
@@ -47,12 +48,12 @@ export default {
       );
     },
     canDismissVulnerability() {
-      const path = this.vulnerability.vulnerability_feedback_dismissal_path;
-      return _.isString(path) && !_.isEmpty(path);
+      const path = this.vulnerability.create_vulnerability_feedback_dismissal_path;
+      return Boolean(path);
     },
     canCreateIssue() {
-      const path = this.vulnerability.vulnerability_feedback_issue_path;
-      return _.isString(path) && !_.isEmpty(path) && !this.hasIssue;
+      const path = this.vulnerability.create_vulnerability_feedback_issue_path;
+      return Boolean(path) && !this.hasIssue;
     },
   },
   methods: {
@@ -79,7 +80,16 @@ export default {
             @click="openModal({ vulnerability })"
             >{{ vulnerability.name }}</gl-button
           >
-          <span v-show="isDismissed" class="vertical-align-middle">DISMISSED</span>
+          <template v-if="isDismissed">
+            <icon
+              v-show="vulnerability.dismissal_feedback.comment_details"
+              name="comment"
+              css-classes="text-warning vertical-align-middle"
+            />
+            <span class="vertical-align-middle text-uppercase">{{
+              s__('vulnerability|dismissed')
+            }}</span>
+          </template>
           <vulnerability-issue-link
             v-if="hasIssue"
             class="text-nowrap"
@@ -103,6 +113,7 @@ export default {
       <div class="table-mobile-header" role="rowheader">{{ s__('Reports|Actions') }}</div>
       <div class="table-mobile-content action-buttons d-flex justify-content-end">
         <vulnerability-action-buttons
+          v-if="!isLoading"
           :vulnerability="vulnerability"
           :can-create-issue="canCreateIssue"
           :can-dismiss-vulnerability="canDismissVulnerability"

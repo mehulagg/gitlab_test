@@ -27,7 +27,7 @@ integration services must be enabled.
 
 Prometheus needs to be deployed into the cluster and configured properly in order to gather Kubernetes metrics. GitLab supports two methods for doing so:
 
-- GitLab [integrates with Kubernetes](../../clusters/index.md), and can [deploy Prometheus into a connected cluster](../prometheus.html#managed-prometheus-on-kubernetes). It is automatically configured to collect Kubernetes metrics.
+- GitLab [integrates with Kubernetes](../../clusters/index.md), and can [deploy Prometheus into a connected cluster](../prometheus.md#managed-prometheus-on-kubernetes). It is automatically configured to collect Kubernetes metrics.
 - To configure your own Prometheus server, you can follow the [Prometheus documentation](https://prometheus.io/docs/introduction/overview/).
 
 ## Specifying the Environment
@@ -36,7 +36,7 @@ In order to isolate and only display relevant CPU and Memory metrics for a given
 
 Instead, the [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) or [DaemonSet](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/) name should begin with [CI_ENVIRONMENT_SLUG](../../../../ci/variables/README.md#predefined-environment-variables). It can be followed by a `-` and additional content if desired. For example, a deployment name of `review-homepage-5620p5` would match the `review/homepage` environment.
 
-## Displaying Canary metrics
+## Displaying Canary metrics **[PREMIUM]**
 
 > Introduced in [GitLab 10.2](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/15201).
 

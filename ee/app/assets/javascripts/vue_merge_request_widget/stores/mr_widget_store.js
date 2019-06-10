@@ -21,12 +21,25 @@ export default class MergeRequestStore extends CEMergeRequestStore {
     this.vulnerabilityFeedbackHelpPath = data.vulnerability_feedback_help_path;
     this.approvalsHelpPath = data.approvals_help_path;
     this.securityReportsPipelineId = data.pipeline_id;
+    this.createVulnerabilityFeedbackIssuePath = data.create_vulnerability_feedback_issue_path;
+    this.createVulnerabilityFeedbackMergeRequestPath =
+      data.create_vulnerability_feedback_merge_request_path;
+    this.createVulnerabilityFeedbackDismissalPath =
+      data.create_vulnerability_feedback_dismissal_path;
+    this.canCreateIssue = Boolean(this.createVulnerabilityFeedbackIssuePath);
+    this.canCreateMergeRequest = Boolean(this.createVulnerabilityFeedbackMergeRequestPath);
+    this.canDismissVulnerability = Boolean(this.createVulnerabilityFeedbackDismissalPath);
     this.canCreateFeedback = data.can_create_feedback || false;
+    this.visualReviewAppAvailable = data.visual_review_app_available;
+    this.visualReviewFF = gon && gon.featues && gon.features.visualReviewApp;
+    this.appUrl = gon && gon.gitlab_url;
 
     this.initCodeclimate(data);
     this.initPerformanceReport(data);
     this.licenseManagement = data.license_management;
     this.metricsReportsPath = data.metrics_reports_path;
+
+    this.blockingMergeRequests = data.blocking_merge_requests;
   }
 
   setData(data, isRebased) {
@@ -48,7 +61,6 @@ export default class MergeRequestStore extends CEMergeRequestStore {
     this.hasApprovalsAvailable = Boolean(
       data.has_approvals_available || this.hasApprovalsAvailable,
     );
-    this.approvalsPath = data.approvals_path || this.approvalsPath;
     this.apiApprovalsPath = data.api_approvals_path || this.apiApprovalsPath;
     this.apiApprovalSettingsPath = data.api_approval_settings_path || this.apiApprovalSettingsPath;
     this.apiApprovePath = data.api_approve_path || this.apiApprovePath;
@@ -57,14 +69,9 @@ export default class MergeRequestStore extends CEMergeRequestStore {
 
   setApprovals(data) {
     this.approvals = mapApprovalsResponse(data);
-    this.approvalsLeft = !!data.approvals_left;
-    if (gon.features.approvalRules) {
-      this.isApproved = data.approved || false;
-      this.preventMerge = !this.isApproved;
-    } else {
-      this.isApproved = !this.approvalsLeft || false;
-      this.preventMerge = this.hasApprovalsAvailable && this.approvalsLeft;
-    }
+    this.approvalsLeft = Boolean(data.approvals_left);
+    this.isApproved = data.approved || false;
+    this.preventMerge = !this.isApproved;
   }
 
   setApprovalRules(data) {

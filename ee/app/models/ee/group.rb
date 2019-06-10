@@ -19,11 +19,14 @@ module EE
 
       has_one :saml_provider
       has_one :insight, foreign_key: :namespace_id
-      accepts_nested_attributes_for :insight
+      accepts_nested_attributes_for :insight, allow_destroy: true
       has_one :scim_oauth_access_token
 
       has_many :ldap_group_links, foreign_key: 'group_id', dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
       has_many :hooks, dependent: :destroy, class_name: 'GroupHook' # rubocop:disable Cop/ActiveRecordDependent
+
+      has_one :dependency_proxy_setting, class_name: 'DependencyProxy::GroupSetting'
+      has_many :dependency_proxy_blobs, class_name: 'DependencyProxy::Blob'
 
       # We cannot simply set `has_many :audit_events, as: :entity, dependent: :destroy`
       # here since Group inherits from Namespace, the entity_type would be set to `Namespace`.
@@ -108,6 +111,11 @@ module EE
         .for_pipelines(all_pipelines.with_vulnerabilities.latest_successful_ids_per_project)
     end
 
+    def latest_vulnerabilities_with_sha
+      Vulnerabilities::Occurrence
+        .for_pipelines_with_sha(all_pipelines.with_vulnerabilities.latest_successful_ids_per_project)
+    end
+
     def all_vulnerabilities
       Vulnerabilities::Occurrence
         .for_pipelines(all_pipelines.with_vulnerabilities.success)
@@ -156,6 +164,11 @@ module EE
     override :multiple_issue_boards_available?
     def multiple_issue_boards_available?
       feature_available?(:multiple_group_issue_boards)
+    end
+
+    def group_project_template_available?
+      feature_available?(:group_project_templates) ||
+        (custom_project_templates_group_id? && Time.zone.now <= GroupsWithTemplatesFinder::CUT_OFF_DATE)
     end
 
     def actual_size_limit

@@ -112,9 +112,7 @@ export default {
       const truncatedContentSha = _.escape(truncateSha(this.diffFile.content_sha));
       return sprintf(
         s__('MergeRequests|View file @ %{commitId}'),
-        {
-          commitId: `<span class="commit-sha">${truncatedContentSha}</span>`,
-        },
+        { commitId: truncatedContentSha },
         false,
       );
     },
@@ -242,7 +240,7 @@ export default {
         css-class="btn-default btn-transparent btn-clipboard"
       />
 
-      <small v-if="isModeChanged" ref="fileMode">
+      <small v-if="isModeChanged" ref="fileMode" class="mr-1">
         {{ diffFile.a_mode }} → {{ diffFile.b_mode }}
       </small>
 
@@ -256,16 +254,17 @@ export default {
       <diff-stats :added-lines="diffFile.added_lines" :removed-lines="diffFile.removed_lines" />
       <div class="btn-group" role="group">
         <template v-if="diffFile.blob && diffFile.blob.readable_text">
-          <button
-            :disabled="!diffHasDiscussions(diffFile)"
-            :class="{ active: hasExpandedDiscussions }"
-            :title="s__('MergeRequests|Toggle comments for this file')"
-            class="js-btn-vue-toggle-comments btn"
-            type="button"
-            @click="handleToggleDiscussions"
-          >
-            <icon name="comment" />
-          </button>
+          <span v-gl-tooltip.hover :title="s__('MergeRequests|Toggle comments for this file')">
+            <gl-button
+              :disabled="!diffHasDiscussions(diffFile)"
+              :class="{ active: hasExpandedDiscussions }"
+              class="js-btn-vue-toggle-comments btn"
+              type="button"
+              @click="handleToggleDiscussions"
+            >
+              <icon name="comment" />
+            </gl-button>
+          </span>
 
           <edit-button
             v-if="!diffFile.deleted_file"
@@ -303,7 +302,7 @@ export default {
           class="view-file js-view-file-button"
           :title="viewFileButtonText"
         >
-          <icon name="external-link" />
+          <icon name="doc-text" />
         </gl-button>
 
         <a

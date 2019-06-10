@@ -15,6 +15,7 @@ class Projects::GitHttpClientController < Projects::ApplicationController
   alias_method :authenticated_user, :actor
 
   # Git clients will not know what authenticity token to send along
+  skip_around_action :set_session_storage
   skip_before_action :verify_authenticity_token
   skip_before_action :repository
   before_action :authenticate_user
@@ -83,7 +84,7 @@ class Projects::GitHttpClientController < Projects::ApplicationController
 
   def render_missing_personal_access_token
     render plain: "HTTP Basic: Access denied\n" \
-                  "You must use a personal access token with 'api' scope for Git over HTTP.\n" \
+                  "You must use a personal access token with 'read_repository' or 'write_repository' scope for Git over HTTP.\n" \
                   "You can generate one at #{profile_personal_access_tokens_url}",
            status: :unauthorized
   end

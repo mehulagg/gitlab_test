@@ -1,6 +1,21 @@
 # Discussions API
 
-Discussions are set of related notes on snippets, issues, epics, merge requests or commits.
+Discussions are a set of related notes on:
+
+- Snippets
+- Issues
+- Epics **[ULTIMATE]**
+- Merge requests
+- Commits
+
+This includes system notes, which are notes about changes to the object (for example, when a milestone changes, there will be a corresponding system note). Label notes are not part of this API, but recorded as separate events in [resource label events](resource_label_events.md).
+
+## Discussions pagination
+
+By default, `GET` requests return 20 results at a time because the API results
+are paginated.
+
+Read more on [pagination](README.md#pagination).
 
 ## Issues
 
@@ -144,7 +159,8 @@ curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab
 
 ### Add note to existing issue discussion
 
-Adds a new note to the discussion.
+Adds a new note to the discussion. This can also
+[create a discussion from a single comment](../user/discussions/#start-a-discussion-by-replying-to-a-standard-comment).
 
 ```
 POST /projects/:id/issues/:issue_iid/discussions/:discussion_id/notes
@@ -557,7 +573,8 @@ curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab
 
 ### Add note to existing epic discussion
 
-Adds a new note to the discussion.
+Adds a new note to the discussion. This can also
+[create a discussion from a single comment](../user/discussions/#start-a-discussion-by-replying-to-a-standard-comment).
 
 ```
 POST /groups/:id/epics/:epic_id/discussions/:discussion_id/notes
@@ -850,7 +867,8 @@ curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.
 
 ### Add note to existing merge request discussion
 
-Adds a new note to the discussion.
+Adds a new note to the discussion. This can also
+[create a discussion from a single comment](../user/discussions/#start-a-discussion-by-replying-to-a-standard-comment).
 
 ```
 POST /projects/:id/merge_requests/:merge_request_iid/discussions/:discussion_id/notes

@@ -16,6 +16,7 @@ import TimeTracker from '~/sidebar/components/time_tracking/time_tracker.vue';
 import MilestoneSelect from '~/milestone_select';
 import RemoveBtn from './sidebar/remove_issue.vue';
 import boardsStore from '../stores/boards_store';
+import { isScopedLabel } from '~/lib/utils/common_utils';
 
 export default Vue.extend({
   components: {
@@ -44,7 +45,7 @@ export default Vue.extend({
       return Object.keys(this.issue).length;
     },
     milestoneTitle() {
-      return this.issue.milestone ? this.issue.milestone.title : 'No Milestone';
+      return this.issue.milestone ? this.issue.milestone.title : __('No Milestone');
     },
     canRemove() {
       return !this.list.preset;
@@ -139,6 +140,12 @@ export default Vue.extend({
           this.loadingAssignees = false;
           Flash(__('An error occurred while saving assignees'));
         });
+    },
+    showScopedLabels(label) {
+      return boardsStore.scopedLabels.enabled && isScopedLabel(label);
+    },
+    helpLink() {
+      return boardsStore.scopedLabels.helpLink;
     },
   },
 });

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Oauth::GeoAuthController do
+describe Oauth::GeoAuthController, :geo do
   include EE::GeoHelpers
 
   # The Geo OAuth workflow depends on the OAuth application and the URL
@@ -82,7 +82,7 @@ describe Oauth::GeoAuthController do
           it "redirects to primary node's oauth endpoint" do
             get :callback, params: { state: login_state }
 
-            expect(response).to redirect_to('/')
+            expect(response).to redirect_to(secondary_node.uri.path)
           end
         end
 
@@ -92,7 +92,7 @@ describe Oauth::GeoAuthController do
 
         context 'with a tampered HOST header' do
           before do
-            request.headers['HOST'] = 'http://this.is.not.my.host'
+            request.headers['HOST'] = 'this.is.not.my.host'
           end
 
           it_behaves_like 'a valid redirect to redirect_url'
@@ -100,7 +100,7 @@ describe Oauth::GeoAuthController do
 
         context 'with a tampered X-Forwarded-Host header' do
           before do
-            request.headers['X-Forwarded-Host'] = 'http://this.is.not.my.host'
+            request.headers['X-Forwarded-Host'] = 'this.is.not.my.host'
           end
 
           it_behaves_like 'a valid redirect to redirect_url'

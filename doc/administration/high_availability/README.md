@@ -64,19 +64,19 @@ larger one.
 
 - 1 PostgreSQL node
 - 1 Redis node
-- 2 or more GitLab application nodes (Unicorn, Workhorse, Sidekiq)
 - 1 NFS/Gitaly storage server
+- 2 or more GitLab application nodes (Unicorn, Workhorse, Sidekiq)
 
 #### Installation Instructions
 
-Complete the following installation steps in order. A link at the end of each 
-section will bring you back to the Scalable Architecture Examples section so 
+Complete the following installation steps in order. A link at the end of each
+section will bring you back to the Scalable Architecture Examples section so
 you can continue with the next step.
 
-1. [PostgreSQL](./database.md#postgresql-in-a-scaled-environment)
-1. [Redis](./redis.md#redis-in-a-scaled-environment)
-1. [Gitaly](./gitaly.md) (recommended) or [NFS](./nfs.md)
-1. [GitLab application nodes](./gitlab.md)
+1. [PostgreSQL](database.md#postgresql-in-a-scaled-environment)
+1. [Redis](redis.md#redis-in-a-scaled-environment)
+1. [Gitaly](gitaly.md) (recommended) or [NFS](nfs.md)
+1. [GitLab application nodes](gitlab.md)
 
 ### Full Scaling
 
@@ -88,9 +88,9 @@ in size, indicating that there is contention or not enough resources.
 
 - 1 PostgreSQL node
 - 1 Redis node
-- 2 or more GitLab application nodes (Unicorn, Workhorse)
-- 2 or more Sidekiq nodes
 - 2 or more NFS/Gitaly storage servers
+- 2 or more Sidekiq nodes
+- 2 or more GitLab application nodes (Unicorn, Workhorse)
 
 ## High Availability Architecture Examples
 
@@ -135,7 +135,7 @@ the contention.
 - 2 or more GitLab application nodes (Unicorn, Workhorse, Sidekiq, PGBouncer)
 - 1 NFS/Gitaly server
 
-![Horizontal architecture diagram](../img/high_availability/horizontal.png)
+![Horizontal architecture diagram](img/horizontal.png)
 
 ### Hybrid
 
@@ -145,13 +145,37 @@ environments this is a good architecture to consider if you foresee or do have
 contention due to certain workloads.
 
 - 3 PostgreSQL nodes
+- 1 PgBouncer node
 - 2 Redis nodes
 - 3 Consul/Sentinel nodes
 - 2 or more Sidekiq nodes
-- 2 or more Web nodes (Unicorn, Workhorse, PGBouncer)
+- 2 or more GitLab application nodes (Unicorn, Workhorse)
 - 1 or more NFS/Gitaly servers
+- 1 Monitoring node (Prometheus, Grafana)
 
-![Hybrid architecture diagram](../img/high_availability/hybrid.png)
+![Hybrid architecture diagram](img/hybrid.png)
+
+#### Reference Architecture
+
+- **Status:** Work-in-progress
+- **Supported Users (approximate):** 10,000
+- **Related Issues:** [gitlab-com/support/support-team-meta#1513](https://gitlab.com/gitlab-com/support/support-team-meta/issues/1513), 
+ [gitlab-org/quality/team-tasks#110](https://gitlab.com/gitlab-org/quality/team-tasks/issues/110)
+
+The Support and Quality teams are in the process of building and performance testing
+an environment that will support about 10,000 users. The specifications below
+are a work-in-progress representation of the work so far. Quality will be 
+certifying this environment in FY20-Q2. The specifications may be adjusted 
+prior to certification based on performance testing. 
+
+- 3 PostgreSQL - 4 CPU, 8GB RAM
+- 1 PgBouncer - 2 CPU, 4GB RAM
+- 2 Redis - 2 CPU, 8GB RAM
+- 3 Consul/Sentinel - 2 CPU, 2GB RAM
+- 4 Sidekiq - 4 CPU, 8GB RAM
+- 5 GitLab application nodes - 20 CPU, 64GB RAM
+- 1 Gitaly - 20 CPU, 64GB RAM
+- 1 Monitoring node - 4 CPU, 8GB RAM
 
 ### Fully Distributed
 
@@ -170,7 +194,7 @@ with the added complexity of many more nodes to configure, manage and monitor.
 - 2 or more Web nodes (All other web requests)
 - 2 or more NFS/Gitaly servers
 
-![Fully Distributed architecture diagram](../img/high_availability/fully-distributed.png)
+![Fully Distributed architecture diagram](img/fully-distributed.png)
 
 The following pages outline the steps necessary to configure each component
 separately:

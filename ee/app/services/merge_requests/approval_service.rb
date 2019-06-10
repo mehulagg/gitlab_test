@@ -2,10 +2,16 @@
 
 module MergeRequests
   class ApprovalService < MergeRequests::BaseService
+    IncorrectApprovalPasswordError = Class.new(StandardError)
+
     def execute(merge_request)
+      if incorrect_approval_password?(merge_request)
+        raise IncorrectApprovalPasswordError
+      end
+
       approval = merge_request.approvals.new(user: current_user)
 
-      if approval.save
+      if save_approval(approval)
         merge_request.reset_approval_cache!
 
         create_approval_note(merge_request)
@@ -21,6 +27,17 @@ module MergeRequests
     end
 
     private
+
+    def incorrect_approval_password?(merge_request)
+      merge_request.project.require_password_to_approve? &&
+        !Gitlab::Auth.find_with_user_password(current_user.username, params[:approval_password])
+    end
+
+    def save_approval(approval)
+      Approval.safe_ensure_unique do
+        approval.save
+      end
+    end
 
     def create_approval_note(merge_request)
       SystemNoteService.approve_mr(merge_request, current_user)

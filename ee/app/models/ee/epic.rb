@@ -44,6 +44,7 @@ module EE
       has_many :issues, through: :epic_issues
 
       validates :group, presence: true
+      validate :validate_parent, on: :create
 
       alias_attribute :parent_ids, :parent_id
 
@@ -79,6 +80,8 @@ module EE
 
       scope :with_api_entity_associations, -> { preload(:author, :labels, :group) }
 
+      MAX_HIERARCHY_DEPTH = 5
+
       def etag_caching_enabled?
         true
       end
@@ -102,6 +105,10 @@ module EE
             (?:#{combined_prefix})(?<epic>\d+)
           }x
         end
+      end
+
+      def reference_valid?(reference)
+        reference.to_i > 0 && reference.to_i <= ::Gitlab::Database::MAX_INT_VALUE
       end
 
       def link_reference_pattern
@@ -159,12 +166,7 @@ module EE
       def deepest_relationship_level
         return unless supports_nested_objects?
 
-        hierarchy = ::Gitlab::ObjectHierarchy.new(self.where.not(parent_id: nil))
-        deepest_level = hierarchy.max_descendants_depth || 0
-
-        # For performance reasons, epics without a parent_id are being ignored in the query.
-        # So we add 1 to the result to take into account the first parent.
-        deepest_level + 1
+        ::Gitlab::ObjectHierarchy.new(self.where(parent_id: nil)).max_descendants_depth
       end
 
       def update_start_and_due_dates(epics)
@@ -269,12 +271,28 @@ module EE
       hierarchy.ancestors(hierarchy_order: :asc)
     end
 
+    def max_hierarchy_depth_achieved?
+      base_and_ancestors.count >= MAX_HIERARCHY_DEPTH
+    end
+
     def descendants
       hierarchy.descendants
     end
 
     def has_ancestor?(epic)
-      ancestors.exists?(epic)
+      ancestors.exists?(epic.id)
+    end
+
+    def has_children?
+      children.any?
+    end
+
+    def has_issues?
+      issues.any?
+    end
+
+    def child?(id)
+      children.where(id: id).exists?
     end
 
     def hierarchy
@@ -283,6 +301,26 @@ module EE
 
     # we don't support project epics for epics yet, planned in the future #4019
     def update_project_counter_caches
+    end
+
+    # we call this when creating a new epic (Epics::CreateService) or linking an existing one (EpicLinks::CreateService)
+    # when called from EpicLinks::CreateService we pass
+    #   parent_epic - because we don't have parent attribute set on epic
+    #   parent_group_descendants - we have preloaded them in the service and we want to prevent performance problems
+    #     when linking a lot of issues
+    def valid_parent?(parent_epic: nil, parent_group_descendants: nil)
+      parent_epic ||= parent
+
+      return true unless parent_epic
+
+      parent_group_descendants ||= parent_epic.group.self_and_descendants
+
+      return false if self == parent_epic
+      return false if level_depth_exceeded?(parent_epic)
+      return false if parent_epic.has_ancestor?(self)
+      return false if parent_epic.children.to_a.include?(self)
+
+      parent_group_descendants.include?(group)
     end
 
     def issues_readable_by(current_user, preload: nil)
@@ -306,5 +344,24 @@ module EE
     def banzai_render_context(field)
       super.merge(label_url_method: :group_epics_url)
     end
+
+    def validate_parent
+      return true if valid_parent?
+
+      errors.add :parent, 'The parent is not valid'
+    end
+    private :validate_parent
+
+    def level_depth_exceeded?(parent_epic)
+      hierarchy.max_descendants_depth.to_i + parent_epic.ancestors.count >= MAX_HIERARCHY_DEPTH
+    end
+    private :level_depth_exceeded?
+
+    def base_and_ancestors
+      return self.class.none unless parent_id
+
+      hierarchy.base_and_ancestors(hierarchy_order: :asc)
+    end
+    private :base_and_ancestors
   end
 end

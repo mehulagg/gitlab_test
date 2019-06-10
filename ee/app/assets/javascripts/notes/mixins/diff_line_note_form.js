@@ -1,11 +1,14 @@
 import { mapActions, mapGetters, mapState } from 'vuex';
+import { TEXT_DIFF_POSITION_TYPE, IMAGE_DIFF_POSITION_TYPE } from '~/diffs/constants';
 import { getDraftReplyFormData, getDraftFormData } from 'ee/batch_comments/utils';
 import createFlash from '~/flash';
 import { s__ } from '~/locale';
+import { clearDraft } from '~/lib/utils/autosave';
 
 export default {
   computed: {
     ...mapState({
+      noteableData: state => state.notes.noteableData,
       notesData: state => state.notes.notesData,
       withBatchComments: state => state.batchComments && state.batchComments.withBatchComments,
     }),
@@ -41,6 +44,9 @@ export default {
         });
     },
     addToReview(note) {
+      const positionType = this.diffFileCommentForm
+        ? IMAGE_DIFF_POSITION_TYPE
+        : TEXT_DIFF_POSITION_TYPE;
       const selectedDiffFile = this.getDiffFileByHash(this.diffFileHash);
       const postData = getDraftFormData({
         note,
@@ -51,11 +57,17 @@ export default {
         diffViewType: this.diffViewType,
         diffFile: selectedDiffFile,
         linePosition: this.position,
+        positionType,
+        ...this.diffFileCommentForm,
       });
 
       return this.saveDraft(postData)
         .then(() => {
-          this.handleClearForm(this.line.line_code);
+          if (positionType === IMAGE_DIFF_POSITION_TYPE) {
+            this.closeDiffFileCommentForm(this.diffFileHash);
+          } else {
+            this.handleClearForm(this.line.line_code);
+          }
         })
         .catch(() => {
           createFlash(s__('MergeRequests|An error occurred while saving the draft comment.'));
@@ -67,7 +79,13 @@ export default {
         fileHash: this.diffFileHash,
       });
       this.$nextTick(() => {
-        this.resetAutoSave();
+        if (this.autosaveKey) {
+          clearDraft(this.autosaveKey);
+        } else {
+          // TODO: remove the following after replacing the autosave mixin
+          // https://gitlab.com/gitlab-org/gitlab-ce/issues/60587
+          this.resetAutoSave();
+        }
       });
     },
     showDraft(replyId) {

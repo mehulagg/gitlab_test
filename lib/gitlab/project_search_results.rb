@@ -134,8 +134,16 @@ module Gitlab
       project.repository.commit(key) if Commit.valid_hash?(key)
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
     def project_ids_relation
-      project
+      Project.where(id: project).select(:id).reorder(nil)
+    end
+    # rubocop: enabled CodeReuse/ActiveRecord
+
+    def filter_milestones_by_project(milestones)
+      return Milestone.none unless Ability.allowed?(@current_user, :read_milestone, @project)
+
+      milestones.where(project_id: project.id) # rubocop: disable CodeReuse/ActiveRecord
     end
 
     def repository_project_ref
@@ -144,6 +152,10 @@ module Gitlab
 
     def repository_wiki_ref
       @repository_wiki_ref ||= repository_ref || project.wiki.default_branch
+    end
+
+    def issuable_params
+      super.merge(project_id: project.id)
     end
   end
 end

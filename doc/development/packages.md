@@ -1,4 +1,4 @@
-# Packages
+# Packages **[PREMIUM]**
 
 This document will guide you through adding another [package management system](../administration/packages.md) support to GitLab.
 
@@ -46,7 +46,7 @@ Group-level and instance-level endpoints are good to have but are optional.
 
 NOTE: **Note:**
 To avoid name conflict for instance-level endpoints we use 
-[the package naming convention](../user/project/packages/npm_registry.html#package-naming-convention)
+[the package naming convention](../user/project/packages/npm_registry.md#package-naming-convention)
 
 ## Configuration
 

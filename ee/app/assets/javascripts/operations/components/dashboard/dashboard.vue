@@ -1,7 +1,13 @@
 <script>
 import _ from 'underscore';
 import { mapState, mapActions } from 'vuex';
-import { GlLoadingIcon, GlModal, GlModalDirective, GlButton } from '@gitlab/ui';
+import {
+  GlLoadingIcon,
+  GlModal,
+  GlModalDirective,
+  GlButton,
+  GlDashboardSkeleton,
+} from '@gitlab/ui';
 import ProjectSelector from '~/vue_shared/components/project_selector/project_selector.vue';
 import DashboardProject from './project.vue';
 
@@ -9,6 +15,7 @@ export default {
   components: {
     DashboardProject,
     GlModal,
+    GlDashboardSkeleton,
     GlLoadingIcon,
     GlButton,
     ProjectSelector,
@@ -76,11 +83,13 @@ export default {
     onModalShown() {
       this.$refs.projectSelector.focusSearchInput();
     },
-    onModalHidden() {
+    onCancel() {
       this.clearSearchResults();
     },
     onOk() {
-      this.addProjectsToDashboard();
+      this.addProjectsToDashboard()
+        .then(this.clearSearchResults)
+        .catch(this.clearSearchResults);
     },
     searched(query) {
       this.setSearchQuery(query);
@@ -102,7 +111,7 @@ export default {
       :ok-disabled="okDisabled"
       ok-variant="success"
       @shown="onModalShown"
-      @hidden="onModalHidden"
+      @cancel="onCancel"
       @ok="onOk"
     >
       <project-selector

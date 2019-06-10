@@ -37,7 +37,7 @@ When you create a project in GitLab, you'll have access to a large number of
   - [Multiple Issue Boards](issue_board.md#multiple-issue-boards-starter): Allow your teams to create their own workflows (Issue Boards) for the same project **[STARTER]**
 - [Merge Requests](merge_requests/index.md): Apply your branching
   strategy and get reviewed by your team
-  - [Merge Request Approvals](https://docs.gitlab.com/ee/user/project/merge_requests/merge_request_approvals.html): Ask for approval before
+  - [Merge Request Approvals](merge_requests/merge_request_approvals.md): Ask for approval before
   implementing a change **[STARTER]**
   - [Fix merge conflicts from the UI](merge_requests/resolve_conflicts.md):
   Your Git diff tool right from GitLab's UI
@@ -84,7 +84,7 @@ When you create a project in GitLab, you'll have access to a large number of
 - [Wiki](wiki/index.md): document your GitLab project in an integrated Wiki.
 - [Snippets](../snippets.md): store, share and collaborate on code snippets.
 - [Cycle Analytics](cycle_analytics.md): review your development lifecycle.
-- [Security Dashboard](security_dashboard.md): Security Dashboard.
+- [Security Dashboard](security_dashboard.md): Security Dashboard. **[ULTIMATE]**
 - [Syntax highlighting](highlighting.md): an alternative to customize
   your code blocks, overriding GitLab's default choice of language.
 - [Badges](badges.md): badges for the project overview.
@@ -94,7 +94,7 @@ When you create a project in GitLab, you'll have access to a large number of
 - [Maven packages](packages/maven_repository.md): your private Maven repository in GitLab. **[PREMIUM]**
 - [NPM packages](packages/npm_registry.md): your private NPM package registry in GitLab. **[PREMIUM]**
 - [Code owners](code_owners.md): specify code owners for certain files **[STARTER]**
-- [License Management](merge_requests/license_management.md): approve and blacklist licenses for projects. **[ULTIMATE]**
+- [License Management](../application_security/license_management/index.md): approve and blacklist licenses for projects. **[ULTIMATE]**
 
 ### Project integrations
 
@@ -130,7 +130,7 @@ Read through the documentation on [project settings](settings/index.md).
 - [Export a project from GitLab](settings/import_export.md#exporting-a-project-and-its-data)
 - [Importing and exporting projects between GitLab instances](settings/import_export.md)
 
-## CI/CD for external repositories
+## CI/CD for external repositories **[PREMIUM]**
 
 Instead of importing a repository directly to GitLab, you can connect your repository
 as a CI/CD project.

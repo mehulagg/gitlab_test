@@ -385,7 +385,9 @@ describe('issue creation', () => {
 
     describe('on success', () => {
       beforeEach(() => {
-        mock.onPost(vulnerability.vulnerability_feedback_issue_path).replyOnce(200, { data });
+        mock
+          .onPost(vulnerability.create_vulnerability_feedback_issue_path)
+          .replyOnce(200, { data });
       });
 
       it('should dispatch the request and success actions', done => {
@@ -408,7 +410,7 @@ describe('issue creation', () => {
 
     describe('on error', () => {
       beforeEach(() => {
-        mock.onPost(vulnerability.vulnerability_feedback_issue_path).replyOnce(404, {});
+        mock.onPost(vulnerability.create_vulnerability_feedback_issue_path).replyOnce(404, {});
       });
 
       it('should dispatch the request and error actions', done => {
@@ -599,6 +601,8 @@ describe('vulnerability dismissal', () => {
   describe('dismissVulnerability', () => {
     const vulnerability = mockDataVulnerabilities[0];
     const data = { vulnerability };
+    const comment =
+      'How many times have I told you we need locking mechanisms on the vehicle doors!';
     let mock;
 
     beforeEach(() => {
@@ -611,17 +615,20 @@ describe('vulnerability dismissal', () => {
 
     describe('on success', () => {
       beforeEach(() => {
-        mock.onPost(vulnerability.vulnerability_feedback_dismissal_path).replyOnce(200, data);
+        mock
+          .onPost(vulnerability.create_vulnerability_feedback_dismissal_path)
+          .replyOnce(200, data);
       });
 
       it('should dispatch the request and success actions', done => {
         testAction(
           actions.dismissVulnerability,
-          { vulnerability },
+          { vulnerability, comment },
           {},
           [],
           [
             { type: 'requestDismissVulnerability' },
+            { type: 'closeDismissalCommentBox' },
             {
               type: 'receiveDismissVulnerabilitySuccess',
               payload: { data, id: vulnerability.id },
@@ -634,7 +641,7 @@ describe('vulnerability dismissal', () => {
 
     describe('on error', () => {
       beforeEach(() => {
-        mock.onPost(vulnerability.vulnerability_feedback_dismissal_path).replyOnce(404, {});
+        mock.onPost(vulnerability.create_vulnerability_feedback_dismissal_path).replyOnce(404, {});
       });
 
       it('should dispatch the request and error actions', done => {
@@ -710,9 +717,7 @@ describe('vulnerability dismissal', () => {
 describe('revert vulnerability dismissal', () => {
   describe('undoDismiss', () => {
     const vulnerability = mockDataVulnerabilities[2];
-    const url = `${vulnerability.vulnerability_feedback_dismissal_path}/${
-      vulnerability.dismissal_feedback.id
-    }`;
+    const url = vulnerability.dismissal_feedback.destroy_vulnerability_feedback_dismissal_path;
     let mock;
 
     beforeEach(() => {
@@ -981,6 +986,36 @@ describe('vulnerabilities history actions', () => {
         {},
         state,
         [{ type: types.RECEIVE_VULNERABILITIES_HISTORY_ERROR }],
+        [],
+        done,
+      );
+    });
+  });
+
+  describe('openDismissalCommentBox', () => {
+    it('should commit the open comment mutation', done => {
+      const state = initialState();
+
+      testAction(
+        actions.openDismissalCommentBox,
+        {},
+        state,
+        [{ type: types.OPEN_DISMISSAL_COMMENT_BOX }],
+        [],
+        done,
+      );
+    });
+  });
+
+  describe('closeDismissalCommentBox', () => {
+    it('should commit the close comment mutation', done => {
+      const state = initialState();
+
+      testAction(
+        actions.closeDismissalCommentBox,
+        {},
+        state,
+        [{ type: types.CLOSE_DISMISSAL_COMMENT_BOX }],
         [],
         done,
       );

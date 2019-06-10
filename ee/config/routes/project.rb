@@ -9,38 +9,15 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           module: :projects,
           as: :project) do
 
-      resource :tracing, only: [:show]
-
-      resources :autocomplete_sources, only: [] do
-        collection do
-          get 'epics'
-        end
-      end
-
-      resources :boards, only: [:create, :update, :destroy] do
-        collection do
-          get :recent
-        end
-      end
-
-      resources :web_ide_terminals, path: :ide_terminals, only: [:create, :show], constraints: { id: /\d+/, format: :json } do
-        member do
-          post :cancel
-          post :retry
-        end
-
-        collection do
-          post :check_config
-        end
-      end
-
-      resource :insights, only: [:show] do
-        collection do
-          post :query
-        end
-      end
-
+      # Begin of the /-/ scope.
+      # Use this scope for all new project routes.
       scope '-' do
+        resources :boards, only: [:create, :update, :destroy] do
+          collection do
+            get :recent
+          end
+        end
+
         resources :packages, only: [:index, :show, :destroy], module: :packages
         resources :package_files, only: [], module: :packages do
           member do
@@ -54,14 +31,62 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             get :proxy
           end
         end
-      end
 
-      namespace :settings do
-        resource :operations, only: [:show, :update] do
-          member do
-            post :reset_alerting_token
+        resource :feature_flags_client, only: [] do
+          post :reset_token
+        end
+
+        resources :autocomplete_sources, only: [] do
+          collection do
+            get 'epics'
           end
         end
+
+        namespace :settings do
+          resource :operations, only: [:show, :update] do
+            member do
+              post :reset_alerting_token
+            end
+          end
+        end
+
+        resources :designs, only: [], constraints: { id: /\d+/ } do
+          member do
+            get '(*ref)', action: 'show', as: '', constraints: { ref: Gitlab::PathRegex.git_reference_regex }
+          end
+        end
+      end
+      # End of the /-/ scope.
+
+      resource :tracing, only: [:show]
+
+      resources :web_ide_terminals, path: :ide_terminals, only: [:create, :show], constraints: { id: /\d+/, format: :json } do
+        member do
+          post :cancel
+          post :retry
+        end
+
+        collection do
+          post :check_config
+        end
+      end
+
+      resources :merge_requests, only: [], constraints: { id: /\d+/ } do
+        member do
+          get :metrics_reports
+        end
+      end
+
+      resource :insights, only: [:show] do
+        collection do
+          post :query
+        end
+      end
+
+      resource :dependencies, only: [:show]
+
+      namespace :security do
+        resources :dependencies, only: [:index]
       end
     end
   end

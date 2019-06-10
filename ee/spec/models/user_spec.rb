@@ -402,6 +402,23 @@ describe User do
             expect(groups.map(&:name)).not_to include('subgroup-3')
           end
         end
+
+        context 'when namespace plan is checked' do
+          before do
+            create(:gitlab_subscription, namespace: group_1, hosted_plan: create(:bronze_plan))
+            create(:gitlab_subscription, namespace: group_2, hosted_plan: create(:gold_plan))
+            allow(Gitlab::CurrentSettings).to receive(:should_check_namespace_plan?) { true }
+          end
+
+          it 'returns groups on gold or silver plans' do
+            Timecop.freeze(GroupsWithTemplatesFinder::CUT_OFF_DATE + 1.day) do
+              groups = user.available_subgroups_with_custom_project_templates
+
+              expect(groups.size).to eq(1)
+              expect(groups.map(&:name)).to include('subgroup-2')
+            end
+          end
+        end
       end
     end
   end
@@ -545,6 +562,38 @@ describe User do
 
         expect(support_bot.bot?).to eq(true)
         expect(alert_bot.bot?).to eq(true)
+      end
+    end
+  end
+
+  describe '#using_license_seat?' do
+    let(:user) { create(:user) }
+
+    context 'when user is inactive' do
+      before do
+        user.block
+      end
+
+      it 'returns false' do
+        expect(user.using_license_seat?).to eq false
+      end
+    end
+
+    context 'when user is active' do
+      let(:project_guest_user) { create(:project_member, :guest).user }
+
+      context 'user is guest' do
+        it 'returns false if license is ultimate' do
+          create(:license, plan: License::ULTIMATE_PLAN)
+
+          expect(project_guest_user.using_license_seat?).to eq false
+        end
+
+        it 'returns true if license is not ultimate' do
+          create(:license, plan: License::STARTER_PLAN)
+
+          expect(project_guest_user.using_license_seat?).to eq true
+        end
       end
     end
   end

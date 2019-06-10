@@ -12,9 +12,9 @@
   "properties" : {
     "name" : { "type": "string" },
     "project_fingerprint": { "type": "string" },
-    "vulnerability_feedback_issue_path": { "type": "string" },
-    "vulnerability_feedback_merge_request_path": { "type": "string" },
-    "vulnerability_feedback_dismissal_path": { "type": "string" },
+    "create_vulnerability_feedback_issue_path": { "type": "string" },
+    "create_vulnerability_feedback_merge_request_path": { "type": "string" },
+    "create_vulnerability_feedback_dismissal_path": { "type": "string" },
     "confidence" : {
       "type": "string",
       "enum": ["undefined", "ignore", "unknown", "experimental", "low", "medium", "high", "confirmed"]
@@ -55,8 +55,8 @@
       { "type": "null" },
       { "$ref": "../vulnerability_feedback.json" }
     ]},
-    "description": { "type": "string" },
-    "solution": { "type": "string" },
+    "description": { "type": ["string", "null"] },
+    "solution": { "type": ["string", "null"] },
     "location" : {
       "class" : { "type": "string" },
       "method" : { "type": "string" },

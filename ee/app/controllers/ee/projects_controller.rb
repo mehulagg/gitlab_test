@@ -42,6 +42,7 @@ module EE
         packages_enabled
         merge_requests_author_approval
         merge_requests_disable_committers_approval
+        require_password_to_approve
         merge_requests_require_code_owner_approval
         group_with_project_templates_id
       ]
@@ -49,6 +50,8 @@ module EE
       if allow_merge_pipelines_params?
         attrs << %i[merge_pipelines_enabled]
       end
+
+      attrs << %i[merge_trains_enabled] if allow_merge_trains_params?
 
       if allow_mirror_params?
         attrs + mirror_params
@@ -75,6 +78,10 @@ module EE
 
     def allow_merge_pipelines_params?
       project&.feature_available?(:merge_pipelines)
+    end
+
+    def allow_merge_trains_params?
+      project&.feature_available?(:merge_trains)
     end
   end
 end

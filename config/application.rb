@@ -181,6 +181,8 @@ module Gitlab
     ## EE-specific assets config START
     %w[images javascripts stylesheets].each do |path|
       config.assets.paths << "#{config.root}/ee/app/assets/#{path}"
+      config.assets.precompile << "jira_connect.js"
+      config.assets.precompile << "pages/jira_connect.css"
     end
 
     config.assets.paths << "#{config.root}/vendor/assets/javascripts/"
@@ -197,11 +199,6 @@ module Gitlab
 
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
-
-    config.action_view.sanitized_allowed_protocols = %w(smb)
-
-    # Can be removed once upgraded to Rails 5.1 or higher
-    config.action_controller.raise_on_unfiltered_parameters = true
 
     # Nokogiri is significantly faster and uses less memory than REXML
     ActiveSupport::XmlMini.backend = 'Nokogiri'

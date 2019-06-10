@@ -4,6 +4,13 @@ module EE
   module Projects
     module Prometheus
       module MetricsController
+        extend ActiveSupport::Concern
+
+        prepended do
+          before_action :check_custom_metrics_license!,
+            only: [:validate_query, :index, :create, :update, :edit, :destroy]
+        end
+
         def validate_query
           respond_to do |format|
             format.json do
@@ -43,7 +50,7 @@ module EE
           @metric = project.prometheus_metrics.create(metrics_params) # rubocop:disable Gitlab/ModuleWithInstanceVariables
           if @metric.persisted? # rubocop:disable Gitlab/ModuleWithInstanceVariables
             redirect_to edit_project_service_path(project, ::PrometheusService),
-                        notice: 'Metric was successfully added.'
+                        notice: _('Metric was successfully added.')
           else
             render 'new'
           end
@@ -55,7 +62,7 @@ module EE
 
           if @metric.persisted? # rubocop:disable Gitlab/ModuleWithInstanceVariables
             redirect_to edit_project_service_path(project, ::PrometheusService),
-                        notice: 'Metric was successfully updated.'
+                        notice: _('Metric was successfully updated.')
           else
             render 'edit'
           end
@@ -80,6 +87,10 @@ module EE
         end
 
         private
+
+        def check_custom_metrics_license!
+          render_404 unless project.feature_available?(:custom_prometheus_metrics)
+        end
 
         def update_metrics_service(metric)
           ::Projects::Prometheus::Metrics::UpdateService.new(metric, metrics_params)

@@ -21,18 +21,8 @@ module EE
         delegate :service_specification, to: :runner_session, allow_nil: true
 
         has_many :sourced_pipelines,
-          class_name: ::Ci::Sources::Pipeline,
+          class_name: "::Ci::Sources::Pipeline",
           foreign_key: :source_job_id
-
-        scope :with_security_reports, -> do
-          with_existing_job_artifacts(::Ci::JobArtifact.security_reports)
-            .eager_load_job_artifacts
-        end
-
-        scope :with_license_management_reports, -> do
-          with_existing_job_artifacts(::Ci::JobArtifact.license_management_reports)
-              .eager_load_job_artifacts
-        end
       end
 
       def shared_runners_minutes_limit_enabled?
@@ -40,7 +30,7 @@ module EE
       end
 
       def stick_build_if_status_changed
-        return unless status_changed?
+        return unless saved_change_to_status?
         return unless running?
 
         ::Gitlab::Database::LoadBalancing::Sticking.stick(:build, id)
@@ -88,6 +78,28 @@ module EE
         end
 
         license_management_report
+      end
+
+      def collect_dependency_list_reports!(dependency_list_report)
+        if project.feature_available?(:dependency_list)
+          dependency_list = ::Gitlab::Ci::Parsers::Security::DependencyList.new(project, sha)
+
+          each_report(::Ci::JobArtifact::DEPENDENCY_LIST_REPORT_FILE_TYPES) do |file_type, blob|
+            dependency_list.parse!(blob, dependency_list_report)
+          end
+        end
+
+        dependency_list_report
+      end
+
+      def collect_metrics_reports!(metrics_report)
+        each_report(::Ci::JobArtifact::METRICS_REPORT_FILE_TYPES) do |file_type, blob|
+          next unless project.feature_available?(:metrics_reports)
+
+          ::Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, metrics_report)
+        end
+
+        metrics_report
       end
 
       private

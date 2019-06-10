@@ -94,6 +94,8 @@ export const handleLocationHash = () => {
   const fixedNav = document.querySelector('.navbar-gitlab');
   const performanceBar = document.querySelector('#js-peek');
   const topPadding = 8;
+  const diffFileHeader = document.querySelector('.js-file-title');
+  const versionMenusContainer = document.querySelector('.mr-version-menus-container');
 
   let adjustment = 0;
   if (fixedNav) adjustment -= fixedNav.offsetHeight;
@@ -112,6 +114,14 @@ export const handleLocationHash = () => {
 
   if (performanceBar) {
     adjustment -= performanceBar.offsetHeight;
+  }
+
+  if (diffFileHeader) {
+    adjustment -= diffFileHeader.offsetHeight;
+  }
+
+  if (versionMenusContainer) {
+    adjustment -= versionMenusContainer.offsetHeight;
   }
 
   if (isInMRPage()) {
@@ -723,6 +733,18 @@ export const NavigationType = {
  * @returns Boolean
  */
 export const isEE = () => window.gon && window.gon.ee;
+
+/**
+ * Checks if the given Label has a special syntax `::` in
+ * it's title.
+ *
+ * Expected Label to be an Object with `title` as a key:
+ *   { title: 'LabelTitle', ...otherProperties };
+ *
+ * @param {Object} label
+ * @returns Boolean
+ */
+export const isScopedLabel = ({ title = '' }) => title.indexOf('::') !== -1;
 
 window.gl = window.gl || {};
 window.gl.utils = {

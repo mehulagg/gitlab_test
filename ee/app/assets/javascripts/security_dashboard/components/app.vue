@@ -1,5 +1,5 @@
 <script>
-import _ from 'underscore';
+import { isUndefined } from 'underscore';
 import { mapActions, mapState, mapGetters } from 'vuex';
 import IssueModal from 'ee/vue_shared/security_reports/components/modal.vue';
 import Filters from './filters.vue';
@@ -27,7 +27,8 @@ export default {
     },
     projectsEndpoint: {
       type: String,
-      required: true,
+      required: false,
+      default: null,
     },
     vulnerabilitiesEndpoint: {
       type: String,
@@ -45,24 +46,43 @@ export default {
       type: String,
       required: true,
     },
+    lockToProject: {
+      type: Object,
+      required: false,
+      default: null,
+      validator: project => !isUndefined(project.id) && !isUndefined(project.name),
+    },
   },
   computed: {
     ...mapState('vulnerabilities', ['modal', 'pageInfo']),
     ...mapState('projects', ['projects']),
     ...mapGetters('filters', ['activeFilters']),
-    canCreateIssuePermission() {
-      const path = this.vulnerability.vulnerability_feedback_issue_path;
-      return _.isString(path) && !_.isEmpty(path);
+    canCreateIssue() {
+      const path = this.vulnerability.create_vulnerability_feedback_issue_path;
+      return Boolean(path);
     },
-    canCreateFeedbackPermission() {
-      const path = this.vulnerability.vulnerability_feedback_dismissal_path;
-      return _.isString(path) && !_.isEmpty(path);
+    canCreateMergeRequest() {
+      const path = this.vulnerability.create_vulnerability_feedback_merge_request_path;
+      return Boolean(path);
+    },
+    canDismissVulnerability() {
+      const path = this.vulnerability.create_vulnerability_feedback_dismissal_path;
+      return Boolean(path);
     },
     vulnerability() {
       return this.modal.vulnerability;
     },
+    isLockedToProject() {
+      return this.lockToProject !== null;
+    },
   },
   created() {
+    if (this.isLockedToProject) {
+      this.lockFilter({
+        filterId: 'project_id',
+        optionId: this.lockToProject.id,
+      });
+    }
     this.setProjectsEndpoint(this.projectsEndpoint);
     this.setVulnerabilitiesEndpoint(this.vulnerabilitiesEndpoint);
     this.setVulnerabilitiesCountEndpoint(this.vulnerabilitiesCountEndpoint);
@@ -70,22 +90,27 @@ export default {
     this.fetchVulnerabilities({ ...this.activeFilters, page: this.pageInfo.page });
     this.fetchVulnerabilitiesCount(this.activeFilters);
     this.fetchVulnerabilitiesHistory(this.activeFilters);
-    this.fetchProjects();
+    if (!this.isLockedToProject) {
+      this.fetchProjects();
+    }
   },
   methods: {
     ...mapActions('vulnerabilities', [
+      'closeDismissalCommentBox',
       'createIssue',
+      'createMergeRequest',
       'dismissVulnerability',
       'fetchVulnerabilities',
       'fetchVulnerabilitiesCount',
       'fetchVulnerabilitiesHistory',
-      'undoDismiss',
-      'createMergeRequest',
+      'openDismissalCommentBox',
       'setVulnerabilitiesCountEndpoint',
       'setVulnerabilitiesEndpoint',
       'setVulnerabilitiesHistoryEndpoint',
+      'undoDismiss',
     ]),
     ...mapActions('projects', ['setProjectsEndpoint', 'fetchProjects']),
+    ...mapActions('filters', ['lockFilter']),
   },
 };
 </script>
@@ -93,23 +118,29 @@ export default {
 <template>
   <div>
     <filters />
-    <vulnerability-count-list />
+    <vulnerability-count-list :class="{ 'mb-0': isLockedToProject }" />
 
-    <vulnerability-chart />
+    <vulnerability-chart v-if="!isLockedToProject" />
+
+    <h4 v-if="!isLockedToProject" class="my-4">{{ __('Vulnerability List') }}</h4>
 
     <security-dashboard-table
       :dashboard-documentation="dashboardDocumentation"
       :empty-state-svg-path="emptyStateSvgPath"
     />
+
     <issue-modal
       :modal="modal"
       :vulnerability-feedback-help-path="vulnerabilityFeedbackHelpPath"
-      :can-create-issue-permission="canCreateIssuePermission"
-      :can-create-feedback-permission="canCreateFeedbackPermission"
-      @createNewIssue="createIssue({ vulnerability })"
-      @dismissIssue="dismissVulnerability({ vulnerability })"
-      @revertDismissIssue="undoDismiss({ vulnerability })"
+      :can-create-issue="canCreateIssue"
+      :can-create-merge-request="canCreateMergeRequest"
+      :can-dismiss-vulnerability="canDismissVulnerability"
+      @closeDismissalCommentBox="closeDismissalCommentBox()"
       @createMergeRequest="createMergeRequest({ vulnerability })"
+      @createNewIssue="createIssue({ vulnerability })"
+      @dismissVulnerability="dismissVulnerability({ vulnerability, comment: $event })"
+      @openDismissalCommentBox="openDismissalCommentBox()"
+      @revertDismissVulnerability="undoDismiss({ vulnerability })"
     />
   </div>
 </template>

@@ -14,6 +14,25 @@ module Geo
       has_many :geo_node_namespace_links, class_name: 'Geo::Fdw::GeoNodeNamespaceLink'
       has_many :namespaces, class_name: 'Geo::Fdw::Namespace', through: :geo_node_namespace_links
 
+      def job_artifacts
+        Geo::Fdw::Ci::JobArtifact.all unless selective_sync?
+
+        Geo::Fdw::Ci::JobArtifact.project_id_in(projects)
+      end
+
+      def lfs_objects
+        return Geo::Fdw::LfsObject.all unless selective_sync?
+
+        Geo::Fdw::LfsObject.project_id_in(projects)
+      end
+
+      def lfs_object_registries
+        return Geo::FileRegistry.lfs_objects unless selective_sync?
+
+        Gitlab::Geo::Fdw::LfsObjectRegistryQueryBuilder.new
+          .for_lfs_objects(lfs_objects)
+      end
+
       def projects
         return Geo::Fdw::Project.all unless selective_sync?
 
@@ -59,35 +78,20 @@ module Geo
           .within_shards(selective_sync_shards)
       end
 
-      def selected_namespaces_and_descendants
-        relation = selected_namespaces_and_descendants_cte.apply_to(Geo::Fdw::Namespace.all)
-        relation.extend(Gitlab::Database::ReadOnlyRelation)
-        relation
+      def project_model
+        Geo::Fdw::Project
       end
 
-      def selected_namespaces_and_descendants_cte
-        cte = Gitlab::SQL::RecursiveCTE.new(:base_and_descendants)
-
-        cte << geo_node_namespace_links
-          .select(fdw_geo_node_namespace_links_table[:namespace_id].as('id'))
-          .except(:order)
-
-        # Recursively get all the descendants of the base set.
-        cte << Geo::Fdw::Namespace
-          .select(fdw_namespaces_table[:id])
-          .from([fdw_namespaces_table, cte.table])
-          .where(fdw_namespaces_table[:parent_id].eq(cte.table[:id]))
-          .except(:order)
-
-        cte
+      def projects_table
+        Geo::Fdw::Project.arel_table
       end
 
-      def fdw_namespaces_table
-        Geo::Fdw::Namespace.arel_table
+      def uploads_model
+        Geo::Fdw::Upload
       end
 
-      def fdw_geo_node_namespace_links_table
-        Geo::Fdw::GeoNodeNamespaceLink.arel_table
+      def uploads_table
+        Geo::Fdw::Upload.arel_table
       end
     end
   end

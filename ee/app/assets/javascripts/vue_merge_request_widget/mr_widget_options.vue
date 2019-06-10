@@ -5,10 +5,11 @@ import GroupedMetricsReportsApp from 'ee/vue_shared/metrics_reports/grouped_metr
 import reportsMixin from 'ee/vue_shared/security_reports/mixins/reports_mixin';
 import { componentNames } from 'ee/vue_shared/components/reports/issue_body';
 import MrWidgetLicenses from 'ee/vue_shared/license_management/mr_widget_license_report.vue';
+import BlockingMergeRequestsReport from './components/blocking_merge_requests/blocking_merge_requests_report.vue';
 
 import { n__, s__, __, sprintf } from '~/locale';
 import CEWidgetOptions from '~/vue_merge_request_widget/mr_widget_options.vue';
-import MrWidgetApprovals from './components/approvals';
+import MrWidgetApprovals from './components/approvals/approvals.vue';
 import MrWidgetGeoSecondaryNode from './components/states/mr_widget_secondary_geo_node.vue';
 
 export default {
@@ -16,6 +17,7 @@ export default {
     MrWidgetLicenses,
     MrWidgetApprovals,
     MrWidgetGeoSecondaryNode,
+    BlockingMergeRequestsReport,
     GroupedSecurityReportsApp,
     GroupedMetricsReportsApp,
     ReportSection,
@@ -145,7 +147,6 @@ export default {
 
       return {
         ...base,
-        approvalsPath: store.approvalsPath,
         apiApprovalsPath: store.apiApprovalsPath,
         apiApprovalSettingsPath: store.apiApprovalSettingsPath,
         apiApprovePath: store.apiApprovePath,
@@ -217,6 +218,7 @@ export default {
       :service="service"
     />
     <div class="mr-section-container mr-widget-workflow">
+      <blocking-merge-requests-report :mr="mr" />
       <report-section
         v-if="shouldRenderCodeQuality"
         :status="codequalityStatus"
@@ -265,10 +267,16 @@ export default {
         :dependency-scanning-help-path="mr.dependencyScanningHelp"
         :vulnerability-feedback-path="mr.vulnerabilityFeedbackPath"
         :vulnerability-feedback-help-path="mr.vulnerabilityFeedbackHelpPath"
+        :create-vulnerability-feedback-issue-path="mr.createVulnerabilityFeedbackIssuePath"
+        :create-vulnerability-feedback-merge-request-path="
+          mr.createVulnerabilityFeedbackMergeRequestPath
+        "
+        :create-vulnerability-feedback-dismissal-path="mr.createVulnerabilityFeedbackDismissalPath"
         :pipeline-path="mr.pipeline.path"
         :pipeline-id="mr.securityReportsPipelineId"
         :can-create-issue="mr.canCreateIssue"
-        :can-create-feedback="mr.canCreateFeedback"
+        :can-create-merge-request="mr.canCreateMergeRequest"
+        :can-dismiss-vulnerability="mr.canDismissVulnerability"
       />
       <mr-widget-licenses
         v-if="shouldRenderLicenseReport"
@@ -289,16 +297,49 @@ export default {
       <div class="mr-widget-section">
         <component :is="componentName" :mr="mr" :service="service" />
 
-        <section v-if="mr.allowCollaboration" class="mr-info-list mr-links">
-          {{ s__('mrWidget|Allows commits from members who can merge to the target branch') }}
-        </section>
+        <div class="mr-widget-info">
+          <section v-if="mr.allowCollaboration" class="mr-info-list mr-links">
+            <p>
+              {{ s__('mrWidget|Allows commits from members who can merge to the target branch') }}
+            </p>
+          </section>
 
-        <mr-widget-related-links
-          v-if="shouldRenderRelatedLinks"
-          :state="mr.state"
-          :related-links="mr.relatedLinks"
-        />
-        <source-branch-removal-status v-if="shouldRenderSourceBranchRemovalStatus" />
+          <mr-widget-related-links
+            v-if="shouldRenderRelatedLinks"
+            :state="mr.state"
+            :related-links="mr.relatedLinks"
+          />
+
+          <mr-widget-alert-message
+            v-if="showMergePipelineForkWarning"
+            type="warning"
+            :help-path="mr.mergeRequestPipelinesHelpPath"
+          >
+            {{
+              s__(
+                'mrWidget|Fork merge requests do not create merge request pipelines which validate a post merge result',
+              )
+            }}
+          </mr-widget-alert-message>
+
+          <mr-widget-alert-message
+            v-if="showTargetBranchAdvancedError"
+            type="danger"
+            :help-path="mr.mergeRequestPipelinesHelpPath"
+          >
+            {{
+              s__(
+                'mrWidget|The target branch has advanced, which invalidates the merge request pipeline. Please update the source branch and retry merging',
+              )
+            }}
+          </mr-widget-alert-message>
+
+          <mr-widget-alert-message v-if="mr.mergeError" type="danger">
+            {{ mergeError }}
+          </mr-widget-alert-message>
+
+          <source-branch-removal-status v-if="shouldRenderSourceBranchRemovalStatus" />
+        </div>
       </div>
       <div v-if="shouldRenderMergeHelp" class="mr-widget-footer"><mr-widget-merge-help /></div>
     </div>

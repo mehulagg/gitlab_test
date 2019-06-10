@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { s__ } from '~/locale';
+import { s__, __ } from '~/locale';
 import { visitUrl } from '~/lib/utils/url_utility';
 import * as types from './mutation_types';
 import { DAYS } from './constants';
@@ -44,11 +44,8 @@ export default {
   },
   [types.SET_VULNERABILITIES_HISTORY_DAY_RANGE](state, days) {
     state.vulnerabilitiesHistoryDayRange = days;
-    state.vulnerabilitiesHistoryShowSplitLine = days <= DAYS.THIRTY;
 
     if (days <= DAYS.THIRTY) {
-      state.vulnerabilitiesHistoryMaxDayInterval = 1;
-    } else if (days > DAYS.THIRTY && days <= DAYS.SIXTY) {
       state.vulnerabilitiesHistoryMaxDayInterval = 7;
     } else if (days > DAYS.SIXTY) {
       state.vulnerabilitiesHistoryMaxDayInterval = 14;
@@ -127,11 +124,13 @@ export default {
       state.modal.vulnerability,
       'hasMergeRequest',
       Boolean(
-        vulnerability.merge_request_feedback && vulnerability.merge_request.merge_request_iid,
+        vulnerability.merge_request_feedback &&
+          vulnerability.merge_request_feedback.merge_request_iid,
       ),
     );
     Vue.set(state.modal.vulnerability, 'isDismissed', Boolean(vulnerability.dismissal_feedback));
     Vue.set(state.modal, 'error', null);
+    Vue.set(state.modal, 'isCommentingOnDismissal', false);
 
     if (vulnerability.instances && vulnerability.instances.length) {
       Vue.set(state.modal.data.instances, 'value', vulnerability.instances);
@@ -157,7 +156,7 @@ export default {
   [types.RECEIVE_CREATE_ISSUE_ERROR](state) {
     state.isCreatingIssue = false;
     Vue.set(state.modal, 'isCreatingNewIssue', false);
-    Vue.set(state.modal, 'error', 'There was an error creating the issue');
+    Vue.set(state.modal, 'error', __('There was an error creating the issue'));
   },
   [types.REQUEST_DISMISS_VULNERABILITY](state) {
     state.isDismissingVulnerability = true;
@@ -218,5 +217,11 @@ export default {
       'error',
       s__('security Reports|There was an error creating the merge request'),
     );
+  },
+  [types.OPEN_DISMISSAL_COMMENT_BOX](state) {
+    Vue.set(state.modal, 'isCommentingOnDismissal', true);
+  },
+  [types.CLOSE_DISMISSAL_COMMENT_BOX](state) {
+    Vue.set(state.modal, 'isCommentingOnDismissal', false);
   },
 };

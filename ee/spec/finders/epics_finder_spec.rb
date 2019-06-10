@@ -27,7 +27,7 @@ describe EpicsFinder do
       end
     end
 
-    # Enabeling the `request_store` for this to avoid counting queries that check
+    # Enabling the `request_store` for this to avoid counting queries that check
     # the license.
     context 'when epics feature is enabled', :request_store do
       before do
@@ -55,10 +55,8 @@ describe EpicsFinder do
           expect(epics).to contain_exactly(epic1, epic2, epic3)
         end
 
-        it 'does not execute more than 7 SQL queries' do
-          amount = ActiveRecord::QueryRecorder.new { epics.to_a }.count
-
-          expect(amount).to be <= 7
+        it 'does not execute more than 8 SQL queries' do
+          expect { epics.to_a }.not_to exceed_all_query_limit(8)
         end
 
         context 'sorting' do
@@ -122,22 +120,18 @@ describe EpicsFinder do
             expect(epics).to contain_exactly(epic1, epic2, epic3, subepic1, subepic2)
           end
 
-          it 'does not execute more than 9 SQL queries' do
-            amount = ActiveRecord::QueryRecorder.new { epics.to_a }.count
-
-            expect(amount).to be <= 9
+          it 'does not execute more than 14 SQL queries' do
+            expect { epics.to_a }.not_to exceed_all_query_limit(14)
           end
 
-          it 'does not execute more than 11 SQL queries when checking namespace plans' do
+          it 'does not execute more than 15 SQL queries when checking namespace plans' do
             allow(Gitlab::CurrentSettings)
               .to receive(:should_check_namespace_plan?)
               .and_return(true)
 
             create(:gitlab_subscription, :gold, namespace: group)
 
-            amount = ActiveRecord::QueryRecorder.new { epics.to_a }.count
-
-            expect(amount).to be <= 10
+            expect { epics.to_a }.not_to exceed_all_query_limit(15)
           end
         end
 
@@ -182,6 +176,23 @@ describe EpicsFinder do
             }
 
             expect(epics(params)).to contain_exactly(epic2)
+          end
+        end
+
+        context 'by iids' do
+          let(:subgroup)  { create(:group, :private, parent: group) }
+          let!(:subepic1) { create(:epic, group: subgroup, iid: epic1.iid) }
+
+          it 'returns the specified epics' do
+            params = { iids: [epic1.iid, epic2.iid] }
+
+            expect(epics(params)).to contain_exactly(epic1, epic2)
+          end
+
+          it 'does not return epics from the sub-group with the same iid' do
+            params = { iids: [epic1.iid] }
+
+            expect(epics(params)).to contain_exactly(epic1)
           end
         end
       end

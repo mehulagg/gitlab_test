@@ -177,40 +177,6 @@ describe Projects::UpdateService, '#execute' do
     end
   end
 
-  context 'with approval_rules' do
-    context 'when approval_rules is disabled' do
-      it "updates approval_rules' approvals_required" do
-        stub_feature_flags(approval_rules: false)
-
-        rule = create(:approval_project_rule, project: project)
-
-        update_project(project, user, approvals_before_merge: 42)
-
-        expect(rule.reload.approvals_required).to eq(42)
-      end
-    end
-
-    context 'when approval_rules is enabled' do
-      it 'does not update' do
-        rule = create(:approval_project_rule, project: project)
-
-        update_project(project, user, approvals_before_merge: 42)
-
-        expect(rule.reload.approvals_required).to eq(0)
-      end
-    end
-
-    context 'when approval_rule feature is enabled' do
-      it "does not update approval_rules' approvals_required" do
-        rule = create(:approval_project_rule, project: project)
-
-        expect do
-          update_project(project, user, approvals_before_merge: 42)
-        end.not_to change { rule.reload.approvals_required }
-      end
-    end
-  end
-
   describe 'repository_storage' do
     let(:admin_user) { create(:user, admin: true) }
     let(:user) { create(:user) }
@@ -275,6 +241,13 @@ describe Projects::UpdateService, '#execute' do
     result = update_project(project, admin, { name: 'foo&bar' })
 
     expect(result).to eq({ status: :error, message: "Name can contain only letters, digits, emojis, '_', '.', dash, space. It must start with letter, digit, emoji or '_'." })
+  end
+
+  it 'calls remove_import_data if mirror was disabled in previous change' do
+    update_project(project, user, { mirror: false })
+
+    expect(project.import_data).to be_nil
+    expect(project).not_to be_mirror
   end
 
   def update_project(project, user, opts)

@@ -504,8 +504,9 @@ describe API::Projects do
           project4.add_reporter(user2)
         end
 
-        it 'returns an array of groups the user has at least developer access' do
+        it 'returns an array of projects the user has at least developer access' do
           get api('/projects', user2), params: { min_access_level: 30 }
+
           expect(response).to have_gitlab_http_status(200)
           expect(response).to include_pagination_headers
           expect(json_response).to be_an Array
@@ -1025,7 +1026,7 @@ describe API::Projects do
     end
 
     context 'when authenticated as an admin' do
-      it 'returns a project by id including repository_storage' do
+      it 'returns a project by id' do
         project
         project_member
         group = create(:group)
@@ -1043,7 +1044,6 @@ describe API::Projects do
         expect(json_response['ssh_url_to_repo']).to be_present
         expect(json_response['http_url_to_repo']).to be_present
         expect(json_response['web_url']).to be_present
-        expect(json_response['owner']).to be_a Hash
         expect(json_response['owner']).to be_a Hash
         expect(json_response['name']).to eq(project.name)
         expect(json_response['path']).to be_present
@@ -1069,7 +1069,6 @@ describe API::Projects do
         expect(json_response['shared_with_groups'][0]['group_access_level']).to eq(link.group_access)
         expect(json_response['only_allow_merge_if_pipeline_succeeds']).to eq(project.only_allow_merge_if_pipeline_succeeds)
         expect(json_response['only_allow_merge_if_all_discussions_are_resolved']).to eq(project.only_allow_merge_if_all_discussions_are_resolved)
-        expect(json_response['repository_storage']).to eq(project.repository_storage)
       end
     end
 
@@ -1095,7 +1094,6 @@ describe API::Projects do
         expect(json_response['ssh_url_to_repo']).to be_present
         expect(json_response['http_url_to_repo']).to be_present
         expect(json_response['web_url']).to be_present
-        expect(json_response['owner']).to be_a Hash
         expect(json_response['owner']).to be_a Hash
         expect(json_response['name']).to eq(project.name)
         expect(json_response['path']).to be_present
@@ -1129,7 +1127,6 @@ describe API::Projects do
         expect(json_response['only_allow_merge_if_all_discussions_are_resolved']).to eq(project.only_allow_merge_if_all_discussions_are_resolved)
         expect(json_response['merge_method']).to eq(project.merge_method.to_s)
         expect(json_response['readme_url']).to eq(project.readme_url)
-        expect(json_response).not_to have_key('repository_storage')
       end
 
       it 'returns a group link with expiration date' do
@@ -1185,7 +1182,9 @@ describe API::Projects do
           'path' => user.namespace.path,
           'kind' => user.namespace.kind,
           'full_path' => user.namespace.full_path,
-          'parent_id' => nil
+          'parent_id' => nil,
+          'avatar_url' => user.avatar_url,
+          'web_url' => Gitlab::Routing.url_helpers.user_url(user)
         })
       end
 
@@ -1385,6 +1384,37 @@ describe API::Projects do
               .to eq(Gitlab::Access::OWNER)
             end
           end
+        end
+      end
+
+      context 'when project belongs to a group namespace' do
+        let(:group) { create(:group, :with_avatar) }
+        let(:project) { create(:project, namespace: group) }
+        let!(:project_member) { create(:project_member, :developer, user: user, project: project) }
+
+        it 'returns group web_url and avatar_url' do
+          get api("/projects/#{project.id}", user)
+
+          expect(response).to have_gitlab_http_status(200)
+
+          group_data = json_response['namespace']
+          expect(group_data['web_url']).to eq(group.web_url)
+          expect(group_data['avatar_url']).to eq(group.avatar_url)
+        end
+      end
+
+      context 'when project belongs to a user namespace' do
+        let(:user) { create(:user) }
+        let(:project) { create(:project, namespace: user.namespace) }
+
+        it 'returns user web_url and avatar_url' do
+          get api("/projects/#{project.id}", user)
+
+          expect(response).to have_gitlab_http_status(200)
+
+          user_data = json_response['namespace']
+          expect(user_data['web_url']).to eq("http://localhost/#{user.username}")
+          expect(user_data['avatar_url']).to eq(user.avatar_url)
         end
       end
     end
@@ -1745,13 +1775,6 @@ describe API::Projects do
         expect(project.project_group_links).to be_empty
       end
 
-      it 'returns 204 when deleting a group share' do
-        delete api("/projects/#{project.id}/share/#{group.id}", user)
-
-        expect(response).to have_gitlab_http_status(204)
-        expect(project.project_group_links).to be_empty
-      end
-
       it_behaves_like '412 response' do
         let(:request) { api("/projects/#{project.id}/share/#{group.id}", user) }
       end
@@ -1863,15 +1886,6 @@ describe API::Projects do
 
         expect(response).to have_gitlab_http_status(200)
         expect(json_response['request_access_enabled']).to eq(false)
-      end
-
-      it 'updates approvals_before_merge' do
-        project_param = { approvals_before_merge: 3 }
-
-        put api("/projects/#{project.id}", user), params: project_param
-
-        expect(response).to have_gitlab_http_status(200)
-        expect(json_response['approvals_before_merge']).to eq(3)
       end
 
       it 'updates path & name to existing path & name in different namespace' do

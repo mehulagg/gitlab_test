@@ -1,3 +1,5 @@
+require Rails.root.join("spec/support/helpers/stub_requests.rb")
+
 Dir[Rails.root.join("ee/spec/support/helpers/*.rb")].each { |f| require f }
 Dir[Rails.root.join("ee/spec/support/shared_contexts/*.rb")].each { |f| require f }
 Dir[Rails.root.join("ee/spec/support/shared_examples/*.rb")].each { |f| require f }
@@ -5,6 +7,12 @@ Dir[Rails.root.join("ee/spec/support/**/*.rb")].each { |f| require f }
 
 RSpec.configure do |config|
   config.include EE::LicenseHelpers
+
+  config.define_derived_metadata(file_path: %r{ee/spec/}) do |metadata|
+    location = metadata[:location]
+
+    metadata[:geo] = metadata.fetch(:geo, true) if location =~ %r{[/_]geo[/_]}
+  end
 
   config.before(:all) do
     License.destroy_all # rubocop: disable DestroyAll
@@ -20,6 +28,12 @@ RSpec.configure do |config|
   end
 
   config.around(:each, :geo_fdw) do |example|
-    example.run if Gitlab::Geo::Fdw.enabled?
+    if Gitlab::Geo::Fdw.enabled? && Gitlab::Geo.geo_database_configured?
+      # Disable transactions via :delete method because a foreign table
+      # can't see changes inside a transaction of a different connection.
+      example.metadata[:delete] = true
+
+      example.run
+    end
   end
 end

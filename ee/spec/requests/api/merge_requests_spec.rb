@@ -149,58 +149,47 @@ describe API::MergeRequests do
             create_merge_request(approvals_before_merge: 1)
           end
 
-          it 'does not update approvals_before_merge' do
+          it 'does not set approvals_before_merge' do
             expect(json_response['approvals_before_merge']).to eq(nil)
           end
         end
 
-        context 'when the target project has approvals_before_merge set to zero' do
+        context 'when the target project has disable_overriding_approvers_per_merge_request set to false' do
           before do
             project.update(approvals_before_merge: 0)
             create_merge_request(approvals_before_merge: 1)
           end
 
-          it 'returns a 201' do
+          it 'sets approvals_before_merge' do
             expect(response).to have_gitlab_http_status(201)
-          end
-
-          it 'does not include an error in the response' do
             expect(json_response['message']).to eq(nil)
-          end
-        end
-
-        context 'when the target project has a non-zero approvals_before_merge' do
-          context 'when the approvals_before_merge param is less than or equal to the value in the target project' do
-            before do
-              project.update(approvals_before_merge: 2)
-              create_merge_request(approvals_before_merge: 1)
-            end
-
-            it 'returns a 400' do
-              expect(response).to have_gitlab_http_status(400)
-            end
-
-            it 'includes the error in the response' do
-              expect(json_response['message']['validate_approvals_before_merge']).not_to be_empty
-            end
-          end
-
-          context 'when the approvals_before_merge param is greater than the value in the target project' do
-            before do
-              project.update(approvals_before_merge: 1)
-              create_merge_request(approvals_before_merge: 2)
-            end
-
-            it 'returns a created status' do
-              expect(response).to have_gitlab_http_status(201)
-            end
-
-            it 'sets approvals_before_merge of the newly-created MR' do
-              expect(json_response['approvals_before_merge']).to eq(2)
-            end
+            expect(json_response['approvals_before_merge']).to eq(1)
           end
         end
       end
+    end
+  end
+
+  describe "PUT /projects/:id/merge_requests/:merge_request_iid/merge" do
+    it 'returns 405 if merge request was not approved' do
+      project.add_developer(create(:user))
+      project.update(approvals_before_merge: 1)
+
+      put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/merge", user)
+
+      expect(response).to have_gitlab_http_status(406)
+      expect(json_response['message']).to eq('Branch cannot be merged')
+    end
+
+    it 'returns 200 if merge request was approved' do
+      approver = create(:user)
+      project.add_developer(approver)
+      project.update(approvals_before_merge: 1)
+      merge_request.approvals.create(user: approver)
+
+      put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/merge", user)
+
+      expect(response).to have_gitlab_http_status(200)
     end
   end
 

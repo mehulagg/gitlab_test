@@ -16,7 +16,7 @@ module Gitlab
         }.with_indifferent_access.freeze
         PERIODS = {
           days: { default: 30 },
-          weeks: { default: 4 },
+          weeks: { default: 12 },
           months: { default: 12 }
         }.with_indifferent_access.freeze
 
@@ -34,6 +34,19 @@ module Gitlab
           relation = relation.preload(:labels) if opts.key?(:collection_labels) # rubocop:disable CodeReuse/ActiveRecord
 
           relation
+        end
+
+        def period_limit
+          @period_limit ||=
+            if opts.key?(:period_limit)
+              begin
+                Integer(opts[:period_limit])
+              rescue ArgumentError
+                raise InvalidPeriodLimitError, "Invalid `:period_limit` option: `#{opts[:period_limit]}`. Expected an integer!"
+              end
+            else
+              PERIODS.dig(period, :default)
+            end
         end
 
         private
@@ -76,7 +89,7 @@ module Gitlab
 
         def period
           @period ||=
-            begin
+            if opts.key?(:group_by)
               period = opts[:group_by].to_s.pluralize.to_sym
 
               unless PERIODS.key?(period)
@@ -84,19 +97,8 @@ module Gitlab
               end
 
               period
-            end
-        end
-
-        def period_limit
-          @period_limit ||=
-            if opts.key?(:period_limit)
-              begin
-                Integer(opts[:period_limit])
-              rescue ArgumentError
-                raise InvalidPeriodLimitError, "Invalid `:period_limit` option: `#{opts[:period_limit]}`. Expected an integer!"
-              end
             else
-              PERIODS.dig(period, :default)
+              :days
             end
         end
       end

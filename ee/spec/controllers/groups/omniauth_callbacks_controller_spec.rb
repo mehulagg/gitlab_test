@@ -41,19 +41,38 @@ describe Groups::OmniauthCallbacksController do
 
   context "valid credentials" do
     before do
-      mock_auth_hash(provider, uid, user.email, response_object: saml_response)
+      @original_env_config_omniauth_auth = mock_auth_hash(provider, uid, user.email, response_object: saml_response)
       stub_omniauth_provider(provider, context: request)
       stub_last_request_id(last_request_id)
     end
 
-    shared_examples "and identity already linked" do
-      let!(:user) { create_linked_user }
+    after do
+      Rails.application.env_config['omniauth.auth'] = @original_env_config_omniauth_auth
+    end
 
+    shared_examples 'works with session enforcement' do
+      it 'stores that a SAML session is active' do
+        expect(Gitlab::Auth::GroupSaml::SsoEnforcer).to receive(:new).with(saml_provider).and_call_original
+        expect_any_instance_of(Gitlab::Auth::GroupSaml::SsoEnforcer).to receive(:update_session)
+
+        post provider, params: { group_id: group }
+      end
+    end
+
+    shared_examples "SAML session initiated" do
       it "redirects to RelayState" do
         post provider, params: { group_id: group, RelayState: '/explore' }
 
         expect(response).to redirect_to('/explore')
       end
+
+      include_examples 'works with session enforcement'
+    end
+
+    shared_examples "and identity already linked" do
+      let!(:user) { create_linked_user }
+
+      it_behaves_like "SAML session initiated"
 
       it "displays a flash message verifying group sign in" do
         post provider, params: { group_id: group }
@@ -73,6 +92,14 @@ describe Groups::OmniauthCallbacksController do
           expect(response).not_to be_server_error
         end
       end
+
+      context 'with 2FA' do
+        before do
+          user.update!(otp_required_for_login: true)
+        end
+
+        include_examples 'works with session enforcement'
+      end
     end
 
     context "when signed in" do
@@ -81,6 +108,18 @@ describe Groups::OmniauthCallbacksController do
       end
 
       it_behaves_like "and identity already linked"
+
+      context 'oauth linked with different NameID' do
+        before do
+          create(:identity, user: user, extern_uid: 'some-other-name-id', provider: provider, saml_provider: saml_provider)
+        end
+
+        it 'displays warning to user' do
+          post provider, params: { group_id: group }
+
+          expect(flash[:notice]).to match(/has already been taken*/)
+        end
+      end
 
       context 'oauth already linked to another account' do
         before do
@@ -101,11 +140,7 @@ describe Groups::OmniauthCallbacksController do
           expect(group).to be_member(user)
         end
 
-        it "redirects to RelayState" do
-          post provider, params: { group_id: group, RelayState: '/explore' }
-
-          expect(response).to redirect_to('/explore')
-        end
+        it_behaves_like "SAML session initiated"
 
         it "displays a flash indicating the account has been linked" do
           post provider, params: { group_id: group }
@@ -128,35 +163,40 @@ describe Groups::OmniauthCallbacksController do
             expect(flash[:notice]).to eq 'Request to link SAML account must be authorized'
           end
         end
+
+        context 'with enforced_group_managed_accounts enabled' do
+          let!(:saml_provider) { create(:saml_provider, :enforced_group_managed_accounts, group: group) }
+
+          it 'redirects to group sign up' do
+            post provider, params: { group_id: group }
+
+            expect(response).to redirect_to(group_sign_up_path(group))
+          end
+        end
       end
     end
 
     context "when not signed in" do
       context "and identity hasn't been linked" do
-        it "redirects to sign in page" do
-          post provider, params: { group_id: group }
+        let!(:saml_provider) { create(:saml_provider, :enforced_group_managed_accounts, group: group) }
 
-          expect(response).to redirect_to(new_user_session_path)
+        context 'when sign_up_on_sso feature flag is disabled' do
+          before do
+            stub_feature_flags(sign_up_on_sso: false)
+          end
+
+          it "redirects to sign in page with flash notice" do
+            post provider, params: { group_id: group }
+
+            expect(response).to redirect_to(new_user_session_path)
+            expect(flash[:notice]).to start_with("Login to a GitLab account to link with your SAML identity")
+          end
         end
 
-        it "informs users that they need to sign in to the GitLab instance first" do
+        it 'redirects to group sign up page' do
           post provider, params: { group_id: group }
 
-          expect(flash[:notice]).to start_with("Login to a GitLab account to link with your SAML identity")
-        end
-      end
-
-      context 'identity linked but sign in flow disabled' do
-        before do
-          create_linked_user
-          stub_feature_flags(group_saml_allows_sign_in_to_gitlab: false)
-        end
-
-        it 'prevents sign in' do
-          post provider, params: { group_id: group }
-
-          expect(flash[:notice]).to start_with('You must be signed in')
-          expect(response).to redirect_to('/users/sign_in')
+          expect(response).to redirect_to(group_sign_up_path(group))
         end
       end
 
@@ -221,6 +261,8 @@ describe Groups::OmniauthCallbacksController do
     end
 
     context "with access to SAML settings for the group" do
+      let(:user) { create_linked_user }
+
       before do
         group.add_owner(user)
         sign_in(user)

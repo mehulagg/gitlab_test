@@ -121,6 +121,12 @@ module EE
       @project.feature_available?(:merge_pipelines)
     end
 
+    def merge_trains_available?
+      return false unless @project.builds_enabled?
+
+      @project.feature_available?(:merge_trains)
+    end
+
     def size_limit_message(project)
       show_lfs = project.lfs_enabled? ? 'including files in LFS' : ''
 
@@ -131,10 +137,7 @@ module EE
       ::Gitlab::RepositorySizeError.new(@project).above_size_limit_message
     end
 
-    def project_can_be_shared?
-      !membership_locked? || @project.allowed_to_share_with_group?
-    end
-
+    override :membership_locked?
     def membership_locked?
       if @project.group && @project.group.membership_lock
         true
@@ -149,47 +152,23 @@ module EE
       ::Project.in_namespace(allowed_subgroups).count
     end
 
-    def share_project_description
-      share_with_group   = @project.allowed_to_share_with_group?
-      share_with_members = !membership_locked?
-      project_name       = content_tag(:strong, @project.name)
-      member_message     = "You can invite a new member to #{project_name}"
-
-      description =
-        if share_with_group && share_with_members
-          "#{member_message} or invite another group."
-        elsif share_with_group
-          "You can invite another group to #{project_name}."
-        elsif share_with_members
-          "#{member_message}."
-        end
-
-      description.to_s.html_safe
-    end
-
     def project_security_dashboard_config(project, pipeline)
       if pipeline.nil?
         {
           empty_state_illustration_path: image_path('illustrations/security-dashboard_empty.svg'),
           security_dashboard_help_path: help_page_path("user/project/security_dashboard"),
-          has_pipeline_data: "false",
-          can_create_feedback: "false",
-          can_create_issue: "false"
+          has_pipeline_data: "false"
         }
       else
         {
-          head_blob_path: project_blob_path(project, pipeline.sha),
-          sast_head_path: pipeline.downloadable_path_for_report_type(:sast),
-          dependency_scanning_head_path: pipeline.downloadable_path_for_report_type(:dependency_scanning),
-          dast_head_path: pipeline.downloadable_path_for_report_type(:dast),
-          sast_container_head_path: pipeline.downloadable_path_for_report_type(:container_scanning),
-          vulnerability_feedback_path: project_vulnerability_feedback_index_path(project),
+          project: { id: project.id, name: project.name },
+          vulnerabilities_endpoint: group_security_vulnerabilities_path(project.group),
+          vulnerabilities_summary_endpoint: summary_group_security_vulnerabilities_path(project.group),
+          vulnerabilities_history_endpoint: history_group_security_vulnerabilities_path(project.group),
+          vulnerability_feedback_help_path: help_page_path("user/application_security/index", anchor: "interacting-with-the-vulnerabilities"),
+          empty_state_svg_path: image_path('illustrations/security-dashboard-empty-state.svg'),
+          dashboard_documentation: help_page_path('user/application_security/security_dashboard/index'),
           pipeline_id: pipeline.id,
-          vulnerability_feedback_help_path: help_page_path("user/project/merge_requests/index", anchor: "interacting-with-security-reports-ultimate"),
-          sast_help_path: help_page_path('user/project/merge_requests/sast'),
-          dependency_scanning_help_path: help_page_path('user/project/merge_requests/dependency_scanning'),
-          dast_help_path: help_page_path('user/project/merge_requests/dast'),
-          sast_container_help_path: help_page_path('user/project/merge_requests/container_scanning'),
           user_path: user_url(pipeline.user),
           user_avatar_path: pipeline.user.avatar_url,
           user_name: pipeline.user.name,
@@ -198,11 +177,32 @@ module EE
           ref_id: pipeline.ref,
           ref_path: project_commits_url(project, pipeline.ref),
           pipeline_path: pipeline_url(pipeline),
-          pipeline_created: pipeline.created_at.to_s,
-          has_pipeline_data: "true",
-          can_create_feedback: can?(current_user, :admin_vulnerability_feedback, project).to_s,
-          can_create_issue: can?(current_user, :create_issue, project).to_s
+          pipeline_created: pipeline.created_at.to_s(:iso8601),
+          has_pipeline_data: "true"
         }
+      end
+    end
+
+    def can_create_feedback?(project, feedback_type)
+      feedback = Vulnerabilities::Feedback.new(project: project, feedback_type: feedback_type)
+      can?(current_user, :create_vulnerability_feedback, feedback)
+    end
+
+    def create_vulnerability_feedback_issue_path(project)
+      if can_create_feedback?(project, :issue)
+        project_vulnerability_feedback_index_path(project)
+      end
+    end
+
+    def create_vulnerability_feedback_merge_request_path(project)
+      if can_create_feedback?(project, :merge_request)
+        project_vulnerability_feedback_index_path(project)
+      end
+    end
+
+    def create_vulnerability_feedback_dismissal_path(project)
+      if can_create_feedback?(project, :dismissal)
+        project_vulnerability_feedback_index_path(project)
       end
     end
 
@@ -215,6 +215,11 @@ module EE
     def project_incident_management_setting
       @project_incident_management_setting ||= @project.incident_management_setting ||
         @project.build_incident_management_setting
+    end
+
+    override :can_import_members?
+    def can_import_members?
+      super && !membership_locked?
     end
   end
 end

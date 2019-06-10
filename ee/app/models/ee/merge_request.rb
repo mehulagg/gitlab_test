@@ -8,7 +8,6 @@ module EE
     include ::Approvable
     include ::Gitlab::Utils::StrongMemoize
     include FromUnion
-    prepend ApprovableForRule
 
     prepended do
       include Elastic::MergeRequestsSearch
@@ -21,8 +20,20 @@ module EE
       has_many :approver_groups, as: :target, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
       has_many :approval_rules, class_name: 'ApprovalMergeRequestRule', inverse_of: :merge_request
       has_many :draft_notes
+      has_one :merge_train
 
-      validate :validate_approvals_before_merge, unless: :importing?
+      has_many :blocks_as_blocker,
+               class_name: 'MergeRequestBlock',
+               foreign_key: :blocking_merge_request_id
+
+      has_many :blocks_as_blockee,
+               class_name: 'MergeRequestBlock',
+               foreign_key: :blocked_merge_request_id
+
+      has_many :blocking_merge_requests, through: :blocks_as_blockee
+
+      has_many :blocked_merge_requests, through: :blocks_as_blocker
+
       validate :validate_approval_rule_source
 
       delegate :sha, to: :head_pipeline, prefix: :head_pipeline, allow_nil: true
@@ -38,13 +49,26 @@ module EE
       def select_from_union(relations)
         where(id: from_union(relations))
       end
+
+      # This is an ActiveRecord scope in CE
+      def with_api_entity_associations
+        super.preload(:blocking_merge_requests)
+      end
     end
 
     override :mergeable?
     def mergeable?(skip_ci_check: false)
       return false unless approved?
+      return false if merge_blocked_by_other_mrs?
 
       super
+    end
+
+    def merge_blocked_by_other_mrs?
+      strong_memoize(:merge_blocked_by_other_mrs) do
+        project.feature_available?(:blocking_merge_requests) &&
+          blocking_merge_requests.any? { |mr| !mr.merged? }
+      end
     end
 
     override :mergeable_ci_state?
@@ -52,6 +76,18 @@ module EE
       return false unless validate_merge_request_pipelines
 
       super
+    end
+
+    def get_on_train!(user)
+      create_merge_train!(user: user)
+    end
+
+    def get_off_train!
+      merge_train.destroy!
+    end
+
+    def on_train?
+      merge_train.present?
     end
 
     def allows_multiple_assignees?
@@ -69,21 +105,7 @@ module EE
       actual_head_pipeline&.latest_merge_request_pipeline?
     end
 
-    def validate_approvals_before_merge
-      return true unless approvals_before_merge
-      return true unless target_project
-
-      # Ensure per-merge-request approvals override is valid
-      if approvals_before_merge >= target_project.approvals_before_merge
-        true
-      else
-        errors.add :validate_approvals_before_merge,
-                   'Number of approvals must be at least that of approvals on the target project'
-      end
-    end
-
     def validate_approval_rule_source
-      return if ::Feature.disabled?(:approval_rules, project, default_enabled: true)
       return unless approval_rules.any?
 
       local_project_rule_ids = approval_rules.map { |rule| rule.approval_merge_request_rule_source&.approval_project_rule_id }
@@ -102,16 +124,7 @@ module EE
       strong_memoize(:participant_approvers) do
         next [] unless approval_needed?
 
-        if ::Feature.enabled?(:approval_rules, project, default_enabled: true)
-          approval_state.filtered_approvers(code_owner: false, unactioned: true)
-        else
-          approvers = [
-            *overall_approvers(exclude_code_owners: true),
-            *approvers_from_groups
-          ]
-
-          ::User.where(id: approvers.map(&:id)).where.not(id: approved_by_users.select(:id))
-        end
+        approval_state.filtered_approvers(code_owner: false, unactioned: true)
       end
     end
 
@@ -122,7 +135,7 @@ module EE
     end
 
     def has_license_management_reports?
-      actual_head_pipeline&.has_license_management_reports?
+      actual_head_pipeline&.has_reports?(::Ci::JobArtifact.license_management_reports)
     end
 
     def compare_license_management_reports
@@ -133,6 +146,18 @@ module EE
       compare_reports(::Ci::CompareLicenseManagementReportsService)
     end
 
+    def has_metrics_reports?
+      actual_head_pipeline&.has_reports?(::Ci::JobArtifact.metrics_reports)
+    end
+
+    def compare_metrics_reports
+      unless has_metrics_reports?
+        return { status: :error, status_reason: 'This merge request does not have metrics reports' }
+      end
+
+      compare_reports(::Ci::CompareMetricsReportsService)
+    end
+
     def sync_code_owners_with_approvers
       return if merged?
 
@@ -141,7 +166,10 @@ module EE
       if owners.present?
         ApplicationRecord.transaction do
           rule = approval_rules.code_owner.first
-          rule ||= approval_rules.code_owner.create!(name: ApprovalMergeRequestRule::DEFAULT_NAME_FOR_CODE_OWNER)
+          rule ||= ApprovalMergeRequestRule.find_or_create_code_owner_rule(
+            self,
+            ApprovalMergeRequestRule::DEFAULT_NAME_FOR_CODE_OWNER
+          )
 
           rule.users = owners.uniq
         end

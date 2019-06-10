@@ -9,6 +9,7 @@ describe Vulnerabilities::Feedback do
   describe 'associations' do
     it { is_expected.to belong_to(:project) }
     it { is_expected.to belong_to(:author).class_name('User') }
+    it { is_expected.to belong_to(:comment_author).class_name('User') }
     it { is_expected.to belong_to(:issue) }
     it { is_expected.to belong_to(:merge_request) }
     it { is_expected.to belong_to(:pipeline).class_name('Ci::Pipeline').with_foreign_key('pipeline_id') }
@@ -20,6 +21,43 @@ describe Vulnerabilities::Feedback do
     it { is_expected.to validate_presence_of(:feedback_type) }
     it { is_expected.to validate_presence_of(:category) }
     it { is_expected.to validate_presence_of(:project_fingerprint) }
+
+    context 'comment is set' do
+      let(:feedback) { build(:vulnerability_feedback, comment: 'a comment' ) }
+
+      it 'validates presence of comment_timestamp' do
+        expect(feedback).to validate_presence_of(:comment_timestamp)
+      end
+
+      it 'validates presence of comment_author' do
+        expect(feedback).to validate_presence_of(:comment_author)
+      end
+    end
+  end
+
+  describe '#has_comment?' do
+    let(:feedback) { build(:vulnerability_feedback, comment: comment, comment_author: comment_author) }
+    let(:comment) { 'a comment' }
+    let(:comment_author) { build(:user) }
+
+    subject { feedback.has_comment? }
+
+    context 'comment and comment_author are set' do
+      it { is_expected.to be_truthy }
+    end
+
+    context 'comment is set and comment_author is not' do
+      let(:comment_author) { nil }
+
+      it { is_expected.to be_falsy }
+    end
+
+    context 'comment and comment_author are not set' do
+      let(:comment) { nil }
+      let(:comment_author) { nil }
+
+      it { is_expected.to be_falsy }
+    end
   end
 
   describe '#find_or_init_for' do
@@ -32,6 +70,7 @@ describe Vulnerabilities::Feedback do
       {
         feedback_type: 'dismissal', pipeline_id: pipeline.id, category: 'sast',
         project_fingerprint: '418291a26024a1445b23fe64de9380cdcdfd1fa8',
+        author: user,
         vulnerability_data: {
           category: 'sast',
           priority: 'Low', line: '41',
@@ -48,7 +87,6 @@ describe Vulnerabilities::Feedback do
       subject(:feedback) { described_class.find_or_init_for(feedback_params) }
 
       before do
-        feedback.author = user
         feedback.project = project
       end
 
@@ -67,7 +105,6 @@ describe Vulnerabilities::Feedback do
       context 'when attempting to save duplicate' do
         it 'raises ActiveRecord::RecordInvalid' do
           duplicate = described_class.find_or_init_for(feedback_params)
-          duplicate.author = user
           duplicate.project = project
 
           feedback.save!

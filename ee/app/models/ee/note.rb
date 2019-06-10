@@ -11,7 +11,7 @@ module EE
 
       belongs_to :review, inverse_of: :notes
 
-      scope :searchable, -> { where(system: false) }
+      scope :searchable, -> { where(system: false).includes(:noteable) }
     end
 
     # Original method in Elastic::ApplicationSearch
@@ -45,6 +45,10 @@ module EE
     override :for_issuable?
     def for_issuable?
       for_epic? || super
+    end
+
+    def for_design?
+      noteable.is_a?(DesignManagement::Design)
     end
 
     override :parent

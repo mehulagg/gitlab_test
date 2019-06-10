@@ -1,8 +1,4 @@
 import Vue from 'vue';
-import _ from 'underscore';
-import { __, sprintf } from '~/locale';
-import Flash from '~/flash';
-import axios from '~/lib/utils/axios_utils';
 import boardsStore from '~/boards/stores/boards_store';
 import ListContainer from './list_container.vue';
 
@@ -31,24 +27,9 @@ export default Vue.extend({
   },
   methods: {
     loadList() {
-      if (this.store.state[this.listType].length) {
-        return Promise.resolve();
-      }
-
-      return axios
-        .get(this.listPath)
-        .then(({ data }) => {
-          this.loading = false;
-          this.store.state[this.listType] = data;
-        })
-        .catch(() => {
-          this.loading = false;
-          Flash(
-            sprintf(__('Something went wrong while fetching %{listType} list'), {
-              listType: this.listType,
-            }),
-          );
-        });
+      return this.store.loadList(this.listPath, this.listType).then(() => {
+        this.loading = false;
+      });
     },
     filterItems(term, items) {
       const query = term.toLowerCase();
@@ -80,8 +61,6 @@ export default Vue.extend({
         }
 
         this.store.new(list);
-
-        this.store.state.lists = _.sortBy(this.store.state.lists, 'position');
       }
     },
   },

@@ -13,9 +13,12 @@ module EE
 
       SECURITY_REPORT_FILE_TYPES = %w[sast dependency_scanning container_scanning dast].freeze
       LICENSE_MANAGEMENT_REPORT_FILE_TYPES = %w[license_management].freeze
+      DEPENDENCY_LIST_REPORT_FILE_TYPES = %w[dependency_scanning].freeze
+      METRICS_REPORT_FILE_TYPES = %w[metrics].freeze
 
       scope :not_expired, -> { where('expire_at IS NULL OR expire_at > ?', Time.current) }
-      scope :geo_syncable, -> { with_files_stored_locally.not_expired }
+      scope :project_id_in, ->(ids) { joins(:project).merge(::Project.id_in(ids)) }
+      scope :syncable, -> { with_files_stored_locally.not_expired }
       scope :with_files_stored_remotely, -> { where(file_store: ::JobArtifactUploader::Store::REMOTE) }
 
       scope :security_reports, -> do
@@ -24,6 +27,14 @@ module EE
 
       scope :license_management_reports, -> do
         with_file_types(LICENSE_MANAGEMENT_REPORT_FILE_TYPES)
+      end
+
+      scope :dependency_list_reports, -> do
+        with_file_types(DEPENDENCY_LIST_REPORT_FILE_TYPES)
+      end
+
+      scope :metrics_reports, -> do
+        with_file_types(METRICS_REPORT_FILE_TYPES)
       end
     end
 

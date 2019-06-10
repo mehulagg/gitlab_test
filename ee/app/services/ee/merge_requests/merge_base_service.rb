@@ -8,6 +8,7 @@ module EE
       override :error_check!
       def error_check!
         check_size_limit
+        check_blocking_mrs
       end
 
       override :hooks_validation_pass?
@@ -36,9 +37,9 @@ module EE
         push_rule = merge_request.project.push_rule
         return unless push_rule
 
-        if !push_rule.commit_message_allowed?(params[:commit_message])
+        if !push_rule.commit_message_allowed?(commit_message)
           "Commit message does not follow the pattern '#{push_rule.commit_message_regex}'"
-        elsif push_rule.commit_message_blocked?(params[:commit_message])
+        elsif push_rule.commit_message_blocked?(commit_message)
           "Commit message contains the forbidden pattern '#{push_rule.commit_message_negative_regex}'"
         elsif !push_rule.author_email_allowed?(current_user.commit_email)
           "Commit author's email '#{current_user.commit_email}' does not follow the pattern '#{push_rule.author_email_regex}'"
@@ -53,6 +54,12 @@ module EE
 
           raise ::MergeRequests::MergeService::MergeError, message
         end
+      end
+
+      def check_blocking_mrs
+        return unless merge_request.merge_blocked_by_other_mrs?
+
+        raise ::MergeRequests::MergeService::MergeError, _('Other merge requests block this MR')
       end
     end
   end

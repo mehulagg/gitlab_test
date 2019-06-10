@@ -12,7 +12,7 @@ describe "Git HTTP requests (Geo)", :geo do
   set(:secondary) { create(:geo_node) }
 
   # Ensure the token always comes from the real time of the request
-  let!(:auth_token) { Gitlab::Geo::BaseRequest.new(scope: project.full_path).authorization }
+  let(:auth_token) { Gitlab::Geo::BaseRequest.new(scope: project.full_path).authorization }
   let!(:user) { create(:user) }
   let!(:user_without_any_access) { create(:user) }
   let!(:user_without_push_access) { create(:user) }
@@ -29,6 +29,9 @@ describe "Git HTTP requests (Geo)", :geo do
 
     stub_licensed_features(geo: true)
     stub_current_geo_node(current_node)
+
+    # Current Geo node must be stubbed before this is instantiated
+    auth_token
   end
 
   shared_examples_for 'Geo request' do
@@ -346,6 +349,22 @@ describe "Git HTTP requests (Geo)", :geo do
           end
         end
       end
+    end
+
+    context 'repository does not exist' do
+      subject do
+        make_request
+        response
+      end
+
+      def make_request
+        full_path = project.full_path
+        project.destroy
+
+        get "/#{full_path}.git/info/refs", params: { service: 'git-upload-pack' }, headers: env
+      end
+
+      it { is_expected.to have_gitlab_http_status(:not_found) }
     end
 
     context 'invalid scope' do

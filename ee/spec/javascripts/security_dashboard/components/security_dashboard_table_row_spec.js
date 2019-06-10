@@ -33,6 +33,10 @@ describe('Security Dashboard Table Row', () => {
       expect(vm.confidence).toEqual('–');
       expect(vm.$el.querySelectorAll('.table-mobile-content')[2].textContent).toContain('–');
     });
+
+    it('should not render action buttons', () => {
+      expect(vm.$el.querySelectorAll('.action-buttons button').length).toBe(0);
+    });
   });
 
   describe('when loaded', () => {
@@ -105,7 +109,7 @@ describe('Security Dashboard Table Row', () => {
     });
 
     it('should render a `DISMISSED` tag', () => {
-      expect(vm.$el.textContent).toContain('DISMISSED');
+      expect(vm.$el.textContent).toContain('dismissed');
     });
   });
 

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Epic do
-  let(:group) { create(:group) }
+  set(:group) { create(:group) }
   let(:project) { create(:project, group: group) }
 
   describe 'associations' do
@@ -16,11 +16,23 @@ describe Epic do
   end
 
   describe 'validations' do
-    subject { create(:epic) }
+    subject { build(:epic) }
 
     it { is_expected.to validate_presence_of(:group) }
     it { is_expected.to validate_presence_of(:author) }
     it { is_expected.to validate_presence_of(:title) }
+
+    it 'is valid with a valid parent' do
+      epic = build(:epic, group: group, parent: create(:epic, group: group))
+
+      expect(epic).to be_valid
+    end
+
+    it 'is not valid with invalid parent' do
+      epic = build(:epic, group: group, parent: create(:epic))
+
+      expect(epic).not_to be_valid
+    end
   end
 
   describe 'modules' do
@@ -86,33 +98,133 @@ describe Epic do
     end
   end
 
-  describe '#ancestors', :nested_groups do
-    set(:group) { create(:group) }
-    set(:epic1) { create(:epic, group: group) }
-    set(:epic2) { create(:epic, group: group, parent: epic1) }
-    set(:epic3) { create(:epic, group: group, parent: epic2) }
+  describe '#valid_parent?' do
+    context 'basic checks' do
+      let(:epic) { build(:epic, group: group) }
 
-    it 'returns all ancestors for an epic' do
-      expect(epic3.ancestors).to eq [epic2, epic1]
+      it 'returns true without parent' do
+        expect(epic.valid_parent?).to be_truthy
+      end
+
+      it 'returns true with a valid parent' do
+        epic.parent = create(:epic, group: group)
+
+        expect(epic.valid_parent?).to be_truthy
+      end
+
+      it 'returns false with a parent from different group' do
+        epic.parent = create(:epic)
+
+        expect(epic.valid_parent?).to be_falsey
+      end
+
+      it 'returns false when level is too deep', :nested_groups do
+        epic1 = create(:epic, group: group)
+        epic2 = create(:epic, group: group, parent: epic1)
+        epic3 = create(:epic, group: group, parent: epic2)
+        epic4 = create(:epic, group: group, parent: epic3)
+        epic5 = create(:epic, group: group, parent: epic4)
+        epic6 = create(:epic, group: group, parent: epic5)
+        epic.parent = epic6
+
+        expect(epic.valid_parent?).to be_falsey
+      end
     end
 
-    it 'returns an empty array if an epic does not have any parent' do
-      expect(epic1.ancestors).to be_empty
+    context 'when adding an Epic that has existing children' do
+      let(:parent_epic) { create(:epic, group: group) }
+      let(:epic) { build(:epic, group: group) }
+      let(:child_epic1) { create(:epic, group: group, parent: epic)}
+
+      it 'returns true when total depth after adding will not exceed limit' do
+        epic.parent = parent_epic
+
+        expect(epic.valid_parent?).to be_truthy
+      end
+
+      it 'returns false when total depth after adding would exceed limit', :nested_groups do
+        child_epic2 = create(:epic, group: group, parent: child_epic1)
+        child_epic3 = create(:epic, group: group, parent: child_epic2)
+        child_epic4 = create(:epic, group: group, parent: child_epic3)
+        create(:epic, group: group, parent: child_epic4)
+
+        epic.parent = parent_epic
+
+        expect(epic.valid_parent?).to be_falsey
+      end
+    end
+
+    context 'when parent has ancestors and epic has children' do
+      let(:root_epic) { create(:epic, group: group) }
+      let(:parent_epic) { create(:epic, group: group, parent: root_epic) }
+      let(:epic) { build(:epic, group: group) }
+      let(:child_epic1) { create(:epic, group: group, parent: epic)}
+
+      it 'returns true when total depth after adding will not exceed limit' do
+        epic.parent = parent_epic
+
+        expect(epic.valid_parent?).to be_truthy
+      end
+
+      it 'returns false when total depth after adding would exceed limit', :nested_groups do
+        root_epic.update(parent: create(:epic, group: group))
+        create(:epic, group: group, parent: child_epic1)
+
+        epic.parent = parent_epic
+
+        expect(epic.valid_parent?).to be_falsey
+      end
+    end
+
+    context 'when hierarchy is cyclic' do
+      let(:epic) { create(:epic, group: group) }
+
+      it 'returns false when parent is same as the epic' do
+        epic.parent = epic
+
+        expect(epic.valid_parent?).to be_falsey
+      end
+
+      it 'returns false when child epic is parent of the given parent', :nested_groups do
+        epic1 = create(:epic, group: group, parent: epic)
+        epic.parent = epic1
+
+        expect(epic.valid_parent?).to be_falsey
+      end
+
+      it 'returns false when child epic is an ancestor of the given parent', :nested_groups do
+        epic1 = create(:epic, group: group, parent: epic)
+        epic2 = create(:epic, group: group, parent: epic1)
+        epic.parent = epic2
+
+        expect(epic.valid_parent?).to be_falsey
+      end
     end
   end
 
-  describe '#descendants', :nested_groups do
-    let(:group) { create(:group) }
+  context 'hierarchy' do
     let(:epic1) { create(:epic, group: group) }
     let(:epic2) { create(:epic, group: group, parent: epic1) }
     let(:epic3) { create(:epic, group: group, parent: epic2) }
 
-    it 'returns all ancestors for an epic' do
-      expect(epic1.descendants).to match_array([epic2, epic3])
+    describe '#ancestors', :nested_groups do
+      it 'returns all ancestors for an epic' do
+        expect(epic3.ancestors).to eq [epic2, epic1]
+      end
+
+      it 'returns an empty array if an epic does not have any parent' do
+        expect(epic1.ancestors).to be_empty
+      end
     end
 
-    it 'returns an empty array if an epic does not have any descendants' do
-      expect(epic3.descendants).to be_empty
+    describe '#descendants', :nested_groups do
+      it 'returns all descendants for an epic' do
+        expect(epic1.descendants).to match_array([epic2, epic3])
+      end
+
+      it 'returns an empty array if an epic does not have any descendants' do
+        expect(epic3.descendants).to be_empty
+      end
     end
   end
 
@@ -465,6 +577,12 @@ describe Epic do
   end
 
   describe '.deepest_relationship_level', :postgresql do
+    context 'when there are no epics' do
+      it 'returns nil' do
+        expect(described_class.deepest_relationship_level).to be_nil
+      end
+    end
+
     it 'returns the deepest relationship level between epics' do
       group_1 = create(:group)
       group_2 = create(:group)
@@ -604,8 +722,35 @@ describe Epic do
     end
   end
 
+  describe '#has_children?' do
+    let(:epic) { create(:epic, group: group) }
+
+    it 'has no children' do
+      expect(epic.has_children?).to be_falsey
+    end
+
+    it 'has child epics' do
+      create(:epic, group: group, parent: epic)
+
+      expect(epic.reload.has_children?).to be_truthy
+    end
+  end
+
+  describe '#has_issues?' do
+    let(:epic) { create(:epic, group: group) }
+
+    it 'has no issues' do
+      expect(epic.has_issues?).to be_falsey
+    end
+
+    it 'has child issues' do
+      create(:epic_issue, epic: epic, issue: create(:issue))
+
+      expect(epic.has_issues?).to be_truthy
+    end
+  end
+
   context 'mentioning other objects' do
-    let(:group) { create(:group) }
     let(:epic) { create(:epic, group: group) }
 
     let(:project) { create(:project, :repository, :public) }

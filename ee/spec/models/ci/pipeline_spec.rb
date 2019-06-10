@@ -14,6 +14,7 @@ describe Ci::Pipeline do
   it { is_expected.to have_many(:sourced_pipelines) }
   it { is_expected.to have_one(:triggered_by_pipeline) }
   it { is_expected.to have_many(:triggered_pipelines) }
+  it { is_expected.to have_many(:downstream_bridges) }
   it { is_expected.to have_many(:job_artifacts).through(:builds) }
   it { is_expected.to have_many(:vulnerabilities).through(:vulnerabilities_occurrence_pipelines).class_name('Vulnerabilities::Occurrence') }
   it { is_expected.to have_many(:vulnerabilities_occurrence_pipelines).class_name('Vulnerabilities::OccurrencePipeline') }
@@ -166,7 +167,9 @@ describe Ci::Pipeline do
 
     subject { pipeline.legacy_report_artifact_for_file_type(file_type) }
 
-    described_class::REPORT_LICENSED_FEATURES.each do |file_type, licensed_features|
+    described_class::LEGACY_REPORT_FORMATS.each do |file_type, _|
+      licensed_features = described_class::REPORT_LICENSED_FEATURES[file_type]
+
       context "for file_type: #{file_type}" do
         let(:file_type) { file_type }
         let(:expected) { OpenStruct.new(build: build, path: artifact_path) }
@@ -179,48 +182,6 @@ describe Ci::Pipeline do
           it_behaves_like 'multi-licensed report type', licensed_features
         end
       end
-    end
-  end
-
-  describe '#has_security_reports?' do
-    subject { pipeline.has_security_reports? }
-
-    context 'when pipeline has builds with security reports' do
-      before do
-        create(:ee_ci_build, :sast, pipeline: pipeline, project: project)
-      end
-
-      context 'when pipeline status is running' do
-        let(:pipeline) { create(:ci_pipeline, :running, project: project) }
-
-        it { is_expected.to be_falsey }
-      end
-
-      context 'when pipeline status is success' do
-        let(:pipeline) { create(:ci_pipeline, :success, project: project) }
-
-        it { is_expected.to be_truthy }
-      end
-    end
-
-    context 'when pipeline does not have builds with security reports' do
-      before do
-        create(:ci_build, :artifacts, pipeline: pipeline, project: project)
-      end
-
-      let(:pipeline) { create(:ci_pipeline, :success, project: project) }
-
-      it { is_expected.to be_falsey }
-    end
-
-    context 'when retried build has security reports' do
-      before do
-        create(:ee_ci_build, :retried, :sast, pipeline: pipeline, project: project)
-      end
-
-      let(:pipeline) { create(:ci_pipeline, :success, project: project) }
-
-      it { is_expected.to be_falsey }
     end
   end
 
@@ -242,6 +203,11 @@ describe Ci::Pipeline do
         create(:ee_ci_job_artifact, :sast, job: build_sast_2, project: project)
         create(:ee_ci_job_artifact, :dependency_scanning, job: build_ds_1, project: project)
         create(:ee_ci_job_artifact, :container_scanning, job: build_cs_1, project: project)
+      end
+
+      it 'assigns pipeline commit_sha to the reports' do
+        expect(subject.commit_sha).to eq(pipeline.sha)
+        expect(subject.reports.values.map(&:commit_sha).uniq).to contain_exactly(pipeline.sha)
       end
 
       it 'returns security reports with collected data grouped as expected' do
@@ -326,52 +292,6 @@ describe Ci::Pipeline do
     end
   end
 
-  describe '#has_license_management_reports?' do
-    subject { pipeline.has_license_management_reports? }
-
-    before do
-      stub_licensed_features(license_management: true)
-    end
-
-    context 'when pipeline has builds with license_management reports' do
-      before do
-        create(:ee_ci_build, :license_management, pipeline: pipeline, project: project)
-      end
-
-      context 'when pipeline status is running' do
-        let(:pipeline) { create(:ci_pipeline, :running, project: project) }
-
-        it { is_expected.to be_falsey }
-      end
-
-      context 'when pipeline status is success' do
-        let(:pipeline) { create(:ci_pipeline, :success, project: project) }
-
-        it { is_expected.to be_truthy }
-      end
-    end
-
-    context 'when pipeline does not have builds with license_management reports' do
-      before do
-        create(:ci_build, :artifacts, pipeline: pipeline, project: project)
-      end
-
-      let(:pipeline) { create(:ci_pipeline, :success, project: project) }
-
-      it { is_expected.to be_falsey }
-    end
-
-    context 'when retried build has license management reports' do
-      before do
-        create(:ee_ci_build, :retried, :license_management, pipeline: pipeline, project: project)
-      end
-
-      let(:pipeline) { create(:ci_pipeline, :success, project: project) }
-
-      it { is_expected.to be_falsey }
-    end
-  end
-
   describe '#license_management_reports' do
     subject { pipeline.license_management_report }
 
@@ -406,6 +326,73 @@ describe Ci::Pipeline do
     context 'when pipeline does not have any builds with license management reports' do
       it 'returns an empty license management report' do
         expect(subject.licenses).to be_empty
+      end
+    end
+  end
+
+  describe '#dependency_list_reports' do
+    subject { pipeline.dependency_list_report }
+
+    before do
+      stub_licensed_features(dependency_list: true)
+    end
+
+    context 'when pipeline has a build with dependency list reports' do
+      let!(:build) { create(:ci_build, :success, name: 'dependency_list', pipeline: pipeline, project: project) }
+      let!(:artifact) { create(:ee_ci_job_artifact, :dependency_list, job: build, project: project) }
+
+      it 'returns a dependency list report with collected data' do
+        expect(subject.dependencies.count).to eq(21)
+        expect(subject.dependencies[0][:name]).to eq('mini_portile2')
+      end
+
+      context 'when builds are retried' do
+        let!(:build) { create(:ci_build, :retried, :success, name: 'dependency_list', pipeline: pipeline, project: project) }
+        let!(:artifact) { create(:ee_ci_job_artifact, :dependency_list, job: build, project: project) }
+
+        it 'does not take retried builds into account' do
+          expect(subject.dependencies).to be_empty
+        end
+      end
+    end
+
+    context 'when pipeline does not have any builds with dependency_list reports' do
+      it 'returns an empty dependency_list report' do
+        expect(subject.dependencies).to be_empty
+      end
+    end
+  end
+
+  describe '#metrics_report' do
+    subject { pipeline.metrics_report }
+
+    before do
+      stub_licensed_features(metrics_reports: true)
+    end
+
+    context 'when pipeline has multiple builds with metrics reports' do
+      before do
+        create(:ee_ci_build, :success, :metrics, pipeline: pipeline, project: project)
+      end
+
+      it 'returns a metrics report with collected data' do
+        expect(subject.metrics.count).to eq(2)
+      end
+    end
+
+    context 'when pipeline has multiple builds with metrics reports that are retried' do
+      before do
+        create_list(:ee_ci_build, 2, :retried, :success, :metrics, pipeline: pipeline, project: project)
+      end
+
+      it 'does not take retried builds into account' do
+        expect(subject.metrics).to be_empty
+      end
+    end
+
+    context 'when pipeline does not have any builds with metrics reports' do
+      it 'returns an empty metrics report' do
+        expect(subject.metrics).to be_empty
       end
     end
   end
@@ -483,6 +470,20 @@ describe Ci::Pipeline do
             expect { pipeline.update_bridge_status! }
               .to raise_error ArgumentError
           end
+        end
+      end
+    end
+
+    context 'when pipeline has bridged jobs' do
+      before do
+        pipeline.downstream_bridges << create(:ci_bridge)
+      end
+
+      context "when transitioning to success" do
+        it 'schedules the pipeline bridge worker' do
+          expect(::Ci::PipelineBridgeStatusWorker).to receive(:perform_async).with(pipeline.id)
+
+          pipeline.succeed!
         end
       end
     end

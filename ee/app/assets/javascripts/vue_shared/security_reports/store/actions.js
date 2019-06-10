@@ -16,10 +16,20 @@ export const setVulnerabilityFeedbackPath = ({ commit }, path) =>
 export const setVulnerabilityFeedbackHelpPath = ({ commit }, path) =>
   commit(types.SET_VULNERABILITY_FEEDBACK_HELP_PATH, path);
 
+export const setCreateVulnerabilityFeedbackIssuePath = ({ commit }, path) =>
+  commit(types.SET_CREATE_VULNERABILITY_FEEDBACK_ISSUE_PATH, path);
+
+export const setCreateVulnerabilityFeedbackMergeRequestPath = ({ commit }, path) =>
+  commit(types.SET_CREATE_VULNERABILITY_FEEDBACK_MERGE_REQUEST_PATH, path);
+
+export const setCreateVulnerabilityFeedbackDismissalPath = ({ commit }, path) =>
+  commit(types.SET_CREATE_VULNERABILITY_FEEDBACK_DISMISSAL_PATH, path);
+
 export const setPipelineId = ({ commit }, id) => commit(types.SET_PIPELINE_ID, id);
 
 export const setCanCreateIssuePermission = ({ commit }, permission) =>
   commit(types.SET_CAN_CREATE_ISSUE_PERMISSION, permission);
+
 export const setCanCreateFeedbackPermission = ({ commit }, permission) =>
   commit(types.SET_CAN_CREATE_FEEDBACK_PERMISSION, permission);
 
@@ -209,26 +219,30 @@ export const openModal = ({ dispatch }, payload) => {
 };
 
 export const setModalData = ({ commit }, payload) => commit(types.SET_ISSUE_MODAL_DATA, payload);
-export const requestDismissIssue = ({ commit }) => commit(types.REQUEST_DISMISS_ISSUE);
-export const receiveDismissIssue = ({ commit }) => commit(types.RECEIVE_DISMISS_ISSUE_SUCCESS);
-export const receiveDismissIssueError = ({ commit }, error) =>
-  commit(types.RECEIVE_DISMISS_ISSUE_ERROR, error);
+export const requestDismissVulnerability = ({ commit }) =>
+  commit(types.REQUEST_DISMISS_VULNERABILITY);
+export const receiveDismissVulnerability = ({ commit }) =>
+  commit(types.RECEIVE_DISMISS_VULNERABILITY_SUCCESS);
+export const receiveDismissVulnerabilityError = ({ commit }, error) =>
+  commit(types.RECEIVE_DISMISS_VULNERABILITY_ERROR, error);
 
-export const dismissIssue = ({ state, dispatch }) => {
-  dispatch('requestDismissIssue');
+export const dismissVulnerability = ({ state, dispatch }, comment) => {
+  dispatch('requestDismissVulnerability');
 
-  return axios
-    .post(state.vulnerabilityFeedbackPath, {
+  axios
+    .post(state.createVulnerabilityFeedbackDismissalPath, {
       vulnerability_feedback: {
-        feedback_type: 'dismissal',
         category: state.modal.vulnerability.category,
-        project_fingerprint: state.modal.vulnerability.project_fingerprint,
+        comment,
+        feedback_type: 'dismissal',
         pipeline_id: state.pipelineId,
+        project_fingerprint: state.modal.vulnerability.project_fingerprint,
         vulnerability_data: state.modal.vulnerability,
       },
     })
     .then(({ data }) => {
-      dispatch('receiveDismissIssue');
+      dispatch('closeDismissalCommentBox');
+      dispatch('receiveDismissVulnerability');
 
       // Update the issue with the created dismissal feedback applied
       const updatedIssue = {
@@ -256,19 +270,21 @@ export const dismissIssue = ({ state, dispatch }) => {
     })
     .catch(() => {
       dispatch(
-        'receiveDismissIssueError',
+        'receiveDismissVulnerabilityError',
         s__('ciReport|There was an error dismissing the vulnerability. Please try again.'),
       );
     });
 };
 
-export const revertDismissIssue = ({ state, dispatch }) => {
-  dispatch('requestDismissIssue');
+export const revertDismissVulnerability = ({ state, dispatch }) => {
+  dispatch('requestDismissVulnerability');
 
-  return axios
-    .delete(`${state.vulnerabilityFeedbackPath}/${state.modal.vulnerability.dismissalFeedback.id}`)
+  axios
+    .delete(
+      state.modal.vulnerability.dismissalFeedback.destroy_vulnerability_feedback_dismissal_path,
+    )
     .then(() => {
-      dispatch('receiveDismissIssue');
+      dispatch('receiveDismissVulnerability');
 
       // Update the issue with the reverted dismissal feedback applied
       const updatedIssue = {
@@ -296,7 +312,7 @@ export const revertDismissIssue = ({ state, dispatch }) => {
     })
     .catch(() =>
       dispatch(
-        'receiveDismissIssueError',
+        'receiveDismissVulnerabilityError',
         s__('ciReport|There was an error reverting the dismissal. Please try again.'),
       ),
     );
@@ -310,8 +326,8 @@ export const receiveCreateIssueError = ({ commit }, error) =>
 export const createNewIssue = ({ state, dispatch }) => {
   dispatch('requestCreateIssue');
 
-  return axios
-    .post(state.vulnerabilityFeedbackPath, {
+  axios
+    .post(state.createVulnerabilityFeedbackIssuePath, {
       vulnerability_feedback: {
         feedback_type: 'issue',
         category: state.modal.vulnerability.category,
@@ -342,7 +358,7 @@ export const createMergeRequest = ({ state, dispatch }) => {
   dispatch('requestCreateMergeRequest');
 
   axios
-    .post(state.vulnerabilityFeedbackPath, {
+    .post(state.createVulnerabilityFeedbackMergeRequestPath, {
       vulnerability_feedback: {
         feedback_type: 'merge_request',
         category,
@@ -371,6 +387,14 @@ export const receiveCreateMergeRequestSuccess = ({ commit }, payload) => {
 
 export const receiveCreateMergeRequestError = ({ commit }) => {
   commit(types.RECEIVE_CREATE_MERGE_REQUEST_ERROR);
+};
+
+export const openDismissalCommentBox = ({ commit }) => {
+  commit(types.OPEN_DISMISSAL_COMMENT_BOX);
+};
+
+export const closeDismissalCommentBox = ({ commit }) => {
+  commit(types.CLOSE_DISMISSAL_COMMENT_BOX);
 };
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests

@@ -19,8 +19,6 @@ describe SystemHooksService do
     it { expect(event_data(project, :destroy)).to include(:event_name, :name, :created_at, :updated_at, :path, :project_id, :owner_name, :owner_email, :project_visibility) }
     it { expect(event_data(project_member, :create)).to include(:event_name, :created_at, :updated_at, :project_name, :project_path, :project_path_with_namespace, :project_id, :user_name, :user_username, :user_email, :user_id, :access_level, :project_visibility) }
     it { expect(event_data(project_member, :destroy)).to include(:event_name, :created_at, :updated_at, :project_name, :project_path, :project_path_with_namespace, :project_id, :user_name, :user_username, :user_email, :user_id, :access_level, :project_visibility) }
-    it { expect(event_data(group_member, :create)).to include(:event_name, :created_at, :updated_at, :group_name, :group_path, :group_plan, :group_id, :user_name, :user_username, :user_email, :user_id, :group_access) }
-    it { expect(event_data(group_member, :destroy)).to include(:event_name, :created_at, :updated_at, :group_name, :group_path, :group_plan, :group_id, :user_name, :user_username, :user_email, :user_id, :group_access) }
     it { expect(event_data(key, :create)).to include(:username, :key, :id) }
     it { expect(event_data(key, :destroy)).to include(:username, :key, :id) }
     it { expect(event_data(deploy_key, :create)).to include(:key, :id) }
@@ -88,20 +86,20 @@ describe SystemHooksService do
 
     context 'group_rename' do
       it 'contains old and new path' do
-        allow(group).to receive(:path_was).and_return('old-path')
+        allow(group).to receive(:path_before_last_save).and_return('old-path')
 
         data = event_data(group, :rename)
 
         expect(data).to include(:event_name, :name, :created_at, :updated_at, :full_path, :path, :group_id, :old_path, :old_full_path)
         expect(data[:path]).to eq(group.path)
         expect(data[:full_path]).to eq(group.path)
-        expect(data[:old_path]).to eq(group.path_was)
-        expect(data[:old_full_path]).to eq(group.path_was)
+        expect(data[:old_path]).to eq(group.path_before_last_save)
+        expect(data[:old_full_path]).to eq(group.path_before_last_save)
       end
 
       it 'contains old and new full_path for subgroup' do
         subgroup = create(:group, parent: group)
-        allow(subgroup).to receive(:path_was).and_return('old-path')
+        allow(subgroup).to receive(:path_before_last_save).and_return('old-path')
 
         data = event_data(subgroup, :rename)
 
@@ -112,13 +110,13 @@ describe SystemHooksService do
 
     context 'user_rename' do
       it 'contains old and new username' do
-        allow(user).to receive(:username_was).and_return('old-username')
+        allow(user).to receive(:username_before_last_save).and_return('old-username')
 
         data = event_data(user, :rename)
 
         expect(data).to include(:event_name, :name, :created_at, :updated_at, :email, :user_id, :username, :old_username)
         expect(data[:username]).to eq(user.username)
-        expect(data[:old_username]).to eq(user.username_was)
+        expect(data[:old_username]).to eq(user.username_before_last_save)
       end
     end
 

@@ -73,72 +73,7 @@ describe MergeRequests::RefreshService do
         end
       end
 
-      context 'when code owners enabled, with approval_rule disabled' do
-        let(:old_owners) { [] }
-        let(:new_owners) { [] }
-        let(:relevant_merge_requests) { [merge_request, another_merge_request] }
-
-        before do
-          stub_feature_flags(approval_rules: false)
-
-          relevant_merge_requests.each do |merge_request|
-            expect(::Gitlab::CodeOwners).to receive(:for_merge_request).with(merge_request).and_return(new_owners)
-            expect(::Gitlab::CodeOwners).to receive(:for_merge_request).with(merge_request, merge_request_diff: anything).and_wrap_original do |m, *args|
-              expect(args.last[:merge_request_diff]).to eq(merge_request.merge_request_diffs.order(id: :desc).offset(1).first)
-
-              old_owners
-            end
-          end
-
-          [forked_merge_request].each do |merge_request|
-            expect(::Gitlab::CodeOwners).not_to receive(:for_merge_request).with(merge_request, anything)
-          end
-
-          expect(service.todo_service).not_to receive(:add_merge_request_approvers)
-          expect(service.notification_service).not_to receive(:add_merge_request_approvers)
-        end
-
-        context 'merge request has overwritten approvers' do
-          context 'when new owners are being added' do
-            let(:new_owners) { [owner] }
-
-            it 'does not create Approver' do
-              expect { subject }.not_to change { Approver.count }
-
-              rule = merge_request.approval_rules.code_owner.first
-              expect(rule.users).to eq(new_owners)
-            end
-          end
-        end
-
-        context 'merge request has default approvers' do
-          let(:existing_approver) { create(:user) }
-
-          before do
-            create(:approver, target: merge_request, user: existing_approver)
-          end
-
-          context 'when new owners are being added' do
-            let(:new_owners) { [owner] }
-
-            it 'creates Approver' do
-              expect { subject }.to change { Approver.count }.by(1)
-
-              new_approver = merge_request.approvers.last
-
-              expect(merge_request.approvers.first.user).to eq(existing_approver)
-              expect(new_approver.user).to eq(owner)
-              expect(new_approver.created_at).to be_present
-              expect(new_approver.updated_at).to be_present
-
-              rule = merge_request.approval_rules.code_owner.first
-              expect(rule.users).to eq(new_owners)
-            end
-          end
-        end
-      end
-
-      context 'when code owners enabled, with approval_rule enabled' do
+      context 'when code owners enabled' do
         let(:relevant_merge_requests) { [merge_request, another_merge_request] }
 
         it 'refreshes the code owner rules for all relevant merge requests' do
@@ -179,6 +114,47 @@ describe MergeRequests::RefreshService do
               expect(code_owner_rule.users).to eq(new_owners)
             end
           end
+        end
+      end
+    end
+
+    describe 'Pipelines for merge requests' do
+      let(:service) { described_class.new(project, current_user) }
+      let(:current_user) { merge_request.author }
+
+      let(:config) do
+        {
+          test: {
+            stage: 'test',
+            script: 'echo',
+            only: ['merge_requests']
+          }
+        }
+      end
+
+      before do
+        project.add_developer(current_user)
+        project.update(merge_pipelines_enabled: true)
+        stub_licensed_features(merge_pipelines: true)
+        stub_ci_pipeline_yaml_file(YAML.dump(config))
+      end
+
+      it 'creates a merge request pipeline' do
+        expect { subject }
+          .to change { merge_request.pipelines_for_merge_request.count }.by(1)
+
+        expect(merge_request.all_pipelines.last).to be_merge_request_pipeline
+      end
+
+      context "when MergeRequestUpdateWorker is retried by an exception" do
+        it 'does not re-create a duplicate merge request pipeline' do
+          expect do
+            service.execute(oldrev, newrev, "refs/heads/#{source_branch}")
+          end.to change { merge_request.pipelines_for_merge_request.count }.by(1)
+
+          expect do
+            service.execute(oldrev, newrev, "refs/heads/#{source_branch}")
+          end.not_to change { merge_request.pipelines_for_merge_request.count }
         end
       end
     end

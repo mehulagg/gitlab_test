@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe ProjectUnauthorized do
@@ -10,7 +12,7 @@ describe ProjectUnauthorized do
 
   render_views
 
-  describe '#project_unauthorized_proc' do
+  describe '.on_routable_not_found' do
     controller(::Projects::ApplicationController) do
       def show
         head :ok

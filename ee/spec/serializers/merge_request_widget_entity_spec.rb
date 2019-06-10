@@ -10,10 +10,11 @@ describe MergeRequestWidgetEntity do
   let(:request) { double('request', current_user: user) }
 
   before do
+    stub_config_setting(relative_url_root: '/gitlab')
     project.add_developer(user)
   end
 
-  subject do
+  subject(:entity) do
     described_class.new(merge_request, current_user: user, request: request)
   end
 
@@ -154,7 +155,7 @@ describe MergeRequestWidgetEntity do
     end
 
     describe '#managed_licenses_path' do
-      let(:managed_licenses_path) { api_v4_projects_managed_licenses_path(id: project.id) }
+      let(:managed_licenses_path) { expose_path(api_v4_projects_managed_licenses_path(id: project.id)) }
 
       before do
         create(:ee_ci_build, :legacy_license_management, pipeline: pipeline)
@@ -181,13 +182,101 @@ describe MergeRequestWidgetEntity do
     end
   end
 
-  it 'has vulnerability feedbacks path' do
+  it 'has vulnerability feedback paths' do
     expect(subject.as_json).to include(:vulnerability_feedback_path)
+    expect(subject.as_json).to include(:create_vulnerability_feedback_issue_path)
+    expect(subject.as_json).to include(:create_vulnerability_feedback_merge_request_path)
+    expect(subject.as_json).to include(:create_vulnerability_feedback_dismissal_path)
   end
 
   it 'has pipeline id' do
     allow(merge_request).to receive(:head_pipeline).and_return(pipeline)
 
     expect(subject.as_json).to include(:pipeline_id)
+  end
+
+  describe 'Merge Trains' do
+    let!(:merge_train) { create(:merge_train, merge_request: merge_request) }
+
+    before do
+      stub_licensed_features(merge_pipelines: true, merge_trains: true)
+      project.update!(merge_trains_enabled: true, merge_pipelines_enabled: true)
+    end
+
+    it 'has merge train entity' do
+      expect(subject.as_json).to include(:merge_trains_enabled)
+      expect(subject.as_json).to include(:merge_trains_count)
+      expect(subject.as_json).to include(:merge_train_index)
+    end
+
+    context 'when the merge train feature is disabled' do
+      before do
+        project.update!(merge_trains_enabled: false)
+      end
+
+      it 'does not have merge trains count' do
+        expect(subject.as_json).not_to include(:merge_trains_count)
+      end
+    end
+
+    context 'when the merge request is not on a merge train' do
+      let!(:merge_train) { }
+
+      it 'does not have merge train index' do
+        expect(subject.as_json).not_to include(:merge_train_index)
+      end
+    end
+  end
+
+  describe 'blocking merge requests' do
+    set(:merge_request_block) { create(:merge_request_block, blocked_merge_request: merge_request) }
+
+    let(:blocking_mr) { merge_request_block.blocking_merge_request }
+
+    subject { entity.as_json[:blocking_merge_requests] }
+
+    context 'feature disabled' do
+      before do
+        stub_licensed_features(blocking_merge_requests: false)
+      end
+
+      it 'does not have the blocking_merge_requests member' do
+        expect(entity.as_json).not_to include(:blocking_merge_requests)
+      end
+    end
+
+    context 'feature enabled' do
+      before do
+        stub_licensed_features(blocking_merge_requests: true)
+      end
+
+      it 'shows the blocking merge request if visible' do
+        blocking_mr.project.add_developer(user)
+
+        is_expected.to include(
+          hidden_count: 0,
+          total_count: 1,
+          visible_merge_requests: { opened: [kind_of(BlockingMergeRequestEntity)] }
+        )
+      end
+
+      it 'hides the blocking merge request if not visible' do
+        is_expected.to eq(
+          hidden_count: 1,
+          total_count: 1,
+          visible_merge_requests: {}
+        )
+      end
+
+      it 'does not count a merged and hidden blocking MR' do
+        blocking_mr.update_columns(state: 'merged')
+
+        is_expected.to eq(
+          hidden_count: 0,
+          total_count: 0,
+          visible_merge_requests: {}
+        )
+      end
+    end
   end
 end

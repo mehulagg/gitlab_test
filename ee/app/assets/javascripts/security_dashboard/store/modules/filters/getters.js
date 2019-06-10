@@ -28,9 +28,11 @@ export const getSelectedOptionNames = (state, getters) => filterId => {
  */
 export const activeFilters = state =>
   state.filters.reduce((acc, filter) => {
-    acc[filter.id] = [...filter.selection].filter(option => option !== 'all');
+    acc[filter.id] = [...Array.from(filter.selection)].filter(option => option !== 'all');
     return acc;
   }, {});
+
+export const visibleFilters = ({ filters }) => filters.filter(({ hidden }) => !hidden);
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests
 // This is no longer needed after gitlab-ce#52179 is merged

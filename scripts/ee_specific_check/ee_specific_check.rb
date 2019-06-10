@@ -5,13 +5,36 @@ module EESpecificCheck
   WHITELIST = [
     'CHANGELOG-EE.md',
     'config/**/*', # https://gitlab.com/gitlab-org/gitlab-ee/issues/4946
-    'doc/**/*', # https://gitlab.com/gitlab-org/gitlab-ee/issues/4948#note_59945483
     'qa/**/*', # https://gitlab.com/gitlab-org/gitlab-ee/issues/4997#note_59764702
     'scripts/**/*',
     'vendor/assets/javascripts/jasmine-jquery.js',
     '.gitlab-ci.yml',
+    '.gitlab/ci/rails.gitlab-ci.yml',
     'db/schema.rb',
-    'locale/gitlab.pot'
+    'locale/gitlab.pot',
+    ##
+    ## Below is a list of the remaining doc/* files to be ported to CE. This is
+    ## for the single codebase effort. Once an EE doc is moved to CE, remove the
+    ## relevant entry below.
+    ## See https://gitlab.com/groups/gitlab-org/-/epics/199#ee-specific-lines-check
+    ## for more information.
+    ##
+    'doc/api/project_level_variables.md',
+    'doc/api/issues.md',
+    'doc/api/projects.md',
+    'doc/api/groups.md',
+    'doc/api/users.md',
+    'doc/api/group_boards.md',
+    'doc/api/project_clusters.md',
+    'doc/api/merge_requests.md',
+    'doc/api/jobs.md',
+    'doc/api/protected_branches.md',
+    'doc/api/settings.md',
+    'doc/api/notification_settings.md',
+    'doc/api/namespaces.md',
+    'doc/api/search.md',
+    #  WARNING: Port this one last!
+    'doc/api/README.md'
   ].freeze
 
   CompareBase = Struct.new(:ce_base, :ee_base, :ce_head, :ee_head)

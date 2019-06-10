@@ -34,11 +34,13 @@ class License < ApplicationRecord
     repository_mirrors
     repository_size_limit
     scoped_issue_board
+    visual_review_app
   ].freeze
 
   EEP_FEATURES = EES_FEATURES + %i[
     admin_audit_log
     auditor_user
+    blocking_merge_requests
     board_assignee_lists
     board_milestone_lists
     cross_project_pipelines
@@ -69,20 +71,26 @@ class License < ApplicationRecord
     ci_cd_projects
     protected_environments
     custom_project_templates
+    group_project_templates
     packages
     code_owner_approval_required
     feature_flags
     batch_comments
     issues_analytics
     merge_pipelines
+    merge_trains
     design_management
     operations_dashboard
+    dependency_proxy
+    metrics_reports
+    custom_prometheus_metrics
   ]
   EEP_FEATURES.freeze
 
   EEU_FEATURES = EEP_FEATURES + %i[
     security_dashboard
     dependency_scanning
+    dependency_list
     license_management
     sast
     sast_container

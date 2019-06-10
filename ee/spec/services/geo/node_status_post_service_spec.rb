@@ -10,6 +10,10 @@ describe Geo::NodeStatusPostService, :geo do
   subject { described_class.new }
 
   describe '#execute' do
+    before do
+      stub_current_geo_node(primary)
+    end
+
     it 'parses a 401 response' do
       response = double(success?: false,
                         code: 401,
@@ -59,8 +63,6 @@ describe Geo::NodeStatusPostService, :geo do
     end
 
     it 'does not include id in the payload' do
-      stub_current_geo_node(primary)
-
       expect(Gitlab::HTTP).to receive(:post)
                                 .with(
                                   primary.status_url,
@@ -71,13 +73,11 @@ describe Geo::NodeStatusPostService, :geo do
         geo_node_id: secondary.id,
         status_message: nil,
         db_replication_lag_seconds: 0,
-        repositories_count: 10
+        projects_count: 10
       }))
     end
 
     it 'sends geo_node_id in the request' do
-      stub_current_geo_node(primary)
-
       expect(Gitlab::HTTP).to receive(:post)
                                 .with(
                                   primary.status_url,
@@ -88,7 +88,7 @@ describe Geo::NodeStatusPostService, :geo do
         geo_node_id: secondary.id,
         status_message: nil,
         db_replication_lag_seconds: 0,
-        repositories_count: 10
+        projects_count: 10
       }))
     end
   end

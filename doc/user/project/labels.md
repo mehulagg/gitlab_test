@@ -12,16 +12,56 @@ In GitLab, you can create project and group labels:
 - **Group labels** can be assigned to any issue or merge request of any project in that group or any subgroups of the group.
 
 ## Scoped labels **[PREMIUM]**
-A scoped label is a specific kind of label defined only by a special colon syntax in the label’s title, namely `key::value`. There is no different way to create and otherwise manage scoped labels. A label is a scoped label when its title follows the syntax.
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/9175) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.10.
+
+Scoped labels allow teams to use the simple and familiar feature of labels to
+annotate their issues, merge requests, and epics to achieve custom fields and
+custom workflow states by leveraging a special label title syntax.
+
+A scoped label is a kind of label defined only by a special double-colon syntax
+in the label’s title, using the format `key::value`. For example:
 
 ![A sample scoped label](img/key_value_labels.png)
 
-A scoped label with a same key but with different value cannot be applied together to an Issue, Epic or a Merge Request. For example, if an issue has `priority::3` already and you apply `priority::2` to it, `priority::3` automatically gets removed from the issue.
+Two scoped labels with the same key but a different value cannot simultaneously
+apply to an issue, epic, or merge request. For example, if an issue already has `priority::3`
+and you apply `priority::2` to it, `priority::3` is automatically removed from the issue.
+
+An issue, epic, or merge request cannot have two scoped labels with the same key.
+For example, if an issue is already labeled `priority::3` and you apply the label `priority::2` to it,
+`priority::3` is automatically removed.
+
+### Labels with multiple colon pairs
+
+If labels have multiple instances of `::`, the longest path from left to right, until the last `::`, is considered the "key" or the "scope".
+
+For example, `nested::key1::value1` and `nested::key1::value2` cannot both exist on the same issue. Adding the latter label will automatically remove the former due to the shared scope of `nested::key1`.
+
+`nested::key1::value1` and `nested::key2::value1` can both exist on the same issue, as these are considered to use two different label scopes, `nested::key1` and `nested::key2`.
+
+### Workflows with scoped labels **[PREMIUM]**
+
+Suppose you wanted a custom field in issues to track the platform operating system
+that your features target, where each issue should only target one platform. You
+would then create labels `platform::iOS`, `platform::Android`, `platform::Linux`,
+etc., as necessary. Applying any one of these labels on a given issue would
+automatically remove any other existing label that starts with `platform::`.
+
+The same pattern could be applied to represent the workflow states of your teams.
+Suppose you have the labels `workflow::development`, `workflow::review`, and
+`workflow::deployed`. If an issue already has the label `workflow::development`
+applied, and a developer wanted to advance the issue to `workflow::review`, they
+would simply apply that label, and the `workflow::development` label would
+automatically be removed. This behavior already exists when you move issues
+across label lists in an [issue board](issue_board.md#creating-workflows), but
+now, team members who may not be working in an issue board directly would still
+be able to advance workflow states consistently in issues themselves.
 
 ## Creating labels
 
 >**Note:**
-A permission level of `Developer` or higher is required to create labels.
+A permission level of Reporter or higher is required to create labels.
 
 ### New project label
 
@@ -52,20 +92,14 @@ Group labels appear in every label list page of the group's child projects.
 
 ### New project label from sidebar
 
-From the sidebar of an issue or a merge request, you can create a create a new **project label** inline immediately, instead of navigating to the project label list page.
+From the sidebar of an issue or a merge request, you can create a new **project label** inline immediately, instead of navigating to the project label list page.
 
 ![Labels inline](img/new_label_from_sidebar.gif)
-
-### New scoped label
-
-To create a scoped label, follow similar steps from above. The only difference is to include double-colon `::` character in the title of the Label when created or edited.
-
-In the case where labels have multiple sets of `::`, the longest path is used as the key. For example, we would check for exclusivity on `some::key::` level instead of `some::` on label `some::key::value`.
 
 ## Editing labels
 
 NOTE: **Note:**
-A permission level of `Developer` or higher is required to edit labels.
+A permission level of Reporter or higher is required to edit labels.
 
 You can update a label by navigating to **Issues > Labels** in the project or group and clicking the pencil icon.
 
@@ -105,7 +139,7 @@ From the project issue list page and the project merge request list page, you ca
 
 From the group issue list page and the group merge request list page, you can [filter](../search/index.md#issues-and-merge-requests) by both group labels (including subgroup ancestors and subgroup descendants) and project labels.
 
-From the group epic list page, you can [filter](../search/index.md#issues-and-merge-requests) by both current group labels as well as decendent group labels.
+From the group epic list page, you can [filter](../search/index.md#issues-and-merge-requests) by both current group labels as well as descendant group labels.
 
 ![Labels group issues](img/labels_group_issues.png)
 

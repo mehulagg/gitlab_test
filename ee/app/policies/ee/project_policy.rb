@@ -3,6 +3,7 @@
 module EE
   module ProjectPolicy
     extend ActiveSupport::Concern
+    extend ::Gitlab::Utils::Override
 
     READONLY_FEATURES_WHEN_ARCHIVED = %i[
       board
@@ -11,6 +12,7 @@ module EE
       vulnerability_feedback
       license_management
       feature_flag
+      feature_flags_client
       design
     ].freeze
 
@@ -44,6 +46,16 @@ module EE
       end
 
       with_scope :subject
+      condition(:commit_committer_check_available) do
+        @subject.feature_available?(:commit_committer_check)
+      end
+
+      with_scope :subject
+      condition(:reject_unsigned_commits_available) do
+        @subject.feature_available?(:reject_unsigned_commits)
+      end
+
+      with_scope :subject
       condition(:pod_logs_enabled) do
         @subject.feature_available?(:pod_logs, @user)
       end
@@ -74,15 +86,13 @@ module EE
 
       rule { admin }.enable :change_repository_storage
 
-      rule { can?(:public_access) }.policy do
-        enable :read_design
-      end
-
       rule { support_bot }.enable :guest_access
       rule { support_bot & ~service_desk_enabled }.policy do
         prevent :create_note
         prevent :read_project
       end
+
+      rule { alert_bot }.enable :reporter_access
 
       rule { license_block }.policy do
         prevent :create_issue
@@ -96,7 +106,10 @@ module EE
         prevent :admin_issue_link
       end
 
-      rule { can?(:read_issue) }.enable :read_issue_link
+      rule { can?(:read_issue) }.policy do
+        enable :read_issue_link
+        enable :read_design
+      end
 
       rule { can?(:reporter_access) }.policy do
         enable :admin_board
@@ -108,7 +121,9 @@ module EE
 
       rule { can?(:developer_access) }.policy do
         enable :admin_board
-        enable :admin_vulnerability_feedback
+        enable :create_vulnerability_feedback
+        enable :destroy_vulnerability_feedback
+        enable :update_vulnerability_feedback
         enable :create_package
         enable :read_feature_flag
         enable :create_feature_flag
@@ -150,6 +165,7 @@ module EE
         enable :admin_path_locks
         enable :update_approvers
         enable :destroy_package
+        enable :admin_feature_flags_client
       end
 
       rule { license_management_enabled & can?(:maintainer_access) }.enable :admin_software_license_policy
@@ -178,7 +194,19 @@ module EE
 
       rule { admin | (reject_unsigned_commits_disabled_globally & can?(:maintainer_access)) }.enable :change_reject_unsigned_commits
 
-      rule { admin | (commit_committer_check_disabled_globally & can?(:maintainer_access)) }.enable :change_commit_committer_check
+      rule { ~reject_unsigned_commits_available }.prevent :change_reject_unsigned_commits
+
+      rule { admin | (commit_committer_check_disabled_globally & can?(:maintainer_access)) }.policy do
+        enable :change_commit_committer_check
+      end
+
+      rule { commit_committer_check_available }.policy do
+        enable :read_commit_committer_check
+      end
+
+      rule { ~commit_committer_check_available }.policy do
+        prevent :change_commit_committer_check
+      end
 
       rule { owner | reporter }.enable :build_read_project
 
@@ -196,6 +224,10 @@ module EE
         ::Feature.enabled?(:build_service_proxy, @subject)
       end
 
+      condition(:needs_new_sso_session) do
+        ::Gitlab::Auth::GroupSaml::SsoEnforcer.group_access_restricted?(subject.group)
+      end
+
       rule { web_ide_terminal_available & can?(:create_pipeline) & can?(:maintainer_access) }.enable :create_web_ide_terminal
 
       # Design abilities could also be prevented in the issue policy.
@@ -207,6 +239,13 @@ module EE
       end
 
       rule { build_service_proxy_enabled }.enable :build_service_proxy_enabled
+    end
+
+    override :lookup_access_level!
+    def lookup_access_level!
+      return ::GroupMember::NO_ACCESS if needs_new_sso_session?
+
+      super
     end
   end
 end

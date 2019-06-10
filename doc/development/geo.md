@@ -1,11 +1,50 @@
-# Geo (development)
+# Geo (development) **[PREMIUM ONLY]**
 
 Geo connects GitLab instances together. One GitLab instance is
 designated as a **primary** node and can be run with multiple
-**secondary** nodes. Geo orchestrates quite a few components that are
-described in more detail below.
+**secondary** nodes. Geo orchestrates quite a few components that can be seen on
+the diagram below and are described in more detail within this document.
 
-## Database replication
+![Geo Architecture Diagram](../administration/geo/replication/img/geo_architecture.png)
+
+## Replication layer
+
+Geo handles replication for different components:
+
+- [Database](#database-replication): includes the entire application, except cache and jobs.
+- [Git repositories](#repository-replication): includes both projects and wikis.
+- [Uploaded blobs](#uploads-replication): includes anything from images attached on issues
+to raw logs and assets from CI.
+
+With the exception of the Database replication, on a *secondary* node, everything is coordinated
+by the [Geo Log Cursor](#geo-log-cursor). 
+
+### Geo Log Cursor daemon
+
+The [Geo Log Cursor daemon](#geo-log-cursor-daemon) is a separate process running on
+each **secondary** node. It monitors the [Geo Event Log](#geo-event-log)
+for new events and creates background jobs for each specific event type.
+
+For example when a repository is updated, the Geo **primary** node creates
+a Geo event with an associated repository updated event. The Geo Log Cursor daemon
+picks the event up and schedules a `Geo::ProjectSyncWorker` job which will
+use the `Geo::RepositorySyncService` and `Geo::WikiSyncService` classes
+to update the repository and the wiki respectively.
+
+The Geo Log Cursor daemon can operate in High Availability mode automatically. 
+The daemon will try to acquire a lock from time to time and once acquired, it 
+will behave as the *active* daemon.
+
+Any additional running daemons on the same node, will be in standby
+mode, ready to resume work if the *active* daemon releases its lock.
+
+We use the [`ExclusiveLease`](https://www.rubydoc.info/github/gitlabhq/gitlabhq/Gitlab/ExclusiveLease) lock type with a small TTL, that is renewed at every
+pooling cycle. That allows us to implement this global lock with a timeout.
+
+At the end of the pooling cycle, if the daemon can't renew and/or reacquire
+the lock, it switches to standby mode.
+
+### Database replication
 
 Geo uses [streaming replication](#streaming-replication) to replicate
 the database from the **primary** to the **secondary** nodes. This
@@ -13,7 +52,7 @@ replication gives the **secondary** nodes access to all the data saved
 in the database. So users can log in on the **secondary** and read all
 the issues, merge requests, etc. on the **secondary** node.
 
-## Repository replication
+### Repository replication
 
 Geo also replicates repositories. Each **secondary** node keeps track of
 the state of every repository in the [tracking database](#tracking-database).
@@ -23,7 +62,7 @@ There are a few ways a repository gets replicated by the:
 - [Repository Sync worker](#repository-sync-worker).
 - [Geo Log Cursor](#geo-log-cursor).
 
-### Project Registry
+#### Project Registry
 
 The `Geo::ProjectRegistry` class defines the model used to track the
 state of repository replication. For each project in the main
@@ -32,15 +71,15 @@ database, one record in the tracking database is kept.
 It records the following about repositories:
 
 - The last time they were synced.
-- The last time they were synced successfully.
+- The last time they were successfully synced.
 - If they need to be resynced.
-- When retry should be attempted.
+- When a retry should be attempted.
 - The number of retries.
-- If and when the they were verified.
+- If and when they were verified.
 
 It also stores these attributes for project wikis in dedicated columns.
 
-### Repository Sync worker
+#### Repository Sync worker
 
 The `Geo::RepositorySyncWorker` class runs periodically in the
 background and it searches the `Geo::ProjectRegistry` model for
@@ -59,26 +98,12 @@ times, Geo does a so-called _redownload_. It will do a clean clone
 into the `@geo-temporary` directory in the root of the storage. When
 it's successful, we replace the main repo with the newly cloned one.
 
-### Geo Log Cursor
-
-The [Geo Log Cursor](#geo-log-cursor) is a separate process running on
-each **secondary** node. It monitors the [Geo Event Log](#geo-event-log)
-and handles all of the events. When it sees an unhandled event, it
-starts a background worker to handle that event, depending on the type
-of event.
-
-When a repository receives an update, the Geo **primary** node creates
-a Geo event with an associated repository updated event. The cursor
-picks that up, and schedules a `Geo::ProjectSyncWorker` job which will
-use the `Geo::RepositorySyncService` class and `Geo::WikiSyncService`
-class to update the repository and the wiki.
-
-## Uploads replication
+### Uploads replication
 
 File uploads are also being replicated to the **secondary** node. To
 track the state of syncing, the `Geo::FileRegistry` model is used.
 
-### File Registry
+#### File Registry
 
 Similar to the [Project Registry](#project-registry), there is a
 `Geo::FileRegistry` model that tracks the synced uploads.
@@ -86,7 +111,7 @@ Similar to the [Project Registry](#project-registry), there is a
 CI Job Artifacts are synced in a similar way as uploads or LFS
 objects, but they are tracked by `Geo::JobArtifactRegistry` model.
 
-### File Download Dispatch worker
+#### File Download Dispatch worker
 
 Also similar to the [Repository Sync worker](#repository-sync-worker),
 there is a `Geo::FileDownloadDispatchWorker` class that is run
@@ -113,7 +138,7 @@ Authorization: GL-Geo <access_key>:<JWT payload>
 ```
 
 The **primary** node uses the `access_key` field to look up the
-corresponding Geo **secondary** node and decrypts the JWT payload,
+corresponding **secondary** node and decrypts the JWT payload,
 which contains additional information to identify the file
 request. This ensures that the **secondary** node downloads the right
 file for the right database ID. For example, for an LFS object, the
@@ -132,6 +157,28 @@ up Rails or Workhorse.
 NOTE: **Note:**
 JWT requires synchronized clocks between the machines
 involved, otherwise it may fail with an encryption error.
+
+## Git Push to Geo secondary
+
+The Git Push Proxy exists as a functionality built inside the `gitlab-shell` component.
+It is active on a **secondary** node only. It allows the user that has cloned a repository
+from the secondary node to push to the same URL.
+
+Git `push` requests directed to a **secondary** node will be sent over to the **primary** node, 
+while `pull` requests will continue to be served by the **secondary** node for maximum efficiency.
+
+HTTPS and SSH requests are handled differently:
+
+- With HTTPS, we will give the user a `HTTP 302 Redirect` pointing to the project on the **primary** node.
+The git client is wise enough to understand that status code and process the redirection.
+- With SSH, because there is no equivalent way to perform a redirect, we have to proxy the request.
+This is done inside [`gitlab-shell`](https://gitlab.com/gitlab-org/gitlab-shell), by first translating the request 
+to the HTTP protocol, and then proxying it to the **primary** node.
+
+The [`gitlab-shell`](https://gitlab.com/gitlab-org/gitlab-shell) daemon knows when to proxy based on the response 
+from `/api/v4/allowed`. A special `HTTP 300` status code is returned and we execute a "custom action", 
+specified in the response body. The response contains additional data that allows the proxied `push` operation 
+to happen on the **primary** node.
 
 ## Using the Tracking Database
 
@@ -163,20 +210,38 @@ bundle exec rake geo:db:migrate
 
 ### Foreign Data Wrapper
 
-The use of [FDW](#fdw) was introduced in GitLab 10.1.
+> Introduced in GitLab 10.1.
 
-This is useful for the [Geo Log Cursor](#geo-log-cursor) and improves
-the performance of some synchronization operations.
+Foreign Data Wrapper ([FDW](#fdw)) is used by the [Geo Log Cursor](#geo-log-cursor) and improves
+the performance of many synchronization operations.
+
+FDW is a PostgreSQL extension ([`postgres_fdw`](https://www.postgresql.org/docs/current/postgres-fdw.html)) that is enabled within
+the Geo Tracking Database (on a **secondary** node), which allows it
+to connect to the readonly database replica and perform queries and filter
+data from both instances.
 
 While FDW is available in older versions of PostgreSQL, we needed to
 raise the minimum required version to 9.6 as this includes many
 performance improvements to the FDW implementation.
 
+This persistent connection is configured as an FDW server
+named `gitlab_secondary`. This configuration exists within the database's user
+context only. To access the `gitlab_secondary`, GitLab needs to use the
+same database user that had previously been configured.
+
+The Geo Tracking Database accesses the readonly database replica via FDW as a regular user, 
+limited by its own restrictions. The credentials are configured as a 
+`USER MAPPING` associated with the `SERVER` mapped previously 
+(`gitlab_secondary`).
+
+FDW configuration and credentials definition are managed automatically by the
+Omnibus GitLab `gitlab-ctl reconfigure` command. 
+
 #### Refeshing the Foreign Tables
 
-Whenever the database schema changes on the **primary** node, the
-**secondary** node will need to refresh its foreign tables by running
-the following:
+Whenever a new Geo node is configured or the database schema changes on the 
+**primary** node, you must refresh the foreign tables on the **secondary** node
+by running the following:
 
 ```sh
 bundle exec rake geo:db:refresh_foreign_tables
@@ -195,6 +260,53 @@ STATEMENT:                SELECT a.attname, format_type(a.atttypid, a.atttypmod)
                     WHERE a.attrelid = '"gitlab_secondary"."ci_job_artifacts"'::regclass
                       AND a.attnum > 0 AND NOT a.attisdropped
                     ORDER BY a.attnum
+```
+
+#### Accessing data from a Foreign Table
+
+At the SQL level, all you have to do is `SELECT` data from `gitlab_secondary.*`.
+
+Here's an example of how to access all projects from the Geo Tracking Database's FDW:
+
+```sql
+SELECT * FROM gitlab_secondary.projects;
+```
+
+As a more real-world example, this is how you filter for unarchived projects
+on the Tracking Database:
+
+```sql
+SELECT project_registry.*
+  FROM project_registry
+  JOIN gitlab_secondary.projects
+    ON (project_registry.project_id = gitlab_secondary.projects.id 
+   AND gitlab_secondary.projects.archived IS FALSE)
+```
+
+At the ActiveRecord level, we have additional Models that represent the 
+foreign tables. They must be mapped in a slightly different way, and they are read-only.
+
+Check the existing FDW models in `ee/app/models/geo/fdw` for reference.
+
+From a developer's perspective, it's no different than creating a model that
+represents a Database View.
+
+With the examples above, you can access the projects with:
+
+```ruby
+Geo::Fdw::Project.all
+```
+
+and to access the `ProjectRegistry` filtering by unarchived projects:
+
+```ruby
+# We have to use Arel here:
+project_registry_table = Geo::ProjectRegistry.arel_table
+fdw_project_table = Geo::Fdw::Project.arel_table
+
+project_registry_table.join(fdw_project_table)
+                      .on(project_registry_table[:project_id].eq(fdw_project_table[:id]))
+                      .where((fdw_project_table[:archived]).eq(true)) # if you append `.to_sql` you can check generated query
 ```
 
 ## Finders

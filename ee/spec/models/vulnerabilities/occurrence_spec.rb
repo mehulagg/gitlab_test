@@ -82,6 +82,21 @@ describe Vulnerabilities::Occurrence do
     end
   end
 
+  describe '.for_pipelines_with_sha' do
+    let(:project) { create(:project) }
+    let(:pipeline) { create(:ci_pipeline, :success, project: project) }
+
+    before do
+      create(:vulnerabilities_occurrence, pipelines: [pipeline], project: project)
+    end
+
+    subject(:occurrences) { described_class.for_pipelines_with_sha([pipeline]) }
+
+    it 'sets the sha' do
+      expect(occurrences.first.sha).to eq(pipeline.sha)
+    end
+  end
+
   describe '.count_by_day_and_severity' do
     let(:project) { create(:project) }
     let(:date_1) { Time.zone.parse('2018-11-11') }
@@ -203,7 +218,7 @@ describe Vulnerabilities::Occurrence do
     subject { described_class.by_severities(param) }
 
     context 'with one param' do
-      let(:param) { 4 }
+      let(:param) { described_class.severities[:low] }
 
       it 'returns found record' do
         is_expected.to contain_exactly(vulnerability_low)
@@ -211,7 +226,30 @@ describe Vulnerabilities::Occurrence do
     end
 
     context 'without found record' do
-      let(:param) { 7 }
+      let(:param) { described_class.severities[:unknown] }
+
+      it 'returns empty collection' do
+        is_expected.to be_empty
+      end
+    end
+  end
+
+  describe '.by_confidences' do
+    let!(:vulnerability_high) { create(:vulnerabilities_occurrence, confidence: :high) }
+    let!(:vulnerability_low) { create(:vulnerabilities_occurrence, confidence: :low) }
+
+    subject { described_class.by_confidences(param) }
+
+    context 'with matching param' do
+      let(:param) { described_class.confidences[:low] }
+
+      it 'returns found record' do
+        is_expected.to contain_exactly(vulnerability_low)
+      end
+    end
+
+    context 'with non-matching param' do
+      let(:param) { described_class.confidences[:unknown] }
 
       it 'returns empty collection' do
         is_expected.to be_empty

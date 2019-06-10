@@ -36,6 +36,7 @@ module EE
       has_many :assigned_epics,           foreign_key: :assignee_id, class_name: "Epic"
       has_many :path_locks,               dependent: :destroy # rubocop: disable Cop/ActiveRecordDependent
       has_many :vulnerability_feedback, foreign_key: :author_id, class_name: 'Vulnerabilities::Feedback'
+      has_many :commented_vulnerability_feedback, foreign_key: :comment_author_id, class_name: 'Vulnerabilities::Feedback'
 
       has_many :approvals,                dependent: :destroy # rubocop: disable Cop/ActiveRecordDependent
       has_many :approvers,                dependent: :destroy # rubocop: disable Cop/ActiveRecordDependent
@@ -45,16 +46,22 @@ module EE
       has_many :users_ops_dashboard_projects
       has_many :ops_dashboard_projects, through: :users_ops_dashboard_projects, source: :project
 
-      has_many :group_saml_identities, -> { where.not(saml_provider_id: nil) }, source: :identities, class_name: ::Identity
+      has_many :group_saml_identities, -> { where.not(saml_provider_id: nil) }, source: :identities, class_name: "::Identity"
 
       # Protected Branch Access
-      has_many :protected_branch_merge_access_levels, dependent: :destroy, class_name: ::ProtectedBranch::MergeAccessLevel # rubocop:disable Cop/ActiveRecordDependent
-      has_many :protected_branch_push_access_levels, dependent: :destroy, class_name: ::ProtectedBranch::PushAccessLevel # rubocop:disable Cop/ActiveRecordDependent
-      has_many :protected_branch_unprotect_access_levels, dependent: :destroy, class_name: ::ProtectedBranch::UnprotectAccessLevel # rubocop:disable Cop/ActiveRecordDependent
+      has_many :protected_branch_merge_access_levels, dependent: :destroy, class_name: "::ProtectedBranch::MergeAccessLevel" # rubocop:disable Cop/ActiveRecordDependent
+      has_many :protected_branch_push_access_levels, dependent: :destroy, class_name: "::ProtectedBranch::PushAccessLevel" # rubocop:disable Cop/ActiveRecordDependent
+      has_many :protected_branch_unprotect_access_levels, dependent: :destroy, class_name: "::ProtectedBranch::UnprotectAccessLevel" # rubocop:disable Cop/ActiveRecordDependent
 
       has_many :smartcard_identities
 
       belongs_to :managing_group, class_name: 'Group', optional: true, inverse_of: :managed_users
+
+      scope :not_managed, ->(group: nil) {
+        scope = where(managing_group_id: nil)
+        scope = scope.or(where.not(managing_group_id: group.id)) if group
+        scope
+      }
 
       scope :excluding_guests, -> { joins(:members).where('members.access_level > ?', ::Gitlab::Access::GUEST).distinct }
 
@@ -172,11 +179,11 @@ module EE
     end
 
     def available_subgroups_with_custom_project_templates(group_id = nil)
-      groups = group_id ? ::Group.find(group_id).self_and_ancestors : ::Group.all
+      groups = GroupsWithTemplatesFinder.new(group_id).execute
 
       GroupsFinder.new(self, min_access_level: ::Gitlab::Access::MAINTAINER)
                   .execute
-                  .where(id: groups.with_project_templates.select(:custom_project_templates_group_id))
+                  .where(id: groups.select(:custom_project_templates_group_id))
                   .includes(:projects)
                   .reorder(nil)
                   .distinct
@@ -208,6 +215,16 @@ module EE
     override :has_current_license?
     def has_current_license?
       License.current.present?
+    end
+
+    def using_license_seat?
+      return false unless active?
+
+      if License.current&.exclude_guests_from_active_count?
+        highest_role > ::Gitlab::Access::GUEST
+      else
+        highest_role > ::Gitlab::Access::NO_ACCESS
+      end
     end
 
     def group_sso?(group)
@@ -252,7 +269,10 @@ module EE
     end
 
     def bot?
-      has_bot_type? ? bot_type.present? : old_support_bot
+      return bot_type.present? if has_attribute?(:bot_type)
+
+      # Some older *migration* specs utilize this removed column
+      read_attribute(:support_bot)
     end
 
     protected
@@ -265,14 +285,6 @@ module EE
     end
 
     private
-
-    def has_bot_type?
-      has_attribute?(:bot_type)
-    end
-
-    def old_support_bot
-      read_attribute(:support_bot)
-    end
 
     def namespace_union(select = :id)
       ::Gitlab::SQL::Union.new([

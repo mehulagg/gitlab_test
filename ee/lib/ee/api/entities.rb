@@ -191,6 +191,9 @@ module EE
         expose :commit_message_regex, :commit_message_negative_regex, :branch_name_regex, :deny_delete_tag
         expose :member_check, :prevent_secrets, :author_email_regex
         expose :file_name_regex, :max_file_size
+        expose :commit_committer_check, if: ->(rule, opts) do
+          Ability.allowed?(opts[:user], :read_commit_committer_check, rule.project)
+        end
       end
 
       class LdapGroupLink < Grape::Entity
@@ -199,6 +202,27 @@ module EE
 
       class RelatedIssue < ::API::Entities::Issue
         expose :issue_link_id
+      end
+
+      class LinkedEpic < Grape::Entity
+        expose :id
+        expose :iid
+        expose :title
+        expose :group_id
+        expose :parent_id
+        expose :has_children?, as: :has_children
+        expose :has_issues?, as: :has_issues
+        expose :reference do |epic|
+          epic.to_reference(epic.parent.group)
+        end
+
+        expose :url do |epic|
+          ::Gitlab::Routing.url_helpers.group_epic_url(epic.group, epic)
+        end
+
+        expose :relation_url do |epic|
+          ::Gitlab::Routing.url_helpers.group_epic_link_url(epic.parent.group, epic.parent.iid, epic.id)
+        end
       end
 
       class Epic < Grape::Entity
@@ -221,7 +245,7 @@ module EE
         expose :state
         expose :created_at
         expose :updated_at
-        expose :labels do |epic, options|
+        expose :labels do |epic|
           # Avoids an N+1 query since labels are preloaded
           epic.labels.map(&:title).sort
         end
@@ -367,6 +391,10 @@ module EE
 
         expose :approvals_left
 
+        expose :require_password_to_approve do |approval_state|
+          approval_state.project.require_password_to_approve?
+        end
+
         expose :approved_by, using: EE::API::Entities::Approvals do |approval_state|
           approval_state.merge_request.approvals
         end
@@ -456,6 +484,7 @@ module EE
         include ::API::Helpers::RelatedResourcesHelpers
 
         expose :id
+        expose :name
         expose :url
         expose :internal_url
         expose :primary?, as: :primary
@@ -534,14 +563,12 @@ module EE
 
         expose :projects_count
 
-        expose :repositories_count # Deprecated
         expose :repositories_failed_count
         expose :repositories_synced_count
         expose :repositories_synced_in_percentage do |node|
           number_to_percentage(node.repositories_synced_in_percentage, precision: 2)
         end
 
-        expose :wikis_count # Deprecated
         expose :wikis_failed_count
         expose :wikis_synced_count
         expose :wikis_synced_in_percentage do |node|

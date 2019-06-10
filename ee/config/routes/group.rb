@@ -36,7 +36,7 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
 
     resources :ldap_group_links, only: [:index, :create, :destroy]
     resources :audit_events, only: [:index]
-    resources :pipeline_quota, only: [:index]
+    resources :usage_quotas, only: [:index]
 
     resources :hooks, only: [:index, :create, :destroy], constraints: { id: /\d+/ } do
       member do
@@ -97,6 +97,9 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
 
     resource :scim_oauth, only: [:show, :create], controller: :scim_oauth
 
+    get :sign_up, to: 'sso#sign_up_form'
+    post :sign_up, to: 'sso#sign_up'
+
     resource :roadmap, only: [:show], controller: 'roadmap'
 
     legacy_ee_group_boards_redirect = redirect do |params, request|
@@ -106,11 +109,24 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
       path
     end
     get 'boards(/*extra_params)', as: :legacy_ee_group_boards_redirect, to: legacy_ee_group_boards_redirect
+
+    resource :dependency_proxy, only: [:show, :update]
   end
 
   scope(path: 'groups/*group_id') do
     Gitlab::Routing.redirect_legacy_paths(self, :analytics, :ldap, :ldap_group_links,
                                           :notification_setting, :audit_events,
                                           :pipeline_quota, :hooks, :boards)
+  end
+end
+
+# Dependency proxy for containers
+# Because docker adds v2 prefix to URI this need to be outside of usual group routes
+scope constraints: { format: nil } do
+  get 'v2', to: proc { [200, {}, ['']] }
+
+  constraints image: Gitlab::PathRegex.container_image_regex do
+    get 'v2/*group_id/dependency_proxy/containers/*image/manifests/*tag' => 'groups/dependency_proxy_for_containers#manifest'
+    get 'v2/*group_id/dependency_proxy/containers/*image/blobs/:sha' => 'groups/dependency_proxy_for_containers#blob'
   end
 end

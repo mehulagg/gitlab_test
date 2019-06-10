@@ -545,7 +545,7 @@ GET /projects/:id/services/jira
 Set JIRA service for a project.
 
 > Starting with GitLab 8.14, `api_url`, `issues_url`, `new_issue_url` and
-> `project_url` are replaced by `project_key`, `url`. If you are using an
+> `project_url` are replaced by `url`. If you are using an
 > older version, [follow this documentation][old-jira-api].
 
 ```
@@ -557,7 +557,7 @@ Parameters:
 | Parameter | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
 | `url`           | string | yes | The URL to the JIRA project which is being linked to this GitLab project. For example, `https://jira.example.com`. |
-| `project_key`   | string | yes | The short identifier for your JIRA project, all uppercase, e.g., `PROJ`. |
+| `api_url`   | string | no | The base URL to the JIRA instance API. Web URL value will be used if not set. For example, `https://jira-api.example.com`. |
 | `username`      | string | yes  | The username of the user created to be used with GitLab/JIRA. |
 | `password`      | string | yes  | The password of the user created to be used with GitLab/JIRA. |
 | `active`        | boolean | no  | Activates or deactivates the service. Defaults to false (deactivated). |
@@ -754,6 +754,7 @@ Parameters:
 | `recipients` | string | yes | Comma-separated list of recipient email addresses |
 | `add_pusher` | boolean | no | Add pusher to recipients list |
 | `notify_only_broken_pipelines` | boolean | no | Notify only broken pipelines |
+| `notify_only_default_branch` | boolean | no | Send notifications only for the default branch ([introduced in GitLab 12.0](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/28271)) |
 
 ### Delete Pipeline-Emails service
 
@@ -1100,14 +1101,13 @@ Get JetBrains TeamCity CI service settings for a project.
 GET /projects/:id/services/teamcity
 ```
 
-## Jenkins CI
+## Jenkins CI **[STARTER]**
 
 A continuous integration and build server
 
 ### Create/Edit Jenkins CI service
 
 Set Jenkins CI service for a project.
-
 
 ```
 PUT /projects/:id/services/jenkins
@@ -1135,7 +1135,6 @@ Get Jenkins CI service settings for a project.
 ```
 GET /projects/:id/services/jenkins
 ```
-
 
 ## Jenkins CI (Deprecated) Service
 

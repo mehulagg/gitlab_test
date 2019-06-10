@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 describe Namespace do
+  include EE::GeoHelpers
+
   let!(:namespace) { create(:namespace) }
   let!(:free_plan) { create(:free_plan) }
   let!(:bronze_plan) { create(:bronze_plan) }
@@ -50,6 +52,28 @@ describe Namespace do
         end
       end
     end
+
+    describe '.with_feature_available_in_plan' do
+      let!(:namespace) { create :namespace, plan: namespace_plan }
+
+      context 'plan is nil' do
+        let(:namespace_plan) { nil }
+
+        it 'returns no namespace' do
+          expect(described_class.with_feature_available_in_plan(:group_project_templates)).to be_empty
+        end
+      end
+
+      context 'plan is set' do
+        let(:namespace_plan) { :bronze_plan }
+
+        it 'returns namespaces with plan' do
+          create(:gitlab_subscription, :bronze, namespace: namespace)
+          create(:gitlab_subscription, :free, namespace: create(:namespace))
+          expect(described_class.with_feature_available_in_plan(:audit_events)).to eq([namespace])
+        end
+      end
+    end
   end
 
   describe 'custom validations' do
@@ -75,10 +99,6 @@ describe Namespace do
     end
 
     describe '#validate_shared_runner_minutes_support' do
-      before do
-        stub_feature_flags(shared_runner_minutes_on_root_namespace: true)
-      end
-
       context 'when changing :shared_runners_minutes_limit' do
         before do
           namespace.shared_runners_minutes_limit = 100
@@ -113,19 +133,21 @@ describe Namespace do
       let!(:project_legacy) { create(:project_empty_repo, :legacy_storage, namespace: parent_group) }
       let!(:project_child_hashed) { create(:project, namespace: child_group) }
       let!(:project_child_legacy) { create(:project_empty_repo, :legacy_storage, namespace: child_group) }
-      let!(:full_path_was) { "#{parent_group.full_path}_old" }
+      let!(:full_path_before_last_save) { "#{parent_group.full_path}_old" }
 
       before do
         new_path = parent_group.full_path
 
         allow(parent_group).to receive(:gitlab_shell).and_return(gitlab_shell)
         allow(parent_group).to receive(:path_changed?).and_return(true)
-        allow(parent_group).to receive(:full_path_was).and_return(full_path_was)
+        allow(parent_group).to receive(:full_path_before_last_save).and_return(full_path_before_last_save)
         allow(parent_group).to receive(:full_path).and_return(new_path)
 
         allow(gitlab_shell).to receive(:mv_namespace)
-          .with(project_legacy.repository_storage, full_path_was, new_path)
+          .with(project_legacy.repository_storage, full_path_before_last_save, new_path)
           .and_return(true)
+
+        stub_current_geo_node(primary)
       end
 
       it 'logs the Geo::RepositoryRenamedEvent for each project inside namespace' do
@@ -137,9 +159,9 @@ describe Namespace do
 
         actual = Geo::RepositoryRenamedEvent.last(3).map(&:old_path_with_namespace)
         expected = %W[
-          #{full_path_was}/#{project_legacy.path}
-          #{full_path_was}/child/#{project_child_hashed.path}
-          #{full_path_was}/child/#{project_child_legacy.path}
+          #{full_path_before_last_save}/#{project_legacy.path}
+          #{full_path_before_last_save}/child/#{project_child_hashed.path}
+          #{full_path_before_last_save}/child/#{project_child_legacy.path}
         ]
 
         expect(actual).to match_array(expected)
@@ -405,24 +427,8 @@ describe Namespace do
         namespace.parent = build(:group)
       end
 
-      context 'when shared_runner_minutes_on_root_namespace is disabled' do
-        before do
-          stub_feature_flags(shared_runner_minutes_on_root_namespace: false)
-        end
-
-        it 'returns true' do
-          is_expected.to eq(true)
-        end
-      end
-
-      context 'when shared_runner_minutes_on_root_namespace is enabled', :nested_groups do
-        before do
-          stub_feature_flags(shared_runner_minutes_on_root_namespace: true)
-        end
-
-        it 'returns false' do
-          is_expected.to eq(false)
-        end
+      it 'returns false' do
+        is_expected.to eq(false)
       end
     end
 
@@ -456,7 +462,6 @@ describe Namespace do
 
         context 'when is subgroup', :nested_groups do
           before do
-            stub_feature_flags(shared_runner_minutes_on_root_namespace: true)
             namespace.parent = build(:group)
           end
 
@@ -473,28 +478,12 @@ describe Namespace do
   describe '#shared_runners_enabled?' do
     subject { namespace.shared_runners_enabled? }
 
-    context 'subgroup with shared runners enabled project' do
+    context 'subgroup with shared runners enabled project', :nested_groups do
       let(:subgroup) { create(:group, parent: namespace) }
       let!(:subproject) { create(:project, namespace: subgroup, shared_runners_enabled: true) }
 
-      context 'when shared_runner_minutes_on_root_namespace is disabled' do
-        before do
-          stub_feature_flags(shared_runner_minutes_on_root_namespace: false)
-        end
-
-        it "returns false" do
-          is_expected.to eq(false)
-        end
-      end
-
-      context 'when shared_runner_minutes_on_root_namespace is enabled', :nested_groups do
-        before do
-          stub_feature_flags(shared_runner_minutes_on_root_namespace: true)
-        end
-
-        it "returns true" do
-          is_expected.to eq(true)
-        end
+      it "returns true" do
+        is_expected.to eq(true)
       end
     end
 

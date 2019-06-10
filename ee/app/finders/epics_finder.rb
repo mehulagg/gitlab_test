@@ -26,12 +26,14 @@ class EpicsFinder < IssuableFinder
 
     items = init_collection
     items = by_created_at(items)
+    items = by_updated_at(items)
     items = by_search(items)
     items = by_author(items)
     items = by_timeframe(items)
     items = by_state(items)
     items = by_label(items)
     items = by_parent(items)
+    items = by_iids(items)
 
     sort(items)
   end
@@ -48,7 +50,14 @@ class EpicsFinder < IssuableFinder
 
   # rubocop: disable CodeReuse/ActiveRecord
   def init_collection
-    groups = groups_user_can_read_epics(group.self_and_descendants)
+    groups = if params[:iids].present?
+               # If we are querying for specific iids, then we should only be looking at
+               # those in the group, not any sub-groups (which can have identical iids).
+               # The `group` method takes care of checking permissions
+               [group]
+             else
+               groups_user_can_read_epics(group.self_and_descendants)
+             end
 
     Epic.where(group: groups)
   end

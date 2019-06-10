@@ -124,6 +124,10 @@ describe 'Merge request > Batch comments', :js do
 
       it 'adds draft comments to both sides' do
         write_parallel_comment('2f6fcd96b88b36ce98c38da085c795a27d92a3dd_10_9')
+
+        # make sure line 9 is in the view
+        execute_script("window.scrollBy(0, -200)")
+
         write_parallel_comment('2f6fcd96b88b36ce98c38da085c795a27d92a3dd_9_9', button_text: 'Add to review', text: 'Another wrong line')
 
         expect(find('.new .draft-note-component')).to have_content('Line is wrong')
@@ -167,6 +171,8 @@ describe 'Merge request > Batch comments', :js do
           expect(page).to have_content('1/1 discussion resolved')
           expect(page).to have_selector('.line-resolve-btn.is-active')
         end
+
+        expect_empty_local_draft
       end
     end
 
@@ -210,6 +216,8 @@ describe 'Merge request > Batch comments', :js do
           expect(page).to have_content('0/1 discussion resolved')
           expect(page).to have_selector('.line-resolve-btn.is-disabled')
         end
+
+        expect_empty_local_draft
       end
     end
   end
@@ -262,4 +270,11 @@ def write_reply_to_discussion(button_text: 'Start a review', text: 'Line is wron
   end
 
   wait_for_requests
+end
+
+def expect_empty_local_draft
+  page.within('.discussion-reply-holder') do
+    click_button('Reply...')
+    expect(find('#note_note').value).to eq('')
+  end
 end

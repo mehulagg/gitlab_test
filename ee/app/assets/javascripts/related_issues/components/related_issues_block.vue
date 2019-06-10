@@ -1,4 +1,5 @@
 <script>
+import { __ } from '~/locale';
 import Sortable from 'sortablejs';
 import tooltip from '~/vue_shared/directives/tooltip';
 import Icon from '~/vue_shared/components/icon.vue';
@@ -81,7 +82,7 @@ export default {
     title: {
       type: String,
       required: false,
-      default: 'Related issues',
+      default: __('Related issues'),
     },
     issuableType: {
       type: String,
@@ -263,7 +264,7 @@ export default {
                 v-if="issue.weight"
                 slot="weight"
                 :weight="issue.weight"
-                class="item-weight d-flex align-items-center"
+                class="item-weight d-flex align-items-center ml-2 mr-0"
                 tag-name="span"
               />
               <issue-due-date
@@ -271,7 +272,7 @@ export default {
                 slot="dueDate"
                 :date="issue.due_date"
                 tooltip-placement="top"
-                css-class="item-due-date d-flex align-items-center"
+                css-class="item-due-date d-flex align-items-center ml-2 mr-0"
               />
             </related-issuable-item>
           </li>

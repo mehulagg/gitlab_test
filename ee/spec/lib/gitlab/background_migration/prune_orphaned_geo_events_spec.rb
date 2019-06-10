@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::BackgroundMigration::PruneOrphanedGeoEvents, :migration, :postgresql, schema: 20180626125654 do
+describe Gitlab::BackgroundMigration::PruneOrphanedGeoEvents, :migration, :postgresql, geo: false, schema: 20180626125654 do
   let(:event_table_name) { 'geo_repository_updated_events' }
   let(:geo_event_log) { table(:geo_event_log) }
   let(:geo_updated_events) { table(event_table_name) }
@@ -46,6 +46,12 @@ describe Gitlab::BackgroundMigration::PruneOrphanedGeoEvents, :migration, :postg
                                  source: 0,
                                  branches_affected: 0,
                                  tags_affected: 0)
+    end
+
+    it 'does nothing if the database is read-only' do
+      allow(Gitlab::Database).to receive(:read_only?).and_return(true)
+
+      expect { background_migration.perform(event_table_name) }.not_to change { Geo::RepositoryUpdatedEvent.count }
     end
 
     it 'takes the first table if no table is specified' do

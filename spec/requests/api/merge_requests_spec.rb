@@ -1443,27 +1443,6 @@ describe API::MergeRequests do
       expect(json_response['message']).to eq('405 Method Not Allowed')
     end
 
-    it 'returns 405 if merge request was not approved' do
-      project.add_developer(create(:user))
-      project.update(approvals_before_merge: 1)
-
-      put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/merge", user)
-
-      expect(response).to have_gitlab_http_status(406)
-      expect(json_response['message']).to eq('Branch cannot be merged')
-    end
-
-    it 'returns 200 if merge request was approved' do
-      approver = create(:user)
-      project.add_developer(approver)
-      project.update(approvals_before_merge: 1)
-      merge_request.approvals.create(user: approver)
-
-      put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/merge", user)
-
-      expect(response).to have_gitlab_http_status(200)
-    end
-
     it "returns 401 if user has no permissions to merge" do
       user2 = create(:user)
       project.add_reporter(user2)
@@ -1494,7 +1473,7 @@ describe API::MergeRequests do
     end
 
     it "enables merge when pipeline succeeds if the pipeline is active" do
-      allow_any_instance_of(MergeRequest).to receive(:head_pipeline).and_return(pipeline)
+      allow_any_instance_of(MergeRequest).to receive_messages(head_pipeline: pipeline, actual_head_pipeline: pipeline)
       allow(pipeline).to receive(:active?).and_return(true)
 
       put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/merge", user), params: { merge_when_pipeline_succeeds: true }
@@ -1505,7 +1484,7 @@ describe API::MergeRequests do
     end
 
     it "enables merge when pipeline succeeds if the pipeline is active and only_allow_merge_if_pipeline_succeeds is true" do
-      allow_any_instance_of(MergeRequest).to receive(:head_pipeline).and_return(pipeline)
+      allow_any_instance_of(MergeRequest).to receive_messages(head_pipeline: pipeline, actual_head_pipeline: pipeline)
       allow(pipeline).to receive(:active?).and_return(true)
       project.update_attribute(:only_allow_merge_if_pipeline_succeeds, true)
 
@@ -1567,56 +1546,95 @@ describe API::MergeRequests do
     end
   end
 
-  describe "PUT /projects/:id/merge_requests/:merge_request_iid/merge_to_ref" do
-    let(:pipeline) { create(:ci_pipeline_without_jobs) }
+  describe "GET /projects/:id/merge_requests/:merge_request_iid/merge_ref" do
+    before do
+      merge_request.mark_as_unchecked!
+    end
+
+    let(:merge_request_iid) { merge_request.iid }
+
     let(:url) do
-      "/projects/#{project.id}/merge_requests/#{merge_request.iid}/merge_to_ref"
+      "/projects/#{project.id}/merge_requests/#{merge_request_iid}/merge_ref"
     end
 
     it 'returns the generated ID from the merge service in case of success' do
-      put api(url, user), params: { merge_commit_message: 'Custom message' }
-
-      commit = project.commit(json_response['commit_id'])
+      get api(url, user)
 
       expect(response).to have_gitlab_http_status(200)
-      expect(json_response['commit_id']).to be_present
-      expect(commit.message).to eq('Custom message')
+      expect(json_response['commit_id']).to eq(merge_request.merge_ref_head.sha)
     end
 
     it "returns 400 if branch can't be merged" do
-      merge_request.update!(state: 'merged')
+      merge_request.update!(merge_status: 'cannot_be_merged')
 
-      put api(url, user)
+      get api(url, user)
 
       expect(response).to have_gitlab_http_status(400)
-      expect(json_response['message'])
-        .to eq("Merge request is not mergeable to #{merge_request.merge_ref_path}")
+      expect(json_response['message']).to eq('Merge request is not mergeable')
     end
 
-    it 'returns 403 if user has no permissions to merge to the ref' do
-      user2 = create(:user)
-      project.add_reporter(user2)
+    context 'when user has no access to the MR' do
+      let(:project) { create(:project, :private) }
+      let(:merge_request) { create(:merge_request, source_project: project, target_project: project) }
 
-      put api(url, user2)
+      it 'returns 404' do
+        project.add_guest(user)
 
-      expect(response).to have_gitlab_http_status(403)
-      expect(json_response['message']).to eq('403 Forbidden')
+        get api(url, user)
+
+        expect(response).to have_gitlab_http_status(404)
+        expect(json_response['message']).to eq('404 Not found')
+      end
     end
 
-    it 'returns 404 for an invalid merge request IID' do
-      put api("/projects/#{project.id}/merge_requests/12345/merge_to_ref", user)
+    context 'when invalid merge request IID' do
+      let(:merge_request_iid) { '12345' }
 
-      expect(response).to have_gitlab_http_status(404)
+      it 'returns 404' do
+        get api(url, user)
+
+        expect(response).to have_gitlab_http_status(404)
+      end
     end
 
-    it "returns 404 if the merge request id is used instead of iid" do
-      put api("/projects/#{project.id}/merge_requests/#{merge_request.id}/merge", user)
+    context 'when merge request ID is used instead IID' do
+      let(:merge_request_iid) { merge_request.id }
 
-      expect(response).to have_gitlab_http_status(404)
+      it 'returns 404' do
+        get api(url, user)
+
+        expect(response).to have_gitlab_http_status(404)
+      end
     end
   end
 
   describe "PUT /projects/:id/merge_requests/:merge_request_iid" do
+    context 'updates force_remove_source_branch properly' do
+      it 'sets to false' do
+        merge_request.update(merge_params: { 'force_remove_source_branch' => true } )
+
+        expect(merge_request.force_remove_source_branch?).to be_truthy
+
+        put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user), params: { state_event: "close", remove_source_branch: false }
+
+        expect(response).to have_gitlab_http_status(200)
+        expect(json_response['state']).to eq('closed')
+        expect(json_response['force_remove_source_branch']).to be_falsey
+      end
+
+      it 'sets to true' do
+        merge_request.update(merge_params: { 'force_remove_source_branch' => false } )
+
+        expect(merge_request.force_remove_source_branch?).to be_falsey
+
+        put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user), params: { state_event: "close", remove_source_branch: true }
+
+        expect(response).to have_gitlab_http_status(200)
+        expect(json_response['state']).to eq('closed')
+        expect(json_response['force_remove_source_branch']).to be_truthy
+      end
+    end
+
     context "to close a MR" do
       it "returns merge_request" do
         put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user), params: { state_event: "close" }
@@ -1945,7 +1963,7 @@ describe API::MergeRequests do
 
   describe 'POST :id/merge_requests/:merge_request_iid/cancel_merge_when_pipeline_succeeds' do
     before do
-      ::MergeRequests::MergeWhenPipelineSucceedsService.new(merge_request.target_project, user).execute(merge_request)
+      ::AutoMergeService.new(merge_request.target_project, user).execute(merge_request, AutoMergeService::STRATEGY_MERGE_WHEN_PIPELINE_SUCCEEDS)
     end
 
     it 'removes the merge_when_pipeline_succeeds status' do

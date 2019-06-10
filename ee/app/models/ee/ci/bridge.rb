@@ -13,7 +13,9 @@ module EE
         serialize :yaml_variables, ::Gitlab::Serializer::Ci::Variables
         # rubocop:enable Cop/ActiveRecordSerialize
 
-        has_many :sourced_pipelines, class_name: ::Ci::Sources::Pipeline,
+        belongs_to :upstream_pipeline, class_name: "::Ci::Pipeline",
+                                       foreign_key: :upstream_pipeline_id
+        has_many :sourced_pipelines, class_name: "::Ci::Sources::Pipeline",
                                      foreign_key: :source_job_id
 
         state_machine :status do
@@ -42,7 +44,11 @@ module EE
       end
 
       def downstream_variables
-        yaml_variables.to_a.map { |hash| hash.except(:public) }
+        scoped_variables.to_runner_variables.yield_self do |all_variables|
+          yaml_variables.to_a.map do |hash|
+            { key: hash[:key], value: ::ExpandVariables.expand(hash[:value], all_variables) }
+          end
+        end
       end
     end
   end

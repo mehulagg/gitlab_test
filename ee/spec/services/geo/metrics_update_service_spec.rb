@@ -36,7 +36,6 @@ describe Geo::MetricsUpdateService, :geo, :prometheus do
       last_event_date: event_date,
       cursor_last_event_id: 1,
       cursor_last_event_date: event_date,
-      event_log_count: 55,
       event_log_max_id: 555,
       repository_created_max_id: 43,
       repository_updated_max_id: 132,
@@ -53,14 +52,12 @@ describe Geo::MetricsUpdateService, :geo, :prometheus do
   let(:primary_data) do
     {
       status_message: nil,
-      repositories_count: 10,
       projects_count: 10,
       lfs_objects_count: 100,
       job_artifacts_count: 100,
       attachments_count: 30,
       last_event_id: 2,
       last_event_date: event_date,
-      event_log_count: 55,
       event_log_max_id: 555
     }
   end
@@ -116,9 +113,10 @@ describe Geo::MetricsUpdateService, :geo, :prometheus do
 
         expect(Gitlab::Metrics.registry.get(:geo_db_replication_lag_seconds).values.count).to eq(2)
         expect(Gitlab::Metrics.registry.get(:geo_repositories).values.count).to eq(3)
-        expect(Gitlab::Metrics.registry.get(:geo_repositories).get({ url: secondary.url })).to eq(10)
-        expect(Gitlab::Metrics.registry.get(:geo_repositories).get({ url: another_secondary.url })).to eq(10)
-        expect(Gitlab::Metrics.registry.get(:geo_repositories).get({ url: primary.url })).to eq(10)
+
+        expect(Gitlab::Metrics.registry.get(:geo_repositories).get({ name: secondary.name, url: secondary.name })).to eq(10)
+        expect(Gitlab::Metrics.registry.get(:geo_repositories).get({ name: another_secondary.name, url: another_secondary.name })).to eq(10)
+        expect(Gitlab::Metrics.registry.get(:geo_repositories).get({ name: primary.name, url: primary.name })).to eq(10)
       end
 
       it 'updates the GeoNodeStatus entry' do
@@ -175,7 +173,6 @@ describe Geo::MetricsUpdateService, :geo, :prometheus do
         expect(metric_value(:geo_cursor_last_event_id)).to eq(1)
         expect(metric_value(:geo_cursor_last_event_timestamp)).to eq(event_date.to_i)
         expect(metric_value(:geo_last_successful_status_check_timestamp)).to be_truthy
-        expect(metric_value(:geo_event_log)).to eq(55)
         expect(metric_value(:geo_event_log_max_id)).to eq(555)
         expect(metric_value(:geo_repository_created_max_id)).to eq(43)
         expect(metric_value(:geo_repository_updated_max_id)).to eq(132)
@@ -202,7 +199,7 @@ describe Geo::MetricsUpdateService, :geo, :prometheus do
       end
 
       def metric_value(metric_name)
-        Gitlab::Metrics.registry.get(metric_name)&.get({ url: secondary.url })
+        Gitlab::Metrics.registry.get(metric_name)&.get({ name: secondary.name, url: secondary.name })
       end
     end
   end

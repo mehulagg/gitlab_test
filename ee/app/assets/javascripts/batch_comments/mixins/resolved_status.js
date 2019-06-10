@@ -1,5 +1,5 @@
 import { mapGetters } from 'vuex';
-import { s__ } from '~/locale';
+import { sprintf, s__, __ } from '~/locale';
 
 export default {
   props: {
@@ -51,5 +51,17 @@ export default {
     componentClasses() {
       return this.resolveDiscussion ? 'is-resolving-discussion' : 'is-unresolving-discussion';
     },
+    resolveButtonTitle() {
+      if (this.isDraft || this.discussionId) return this.resolvedStatusMessage;
+
+      let title = __('Mark as resolved');
+
+      if (this.resolvedBy) {
+        title = sprintf(__('Resolved by %{name}'), { name: this.resolvedBy.name });
+      }
+
+      return title;
+    },
   },
+  showStaysResolved: true,
 };

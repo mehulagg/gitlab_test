@@ -4,6 +4,7 @@ import {
   alternativeTokenKeys,
   conditions,
 } from '~/filtered_search/issuable_filtered_search_token_keys';
+import { __ } from '~/locale';
 
 const weightTokenKey = {
   key: 'weight',
@@ -18,12 +19,12 @@ const weightConditions = [
   {
     url: 'weight=None',
     tokenKey: 'weight',
-    value: 'None',
+    value: __('None'),
   },
   {
     url: 'weight=Any',
     tokenKey: 'weight',
-    value: 'Any',
+    value: __('Any'),
   },
 ];
 
@@ -43,6 +44,10 @@ class IssuesFilteredSearchTokenKeysEE extends FilteredSearchTokenKeys {
    */
   enableMultipleAssignees() {
     const assigneeTokenKey = this.tokenKeys.find(tk => tk.key === 'assignee');
+
+    // Add the original as an alternative token key
+    this.tokenKeysWithAlternative.push({ ...assigneeTokenKey });
+
     assigneeTokenKey.type = 'array';
     assigneeTokenKey.param = 'username[]';
   }

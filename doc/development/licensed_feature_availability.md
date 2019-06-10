@@ -1,4 +1,4 @@
-# Licensed feature availability
+# Licensed feature availability **[STARTER]**
 
 As of GitLab 9.4, we've been supporting a simplified version of licensed 
 feature availability checks via `ee/app/models/license.rb`, both for 
@@ -22,7 +22,7 @@ project.feature_available?(:feature_symbol)
 
 ## Restricting global features (instance)
 
-However, for features such as [Geo](../gitlab-geo/README.md) and 
+However, for features such as [Geo](../administration/geo/replication/index.md) and 
 [Load balancing](../administration/database_load_balancing.md), which cannot be restricted 
 to only a subset of projects or namespaces, the check will be made directly in 
 the instance license.

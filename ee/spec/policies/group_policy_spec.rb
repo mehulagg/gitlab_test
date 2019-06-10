@@ -55,6 +55,36 @@ describe GroupPolicy do
 
       it { is_expected.to be_allowed(:admin_group_saml) }
     end
+
+    context 'with sso enforcement enabled' do
+      let(:current_user) { guest }
+      let(:group) { create(:group, :private) }
+      let!(:saml_provider) { create(:saml_provider, group: group, enforced_sso: true) }
+
+      context 'when the session has been set globally' do
+        around do |example|
+          Gitlab::Session.with_session({}) do
+            example.run
+          end
+        end
+
+        it 'prevents access without a SAML session' do
+          is_expected.not_to be_allowed(:read_group)
+        end
+
+        it 'allows access with a SAML session' do
+          Gitlab::Auth::GroupSaml::SsoEnforcer.new(saml_provider).update_session
+
+          is_expected.to be_allowed(:read_group)
+        end
+      end
+
+      context 'when there is no global session or sso state' do
+        it "allows access because we haven't yet restricted all use cases" do
+          is_expected.to be_allowed(:read_group)
+        end
+      end
+    end
   end
 
   context 'when LDAP sync is not enabled' do
@@ -143,6 +173,50 @@ describe GroupPolicy do
 
       it { is_expected.to be_allowed(:override_group_member) }
       it { is_expected.to be_allowed(:admin_ldap_group_links) }
+    end
+  end
+
+  describe 'create_jira_connect_subscription' do
+    context 'admin' do
+      let(:current_user) { admin }
+
+      it { is_expected.to be_allowed(:create_jira_connect_subscription) }
+    end
+
+    context 'with owner' do
+      let(:current_user) { owner }
+
+      it { is_expected.to be_allowed(:create_jira_connect_subscription) }
+    end
+
+    context 'with maintainer' do
+      let(:current_user) { maintainer }
+
+      it { is_expected.to be_allowed(:create_jira_connect_subscription) }
+    end
+
+    context 'with reporter' do
+      let(:current_user) { reporter }
+
+      it { is_expected.to be_disallowed(:create_jira_connect_subscription) }
+    end
+
+    context 'with guest' do
+      let(:current_user) { guest }
+
+      it { is_expected.to be_disallowed(:create_jira_connect_subscription) }
+    end
+
+    context 'with non member' do
+      let(:current_user) { create(:user) }
+
+      it { is_expected.to be_disallowed(:create_jira_connect_subscription) }
+    end
+
+    context 'with anonymous' do
+      let(:current_user) { nil }
+
+      it { is_expected.to be_disallowed(:create_jira_connect_subscription) }
     end
   end
 

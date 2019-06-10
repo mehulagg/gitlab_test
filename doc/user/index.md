@@ -60,11 +60,11 @@ With GitLab Enterprise Edition, you can also:
 - [Authenticate users with Kerberos](../integration/kerberos.md).
 - [Mirror a repository](../workflow/repository_mirroring.md) from elsewhere on your local server.
 - [Export issues as CSV](project/issues/csv_export.md).
-- View your entire CI/CD pipeline involving more than one project with [Multiple-Project Pipelines](../ci/multi_project_pipelines.md).
+- View your entire CI/CD pipeline involving more than one project with [Multiple-Project Pipelines](../ci/multi_project_pipeline_graphs.md).
 - [Lock files](project/file_lock.md) to prevent conflicts.
 - View the current health and status of each CI environment running on Kubernetes with [Deploy Boards](project/deploy_boards.md).
 - Leverage continuous delivery method with [Canary Deployments](project/canary_deployments.md).
-- Scan your code for vulnerabilities and [display them in merge requests](project/merge_requests/sast.md).
+- Scan your code for vulnerabilities and [display them in merge requests](application_security/sast/index.md).
 
 You can also [integrate](project/integrations/project_services.md) GitLab with numerous third-party applications, such as Mattermost, Microsoft Teams, HipChat, Trello, Slack, Bamboo CI, JIRA, and a lot more.
 
@@ -173,7 +173,7 @@ Learn what is [Git](../topics/git/index.md) and its best practices.
 
 See [various statistics](instance_statistics/index.md) of your GitLab instance.
 
-## Operations Dashboard
+## Operations Dashboard **[PREMIUM]**
 
 See [Operations Dashboard](operations_dashboard/index.md) for a summary of each
 project's operational health.

@@ -19,6 +19,7 @@ Example response:
 [
   {
     "id": 1,
+    "name": "us-node",
     "url": "https://primary.example.com/",
     "internal_url": "https://internal.example.com/",
     "primary": true,
@@ -31,6 +32,7 @@ Example response:
   },
   {
     "id": 2,
+    "name": "cn-node",
     "url": "https://secondary.example.com/",
     "internal_url": "https://secondary.example.com/",
     "primary": false,
@@ -59,6 +61,7 @@ Example response:
 ```json
 {
   "id": 1,
+  "name": "us-node",
   "url": "https://primary.example.com/",
   "internal_url": "https://primary.example.com/",
   "primary": true,
@@ -85,7 +88,8 @@ PUT /geo_nodes/:id
 |----------------------|---------|-----------|---------------------------------------------------------------------------|
 | `id`                 | integer | yes       | The ID of the Geo node.                                                   |
 | `enabled`            | boolean | no        | Flag indicating if the Geo node is enabled.                               |
-| `url`                | string  | no        | The URL to connect to the Geo node.                                       |
+| `name`               | string  | yes       | The unique identifier for the Geo node. Must match `geo_node_name` if it is set in gitlab.rb, otherwise it must match `external_url`. |
+| `url`                | string  | yes       | The user-facing URL of the Geo node. |
 | `internal_url`       | string  | no        | The URL defined on the primary node that secondary nodes should use to contact it. Returns `url` if not set.|
 | `files_max_capacity` | integer | no        | Control the maximum concurrency of LFS/attachment backfill for this secondary node. |
 | `repos_max_capacity` | integer | no        | Control the maximum concurrency of repository backfill for this secondary node.     |
@@ -96,6 +100,7 @@ Example response:
 ```json
 {
   "id": 1,
+  "name": "cn-node",
   "url": "https://secondary.example.com/",
   "internal_url": "https://secondary.example.com/",
   "primary": false,
@@ -138,6 +143,7 @@ Example response:
 ```json
 {
   "id": 1,
+  "name": "us-node",
   "url": "https://primary.example.com/",
   "internal_url": "https://primary.example.com/",
   "primary": true,
@@ -186,12 +192,10 @@ Example response:
     "job_artifacts_failed_count": nil,
     "job_artifacts_synced_missing_on_primary_count": 0,
     "job_artifacts_synced_in_percentage": "0.00%",
-    "repositories_count": 41,
     "projects_count": 41,
     "repositories_failed_count": nil,
     "repositories_synced_count": nil,
     "repositories_synced_in_percentage": "0.00%",
-    "wikis_count": 41,
     "wikis_failed_count": nil,
     "wikis_synced_count": nil,
     "wikis_synced_in_percentage": "0.00%",
@@ -251,12 +255,10 @@ Example response:
     "job_artifacts_failed_count": 1,
     "job_artifacts_synced_missing_on_primary_count": 0,
     "job_artifacts_synced_in_percentage": "50.00%",
-    "repositories_count": 41,
     "projects_count": 41,
     "repositories_failed_count": 1,
     "repositories_synced_count": 40,
     "repositories_synced_in_percentage": "97.56%",
-    "wikis_count": 41,
     "wikis_failed_count": 0,
     "wikis_synced_count": 41,
     "wikis_synced_in_percentage": "100.00%",
@@ -294,7 +296,8 @@ Example response:
 ]
 ```
 
-Note: fields `wikis_count` and `repositories_count` are deprecated and will be deleted soon. Please use `projects_count` instead.
+NOTE: **Note:**
+In GitLab 12.0, deprecated fields `wikis_count` and `repositories_count` were removed. Use `projects_count` instead.
 
 ## Retrieve status about a specific Geo node
 
@@ -331,12 +334,10 @@ Example response:
   "job_artifacts_failed_count": 1,
   "job_artifacts_synced_missing_on_primary_count": 0,
   "job_artifacts_synced_in_percentage": "50.00%",
-  "repositories_count": 41,
   "projects_count": 41,
   "repositories_failed_count": 1,
   "repositories_synced_count": 40,
   "repositories_synced_in_percentage": "97.56%",
-  "wikis_count": 41,
   "wikis_failed_count": 0,
   "wikis_synced_count": 41,
   "wikis_synced_in_percentage": "100.00%",
@@ -356,7 +357,8 @@ Example response:
 
 Note: The `health_status` parameter can only be in an "Healthy" or "Unhealthy" state, while the `health` parameter can be empty, "Healthy", or contain the actual error message.
 
-Note: Fields `wikis_count` and `repositories_count` are deprecated and will be deleted soon. Please use `projects_count` instead.
+NOTE: **Note:**
+In GitLab 12.0, deprecated fields `wikis_count` and `repositories_count` were removed. Use `projects_count` instead.
 
 ## Retrieve project sync or verification failures that occurred on the current node
 

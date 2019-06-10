@@ -4,8 +4,8 @@
 /* global ListAssignee */
 
 import Vue from 'vue';
-import '~/vue_shared/models/label';
-import { isEE } from '~/lib/utils/common_utils';
+import './label';
+import { isEE, convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 import IssueProject from './project';
 import boardsStore from '../stores/boards_store';
 
@@ -141,7 +141,7 @@ class ListIssue {
        * PATCH the said object.
        */
       if (body) {
-        this.labels = body.labels;
+        this.labels = convertObjectPropsToCamelCase(body.labels, { deep: true });
       }
     });
   }

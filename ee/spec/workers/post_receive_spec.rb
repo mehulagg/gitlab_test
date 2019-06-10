@@ -8,7 +8,7 @@ describe PostReceive do
   let(:gl_repository) { "project-#{project.id}" }
   let(:key) { create(:key, user: project.owner) }
   let(:key_id) { key.shell_id }
-  let(:project) { create(:project, :repository) }
+  let(:project) { create(:project, :repository, :wiki_repo) }
 
   describe "#process_project_changes" do
     before do
@@ -69,15 +69,15 @@ describe PostReceive do
       described_class.new.perform(gl_repository, key_id, base64_changes)
     end
 
-    it 'triggers wiki index update when ElasticSearch is enabled' do
+    it 'triggers wiki index update when ElasticSearch is enabled', :elastic do
       stub_ee_application_setting(elasticsearch_search: true, elasticsearch_indexing: true)
 
-      expect_any_instance_of(ProjectWiki).to receive(:index_blobs)
+      expect_any_instance_of(ProjectWiki).to receive(:index_wiki_blobs)
 
       described_class.new.perform(gl_repository, key_id, base64_changes)
     end
 
-    context 'when limited indexing is on' do
+    context 'when limited indexing is on', :elastic do
       before do
         stub_ee_application_setting(
           elasticsearch_search: true,
@@ -88,7 +88,7 @@ describe PostReceive do
 
       context 'when the project is not enabled specifically' do
         it 'does not trigger wiki index update' do
-          expect(ProjectWiki).not_to receive(:new)
+          expect_any_instance_of(ProjectWiki).not_to receive(:index_wiki_blobs)
 
           described_class.new.perform(gl_repository, key_id, base64_changes)
         end
@@ -100,9 +100,7 @@ describe PostReceive do
         end
 
         it 'triggers wiki index update' do
-          expect_next_instance_of(ProjectWiki) do |project_wiki|
-            expect(project_wiki).to receive(:index_blobs)
-          end
+          expect_any_instance_of(ProjectWiki).to receive(:index_wiki_blobs)
 
           described_class.new.perform(gl_repository, key_id, base64_changes)
         end
@@ -110,7 +108,7 @@ describe PostReceive do
 
       context 'when a group is enabled' do
         let(:group) { create(:group) }
-        let(:project) { create(:project, group: group) }
+        let(:project) { create(:project, :wiki_repo, group: group) }
         let(:key) { create(:key, user: group.owner) }
 
         before do
@@ -118,13 +116,24 @@ describe PostReceive do
         end
 
         it 'triggers wiki index update' do
-          expect_next_instance_of(ProjectWiki) do |project_wiki|
-            expect(project_wiki).to receive(:index_blobs)
-          end
+          expect_any_instance_of(ProjectWiki).to receive(:index_wiki_blobs)
 
           described_class.new.perform(gl_repository, key_id, base64_changes)
         end
       end
+    end
+  end
+
+  describe 'processing design changes' do
+    let(:gl_repository) { "design-#{project.id}" }
+
+    it 'does not do anything' do
+      worker = described_class.new
+
+      expect(worker).not_to receive(:process_wiki_changes)
+      expect(worker).not_to receive(:process_project_changes)
+
+      described_class.new.perform(gl_repository, key_id, base64_changes)
     end
   end
 end

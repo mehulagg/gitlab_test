@@ -1,11 +1,10 @@
 import $ from 'jquery';
-import _ from 'underscore';
 import Vue from 'vue';
 
 import Flash from '~/flash';
-import { __ } from '~/locale';
-import '~/vue_shared/models/label';
-import '~/vue_shared/models/assignee';
+import { s__, __ } from '~/locale';
+import './models/label';
+import './models/assignee';
 
 import FilteredSearchBoards from './filtered_search_boards';
 import eventHub from './eventhub';
@@ -113,25 +112,30 @@ export default () => {
       gl.boardService
         .all()
         .then(res => res.data)
-        .then(data => {
-          data.forEach(board => {
-            const list = boardsStore.addList(board, this.defaultAvatar);
-
-            if (list.type === 'closed') {
-              list.position = Infinity;
-            } else if (list.type === 'backlog') {
-              list.position = -1;
+        .then(lists => {
+          lists.forEach(listObj => {
+            let { position } = listObj;
+            if (listObj.list_type === 'closed') {
+              position = Infinity;
+            } else if (listObj.list_type === 'backlog') {
+              position = -1;
             }
-          });
 
-          this.state.lists = _.sortBy(this.state.lists, 'position');
+            boardsStore.addList(
+              {
+                ...listObj,
+                position,
+              },
+              this.defaultAvatar,
+            );
+          });
 
           boardsStore.addBlankState();
           boardsStore.addPromotionState();
           this.loading = false;
         })
         .catch(() => {
-          Flash('An error occurred while fetching the board lists. Please try again.');
+          Flash(__('An error occurred while fetching the board lists. Please try again.'));
         });
     },
     methods: {
@@ -177,10 +181,10 @@ export default () => {
             });
         }
 
-        boardsStore.detail.issue = newIssue;
+        boardsStore.setIssueDetail(newIssue);
       },
       clearDetailIssue() {
-        boardsStore.detail.issue = {};
+        boardsStore.clearDetailIssue();
       },
       toggleSubscription(id) {
         const { issue } = boardsStore.detail;
@@ -231,7 +235,7 @@ export default () => {
       },
       computed: {
         buttonText() {
-          return this.canAdminList ? 'Edit board' : 'View scope';
+          return this.canAdminList ? s__('Boards|Edit board') : s__('Boards|View scope');
         },
         tooltipTitle() {
           return this.hasScope ? __("This board's scope is reduced") : '';
@@ -282,7 +286,7 @@ export default () => {
         },
         tooltipTitle() {
           if (this.disabled) {
-            return 'Please add a list to your board first';
+            return __('Please add a list to your board first');
           }
 
           return '';
@@ -396,8 +400,6 @@ export default () => {
         groupId: Number(dataset.groupId),
         scopedIssueBoardFeatureEnabled: parseBoolean(dataset.scopedIssueBoardFeatureEnabled),
         weights: JSON.parse(dataset.weights),
-        enableScopedLabels: $boardApp.dataset.scopedLabels,
-        keyValueDocumentationLink: $boardApp.dataset.keyValueDocumentationLink,
       };
 
       return { boardsSelectorProps };

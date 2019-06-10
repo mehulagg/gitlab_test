@@ -36,15 +36,19 @@ GET /groups/:id/epics?labels=bug,reproduced
 GET /groups/:id/epics?state=opened
 ```
 
-| Attribute           | Type             | Required   | Description                                                                            |
-| ------------------- | ---------------- | ---------- | ---------------------------------------------------------------------------------------|
-| `id`                | integer/string   | yes        | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) owned by the authenticated user                |
-| `author_id`         | integer          | no         | Return epics created by the given user `id`                                                                                                        |
-| `labels`            | string           | no         | Return epics matching a comma separated list of labels names. Label names from the epic group or a parent group can be used                |
-| `order_by`          | string           | no         | Return epics ordered by `created_at` or `updated_at` fields. Default is `created_at`                                                               |
-| `sort`              | string           | no         | Return epics sorted in `asc` or `desc` order. Default is `desc`                                                                                    |
-| `search`            | string           | no         | Search epics against their `title` and `description`                                                                                               |
-| `state`             | string           | no         | Search epics against their `state`, possible filters: `opened`, `closed` and `all`, default: `all`                                                 |
+| Attribute           | Type             | Required   | Description                                                                                                                 |
+| ------------------- | ---------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `id`                | integer/string   | yes        | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) owned by the authenticated user               |
+| `author_id`         | integer          | no         | Return epics created by the given user `id`                                                                                 |
+| `labels`            | string           | no         | Return epics matching a comma separated list of labels names. Label names from the epic group or a parent group can be used |
+| `order_by`          | string           | no         | Return epics ordered by `created_at` or `updated_at` fields. Default is `created_at`                                        |
+| `sort`              | string           | no         | Return epics sorted in `asc` or `desc` order. Default is `desc`                                                             |
+| `search`            | string           | no         | Search epics against their `title` and `description`                                                                        |
+| `state`             | string           | no         | Search epics against their `state`, possible filters: `opened`, `closed` and `all`, default: `all`                          |
+| `created_after`     | datetime         | no         | Return epics created on or after the given time                                                                             |
+| `created_before`    | datetime         | no         | Return epics created on or before the given time                                                                            |
+| `updated_after`     | datetime         | no         | Return epics updated on or after the given time                                                                             |
+| `updated_before`    | datetime         | no         | Return epics updated on or before the given time                                                                            |
 
 ```bash
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics
@@ -60,6 +64,7 @@ Example response:
   "group_id": 7,
   "title": "Accusamus iste et ullam ratione voluptatem omnis debitis dolor est.",
   "description": "Molestias dolorem eos vitae expedita impedit necessitatibus quo voluptatum.",
+  "state": "opened",
   "author": {
     "id": 10,
     "name": "Lu Mayer",
@@ -112,6 +117,7 @@ Example response:
   "group_id": 7,
   "title": "Ea cupiditate dolores ut vero consequatur quasi veniam voluptatem et non.",
   "description": "Molestias dolorem eos vitae expedita impedit necessitatibus quo voluptatum.",
+  "state": "opened",
   "author":{
     "id": 7,
     "name": "Pamella Huel",
@@ -160,6 +166,7 @@ POST /groups/:id/epics
 | `start_date_fixed`  | string           | no         | The fixed start date of an epic (since 11.3) |
 | `due_date_is_fixed` | boolean          | no         | Whether due date should be sourced from `due_date_fixed` or from milestones (since 11.3) |
 | `due_date_fixed`    | string           | no         | The fixed due date of an epic (since 11.3) |
+| `parent_id`         | integer/string   | no         | The id of a parent epic (since 11.11) |
 
 ```bash
 curl --header POST "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics?title=Epic&description=Epic%20description
@@ -174,6 +181,7 @@ Example response:
   "group_id": 7,
   "title": "Epic",
   "description": "Epic description",
+  "state": "opened",
   "author": {
     "name" : "Alexandra Bashirian",
     "avatar_url" : null,
@@ -238,6 +246,7 @@ Example response:
   "group_id": 7,
   "title": "New Title",
   "description": "Epic description",
+  "state": "opened",
   "author": {
     "name" : "Alexandra Bashirian",
     "avatar_url" : null,
@@ -277,7 +286,7 @@ DELETE /groups/:id/epics/:epic_iid
 | `epic_iid`          | integer/string   | yes        | The internal ID  of the epic.  |
 
 ```bash
-curl --header DELETE "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics/5?title=New%20Title
+curl --header DELETE "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics/5
 ```
 
 ## Create a todo

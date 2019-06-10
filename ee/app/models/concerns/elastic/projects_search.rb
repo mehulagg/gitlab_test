@@ -12,6 +12,14 @@ module Elastic
       repository_access_level
     ).freeze
 
+    INDEXED_ASSOCIATIONS = [
+      :issues,
+      :merge_requests,
+      :snippets,
+      :notes,
+      :milestones
+    ].freeze
+
     included do
       include ApplicationSearch
 
@@ -57,7 +65,7 @@ module Elastic
       def self.elastic_search(query, options: {})
         options[:in] = %w(name^10 name_with_namespace^2 path_with_namespace path^9 description)
 
-        query_hash = basic_query_hash(options[:in], query)
+        query_hash = basic_query_hash(options[:in], query, page: options[:page], per_page: options[:per_page])
 
         filters = []
 
@@ -96,6 +104,26 @@ module Elastic
         query_hash[:sort] = [:_score]
 
         self.__elasticsearch__.search(query_hash)
+      end
+
+      def self.indexed_association_classes
+        INDEXED_ASSOCIATIONS.map do |association_name|
+          reflect_on_association(association_name).klass
+        end
+      end
+
+      def each_indexed_association
+        INDEXED_ASSOCIATIONS.each do |association_name|
+          association = self.association(association_name)
+          scope = association.scope
+          klass = association.klass
+
+          if klass == Note
+            scope = scope.searchable
+          end
+
+          yield klass, scope
+        end
       end
     end
   end

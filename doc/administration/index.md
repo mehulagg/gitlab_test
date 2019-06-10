@@ -20,7 +20,7 @@ GitLab Community Edition installations only have access to Core features.
 
 GitLab.com is administered by GitLab, Inc., therefore, only GitLab team members have
 access to its admin configurations. If you're a GitLab.com user, please check the
-[user documentation](../user/index.html).
+[user documentation](../user/index.md).
 
 NOTE: **Note:**
 Non-administrator users don’t have access to GitLab administration tools and settings.
@@ -40,6 +40,7 @@ Learn how to install, configure, update, and maintain your GitLab instance.
 - [Geo](geo/replication/index.md): Replicate your GitLab instance to other geographic locations as a read-only fully operational version. **[PREMIUM ONLY]**
 - [Disaster Recovery](geo/disaster_recovery/index.md): Quickly fail-over to a different site with minimal effort in a disaster situation. **[PREMIUM ONLY]**
 - [Pivotal Tile](../install/pivotal/index.md): Deploy GitLab as a pre-configured appliance using Ops Manager (BOSH) for Pivotal Cloud Foundry. **[PREMIUM ONLY]**
+- [Add License](../user/admin_area/license.md): Upload a license at install time to unlock features that are in paid tiers of GitLab. **[STARTER ONLY]**
 
 ### Configuring GitLab
 
@@ -72,7 +73,7 @@ Learn how to install, configure, update, and maintain your GitLab instance.
 - [Branded login page](../customization/branded_login_page.md): Customize the login page with your own logo, title, and description.
 - [Welcome message](../customization/welcome_message.md): Add a custom welcome message to the sign-in page.
 - ["New Project" page](../customization/new_project_page.md): Customize the text to be displayed on the page that opens whenever your users create a new project.
-- [Additional custom email text](../user/admin_area/settings/email.md#custom-additional-text): Add additional custom text to emails sent from GitLab. **[PREMIUM ONLY]**
+- [Additional custom email text](../user/admin_area/settings/email.md#custom-additional-text-premium-only): Add additional custom text to emails sent from GitLab. **[PREMIUM ONLY]**
 
 ### Maintaining GitLab
 
@@ -117,24 +118,19 @@ Learn how to install, configure, update, and maintain your GitLab instance.
   - Instances. **[PREMIUM ONLY]**
 - [Auditor users](auditor_users.md): Users with read-only access to all projects, groups, and other resources on the GitLab instance. **[PREMIUM ONLY]**
 - [Incoming email](incoming_email.md): Configure incoming emails to allow
-  users to [reply by email], create [issues by email] and
-  [merge requests by email], and to enable [Service Desk].
+  users to [reply by email](reply_by_email.md), create [issues by email](../user/project/issues/create_new_issue.md#new-issue-via-email) and
+  [merge requests by email](../user/project/merge_requests/index.md#create-new-merge-requests-by-email), and to enable [Service Desk](../user/project/service_desk.md).
   - [Postfix for incoming email](reply_by_email_postfix_setup.md): Set up a
   basic Postfix mail server with IMAP authentication on Ubuntu for incoming
   emails.
 - [Abuse reports](../user/admin_area/abuse_reports.md): View and resolve abuse reports from your users.
-
-[reply by email]: reply_by_email.md
-[issues by email]: ../user/project/issues/create_new_issue.md#new-issue-via-email
-[merge requests by email]: ../user/project/merge_requests/index.md#create-new-merge-requests-by-email
-[Service Desk]: ../user/project/service_desk.md
 
 ## Project settings
 
 - [Container Registry](container_registry.md): Configure Container Registry with GitLab.
 - [Issue closing pattern](issue_closing_pattern.md): Customize how to close an issue from commit messages.
 - [Gitaly](gitaly/index.md): Configuring Gitaly, GitLab's Git repository storage service.
-- [Default labels](../user/admin_area/labels.html): Create labels that will be automatically added to every new project.
+- [Default labels](../user/admin_area/labels.md): Create labels that will be automatically added to every new project.
 - [Restrict the use of public or internal projects](../public_access/public_access.md#restricting-the-use-of-public-or-internal-projects): Restrict the use of visibility levels for users when they create a project or a snippet.
 - [Custom project templates](../user/admin_area/custom_project_templates.md): Configure a set of projects to be used as custom templates when creating a new project. **[PREMIUM ONLY]**
 - [Packages](packages.md): Enable GitLab to act as a Maven repository or NPM registry. **[PREMIUM ONLY]**
@@ -153,7 +149,7 @@ Learn how to install, configure, update, and maintain your GitLab instance.
 - [Job artifacts](job_artifacts.md): Enable, disable, and configure job artifacts (a set of files and directories which are outputted by a job when it completes successfully).
 - [Job traces](job_traces.md): Information about the job traces (logs).
 - [Register Shared and specific Runners](../ci/runners/README.md#registering-a-shared-runner): Learn how to register and configure Shared and specific Runners to your own instance.
-- [Shared Runners pipelines quota](https://docs.gitlab.com/ee/user/admin_area/settings/continuous_integration.html#shared-runners-pipeline-minutes-quota-starter-only): Limit the usage of pipeline minutes for Shared Runners. **[STARTER ONLY]**
+- [Shared Runners pipelines quota](../user/admin_area/settings/continuous_integration.md#shared-runners-pipeline-minutes-quota-starter-only): Limit the usage of pipeline minutes for Shared Runners. **[STARTER ONLY]**
 - [Enable/disable Auto DevOps](../topics/autodevops/index.md#enablingdisabling-auto-devops): Enable or disable Auto DevOps for your instance.
 
 ## Git configuration options
@@ -183,7 +179,7 @@ Learn how to install, configure, update, and maintain your GitLab instance.
 
 ## Analytics
 
-- [Pseudonymizer](pseudonymizer.md): Export data from GitLab's database to CSV files in a secure way.
+- [Pseudonymizer](pseudonymizer.md): Export data from GitLab's database to CSV files in a secure way. **[ULTIMATE]**
 
 ## Troubleshooting
 
