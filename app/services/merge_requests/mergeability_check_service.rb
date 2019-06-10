@@ -18,7 +18,7 @@ module MergeRequests
     # even if the current merge_status is can_be_merged or cannot_be_merged.
     # Given MergeRequests::RefreshService is called async, it might happen that the target
     # branch gets updated, but the MergeRequest#merge_status lags behind. So in scenarios
-    # where we need instance feedback of the current state of the repository, the `recheck`
+    # where we need the current state of the merge ref in repository, the `recheck`
     # argument is required.
     #
     # Returns a ServiceResponse indicating merge_status is/became can_be_merged
