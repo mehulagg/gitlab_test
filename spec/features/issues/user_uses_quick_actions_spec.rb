@@ -2,6 +2,11 @@
 
 require 'rails_helper'
 
+# These are written as feature specs because they cover more specific test scenarios
+# than the ones described on spec/services/notes/create_service_spec.rb for quick actions,
+# for example, adding quick actions when creating the issue and checking DateTime formats on UI.
+# Because this kind of spec takes more time to run there is no need to add new ones
+# for each existing quick action unless they test something specific.
 describe 'Issues > User uses quick actions', :js do
   include Spec::Support::Helpers::Features::NotesHelpers
 

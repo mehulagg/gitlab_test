@@ -198,16 +198,6 @@ describe Notes::CreateService do
 
     context 'note with commands' do
       context 'all quick actions' do
-        QuickAction = Struct.new(:action_text, :expectation) do
-          def skip_access_check
-            action_text["/todo"] ||
-              action_text["/done"] ||
-              action_text["/subscribe"] ||
-              action_text["/shrug"] ||
-              action_text["/tableflip"]
-          end
-        end
-
         set(:milestone) { create(:milestone, project: project, title: "sprint") }
         set(:label) { create(:label, project: project, title: 'bug') }
         set(:label_1) { create(:label, project: project, title: 'to be copied') }
@@ -215,177 +205,33 @@ describe Notes::CreateService do
         set(:issue) { create(:issue, project: project, labels: [label]) }
         set(:issue_2) { create(:issue, project: project, labels: [label, label_1]) }
 
-        # Quick actions shared by issues and merge requests
-        let(:issuable_quick_actions) do
-          [
-            QuickAction.new("/subscribe", ->(noteable, can_use_quick_action) {
-              user = try(:non_member) || try(:developer)
-
-              expect(noteable.subscribed?(user, issuable.project)).to eq(can_use_quick_action)
-            }),
-            QuickAction.new("/unsubscribe", ->(noteable, can_use_quick_action) {
-              user = try(:non_member) || try(:developer)
-
-              expect(noteable.subscribed?(user, issuable.project)).to eq(false)
-            }),
-            QuickAction.new("/todo", ->(noteable, can_use_quick_action) {
-              expect(noteable.todos.count == 1).to eq(can_use_quick_action)
-            }),
-            QuickAction.new("/done", ->(noteable, can_use_quick_action) {
-              expect(noteable.todos.last.done? == true).to eq(can_use_quick_action)
-            }),
-            QuickAction.new("/close", ->(noteable, can_use_quick_action) {
-              expect(noteable.closed? == true).to eq(can_use_quick_action)
-            }),
-            QuickAction.new("/reopen", ->(noteable, can_use_quick_action) {
-              if can_use_quick_action
-                expect(noteable.opened?).to eq(true)
-              else
-                expect(noteable.opened?).to eq(true)
-                expect(noteable.saved_change_to_state?).to eq(false)
-              end
-            }),
-            QuickAction.new("/assign @#{user.username}", ->(noteable, can_use_quick_action) {
-              expect(noteable.assignees == [user]).to eq(can_use_quick_action)
-            }),
-            QuickAction.new("/unassign", ->(noteable, can_use_quick_action) {
-              expect(noteable.assignees.empty?).to eq(can_use_quick_action)
-            }),
-            QuickAction.new("/title new title", ->(noteable, can_use_quick_action) {
-              expect(noteable.title == "new title").to eq(can_use_quick_action)
-            }),
-            QuickAction.new("/lock", ->(noteable, can_use_quick_action) {
-              expect(noteable.discussion_locked == true).to eq(can_use_quick_action)
-            }),
-            QuickAction.new("/unlock", ->(noteable, can_use_quick_action) {
-              if can_use_quick_action
-                expect(noteable.discussion_locked).to eq(false)
-              else
-                expect(noteable.saved_change_to_discussion_locked?).to eq(false)
-              end
-            }),
-            QuickAction.new("/milestone %\"sprint\"", ->(noteable, can_use_quick_action) {
-              expect(noteable.milestone == milestone).to eq(can_use_quick_action)
-            }),
-            QuickAction.new("/remove_milestone", ->(noteable, can_use_quick_action) {
-              if can_use_quick_action
-                expect(noteable.milestone_id).to be_nil
-              else
-                expect(noteable.saved_change_to_milestone_id?).to eq(false)
-              end
-            }),
-            QuickAction.new("/label ~feature", ->(noteable, can_use_quick_action) {
-              expect(noteable.labels&.last&.id == label_2.id).to eq(can_use_quick_action)
-            }),
-            QuickAction.new("/unlabel", ->(noteable, can_use_quick_action) {
-              if can_use_quick_action
-                expect(noteable.labels).to be_empty
-              else
-                expect(noteable.labels).to be_present
-              end
-            }),
-            QuickAction.new("/award :100:", ->(noteable, can_use_quick_action) {
-              expect(noteable.award_emoji&.last&.name == "100").to eq(can_use_quick_action)
-            }),
-            QuickAction.new("/estimate 1d 2h 3m", ->(noteable, can_use_quick_action) {
-              expect(noteable.time_estimate == 36180).to eq(can_use_quick_action)
-            }),
-            QuickAction.new("/remove_estimate", ->(noteable, can_use_quick_action) {
-              if can_use_quick_action
-                expect(noteable.time_estimate).to be_zero
-              else
-                expect(noteable.saved_change_to_time_estimate?).to eq(false)
-              end
-            }),
-            QuickAction.new("/spend 1d 2h 3m", ->(noteable, can_use_quick_action) {
-              expect(noteable.total_time_spent == 36180).to eq(can_use_quick_action)
-            }),
-            QuickAction.new("/remove_time_spent", ->(noteable, can_use_quick_action) {
-              if can_use_quick_action
-                expect(noteable.total_time_spent == 0)
-              else
-                expect(noteable.timelogs).to be_empty
-              end
-            }),
-            QuickAction.new("/shrug oops", ->(noteable, can_use_quick_action) {
-              expect(noteable.notes&.last&.note == "HELLO\noops ¯\\＿(ツ)＿/¯\nWORLD").to eq(can_use_quick_action)
-            }),
-            QuickAction.new("/tableflip oops", ->(noteable, can_use_quick_action) {
-              expect(noteable.notes&.last&.note == "HELLO\noops (╯°□°)╯︵ ┻━┻\nWORLD").to eq(can_use_quick_action)
-            }),
-            QuickAction.new("/copy_metadata #{issue_2.to_reference}", ->(noteable, can_use_quick_action) {
-              expect(noteable.labels == issue_2.labels).to eq(can_use_quick_action)
-            })
-          ]
-        end
-
-        shared_examples 'issuable quick actions' do
-          let(:old_assignee) { create(:user) }
-
-          before do
-            project.add_developer(old_assignee)
-            issuable.update(assignees: [old_assignee])
-          end
-
-          context 'when user can update issuable' do
-            set(:developer) { create(:user) }
-
-            before do
-              project.add_developer(developer)
-            end
-
-            it 'saves the note and updates the issue' do
-              quick_actions.each do |quick_action|
-                note_text = %(HELLO\n#{quick_action.action_text}\nWORLD)
-
-                note = described_class.new(project, developer, note_params.merge(note: note_text)).execute
-                noteable = note.noteable
-
-                # shrug and tablefip quick actions modifies the note text
-                # on these cases we need to skip this assertion
-                if !quick_action.action_text["shrug"] && !quick_action.action_text["tableflip"]
-                  expect(note.note).to eq "HELLO\nWORLD"
-                end
-
-                quick_action.expectation.call(noteable, true)
-              end
-            end
-          end
-
-          context 'when user cannot update issuable' do
-            set(:non_member) { create(:user) }
-
-            it 'applies commands that user can execute' do
-              quick_actions.each do |quick_action|
-                note_text = %(HELLO\n#{quick_action.action_text}\nWORLD)
-
-                note = described_class.new(project, non_member, note_params.merge(note: note_text)).execute
-                noteable = note.noteable
-
-                if quick_action.skip_access_check
-                  quick_action.expectation.call(noteable, true)
-                else
-                  quick_action.expectation.call(noteable, false)
-                end
-              end
-            end
-          end
-        end
-
         context 'for issues' do
           let(:issuable) { issue }
           let(:note_params) { opts }
           let(:issue_quick_actions) do
             [
-              # QuickAction.new("/confidential", "confidential", true),
-              # QuickAction.new("/due 2016-08-28", "due_date", Date.new(2016, 8, 28)),
-              # QuickAction.new("/remove_due_date", "due_date", nil),
-              # QuickAction.new("/duplicate #{issue_2.to_reference}", "closed?", true)
+              QuickAction.new("/confidential", ->(noteable, can_use_quick_action) {
+                expect(noteable.confidential? == true).to eq(can_use_quick_action)
+              }),
+              QuickAction.new("/due 2016-08-28", ->(noteable, can_use_quick_action) {
+                expect(noteable.due_date == Date.new(2016, 8, 28)).to eq(can_use_quick_action)
+              }),
+              QuickAction.new("/remove_due_date", ->(noteable, can_use_quick_action) {
+                expect(noteable.due_date).to be_nil
+
+                unless can_use_quick_action
+                  expect(noteable.saved_change_to_due_date?).to eq(false)
+                end
+              }),
+              QuickAction.new("/duplicate #{issue_2.to_reference}", ->(noteable, can_use_quick_action) {
+                expect(noteable.closed? == true).to eq(can_use_quick_action)
+              })
             ]
           end
-          let(:quick_actions) { issuable_quick_actions + issue_quick_actions }
 
-          it_behaves_like 'issuable quick actions'
+          it_behaves_like 'issuable quick actions' do
+            let(:quick_actions) { issuable_quick_actions + issue_quick_actions }
+          end
         end
 
         context 'for merge requests' do
@@ -394,14 +240,25 @@ describe Notes::CreateService do
           let(:note_params) { opts.merge(noteable_type: 'MergeRequest', noteable_id: merge_request.id) }
           let(:merge_request_quick_actions) do
             [
-              # QuickAction.new("/target_branch fix", "target_branch", "fix"),
-              # QuickAction.new("/wip", "work_in_progress?", true),
-              # QuickAction.new("/wip", "work_in_progress?", false)
+              QuickAction.new("/target_branch fix", ->(noteable, can_use_quick_action) {
+                expect(noteable.target_branch == "fix").to eq(can_use_quick_action)
+              }),
+              QuickAction.new("/wip", ->(noteable, can_use_quick_action) {
+                expect(noteable.work_in_progress? == true).to eq(can_use_quick_action)
+              }),
+              QuickAction.new("/wip", ->(noteable, can_use_quick_action) {
+                expect(noteable.work_in_progress?).to be(false)
+
+                unless can_use_quick_action
+                  expect(noteable.saved_change_to_title?).to eq(false)
+                end
+              })
             ]
           end
-          let(:quick_actions) { issuable_quick_actions + merge_request_quick_actions }
 
-          it_behaves_like 'issuable quick actions'
+          it_behaves_like 'issuable quick actions' do
+            let(:quick_actions) { issuable_quick_actions + merge_request_quick_actions }
+          end
         end
       end
 
