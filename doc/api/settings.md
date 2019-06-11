@@ -69,6 +69,14 @@ Example response:
 }
 ```
 
+Users on GitLab [Premium or Ultimate](https://about.gitlab.com/pricing/) may also see
+the `file_template_project_id` or the `geo_node_allowed_ips` parameters:
+
+```json
+   "file_template_project_id": 1,
+   "geo_node_allowed_ips": "0.0.0.0/0, ::/0"
+```
+
 ## Change application settings
 
 Use an API call to modify GitLab instance
@@ -131,6 +139,27 @@ Example response:
   "local_markdown_version": 0,
   "geo_node_allowed_ips": "0.0.0.0/0, ::/0"
 }
+```
+
+Users on GitLab [Premium or Ultimate](https://about.gitlab.com/pricing/) may also see
+these parameters:
+
+- `external_authorization_service_enabled`
+- `external_authorization_service_url`
+- `external_authorization_service_default_label`
+- `external_authorization_service_timeout`
+- `file_template_project_id`
+- `geo_node_allowed_ips`
+
+Example responses:
+
+```json
+  "external_authorization_service_enabled": true,
+  "external_authorization_service_url": "https://authorize.me",
+  "external_authorization_service_default_label": "default",
+  "external_authorization_service_timeout": 0.5,
+  "file_template_project_id": 1,
+  "geo_node_allowed_ips": "0.0.0.0/0, ::/0"
 ```
 
 ## List of settings that can be accessed via API calls
@@ -283,4 +312,4 @@ are listed in the descriptions of the relevant settings.
 | `user_show_add_ssh_key_message`          | boolean          | no                                   | When set to `false` disable the "You won't be able to pull or push project code via SSH" warning shown to users with no uploaded SSH key. |
 | `version_check_enabled`                  | boolean          | no                                   | Let GitLab inform you when an update is available. |
 | `local_markdown_version`                 | integer          | no                                   | Increase this value when any cached markdown should be invalidated. |
-| `geo_node_allowed_ips`                 | string          | yes                                   | **(Premium)** Comma-separated list of IPs and CIDRs of allowed secondary nodes. For example, `1.1.1.1, 2.2.2.0/24`. |
+| `geo_node_allowed_ips`                   | string           | yes                                  | **(Premium)** Comma-separated list of IPs and CIDRs of allowed secondary nodes. For example, `1.1.1.1, 2.2.2.0/24`. |
