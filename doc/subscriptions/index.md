@@ -38,7 +38,7 @@ Future purchases will use the information in this section. The email listed in t
 
 ### Self-managed: Apply your license file
 
-After purchase, the license file is sent to the email address tied to the Customers portal account, which needs to be [uploaded to the GitLab instance](https://docs.gitlab.com/ee/user/admin_area/license.html#uploading-your-license).
+After purchase, the license file is sent to the email address tied to the Customers portal account, which needs to be [uploaded to the GitLab instance](../user/admin_area/license.md#uploading-your-license).
 
 ### Link your GitLab.com account with your Customers Portal account
 
@@ -86,6 +86,14 @@ plan - in the included table:
 | Seats owed | If your max seats used exceeds the seats in your subscription, you'll owe an additional fee for the users you've added. | 
 | Subscription start date | The date your subscription started. If this is for a Free plan, this is the date you transitioned off your group's paid plan. | 
 | Subscription end date | The date your current subscription will end. This does not apply to Free plans. | 
+
+### Subscription changes and your data
+
+When your subscription or trial expires, GitLab does not delete your data, however, depending on the tier and feature, it may become inaccessible. Please note that some features may not behave as expected if a graceful fallback is not currently implemented, such as [environment specific variables not being passed](https://gitlab.com/gitlab-org/gitlab-ce/issues/52825).
+
+If you renew or upgrade, your data will again be accessible.
+
+For self-managed customers, there is a two-week grace period when your features will continue to work as-is, after which the entire instance will become read only. However, if you remove the license, you will immediately revert to Core features.
 
 ## Need help?
 
