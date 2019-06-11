@@ -5,7 +5,7 @@ require 'spec_helper'
 describe "Getting designs related to an issue" do
   include GraphqlHelpers
 
-  set(:design) { create(:design) }
+  set(:design) { create(:design, :with_file, versions_count: 1) }
   set(:current_user) { design.project.owner }
 
   let(:query) do
@@ -14,9 +14,11 @@ describe "Getting designs related to an issue" do
       edges {
         node {
           filename
+          image
           versions {
             edges {
               node {
+                image
                 sha
               }
             }
@@ -75,19 +77,33 @@ describe "Getting designs related to an issue" do
       expect(design_response["filename"]).to eq(design.filename)
     end
 
-    context "with versions" do
-      let(:version) { create(:design_version) }
+    it "returns the path to the design image" do
+      post_graphql(query, current_user: current_user)
 
-      before do
-        design.versions << version
-      end
+      expect(design_response["image"]).to eq(
+        Gitlab::Routing.url_helpers.project_design_url(design.project, design)
+      )
+    end
 
-      it "includes the version" do
+    describe "design versions" do
+      let(:version) { design.versions.take }
+
+      it "includes the version sha" do
         post_graphql(query, current_user: current_user)
 
         version_sha = design_response["versions"]["edges"].first["node"]["sha"]
 
         expect(version_sha).to eq(version.sha)
+      end
+
+      it "includes the path to the version image" do
+        post_graphql(query, current_user: current_user)
+
+        version_image = design_response["versions"]["edges"].first["node"]["image"]
+
+        expect(version_image).to eq(
+          Gitlab::Routing.url_helpers.project_design_url(design.project, design, ref: version.sha)
+        )
       end
     end
   end
