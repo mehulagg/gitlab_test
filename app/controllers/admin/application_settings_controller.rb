@@ -136,6 +136,7 @@ class Admin::ApplicationSettingsController < Admin::ApplicationController
       *::ApplicationSettingsHelper.external_authorization_service_attributes,
       *lets_encrypt_visible_attributes,
       :domain_blacklist_file,
+      :required_ci_template,
       disabled_oauth_sign_in_sources: [],
       import_sources: [],
       repository_storages: [],

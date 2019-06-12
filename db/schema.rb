@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190603124955) do
+ActiveRecord::Schema.define(version: 20190611161641) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -225,8 +225,8 @@ ActiveRecord::Schema.define(version: 20190603124955) do
     t.integer "elasticsearch_replicas", default: 1, null: false
     t.text "encrypted_lets_encrypt_private_key"
     t.text "encrypted_lets_encrypt_private_key_iv"
-    t.string "required_ci_template"
     t.boolean "dns_rebinding_protection_enabled", default: true, null: false
+    t.string "required_ci_template"
     t.index ["custom_project_templates_group_id"], name: "index_application_settings_on_custom_project_templates_group_id", using: :btree
     t.index ["file_template_project_id"], name: "index_application_settings_on_file_template_project_id", using: :btree
     t.index ["usage_stats_set_by_user_id"], name: "index_application_settings_on_usage_stats_set_by_user_id", using: :btree
@@ -1979,8 +1979,11 @@ ActiveRecord::Schema.define(version: 20190603124955) do
     t.integer "pipeline_id"
     t.datetime_with_timezone "created_at", null: false
     t.datetime_with_timezone "updated_at", null: false
+    t.integer "target_project_id", null: false
+    t.text "target_branch", null: false
     t.index ["merge_request_id"], name: "index_merge_trains_on_merge_request_id", unique: true, using: :btree
     t.index ["pipeline_id"], name: "index_merge_trains_on_pipeline_id", using: :btree
+    t.index ["target_project_id"], name: "index_merge_trains_on_target_project_id", using: :btree
     t.index ["user_id"], name: "index_merge_trains_on_user_id", using: :btree
   end
 
@@ -2803,6 +2806,7 @@ ActiveRecord::Schema.define(version: 20190603124955) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["path"], name: "index_redirect_routes_on_path", unique: true, using: :btree
+    t.index ["path"], name: "index_redirect_routes_on_path_text_pattern_ops", using: :btree, opclasses: {"path"=>"varchar_pattern_ops"}
     t.index ["source_type", "source_id"], name: "index_redirect_routes_on_source_type_and_source_id", using: :btree
   end
 
@@ -3698,6 +3702,7 @@ ActiveRecord::Schema.define(version: 20190603124955) do
   add_foreign_key "merge_requests_closing_issues", "merge_requests", on_delete: :cascade
   add_foreign_key "merge_trains", "ci_pipelines", column: "pipeline_id", on_delete: :nullify
   add_foreign_key "merge_trains", "merge_requests", on_delete: :cascade
+  add_foreign_key "merge_trains", "projects", column: "target_project_id", on_delete: :cascade
   add_foreign_key "merge_trains", "users", on_delete: :cascade
   add_foreign_key "milestones", "namespaces", column: "group_id", name: "fk_95650a40d4", on_delete: :cascade
   add_foreign_key "milestones", "projects", name: "fk_9bd0a0c791", on_delete: :cascade
