@@ -1,6 +1,6 @@
 import FilteredSearchTokenKeys from '~/filtered_search/filtered_search_token_keys';
 import {
-  tokenKeys,
+  tokenKeys as initialTokenKeys,
   alternativeTokenKeys,
   conditions,
 } from '~/filtered_search/issuable_filtered_search_token_keys';
@@ -28,15 +28,14 @@ const weightConditions = [
   },
 ];
 
+export const tokenKeys = [...initialTokenKeys, weightTokenKey];
+
 /**
  * Filter tokens for issues in EE.
  */
 class IssuesFilteredSearchTokenKeysEE extends FilteredSearchTokenKeys {
   constructor() {
-    super([...tokenKeys, weightTokenKey], alternativeTokenKeys, [
-      ...conditions,
-      ...weightConditions,
-    ]);
+    super(tokenKeys, alternativeTokenKeys, [...conditions, ...weightConditions]);
   }
 
   /**
