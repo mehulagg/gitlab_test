@@ -376,6 +376,13 @@ Example response:
   ]
 }
 ```
+Users on GitLab [Starter, Bronze, or higher](https://about.gitlab.com/pricing/) will also see
+the `shared_runners_minutes_limit` and `extra_shared_runners_minutes_limit` parameters:
+
+```json
+  "shared_runners_minutes_limit": 133,
+  "extra_shared_runners_minutes_limit": 133,
+```
 
 When adding the parameter `with_projects=false`, projects will not be returned.
 
@@ -414,15 +421,15 @@ Parameters:
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `name` | string | yes | The name of the group |
-| `path` | string | yes | The path of the group |
-| `description` | string | no | The group's description |
-| `visibility` | string | no | The group's visibility. Can be `private`, `internal`, or `public`. |
-| `lfs_enabled` | boolean | no | Enable/disable Large File Storage (LFS) for the projects in this group |
-| `request_access_enabled` | boolean | no | Allow users to request member access. |
-| `parent_id` | integer | no | The parent group id for creating nested group. |
-| `shared_runners_minutes_limit` | integer | no | (admin-only) Pipeline minutes quota for this group. |
-| `extra_shared_runners_minutes_limit` | integer | no | (admin-only) Extra pipeline minutes quota for this group. |
+| `name`                               | string  | yes | The name of the group |
+| `path`                               | string  | yes | The path of the group |
+| `description`                        | string  | no  | The group's description |
+| `visibility`                         | string  | no  | The group's visibility. Can be `private`, `internal`, or `public`. |
+| `lfs_enabled`                        | boolean | no  | Enable/disable Large File Storage (LFS) for the projects in this group |
+| `request_access_enabled`             | boolean | no  | Allow users to request member access. |
+| `parent_id`                          | integer | no  | The parent group id for creating nested group. |
+| `shared_runners_minutes_limit`       | integer | no  | **[STARTER]** (admin-only) Pipeline minutes quota for this group. |
+| `extra_shared_runners_minutes_limit` | integer | no  | **[STARTER]** (admin-only) Extra pipeline minutes quota for this group. |
 
 ## Transfer project to group
 
@@ -449,18 +456,18 @@ PUT /groups/:id
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `id` | integer | yes | The ID of the group |
-| `name` | string | no | The name of the group |
-| `path` | string | no | The path of the group |
-| `description` | string | no | The description of the group |
-| `membership_lock` | boolean | no | Prevent adding new members to project membership within this group |
-| `share_with_group_lock` | boolean | no | Prevent sharing a project with another group within this group |
-| `visibility` | string | no | The visibility level of the group. Can be `private`, `internal`, or `public`. |
-| `lfs_enabled` (optional) | boolean | no | Enable/disable Large File Storage (LFS) for the projects in this group |
-| `request_access_enabled` | boolean | no | Allow users to request member access. |
-| `file_template_project_id` | integer | no | **(Premium)** The ID of a project to load custom file templates from |
-| `shared_runners_minutes_limit` | integer | no | (admin-only) Pipeline minutes quota for this group |
-| `extra_shared_runners_minutes_limit` | integer | no | (admin-only) Extra pipeline minutes quota for this group |
+| `id`                                 | integer | yes | The ID of the group |
+| `name`                               | string  | no  | The name of the group |
+| `path`                               | string  | no  | The path of the group |
+| `description`                        | string  | no  | The description of the group |
+| `membership_lock`                    | boolean | no  | **[STARTER]** Prevent adding new members to project membership within this group |
+| `share_with_group_lock`              | boolean | no  | Prevent sharing a project with another group within this group |
+| `visibility`                         | string  | no  | The visibility level of the group. Can be `private`, `internal`, or `public`. |
+| `lfs_enabled` (optional)             | boolean | no  | Enable/disable Large File Storage (LFS) for the projects in this group |
+| `request_access_enabled`             | boolean | no  | Allow users to request member access. |
+| `file_template_project_id`           | integer | no  | **[PREMIUM]** The ID of a project to load custom file templates from |
+| `shared_runners_minutes_limit`       | integer | no  | **[STARTER]** (admin-only) Pipeline minutes quota for this group |
+| `extra_shared_runners_minutes_limit` | integer | no  | **[STARTER]** (admin-only) Extra pipeline minutes quota for this group |
 
 ```bash
 curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/5?name=Experimental"
