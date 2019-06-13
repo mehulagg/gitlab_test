@@ -57,19 +57,13 @@ module WebpackHelper
   end
 
   def webpack_public_host
-    if Rails.env.test? && Rails.configuration.webpack.dev_server.enabled
-      host = Rails.configuration.webpack.dev_server.host
-      port = Rails.configuration.webpack.dev_server.port
-      protocol = Rails.configuration.webpack.dev_server.https ? 'https' : 'http'
-      "#{protocol}://#{host}:#{port}"
-    else
-      ActionController::Base.asset_host.try(:chomp, '/')
-    end
+    ActionController::Base.helpers.compute_asset_host
   end
 
   def webpack_public_path
     relative_path = Rails.application.config.relative_url_root
-    webpack_path = Rails.application.config.webpack.public_path
+    webpack_path = Webpacker.instance.config.public_output_path.relative_path_from(Webpacker.instance.config.root_path)
+
     File.join(webpack_public_host.to_s, relative_path.to_s, webpack_path.to_s, '')
   end
 end

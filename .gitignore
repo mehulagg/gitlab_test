@@ -84,3 +84,5 @@ jsdoc/
 .overcommit.yml
 .projections.json
 /qa/.rakeTasks
+/public/packs
+/public/packs-test

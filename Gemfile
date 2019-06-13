@@ -276,8 +276,7 @@ gem 'fast_blank'
 gem 'chronic', '~> 0.10.2'
 gem 'gitlab_chronic_duration', '~> 0.10.6.1'
 
-gem 'webpack-rails', '~> 0.9.10'
-gem 'rack-proxy', '~> 0.6.0'
+gem 'webpacker', '~> 4.0'
 
 gem 'sassc-rails', '~> 2.1.0'
 gem 'uglifier', '~> 2.7.2'
