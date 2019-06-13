@@ -45,6 +45,8 @@ module Projects
           ::ContainerRepository.build_from_path(path).tap do |repository|
             repository.save! if repository.has_tags?
           end
+        rescue
+          @character_error = true
         end
       rescue ContainerRegistry::Path::InvalidRegistryPathError
         @character_error = true

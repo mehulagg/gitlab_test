@@ -703,7 +703,6 @@ To get around this, you can [change the group path](../user/group/index.md#chang
 branch name. Another option is to create a [push rule](../push_rules/push_rules.html) to prevent 
 this at the instance level.
 
-
 [ce-18239]: https://gitlab.com/gitlab-org/gitlab-ce/issues/18239
 [docker-insecure-self-signed]: https://docs.docker.com/registry/insecure/#use-self-signed-certificates
 [reconfigure gitlab]: restart_gitlab.md#omnibus-gitlab-reconfigure
