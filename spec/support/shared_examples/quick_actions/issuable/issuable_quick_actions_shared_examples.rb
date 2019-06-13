@@ -37,7 +37,11 @@ shared_examples 'issuable quick actions' do
         end
       }),
       QuickAction.new("/assign @#{user.username}", ->(noteable, can_use_quick_action) {
-        expect(noteable.assignees == [user]).to eq(can_use_quick_action)
+        if noteable.allows_multiple_assignees?
+          expect(noteable.assignees == [old_assignee, user]).to eq(can_use_quick_action)
+        else
+          expect(noteable.assignees == [user]).to eq(can_use_quick_action)
+        end
       }),
       QuickAction.new("/unassign", ->(noteable, can_use_quick_action) {
         expect(noteable.assignees.empty?).to eq(can_use_quick_action)
