@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-shared_examples 'issuable quick actions' do |issuable_type|
+shared_examples 'issuable quick actions' do
   QuickAction = Struct.new(:action_text, :expectation) do
     def skip_access_check
       action_text["/todo"] ||

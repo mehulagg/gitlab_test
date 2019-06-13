@@ -202,7 +202,7 @@ describe Notes::CreateService do
         set(:label) { create(:label, project: project, title: 'bug') }
         set(:label_1) { create(:label, project: project, title: 'to be copied') }
         set(:label_2) { create(:label, project: project, title: 'feature') }
-        set(:issue) { create(:issue, project: project, labels: [label]) }
+        set(:issue) { create(:issue, project: project, labels: [label], due_date: '2019-01-01') }
         set(:issue_2) { create(:issue, project: project, labels: [label, label_1]) }
 
         context 'for issues' do
@@ -210,17 +210,21 @@ describe Notes::CreateService do
           let(:note_params) { opts }
           let(:issue_quick_actions) do
             [
-              QuickAction.new("/confidential", ->(noteable, can_use_quick_action) {
-                expect(noteable.confidential? == true).to eq(can_use_quick_action)
+              QuickAction.new('/confidential', ->(noteable, can_use_quick_action) {
+                if can_use_quick_action
+                  expect(noteable).to be_confidential
+                else
+                  expect(noteable).not_to be_confidential
+                end
               }),
-              QuickAction.new("/due 2016-08-28", ->(noteable, can_use_quick_action) {
+              QuickAction.new('/due 2016-08-28', ->(noteable, can_use_quick_action) {
                 expect(noteable.due_date == Date.new(2016, 8, 28)).to eq(can_use_quick_action)
               }),
-              QuickAction.new("/remove_due_date", ->(noteable, can_use_quick_action) {
-                expect(noteable.due_date).to be_nil
-
-                unless can_use_quick_action
-                  expect(noteable.saved_change_to_due_date?).to eq(false)
+              QuickAction.new('/remove_due_date', ->(noteable, can_use_quick_action) {
+                if can_use_quick_action
+                  expect(noteable.due_date).to be_nil
+                else
+                  expect(noteable.due_date).not_to be_nil
                 end
               }),
               QuickAction.new("/duplicate #{issue_2.to_reference}", ->(noteable, can_use_quick_action) {
