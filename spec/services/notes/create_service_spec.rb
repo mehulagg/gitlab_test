@@ -199,37 +199,52 @@ describe Notes::CreateService do
     context 'note with commands' do
       context 'all quick actions' do
         set(:milestone) { create(:milestone, project: project, title: "sprint") }
-        set(:label) { create(:label, project: project, title: 'bug') }
-        set(:label_1) { create(:label, project: project, title: 'to be copied') }
-        set(:label_2) { create(:label, project: project, title: 'feature') }
-        set(:issue) { create(:issue, project: project, labels: [label], due_date: '2019-01-01') }
-        set(:issue_2) { create(:issue, project: project, labels: [label, label_1]) }
+        set(:bug_label) { create(:label, project: project, title: 'bug') }
+        set(:to_be_copied_label) { create(:label, project: project, title: 'to be copied') }
+        set(:feature_label) { create(:label, project: project, title: 'feature') }
+        set(:issue) { create(:issue, project: project, labels: [bug_label], due_date: '2019-01-01') }
+        set(:issue_2) { create(:issue, project: project, labels: [bug_label, to_be_copied_label]) }
 
         context 'for issues' do
           let(:issuable) { issue }
           let(:note_params) { opts }
           let(:issue_quick_actions) do
             [
-              QuickAction.new('/confidential', ->(noteable, can_use_quick_action) {
-                if can_use_quick_action
-                  expect(noteable).to be_confidential
-                else
-                  expect(noteable).not_to be_confidential
-                end
-              }),
-              QuickAction.new('/due 2016-08-28', ->(noteable, can_use_quick_action) {
-                expect(noteable.due_date == Date.new(2016, 8, 28)).to eq(can_use_quick_action)
-              }),
-              QuickAction.new('/remove_due_date', ->(noteable, can_use_quick_action) {
-                if can_use_quick_action
-                  expect(noteable.due_date).to be_nil
-                else
-                  expect(noteable.due_date).not_to be_nil
-                end
-              }),
-              QuickAction.new("/duplicate #{issue_2.to_reference}", ->(noteable, can_use_quick_action) {
-                expect(noteable.closed? == true).to eq(can_use_quick_action)
-              })
+              QuickAction.new(
+                action_text: '/confidential',
+                expectation: ->(noteable, can_use_quick_action) {
+                  if can_use_quick_action
+                    expect(noteable).to be_confidential
+                  else
+                    expect(noteable).not_to be_confidential
+                  end
+                }
+              ),
+              QuickAction.new(
+                action_text: '/due 2016-08-28',
+                expectation: ->(noteable, can_use_quick_action) {
+                  expect(noteable.due_date == Date.new(2016, 8, 28)).to eq(can_use_quick_action)
+                }
+              ),
+              QuickAction.new(
+                action_text: '/remove_due_date',
+                expectation: ->(noteable, can_use_quick_action) {
+                  if can_use_quick_action
+                    expect(noteable.due_date).to be_nil
+                  else
+                    expect(noteable.due_date).not_to be_nil
+                  end
+                }
+              ),
+              QuickAction.new(
+                action_text: "/duplicate #{issue_2.to_reference}",
+                before_action: -> {
+                  issuable.reopen
+                },
+                expectation: ->(noteable, can_use_quick_action) {
+                  expect(noteable.closed?).to eq(can_use_quick_action)
+                }
+              )
             ]
           end
 
@@ -239,24 +254,37 @@ describe Notes::CreateService do
         end
 
         context 'for merge requests' do
-          set(:merge_request) { create(:merge_request, source_project: project, labels: [label]) }
+          set(:merge_request) { create(:merge_request, source_project: project, labels: [bug_label]) }
           let(:issuable) { merge_request }
           let(:note_params) { opts.merge(noteable_type: 'MergeRequest', noteable_id: merge_request.id) }
           let(:merge_request_quick_actions) do
             [
-              QuickAction.new("/target_branch fix", ->(noteable, can_use_quick_action) {
-                expect(noteable.target_branch == "fix").to eq(can_use_quick_action)
-              }),
-              QuickAction.new("/wip", ->(noteable, can_use_quick_action) {
-                expect(noteable.work_in_progress? == true).to eq(can_use_quick_action)
-              }),
-              QuickAction.new("/wip", ->(noteable, can_use_quick_action) {
-                expect(noteable.work_in_progress?).to be(false)
-
-                unless can_use_quick_action
-                  expect(noteable.saved_change_to_title?).to eq(false)
-                end
-              })
+              QuickAction.new(
+                action_text: "/target_branch fix",
+                expectation: ->(noteable, can_use_quick_action) {
+                  expect(noteable.target_branch == "fix").to eq(can_use_quick_action)
+                }
+              ),
+              # Set WIP status
+              QuickAction.new(
+                action_text: "/wip",
+                before_action: -> {
+                  issuable.reload.update(title: "title")
+                },
+                expectation: ->(issuable, can_use_quick_action) {
+                  expect(issuable.work_in_progress?).to eq(can_use_quick_action)
+                }
+              ),
+              # Remove WIP status
+              QuickAction.new(
+                action_text: "/wip",
+                before_action: -> {
+                  issuable.reload.update(title: "WIP: title")
+                },
+                expectation: ->(noteable, can_use_quick_action) {
+                  expect(noteable.work_in_progress?).not_to eq(can_use_quick_action)
+                }
+              )
             ]
           end
 
