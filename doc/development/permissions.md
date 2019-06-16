@@ -56,6 +56,25 @@ can still view the groups and their entities (like epics).
 Project membership (where the group membership is already taken into account)
 is stored in the `project_authorizations` table.
 
+### IP access restriction
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/1985) in
+[GitLab Ultimate](https://about.gitlab.com/pricing/) 12.0.
+
+To make sure only people from within your organization can access particular
+resources, you have the option to restrict access to groups and their
+underlying projects, issues, etc, by IP address. This can help ensure that
+particular content doesn't leave the premises, while not blocking off access to
+the entire instance.
+
+Add whitelisted IP subnet using CIDR notation to the group settings and anyone
+coming from a different IP address won't be able to access the restricted
+content.
+
+Restriction currently applies to UI, API access is not restricted.
+To avoid accidental lock-out, admins and group owners are are able to access
+the group regardless of the IP restriction.
+
 ### Confidential issues
 
 Confidential issues can be accessed only by project members who are at least
