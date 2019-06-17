@@ -20,6 +20,10 @@
     stateStorageStrategy: "localStorage"
   });
 
+  if (window.gon.current_user_id) {
+    window.snowplow('setUserId', window.gon.current_user_id);
+  }
+
   window.snowplow('enableActivityTracking', 30, 30);
   window.snowplow('trackPageView');
 
