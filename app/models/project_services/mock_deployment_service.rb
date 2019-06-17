@@ -18,3 +18,5 @@ class MockDeploymentService < DeploymentService
     []
   end
 end
+
+MockDeploymentService.prepend(EE::MockDeploymentService)

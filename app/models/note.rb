@@ -342,7 +342,7 @@ class Note < ApplicationRecord
   end
 
   def to_ability_name
-    for_snippet? ? noteable.class.name.underscore : noteable_type.underscore
+    for_snippet? ? noteable.class.name.underscore : noteable_type.demodulize.underscore
   end
 
   def can_be_discussion_note?
@@ -511,3 +511,5 @@ class Note < ApplicationRecord
     system_note_metadata&.cross_reference_types&.include?(system_note_metadata&.action)
   end
 end
+
+Note.prepend(EE::Note)

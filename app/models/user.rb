@@ -1598,3 +1598,5 @@ class User < ApplicationRecord
                   project_creation_level: project_creation_levels)
   end
 end
+
+User.prepend(EE::User)

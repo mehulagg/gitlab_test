@@ -346,3 +346,5 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
     end
   end
 end
+
+Projects::MergeRequestsController.prepend(EE::Projects::MergeRequestsController)

@@ -28,6 +28,8 @@ class MergeRequest < ApplicationRecord
                 :ref_fetched,
                 :deleted_at
 
+  prepend ::EE::MergeRequest # rubocop: disable Cop/InjectEnterpriseEditionModule
+
   belongs_to :target_project, class_name: "Project"
   belongs_to :source_project, class_name: "Project"
   belongs_to :merge_user, class_name: "User"
@@ -668,7 +670,7 @@ class MergeRequest < ApplicationRecord
 
     # n+1: https://gitlab.com/gitlab-org/gitlab-ce/issues/37435
     Gitlab::GitalyClient.allow_n_plus_1_calls do
-      merge_request_diffs.create
+      merge_request_diffs.create!
       reload_merge_request_diff
     end
   end

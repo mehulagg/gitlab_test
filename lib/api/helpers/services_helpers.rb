@@ -765,3 +765,5 @@ module API
     end
   end
 end
+
+API::Helpers::ServicesHelpers.prepend(EE::API::Helpers::ServicesHelpers)

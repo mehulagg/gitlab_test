@@ -37,3 +37,5 @@ class DeploymentService < Service
     false
   end
 end
+
+DeploymentService.prepend(EE::DeploymentService)

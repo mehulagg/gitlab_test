@@ -122,7 +122,7 @@ module TestEnv
   # Keeps gitlab-shell and gitlab-test
   def clean_test_path
     Dir[TMP_TEST_PATH].each do |entry|
-      unless File.basename(entry) =~ /\A(gitaly|gitlab-(shell|test|test_bare|test-fork|test-fork_bare))\z/
+      unless test_dirs.include?(File.basename(entry))
         FileUtils.rm_rf(entry)
       end
     end
@@ -146,19 +146,6 @@ module TestEnv
       install_dir: Gitlab.config.gitlab_shell.path,
       version: Gitlab::Shell.version_required,
       task: 'gitlab:shell:install')
-
-    # gitlab-shell hooks don't work in our test environment because they try to make internal API calls
-    sabotage_gitlab_shell_hooks
-  end
-
-  def sabotage_gitlab_shell_hooks
-    create_fake_git_hooks(Gitlab::Shell.new.hooks_path)
-  end
-
-  def create_fake_git_hooks(hooks_dir)
-    %w[pre-receive post-receive update].each do |hook|
-      File.open(File.join(hooks_dir, hook), 'w', 0755) { |f| f.puts '#!/bin/sh' }
-    end
   end
 
   def setup_gitaly
@@ -172,7 +159,6 @@ module TestEnv
       task: "gitlab:gitaly:install[#{install_gitaly_args}]") do
 
         Gitlab::SetupHelper.create_gitaly_configuration(gitaly_dir, { 'default' => repos_path }, force: true)
-        create_fake_git_hooks(File.join(gitaly_dir, 'ruby/git-hooks'))
         start_gitaly(gitaly_dir)
       end
   end
@@ -418,3 +404,8 @@ module TestEnv
     true
   end
 end
+
+require_relative '../../../ee/spec/support/helpers/ee/test_env'
+
+::TestEnv.prepend(::EE::TestEnv)
+::TestEnv.extend(::EE::TestEnv)

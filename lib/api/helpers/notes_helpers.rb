@@ -117,3 +117,5 @@ module API
     end
   end
 end
+
+API::Helpers::NotesHelpers.prepend(EE::API::Helpers::NotesHelpers)

@@ -5,3 +5,5 @@ class MergeRequestPolicy < IssuablePolicy
     prevent :reopen_merge_request
   end
 end
+
+MergeRequestPolicy.prepend(EE::MergeRequestPolicy)

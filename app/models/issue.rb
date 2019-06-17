@@ -292,3 +292,5 @@ class Issue < ApplicationRecord
     Gitlab::EtagCaching::Store.new.touch(key)
   end
 end
+
+Issue.prepend(EE::Issue)

@@ -14,7 +14,7 @@ with minimal configuration. Just push your code and GitLab takes
 care of everything else. This makes it easier to start new projects and brings
 consistency to how applications are set up throughout a company.
 
-For a demonstration of Auto DevOps, watch the video [GitLab Auto DevOps demo](https://youtu.be/4Uo_QP9rSGM).
+For an introduction to Auto DevOps, watch [AutoDevOps in GitLab 11.0](https://youtu.be/0Tc0YYBxqi4).
 
 ## Enabled by default
 
@@ -315,7 +315,8 @@ If a project's repository contains a `Dockerfile`, Auto Build will use
 
 If you are also using Auto Review Apps and Auto Deploy and choose to provide
 your own `Dockerfile`, make sure you expose your application to port
-`5000` as this is the port assumed by the default Helm chart.
+`5000` as this is the port assumed by the
+[default Helm chart](https://gitlab.com/gitlab-org/charts/auto-deploy-app).
 
 #### Auto Build using Heroku buildpacks
 

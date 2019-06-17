@@ -283,3 +283,5 @@ class ApplicationSetting < ApplicationRecord
     current_without_cache
   end
 end
+
+ApplicationSetting.prepend(EE::ApplicationSetting)

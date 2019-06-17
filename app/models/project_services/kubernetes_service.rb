@@ -250,3 +250,5 @@ class KubernetesService < DeploymentService
     end
   end
 end
+
+KubernetesService.prepend(EE::KubernetesService)

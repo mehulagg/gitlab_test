@@ -258,6 +258,7 @@ class ProjectPolicy < BasePolicy
     enable :resolve_note
     enable :create_container_image
     enable :update_container_image
+    enable :destroy_container_image
     enable :create_environment
     enable :create_deployment
     enable :create_release
@@ -446,6 +447,10 @@ class ProjectPolicy < BasePolicy
     prevent :owner_access
   end
 
+  rule { blocked }.policy do
+    prevent :create_pipeline
+  end
+
   private
 
   def team_member?
@@ -512,3 +517,5 @@ class ProjectPolicy < BasePolicy
     @subject
   end
 end
+
+ProjectPolicy.prepend(EE::ProjectPolicy)

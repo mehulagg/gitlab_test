@@ -6,6 +6,7 @@ class Service < ApplicationRecord
   include Sortable
   include Importable
   include ProjectServicesLoggable
+  include DataFields
 
   serialize :properties, JSON # rubocop:disable Cop/ActiveRecordSerialize
 
@@ -345,3 +346,5 @@ class Service < ApplicationRecord
     activated? && !importing?
   end
 end
+
+Service.prepend(EE::Service)

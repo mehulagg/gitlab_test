@@ -5,7 +5,6 @@ import { sprintf, __ } from '~/locale';
 import PipelineStage from '~/pipelines/components/stage.vue';
 import CiIcon from '~/vue_shared/components/ci_icon.vue';
 import Icon from '~/vue_shared/components/icon.vue';
-import PipelineLink from '~/vue_shared/components/ci_pipeline_link.vue';
 import TooltipOnTruncate from '~/vue_shared/components/tooltip_on_truncate.vue';
 import mrWidgetPipelineMixin from 'ee_else_ce/vue_merge_request_widget/mixins/mr_widget_pipeline';
 
@@ -17,7 +16,6 @@ export default {
     Icon,
     TooltipOnTruncate,
     GlLink,
-    PipelineLink,
     LinkedPipelinesMiniList: () =>
       import('ee_component/vue_shared/components/linked_pipelines_mini_list.vue'),
   },
@@ -94,7 +92,6 @@ export default {
   },
 };
 </script>
-
 <template>
   <div class="ci-widget media js-ci-widget">
     <template v-if="!hasPipeline || hasCIError">
@@ -114,12 +111,9 @@ export default {
           <div class="media-body">
             <div class="font-weight-bold js-pipeline-info-container">
               {{ s__('Pipeline|Pipeline') }}
-              <pipeline-link
-                :href="pipeline.path"
-                :pipeline-id="pipeline.id"
-                :pipeline-iid="pipeline.iid"
-                class="pipeline-id pipeline-iid font-weight-normal"
-              />
+              <gl-link :href="pipeline.path" class="pipeline-id font-weight-normal pipeline-number"
+                >#{{ pipeline.id }}</gl-link
+              >
               {{ pipeline.details.status.label }}
               <template v-if="hasCommitInfo">
                 {{ s__('Pipeline|for') }}
@@ -196,6 +190,7 @@ export default {
                 </div>
               </template>
             </span>
+
             <linked-pipelines-mini-list v-if="triggered.length" :triggered="triggered" />
           </span>
         </div>
