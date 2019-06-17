@@ -1,0 +1,6 @@
+- return unless Gitlab.com?
+
+:javascript
+  if (window.gon && window.gon.current_user_id) {
+    window.snowplow('setUserId', window.gon.current_user_id);
+  }
