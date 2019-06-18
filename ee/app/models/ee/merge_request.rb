@@ -103,6 +103,10 @@ module EE
       blocking_merge_requests.select { |mr| user.can?(:read_merge_request, mr) }
     end
 
+    def visible_blocking_merge_request_refs(user)
+      visible_blocking_merge_requests(user).map(&:to_reference)
+    end
+
     def hidden_blocking_merge_requests_count(user)
       hidden = blocking_merge_requests - visible_blocking_merge_requests(user)
       hidden.select { |mr| !mr.merged? }.count
