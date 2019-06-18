@@ -100,11 +100,9 @@ Rails.application.routes.draw do
 
     draw :operations
     draw :instance_statistics
-
-    Gitlab.ee do
-      draw :smartcard
-      draw :jira_connect
-    end
+    draw :smartcard
+    draw :jira_connect
+    draw :analytics
 
     if ENV['GITLAB_ENABLE_CHAOS_ENDPOINTS']
       get '/chaos/leakmem' => 'chaos#leakmem'
