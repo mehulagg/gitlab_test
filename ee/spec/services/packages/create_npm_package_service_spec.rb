@@ -2,7 +2,8 @@
 require 'spec_helper'
 
 describe Packages::CreateNpmPackageService do
-  let(:project) { create(:project) }
+  let(:namespace) {create(:namespace)}
+  let(:project) { create(:project, namespace: namespace) }
   let(:user) { create(:user) }
   let(:version) { '1.0.1'.freeze }
 
@@ -26,7 +27,7 @@ describe Packages::CreateNpmPackageService do
 
   describe '#execute' do
     context 'scoped package' do
-      let(:package_name) { '@gitlab/my-app'.freeze }
+      let(:package_name) { "@#{namespace.path}/my-app".freeze }
 
       it_behaves_like 'valid package'
     end
@@ -34,7 +35,39 @@ describe Packages::CreateNpmPackageService do
     context 'normal package' do
       let(:package_name) { 'my-app'.freeze }
 
-      it_behaves_like 'valid package'
+      it 'returns a 400 error' do
+        response = described_class.new(project, user, params).execute
+
+        expect(response[:http_status]).to be 400
+        expect(response[:message]).to be 'Invalid package name'
+      end
+    end
+
+    context 'invalid package name' do
+      let(:package_name) { "@#{namespace.path}/my-group/my-app".freeze }
+
+      it 'returns a 400 error' do
+        response = described_class.new(project, user, params).execute
+
+        expect(response[:http_status]).to be 400
+        expect(response[:message]).to be 'Invalid package name'
+      end
+    end
+
+    context 'package name already exists' do
+      let(:alt_project) { create(:project, :public, namespace: namespace) }
+      let(:package_name) { "@#{namespace.path}/#{alt_project.name}" }
+
+      it 'returns a 403 error' do
+        create(:npm_package,
+               project: alt_project,
+               name: package_name)
+
+        response = described_class.new(project, user, params).execute
+
+        expect(response[:http_status]).to be 403
+        expect(response[:message]).to be 'Package name is already taken.'
+      end
     end
   end
 end

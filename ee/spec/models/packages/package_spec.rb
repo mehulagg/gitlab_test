@@ -56,4 +56,16 @@ RSpec.describe Packages::Package, type: :model do
       is_expected.to match_array([package1, package3])
     end
   end
+
+  describe '.with_version' do
+    let!(:package1) { create(:npm_package, version: '1.0.0') }
+    let!(:package2) { create(:npm_package, version: nil) }
+    let!(:package3) { create(:npm_package, version: '1.0.1') }
+
+    subject { described_class.with_version('1.0.1') }
+
+    it 'includes only packages with specified version' do
+      is_expected.to match_array([package3])
+    end
+  end
 end
