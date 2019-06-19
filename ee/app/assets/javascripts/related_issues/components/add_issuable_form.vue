@@ -43,7 +43,6 @@ export default {
 
   data() {
     return {
-      isAutoCompleteOpen: false,
       domInputValue: this.inputValue,
     };
   },
@@ -64,9 +63,6 @@ export default {
     },
   },
   methods: {
-    onAutoCompleteToggled(isOpen) {
-      this.isAutoCompleteOpen = isOpen;
-    },
     onPendingIssuableRemoveRequest(params) {
       this.$emit('pendingIssuableRemoveRequest', params);
     },
@@ -76,20 +72,14 @@ export default {
     onFormCancel() {
       this.$emit('addIssuableFormCancel');
     },
-    useInput($input) {
-      $input.on('input', this.updateDomInputValue);
-      if (this.allowAutoComplete) {
-        this.gfmAutoComplete = new GfmAutoComplete(this.autoCompleteSources);
-        this.gfmAutoComplete.setup($input, {
-          issues: true,
-          epics: true,
-        });
-      }
-      $input.on('shown-issues.atwho', this.onAutoCompleteToggled.bind(this, true));
-      $input.on('hidden-issues.atwho', this.onAutoCompleteToggled.bind(this, false));
-    },
-    updateDomInputValue(e) {
+    onUpdateInputValue(e) {
       this.domInputValue = e.target.value;
+    },
+    onAddIssuableFormInput(params) {
+      this.$emit('addIssuableFormInput', params);
+    },
+    onAddIssuableFormBlur(params) {
+      this.$emit('addIssuableFormBlur', params);
     },
   },
 };
@@ -97,9 +87,6 @@ export default {
 
 <template>
   <form @submit.prevent="onFormSubmit">
-    <!-- TODO:
-      Mayber onInput, onBlur and onFocus should be moved to listeners??
-    -->
     <related-issuable-input
       ref="relatedIssuableInput"
       :focus-on-mount="true"
@@ -107,20 +94,14 @@ export default {
       :path-id-separator="pathIdSeparator"
       :input-value="inputValue"
       :input-placeholder="inputPlaceholder"
-      :use-input="useInput"
-      :is-autocomplete-open="isAutoCompleteOpen"
+      :auto-complete-sources="autoCompleteSources"
+      :auto-complete-options="{ issues: true, epics: true }"
+      :allow-auto-complete="allowAutoComplete"
       @formCancel="onFormCancel"
       @pendingIssuableRemoveRequest="onPendingIssuableRemoveRequest"
-      @addIssuableFormBlur="
-        params => {
-          $emit('addIssuableFormBlur', params);
-        }
-      "
-      @addIssuableFormInput="
-        params => {
-          $emit('addIssuableFormInput', params);
-        }
-      "
+      @updateInputValue="onUpdateInputValue"
+      @addIssuableFormBlur="onAddIssuableFormBlur"
+      @addIssuableFormInput="onAddIssuableFormInput"
     />
     <div class="add-issuable-form-actions clearfix">
       <button

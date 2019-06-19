@@ -1,5 +1,6 @@
 <script>
 import $ from 'jquery';
+import GfmAutoComplete from 'ee_else_ce/gfm_auto_complete';
 import issueToken from './issue_token.vue';
 
 const SPACE_FACTOR = 1;
@@ -38,7 +39,17 @@ export default {
       required: false,
       default: () => {},
     },
-    isAutoCompleteOpen: {
+    autoCompleteSources: {
+      type: Object,
+      required: false,
+      default: () => ({}),
+    },
+    autoCompleteOptions: {
+      type: Object,
+      required: false,
+      default: () => ({}),
+    },
+    allowAutoComplete: {
       type: Boolean,
       required: false,
       default: false,
@@ -47,11 +58,11 @@ export default {
   data() {
     return {
       isInputFocused: false,
+      isAutoCompleteOpen: false,
     };
   },
   mounted() {
-    const $input = $(this.$refs.input);
-    this.useInput($input);
+    this.setupAutoComplete();
     if (this.focusOnMount) {
       this.$refs.input.focus();
     }
@@ -63,10 +74,13 @@ export default {
     $input.off('inserted-issues.atwho', this.onInput);
   },
   methods: {
+    onAutoCompleteToggled(isOpen) {
+      this.isAutoCompleteOpen = isOpen;
+    },
     onInputWrapperClick() {
       this.$refs.input.focus();
     },
-    onInput() {
+    onInput(e) {
       const { value } = this.$refs.input;
       const caretPos = $(this.$refs.input).caret('pos');
       const rawRefs = value.split(/\s/);
@@ -94,6 +108,7 @@ export default {
         touchedReference,
         caretPos,
       });
+      this.$emit('updateInputValue', e);
     },
     onBlur() {
       this.isInputFocused = false;
@@ -107,6 +122,17 @@ export default {
     onFocus() {
       this.isInputFocused = true;
     },
+    setupAutoComplete() {
+      const $input = $(this.$refs.input);
+
+      if (this.allowAutoComplete) {
+        this.gfmAutoComplete = new GfmAutoComplete(this.autoCompleteSources);
+        this.gfmAutoComplete.setup($input, this.autoCompleteOptions);
+      }
+
+      $input.on('shown-issues.atwho', this.onAutoCompleteToggled.bind(this, true));
+      $input.on('hidden-issues.atwho', this.onAutoCompleteToggled.bind(this, true));
+    },
   },
 };
 </script>
@@ -117,7 +143,6 @@ export default {
     :class="{ focus: isInputFocused }"
     class="add-issuable-form-input-wrapper form-control"
     role="button"
-    @click="onInputWrapperClick"
   >
     <ul class="add-issuable-form-input-token-list">
       <!--
