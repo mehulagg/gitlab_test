@@ -1,5 +1,6 @@
 <script>
 import { mapActions, mapState } from 'vuex';
+import axios from '~/lib/utils/axios_utils';
 import { __ } from '~/locale';
 import Terminal from './terminal.vue';
 import { isEndingStatus } from '../../utils';
@@ -28,6 +29,20 @@ export default {
   },
   methods: {
     ...mapActions('terminal', ['restartSession', 'stopSession']),
+    test() {
+      // axios({
+      //   method: "GET",
+      //   url: $("input.requesteduri").val(),
+      // }).then(({ data }) => {
+      //   var w = window.open();
+      //   $(w.document.body).html(data);
+      // })
+      // .catch(function (error) {
+      //   var w = window.open();
+      //   $(w.document.body).html(error.response.data);
+      // });
+      window.open($("input.requesteduri").val(), "theFrame");
+    },
   },
 };
 </script>
@@ -48,6 +63,11 @@ export default {
         </button>
       </div>
     </header>
+    <input class="requesteduri" id="requesteduri"></input>
+    <button @click="test">
+        Test
+    </button>
+    <iframe name="theFrame" style="height:200px"></iframe>
     <terminal :terminal-path="session.terminalPath" :status="session.status" />
   </div>
 </template>

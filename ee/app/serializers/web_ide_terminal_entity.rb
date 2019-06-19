@@ -8,5 +8,6 @@ class WebIdeTerminalEntity < Grape::Entity
   expose :retry_path
   expose :terminal_path
   expose :services
+  expose :proxy_path, if: ->(_) { Feature.enabled?(:build_service_http_proxy) }
   expose :proxy_websocket_path, if: ->(_) { Feature.enabled?(:build_service_proxy) }
 end

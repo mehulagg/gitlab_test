@@ -13,7 +13,11 @@ module EE
 
         port = port.presence || DEFAULT_PORT_NAME
         service = service.presence || DEFAULT_SERVICE_NAME
-        url = "#{self.url}/proxy/#{service}/#{port}/#{path}"
+        path = ERB::Util.url_encode(path.to_s.sub('/', ''))
+        # url = URI.join("#{self.url}/proxy/#{service}/#{port}", path).to_s
+        puts "REAL URL #{URI.join("#{self.url}/proxy/#{service}/#{port}", path).to_s}"
+        # FIXME DELETE JUST FOR TESTING
+        url = URI.join("#{self.url}", path).to_s
         subprotocols = subprotocols.presence || ::Ci::BuildRunnerSession::TERMINAL_SUBPROTOCOL
 
         channel_specification(url, subprotocols)

@@ -484,6 +484,7 @@ Settings.gitlab_shell['git_timeout'] ||= 10800
 #
 Settings['workhorse'] ||= Settingslogic.new({})
 Settings.workhorse['secret_file'] ||= Rails.root.join('.gitlab_workhorse_secret')
+Settings.workhorse['user_content_domain'] ||= nil
 
 #
 # Repositories
