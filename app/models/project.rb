@@ -622,6 +622,7 @@ class Project < ApplicationRecord
     #
     # To fix the problem, we assign the actual default in the application if
     # no explicit visibility has been initialized.
+    attributes ||= {}
     unless visibility_attribute_present?(attributes)
       attributes[:visibility_level] = Gitlab::CurrentSettings.default_project_visibility
     end
