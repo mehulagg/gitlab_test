@@ -225,8 +225,9 @@ module Ci
       where('EXISTS (?)', ::Ci::Build.latest.with_reports(reports_scope).where('ci_pipelines.id=ci_builds.commit_id').select(1))
     end
 
-    scope :non_interruptible_pipeline_ids_for, -> (ref) do
+    scope :non_interruptible_pipeline_ids_for, -> (project_id, ref) do
       select("ci_pipelines.id")
+        .where('ci_pipelines.project_id = ?', project_id)
         .where('ci_pipelines.ref = ?', ref)
         .joins("JOIN ci_builds ON ci_builds.commit_id = ci_pipelines.id AND ci_builds.status IN ('preparing','pending','running','success','failed','canceled','skipped','manual','scheduled')")
         .joins("JOIN ci_builds_metadata ON ci_builds_metadata.build_id = ci_builds.id AND ci_builds_metadata.interruptible = 'FALSE'")
