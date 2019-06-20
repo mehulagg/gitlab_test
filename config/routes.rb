@@ -111,7 +111,6 @@ Rails.application.routes.draw do
       end
 
       member do
-        # EE specific
         get :metrics, format: :json
 
         scope :applications do
