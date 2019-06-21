@@ -80,7 +80,7 @@ module Gitlab
     end
 
     def self.cache_key_for(key)
-      "geo:#{key}:#{Rails.version}"
+      "geo:#{key}:#{Gitlab::VERSION}:#{Rails.version}"
     end
 
     def self.cache_value(raw_key, &block)
