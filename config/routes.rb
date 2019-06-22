@@ -102,7 +102,11 @@ Rails.application.routes.draw do
     draw :instance_statistics
     draw :smartcard
     draw :jira_connect
-    draw :analytics
+
+
+    constraints(::Constraints::FeatureConstrainer.new(:analytics)) do
+      draw :analytics
+    end
 
     if ENV['GITLAB_ENABLE_CHAOS_ENDPOINTS']
       get '/chaos/leakmem' => 'chaos#leakmem'
