@@ -1,9 +1,12 @@
 import Vue from 'vue';
 import * as jqueryMatchers from 'custom-jquery-matchers';
+import $ from 'jquery';
 import Translate from '~/vue_shared/translate';
 import axios from '~/lib/utils/axios_utils';
 import { initializeTestTimeout } from './helpers/timeout';
 import { loadHTMLFixture, setHTMLFixture } from './helpers/fixtures';
+
+window.jQuery = $;
 
 process.on('unhandledRejection', global.promiseRejectionHandler);
 
