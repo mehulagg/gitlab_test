@@ -71,7 +71,7 @@ module EE
         URI.parse(content_url).tap do |u|
           ## Given the transient nature of the jobs, 32 chars seem enough
           u.host = [SecureRandom.hex, u.host].join('.')
-          u.query = proxy_params.merge(build: build.id, token: proxy_token(u.host, u.port)).to_query
+          u.query = proxy_params.merge(build: build.id, token: proxy_token(u.host)).to_query
         end.to_s
       rescue URI::InvalidURIError
         nil
@@ -81,11 +81,11 @@ module EE
         params.permit(:service, :port)
       end
 
-      def proxy_token(domain, port)
+      def proxy_token(domain)
         ::JSONWebToken::HMACToken.new(::Gitlab::Workhorse.secret).tap do |token|
           token[:job_id] = build.id.to_s
-          token[:token] = "bla" # FIXME TODO
-          token[:domain] = [domain, port].join(':')
+          token[:token] = WebIdeTerminal.generate_token(build.id, domain)
+          token[:domain] = domain
           token[:exp] = Time.now.to_i + TOKEN_EXPIRATION_TIME
         end.encoded
       end

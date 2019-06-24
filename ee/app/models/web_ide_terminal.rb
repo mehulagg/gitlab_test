@@ -40,6 +40,14 @@ class WebIdeTerminal
     build.services.map(&:alias).compact + Array(build.image&.alias)
   end
 
+  def self.generate_token(job_id, domain)
+    Digest::SHA256.hexdigest("#{job_id}-#{domain}-#{Rails.application.secrets.secret_key_base}")
+  end
+
+  def self.valid_token?(token, job_id, domain)
+    token == generate_token(job_id, domain)
+  end
+
   private
 
   def web_ide_terminal_route_generator(action, options = {})
