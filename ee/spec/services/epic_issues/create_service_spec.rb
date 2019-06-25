@@ -140,9 +140,12 @@ describe EpicIssues::CreateService do
               # threshold 24 because 6 queries are generated for each insert
               # (savepoint, find, exists, relative_position get, insert, release savepoint)
               # and we insert 5 issues instead of 1 which we do for control count
+              #
+              # when new issue is linked to the epic, we check if new the issue influences the epic dates
+              # 5 issues * 4(milestone start, end and child epics start, end)
               expect { described_class.new(epic, user, params).execute }
                 .not_to exceed_query_limit(control_count)
-                .with_threshold(28)
+                .with_threshold(48)
             end
           end
 

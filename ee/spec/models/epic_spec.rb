@@ -500,78 +500,138 @@ describe Epic do
   end
 
   describe '.update_start_and_due_dates' do
+    let(:epic) { create(:epic, group: group) }
+    let(:milestone) { create(:milestone, start_date: Date.new(2000, 1, 1), due_date: Date.new(2000, 1, 10), group: group) }
+
     def link_epic_to_milestone(epic, milestone)
       create(:issue, epic: epic, milestone: milestone, project: project)
     end
 
-    it 'updates in bulk' do
-      milestone1 = create(:milestone, start_date: Date.new(2000, 1, 1), due_date: Date.new(2000, 1, 10), group: group)
-      milestone2 = create(:milestone, due_date: Date.new(2000, 1, 30), group: group)
-
-      epics = [
-        create(:epic),
-        create(:epic),
-        create(:epic, :use_fixed_dates)
-      ]
-      old_attributes = epics.map(&:attributes)
-
-      link_epic_to_milestone(epics[0], milestone1)
-      link_epic_to_milestone(epics[0], milestone2)
-      link_epic_to_milestone(epics[1], milestone2)
-      link_epic_to_milestone(epics[2], milestone1)
-      link_epic_to_milestone(epics[2], milestone2)
-
-      described_class.update_start_and_due_dates(described_class.where(id: epics.map(&:id)))
-
-      epics.each(&:reload)
-
-      expect(epics[0].start_date).to eq(milestone1.start_date)
-      expect(epics[0].start_date_sourcing_milestone).to eq(milestone1)
-      expect(epics[0].due_date).to eq(milestone2.due_date)
-      expect(epics[0].due_date_sourcing_milestone).to eq(milestone2)
-
-      expect(epics[1].start_date).to eq(nil)
-      expect(epics[1].start_date_sourcing_milestone).to eq(nil)
-      expect(epics[1].due_date).to eq(milestone2.due_date)
-      expect(epics[1].due_date_sourcing_milestone).to eq(milestone2)
-
-      expect(epics[2].start_date).to eq(old_attributes[2]['start_date'])
-      expect(epics[2].start_date_sourcing_milestone).to eq(milestone1)
-      expect(epics[2].due_date).to eq(old_attributes[2]['end_date'])
-      expect(epics[2].due_date_sourcing_milestone).to eq(milestone2)
+    def add_child_epic(epic)
+      create(:epic, parent: epic, group: epic.group)
     end
 
     context 'query count check' do
-      let(:milestone) { create(:milestone, start_date: Date.new(2000, 1, 1), due_date: Date.new(2000, 1, 10), group: group) }
-      let!(:epics) { [create(:epic, group: group)] }
+      let(:milestone1) { create(:milestone, start_date: Date.new(2000, 1, 1), due_date: Date.new(2000, 1, 10), group: group) }
+      let(:milestone2) { create(:milestone, start_date: Date.new(2001, 1, 1), due_date: Date.new(2001, 1, 10), group: group) }
+      let(:milestone3) { create(:milestone, start_date: Date.new(2002, 1, 1), due_date: Date.new(2002, 1, 10), group: group) }
 
       def setup_control_group
-        link_epic_to_milestone(epics[0], milestone)
+        link_epic_to_milestone(epic, milestone1)
 
         ActiveRecord::QueryRecorder.new do
-          described_class.update_start_and_due_dates(described_class.where(id: epics.map(&:id)))
+          epic.update_start_and_due_dates
         end.count
       end
 
-      it 'does not increase query count when adding epics without milestones' do
+      it 'does not increase query count when adding issues with different milestones' do
         control_count = setup_control_group
 
-        epics << create(:epic)
+        link_epic_to_milestone(epic, milestone2)
+        link_epic_to_milestone(epic, milestone3)
 
         expect do
-          described_class.update_start_and_due_dates(described_class.where(id: epics.map(&:id)))
+          epic.update_start_and_due_dates
         end.not_to exceed_query_limit(control_count)
       end
 
-      it 'does not increase query count when adding epics belongs to same milestones' do
+      it 'does not increase query count when adding child epics' do
         control_count = setup_control_group
 
-        epics << create(:epic)
-        link_epic_to_milestone(epics[1], milestone)
+        add_child_epic(epic)
+        add_child_epic(epic)
 
         expect do
-          described_class.update_start_and_due_dates(described_class.where(id: epics.map(&:id)))
+          epic.update_start_and_due_dates
         end.not_to exceed_query_limit(control_count)
+      end
+    end
+
+    context "when epic dates are fixed" do
+      let(:epic) { create(:epic, :use_fixed_dates, group: group) }
+
+      it "returns fixed dates" do
+        epic.update_start_and_due_dates
+
+        expect(epic.start_date).to eq(epic.start_date_fixed)
+        expect(epic.end_date).to eq(epic.due_date_fixed)
+        expect(epic.start_date).not_to eq(milestone.start_date)
+        expect(epic.end_date).not_to eq(milestone.due_date)
+      end
+    end
+
+    context "when epic dates are inherited" do
+      let(:epic) { create(:epic, group: group) }
+
+      context 'when epic has no issues' do
+        it "epic dates are nil" do
+          epic.update_start_and_due_dates
+
+          expect(epic.start_date).to be_nil
+          expect(epic.end_date).to be_nil
+          expect(epic.start_date_sourcing_milestone).to be_nil
+          expect(epic.due_date_sourcing_milestone).to be_nil
+        end
+      end
+
+      context 'when epic has issues assigned to milestones' do
+        let(:milestone1) { create(:milestone, group: group, start_date: Date.new(2000, 1, 1), due_date: Date.new(2001, 1, 10)) }
+        let(:milestone2) { create(:milestone, group: group, start_date: Date.new(2001, 1, 1), due_date: Date.new(2002, 1, 10)) }
+        let!(:issue1) { create(:issue, epic: epic, project: project, milestone: milestone1) }
+        let!(:issue2) { create(:issue, epic: epic, project: project, milestone: milestone2) }
+
+        it "returns inherited milestone dates" do
+          epic.update_start_and_due_dates
+
+          expect(epic.start_date).to eq(milestone1.start_date)
+          expect(epic.end_date).to eq(milestone2.due_date)
+          expect(epic.start_date_sourcing_milestone).to eq(milestone1)
+          expect(epic.due_date_sourcing_milestone).to eq(milestone2)
+          expect(epic.start_date_sourcing_epic).to be_nil
+          expect(epic.due_date_sourcing_epic).to be_nil
+        end
+
+        context "when epic has child epics" do
+          let!(:child_epic) { create(:epic, group: group, parent: epic, start_date: Date.new(1998, 1, 1), end_date: Date.new(1999, 1, 1)) }
+
+          it "returns inherited dates from child epics and milestones" do
+            epic.update_start_and_due_dates
+
+            expect(epic.start_date).to eq(child_epic.start_date)
+            expect(epic.end_date).to eq(milestone2.due_date)
+            expect(epic.start_date_sourcing_milestone).to be_nil
+            expect(epic.due_date_sourcing_milestone).to eq(milestone2)
+            expect(epic.start_date_sourcing_epic).to eq(child_epic)
+            expect(epic.due_date_sourcing_epic).to be_nil
+          end
+
+          context "when epic dates are propagated upwards" do
+            let(:top_level_parent_epic) { create(:epic, group: group) }
+            let(:parent_epic) { create(:epic, group: group, parent: top_level_parent_epic) }
+
+            before do
+              epic.update(parent: parent_epic)
+            end
+
+            it "propagates date changes to parent epics" do
+              epic.update_start_and_due_dates
+
+              expect(parent_epic.start_date).to eq(epic.start_date)
+              expect(parent_epic.end_date).to eq(epic.due_date)
+              expect(parent_epic.start_date_sourcing_milestone).to be_nil
+              expect(parent_epic.due_date_sourcing_milestone).to be_nil
+              expect(parent_epic.start_date_sourcing_epic).to eq(epic)
+              expect(parent_epic.due_date_sourcing_epic).to eq(epic)
+
+              expect(top_level_parent_epic.start_date).to eq(parent_epic.start_date)
+              expect(top_level_parent_epic.end_date).to eq(parent_epic.due_date)
+              expect(top_level_parent_epic.start_date_sourcing_milestone).to be_nil
+              expect(top_level_parent_epic.due_date_sourcing_milestone).to be_nil
+              expect(top_level_parent_epic.start_date_sourcing_epic).to eq(parent_epic)
+              expect(top_level_parent_epic.due_date_sourcing_epic).to eq(parent_epic)
+            end
+          end
+        end
       end
     end
   end

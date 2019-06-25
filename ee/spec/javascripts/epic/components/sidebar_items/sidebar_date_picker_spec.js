@@ -275,7 +275,7 @@ describe('SidebarDatePicker', () => {
       const valueDynamicEl = vm.$el.querySelector('.value abbr.value-type-dynamic');
 
       expect(valueDynamicEl.querySelector('input[type="radio"]')).not.toBe(null);
-      expect(valueDynamicEl.innerText.trim()).toContain('From milestones:');
+      expect(valueDynamicEl.innerText.trim()).toContain('Inherited:');
       expect(valueDynamicEl.querySelector('.value-content').innerText.trim()).toContain('None');
     });
 

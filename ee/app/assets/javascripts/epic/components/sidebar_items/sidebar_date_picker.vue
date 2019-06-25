@@ -276,7 +276,7 @@ export default {
           type="radio"
           @click="toggleDateType(false)"
         />
-        <span class="prepend-left-5">{{ __('From milestones:') }}</span>
+        <span class="prepend-left-5">{{ __('Inherited: ') }}</span>
         <span class="value-content">{{ dateFromMilestonesWords }}</span>
         <icon
           v-if="isDateInvalid && !selectedDateIsFixed"

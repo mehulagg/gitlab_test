@@ -11,9 +11,7 @@ module EE
         super
 
         if saved_change_to_dates?(milestone)
-          ::Epic.update_start_and_due_dates(
-            ::Epic.joins(:issues).where(issues: { milestone_id: milestone.id })
-          )
+          ::Epic.joins(:issues).where(issues: { milestone_id: milestone.id }).each(&:update_start_and_due_dates)
         end
 
         milestone
