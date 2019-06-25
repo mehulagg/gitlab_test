@@ -6,9 +6,6 @@ module EE
       include ::Gitlab::Utils::StrongMemoize
       extend ActiveSupport::Concern
 
-      # In Seconds
-      TOKEN_EXPIRATION_TIME = 60
-
       prepended do
         # before_action :authorize_create_proxy_build!, only: [:proxy, :proxy_websocket_authorize]
         before_action :verify_proxy_request!, only: [:proxy_websocket_authorize]
@@ -69,25 +66,12 @@ module EE
         return if content_url.blank?
 
         URI.parse(content_url).tap do |u|
-          ## Given the transient nature of the jobs, 32 chars seem enough
+          ## Given the transient nature of the jobs, 32 chars seems enough
           u.host = [SecureRandom.hex, u.host].join('.')
-          u.query = proxy_params.merge(build: build.id, token: proxy_token(u.host)).to_query
+          u.query = { token: build.generate_workhorse_proxy_token(u.host, params[:service], params[:port]) }.to_query
         end.to_s
       rescue URI::InvalidURIError
         nil
-      end
-
-      def proxy_params
-        params.permit(:service, :port)
-      end
-
-      def proxy_token(domain)
-        ::JSONWebToken::HMACToken.new(::Gitlab::Workhorse.secret).tap do |token|
-          token[:job_id] = build.id.to_s
-          token[:token] = WebIdeTerminal.generate_token(build.id, domain)
-          token[:domain] = domain
-          token[:exp] = Time.now.to_i + TOKEN_EXPIRATION_TIME
-        end.encoded
       end
     end
   end

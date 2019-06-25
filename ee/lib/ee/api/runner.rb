@@ -21,12 +21,14 @@ module EE
 
             # job = Ci::Build.find(params[:id])
             # authorize! :create_build_service_proxy, job
-            unless ::WebIdeTerminal.valid_token?(params[:token], params[:id], params[:domain])
+
+            # FIXME Delete
+            job = ::Ci::Build.find(5160)
+            puts params
+            unless job.valid_api_proxy_token?(params[:token], params[:domain])
               forbidden!('Invalid token')
             end
 
-            # FIXME Delete
-            job = ::Ci::Build.last
             # authorize! :create_build_service_proxy, job
             # FIXME Delete
             runner_session = job.build_runner_session(url: "https://global.admin-me.com")

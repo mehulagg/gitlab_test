@@ -16,6 +16,10 @@ module EE
         dast: :dast
       }.with_indifferent_access.freeze
 
+
+      # In Seconds
+      PROXY_TOKEN_EXPIRATION_TIME = 60
+
       prepended do
         after_save :stick_build_if_status_changed
         delegate :service_specification, to: :runner_session, allow_nil: true
@@ -90,10 +94,35 @@ module EE
         metrics_report
       end
 
+      def generate_workhorse_proxy_token(domain, service, port)
+        return if [domain, service].any?(&:blank?)
+
+        ::JSONWebToken::HMACToken.new(::Gitlab::Workhorse.secret).tap do |token|
+          token[:service_info] = {
+            job_id: id.to_s,
+            domain: domain,
+            service: service,
+            port: port
+          }
+          token[:token] = generate_api_proxy_token(domain)
+          token[:exp] = Time.now.to_i + PROXY_TOKEN_EXPIRATION_TIME
+          puts token.inspect
+          token
+        end.encoded
+      end
+
+      def valid_api_proxy_token?(token, domain)
+        token == generate_api_proxy_token(domain)
+      end
+
       private
 
       def name_in?(names)
         name.in?(Array(names))
+      end
+
+      def generate_api_proxy_token(domain)
+        Digest::SHA256.hexdigest("#{id}-#{domain}-#{Rails.application.secrets.secret_key_base}")
       end
     end
   end
