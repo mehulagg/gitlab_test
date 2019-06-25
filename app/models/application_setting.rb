@@ -185,6 +185,9 @@ class ApplicationSetting < ApplicationRecord
             allow_nil: true,
             numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than: 65536 }
 
+  validates :mailing_list_enabled,
+            inclusion: { in: [true, false] }
+
   SUPPORTED_KEY_TYPES.each do |type|
     validates :"#{type}_key_restriction", presence: true, key_restriction: { type: type }
   end

@@ -103,3 +103,26 @@
               = s_('IDE|Allow live previews of JavaScript projects in the Web IDE using CodeSandbox client side evaluation.')
 
       = f.submit _('Save changes'), class: "btn btn-success"
+
+- if Feature.enabled?(:mailing_list)
+  %section.settings.no-animate#js-mailing-list-settings{ class: ('expanded' if expanded_by_default?) }
+    .settings-header
+      %h4
+        = _('Mailing lists')
+      %button.btn.btn-default.js-settings-toggle{ type: 'button' }
+        = expanded_by_default? ? _('Collapse') : _('Expand')
+      %p
+        = _('Enable and configure mailing lists.')
+    .settings-content
+      = form_for @application_setting, url: admin_application_settings_path(anchor: 'js-mailing-list-settings'), html: { class: 'fieldset-form' } do |f|
+        = form_errors(@application_setting)
+
+        %fieldset
+          .form-group
+            .form-check
+              = f.check_box :mailing_list_enabled, class: 'form-check-input'
+              = f.label :mailing_list_enabled, class: 'form-check-label' do
+                = _('Enable mailing lists')
+
+        = f.submit _('Save changes'), class: "btn btn-success"
+

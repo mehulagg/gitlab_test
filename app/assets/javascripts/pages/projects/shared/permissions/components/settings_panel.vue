@@ -77,6 +77,11 @@ export default {
       required: false,
       default: '',
     },
+    mailingListAvailable: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
 
   data() {
@@ -90,6 +95,7 @@ export default {
       wikiAccessLevel: 20,
       snippetsAccessLevel: 20,
       pagesAccessLevel: 20,
+      mailingListAccessLevel: 20,
       containerRegistryEnabled: true,
       lfsEnabled: true,
       packagesEnabled: true,
@@ -145,6 +151,7 @@ export default {
           // When from Internal->Private narrow access for only members
           this.pagesAccessLevel = 10;
         }
+        this.mailingListAccessLevel = Math.min(10, this.mailingListAccessLevel);
         this.highlightChanges();
       } else if (oldValue === visibilityOptions.PRIVATE) {
         // if changing away from private, make enabled features more permissive
@@ -155,6 +162,7 @@ export default {
         if (this.wikiAccessLevel > 0) this.wikiAccessLevel = 20;
         if (this.snippetsAccessLevel > 0) this.snippetsAccessLevel = 20;
         if (this.pagesAccessLevel === 10) this.pagesAccessLevel = 20;
+        if (this.mailingListAccessLevel > 0) this.mailingListAccessLevel = 20;
         this.highlightChanges();
       }
     },
@@ -352,6 +360,17 @@ export default {
           v-model="pagesAccessLevel"
           :options="pagesFeatureAccessLevelOptions"
           name="project[project_feature_attributes][pages_access_level]"
+        />
+      </project-setting-row>
+      <project-setting-row
+        v-if="mailingListAvailable"
+        :label="__('Mailing list')"
+        :help-text="__('Enable a mailing list service for the project')"
+      >
+        <project-feature-setting
+          v-model="mailingListAccessLevel"
+          :options="featureAccessLevelOptions"
+          name="project[project_feature_attributes][mailing_list_access_level]"
         />
       </project-setting-row>
     </div>

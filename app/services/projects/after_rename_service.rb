@@ -43,6 +43,7 @@ module Projects
       execute_system_hooks
       update_repository_configuration
       rename_transferred_documents
+      rename_mailing_list
       log_completion
     end
 
@@ -99,6 +100,12 @@ module Projects
       Gitlab::PagesTransfer
         .new
         .rename_project(path_before, project_path, namespace_full_path)
+    end
+
+    def rename_mailing_list
+      return unless project.mailing_list
+
+      project.mailing_list.update(email: full_path_after)
     end
 
     def log_completion

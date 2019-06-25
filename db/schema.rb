@@ -213,6 +213,7 @@ ActiveRecord::Schema.define(version: 20190625184066) do
     t.integer "local_markdown_version", default: 0, null: false
     t.integer "first_day_of_week", default: 0, null: false
     t.boolean "elasticsearch_limit_indexing", default: false, null: false
+    t.boolean "mailing_list_enabled", default: true, null: false
     t.integer "default_project_creation", default: 2, null: false
     t.string "lets_encrypt_notification_email"
     t.boolean "lets_encrypt_terms_of_service_accepted", default: false, null: false
@@ -1833,6 +1834,30 @@ ActiveRecord::Schema.define(version: 20190625184066) do
     t.index ["user_id"], name: "index_lists_on_user_id", using: :btree
   end
 
+  create_table "mailing_list_pending_subscriptions", id: :serial, force: :cascade do |t|
+    t.integer "mailing_list_id", null: false
+    t.string "user_email", null: false
+    t.string "confirmation_token", null: false
+    t.datetime "expires_at", null: false
+    t.index ["confirmation_token"], name: "index_mailing_list_pending_subscriptions_on_confirmation_token", unique: true, using: :btree
+    t.index ["mailing_list_id", "user_email"], name: "index_ml_pending_subscriptions_on_ml_id_and_user_email", unique: true, using: :btree
+    t.index ["mailing_list_id"], name: "index_mailing_list_pending_subscriptions_on_mailing_list_id", using: :btree
+  end
+
+  create_table "mailing_list_subscriptions", id: :serial, force: :cascade do |t|
+    t.integer "mailing_list_id", null: false
+    t.string "user_email", null: false
+    t.index ["mailing_list_id", "user_email"], name: "index_ml_subscriptions_on_ml_id_and_user_email", unique: true, using: :btree
+    t.index ["mailing_list_id"], name: "index_mailing_list_subscriptions_on_mailing_list_id", using: :btree
+  end
+
+  create_table "mailing_lists", id: :serial, force: :cascade do |t|
+    t.integer "project_id", null: false
+    t.string "email", null: false
+    t.index ["email"], name: "index_mailing_lists_on_email", unique: true, using: :btree
+    t.index ["project_id"], name: "index_mailing_lists_on_project_id", unique: true, using: :btree
+  end
+
   create_table "members", id: :serial, force: :cascade do |t|
     t.integer "access_level", null: false
     t.integer "source_id", null: false
@@ -2491,6 +2516,7 @@ ActiveRecord::Schema.define(version: 20190625184066) do
     t.datetime "updated_at"
     t.integer "repository_access_level", default: 20, null: false
     t.integer "pages_access_level", default: 20, null: false
+    t.integer "mailing_list_access_level", limit: 2, default: 20, null: false
     t.index ["project_id"], name: "index_project_features_on_project_id", unique: true, using: :btree
   end
 
@@ -3739,6 +3765,9 @@ ActiveRecord::Schema.define(version: 20190625184066) do
   add_foreign_key "lists", "labels", name: "fk_7a5553d60f", on_delete: :cascade
   add_foreign_key "lists", "milestones", on_delete: :cascade
   add_foreign_key "lists", "users", name: "fk_d6cf4279f7", on_delete: :cascade
+  add_foreign_key "mailing_list_pending_subscriptions", "mailing_lists", on_delete: :cascade
+  add_foreign_key "mailing_list_subscriptions", "mailing_lists", on_delete: :cascade
+  add_foreign_key "mailing_lists", "projects", on_delete: :cascade
   add_foreign_key "members", "users", name: "fk_2e88fb7ce9", on_delete: :cascade
   add_foreign_key "merge_request_assignees", "merge_requests", on_delete: :cascade
   add_foreign_key "merge_request_assignees", "users", on_delete: :cascade

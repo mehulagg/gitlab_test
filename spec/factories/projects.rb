@@ -2,6 +2,7 @@ require_relative '../support/helpers/test_env'
 
 FactoryBot.define do
   PAGES_ACCESS_LEVEL_SCHEMA_VERSION ||= 20180423204600
+  MAILING_LIST_ACCESS_LEVEL_SCHEMA_VERSION ||= 20190621213400
 
   # Project without repository
   #
@@ -26,6 +27,7 @@ FactoryBot.define do
       merge_requests_access_level ProjectFeature::ENABLED
       repository_access_level ProjectFeature::ENABLED
       pages_access_level ProjectFeature::ENABLED
+      mailing_list_access_level ProjectFeature::ENABLED
 
       # we can't assign the delegated `#ci_cd_settings` attributes directly, as the
       # `#ci_cd_settings` relation needs to be created first
@@ -50,6 +52,10 @@ FactoryBot.define do
 
       if ActiveRecord::Migrator.current_version >= PAGES_ACCESS_LEVEL_SCHEMA_VERSION
         hash.store("pages_access_level", evaluator.pages_access_level)
+      end
+
+      if ActiveRecord::Migrator.current_version >= MAILING_LIST_ACCESS_LEVEL_SCHEMA_VERSION
+        hash.store("mailing_list_access_level", evaluator.mailing_list_access_level)
       end
 
       project.project_feature.update(hash)
@@ -268,6 +274,9 @@ FactoryBot.define do
     trait(:pages_enabled)           { pages_access_level ProjectFeature::ENABLED }
     trait(:pages_disabled)          { pages_access_level ProjectFeature::DISABLED }
     trait(:pages_private)           { pages_access_level ProjectFeature::PRIVATE }
+    trait(:mailing_list_enabled)    { mailing_list_access_level ProjectFeature::ENABLED }
+    trait(:mailing_list_disabled)   { mailing_list_access_level ProjectFeature::DISABLED }
+    trait(:mailing_list_private)    { mailing_list_access_level ProjectFeature::PRIVATE }
 
     trait :auto_devops do
       association :auto_devops, factory: :project_auto_devops

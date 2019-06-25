@@ -22,7 +22,7 @@ class ProjectFeature < ApplicationRecord
   ENABLED  = 20
   PUBLIC   = 30
 
-  FEATURES = %i(issues merge_requests wiki snippets builds repository pages).freeze
+  FEATURES = %i(issues merge_requests wiki snippets builds repository pages mailing_list).freeze
   PRIVATE_FEATURES_MIN_ACCESS_LEVEL = { merge_requests: Gitlab::Access::REPORTER }.freeze
 
   class << self
@@ -71,6 +71,7 @@ class ProjectFeature < ApplicationRecord
   default_value_for :snippets_access_level,       value: ENABLED, allows_nil: false
   default_value_for :wiki_access_level,           value: ENABLED, allows_nil: false
   default_value_for :repository_access_level,     value: ENABLED, allows_nil: false
+  default_value_for :mailing_list_access_level,   value: ENABLED, allows_nil: false
 
   def feature_available?(feature, user)
     # This feature might not be behind a feature flag at all, so default to true
@@ -103,10 +104,21 @@ class ProjectFeature < ApplicationRecord
     pages_access_level > DISABLED
   end
 
+  def mailing_list_enabled?
+    mailing_list_access_level > DISABLED
+  end
+
   def public_pages?
     return true unless Gitlab.config.pages.access_control
 
     pages_access_level == PUBLIC || pages_access_level == ENABLED && project.public?
+  end
+
+  # This setter can be removed when https://gitlab.com/gitlab-org/gitlab-ce/issues/44990
+  # is done. It's needed because a combination of usage
+  # `default_value_for :mailing_list_access_level` with not isolated migration tests
+  def mailing_list_access_level=(level)
+    super(level) if has_attribute?(:mailing_list_access_level)
   end
 
   private
@@ -131,7 +143,8 @@ class ProjectFeature < ApplicationRecord
       self.errors.add(field, "cannot have public visibility level") if not_allowed
     end
 
-    (FEATURES - %i(pages)).each {|f| validator.call("#{f}_access_level")}
+    # The has_attribute call is a workaround for https://gitlab.com/gitlab-org/gitlab-ce/issues/44990
+    (FEATURES - %i(pages)).each {|f| validator.call("#{f}_access_level") if has_attribute?("#{f}_access_level")}
   end
 
   def get_permission(user, feature)

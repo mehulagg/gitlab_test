@@ -4799,6 +4799,9 @@ msgstr ""
 msgid "Enable SAML authentication for this group"
 msgstr ""
 
+msgid "Enable a mailing list service for the project"
+msgstr ""
+
 msgid "Enable access to the Performance Bar for a given group."
 msgstr ""
 
@@ -4806,6 +4809,9 @@ msgid "Enable and configure InfluxDB metrics."
 msgstr ""
 
 msgid "Enable and configure Prometheus metrics."
+msgstr ""
+
+msgid "Enable and configure mailing lists."
 msgstr ""
 
 msgid "Enable classification control using an external service"
@@ -4821,6 +4827,9 @@ msgid "Enable group Runners"
 msgstr ""
 
 msgid "Enable header and footer in emails"
+msgstr ""
+
+msgid "Enable mailing lists"
 msgstr ""
 
 msgid "Enable mirror configuration"
@@ -8086,6 +8095,12 @@ msgid "MRDiff|Show changes only"
 msgstr ""
 
 msgid "MRDiff|Show full file"
+msgstr ""
+
+msgid "Mailing list"
+msgstr ""
+
+msgid "Mailing lists"
 msgstr ""
 
 msgid "Make and review changes in the browser with the Web IDE"

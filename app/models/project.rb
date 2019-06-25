@@ -60,7 +60,7 @@ class Project < ApplicationRecord
   cache_markdown_field :description, pipeline: :description
 
   delegate :feature_available?, :builds_enabled?, :wiki_enabled?,
-           :merge_requests_enabled?, :issues_enabled?, :pages_enabled?, :public_pages?,
+           :merge_requests_enabled?, :issues_enabled?, :pages_enabled?, :public_pages?, :mailing_list_enabled?,
            to: :project_feature, allow_nil: true
 
   delegate :base_dir, :disk_path, :ensure_storage_path_exists, to: :storage
@@ -187,6 +187,7 @@ class Project < ApplicationRecord
   has_one :import_export_upload, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_one :project_repository, inverse_of: :project
   has_one :error_tracking_setting, inverse_of: :project, class_name: 'ErrorTracking::ProjectErrorTrackingSetting'
+  has_one :mailing_list
   has_one :metrics_setting, inverse_of: :project, class_name: 'ProjectMetricsSetting'
 
   # Merge Requests for target project should be removed with it

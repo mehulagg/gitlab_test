@@ -543,7 +543,8 @@ module ProjectsHelper
       snippetsAccessLevel: feature.snippets_access_level,
       pagesAccessLevel: feature.pages_access_level,
       containerRegistryEnabled: !!project.container_registry_enabled,
-      lfsEnabled: !!project.lfs_enabled
+      lfsEnabled: !!project.lfs_enabled,
+      mailingListAccessLevel: feature.mailing_list_access_level
     }
   end
 
@@ -559,7 +560,8 @@ module ProjectsHelper
       lfsHelpPath: help_page_path('workflow/lfs/manage_large_binaries_with_git_lfs'),
       pagesAvailable: Gitlab.config.pages.enabled,
       pagesAccessControlEnabled: Gitlab.config.pages.access_control,
-      pagesHelpPath: help_page_path('user/project/pages/introduction', anchor: 'gitlab-pages-access-control-core-only')
+      pagesHelpPath: help_page_path('user/project/pages/introduction', anchor: 'gitlab-pages-access-control-core-only'),
+      mailingListAvailable: Gitlab::CurrentSettings.mailing_list_enabled && Feature.enabled?(:mailing_list, project)
     }
   end
 

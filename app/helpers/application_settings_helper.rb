@@ -201,6 +201,7 @@ module ApplicationSettingsHelper
       :housekeeping_incremental_repack_period,
       :html_emails_enabled,
       :import_sources,
+      :mailing_list_enabled,
       :max_artifacts_size,
       :max_attachment_size,
       :max_pages_size,

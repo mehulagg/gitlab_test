@@ -357,6 +357,7 @@ project:
 - kubernetes_namespaces
 - error_tracking_setting
 - metrics_setting
+- mailing_list
 - gitlab_slack_application_service
 - github_service
 - protected_environments
