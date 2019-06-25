@@ -92,14 +92,20 @@ Product Managers must have their proposal for that milestone ready by the 22nd o
 This proposal will be shared with Engineering for discussion, feedback, and planning. 
 The plan for the upcoming milestone must be finalized by the 1st of the month, one week before kickoff on the 8th.
 
+## Feature proposals from the 22nd to the 1st
+
+To allow the Product and Engineering teams time to discuss issues that will be placed into an upcoming milestone,
+Product Managers must have their proposal for that milestone ready by the 22nd of each month.
+
+This proposal will be shared with Engineering for discussion, feedback, and planning.
+The plan for the upcoming milestone must be finalized by the 1st of the month, one week before kickoff on the 8th.
+
 ## Feature freeze on the 7th for the release on the 22nd
 
-The feature freeze on the 7th has been discontinued. [Transition period overview]
+The feature freeze on the 7th has been discontinued. [Transition period overview](https://gitlab.com/gitlab-org/release/docs/blob/21cbd409dd5f157fe252f254f3e897f01908abe2/general/deploy/auto-deploy-transition.md#transition)
 describes the change to this process. During the transition period, the only guarantee that
 a change will be included in the release on the 22nd is if the change has been
 deployed to GitLab.com prior to this date.
-
-[Transition period]: https://gitlab.com/gitlab-org/release/docs/blob/21cbd409dd5f157fe252f254f3e897f01908abe2/general/deploy/auto-deploy-transition.md#transition
 
 ### Between the 1st and the 7th
 
