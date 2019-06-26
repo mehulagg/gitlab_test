@@ -77,15 +77,25 @@ module Gitlab
         end
 
         def worker_label
-          return { worker: 'sidekiq' } if Sidekiq.server?
-          return {} unless defined?(Unicorn::Worker)
+          @worker_label ||=
+            if Sidekiq.server?
+              { worker: 'sidekiq' }
+            elsif defined?(Unicorn::Worker)
+              { worker: "unicorn:#{unicorn_worker_id}" }
+            elsif defined?(::Puma)
+              { worker: "puma:#{puma_worker_id}" }
+            else
+              { worker: $0 }
+            end
+        end
 
-          worker_no = ::Prometheus::Client::Support::Unicorn.worker_id
-          if worker_no
-            { worker: worker_no }
-          else
-            { worker: 'master' }
-          end
+        def unicorn_worker_id
+          ::Prometheus::Client::Support::Unicorn.worker_id || 'master'
+        end
+
+        def puma_worker_id
+          match = $0.match(/cluster worker ([0-9]+):/)
+          match ? match[1] : 'master'
         end
       end
     end
