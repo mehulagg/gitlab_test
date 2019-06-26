@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe 'Two merge requests on a merge train' do
-  let(:project) { create(:project, :repository) }
+  set(:project) { create(:project, :repository) }
   set(:maintainer_1) { create(:user) }
   set(:maintainer_2) { create(:user) }
 
