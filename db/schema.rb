@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190603124955) do
+ActiveRecord::Schema.define(version: 20190625124857) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1079,6 +1079,8 @@ ActiveRecord::Schema.define(version: 20190603124955) do
     t.integer "project_id", null: false
     t.integer "issue_id", null: false
     t.string "filename", null: false
+    t.bigint "deleted_in_version_id"
+    t.index ["deleted_in_version_id"], name: "index_design_management_designs_on_deleted_in_version_id", using: :btree
     t.index ["issue_id", "filename"], name: "index_design_management_designs_on_issue_id_and_filename", unique: true, using: :btree
     t.index ["project_id"], name: "index_design_management_designs_on_project_id", using: :btree
   end
@@ -1093,6 +1095,7 @@ ActiveRecord::Schema.define(version: 20190603124955) do
 
   create_table "design_management_versions", force: :cascade do |t|
     t.binary "sha", null: false
+    t.datetime_with_timezone "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.index ["sha"], name: "index_design_management_versions_on_sha", unique: true, using: :btree
   end
 
@@ -3587,6 +3590,7 @@ ActiveRecord::Schema.define(version: 20190603124955) do
   add_foreign_key "dependency_proxy_group_settings", "namespaces", column: "group_id", on_delete: :cascade
   add_foreign_key "deploy_keys_projects", "projects", name: "fk_58a901ca7e", on_delete: :cascade
   add_foreign_key "deployments", "projects", name: "fk_b9a3851b82", on_delete: :cascade
+  add_foreign_key "design_management_designs", "design_management_versions", column: "deleted_in_version_id", on_delete: :cascade
   add_foreign_key "design_management_designs", "issues", on_delete: :cascade
   add_foreign_key "design_management_designs", "projects", on_delete: :cascade
   add_foreign_key "design_management_designs_versions", "design_management_designs", column: "design_id", on_delete: :cascade

@@ -14,6 +14,10 @@ FactoryBot.define do
       end
     end
 
+    trait :deleted do
+      deleted_in_version { create(:design_version) }
+    end
+
     trait :with_file do
       transient do
         versions_count 1

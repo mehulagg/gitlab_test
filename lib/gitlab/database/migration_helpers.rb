@@ -16,8 +16,9 @@ module Gitlab
       #        The default is to not allow NULL values.
       def add_timestamps_with_timezone(table_name, options = {})
         options[:null] = false if options[:null].nil?
+        columns = options.fetch(:columns, [:created_at, :updated_at])
 
-        [:created_at, :updated_at].each do |column_name|
+        columns.each do |column_name|
           if options[:default] && transaction_open?
             raise '`add_timestamps_with_timezone` with default value cannot be run inside a transaction. ' \
               'You can disable transactions by calling `disable_ddl_transaction!` ' \
@@ -36,6 +37,14 @@ module Gitlab
           else
             add_column(table_name, column_name, :datetime_with_timezone, options)
           end
+        end
+      end
+
+      # To be used in the `#down` method of migrations that use `#add_timestamps_with_timezone`.
+      def remove_timestamps(table_name, options = {})
+        columns = options.fetch(:columns, [:created_at, :updated_at])
+        columns.each do |column_name|
+          remove_column(table_name, column_name)
         end
       end
 

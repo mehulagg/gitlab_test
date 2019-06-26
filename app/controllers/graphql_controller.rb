@@ -21,6 +21,10 @@ class GraphqlController < ApplicationController
     render json: result
   end
 
+  rescue_from ::Gitlab::Graphql::Errors::ArgumentError do |exception|
+    render_error(exception.message, status: :unprocessable_entity)
+  end
+
   rescue_from StandardError do |exception|
     log_exception(exception)
 

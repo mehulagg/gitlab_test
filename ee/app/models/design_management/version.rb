@@ -22,6 +22,9 @@ module DesignManagement
 
     scope :ordered, -> { order(id: :desc) }
 
+    # Versions are immutable - i.e. they are never updated.
+    scope :as_of, ->(time) { where('created_at <= ?', time) }
+
     def self.create_for_designs(designs, sha)
       version = safe_find_or_create_by!(sha: sha)
 
@@ -31,6 +34,12 @@ module DesignManagement
 
       Gitlab::Database.bulk_insert(DesignVersion.table_name, rows)
 
+      version
+    end
+
+    def self.create_deleted_in!(designs, sha)
+      version = create_for_designs(designs, sha)
+      DesignManagement::Design.where(id: designs.map(&:id)).update_all(deleted_in_version_id: version.id)
       version
     end
 

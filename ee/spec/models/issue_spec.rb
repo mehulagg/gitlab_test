@@ -368,4 +368,39 @@ describe Issue do
       expect(collection.issue).to eq(issue)
     end
   end
+
+  describe '#current_designs' do
+    let(:issue) { create(:issue) }
+    subject { issue.current_designs }
+
+    context 'an issue has no designs' do
+      it { is_expected.to be_empty }
+    end
+
+    context 'an issue only has current designs' do
+      let!(:design_a) { create(:design, issue: issue) }
+      let!(:design_b) { create(:design, issue: issue) }
+      let!(:design_c) { create(:design, issue: issue) }
+
+      it { is_expected.to include(design_a, design_b, design_c) }
+    end
+
+    context 'an issue only has deleted designs' do
+      let!(:design_a) { create(:design, :deleted, issue: issue) }
+      let!(:design_b) { create(:design, :deleted, issue: issue) }
+      let!(:design_c) { create(:design, :deleted, issue: issue) }
+
+      it { is_expected.to be_empty }
+    end
+
+    context 'an issue has a mixture of current and deleted designs' do
+      let!(:design_a) { create(:design, issue: issue) }
+      let!(:design_b) { create(:design, :deleted, issue: issue) }
+      let!(:design_c) { create(:design, issue: issue) }
+
+      it { is_expected.not_to include(design_b) }
+
+      it { is_expected.to include(design_a, design_c) }
+    end
+  end
 end

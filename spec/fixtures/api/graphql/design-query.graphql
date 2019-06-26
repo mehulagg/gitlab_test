@@ -1,0 +1,25 @@
+query Permissions {
+  echo(text: "test")
+  project(fullPath: "gitlab-org/gitlab-test") {
+    name
+    issue(iid:"5") {
+      userPermissions {
+        readDesign
+        createDesign
+      }
+      title
+      description
+      designCollection {
+        designs {
+          edges {
+            node {
+              filename
+              id
+              deletedInVersion { sha }
+            }
+          }
+        }
+      }
+    }
+  }
+}

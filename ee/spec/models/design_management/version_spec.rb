@@ -45,6 +45,37 @@ describe DesignManagement::Version do
           .to contain_exactly(version_1, version_2)
       end
     end
+
+    describe '.as_of' do
+      let(:t_zero) { Time.local(2010) }
+
+      let!(:version_a) { Timecop.freeze(t_zero) { create(:design_version) } }
+      let!(:version_b) { Timecop.freeze(t_zero + 10.days) { create(:design_version) } }
+      let!(:version_c) { Timecop.freeze(t_zero + 20.days) { create(:design_version) } }
+      let!(:version_d) { Timecop.freeze(t_zero + 30.days) { create(:design_version) } }
+
+      subject { described_class.as_of(cut_off) }
+
+      context 'the as-of date is after the last creation' do
+        let(:cut_off) { t_zero + 30.days }
+
+        it { is_expected.to include(version_a, version_b, version_c, version_d) }
+      end
+
+      context 'the as-of date is before the first creation' do
+        let(:cut_off) { t_zero - 1.day }
+
+        it { is_expected.to be_empty }
+      end
+
+      context 'the as-of date is in between two moments' do
+        let(:cut_off) { t_zero + 15.days }
+
+        it { is_expected.to include(version_a, version_b) }
+
+        it { is_expected.not_to include(version_c, version_d) }
+      end
+    end
   end
 
   describe ".bulk_create" do

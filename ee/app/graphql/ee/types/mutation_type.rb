@@ -7,6 +7,7 @@ module EE
 
       prepended do
         mount_mutation ::Mutations::DesignManagement::Upload
+        mount_mutation ::Mutations::DesignManagement::Delete
       end
     end
   end

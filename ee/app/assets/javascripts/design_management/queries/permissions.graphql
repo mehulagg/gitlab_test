@@ -1,4 +1,5 @@
 query permissions($fullPath: ID!, $iid: String!) {
+  echo(text: "test")
   project(fullPath: $fullPath) {
     issue(iid: $iid) {
       userPermissions {

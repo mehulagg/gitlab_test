@@ -18,6 +18,11 @@ module Types
             Types::DesignManagement::VersionType.connection_type,
             resolver: Resolvers::DesignManagement::VersionResolver,
             description: "All versions related to this design ordered newest first"
+
+      field :deleted_in_version,
+            Types::DesignManagement::VersionType,
+            null: true,
+            description: "The version this design was deleted in"
     end
   end
 end

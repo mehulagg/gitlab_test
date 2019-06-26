@@ -14,9 +14,25 @@ module DesignManagement
     # data
     has_many :notes, as: :noteable, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
 
+    belongs_to :deleted_in_version,
+      class_name: 'DesignManagement::Version',
+      inverse_of: false,
+      foreign_key: 'deleted_in_version_id'
+
     validates :project, :issue, :filename, presence: true
     validates :filename, uniqueness: { scope: :issue_id }
     validate :validate_file_is_image
+
+    # A design is current if it has not been deleted
+    scope :current, -> { where(deleted_in_version_id: nil) }
+
+    def deleted_in_version=(version)
+      update(deleted_in_version_id: version&.id)
+    end
+
+    def deleted?
+      deleted_in_version_id.present?
+    end
 
     def new_design?
       versions.none?

@@ -12,14 +12,20 @@ module Types
       field :designs,
             Types::DesignManagement::DesignType.connection_type,
             null: false,
-            description: "All visible designs for this collection"
+            description: "All designs for this collection" do
+        argument :include_hidden, GraphQL::BOOLEAN_TYPE,
+          required: false,
+          description: "Should we include hidden designs?"
+      end
       # TODO: allow getting a single design by filename
-      # TODO: when we allow hiding designs, we will also expose a relation
-      # exposing all designs
       field :versions,
             Types::DesignManagement::VersionType.connection_type,
             resolver: Resolvers::DesignManagement::VersionResolver,
             description: "All versions related to all designs ordered newest first"
+
+      def designs(include_hidden: false)
+        include_hidden ? issue.designs : issue.current_designs
+      end
     end
   end
 end

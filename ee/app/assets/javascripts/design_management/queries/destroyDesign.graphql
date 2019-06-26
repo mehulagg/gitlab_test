@@ -1,0 +1,9 @@
+#import "./designListFragment.graphql"
+
+mutation destroyDesign($designIIDs: [ID!]!, $projectPath: ID!, $iid: ID!) {
+  designManagementDestroy(input: { projectPath: $projectPath, iid: $iid, designIIDs: designIIDs }) {
+    designs {
+      ...DesignListItem
+    }
+  }
+}
