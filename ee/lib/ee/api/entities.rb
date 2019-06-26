@@ -733,6 +733,10 @@ module EE
       class ProjectAlias < Grape::Entity
         expose :id, :project_id, :name
       end
+
+      class Dependency < Grape::Entity
+        expose :version, :package_manager, :dependency_file_path
+      end
     end
   end
 end
