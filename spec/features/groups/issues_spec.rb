@@ -102,6 +102,10 @@ describe 'Group issues page' do
   end
 
   context 'manual ordering' do
+    before do
+      stub_feature_flags(manual_sorting: true)
+    end
+
     let!(:issue1) { create(:issue, project: project, title: 'Issue #1') }
     let!(:issue2) { create(:issue, project: project, title: 'Issue #2') }
     let!(:issue3) { create(:issue, project: project, title: 'Issue #3') }
