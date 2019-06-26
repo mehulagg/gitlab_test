@@ -38,6 +38,10 @@ module AutoMerge
       end
     end
 
+    def available_for?(merge_request)
+      merge_request.can_be_merged_by?(current_user)
+    end
+
     private
 
     def strategy

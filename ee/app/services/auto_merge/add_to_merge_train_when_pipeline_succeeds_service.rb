@@ -30,10 +30,11 @@ module AutoMerge
     end
 
     def available_for?(merge_request)
-      merge_request.project.merge_trains_enabled? &&
-        !merge_request.for_fork? &&
-        merge_request.actual_head_pipeline&.active? &&
-        merge_request.mergeable_state?(skip_ci_check: true)
+      super &&
+        merge_request.project.merge_trains_enabled? &&
+          !merge_request.for_fork? &&
+          merge_request.actual_head_pipeline&.active? &&
+          merge_request.mergeable_state?(skip_ci_check: true)
     end
   end
 end
