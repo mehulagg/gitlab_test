@@ -27,7 +27,8 @@ module CiCd
         issues_access_level:         ProjectFeature::DISABLED,
         merge_requests_access_level: ProjectFeature::DISABLED,
         wiki_access_level:           ProjectFeature::DISABLED,
-        snippets_access_level:       ProjectFeature::DISABLED
+        snippets_access_level:       ProjectFeature::DISABLED,
+        mailing_list_access_level:   ProjectFeature::DISABLED
       )
     end
 
