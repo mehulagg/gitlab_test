@@ -42,6 +42,7 @@ export default {
       //   $(w.document.body).html(error.response.data);
       // });
       window.open($("input.requesteduri").val(), "theFrame");
+      // window.open($("input.requesteduri").val(), "_blank");
     },
   },
 };

@@ -19,19 +19,19 @@ module EE
             require_gitlab_workhorse!
             ::Gitlab::Workhorse.verify_api_request!(headers)
 
-            # job = Ci::Build.find(params[:id])
+            job = ::Ci::Build.find(params[:id])
             # authorize! :create_build_service_proxy, job
 
             # FIXME Delete
-            job = ::Ci::Build.find(5160)
-            puts params
+            # job = ::Ci::Build.find(5160)
+            # puts params
             unless job.valid_api_proxy_token?(params[:token], params[:domain])
               forbidden!('Invalid token')
             end
 
             # authorize! :create_build_service_proxy, job
             # FIXME Delete
-            runner_session = job.build_runner_session(url: "https://global.admin-me.com")
+            # runner_session = job.build_runner_session(url: "https://global.admin-me.com")
 
             service_spec = job.service_specification(service: params['service'], port: params['port'])
 

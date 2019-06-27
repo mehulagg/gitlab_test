@@ -106,8 +106,6 @@ module EE
           }
           token[:token] = generate_api_proxy_token(domain)
           token[:exp] = Time.now.to_i + PROXY_TOKEN_EXPIRATION_TIME
-          puts token.inspect
-          token
         end.encoded
       end
 
