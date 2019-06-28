@@ -1,0 +1,5 @@
+---
+title: Avoid security checks on docs and clean-up GitLab-CI configuration
+merge_request: 30081
+author: 
+type: fixed
