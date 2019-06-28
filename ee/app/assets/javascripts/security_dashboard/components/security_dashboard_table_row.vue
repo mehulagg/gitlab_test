@@ -94,9 +94,18 @@ export default {
       </div>
     </div>
 
+    <div class="table-section ml-md-6">
+      <div class="table-mobile-content text-capitalize">{{ vulnerability.created_at }}</div>
+    </div>
+    <div class="table-section section-10 ml-md-2">
+      <div class="table-mobile-content text-capitalize">{{ vulnerability.pipeline_id }}</div>
+    </div>
+    <div class="table-section section-10 ml-md-2">
+      <div class="table-mobile-content text-capitalize">{{ vulnerability.id }}</div>
+    </div>
     <div class="table-section section-10 ml-md-2">
       <div class="table-mobile-header" role="rowheader">{{ s__('Reports|Confidence') }}</div>
-      <div class="table-mobile-content text-capitalize">{{ confidence }}</div>
+      <div class="table-mobile-content text-capitalize">{{ vulnerability.location.start_line }}:{{ vulnerability.location.end_line }}</div>
     </div>
 
     <div class="table-section section-20">

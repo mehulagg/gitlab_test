@@ -150,6 +150,10 @@ module Vulnerabilities
       end
     end
 
+    def metadata=(new_data)
+      self.raw_metadata = new_data.to_json
+    end
+
     def description
       metadata.dig('description')
     end
@@ -162,12 +166,40 @@ module Vulnerabilities
       metadata.fetch('location', {})
     end
 
+    def file_path
+      metadata.dig('location', 'file')
+    end
+
+    def start_line
+      metadata.dig('location', 'start_line')
+    end
+
+    def end_line
+      metadata.dig('location', 'end_line')
+    end
+
     def links
       metadata.fetch('links', [])
     end
 
     def remediations
       metadata.dig('remediations')
+    end
+
+    def same_as?(other)
+      other[:report_type] == self.report_type &&
+        other[:location_fingerprint] == self.location_fingerprint &&
+        other[:primary_identifier] == self.primary_identifier.fingerprint
+    end
+
+    def flag_as_fixed!(pipeline)
+      # self.fixed_at = Time.now
+    end
+
+    def update_location!(pipeline)
+      self.metadata = JSON.parse(new_occurrence[:raw_metadata])
+      self.location_fingerprint = new_occurrence[:location_fingerprint]
+      save
     end
   end
 end

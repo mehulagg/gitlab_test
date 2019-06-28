@@ -21,6 +21,35 @@ module Gitlab
 
           delegate :file_path, :start_line, :end_line, to: :location
 
+          def self.from_database(record)
+            identifiers = record.identifiers.map do |identifier|
+              Gitlab::Ci::Reports::Security::Identifier.from_database(identifier)
+            end
+            scanner = Gitlab::Ci::Reports::Security::Scanner.from_database(record.scanner)
+
+            occurrence = self.new(
+              compare_key: record.confidence,
+              confidence: record.confidence,
+              identifiers: record.identifiers,
+              location_fingerprint: record.location_fingerprint,
+              metadata_version: record.metadata_version,
+              name: record.name,
+              raw_metadata: record.raw_metadata,
+              report_type: record.report_type,
+              scanner: record.scanner,
+              severity: record.severity,
+              uuid: record.uuid
+            )
+            # occurrence.record_id = record.id
+
+            occurrence
+          end
+
+          def self.clone(occurrence)
+            # self.new(occurrence.instance_values.except(project_fingerprint))
+            self.new(occurrence.instance_values)
+          end
+
           def initialize(compare_key:, identifiers:, location:, metadata_version:, name:, raw_metadata:, report_type:, scanner:, uuid:, confidence: nil, severity: nil) # rubocop:disable Metrics/ParameterLists
             @compare_key = compare_key
             @confidence = confidence

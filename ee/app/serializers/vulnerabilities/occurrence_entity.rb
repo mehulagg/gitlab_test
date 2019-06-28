@@ -15,6 +15,13 @@ class Vulnerabilities::OccurrenceEntity < Grape::Entity
   expose :issue_feedback, using: Vulnerabilities::FeedbackEntity
   expose :merge_request_feedback, using: Vulnerabilities::FeedbackEntity
 
+  expose :created_at do |occurrence|
+    occurrence.created_at.strftime('%Y-%m-%d %H:%M:%S')
+  end
+  expose :pipeline_id do |occurrence|
+    occurrence.pipelines.newest_first.first.id
+  end
+
   expose :metadata, merge: true, if: ->(occurrence, _) { occurrence.raw_metadata } do
     expose :description
     expose :links

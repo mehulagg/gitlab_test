@@ -64,8 +64,17 @@ export default {
       <div class="table-section flex-grow-1" role="rowheader">
         {{ s__('Reports|Vulnerability') }}
       </div>
+      <div class="table-section ml-md-6" role="rowheader">
+        {{ s__('Reports|created_at') }}
+      </div>
       <div class="table-section section-10 ml-md-2" role="rowheader">
-        {{ s__('Reports|Confidence') }}
+        {{ s__('Reports|pipeline_id') }}
+      </div>
+      <div class="table-section section-10 ml-md-2" role="rowheader">
+        {{ s__('Reports|occurrence_id') }}
+      </div>
+      <div class="table-section section-10 ml-md-2" role="rowheader">
+        {{ s__('Reports|start_line:end_line') }}
       </div>
       <div class="table-section section-20" role="rowheader"></div>
     </div>
