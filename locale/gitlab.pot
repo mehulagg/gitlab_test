@@ -1122,6 +1122,9 @@ msgstr ""
 msgid "All projects"
 msgstr ""
 
+msgid "All stages"
+msgstr ""
+
 msgid "All users"
 msgstr ""
 
@@ -4116,6 +4119,9 @@ msgstr ""
 msgid "Cycle Analytics"
 msgstr ""
 
+msgid "Cycle Analytics can help you determine your team’s velocity"
+msgstr ""
+
 msgid "Cycle Analytics gives an overview of how much time it takes to go from idea to production in your project."
 msgstr ""
 
@@ -4139,6 +4145,11 @@ msgstr ""
 
 msgid "CycleAnalyticsStage|Test"
 msgstr ""
+
+msgid "CycleAnalytics|%{stageName}"
+msgid_plural "CycleAnalytics|%d stages selected"
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "DNS"
 msgstr ""
@@ -11426,6 +11437,9 @@ msgstr ""
 msgid "Recent"
 msgstr ""
 
+msgid "Recent Activity"
+msgstr ""
+
 msgid "Recent Project Activity"
 msgstr ""
 
@@ -12391,6 +12405,9 @@ msgstr ""
 msgid "Select project to choose zone"
 msgstr ""
 
+msgid "Select projects"
+msgstr ""
+
 msgid "Select projects you want to import."
 msgstr ""
 
@@ -13173,6 +13190,9 @@ msgstr ""
 msgid "Staged %{type}"
 msgstr ""
 
+msgid "Stages"
+msgstr ""
+
 msgid "Star a label to make it a priority label. Order the prioritized labels to change their relative priority, by dragging."
 msgstr ""
 
@@ -13222,6 +13242,9 @@ msgid "Start a review"
 msgstr ""
 
 msgid "Start and due date"
+msgstr ""
+
+msgid "Start by choosing a group to see how your team is spending time. You can then drill down to the project level."
 msgstr ""
 
 msgid "Start cleanup"

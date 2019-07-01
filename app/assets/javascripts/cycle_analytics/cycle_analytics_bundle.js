@@ -2,6 +2,7 @@ import $ from 'jquery';
 import Vue from 'vue';
 import Cookies from 'js-cookie';
 import Flash from '../flash';
+import { __ } from '~/locale';
 import Translate from '../vue_shared/translate';
 import banner from './components/banner.vue';
 import stageCodeComponent from './components/stage_code_component.vue';
@@ -11,7 +12,11 @@ import stageStagingComponent from './components/stage_staging_component.vue';
 import stageTestComponent from './components/stage_test_component.vue';
 import CycleAnalyticsService from './cycle_analytics_service';
 import CycleAnalyticsStore from './cycle_analytics_store';
-import { __ } from '~/locale';
+import GroupsDropdownFilter from '../../../../ee/app/assets/javascripts/analytics/shared/components/groups_dropdown_filter.vue';
+import ProjectsDropdownFilter from '../../../../ee/app/assets/javascripts/analytics/shared/components/projects_dropdown_filter.vue';
+import DateRangeDropdown from '../../../../ee/app/assets/javascripts/analytics/shared/components/date_range_dropdown.vue';
+import DurationChart from './components/duration_chart.vue';
+import StageDropdownFilter from './components/stage_dropdown_filter.vue';
 
 Vue.use(Translate);
 
@@ -24,6 +29,11 @@ export default () => {
     el: '#cycle-analytics',
     name: 'CycleAnalytics',
     components: {
+      StageDropdownFilter,
+      DurationChart,
+      GroupsDropdownFilter,
+      ProjectsDropdownFilter,
+      DateRangeDropdown,
       banner,
       'stage-issue-component': stageComponent,
       'stage-plan-component': stageComponent,
@@ -34,20 +44,21 @@ export default () => {
       'stage-production-component': stageComponent,
     },
     data() {
-      const cycleAnalyticsService = new CycleAnalyticsService({
-        requestPath: cycleAnalyticsEl.dataset.requestPath,
-      });
-
       return {
+        selectedGroup: null,
+        selectedProjectIds: [],
+        multiProjectSelect: true,
         store: CycleAnalyticsStore,
         state: CycleAnalyticsStore.state,
         isLoading: false,
         isLoadingStage: false,
+        isLoadingDurationChart: false,
         isEmptyStage: false,
         hasError: false,
         startDate: 30,
+        dateOptions: [7, 30, 90],
         isOverviewDialogDismissed: Cookies.get(OVERVIEW_DIALOG_COOKIE),
-        service: cycleAnalyticsService,
+        service: this.createCycleAnalyticsService(cycleAnalyticsEl.dataset.requestPath),
       };
     },
     computed: {
@@ -97,11 +108,21 @@ export default () => {
             this.selectDefaultStage();
             this.initDropdown();
             this.isLoading = false;
+            // This can be excluded from the table MR
+            this.fetchDurationChartData();
           })
           .catch(() => {
             this.handleError();
             this.isLoading = false;
           });
+      },
+      // This can be excluded from the table MR
+      fetchDurationChartData() {
+        this.isLoadingDurationChart = true;
+        // Iterate the stages, fetching chart data for each one individually - best way to do it or should I store this data elsewhere in the store?
+        // Append the individula stage chart data respective stage in the store
+        // Set the duration chart data to compiled totals for each timestamp, across all stages as `all` is default
+        this.isLoadingDurationChart = false;
       },
       selectDefaultStage() {
         const stage = this.state.stages[0];
@@ -124,6 +145,7 @@ export default () => {
           .fetchStageData({
             stage,
             startDate: this.startDate,
+            projectIds: this.selectedProjectIds,
           })
           .then(response => {
             this.isEmptyStage = !response.events.length;
@@ -138,6 +160,35 @@ export default () => {
       dismissOverviewDialog() {
         this.isOverviewDialogDismissed = true;
         Cookies.set(OVERVIEW_DIALOG_COOKIE, '1', { expires: 365 });
+      },
+      createCycleAnalyticsService(requestPath) {
+        return new CycleAnalyticsService({
+          requestPath,
+        });
+      },
+      renderSelectedGroup(selectedItemURL) {
+        this.service = this.createCycleAnalyticsService(selectedItemURL);
+        this.loadAnalyticsData();
+      },
+      setSelectedGroup(selectedGroup) {
+        this.selectedGroup = selectedGroup;
+        this.renderSelectedGroup(`/groups/${selectedGroup.path}/-/cycle_analytics`);
+      },
+      setSelectedProjects(selectedProjects) {
+        this.selectedProjectIds = selectedProjects.map(value => value.id);
+        this.loadAnalyticsData();
+      },
+      setSelectedDate(days) {
+        if (this.startDate !== days) {
+          this.startDate = days;
+          this.loadAnalyticsData();
+        }
+      },
+      loadAnalyticsData() {
+        this.fetchCycleAnalyticsData({
+          startDate: this.startDate,
+          projectIds: this.selectedProjectIds,
+        });
       },
     },
   });
