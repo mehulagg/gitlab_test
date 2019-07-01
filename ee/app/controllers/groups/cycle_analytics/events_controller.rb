@@ -53,9 +53,9 @@ class Groups::CycleAnalytics::EventsController < Groups::ApplicationController
   end
 
   def events_params
-    return {} unless params[:events].present?
+    return {} unless params[:cycle_analytics].present?
 
-    params[:events].permit(:start_date, :branch_name, :project_ids)
+    params[:cycle_analytics].permit(:start_date, :branch_name,  project_ids: [])
   end
 
   def cycle_analytics_events

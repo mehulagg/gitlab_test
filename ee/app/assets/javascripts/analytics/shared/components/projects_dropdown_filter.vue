@@ -1,10 +1,11 @@
 <script>
-import { __ } from '~/locale';
+import { sprintf, n__, s__, __ } from '~/locale';
 import $ from 'jquery';
 import _ from 'underscore';
 import Icon from '~/vue_shared/components/icon.vue';
-import { GlLoadingIcon, GlButton } from '@gitlab/ui';
+import { GlLoadingIcon, GlButton, GlAvatar } from '@gitlab/ui';
 import Api from '~/api';
+import { getIdenticonBackgroundClass, getIdenticonTitle } from '~/helpers/avatar_helper';
 
 export default {
   name: 'ProjectsDropdownFilter',
@@ -12,22 +13,43 @@ export default {
     Icon,
     GlLoadingIcon,
     GlButton,
+    GlAvatar,
   },
   props: {
     groupId: {
       type: Number,
       required: true,
     },
+    multiSelect: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   data() {
     return {
       loading: true,
-      selectedProject: {},
+      selectedProjects: [],
     };
   },
   computed: {
-    selectedProjectName() {
-      return this.selectedProject.name || __('Select a project');
+    selectedProjectsLabel() {
+      return this.selectedProjects.length
+        ? sprintf(
+            n__(
+              'CycleAnalytics|%{projectName}',
+              'CycleAnalytics|%d projects selected',
+              this.selectedProjects.length,
+            ),
+            { projectName: this.selectedProjects[0].name },
+          )
+        : this.selectedProjectsPlaceholder;
+    },
+    selectedProjectsPlaceholder() {
+      return this.multiSelect ? __('Select projects') : __('Select a project');
+    },
+    oneSelectedProject() {
+      return this.selectedProjects.length === 1;
     },
   },
   mounted() {
@@ -36,6 +58,7 @@ export default {
       filterable: true,
       filterRemote: true,
       fieldName: 'project_id',
+      multiSelect: this.multiSelect,
       search: {
         fields: ['name'],
       },
@@ -43,17 +66,24 @@ export default {
       data: this.fetchData,
       renderRow: group => this.rowTemplate(group),
       text: project => project.name,
+      opened: e => e.target.querySelector('.dropdown-input-field').focus(),
     });
   },
   methods: {
-    onClick({ $el, e }) {
+    getSelectedProjects(selectedProject, isMarking) {
+      return isMarking
+        ? this.selectedProjects.concat([selectedProject])
+        : this.selectedProjects.filter(project => project.id !== selectedProject.id);
+    },
+    setSelectedProjects(selectedObj, isMarking) {
+      this.selectedProjects = this.multiSelect
+        ? this.getSelectedProjects(selectedObj, isMarking)
+        : [selectedObj];
+    },
+    onClick({ selectedObj, e, isMarking }) {
       e.preventDefault();
-      this.selectedProject = {
-        id: $el.data('id'),
-        name: $el.data('name'),
-        path: $el.data('path'),
-      };
-      this.$emit('selected', this.selectedProject);
+      this.setSelectedProjects(selectedObj, isMarking);
+      this.$emit('selected', this.selectedProjects);
     },
     fetchData(term, callback) {
       this.loading = true;
@@ -65,13 +95,21 @@ export default {
     rowTemplate(project) {
       return `
           <li>
-            <a href='#' class='dropdown-menu-link' data-id="${project.id}" data-name="${
-        project.name
-      }" data-path="${project.path_with_namespace}">
-              ${_.escape(project.name)}
+            <a href='#' class='dropdown-menu-link'>
+              ${this.avatarTemplate(project)}
+              <div class="align-middle">${_.escape(project.name)}</div>
             </a>
           </li>
         `;
+    },
+    avatarTemplate(project) {
+      return project.avatar_url !== null
+        ? `<img src="${project.avatar_url}" alt="${s__(
+            'CycleAnalytics|project avatar',
+          )}" class="avatar rect-avatar s16"/>`
+        : `<div class="avatar identicon s16 rect-avatar d-flex justify-content-center flex-column ${getIdenticonBackgroundClass(
+            project.id,
+          )}">${getIdenticonTitle(project.name)}</div>`;
     },
   },
 };
@@ -85,8 +123,20 @@ export default {
         type="button"
         data-toggle="dropdown"
         aria-expanded="false"
+        :aria-label="s__('CycleAnalytics|project dropdown filter')"
       >
-        {{ selectedProjectName }} <icon name="chevron-down" />
+        <gl-avatar
+          v-if="oneSelectedProject"
+          :src="selectedProjects[0].avatar_url"
+          :entity-id="selectedProjects[0].id"
+          :entity-name="selectedProjects[0].name"
+          :size="16"
+          shape="rect"
+          :alt="s__('CycleAnalytics|project avatar')"
+          class="prepend-top-2"
+        />
+        {{ selectedProjectsLabel }}
+        <icon name="chevron-down" />
       </gl-button>
       <div class="dropdown-menu dropdown-menu-selectable dropdown-menu-full-width">
         <div class="dropdown-title">{{ __('Projects') }}</div>
@@ -95,7 +145,7 @@ export default {
           <icon name="search" class="dropdown-input-search" data-hidden="true" />
         </div>
         <div class="dropdown-content"></div>
-        <div class="dropdown-loading"><gl-loading-icon /></div>
+        <gl-loading-icon class="dropdown-loading" />
       </div>
     </div>
   </div>

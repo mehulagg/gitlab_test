@@ -30,7 +30,6 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
         get :production
       end
     end
-
     resource :ldap, only: [] do
       member do
         put :sync
