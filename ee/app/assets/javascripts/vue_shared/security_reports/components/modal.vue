@@ -202,7 +202,12 @@ export default {
 
       <div v-if="dismissalFeedback || modal.isCommentingOnDismissal" class="card my-4">
         <div class="card-body">
-          <dismissal-note :feedback="dismissalFeedbackObject" :project="project" />
+          <dismissal-note 
+            :feedback="dismissalFeedbackObject" 
+            :project="project" 
+            @editComment="$emit('editComment')"
+            @deleteComment="$emit('deleteComment')"
+          />
           <dismissal-comment-box
             v-if="modal.isCommentingOnDismissal"
             v-model="localDismissalComment"

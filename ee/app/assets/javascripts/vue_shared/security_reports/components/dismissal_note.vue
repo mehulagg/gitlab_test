@@ -49,6 +49,20 @@ export default {
     commentDetails() {
       return this.feedback.comment_details;
     },
+    vulnDismissalActionButtons() {
+      return [
+          {
+            iconName: 'pencil',
+            emit: 'editComment',
+            title: __('Edit Comment')
+          },
+          {
+            iconName: 'remove',
+            emit: 'deleteComment',
+            title: __('Delete Comment')
+          },          
+        ]
+    }
   },
 };
 </script>
@@ -66,8 +80,11 @@ export default {
     <template v-if="commentDetails">
       <hr class="my-3" />
       <event-item
+        :action-buttons="vulnDismissalActionButtons"
         :author="commentDetails.comment_author"
         :created-at="commentDetails.comment_timestamp"
+        @editComment="$emit('editComment')"
+        @deleteComment="$emit('deleteComment')"
         icon-name="comment"
         icon-style="ci-status-icon-pending"
       >
