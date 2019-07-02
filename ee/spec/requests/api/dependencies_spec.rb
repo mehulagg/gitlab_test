@@ -23,7 +23,7 @@ describe API::Dependencies do
       it 'returns all dependencies' do
 
         expect(response).to have_gitlab_http_status(200)
-        expect(json_response).to be_a(Array)
+        expect(response).to match_response_schema('public_api/v4/dependencies', dir: 'ee')
       end
     end
 
