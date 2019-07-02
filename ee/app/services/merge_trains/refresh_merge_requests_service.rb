@@ -9,12 +9,24 @@ module MergeTrains
     def execute(merge_request)
       return unless merge_request.on_train?
 
-      in_lock("merge_train:#{merge_request.target_project_id}-#{merge_request.target_branch}") do
-        unsafe_refresh(merge_request)
-      end
+      Gitlab::SequentialProcess.new(key_group, 15.minutes, self.class.name, :sequential_process)
+                               .execute(merge_request.id)
+    end
+
+    def sequential_process(merge_request_ids)
+      merge_request = first_merge_request_from(merge_request_ids)
+      unsafe_refresh(merge_request)
     end
 
     private
+
+    def key_group
+      "#{merge_request.target_project_id}:#{merge_request.target_branch}"
+    end
+
+    def first_merge_request_from(merge_request_ids)
+      # TODO:
+    end
 
     def unsafe_refresh(merge_request)
       following_merge_requests_from(merge_request).each do |merge_request|
