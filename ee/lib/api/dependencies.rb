@@ -12,15 +12,14 @@ module API
 
     resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       desc 'Get a list of project dependencies' do
-        success ::EE::API::Entities::DependencyEntity
+        success ::EE::API::Entities::Dependency
       end
 
       get ':id/dependencies' do
-        # authorize! :read_dependency_list, user_project
+        pipeline = user_project.all_pipelines.latest_successful_for(user_project.default_branch)
+        dependencies = ::Security::DependencyListService.new(pipeline: pipeline, params: {}).execute
 
-        dependencies = 'FindDependenciesService'
-
-        present paginate(dependencies), with: ::EE::API::DependencyEntity
+        present dependencies, with: ::EE::API::Entities::Dependency
       end
     end
   end
