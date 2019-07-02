@@ -4,6 +4,9 @@ export default {
   [types.SET_CHART_ENDPOINT](state, endpoint) {
     state.chartEndpoint = endpoint;
   },
+  [types.SET_GROUP_ID](state, groupId) {
+    state.globalFilters.groupId = groupId;
+  },
   [types.REQUEST_CHART_DATA](state) {
     state.charts.main.isLoading = true;
   },

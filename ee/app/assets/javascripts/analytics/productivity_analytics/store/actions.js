@@ -3,6 +3,12 @@ import * as types from './mutation_types';
 export const setChartEndpoint = ({ commit }, endpoint) =>
   commit(types.SET_CHART_ENDPOINT, endpoint);
 
+export const setGroupId = ({ commit, dispatch }, groupId) => {
+  commit(types.SET_GROUP_ID, groupId);
+
+  dispatch('fetchChartData');
+};
+
 export const requestChartData = ({ commit }) => commit(types.REQUEST_CHART_DATA);
 
 export const fetchChartData = ({ state, dispatch }) => {
