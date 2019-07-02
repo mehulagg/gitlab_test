@@ -30,6 +30,11 @@ export default {
   data() {
     return {};
   },
+  methods: {
+    onChartItemClicked(data) {
+      console.log('chartItemClicked :: ', data);
+    },
+  },
   computed: {
     chartData() {
       const data = Object.keys(this.data).map(key => {
@@ -60,6 +65,7 @@ export default {
     :option="{}"
     :y-axis-title="yAxisTitle"
     :x-axis-title="xAxisTitle"
+    @chartItemClicked="onChartItemClicked"
     x-axis-type="category"
   />
 </template>
