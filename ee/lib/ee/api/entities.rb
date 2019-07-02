@@ -736,6 +736,9 @@ module EE
 
       class Dependency < Grape::Entity
         expose :name, :version, :package_manager, :dependency_file_path
+        expose :dependency_file_path do |dependency|
+          dependency[:location][:path]
+        end
       end
     end
   end
