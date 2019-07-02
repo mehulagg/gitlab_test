@@ -735,7 +735,9 @@ module EE
       end
 
       class Dependency < Grape::Entity
-        expose :version, :package_manager, :dependency_file_path
+        expose :name, as: proc { object[:name] }, merge: true do
+          expose :version, :package_manager, :dependency_file_path
+        end
       end
     end
   end
