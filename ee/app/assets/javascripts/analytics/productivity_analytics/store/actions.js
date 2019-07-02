@@ -38,3 +38,7 @@ export const receiveChartDataSuccess = ({ commit }, data = {}) => {
 export const receiveChartDataError = ({ commit }) => {
   commit(types.RECEIVE_CHART_DATA_ERROR);
 };
+
+export const setMetricType = ({ commit }, data = {}) => {
+  commit(types.SET_METRIC_TYPE, data);
+};

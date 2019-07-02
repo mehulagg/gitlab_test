@@ -17,4 +17,8 @@ export default {
     state.charts.main.data = null;
     state.charts.main.hasError = true;
   },
+  [types.SET_METRIC_TYPE](state, data) {
+    const { chartKey, metricType } = data;
+    state.charts[chartKey].params.metricType = metricType;
+  },
 };
