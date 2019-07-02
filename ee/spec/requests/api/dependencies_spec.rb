@@ -23,7 +23,7 @@ describe API::Dependencies do
       it 'returns all dependencies' do
 
         expect(response).to have_gitlab_http_status(200)
-        expect(json_response).to be_a(Hash)
+        expect(json_response).to be_a(Array)
       end
     end
 
