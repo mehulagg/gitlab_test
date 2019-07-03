@@ -2,7 +2,7 @@
   priority: 1
   metrics:
   - title: "CPU Usage"
-    y_label: "CPU"
+    y_label: "CPU (cores)"
     required_metrics: ['container_cpu_usage_seconds_total']
     weight: 1
     queries:
@@ -32,7 +32,7 @@
         area:
           opacity: 0
   - title: "Memory usage"
-    y_label: "Memory"
+    y_label: "Memory (GiB)"
     required_metrics: ['container_memory_usage_bytes']
     weight: 1
     queries:
