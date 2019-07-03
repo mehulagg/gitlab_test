@@ -613,6 +613,52 @@ describe ProjectPolicy do
     end
   end
 
+  describe 'read_dependencies' do
+    context 'when dependency list feature available' do
+      before do
+        stub_licensed_features(dependency_list: true)
+      end
+
+      context 'with public project' do
+        let(:current_user) { create(:user) }
+
+        context 'with public access to repository' do
+          let(:project) { create(:project, :public) }
+
+          it { is_expected.to be_allowed(:read_dependencies) }
+        end
+
+        context 'with limited access to repository' do
+          let(:project) { create(:project, :public, :repository_private) }
+
+          it { is_expected.not_to be_allowed(:read_dependencies) }
+        end
+      end
+
+      context 'with private project' do
+        let(:project) { create(:project, :private) }
+
+        context 'with project member' do
+          let(:current_user) { admin }
+
+          it { is_expected.to be_allowed(:read_dependencies) }
+        end
+
+        context 'with not project member' do
+          let(:current_user) { create(:user) }
+
+          it { is_expected.not_to be_allowed(:read_dependencies) }
+        end
+      end
+    end
+
+    context 'when dependency list feature not available' do
+      let(:current_user) { admin }
+
+      it { is_expected.not_to be_allowed(:read_dependencies) }
+    end
+  end
+
   describe 'create_web_ide_terminal' do
     before do
       stub_licensed_features(web_ide_terminal: true)
