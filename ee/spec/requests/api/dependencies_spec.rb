@@ -28,7 +28,11 @@ describe API::Dependencies do
       end
 
       context 'with filter options' do
+        it 'returns yarn dependencies' do
+          get api("/projects/#{project.id}/dependencies", user), params: { package_manager: 'yarn' }
 
+          expect(json_response.length).to eq(19)
+        end
       end
     end
 

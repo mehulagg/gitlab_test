@@ -8,7 +8,7 @@ module API
 
         return [] unless pipeline
 
-        ::Security::DependencyListService.new(pipeline: pipeline, params: {}).execute
+        ::Security::DependencyListService.new(pipeline: pipeline, params: params).execute
       end
     end
 
@@ -24,6 +24,12 @@ module API
     resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       desc 'Get a list of project dependencies' do
         success ::EE::API::Entities::Dependency
+      end
+
+      params do
+        optional :package_manager,
+                 type: Array[String],
+                 desc: 'Returns dependencies belonging to specified package managers: `bundler`, `yarn`, `npm`, `maven`, `composer`, `pip`.'
       end
 
       get ':id/dependencies' do
