@@ -48,6 +48,128 @@ describe('AlertWidget', () => {
     if (vm) vm.$destroy();
   });
 
+  it('hides the popover as soon as a create action is taken', done => {
+    let resolveCreateAlert;
+    const alertParams = {
+      alert_path: alertPath,
+      operator: '<',
+      threshold: 4,
+      prometheus_metric_id: '5',
+    };
+    spyOn(AlertsService.prototype, 'createAlert').and.returnValue(
+      new Promise(cb => {
+        resolveCreateAlert = cb;
+      }),
+    );
+    spyOn(AlertsService.prototype, 'readAlert').and.returnValue(Promise.resolve(alertParams));
+    vm = mountComponent(AlertWidgetComponent, props);
+    vm.$on('setAlerts', mockSetAlerts);
+
+    expect(vm.isOpen).toEqual(false);
+    expect(vm.$el.querySelector('.alert-dropdown-menu')).toBeHidden();
+
+    Vue.nextTick(() => {
+      vm.$refs.dropdownMenuToggle.click();
+      Vue.nextTick(() => {
+        vm.$refs.widgetForm.selectQuery(metricId);
+
+        expect(vm.isOpen).toEqual(true);
+
+        Vue.nextTick(() => {
+          vm.$el.querySelector('[aria-label="Operator"] button:nth-child(3)').click();
+          vm.$el.querySelector('input[type="number"]').value = 30;
+
+          vm.$refs.widgetForm.$refs.submitButton.click();
+
+          Vue.nextTick(() => {
+            expect(vm.isOpen).toEqual(false);
+            resolveCreateAlert();
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  it('hides the popover as soon as a update action is taken', done => {
+    let resolveUpdateAlert;
+
+    const alertParams = { operator: '<', threshold: 4, alert_path: alertPath };
+    const newAlertParams = { operator: '=', threshold: 12 };
+
+    spyOn(AlertsService.prototype, 'readAlert').and.returnValue(Promise.resolve(alertParams));
+    spyOn(AlertsService.prototype, 'updateAlert').and.returnValue(
+      new Promise(cb => {
+        resolveUpdateAlert = cb;
+      }),
+    );
+
+    vm = mountComponent(AlertWidgetComponent, propsWithAlertData);
+    vm.$on('setAlerts', mockSetAlerts);
+
+    expect(vm.isOpen).toEqual(false);
+    expect(vm.$el.querySelector('.alert-dropdown-menu')).toBeHidden();
+
+    vm.$refs.dropdownMenuToggle.click();
+
+    Vue.nextTick(() => {
+      expect(vm.isOpen).toEqual(true);
+      vm.$refs.widgetForm.selectQuery(metricId);
+
+      Vue.nextTick(() => {
+        vm.$refs.widgetForm.threshold = newAlertParams.threshold;
+        Vue.nextTick(() => {
+          vm.$refs.widgetForm.$refs.submitButton.click();
+          Vue.nextTick(() => {
+            expect(vm.isOpen).toEqual(false);
+            resolveUpdateAlert({ ...alertParams, ...newAlertParams });
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  it('hides the popover as soon as a delete action is taken', done => {
+    let resolveDeleteAlert;
+
+    const alertParams = {
+      alert_path: alertPath,
+      operator: '>',
+      threshold: 42,
+      prometheus_metric_id: '5',
+    };
+
+    spyOn(AlertsService.prototype, 'readAlert').and.returnValue(Promise.resolve(alertParams));
+    spyOn(AlertsService.prototype, 'deleteAlert').and.returnValue(
+      new Promise(cb => {
+        resolveDeleteAlert = cb;
+      }),
+    );
+
+    vm = mountComponent(AlertWidgetComponent, propsWithAlertData);
+    vm.$on('setAlerts', mockSetAlerts);
+
+    expect(vm.isOpen).toEqual(false);
+    expect(vm.$el.querySelector('.alert-dropdown-menu')).toBeHidden();
+
+    Vue.nextTick(() => {
+      vm.$refs.dropdownMenuToggle.click();
+      Vue.nextTick(() => {
+        expect(vm.isOpen).toEqual(true);
+        vm.$refs.widgetForm.selectQuery(metricId);
+        Vue.nextTick(() => {
+          vm.$refs.widgetForm.$refs.cancelButton.click();
+          Vue.nextTick(() => {
+            expect(vm.isOpen).toEqual(false);
+            resolveDeleteAlert({});
+            done();
+          });
+        });
+      });
+    });
+  });
+
   it('displays a loading spinner when fetching alerts', done => {
     let resolveReadAlert;
 

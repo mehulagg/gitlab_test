@@ -141,12 +141,12 @@ export default {
     handleCreate({ operator, threshold, prometheus_metric_id }) {
       const newAlert = { operator, threshold, prometheus_metric_id };
       this.isLoading = true;
+      this.handleDropdownClose();
       this.service
         .createAlert(newAlert)
         .then(alertAttributes => {
           this.setAlert(alertAttributes, prometheus_metric_id);
           this.isLoading = false;
-          this.handleDropdownClose();
         })
         .catch(() => {
           this.errorMessage = s__('PrometheusAlerts|Error creating alert');
@@ -156,12 +156,12 @@ export default {
     handleUpdate({ alert, operator, threshold }) {
       const updatedAlert = { operator, threshold };
       this.isLoading = true;
+      this.handleDropdownClose();
       this.service
         .updateAlert(alert, updatedAlert)
         .then(alertAttributes => {
           this.setAlert(alertAttributes, this.alertsToManage[alert].metricId);
           this.isLoading = false;
-          this.handleDropdownClose();
         })
         .catch(() => {
           this.errorMessage = s__('PrometheusAlerts|Error saving alert');
@@ -170,12 +170,12 @@ export default {
     },
     handleDelete({ alert }) {
       this.isLoading = true;
+      this.handleDropdownClose();
       this.service
         .deleteAlert(alert)
         .then(() => {
           this.removeAlert(alert);
           this.isLoading = false;
-          this.handleDropdownClose();
         })
         .catch(() => {
           this.errorMessage = s__('PrometheusAlerts|Error deleting alert');
