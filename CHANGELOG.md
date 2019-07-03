@@ -44,16 +44,16 @@ entry.
 
 ### Security (10 changes)
 
-- Prevent bypass of restriction disabling web password sign in.
 - Hide confidential issue title on unsubscribe for anonymous users.
-- Resolve: Milestones leaked via search API.
 - Fix url redaction for issue links.
-- Add extra fields for handling basic auth on import by url page.
 - Fix confidential issue label disclosure on milestone view.
 - Filter relative links in wiki for XSS.
-- Prevent invalid branch for merge request.
 - Prevent XSS injection in note imports.
+- Resolve: Milestones leaked via search API.
+- Prevent bypass of restriction disabling web password sign in.
+- Add extra fields for handling basic auth on import by url page.
 - Protect Gitlab::HTTP against DNS rebinding attack.
+- Prevent invalid branch for merge request.
 
 ### Removed (5 changes, 1 of them is from the community)
 
@@ -63,7 +63,7 @@ entry.
 - Make Kubernetes service templates readonly. !29044
 - Remove Content-Type override for Mattermost OAuth login. (Harrison Healey)
 
-### Fixed (115 changes, 28 of them are from the community)
+### Fixed (116 changes, 28 of them are from the community)
 
 - Fix col-sm-* in forms to keep layout. !24885 (Takuya Noguchi)
 - Avoid 500 when rendering users ATOM data. !25408
@@ -76,6 +76,7 @@ entry.
 - Bring secondary button styles up to design standard. !27920
 - Use FindOrCreateService to create labels and check for existing ones. !27987 (Matt Duren)
 - Fix "too many loops" error by handling gracefully cron schedules for non existent days. !28002
+- Handle errors in successful notes reply. !28082
 - Fix 500 error when accessing charts with an anonymous user. !28091 (Diego Silva)
 - Allow user to set primary email first when 2FA is required. !28097 (Kartikey Tanna)
 - Auto-DevOps: allow to disable rollout status check. !28130 (Sergej Nikolaev <kinolaev@gmail.com>)
@@ -172,14 +173,14 @@ entry.
 - Move Dropdown to Stick to MR View App Button. !29767
 - Fix IDE commit using latest ref in branch and overriding contents. !29769
 - Revert concurrent pipeline creation for pipeline schedules. !29794
-- Fix border radii on diff files and repo files.
-- Fix padding of unclickable pipeline dropdown items to match links.
-- Fix pipeline schedules when owner is nil.
-- Fix remote mirrors not updating after tag push.
 - Fix layout of group milestone header.
-- Fixed show whitespace button not refetching diff content.
+- Fix remote mirrors not updating after tag push.
+- Fix padding of unclickable pipeline dropdown items to match links.
 - Change resolve button text to mark comment as resolved.
 - Align system note within discussion with other notes.
+- Fix border radii on diff files and repo files.
+- Fixed show whitespace button not refetching diff content.
+- Fix pipeline schedules when owner is nil.
 
 ### Changed (35 changes, 13 of them are from the community)
 
@@ -279,9 +280,9 @@ entry.
 - Link to an external dashboard from metrics dashboard. !29369
 - Add labels to note event payload. !29384 (Sujay Patel)
 - Add Join meeting button to issues with Zoom links. !29454
+- Make task completion status available via GraphQL.
 - Add backtraces to Peek performance bar for SQL calls.
 - Added diff suggestion feature discovery popover.
-- Make task completion status available via GraphQL.
 
 ### Other (62 changes, 14 of them are from the community)
 
@@ -336,17 +337,17 @@ entry.
 - Changed the 'Created' label to 'Last Updated' on the container registry table to more accurately reflect what the date represents. !29464
 - Update GitLab Pages to v1.6.1. !29559
 - Indent collapsible sections. !29804
-- Use grid and correct border radius for status badge.
-- Remove fixed height from MR diff headers.
-- Use blue for activity stream links; use monospace font for commit sha.
-- Moves snowplow to CE repo.
-- Reduce height of issue board input to align with buttons.
-- Change default color of award emoji button.
 - Group download buttons into a .btn-group.
-- Add warning that gitlab-secrets isn't included in backup.
-- Increase height of move issue dropdown.
-- Update merge request tabs so they no longer scroll.
+- Change default color of award emoji button.
+- Use blue for activity stream links; use monospace font for commit sha.
+- Remove fixed height from MR diff headers.
 - Moves the table pagination shared component.
+- Add warning that gitlab-secrets isn't included in backup.
+- Update merge request tabs so they no longer scroll.
+- Reduce height of issue board input to align with buttons.
+- Increase height of move issue dropdown.
+- Use grid and correct border radius for status badge.
+- Moves snowplow to CE repo.
 
 
 ## 11.11.4 (2019-06-26)
@@ -392,7 +393,7 @@ entry.
 
 - Destroy project remote mirrors instead of disabling. !27087
 
-### Fixed (75 changes, 19 of them are from the community)
+### Fixed (74 changes, 19 of them are from the community)
 
 - Don't create a temp reference for branch comparisons within project. !24038
 - Fix some label links not appearing on group labels page and label title being a link on project labels page. !24060 (Tanya Pazitny)
@@ -453,7 +454,6 @@ entry.
 - Fix uploading of LFS tracked file through UI. !28052
 - Render Next badge only for gitlab.com. !28056
 - Fix update head pipeline process of Pipelines for merge requests. !28057
-- Handle errors in successful notes reply. !28082
 - Fix visual issues in set status modal. !28147
 - Use a path for the related merge requests endpoint. !28171
 - disable SSH key validation in key details view. !28180 (Roger Meier)
@@ -464,10 +464,10 @@ entry.
 - Fix project visibility level validation. !28305 (Peter Marko)
 - Fix incorrect prefix used in new uploads for personal snippets. !28337
 - Fix Rugged get_tree_entries recursive flag not working. !28494
-- Next badge must visible when canary flag is true.
-- Vertically aligns the play button for stages.
 - Fixes next badge being always visible.
+- Next badge must visible when canary flag is true.
 - Adds arrow icons to select option in CI/CD settings.
+- Vertically aligns the play button for stages.
 - Allow replying to individual notes from API.
 
 ### Changed (19 changes, 3 of them are from the community)
@@ -534,10 +534,10 @@ entry.
 - Leave project/group from access granted email. !27892
 - Allow Sentry client-side DSN to be passed on gitlab.yml. !27967
 - GraphQL: improve evaluation of query complexity based on arguments and query limits. !28017
-- Support negative matches.
-- Added Omniauth UltraAuth strategy to GitLab. (Kartikey Tanna)
 - Adds badge for Canary environment and help link.
+- Support negative matches.
 - Show category icons in user popover.
+- Added Omniauth UltraAuth strategy to GitLab. (Kartikey Tanna)
 
 ### Other (29 changes, 8 of them are from the community)
 
@@ -567,38 +567,9 @@ entry.
 - Remove the note in the docs that multi-line suggestions are not yet available. !28119 (hardysim)
 - Update gitlab-shell to v9.1.0. !28184
 - Add EE fixtures to SeedFu list. !28241
-- Add some frozen string to spec/**/*.rb. (gfyoung)
 - Replaces CSS with BS4 utility class for pipeline schedules.
 - Creates a vendors folder for external CSS.
-
-
-## 11.10.8 (2019-06-27)
-
-- No changes.
-### Security (9 changes)
-
-- Add missing authorizations in GraphQL.
-- Fix DoS vulnerability in color validation regex.
-- Expose merge requests count based on user access.
-- Fix Denial of Service for comments when rendering issues/MR comments.
-- Persist tmp snippet uploads at users.
-- Prevent Billion Laughs attack.
-- Correctly check permissions when creating snippet notes.
-- Prevent the detection of merge request templates by unauthorized users.
-- Disable Rails SQL query cache when applying service templates.
-
-### Performance (1 change)
-
-- Add improvements to global search of issues and merge requests. !27817
-
-
-## 11.10.7 (2019-06-26)
-
-### Fixed (3 changes)
-
-- Remove a default git depth in Pipelines for merge requests. !28926
-- Fix label click scrolling to top. !29202
-- Fix scrolling to top on assignee change. !29500
+- Add some frozen string to spec/**/*.rb. (gfyoung)
 
 
 ## 11.10.8 (2019-06-27)
@@ -637,6 +608,7 @@ entry.
 ### Other (1 change)
 
 - Fix input group height.
+
 
 ## 11.10.4 (2019-05-01)
 
@@ -1013,11 +985,31 @@ entry.
 
 ## 11.9.3 (2019-03-27)
 
-- No changes.
+### Security (8 changes)
+
+- Disallow guest users from accessing Releases.
+- Fix PDF.js vulnerability.
+- Hide "related branches" when user does not have permission.
+- Fix XSS in resolve conflicts form.
+- Added rake task for removing EXIF data from existing uploads.
+- Return cached languages if they've been detected before.
+- Disallow updating namespace when updating a project.
+- Use UntrustedRegexp for matching refs policy.
+
 
 ## 11.9.2 (2019-03-26)
 
-- No changes.
+### Security (8 changes)
+
+- Disallow guest users from accessing Releases.
+- Fix PDF.js vulnerability.
+- Hide "related branches" when user does not have permission.
+- Fix XSS in resolve conflicts form.
+- Added rake task for removing EXIF data from existing uploads.
+- Return cached languages if they've been detected before.
+- Disallow updating namespace when updating a project.
+- Use UntrustedRegexp for matching refs policy.
+
 
 ## 11.9.1 (2019-03-25)
 
@@ -1632,7 +1624,16 @@ entry.
 
 ## 11.7.8 (2019-03-26)
 
-- No changes.
+### Security (7 changes)
+
+- Disallow guest users from accessing Releases.
+- Fix PDF.js vulnerability.
+- Hide "related branches" when user does not have permission.
+- Fix XSS in resolve conflicts form.
+- Added rake task for removing EXIF data from existing uploads.
+- Disallow updating namespace when updating a project.
+- Use UntrustedRegexp for matching refs policy.
+
 
 ## 11.7.7 (2019-03-19)
 
@@ -1642,7 +1643,7 @@ entry.
 - Fixed ability to see private groups by users not belonging to given group.
 
 
-## 11.7.5 (2019-02-05)
+## 11.7.5 (2019-02-06)
 
 ### Fixed (8 changes)
 
@@ -1881,9 +1882,10 @@ entry.
 
 ## 11.6.11 (2019-04-23)
 
-### Security (1 change)
+### Security (2 changes)
 
 - Fixed ability to see private groups by users not belonging to given group.
+- Fix XSS in resolve conflicts form.
 
 ### Fixed (2 changes)
 
@@ -1927,13 +1929,6 @@ entry.
 - Limit mermaid rendering to 5K characters.
 - Remove the possibility to share a project with a group that a user is not a member of.
 - Fix leaking private repository information in API.
-
-
-## 11.6.9 (2019-02-04)
-
-### Security (1 change)
-
-- Use sanitized user status message for user popover.
 
 
 ## 11.6.8 (2019-01-30)
@@ -2460,6 +2455,7 @@ entry.
 - Fix a race condition intermittently breaking GitLab startup. !23028
 - Adds margin after a deleted branch name in the activity feed. !23038
 - Ignore environment validation failure. !23100
+- Fixes broken borders for reports section in MR widget.
 - Adds CI favicon back to jobs page.
 - Redirect to the pipeline builds page when a build is canceled. (Eva Kadlecova)
 - Fixed diff stats not showing when performance bar is enabled.
@@ -2468,13 +2464,12 @@ entry.
 - Fix bug causing not all emails to show up in commit email selectbox.
 - Remove duplicate escape in job sidebar.
 - Fixing styling issues on the scheduled pipelines page.
-- Fixes broken test in master.
 - Renders stuck block when runners are stuck.
 - Removes extra border from test reports in the merge request widget.
-- Fixes broken borders for reports section in MR widget.
 - Only render link to branch when branch still exists in pipeline page.
 - Fixed source project not filtering in merge request creation compare form.
 - Do not reload self on hooks when creating deployment.
+- Fixes broken test in master.
 
 ### Changed (38 changes, 12 of them are from the community)
 
