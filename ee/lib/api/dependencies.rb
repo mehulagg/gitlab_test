@@ -12,7 +12,6 @@ module API
       end
     end
 
-
     before do
       authenticate!
     end

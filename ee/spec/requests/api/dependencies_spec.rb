@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe API::Dependencies do
-  set(:project) { create(:project, :private) }
+  set(:project) { create(:project, :public, :repository_private) }
   set(:user) { create(:user) }
 
   describe "GET /projects/:id/dependencies" do
@@ -46,7 +46,7 @@ describe API::Dependencies do
 
     context 'with no project access' do
       it 'responds with 404 Not Found' do
-        private_project = create(:project)
+        private_project = create(:project, :private)
 
         get api("/projects/#{private_project.id}/dependencies", user)
 
