@@ -87,7 +87,8 @@ module API
           user = User.find_by_id(params[:user_id])
           not_found!('User') unless user
 
-          member = source.add_user(user, params[:access_level], current_user: current_user, expires_at: params[:expires_at])
+          params[:user_ids] = "#{params[:user_id]}"  # UI can add multiple member to a group, API restricted to one
+          member = source.members.find_by(user_id: params[:user_id]) if ::Members::CreateService.new(current_user, params).execute(source)
 
           if !member
             not_allowed! # This currently can only be reached in EE
