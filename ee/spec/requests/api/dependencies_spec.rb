@@ -16,11 +16,11 @@ describe API::Dependencies do
 
       before do
         project.add_developer(user)
-
-        get api("/projects/#{project.id}/dependencies", user) #to subject
       end
 
       it 'returns all dependencies' do
+        get api("/projects/#{project.id}/dependencies", user)
+
         expect(response).to have_gitlab_http_status(200)
         expect(response).to match_response_schema('public_api/v4/dependencies', dir: 'ee')
 
