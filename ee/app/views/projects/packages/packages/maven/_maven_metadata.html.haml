@@ -1,0 +1,19 @@
+.card
+  .card-header
+    %strong= _('Maven Metadata')
+  %ul.content-list
+    %li
+      %span.text-secondary
+        = _('Group ID')
+      %span.pull-right
+        = @maven_metadatum.app_group
+    %li
+      %span.text-secondary
+        = _('Artifact ID')
+      %span.pull-right
+        = @maven_metadatum.app_name
+    %li
+      %span.text-secondary
+        = _('Version')
+      %span.pull-right
+        = @maven_metadatum.app_version

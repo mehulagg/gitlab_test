@@ -1,0 +1,19 @@
+.card
+  .card-header
+    %strong= _('Package information')
+  %ul.content-list
+    %li
+      %span.text-secondary
+        = _('Name')
+      %span.pull-right
+        = @package.name
+    %li
+      %span.text-secondary
+        = _('Version')
+      %span.pull-right
+        = @package.version
+    %li
+      %span.text-secondary
+        = _('Created on')
+      %span.pull-right
+        = @package.created_at.to_s(:medium)
