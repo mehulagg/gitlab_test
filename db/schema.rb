@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190703130053) do
+ActiveRecord::Schema.define(version: 20190627201751) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -221,10 +221,10 @@ ActiveRecord::Schema.define(version: 20190703130053) do
     t.integer "elasticsearch_replicas", default: 1, null: false
     t.text "encrypted_lets_encrypt_private_key"
     t.text "encrypted_lets_encrypt_private_key_iv"
-    t.string "required_instance_ci_template"
     t.boolean "dns_rebinding_protection_enabled", default: true, null: false
     t.boolean "default_project_deletion_protection", default: false, null: false
     t.boolean "grafana_enabled", default: false, null: false
+    t.string "required_instance_ci_template"
     t.boolean "lock_memberships_to_ldap", default: false, null: false
     t.boolean "time_tracking_limit_to_hours", default: false, null: false
     t.string "grafana_url", default: "/-/grafana", null: false
@@ -2322,6 +2322,7 @@ ActiveRecord::Schema.define(version: 20190703130053) do
     t.string "name", null: false
     t.string "version"
     t.integer "package_type", limit: 2, null: false
+    t.index ["name", "version", "package_type"], name: "index_packages_packages_on_name_and_version_and_package_type", unique: true, using: :btree
     t.index ["project_id"], name: "index_packages_packages_on_project_id", using: :btree
   end
 
@@ -2882,6 +2883,7 @@ ActiveRecord::Schema.define(version: 20190703130053) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["path"], name: "index_redirect_routes_on_path", unique: true, using: :btree
+    t.index ["path"], name: "index_redirect_routes_on_path_text_pattern_ops", using: :btree, opclasses: {"path"=>"varchar_pattern_ops"}
     t.index ["source_type", "source_id"], name: "index_redirect_routes_on_source_type_and_source_id", using: :btree
   end
 
@@ -3405,6 +3407,7 @@ ActiveRecord::Schema.define(version: 20190703130053) do
     t.integer "group_view"
     t.integer "managing_group_id"
     t.integer "bot_type", limit: 2
+    t.boolean "support_bot"
     t.index ["accepted_term_id"], name: "index_users_on_accepted_term_id", using: :btree
     t.index ["admin"], name: "index_users_on_admin", using: :btree
     t.index ["bot_type"], name: "index_users_on_bot_type", using: :btree
@@ -3423,6 +3426,8 @@ ActiveRecord::Schema.define(version: 20190703130053) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
     t.index ["state"], name: "index_users_on_state", using: :btree
     t.index ["state"], name: "index_users_on_state_and_internal", where: "((ghost <> true) AND (bot_type IS NULL))", using: :btree
+    t.index ["state"], name: "index_users_on_state_and_internal_attrs", where: "((ghost <> true) AND (support_bot <> true))", using: :btree
+    t.index ["support_bot"], name: "index_users_on_support_bot", using: :btree
     t.index ["username"], name: "index_users_on_username", using: :btree
     t.index ["username"], name: "index_users_on_username_trigram", using: :gin, opclasses: {"username"=>"gin_trgm_ops"}
   end

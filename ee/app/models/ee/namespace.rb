@@ -292,14 +292,6 @@ module EE
       ::Gitlab::CurrentSettings.elasticsearch_indexes_namespace?(self)
     end
 
-    def has_existing_package?(package_name, project_id)
-      all_projects
-        .joins(:packages)
-        .where.not(id: project_id)
-        .merge(Packages::Package.with_name(package_name))
-        .exists?
-    end
-
     private
 
     def validate_plan_name

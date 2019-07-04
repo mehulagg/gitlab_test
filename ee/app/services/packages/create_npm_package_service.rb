@@ -9,15 +9,15 @@ module Packages
       version = params[:versions].keys.first
       version_data = params[:versions][version]
 
-      existing_package = project.packages.npm.with_name(name).with_version(version)
-
-      return error('Package already exists.', 403) unless existing_package.blank?
-
-      package = project.packages.create!(
-        name: name,
-        version: version,
-        package_type: 'npm'
-      )
+      begin
+        package = project.packages.create!(
+          name: name,
+          version: version,
+          package_type: 'npm'
+        )
+      rescue ActiveRecord::RecordNotUnique
+        return error('Package name is already taken.', 403)
+      end
 
       package_file_name = "#{name}-#{version}.tgz"
       attachment = params['_attachments'][package_file_name]

@@ -61,6 +61,7 @@ describe Packages::CreateNpmPackageService do
       it 'returns a 403 error' do
         create(:npm_package,
                project: alt_project,
+               version: version,
                name: package_name)
 
         response = described_class.new(project, user, params).execute

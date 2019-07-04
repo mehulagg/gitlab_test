@@ -887,29 +887,4 @@ describe Namespace do
       end
     end
   end
-
-  describe '#has_existing_package?' do
-    let(:project) { create(:project, :public, namespace: namespace) }
-    let!(:package) { create(:npm_package, project: project, name: "@#{namespace.path}/foo") }
-
-    context 'no package exists with the same name' do
-      it 'returns false' do
-        result = namespace.has_existing_package?("@#{namespace.path}/bar", project.id)
-        expect(result).to be false
-      end
-
-      it 'returns false if it is the project that the package belongs to' do
-        result = namespace.has_existing_package?("@#{namespace.path}/foo", project.id)
-        expect(result).to be false
-      end
-    end
-
-    context 'a package already exists with the same name' do
-      let(:alt_project) { create(:project, :public, namespace: namespace) }
-      it 'returns true' do
-        result = namespace.has_existing_package?("@#{namespace.path}/foo", alt_project.id)
-        expect(result).to be true
-      end
-    end
-  end
 end
