@@ -9,14 +9,14 @@ module WaitableWorker
       # Short-circuit: it's more efficient to do small numbers of jobs inline
       return bulk_perform_inline(args_list) if args_list.size <= 3
 
-      waiter = Gitlab::JobWaiter.new(args_list.size)
+      waiter = Gitlab::JobWaiter.new
 
       # Point all the bulk jobs at the same JobWaiter. Converts, [[1], [2], [3]]
       # into [[1, "key"], [2, "key"], [3, "key"]]
       waiting_args_list = args_list.map { |args| [*args, waiter.key] }
       bulk_perform_async(waiting_args_list)
 
-      waiter.wait(timeout)
+      waiter.wait(args_list.size, timeout)
     end
 
     # Performs multiple jobs directly. Failed jobs will be put into sidekiq so

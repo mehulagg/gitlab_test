@@ -32,9 +32,8 @@ module Gitlab
 
     # jobs_remaining - the number of jobs left to wait for
     # key - The key of this waiter.
-    def initialize(jobs_remaining = 0, key = "#{KEY_PREFIX}:#{SecureRandom.uuid}")
+    def initialize(key = "#{KEY_PREFIX}:#{SecureRandom.uuid}")
       @key = key
-      @jobs_remaining = jobs_remaining
       @finished = []
     end
 
@@ -43,7 +42,7 @@ module Gitlab
     # timeout - The maximum amount of seconds to block the caller for. This
     #           ensures we don't indefinitely block a caller in case a job takes
     #           long to process, or is never processed.
-    def wait(timeout = 10)
+    def wait(jobs_count, timeout = 10)
       deadline = Time.now.utc + timeout
 
       Gitlab::Redis::SharedState.with do |redis|
@@ -51,7 +50,7 @@ module Gitlab
         # a job pushing to an expired key and recreating it
         redis.expire(key, [timeout * 2, 10.minutes.to_i].max)
 
-        while jobs_remaining > 0
+        while @finished.count < jobs_count
           # Redis will not take fractional seconds. Prefer waiting too long over
           # not waiting long enough
           seconds_left = (deadline - Time.now.utc).ceil
@@ -63,11 +62,10 @@ module Gitlab
           break unless list && jid # timed out
 
           @finished << jid
-          @jobs_remaining -= 1
         end
 
         # All jobs have finished, so expire the key immediately
-        redis.expire(key, 0) if jobs_remaining == 0
+        redis.expire(key, 0) if @finished.count == jobs_count
       end
 
       finished
