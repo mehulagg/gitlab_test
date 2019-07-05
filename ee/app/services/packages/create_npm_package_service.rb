@@ -2,10 +2,8 @@
 module Packages
   class CreateNpmPackageService < BaseService
     def execute
-      root_namespace = @project.namespace.root_ancestor
-
-      return error('Invalid package name', 400) unless valid_package_name(root_namespace)
-      return error('Package name is already taken.', 403) if root_namespace_has_existing_package_name(root_namespace)
+      return error('Invalid package name', 400) unless valid_package_name
+      return error('Package name is already taken.', 403) if @project.package_already_taken?(params[:name])
 
       name = params[:name]
       version = params[:versions].keys.first
@@ -38,12 +36,8 @@ module Packages
 
     private
 
-    def valid_package_name(root_namespace)
-      params[:name] =~ %r{\A@#{root_namespace.path}/[^/]+\z}
-    end
-
-    def root_namespace_has_existing_package_name(root_namespace)
-      @project.package_already_taken?(params[:name])
+    def valid_package_name
+      params[:name] =~ %r{\A@#{@project.namespace.root_ancestor.path}/[^/]+\z}
     end
   end
 end
