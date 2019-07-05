@@ -33,6 +33,14 @@ describe API::Dependencies do
 
           expect(json_response.length).to eq(19)
         end
+
+        context 'with wrong key' do
+          it 'returns error message' do
+            get api("/projects/#{project.id}/dependencies", user), params: { package_manager: ['nray', 'yarn'] }
+
+            expect(json_response['error']).to eq('package_manager does not have a valid value')
+          end
+        end
       end
     end
 

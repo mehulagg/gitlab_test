@@ -28,7 +28,8 @@ module API
       params do
         optional :package_manager,
                  type: Array[String],
-                 desc: 'Returns dependencies belonging to specified package managers: `bundler`, `yarn`, `npm`, `maven`, `composer`, `pip`.'
+                 desc: 'Returns dependencies belonging to specified package managers: `bundler`, `yarn`, `npm`, `maven`, `composer`, `pip`.',
+                 values: ::Security::DependencyListService::FILTER_PACKAGE_MANAGERS_VALUES
       end
 
       get ':id/dependencies' do
