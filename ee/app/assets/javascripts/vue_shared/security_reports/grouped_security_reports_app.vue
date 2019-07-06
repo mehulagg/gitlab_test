@@ -361,6 +361,8 @@ export default {
         @createNewIssue="createNewIssue"
         @dismissVulnerability="dismissVulnerability"
         @openDismissalCommentBox="openDismissalCommentBox()"
+        @editVulnerabilityDismissalComment="openDismissalCommentBox"
+        @deleteVulnerabilityDismissalComment="()=>{debugger}"
         @revertDismissVulnerability="revertDismissVulnerability"
         @downloadPatch="downloadPatch"
       />

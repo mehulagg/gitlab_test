@@ -2,7 +2,6 @@
 import { GlTooltipDirective, GlButton } from '@gitlab/ui';
 import Icon from '~/vue_shared/components/icon.vue';
 import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
-import { __ } from '~/locale';
 
 export default {
   name: 'EventItem',

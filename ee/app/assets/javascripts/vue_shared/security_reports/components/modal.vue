@@ -153,6 +153,12 @@ export default {
         },
       };
     },
+    existingDismissalComment() {
+      return this.localDismissalComment = this.dismissalFeedbackObject &&
+      this.dismissalFeedbackObject.comment_details &&
+      this.dismissalFeedbackObject.comment_details.comment ||
+      this.localDismissalComment;
+    },    
   },
   methods: {
     dismissVulnerabilityWithComment() {
@@ -205,12 +211,13 @@ export default {
           <dismissal-note 
             :feedback="dismissalFeedbackObject" 
             :project="project" 
-            @editComment="$emit('editComment')"
-            @deleteComment="$emit('deleteComment')"
+            @editVulnerabilityDismissalComment="$emit('editVulnerabilityDismissalComment')"
+            @deleteVulnerabilityDismissalComment="$emit('deleteVulnerabilityDismissalComment')"
           />
           <dismissal-comment-box
             v-if="modal.isCommentingOnDismissal"
-            v-model="localDismissalComment"
+            :value="existingDismissalComment"
+            :v-model="localDismissalComment"
             :error-message="dismissalCommentErrorMessage"
             @submit="dismissVulnerabilityWithComment"
             @clearError="clearDismissalError"

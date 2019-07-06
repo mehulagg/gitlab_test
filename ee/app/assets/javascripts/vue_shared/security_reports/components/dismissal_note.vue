@@ -53,12 +53,12 @@ export default {
       return [
           {
             iconName: 'pencil',
-            emit: 'editComment',
+            emit: 'editVulnerabilityDismissalComment',
             title: __('Edit Comment')
           },
           {
             iconName: 'remove',
-            emit: 'deleteComment',
+            emit: 'deleteVulnerabilityDismissalComment',
             title: __('Delete Comment')
           },          
         ]
@@ -83,8 +83,8 @@ export default {
         :action-buttons="vulnDismissalActionButtons"
         :author="commentDetails.comment_author"
         :created-at="commentDetails.comment_timestamp"
-        @editComment="$emit('editComment')"
-        @deleteComment="$emit('deleteComment')"
+        @editVulnerabilityDismissalComment="$emit('editVulnerabilityDismissalComment')"
+        @deleteVulnerabilityDismissalComment="$emit('deleteVulnerabilityDismissalComment')"
         icon-name="comment"
         icon-style="ci-status-icon-pending"
       >

@@ -23,15 +23,19 @@ export default {
       default: '',
     },
   },
-  data: () => ({
-    placeholder: s__('vulnerability|Add a comment or reason for dismissal'),
-  }),
+  data: function() {
+    return {
+      placeholder: s__('vulnerability|Add a comment or reason for dismissal'),
+      localValue: this.value,
+    }
+  },
   computed: {
     localComment: {
       get() {
-        return this.value;
+        return this.localValue;
       },
       set(localComment) {
+        this.localValue = localComment;
         this.$emit('input', localComment);
       },
     },
