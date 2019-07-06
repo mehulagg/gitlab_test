@@ -53,10 +53,12 @@ export default {
       default: false,
     },
   },
-  data: () => ({
-    localDismissalComment: '',
-    dismissalCommentErrorMessage: '',
-  }),
+  data: function () {
+    return {
+      localDismissalComment: '',
+      dismissalCommentErrorMessage: '',
+    }
+  },
   computed: {
     canDownloadPatch() {
       const remediationDiff = this.remediation && this.remediation.diff;
@@ -153,12 +155,6 @@ export default {
         },
       };
     },
-    existingDismissalComment() {
-      return this.localDismissalComment = this.dismissalFeedbackObject &&
-      this.dismissalFeedbackObject.comment_details &&
-      this.dismissalFeedbackObject.comment_details.comment ||
-      this.localDismissalComment;
-    },    
   },
   methods: {
     dismissVulnerabilityWithComment() {
@@ -171,7 +167,18 @@ export default {
     clearDismissalError() {
       this.dismissalCommentErrorMessage = '';
     },
+    setExistingDismissalComment(dismissalFeedback) {
+      this.localDismissalComment = dismissalFeedback &&
+      dismissalFeedback.comment_details &&
+      dismissalFeedback.comment_details.comment ||
+      this.localDismissalComment;
+    },    
   },
+  watch: {
+    dismissalFeedback: function(dismissalFeedback) {
+      this.setExistingDismissalComment(dismissalFeedback)
+    }
+  }
 };
 </script>
 <template>
@@ -216,8 +223,7 @@ export default {
           />
           <dismissal-comment-box
             v-if="modal.isCommentingOnDismissal"
-            :value="existingDismissalComment"
-            :v-model="localDismissalComment"
+            v-model="localDismissalComment"
             :error-message="dismissalCommentErrorMessage"
             @submit="dismissVulnerabilityWithComment"
             @clearError="clearDismissalError"

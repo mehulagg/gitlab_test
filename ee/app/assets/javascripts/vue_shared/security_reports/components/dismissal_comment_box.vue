@@ -26,16 +26,14 @@ export default {
   data: function() {
     return {
       placeholder: s__('vulnerability|Add a comment or reason for dismissal'),
-      localValue: this.value,
     }
   },
   computed: {
     localComment: {
       get() {
-        return this.localValue;
+        return this.value;
       },
       set(localComment) {
-        this.localValue = localComment;
         this.$emit('input', localComment);
       },
     },
@@ -47,7 +45,7 @@ export default {
     },
   },
   mounted() {
-    this.$emit('input', '');
+    this.$emit('input', this.localComment);
     this.$emit('clearError');
     this.$refs.dismissalComment.$el.focus();
   },
