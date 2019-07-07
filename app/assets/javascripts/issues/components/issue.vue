@@ -5,7 +5,8 @@ import Icon from '~/vue_shared/components/icon.vue';
 import UserAvatarLink from '~/vue_shared/components/user_avatar/user_avatar_link.vue';
 import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
 import { getDayDifference } from '~/lib/utils/datetime_utility';
-import { ISSUE_STATES } from '../constants';
+import { ISSUE_STATES, MAX_ASSIGNEES_RENDER } from '../constants';
+import { sprintf, __ } from '~/locale';
 
 export default {
   components: {
@@ -30,12 +31,6 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      maxRender: 3,
-      maxCounter: 99,
-    };
-  },
   computed: {
     issueClassesList() {
       const classList = ['issue'];
@@ -58,13 +53,15 @@ export default {
       return getDayDifference(new Date(), new Date(this.issue.due_date)) < 0;
     },
     shouldAssigneeRenderCounter() {
-      return this.issue.assignees.length - this.maxRender > 0;
+      return this.issue.assignees.length - MAX_ASSIGNEES_RENDER > 0;
     },
     moreAssigneesCount() {
-      return this.issue.assignees.length - this.maxRender;
+      return this.issue.assignees.length - MAX_ASSIGNEES_RENDER;
     },
     assigneeCounterTooltip() {
-      return `+${this.moreAssigneesCount} more assignees`;
+      return sprintf('+%{moreAssigneesCount} more assignees', {
+        moreAssigneesCount: this.moreAssigneesCount,
+      });
     },
     issueCommentsURL() {
       return `${this.issue.web_url}#notes`;
@@ -76,12 +73,24 @@ export default {
       return this.issue.state === ISSUE_STATES.CLOSED;
     },
     assigneesToRender() {
-      return this.issue.assignees.filter((assignee, index) => index < this.maxRender);
+      return this.issue.assignees.filter((assignee, index) => index < MAX_ASSIGNEES_RENDER);
+    },
+    hasRelatedMergeRequests() {
+      return this.issue.merge_requests_count > 0;
+    },
+    hasUpvotes() {
+      return this.issue.upvotes > 0;
+    },
+    hasDownvotes() {
+      return this.issue.downvotes > 0;
+    },
+    hasComments() {
+      return this.issue.note_count < 0;
     },
   },
   methods: {
     getAvatarTitle(assignee) {
-      return `Assigned to ${assignee.name}`;
+      return sprintf('Assigned to %{name}', { name: assignee.name });
     },
     labelStyle(label) {
       return {
@@ -90,6 +99,7 @@ export default {
       };
     },
   },
+  confidentialText: __('Confidential'),
 };
 </script>
 <template>
@@ -111,8 +121,8 @@ export default {
               <span
                 v-if="issue.confidential"
                 v-gl-tooltip
-                :title="__('Confidential')"
-                :aria-label="__('Confidential')"
+                :title="$options.confidentialText"
+                :aria-label="$options.confidentialText"
               >
                 <icon name="eye-slash" class="align-text-bottom js-issue-confidential-icon" />
               </span>
@@ -211,7 +221,7 @@ export default {
               </span>
             </li>
             <li
-              v-if="issue.merge_requests_count > 0"
+              v-if="hasRelatedMergeRequests"
               v-gl-tooltip
               class="issuable-mr d-none d-sm-block"
               :title="__('Related merge requests')"
@@ -221,7 +231,7 @@ export default {
             </li>
 
             <li
-              v-if="issue.upvotes > 0"
+              v-if="hasUpvotes"
               v-gl-tooltip
               class="issuable-upvotes d-none d-sm-block"
               :title="__('Upvotes')"
@@ -231,10 +241,10 @@ export default {
             </li>
 
             <li
-              v-if="issue.downvotes > 0"
+              v-if="hasDownvotes"
               v-gl-tooltip
               class="issuable-downvotes d-none d-sm-block"
-              :title="__('Upvotes')"
+              :title="__('Downvotes')"
             >
               <icon name="thumb-down" class="align-text-bottom" />
               {{ issue.downvotes }}
@@ -244,7 +254,7 @@ export default {
               <a
                 v-gl-tooltip
                 :href="issueCommentsURL"
-                :class="{ 'no-comments': issue.note_count < 0 }"
+                :class="{ 'no-comments': hasComments }"
                 :title="__('Comments')"
               >
                 <icon name="comments" class="align-text-bottom" />

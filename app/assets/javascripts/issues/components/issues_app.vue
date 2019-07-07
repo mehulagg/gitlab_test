@@ -170,5 +170,7 @@ export default {
     :button-path="createPath"
     :has-filters="hasFilters"
     :loading-disabled="isLoadingDisabled"
+    :svg-image-path="emptyStateSvgPath"
+    :svg-loading-disabled-image-path="emptyStateLoadingDisabledSvgPath"
   />
 </template>
