@@ -23,7 +23,7 @@ Prometheus::Client.configure do |config|
 
   config.multiprocess_files_dir = ENV['prometheus_multiproc_dir'] || prometheus_default_multiproc_dir
 
-  config.pid_provider = Prometheus::Client::Support::Unicorn.method(:worker_pid_provider)
+  config.pid_provider = Prometheus::PidProvider.method(:worker_id)
 end
 
 Gitlab::Application.configure do |config|
