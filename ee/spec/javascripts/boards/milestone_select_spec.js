@@ -72,7 +72,7 @@ describe('Milestone select component', () => {
     });
 
     it('shows No Milestone', done => {
-      vm.board.milestone_id = 0;
+      vm.board.milestone_id = -1;
       Vue.nextTick(() => {
         expect(selectedText()).toContain('No Milestone');
         done();
@@ -104,7 +104,7 @@ describe('Milestone select component', () => {
       });
 
       it('sets Any Milestone', done => {
-        vm.board.milestone_id = 0;
+        vm.board.milestone_id = null;
         vm.$el.querySelector('.edit-link').click();
 
         setTimeout(() => {

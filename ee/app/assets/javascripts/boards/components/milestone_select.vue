@@ -2,8 +2,14 @@
 import MilestoneSelect from '~/milestone_select';
 import { GlLoadingIcon } from '@gitlab/ui';
 
-const ANY_MILESTONE = 'Any Milestone';
-const NO_MILESTONE = 'No Milestone';
+const ANY_MILESTONE_LABEL = 'Any Milestone';
+const NO_MILESTONE_LABEL = 'No Milestone';
+
+const ANY_MILESTONE_STR_VALUE = 'Any';
+const NO_MILESTONE_STR_VALUE = 'None';
+
+const NO_MILESTONE_INT_VALUE = -1;
+const ANY_MILESTONE_INT_VALUE = null;
 
 export default {
   components: {
@@ -27,20 +33,24 @@ export default {
 
   computed: {
     milestoneTitle() {
-      if (this.noMilestone) return NO_MILESTONE;
-      return this.board.milestone ? this.board.milestone.title : ANY_MILESTONE;
+      if (this.noMilestone) return NO_MILESTONE_LABEL;
+      return this.board.milestone ? this.board.milestone.title : ANY_MILESTONE_LABEL;
+    },
+    anyMilestone() {
+      return this.milestoneId === ANY_MILESTONE_INT_VALUE;
     },
     noMilestone() {
-      return this.milestoneId === 0;
+      return this.milestoneId === NO_MILESTONE_INT_VALUE;
     },
     milestoneId() {
       return this.board.milestone_id;
     },
     milestoneTitleClass() {
-      return this.milestoneTitle === ANY_MILESTONE ? 'text-secondary' : 'bold';
+      return this.milestoneTitle === ANY_MILESTONE_LABEL ? 'text-secondary' : 'bold';
     },
     selected() {
-      if (this.noMilestone) return NO_MILESTONE;
+      if (this.noMilestone) return NO_MILESTONE_STR_VALUE;
+      if (this.anyMilestone) return ANY_MILESTONE_STR_VALUE;
       return this.board.milestone ? this.board.milestone.name : '';
     },
   },
@@ -52,11 +62,11 @@ export default {
   methods: {
     selectMilestone(milestone) {
       let { id } = milestone;
-      // swap the IDs of 'Any' and 'No' milestone to what backend requires
-      if (milestone.title === ANY_MILESTONE) {
-        id = -1;
-      } else if (milestone.title === NO_MILESTONE) {
-        id = 0;
+      console.log("milestone", milestone)
+      if (milestone.title === ANY_MILESTONE_LABEL) {
+        id = ANY_MILESTONE_INT_VALUE;
+      } else if (milestone.title === NO_MILESTONE_LABEL) {
+        id = NO_MILESTONE_INT_VALUE;
       }
       this.board.milestone_id = id;
       this.board.milestone = {
