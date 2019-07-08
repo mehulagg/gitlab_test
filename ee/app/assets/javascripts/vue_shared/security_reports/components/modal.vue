@@ -246,6 +246,7 @@ export default {
     <div slot="footer">
       <dismissal-comment-modal-footer
         v-if="modal.isCommentingOnDismissal"
+        :isEditingDismissal="modal.isEditingDismissal"
         @dismissVulnerability="dismissVulnerabilityWithComment"
         @cancel="$emit('closeDismissalCommentBox')"
       />

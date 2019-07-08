@@ -218,10 +218,16 @@ export default {
       s__('security Reports|There was an error creating the merge request'),
     );
   },
-  [types.OPEN_DISMISSAL_COMMENT_BOX](state) {
+  [types.OPEN_DISMISSAL_COMMENT_BOX](state, payload) {
+    debugger
+    if(payload.edit){
+      Vue.set(state.modal, 'isEditingDismissal', true);
+    }
+
     Vue.set(state.modal, 'isCommentingOnDismissal', true);
   },
   [types.CLOSE_DISMISSAL_COMMENT_BOX](state) {
     Vue.set(state.modal, 'isCommentingOnDismissal', false);
+    Vue.set(state.modal, 'isEditingDismissal', false);
   },
 };

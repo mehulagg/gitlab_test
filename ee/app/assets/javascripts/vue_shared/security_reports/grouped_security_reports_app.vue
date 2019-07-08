@@ -363,7 +363,7 @@ export default {
         @dismissVulnerability="dismissVulnerability"
         @updateDismissVulnerabilityComment="updateDismissVulnerabilityComment"
         @openDismissalCommentBox="openDismissalCommentBox()"
-        @editVulnerabilityDismissalComment="openDismissalCommentBox"
+        @editVulnerabilityDismissalComment="openDismissalCommentBox({edit: true})"
         @deleteVulnerabilityDismissalComment="()=>{debugger}"
         @revertDismissVulnerability="revertDismissVulnerability"
         @downloadPatch="downloadPatch"

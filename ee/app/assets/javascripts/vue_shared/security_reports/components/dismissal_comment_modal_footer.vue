@@ -1,6 +1,7 @@
 <script>
 import { GlButton } from '@gitlab/ui';
 import LoadingButton from '~/vue_shared/components/loading_button.vue';
+import { s__ } from '~/locale';
 
 export default {
   name: 'DismissalCommentModalFooter',
@@ -14,7 +15,19 @@ export default {
       required: false,
       default: false,
     },
+    isEditingDismissal: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
+  computed:{
+    buttonLabel() {
+      debugger;
+      return this.isEditingDismissal ? s__('vulnerability|Save Comment') : 
+      s__('vulnerability|Add comment & dismiss')
+    }
+  }
 };
 </script>
 
@@ -27,7 +40,7 @@ export default {
     <loading-button
       :loading="isDismissingVulnerability"
       :disabled="isDismissingVulnerability"
-      :label="s__('vulnerability|Add comment & dismiss')"
+      :label="buttonLabel"
       container-class="btn btn-close"
       @click="$emit('dismissVulnerability')"
     />

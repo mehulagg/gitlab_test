@@ -426,10 +426,14 @@ export default {
     Vue.set(state.modal, 'isCreatingMergeRequest', false);
     Vue.set(state.modal, 'error', error);
   },
-  [types.OPEN_DISMISSAL_COMMENT_BOX](state) {
+  [types.OPEN_DISMISSAL_COMMENT_BOX](state, payload) {
+    if(payload.edit){
+      Vue.set(state.modal, 'isEditingDismissal', true);
+    }
     Vue.set(state.modal, 'isCommentingOnDismissal', true);
   },
   [types.CLOSE_DISMISSAL_COMMENT_BOX](state) {
+    Vue.set(state.modal, 'isEditingDismissal', false);
     Vue.set(state.modal, 'isCommentingOnDismissal', false);
   },
 };

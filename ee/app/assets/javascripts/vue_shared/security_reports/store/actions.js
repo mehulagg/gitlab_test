@@ -458,8 +458,8 @@ export const receiveCreateMergeRequestError = ({ commit }) => {
   commit(types.RECEIVE_CREATE_MERGE_REQUEST_ERROR);
 };
 
-export const openDismissalCommentBox = ({ commit }) => {
-  commit(types.OPEN_DISMISSAL_COMMENT_BOX);
+export const openDismissalCommentBox = ({ commit }, payload) => {
+  commit(types.OPEN_DISMISSAL_COMMENT_BOX, payload);
 };
 
 export const closeDismissalCommentBox = ({ commit }) => {
