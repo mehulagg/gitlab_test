@@ -62,7 +62,6 @@ export default {
   methods: {
     selectMilestone(milestone) {
       let { id } = milestone;
-      console.log("milestone", milestone)
       if (milestone.title === ANY_MILESTONE_LABEL) {
         id = ANY_MILESTONE_INT_VALUE;
       } else if (milestone.title === NO_MILESTONE_LABEL) {
