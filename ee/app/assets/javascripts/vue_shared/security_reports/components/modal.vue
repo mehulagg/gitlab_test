@@ -111,6 +111,11 @@ export default {
         (this.vulnerability.dismissal_feedback || this.vulnerability.dismissalFeedback)
       );
     },
+    existingDismissalFeedbackComment() {
+      return this.dismissalFeedback &&
+      this.dismissalFeedback.comment_details &&
+      this.dismissalFeedback.comment_details.comment
+    },
     valuedFields() {
       const { data } = this.modal;
       const result = {};
@@ -158,11 +163,15 @@ export default {
   },
   methods: {
     dismissVulnerabilityWithComment() {
+      if (this.existingDismissalFeedbackComment && this.localDismissalComment.length) {
+        debugger;
+        this.$emit('updateDismissVulnerabilityComment', this.localDismissalComment);
+      } else {
       if (this.localDismissalComment.length) {
         this.$emit('dismissVulnerability', this.localDismissalComment);
       } else {
         this.dismissalCommentErrorMessage = __('Please add a comment in the text area above');
-      }
+      }}
     },
     clearDismissalError() {
       this.dismissalCommentErrorMessage = '';
@@ -216,6 +225,7 @@ export default {
       <div v-if="dismissalFeedback || modal.isCommentingOnDismissal" class="card my-4">
         <div class="card-body">
           <dismissal-note 
+            :isCommentingOnDismissal="modal.isCommentingOnDismissal"
             :feedback="dismissalFeedbackObject" 
             :project="project" 
             @editVulnerabilityDismissalComment="$emit('editVulnerabilityDismissalComment')"

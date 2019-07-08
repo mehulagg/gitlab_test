@@ -17,6 +17,11 @@ export default {
       required: false,
       default: () => ({}),
     },
+    isCommentingOnDismissal: {
+      type: Boolean,
+      required: false,
+      default: false
+    }
   },
   computed: {
     eventText() {
@@ -77,7 +82,7 @@ export default {
     >
       <div v-html="eventText"></div>
     </event-item>
-    <template v-if="commentDetails">
+    <template v-if="commentDetails && !isCommentingOnDismissal">
       <hr class="my-3" />
       <event-item
         :action-buttons="vulnDismissalActionButtons"

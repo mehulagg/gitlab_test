@@ -231,6 +231,7 @@ export default {
       'setCanCreateIssuePermission',
       'setCanCreateFeedbackPermission',
       'dismissVulnerability',
+      'updateDismissVulnerabilityComment',
       'revertDismissVulnerability',
       'createNewIssue',
       'createMergeRequest',
@@ -323,6 +324,7 @@ export default {
       @closeDismissalCommentBox="closeDismissalCommentBox()"
       @createNewIssue="createNewIssue"
       @createMergeRequest="createMergeRequest"
+      @updateDismissVulnerabilityComment="updateDismissVulnerabilityComment"
       @dismissVulnerability="dismissVulnerability"
       @openDismissalCommentBox="openDismissalCommentBox()"
       @revertDismissVulnerability="revertDismissVulnerability"

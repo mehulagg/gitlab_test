@@ -136,11 +136,43 @@ export const receiveCreateIssueError = ({ commit }, { flashError }) => {
   }
 };
 
+export const updateDismissVulnerabilityComment = ({ state, dispatch }, comment) => {
+  dispatch('requestDismissVulnerability');
+
+  //TODO: Make it work
+  debugger;
+  axios
+    .post(vulnerability.create_vulnerability_feedback_dismissal_path, {
+      vulnerability_feedback: {
+        category: vulnerability.report_type,
+        comment,
+        feedback_type: 'dismissal',
+        project_fingerprint: vulnerability.project_fingerprint,
+        vulnerability_data: {
+          ...vulnerability,
+          category: vulnerability.report_type,
+        },
+      },
+    })
+    .then(({ data }) => {
+      const { id } = vulnerability;
+      dispatch('closeDismissalCommentBox');
+      dispatch('receiveDismissVulnerabilitySuccess', { id, data });
+    })
+    .catch(() => {
+      dispatch('receiveDismissVulnerabilityError', { flashError });
+    });  
+}
+
 export const dismissVulnerability = ({ dispatch }, { vulnerability, flashError, comment }) => {
   dispatch('requestDismissVulnerability');
 
+  debugger;
+  const routePath = vulnerability.create_vulnerability_feedback_dismissal_path;
+  const resourceId = vulnerability.id;
+
   axios
-    .post(vulnerability.create_vulnerability_feedback_dismissal_path, {
+    .patch(`${routePath}/${resourceId}`, {
       vulnerability_feedback: {
         category: vulnerability.report_type,
         comment,

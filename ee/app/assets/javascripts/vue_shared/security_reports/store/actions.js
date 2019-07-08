@@ -227,6 +227,60 @@ export const receiveDismissVulnerability = ({ commit }) =>
 export const receiveDismissVulnerabilityError = ({ commit }, error) =>
   commit(types.RECEIVE_DISMISS_VULNERABILITY_ERROR, error);
 
+
+export const updateDismissVulnerabilityComment = ({ state, dispatch }, comment) => {
+  dispatch('requestDismissVulnerability');
+
+  const routePath = state.createVulnerabilityFeedbackDismissalPath;
+  const resourceId = state.modal.vulnerability.dismissalFeedback.id;
+
+  axios
+    .patch(`${routePath}/${resourceId}`, {
+      vulnerability_feedback: {
+        category: state.modal.vulnerability.category,
+        comment,
+        feedback_type: 'dismissal',
+        pipeline_id: state.pipelineId,
+        project_fingerprint: state.modal.vulnerability.project_fingerprint,
+        vulnerability_data: state.modal.vulnerability,
+      },
+    })
+    .then(({ data }) => {
+      dispatch('closeDismissalCommentBox');
+      dispatch('receiveDismissVulnerability');
+
+      // Update the issue with the created dismissal feedback applied
+      const updatedIssue = {
+        ...state.modal.vulnerability,
+        isDismissed: true,
+        dismissalFeedback: data,
+      };
+      switch (updatedIssue.category) {
+        case 'sast':
+          dispatch('updateSastIssue', updatedIssue);
+          break;
+        case 'dependency_scanning':
+          dispatch('updateDependencyScanningIssue', updatedIssue);
+          break;
+        case 'container_scanning':
+          dispatch('updateContainerScanningIssue', updatedIssue);
+          break;
+        case 'dast':
+          dispatch('updateDastIssue', updatedIssue);
+          break;
+        default:
+      }
+
+      $('#modal-mrwidget-security-issue').modal('hide');
+    })
+    .catch(() => {
+      dispatch(
+        'receiveDismissVulnerabilityError',
+        s__('ciReport|There was an error dismissing the vulnerability. Please try again.'),
+      );
+    });  
+}
+
 export const dismissVulnerability = ({ state, dispatch }, comment) => {
   dispatch('requestDismissVulnerability');
 

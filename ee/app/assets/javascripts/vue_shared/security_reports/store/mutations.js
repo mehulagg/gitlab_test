@@ -232,6 +232,8 @@ export default {
    * - allIssues = 0
    */
   [types.RECEIVE_DEPENDENCY_SCANNING_REPORTS](state, reports) {
+    debugger;
+
     if (reports.base && reports.head) {
       const filterKey = 'cve';
       const parsedHead = parseDependencyScanningIssues(
