@@ -1822,7 +1822,7 @@ msgstr ""
 msgid "Auto DevOps, runners and job artifacts"
 msgstr ""
 
-msgid "Auto License Complience"
+msgid "Auto License Compliance"
 msgstr ""
 
 msgid "Auto-cancel redundant, pending pipelines"
