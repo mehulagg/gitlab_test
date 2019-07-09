@@ -27,11 +27,8 @@ module Packages
         file_name: package_file_name
       }
 
-      ::Packages::PackageTag.transaction do
-        ::Packages::CreatePackageFileService.new(package, file_params).execute
-        ::Packages::CreatePackageMetadataService.new(package, package_metadata).execute
-        ::Packages::CreateNpmPackageTagService.new(package, dist_tag).execute
-      end
+      ::Packages::CreatePackageFileService.new(package, file_params).execute
+      ::Packages::CreatePackageMetadataService.new(package, package_metadata).execute
       package
     end
 
