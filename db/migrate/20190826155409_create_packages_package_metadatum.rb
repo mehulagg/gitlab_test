@@ -3,7 +3,7 @@
 # See http://doc.gitlab.com/ce/development/migration_style_guide.html
 # for more information on how to write migrations for GitLab.
 
-class CreatePackageTag < ActiveRecord::Migration[5.2]
+class CreatePackagesPackageMetadatum < ActiveRecord::Migration[5.2]
   include Gitlab::Database::MigrationHelpers
 
   # Set this constant to true if this migration requires downtime.
@@ -28,10 +28,10 @@ class CreatePackageTag < ActiveRecord::Migration[5.2]
   # disable_ddl_transaction!
 
   def change
-    create_table :packages_package_tags do |t|
-      t.references :package, index: true, foreign_key: { to_table: :packages_packages, on_delete: :cascade }, type: :integer
-      t.string :name, limit: 255, null: false
+    create_table :packages_package_metadata do |t|
+      t.integer :package_id
+      t.references :package, foreign_key: { to_table: :packages_packages, on_delete: :cascade }, type: :integer
+      t.binary :metadata
     end
   end
 end
-

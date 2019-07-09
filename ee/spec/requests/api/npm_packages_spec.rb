@@ -183,6 +183,8 @@ describe API::NpmPackages do
           expect { upload_package_with_token(package_name, params) }
             .to change { project.packages.count }.by(1)
             .and change { Packages::PackageFile.count }.by(1)
+            .and change { Packages::PackageMetadatum.count }.by(1)
+            .and change { Packages::PackageTag.count }.by(1)
 
           expect(response).to have_gitlab_http_status(200)
         end
@@ -221,7 +223,7 @@ describe API::NpmPackages do
     expect(response).to have_gitlab_http_status(200)
     expect(response.content_type.to_s).to eq('application/json')
     expect(response).to match_response_schema('public_api/v4/packages/npm_package', dir: 'ee')
-    expect(json_response['name']).to eq(package.name)
     expect(json_response['versions'][package.version]).to match_schema('public_api/v4/packages/npm_package_version', dir: 'ee')
+    expect(json_response['dist-tags']).to match_schema('public_api/v4/packages/npm_package_tags', dir: 'ee')
   end
 end

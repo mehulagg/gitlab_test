@@ -1,8 +1,8 @@
 {
   "type": "object",
-  "required" : ["name", "versions"],
+  "required" : ["dist-tags", "versions"],
   "properties" : {
     "name": { "type": "string" },
-    "versions": { "type": "object" }
+    "dist-tags": { "type": "object" }
   }
 }

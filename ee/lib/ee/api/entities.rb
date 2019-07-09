@@ -745,10 +745,15 @@ module EE
         end
       end
 
-      class NpmPackage < Grape::Entity
-        expose :name
-        expose :versions
-        expose :dist_tags, as: 'dist-tags'
+      class PackageTag < Grape::Entity
+        #if we're returning package tags for new packages
+        expose :dist_tags, as: 'dist-tags', merge: true
+
+        private
+
+        def dist_tags
+          object
+        end
       end
 
       class Package < Grape::Entity
@@ -756,6 +761,25 @@ module EE
         expose :name
         expose :version
         expose :package_type
+      end
+
+      class NpmPackage < Grape::Entity
+        expose :versions, if: lambda {|instance, object| instance.type != 'tags'}, merge: true do
+          expose :format_versions, as: :versions
+          expose :format_tags, as: 'dist-tags'
+        end
+        expose :format_tags, if: lambda {|instance, object| instance.type == 'tags'}, merge: true
+
+        private
+
+        def format_versions
+          object.versions.each { |version| version }
+        end
+
+        def format_tags
+          PackageTag.represent(object.tagged_packages)
+        end
+
       end
 
       class PackageFile < Grape::Entity
@@ -789,6 +813,7 @@ module EE
           Ability.allowed?(user, :read_project_security_dashboard, project)
         end
       end
+
     end
   end
 end
