@@ -1,0 +1,5 @@
+---
+title: Support NPM dist-tags and Dependencies
+merge_request: !14263
+author:
+type: added

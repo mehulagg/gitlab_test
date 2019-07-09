@@ -837,11 +837,40 @@ module EE
         expose :dist_tags, as: 'dist-tags'
       end
 
+      class PackageTag < Grape::Entity
+        # if we're returning package tags for new packages
+        expose :dist_tags, as: 'dist-tags', merge: true
+
+        private
+
+        def dist_tags
+          object
+        end
+      end
+
       class Package < Grape::Entity
         expose :id
         expose :name
         expose :version
         expose :package_type
+      end
+
+      class NpmPackage < Grape::Entity
+        expose :versions, if: lambda {|instance, object| instance.type != 'tags'}, merge: true do
+          expose :format_versions, as: :versions
+          expose :format_tags, as: 'dist-tags'
+        end
+        expose :format_tags, if: lambda {|instance, object| instance.type == 'tags'}, merge: true
+
+        private
+
+        def format_versions
+          object.versions
+        end
+
+        def format_tags
+          PackageTag.represent(object.tagged_packages)
+        end
       end
 
       class PackageFile < Grape::Entity

@@ -28,6 +28,10 @@ module API
       def authorize_destroy_package!
         authorize!(:destroy_package, user_project)
       end
+
+      def authorize_destroy_package_tag!
+        authorize!(:destroy_package_tag, user_project)
+      end
     end
   end
 end

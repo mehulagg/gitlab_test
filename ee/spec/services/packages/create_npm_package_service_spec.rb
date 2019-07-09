@@ -12,7 +12,7 @@ describe Packages::CreateNpmPackageService do
       fixture_file('npm/payload.json', dir: 'ee')
         .gsub('@root/npm-test', package_name)
         .gsub('1.0.1', version))
-      .with_indifferent_access
+        .with_indifferent_access
   end
 
   shared_examples 'valid package' do
@@ -61,6 +61,20 @@ describe Packages::CreateNpmPackageService do
         service = described_class.new(project, user, params)
 
         expect { service.execute }.to raise_error(ActiveRecord::RecordInvalid)
+      end
+    end
+
+    context 'with newly published packages' do
+      let(:params) do
+        JSON.parse(fixture_file('npm/payload.json', dir: 'ee')).with_indifferent_access
+      end
+
+      it 'extracts metadata from the package.json' do
+        response = described_class.new(project, user, params)
+        package_version = params[:versions].keys.first
+        package_metadata = params[:versions][package_version].to_json
+
+        expect(response.package_metadata).to eq(package_metadata)
       end
     end
   end

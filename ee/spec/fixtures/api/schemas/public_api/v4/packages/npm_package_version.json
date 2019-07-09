@@ -4,7 +4,7 @@
   "properties" : {
     "name": { "type": "string" },
     "version": { "type": "string" },
-    "dist": { 
+    "dist": {
       "type": "object",
       "required": ["shasum", "tarball"],
       "properties" : {

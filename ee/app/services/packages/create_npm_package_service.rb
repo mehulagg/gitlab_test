@@ -4,8 +4,9 @@ module Packages
     def execute
       name = params[:name]
       version = params[:versions].keys.first
-      version_data = params[:versions][version]
 
+      version_data = params[:versions][version]
+      dist_tag = params[:'dist-tags'].keys.first
       existing_package = project.packages.npm.with_name(name).with_version(version)
 
       return error('Package already exists.', 403) if existing_package.exists?
@@ -26,9 +27,19 @@ module Packages
         file_name: package_file_name
       }
 
-      ::Packages::CreatePackageFileService.new(package, file_params).execute
-
+      ::Packages::PackageTag.transaction do
+        ::Packages::CreatePackageFileService.new(package, file_params).execute
+        ::Packages::CreatePackageMetadataService.new(package, package_metadata).execute
+        ::Packages::CreateNpmPackageTagService.new(package, dist_tag).execute
+      end
       package
+    end
+
+    def package_metadata
+      package_json = params[:versions]
+      version = params[:versions].keys.first
+
+      package_json[version].to_json
     end
   end
 end
