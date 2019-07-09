@@ -5,6 +5,8 @@ module Packages
       name = params[:name]
       version = params[:versions].keys.first
       version_data = params[:versions][version]
+      metadata = params[:versions].to_json
+      dist_tags = params[:'dist-tags'].keys.first
 
       existing_package = project.packages.npm.with_name(name).with_version(version)
 
@@ -18,6 +20,10 @@ module Packages
 
       package_file_name = "#{name}-#{version}.tgz"
       attachment = params['_attachments'][package_file_name]
+      package_metadata = {
+          tag: dist_tags,
+          metadata: metadata,
+      }
 
       file_params = {
         file:      CarrierWaveStringFile.new(Base64.decode64(attachment['data'])),
@@ -27,6 +33,7 @@ module Packages
       }
 
       ::Packages::CreatePackageFileService.new(package, file_params).execute
+      ::Packages::CreatePackageMetadataService.new(package, package_metadata ).execute
 
       package
     end

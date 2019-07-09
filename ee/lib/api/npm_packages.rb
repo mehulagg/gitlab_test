@@ -30,7 +30,6 @@ module API
     end
     get 'packages/npm/*package_name', format: false, requirements: NPM_ENDPOINT_REQUIREMENTS do
       package_name = params[:package_name]
-
       project = find_project_by_package_name(package_name)
 
       authorize!(:read_package, project)

@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 class Packages::Package < ApplicationRecord
   belongs_to :project
+  has_many :package_files
+  alias_attribute :dist_tag, :tag
   # package_files must be destroyed by ruby code in order to properly remove carrierwave uploads and update project statistics
   has_many :package_files, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_one :maven_metadatum, inverse_of: :package
+  has_one :package_metadatum, inverse_of: :package
 
-  accepts_nested_attributes_for :maven_metadatum
+  accepts_nested_attributes_for :maven_metadatum, :package_metadatum
 
   validates :project, presence: true
 
@@ -23,6 +26,7 @@ class Packages::Package < ApplicationRecord
   scope :has_version, -> { where.not(version: nil) }
   scope :preload_files, -> { preload(:package_files) }
   scope :last_of_each_version, -> { where(id: all.select('MAX(id) AS id').group(:version)) }
+  scope :with_tag, ->(tag) { joins(:packages_metadatum).where(tag: tag ) }
 
   def self.for_projects(projects)
     return none unless projects.any?
@@ -57,4 +61,5 @@ class Packages::Package < ApplicationRecord
       errors.add(:base, 'Package already exists')
     end
   end
+
 end
