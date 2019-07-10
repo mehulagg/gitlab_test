@@ -36,7 +36,9 @@ module Gitlab
           override :find_commit
           def find_commit(repo, commit_id)
             if use_rugged?(repo, :rugged_find_commit)
-              rugged_find(repo, commit_id)
+              Gitlab::GitalyClient::StorageSettings.allow_disk_access do
+                rugged_find(repo, commit_id)
+              end
             else
               super
             end
@@ -45,7 +47,9 @@ module Gitlab
           override :batch_by_oid
           def batch_by_oid(repo, oids)
             if use_rugged?(repo, :rugged_list_commits_by_oid)
-              rugged_batch_by_oid(repo, oids)
+              Gitlab::GitalyClient::StorageSettings.allow_disk_access do
+                rugged_batch_by_oid(repo, oids)
+              end
             else
               super
             end
@@ -68,7 +72,9 @@ module Gitlab
         override :commit_tree_entry
         def commit_tree_entry(path)
           if use_rugged?(@repository, :rugged_commit_tree_entry)
-            rugged_tree_entry(path)
+            Gitlab::GitalyClient::StorageSettings.allow_disk_access do
+              rugged_tree_entry(path)
+            end
           else
             super
           end

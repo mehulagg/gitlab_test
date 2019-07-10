@@ -16,7 +16,9 @@ module Gitlab
           override :tree_entry
           def tree_entry(repository, sha, path, limit)
             if use_rugged?(repository, :rugged_tree_entry)
-              rugged_tree_entry(repository, sha, path, limit)
+              Gitlab::GitalyClient::StorageSettings.allow_disk_access do
+                rugged_tree_entry(repository, sha, path, limit)
+              end
             else
               super
             end

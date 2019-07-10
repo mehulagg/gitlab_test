@@ -16,7 +16,9 @@ module Gitlab
           override :tree_entries
           def tree_entries(repository, sha, path, recursive)
             if use_rugged?(repository, :rugged_tree_entries)
-              tree_entries_with_flat_path_from_rugged(repository, sha, path, recursive)
+              Gitlab::GitalyClient::StorageSettings.allow_disk_access do
+                tree_entries_with_flat_path_from_rugged(repository, sha, path, recursive)
+              end
             else
               super
             end
