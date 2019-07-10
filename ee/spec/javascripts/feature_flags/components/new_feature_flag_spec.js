@@ -62,6 +62,8 @@ describe('New feature flag form', () => {
       {
         environment_scope: '*',
         active: true,
+        can_update: true,
+        protected: false
       },
     ]);
 
