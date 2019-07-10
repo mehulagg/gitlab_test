@@ -1,0 +1,5 @@
+---
+title: Add can_merge option to autocomplete response
+merge_request: 14626
+author:
+type: added
