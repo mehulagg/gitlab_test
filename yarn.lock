@@ -1190,6 +1190,11 @@
     consola "^2.3.0"
     node-fetch "^2.3.0"
 
+"@sourcegraph/code-host-integration@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.npmjs.org/@sourcegraph/code-host-integration/-/code-host-integration-0.0.2.tgz#e1a1d54502375068911d53b778f73b4ef50ccbab"
+  integrity sha512-qTXFYyfipy2aHQFXffcQlfxRyTu379emydn6o5X2m2/skKk2DvJjpjAtIH0pm1MJ+Q8oaKPbhXNw9WGnYhuzFw==
+
 "@types/anymatch@*":
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/@types/anymatch/-/anymatch-1.3.0.tgz#d1d55958d1fccc5527d4aba29fc9c4b942f563ff"
