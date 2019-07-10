@@ -157,11 +157,19 @@ export default {
      * @param {String}
      */
     createNewEnvironment(name) {
-      this.formScopes.push({
+      const newScope = {
         environment_scope: name,
         active: false,
         id: _.uniqueId(internalKeyID),
-      });
+      }
+
+      if (this.permissionsFlag) {
+        newScope.can_update = true;
+        newScope.protected = false;
+      }
+
+      this.formScopes.push(newScope);
+
       this.newScope = '';
     },
     /**
