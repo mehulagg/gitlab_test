@@ -15,15 +15,19 @@ describe 'User updates feature flag', :js do
 
   let!(:scope) { create_scope(feature_flag, 'review/*', true) }
 
+  def visit_edit_page
+    visit(edit_project_feature_flag_path(project, feature_flag))
+  end
+
   before do
     project.add_developer(user)
     stub_licensed_features(feature_flags: true)
     sign_in(user)
-
-    visit(edit_project_feature_flag_path(project, feature_flag))
   end
 
   it 'user sees persisted default scope' do
+    visit_edit_page
+
     within_scope_row(1) do
       within_environment_spec do
         expect(page).to have_content('* (All Environments)')
@@ -38,6 +42,8 @@ describe 'User updates feature flag', :js do
 
   context 'when user updates a status of a scope' do
     before do
+      visit_edit_page
+
       within_scope_row(2) do
         within_status { find('.project-feature-toggle').click }
       end
@@ -69,8 +75,48 @@ describe 'User updates feature flag', :js do
     end
   end
 
+  context 'when production environment is protected' do
+    before do
+      stub_licensed_features(protected_environments: true, feature_flags: true)
+    end
+
+    let!(:production_scope) do
+      create_scope(feature_flag, 'production', true)
+    end
+
+    context 'when user has access to production environment' do
+      before do
+        create(:protected_environment, name: 'production', project: project, authorize_user_to_deploy: user)
+      end
+
+      it 'shows protected budge and allow user to edit scope' do
+        visit_edit_page
+
+        within_feature_flag_row(3) do
+          expect(page).to have_content("Protected")
+        end
+      end
+    end
+
+    context 'when user does not have access to production environemnt' do
+      before do
+        create(:protected_environment, name: 'production', project: project, authorize_user_to_deploy: user)
+      end
+
+      it 'shows protected budge and does not allow user to edit scope' do
+        visit_edit_page
+
+        within_feature_flag_row(3) do
+          expect(page).to have_content("Protected")
+        end
+      end
+    end
+  end
+
   context 'when user adds a new scope' do
     before do
+      visit_edit_page
+
       within_scope_row(3) do
         within_environment_spec do
           find('.js-env-input').set('production')
@@ -102,6 +148,8 @@ describe 'User updates feature flag', :js do
 
   context 'when user deletes a scope' do
     before do
+      visit_edit_page
+
       within_scope_row(2) do
         within_delete { find('.js-delete-scope').click }
       end
