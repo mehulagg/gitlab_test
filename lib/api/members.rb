@@ -87,13 +87,13 @@ module API
           user = User.find_by_id(params[:user_id])
           not_found!('User') unless user
 
-          params[:user_ids] = "#{params[:user_id]}"  # UI can add multiple member to a group, API restricted to one
-          member = source.members.find_by(user_id: params[:user_id]) if ::Members::CreateService.new(current_user, params).execute(source)
+          member = source.add_user(user, params[:access_level], current_user: current_user, expires_at: params[:expires_at])
 
           if !member
             not_allowed! # This currently can only be reached in EE
           elsif member.persisted? && member.valid?
             present member, with: Entities::Member
+            ::Members::CreateService.new(current_user, params).after_execute(member: member)
           else
             render_validation_error!(member)
           end
