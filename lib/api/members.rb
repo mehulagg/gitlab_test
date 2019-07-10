@@ -92,8 +92,8 @@ module API
           if !member
             not_allowed! # This currently can only be reached in EE
           elsif member.persisted? && member.valid?
-            present member, with: Entities::Member
             ::Members::CreateService.new(current_user, params).after_execute(member: member)
+            present member, with: Entities::Member
           else
             render_validation_error!(member)
           end
