@@ -887,6 +887,9 @@ msgid_plural "Add %d issues"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "Add %{link} code intelligence to your GitLab instance code views and pull requests."
+msgstr ""
+
 msgid "Add CHANGELOG"
 msgstr ""
 
@@ -6187,6 +6190,9 @@ msgstr ""
 msgid "Enable SAML authentication for this group"
 msgstr ""
 
+msgid "Enable Sourcegraph"
+msgstr ""
+
 msgid "Enable access to Grafana"
 msgstr ""
 
@@ -6203,6 +6209,9 @@ msgid "Enable and configure Prometheus metrics."
 msgstr ""
 
 msgid "Enable classification control using an external service"
+msgstr ""
+
+msgid "Enable code intelligence powered by %{link}."
 msgstr ""
 
 msgid "Enable error tracking"
@@ -16056,6 +16065,12 @@ msgid "Source is not available"
 msgstr ""
 
 msgid "Source project cannot be found."
+msgstr ""
+
+msgid "Sourcegraph"
+msgstr ""
+
+msgid "Sourcegraph URL"
 msgstr ""
 
 msgid "Spam Logs"
