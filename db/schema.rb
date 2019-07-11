@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_15_114644) do
+ActiveRecord::Schema.define(version: 2019_07_19_174505) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -1050,10 +1050,12 @@ ActiveRecord::Schema.define(version: 2019_07_15_114644) do
     t.datetime_with_timezone "expires_at", null: false
     t.datetime_with_timezone "created_at", null: false
     t.string "name", null: false
-    t.string "token", null: false
+    t.string "token"
     t.string "username"
+    t.string "token_encrypted"
     t.index ["token", "expires_at", "id"], name: "index_deploy_tokens_on_token_and_expires_at_and_id", where: "(revoked IS FALSE)", using: :btree
     t.index ["token"], name: "index_deploy_tokens_on_token", unique: true, using: :btree
+    t.index ["token_encrypted"], name: "index_deploy_tokens_on_token_encrypted", unique: true, using: :btree
   end
 
   create_table "deployments", id: :serial, force: :cascade do |t|
