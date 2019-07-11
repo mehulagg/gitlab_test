@@ -1,28 +1,36 @@
 # frozen_string_literal: true
 
-module Prometheus::PidProvider
-  extend self
+require 'prometheus/client/support/unicorn'
 
-  def worker_id
-    if Sidekiq.server?
-      'sidekiq'
-    elsif defined?(Unicorn::Worker)
-      "unicorn_#{prometheus_unicorn_worker_id}"
-    elsif defined?(::Puma)
-      "puma_#{prometheus_puma_worker_id}"
-    else
-      "process_#{Process.pid}"
+module Prometheus
+  module PidProvider
+    extend self
+
+    def worker_id
+      if Sidekiq.server?
+        'sidekiq'
+      elsif defined?(Unicorn::Worker)
+        "unicorn_#{unicorn_worker_id}"
+      elsif defined?(::Puma)
+        "puma_#{puma_worker_id}"
+      else
+        "process_#{Process.pid}"
+      end
     end
-  end
 
-  private
+    private
 
-  def prometheus_unicorn_worker_id
-    ::Prometheus::Client::Support::Unicorn.worker_id || 'master'
-  end
+    def unicorn_worker_id
+      ::Prometheus::Client::Support::Unicorn.worker_id || 'master'
+    end
 
-  def prometheus_puma_worker_id
-    match = $0.match(/cluster worker ([0-9]+):/)
-    match ? match[1] : 'master'
+    def puma_worker_id
+      match = process_name.match(/cluster worker ([0-9]+):/)
+      match ? match[1] : 'master'
+    end
+
+    def process_name
+      $0
+    end
   end
 end

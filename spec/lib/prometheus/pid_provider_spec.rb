@@ -1,17 +1,23 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'fast_spec_helper'
 
-RSpec.describe Prometheus::PidProvider do
-  describe '#worker_id' do
+describe Prometheus::PidProvider do
+  describe '.worker_id' do
     subject { described_class.worker_id }
 
-    context 'when initializing Sidekiq' do
-      before do
-        allow(Sidekiq).to receive(:server?).and_return(true)
-      end
+    before do
+      sidekiq_double = double(Class.new)
+      allow(sidekiq_double).to receive(:server?).and_return(false)
+      stub_const('Sidekiq', sidekiq_double)
+    end
 
-      it { is_expected.to eq 'sidekiq' }
+    context 'when initializing Sidekiq' do
+      specify do
+        expect(Sidekiq).to receive(:server?).and_return(true)
+
+        is_expected.to eq 'sidekiq'
+      end
     end
 
     context 'when initializing Unicorn' do
@@ -20,19 +26,19 @@ RSpec.describe Prometheus::PidProvider do
       end
 
       context 'when `Prometheus::Client::Support::Unicorn` provides worker_id' do
-        before do
-          allow(::Prometheus::Client::Support::Unicorn).to receive(:worker_id).and_return(1)
-        end
+        specify do
+          expect(::Prometheus::Client::Support::Unicorn).to receive(:worker_id).and_return(1)
 
-        it { is_expected.to eq 'unicorn_1' }
+          is_expected.to eq 'unicorn_1'
+        end
       end
 
       context 'when no worker_id is provided from `Prometheus::Client::Support::Unicorn`' do
-        before do
-          allow(::Prometheus::Client::Support::Unicorn).to receive(:worker_id).and_return(nil)
-        end
+        specify do
+          expect(::Prometheus::Client::Support::Unicorn).to receive(:worker_id).and_return(nil)
 
-        it { is_expected.to eq 'unicorn_master' }
+          is_expected.to eq 'unicorn_master'
+        end
       end
     end
 
@@ -41,22 +47,20 @@ RSpec.describe Prometheus::PidProvider do
         stub_const('Puma', Class.new)
       end
 
-      context 'when cluster worker id is specified in `$0`' do
-        it 'includes worker id' do
-          old_value = $0
+      context 'when cluster worker id is specified in process name' do
+        specify do
+          expect(described_class).to receive(:process_name).and_return('puma: cluster worker 1: 17483 [gitlab-puma-worker]')
 
-          begin
-            $0 = 'puma: cluster worker 1: 17483 [gitlab-puma-worker]'
-
-            expect(subject).to eq 'puma_1'
-          ensure
-            $0 = old_value
-          end
+          is_expected.to eq 'puma_1'
         end
       end
 
-      context 'when no worker id is specified in `$0`' do
-        it { is_expected.to eq 'puma_master' }
+      context 'when no worker id is specified in process name' do
+        specify do
+          expect(described_class).to receive(:process_name).and_return('bin/puma')
+
+          is_expected.to eq 'puma_master'
+        end
       end
     end
 

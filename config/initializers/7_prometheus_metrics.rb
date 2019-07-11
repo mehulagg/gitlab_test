@@ -1,5 +1,4 @@
 require 'prometheus/client'
-require 'prometheus/client/support/unicorn'
 
 # Keep separate directories for separate processes
 def prometheus_default_multiproc_dir
