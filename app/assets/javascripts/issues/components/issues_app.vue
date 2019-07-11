@@ -48,6 +48,14 @@ export default {
       type: Function,
       required: true,
     },
+    emptyStateSvgPath: {
+      type: String,
+      required: true,
+    },
+    emptyStateLoadingDisabledSvgPath: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {
