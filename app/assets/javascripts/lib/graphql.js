@@ -15,7 +15,6 @@ export default (resolvers = {}, config = {}) => {
 
   const httpOptions = {
     uri,
-    credentials: 'include',
     headers: {
       [csrf.headerKey]: csrf.token,
     },
