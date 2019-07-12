@@ -458,7 +458,7 @@ export const receiveCreateMergeRequestError = ({ commit }) => {
   commit(types.RECEIVE_CREATE_MERGE_REQUEST_ERROR);
 };
 
-export const openDismissalCommentBox = ({ commit }, payload) => {
+export const openDismissalCommentBox = ({ commit }, payload = {edit: false}) => {
   commit(types.OPEN_DISMISSAL_COMMENT_BOX, payload);
 };
 
@@ -472,6 +472,59 @@ export const showDismissalDeleteButtons = ({ commit }) => {
 
 export const cancelVulnerabilityCommentDeletion = ({commit}) => {
   commit(types.CANCEL_VULNERABILITY_COMMENT_DELETION);
+}
+
+export const clearVulnerabilityComment =  ({ state, dispatch }) => {
+  dispatch('requestDismissVulnerability');
+
+  const routePath = state.createVulnerabilityFeedbackDismissalPath;
+  const resourceId = state.modal.vulnerability.dismissalFeedback.id;
+
+  axios
+    .patch(`${routePath}/${resourceId}`, {
+      vulnerability_feedback: {
+        category: state.modal.vulnerability.category,
+        comment: null,
+        feedback_type: 'dismissal',
+        pipeline_id: state.pipelineId,
+        project_fingerprint: state.modal.vulnerability.project_fingerprint,
+        vulnerability_data: state.modal.vulnerability,
+      },
+    })
+    .then(({ data }) => {
+      dispatch('closeDismissalCommentBox');
+      dispatch('receiveDismissVulnerability');
+
+      // Update the issue with the created dismissal feedback applied
+      const updatedIssue = {
+        ...state.modal.vulnerability,
+        isDismissed: true,
+        dismissalFeedback: data,
+      };
+      switch (updatedIssue.category) {
+        case 'sast':
+          dispatch('updateSastIssue', updatedIssue);
+          break;
+        case 'dependency_scanning':
+          dispatch('updateDependencyScanningIssue', updatedIssue);
+          break;
+        case 'container_scanning':
+          dispatch('updateContainerScanningIssue', updatedIssue);
+          break;
+        case 'dast':
+          dispatch('updateDastIssue', updatedIssue);
+          break;
+        default:
+      }
+
+      $('#modal-mrwidget-security-issue').modal('hide');
+    })
+    .catch(() => {
+      dispatch(
+        'receiveDismissVulnerabilityError',
+        s__('ciReport|There was an error dismissing the vulnerability. Please try again.'),
+      );
+    });  
 }
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests

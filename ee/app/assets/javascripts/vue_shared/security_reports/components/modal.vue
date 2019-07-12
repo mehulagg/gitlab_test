@@ -230,6 +230,7 @@ export default {
             :feedback="dismissalFeedbackObject" 
             :project="project" 
             @cancelVulnerabilityCommentDeletion="$emit('cancelVulnerabilityCommentDeletion')"
+            @clearVulnerabilityComment="$emit('clearVulnerabilityComment')"
             @editVulnerabilityDismissalComment="$emit('editVulnerabilityDismissalComment')"
             @deleteVulnerabilityDismissalComment="$emit('deleteVulnerabilityDismissalComment')"
           />

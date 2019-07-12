@@ -115,7 +115,7 @@ export default {
             <loading-button
               :label="s__('vulnerability|Delete comment')"
               container-class="btn btn-remove"
-              @click="$emit('dismissVulnerability')"
+              @click="$emit('clearVulnerabilityComment')"
             />
 
             <gl-button 
