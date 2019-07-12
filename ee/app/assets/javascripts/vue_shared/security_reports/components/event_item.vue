@@ -39,7 +39,12 @@ export default {
       default: function () {
         return [];
       }
-    }
+    },
+    showRightSlot: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
 };
 </script>
@@ -71,10 +76,16 @@ export default {
       <slot></slot>
     </div>
 
-    <div class="d-flex flex-grow-1 align-self-start flex-row-reverse">
-      <div class="dismission-actions">
+    <slot name="right-content" v-if="showRightSlot"></slot>  
+
+    <div 
+      class="d-flex flex-grow-1 align-self-start flex-row-reverse"
+      v-else
+    >
+      <div class="action-buttons">
         <gl-button
           v-for="button in actionButtons"
+          class="px-1"
           :key="button.title"
           ref="button"
           v-gl-tooltip
@@ -86,5 +97,8 @@ export default {
         </gl-button>  
       </div>
     </div>
+    
+   
+     
   </div>
 </template>

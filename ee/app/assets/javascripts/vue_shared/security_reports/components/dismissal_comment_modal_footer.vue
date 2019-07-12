@@ -23,7 +23,6 @@ export default {
   },
   computed:{
     buttonLabel() {
-      debugger;
       return this.isEditingDismissal ? s__('vulnerability|Save Comment') : 
       s__('vulnerability|Add comment & dismiss')
     }

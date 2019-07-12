@@ -257,6 +257,8 @@ export default {
       'createMergeRequest',
       'openDismissalCommentBox',
       'closeDismissalCommentBox',
+      'showDismissalDeleteButtons',
+      'cancelVulnerabilityCommentDeletion',
       'downloadPatch',
     ]),
   },
@@ -358,13 +360,15 @@ export default {
         :can-create-merge-request="canCreateMergeRequest"
         :can-dismiss-vulnerability="canDismissVulnerability"
         @closeDismissalCommentBox="closeDismissalCommentBox()"
+       
         @createMergeRequest="createMergeRequest"
         @createNewIssue="createNewIssue"
         @dismissVulnerability="dismissVulnerability"
         @updateDismissVulnerabilityComment="updateDismissVulnerabilityComment"
         @openDismissalCommentBox="openDismissalCommentBox()"
         @editVulnerabilityDismissalComment="openDismissalCommentBox({edit: true})"
-        @deleteVulnerabilityDismissalComment="()=>{debugger}"
+        @deleteVulnerabilityDismissalComment="showDismissalDeleteButtons"
+        @cancelVulnerabilityCommentDeletion="cancelVulnerabilityCommentDeletion"
         @revertDismissVulnerability="revertDismissVulnerability"
         @downloadPatch="downloadPatch"
       />

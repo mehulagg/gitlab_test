@@ -226,8 +226,10 @@ export default {
         <div class="card-body">
           <dismissal-note 
             :isCommentingOnDismissal="modal.isCommentingOnDismissal"
+            :isShowingDeleteButtons="modal.isShowingDeleteButtons"
             :feedback="dismissalFeedbackObject" 
             :project="project" 
+            @cancelVulnerabilityCommentDeletion="$emit('cancelVulnerabilityCommentDeletion')"
             @editVulnerabilityDismissalComment="$emit('editVulnerabilityDismissalComment')"
             @deleteVulnerabilityDismissalComment="$emit('deleteVulnerabilityDismissalComment')"
           />

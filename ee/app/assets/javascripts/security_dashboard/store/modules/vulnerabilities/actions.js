@@ -139,10 +139,8 @@ export const receiveCreateIssueError = ({ commit }, { flashError }) => {
 export const updateDismissVulnerabilityComment = ({ state, dispatch }, comment) => {
   dispatch('requestDismissVulnerability');
 
-  //TODO: Make it work
-  debugger;
   axios
-    .post(vulnerability.create_vulnerability_feedback_dismissal_path, {
+    .patch(vulnerability.create_vulnerability_feedback_dismissal_path, {
       vulnerability_feedback: {
         category: vulnerability.report_type,
         comment,

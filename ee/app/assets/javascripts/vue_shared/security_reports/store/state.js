@@ -140,6 +140,7 @@ export default () => ({
 
     isCreatingNewIssue: false,
     isDismissingIssue: false,
+    isShowingDeleteButtons: false,
 
     error: null,
   },

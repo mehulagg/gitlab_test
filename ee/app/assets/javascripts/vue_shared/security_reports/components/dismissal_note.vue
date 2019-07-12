@@ -2,10 +2,14 @@
 import _ from 'underscore';
 import { __, sprintf } from '~/locale';
 import EventItem from 'ee/vue_shared/security_reports/components/event_item.vue';
+import { GlButton } from '@gitlab/ui';
+import LoadingButton from '~/vue_shared/components/loading_button.vue';
 
 export default {
   components: {
     EventItem,
+    GlButton,
+    LoadingButton,
   },
   props: {
     feedback: {
@@ -21,7 +25,17 @@ export default {
       type: Boolean,
       required: false,
       default: false
-    }
+    },
+    isShowingDeleteButtons: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    isDismissingVulnerability: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   computed: {
     eventText() {
@@ -88,12 +102,31 @@ export default {
         :action-buttons="vulnDismissalActionButtons"
         :author="commentDetails.comment_author"
         :created-at="commentDetails.comment_timestamp"
+        :show-right-slot="isShowingDeleteButtons"
         @editVulnerabilityDismissalComment="$emit('editVulnerabilityDismissalComment')"
         @deleteVulnerabilityDismissalComment="$emit('deleteVulnerabilityDismissalComment')"
         icon-name="comment"
         icon-style="ci-status-icon-pending"
       >
         {{ commentDetails.comment }}
+
+        <template #right-content>
+          <div class="d-flex flex-grow-1 align-self-start flex-row-reverse">
+            <loading-button
+              :label="s__('vulnerability|Delete comment')"
+              container-class="btn btn-remove"
+              @click="$emit('dismissVulnerability')"
+            />
+
+            <gl-button 
+              @click="$emit('cancelVulnerabilityCommentDeletion')"
+              class="mr-2"
+            >
+              {{ __('Cancel') }}
+            </gl-button>
+          </div>
+        </template>
+
       </event-item>
     </template>
   </div>

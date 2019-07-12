@@ -436,4 +436,10 @@ export default {
     Vue.set(state.modal, 'isEditingDismissal', false);
     Vue.set(state.modal, 'isCommentingOnDismissal', false);
   },
+  [types.SHOW_DISMISSAL_DELETE_BUTTONS](state) {
+    Vue.set(state.modal, 'isShowingDeleteButtons', true)
+  },
+  [types.CANCEL_VULNERABILITY_COMMENT_DELETION](state) {
+    Vue.set(state.modal, 'isShowingDeleteButtons', false)
+  }
 };
