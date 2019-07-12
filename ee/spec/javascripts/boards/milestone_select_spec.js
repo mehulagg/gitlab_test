@@ -104,7 +104,7 @@ describe('Milestone select component', () => {
       });
 
       it('sets Any Milestone', done => {
-        vm.board.milestone_id = null;
+        vm.board = { milestone_id: null };
         vm.$el.querySelector('.edit-link').click();
 
         setTimeout(() => {
