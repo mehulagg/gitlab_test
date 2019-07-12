@@ -160,8 +160,11 @@ class Note < ApplicationRecord
 
     # Note: Where possible consider using Discussion#lazy_find to return
     # Discussions in order to benefit from having records batch loaded.
-    def find_discussion(discussion_id)
-      notes = where(discussion_id: discussion_id).fresh.to_a
+    def find_discussion(discussion_id, noteable_type: nil)
+
+      notes_q = where(discussion_id: discussion_id)
+      notes_q = notes_q.where(noteable_type: noteable_type) if noteable_type
+      notes = notes_q.fresh.to_a
 
       return if notes.empty?
 
@@ -384,7 +387,7 @@ class Note < ApplicationRecord
   # Consider using `#to_discussion` if we do not need to render the discussion
   # and all its notes and if we don't care about the discussion's resolvability status.
   def discussion
-    full_discussion = self.noteable.notes.find_discussion(self.discussion_id) if part_of_discussion?
+    full_discussion = self.noteable.notes.find_discussion(self.discussion_id, noteable_type: self.noteable_type) if part_of_discussion?
     full_discussion || to_discussion
   end
 

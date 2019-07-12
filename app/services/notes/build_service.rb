@@ -7,7 +7,7 @@ module Notes
       in_reply_to_discussion_id = params.delete(:in_reply_to_discussion_id)
 
       if in_reply_to_discussion_id.present?
-        discussion = find_discussion(in_reply_to_discussion_id)
+        discussion = find_discussion(in_reply_to_discussion_id, params[:noteable_type])
 
         unless discussion && can?(current_user, :create_note, discussion.noteable)
           note = Note.new
@@ -32,11 +32,11 @@ module Notes
       note
     end
 
-    def find_discussion(discussion_id)
+    def find_discussion(discussion_id, noteable_type)
       if project
-        project.notes.find_discussion(discussion_id)
+        project.notes.find_discussion(discussion_id, noteable_type: noteable_type)
       else
-        Note.find_discussion(discussion_id)
+        Note.find_discussion(discussion_id, noteable_type: noteable_type)
       end
     end
   end
