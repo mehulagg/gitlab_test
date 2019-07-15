@@ -1,5 +1,4 @@
 <script>
-import { mapActions } from 'vuex';
 import { GlButton, GlSkeletonLoading } from '@gitlab/ui';
 import Icon from '~/vue_shared/components/icon.vue';
 import SeverityBadge from 'ee/vue_shared/security_reports/components/severity_badge.vue';
@@ -8,6 +7,12 @@ import VulnerabilityIssueLink from './vulnerability_issue_link.vue';
 
 export default {
   name: 'SecurityDashboardTableRow',
+  inject: {
+    handleIssueClick: {
+      from: 'handleIssueClick',
+      default: () => () => {},
+    },
+  },
   components: {
     GlButton,
     GlSkeletonLoading,
@@ -56,9 +61,6 @@ export default {
       return Boolean(path) && !this.hasIssue;
     },
   },
-  methods: {
-    ...mapActions('vulnerabilities', ['openModal']),
-  },
 };
 </script>
 
@@ -77,7 +79,7 @@ export default {
           <gl-button
             class="vulnerability-title d-inline"
             variant="blank"
-            @click="openModal({ vulnerability })"
+            @click="() => handleIssueClick({ vulnerability })"
             >{{ vulnerability.name }}</gl-button
           >
           <template v-if="isDismissed">

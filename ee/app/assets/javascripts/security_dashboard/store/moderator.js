@@ -1,5 +1,6 @@
 import * as filtersMutationTypes from './modules/filters/mutation_types';
 import * as projectsMutationTypes from './modules/projects/mutation_types';
+import * as vulnerabilitiesMutationTypes from './modules/vulnerabilities/mutation_types';
 import { BASE_FILTERS } from './modules/filters/constants';
 
 export default function configureModerator(store) {
@@ -23,6 +24,30 @@ export default function configureModerator(store) {
         store.dispatch('vulnerabilities/fetchVulnerabilities', activeFilters);
         store.dispatch('vulnerabilities/fetchVulnerabilitiesCount', activeFilters);
         store.dispatch('vulnerabilities/fetchVulnerabilitiesHistory', activeFilters);
+        break;
+      }
+      case `vulnerabilities/${vulnerabilitiesMutationTypes.REQUEST_CREATE_ISSUE}`:
+      case `vulnerabilities/${vulnerabilitiesMutationTypes.RECEIVE_CREATE_ISSUE_ERROR}`:
+      case `vulnerabilities/${vulnerabilitiesMutationTypes.REQUEST_DISMISS_VULNERABILITY}`:
+      case `vulnerabilities/${vulnerabilitiesMutationTypes.RECEIVE_DISMISS_VULNERABILITY_SUCCESS}`:
+      case `vulnerabilities/${vulnerabilitiesMutationTypes.RECEIVE_DISMISS_VULNERABILITY_ERROR}`:
+      case `vulnerabilities/${vulnerabilitiesMutationTypes.REQUEST_ADD_DISMISSAL_COMMENT}`:
+      case `vulnerabilities/${vulnerabilitiesMutationTypes.RECEIVE_ADD_DISMISSAL_COMMENT_SUCCESS}`:
+      case `vulnerabilities/${vulnerabilitiesMutationTypes.RECEIVE_ADD_DISMISSAL_COMMENT_ERROR}`:
+      case `vulnerabilities/${vulnerabilitiesMutationTypes.REQUEST_DELETE_DISMISSAL_COMMENT}`:
+      case `vulnerabilities/${vulnerabilitiesMutationTypes.RECEIVE_DELETE_DISMISSAL_COMMENT_SUCCESS}`:
+      case `vulnerabilities/${vulnerabilitiesMutationTypes.RECEIVE_DELETE_DISMISSAL_COMMENT_ERROR}`:
+      case `vulnerabilities/${vulnerabilitiesMutationTypes.REQUEST_REVERT_DISMISSAL}`:
+      case `vulnerabilities/${vulnerabilitiesMutationTypes.RECEIVE_REVERT_DISMISSAL_SUCCESS}`:
+      case `vulnerabilities/${vulnerabilitiesMutationTypes.RECEIVE_REVERT_DISMISSAL_ERROR}`:
+      case `vulnerabilities/${vulnerabilitiesMutationTypes.REQUEST_CREATE_MERGE_REQUEST}`:
+      case `vulnerabilities/${vulnerabilitiesMutationTypes.RECEIVE_CREATE_MERGE_REQUEST_ERROR}`: {
+        const vulnerabilityModalMutation = `vulnerabilityModal/${type.substring(16)}`;
+        if (typeof payload !== 'undefined') {
+          store.commit(vulnerabilityModalMutation, payload);
+        } else {
+          store.commit(vulnerabilityModalMutation);
+        }
         break;
       }
       default:

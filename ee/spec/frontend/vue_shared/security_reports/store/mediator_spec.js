@@ -6,7 +6,7 @@ const mockedStore = {
 };
 
 mockedStore.subscribe = callback => {
-  mockedStore.commit = callback;
+  mockedStore.commit = jest.fn().mockImplementation(callback);
 };
 
 describe('security reports mediator', () => {
@@ -30,5 +30,22 @@ describe('security reports mediator', () => {
 
       expect(mockedStore.dispatch).toHaveBeenCalledWith(action, payload);
     });
+  });
+
+  it.each`
+    mutation                                   | payload
+    ${'REQUEST_ADD_DISMISSAL_COMMENT'}         | ${undefined}
+    ${'RECEIVE_ADD_DISMISSAL_COMMENT_SUCCESS'} | ${{}}
+    ${'RECEIVE_ADD_DISMISSAL_COMMENT_ERROR'}   | ${{}}
+    ${'REQUEST_CREATE_MERGE_REQUEST'}          | ${undefined}
+    ${'RECEIVE_CREATE_MERGE_REQUEST_ERROR'}    | ${undefined}
+  `('commits vulnerabilityModal/$mutation along with $mutation', ({ mutation, payload }) => {
+    const expectedArgs = [`vulnerabilityModal/${mutation}`];
+    if (typeof payload !== 'undefined') {
+      expectedArgs.push(payload);
+    }
+    mockedStore.commit({ type: mutation, payload });
+    expect(mockedStore.commit).toHaveBeenCalledTimes(2);
+    expect(mockedStore.commit).toHaveBeenCalledWith(...expectedArgs);
   });
 });

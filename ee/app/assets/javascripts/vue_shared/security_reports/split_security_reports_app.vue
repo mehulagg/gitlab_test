@@ -1,10 +1,10 @@
 <script>
 import { mapActions, mapState } from 'vuex';
+import hasVulnerabilityModal from 'ee/vue_shared/security_reports/mixins/has_vulnerability_modal';
 import { s__, sprintf, n__ } from '~/locale';
 import createFlash from '~/flash';
 import ReportSection from '~/reports/components/report_section.vue';
 import { componentNames } from 'ee/reports/components/issue_body';
-import IssueModal from './components/modal.vue';
 import mixin from './mixins/security_report_mixin';
 import reportsMixin from './mixins/reports_mixin';
 import messages from './store/messages';
@@ -12,10 +12,9 @@ import messages from './store/messages';
 export default {
   components: {
     ReportSection,
-    IssueModal,
   },
   messages,
-  mixins: [mixin, reportsMixin],
+  mixins: [mixin, reportsMixin, hasVulnerabilityModal],
   props: {
     alwaysOpen: {
       type: Boolean,
@@ -121,7 +120,6 @@ export default {
       'dependencyScanning',
       'sastContainer',
       'dast',
-      'modal',
       'canCreateIssuePermission',
       'canCreateFeedbackPermission',
     ]),
@@ -232,8 +230,6 @@ export default {
       'revertDismissVulnerability',
       'createNewIssue',
       'createMergeRequest',
-      'openDismissalCommentBox',
-      'closeDismissalCommentBox',
       'downloadPatch',
       'addDismissalComment',
       'deleteDismissalComment',
@@ -333,7 +329,7 @@ export default {
       @openDismissalCommentBox="openDismissalCommentBox()"
       @revertDismissVulnerability="revertDismissVulnerability"
       @downloadPatch="downloadPatch"
-      @addDismissalComment="addDismissalComment({ comment: $event })"
+      @addDismissalComment="addDismissalComment"
       @editVulnerabilityDismissalComment="openDismissalCommentBox()"
       @deleteDismissalComment="deleteDismissalComment"
       @showDismissalDeleteButtons="showDismissalDeleteButtons"

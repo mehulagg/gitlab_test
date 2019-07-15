@@ -381,51 +381,24 @@ describe('vulnerabilities actions', () => {
   });
 });
 
-describe('openModal', () => {
-  let state;
-
-  beforeEach(() => {
-    state = initialState();
-  });
-
-  it('should commit the SET_MODAL_DATA mutation', done => {
-    const vulnerability = mockDataVulnerabilities[0];
-
-    testAction(
-      actions.openModal,
-      { vulnerability },
-      state,
-      [
-        {
-          type: types.SET_MODAL_DATA,
-          payload: { vulnerability },
-        },
-      ],
-      [],
-      done,
-    );
-  });
-});
-
 describe('downloadPatch', () => {
   it('creates a download link and clicks on it to download the file', () => {
     spyOn(document, 'createElement').and.callThrough();
     spyOn(document.body, 'appendChild').and.callThrough();
     spyOn(document.body, 'removeChild').and.callThrough();
 
-    actions.downloadPatch({
-      state: {
-        modal: {
-          vulnerability: {
-            remediations: [
-              {
-                diff: 'abcdef',
-              },
-            ],
-          },
+    actions.downloadPatch(
+      {},
+      {
+        vulnerability: {
+          remediations: [
+            {
+              diff: 'abcdef',
+            },
+          ],
         },
       },
-    });
+    );
 
     expect(document.createElement).toHaveBeenCalledTimes(1);
     expect(document.body.appendChild).toHaveBeenCalledTimes(1);
@@ -700,7 +673,7 @@ describe('vulnerability dismissal', () => {
           [],
           [
             { type: 'requestDismissVulnerability' },
-            { type: 'closeDismissalCommentBox' },
+            { type: 'vulnerabilityModal/closeDismissalCommentBox', payload: null },
             {
               type: 'receiveDismissVulnerabilitySuccess',
               payload: { data, vulnerability },
@@ -824,7 +797,7 @@ describe('add vulnerability dismissal comment', () => {
           [],
           [
             { type: 'requestAddDismissalComment' },
-            { type: 'closeDismissalCommentBox' },
+            { type: 'vulnerabilityModal/closeDismissalCommentBox', payload: null },
             { type: 'receiveAddDismissalCommentSuccess', payload: { data, vulnerability } },
           ],
           checkPassedData,
@@ -925,7 +898,7 @@ describe('add vulnerability dismissal comment', () => {
           [],
           [
             { type: 'requestDeleteDismissalComment' },
-            { type: 'closeDismissalCommentBox' },
+            { type: 'vulnerabilityModal/closeDismissalCommentBox', payload: null },
             {
               type: 'receiveDeleteDismissalCommentSuccess',
               payload: { data, id: vulnerability.id },
@@ -1011,7 +984,8 @@ describe('showDismissalDeleteButtons', () => {
       state,
       [
         {
-          type: types.SHOW_DISMISSAL_DELETE_BUTTONS,
+          type: `vulnerabilityModal/SHOW_DISMISSAL_DELETE_BUTTONS`,
+          payload: {},
         },
       ],
       [],
@@ -1034,7 +1008,8 @@ describe('hideDismissalDeleteButtons', () => {
       state,
       [
         {
-          type: types.HIDE_DISMISSAL_DELETE_BUTTONS,
+          type: `vulnerabilityModal/HIDE_DISMISSAL_DELETE_BUTTONS`,
+          payload: {},
         },
       ],
       [],
@@ -1321,32 +1296,6 @@ describe('vulnerabilities history actions', () => {
         {},
         state,
         [{ type: types.RECEIVE_VULNERABILITIES_HISTORY_ERROR }],
-        [],
-        done,
-      );
-    });
-  });
-
-  describe('openDismissalCommentBox', () => {
-    it('should commit the open comment mutation with a default payload', done => {
-      testAction(
-        actions.openDismissalCommentBox,
-        undefined,
-        state,
-        [{ type: types.OPEN_DISMISSAL_COMMENT_BOX }],
-        [],
-        done,
-      );
-    });
-  });
-
-  describe('closeDismissalCommentBox', () => {
-    it('should commit the close comment mutation', done => {
-      testAction(
-        actions.closeDismissalCommentBox,
-        {},
-        state,
-        [{ type: types.CLOSE_DISMISSAL_COMMENT_BOX }],
         [],
         done,
       );

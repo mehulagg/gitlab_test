@@ -207,138 +207,6 @@ describe('vulnerabilities module mutations', () => {
     });
   });
 
-  describe('SET_MODAL_DATA', () => {
-    describe('with all the data', () => {
-      const vulnerability = mockData[0];
-      let payload;
-
-      beforeEach(() => {
-        payload = { vulnerability };
-        mutations[types.SET_MODAL_DATA](state, payload);
-      });
-
-      it('should set the modal title', () => {
-        expect(state.modal.title).toEqual(vulnerability.name);
-      });
-
-      it('should set the modal description', () => {
-        expect(state.modal.data.description.value).toEqual(vulnerability.description);
-      });
-
-      it('should set the modal project', () => {
-        expect(state.modal.data.project.value).toEqual(vulnerability.project.full_name);
-        expect(state.modal.data.project.url).toEqual(vulnerability.project.full_path);
-      });
-
-      it('should set the modal file', () => {
-        expect(state.modal.data.file.value).toEqual(
-          `${vulnerability.location.file}:${vulnerability.location.start_line}`,
-        );
-      });
-
-      it('should set the modal className', () => {
-        expect(state.modal.data.className.value).toEqual(vulnerability.location.class);
-      });
-
-      it('should set the modal image', () => {
-        expect(state.modal.data.image.value).toEqual(vulnerability.location.image);
-      });
-
-      it('should set the modal namespace', () => {
-        expect(state.modal.data.namespace.value).toEqual(vulnerability.location.operating_system);
-      });
-
-      it('should set the modal identifiers', () => {
-        expect(state.modal.data.identifiers.value).toEqual(vulnerability.identifiers);
-      });
-
-      it('should set the modal severity', () => {
-        expect(state.modal.data.severity.value).toEqual(vulnerability.severity);
-      });
-
-      it('should set the modal confidence', () => {
-        expect(state.modal.data.confidence.value).toEqual(vulnerability.confidence);
-      });
-
-      it('should set the modal class', () => {
-        expect(state.modal.data.className.value).toEqual(vulnerability.location.class);
-      });
-
-      it('should set the modal links', () => {
-        expect(state.modal.data.links.value).toEqual(vulnerability.links);
-      });
-
-      it('should set the modal instances', () => {
-        expect(state.modal.data.instances.value).toEqual(vulnerability.instances);
-      });
-
-      it('should set the modal vulnerability', () => {
-        expect(state.modal.vulnerability).toEqual(vulnerability);
-      });
-    });
-
-    describe('with irregular data', () => {
-      const vulnerability = mockData[0];
-      it('should set isDismissed when the vulnerabilitiy is dismissed', () => {
-        const payload = {
-          vulnerability: { ...vulnerability, dismissal_feedback: 'I am dismissed' },
-        };
-        mutations[types.SET_MODAL_DATA](state, payload);
-
-        expect(state.modal.vulnerability.isDismissed).toEqual(true);
-      });
-
-      it('should set hasIssue when the vulnerabilitiy has a related issue', () => {
-        const payload = {
-          vulnerability: {
-            ...vulnerability,
-            issue_feedback: {
-              issue_iid: 123,
-            },
-          },
-        };
-        mutations[types.SET_MODAL_DATA](state, payload);
-
-        expect(state.modal.vulnerability.hasIssue).toEqual(true);
-      });
-
-      it('should not set hasIssue when the issue_iid in null', () => {
-        const payload = {
-          vulnerability: {
-            ...vulnerability,
-            issue_feedback: {
-              issue_iid: null,
-            },
-          },
-        };
-        mutations[types.SET_MODAL_DATA](state, payload);
-
-        expect(state.modal.vulnerability.hasIssue).toEqual(false);
-      });
-
-      it('should nullify the modal links', () => {
-        const payload = { vulnerability: { ...vulnerability, links: [] } };
-        mutations[types.SET_MODAL_DATA](state, payload);
-
-        expect(state.modal.data.links.value).toEqual(null);
-      });
-
-      it('should nullify the instances', () => {
-        const payload = { vulnerability: { ...vulnerability, instances: [] } };
-        mutations[types.SET_MODAL_DATA](state, payload);
-
-        expect(state.modal.data.instances.value).toEqual(null);
-      });
-
-      it('should nullify the file value', () => {
-        const payload = { vulnerability: { ...vulnerability, location: {} } };
-        mutations[types.SET_MODAL_DATA](state, payload);
-
-        expect(state.modal.data.file.value).toEqual(null);
-      });
-    });
-  });
-
   describe('REQUEST_CREATE_ISSUE', () => {
     beforeEach(() => {
       mutations[types.REQUEST_CREATE_ISSUE](state);
@@ -346,14 +214,6 @@ describe('vulnerabilities module mutations', () => {
 
     it('should set isCreatingIssue to true', () => {
       expect(state.isCreatingIssue).toBe(true);
-    });
-
-    it('should set isCreatingNewIssue in the modal data to true', () => {
-      expect(state.modal.isCreatingNewIssue).toBe(true);
-    });
-
-    it('should nullify the error state on the modal', () => {
-      expect(state.modal.error).toBeNull();
     });
   });
 
@@ -375,14 +235,6 @@ describe('vulnerabilities module mutations', () => {
     it('should set isCreatingIssue to false', () => {
       expect(state.isCreatingIssue).toBe(false);
     });
-
-    it('should set isCreatingNewIssue in the modal data to false', () => {
-      expect(state.modal.isCreatingNewIssue).toBe(false);
-    });
-
-    it('should set the error state on the modal', () => {
-      expect(state.modal.error).toEqual('There was an error creating the issue');
-    });
   });
 
   describe('REQUEST_CREATE_MERGE_REQUEST', () => {
@@ -392,14 +244,6 @@ describe('vulnerabilities module mutations', () => {
 
     it('should set isCreatingMergeRequest to true', () => {
       expect(state.isCreatingMergeRequest).toBe(true);
-    });
-
-    it('should set isCreatingMergeRequest in the modal data to true', () => {
-      expect(state.modal.isCreatingMergeRequest).toBe(true);
-    });
-
-    it('should nullify the error state on the modal', () => {
-      expect(state.modal.error).toBeNull();
     });
   });
 
@@ -421,14 +265,6 @@ describe('vulnerabilities module mutations', () => {
     it('should set isCreatingMergeRequest to false', () => {
       expect(state.isCreatingMergeRequest).toBe(false);
     });
-
-    it('should set isCreatingMergeRequest in the modal data to false', () => {
-      expect(state.modal.isCreatingMergeRequest).toBe(false);
-    });
-
-    it('should set the error state on the modal', () => {
-      expect(state.modal.error).toEqual('There was an error creating the merge request');
-    });
   });
 
   describe('REQUEST_DISMISS_VULNERABILITY', () => {
@@ -438,14 +274,6 @@ describe('vulnerabilities module mutations', () => {
 
     it('should set isDismissingVulnerability to true', () => {
       expect(state.isDismissingVulnerability).toBe(true);
-    });
-
-    it('should set isDismissingVulnerability in the modal data to true', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(true);
-    });
-
-    it('should nullify the error state on the modal', () => {
-      expect(state.modal.error).toBeNull();
     });
   });
 
@@ -469,14 +297,6 @@ describe('vulnerabilities module mutations', () => {
     it('should set isDismissingVulnerability to false', () => {
       expect(state.isDismissingVulnerability).toBe(false);
     });
-
-    it('should set isDismissingVulnerability on the modal to false', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(false);
-    });
-
-    it('shoulfd set isDissmissed on the modal vulnerability to be true', () => {
-      expect(state.modal.vulnerability.isDismissed).toBe(true);
-    });
   });
 
   describe('RECEIVE_DISMISS_VULNERABILITY_ERROR', () => {
@@ -487,14 +307,6 @@ describe('vulnerabilities module mutations', () => {
     it('should set isDismissingVulnerability to false', () => {
       expect(state.isDismissingVulnerability).toBe(false);
     });
-
-    it('should set isDismissingVulnerability in the modal data to false', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(false);
-    });
-
-    it('should set the error state on the modal', () => {
-      expect(state.modal.error).toEqual('There was an error dismissing the vulnerability.');
-    });
   });
 
   describe('REQUEST_DELETE_DISMISSAL_COMMENT', () => {
@@ -504,14 +316,6 @@ describe('vulnerabilities module mutations', () => {
 
     it('should set isDismissingVulnerability to true', () => {
       expect(state.isDismissingVulnerability).toBe(true);
-    });
-
-    it('should set isDismissingVulnerability in the modal data to true', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(true);
-    });
-
-    it('should nullify the error state on the modal', () => {
-      expect(state.modal.error).toBeNull();
     });
   });
 
@@ -535,14 +339,6 @@ describe('vulnerabilities module mutations', () => {
     it('should set isDismissingVulnerability to false', () => {
       expect(state.isDismissingVulnerability).toBe(false);
     });
-
-    it('should set isDismissingVulnerability on the modal to false', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(false);
-    });
-
-    it('should set isDissmissed on the modal vulnerability to be true', () => {
-      expect(state.modal.vulnerability.isDismissed).toBe(true);
-    });
   });
 
   describe('RECEIVE_DELETE_DISMISSAL_COMMENT_ERROR', () => {
@@ -553,33 +349,11 @@ describe('vulnerabilities module mutations', () => {
     it('should set isDismissingVulnerability to false', () => {
       expect(state.isDismissingVulnerability).toBe(false);
     });
-
-    it('should set isDismissingVulnerability in the modal data to false', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(false);
-    });
-
-    it('should set the error state on the modal', () => {
-      expect(state.modal.error).toEqual('There was an error deleting the comment.');
-    });
-  });
-
-  describe(types.SHOW_DISMISSAL_DELETE_BUTTONS, () => {
-    beforeEach(() => {
-      mutations[types.SHOW_DISMISSAL_DELETE_BUTTONS](state);
-    });
-
-    it('should set isShowingDeleteButtonsto to true', () => {
-      expect(state.modal.isShowingDeleteButtons).toBe(true);
-    });
   });
 
   describe(types.HIDE_DISMISSAL_DELETE_BUTTONS, () => {
     beforeEach(() => {
       mutations[types.HIDE_DISMISSAL_DELETE_BUTTONS](state);
-    });
-
-    it('should set isShowingDeleteButtons to false', () => {
-      expect(state.modal.isShowingDeleteButtons).toBe(false);
     });
   });
 
@@ -590,14 +364,6 @@ describe('vulnerabilities module mutations', () => {
 
     it('should set isDismissingVulnerability to true', () => {
       expect(state.isDismissingVulnerability).toBe(true);
-    });
-
-    it('should set isDismissingVulnerability in the modal data to true', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(true);
-    });
-
-    it('should nullify the error state on the modal', () => {
-      expect(state.modal.error).toBeNull();
     });
   });
 
@@ -621,14 +387,6 @@ describe('vulnerabilities module mutations', () => {
     it('should set isDismissingVulnerability to false', () => {
       expect(state.isDismissingVulnerability).toBe(false);
     });
-
-    it('should set isDismissingVulnerability on the modal to false', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(false);
-    });
-
-    it('should set isDissmissed on the modal vulnerability to be true', () => {
-      expect(state.modal.vulnerability.isDismissed).toBe(true);
-    });
   });
 
   describe('RECEIVE_ADD_DISMISSAL_COMMENT_ERROR', () => {
@@ -639,14 +397,6 @@ describe('vulnerabilities module mutations', () => {
     it('should set isDismissingVulnerability to false', () => {
       expect(state.isDismissingVulnerability).toBe(false);
     });
-
-    it('should set isDismissingVulnerability in the modal data to false', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(false);
-    });
-
-    it('should set the error state on the modal', () => {
-      expect(state.modal.error).toEqual('There was an error adding the comment.');
-    });
   });
 
   describe('REQUEST_REVERT_DISMISSAL', () => {
@@ -656,14 +406,6 @@ describe('vulnerabilities module mutations', () => {
 
     it('should set isDismissingVulnerability to true', () => {
       expect(state.isDismissingVulnerability).toBe(true);
-    });
-
-    it('should set isDismissingVulnerability in the modal data to true', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(true);
-    });
-
-    it('should nullify the error state on the modal', () => {
-      expect(state.modal.error).toBeNull();
     });
   });
 
@@ -685,14 +427,6 @@ describe('vulnerabilities module mutations', () => {
     it('should set isDismissingVulnerability to false', () => {
       expect(state.isDismissingVulnerability).toBe(false);
     });
-
-    it('should set isDismissingVulnerability on the modal to false', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(false);
-    });
-
-    it('should set isDissmissed on the modal vulnerability to be false', () => {
-      expect(state.modal.vulnerability.isDismissed).toBe(false);
-    });
   });
 
   describe('RECEIVE_REVERT_DISMISSAL_ERROR', () => {
@@ -702,38 +436,6 @@ describe('vulnerabilities module mutations', () => {
 
     it('should set isDismissingVulnerability to false', () => {
       expect(state.isDismissingVulnerability).toBe(false);
-    });
-
-    it('should set isDismissingVulnerability in the modal data to false', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(false);
-    });
-
-    it('should set the error state on the modal', () => {
-      expect(state.modal.error).toEqual('There was an error reverting the dismissal.');
-    });
-  });
-
-  describe('OPEN_DISMISSAL_COMMENT_BOX', () => {
-    beforeEach(() => {
-      mutations[types.OPEN_DISMISSAL_COMMENT_BOX](state);
-    });
-
-    it('should set isCommentingOnDismissal to true', () => {
-      expect(state.modal.isCommentingOnDismissal).toBe(true);
-    });
-  });
-
-  describe('CLOSE_DISMISSAL_COMMENT_BOX', () => {
-    beforeEach(() => {
-      mutations[types.CLOSE_DISMISSAL_COMMENT_BOX](state);
-    });
-
-    it('should set isCommentingOnDismissal to false', () => {
-      expect(state.modal.isCommentingOnDismissal).toBe(false);
-    });
-
-    it('should set isShowingDeleteButtons to false', () => {
-      expect(state.modal.isShowingDeleteButtons).toBe(false);
     });
   });
 });

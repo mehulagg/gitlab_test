@@ -1,11 +1,11 @@
 <script>
 import { mapActions, mapState, mapGetters } from 'vuex';
+import hasVulnerabilityModal from 'ee/vue_shared/security_reports/mixins/has_vulnerability_modal';
 import ReportSection from '~/reports/components/report_section.vue';
 import SummaryRow from '~/reports/components/summary_row.vue';
 import IssuesList from '~/reports/components/issues_list.vue';
 import Icon from '~/vue_shared/components/icon.vue';
 import { componentNames } from 'ee/reports/components/issue_body';
-import IssueModal from './components/modal.vue';
 import securityReportsMixin from './mixins/security_report_mixin';
 import createStore from './store';
 
@@ -15,10 +15,9 @@ export default {
     ReportSection,
     SummaryRow,
     IssuesList,
-    IssueModal,
     Icon,
   },
-  mixins: [securityReportsMixin],
+  mixins: [securityReportsMixin, hasVulnerabilityModal],
   props: {
     headBlobPath: {
       type: String,
@@ -150,7 +149,6 @@ export default {
       'dast',
       'dependencyScanning',
       'summaryCounts',
-      'modal',
       'canCreateIssuePermission',
       'canCreateFeedbackPermission',
     ]),
@@ -290,8 +288,6 @@ export default {
       'revertDismissVulnerability',
       'createNewIssue',
       'createMergeRequest',
-      'openDismissalCommentBox',
-      'closeDismissalCommentBox',
       'downloadPatch',
       'addDismissalComment',
       'deleteDismissalComment',
@@ -416,7 +412,7 @@ export default {
         @editVulnerabilityDismissalComment="openDismissalCommentBox()"
         @revertDismissVulnerability="revertDismissVulnerability"
         @downloadPatch="downloadPatch"
-        @addDismissalComment="addDismissalComment({ comment: $event })"
+        @addDismissalComment="addDismissalComment"
         @deleteDismissalComment="deleteDismissalComment"
         @showDismissalDeleteButtons="showDismissalDeleteButtons"
         @hideDismissalDeleteButtons="hideDismissalDeleteButtons"

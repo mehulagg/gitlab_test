@@ -1,25 +1,40 @@
 import Vue from 'vue';
+import Vuex from 'vuex';
+import { mount, createLocalVue } from '@vue/test-utils';
 import component from 'ee/vue_shared/security_reports/components/modal.vue';
-import createState from 'ee/vue_shared/security_reports/store/state';
-import { mount, shallowMount } from '@vue/test-utils';
+import storeModule from 'ee/vue_shared/security_reports/store/modules/vulnerability_modal';
+
+const localVue = createLocalVue();
+localVue.use(Vuex);
+const createStore = () =>
+  new Vuex.Store({
+    modules: {
+      vulnerabilityModal: storeModule(),
+    },
+  });
 
 describe('Security Reports modal', () => {
   const Component = Vue.extend(component);
   let wrapper;
+  let store;
+
+  const createWrapper = propsData => {
+    wrapper = mount(Component, { localVue, propsData, store, sync: false });
+  };
 
   describe('with permissions', () => {
     describe('with dismissed issue', () => {
       beforeEach(() => {
+        store = createStore();
         const propsData = {
-          modal: createState().modal,
           canDismissVulnerability: true,
         };
-        propsData.modal.vulnerability.isDismissed = true;
-        propsData.modal.vulnerability.dismissalFeedback = {
+        store.state.vulnerabilityModal.modal.vulnerability.isDismissed = true;
+        store.state.vulnerabilityModal.modal.vulnerability.dismissalFeedback = {
           author: { username: 'jsmith', name: 'John Smith' },
           pipeline: { id: '123', path: '#' },
         };
-        wrapper = mount(Component, { propsData });
+        createWrapper(propsData);
       });
 
       it('renders dismissal author and associated pipeline', () => {
@@ -35,11 +50,11 @@ describe('Security Reports modal', () => {
 
     describe('with not dismissed issue', () => {
       beforeEach(() => {
+        store = createStore();
         const propsData = {
-          modal: createState().modal,
           canDismissVulnerability: true,
         };
-        wrapper = mount(Component, { propsData });
+        createWrapper(propsData);
       });
 
       it('renders the footer', () => {
@@ -49,15 +64,15 @@ describe('Security Reports modal', () => {
 
     describe('with merge request available', () => {
       beforeEach(() => {
+        store = createStore();
         const propsData = {
-          modal: createState().modal,
           canCreateIssue: true,
           canCreateMergeRequest: true,
         };
         const summary = 'Upgrade to 123';
         const diff = 'abc123';
-        propsData.modal.vulnerability.remediations = [{ summary, diff }];
-        wrapper = mount(Component, { propsData, sync: true });
+        store.state.vulnerabilityModal.modal.vulnerability.remediations = [{ summary, diff }];
+        createWrapper(propsData);
       });
 
       it('renders create merge request and issue button as a split button', () => {
@@ -67,40 +82,36 @@ describe('Security Reports modal', () => {
       });
 
       describe('with merge request created', () => {
-        it('renders the issue button as a single button', done => {
+        it('renders the issue button as a single button', () => {
+          store = createStore();
           const propsData = {
-            modal: createState().modal,
             canCreateIssue: true,
             canCreateMergeRequest: true,
           };
 
-          propsData.modal.vulnerability.hasMergeRequest = true;
+          store.state.vulnerabilityModal.modal.vulnerability.hasMergeRequest = true;
 
-          wrapper.setProps(propsData);
+          createWrapper(propsData);
 
-          Vue.nextTick()
-            .then(() => {
-              expect(wrapper.contains('.js-split-button')).toBe(false);
-              expect(wrapper.contains('.js-action-button')).toBe(true);
-              expect(wrapper.find('.js-action-button').text()).not.toContain(
-                'Resolve with merge request',
-              );
-              expect(wrapper.find('.js-action-button').text()).toContain('Create issue');
-              done();
-            })
-            .catch(done.fail);
+          expect(wrapper.contains('.js-split-button')).toBe(false);
+          expect(wrapper.contains('.js-action-button')).toBe(true);
+          expect(wrapper.find('.js-action-button').text()).not.toContain(
+            'Resolve with merge request',
+          );
+          expect(wrapper.find('.js-action-button').text()).toContain('Create issue');
         });
       });
     });
 
     describe('data', () => {
       beforeEach(() => {
+        store = createStore();
         const propsData = {
-          modal: createState().modal,
           vulnerabilityFeedbackHelpPath: 'feedbacksHelpPath',
         };
-        propsData.modal.title = 'Arbitrary file existence disclosure in Action Pack';
-        wrapper = mount(Component, { propsData });
+        store.state.vulnerabilityModal.modal.title =
+          'Arbitrary file existence disclosure in Action Pack';
+        createWrapper(propsData);
       });
 
       it('renders title', () => {
@@ -117,10 +128,8 @@ describe('Security Reports modal', () => {
 
   describe('without permissions', () => {
     beforeEach(() => {
-      const propsData = {
-        modal: createState().modal,
-      };
-      wrapper = shallowMount(Component, { propsData });
+      store = createStore();
+      createWrapper();
     });
 
     it('does not display the footer', () => {
@@ -131,14 +140,12 @@ describe('Security Reports modal', () => {
   describe('related issue read access', () => {
     describe('with permission to read', () => {
       beforeEach(() => {
-        const propsData = {
-          modal: createState().modal,
-        };
-
-        propsData.modal.vulnerability.issue_feedback = {
+        store = createStore();
+        store.state.vulnerabilityModal.modal.vulnerability.issue_feedback = {
           issue_url: 'http://issue.url',
+          author: {},
         };
-        wrapper = shallowMount(Component, { propsData });
+        createWrapper();
       });
 
       it('displays a link to the issue', () => {
@@ -149,14 +156,10 @@ describe('Security Reports modal', () => {
 
     describe('without permission to read', () => {
       beforeEach(() => {
-        const propsData = {
-          modal: createState().modal,
-        };
-
-        propsData.modal.vulnerability.issue_feedback = {
+        store.state.vulnerabilityModal.modal.vulnerability.issue_feedback = {
           issue_url: null,
         };
-        wrapper = shallowMount(Component, { propsData });
+        createWrapper();
       });
 
       it('hides the link to the issue', () => {
@@ -169,14 +172,12 @@ describe('Security Reports modal', () => {
   describe('related merge request read access', () => {
     describe('with permission to read', () => {
       beforeEach(() => {
-        const propsData = {
-          modal: createState().modal,
-        };
-
-        propsData.modal.vulnerability.merge_request_feedback = {
+        store = createStore();
+        store.state.vulnerabilityModal.modal.vulnerability.merge_request_feedback = {
           merge_request_path: 'http://mr.url',
+          author: {},
         };
-        wrapper = shallowMount(Component, { propsData });
+        createWrapper();
       });
 
       it('displays a link to the merge request', () => {
@@ -187,14 +188,12 @@ describe('Security Reports modal', () => {
 
     describe('without permission to read', () => {
       beforeEach(() => {
-        const propsData = {
-          modal: createState().modal,
-        };
-
-        propsData.modal.vulnerability.merge_request_feedback = {
+        store = createStore();
+        store.state.vulnerabilityModal.modal.vulnerability.merge_request_feedback = {
           merge_request_path: null,
+          author: {},
         };
-        wrapper = shallowMount(Component, { propsData });
+        createWrapper();
       });
 
       it('hides the link to the merge request', () => {
@@ -206,11 +205,10 @@ describe('Security Reports modal', () => {
 
   describe('with a resolved issue', () => {
     beforeEach(() => {
-      const propsData = {
-        modal: createState().modal,
-      };
-      propsData.modal.isResolved = true;
-      wrapper = shallowMount(Component, { propsData });
+      store = createStore();
+      const propsData = {};
+      store.state.vulnerabilityModal.modal.isResolved = true;
+      createWrapper(propsData);
     });
 
     it('does not display the footer', () => {
@@ -224,13 +222,12 @@ describe('Security Reports modal', () => {
     const fileValue = '/some/file.path';
 
     beforeEach(() => {
-      const propsData = {
-        modal: createState().modal,
-      };
-      propsData.modal.vulnerability.blob_path = blobPath;
-      propsData.modal.data.namespace.value = namespaceValue;
-      propsData.modal.data.file.value = fileValue;
-      wrapper = mount(Component, { propsData });
+      store = createStore();
+      const propsData = {};
+      store.state.vulnerabilityModal.modal.vulnerability.blob_path = blobPath;
+      store.state.vulnerabilityModal.modal.data.namespace.value = namespaceValue;
+      store.state.vulnerabilityModal.modal.data.file.value = fileValue;
+      createWrapper(propsData);
     });
 
     it('is rendered', () => {
@@ -259,13 +256,12 @@ describe('Security Reports modal', () => {
 
   describe('Solution Card', () => {
     it('is rendered if the vulnerability has a solution', () => {
-      const propsData = {
-        modal: createState().modal,
-      };
+      store = createStore();
+      const propsData = {};
 
       const solution = 'Upgrade to XYZ';
-      propsData.modal.vulnerability.solution = solution;
-      wrapper = mount(Component, { propsData });
+      store.state.vulnerabilityModal.modal.vulnerability.solution = solution;
+      createWrapper(propsData);
 
       const solutionCard = wrapper.find('.js-solution-card');
 
@@ -275,12 +271,11 @@ describe('Security Reports modal', () => {
     });
 
     it('is rendered if the vulnerability has a remediation', () => {
-      const propsData = {
-        modal: createState().modal,
-      };
+      store = createStore();
+      const propsData = {};
       const summary = 'Upgrade to 123';
-      propsData.modal.vulnerability.remediations = [{ summary }];
-      wrapper = mount(Component, { propsData });
+      store.state.vulnerabilityModal.modal.vulnerability.remediations = [{ summary }];
+      createWrapper(propsData);
 
       const solutionCard = wrapper.find('.js-solution-card');
 
@@ -290,10 +285,8 @@ describe('Security Reports modal', () => {
     });
 
     it('is rendered if the vulnerability has neither a remediation nor a solution', () => {
-      const propsData = {
-        modal: createState().modal,
-      };
-      wrapper = mount(Component, { propsData });
+      const propsData = {};
+      createWrapper(propsData);
 
       const solutionCard = wrapper.find('.js-solution-card');
 
@@ -307,11 +300,10 @@ describe('Security Reports modal', () => {
     let propsData;
 
     beforeEach(() => {
-      propsData = {
-        modal: createState().modal,
-      };
+      store = createStore();
+      propsData = {};
 
-      propsData.modal.isCommentingOnDismissal = true;
+      store.state.vulnerabilityModal.modal.isCommentingOnDismissal = true;
     });
 
     beforeAll(() => {
@@ -325,7 +317,8 @@ describe('Security Reports modal', () => {
 
     describe('with a non-dismissed vulnerability', () => {
       beforeEach(() => {
-        wrapper = mount(Component, { propsData });
+        store = createStore();
+        createWrapper(propsData);
       });
 
       it('creates an error when an empty comment is submitted', () => {
@@ -348,8 +341,9 @@ describe('Security Reports modal', () => {
 
     describe('with a dismissed vulnerability', () => {
       beforeEach(() => {
-        propsData.modal.vulnerability.dismissal_feedback = { author: {} };
-        wrapper = mount(Component, { propsData });
+        store = createStore();
+        store.state.vulnerabilityModal.modal.vulnerability.dismissal_feedback = { author: {} };
+        createWrapper(propsData);
       });
 
       it('creates an error when an empty comment is submitted', () => {

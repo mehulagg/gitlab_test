@@ -2,6 +2,7 @@ import $ from 'jquery';
 import axios from '~/lib/utils/axios_utils';
 import downloadPatchHelper from 'ee/vue_shared/security_reports/store/utils/download_patch_helper';
 import * as types from './mutation_types';
+import * as vulnerabilityModalTypes from 'ee/vue_shared/security_reports/store/modules/vulnerability_modal/mutation_types';
 import { parseIntPagination, normalizeHeaders } from '~/lib/utils/common_utils';
 import { s__ } from '~/locale';
 import createFlash from '~/flash';
@@ -99,12 +100,6 @@ export const receiveVulnerabilitiesError = ({ commit }) => {
   commit(types.RECEIVE_VULNERABILITIES_ERROR);
 };
 
-export const openModal = ({ commit }, payload = {}) => {
-  $('#modal-mrwidget-security-issue').modal('show');
-
-  commit(types.SET_MODAL_DATA, payload);
-};
-
 export const createIssue = ({ dispatch }, { vulnerability, flashError }) => {
   dispatch('requestCreateIssue');
   axios
@@ -168,7 +163,7 @@ export const dismissVulnerability = (
       },
     })
     .then(({ data }) => {
-      dispatch('closeDismissalCommentBox');
+      dispatch('vulnerabilityModal/closeDismissalCommentBox', null, { root: true });
       dispatch('receiveDismissVulnerabilitySuccess', { vulnerability, data });
     })
     .catch(() => {
@@ -209,7 +204,7 @@ export const addDismissalComment = ({ dispatch }, { vulnerability, comment }) =>
       comment,
     })
     .then(({ data }) => {
-      dispatch('closeDismissalCommentBox');
+      dispatch('vulnerabilityModal/closeDismissalCommentBox', null, { root: true });
       dispatch('receiveAddDismissalCommentSuccess', { vulnerability, data });
     })
     .catch(() => {
@@ -230,7 +225,7 @@ export const deleteDismissalComment = ({ dispatch }, { vulnerability }) => {
     })
     .then(({ data }) => {
       const { id } = vulnerability;
-      dispatch('closeDismissalCommentBox');
+      dispatch('vulnerabilityModal/closeDismissalCommentBox', null, { root: true });
       dispatch('receiveDeleteDismissalCommentSuccess', { id, data });
     })
     .catch(() => {
@@ -265,12 +260,19 @@ export const receiveDeleteDismissalCommentError = ({ commit }) => {
 };
 
 export const showDismissalDeleteButtons = ({ commit }) => {
-  commit(types.SHOW_DISMISSAL_DELETE_BUTTONS);
+  commit(
+    `vulnerabilityModal/${vulnerabilityModalTypes.SHOW_DISMISSAL_DELETE_BUTTONS}`,
+    {},
+    { root: true },
+  );
 };
 
-export const hideDismissalDeleteButtons = ({ commit }) => {
-  commit(types.HIDE_DISMISSAL_DELETE_BUTTONS);
-};
+export const hideDismissalDeleteButtons = ({ commit }) =>
+  commit(
+    `vulnerabilityModal/${vulnerabilityModalTypes.HIDE_DISMISSAL_DELETE_BUTTONS}`,
+    {},
+    { root: true },
+  );
 
 export const undoDismiss = ({ dispatch }, { vulnerability, flashError }) => {
   const { destroy_vulnerability_feedback_dismissal_path } = vulnerability.dismissal_feedback;
@@ -307,7 +309,7 @@ export const receiveUndoDismissError = ({ commit }, { flashError }) => {
   }
 };
 
-export const downloadPatch = ({ state }) => {
+export const downloadPatch = (_, { vulnerability }) => {
   /* 
     This action doesn't actually mutate the Vuex state and is a dirty
     workaround to modifying the dom. We do this because gl-split-button 
@@ -316,7 +318,6 @@ export const downloadPatch = ({ state }) => {
 
     https://gitlab.com/gitlab-org/gitlab-ui/issues/188#note_165808493
   */
-  const { vulnerability } = state.modal;
   downloadPatchHelper(vulnerability.remediations[0].diff);
   $('#modal-mrwidget-security-issue').modal('hide');
 };
@@ -408,14 +409,6 @@ export const receiveVulnerabilitiesHistorySuccess = ({ commit }, { data }) => {
 
 export const receiveVulnerabilitiesHistoryError = ({ commit }) => {
   commit(types.RECEIVE_VULNERABILITIES_HISTORY_ERROR);
-};
-
-export const openDismissalCommentBox = ({ commit }) => {
-  commit(types.OPEN_DISMISSAL_COMMENT_BOX);
-};
-
-export const closeDismissalCommentBox = ({ commit }) => {
-  commit(types.CLOSE_DISMISSAL_COMMENT_BOX);
 };
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests

@@ -1,4 +1,5 @@
 <script>
+import { mapState, mapActions } from 'vuex';
 import { __ } from '~/locale';
 import Modal from '~/vue_shared/components/gl_modal.vue';
 import ExpandButton from '~/vue_shared/components/expand_button.vue';
@@ -28,10 +29,6 @@ export default {
     VulnerabilityDetails,
   },
   props: {
-    modal: {
-      type: Object,
-      required: true,
-    },
     vulnerabilityFeedbackHelpPath: {
       type: String,
       required: false,
@@ -58,6 +55,7 @@ export default {
     dismissalCommentErrorMessage: '',
   }),
   computed: {
+    ...mapState('vulnerabilityModal', ['modal']),
     canDownloadPatch() {
       const remediationDiff = this.remediation && this.remediation.diff;
       return Boolean(
@@ -164,6 +162,7 @@ export default {
     },
   },
   methods: {
+    ...mapActions('vulnerabilityModal', ['openDismissalCommentBox', 'closeDismissalCommentBox']),
     handleDismissalCommentSubmission() {
       if (this.dismissalFeedback) {
         this.addDismissalComment();
@@ -173,14 +172,20 @@ export default {
     },
     addCommentAndDismiss() {
       if (this.localDismissalComment.length) {
-        this.$emit('dismissVulnerability', this.localDismissalComment);
+        this.$emit('dismissVulnerability', {
+          vulnerability: this.vulnerability,
+          comment: this.localDismissalComment,
+        });
       } else {
         this.addDismissalError();
       }
     },
     addDismissalComment() {
       if (this.localDismissalComment.length) {
-        this.$emit('addDismissalComment', this.localDismissalComment);
+        this.$emit('addDismissalComment', {
+          vulnerability: this.vulnerability,
+          comment: this.localDismissalComment,
+        });
       } else {
         this.addDismissalError();
       }
@@ -236,10 +241,10 @@ export default {
             :show-dismissal-comment-actions="
               !dismissalFeedback || !dismissalFeedback.comment_details || !isEditingExistingFeedback
             "
-            @editVulnerabilityDismissalComment="$emit('editVulnerabilityDismissalComment')"
+            @editVulnerabilityDismissalComment="openDismissalCommentBox"
             @showDismissalDeleteButtons="$emit('showDismissalDeleteButtons')"
             @hideDismissalDeleteButtons="$emit('hideDismissalDeleteButtons')"
-            @deleteDismissalComment="$emit('deleteDismissalComment')"
+            @deleteDismissalComment="$emit('deleteDismissalComment', { vulnerability })"
           />
           <dismissal-comment-box-toggle
             v-if="
@@ -253,7 +258,7 @@ export default {
             "
             :is-active="modal.isCommentingOnDismissal"
             :error-message="dismissalCommentErrorMessage"
-            @openDismissalCommentBox="$emit('openDismissalCommentBox')"
+            @openDismissalCommentBox="openDismissalCommentBox"
             @submit="handleDismissalCommentSubmission"
             @clearError="clearDismissalError"
           />
@@ -269,7 +274,7 @@ export default {
         :is-editing-existing-feedback="isEditingExistingFeedback"
         @addCommentAndDismiss="addCommentAndDismiss"
         @addDismissalComment="addDismissalComment"
-        @cancel="$emit('closeDismissalCommentBox')"
+        @cancel="closeDismissalCommentBox"
       />
       <modal-footer
         v-else-if="shouldRenderFooterSection"
@@ -281,12 +286,12 @@ export default {
         :can-download-patch="canDownloadPatch"
         :can-dismiss-vulnerability="canDismissVulnerability"
         :is-dismissed="vulnerability.isDismissed"
-        @createMergeRequest="$emit('createMergeRequest')"
-        @createNewIssue="$emit('createNewIssue')"
-        @dismissVulnerability="$emit('dismissVulnerability')"
-        @openDismissalCommentBox="$emit('openDismissalCommentBox')"
-        @revertDismissVulnerability="$emit('revertDismissVulnerability')"
-        @downloadPatch="$emit('downloadPatch')"
+        @createMergeRequest="$emit('createMergeRequest', { vulnerability })"
+        @createNewIssue="$emit('createNewIssue', { vulnerability })"
+        @dismissVulnerability="$emit('dismissVulnerability', { vulnerability })"
+        @openDismissalCommentBox="openDismissalCommentBox"
+        @revertDismissVulnerability="$emit('revertDismissVulnerability', { vulnerability })"
+        @downloadPatch="$emit('downloadPatch', { vulnerability })"
       />
     </div>
   </modal>

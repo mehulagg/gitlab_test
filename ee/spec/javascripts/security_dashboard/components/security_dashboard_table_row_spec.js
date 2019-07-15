@@ -79,16 +79,6 @@ describe('Security Dashboard Table Row', () => {
           props.vulnerability.project.full_name,
         );
       });
-
-      it('should fire the openModal action when clicked', () => {
-        spyOn(vm.$store, 'dispatch');
-
-        vm.$el.querySelector('.vulnerability-title').click();
-
-        expect(vm.$store.dispatch).toHaveBeenCalledWith('vulnerabilities/openModal', {
-          vulnerability,
-        });
-      });
     });
   });
 

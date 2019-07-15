@@ -17153,6 +17153,9 @@ msgstr ""
 msgid "Vulnerability|Links"
 msgstr ""
 
+msgid "Vulnerability|Method"
+msgstr ""
+
 msgid "Vulnerability|Namespace"
 msgstr ""
 
@@ -18067,13 +18070,7 @@ msgstr ""
 msgid "ciReport|Automatically apply the patch in a new branch"
 msgstr ""
 
-msgid "ciReport|Class"
-msgstr ""
-
 msgid "ciReport|Code quality"
-msgstr ""
-
-msgid "ciReport|Confidence"
 msgstr ""
 
 msgid "ciReport|Container Scanning"
@@ -18103,9 +18100,6 @@ msgstr ""
 msgid "ciReport|Dependency scanning"
 msgstr ""
 
-msgid "ciReport|Description"
-msgstr ""
-
 msgid "ciReport|Download patch to resolve"
 msgstr ""
 
@@ -18118,19 +18112,7 @@ msgstr ""
 msgid "ciReport|Failed to load %{reportName} report"
 msgstr ""
 
-msgid "ciReport|File"
-msgstr ""
-
 msgid "ciReport|Fixed:"
-msgstr ""
-
-msgid "ciReport|Identifiers"
-msgstr ""
-
-msgid "ciReport|Image"
-msgstr ""
-
-msgid "ciReport|Instances"
 msgstr ""
 
 msgid "ciReport|Investigate this vulnerability by creating an issue"
@@ -18139,19 +18121,10 @@ msgstr ""
 msgid "ciReport|Learn more about interacting with security reports"
 msgstr ""
 
-msgid "ciReport|Links"
-msgstr ""
-
 msgid "ciReport|Loading %{reportName} report"
 msgstr ""
 
 msgid "ciReport|Manage licenses"
-msgstr ""
-
-msgid "ciReport|Method"
-msgstr ""
-
-msgid "ciReport|Namespace"
 msgstr ""
 
 msgid "ciReport|No changes to code quality"
@@ -18173,9 +18146,6 @@ msgid "ciReport|Security scanning"
 msgstr ""
 
 msgid "ciReport|Security scanning failed loading any results"
-msgstr ""
-
-msgid "ciReport|Severity"
 msgstr ""
 
 msgid "ciReport|Solution"

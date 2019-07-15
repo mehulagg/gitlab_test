@@ -1,7 +1,7 @@
 <script>
 import { isUndefined } from 'underscore';
 import { mapActions, mapState, mapGetters } from 'vuex';
-import IssueModal from 'ee/vue_shared/security_reports/components/modal.vue';
+import hasVulnerabilityModal from 'ee/vue_shared/security_reports/mixins/has_vulnerability_modal';
 import Filters from './filters.vue';
 import SecurityDashboardTable from './security_dashboard_table.vue';
 import VulnerabilityChart from './vulnerability_chart.vue';
@@ -11,11 +11,11 @@ export default {
   name: 'SecurityDashboardApp',
   components: {
     Filters,
-    IssueModal,
     SecurityDashboardTable,
     VulnerabilityChart,
     VulnerabilityCountList,
   },
+  mixins: [hasVulnerabilityModal],
   props: {
     dashboardDocumentation: {
       type: String,
@@ -61,7 +61,7 @@ export default {
     },
   },
   computed: {
-    ...mapState('vulnerabilities', ['modal', 'pageInfo']),
+    ...mapState('vulnerabilities', ['pageInfo']),
     ...mapState('projects', ['projects']),
     ...mapGetters('filters', ['activeFilters']),
     canCreateIssue() {
@@ -75,9 +75,6 @@ export default {
     canDismissVulnerability() {
       const path = this.vulnerability.create_vulnerability_feedback_dismissal_path;
       return Boolean(path);
-    },
-    vulnerability() {
-      return this.modal.vulnerability;
     },
     isLockedToProject() {
       return this.lockToProject !== null;
@@ -166,18 +163,18 @@ export default {
       :can-create-issue="canCreateIssue"
       :can-create-merge-request="canCreateMergeRequest"
       :can-dismiss-vulnerability="canDismissVulnerability"
-      @addDismissalComment="addDismissalComment({ vulnerability, comment: $event })"
+      @addDismissalComment="addDismissalComment"
       @editVulnerabilityDismissalComment="openDismissalCommentBox()"
       @showDismissalDeleteButtons="showDismissalDeleteButtons"
       @hideDismissalDeleteButtons="hideDismissalDeleteButtons"
-      @deleteDismissalComment="deleteDismissalComment({ vulnerability })"
+      @deleteDismissalComment="deleteDismissalComment"
       @closeDismissalCommentBox="closeDismissalCommentBox()"
-      @createMergeRequest="createMergeRequest({ vulnerability })"
-      @createNewIssue="createIssue({ vulnerability })"
-      @dismissVulnerability="dismissVulnerability({ vulnerability, comment: $event })"
+      @createMergeRequest="createMergeRequest"
+      @createNewIssue="createIssue"
+      @dismissVulnerability="dismissVulnerability"
       @openDismissalCommentBox="openDismissalCommentBox()"
-      @revertDismissVulnerability="undoDismiss({ vulnerability })"
-      @downloadPatch="downloadPatch({ vulnerability })"
+      @revertDismissVulnerability="undoDismiss"
+      @downloadPatch="downloadPatch"
     />
   </section>
 </template>

@@ -3,6 +3,7 @@ import axios from '~/lib/utils/axios_utils';
 import { s__ } from '~/locale';
 import { visitUrl } from '~/lib/utils/url_utility';
 import * as types from './mutation_types';
+import * as vulnerabilityModalTypes from 'ee/vue_shared/security_reports/store/modules/vulnerability_modal/mutation_types';
 import downloadPatchHelper from './utils/download_patch_helper';
 import Poll from '~/lib/utils/poll';
 import httpStatusCodes from '~/lib/utils/http_status';
@@ -296,42 +297,50 @@ export const fetchDependencyScanningReports = ({ state, dispatch }) => {
 export const updateDependencyScanningIssue = ({ commit }, issue) =>
   commit(types.UPDATE_DEPENDENCY_SCANNING_ISSUE, issue);
 
-export const openModal = ({ dispatch }, payload) => {
-  dispatch('setModalData', payload);
-
-  $('#modal-mrwidget-security-issue').modal('show');
-};
-
-export const setModalData = ({ commit }, payload) => commit(types.SET_ISSUE_MODAL_DATA, payload);
 export const requestDismissVulnerability = ({ commit }) =>
-  commit(types.REQUEST_DISMISS_VULNERABILITY);
-export const receiveDismissVulnerability = ({ commit }, payload) =>
-  commit(types.RECEIVE_DISMISS_VULNERABILITY_SUCCESS, payload);
-export const receiveDismissVulnerabilityError = ({ commit }, error) =>
-  commit(types.RECEIVE_DISMISS_VULNERABILITY_ERROR, error);
+  commit(
+    `vulnerabilityModal/${vulnerabilityModalTypes.REQUEST_DISMISS_VULNERABILITY}`,
+    {},
+    { root: true },
+  );
 
-export const dismissVulnerability = ({ state, dispatch }, comment) => {
+export const receiveDismissVulnerability = ({ commit }, payload) =>
+  commit(
+    `vulnerabilityModal/${vulnerabilityModalTypes.RECEIVE_DISMISS_VULNERABILITY_SUCCESS}`,
+    payload,
+    { root: true },
+  );
+
+export const receiveDismissVulnerabilityError = ({ commit }, error) =>
+  commit(
+    `vulnerabilityModal/${vulnerabilityModalTypes.RECEIVE_DISMISS_VULNERABILITY_ERROR}`,
+    error,
+    { root: true },
+  );
+
+export const dismissVulnerability = ({ state, dispatch }, { vulnerability, comment }) => {
   dispatch('requestDismissVulnerability');
 
   axios
     .post(state.createVulnerabilityFeedbackDismissalPath, {
       vulnerability_feedback: {
-        category: state.modal.vulnerability.category,
+        category: vulnerability.category,
         comment,
         feedback_type: 'dismissal',
         pipeline_id: state.pipelineId,
-        project_fingerprint: state.modal.vulnerability.project_fingerprint,
-        vulnerability_data: state.modal.vulnerability,
+        project_fingerprint: vulnerability.project_fingerprint,
+        vulnerability_data: vulnerability,
       },
     })
     .then(({ data }) => {
+      // Update the issue with the created dismissal feedback applied
       const updatedIssue = {
-        ...state.modal.vulnerability,
+        ...vulnerability,
         isDismissed: true,
         dismissalFeedback: data,
       };
 
-      dispatch('closeDismissalCommentBox');
+      dispatch('vulnerabilityModal/closeDismissalCommentBox', {}, { root: true });
       dispatch('receiveDismissVulnerability', updatedIssue);
 
       hideModal();
@@ -344,10 +353,9 @@ export const dismissVulnerability = ({ state, dispatch }, comment) => {
     });
 };
 
-export const addDismissalComment = ({ state, dispatch }, { comment }) => {
+export const addDismissalComment = ({ state, dispatch }, { vulnerability, comment }) => {
   dispatch('requestAddDismissalComment');
 
-  const { vulnerability } = state.modal;
   const { dismissalFeedback } = vulnerability;
   const url = `${state.createVulnerabilityFeedbackDismissalPath}/${dismissalFeedback.id}`;
 
@@ -358,7 +366,7 @@ export const addDismissalComment = ({ state, dispatch }, { comment }) => {
       comment,
     })
     .then(({ data }) => {
-      dispatch('closeDismissalCommentBox');
+      dispatch('vulnerabilityModal/closeDismissalCommentBox', {}, { root: true });
       dispatch('receiveAddDismissalCommentSuccess', { data });
     })
     .catch(() => {
@@ -369,10 +377,9 @@ export const addDismissalComment = ({ state, dispatch }, { comment }) => {
     });
 };
 
-export const deleteDismissalComment = ({ state, dispatch }) => {
+export const deleteDismissalComment = ({ state, dispatch }, { vulnerability }) => {
   dispatch('requestDeleteDismissalComment');
 
-  const { vulnerability } = state.modal;
   const { dismissalFeedback } = vulnerability;
   const url = `${state.createVulnerabilityFeedbackDismissalPath}/${dismissalFeedback.id}`;
 
@@ -382,7 +389,7 @@ export const deleteDismissalComment = ({ state, dispatch }) => {
       comment: '',
     })
     .then(({ data }) => {
-      dispatch('closeDismissalCommentBox');
+      dispatch('vulnerabilityModal/closeDismissalCommentBox', {}, { root: true });
       dispatch('receiveDeleteDismissalCommentSuccess', { data });
     })
     .catch(() => {
@@ -419,16 +426,15 @@ export const receiveAddDismissalCommentError = ({ commit }, error) => {
   commit(types.RECEIVE_ADD_DISMISSAL_COMMENT_ERROR, error);
 };
 
-export const revertDismissVulnerability = ({ state, dispatch }) => {
+export const revertDismissVulnerability = ({ dispatch }, payload) => {
+  const { vulnerability } = payload;
   dispatch('requestDismissVulnerability');
 
   axios
-    .delete(
-      state.modal.vulnerability.dismissalFeedback.destroy_vulnerability_feedback_dismissal_path,
-    )
+    .delete(vulnerability.dismissalFeedback.destroy_vulnerability_feedback_dismissal_path)
     .then(() => {
       const updatedIssue = {
-        ...state.modal.vulnerability,
+        ...vulnerability,
         isDismissed: false,
         dismissalFeedback: null,
       };
@@ -446,29 +452,47 @@ export const revertDismissVulnerability = ({ state, dispatch }) => {
 };
 
 export const showDismissalDeleteButtons = ({ commit }) => {
-  commit(types.SHOW_DISMISSAL_DELETE_BUTTONS);
+  commit(
+    `vulnerabilityModal/${vulnerabilityModalTypes.SHOW_DISMISSAL_DELETE_BUTTONS}`,
+    {},
+    { root: true },
+  );
 };
 
 export const hideDismissalDeleteButtons = ({ commit }) => {
-  commit(types.HIDE_DISMISSAL_DELETE_BUTTONS);
+  commit(
+    `vulnerabilityModal/${vulnerabilityModalTypes.HIDE_DISMISSAL_DELETE_BUTTONS}`,
+    {},
+    { root: true },
+  );
 };
 
-export const requestCreateIssue = ({ commit }) => commit(types.REQUEST_CREATE_ISSUE);
-export const receiveCreateIssue = ({ commit }) => commit(types.RECEIVE_CREATE_ISSUE_SUCCESS);
-export const receiveCreateIssueError = ({ commit }, error) =>
-  commit(types.RECEIVE_CREATE_ISSUE_ERROR, error);
+export const requestCreateIssue = ({ commit }) =>
+  commit(`vulnerabilityModal/${vulnerabilityModalTypes.REQUEST_CREATE_ISSUE}`, {}, { root: true });
+export const receiveCreateIssue = ({ commit }) =>
+  commit(
+    `vulnerabilityModal/${vulnerabilityModalTypes.RECEIVE_CREATE_ISSUE_SUCCESS}`,
+    {},
+    { root: true },
+  );
 
-export const createNewIssue = ({ state, dispatch }) => {
+export const receiveCreateIssueError = ({ commit }, error) =>
+  commit(`vulnerabilityModal/${vulnerabilityModalTypes.RECEIVE_CREATE_ISSUE_ERROR}`, error, {
+    root: true,
+  });
+
+export const createNewIssue = ({ state, dispatch }, payload) => {
+  const { vulnerability } = payload;
   dispatch('requestCreateIssue');
 
   axios
     .post(state.createVulnerabilityFeedbackIssuePath, {
       vulnerability_feedback: {
         feedback_type: 'issue',
-        category: state.modal.vulnerability.category,
-        project_fingerprint: state.modal.vulnerability.project_fingerprint,
+        category: vulnerability.category,
+        project_fingerprint: vulnerability.project_fingerprint,
         pipeline_id: state.pipelineId,
-        vulnerability_data: state.modal.vulnerability,
+        vulnerability_data: vulnerability,
       },
     })
     .then(response => {
@@ -484,8 +508,8 @@ export const createNewIssue = ({ state, dispatch }) => {
     );
 };
 
-export const createMergeRequest = ({ state, dispatch }) => {
-  const { vulnerability } = state.modal;
+export const createMergeRequest = ({ state, dispatch }, payload) => {
+  const { vulnerability } = payload;
   const { category, project_fingerprint } = vulnerability;
 
   vulnerability.target_branch = state.sourceBranch;
@@ -512,7 +536,7 @@ export const createMergeRequest = ({ state, dispatch }) => {
     });
 };
 
-export const downloadPatch = ({ state }) => {
+export const downloadPatch = (_, { vulnerability }) => {
   /* 
     This action doesn't actually mutate the Vuex state and is a dirty
     workaround to modifying the dom. We do this because gl-split-button 
@@ -521,7 +545,6 @@ export const downloadPatch = ({ state }) => {
 
     https://gitlab.com/gitlab-org/gitlab-ui/issues/188#note_165808493
   */
-  const { vulnerability } = state.modal;
   downloadPatchHelper(vulnerability.remediations[0].diff);
   $('#modal-mrwidget-security-issue').modal('hide');
 };
@@ -536,14 +559,6 @@ export const receiveCreateMergeRequestSuccess = ({ commit }, payload) => {
 
 export const receiveCreateMergeRequestError = ({ commit }) => {
   commit(types.RECEIVE_CREATE_MERGE_REQUEST_ERROR);
-};
-
-export const openDismissalCommentBox = ({ commit }) => {
-  commit(types.OPEN_DISMISSAL_COMMENT_BOX);
-};
-
-export const closeDismissalCommentBox = ({ commit }) => {
-  commit(types.CLOSE_DISMISSAL_COMMENT_BOX);
 };
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests

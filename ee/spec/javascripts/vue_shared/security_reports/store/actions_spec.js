@@ -26,8 +26,6 @@ import actions, {
   receiveDependencyScanningError,
   receiveDependencyScanningReports,
   fetchDependencyScanningReports,
-  openModal,
-  setModalData,
   requestDismissVulnerability,
   receiveDismissVulnerability,
   receiveDismissVulnerabilityError,
@@ -92,7 +90,6 @@ const createNonDismissedVulnerability = options =>
   createVulnerability({
     ...options,
     isDismissed: false,
-    dismissalFeedback: null,
   });
 
 const createDismissedVulnerability = options =>
@@ -100,6 +97,17 @@ const createDismissedVulnerability = options =>
     ...options,
     isDismissed: true,
   });
+
+const getVulnerabilityPayload = () => ({
+  vulnerability: {
+    isDismissed: false,
+    hasIssue: false,
+    hasMergeRequest: false,
+    dismissalFeedback: {
+      destroy_vulnerability_feedback_dismissal_path: 'dismiss_vulnerability_path/123',
+    },
+  },
+});
 
 describe('security reports actions', () => {
   let mockedState;
@@ -858,42 +866,6 @@ describe('security reports actions', () => {
     });
   });
 
-  describe('openModal', () => {
-    it('dispatches setModalData action', done => {
-      testAction(
-        openModal,
-        { issue: { id: 1 }, status: 'failed' },
-        mockedState,
-        [],
-        [
-          {
-            type: 'setModalData',
-            payload: { issue: { id: 1 }, status: 'failed' },
-          },
-        ],
-        done,
-      );
-    });
-  });
-
-  describe('setModalData', () => {
-    it('commits set issue modal data', done => {
-      testAction(
-        setModalData,
-        { issue: { id: 1 }, status: 'success' },
-        mockedState,
-        [
-          {
-            type: types.SET_ISSUE_MODAL_DATA,
-            payload: { issue: { id: 1 }, status: 'success' },
-          },
-        ],
-        [],
-        done,
-      );
-    });
-  });
-
   describe('requestDismissVulnerability', () => {
     it('commits request dismiss issue', done => {
       testAction(
@@ -902,7 +874,8 @@ describe('security reports actions', () => {
         mockedState,
         [
           {
-            type: types.REQUEST_DISMISS_VULNERABILITY,
+            payload: {},
+            type: `vulnerabilityModal/${types.REQUEST_DISMISS_VULNERABILITY}`,
           },
         ],
         [],
@@ -921,7 +894,7 @@ describe('security reports actions', () => {
         mockedState,
         [
           {
-            type: types.RECEIVE_DISMISS_VULNERABILITY_SUCCESS,
+            type: `vulnerabilityModal/${types.RECEIVE_DISMISS_VULNERABILITY_SUCCESS}`,
             payload,
           },
         ],
@@ -939,7 +912,7 @@ describe('security reports actions', () => {
         mockedState,
         [
           {
-            type: types.RECEIVE_DISMISS_VULNERABILITY_ERROR,
+            type: `vulnerabilityModal/${types.RECEIVE_DISMISS_VULNERABILITY_ERROR}`,
             payload: 'error',
           },
         ],
@@ -958,8 +931,9 @@ describe('security reports actions', () => {
         dismissalFeedback = {
           foo: 'bar',
         };
-        payload = createDismissedVulnerability({
-          ...mockedState.modal.vulnerability,
+        payload = getVulnerabilityPayload();
+        payload.vulnerability = createDismissedVulnerability({
+          ...payload.vulnerability,
           dismissalFeedback,
         });
         mock.onPost('dismiss_vulnerability_path').reply(200, dismissalFeedback);
@@ -977,11 +951,12 @@ describe('security reports actions', () => {
               type: 'requestDismissVulnerability',
             },
             {
-              type: 'closeDismissalCommentBox',
+              payload: {},
+              type: 'vulnerabilityModal/closeDismissalCommentBox',
             },
             {
               type: 'receiveDismissVulnerability',
-              payload,
+              payload: payload.vulnerability,
             },
           ],
           done,
@@ -995,7 +970,7 @@ describe('security reports actions', () => {
 
       testAction(
         dismissVulnerability,
-        null,
+        { ...getVulnerabilityPayload() },
         mockedState,
         [],
         [
@@ -1030,12 +1005,12 @@ describe('security reports actions', () => {
       it('should dispatch the request and success actions', done => {
         testAction(
           addDismissalComment,
-          { comment },
-          { modal: { vulnerability } },
+          { vulnerability, comment },
+          {},
           [],
           [
             { type: 'requestAddDismissalComment' },
-            { type: 'closeDismissalCommentBox' },
+            { type: 'vulnerabilityModal/closeDismissalCommentBox', payload: {} },
             {
               type: 'receiveAddDismissalCommentSuccess',
               payload: { data },
@@ -1054,8 +1029,8 @@ describe('security reports actions', () => {
       it('should dispatch the request and error actions', done => {
         testAction(
           addDismissalComment,
-          { comment },
-          { modal: { vulnerability } },
+          { vulnerability, comment },
+          {},
           [],
           [
             { type: 'requestAddDismissalComment' },
@@ -1132,12 +1107,12 @@ describe('security reports actions', () => {
       it('should dispatch the request and success actions', done => {
         testAction(
           deleteDismissalComment,
-          { comment },
-          { modal: { vulnerability } },
+          { comment, vulnerability },
+          {},
           [],
           [
             { type: 'requestDeleteDismissalComment' },
-            { type: 'closeDismissalCommentBox' },
+            { type: 'vulnerabilityModal/closeDismissalCommentBox', payload: {} },
             {
               type: 'receiveDeleteDismissalCommentSuccess',
               payload: { data },
@@ -1156,8 +1131,8 @@ describe('security reports actions', () => {
       it('should dispatch the request and error actions', done => {
         testAction(
           deleteDismissalComment,
-          { comment },
-          { modal: { vulnerability } },
+          { comment, vulnerability },
+          {},
           [],
           [
             { type: 'requestDeleteDismissalComment' },
@@ -1224,7 +1199,8 @@ describe('security reports actions', () => {
         mockedState,
         [
           {
-            type: types.SHOW_DISMISSAL_DELETE_BUTTONS,
+            payload: {},
+            type: 'vulnerabilityModal/SHOW_DISMISSAL_DELETE_BUTTONS',
           },
         ],
         [],
@@ -1241,7 +1217,8 @@ describe('security reports actions', () => {
         mockedState,
         [
           {
-            type: types.HIDE_DISMISSAL_DELETE_BUTTONS,
+            payload: {},
+            type: 'vulnerabilityModal/HIDE_DISMISSAL_DELETE_BUTTONS',
           },
         ],
         [],
@@ -1256,11 +1233,8 @@ describe('security reports actions', () => {
 
       beforeEach(() => {
         mock.onDelete('dismiss_vulnerability_path/123').reply(200, {});
-        mockedState.modal.vulnerability.dismissalFeedback = {
-          id: 123,
-          destroy_vulnerability_feedback_dismissal_path: 'dismiss_vulnerability_path/123',
-        };
-        payload = createNonDismissedVulnerability({ ...mockedState.modal.vulnerability });
+        payload = getVulnerabilityPayload();
+        payload.vulnerability = createNonDismissedVulnerability({ ...payload.vulnerability });
       });
 
       it('should dispatch `receiveDismissVulnerability`', done => {
@@ -1275,7 +1249,11 @@ describe('security reports actions', () => {
             },
             {
               type: 'receiveDismissVulnerability',
-              payload,
+              payload: {
+                ...payload.vulnerability,
+                isDismissed: false,
+                dismissalFeedback: null,
+              },
             },
           ],
           done,
@@ -1285,12 +1263,12 @@ describe('security reports actions', () => {
 
     it('with error should dispatch `receiveDismissVulnerabilityError`', done => {
       mock.onDelete('dismiss_vulnerability_path/123').reply(500, {});
-      mockedState.modal.vulnerability.dismissalFeedback = { id: 123 };
-      mockedState.createVulnerabilityFeedbackDismissalPath = 'dismiss_vulnerability_path';
 
       testAction(
         revertDismissVulnerability,
-        null,
+        {
+          ...getVulnerabilityPayload(),
+        },
         mockedState,
         [],
         [
@@ -1315,7 +1293,8 @@ describe('security reports actions', () => {
         mockedState,
         [
           {
-            type: types.REQUEST_CREATE_ISSUE,
+            payload: {},
+            type: `vulnerabilityModal/${types.REQUEST_CREATE_ISSUE}`,
           },
         ],
         [],
@@ -1332,7 +1311,8 @@ describe('security reports actions', () => {
         mockedState,
         [
           {
-            type: types.RECEIVE_CREATE_ISSUE_SUCCESS,
+            payload: {},
+            type: `vulnerabilityModal/${types.RECEIVE_CREATE_ISSUE_SUCCESS}`,
           },
         ],
         [],
@@ -1349,7 +1329,7 @@ describe('security reports actions', () => {
         mockedState,
         [
           {
-            type: types.RECEIVE_CREATE_ISSUE_ERROR,
+            type: `vulnerabilityModal/${types.RECEIVE_CREATE_ISSUE_ERROR}`,
             payload: 'error',
           },
         ],
@@ -1370,7 +1350,9 @@ describe('security reports actions', () => {
 
       testAction(
         createNewIssue,
-        null,
+        {
+          ...getVulnerabilityPayload(),
+        },
         mockedState,
         [],
         [
@@ -1391,7 +1373,9 @@ describe('security reports actions', () => {
 
       testAction(
         createNewIssue,
-        null,
+        {
+          ...getVulnerabilityPayload(),
+        },
         mockedState,
         [],
         [
@@ -1414,17 +1398,13 @@ describe('security reports actions', () => {
       spyOn(document.body, 'appendChild').and.callThrough();
       spyOn(document.body, 'removeChild').and.callThrough();
 
-      downloadPatch({
-        state: {
-          modal: {
-            vulnerability: {
-              remediations: [
-                {
-                  diff: 'abcdef',
-                },
-              ],
+      downloadPatch(mockedState, {
+        vulnerability: {
+          remediations: [
+            {
+              diff: 'abcdef',
             },
-          },
+          ],
         },
       });
 
@@ -1500,7 +1480,9 @@ describe('security reports actions', () => {
 
       testAction(
         createMergeRequest,
-        null,
+        {
+          ...getVulnerabilityPayload(),
+        },
         mockedState,
         [],
         [
@@ -1522,7 +1504,9 @@ describe('security reports actions', () => {
 
       testAction(
         createMergeRequest,
-        null,
+        {
+          ...getVulnerabilityPayload(),
+        },
         mockedState,
         [],
         [
