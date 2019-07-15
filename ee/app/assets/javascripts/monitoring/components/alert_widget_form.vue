@@ -9,6 +9,7 @@ import {
   GlFormInput,
   GlDropdown,
   GlDropdownItem,
+  GlModal,
   GlTooltipDirective,
 } from '@gitlab/ui';
 import Icon from '~/vue_shared/components/icon.vue';
@@ -39,6 +40,7 @@ export default {
     GlFormInput,
     GlDropdown,
     GlDropdownItem,
+    GlModal,
     Icon,
   },
   directives: {
@@ -59,6 +61,10 @@ export default {
       type: Array,
       required: true,
       validator: queriesValidator,
+    },
+    modalId: {
+      type: String,
+      required: true,
     },
   },
   data() {
@@ -170,7 +176,11 @@ export default {
 </script>
 
 <template>
-  <div class="alert-form">
+  <gl-modal
+    :ref="modalId"
+    :modal-id="modalId"
+    :title="__('Alerts')"
+  >
     <gl-form-group
       v-if="supportsComputedAlerts"
       :label="$options.alertQueryText.label"
@@ -242,7 +252,7 @@ export default {
         class="form-control"
       />
     </div>
-    <div class="action-group">
+    <div slot="modal-footer" class="action-group">
       <button
         ref="cancelButton"
         :disabled="formDisabled"
@@ -263,5 +273,5 @@ export default {
         {{ submitActionText }}
       </button>
     </div>
-  </div>
+  </gl-modal>
 </template>

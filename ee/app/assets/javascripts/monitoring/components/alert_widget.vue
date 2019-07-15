@@ -117,7 +117,7 @@ export default {
       return `${alertQuery.label} ${alert.operator} ${alert.threshold}`;
     },
     closeModal() {
-      this.$refs[modalId].hide();
+      this.$root.$emit('bv::hide::modal', this.modalId);
     },
     handleSetApiAction(apiAction) {
       this.apiAction = apiAction;
@@ -132,7 +132,8 @@ export default {
           this.isLoading = false;
           this.closeModal();
         })
-        .catch(() => {
+        .catch((e) => {
+          console.error(e);
           this.errorMessage = s__('PrometheusAlerts|Error creating alert');
           this.isLoading = false;
         });
@@ -147,7 +148,8 @@ export default {
           this.isLoading = false;
           this.closeModal();
         })
-        .catch(() => {
+        .catch((e) => {
+          console.error(e);
           this.errorMessage = s__('PrometheusAlerts|Error saving alert');
           this.isLoading = false;
         });
@@ -159,9 +161,10 @@ export default {
         .then(() => {
           this.removeAlert(alert);
           this.isLoading = false;
-          this.handleDropdownClose();
+          this.closeModal();
         })
-        .catch(() => {
+        .catch((e) => {
+          console.error(e);
           this.errorMessage = s__('PrometheusAlerts|Error deleting alert');
           this.isLoading = false;
         });
@@ -185,22 +188,17 @@ export default {
     > 
       {{ dropdownTitle }}
     </button>
-    <gl-modal
-      :ref="modalId"
+    <alert-widget-form
+      ref="widgetForm"
+      :disabled="formDisabled"
+      :alerts-to-manage="alertsToManage"
+      :relevant-queries="relevantQueries"
       :modal-id="modalId"
-      :title="dropdownTitle"
-    >
-      <alert-widget-form
-        ref="widgetForm"
-        :disabled="formDisabled"
-        :alerts-to-manage="alertsToManage"
-        :relevant-queries="relevantQueries"
-        @create="handleCreate"
-        @update="handleUpdate"
-        @delete="handleDelete"
-        @cancel="closeModal"
-        @setAction="handleSetApiAction"
-      />
-    </gl-modal>
+      @create="handleCreate"
+      @update="handleUpdate"
+      @delete="handleDelete"
+      @cancel="closeModal"
+      @setAction="handleSetApiAction"
+    />
   </div>
 </template>

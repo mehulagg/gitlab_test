@@ -150,24 +150,6 @@
   vertical-align: middle;
 }
 
-.alert-form {
-  padding: $gl-padding $gl-padding $gl-padding-8;
-
-  label {
-    font-weight: normal;
-  }
-
-  .btn-group,
-  .action-group {
-    display: flex;
-
-    .btn {
-      flex: 1 auto;
-      box-shadow: none;
-    }
-  }
-}
-
 .canary-deployment-callout {
   border-bottom: 1px solid $border-white-normal;
   display: flex;
