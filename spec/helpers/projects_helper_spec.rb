@@ -107,6 +107,23 @@ describe ProjectsHelper do
     end
   end
 
+  describe '#can_change_emails_disabled?' do
+    let(:project) { create(:project) }
+    let(:user) { create(:project_member, :maintainer, user: create(:user), project: project).user }
+
+    it 'returns true for the project owner' do
+      allow(helper).to receive(:can?).with(project.owner, :set_emails_disabled, project) { true }
+
+      expect(helper.can_change_emails_disabled?(project, project.owner)).to be_truthy
+    end
+
+    it 'returns false for anyone else' do
+      allow(helper).to receive(:can?).with(user, :set_emails_disabled, project) { false }
+
+      expect(helper.can_change_emails_disabled?(project, user)).to be_falsey
+    end
+  end
+
   describe "readme_cache_key" do
     let(:project) { create(:project, :repository) }
 
@@ -477,6 +494,7 @@ describe ProjectsHelper do
 
     it 'returns the command to push to create project over SSH' do
       allow(Gitlab::CurrentSettings.current_application_settings).to receive(:enabled_git_access_protocol) { 'ssh' }
+      allow(Gitlab.config.gitlab_shell).to receive(:ssh_path_prefix).and_return('git@localhost:')
 
       expect(helper.push_to_create_project_command(user)).to eq('git push --set-upstream git@localhost:john/$(git rev-parse --show-toplevel | xargs basename).git $(git rev-parse --abbrev-ref HEAD)')
     end
