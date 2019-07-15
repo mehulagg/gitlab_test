@@ -4,13 +4,17 @@ import Icon from '~/vue_shared/components/icon.vue';
 import AlertWidgetForm from './alert_widget_form.vue';
 import AlertsService from '../services/alerts_service';
 import { alertsValidator, queriesValidator } from '../validators';
-import { GlLoadingIcon } from '@gitlab/ui';
+import { GlLoadingIcon, GlModal, GlModalDirective } from '@gitlab/ui';
 
 export default {
   components: {
     Icon,
     AlertWidgetForm,
     GlLoadingIcon,
+    GlModal,
+  },
+  directives: {
+    GlModal: GlModalDirective,
   },
   props: {
     alertsEndpoint: {
@@ -31,6 +35,10 @@ export default {
       type: Array,
       required: true,
       validator: queriesValidator,
+    },
+    index: {
+      type: Number,
+      required: true,
     },
   },
   data() {
@@ -67,26 +75,13 @@ export default {
     formDisabled() {
       return Boolean(this.errorMessage || this.isLoading);
     },
-    supportsComputedAlerts() {
-      return gon.features && gon.features.prometheusComputedAlerts;
-    },
-  },
-  watch: {
-    isOpen(open) {
-      if (open) {
-        document.addEventListener('click', this.handleOutsideClick);
-      } else {
-        document.removeEventListener('click', this.handleOutsideClick);
-      }
+    modalId() {
+      return `modal-${this.index}`;
     },
   },
   created() {
     this.service = new AlertsService({ alertsEndpoint: this.alertsEndpoint });
     this.fetchAlertData();
-  },
-  beforeDestroy() {
-    // clean up external event listeners
-    document.removeEventListener('click', this.handleOutsideClick);
   },
   methods: {
     fetchAlertData() {
@@ -121,19 +116,8 @@ export default {
 
       return `${alertQuery.label} ${alert.operator} ${alert.threshold}`;
     },
-    handleDropdownToggle() {
-      this.isOpen = !this.isOpen;
-    },
-    handleDropdownClose() {
-      this.isOpen = false;
-    },
-    handleOutsideClick(event) {
-      if (
-        !this.$refs.dropdownMenu.contains(event.target) &&
-        !this.$refs.dropdownMenuToggle.contains(event.target)
-      ) {
-        this.isOpen = false;
-      }
+    closeModal() {
+      this.$refs[modalId].hide();
     },
     handleSetApiAction(apiAction) {
       this.apiAction = apiAction;
@@ -146,7 +130,7 @@ export default {
         .then(alertAttributes => {
           this.setAlert(alertAttributes, prometheus_metric_id);
           this.isLoading = false;
-          this.handleDropdownClose();
+          this.closeModal();
         })
         .catch(() => {
           this.errorMessage = s__('PrometheusAlerts|Error creating alert');
@@ -161,7 +145,7 @@ export default {
         .then(alertAttributes => {
           this.setAlert(alertAttributes, this.alertsToManage[alert].metricId);
           this.isLoading = false;
-          this.handleDropdownClose();
+          this.closeModal();
         })
         .catch(() => {
           this.errorMessage = s__('PrometheusAlerts|Error saving alert');
@@ -194,44 +178,29 @@ export default {
       {{ alertSummary }}
     </span>
     <button
-      ref="dropdownMenuToggle"
       :aria-label="alertStatus"
-      class="btn btn-sm alert-dropdown-button"
+      class="btn btn-sm mx-2"
       type="button"
-      @click="handleDropdownToggle"
-    >
-      <icon :name="alertIcon" :size="16" aria-hidden="true" />
-      <icon :size="16" name="arrow-down" aria-hidden="true" class="chevron" />
+      v-gl-modal="modalId"
+    > 
+      {{ dropdownTitle }}
     </button>
-    <div
-      ref="dropdownMenu"
-      :class="{ show: isOpen, 'h-auto': supportsComputedAlerts }"
-      class="dropdown-menu alert-dropdown-menu"
+    <gl-modal
+      :ref="modalId"
+      :modal-id="modalId"
+      :title="dropdownTitle"
     >
-      <div class="dropdown-title m0">
-        <span>{{ dropdownTitle }}</span>
-        <button
-          class="dropdown-title-button dropdown-menu-close"
-          type="button"
-          aria-label="Close"
-          @click="handleDropdownClose"
-        >
-          <icon :size="12" name="close" aria-hidden="true" />
-        </button>
-      </div>
-      <div :class="{ 'mh-100': supportsComputedAlerts }" class="dropdown-content">
-        <alert-widget-form
-          ref="widgetForm"
-          :disabled="formDisabled"
-          :alerts-to-manage="alertsToManage"
-          :relevant-queries="relevantQueries"
-          @create="handleCreate"
-          @update="handleUpdate"
-          @delete="handleDelete"
-          @cancel="handleDropdownClose"
-          @setAction="handleSetApiAction"
-        />
-      </div>
-    </div>
+      <alert-widget-form
+        ref="widgetForm"
+        :disabled="formDisabled"
+        :alerts-to-manage="alertsToManage"
+        :relevant-queries="relevantQueries"
+        @create="handleCreate"
+        @update="handleUpdate"
+        @delete="handleDelete"
+        @cancel="closeModal"
+        @setAction="handleSetApiAction"
+      />
+    </gl-modal>
   </div>
 </template>

@@ -400,6 +400,7 @@ export default {
               :relevant-queries="graphData.queries"
               :alerts-to-manage="getGraphAlerts(graphData.queries)"
               @setAlerts="setAlerts"
+              :index="graphIndex"
             />
           </monitor-area-chart>
         </template>

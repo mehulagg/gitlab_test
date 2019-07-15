@@ -128,46 +128,6 @@ describe('AlertWidget', () => {
     expect(vm.$el.querySelector('.alert-current-setting')).toBeVisible();
   });
 
-  it('opens and closes a dropdown menu by clicking close button', done => {
-    vm = mountComponent(AlertWidgetComponent, props);
-
-    expect(vm.isOpen).toEqual(false);
-    expect(vm.$el.querySelector('.alert-dropdown-menu')).toBeHidden();
-
-    vm.$el.querySelector('.alert-dropdown-button').click();
-
-    Vue.nextTick(() => {
-      expect(vm.isOpen).toEqual(true);
-
-      vm.$el.querySelector('.dropdown-menu-close').click();
-
-      Vue.nextTick(() => {
-        expect(vm.isOpen).toEqual(false);
-        done();
-      });
-    });
-  });
-
-  it('opens and closes a dropdown menu by clicking outside the menu', done => {
-    vm = mountComponent(AlertWidgetComponent, props);
-
-    expect(vm.isOpen).toEqual(false);
-    expect(vm.$el.querySelector('.alert-dropdown-menu')).toBeHidden();
-
-    vm.$el.querySelector('.alert-dropdown-button').click();
-
-    Vue.nextTick(() => {
-      expect(vm.isOpen).toEqual(true);
-
-      document.body.click();
-
-      Vue.nextTick(() => {
-        expect(vm.isOpen).toEqual(false);
-        done();
-      });
-    });
-  });
-
   it('creates an alert with an appropriate handler', done => {
     const alertParams = {
       operator: '<',

@@ -134,27 +134,6 @@
   }
 }
 
-.alert-dropdown-button {
-  margin-left: $btn-side-margin;
-
-  .dropdown.open & {
-    background: $white-normal;
-    outline: 0;
-  }
-
-  svg {
-    margin: 0;
-
-    + svg {
-      margin-left: -$gl-padding-4;
-    }
-
-    &.chevron {
-      color: $gl-text-color-secondary;
-    }
-  }
-}
-
 .alert-dropdown-menu {
   right: 0;
   left: auto;
