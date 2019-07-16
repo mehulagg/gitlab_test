@@ -5,6 +5,7 @@ import Vue from 'vue';
 import Translate from '~/vue_shared/translate';
 import { alertsValidator, queriesValidator } from '../validators';
 import {
+  GlButtonGroup,
   GlFormGroup,
   GlFormInput,
   GlDropdown,
@@ -36,6 +37,7 @@ const OPERATORS = {
 
 export default {
   components: {
+    GlButtonGroup,
     GlFormGroup,
     GlFormInput,
     GlDropdown,
@@ -200,55 +202,66 @@ export default {
         </div>
       </template>
     </gl-form-group>
-    <gl-dropdown
+    <gl-form-group
       v-else
-      :text="queryDropdownLabel"
-      class="form-group"
-      toggle-class="dropdown-menu-toggle"
+      :label="__('Query')"
+      :label-for="`alert-query-${modalId}`"
     >
-      <gl-dropdown-item
-        v-for="query in relevantQueries"
-        :key="query.metricId"
-        @click="selectQuery(query.metricId)"
+      <gl-dropdown
+        :id="`alert-query-${modalId}`"
+        :text="queryDropdownLabel"
+        toggle-class="dropdown-menu-toggle"
       >
-        {{ `${query.label} (${query.unit})` }}
-      </gl-dropdown-item>
-    </gl-dropdown>
-    <div :aria-label="s__('PrometheusAlerts|Operator')" class="form-group btn-group" role="group">
-      <button
-        :class="{ active: operator === operators.greaterThan }"
-        :disabled="formDisabled"
-        type="button"
-        class="btn btn-default"
-        @click="operator = operators.greaterThan"
+        <gl-dropdown-item
+          v-for="query in relevantQueries"
+          :key="query.metricId"
+          @click="selectQuery(query.metricId)"
+        >
+          {{ `${query.label} (${query.unit})` }}
+        </gl-dropdown-item>
+      </gl-dropdown>
+    </gl-form-group>
+    <gl-form-group
+      :label="s__('PrometheusAlerts|Operator')"
+      :label-for="`alert-operator-${modalId}`"
+    >
+      <gl-button-group
+        :id="`alert-operator-${modalId}`"
       >
-        {{ operators.greaterThan }}
-      </button>
-      <button
-        :class="{ active: operator === operators.equalTo }"
-        :disabled="formDisabled"
-        type="button"
-        class="btn btn-default"
-        @click="operator = operators.equalTo"
-      >
-        {{ operators.equalTo }}
-      </button>
-      <button
-        :class="{ active: operator === operators.lessThan }"
-        :disabled="formDisabled"
-        type="button"
-        class="btn btn-default"
-        @click="operator = operators.lessThan"
-      >
-        {{ operators.lessThan }}
-      </button>
-    </div>
+        <button
+          :class="{ active: operator === operators.greaterThan }"
+          :disabled="formDisabled"
+          type="button"
+          class="btn btn-default"
+          @click="operator = operators.greaterThan"
+        >
+          {{ operators.greaterThan }}
+        </button>
+        <button
+          :class="{ active: operator === operators.equalTo }"
+          :disabled="formDisabled"
+          type="button"
+          class="btn btn-default"
+          @click="operator = operators.equalTo"
+        >
+          {{ operators.equalTo }}
+        </button>
+        <button
+          :class="{ active: operator === operators.lessThan }"
+          :disabled="formDisabled"
+          type="button"
+          class="btn btn-default"
+          @click="operator = operators.lessThan"
+        >
+          {{ operators.lessThan }}
+        </button>
+      </gl-button-group>
+    </gl-form-group>
     <div class="form-group">
       <label>{{ s__('PrometheusAlerts|Threshold') }}</label>
       <input
         v-model.number="threshold"
         :disabled="formDisabled"
-        type="number"
         class="form-control"
       />
     </div>
