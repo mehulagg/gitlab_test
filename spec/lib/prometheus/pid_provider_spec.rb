@@ -6,65 +6,66 @@ describe Prometheus::PidProvider do
   describe '.worker_id' do
     subject { described_class.worker_id }
 
+    let(:sidekiq_module) { Module.new }
+
     before do
-      sidekiq_double = double(Class.new)
-      allow(sidekiq_double).to receive(:server?).and_return(false)
-      stub_const('Sidekiq', sidekiq_double)
+      allow(sidekiq_module).to receive(:server?).and_return(false)
+      stub_const('Sidekiq', sidekiq_module)
     end
 
-    context 'when initializing Sidekiq' do
-      specify do
+    context 'when running in Sidekiq server mode' do
+      before do
         expect(Sidekiq).to receive(:server?).and_return(true)
-
-        is_expected.to eq 'sidekiq'
       end
+
+      it { is_expected.to eq 'sidekiq' }
     end
 
-    context 'when initializing Unicorn' do
+    context 'when running in Unicorn mode' do
       before do
         stub_const('Unicorn::Worker', Class.new)
       end
 
       context 'when `Prometheus::Client::Support::Unicorn` provides worker_id' do
-        specify do
+        before do
           expect(::Prometheus::Client::Support::Unicorn).to receive(:worker_id).and_return(1)
-
-          is_expected.to eq 'unicorn_1'
         end
+
+        it { is_expected.to eq 'unicorn_1' }
       end
 
       context 'when no worker_id is provided from `Prometheus::Client::Support::Unicorn`' do
-        specify do
+        before do
           expect(::Prometheus::Client::Support::Unicorn).to receive(:worker_id).and_return(nil)
-
-          is_expected.to eq 'unicorn_master'
         end
+
+        it { is_expected.to eq 'unicorn_master' }
       end
     end
 
-    context 'when initializing Puma' do
+    context 'when running in Puma mode' do
       before do
-        stub_const('Puma', Class.new)
+        stub_const('Puma', Module.new)
       end
 
       context 'when cluster worker id is specified in process name' do
-        specify do
+        before do
           expect(described_class).to receive(:process_name).and_return('puma: cluster worker 1: 17483 [gitlab-puma-worker]')
-
-          is_expected.to eq 'puma_1'
         end
+
+        it { is_expected.to eq 'puma_1' }
       end
 
       context 'when no worker id is specified in process name' do
-        specify do
+        before do
           expect(described_class).to receive(:process_name).and_return('bin/puma')
-
-          is_expected.to eq 'puma_master'
         end
+
+        it { is_expected.to eq 'puma_master' }
       end
     end
 
-    context 'when initializing neither Sidekiq/nor Unicorn/nor Puma' do
+    context 'when running in unknown mode' do
       it { is_expected.to eq "process_#{Process.pid}" }
     end
   end
