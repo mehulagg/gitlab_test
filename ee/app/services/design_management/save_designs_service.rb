@@ -35,9 +35,9 @@ module DesignManagement
       repository.create_if_not_exists
 
       # Do not inline `build_repository_action` here!
-      # We have to do this as two *separate* calls to #map so that the call to `new_file?` does
-      # not accidentally cache the wrong data half-way through the operation.
-      # (this is what we get for not having referentially transparent data)
+      # We have to do this as two *separate* calls to #map so that the call
+      # to `new_file?` does not accidentally cache the wrong data half-way
+      # through the operation.
       corresponding_designs = files.map do |file|
         collection.find_or_create_design!(filename: file.original_filename)
       end
