@@ -58,13 +58,20 @@ describe Board do
         expect(board.milestone).to eq milestone
       end
 
-      it "returns nil for 'No milestone' milestone id" do
+      it 'returns nil for invalid milestone id' do
+        nonsense_board_weight = -6
+        board.milestone_id = nonsense_board_weight
+
+        expect(board.milestone).to be_nil
+      end
+
+      it "returns nil for 'No milestone' value" do
         board.milestone_id = -1
 
         expect(board.milestone).to be_nil
       end
 
-      it "returns nil for 'Any milestone' nil milestone id" do
+      it "returns nil for 'Any milestone' value" do
         board.milestone_id = nil
 
         expect(board.milestone).to be_nil
