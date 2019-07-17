@@ -6,7 +6,7 @@ module QA
       class Login < Page::Base
         view 'app/views/devise/passwords/edit.html.haml' do
           element :password_field
-          element :password_confirmation
+          element :password_confirmation_field
           element :change_password_button
         end
 
