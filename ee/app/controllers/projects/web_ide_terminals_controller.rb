@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Projects::WebIdeTerminalsController < Projects::ApplicationController
+  include Gitlab::Utils::StrongMemoize
+
   before_action :authenticate_user!
 
   before_action :build, except: [:check_config, :create]
@@ -25,6 +27,8 @@ class Projects::WebIdeTerminalsController < Projects::ApplicationController
   end
 
   def create
+    return render_terminal(existing_build) if existing_build
+
     result = ::Ci::CreateWebIdeTerminalService.new(project,
                                                      current_user,
                                                      ref: params[:branch])
@@ -92,5 +96,11 @@ class Projects::WebIdeTerminalsController < Projects::ApplicationController
     render json: WebIdeTerminalSerializer
       .new(project: project, current_user: current_user)
       .represent(current_build)
+  end
+
+  def existing_build
+    strong_memoize(:existing_build) do
+      User.first.builds.running.find_by(name: 'terminal', ref: params[:branch])
+    end
   end
 end

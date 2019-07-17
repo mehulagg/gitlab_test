@@ -84,7 +84,7 @@
 
   - if can_collaborate
     = succeed " " do
-      = link_to ide_edit_path(@project, @ref, @path), class: 'btn btn-default qa-web-ide-button' do
+      = link_to project_ide_path(@project, @ref), class: 'btn btn-default qa-web-ide-button' do
         = _('Web IDE')
 
   - if show_xcode_link?(@project)

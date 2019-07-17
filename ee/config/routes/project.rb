@@ -17,6 +17,9 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
       end
 
+      resources :ide, only: [:show], param: :ref
+
+
       resources :web_ide_terminals, path: :ide_terminals, only: [:create, :show], constraints: { id: /\d+/, format: :json } do
         member do
           post :cancel

@@ -1,0 +1,7 @@
+- page_title 'IDE'
+
+#ide.ide-loading{ data: { terminals_url: project_web_ide_terminals_path(@project), branch: @ref  } }
+  .text-center
+    = icon('spinner spin 2x')
+    %h2.clgray= _('Loading the GitLab IDE...')
+
