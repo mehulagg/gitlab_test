@@ -6,35 +6,34 @@ module Gitlab
     # is different from discussion id on issue, which was causing problems when repying to epic discussions as it would
     # identify the discussion as related to an issue and complaint about missing project_id
     class MigratePromotedEpicsDiscussionIds
-      # notes model to itterate through the notes to be updated
+      # notes model to iterate through the notes to be updated
       class Note < ActiveRecord::Base
-        include EachBatch
         self.table_name = 'notes'
       end
 
-      def perform(discussion_id)
-        Note.where(noteable_type: 'Epic').where(discussion_id: discussion_id).update_all(discussion_id: Discussion.discussion_id(Note.new))
+      def perform(discussion_ids)
+        discussion_values = build_discussion_values(discussion_ids)
+
+        update_notes_discussion_ids(discussion_values) if discussion_values
       end
 
-      def perform_all_sync(batch_size:)
-        fetch_discussion_ids_query.each_batch(of: batch_size) do |notes|
-          notes.each do |note|
-            perform(note[:discussion_id])
-          end
-        end
+      def build_discussion_values(discussion_ids)
+        new_discussion_ids = discussion_ids.map {|old_id| [old_id, Discussion.discussion_id(Note.new)]}
+        new_discussion_ids.map { |el| el.map { |id| Note.connection.quote_string(id) }.join("','") }.join("'), ('").prepend("('").concat("')")
       end
 
-      private
+      def update_notes_discussion_ids(values)
+        sql = <<-SQL.squish
+          UPDATE notes SET discussion_id = v.new_discussion_id
+          FROM (
+            VALUES
+            #{values}
+          ) AS v(old_discussion_id, new_discussion_id)
+          WHERE notes.discussion_id = v.old_discussion_id
+          AND notes.noteable_type = 'Epic'
+        SQL
 
-      def fetch_discussion_ids_query
-        promoted_epics_query = Note
-                                 .where(system: true)
-                                 .where(noteable_type: 'Epic')
-                                 .where("note LIKE 'promoted from%'")
-                                 .select("DISTINCT noteable_id")
-        Note.where(noteable_type: 'Epic')
-          .where(noteable_id: promoted_epics_query)
-          .select("DISTINCT discussion_id")
+        Note.connection.execute(sql)
       end
     end
   end
