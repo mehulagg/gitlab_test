@@ -3,17 +3,38 @@ import MockAdapter from 'axios-mock-adapter';
 import { GlModal } from '@gitlab/ui';
 import Dashboard from 'ee/monitoring/components/dashboard.vue';
 import { createStore } from '~/monitoring/stores';
+import * as types from '~/monitoring/stores/mutation_types';
 import axios from '~/lib/utils/axios_utils';
-import { metricsGroupsAPIResponse, mockApiEndpoint } from 'spec/monitoring/mock_data';
+import {
+  mockApiEndpoint,
+  metricsNewGroupsAPIResponse,
+  mockedQueryResultPayload,
+  environmentData,
+} from 'spec/monitoring/mock_data';
 import propsData from 'spec/monitoring/dashboard_spec';
 import AlertWidget from 'ee/monitoring/components/alert_widget.vue';
 import CustomMetricsFormFields from 'ee/custom_metrics/components/custom_metrics_form_fields.vue';
+
+function setupWrapperStore(wrapper) {
+  wrapper.vm.$store.commit(
+    `monitoringDashboard/${types.RECEIVE_METRICS_DATA_SUCCESS}`,
+    metricsNewGroupsAPIResponse,
+  );
+  wrapper.vm.$store.commit(
+    `monitoringDashboard/${types.SET_QUERY_RESULT}`,
+    mockedQueryResultPayload,
+  );
+  wrapper.vm.$store.commit(
+    `monitoringDashboard/${types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS}`,
+    environmentData,
+  );
+}
 
 describe('Dashboard', () => {
   let Component;
   let mock;
   let store;
-  let vm;
+  let wrapper;
   const localVue = createLocalVue();
 
   beforeEach(() => {
@@ -29,7 +50,7 @@ describe('Dashboard', () => {
 
     store = createStore();
     mock = new MockAdapter(axios);
-    mock.onGet(mockApiEndpoint).reply(200, metricsGroupsAPIResponse);
+    mock.onGet(mockApiEndpoint).reply(200, metricsNewGroupsAPIResponse);
     Component = localVue.extend(Dashboard);
   });
 
@@ -40,7 +61,7 @@ describe('Dashboard', () => {
   describe('metrics with alert', () => {
     describe('with license', () => {
       beforeEach(() => {
-        vm = shallowMount(Component, {
+        wrapper = shallowMount(Component, {
           propsData: {
             ...propsData,
             hasMetrics: true,
@@ -52,16 +73,21 @@ describe('Dashboard', () => {
       });
 
       it('shows alert widget', done => {
-        setTimeout(() => {
-          expect(vm.find(AlertWidget).exists()).toBe(true);
-          done();
-        });
+        setupWrapperStore(wrapper);
+
+        localVue
+          .nextTick()
+          .then(() => {
+            expect(wrapper.find(AlertWidget).exists()).toBe(true);
+            done();
+          })
+          .catch(done.fail);
       });
     });
 
     describe('without license', () => {
       beforeEach(() => {
-        vm = shallowMount(Component, {
+        wrapper = shallowMount(Component, {
           propsData: {
             ...propsData,
             hasMetrics: true,
@@ -73,10 +99,15 @@ describe('Dashboard', () => {
       });
 
       it('does not show alert widget', done => {
-        setTimeout(() => {
-          expect(vm.find(AlertWidget).exists()).toBe(false);
-          done();
-        });
+        setupWrapperStore(wrapper);
+
+        localVue
+          .nextTick()
+          .then(() => {
+            expect(wrapper.find(AlertWidget).exists()).toBe(false);
+            done();
+          })
+          .catch(done.fail);
       });
     });
   });
@@ -84,7 +115,7 @@ describe('Dashboard', () => {
   describe('add custom metrics', () => {
     describe('when not available', () => {
       beforeEach(() => {
-        vm = shallowMount(Component, {
+        wrapper = shallowMount(Component, {
           propsData: {
             ...propsData,
             customMetricsAvailable: false,
@@ -98,16 +129,21 @@ describe('Dashboard', () => {
       });
 
       it('does not render add button on the dashboard', done => {
-        setTimeout(() => {
-          expect(vm.element.querySelector('.js-add-metric-button')).toBe(null);
-          done();
-        });
+        setupWrapperStore(wrapper);
+
+        localVue
+          .nextTick()
+          .then(() => {
+            expect(wrapper.element.querySelector('.js-add-metric-button')).toBe(null);
+            done();
+          })
+          .catch(done.fail);
       });
     });
 
     describe('when available', () => {
       beforeEach(done => {
-        vm = shallowMount(Component, {
+        wrapper = shallowMount(Component, {
           propsData: {
             ...propsData,
             customMetricsAvailable: true,
@@ -119,20 +155,27 @@ describe('Dashboard', () => {
           store,
         });
 
-        setTimeout(done);
+        setupWrapperStore(wrapper);
+
+        localVue
+          .nextTick()
+          .then(done)
+          .catch(done.fail);
       });
 
       it('renders add button on the dashboard', () => {
-        expect(vm.element.querySelector('.js-add-metric-button').innerText).toContain('Add metric');
+        expect(wrapper.element.querySelector('.js-add-metric-button').innerText).toContain(
+          'Add metric',
+        );
       });
 
       it('uses modal for custom metrics form', () => {
-        expect(vm.find(GlModal).exists()).toBe(true);
-        expect(vm.find(GlModal).attributes().modalid).toBe('add-metric');
+        expect(wrapper.find(GlModal).exists()).toBe(true);
+        expect(wrapper.find(GlModal).attributes().modalid).toBe('add-metric');
       });
 
       it('renders custom metrics form fields', () => {
-        expect(vm.find(CustomMetricsFormFields).exists()).toBe(true);
+        expect(wrapper.find(CustomMetricsFormFields).exists()).toBe(true);
       });
     });
   });
