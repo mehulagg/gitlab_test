@@ -16892,6 +16892,11 @@ msgstr ""
 msgid "commented on %{link_to_project}"
 msgstr ""
 
+msgid "commit"
+msgid_plural "commits"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "commit %{commit_id}"
 msgstr ""
 
@@ -17127,6 +17132,11 @@ msgstr[1] ""
 
 msgid "milestone should belong either to a project or a group."
 msgstr ""
+
+msgid "minute"
+msgid_plural "minutes"
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "missing"
 msgstr ""
@@ -17518,6 +17528,11 @@ msgstr ""
 
 msgid "score"
 msgstr ""
+
+msgid "second"
+msgid_plural "seconds"
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "security Reports|There was an error creating the merge request"
 msgstr ""
