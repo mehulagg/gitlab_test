@@ -1,5 +1,5 @@
 <script>
-import { GlButton, GlDropdown, GlDropdownItem, GlModal, GlModalDirective } from '@gitlab/ui';
+import { GlButton, GlDropdown, GlDropdownItem, GlModal, GlModalDirective, GlTooltipDirective } from '@gitlab/ui';
 import _ from 'underscore';
 import { mapActions, mapState } from 'vuex';
 import { s__ } from '~/locale';
@@ -32,6 +32,7 @@ export default {
   },
   directives: {
     GlModalDirective,
+    GlTooltip: GlTooltipDirective,
   },
   props: {
     externalDashboardUrl: {
@@ -394,13 +395,30 @@ export default {
             :project-path="projectPath"
             group-id="monitor-area-chart"
           >
-            <alert-widget
-              v-if="alertWidgetAvailable && graphData"
-              :alerts-endpoint="alertsEndpoint"
-              :relevant-queries="graphData.queries"
-              :alerts-to-manage="getGraphAlerts(graphData.queries)"
-              @setAlerts="setAlerts"
-            />
+            <gl-dropdown
+              v-gl-tooltip
+              class="mx-2"
+              toggle-class="btn btn-transparent"
+              :right="true"
+              :no-caret="true"
+              :title="__('More actions')"
+              v-if="alertWidgetAvailable"
+            >
+              <template slot="button-content">
+                <icon name="ellipsis_v" class="text-secondary" />
+              </template>
+              <gl-dropdown-item
+                active-class="is-active"
+              >
+                <alert-widget
+                  v-if="alertWidgetAvailable && graphData"
+                  :alerts-endpoint="alertsEndpoint"
+                  :relevant-queries="graphData.queries"
+                  :alerts-to-manage="getGraphAlerts(graphData.queries)"
+                  @setAlerts="setAlerts"
+                />
+              </gl-dropdown-item>
+            </gl-dropdown>
           </monitor-area-chart>
         </template>
       </graph-group>
