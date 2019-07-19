@@ -395,30 +395,35 @@ export default {
             :project-path="projectPath"
             group-id="monitor-area-chart"
           >
-            <gl-dropdown
-              v-gl-tooltip
-              class="mx-2"
-              toggle-class="btn btn-transparent"
-              :right="true"
-              :no-caret="true"
-              :title="__('More actions')"
-              v-if="alertWidgetAvailable"
-            >
-              <template slot="button-content">
-                <icon name="ellipsis_v" class="text-secondary" />
-              </template>
-              <gl-dropdown-item
-                active-class="is-active"
+            <div class="d-flex align-items-center">
+              <alert-widget
+                v-if="alertWidgetAvailable && graphData"
+                :modal-id="`alerts-modal-${graphIndex}`"
+                :alerts-endpoint="alertsEndpoint"
+                :relevant-queries="graphData.queries"
+                :alerts-to-manage="getGraphAlerts(graphData.queries)"
+                @setAlerts="setAlerts"
+              />
+              <gl-dropdown
+                v-gl-tooltip
+                class="mx-2"
+                toggle-class="btn btn-transparent"
+                :right="true"
+                :no-caret="true"
+                :title="__('More actions')"
+                v-if="alertWidgetAvailable"
               >
-                <alert-widget
-                  v-if="alertWidgetAvailable && graphData"
-                  :alerts-endpoint="alertsEndpoint"
-                  :relevant-queries="graphData.queries"
-                  :alerts-to-manage="getGraphAlerts(graphData.queries)"
-                  @setAlerts="setAlerts"
-                />
-              </gl-dropdown-item>
-            </gl-dropdown>
+                <template slot="button-content">
+                  <icon name="ellipsis_v" class="text-secondary" />
+                </template>
+                <gl-dropdown-item
+                  v-gl-modal-directive="`alerts-modal-${graphIndex}`"
+                  active-class="is-active"
+                >
+                  {{ __('Alerts') }}
+                </gl-dropdown-item>
+              </gl-dropdown>
+            </div>
           </monitor-area-chart>
         </template>
       </graph-group>

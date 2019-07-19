@@ -4,13 +4,14 @@ import Icon from '~/vue_shared/components/icon.vue';
 import AlertWidgetForm from './alert_widget_form.vue';
 import AlertsService from '../services/alerts_service';
 import { alertsValidator, queriesValidator } from '../validators';
-import { GlLoadingIcon } from '@gitlab/ui';
+import { GlLoadingIcon, GlModal } from '@gitlab/ui';
 
 export default {
   components: {
     Icon,
     AlertWidgetForm,
     GlLoadingIcon,
+    GlModal,
   },
   props: {
     alertsEndpoint: {
@@ -31,6 +32,10 @@ export default {
       type: Array,
       required: true,
       validator: queriesValidator,
+    },
+    modalId: {
+      type: String,
+      required: true,
     },
   },
   data() {
@@ -125,7 +130,7 @@ export default {
       this.isOpen = !this.isOpen;
     },
     handleDropdownClose() {
-      this.isOpen = false;
+      this.$refs['alertModal'].hide();
     },
     handleOutsideClick(event) {
       if (
@@ -187,51 +192,29 @@ export default {
 </script>
 
 <template>
-  <div class="prometheus-alert-widget dropdown d-flex align-items-center">
-    <span v-if="errorMessage" class="alert-error-message"> {{ errorMessage }} </span>
-    <span v-else class="alert-current-setting">
-      <gl-loading-icon v-show="isLoading" :inline="true" />
+  <div>
+    <span class="text-secondary">
       {{ alertSummary }}
     </span>
-    <button
-      ref="dropdownMenuToggle"
-      :aria-label="alertStatus"
-      class="btn btn-sm alert-dropdown-button"
-      type="button"
-      @click="handleDropdownToggle"
+    <gl-modal
+      ref="alertModal"
+      :title="dropdownTitle"
+      :modal-id="modalId"
+      class="prometheus-alert-widget d-flex align-items-center"
+      hide-footer
     >
-      <icon :name="alertIcon" :size="16" aria-hidden="true" />
-      <icon :size="16" name="arrow-down" aria-hidden="true" class="chevron" />
-    </button>
-    <div
-      ref="dropdownMenu"
-      :class="{ show: isOpen, 'h-auto': supportsComputedAlerts }"
-      class="dropdown-menu alert-dropdown-menu"
-    >
-      <div class="dropdown-title m0">
-        <span>{{ dropdownTitle }}</span>
-        <button
-          class="dropdown-title-button dropdown-menu-close"
-          type="button"
-          aria-label="Close"
-          @click="handleDropdownClose"
-        >
-          <icon :size="12" name="close" aria-hidden="true" />
-        </button>
-      </div>
-      <div :class="{ 'mh-100': supportsComputedAlerts }" class="dropdown-content">
-        <alert-widget-form
-          ref="widgetForm"
-          :disabled="formDisabled"
-          :alerts-to-manage="alertsToManage"
-          :relevant-queries="relevantQueries"
-          @create="handleCreate"
-          @update="handleUpdate"
-          @delete="handleDelete"
-          @cancel="handleDropdownClose"
-          @setAction="handleSetApiAction"
-        />
-      </div>
-    </div>
+      <span v-if="errorMessage" class="alert-error-message"> {{ errorMessage }} </span>
+      <alert-widget-form
+        ref="widgetForm"
+        :disabled="formDisabled"
+        :alerts-to-manage="alertsToManage"
+        :relevant-queries="relevantQueries"
+        @create="handleCreate"
+        @update="handleUpdate"
+        @delete="handleDelete"
+        @cancel="handleDropdownClose"
+        @setAction="handleSetApiAction"
+      />
+    </gl-modal>
   </div>
 </template>
