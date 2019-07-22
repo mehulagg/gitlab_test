@@ -109,6 +109,9 @@ export default {
         (this.vulnerability.dismissal_feedback || this.vulnerability.dismissalFeedback)
       );
     },
+    isEditingExistingFeedback() {
+      return this.dismissalFeedback && this.modal.isCommentingOnDismissal;
+    },
     valuedFields() {
       const { data } = this.modal;
       const result = {};
@@ -219,10 +222,29 @@ export default {
 
       <div v-if="dismissalFeedback || modal.isCommentingOnDismissal" class="card my-4">
         <div class="card-body">
-          <dismissal-note :feedback="dismissalFeedbackObject" :project="project" />
+          <dismissal-note
+            :feedback="dismissalFeedbackObject"
+            :is-commenting-on-dismissal="modal.isCommentingOnDismissal"
+            :is-showing-delete-buttons="modal.isShowingDeleteButtons"
+            :project="project"
+            :show-dismissal-comment-actions="
+              !dismissalFeedback || !dismissalFeedback.comment_details || !isEditingExistingFeedback
+            "
+            @editVulnerabilityDismissalComment="$emit('editVulnerabilityDismissalComment')"
+            @showDismissalDeleteButtons="$emit('showDismissalDeleteButtons')"
+            @hideDismissalDeleteButtons="$emit('hideDismissalDeleteButtons')"
+            @deleteDismissalComment="$emit('deleteDismissalComment')"
+          />
           <dismissal-comment-box-toggle
-            v-if="!dismissalFeedback || !dismissalFeedback.comment_details"
+            v-if="
+              !dismissalFeedback || !dismissalFeedback.comment_details || isEditingExistingFeedback
+            "
             v-model="localDismissalComment"
+            :dismissal-comment="
+              dismissalFeedback &&
+                dismissalFeedback.comment_details &&
+                dismissalFeedback.comment_details.comment
+            "
             :is-active="modal.isCommentingOnDismissal"
             :error-message="dismissalCommentErrorMessage"
             @openDismissalCommentBox="$emit('openDismissalCommentBox')"
@@ -238,6 +260,7 @@ export default {
       <dismissal-comment-modal-footer
         v-if="modal.isCommentingOnDismissal"
         :is-dismissed="vulnerability.isDismissed"
+        :is-editing-existing-feedback="isEditingExistingFeedback"
         @addCommentAndDismiss="addCommentAndDismiss"
         @addDismissalComment="addDismissalComment"
         @cancel="$emit('closeDismissalCommentBox')"
@@ -246,6 +269,7 @@ export default {
         v-else-if="shouldRenderFooterSection"
         :modal="modal"
         :vulnerability="vulnerability"
+        :disabled="modal.isShowingDeleteButtons"
         :can-create-issue="Boolean(!vulnerability.hasIssue && canCreateIssue)"
         :can-create-merge-request="Boolean(!vulnerability.hasMergeRequest && remediation)"
         :can-download-patch="canDownloadPatch"
