@@ -1,5 +1,5 @@
 <script>
-import { GlButton, GlDropdown, GlDropdownItem, GlModal, GlModalDirective, GlTooltipDirective } from '@gitlab/ui';
+import { GlButton, GlDropdown, GlDropdownItem, GlModal, GlModalDirective } from '@gitlab/ui';
 import _ from 'underscore';
 import { mapActions, mapState } from 'vuex';
 import { s__ } from '~/locale';
@@ -31,7 +31,6 @@ export default {
   },
   directives: {
     GlModalDirective,
-    GlTooltip: GlTooltipDirective,
   },
   props: {
     externalDashboardUrl: {
@@ -395,35 +394,14 @@ export default {
             :project-path="projectPath"
             group-id="monitor-area-chart"
           >
-            <div class="d-flex align-items-center">
-              <alert-widget
-                v-if="alertWidgetAvailable && graphData"
-                :modal-id="`alerts-modal-${graphIndex}`"
-                :alerts-endpoint="alertsEndpoint"
-                :relevant-queries="graphData.queries"
-                :alerts-to-manage="getGraphAlerts(graphData.queries)"
-                @setAlerts="setAlerts"
-              />
-              <gl-dropdown
-                v-gl-tooltip
-                class="mx-2"
-                toggle-class="btn btn-transparent"
-                :right="true"
-                :no-caret="true"
-                :title="__('More actions')"
-                v-if="alertWidgetAvailable"
-              >
-                <template slot="button-content">
-                  <icon name="ellipsis_v" class="text-secondary" />
-                </template>
-                <gl-dropdown-item
-                  v-gl-modal-directive="`alerts-modal-${graphIndex}`"
-                  active-class="is-active"
-                >
-                  {{ __('Alerts') }}
-                </gl-dropdown-item>
-              </gl-dropdown>
-            </div>
+            <alert-widget
+              v-if="alertWidgetAvailable && graphData"
+              :alerts-endpoint="alertsEndpoint"
+              :relevant-queries="graphData.queries"
+              :alerts-to-manage="getGraphAlerts(graphData.queries)"
+              @setAlerts="setAlerts"
+              :modal-id="`alert-modal-${index}-${graphIndex}`"
+            />
           </monitor-area-chart>
         </template>
       </graph-group>

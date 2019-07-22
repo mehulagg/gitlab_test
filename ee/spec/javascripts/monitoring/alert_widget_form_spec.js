@@ -13,6 +13,7 @@ describe('AlertWidgetForm', () => {
   const props = {
     disabled: false,
     relevantQueries,
+    modalId: 'alert-modal-1',
   };
 
   const propsWithAlertData = {
