@@ -36,6 +36,7 @@ export default {
       page: getParameterByName('page') || '1',
       requestData: {},
       environmentInStopModal: {},
+      environmentInDeleteModal: {},
       environmentInRollbackModal: {},
     };
   },
@@ -121,6 +122,10 @@ export default {
       this.environmentInStopModal = environment;
     },
 
+    updateDeleteModal(environment) {
+      this.environmentInDeleteModal = environment;
+    },
+
     updateRollbackModal(environment) {
       this.environmentInRollbackModal = environment;
     },
@@ -131,6 +136,23 @@ export default {
         'Environments|An error occurred while stopping the environment, please try again',
       );
       this.postAction({ endpoint, errorMessage });
+    },
+
+    deleteEnvironment(environment) {
+      const endpoint = environment.delete_path;
+      const errorMessage = s__(
+        'Environments|An error occurred while deleting the environment, please try again',
+      );
+
+      this.service
+        .deleteAction(endpoint)
+        .then(() => {
+          // Reload to as a first solution to bust the ETag cache
+          window.location.reload();
+        })
+        .catch(() => {
+          Flash(errorMessage || s__('Environments|An error occurred while making the request.'));
+        });
     },
 
     rollbackEnvironment(environment) {
@@ -205,8 +227,12 @@ export default {
     });
 
     eventHub.$on('postAction', this.postAction);
+
     eventHub.$on('requestStopEnvironment', this.updateStopModal);
     eventHub.$on('stopEnvironment', this.stopEnvironment);
+
+    eventHub.$on('requestDeleteEnvironment', this.updateDeleteModal);
+    eventHub.$on('deleteEnvironment', this.deleteEnvironment);
 
     eventHub.$on('requestRollbackEnvironment', this.updateRollbackModal);
     eventHub.$on('rollbackEnvironment', this.rollbackEnvironment);
@@ -216,8 +242,12 @@ export default {
 
   beforeDestroy() {
     eventHub.$off('postAction', this.postAction);
+
     eventHub.$off('requestStopEnvironment', this.updateStopModal);
     eventHub.$off('stopEnvironment', this.stopEnvironment);
+
+    eventHub.$off('requestDeleteEnvironment', this.updateDeleteModal);
+    eventHub.$off('deleteEnvironment', this.deleteEnvironment);
 
     eventHub.$off('requestRollbackEnvironment', this.updateRollbackModal);
     eventHub.$off('rollbackEnvironment', this.rollbackEnvironment);

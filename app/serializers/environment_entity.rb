@@ -28,6 +28,10 @@ class EnvironmentEntity < Grape::Entity
     cancel_auto_stop_project_environment_path(environment.project, environment)
   end
 
+  expose :delete_path do |environment|
+    environment_delete_path(environment.project, environment)
+  end
+
   expose :cluster_type, if: ->(environment, _) { cluster_platform_kubernetes? } do |environment|
     cluster.cluster_type
   end
@@ -45,6 +49,10 @@ class EnvironmentEntity < Grape::Entity
 
   expose :can_stop do |environment|
     environment.available? && can?(current_user, :stop_environment, environment)
+  end
+
+  expose :can_update do |environment|
+    !environment.available? && can?(current_user, :update_environment, environment)
   end
 
   private
