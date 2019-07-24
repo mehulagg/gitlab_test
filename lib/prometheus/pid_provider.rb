@@ -26,6 +26,7 @@ module Prometheus
     # to introduce more structrured approach to a current process discovery:
     # https://gitlab.com/gitlab-org/gitlab-ce/issues/64740
     def unicorn_worker_id
+      # p $0
       ::Prometheus::Client::Support::Unicorn.worker_id || 'master'
     end
 
