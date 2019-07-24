@@ -39,7 +39,7 @@ describe('Milestone select component', () => {
     const Component = Vue.extend(MilestoneSelect);
     vm = new Component({
       propsData: {
-        board: boardObj,
+        board: { ...boardObj },
         milestonePath: '/test/issue-boards/milestones.json',
         canEdit: true,
       },
@@ -104,7 +104,7 @@ describe('Milestone select component', () => {
       });
 
       it('sets Any Milestone', done => {
-        vm.board = { milestone_id: null };
+        vm.board.milestone_id = -1;
         vm.$el.querySelector('.edit-link').click();
 
         setTimeout(() => {

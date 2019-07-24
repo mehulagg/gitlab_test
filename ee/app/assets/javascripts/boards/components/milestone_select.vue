@@ -1,18 +1,37 @@
 <script>
 import MilestoneSelect from '~/milestone_select';
 import { GlLoadingIcon } from '@gitlab/ui';
+import { __ } from '~/locale';
 
 const ANY_MILESTONE = {
-  LABEL: 'Any Milestone',
-  STRING: 'Any',
-  VALUE: null,
+  title: __('Any Milestone'),
+  titleClass: 'text-secondary',
+  name: 'Any',
+  id: null,
 };
 
 const NO_MILESTONE = {
-  LABEL: 'No Milestone',
-  STRING: 'None',
-  VALUE: -1,
+  title: __('No Milestone'),
+  name: 'None',
+  id: -1,
 };
+
+const DEFAULT_MILESTONE = {
+  title: ANY_MILESTONE.title,
+  titleClass: 'bold',
+  name: '',
+};
+
+function getMilestoneIdFromTitle({ title, id }) {
+  switch (title) {
+    case ANY_MILESTONE.title:
+      return ANY_MILESTONE.id;
+    case NO_MILESTONE.title:
+      return NO_MILESTONE.id;
+    default:
+      return id;
+  }
+}
 
 export default {
   components: {
@@ -35,26 +54,27 @@ export default {
   },
 
   computed: {
+    milestone() {
+      switch (this.milestoneId) {
+        case NO_MILESTONE.id:
+          return NO_MILESTONE;
+        case ANY_MILESTONE.id:
+          return ANY_MILESTONE;
+        default:
+          return this.board.milestone || DEFAULT_MILESTONE;
+      }
+    },
     milestoneTitle() {
-      if (this.noMilestone) return NO_MILESTONE.LABEL;
-      return this.board.milestone ? this.board.milestone.title : ANY_MILESTONE.LABEL;
-    },
-    anyMilestone() {
-      return this.milestoneId === ANY_MILESTONE.VALUE;
-    },
-    noMilestone() {
-      return this.milestoneId === NO_MILESTONE.VALUE;
+      return this.milestone.title;
     },
     milestoneId() {
       return this.board.milestone_id;
     },
     milestoneTitleClass() {
-      return this.milestoneTitle === ANY_MILESTONE.LABEL ? 'text-secondary' : 'bold';
+      return this.milestone.titleClass || DEFAULT_MILESTONE.titleClass;
     },
     selected() {
-      if (this.noMilestone) return NO_MILESTONE.STRING;
-      if (this.anyMilestone) return ANY_MILESTONE.STRING;
-      return this.board.milestone ? this.board.milestone.name : '';
+      return this.milestone.name;
     },
   },
   mounted() {
@@ -64,12 +84,7 @@ export default {
   },
   methods: {
     selectMilestone(milestone) {
-      let { id } = milestone;
-      if (milestone.title === ANY_MILESTONE.LABEL) {
-        id = ANY_MILESTONE.VALUE;
-      } else if (milestone.title === NO_MILESTONE.LABEL) {
-        id = NO_MILESTONE.VALUE;
-      }
+      const id = getMilestoneIdFromTitle(milestone);
       this.board.milestone_id = id;
       this.board.milestone = {
         ...milestone,
