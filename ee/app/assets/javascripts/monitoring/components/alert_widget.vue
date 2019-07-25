@@ -170,8 +170,10 @@ export default {
 </script>
 
 <template>
-  <div>
-    <span class="text-secondary">
+  <div class="prometheus-alert-widget dropdown d-flex align-items-center">
+    <span v-if="errorMessage" class="alert-error-message"> {{ errorMessage }} </span>
+    <span v-else class="alert-current-setting text-secondary">
+      <gl-loading-icon v-show="isLoading" :inline="true" />
       {{ alertSummary }}
     </span>
     <button

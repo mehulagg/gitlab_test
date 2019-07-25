@@ -191,6 +191,7 @@ export default {
     :modal-id="modalId"
     :ok-variant="submitAction === 'delete' ? 'danger' : 'success'"
     :ok-title="submitActionText"
+    :ok-disabled="formDisabled"
     class="prometheus-alert-widget d-flex align-items-center"
     @ok="handleSubmit"
   >
