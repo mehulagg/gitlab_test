@@ -97,10 +97,10 @@ class BoardsStoreEE {
     let { milestoneTitle } = this.store.boardConfig;
     if (this.store.boardConfig.milestoneId === -1) {
       /* eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings */
-      milestoneTitle = 'No+Milestone';
+      milestoneTitle = 'None';
     } else if (this.store.boardConfig.milestoneId === null) {
       /* eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings */
-      milestoneTitle = 'Any+Milestone';
+      milestoneTitle = 'Any';
     } else {
       milestoneTitle = encodeURIComponent(milestoneTitle);
     }
