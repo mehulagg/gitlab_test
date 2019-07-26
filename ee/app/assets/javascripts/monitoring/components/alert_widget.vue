@@ -176,16 +176,6 @@ export default {
       <gl-loading-icon v-show="isLoading" :inline="true" />
       {{ alertSummary }}
     </span>
-    <button
-      ref="dropdownMenuToggle"
-      v-gl-modal="modalId"
-      :aria-label="alertStatus"
-      class="btn btn-sm mx-2 alert-dropdown-button"
-      type="button"
-    >
-      <icon :name="alertIcon" :size="16" aria-hidden="true" />
-    </button>
-
     <alert-widget-form
       ref="widgetForm"
       :disabled="formDisabled"

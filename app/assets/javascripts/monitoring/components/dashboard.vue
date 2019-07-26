@@ -398,7 +398,7 @@ export default {
             <div class="d-flex align-items-center">
               <alert-widget
                 v-if="alertWidgetAvailable && graphData"
-                :modal-id="`alerts-modal-${graphIndex}`"
+                :modal-id="`alert-modal-${index}-${graphIndex}`"
                 :alerts-endpoint="alertsEndpoint"
                 :relevant-queries="graphData.queries"
                 :alerts-to-manage="getGraphAlerts(graphData.queries)"
@@ -408,7 +408,7 @@ export default {
                 v-if="alertWidgetAvailable"
                 v-gl-tooltip
                 class="mx-2"
-                toggle-class="btn btn-transparent"
+                toggle-class="btn btn-transparent border-0"
                 :right="true"
                 :no-caret="true"
                 :title="__('More actions')"
@@ -418,21 +418,12 @@ export default {
                 </template>
                 <gl-dropdown-item
                   v-if="alertWidgetAvailable"
-                  v-gl-modal-directive="`alerts-modal-${index}-${graphIndex}`"
-                  active-class="is-active"
+                  v-gl-modal-directive="`alert-modal-${index}-${graphIndex}`"
                 >
                   {{ __('Alerts') }}
                 </gl-dropdown-item>
               </gl-dropdown>
             </div>
-            <alert-widget
-              v-if="alertWidgetAvailable && graphData"
-              :alerts-endpoint="alertsEndpoint"
-              :relevant-queries="graphData.queries"
-              :alerts-to-manage="getGraphAlerts(graphData.queries)"
-              :modal-id="`alert-modal-${index}-${graphIndex}`"
-              @setAlerts="setAlerts"
-            />
           </monitor-area-chart>
         </template>
       </graph-group>
