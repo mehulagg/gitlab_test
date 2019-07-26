@@ -92,10 +92,7 @@ export default {
         <template slot="button-content">
           <icon name="ellipsis_v" class="text-secondary" />
         </template>
-        <gl-dropdown-item
-          v-if="alertWidgetAvailable"
-          v-gl-modal="`alert-modal-${index}`"
-        >
+        <gl-dropdown-item v-if="alertWidgetAvailable" v-gl-modal="`alert-modal-${index}`">
           {{ __('Alerts') }}
         </gl-dropdown-item>
       </gl-dropdown>
