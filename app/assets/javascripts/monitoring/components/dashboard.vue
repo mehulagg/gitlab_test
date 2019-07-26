@@ -395,6 +395,36 @@ export default {
             :project-path="projectPath"
             group-id="monitor-area-chart"
           >
+            <div class="d-flex align-items-center">
+              <alert-widget
+                v-if="alertWidgetAvailable && graphData"
+                :modal-id="`alerts-modal-${graphIndex}`"
+                :alerts-endpoint="alertsEndpoint"
+                :relevant-queries="graphData.queries"
+                :alerts-to-manage="getGraphAlerts(graphData.queries)"
+                @setAlerts="setAlerts"
+              />
+              <gl-dropdown
+                v-if="alertWidgetAvailable"
+                v-gl-tooltip
+                class="mx-2"
+                toggle-class="btn btn-transparent"
+                :right="true"
+                :no-caret="true"
+                :title="__('More actions')"
+              >
+                <template slot="button-content">
+                  <icon name="ellipsis_v" class="text-secondary" />
+                </template>
+                <gl-dropdown-item
+                  v-if="alertWidgetAvailable"
+                  v-gl-modal-directive="`alerts-modal-${index}-${graphIndex}`"
+                  active-class="is-active"
+                >
+                  {{ __('Alerts') }}
+                </gl-dropdown-item>
+              </gl-dropdown>
+            </div>
             <alert-widget
               v-if="alertWidgetAvailable && graphData"
               :alerts-endpoint="alertsEndpoint"
