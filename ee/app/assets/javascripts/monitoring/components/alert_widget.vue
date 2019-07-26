@@ -116,7 +116,7 @@ export default {
       return `${alertQuery.label} ${alert.operator} ${alert.threshold}`;
     },
     hideModal() {
-      this.$refs.alertModal.hide();
+      this.$root.$emit('bv::hide::modal', this.modalId);
     },
     handleSetApiAction(apiAction) {
       this.apiAction = apiAction;
@@ -177,10 +177,10 @@ export default {
       {{ alertSummary }}
     </span>
     <button
-      v-gl-modal="modalId"
       ref="dropdownMenuToggle"
+      v-gl-modal="modalId"
       :aria-label="alertStatus"
-      class="btn btn-sm alert-dropdown-button"
+      class="btn btn-sm mx-2 alert-dropdown-button"
       type="button"
     >
       <icon :name="alertIcon" :size="16" aria-hidden="true" />
