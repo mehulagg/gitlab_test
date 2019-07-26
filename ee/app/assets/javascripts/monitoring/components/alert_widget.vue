@@ -177,11 +177,11 @@ export default {
       {{ alertSummary }}
     </span>
     <button
+      v-gl-modal="modalId"
       ref="dropdownMenuToggle"
       :aria-label="alertStatus"
       class="btn btn-sm alert-dropdown-button"
       type="button"
-      v-gl-modal="modalId"
     >
       <icon :name="alertIcon" :size="16" aria-hidden="true" />
     </button>
