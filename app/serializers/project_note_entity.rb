@@ -17,7 +17,8 @@ class ProjectNoteEntity < NoteEntity
     resolve_project_merge_request_discussion_path(note.project, note.noteable, note.discussion_id)
   end
 
-  expose :resolve_with_issue_path, if: -> (note, _) { note.part_of_discussion? && note.resolvable? } do |note|
+  # Not sure if this is correct?
+  expose :resolve_with_issue_path, if: -> (note, _) { note.part_of_discussion? && note.resolvable? && note.for_merge_request? } do |note|
     new_project_issue_path(note.project, merge_request_to_resolve_discussions_of: note.noteable.iid, discussion_to_resolve: note.discussion_id)
   end
 

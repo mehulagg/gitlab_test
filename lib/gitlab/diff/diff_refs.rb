@@ -40,17 +40,16 @@ module Gitlab
         start_sha && head_sha
       end
 
-      def compare_in(project)
+      # TODO everything that uses this method must take a repository!!!!
+      def compare_in(repository)
         # We're at the initial commit, so just get that as we can't compare to anything.
         if Gitlab::Git.blank_ref?(start_sha)
-          project.commit(head_sha)
+          repository.commit(head_sha)
         else
           straight = start_sha == base_sha
 
-          CompareService.new(project, head_sha).execute(project,
-                                                        start_sha,
-                                                        base_sha: base_sha,
-                                                        straight: straight)
+          CompareService.new(repository, head_sha)
+                        .execute(repository, start_sha, base_sha: base_sha, straight: straight)
         end
       end
     end

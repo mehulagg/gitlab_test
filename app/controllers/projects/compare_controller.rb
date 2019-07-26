@@ -77,7 +77,7 @@ class Projects::CompareController < Projects::ApplicationController
   def compare
     return @compare if defined?(@compare)
 
-    @compare = CompareService.new(@project, head_ref).execute(@project, start_ref)
+    @compare = CompareService.new(@repository, head_ref).execute(@repository, start_ref)
   end
 
   def start_ref

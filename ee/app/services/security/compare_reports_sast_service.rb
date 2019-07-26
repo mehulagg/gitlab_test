@@ -54,7 +54,8 @@ module Security
 
     def git_diff
       strong_memoize(:git_diff) do
-        compare = CompareService.new(project, head_report.commit_sha).execute(project, base_report.commit_sha, straight: false)
+        compare = CompareService.new(project.repository, head_report.commit_sha)
+                                .execute(project.repository, base_report.commit_sha, straight: false)
         next unless compare
 
         compare.diffs(expanded: true)

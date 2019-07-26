@@ -29,7 +29,13 @@ export default {
   },
   computed: {
     ...mapState({
-      projectPath: state => state.diffs.projectPath,
+      // projectPath: state => state.diffs.projectPath,
+      projectPath: (state) => {
+        if (state.diffs) return state.diffs.projectPath;
+
+        console.log('Luke fall back');
+        return $('[data-project-path]:eq(1)').data('project-path');
+      }
     }),
     diffMode() {
       return getDiffMode(this.discussion.diff_file);

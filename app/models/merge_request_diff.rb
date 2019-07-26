@@ -289,7 +289,7 @@ class MergeRequestDiff < ApplicationRecord
   end
 
   def diffs(diff_options = nil)
-    if without_files? && comparison = diff_refs&.compare_in(project)
+    if without_files? && comparison = diff_refs&.compare_in(repository)
       # It should fetch the repository when diffs are cleaned by the system.
       # We don't keep these for storage overload purposes.
       # See https://gitlab.com/gitlab-org/gitlab-ce/issues/37639
@@ -329,7 +329,7 @@ class MergeRequestDiff < ApplicationRecord
     # When compare merge request versions we want diff A..B instead of A...B
     # so we handle cases when user does squash and rebase of the commits between versions.
     # For this reason we set straight to true by default.
-    CompareService.new(project, head_commit_sha).execute(project, sha, straight: true)
+    CompareService.new(repository, head_commit_sha).execute(repository, sha, straight: true)
   end
   # rubocop: enable CodeReuse/ServiceClass
 

@@ -684,8 +684,40 @@ class Project < ApplicationRecord
     @team ||= ProjectTeam.new(self)
   end
 
+  # Toggleable with switch
+  #
+  # project.using_repository(:design) do
+  #    # some calls
+  # end
+  #
+  # This couldn't be in EE
   def repository
-    @repository ||= Repository.new(full_path, self, disk_path: disk_path)
+    case using_repository_type
+    when :design then design_repository
+    else project_repository
+    end
+  end
+
+  def using_repository(repository_type, &block)
+    # We're in a nested block of these!
+    unless @using_repository_type
+      # Gitlab::SafeRequestStore.fetch(key) { find_diff_file(repository) }
+      Rails.cache.write([cache_key, 'repository_type'], repository_type)
+      @using_repository_type = repository_type
+    end
+
+    yield
+  ensure
+    Rails.cache.delete([cache_key, 'repository_type'])
+    @using_repository_type = nil
+  end
+
+  def using_repository_type
+    @using_repository_type ||= Rails.cache.fetch([cache_key, 'repository_type'])
+  end
+
+  def project_repository
+    @project_repository ||= Repository.new(full_path, self, disk_path: disk_path)
   end
 
   def cleanup

@@ -2,6 +2,7 @@
 
 class DiscussionEntity < Grape::Entity
   include RequestAwareEntity
+  include ResolveableNoteEntity
   include NotesHelper
 
   expose :id, :reply_id
@@ -32,7 +33,8 @@ class DiscussionEntity < Grape::Entity
   expose :resolve_path, if: -> (d, _) { d.resolvable? } do |discussion|
     resolve_project_merge_request_discussion_path(discussion.project, discussion.noteable, discussion.id)
   end
-  expose :resolve_with_issue_path, if: -> (d, _) { d.resolvable? } do |discussion|
+  # TODO check if this is correct to restrict to MRs
+  expose :resolve_with_issue_path, if: -> (d, _) { d.resolvable? && d.for_merge_request? } do |discussion|
     new_project_issue_path(discussion.project, merge_request_to_resolve_discussions_of: discussion.noteable.iid, discussion_to_resolve: discussion.id)
   end
 
@@ -40,13 +42,18 @@ class DiscussionEntity < Grape::Entity
 
   expose :diff_discussion?, as: :diff_discussion
 
-  expose :truncated_diff_lines_path, if: -> (d, _) { !d.expanded? && !render_truncated_diff_lines? } do |discussion|
+  # Any design stuff needs to be in ee
+
+  # TODO check if this is correct to restrict to MRs
+  # I could just ignore it, because it's not much of a performance issue
+  expose :truncated_diff_lines_path, if: -> (d, _) { !d.expanded? && d.for_merge_request? && !render_truncated_diff_lines? } do |discussion|
     project_merge_request_discussion_path(discussion.project, discussion.noteable, discussion)
   end
 
   expose :truncated_diff_lines, using: DiffLineEntity, if: -> (d, _) { d.diff_discussion? && d.on_text? && (d.expanded? || render_truncated_diff_lines?) }
 
   expose :for_commit?, as: :for_commit
+  expose :for_design?, as: :for_design # Todo check I need this? Maybe with Natalia? # This should be moved to EE/namespace
   expose :commit_id
 
   private

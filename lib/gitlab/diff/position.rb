@@ -149,8 +149,13 @@ module Gitlab
       private
 
       def find_diff_file(repository)
+        # repository.project.using_repository(repository.repo_type.name) do
+        # break unless diff_refs.complete?
+        # break unless comparison = diff_refs.compare_in(repository)
         return unless diff_refs.complete?
-        return unless comparison = diff_refs.compare_in(repository.project)
+        return unless comparison = diff_refs.compare_in(repository)
+
+        # binding.pry
 
         file = comparison.diffs(diff_options).diff_files.first
 
@@ -159,6 +164,7 @@ module Gitlab
         file&.unfold_diff_lines(self)
 
         file
+        # end
       end
 
       def get_formatter_class(type)

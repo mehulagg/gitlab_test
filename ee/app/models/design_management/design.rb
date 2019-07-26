@@ -34,10 +34,30 @@ module DesignManagement
       @full_path ||= File.join(DesignManagement.designs_directory, "issue-#{issue.iid}", filename)
     end
 
+    # I think there's a problem here that we only show the diff_refs for the latest
+    # version, this means as the version changes, this will change.
     def diff_refs
       return if new_design?
 
       @diff_refs ||= repository.commit(head_version.sha).diff_refs
+    end
+
+    # TODO this is using `repository.commit(head_version.sha)` from diff_refs
+    # is there a way to do this by memoizing commit data? it won't change.
+    # Or actually commit should be lazy on Version or something...!
+    def diffs(diff_options = nil)
+      # Using a commit...
+      project.using_repository(:design) do
+        Gitlab::Diff::FileCollection::Commit.new(repository.commit(head_version.sha), diff_options: diff_options)
+      end
+
+      # (compare, project:, diff_options:, diff_refs: nil)
+      # Gitlab::Diff::FileCollection::Compare.new(
+      #   compare,
+      #   project: project,
+      #   diff_options: diff_options,
+      #   diff_refs: diff_refs
+      # )
     end
 
     def repository
@@ -45,6 +65,9 @@ module DesignManagement
     end
 
     private
+
+    # def compare
+    # end
 
     def head_version
       @head_sha ||= versions.ordered.first

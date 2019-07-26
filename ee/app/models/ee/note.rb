@@ -20,7 +20,11 @@ module EE
     end
 
     def for_epic?
-      noteable.is_a?(Epic)
+      for_type?(Epic)
+    end
+
+    def for_design?
+      for_type?(DesignManagement::Design)
     end
 
     override :for_project_noteable?
@@ -44,11 +48,7 @@ module EE
 
     override :for_issuable?
     def for_issuable?
-      for_epic? || super
-    end
-
-    def for_design?
-      noteable.is_a?(DesignManagement::Design)
+      for_design? || for_epic? || super
     end
 
     override :parent

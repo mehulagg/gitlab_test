@@ -2,6 +2,7 @@
 
 class NoteEntity < API::Entities::Note
   include RequestAwareEntity
+  include ResolveableNoteEntity
   include NotesHelper
 
   expose :id do |note|
@@ -37,10 +38,6 @@ class NoteEntity < API::Entities::Note
   end
 
   expose :suggestions, using: SuggestionEntity
-  expose :resolved?, as: :resolved
-  expose :resolvable?, as: :resolvable
-
-  expose :resolved_by, using: NoteUserEntity
 
   expose :system_note_icon_name, if: -> (note, _) { note.system? } do |note|
     SystemNoteHelper.system_note_icon_name(note)
@@ -65,7 +62,9 @@ class NoteEntity < API::Entities::Note
     resolve_project_merge_request_discussion_path(note.project, note.noteable, note.discussion_id)
   end
 
-  expose :resolve_with_issue_path, if: -> (note, _) { note.part_of_discussion? && note.resolvable? } do |note|
+  # Not sure if this is correct?
+  # Do we need this? How is it used search for merge_request_to_resolve_discussions_of?
+  expose :resolve_with_issue_path, if: -> (note, _) { note.part_of_discussion? && note.resolvable? && note.for_merge_request? } do |note|
     new_project_issue_path(note.project, merge_request_to_resolve_discussions_of: note.noteable.iid, discussion_to_resolve: note.discussion_id)
   end
 

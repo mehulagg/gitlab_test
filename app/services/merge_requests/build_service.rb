@@ -87,10 +87,10 @@ module MergeRequests
 
     def compare_branches
       compare = CompareService.new(
-        source_project,
+        source_project.repository,
         source_branch_ref
       ).execute(
-        target_project,
+        target_project.repository,
         target_branch_ref
       )
 

@@ -107,6 +107,7 @@ class Note < ApplicationRecord
 
   # Scopes
   scope :for_commit_id, ->(commit_id) { where(noteable_type: "Commit", commit_id: commit_id) }
+  scope :for_noteables, -> (type, ids) { where(noteable_type: type, noteable_id: ids) }
   scope :system, -> { where(system: true) }
   scope :user, -> { where(system: false) }
   scope :common, -> { where(noteable_type: ["", nil]) }
@@ -194,7 +195,7 @@ class Note < ApplicationRecord
     def count_for_collection(ids, type)
       user.select('noteable_id', 'COUNT(*) as count')
         .group(:noteable_id)
-        .where(noteable_type: type, noteable_id: ids)
+        .for_noteables(type, ids)
     end
 
     def has_special_role?(role, note)
@@ -239,23 +240,23 @@ class Note < ApplicationRecord
   end
 
   def for_commit?
-    noteable_type == "Commit"
+    for_type?(Commit)
   end
 
   def for_issue?
-    noteable_type == "Issue"
+    for_type?(Issue)
   end
 
   def for_merge_request?
-    noteable_type == "MergeRequest"
+    for_type?(MergeRequest)
   end
 
   def for_snippet?
-    noteable_type == "Snippet"
+    for_type?(Snippet)
   end
 
   def for_personal_snippet?
-    noteable.is_a?(PersonalSnippet)
+    for_type?(PersonalSnippet)
   end
 
   def for_project_noteable?
@@ -471,6 +472,10 @@ class Note < ApplicationRecord
   end
 
   private
+
+  def for_type?(noteable_class)
+    noteable_type == noteable_class.name
+  end
 
   def keep_around_commit
     project.repository.keep_around(self.commit_id)

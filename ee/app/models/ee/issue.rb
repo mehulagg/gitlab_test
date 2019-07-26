@@ -96,6 +96,35 @@ module EE
       @design_collection ||= ::DesignManagement::DesignCollection.new(self)
     end
 
+    # TO CONSIDER
+    # - should this have an interaction with a CE method? I.e. append into it
+    # or not?
+    # - can this be combined with MR#related_notes or otherwise refactored together?
+    def related_notes
+      # We're using a UNION ALL here since this results in better performance
+      # compared to using OR statements. We're using UNION ALL since the queries
+      # used won't produce any duplicates (e.g. a note for a design can't also be
+      # a note for an Issue).
+      ::Note
+        .from_union([notes, design_notes], remove_duplicates: false)
+        .includes(:noteable)
+    end
+
+    alias_method :discussion_notes, :related_notes
+
+    def design_notes
+      # TODO is this restriction necessary?
+      # Fetch notes only from last 100 designs
+      # design_ids = design_ids
+
+      # Can I do something like?
+      #  designs.limit(100).notes
+      # or otherwise retrieve notes somehow without fetching the design records?
+      # This results in NoMethodError: undefined method `notes' for #<DesignManagement::Design::ActiveRecord_AssociationRelation:0x00007f9f9d1e9a58>
+
+      project.notes.user.for_noteables(DesignManagement::Design.name, design_ids)
+    end
+
     class_methods do
       # override
       def sort_by_attribute(method, excluded_labels: [])
