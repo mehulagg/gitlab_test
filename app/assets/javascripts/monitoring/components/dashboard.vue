@@ -1,5 +1,12 @@
 <script>
-import { GlButton, GlDropdown, GlDropdownItem, GlModal, GlModalDirective } from '@gitlab/ui';
+import {
+  GlButton,
+  GlDropdown,
+  GlDropdownItem,
+  GlModal,
+  GlModalDirective,
+  GlTooltipDirective,
+} from '@gitlab/ui';
 import _ from 'underscore';
 import { mapActions, mapState } from 'vuex';
 import { s__ } from '~/locale';
@@ -30,7 +37,8 @@ export default {
     GlModal,
   },
   directives: {
-    GlModalDirective,
+    GlModal: GlModalDirective,
+    GlTooltip: GlTooltipDirective,
   },
   props: {
     externalDashboardUrl: {
@@ -328,7 +336,7 @@ export default {
       <div class="d-flex">
         <div v-if="addingMetricsAvailable">
           <gl-button
-            v-gl-modal-directive="$options.addMetric.modalId"
+            v-gl-modal="$options.addMetric.modalId"
             class="js-add-metric-button text-success border-success"
             >{{ $options.addMetric.title }}</gl-button
           >
@@ -418,7 +426,7 @@ export default {
                 </template>
                 <gl-dropdown-item
                   v-if="alertWidgetAvailable"
-                  v-gl-modal-directive="`alert-modal-${index}-${graphIndex}`"
+                  v-gl-modal="`alert-modal-${index}-${graphIndex}`"
                 >
                   {{ __('Alerts') }}
                 </gl-dropdown-item>
