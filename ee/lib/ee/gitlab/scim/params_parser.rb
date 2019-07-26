@@ -9,7 +9,9 @@ module EE
 
         ATTRIBUTE_MAP = {
           id: :extern_uid,
+          displayName: :name,
           'name.formatted': :name,
+          'user.email': :email,
           'emails[type eq "work"].value': :email,
           active: :active,
           externalId: :extern_uid,
@@ -31,8 +33,20 @@ module EE
         end
 
         def result
-          @result ||= process
+          @result ||= begin
+	    logger = Logger.build
+	    logger.info(message: 'Processing SCIM request', **@params.symbolize_keys)
+            ret = process
+	    logger.info(message: 'Processed SCIM attributes', **ret)
+	    ret
+          end
         end
+
+	class Logger < ::Gitlab::JsonLogger
+	  def self.file_name_noext
+            'scim'
+	  end
+	end
 
         private
 
@@ -41,6 +55,8 @@ module EE
             process_filter
           elsif @params[:Operations]
             process_operations
+	  elsif @params[:count]
+            {} #TODO: check SAML spec and implement
           else
             # SCIM POST params
             process_params
@@ -68,8 +84,8 @@ module EE
 
         def process_params
           parse_params.merge(
-            email: parse_emails,
-            name: parse_name
+            email: parse_emails.presence || user_dot_email,
+	    name: parse_name || @params[:displayName]
           ).compact # so if parse_emails returns nil, it'll be removed from the hash
         end
 
@@ -91,6 +107,12 @@ module EE
 
           email = emails.find { |email| email[:type] == 'work' || email[:primary] }
           email[:value] if email
+        end
+
+        def user_dot_email
+          user = @params.delete(:user)
+
+          user[:email] if user
         end
 
         def parse_name

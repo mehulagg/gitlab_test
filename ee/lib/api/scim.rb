@@ -94,7 +94,8 @@ module API
           detail 'This feature was introduced in GitLab 11.10.'
         end
         get do
-          scim_error!(message: 'Missing filter params') unless params[:filter]
+          valid_filter = params[:filter].present? || params[:count].present?
+          scim_error!(message: 'Missing filter params') unless valid_filter
 
           group = find_and_authenticate_group!(params[:group])
           parsed_hash = EE::Gitlab::Scim::ParamsParser.new(params).result
