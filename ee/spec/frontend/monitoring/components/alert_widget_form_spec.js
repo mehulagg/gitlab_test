@@ -4,7 +4,6 @@ import { GlModal } from '@gitlab/ui';
 
 describe('AlertWidgetForm', () => {
   let wrapper;
-  const modal = () => wrapper.find(GlModal);
 
   const metricId = '8';
   const alertPath = 'alert';
@@ -34,6 +33,7 @@ describe('AlertWidgetForm', () => {
     });
   }
 
+  const modal = () => wrapper.find(GlModal);
   const modalTitle = () => modal().attributes('title');
   const submitText = () => modal().attributes('ok-title');
 
@@ -89,7 +89,7 @@ describe('AlertWidgetForm', () => {
       expect(submitText()).toBe('Delete');
     });
 
-    it('emits "delete" event when no changes are made', () => {
+    it('emits "delete" event when form values unchanged', () => {
       wrapper.vm.handleSubmit();
 
       expect(wrapper.emitted().delete[0]).toEqual([
@@ -102,7 +102,7 @@ describe('AlertWidgetForm', () => {
       ]);
     });
 
-    it('emits "update" event when no changes are made', () => {
+    it('emits "update" event when form changed', () => {
       wrapper.vm.threshold = 11;
 
       wrapper.vm.handleSubmit();
