@@ -29,7 +29,7 @@ module Ci
 
     def degenerate!
       self.class.transaction do
-        self.update!(options: nil, yaml_variables: nil, interruptible: nil)
+        self.update!(options: nil, yaml_variables: nil)
         self.needs.all.delete_all
         self.metadata&.destroy
       end
@@ -52,11 +52,11 @@ module Ci
     end
 
     def interruptible
-      ensure_metadata.read_attribute(:interruptible, value)
+      metadata&.interruptible
     end
 
     def interruptible=(value)
-      ensure_metadata.write_attribute(:interruptible, value)
+      ensure_metadata.interruptible = value
     end
 
     private
