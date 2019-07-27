@@ -96,13 +96,7 @@ module Ci
         .where.not(id: pipeline.id)
         .where.not(sha: project.commit(pipeline.ref).try(:id))
         .alive_or_scheduled
-        .where('NOT EXISTS (
-                  SELECT 1 FROM ci_builds
-                    JOIN ci_builds_metadata ON ci_builds_metadata.build_id = ci_builds.id
-                    WHERE ci_builds.commit_id = ci_pipelines.id
-                      AND ci_builds_metadata.interruptible IS FALSE
-                      AND ci_builds.status IN (\'running\',\'success\',\'failure\')
-                )')
+        .without_interruptible_builds
     end
     # rubocop: enable CodeReuse/ActiveRecord
 
