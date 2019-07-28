@@ -16,3 +16,5 @@ class JobGroupEntity < Grape::Entity
     group.detailed_status(request.current_user)
   end
 end
+
+JobGroupEntity.prepend_if_ee('EE::JobGroupEntity')

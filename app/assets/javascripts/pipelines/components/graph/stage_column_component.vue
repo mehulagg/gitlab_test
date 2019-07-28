@@ -56,6 +56,11 @@ export default {
   <li :class="stageConnectorClass" class="stage-column">
     <div class="stage-name position-relative">
       {{ title }}
+
+      <span v-if="duration">
+        {{ durationInWords }}
+      </span>
+
       <action-component
         v-if="hasAction"
         :action-icon="action.icon"
@@ -89,6 +94,10 @@ export default {
             :group="group"
             @pipelineActionRequestComplete="pipelineActionRequestComplete"
           />
+
+          <span v-if="duration">
+            {{ groupDurationInWords(group) }}
+          </span>
         </li>
       </ul>
     </div>

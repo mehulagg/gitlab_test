@@ -70,3 +70,5 @@ class StageEntity < Grape::Entity
     end
   end
 end
+
+StageEntity.prepend_if_ee('EE::StageEntity')

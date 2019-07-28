@@ -146,6 +146,7 @@ export default {
           }"
           :title="capitalizeStageName(stage.name)"
           :groups="stage.groups"
+          :duration="stage.duration"
           :stage-connector-class="stageConnectorClass(index, stage)"
           :is-first-column="isFirstColumn(index)"
           :has-triggered-by="hasTriggeredBy"

@@ -14,6 +14,8 @@ module Ci
 
     delegate :size, to: :jobs
 
+    delegate :project, to: :stage
+
     def initialize(stage, name:, jobs:)
       @stage = stage
       @name = name
