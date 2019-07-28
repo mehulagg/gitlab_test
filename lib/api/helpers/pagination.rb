@@ -3,9 +3,11 @@
 module API
   module Helpers
     module Pagination
-      def paginate(relation)
-        strategy = if params[:pagination] == 'keyset' && Feature.enabled?('api_keyset_pagination')
+      def paginate(relation, pagination: params[:pagination])
+        strategy = if pagination == 'keyset' && Feature.enabled?('api_keyset_pagination')
                      KeysetPaginationStrategy
+                   elsif pagination == :scim
+                     ScimPaginationStrategy
                    else
                      DefaultPaginationStrategy
                    end
@@ -251,6 +253,19 @@ module API
 
         def data_without_counts?(paginated_data)
           paginated_data.is_a?(Kaminari::PaginatableWithoutCount)
+        end
+      end
+
+      class ScimPaginationStrategy
+        attr_reader :request_context
+        delegate :params, :header, :request, to: :request_context
+
+        def initialize(request_context)
+          @request_context = request_context
+        end
+
+        def paginate(relation)
+          relation.offset(params[:startIndex]).limit(params[:count])
         end
       end
     end

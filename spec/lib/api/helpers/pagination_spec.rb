@@ -384,6 +384,42 @@ describe API::Helpers::Pagination do
     end
   end
 
+  describe '#paginate (SCIM pagination based on OpenSearch)' do
+    before do
+      allow(subject).to receive(:params).and_return(query)
+
+      create_list(:project, 3)
+    end
+
+    describe 'without pagination params' do
+      let(:query) { {} }
+
+      it 'returns all results' do
+        expect(subject.paginate(resource, pagination: :scim).count).to eq resource.count
+      end
+    end
+
+    describe 'with :count param' do
+      let(:count) { 2 }
+      let(:query) { { count: count } }
+
+      it 'limits results to count' do
+        expect(subject.paginate(resource, pagination: :scim).count).to eq count
+      end
+    end
+
+    describe 'with :startIndex param' do
+      let(:start_index) { 2 }
+      let(:query) { { startIndex: start_index } }
+
+      it 'starts from an offset' do
+        result = subject.paginate(resource, pagination: :scim)
+        expect(result.count).to eq(resource.count - start_index)
+        expect(result).to eq [resource.last]
+      end
+    end
+  end
+
   def expect_header(*args, &block)
     expect(subject).to receive(:header).with(*args, &block)
   end

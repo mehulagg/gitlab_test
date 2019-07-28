@@ -97,12 +97,17 @@ module API
           scim_error!(message: 'Missing filter params') unless params[:filter]
 
           group = find_and_authenticate_group!(params[:group])
+
+          #results = Scim::Finder.search(params) #TODO: do filtering and pagination in here?
           parsed_hash = EE::Gitlab::Scim::ParamsParser.new(params).result
-          identity = GroupSamlIdentityFinder.find_by_group_and_uid(group: group, uid: parsed_hash[:extern_uid])
+          results = group&.saml_provider&.identities&.where(extern_uid: parsed_hash[:extern_uid])
+
+          response_page = paginate(results, pagination: :scim)
+          per_page = 20
+          result_set = OpenStruct.new(resources: response_page, total_results: results.count, items_per_page: per_page, start_index: params[:startIndex].presence || 1)
 
           status 200
-
-          present identity || {}, with: ::EE::Gitlab::Scim::Users
+          present result_set, with: ::EE::Gitlab::Scim::Users
         end
 
         desc 'Get a SAML user' do
