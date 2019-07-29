@@ -22,7 +22,7 @@ export default {
   computed: {
     chartData() {
       const dataWithSelected = this.data.map((d, i) => {
-        if (this.selected.indexOf(i) !== -1) {
+        if (this.selected.indexOf(d.value[0]) !== -1) {
           return { ...d, itemStyle: { color: '#123456' } };
         } else {
           return { value: d.value };
@@ -36,10 +36,10 @@ export default {
   },
   methods: {
     onMainChartItemClicked({ params }) {
-      const { dataIndex } = params;
-      const foundIdx = this.selected.indexOf(dataIndex);
+      const { data } = params;
+      const foundIdx = this.selected.indexOf(data.value[0]);
       if (foundIdx === -1) {
-        this.selected.push(dataIndex);
+        this.selected.push(data.value[0]);
       } else {
         this.selected.splice(foundIdx, 1);
       }
