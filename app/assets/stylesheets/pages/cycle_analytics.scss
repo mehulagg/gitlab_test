@@ -1,4 +1,4 @@
-#cycle-analytics {
+#cycle-analytics, .cycle-analytics {
   max-width: 1000px;
   margin: 24px auto 0;
   position: relative;
@@ -41,8 +41,7 @@
       width: 20%;
     }
 
-
-    .fa {
+    .fa, svg {
       color: $cycle-analytics-light-gray;
 
       &:hover {

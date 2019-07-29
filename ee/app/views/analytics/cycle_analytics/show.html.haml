@@ -1,7 +1,7 @@
 - page_title _('Cycle Analytics')
 
 - if cookies[:cycle_analytics_app] == 'true'
-  #js-cycle-analytics-app
+  #js-cycle-analytics-app{ data: { "empty-state-svg-path" => image_path("illustrations/analytics/cycle-analytics-empty-chart.svg") }}
 - else
   .page-title-holder.d-flex.align-items-center
     %h1.page-title= _('Cycle Analytics')
