@@ -1,7 +1,13 @@
 <script>
-export default {};
+import ChartWithGlColumnChart from './ChartWithGlColumnChart.vue';
+
+export default {
+  components: {
+    ChartWithGlColumnChart,
+  },
+};
 </script>
 
 <template>
-  <div>Productivity Analytics app goes here</div>
+  <chart-with-gl-column-chart />
 </template>
