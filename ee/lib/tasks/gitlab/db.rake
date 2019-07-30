@@ -1,5 +1,23 @@
 namespace :gitlab do
   namespace :db do
+    desc 'Load license from $GITLAB_LICENSE_FILE'
+    task load_license: :environment do
+      abort 'No license file' unless ENV['GITLAB_LICENSE_FILE']
+
+      license = File.open(ENV['GITLAB_LICENSE_FILE'], 'r') do |f|
+        License.new(data: f.read)
+      end
+
+      if license.save
+        puts "Stored license".green
+      else
+        puts "Failed to store license:"
+        license.errors.each do |err|
+          puts err.message.red
+        end
+      end
+    end
+
     desc 'Output pseudonymity dump of selected tables'
     task pseudonymizer: :environment do
       abort "The pseudonymizer is not available with this license." unless License.feature_available?(:pseudonymizer)
