@@ -5,7 +5,7 @@ module Gitlab
     # This migration updates discussion ids for epics that were promoted from issue so that the discussion id on epics
     # is different from discussion id on issue, which was causing problems when repying to epic discussions as it would
     # identify the discussion as related to an issue and complaint about missing project_id
-    class MigratePromotedEpicsDiscussionIds
+    class FixPromotedEpicsDiscussionIds
       # notes model to iterate through the notes to be updated
       class Note < ActiveRecord::Base
         self.table_name = 'notes'
@@ -18,8 +18,11 @@ module Gitlab
       end
 
       def build_discussion_values(discussion_ids)
-        new_discussion_ids = discussion_ids.map {|old_id| [old_id, Discussion.discussion_id(Note.new)]}
-        new_discussion_ids.map { |el| el.map { |id| Note.connection.quote_string(id) }.join("','") }.join("'), ('").prepend("('").concat("')")
+        discussion_ids.map do |discussion_id|
+          new_id = generate_id(discussion_id)
+
+          ActiveRecord::Base.sanitize_sql(["(?, ?)", discussion_id, new_id])
+        end.join(', ')
       end
 
       def update_notes_discussion_ids(values)
@@ -34,6 +37,10 @@ module Gitlab
         SQL
 
         Note.connection.execute(sql)
+      end
+
+      def generate_id(id)
+        Digest::SHA1.hexdigest([:discussion, 'epic', id, SecureRandom.hex].join("-"))
       end
     end
   end

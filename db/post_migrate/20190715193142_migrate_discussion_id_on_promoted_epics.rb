@@ -9,7 +9,7 @@ class MigrateDiscussionIdOnPromotedEpics < ActiveRecord::Migration[5.2]
   DOWNTIME = false
   BATCH_SIZE = 1000
   DELAY_INTERVAL = 2.minutes
-  MIGRATION = 'MigratePromotedEpicsDiscussionIds'
+  MIGRATION = 'FixPromotedEpicsDiscussionIds'
 
   disable_ddl_transaction!
 
@@ -30,6 +30,8 @@ class MigrateDiscussionIdOnPromotedEpics < ActiveRecord::Migration[5.2]
   end
 
   def up
+    # add_concurrent_index(:system_note_metadata, :action)
+
     all_discussion_ids = Note.fetch_discussion_ids_query.collect(&:discussion_id)
     index = 0
     all_discussion_ids.in_groups_of(BATCH_SIZE) do |ids|
@@ -37,6 +39,8 @@ class MigrateDiscussionIdOnPromotedEpics < ActiveRecord::Migration[5.2]
       delay = DELAY_INTERVAL * index
       BackgroundMigrationWorker.perform_in(delay, MIGRATION, [ids.compact])
     end
+
+    # add_concurrent_index(:system_note_metadata, :action)
   end
 
   def down
