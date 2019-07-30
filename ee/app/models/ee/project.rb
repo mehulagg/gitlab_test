@@ -414,14 +414,23 @@ module EE
       username_only_import_url
     end
 
-    def change_repository_storage(new_repository_storage_key)
+    def change_repository_storage(new_repository_storage_key, sync: false, skip_save: false)
       return if repository_read_only?
       return if repository_storage == new_repository_storage_key
 
       raise ArgumentError unless ::Gitlab.config.repositories.storages.key?(new_repository_storage_key)
 
-      run_after_commit { ProjectUpdateRepositoryStorageWorker.perform_async(id, new_repository_storage_key) }
-      self.repository_read_only = true
+      if sync
+        set_repository_read_only_blocking!
+        ProjectUpdateRepositoryStorageWorker.new.perform(id, new_repository_storage_key)
+      else
+        run_after_commit { ProjectUpdateRepositoryStorageWorker.perform_async(id, new_repository_storage_key) }
+        self.repository_read_only = true
+
+        # We need to save the record to persist repository_read_only but in some
+        # cases, such as `Projects::UpdateService`, the save is performed later.
+        save! unless skip_save
+      end
     end
 
     def repository_and_lfs_size
@@ -638,6 +647,14 @@ module EE
 
     def validate_board_limit(board)
       # Board limits are disabled in EE, so this method is just a no-op.
+    end
+
+    def set_repository_read_only_blocking!
+      loop do
+        break if set_repository_read_only!
+
+        sleep 10
+      end
     end
   end
 end

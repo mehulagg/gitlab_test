@@ -23,7 +23,9 @@ module EE
           project.repository_size_limit = ::Gitlab::Utils.try_megabytes_to_bytes(limit) if limit
 
           if changing_storage_size?
-            project.change_repository_storage(params.delete(:repository_storage))
+            # The superclass method in app/services/projects/update_service.rb
+            # will save the project, so we avoid saving it twice.
+            project.change_repository_storage(params.delete(:repository_storage), skip_save: true)
           end
         end
 

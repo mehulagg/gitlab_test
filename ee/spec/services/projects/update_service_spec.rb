@@ -198,7 +198,7 @@ describe Projects::UpdateService, '#execute' do
     end
 
     it 'calls the change repository storage method if the storage changed' do
-      expect(project).to receive(:change_repository_storage).with('b')
+      expect(project).to receive(:change_repository_storage).with('b', skip_save: true)
 
       update_project(project, admin_user, opts).inspect
     end

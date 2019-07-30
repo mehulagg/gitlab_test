@@ -2058,23 +2058,46 @@ describe Project do
       expect(ProjectUpdateRepositoryStorageWorker).to receive(:perform_async).with(project.id, 'extra')
 
       project.change_repository_storage('extra')
-      project.save
 
       expect(project).to be_repository_read_only
+    end
+
+    context 'when the skip_save parameter is passed' do
+      it 'does not save the project after marking it read-only' do
+        expect(ProjectUpdateRepositoryStorageWorker).to receive(:perform_async).with(project.id, 'extra')
+
+        project.change_repository_storage('extra', skip_save: true)
+
+        # The job expected in the assertion above is only scheduled after the
+        # project is saved.
+        project.save!
+
+        expect(project).to be_repository_read_only
+      end
+    end
+
+    context 'when the sync parameter is passed' do
+      it 'saves the project as read-only and then locks the transfer' do
+        expect_any_instance_of(::Projects::UpdateRepositoryStorageService)
+          .to receive(:execute).with('extra')
+        expect(ProjectUpdateRepositoryStorageWorker).not_to receive(:perform_async)
+
+        project.change_repository_storage('extra', sync: true)
+
+        expect(project).to be_repository_read_only
+      end
     end
 
     it "doesn't schedule the transfer if the repository is already read-only" do
       expect(ProjectUpdateRepositoryStorageWorker).not_to receive(:perform_async)
 
       read_only_project.change_repository_storage('extra')
-      read_only_project.save
     end
 
     it "doesn't lock or schedule the transfer if the storage hasn't changed" do
       expect(ProjectUpdateRepositoryStorageWorker).not_to receive(:perform_async)
 
       project.change_repository_storage(project.repository_storage)
-      project.save
 
       expect(project).not_to be_repository_read_only
     end
