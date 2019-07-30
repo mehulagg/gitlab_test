@@ -113,7 +113,7 @@ describe "Git HTTP requests (Geo)", :geo do
 
         it 'redirects to the primary' do
           is_expected.to have_gitlab_http_status(:redirect)
-          redirect_location = "#{primary.url.chomp('/')}#{url}?service=git-receive-pack"
+          redirect_location = "#{primary.url.chomp('/')}/-/geo-node-referrer/#{secondary.id}#{url}?service=git-receive-pack"
           expect(subject.header['Location']).to eq(redirect_location)
         end
       end
@@ -166,7 +166,7 @@ describe "Git HTTP requests (Geo)", :geo do
 
               it 'redirects to the primary' do
                 is_expected.to have_gitlab_http_status(:redirect)
-                redirect_location = "#{primary.url.chomp('/')}#{url}"
+                redirect_location = "#{primary.url.chomp('/')}/-/geo-node-referrer/#{secondary.id}#{url}"
                 expect(subject.header['Location']).to eq(redirect_location)
               end
             end
@@ -254,7 +254,7 @@ describe "Git HTTP requests (Geo)", :geo do
 
             it 'redirects to the primary' do
               is_expected.to have_gitlab_http_status(:redirect)
-              redirect_location = "#{primary.url.chomp('/')}#{url}"
+              redirect_location = "#{primary.url.chomp('/')}/-/geo-node-referrer/#{secondary.id}#{url}"
               expect(subject.header['Location']).to eq(redirect_location)
             end
           end

@@ -125,3 +125,7 @@ scope path: '(/-/jira)', constraints: ::Constraints::JiraEncodedUrlConstrainer.n
     }
   end
 end
+
+scope '-/geo-node-referrer/:geo_node_referrer_id' do
+  draw :git_http
+end
