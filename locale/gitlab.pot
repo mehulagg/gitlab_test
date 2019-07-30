@@ -4513,9 +4513,6 @@ msgid_plural "Dependencies|%d vulnerabilities"
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "Dependencies|All"
-msgstr ""
-
 msgid "Dependencies|Component"
 msgstr ""
 
@@ -4547,9 +4544,6 @@ msgid "Dependencies|Unsupported file(s) detected"
 msgstr ""
 
 msgid "Dependencies|Version"
-msgstr ""
-
-msgid "Dependencies|Vulnerable components"
 msgstr ""
 
 msgid "Dependency List"

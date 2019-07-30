@@ -16,7 +16,7 @@ describe.each`
 `('DependenciesActions component$context', ({ isFeatureFlagEnabled, sortFields }) => {
   let store;
   let wrapper;
-  const { namespace } = DEPENDENCY_LIST_TYPES.all;
+  const listType = DEPENDENCY_LIST_TYPES.all;
 
   const factory = ({ propsData, ...options } = {}) => {
     const localVue = createLocalVue();
@@ -35,10 +35,10 @@ describe.each`
 
   beforeEach(() => {
     factory({
-      propsData: { namespace },
+      propsData: { namespace: listType },
       provide: { dependencyListVulnerabilities: isFeatureFlagEnabled },
     });
-    store.state[namespace].endpoint = `${TEST_HOST}/dependencies`;
+    store.state[listType].endpoint = `${TEST_HOST}/dependencies`;
     return wrapper.vm.$nextTick();
   });
 
@@ -61,7 +61,7 @@ describe.each`
 
     expect(store.dispatch.mock.calls).toEqual(
       expect.arrayContaining(
-        Object.keys(sortFields).map(field => [`${namespace}/setSortField`, field]),
+        Object.keys(sortFields).map(field => [`${listType}/setSortField`, field]),
       ),
     );
   });
@@ -69,14 +69,14 @@ describe.each`
   it('dispatches the toggleSortOrder action on clicking the sort order button', () => {
     const sortButton = wrapper.find('.js-sort-order');
     sortButton.vm.$emit('click');
-    expect(store.dispatch).toHaveBeenCalledWith(`${namespace}/toggleSortOrder`);
+    expect(store.dispatch).toHaveBeenCalledWith(`${listType}/toggleSortOrder`);
   });
 
   it('has a button to export the dependency list', () => {
     const download = wrapper.find('.js-download');
     expect(download.attributes()).toEqual(
       expect.objectContaining({
-        href: store.getters[`${namespace}/downloadEndpoint`],
+        href: store.getters[`${listType}/downloadEndpoint`],
         download: expect.any(String),
       }),
     );

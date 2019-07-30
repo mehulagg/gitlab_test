@@ -9,7 +9,7 @@ import mockDependenciesResponse from '../store/modules/list/data/mock_dependenci
 describe('PaginatedDependenciesTable component', () => {
   let store;
   let wrapper;
-  const { namespace } = DEPENDENCY_LIST_TYPES.all;
+  const listType = DEPENDENCY_LIST_TYPES.all;
 
   const factory = (props = {}) => {
     const localVue = createLocalVue();
@@ -31,11 +31,11 @@ describe('PaginatedDependenciesTable component', () => {
   };
 
   beforeEach(() => {
-    factory({ namespace });
+    factory({ namespace: listType });
 
     const originalDispatch = store.dispatch;
     jest.spyOn(store, 'dispatch').mockImplementation();
-    originalDispatch(`${namespace}/receiveDependenciesSuccess`, {
+    originalDispatch(`${listType}/receiveDependenciesSuccess`, {
       data: mockDependenciesResponse,
       headers: { 'X-Total': mockDependenciesResponse.dependencies.length },
     });
@@ -50,14 +50,14 @@ describe('PaginatedDependenciesTable component', () => {
   it('passes the correct props to the dependencies table', () => {
     expectComponentWithProps(DependenciesTable, {
       dependencies: mockDependenciesResponse.dependencies,
-      isLoading: store.state[namespace].isLoading,
+      isLoading: store.state[listType].isLoading,
     });
   });
 
   it('passes the correct props to the pagination', () => {
     expectComponentWithProps(Pagination, {
       change: wrapper.vm.fetchPage,
-      pageInfo: store.state[namespace].pageInfo,
+      pageInfo: store.state[listType].pageInfo,
     });
   });
 
@@ -65,7 +65,7 @@ describe('PaginatedDependenciesTable component', () => {
     const page = 2;
     wrapper.vm.fetchPage(page);
     expect(store.dispatch).toHaveBeenCalledTimes(1);
-    expect(store.dispatch).toHaveBeenCalledWith(`${namespace}/fetchDependencies`, { page });
+    expect(store.dispatch).toHaveBeenCalledWith(`${listType}/fetchDependencies`, { page });
   });
 
   describe.each`
@@ -77,7 +77,7 @@ describe('PaginatedDependenciesTable component', () => {
     let module;
 
     beforeEach(() => {
-      module = store.state[namespace];
+      module = store.state[listType];
       if (isListEmpty) {
         module.dependencies = [];
         module.pageInfo.total = 0;

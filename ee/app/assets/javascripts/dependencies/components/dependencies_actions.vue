@@ -30,8 +30,7 @@ export default {
     namespace: {
       type: String,
       required: true,
-      validator: value =>
-        Object.values(DEPENDENCY_LIST_TYPES).some(({ namespace }) => value === namespace),
+      validator: value => Object.values(DEPENDENCY_LIST_TYPES).includes(value),
     },
   },
   data() {

@@ -9,8 +9,6 @@ import { __ } from '~/locale';
 export const setDependenciesEndpoint = ({ commit }, endpoint) =>
   commit(types.SET_DEPENDENCIES_ENDPOINT, endpoint);
 
-export const setInitialState = ({ commit }, payload) => commit(types.SET_INITIAL_STATE, payload);
-
 export const requestDependencies = ({ commit }) => commit(types.REQUEST_DEPENDENCIES);
 
 export const receiveDependenciesSuccess = ({ commit }, { headers, data }) => {
@@ -37,7 +35,6 @@ export const fetchDependencies = ({ state, dispatch }, params = {}) => {
         sort_by: state.sortField,
         sort: state.sortOrder,
         page: state.pageInfo.page || 1,
-        filter: state.filter,
         ...params,
       },
     })

@@ -1,2 +1,0 @@
-export const ADD_LIST_TYPE = 'ADD_LIST_TYPE';
-export const SET_CURRENT_LIST = 'SET_CURRENT_LIST';
