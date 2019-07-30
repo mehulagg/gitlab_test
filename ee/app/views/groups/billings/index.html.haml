@@ -8,4 +8,4 @@
 - else
   = render 'shared/billings/billing_plan_header', namespace: @group, plan: current_plan
 
-  #js-billing-plans{ data: { namespace_id: @group.id } }
+  #js-billing-plans{ data: { namespace_id: @group.id, group_level_name: @group.full_name } }

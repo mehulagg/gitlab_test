@@ -18,7 +18,15 @@ export default {
     GlLoadingIcon,
   },
   computed: {
-    ...mapState('subscription', ['isLoading', 'hasError', 'plan', 'tables', 'endpoint']),
+    ...mapState('subscription', [
+      'isLoading',
+      'hasError',
+      'plan',
+      'tables',
+      'endpoint',
+      'namespaceId',
+      'groupLevelName',
+    ]),
     ...mapGetters('subscription', ['isFreePlan']),
     subscriptionHeader() {
       let suffix = '';
@@ -33,6 +41,9 @@ export default {
     actionButtonText() {
       return this.isFreePlan ? s__('SubscriptionTable|Upgrade') : s__('SubscriptionTable|Manage');
     },
+    upgradeButtonText() {
+      return s__('SubscriptionTable|Upgrade');
+    },
     visibleRows() {
       let tableKey = TABLE_TYPE_DEFAULT;
 
@@ -43,6 +54,9 @@ export default {
       }
 
       return this.tables[tableKey].rows;
+    },
+    upgradeSubscriptionUrl() {
+      return `${this.$options.customerPortalUrl}/namespaces/${this.namespaceId}/upgrade`;
     },
   },
   mounted() {
@@ -62,8 +76,17 @@ export default {
       class="card prepend-top-default subscription-table js-subscription-table"
     >
       <div class="js-subscription-header card-header">
-        <strong> {{ subscriptionHeader }} </strong>
+        <strong> {{ groupLevelName }}: {{ subscriptionHeader }} </strong>
         <div class="controls">
+          <a
+            v-if="!isFreePlan"
+            :href="upgradeSubscriptionUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-inverted-secondary"
+          >
+            {{ upgradeButtonText }}
+          </a>
           <a
             :href="$options.customerPortalUrl"
             target="_blank"

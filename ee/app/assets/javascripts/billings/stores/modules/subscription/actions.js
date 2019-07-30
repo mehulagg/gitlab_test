@@ -28,5 +28,9 @@ export const receiveSubscriptionError = ({ commit }) => {
   commit(types.RECEIVE_SUBSCRIPTION_ERROR);
 };
 
+export const setGroupLevelName = ({ commit }, groupLevelName) => {
+  commit(types.SET_GROUP_LEVEL_NAME, groupLevelName);
+};
+
 // prevent babel-plugin-rewire from generating an invalid default during karma tests
 export default () => {};

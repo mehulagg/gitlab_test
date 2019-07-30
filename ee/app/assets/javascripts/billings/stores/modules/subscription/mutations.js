@@ -43,4 +43,8 @@ export default {
     state.isLoading = false;
     state.hasError = true;
   },
+
+  [types.SET_GROUP_LEVEL_NAME](state, payload) {
+    state.groupLevelName = payload;
+  },
 };

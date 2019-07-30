@@ -17,16 +17,18 @@ export default (containerId = 'js-billing-plans') => {
     },
     data() {
       const { dataset } = this.$options.el;
-      const { namespaceId } = dataset;
+      const { namespaceId, groupLevelName } = dataset;
 
       return {
         namespaceId,
+        groupLevelName,
       };
     },
     render(createElement) {
       return createElement('subscription-app', {
         props: {
           namespaceId: this.namespaceId,
+          groupLevelName: this.groupLevelName,
         },
       });
     },

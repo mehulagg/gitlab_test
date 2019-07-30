@@ -4,6 +4,7 @@ export default () => ({
   isLoading: false,
   hasError: false,
   namespaceId: null,
+  groupLevelName: null,
   plan: {
     code: null,
     name: null,

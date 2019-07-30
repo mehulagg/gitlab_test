@@ -10,15 +10,21 @@ export default {
   props: {
     namespaceId: {
       type: String,
-      required: false,
+      required: true,
+      default: null,
+    },
+    groupLevelName: {
+      type: String,
+      required: true,
       default: null,
     },
   },
   created() {
     this.setNamespaceId(this.namespaceId);
+    this.setGroupLevelName(this.groupLevelName);
   },
   methods: {
-    ...mapActions('subscription', ['setNamespaceId']),
+    ...mapActions('subscription', ['setNamespaceId', 'setGroupLevelName']),
   },
 };
 </script>
