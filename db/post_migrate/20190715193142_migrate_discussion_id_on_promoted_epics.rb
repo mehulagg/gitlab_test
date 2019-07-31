@@ -7,40 +7,20 @@ class MigrateDiscussionIdOnPromotedEpics < ActiveRecord::Migration[5.2]
   include Gitlab::Database::MigrationHelpers
 
   DOWNTIME = false
-  BATCH_SIZE = 1000
+  BATCH_SIZE = 500
   DELAY_INTERVAL = 2.minutes
   MIGRATION = 'FixPromotedEpicsDiscussionIds'
 
   disable_ddl_transaction!
 
-  class Note < ActiveRecord::Base
+  class Epic < ActiveRecord::Base
     include EachBatch
-    self.table_name = 'notes'
 
-    def self.fetch_discussion_ids_query
-      promoted_epics_query = Note
-                               .where(system: true)
-                               .where(noteable_type: 'Epic')
-                               .where("note LIKE 'promoted from%'")
-                               .select("DISTINCT noteable_id")
-      Note.where(noteable_type: 'Epic')
-        .where(noteable_id: promoted_epics_query)
-        .select("DISTINCT discussion_id").order(:discussion_id)
-    end
+    self.table_name = 'epics'
   end
 
   def up
-    # add_concurrent_index(:system_note_metadata, :action)
-
-    all_discussion_ids = Note.fetch_discussion_ids_query.collect(&:discussion_id)
-    index = 0
-    all_discussion_ids.in_groups_of(BATCH_SIZE) do |ids|
-      index += 1
-      delay = DELAY_INTERVAL * index
-      BackgroundMigrationWorker.perform_in(delay, MIGRATION, [ids.compact])
-    end
-
-    # add_concurrent_index(:system_note_metadata, :action)
+    queue_background_migration_jobs_by_range_at_intervals(Epic, MIGRATION, DELAY_INTERVAL)
   end
 
   def down

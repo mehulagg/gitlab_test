@@ -11,36 +11,34 @@ module Gitlab
         self.table_name = 'notes'
       end
 
-      def perform(discussion_ids)
-        discussion_values = build_discussion_values(discussion_ids)
-
-        update_notes_discussion_ids(discussion_values) if discussion_values
+      # epics model we iterate through in batches
+      class Epic < ActiveRecord::Base
+        self.table_name = 'epics'
       end
 
-      def build_discussion_values(discussion_ids)
-        discussion_ids.map do |discussion_id|
-          new_id = generate_id(discussion_id)
-
-          ActiveRecord::Base.sanitize_sql(["(?, ?)", discussion_id, new_id])
-        end.join(', ')
+      def perform(start_id, stop_id)
+        discussion_ids = fetch_discussion_ids_query(start_id, stop_id)
+        update_notes_discussion_ids(discussion_ids) unless discussion_ids.empty?
       end
 
-      def update_notes_discussion_ids(values)
-        sql = <<-SQL.squish
-          UPDATE notes SET discussion_id = v.new_discussion_id
-          FROM (
-            VALUES
-            #{values}
-          ) AS v(old_discussion_id, new_discussion_id)
-          WHERE notes.discussion_id = v.old_discussion_id
-          AND notes.noteable_type = 'Epic'
-        SQL
+      private
 
-        Note.connection.execute(sql)
+      def fetch_discussion_ids_query(start_id, stop_id)
+        promoted_epics_query = Note
+                                 .where(system: true)
+                                 .where(noteable_type: 'Epic')
+                                 .where(noteable_id: start_id..stop_id)
+                                 .where("note LIKE 'promoted from%'")
+                                 .select("DISTINCT noteable_id")
+
+        Note.where(noteable_type: 'Epic')
+          .where(noteable_id: promoted_epics_query)
+          .select("DISTINCT discussion_id").order(:discussion_id)
       end
 
-      def generate_id(id)
-        Digest::SHA1.hexdigest([:discussion, 'epic', id, SecureRandom.hex].join("-"))
+      def update_notes_discussion_ids(discussion_ids)
+        Note.where(discussion_id: discussion_ids)
+          .update_all("discussion_id=MD5(discussion_id)||substring(discussion_id from 1 for 8)")
       end
     end
   end
