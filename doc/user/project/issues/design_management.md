@@ -36,7 +36,6 @@ to be enabled:
 ## Limitations
 
 - Files uploaded must have a file extension of either `png`, `jpg`, `jpeg`, `gif`, `bmp`, `tiff` or `ico`. The [`svg` extension is not yet supported](https://gitlab.com/gitlab-org/gitlab-ee/issues/12771).
-- [Designs cannot yet be deleted](https://gitlab.com/gitlab-org/gitlab-ee/issues/11089).
 - Design Management is [not yet supported in the project export](https://gitlab.com/gitlab-org/gitlab-ee/issues/11090).
 
 ## The Design Management page
@@ -55,4 +54,14 @@ of the design, and will replace the previous version.
 ## Viewing designs
 
 Images on the Design Management page can be enlarged by clicking on them.
+
+## Deleting designs
+
+To delete a design you:
+
+* Select the file to delete by clicking on it. This will show the full-size image.
+* In the tool-bar at the top there is a red `remove` button. Click on this button to delete
+  the design.
+
+Deleted designs are not permanently lost; they can be viewed by browsing previous versions.
 
