@@ -30,12 +30,37 @@ describe ScimFinder do
 
       context 'with an eq filter' do
         let!(:identity) { create(:group_saml_identity, saml_provider: saml_provider) }
+        let!(:other_identity) { create(:group_saml_identity, saml_provider: saml_provider) }
 
         it 'allows identity lookup by id/externalId' do
           expect(finder.search(filter: "id eq #{identity.extern_uid}")).to be_a ActiveRecord::Relation
           expect(finder.search(filter: "id eq #{identity.extern_uid}").first).to eq identity
           expect(finder.search(filter: "externalId eq #{identity.extern_uid}").first).to eq identity
         end
+
+        it 'allows basic filtering' do
+          username_filter = %Q(userName eq #{identity.user.username})
+
+          expect(finder.search(filter: username_filter).to_a).to eq [identity]
+        end
+
+        it 'allows filtering by email' do
+          email_filter = %Q(emails[type eq "work"].value eq #{identity.user.email})
+
+          expect(finder.search(filter: email_filter).to_a).to eq [identity]
+        end
+      end
+
+      it 'returns all related identities if the filter is unsupported' do
+        create_list(:group_saml_identity, 2, saml_provider: saml_provider)
+
+        expect(finder.search(filter: 'id ne 1').count).to eq 2
+      end
+
+      it 'returns all related identities if there is no filter' do
+        create_list(:group_saml_identity, 2, saml_provider: saml_provider)
+
+        expect(finder.search({}).count).to eq 2
       end
     end
   end

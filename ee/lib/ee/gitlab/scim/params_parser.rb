@@ -4,6 +4,8 @@ module EE
   module Gitlab
     module Scim
       class ParamsParser
+        delegate :coerce, to: :class
+
         FILTER_OPERATORS = %w[eq].freeze
         OPERATIONS_OPERATORS = %w[Replace Add].freeze
 
@@ -28,33 +30,49 @@ module EE
         end
 
         def deprovision_user?
-          result[:active] == false
+          update_params[:active] == false
         end
 
-        def result
-          @result ||= process
+        def post_params
+          @post_params ||= process_params
+        end
+
+        def update_params
+          @update_params ||= process_operations
+        end
+
+        def filter_params
+          @filter_params ||= filter_parser.params
+        end
+
+        def filter_operator
+          filter_parser.operator.to_sym if filter_parser.valid?
         end
 
         private
 
-        def process
-          if @params[:filter]
-            process_filter
-          elsif @params[:Operations]
-            process_operations
-          else
-            # SCIM POST params
-            process_params
+        class FilterParser
+          attr_reader :attribute, :operator, :value
+
+          def initialize(filter)
+            @attribute, @operator, @value = filter&.split(' ')
+          end
+
+          def valid?
+            FILTER_OPERATORS.include?(operator) && ATTRIBUTE_MAP[attribute]
+          end
+
+          def params
+            @params ||= begin
+              return {} unless valid?
+
+              { ATTRIBUTE_MAP[attribute] => ParamsParser.coerce(value) }
+            end
           end
         end
 
-        def process_filter
-          attribute, operator, value = @params[:filter].split(' ')
-
-          return {} unless FILTER_OPERATORS.include?(operator)
-          return {} unless ATTRIBUTE_MAP[attribute]
-
-          { ATTRIBUTE_MAP[attribute] => coerce(value) }
+        def filter_parser
+          @filter_parser ||= FilterParser.new(@params[:filter])
         end
 
         def process_operations
@@ -100,7 +118,7 @@ module EE
           @hash[:name] = formatted_name
         end
 
-        def coerce(value)
+        def self.coerce(value)
           return value unless value.is_a?(String)
 
           value = value.delete('\"')
