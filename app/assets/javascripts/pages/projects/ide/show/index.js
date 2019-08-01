@@ -37,7 +37,7 @@ function fetchBuild() {
 function waitUntilRunning() {
   processBuild()
   if (buildData.status == "pending") {
-    setTimeout(waitUntilRunning, 5000);
+    setTimeout(waitUntilRunning, 10000);
   }
 }
 
