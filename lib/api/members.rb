@@ -89,13 +89,19 @@ module API
 
           member = source.add_user(user, params[:access_level], current_user: current_user, expires_at: params[:expires_at])
 
-          if !member
-            not_allowed! # This currently can only be reached in EE
-          elsif member.persisted? && member.valid?
-            ::Members::CreateService.new(current_user, params).after_execute(member: member)
-            present member, with: Entities::Member
-          else
+          created_member =
+            ::Members::CreateService
+              .new(current_user, params)
+              .after_execute(member: member)
+
+          if created_member.valid?
+            if !member
+              not_allowed! # This currently can only be reached in EE
+            elsif member.persisted? && member.valid?
+              present member, with: Entities::Member
+            else
             render_validation_error!(member)
+            end
           end
         end
         # rubocop: enable CodeReuse/ActiveRecord
