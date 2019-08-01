@@ -45,6 +45,11 @@ We currently have the below metrics and visualizations, which users can interact
     - Number of LOCs per commit
     - Number of files touched 
 
+## Additional information
+
+Users will be able to retrieve 6 months of data when they deploy the feature for the first time/ update GitLab.
+Should they wish to return data for a different timespan, they can do that by running [x] in order to migrate additional data in the background.
+
 ## Permissions
 
 The current permissions on the Productivity Analytics dashboard are:
