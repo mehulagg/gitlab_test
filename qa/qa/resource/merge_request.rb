@@ -26,16 +26,16 @@ module QA
       attribute :target do
         project.visit!
 
-        Repository::ProjectPush.fabricate! do |resource|
+        Repository::ProjectPush.fabricate_via_api! do |resource|
           resource.project = project
-          resource.branch_name = 'master'
+          resource.branch_name = target_branch
           resource.new_branch = @target_new_branch
           resource.remote_branch = target_branch
         end
       end
 
       attribute :source do
-        Repository::ProjectPush.fabricate! do |resource|
+        Repository::ProjectPush.fabricate_via_api! do |resource|
           resource.project = project
           resource.branch_name = target_branch
           resource.remote_branch = source_branch
