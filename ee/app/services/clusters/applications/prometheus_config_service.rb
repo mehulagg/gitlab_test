@@ -10,16 +10,41 @@ module Clusters
       end
 
       def execute(config)
-        if has_alerts?
+        config = if has_alerts?
           generate_alert_manager(config)
         else
           reset_alert_manager(config)
         end
+
+        config = if Feature.enabled?(:anomaly_detection_experiment, @project)
+          generate_anomaly_detection(config)
+        else
+          reset_anomaly_detection(config)
+        end
+
+        config
       end
 
       private
 
       attr_reader :project, :cluster, :app
+
+      def reset_anomaly_detection(config)
+        config['serverFiles']['rules'] = {}
+
+        config
+      end
+
+      def generate_anomaly_detection(config)
+        config['serverFiles']['rules']['groups'] = [
+          {
+            'name' => 'anomaly_detection.rules',
+            'rules' => YAML.load_file(Rails.root.join('vendor/prometheus/anomaly_detection.rules.yaml'))
+          }
+        ]
+
+        config
+      end
 
       def reset_alert_manager(config)
         config = set_alert_manager_enabled(config, false)

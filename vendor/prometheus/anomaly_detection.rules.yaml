@@ -1,0 +1,34 @@
+# The following rules are an attempt to reproduce how gitlab monitors http requests,
+# as outlined in the blog post here: https://about.gitlab.com/2019/07/23/anomaly-detection-using-prometheus/
+
+# 5-min rate of nginx requests per server_zone
+- record: job:nginx_requests:rate5m
+  expr: sum by(server_zone) (rate(nginx_requests_total[5m]))
+
+# Long-term average value for the series
+- record: job:nginx_requests:rate5m:avg_over_time_1w
+  expr: avg_over_time(job:nginx_requests:rate5m[1w])
+
+# Long-term standard deviation for the series
+- record: job:nginx_requests:rate5m:stddev_over_time_1w
+  expr: stddev_over_time(job:nginx_requests:rate5m[1w])
+
+# predict current value using the data from last week
+- record: job:nginx_requests:rate5m_prediction
+  expr: >-
+    avg_over_time(job:nginx_requests:rate5m[4h] offset 166h)
+    + job:nginx_requests:rate5m:avg_over_time_1w
+    - job:nginx_requests:rate5m:avg_over_time_1w offset 1w
+
+# Alert when series deviates more than twice the standard deviation
+- alert: NginxRequestRateOutsideNormalRange
+  expr: abs(
+          (
+            job:nginx_requests:rate5m - job:nginx_requests:rate5m_prediction
+          ) / job:nginx_requests:rate5m:stddev_over_time_1w
+        ) > 2
+  for: 10m
+  labels:
+    severity: warning
+  annotations:
+    summary: Requests for server_zone {{ $labels.server_zone }} are outside of expected operating parameters
