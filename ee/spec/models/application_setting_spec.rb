@@ -82,7 +82,7 @@ describe ApplicationSetting do
 
       # This stub was added in order to force a fallback to Gitlab.dev_env_or_com?
       # call testing.
-      # Gitlab.dev_env_or_com? responds to `false` on test envs
+      # Gitlab.dev_env_or_com? responds to `false` on test envs,
       # and we want to make sure we're still testing
       # should_check_namespace_plan? method through the test-suite (see
       # https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/18461#note_69322821).
