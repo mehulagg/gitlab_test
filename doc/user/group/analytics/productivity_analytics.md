@@ -59,8 +59,11 @@ The following metrics and visualizations are available on a project or group lev
 
 ## Retrieving data
 
-Users will be able to retrieve 6 months of data when they deploy the feature for the first time/ update GitLab.
-Should they wish to return data for a different timespan, they can do that by running [x] in order to migrate additional data in the background.
+Users can retrieve six months of data when they deploy Cycle Analytics for the first time.
+
+To retrieve data for a different time span:
+
+<then add the steps here>
 
 ## Permissions
 
