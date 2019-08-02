@@ -17,7 +17,7 @@ typical lifetime of a merge request and what can be considered an outlier.
 
 ## Accessing metrics and visualizations
 
-You can find the Productivity Analytics page in the main navigation bar under **Analytics ➔ Productivity Analytics** tab.
+To access the **Productivity Analytics** page, go to **Analytics > Productivity Analytics**.
 
 ![Productivity Analytics landing page](\To add an image when we have it on gitlab.com?/).
 
