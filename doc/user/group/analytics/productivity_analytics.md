@@ -15,7 +15,7 @@ Productivity can slow down for many reasons ranging from degrading code base to 
 growing teams. However, before we can identify causes, we need to understand what is the 
 typical lifetime of a merge request and what can be considered an outlier.
 
-## Overview
+## Accessing metrics and visualizations
 
 You can find the Productivity Analytics page in the main navigation bar under **Analytics ➔ Productivity Analytics** tab.
 
