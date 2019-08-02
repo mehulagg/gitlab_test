@@ -1,7 +1,19 @@
 # Productivity Analytics **(PREMIUM)**
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/12079) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.2.
 
-For many companies, the development cycle is a blackbox and getting an estimate of how long on average it takes to deliver features is an enormous endeavor. While we are focusing on the entire SDLC process in [cycle analytics](https://docs.gitlab.com/ee/user/project/cycle_analytics.html), we also want to provide a way for Engineering Management to drill down in a systematic way in order to uncover patterns and causes for success or failure on an individual, project or group level. Productivity can slow down for many reasons ranging from degrading code base to quickly growing teams, but before we can identify causes, we need to get an understanding of what is the typical lifetime of a merge request and what can be considered an outlier.
+Productivity Analytics tracks feature delivery.
+
+For many companies, the development cycle is a blackbox and getting an estimate of how
+long, on average, it takes to deliver features is an enormous endeavor.
+
+While [Cycle Analytics](../../project/cycle_analytics.md) focuses on the entire
+SDLC process, Productivity Analytics provides a way for Engineering Management to 
+drill down in a systematic way  to uncover patterns and causes for success or failure on
+an individual, project or group level. 
+
+Productivity can slow down for many reasons ranging from degrading code base to quickly 
+growing teams. However, before we can identify causes, we need to understand what is the 
+typical lifetime of a merge request and what can be considered an outlier.
 
 ## Overview
 
