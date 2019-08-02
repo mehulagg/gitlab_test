@@ -87,21 +87,33 @@ module API
           user = User.find_by_id(params[:user_id])
           not_found!('User') unless user
 
-          member = source.add_user(user, params[:access_level], current_user: current_user, expires_at: params[:expires_at])
+          # Original code
+          # member = source.add_user(user, params[:access_level], current_user: current_user, expires_at: params[:expires_at])
 
-          created_member =
-            ::Members::CreateService
-              .new(current_user, params)
-              .after_execute(member: member)
+          # new code
+          params[:user_ids] = "#{params[:user_id]}"
 
-          if created_member.valid?
-            if !member
-              not_allowed! # This currently can only be reached in EE
-            elsif member.persisted? && member.valid?
-              present member, with: Entities::Member
-            else
+          result = ::Members::CreateService.new(current_user, params).execute(source)
+          Rails.logger.info("MYDEBUG: result: #{result.inspect}")
+
+          member = source.members.find_by(user_id: params[:user_id])
+
+          # if result[:status] == :success
+          #   # Rails.logger.info("MYDEBUG: Success: #{member}")
+          #   # member = source.members.find_by(user_id: params[:user_id])
+          # else
+          #   # Rails.logger.info("MYDEBUG: Failure: #{member}")
+          #   # member = nil
+          #   # member unless can_update_member?(current_user, member)
+          # end
+
+          Rails.logger.info("MYDEBUG: member: #{member.inspect}")
+          if !member
+            not_allowed! # This currently can only be reached in EE
+          elsif member.persisted? && member.valid?
+            present member, with: Entities::Member
+          else
             render_validation_error!(member)
-            end
           end
         end
         # rubocop: enable CodeReuse/ActiveRecord
