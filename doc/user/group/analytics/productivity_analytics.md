@@ -20,7 +20,7 @@ typical lifetime of a merge request and what can be considered an outlier.
 To access the **Productivity Analytics** page, go to **Analytics > Productivity Analytics**.
 
 
-We currently have the below metrics and visualizations, which users can interact with on a project or group level:
+The following metrics and visualizations are available on a project or group level:
 
 - **A histogram showing the number of merge request that took a specified number of days to merge after creation** (in days)
   - Users can filter down all subsequent chart by selecting specific column(s)
