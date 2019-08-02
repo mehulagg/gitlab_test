@@ -18,7 +18,7 @@ module EpicLinks
 
       set_child_epic!(referenced_epic)
 
-      affected_epics.each(&:update_start_and_due_dates)
+      affected_epics.each { |epic| epic.update_start_and_due_dates(referenced_epic) }
 
       yield
     end

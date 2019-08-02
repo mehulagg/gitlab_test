@@ -21,7 +21,7 @@ module EpicIssues
       link.move_to_start
       link.save!
 
-      affected_epics.each(&:update_start_and_due_dates)
+      affected_epics.each { |epic| epic.update_start_and_due_dates(referenced_issue) }
 
       yield params
     end

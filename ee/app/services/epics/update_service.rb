@@ -17,7 +17,8 @@ module Epics
       update_task_event(epic) || update(epic)
 
       if saved_change_to_epic_dates?(epic)
-        epic.update_start_and_due_dates
+        # FIXME: should this call update on epic's parents?
+        epic.parent&.update_start_and_due_dates(epic)
         epic.reset
       end
 

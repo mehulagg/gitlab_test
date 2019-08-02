@@ -13,6 +13,7 @@ module EE
       include Awardable
       include LabelEventable
       include RelativePositioning
+      include ::Gitlab::Utils::StrongMemoize
 
       enum state: { opened: 1, closed: 2 }
 
@@ -167,6 +168,21 @@ module EE
       def deepest_relationship_level
         ::Gitlab::ObjectHierarchy.new(self.where(parent_id: nil)).max_descendants_depth
       end
+
+      def update_sourcing_date(epics, source)
+        # FIXME - add also end_date
+        update_attrs = if source.is_a?(::Milestone)
+                         { start_date_sourcing_milestone_id: source&.id,
+                           start_date_sourcing_epic_id: nil,
+                           start_date: source&.start_date }
+                       else
+                         { start_date_sourcing_milestone_id: nil,
+                           start_date_sourcing_epic_id: source&.id,
+                           start_date: source&.start_date }
+                       end
+
+        ::Epic.where(id: epics).update_all(update_attrs)
+      end
     end
 
     def assignees
@@ -198,16 +214,101 @@ module EE
     # Needed to use EntityDateHelper#remaining_days_in_words
     alias_attribute(:due_date, :end_date)
 
-    def update_start_and_due_dates
-      update(min_start_date.merge(max_end_date))
+    # TODO - schedule this asynchronously
+    def update_start_and_due_dates(descendant)
+      if !start_date_is_fixed?
+        update_sourcing_start_date_in_hierarchy(descendant)
+      end
 
-      parent.update_start_and_due_dates if dates_changed? && parent&.dates_need_to_be_updated?(self)
+      if !due_date_is_fixed? # FIXME - milestone uses due date
+        update_sourcing_end_date_in_hierarchy(descendant)
+      end
     end
 
-    def dates_need_to_be_updated?(child_epic)
-      return false unless has_inherited_dates?
+    def update_sourcing_start_date_in_hierarchy(descendant)
+      earliest = descendant
+      inheriting_epics(descendant).each_with_index do |epic, idx|
+        # new date is still earlier than existing start_dates
+        # so we can update sourcing_date for all ascendants which
+        # inherit from the this epic
+        if epic.earliest_start_date?(earliest)
+          self.class.update_sourcing_date(epics[idx..], earliest)
+          break
+        end
 
-      (date_needs_updated?(child_epic, :start_date) || date_needs_updated?(child_epic, :end_date))
+        # if new_min is earlier than earliest, we have to update only this
+        # epic, and recheck on its ascendants
+        earliest = min_sourcing
+        self.class.update_sourcing_date([epic], earliest)
+      end
+    end
+
+    def update_sourcing_end_date_in_hierarchy(descendant)
+      latest = descendant
+      inheriting_epics(descendant).each_with_index do |epic, idx|
+        if epic.latest_due_date?(latest)
+          self.class.update_sourcing_date(epics[idx..], latest)
+          break
+        end
+
+        latest = max_sourcing
+        self.class.update_sourcing_date([epic], latest)
+      end
+    end
+
+    def inheriting_epics(descendant)
+      # FIXME -cleanup
+      # FIXME - add end_date too
+      @inheriting_epics ||= {}
+      @inheriting_epics[descendant] ||=
+        begin
+          epics = []
+          base_and_ancestors(order: :desc).each do |epic|
+            break if epic.start_date_fixed?
+            break if descendant&.start_date && epic.start_date && epic.start_date >= descendant.start_date
+            # TODO - break if descendant's date is nil and epic's date is not inheriting from descendant
+
+            epics << epic
+          end
+
+          epics
+        end
+    end
+
+    def earliest_start_date?(changed_resource)
+      return false unless changed_resource&.start_date
+      # new start_date is earlier than the current start_date
+      return true if start_date.nil? || changed_resource.start_date < start_date
+
+      # if the new date (changed_resource) is still earlier than any other
+      # existing minimal start_date, then we can still update start_date for
+      # all descendants
+      changed_resource.start_date <= min_sourcing.start_date
+    end
+
+    def latest_due_date?(changed_resource)
+      return false unless changed_resource&.due_date
+      # new start_date is earlier than the current start_date
+      return true if due_date.nil? || changed_resource.due_date > due_date
+
+      if changed_resource.due_date > due_date
+        # new start_date is earlier than the current start_date
+        return true
+      end
+
+      changed_resource.due_date >= max_sourcing.start_date
+    end
+
+    def min_sourcing
+      strong_memoize(:min_start_date) do
+        [min_milestone_start_date, min_child_epics_start_date].compact.min_by(&:the_date)
+      end
+    end
+
+    def max_sourcing
+      strong_memoize(:max_due_date) do
+        [max_milestone_due_date, max_child_epics_due_date].compact.max_by(&:the_date)
+      end
     end
 
     def start_date_from_milestones
@@ -216,26 +317,6 @@ module EE
 
     def due_date_from_milestones
       due_date_is_fixed? ? due_date_sourcing_milestone&.due_date : due_date
-    end
-
-    def start_date_from_inherited_source
-      start_date_sourcing_milestone&.start_date || start_date_sourcing_epic&.start_date
-    end
-
-    def due_date_from_inherited_source
-      due_date_sourcing_milestone&.due_date || due_date_sourcing_epic&.end_date
-    end
-
-    def start_date_from_inherited_source_title
-      start_date_sourcing_milestone&.title || start_date_sourcing_epic&.title
-    end
-
-    def due_date_from_inherited_source_title
-      due_date_sourcing_milestone&.title || due_date_sourcing_epic&.title
-    end
-
-    def has_inherited_dates?
-      !start_date_is_fixed? || !due_date_is_fixed?
     end
 
     def to_reference(from = nil, full: false)
@@ -342,10 +423,10 @@ module EE
     end
     private :level_depth_exceeded?
 
-    def base_and_ancestors
+    def base_and_ancestors(order: :asc)
       return self.class.none unless parent_id
 
-      hierarchy.base_and_ancestors(hierarchy_order: :asc)
+      hierarchy.base_and_ancestors(hierarchy_order: order)
     end
     private :base_and_ancestors
 
@@ -356,122 +437,39 @@ module EE
     end
 
     def min_milestone_start_date
-      min_milestone_start_date_hash = source_milestones_query
-                                        .where.not(start_date: nil)
-                                        .select("milestones.start_date AS the_date, milestones.id as source_id")
-                                        .order("the_date asc").first
+      milestone = source_milestones_query
+        .where.not(start_date: nil)
+        .select("milestones.start_date AS start_date, milestones.id as id")
+        .order("start_date asc").first
 
-      !min_milestone_start_date_hash || !min_milestone_start_date_hash[:the_date] ? nil : min_milestone_start_date_hash&.attributes&.merge({ date_source: 'milestone_date' })&.with_indifferent_access
+      milestone&.start_date.nil? ? nil : milestone
     end
 
     def max_milestone_due_date
-      max_milestone_due_date_hash = source_milestones_query
-                                      .where.not(due_date: nil)
-                                      .select("milestones.due_date AS the_date, milestones.id as source_id")
-                                      .order("the_date desc").first
+      milestone = source_milestones_query
+        .where.not(due_date: nil)
+        .select("milestones.due_date AS due_date, milestones.id as source_id")
+        .order("due_date desc").first
 
-      !max_milestone_due_date_hash || !max_milestone_due_date_hash[:the_date] ? nil : max_milestone_due_date_hash&.attributes&.merge({ date_source: 'milestone_date' })&.with_indifferent_access
+      milestone&.due_date.nil? ? nil : milestone
     end
 
     def min_child_epics_start_date
-      min_child_epics_start_date_hash = ::Epic.where(parent_id: self.id)
-                                          .where.not(start_date: nil)
-                                          .select("epics.start_date AS the_date, epics.id as source_id")
-                                          .order("the_date asc").first
+      epic = ::Epic.where(parent_id: self.id)
+        .where.not(start_date: nil)
+        .select("epics.start_date AS start_date, epics.id as id")
+        .order("start_date asc").first
 
-      min_child_epics_start_date_hash&.attributes&.merge({ date_source: 'epic_date' })&.with_indifferent_access
+      epic&.start_date.nil? ? nil : epic
     end
 
-    def max_child_epics_end_date
-      max_child_epics_end_date_hash = ::Epic.where(parent_id: self.id)
-                                        .where.not(end_date: nil)
-                                        .select("epics.end_date AS the_date, epics.id as source_id")
-                                        .order("the_date desc").first
+    def max_child_epics_due_date
+      epic = ::Epic.where(parent_id: self.id)
+        .where.not(end_date: nil)
+        .select("epics.end_date AS due_date, epics.id as source_id")
+        .order("due_date desc").first
 
-      max_child_epics_end_date_hash&.attributes&.merge({ date_source: 'epic_date' })&.with_indifferent_access
-    end
-
-    def min_start_date
-      min_start_date_attrs = [min_milestone_start_date, min_child_epics_start_date].compact.min_by { |x| x[:the_date] }
-
-      if start_date_is_fixed?
-        { start_date: start_date_fixed }
-      else
-        if min_start_date_attrs
-          sourcing_dates_attrs(min_start_date_attrs, :start_date)
-        else
-          nil_dates_attrs(:start_date)
-        end
-      end
-    end
-
-    def max_end_date
-      max_end_date_attrs = [max_milestone_due_date, max_child_epics_end_date].compact.max_by { |x| x[:the_date] }
-
-      if due_date_is_fixed?
-        { end_date: due_date_fixed }
-      else
-        if max_end_date_attrs
-          sourcing_dates_attrs(max_end_date_attrs, :end_date)
-        else
-          nil_dates_attrs(:end_date)
-        end
-      end
-    end
-
-    def sourcing_dates_attrs(dates_data, date_type)
-      case dates_data[:date_source]
-      when 'epic_date'
-        {
-          "#{sourcing_prefix(date_type)}_sourcing_epic_id": dates_data[:source_id],
-          "#{sourcing_prefix(date_type)}_sourcing_milestone_id": nil,
-          "#{date_type}": dates_data[:the_date]
-        }
-      when 'milestone_date'
-        {
-          "#{sourcing_prefix(date_type)}_sourcing_epic_id": nil,
-          "#{sourcing_prefix(date_type)}_sourcing_milestone_id": dates_data[:source_id],
-          "#{date_type}": dates_data[:the_date]
-        }
-      end
-    end
-
-    def nil_dates_attrs(date_type)
-      {
-        "#{sourcing_prefix(date_type)}_sourcing_epic_id": nil,
-        "#{sourcing_prefix(date_type)}_sourcing_milestone_id": nil,
-        "#{date_type}": nil
-      }
-    end
-
-    def sourcing_prefix(date_type)
-      date_type == :end_date ? :due_date : date_type
-    end
-
-    def dates_changed?
-      (saved_changes.keys.map(&:to_sym) & %I[start_date end_date]).present?
-    end
-
-    def date_needs_updated?(child_epic, date_type)
-      self.send("#{date_type}_needs_updated?", child_epic) || # rubocop: disable GitlabSecurity/PublicSend
-        nil_date?(child_epic, date_type) ||
-        start_date_sourcing_epic_id == child_epic.id
-    end
-
-    def end_date_needs_updated?(child_epic)
-      return false unless self.end_date && child_epic.end_date
-
-      self.end_date < child_epic.end_date
-    end
-
-    def start_date_needs_updated?(child_epic)
-      return false unless self.start_date && child_epic.start_date
-
-      self.start_date > child_epic.start_date
-    end
-
-    def nil_date?(child_epic, date_type)
-      [self.read_attribute(date_type), child_epic.read_attribute(date_type)].one?(&:blank?)
+      epic&.due_date.nil? ? nil : epic
     end
   end
 end
