@@ -67,9 +67,8 @@ To retrieve data for a different time span:
 
 ## Permissions
 
-The current permissions on the Productivity Analytics dashboard are:
+The **Productivity Analytics** dashboard can be accessed only:
 
-- Only users on instances and namespaces, which are on Premium/Silver and above can view or interact with the data.
-- Only users with Reporter access and above can access.
-
-You can read more about permissions [here][permissions].
+- On GitLab instances and namespaces on
+  [Premium or Silver tier](https://about.gitlab.com/pricing/) and above.
+- By users with [Reporter access](../../permissions.md) and above.
