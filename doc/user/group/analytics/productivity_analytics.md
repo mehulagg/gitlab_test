@@ -57,7 +57,7 @@ The following metrics and visualizations are available on a project or group lev
     - Number of LOCs per commit
     - Number of files touched 
 
-## Additional information
+## Retrieving data
 
 Users will be able to retrieve 6 months of data when they deploy the feature for the first time/ update GitLab.
 Should they wish to return data for a different timespan, they can do that by running [x] in order to migrate additional data in the background.
