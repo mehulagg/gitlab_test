@@ -42,7 +42,6 @@ export default {
 
 <template>
   <li class="linked-pipeline build">
-    <div class="curve"></div>
     <gl-button
       :id="buttonId"
       v-gl-tooltip
@@ -51,14 +50,13 @@ export default {
       :class="`js-pipeline-expand-${pipeline.id}`"
       @click="onClickLinkedPipeline"
     >
+      <div class="cross-project-triangle"></div>
       <gl-loading-icon v-if="pipeline.isLoading" class="js-linked-pipeline-loading d-inline" />
-      <ci-status
-        v-else
-        :status="pipelineStatus"
-        css-classes="position-top-0"
-        class="js-linked-pipeline-status"
-      />
-      <span class="str-truncated align-bottom"> {{ projectName }} &#8226; #{{ pipeline.id }} </span>
+      <ci-status v-else :status="pipelineStatus" class="js-linked-pipeline-status position-top-0" />
+
+      <span class="str-truncated align-middle prepend-left-4">{{ projectName }}</span>
+      <br />
+      <span class="text-secondary prepend-left-32">#{{ pipeline.id }}</span>
     </gl-button>
   </li>
 </template>

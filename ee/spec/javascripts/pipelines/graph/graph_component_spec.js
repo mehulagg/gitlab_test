@@ -87,12 +87,6 @@ describe('graph component', () => {
           expect(component.capitalizeStageName('mystage')).toBe('Mystage');
         });
       });
-
-      describe('stageConnectorClass', () => {
-        it('it returns left-margin when there is a triggerer', () => {
-          expect(component.stageConnectorClass(0, { groups: ['job'] })).toBe('no-margin');
-        });
-      });
     });
 
     describe('linked pipelines components', () => {
@@ -197,16 +191,6 @@ describe('graph component', () => {
 
       it('should not render a linked pipelines column', () => {
         expect(component.$el.querySelector('.linked-pipelines-column')).toBeNull();
-      });
-    });
-
-    describe('stageConnectorClass', () => {
-      it('it returns left-margin when no triggerer and there is one job', () => {
-        expect(component.stageConnectorClass(0, { groups: ['job'] })).toBe('no-margin');
-      });
-
-      it('it returns left-margin when no triggerer and not the first stage', () => {
-        expect(component.stageConnectorClass(99, { groups: ['job'] })).toBe('left-margin');
       });
     });
   });

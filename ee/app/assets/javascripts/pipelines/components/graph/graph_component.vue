@@ -82,7 +82,7 @@ export default {
      * adding the height of each linked pipeline and the margin
      */
     marginTop() {
-      return `${this.triggeredTopIndex * 52}px`;
+      return `${this.triggeredTopIndex * 70}px`;
     },
   },
   methods: {
@@ -122,7 +122,6 @@ export default {
       <linked-pipelines-column
         v-if="hasTriggeredBy"
         :linked-pipelines="triggeredByPipelines"
-        :column-title="__('Upstream')"
         graph-position="left"
         @linkedPipelineClick="
           linkedPipeline => $emit('onClickTriggeredBy', pipeline, linkedPipeline)
@@ -140,14 +139,13 @@ export default {
           v-for="(stage, index) in graph"
           :key="stage.name"
           :class="{
-            'has-upstream prepend-left-64': index === 0 && hasTriggeredBy,
+            'has-upstream': index === 0 && hasTriggeredBy,
             'has-downstream': index === graph.length - 1 && hasTriggered,
             'has-only-one-job': hasOnlyOneJob(stage),
             'append-right-46': shouldAddRightMargin(index),
           }"
           :title="capitalizeStageName(stage.name)"
           :groups="stage.groups"
-          :stage-connector-class="stageConnectorClass(index, stage)"
           :is-first-column="isFirstColumn(index)"
           :has-triggered-by="hasTriggeredBy"
           :action="stage.status.action"
@@ -158,7 +156,6 @@ export default {
       <linked-pipelines-column
         v-if="hasTriggered"
         :linked-pipelines="triggeredPipelines"
-        :column-title="__('Downstream')"
         graph-position="right"
         @linkedPipelineClick="handleClickedDownstream"
       />
@@ -166,7 +163,7 @@ export default {
       <pipeline-graph
         v-if="type !== $options.upstream && expandedTriggered"
         type="downstream"
-        class="d-inline-block"
+        class="d-inline-block downstream-pipeline"
         :class="`js-downstream-pipeline-${expandedTriggered.id}`"
         :is-loading="false"
         :pipeline="expandedTriggered"
