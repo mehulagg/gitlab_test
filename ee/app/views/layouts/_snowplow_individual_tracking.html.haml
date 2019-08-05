@@ -1,4 +1,5 @@
 - return unless Gitlab.com?
+- return unless Feature.enabled?(:individual_snowplow_tracking, default_enabled: true)
 
 :javascript
   if (window.gon && window.gon.current_user_id) {
