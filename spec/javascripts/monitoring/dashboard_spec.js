@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import MockAdapter from 'axios-mock-adapter';
 import Dashboard from '~/monitoring/components/dashboard.vue';
+import ChartActions from '~/monitoring/components/chart_actions.vue';
 import { timeWindows, timeWindowsKeyNames } from '~/monitoring/constants';
 import * as types from '~/monitoring/stores/mutation_types';
 import { createStore } from '~/monitoring/stores';

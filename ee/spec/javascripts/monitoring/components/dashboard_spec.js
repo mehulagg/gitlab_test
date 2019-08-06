@@ -6,7 +6,6 @@ import { createStore } from '~/monitoring/stores';
 import axios from '~/lib/utils/axios_utils';
 import { metricsGroupsAPIResponse, mockApiEndpoint } from 'spec/monitoring/mock_data';
 import propsData from 'spec/monitoring/dashboard_spec';
-import AlertWidget from 'ee/monitoring/components/alert_widget.vue';
 import CustomMetricsFormFields from 'ee/custom_metrics/components/custom_metrics_form_fields.vue';
 
 describe('Dashboard', () => {
@@ -50,33 +49,6 @@ describe('Dashboard', () => {
           store,
         });
       });
-
-      it('shows alert widget and dropdown item', done => {
-        setTimeout(() => {
-          expect(vm.find(AlertWidget).exists()).toBe(true);
-          expect(
-            vm
-              .findAll(GlDropdownItem)
-              .filter(i => i.text() === 'Alerts')
-              .exists(),
-          ).toBe(true);
-
-          done();
-        });
-      });
-
-      it('shows More actions dropdown on chart', done => {
-        setTimeout(() => {
-          expect(
-            vm
-              .findAll(GlDropdown)
-              .filter(d => d.attributes('data-original-title') === 'More actions')
-              .exists(),
-          ).toBe(true);
-
-          done();
-        });
-      });
     });
 
     describe('without license', () => {
@@ -89,33 +61,6 @@ describe('Dashboard', () => {
             alertsEndpoint: '/endpoint',
           },
           store,
-        });
-      });
-
-      it('does not show alert widget', done => {
-        setTimeout(() => {
-          expect(vm.find(AlertWidget).exists()).toBe(false);
-          expect(
-            vm
-              .findAll(GlDropdownItem)
-              .filter(i => i.text() === 'Alerts')
-              .exists(),
-          ).toBe(false);
-
-          done();
-        });
-      });
-
-      it('hides More actions dropdown on chart', done => {
-        setTimeout(() => {
-          expect(
-            vm
-              .findAll(GlDropdown)
-              .filter(d => d.attributes('data-original-title') === 'More actions')
-              .exists(),
-          ).toBe(false);
-
-          done();
         });
       });
     });

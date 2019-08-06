@@ -1,11 +1,9 @@
 <script>
 import CePanelType from '~/monitoring/components/panel_type.vue';
-import AlertWidget from './alert_widget.vue';
 import CustomMetricsFormFields from 'ee/custom_metrics/components/custom_metrics_form_fields.vue';
 
 export default {
   components: {
-    AlertWidget,
     CustomMetricsFormFields,
   },
   extends: CePanelType,
@@ -25,15 +23,6 @@ export default {
     return {
       allAlerts: {},
     };
-  },
-  methods: {
-    setAlerts(alertPath, alertAttributes) {
-      if (alertAttributes) {
-        this.$set(this.allAlerts, alertPath, alertAttributes);
-      } else {
-        this.$delete(this.allAlerts, alertPath);
-      }
-    },
   },
 };
 </script>

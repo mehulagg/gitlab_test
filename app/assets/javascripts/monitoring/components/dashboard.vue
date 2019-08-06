@@ -13,6 +13,7 @@ import { s__ } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
 import { getParameterValues } from '~/lib/utils/url_utility';
 import invalidUrl from '~/lib/utils/invalid_url';
+import ChartActions from 'ee_else_ce/monitoring/components/chart_actions.vue';
 import MonitorAreaChart from './charts/area.vue';
 import MonitorSingleStatChart from './charts/single_stat.vue';
 import PanelType from './panel_type.vue';
@@ -35,6 +36,7 @@ export default {
     GlDropdown,
     GlDropdownItem,
     GlModal,
+    ChartActions,
   },
   directives: {
     GlModal: GlModalDirective,
@@ -403,35 +405,10 @@ export default {
             :project-path="projectPath"
             group-id="monitor-area-chart"
           >
-            <div class="d-flex align-items-center">
-              <alert-widget
-                v-if="alertWidgetAvailable && graphData"
-                :modal-id="`alert-modal-${index}-${graphIndex}`"
-                :alerts-endpoint="alertsEndpoint"
-                :relevant-queries="graphData.queries"
-                :alerts-to-manage="getGraphAlerts(graphData.queries)"
-                @setAlerts="setAlerts"
-              />
-              <gl-dropdown
-                v-if="alertWidgetAvailable"
-                v-gl-tooltip
-                class="mx-2"
-                toggle-class="btn btn-transparent border-0"
-                :right="true"
-                :no-caret="true"
-                :title="__('More actions')"
-              >
-                <template slot="button-content">
-                  <icon name="ellipsis_v" class="text-secondary" />
-                </template>
-                <gl-dropdown-item
-                  v-if="alertWidgetAvailable"
-                  v-gl-modal="`alert-modal-${index}-${graphIndex}`"
-                >
-                  {{ __('Alerts') }}
-                </gl-dropdown-item>
-              </gl-dropdown>
-            </div>
+            <chart-actions
+              :index="`${index}-${graphIndex}`"
+              :graph-data="graphData"
+            />
           </monitor-area-chart>
         </template>
       </graph-group>
