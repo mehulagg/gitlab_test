@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_25_012225) do
+ActiveRecord::Schema.define(version: 2019_08_02_012622) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -183,7 +183,6 @@ ActiveRecord::Schema.define(version: 2019_07_25_012225) do
     t.string "external_authorization_service_default_label"
     t.boolean "pages_domain_verification_enabled", default: true, null: false
     t.string "user_default_internal_regex"
-    t.boolean "allow_local_requests_from_hooks_and_services", default: false, null: false
     t.float "external_authorization_service_timeout", default: 0.5
     t.text "external_auth_client_cert"
     t.text "encrypted_external_auth_client_key"
@@ -230,6 +229,8 @@ ActiveRecord::Schema.define(version: 2019_07_25_012225) do
     t.string "grafana_url", default: "/-/grafana", null: false
     t.string "outbound_local_requests_whitelist", limit: 255, default: [], null: false, array: true
     t.integer "raw_blob_request_limit", default: 300, null: false
+    t.boolean "allow_local_requests_from_web_hooks_and_services", default: false, null: false
+    t.boolean "allow_local_requests_from_system_hooks", default: true, null: false
     t.index ["custom_project_templates_group_id"], name: "index_application_settings_on_custom_project_templates_group_id"
     t.index ["file_template_project_id"], name: "index_application_settings_on_file_template_project_id"
     t.index ["usage_stats_set_by_user_id"], name: "index_application_settings_on_usage_stats_set_by_user_id"
@@ -454,6 +455,12 @@ ActiveRecord::Schema.define(version: 2019_07_25_012225) do
     t.index ["namespace_id"], name: "index_chat_teams_on_namespace_id", unique: true
   end
 
+  create_table "ci_build_needs", id: :serial, force: :cascade do |t|
+    t.integer "build_id", null: false
+    t.text "name", null: false
+    t.index ["build_id", "name"], name: "index_ci_build_needs_on_build_id_and_name", unique: true
+  end
+
   create_table "ci_build_trace_chunks", force: :cascade do |t|
     t.integer "build_id", null: false
     t.integer "chunk_index", null: false
@@ -603,6 +610,16 @@ ActiveRecord::Schema.define(version: 2019_07_25_012225) do
     t.index ["file_store"], name: "index_ci_job_artifacts_on_file_store"
     t.index ["job_id", "file_type"], name: "index_ci_job_artifacts_on_job_id_and_file_type", unique: true
     t.index ["project_id"], name: "index_ci_job_artifacts_on_project_id"
+  end
+
+  create_table "ci_job_variables", force: :cascade do |t|
+    t.string "key", null: false
+    t.text "encrypted_value"
+    t.string "encrypted_value_iv"
+    t.bigint "job_id", null: false
+    t.integer "variable_type", limit: 2, default: 1, null: false
+    t.index ["job_id"], name: "index_ci_job_variables_on_job_id"
+    t.index ["key", "job_id"], name: "index_ci_job_variables_on_key_and_job_id", unique: true
   end
 
   create_table "ci_pipeline_chat_data", force: :cascade do |t|
@@ -1097,14 +1114,18 @@ ActiveRecord::Schema.define(version: 2019_07_25_012225) do
   create_table "design_management_designs_versions", id: false, force: :cascade do |t|
     t.bigint "design_id", null: false
     t.bigint "version_id", null: false
+    t.integer "event", limit: 2, default: 0, null: false
     t.index ["design_id", "version_id"], name: "design_management_designs_versions_uniqueness", unique: true
     t.index ["design_id"], name: "index_design_management_designs_versions_on_design_id"
+    t.index ["event"], name: "index_design_management_designs_versions_on_event"
     t.index ["version_id"], name: "index_design_management_designs_versions_on_version_id"
   end
 
   create_table "design_management_versions", force: :cascade do |t|
     t.binary "sha", null: false
-    t.index ["sha"], name: "index_design_management_versions_on_sha", unique: true
+    t.bigint "issue_id"
+    t.index ["issue_id"], name: "index_design_management_versions_on_issue_id"
+    t.index ["sha", "issue_id"], name: "index_design_management_versions_on_sha_and_issue_id", unique: true
   end
 
   create_table "draft_notes", force: :cascade do |t|
@@ -1116,6 +1137,7 @@ ActiveRecord::Schema.define(version: 2019_07_25_012225) do
     t.text "position"
     t.text "original_position"
     t.text "change_position"
+    t.binary "commit_id"
     t.index ["author_id"], name: "index_draft_notes_on_author_id"
     t.index ["discussion_id"], name: "index_draft_notes_on_discussion_id"
     t.index ["merge_request_id"], name: "index_draft_notes_on_merge_request_id"
@@ -1160,6 +1182,7 @@ ActiveRecord::Schema.define(version: 2019_07_25_012225) do
     t.index ["name"], name: "index_environments_on_name_varchar_pattern_ops", opclass: :varchar_pattern_ops
     t.index ["project_id", "name"], name: "index_environments_on_project_id_and_name", unique: true
     t.index ["project_id", "slug"], name: "index_environments_on_project_id_and_slug", unique: true
+    t.index ["project_id", "state"], name: "index_environments_on_project_id_and_state"
   end
 
   create_table "epic_issues", id: :serial, force: :cascade do |t|
@@ -1420,6 +1443,7 @@ ActiveRecord::Schema.define(version: 2019_07_25_012225) do
     t.integer "minimum_reverification_interval", default: 7, null: false
     t.string "internal_url"
     t.string "name", null: false
+    t.integer "container_repositories_max_capacity", default: 10, null: false
     t.index ["access_key"], name: "index_geo_nodes_on_access_key"
     t.index ["name"], name: "index_geo_nodes_on_name", unique: true
     t.index ["primary"], name: "index_geo_nodes_on_primary"
@@ -1565,6 +1589,7 @@ ActiveRecord::Schema.define(version: 2019_07_25_012225) do
     t.datetime "updated_at"
     t.string "secondary_extern_uid"
     t.integer "saml_provider_id"
+    t.index "lower((extern_uid)::text), provider", name: "index_on_identities_lower_extern_uid_and_provider"
     t.index ["saml_provider_id"], name: "index_identities_on_saml_provider_id", where: "(saml_provider_id IS NOT NULL)"
     t.index ["user_id"], name: "index_identities_on_user_id"
   end
@@ -1691,7 +1716,7 @@ ActiveRecord::Schema.define(version: 2019_07_25_012225) do
     t.index ["project_id", "created_at", "id", "state"], name: "index_issues_on_project_id_and_created_at_and_id_and_state"
     t.index ["project_id", "due_date", "id", "state"], name: "idx_issues_on_project_id_and_due_date_and_id_and_state_partial", where: "(due_date IS NOT NULL)"
     t.index ["project_id", "iid"], name: "index_issues_on_project_id_and_iid", unique: true
-    t.index ["project_id", "state", "relative_position", "id"], name: "index_issues_on_project_id_and_state_and_rel_position_and_id", order: { id: :desc }
+    t.index ["project_id", "relative_position", "state", "id"], name: "index_issues_on_project_id_and_rel_position_and_state_and_id", order: { id: :desc }
     t.index ["project_id", "updated_at", "id", "state"], name: "index_issues_on_project_id_and_updated_at_and_id_and_state"
     t.index ["relative_position"], name: "index_issues_on_relative_position"
     t.index ["state"], name: "index_issues_on_state"
@@ -3619,6 +3644,7 @@ ActiveRecord::Schema.define(version: 2019_07_25_012225) do
   add_foreign_key "boards", "namespaces", column: "group_id", name: "fk_1e9a074a35", on_delete: :cascade
   add_foreign_key "boards", "projects", name: "fk_f15266b5f9", on_delete: :cascade
   add_foreign_key "chat_teams", "namespaces", on_delete: :cascade
+  add_foreign_key "ci_build_needs", "ci_builds", column: "build_id", on_delete: :cascade
   add_foreign_key "ci_build_trace_chunks", "ci_builds", column: "build_id", on_delete: :cascade
   add_foreign_key "ci_build_trace_section_names", "projects", on_delete: :cascade
   add_foreign_key "ci_build_trace_sections", "ci_build_trace_section_names", column: "section_name_id", name: "fk_264e112c66", on_delete: :cascade
@@ -3635,6 +3661,7 @@ ActiveRecord::Schema.define(version: 2019_07_25_012225) do
   add_foreign_key "ci_group_variables", "namespaces", column: "group_id", name: "fk_33ae4d58d8", on_delete: :cascade
   add_foreign_key "ci_job_artifacts", "ci_builds", column: "job_id", on_delete: :cascade
   add_foreign_key "ci_job_artifacts", "projects", on_delete: :cascade
+  add_foreign_key "ci_job_variables", "ci_builds", column: "job_id", on_delete: :cascade
   add_foreign_key "ci_pipeline_chat_data", "chat_names", on_delete: :cascade
   add_foreign_key "ci_pipeline_chat_data", "ci_pipelines", column: "pipeline_id", on_delete: :cascade
   add_foreign_key "ci_pipeline_schedule_variables", "ci_pipeline_schedules", column: "pipeline_schedule_id", name: "fk_41c35fda51", on_delete: :cascade
@@ -3686,8 +3713,9 @@ ActiveRecord::Schema.define(version: 2019_07_25_012225) do
   add_foreign_key "deployments", "projects", name: "fk_b9a3851b82", on_delete: :cascade
   add_foreign_key "design_management_designs", "issues", on_delete: :cascade
   add_foreign_key "design_management_designs", "projects", on_delete: :cascade
-  add_foreign_key "design_management_designs_versions", "design_management_designs", column: "design_id", on_delete: :cascade
-  add_foreign_key "design_management_designs_versions", "design_management_versions", column: "version_id", on_delete: :cascade
+  add_foreign_key "design_management_designs_versions", "design_management_designs", column: "design_id", name: "fk_03c671965c", on_delete: :cascade
+  add_foreign_key "design_management_designs_versions", "design_management_versions", column: "version_id", name: "fk_f4d25ba00c", on_delete: :cascade
+  add_foreign_key "design_management_versions", "issues", on_delete: :cascade
   add_foreign_key "draft_notes", "merge_requests", on_delete: :cascade
   add_foreign_key "draft_notes", "users", column: "author_id", on_delete: :cascade
   add_foreign_key "elasticsearch_indexed_namespaces", "namespaces", on_delete: :cascade

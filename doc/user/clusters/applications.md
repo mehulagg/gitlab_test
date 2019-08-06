@@ -95,7 +95,7 @@ CI/CD](../../ci/README.md), the open-source continuous integration
 service included with GitLab that coordinates the jobs. When installing
 the GitLab Runner via the applications, it will run in **privileged
 mode** by default. Make sure you read the [security
-implications](../project/clusters/index.md/#security-implications) before doing so.
+implications](../project/clusters/index.md#security-implications) before doing so.
 
 NOTE: **Note:**
 The
@@ -252,9 +252,12 @@ The applications below can be uninstalled.
 
 | Application | GitLab version | Notes |
 | ----------- | -------------- | ----- |
+| Cert-Manager | 12.2+         | The associated private key will be deleted and cannot be restored. Deployed applications will continue to use HTTPS, but certificates will not be renewed. Before uninstalling, you may wish to [back up your configuration](https://docs.cert-manager.io/en/latest/tasks/backup-restore-crds.html) or [revoke your certificates](https://letsencrypt.org/docs/revoking/) |
 | GitLab Runner  | 12.2+         | Any running pipelines will be canceled. |
+| Helm  | 12.2+         | The associated Tiller pod will be deleted and cannot be restored. |
 | Ingress  | 12.1+         | The associated load balancer and IP will be deleted and cannot be restored. Furthermore, it can only be uninstalled if JupyterHub is not installed. |
 | JupyterHub  | 12.1+         | All data not committed to GitLab will be deleted and cannot be restored. |
+| Knative  | 12.1+         | The associated IP will be deleted and cannot be restored. |
 | Prometheus  | 11.11+         | All data will be deleted and cannot be restored. |
 
 To uninstall an application:

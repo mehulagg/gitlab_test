@@ -59,6 +59,15 @@ module Clusters
         )
       end
 
+      def uninstall_command
+        Gitlab::Kubernetes::Helm::DeleteCommand.new(
+          name: name,
+          rbac: cluster.platform_kubernetes_rbac?,
+          files: files,
+          predelete: delete_knative_istio_metrics
+        )
+      end
+
       # Returns a copy of files where the values of 'values.yaml'
       # are replaced by the argument.
       #
@@ -95,10 +104,18 @@ module Clusters
       end
 
       def install_knative_metrics
-        ["kubectl apply -f #{Clusters::Applications::Knative::METRICS_CONFIG}"] if cluster.application_knative_available?
+        return [] unless cluster.application_knative_available?
+
+        ["kubectl apply -f #{Clusters::Applications::Knative::METRICS_CONFIG}"]
+      end
+
+      def delete_knative_istio_metrics
+        return [] unless cluster.application_knative_available?
+
+        ["kubectl delete -f #{Clusters::Applications::Knative::METRICS_CONFIG}"]
       end
     end
   end
 end
 
-Clusters::Applications::Prometheus.prepend(EE::Clusters::Applications::Prometheus)
+Clusters::Applications::Prometheus.prepend_if_ee('EE::Clusters::Applications::Prometheus')

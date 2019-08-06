@@ -89,6 +89,7 @@ class License < ApplicationRecord
     custom_prometheus_metrics
     required_ci_templates
     project_aliases
+    cycle_analytics_for_groups
   ]
   EEP_FEATURES.freeze
 
@@ -98,7 +99,6 @@ class License < ApplicationRecord
     dependency_list
     license_management
     sast
-    sast_container
     container_scanning
     cluster_health
     dast

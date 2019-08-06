@@ -2,6 +2,19 @@
 
 module API
   module Entities
+    class BlameRangeCommit < Grape::Entity
+      expose :id
+      expose :parent_ids
+      expose :message
+      expose :authored_date, :author_name, :author_email
+      expose :committed_date, :committer_name, :committer_email
+    end
+
+    class BlameRange < Grape::Entity
+      expose :commit, using: BlameRangeCommit
+      expose :lines
+    end
+
     class WikiPageBasic < Grape::Entity
       expose :format
       expose :slug
@@ -366,10 +379,7 @@ module API
       end
       expose :request_access_enabled
       expose :full_name, :full_path
-
-      if ::Group.supports_nested_objects?
-        expose :parent_id
-      end
+      expose :parent_id
 
       expose :custom_attributes, using: 'API::Entities::CustomAttribute', if: :with_custom_attributes
 
@@ -1152,6 +1162,7 @@ module API
         attributes = ::ApplicationSettingsHelper.visible_attributes
         attributes.delete(:performance_bar_allowed_group_path)
         attributes.delete(:performance_bar_enabled)
+        attributes.delete(:allow_local_requests_from_hooks_and_services)
 
         attributes
       end
@@ -1170,6 +1181,7 @@ module API
       # support legacy names, can be removed in v5
       expose :password_authentication_enabled_for_web, as: :password_authentication_enabled
       expose :password_authentication_enabled_for_web, as: :signin_enabled
+      expose :allow_local_requests_from_web_hooks_and_services, as: :allow_local_requests_from_hooks_and_services
     end
 
     # deprecated old Release representation
@@ -1685,7 +1697,7 @@ module API
   end
 end
 
-API::Entities.prepend(EE::API::Entities::Entities) # rubocop: disable Cop/InjectEnterpriseEditionModule
+API::Entities.prepend_if_ee('EE::API::Entities::Entities') # rubocop: disable Cop/InjectEnterpriseEditionModule
 API::Entities.prepend_entity(::API::Entities::ApplicationSetting, with: EE::API::Entities::ApplicationSetting)
 API::Entities.prepend_entity(::API::Entities::Board, with: EE::API::Entities::Board)
 API::Entities.prepend_entity(::API::Entities::Group, with: EE::API::Entities::Group)

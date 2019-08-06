@@ -42,9 +42,9 @@ class ApplicationSetting < ApplicationRecord
   validates :uuid, presence: true
 
   validates :outbound_local_requests_whitelist,
-            length: { maximum: 1_000, message: N_('is too long (maximum is 1000 entries)') }
-
-  validates :outbound_local_requests_whitelist, qualified_domain_array: true, allow_blank: true
+            length: { maximum: 1_000, message: N_('is too long (maximum is 1000 entries)') },
+            allow_nil: false,
+            qualified_domain_array: true
 
   validates :session_expire_delay,
             presence: true,
@@ -287,4 +287,4 @@ class ApplicationSetting < ApplicationRecord
   end
 end
 
-ApplicationSetting.prepend(EE::ApplicationSetting)
+ApplicationSetting.prepend_if_ee('EE::ApplicationSetting')

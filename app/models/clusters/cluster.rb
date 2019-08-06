@@ -100,12 +100,6 @@ module Clusters
 
     scope :default_environment, -> { where(environment_scope: DEFAULT_ENVIRONMENT) }
 
-    scope :missing_kubernetes_namespace, -> (kubernetes_namespaces) do
-      subquery = kubernetes_namespaces.select('1').where('clusters_kubernetes_namespaces.cluster_id = clusters.id')
-
-      where('NOT EXISTS (?)', subquery)
-    end
-
     scope :with_knative_installed, -> { joins(:application_knative).merge(Clusters::Applications::Knative.available) }
 
     scope :preload_knative, -> {
@@ -159,16 +153,6 @@ module Clusters
 
     def platform
       return platform_kubernetes if kubernetes?
-    end
-
-    def all_projects
-      if project_type?
-        projects
-      elsif group_type?
-        first_group.all_projects
-      else
-        Project.none
-      end
     end
 
     def first_project
@@ -319,4 +303,4 @@ module Clusters
   end
 end
 
-Clusters::Cluster.prepend(EE::Clusters::Cluster)
+Clusters::Cluster.prepend_if_ee('EE::Clusters::Cluster')

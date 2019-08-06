@@ -415,12 +415,6 @@ class Project < ApplicationRecord
     .where(project_ci_cd_settings: { group_runners_enabled: true })
   end
 
-  scope :missing_kubernetes_namespace, -> (kubernetes_namespaces) do
-    subquery = kubernetes_namespaces.select('1').where('clusters_kubernetes_namespaces.project_id = projects.id')
-
-    where('NOT EXISTS (?)', subquery)
-  end
-
   enum auto_cancel_pending_pipelines: { disabled: 0, enabled: 1 }
 
   chronic_duration_attr :build_timeout_human_readable, :build_timeout,
@@ -719,16 +713,27 @@ class Project < ApplicationRecord
     repository.commits_by(oids: oids)
   end
 
-  # ref can't be HEAD, can only be branch/tag name or SHA
-  def latest_successful_build_for(job_name, ref = default_branch)
-    latest_pipeline = ci_pipelines.latest_successful_for(ref)
+  # ref can't be HEAD, can only be branch/tag name
+  def latest_successful_build_for_ref(job_name, ref = default_branch)
+    return unless ref
+
+    latest_pipeline = ci_pipelines.latest_successful_for_ref(ref)
     return unless latest_pipeline
 
     latest_pipeline.builds.latest.with_artifacts_archive.find_by(name: job_name)
   end
 
-  def latest_successful_build_for!(job_name, ref = default_branch)
-    latest_successful_build_for(job_name, ref) || raise(ActiveRecord::RecordNotFound.new("Couldn't find job #{job_name}"))
+  def latest_successful_build_for_sha(job_name, sha)
+    return unless sha
+
+    latest_pipeline = ci_pipelines.latest_successful_for_sha(sha)
+    return unless latest_pipeline
+
+    latest_pipeline.builds.latest.with_artifacts_archive.find_by(name: job_name)
+  end
+
+  def latest_successful_build_for_ref!(job_name, ref = default_branch)
+    latest_successful_build_for_ref(job_name, ref) || raise(ActiveRecord::RecordNotFound.new("Couldn't find job #{job_name}"))
   end
 
   def merge_base_commit(first_commit_id, second_commit_id)
@@ -1503,12 +1508,12 @@ class Project < ApplicationRecord
     end
 
     @latest_successful_pipeline_for_default_branch =
-      ci_pipelines.latest_successful_for(default_branch)
+      ci_pipelines.latest_successful_for_ref(default_branch)
   end
 
   def latest_successful_pipeline_for(ref = nil)
     if ref && ref != default_branch
-      ci_pipelines.latest_successful_for(ref)
+      ci_pipelines.latest_successful_for_ref(ref)
     else
       latest_successful_pipeline_for_default_branch
     end
@@ -2288,4 +2293,4 @@ class Project < ApplicationRecord
   end
 end
 
-Project.prepend(EE::Project)
+Project.prepend_if_ee('EE::Project')
