@@ -187,10 +187,8 @@ export default {
     },
   },
   watch: {
-    'vulnerability.isDismissed'(old, rep){
-      console.log(old);
-      console.log(rep);
-      debugger;
+    'modal.toastMessage'(msg){
+      this.$toasted.show(msg);
     }
   },
 };

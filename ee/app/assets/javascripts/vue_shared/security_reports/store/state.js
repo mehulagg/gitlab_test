@@ -15,7 +15,6 @@ export default () => ({
   pipelineId: null,
   canCreateIssuePermission: false,
   canCreateFeedbackPermission: false,
-
   sastContainer: {
     paths: {
       head: null,
@@ -130,5 +129,6 @@ export default () => ({
     isShowingDeleteButtons: false,
     isCommentingOnDismissal: false,
     error: null,
+    toastMessage: null,
   },
 });

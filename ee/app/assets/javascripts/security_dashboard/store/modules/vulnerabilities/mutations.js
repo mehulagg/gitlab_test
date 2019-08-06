@@ -24,6 +24,9 @@ export default {
   [types.SET_VULNERABILITIES_COUNT_ENDPOINT](state, payload) {
     state.vulnerabilitiesCountEndpoint = payload;
   },
+  [types.SHOW_TOAST_MESSAGE](state, payload) {
+    Vue.set(state.modal, 'toastMessage', payload);
+  },
   [types.SET_VULNERABILITIES_PAGE](state, payload) {
     state.pageInfo = { ...state.pageInfo, page: payload };
   },

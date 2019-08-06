@@ -235,6 +235,7 @@ export const addDismissalComment = ({ state, dispatch }, { comment }) => {
   const { vulnerability } = state.modal;
   const { dismissalFeedback } = vulnerability;
   const url = `${state.createVulnerabilityFeedbackDismissalPath}/${dismissalFeedback.id}`;
+  const toastMsg =  `${s__('Security Reports|Comment added to')} '${vulnerability.id}'`
 
   axios
     .patch(url, {
@@ -245,6 +246,7 @@ export const addDismissalComment = ({ state, dispatch }, { comment }) => {
     .then(({ data }) => {
       dispatch('closeDismissalCommentBox');
       dispatch('receiveAddDismissalCommentSuccess', { data });
+      dispatch('showToastMessage', toastMsg )
     })
     .catch(() => {
       dispatch(
@@ -336,6 +338,10 @@ export const showDismissalDeleteButtons = ({ commit }) => {
 
 export const hideDismissalDeleteButtons = ({ commit }) => {
   commit(types.HIDE_DISMISSAL_DELETE_BUTTONS);
+};
+
+export const showToastMessage = ({ commit }, toastMsg) => {
+  commit(types.SHOW_TOAST_MESSAGE, toastMsg);
 };
 
 export const requestCreateIssue = ({ commit }) => commit(types.REQUEST_CREATE_ISSUE);

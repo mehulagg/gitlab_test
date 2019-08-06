@@ -394,4 +394,7 @@ export default {
     Vue.set(state.modal, 'isShowingDeleteButtons', false);
     Vue.set(state.modal, 'isCommentingOnDismissal', false);
   },
+  [types.SHOW_TOAST_MESSAGE](state, payload) {
+    Vue.set(state.modal, 'toastMessage', payload);  
+  },  
 };

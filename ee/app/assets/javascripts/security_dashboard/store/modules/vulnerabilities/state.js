@@ -17,6 +17,7 @@ export default () => ({
   vulnerabilitiesHistoryEndpoint: null,
   vulnerabilitiesEndpoint: null,
   activeVulnerability: null,
+  
   modal: {
     data: {
       description: { text: s__('Vulnerability|Description') },
@@ -41,6 +42,7 @@ export default () => ({
     isDismissingVulnerability: false,
     isCommentingOnDismissal: false,
     isShowingDeleteButtons: false,
+    toastMessage: null,
   },
   isCreatingIssue: false,
   isCreatingMergeRequest: false,
