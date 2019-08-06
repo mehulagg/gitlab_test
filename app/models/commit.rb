@@ -21,7 +21,7 @@ class Commit
   participant :committer
   participant :notes_with_associations
 
-  attr_accessor :project, :author
+  attr_accessor :project, :repository, :author
   attr_accessor :redacted_description_html
   attr_accessor :redacted_title_html
   attr_accessor :redacted_full_title_html
@@ -114,11 +114,13 @@ class Commit
 
   attr_accessor :raw
 
-  def initialize(raw_commit, project)
+  # This may need to know about repositories.. :( ?
+  def initialize(raw_commit, project, repository: nil)
     raise "Nil as raw commit passed" unless raw_commit
 
     @raw = raw_commit
     @project = project
+    @repository = repository || project.repository # would be great to not have this default! and instead have Commit take a repository?
     @statuses = {}
     @gpg_commit = Gitlab::Gpg::Commit.new(self) if project
   end

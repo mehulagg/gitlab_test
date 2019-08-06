@@ -150,7 +150,7 @@ module Gitlab
 
       def find_diff_file(repository)
         return unless diff_refs.complete?
-        return unless comparison = diff_refs.compare_in(repository.project)
+        return unless comparison = diff_refs.compare_in(repository)
 
         file = comparison.diffs(diff_options).diff_files.first
 

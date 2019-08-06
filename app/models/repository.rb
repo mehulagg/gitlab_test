@@ -1115,7 +1115,7 @@ class Repository
                Gitlab::Git::Commit.find(raw_repository, oid_or_ref)
              end
 
-    ::Commit.new(commit, @project) if commit
+    ::Commit.new(commit, @project, repository: self) if commit
   end
 
   def cache

@@ -15,6 +15,7 @@ class Discussion
             :noteable,
             :commit_id,
             :for_commit?,
+            :for_design?, # this has to be moved to ee, if we need this method!
             :for_merge_request?,
             :to_ability_name,
             :editable?,

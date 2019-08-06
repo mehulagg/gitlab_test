@@ -4,9 +4,10 @@ module Gitlab
   module Diff
     module FileCollection
       class Compare < Base
-        def initialize(compare, project:, diff_options:, diff_refs: nil)
+        def initialize(compare, repository:, diff_options:, diff_refs: nil)
           super(compare,
-            project:      project,
+            repository:   repository,
+            # project:      repository.project,
             diff_options: diff_options,
             diff_refs:    diff_refs)
         end

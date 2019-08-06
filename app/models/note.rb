@@ -111,6 +111,7 @@ class Note < ApplicationRecord
 
   # Scopes
   scope :for_commit_id, ->(commit_id) { where(noteable_type: "Commit", commit_id: commit_id) }
+  scope :for_noteables, -> (type, ids) { where(noteable_type: type, noteable_id: ids) }
   scope :system, -> { where(system: true) }
   scope :user, -> { where(system: false) }
   scope :common, -> { where(noteable_type: ["", nil]) }
@@ -198,7 +199,7 @@ class Note < ApplicationRecord
     def count_for_collection(ids, type)
       user.select('noteable_id', 'COUNT(*) as count')
         .group(:noteable_id)
-        .where(noteable_type: type, noteable_id: ids)
+        .for_noteables(type, ids)
     end
 
     def has_special_role?(role, note)

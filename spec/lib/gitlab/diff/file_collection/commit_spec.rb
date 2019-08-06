@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Gitlab::Diff::FileCollection::Commit do
-  let(:project) { create(:project, :repository) }
+  set(:project) { create(:project, :repository) }
 
   it_behaves_like 'diff statistics' do
     let(:collection_default_args) do

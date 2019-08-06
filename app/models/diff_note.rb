@@ -29,6 +29,8 @@ class DiffNote < Note
     DiffDiscussion
   end
 
+  # It could be useful to do this for a design diffnote to? Or is the
+  # format too different? I'd love to be able to cache the diff_refs
   def create_diff_file
     return unless should_create_diff_file?
 
@@ -114,7 +116,13 @@ class DiffNote < Note
         Gitlab::Diff::File.new(diff,
                                repository: repository,
                                diff_refs: original_position.diff_refs)
-      elsif created_at_diff?(noteable.diff_refs)
+      # The comment here makes it sound like this is MR-specific.
+      # The MR persists some of the diff files in PG. But we don't do
+      # That with designs yet. Perhaps we should?
+      #
+      # until we have a merge_request_diff equivalent for Design versions
+      # then there's no benefit, so only do this for merge requests
+      elsif for_merge_request? && created_at_diff?(noteable.diff_refs)
         # We're able to use the already persisted diffs (Postgres) if we're
         # presenting a "current version" of the MR discussion diff.
         # So no need to make an extra Gitaly diff request for it.

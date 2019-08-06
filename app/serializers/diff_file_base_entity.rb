@@ -45,6 +45,9 @@ class DiffFileBaseEntity < Grape::Entity
     new_path
   end
 
+  expose :old_file_url
+  expose :new_file_url
+
   expose :formatted_external_url, if: -> (_, options) { options[:environment] } do |diff_file|
     options[:environment].formatted_external_url
   end
@@ -101,7 +104,34 @@ class DiffFileBaseEntity < Grape::Entity
     end
   end
 
+  def old_file_url
+    file_url(object.old_sha, object.old_path)
+  end
+
+  def new_file_url
+    file_url(object.new_sha, object.new_path)
+  end
+
+  def file_url(sha, path)
+    # This should be moved to EE/namespace
+    if repository.repo_type.design?
+      if (design = options[:design]) # Should this silently fail, or error?
+        project_design_url(project, design, sha)
+      end
+    else
+      project_raw_url(project, sha, path)
+    end
+  end
+
   def current_user
     request.current_user
+  end
+
+  def repository
+    object.repository
+  end
+
+  def project
+    repository.project
   end
 end

@@ -36,7 +36,13 @@ class DiscussionEntity < Grape::Entity
     new_project_issue_path(discussion.project, merge_request_to_resolve_discussions_of: discussion.noteable.iid, discussion_to_resolve: discussion.id)
   end
 
-  expose :diff_file, using: DiscussionDiffFileEntity, if: -> (d, _) { d.diff_discussion? }
+  expose :diff_file, if: -> (d, options) { d.diff_discussion? } do |discussion, options|
+    # Grape::Entity::Options doesn't have merge!
+    # Any design stuff needs to be in ee
+    options = options.merge(design: discussion.noteable) if discussion.for_design?
+
+    DiscussionDiffFileEntity.represent(discussion.diff_file, options)
+  end
 
   expose :diff_discussion?, as: :diff_discussion
 

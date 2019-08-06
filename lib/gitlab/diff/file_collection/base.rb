@@ -6,7 +6,7 @@ module Gitlab
       class Base
         include Gitlab::Utils::StrongMemoize
 
-        attr_reader :project, :diff_options, :diff_refs, :fallback_diff_refs, :diffable
+        attr_reader :project, :repository, :diff_options, :diff_refs, :fallback_diff_refs, :diffable
 
         delegate :count, :size, :real_size, to: :diff_files
 
@@ -14,16 +14,16 @@ module Gitlab
           ::Commit.max_diff_options.merge(ignore_whitespace_change: false, expanded: false, include_stats: true)
         end
 
-        def initialize(diffable, project:, diff_options: nil, diff_refs: nil, fallback_diff_refs: nil)
+        def initialize(diffable, repository:, diff_options: nil, diff_refs: nil, fallback_diff_refs: nil)
           diff_options = self.class.default_options.merge(diff_options || {})
 
           @diffable = diffable
           @include_stats = diff_options.delete(:include_stats)
-          @project = project
+          @repository = repository
+          @project = repository.project
           @diff_options = diff_options
           @diff_refs = diff_refs
           @fallback_diff_refs = fallback_diff_refs
-          @repository = project.repository
         end
 
         def diffs
@@ -79,7 +79,7 @@ module Gitlab
           stats = diff_stats_collection&.find_by_path(diff.new_path)
 
           Gitlab::Diff::File.new(diff,
-                                 repository: project.repository,
+                                 repository: repository,
                                  diff_refs: diff_refs,
                                  fallback_diff_refs: fallback_diff_refs,
                                  stats: stats)
