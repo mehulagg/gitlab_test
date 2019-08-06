@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import GroupSecurityDashboardApp from './components/app.vue';
 import UnavailableState from './components/unavailable_state.vue';
+import { GlToast } from '@gitlab/ui';
 import createStore from './store';
 import router from './store/router';
 
@@ -23,6 +24,10 @@ export default function() {
   }
 
   const store = createStore();
+
+  // Note, this has to be done before `Vue.new()`
+  Vue.use(GlToast);
+  
   return new Vue({
     el,
     store,

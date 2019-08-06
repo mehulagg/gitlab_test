@@ -12,6 +12,8 @@ import CEWidgetOptions from '~/vue_merge_request_widget/mr_widget_options.vue';
 import MrWidgetApprovals from './components/approvals/approvals.vue';
 import MrWidgetGeoSecondaryNode from './components/states/mr_widget_secondary_geo_node.vue';
 
+
+
 export default {
   components: {
     MrWidgetLicenses,

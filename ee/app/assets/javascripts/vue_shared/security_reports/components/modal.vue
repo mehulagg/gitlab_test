@@ -186,6 +186,13 @@ export default {
       this.dismissalCommentErrorMessage = '';
     },
   },
+  watch: {
+    'vulnerability.isDismissed'(old, rep){
+      console.log(old);
+      console.log(rep);
+      debugger;
+    }
+  },
 };
 </script>
 <template>
