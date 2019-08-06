@@ -10855,6 +10855,9 @@ msgstr ""
 msgid "Profiles|Add status emoji"
 msgstr ""
 
+msgid "Profiles|Allow GitLab to process personally-identifiable information to improve the product"
+msgstr ""
+
 msgid "Profiles|Avatar cropper"
 msgstr ""
 
@@ -10936,6 +10939,9 @@ msgstr ""
 msgid "Profiles|Full name"
 msgstr ""
 
+msgid "Profiles|If this setting is disabled, GitLab will only process non-personally identifiable data for this purpose."
+msgstr ""
+
 msgid "Profiles|Impersonation"
 msgstr ""
 
@@ -10984,6 +10990,9 @@ msgstr ""
 msgid "Profiles|Personal Access"
 msgstr ""
 
+msgid "Profiles|Please view GitLab's %{privacy_policy_link_start}privacy policy%{privacy_policy_link_end} for further details."
+msgstr ""
+
 msgid "Profiles|Position and size your new avatar"
 msgstr ""
 
@@ -10991,6 +11000,9 @@ msgid "Profiles|Primary email"
 msgstr ""
 
 msgid "Profiles|Private contributions"
+msgstr ""
+
+msgid "Profiles|Product improvements"
 msgstr ""
 
 msgid "Profiles|Profile was successfully updated"

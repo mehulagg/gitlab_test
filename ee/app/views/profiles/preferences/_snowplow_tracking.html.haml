@@ -1,0 +1,11 @@
+- privacy_policy_link_url = 'https://about.gitlab.com/privacy'
+- privacy_policy_link_start = '<a href="%{url}" target="_blank">'.html_safe % { url: privacy_policy_link_url }
+
+%h5= s_("Profiles|Product improvements")
+
+= f.check_box :snowplow_tracking, label: s_('Profiles|Allow GitLab to process personally-identifiable information to improve the product'), wrapper_class: 'mb-2', inline: true
+.help-block
+  %p
+    = s_("Profiles|If this setting is disabled, GitLab will only process non-personally identifiable data for this purpose.")
+  %p
+    = s_("Profiles|Please view GitLab's %{privacy_policy_link_start}privacy policy%{privacy_policy_link_end} for further details.").html_safe % { privacy_policy_link_start: privacy_policy_link_start, privacy_policy_link_end: '</a>'.html_safe }

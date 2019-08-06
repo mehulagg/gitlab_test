@@ -597,4 +597,37 @@ describe User do
       end
     end
   end
+
+  context 'user preference' do
+    context 'snowplow_tracking' do
+      describe '#snowplow_tracking' do
+        it 'is enabled by default' do
+          user = build(:user)
+
+          expect(user.snowplow_tracking).to be(true)
+        end
+      end
+
+      describe '#snowplow_tracking?' do
+        it 'is enabled by default' do
+          user = build(:user)
+
+          expect(user.snowplow_tracking?).to be(true)
+        end
+      end
+
+      describe '#snowplow_tracking=' do
+        it 'allows setting' do
+          user = build(:user)
+
+          expect(user.snowplow_tracking).to be(true)
+
+          user.snowplow_tracking = false
+          user.save!
+
+          expect(user.snowplow_tracking).to be(false)
+        end
+      end
+    end
+  end
 end

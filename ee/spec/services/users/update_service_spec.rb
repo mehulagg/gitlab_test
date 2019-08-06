@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Users::UpdateService do
@@ -35,6 +36,17 @@ describe Users::UpdateService do
       expect do
         update_user(user, { notification_email: 'foreign@email' })
       end.not_to change { user.reload.notification_email }
+    end
+
+    it 'updates product improvements preferences' do
+      result = update_user(user, snowplow_tracking: false)
+
+      expect(result).to eq(true)
+
+      user.reload
+
+      expect(user.snowplow_tracking).to eq(false)
+      expect(user.snowplow_tracking?).to eq(false)
     end
 
     context 'with an admin user' do

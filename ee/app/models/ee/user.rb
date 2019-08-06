@@ -31,6 +31,8 @@ module EE
                :extra_shared_runners_minutes_limit, :extra_shared_runners_minutes_limit=,
                to: :namespace
 
+      delegate :snowplow_tracking, :snowplow_tracking?, :snowplow_tracking=, to: :user_preference
+
       has_many :reviews,                  foreign_key: :author_id, inverse_of: :author
       has_many :epics,                    foreign_key: :author_id
       has_many :assigned_epics,           foreign_key: :assignee_id, class_name: "Epic"

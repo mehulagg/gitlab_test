@@ -3362,6 +3362,7 @@ ActiveRecord::Schema.define(version: 2019_08_06_071559) do
     t.string "timezone"
     t.boolean "time_display_relative"
     t.boolean "time_format_in_24h"
+    t.boolean "snowplow_tracking", default: true, null: false
     t.index ["user_id"], name: "index_user_preferences_on_user_id", unique: true
   end
 
