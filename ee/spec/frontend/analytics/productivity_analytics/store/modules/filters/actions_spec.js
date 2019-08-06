@@ -86,6 +86,8 @@ describe('Productivity analytics table actions', () => {
         mock.onGet(mockedState.endpoint).replyOnce(200, mockMergeRequests, headers);
       });
 
+      // This gets uncommented with the API changes from https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/14772
+      /*
       it('calls API with pparams', () => {
         jest.spyOn(axios, 'get');
 
@@ -100,6 +102,7 @@ describe('Productivity analytics table actions', () => {
           },
         });
       });
+      */
 
       it('dispatches success with received data', done =>
         testAction(
