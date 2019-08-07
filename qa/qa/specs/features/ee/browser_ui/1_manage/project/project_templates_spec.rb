@@ -7,14 +7,14 @@ module QA
     describe 'Project templates' do
       before(:all) do
         @files = [
-            {
-                name: 'file.txt',
-                content: 'foo'
-            },
-            {
-                name: 'README.md',
-                content: 'bar'
-            }
+          {
+            name: 'file.txt',
+            content: 'foo'
+          },
+          {
+            name: 'README.md',
+            content: 'bar'
+          }
         ]
 
         Runtime::Browser.visit(:gitlab, Page::Main::Login)
@@ -72,8 +72,10 @@ module QA
 
         it 'successfully imports the project using template' do
           Page::Project::New.perform do |page|
-            expect(page.instance_template_tab_badge_text).to eq "1"
-            expect(page).to have_text(@template_project.name)
+            Support::Retrier.retry_on_exception(reload_page: page, sleep_interval: 1.0) do
+              expect(page.instance_template_tab_badge_text).to eq "1"
+              expect(page).to have_text(@template_project.name)
+            end
           end
 
           create_project_using_template(project_name: 'Project using instance level project template',
@@ -122,9 +124,11 @@ module QA
 
         it 'successfully imports the project using template' do
           Page::Project::New.perform do |page|
-            expect(page.group_template_tab_badge_text).to eq "1"
-            expect(page).to have_text(@template_container_group_name)
-            expect(page).to have_text(@template_project.name)
+            Support::Retrier.retry_on_exception(reload_page: page, sleep_interval: 1.0) do
+              expect(page.group_template_tab_badge_text).to eq "1"
+              expect(page).to have_text(@template_container_group_name)
+              expect(page).to have_text(@template_project.name)
+            end
           end
 
           create_project_using_template(project_name: 'Project using group level project template',
