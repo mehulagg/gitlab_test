@@ -1,88 +1,47 @@
-import * as types from 'ee/analytics/productivity_analytics/store/modules/table/mutation_types';
-import mutations from 'ee/analytics/productivity_analytics/store/modules/table/mutations';
-import getInitialState from 'ee/analytics/productivity_analytics/store/modules/table/state';
-import { tableSortOrder } from 'ee/analytics/productivity_analytics/constants';
-import mockMergeRequests from '../../../mock_data';
+import * as types from 'ee/analytics/productivity_analytics/store/modules/filters/mutation_types';
+import mutations from 'ee/analytics/productivity_analytics/store/modules/filters/mutations';
+import getInitialState from 'ee/analytics/productivity_analytics/store/modules/filters/state';
 
-describe('Productivity analytics table mutations', () => {
+describe('Productivity analytics filter mutations', () => {
   let state;
-
-  const pageInfo = {
-    a: 1,
-    b: 2,
-    c: 3,
-  };
 
   beforeEach(() => {
     state = getInitialState();
   });
 
-  describe(types.REQUEST_MERGE_REQUESTS, () => {
-    it('sets isLoadingTable to true', () => {
-      mutations[types.REQUEST_MERGE_REQUESTS](state);
+  describe(types.SET_GROUP_NAMESPACE, () => {
+    it('sets the groupNamespace', () => {
+      const groupNamespace = 'gitlab-org';
+      mutations[types.SET_GROUP_NAMESPACE](state, groupNamespace);
 
-      expect(state.isLoadingTable).toBe(true);
+      expect(state.groupNamespace).toBe(groupNamespace);
     });
   });
 
-  describe(types.RECEIVE_MERGE_REQUESTS_SUCCESS, () => {
-    it('updates table with data', () => {
-      mutations[types.RECEIVE_MERGE_REQUESTS_SUCCESS](state, {
-        pageInfo,
-        mergeRequests: mockMergeRequests,
-      });
+  describe(types.SET_PROJECT_PATH, () => {
+    it('sets the projectPath', () => {
+      const projectPath = 'gitlab-test';
+      mutations[types.SET_PROJECT_PATH](state, projectPath);
 
-      expect(state.isLoadingTable).toBe(false);
-      expect(state.hasError).toBe(false);
-      expect(state.mergeRequests).toEqual(mockMergeRequests);
-      expect(state.pageInfo).toEqual(pageInfo);
+      expect(state.projectPath).toBe(projectPath);
     });
   });
 
-  describe(types.RECEIVE_MERGE_REQUESTS_ERROR, () => {
-    it('sets isError and clears data', () => {
-      mutations[types.RECEIVE_MERGE_REQUESTS_ERROR](state);
+  describe(types.SET_PATH, () => {
+    it('sets the filters string', () => {
+      const path = '?author_username=root&milestone_title=foo&label_name[]=labelxyz';
+      mutations[types.SET_PATH](state, path);
 
-      expect(state.isLoadingTable).toBe(false);
-      expect(state.hasError).toBe(true);
-      expect(state.mergeRequests).toEqual([]);
-      expect(state.pageInfo).toEqual({});
+      expect(state.filters).toBe(path);
     });
   });
 
-  describe(types.SET_SORT_FIELD, () => {
-    it('sets sortField to "time_to_last_commit"', () => {
-      const sortField = 'time_to_last_commit';
-      mutations[types.SET_SORT_FIELD](state, sortField);
+  describe(types.SET_DAYS_IN_PAST, () => {
+    it('sets the daysInPast', () => {
+      const daysInPast = 14;
+      mutations[types.SET_DAYS_IN_PAST](state, daysInPast);
 
-      expect(state.sortField).toBe(sortField);
-    });
-  });
-
-  describe(types.TOGGLE_SORT_ORDER, () => {
-    it('sets sortOrder "asc" when currently "desc"', () => {
-      state.sortOrder = tableSortOrder.desc.value;
-
-      mutations[types.TOGGLE_SORT_ORDER](state);
-
-      expect(state.sortOrder).toBe(tableSortOrder.asc.value);
-    });
-
-    it('sets sortOrder "desc" when currently "asc"', () => {
-      state.sortOrder = tableSortOrder.asc.value;
-
-      mutations[types.TOGGLE_SORT_ORDER](state);
-
-      expect(state.sortOrder).toBe(tableSortOrder.desc.value);
-    });
-  });
-
-  describe(types.SET_COLUMN_METRIC, () => {
-    it('sets columnMetric to "time_to_first_comment"', () => {
-      const columnMetric = 'time_to_first_comment';
-      mutations[types.SET_COLUMN_METRIC](state, columnMetric);
-
-      expect(state.columnMetric).toBe(columnMetric);
+      expect(state.daysInPast).toBe(daysInPast);
     });
   });
 });
