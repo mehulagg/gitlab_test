@@ -124,7 +124,6 @@ module EE
 
       rule { can?(:developer_access) }.policy do
         enable :admin_board
-        enable :create_vulnerability_feedback
         enable :destroy_vulnerability_feedback
         enable :update_vulnerability_feedback
         enable :create_package
@@ -136,6 +135,8 @@ module EE
         enable :create_design
         enable :destroy_design
       end
+
+      rule { can?(:guest_access) }.enable :create_vulnerability_feedback
 
       rule { can?(:public_access) }.enable :read_package
 

@@ -16,5 +16,7 @@ module Vulnerabilities
     end.prevent :create_vulnerability_feedback
 
     rule { ~dismissal }.prevent :destroy_vulnerability_feedback, :update_vulnerability_feedback
+    # guest users can only create "issue" type feedbacks but not dismissals (yet?)
+    rule { can?(:guest_access) && dismissal }.prevent :create_vulnerability_feedback
   end
 end
