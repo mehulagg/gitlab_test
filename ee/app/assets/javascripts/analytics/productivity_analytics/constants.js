@@ -52,3 +52,5 @@ export const tableSortOrder = {
     icon: 'sort-highest',
   },
 };
+
+export const timeToMergeMetric = 'time_to_merge';
