@@ -15,3 +15,11 @@ describe QA::Scenario::Test::Integration::LDAPTLS do
     end
   end
 end
+
+describe QA::Scenario::Test::Integration::LDAPMulti do
+  context '#perform' do
+    it_behaves_like 'a QA scenario class' do
+      let(:tags) { [:ldap_multi] }
+    end
+  end
+end

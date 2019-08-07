@@ -93,6 +93,25 @@ module QA
           Page::Main::Menu.perform(&:has_personal_area?)
         end
 
+        def sign_in_using_ldap_multi_credentials(user, server_label)
+          # Log out if already logged in
+          Page::Main::Menu.perform do |menu|
+            menu.sign_out if menu.has_personal_area?(wait: 0)
+          end
+
+          using_wait_time 0 do
+            set_initial_password_if_present
+
+            click_link server_label
+
+            fill_element :username_field, user.ldap_username
+            fill_element :password_field, user.ldap_password
+            click_element :sign_in_button
+          end
+
+          Page::Main::Menu.perform(&:has_personal_area?)
+        end
+
         def self.path
           '/users/sign_in'
         end

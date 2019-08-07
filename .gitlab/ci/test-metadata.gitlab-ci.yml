@@ -110,12 +110,12 @@ flaky-examples-check:
     - /^security-/
     - /\bce\-to\-ee\b/
 
-ee-files-location-check:
+.ee-files-location-check:
   <<: *ee-specific-check
   script:
     - scripts/ee-files-location-check
 
-ee-specific-lines-check:
+.ee-specific-lines-check:
   <<: *ee-specific-check
   script:
     - scripts/ee-specific-lines-check

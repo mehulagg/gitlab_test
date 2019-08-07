@@ -1205,6 +1205,16 @@ test:
         user_filter: ''
         group_base: 'ou=groups,dc=example,dc=com'
         admin_group: ''
+      secondary:
+        label: ldap2
+        host: 127.0.0.2
+        port: 3890
+        uid: 'uid'
+        encryption: 'plain' # "start_tls" or "simple_tls" or "plain"
+        base: 'dc=example,dc=com'
+        user_filter: ''
+        group_base: 'ou=groups,dc=example,dc=com'
+        admin_group: ''
   prometheus:
     enable: true
     listen_address: 'localhost:9090'

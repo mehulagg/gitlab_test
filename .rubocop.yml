@@ -86,6 +86,7 @@ Naming/FileName:
     - 'ee/lib/generators/**/*'
     - 'qa/qa/scenario/test/integration/ldap_no_tls.rb'
     - 'qa/qa/scenario/test/integration/ldap_tls.rb'
+    - 'qa/qa/scenario/test/integration/ldap_multi.rb'
 
   IgnoreExecutableScripts: true
   AllowedAcronyms:
