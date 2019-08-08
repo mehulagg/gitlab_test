@@ -71,8 +71,12 @@ Please note that you need to be a group owner to associate a group to your subsc
 
 ### GitLab.com: Upgrade your subscription plan
 
-GitLab.com subscriptions can be upgraded directly through the [Subscriptions portal](https://customers.gitlab.com/subscriptions). 
+GitLab.com subscriptions can be upgraded:
 
+- Directly through the [Subscriptions portal](https://customers.gitlab.com/subscriptions)
+- By clicking on **Upgrade** within a group **Settings > Billing** menu
+
+NOTE: **Note:**
 The Subscriptions portal provides an **Upgrade** button below each GitLab.com
 subscription, which will lead you to a simple
 checkout process.
