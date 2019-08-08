@@ -421,7 +421,8 @@ module EE
       raise ArgumentError unless ::Gitlab.config.repositories.storages.key?(new_repository_storage_key)
 
       if sync
-        set_repository_read_only_blocking!
+        update!(repository_read_only: true)
+        await_git_transfer_completion
         ProjectUpdateRepositoryStorageWorker.new.perform(id, new_repository_storage_key)
       else
         run_after_commit { ProjectUpdateRepositoryStorageWorker.perform_async(id, new_repository_storage_key) }
@@ -649,9 +650,9 @@ module EE
       # Board limits are disabled in EE, so this method is just a no-op.
     end
 
-    def set_repository_read_only_blocking!
+    def await_git_transfer_completion
       loop do
-        break if set_repository_read_only!
+        break unless git_transfer_in_progress?
 
         sleep 10
       end
