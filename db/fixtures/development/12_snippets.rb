@@ -1,5 +1,7 @@
 require './spec/support/sidekiq'
 
+# Touch
+
 Gitlab::Seeder.quiet do
   content =<<eos
 class Member < ActiveRecord::Base

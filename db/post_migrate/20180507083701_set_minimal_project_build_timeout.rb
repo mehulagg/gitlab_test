@@ -19,3 +19,5 @@ class SetMinimalProjectBuildTimeout < ActiveRecord::Migration[4.2]
     # no-op
   end
 end
+
+# touch

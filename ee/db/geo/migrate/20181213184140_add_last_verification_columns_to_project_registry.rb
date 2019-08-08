@@ -10,3 +10,5 @@ class AddLastVerificationColumnsToProjectRegistry < ActiveRecord::Migration[4.2]
     add_column :project_registry, :last_wiki_verification_ran_at, :datetime_with_timezone
   end
 end
+
+# geo

@@ -36,3 +36,5 @@ class AddForeignKeysToTodos < ActiveRecord::Migration[4.2]
     remove_foreign_key :todos, :notes
   end
 end
+
+# touch

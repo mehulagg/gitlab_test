@@ -5,3 +5,5 @@ class DeleteJobArtifactsFromFileRegistry < ActiveRecord::Migration[4.2]
     execute('DROP FUNCTION IF EXISTS replicate_job_artifact_registry()')
   end
 end
+
+# touch

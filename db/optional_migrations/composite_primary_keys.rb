@@ -63,3 +63,5 @@ class CompositePrimaryKeysMigration < ActiveRecord::Migration[4.2]
     execute "ALTER TABLE #{index.table} DROP CONSTRAINT IF EXISTS #{temp_index_name}"
   end
 end
+
+# touch
