@@ -132,7 +132,6 @@
   }
 
   .linked-pipeline.build {
-
     &.active {
       .linked-pipeline-content,
       .linked-pipeline-content:hover,
@@ -163,6 +162,7 @@
       border-top-left-radius: $border-radius-default;
       border-top-right-radius: $border-radius-default;
     }
+
     &:last-child .linked-pipeline-content {
       border-bottom-left-radius: $border-radius-default;
       border-bottom-right-radius: $border-radius-default;

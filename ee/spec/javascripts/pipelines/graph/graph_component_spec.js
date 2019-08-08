@@ -52,28 +52,12 @@ describe('graph component', () => {
         expect(component.$el.querySelector('.stage-column-list')).not.toBeNull();
       });
 
-      it('should include the no-margin class on the first child', () => {
-        const firstStageColumnElement = component.$el.querySelector(
-          '.stage-column-list .stage-column',
-        );
-
-        expect(firstStageColumnElement.classList.contains('no-margin')).toEqual(true);
-      });
-
       it('should include the has-only-one-job class on the first child', () => {
         const firstStageColumnElement = component.$el.querySelector(
           '.stage-column-list .stage-column',
         );
 
         expect(firstStageColumnElement.classList.contains('has-only-one-job')).toEqual(true);
-      });
-
-      it('should include the left-margin class on the second child', () => {
-        const firstStageColumnElement = component.$el.querySelector(
-          '.stage-column-list .stage-column:last-child',
-        );
-
-        expect(firstStageColumnElement.classList.contains('left-margin')).toEqual(true);
       });
 
       it('should include the js-has-linked-pipelines flag', () => {
@@ -99,13 +83,15 @@ describe('graph component', () => {
       });
 
       it('should render an upstream pipelines column', () => {
-        expect(component.$el.querySelector('.linked-pipelines-column')).not.toBeNull();
-        expect(component.$el.innerHTML).toContain('Upstream');
+        expect(
+          component.$el.querySelector('.linked-pipelines-column.upstream-pipelines-column'),
+        ).not.toBeNull();
       });
 
       it('should render a downstream pipelines column', () => {
-        expect(component.$el.querySelector('.linked-pipelines-column')).not.toBeNull();
-        expect(component.$el.innerHTML).toContain('Downstream');
+        expect(
+          component.$el.querySelector('.linked-pipelines-column.downstream-pipelines-column'),
+        ).not.toBeNull();
       });
 
       describe('triggered by', () => {
@@ -183,12 +169,6 @@ describe('graph component', () => {
     });
 
     describe('rendered output', () => {
-      it('should include the first column with a no margin', () => {
-        const firstColumn = component.$el.querySelector('.stage-column:first-child');
-
-        expect(firstColumn.classList.contains('no-margin')).toEqual(true);
-      });
-
       it('should not render a linked pipelines column', () => {
         expect(component.$el.querySelector('.linked-pipelines-column')).toBeNull();
       });

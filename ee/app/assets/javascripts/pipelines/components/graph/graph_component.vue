@@ -122,6 +122,7 @@ export default {
       <linked-pipelines-column
         v-if="hasTriggeredBy"
         :linked-pipelines="triggeredByPipelines"
+        class="upstream-pipelines-column"
         graph-position="left"
         @linkedPipelineClick="
           linkedPipeline => $emit('onClickTriggeredBy', pipeline, linkedPipeline)
@@ -156,6 +157,7 @@ export default {
       <linked-pipelines-column
         v-if="hasTriggered"
         :linked-pipelines="triggeredPipelines"
+        class="downstream-pipelines-column"
         graph-position="right"
         @linkedPipelineClick="handleClickedDownstream"
       />

@@ -6,7 +6,6 @@ import mockData from './linked_pipelines_mock_data';
 describe('Linked Pipelines Column', () => {
   const Component = Vue.extend(LinkedPipelinesColumn);
   const props = {
-    columnTitle: 'Upstream',
     linkedPipelines: mockData.triggered,
     graphPosition: 'right',
   };
@@ -21,9 +20,7 @@ describe('Linked Pipelines Column', () => {
   });
 
   it('renders the pipeline orientation', () => {
-    const titleElement = vm.$el.querySelector('.linked-pipelines-column-title');
-
-    expect(titleElement.innerText).toContain(props.columnTitle);
+    expect(vm.$el.classList.contains('graph-position-right')).toBe(true);
   });
 
   it('has the correct number of linked pipeline child components', () => {
