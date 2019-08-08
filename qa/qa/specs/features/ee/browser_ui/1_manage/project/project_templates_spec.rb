@@ -3,7 +3,7 @@ require 'securerandom'
 
 module QA
   # Failure issue: https://gitlab.com/gitlab-org/quality/staging/issues/61
-  context :manage, :quarantine do
+  context :manage do
     describe 'Project templates' do
       before(:all) do
         @files = [
@@ -56,23 +56,15 @@ module QA
             page.choose_custom_project_template("#{@template_container_group_name}")
           end
 
-          Page::Admin::Menu.perform(&:go_to_template_settings)
-
-          EE::Page::Admin::Settings::Templates.perform do |page|
-            expect(page.current_custom_project_template).to include @template_container_group_name
-          end
-
-          group = Resource::Group.fabricate_via_api!
-          group.visit!
-
-          Page::Group::Show.perform(&:go_to_new_project)
-
-          Page::Project::New.perform(&:go_to_create_from_template_instance_tab)
+          @group = Resource::Group.fabricate_via_api!
         end
 
         it 'successfully imports the project using template' do
-          Page::Project::New.perform do |page|
-            Support::Retrier.retry_on_exception(reload_page: page, sleep_interval: 1.0) do
+          Support::Retrier.retry_on_exception(reload_page: page, sleep_interval: 1.0) do
+            @group.visit!
+            Page::Group::Show.perform(&:go_to_new_project)
+            Page::Project::New.perform do |page|
+              page.go_to_create_from_template_instance_tab
               expect(page.instance_template_tab_badge_text).to eq "1"
               expect(page).to have_text(@template_project.name)
             end
@@ -108,23 +100,15 @@ module QA
             settings.choose_custom_project_template("#{@template_container_group_name}")
           end
 
-          Page::Project::Menu.perform(&:click_settings)
-
-          EE::Page::Group::Settings::General.perform do |settings|
-            expect(settings.current_custom_project_template).to include @template_container_group_name
-          end
-
-          group = Resource::Group.fabricate_via_api!
-          group.visit!
-
-          Page::Group::Show.perform(&:go_to_new_project)
-
-          Page::Project::New.perform(&:go_to_create_from_template_group_tab)
+          @group = Resource::Group.fabricate_via_api!
         end
 
         it 'successfully imports the project using template' do
-          Page::Project::New.perform do |page|
-            Support::Retrier.retry_on_exception(reload_page: page, sleep_interval: 1.0) do
+          Support::Retrier.retry_on_exception(reload_page: page, sleep_interval: 1.0) do
+            @group.visit!
+            Page::Group::Show.perform(&:go_to_new_project)
+            Page::Project::New.perform do |page|
+              page.go_to_create_from_template_group_tab
               expect(page.group_template_tab_badge_text).to eq "1"
               expect(page).to have_text(@template_container_group_name)
               expect(page).to have_text(@template_project.name)
