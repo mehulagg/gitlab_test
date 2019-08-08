@@ -31,6 +31,7 @@ module Projects
         project.track_project_repository
       else
         project.update(repository_read_only: false)
+        false
       end
     end
 

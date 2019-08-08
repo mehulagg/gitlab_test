@@ -24,7 +24,8 @@ describe Projects::UpdateRepositoryStorageService do
           expect_any_instance_of(Gitlab::Git::Repository).to receive(:fetch_repository_as_mirror)
             .with(project.repository.raw).and_return(true)
 
-          subject.execute('test_second_storage')
+          result = subject.execute('test_second_storage')
+          expect(result).to be_truthy
           expect(project).not_to be_repository_read_only
           expect(project.repository_storage).to eq('test_second_storage')
           expect(gitlab_shell.exists?('default', old_path)).to be(false)
@@ -46,7 +47,8 @@ describe Projects::UpdateRepositoryStorageService do
             .with(project.repository.raw).and_return(false)
           expect(GitlabShellWorker).not_to receive(:perform_async)
 
-          subject.execute('test_second_storage')
+          result = subject.execute('test_second_storage')
+          expect(result).to be_falsey
 
           expect(project).not_to be_repository_read_only
           expect(project.repository_storage).to eq('default')

@@ -2077,14 +2077,26 @@ describe Project do
     end
 
     context 'when the sync parameter is passed' do
-      it 'saves the project as read-only and then locks the transfer' do
+      it 'saves the project as read-only and then performs the transfer' do
         expect_any_instance_of(::Projects::UpdateRepositoryStorageService)
-          .to receive(:execute).with('extra')
+          .to receive(:execute).with('extra').and_return(true)
         expect(ProjectUpdateRepositoryStorageWorker).not_to receive(:perform_async)
 
-        project.change_repository_storage('extra', sync: true)
+        result = project.change_repository_storage('extra', sync: true)
+        expect(result).to be_truthy
 
         expect(project).to be_repository_read_only
+      end
+
+      context 'when the repository update service returns false' do
+        it 'returns false' do
+          expect_any_instance_of(::Projects::UpdateRepositoryStorageService)
+            .to receive(:execute).with('extra').and_return(false)
+          expect(ProjectUpdateRepositoryStorageWorker).not_to receive(:perform_async)
+
+          result = project.change_repository_storage('extra', sync: true)
+          expect(result).to be_falsey
+        end
       end
     end
 
