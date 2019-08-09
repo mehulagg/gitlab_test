@@ -27,6 +27,10 @@ module QA
           element :import_github, "icon('github', text: 'GitHub')" # rubocop:disable QA/ElementWithPattern
         end
 
+        view 'app/views/projects/project_templates/_built_in_templates.html.haml' do
+          element :built_in_template_item
+        end
+
         def choose_test_namespace
           choose_namespace(Runtime::Namespace.path)
         end
@@ -36,6 +40,12 @@ module QA
             click_body
             click_element :project_namespace_select
             search_and_select(namespace)
+          end
+        end
+
+        def wait_for_build_in_templates
+          wait(reload: false) do
+            has_element?(:built_in_template_item)
           end
         end
 

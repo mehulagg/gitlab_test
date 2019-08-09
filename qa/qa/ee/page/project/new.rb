@@ -28,6 +28,7 @@ module QA
 
           def go_to_create_from_template_group_tab
             click_create_from_template_tab
+            wait_for_build_in_templates
             click_element(:group_templates_tab)
           end
 

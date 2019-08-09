@@ -23,6 +23,15 @@ module QA
               end
             end
 
+            def remove_custom_project_template
+              expand_section(:custom_project_templates)
+
+              within_element(:custom_project_template_select) do
+                clear_current_selection_if_present
+              end
+              click_element :save_changes_button
+            end
+
             def choose_custom_project_template(path)
               expand_section(:custom_project_templates)
 

@@ -2,7 +2,6 @@
 require 'securerandom'
 
 module QA
-  # Failure issue: https://gitlab.com/gitlab-org/quality/staging/issues/61
   context :manage do
     describe 'Project templates' do
       before(:all) do
@@ -39,7 +38,8 @@ module QA
         end
       end
 
-      context 'instance level' do
+      # Failure issue: https://gitlab.com/gitlab-org/quality/staging/issues/61
+      context 'instance level', :quarantine do
         before do
           # Log out if already logged in
           Page::Main::Menu.perform do |menu|
@@ -122,6 +122,16 @@ module QA
           Page::Project::Show.perform(&:wait_for_import_success)
           @files.each do |file|
             expect(page).to have_content(file[:name])
+          end
+        end
+
+        after do
+          Page::Main::Menu.perform(&:go_to_groups)
+          Page::Dashboard::Groups.perform { |page| page.click_group(Runtime::Namespace.sandbox_name) }
+          Page::Project::Menu.perform(&:click_settings)
+
+          EE::Page::Group::Settings::General.perform do |settings|
+            settings.remove_custom_project_template
           end
         end
       end
