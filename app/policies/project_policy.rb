@@ -138,10 +138,19 @@ class ProjectPolicy < BasePolicy
   rule { guest | admin }.enable :read_project_for_iids
 
   rule { guest }.enable :guest_access
+  # rule { guest & none?(reporter, developer, maintainer, owner, admin) }.enable :guest_only_access
   rule { reporter }.enable :reporter_access
   rule { developer }.enable :developer_access
   rule { maintainer }.enable :maintainer_access
   rule { owner | admin }.enable :owner_access
+  # rule do
+  #   can?(:guest_access) &
+  #     ~can?(:reporter_access) &
+  #     ~can?(:developer_access) &
+  #     ~can?(:maintainer_access) &
+  #     ~can?(:owner_access) &
+  #     ~admin
+  # end.enable :guest_only_access
 
   rule { can?(:owner_access) }.policy do
     enable :guest_access

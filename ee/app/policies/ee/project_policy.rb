@@ -124,6 +124,9 @@ module EE
 
       rule { can?(:developer_access) }.policy do
         enable :admin_board
+        # we need to enable this again for :developer_access to be able to selectively prevent
+        # :create_vulnerability_feedback for certain types of abilities for :guest_access
+        enable :create_vulnerability_feedback
         enable :destroy_vulnerability_feedback
         enable :update_vulnerability_feedback
         enable :create_package
