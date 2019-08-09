@@ -293,3 +293,5 @@ module API
     end
   end
 end
+
+API::Internal::Base.prepend_if_ee('EE::API::Internal::Base')

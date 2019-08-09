@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
-describe API::Internal do
+describe API::Internal::Base do
   describe "POST /internal/allowed" do
     set(:user) { create(:user) }
     set(:key) { create(:key, user: user) }
