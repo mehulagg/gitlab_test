@@ -491,12 +491,399 @@ Based on Rails 5.2.3 routes of Gitlab::Application
     make: function() {
       var routes;
       routes = {
-// namespace_project_vulnerability_feedback => /*namespace_id/:project_id/vulnerability_feedback/:id(.:format)
+// admin_abuse_report => /admin/abuse_reports/:id(.:format)
+  // function(id, options)
+  admin_abuse_report_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"abuse_reports",false],[2,[7,"/",false],[2,[3,"id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// admin_abuse_reports => /admin/abuse_reports(.:format)
+  // function(options)
+  admin_abuse_reports_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"abuse_reports",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_appearances => /admin/appearance(.:format)
+  // function(options)
+  admin_appearances_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"appearance",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_application => /admin/applications/:id(.:format)
+  // function(id, options)
+  admin_application_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"applications",false],[2,[7,"/",false],[2,[3,"id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// admin_application_settings => /admin/application_settings(.:format)
+  // function(options)
+  admin_application_settings_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"application_settings",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_application_settings_service => /admin/application_settings/services/:id(.:format)
+  // function(id, options)
+  admin_application_settings_service_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"application_settings",false],[2,[7,"/",false],[2,[6,"services",false],[2,[7,"/",false],[2,[3,"id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// admin_application_settings_services => /admin/application_settings/services(.:format)
+  // function(options)
+  admin_application_settings_services_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"application_settings",false],[2,[7,"/",false],[2,[6,"services",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// admin_applications => /admin/applications(.:format)
+  // function(options)
+  admin_applications_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"applications",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_audit_logs => /admin/audit_logs(.:format)
+  // function(options)
+  admin_audit_logs_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"audit_logs",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_background_jobs => /admin/background_jobs(.:format)
+  // function(options)
+  admin_background_jobs_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"background_jobs",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_broadcast_message => /admin/broadcast_messages/:id(.:format)
+  // function(id, options)
+  admin_broadcast_message_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"broadcast_messages",false],[2,[7,"/",false],[2,[3,"id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// admin_broadcast_messages => /admin/broadcast_messages(.:format)
+  // function(options)
+  admin_broadcast_messages_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"broadcast_messages",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_cluster => /admin/clusters/:id(.:format)
+  // function(id, options)
+  admin_cluster_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"clusters",false],[2,[7,"/",false],[2,[3,"id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// admin_clusters => /admin/clusters(.:format)
+  // function(options)
+  admin_clusters_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"clusters",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_dashboard_stats => /admin/dashboard/stats(.:format)
+  // function(options)
+  admin_dashboard_stats_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"dashboard",false],[2,[7,"/",false],[2,[6,"stats",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// admin_deploy_key => /admin/deploy_keys/:id(.:format)
+  // function(id, options)
+  admin_deploy_key_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"deploy_keys",false],[2,[7,"/",false],[2,[3,"id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// admin_deploy_keys => /admin/deploy_keys(.:format)
+  // function(options)
+  admin_deploy_keys_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"deploy_keys",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_elasticsearch_enqueue_index => /admin/elasticsearch/enqueue_index(.:format)
+  // function(options)
+  admin_elasticsearch_enqueue_index_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"elasticsearch",false],[2,[7,"/",false],[2,[6,"enqueue_index",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// admin_email => /admin/email(.:format)
+  // function(options)
+  admin_email_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"email",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_geo_node => /admin/geo/nodes/:id(.:format)
+  // function(id, options)
+  admin_geo_node_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"geo",false],[2,[7,"/",false],[2,[6,"nodes",false],[2,[7,"/",false],[2,[3,"id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// admin_geo_nodes => /admin/geo/nodes(.:format)
+  // function(options)
+  admin_geo_nodes_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"geo",false],[2,[7,"/",false],[2,[6,"nodes",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// admin_geo_project => /admin/geo/projects/:id(.:format)
+  // function(id, options)
+  admin_geo_project_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"geo",false],[2,[7,"/",false],[2,[6,"projects",false],[2,[7,"/",false],[2,[3,"id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// admin_geo_projects => /admin/geo/projects(.:format)
+  // function(options)
+  admin_geo_projects_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"geo",false],[2,[7,"/",false],[2,[6,"projects",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// admin_geo_upload => /admin/geo/uploads/:id(.:format)
+  // function(id, options)
+  admin_geo_upload_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"geo",false],[2,[7,"/",false],[2,[6,"uploads",false],[2,[7,"/",false],[2,[3,"id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// admin_geo_uploads => /admin/geo/uploads(.:format)
+  // function(options)
+  admin_geo_uploads_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"geo",false],[2,[7,"/",false],[2,[6,"uploads",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// admin_gitaly_servers => /admin/gitaly_servers(.:format)
+  // function(options)
+  admin_gitaly_servers_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"gitaly_servers",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_group => /admin/groups/*id(.:format)
+  // function(id, options)
+  admin_group_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"groups",false],[2,[7,"/",false],[2,[5,[3,"id",false],false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// admin_group_edit => /admin/groups/*id/edit(.:format)
+  // function(id, options)
+  admin_group_edit_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"groups",false],[2,[7,"/",false],[2,[5,[3,"id",false],false],[2,[7,"/",false],[2,[6,"edit",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// admin_group_members_update => /admin/groups/*id/members_update(.:format)
+  // function(id, options)
+  admin_group_members_update_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"groups",false],[2,[7,"/",false],[2,[5,[3,"id",false],false],[2,[7,"/",false],[2,[6,"members_update",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// admin_group_reset_runners_minutes => /admin/groups/*id/reset_runners_minutes(.:format)
+  // function(id, options)
+  admin_group_reset_runners_minutes_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"groups",false],[2,[7,"/",false],[2,[5,[3,"id",false],false],[2,[7,"/",false],[2,[6,"reset_runners_minutes",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// admin_groups => /admin/groups(.:format)
+  // function(options)
+  admin_groups_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"groups",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_health_check => /admin/health_check(.:format)
+  // function(options)
+  admin_health_check_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"health_check",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_hook => /admin/hooks/:id(.:format)
+  // function(id, options)
+  admin_hook_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"hooks",false],[2,[7,"/",false],[2,[3,"id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// admin_hook_hook_log => /admin/hooks/:hook_id/hook_logs/:id(.:format)
+  // function(hook_id, id, options)
+  admin_hook_hook_log_path: Utils.route([["hook_id",true],["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"hooks",false],[2,[7,"/",false],[2,[3,"hook_id",false],[2,[7,"/",false],[2,[6,"hook_logs",false],[2,[7,"/",false],[2,[3,"id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]]]),
+// admin_hooks => /admin/hooks(.:format)
+  // function(options)
+  admin_hooks_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"hooks",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_impersonation => /admin/impersonation(.:format)
+  // function(options)
+  admin_impersonation_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"impersonation",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_instance_review => /admin/instance_review(.:format)
+  // function(options)
+  admin_instance_review_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"instance_review",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_jobs => /admin/jobs(.:format)
+  // function(options)
+  admin_jobs_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"jobs",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_label => /admin/labels/:id(.:format)
+  // function(id, options)
+  admin_label_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"labels",false],[2,[7,"/",false],[2,[3,"id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// admin_labels => /admin/labels(.:format)
+  // function(options)
+  admin_labels_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"labels",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_license => /admin/license(.:format)
+  // function(options)
+  admin_license_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"license",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_logs => /admin/logs(.:format)
+  // function(options)
+  admin_logs_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"logs",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_namespace_project => /admin/projects/*namespace_id/:id(.:format)
+  // function(namespace_id, id, options)
+  admin_namespace_project_path: Utils.route([["namespace_id",true],["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"projects",false],[2,[7,"/",false],[2,[5,[3,"namespace_id",false],false],[2,[7,"/",false],[2,[3,"id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// admin_namespace_project_runner_project => /admin/projects/*namespace_id/:project_id/runner_projects/:id(.:format)
   // function(namespace_id, project_id, id, options)
-  namespace_project_vulnerability_feedback_path: Utils.route([["namespace_id",true],["project_id",true],["id",true],["format",false]], {}, [2,[7,"/",false],[2,[5,[3,"namespace_id",false],false],[2,[7,"/",false],[2,[3,"project_id",false],[2,[7,"/",false],[2,[6,"vulnerability_feedback",false],[2,[7,"/",false],[2,[3,"id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
-// namespace_project_vulnerability_feedback_index => /*namespace_id/:project_id/vulnerability_feedback(.:format)
+  admin_namespace_project_runner_project_path: Utils.route([["namespace_id",true],["project_id",true],["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"projects",false],[2,[7,"/",false],[2,[5,[3,"namespace_id",false],false],[2,[7,"/",false],[2,[3,"project_id",false],[2,[7,"/",false],[2,[6,"runner_projects",false],[2,[7,"/",false],[2,[3,"id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]]]]]),
+// admin_namespace_project_runner_projects => /admin/projects/*namespace_id/:project_id/runner_projects(.:format)
   // function(namespace_id, project_id, options)
-  namespace_project_vulnerability_feedback_index_path: Utils.route([["namespace_id",true],["project_id",true],["format",false]], {}, [2,[7,"/",false],[2,[5,[3,"namespace_id",false],false],[2,[7,"/",false],[2,[3,"project_id",false],[2,[7,"/",false],[2,[6,"vulnerability_feedback",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]])}
+  admin_namespace_project_runner_projects_path: Utils.route([["namespace_id",true],["project_id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"projects",false],[2,[7,"/",false],[2,[5,[3,"namespace_id",false],false],[2,[7,"/",false],[2,[3,"project_id",false],[2,[7,"/",false],[2,[6,"runner_projects",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]]]),
+// admin_projects => /admin/projects(.:format)
+  // function(options)
+  admin_projects_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"projects",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_push_rule => /admin/push_rule(.:format)
+  // function(options)
+  admin_push_rule_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"push_rule",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_requests_profile => /admin/requests_profiles/:name(.:format)
+  // function(name, options)
+  admin_requests_profile_path: Utils.route([["name",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"requests_profiles",false],[2,[7,"/",false],[2,[3,"name",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// admin_requests_profiles => /admin/requests_profiles(.:format)
+  // function(options)
+  admin_requests_profiles_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"requests_profiles",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_root => /admin(.:format)
+  // function(options)
+  admin_root_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[1,[2,[8,".",false],[3,"format",false]],false]]]),
+// admin_runner => /admin/runners/:id(.:format)
+  // function(id, options)
+  admin_runner_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"runners",false],[2,[7,"/",false],[2,[3,"id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// admin_runners => /admin/runners(.:format)
+  // function(options)
+  admin_runners_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"runners",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_spam_log => /admin/spam_logs/:id(.:format)
+  // function(id, options)
+  admin_spam_log_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"spam_logs",false],[2,[7,"/",false],[2,[3,"id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// admin_spam_logs => /admin/spam_logs(.:format)
+  // function(options)
+  admin_spam_logs_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"spam_logs",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_system_info => /admin/system_info(.:format)
+  // function(options)
+  admin_system_info_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"system_info",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// admin_user => /admin/users/:id(.:format)
+  // function(id, options)
+  admin_user_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[2,[7,"/",false],[2,[3,"id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// admin_user_identities => /admin/users/:user_id/identities(.:format)
+  // function(user_id, options)
+  admin_user_identities_path: Utils.route([["user_id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[2,[7,"/",false],[2,[3,"user_id",false],[2,[7,"/",false],[2,[6,"identities",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// admin_user_identity => /admin/users/:user_id/identities/:id(.:format)
+  // function(user_id, id, options)
+  admin_user_identity_path: Utils.route([["user_id",true],["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[2,[7,"/",false],[2,[3,"user_id",false],[2,[7,"/",false],[2,[6,"identities",false],[2,[7,"/",false],[2,[3,"id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]]]),
+// admin_user_impersonation_tokens => /admin/users/:user_id/impersonation_tokens(.:format)
+  // function(user_id, options)
+  admin_user_impersonation_tokens_path: Utils.route([["user_id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[2,[7,"/",false],[2,[3,"user_id",false],[2,[7,"/",false],[2,[6,"impersonation_tokens",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// admin_user_key => /admin/users/:user_id/keys/:id(.:format)
+  // function(user_id, id, options)
+  admin_user_key_path: Utils.route([["user_id",true],["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[2,[7,"/",false],[2,[3,"user_id",false],[2,[7,"/",false],[2,[6,"keys",false],[2,[7,"/",false],[2,[3,"id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]]]),
+// admin_users => /admin/users(.:format)
+  // function(options)
+  admin_users_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]),
+// block_admin_user => /admin/users/:id/block(.:format)
+  // function(id, options)
+  block_admin_user_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"block",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// cancel_all_admin_jobs => /admin/jobs/cancel_all(.:format)
+  // function(options)
+  cancel_all_admin_jobs_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"jobs",false],[2,[7,"/",false],[2,[6,"cancel_all",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// ci_cd_admin_application_settings => /admin/application_settings/ci_cd(.:format)
+  // function(options)
+  ci_cd_admin_application_settings_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"application_settings",false],[2,[7,"/",false],[2,[6,"ci_cd",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// clear_repository_check_states_admin_application_settings => /admin/application_settings/clear_repository_check_states(.:format)
+  // function(options)
+  clear_repository_check_states_admin_application_settings_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"application_settings",false],[2,[7,"/",false],[2,[6,"clear_repository_check_states",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// cluster_status_admin_cluster => /admin/clusters/:id/cluster_status(.:format)
+  // function(id, options)
+  cluster_status_admin_cluster_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"clusters",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"cluster_status",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// confirm_admin_user => /admin/users/:id/confirm(.:format)
+  // function(id, options)
+  confirm_admin_user_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"confirm",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// create_gcp_admin_clusters => /admin/clusters/create_gcp(.:format)
+  // function(options)
+  create_gcp_admin_clusters_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"clusters",false],[2,[7,"/",false],[2,[6,"create_gcp",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// create_user_admin_clusters => /admin/clusters/create_user(.:format)
+  // function(options)
+  create_user_admin_clusters_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"clusters",false],[2,[7,"/",false],[2,[6,"create_user",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// disable_two_factor_admin_user => /admin/users/:id/disable_two_factor(.:format)
+  // function(id, options)
+  disable_two_factor_admin_user_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"disable_two_factor",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// download_admin_license => /admin/license/download(.:format)
+  // function(options)
+  download_admin_license_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"license",false],[2,[7,"/",false],[2,[6,"download",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// edit_admin_application => /admin/applications/:id/edit(.:format)
+  // function(id, options)
+  edit_admin_application_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"applications",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"edit",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// edit_admin_application_settings_service => /admin/application_settings/services/:id/edit(.:format)
+  // function(id, options)
+  edit_admin_application_settings_service_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"application_settings",false],[2,[7,"/",false],[2,[6,"services",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"edit",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]]]),
+// edit_admin_broadcast_message => /admin/broadcast_messages/:id/edit(.:format)
+  // function(id, options)
+  edit_admin_broadcast_message_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"broadcast_messages",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"edit",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// edit_admin_deploy_key => /admin/deploy_keys/:id/edit(.:format)
+  // function(id, options)
+  edit_admin_deploy_key_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"deploy_keys",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"edit",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// edit_admin_geo_node => /admin/geo/nodes/:id/edit(.:format)
+  // function(id, options)
+  edit_admin_geo_node_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"geo",false],[2,[7,"/",false],[2,[6,"nodes",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"edit",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]]]),
+// edit_admin_hook => /admin/hooks/:id/edit(.:format)
+  // function(id, options)
+  edit_admin_hook_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"hooks",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"edit",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// edit_admin_label => /admin/labels/:id/edit(.:format)
+  // function(id, options)
+  edit_admin_label_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"labels",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"edit",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// edit_admin_user => /admin/users/:id/edit(.:format)
+  // function(id, options)
+  edit_admin_user_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"edit",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// edit_admin_user_identity => /admin/users/:user_id/identities/:id/edit(.:format)
+  // function(user_id, id, options)
+  edit_admin_user_identity_path: Utils.route([["user_id",true],["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[2,[7,"/",false],[2,[3,"user_id",false],[2,[7,"/",false],[2,[6,"identities",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"edit",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]]]]]),
+// favicon_admin_appearances => /admin/appearance/favicon(.:format)
+  // function(options)
+  favicon_admin_appearances_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"appearance",false],[2,[7,"/",false],[2,[6,"favicon",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// force_redownload_admin_geo_project => /admin/geo/projects/:id/force_redownload(.:format)
+  // function(id, options)
+  force_redownload_admin_geo_project_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"geo",false],[2,[7,"/",false],[2,[6,"projects",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"force_redownload",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]]]),
+// geo_admin_application_settings => /admin/application_settings/geo(.:format)
+  // function(options)
+  geo_admin_application_settings_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"application_settings",false],[2,[7,"/",false],[2,[6,"geo",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// header_logos_admin_appearances => /admin/appearance/header_logos(.:format)
+  // function(options)
+  header_logos_admin_appearances_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"appearance",false],[2,[7,"/",false],[2,[6,"header_logos",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// impersonate_admin_user => /admin/users/:id/impersonate(.:format)
+  // function(id, options)
+  impersonate_admin_user_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"impersonate",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// install_applications_admin_cluster => /admin/clusters/:id/applications/:application(.:format)
+  // function(id, application, options)
+  install_applications_admin_cluster_path: Utils.route([["id",true],["application",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"clusters",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"applications",false],[2,[7,"/",false],[2,[3,"application",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]]]),
+// integrations_admin_application_settings => /admin/application_settings/integrations(.:format)
+  // function(options)
+  integrations_admin_application_settings_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"application_settings",false],[2,[7,"/",false],[2,[6,"integrations",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// keys_admin_user => /admin/users/:id/keys(.:format)
+  // function(id, options)
+  keys_admin_user_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"keys",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// lets_encrypt_terms_of_service_admin_application_settings => /admin/application_settings/lets_encrypt_terms_of_service(.:format)
+  // function(options)
+  lets_encrypt_terms_of_service_admin_application_settings_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"application_settings",false],[2,[7,"/",false],[2,[6,"lets_encrypt_terms_of_service",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// logo_admin_appearances => /admin/appearance/logo(.:format)
+  // function(options)
+  logo_admin_appearances_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"appearance",false],[2,[7,"/",false],[2,[6,"logo",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// mark_as_ham_admin_spam_log => /admin/spam_logs/:id/mark_as_ham(.:format)
+  // function(id, options)
+  mark_as_ham_admin_spam_log_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"spam_logs",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"mark_as_ham",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// metrics_admin_cluster => /admin/clusters/:id/metrics(.:format)
+  // function(id, options)
+  metrics_admin_cluster_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"clusters",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"metrics",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// metrics_and_profiling_admin_application_settings => /admin/application_settings/metrics_and_profiling(.:format)
+  // function(options)
+  metrics_and_profiling_admin_application_settings_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"application_settings",false],[2,[7,"/",false],[2,[6,"metrics_and_profiling",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// network_admin_application_settings => /admin/application_settings/network(.:format)
+  // function(options)
+  network_admin_application_settings_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"application_settings",false],[2,[7,"/",false],[2,[6,"network",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// new_admin_application => /admin/applications/new(.:format)
+  // function(options)
+  new_admin_application_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"applications",false],[2,[7,"/",false],[2,[6,"new",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// new_admin_cluster => /admin/clusters/new(.:format)
+  // function(options)
+  new_admin_cluster_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"clusters",false],[2,[7,"/",false],[2,[6,"new",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// new_admin_deploy_key => /admin/deploy_keys/new(.:format)
+  // function(options)
+  new_admin_deploy_key_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"deploy_keys",false],[2,[7,"/",false],[2,[6,"new",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// new_admin_geo_node => /admin/geo/nodes/new(.:format)
+  // function(options)
+  new_admin_geo_node_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"geo",false],[2,[7,"/",false],[2,[6,"nodes",false],[2,[7,"/",false],[2,[6,"new",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// new_admin_group => /admin/groups/new(.:format)
+  // function(options)
+  new_admin_group_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"groups",false],[2,[7,"/",false],[2,[6,"new",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// new_admin_label => /admin/labels/new(.:format)
+  // function(options)
+  new_admin_label_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"labels",false],[2,[7,"/",false],[2,[6,"new",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// new_admin_license => /admin/license/new(.:format)
+  // function(options)
+  new_admin_license_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"license",false],[2,[7,"/",false],[2,[6,"new",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// new_admin_user => /admin/users/new(.:format)
+  // function(options)
+  new_admin_user_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[2,[7,"/",false],[2,[6,"new",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// new_admin_user_identity => /admin/users/:user_id/identities/new(.:format)
+  // function(user_id, options)
+  new_admin_user_identity_path: Utils.route([["user_id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[2,[7,"/",false],[2,[3,"user_id",false],[2,[7,"/",false],[2,[6,"identities",false],[2,[7,"/",false],[2,[6,"new",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]]]),
+// pause_admin_runner => /admin/runners/:id/pause(.:format)
+  // function(id, options)
+  pause_admin_runner_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"runners",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"pause",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// preferences_admin_application_settings => /admin/application_settings/preferences(.:format)
+  // function(options)
+  preferences_admin_application_settings_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"application_settings",false],[2,[7,"/",false],[2,[6,"preferences",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// preview_admin_broadcast_messages => /admin/broadcast_messages/preview(.:format)
+  // function(options)
+  preview_admin_broadcast_messages_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"broadcast_messages",false],[2,[7,"/",false],[2,[6,"preview",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// preview_sign_in_admin_appearances => /admin/appearance/preview_sign_in(.:format)
+  // function(options)
+  preview_sign_in_admin_appearances_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"appearance",false],[2,[7,"/",false],[2,[6,"preview_sign_in",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// projects_admin_user => /admin/users/:id/projects(.:format)
+  // function(id, options)
+  projects_admin_user_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"projects",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// recheck_admin_geo_project => /admin/geo/projects/:id/recheck(.:format)
+  // function(id, options)
+  recheck_admin_geo_project_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"geo",false],[2,[7,"/",false],[2,[6,"projects",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"recheck",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]]]),
+// recheck_all_admin_geo_projects => /admin/geo/projects/recheck_all(.:format)
+  // function(options)
+  recheck_all_admin_geo_projects_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"geo",false],[2,[7,"/",false],[2,[6,"projects",false],[2,[7,"/",false],[2,[6,"recheck_all",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// remove_email_admin_user => /admin/users/:id/remove/:email_id(.:format)
+  // function(id, email_id, options)
+  remove_email_admin_user_path: Utils.route([["id",true],["email_id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"remove",false],[2,[7,"/",false],[2,[3,"email_id",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]]]),
+// reporting_admin_application_settings => /admin/application_settings/reporting(.:format)
+  // function(options)
+  reporting_admin_application_settings_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"application_settings",false],[2,[7,"/",false],[2,[6,"reporting",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// repository_admin_application_settings => /admin/application_settings/repository(.:format)
+  // function(options)
+  repository_admin_application_settings_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"application_settings",false],[2,[7,"/",false],[2,[6,"repository",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// repository_check_admin_namespace_project => /admin/projects/*namespace_id/:id/repository_check(.:format)
+  // function(namespace_id, id, options)
+  repository_check_admin_namespace_project_path: Utils.route([["namespace_id",true],["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"projects",false],[2,[7,"/",false],[2,[5,[3,"namespace_id",false],false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"repository_check",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]]]),
+// reset_health_check_token_admin_application_settings => /admin/application_settings/reset_health_check_token(.:format)
+  // function(options)
+  reset_health_check_token_admin_application_settings_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"application_settings",false],[2,[7,"/",false],[2,[6,"reset_health_check_token",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// reset_registration_token_admin_application_settings => /admin/application_settings/reset_registration_token(.:format)
+  // function(options)
+  reset_registration_token_admin_application_settings_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"application_settings",false],[2,[7,"/",false],[2,[6,"reset_registration_token",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// reset_runners_minutes_admin_user => /admin/users/:id/reset_runners_minutes(.:format)
+  // function(id, options)
+  reset_runners_minutes_admin_user_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"reset_runners_minutes",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// resume_admin_runner => /admin/runners/:id/resume(.:format)
+  // function(id, options)
+  resume_admin_runner_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"runners",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"resume",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// resync_admin_geo_project => /admin/geo/projects/:id/resync(.:format)
+  // function(id, options)
+  resync_admin_geo_project_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"geo",false],[2,[7,"/",false],[2,[6,"projects",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"resync",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]]]),
+// resync_all_admin_geo_projects => /admin/geo/projects/resync_all(.:format)
+  // function(options)
+  resync_all_admin_geo_projects_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"geo",false],[2,[7,"/",false],[2,[6,"projects",false],[2,[7,"/",false],[2,[6,"resync_all",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// retry_admin_hook_hook_log => /admin/hooks/:hook_id/hook_logs/:id/retry(.:format)
+  // function(hook_id, id, options)
+  retry_admin_hook_hook_log_path: Utils.route([["hook_id",true],["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"hooks",false],[2,[7,"/",false],[2,[3,"hook_id",false],[2,[7,"/",false],[2,[6,"hook_logs",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"retry",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]]]]]),
+// revoke_admin_user_impersonation_token => /admin/users/:user_id/impersonation_tokens/:id/revoke(.:format)
+  // function(user_id, id, options)
+  revoke_admin_user_impersonation_token_path: Utils.route([["user_id",true],["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[2,[7,"/",false],[2,[3,"user_id",false],[2,[7,"/",false],[2,[6,"impersonation_tokens",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"revoke",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]]]]]),
+// tag_list_admin_runners => /admin/runners/tag_list(.:format)
+  // function(options)
+  tag_list_admin_runners_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"runners",false],[2,[7,"/",false],[2,[6,"tag_list",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// templates_admin_application_settings => /admin/application_settings/templates(.:format)
+  // function(options)
+  templates_admin_application_settings_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"application_settings",false],[2,[7,"/",false],[2,[6,"templates",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]),
+// test_admin_hook => /admin/hooks/:id/test(.:format)
+  // function(id, options)
+  test_admin_hook_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"hooks",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"test",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// transfer_admin_namespace_project => /admin/projects/*namespace_id/:id/transfer(.:format)
+  // function(namespace_id, id, options)
+  transfer_admin_namespace_project_path: Utils.route([["namespace_id",true],["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"projects",false],[2,[7,"/",false],[2,[5,[3,"namespace_id",false],false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"transfer",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]]]),
+// unblock_admin_user => /admin/users/:id/unblock(.:format)
+  // function(id, options)
+  unblock_admin_user_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"unblock",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// uninstall_applications_admin_cluster => /admin/clusters/:id/applications/:application(.:format)
+  // function(id, application, options)
+  uninstall_applications_admin_cluster_path: Utils.route([["id",true],["application",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"clusters",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"applications",false],[2,[7,"/",false],[2,[3,"application",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]]]),
+// unlock_admin_user => /admin/users/:id/unlock(.:format)
+  // function(id, options)
+  unlock_admin_user_path: Utils.route([["id",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"users",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"unlock",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]),
+// update_applications_admin_cluster => /admin/clusters/:id/applications/:application(.:format)
+  // function(id, application, options)
+  update_applications_admin_cluster_path: Utils.route([["id",true],["application",true],["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"clusters",false],[2,[7,"/",false],[2,[3,"id",false],[2,[7,"/",false],[2,[6,"applications",false],[2,[7,"/",false],[2,[3,"application",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]]]]]]),
+// usage_data_admin_application_settings => /admin/application_settings/usage_data(.:format)
+  // function(options)
+  usage_data_admin_application_settings_path: Utils.route([["format",false]], {}, [2,[7,"/",false],[2,[6,"admin",false],[2,[7,"/",false],[2,[6,"application_settings",false],[2,[7,"/",false],[2,[6,"usage_data",false],[1,[2,[8,".",false],[3,"format",false]],false]]]]]]])}
 ;
       routes.configure = function(config) {
         return Utils.configure(config);
