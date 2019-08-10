@@ -60,6 +60,7 @@ exports[`Environment matchs the snapshot 1`] = `
           shortsha="63492726"
           show-branch="true"
           showrefinfo="true"
+          showtitle="true"
           title="Improve code quality"
         />
       </div>

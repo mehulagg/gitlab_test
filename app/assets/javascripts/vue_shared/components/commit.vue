@@ -105,6 +105,15 @@ export default {
       required: false,
       default: true,
     },
+
+    /**
+     * Indicates whether or not to show the commit title
+     */
+    showTitle: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
   },
   computed: {
     /**
@@ -139,7 +148,7 @@ export default {
 </script>
 <template>
   <div class="branch-commit cgray">
-    <template v-if="shouldShowRefInfo">
+    <span v-if="shouldShowRefInfo" :class="{ clearfix: !showTitle }">
       <div class="icon-container">
         <icon v-if="tag" name="tag" />
         <icon v-else-if="mergeRequestRef" name="git-merge" />
@@ -162,13 +171,15 @@ export default {
         class="ref-name"
         >{{ commitRef.name }}</gl-link
       >
-    </template>
+    </span>
+
     <icon name="commit" class="commit-icon js-commit-icon" />
 
     <gl-link :href="commitUrl" class="commit-sha mr-0">{{ shortSha }}</gl-link>
 
-    <div class="commit-title">
-      <span v-if="title" class="flex-truncate-parent">
+    <span class="commit-title">
+      <span v-if="title || !showTitle" :class="{ 'flex-truncate-parent': showTitle }">
+        <span v-if="!showTitle" class="append-right-4">{{ __('by') }}</span>
         <user-avatar-link
           v-if="hasAuthor"
           :link-href="author.path"
@@ -177,11 +188,13 @@ export default {
           :tooltip-text="author.username"
           class="avatar-image-container text-decoration-none"
         />
-        <tooltip-on-truncate :title="title" class="flex-truncate-child">
-          <gl-link :href="commitUrl" class="commit-row-message cgray">{{ title }}</gl-link>
-        </tooltip-on-truncate>
+        <span v-if="showTitle" class="flex-truncate-child">
+          <tooltip-on-truncate :title="title">
+            <gl-link :href="commitUrl" class="commit-row-message cgray">{{ title }}</gl-link>
+          </tooltip-on-truncate>
+        </span>
       </span>
       <span v-else>{{ __("Can't find HEAD commit for this branch") }}</span>
-    </div>
+    </span>
   </div>
 </template>
