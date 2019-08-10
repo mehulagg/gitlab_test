@@ -266,6 +266,13 @@ export default {
       <div class="table-mobile-header" role="rowheader">{{ s__('Pipeline|Status') }}</div>
       <div class="table-mobile-content">
         <ci-badge
+          class="d-none d-md-inline d-xl-none"
+          :status="pipelineStatus"
+          :show-text="false"
+          data-qa-selector="pipeline_commit_status"
+        />
+        <ci-badge
+          class="d-md-none d-xl-inline"
           :status="pipelineStatus"
           :show-text="!isChildView"
           data-qa-selector="pipeline_commit_status"

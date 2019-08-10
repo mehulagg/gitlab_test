@@ -52,10 +52,17 @@ describe('Pipelines Table Row', () => {
       );
     });
 
-    it('should render status text', () => {
-      expect(wrapper.find('.table-section.commit-link a').text()).toContain(
-        pipeline.details.status.text,
-      );
+    it('should render status text on larger screens', () => {
+      expect(
+        component.$el.querySelector('.table-section.commit-link a.d-xl-inline').textContent,
+      ).toContain(pipeline.details.status.text);
+    });
+
+    it('should render status icon on smaller screens', () => {
+      const badge = component.$el.querySelector('.table-section.commit-link a.d-md-inline');
+
+      expect(badge.textContent.trim()).toEqual('');
+      expect(badge.getAttribute('data-original-title')).toContain(pipeline.details.status.text);
     });
   });
 
