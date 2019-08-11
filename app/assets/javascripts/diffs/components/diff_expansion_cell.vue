@@ -213,7 +213,7 @@ export default {
 
 <template>
   <td :colspan="colspan">
-    <div class="content">
+    <div class="content line_expansion_content">
       <a
         v-if="canExpandUp"
         v-tooltip
