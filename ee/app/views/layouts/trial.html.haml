@@ -1,8 +1,10 @@
 !!! 5
-%html{ lang: "en" }
+%html{ lang: "en", class: system_message_class }
+  -#= render "layouts/header/logo_with_title"
   = render "layouts/head"
   %body.ui-indigo.trial-page.application.navless
-    = render "layouts/header/logo_with_title"
+    = header_message
+    = render "layouts/header/empty"
     = render "layouts/broadcast"
     .container.navless-container
       .content

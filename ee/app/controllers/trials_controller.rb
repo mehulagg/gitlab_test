@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TrialsController < ApplicationController
+  layout 'trial'
+
   before_action :check_if_gl_com
   before_action :check_if_improved_trials_enabled
   before_action :authenticate_user!

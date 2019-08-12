@@ -1,0 +1,19 @@
+.trial-page {
+  .container {
+    max-width: 400px;
+  }
+
+  .skip-trial {
+    margin-bottom: $gl-padding-32;
+
+    a {
+      display: block;
+    }
+
+    .note {
+      font-size: $gl-font-size-small;
+      // TODO(vitaly): perhaps it would be better to add spacing to the link
+      margin-top: $gl-padding-8;
+    }
+  }
+}
