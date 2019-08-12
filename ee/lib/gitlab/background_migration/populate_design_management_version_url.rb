@@ -8,14 +8,25 @@ class Gitlab::BackgroundMigration::ExtractServicesUrl
   # EE code), so we have to duplicate the functionality we want.
   class Version < ActiveRecord::Base
     self.table_name = 'design_management_versions'
+
+    # We are relying on some model pieces, including project and issue.
+    # These are so foundational, that if the dataset changes underneath
+    # us we have very big issues to be concerned about.
+    def current_commit
+      issue = Issue.find(version.issue_id)
+
+      issue&.project&.design_repository&.commit(version.sha)
+    end
   end
 
   def perform(version_id)
-    version = Version.select(:sha).where('author_id IS NOT NULL').find_by(id: version_id)
+    version = Version.select(:sha, :issue_id)
+      .where('author_id IS NOT NULL')
+      .find_by(id: version_id)
 
     return unless version # removed or already processed
 
-    commit = commit_by_sha(version.sha)
+    commit = version.current_commit
     author_id = commit&.author&.id
 
     service.update(author_id: author_id) if author_id.present?
