@@ -3,10 +3,10 @@
 require 'rails_helper'
 
 describe 'Multiple Issue Boards', :js do
-  let(:user) { create(:user) }
-  let(:group) { create(:group, :public) }
-  let!(:planning) { create(:group_label, group: group, name: 'Planning') }
-  let!(:board) { create(:board, group: group) }
+  set(:user) { create(:user) }
+  set(:group) { create(:group, :public) }
+  set(:planning) { create(:group_label, group: group, name: 'Planning') }
+  set(:board) { create(:board, group: group) }
   let(:parent) { group }
   let(:boards_path) { group_boards_path(group) }
 
