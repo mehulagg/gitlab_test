@@ -35,7 +35,7 @@ module Gitlab
     end
 
     def issues
-      if project && project.jira_tracker?
+      if project && project.issues_tracker.support_cross_reference?
         if project.issues_enabled?
           @references[:all_issues] ||= references(:external_issue) + references(:issue)
         else

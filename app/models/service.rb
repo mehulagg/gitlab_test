@@ -276,6 +276,7 @@ class Service < ApplicationRecord
       hipchat
       irker
       jira
+      open_project
       mattermost_slash_commands
       mattermost
       packagist
