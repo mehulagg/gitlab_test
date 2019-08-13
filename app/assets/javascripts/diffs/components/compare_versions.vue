@@ -43,7 +43,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters('diffs', ['hasCollapsedFile', 'diffFilesLength']),
+    ...mapGetters('diffs', ['diffFilesLength']),
     ...mapState('diffs', [
       'commit',
       'showTreeList',
@@ -79,6 +79,7 @@ export default {
       'setInlineDiffViewType',
       'setParallelDiffViewType',
       'expandAllFiles',
+      'expandAllComments',
       'toggleShowTreeList',
     ]),
   },
@@ -139,9 +140,10 @@ export default {
         >
           {{ __('Show latest version') }}
         </gl-button>
-        <gl-button v-show="hasCollapsedFile" class="append-right-8" @click="expandAllFiles">
-          {{ __('Expand all') }}
-        </gl-button>
+        <gl-button class="append-right-8" @click="expandAllFiles">{{ __('Expand files') }}</gl-button>
+        <gl-button class="append-right-8" @click="collapseAllFiles">{{ __('Collapse files') }}</gl-button>
+        <!-- <gl-button class="append-right-8" @click="expandAllComments">{{ __('Expand comments') }}</gl-button> -->
+        <!-- <gl-button class="append-right-8" @click="collapseAllComments">{{ __('Collapse comments') }}</gl-button> -->
         <settings-dropdown />
       </div>
     </div>

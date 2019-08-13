@@ -237,6 +237,10 @@ export const expandAllFiles = ({ commit }) => {
   commit(types.EXPAND_ALL_FILES);
 };
 
+export const collapseAllFiles = ({ commit }) => {
+  commit(types.COLLAPSE_ALL_FILES);
+};
+
 /**
  * Toggles the file discussions after user clicked on the toggle discussions button.
  *

@@ -110,6 +110,16 @@ export default {
     }));
   },
 
+  [types.COLLAPSE_ALL_FILES](state) {
+    state.diffFiles = state.diffFiles.map(file => ({
+      ...file,
+      viewer: {
+        ...file.viewer,
+        collapsed: true,
+      },
+    }));
+  },
+
   [types.SET_LINE_DISCUSSIONS_FOR_FILE](state, { discussion, diffPositionByLineCode, hash }) {
     const { latestDiff } = state;
 
