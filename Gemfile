@@ -150,9 +150,6 @@ gem 'bootstrap_form', '~> 4.2.0'
 gem 'nokogiri', '~> 1.10.3'
 gem 'escape_utils', '~> 1.1'
 
-# Javascript Rails routes
-gem 'js-routes', '~> 1.3'
-
 # Calendar rendering
 gem 'icalendar'
 
@@ -364,6 +361,9 @@ group :development, :test do
 
   # Generate Fake data
   gem 'ffaker', '~> 2.10'
+
+  # Javascript Rails routes
+  gem 'js-routes', '~> 1.3'
 
   gem 'capybara', '~> 3.22.0'
   gem 'capybara-screenshot', '~> 1.0.22'
