@@ -218,8 +218,10 @@ describe OperationsController do
         expect(json_response['projects']).to eq([])
       end
 
-      it 'returns a list with one project when the developer has added that project to the dashboard' do
+      it 'returns one project and one environment when the developer has added that project to the dashboard' do
         project = create(:project, :with_avatar)
+        environment = create(:environment, project: project)
+        create(:deployment, project: project, environment: environment, user: user, status: :success)
         project.add_developer(user)
         user.update!(ops_dashboard_projects: [project])
 
@@ -232,6 +234,44 @@ describe OperationsController do
         expect(project_json['name']).to eq(project.name)
         expect(project_json['namespace']['id']).to eq(project.namespace.id)
         expect(project_json['namespace']['name']).to eq(project.namespace.name)
+        expect(project_json['environments'].first['size']).to eq(1)
+        expect(project_json['environments'].first['within_folder']).to eq(false)
+        expect(project_json['environments'].first['environment_path']).to eq(project_environment_path(project, environment))
+      end
+
+      it 'groups like environments together in a folder' do
+        project = create(:project, :with_avatar)
+        create(:environment, project: project, name: 'review/test-feature')
+        environment = create(:environment, project: project, name: 'review/another-feature')
+        create(:deployment, project: project, environment: environment, user: user, status: :success)
+        project.add_developer(user)
+        user.update!(ops_dashboard_projects: [project])
+
+        get :environments_list
+
+        project_json = json_response['projects'].first
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
+        expect(project_json['environments'].count).to eq(1)
+        expect(project_json['environments'].first['size']).to eq(2)
+        expect(project_json['environments'].first['within_folder']).to eq(true)
+      end
+
+      it 'returns true for within_folder when a folder contains only a single environment' do
+        project = create(:project, :with_avatar)
+        environment = create(:environment, project: project, name: 'review/test-feature')
+        create(:deployment, project: project, environment: environment, user: user, status: :success)
+        project.add_developer(user)
+        user.update!(ops_dashboard_projects: [project])
+
+        get :environments_list
+
+        project_json = json_response['projects'].first
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
+        expect(project_json['environments'].count).to eq(1)
+        expect(project_json['environments'].first['size']).to eq(1)
+        expect(project_json['environments'].first['within_folder']).to eq(true)
       end
     end
   end
