@@ -124,7 +124,7 @@ module EE
 
       rule { can?(:developer_access) }.policy do
         enable :admin_board
-        # we need to enable this again for :developer_access to be able to selectively prevent
+        # FIXME: we need to enable this again for :developer_access to be able to selectively prevent
         # :create_vulnerability_feedback for certain types of abilities for :guest_access
         enable :create_vulnerability_feedback
         enable :destroy_vulnerability_feedback
@@ -139,7 +139,7 @@ module EE
         enable :destroy_design
       end
 
-      rule { can?(:guest_access) }.enable :create_vulnerability_feedback
+      rule { can?(:guest_access_only) }.enable :create_vulnerability_feedback
 
       rule { can?(:public_access) }.enable :read_package
 

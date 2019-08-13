@@ -195,14 +195,6 @@ module EE
 
     def can_create_feedback?(project, feedback_type)
       feedback = Vulnerabilities::Feedback.new(project: project, feedback_type: feedback_type)
-      # warn "feedback_type: #{feedback_type}"
-      # warn "can?(current_user, :guest_access): #{can?(current_user, :guest_access)}"
-      # warn "can?(current_user, :reporter_access): #{can?(current_user, :reporter_access)}"
-      # warn "can?(current_user, :developer_access): #{can?(current_user, :developer_access)}"
-      # warn "can?(current_user, :maintainer_access): #{can?(current_user, :maintainer_access)}"
-      # warn "can?(current_user, :owner_access): #{can?(current_user, :owner_access)}"
-      # warn "can?(current_user, :guest_only_access): #{can?(current_user, :guest_only_access)}"
-      # warn "------------------------------------------------------"
       can?(current_user, :create_vulnerability_feedback, feedback)
     end
 
@@ -213,6 +205,7 @@ module EE
     end
 
     def create_vulnerability_feedback_merge_request_path(project)
+      byebug
       if can_create_feedback?(project, :merge_request)
         project_vulnerability_feedback_index_path(project)
       end

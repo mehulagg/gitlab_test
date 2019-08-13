@@ -42,6 +42,9 @@ class ProjectPolicy < BasePolicy
   desc "User has guest access"
   condition(:guest) { team_member? }
 
+  desc "User has **only** guest access"
+  condition(:guest_only) { team_access_level == Gitlab::Access::GUEST }
+
   desc "User has reporter access"
   condition(:reporter) { team_access_level >= Gitlab::Access::REPORTER }
 
@@ -139,6 +142,7 @@ class ProjectPolicy < BasePolicy
 
   rule { guest }.enable :guest_access
   # rule { guest & none?(reporter, developer, maintainer, owner, admin) }.enable :guest_only_access
+  rule { guest_only }.enable :guest_only_access
   rule { reporter }.enable :reporter_access
   rule { developer }.enable :developer_access
   rule { maintainer }.enable :maintainer_access

@@ -7,6 +7,7 @@ module Vulnerabilities
     condition(:issue) { @subject.for_issue? }
     condition(:merge_request) { @subject.for_merge_request? }
     condition(:dismissal) { @subject.for_dismissal? }
+    condition(:true_guest) { @subject.project.team.max_member_access(@user.id) == Gitlab::Access::GUEST }
 
     rule { issue & ~can?(:create_issue) }.prevent :create_vulnerability_feedback
 
@@ -19,6 +20,8 @@ module Vulnerabilities
 
     # guest users can only create "issue" type feedbacks but not dismissals (yet?)
     # rule { can?(:guest_only_access) }.prevent :create_vulnerability_feedback
-    rule { can?(:guest_access) & dismissal }.prevent :create_vulnerability_feedback
+    # rule { can?(:guest_only_access) & dismissal }.prevent :create_vulnerability_feedback
+    # rule { true_guest & dismissal }.prevent :create_vulnerability_feedback
+    # rule { default }.prevent :create_vulnerability_feedback
   end
 end
