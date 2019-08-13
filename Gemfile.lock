@@ -360,12 +360,8 @@ GEM
     gitaly (1.73.0)
       grpc (~> 1.0)
     github-markup (1.7.0)
-<<<<<<< HEAD
     gitlab-chronic (0.10.5)
       numerizer (~> 0.2)
-=======
-<<<<<<< HEAD
->>>>>>> Upgrade seed-fu gem version to 2.3.9
     gitlab-labkit (0.7.0)
       actionpack (>= 5.0.0, < 6.1.0)
       activesupport (>= 5.0.0, < 6.1.0)
@@ -373,16 +369,6 @@ GEM
       jaeger-client (~> 0.10)
       opentracing (~> 0.4)
       redis (> 3.0.0, < 5.0.0)
-=======
-    gitlab-default_value_for (3.1.1)
-      activerecord (>= 3.2.0, < 6.0)
-    gitlab-labkit (0.1.2)
-      actionpack (~> 5)
-      activesupport (~> 5)
-      grpc (~> 1.15)
-      jaeger-client (~> 0.10)
-      opentracing (~> 0.4)
->>>>>>> Upgrade seed-fu gem version to 2.3.9
     gitlab-license (1.0.0)
     gitlab-markup (1.7.0)
     gitlab-net-dns (0.9.1)
@@ -967,7 +953,7 @@ GEM
     scss_lint (0.56.0)
       rake (>= 0.9, < 13)
       sass (~> 3.5.3)
-    seed-fu (2.3.9)
+    seed-fu (2.3.7)
       activerecord (>= 3.1)
       activesupport (>= 3.1)
     selenium-webdriver (3.142.6)
@@ -1210,8 +1196,7 @@ DEPENDENCIES
   gitaly (~> 1.73.0)
   github-markup (~> 1.7.0)
   gitlab-chronic (~> 0.10.5)
-  gitlab-default_value_for (~> 3.1.1)
-  gitlab-labkit (~> 0.1.2)
+  gitlab-labkit (~> 0.5)
   gitlab-license (~> 1.0)
   gitlab-markup (~> 1.7.0)
   gitlab-net-dns (~> 0.9.1)
@@ -1339,13 +1324,8 @@ DEPENDENCIES
   sanitize (~> 4.6)
   sassc-rails (~> 2.1.0)
   scss_lint (~> 0.56.0)
-<<<<<<< HEAD
   seed-fu (~> 2.3.7)
   selenium-webdriver (~> 3.142)
-=======
-  seed-fu (~> 2.3.9)
-  selenium-webdriver (~> 3.141)
->>>>>>> Upgrade seed-fu gem version to 2.3.9
   sentry-raven (~> 2.9)
   settingslogic (~> 2.0.9)
   shoulda-matchers (~> 4.0.1)
