@@ -255,6 +255,7 @@ describe OperationsController do
         expect(project_json['environments'].count).to eq(1)
         expect(project_json['environments'].first['size']).to eq(2)
         expect(project_json['environments'].first['within_folder']).to eq(true)
+        expect(project_json['environments'].first['id']).to eq(environment.id)
       end
 
       it 'returns true for within_folder when a folder contains only a single environment' do
@@ -272,6 +273,25 @@ describe OperationsController do
         expect(project_json['environments'].count).to eq(1)
         expect(project_json['environments'].first['size']).to eq(1)
         expect(project_json['environments'].first['within_folder']).to eq(true)
+      end
+
+      it 'counts only available environments' do
+        project = create(:project, :with_avatar)
+        create(:environment, project: project, name: 'review/test-feature', state: :available)
+        environment = create(:environment, project: project, name: 'review/another-feature', state: :available)
+        create(:environment, project: project, name: 'review/great-feature', state: :stopped)
+        project.add_developer(user)
+        user.update!(ops_dashboard_projects: [project])
+
+        get :environments_list
+
+        project_json = json_response['projects'].first
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
+        expect(project_json['environments'].count).to eq(1)
+        expect(project_json['environments'].first['size']).to eq(2)
+        expect(project_json['environments'].first['within_folder']).to eq(true)
+        expect(project_json['environments'].first['id']).to eq(environment.id)
       end
     end
   end

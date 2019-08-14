@@ -66,6 +66,7 @@ class Environment < ApplicationRecord
         COUNT(id) AS size,
         MAX(id) AS last_id
       FROM environments
+      WHERE state = 'available'
       GROUP BY COALESCE(environment_type, name), project_id
     SQL
 
