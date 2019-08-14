@@ -293,6 +293,26 @@ describe OperationsController do
         expect(project_json['environments'].first['within_folder']).to eq(true)
         expect(project_json['environments'].first['id']).to eq(environment.id)
       end
+
+      it 'groups environments scoped to projects' do
+        project1 = create(:project)
+        project2 = create(:project)
+        create(:environment, project: project1, name: 'review/test')
+        create(:environment, project: project2, name: 'review/test')
+        environment = create(:environment, project: project2, name: 'review/something')
+        project2.add_developer(user)
+        user.update!(ops_dashboard_projects: [project2])
+
+        get :environments_list
+
+        project_json = json_response['projects'].first
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
+        expect(project_json['environments'].count).to eq(1)
+        expect(project_json['environments'].first['size']).to eq(2)
+        expect(project_json['environments'].first['within_folder']).to eq(true)
+        expect(project_json['environments'].first['id']).to eq(environment.id)
+      end
     end
   end
 

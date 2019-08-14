@@ -59,20 +59,6 @@ class Environment < ApplicationRecord
 
   scope :for_project, -> (project) { where(project_id: project) }
   scope :with_deployment, -> (sha) { where('EXISTS (?)', Deployment.select(1).where('deployments.environment_id = environments.id').where(sha: sha)) }
-  scope :within_folders, -> do
-    sql = <<-SQL
-      SELECT
-        COALESCE(environment_type, name) AS folder,
-        COUNT(id) AS size,
-        MAX(id) AS last_id
-      FROM environments
-      WHERE state = 'available'
-      GROUP BY COALESCE(environment_type, name), project_id
-    SQL
-
-    joins("JOIN (#{sql}) AS environment_folders ON environments.id = environment_folders.last_id")
-      .select("environments.*", "environment_folders.folder", "environment_folders.size")
-  end
 
   state_machine :state, initial: :available do
     event :start do
