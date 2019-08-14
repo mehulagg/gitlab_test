@@ -8,7 +8,7 @@
 
   #cycle-analytics.m-0.mw-100
     .mt-3.py-2.px-3.d-flex.bg-gray-light.border-top.border-bottom.flex-column.flex-md-row.justify-content-between
-      %groups-dropdown-filter.dropdown-select{ "@selected" => "setSelectedGroup" }
+      %groups-dropdown-filter.dropdown-select{ "@selected" => "setSelectedGroup", ":query-params" => "groupsQueryParams" }
       %projects-dropdown-filter.ml-md-1.mt-1.mt-md-0.dropdown-select{ "v-if" => "selectedGroup",
         ":group-id" => "selectedGroup.id",
         ":key" => "selectedGroup.id",

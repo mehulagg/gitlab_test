@@ -1,6 +1,9 @@
 export default {
   data() {
     return {
+      groupsQueryParams: {
+        min_access_level: 20,
+      },
       dateOptions: [7, 30, 90],
       selectedGroup: null,
       selectedProjectIds: [],
