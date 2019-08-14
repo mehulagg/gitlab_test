@@ -84,7 +84,7 @@ describe('User With ID', () => {
       wrapper.setProps({ value: ['0', '1', '2', '3'] });
       wrapper.setMethods({ removeUser: jest.fn() });
 
-      wrapper.find('span').trigger('click');
+      wrapper.find('[variant="icon"]').vm.$emit('click');
       expect(wrapper.vm.removeUser).toHaveBeenCalled();
     });
   });

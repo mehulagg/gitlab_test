@@ -33,13 +33,16 @@ export default {
       type: Array,
       required: true,
     },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
       userId: '',
     };
   },
-  computed: {},
   methods: {
     /**
      * @description Given a comma-separated list of IDs, append it to current
@@ -102,13 +105,24 @@ export default {
         <gl-form-input
           id="userId"
           v-model="userId"
+          :disabled="disabled"
           class="col-md-4 mr-2"
-          @keyup.enter.native="updateUserIds()"
+          @keyup.enter.native="updateUserIds"
         />
-        <gl-button variant="success" class="btn-inverted mr-1" @click="onClickAdd">
+        <gl-button
+          variant="success"
+          class="btn-inverted mr-1"
+          :disabled="disabled"
+          @click="onClickAdd"
+        >
           {{ $options.addButtonLabel }}
         </gl-button>
-        <gl-button variant="danger" class="btn btn-inverted" @click="clearAll">
+        <gl-button
+          variant="danger"
+          class="btn-inverted mr-1"
+          :disabled="disabled"
+          @click="clearAll"
+        >
           {{ $options.clearAllButtonLabel }}
         </gl-button>
       </div>
@@ -116,7 +130,15 @@ export default {
     <div class="d-flex flex-wrap">
       <gl-badge v-for="id in value" :key="id" :pill="true" class="m-1 d-flex align-items-center">
         <p class="ws-normal m-1 text-break text-left">{{ id }}</p>
-        <span @click="removeUser(id)"><icon name="close"/></span>
+
+        <gl-button
+          class="rounded-circle gl-pt-0 gl-pb-0 gl-pl-half gl-pr-half"
+          variant="icon"
+          :disabled="disabled"
+          @click="removeUser(id)"
+        >
+          <icon name="close" />
+        </gl-button>
       </gl-badge>
     </div>
   </fieldset>

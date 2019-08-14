@@ -295,7 +295,7 @@ export default {
                     <select
                       :id="rolloutStrategyId(index)"
                       v-model="scope.rolloutStrategy"
-                      :disabled="!scope.active"
+                      :disabled="!scope.active || !canUpdateScope(scope)"
                       class="form-control select-control w-100 js-rollout-strategy"
                     >
                       <option :value="$options.ROLLOUT_STRATEGY_ALL_USERS">{{
@@ -319,7 +319,7 @@ export default {
                       <input
                         :id="rolloutPercentageId(index)"
                         v-model="scope.rolloutPercentage"
-                        :disabled="!scope.active"
+                        :disabled="!scope.active || !canUpdateScope(scope)"
                         :class="{
                           'is-invalid': isRolloutPercentageInvalid(scope.rolloutPercentage),
                         }"
@@ -411,8 +411,7 @@ export default {
         </div>
       </div>
     </fieldset>
-    <user-with-id :value="userIds" @input="updateUserIds" />
-
+    <user-with-id :disabled="!canUpdateFlag" :value="userIds" @input="updateUserIds" />
     <div class="form-actions">
       <gl-button
         ref="submitButton"
