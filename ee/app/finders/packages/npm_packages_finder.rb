@@ -19,6 +19,5 @@ class Packages::NpmPackagesFinder
       .with_name(package_name)
       .last_of_each_version
       .preload_files
-      .with_tag()
   end
 end

@@ -3,20 +3,20 @@
 class NpmPackagePresenter
   include API::Helpers::RelatedResourcesHelpers
 
-  attr_reader :project, :name, :packages, :tagged_packages, :type
+  attr_reader :project, :name, :packages, :tagged_packages
 
   def initialize(project, name, packages, tagged_packages, type)
     @project = project
     @name = name
     @packages = packages
     @tagged_packages = tagged_packages
-    @type = type
   end
 
   def versions
     package_versions = {}
     packages.each do |package|
       package_file = package.package_files.last
+      package_versions[package.version] = build_package_version(package, package_file)
       package_metadatum = package.package_metadatum
       if !package_metadatum.nil? && !package_metadatum.metadata.empty?
         parsed_metadata = JSON.parse(package_metadatum.metadata).with_indifferent_access
@@ -29,7 +29,9 @@ class NpmPackagePresenter
   end
 
   def dist_tags
-    tagged_packages
+    {
+      latest: sorted_versions.last
+    }
   end
 
   private

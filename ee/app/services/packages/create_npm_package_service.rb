@@ -7,6 +7,8 @@ module Packages
 
       version_data = params[:versions][version]
       dist_tag = params[:'dist-tags'].keys.first
+      metadata = params[:versions].to_json
+
       existing_package = project.packages.npm.with_name(name).with_version(version)
 
       return error('Package already exists.', 403) if existing_package.exists?
@@ -19,6 +21,9 @@ module Packages
 
       package_file_name = "#{name}-#{version}.tgz"
       attachment = params['_attachments'][package_file_name]
+      package_metadata = {
+          metadata: metadata,
+      }
 
       file_params = {
         file:      CarrierWaveStringFile.new(Base64.decode64(attachment['data'])),
@@ -28,7 +33,8 @@ module Packages
       }
 
       ::Packages::CreatePackageFileService.new(package, file_params).execute
-      ::Packages::CreatePackageMetadataService.new(package, package_metadata).execute
+      ::Packages::CreatePackageMetadataService.new(package, package_metadata ).execute
+
       package
     end
 

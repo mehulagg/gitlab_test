@@ -744,16 +744,15 @@ module EE
           expose :trial_ends_on
         end
       end
-
       class PackageTag < Grape::Entity
-        #if we're returning package tags for new packages
-        expose :dist_tags, as: 'dist-tags', merge: true
+        expose :tag_and_version, merge: true
 
         private
 
-        def dist_tags
-          object
+        def tag_and_version
+          object.each {|version| version}
         end
+
       end
 
       class Package < Grape::Entity
@@ -761,6 +760,20 @@ module EE
         expose :name
         expose :version
         expose :package_type
+        expose :package_tags
+      end
+
+      class NpmPackage < Grape::Entity
+        expose :package_tag, using: PackageTag, merge: true
+        expose :versions, using: PackageTag, if: lambda {|instance, options| options[:type] == "versions"}
+
+        private
+
+        def package_tag
+          tags = PackageTag.represent(object.tagged_packages)
+          tags.as_json
+        end
+
       end
 
       class NpmPackage < Grape::Entity
@@ -787,6 +800,8 @@ module EE
         expose :file_name, :size
         expose :file_md5, :file_sha1
       end
+
+
 
       class ManagedLicense < Grape::Entity
         expose :id, :name, :approval_status

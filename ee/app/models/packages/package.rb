@@ -5,6 +5,8 @@ class Packages::Package < ApplicationRecord
   # package_files must be destroyed by ruby code in order to properly remove carrierwave uploads and update project statistics
   has_many :package_files, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_one :maven_metadatum, inverse_of: :package
+  has_one :package_metadatum, inverse_of: :package
+  has_many :package_tags
   has_one :package_metadatum, inverse_of: :package, dependent: :destroy
   has_many :package_tags, dependent: :destroy
 
