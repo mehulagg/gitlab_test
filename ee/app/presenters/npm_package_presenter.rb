@@ -3,32 +3,26 @@
 class NpmPackagePresenter
   include API::Helpers::RelatedResourcesHelpers
 
-  attr_reader :project, :name, :packages
+  attr_reader :project, :name, :packages, :tagged_packages
 
-  def initialize(project, name, packages)
+  def initialize(project, name, packages, tagged_packages)
     @project = project
     @name = name
     @packages = packages
+    @tagged_packages = tagged_packages
   end
 
   def versions
     package_versions = {}
-
     packages.each do |package|
       package_file = package.package_files.last
-
-      next unless package_file
-
       package_versions[package.version] = build_package_version(package, package_file)
     end
-
     package_versions
   end
 
   def dist_tags
-    {
-      latest: sorted_versions.last
-    }
+    tagged_packages
   end
 
   private
@@ -47,7 +41,7 @@ class NpmPackagePresenter
   def tarball_url(package, package_file)
     expose_url "#{api_v4_projects_path(id: package.project_id)}" \
       "/packages/npm/#{package.name}" \
-      "/-/#{package_file.file_name}"
+       "/-/#{package_file.file_name}"
   end
 
   def sorted_versions

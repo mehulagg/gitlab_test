@@ -7,6 +7,7 @@ class Packages::Package < ApplicationRecord
   has_many :package_files, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_one :maven_metadatum, inverse_of: :package
   has_one :package_metadatum, inverse_of: :package
+  has_many :package_tags
 
   accepts_nested_attributes_for :maven_metadatum, :package_metadatum
 
@@ -44,6 +45,10 @@ class Packages::Package < ApplicationRecord
       .where(packages_package_files: { file_name: file_name }).last!
   end
 
+  def self.by_name_and_version(name, version)
+    with_name(name).with_version(version)
+  end
+
   private
 
   def valid_npm_package_name
@@ -60,6 +65,10 @@ class Packages::Package < ApplicationRecord
     if project.package_already_taken?(name)
       errors.add(:base, 'Package already exists')
     end
+  end
+
+  def self.with_package_tags(tag)
+    with_name(name).joins(:package_tags).where(package_tags: { name: tag})
   end
 
 end

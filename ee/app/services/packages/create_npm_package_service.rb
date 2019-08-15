@@ -6,7 +6,7 @@ module Packages
       version = params[:versions].keys.first
       version_data = params[:versions][version]
       metadata = params[:versions].to_json
-      dist_tags = params[:'dist-tags'].keys.first
+      dist_tag = params[:'dist-tags'].keys.first
 
       existing_package = project.packages.npm.with_name(name).with_version(version)
 
@@ -21,7 +21,6 @@ module Packages
       package_file_name = "#{name}-#{version}.tgz"
       attachment = params['_attachments'][package_file_name]
       package_metadata = {
-          tag: dist_tags,
           metadata: metadata,
       }
 
@@ -32,9 +31,13 @@ module Packages
         file_name: package_file_name
       }
 
-      ::Packages::CreatePackageFileService.new(package, file_params).execute
-      ::Packages::CreatePackageMetadataService.new(package, package_metadata ).execute
+      ::Packages.transaction do
 
+        ::Packages::CreatePackageFileService.new(package, file_params).execute
+        ::Packages::CreatePackageMetadataService.new(package, package_metadata ).execute
+        ::Packages::CreatePackageTagService.new(package, dist_tag).execute
+
+      end
       package
     end
   end

@@ -20,26 +20,90 @@ module API
       def find_project_by_package_name(name)
         ::Packages::Package.npm.with_name(name).first&.project
       end
+
+      def find_package(project, package_name)
+        ::Packages::NpmPackagesFinder.new(project, package_name).execute
+      end
+
+      def find_package_by_name_and_version(package_name, version)
+        ::Packages::Package.by_name_and_version(package_name, version)
+      end
+
+      def tagged_packages(project, package_name)
+        ::Packages::PackageTag.build_tags_hash(project, package_name)
+      end
+
+      def find_tagged_package_by_name(package_name, tag)
+        ::Packages::PackageTag.find_by_package_name(package_name, tag).last!
+      end
+
+      def build_request(package_name, type)
+        project = find_project_by_package_name(package_name)
+        packages = find_package(project, package_name)
+
+        authorize!(:read_package, project)
+        forbidden! unless project.feature_available?(:packages)
+
+        present NpmPackagePresenter.new(project, package_name, packages, tagged_packages(project, package_name)),
+                with: EE::API::Entities::NpmPackage, type: type
+      end
+
+      def authorize_feature(project)
+        authorize!(:read_package, project)
+        forbidden! unless project.feature_available?(:packages)
+      end
+
+    end
+
+    desc 'Dist Tag Endpoints' do
+      detail 'Access packages by their respective tags'
+    end
+
+    params do
+      requires :package_name, type: String, desc: 'Package name'
+      optional :tag, type: String, desc: "Package dist-tag"
+    end
+
+    get 'packages/npm/-/package/*package_name/dist-tags', format: false, requirements: NPM_ENDPOINT_REQUIREMENTS do
+      build_request(params[:package_name], 'tags')
+    end
+
+    put 'packages/npm/-/package/*package_name/dist-tags/:tag', format: false, requirements: NPM_ENDPOINT_REQUIREMENTS do
+
+      package_name = params[:package_name]
+      tag = params[:tag]
+      version = env['api.request.body']
+
+      project = find_project_by_package_name(package_name)
+      package = find_package_by_name_and_version(package, version)
+
+      authorize_feature(project)
+
+      ::Packages::CreateNpmPackageTagService.new(package, tagged_packages(project, package_name), tag).execute
+    end
+
+    params do
+      requires :package_name, type: String, desc: 'Package name'
+      optional :tag, type: String, desc: "Package dist-tag"
+    end
+
+    delete 'packages/npm/-/package/*package_name/dist-tags/:tag', format: false, requirements: NPM_ENDPOINT_REQUIREMENTS do
+      package_name = params[:package_name]
+      tag = params[:tag]
+
+      project = find_project_by_package_name(package_name)
+      package_tag = find_tagged_package_by_name(package_name, tag)
+
+      authorize_feature(project)
+      ::Packages::RemoveNpmPackageTagService.new(project, package_tag).execute
+    end
+
+    get 'packages/npm/*package_name', format: false, requirements: NPM_ENDPOINT_REQUIREMENTS do
+      build_request(params[:package_name], 'versions')
     end
 
     desc 'NPM registry endpoint at instance level' do
       detail 'This feature was introduced in GitLab 11.8'
-    end
-    params do
-      requires :package_name, type: String, desc: 'Package name'
-    end
-    get 'packages/npm/*package_name', format: false, requirements: NPM_ENDPOINT_REQUIREMENTS do
-      package_name = params[:package_name]
-      project = find_project_by_package_name(package_name)
-
-      authorize!(:read_package, project)
-      forbidden! unless project.feature_available?(:packages)
-
-      packages = ::Packages::NpmPackagesFinder
-        .new(project, package_name).execute
-
-      present NpmPackagePresenter.new(project, package_name, packages),
-        with: EE::API::Entities::NpmPackage
     end
 
     params do

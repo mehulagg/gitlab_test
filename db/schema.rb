@@ -2440,6 +2440,19 @@ ActiveRecord::Schema.define(version: 2019_08_28_083843) do
     t.index ["package_id", "file_name"], name: "index_packages_package_files_on_package_id_and_file_name"
   end
 
+  create_table "packages_package_metadata", force: :cascade do |t|
+    t.bigint "package_id"
+    t.binary "metadata"
+    t.index ["package_id"], name: "index_package_metadata_on_package_id"
+  end
+
+  create_table "packages_package_tags", force: :cascade do |t|
+    t.bigint "package_id"
+    t.bigint "project_id"
+    t.string "name"
+    t.index ["package_id", "project_id"], name: "index_package_tags_package_id_and_project_id"
+  end
+
   create_table "packages_packages", force: :cascade do |t|
     t.integer "project_id", null: false
     t.datetime_with_timezone "created_at", null: false
