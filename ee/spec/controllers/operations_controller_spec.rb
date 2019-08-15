@@ -218,100 +218,95 @@ describe OperationsController do
         expect(json_response['projects']).to eq([])
       end
 
-      it 'returns one project and one environment when the developer has added that project to the dashboard' do
-        project = create(:project, :with_avatar)
-        environment = create(:environment, project: project)
-        create(:deployment, project: project, environment: environment, user: user, status: :success)
-        project.add_developer(user)
-        user.update!(ops_dashboard_projects: [project])
+      context 'with a project in the dashboard' do
+        let(:project) { create(:project, :with_avatar) }
 
-        get :environments_list
+        before do
+          project.add_developer(user)
+          user.update!(ops_dashboard_projects: [project])
+        end
 
-        project_json = json_response['projects'].first
-        expect(response).to have_gitlab_http_status(:ok)
-        expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
-        expect(project_json['id']).to eq(project.id)
-        expect(project_json['name']).to eq(project.name)
-        expect(project_json['namespace']['id']).to eq(project.namespace.id)
-        expect(project_json['namespace']['name']).to eq(project.namespace.name)
-        expect(project_json['environments'].first['size']).to eq(1)
-        expect(project_json['environments'].first['within_folder']).to eq(false)
-        expect(project_json['environments'].first['environment_path']).to eq(project_environment_path(project, environment))
-      end
+        it 'returns one project and one environment when the developer has added that project to the dashboard' do
+          environment = create(:environment, project: project)
+          create(:deployment, project: project, environment: environment, user: user, status: :success)
 
-      it 'groups like environments together in a folder' do
-        project = create(:project, :with_avatar)
-        create(:environment, project: project, name: 'review/test-feature')
-        environment = create(:environment, project: project, name: 'review/another-feature')
-        create(:deployment, project: project, environment: environment, user: user, status: :success)
-        project.add_developer(user)
-        user.update!(ops_dashboard_projects: [project])
+          get :environments_list
 
-        get :environments_list
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
+          project_json = json_response['projects'].first
+          expect(project_json['id']).to eq(project.id)
+          expect(project_json['name']).to eq(project.name)
+          expect(project_json['namespace']['id']).to eq(project.namespace.id)
+          expect(project_json['namespace']['name']).to eq(project.namespace.name)
+          expect(project_json['environments'].first['size']).to eq(1)
+          expect(project_json['environments'].first['within_folder']).to eq(false)
+          expect(project_json['environments'].first['environment_path']).to eq(project_environment_path(project, environment))
+        end
 
-        project_json = json_response['projects'].first
-        expect(response).to have_gitlab_http_status(:ok)
-        expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
-        expect(project_json['environments'].count).to eq(1)
-        expect(project_json['environments'].first['size']).to eq(2)
-        expect(project_json['environments'].first['within_folder']).to eq(true)
-        expect(project_json['environments'].first['id']).to eq(environment.id)
-      end
+        it 'groups like environments together in a folder' do
+          create(:environment, project: project, name: 'review/test-feature')
+          environment = create(:environment, project: project, name: 'review/another-feature')
+          create(:deployment, project: project, environment: environment, user: user, status: :success)
 
-      it 'returns true for within_folder when a folder contains only a single environment' do
-        project = create(:project, :with_avatar)
-        environment = create(:environment, project: project, name: 'review/test-feature')
-        create(:deployment, project: project, environment: environment, user: user, status: :success)
-        project.add_developer(user)
-        user.update!(ops_dashboard_projects: [project])
+          get :environments_list
 
-        get :environments_list
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
+          project_json = json_response['projects'].first
+          expect(project_json['environments'].count).to eq(1)
+          expect(project_json['environments'].first['size']).to eq(2)
+          expect(project_json['environments'].first['within_folder']).to eq(true)
+          expect(project_json['environments'].first['id']).to eq(environment.id)
+        end
 
-        project_json = json_response['projects'].first
-        expect(response).to have_gitlab_http_status(:ok)
-        expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
-        expect(project_json['environments'].count).to eq(1)
-        expect(project_json['environments'].first['size']).to eq(1)
-        expect(project_json['environments'].first['within_folder']).to eq(true)
-      end
+        it 'returns true for within_folder when a folder contains only a single environment' do
+          environment = create(:environment, project: project, name: 'review/test-feature')
+          create(:deployment, project: project, environment: environment, user: user, status: :success)
 
-      it 'counts only available environments' do
-        project = create(:project, :with_avatar)
-        create(:environment, project: project, name: 'review/test-feature', state: :available)
-        environment = create(:environment, project: project, name: 'review/another-feature', state: :available)
-        create(:environment, project: project, name: 'review/great-feature', state: :stopped)
-        project.add_developer(user)
-        user.update!(ops_dashboard_projects: [project])
+          get :environments_list
 
-        get :environments_list
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
+          project_json = json_response['projects'].first
+          expect(project_json['environments'].count).to eq(1)
+          expect(project_json['environments'].first['size']).to eq(1)
+          expect(project_json['environments'].first['within_folder']).to eq(true)
+        end
 
-        project_json = json_response['projects'].first
-        expect(response).to have_gitlab_http_status(:ok)
-        expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
-        expect(project_json['environments'].count).to eq(1)
-        expect(project_json['environments'].first['size']).to eq(2)
-        expect(project_json['environments'].first['within_folder']).to eq(true)
-        expect(project_json['environments'].first['id']).to eq(environment.id)
-      end
+        it 'counts only available environments' do
+          create(:environment, project: project, name: 'review/test-feature', state: :available)
+          environment = create(:environment, project: project, name: 'review/another-feature', state: :available)
+          create(:environment, project: project, name: 'review/great-feature', state: :stopped)
 
-      it 'groups environments scoped to projects' do
-        project1 = create(:project)
-        project2 = create(:project)
-        create(:environment, project: project1, name: 'review/test')
-        create(:environment, project: project2, name: 'review/test')
-        environment = create(:environment, project: project2, name: 'review/something')
-        project2.add_developer(user)
-        user.update!(ops_dashboard_projects: [project2])
+          get :environments_list
 
-        get :environments_list
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
+          project_json = json_response['projects'].first
+          expect(project_json['environments'].count).to eq(1)
+          expect(project_json['environments'].first['size']).to eq(2)
+          expect(project_json['environments'].first['within_folder']).to eq(true)
+          expect(project_json['environments'].first['id']).to eq(environment.id)
+        end
 
-        project_json = json_response['projects'].first
-        expect(response).to have_gitlab_http_status(:ok)
-        expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
-        expect(project_json['environments'].count).to eq(1)
-        expect(project_json['environments'].first['size']).to eq(2)
-        expect(project_json['environments'].first['within_folder']).to eq(true)
-        expect(project_json['environments'].first['id']).to eq(environment.id)
+        it 'groups environments scoped to projects' do
+          project2 = create(:project)
+          create(:environment, project: project, name: 'review/test')
+          create(:environment, project: project2, name: 'review/test')
+          environment = create(:environment, project: project, name: 'review/something')
+          user.update!(ops_dashboard_projects: [project])
+
+          get :environments_list
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
+          project_json = json_response['projects'].first
+          expect(project_json['environments'].count).to eq(1)
+          expect(project_json['environments'].first['size']).to eq(2)
+          expect(project_json['environments'].first['within_folder']).to eq(true)
+          expect(project_json['environments'].first['id']).to eq(environment.id)
+        end
       end
     end
   end
