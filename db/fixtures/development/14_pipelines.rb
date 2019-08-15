@@ -188,19 +188,28 @@ class Gitlab::Seeder::Pipelines
   end
 
   def artifacts_archive_path
-    Rails.root + 'spec/fixtures/ci_build_artifacts.zip'
+    Rails.root + 'db/fixtures/artifacts/ci_build_artifacts.zip'
   end
 
   def artifacts_metadata_path
-    Rails.root + 'spec/fixtures/ci_build_artifacts_metadata.gz'
+    Rails.root + 'db/fixtures/artifacts/ci_build_artifacts_metadata.gz'
   end
 
   def test_reports_pass_path
-    Rails.root + 'spec/fixtures/junit/junit_ant.xml.gz'
+    Rails.root + 'db/fixtures/artifacts/junit/junit_ant.xml.gz'
   end
 
   def test_reports_failed_path
-    Rails.root + 'spec/fixtures/junit/junit.xml.gz'
+    Rails.root + 'db/fixtures/artifacts/junit/junit.xml.gz'
+  end
+
+  def security_reports_archive_path(branch)
+    Rails.root.join('db', 'fixtures', 'artifacts', 'security-reports', branch + '.zip')
+  end
+
+  def security_reports_path(branch, name)
+    file_name = Ci::JobArtifact::DEFAULT_FILE_NAMES.fetch(name.to_sym)
+    Rails.root.join('db', 'fixtures', 'artifacts', 'security-reports', branch, file_name)
   end
 
   def artifacts_cache_file(file_path)
