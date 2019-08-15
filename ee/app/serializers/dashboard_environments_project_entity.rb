@@ -14,6 +14,6 @@ class DashboardEnvironmentsProjectEntity < Grape::Entity
 
   expose :namespace, using: API::Entities::NamespaceBasic
   expose :environments, using: DashboardEnvironmentsEnvironmentEntity do |project|
-    Dashboard::Environments::FolderService.execute(project.environments.available)
+    Environment.within_folders(project.environments.available)
   end
 end
