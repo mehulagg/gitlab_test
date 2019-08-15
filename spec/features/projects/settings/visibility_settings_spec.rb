@@ -62,7 +62,7 @@ describe 'Projects > Settings > Visibility settings', :js do
 
     context 'disable email notifications' do
       it 'is visible' do
-        expect(page).to have_selector('.emails-disabled', visible: true)
+        expect(page).to have_selector('.js-emails-disabled', visible: true)
       end
     end
   end
@@ -85,7 +85,7 @@ describe 'Projects > Settings > Visibility settings', :js do
 
     context 'disable email notifications' do
       it 'is not available' do
-        expect(page).not_to have_selector('.emails-disabled', visible: true)
+        expect(page).not_to have_selector('.js-emails-disabled', visible: true)
       end
     end
   end

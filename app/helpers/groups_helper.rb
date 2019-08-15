@@ -31,6 +31,10 @@ module GroupsHelper
     can?(current_user, :change_share_with_group_lock, group)
   end
 
+  def can_disable_group_emails?(group)
+    current_user.can?(:set_emails_disabled, group) && Feature.enabled?(:emails_disabled, group, default_enabled: true)
+  end
+
   def group_issues_count(state:)
     IssuesFinder
       .new(current_user, group_id: @group.id, state: state, non_archived: true, include_subgroups: true)
