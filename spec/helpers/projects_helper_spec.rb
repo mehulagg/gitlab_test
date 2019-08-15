@@ -107,20 +107,27 @@ describe ProjectsHelper do
     end
   end
 
-  describe '#can_change_emails_disabled?' do
+  describe '#can_disable_emails??' do
     let(:project) { create(:project) }
     let(:user) { create(:project_member, :maintainer, user: create(:user), project: project).user }
 
     it 'returns true for the project owner' do
       allow(helper).to receive(:can?).with(project.owner, :set_emails_disabled, project) { true }
 
-      expect(helper.can_change_emails_disabled?(project, project.owner)).to be_truthy
+      expect(helper.can_disable_emails?(project, project.owner)).to be_truthy
     end
 
     it 'returns false for anyone else' do
       allow(helper).to receive(:can?).with(user, :set_emails_disabled, project) { false }
 
-      expect(helper.can_change_emails_disabled?(project, user)).to be_falsey
+      expect(helper.can_disable_emails?(project, user)).to be_falsey
+    end
+
+    it 'returns false if group emails disabled' do
+      project = create(:project, group: create(:group))
+      allow(project.group).to receive(:emails_disabled?).and_return(true)
+
+      expect(helper.can_disable_emails?(project, project.owner)).to be_falsey
     end
   end
 

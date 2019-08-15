@@ -158,6 +158,8 @@ module ProjectsHelper
   end
 
   def can_disable_emails?(project, current_user)
+    return false if project.group&.emails_disabled?
+
     can?(current_user, :set_emails_disabled, project) && Feature.enabled?(:emails_disabled, project, default_enabled: true)
   end
 
