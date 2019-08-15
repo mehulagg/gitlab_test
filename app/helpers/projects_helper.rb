@@ -157,7 +157,7 @@ module ProjectsHelper
     end
   end
 
-  def can_change_emails_disabled?(project, current_user)
+  def can_disable_emails?(project, current_user)
     can?(current_user, :set_emails_disabled, project) && Feature.enabled?(:emails_disabled, project, default_enabled: true)
   end
 
@@ -556,7 +556,7 @@ module ProjectsHelper
   def project_permissions_panel_data(project)
     {
       currentSettings: project_permissions_settings(project),
-      canChangeEmailsDisabled: can_change_emails_disabled?(project, current_user),
+      canDisableEmails: can_disable_emails?(project, current_user),
       canChangeVisibilityLevel: can_change_visibility_level?(project, current_user),
       allowedVisibilityOptions: project_allowed_visibility_levels(project),
       visibilityHelpPath: help_page_path('public_access/public_access'),

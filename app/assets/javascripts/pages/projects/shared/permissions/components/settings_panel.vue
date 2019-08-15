@@ -28,7 +28,7 @@ export default {
       type: Object,
       required: true,
     },
-    canChangeEmailsDisabled: {
+    canDisableEmails: {
       type: Boolean,
       required: false,
       default: false,
@@ -348,7 +348,7 @@ export default {
         />
       </project-setting-row>
     </div>
-    <project-setting-row v-if="canChangeEmailsDisabled" class="mb-3">
+    <project-setting-row v-if="canDisableEmails" class="mb-3">
       <label class="emails-disabled">
         <input :value="emailsDisabled" type="hidden" name="project[emails_disabled]" />
         <input v-model="emailsDisabled" type="checkbox" /> Disable email notifications
