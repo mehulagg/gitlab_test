@@ -351,7 +351,7 @@ export default {
     <project-setting-row v-if="canDisableEmails" class="mb-3">
       <label class="emails-disabled">
         <input :value="emailsDisabled" type="hidden" name="project[emails_disabled]" />
-        <input v-model="emailsDisabled" type="checkbox" /> Disable email notifications
+        <input v-model="emailsDisabled" type="checkbox" /> {{ __('Disable email notifications') }}
       </label>
       <span class="form-text text-muted"
         >This setting will override user notification preferences for all project members.</span
