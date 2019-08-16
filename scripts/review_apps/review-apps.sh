@@ -359,10 +359,12 @@ function add_secure_seeds() {
   if [ -z "${task_runner_pod}" ]; then echo "Task runner pod not found" && return; fi
 
   kubectl -n "$KUBE_NAMESPACE" exec -i ${task_runner_pod} -- /srv/gitlab/bin/rails runner -e production 'puts "With #{Project.count} projects"'
-  kubectl -n "$KUBE_NAMESPACE" exec -i ${task_runner_pod} -- ls /srv/gitlab/db
 
   kubectl -n "$KUBE_NAMESPACE" exec ${task_runner_pod} -i -t -- bash -c \
-+   'gitlab-rake db:seed_fu FILTER=vulnerabilities,pipelines FIXTURE_PATH=db/fixtures/development'
++   'gitlab-rake db:seed_fu FILTER=pipelines FIXTURE_PATH=db/fixtures/development'
+
+  kubectl -n "$KUBE_NAMESPACE" exec ${task_runner_pod} -i -t -- bash -c \
++   'gitlab-rake db:seed_fu FILTER=vulnerabilities FIXTURE_PATH=ee/db/fixtures/development'
 
   kubectl -n "$KUBE_NAMESPACE" exec -i ${task_runner_pod} -- /srv/gitlab/bin/rails runner -e production 'puts "Added #{Vulnerabilities::Occurrence.count} vulnerabilities"'
 }
