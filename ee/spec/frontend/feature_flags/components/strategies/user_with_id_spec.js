@@ -1,5 +1,5 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import { GlFormInput } from '@gitlab/ui';
+import { GlFormInput, GlToken } from '@gitlab/ui';
 import component from 'ee/feature_flags/components/strategies/user_with_id.vue';
 
 const localVue = createLocalVue();
@@ -84,7 +84,7 @@ describe('User With ID', () => {
       wrapper.setProps({ value: ['0', '1', '2', '3'] });
       wrapper.setMethods({ removeUser: jest.fn() });
 
-      wrapper.find('[variant="icon"]').vm.$emit('click');
+      wrapper.find(GlToken).vm.$emit('close');
       expect(wrapper.vm.removeUser).toHaveBeenCalled();
     });
   });

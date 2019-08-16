@@ -1,6 +1,6 @@
 <script>
 import _ from 'underscore';
-import { GlFormGroup, GlFormInput, GlBadge, GlButton } from '@gitlab/ui';
+import { GlFormGroup, GlFormInput, GlToken, GlButton } from '@gitlab/ui';
 import Icon from '~/vue_shared/components/icon.vue';
 import { sprintf, s__ } from '~/locale';
 
@@ -24,7 +24,7 @@ export default {
   components: {
     GlFormGroup,
     GlFormInput,
-    GlBadge,
+    GlToken,
     GlButton,
     Icon,
   },
@@ -128,18 +128,15 @@ export default {
       </div>
     </gl-form-group>
     <div class="d-flex flex-wrap">
-      <gl-badge v-for="id in value" :key="id" :pill="true" class="m-1 d-flex align-items-center">
-        <p class="ws-normal m-1 text-break text-left">{{ id }}</p>
-
-        <gl-button
-          class="rounded-circle gl-pt-0 gl-pb-0 gl-pl-half gl-pr-half"
-          variant="icon"
-          :disabled="disabled"
-          @click="removeUser(id)"
-        >
-          <icon name="close" />
-        </gl-button>
-      </gl-badge>
+      <gl-token
+        v-for="id in value"
+        :key="id"
+        :view-only="disabled"
+        class="m-1 d-flex align-items-center"
+        @close="removeUser(id)"
+      >
+        {{ id }}
+      </gl-token>
     </div>
   </fieldset>
 </template>
