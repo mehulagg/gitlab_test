@@ -1,0 +1,26 @@
+- page_title _('Start a Free Trial')
+%h3.page-title.center
+  = _('Start a Free Trial')
+
+%p.center
+  = _('We need some additional information to activate your free trial')
+
+= form_tag company_info_trials_path, method: :post do |f|
+  .form-group
+    = label_tag :company_name, _('Company name'), class: 'col-form-label'
+    = text_field_tag :company_name, nil, class: 'form-control', required: true
+  .form-group
+    = label_tag :employees_count, _('Number of employees?'), class: 'col-form-label'
+    = select_tag :employees_count, employees_count_options_for_select, include_blank: true, class: 'select2', required: true
+  .form-group
+    = label_tag :phone_number, _('Telephone number'), class: 'col-form-label'
+    = text_field_tag :phone_number, nil, class: 'form-control', required: true
+  .form-group
+    = label_tag :trial_users_count, _('How many users will be evaluating the trial?'), class: 'col-form-label'
+    = select_tag :trial_users_count, trial_users_count_options_for_select, include_blank: true, class: 'select2', required: true
+  .form-group
+    = label_tag :country, _('Country'), class: 'col-form-label'
+    = text_field_tag :country, nil, class: 'form-control', required: true
+  = submit_tag _('Continue'), class: "btn btn-success btn-block"
+
+= render 'skip_trial'

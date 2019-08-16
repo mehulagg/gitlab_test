@@ -1,0 +1,17 @@
+- page_title _('Start a Free Trial')
+%h3.page-title.center
+  = _('Almost there')
+
+%p.center
+  = _('You can apply your Trial to your Personal account or create a New Group.')
+
+= form_tag select_namespace_trials_path, method: :post do |f|
+  .form-group
+    = label_tag :namespace_id, _('This subscription is for'), class: 'col-form-label'
+    = select_tag :namespace_id, namespace_options_for_select, class: 'select2', required: true
+  #new_group.form-group.hidden
+    = label_tag :new_group_name, _('New Group Name'), class: 'col-form-label'
+    = text_field_tag :new_group_name, nil, class: 'form-control', required: true
+  = submit_tag _('Start your free trial'), class: 'btn btn-success btn-block'
+
+= render 'skip_trial'
