@@ -109,8 +109,7 @@ export default {
       lfsEnabled: true,
       requestAccessEnabled: true,
       highlightChangesClass: false,
-      emailsDisabled: false,
-      groupEmailsDisabled: false,
+      emailsDisabled: false
     };
 
     return { ...defaults, ...this.currentSettings };

@@ -158,6 +158,8 @@ module ProjectsHelper
   end
 
   def can_disable_emails?(project, current_user)
+    return false if project.group&.emails_disabled?
+
     can?(current_user, :set_emails_disabled, project) && Feature.enabled?(:emails_disabled, project, default_enabled: true)
   end
 
@@ -548,8 +550,7 @@ module ProjectsHelper
       pagesAccessLevel: feature.pages_access_level,
       containerRegistryEnabled: !!project.container_registry_enabled,
       lfsEnabled: !!project.lfs_enabled,
-      emailsDisabled: project.emails_disabled?,
-      groupEmailsDisabled: project.namespace.emails_disabled?
+      emailsDisabled: project.emails_disabled?
     }
   end
 

@@ -122,6 +122,13 @@ describe ProjectsHelper do
 
       expect(helper.can_disable_emails?(project, user)).to be_falsey
     end
+
+    it 'returns false if group emails disabled' do
+      project = create(:project, group: create(:group))
+      allow(project.group).to receive(:emails_disabled?).and_return(true)
+
+      expect(helper.can_disable_emails?(project, project.owner)).to be_falsey
+    end
   end
 
   describe "readme_cache_key" do
