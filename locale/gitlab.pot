@@ -1312,6 +1312,9 @@ msgstr ""
 msgid "Allows you to add and manage Kubernetes clusters."
 msgstr ""
 
+msgid "Almost there"
+msgstr ""
+
 msgid "Also called \"Issuer\" or \"Relying party trust identifier\""
 msgstr ""
 
@@ -3873,6 +3876,9 @@ msgstr ""
 msgid "Company"
 msgstr ""
 
+msgid "Company name"
+msgstr ""
+
 msgid "Compare"
 msgstr ""
 
@@ -4251,6 +4257,12 @@ msgid "Could not save project ID"
 msgstr ""
 
 msgid "Could not save prometheus manual configuration"
+msgstr ""
+
+msgid "Could not save prometheus manual configuration for self-monitoring project. Errors: %{errors}"
+msgstr ""
+
+msgid "Country"
 msgstr ""
 
 msgid "Coverage"
@@ -6684,6 +6696,9 @@ msgstr ""
 msgid "First day of the week"
 msgstr ""
 
+msgid "First name"
+msgstr ""
+
 msgid "Fixed date"
 msgstr ""
 
@@ -7967,6 +7982,9 @@ msgstr ""
 msgid "How many shards to split the Elasticsearch index over."
 msgstr ""
 
+msgid "How many users will be evaluating the trial?"
+msgstr ""
+
 msgid "However, you are already a member of this %{member_source}. Sign in using a different account to accept the invitation."
 msgstr ""
 
@@ -7980,6 +7998,9 @@ msgid "I forgot my password"
 msgstr ""
 
 msgid "I have read and agree to the Let's Encrypt %{link_start}Terms of Service%{link_end}"
+msgstr ""
+
+msgid "I'd like to receive updated via email about GitLab"
 msgstr ""
 
 msgid "ID"
@@ -8860,6 +8881,9 @@ msgid "Last edited %{date}"
 msgstr ""
 
 msgid "Last edited by %{name}"
+msgstr ""
+
+msgid "Last name"
 msgstr ""
 
 msgid "Last reply by"
@@ -9999,6 +10023,9 @@ msgstr ""
 msgid "New Group"
 msgstr ""
 
+msgid "New Group Name"
+msgstr ""
+
 msgid "New Identity"
 msgstr ""
 
@@ -10479,6 +10506,9 @@ msgid "Number of LOCs per commit"
 msgstr ""
 
 msgid "Number of commits per MR"
+msgstr ""
+
+msgid "Number of employees?"
 msgstr ""
 
 msgid "Number of files touched"
@@ -14171,6 +14201,9 @@ msgstr ""
 msgid "Size limit per repository (MB)"
 msgstr ""
 
+msgid "Skip Trial (Continue with Free Account)"
+msgstr ""
+
 msgid "Skip this for now"
 msgstr ""
 
@@ -14579,6 +14612,9 @@ msgstr ""
 msgid "Start a %{new_merge_request} with these changes"
 msgstr ""
 
+msgid "Start a Free Trial"
+msgstr ""
+
 msgid "Start a new discussion..."
 msgstr ""
 
@@ -14622,6 +14658,9 @@ msgid "Start thread & close %{noteable_name}"
 msgstr ""
 
 msgid "Start thread & reopen %{noteable_name}"
+msgstr ""
+
+msgid "Start your free trial"
 msgstr ""
 
 msgid "Start your trial"
@@ -15084,6 +15123,9 @@ msgid "Team"
 msgstr ""
 
 msgid "Team domain"
+msgstr ""
+
+msgid "Telephone number"
 msgstr ""
 
 msgid "Template"
@@ -15809,6 +15851,9 @@ msgid "This setting will override user notification preferences for all project 
 msgstr ""
 
 msgid "This setting will update the hostname that is used to generate private commit emails. %{learn_more}"
+msgstr ""
+
+msgid "This subscription is for"
 msgstr ""
 
 msgid "This timeout will take precedence when lower than project-defined timeout and accepts a human readable time input language like \"1 hour\". Values without specification represent seconds."
@@ -17393,6 +17438,9 @@ msgstr ""
 msgid "We heard back from your U2F device. You have been authenticated."
 msgstr ""
 
+msgid "We need some additional information to activate your free trial"
+msgstr ""
+
 msgid "We sent you an email with reset password instructions"
 msgstr ""
 
@@ -17714,6 +17762,9 @@ msgid "You can also test your %{gitlab_ci_yml} in %{lint_link_start}CI Lint%{lin
 msgstr ""
 
 msgid "You can also upload existing files from your computer using the instructions below."
+msgstr ""
+
+msgid "You can apply your Trial to your Personal account or create a New Group."
 msgstr ""
 
 msgid "You can create files directly in GitLab using one of the following options."

@@ -1,6 +1,12 @@
-.trial-page {
+.trials-page {
+  @extend .login-page;
+
   .container {
     max-width: 400px;
+  }
+
+  .submit-container {
+    margin-top: 0;
   }
 
   .skip-trial {
