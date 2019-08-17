@@ -119,27 +119,6 @@ describe API::Projects do
         expect(json_response).not_to have_key 'packages_enabled'
       end
     end
-
-    describe 'repository_storage attribute' do
-      context 'when authenticated as an admin' do
-        let(:admin) { create(:admin) }
-
-        it 'returns repository_storage attribute' do
-          get api("/projects/#{project.id}", admin)
-
-          expect(response).to have_gitlab_http_status(200)
-          expect(json_response['repository_storage']).to eq(project.repository_storage)
-        end
-      end
-
-      context 'when authenticated as a regular user' do
-        it 'does not return repository_storage attribute' do
-          get api("/projects/#{project.id}", user)
-
-          expect(json_response).not_to have_key('repository_storage')
-        end
-      end
-    end
   end
 
   describe 'POST /projects' do
