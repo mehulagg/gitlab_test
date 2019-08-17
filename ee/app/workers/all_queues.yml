@@ -62,6 +62,5 @@
 - ldap_group_sync
 - new_epic
 - project_import_schedule
-- project_update_repository_storage
 - rebase
 - repository_update_mirror
