@@ -1,16 +1,14 @@
 module Packages
   class CreatePackageMetadataService < BaseService
-    attr_reader :package, :params
+    attr_reader :package, :metadata
 
-    def initialize(package, params)
+    def initialize(package, metadata)
       @package = package
-      @params = params
+      @metadata = metadata
     end
 
     def execute
-      package.update!(
-          package_metadatum_attributes: params
-      )
+      package.create_package_metadatum(metadata: metadata)
     end
   end
 end

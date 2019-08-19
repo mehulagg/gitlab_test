@@ -3,21 +3,26 @@
 class NpmPackagePresenter
   include API::Helpers::RelatedResourcesHelpers
 
-  attr_reader :project, :name, :packages, :tagged_packages
+  attr_reader :project, :name, :packages, :tagged_packages, :type
 
-  def initialize(project, name, packages, tagged_packages)
+  def initialize(project, name, packages, tagged_packages, type)
     @project = project
     @name = name
     @packages = packages
     @tagged_packages = tagged_packages
+    @type = type
   end
 
   def versions
     package_versions = {}
     packages.each do |package|
-      package_file = package.package_files.last
-      package_versions[package.version] = build_package_version(package, package_file)
+      if package.package_metadatum != nil
+        package_metadatum = package.package_metadatum.nil? ? "" : JSON.parse(package.package_metadatum.metadata).with_indifferent_access
+        package_versions[package.version] = build_metadata(package_metadatum)
+
+      end
     end
+
     package_versions
   end
 
@@ -27,14 +32,19 @@ class NpmPackagePresenter
 
   private
 
-  def build_package_version(package, package_file)
+  def build_metadata(package_json)
     {
-      name: package.name,
-      version: package.version,
-      dist: {
-        shasum: package_file.file_sha1,
-        tarball: tarball_url(package, package_file)
-      }
+        name: package_json[:name],
+        version: package_json[:version],
+        dependencies: package_json[:dependencies],
+        optionalDependencies: package_json[:dependencies],
+        devDependencies: package_json[:devDependencies],
+        directories: package_json[:directories],
+        dist: package_json[:dist],
+        bundleDependencies: package_json[:bundleDependencies],
+        peerDependencies: package_json[:peerDependencies],
+        deprecated: package_json[:deprecated],
+        bin: package_json[:bin]
     }
   end
 

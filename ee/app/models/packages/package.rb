@@ -7,7 +7,7 @@ class Packages::Package < ApplicationRecord
   has_many :package_files, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_one :maven_metadatum, inverse_of: :package
   has_one :package_metadatum, inverse_of: :package
-  has_many :package_tags
+  has_many :package_tags, inverse_of: :package
 
   accepts_nested_attributes_for :maven_metadatum, :package_metadatum
 

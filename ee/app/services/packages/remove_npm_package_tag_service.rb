@@ -3,9 +3,8 @@ module Packages
   class RemoveNpmPackageTagService < BaseService
     attr_reader :project, :package_tag
 
-    def initialize(project, package_tag)
+    def initialize(package_tag)
       @package_tag = package_tag
-      @project = project
     end
 
     def execute

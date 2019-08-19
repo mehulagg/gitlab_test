@@ -27,6 +27,7 @@ FactoryBot.define do
 
       after :create do |package|
         create :package_file, :npm, package: package
+
       end
     end
   end
@@ -77,5 +78,11 @@ FactoryBot.define do
     app_group 'my.company.app'
     app_name 'my-app'
     app_version '1.0-SNAPSHOT'
+  end
+
+  factory :package_tag, class: Packages::PackageTag do
+    package
+    name'latest'
+
   end
 end

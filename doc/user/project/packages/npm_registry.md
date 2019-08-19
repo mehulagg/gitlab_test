@@ -145,3 +145,20 @@ with your with your OAuth or personal access token):
 ```text
 //gitlab.com/api/v4/projects/:_authToken=<your_oauth_token>
 ```
+## NPM Dist Tags 
+
+Dist Tags for newly published packages are supported, and follow NPM's convention where they are optional, and each tag can only be assigned to 1 package at 
+a time. 
+
+Examples of the supported dist tag commands:
+
+```cassandraql
+npm publish @scope/package --tag  #Publish new package with new tag
+npm dist-tag add @scope/package@version tag #add a tag to an existing package
+npm dist-tag ls @scope/package #List all tags under the package 
+npm dist-tag rm @scope/package@version tag #Delete a tag from the package 
+npm install @scope/package@tag  
+``` 
+NOTE:**Note:** The `latest` tag is added by default when a package is published without a tag. The same goes to installing a package without specifying the tag or version.
+
+
