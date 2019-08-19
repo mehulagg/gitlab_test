@@ -26,11 +26,14 @@ export const getSelectedOptionNames = (state, getters) => filterId => {
  * @returns Object
  * e.g. { type: ['sast'], severity: ['high', 'medium'] }
  */
-export const activeFilters = state =>
-  state.filters.reduce((acc, filter) => {
+export const activeFilters = state => {
+  const filters = state.filters.reduce((acc, filter) => {
     acc[filter.id] = [...Array.from(filter.selection)].filter(option => option !== 'all');
     return acc;
   }, {});
+  filters.hide_dismissed = state.hide_dismissed;
+  return filters;
+};
 
 export const visibleFilters = ({ filters }) => filters.filter(({ hidden }) => !hidden);
 
