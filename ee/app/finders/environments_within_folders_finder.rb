@@ -28,7 +28,7 @@ class EnvironmentsWithinFoldersFinder
 
   # rubocop: disable CodeReuse/ActiveRecord
   def self.execute(environment_relation)
-    environments_table = environment_relation.arel_table
+    environments_table = Environment.arel_table
 
     folders = environment_relation
       .group('COALESCE(environment_type, name)')
