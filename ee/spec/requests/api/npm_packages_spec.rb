@@ -226,4 +226,5 @@ describe API::NpmPackages do
     expect(json_response['versions'][package.version]).to match_schema('public_api/v4/packages/npm_package_version', dir: 'ee')
     expect(json_response['dist-tags']).to match_schema('public_api/v4/packages/npm_package_tags', dir: 'ee')
   end
+
 end

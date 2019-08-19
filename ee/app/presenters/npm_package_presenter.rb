@@ -3,13 +3,14 @@
 class NpmPackagePresenter
   include API::Helpers::RelatedResourcesHelpers
 
-  attr_reader :project, :name, :packages, :tagged_packages
+  attr_reader :project, :name, :packages, :tagged_packages, :type
 
   def initialize(project, name, packages, tagged_packages, type)
     @project = project
     @name = name
     @packages = packages
     @tagged_packages = tagged_packages
+    @type = type
   end
 
   def versions
@@ -25,6 +26,7 @@ class NpmPackagePresenter
         package_versions[package.version] = build_package_version(package, package_file)
       end
     end
+
     package_versions
   end
 

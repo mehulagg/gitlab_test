@@ -26,15 +26,15 @@ module API
       end
 
       def find_package_by_name_and_version(package_name, version)
-        ::Packages::Package.by_name_and_version(package_name, version)
+        ::Packages::Package.by_name_and_version(package_name, version).to_a
       end
 
-      def tagged_packages(project, package_name)
+      def package_tags(project, package_name)
         ::Packages::PackageTag.build_tags_hash(project, package_name)
       end
 
-      def find_tagged_package_by_name(package_name, tag)
-        ::Packages::PackageTag.find_by_package_name(package_name, tag).last!
+      def tagged_packages(package_name)
+        ::Packages::PackageTag.find_tags_by_package(package_name).to_a
       end
 
       def build_request(package_name, type)
@@ -44,8 +44,8 @@ module API
         authorize!(:read_package, project)
         forbidden! unless project.feature_available?(:packages)
 
-        present NpmPackagePresenter.new(project, package_name, packages, tagged_packages(project, package_name)),
-                with: EE::API::Entities::NpmPackage, type: type
+        present NpmPackagePresenter.new(project, package_name, packages, package_tags(project, package_name), type),
+                with: EE::API::Entities::NpmPackage
       end
 
       def authorize_feature(project)
@@ -75,11 +75,10 @@ module API
       version = env['api.request.body']
 
       project = find_project_by_package_name(package_name)
-      package = find_package_by_name_and_version(package, version)
-
+      package = find_package_by_name_and_version(package_name, version).last
       authorize_feature(project)
 
-      ::Packages::CreateNpmPackageTagService.new(package, tagged_packages(project, package_name), tag).execute
+      ::Packages::CreateNpmPackageTagService.new(package, tagged_packages(package_name), tag).execute
     end
 
     params do
@@ -92,10 +91,10 @@ module API
       tag = params[:tag]
 
       project = find_project_by_package_name(package_name)
-      package_tag = find_tagged_package_by_name(package_name, tag)
+      package_tag = tagged_packages(package_name)
 
       authorize_feature(project)
-      ::Packages::RemoveNpmPackageTagService.new(project, package_tag).execute
+      ::Packages::RemoveNpmPackageTagService.new(package_tag.last).execute
     end
 
     get 'packages/npm/*package_name', format: false, requirements: NPM_ENDPOINT_REQUIREMENTS do
