@@ -156,9 +156,12 @@ Examples of the supported dist tag commands:
 npm publish @scope/package --tag  #Publish new package with new tag
 npm dist-tag add @scope/package@version tag #add a tag to an existing package
 npm dist-tag ls @scope/package #List all tags under the package 
-npm dist-tag rm @scope/package@version tag #Delete a tag from the package 
+npm dist-tag rm @scope/package@version tag #Delete a tag from the package* 
 npm install @scope/package@tag  
 ``` 
+
+*Due to a bug in NPM 6.9.0, deleting dist tags fails. We have [submitted a Pull Request to the NPM repository](https://github.com/npm/cli/pull/235) to fix the bug in NPM's next release.
+
 NOTE:**Note:** The `latest` tag is added by default when a package is published without a tag. The same goes to installing a package without specifying the tag or version.
 
 

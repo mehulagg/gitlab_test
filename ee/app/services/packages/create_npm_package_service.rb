@@ -31,7 +31,6 @@ module Packages
       package_tags = ::Packages::PackageTag.find_tags_by_package(package.name)
       metadata = package_json[package.version].to_json
 
-
       ::Packages::PackageTag.transaction do
 
         ::Packages::CreatePackageFileService.new(package, file_params).execute
