@@ -56,6 +56,13 @@ module QA
         #  a) The terminal JS package has loaded, and
         #  b) It's not stuck in a "Loading/Starting" state, and
         #  c) There's no alert stating there was a problem
+        #
+        # The terminal itself is a third-party package so we assume it is
+        # adequately tested elsewhere.
+        #
+        # There are also FE specs
+        # * ee/spec/javascripts/ide/components/terminal/terminal_spec.js
+        # * ee/spec/frontend/ide/components/terminal/terminal_controls_spec.js
         Page::Project::WebIDE::Edit.perform do |edit|
           edit.start_web_terminal
 
