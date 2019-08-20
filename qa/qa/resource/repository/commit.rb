@@ -25,7 +25,7 @@ module QA
           if !files.is_a?(Array) ||
               files.empty? ||
               files.any? { |file| !file.has_key?(:file_path) || !file.has_key?(:content) }
-            raise ArgumentError, "Please provide an array of hashes e.g.: [{name: 'file1', content: 'foo'}]"
+            raise ArgumentError, "Please provide an array of hashes e.g.: [{file_path: 'file1', content: 'foo'}]"
           end
 
           @files = files
