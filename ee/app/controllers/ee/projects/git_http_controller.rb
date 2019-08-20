@@ -13,6 +13,18 @@ module EE
         render json: ::Gitlab::Workhorse.git_http_ok(repository, repo_type, user, action_name, show_all_refs: geo_request?)
       end
 
+      override :git_receive_pack
+      def git_receive_pack
+        # Authentication/authorization already happened in `before_action`s
+
+        # This ID is used by the /internal/post_receive API call
+        gl_id = ::Gitlab::GlId.gl_id(user)
+        gl_repository = repo_type.identifier_for_subject(project)
+        ::Gitlab::Geo::GitPushHttp.new(gl_id, gl_repository).cache_referrer(params["geo_node_referrer_id"])
+
+        super
+      end
+
       private
 
       def user
