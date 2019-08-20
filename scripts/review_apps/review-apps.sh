@@ -361,7 +361,7 @@ function add_secure_seeds() {
   kubectl -n "$KUBE_NAMESPACE" exec -i ${task_runner_pod} -- /srv/gitlab/bin/rails runner -e production 'puts "With #{Project.count} projects"'
 
   kubectl -n "$KUBE_NAMESPACE" exec ${task_runner_pod} -i -t -- bash -c \
-+   'gitlab-rake db:seed_fu FILTER=pipelines FIXTURE_PATH=db/fixtures/development'
++   'gitlab-rake db:seed_fu FILTER=admin,project,pipelines FIXTURE_PATH=db/fixtures/development'
 
   kubectl -n "$KUBE_NAMESPACE" exec ${task_runner_pod} -i -t -- bash -c \
 +   'gitlab-rake db:seed_fu FILTER=vulnerabilities FIXTURE_PATH=ee/db/fixtures/development'
