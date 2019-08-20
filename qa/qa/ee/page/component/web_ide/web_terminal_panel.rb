@@ -6,19 +6,21 @@ module QA
       module Component
         module WebIDE
           module WebTerminalPanel
-            def self.included(base)
-              base.view 'app/assets/javascripts/ide/components/panes/right.vue' do
-                element :ide_right_sidebar
-                element :terminal_tab_button
-              end
+            def self.prepended(page)
+              page.module_eval do
+                view 'app/assets/javascripts/ide/components/panes/right.vue' do
+                  element :ide_right_sidebar
+                  element :terminal_tab_button, %q(:data-qa-selector="`${tab.title.toLowerCase()}_tab_button`") # rubocop:disable QA/ElementWithPattern
+                end
 
-              base.view 'ee/app/assets/javascripts/ide/components/terminal/empty_state.vue' do
-                element :start_web_terminal_button
-              end
+                view 'ee/app/assets/javascripts/ide/components/terminal/empty_state.vue' do
+                  element :start_web_terminal_button
+                end
 
-              base.view 'ee/app/assets/javascripts/ide/components/terminal/terminal.vue' do
-                element :loading_container
-                element :terminal_screen
+                view 'ee/app/assets/javascripts/ide/components/terminal/terminal.vue' do
+                  element :loading_container
+                  element :terminal_screen
+                end
               end
             end
 
