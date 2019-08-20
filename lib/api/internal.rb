@@ -256,7 +256,8 @@ module API
       post '/post_receive' do
         status 200
 
-        output = {} # Messages to gitlab-shell
+        output = {}
+        messages = []
         user = identify(params[:identifier])
         project = Gitlab::GlRepository.parse(params[:gl_repository]).first
         push_options = Gitlab::PushOptions.new(params[:push_options])
@@ -265,16 +266,18 @@ module API
           params[:changes], push_options.as_json)
 
         mr_options = push_options.get(:merge_request)
-        output.merge!(process_mr_push_options(mr_options, project, user, params[:changes])) if mr_options.present?
+        if mr_options.present?
+          message = process_mr_push_options(mr_options, project, user, params[:changes])
+          add_post_receive_alert_message(messages, message)
+        end
 
         broadcast_message = BroadcastMessage.current&.last&.message
         reference_counter_decreased = Gitlab::ReferenceCounter.new(params[:gl_repository]).decrease
 
-        output.merge!(
-          broadcast_message: broadcast_message,
-          reference_counter_decreased: reference_counter_decreased,
-          merge_request_urls: merge_request_urls
-        )
+        output[:reference_counter_decreased] = reference_counter_decreased
+
+        add_post_receive_alert_message(messages, broadcast_message)
+        messages += merge_request_url_messages
 
         # A user is not guaranteed to be returned; an orphaned write deploy
         # key could be used
@@ -282,9 +285,11 @@ module API
           redirect_message = Gitlab::Checks::ProjectMoved.fetch_message(user.id, project.id)
           project_created_message = Gitlab::Checks::ProjectCreated.fetch_message(user.id, project.id)
 
-          output[:redirected_message] = redirect_message if redirect_message
-          output[:project_created_message] = project_created_message if project_created_message
+          add_post_receive_basic_message(messages, redirect_message)
+          add_post_receive_basic_message(messages, project_created_message)
         end
+
+        output[:messages] = messages
 
         output
       end

@@ -39,13 +39,38 @@ module API
         ::Users::ActivityService.new(actor, 'Git SSH').execute if commands.include?(params[:action])
       end
 
+      def merge_request_url_messages
+        merge_request_urls.map do |url_data|
+          message = if url_data[:new_merge_request]
+                      "To create a merge request for #{url_data[:branch_name]}, visit:"
+                    else
+                      "View merge request for #{url_data[:branch_name]}:"
+                    end
+
+          message += "\n  #{url_data[:url]}"
+
+          build_post_receive_message(message, type: :basic)
+        end
+      end
+
       def merge_request_urls
         ::MergeRequests::GetUrlsService.new(project).execute(params[:changes])
       end
 
-      def process_mr_push_options(push_options, project, user, changes)
-        output = {}
+      def add_post_receive_basic_message(messages, message)
+        messages << build_post_receive_message(message, type: :basic) if message.present?
+      end
 
+      def add_post_receive_alert_message(messages, message)
+        # Add alerts to the front
+        messages.unshift(build_post_receive_message(message, type: :alert)) if message.present?
+      end
+
+      def build_post_receive_message(message, type:)
+        { type: type, message: message }
+      end
+
+      def process_mr_push_options(push_options, project, user, changes)
         Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ce/issues/61359')
 
         service = ::MergeRequests::PushOptionsHandlerService.new(
@@ -56,15 +81,13 @@ module API
         ).execute
 
         if service.errors.present?
-          output[:warnings] = push_options_warning(service.errors.join("\n\n"))
+          push_options_warning(service.errors.join("\n\n"))
         end
-
-        output
       end
 
       def push_options_warning(warning)
         options = Array.wrap(params[:push_options]).map { |p| "'#{p}'" }.join(' ')
-        "Error encountered with push options #{options}: #{warning}"
+        "WARNINGS:\nError encountered with push options #{options}: #{warning}"
       end
 
       def redis_ping
