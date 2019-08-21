@@ -3,10 +3,10 @@ import { GlTooltipDirective, GlLoadingIcon } from '@gitlab/ui';
 import Icon from '~/vue_shared/components/icon.vue';
 import iconNoData from 'icons/_icon_no_data.svg';
 import iconLock from 'icons/_icon_lock.svg';
-import stageCodeComponent from './stage_code_component.vue';
-import stageComponent from './stage_component.vue';
-import stageReviewComponent from './stage_review_component.vue';
-import stageStagingComponent from './stage_staging_component.vue';
+import StageCodeComponent from './stage_code_component.vue';
+import StageComponent from './stage_component.vue';
+import StageReviewComponent from './stage_review_component.vue';
+import StageStagingComponent from './stage_staging_component.vue';
 import stageTestComponent from './stage_test_component.vue';
 
 export default {
@@ -14,13 +14,13 @@ export default {
   components: {
     Icon,
     GlLoadingIcon,
-    'stage-issue-component': stageComponent,
-    'stage-plan-component': stageComponent,
-    'stage-code-component': stageCodeComponent,
+    'stage-issue-component': StageComponent,
+    'stage-plan-component': StageComponent,
+    'stage-code-component': StageCodeComponent,
     'stage-test-component': stageTestComponent,
-    'stage-review-component': stageReviewComponent,
-    'stage-staging-component': stageStagingComponent,
-    'stage-production-component': stageComponent,
+    'stage-review-component': StageReviewComponent,
+    'stage-staging-component': StageStagingComponent,
+    'stage-production-component': StageComponent,
   },
   directives: {
     GlTooltip: GlTooltipDirective,

@@ -1,16 +1,16 @@
 <script>
-import userAvatarImage from '~/vue_shared/components/user_avatar/user_avatar_image.vue';
+import UserAvatarImage from '~/vue_shared/components/user_avatar/user_avatar_image.vue';
 import iconBranch from '../svg/icon_branch.svg';
-import limitWarning from './limit_warning_component.vue';
+import LimitWarning from './limit_warning_component.vue';
 import totalTime from './total_time_component.vue';
-import icon from '~/vue_shared/components/icon.vue';
+import Icon from '~/vue_shared/components/icon.vue';
 
 export default {
   components: {
-    userAvatarImage,
+    UserAvatarImage,
     totalTime,
-    limitWarning,
-    icon,
+    LimitWarning,
+    Icon,
   },
   props: {
     items: {
@@ -36,25 +36,30 @@ export default {
       <limit-warning :count="items.length" />
     </div>
     <ul class="stage-event-list">
-      <li v-for="(build, i) in items" :key="i" class="stage-event-item item-build-component">
+      <li
+        v-for="({ id, author, url, branch, name, commitUrl, shortSha, date, totalTime },
+        i) in items"
+        :key="i"
+        class="stage-event-item item-build-component"
+      >
         <div class="item-details">
           <!-- FIXME: Pass an alt attribute here for accessibility -->
-          <user-avatar-image :img-src="build.author.avatarUrl" />
+          <user-avatar-image :img-src="author.avatarUrl" />
           <h5 class="item-title">
-            <a :href="build.url" class="pipeline-id">#{{ build.id }}</a>
+            <a :href="url" class="pipeline-id">#{{ id }}</a>
             <icon :size="16" name="fork" />
-            <a :href="build.branch.url" class="ref-name">{{ build.branch.name }}</a>
+            <a :href="branch.url" class="ref-name">{{ branch.name }}</a>
             <span class="icon-branch" v-html="iconBranch"></span>
-            <a :href="build.commitUrl" class="commit-sha">{{ build.shortSha }}</a>
+            <a :href="commitUrl" class="commit-sha">{{ shortSha }}</a>
           </h5>
           <span>
-            <a :href="build.url" class="build-date">{{ build.date }}</a>
+            <a :href="url" class="build-date">{{ date }}</a>
             {{ s__('ByAuthor|by') }}
-            <a :href="build.author.webUrl" class="issue-author-link">{{ build.author.name }}</a>
+            <a :href="author.webUrl" class="issue-author-link">{{ author.name }}</a>
           </span>
         </div>
         <div class="item-time">
-          <total-time :time="build.totalTime" />
+          <total-time :time="totalTime" />
         </div>
       </li>
     </ul>

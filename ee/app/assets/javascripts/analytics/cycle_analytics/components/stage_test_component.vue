@@ -1,14 +1,14 @@
 <script>
 import iconBuildStatus from '../svg/icon_build_status.svg';
 import iconBranch from '../svg/icon_branch.svg';
-import limitWarning from './limit_warning_component.vue';
+import LimitWarning from './limit_warning_component.vue';
 import totalTime from './total_time_component.vue';
 import icon from '~/vue_shared/components/icon.vue';
 
 export default {
   components: {
     totalTime,
-    limitWarning,
+    LimitWarning,
     icon,
   },
   props: {

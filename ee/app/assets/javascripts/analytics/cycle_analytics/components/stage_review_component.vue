@@ -1,15 +1,15 @@
 <script>
-import userAvatarImage from '~/vue_shared/components/user_avatar/user_avatar_image.vue';
-import limitWarning from './limit_warning_component.vue';
-import totalTime from './total_time_component.vue';
-import icon from '~/vue_shared/components/icon.vue';
+import UserAvatarImage from '~/vue_shared/components/user_avatar/user_avatar_image.vue';
+import LimitWarning from './limit_warning_component.vue';
+import TotalTime from './total_time_component.vue';
+import Icon from '~/vue_shared/components/icon.vue';
 
 export default {
   components: {
-    userAvatarImage,
-    totalTime,
-    limitWarning,
-    icon,
+    UserAvatarImage,
+    TotalTime,
+    LimitWarning,
+    Icon,
   },
   props: {
     items: {

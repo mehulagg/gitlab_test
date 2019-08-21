@@ -1,6 +1,4 @@
 <script>
-import Flash from '~/flash';
-import { __ } from '~/locale';
 import { GlEmptyState } from '@gitlab/ui';
 import { mapActions, mapState, mapGetters } from 'vuex';
 import GroupsDropdownFilter from '../../shared/components/groups_dropdown_filter.vue';
