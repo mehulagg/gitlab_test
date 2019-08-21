@@ -9,21 +9,82 @@ module Gitlab
 
       attr_accessor :project, :payload
 
+      class AlertPayloadParser
+        def initialize(payload)
+          @payload = payload
+        end
+
+        def self.call(payload)
+          new(payload).call
+        end
+
+        def call
+          OpenStruct.new(
+            service: :prometheus,
+            metric_id: metric_id,
+            title: title,
+            description: description,
+            annotations: annotations,
+            starts_at: starts_at,
+            generator_url: generator_url,
+            alert_markdown: alert_markdown
+          )
+        end
+
+        private
+
+        attr_reader :payload
+
+        def metric_id
+          payload&.dig('labels', 'gitlab_alert_id')
+        end
+
+        def title
+          payload&.dig('annotations', 'title') ||
+            payload&.dig('annotations', 'summary') ||
+            payload&.dig('labels', 'alertname')
+        end
+
+        def description
+          payload&.dig('annotations', 'description')
+        end
+
+        def annotations
+          payload&.dig('annotations') || []
+        end
+
+        def starts_at
+          payload&.dig('startsAt')
+        end
+
+        def generator_url
+          payload&.dig('generatorURL')
+        end
+
+        def alert_markdown
+          payload&.dig('annotations', 'gitlab_incident_markdown')
+        end
+      end
+
+      SUPPORTED_ALERTING_SERVICES = {
+        prometheus: Projects::Prometheus::AlertPresenter
+      }.freeze
+
       def gitlab_alert
         strong_memoize(:gitlab_alert) do
-          parse_gitlab_alert_from_payload
+          find_gitlab_alert
         end
       end
 
       def title
         strong_memoize(:title) do
-          gitlab_alert&.title || parse_title_from_payload
+          gitlab_alert&.title || parsed_payload.title
         end
       end
 
       def description
         strong_memoize(:description) do
-          parse_description_from_payload
+          parsed_payload.description
         end
       end
 
@@ -33,25 +94,27 @@ module Gitlab
 
       def annotations
         strong_memoize(:annotations) do
-          parse_annotations_from_payload || []
+          parsed_payload.annotations.map do |label, value|
+            Alerting::AlertAnnotation.new(label: label, value: value)
+          end
         end
       end
 
       def starts_at
         strong_memoize(:starts_at) do
-          parse_datetime_from_payload('startsAt')
+          starts_at_to_time
         end
       end
 
       def full_query
         strong_memoize(:full_query) do
-          gitlab_alert&.full_query || parse_expr_from_payload
+          gitlab_alert&.full_query || expr
         end
       end
 
       def alert_markdown
         strong_memoize(:alert_markdown) do
-          parse_alert_markdown_from_payload
+          parsed_payload.alert_markdown
         end
       end
 
@@ -60,13 +123,25 @@ module Gitlab
       end
 
       def present
-        super(presenter_class: Projects::Prometheus::AlertPresenter)
+        super(presenter_class: presenter_class)
       end
 
       private
 
-      def parse_gitlab_alert_from_payload
-        metric_id = payload&.dig('labels', 'gitlab_alert_id')
+      def parsed_payload
+        strong_memoize(:parsed_payload) do
+          AlertPayloadParser.call(payload)
+        end
+      end
+
+      def presenter_class
+        SUPPORTED_ALERTING_SERVICES.fetch(parsed_payload.service, :unsupported_alerting_service)
+      end
+
+      def find_gitlab_alert
+        return unless gitlab_alerts_supported?
+
+        metric_id = parsed_payload.metric_id
         return unless metric_id
 
         Projects::Prometheus::AlertsFinder
@@ -75,24 +150,12 @@ module Gitlab
           .first
       end
 
-      def parse_title_from_payload
-        payload&.dig('annotations', 'title') ||
-          payload&.dig('annotations', 'summary') ||
-          payload&.dig('labels', 'alertname')
+      def gitlab_alerts_supported?
+        parsed_payload.service == :prometheus
       end
 
-      def parse_description_from_payload
-        payload&.dig('annotations', 'description')
-      end
-
-      def parse_annotations_from_payload
-        payload&.dig('annotations')&.map do |label, value|
-          Alerting::AlertAnnotation.new(label: label, value: value)
-        end
-      end
-
-      def parse_datetime_from_payload(field)
-        value = payload&.dig(field)
+      def starts_at_to_time
+        value = parsed_payload.starts_at
         return unless value
 
         Time.rfc3339(value)
@@ -102,18 +165,14 @@ module Gitlab
       # Parses `g0.expr` from `generatorURL`.
       #
       # Example: http://localhost:9090/graph?g0.expr=vector%281%29&g0.tab=1
-      def parse_expr_from_payload
-        url = payload&.dig('generatorURL')
+      def expr
+        url = parsed_payload.generator_url
         return unless url
 
         uri = URI(url)
 
         Rack::Utils.parse_query(uri.query).fetch('g0.expr')
       rescue URI::InvalidURIError, KeyError
-      end
-
-      def parse_alert_markdown_from_payload
-        payload&.dig('annotations', 'gitlab_incident_markdown')
       end
     end
   end
