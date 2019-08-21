@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import CycleAnalytics from './components/base.vue';
-import store from './store';
+import createStore from './store';
 
 export default () => {
   const el = document.querySelector('#js-cycle-analytics-app');
@@ -10,7 +10,7 @@ export default () => {
   new Vue({
     el: '#js-cycle-analytics-app',
     name: 'CycleAnalyticsApp',
-    store,
+    store: createStore(),
     components: {
       CycleAnalytics,
     },
