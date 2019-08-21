@@ -28,25 +28,29 @@ export default {
       <limit-warning :count="items.length" />
     </div>
     <ul class="stage-event-list">
-      <li v-for="(issue, i) in items" :key="i" class="stage-event-item">
+      <li
+        v-for="({ iid, title, url, author, totalTime }, i) in items"
+        :key="i"
+        class="stage-event-item"
+      >
         <div class="item-details">
           <!-- FIXME: Pass an alt attribute here for accessibility -->
-          <user-avatar-image :img-src="issue.author.avatarUrl" />
+          <user-avatar-image :img-src="author.avatarUrl" />
           <h5 class="item-title issue-title">
-            <a :href="issue.url" class="issue-title">{{ issue.title }}</a>
+            <a :href="issue.url" class="issue-title">{{ title }}</a>
           </h5>
-          <a :href="issue.url" class="issue-link">#{{ issue.iid }}</a> &middot;
+          <a :href="url" class="issue-link">#{{ iid }}</a> &middot;
           <span>
             {{ s__('OpenedNDaysAgo|Opened') }}
-            <a :href="issue.url" class="issue-date">{{ issue.createdAt }}</a>
+            <a :href="url" class="issue-date">{{ createdAt }}</a>
           </span>
           <span>
             {{ s__('ByAuthor|by') }}
-            <a :href="issue.author.webUrl" class="issue-author-link">{{ issue.author.name }}</a>
+            <a :href="author.webUrl" class="issue-author-link">{{ author.name }}</a>
           </span>
         </div>
         <div class="item-time">
-          <total-time :time="issue.totalTime" />
+          <total-time :time="totalTime" />
         </div>
       </li>
     </ul>
