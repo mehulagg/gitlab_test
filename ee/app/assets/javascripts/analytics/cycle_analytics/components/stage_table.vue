@@ -1,4 +1,5 @@
 <script>
+import { __ } from '~/locale';
 import { GlTooltipDirective, GlLoadingIcon } from '@gitlab/ui';
 import Icon from '~/vue_shared/components/icon.vue';
 import iconNoData from 'icons/_icon_no_data.svg';
@@ -54,6 +55,9 @@ export default {
     iconLock() {
       return iconLock;
     },
+    stageName() {
+      return this.currentStage ? this.currentStage.legend : __('Related Issues');
+    },
   },
   methods: {
     selectStage(stage) {
@@ -94,9 +98,7 @@ export default {
               />
             </li>
             <li class="event-header">
-              <span class="stage-name align-middle">{{
-                currentStage ? currentStage.legend : __('Related Issues')
-              }}</span>
+              <span class="stage-name align-middle">{{ stageName }}</span>
               <icon
                 class="align-middle"
                 :size="14"
