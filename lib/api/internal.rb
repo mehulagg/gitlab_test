@@ -21,6 +21,10 @@ module API
         # easily.
         project.http_url_to_repo
       end
+
+      def add_ee_post_receive_messages(messages)
+        # Hook for EE to add messages
+      end
     end
 
     namespace 'internal' do
@@ -288,6 +292,8 @@ module API
           add_post_receive_basic_message(messages, redirect_message)
           add_post_receive_basic_message(messages, project_created_message)
         end
+
+        add_ee_post_receive_messages(messages)
 
         output[:messages] = messages
 
