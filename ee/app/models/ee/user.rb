@@ -13,6 +13,7 @@ module EE
 
     DEFAULT_ROADMAP_LAYOUT = 'months'.freeze
     DEFAULT_GROUP_VIEW = 'details'.freeze
+    MAX_USERNAME_SUGGESTION_ATTEMPTS = 15
 
     prepended do
       EMAIL_OPT_IN_SOURCE_ID_GITLAB_COM = 1
@@ -126,6 +127,19 @@ module EE
         joins(:smartcard_identities)
           .find_by(smartcard_identities: { subject: certificate_subject, issuer: certificate_issuer })
       end
+
+      def username_suggestion(base_name)
+        suffix = nil
+        base_name = base_name.parameterize(separator: '_')
+        MAX_USERNAME_SUGGESTION_ATTEMPTS.times do |attempt|
+          username = "#{base_name}#{suffix}"
+          return username unless ::Namespace.find_by_path_or_name(username)
+
+          suffix = attempt + 1
+        end
+
+        ''
+      end
     end
 
     def cannot_be_admin_and_auditor
@@ -181,7 +195,7 @@ module EE
     def available_subgroups_with_custom_project_templates(group_id = nil)
       groups = GroupsWithTemplatesFinder.new(group_id).execute
 
-      GroupsFinder.new(self, min_access_level: ::Gitlab::Access::MAINTAINER)
+      GroupsFinder.new(self, min_access_level: ::Gitlab::Access::DEVELOPER)
                   .execute
                   .where(id: groups.select(:custom_project_templates_group_id))
                   .includes(:projects)

@@ -10,7 +10,7 @@ describe Gitlab::Ci::Parsers::Security::Formatters::DependencyList do
   let(:parsed_report) do
     JSON.parse!(
       File.read(
-        Rails.root.join('spec/fixtures/security-reports/dependency_list/gl-dependency-scanning-report.json')
+        Rails.root.join('ee/spec/fixtures/security_reports/dependency_list/gl-dependency-scanning-report.json')
       )
     )
   end
@@ -33,6 +33,7 @@ describe Gitlab::Ci::Parsers::Security::Formatters::DependencyList do
         expect(data[:location][:path]).to eq('rails/Gemfile.lock')
         expect(data[:version]).to eq('2.2.0')
         expect(data[:vulnerabilities]).to be_empty
+        expect(data[:licenses]).to be_empty
       end
     end
 

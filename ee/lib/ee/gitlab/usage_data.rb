@@ -13,6 +13,13 @@ module EE
           super + [::Gitlab::UsageCounters::DesignsCounter]
         end
 
+        override :uncached_data
+        def uncached_data
+          return super unless ::Feature.enabled?(:usage_activity_by_stage, default_enabled: true)
+
+          super.merge(usage_activity_by_stage)
+        end
+
         override :features_usage_data
         def features_usage_data
           super.merge(features_usage_data_ee)
@@ -101,12 +108,10 @@ module EE
         override :user_preferences_usage
         def user_preferences_usage
           super.tap do |user_prefs_usage|
-            if ::Feature.enabled?(:group_overview_security_dashboard)
-              user_prefs_usage.merge!(
-                group_overview_details: count(::User.active.group_view_details),
-                group_overview_security_dashboard: count(::User.active.group_view_security_dashboard)
-              )
-            end
+            user_prefs_usage.merge!(
+              group_overview_details: count(::User.active.group_view_details),
+              group_overview_security_dashboard: count(::User.active.group_view_security_dashboard)
+            )
           end
         end
 
@@ -164,6 +169,23 @@ module EE
           return 0 unless License.feature_available?(:incident_management)
 
           count(::Issue.authored(::User.alert_bot))
+        end
+
+        # Source: https://gitlab.com/gitlab-data/analytics/blob/master/transform/snowflake-dbt/data/ping_metrics_to_stage_mapping_data.csv
+        def usage_activity_by_stage
+          {
+            usage_activity_by_stage: {
+              manage: usage_activity_by_stage_manage
+            }
+          }
+        end
+
+        def usage_activity_by_stage_manage
+          {
+            groups: ::GroupMember.distinct_count_by(:user_id),
+            ldap_keys: ::LDAPKey.distinct_count_by(:user_id),
+            ldap_users: ::GroupMember.of_ldap_type.distinct_count_by(:user_id)
+          }
         end
       end
     end

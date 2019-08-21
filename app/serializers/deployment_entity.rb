@@ -18,6 +18,7 @@ class DeploymentEntity < Grape::Entity
   end
 
   expose :created_at
+  expose :deployed_at
   expose :tag
   expose :last?
   expose :user, using: UserEntity

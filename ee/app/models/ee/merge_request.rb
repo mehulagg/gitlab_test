@@ -11,7 +11,7 @@ module EE
     include FromUnion
 
     prepended do
-      include Elastic::MergeRequestsSearch
+      include Elastic::ApplicationVersionedSearch
 
       has_many :reviews, inverse_of: :merge_request
       has_many :approvals, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
@@ -138,6 +138,18 @@ module EE
       end
 
       compare_reports(::Ci::CompareContainerScanningReportsService)
+    end
+
+    def has_sast_reports?
+      actual_head_pipeline&.has_reports?(::Ci::JobArtifact.sast_reports)
+    end
+
+    def compare_sast_reports
+      unless has_sast_reports?
+        return { status: :error, status_reason: 'This merge request does not have SAST reports' }
+      end
+
+      compare_reports(::Ci::CompareSastReportsService)
     end
 
     def compare_license_management_reports

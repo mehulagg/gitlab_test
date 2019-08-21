@@ -5,6 +5,7 @@ FactoryBot.define do
     name 'nokogiri'
     packager 'Ruby (Bundler)'
     version '1.8.0'
+    licenses { [] }
     location do
       {
         blob_path: '/some_project/path/Gemfile.lock',
@@ -21,6 +22,15 @@ FactoryBot.define do
          {
            name:     'XSS vulnerability',
            severity: 'low'
+         }]
+      end
+    end
+
+    trait :with_licenses do
+      licenses do
+        [{
+           name: 'MIT',
+           url: 'http://opensource.org/licenses/mit-license'
          }]
       end
     end
