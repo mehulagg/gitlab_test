@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # require './spec/support/sidekiq_middleware'
+=======
+# require './spec/support/sidekiq'
+>>>>>>> Disable project seeding
 
 Gitlab::Seeder.quiet do
   User.create!(
