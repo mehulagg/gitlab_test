@@ -1,5 +1,7 @@
 export const mockApiEndpoint = `${gl.TEST_HOST}/monitoring/mock`;
 
+export const mockProjectPath = '/frontend-fixtures/environments-project';
+
 export const metricsGroupsAPIResponse = [
   {
     group: 'System metrics (Kubernetes)',
