@@ -9,63 +9,6 @@ module Gitlab
 
       attr_accessor :project, :payload
 
-      class AlertPayloadParser
-        def initialize(payload)
-          @payload = payload
-        end
-
-        def self.call(payload)
-          new(payload).call
-        end
-
-        def call
-          OpenStruct.new(
-            service: :prometheus,
-            metric_id: metric_id,
-            title: title,
-            description: description,
-            annotations: annotations,
-            starts_at: starts_at,
-            generator_url: generator_url,
-            alert_markdown: alert_markdown
-          )
-        end
-
-        private
-
-        attr_reader :payload
-
-        def metric_id
-          payload&.dig('labels', 'gitlab_alert_id')
-        end
-
-        def title
-          payload&.dig('annotations', 'title') ||
-            payload&.dig('annotations', 'summary') ||
-            payload&.dig('labels', 'alertname')
-        end
-
-        def description
-          payload&.dig('annotations', 'description')
-        end
-
-        def annotations
-          payload&.dig('annotations') || []
-        end
-
-        def starts_at
-          payload&.dig('startsAt')
-        end
-
-        def generator_url
-          payload&.dig('generatorURL')
-        end
-
-        def alert_markdown
-          payload&.dig('annotations', 'gitlab_incident_markdown')
-        end
-      end
-
       SUPPORTED_ALERTING_SERVICES = {
         prometheus: Projects::Prometheus::AlertPresenter
       }.freeze
@@ -94,9 +37,7 @@ module Gitlab
 
       def annotations
         strong_memoize(:annotations) do
-          parsed_payload.annotations.map do |label, value|
-            Alerting::AlertAnnotation.new(label: label, value: value)
-          end
+          parsed_annotations || []
         end
       end
 
@@ -152,6 +93,12 @@ module Gitlab
 
       def gitlab_alerts_supported?
         parsed_payload.service == :prometheus
+      end
+
+      def parsed_annotations
+        parsed_payload.annotations&.map do |label, value|
+          Alerting::AlertAnnotation.new(label: label, value: value)
+        end
       end
 
       def starts_at_to_time
