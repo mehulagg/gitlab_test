@@ -18,25 +18,25 @@ describe Blob do
   end
 
   describe '.lazy' do
-    let(:project) { create(:project, :repository) }
-    let(:same_project) { Project.find(project.id) }
-    let(:other_project) { create(:project, :repository) }
+    let(:repository) { create(:project, :repository).repository }
+    let(:same_repository) { Repository.new(repository.full_path, self, disk_path: repository.disk_path) }
+    let(:other_repository) { create(:project, :repository).repository }
     let(:commit_id) { 'e63f41fe459e62e1228fcef60d7189127aeba95a' }
 
     it 'does not fetch blobs when none are accessed' do
-      expect(project.repository).not_to receive(:blobs_at)
+      expect(repository).not_to receive(:blobs_at)
 
-      described_class.lazy(project, commit_id, 'CHANGELOG')
+      described_class.lazy(repository, commit_id, 'CHANGELOG')
     end
 
     it 'fetches all blobs for the same repository when one is accessed' do
-      expect(project.repository).to receive(:blobs_at).with([[commit_id, 'CHANGELOG'], [commit_id, 'CONTRIBUTING.md']]).once.and_call_original
-      expect(other_project.repository).not_to receive(:blobs_at)
+      expect(repository).to receive(:blobs_at).with([[commit_id, 'CHANGELOG'], [commit_id, 'CONTRIBUTING.md']]).once.and_call_original
+      expect(other_repository).not_to receive(:blobs_at)
 
-      changelog = described_class.lazy(project, commit_id, 'CHANGELOG')
-      contributing = described_class.lazy(same_project, commit_id, 'CONTRIBUTING.md')
+      changelog = described_class.lazy(repository, commit_id, 'CHANGELOG')
+      contributing = described_class.lazy(same_repository, commit_id, 'CONTRIBUTING.md')
 
-      described_class.lazy(other_project, commit_id, 'CHANGELOG')
+      described_class.lazy(other_repository, commit_id, 'CHANGELOG')
 
       # Access property so the values are loaded
       changelog.id
@@ -44,16 +44,16 @@ describe Blob do
     end
 
     it 'does not include blobs from previous requests in later requests' do
-      changelog = described_class.lazy(project, commit_id, 'CHANGELOG')
-      contributing = described_class.lazy(same_project, commit_id, 'CONTRIBUTING.md')
+      changelog = described_class.lazy(repository, commit_id, 'CHANGELOG')
+      contributing = described_class.lazy(same_repository, commit_id, 'CONTRIBUTING.md')
 
       # Access property so the values are loaded
       changelog.id
       contributing.id
 
-      readme = described_class.lazy(project, commit_id, 'README.md')
+      readme = described_class.lazy(repository, commit_id, 'README.md')
 
-      expect(project.repository).to receive(:blobs_at).with([[commit_id, 'README.md']]).once.and_call_original
+      expect(repository).to receive(:blobs_at).with([[commit_id, 'README.md']]).once.and_call_original
 
       readme.id
     end

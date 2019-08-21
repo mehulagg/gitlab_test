@@ -5,8 +5,9 @@ require 'spec_helper'
 describe Gitlab::Diff::FileCollection::Compare do
   include RepoHelpers
 
-  let(:project) { create(:project, :repository) }
-  let(:commit)  { project.commit }
+  set(:project) { create(:project, :repository) }
+  let(:repository) { project.repository }
+  let(:commit) { project.commit }
   let(:start_commit) { sample_image_commit }
   let(:head_commit) { sample_commit }
   let(:raw_compare) do
@@ -18,12 +19,12 @@ describe Gitlab::Diff::FileCollection::Compare do
   it_behaves_like 'diff statistics' do
     let(:collection_default_args) do
       {
-        project: diffable.project,
+        repository: repository,
         diff_options: {},
         diff_refs: diffable.diff_refs
       }
     end
-    let(:diffable) { Compare.new(raw_compare, project) }
+    let(:diffable) { Compare.new(raw_compare, repository) }
     let(:stub_path) { '.gitignore' }
   end
 end

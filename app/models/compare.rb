@@ -7,7 +7,7 @@ class Compare
 
   delegate :same, :head, :base, to: :@compare
 
-  attr_reader :project
+  attr_reader :project, :repository
 
   def self.decorate(compare, project)
     if compare.is_a?(Compare)
@@ -17,9 +17,10 @@ class Compare
     end
   end
 
-  def initialize(compare, project, base_sha: nil, straight: false)
+  def initialize(compare, repository, base_sha: nil, straight: false)
     @compare = compare
-    @project = project
+    @repository = repository
+    @project = repository.project
     @base_sha = base_sha
     @straight = straight
   end
@@ -67,7 +68,7 @@ class Compare
 
   def diffs(diff_options = nil)
     Gitlab::Diff::FileCollection::Compare.new(self,
-      project: project,
+      repository: repository,
       diff_options: diff_options,
       diff_refs: diff_refs)
   end

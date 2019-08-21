@@ -61,12 +61,15 @@ describe Gitlab::Diff::DiffRefs do
   end
 
   describe '#compare_in' do
+    let(:repository) { project.repository }
+
     context 'with diff refs for the initial commit' do
       let(:commit) { project.commit('1a0b36b3cdad1d2ee32457c102a8c0b7056fa863') }
+
       subject { commit.diff_refs }
 
       it 'returns an appropriate comparison' do
-        compare = subject.compare_in(project)
+        compare = subject.compare_in(repository)
 
         expect(compare.diff_refs).to eq(subject)
       end
@@ -77,7 +80,7 @@ describe Gitlab::Diff::DiffRefs do
       subject { commit.diff_refs }
 
       it 'returns an appropriate comparison' do
-        compare = subject.compare_in(project)
+        compare = subject.compare_in(repository)
 
         expect(compare.diff_refs).to eq(subject)
       end
@@ -93,7 +96,7 @@ describe Gitlab::Diff::DiffRefs do
       end
 
       it 'returns an appropriate comparison' do
-        compare = subject.compare_in(project)
+        compare = subject.compare_in(repository)
 
         expect(compare.diff_refs).to eq(subject)
       end
@@ -109,7 +112,7 @@ describe Gitlab::Diff::DiffRefs do
       end
 
       it 'returns an appropriate comparison' do
-        compare = subject.compare_in(project)
+        compare = subject.compare_in(repository)
 
         expect(compare.diff_refs).to eq(subject)
       end

@@ -26,6 +26,10 @@ module Gitlab
         self == WIKI
       end
 
+      def design?
+        !wiki? && !project?
+      end
+
       def project?
         self == PROJECT
       end

@@ -29,6 +29,10 @@ module EE
       noteable.is_a?(Epic)
     end
 
+    def for_design?
+      for_type?(DesignManagement::Design)
+    end
+
     override :for_project_noteable?
     def for_project_noteable?
       !for_epic? && super

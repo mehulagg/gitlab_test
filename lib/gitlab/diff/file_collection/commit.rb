@@ -6,7 +6,8 @@ module Gitlab
       class Commit < Base
         def initialize(commit, diff_options:)
           super(commit,
-            project: commit.project,
+            # project: commit.project,
+            repository: commit.repository,
             diff_options: diff_options,
             diff_refs: commit.diff_refs)
         end

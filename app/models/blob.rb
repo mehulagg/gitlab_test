@@ -79,8 +79,8 @@ class Blob < SimpleDelegator
     new(blob, project)
   end
 
-  def self.lazy(project, commit_id, path)
-    BatchLoader.for([commit_id, path]).batch(key: project.repository) do |items, loader, args|
+  def self.lazy(repository, commit_id, path)
+    BatchLoader.for([commit_id, path]).batch(key: repository) do |items, loader, args|
       args[:key].blobs_at(items).each do |blob|
         loader.call([blob.commit_id, blob.path], blob) if blob
       end

@@ -5,8 +5,8 @@ require 'spec_helper'
 describe DiffNote do
   include RepoHelpers
 
-  let!(:merge_request) { create(:merge_request) }
-  let(:project) { merge_request.project }
+  set(:merge_request) { create(:merge_request) }
+  set(:project) { merge_request.project }
   let(:commit) { project.commit(sample_commit.id) }
 
   let(:path) { "files/ruby/popen.rb" }

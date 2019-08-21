@@ -15,6 +15,7 @@ class Discussion
             :noteable,
             :commit_id,
             :for_commit?,
+            :for_design?,
             :for_merge_request?,
             :to_ability_name,
             :editable?,

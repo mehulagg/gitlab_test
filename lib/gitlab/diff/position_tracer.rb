@@ -45,7 +45,8 @@ module Gitlab
       private
 
       def compare(start_sha, head_sha, straight: false)
-        compare = CompareService.new(project, head_sha).execute(project, start_sha, straight: straight)
+        compare = CompareService.new(project.repository, head_sha)
+                                .execute(project.repository, start_sha, straight: straight)
         compare.diffs(paths: paths, expanded: true)
       end
     end

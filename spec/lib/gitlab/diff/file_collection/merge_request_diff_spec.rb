@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Gitlab::Diff::FileCollection::MergeRequestDiff do
-  let(:merge_request) { create(:merge_request) }
+  set(:merge_request) { create(:merge_request) }
   let(:subject) { described_class.new(merge_request.merge_request_diff, diff_options: nil) }
   let(:diff_files) { subject.diff_files }
 

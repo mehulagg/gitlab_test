@@ -5,15 +5,16 @@ require 'spec_helper'
 describe Compare do
   include RepoHelpers
 
-  let(:project) { create(:project, :public, :repository) }
-  let(:commit)  { project.commit }
+  set(:project) { create(:project, :public, :repository) }
+  let(:repository) { project.repository }
+  let(:commit) { project.commit }
 
   let(:start_commit) { sample_image_commit }
   let(:head_commit) { sample_commit }
 
-  let(:raw_compare) { Gitlab::Git::Compare.new(project.repository.raw_repository, start_commit.id, head_commit.id) }
+  let(:raw_compare) { Gitlab::Git::Compare.new(repository.raw_repository, start_commit.id, head_commit.id) }
 
-  subject { described_class.new(raw_compare, project) }
+  subject { described_class.new(raw_compare, repository) }
 
   describe '#start_commit' do
     it 'returns raw compare base commit' do
@@ -44,7 +45,7 @@ describe Compare do
       expect(project).not_to receive(:merge_base_commit)
 
       sha = double
-      service = described_class.new(raw_compare, project, base_sha: sha)
+      service = described_class.new(raw_compare, repository, base_sha: sha)
 
       expect(service.base_commit_sha).to eq(sha)
     end
@@ -56,7 +57,7 @@ describe Compare do
         .and_call_original
 
       expect(subject.base_commit_sha)
-        .to eq(project.repository.merge_base(start_commit.id, head_commit.id))
+        .to eq(repository.merge_base(start_commit.id, head_commit.id))
     end
 
     it 'is memoized on first call' do
@@ -99,7 +100,7 @@ describe Compare do
     context 'changes are present' do
       let(:raw_compare) do
         Gitlab::Git::Compare.new(
-          project.repository.raw_repository, 'before-create-delete-modify-move', 'after-create-delete-modify-move'
+          repository.raw_repository, 'before-create-delete-modify-move', 'after-create-delete-modify-move'
         )
       end
 

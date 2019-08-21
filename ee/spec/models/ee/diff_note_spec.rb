@@ -15,13 +15,13 @@ describe DiffNote do
     let(:diff_note) { create(:diff_note_on_design, noteable: design, project: design.project) }
 
     describe '#latest_diff_file' do
-      it 'does not return a diff file' do
+      it 'returns a diff file' do
         expect(diff_note.latest_diff_file).to be_nil
       end
     end
 
     describe '#diff_file' do
-      it 'does not return a diff file' do
+      it 'returns a diff file' do
         expect(diff_note.diff_file).to be_nil
       end
     end

@@ -72,4 +72,10 @@ describe Note do
       end
     end
   end
+
+  describe '#for_design?' do
+    subject { build(:diff_note_on_design).becomes(described_class) }
+
+    it { expect(subject.for_design?).to eq(true) }
+  end
 end

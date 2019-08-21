@@ -383,13 +383,13 @@ module Gitlab
       def new_blob_lazy
         return unless new_content_sha
 
-        Blob.lazy(repository.project, new_content_sha, file_path)
+        Blob.lazy(repository, new_content_sha, file_path)
       end
 
       def old_blob_lazy
         return unless old_content_sha
 
-        Blob.lazy(repository.project, old_content_sha, old_path)
+        Blob.lazy(repository, old_content_sha, old_path)
       end
 
       def simple_viewer_class
