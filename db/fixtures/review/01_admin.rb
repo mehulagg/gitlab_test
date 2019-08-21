@@ -1,5 +1,3 @@
-# require './spec/support/sidekiq_middleware'
-
 Gitlab::Seeder.quiet do
   User.create!(
     name: 'Administrator',
