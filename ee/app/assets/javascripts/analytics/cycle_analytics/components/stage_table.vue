@@ -8,7 +8,7 @@ import StageCodeComponent from './stage_code_component.vue';
 import StageComponent from './stage_component.vue';
 import StageReviewComponent from './stage_review_component.vue';
 import StageStagingComponent from './stage_staging_component.vue';
-import stageTestComponent from './stage_test_component.vue';
+import StageTestComponent from './stage_test_component.vue';
 
 export default {
   name: 'StageTable',
@@ -18,7 +18,7 @@ export default {
     'stage-issue-component': StageComponent,
     'stage-plan-component': StageComponent,
     'stage-code-component': StageCodeComponent,
-    'stage-test-component': stageTestComponent,
+    'stage-test-component': StageTestComponent,
     'stage-review-component': StageReviewComponent,
     'stage-staging-component': StageStagingComponent,
     'stage-production-component': StageComponent,

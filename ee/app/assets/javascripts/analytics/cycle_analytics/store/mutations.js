@@ -1,6 +1,7 @@
 import * as types from './mutation_types';
 import EMPTY_STAGE_TEXTS from '../empty_stage_texts';
 import { dasherize } from '~/lib/utils/text_utility';
+import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 
 export default {
   [types.SET_CYCLE_ANALYTICS_DATA_ENDPOINT](state, groupPath) {
@@ -55,29 +56,30 @@ export default {
     state.isLoadingStage = true;
   },
   [types.RECEIVE_STAGE_DATA_SUCCESS](state, data) {
-    state.events = data.events.map(item => {
-      const author = item.author
-        ? {
-            id: item.author.id,
-            name: item.author.name,
-            webUrl: item.author.web_url,
-            avatarUrl: item.author.avatar_url,
-          }
-        : null;
+    state.events = data.events.map(item => convertObjectPropsToCamelCase(item, { deep: true }));
+    // state.events = data.events.map(item => {
+    //   const author = item.author
+    //     ? {
+    //         id: item.author.id,
+    //         name: item.author.name,
+    //         webUrl: item.author.web_url,
+    //         avatarUrl: item.author.avatar_url,
+    //       }
+    //     : null;
 
-      const branch = item.branch ? item.branch : null;
+    //   const branch = item.branch ? item.branch : null;
 
-      return {
-        id: item.id,
-        iid: item.iid,
-        totalTime: item.total_time,
-        createdAt: item.created_at,
-        shortSha: item.short_sha,
-        commitUrl: item.commit_url,
-        author,
-        branch,
-      };
-    });
+    //   return {
+    //     id: item.id,
+    //     iid: item.iid,
+    //     totalTime: item.total_time,
+    //     createdAt: item.created_at,
+    //     shortSha: item.short_sha,
+    //     commitUrl: item.commit_url,
+    //     author,
+    //     branch,
+    //   };
+    // });
 
     state.isEmptyStage = state.events.length === 0;
     state.isLoadingStage = false;
