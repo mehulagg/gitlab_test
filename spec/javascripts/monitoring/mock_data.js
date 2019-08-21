@@ -299,7 +299,7 @@ export const graphDataPrometheusQueryRange = {
   ],
   queries: [
     {
-      metricId: null,
+      metricId: '10',
       id: 'metric_a1',
       metric_id: 2,
       query_range:
