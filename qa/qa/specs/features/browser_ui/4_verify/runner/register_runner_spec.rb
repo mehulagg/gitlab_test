@@ -13,13 +13,14 @@ module QA
         Runtime::Browser.visit(:gitlab, Page::Main::Login)
         Page::Main::Login.perform(&:sign_in_using_credentials)
 
-        Resource::Runner.fabricate! do |runner|
+        runner = Resource::Runner.fabricate! do |runner|
           runner.name = executor
         end
+        runner.project.visit!
 
+        Page::Project::Menu.perform(&:go_to_ci_cd_settings)
         Page::Project::Settings::CICD.perform do |settings|
           sleep 5 # Runner should register within 5 seconds
-          settings.refresh
 
           settings.expand_runners_settings do |page|
             expect(page).to have_content(executor)
