@@ -18,7 +18,11 @@ export const setSelectedStageName = ({ commit }, stageName) =>
 export const requestStageData = ({ commit }) => commit(types.REQUEST_STAGE_DATA);
 export const receiveStageDataSuccess = ({ commit }, data) =>
   commit(types.RECEIVE_STAGE_DATA_SUCCESS, data);
-export const receiveStageDataError = ({ commit }) => commit(types.RECEIVE_STAGE_DATA_ERROR);
+
+export const receiveStageDataError = ({ commit }) => {
+  commit(types.RECEIVE_STAGE_DATA_ERROR);
+  createFlash(__('There was an error while fetching cycle analytics data.'));
+};
 
 export const fetchStageData = ({ state, dispatch }) => {
   dispatch('requestStageData');
@@ -31,10 +35,7 @@ export const fetchStageData = ({ state, dispatch }) => {
       },
     })
     .then(({ data }) => dispatch('receiveStageDataSuccess', data))
-    .catch(error => {
-      dispatch('receiveStageDataError', error);
-      createFlash(__('There was an error while fetching cycle analytics data.'));
-    });
+    .catch(error => dispatch('receiveStageDataError', error));
 };
 
 export const requestCycleAnalyticsData = ({ commit }) => commit(types.REQUEST_CYCLE_ANALYTICS_DATA);
@@ -48,8 +49,10 @@ export const receiveCycleAnalyticsDataSuccess = ({ state, commit, dispatch }, da
     createFlash(__('There was an error while fetching cycle analytics data.'));
   }
 };
-export const receiveCycleAnalyticsDataError = ({ commit }) =>
+export const receiveCycleAnalyticsDataError = ({ commit }) => {
   commit(types.RECEIVE_CYCLE_ANALYTICS_DATA_ERROR);
+  createFlash(__('There was an error while fetching cycle analytics data.'));
+};
 
 export const fetchCycleAnalyticsData = ({ state, dispatch }) => {
   dispatch('requestCycleAnalyticsData');
@@ -62,8 +65,5 @@ export const fetchCycleAnalyticsData = ({ state, dispatch }) => {
       },
     })
     .then(({ data }) => dispatch('receiveCycleAnalyticsDataSuccess', data))
-    .catch(error => {
-      dispatch('receiveCycleAnalyticsDataError', error);
-      createFlash(__('There was an error while fetching cycle analytics data.'));
-    });
+    .catch(error => dispatch('receiveCycleAnalyticsDataError', error));
 };
