@@ -131,14 +131,14 @@ describe API::Groups do
   describe "POST /groups" do
     context "when authenticated as user with group permissions" do
       it "creates an ldap_group_link if ldap_cn and ldap_access are supplied" do
-        group_attributes = attributes_for(:group, ldap_cn: 'ldap-group', ldap_access: Gitlab::Access::DEVELOPER)
+        group_attributes = attributes_for(:group, ldap_cn: 'ldap-group', ldap_access: Gitlab::Access::DEVELOPER).except(:project_creation_level, :subgroup_creation_level)
         expect { post api("/groups", admin), params: group_attributes }.to change { LdapGroupLink.count }.by(1)
       end
 
       context 'when shared_runners_minutes_limit is given' do
         context 'when the current user is not an admin' do
           it "does not create a group with shared_runners_minutes_limit" do
-            group = attributes_for(:group, { shared_runners_minutes_limit: 133 })
+            group = attributes_for(:group, { shared_runners_minutes_limit: 133 }).except(:project_creation_level, :subgroup_creation_level)
 
             expect do
               post api("/groups", another_user), params: group
@@ -150,7 +150,7 @@ describe API::Groups do
 
         context 'when the current user is an admin' do
           it "creates a group with shared_runners_minutes_limit" do
-            group = attributes_for(:group, { shared_runners_minutes_limit: 133 })
+            group = attributes_for(:group, { shared_runners_minutes_limit: 133 }).except(:project_creation_level, :subgroup_creation_level)
 
             expect do
               post api("/groups", admin), params: group
