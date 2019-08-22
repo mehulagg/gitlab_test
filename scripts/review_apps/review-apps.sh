@@ -127,20 +127,6 @@ function get_pod() {
   echo "${pod_name}"
 }
 
-<<<<<<< HEAD
-=======
-function perform_review_app_deployment() {
-  check_kube_domain
-  ensure_namespace
-  install_tiller
-  install_external_dns
-  time deploy || true
-  wait_for_review_app_to_be_accessible
-  add_license
-  add_secure_seeds
-}
-
->>>>>>> Try requiring sidekiq again
 function check_kube_domain() {
   echoinfo "Checking that Kube domain exists..." true
 

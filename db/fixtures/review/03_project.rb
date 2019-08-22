@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # rubocop:disable Rails/Output
 
 Gitlab::Seeder.quiet do
@@ -56,7 +58,7 @@ Gitlab::Seeder.quiet do
           name: group_path.titleize,
           path: group_path
         )
-        group.description = "Review app seed group"
+        group.description = "Group for review app seeded Projects"
         group.save!
 
         group.add_owner(User.first)
@@ -68,7 +70,7 @@ Gitlab::Seeder.quiet do
         import_url: url,
         namespace_id: group.id,
         name: project_path.titleize,
-        description: "Review app seed project",
+        description: "Project for review app",
         visibility_level: Gitlab::VisibilityLevel.values.sample,
         skip_disk_validation: true
       }
@@ -77,18 +79,14 @@ Gitlab::Seeder.quiet do
         params[:storage_version] = Project::LATEST_STORAGE_VERSION
       end
 
-      project = nil
+      project = Projects::CreateService.new(User.first, params).execute
 
-      Sidekiq::Worker.skipping_transaction_check do
-        project = Projects::CreateService.new(User.first, params).execute
-
-        # Seed-Fu runs this entire fixture in a transaction, so the `after_commit`
-        # hook won't run until after the fixture is loaded. That is too late
-        # since the Sidekiq::Testing block has already exited. Force clearing
-        # the `after_commit` queue to ensure the job is run now.
-        project.send(:_run_after_commit_queue)
-        project.import_state.send(:_run_after_commit_queue)
-      end
+      # Seed-Fu runs this entire fixture in a transaction, so the `after_commit`
+      # hook won't run until after the fixture is loaded. That is too late
+      # since the Sidekiq::Testing block has already exited. Force clearing
+      # the `after_commit` queue to ensure the job is run now.
+      project.send(:_run_after_commit_queue)
+      project.import_state.send(:_run_after_commit_queue)
 
       if project.valid? && project.valid_repo?
         print '.'
