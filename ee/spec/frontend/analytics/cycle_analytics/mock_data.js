@@ -222,4 +222,9 @@ export const reviewItems = [
   },
 ];
 
+export const codeItems = [];
+export const testItems = [];
+export const stagingItems = [];
+export const productionItems = [];
+
 export const stageData = { events: [] };
