@@ -57,12 +57,14 @@ class SeedDesigns
   end
 
   def create_version(repo, devs, to_change, version_number)
+    warn(to_change.inspect)
     user = devs.sample
     actions = to_change.map { |design| as_action(design) }
     sha = repo.multi_action(user, branch_name: 'master',
                                  message: "version #{version_number}",
                                  actions: actions.map(&:gitaly_action))
     version = DesignManagement::Version.create_for_designs(actions, sha)
+
     if version.valid?
       print('.' * to_change.size)
     else
@@ -76,23 +78,30 @@ class SeedDesigns
 
     files.in_groups_of(10).map(&:compact).select(&:present?).flat_map do |fs|
       user = devs.sample
+      next [] unless user.present?
+
       service = DesignManagement::SaveDesignsService.new(project, user,
                                                          issue: issue,
                                                          files: fs)
 
       message, designs = service.execute.values_at(:message, :designs)
+
       if message
         print('F' * fs.size)
         warn(message)
-      else
+      elsif designs.present?
         print('.' * designs.size)
+      else
+        warn('No designs?')
       end
 
-      designs || []
+      designs.presence || []
     end
   end
 
   def run
+    puts("NB: This seed requires the rails-web component to be running!")
+
     Issue.all.sample(n_issues).each do |issue|
       project = issue.project
       repo = project.design_repository
@@ -102,9 +111,13 @@ class SeedDesigns
 
       # All designs get created at least once
       designs = create_designs(project, issue, repo, devs)
+      next unless designs.present?
 
       Random.rand(max_versions_per_issue).times do |i|
         to_change = designs.sample(Random.rand(1..max_designs_per_version))
+        puts("Designs: #{designs.inspect}")
+        puts("To Change: #{to_change.inspect}")
+
         create_version(repo, devs, to_change, i)
       end
     end
