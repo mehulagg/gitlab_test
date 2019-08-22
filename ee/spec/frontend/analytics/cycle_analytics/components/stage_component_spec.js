@@ -1,5 +1,10 @@
 import { shallowMount, mount } from '@vue/test-utils';
 import StageComponent from 'ee/analytics/cycle_analytics/components/stage_component.vue';
+import StageCodeComponent from 'ee/analytics/cycle_analytics/components/stage_code_component.vue';
+import StageReviewComponent from 'ee/analytics/cycle_analytics/components/stage_review_component.vue';
+import StageTestComponent from 'ee/analytics/cycle_analytics/components/stage_test_component.vue';
+import StageStagingComponent from 'ee/analytics/cycle_analytics/components/stage_staging_component.vue';
+
 import {
   issueStage as stage,
   issueItems,
@@ -13,9 +18,9 @@ import {
 
 let wrapper = null;
 
-function createComponent(props = {}, shallow = true) {
+function createComponent(props = {}, shallow = true, Component = StageComponent) {
   const func = shallow ? shallowMount : mount;
-  return func(StageComponent, {
+  return func(Component, {
     propsData: {
       stage,
       items: issueItems,
@@ -68,23 +73,19 @@ function renderTotalTime(element, totalTime) {
 
 describe('StageComponent', () => {
   describe('Default stages', () => {
-    beforeEach(() => {
-      wrapper = createComponent();
-    });
-
-    afterEach(() => {
-      wrapper.destroy();
-    });
-
     describe('Issue stage', () => {
+      beforeEach(() => {
+        wrapper = createComponent({ items: issueItems }, false);
+      });
+
+      afterEach(() => {
+        wrapper.destroy();
+      });
       it('will render the event description', () => {
-        wrapper = createComponent({ items: issueItems });
         expect(wrapper.find($sel.description).text()).toEqual(stage.description);
       });
 
       it('will render the list of items', () => {
-        wrapper = createComponent({}, false);
-
         issueItems.forEach((item, index) => {
           const elem = wrapper.findAll($sel.item).at(index);
           renderStageEvent(elem, item);
@@ -94,13 +95,17 @@ describe('StageComponent', () => {
     });
 
     describe('Plan stage', () => {
+      beforeEach(() => {
+        wrapper = createComponent({ items: planItems }, false);
+      });
+
+      afterEach(() => {
+        wrapper.destroy();
+      });
       it('will render the event description', () => {
-        wrapper = createComponent({ items: planItems });
         expect(wrapper.find($sel.description).text()).toEqual(stage.description);
       });
       it('will render the list of items', () => {
-        wrapper = createComponent({ items: planItems }, false);
-
         planItems.forEach((item, index) => {
           const elem = wrapper.findAll($sel.item).at(index);
           renderStageEvent(elem, item);
@@ -110,12 +115,17 @@ describe('StageComponent', () => {
     });
 
     describe('Review stage', () => {
+      beforeEach(() => {
+        wrapper = createComponent({ items: reviewItems }, false, StageReviewComponent);
+      });
+
+      afterEach(() => {
+        wrapper.destroy();
+      });
       it('will render the event description', () => {
-        wrapper = createComponent({ items: reviewItems });
         expect(wrapper.find($sel.description).text()).toEqual(stage.description);
       });
       it('will render the list of items', () => {
-        wrapper = createComponent({ items: reviewItems }, false);
         reviewItems.forEach((item, index) => {
           const elem = wrapper.findAll($sel.item).at(index);
           if (item.state === 'closed') {
@@ -131,12 +141,17 @@ describe('StageComponent', () => {
     });
 
     describe('Code stage', () => {
+      beforeEach(() => {
+        wrapper = createComponent({ items: codeItems }, false, StageCodeComponent);
+      });
+
+      afterEach(() => {
+        wrapper.destroy();
+      });
       it('will render the event description', () => {
-        wrapper = createComponent({ items: codeItems });
         expect(wrapper.find($sel.description).text()).toEqual(stage.description);
       });
       it('will render the list of items', () => {
-        wrapper = createComponent({ items: codeItems }, false);
         codeItems.forEach((item, index) => {
           const elem = wrapper.findAll($sel.item).at(index);
           renderStageEvent(elem, item);
@@ -146,12 +161,17 @@ describe('StageComponent', () => {
     });
 
     describe('Test stage', () => {
+      beforeEach(() => {
+        wrapper = createComponent({ items: testItems }, false, StageTestComponent);
+      });
+
+      afterEach(() => {
+        wrapper.destroy();
+      });
       it('will render the event description', () => {
-        wrapper = createComponent({ items: testItems });
         expect(wrapper.find($sel.description).text()).toEqual(stage.description);
       });
       it('will render the list of items', () => {
-        wrapper = createComponent({ items: testItems }, false);
         testItems.forEach((item, index) => {
           const elem = wrapper.findAll($sel.item).at(index);
           expect(elem.find('.icon-build-status').exists()).toBe(true);
@@ -167,14 +187,19 @@ describe('StageComponent', () => {
     });
 
     describe('Staging stage', () => {
+      beforeEach(() => {
+        wrapper = createComponent({ items: stagingItems }, false, StageStagingComponent);
+      });
+
+      afterEach(() => {
+        wrapper.destroy();
+      });
       it('will render the event description', () => {
-        wrapper = createComponent({ items: stagingItems });
         stagingItems.forEach(item => {
           expect(wrapper.find($sel.description).text()).toEqual(item.description);
         });
       });
       it('will render the list of items', () => {
-        wrapper = createComponent({ items: stagingItems }, false);
         stagingItems.forEach((item, index) => {
           const elem = wrapper.findAll($sel.item).at(index);
           expect(elem.find('.icon-branch').exists()).toBe(true);
@@ -188,12 +213,17 @@ describe('StageComponent', () => {
     });
 
     describe('Production stage', () => {
+      beforeEach(() => {
+        wrapper = createComponent({ items: productionItems }, false);
+      });
+
+      afterEach(() => {
+        wrapper.destroy();
+      });
       it('will render the event description', () => {
-        wrapper = createComponent({ items: productionItems });
         expect(wrapper.find($sel.description).text()).toEqual(stage.description);
       });
       it('will render the list of items', () => {
-        wrapper = createComponent({ items: productionItems }, false);
         productionItems.forEach((item, index) => {
           const elem = wrapper.findAll($sel.item).at(index);
           renderStageEvent(elem, item);
