@@ -141,4 +141,85 @@ export const issueItems = [
   },
 ];
 
+export const planItems = [
+  {
+    title: 'Update readme cos this is a test and we want some test data',
+    author: {
+      id: 1,
+      name: 'Administrator',
+      username: 'root',
+      state: 'active',
+      avatarUrl:
+        'https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon',
+      webUrl: 'http://localhost:3001/root',
+      statusTooltipHtml: null,
+      path: '/root',
+    },
+    iid: '32',
+    totalTime: { days: 22, hours: 5, mins: 37, seconds: 43 },
+    createdAt: '23 days ago',
+    url: 'http://localhost:3001/twitter/typeahead-js/issues/32',
+  },
+];
+
+export const reviewItems = [
+  {
+    title: 'Resolve "arargagargaga"',
+    author: {
+      id: 1,
+      name: 'Administrator',
+      username: 'root',
+      state: 'active',
+      avatarUrl:
+        'https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon',
+      webUrl: 'http://localhost:3001/root',
+      statusTooltipHtml: null,
+      path: '/root',
+    },
+    iid: '14',
+    totalTime: { mins: 6, seconds: 34 },
+    createdAt: '1 day ago',
+    url: 'http://localhost:3001/twitter/typeahead-js/merge_requests/14',
+    state: 'merged',
+  },
+  {
+    title: 'Resolve "Give me some damn data already"',
+    author: {
+      id: 1,
+      name: 'Administrator',
+      username: 'root',
+      state: 'active',
+      avatarUrl:
+        'https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon',
+      webUrl: 'http://localhost:3001/root',
+      statusTooltipHtml: null,
+      path: '/root',
+    },
+    iid: '13',
+    totalTime: { mins: 5, seconds: 46 },
+    createdAt: '1 day ago',
+    url: 'http://localhost:3001/twitter/typeahead-js/merge_requests/13',
+    state: 'merged',
+  },
+  {
+    title: 'Resolve "Update readme cos this is a test and we want some test data"',
+    author: {
+      id: 1,
+      name: 'Administrator',
+      username: 'root',
+      state: 'active',
+      avatarUrl:
+        'https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon',
+      webUrl: 'http://localhost:3001/root',
+      statusTooltipHtml: null,
+      path: '/root',
+    },
+    iid: '9',
+    totalTime: { days: 22, hours: 5, mins: 37, seconds: 36 },
+    createdAt: '23 days ago',
+    url: 'http://localhost:3001/twitter/typeahead-js/merge_requests/9',
+    state: 'merged',
+  },
+];
+
 export const stageData = { events: [] };

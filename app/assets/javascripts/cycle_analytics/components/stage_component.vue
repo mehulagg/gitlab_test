@@ -27,6 +27,7 @@ export default {
       {{ stage.description }}
       <limit-warning :count="items.length" />
     </div>
+    <!--  -->
     <ul class="stage-event-list">
       <li v-for="(issue, i) in items" :key="i" class="stage-event-item">
         <div class="item-details">
