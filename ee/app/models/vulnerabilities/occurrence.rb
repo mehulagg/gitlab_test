@@ -196,6 +196,10 @@ module Vulnerabilities
       report_type.hash ^ location.hash ^ first_fingerprint.hash
     end
 
+    def dismissed?
+      dismissal_feedback.present?
+    end
+
     protected
 
     def first_fingerprint

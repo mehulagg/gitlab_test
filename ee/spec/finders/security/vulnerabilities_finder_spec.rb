@@ -79,7 +79,6 @@ describe Security::VulnerabilitiesFinder do
       end
     end
 
-    # FIXME: unskip when this filter is implemented
     context 'by dismissals' do
       let!(:dismissal) do
         create(:vulnerability_feedback, :sast, :dismissal,
@@ -90,14 +89,14 @@ describe Security::VulnerabilitiesFinder do
 
       let(:params) { { hide_dismissed: true } }
 
-      skip 'exclude dismissal' do
+      it 'excludes dismissed' do
         is_expected.to contain_exactly(vulnerability2, vulnerability3, vulnerability4)
       end
     end
 
     context 'by all filters' do
       context 'with found entity' do
-        let(:params) { { severity: %w[high medium low], project_id: [project1.id, project2.id], report_type: %w[sast dast] } }
+        let(:params) { { severity: %w[high medium low], project_id: [project1.id, project2.id], report_type: %w[sast dast], hide_dismissed: true } }
 
         it 'filters by all params' do
           is_expected.to contain_exactly(vulnerability1, vulnerability3, vulnerability4)

@@ -344,5 +344,38 @@ describe Vulnerabilities::Occurrence do
         expect(feedback[:merge_request_id]).to eq merge_request.id
       end
     end
+
+    describe '#dismissed?' do
+      set(:project) { create(:project) }
+      let(:occurrence) do
+        create(
+          :vulnerabilities_occurrence,
+          report_type: :dependency_scanning,
+          project: project
+        )
+      end
+
+      context 'with dismissal' do
+        let!(:dismissal_feedback) do
+          create(
+            :vulnerability_feedback,
+            :dependency_scanning,
+            :dismissal,
+            project: project,
+            project_fingerprint: occurrence.project_fingerprint
+          )
+        end
+  
+        it 'is true' do
+          expect(occurrence.dismissed?).to eq(true)
+        end
+      end
+
+      context 'without dismissal' do
+        it 'is false' do
+          expect(occurrence.dismissed?).to eq(false)
+        end
+      end
+    end
   end
 end
