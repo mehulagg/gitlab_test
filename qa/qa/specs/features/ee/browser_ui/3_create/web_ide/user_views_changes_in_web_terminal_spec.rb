@@ -2,7 +2,7 @@
 
 module QA
   context 'Create' do
-    describe 'Web IDE web terminal', :orchestrated, :docker do
+    describe 'Web IDE web terminal', :docker do
       before do
         @project = Resource::Project.fabricate_via_api! do |project|
           project.name = 'web-terminal-project'
