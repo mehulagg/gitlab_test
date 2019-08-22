@@ -116,6 +116,7 @@ class SeedDesigns
 end
 
 Gitlab::Seeder.quiet do
+  run                     = ENV.fetch('DESIGN_MANAGEMENT_SEED_RUN', false)
   clear                   = ENV.fetch('DESIGN_MANAGEMENT_SEED_CLEAR', false)
   n_issues                = ENV.fetch('DESIGN_MANAGEMENT_SEED_N_ISSUES', 3).to_i
   max_designs_per_issue   = ENV.fetch('DESIGN_MANAGEMENT_SEED_DESIGNS_PER_ISSUE', 5).to_i
@@ -128,6 +129,8 @@ Gitlab::Seeder.quiet do
     Feature.enable(flag)
     [flag, old]
   end.to_h
+
+  break unless run
 
   DesignManagement::Design.delete_all if clear
 
