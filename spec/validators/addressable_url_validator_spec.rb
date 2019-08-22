@@ -265,7 +265,7 @@ describe AddressableUrlValidator do
   context 'when enforce_sanitization is' do
     let(:validator) { described_class.new(attributes: [:link_url], enforce_sanitization: enforce_sanitization) }
     let(:unsafe_url) { "https://replaceme.com/'><script>alert(document.cookie)</script>" }
-    let(:safe_url) { 'https://replaceme.com/path/to/somewhere' }
+    let(:safe_url) { 'https://example.com/d?orgId=1&from=now-8h' }
 
     let(:unsafe_internal_url) do
       Gitlab.config.gitlab.protocol + '://' + Gitlab.config.gitlab.host +

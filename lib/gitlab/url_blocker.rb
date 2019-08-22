@@ -156,9 +156,9 @@ module Gitlab
 
       def validate_html_tags(uri)
         uri_str = uri.to_s
-        sanitized_uri = ActionController::Base.helpers.sanitize(uri_str, tags: [])
+        sanitized_uri = Addressable::URI.encode(uri_str)
         if sanitized_uri != uri_str
-          raise BlockedUrlError, 'HTML/CSS/JS tags are not allowed'
+          raise BlockedUrlError, _('Special characters should be encoded')
         end
       end
 
