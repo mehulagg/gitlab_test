@@ -39,7 +39,7 @@ export default {
           <h5 class="item-title merge-request-title">
             <a :href="url">{{ title }}</a>
           </h5>
-          <a :href="url" class="issue-link">!{{ iid }}</a> &middot;
+          <a :href="url" class="mr-link">!{{ iid }}</a> &middot;
           <span>
             {{ s__('OpenedNDaysAgo|Opened') }}
             <a :href="url" class="issue-date">{{ createdAt }}</a>

@@ -29,6 +29,7 @@ const $sel = {
   description: '.events-description',
   title: '.issue-title',
   issueLink: '.issue-link',
+  mrLink: '.mr-link',
   date: '.issue-date',
   author: '.issue-author-link',
   time: '.item-time',
@@ -41,7 +42,11 @@ const $sel = {
 
 function renderStageEvent(elem, item) {
   expect(elem.find($sel.title).text()).toEqual(item.title);
-  expect(elem.find($sel.issueLink).text()).toEqual(`#${item.iid}`);
+  if (elem.find($sel.mrLink).exists()) {
+    expect(elem.find($sel.mrLink).text()).toEqual(`!${item.iid}`);
+  } else {
+    expect(elem.find($sel.issueLink).text()).toEqual(`#${item.iid}`);
+  }
   expect(elem.find($sel.date).text()).toEqual(item.createdAt);
   expect(elem.find($sel.author).text()).toEqual(item.author.name);
   expect(elem.find($sel.author).attributes('href')).toEqual(item.author.webUrl);
