@@ -62,9 +62,12 @@ export default {
       'setSelectedStageName',
     ]),
     onGroupSelect(group) {
+      console.log('onGroupSelect');
       this.setCycleAnalyticsDataEndpoint(group.path);
       this.setSelectedGroup(group);
       this.fetchCycleAnalyticsData();
+
+      console.log('onGroupSelect::group', group);
     },
     onProjectsSelect(projects) {
       const projectIds = projects.map(value => value.id);
@@ -76,9 +79,12 @@ export default {
       this.fetchCycleAnalyticsData();
     },
     onStageSelect(stage) {
+      console.log('onStageSelect');
       this.setSelectedStageName(stage.name);
       this.setStageDataEndpoint(this.getCurrentStage.slug);
       this.fetchStageData(this.getCurrentStage.name);
+
+      console.log('onStageSelect::stage', stage);
     },
   },
 };

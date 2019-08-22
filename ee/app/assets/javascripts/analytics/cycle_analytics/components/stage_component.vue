@@ -12,11 +12,11 @@ export default {
   props: {
     items: {
       type: Array,
-      default: () => [],
+      required: true,
     },
     stage: {
       type: Object,
-      default: () => ({}),
+      required: true,
     },
   },
 };
@@ -29,15 +29,16 @@ export default {
     </div>
     <ul class="stage-event-list">
       <li
-        v-for="({ iid, title, url, author, totalTime }, i) in items"
+        v-for="({ iid, title, url, author, totalTime, createdAt }, i) in items"
         :key="i"
         class="stage-event-item"
       >
+        <!-- TODO: should probably be slotted -->
         <div class="item-details">
           <!-- FIXME: Pass an alt attribute here for accessibility -->
           <user-avatar-image :img-src="author.avatarUrl" />
           <h5 class="item-title issue-title">
-            <a :href="issue.url" class="issue-title">{{ title }}</a>
+            <a :href="url" class="issue-title">{{ title }}</a>
           </h5>
           <a :href="url" class="issue-link">#{{ iid }}</a> &middot;
           <span>

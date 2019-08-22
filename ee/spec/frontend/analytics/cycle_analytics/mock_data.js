@@ -71,4 +71,74 @@ export const cycleAnalyticsData = {
   },
 };
 
+export const issueStage = {
+  component: 'stage-issue-component',
+  description: 'Time before an issue gets scheduled',
+  emptyStageText:
+    'The issue stage shows the time it takes from creating an issue to assigning the issue to a milestone, or add the issue to a list on your Issue Board. Begin creating issues to see data for this stage.',
+  isUserAllowed: true,
+  legend: 'Related Issues',
+  name: 'issue',
+  slug: 'issue',
+  title: 'Issue',
+  value: 'less than a minute',
+};
+
+export const issueItems = [
+  {
+    title: 'This is very annoying',
+    author: {
+      id: 1,
+      name: 'Administrator',
+      username: 'root',
+      state: 'active',
+      avatarUrl:
+        'https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon',
+      webUrl: 'http://localhost:3001/root',
+      statusTooltipHtml: null,
+      path: '/root',
+    },
+    iid: '36',
+    totalTime: { seconds: 55 },
+    createdAt: '1 day ago',
+    url: 'http://localhost:3001/twitter/typeahead-js/issues/36',
+  },
+  {
+    title: 'Wtffyyfyf',
+    author: {
+      id: 1,
+      name: 'Administrator',
+      username: 'root',
+      state: 'active',
+      avatarUrl:
+        'https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon',
+      webUrl: 'http://localhost:3001/root',
+      statusTooltipHtml: null,
+      path: '/root',
+    },
+    iid: '35',
+    totalTime: { seconds: 20 },
+    createdAt: '1 day ago',
+    url: 'http://localhost:3001/twitter/typeahead-js/issues/35',
+  },
+  {
+    title: 'Update readme cos this is a test and we want some test data',
+    author: {
+      id: 1,
+      name: 'Administrator',
+      username: 'root',
+      state: 'active',
+      avatarUrl:
+        'https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon',
+      webUrl: 'http://localhost:3001/root',
+      statusTooltipHtml: null,
+      path: '/root',
+    },
+    iid: '32',
+    totalTime: { seconds: 0 },
+    createdAt: '23 days ago',
+    url: 'http://localhost:3001/twitter/typeahead-js/issues/32',
+  },
+];
+
 export const stageData = { events: [] };
