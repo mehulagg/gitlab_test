@@ -10,10 +10,11 @@ variables:
 license_management:
   stage: test
   image:
-    name: "registry.gitlab.com/gitlab-org/security-products/license-management:$CI_SERVER_VERSION_MAJOR-$CI_SERVER_VERSION_MINOR-stable"
+    name: "registry.gitlab.com/gitlab-org/security-products/license-management$LM_IMAGE"
     entrypoint: [""]
   variables:
     SETUP_CMD: $LICENSE_MANAGEMENT_SETUP_CMD
+    LM_IMAGE: ":$CI_SERVER_VERSION_MAJOR-$CI_SERVER_VERSION_MINOR-stable"
   allow_failure: true
   script:
     - /run.sh analyze .
