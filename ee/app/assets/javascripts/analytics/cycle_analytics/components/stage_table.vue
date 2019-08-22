@@ -4,11 +4,11 @@ import { GlTooltipDirective, GlLoadingIcon } from '@gitlab/ui';
 import Icon from '~/vue_shared/components/icon.vue';
 import iconNoData from 'icons/_icon_no_data.svg';
 import iconLock from 'icons/_icon_lock.svg';
-import StageCodeComponent from './stage_code_component.vue';
-import StageComponent from './stage_component.vue';
-import StageReviewComponent from './stage_review_component.vue';
-import StageStagingComponent from './stage_staging_component.vue';
-import StageTestComponent from './stage_test_component.vue';
+import StageCodeComponent from './stage_code.vue';
+import StageComponent from './stage.vue';
+import StageReviewComponent from './stage_review.vue';
+import StageStagingComponent from './stage_staging.vue';
+import StageTestComponent from './stage_test.vue';
 
 export default {
   name: 'StageTable',

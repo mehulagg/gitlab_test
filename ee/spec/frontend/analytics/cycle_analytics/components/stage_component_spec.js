@@ -1,9 +1,9 @@
 import { shallowMount, mount } from '@vue/test-utils';
-import StageComponent from 'ee/analytics/cycle_analytics/components/stage_component.vue';
-import StageCodeComponent from 'ee/analytics/cycle_analytics/components/stage_code_component.vue';
-import StageReviewComponent from 'ee/analytics/cycle_analytics/components/stage_review_component.vue';
-import StageTestComponent from 'ee/analytics/cycle_analytics/components/stage_test_component.vue';
-import StageStagingComponent from 'ee/analytics/cycle_analytics/components/stage_staging_component.vue';
+import Stage from 'ee/analytics/cycle_analytics/components/stage.vue';
+import StageCode from 'ee/analytics/cycle_analytics/components/stage_code.vue';
+import StageReview from 'ee/analytics/cycle_analytics/components/stage_review.vue';
+import StageTest from 'ee/analytics/cycle_analytics/components/stage_test.vue';
+import StageStaging from 'ee/analytics/cycle_analytics/components/stage_staging.vue';
 
 import {
   issueStage as stage,
@@ -18,7 +18,7 @@ import {
 
 let wrapper = null;
 
-function createComponent(props = {}, shallow = true, Component = StageComponent) {
+function createComponent(props = {}, shallow = true, Component = Stage) {
   const func = shallow ? shallowMount : mount;
   return func(Component, {
     propsData: {
@@ -32,7 +32,7 @@ function createComponent(props = {}, shallow = true, Component = StageComponent)
 const $sel = {
   item: '.stage-event-item',
   description: '.events-description',
-  title: '.issue-title',
+  title: '.item-title',
   issueLink: '.issue-link',
   mrLink: '.mr-link',
   date: '.issue-date',
@@ -71,8 +71,19 @@ function renderTotalTime(element, totalTime) {
   }
 }
 
-describe('StageComponent', () => {
+describe('Stage', () => {
   describe('Default stages', () => {
+    describe.skip('With too many events', () => {
+      beforeEach(() => {
+        wrapper = createComponent({ items: [issueItems] }, false);
+      });
+
+      afterEach(() => {
+        wrapper.destroy();
+      });
+      it('will render the limit warning', () => {});
+    });
+
     describe('Issue stage', () => {
       beforeEach(() => {
         wrapper = createComponent({ items: issueItems }, false);
@@ -116,7 +127,7 @@ describe('StageComponent', () => {
 
     describe('Review stage', () => {
       beforeEach(() => {
-        wrapper = createComponent({ items: reviewItems }, false, StageReviewComponent);
+        wrapper = createComponent({ items: reviewItems }, false, StageReview);
       });
 
       afterEach(() => {
@@ -142,7 +153,7 @@ describe('StageComponent', () => {
 
     describe('Code stage', () => {
       beforeEach(() => {
-        wrapper = createComponent({ items: codeItems }, false, StageCodeComponent);
+        wrapper = createComponent({ items: codeItems }, false, StageCode);
       });
 
       afterEach(() => {
@@ -162,7 +173,7 @@ describe('StageComponent', () => {
 
     describe('Test stage', () => {
       beforeEach(() => {
-        wrapper = createComponent({ items: testItems }, false, StageTestComponent);
+        wrapper = createComponent({ items: testItems }, false, StageTest);
       });
 
       afterEach(() => {
@@ -188,7 +199,7 @@ describe('StageComponent', () => {
 
     describe('Staging stage', () => {
       beforeEach(() => {
-        wrapper = createComponent({ items: stagingItems }, false, StageStagingComponent);
+        wrapper = createComponent({ items: stagingItems }, false, StageStaging);
       });
 
       afterEach(() => {

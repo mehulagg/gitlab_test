@@ -40,5 +40,51 @@ describe 'Group Cycle Analytics', :js do
     it 'shows the date filter' do
       expect(page).to have_selector('.js-timeframe-filter', visible: true)
     end
+
+    it 'smoke test' do 
+      expect(page).not_to have_selector('.cycle-analytics', visible: true)
+      expect(page).to have_selector('#cycle-analytics', visible: true)
+    end
+  end
+
+  # TODO: Followup should have tests for stub_licensed_features(cycle_analytics_for_groups: false)
+
+  context 'with cycle_analytics_app cookie set', :js do
+
+    before do
+      set_cookie('cycle_analytics_app', 'true')
+
+      group.add_owner(user)
+      project.add_maintainer(user)
+
+      sign_in(user)
+
+      visit analytics_cycle_analytics_path
+
+      dropdown = page.find('.dropdown-groups')
+      dropdown.click
+      dropdown.find('a').click
+    end
+
+    it 'smoke test' do
+      expect(page).to have_selector('.cycle-analytics', visible: true)
+      expect(page).not_to have_selector('#cycle-analytics',  visible: true)
+    end
+
+    # should have a group set and some data
+    context 'stage panel' do
+      it 'displays the stage table headers' do
+        expect(page).to have_selector('.stage-header', visible: true)
+        expect(page).to have_selector('.median-header', visible: true)
+        expect(page).to have_selector('.event-header', visible: true)
+        expect(page).to have_selector('.total-time-header', visible: true)
+      end
+    end
+
+    context 'stage nav' do
+      it 'displays the list of stages' do
+        expect(page).to have_selector('.stage-nav', visible: true)
+      end
+    end
   end
 end
