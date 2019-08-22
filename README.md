@@ -2,7 +2,7 @@
 
 ![logo](https://about.gitlab.com/images/logo.png)
 
-## Test coverage
+## Test coveragee
 
 - [![Ruby coverage](https://gitlab.com/gitlab-org/gitlab-ee/badges/master/coverage.svg?job=coverage)](https://gitlab-org.gitlab.io/gitlab-ee/coverage-ruby) Ruby
 - [![JavaScript coverage](https://gitlab.com/gitlab-org/gitlab-ee/badges/master/coverage.svg?job=karma)](https://gitlab-org.gitlab.io/gitlab-ee/coverage-javascript) JavaScript
