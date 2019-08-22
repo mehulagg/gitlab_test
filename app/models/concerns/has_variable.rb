@@ -2,6 +2,7 @@
 
 module HasVariable
   extend ActiveSupport::Concern
+  include Vault::EncryptedModel
 
   included do
     enum variable_type: {
@@ -17,11 +18,13 @@ module HasVariable
 
     scope :order_key_asc, -> { reorder(key: :asc) }
 
-    attr_encrypted :value,
-       mode: :per_attribute_iv_and_salt,
-       insecure_mode: true,
-       key: Settings.attr_encrypted_db_key_base,
-       algorithm: 'aes-256-cbc'
+    # attr_encrypted :value,
+    #    mode: :per_attribute_iv_and_salt,
+    #    insecure_mode: true,
+    #    key: Settings.attr_encrypted_db_key_base,
+    #    algorithm: 'aes-256-cbc'
+
+    vault_attribute :secret
 
     def key=(new_key)
       super(new_key.to_s.strip)

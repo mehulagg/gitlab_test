@@ -434,6 +434,8 @@ gem 'net-ntp'
 gem 'net-ssh', '~> 5.2'
 gem 'sshkey', '~> 2.0'
 
+gem "vault-rails", "~> 0.1", require: false
+
 # Required for ED25519 SSH host key support
 group :ed25519 do
   gem 'ed25519', '~> 1.2'

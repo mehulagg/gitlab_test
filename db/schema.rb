@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_08_15_093949) do
+ActiveRecord::Schema.define(version: 2019_08_23_152649) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -863,6 +863,7 @@ ActiveRecord::Schema.define(version: 2019_08_15_093949) do
     t.string "environment_scope", default: "*", null: false
     t.boolean "masked", default: false, null: false
     t.integer "variable_type", limit: 2, default: 1, null: false
+    t.string "secret_encrypted"
     t.index ["project_id", "key", "environment_scope"], name: "index_ci_variables_on_project_id_and_key_and_environment_scope", unique: true
   end
 
