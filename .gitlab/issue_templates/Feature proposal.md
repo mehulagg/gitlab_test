@@ -7,13 +7,17 @@
 <!-- Who will use this feature? If known, include any of the following: types of users (e.g. Developer), personas, or specific company roles (e.g. Release Manager). It's okay to write "Unknown" and fill this field in later.
 Personas can be found at https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/ -->
 
+### Proposal
+
+<!-- How are we going to solve the problem? Try to include the user journey! https://about.gitlab.com/handbook/journeys/#user-journey -->
+
 ### Further details
 
 <!-- Include use cases, benefits, and/or goals (contributes to our vision?) -->
 
-### Proposal
+#### Exclusions
 
-<!-- How are we going to solve the problem? Try to include the user journey! https://about.gitlab.com/handbook/journeys/#user-journey -->
+<!-- Include anything that specifically should not be included as part of this issue-->
 
 ### Permissions and Security
 
