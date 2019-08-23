@@ -72,7 +72,6 @@ export const tableSortOrder = {
 export const timeToMergeMetric = 'time_to_merge';
 
 export const defaultMaxColumnChartItemsPerPage = 20;
-
 export const maxColumnChartItemsPerPage = {
   [chartKeys.main]: 40,
 };
@@ -93,5 +92,29 @@ export const dataZoomOptions = [
  * #418cd8 --> $blue-400 (see variables.scss)
  */
 export const columnHighlightStyle = { color: '#418cd8', opacity: 0.8 };
+
+/**
+ * #1f78d1 --> $blue-500 (see variables.scss)
+ */
+export const scatterChartLineColor = '#1f78d1';
+
+export const scatterChartLineProps = {
+  default: {
+    type: 'line',
+    showSymbol: false,
+    lineStyle: { color: scatterChartLineColor },
+  },
+  transparent: {
+    type: 'line',
+    showSymbol: false,
+    lineStyle: { color: scatterChartLineColor, width: 30, opacity: 0.1 },
+  },
+};
+
+// The number of days which will be to the state's daysInPast
+// This is required to query historical data from the API to draw a 30 days rolling median line
+export const scatterPlotAddonQueryDays = 30;
+
+export const defaultDateFormat = 'mmm d, yyyy';
 
 export const accessLevelReporter = 20;

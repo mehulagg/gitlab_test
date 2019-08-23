@@ -4611,9 +4611,6 @@ msgstr ""
 msgid "DayTitle|W"
 msgstr ""
 
-msgid "Days"
-msgstr ""
-
 msgid "Days to merge"
 msgstr ""
 
@@ -7926,9 +7923,6 @@ msgid "Hook was successfully created."
 msgstr ""
 
 msgid "Hook was successfully updated."
-msgstr ""
-
-msgid "Hours"
 msgstr ""
 
 msgid "Housekeeping"
@@ -11392,7 +11386,31 @@ msgstr ""
 msgid "ProductivityAnalytics|Ascending"
 msgstr ""
 
+msgid "ProductivityAnalytics|Commits"
+msgstr ""
+
+msgid "ProductivityAnalytics|Days"
+msgstr ""
+
 msgid "ProductivityAnalytics|Descending"
+msgstr ""
+
+msgid "ProductivityAnalytics|Hours"
+msgstr ""
+
+msgid "ProductivityAnalytics|List"
+msgstr ""
+
+msgid "ProductivityAnalytics|Merge Requests"
+msgstr ""
+
+msgid "ProductivityAnalytics|Merge date"
+msgstr ""
+
+msgid "ProductivityAnalytics|Merge requests"
+msgstr ""
+
+msgid "ProductivityAnalytics|Trendline"
 msgstr ""
 
 msgid "Profile"

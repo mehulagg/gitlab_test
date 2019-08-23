@@ -6,7 +6,7 @@ import store from 'ee/analytics/productivity_analytics/store';
 import { chartKeys } from 'ee/analytics/productivity_analytics/constants';
 import { TEST_HOST } from 'helpers/test_constants';
 import { GlEmptyState, GlLoadingIcon, GlDropdown, GlDropdownItem, GlButton } from '@gitlab/ui';
-import { GlColumnChart } from '@gitlab/ui/dist/charts';
+import { GlColumnChart, GlDiscreteScatterChart } from '@gitlab/ui/dist/charts';
 import resetStore from '../helpers';
 
 const localVue = createLocalVue();
@@ -56,6 +56,7 @@ describe('ProductivityApp component', () => {
   const findSortOrderToggle = () => findMrTableSortSection().find(GlButton);
   const findTimeBasedSection = () => wrapper.find('.qa-time-based');
   const findCommitBasedSection = () => wrapper.find('.qa-commit-based');
+  const findScatterplotSection = () => wrapper.find('.qa-scatterplot');
 
   describe('template', () => {
     describe('without a group being selected', () => {
@@ -217,6 +218,36 @@ describe('ProductivityApp component', () => {
             expect(
               findCommitBasedSection()
                 .find(GlColumnChart)
+                .exists(),
+            ).toBe(true);
+          });
+        });
+      });
+
+      describe('Scatterplot', () => {
+        describe('when chart is loading', () => {
+          beforeEach(() => {
+            store.state.charts.charts[chartKeys.scatterplot].isLoading = true;
+          });
+
+          it('renders a loading indicator', () => {
+            expect(
+              findScatterplotSection()
+                .find(GlLoadingIcon)
+                .exists(),
+            ).toBe(true);
+          });
+        });
+
+        describe('when chart finished loading', () => {
+          beforeEach(() => {
+            store.state.charts.charts[chartKeys.scatterplot].isLoading = false;
+          });
+
+          it('renders a scatterplot', () => {
+            expect(
+              findScatterplotSection()
+                .find(GlDiscreteScatterChart)
                 .exists(),
             ).toBe(true);
           });

@@ -1,3 +1,4 @@
+import { getDateInPast } from '~/lib/utils/datetime_utility';
 import {
   chartKeys,
   metricTypes,
@@ -5,7 +6,10 @@ import {
   defaultMaxColumnChartItemsPerPage,
   maxColumnChartItemsPerPage,
   dataZoomOptions,
+  scatterPlotAddonQueryDays,
+  scatterChartLineProps,
 } from '../../../constants';
+import { getScatterPlotData, getMedianLineData } from '../../../utils';
 
 export const chartLoading = state => chartKey => state.charts[chartKey].isLoading;
 
@@ -28,7 +32,7 @@ export const chartLoading = state => chartKey => state.charts[chartKey].isLoadin
  * the itemStyle will be set accordingly in order to highlight the relevant bar.
  *
  */
-export const getChartData = state => chartKey => {
+export const getColumnChartData = state => chartKey => {
   const dataWithSelected = Object.keys(state.charts[chartKey].data).map(key => {
     const dataArr = [key, state.charts[chartKey].data[key]];
     let itemStyle = {};
@@ -48,15 +52,63 @@ export const getChartData = state => chartKey => {
   };
 };
 
+/**
+ * Creates a series array for the scatterplot chart.
+ *
+ * Takes an object of the form
+ * {
+ *   "1": { "metric": 138", merged_at": "2019-07-09T14:58:07.756Z" },
+ *   "2": { "metric": 139, "merged_at": "2019-07-10T11:13:23.557Z" },
+ *   "3": { "metric": 24, "merged_at": "2019-07-01T07:06:23.193Z" }
+ * }
+ *
+ * and creates the following structure:
+ *
+ * [
+ *   {
+ *     type: "scatter",
+ *     data: [
+ *       ["2019-07-01T07:06:23.193Z", 24],
+ *       ["2019-07-09T14:58:07.756Z", 138],
+ *       ["2019-07-10T11:13:23.557Z", 139],
+ *     ]
+ *   }
+ * ]
+ *
+ * It eliminates items which were merged before today minus the selected daysInPast.
+ * This is necessary since we query the API with an additional day offset to compute the median.
+ */
+export const getScatterChartData = (state, _, rootState) => {
+  const { data } = state.charts.scatterplot;
+  const dateInPast = getDateInPast(new Date(), rootState.filters.daysInPast);
+  const scatterData = getScatterPlotData(data, dateInPast);
+  const medianLineData = getMedianLineData(data, scatterData, scatterPlotAddonQueryDays);
+
+  return [
+    {
+      type: 'scatter',
+      data: scatterData,
+    },
+    {
+      data: medianLineData,
+      ...scatterChartLineProps.default,
+    },
+    {
+      data: medianLineData,
+      ...scatterChartLineProps.transparent,
+    },
+  ];
+};
+
 export const getMetricDropdownLabel = state => chartKey =>
   metricTypes.find(m => m.key === state.charts[chartKey].params.metricType).label;
 
-export const getFilterParams = (state, getters, rootState, rootGetters) => chartKey => {
+export const getFilterParams = (state, _getters, _rootState, rootGetters) => chartKey => {
   const { params: chartParams = {} } = state.charts[chartKey];
 
   // common filter params
   const params = {
-    ...rootGetters['filters/getCommonFilterParams'],
+    ...rootGetters['filters/getCommonFilterParams'](chartKey),
     chart_type: chartParams.chartType,
   };
 

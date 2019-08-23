@@ -8,10 +8,11 @@ import {
   GlButton,
   GlTooltipDirective,
 } from '@gitlab/ui';
-import { GlColumnChart } from '@gitlab/ui/dist/charts';
+import { GlColumnChart, GlDiscreteScatterChart } from '@gitlab/ui/dist/charts';
+import dateFormat from 'dateformat';
 import Icon from '~/vue_shared/components/icon.vue';
 import MergeRequestTable from './mr_table.vue';
-import { chartKeys, metricTypes } from '../constants';
+import { chartKeys, metricTypes, defaultDateFormat, dataZoomOptions } from '../constants';
 
 export default {
   components: {
@@ -20,6 +21,7 @@ export default {
     GlDropdown,
     GlDropdownItem,
     GlColumnChart,
+    GlDiscreteScatterChart,
     GlButton,
     Icon,
     MergeRequestTable,
@@ -40,6 +42,14 @@ export default {
   data() {
     return {
       chartKeys,
+      scatterChartOption: {
+        xAxis: {
+          axisLabel: {
+            formatter: date => dateFormat(date, defaultDateFormat),
+          },
+        },
+        dataZoom: dataZoomOptions,
+      },
     };
   },
   computed: {
@@ -53,7 +63,8 @@ export default {
     ]),
     ...mapGetters('charts', [
       'chartLoading',
-      'getChartData',
+      'getColumnChartData',
+      'getScatterChartData',
       'getColumnChartOption',
       'getMetricDropdownLabel',
       'isSelectedMetric',
@@ -107,7 +118,7 @@ export default {
       "
     />
     <template v-else>
-      <h4>{{ __('Merge Requests') }}</h4>
+      <h4>{{ __('ProductivityAnalytics|Merge Requests') }}</h4>
       <div class="qa-time-to-merge mb-4">
         <h5>{{ __('Time to merge') }}</h5>
         <gl-loading-icon v-if="chartLoading(chartKeys.main)" size="md" class="my-4 py-4" />
@@ -116,10 +127,10 @@ export default {
             {{ __('You can filter by "days to merge" by clicking on the columns in the chart.') }}
           </p>
           <gl-column-chart
-            :data="getChartData(chartKeys.main)"
+            :data="getColumnChartData(chartKeys.main)"
             :option="getColumnChartOption(chartKeys.main)"
-            :y-axis-title="__('Merge requests')"
-            :x-axis-title="__('Days')"
+            :y-axis-title="s__('ProductivityAnalytics|Merge requests')"
+            :x-axis-title="s__('ProductivityAnalytics|Days')"
             x-axis-type="category"
             @chartItemClicked="onMainChartItemClicked"
           />
@@ -165,10 +176,10 @@ export default {
           />
           <gl-column-chart
             v-else
-            :data="getChartData(chartKeys.timeBasedHistogram)"
+            :data="getColumnChartData(chartKeys.timeBasedHistogram)"
             :option="getColumnChartOption(chartKeys.timeBasedHistogram)"
-            :y-axis-title="__('Merge requests')"
-            :x-axis-title="__('Hours')"
+            :y-axis-title="s__('ProductivityAnalytics|Merge requests')"
+            :x-axis-title="s__('ProductivityAnalytics|Hours')"
             x-axis-type="category"
           />
         </div>
@@ -211,19 +222,31 @@ export default {
           />
           <gl-column-chart
             v-else
-            :data="getChartData(chartKeys.commitBasedHistogram)"
+            :data="getColumnChartData(chartKeys.commitBasedHistogram)"
             :option="getColumnChartOption(chartKeys.commitBasedHistogram)"
-            :y-axis-title="__('Merge requests')"
-            :x-axis-title="__('Commits')"
+            :y-axis-title="s__('ProductivityAnalytics|Merge requests')"
+            :x-axis-title="s__('ProductivityAnalytics|Commits')"
             x-axis-type="category"
           />
         </div>
       </div>
 
+      <div class="qa-scatterplot mb-4">
+        <h5>{{ s__('ProductivityAnalytics|Trendline') }}</h5>
+        <gl-loading-icon v-if="chartLoading(chartKeys.scatterplot)" size="md" class="my-4 py-4" />
+        <gl-discrete-scatter-chart
+          v-else
+          :data="getScatterChartData"
+          :option="scatterChartOption"
+          :y-axis-title="s__('ProductivityAnalytics|Days')"
+          :x-axis-title="s__('ProductivityAnalytics|Merge date')"
+        />
+      </div>
+
       <div
         class="qa-mr-table-sort d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-2"
       >
-        <h5>{{ __('List') }}</h5>
+        <h5>{{ s__('ProductivityAnalytics|List') }}</h5>
         <div v-if="mergeRequests" class="d-flex flex-column flex-md-row align-items-md-center">
           <strong class="mr-2">{{ __('Sort by') }}</strong>
           <div class="d-flex">

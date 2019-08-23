@@ -4,8 +4,15 @@ import {
   chartKeys,
   columnHighlightStyle,
   maxColumnChartItemsPerPage,
+  scatterChartLineProps,
 } from 'ee/analytics/productivity_analytics/constants';
 import { mockHistogramData } from '../../../mock_data';
+
+jest.mock('ee/analytics/productivity_analytics/utils', () => ({
+  __esModule: true,
+  getScatterPlotData: () => [],
+  getMedianLineData: () => [],
+}));
 
 describe('Productivity analytics chart getters', () => {
   let state;
@@ -27,8 +34,8 @@ describe('Productivity analytics chart getters', () => {
     });
   });
 
-  describe('getChartData', () => {
-    it("parses the chart's data and adds a color property to selected items", () => {
+  describe('getColumnChartData', () => {
+    it("parses the column chart's data and adds a color property to selected items", () => {
       const chartKey = chartKeys.main;
       state.charts[chartKey] = {
         data: {
@@ -45,7 +52,38 @@ describe('Productivity analytics chart getters', () => {
         ],
       };
 
-      expect(getters.getChartData(state)(chartKey)).toEqual(chartData);
+      expect(getters.getColumnChartData(state)(chartKey)).toEqual(chartData);
+    });
+  });
+
+  describe('getScatterChartData', () => {
+    it('returns an array of objects containing the scatter data as well as the median line data', () => {
+      state.charts.scatterplot = {
+        data: [],
+      };
+
+      const rootState = {
+        filters: {
+          daysInPast: 30,
+        },
+      };
+
+      const expected = [
+        {
+          type: 'scatter',
+          data: [],
+        },
+        {
+          ...scatterChartLineProps.default,
+          data: [],
+        },
+        {
+          ...scatterChartLineProps.transparent,
+          data: [],
+        },
+      ];
+
+      expect(getters.getScatterChartData(state, null, rootState)).toEqual(expected);
     });
   });
 
@@ -64,9 +102,12 @@ describe('Productivity analytics chart getters', () => {
   describe('getFilterParams', () => {
     const rootGetters = {};
 
-    rootGetters['filters/getCommonFilterParams'] = {
-      group_id: groupNamespace,
-      project_id: projectPath,
+    rootGetters['filters/getCommonFilterParams'] = () => {
+      const params = {
+        group_id: groupNamespace,
+        project_id: projectPath,
+      };
+      return params;
     };
 
     describe('main chart', () => {
