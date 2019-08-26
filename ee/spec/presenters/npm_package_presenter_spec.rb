@@ -8,7 +8,12 @@ describe NpmPackagePresenter do
   set(:latest_package) { create(:npm_package, version: '1.0.11', project: project) }
   let(:presenter) { described_class.new(project, package.name, project.packages.all) }
 
-  describe '#dist_tags' do
+    set (:package_metadatum) { create(:package_metadatum, package_id: package.id, metadata: "{\"name\": \"#{package.name}\", \"version\": \"#{package.version}\", \"dist\": {\"shasum\": \"hello\", \"tarball\": \"http://gitlab.example.com/v4/api/packages/npm\"},\"bundleDependencies\": {}, \"peerDependencies\": {}, \"deprecated\": \"\", \"engines\": {}}") }
+    set(:latest_package) { create(:npm_package, version: '1.0.11', project: project, package_tags: []) }
+    set (:latest_metadatum) { create(:package_metadatum, package_id: latest_package.id, metadata: "{\"name\": \"#{latest_package.name}\", \"version\": \"#{latest_package.version}\",\"dist\": {\"shasum\": \"hello\", \"tarball\": \"http://gitlab.example.com/v4/api/packages/npm\"}, \"bundleDependencies\": {}, \"peerDependencies\": {}, \"deprecated\": \"\", \"engines\": {}}") }
+
+    set(:latest_tag) { create(:package_tag, name: 'next', package: latest_package) }
+
     it { expect(presenter.dist_tags).to be_a(Hash) }
     it { expect(presenter.dist_tags[:latest]).to eq(latest_package.version) }
   end

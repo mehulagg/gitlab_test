@@ -26,7 +26,6 @@ class NpmPackagePresenter
         package_versions[package.version] = build_package_version(package, package_file)
       end
     end
-
     package_versions
   end
 

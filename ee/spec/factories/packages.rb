@@ -79,4 +79,15 @@ FactoryBot.define do
     app_name 'my-app'
     app_version '1.0-SNAPSHOT'
   end
+
+  factory :package_metadatum, class: Packages::PackageMetadatum do
+    package
+    metadata ""
+
+  end
+
+  factory :package_tag, class: Packages::PackageTag do
+    package
+  end
+
 end

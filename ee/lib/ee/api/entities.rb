@@ -776,9 +776,9 @@ module EE
         end
 
         def format_tags
-          data = PackageTag.represent(object.tagged_packages)
-          data
+          PackageTag.represent(object.tagged_packages)
         end
+
       end
 
       class NpmPackage < Grape::Entity
