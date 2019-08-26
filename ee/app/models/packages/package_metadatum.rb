@@ -6,11 +6,11 @@ class Packages::PackageMetadatum < ApplicationRecord
   validates_size_of :metadata, { in: 0..10.kilobytes }
 
   def self.map_metadata(metadata)
-    metadata.each_pair do |k, v|
-      if v.is_a?(Hash)
-        map_metadata(v)
+    metadata.each_pair do |name, metadatum|
+      if metadatum.is_a?(Hash)
+        map_metadata(metadatum)
       else
-        v
+        name
       end
     end
   end
