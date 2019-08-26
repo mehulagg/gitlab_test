@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Packages
 
   class CreateNpmPackageTagService < BaseService
