@@ -35,6 +35,5 @@ class CreatePackagesPackageTags < ActiveRecord::Migration[5.1]
       t.index ["package_id", "project_id"], name: "index_package_tags_package_id_and_project_id", using: :btree
     end
 
-    remove_column :packages_package_metadata, :tag, :string
   end
 end
