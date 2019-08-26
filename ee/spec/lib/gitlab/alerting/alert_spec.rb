@@ -5,7 +5,8 @@ require 'spec_helper'
 describe Gitlab::Alerting::Alert do
   set(:project) { create(:project) }
 
-  let(:alert) { build(:alerting_alert, project: project, payload: payload) }
+  let(:parsed_payload) { Gitlab::Alerting::AlertPayloadParser.call(payload) }
+  let(:alert) { build(:alerting_alert, project: project, payload: parsed_payload) }
   let(:payload) { {} }
 
   shared_context 'gitlab alert' do
@@ -210,7 +211,7 @@ describe Gitlab::Alerting::Alert do
     context 'without project' do
       # Redefine to prevent:
       # project is a NilClass - rspec-set works with ActiveRecord models only
-      let(:alert) { build(:alerting_alert, project: nil, payload: payload) }
+      let(:alert) { build(:alerting_alert, project: nil, payload: parsed_payload) }
 
       it { is_expected.not_to be_valid }
     end

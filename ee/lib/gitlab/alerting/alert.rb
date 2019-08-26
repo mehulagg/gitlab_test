@@ -21,13 +21,13 @@ module Gitlab
 
       def title
         strong_memoize(:title) do
-          gitlab_alert&.title || parsed_payload.title
+          gitlab_alert&.title || payload.title
         end
       end
 
       def description
         strong_memoize(:description) do
-          parsed_payload.description
+          payload.description
         end
       end
 
@@ -55,7 +55,7 @@ module Gitlab
 
       def alert_markdown
         strong_memoize(:alert_markdown) do
-          parsed_payload.alert_markdown
+          payload.alert_markdown
         end
       end
 
@@ -69,20 +69,14 @@ module Gitlab
 
       private
 
-      def parsed_payload
-        strong_memoize(:parsed_payload) do
-          AlertPayloadParser.call(payload)
-        end
-      end
-
       def presenter_class
-        SUPPORTED_ALERTING_SERVICES.fetch(parsed_payload.service, :unsupported_alerting_service)
+        SUPPORTED_ALERTING_SERVICES.fetch(payload.service, :unsupported_alerting_service)
       end
 
       def find_gitlab_alert
         return unless gitlab_alerts_supported?
 
-        metric_id = parsed_payload.metric_id
+        metric_id = payload.metric_id
         return unless metric_id
 
         Projects::Prometheus::AlertsFinder
@@ -92,17 +86,17 @@ module Gitlab
       end
 
       def gitlab_alerts_supported?
-        parsed_payload.service == :prometheus
+        payload.service == :prometheus
       end
 
       def parsed_annotations
-        parsed_payload.annotations&.map do |label, value|
+        payload.annotations&.map do |label, value|
           Alerting::AlertAnnotation.new(label: label, value: value)
         end
       end
 
       def starts_at_to_time
-        value = parsed_payload.starts_at
+        value = payload.starts_at
         return unless value
 
         Time.rfc3339(value)
@@ -113,7 +107,7 @@ module Gitlab
       #
       # Example: http://localhost:9090/graph?g0.expr=vector%281%29&g0.tab=1
       def expr
-        url = parsed_payload.generator_url
+        url = payload.generator_url
         return unless url
 
         uri = URI(url)

@@ -89,8 +89,12 @@ module IncidentManagement
 
     def alert
       strong_memoize(:alert) do
-        Gitlab::Alerting::Alert.new(project: project, payload: params).present
+        Gitlab::Alerting::Alert.new(project: project, payload: parsed_payload).present
       end
+    end
+
+    def parsed_payload
+      Gitlab::Alerting::AlertPayloadParser.call(params)
     end
 
     def issue_template_content

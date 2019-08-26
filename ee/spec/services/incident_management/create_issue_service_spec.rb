@@ -17,8 +17,9 @@ describe IncidentManagement::CreateIssueService do
     )
   end
 
+  let(:parsed_alert_payload) { Gitlab::Alerting::AlertPayloadParser.call(alert_payload) }
   let(:alert_presenter) do
-    Gitlab::Alerting::Alert.new(project: project, payload: alert_payload).present
+    Gitlab::Alerting::Alert.new(project: project, payload: parsed_alert_payload).present
   end
 
   let!(:setting) do
