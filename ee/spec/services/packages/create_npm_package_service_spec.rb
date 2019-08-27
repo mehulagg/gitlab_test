@@ -12,7 +12,8 @@ describe Packages::CreateNpmPackageService do
       fixture_file('npm/payload.json', dir: 'ee')
         .gsub('@root/npm-test', package_name)
         .gsub('1.0.1', version))
-      .with_indifferent_access
+        .gsub('latest', dist_tag)
+        .with_indifferent_access
   end
 
   shared_examples 'valid package' do
@@ -62,6 +63,12 @@ describe Packages::CreateNpmPackageService do
 
         expect { service.execute }.to raise_error(ActiveRecord::RecordInvalid)
       end
+    end
+
+     context 'with a package tag' do
+     let(:package_name) { "@#{namespace.path}/my_package"}
+
+
     end
   end
 end

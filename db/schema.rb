@@ -2441,7 +2441,7 @@ ActiveRecord::Schema.define(version: 2019_08_28_083843) do
   end
 
   create_table "packages_package_metadata", force: :cascade do |t|
-    t.bigint "package_id"
+    t.integer "package_id"
     t.binary "metadata"
     t.index ["package_id"], name: "index_package_metadata_on_package_id"
   end
