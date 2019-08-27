@@ -485,9 +485,6 @@ msgstr ""
 msgid "(Show all)"
 msgstr ""
 
-msgid "(check progress)"
-msgstr ""
-
 msgid "(external source)"
 msgstr ""
 
@@ -791,18 +788,6 @@ msgid "API Help"
 msgstr ""
 
 msgid "API Token"
-msgstr ""
-
-msgid "AWS Access Key"
-msgstr ""
-
-msgid "AWS Access Key.  Only required if not using role instance credentials"
-msgstr ""
-
-msgid "AWS Secret Access Key"
-msgstr ""
-
-msgid "AWS Secret Access Key.  Only required if not using role instance credentials"
 msgstr ""
 
 msgid "Abort"
@@ -1441,6 +1426,9 @@ msgid "AdminUsers|You are about to permanently delete the user %{username}. This
 msgstr ""
 
 msgid "Advanced"
+msgstr ""
+
+msgid "Advanced Global Search enabled"
 msgstr ""
 
 msgid "Advanced permissions, Large File Storage and Two-Factor authentication settings."
@@ -3198,9 +3186,6 @@ msgid "Changes suppressed. Click to show."
 msgstr ""
 
 msgid "Changes the title to \"%{title_param}\"."
-msgstr ""
-
-msgid "Changes won't take place until the index is %{link_start}recreated%{link_end}."
 msgstr ""
 
 msgid "Changing a Release tag is only supported via Releases API. %{linkStart}More information%{linkEnd}"
@@ -6660,16 +6645,136 @@ msgstr ""
 msgid "Elasticsearch"
 msgstr ""
 
-msgid "Elasticsearch AWS IAM credentials"
+msgid "Elasticsearch settings"
 msgstr ""
 
-msgid "Elasticsearch indexing restrictions"
+msgid "Elasticsearch|AWS Access Key ID"
 msgstr ""
 
-msgid "Elasticsearch indexing started"
+msgid "Elasticsearch|AWS Secret Access Key"
 msgstr ""
 
-msgid "Elasticsearch integration. Elasticsearch AWS IAM."
+msgid "Elasticsearch|AWS region"
+msgstr ""
+
+msgid "Elasticsearch|Add GitLab index"
+msgstr ""
+
+msgid "Elasticsearch|Advanced configuration"
+msgstr ""
+
+msgid "Elasticsearch|After switching the search source, all search results will be based on the data in the newly activated GitLab index. Are you sure you want to switch to %{codeIndexName}?"
+msgstr ""
+
+msgid "Elasticsearch|As this is your only GitLab index, %{strongStart}Advanced Global Search will be disabled%{strongEnd} after removing this index. Removed indices cannot be restored."
+msgstr ""
+
+msgid "Elasticsearch|As your indexing was paused, there might be data missing in your GitLab index. To fill these gaps, you could reindex your data after you resume the indexing again."
+msgstr ""
+
+msgid "Elasticsearch|By removing the GitLab index that is currently set as search source, %{secondIndexName} will become the new search source. Removed indices cannot be restored."
+msgstr ""
+
+msgid "Elasticsearch|By removing the GitLab index that is currently set as search source, you will have to %{strongStart}select a new GitLab index to use as search source %{strongEnd}."
+msgstr ""
+
+msgid "Elasticsearch|Changing this setting via API can destroy your GitLab index. To change the number of shards you have to %{linkStart}create a new GitLab index%{linkEnd}."
+msgstr ""
+
+msgid "Elasticsearch|Choose a name that you can use to identify this GitLab index."
+msgstr ""
+
+msgid "Elasticsearch|Create GitLab index"
+msgstr ""
+
+msgid "Elasticsearch|Edit GitLab index"
+msgstr ""
+
+msgid "Elasticsearch|Get started with Elasticsearch in GitLab"
+msgstr ""
+
+msgid "Elasticsearch|GitLab Production"
+msgstr ""
+
+msgid "Elasticsearch|GitLab indices"
+msgstr ""
+
+msgid "Elasticsearch|If you pause the indexing, your search results will not be complete until you reindex again."
+msgstr ""
+
+msgid "Elasticsearch|Loading GitLab indices"
+msgstr ""
+
+msgid "Elasticsearch|New GitLab index"
+msgstr ""
+
+msgid "Elasticsearch|Number of replicas"
+msgstr ""
+
+msgid "Elasticsearch|Number of shards"
+msgstr ""
+
+msgid "Elasticsearch|Only required if not using role instance credentials."
+msgstr ""
+
+msgid "Elasticsearch|Pause indexing"
+msgstr ""
+
+msgid "Elasticsearch|Reindex"
+msgstr ""
+
+msgid "Elasticsearch|Reindex data after resuming to index"
+msgstr ""
+
+msgid "Elasticsearch|Reindexing your data can take a long time, it is recommended to only trigger a reindex when you are certain there is data missing in your index."
+msgstr ""
+
+msgid "Elasticsearch|Remove GitLab index"
+msgstr ""
+
+msgid "Elasticsearch|Removed indices cannot be restored."
+msgstr ""
+
+msgid "Elasticsearch|Resume indexing"
+msgstr ""
+
+msgid "Elasticsearch|Search source"
+msgstr ""
+
+msgid "Elasticsearch|Switch search source"
+msgstr ""
+
+msgid "Elasticsearch|The URL to use for connecting to Elasticsearch. Use a comma separated list to support clustering (e.g. http://localhost:9200, https://localhost:9201)."
+msgstr ""
+
+msgid "Elasticsearch|This action can lead to data loss. To prevent accidental actions we ask you to confirm your intention.%{lineBreak}Please type %{codeIndexName} to proceed or close this modal to cancel."
+msgstr ""
+
+msgid "Elasticsearch|This index will be used for all search results in your GitLab instance."
+msgstr ""
+
+msgid "Elasticsearch|URLs"
+msgstr ""
+
+msgid "Elasticsearch|Use Elasticsearch to improve the search functionality inside of GitLab and enable Advanced Global Search."
+msgstr ""
+
+msgid "Elasticsearch|Use as search source"
+msgstr ""
+
+msgid "Elasticsearch|Using AWS hosted Elasticsearch with IAM credentials"
+msgstr ""
+
+msgid "Elasticsearch|Which GitLab index should become the new search source?"
+msgstr ""
+
+msgid "Elasticsearch|You are going to remove %{strongIndexName}. %{string}"
+msgstr ""
+
+msgid "Elasticsearch|You will not be able to change this setting later without creating a new GitLab index first."
+msgstr ""
+
+msgid "Elasticsearch|e.g. http://localhost:9200"
 msgstr ""
 
 msgid "Elastic|None. Select namespaces to index."
@@ -6901,9 +7006,6 @@ msgid "Enter in your Phabricator Server URL and personal access token below"
 msgstr ""
 
 msgid "Enter merge request URLs"
-msgstr ""
-
-msgid "Enter new AWS Secret Access Key"
 msgstr ""
 
 msgid "Enter the issue description"
@@ -8792,6 +8894,9 @@ msgstr ""
 msgid "GitLab for Slack"
 msgstr ""
 
+msgid "GitLab index"
+msgstr ""
+
 msgid "GitLab is obtaining a Let's Encrypt SSL certificate for this domain. This process can take some time. Please try again later."
 msgstr ""
 
@@ -9575,6 +9680,9 @@ msgstr ""
 msgid "Hi %{username}!"
 msgstr ""
 
+msgid "Hide"
+msgstr ""
+
 msgid "Hide archived projects"
 msgstr ""
 
@@ -9647,12 +9755,6 @@ msgid "How it works"
 msgstr ""
 
 msgid "How many days need to pass between marking entity for deletion and actual removing it."
-msgstr ""
-
-msgid "How many replicas each Elasticsearch shard has."
-msgstr ""
-
-msgid "How many shards to split the Elasticsearch index over."
 msgstr ""
 
 msgid "How many users will be evaluating the trial?"
@@ -9977,9 +10079,6 @@ msgid "Incompatible Project"
 msgstr ""
 
 msgid "Incompatible options set!"
-msgstr ""
-
-msgid "Index all projects"
 msgstr ""
 
 msgid "Indicates whether this runner can pick jobs without tags"
@@ -12488,12 +12587,6 @@ msgid "November"
 msgstr ""
 
 msgid "Now you can access the merge request navigation tabs at the top, where they’re easier to find."
-msgstr ""
-
-msgid "Number of Elasticsearch replicas"
-msgstr ""
-
-msgid "Number of Elasticsearch shards"
 msgstr ""
 
 msgid "Number of LOCs per commit"
@@ -15080,9 +15173,6 @@ msgstr ""
 msgid "Regex pattern"
 msgstr ""
 
-msgid "Region that Elasticsearch is configured"
-msgstr ""
-
 msgid "Register"
 msgstr ""
 
@@ -16787,6 +16877,9 @@ msgstr ""
 msgid "Should you ever lose your phone or access to your one time password secret, each of these recovery codes can be used one time each to regain access to your account. Please save them in a safe place, or you %{b_start}will%{b_end} lose access to your account."
 msgstr ""
 
+msgid "Show"
+msgstr ""
+
 msgid "Show all activity"
 msgstr ""
 
@@ -17875,6 +17968,9 @@ msgstr ""
 msgid "Support page URL"
 msgstr ""
 
+msgid "Switch"
+msgstr ""
+
 msgid "Switch branch/tag"
 msgstr ""
 
@@ -18172,9 +18268,6 @@ msgid "The Issue Tracker is the place to add things that need to be improved or 
 msgstr ""
 
 msgid "The Prometheus server responded with \"bad request\". Please check your queries are correct and are supported in your Prometheus version. %{documentationLink}"
-msgstr ""
-
-msgid "The URL to use for connecting to Elasticsearch. Use a comma-separated list to support clustering (e.g., \"http://localhost:9200, http://localhost:9201\")."
 msgstr ""
 
 msgid "The X509 Certificate to use when mutual TLS is required to communicate with the external authorization service. If left blank, the server certificate is still validated when accessing over HTTPS."
@@ -19276,6 +19369,9 @@ msgid "To connect an SVN repository, check out %{svn_link}."
 msgstr ""
 
 msgid "To define internal users, first enable new users set to external"
+msgstr ""
+
+msgid "To enable Advanced Global Search you first have to create a new GitLab index and use it as Search Source."
 msgstr ""
 
 msgid "To enable it and see User Cohorts, visit %{application_settings_link_start}application settings%{application_settings_link_end}."

@@ -244,8 +244,6 @@ class Admin::ApplicationSettingsController < Admin::ApplicationController
       session[:ask_for_usage_stats_consent] = current_user.requires_usage_stats_consent?
     end
 
-    redirect_path = referer_path(request) || admin_application_settings_path
-
     respond_to do |format|
       if successful
         format.json { head :ok }
@@ -255,6 +253,10 @@ class Admin::ApplicationSettingsController < Admin::ApplicationController
         format.html { render_update_error }
       end
     end
+  end
+
+  def redirect_path
+    referer_path(request) || admin_application_settings_path
   end
 
   def render_update_error

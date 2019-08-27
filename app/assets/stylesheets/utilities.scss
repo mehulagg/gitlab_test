@@ -56,7 +56,12 @@
 
 .gl-text-blue-500 { @include gl-text-blue-500; }
 .gl-text-gray-900 { @include gl-text-gray-900; }
+.gl-text-red-500 { @include gl-text-red-500; }
 .gl-text-red-700 { @include gl-text-red-700; }
 .gl-text-orange-700 { @include gl-text-orange-700; }
 .gl-text-green-700 { @include gl-text-green-700; }
 
+.gl-p-1 { @include gl-p-1; }
+.gl-px-4 { @include gl-px-4; }
+
+.gl-cursor-not-allowed { @include gl-cursor-not-allowed; }
