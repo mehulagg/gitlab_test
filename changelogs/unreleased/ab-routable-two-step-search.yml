@@ -1,0 +1,5 @@
+---
+title: Perform two-step Routable lookup by path
+merge_request: 32272
+author:
+type: performance
