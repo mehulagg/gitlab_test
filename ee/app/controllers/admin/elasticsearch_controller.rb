@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
 class Admin::ElasticsearchController < Admin::ApplicationController
-  before_action :check_elasticsearch_web_indexing_feature_flag!
+  before_action :set_application_setting, only: [:show, :settings]
+  before_action :check_elasticsearch_web_indexing_feature_flag!, only: :enqueue_index
 
-  def check_elasticsearch_web_indexing_feature_flag!
-    render_404 unless Feature.enabled?(:elasticsearch_web_indexing)
+  def show
+  end
+
+  def settings
   end
 
   # POST
@@ -17,5 +20,15 @@ class Admin::ElasticsearchController < Admin::ApplicationController
     flash[:notice] = "#{notice} #{queue_link}".html_safe
 
     redirect_back_or_default
+  end
+
+  private
+
+  def set_application_setting
+    @application_setting = ApplicationSetting.current_without_cache
+  end
+
+  def check_elasticsearch_web_indexing_feature_flag!
+    render_404 unless Feature.enabled?(:elasticsearch_web_indexing)
   end
 end
