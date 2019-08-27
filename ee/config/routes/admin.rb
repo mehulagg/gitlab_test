@@ -58,7 +58,8 @@ namespace :admin do
   end
 
   namespace :elasticsearch do
-    post :enqueue_index
+    match :settings, via: [:get, :patch]
+    get '(*path)', action: :show, constraints: { path: %r{new|edit/\d+} }
   end
 
   get '/dashboard/stats', to: 'dashboard#stats'

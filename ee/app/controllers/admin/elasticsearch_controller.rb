@@ -1,10 +1,15 @@
 # frozen_string_literal: true
 
-class Admin::ElasticsearchController < Admin::ApplicationController
-  before_action :check_elasticsearch_web_indexing_feature_flag!
+class Admin::ElasticsearchController < Admin::ApplicationSettingsController
+  extend ::Gitlab::Utils::Override
 
-  def check_elasticsearch_web_indexing_feature_flag!
-    render_404 unless Feature.enabled?(:elasticsearch_web_indexing, default_enabled: true)
+  before_action :set_application_setting, only: [:settings]
+
+  def show
+  end
+
+  def settings
+    perform_update if submitted?
   end
 
   # POST
@@ -19,7 +24,17 @@ class Admin::ElasticsearchController < Admin::ApplicationController
     else
       flash[:warning] = _('Please create an index before enabling indexing')
     end
+  end
 
-    redirect_to integrations_admin_application_settings_path(anchor: 'js-elasticsearch-settings')
+  private
+
+  override :redirect_path
+  def redirect_path
+    admin_elasticsearch_settings_path
+  end
+
+  override :render_update_error
+  def render_update_error
+    render :settings
   end
 end

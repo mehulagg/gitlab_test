@@ -79,6 +79,7 @@
 .gl-text-gray-500 { @include gl-text-gray-500; }
 .gl-text-gray-700 { @include gl-text-gray-700; }
 .gl-text-gray-900 { @include gl-text-gray-900; }
+.gl-text-red-500 { @include gl-text-red-500; }
 .gl-text-red-700 { @include gl-text-red-700; }
 .gl-text-red-900 { @include gl-text-red-900; }
 .gl-text-orange-400 { @include gl-text-orange-400; }
@@ -94,3 +95,7 @@
     display: table-column !important;
   }
 }
+.gl-p-1 { @include gl-p-1; }
+.gl-px-4 { @include gl-px-4; }
+
+.gl-cursor-not-allowed { @include gl-cursor-not-allowed; }

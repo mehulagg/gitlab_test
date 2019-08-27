@@ -252,6 +252,10 @@ class Admin::ApplicationSettingsController < Admin::ApplicationController
     end
   end
 
+  def redirect_path
+    referer_path(request) || admin_application_settings_path
+  end
+
   def render_update_error
     action = valid_setting_panels.include?(action_name) ? action_name : :general
 

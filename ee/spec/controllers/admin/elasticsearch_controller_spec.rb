@@ -5,9 +5,23 @@ require 'spec_helper'
 describe Admin::ElasticsearchController do
   let(:admin) { create(:admin) }
 
-  describe 'POST #enqueue_index' do
+  before do
+    sign_in(admin)
+  end
+
+  describe 'GET #show' do
+    it 'renders the show template' do
+      get :show
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(response).to render_template(:show)
+      expect(assigns(:application_setting)).to be_nil
+    end
+  end
+
+  describe 'GET #settings' do
     before do
-      sign_in(admin)
+      ApplicationSetting.create_from_defaults
     end
 
     it 'starts indexing' do
@@ -15,13 +29,18 @@ describe Admin::ElasticsearchController do
       expect_next_instance_of(::Elastic::IndexProjectsService) do |service|
         expect(service).to receive(:execute)
       end
-
-      post :enqueue_index
-
-      expect(controller).to set_flash[:notice].to include('/admin/sidekiq/queues/elastic_full_index')
-      expect(response).to redirect_to integrations_admin_application_settings_path(anchor: 'js-elasticsearch-settings')
     end
 
+    it 'renders the settings template' do
+      get :settings
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(response).to render_template(:settings)
+      expect(assigns(:application_setting)).to be_an_instance_of(ApplicationSetting)
+    end
+  end
+
+  describe 'POST #enqueue_index' do
     context 'without an index' do
       before do
         allow(Gitlab::Elastic::Helper).to(receive(:index_exists?)).and_return(false)
@@ -36,17 +55,31 @@ describe Admin::ElasticsearchController do
         expect(response).to redirect_to integrations_admin_application_settings_path(anchor: 'js-elasticsearch-settings')
       end
     end
+  end
 
-    context 'when feature is disabled' do
-      it 'does nothing and returns 404' do
-        stub_feature_flags(elasticsearch_web_indexing: false)
+  describe 'PATCH #settings' do
+    before do
+      ApplicationSetting.create_from_defaults
+    end
 
-        expect(::Elastic::IndexProjectsService).not_to receive(:new)
+    it 'updates the settings' do
+      expect(ApplicationSetting.current.elasticsearch_limit_indexing).to eq(false)
 
-        post :enqueue_index
+      patch :settings, params: { application_setting: { elasticsearch_limit_indexing: true } }
 
-        expect(response).to have_gitlab_http_status(:not_found)
-      end
+      expect(response).to redirect_to(admin_elasticsearch_settings_path)
+      expect(ApplicationSetting.current.elasticsearch_limit_indexing).to eq(true)
+    end
+
+    it 'renders validation errors' do
+      patch :settings, params: { application_setting: { elasticsearch_search: true } }
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(response).to render_template(:settings)
+      expect(assigns(:application_setting).errors).to include(:elasticsearch_read_index)
+
+      expect(response).to have_gitlab_http_status(:not_found)
+      expect(ApplicationSetting.current.elasticsearch_search).to eq(false)
     end
   end
 end
