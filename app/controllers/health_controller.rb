@@ -14,13 +14,13 @@ class HealthController < ActionController::Base
   ].freeze
 
   def readiness
-    results = CHECKS.map { |check| [check.name, check.readiness] }
+    results = Gitlab::HealthChecks::CheckAllService.new.readiness
 
     render_check_results(results)
   end
 
   def liveness
-    results = CHECKS.map { |check| [check.name, check.liveness] }
+    results = Gitlab::HealthChecks::CheckAllService.new.readiness
 
     render_check_results(results)
   end
@@ -28,16 +28,9 @@ class HealthController < ActionController::Base
   private
 
   def render_check_results(results)
-    flattened = results.flat_map do |name, result|
-      if result.is_a?(Gitlab::HealthChecks::Result)
-        [[name, result]]
-      else
-        result.map { |r| [name, r] }
-      end
-    end
-    success = flattened.all? { |name, r| r.success }
+    success = results.all? { |name, r| r.success }
 
-    response = flattened.map do |name, r|
+    response = results.map do |name, r|
       info = { status: r.success ? 'ok' : 'failed' }
       info['message'] = r.message if r.message
       info[:labels] = r.labels if r.labels

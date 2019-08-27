@@ -22,16 +22,26 @@ describe Gitlab::Geo::LogCursor::Daemon, :clean_gitlab_redis_shared_state do
     allow(daemon).to receive(:arbitrary_sleep).and_return(0.1)
   end
 
+  # WARNINGS
+  #
+  # 1. Ensure an exit condition for the main run! loop, or RSpec will not stop
+  #    without an interrupt.
+  #
+  #    I recommend using `ensure_exit_on`.
+  #
+  # 2. run! occasionally spawns git processes that run forever at 100% CPU.
+  #
+  #    I don't know why this happens.
   describe '#run!' do
     it 'traps signals' do
-      is_expected.to receive(:exit?).and_return(true)
+      ensure_exit_on(1)
       is_expected.to receive(:trap_signals)
 
       daemon.run!
     end
 
     it 'delegates to #run_once! in a loop' do
-      is_expected.to receive(:exit?).and_return(false, false, false, true)
+      ensure_exit_on(4)
       is_expected.to receive(:run_once!).twice
 
       daemon.run!
@@ -44,7 +54,7 @@ describe Gitlab::Geo::LogCursor::Daemon, :clean_gitlab_redis_shared_state do
       allow(lease).to receive(:same_uuid?).and_return(false)
       allow(Gitlab::Geo::LogCursor::Lease).to receive(:exclusive_lease).and_return(lease)
 
-      is_expected.to receive(:exit?).and_return(false, true)
+      ensure_exit_on(2)
       is_expected.not_to receive(:run_once!)
 
       daemon.run!
@@ -53,7 +63,7 @@ describe Gitlab::Geo::LogCursor::Daemon, :clean_gitlab_redis_shared_state do
     it 'skips execution if not a Geo node' do
       stub_current_geo_node(nil)
 
-      is_expected.to receive(:exit?).and_return(false, true)
+      ensure_exit_on(2)
       is_expected.to receive(:sleep_break).with(1.minute)
       is_expected.not_to receive(:run_once!)
 
@@ -63,11 +73,92 @@ describe Gitlab::Geo::LogCursor::Daemon, :clean_gitlab_redis_shared_state do
     it 'skips execution if the current node is a primary' do
       stub_current_geo_node(primary)
 
-      is_expected.to receive(:exit?).and_return(false, true)
+      ensure_exit_on(2)
       is_expected.to receive(:sleep_break).with(1.minute)
       is_expected.not_to receive(:run_once!)
 
       daemon.run!
+    end
+
+    context 'when health check fails' do
+      let(:max) { described_class::MAX_HEALTH_CHECK_FAILURES }
+
+      it 'exits if it has failed too many times' do
+        ensure_exit_on(2, false)
+
+        # Disable the throttle
+        is_expected.to receive(:health_checked_recently?).and_return(false).exactly(max + 1).times
+
+        # Fail the fresh health checks
+        service = double('health check service')
+        is_expected.to receive(:health_check_service).and_return(service).exactly(max + 1).times
+        expect(service).to receive(:liveness?).and_return(false).exactly(max + 1).times
+
+        max.times do
+          daemon.send(:healthy?)
+        end
+
+        is_expected.not_to receive(:run_once!)
+
+        daemon.run!
+      end
+
+      it 'does not exit if it has not failed many times' do
+        ensure_exit_on(2, false)
+        is_expected.to receive(:health_checked_recently?).and_return(false).exactly(max).times
+        is_expected.to receive(:fresh_checks_healthy?).and_return(false).exactly(max).times
+
+        (max - 1).times do
+          daemon.send(:healthy?)
+        end
+
+        is_expected.to receive(:run_once!)
+
+        daemon.run!
+      end
+    end
+
+    context 'health check has never run' do
+      it 'checks health' do
+        ensure_exit_on(2)
+        is_expected.to receive(:fresh_checks_healthy?).and_return(true)
+
+        is_expected.to receive(:run_once!)
+
+        daemon.run!
+      end
+    end
+
+    context 'health check has run recently' do
+      it 'does not check health again' do
+        ensure_exit_on(2)
+        is_expected.to receive(:run_once!)
+        is_expected.to receive(:fresh_checks_healthy?).and_return(true).once
+
+        Timecop.freeze do
+          daemon.send(:healthy?)
+
+          Timecop.travel((described_class::HEALTH_CHECK_INTERVAL - 2).seconds) do
+            daemon.run!
+          end
+        end
+      end
+    end
+
+    context 'health check has run recently' do
+      it 'checks health again' do
+        ensure_exit_on(2)
+        is_expected.to receive(:run_once!)
+        is_expected.to receive(:fresh_checks_healthy?).and_return(true).twice
+
+        Timecop.freeze do
+          daemon.send(:healthy?)
+
+          Timecop.travel((described_class::HEALTH_CHECK_INTERVAL + 2).seconds) do
+            daemon.run!
+          end
+        end
+      end
     end
   end
 
@@ -258,5 +349,21 @@ describe Gitlab::Geo::LogCursor::Daemon, :clean_gitlab_redis_shared_state do
     end
 
     gaps
+  end
+
+  # It is extremely easy to get run! into an infinite loop.
+  #
+  # Regardless of `allow` or `expect`, this method ensures that the loop will
+  # exit at the specified number of exit? calls.
+  def ensure_exit_on(num_calls = 3, expect = true)
+    # E.g. If num_calls is `3`, returns is set to `[false, false, true]`.
+    returns = Array.new(num_calls) { false }
+    returns[-1] = true
+
+    if expect
+      expect(daemon).to receive(:exit?).and_return(*returns)
+    else
+      allow(daemon).to receive(:exit?).and_return(*returns)
+    end
   end
 end

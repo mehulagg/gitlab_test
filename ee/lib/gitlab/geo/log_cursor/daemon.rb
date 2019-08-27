@@ -7,12 +7,15 @@ module Gitlab
         VERSION = '0.2.0'.freeze
         BATCH_SIZE = 250
         SECONDARY_CHECK_INTERVAL = 60
+        HEALTH_CHECK_INTERVAL = 60
+        MAX_HEALTH_CHECK_FAILURES = 5
 
         attr_reader :options
 
         def initialize(options = {})
           @options = options
           @exit = false
+          @health_check_failures_in_a_row = 0
         end
 
         def run!
@@ -25,6 +28,11 @@ module Gitlab
               logger.debug("#run!: not a secondary, sleeping for #{SECONDARY_CHECK_INTERVAL} secs")
               sleep_break(SECONDARY_CHECK_INTERVAL)
               next
+            end
+
+            if unhealthy_for_too_long?
+              logger.error("#run!: Exiting due to #{@health_check_failures_in_a_row} health check failures in a row...")
+              return
             end
 
             lease = Lease.try_obtain_with_ttl { run_once! }
@@ -48,6 +56,55 @@ module Gitlab
         end
 
         private
+
+        def unhealthy_for_too_long?
+          !healthy? && too_many_failures?
+        end
+
+        def healthy?
+          throttle_health_check do
+            count_health_check_failures_in_a_row do
+              fresh_checks_healthy?
+            end
+          end
+        end
+
+        def too_many_failures?
+          @health_check_failures_in_a_row > MAX_HEALTH_CHECK_FAILURES
+        end
+
+        def throttle_health_check(&block)
+          if health_checked_recently?
+            @healthy
+          else
+            @health_checked_at = Time.now
+            @healthy = yield
+          end
+        end
+
+        def health_checked_recently?
+          @health_checked_at && @health_checked_at >= HEALTH_CHECK_INTERVAL.seconds.ago
+        end
+
+        def count_health_check_failures_in_a_row(&block)
+          healthy = yield
+
+          if healthy
+            @health_check_failures_in_a_row = 0  # reset on success
+          else
+            @health_check_failures_in_a_row += 1 # increment on failure
+          end
+
+          healthy
+        end
+
+        def fresh_checks_healthy?
+          health_check_service.liveness?
+        end
+
+        def health_check_service
+          @health_check_service ||= ::Gitlab::HealthChecks::CheckAllService.new
+        end
 
         def sleep_break(seconds)
           while seconds > 0
