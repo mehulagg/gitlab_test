@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Create' do
+  # Quarantined because relative URL isn't supported
+  # See https://gitlab.com/gitlab-org/gitlab-ee/issues/13833
+  context 'Create', :quarantine do
     describe 'Web IDE web terminal', :docker do
       before do
         @project = Resource::Project.fabricate_via_api! do |project|
