@@ -69,7 +69,11 @@ export default {
       :disabled="currentBranch && !currentBranch.can_push"
       :title="$options.currentBranchPermissionsTooltip"
     >
-      <span class="ide-radio-label" v-html="commitToCurrentBranchText"> </span>
+      <span
+        class="ide-radio-label"
+        v-html="commitToCurrentBranchText"
+        data-qa-selector="commit_to_current_branch_radio"
+      ></span>
     </radio-group>
     <radio-group
       :value="$options.commitToNewBranch"
