@@ -421,7 +421,8 @@ module EE
       raise ArgumentError unless ::Gitlab.config.repositories.storages.key?(new_repository_storage_key)
 
       if sync
-        update!(repository_read_only: true)
+        self.repository_read_only = true
+        save!(validate: false)
         await_git_transfer_completion
         ProjectUpdateRepositoryStorageWorker.new.perform(id, new_repository_storage_key)
       else
@@ -430,7 +431,7 @@ module EE
 
         # We need to save the record to persist repository_read_only but in some
         # cases, such as `Projects::UpdateService`, the save is performed later.
-        save! unless skip_save
+        save!(validate: false) unless skip_save
       end
     end
 

@@ -26,11 +26,13 @@ module Projects
       if result
         mark_old_paths_for_archive
 
-        project.update(repository_storage: new_repository_storage_key, repository_read_only: false)
+        project.assign_attributes(repository_storage: new_repository_storage_key, repository_read_only: false)
+        project.save(validate: false)
         project.leave_pool_repository
         project.track_project_repository
       else
-        project.update(repository_read_only: false)
+        project.repository_read_only = false
+        project.save(validate: false)
         false
       end
     end
