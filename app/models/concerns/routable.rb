@@ -34,7 +34,7 @@ module Routable
     # Returns a single object, or nil.
     def find_by_full_path(path, follow_redirects: false)
       # Case sensitive match first (it's cheaper and the usual case)
-      found = joins(:route).find_by(routes: { path: path })
+      found = includes(:route).find_by(routes: { path: path })
       return found if found
 
       # If we didn't have an exact match, we perform a case insensitive search
@@ -60,7 +60,7 @@ module Routable
         "(LOWER(routes.path) = LOWER(#{connection.quote(path)}))"
       end
 
-      joins(:route).where(wheres.join(' OR '))
+      includes(:route).where(wheres.join(' OR ')).references(:routes)
     end
   end
 
