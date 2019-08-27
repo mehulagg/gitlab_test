@@ -5,6 +5,7 @@ module QA
     module Project
       module Wiki
         class Show < Page::Base
+          prepend QA::EE::Page::Project::Wiki::Show
           include Page::Component::LegacyClonePanel
 
           view 'app/views/projects/wikis/pages.html.haml' do

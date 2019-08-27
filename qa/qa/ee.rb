@@ -87,6 +87,10 @@ module QA
           end
         end
 
+        module Wiki
+          autoload :Show, 'qa/ee/page/project/wiki/show'
+        end
+
         module Settings
           autoload :ProtectedBranches, 'qa/ee/page/project/settings/protected_branches'
           autoload :MirroringRepositories, 'qa/ee/page/project/settings/mirroring_repositories'
