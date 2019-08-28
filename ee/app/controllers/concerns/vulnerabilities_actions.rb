@@ -11,6 +11,7 @@ module VulnerabilitiesActions
 
   def index
     vulnerabilities = found_vulnerabilities(:with_sha).ordered.page(params[:page])
+    vulnerabilities.reject(&:dismissed?) if vulnerabilities.present? && filter_params[:hide_dismissed].present? && filter_params[:hide_dismissed] == true
 
     respond_to do |format|
       format.json do

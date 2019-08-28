@@ -79,7 +79,7 @@ describe Security::VulnerabilitiesFinder do
       end
     end
 
-    context 'by dismissals' do
+    context 'by dismissals', skip: 'implemented in VulnerabilitiesActions because of BatchLoader limitations' do
       let!(:dismissal) do
         create(:vulnerability_feedback, :sast, :dismissal,
                pipeline: pipeline1,

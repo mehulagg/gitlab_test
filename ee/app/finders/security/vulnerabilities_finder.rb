@@ -11,7 +11,6 @@
 #     confidence: Array<String>
 #     project: Array<String>
 #     report_type: Array<String>
-#     hide_dismissed: Boolean
 
 module Security
   class VulnerabilitiesFinder
@@ -29,7 +28,6 @@ module Security
       collection = by_project(collection)
       collection = by_severity(collection)
       collection = by_confidence(collection)
-      collection = by_dismissed(collection)
       collection
     end
 
@@ -63,12 +61,6 @@ module Security
       items.by_confidences(
         Vulnerabilities::Occurrence::CONFIDENCE_LEVELS.values_at(
           *params[:confidence]).compact)
-    end
-
-    def by_dismissed(items)
-      return items unless params[:hide_dismissed].present? && params[:hide_dismissed] == true
-
-      items.reject(&:dismissed?)
     end
 
     def init_collection(scope)

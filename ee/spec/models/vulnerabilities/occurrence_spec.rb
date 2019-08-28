@@ -365,7 +365,7 @@ describe Vulnerabilities::Occurrence do
             project_fingerprint: occurrence.project_fingerprint
           )
         end
-  
+
         it 'is true' do
           expect(occurrence.dismissed?).to eq(true)
         end

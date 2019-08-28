@@ -105,7 +105,7 @@ shared_examples VulnerabilitiesActions do
       end
 
       context 'with multiple report filters' do
-        let(:action_params) { vulnerable_params.merge(report_type: %w[sast dependency_scanning]) }
+        let(:action_params) { vulnerable_params.merge(report_type: %w[sast dependency_scanning], hide_dismissed: true) }
 
         it 'returns a list of vulnerabilities for all filtered upon types' do
           expect(json_response.length).to eq 2
@@ -140,7 +140,7 @@ shared_examples VulnerabilitiesActions do
     end
 
     context 'with enabled filters' do
-      let(:action_params) { vulnerable_params.merge(report_type: %w[sast dast], severity: %[high low]) }
+      let(:action_params) { vulnerable_params.merge(report_type: %w[sast dast], severity: %[high low], hide_dismissed: true) }
 
       it 'returns counts for filtered vulnerabilities' do
         expect(json_response['high']).to eq(3)
