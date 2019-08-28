@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class ApprovalMergeRequestFallback
+  include ::Gitlab::Utils::StrongMemoize
+
   attr_reader :merge_request
   delegate :approved_by_users, :project, to: :merge_request
 
@@ -26,8 +28,13 @@ class ApprovalMergeRequestFallback
   end
 
   def approvals_required
-    @approvals_required ||= [merge_request.approvals_before_merge.to_i,
-                             project.min_fallback_approvals].max
+    strong_memoize(:wrapped_approval_rules) do
+      if project.can_override_approvers? && merge_request.approvals_before_merge.present?
+        [merge_request.approvals_before_merge.to_i, project.min_fallback_approvals].max
+      else
+        project.approvals_before_merge.to_i
+      end
+    end
   end
 
   def approvals_left

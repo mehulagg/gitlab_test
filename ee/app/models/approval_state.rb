@@ -44,7 +44,8 @@ class ApprovalState
     strong_memoize(:wrapped_approval_rules) do
       next [] unless approval_feature_available?
 
-      result = use_fallback? ? [fallback_rule] : regular_rules
+      result = fallback_rule.approvals_required > 0 ? [fallback_rule] : []
+      result += regular_rules if has_regular_rule_with_approvers?
       result += code_owner_rules
       result += report_approver_rules
       result
@@ -53,11 +54,6 @@ class ApprovalState
 
   def has_non_fallback_rules?
     has_regular_rule_with_approvers? || code_owner_rules.present? || report_approver_rules.present?
-  end
-
-  # Use the fallback rule if regular rules are empty
-  def use_fallback?
-    !has_regular_rule_with_approvers?
   end
 
   def fallback_rule

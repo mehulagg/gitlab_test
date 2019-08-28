@@ -288,7 +288,7 @@ describe ApprovalState do
 
       context 'when regular rules present' do
         before do
-          project.update!(approvals_before_merge: 999)
+          project.update!(approvals_before_merge: 0)
           2.times { create_rule(users: [create(:user)]) }
         end
 
@@ -508,10 +508,6 @@ describe ApprovalState do
         end
 
         it_behaves_like 'a MR that all members with write access can approve'
-
-        it 'has fallback rules apply' do
-          expect(subject.use_fallback?).to be_truthy
-        end
 
         it 'requires one approval' do
           expect(subject.approvals_left).to eq(1)
@@ -1069,7 +1065,7 @@ describe ApprovalState do
 
       context 'when regular rules present' do
         before do
-          project.update!(approvals_before_merge: 999)
+          project.update!(approvals_before_merge: 0)
           2.times { create_rule(users: [create(:user)]) }
         end
 

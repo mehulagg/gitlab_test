@@ -16,7 +16,7 @@ export default {
 </script>
 
 <template>
-  <fallback-rules :has-controls="settings.canEdit">
+  <fallback-rules :has-controls="false">
     <input
       slot="approvals-required"
       slot-scope="{ approvalsRequired, minApprovalsRequired }"

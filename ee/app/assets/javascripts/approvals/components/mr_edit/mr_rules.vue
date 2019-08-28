@@ -3,12 +3,14 @@ import { mapState, mapActions } from 'vuex';
 import UserAvatarList from '~/vue_shared/components/user_avatar/user_avatar_list.vue';
 import Rules from '../rules.vue';
 import RuleControls from '../rule_controls.vue';
+import MrFallbackRules from './mr_fallback_rules.vue';
 
 export default {
   components: {
     UserAvatarList,
     Rules,
     RuleControls,
+    MrFallbackRules,
   },
   computed: {
     ...mapState(['settings']),
@@ -38,6 +40,9 @@ export default {
         <th>{{ approvalsRequired }}</th>
         <th></th>
       </tr>
+    </template>
+    <template slot="fallback-rules">
+      <mr-fallback-rules v-slot:fallback-rules />
     </template>
     <template slot="tr" slot-scope="{ rule }">
       <td v-if="settings.allowMultiRule" class="js-name">{{ rule.name }}</td>
