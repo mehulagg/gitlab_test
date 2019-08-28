@@ -1,2 +1,25 @@
+- breadcrumb_title _("Settings")
+- page_title _("Settings")
+
+%h3.page-title
+  = _('Settings')
+
+%hr.clearfix
+
 = form_for @application_setting, url: admin_application_settings_path, html: { class: 'fieldset-form' } do |f|
   = form_errors(@application_setting)
+
+  .form-group
+    .form-check
+      = f.check_box :elasticsearch_search, class: 'form-check-input', data: { qa_selector: 'search_checkbox' }
+      = f.label :elasticsearch_search, class: 'form-check-label' do
+        =_('Advanced Global Search enabled')
+
+  .form-group
+    .form-check
+      = f.check_box :elasticsearch_limit_indexing, class: 'form-check-input js-limit-checkbox'
+      = f.label :elasticsearch_limit_indexing, class: 'form-check-label' do
+        = _('Limit namespaces and projects that can be indexed')
+
+  .form-actions
+    = submit_tag 'Save changes', class: 'btn btn-success'
