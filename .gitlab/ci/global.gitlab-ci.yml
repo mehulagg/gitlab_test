@@ -27,40 +27,50 @@
       - vendor/gitaly-ruby
     policy: pull
 
-.except-docs:
-  except:
-    refs:
-      - /(^docs[\/-].+|.+-docs$)/
-
-.except-qa:
-  except:
-    refs:
-      - /(^qa[\/-].*|.*-qa$)/
-
-.except-docs-qa:
-  except:
-    refs:
-      - /(^docs[\/-].+|.+-docs$)/
-      - /(^qa[\/-].*|.*-qa$)/
-
-.except-docs-qa-geo:
-  except:
-    refs:
-      - /(^docs[\/-].+|.+-docs$)/
-      - /(^qa[\/-].*|.*-qa$)/
-      - /(^geo[\/-].*|.*-geo$)/
-
-.review-only:
+.default-only:
   only:
     refs:
-      - branches@gitlab-org/gitlab-ce
-      - branches@gitlab-org/gitlab-ee
+      - master
+      - /-stable/
+      - /^\d+-\d+-auto-deploy-\d+$/
+      - merge_requests
+      - tags@gitlab-org/gitlab-ce
+      - tags@gitlab-org/gitlab-ee
+      - tags@gitlab/gitlabhq
+      - tags@gitlab/gitlab-ee
+
+.only-code-changes:
+  only:
+    changes:
+      - "{app,bin,config,danger,db,ee,fixtures,lib,public,rubocop,spec,symbol,vendor}/**/*"
+      - ".gitlab/ci/**/*"
+      - ".gitlab-ci.yml"
+      - "*_VERSION"
+      - "Gemfile"
+      - "Rakefile"
+
+.only-qa-changes:
+  only:
+    changes:
+      - "qa/**/*"
+
+.only-docs-changes:
+  only:
+    changes:
+      - doc/*
+      - "*.{png,jpg,md}"
+      - "**/*.{png,jpg,md}"
+
+.review-only-except:
+  only:
+    variables:
+      - $CI_PROJECT_PATH == "gitlab-org/gitlab-ce"
+      - $CI_PROJECT_PATH == "gitlab-org/gitlab-ee"
     kubernetes: active
   except:
     refs:
       - master
       - /^\d+-\d+-auto-deploy-\d+$/
-      - /(^docs[\/-].+|.+-docs$)/
 
 .use-pg:
   services:

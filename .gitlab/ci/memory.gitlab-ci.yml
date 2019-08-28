@@ -3,8 +3,9 @@ memory-static:
     - .default-tags
     - .default-retry
     - .default-cache
+    - .default-only
     - .default-before_script
-    - .except-docs
+    - .only-code-changes
   variables:
     SETUP_DB: "false"
   script:
@@ -34,9 +35,10 @@ memory-on-boot:
     - .default-tags
     - .default-retry
     - .default-cache
+    - .default-only
     - .default-before_script
     - .use-pg-10
-    - .except-docs-qa
+    - .only-code-changes
   variables:
     NODE_ENV: "production"
     RAILS_ENV: "production"

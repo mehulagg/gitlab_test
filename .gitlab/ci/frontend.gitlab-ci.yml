@@ -9,9 +9,10 @@
   extends:
     - .default-tags
     - .default-retry
-    - .assets-compile-cache
+    - .default-only
     - .default-before_script
-    - .except-docs
+    - .assets-compile-cache
+    - .only-qa-changes
   image: dev.gitlab.org:5005/gitlab/gitlab-build-images:ruby-2.6.3-git-2.22-chrome-73.0-node-12.x-yarn-1.16-graphicsmagick-1.3.33-docker-18.06.1
   dependencies: ["setup-test-env"]
   services:
@@ -47,10 +48,11 @@
     - play_job "review-build-cng" || true  # this job might not exist so ignore the failure if it cannot be played
     - play_job "schedule:review-build-cng" || true  # this job might not exist so ignore the failure if it cannot be played
   only:
-    - /.+/@gitlab-org/gitlab-ce
-    - /.+/@gitlab-org/gitlab-ee
-    - /.+/@gitlab/gitlabhq
-    - /.+/@gitlab/gitlab-ee
+    variables:
+      - $CI_PROJECT_PATH == "gitlab-org/gitlab-ce"
+      - $CI_PROJECT_PATH == "gitlab-org/gitlab-ee"
+      - $CI_PROJECT_PATH == "gitlab/gitlabhq"
+      - $CI_PROJECT_PATH == "gitlab/gitlab-ee"
   tags:
     - gitlab-org
     - docker
@@ -68,9 +70,7 @@ gitlab:assets:compile pull-cache:
   extends: .gitlab:assets:compile-metadata
   except:
     refs:
-      - master@gitlab-org/gitlab-ce
-      - master@gitlab-org/gitlab-ee
-      - /(^docs[\/-].+|.+-docs$)/
+      - master
   cache:
     policy: pull
 
@@ -78,8 +78,10 @@ gitlab:assets:compile pull-cache:
   extends:
     - .default-tags
     - .default-retry
-    - .assets-compile-cache
+    - .default-only
     - .default-before_script
+    - .assets-compile-cache
+    - .only-code-changes
     - .use-pg
   stage: prepare
   script:
@@ -100,12 +102,10 @@ gitlab:assets:compile pull-cache:
       - public/assets
 
 compile-assets:
-  extends:
-    - .compile-assets-metadata
+  extends: .compile-assets-metadata
   only:
     refs:
-      - master@gitlab-org/gitlab-ce
-      - master@gitlab-org/gitlab-ee
+      - master
   cache:
     policy: pull-push
 
@@ -113,9 +113,7 @@ compile-assets pull-cache:
   extends: .compile-assets-metadata
   except:
     refs:
-      - master@gitlab-org/gitlab-ce
-      - master@gitlab-org/gitlab-ee
-      - /(^docs[\/-].+|.+-docs$)/
+      - master
   cache:
     policy: pull
 
@@ -124,9 +122,10 @@ karma:
     - .default-tags
     - .default-retry
     - .default-cache
+    - .default-only
     - .default-before_script
+    - .only-code-changes
     - .use-pg
-    - .except-docs
   dependencies: ["compile-assets", "compile-assets pull-cache", "setup-test-env"]
   variables:
     # we override the max_old_space_size to prevent OOM errors
@@ -154,9 +153,10 @@ jest:
     - .default-tags
     - .default-retry
     - .default-cache
+    - .default-only
     - .default-before_script
+    - .only-code-changes
     - .use-pg
-    - .except-docs-qa
   dependencies: ["compile-assets", "compile-assets pull-cache", "setup-test-env"]
   script:
     - scripts/gitaly-test-spawn
@@ -185,7 +185,8 @@ jest:
     - .default-tags
     - .default-retry
     - .default-cache
-    - .except-docs
+    - .default-only
+    - .only-code-changes
   dependencies: ["setup-test-env"]
   variables:
     SETUP_DB: "false"
@@ -208,7 +209,8 @@ qa:selectors:
     - .default-tags
     - .default-retry
     - .default-cache
-    - .except-docs
+    - .default-only
+    - .only-code-changes
   dependencies: []
   cache:
     key: "$CI_JOB_NAME"
@@ -239,7 +241,8 @@ jsdoc:
     - .default-tags
     - .default-retry
     - .default-cache
-    - .except-docs
+    - .default-only
+    - .only-code-changes
   variables:
     SETUP_DB: "false"
   stage: post-test

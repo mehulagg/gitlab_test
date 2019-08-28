@@ -1,4 +1,5 @@
 .package-and-qa-base:
+  extends: .default-only
   image: ruby:2.6-alpine
   stage: qa
   dependencies: []
@@ -10,34 +11,34 @@
     - install_gitlab_gem
     - ./scripts/trigger-build omnibus
   only:
-    - branches@gitlab-org/gitlab-ce
-    - branches@gitlab-org/gitlab-ee
-  except:
-    - master
+    variables:
+      - $CI_PROJECT_PATH == "gitlab-org/gitlab-ce"
+      - $CI_PROJECT_PATH == "gitlab-org/gitlab-ee"
+  allow_failure: true
 
 package-and-qa-manual:
   extends:
     - .package-and-qa-base
-    - .except-docs-qa
+    - .only-code-changes
+  except:
+    refs:
+      - master
+  when: manual
+  needs: ["build-qa-image", "gitlab:assets:compile pull-cache"]
+
+package-and-qa-manual:master:
+  extends: .package-and-qa-base
+  only:
+    refs:
+      - master
+  when: manual
+  needs: ["build-qa-image", "gitlab:assets:compile"]
+
+package-and-qa:
+  extends:
+    - .package-and-qa-base
+    - .only-qa-changes
   except:
     refs:
       - master
   needs: ["build-qa-image", "gitlab:assets:compile pull-cache"]
-  when: manual
-
-package-and-qa-manual:master:
-  extends:
-    - .package-and-qa-base
-  needs: ["build-qa-image", "gitlab:assets:compile"]
-  only:
-    refs:
-      - master
-  when: manual
-
-package-and-qa:
-  extends: .package-and-qa-base
-  needs: ["build-qa-image", "gitlab:assets:compile pull-cache"]
-  allow_failure: true
-  only:
-    - /(^qa[\/-].*|.*-qa$)/@gitlab-org/gitlab-ce
-    - /(^qa[\/-].*|.*-qa$)/@gitlab-org/gitlab-ee

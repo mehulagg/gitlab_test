@@ -6,7 +6,6 @@ cache gems:
     - .default-retry
     - .default-cache
     - .default-before_script
-    - .except-docs
   dependencies: ["setup-test-env"]
   variables:
     SETUP_DB: "false"
@@ -25,7 +24,8 @@ cache gems:
   extends:
     - .default-tags
     - .default-retry
-    - .except-docs-qa
+    - .default-only
+    - .only-code-changes
   dependencies: []
 
 gitlab_git_test:
@@ -38,5 +38,6 @@ no_ee_check:
   script:
     - scripts/no-ee-check
   only:
-    refs:
-      - branches@gitlab-org/gitlab-ce
+    variables:
+      - $CI_PROJECT_PATH == "gitlab-org/gitlab-ce"
+      - $CI_PROJECT_PATH == "gitlab/gitlabhq"

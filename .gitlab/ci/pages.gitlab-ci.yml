@@ -3,7 +3,8 @@ pages:
     - .default-tags
     - .default-retry
     - .default-cache
-    - .except-docs
+    - .default-only
+    - .only-code-changes
   only:
     refs:
       - master@gitlab-org/gitlab-ce

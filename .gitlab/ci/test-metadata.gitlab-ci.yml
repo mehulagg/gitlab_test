@@ -1,4 +1,5 @@
 .tests-metadata-state:
+  extends: .default-only
   variables:
     TESTS_METADATA_S3_BUCKET: "gitlab-ce-cache"
   before_script:
@@ -13,7 +14,7 @@
 retrieve-tests-metadata:
   extends:
     - .tests-metadata-state
-    - .except-docs-qa
+    - .only-code-changes
   stage: prepare
   cache:
     key: tests_metadata
@@ -63,19 +64,15 @@ flaky-examples-check:
   extends:
     - .default-tags
     - .default-retry
+    - .default-only
+    - .only-code-changes
   image: ruby:2.6-alpine
   stage: post-test
   variables:
     NEW_FLAKY_SPECS_REPORT: rspec_flaky/report-new.json
   allow_failure: true
   only:
-    refs:
-      - branches
-  except:
-    refs:
-      - master
-      - /(^docs[\/-].+|.+-docs$)/
-      - /(^qa[\/-].*|.*-qa$)/
+    - merge_requests
   artifacts:
     expire_in: 30d
     paths:

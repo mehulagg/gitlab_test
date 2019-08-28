@@ -6,16 +6,14 @@
     kubernetes: active
     variables:
       - $REVIEW_APP_CLEANUP
-  except:
-    refs:
-      - tags
-      - /(^docs[\/-].+|.+-docs$)/
 
 .review-base:
   extends:
     - .default-tags
     - .default-retry
-    - .review-only
+    - .default-only
+    - .review-only-except
+    - .only-qa-changes
   image: registry.gitlab.com/gitlab-org/gitlab-build-images:gitlab-charts-build-base
   dependencies: []
   before_script:
@@ -40,7 +38,7 @@
 build-qa-image:
   extends:
     - .review-docker
-    - .except-docs-qa
+    - .only-code-changes
   only:
     refs:
       - branches@gitlab-org/gitlab-ce
@@ -52,6 +50,9 @@ build-qa-image:
     - time docker push ${QA_IMAGE}
 
 .review-build-cng-base:
+  extends:
+    - .default-only
+    - .only-qa-changes
   image: ruby:2.6-alpine
   stage: test
   when: manual
@@ -66,7 +67,7 @@ build-qa-image:
 review-build-cng:
   extends:
     - .review-build-cng-base
-    - .review-only
+    - .review-only-except
 
 schedule:review-build-cng:
   extends:
@@ -134,7 +135,7 @@ review-stop:
 .review-qa-base:
   extends:
     - .review-docker
-    - .review-only
+    - .review-only-except
   retry: 2
   stage: qa
   variables:
@@ -180,7 +181,9 @@ review-qa-all:
 parallel-spec-reports:
   extends:
     - .default-tags
-    - .except-docs
+    - .default-only
+    - .only-qa-changes
+    - .review-only-except
   image: ruby:2.6-alpine
   stage: post-test
   dependencies: ["review-qa-all"]
@@ -250,6 +253,7 @@ danger-review:
     - .default-tags
     - .default-retry
     - .default-cache
+    - .default-only
   image: registry.gitlab.com/gitlab-org/gitlab-build-images:danger
   stage: test
   dependencies: []
