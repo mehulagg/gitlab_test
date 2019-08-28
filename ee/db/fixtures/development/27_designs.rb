@@ -100,7 +100,18 @@ class SeedDesigns
   end
 
   def run
-    puts("NB: This seed requires the rails-web component to be running!")
+    puts(<<~NOTICE)
+    NB: This seed requires the rails-web component to be running!
+
+        This fixture will certainly fail if rails-web is not running
+        since it requires access to some API calls. If you want your designs
+        to be seeded, then please re-run this with rails-web running in
+        the background with:
+
+          rake db:seed_fu FILTER=designs
+
+        Failure to load designs here is a known issue.
+    NOTICE
 
     Issue.all.sample(n_issues).each do |issue|
       project = issue.project
