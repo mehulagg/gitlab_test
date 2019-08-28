@@ -522,3 +522,14 @@ notify_upstream_commit:failure:
   script:
     - bin/notify_upstream_commit failure
   when: on_failure
+
+# This job requires the `GITLAB_QA_ACCESS_TOKEN` and `GITLAB_QA_DEV_ACCESS_TOKEN`
+# variable to be passed when triggered.
+staging:
+  script:
+    - unset EE_LICENSE
+    - exe/gitlab-qa Test::Instance::Staging
+  <<: *test
+  <<: *high-capacity
+  <<: *only-qa
+  when: manual
