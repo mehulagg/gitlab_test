@@ -71,6 +71,14 @@ module EE
                   type: ::API::Services::Boolean,
                   desc: 'Should unstable builds be treated as passing?'
                 }
+              ],
+              'alerts' => [
+                {
+                  name: :alerts_endpoint,
+                  required: false,
+                  type: String,
+                  desc: 'That thing'
+                }
               ]
             )
           end
@@ -81,6 +89,7 @@ module EE
               ::GithubService,
               ::JenkinsService,
               ::JenkinsDeprecatedService,
+              ::AlertsService,
               *super
             ]
           end

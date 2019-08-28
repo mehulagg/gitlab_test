@@ -13,6 +13,7 @@ module EE
           github
           jenkins
           jenkins_deprecated
+          alerts
         ]
 
         if ::Gitlab.com? || Rails.env.development?

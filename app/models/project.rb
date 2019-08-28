@@ -171,6 +171,7 @@ class Project < ApplicationRecord
   has_one :microsoft_teams_service
   has_one :packagist_service
   has_one :hangouts_chat_service
+  has_one :alerts_service
 
   has_one :root_of_fork_network,
           foreign_key: 'root_project_id',
