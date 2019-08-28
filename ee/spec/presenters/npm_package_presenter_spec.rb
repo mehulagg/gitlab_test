@@ -78,6 +78,6 @@ describe NpmPackagePresenter do
   end
 
 
-
+end
 
 end
