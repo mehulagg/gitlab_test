@@ -1,3 +1,4 @@
+import { __ } from '~/locale';
 import dateformat from 'dateformat';
 import { secondsIn, dateTimePickerRegex, dateFormats } from './constants';
 
@@ -129,6 +130,44 @@ export const downloadCSVOptions = title => {
     : 'download_csv_of_metrics_dashboard_chart';
 
   return { category, action, label: 'Chart title', property: title };
+};
+
+export const graphDataValidatorForAnomalyValues = (isValues, graphData) => {
+  const anomalySeriesCount = 3; // metric, upper, lower
+  return (
+    graphData.queries &&
+    graphData.queries.length === anomalySeriesCount &&
+    graphDataValidatorForValues(isValues, graphData)
+  );
+};
+
+export const getEarliestDatapoint = chartData =>
+  chartData.reduce((acc, series) => {
+    const { data } = series;
+    const { length } = data;
+    if (!length) {
+      return acc;
+    }
+
+    const [first] = data[0];
+    const [last] = data[length - 1];
+    const seriesEarliest = first < last ? first : last;
+
+    return seriesEarliest < acc || acc === null ? seriesEarliest : acc;
+  }, null);
+
+export const makeTimeAxis = config => {
+  const defaults = {
+    name: __('Time'),
+    type: 'time',
+    axisLabel: {
+      formatter: date => dateformat(date, dateFormats.timeOfDay),
+    },
+    axisPointer: {
+      snap: true,
+    },
+  };
+  return { ...defaults, ...config };
 };
 
 export default {};

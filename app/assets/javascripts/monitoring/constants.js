@@ -14,7 +14,16 @@ export const graphTypes = {
 };
 
 export const symbolSizes = {
+  anomaly: 8,
   default: 14,
+};
+
+export const areaOpacityValues = {
+  default: 0.2,
+};
+
+export const colorValues = {
+  anomalySymbol: '#db3b21',
 };
 
 export const lineTypes = {
