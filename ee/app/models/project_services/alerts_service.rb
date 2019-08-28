@@ -27,15 +27,15 @@ class AlertsService < Service
   def fields
     [
       {
-        type: 'text',
+        type: 'readonly_text',
         name: 'url',
-        required: true, # ???
+        required: true,
         readonly: true
       },
       {
-        type: 'text',
+        type: 'readonly_text',
         name: 'authorization_key',
-        required: true, # ???
+        required: true,
         readonly: true
       }
     ]
