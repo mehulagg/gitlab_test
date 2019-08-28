@@ -15,6 +15,8 @@ export default {
     Icon,
     UserAvatarLink,
     MilestoneList: () => import('ee_component/releases/components/milestone_list.vue'),
+    IssueMergeRequestLinks: () =>
+      import('ee_component/releases/components/issue_merge_request_links.vue'),
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -51,6 +53,9 @@ export default {
       return !_.isEmpty(this.author);
     },
     shouldRenderMilestones() {
+      return Boolean(this.release.milestone);
+    },
+    shouldRenderIssueMergeRequestLinks() {
       return Boolean(this.release.milestone);
     },
     milestones() {
@@ -152,6 +157,10 @@ export default {
       <div class="card-text prepend-top-default">
         <div v-html="release.description_html"></div>
       </div>
+    </div>
+
+    <div class="card-footer" v-if="shouldRenderIssueMergeRequestLinks">
+      <issue-merge-request-links :milestones="milestones" />
     </div>
   </div>
 </template>
