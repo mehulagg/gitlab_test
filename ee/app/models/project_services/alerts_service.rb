@@ -24,6 +24,10 @@ class AlertsService < Service
     'alerts'
   end
 
+  def show_active_box?
+    false
+  end
+
   def fields
     [
       {

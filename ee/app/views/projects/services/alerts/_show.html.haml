@@ -1,6 +1,8 @@
 .row
   .col-lg-9.offset-lg-3.row
-    .col-2
-      %button.btn.btn-danger.js-reset-key=_('Reset key')
-    .col-10
-      %strong=_('WARNING: Resetting the authorization key for this project will require updating the authorization key in every alert source it is enabled in')
+    -# .col-2
+    -#   %button.btn.btn-secondary.js-reset-key=_('Reset key')
+    -# .col-10
+    -#   %strong=_('WARNING: Resetting the authorization key for this project will require updating the authorization key in every alert source it is enabled in')
+    .offset-2
+      = link_to _('Reset key'), 'https://example.com/del', method: :delete, class: 'btn btn-secondary', data: { confirm: _('WARNING: Resetting the authorization key for this project will require updating the authorization key in every alert source it is enabled in') }

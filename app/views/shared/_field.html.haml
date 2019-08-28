@@ -28,7 +28,7 @@
     - elsif type == 'readonly_text'
       .clipboard-group.d-flex
         .input-group
-          %input.label.label-monospace.monospace.flex-grow{ id: name, type: "text", autocomplete: 'off', value: "please do not reveal", readonly: true }
+          %input.label.label-monospace.monospace.flex-grow{ id: name, type: "text", autocomplete: 'off', value: "https://example.com/alerts", readonly: true }
           .input-group-append
             = clipboard_button(target: "##{name}", title: _("Copy authorization key to clipboard"), class: "btn btn btn-default")
     - if help
