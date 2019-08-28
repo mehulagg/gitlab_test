@@ -4,6 +4,7 @@ class IdeController < ApplicationController
   layout 'fullscreen'
 
   def index
+    @collapsible_header = true
     Gitlab::UsageDataCounters::WebIdeCounter.increment_views_count
   end
 end

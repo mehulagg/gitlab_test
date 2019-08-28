@@ -7,6 +7,7 @@ import store from './stores';
 import router from './ide_router';
 import { parseBoolean } from '../lib/utils/common_utils';
 import { resetServiceWorkersPublicPath } from '../lib/utils/webpack';
+import setupCollapsibleNavbar from '~/navbar';
 
 Vue.use(Translate);
 
@@ -61,6 +62,14 @@ export function initIde(el, options = {}) {
   });
 }
 
+function setupTheiaIDE(iframe) {
+  if (!iframe) {
+    return;
+  }
+
+  setupCollapsibleNavbar({ autoCollapse: true });
+}
+
 /**
  * Start the IDE.
  *
@@ -73,5 +82,7 @@ export function startIde(options) {
       resetServiceWorkersPublicPath();
       initIde(ideElement, options);
     }
+
+    setupTheiaIDE(document.getElementById('ide-theia'));
   });
 }

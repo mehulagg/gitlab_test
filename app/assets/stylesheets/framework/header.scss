@@ -244,6 +244,16 @@
       }
     }
   }
+
+  &.navbar-collapsible {
+    position: fixed;
+    top: 0;
+    transition: top 0.2s;
+
+    &.navbar-collapsed {
+      top: -$header-height;
+    }
+  }
 }
 
 .navbar-sub-nav,
@@ -615,4 +625,20 @@
   }
 
   @include media-breakpoint-down(xs) { margin-right: 3px; }
+}
+
+.navbar-collapse-trigger {
+  position: absolute;
+  right: 16px;
+  top: 100%;
+  margin-top: 6px;
+  &,
+  &:hover {
+    color: #fff;
+  }
+  display: none;
+
+  .navbar-collapsed & {
+    display: block;
+  }
 }
