@@ -299,6 +299,9 @@ msgstr ""
 msgid "%{openOrClose} %{noteable}"
 msgstr ""
 
+msgid "%{percentage} % of pipeline"
+msgstr ""
+
 msgid "%{percent}%% complete"
 msgstr ""
 

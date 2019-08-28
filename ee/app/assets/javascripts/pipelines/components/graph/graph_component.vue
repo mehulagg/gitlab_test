@@ -46,6 +46,9 @@ export default {
     };
   },
   computed: {
+    pipelineDuration() {
+      return this.pipeline.details.duration;
+    },
     hasTriggeredBy() {
       return (
         this.type !== this.$options.downstream &&
@@ -147,6 +150,7 @@ export default {
           :title="capitalizeStageName(stage.name)"
           :groups="stage.groups"
           :duration="stage.duration"
+          :pipeline-duration="pipelineDuration"
           :stage-connector-class="stageConnectorClass(index, stage)"
           :is-first-column="isFirstColumn(index)"
           :has-triggered-by="hasTriggeredBy"

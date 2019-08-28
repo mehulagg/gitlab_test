@@ -4,11 +4,13 @@ import stageColumnMixin from 'ee_else_ce/pipelines/mixins/stage_column_mixin';
 import JobItem from './job_item.vue';
 import JobGroupDropdown from './job_group_dropdown.vue';
 import ActionComponent from './action_component.vue';
+import JobDuration from './job_duration.vue';
 
 export default {
   components: {
     JobItem,
     JobGroupDropdown,
+    JobDuration,
     ActionComponent,
   },
   mixins: [stageColumnMixin],
@@ -57,9 +59,12 @@ export default {
     <div class="stage-name position-relative">
       {{ title }}
 
-      <span v-if="duration">
-        {{ durationInWords }}
-      </span>
+      <job-duration
+        v-if="duration"
+        class="job-duration-stage"
+        :duration="duration"
+        :pipeline-duration="pipelineDuration"
+      />
 
       <action-component
         v-if="hasAction"
@@ -85,6 +90,8 @@ export default {
           <job-item
             v-if="group.size === 1"
             :job="group.jobs[0]"
+            :duration="group.duration"
+            :pipelineDuration="pipelineDuration"
             css-class-job-name="build-content"
             @pipelineActionRequestComplete="pipelineActionRequestComplete"
           />
@@ -92,12 +99,10 @@ export default {
           <job-group-dropdown
             v-if="group.size > 1"
             :group="group"
+            :duration="group.duration"
+            :pipelineDuration="pipelineDuration"
             @pipelineActionRequestComplete="pipelineActionRequestComplete"
           />
-
-          <span v-if="duration">
-            {{ groupDurationInWords(group) }}
-          </span>
         </li>
       </ul>
     </div>

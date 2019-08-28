@@ -1,6 +1,7 @@
 <script>
 import ActionComponent from './action_component.vue';
 import JobNameComponent from './job_name_component.vue';
+import JobDuration from './job_duration.vue';
 import { GlTooltipDirective, GlLink } from '@gitlab/ui';
 import { sprintf } from '~/locale';
 import delayedJobMixin from '~/jobs/mixins/delayed_job_mixin';
@@ -34,6 +35,7 @@ export default {
   components: {
     ActionComponent,
     JobNameComponent,
+    JobDuration,
     GlLink,
   },
   directives: {
@@ -54,6 +56,16 @@ export default {
       type: Number,
       required: false,
       default: Infinity,
+    },
+    duration: {
+      type: Number,
+      required: false,
+      default: null,
+    },
+    pipelineDuration: {
+      type: Number,
+      required: false,
+      default: null,
     },
   },
   computed: {
@@ -132,6 +144,13 @@ export default {
       :link="status.action.path"
       :action-icon="status.action.icon"
       @pipelineActionRequestComplete="pipelineActionRequestComplete"
+    />
+
+    <job-duration
+      v-if="duration"
+      class="job-duration-job"
+      :duration="duration"
+      :pipeline-duration="pipelineDuration"
     />
   </div>
 </template>

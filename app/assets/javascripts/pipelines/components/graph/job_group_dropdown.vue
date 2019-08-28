@@ -3,6 +3,7 @@ import $ from 'jquery';
 import { GlTooltipDirective } from '@gitlab/ui';
 import CiIcon from '~/vue_shared/components/ci_icon.vue';
 import JobItem from './job_item.vue';
+import JobDuration from './job_duration.vue';
 
 /**
  * Renders the dropdown for the pipeline graph.
@@ -17,11 +18,22 @@ export default {
   components: {
     JobItem,
     CiIcon,
+    JobDuration,
   },
   props: {
     group: {
       type: Object,
       required: true,
+    },
+    duration: {
+      type: Number,
+      required: false,
+      default: null,
+    },
+    pipelineDuration: {
+      type: Number,
+      required: false,
+      default: null,
     },
   },
   computed: {
@@ -90,5 +102,12 @@ export default {
         </ul>
       </li>
     </ul>
+
+    <job-duration
+      v-if="duration"
+      class="job-duration-job"
+      :duration="duration"
+      :pipeline-duration="pipelineDuration"
+    />
   </div>
 </template>

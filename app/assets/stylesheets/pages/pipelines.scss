@@ -472,6 +472,18 @@
     vertical-align: middle;
   }
 
+  .job-duration {
+    margin-top: 4px;
+
+    .pipeline-percentage {
+      height: 8px;
+    }
+  }
+
+  .job-duration-job {
+    padding-left: 8px;
+  }
+
   .stage-column {
     display: inline-block;
     vertical-align: top;
