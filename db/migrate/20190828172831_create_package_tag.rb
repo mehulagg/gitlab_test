@@ -33,7 +33,6 @@ class CreatePackageTag < ActiveRecord::Migration[5.2]
       t.references :project, index: true, type: :integer
       t.string :name, limit: 255, null: false
       t.index ["package_id"], name: "index_package_tags_on_package_id"
-      t.index ["project_id"], name: "index_package_tags_on_project_id"
     end
   end
 
