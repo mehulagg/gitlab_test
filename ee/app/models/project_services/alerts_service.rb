@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'securerandom'
+
 class AlertsService < Service
   include Gitlab::Routing
 
@@ -7,12 +9,19 @@ class AlertsService < Service
 
   validates :url, :authorization_key, presence: true, if: :activated?
 
+  after_initialize :ensure_authorization_key
+  before_save :ensure_authorization_key
+
   def url
     # TODO use route url once defined
     project_url(project) + '/alerts/notify.json'
   end
 
   def editable?
+    true
+  end
+
+  def can_test?
     false
   end
 
@@ -51,5 +60,17 @@ class AlertsService < Service
 
   def self.supported_events
     %w()
+  end
+
+  private
+
+  def ensure_authorization_key
+    return if authorization_key.present?
+
+    update!(authorization_key: generate_token)
+  end
+
+  def generate_token
+    SecureRandom.hex
   end
 end
