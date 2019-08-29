@@ -57,7 +57,6 @@ class SeedDesigns
   end
 
   def create_version(repo, devs, to_change, version_number)
-    warn(to_change.inspect)
     user = devs.sample
     actions = to_change.map { |design| as_action(design) }
     sha = repo.multi_action(user, branch_name: 'master',
@@ -126,9 +125,6 @@ class SeedDesigns
 
       Random.rand(max_versions_per_issue).times do |i|
         to_change = designs.sample(Random.rand(1..max_designs_per_version))
-        puts("Designs: #{designs.inspect}")
-        puts("To Change: #{to_change.inspect}")
-
         create_version(repo, devs, to_change, i)
       end
     end
