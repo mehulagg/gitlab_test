@@ -1,8 +1,14 @@
 # frozen_string_literal: true
 
 class AlertsService < Service
-  prop_accessor :authorization_key, :url
-  validates :authorization_key, :url, presence: true, if: :activated?
+  include Gitlab::Routing
+
+  prop_accessor :authorization_key
+
+  def url
+    # TODO use route url once defined
+    project_url(project) + '/alerts/notify.json'
+  end
 
   def editable?
     false
