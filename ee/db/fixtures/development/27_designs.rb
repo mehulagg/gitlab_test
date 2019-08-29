@@ -95,6 +95,9 @@ class SeedDesigns
       end
 
       designs.presence || []
+    rescue e
+      print('F' * fs.size)
+      warn(e)
     end
   end
 
