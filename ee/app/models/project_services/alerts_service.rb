@@ -3,7 +3,9 @@
 class AlertsService < Service
   include Gitlab::Routing
 
-  prop_accessor :authorization_key
+  prop_accessor :url, :authorization_key
+
+  validates :url, :authorization_key, presence: true, if: :activated?
 
   def url
     # TODO use route url once defined
