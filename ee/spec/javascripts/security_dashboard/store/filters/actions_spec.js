@@ -67,4 +67,54 @@ describe('filters actions', () => {
       );
     });
   });
+
+  describe('setHideDismissedToggleInitialState', () => {
+    it('should not do anything if hide_dismissed param is not present', done => {
+      const state = createState();
+      testAction(actions.setHideDismissedToggleInitialState, {}, state, [], [], done);
+    });
+
+    it('should commit the SET_TOGGLE_VALUE mutation if hide_dismissed param is present', done => {
+      const state = createState();
+      window.history.replaceState(null, null, '?hide_dismissed=false');
+
+      testAction(
+        actions.setHideDismissedToggleInitialState,
+        {},
+        state,
+        [
+          {
+            type: types.SET_TOGGLE_VALUE,
+            payload: {
+              key: 'hide_dismissed',
+              value: false,
+            },
+          },
+        ],
+        [],
+        done,
+      );
+    });
+  });
+
+  describe('setToggleValue', () => {
+    it('should commit the SET_TOGGLE_VALUE mutation', done => {
+      const state = createState();
+      const payload = { key: 'foo', value: 'bar' };
+
+      testAction(
+        actions.setToggleValue,
+        payload,
+        state,
+        [
+          {
+            type: types.SET_TOGGLE_VALUE,
+            payload,
+          },
+        ],
+        [],
+        done,
+      );
+    });
+  });
 });

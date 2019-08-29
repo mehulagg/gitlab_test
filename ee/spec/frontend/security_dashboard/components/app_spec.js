@@ -123,4 +123,16 @@ describe('Card security reports app', () => {
       });
     });
   });
+
+  describe('dismissed vulnerabilities', () => {
+    it('hides dismissed vulnerabilities by default', () => {
+      expect(wrapper.vm.$store.state.filters.hide_dismissed).toBe(true);
+    });
+
+    it('shows dismissed vulnerabilities if param is specified in URL', () => {
+      window.history.pushState({}, 'Show dismissed vulnerabilities', '?hide_dismissed=false');
+      createComponent();
+      expect(wrapper.vm.$store.state.filters.hide_dismissed).toBe(false);
+    });
+  });
 });
