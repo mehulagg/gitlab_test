@@ -32,6 +32,7 @@ entry.
 - Upgrade Rugged to 0.28.3. !31794
 - Queries for Upload should be scoped by model.
 - Restrict slash commands to users who can log in.
+- Restrict slash commands to users who can log in.
 
 ### Removed (3 changes)
 
@@ -99,6 +100,9 @@ entry.
 - Fixed display of some sections and externalized all text in the shortcuts modal overlay. !31594
 - Remove extra padding from disabled comment box. !31603
 - Allow CI to clone public projects when HTTP protocol is disabled. !31632
+- Restrict slash commands to users who can log in.- Restrict slash commands to users who can log in.
+- Restrict slash commands to users who can log in.
+- Restrict slash commands to users who can log in.
 - error message for general settings. !31636 (Mesut Güneş)
 - Invalidate branches cache on PostReceive. !31653
 - Fix active metric files being wiped after the app starts. !31668
@@ -145,10 +149,6 @@ entry.
 - Upgrade to Gitaly v1.57.0. !31568
 - Rename githost.log -> git_json.log. !31634
 - Load search result counts asynchronously. !31663
-- feat: adds a download to csv functionality to the dropdown in prometheus metrics. !31679
-- Adjust copy for adding additional members. !31726
-- Upgrade to Gitaly v1.59.0. !31743
-- Filter title, description, and body parameters from logs.
 
 ### Performance (17 changes, 1 of them is from the community)
 

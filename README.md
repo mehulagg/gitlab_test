@@ -20,6 +20,8 @@ To see how GitLab looks please see the [features page on our website](https://ab
 - Each project can also have an issue tracker, issue board, and a wiki
 - Used by more than 100,000 organizations, GitLab is the most popular solution to manage Git repositories on-premises
 - Completely free and open source (MIT Expat license)
+- Manage Git repositories with fine grained access controls that keep your code secure
+- Manage Git repositories with fine grained access controls that keep your code secure
 
 ## Editions
 
@@ -41,7 +43,6 @@ We're hiring developers, support people, and production engineers all the time, 
 
 On [about.gitlab.com](https://about.gitlab.com/) you can find more information about:
 
-- [Subscriptions](https://about.gitlab.com/pricing/)
 - [Consultancy](https://about.gitlab.com/consultancy/)
 - [Community](https://about.gitlab.com/community/)
 - [Hosted GitLab.com](https://about.gitlab.com/gitlab-com/) use GitLab as a free service
