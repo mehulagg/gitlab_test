@@ -5,17 +5,16 @@ require 'securerandom'
 class AlertsService < Service
   include Gitlab::Routing
 
-  prop_accessor :url, :authorization_key
+  prop_accessor :url, :token
 
-  validates :url, :authorization_key, presence: true, if: :activated?
+  validates :url, presence: true, if: :activated?
+  validates :token, presence: true, if: :activated?
 
-  after_initialize :ensure_authorization_key
-  before_save :ensure_authorization_key
+  after_initialize :assign_url
+  after_initialize :ensure_token
 
-  def url
-    # TODO use route url once defined
-    project_url(project) + '/alerts/notify.json'
-  end
+  before_validation :assign_url
+  before_validation :ensure_token
 
   def editable?
     true
@@ -51,7 +50,7 @@ class AlertsService < Service
       },
       {
         type: 'text',
-        name: 'authorization_key',
+        name: 'token',
         required: true, # ???
         readonly: true
       }
@@ -64,13 +63,20 @@ class AlertsService < Service
 
   private
 
-  def ensure_authorization_key
-    return if authorization_key.present?
-
-    update!(authorization_key: generate_token)
+  def ensure_token
+    self.token = generate_token if token.blank?
   end
 
   def generate_token
     SecureRandom.hex
+  end
+
+  def assign_url
+    self.url = generate_url
+  end
+
+  def generate_url
+    # TODO use route url once defined
+    project_url(project) + '/alerts/notify.json'
   end
 end
