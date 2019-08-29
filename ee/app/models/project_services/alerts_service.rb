@@ -5,7 +5,13 @@ require 'securerandom'
 class AlertsService < Service
   include Gitlab::Routing
 
-  prop_accessor :url, :token
+  prop_accessor :url
+
+  prop_accessor :encrypted_token, :encrypted_token_iv, :encrypted_token_salt
+  attr_encrypted :token,
+    mode: :per_attribute_iv,
+    key: Settings.attr_encrypted_db_key_base_truncated,
+    algorithm: 'aes-256-gcm'
 
   validates :url, presence: true, if: :activated?
   validates :token, presence: true, if: :activated?
