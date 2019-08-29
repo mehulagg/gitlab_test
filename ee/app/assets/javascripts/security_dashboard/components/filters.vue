@@ -27,14 +27,12 @@ export default {
       />
       <div class="ml-lg-auto p-2">
         <strong>{{ s__('SecurityDashboard|Hide dismissed') }}</strong>
-        <div>
-          <gl-toggle-vuex
-            class="mt-1"
-            store-module="filters"
-            state-property="hide_dismissed"
-            set-action="setToggleValue"
-          />
-        </div>
+        <gl-toggle-vuex
+          class="d-block mt-1 js-toggle"
+          store-module="filters"
+          state-property="hide_dismissed"
+          set-action="setToggleValue"
+        />
       </div>
     </div>
   </div>

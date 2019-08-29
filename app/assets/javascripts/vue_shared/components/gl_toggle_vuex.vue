@@ -1,5 +1,6 @@
 <script>
 import { GlToggle } from '@gitlab/ui';
+import { capitalizeFirstCharacter } from '~/lib/utils/text_utility';
 
 export default {
   name: 'GlToggleVuex',
@@ -20,7 +21,7 @@ export default {
       type: String,
       required: false,
       default() {
-        return `set${this.stateProperty.charAt(0).toUpperCase()}${this.stateProperty.slice(1)}`;
+        return `set${capitalizeFirstCharacter(this.stateProperty)}`;
       },
     },
   },
