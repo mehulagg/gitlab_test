@@ -115,7 +115,7 @@ class SeedDesigns
     Issue.all.sample(n_issues).each do |issue|
       project = issue.project
       repo = project.design_repository
-      devs = project.team.developers.all
+      devs = project.team.developers + project.team.maintainers + project.team.owners
 
       repo.create_if_not_exists
 
