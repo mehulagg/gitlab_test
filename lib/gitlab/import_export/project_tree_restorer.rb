@@ -28,6 +28,8 @@ module Gitlab
 
         RelationRenameService.rename(@tree_hash)
 
+        correct_pipeline_order
+
         ActiveRecord::Base.uncached do
           ActiveRecord::Base.no_touching do
             create_relations
@@ -234,6 +236,10 @@ module Gitlab
 
       def nil_iid_pipeline?(relation_key, relation_item)
         relation_key == 'ci_pipelines' && relation_item['iid'].nil?
+      end
+
+      def correct_pipeline_order
+        @tree_hash['ci_pipelines']&.sort_by! { |pipeline| pipeline['created_at'] || Date.new(9999).to_s }
       end
     end
   end

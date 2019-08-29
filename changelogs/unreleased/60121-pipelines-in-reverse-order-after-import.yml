@@ -1,0 +1,5 @@
+---
+title: Sort pipelines by created_at on Import
+merge_request: 16835
+author:
+type: fixed
