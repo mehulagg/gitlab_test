@@ -91,7 +91,7 @@ class SeedDesigns
       elsif designs.present?
         print('.' * designs.size)
       else
-        warn('No designs?')
+        warn('Illegal state: no error, and no designs?')
       end
 
       designs.presence || []
