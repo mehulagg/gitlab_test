@@ -241,7 +241,6 @@ ActiveRecord::Schema.define(version: 2019_08_28_172831) do
     t.boolean "pseudonymizer_enabled", default: false, null: false
     t.boolean "hide_third_party_offers", default: false, null: false
     t.boolean "snowplow_enabled", default: false, null: false
-    t.string "snowplow_collector_hostname"
     t.string "snowplow_site_id"
     t.string "snowplow_cookie_domain"
     t.boolean "instance_statistics_visibility_private", default: false, null: false
@@ -273,7 +272,6 @@ ActiveRecord::Schema.define(version: 2019_08_28_172831) do
     t.boolean "lock_memberships_to_ldap", default: false, null: false
     t.boolean "time_tracking_limit_to_hours", default: false, null: false
     t.string "grafana_url", default: "/-/grafana", null: false
-    t.boolean "login_recaptcha_protection_enabled", default: false, null: false
     t.string "outbound_local_requests_whitelist", limit: 255, default: [], null: false, array: true
     t.integer "raw_blob_request_limit", default: 300, null: false
     t.bigint "instance_administration_project_id"
@@ -1511,9 +1509,9 @@ ActiveRecord::Schema.define(version: 2019_08_28_172831) do
     t.string "internal_url"
     t.string "name", null: false
     t.integer "container_repositories_max_capacity", default: 10, null: false
+    t.boolean "sync_object_storage", default: false, null: false
     t.datetime_with_timezone "created_at"
     t.datetime_with_timezone "updated_at"
-    t.boolean "sync_object_storage", default: false, null: false
     t.index ["access_key"], name: "index_geo_nodes_on_access_key"
     t.index ["name"], name: "index_geo_nodes_on_name", unique: true
     t.index ["primary"], name: "index_geo_nodes_on_primary"
@@ -2445,6 +2443,7 @@ ActiveRecord::Schema.define(version: 2019_08_28_172831) do
   create_table "packages_package_metadata", force: :cascade do |t|
     t.integer "package_id"
     t.binary "metadata"
+    t.index ["package_id"], name: "index_package_metadata_on_package_id"
     t.index ["package_id"], name: "index_packages_package_metadata_on_package_id"
   end
 
@@ -2534,7 +2533,7 @@ ActiveRecord::Schema.define(version: 2019_08_28_172831) do
     t.string "title"
     t.integer "active_pipelines_limit"
     t.integer "pipeline_size_limit"
-    t.integer "active_jobs_limit", default: 0
+    t.integer "active_jobs_limit", default: 0, null: false
     t.index ["name"], name: "index_plans_on_name"
   end
 
@@ -3022,6 +3021,7 @@ ActiveRecord::Schema.define(version: 2019_08_28_172831) do
     t.string "path", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index "lower((path)::text) varchar_pattern_ops", name: "index_redirect_routes_on_path_unique_text_pattern_ops", unique: true
     t.index ["path"], name: "index_redirect_routes_on_path", unique: true
     t.index ["source_type", "source_id"], name: "index_redirect_routes_on_source_type_and_source_id"
   end
@@ -3827,8 +3827,8 @@ ActiveRecord::Schema.define(version: 2019_08_28_172831) do
   add_foreign_key "deployments", "projects", name: "fk_b9a3851b82", on_delete: :cascade
   add_foreign_key "design_management_designs", "issues", on_delete: :cascade
   add_foreign_key "design_management_designs", "projects", on_delete: :cascade
-  add_foreign_key "design_management_designs_versions", "design_management_designs", column: "design_id", name: "fk_03c671965c", on_delete: :cascade
-  add_foreign_key "design_management_designs_versions", "design_management_versions", column: "version_id", name: "fk_f4d25ba00c", on_delete: :cascade
+  add_foreign_key "design_management_designs_versions", "design_management_designs", column: "design_id", on_delete: :cascade
+  add_foreign_key "design_management_designs_versions", "design_management_versions", column: "version_id", on_delete: :cascade
   add_foreign_key "design_management_versions", "issues", on_delete: :cascade
   add_foreign_key "draft_notes", "merge_requests", on_delete: :cascade
   add_foreign_key "draft_notes", "users", column: "author_id", on_delete: :cascade
