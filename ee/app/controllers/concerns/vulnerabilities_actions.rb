@@ -11,6 +11,9 @@ module VulnerabilitiesActions
 
   def index
     vulnerabilities = found_vulnerabilities(:with_sha).ordered.page(params[:page])
+
+    # Move hide_vulnerabilities filter to Vulnerabilities::Finder when db query can be used
+    # To be removed with: https://gitlab.com/gitlab-org/gitlab-ee/issues/14042
     vulnerabilities.reject(&:dismissed?) if vulnerabilities.present? && filter_params[:hide_dismissed].present? && filter_params[:hide_dismissed] == true
 
     respond_to do |format|
