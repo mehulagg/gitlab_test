@@ -60,8 +60,8 @@ class SeedDesigns
     user = devs.sample
     actions = to_change.map { |design| as_action(design) }
     sha = repo.multi_action(user, branch_name: 'master',
-                                 message: "version #{version_number}",
-                                 actions: actions.map(&:gitaly_action))
+                                  message: "version #{version_number}",
+                                  actions: actions.map(&:gitaly_action))
     version = DesignManagement::Version.create_for_designs(actions, sha)
 
     if version.valid?
