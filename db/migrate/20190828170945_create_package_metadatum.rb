@@ -30,10 +30,8 @@ class CreatePackageMetadatum < ActiveRecord::Migration[5.2]
   def change
     create_table :packages_package_metadata do |t|
       t.references :package, index: true, foreign_key: { to_table: :packages_packages, on_delete: :cascade }, type: :integer
-      t.references :project, index: true, type: :integer
       t.binary :metadata
       t.index ["package_id"], name: "index_package_metadata_on_package_id"
     end
   end
-
 end
