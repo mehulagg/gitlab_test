@@ -5,8 +5,6 @@ module Clusters
     class DestroyService < ::Clusters::Applications::BaseService
       def execute(_request)
         instantiate_application.tap do |application|
-          break unless application.can_uninstall?
-
           application.make_scheduled!
 
           Clusters::Applications::UninstallWorker.perform_async(application.name, application.id)

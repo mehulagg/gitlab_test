@@ -5,6 +5,7 @@ require 'spec_helper'
 describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
   include ReactiveCachingHelpers
   include KubernetesHelpers
+  using RSpec::Parameterized::TableSyntax
 
   it_behaves_like 'having unique enum values'
 
@@ -441,6 +442,48 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
     end
   end
 
+  describe '.with_persisted_applications' do
+    let(:cluster) { create(:cluster) }
+    let!(:helm) { create(:clusters_applications_helm, cluster: cluster) }
+
+    it 'preloads persisted applications' do
+      query_rec = ActiveRecord::QueryRecorder.new do
+        described_class.with_persisted_applications.find_by_id(cluster.id).application_helm
+      end
+
+      expect(query_rec.count).to eq(1)
+    end
+  end
+
+  describe '#persisted_applications' do
+    let(:cluster) { create(:cluster) }
+
+    subject { cluster.persisted_applications }
+
+    context 'when all applications are created' do
+      let!(:helm) { create(:clusters_applications_helm, cluster: cluster) }
+      let!(:ingress) { create(:clusters_applications_ingress, cluster: cluster) }
+      let!(:cert_manager) { create(:clusters_applications_cert_manager, cluster: cluster) }
+      let!(:prometheus) { create(:clusters_applications_prometheus, cluster: cluster) }
+      let!(:runner) { create(:clusters_applications_runner, cluster: cluster) }
+      let!(:jupyter) { create(:clusters_applications_jupyter, cluster: cluster) }
+      let!(:knative) { create(:clusters_applications_knative, cluster: cluster) }
+
+      it 'returns a list of created applications' do
+        is_expected.to contain_exactly(helm, ingress, cert_manager, prometheus, runner, jupyter, knative)
+      end
+    end
+
+    context 'when not all were created' do
+      let!(:helm) { create(:clusters_applications_helm, cluster: cluster) }
+      let!(:ingress) { create(:clusters_applications_ingress, cluster: cluster) }
+
+      it 'returns a list of created applications' do
+        is_expected.to contain_exactly(helm, ingress)
+      end
+    end
+  end
+
   describe '#applications' do
     set(:cluster) { create(:cluster) }
 
@@ -627,12 +670,34 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
 
     context 'the cluster has a provider' do
       let(:cluster) { create(:cluster, :provided_by_gcp) }
+      let(:provider_status) { :errored }
 
       before do
         cluster.provider.make_errored!
       end
 
-      it { is_expected.to eq :errored }
+      it { is_expected.to eq provider_status }
+
+      context 'when cluster cleanup is ongoing' do
+        where(:status_name, :cleanup_status) do
+          provider_status  | :available
+          :cleanup_ongoing | :uninstalling_applications
+          :cleanup_ongoing | :removing_project_namespaces
+          :cleanup_ongoing | :removing_service_account
+          :cleanup_ongoing | :errored
+        end
+
+        with_them do
+          it 'returns cleanup_ongoing when uninstalling applications' do
+            cluster.cleanup_status = described_class
+              .state_machines[:cleanup_status]
+              .states[cleanup_status]
+              .value
+
+            is_expected.to eq status_name
+          end
+        end
+      end
     end
 
     context 'there is a cached connection status' do
@@ -653,6 +718,57 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
       end
 
       it { is_expected.to eq :created }
+    end
+  end
+
+  describe 'cleanup_status state_machine' do
+    before do
+      allow(ClusterCleanupAppWorker).to receive(:perform_async)
+      allow(ClusterCleanupProjectNamespaceWorker).to receive(:perform_async)
+      allow(ClusterCleanupServiceAccountWorker).to receive(:perform_async)
+    end
+
+    shared_examples 'cleanup_status transition' do
+      let(:cluster) { create(:cluster, from_state) }
+
+      it 'transitions cleanup_status correctly' do
+        expect { subject }.to change { cluster.cleanup_status_name }
+          .from(from_state).to(to_state)
+      end
+
+      it 'schedules a ClusterCleanup*Worker' do
+        expect(expected_worker_class).to receive(:perform_async).with(cluster.id)
+        subject
+      end
+    end
+
+    describe '#start_cleanup!' do
+      let(:expected_worker_class) { ClusterCleanupAppWorker }
+      let(:from_state) { :available }
+      let(:to_state) { :uninstalling_applications }
+
+      subject { cluster.start_cleanup! }
+      it_behaves_like 'cleanup_status transition'
+    end
+
+    describe '#continue_cleanup' do
+      context 'when cleanup_status is uninstalling_applications' do
+        let(:expected_worker_class) { ClusterCleanupProjectNamespaceWorker }
+        let(:from_state) { :uninstalling_applications }
+        let(:to_state) { :removing_project_namespaces }
+
+        subject { cluster.continue_cleanup! }
+        it_behaves_like 'cleanup_status transition'
+      end
+
+      context 'when cleanup_status is removing_project_namespaces' do
+        let(:expected_worker_class) { ClusterCleanupServiceAccountWorker }
+        let(:from_state) { :removing_project_namespaces }
+        let(:to_state) { :removing_service_account }
+
+        subject { cluster.continue_cleanup! }
+        it_behaves_like 'cleanup_status transition'
+      end
     end
   end
 

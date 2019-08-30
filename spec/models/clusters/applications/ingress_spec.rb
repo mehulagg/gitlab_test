@@ -4,6 +4,7 @@ require 'spec_helper'
 
 describe Clusters::Applications::Ingress do
   let(:ingress) { create(:clusters_applications_ingress) }
+  subject { create(:clusters_applications_ingress, :installed, external_ip: 'IP') }
 
   it_behaves_like 'having unique enum values'
 

@@ -101,7 +101,7 @@ describe Admin::Clusters::ApplicationsController do
 
           is_expected.to have_http_status(:no_content)
 
-          expect(cluster.application_cert_manager).to be_scheduled
+          expect(cluster.reload.application_cert_manager).to be_scheduled
         end
       end
 

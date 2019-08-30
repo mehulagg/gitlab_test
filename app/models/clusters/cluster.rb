@@ -6,6 +6,7 @@ module Clusters
     include Gitlab::Utils::StrongMemoize
     include FromUnion
     include ReactiveCaching
+    include AfterCommitQueue
 
     self.table_name = 'clusters'
 
@@ -103,6 +104,14 @@ module Clusters
     scope :gcp_provided, -> { where(provider_type: ::Clusters::Cluster.provider_types[:gcp]) }
     scope :gcp_installed, -> { gcp_provided.includes(:provider_gcp).where(cluster_providers_gcp: { status: ::Clusters::Providers::Gcp.state_machines[:status].states[:created].value }) }
     scope :managed, -> { where(managed: true) }
+    scope :with_persisted_applications, -> {
+      associations = [:platform_kubernetes]
+      associations << Clusters::Cluster::APPLICATIONS
+        .keys
+        .map { |app_name| :"application_#{app_name}" }
+
+      eager_load(*associations)
+    }
 
     scope :default_environment, -> { where(environment_scope: DEFAULT_ENVIRONMENT) }
 
@@ -115,7 +124,54 @@ module Clusters
       hierarchy_groups.flat_map(&:clusters) + Instance.new.clusters
     end
 
+    state_machine :cleanup_status, initial: :available do
+      state :available, value: 1
+      state :uninstalling_applications, value: 2
+      state :removing_project_namespaces, value: 3
+      state :removing_service_account, value: 4
+      state :errored, value: 5
+
+      event :start_cleanup do |cluster|
+        transition available: :uninstalling_applications
+      end
+
+      event :continue_cleanup do
+        transition(
+          uninstalling_applications: :removing_project_namespaces,
+          removing_project_namespaces: :removing_service_account)
+      end
+
+      after_transition available: :uninstalling_applications do |cluster|
+        cluster.run_after_commit do
+          ClusterCleanupAppWorker.perform_async(cluster.id)
+        end
+      end
+
+      after_transition uninstalling_applications: :removing_project_namespaces do |cluster|
+        cluster.run_after_commit do
+          ClusterCleanupProjectNamespaceWorker.perform_async(cluster.id)
+        end
+      end
+
+      after_transition removing_project_namespaces: :removing_service_account do |cluster|
+        cluster.run_after_commit do
+          ClusterCleanupServiceAccountWorker.perform_async(cluster.id)
+        end
+      end
+
+      event :make_cleanup_errored do
+        transition any => :errored
+      end
+
+      before_transition any => [:errored] do |cluster, transition|
+        status_reason = transition.args.first
+        cluster.cleanup_status_reason = status_reason if status_reason
+      end
+    end
+
     def status_name
+      return :cleanup_ongoing if cleanup_status_name != :available
+
       provider&.status_name || connection_status.presence || :created
     end
 
@@ -129,6 +185,12 @@ module Clusters
       return unless enabled?
 
       { connection_status: retrieve_connection_status }
+    end
+
+    def persisted_applications
+      APPLICATIONS.values.map do |application_class|
+        public_send(application_class.association_name) # rubocop:disable GitlabSecurity/PublicSend
+      end.compact
     end
 
     def applications
@@ -195,6 +257,10 @@ module Clusters
     end
 
     private
+
+    def removing_key
+      "gitlab:cluster:#{id}:removing"
+    end
 
     def instance_domain
       @instance_domain ||= Gitlab::CurrentSettings.auto_devops_domain

@@ -163,6 +163,8 @@ describe Gitlab::Kubernetes::KubeClient do
       :get_service,
       :get_service_account,
       :delete_pod,
+      :delete_namespace,
+      :delete_service_account,
       :create_config_map,
       :create_namespace,
       :create_pod,

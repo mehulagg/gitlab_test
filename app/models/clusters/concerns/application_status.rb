@@ -94,6 +94,10 @@ module Clusters
         installed? || updated? || update_errored?
       end
 
+      def transitioning?
+        installing? || updating? || uninstalling? || scheduled?
+      end
+
       def available?
         installed? || updated?
       end

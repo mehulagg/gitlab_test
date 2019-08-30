@@ -110,7 +110,7 @@ describe Projects::Clusters::ApplicationsController do
 
           is_expected.to have_http_status(:no_content)
 
-          expect(cluster.application_knative).to be_scheduled
+          expect(cluster.reload.application_knative).to be_scheduled
         end
       end
 
@@ -172,7 +172,7 @@ describe Projects::Clusters::ApplicationsController do
 
           is_expected.to have_http_status(:no_content)
 
-          expect(cluster.application_prometheus).to be_scheduled
+          expect(cluster.reload.application_prometheus).to be_scheduled
         end
       end
 

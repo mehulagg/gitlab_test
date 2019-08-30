@@ -224,4 +224,33 @@ shared_examples 'cluster application status specs' do |application_name|
       end
     end
   end
+
+  describe '#transitioning?' do
+    using RSpec::Parameterized::TableSyntax
+
+    where(:trait, :available) do
+      :not_installable   | false
+      :installable       | false
+      :scheduled         | true
+      :installing        | true
+      :installed         | false
+      :updating          | true
+      :updated           | false
+      :errored           | false
+      :update_errored    | false
+      :uninstalling      | true
+      :uninstall_errored | false
+      :timed_out         | true
+    end
+
+    with_them do
+      subject { build(application_name, trait) }
+
+      if params[:available]
+        it { is_expected.to be_transitioning }
+      else
+        it { is_expected.not_to be_transitioning }
+      end
+    end
+  end
 end

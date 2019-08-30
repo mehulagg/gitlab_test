@@ -175,6 +175,18 @@ describe Clusters::Applications::Prometheus do
       expect(subject).to be_rbac
     end
 
+    context 'with knative installed' do
+      let(:knative) { create(:clusters_applications_knative, :updated ) }
+      let(:prometheus) { create(:clusters_applications_prometheus, cluster: knative.cluster) }
+
+      subject { prometheus.uninstall_command }
+
+      it 'uninstalls knative metrics' do
+        expect(subject.predelete)
+          .to include("kubectl delete -f #{Clusters::Applications::Knative::METRICS_CONFIG} --ignore-not-found")
+      end
+    end
+
     context 'on a non rbac enabled cluster' do
       before do
         prometheus.cluster.platform_kubernetes.abac!
