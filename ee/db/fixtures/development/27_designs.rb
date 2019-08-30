@@ -124,7 +124,7 @@ class SeedDesigns
 
       # All designs get created at least once
       designs = create_designs(project, issue, repo, devs)
-      next unless designs.present?
+      next if designs.empty?
 
       Random.rand(max_versions_per_issue).times do |i|
         to_change = designs.sample(Random.rand(1..max_designs_per_version))
