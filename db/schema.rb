@@ -2447,10 +2447,9 @@ ActiveRecord::Schema.define(version: 2019_08_28_170945) do
   end
 
   create_table "packages_package_tags", force: :cascade do |t|
-    t.bigint "package_id"
-    t.bigint "project_id"
+    t.integer "package_id"
     t.string "name"
-    t.index ["package_id", "project_id"], name: "index_package_tags_package_id_and_project_id"
+    t.index ["package_id"], name: "index_packages_package_tags_on_package_id"
   end
 
   create_table "packages_packages", force: :cascade do |t|
