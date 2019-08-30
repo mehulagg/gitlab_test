@@ -3,6 +3,13 @@
 class TrialRegistrationsController < RegistrationsController
   before_action :check_if_gl_com
 
+  def create
+    super do |new_user|
+      #need to verify if only opt in is checked
+      new_user.system_hook_service.execute_hooks_for(new_user, :create)
+    end
+  end
+
   private
 
   def sign_up_params
