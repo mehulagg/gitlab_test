@@ -21540,6 +21540,9 @@ msgstr ""
 msgid "by"
 msgstr ""
 
+msgid "can't be blank when using AWS hosted Elasticsearch"
+msgstr ""
+
 msgid "cannot be changed if a personal project has container registry tags."
 msgstr ""
 

@@ -367,7 +367,9 @@ ActiveRecord::Schema.define(version: 2020_01_13_133352) do
     t.boolean "force_pages_access_control", default: false, null: false
     t.boolean "updating_name_disabled_for_users", default: false, null: false
     t.integer "instance_administrators_group_id"
+    t.bigint "elasticsearch_read_index_id"
     t.index ["custom_project_templates_group_id"], name: "index_application_settings_on_custom_project_templates_group_id"
+    t.index ["elasticsearch_read_index_id"], name: "index_application_settings_on_elasticsearch_read_index_id"
     t.index ["file_template_project_id"], name: "index_application_settings_on_file_template_project_id"
     t.index ["instance_administration_project_id"], name: "index_applicationsettings_on_instance_administration_project_id"
     t.index ["instance_administrators_group_id"], name: "index_application_settings_on_instance_administrators_group_id"
@@ -1473,6 +1475,24 @@ ActiveRecord::Schema.define(version: 2020_01_13_133352) do
     t.datetime_with_timezone "updated_at", null: false
     t.integer "project_id"
     t.index ["project_id"], name: "index_elasticsearch_indexed_projects_on_project_id", unique: true
+  end
+
+  create_table "elasticsearch_indices", force: :cascade do |t|
+    t.datetime_with_timezone "created_at", null: false
+    t.datetime_with_timezone "updated_at", null: false
+    t.integer "shards", default: 5, null: false
+    t.integer "replicas", default: 1, null: false
+    t.boolean "aws", default: false, null: false
+    t.string "name", limit: 255, null: false
+    t.string "friendly_name", limit: 255, null: false
+    t.string "version", limit: 255, null: false
+    t.string "urls", default: [], null: false, array: true
+    t.string "aws_region"
+    t.string "aws_access_key"
+    t.string "encrypted_aws_secret_access_key"
+    t.string "encrypted_aws_secret_access_key_iv"
+    t.index ["friendly_name"], name: "index_elasticsearch_indices_on_friendly_name", unique: true
+    t.index ["name"], name: "index_elasticsearch_indices_on_name", unique: true
   end
 
   create_table "emails", id: :serial, force: :cascade do |t|
@@ -4431,6 +4451,7 @@ ActiveRecord::Schema.define(version: 2020_01_13_133352) do
   add_foreign_key "analytics_repository_file_edits", "analytics_repository_files", on_delete: :cascade
   add_foreign_key "analytics_repository_file_edits", "projects", on_delete: :cascade
   add_foreign_key "analytics_repository_files", "projects", on_delete: :cascade
+  add_foreign_key "application_settings", "elasticsearch_indices", column: "elasticsearch_read_index_id", on_delete: :nullify
   add_foreign_key "application_settings", "namespaces", column: "custom_project_templates_group_id", on_delete: :nullify
   add_foreign_key "application_settings", "namespaces", column: "instance_administrators_group_id", name: "fk_e8a145f3a7", on_delete: :nullify
   add_foreign_key "application_settings", "projects", column: "file_template_project_id", name: "fk_ec757bd087", on_delete: :nullify
