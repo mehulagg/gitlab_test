@@ -2443,7 +2443,6 @@ ActiveRecord::Schema.define(version: 2019_08_28_172831) do
   create_table "packages_package_metadata", force: :cascade do |t|
     t.integer "package_id"
     t.binary "metadata"
-    t.index ["package_id"], name: "index_package_metadata_on_package_id"
     t.index ["package_id"], name: "index_packages_package_metadata_on_package_id"
   end
 
@@ -3021,7 +3020,6 @@ ActiveRecord::Schema.define(version: 2019_08_28_172831) do
     t.string "path", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index "lower((path)::text) varchar_pattern_ops", name: "index_redirect_routes_on_path_unique_text_pattern_ops", unique: true
     t.index ["path"], name: "index_redirect_routes_on_path", unique: true
     t.index ["source_type", "source_id"], name: "index_redirect_routes_on_source_type_and_source_id"
   end
