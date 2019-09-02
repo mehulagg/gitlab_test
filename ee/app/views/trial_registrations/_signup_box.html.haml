@@ -45,4 +45,5 @@
       - if show_recaptcha_sign_up?
         = recaptcha_tags
       .submit-container
+        = f.hidden_field :skip_confirmation, value: true
         = f.submit _("Continue"), class: "btn-register btn", data: { qa_selector: 'new_user_register_button' }
