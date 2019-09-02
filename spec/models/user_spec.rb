@@ -1176,7 +1176,7 @@ describe User do
         expect(user.can_create_group).to eq(Gitlab.config.gitlab.default_can_create_group)
         expect(user.theme_id).to eq(Gitlab.config.gitlab.default_theme)
         expect(user.external).to be_falsey
-        expect(user.private_profile).to eq false
+        expect(user.private_profile).to eq(false)
       end
     end
 
@@ -3062,6 +3062,47 @@ describe User do
           user.update!(email: 'asdf@asdf.com')
         end
       end
+    end
+  end
+
+  describe '#will_save_change_to_login?' do
+    let(:user) { create(:user, username: 'old-username', email: 'old-email@example.org') }
+    let(:new_username) { 'new-name' }
+    let(:new_email) { 'new-email@example.org' }
+
+    subject { user.will_save_change_to_login? }
+
+    context 'when the username is changed' do
+      before do
+        user.username = new_username
+      end
+
+      it { is_expected.to be true }
+    end
+
+    context 'when the email is changed' do
+      before do
+        user.email = new_email
+      end
+
+      it { is_expected.to be true }
+    end
+
+    context 'when both email and username are changed' do
+      before do
+        user.username = new_username
+        user.email = new_email
+      end
+
+      it { is_expected.to be true }
+    end
+
+    context 'when email and username aren\'t changed' do
+      before do
+        user.name = 'new_name'
+      end
+
+      it { is_expected.to be_falsy }
     end
   end
 

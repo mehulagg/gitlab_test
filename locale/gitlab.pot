@@ -411,6 +411,9 @@ msgstr ""
 msgid "(external source)"
 msgstr ""
 
+msgid "(removed)"
+msgstr ""
+
 msgid "+ %{amount} more"
 msgstr ""
 
@@ -861,6 +864,9 @@ msgid "Add an SSH key"
 msgstr ""
 
 msgid "Add an issue"
+msgstr ""
+
+msgid "Add approval rule"
 msgstr ""
 
 msgid "Add approvers"
@@ -1432,9 +1438,6 @@ msgstr ""
 msgid "An error occurred while removing issues."
 msgstr ""
 
-msgid "An error occurred while rendering KaTeX"
-msgstr ""
-
 msgid "An error occurred while rendering preview broadcast message"
 msgstr ""
 
@@ -1647,7 +1650,7 @@ msgstr[1] ""
 msgid "ApprovalRule|All members with Developer role or higher and code owners (if any)"
 msgstr ""
 
-msgid "ApprovalRule|Members"
+msgid "ApprovalRule|Approvers"
 msgstr ""
 
 msgid "ApprovalRule|Name"
@@ -1990,6 +1993,18 @@ msgstr ""
 msgid "AutoDevOps|The Auto DevOps pipeline has been enabled and will be used if no alternative CI configuration file is found. %{more_information_link}"
 msgstr ""
 
+msgid "Autocomplete"
+msgstr ""
+
+msgid "Autocomplete description"
+msgstr ""
+
+msgid "Autocomplete hint"
+msgstr ""
+
+msgid "Autocomplete usage hint"
+msgstr ""
+
 msgid "Automatic certificate management using %{lets_encrypt_link_start}Let's Encrypt%{lets_encrypt_link_end}"
 msgstr ""
 
@@ -2224,7 +2239,7 @@ msgstr ""
 msgid "BillingPlans|Your GitLab.com trial expired on %{expiration_date}. %{learn_more_text}"
 msgstr ""
 
-msgid "BillingPlans|Your Gold trial will <strong>expire after %{expiration_date}</strong>. You can learn more about GitLab.com Gold by reading about our %{features_link}."
+msgid "BillingPlans|Your GitLab.com trial will <strong>expire after %{expiration_date}</strong>. You can learn more about GitLab.com Gold by reading about our %{features_link}."
 msgstr ""
 
 msgid "BillingPlans|features"
@@ -3691,6 +3706,9 @@ msgstr ""
 msgid "ComboSearch is not defined"
 msgstr ""
 
+msgid "Command"
+msgstr ""
+
 msgid "Command line instructions"
 msgstr ""
 
@@ -4136,13 +4154,7 @@ msgstr ""
 msgid "Could not add admins as members"
 msgstr ""
 
-msgid "Could not add admins as members to self-monitoring project. Errors: %{errors}"
-msgstr ""
-
 msgid "Could not add prometheus URL to whitelist"
-msgstr ""
-
-msgid "Could not add prometheus URL to whitelist, errors: %{errors}"
 msgstr ""
 
 msgid "Could not authorize chat nickname. Try again!"
@@ -4163,9 +4175,6 @@ msgstr ""
 msgid "Could not create group"
 msgstr ""
 
-msgid "Could not create instance administration project. Errors: %{errors}"
-msgstr ""
-
 msgid "Could not create project"
 msgstr ""
 
@@ -4184,16 +4193,10 @@ msgstr ""
 msgid "Could not revoke personal access token %{personal_access_token_name}."
 msgstr ""
 
-msgid "Could not save instance administration project ID, errors: %{errors}"
-msgstr ""
-
 msgid "Could not save project ID"
 msgstr ""
 
 msgid "Could not save prometheus manual configuration"
-msgstr ""
-
-msgid "Could not save prometheus manual configuration for self-monitoring project. Errors: %{errors}"
 msgstr ""
 
 msgid "Coverage"
@@ -4427,7 +4430,13 @@ msgstr ""
 msgid "Customize how Google Code email addresses and usernames are imported into GitLab. In the next step, you'll be able to select the projects you want to import."
 msgstr ""
 
+msgid "Customize icon"
+msgstr ""
+
 msgid "Customize language and region related settings."
+msgstr ""
+
+msgid "Customize name"
 msgstr ""
 
 msgid "Customize your pipeline configuration, view your pipeline status and coverage report."
@@ -4540,9 +4549,6 @@ msgid "Dashboard|Unable to add %{invalidProjects}. This dashboard is available f
 msgstr ""
 
 msgid "Data is still calculating..."
-msgstr ""
-
-msgid "Date"
 msgstr ""
 
 msgid "Date picker"
@@ -4948,6 +4954,9 @@ msgstr ""
 msgid "Description:"
 msgstr ""
 
+msgid "Descriptive label"
+msgstr ""
+
 msgid "Deselect all"
 msgstr ""
 
@@ -4955,6 +4964,9 @@ msgid "DesignManagement|%{current_design} of %{designs_count}"
 msgstr ""
 
 msgid "DesignManagement|Add designs"
+msgstr ""
+
+msgid "DesignManagement|Adding a design with the same filename replaces the file in a new version."
 msgstr ""
 
 msgid "DesignManagement|An error occurred while loading designs. Please try again."
@@ -5128,6 +5140,9 @@ msgstr ""
 msgid "Dismissed on pipeline %{pipelineLink} at %{projectLink}"
 msgstr ""
 
+msgid "Display name"
+msgstr ""
+
 msgid "Do you want to customize how Google Code email addresses and usernames are imported into GitLab?"
 msgstr ""
 
@@ -5177,6 +5192,9 @@ msgid "Download codes"
 msgstr ""
 
 msgid "Download export"
+msgstr ""
+
+msgid "Download image"
 msgstr ""
 
 msgid "Download license"
@@ -5443,7 +5461,7 @@ msgstr ""
 msgid "Enable proxy"
 msgstr ""
 
-msgid "Enable reCAPTCHA or Akismet and set IP limits."
+msgid "Enable reCAPTCHA or Akismet and set IP limits. For reCAPTCHA, we currently only support %{recaptcha_v2_link_start}v2%{recaptcha_v2_link_end}"
 msgstr ""
 
 msgid "Enable shared Runners"
@@ -7764,7 +7782,10 @@ msgstr ""
 msgid "Help page text and support page url."
 msgstr ""
 
-msgid "Helps prevent bots from creating accounts. We currently only support %{recaptcha_v2_link_start}reCAPTCHA v2%{recaptcha_v2_link_end}"
+msgid "Helps prevent bots from brute-force attacks."
+msgstr ""
+
+msgid "Helps prevent bots from creating accounts."
 msgstr ""
 
 msgid "Hide archived projects"
@@ -8135,7 +8156,7 @@ msgstr ""
 msgid "Incompatible options set!"
 msgstr ""
 
-msgid "Indexing"
+msgid "Index all projects"
 msgstr ""
 
 msgid "Indicates whether this runner can pick jobs without tags"
@@ -8200,9 +8221,6 @@ msgstr ""
 msgid "Instance Statistics visibility"
 msgstr ""
 
-msgid "Instance administration project already exists"
-msgstr ""
-
 msgid "Instance administrators group already exists"
 msgstr ""
 
@@ -8246,6 +8264,9 @@ msgid "Invalid Insights config file detected"
 msgstr ""
 
 msgid "Invalid Login or password"
+msgstr ""
+
+msgid "Invalid URL"
 msgstr ""
 
 msgid "Invalid date"
@@ -8303,6 +8324,9 @@ msgid "Is using license seat:"
 msgstr ""
 
 msgid "IssuableStatus|Closed (%{moved_link_start}moved%{moved_link_end})"
+msgstr ""
+
+msgid "IssuableStatus|moved"
 msgstr ""
 
 msgid "Issue"
@@ -8377,7 +8401,13 @@ msgstr ""
 msgid "Issues, merge requests, pushes, and comments."
 msgstr ""
 
+msgid "IssuesAnalytics | Issues created"
+msgstr ""
+
 msgid "IssuesAnalytics|After you begin creating issues for your projects, we can start tracking and displaying metrics for them"
+msgstr ""
+
+msgid "IssuesAnalytics|Avg/Month:"
 msgstr ""
 
 msgid "IssuesAnalytics|Issues Created"
@@ -8396,6 +8426,12 @@ msgid "IssuesAnalytics|There are no issues for the projects in your group"
 msgstr ""
 
 msgid "IssuesAnalytics|To widen your search, change or remove filters in the filter bar above"
+msgstr ""
+
+msgid "IssuesAnalytics|Total:"
+msgstr ""
+
+msgid "It may take up to 30 minutes before the site is available after the first deployment."
 msgstr ""
 
 msgid "It must have a header row and at least two columns: the first column is the issue title and the second column is the issue description. The separator is automatically detected."
@@ -9216,6 +9252,36 @@ msgstr ""
 msgid "Match not found; try refining your search query."
 msgstr ""
 
+msgid "MattermostService|Add to Mattermost"
+msgstr ""
+
+msgid "MattermostService|Command trigger word"
+msgstr ""
+
+msgid "MattermostService|Fill in the word that works best for your team."
+msgstr ""
+
+msgid "MattermostService|Request URL"
+msgstr ""
+
+msgid "MattermostService|Request method"
+msgstr ""
+
+msgid "MattermostService|Response icon"
+msgstr ""
+
+msgid "MattermostService|Response username"
+msgstr ""
+
+msgid "MattermostService|See list of available commands in Mattermost after setting up this service, by entering"
+msgstr ""
+
+msgid "MattermostService|Suggestions:"
+msgstr ""
+
+msgid "MattermostService|This service allows users to perform common operations on this project by entering slash commands in Mattermost."
+msgstr ""
+
 msgid "Maven Metadata"
 msgstr ""
 
@@ -9442,6 +9508,9 @@ msgid "Merges this merge request when the pipeline succeeds."
 msgstr ""
 
 msgid "Messages"
+msgstr ""
+
+msgid "Method"
 msgstr ""
 
 msgid "Metric was successfully added."
@@ -10181,6 +10250,9 @@ msgstr ""
 msgid "Note: Consider asking your GitLab administrator to configure %{github_integration_link}, which will allow login via GitHub and allow importing repositories without generating a Personal Access Token."
 msgstr ""
 
+msgid "Note: the container registry is always visible when a project is public"
+msgstr ""
+
 msgid "NoteForm|Note"
 msgstr ""
 
@@ -10637,6 +10709,9 @@ msgid "People without permission will never get a notification."
 msgstr ""
 
 msgid "Perform advanced options such as changing path, transferring, or removing the group."
+msgstr ""
+
+msgid "Perform common operations on GitLab project"
 msgstr ""
 
 msgid "Performance optimization"
@@ -11686,6 +11761,39 @@ msgstr ""
 msgid "ProjectSelect|Search for project"
 msgstr ""
 
+msgid "ProjectService|%{service_title}: status off"
+msgstr ""
+
+msgid "ProjectService|%{service_title}: status on"
+msgstr ""
+
+msgid "ProjectService|Integrations"
+msgstr ""
+
+msgid "ProjectService|Last edit"
+msgstr ""
+
+msgid "ProjectService|Perform common operations on GitLab project: %{project_name}"
+msgstr ""
+
+msgid "ProjectService|Project services"
+msgstr ""
+
+msgid "ProjectService|Project services allow you to integrate GitLab with other applications"
+msgstr ""
+
+msgid "ProjectService|Service"
+msgstr ""
+
+msgid "ProjectService|Services"
+msgstr ""
+
+msgid "ProjectService|Settings"
+msgstr ""
+
+msgid "ProjectService|To set up this service:"
+msgstr ""
+
 msgid "ProjectSettings|Additional merge request capabilities that influence how and when merges will be performed"
 msgstr ""
 
@@ -11923,7 +12031,7 @@ msgstr ""
 msgid "ProjectsNew|Want to house several dependent projects under the same namespace? %{link_start}Create a group.%{link_end}"
 msgstr ""
 
-msgid "Prometheus listen_address is not a valid URI"
+msgid "Prometheus listen_address in config/gitlab.yml is not a valid URI"
 msgstr ""
 
 msgid "PrometheusAlerts|Add alert"
@@ -13191,8 +13299,56 @@ msgstr ""
 msgid "SearchCodeResults|of %{link_to_project}"
 msgstr ""
 
+msgid "SearchResults|Showing %{count} %{scope} for \"%{term}\""
+msgstr ""
+
 msgid "SearchResults|Showing %{from} - %{to} of %{count} %{scope} for \"%{term}\""
 msgstr ""
+
+msgid "SearchResults|comment"
+msgid_plural "SearchResults|comments"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "SearchResults|commit"
+msgid_plural "SearchResults|commits"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "SearchResults|issue"
+msgid_plural "SearchResults|issues"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "SearchResults|merge request"
+msgid_plural "SearchResults|merge requests"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "SearchResults|milestone"
+msgid_plural "SearchResults|milestones"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "SearchResults|project"
+msgid_plural "SearchResults|projects"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "SearchResults|result"
+msgid_plural "SearchResults|results"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "SearchResults|snippet"
+msgid_plural "SearchResults|snippets"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "SearchResults|user"
+msgid_plural "SearchResults|users"
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "Seats currently in use"
 msgstr ""
@@ -13859,6 +14015,21 @@ msgstr ""
 msgid "Slack integration allows you to interact with GitLab via slash commands in a chat window."
 msgstr ""
 
+msgid "SlackService|2. Paste the <strong>Token</strong> into the field below"
+msgstr ""
+
+msgid "SlackService|3. Select the <strong>Active</strong> checkbox, press <strong>Save changes</strong> and start using GitLab inside Slack!"
+msgstr ""
+
+msgid "SlackService|Fill in the word that works best for your team."
+msgstr ""
+
+msgid "SlackService|See list of available commands in Slack after setting up this service, by entering"
+msgstr ""
+
+msgid "SlackService|This service allows users to perform common operations on this project by entering slash commands in Slack."
+msgstr ""
+
 msgid "Slower but makes sure the project workspace is pristine as it clones the repository from scratch for every job"
 msgstr ""
 
@@ -14234,9 +14405,6 @@ msgstr ""
 msgid "Start GitLab Ultimate trial"
 msgstr ""
 
-msgid "Start Indexing"
-msgstr ""
-
 msgid "Start Web Terminal"
 msgstr ""
 
@@ -14574,6 +14742,9 @@ msgid "SuggestedColors|Very dark lime green"
 msgstr ""
 
 msgid "SuggestedColors|Very pale orange"
+msgstr ""
+
+msgid "Suggestions:"
 msgstr ""
 
 msgid "Sunday"
@@ -15298,6 +15469,9 @@ msgstr ""
 msgid "This environment has no deployments yet."
 msgstr ""
 
+msgid "This feature is in development. Please disable the `job_log_json` feature flag"
+msgstr ""
+
 msgid "This feature requires local storage to be enabled"
 msgstr ""
 
@@ -15806,6 +15980,9 @@ msgstr ""
 msgid "To set up SAML authentication for your group through an identity provider like Azure, Okta, Onelogin, Ping Identity, or your custom SAML 2.0 provider:"
 msgstr ""
 
+msgid "To set up this service:"
+msgstr ""
+
 msgid "To specify the notification level per project of a group you belong to, you need to visit project page and change notification level there."
 msgstr ""
 
@@ -15885,9 +16062,6 @@ msgid "Toggled :%{name}: emoji award."
 msgstr ""
 
 msgid "Toggles :%{name}: emoji award."
-msgstr ""
-
-msgid "Token"
 msgstr ""
 
 msgid "Tomorrow"
@@ -16232,7 +16406,7 @@ msgstr ""
 msgid "Update all"
 msgstr ""
 
-msgid "Update approvers"
+msgid "Update approval rule"
 msgstr ""
 
 msgid "Update failed"
@@ -16937,13 +17111,13 @@ msgstr ""
 msgid "Vulnerabilities"
 msgstr ""
 
-msgid "Vulnerability Chart"
-msgstr ""
-
-msgid "Vulnerability List"
+msgid "Vulnerabilities over time"
 msgstr ""
 
 msgid "Vulnerability-Check requires one or more merge request approvals only if high or critical security vulnerabilities are detected."
+msgstr ""
+
+msgid "VulnerabilityChart|%{formattedStartDate} to today"
 msgstr ""
 
 msgid "Vulnerability|Class"
@@ -17704,6 +17878,9 @@ msgstr ""
 msgid "Your new personal access token has been created."
 msgstr ""
 
+msgid "Your pages are served under:"
+msgstr ""
+
 msgid "Your password reset token has expired."
 msgstr ""
 
@@ -18288,6 +18465,12 @@ msgstr ""
 msgid "manual"
 msgstr ""
 
+msgid "math|The math in this entry is taking too long to render and may not be displayed as expected. For performance reasons, math blocks are also limited to %{maxChars} characters. Consider splitting up large formulae, splitting math blocks among multiple entries, or using an image instead."
+msgstr ""
+
+msgid "math|There was an error rendering this math block"
+msgstr ""
+
 msgid "may expose confidential information"
 msgstr ""
 
@@ -18668,12 +18851,6 @@ msgstr[0] ""
 msgstr[1] ""
 
 msgid "project avatar"
-msgstr ""
-
-msgid "prometheus.enable is not present in gitlab.yml"
-msgstr ""
-
-msgid "prometheus.listen_address is not present in gitlab.yml"
 msgstr ""
 
 msgid "quick actions"

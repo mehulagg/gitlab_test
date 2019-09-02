@@ -12,6 +12,12 @@ module QA
     end
 
     module Page
+      module Component
+        module WebIDE
+          autoload :WebTerminalPanel, 'qa/ee/page/component/web_ide/web_terminal_panel'
+        end
+      end
+
       module Dashboard
         autoload :Projects, 'qa/ee/page/dashboard/projects'
       end
@@ -50,8 +56,10 @@ module QA
         module Settings
           autoload :Templates, 'qa/ee/page/admin/settings/templates'
           autoload :Integration, 'qa/ee/page/admin/settings/integration'
+          autoload :Preferences, 'qa/ee/page/admin/settings/preferences'
 
           module Component
+            autoload :Email, 'qa/ee/page/admin/settings/component/email'
             autoload :Elasticsearch, 'qa/ee/page/admin/settings/component/elasticsearch'
           end
         end
@@ -128,11 +136,15 @@ module QA
 
     module Resource
       autoload :Board, 'qa/ee/resource/board'
-      autoload :LabelBoardList, 'qa/ee/resource/label_board_list'
-      autoload :MilestoneBoardList, 'qa/ee/resource/milestone_board_list'
       autoload :License, 'qa/ee/resource/license'
       autoload :Epic, 'qa/ee/resource/epic'
       autoload :ProjectMilestone, 'qa/ee/resource/project_milestone'
+
+      module BoardList
+        autoload :BaseBoardList, 'qa/ee/resource/board_list/base_board_list'
+        autoload :LabelBoardList, 'qa/ee/resource/board_list/label_board_list'
+        autoload :MilestoneBoardList, 'qa/ee/resource/board_list/milestone_board_list'
+      end
 
       module Geo
         autoload :Node, 'qa/ee/resource/geo/node'

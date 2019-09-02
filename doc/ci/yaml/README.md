@@ -100,7 +100,7 @@ The following table lists available parameters for jobs:
 | [`stage`](#stage)                                  | Defines a job stage (default: `test`).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | [`only`](#onlyexcept-basic)                        | Limit when jobs are created. Also available: [`only:refs`, `only:kubernetes`, `only:variables`, and `only:changes`](#onlyexcept-advanced).                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | [`except`](#onlyexcept-basic)                      | Limit when jobs are not created. Also available: [`except:refs`, `except:kubernetes`, `except:variables`, and `except:changes`](#onlyexcept-advanced).                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| [`rules`](#rules)                                  | List of coniditions to evaluate and determine selected attributes of a build and whether or not it is created. May not be used alongside `only`/`except`.
+| [`rules`](#rules)                                  | List of conditions to evaluate and determine selected attributes of a build and whether or not it is created. May not be used alongside `only`/`except`.
 | [`tags`](#tags)                                    | List of tags which are used to select Runner.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | [`allow_failure`](#allow_failure)                  | Allow job to fail. Failed job doesn't contribute to commit status.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | [`when`](#when)                                    | When to run job. Also available: `when:manual` and `when:delayed`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
@@ -1699,7 +1699,7 @@ dashboards.
 
 > Introduced in GitLab 11.5. Requires GitLab Runner 11.5 and above.
 
-The `license_management` report collects [Licenses](../../user/project/merge_requests/license_management.md)
+The `license_management` report collects [Licenses](../../user/application_security/license_compliance/index.md)
 as artifacts.
 
 The collected License Compliance report will be uploaded to GitLab as an artifact and will
@@ -1899,9 +1899,8 @@ job1:
 
 ### `retry`
 
-> [Introduced][ce-12909] in GitLab 9.5.
-> [Behaviour expanded](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/21758)
-> in GitLab 11.5 to control on which failures to retry.
+> - [Introduced][ce-12909] in GitLab 9.5.
+> - [Behaviour expanded](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/21758) in GitLab 11.5 to control on which failures to retry.
 
 `retry` allows you to configure how many times a job is going to be retried in
 case of a failure.
@@ -1990,6 +1989,7 @@ Marking a job to be run in parallel requires only a simple addition to your conf
    script: rspec
 +  parallel: 5
 ```
+
 TIP: **Tip:**
 Parallelize tests suites across parallel jobs.
 Different languages have different tools to facilitate this.
@@ -2168,6 +2168,14 @@ For example:
 ```yaml
 # File sourced from GitLab's template collection
 include:
+  - template: Auto-DevOps.gitlab-ci.yml
+```
+
+Multiple `include:template` files:
+
+```yaml
+include:
+  - template: Android-Fastlane.gitlab-ci.yml
   - template: Auto-DevOps.gitlab-ci.yml
 ```
 

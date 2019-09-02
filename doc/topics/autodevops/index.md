@@ -95,33 +95,45 @@ Auto DevOps.
 
 To make full use of Auto DevOps, you will need:
 
-- **GitLab Runner** (needed for all stages) - Your Runner needs to be
-  configured to be able to run Docker. Generally this means using the
-  [Docker](https://docs.gitlab.com/runner/executors/docker.html) or [Kubernetes
-  executor](https://docs.gitlab.com/runner/executors/kubernetes.html), with
+- **GitLab Runner** (for all stages)
+
+  Your Runner needs to be configured to be able to run Docker. Generally this
+  means using the either the [Docker](https://docs.gitlab.com/runner/executors/docker.html)
+  or [Kubernetes](https://docs.gitlab.com/runner/executors/kubernetes.html) executors, with
   [privileged mode enabled](https://docs.gitlab.com/runner/executors/docker.html#use-docker-in-docker-with-privileged-mode).
+
   The Runners do not need to be installed in the Kubernetes cluster, but the
   Kubernetes executor is easy to use and is automatically autoscaling.
   Docker-based Runners can be configured to autoscale as well, using [Docker
-  Machine](https://docs.gitlab.com/runner/install/autoscaling.html). Runners
-  should be registered as [shared Runners](../../ci/runners/README.md#registering-a-shared-runner)
+  Machine](https://docs.gitlab.com/runner/install/autoscaling.html).
+
+  Runners should be registered as [shared Runners](../../ci/runners/README.md#registering-a-shared-runner)
   for the entire GitLab instance, or [specific Runners](../../ci/runners/README.md#registering-a-specific-runner)
   that are assigned to specific projects.
-- **Base domain** (needed for Auto Review Apps and Auto Deploy) - You will need
-  a domain configured with wildcard DNS which is going to be used by all of your
-  Auto DevOps applications. [Read the specifics](#auto-devops-base-domain).
-- **Kubernetes** (needed for Auto Review Apps, Auto Deploy, and Auto Monitoring) -
-  To enable deployments, you will need Kubernetes 1.5+. You will need a [Kubernetes cluster][kubernetes-clusters]
-  for the project.
-  - **A load balancer** - You can use NGINX ingress by deploying it to your
-    Kubernetes cluster using the
-    [`nginx-ingress`](https://github.com/kubernetes/charts/tree/master/stable/nginx-ingress)
-    Helm chart.
-- **Prometheus** (needed for Auto Monitoring) - To enable Auto Monitoring, you
+- **Base domain** (for Auto Review Apps and Auto Deploy)
+
+  You will need a domain configured with wildcard DNS which is going to be used
+  by all of your Auto DevOps applications.
+
+  Read the [specifics](#auto-devops-base-domain).
+- **Kubernetes** (for Auto Review Apps, Auto Deploy, and Auto Monitoring)
+
+  To enable deployments, you will need:
+
+  - Kubernetes 1.5+.
+  - A [Kubernetes cluster][kubernetes-clusters] for the project.
+  - A load balancer. You can use NGINX ingress by deploying it to your
+    Kubernetes cluster by either:
+    - Using the [`nginx-ingress`](https://github.com/kubernetes/charts/tree/master/stable/nginx-ingress) Helm chart.
+    - Installing the Ingress [GitLab Managed App](../../user/clusters/applications.md#ingress).
+- **Prometheus** (for Auto Monitoring)
+
+  To enable Auto Monitoring, you
   will need Prometheus installed somewhere (inside or outside your cluster) and
   configured to scrape your Kubernetes cluster. To get response metrics
   (in addition to system metrics), you need to
   [configure Prometheus to monitor NGINX](../../user/project/integrations/prometheus_library/nginx_ingress.md#configuring-nginx-ingress-monitoring).
+
   The [Prometheus service](../../user/project/integrations/prometheus.md)
   integration needs to be enabled for the project, or enabled as a
   [default service template](../../user/project/integrations/services_templates.md)
@@ -414,7 +426,7 @@ report is created, it's uploaded as an artifact which you can later download and
 check out.
 
 Any licenses are also shown in the merge request widget. Read more how
-[License Compliance works](../../user/application_security/license_management/index.md).
+[License Compliance works](../../user/application_security/license_compliance/index.md).
 
 ### Auto Container Scanning **(ULTIMATE)**
 
@@ -694,6 +706,34 @@ will build a Docker image based on the Dockerfile rather than using buildpacks.
 This can be much faster and result in smaller images, especially if your
 Dockerfile is based on [Alpine](https://hub.docker.com/_/alpine/).
 
+### Passing arguments to `docker build`
+
+Arguments can be passed to the `docker build` command using the
+`AUTO_DEVOPS_BUILD_IMAGE_EXTRA_ARGS` project variable.
+
+For example, to build a Docker image based on based on the `ruby:alpine`
+instead of the default `ruby:latest`:
+
+1. Set `AUTO_DEVOPS_BUILD_IMAGE_EXTRA_ARGS` to `--build-arg=RUBY_VERSION=alpine`.
+1. Add the following to a custom `Dockerfile`:
+
+    ```docker
+    ARG RUBY_VERSION=latest
+    FROM ruby:$RUBY_VERSION
+
+    # ... put your stuff here
+    ```
+
+NOTE: **Note:**
+Passing in complex values (newlines and spaces, for example) will likely
+cause escaping issues due to the way this argument is used in Auto DevOps.
+Consider using Base64 encoding of such values to avoid this problem.
+
+CAUTION: **Warning:**
+Avoid passing secrets as Docker build arguments if possible, as they may be
+persisted in your image. See
+[this discussion](https://github.com/moby/moby/issues/13490) for details.
+
 ### Custom Helm Chart
 
 Auto DevOps uses [Helm](https://helm.sh/) to deploy your application to Kubernetes.
@@ -782,6 +822,7 @@ applications.
 |-----------------------------------------|------------------------------------|
 | `ADDITIONAL_HOSTS`                      | Fully qualified domain names specified as a comma-separated list that are added to the ingress hosts. |
 | `<ENVIRONMENT>_ADDITIONAL_HOSTS`        | For a specific environment, the fully qualified domain names specified as a comma-separated list that are added to the ingress hosts. This takes precedence over `ADDITIONAL_HOSTS`. |
+| `AUTO_DEVOPS_BUILD_IMAGE_EXTRA_ARGS`    | Extra arguments to be passed to the `docker build` command. Note that using quotes will not prevent word splitting. [More details](#passing-arguments-to-docker-build). |
 | `AUTO_DEVOPS_CHART`                     | Helm Chart used to deploy your apps. Defaults to the one [provided by GitLab](https://gitlab.com/gitlab-org/charts/auto-deploy-app). |
 | `AUTO_DEVOPS_CHART_REPOSITORY`          | Helm Chart repository used to search for charts. Defaults to `https://charts.gitlab.io`. |
 | `AUTO_DEVOPS_CHART_REPOSITORY_NAME`     | From Gitlab 11.11, used to set the name of the helm repository. Defaults to `gitlab`. |

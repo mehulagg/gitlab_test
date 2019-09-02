@@ -3,7 +3,7 @@
 module Banzai
   module Pipeline
     class GfmPipeline < BasePipeline
-      prepend EE::Banzai::Pipeline::GfmPipeline # rubocop: disable Cop/InjectEnterpriseEditionModule
+      prepend_if_ee('EE::Banzai::Pipeline::GfmPipeline') # rubocop: disable Cop/InjectEnterpriseEditionModule
 
       # These filters transform GitLab Flavored Markdown (GFM) to HTML.
       # The nodes and marks referenced in app/assets/javascripts/behaviors/markdown/editor_extensions.js
@@ -19,6 +19,7 @@ module Banzai
           Filter::SpacedLinkFilter,
 
           Filter::SanitizationFilter,
+          Filter::AssetProxyFilter,
           Filter::SyntaxHighlightFilter,
 
           Filter::MathFilter,
@@ -62,7 +63,7 @@ module Banzai
       def self.transform_context(context)
         context[:only_path] = true unless context.key?(:only_path)
 
-        context
+        Filter::AssetProxyFilter.transform_context(context)
       end
     end
   end

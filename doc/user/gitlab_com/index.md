@@ -314,27 +314,34 @@ Source:
 
 #### Git and container registry failed authentication ban
 
-GitLab.com responds with HTTP status code 403 for 1 hour, if 30 failed
+GitLab.com responds with HTTP status code `403` for 1 hour, if 30 failed
 authentication requests were received in a 3-minute period from a single IP address.
 
 This applies only to Git requests and container registry (`/jwt/auth`) requests
 (combined).
 
-This limit is reset by requests that authenticate successfully. For example, 29
-failed authentication requests followed by 1 successful request, followed by 29
-more failed authentication requests would not trigger a ban.
+This limit:
+
+- Is reset by requests that authenticate successfully. For example, 29
+  failed authentication requests followed by 1 successful request, followed by 29
+  more failed authentication requests would not trigger a ban.
+- Does not apply to JWT requests authenticated by `gitlab-ci-token`.
 
 No response headers are provided.
 
 ### Admin Area settings
 
-GitLab.com does not currently use these settings.
+GitLab.com:
+
+- Has [rate limits on raw endpoints](../../user/admin_area/settings/rate_limits_on_raw_endpoints.md)
+  set to the default.
+- Does not have the user and IP rate limits settings enabled.
 
 ## GitLab.com at scale
 
 In addition to the GitLab Enterprise Edition Omnibus install, GitLab.com uses
 the following applications and settings to achieve scale. All settings are
-located publicly available [chef cookbooks](https://gitlab.com/gitlab-cookbooks).
+publicly available at [chef cookbooks](https://gitlab.com/gitlab-cookbooks).
 
 ### ELK
 

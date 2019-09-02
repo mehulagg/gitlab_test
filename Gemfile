@@ -225,7 +225,8 @@ gem 'discordrb-webhooks-blackst0ne', '~> 3.3', require: false
 gem 'hipchat', '~> 1.5.0'
 
 # Jira integration
-gem 'jira-ruby', '~> 1.4'
+gem 'jira-ruby', '~> 1.7'
+gem 'atlassian-jwt', '~> 0.2.0'
 
 # Flowdock integration
 gem 'flowdock', '~> 0.7'
@@ -307,7 +308,8 @@ gem 'gettext', '~> 3.2.2', require: false, group: :development
 gem 'batch-loader', '~> 1.4.0'
 
 # Perf bar
-gem 'peek', '~> 1.0.1'
+# https://gitlab.com/gitlab-org/gitlab-ee/issues/13996
+gem 'gitlab-peek', '~> 0.0.1', require: 'peek'
 
 # Snowplow events tracking
 gem 'snowplow-tracker', '~> 0.6.1'
@@ -379,7 +381,6 @@ group :development, :test do
   gem 'haml_lint', '~> 0.31.0', require: false
   gem 'simplecov', '~> 0.16.1', require: false
   gem 'bundler-audit', '~> 0.5.0', require: false
-  gem 'mdl', '~> 0.5.0', require: false
 
   gem 'benchmark-ips', '~> 2.3.0', require: false
 

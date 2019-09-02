@@ -67,8 +67,12 @@ module DesignManagement
       strong_memoize(:most_recent_design_version) { design_versions.ordered.last }
     end
 
-    def to_reference(_opts)
+    def to_reference(from = nil, full: false)
       filename
+    end
+
+    def to_ability_name
+      'design'
     end
 
     def description
@@ -100,6 +104,16 @@ module DesignManagement
       project.design_repository
     end
 
+    def user_notes_count
+      user_notes_count_service.count
+    end
+
+    def after_note_changed(note)
+      user_notes_count_service.delete_cache unless note.system?
+    end
+    alias_method :after_note_created,   :after_note_changed
+    alias_method :after_note_destroyed, :after_note_changed
+
     private
 
     def head_version
@@ -112,6 +126,12 @@ module DesignManagement
           extension_list: Gitlab::FileTypeDetection::IMAGE_EXT.join(", ")
         }
         errors.add(:filename, message)
+      end
+    end
+
+    def user_notes_count_service
+      strong_memoize(:user_notes_count_service) do
+        DesignManagement::DesignUserNotesCountService.new(self) # rubocop: disable CodeReuse/ServiceClass
       end
     end
   end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ProjectsHelper
-  prepend ::EE::ProjectsHelper # rubocop: disable Cop/InjectEnterpriseEditionModule
+  prepend_if_ee('::EE::ProjectsHelper') # rubocop: disable Cop/InjectEnterpriseEditionModule
 
   def link_to_project(project)
     link_to namespace_project_path(namespace_id: project.namespace, id: project), title: h(project.name) do
@@ -450,7 +450,7 @@ module ProjectsHelper
 
   def git_user_email
     if current_user
-      current_user.email
+      current_user.commit_email
     else
       "your@email.com"
     end

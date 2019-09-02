@@ -9,14 +9,12 @@ module EE
     extend ActiveSupport::Concern
 
     prepended do
-      include IgnorableColumn
-
       EMAIL_ADDITIONAL_TEXT_CHARACTER_LIMIT = 10_000
       INSTANCE_REVIEW_MIN_USERS = 100
 
       belongs_to :file_template_project, class_name: "Project"
 
-      ignore_column :minimum_mirror_sync_time
+      self.ignored_columns += %i[minimum_mirror_sync_time]
 
       validates :shared_runners_minutes,
                 numericality: { greater_than_or_equal_to: 0 }
@@ -146,7 +144,7 @@ module EE
     end
 
     def should_check_namespace_plan?
-      check_namespace_plan? && (Rails.env.test? || ::Gitlab.dev_env_or_com?)
+      check_namespace_plan? && (Rails.env.test? || ::Gitlab.dev_env_org_or_com?)
     end
 
     def elasticsearch_indexing
