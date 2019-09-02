@@ -3,10 +3,18 @@
 class TrialRegistrationsController < RegistrationsController
   before_action :check_if_gl_com
 
+  def new
+
+  end
+
   private
 
   def sign_up_params
-    params.require(:user).permit(:first_name, :last_name, :username, :email, :password, :skip_confirmation)
+    if params[:user]
+      params.require(:user).permit(:first_name, :last_name, :username, :email, :password, :skip_confirmation)
+    else
+      {}
+    end
   end
 
   def resource
