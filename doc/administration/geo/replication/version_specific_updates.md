@@ -123,10 +123,6 @@ due to SSH host key mismatch when updating the **primary** node domain's DNS rec
 you should perform the step to [Manually replicate **primary** SSH host keys](configuration.md#step-2-manually-replicate-the-primary-nodes-ssh-host-keys) in each
 **secondary** node.
 
-## Updating to GitLab 10.4
-
-There are no Geo-specific steps to take!
-
 ## Updating to GitLab 10.3
 
 ### Support for SSH repository synchronization removed
