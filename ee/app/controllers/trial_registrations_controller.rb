@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 class TrialRegistrationsController < RegistrationsController
+  layout 'trial'
+
   before_action :check_if_gl_com
 
   def new
-
   end
-
+  
   private
 
   def sign_up_params

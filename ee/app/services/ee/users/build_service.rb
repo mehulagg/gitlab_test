@@ -62,14 +62,16 @@ module EE
 
       override :build_user_params
       def build_user_params(skip_authorization:)
-        user_params = super
-        fallback_name = "#{user_params[:first_name]} #{user_params[:last_name]}"
+        unless current_user&.admin?
+          user_params = params.slice(*signup_params)
 
-        if user_params[:name].blank? && fallback_name.present?
-          user_params.merge(name: fallback_name)
-        else
-          user_params
+          # For trial signups, name is derived from first name and last name.
+          if (user_params[:first_name].present? || user_params[:last_name].present?) && !user_params[:name].present?
+            return super.merge(name: "#{user_params[:first_name]} #{user_params[:last_name]}")
+          end
         end
+
+        super
       end
 
       def saml_provider_id
