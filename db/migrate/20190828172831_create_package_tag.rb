@@ -31,7 +31,6 @@ class CreatePackageTag < ActiveRecord::Migration[5.2]
     create_table :packages_package_tags do |t|
       t.references :package, index: true, foreign_key: { to_table: :packages_packages, on_delete: :cascade }, type: :integer
       t.string :name, limit: 255, null: false
-      t.index ["package_id"], name: "index_package_tags_on_package_id"
     end
   end
 end

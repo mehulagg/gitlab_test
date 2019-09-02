@@ -89,6 +89,7 @@ FactoryBot.define do
   end
 
   factory :package_tag, class: Packages::PackageTag do
+    name "next"
     package
   end
 

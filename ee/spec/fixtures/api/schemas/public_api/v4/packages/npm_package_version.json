@@ -2,38 +2,15 @@
   "type": "object",
   "required": ["name", "version", "dist"],
   "properties" : {
-    "name": {
-      "type": "string"
-    },
-    "version": {
-      "type": "string"
-    },
+    "name": { "type": "string" },
+    "version": { "type": "string" },
     "dist": {
       "type": "object",
-      "required": [
-        "shasum",
-        "tarball"
-      ],
-      "properties": {
-        "shasum": {
-          "type": "string"
-        },
-        "tarball": {
-          "type": "string"
-        }
-      }
-    },
-      "bundleDependencies": {
-        "type": "object"
-      },
-      "peerDependencies": {
-        "type": "object"
-      },
-      "deprecated": {
-        "type": "string"
-      },
-      "engines": {
-        "type": "object"
+      "required": ["shasum", "tarball"],
+      "properties" : {
+        "shasum": { "type": "string" },
+        "tarball": { "type": "string" }
       }
     }
   }
+}
