@@ -2,7 +2,6 @@
 class Packages::Package < ApplicationRecord
   belongs_to :project
   has_many :package_files
-  alias_attribute :dist_tag, :tag
   # package_files must be destroyed by ruby code in order to properly remove carrierwave uploads and update project statistics
   has_many :package_files, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_one :maven_metadatum, inverse_of: :package
@@ -66,10 +65,6 @@ class Packages::Package < ApplicationRecord
     if project.package_already_taken?(name)
       errors.add(:base, 'Package already exists')
     end
-  end
-
-  def self.with_package_tags(tag)
-    with_name(name).joins(:package_tags).where(package_tags: { name: tag})
   end
 
 end

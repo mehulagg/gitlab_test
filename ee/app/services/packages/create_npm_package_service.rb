@@ -6,8 +6,6 @@ module Packages
       version = params[:versions].keys.first
 
       version_data = params[:versions][version]
-      dist_tag = params[:'dist-tags'].keys.first
-      metadata = params[:versions].to_json
 
       existing_package = project.packages.npm.with_name(name).with_version(version)
 
