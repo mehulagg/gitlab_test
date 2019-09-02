@@ -81,7 +81,7 @@ describe 'Admin updates Elasticsearch settings' do
       namespace = create(:elasticsearch_indexed_namespace).namespace
       project = create(:elasticsearch_indexed_project).project
 
-      visit integrations_admin_application_settings_path
+      visit admin_elasticsearch_settings_path
 
       expect(ElasticsearchIndexedNamespace.count).to be > 0
       expect(ElasticsearchIndexedProject.count).to be > 0

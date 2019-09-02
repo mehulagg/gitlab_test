@@ -73,6 +73,9 @@
       = _('How many replicas each Elasticsearch shard has.')
       = recreate_index_text
 
+  .form-actions
+    = f.submit 'Save changes', class: "btn btn-success", data: { qa_selector: 'submit_button' }
+
   - if Feature.enabled?(:elasticsearch_web_indexing)
     %br
     %h4
@@ -80,6 +83,3 @@
 
     = form_with url: admin_elasticsearch_enqueue_index_path, html: { class: 'fieldset-form' }, data: { remote: false } do |f|
       = f.submit _('Start Indexing'), class: "btn btn-success"
-
-  .form-actions
-    = submit_tag _('Save changes'), class: 'btn btn-success'
