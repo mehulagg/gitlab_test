@@ -52,13 +52,15 @@ class AlertsService < Service
         type: 'readonly_text',
         name: 'url',
         required: true,
-        readonly: true
+        readonly: true,
+        title: _('URL')
       },
       {
         type: 'readonly_text',
         name: 'token',
         required: true,
-        readonly: true
+        readonly: true,
+        title: _('Key')
       }
     ]
   end

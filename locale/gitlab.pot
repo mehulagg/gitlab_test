@@ -4091,6 +4091,9 @@ msgstr ""
 msgid "Copy URL to clipboard"
 msgstr ""
 
+msgid "Copy authorization key to clipboard"
+msgstr ""
+
 msgid "Copy branch name to clipboard"
 msgstr ""
 
@@ -8566,6 +8569,9 @@ msgstr ""
 msgid "June"
 msgstr ""
 
+msgid "Key"
+msgstr ""
+
 msgid "Key (PEM)"
 msgstr ""
 
@@ -12752,6 +12758,9 @@ msgid "Reset health check access token"
 msgstr ""
 
 msgid "Reset key"
+msgstr ""
+
+msgid "Reset key?"
 msgstr ""
 
 msgid "Reset runners registration token"
@@ -16971,6 +16980,9 @@ msgid "Vulnerability|Report Type"
 msgstr ""
 
 msgid "Vulnerability|Severity"
+msgstr ""
+
+msgid "WARNING: Resetting the authorization key for this project will require updating the authorization key in every alert source it is enabled in"
 msgstr ""
 
 msgid "Wait for the source to load to copy it to the clipboard"

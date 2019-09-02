@@ -49,7 +49,7 @@ export default {
     >
       {{
         __(
-          'Resetting the authorization key will invalidate the previous key. Existing alert configurations will need to be updated with the new key.',
+          'WARNING: Resetting the authorization key for this project will require updating the authorization key in every alert source it is enabled in',
         )
       }}
     </gl-modal>
