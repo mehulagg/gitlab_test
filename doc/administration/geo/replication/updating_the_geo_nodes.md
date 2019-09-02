@@ -15,7 +15,6 @@ different steps.
 - [Updating to GitLab 10.8](version_specific_updates.md#updating-to-gitlab-108)
 - [Updating to GitLab 10.6](version_specific_updates.md#updating-to-gitlab-106)
 - [Updating to GitLab 10.5](version_specific_updates.md#updating-to-gitlab-105)
-- [Updating to GitLab 10.4](version_specific_updates.md#updating-to-gitlab-104)
 - [Updating to GitLab 10.3](version_specific_updates.md#updating-to-gitlab-103)
 - [Updating to GitLab 10.2](version_specific_updates.md#updating-to-gitlab-102)
 - [Updating to GitLab 10.1](version_specific_updates.md#updating-to-gitlab-101)
