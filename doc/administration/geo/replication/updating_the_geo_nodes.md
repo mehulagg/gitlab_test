@@ -1,8 +1,10 @@
 # Updating the Geo nodes **(PREMIUM ONLY)**
 
-Some versions require addition steps during update, so please consult
-the [version specific update steps](#version-specific-update-steps)
-before you proceed with the [general update steps](#general-update-steps).
+Updating Geo nodes involves performing:
+
+1. [Version-specific update steps](#version-specific-update-steps), depending on the 
+   version being updated to or from.
+1. [General update steps](#general-update-steps), for all updates.
 
 ## Version specific update steps
 
