@@ -1,64 +1,31 @@
 # frozen_string_literal: true
 
-require 'flipper/adapters/active_record'
-require 'flipper/adapters/active_support_cache_store'
-
 class Feature
   prepend_if_ee('EE::Feature') # rubocop: disable Cop/InjectEnterpriseEditionModule
 
-  # Classes to override flipper table names
-  class FlipperFeature < Flipper::Adapters::ActiveRecord::Feature
-    # Using `self.table_name` won't work. ActiveRecord bug?
-    superclass.table_name = 'features'
-
-    def self.feature_names
-      pluck(:key)
-    end
-  end
-
-  class FlipperGate < Flipper::Adapters::ActiveRecord::Gate
-    superclass.table_name = 'feature_gates'
-  end
+  SUPPORTED_FEATURE_FLAG_ADAPTERS = %w[unleash flipper]
 
   class << self
-    delegate :group, to: :flipper
+    delegate :all, :get, :group, :persisted?, :table_exists?, to: :adapter
 
-    def all
-      flipper.features.to_a
-    end
-
-    def get(key)
-      flipper.feature(key)
-    end
-
-    def persisted_names
-      Gitlab::SafeRequestStore[:flipper_persisted_names] ||=
-        begin
-          # We saw on GitLab.com, this database request was called 2300
-          # times/s. Let's cache it for a minute to avoid that load.
-          Gitlab::ThreadMemoryCache.cache_backend.fetch('flipper:persisted_names', expires_in: 1.minute) do
-            FlipperFeature.feature_names
-          end
+    def adapter
+      @adapter ||=
+        SUPPORTED_FEATURE_FLAG_ADAPTERS.find do |type|
+          adapter = get_adapter(type)
+          break adapter if adapter.available?
         end
-    end
-
-    def persisted?(feature)
-      # Flipper creates on-memory features when asked for a not-yet-created one.
-      # If we want to check if a feature has been actually set, we look for it
-      # on the persisted features list.
-      persisted_names.include?(feature.name.to_s)
     end
 
     # use `default_enabled: true` to default the flag to being `enabled`
     # unless set explicitly.  The default is `disabled`
     def enabled?(key, thing = nil, default_enabled: false)
-      feature = Feature.get(key)
+      feature = get(key)
 
       # If we're not default enabling the flag or the feature has been set, always evaluate.
       # `persisted?` can potentially generate DB queries and also checks for inclusion
       # in an array of feature names (177 at last count), possibly reducing performance by half.
       # So we only perform the `persisted` check if `default_enabled: true`
-      !default_enabled || Feature.persisted?(feature) ? feature.enabled?(thing) : true
+      !default_enabled || persisted?(feature) ? feature.enabled?(thing) : true
     end
 
     def disabled?(key, thing = nil, default_enabled: false)
@@ -89,50 +56,10 @@ class Feature
       feature.remove
     end
 
-    def flipper
-      if Gitlab::SafeRequestStore.active?
-        Gitlab::SafeRequestStore[:flipper] ||= build_flipper_instance
-      else
-        @flipper ||= build_flipper_instance
-      end
-    end
-
-    def build_flipper_instance
-      Flipper.new(flipper_adapter).tap { |flip| flip.memoize = true }
-    end
-
-    # This method is called from config/initializers/flipper.rb and can be used
-    # to register Flipper groups.
-    # See https://docs.gitlab.com/ee/development/feature_flags.html#feature-groups
-    def register_feature_groups
-    end
-
-    def flipper_adapter
-      active_record_adapter = Flipper::Adapters::ActiveRecord.new(
-        feature_class: FlipperFeature,
-        gate_class: FlipperGate)
-
-      # Redis L2 cache
-      redis_cache_adapter =
-        Flipper::Adapters::ActiveSupportCacheStore.new(
-          active_record_adapter,
-          l2_cache_backend,
-          expires_in: 1.hour)
-
-      # Thread-local L1 cache: use a short timeout since we don't have a
-      # way to expire this cache all at once
-      Flipper::Adapters::ActiveSupportCacheStore.new(
-        redis_cache_adapter,
-        l1_cache_backend,
-        expires_in: 1.minute)
-    end
-
-    def l1_cache_backend
-      Gitlab::ThreadMemoryCache.cache_backend
-    end
-
-    def l2_cache_backend
-      Rails.cache
+    private
+    
+    def get_adapter(type)
+      "FeatureFlag::Adapters::#{type.camelize}".constantize
     end
   end
 

@@ -311,6 +311,15 @@ Gitlab.ee do
 end
 
 #
+# Unleash
+#
+Settings['unleash'] ||= Settingslogic.new({})
+Settings.unleash['enabled']      = false if Settings.unleash['enabled'].nil?
+Settings.unleash['app_name']     = Rails.env if Settings.unleash['app_name'].nil?
+Settings.unleash['instance_id']  = ENV['UNLEASH_INSTANCE_ID'] if Settings.unleash['instance_id'].nil?
+Settings.unleash['personal_access_token']  = ENV['UNLEASH_PERSONAL_ACCESS_TOKEN'] if Settings.unleash['personal_access_token'].nil?
+
+#
 # External merge request diffs
 #
 Settings['external_diffs'] ||= Settingslogic.new({})

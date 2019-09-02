@@ -16,7 +16,7 @@ class Feature
 
     class << self
       def enabled?(feature_flag)
-        return false unless Feature::FlipperFeature.table_exists?
+        return false unless Feature.table_exists?
 
         default_on = DEFAULT_ON_FLAGS.include?(feature_flag)
         Feature.enabled?("gitaly_#{feature_flag}", default_enabled: default_on)

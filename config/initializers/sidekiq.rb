@@ -1,13 +1,13 @@
 require 'sidekiq/web'
 
 def enable_reliable_fetch?
-  return true unless Feature::FlipperFeature.table_exists?
+  return true unless Feature.table_exists?
 
   Feature.enabled?(:gitlab_sidekiq_reliable_fetcher, default_enabled: true)
 end
 
 def enable_semi_reliable_fetch_mode?
-  return true unless Feature::FlipperFeature.table_exists?
+  return true unless Feature.table_exists?
 
   Feature.enabled?(:gitlab_sidekiq_enable_semi_reliable_fetcher, default_enabled: true)
 end
