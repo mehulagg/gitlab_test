@@ -40,7 +40,6 @@ module API
       def build_request(package_name, type)
         project = find_project_by_package_name(package_name)
         packages = find_package(project, package_name)
-
         authorize!(:read_package, project)
         forbidden! unless project.feature_available?(:packages)
 
@@ -88,7 +87,6 @@ module API
 
     delete 'packages/npm/-/package/*package_name/dist-tags/:tag', format: false, requirements: NPM_ENDPOINT_REQUIREMENTS do
       package_name = params[:package_name]
-      tag = params[:tag]
 
       project = find_project_by_package_name(package_name)
       package_tag = tagged_packages(package_name)
