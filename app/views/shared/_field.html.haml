@@ -25,5 +25,11 @@
       = form.select name, options_for_select(choices, value ? value : default_choice), {}, { class: "form-control", disabled: disabled}
     - elsif type == 'password'
       = form.password_field name, autocomplete: "new-password", placeholder: placeholder, class: "form-control", required: value.blank? && required, disabled: disabled
+    - elsif type == 'readonly_text'
+      .clipboard-group.d-flex
+        .input-group
+          %input.label.label-monospace.monospace.flex-grow{ id: name, type: "text", autocomplete: 'off', value: value, readonly: true }
+          .input-group-append
+            = clipboard_button(target: "##{name}", title: _("Copy authorization key to clipboard"), class: "btn btn btn-default")
     - if help
       %span.form-text.text-muted= help

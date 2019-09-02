@@ -1,7 +1,0 @@
-- return unless @service.activated?
-
-.col-lg-9.push-3
-  %strong=_('WARNING: Resetting the authorization key for this project will require updating the authorization key in every alert source it is enabled in')
-  = form_for(@service, as: :service, url: project_service_path(@project, @service.to_param), method: :put, html: { class: 'gl-show-field-errors integration-settings-form js-integration-settings-form' }) do |form|
-    = form.hidden_field :token, value: ''
-    = form.submit _('Reset key'), class: 'btn btn-danger'
