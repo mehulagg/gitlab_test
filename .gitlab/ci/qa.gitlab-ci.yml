@@ -16,15 +16,15 @@
       - $CI_PROJECT_PATH == "gitlab-org/gitlab-ee"
   allow_failure: true
 
-# package-and-qa-manual:
-#   extends:
-#     - .package-and-qa-base
-#     - .only-code-changes
-#   except:
-#     refs:
-#       - master
-#   when: manual
-#   needs: ["build-qa-image", "gitlab:assets:compile pull-cache"]
+package-and-qa-manual:
+  extends:
+    - .package-and-qa-base
+    - .only-code-changes
+  except:
+    refs:
+      - master
+  when: manual
+  needs: ["build-qa-image", "gitlab:assets:compile pull-cache"]
 
 # package-and-qa-manual:master:
 #   extends: .package-and-qa-base
