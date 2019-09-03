@@ -57,6 +57,20 @@
       - "qa/*"
       - "qa/**/*"
 
+.only-code-qa-changes:
+  only:
+    changes:
+      - "{app,bin,config,danger,db,ee,fixtures,lib,public,rubocop,spec,symbol,vendor}/*"
+      - "{app,bin,config,danger,db,ee,fixtures,lib,public,rubocop,spec,symbol,vendor}/**/*"
+      - ".gitlab/ci/*"
+      - ".gitlab/ci/**/*"
+      - ".gitlab-ci.yml"
+      - "*_VERSION"
+      - "Gemfile"
+      - "Rakefile"
+      - "qa/*"
+      - "qa/**/*"
+
 .only-docs-changes:
   only:
     changes:

@@ -13,7 +13,7 @@
     - .default-retry
     - .default-only
     - .review-only-except
-    - .only-qa-changes
+    - .only-code-qa-changes
   image: registry.gitlab.com/gitlab-org/gitlab-build-images:gitlab-charts-build-base
   dependencies: []
   before_script:
@@ -38,7 +38,7 @@
 build-qa-image:
   extends:
     - .review-docker
-    - .only-code-changes
+    - .only-code-qa-changes
   only:
     refs:
       - branches@gitlab-org/gitlab-ce
