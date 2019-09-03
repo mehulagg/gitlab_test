@@ -5,6 +5,7 @@ class Import::BaseController < ApplicationController
 
   # rubocop: disable CodeReuse/ActiveRecord
   def find_already_added_projects(import_type)
+    puts "a"
     current_user.created_projects.where(import_type: import_type).includes(:import_state)
   end
   # rubocop: enable CodeReuse/ActiveRecord
