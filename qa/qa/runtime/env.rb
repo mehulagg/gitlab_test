@@ -11,6 +11,9 @@ module QA
 
       ENV_VARIABLES = Gitlab::QA::Runtime::Env::ENV_VARIABLES
 
+      GCLOUD_CREDENTIAL_VARIABLES = %w[GCLOUD_ACCOUNT_KEY GCLOUD_ACCOUNT_EMAIL].freeze
+      GCLOUD_REQUIRED_VARIABLES = %w[CLOUDSDK_CORE_PROJECT GCLOUD_REGION].freeze
+
       # The environment variables used to indicate if the environment under test
       # supports the given feature
       SUPPORTED_FEATURES = {
@@ -234,7 +237,7 @@ module QA
       end
 
       def has_gcloud_credentials?
-        %w[GCLOUD_ACCOUNT_KEY GCLOUD_ACCOUNT_EMAIL].none? { |var| ENV[var].to_s.empty? }
+        GCLOUD_CREDENTIAL_VARIABLES.none? { |var| ENV[var].to_s.empty? }
       end
 
       # Specifies the token that can be used for the GitHub API
@@ -242,10 +245,27 @@ module QA
         ENV['GITHUB_ACCESS_TOKEN'].to_s.strip
       end
 
+      def k3d_hostname
+        ENV['QA_K3D_HOSTNAME']
+      end
+
       def require_github_access_token!
         return unless github_access_token.empty?
 
         raise ArgumentError, "Please provide GITHUB_ACCESS_TOKEN"
+      end
+
+      def require_gcloud_environment!
+        required_keys = GCLOUD_CREDENTIAL_VARIABLES + GCLOUD_REQUIRED_VARIABLES
+        missing_keys = required_keys.map { |k| k unless ENV[k] }.compact
+
+        if missing_keys.any?
+          raise ArgumentError, "Environment variables #{required_keys.join(',')} must be set to run kubernetes specs. Missing: #{missing_keys.join(',')}"
+        end
+      end
+
+      def require_k3d_environment!
+        raise ArgumentError, "Missing required variable 'QA_K3D_HOSTNAME'" unless k3d_hostname
       end
 
       # Returns true if there is an environment variable that indicates that

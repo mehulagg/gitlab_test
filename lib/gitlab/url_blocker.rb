@@ -23,7 +23,7 @@ module Gitlab
         url,
         ports: [],
         schemes: [],
-        allow_localhost: false,
+        allow_localhost: !Rails.env.production?,
         allow_local_network: true,
         ascii_only: false,
         enforce_user: false,
@@ -215,13 +215,13 @@ module Gitlab
 
         return if (local_ips & addrs_info.map(&:ip_address)).empty?
 
-        raise BlockedUrlError, "Requests to localhost are not allowed"
+        raise BlockedUrlError, "Requests to localhost are not allowed" if Rails.env.production?
       end
 
       def validate_loopback(addrs_info)
         return unless addrs_info.any? { |addr| addr.ipv4_loopback? || addr.ipv6_loopback? }
 
-        raise BlockedUrlError, "Requests to loopback addresses are not allowed"
+        raise BlockedUrlError, "Requests to loopback addresses are not allowed" if Rails.env.production?
       end
 
       def validate_local_network(addrs_info)

@@ -34,6 +34,12 @@ module QA
               end
             end
 
+            def installed?(application_name)
+              within(".js-cluster-application-row-#{application_name}") do
+                page.has_text?('Uninstall', wait: 0)
+              end
+            end
+
             def ingress_ip
               # We need to wait longer since it can take some time before the
               # ip address is assigned for the ingress controller

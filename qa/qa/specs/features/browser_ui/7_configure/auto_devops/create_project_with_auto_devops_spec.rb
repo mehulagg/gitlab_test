@@ -89,7 +89,7 @@ module QA
             cluster.project = @project
             cluster.cluster = @cluster
             cluster.install_helm_tiller = true
-            cluster.install_ingress = true
+            # cluster.install_ingress = true
             cluster.install_prometheus = true
             cluster.install_runner = true
           end

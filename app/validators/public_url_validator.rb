@@ -19,8 +19,8 @@
 #
 class PublicUrlValidator < AddressableUrlValidator
   DEFAULT_OPTIONS = {
-    allow_localhost: false,
-    allow_local_network: false
+    allow_localhost: !Rails.env.production?,
+    allow_local_network: !Rails.env.production?
   }.freeze
 
   def initialize(options)

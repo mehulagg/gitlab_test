@@ -10,8 +10,18 @@ module QA
               element :add_kubernetes_cluster_button, "link_to s_('ClusterIntegration|Add Kubernetes cluster')" # rubocop:disable QA/ElementWithPattern
             end
 
+            view 'app/views/clusters/clusters/index.html.haml' do
+              element :clusters_table
+            end
+
             def add_kubernetes_cluster
               click_on 'Add Kubernetes cluster'
+            end
+
+            def has_cluster?(cluster)
+              within_element :clusters_table do
+                !!find('a', text: cluster.to_s)
+              end
             end
           end
         end

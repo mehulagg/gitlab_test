@@ -18,7 +18,7 @@
         %strong
           = link_to _('More information'), help_page_path('user/group/clusters/index', anchor: 'cluster-precedence')
 
-    .clusters-table.js-clusters-list
+    .clusters-table.js-clusters-list{ data: { qa_selector: 'clusters_table' } }
       .gl-responsive-table-row.table-row-header{ role: "row" }
         .table-section.section-60{ role: "rowheader" }
           = s_("ClusterIntegration|Kubernetes cluster")

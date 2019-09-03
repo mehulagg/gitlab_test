@@ -5,6 +5,8 @@ module QA
     module ClusterProvider
       class K3d < Base
         def validate_dependencies
+          Runtime::Env.require_k3d_environment!
+
           find_executable('k3d') || raise("You must first install `k3d` executable to run these tests.")
         end
 
@@ -12,7 +14,7 @@ module QA
         end
 
         def setup
-          shell "k3d create --workers 1 --name #{cluster_name} --wait 0"
+          shell "k3d create --workers 1 --name #{cluster_name} --wait 0 --api-port #{Runtime::Env.k3d_hostname}:6443"
 
           @old_kubeconfig = ENV['KUBECONFIG']
           ENV['KUBECONFIG'] = fetch_kubeconfig
