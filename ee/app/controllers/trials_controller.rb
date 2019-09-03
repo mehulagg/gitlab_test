@@ -12,13 +12,19 @@ class TrialsController < ApplicationController
     if result[:success]
       render json: { ok: true }, status: :ok
     else
-      render json: { ok: true }, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_entity
     end
   end
 
   private
 
+  def authenticate_user!
+    return if current_user
+
+    redirect_to new_trial_registration_path, alert: I18n.t('devise.failure.unauthenticated')
+  end
+
   def company_params
-    params.permit(:company_name, :employees_quantity, :telephone_number, :trial_users_quantity, :country)
+    params.permit(:first_name, :last_name, :email, :company_name, :employees_quantity, :telephone_number, :trial_users_quantity, :country, :uid)
   end
 end
