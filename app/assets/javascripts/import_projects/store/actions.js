@@ -18,17 +18,31 @@ export const restartJobsPolling = () => {
   if (eTagPoll) eTagPoll.restart();
 };
 
+export const pathWithFilter = (path, filter) => {
+  let reposPathWithFilter;
+
+  if (filter && filter.length > 0) {
+    reposPathWithFilter = path.concat(`?filter=${filter}`);
+  }
+
+  return reposPathWithFilter || path;
+};
+
 export const setInitialData = ({ commit }, data) => commit(types.SET_INITIAL_DATA, data);
+export const setFilter = ({ commit }, event) => commit(types.SET_FILTER, event.target.value);
 
 export const requestRepos = ({ commit }, repos) => commit(types.REQUEST_REPOS, repos);
 export const receiveReposSuccess = ({ commit }, repos) =>
   commit(types.RECEIVE_REPOS_SUCCESS, repos);
 export const receiveReposError = ({ commit }) => commit(types.RECEIVE_REPOS_ERROR);
 export const fetchRepos = ({ state, dispatch }) => {
+  dispatch('stopJobsPolling');
   dispatch('requestRepos');
 
+  const { reposPath, provider, filter } = state;
+
   return axios
-    .get(state.reposPath)
+    .get(pathWithFilter(reposPath, filter))
     .then(({ data }) =>
       dispatch('receiveReposSuccess', convertObjectPropsToCamelCase(data, { deep: true })),
     )
@@ -36,7 +50,7 @@ export const fetchRepos = ({ state, dispatch }) => {
     .catch(() => {
       createFlash(
         sprintf(s__('ImportProjects|Requesting your %{provider} repositories failed'), {
-          provider: state.provider,
+          provider,
         }),
       );
 
@@ -77,16 +91,23 @@ export const fetchImport = ({ state, dispatch }, { newName, targetNamespace, rep
 export const receiveJobsSuccess = ({ commit }, updatedProjects) =>
   commit(types.RECEIVE_JOBS_SUCCESS, updatedProjects);
 export const fetchJobs = ({ state, dispatch }) => {
-  if (eTagPoll) return;
+  const { jobsPath, filter } = state;
+
+  if (eTagPoll) {
+    stopJobsPolling();
+    clearJobsEtagPoll();
+  }
 
   eTagPoll = new Poll({
     resource: {
-      fetchJobs: () => axios.get(state.jobsPath),
+      fetchJobs: () => axios.get(pathWithFilter(jobsPath, filter)),
     },
     method: 'fetchJobs',
     successCallback: ({ data }) =>
       dispatch('receiveJobsSuccess', convertObjectPropsToCamelCase(data, { deep: true })),
-    errorCallback: () => createFlash(s__('ImportProjects|Updating the imported projects failed')),
+    errorCallback: () =>
+      createFlash(s__('ImportProjects|Update of imported projects with realtime changes failed')),
+    data: { filter },
   });
 
   if (!Visibility.hidden()) {

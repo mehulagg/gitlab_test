@@ -18,6 +18,7 @@ export default function mountImportProjectsTable(mountElement) {
     jobsPath,
     importPath,
     ciCdOnly,
+    filter,
   } = mountElement.dataset;
 
   const store = createStore();
@@ -34,11 +35,12 @@ export default function mountImportProjectsTable(mountElement) {
         defaultTargetNamespace: gon.current_username,
         ciCdOnly: parseBoolean(ciCdOnly),
         canSelectNamespace: parseBoolean(canSelectNamespace),
+        filter,
       });
     },
 
     methods: {
-      ...mapActions(['setInitialData']),
+      ...mapActions(['setInitialData', 'setFilter']),
     },
 
     render(createElement) {
