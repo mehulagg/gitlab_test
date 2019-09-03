@@ -4,6 +4,7 @@ class TrialRegistrationsController < RegistrationsController
   before_action :check_if_gl_com
   before_action :check_if_improved_trials_enabled
   before_action :set_redirect_url, only: [:new]
+  before_action :skip_confirmation, only: [:create]
 
   def create
     super do |new_user|
@@ -18,6 +19,10 @@ class TrialRegistrationsController < RegistrationsController
 
   def set_redirect_url
     store_location_for(:user, new_trial_url)
+  end
+
+  def skip_confirmation
+    params[:user][:skip_confirmation] = true
   end
 
   def sign_up_params
