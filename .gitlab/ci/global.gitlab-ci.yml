@@ -42,7 +42,9 @@
 .only-code-changes:
   only:
     changes:
+      - "{app,bin,config,danger,db,ee,fixtures,lib,public,rubocop,spec,symbol,vendor}/*"
       - "{app,bin,config,danger,db,ee,fixtures,lib,public,rubocop,spec,symbol,vendor}/**/*"
+      - ".gitlab/ci/*"
       - ".gitlab/ci/**/*"
       - ".gitlab-ci.yml"
       - "*_VERSION"
@@ -52,12 +54,14 @@
 .only-qa-changes:
   only:
     changes:
+      - "qa/*"
       - "qa/**/*"
 
 .only-docs-changes:
   only:
     changes:
-      - doc/*
+      - "doc/*"
+      - "doc/**/*"
       - "*.{png,jpg,md}"
       - "**/*.{png,jpg,md}"
 
