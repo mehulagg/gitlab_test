@@ -16,29 +16,29 @@
       - $CI_PROJECT_PATH == "gitlab-org/gitlab-ee"
   allow_failure: true
 
-package-and-qa-manual:
-  extends:
-    - .package-and-qa-base
-    - .only-code-changes
-  except:
-    refs:
-      - master
-  when: manual
-  needs: ["build-qa-image", "gitlab:assets:compile pull-cache"]
+# package-and-qa-manual:
+#   extends:
+#     - .package-and-qa-base
+#     - .only-code-changes
+#   except:
+#     refs:
+#       - master
+#   when: manual
+#   needs: ["build-qa-image", "gitlab:assets:compile pull-cache"]
 
-package-and-qa-manual:master:
-  extends: .package-and-qa-base
-  only:
-    refs:
-      - master
-  when: manual
-  needs: ["build-qa-image", "gitlab:assets:compile"]
+# package-and-qa-manual:master:
+#   extends: .package-and-qa-base
+#   only:
+#     refs:
+#       - master
+#   when: manual
+#   needs: ["build-qa-image", "gitlab:assets:compile"]
 
-package-and-qa:
-  extends:
-    - .package-and-qa-base
-    - .only-qa-changes
-  except:
-    refs:
-      - master
-  needs: ["build-qa-image", "gitlab:assets:compile pull-cache"]
+# package-and-qa:
+#   extends:
+#     - .package-and-qa-base
+#     - .only-qa-changes
+#   except:
+#     refs:
+#       - master
+#   needs: ["build-qa-image", "gitlab:assets:compile pull-cache"]
