@@ -1224,7 +1224,7 @@ DEPENDENCIES
   nakayoshi_fork (~> 0.0.4)
   net-dns (~> 0.9.0)
   net-ldap
-  net-ntp
+  net-ntp (~> 2.1.0)
   net-ssh (~> 5.2)
   nokogiri (~> 1.10.4)
   oauth2 (~> 1.4)
