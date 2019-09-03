@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'net/ntp'
+
 module SystemCheck
   module Geo
     class ClocksSynchronizationCheck < SystemCheck::BaseCheck
