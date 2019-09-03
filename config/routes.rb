@@ -111,6 +111,8 @@ Rails.application.routes.draw do
       draw :smartcard
       draw :jira_connect
       draw :username
+      draw :trial
+      draw :trial_registration
     end
 
     Gitlab.ee do
@@ -188,11 +190,6 @@ Rails.application.routes.draw do
   draw :group
   draw :user
   draw :project
-
-  Gitlab.ee do
-    draw :trial_registration
-    draw :trial
-  end
 
   root to: "root#index"
 
