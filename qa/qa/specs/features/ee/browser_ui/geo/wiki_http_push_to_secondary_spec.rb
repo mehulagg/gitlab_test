@@ -7,14 +7,6 @@ module QA
       let(:push_content) { 'This is from the Geo wiki push to secondary!' }
       let(:project_name) { "geo-wiki-project-#{SecureRandom.hex(8)}" }
 
-      after do
-        # Log out so subsequent tests can start unauthenticated
-        Runtime::Browser.visit(:geo_secondary, QA::Page::Dashboard::Projects)
-        Page::Main::Menu.perform do |menu|
-          menu.sign_out if menu.has_personal_area?(wait: 0)
-        end
-      end
-
       context 'wiki commit' do
         it 'is redirected to the primary and ultimately replicated to the secondary' do
           wiki = nil
@@ -24,7 +16,7 @@ module QA
             Page::Main::Login.perform(&:sign_in_using_credentials)
 
             # Create a new Project
-            project = Resource::Project.fabricate! do |project|
+            project = Resource::Project.fabricate_via_api! do |project|
               project.name = project_name
               project.description = 'Geo test project'
             end
@@ -79,9 +71,9 @@ module QA
             # Validate git push worked and new content is visible
             Page::Project::Menu.perform(&:click_wiki)
 
-            Page::Project::Wiki::Show.perform do |page|
-              page.wait_for_repository_replication_with(push_content)
-              page.refresh
+            Page::Project::Wiki::Show.perform do |show|
+              show.wait_for_repository_replication_with(push_content)
+              show.refresh
 
               expect(page).to have_content(push_content)
             end
