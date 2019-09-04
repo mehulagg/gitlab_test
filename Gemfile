@@ -457,7 +457,7 @@ group :ee do
   gem "gitlab-license", '~> 1.0', require: false
 
   # Search
-  gem 'aws-sdk', require: false
+  gem 'aws-sdk', '~> 2', require: false
   gem 'elasticsearch-api', '5.0.3', require: false
   gem 'elasticsearch-model', '~> 0.1.9', require: false
   gem 'elasticsearch-rails', '~> 0.1.9', require: false
