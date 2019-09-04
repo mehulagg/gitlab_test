@@ -40,7 +40,7 @@ describe Projects::Prometheus::Alerts::CreateEventsService do
     context 'with a firing payload' do
       let(:started_at) { truncate_to_second(Time.now) }
       let(:firing_event) { alert_payload(status: 'firing', started_at: started_at) }
-      let(:alerts_payload) { { 'alerts' => [firing_event] } }
+      let(:alerts_payload) { payload_with_group_key({ 'alerts' => [firing_event] }) }
 
       it_behaves_like 'events persisted', 1
 
@@ -54,9 +54,9 @@ describe Projects::Prometheus::Alerts::CreateEventsService do
 
       context 'with 2 different firing events' do
         let(:another_firing_event) { alert_payload(status: 'firing', started_at: started_at + 1) }
-        let(:alerts_payload) { { 'alerts' => [firing_event, another_firing_event] } }
+        let(:alerts_payload) { payload_with_group_key({ 'alerts' => [firing_event, another_firing_event] }) }
 
-        it_behaves_like 'events persisted', 2
+        it_behaves_like 'events persisted', 1
       end
 
       context 'with already persisted firing event' do
@@ -68,7 +68,7 @@ describe Projects::Prometheus::Alerts::CreateEventsService do
       end
 
       context 'with duplicate payload' do
-        let(:alerts_payload) { { 'alerts' => [firing_event, firing_event] } }
+        let(:alerts_payload) { payload_with_group_key({ 'alerts' => [firing_event, firing_event] }) }
 
         it_behaves_like 'events persisted', 1
       end
@@ -77,9 +77,9 @@ describe Projects::Prometheus::Alerts::CreateEventsService do
     context 'with a resolved payload' do
       let(:started_at) { truncate_to_second(Time.now) }
       let(:ended_at) { started_at + 1 }
-      let(:payload_key) { PrometheusAlertEvent.payload_key_for(alert.prometheus_metric_id, utc_rfc3339(started_at)) }
+      let(:payload_key) { PrometheusAlertEvent.payload_key_for(group_key) }
       let(:resolved_event) { alert_payload(status: 'resolved', started_at: started_at, ended_at: ended_at) }
-      let(:alerts_payload) { { 'alerts' => [resolved_event] } }
+      let(:alerts_payload) { payload_with_group_key({ 'alerts' => [resolved_event] }) }
 
       context 'with a matching firing event' do
         before do
@@ -103,7 +103,7 @@ describe Projects::Prometheus::Alerts::CreateEventsService do
         end
 
         context 'with duplicate payload' do
-          let(:alerts_payload) { { 'alerts' => [resolved_event, resolved_event] } }
+          let(:alerts_payload) { payload_with_group_key({ 'alerts' => [resolved_event, resolved_event] }) }
 
           it 'does not create an additional event' do
             expect { service.execute }.not_to change { PrometheusAlertEvent.count }
@@ -152,7 +152,7 @@ describe Projects::Prometheus::Alerts::CreateEventsService do
     context 'with a metric from another project' do
       let(:another_project) { create(:project) }
       let(:metric) { create(:prometheus_metric, project: another_project) }
-      let(:alerts_payload) { { 'alerts' => [alert_payload] } }
+      let(:alerts_payload) { payload_with_group_key({ 'alerts' => [alert_payload] }) }
 
       let!(:alert) do
         create(:prometheus_alert,
@@ -263,6 +263,14 @@ describe Projects::Prometheus::Alerts::CreateEventsService do
     payload['labels'] = { 'gitlab_alert_id' => gitlab_alert_id.to_s } if gitlab_alert_id
 
     payload
+  end
+
+  def payload_with_group_key(payload, key=nil)
+    { 'groupKey' => key || group_key }.merge(payload)
+  end
+
+  def group_key
+    "{}:{alertname=\'#{alert.title}\'}"
   end
 
   # Example: 2018-09-27T18:25:31.079079416Z

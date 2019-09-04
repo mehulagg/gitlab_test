@@ -5,6 +5,8 @@ module Projects
     module Alerts
       # Persists a series of Prometheus alert events as list of PrometheusAlertEvent.
       class CreateEventsService < BaseService
+        include Gitlab::Utils::StrongMemoize
+
         def execute
           create_events_from(alerts)
         end
@@ -33,7 +35,7 @@ module Projects
           alert = find_alert(gitlab_alert_id)
           return unless alert
 
-          payload_key = PrometheusAlertEvent.payload_key_for(gitlab_alert_id, started_at)
+          payload_key = PrometheusAlertEvent.payload_key_for(group_key)
           event = PrometheusAlertEvent.find_or_initialize_by_payload_key(project, alert, payload_key)
 
           result = case status
@@ -44,6 +46,12 @@ module Projects
                    end
 
           event if result
+        end
+
+        def group_key
+          strong_memoize(:group_key) do
+            params['groupKey']
+          end
         end
 
         def alerts
