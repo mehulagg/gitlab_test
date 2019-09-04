@@ -19,14 +19,41 @@ describe ApplicationRecord do
       allow(model).to receive(:save).and_raise(ActiveRecord::RecordNotUnique)
     end
 
-    it 'returns false when ActiveRecord::RecordNotUnique is raised' do
-      expect(model).to receive(:save).once
-      expect(klass.safe_ensure_unique { model.save }).to be_falsey
+    context 'when ActiveRecord::RecordNotUnique is raised' do
+      before do
+        expect(model).to receive(:save).once
+      end
+
+      it 'returns false by default' do
+        expect(klass.safe_ensure_unique { model.save }).to be_falsey
+      end
+
+      it 'returns the value of on_rescue' do
+        expect(klass.safe_ensure_unique(on_rescue: nil) { model.save }).to be_nil
+      end
+
+      it 'returns the return value of on_rescue lambda' do
+        expect(klass.safe_ensure_unique(on_rescue: -> { true }) { model.save }).to be_truthy
+      end
     end
 
-    it 'retries based on retry count specified' do
-      expect(model).to receive(:save).exactly(3).times
-      expect(klass.safe_ensure_unique(retries: 2) { model.save }).to be_falsey
+    context 'retry count is specified' do
+      before do
+        expect(model).to receive(:save).exactly(3).times
+      end
+
+      it 'retries based on retry count specified' do
+        expect(klass.safe_ensure_unique(retries: 2) { model.save }).to be_falsey
+      end
+
+      context 'before_retry lambda is specified' do
+        let(:before_retry_lambda) { -> { nil } }
+
+        it 'calls the lambda on each retry' do
+          expect(before_retry_lambda).to receive(:call).exactly(2).times
+          expect(klass.safe_ensure_unique(retries: 2, before_retry: before_retry_lambda) { model.save }).to be_falsey
+        end
+      end
     end
   end
 

@@ -17,17 +17,18 @@ class ApplicationRecord < ActiveRecord::Base
     where(nil).pluck(self.primary_key)
   end
 
-  def self.safe_ensure_unique(retries: 0)
+  def self.safe_ensure_unique(retries: 0, before_retry: nil, on_rescue: false)
     transaction(requires_new: true) do
       yield
     end
-  rescue ActiveRecord::RecordNotUnique
+  rescue ActiveRecord::RecordNotUnique # rubocop: disable SafeEnsureUnique
     if retries > 0
       retries -= 1
+      before_retry.call if before_retry.respond_to?(:call)
       retry
     end
 
-    false
+    on_rescue.respond_to?(:call) ? on_rescue.call : on_rescue
   end
 
   def self.safe_find_or_create_by!(*args)
