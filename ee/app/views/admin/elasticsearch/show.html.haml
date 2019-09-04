@@ -37,7 +37,7 @@
 
   .form-group
     = f.label :elasticsearch_url, 'URL', class: 'label-bold'
-    = f.text_field :elasticsearch_url, value: @application_setting.elasticsearch_url.join(', '), class: 'form-control', placeholder: 'http://localhost:9200', data: { qa_selector: 'url_field' }
+    = f.text_field :elasticsearch_url, value: @application_setting.elasticsearch_url.join(', '), class: 'form-control input-lg', placeholder: 'http://localhost:9200', data: { qa_selector: 'url_field' }
     .form-text.text-muted
       = _('The URL to use for connecting to Elasticsearch. Use a comma-separated list to support clustering (e.g., "http://localhost:9200, http://localhost:9201").')
 
@@ -50,35 +50,34 @@
   #js-elasticsearch-aws-setting.collapse{ :class => @application_setting.elasticsearch_aws && 'show' }
     .form-group
       = f.label :elasticsearch_aws_region, _('AWS region'), class: 'label-bold'
-      = f.text_field :elasticsearch_aws_region, value: @application_setting.elasticsearch_aws_region, class: 'form-control'
+      = f.text_field :elasticsearch_aws_region, value: @application_setting.elasticsearch_aws_region, class: 'form-control input-lg'
       .form-text.text-muted
         = _('Region that elasticsearch is configured')
 
     .form-group
       = f.label :elasticsearch_aws_access_key, _('AWS Access Key'), class: 'label-bold'
-      = f.text_field :elasticsearch_aws_access_key, value: @application_setting.elasticsearch_aws_access_key, class: 'form-control'
+      = f.text_field :elasticsearch_aws_access_key, value: @application_setting.elasticsearch_aws_access_key, class: 'form-control input-lg'
       .form-text.text-muted
         = _('AWS Access Key. Only required if not using role instance credentials')
 
     .form-group
       = f.label :elasticsearch_aws_secret_access_key, _('AWS Secret Access Key'), class: 'label-bold'
-      = f.password_field :elasticsearch_aws_secret_access_key, value: @application_setting.elasticsearch_aws_secret_access_key, class: 'form-control'
+      = f.password_field :elasticsearch_aws_secret_access_key, value: @application_setting.elasticsearch_aws_secret_access_key, class: 'form-control input-lg'
       .form-text.text-muted
         = _('AWS Secret Access Key. Only required if not using role instance credentials')
 
   .form-group
     = f.label :elasticsearch_shards, _('Number of Elasticsearch shards'), class: 'label-bold'
-    = f.number_field :elasticsearch_shards, value: @application_setting.elasticsearch_shards, class: 'form-control'
+    = f.number_field :elasticsearch_shards, value: @application_setting.elasticsearch_shards, class: 'form-control input-xs'
     .form-text.text-muted
       = _('How many shards to split the Elasticsearch index over.')
       = recreate_index_text
 
   .form-group
     = f.label :elasticsearch_replicas, _('Number of Elasticsearch replicas'), class: 'label-bold'
-    = f.number_field :elasticsearch_replicas, value: @application_setting.elasticsearch_replicas, class: 'form-control'
+    = f.number_field :elasticsearch_replicas, value: @application_setting.elasticsearch_replicas, class: 'form-control input-xs'
     .form-text.text-muted
       = _('How many replicas each Elasticsearch shard has.')
       = recreate_index_text
 
-  .form-actions
-    = f.submit _('Save changes'), class: "btn btn-success", data: { qa_selector: 'submit_button' }
+  = f.submit _('Save changes'), class: "btn btn-success", data: { qa_selector: 'submit_button' }
