@@ -9,6 +9,12 @@ module EE
         License.feature_available?(:operations_dashboard)
       end
 
+      condition(:instance_security_dashboard_available) do
+        true
+      end
+
+      rule { instance_security_dashboard_available }.enable :read_security_dashboard
+
       rule { operations_dashboard_available }.enable :read_operations_dashboard
       rule { admin }.policy do
         enable :read_licenses
