@@ -9,6 +9,8 @@ module QA
 
           find('.dropdown-input-field').set(item)
           click_link item
+
+          page.has_no_css?('.dropdown-loading', wait: QA::Support::Repeater::DEFAULT_MAX_WAIT_TIME)
         end
       end
     end
