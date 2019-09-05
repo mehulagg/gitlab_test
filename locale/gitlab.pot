@@ -6684,6 +6684,9 @@ msgstr ""
 msgid "First day of the week"
 msgstr ""
 
+msgid "First name"
+msgstr ""
+
 msgid "Fixed date"
 msgstr ""
 
@@ -7982,6 +7985,9 @@ msgstr ""
 msgid "I have read and agree to the Let's Encrypt %{link_start}Terms of Service%{link_end}"
 msgstr ""
 
+msgid "I'd like to receive updates via email about GitLab"
+msgstr ""
+
 msgid "ID"
 msgstr ""
 
@@ -8860,6 +8866,9 @@ msgid "Last edited %{date}"
 msgstr ""
 
 msgid "Last edited by %{name}"
+msgstr ""
+
+msgid "Last name"
 msgstr ""
 
 msgid "Last reply by"
@@ -10152,6 +10161,9 @@ msgid "No activities found"
 msgstr ""
 
 msgid "No application_settings found"
+msgstr ""
+
+msgid "No authentication methods configured."
 msgstr ""
 
 msgid "No available namespaces to fork the project."
@@ -12639,6 +12651,9 @@ msgstr ""
 msgid "Releases mark specific points in a project's development history, communicate information about the type of change, and deliver on prepared, often compiled, versions of the software to be reused elsewhere. Currently, releases can only be created through the API."
 msgstr ""
 
+msgid "Remember me"
+msgstr ""
+
 msgid "Remind later"
 msgstr ""
 
@@ -14135,6 +14150,12 @@ msgstr ""
 msgid "Sign-up restrictions"
 msgstr ""
 
+msgid "SignUp|First Name is too long (maximum is %{max_length} characters)."
+msgstr ""
+
+msgid "SignUp|Last Name is too long (maximum is %{max_length} characters)."
+msgstr ""
+
 msgid "SignUp|Name is too long (maximum is %{max_length} characters)."
 msgstr ""
 
@@ -14577,6 +14598,9 @@ msgid "Start Web Terminal"
 msgstr ""
 
 msgid "Start a %{new_merge_request} with these changes"
+msgstr ""
+
+msgid "Start a Free Trial"
 msgstr ""
 
 msgid "Start a new discussion..."
