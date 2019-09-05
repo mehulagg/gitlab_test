@@ -15,10 +15,10 @@ module API
     resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       desc 'Get all feature flags of a project' do
         detail 'This feature was introduced in GitLab 12.4.'
-        success Entities::FeatureFlag
+        success EE::API::Entities::FeatureFlag
       end
       params do
-        optional :scope,         type: String, desc: 'The scope ', values: %w[enabled disabled]
+        optional :scope, type: String, desc: 'The scope', values: %w[enabled disabled]
         use :pagination
       end
       get ':id/feature_flags' do
@@ -26,23 +26,23 @@ module API
           .new(user_project, current_user, scope: params[:scope])
           .execute(preload: true)
 
-        present paginate(feature_flags), with: Entities::FeatureFlag
+        present paginate(feature_flags), with: EE::API::Entities::FeatureFlag
       end
 
       desc 'Get a feature flag of a project' do
         detail 'This feature was introduced in GitLab 12.4.'
-        success Entities::FeatureFlag
+        success EE::API::Entities::FeatureFlag
       end
       params do
         requires :name, type: String, desc: 'The name of the feature flag'
       end
       get ':id/feature_flags/:name', requirements: FEATURE_FLAG_ENDPOINT_REQUIREMETS do
-        present feature_flag, with: Entities::FeatureFlag
+        present feature_flag, with: EE::API::Entities::FeatureFlag
       end
 
       desc 'Create a new feature flag' do
         detail 'This feature was introduced in GitLab 12.4.'
-        success Entities::FeatureFlag
+        success EE::API::Entities::FeatureFlag
       end
       params do
         requires :name,         type: String, desc: 'The name of the tag'
@@ -69,7 +69,7 @@ module API
           .execute
 
         if result[:status] == :success
-          present result[:feature_flag], with: Entities::FeatureFlag
+          present result[:feature_flag], with: EE::API::Entities::FeatureFlag
         else
           render_api_error!(result[:message], result[:http_status])
         end
@@ -77,7 +77,7 @@ module API
 
       desc 'Update a feature flag' do
         detail 'This feature was introduced in GitLab 12.4.'
-        success Entities::FeatureFlag
+        success EE::API::Entities::FeatureFlag
       end
       params do
         optional :name,         type: String, desc: 'The name of the tag'
@@ -104,7 +104,7 @@ module API
           .execute(feature_flag)
 
         if result[:status] == :success
-          present result[:feature_flag], with: Entities::FeatureFlag
+          present result[:feature_flag], with: EE::API::Entities::FeatureFlag
         else
           render_api_error!(result[:message], result[:http_status])
         end
@@ -112,7 +112,7 @@ module API
 
       desc 'Delete a feature flag' do
         detail 'This feature was introduced in GitLab 12.4.'
-        success Entities::FeatureFlag
+        success EE::API::Entities::FeatureFlag
       end
       params do
         optional :name,         type: String, desc: 'The name of the feature flag'
@@ -125,7 +125,7 @@ module API
           .execute(feature_flag)
 
         if result[:status] == :success
-          present result[:feature_flag], with: Entities::FeatureFlag
+          present result[:feature_flag], with: EE::API::Entities::FeatureFlag
         else
           render_api_error!(result[:message], result[:http_status])
         end
