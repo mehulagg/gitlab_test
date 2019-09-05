@@ -5461,13 +5461,10 @@ msgstr ""
 msgid "Elasticsearch indexing"
 msgstr ""
 
-msgid "Elasticsearch indexing restrictions"
-msgstr ""
-
 msgid "Elasticsearch indexing started"
 msgstr ""
 
-msgid "Elasticsearch integration. Elasticsearch AWS IAM."
+msgid "Elasticsearch settings"
 msgstr ""
 
 msgid "Elastic|None. Select namespaces to index."
