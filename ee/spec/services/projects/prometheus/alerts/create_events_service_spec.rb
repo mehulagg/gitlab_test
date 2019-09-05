@@ -265,7 +265,7 @@ describe Projects::Prometheus::Alerts::CreateEventsService do
     payload
   end
 
-  def payload_with_group_key(payload, key=nil)
+  def payload_with_group_key(payload, key: nil)
     { 'groupKey' => key || group_key }.merge(payload)
   end
 
