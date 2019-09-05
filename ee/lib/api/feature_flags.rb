@@ -45,26 +45,18 @@ module API
         success EE::API::Entities::FeatureFlag
       end
       params do
-        requires :name,         type: String, desc: 'The name of the tag'
-        requires :description,  type: String, desc: 'The name of the release'
-        requires :active,       type: Boolean, desc: 'The name of the release'
-        optional :scopes, type: Hash do
+        requires :name,         type: String
+        optional :description,  type: String
+        optional :scopes_attributes, type: Array do
           requires :environment_scope, type: String
           requires :active, type: Boolean
-          optional :strategies, type: Hash do
-            requires :name, type: String
-            requires :parameters, type: Hash do
-              requires :groupId, type: String
-              requires :percentage, type: String
-              requires :userIds, type: String
-            end
-          end
+          requires :strategies, type: JSON
         end
       end
       post ':id/feature_flags' do
         authorize_create_feature_flag!
 
-        result = FeatureFlags::CreateService
+        result = ::FeatureFlags::CreateService
           .new(user_project, current_user, declared_params(include_missing: false))
           .execute
 
@@ -80,21 +72,9 @@ module API
         success EE::API::Entities::FeatureFlag
       end
       params do
-        optional :name,         type: String, desc: 'The name of the tag'
-        optional :description,  type: String, desc: 'The name of the release'
-        optional :active,       type: Boolean, desc: 'The name of the release'
-        optional :scopes, type: Hash do
-          requires :environment_scope, type: String
-          requires :active, type: Boolean
-          optional :strategies, type: Hash do
-            requires :name, type: String
-            requires :parameters, type: Hash do
-              requires :groupId, type: String
-              requires :percentage, type: String
-              requires :userIds, type: String
-            end
-          end
-        end
+        optional :new_name,     type: String
+        optional :description,  type: String
+        at_least_one_of :new_name, :description
       end
       put ':id/feature_flags/:name', requirements: FEATURE_FLAG_ENDPOINT_REQUIREMETS do
         authorize_update_feature_flag!
@@ -118,7 +98,7 @@ module API
         optional :name,         type: String, desc: 'The name of the feature flag'
       end
       delete ':id/feature_flags/:name', requirements: FEATURE_FLAG_ENDPOINT_REQUIREMETS do
-        authorize_destroy_release!
+        authorize_destroy_feature_flag!
 
         result = ::FeatureFlags::DestroyService
           .new(user_project, current_user, declared_params(include_missing: false))

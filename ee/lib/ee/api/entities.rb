@@ -790,23 +790,21 @@ module EE
         end
       end
 
-      class FeatureFlagScope < Grape::Entity
-        expose :id
-        expose :active
-        expose :environment_scope
-        expose :strategies
-        expose :created_at
-        expose :updated_at
-      end
-
       class FeatureFlag < Grape::Entity
-        expose :id
+        class Scope < Grape::Entity
+          expose :id
+          expose :active
+          expose :environment_scope
+          expose :strategies
+          expose :created_at
+          expose :updated_at
+        end
+
         expose :name
         expose :description
-        expose :active
         expose :created_at
         expose :updated_at
-        expose :scopes, using: API::Entities::FeatureFlagScope
+        expose :scopes, using: Scope
       end
     end
   end
