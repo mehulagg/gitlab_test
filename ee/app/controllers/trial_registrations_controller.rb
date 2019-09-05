@@ -2,6 +2,7 @@
 
 class TrialRegistrationsController < RegistrationsController
   extend ::Gitlab::Utils::Override
+  layout 'trial'
 
   before_action :check_if_gl_com
   before_action :check_if_improved_trials_enabled
