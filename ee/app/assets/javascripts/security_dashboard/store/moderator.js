@@ -18,8 +18,7 @@ export default function configureModerator(store) {
         });
         break;
       case `filters/${filtersMutationTypes.SET_ALL_FILTERS}`:
-      case `filters/${filtersMutationTypes.SET_FILTER}`:
-      case `filters/${filtersMutationTypes.SET_TOGGLE_VALUE}`: {
+      case `filters/${filtersMutationTypes.SET_FILTER}`: {
         const activeFilters = store.getters['filters/activeFilters'];
         store.dispatch('vulnerabilities/fetchVulnerabilities', activeFilters);
         store.dispatch('vulnerabilities/fetchVulnerabilitiesCount', activeFilters);

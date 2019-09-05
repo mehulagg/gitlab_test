@@ -83,7 +83,6 @@ export default {
         optionId: this.lockToProject.id,
       });
     }
-    this.setHideDismissedToggleInitialState();
     this.setProjectsEndpoint(this.projectsEndpoint);
     this.setVulnerabilitiesEndpoint(this.vulnerabilitiesEndpoint);
     this.setVulnerabilitiesCountEndpoint(this.vulnerabilitiesCountEndpoint);
@@ -116,7 +115,7 @@ export default {
       'downloadPatch',
     ]),
     ...mapActions('projects', ['setProjectsEndpoint', 'fetchProjects']),
-    ...mapActions('filters', ['lockFilter', 'setHideDismissedToggleInitialState']),
+    ...mapActions('filters', ['lockFilter']),
   },
 };
 </script>
