@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 class PrometheusAlertEvent < ApplicationRecord
+  include Gitlab::Utils::StrongMemoize
+
   belongs_to :project, required: true, validate: true, inverse_of: :prometheus_alert_events
   belongs_to :prometheus_alert, required: true, validate: true, inverse_of: :prometheus_alert_events
+  has_and_belongs_to_many :related_issues, class_name: 'Issue', join_table: :issues_prometheus_alert_events
 
   validates :payload_key, uniqueness: { scope: :prometheus_alert_id }
 
@@ -69,5 +72,11 @@ class PrometheusAlertEvent < ApplicationRecord
 
   def self.payload_key_for(group_key)
     Digest::SHA1.hexdigest(group_key) if group_key
+  end
+
+  def last_related_issue
+    strong_memoize(:last_related_issue) do
+      related_issues.order(created_at: :asc).first
+    end
   end
 end
