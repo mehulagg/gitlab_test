@@ -108,7 +108,7 @@ module Vulnerabilities
         .order('day')
     end
 
-    def self.counted_by_severity
+    def self.counted_by_severity(hide_dismissed = false)
       group(:severity).count.each_with_object({}) do |(severity, count), accum|
         accum[SEVERITY_LEVELS[severity]] = count
       end

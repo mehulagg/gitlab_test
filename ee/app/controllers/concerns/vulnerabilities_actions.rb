@@ -14,20 +14,27 @@ module VulnerabilitiesActions
 
     # Move hide_vulnerabilities filter to Vulnerabilities::Finder when db query can be used
     # To be removed with: https://gitlab.com/gitlab-org/gitlab-ee/issues/14042
-    vulnerabilities.reject(&:dismissed?) if vulnerabilities.present? && filter_params[:hide_dismissed].present? && filter_params[:hide_dismissed] == true
+
+    hide_dismissed = filter_params[:hide_dismissed].present? && filter_params[:hide_dismissed] == true
+
 
     respond_to do |format|
       format.json do
         render json: Vulnerabilities::OccurrenceSerializer
           .new(current_user: current_user)
           .with_pagination(request, response)
-          .represent(vulnerabilities, preload: true)
+          .represent(vulnerabilities, hide_dismissed: hide_dismissed)
       end
     end
   end
 
   def summary
-    vulnerabilities_summary = found_vulnerabilities.counted_by_severity
+    if filter_params[:hide_dismissed].present? && filter_params[:hide_dismissed] == true
+      vulnerabilities = found_vulnerabilities.reject(&:dismissed?)
+      vulnerabilities_summary = vulnerabilities.group_by { |o| o[:severity] }.map { |key, o| [Vulnerabilities::Occurrence::SEVERITY_LEVELS[key], o.count] }.to_h
+    else
+      vulnerabilities_summary = found_vulnerabilities.counted_by_severity
+    end
 
     respond_to do |format|
       format.json do
