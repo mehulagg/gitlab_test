@@ -4,7 +4,8 @@ require 'pathname'
 NUMBER_OF_DEPENDENCIES_IN_FIXTURE = 1309
 
 module QA
-  context 'Secure', :docker do
+  # Failure issue: https://gitlab.com/gitlab-org/quality/nightly/issues/132
+  context 'Secure', :docker, :quarantine do
     def login
       Runtime::Browser.visit(:gitlab, Page::Main::Login)
       Page::Main::Login.perform(&:sign_in_using_credentials)
