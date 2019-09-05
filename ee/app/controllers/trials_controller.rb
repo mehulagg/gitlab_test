@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 class TrialsController < ApplicationController
+  layout 'trial'
+
   before_action :check_if_gl_com
   before_action :check_if_improved_trials_enabled
   before_action :authenticate_user!
-  before_action :fetch_namespace, only: :apply
+  before_action :find_or_create_namespace, only: :apply
 
   def new
   end
@@ -13,9 +15,9 @@ class TrialsController < ApplicationController
   end
 
   def create_lead
-    result = GitlabSubscriptions::CreateLeadService.new.execute({ trial_user: company_params })
+    @lead_result = GitlabSubscriptions::CreateLeadService.new.execute({ trial_user: company_params })
 
-    if result[:success]
+    if @lead_result[:success]
       redirect_to select_trials_url
     else
       render :new
@@ -23,12 +25,18 @@ class TrialsController < ApplicationController
   end
 
   def apply
-    result = GitlabSubscriptions::ApplyTrialService.new.execute(apply_trial_params)
+    if @namespace.invalid?
+      @apply_trial_errors = @namespace.errors.full_messages.to_sentence
+      return render :select
+    end
 
-    if result[:success]
+    trial_result = GitlabSubscriptions::ApplyTrialService.new.execute(apply_trial_params)
+
+    if trial_result&.dig(:success)
       redirect_to group_url(@namespace, { trial: true })
     else
-      redirect_to select_trials_url
+      @apply_trial_errors = trial_result&.dig(:errors)
+      render :select
     end
   end
 
@@ -69,9 +77,22 @@ class TrialsController < ApplicationController
     }
   end
 
-  def fetch_namespace
-    @namespace = current_user.namespaces.find(params[:namespace_id])
+  def find_or_create_namespace
+    @namespace = if params[:new_group_name].present?
+                   create_group
+                 elsif params[:namespace_id].present?
+                   current_user.namespaces.find(params[:namespace_id])
+                 end
 
     render_404 unless @namespace
+  end
+
+  def create_group
+    name = params[:new_group_name]
+    group = Groups::CreateService.new(current_user, name: name, path: name.parameterize).execute
+
+    params[:namespace_id] = group.id
+
+    group
   end
 end
