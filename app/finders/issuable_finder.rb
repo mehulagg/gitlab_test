@@ -580,3 +580,5 @@ class IssuableFinder
     ProjectFeature.required_minimum_access_level(klass)
   end
 end
+
+# Here's a Ruby change

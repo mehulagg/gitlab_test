@@ -15,6 +15,8 @@ GitLab remote server without supplying your username or password each time.
 For a more detailed explanation of how the SSH protocol works, read
 [this nice tutorial by DigitalOcean](https://www.digitalocean.com/community/tutorials/understanding-the-ssh-encryption-and-connection-process).
 
+Here's a doc change.
+
 ## Requirements
 
 The only requirement is to have the OpenSSH client installed on your system. This
