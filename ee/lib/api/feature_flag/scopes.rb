@@ -47,12 +47,9 @@ module API
           requires :strategies, type: JSON
         end
         post do
-          puts "#{self.class.name} - #{__callee__}: 1"
           authorize_update_feature_flag!
 
           param = { scopes_attributes: [declared_params(include_missing: false)] }
-
-          puts "#{self.class.name} - #{__callee__}: param: #{param}"
 
           result = ::FeatureFlags::UpdateService
             .new(user_project, current_user, param)

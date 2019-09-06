@@ -19,7 +19,32 @@ module FeatureFlag
         end
 
         def enable(thing = true)
-          # Not Supported yet (See https://gitlab.com/gitlab-org/gitlab-ee/issues/9566)
+          # TODO: How to control flags?
+          if persisted?
+
+          else
+
+          end
+
+          strategies = if thing == true
+                         { name: 'default', parameters: {} }
+                       else
+                         { name: 'userWithId', parameters: { userIds: sanitized(thing) } }
+                       end
+
+          responce = HTTParty.post(Unleash.create_feature_flag_url,
+            headers: Unleash.request_headers,
+            body: { name: @key,
+              scopes_attributes: [{
+                environment_scope: Gitlab.config.unleash.app_name,
+                active: true,
+                strategies: strategies}]}.to_json)
+
+          responce.map do |feature_flag|
+            feature = Feature.new(feature_flag[:name])
+            feature.state = 
+            feature
+          end
         end
     
         def disable(thing = false)
@@ -38,24 +63,43 @@ module FeatureFlag
           # Not Supported yet (See https://gitlab.com/gitlab-org/gitlab-ee/issues/9566)
         end
 
+        def persisted?
+          Unleash.toggles.select{ |toggle| toggle['name'] == @key }                  
+        end
+
         private
+
+        def enable(thing = true)
+
+        end
 
         def client
           FeatureFlag::Adapters::Unleash.client
         end
 
         def context(thing)
-          ::Unleash::Context.new(properties: { thing: thing })
+          ::Unleash::Context.new(properties: { thing: sanitized(thing) })
+        end
+
+        def sanitized(thing)
+          thing = thing.__getobj__ if thing.respond_to?(:__getobj__) # Resolve SimpleDelegator
+
+          return thing unless thing.is_a?(ActiveRecord::Base)
+
+          "#{thing.class.name}:#{thing.id}"
         end
       end
 
       class << self
+        include Gitlab::Utils::StrongMemoize
+
         def available?
           Gitlab.config.unleash.enabled
         end
 
         def all
-          Unleash::ToggleFetcher.toggle_cache
+          # TODO: Wrap in Feature
+          Unleash.toggles
         end
 
         def get(key)
@@ -63,7 +107,7 @@ module FeatureFlag
         end
 
         def persisted?(feature)
-          true # TODO: Fix
+          get(key).persisted?
         end
 
         def table_exists?
@@ -76,6 +120,26 @@ module FeatureFlag
             config.app_name       = Gitlab.config.unleash.app_name
             config.instance_id    = Gitlab.config.unleash.instance_id
             config.logger         = Gitlab::Unleash::Logger
+          end
+        end
+
+        def create_feature_flag_url
+          "#{api_endpoint}/"
+        end
+
+        def api_endpoint
+          strong_memoize(:api_endpoint) do
+            api_url, project_id = Gitlab.config.unleash.url
+              .scan( %r{(https?://.*/api/v4/)feature_flags/unleash/(\d+)} )
+              .first
+
+            "#{api_url}/projects/#{project_id}/feature_flags"
+          end
+        end
+
+        def request_headers
+          strong_memoize(:request_headers) do
+            { 'Private-Token': Gitlab.config.unleash.personal_access_token }
           end
         end
 

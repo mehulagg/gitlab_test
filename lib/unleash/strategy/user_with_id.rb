@@ -24,10 +24,7 @@ module Unleash
         return false unless params.fetch(PARAM, nil).is_a? String
         return false unless context.class.name == 'Unleash::Context'
 
-        target = context.properties[:thing].yield_self do |thing|
-          thing = thing.__getobj__ if thing.respond_to?(:__getobj__) # Resolve SimpleDelegator
-          "#{thing.class.name}:#{thing.id}"
-        end
+        target = context.properties[:thing]
 
         params[PARAM].split(",").map(&:strip).any? { |allowed| allowed == target }
       end

@@ -21,7 +21,6 @@ describe API::FeatureFlag::Scopes do
       it 'returns scopes' do
         get api("/projects/#{project.id}/feature_flags/#{feature_flag.name}/scopes", developer)
 
-        puts "#{self.class.name} - #{__callee__}: json_response: #{JSON.pretty_generate(json_response)}"
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response.count).to eq(2)
         expect(json_response.first['environment_scope']).to eq(feature_flag.scopes[0].environment_scope)
@@ -38,7 +37,6 @@ describe API::FeatureFlag::Scopes do
       it 'returns a scope' do
         get api("/projects/#{project.id}/feature_flags/#{feature_flag.name}/scopes/#{default_scope.id}", developer)
 
-        puts "#{self.class.name} - #{__callee__}: json_response: #{JSON.pretty_generate(json_response)}"
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response['id']).to eq(default_scope.id)
         expect(json_response['active']).to eq(default_scope.active)
