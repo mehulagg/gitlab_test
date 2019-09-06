@@ -2445,6 +2445,16 @@ ActiveRecord::Schema.define(version: 2019_09_10_000130) do
     t.index ["project_id", "token_encrypted"], name: "index_feature_flags_clients_on_project_id_and_token_encrypted", unique: true
   end
 
+  create_table "packages_conan_file_metadata", force: :cascade do |t|
+    t.integer "package_file_id", null: false
+    t.string "recipe", limit: 255, null: false
+    t.string "path", limit: 255, null: false
+    t.string "revision", limit: 255, default: "0", null: false
+    t.datetime_with_timezone "created_at", null: false
+    t.datetime_with_timezone "updated_at", null: false
+    t.index ["package_file_id"], name: "index_packages_conan_file_metadata_on_package_file_id", unique: true
+  end
+
   create_table "packages_maven_metadata", force: :cascade do |t|
     t.bigint "package_id", null: false
     t.datetime_with_timezone "created_at", null: false
@@ -3986,6 +3996,7 @@ ActiveRecord::Schema.define(version: 2019_09_10_000130) do
   add_foreign_key "operations_feature_flag_scopes", "operations_feature_flags", column: "feature_flag_id", on_delete: :cascade
   add_foreign_key "operations_feature_flags", "projects", on_delete: :cascade
   add_foreign_key "operations_feature_flags_clients", "projects", on_delete: :cascade
+  add_foreign_key "packages_conan_file_metadata", "packages_package_files", column: "package_file_id", on_delete: :cascade
   add_foreign_key "packages_maven_metadata", "packages_packages", column: "package_id", name: "fk_be88aed360", on_delete: :cascade
   add_foreign_key "packages_package_files", "packages_packages", column: "package_id", name: "fk_86f0f182f8", on_delete: :cascade
   add_foreign_key "packages_packages", "projects", on_delete: :cascade
