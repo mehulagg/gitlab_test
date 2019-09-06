@@ -12,7 +12,7 @@ class TrialsController < ApplicationController
     if result[:success]
       render json: { ok: true }, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: { errors: result[:errors] }, status: :unprocessable_entity
     end
   end
 
@@ -25,6 +25,17 @@ class TrialsController < ApplicationController
   end
 
   def company_params
-    params.permit(:first_name, :last_name, :email, :company_name, :employees_quantity, :telephone_number, :trial_users_quantity, :country, :uid)
+    params.permit(:company_name, :employees_quantity, :telephone_number, :trial_users_quantity, :country)
+          .merge(extra_params)
+  end
+
+  def extra_params
+    attrs = current_user.slice(:first_name, :last_name, :email)
+    attrs[:uid] = current_user.id
+    attrs[:skip_email_confirmation] = true
+    attrs[:gitlab_com_trial] = true
+    attrs[:provider] = 'gitlab'
+
+    attrs
   end
 end
