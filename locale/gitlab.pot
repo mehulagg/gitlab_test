@@ -7973,6 +7973,9 @@ msgstr ""
 msgid "However, you are already a member of this %{member_source}. Sign in using a different account to accept the invitation."
 msgstr ""
 
+msgid "I accept the %{terms_link_start}Terms of Service and Privacy Policy%{terms_link_end}"
+msgstr ""
+
 msgid "I accept the %{terms_link}"
 msgstr ""
 
