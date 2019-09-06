@@ -72,30 +72,30 @@ describe API::FeatureFlag::Scopes do
     end
   end
 
-  describe 'PUT /projects/:id/feature_flags/:name' do
-    let(:params) { { description: 'bbbb' } }
+  describe 'PUT /projects/:id/feature_flags/:name/scopes/:scope_id' do
+    let(:params) { { active: true } }
 
-    let!(:feature_flag) do
-      create(:operations_feature_flag, project: project, description: 'aaaaa')
-    end
+    let!(:feature_flag) { create(:operations_feature_flag, project: project) }
+    let!(:production_scope) { create_scope(feature_flag, 'production', false) }
 
     it 'updates the name' do
-      put api("/projects/#{project.id}/feature_flags/#{feature_flag.name}", developer), params: params
+      put api("/projects/#{project.id}/feature_flags/#{feature_flag.name}/scopes/#{production_scope.id}", developer), params: params
 
       expect(response).to have_gitlab_http_status(:ok)
-      expect(project.operations_feature_flags.last.description).to eq('bbbb')
+
+      production_scope.reload
+      expect(production_scope.active).to eq(true)
     end
   end
 
-  describe 'DELETE /projects/:id/feature_flags/:name' do
-    let!(:feature_flag) do
-      create(:operations_feature_flag, project: project)
-    end
+  describe 'DELETE /projects/:id/feature_flags/:name/scopes/:scope_id' do
+    let!(:feature_flag) { create(:operations_feature_flag, project: project) }
+    let!(:production_scope) { create_scope(feature_flag, 'production', false) }
 
-    it 'destroys the release' do
+    it 'destroys the scope' do
       expect do
-        delete api("/projects/#{project.id}/feature_flags/#{feature_flag.name}", developer)
-      end.to change { Operations::FeatureFlag.count }.by(-1)
+        delete api("/projects/#{project.id}/feature_flags/#{feature_flag.name}/scopes/#{production_scope.id}", developer)
+      end.to change { Operations::FeatureFlagScope.count }.by(-1)
 
       expect(response).to have_gitlab_http_status(:ok)
     end

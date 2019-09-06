@@ -78,12 +78,16 @@ module API
         put ':scope_id' do
           authorize_update_feature_flag!
 
+          param = declared_params(include_missing: false)
+          param[:id] = param.delete(:scope_id)
+          param = { scopes_attributes: [param] }
+
           result = ::FeatureFlags::UpdateService
-            .new(user_project, current_user, declared_params(include_missing: false))
+            .new(user_project, current_user, param)
             .execute(feature_flag)
 
           if result[:status] == :success
-            present result[:feature_flag], with: EE::API::Entities::FeatureFlag::Scope
+            present scope.reload, with: EE::API::Entities::FeatureFlag::Scope
           else
             render_api_error!(result[:message], result[:http_status])
           end
@@ -94,17 +98,19 @@ module API
           success EE::API::Entities::FeatureFlag::Scope
         end
         params do
-          optional :scope_id,         type: String, desc: 'The name of the feature flag'
+          optional :scope_id,         type: String, desc: 'The scope'
         end
         delete ':scope_id' do
           authorize_update_feature_flag!
 
+          param = { scopes_attributes: [{ id: scope.id, _destroy: 1 }] }
+
           result = ::FeatureFlags::UpdateService
-            .new(user_project, current_user, declared_params(include_missing: false))
+            .new(user_project, current_user, param)
             .execute(feature_flag)
 
           if result[:status] == :success
-            present result[:feature_flag], with: EE::API::Entities::FeatureFlag::Scope
+            present scope, with: EE::API::Entities::FeatureFlag::Scope
           else
             render_api_error!(result[:message], result[:http_status])
           end
