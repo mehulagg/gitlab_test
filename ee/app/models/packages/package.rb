@@ -71,6 +71,18 @@ class Packages::Package < ApplicationRecord
     end
   end
 
+  def conan_recipe
+    return unless conan?
+
+    name
+  end
+
+  def conan_recipe_path
+    return unless conan?
+
+    conan_recipe.tr('@', '/')
+  end
+
   private
 
   def valid_npm_package_name

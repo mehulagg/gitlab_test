@@ -43,7 +43,7 @@ module Packages
       end
 
       def search_packages(query)
-        Packages::ConanPackageFinder.new(query, current_user).execute.pluck_names
+        Packages::ConanPackageFinder.new(current_user, query: query).api_search.pluck_names
       end
     end
   end

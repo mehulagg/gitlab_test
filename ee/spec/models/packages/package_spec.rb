@@ -41,6 +41,42 @@ RSpec.describe Packages::Package, type: :model do
     end
   end
 
+  describe '#recipe' do
+    context 'conan package' do
+      let(:package) { create(:conan_package) }
+
+      it 'returns the recipe' do
+        expect(package.conan_recipe).to be package.name
+      end
+    end
+
+    context 'non-conan package' do
+      let(:package) { create(:package) }
+
+      it 'returns nil' do
+        expect(package.conan_recipe).to be nil
+      end
+    end
+  end
+
+  describe '#recipe_url' do
+    context 'conan package' do
+      let(:package) { create(:conan_package) }
+
+      it 'returns the recipe url' do
+        expect(package.conan_recipe_path).to eq package.name.tr('@', '/Z')
+      end
+    end
+
+    context 'non-conan package' do
+      let(:package) { create(:package) }
+
+      it 'returns nil' do
+        expect(package.conan_recipe_path).to be nil
+      end
+    end
+  end
+
   describe '#destroy' do
     let(:package) { create(:npm_package) }
     let(:package_file) { package.package_files.first }

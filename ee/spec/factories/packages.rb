@@ -34,11 +34,86 @@ FactoryBot.define do
       sequence(:name) { |n| "package-#{n}/1.0.0@#{project.full_path.tr('/', '+')}/stable"}
       version { '1.0.0' }
       package_type { 'conan' }
+
+      after :create do |package|
+        create :conan_package_file, :conan_recipe_file, package: package
+        create :conan_package_file, :conan_recipe_manifest, package: package
+        create :conan_package_file, :conan_package_info, package: package
+        create :conan_package_file, :conan_package_manifest, package: package
+        create :conan_package_file, :conan_package, package: package
+      end
     end
   end
 
   factory :package_file, class: Packages::PackageFile do
     package
+
+    factory :conan_package_file do
+      trait(:conan_recipe_file) do
+        after :create do |package_file|
+          create :conan_file_metadatum, :recipe_file, package_file: package_file
+        end
+
+        file { fixture_file_upload('ee/spec/fixtures/conan/recipe_conanfile.py') }
+        file_name { 'recipe_conanfile.py' }
+        file_sha1 { 'be93151dc23ac34a82752444556fe79b32c7a1ad' }
+        file_md5 { '12345abcde' }
+        file_type { 'py' }
+        size { 400.kilobytes }
+      end
+
+      trait(:conan_recipe_manifest) do
+        after :create do |package_file|
+          create :conan_file_metadatum, :recipe_file, package_file: package_file
+        end
+
+        file { fixture_file_upload('ee/spec/fixtures/conan/recipe_conanmanifest.txt') }
+        file_name { 'recipe_conanmanifest.txt' }
+        file_sha1 { 'be93151dc23ac34a82752444556fe79b32c7a1ad' }
+        file_md5 { '12345abcde' }
+        file_type { 'txt' }
+        size { 400.kilobytes }
+      end
+
+      trait(:conan_package_manifest) do
+        after :create do |package_file|
+          create :conan_file_metadatum, :package_file, package_file: package_file
+        end
+
+        file { fixture_file_upload('ee/spec/fixtures/conan/package_conanmanifest.txt') }
+        file_name { 'package_conanmanifest.txt' }
+        file_sha1 { 'be93151dc23ac34a82752444556fe79b32c7a1ad' }
+        file_md5 { '12345abcde' }
+        file_type { 'txt' }
+        size { 400.kilobytes }
+      end
+
+      trait(:conan_package_info) do
+        after :create do |package_file|
+          create :conan_file_metadatum, :package_file, package_file: package_file
+        end
+
+        file { fixture_file_upload('ee/spec/fixtures/conan/package_conaninfo.txt') }
+        file_name { 'package_conaninfo.txt' }
+        file_sha1 { 'be93151dc23ac34a82752444556fe79b32c7a1ad' }
+        file_md5 { '12345abcde' }
+        file_type { 'txt' }
+        size { 400.kilobytes }
+      end
+
+      trait(:conan_package) do
+        after :create do |package_file|
+          create :conan_file_metadatum, :package_file, package_file: package_file
+        end
+
+        file { fixture_file_upload('ee/spec/fixtures/conan/conan_package.tgz') }
+        file_name { 'conan_package.tgz' }
+        file_sha1 { 'be93151dc23ac34a82752444556fe79b32c7a1ad' }
+        file_md5 { '12345abcde' }
+        file_type { 'tgz' }
+        size { 400.kilobytes }
+      end
+    end
 
     trait(:jar) do
       file { fixture_file_upload('ee/spec/fixtures/maven/my-app-1.0-20180724.124855-1.jar') }
@@ -83,5 +158,18 @@ FactoryBot.define do
     app_group { 'my.company.app' }
     app_name { 'my-app' }
     app_version { '1.0-SNAPSHOT' }
+  end
+
+  factory :conan_file_metadatum, class: Packages::ConanFileMetadatum do
+    package_file
+    path { '0/export' }
+    revision { '0' }
+
+    trait(:recipe_file) do
+      path { '0/export' }
+    end
+    trait(:package_file) do
+      path { '0/package/123456789/0' }
+    end
   end
 end

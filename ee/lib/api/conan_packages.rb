@@ -53,12 +53,12 @@ module API
       end
     end
 
-    namespace 'packages/conan/v1/conans/*url_recipe' do
+    namespace 'packages/conan/v1/conans/*recipe_path' do
       before do
-        render_api_error!("Invalid recipe", 400) unless valid_url_recipe?(params[:url_recipe])
+        render_api_error!("Invalid recipe", 400) unless valid_recipe_path?(params[:recipe_path])
       end
       params do
-        requires :url_recipe, type: String, desc: 'Package recipe'
+        requires :recipe_path, type: String, desc: 'Package recipe'
       end
 
       # Get the recipe manifest
@@ -70,14 +70,34 @@ module API
         detail 'This feature was introduced in GitLab 12.3'
       end
       get 'packages/:package_id/digest' do
-        render_api_error!("No recipe manifest found", 404)
+        recipe = generate_recipe(params[:recipe_path])
+        project = find_project_by_recipe(params[:recipe_path])
+        render_api_error!("No recipe manifest found", 404) unless project
+
+        authorize!(:read_package, project)
+
+        presenter = ConanPackagePresenter.new(recipe, current_user, project, params[:package_id])
+
+        render_api_error!("No recipe manifest found", 404) if presenter.package_urls.empty?
+
+        present presenter, with: EE::API::Entities::ConanPackage::ConanPackageManifest
       end
 
       desc 'Recipe Digest' do
         detail 'This feature was introduced in GitLab 12.3'
       end
       get 'digest' do
-        render_api_error!("No recipe manifest found", 404)
+        recipe = generate_recipe(params[:recipe_path])
+        project = find_project_by_recipe(params[:recipe_path])
+        render_api_error!("No recipe manifest found", 404) unless project
+
+        authorize!(:read_package, project)
+
+        presenter = ConanPackagePresenter.new(recipe, current_user, project)
+
+        render_api_error!("No recipe manifest found", 404) if presenter.recipe_urls.empty?
+
+        present presenter, with: EE::API::Entities::ConanPackage::ConanRecipeManifest
       end
 
       # Get the upload urls
@@ -96,9 +116,9 @@ module API
       post 'packages/:package_id/upload_urls' do
         status 200
         {
-          'conaninfo.txt':      "#{base_file_url}/#{params[:url_recipe]}/-/0/package/#{params[:package_id]}/0/conaninfo.txt",
-          'conanmanifest.txt': "#{base_file_url}/#{params[:url_recipe]}/-/0/package/#{params[:package_id]}/0/conanmanifest.txt",
-          'conan_package.tgz': "#{base_file_url}/#{params[:url_recipe]}/-/0/package/#{params[:package_id]}/0/conan_package.tgz"
+          'conaninfo.txt':      "#{base_file_url}/#{params[:recipe_path]}/-/0/package/#{params[:package_id]}/0/conaninfo.txt",
+          'conanmanifest.txt': "#{base_file_url}/#{params[:recipe_path]}/-/0/package/#{params[:package_id]}/0/conanmanifest.txt",
+          'conan_package.tgz': "#{base_file_url}/#{params[:recipe_path]}/-/0/package/#{params[:package_id]}/0/conan_package.tgz"
         }
       end
 
@@ -108,8 +128,8 @@ module API
       post 'upload_urls' do
         status 200
         {
-          'conanfile.py':      "#{base_file_url}/#{params[:url_recipe]}/-/0/export/conanfile.py",
-          'conanmanifest.txt': "#{base_file_url}/#{params[:url_recipe]}/-/0/export/conanmanifest.txt"
+          'conanfile.py':      "#{base_file_url}/#{params[:recipe_path]}/-/0/export/conanfile.py",
+          'conanmanifest.txt': "#{base_file_url}/#{params[:recipe_path]}/-/0/export/conanmanifest.txt"
         }
       end
 
@@ -118,24 +138,54 @@ module API
       # the snapshot is a hash of { filename: md5 hash }
       # md5 hash is the has of that file. This hash is used to diff the files existing on the client
       # to determine which client files need to be uploaded if no recipe exists the snapshot is empty
-      desc 'Recipe Snapshot' do
-        detail 'This feature was introduced in GitLab 12.3'
-      end
-      get '/' do
-        {}
-      end
-
       desc 'Package Snapshot' do
         detail 'This feature was introduced in GitLab 12.3'
       end
       get 'packages/:package_id' do
-        {}
+        recipe = generate_recipe(params[:recipe_path])
+        project = find_project_by_recipe(params[:recipe_path])
+
+        authorize!(:read_package, project)
+        presenter = ConanPackagePresenter.new(recipe, current_user, project, params[:package_id])
+        present presenter, with: EE::API::Entities::ConanPackage::ConanPackageSnapshot
+      end
+
+      desc 'Recipe Snapshot' do
+        detail 'This feature was introduced in GitLab 12.3'
+      end
+      get '/' do
+        recipe = generate_recipe(params[:recipe_path])
+        project = find_project_by_recipe(params[:recipe_path])
+
+        authorize!(:read_package, project)
+        presenter = ConanPackagePresenter.new(recipe, current_user, project)
+        present presenter, with: EE::API::Entities::ConanPackage::ConanRecipeSnapshot
       end
     end
 
     helpers do
       def base_file_url
         "#{::Settings.gitlab.base_url}/api/v4/packages/conan/v1/files"
+      end
+
+      def parse_recipe(recipe_path)
+        split_recipe = recipe_path.split('/')
+        {
+          package_name: split_recipe[0],
+          version: split_recipe[1],
+          pkg_username: split_recipe[2],
+          channel: split_recipe[3]
+        }
+      end
+
+      def generate_recipe(recipe_path)
+        recipe_obj = parse_recipe(recipe_path)
+        "#{recipe_obj[:package_name]}/#{recipe_obj[:version]}@#{recipe_obj[:pkg_username]}/#{recipe_obj[:channel]}"
+      end
+
+      def find_project_by_recipe(recipe_path)
+        project_path = parse_recipe(recipe_path)[:pkg_username].tr('+', '/')
+        Project.find_by_full_path(project_path)
       end
 
       def find_personal_access_token
@@ -168,8 +218,8 @@ module API
         PersonalAccessToken.find_by_token(token)
       end
 
-      def valid_url_recipe?(recipe_url)
-        recipe_url =~ %r{\A(([\w](\.|\+|-)?)*(\/?)){4}\z}
+      def valid_recipe_path?(recipe_path)
+        recipe_path =~ %r{\A(([\w](\.|\+|-)?)*(\/?)){4}\z}
       end
     end
   end

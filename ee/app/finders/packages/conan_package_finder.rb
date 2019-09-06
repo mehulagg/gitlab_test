@@ -2,14 +2,25 @@
 
 module Packages
   class ConanPackageFinder
-    attr_reader :query, :current_user
+    attr_reader :current_user, :query, :project, :recipe
 
-    def initialize(query, current_user)
-      @query = query
+    def initialize(current_user, options)
       @current_user = current_user
+      @project = project
+      @query = options[:query]
+      @project = options[:project]
+      @recipe = options[:recipe]
     end
 
     def execute
+      return unless project
+
+      project.packages.with_name(recipe).order_created.last
+    end
+
+    def api_search
+      return unless query
+
       packages_for_current_user.with_name_like(query).order_name_asc
     end
 
