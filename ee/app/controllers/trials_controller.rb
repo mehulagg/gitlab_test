@@ -25,12 +25,13 @@ class TrialsController < ApplicationController
   end
 
   def company_params
-    params.permit(:company_name, :employees_quantity, :telephone_number, :trial_users_quantity, :country)
+    params.permit(:company_name, :employees_quantity, :phone_number, :number_of_users, :country)
           .merge(extra_params)
   end
 
   def extra_params
-    attrs = current_user.slice(:first_name, :last_name, :email)
+    attrs = current_user.slice(:first_name, :last_name)
+    attrs[:work_email] = current_user.email
     attrs[:uid] = current_user.id
     attrs[:skip_email_confirmation] = true
     attrs[:gitlab_com_trial] = true
