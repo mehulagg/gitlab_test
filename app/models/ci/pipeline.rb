@@ -549,6 +549,20 @@ module Ci
       end
     end
 
+    def set_repo_url
+      self.repo_url = if merge_request_event? && merge_request.for_fork?
+                        # ref/merge-requests/{head/merge/train} doesn't exist in the source repository,
+                        # so fetches it from target repository.
+                        project.merge_request.target_project.http_url_to_repo
+                      elsif external_pull_request_event?
+                        # We specify source repository always that the branch ref (ref/heads/{branch-name})
+                        # exists in the source repository only.
+                        external_pull_request.source_repository
+                      else
+                        project.http_url_to_repo
+                      end
+    end
+
     def set_config_source
       if ci_yaml_from_repo
         self.config_source = :repository_source

@@ -509,11 +509,28 @@ module Ci
     end
 
     def repo_url
-      return unless token
+      url = pipeline.repo_url.presence || project.http_url_to_repo
 
-      auth = "gitlab-ci-token:#{token}@"
-      project.http_url_to_repo.sub(%r{^https?://}) do |prefix|
-        prefix + auth
+      url.sub(%r{^https?://}) do |prefix|
+        prefix + repo_auth
+      end
+    end
+
+    def repo_auth
+      if pipeline.merge_request_event? && pipeline.merge_request.for_fork?
+        if pipeline.merge_request.target_project.public?
+          # no-op. Fetching code from a public project doesn't require authentication.
+        else
+          # TODO: We'd need to extend `gitlab-ci-token` auth schema.
+        end
+      elsif pipeline.external_pull_request_event? && pipeline.external_pull_request.for_fork?
+        if pipeline.external_pull_request.source_project.public?
+          # no-op. Fetching code from a public project doesn't require authentication.
+        else
+          # TODO: We'd need to set `<user-name>:<secrets>`.
+        end
+      else
+        "gitlab-ci-token:#{token}@"
       end
     end
 

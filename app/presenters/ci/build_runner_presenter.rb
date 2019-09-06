@@ -34,7 +34,10 @@ module Ci
 
     def refspecs
       specs = []
-      specs << refspec_for_merge_request_ref if merge_request_ref?
+
+      if merge_request_ref? || external_pull_request_event?
+        specs << refspec_for_ref_path
+      end
 
       if git_depth > 0
         specs << refspec_for_branch(ref) if branch? || legacy_detached_merge_request_pipeline?
@@ -86,7 +89,7 @@ module Ci
       "+#{Gitlab::Git::TAG_REF_PREFIX}#{ref}:#{RUNNER_REMOTE_TAG_PREFIX}#{ref}"
     end
 
-    def refspec_for_merge_request_ref
+    def refspec_for_ref_path
       "+#{ref}:#{ref}"
     end
 

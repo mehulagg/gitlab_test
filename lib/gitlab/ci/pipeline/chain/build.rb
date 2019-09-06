@@ -22,6 +22,7 @@ module Gitlab
               variables_attributes: Array(@command.variables_attributes)
             )
 
+            @pipeline.set_repo_url
             @pipeline.set_config_source
           end
 
