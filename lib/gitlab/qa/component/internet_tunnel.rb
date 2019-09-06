@@ -6,8 +6,8 @@ module Gitlab
       class InternetTunnel
         include Scenario::Actable
 
-        DOCKER_IMAGE = 'dylangriffith/ssh'.freeze
-        DOCKER_IMAGE_TAG = 'latest'.freeze
+        DOCKER_IMAGE = 'gitlab/ssh-tunnel'.freeze
+        DOCKER_IMAGE_TAG = '1.0.0'.freeze
 
         attr_writer :gitlab_hostname, :name
         attr_accessor :network
