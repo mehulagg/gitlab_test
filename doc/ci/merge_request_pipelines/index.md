@@ -5,6 +5,8 @@ last_update: 2019-07-03
 
 # Pipelines for Merge Requests
 
+test
+
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/15310) in GitLab 11.6.
 
 Usually, when you create a new merge request, a pipeline runs with the
