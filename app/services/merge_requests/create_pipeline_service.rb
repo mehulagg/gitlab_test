@@ -10,11 +10,11 @@ module MergeRequests
 
     def create_detached_merge_request_pipeline(merge_request)
       if can_use_merge_request_ref?(merge_request)
-        Ci::CreatePipelineService.new(merge_request.source_project, current_user,
+        Ci::CreatePipelineService.new(pipeline_project(merge_request), current_user,
                                       ref: merge_request.ref_path)
           .execute(:merge_request_event, merge_request: merge_request)
       else
-        Ci::CreatePipelineService.new(merge_request.source_project, current_user,
+        Ci::CreatePipelineService.new(pipeline_project(merge_request), current_user,
                                       ref: merge_request.source_branch)
           .execute(:merge_request_event, merge_request: merge_request)
       end
@@ -32,6 +32,19 @@ module MergeRequests
 
     def allow_duplicate
       params[:allow_duplicate]
+    end
+
+    def can_use_merge_request_ref?(merge_request)
+      Feature.enabled?(:ci_use_merge_request_ref, project, default_enabled: true) &&
+        (!merge_request.for_fork? || merge_request.target_project.allow_fork_pipelines_to_run_in_parent?)
+    end
+
+    def pipeline_project(merge_request)
+      if merge_request.for_fork? && merge_request.target_project.allow_fork_pipelines_to_run_in_parent?
+        merge_request.target_project
+      else
+        merge_request.source_project
+      end
     end
   end
 end

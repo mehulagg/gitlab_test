@@ -1197,7 +1197,9 @@ class MergeRequest < ApplicationRecord
 
     strong_memoize(:all_pipelines) do
       Ci::Pipeline.from_union(
-        [source_project.ci_pipelines.merge_request_pipelines(self, shas),
+        [target_project.ci_pipelines.merge_request_pipelines(self, shas),
+         source_project.ci_pipelines.merge_request_pipelines(self, shas),
+         target_project.ci_pipelines.detached_merge_request_pipelines(self, shas),
          source_project.ci_pipelines.detached_merge_request_pipelines(self, shas),
          source_project.ci_pipelines.triggered_for_branch(source_branch).for_sha(shas)],
          remove_duplicates: false).sort_by_merge_request_pipelines

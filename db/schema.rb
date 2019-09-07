@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_09_05_223900) do
+ActiveRecord::Schema.define(version: 2019_09_07_093200) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -2607,6 +2607,7 @@ ActiveRecord::Schema.define(version: 2019_09_05_223900) do
     t.boolean "merge_pipelines_enabled"
     t.boolean "merge_trains_enabled", default: false, null: false
     t.integer "default_git_depth"
+    t.boolean "allow_fork_pipelines_to_run_in_parent", default: false
     t.index ["project_id"], name: "index_project_ci_cd_settings_on_project_id", unique: true
   end
 

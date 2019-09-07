@@ -64,10 +64,12 @@ module API
         break render_api_error!('The project is not mirrored', 400) unless project.mirror?
 
         if params[:pull_request]
-          if external_pull_request = ProcessGithubPullRequestEventService.new(project, current_user).execute(params)
-            render_validation_error!(external_pull_request)
-          else
+          external_pull_request = ProcessGithubPullRequestEventService.new(project, current_user).execute(params)
+
+          if external_pull_request.nil?
             render_api_error!('The pull request event is not processable', 422)
+          elsif external_pull_request.errors.any?
+            render_validation_error!(external_pull_request)
           end
         else
           project.import_state.force_import_job!

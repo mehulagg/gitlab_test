@@ -18,6 +18,11 @@ module Ci
       @subject.triggered_by?(@user)
     end
 
+    condition(:allow_fork_pipelines_to_run_in_parent) do
+      (@subject.merge_request&.for_fork? || @subject.external_pull_request&.from_fork?) &&
+        @subject.project.allow_fork_pipelines_to_run_in_parent?
+    end
+
     # Disallow users without permissions from accessing internal pipelines
     rule { ~can?(:read_build) & ~external_pipeline }.policy do
       prevent :read_pipeline
@@ -39,6 +44,10 @@ module Ci
 
     rule { can?(:update_pipeline) & triggerer_of_pipeline }.policy do
       enable :read_pipeline_variable
+    end
+
+    rule { allow_fork_pipelines_to_run_in_parent }.policy do
+      enable :create_pipeline
     end
 
     def ref_protected?(user, project, tag, ref)

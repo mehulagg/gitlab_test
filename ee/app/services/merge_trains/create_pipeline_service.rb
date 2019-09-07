@@ -16,7 +16,7 @@ module MergeTrains
     def validate(merge_request)
       return error('merge trains is disabled') unless merge_request.project.merge_trains_enabled?
       return error('merge request is not on a merge train') unless merge_request.on_train?
-      return error('fork merge request is not supported') if merge_request.for_fork?
+      return error('fork merge request is not supported') if merge_request.for_fork? && !merge_request.target_project.allow_fork_pipelines_to_run_in_parent?
 
       success
     end
@@ -39,7 +39,7 @@ module MergeTrains
     end
 
     def create_pipeline(merge_request, merge_status)
-      pipeline = ::Ci::CreatePipelineService.new(merge_request.source_project, merge_request.merge_user,
+      pipeline = ::Ci::CreatePipelineService.new(pipeline_project(merge_request), merge_request.merge_user,
         ref: merge_request.train_ref_path,
         checkout_sha: merge_status[:commit_id],
         target_sha: merge_status[:target_id],
@@ -49,6 +49,14 @@ module MergeTrains
       return error(pipeline.error_messages) unless pipeline.persisted?
 
       success(pipeline: pipeline)
+    end
+
+    def pipeline_project(merge_request)
+      if merge_request.for_fork? && merge_request.target_project.allow_fork_pipelines_to_run_in_parent?
+        merge_request.target_project
+      else
+        merge_request.source_project
+      end
     end
   end
 end

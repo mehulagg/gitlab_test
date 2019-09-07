@@ -8,7 +8,6 @@ module EE
       override :execute
       def execute
         enqueue_elasticsearch_indexing
-        enqueue_update_external_pull_requests
 
         super
       end
@@ -22,17 +21,6 @@ module EE
           project.id,
           params[:oldrev],
           params[:newrev]
-        )
-      end
-
-      def enqueue_update_external_pull_requests
-        return unless project.mirror?
-        return unless params.fetch(:create_pipelines, true)
-
-        UpdateExternalPullRequestsWorker.perform_async(
-          project.id,
-          current_user.id,
-          params[:ref]
         )
       end
 

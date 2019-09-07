@@ -33,9 +33,7 @@ class ExternalPullRequest < ApplicationRecord
     closed: 2
   }
 
-  # We currently don't support pull requests from fork, so
-  # we are going to return an error to the webhook
-  validate :not_from_fork
+  validate :not_from_fork, unless: :allow_fork_pipelines_to_run_in_parent?
 
   scope :by_source_branch, ->(branch) { where(source_branch: branch) }
   scope :by_source_repository, -> (repository) { where(source_repository: repository) }
@@ -56,8 +54,10 @@ class ExternalPullRequest < ApplicationRecord
     source_repository != target_repository
   end
 
-  def source_ref
-    Gitlab::Git::BRANCH_REF_PREFIX + source_branch
+  def ref_path
+    # TODO: refs/pull would be better, but refs/merge-requests namespace also
+    # works as it's not used in external PR cases.
+    "refs/merge-requests/#{pull_request_iid}/head"
   end
 
   def predefined_variables
@@ -70,15 +70,24 @@ class ExternalPullRequest < ApplicationRecord
     end
   end
 
+  def author
+    # TODO: Fix. We should set the commit author.
+    project.owner
+  end
+
   private
 
   def actual_source_branch_sha
-    project.commit(source_ref)&.sha
+    project.commit(ref_path)&.sha
+  end
+
+  def allow_fork_pipelines_to_run_in_parent?
+    project.allow_fork_pipelines_to_run_in_parent?
   end
 
   def not_from_fork
     if from_fork?
-      errors.add(:base, 'Pull requests from fork are not supported')
+      errors.add(:base, 'Pull requests from fork are disallowed')
     end
   end
 

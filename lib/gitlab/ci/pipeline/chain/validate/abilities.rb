@@ -19,7 +19,7 @@ module Gitlab
               end
 
               unless allowed_to_trigger_pipeline?
-                if can?(current_user, :create_pipeline, project)
+                if can?(current_user, :create_pipeline, @pipeline)
                   return error("Insufficient permissions for protected ref '#{command.ref}'")
                 else
                   return error('Insufficient permissions to create a new pipeline')
@@ -40,7 +40,7 @@ module Gitlab
             end
 
             def allowed_to_create?
-              return unless can?(current_user, :create_pipeline, project)
+              return unless can?(current_user, :create_pipeline, @pipeline)
 
               access = Gitlab::UserAccess.new(current_user, project: project)
 
@@ -49,7 +49,7 @@ module Gitlab
               elsif @command.tag_exists?
                 access.can_create_tag?(@command.ref)
               elsif @command.merge_request_ref_exists?
-                access.can_update_branch?(@command.merge_request.source_branch)
+                access.can_update_merge_request_ref?(@command.merge_request || @command.external_pull_request)
               else
                 true # Allow it for now and we'll reject when we check ref existence
               end

@@ -116,4 +116,5 @@
   - [incident_management, 2]
   - [jira_connect, 1]
   - [update_external_pull_requests, 3]
+  - [sync_github_ref, 3]
   - [refresh_license_compliance_checks, 2]

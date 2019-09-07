@@ -53,6 +53,10 @@ module EE
         group_with_project_templates_id
       ]
 
+      if allow_fork_pipelines_to_run_in_parent_params?
+        attrs << %i[allow_fork_pipelines_to_run_in_parent]
+      end
+
       if allow_merge_pipelines_params?
         attrs << %i[merge_pipelines_enabled]
       end
@@ -82,6 +86,11 @@ module EE
 
     def allow_merge_pipelines_params?
       project&.feature_available?(:merge_pipelines)
+    end
+
+    def allow_fork_pipelines_to_run_in_parent_params?
+      # NOTE: We only allow to set this option in public projects.
+      project.public?
     end
 
     def log_audit_event(message:)
