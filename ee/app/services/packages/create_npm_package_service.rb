@@ -4,7 +4,6 @@ module Packages
     def execute
       name = params[:name]
       version = params[:versions].keys.first
-
       version_data = params[:versions][version]
 
       existing_package = project.packages.npm.with_name(name).with_version(version)
@@ -37,11 +36,11 @@ module Packages
     end
 
     def package_metadata
-      package_json = params[:versions]
+      package_json =params[:versions]
       version = params[:versions].keys.first
 
       package_json[version].to_json
     end
   end
+
 end
-r
