@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class JiraService < ReferableIssueTrackerService
-
   validates :url, public_url: true, presence: true, if: :activated?
   validates :api_url, public_url: true, allow_blank: true
   validates :username, presence: true, if: :activated?
