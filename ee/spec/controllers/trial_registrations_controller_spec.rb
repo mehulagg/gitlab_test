@@ -31,6 +31,19 @@ describe TrialRegistrationsController do
       end
     end
 
+    context 'when feature is turned off' do
+      before do
+        allow(Gitlab).to receive(:com?).and_return(true)
+        stub_feature_flags(improved_trial_signup: false)
+      end
+
+      it 'returns not found' do
+        post :create, params: { user: user_params }
+
+        expect(response.status).to eq(404)
+      end
+    end
+
     context 'when valid' do
       before do
         allow(Gitlab).to receive(:com?).and_return(true)
@@ -57,6 +70,14 @@ describe TrialRegistrationsController do
           post :create, params: { user: user_params }
 
           expect(User.last.name).to eq("#{user_params[:first_name]} #{user_params[:last_name]}")
+        end
+      end
+
+      context 'system hook' do
+        it 'triggers user_create event on trial sign up' do
+          expect_any_instance_of(SystemHooksService).to receive(:execute_hooks_for).with(an_instance_of(User), :create)
+
+          post :create, params: { user: user_params }
         end
       end
     end

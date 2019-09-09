@@ -271,6 +271,7 @@ Ci::Pipeline:
 - protected
 - iid
 - merge_request_id
+- external_pull_request_id
 Ci::Stage:
 - id
 - name
@@ -716,3 +717,16 @@ List:
 - updated_at
 - milestone_id
 - user_id
+ExternalPullRequest:
+- id
+- created_at
+- updated_at
+- project_id
+- pull_request_iid
+- status
+- source_branch
+- target_branch
+- source_repository
+- target_repository
+- source_sha
+- target_sha
