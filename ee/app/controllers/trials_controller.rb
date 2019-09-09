@@ -23,7 +23,11 @@ class TrialsController < ApplicationController
   def apply
     result = GitlabSubscriptions::ApplyTrialService.new.execute(apply_trial_params)
 
-    #Add redirection code
+    if result[:success]
+      redirect_to @group
+    else
+      render action: "select"
+    end
   end
 
   private
