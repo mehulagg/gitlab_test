@@ -8341,7 +8341,7 @@ msgstr ""
 msgid "Is using license seat:"
 msgstr ""
 
-msgid "IssuableStatus|Closed (%{moved_link_start}moved%{moved_link_end})"
+msgid "IssuableStatus|Closed (%{link_start}%{action}%{link_end})"
 msgstr ""
 
 msgid "IssuableStatus|moved"
