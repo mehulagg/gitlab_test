@@ -8,13 +8,16 @@ class TrialsController < ApplicationController
   def new
   end
 
+  def select
+  end
+
   def create_lead
     result = GitlabSubscriptions::CreateLeadService.new.execute({ trial_user: company_params })
 
     if result[:success]
-      render json: { ok: true }, status: :ok
+      redirect_to select_namespace_trials_url
     else
-      render json: { errors: result[:errors] }, status: :unprocessable_entity
+      render :new
     end
   end
 

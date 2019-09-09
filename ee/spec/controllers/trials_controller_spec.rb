@@ -58,20 +58,20 @@ describe TrialsController do
       context 'on success' do
         let(:create_lead_result) { true }
 
-        it 'returns a successful 200 response' do
+        it 'redirects user to Step 3' do
           post :create_lead
 
-          expect(response).to have_gitlab_http_status(200)
+          expect(response).to redirect_to(select_namespace_trials_url)
         end
       end
 
       context 'on failure' do
         let(:create_lead_result) { false }
 
-        it 'returns a unprocessable entity 422 response' do
+        it 'renders the :new template' do
           post :create_lead
 
-          expect(response).to have_gitlab_http_status(422)
+          expect(response).to render_template(:new)
         end
       end
     end
