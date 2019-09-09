@@ -74,7 +74,6 @@ describe TrialsController do
       it 'returns a successful 200 response' do
         post :apply, params: { namespace_id: namespace.id }
 
-        # expect(response).to have_gitlab_http_status(200)
         expect(response).to redirect_to("/#{namespace.path}")
       end
     end

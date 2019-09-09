@@ -3,7 +3,7 @@
 resources :trials, only: [:new] do
   collection do
     post :create_lead
-    get :select
+    get :select_namespace, action: :select
     post :apply
   end
 end
