@@ -37,10 +37,6 @@ class TrialRegistrationsController < RegistrationsController
     @resource ||= Users::BuildService.new(current_user, sign_up_params).execute(skip_authorization: true)
   end
 
-  def check_if_gl_com
-    render_404 unless Gitlab.com?
-  end
-
   def check_if_improved_trials_enabled
     render_404 unless Feature.enabled?(:improved_trial_signup)
   end

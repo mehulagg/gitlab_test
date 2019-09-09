@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
 class TrialsController < ApplicationController
+  before_action :check_if_gl_com
+  before_action :check_if_improved_trials_enabled
   before_action :authenticate_user!
 
   def new
   end
 
   def create_lead
-    result = GitlabSubscriptions::CreateLeadService.new.execute(company_params)
+    result = GitlabSubscriptions::CreateLeadService.new.execute({ trial_user: company_params })
 
     if result[:success]
       render json: { ok: true }, status: :ok
@@ -38,5 +40,9 @@ class TrialsController < ApplicationController
     attrs[:provider] = 'gitlab'
 
     attrs
+  end
+
+  def check_if_improved_trials_enabled
+    render_404 unless Feature.enabled?(:improved_trial_signup)
   end
 end
