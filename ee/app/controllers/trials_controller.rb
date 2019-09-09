@@ -2,6 +2,7 @@
 
 class TrialsController < ApplicationController
   before_action :authenticate_user!
+  before_action :fetch_namespace, only: :apply
 
   def new
   end
@@ -17,16 +18,16 @@ class TrialsController < ApplicationController
   end
 
   def select
-    @namespaces = current_user.admin ? Namespace.all : current_user.namespaces
+    @namespaces = current_user.namespaces
   end
 
   def apply
     result = GitlabSubscriptions::ApplyTrialService.new.execute(apply_trial_params)
 
     if result[:success]
-      redirect_to @group
+      redirect_to group_url(@namespace)
     else
-      render action: "select"
+      redirect_to new_trial_path
     end
   end
 
@@ -55,12 +56,17 @@ class TrialsController < ApplicationController
   end
 
   def apply_trial_params
-    gl_com_params = {gitlab_com_trial: "true", sync_to_gl: "true"}
+    gl_com_params = { gitlab_com_trial: "true", sync_to_gl: "true" }
 
     {
-        trial_user: params.permit(:namespace_id).merge(gl_com_params),
-        uid: current_user.id
+      trial_user: params.permit(:namespace_id).merge(gl_com_params),
+      uid: current_user.id
     }
+  end
 
+  def fetch_namespace
+    @namespace = current_user.namespaces.find(params[:namespace_id])
+
+    render_404 unless @namespace
   end
 end

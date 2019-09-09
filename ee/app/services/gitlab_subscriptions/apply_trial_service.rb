@@ -3,7 +3,7 @@
 module GitlabSubscriptions
   class ApplyTrialService
     def execute(apply_trial_params)
-      response = subscription_app_client.apply_trial(apply_trial_params)
+      response = subscription_app_client.create_trial_account(apply_trial_params)
 
       if response.success
         { success: true }
