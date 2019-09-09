@@ -34,9 +34,9 @@ FactoryBot.define do
         milestone.project = evaluator.project
       elsif evaluator.project_id
         milestone.project_id = evaluator.project_id
-      elsif evaluator.parent
-        id = evaluator.parent.id
-        evaluator.parent.is_a?(Group) ? evaluator.group_id = id : evaluator.project_id = id
+      elsif evaluator.resource_parent
+        id = evaluator.resource_parent.id
+        evaluator.resource_parent.is_a?(Group) ? evaluator.group_id = id : evaluator.project_id = id
       else
         milestone.project = create(:project)
       end

@@ -20,10 +20,10 @@ module EE
       base.validates :milestone_id, uniqueness: { scope: :board_id }, if: :milestone?
       base.validates :list_type,
         exclusion: { in: %w[assignee], message: _('Assignee lists not available with your current license') },
-        unless: -> { board&.parent&.feature_available?(:board_assignee_lists) }
+        unless: -> { board&.resource_parent&.feature_available?(:board_assignee_lists) }
       base.validates :list_type,
         exclusion: { in: %w[milestone], message: _('Milestone lists not available with your current license') },
-        unless: -> { board&.parent&.feature_available?(:board_milestone_lists) }
+        unless: -> { board&.resource_parent&.feature_available?(:board_milestone_lists) }
     end
 
     def assignee=(user)

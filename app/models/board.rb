@@ -16,10 +16,9 @@ class Board < ApplicationRecord
     !group
   end
 
-  def parent
+  def resource_parent
     @parent ||= group || project
   end
-  alias_method :resource_parent, :parent
 
   def group_board?
     group_id.present?
