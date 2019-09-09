@@ -1,0 +1,6 @@
+sobelow-sast:
+  image:
+    name: "registry.gitlab.com/gitlab-org/security-products/analyzers/sobelow"
+  only:
+    variables:
+      - '$CI_MERGE_REQUEST_PROGRAMMING_LANGUAGES =~ /elixir/'

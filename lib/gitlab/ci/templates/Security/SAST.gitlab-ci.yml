@@ -1,3 +1,17 @@
+.analyzer:
+  stage: test
+  allow_failure: true
+  artifacts:
+    reports:
+      sast: gl-sast-report.json
+
+
+include:
+  # Security Products features
+  - template: Security/bandit.gitlab-ci.yml    - local: '/brakeman.gitlab-ci.yml'
+  - template: Security/brakeman.gitlab-ci.yml    - local: '/brakeman.gitlab-ci.yml'
+  - template: Security/sobelow.gitlab-ci.yml    - local: '/brakeman.gitlab-ci.yml'
+
 # Read more about this feature here: https://docs.gitlab.com/ee/user/application_security/sast/
 #
 # Configure the scanning tool through the environment variables.

@@ -1,0 +1,6 @@
+brakeman-sast:
+  image:
+    name: "registry.gitlab.com/gitlab-org/security-products/analyzers/brakeman"
+  only:
+    variables:
+      - '$CI_MERGE_REQUEST_PROGRAMMING_LANGUAGES =~ /ruby/'
