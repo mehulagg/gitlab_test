@@ -16,6 +16,16 @@ class TrialsController < ApplicationController
     end
   end
 
+  def select
+    @namespaces = current_user.admin ? Namespace.all : current_user.namespaces
+  end
+
+  def apply
+    result = GitlabSubscriptions::ApplyTrialService.new.execute(apply_trial_params)
+
+    #Add redirection code
+  end
+
   private
 
   def authenticate_user!
@@ -38,5 +48,15 @@ class TrialsController < ApplicationController
     attrs[:provider] = 'gitlab'
 
     attrs
+  end
+
+  def apply_trial_params
+    gl_com_params = {gitlab_com_trial: "true", sync_to_gl: "true"}
+
+    {
+        trial_user: params.permit(:namespace_id).merge(gl_com_params),
+        uid: current_user.id
+    }
+
   end
 end
