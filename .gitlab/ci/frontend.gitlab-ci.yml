@@ -165,6 +165,13 @@ karma-foss:
     - .karma-base
     - .only-ee-as-if-foss
 
+lint-jest-migration:
+  extends: .only-code-frontend-job-base
+  script:
+    - ./scripts/frontend/check_no_partial_karma_jest.sh
+  only:
+    - merge_requests
+
 .jest-base:
   extends: .only-code-frontend-job-base
   script:
