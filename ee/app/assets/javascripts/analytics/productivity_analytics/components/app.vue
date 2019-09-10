@@ -10,7 +10,7 @@ import {
 } from '@gitlab/ui';
 import { GlColumnChart } from '@gitlab/ui/dist/charts';
 import Icon from '~/vue_shared/components/icon.vue';
-import Scatterplot from './scatterplot.vue';
+import Scatterplot from '../../shared/components/scatterplot.vue';
 import MergeRequestTable from './mr_table.vue';
 import { chartKeys, metricTypes } from '../constants';
 

@@ -41,7 +41,17 @@ export default {
             formatter: date => dateFormat(date, defaultDateFormat),
           },
         },
-        dataZoom: dataZoomOptions,
+        dataZoom: [
+          {
+            type: 'slider',
+            bottom: 10,
+            start: 0,
+          },
+          {
+            type: 'inside',
+            start: 0,
+          },
+        ],
       },
     };
   },
