@@ -163,6 +163,41 @@ module API
       end
     end
 
+    namespace 'packages/conan/v1/files/*recipe_path/-/*path/' do
+      before do
+        render_api_error!("Invalid recipe", 400) unless valid_recipe_path?(params[:recipe_path])
+      end
+      params do
+        requires :recipe_path, type: String, desc: 'Package recipe'
+        requires :path, type: String, desc: 'Package path'
+      end
+
+      desc 'Download package files' do
+        detail 'This feature was introduced in GitLab 12.4'
+      end
+      params do
+        requires :recipe_path, type: String, desc: 'Package recipe'
+        requires :path, type: String, desc: 'Package path'
+        requires :file_name, type: String, desc: 'Package file name'
+      end
+      get ':file_name' do
+        recipe = generate_recipe(params[:recipe_path])
+        project = find_project_by_recipe(params[:recipe_path])
+
+        render_api_error!("No GitLab project found", 404) unless project
+        authorize!(:read_package, project)
+        forbidden! unless project.feature_available?(:packages)
+
+        package = ::Packages::ConanPackageFinder
+                    .new(current_user, recipe: recipe, project: project).execute
+
+        package_file = ::Packages::PackageFileFinder
+                         .new(package, "#{params[:file_name]}.#{params[:format]}").execute!
+
+        present_carrierwave_file!(package_file.file)
+      end
+    end
+
     helpers do
       def base_file_url
         "#{::Settings.gitlab.base_url}/api/v4/packages/conan/v1/files"
