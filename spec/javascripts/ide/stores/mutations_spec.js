@@ -79,16 +79,6 @@ describe('Multi-file store mutations', () => {
     });
   });
 
-  describe('CLEAR_REPLACED_FILES', () => {
-    it('clears replacedFiles array', () => {
-      localState.replacedFiles.push('a');
-
-      mutations.CLEAR_REPLACED_FILES(localState);
-
-      expect(localState.replacedFiles.length).toBe(0);
-    });
-  });
-
   describe('UPDATE_VIEWER', () => {
     it('sets viewer state', () => {
       mutations.UPDATE_VIEWER(localState, 'diff');

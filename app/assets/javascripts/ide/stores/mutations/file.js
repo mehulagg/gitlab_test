@@ -138,8 +138,6 @@ export default {
       content: stagedFile ? stagedFile.content : state.entries[path].raw,
       changed: false,
       deleted: false,
-      moved: false,
-      movedPath: '',
     });
 
     if (deleted) {
@@ -179,11 +177,6 @@ export default {
     });
 
     if (stagedFile) {
-      Object.assign(state, {
-        replacedFiles: state.replacedFiles.concat({
-          ...stagedFile,
-        }),
-      });
       Object.assign(stagedFile, {
         ...state.entries[path],
       });
