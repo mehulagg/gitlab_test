@@ -2,7 +2,7 @@ import Vue from 'vue';
 import _ from 'underscore';
 import ProjectSelector from '~/vue_shared/components/project_selector/project_selector.vue';
 import ProjectListItem from '~/vue_shared/components/project_selector/project_list_item.vue';
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { trimText } from 'spec/helpers/text_helper';
 
 describe('ProjectSelector component', () => {
@@ -17,7 +17,7 @@ describe('ProjectSelector component', () => {
   beforeEach(() => {
     jasmine.clock().install();
 
-    wrapper = shallowMount(Vue.extend(ProjectSelector), {
+    wrapper = mount(Vue.extend(ProjectSelector), {
       propsData: {
         projectSearchResults: searchResults,
         selectedProjects: selected,
@@ -26,6 +26,7 @@ describe('ProjectSelector component', () => {
         showLoadingIndicator: false,
         showSearchErrorMessage: false,
       },
+      sync: false,
       attachToDocument: true,
     });
 
@@ -84,6 +85,7 @@ describe('ProjectSelector component', () => {
 
   it(`triggers a "projectClicked" event when a project is clicked`, () => {
     spyOn(vm, '$emit');
+
     wrapper.find(ProjectListItem).vm.$emit('click', _.first(searchResults));
 
     expect(vm.$emit).toHaveBeenCalledWith('projectClicked', _.first(searchResults));
@@ -92,33 +94,36 @@ describe('ProjectSelector component', () => {
   it(`shows a "no results" message if showNoResultsMessage === true`, () => {
     wrapper.setProps({ showNoResultsMessage: true });
 
-    expect(wrapper.contains('.js-no-results-message')).toBe(true);
+    return wrapper.vm.$nextTick().then(() => {
+      const noResultsEl = wrapper.find('.js-no-results-message');
 
-    const noResultsEl = wrapper.find('.js-no-results-message');
-
-    expect(trimText(noResultsEl.text())).toEqual('Sorry, no projects matched your search');
+      expect(noResultsEl.exists()).toBe(true);
+      expect(trimText(noResultsEl.text())).toEqual('Sorry, no projects matched your search');
+    });
   });
 
   it(`shows a "minimum search query" message if showMinimumSearchQueryMessage === true`, () => {
     wrapper.setProps({ showMinimumSearchQueryMessage: true });
 
-    expect(wrapper.contains('.js-minimum-search-query-message')).toBe(true);
+    return wrapper.vm.$nextTick().then(() => {
+      const minimumSearchEl = wrapper.find('.js-minimum-search-query-message');
 
-    const minimumSearchEl = wrapper.find('.js-minimum-search-query-message');
-
-    expect(trimText(minimumSearchEl.text())).toEqual('Enter at least three characters to search');
+      expect(minimumSearchEl.exists()).toBe(true);
+      expect(trimText(minimumSearchEl.text())).toEqual('Enter at least three characters to search');
+    });
   });
 
   it(`shows a error message if showSearchErrorMessage === true`, () => {
     wrapper.setProps({ showSearchErrorMessage: true });
 
-    expect(wrapper.contains('.js-search-error-message')).toBe(true);
+    return wrapper.vm.$nextTick().then(() => {
+      const errorMessageEl = wrapper.find('.js-search-error-message');
 
-    const errorMessageEl = wrapper.find('.js-search-error-message');
-
-    expect(trimText(errorMessageEl.text())).toEqual(
-      'Something went wrong, unable to search projects',
-    );
+      expect(errorMessageEl.exists()).toBe(true);
+      expect(trimText(errorMessageEl.text())).toEqual(
+        'Something went wrong, unable to search projects',
+      );
+    });
   });
 
   it(`focuses the input element when the focusSearchInput() method is called`, () => {
