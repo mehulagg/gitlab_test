@@ -16,6 +16,11 @@ module QA
           Runtime::Browser.visit(:geo_primary, QA::Page::Main::Login) do
             Page::Main::Login.perform(&:sign_in_using_credentials)
 
+            #Disable write to authorized_keys option in Admin settings
+            Page::Main::Menu.perform(&:click_admin_area)
+            Page::Admin::Menu.perform(&:go_to_network_settings)
+            Page::Admin::Settings::Network.perform(&:disable_write_to_authorized_keys)
+
             # Create a new SSH key
             key = Resource::SSHKey.fabricate! do |resource|
               resource.title = key_title
