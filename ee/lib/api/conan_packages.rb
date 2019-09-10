@@ -161,6 +161,22 @@ module API
         presenter = ConanPackagePresenter.new(recipe, current_user, project)
         present presenter, with: EE::API::Entities::ConanPackage::ConanRecipeSnapshot
       end
+
+      desc 'Delete Package' do
+        detail 'This feature was introduced in GitLab 12.4'
+      end
+      delete '/' do
+        recipe = generate_recipe(params[:recipe_path])
+        project = find_project_by_recipe(params[:recipe_path])
+
+        render_api_error!("No GitLab project found", 404) unless project
+        authorize!(:destroy_package, project)
+
+        package = ::Packages::ConanPackageFinder
+                    .new(current_user, recipe: recipe, project: project).execute
+
+        package.destroy
+      end
     end
 
     namespace 'packages/conan/v1/files/*recipe_path/-/*path/' do

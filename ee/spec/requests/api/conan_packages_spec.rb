@@ -367,6 +367,25 @@ describe API::ConanPackages do
         expect(response.body).to eq expected_response.to_json
       end
     end
+
+    describe 'DELETE /api/v4/packages/conan/v1/conans/*recipe' do
+      let(:recipe) { conan_package.conan_recipe_path }
+
+      subject { delete api("/packages/conan/v1/conans/#{recipe}"), headers: headers}
+
+      it_behaves_like 'rejected invalid recipe'
+
+      before do
+        project.add_maintainer(user)
+      end
+
+      it 'deletes a package' do
+        finder_double = double('ConanPackageFinder', execute: conan_package)
+        expect(::Packages::ConanPackageFinder).to receive(:new).with(user, recipe: conan_package.conan_recipe, project: project).and_return(finder_double)
+
+        expect { subject }.to change { Packages::Package.count }.from(1).to(0)
+      end
+    end
   end
 
   context 'file uploads' do
