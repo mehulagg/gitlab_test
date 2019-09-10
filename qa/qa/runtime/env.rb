@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-require 'gitlab/qa'
+unless ENV['zero_downtime_rake'] = 'true'
+  require 'gitlab/qa'
+end
 
 module QA
   module Runtime
@@ -9,7 +11,9 @@ module QA
 
       attr_writer :personal_access_token, :ldap_username, :ldap_password
 
-      ENV_VARIABLES = Gitlab::QA::Runtime::Env::ENV_VARIABLES
+      unless ENV['zero_downtime_rake'] = 'true'
+        ENV_VARIABLES = Gitlab::QA::Runtime::Env::ENV_VARIABLES
+      end
 
       # The environment variables used to indicate if the environment under test
       # supports the given feature
