@@ -3,7 +3,6 @@
 module QA
   context 'Geo', :orchestrated, :geo do
     describe 'GitLab wiki SSH push' do
-
       context 'wiki commit' do
         it 'is replicated to the secondary' do
           wiki_title = 'Geo Replication Wiki'
@@ -11,7 +10,6 @@ module QA
           push_content = 'This is from the Geo wiki push via SSH!'
           project_name = "geo-wiki-project-#{SecureRandom.hex(8)}"
           key_title = "key for ssh tests #{Time.now.to_f}"
-          
           project = nil
           key = nil
 
@@ -48,7 +46,6 @@ module QA
             end
 
             Page::Project::Menu.perform(&:click_wiki)
-            
             validate_content(push_content)
           end
 
@@ -68,9 +65,8 @@ module QA
               expect(ssh.keys_list).to have_content(key.fingerprint)
             end
 
-            #get to page::project::menu
             Page::Main::Menu.perform(&:go_to_projects)
-            
+
             Page::Dashboard::Projects.perform do |dashboard|
               dashboard.wait_for_project_replication(project_name)
               dashboard.go_to_project(project_name)
