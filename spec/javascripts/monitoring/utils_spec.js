@@ -2,14 +2,22 @@ import {
   getTimeDiff,
   getTimeWindow,
   graphDataValidatorForValues,
+<<<<<<< HEAD
   isDateTimePickerInputValid,
   truncateZerosInDateTime,
   stringToISODate,
   ISODateToString,
   isValidDate,
+=======
+  graphDataValidatorForAnomalyValues,
+>>>>>>> Fix code based on reviews:
 } from '~/monitoring/utils';
 import { timeWindows, timeWindowsKeyNames } from '~/monitoring/constants';
-import { graphDataPrometheusQuery, graphDataPrometheusQueryRange } from './mock_data';
+import {
+  graphDataPrometheusQuery,
+  graphDataPrometheusQueryRange,
+  anomalyMockGraphData,
+} from './mock_data';
 
 describe('getTimeDiff', () => {
   function secondsBetween({ start, end }) {
@@ -121,6 +129,7 @@ describe('graphDataValidatorForValues', () => {
   });
 });
 
+<<<<<<< HEAD
 describe('stringToISODate', () => {
   ['', 'null', undefined, 'abc'].forEach(input => {
     it(`throws error for invalid input like ${input}`, done => {
@@ -305,5 +314,18 @@ describe('isDateTimePickerInputValid', () => {
     it(`returns ${output} for ${input}`, () => {
       expect(isDateTimePickerInputValid(input)).toBe(output);
     });
+=======
+describe('graphDataValidatorForAnomalyValues', () => {
+  /*
+   * Anomaly charts can accept results for exactly 3 queries,
+   * Anomaly validation also require graphDataValidatorForValues to have `values`
+   */
+  it('validates data with the query format', () => {
+    const validAnomalyData = graphDataValidatorForAnomalyValues(anomalyMockGraphData);
+    const validGraphData = graphDataValidatorForValues(false, anomalyMockGraphData);
+
+    expect(validAnomalyData).toBe(true);
+    expect(validGraphData).toBe(true);
+>>>>>>> Fix code based on reviews:
   });
 });
