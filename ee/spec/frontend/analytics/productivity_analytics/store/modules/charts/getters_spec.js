@@ -4,7 +4,6 @@ import {
   chartKeys,
   columnHighlightStyle,
   maxColumnChartItemsPerPage,
-  scatterChartLineProps,
 } from 'ee/analytics/productivity_analytics/constants';
 import { mockHistogramData } from '../../../mock_data';
 
@@ -53,37 +52,6 @@ describe('Productivity analytics chart getters', () => {
       };
 
       expect(getters.getColumnChartData(state)(chartKey)).toEqual(chartData);
-    });
-  });
-
-  describe('getScatterChartData', () => {
-    it('returns an array of objects containing the scatter data as well as the median line data', () => {
-      state.charts.scatterplot = {
-        data: [],
-      };
-
-      const rootState = {
-        filters: {
-          daysInPast: 30,
-        },
-      };
-
-      const expected = [
-        {
-          type: 'scatter',
-          data: [],
-        },
-        {
-          ...scatterChartLineProps.default,
-          data: [],
-        },
-        {
-          ...scatterChartLineProps.transparent,
-          data: [],
-        },
-      ];
-
-      expect(getters.getScatterChartData(state, null, rootState)).toEqual(expected);
     });
   });
 

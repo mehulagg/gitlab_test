@@ -8,11 +8,11 @@ import {
   GlButton,
   GlTooltipDirective,
 } from '@gitlab/ui';
-import { GlColumnChart, GlDiscreteScatterChart } from '@gitlab/ui/dist/charts';
-import dateFormat from 'dateformat';
+import { GlColumnChart } from '@gitlab/ui/dist/charts';
 import Icon from '~/vue_shared/components/icon.vue';
+import Scatterplot from './scatterplot.vue';
 import MergeRequestTable from './mr_table.vue';
-import { chartKeys, metricTypes, defaultDateFormat, dataZoomOptions } from '../constants';
+import { chartKeys, metricTypes } from '../constants';
 
 export default {
   components: {
@@ -21,9 +21,9 @@ export default {
     GlDropdown,
     GlDropdownItem,
     GlColumnChart,
-    GlDiscreteScatterChart,
     GlButton,
     Icon,
+    Scatterplot,
     MergeRequestTable,
   },
   directives: {
@@ -42,14 +42,6 @@ export default {
   data() {
     return {
       chartKeys,
-      scatterChartOption: {
-        xAxis: {
-          axisLabel: {
-            formatter: date => dateFormat(date, defaultDateFormat),
-          },
-        },
-        dataZoom: dataZoomOptions,
-      },
     };
   },
   computed: {
@@ -64,7 +56,8 @@ export default {
     ...mapGetters('charts', [
       'chartLoading',
       'getColumnChartData',
-      'getScatterChartData',
+      'getScatterPlotMainData',
+      'getScatterPlotMedianData',
       'getColumnChartOption',
       'getMetricDropdownLabel',
       'isSelectedMetric',
@@ -234,12 +227,12 @@ export default {
       <div class="qa-scatterplot mb-4">
         <h5>{{ s__('ProductivityAnalytics|Trendline') }}</h5>
         <gl-loading-icon v-if="chartLoading(chartKeys.scatterplot)" size="md" class="my-4 py-4" />
-        <gl-discrete-scatter-chart
+        <scatterplot
           v-else
-          :data="getScatterChartData"
-          :option="scatterChartOption"
-          :y-axis-title="s__('ProductivityAnalytics|Days')"
           :x-axis-title="s__('ProductivityAnalytics|Merge date')"
+          :y-axis-title="s__('ProductivityAnalytics|Days')"
+          :scatter-data="getScatterPlotMainData"
+          :median-line-data="getScatterPlotMedianData"
         />
       </div>
 

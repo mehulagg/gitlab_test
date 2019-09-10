@@ -7,7 +7,6 @@ import {
   maxColumnChartItemsPerPage,
   dataZoomOptions,
   scatterPlotAddonQueryDays,
-  scatterChartLineProps,
 } from '../../../constants';
 import { getScatterPlotData, getMedianLineData } from '../../../utils';
 
@@ -53,7 +52,7 @@ export const getColumnChartData = state => chartKey => {
 };
 
 /**
- * Creates a series array for the scatterplot chart.
+ * Creates a series array of main data for the scatterplot chart.
  *
  * Takes an object of the form
  * {
@@ -65,40 +64,31 @@ export const getColumnChartData = state => chartKey => {
  * and creates the following structure:
  *
  * [
- *   {
- *     type: "scatter",
- *     data: [
- *       ["2019-07-01T07:06:23.193Z", 24],
- *       ["2019-07-09T14:58:07.756Z", 138],
- *       ["2019-07-10T11:13:23.557Z", 139],
- *     ]
- *   }
+ *   ["2019-07-01T07:06:23.193Z", 24],
+ *   ["2019-07-09T14:58:07.756Z", 138],
+ *   ["2019-07-10T11:13:23.557Z", 139],
  * ]
  *
  * It eliminates items which were merged before today minus the selected daysInPast.
- * This is necessary since we query the API with an additional day offset to compute the median.
  */
-export const getScatterChartData = (state, _, rootState) => {
+export const getScatterPlotMainData = (state, _, rootState) => {
   const { data } = state.charts.scatterplot;
   const dateInPast = getDateInPast(new Date(), rootState.filters.daysInPast);
-  const scatterData = getScatterPlotData(data, dateInPast);
-  const medianLineData = getMedianLineData(data, scatterData, scatterPlotAddonQueryDays);
-
-  return [
-    {
-      type: 'scatter',
-      data: scatterData,
-    },
-    {
-      data: medianLineData,
-      ...scatterChartLineProps.default,
-    },
-    {
-      data: medianLineData,
-      ...scatterChartLineProps.transparent,
-    },
-  ];
+  return getScatterPlotData(data, dateInPast);
 };
+
+/**
+ * Creates a series array of median data for the scatterplot median data.
+ *
+ * It calls getMedianLineData internally with the raw scatterplot data and the computed by getters.getScatterPlotMainData.
+ * scatterPlotAddonQueryDays is necessary since we query the API with an additional day offset to compute the median.
+ */
+export const getScatterPlotMedianData = (state, getters) =>
+  getMedianLineData(
+    state.charts.scatterplot.data,
+    getters.getScatterPlotMainData,
+    scatterPlotAddonQueryDays,
+  );
 
 export const getMetricDropdownLabel = state => chartKey =>
   metricTypes.find(m => m.key === state.charts[chartKey].params.metricType).label;

@@ -116,5 +116,6 @@ export const scatterChartLineProps = {
 export const scatterPlotAddonQueryDays = 30;
 
 export const defaultDateFormat = 'mmm d, yyyy';
+export const defaultDateTimeFormat = 'mmm d, yyyy h:MMtt';
 
 export const accessLevelReporter = 20;

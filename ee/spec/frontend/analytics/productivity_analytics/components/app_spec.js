@@ -2,11 +2,12 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import ProductivityApp from 'ee/analytics/productivity_analytics/components/app.vue';
 import MergeRequestTable from 'ee/analytics/productivity_analytics/components/mr_table.vue';
+import Scatterplot from 'ee/analytics/productivity_analytics/components/scatterplot.vue';
 import store from 'ee/analytics/productivity_analytics/store';
 import { chartKeys } from 'ee/analytics/productivity_analytics/constants';
 import { TEST_HOST } from 'helpers/test_constants';
 import { GlEmptyState, GlLoadingIcon, GlDropdown, GlDropdownItem, GlButton } from '@gitlab/ui';
-import { GlColumnChart, GlDiscreteScatterChart } from '@gitlab/ui/dist/charts';
+import { GlColumnChart } from '@gitlab/ui/dist/charts';
 import resetStore from '../helpers';
 
 const localVue = createLocalVue();
@@ -247,7 +248,7 @@ describe('ProductivityApp component', () => {
           it('renders a scatterplot', () => {
             expect(
               findScatterplotSection()
-                .find(GlDiscreteScatterChart)
+                .find(Scatterplot)
                 .exists(),
             ).toBe(true);
           });
