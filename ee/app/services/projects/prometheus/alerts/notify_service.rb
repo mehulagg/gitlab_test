@@ -10,9 +10,9 @@ module Projects
           return false unless valid_version?
           return false unless valid_alert_manager_token?(token)
 
+          persist_events
           send_alert_email if send_email?
           process_incident_issues if create_issue?
-          persist_events
 
           true
         end
@@ -115,6 +115,10 @@ module Projects
           alerts&.first&.dig('labels', 'gitlab_alert_id')
         end
 
+        def group_key
+          params['groupKey']
+        end
+
         def compare_token(expected, actual)
           return unless expected && actual
 
@@ -130,7 +134,7 @@ module Projects
         def process_incident_issues
           firings.each do |alert|
             IncidentManagement::ProcessAlertWorker
-              .perform_async(project.id, alert.to_h)
+              .perform_async(group_key, alert.to_h)
           end
         end
 

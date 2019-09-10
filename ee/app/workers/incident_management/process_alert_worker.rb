@@ -6,23 +6,44 @@ module IncidentManagement
 
     queue_namespace :incident_management
 
-    def perform(project_id, alert)
-      project = find_project(project_id)
+    def perform(group_key, alert_hash)
+      event = find_prometheus_alert_event(group_key)
+      project = event&.project
       return unless project
 
-      create_issue(project, alert)
+      if event.related_issues.any?
+        link_issues(project, event, alert_hash)
+      else
+        # If NO existing issues - create
+        create_issue(project, alert_hash)
+      end
     end
 
     private
 
-    def find_project(project_id)
-      Project.find_by_id(project_id)
+    def find_prometheus_alert_event(group_key)
+      PrometheusAlertEvent.find_by(group_key: group_key)
     end
 
-    def create_issue(project, alert)
+    def link_issues(project, event, alert_hash)
+      issue = last_related_issue(event)
+      if issue.closed?
+        # YES, and closed - create & link
+        create_issue(project, alert_hash)
+      else
+        # YES, and open - system note
+        # create_system_note
+      end
+    end
+
+    def create_issue(project, alert_hash)
       IncidentManagement::CreateIssueService
-        .new(project, alert)
+        .new(project, alert_hash)
         .execute
+    end
+
+    def last_related_issue(event)
+      event.last_related_issue
     end
   end
 end
