@@ -24,7 +24,7 @@ describe API::ConanPackages do
   before do
     stub_licensed_features(packages: true)
     allow(Settings).to receive(:attr_encrypted_db_key_base).and_return(base_secret)
-    project.add_user(user, :developer)
+    project.add_developer(user)
   end
 
   def build_jwt(personal_access_token, secret: jwt_secret, user_id: nil)
@@ -365,6 +365,129 @@ describe API::ConanPackages do
         subject
 
         expect(response.body).to eq expected_response.to_json
+      end
+    end
+  end
+
+  context 'file uploads' do
+    let(:jwt) { build_jwt(personal_access_token) }
+    let(:workhorse_token) { JWT.encode({ 'iss' => 'gitlab-workhorse' }, Gitlab::Workhorse.secret, 'HS256') }
+    let(:workhorse_header) { { 'GitLab-Workhorse' => '1.0', Gitlab::Workhorse::INTERNAL_API_REQUEST_HEADER => workhorse_token } }
+    let(:headers_with_token) { build_auth_headers(jwt.encoded).merge(workhorse_header) }
+
+    let(:recipe_path) { "foo/bar/#{project.full_path.tr('/', '+')}/baz"}
+    let(:path) { '0/export' }
+
+    describe 'PUT /api/v4/packages/conan/v1/files/*recipe_path/-/*path/authorize' do
+      context 'invalid_recipe' do
+        subject { put api("/packages/conan/v1/files/#{recipe}/-/#{path}/conanfile.py/authorize"), headers: headers_with_token }
+
+        it_behaves_like 'rejected invalid recipe'
+      end
+
+      it 'authorizes posting package with a valid token' do
+        authorize_upload_with_token
+
+        expect(response).to have_gitlab_http_status(200)
+        expect(response.content_type.to_s).to eq(Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE)
+        expect(json_response['TempPath']).not_to be_nil
+      end
+
+      it 'rejects request without a valid token' do
+        headers_with_token['HTTP_AUTHORIZATION'] = 'foo'
+
+        authorize_upload_with_token
+
+        expect(response).to have_gitlab_http_status(401)
+      end
+
+      it 'rejects request without a valid permission' do
+        project.add_guest(user)
+
+        authorize_upload_with_token
+
+        expect(response).to have_gitlab_http_status(403)
+      end
+
+      it 'rejects requests that did not go through gitlab-workhorse' do
+        headers_with_token.delete(Gitlab::Workhorse::INTERNAL_API_REQUEST_HEADER)
+
+        authorize_upload_with_token
+
+        expect(response).to have_gitlab_http_status(500)
+      end
+
+      def authorize_upload(params = {}, request_headers = headers)
+        put api("/packages/conan/v1/files/#{recipe_path}/-/#{path}/conanfile.py/authorize"), params: params, headers: request_headers
+      end
+
+      def authorize_upload_with_token(params = {}, request_headers = headers_with_token)
+        authorize_upload(params, request_headers)
+      end
+    end
+
+    describe 'PUT packages/conan/v1/files/*recipe_path/-/*path/:file_name' do
+      let(:file_upload) { fixture_file_upload('ee/spec/fixtures/conan/recipe_conanfile.py') }
+
+      before do
+        # by configuring this path we allow to pass temp file from any path
+        allow(Packages::PackageFileUploader).to receive(:workhorse_upload_path).and_return('/')
+      end
+
+      context 'invalid_recipe' do
+        subject { put api("/packages/conan/v1/files/#{recipe}/-/#{path}/recipe_conanfile.py"), headers: headers_with_token }
+
+        it_behaves_like 'rejected invalid recipe'
+      end
+
+      it 'rejects requests without a file from workhorse' do
+        upload_file_with_token
+
+        expect(response).to have_gitlab_http_status(400)
+      end
+
+      it 'rejects request without a token' do
+        headers_with_token.delete('HTTP_AUTHORIZATION')
+
+        upload_file_with_token
+
+        expect(response).to have_gitlab_http_status(401)
+      end
+
+      it 'rejects request if feature is not in the license' do
+        stub_licensed_features(packages: false)
+
+        upload_file_with_token
+
+        expect(response).to have_gitlab_http_status(403)
+      end
+
+      context 'when params from workhorse are correct' do
+        let(:package) { project.packages.reload.last }
+        let(:package_file) { package.package_files.reload.last }
+        let(:params) do
+          {
+            'file.path' => file_upload.path,
+            'file.name' => file_upload.original_filename
+          }
+        end
+
+        it 'creates package and stores package file' do
+          expect { upload_file_with_token(params) }
+            .to change { project.packages.count }.by(1)
+                  .and change { Packages::PackageFile.count }.by(1)
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(package_file.file_name).to eq(file_upload.original_filename)
+        end
+      end
+
+      def upload_file(params = {}, request_headers = headers)
+        put api("/packages/conan/v1/files/#{recipe_path}/-/#{path}/recipe_conanfile.py"), params: params, headers: request_headers
+      end
+
+      def upload_file_with_token(params = {}, request_headers = headers_with_token)
+        upload_file(params, request_headers)
       end
     end
   end
