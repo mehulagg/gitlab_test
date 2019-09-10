@@ -15,7 +15,11 @@ if (process.env.CI) {
   ]);
 }
 
-let testMatch = ['<rootDir>/spec/frontend/**/*_spec.js', '<rootDir>/ee/spec/frontend/**/*_spec.js'];
+let testMatch = [
+  '<rootDir>/spec/frontend/**/*_spec.js',
+  '<rootDir>/ee/spec/frontend/**/*_spec.js',
+  '<rootDir>/spec/javascripts/vue_shared/components/project_selector/project_selector_spec.js',
+];
 
 // workaround for eslint-import-resolver-jest only resolving in test files
 // see https://github.com/JoinColony/eslint-import-resolver-jest#note

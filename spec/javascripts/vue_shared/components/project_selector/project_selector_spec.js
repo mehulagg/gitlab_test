@@ -2,6 +2,8 @@ import Vue from 'vue';
 import _ from 'underscore';
 import ProjectSelector from '~/vue_shared/components/project_selector/project_selector.vue';
 import ProjectListItem from '~/vue_shared/components/project_selector/project_list_item.vue';
+
+import { GlSearchBoxByType } from '@gitlab/ui';
 import { mount } from '@vue/test-utils';
 import { trimText } from 'spec/helpers/text_helper';
 
@@ -45,7 +47,8 @@ describe('ProjectSelector component', () => {
   it(`triggers a (debounced) search when the search input value changes`, () => {
     spyOn(vm, '$emit');
     const query = 'my test query!';
-    const searchInput = wrapper.find('.js-project-selector-input');
+    const searchInput = wrapper.find(GlSearchBoxByType).find('input');
+
     searchInput.setValue(query);
     searchInput.trigger('input');
 
@@ -57,7 +60,7 @@ describe('ProjectSelector component', () => {
 
   it(`debounces the search input`, () => {
     spyOn(vm, '$emit');
-    const searchInput = wrapper.find('.js-project-selector-input');
+    const searchInput = wrapper.find(GlSearchBoxByType).find('input');
 
     const updateSearchQuery = (count = 0) => {
       if (count === 10) {
@@ -78,14 +81,16 @@ describe('ProjectSelector component', () => {
   });
 
   it(`includes a placeholder in the search box`, () => {
-    expect(wrapper.find('.js-project-selector-input').attributes('placeholder')).toBe(
-      'Search your projects',
-    );
+    expect(
+      wrapper
+        .find(GlSearchBoxByType)
+        .find('input')
+        .attributes('placeholder'),
+    ).toBe('Search your projects');
   });
 
   it(`triggers a "projectClicked" event when a project is clicked`, () => {
     spyOn(vm, '$emit');
-
     wrapper.find(ProjectListItem).vm.$emit('click', _.first(searchResults));
 
     expect(vm.$emit).toHaveBeenCalledWith('projectClicked', _.first(searchResults));
@@ -94,7 +99,7 @@ describe('ProjectSelector component', () => {
   it(`shows a "no results" message if showNoResultsMessage === true`, () => {
     wrapper.setProps({ showNoResultsMessage: true });
 
-    return wrapper.vm.$nextTick().then(() => {
+    return vm.$nextTick().then(() => {
       const noResultsEl = wrapper.find('.js-no-results-message');
 
       expect(noResultsEl.exists()).toBe(true);
@@ -105,9 +110,8 @@ describe('ProjectSelector component', () => {
   it(`shows a "minimum search query" message if showMinimumSearchQueryMessage === true`, () => {
     wrapper.setProps({ showMinimumSearchQueryMessage: true });
 
-    return wrapper.vm.$nextTick().then(() => {
+    return vm.$nextTick().then(() => {
       const minimumSearchEl = wrapper.find('.js-minimum-search-query-message');
-
       expect(minimumSearchEl.exists()).toBe(true);
       expect(trimText(minimumSearchEl.text())).toEqual('Enter at least three characters to search');
     });
@@ -116,7 +120,7 @@ describe('ProjectSelector component', () => {
   it(`shows a error message if showSearchErrorMessage === true`, () => {
     wrapper.setProps({ showSearchErrorMessage: true });
 
-    return wrapper.vm.$nextTick().then(() => {
+    return vm.$nextTick().then(() => {
       const errorMessageEl = wrapper.find('.js-search-error-message');
 
       expect(errorMessageEl.exists()).toBe(true);
@@ -124,14 +128,5 @@ describe('ProjectSelector component', () => {
         'Something went wrong, unable to search projects',
       );
     });
-  });
-
-  it(`focuses the input element when the focusSearchInput() method is called`, () => {
-    const input = wrapper.find('.js-project-selector-input');
-
-    expect(document.activeElement).not.toBe(input.element);
-    vm.focusSearchInput();
-
-    expect(document.activeElement).toBe(input.element);
   });
 });
