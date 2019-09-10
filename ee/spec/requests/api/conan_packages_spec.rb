@@ -251,6 +251,54 @@ describe API::ConanPackages do
       end
     end
 
+    describe 'GET /api/v4/packages/conan/v1/conans/*recipe/download_urls' do
+      subject { get api("/packages/conan/v1/conans/#{recipe}/download_urls"), headers: headers }
+
+      it_behaves_like 'rejected invalid recipe'
+
+      context 'with no existing package' do
+        let(:recipe) { non_existing_recipe }
+
+        it 'responds with a 404' do
+          subject
+
+          expect(response).to have_gitlab_http_status(404)
+        end
+      end
+
+      context 'with existing package' do
+        let(:recipe) { conan_package.conan_recipe_path }
+
+        it 'returns the download urls for each package file' do
+          test_for_valid_recipe_download_urls
+        end
+      end
+    end
+
+    describe 'GET /api/v4/packages/conan/v1/conans/*recipe/packages/:package_id/download_urls' do
+      subject { get api("/packages/conan/v1/conans/#{recipe}/packages/#{package_id}/download_urls"), headers: headers }
+
+      it_behaves_like 'rejected invalid recipe'
+
+      context 'with no existing package' do
+        let(:recipe) { non_existing_recipe }
+
+        it 'responds with a 404' do
+          subject
+
+          expect(response).to have_gitlab_http_status(404)
+        end
+      end
+
+      context 'with existing package' do
+        let(:recipe) { conan_package.conan_recipe_path }
+
+        it 'returns the download urls for the files' do
+          test_for_valid_package_download_urls
+        end
+      end
+    end
+
     describe 'GET /api/v4/packages/conan/v1/conans/*recipe/digest' do
       subject { get api("/packages/conan/v1/conans/#{recipe}/digest"), headers: headers }
 
@@ -270,17 +318,7 @@ describe API::ConanPackages do
         let(:recipe) { conan_package.conan_recipe_path }
 
         it 'returns the download urls for each package file' do
-          expected_response = {
-            'conanfile.py'      => "#{Settings.gitlab.base_url}/api/v4/packages/conan/v1/files/#{conan_package.conan_recipe_path}/-/0/export/conanfile.py",
-            'conanmanifest.txt' => "#{Settings.gitlab.base_url}/api/v4/packages/conan/v1/files/#{conan_package.conan_recipe_path}/-/0/export/conanmanifest.txt"
-          }
-
-          presenter = double('ConanPackagePresenter', recipe_urls: expected_response)
-          expect(ConanPackagePresenter).to receive(:new).with(conan_package.conan_recipe, user, project).and_return(presenter)
-
-          subject
-
-          expect(JSON.parse(response.body)).to eq expected_response
+          test_for_valid_recipe_download_urls
         end
       end
     end
@@ -292,6 +330,7 @@ describe API::ConanPackages do
 
       context 'with no existing package' do
         let(:recipe) { non_existing_recipe }
+
         it 'responds with a 404' do
           subject
 
@@ -303,18 +342,7 @@ describe API::ConanPackages do
         let(:recipe) { conan_package.conan_recipe_path }
 
         it 'returns the download urls for the files' do
-          expected_response = {
-            'conaninfo.txt'     => "#{Settings.gitlab.base_url}/api/v4/packages/conan/v1/files/#{conan_package.conan_recipe_path}/-/0/package/123456789/0/conaninfo.txt",
-            'conanmanifest.txt' => "#{Settings.gitlab.base_url}/api/v4/packages/conan/v1/files/#{conan_package.conan_recipe_path}/-/0/package/123456789/0/conanmanifest.txt",
-            'conan_package.tgz' => "#{Settings.gitlab.base_url}/api/v4/packages/conan/v1/files/#{conan_package.conan_recipe_path}/-/0/package/123456789/0/conan_package.tgz"
-          }
-
-          presenter = double('ConanPackagePresenter', package_urls: expected_response)
-          expect(ConanPackagePresenter).to receive(:new).with(conan_package.conan_recipe, user, project, package_id).and_return(presenter)
-
-          subject
-
-          expect(JSON.parse(response.body)).to eq expected_response
+          test_for_valid_package_download_urls
         end
       end
     end
@@ -366,6 +394,35 @@ describe API::ConanPackages do
 
         expect(response.body).to eq expected_response.to_json
       end
+    end
+
+    def test_for_valid_recipe_download_urls
+      expected_response = {
+        'conanfile.py'      => "#{Settings.gitlab.base_url}/api/v4/packages/conan/v1/files/#{conan_package.conan_recipe_path}/-/0/export/conanfile.py",
+        'conanmanifest.txt' => "#{Settings.gitlab.base_url}/api/v4/packages/conan/v1/files/#{conan_package.conan_recipe_path}/-/0/export/conanmanifest.txt"
+      }
+
+      presenter = double('ConanPackagePresenter', recipe_urls: expected_response)
+      expect(ConanPackagePresenter).to receive(:new).with(conan_package.conan_recipe, user, project, nil).and_return(presenter)
+
+      subject
+
+      expect(JSON.parse(response.body)).to eq expected_response
+    end
+
+    def test_for_valid_package_download_urls
+      expected_response = {
+        'conaninfo.txt'     => "#{Settings.gitlab.base_url}/api/v4/packages/conan/v1/files/#{conan_package.conan_recipe_path}/-/0/package/123456789/0/conaninfo.txt",
+        'conanmanifest.txt' => "#{Settings.gitlab.base_url}/api/v4/packages/conan/v1/files/#{conan_package.conan_recipe_path}/-/0/package/123456789/0/conanmanifest.txt",
+        'conan_package.tgz' => "#{Settings.gitlab.base_url}/api/v4/packages/conan/v1/files/#{conan_package.conan_recipe_path}/-/0/package/123456789/0/conan_package.tgz"
+      }
+
+      presenter = double('ConanPackagePresenter', package_urls: expected_response)
+      expect(ConanPackagePresenter).to receive(:new).with(conan_package.conan_recipe, user, project, package_id).and_return(presenter)
+
+      subject
+
+      expect(JSON.parse(response.body)).to eq expected_response
     end
   end
 end
