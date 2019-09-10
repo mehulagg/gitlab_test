@@ -1,12 +1,7 @@
 <script>
 import dateFormat from 'dateformat';
 import { GlDiscreteScatterChart } from '@gitlab/ui/dist/charts';
-import {
-  scatterChartLineProps,
-  dataZoomOptions,
-  defaultDateFormat,
-  defaultDateTimeFormat,
-} from '../constants';
+import { scatterChartLineProps, defaultDateFormat, defaultDateTimeFormat } from '../constants';
 
 export default {
   components: {
@@ -70,10 +65,6 @@ export default {
           {
             data: this.medianLineData,
             ...scatterChartLineProps.default,
-          },
-          {
-            data: this.medianLineData,
-            ...scatterChartLineProps.transparent,
           },
         ];
       }

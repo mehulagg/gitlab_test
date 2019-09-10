@@ -2,7 +2,7 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import ProductivityApp from 'ee/analytics/productivity_analytics/components/app.vue';
 import MergeRequestTable from 'ee/analytics/productivity_analytics/components/mr_table.vue';
-import Scatterplot from 'ee/analytics/productivity_analytics/components/scatterplot.vue';
+import Scatterplot from 'ee/analytics/shared/components/scatterplot.vue';
 import store from 'ee/analytics/productivity_analytics/store';
 import { chartKeys } from 'ee/analytics/productivity_analytics/constants';
 import { TEST_HOST } from 'helpers/test_constants';

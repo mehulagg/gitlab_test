@@ -12,9 +12,4 @@ export const scatterChartLineProps = {
     showSymbol: false,
     lineStyle: { color: scatterChartLineColor },
   },
-  transparent: {
-    type: 'line',
-    showSymbol: false,
-    lineStyle: { color: scatterChartLineColor, width: 30, opacity: 0.1 },
-  },
 };
