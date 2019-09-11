@@ -5,7 +5,7 @@
 %p.center
   = _('You can apply your Trial to your Personal account or create a New Group.')
 
-= form_tag select_namespace_trials_path, method: :post do |f|
+= form_tag create_lead_trials_path, method: :post do |f|
   .form-group
     = label_tag :namespace_id, _('This subscription is for'), class: 'col-form-label'
     = select_tag :namespace_id, namespace_options_for_select, class: 'select2', required: true
