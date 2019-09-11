@@ -89,7 +89,7 @@ export default {
       this.chartItemClicked({ chartKey: this.chartKeys.main, item: itemValue });
     },
     getMetricTypes(chartKey) {
-      return metricTypes.filter(m => m.chart === chartKey);
+      return metricTypes.filter(m => m.charts.indexOf(chartKey) !== -1);
     },
   },
 };
@@ -226,6 +226,34 @@ export default {
 
       <div class="qa-scatterplot mb-4">
         <h5>{{ s__('ProductivityAnalytics|Trendline') }}</h5>
+        <gl-dropdown
+          class="mb-4 metric-dropdown"
+          toggle-class="dropdown-menu-toggle w-100"
+          menu-class="w-100 mw-100"
+          :text="getMetricDropdownLabel(chartKeys.scatterplot)"
+        >
+          <gl-dropdown-item
+            v-for="metric in getMetricTypes(chartKeys.scatterplot)"
+            :key="metric.key"
+            active-class="is-active"
+            class="w-100"
+            @click="setMetricType({ metricType: metric.key, chartKey: chartKeys.scatterplot })"
+          >
+            <span class="d-flex">
+              <icon
+                class="flex-shrink-0 append-right-4"
+                :class="{
+                  invisible: !isSelectedMetric({
+                    metric: metric.key,
+                    chartKey: chartKeys.scatterplot,
+                  }),
+                }"
+                name="mobile-issue-close"
+              />
+              {{ metric.label }}
+            </span>
+          </gl-dropdown-item>
+        </gl-dropdown>
         <gl-loading-icon v-if="chartLoading(chartKeys.scatterplot)" size="md" class="my-4 py-4" />
         <scatterplot
           v-else

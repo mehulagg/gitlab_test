@@ -245,6 +245,26 @@ describe('ProductivityApp component', () => {
             store.state.charts.charts[chartKeys.scatterplot].isLoading = false;
           });
 
+          it('renders a metric type dropdown', () => {
+            expect(
+              findScatterplotSection()
+                .find(GlDropdown)
+                .exists(),
+            ).toBe(true);
+          });
+
+          it('should change the metric type', () => {
+            findScatterplotSection()
+              .findAll(GlDropdownItem)
+              .at(0)
+              .vm.$emit('click');
+
+            expect(actionSpies.setMetricType).toHaveBeenCalledWith({
+              metricType: 'days_to_merge',
+              chartKey: chartKeys.scatterplot,
+            });
+          });
+
           it('renders a scatterplot', () => {
             expect(
               findScatterplotSection()
