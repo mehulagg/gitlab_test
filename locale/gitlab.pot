@@ -1498,6 +1498,9 @@ msgstr ""
 msgid "An error occurred while triggering the job."
 msgstr ""
 
+msgid "An error occurred while trying to run a new pipeline for this Merge Request."
+msgstr ""
+
 msgid "An error occurred while unsubscribing to notifications."
 msgstr ""
 
@@ -2224,25 +2227,16 @@ msgstr ""
 msgid "BillingPlans|%{group_name} is currently using the %{plan_link} plan."
 msgstr ""
 
-msgid "BillingPlans|@%{user_name} you are currently on the %{plan_link} plan."
-msgstr ""
-
-msgid "BillingPlans|Automatic downgrade and upgrade to some plans is currently not available."
-msgstr ""
-
-msgid "BillingPlans|Contact Support"
+msgid "BillingPlans|@%{user_name} you are currently using the %{plan_link} plan."
 msgstr ""
 
 msgid "BillingPlans|Current plan"
 msgstr ""
 
-msgid "BillingPlans|Customer Support"
-msgstr ""
-
 msgid "BillingPlans|Downgrade"
 msgstr ""
 
-msgid "BillingPlans|If you would like to downgrade your plan please %{support_link}."
+msgid "BillingPlans|If you would like to downgrade your plan please contact %{support_link_start}Customer Support%{support_link_end}."
 msgstr ""
 
 msgid "BillingPlans|Learn more about each plan by reading our %{faq_link}, or start a free 30-day trial of GitLab.com Gold."
@@ -2252,9 +2246,6 @@ msgid "BillingPlans|Learn more about each plan by visiting our %{pricing_page_li
 msgstr ""
 
 msgid "BillingPlans|Manage plan"
-msgstr ""
-
-msgid "BillingPlans|Please contact %{customer_support_link} in that case."
 msgstr ""
 
 msgid "BillingPlans|Pricing page"
@@ -2291,6 +2282,9 @@ msgid "BillingPlans|paid annually at %{price_per_year}"
 msgstr ""
 
 msgid "BillingPlans|per user"
+msgstr ""
+
+msgid "BillingPlan|Upgrade plan"
 msgstr ""
 
 msgid "Bitbucket Server Import"
@@ -3238,6 +3232,9 @@ msgstr ""
 msgid "ClusterIntegration|Alternatively"
 msgstr ""
 
+msgid "ClusterIntegration|Amazon EKS"
+msgstr ""
+
 msgid "ClusterIntegration|An error occurred when trying to contact the Google Cloud API. Please try again later."
 msgstr ""
 
@@ -3319,6 +3316,9 @@ msgstr ""
 msgid "ClusterIntegration|Create Kubernetes cluster"
 msgstr ""
 
+msgid "ClusterIntegration|Create cluster on"
+msgstr ""
+
 msgid "ClusterIntegration|Did you know?"
 msgstr ""
 
@@ -3368,6 +3368,9 @@ msgid "ClusterIntegration|GitLab-managed cluster"
 msgstr ""
 
 msgid "ClusterIntegration|Google Cloud Platform project"
+msgstr ""
+
+msgid "ClusterIntegration|Google GKE"
 msgstr ""
 
 msgid "ClusterIntegration|Google Kubernetes Engine"
@@ -3704,9 +3707,6 @@ msgid "ClusterIntegration|meets the requirements"
 msgstr ""
 
 msgid "ClusterIntegration|pricing"
-msgstr ""
-
-msgid "ClusterIntegration|properly configured"
 msgstr ""
 
 msgid "ClusterIntegration|sign up"
@@ -4463,6 +4463,9 @@ msgstr ""
 msgid "Custom project templates have not been set up for groups that you are a member of. They are enabled from a group’s settings page. Contact your group’s Owner or Maintainer to setup custom project templates."
 msgstr ""
 
+msgid "CustomCycleAnalytics|Add a stage"
+msgstr ""
+
 msgid "Customize colors"
 msgstr ""
 
@@ -4587,7 +4590,7 @@ msgstr ""
 msgid "Dashboard|%{firstProject}, %{rest}, and %{secondProject}"
 msgstr ""
 
-msgid "Dashboard|Unable to add %{invalidProjects}. This dashboard is available for public projects, and private projects in groups with a Gold plan."
+msgid "Dashboard|Unable to add %{invalidProjects}. This dashboard is available for public projects, and private projects in groups with a Silver plan."
 msgstr ""
 
 msgid "Data is still calculating..."
@@ -4759,6 +4762,9 @@ msgid_plural "Dependencies|%d vulnerabilities"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "Dependencies|%{remainingLicensesCount} more"
+msgstr ""
+
 msgid "Dependencies|All"
 msgstr ""
 
@@ -4772,6 +4778,9 @@ msgid "Dependencies|Export as JSON"
 msgstr ""
 
 msgid "Dependencies|Job failed to generate the dependency list"
+msgstr ""
+
+msgid "Dependencies|License"
 msgstr ""
 
 msgid "Dependencies|Location"
@@ -6445,13 +6454,13 @@ msgstr ""
 msgid "FeatureFlags|Feature Flags"
 msgstr ""
 
-msgid "FeatureFlags|Feature Flags allow you to configure your code into different flavors by dynamically toggling certain functionality."
-msgstr ""
-
 msgid "FeatureFlags|Feature flag %{name} will be removed. Are you sure?"
 msgstr ""
 
-msgid "FeatureFlags|Get started with Feature Flags"
+msgid "FeatureFlags|Feature flags allow you to configure your code into different flavors by dynamically toggling certain functionality."
+msgstr ""
+
+msgid "FeatureFlags|Get started with feature flags"
 msgstr ""
 
 msgid "FeatureFlags|Inactive"
@@ -6466,10 +6475,10 @@ msgstr ""
 msgid "FeatureFlags|Instance ID"
 msgstr ""
 
-msgid "FeatureFlags|Loading Feature Flags"
+msgid "FeatureFlags|Loading feature flags"
 msgstr ""
 
-msgid "FeatureFlags|More Information"
+msgid "FeatureFlags|More information"
 msgstr ""
 
 msgid "FeatureFlags|Name"
@@ -6479,6 +6488,9 @@ msgid "FeatureFlags|New"
 msgstr ""
 
 msgid "FeatureFlags|New Feature Flag"
+msgstr ""
+
+msgid "FeatureFlags|New feature flag"
 msgstr ""
 
 msgid "FeatureFlags|Percent rollout (logged in users)"
@@ -6511,10 +6523,10 @@ msgstr ""
 msgid "FeatureFlags|Target user behaviour is built up by creating a list of active user IDs. These IDs should be the users in the system in which the feature flag is set, not GitLab ids. Target users apply across %{strong_start}All Environments%{strong_end} and are not affected by Target Environment rules."
 msgstr ""
 
-msgid "FeatureFlags|There are no active Feature Flags"
+msgid "FeatureFlags|There are no active feature flags"
 msgstr ""
 
-msgid "FeatureFlags|There are no inactive Feature Flags"
+msgid "FeatureFlags|There are no inactive feature flags"
 msgstr ""
 
 msgid "FeatureFlags|There was an error fetching the feature flags."
@@ -7482,7 +7494,7 @@ msgstr ""
 msgid "Google Takeout"
 msgstr ""
 
-msgid "Google authentication is not %{link_to_documentation}. Ask your GitLab administrator if you want to use this service."
+msgid "Google authentication is not %{link_start}property configured%{link_end}. Ask your GitLab administrator if you want to use this service."
 msgstr ""
 
 msgid "Got it"
@@ -10050,6 +10062,9 @@ msgid "New schedule"
 msgstr ""
 
 msgid "New snippet"
+msgstr ""
+
+msgid "New stage"
 msgstr ""
 
 msgid "New subgroup"
@@ -13470,10 +13485,22 @@ msgstr ""
 msgid "Security Dashboard|Issue Created"
 msgstr ""
 
+msgid "Security Reports|Comment added to '%{vulnerabilityName}'"
+msgstr ""
+
+msgid "Security Reports|Comment deleted on '%{vulnerabilityName}'"
+msgstr ""
+
+msgid "Security Reports|Comment edited on '%{vulnerabilityName}'"
+msgstr ""
+
 msgid "Security Reports|Create issue"
 msgstr ""
 
 msgid "Security Reports|Dismiss vulnerability"
+msgstr ""
+
+msgid "Security Reports|Dismissed '%{vulnerabilityName}'"
 msgstr ""
 
 msgid "Security Reports|Either you don't have permission to view this dashboard or the dashboard has not been setup. Please check your permission settings with your administrator or check your dashboard configurations to proceed."
@@ -13525,6 +13552,9 @@ msgid "SecurityDashboard| The security dashboard displays the latest security re
 msgstr ""
 
 msgid "SecurityDashboard|Confidence"
+msgstr ""
+
+msgid "SecurityDashboard|Hide dismissed"
 msgstr ""
 
 msgid "SecurityDashboard|Monitor vulnerabilities in your code"
@@ -13678,6 +13708,9 @@ msgid "Separate topics with commas."
 msgstr ""
 
 msgid "September"
+msgstr ""
+
+msgid "SeriesFinalConjunction|and"
 msgstr ""
 
 msgid "Server supports batch API only, please update your Git LFS client to version 1.0.1 and up."
@@ -14034,6 +14067,9 @@ msgid "Sign in using smart card"
 msgstr ""
 
 msgid "Sign in via 2FA code"
+msgstr ""
+
+msgid "Sign in with Google"
 msgstr ""
 
 msgid "Sign in with Single Sign-On"
@@ -16119,6 +16155,9 @@ msgid "Toggle Sidebar"
 msgstr ""
 
 msgid "Toggle backtrace"
+msgstr ""
+
+msgid "Toggle collapse"
 msgstr ""
 
 msgid "Toggle comments for this file"
@@ -18929,7 +18968,7 @@ msgstr ""
 msgid "nounSeries|%{item}, and %{lastItem}"
 msgstr ""
 
-msgid "or"
+msgid "or %{link_start}create a new Google account%{link_end}"
 msgstr ""
 
 msgid "out of %d total test"

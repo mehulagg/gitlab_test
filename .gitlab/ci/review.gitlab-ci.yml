@@ -77,7 +77,6 @@ schedule:review-build-cng:
 review-deploy:
   extends: .review-base
   allow_failure: true
-  retry: 1
   stage: review
   needs: ["review-build-cng"]
   variables:
@@ -134,11 +133,19 @@ review-stop:
   artifacts:
     paths: []
 
+review-cleanup-failed-deployment:
+  extends: review-stop
+  stage: prepare
+  when: on_success
+  needs: []
+  allow_failure: false
+  script:
+    - delete_failed_release
+
 .review-qa-base:
   extends:
     - .review-docker
     - .review-only
-  retry: 2
   stage: qa
   variables:
     QA_ARTIFACTS_DIR: "${CI_PROJECT_DIR}/qa"

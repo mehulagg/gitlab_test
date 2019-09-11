@@ -24,7 +24,6 @@ module EE
       self.ignored_columns += %i[
         mirror_last_update_at
         mirror_last_successful_update_at
-        next_execution_timestamp
       ]
 
       before_save :set_override_pull_mirror_available, unless: -> { ::Gitlab::CurrentSettings.mirror_available }
@@ -53,6 +52,7 @@ module EE
       has_many :approver_users, through: :approvers, source: :user
       has_many :approver_groups, as: :target, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
       has_many :approval_rules, class_name: 'ApprovalProjectRule'
+      has_many :approval_merge_request_rules, through: :merge_requests, source: :approval_rules
       has_many :audit_events, as: :entity
       has_many :designs, inverse_of: :project, class_name: 'DesignManagement::Design'
       has_many :path_locks
