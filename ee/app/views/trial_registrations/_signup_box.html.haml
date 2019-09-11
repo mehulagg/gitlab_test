@@ -3,7 +3,7 @@
 - minimum_password_length = 8
 #register-pane.tab-pane.login-box{ role: 'tabpanel' }
   .login-body
-    = form_for(User.new, url: trials_url, html: { class: "new_new_user gl-show-field-errors", "aria-live" => "assertive" }) do |f|
+    = form_for(User.new, url: trial_registrations_path, html: { class: "new_new_user gl-show-field-errors", "aria-live" => "assertive" }) do |f|
       .devise-errors
         = render "devise/shared/error_messages", resource: User.new
       - if Feature.enabled?(:invisible_captcha)
@@ -35,7 +35,7 @@
             - accept_terms_label = _("I accept the %{terms_link}") % { terms_link: terms_link }
             = accept_terms_label.html_safe
         .form-group
-          = check_box_tag :email_updates, '1', false, required: true, data: { qa_selector: 'new_user_email_updates_checkbox' }
+          = check_box_tag :email_updates, '1', false, data: { qa_selector: 'new_user_email_updates_checkbox' }
           = label_tag :email_updates do
             - terms_link = link_to s_("I'd like to receive updated via email about GitLab"), terms_path, target: "_blank"
             - accept_terms_label = _("I'd like to receive updated via email about GitLab")
