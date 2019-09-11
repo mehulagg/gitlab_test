@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class TrialRegistrationsController < RegistrationsController
+  layout 'trial'
   extend ::Gitlab::Utils::Override
 
   before_action :check_if_gl_com
