@@ -64,7 +64,8 @@ module FeatureFlag
         end
 
         def persisted?
-          Unleash.toggles.select{ |toggle| toggle['name'] == @key }                  
+          toggles = ::Unleash.toggles
+          toggles.present? && toggles.select { |toggle| toggle['name'] == @key }
         end
 
         private
@@ -107,7 +108,8 @@ module FeatureFlag
         end
 
         def persisted?(feature)
-          get(key).persisted?
+          # get(key).persisted?
+          feature.persisted?
         end
 
         def table_exists?
