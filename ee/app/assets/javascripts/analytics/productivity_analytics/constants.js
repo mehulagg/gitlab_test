@@ -5,6 +5,7 @@ export const chartKeys = {
   timeBasedHistogram: 'timeBasedHistogram',
   commitBasedHistogram: 'commitBasedHistogram',
   scatterplot: 'scatterplot',
+  mergeRequestTable: 'mergeRequestTable',
 };
 
 export const chartTypes = {
@@ -16,50 +17,39 @@ export const metricTypes = [
   {
     key: 'days_to_merge',
     label: __('Days to merge'),
-    charts: [chartKeys.scatterplot],
+    components: [chartKeys.scatterplot, chartKeys.mergeRequestTable],
   },
   {
     key: 'time_to_first_comment',
     label: __('Time from first commit until first comment'),
-    charts: [chartKeys.timeBasedHistogram, chartKeys.scatterplot],
+    components: [chartKeys.timeBasedHistogram, chartKeys.scatterplot, chartKeys.mergeRequestTable],
   },
   {
     key: 'time_to_last_commit',
     label: __('Time from first comment to last commit'),
-    charts: [chartKeys.timeBasedHistogram, chartKeys.scatterplot],
+    components: [chartKeys.timeBasedHistogram, chartKeys.scatterplot, chartKeys.mergeRequestTable],
   },
   {
     key: 'time_to_merge',
     label: __('Time from last commit to merge'),
-    charts: [chartKeys.timeBasedHistogram, chartKeys.scatterplot],
+    components: [chartKeys.timeBasedHistogram, chartKeys.scatterplot, chartKeys.mergeRequestTable],
   },
   {
     key: 'commits_count',
     label: __('Number of commits per MR'),
-    charts: [chartKeys.commitBasedHistogram, chartKeys.scatterplot],
+    components: [chartKeys.commitBasedHistogram, chartKeys.scatterplot],
   },
   {
     key: 'loc_per_commit',
     label: __('Number of LOCs per commit'),
-    charts: [chartKeys.commitBasedHistogram, chartKeys.scatterplot],
+    components: [chartKeys.commitBasedHistogram, chartKeys.scatterplot],
   },
   {
     key: 'files_touched',
     label: __('Number of files touched'),
-    charts: [chartKeys.commitBasedHistogram, chartKeys.scatterplot],
+    components: [chartKeys.commitBasedHistogram, chartKeys.scatterplot],
   },
 ];
-
-export const tableSortFields = metricTypes.reduce(
-  (acc, curr) => {
-    const { key, label, charts } = curr;
-    if (charts.indexOf(chartKeys.timeBasedHistogram) !== -1) {
-      acc[key] = label;
-    }
-    return acc;
-  },
-  { days_to_merge: __('Days to merge') },
-);
 
 export const tableSortOrder = {
   asc: {

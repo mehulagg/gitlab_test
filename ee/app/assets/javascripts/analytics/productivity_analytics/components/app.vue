@@ -12,7 +12,7 @@ import { GlColumnChart } from '@gitlab/ui/dist/charts';
 import Icon from '~/vue_shared/components/icon.vue';
 import Scatterplot from '../../shared/components/scatterplot.vue';
 import MergeRequestTable from './mr_table.vue';
-import { chartKeys, metricTypes } from '../constants';
+import { chartKeys } from '../constants';
 
 export default {
   components: {
@@ -46,13 +46,8 @@ export default {
   },
   computed: {
     ...mapState('filters', ['groupNamespace', 'projectPath']),
-    ...mapState('table', [
-      'isLoadingTable',
-      'mergeRequests',
-      'pageInfo',
-      'sortFields',
-      'columnMetric',
-    ]),
+    ...mapState('table', ['isLoadingTable', 'mergeRequests', 'pageInfo', 'columnMetric']),
+    ...mapGetters(['getMetricTypes']),
     ...mapGetters('charts', [
       'chartLoading',
       'getColumnChartData',
@@ -87,9 +82,6 @@ export default {
     onMainChartItemClicked({ params }) {
       const itemValue = params.data.value[0];
       this.chartItemClicked({ chartKey: this.chartKeys.main, item: itemValue });
-    },
-    getMetricTypes(chartKey) {
-      return metricTypes.filter(m => m.charts.indexOf(chartKey) !== -1);
     },
   },
 };
@@ -277,21 +269,21 @@ export default {
               :text="sortFieldDropdownLabel"
             >
               <gl-dropdown-item
-                v-for="(value, key) in sortFields"
-                :key="key"
+                v-for="metric in getMetricTypes(chartKeys.mergeRequestTable)"
+                :key="metric.key"
                 active-class="is-active"
                 class="w-100"
-                @click="setSortField(key)"
+                @click="setSortField(metric.key)"
               >
                 <span class="d-flex">
                   <icon
                     class="flex-shrink-0 append-right-4"
                     :class="{
-                      invisible: !isSelectedSortField(key),
+                      invisible: !isSelectedSortField(metric.key),
                     }"
                     name="mobile-issue-close"
                   />
-                  {{ value }}
+                  {{ metric.label }}
                 </span>
               </gl-dropdown-item>
             </gl-dropdown>
