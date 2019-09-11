@@ -273,7 +273,58 @@ function updateText({ textArea, tag, cursorOffset, blockTag, wrap, select, tagCo
   });
 }
 
+function wrapSelectedWithChar(textArea, char) {
+  const $textArea = $(textArea);
+  const text = $textArea.val();
+  const selected = selectedText(text, $textArea.get(0));
+
+  if (selected) {
+    updateText({
+      textArea: $textArea,
+      tag: char,
+      cursorOffset: 0,
+      blockTag: '',
+      wrap: true,
+      select: true,
+      tagContent: '',
+    });
+
+    return true;
+  }
+}
+
+function keypressNoteText(e) {
+  let wrapChar;
+
+  switch (e.which) {
+    case 42: // asterisk - wraps with bold characters
+      wrapChar = '**';
+      break;
+    case 95: // underscore - wraps with italic character
+      wrapChar = '_';
+      break;
+    case 96: // backtick - wraps with inline character
+      wrapChar = '`';
+      break;
+    case 39: // single quote
+      wrapChar = "'";
+      break;
+    case 34: // double quote
+      wrapChar = '"';
+      break;
+    default:
+      break;
+  }
+
+  if (wrapChar) {
+    if (wrapSelectedWithChar(e.target, wrapChar)) {
+      e.preventDefault();
+    }
+  }
+}
+
 export function addMarkdownListeners(form) {
+  $('.markdown-area').on('keypress', keypressNoteText);
   return $('.js-md', form)
     .off('click')
     .on('click', function() {
@@ -310,5 +361,6 @@ export function addEditorMarkdownListeners(editor) {
 }
 
 export function removeMarkdownListeners(form) {
+  $('.markdown-area').off('keypress');
   return $('.js-md', form).off('click');
 }

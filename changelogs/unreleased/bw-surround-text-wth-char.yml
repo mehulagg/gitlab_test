@@ -1,0 +1,6 @@
+---
+title: Selected text in markdown fields can now be surrounded by a backtick, quote,
+  etc, on key press
+merge_request: 25748
+author:
+type: added
