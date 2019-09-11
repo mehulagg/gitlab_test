@@ -4,13 +4,14 @@ import {
   chartKeys,
   columnHighlightStyle,
   maxColumnChartItemsPerPage,
+  scatterPlotAddonQueryDays,
 } from 'ee/analytics/productivity_analytics/constants';
-import { mockHistogramData } from '../../../mock_data';
+import { getScatterPlotData, getMedianLineData } from 'ee/analytics/productivity_analytics/utils';
+import { mockHistogramData, mockScatterplotData } from '../../../mock_data';
 
-jest.mock('ee/analytics/productivity_analytics/utils', () => ({
-  __esModule: true,
-  getScatterPlotData: () => [],
-  getMedianLineData: () => [],
+jest.mock('ee/analytics/productivity_analytics/utils');
+jest.mock('~/lib/utils/datetime_utility', () => ({
+  getDateInPast: jest.fn().mockReturnValue('2019-07-16T00:00:00.00Z'),
 }));
 
 describe('Productivity analytics chart getters', () => {
@@ -52,6 +53,43 @@ describe('Productivity analytics chart getters', () => {
       };
 
       expect(getters.getColumnChartData(state)(chartKey)).toEqual(chartData);
+    });
+  });
+
+  describe('getScatterPlotMainData', () => {
+    it('calls getScatterPlotData with the raw scatterplot data and the date in past', () => {
+      state.charts.scatterplot.data = mockScatterplotData;
+
+      const rootState = {
+        filters: {
+          daysInPast: 30,
+        },
+      };
+
+      getters.getScatterPlotMainData(state, null, rootState);
+
+      expect(getScatterPlotData).toHaveBeenCalledWith(
+        mockScatterplotData,
+        '2019-07-16T00:00:00.00Z',
+      );
+    });
+  });
+
+  describe('getScatterPlotMedianData', () => {
+    it('calls getMedianLineData with the raw scatterplot data, the getScatterPlotMainData getter and the an additional days offset', () => {
+      state.charts.scatterplot.data = mockScatterplotData;
+
+      const mockGetters = {
+        getScatterPlotMainData: jest.fn(),
+      };
+
+      getters.getScatterPlotMedianData(state, mockGetters);
+
+      expect(getMedianLineData).toHaveBeenCalledWith(
+        mockScatterplotData,
+        mockGetters.getScatterPlotMainData,
+        scatterPlotAddonQueryDays,
+      );
     });
   });
 

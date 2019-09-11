@@ -78,7 +78,7 @@ export const getScatterPlotMainData = (state, _, rootState) => {
 };
 
 /**
- * Creates a series array of median data for the scatterplot median data.
+ * Creates a series array of median data for the scatterplot chart.
  *
  * It calls getMedianLineData internally with the raw scatterplot data and the computed by getters.getScatterPlotMainData.
  * scatterPlotAddonQueryDays is necessary since we query the API with an additional day offset to compute the median.
