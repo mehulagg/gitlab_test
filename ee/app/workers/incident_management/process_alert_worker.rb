@@ -22,7 +22,7 @@ module IncidentManagement
     private
 
     def find_prometheus_alert_event(group_key)
-      PrometheusAlertEvent.find_by(group_key: group_key)
+      PrometheusAlertEvent.find_by(payload_key: group_key)
     end
 
     def link_issues(project, event, alert_hash)

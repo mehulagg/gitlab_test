@@ -35,7 +35,7 @@ describe Projects::Prometheus::Alerts::NotifyService do
     it 'processes issues', :sidekiq do
       expect(IncidentManagement::ProcessAlertWorker)
         .to receive(:perform_async)
-        .with(project.id, kind_of(Hash))
+        .with(kind_of(String), kind_of(Hash))
         .exactly(amount).times
 
       Sidekiq::Testing.inline! do
@@ -234,10 +234,7 @@ describe Projects::Prometheus::Alerts::NotifyService do
 
         it 'does not send notification email' do
           expect(project.feature_available?(:incident_management)).to eq(true)
-
-          expect_next_instance_of(NotificationService) do |service|
-            expect(service).not_to receive(:async)
-          end
+          expect(NotificationService).not_to receive(:new)
 
           expect(subject).to eq(true)
         end
