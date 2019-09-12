@@ -5,10 +5,11 @@
 %p.center
   = _('We need some additional information to activate your free trial')
 
-
 - if @lead_result&.dig(:errors).present?
-  %h4 We have found the following errors:
-  %p= @lead_result[:errors]
+  %h4
+    = _T('We have found the following errors:')
+  %p
+    = @lead_result[:errors]
 
 = form_tag create_lead_trials_path, method: :post do |f|
   .form-group

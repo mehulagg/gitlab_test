@@ -7985,6 +7985,9 @@ msgstr ""
 msgid "How many users will be evaluating the trial?"
 msgstr ""
 
+msgid "However, you are already a member of this %{member_source}. Sign in using a different account to accept the invitation."
+msgstr ""
+
 msgid "I accept the %{terms_link_start}Terms of Service and Privacy Policy%{terms_link_end}"
 msgstr ""
 
@@ -18011,6 +18014,9 @@ msgid "You won't be able to pull or push project code via SSH until you %{add_ss
 msgstr ""
 
 msgid "You won't be able to pull or push project code via SSH until you add an SSH key to your profile"
+msgstr ""
+
+msgid "You won't get a free trial right now but you can always<br/>resume this process by clicking on your avatar and choosing<br/>'Start a free trial'."
 msgstr ""
 
 msgid "You'll be signed out from your current account automatically."
