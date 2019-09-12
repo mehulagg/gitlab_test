@@ -20,7 +20,7 @@ describe 'Trial Sign In' do
         click_button 'Continue'
       end
 
-      expect(current_path).to eq(dashboard_projects_path)
+      expect(current_path).to eq(new_trial_path)
     end
   end
 
