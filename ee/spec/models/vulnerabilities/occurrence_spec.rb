@@ -269,6 +269,40 @@ describe Vulnerabilities::Occurrence do
     end
   end
 
+  describe '.join_feedback' do
+    set(:project) { create(:project) }
+    let(:occurrence1) do
+      create(
+        :vulnerabilities_occurrence,
+        report_type: :dependency_scanning,
+        project: project
+      )
+    end
+    let(:occurrence2) do
+      create(
+        :vulnerabilities_occurrence,
+        report_type: :dependency_scanning,
+        project: project
+      )
+    end
+
+    before do
+      create(
+        :vulnerability_feedback,
+        :dependency_scanning,
+        :dismissal,
+        project: project,
+        project_fingerprint: occurrence1.project_fingerprint
+      )
+    end
+
+    subject { described_class.join_feedback }
+
+    it 'returns occurrences' do
+      is_expected.to contain_exactly(occurrence1, occurrence2)
+    end
+  end
+
   describe 'feedback' do
     set(:project) { create(:project) }
     let(:occurrence) do
@@ -342,39 +376,6 @@ describe Vulnerabilities::Occurrence do
         expect(feedback[:project_id]).to eq project.id
         expect(feedback[:feedback_type]).to eq 'merge_request'
         expect(feedback[:merge_request_id]).to eq merge_request.id
-      end
-    end
-
-    describe '#dismissed?' do
-      set(:project) { create(:project) }
-      let(:occurrence) do
-        create(
-          :vulnerabilities_occurrence,
-          report_type: :dependency_scanning,
-          project: project
-        )
-      end
-
-      context 'with dismissal' do
-        let!(:dismissal_feedback) do
-          create(
-            :vulnerability_feedback,
-            :dependency_scanning,
-            :dismissal,
-            project: project,
-            project_fingerprint: occurrence.project_fingerprint
-          )
-        end
-
-        it 'is true' do
-          expect(occurrence.dismissed?).to eq(true)
-        end
-      end
-
-      context 'without dismissal' do
-        it 'is false' do
-          expect(occurrence.dismissed?).to eq(false)
-        end
       end
     end
   end

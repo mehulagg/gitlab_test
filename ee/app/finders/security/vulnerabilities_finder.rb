@@ -28,6 +28,7 @@ module Security
       collection = by_project(collection)
       collection = by_severity(collection)
       collection = by_confidence(collection)
+      collection = hide_dismissed(collection)
       collection
     end
 
@@ -61,6 +62,12 @@ module Security
       items.by_confidences(
         Vulnerabilities::Occurrence::CONFIDENCE_LEVELS.values_at(
           *params[:confidence]).compact)
+    end
+
+    def hide_dismissed(items)
+      return items unless params[:hide_dismissed].present? && params[:hide_dismissed] == true
+
+      items.join_feedback.where("vulnerability_feedback.id IS NULL OR vulnerability_feedback.feedback_type != 0")
     end
 
     def init_collection(scope)

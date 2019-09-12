@@ -33,6 +33,8 @@ module Vulnerabilities
       preload(:author, :comment_author, :project, :issue, :merge_request, :pipeline)
     end
 
+    scope :for_occurrence, -> (project_fingerprint, project_id) { where(project_fingerprint: project_fingerprint, project_id: project_id, feedback_type: 0) }
+
     def self.find_or_init_for(feedback_params)
       validate_enums(feedback_params)
 

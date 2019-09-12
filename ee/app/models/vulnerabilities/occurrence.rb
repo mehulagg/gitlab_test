@@ -108,10 +108,16 @@ module Vulnerabilities
         .order('day')
     end
 
-    def self.counted_by_severity(hide_dismissed = false)
+    def self.counted_by_severity
       group(:severity).count.each_with_object({}) do |(severity, count), accum|
         accum[SEVERITY_LEVELS[severity]] = count
       end
+    end
+
+    def self.join_feedback
+      joins("LEFT JOIN vulnerability_feedback 
+        ON encode(vulnerability_occurrences.project_fingerprint, 'hex') = vulnerability_feedback.project_fingerprint
+        AND vulnerability_occurrences.project_id = vulnerability_feedback.project_id")
     end
 
     def feedback(feedback_type:)
@@ -194,10 +200,6 @@ module Vulnerabilities
     # Array.difference (-) method uses hash and eql? methods to do comparison
     def hash
       report_type.hash ^ location.hash ^ first_fingerprint.hash
-    end
-
-    def dismissed?
-      dismissal_feedback.present?
     end
 
     protected

@@ -79,12 +79,18 @@ describe Security::VulnerabilitiesFinder do
       end
     end
 
-    context 'by dismissals', skip: 'implemented in VulnerabilitiesActions because of BatchLoader limitations' do
+    context 'when hide dismissed' do
       let!(:dismissal) do
         create(:vulnerability_feedback, :sast, :dismissal,
                pipeline: pipeline1,
                project: project1,
                project_fingerprint: vulnerability1.project_fingerprint)
+      end
+      let!(:issue) do
+        create(:vulnerability_feedback, :sast, :issue,
+               pipeline: pipeline1,
+               project: project1,
+               project_fingerprint: vulnerability4.project_fingerprint)
       end
 
       let(:params) { { hide_dismissed: true } }
