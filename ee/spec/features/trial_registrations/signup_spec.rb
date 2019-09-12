@@ -19,7 +19,7 @@ describe 'Trial Sign Up', :js do
         click_on 'Register'
 
         within('div#register-pane') do
-          fill_in 'user_username', with: existing_user.username
+          fill_in 'new_user_username', with: existing_user.username
         end
 
         expect(page).to have_content('Username is already taken.')
@@ -32,11 +32,11 @@ describe 'Trial Sign Up', :js do
         click_on 'Register'
 
         within('div#register-pane') do
-          fill_in 'user_first_name', with: user_attrs[:first_name]
-          fill_in 'user_last_name',  with: user_attrs[:last_name]
-          fill_in 'user_username',   with: user_attrs[:username]
-          fill_in 'user_email',      with: user_attrs[:email]
-          fill_in 'user_password',   with: '12345678'
+          fill_in 'new_user_first_name', with: user_attrs[:first_name]
+          fill_in 'new_user_last_name',  with: user_attrs[:last_name]
+          fill_in 'new_user_username',   with: user_attrs[:username]
+          fill_in 'new_user_email',      with: user_attrs[:email]
+          fill_in 'new_user_password',   with: '12345678'
 
           check 'terms_opt_in'
 
