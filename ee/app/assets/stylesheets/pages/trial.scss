@@ -1,3 +1,25 @@
-.trial-page {
+.trials-page {
   @extend .login-page;
+
+  .container {
+    max-width: 400px;
+  }
+
+  .submit-container {
+    margin-top: 0;
+  }
+
+  .skip-trial {
+    margin-bottom: $gl-padding-32;
+
+    a {
+      display: block;
+    }
+
+    .note {
+      font-size: $gl-font-size-small;
+      // TODO(vitaly): perhaps it would be better to add spacing to the link
+      margin-top: $gl-padding-8;
+    }
+  }
 }
