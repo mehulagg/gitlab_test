@@ -83,19 +83,14 @@ describe ApprovalRules::CreateService do
 
     it_behaves_like "creatable"
 
-    context 'when name matches default for security reports' do
-      it 'sets rule_type as report_approver' do
-        result = described_class.new(target, user, {
-          name: ApprovalProjectRule::DEFAULT_NAME_FOR_SECURITY_REPORT,
-          approvals_required: 1
-        }).execute
+    ApprovalProjectRule::REPORT_TYPES_BY_DEFAULT_NAME.keys.each do |rule_name|
+      context "when the rule name is `#{rule_name}`" do
+        subject { described_class.new(target, user, { name: rule_name, approvals_required: 1 }) }
+        let(:result) { subject.execute }
 
-        expect(result[:status]).to eq(:success)
-
-        rule = result[:rule]
-
-        expect(rule.approvals_required).to eq(1)
-        expect(rule.rule_type).to eq('report_approver')
+        specify { expect(result[:status]).to eq(:success) }
+        specify { expect(result[:rule].approvals_required).to eq(1) }
+        specify { expect(result[:rule].rule_type).to eq('report_approver') }
       end
     end
   end
@@ -106,38 +101,59 @@ describe ApprovalRules::CreateService do
     it_behaves_like "creatable"
 
     context 'when project rule id is present' do
-      let(:project_rule) { create(:approval_project_rule, project: project) }
+      let(:project_rule) do
+        create(
+          :approval_project_rule,
+          project: project,
+          name: 'bar',
+          approvals_required: 1,
+          users: [create(:user)],
+          groups: [create(:group)]
+        )
+      end
+
+      let(:result) do
+        described_class.new(target, user, {
+          name: 'foo',
+          approvals_required: 0,
+          approval_project_rule_id: project_rule.id,
+          user_ids: [],
+          group_ids: []
+        }).execute
+      end
+
+      let(:rule) { result[:rule] }
 
       it 'associates with project rule' do
-        result = described_class.new(target, user, {
-          name: 'foo',
-          approvals_required: 1,
-          approval_project_rule_id: project_rule.id
-        }).execute
-
         expect(result[:status]).to eq(:success)
-
-        rule = result[:rule]
-
+        expect(rule.approvals_required).to eq(0)
         expect(rule.approval_project_rule).to eq(project_rule)
       end
-    end
 
-    context "when project rule id is not the same as MR's project" do
-      let(:project_rule) { create(:approval_project_rule) }
+      it 'copies properties from the project rule' do
+        expect(rule.name).to eq(project_rule.name)
+        expect(rule.users).to match(project_rule.users)
+        expect(rule.groups).to match(project_rule.groups)
+      end
 
-      it 'ignores assignment' do
-        result = described_class.new(target, user, {
-          name: 'foo',
-          approvals_required: 1,
-          approval_project_rule_id: project_rule.id
-        }).execute
+      context 'when project rule is under the same project as MR' do
+        let(:another_project) { create(:project) }
 
-        expect(result[:status]).to eq(:success)
+        before do
+          project_rule.update!(project: another_project)
+        end
 
-        rule = result[:rule]
+        it 'ignores assignment' do
+          expect(result[:status]).to eq(:success)
+          expect(rule.approvals_required).to eq(0)
+          expect(rule.approval_project_rule).to eq(nil)
+        end
 
-        expect(rule.approval_project_rule).to eq(nil)
+        it 'does not copy properties from project rule' do
+          expect(rule.name).to eq('foo')
+          expect(rule.users).to be_empty
+          expect(rule.groups).to be_empty
+        end
       end
     end
   end

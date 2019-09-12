@@ -12,6 +12,7 @@ module EE
       belongs_to :review, inverse_of: :notes
 
       scope :searchable, -> { where(system: false).includes(:noteable) }
+      scope :by_humans, -> { user.joins(:author).merge(::User.humans) }
 
       after_commit :notify_after_create, on: :create
       after_commit :notify_after_destroy, on: :destroy
@@ -58,6 +59,7 @@ module EE
     def parent
       for_epic? ? noteable.group : super
     end
+    alias_method :resource_parent, :parent
 
     def notify_after_create
       noteable&.after_note_created(self)

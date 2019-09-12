@@ -13,7 +13,6 @@ class User < ApplicationRecord
   include Sortable
   include CaseSensitivity
   include TokenAuthenticatable
-  include IgnorableColumn
   include FeatureGate
   include CreatedAtFilterable
   include BulkMemberAccessLoad
@@ -24,9 +23,11 @@ class User < ApplicationRecord
 
   DEFAULT_NOTIFICATION_LEVEL = :participating
 
-  ignore_column :external_email
-  ignore_column :email_provider
-  ignore_column :authentication_token
+  self.ignored_columns += %i[
+    authentication_token
+    email_provider
+    external_email
+  ]
 
   add_authentication_token_field :incoming_email_token, token_generator: -> { SecureRandom.hex.to_i(16).to_s(36) }
   add_authentication_token_field :feed_token
@@ -58,7 +59,7 @@ class User < ApplicationRecord
          :validatable, :omniauthable, :confirmable, :registerable
 
   BLOCKED_MESSAGE = "Your account has been blocked. Please contact your GitLab " \
-                    "administrator if you think this is an error.".freeze
+                    "administrator if you think this is an error."
 
   # Override Devise::Models::Trackable#update_tracked_fields!
   # to limit database writes to at most once every hour
@@ -493,7 +494,7 @@ class User < ApplicationRecord
     def by_login(login)
       return unless login
 
-      if login.include?('@'.freeze)
+      if login.include?('@')
         unscoped.iwhere(email: login).take
       else
         unscoped.iwhere(username: login).take

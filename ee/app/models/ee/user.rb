@@ -18,7 +18,7 @@ module EE
     prepended do
       EMAIL_OPT_IN_SOURCE_ID_GITLAB_COM = 1
 
-      ignore_column :support_bot
+      self.ignored_columns += %i[support_bot]
 
       # We aren't using the `auditor?` method for the `if` condition here
       # because `auditor?` returns `false` when the `auditor` column is `true`
@@ -71,6 +71,9 @@ module EE
       scope :with_provider, ->(provider) do
         joins(:identities).where(identities: { provider: provider })
       end
+
+      scope :bots, -> { where.not(bot_type: nil) }
+      scope :humans, -> { where(bot_type: nil) }
 
       accepts_nested_attributes_for :namespace
 

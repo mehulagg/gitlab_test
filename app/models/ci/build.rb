@@ -11,19 +11,20 @@ module Ci
     include ObjectStorage::BackgroundMove
     include Presentable
     include Importable
-    include IgnorableColumn
     include Gitlab::Utils::StrongMemoize
     include Deployable
     include HasRef
 
     BuildArchivedError = Class.new(StandardError)
 
-    ignore_column :commands
-    ignore_column :artifacts_file
-    ignore_column :artifacts_metadata
-    ignore_column :artifacts_file_store
-    ignore_column :artifacts_metadata_store
-    ignore_column :artifacts_size
+    self.ignored_columns += %i[
+      artifacts_file
+      artifacts_file_store
+      artifacts_metadata
+      artifacts_metadata_store
+      artifacts_size
+      commands
+    ]
 
     belongs_to :project, inverse_of: :builds
     belongs_to :runner
@@ -87,6 +88,7 @@ module Ci
     validates :coverage, numericality: true, allow_blank: true
     validates :ref, presence: true
 
+    scope :not_interruptible, -> { joins(:metadata).where(ci_builds_metadata: { interruptible: false }) }
     scope :unstarted, ->() { where(runner_id: nil) }
     scope :ignore_failures, ->() { where(allow_failure: false) }
     scope :with_artifacts_archive, ->() do
@@ -444,7 +446,7 @@ module Ci
       end
     end
 
-    CI_REGISTRY_USER = 'gitlab-ci-token'.freeze
+    CI_REGISTRY_USER = 'gitlab-ci-token'
 
     def persisted_variables
       Gitlab::Ci::Variables::Collection.new.tap do |variables|

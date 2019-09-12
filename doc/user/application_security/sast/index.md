@@ -125,6 +125,21 @@ variables:
 Because the template is [evaluated before](../../../ci/yaml/README.md#include)
 the pipeline configuration, the last mention of the variable will take precedence.
 
+#### Using a variable to pass username and password to a private Maven repository
+
+If you have a private Apache Maven repository that requires login credentials,
+you can use the `MAVEN_CLI_OPTS` [environment variable](#available-variables)
+to pass a username and password. You can set it under your project's settings
+so that your credentials aren't exposed in `.gitlab-ci.yml`.
+
+If the username is `myuser` and the password is `verysecret` then you would
+set the following [variable](../../../ci/variables/README.md#via-the-ui)
+under your project's settings:
+
+| Type | Key | Value |
+| ---- | --- | ----- |
+| Variable | `MAVEN_CLI_OPTS` | `-Drepository.password=verysecret -Drepository.user=myuser` |
+
 ### Overriding the SAST template
 
 If you want to override the job definition (for example, change properties like
@@ -318,20 +333,10 @@ CI/CD configuration file to turn it on. Results are available in the SAST report
 
 GitLab currently includes [Gitleaks](https://github.com/zricethezav/gitleaks) and [TruffleHog](https://github.com/dxa4481/truffleHog) checks.
 
-## Security report under pipelines
-
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/3776)
-in [GitLab Ultimate](https://about.gitlab.com/pricing) 10.6.
-
-Visit any pipeline page which has a `sast` job and you will be able to see
-the security report tab with the listed vulnerabilities (if any).
-
-![Security Report](img/security_report.png)
-
 ## Security Dashboard
 
 The Security Dashboard is a good place to get an overview of all the security
-vulnerabilities in your groups and projects. Read more about the
+vulnerabilities in your groups, projects and pipelines. Read more about the
 [Security Dashboard](../security_dashboard/index.md).
 
 ## Interacting with the vulnerabilities

@@ -191,8 +191,8 @@ describe Ci::Build do
           expect { subject }.not_to raise_error
 
           expect(license_management_report.licenses.count).to eq(4)
-          expect(license_management_report.licenses[0].name).to eq('MIT')
-          expect(license_management_report.licenses[0].dependencies.count).to eq(52)
+          expect(license_management_report.found_licenses['MIT'].name).to eq('MIT')
+          expect(license_management_report.found_licenses['MIT'].dependencies.count).to eq(52)
         end
       end
 
@@ -236,7 +236,6 @@ describe Ci::Build do
 
   describe '#collect_dependency_list_reports!' do
     let!(:dl_artifact) { create(:ee_ci_job_artifact, :dependency_list, job: job, project: job.project) }
-    let!(:lm_artifact) { create(:ee_ci_job_artifact, :license_management, job: job, project: job.project) }
     let(:dependency_list_report) { Gitlab::Ci::Reports::DependencyList::Report.new }
 
     subject { job.collect_dependency_list_reports!(dependency_list_report) }
@@ -254,7 +253,6 @@ describe Ci::Build do
 
         expect(dependency_list_report.dependencies.count).to eq(21)
         expect(mini_portile2[:name]).to eq('mini_portile2')
-        expect(mini_portile2[:licenses][0][:name]).to eq('MIT')
         expect(yarn[:location][:blob_path]).to eq(blob_path)
       end
     end
@@ -263,7 +261,41 @@ describe Ci::Build do
       it 'does NOT parse dependency list report' do
         subject
 
-        expect(dependency_list_report.dependencies.count).to eq(0)
+        expect(dependency_list_report.dependencies).to be_empty
+      end
+    end
+  end
+
+  describe '#collect_licenses_for_dependency_list!' do
+    let!(:lm_artifact) { create(:ee_ci_job_artifact, :license_management, job: job, project: job.project) }
+    let(:dependency_list_report) { Gitlab::Ci::Reports::DependencyList::Report.new }
+    let(:dependency) { build(:dependency) }
+
+    subject { job.collect_licenses_for_dependency_list!(dependency_list_report) }
+
+    before do
+      dependency_list_report.add_dependency(dependency)
+    end
+
+    context 'with available licensed feature' do
+      before do
+        stub_licensed_features(dependency_list: true)
+      end
+
+      it 'parses blobs and add found license' do
+        subject
+        nokogiri = dependency_list_report.dependencies.first
+
+        expect(nokogiri&.dig(:licenses, 0, :name)).to eq('MIT')
+      end
+    end
+
+    context 'with unavailable licensed feature' do
+      it 'does not add licenses' do
+        subject
+        nokogiri = dependency_list_report.dependencies.first
+
+        expect(nokogiri[:licenses]).to be_empty
       end
     end
   end

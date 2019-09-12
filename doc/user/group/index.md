@@ -150,8 +150,11 @@ side of your screen.
 
 ![Request access button](img/request_access_button.png)
 
-Group owners and maintainers will be notified of your request and will be able to approve or
-decline it on the members page.
+Once access is requested:
+
+- Up to ten group owners are notified of your request via email.
+  Email is sent to the most recently active group owners.
+- Any group owner can approve or decline your request on the members page.
 
 ![Manage access requests](img/access_requests_management.png)
 
@@ -439,6 +442,12 @@ To enable this feature:
 A group owner can check the aggregated storage usage for all the project in a group, sub-groups included, in the **Storage** tab of the **Usage Quotas** page available to the group page settings list.
 
 ![Group storage usage quota](img/group_storage_usage_quota.png)
+
+The total usage of the storage is updated if any relevant event that
+will affect its value is triggered (e.g., a commit push).
+For performance reasons, we may delay the update up to 1 hour and 30 minutes.
+
+If your namespace shows `N/A` as the total storage usage, you can trigger a recalculation by pushing a commit to any project in that namespace.
 
 ## User contribution analysis **(STARTER)**
 
