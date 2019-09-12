@@ -14,7 +14,7 @@ Always use an [Entity] to present the endpoint's payload.
 ## Methods and parameters description
 
 Every method must be described using the [Grape DSL](https://github.com/ruby-grape/grape#describing-methods)
-(see <https://gitlab.com/gitlab-org/gitlab-ce/blob/master/lib/api/environments.rb>
+(see <https://gitlab.com/gitlab-org/gitlab-foss/blob/master/lib/api/environments.rb>
 for a good example):
 
 - `desc` for the method summary. You should pass it a block for additional
@@ -92,5 +92,5 @@ For instance:
 Model.create(foo: params[:foo])
 ```
 
-[Entity]: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/lib/api/entities.rb
+[Entity]: https://gitlab.com/gitlab-org/gitlab-foss/blob/master/lib/api/entities.rb
 [validation, and coercion of the parameters]: https://github.com/ruby-grape/grape#parameter-validation-and-coercion

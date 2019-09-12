@@ -63,7 +63,7 @@ module Secpick
 
     def new_mr_url
       if ee?
-        NEW_MR_URL.sub('gitlabhq', 'gitlab-ee')
+        NEW_MR_URL.sub('gitlabhq', 'gitlab')
       else
         NEW_MR_URL
       end

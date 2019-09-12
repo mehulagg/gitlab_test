@@ -43,9 +43,9 @@ describe Gitlab::BackgroundMigration::EncryptRunnersTokens, :migration, schema: 
   context 'when migrating projects' do
     before do
       namespaces.create!(id: 11, name: 'gitlab', path: 'gitlab-org')
-      projects.create!(id: 111, namespace_id: 11, name: 'gitlab', path: 'gitlab-ce', runners_token: 'my-token1')
-      projects.create!(id: 114, namespace_id: 11, name: 'gitlab', path: 'gitlab-ce', runners_token: 'my-token2')
-      projects.create!(id: 116, namespace_id: 11, name: 'gitlab', path: 'gitlab-ce', runners_token: 'my-token3')
+      projects.create!(id: 111, namespace_id: 11, name: 'gitlab', path: 'gitlab-foss', runners_token: 'my-token1')
+      projects.create!(id: 114, namespace_id: 11, name: 'gitlab', path: 'gitlab-foss', runners_token: 'my-token2')
+      projects.create!(id: 116, namespace_id: 11, name: 'gitlab', path: 'gitlab-foss', runners_token: 'my-token3')
     end
 
     it 'migrates runners registration tokens' do

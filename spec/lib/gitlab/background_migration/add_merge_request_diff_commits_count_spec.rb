@@ -8,7 +8,7 @@ describe Gitlab::BackgroundMigration::AddMergeRequestDiffCommitsCount, :migratio
   let(:merge_request_diffs_table) { table(:merge_request_diffs) }
   let(:merge_request_diff_commits_table) { table(:merge_request_diff_commits) }
 
-  let(:project) { projects_table.create!(name: 'gitlab', path: 'gitlab-org/gitlab-ce') }
+  let(:project) { projects_table.create!(name: 'gitlab', path: 'gitlab-org/gitlab-foss') }
   let(:merge_request) do
     merge_requests_table.create!(target_project_id: project.id,
                                  target_branch: 'master',

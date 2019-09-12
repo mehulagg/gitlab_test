@@ -4637,7 +4637,7 @@ entry.
 - Bump grape-path-helpers to 1.0.5. !19604 (@blackst0ne)
 - Add CI job to check Gemfile.rails5.lock. !19605 (@blackst0ne)
 - Move Gitaly branch/tag/ref RPC's to opt-out. !19644
-- CE port gitlab-ee!6112. !19714
+- CE port gitlab!6112. !19714
 - Enable no-multi-assignment in JS files. !19808 (gfyoung)
 - Enable no-restricted globals in JS files. !19877 (gfyoung)
 - Improve no-multi-assignment fixes after enabling rule. !19915 (gfyoung)
@@ -8084,7 +8084,7 @@ entry.
 - Reinstate is_admin flag in users api when authenticated user is an admin. !12211 (rickettm)
 - Fix edit button for deploy keys available from other projects. !12301 (Alexander Randa)
 - Fix passing CI_ENVIRONMENT_NAME and CI_ENVIRONMENT_SLUG for CI_ENVIRONMENT_URL. !12344
-- Disable environment list refresh due to bug https://gitlab.com/gitlab-org/gitlab-ee/issues/2677. !12347
+- Disable environment list refresh due to bug https://gitlab.com/gitlab-org/gitlab/issues/2677. !12347
 - Standardize timeline note margins across different viewport sizes. !12364
 - Fix Ordered Task List Items. !31483 (Jared Deckard <jared.deckard@gmail.com>)
 - Upgrade dependency to Go 1.8.3. !31943

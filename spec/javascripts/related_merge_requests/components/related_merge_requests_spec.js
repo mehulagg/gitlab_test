@@ -27,7 +27,7 @@ describe('RelatedMergeRequests', () => {
       propsData: {
         endpoint: API_ENDPOINT,
         projectNamespace: 'gitlab-org',
-        projectPath: 'gitlab-ce',
+        projectPath: 'gitlab-foss',
       },
     });
 

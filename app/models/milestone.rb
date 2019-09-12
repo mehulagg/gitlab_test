@@ -27,7 +27,7 @@ class Milestone < ApplicationRecord
   belongs_to :project
   belongs_to :group
 
-  # A one-to-one relationship is set up here as part of a MVC: https://gitlab.com/gitlab-org/gitlab-ce/issues/62402
+  # A one-to-one relationship is set up here as part of a MVC: https://gitlab.com/gitlab-org/gitlab-foss/issues/62402
   # However, on the long term, we will want a many-to-many relationship between Release and Milestone.
   # The "has_one through" allows us today to set up this one-to-one relationship while setting up the architecture for the long-term (ie intermediate table).
   has_one :milestone_release
@@ -218,8 +218,8 @@ class Milestone < ApplicationRecord
   #
   #   Milestone.first.to_reference                           # => "%1"
   #   Milestone.first.to_reference(format: :name)            # => "%\"goal\""
-  #   Milestone.first.to_reference(cross_namespace_project)  # => "gitlab-org/gitlab-ce%1"
-  #   Milestone.first.to_reference(same_namespace_project)   # => "gitlab-ce%1"
+  #   Milestone.first.to_reference(cross_namespace_project)  # => "gitlab-org/gitlab-foss%1"
+  #   Milestone.first.to_reference(same_namespace_project)   # => "gitlab-foss%1"
   #
   def to_reference(from = nil, format: :name, full: false)
     format_reference = milestone_format_reference(format)

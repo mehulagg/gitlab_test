@@ -14,9 +14,9 @@ describe('IDE merge request details', () => {
 
   beforeEach(() => {
     const store = createStore();
-    store.state.currentProjectId = 'gitlab-ce';
+    store.state.currentProjectId = 'gitlab-foss';
     store.state.currentMergeRequestId = 1;
-    store.state.projects['gitlab-ce'] = {
+    store.state.projects['gitlab-foss'] = {
       mergeRequests: {
         1: {
           iid: 1,

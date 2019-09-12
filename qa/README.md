@@ -51,7 +51,7 @@ and [install](https://gitlab.com/gitlab-org/gitlab-development-kit/blob/master/d
 your local GitLab development environment.
 
 Once you have GDK running, switch to the `qa` directory. E.g., if you setup
-GDK to develop in the main `gitlab-ce` repo, the GitLab source code will be
+GDK to develop in the main `gitlab-foss` repo, the GitLab source code will be
 in a `gitlab` directory and so the end-to-end test code will be in `gitlab/qa`.
 
 From there you can run the tests. For example, the
@@ -138,12 +138,12 @@ To set multiple cookies, separate them with the `;` character, for example: `QA_
 ### Building a Docker image to test
 
 Once you have made changes to the CE/EE repositories, you may want to build a
-Docker image to test locally instead of waiting for the `gitlab-ce-qa` or
-`gitlab-ee-qa` nightly builds. To do that, you can run **from the top `gitlab`
+Docker image to test locally instead of waiting for the `gitlab-foss-qa` or
+`gitlab-qa` nightly builds. To do that, you can run **from the top `gitlab`
 directory** (one level up from this directory):
 
 ```sh
-docker build -t gitlab/gitlab-ce-qa:nightly --file ./qa/Dockerfile ./
+docker build -t gitlab/gitlab-foss-qa:nightly --file ./qa/Dockerfile ./
 ```
 
 ### Quarantined tests

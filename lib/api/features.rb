@@ -43,7 +43,7 @@ module API
         optional :feature_group, type: String, desc: 'A Feature group name'
         optional :user, type: String, desc: 'A GitLab username'
         optional :group, type: String, desc: "A GitLab group's path, such as 'gitlab-org'"
-        optional :project, type: String, desc: 'A projects path, like gitlab-org/gitlab-ce'
+        optional :project, type: String, desc: 'A projects path, like gitlab-org/gitlab-foss'
       end
       post ':name' do
         feature = Feature.get(params[:name])

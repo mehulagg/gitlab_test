@@ -403,7 +403,7 @@ the cleanup of detached commits (happens automatically).
 Modified history breaks the development chain of other developers, as changed
 history does not have matching commits'ids. For that reason it should not
 be used on any public branch or on branch that *might* be used by other
-developers. When contributing to big open source repositories (for example, [GitLab CE][gitlab-ce]),
+developers. When contributing to big open source repositories (for example, [GitLab CE][gitlab-foss]),
 it is acceptable to *squash* commits into a single one, to present
 a nicer history of your contribution.
 
@@ -520,6 +520,6 @@ but commented out to help encourage others to add to it in the future. -->
 [git-distributed]: https://git-scm.com/about/distributed
 [git-filters-manual]: https://git-scm.com/docs/git-filter-branch#_options
 [git-official]: https://git-scm.com/
-[gitlab-ce]: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/CONTRIBUTING.md#contribution-acceptance-criteria
+[gitlab-foss]: https://gitlab.com/gitlab-org/gitlab-foss/blob/master/CONTRIBUTING.md#contribution-acceptance-criteria
 [gitlab-flow]: https://about.gitlab.com/2014/09/29/gitlab-flow/
 [gitlab-git-tips-n-tricks]: https://about.gitlab.com/2016/12/08/git-tips-and-tricks/

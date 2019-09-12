@@ -53,7 +53,7 @@ describe API::Internal::Pages do
 
         context 'custom domain' do
           let(:namespace) { create(:namespace, name: 'gitlab-org') }
-          let(:project) { create(:project, namespace: namespace, name: 'gitlab-ce') }
+          let(:project) { create(:project, namespace: namespace, name: 'gitlab-foss') }
           let!(:pages_domain) { create(:pages_domain, domain: 'pages.gitlab.io', project: project) }
 
           it 'responds with the correct domain configuration' do
@@ -67,7 +67,7 @@ describe API::Internal::Pages do
 
             lookup_path = json_response['lookup_paths'][0]
             expect(lookup_path['prefix']).to eq('/')
-            expect(lookup_path['source']['path']).to eq('gitlab-org/gitlab-ce/public/')
+            expect(lookup_path['source']['path']).to eq('gitlab-org/gitlab-foss/public/')
           end
         end
       end

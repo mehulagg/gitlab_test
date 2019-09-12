@@ -715,20 +715,20 @@ would be to enable relative urls in the registry.
 
 1. Restart the registry for the changes to take affect.
 
-[ce-18239]: https://gitlab.com/gitlab-org/gitlab-ce/issues/18239
+[ce-18239]: https://gitlab.com/gitlab-org/gitlab-foss/issues/18239
 [docker-insecure-self-signed]: https://docs.docker.com/registry/insecure/#use-self-signed-certificates
 [reconfigure gitlab]: restart_gitlab.md#omnibus-gitlab-reconfigure
 [restart gitlab]: restart_gitlab.md#installations-from-source
 [wildcard certificate]: https://en.wikipedia.org/wiki/Wildcard_certificate
-[ce-4040]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/4040
+[ce-4040]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/4040
 [docker-insecure]: https://docs.docker.com/registry/insecure/
 [registry-deploy]: https://docs.docker.com/registry/deploying/
 [storage-config]: https://docs.docker.com/registry/configuration/#storage
 [registry-http-config]: https://docs.docker.com/registry/configuration/#http
 [registry-auth]: https://docs.docker.com/registry/configuration/#auth
 [token-config]: https://docs.docker.com/registry/configuration/#token
-[8-8-docs]: https://gitlab.com/gitlab-org/gitlab-ce/blob/8-8-stable/doc/administration/container_registry.md
-[registry-ssl]: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/lib/support/nginx/registry-ssl
+[8-8-docs]: https://gitlab.com/gitlab-org/gitlab-foss/blob/8-8-stable/doc/administration/container_registry.md
+[registry-ssl]: https://gitlab.com/gitlab-org/gitlab-foss/blob/master/lib/support/nginx/registry-ssl
 [existing-domain]: #configure-container-registry-under-an-existing-gitlab-domain
 [new-domain]: #configure-container-registry-under-its-own-domain
 [notifications-config]: https://docs.docker.com/registry/notifications/

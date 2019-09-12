@@ -103,7 +103,7 @@ docker run --detach \
 --hostname $(docker-machine ip gitlab-test-env-do) \
 -p $HTTP_PORT:$HTTP_PORT -p $SSH_PORT:22 \
 --name $NAME \
-gitlab/gitlab-ee:$VERSION
+gitlab/gitlab:$VERSION
 ```
 
 ### Connect to the GitLab container

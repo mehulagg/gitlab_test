@@ -21,10 +21,10 @@ Once removed from the Geo admin page, you must stop and uninstall the **secondar
    sudo gitlab-ctl uninstall
 
    # Debian/Ubuntu
-   sudo dpkg --remove gitlab-ee
+   sudo dpkg --remove gitlab
 
    # Redhat/Centos
-   sudo rpm --erase gitlab-ee
+   sudo rpm --erase gitlab
    ```
 
 Once GitLab has been uninstalled from the **secondary** node, the replication slot must be dropped from the **primary** node's database as follows:

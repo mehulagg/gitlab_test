@@ -16,7 +16,7 @@ class JiraService < IssueTrackerService
 
   # Jira Cloud version is deprecating authentication via username and password.
   # We should use username/password for Jira Server and email/api_token for Jira Cloud,
-  # for more information check: https://gitlab.com/gitlab-org/gitlab-ce/issues/49936.
+  # for more information check: https://gitlab.com/gitlab-org/gitlab-foss/issues/49936.
   prop_accessor :username, :password, :url, :api_url, :jira_issue_transition_id
 
   before_update :reset_password

@@ -42,7 +42,7 @@ docker run --detach --name gitlab \
 --env GITLAB_OMNIBUS_CONFIG="external_url 'http://$(docker-machine ip do-docker)'; gitlab_rails['gitlab_shell_ssh_port'] = 2222;" \
 --hostname $(docker-machine ip do-docker) \
 -p 80:80 -p 2222:22 \
-gitlab/gitlab-ee:11.5.3-ee.0
+gitlab/gitlab:11.5.3-ee.0
 ```
 
 ### SAML

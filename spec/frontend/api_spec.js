@@ -155,7 +155,7 @@ describe('Api', () => {
     it('fetches all users of a particular project', done => {
       const query = 'dummy query';
       const options = { unused: 'option' };
-      const projectPath = 'gitlab-org%2Fgitlab-ce';
+      const projectPath = 'gitlab-org%2Fgitlab-foss';
       const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/projects/${projectPath}/users`;
       mock.onGet(expectedUrl).reply(200, [
         {
@@ -163,7 +163,7 @@ describe('Api', () => {
         },
       ]);
 
-      Api.projectUsers('gitlab-org/gitlab-ce', query, options)
+      Api.projectUsers('gitlab-org/gitlab-foss', query, options)
         .then(response => {
           expect(response.length).toBe(1);
           expect(response[0].name).toBe('test');
@@ -371,11 +371,11 @@ describe('Api', () => {
 
   describe('projectTemplates', () => {
     it('fetches a list of templates', done => {
-      const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/projects/gitlab-org%2Fgitlab-ce/templates/licenses`;
+      const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/projects/gitlab-org%2Fgitlab-foss/templates/licenses`;
 
       mock.onGet(expectedUrl).reply(200, 'test');
 
-      Api.projectTemplates('gitlab-org/gitlab-ce', 'licenses', {}, response => {
+      Api.projectTemplates('gitlab-org/gitlab-foss', 'licenses', {}, response => {
         expect(response).toBe('test');
         done();
       });
@@ -385,11 +385,11 @@ describe('Api', () => {
   describe('projectTemplate', () => {
     it('fetches a single template', done => {
       const data = { unused: 'option' };
-      const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/projects/gitlab-org%2Fgitlab-ce/templates/licenses/test%20license`;
+      const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/projects/gitlab-org%2Fgitlab-foss/templates/licenses/test%20license`;
 
       mock.onGet(expectedUrl).reply(200, 'test');
 
-      Api.projectTemplate('gitlab-org/gitlab-ce', 'licenses', 'test license', data, response => {
+      Api.projectTemplate('gitlab-org/gitlab-foss', 'licenses', 'test license', data, response => {
         expect(response).toBe('test');
         done();
       });
@@ -492,7 +492,7 @@ describe('Api', () => {
     it('creates new branch', done => {
       const ref = 'master';
       const branch = 'new-branch-name';
-      const dummyProjectPath = 'gitlab-org/gitlab-ce';
+      const dummyProjectPath = 'gitlab-org/gitlab-foss';
       const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/projects/${encodeURIComponent(
         dummyProjectPath,
       )}/repository/branches`;
@@ -515,7 +515,7 @@ describe('Api', () => {
 
   describe('projectForks', () => {
     it('gets forked projects', done => {
-      const dummyProjectPath = 'gitlab-org/gitlab-ce';
+      const dummyProjectPath = 'gitlab-org/gitlab-foss';
       const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/projects/${encodeURIComponent(
         dummyProjectPath,
       )}/forks`;

@@ -11,11 +11,11 @@ describe('IDE merge request item', () => {
     vm = mountCompontent(Component, {
       item: {
         iid: 1,
-        projectPathWithNamespace: 'gitlab-org/gitlab-ce',
+        projectPathWithNamespace: 'gitlab-org/gitlab-foss',
         title: 'Merge request title',
       },
       currentId: '1',
-      currentProjectId: 'gitlab-org/gitlab-ce',
+      currentProjectId: 'gitlab-org/gitlab-foss',
     });
   });
 
@@ -25,7 +25,7 @@ describe('IDE merge request item', () => {
 
   it('renders merge requests data', () => {
     expect(vm.$el.textContent).toContain('Merge request title');
-    expect(vm.$el.textContent).toContain('gitlab-org/gitlab-ce!1');
+    expect(vm.$el.textContent).toContain('gitlab-org/gitlab-foss!1');
   });
 
   it('renders link with href', () => {

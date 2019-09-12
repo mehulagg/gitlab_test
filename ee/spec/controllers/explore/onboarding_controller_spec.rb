@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe Explore::OnboardingController do
   let(:user) { create(:user, username: 'gitlab-org') }
-  let(:project) { create(:project, path: 'gitlab-ce', namespace: user.namespace) }
+  let(:project) { create(:project, path: 'gitlab-foss', namespace: user.namespace) }
 
   before do
     allow(Gitlab).to receive(:com?) { true }

@@ -137,11 +137,11 @@ describe('New Project', () => {
       });
 
       it('changes project path for SSH URL in $projectImportUrl', () => {
-        $projectImportUrl.val('git@gitlab.com:gitlab-org/gitlab-ce.git');
+        $projectImportUrl.val('git@gitlab.com:gitlab-org/gitlab-foss.git');
 
         projectNew.deriveProjectPathFromUrl($projectImportUrl);
 
-        expect($projectPath.val()).toEqual('gitlab-ce');
+        expect($projectPath.val()).toEqual('gitlab-foss');
       });
     });
   });

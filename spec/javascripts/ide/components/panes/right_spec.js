@@ -28,9 +28,9 @@ describe('IDE right pane', () => {
       vm.$store.state.rightPane.isOpen = true;
       vm.$store.state.rightPane.currentView = rightSidebarViews.mergeRequestInfo.name;
       vm.$store.state.currentMergeRequestId = '123';
-      vm.$store.state.currentProjectId = 'gitlab-ce';
+      vm.$store.state.currentProjectId = 'gitlab-foss';
       vm.$store.state.currentMergeRequestId = 1;
-      vm.$store.state.projects['gitlab-ce'] = {
+      vm.$store.state.projects['gitlab-foss'] = {
         mergeRequests: {
           1: {
             iid: 1,

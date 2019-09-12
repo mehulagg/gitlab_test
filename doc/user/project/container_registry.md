@@ -308,9 +308,9 @@ What does this mean? This strongly suggests that the S3 user does not have the r
 The solution: check the [IAM permissions again](https://docs.docker.com/registry/storage-drivers/s3/).
 Once the right permissions were set, the error will go away.
 
-[ce-4040]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/4040
-[ce-11845]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/11845
-[ce-17894]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/17894
+[ce-4040]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/4040
+[ce-11845]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/11845
+[ce-17894]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/17894
 [docker-docs]: https://docs.docker.com/engine/userguide/intro/
 [pat]: ../profile/personal_access_tokens.md
 [pdt]: ../project/deploy_tokens/index.md

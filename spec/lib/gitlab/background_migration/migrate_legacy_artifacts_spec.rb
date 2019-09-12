@@ -13,7 +13,7 @@ describe Gitlab::BackgroundMigration::MigrateLegacyArtifacts, :migration, schema
 
   context 'when a pipeline exists' do
     let!(:namespace) { namespaces.create!(name: 'gitlab', path: 'gitlab-org') }
-    let!(:project) { projects.create!(name: 'gitlab', path: 'gitlab-ce', namespace_id: namespace.id) }
+    let!(:project) { projects.create!(name: 'gitlab', path: 'gitlab-foss', namespace_id: namespace.id) }
     let!(:pipeline) { pipelines.create!(project_id: project.id, ref: 'master', sha: 'adf43c3a') }
 
     context 'when a legacy artifacts exists' do

@@ -10,7 +10,7 @@ describe AddForeignKeyFromNotificationSettingsToUsers, :migration do
 
   before do
     users.create!(email: 'email@email.com', name: 'foo', username: 'foo', projects_limit: 0)
-    projects.create!(name: 'gitlab', path: 'gitlab-org/gitlab-ce', namespace_id: 1)
+    projects.create!(name: 'gitlab', path: 'gitlab-org/gitlab-foss', namespace_id: 1)
   end
 
   describe 'removal of orphans without user' do

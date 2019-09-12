@@ -197,7 +197,7 @@ describe EmailsHelper do
     using RSpec::Parameterized::TableSyntax
 
     where(:full_path, :list_id_path) do
-      "gitlab-org/gitlab-ce" | "gitlab-ce.gitlab-org"
+      "gitlab-org/gitlab-foss" | "gitlab-foss.gitlab-org"
       "project-name/subproject_name/my.project" | "my-project.subproject-name.project-name"
     end
 

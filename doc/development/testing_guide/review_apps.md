@@ -1,8 +1,8 @@
 # Review Apps
 
 Review Apps are automatically deployed by each pipeline, both in
-[CE](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/22010) and
-[EE](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/6665).
+[CE](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/22010) and
+[EE](https://gitlab.com/gitlab-org/gitlab/merge_requests/6665).
 
 ## How does it work?
 
@@ -15,19 +15,19 @@ graph TD
     review-build-cng -.->|once the `test` stage is done| review-deploy
     review-deploy -.->|once the `review` stage is done| review-qa-smoke
 
-subgraph "1. gitlab-ce/ee `prepare` stage"
+subgraph "1. gitlab-foss/ee `prepare` stage"
     build-qa-image
     end
 
-subgraph "2. gitlab-ce/ee `test` stage"
+subgraph "2. gitlab-foss/ee `test` stage"
     gitlab:assets:compile -->|plays dependent job once done| review-build-cng
     end
 
-subgraph "3. gitlab-ce/ee `review` stage"
+subgraph "3. gitlab-foss/ee `review` stage"
     review-deploy["review-deploy<br><br>Helm deploys the Review App using the Cloud<br/>Native images built by the CNG-mirror pipeline.<br><br>Cloud Native images are deployed to the `review-apps-ce` or `review-apps-ee`<br>Kubernetes (GKE) cluster, in the GCP `gitlab-review-apps` project."]
     end
 
-subgraph "4. gitlab-ce/ee `qa` stage"
+subgraph "4. gitlab-foss/ee `qa` stage"
     review-qa-smoke[review-qa-smoke<br><br>gitlab-qa runs the smoke suite against the Review App.]
     end
 
@@ -181,7 +181,7 @@ secure note named **gitlab-{ce,ee} Review App's root password**.
 
 #### Finding the problem
 
-[In the past](https://gitlab.com/gitlab-org/gitlab-ce/issues/62834), it happened
+[In the past](https://gitlab.com/gitlab-org/gitlab-foss/issues/62834), it happened
 that the `dns-gitlab-review-app-external-dns` Deployment was in a pending state,
 effectively preventing all the Review Apps from getting a DNS record assigned,
 making them unreachable via domain name.
@@ -268,10 +268,10 @@ find a way to limit it to only us.**
 - [Review Apps integration for CE/EE (presentation)](https://docs.google.com/presentation/d/1QPLr6FO4LduROU8pQIPkX1yfGvD13GEJIBOenqoKxR8/edit?usp=sharing)
 
 [charts-1068]: https://gitlab.com/gitlab-org/charts/gitlab/issues/1068
-[gitlab-pipeline]: https://gitlab.com/gitlab-org/gitlab-ce/pipelines/44362587
-[gitlab:assets:compile]: https://gitlab.com/gitlab-org/gitlab-ce/-/jobs/149511610
-[review-build-cng]: https://gitlab.com/gitlab-org/gitlab-ce/-/jobs/149511623
-[review-deploy]: https://gitlab.com/gitlab-org/gitlab-ce/-/jobs/149511624
+[gitlab-pipeline]: https://gitlab.com/gitlab-org/gitlab-foss/pipelines/44362587
+[gitlab:assets:compile]: https://gitlab.com/gitlab-org/gitlab-foss/-/jobs/149511610
+[review-build-cng]: https://gitlab.com/gitlab-org/gitlab-foss/-/jobs/149511623
+[review-deploy]: https://gitlab.com/gitlab-org/gitlab-foss/-/jobs/149511624
 [cng-mirror]: https://gitlab.com/gitlab-org/build/CNG-mirror
 [cng]: https://gitlab.com/gitlab-org/build/CNG
 [cng-mirror-pipeline]: https://gitlab.com/gitlab-org/build/CNG-mirror/pipelines/44364657
@@ -279,12 +279,12 @@ find a way to limit it to only us.**
 [helm-chart]: https://gitlab.com/gitlab-org/charts/gitlab/
 [review-apps-ce]: https://console.cloud.google.com/kubernetes/clusters/details/us-central1-a/review-apps-ce?project=gitlab-review-apps
 [review-apps-ee]: https://console.cloud.google.com/kubernetes/clusters/details/us-central1-b/review-apps-ee?project=gitlab-review-apps
-[review-apps.sh]: https://gitlab.com/gitlab-org/gitlab-ee/blob/master/scripts/review_apps/review-apps.sh
-[automated_cleanup.rb]: https://gitlab.com/gitlab-org/gitlab-ee/blob/master/scripts/review_apps/automated_cleanup.rb
-[Auto-DevOps.gitlab-ci.yml]: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/lib/gitlab/ci/templates/Auto-DevOps.gitlab-ci.yml
-[gitlab-ci-yml]: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/.gitlab-ci.yml
+[review-apps.sh]: https://gitlab.com/gitlab-org/gitlab/blob/master/scripts/review_apps/review-apps.sh
+[automated_cleanup.rb]: https://gitlab.com/gitlab-org/gitlab/blob/master/scripts/review_apps/automated_cleanup.rb
+[Auto-DevOps.gitlab-ci.yml]: https://gitlab.com/gitlab-org/gitlab-foss/blob/master/lib/gitlab/ci/templates/Auto-DevOps.gitlab-ci.yml
+[gitlab-ci-yml]: https://gitlab.com/gitlab-org/gitlab-foss/blob/master/.gitlab-ci.yml
 [gitlab-k8s-integration]: ../../user/project/clusters/index.md
-[password-bug]: https://gitlab.com/gitlab-org/gitlab-ce/issues/53621
+[password-bug]: https://gitlab.com/gitlab-org/gitlab-foss/issues/53621
 
 ---
 

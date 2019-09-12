@@ -641,7 +641,7 @@ For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:create`.
 
    ```sh
    sudo apt update
-   sudo apt install gitlab-ee
+   sudo apt install gitlab
    ```
 
 After a few minutes, the new version should be up and running.
@@ -657,7 +657,7 @@ And the more complex the solution, the more work is involved in setting up and
 maintaining it.
 
 Have a read through these other resources and feel free to
-[open an issue](https://gitlab.com/gitlab-org/gitlab-ce/issues/new)
+[open an issue](https://gitlab.com/gitlab-org/gitlab-foss/issues/new)
 to request additional material:
 
 - [GitLab High Availability](../../administration/high_availability/README.md):

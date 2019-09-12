@@ -387,7 +387,7 @@ describe Gitlab::PathRegex do
   describe '.namespace_format_regex' do
     subject { described_class.namespace_format_regex }
 
-    it { is_expected.to match('gitlab-ce') }
+    it { is_expected.to match('gitlab-foss') }
     it { is_expected.to match('gitlab_git') }
     it { is_expected.to match('_underscore.js') }
     it { is_expected.to match('100px.com') }
@@ -404,7 +404,7 @@ describe Gitlab::PathRegex do
   describe '.project_path_format_regex' do
     subject { described_class.project_path_format_regex }
 
-    it { is_expected.to match('gitlab-ce') }
+    it { is_expected.to match('gitlab-foss') }
     it { is_expected.to match('gitlab_git') }
     it { is_expected.to match('_underscore.js') }
     it { is_expected.to match('100px.com') }

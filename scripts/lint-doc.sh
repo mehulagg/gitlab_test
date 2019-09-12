@@ -39,7 +39,7 @@ NUMBER_READMES_CE=46
 NUMBER_READMES_EE=46
 FIND_READMES=$(find doc/ -name "README.md" | wc -l)
 echo '=> Checking for new README.md files...'
-if [ "${CI_PROJECT_NAME}" == 'gitlab-ce' ]
+if [ "${CI_PROJECT_NAME}" == 'gitlab-foss' ]
 then
   if [ ${FIND_READMES} -ne ${NUMBER_READMES_CE} ]
   then
@@ -49,7 +49,7 @@ then
     echo
     exit 1
   fi
-elif [ "${CI_PROJECT_NAME}" == 'gitlab-ee' ]
+elif [ "${CI_PROJECT_NAME}" == 'gitlab' ]
 then
   if [ ${FIND_READMES} -ne $NUMBER_READMES_EE ]
   then

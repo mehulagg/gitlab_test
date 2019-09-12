@@ -303,7 +303,7 @@ end
 ```
 
 If a computed update is needed, the value can be wrapped in `Arel.sql`, so Arel
-treats it as an SQL literal. It's also a required deprecation for [Rails 6](https://gitlab.com/gitlab-org/gitlab-ce/issues/61451).
+treats it as an SQL literal. It's also a required deprecation for [Rails 6](https://gitlab.com/gitlab-org/gitlab-foss/issues/61451).
 
 The below example is the same as the one above, but
 the value is set to the product of the `bar` and `baz` columns:
@@ -481,5 +481,5 @@ by an integer. For example: `users` would turn into `users0`
 ### Moving migrations from EE to CE
 
 When migrations need to be moved from GitLab Enterprise Edition to GitLab Community Edition,
-a migration file should be moved from `ee/db/{post_,}migrate` directory in the `gitlab-ee` project to `db/{post_,}migrate` directory in the `gitlab-ce` project. This way
+a migration file should be moved from `ee/db/{post_,}migrate` directory in the `gitlab` project to `db/{post_,}migrate` directory in the `gitlab-foss` project. This way
 the schema number remains intact, there is no need to modify old migrations, and proper columns, tables or data are added in the Community Edition.

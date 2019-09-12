@@ -17,7 +17,7 @@ function factory(propsData = {}) {
     propsData: {
       ...propsData,
       name: propsData.path,
-      projectPath: 'gitlab-org/gitlab-ce',
+      projectPath: 'gitlab-org/gitlab-foss',
       url: `https://test.com`,
     },
     mocks: {

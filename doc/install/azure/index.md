@@ -52,7 +52,7 @@ box, and then click the **"GitLab Community Edition"** search result:
 A new "blade" window will pop-out, where you can read more about the **"GitLab Community Edition"**
 offering which is freely available under the MIT Expat License:
 
-![Azure - New - Select 'GitLab Community Edition'](img/azure-new-gitlab-ce.png)
+![Azure - New - Select 'GitLab Community Edition'](img/azure-new-gitlab-foss.png)
 
 Click **"Create"** and you will be presented with the "Create virtual machine" blade:
 
@@ -167,8 +167,8 @@ in the `DNS name label` field:
 
 ![Azure - VM - Domain Name](img/azure-vm-domain-name.png)
 
-In the screenshot above, you'll see that we've set the `DNS name label` to **"gitlab-ce-test"**.
-This will make our VM accessible at `gitlab-ce-test.centralus.cloudapp.azure.com`
+In the screenshot above, you'll see that we've set the `DNS name label` to **"gitlab-foss-test"**.
+This will make our VM accessible at `gitlab-foss-test.centralus.cloudapp.azure.com`
 _(the full domain name of your own VM will be different, of course)_.
 
 Click **"Save"** for the changes to take effect.
@@ -365,7 +365,7 @@ Once you've logged in via SSH, enter the following command to update GitLab to t
 version:
 
 ```bash
-sudo apt-get update && sudo apt-get install gitlab-ce
+sudo apt-get update && sudo apt-get install gitlab-foss
 ```
 
 This command will update GitLab and its associated components to the latest versions, so it will

@@ -142,7 +142,7 @@ describe JiraService do
       { url: url, username: 'username', password: 'password' }
     end
 
-    # this  will be removed as part of https://gitlab.com/gitlab-org/gitlab-ce/issues/63084
+    # this  will be removed as part of https://gitlab.com/gitlab-org/gitlab-foss/issues/63084
     context 'when data are stored in properties' do
       let(:properties) { access_params.merge(title: title, description: description) }
       let(:service) do

@@ -11,7 +11,7 @@ describe SetIssueIdForAllVersions, :migration do
   let(:versions) { table(:design_management_versions) }
 
   before do
-    @project = projects.create!(name: 'gitlab', path: 'gitlab-org/gitlab-ce', namespace_id: 1)
+    @project = projects.create!(name: 'gitlab', path: 'gitlab-org/gitlab-foss', namespace_id: 1)
 
     @issue_1 = issues.create!(description: 'first', project_id: @project.id)
     @issue_2 = issues.create!(description: 'second', project_id: @project.id)

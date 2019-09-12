@@ -7,7 +7,7 @@ describe Gitlab::Regex do
   describe '.project_name_regex' do
     subject { described_class.project_name_regex }
 
-    it { is_expected.to match('gitlab-ce') }
+    it { is_expected.to match('gitlab-foss') }
     it { is_expected.to match('GitLab CE') }
     it { is_expected.to match('100 lines') }
     it { is_expected.to match('gitlab.git') }

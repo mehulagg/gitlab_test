@@ -18,8 +18,8 @@ module Gitlab
     # 'Hello, this issue is related to #123 and
     #  other issues labeled with ~"label"', will be converted to:
     #
-    # 'Hello, this issue is related to gitlab-org/gitlab-ce#123 and
-    #  other issue labeled with gitlab-org/gitlab-ce~"label"'.
+    # 'Hello, this issue is related to gitlab-org/gitlab-foss#123 and
+    #  other issue labeled with gitlab-org/gitlab-foss~"label"'.
     #
     # It does respect markdown lexical rules, so text in code block will not be
     # replaced, see another example:
@@ -27,7 +27,7 @@ module Gitlab
     # 'Merge request for issue #1234, see also link:
     #  http://gitlab.com/some/link/#1234, and code `puts #1234`' =>
     #
-    # 'Merge request for issue gitlab-org/gitlab-ce#1234, se also link:
+    # 'Merge request for issue gitlab-org/gitlab-foss#1234, se also link:
     #  http://gitlab.com/some/link/#1234, and code `puts #1234`'
     #
     class ReferenceRewriter

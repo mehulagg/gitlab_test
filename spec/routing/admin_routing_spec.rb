@@ -66,8 +66,8 @@ describe Admin::ProjectsController, "routing" do
   end
 
   it "to #show" do
-    expect(get("/admin/projects/gitlab/gitlab-ce")).to route_to('admin/projects#show', namespace_id: 'gitlab', id: 'gitlab-ce')
-    expect(get("/admin/projects/gitlab/subgroup/gitlab-ce")).to route_to('admin/projects#show', namespace_id: 'gitlab/subgroup', id: 'gitlab-ce')
+    expect(get("/admin/projects/gitlab/gitlab-foss")).to route_to('admin/projects#show', namespace_id: 'gitlab', id: 'gitlab-foss')
+    expect(get("/admin/projects/gitlab/subgroup/gitlab-foss")).to route_to('admin/projects#show', namespace_id: 'gitlab/subgroup', id: 'gitlab-foss')
   end
 end
 

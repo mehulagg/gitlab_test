@@ -159,7 +159,7 @@ allowing many formatting options.
 
 ##### Zoom call links
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/62966) in GitLab 12.0.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/62966) in GitLab 12.0.
 
 Including a link to a [Zoom](https://zoom.us) call in the description of an issue
 results in a **Join Zoom meeting** button at the top of the issue, just under the header.

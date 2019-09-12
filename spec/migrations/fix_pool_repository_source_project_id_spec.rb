@@ -18,8 +18,8 @@ describe FixPoolRepositorySourceProjectId, :migration do
 
     # gitlab is a project with a pool repository that's missing a source_project_id
     pool_repository_without_source_project = pool_repositories.create(shard_id: shard.id, source_project_id: nil)
-    gitlab = projects.create!(name: 'gitlab', path: 'gitlab-org/gitlab-ce', namespace_id: 1, pool_repository_id: pool_repository_without_source_project.id)
-    projects.create!(name: 'gitlab-fork-1', path: 'my-org-1/gitlab-ce', namespace_id: 1, pool_repository_id: pool_repository_without_source_project.id)
+    gitlab = projects.create!(name: 'gitlab', path: 'gitlab-org/gitlab-foss', namespace_id: 1, pool_repository_id: pool_repository_without_source_project.id)
+    projects.create!(name: 'gitlab-fork-1', path: 'my-org-1/gitlab-foss', namespace_id: 1, pool_repository_id: pool_repository_without_source_project.id)
 
     migrate!
 

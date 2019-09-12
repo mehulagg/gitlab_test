@@ -18,7 +18,7 @@ describe GenerateMissingRoutes, :migration do
 
       project = projects.create!(
         name: 'GitLab CE',
-        path: 'gitlab-ce',
+        path: 'gitlab-foss',
         namespace_id: namespace.id
       )
 
@@ -27,7 +27,7 @@ describe GenerateMissingRoutes, :migration do
       route = routes.where(source_type: 'Project').take
 
       expect(route.source_id).to eq(project.id)
-      expect(route.path).to eq("gitlab/gitlab-ce-#{project.id}")
+      expect(route.path).to eq("gitlab/gitlab-foss-#{project.id}")
     end
 
     it 'creates routes for namespaces without a route' do
@@ -66,12 +66,12 @@ describe GenerateMissingRoutes, :migration do
 
       project = projects.create!(
         name: 'GitLab CE',
-        path: 'gitlab-ce',
+        path: 'gitlab-foss',
         namespace_id: namespace.id
       )
 
       routes.create!(
-        path: 'gitlab/gitlab-ce',
+        path: 'gitlab/gitlab-foss',
         source_type: 'Project',
         source_id: project.id
       )

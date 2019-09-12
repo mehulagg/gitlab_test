@@ -533,7 +533,7 @@ Example response:
       },
       "description" : null,
       "sha" : "18f3e63d05582537db6d183d9d557be09e1f90c8",
-      "target_url" : "https://gitlab.example.com/thedude/gitlab-ce/builds/91",
+      "target_url" : "https://gitlab.example.com/thedude/gitlab-foss/builds/91",
       "finished_at" : null,
       "id" : 91,
       "ref" : "master"
@@ -544,7 +544,7 @@ Example response:
       "allow_failure" : false,
       "status" : "pending",
       "created_at" : "2016-01-19T08:40:25.832Z",
-      "target_url" : "https://gitlab.example.com/thedude/gitlab-ce/builds/90",
+      "target_url" : "https://gitlab.example.com/thedude/gitlab-foss/builds/90",
       "id" : 90,
       "finished_at" : null,
       "ref" : "master",
@@ -725,8 +725,8 @@ Example response if commit is unsigned:
 }
 ```
 
-[ce-6096]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/6096 "Multi-file commit"
-[ce-8047]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/8047
-[ce-15026]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/15026
-[ce-18004]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/18004
-[ce-22919]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/22919
+[ce-6096]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/6096 "Multi-file commit"
+[ce-8047]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/8047
+[ce-15026]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/15026
+[ce-18004]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/18004
+[ce-22919]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/22919

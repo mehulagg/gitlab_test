@@ -82,7 +82,7 @@ describe Gitlab::Middleware::ReadOnly do
 
     it 'expects POST of new file that looks like an LFS batch url to be disallowed' do
       expect(Rails.application.routes).to receive(:recognize_path).and_call_original
-      response = request.post('/root/gitlab-ce/new/master/app/info/lfs/objects/batch')
+      response = request.post('/root/gitlab-foss/new/master/app/info/lfs/objects/batch')
 
       expect(response).to be_redirect
       expect(subject).to disallow_request

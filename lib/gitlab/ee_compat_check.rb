@@ -5,8 +5,8 @@
 module Gitlab
   # Checks if a set of migrations requires downtime or not.
   class EeCompatCheck
-    CANONICAL_CE_PROJECT_URL = 'https://gitlab.com/gitlab-org/gitlab-ce'
-    CANONICAL_EE_REPO_URL = 'https://gitlab.com/gitlab-org/gitlab-ee.git'
+    CANONICAL_CE_PROJECT_URL = 'https://gitlab.com/gitlab-org/gitlab-foss'
+    CANONICAL_EE_REPO_URL = 'https://gitlab.com/gitlab-org/gitlab.git'
     CHECK_DIR = Rails.root.join('ee_compat_check')
     IGNORED_FILES_REGEX = /VERSION|CHANGELOG\.md|doc\/.+/i.freeze
     PLEASE_READ_THIS_BANNER = %Q{
@@ -34,7 +34,7 @@ module Gitlab
       @patches_dir = CHECK_DIR.join('patches')
       @ce_branch = branch
       @ce_project_url = ce_project_url
-      @ee_repo_url = ce_public_repo_url.sub('gitlab-ce', 'gitlab-ee')
+      @ee_repo_url = ce_public_repo_url.sub('gitlab-foss', 'gitlab')
       @job_id = job_id
     end
 
@@ -399,12 +399,12 @@ module Gitlab
           manually applying the correct diff from the `.rej` file to the file with conflicts.
           When finished, you can delete the `.rej` files and commit your changes.
 
-        ⚠️ Don't forget to push your branch to gitlab-ee:
+        ⚠️ Don't forget to push your branch to gitlab:
 
           # In the EE repo
           $ git push origin #{ee_branch_prefix}
 
-        ⚠️ Also, don't forget to create a new merge request on gitlab-ee and
+        ⚠️ Also, don't forget to create a new merge request on gitlab and
         cross-link it with the CE merge request.
 
         Once this is done, you can retry this failed job, and it should pass.
@@ -426,7 +426,7 @@ module Gitlab
 
         #{conflicting_files_msg}
 
-        Please update the `#{ee_branch_found}`, push it again to gitlab-ee, and
+        Please update the `#{ee_branch_found}`, push it again to gitlab, and
         retry this job.
 
         #{STAY_STRONG_LINK_TO_DOCS}

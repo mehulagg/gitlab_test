@@ -205,7 +205,7 @@ module PrometheusHelpers
           'container_name': 'gitlab',
           'environment': 'mattermost',
           'id': '/docker/9953982f95cf5010dfc59d7864564d5f188aaecddeda343699783009f89db667',
-          'image': 'gitlab/gitlab-ce:8.15.4-ce.1',
+          'image': 'gitlab/gitlab-foss:8.15.4-ce.1',
           'instance': 'minikube',
           'job': 'kubernetes-nodes',
           'name': 'k8s_gitlab.e6611886_mattermost-4210310111-77z8r_gitlab_2298ae6b-da24-11e6-baee-8e7f67d0eb3a_43536cb6',

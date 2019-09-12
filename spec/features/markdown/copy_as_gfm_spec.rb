@@ -35,14 +35,14 @@ describe 'Copy as GFM', :js do
       )
 
       verify(
-        'a real world example from the gitlab-ce README',
+        'a real world example from the gitlab-foss README',
 
         <<~GFM
           # GitLab
 
-          [![Build status](https://gitlab.com/gitlab-org/gitlab-ce/badges/master/build.svg)](https://gitlab.com/gitlab-org/gitlab-ce/commits/master)
+          [![Build status](https://gitlab.com/gitlab-org/gitlab-foss/badges/master/build.svg)](https://gitlab.com/gitlab-org/gitlab-foss/commits/master)
 
-          [![CE coverage report](https://gitlab.com/gitlab-org/gitlab-ce/badges/master/coverage.svg?job=coverage)](https://gitlab-org.gitlab.io/gitlab-ce/coverage-ruby)
+          [![CE coverage report](https://gitlab.com/gitlab-org/gitlab-foss/badges/master/coverage.svg?job=coverage)](https://gitlab-org.gitlab.io/gitlab-foss/coverage-ruby)
 
           [![Code Climate](https://codeclimate.com/github/gitlabhq/gitlabhq.svg)](https://codeclimate.com/github/gitlabhq/gitlabhq)
 
@@ -50,7 +50,7 @@ describe 'Copy as GFM', :js do
 
           ## Canonical source
 
-          The canonical source of GitLab Community Edition is [hosted on GitLab.com](https://gitlab.com/gitlab-org/gitlab-ce/).
+          The canonical source of GitLab Community Edition is [hosted on GitLab.com](https://gitlab.com/gitlab-org/gitlab-foss/).
 
           ## Open source software to collaborate on code
 

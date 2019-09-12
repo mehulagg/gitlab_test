@@ -6,7 +6,7 @@ describe AddForeignKeysToTodos, :migration do
   let(:users) { table(:users) }
   let(:projects) { table(:projects) }
 
-  let(:project) { projects.create!(name: 'gitlab', path: 'gitlab-org/gitlab-ce', namespace_id: 1) }
+  let(:project) { projects.create!(name: 'gitlab', path: 'gitlab-org/gitlab-foss', namespace_id: 1) }
   let(:user) { users.create!(email: 'email@email.com', name: 'foo', username: 'foo', projects_limit: 0) }
 
   context 'add foreign key on user_id' do

@@ -55,8 +55,8 @@ GET /projects
 | `with_issues_enabled`         | boolean | no | Limit by enabled issues feature |
 | `with_merge_requests_enabled` | boolean | no | Limit by enabled merge requests feature |
 | `with_programming_language`   | string  | no | Limit by projects which use the given programming language |
-| `wiki_checksum_failed`        | boolean | no | **(PREMIUM)** Limit projects where the wiki checksum calculation has failed ([Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/6137) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.2) |
-| `repository_checksum_failed`  | boolean | no | **(PREMIUM)** Limit projects where the repository checksum calculation has failed ([Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/6137) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.2) |
+| `wiki_checksum_failed`        | boolean | no | **(PREMIUM)** Limit projects where the wiki checksum calculation has failed ([Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/6137) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.2) |
+| `repository_checksum_failed`  | boolean | no | **(PREMIUM)** Limit projects where the repository checksum calculation has failed ([Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/6137) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.2) |
 | `min_access_level`            | integer | no | Limit by current user minimal [access level](members.md) |
 
 When `simple=true` or the user is unauthenticated this returns something like:
@@ -809,16 +809,16 @@ If the project is a fork, and you provide a valid token to authenticate, the
       "description":"GitLab Community Edition",
       "name":"GitLab Community Edition",
       "name_with_namespace":"GitLab.org / GitLab Community Edition",
-      "path":"gitlab-ce",
-      "path_with_namespace":"gitlab-org/gitlab-ce",
+      "path":"gitlab-foss",
+      "path_with_namespace":"gitlab-org/gitlab-foss",
       "created_at":"2013-09-26T06:02:36.000Z",
       "default_branch":"master",
       "tag_list":[],
-      "ssh_url_to_repo":"git@gitlab.com:gitlab-org/gitlab-ce.git",
-      "http_url_to_repo":"https://gitlab.com/gitlab-org/gitlab-ce.git",
-      "web_url":"https://gitlab.com/gitlab-org/gitlab-ce",
+      "ssh_url_to_repo":"git@gitlab.com:gitlab-org/gitlab-foss.git",
+      "http_url_to_repo":"https://gitlab.com/gitlab-org/gitlab-foss.git",
+      "web_url":"https://gitlab.com/gitlab-org/gitlab-foss",
       "avatar_url":"https://assets.gitlab-static.net/uploads/-/system/project/avatar/13083/logo-extra-whitespace.png",
-      "license_url": "https://gitlab.com/gitlab-org/gitlab-ce/blob/master/LICENSE",
+      "license_url": "https://gitlab.com/gitlab-org/gitlab-foss/blob/master/LICENSE",
       "license": {
         "key": "mit",
         "name": "MIT License",
@@ -2059,4 +2059,4 @@ GET /projects/:id/snapshot
 | `id`      | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) |
 | `wiki`    | boolean | no | Whether to download the wiki, rather than project, repository |
 
-[ce-27427]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/27427
+[ce-27427]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/27427

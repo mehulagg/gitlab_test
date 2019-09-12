@@ -73,7 +73,7 @@ module EE
 
             # At least one customer reported that their LDAP `member` values contain
             # only `uid=username` and not the full DN. This method allows us to
-            # account for that. See gitlab-ee#442
+            # account for that. See gitlab#442
             def ensure_full_dns!(dns)
               dns.map! do |dn|
                 begin

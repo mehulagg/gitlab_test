@@ -2348,7 +2348,7 @@
   - Fix Error 500 when searching for a comment in a project snippet. !3468
   - Allow temporary email as notification email. !3477
   - Fix issue with dropdowns not selecting values. !3478
-  - Update gitlab-shell version and doc to 2.6.12. gitlab-org/gitlab-ee!280
+  - Update gitlab-shell version and doc to 2.6.12. gitlab-org/gitlab!280
 
 ## 8.6.2
 

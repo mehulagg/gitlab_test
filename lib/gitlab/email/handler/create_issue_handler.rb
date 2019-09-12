@@ -3,8 +3,8 @@
 require 'gitlab/email/handler/base_handler'
 
 # handles issue creation emails with these formats:
-#   incoming+gitlab-org-gitlab-ce-20-Author_Token12345678-issue@incoming.gitlab.com
-#   incoming+gitlab-org/gitlab-ce+Author_Token12345678@incoming.gitlab.com (legacy)
+#   incoming+gitlab-org-gitlab-foss-20-Author_Token12345678-issue@incoming.gitlab.com
+#   incoming+gitlab-org/gitlab-foss+Author_Token12345678@incoming.gitlab.com (legacy)
 module Gitlab
   module Email
     module Handler

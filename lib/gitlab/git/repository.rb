@@ -44,7 +44,7 @@ module Gitlab
       # state.
       alias_method :object_pool_remote_name, :gl_repository
 
-      # This initializer method is only used on the client side (gitlab-ce).
+      # This initializer method is only used on the client side (gitlab-foss).
       # Gitaly-ruby uses a different initializer.
       def initialize(storage, relative_path, gl_repository, gl_project_path)
         @storage = storage

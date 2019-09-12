@@ -74,7 +74,7 @@ describe('IDE merge requests list', () => {
     beforeEach(done => {
       vm.$store.state.mergeRequests.mergeRequests.push({
         ...mergeRequests[0],
-        projectPathWithNamespace: 'gitlab-org/gitlab-ce',
+        projectPathWithNamespace: 'gitlab-org/gitlab-foss',
       });
 
       vm.$nextTick(done);

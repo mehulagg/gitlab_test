@@ -8,7 +8,7 @@ describe 'Pipeline Badge' do
 
   # this can't be tested in the controller, as it bypasses the rails router
   # and constructs a route based on the controller being tested
-  # Keep around until 10.0, see gitlab-org/gitlab-ce#35307
+  # Keep around until 10.0, see gitlab-org/gitlab-foss#35307
   context 'when the deprecated badge is requested' do
     it 'displays the badge' do
       visit build_project_badges_path(project, ref: ref, format: :svg)

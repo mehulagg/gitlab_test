@@ -380,10 +380,10 @@ describe('IDE store file actions', () => {
       it('calls also getBaseRawFileData service method', done => {
         spyOn(service, 'getBaseRawFileData').and.returnValue(Promise.resolve('baseraw'));
 
-        store.state.currentProjectId = 'gitlab-org/gitlab-ce';
+        store.state.currentProjectId = 'gitlab-org/gitlab-foss';
         store.state.currentMergeRequestId = '1';
         store.state.projects = {
-          'gitlab-org/gitlab-ce': {
+          'gitlab-org/gitlab-foss': {
             mergeRequests: {
               1: {
                 baseCommitSha: 'SHA',

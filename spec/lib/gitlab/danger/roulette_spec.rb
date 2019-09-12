@@ -10,14 +10,14 @@ describe Gitlab::Danger::Roulette do
     <<~JSON
     [
       {
-        "username": "in-gitlab-ce",
+        "username": "in-gitlab-foss",
         "name": "CE maintainer",
-        "projects":{ "gitlab-ce": "maintainer backend" }
+        "projects":{ "gitlab-foss": "maintainer backend" }
       },
       {
-        "username": "in-gitlab-ee",
+        "username": "in-gitlab",
         "name": "EE reviewer",
-        "projects":{ "gitlab-ee": "reviewer frontend" }
+        "projects":{ "gitlab": "reviewer frontend" }
       }
     ]
     JSON
@@ -25,17 +25,17 @@ describe Gitlab::Danger::Roulette do
 
   let(:ce_teammate_matcher) do
     satisfy do |teammate|
-      teammate.username == 'in-gitlab-ce' &&
+      teammate.username == 'in-gitlab-foss' &&
         teammate.name == 'CE maintainer' &&
-        teammate.projects == { 'gitlab-ce' => 'maintainer backend' }
+        teammate.projects == { 'gitlab-foss' => 'maintainer backend' }
     end
   end
 
   let(:ee_teammate_matcher) do
     satisfy do |teammate|
-      teammate.username == 'in-gitlab-ee' &&
+      teammate.username == 'in-gitlab' &&
         teammate.name == 'EE reviewer' &&
-        teammate.projects == { 'gitlab-ee' => 'reviewer frontend' }
+        teammate.projects == { 'gitlab' => 'reviewer frontend' }
     end
   end
 
@@ -86,7 +86,7 @@ describe Gitlab::Danger::Roulette do
   end
 
   describe '#project_team' do
-    subject { roulette.project_team('gitlab-ce') }
+    subject { roulette.project_team('gitlab-foss') }
 
     before do
       WebMock

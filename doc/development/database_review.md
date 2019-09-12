@@ -36,7 +36,7 @@ A Merge Request author's role is to:
 
 - Decide whether a database review is needed.
 - If database review is needed, add the ~database label.
-- Use the [database changes](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/.gitlab/merge_request_templates/Database%20changes.md)
+- Use the [database changes](https://gitlab.com/gitlab-org/gitlab-foss/blob/master/.gitlab/merge_request_templates/Database%20changes.md)
   merge request template, or include the appropriate items in the MR description.
 - [Prepare the merge request for a database review](#how-to-prepare-the-merge-request-for-a-database-review).
 
@@ -59,7 +59,7 @@ A database **maintainer**'s role is to:
 ### Distributing review workload
 
 Review workload is distributed using [reviewer roulette](code_review.md#reviewer-roulette)
-([example](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/25181#note_147551725)).
+([example](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/25181#note_147551725)).
 The MR author should then co-assign the suggested database
 **reviewer**. When they give their sign-off, they will hand over to
 the suggested database **maintainer**.
@@ -78,7 +78,7 @@ and details for a database reviewer:
 - Format any queries with a SQL query formatter, for example with [sqlformat.darold.net](http://sqlformat.darold.net).
 - Consider providing query plans via a link to [explain.depesz.com](https://explain.depesz.com) or another tool instead of textual form.
 - For query changes, it is best to provide the SQL query along with a plan *before* and *after* the change. This helps to spot differences quickly.
-- When providing query plans, make sure to use good parameter values, so that the query executed is a good example and also hits enough data. Usually, the `gitlab-org` namespace (`namespace_id = 9970`) and the `gitlab-org/gitlab-ce` project (`project_id = 13083`) provides enough data to serve as a good example.
+- When providing query plans, make sure to use good parameter values, so that the query executed is a good example and also hits enough data. Usually, the `gitlab-org` namespace (`namespace_id = 9970`) and the `gitlab-org/gitlab-foss` project (`project_id = 13083`) provides enough data to serve as a good example.
 
 ### How to review for database
 

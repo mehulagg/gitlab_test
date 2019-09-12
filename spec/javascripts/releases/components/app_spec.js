@@ -12,7 +12,7 @@ describe('Releases App ', () => {
   let vm;
 
   const props = {
-    projectId: 'gitlab-ce',
+    projectId: 'gitlab-foss',
     documentationLink: 'help/releases',
     illustrationPath: 'illustration/path',
   };

@@ -104,7 +104,7 @@ class ProjectPolicy < BasePolicy
   # check. These checks are intended to be used alongside
   # `:read_project_for_iids`.
   #
-  # `:read_issue` & `:read_issue_iid` could diverge in gitlab-ee.
+  # `:read_issue` & `:read_issue_iid` could diverge in gitlab.
   condition(:issues_visible_to_user, score: 4) do
     @subject.feature_available?(:issues, @user)
   end
@@ -215,7 +215,7 @@ class ProjectPolicy < BasePolicy
     enable :read_prometheus
   end
 
-  # We define `:public_user_access` separately because there are cases in gitlab-ee
+  # We define `:public_user_access` separately because there are cases in gitlab
   # where we enable or prevent it based on other coditions.
   rule { (~anonymous & public_project) | internal_access }.policy do
     enable :public_user_access

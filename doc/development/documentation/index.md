@@ -26,10 +26,10 @@ The source of the documentation exists within the codebase of each GitLab applic
 
 | Project | Path |
 | --- | --- |
-| [GitLab Community Edition](https://gitlab.com/gitlab-org/gitlab-ce/) | [`/doc`](https://gitlab.com/gitlab-org/gitlab-ce/tree/master/doc) |
-| [GitLab Enterprise Edition](https://gitlab.com/gitlab-org/gitlab-ee/) | [`/doc`](https://gitlab.com/gitlab-org/gitlab-ee/tree/master/doc) |
+| [GitLab Community Edition](https://gitlab.com/gitlab-org/gitlab-foss/) | [`/doc`](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/doc) |
+| [GitLab Enterprise Edition](https://gitlab.com/gitlab-org/gitlab/) | [`/doc`](https://gitlab.com/gitlab-org/gitlab/tree/master/doc) |
 | [GitLab Runner](https://gitlab.com/gitlab-org/gitlab-runner/) | [`/docs`](https://gitlab.com/gitlab-org/gitlab-runner/tree/master/docs) |
-| [Omnibus GitLab](https://gitlab.com/gitlab-org/omnibus-gitlab/) | [`/doc`](https://gitlab.com/gitlab-org/gitlab-ee/tree/master/doc) |
+| [Omnibus GitLab](https://gitlab.com/gitlab-org/omnibus-gitlab/) | [`/doc`](https://gitlab.com/gitlab-org/gitlab/tree/master/doc) |
 
 Documentation issues and merge requests are part of their respective repositories and all have the label `Documentation`.
 
@@ -55,8 +55,8 @@ See the [Structure](styleguide.md#structure) section of the [Documentation Style
 ## Single codebase
 
 We maintain two sets of docs: one in the
-[gitlab-ce](https://gitlab.com/gitlab-org/gitlab-ce/tree/master/doc) repo and
-one in [gitlab-ee](https://gitlab.com/gitlab-org/gitlab-ee/tree/master/doc).
+[gitlab-foss](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/doc) repo and
+one in [gitlab](https://gitlab.com/gitlab-org/gitlab/tree/master/doc).
 These are identical, but they are different repositories.
 
 ### CE first
@@ -77,7 +77,7 @@ we can determine which features belong to which tier.
 ### EE specific lines check
 
 There's a special test in place
-([`ee_specific_check.rb`](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/scripts/ee_specific_check/ee_specific_check.rb)),
+([`ee_specific_check.rb`](https://gitlab.com/gitlab-org/gitlab/blob/master/scripts/ee_specific_check/ee_specific_check.rb)),
 which checks and prevents creating or editing new files or directories
 in EE under `doc/`. This should fail when changes to anything in `/doc` are submitted
 in an EE MR. To pass the test, simply remove the docs changes from the EE MR, and
@@ -115,7 +115,7 @@ For example, if you move `doc/workflow/lfs/lfs_administration.md` to
 
 1. Find and replace any occurrences of the old location with the new one.
    A quick way to find them is to use `git grep`. First go to the root directory
-   where you cloned the `gitlab-ce` repository and then do:
+   where you cloned the `gitlab-foss` repository and then do:
 
    ```sh
    git grep -n "workflow/lfs/lfs_administration"
@@ -204,7 +204,7 @@ Before getting started, make sure you read the introductory section
 "[contributing to docs](#contributing-to-docs)" above and the
 [documentation workflow](workflow.md).
 
-- Use the current [merge request description template](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/.gitlab/merge_request_templates/Documentation.md)
+- Use the current [merge request description template](https://gitlab.com/gitlab-org/gitlab-foss/blob/master/.gitlab/merge_request_templates/Documentation.md)
 - Use the correct [branch name](#branch-naming)
 - Label the MR `Documentation`
 - Assign the correct milestone (see note below)
@@ -335,7 +335,7 @@ You can combine one or more of the following:
 
 ### GitLab `/help` tests
 
-Several [rspec tests](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/spec/features/help_pages_spec.rb)
+Several [rspec tests](https://gitlab.com/gitlab-org/gitlab-foss/blob/master/spec/features/help_pages_spec.rb)
 are run to ensure GitLab documentation renders and works correctly. In particular, that [main docs landing page](../../README.md) will work correctly from `/help`.
 For example, [GitLab.com's `/help`](https://gitlab.com/help).
 
@@ -362,8 +362,8 @@ To preview your changes to documentation locally, follow this
 
 The live preview is currently enabled for the following projects:
 
-- <https://gitlab.com/gitlab-org/gitlab-ce>
-- <https://gitlab.com/gitlab-org/gitlab-ee>
+- <https://gitlab.com/gitlab-org/gitlab-foss>
+- <https://gitlab.com/gitlab-org/gitlab>
 - <https://gitlab.com/gitlab-org/gitlab-runner>
 
 If your branch contains only documentation changes, you can use
@@ -423,7 +423,7 @@ In case the review app URL returns 404, follow these steps to debug:
 If you want to know the in-depth details, here's what's really happening:
 
 1. You manually run the `review-docs-deploy` job in a CE/EE merge request.
-1. The job runs the [`scripts/trigger-build-docs`](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/scripts/trigger-build-docs)
+1. The job runs the [`scripts/trigger-build-docs`](https://gitlab.com/gitlab-org/gitlab-foss/blob/master/scripts/trigger-build-docs)
    script with the `deploy` flag, which in turn:
    1. Takes your branch name and applies the following:
       - The slug of the branch name is used to avoid special characters since
@@ -500,8 +500,8 @@ This list does not limit what other linters you can add to your local documentat
 
 `proselint` can be used [on the command line](http://proselint.com/utility/), either on a single
  Markdown file or on all Markdown files in a project. For example, to run `proselint` on all
- documentation in the [`gitlab-ce` project](https://gitlab.com/gitlab-org/gitlab-ce), run the
- following commands from within the `gitlab-ce` project:
+ documentation in the [`gitlab-foss` project](https://gitlab.com/gitlab-org/gitlab-foss), run the
+ following commands from within the `gitlab-foss` project:
 
 ```sh
 cd doc
@@ -543,8 +543,8 @@ documentation. This tool helps catch deviations from those guidelines.
 
 `markdownlint` can be used [on the command line](https://github.com/igorshubovych/markdownlint-cli#markdownlint-cli--),
 either on a single Markdown file or on all Markdown files in a project. For example, to run
-`markdownlint` on all documentation in the [`gitlab-ce` project](https://gitlab.com/gitlab-org/gitlab-ce),
-run the following commands from within your `gitlab-ce` project root directory, which will
+`markdownlint` on all documentation in the [`gitlab-foss` project](https://gitlab.com/gitlab-org/gitlab-foss),
+run the following commands from within your `gitlab-foss` project root directory, which will
 automatically detect the [`.markdownlint.json`](#markdownlint-configuration) config
 file in the root of the project, and test all files in `/doc` and its subdirectories:
 
@@ -577,7 +577,7 @@ Each formatting issue that `markdownlint` checks has an associated
 These rules are configured in the `.markdownlint.json` files located in the root of
 four repos that are the sources for <https://docs.gitlab.com>:
 
-- <https://gitlab.com/gitlab-org/gitlab-ce/blob/master/.markdownlint.json>
+- <https://gitlab.com/gitlab-org/gitlab-foss/blob/master/.markdownlint.json>
 - <https://gitlab.com/gitlab-org/gitlab-runner/blob/master/.markdownlint.json>
 - <https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/.markdownlint.json>
 - <https://gitlab.com/charts/gitlab/blob/master/.markdownlint.json>
@@ -591,4 +591,4 @@ GitLab uses [Danger](https://github.com/danger/danger) for some elements in
 code review. For docs changes in merge requests, whenever a change to files under `/doc`
 is made, Danger Bot leaves a comment with further instructions about the documentation
 process. This is configured in the Dangerfile in the GitLab CE and EE repo under
-[/danger/documentation/](https://gitlab.com/gitlab-org/gitlab-ce/tree/master/danger/documentation).
+[/danger/documentation/](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/danger/documentation).

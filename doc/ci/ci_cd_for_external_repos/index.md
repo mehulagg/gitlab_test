@@ -33,7 +33,7 @@ To connect to an external repository:
 
 ![CI/CD for external repository project creation](img/ci_cd_for_external_repo.png)
 
-[ee-4642]: https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/4642
+[ee-4642]: https://gitlab.com/gitlab-org/gitlab/merge_requests/4642
 [eep]: https://about.gitlab.com/pricing/
 [mirroring]: ../../workflow/repository_mirroring.md
 [settings]: ../../user/project/settings/index.md#sharing-and-permissions

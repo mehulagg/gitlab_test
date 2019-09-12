@@ -30,26 +30,26 @@ describe 'Admin::RequestsProfilesController' do
       let(:profiles) do
         [
           {
-            request_path: '/gitlab-org/gitlab-ce',
-            name: "|gitlab-org|gitlab-ce_#{time1.to_i}_execution.html",
+            request_path: '/gitlab-org/gitlab-foss',
+            name: "|gitlab-org|gitlab-foss_#{time1.to_i}_execution.html",
             created: time1,
             profile_mode: 'Execution'
           },
           {
-            request_path: '/gitlab-org/gitlab-ce',
-            name: "|gitlab-org|gitlab-ce_#{time2.to_i}_execution.html",
+            request_path: '/gitlab-org/gitlab-foss',
+            name: "|gitlab-org|gitlab-foss_#{time2.to_i}_execution.html",
             created: time2,
             profile_mode: 'Execution'
           },
           {
-            request_path: '/gitlab-org/gitlab-ce',
-            name: "|gitlab-org|gitlab-ce_#{time1.to_i}_memory.html",
+            request_path: '/gitlab-org/gitlab-foss',
+            name: "|gitlab-org|gitlab-foss_#{time1.to_i}_memory.html",
             created: time1,
             profile_mode: 'Memory'
           },
           {
-            request_path: '/gitlab-org/gitlab-ce',
-            name: "|gitlab-org|gitlab-ce_#{time2.to_i}_memory.html",
+            request_path: '/gitlab-org/gitlab-foss',
+            name: "|gitlab-org|gitlab-foss_#{time2.to_i}_memory.html",
             created: time2,
             profile_mode: 'Memory'
           },
@@ -102,7 +102,7 @@ describe 'Admin::RequestsProfilesController' do
 
       context 'when is valid call stack profile' do
         let(:content) { 'This is a call stack request profile' }
-        let(:profile) { "|gitlab-org|gitlab-ce_#{Time.now.to_i}_execution.html" }
+        let(:profile) { "|gitlab-org|gitlab-foss_#{Time.now.to_i}_execution.html" }
 
         it 'displays the content' do
           visit admin_requests_profile_path(profile)
@@ -113,7 +113,7 @@ describe 'Admin::RequestsProfilesController' do
 
       context 'when is valid memory profile' do
         let(:content) { 'This is a memory request profile' }
-        let(:profile) { "|gitlab-org|gitlab-ce_#{Time.now.to_i}_memory.txt" }
+        let(:profile) { "|gitlab-org|gitlab-foss_#{Time.now.to_i}_memory.txt" }
 
         it 'displays the content' do
           visit admin_requests_profile_path(profile)

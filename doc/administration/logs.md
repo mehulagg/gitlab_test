@@ -23,7 +23,7 @@ requests from the API are logged to a separate file in `api_json.log`.
 Each line contains a JSON line that can be ingested by Elasticsearch, Splunk, etc. For example:
 
 ```json
-{"method":"GET","path":"/gitlab/gitlab-ce/issues/1234","format":"html","controller":"Projects::IssuesController","action":"show","status":200,"duration":229.03,"view":174.07,"db":13.24,"time":"2017-08-08T20:15:54.821Z","params":[{"key":"param_key","value":"param_value"}],"remote_ip":"18.245.0.1","user_id":1,"username":"admin","gitaly_calls":76,"gitaly_duration":7.41,"queue_duration": 112.47}
+{"method":"GET","path":"/gitlab/gitlab-foss/issues/1234","format":"html","controller":"Projects::IssuesController","action":"show","status":200,"duration":229.03,"view":174.07,"db":13.24,"time":"2017-08-08T20:15:54.821Z","params":[{"key":"param_key","value":"param_value"}],"remote_ip":"18.245.0.1","user_id":1,"username":"admin","gitaly_calls":76,"gitaly_duration":7.41,"queue_duration": 112.47}
 ```
 
 In this example, you can see this was a GET request for a specific
@@ -296,11 +296,11 @@ This log records:
 - Requests over the [Rate Limit] on raw endpoints.
 
 NOTE: **Note:**
-From [%12.1](https://gitlab.com/gitlab-org/gitlab-ce/issues/62756), user id and username are available on this log.
+From [%12.1](https://gitlab.com/gitlab-org/gitlab-foss/issues/62756), user id and username are available on this log.
 
 ## `graphql_json.log`
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/59587) in GitLab 12.0.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/59587) in GitLab 12.0.
 
 This file lives in `/var/log/gitlab/gitlab-rails/graphql_json.log` for
 Omnibus GitLab packages or in `/home/git/gitlab/log/graphql_json.log` for
@@ -341,7 +341,7 @@ installations from source.
 
 ## `database_load_balancing.log` **(PREMIUM ONLY)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/15442) in GitLab 12.3.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/15442) in GitLab 12.3.
 
 Contains details of GitLab's [Database Load Balancing](database_load_balancing.md).
 It is stored at:

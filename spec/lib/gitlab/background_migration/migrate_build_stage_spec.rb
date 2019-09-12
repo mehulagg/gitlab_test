@@ -22,7 +22,7 @@ describe Gitlab::BackgroundMigration::MigrateBuildStage, :migration, schema: 201
   end
 
   before do
-    projects.create!(id: 123, name: 'gitlab', path: 'gitlab-ce')
+    projects.create!(id: 123, name: 'gitlab', path: 'gitlab-foss')
     pipelines.create!(id: 1, project_id: 123, ref: 'master', sha: 'adf43c3a')
 
     jobs.create!(id: 1, commit_id: 1, project_id: 123,

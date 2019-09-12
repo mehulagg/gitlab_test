@@ -299,9 +299,9 @@ values used with the GitLab template:
 Notice at the top that there are three resources to be created with this
 template:
 
-- `gitlab-ce`
-- `gitlab-ce-redis`
-- `gitlab-ce-postgresql`
+- `gitlab-foss`
+- `gitlab-foss-redis`
+- `gitlab-foss-postgresql`
 
 While PostgreSQL and Redis are bundled in Omnibus GitLab, the template is using
 separate images as you can see from [this line][line] in the template.
@@ -344,7 +344,7 @@ created the GitLab app? This is where you can see them in action.
 ![Running pods](img/running-pods.png)
 
 You can see GitLab being reconfigured by taking look at the logs in realtime.
-Click on `gitlab-ce-2-j7ioe` (your ID will be different) and go to the **Logs**
+Click on `gitlab-foss-2-j7ioe` (your ID will be different) and go to the **Logs**
 tab.
 
 ![GitLab logs](img/gitlab-logs.png)
@@ -407,40 +407,40 @@ Let's see how to do that using the following steps.
 
    ```
    NAME                   CLUSTER-IP       EXTERNAL-IP   PORT(S)         AGE
-   gitlab-ce              172.30.243.177   <none>        22/TCP,80/TCP   5d
-   gitlab-ce-postgresql   172.30.116.75    <none>        5432/TCP        5d
-   gitlab-ce-redis        172.30.105.88    <none>        6379/TCP        5d
+   gitlab-foss              172.30.243.177   <none>        22/TCP,80/TCP   5d
+   gitlab-foss-postgresql   172.30.116.75    <none>        5432/TCP        5d
+   gitlab-foss-redis        172.30.105.88    <none>        6379/TCP        5d
    ```
 
-1. We need to see the replication controllers of the `gitlab-ce` service.
+1. We need to see the replication controllers of the `gitlab-foss` service.
    Get a detailed view of the current ones:
 
    ```sh
-   oc describe rc gitlab-ce
+   oc describe rc gitlab-foss
    ```
 
    This will return a large detailed list of the current replication controllers.
-   Search for the name of the GitLab controller, usually `gitlab-ce-1` or if
+   Search for the name of the GitLab controller, usually `gitlab-foss-1` or if
    that failed at some point and you spawned another one, it will be named
-   `gitlab-ce-2`.
+   `gitlab-foss-2`.
 
 1. Scale GitLab using the previous information:
 
    ```sh
-   oc scale --replicas=2 replicationcontrollers gitlab-ce-2
+   oc scale --replicas=2 replicationcontrollers gitlab-foss-2
    ```
 
 1. Get the new replicas number to make sure scaling worked:
 
    ```sh
-   oc get rc gitlab-ce-2
+   oc get rc gitlab-foss-2
    ```
 
    which will return something like:
 
    ```
    NAME          DESIRED   CURRENT   AGE
-   gitlab-ce-2   2         2         5d
+   gitlab-foss-2   2         2         5d
    ```
 
 And that's it! We successfully scaled the replicas to 2 using the CLI.
@@ -482,16 +482,16 @@ For OpenShift v3.0, you will need to do this manually:
    oc edit scc anyuid
    ```
 
-1. Add `system:serviceaccount:<project>:gitlab-ce-user` to the `users` section.
+1. Add `system:serviceaccount:<project>:gitlab-foss-user` to the `users` section.
    If you changed the Application Name from the default the user will
-   will be `<app-name>-user` instead of `gitlab-ce-user`
+   will be `<app-name>-user` instead of `gitlab-foss-user`
 
 1. Save and exit the editor
 
 For OpenShift v3.1 and above, you can do:
 
 ```sh
-oc adm policy add-scc-to-user anyuid system:serviceaccount:gitlab:gitlab-ce-user
+oc adm policy add-scc-to-user anyuid system:serviceaccount:gitlab:gitlab-foss-user
 ```
 
 ## Conclusion

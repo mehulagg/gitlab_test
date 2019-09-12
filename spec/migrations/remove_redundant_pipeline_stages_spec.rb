@@ -8,7 +8,7 @@ describe RemoveRedundantPipelineStages, :migration do
   let(:builds) { table(:ci_builds) }
 
   before do
-    projects.create!(id: 123, name: 'gitlab', path: 'gitlab-ce')
+    projects.create!(id: 123, name: 'gitlab', path: 'gitlab-foss')
     pipelines.create!(id: 234, project_id: 123, ref: 'master', sha: 'adf43c3a')
 
     stages.create!(id: 6, project_id: 123, pipeline_id: 234, name: 'build')

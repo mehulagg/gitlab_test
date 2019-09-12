@@ -12,7 +12,7 @@ end
 
 module Trigger
   def self.ee?
-    ENV['CI_PROJECT_NAME'] == 'gitlab-ee' || File.exist?('CHANGELOG-EE.md')
+    ENV['CI_PROJECT_NAME'] == 'gitlab' || File.exist?('CHANGELOG-EE.md')
   end
 
   class Base

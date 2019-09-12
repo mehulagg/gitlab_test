@@ -121,9 +121,9 @@ describe('Multi-file store mutations', () => {
 
   describe('CREATE_TMP_ENTRY', () => {
     beforeEach(() => {
-      localState.currentProjectId = 'gitlab-ce';
+      localState.currentProjectId = 'gitlab-foss';
       localState.currentBranchId = 'master';
-      localState.trees['gitlab-ce/master'] = {
+      localState.trees['gitlab-foss/master'] = {
         tree: [],
       };
     });
@@ -141,11 +141,11 @@ describe('Multi-file store mutations', () => {
           },
           treeList: [tmpFile],
         },
-        projectId: 'gitlab-ce',
+        projectId: 'gitlab-foss',
         branchId: 'master',
       });
 
-      expect(localState.trees['gitlab-ce/master'].tree.length).toEqual(1);
+      expect(localState.trees['gitlab-foss/master'].tree.length).toEqual(1);
       expect(localState.entries.test.tempFile).toEqual(true);
     });
 
@@ -166,11 +166,11 @@ describe('Multi-file store mutations', () => {
           },
           treeList: [tmpFile],
         },
-        projectId: 'gitlab-ce',
+        projectId: 'gitlab-foss',
         branchId: 'master',
       });
 
-      expect(localState.trees['gitlab-ce/master'].tree.length).toEqual(1);
+      expect(localState.trees['gitlab-foss/master'].tree.length).toEqual(1);
       expect(localState.entries.test.replaces).toEqual(true);
     });
   });
@@ -225,9 +225,9 @@ describe('Multi-file store mutations', () => {
 
   describe('DELETE_ENTRY', () => {
     beforeEach(() => {
-      localState.currentProjectId = 'gitlab-ce';
+      localState.currentProjectId = 'gitlab-foss';
       localState.currentBranchId = 'master';
-      localState.trees['gitlab-ce/master'] = {
+      localState.trees['gitlab-foss/master'] = {
         tree: [],
       };
     });
@@ -247,11 +247,11 @@ describe('Multi-file store mutations', () => {
         path: 'filePath',
         deleted: false,
       };
-      localState.trees['gitlab-ce/master'].tree.push(localState.entries.filePath);
+      localState.trees['gitlab-foss/master'].tree.push(localState.entries.filePath);
 
       mutations.DELETE_ENTRY(localState, 'filePath');
 
-      expect(localState.trees['gitlab-ce/master'].tree).toEqual([]);
+      expect(localState.trees['gitlab-foss/master'].tree).toEqual([]);
     });
 
     it('removes from parent tree', () => {
@@ -352,9 +352,9 @@ describe('Multi-file store mutations', () => {
   describe('RENAME_ENTRY', () => {
     beforeEach(() => {
       localState.trees = {
-        'gitlab-ce/master': { tree: [] },
+        'gitlab-foss/master': { tree: [] },
       };
-      localState.currentProjectId = 'gitlab-ce';
+      localState.currentProjectId = 'gitlab-foss';
       localState.currentBranchId = 'master';
       localState.entries.oldPath = {
         ...file(),

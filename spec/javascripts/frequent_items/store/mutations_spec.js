@@ -36,7 +36,7 @@ describe('Frequent Items dropdown mutations', () => {
 
   describe('SET_SEARCH_QUERY', () => {
     it('should set search query', () => {
-      const searchQuery = 'gitlab-ce';
+      const searchQuery = 'gitlab-foss';
 
       mutations[types.SET_SEARCH_QUERY](stateCopy, searchQuery);
 

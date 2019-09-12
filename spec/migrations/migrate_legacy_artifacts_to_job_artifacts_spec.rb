@@ -11,7 +11,7 @@ describe MigrateLegacyArtifactsToJobArtifacts, :migration, :sidekiq do
   let(:jobs) { table(:ci_builds) }
   let(:job_artifacts) { table(:ci_job_artifacts) }
   let(:namespace) { namespaces.create!(name: 'gitlab', path: 'gitlab-org') }
-  let(:project) { projects.create!(name: 'gitlab', path: 'gitlab-ce', namespace_id: namespace.id) }
+  let(:project) { projects.create!(name: 'gitlab', path: 'gitlab-foss', namespace_id: namespace.id) }
   let(:pipeline) { pipelines.create!(project_id: project.id, ref: 'master', sha: 'adf43c3a') }
   let(:archive_file_type) { Gitlab::BackgroundMigration::MigrateLegacyArtifacts::ARCHIVE_FILE_TYPE }
   let(:metadata_file_type) { Gitlab::BackgroundMigration::MigrateLegacyArtifacts::METADATA_FILE_TYPE }

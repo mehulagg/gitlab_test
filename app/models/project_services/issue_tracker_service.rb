@@ -20,7 +20,7 @@ class IssueTrackerService < Service
     end
   end
 
-  # this  will be removed as part of https://gitlab.com/gitlab-org/gitlab-ce/issues/63084
+  # this  will be removed as part of https://gitlab.com/gitlab-org/gitlab-foss/issues/63084
   def title
     if title_attribute = read_attribute(:title)
       title_attribute
@@ -31,7 +31,7 @@ class IssueTrackerService < Service
     end
   end
 
-  # this  will be removed as part of https://gitlab.com/gitlab-org/gitlab-ce/issues/63084
+  # this  will be removed as part of https://gitlab.com/gitlab-org/gitlab-foss/issues/63084
   def description
     if description_attribute = read_attribute(:description)
       description_attribute

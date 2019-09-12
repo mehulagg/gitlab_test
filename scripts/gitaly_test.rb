@@ -1,5 +1,5 @@
 # This file contains environment settings for gitaly when it's running
-# as part of the gitlab-ce/ee test suite.
+# as part of the gitlab-foss/ee test suite.
 #
 # Please be careful when modifying this file. Your changes must work
 # both for local development rspec runs, and in CI.

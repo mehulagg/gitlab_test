@@ -79,7 +79,7 @@ GitLab installation to the Community Edition.
 
 To downgrade an Omnibus installation, it is sufficient to install the Community
 Edition package on top of the currently installed one. You can do this manually,
-by directly [downloading the package](https://packages.gitlab.com/gitlab/gitlab-ce)
+by directly [downloading the package](https://packages.gitlab.com/gitlab/gitlab-foss)
 you need, or by adding our CE package repository and following the
 [CE installation instructions](https://about.gitlab.com/install/?version=ce).
 
@@ -90,7 +90,7 @@ your GitLab installation with the Community Edition's remote, fetch the latest
 changes, and checkout the latest stable branch:
 
 ```sh
-git remote set-url origin git@gitlab.com:gitlab-org/gitlab-ce.git
+git remote set-url origin git@gitlab.com:gitlab-org/gitlab-foss.git
 git fetch --all
 git checkout 8-x-stable
 ```

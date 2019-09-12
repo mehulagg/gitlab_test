@@ -7,16 +7,16 @@ const localVue = createLocalVue();
 const mockData = [
   {
     id: 1,
-    name_with_namespace: 'root / gitlab-ce',
-    path_with_namespace: 'root/gitlab-ce',
+    name_with_namespace: 'root / gitlab-foss',
+    path_with_namespace: 'root/gitlab-foss',
     namespace: {
       full_path: 'root',
     },
   },
   {
     id: 2,
-    name_with_namespace: 'test / gitlab-ce',
-    path_with_namespace: 'test/gitlab-ce',
+    name_with_namespace: 'test / gitlab-foss',
+    path_with_namespace: 'test/gitlab-foss',
     namespace: {
       full_path: 'test',
     },
@@ -27,13 +27,13 @@ let mock;
 
 function factory(projects = mockData) {
   mock = new MockAdapter(axios);
-  mock.onGet(/api\/(.*)\/projects\/gitlab-org%2Fgitlab-ce\/forks/).reply(200, projects);
+  mock.onGet(/api\/(.*)\/projects\/gitlab-org%2Fgitlab-foss\/forks/).reply(200, projects);
 
   vm = shallowMount(ProjectFormGroup, {
     localVue,
     propsData: {
       namespacePath: 'gitlab-org',
-      projectPath: 'gitlab-org/gitlab-ce',
+      projectPath: 'gitlab-org/gitlab-foss',
       newForkPath: 'https://test.com',
       helpPagePath: '/help',
     },
@@ -60,8 +60,8 @@ describe('Confidential merge request project form group component', () => {
     return localVue.nextTick(() => {
       expect(vm.vm.selectedProject).toEqual({
         id: 1,
-        name: 'root / gitlab-ce',
-        pathWithNamespace: 'root/gitlab-ce',
+        name: 'root / gitlab-foss',
+        pathWithNamespace: 'root/gitlab-foss',
         namespaceFullpath: 'root',
       });
     });

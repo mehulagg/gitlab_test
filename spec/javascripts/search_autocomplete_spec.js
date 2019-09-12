@@ -30,9 +30,9 @@ describe('Search autocomplete dropdown', () => {
 
   dashboardMRsPath = '/dashboard/merge_requests';
 
-  projectIssuesPath = '/gitlab-org/gitlab-ce/issues';
+  projectIssuesPath = '/gitlab-org/gitlab-foss/issues';
 
-  projectMRsPath = '/gitlab-org/gitlab-ce/merge_requests';
+  projectMRsPath = '/gitlab-org/gitlab-foss/merge_requests';
 
   groupIssuesPath = '/groups/gitlab-org/issues';
 
@@ -67,7 +67,7 @@ describe('Search autocomplete dropdown', () => {
         return $body.data('group', 'gitlab-org');
       case 'project':
         $body.attr('data-page', 'projects:show');
-        return $body.data('project', 'gitlab-ce');
+        return $body.data('project', 'gitlab-foss');
     }
   };
 
@@ -88,7 +88,7 @@ describe('Search autocomplete dropdown', () => {
   mockProjectOptions = function() {
     window.gl || (window.gl = {});
     return (window.gl.projectOptions = {
-      'gitlab-ce': {
+      'gitlab-foss': {
         issuesPath: projectIssuesPath,
         mrPath: projectMRsPath,
         projectName: projectName,

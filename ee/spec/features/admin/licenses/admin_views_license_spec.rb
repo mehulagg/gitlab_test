@@ -39,7 +39,7 @@ describe "Admin views license" do
       set(:license) { create(:license, trial: true, expired: true) }
 
       it "does not mention blocking of changes" do
-        page.within(".gitlab-ee-license-banner") do
+        page.within(".gitlab-license-banner") do
           expect(page).to have_content("Your trial license expired on")
                      .and have_no_content("Pushing code and creation of issues and merge requests has been disabled")
         end

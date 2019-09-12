@@ -18,7 +18,7 @@ class AutomatedCleanup
   ].freeze
 
   def self.ee?
-    ENV['CI_PROJECT_NAME'] == 'gitlab-ee' || File.exist?('CHANGELOG-EE.md')
+    ENV['CI_PROJECT_NAME'] == 'gitlab' || File.exist?('CHANGELOG-EE.md')
   end
 
   def initialize(project_path: ENV['CI_PROJECT_PATH'], gitlab_token: ENV['GITLAB_BOT_REVIEW_APPS_CLEANUP_TOKEN'])

@@ -19,6 +19,6 @@ class Explore::OnboardingController < Explore::ApplicationController
   end
 
   def get_onboarding_demo_project
-    Project.find_by_full_path("gitlab-org/gitlab-ce") if allow_access_to_onboarding?
+    Project.find_by_full_path("gitlab-org/gitlab-foss") if allow_access_to_onboarding?
   end
 end

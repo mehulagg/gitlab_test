@@ -32,7 +32,7 @@ module API
         use :filter_params
       end
       get ':id/repository/branches' do
-        Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ce/issues/42329')
+        Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/42329')
 
         repository = user_project.repository
 
@@ -68,7 +68,7 @@ module API
 
       # Note: This API will be deprecated in favor of the protected branches API.
       # Note: The internal data model moved from `developers_can_{merge,push}` to `allowed_to_{merge,push}`
-      # in `gitlab-org/gitlab-ce!5081`. The API interface has not been changed (to maintain compatibility),
+      # in `gitlab-org/gitlab-foss!5081`. The API interface has not been changed (to maintain compatibility),
       # but it works with the changed data model to infer `developers_can_merge` and `developers_can_push`.
       desc 'Protect a single branch' do
         success Entities::Branch

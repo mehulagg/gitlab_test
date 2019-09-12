@@ -10,7 +10,7 @@ together.
 ## Branch naming
 
 If your contribution contains **only** changes under the
-[`qa/` folder](https://gitlab.com/gitlab-org/gitlab-ce/tree/master/qa), you can
+[`qa/` folder](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/qa), you can
 speed up the CI process by following some branch naming conventions. You have
 three choices:
 
@@ -70,7 +70,7 @@ graph LR
     A1 -.->|1. Triggers an omnibus-gitlab pipeline and wait for it to be done| A2
     B2[`Trigger-qa` stage<br>`Trigger:qa-test` job] -.->|2. Triggers a gitlab-qa pipeline and wait for it to be done| A3
 
-subgraph "gitlab-ce/ee pipeline"
+subgraph "gitlab-foss/ee pipeline"
     A1[`test` stage<br>`package-and-qa-manual` job]
     end
 
@@ -130,7 +130,7 @@ of the test scenarios you can run via the orchestrator](https://gitlab.com/gitla
 
 On the other hand, if you would like to run against a local development GitLab
 environment, you can use the [GitLab Development Kit (GDK)](https://gitlab.com/gitlab-org/gitlab-development-kit/).
-Please refer to the instructions in the [QA README](https://gitlab.com/gitlab-org/gitlab-ce/tree/master/qa/README.md#how-can-i-use-it)
+Please refer to the instructions in the [QA README](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/qa/README.md#how-can-i-use-it)
 and the section below.
 
 ## How do I write tests?
@@ -153,8 +153,8 @@ Continued reading:
 
 You can ask question in the `#quality` channel on Slack (GitLab internal) or
 you can find an issue you would like to work on in
-[the `gitlab-ce` issue tracker][gitlab-ce-issues],
-[the `gitlab-ee` issue tracker][gitlab-ce-issues], or
+[the `gitlab-foss` issue tracker][gitlab-foss-issues],
+[the `gitlab` issue tracker][gitlab-foss-issues], or
 [the `gitlab-qa` issue tracker][gitlab-qa-issues].
 
 [omnibus-gitlab]: https://gitlab.com/gitlab-org/omnibus-gitlab
@@ -165,10 +165,10 @@ you can find an issue you would like to work on in
 [review-apps]: ../review_apps.md
 [gitlab-qa-architecture]: https://gitlab.com/gitlab-org/gitlab-qa/blob/master/docs/architecture.md
 [gitlab-qa-issues]: https://gitlab.com/gitlab-org/gitlab-qa/issues?label_name%5B%5D=new+scenario
-[gitlab-ce-issues]: https://gitlab.com/gitlab-org/gitlab-ce/issues?label_name[]=QA&label_name[]=test
-[gitlab-ee-issues]: https://gitlab.com/gitlab-org/gitlab-ee/issues?label_name[]=QA&label_name[]=test
+[gitlab-foss-issues]: https://gitlab.com/gitlab-org/gitlab-foss/issues?label_name[]=QA&label_name[]=test
+[gitlab-issues]: https://gitlab.com/gitlab-org/gitlab/issues?label_name[]=QA&label_name[]=test
 [test environment orchestration scenarios]: https://gitlab.com/gitlab-org/gitlab-qa/tree/master/lib/gitlab/qa/scenario
-[instance-level scenarios]: https://gitlab.com/gitlab-org/gitlab-ce/tree/master/qa/qa/specs/features
-[Page objects documentation]: https://gitlab.com/gitlab-org/gitlab-ce/tree/master/qa/qa/page/README.md
-[instance-qa-readme]: https://gitlab.com/gitlab-org/gitlab-ce/tree/master/qa/README.md
-[instance-qa-examples]: https://gitlab.com/gitlab-org/gitlab-ce/tree/master/qa/qa
+[instance-level scenarios]: https://gitlab.com/gitlab-org/gitlab-foss/tree/master/qa/qa/specs/features
+[Page objects documentation]: https://gitlab.com/gitlab-org/gitlab-foss/tree/master/qa/qa/page/README.md
+[instance-qa-readme]: https://gitlab.com/gitlab-org/gitlab-foss/tree/master/qa/README.md
+[instance-qa-examples]: https://gitlab.com/gitlab-org/gitlab-foss/tree/master/qa/qa

@@ -13,8 +13,8 @@ describe ScheduleRunnersTokenEncryption, :migration, :sidekiq do
     settings.create!(id: 1, runners_registration_token: 'plain-text-token1')
     namespaces.create!(id: 11, name: 'gitlab', path: 'gitlab-org', runners_token: 'my-token1')
     namespaces.create!(id: 12, name: 'gitlab', path: 'gitlab-org', runners_token: 'my-token2')
-    projects.create!(id: 111, namespace_id: 11, name: 'gitlab', path: 'gitlab-ce', runners_token: 'my-token1')
-    projects.create!(id: 114, namespace_id: 11, name: 'gitlab', path: 'gitlab-ce', runners_token: 'my-token2')
+    projects.create!(id: 111, namespace_id: 11, name: 'gitlab', path: 'gitlab-foss', runners_token: 'my-token1')
+    projects.create!(id: 114, namespace_id: 11, name: 'gitlab', path: 'gitlab-foss', runners_token: 'my-token2')
     runners.create!(id: 201, runner_type: 1, token: 'plain-text-token1')
     runners.create!(id: 202, runner_type: 1, token: 'plain-text-token2')
   end
