@@ -18,8 +18,6 @@ class TrialRegistrationsController < RegistrationsController
   def new
   end
 
-  def new; end
-
   private
 
   def set_redirect_url
