@@ -4,4 +4,28 @@
   .container {
     max-width: $trial-container-max-width;
   }
+
+  .submit-container {
+    margin-top: 0;
+  }
+
+  .skip-trial {
+    margin-bottom: $gl-padding-32;
+    margin-top: $gl-padding;
+
+    a {
+      display: block;
+    }
+
+    .note {
+      font-size: $gl-font-size-small;
+      margin-top: $gl-padding-12;
+    }
+
+    @media (max-height: 800px) {
+      &.fixed-bottom {
+        position: relative;
+      }
+    }
+  }
 }

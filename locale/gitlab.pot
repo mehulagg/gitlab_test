@@ -1312,6 +1312,9 @@ msgstr ""
 msgid "Allows you to add and manage Kubernetes clusters."
 msgstr ""
 
+msgid "Almost there"
+msgstr ""
+
 msgid "Also called \"Issuer\" or \"Relying party trust identifier\""
 msgstr ""
 
@@ -3873,6 +3876,9 @@ msgstr ""
 msgid "Company"
 msgstr ""
 
+msgid "Company name"
+msgstr ""
+
 msgid "Compare"
 msgstr ""
 
@@ -4251,6 +4257,9 @@ msgid "Could not save project ID"
 msgstr ""
 
 msgid "Could not save prometheus manual configuration"
+msgstr ""
+
+msgid "Country"
 msgstr ""
 
 msgid "Coverage"
@@ -5927,6 +5936,9 @@ msgid "Error loading branches."
 msgstr ""
 
 msgid "Error loading burndown chart data"
+msgstr ""
+
+msgid "Error loading countries data."
 msgstr ""
 
 msgid "Error loading file viewer."
@@ -7970,7 +7982,7 @@ msgstr ""
 msgid "How many shards to split the Elasticsearch index over."
 msgstr ""
 
-msgid "However, you are already a member of this %{member_source}. Sign in using a different account to accept the invitation."
+msgid "How many users will be evaluating the trial?"
 msgstr ""
 
 msgid "I accept the %{terms_link_start}Terms of Service and Privacy Policy%{terms_link_end}"
@@ -10011,6 +10023,9 @@ msgstr ""
 msgid "New Group"
 msgstr ""
 
+msgid "New Group Name"
+msgstr ""
+
 msgid "New Identity"
 msgstr ""
 
@@ -10494,6 +10509,9 @@ msgid "Number of LOCs per commit"
 msgstr ""
 
 msgid "Number of commits per MR"
+msgstr ""
+
+msgid "Number of employees?"
 msgstr ""
 
 msgid "Number of files touched"
@@ -11240,6 +11258,9 @@ msgid "Please provide a valid email address."
 msgstr ""
 
 msgid "Please retype the email address."
+msgstr ""
+
+msgid "Please select a country"
 msgstr ""
 
 msgid "Please select a file"
@@ -14195,6 +14216,9 @@ msgstr ""
 msgid "Size limit per repository (MB)"
 msgstr ""
 
+msgid "Skip Trial (Continue with Free Account)"
+msgstr ""
+
 msgid "Skip this for now"
 msgstr ""
 
@@ -14649,6 +14673,9 @@ msgid "Start thread & close %{noteable_name}"
 msgstr ""
 
 msgid "Start thread & reopen %{noteable_name}"
+msgstr ""
+
+msgid "Start your free trial"
 msgstr ""
 
 msgid "Start your trial"
@@ -15111,6 +15138,9 @@ msgid "Team"
 msgstr ""
 
 msgid "Team domain"
+msgstr ""
+
+msgid "Telephone number"
 msgstr ""
 
 msgid "Template"
@@ -15836,6 +15866,9 @@ msgid "This setting will override user notification preferences for all project 
 msgstr ""
 
 msgid "This setting will update the hostname that is used to generate private commit emails. %{learn_more}"
+msgstr ""
+
+msgid "This subscription is for"
 msgstr ""
 
 msgid "This timeout will take precedence when lower than project-defined timeout and accepts a human readable time input language like \"1 hour\". Values without specification represent seconds."
@@ -17420,6 +17453,9 @@ msgstr ""
 msgid "We heard back from your U2F device. You have been authenticated."
 msgstr ""
 
+msgid "We need some additional information to activate your free trial"
+msgstr ""
+
 msgid "We sent you an email with reset password instructions"
 msgstr ""
 
@@ -17741,6 +17777,9 @@ msgid "You can also test your %{gitlab_ci_yml} in %{lint_link_start}CI Lint%{lin
 msgstr ""
 
 msgid "You can also upload existing files from your computer using the instructions below."
+msgstr ""
+
+msgid "You can apply your Trial to your Personal account or create a New Group."
 msgstr ""
 
 msgid "You can create files directly in GitLab using one of the following options."
