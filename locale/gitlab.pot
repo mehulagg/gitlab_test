@@ -5941,6 +5941,9 @@ msgstr ""
 msgid "Error loading burndown chart data"
 msgstr ""
 
+msgid "Error loading countries data."
+msgstr ""
+
 msgid "Error loading file viewer."
 msgstr ""
 
@@ -11255,6 +11258,9 @@ msgid "Please provide a valid email address."
 msgstr ""
 
 msgid "Please retype the email address."
+msgstr ""
+
+msgid "Please select a country"
 msgstr ""
 
 msgid "Please select a file"
