@@ -9,7 +9,7 @@ module EE
         ['100 - 499', 2],
         ['500 - 1,999', 3],
         ['2,000 - 9,999', 4],
-        ['10,000 +', 5],
+        ['10,000 +', 5]
       ], 0)
     end
 
@@ -20,7 +20,7 @@ module EE
         ['50 - 99', 2],
         ['100 - 249', 3],
         ['250 - 499', 4],
-        ['500 +', 5],
+        ['500 +', 5]
       ], 0)
     end
 
@@ -28,7 +28,7 @@ module EE
       # TODO(vitaly): current_user is missing
       options_for_select([
         ['Please select', 0],
-        ['New Group', 1],
+        ['New Group', 1]
       ], 0)
     end
   end

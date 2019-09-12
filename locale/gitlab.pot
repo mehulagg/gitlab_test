@@ -4259,9 +4259,6 @@ msgstr ""
 msgid "Could not save prometheus manual configuration"
 msgstr ""
 
-msgid "Could not save prometheus manual configuration for self-monitoring project. Errors: %{errors}"
-msgstr ""
-
 msgid "Country"
 msgstr ""
 
