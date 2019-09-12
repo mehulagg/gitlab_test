@@ -12,8 +12,8 @@ module EE
         ['10,000 +', '10,000+']
       ], selected)
     end
-    def namespace_options_for_select
 
+    def namespace_options_for_select
       groups = current_user.manageable_groups.map { |g| [g.name, g.id] }
       users = [[current_user.namespace.name, current_user.namespace.id]]
 

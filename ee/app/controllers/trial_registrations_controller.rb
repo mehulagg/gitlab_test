@@ -5,7 +5,7 @@ class TrialRegistrationsController < RegistrationsController
 
   layout 'trial'
 
-  prepend_before_action :set_redirect_url, only: [:new]
+  skip_before_action :require_no_authentication
 
   before_action :check_if_gl_com
   before_action :check_if_improved_trials_enabled
