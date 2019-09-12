@@ -2,8 +2,6 @@
 
 module ApprovalRules
   class UpdateService < ::ApprovalRules::BaseService
-    include ::ApprovalRules::Updater
-
     attr_reader :rule, :keep_existing_hidden_groups
 
     def initialize(approval_rule, user, params)

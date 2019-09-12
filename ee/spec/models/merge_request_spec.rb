@@ -342,7 +342,7 @@ describe MergeRequest do
   end
 
   describe '#compare_license_management_reports' do
-    subject { merge_request.compare_license_management_reports(project.users.first) }
+    subject { merge_request.compare_license_management_reports }
 
     let(:project) { create(:project, :repository) }
     let(:merge_request) { create(:merge_request, source_project: project) }

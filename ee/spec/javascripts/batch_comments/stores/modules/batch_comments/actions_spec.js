@@ -1,19 +1,33 @@
-import MockAdapter from 'axios-mock-adapter';
-import axios from '~/lib/utils/axios_utils';
+import Vue from 'vue';
+import VueResource from 'vue-resource';
+import _ from 'underscore';
 import testAction from 'spec/helpers/vuex_action_helper';
 import * as actions from 'ee/batch_comments/stores/modules/batch_comments/actions';
 
+Vue.use(VueResource);
+
 describe('Batch comments store actions', () => {
+  let interceptor;
   let res = {};
-  let mock;
+  let status = 200;
 
   beforeEach(() => {
-    mock = new MockAdapter(axios);
+    interceptor = (request, next) => {
+      next(
+        request.respondWith(JSON.stringify(res), {
+          status,
+        }),
+      );
+    };
+
+    Vue.http.interceptors.push(interceptor);
   });
 
   afterEach(() => {
     res = {};
-    mock.restore();
+    status = 200;
+
+    Vue.http.interceptors = _.without(Vue.http.interceptors, interceptor);
   });
 
   describe('enableBatchComments', () => {
@@ -42,7 +56,6 @@ describe('Batch comments store actions', () => {
   describe('addDraftToDiscussion', () => {
     it('commits ADD_NEW_DRAFT if no errors returned', done => {
       res = { id: 1 };
-      mock.onAny().reply(200, res);
 
       testAction(
         actions.addDraftToDiscussion,
@@ -55,7 +68,7 @@ describe('Batch comments store actions', () => {
     });
 
     it('does not commit ADD_NEW_DRAFT if errors returned', done => {
-      mock.onAny().reply(500);
+      status = 500;
 
       testAction(
         actions.addDraftToDiscussion,
@@ -71,7 +84,6 @@ describe('Batch comments store actions', () => {
   describe('createNewDraft', () => {
     it('commits ADD_NEW_DRAFT if no errors returned', done => {
       res = { id: 1 };
-      mock.onAny().reply(200, res);
 
       testAction(
         actions.createNewDraft,
@@ -84,7 +96,7 @@ describe('Batch comments store actions', () => {
     });
 
     it('does not commit ADD_NEW_DRAFT if errors returned', done => {
-      mock.onAny().reply(500);
+      status = 500;
 
       testAction(
         actions.createNewDraft,
@@ -115,7 +127,6 @@ describe('Batch comments store actions', () => {
         commit,
       };
       res = { id: 1 };
-      mock.onAny().reply(200);
 
       actions
         .deleteDraft(context, { id: 1 })
@@ -132,7 +143,8 @@ describe('Batch comments store actions', () => {
         getters,
         commit,
       };
-      mock.onAny().reply(500);
+      res = '';
+      status = '500';
 
       actions
         .deleteDraft(context, { id: 1 })
@@ -162,7 +174,6 @@ describe('Batch comments store actions', () => {
         commit,
       };
       res = { id: 1 };
-      mock.onAny().reply(200, res);
 
       actions
         .fetchDrafts(context)
@@ -190,8 +201,6 @@ describe('Batch comments store actions', () => {
     });
 
     it('dispatches actions & commits', done => {
-      mock.onAny().reply(200);
-
       actions
         .publishReview({ dispatch, commit, getters, rootGetters })
         .then(() => {
@@ -205,7 +214,7 @@ describe('Batch comments store actions', () => {
     });
 
     it('dispatches error commits', done => {
-      mock.onAny().reply(500);
+      status = 500;
 
       actions
         .publishReview({ dispatch, commit, getters, rootGetters })
@@ -224,7 +233,6 @@ describe('Batch comments store actions', () => {
         getNotesData: { draftsDiscardPath: gl.TEST_HOST },
       };
       const commit = jasmine.createSpy('commit');
-      mock.onAny().reply(200);
 
       actions
         .discardReview({ getters, commit })
@@ -241,7 +249,8 @@ describe('Batch comments store actions', () => {
         getNotesData: { draftsDiscardPath: gl.TEST_HOST },
       };
       const commit = jasmine.createSpy('commit');
-      mock.onAny().reply(500);
+
+      status = 500;
 
       actions
         .discardReview({ getters, commit })
@@ -272,7 +281,6 @@ describe('Batch comments store actions', () => {
         commit,
       };
       res = { id: 1 };
-      mock.onAny().reply(200, res);
 
       actions
         .updateDraft(context, { note: { id: 1 }, noteText: 'test', callback() {} })
@@ -291,7 +299,6 @@ describe('Batch comments store actions', () => {
       };
       const callback = jasmine.createSpy('callback');
       res = { id: 1 };
-      mock.onAny().reply(200, res);
 
       actions
         .updateDraft(context, { note: { id: 1 }, noteText: 'test', callback })

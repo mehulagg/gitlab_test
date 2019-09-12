@@ -20,11 +20,6 @@ describe('User onboarding helper app', () => {
   };
   const tourTitles = [{ id: 1, title: 'First tour' }, { id: 2, title: 'Second tour' }];
   const exitTourContent = {
-    text: 'feedback content',
-    feedbackButtons: true,
-    feedbackSize: 5,
-  };
-  const feedbackContent = {
     text: 'exit tour content',
     buttons: [{ text: 'OK', btnClass: 'btn-primary' }],
   };
@@ -32,7 +27,6 @@ describe('User onboarding helper app', () => {
   const defaultProps = {
     tourTitles,
     exitTourContent,
-    feedbackContent,
     goldenTanukiSvgPath: 'illustrations/golden_tanuki.svg',
   };
 
@@ -75,12 +69,6 @@ describe('User onboarding helper app', () => {
         store.dispatch('setExitTour', true);
 
         expect(vm.helpContentData).toEqual(exitTourContent);
-      });
-
-      it('returns an object containing tour feedback content if tourFeedback is true', () => {
-        store.dispatch('setTourFeedback', true);
-
-        expect(vm.helpContentData).toEqual(feedbackContent);
       });
     });
 
@@ -176,14 +164,12 @@ describe('User onboarding helper app', () => {
     });
 
     describe('handleRestartStep', () => {
-      it('calls the "showExitTourContent" and "handleFeedbackTourContent" methods', () => {
+      it('calls the "showExitTourContent" method', () => {
         spyOn(vm, 'showExitTourContent');
-        spyOn(vm, 'handleFeedbackTourContent');
 
         vm.handleRestartStep();
 
         expect(vm.showExitTourContent).toHaveBeenCalledWith(false);
-        expect(vm.handleFeedbackTourContent).toHaveBeenCalledWith(false);
       });
 
       it('emits the "onboardingHelper.hideActionPopover" event', () => {
@@ -319,22 +305,6 @@ describe('User onboarding helper app', () => {
         vm.showExitTourContent(true);
 
         expect(vm.$store.dispatch).toHaveBeenCalledWith('setExitTour', true);
-      });
-    });
-
-    describe('handleFeedbackTourContent', () => {
-      it('sets the "dismissPopover" prop to false', () => {
-        vm.handleFeedbackTourContent(true);
-
-        expect(vm.dismissPopover).toBeFalsy();
-      });
-
-      it('calls the "setTourFeedback" method', () => {
-        spyOn(vm.$store, 'dispatch');
-
-        vm.handleFeedbackTourContent(true);
-
-        expect(vm.$store.dispatch).toHaveBeenCalledWith('setTourFeedback', true);
       });
     });
 

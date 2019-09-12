@@ -152,12 +152,12 @@ module EE
       compare_reports(::Ci::CompareSastReportsService)
     end
 
-    def compare_license_management_reports(current_user)
+    def compare_license_management_reports
       unless has_license_management_reports?
         return { status: :error, status_reason: 'This merge request does not have license management reports' }
       end
 
-      compare_reports(::Ci::CompareLicenseManagementReportsService, current_user)
+      compare_reports(::Ci::CompareLicenseManagementReportsService)
     end
 
     def has_metrics_reports?
@@ -170,15 +170,6 @@ module EE
       end
 
       compare_reports(::Ci::CompareMetricsReportsService)
-    end
-
-    def synchronize_approval_rules_from_target_project
-      return if merged?
-
-      project_rules = target_project.approval_rules.report_approver.includes(:users, :groups)
-      project_rules.find_each do |project_rule|
-        project_rule.apply_report_approver_rules_to(self)
-      end
     end
   end
 end

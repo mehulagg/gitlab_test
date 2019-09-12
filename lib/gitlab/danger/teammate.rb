@@ -42,8 +42,6 @@ module Gitlab
           area = role[/Test Automation Engineer(?:.*?, (\w+))/, 1]
 
           area && labels.any?("devops::#{area.downcase}") if kind == :reviewer
-        when :engineering_productivity
-          role[/Engineering Productivity/] if kind == :reviewer
         else
           capabilities(project).include?("#{kind} #{category}")
         end

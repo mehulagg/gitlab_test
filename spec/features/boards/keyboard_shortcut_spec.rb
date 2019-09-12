@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Issue Boards shortcut', :js do
   context 'issues are enabled' do

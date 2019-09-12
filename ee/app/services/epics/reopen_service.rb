@@ -12,7 +12,6 @@ module Epics
 
     def reopen_epic(epic)
       if epic.reopen
-        event_service.reopen_epic(epic, current_user)
         SystemNoteService.change_status(epic, nil, current_user, epic.state)
         notification_service.reopen_epic(epic, current_user)
       end

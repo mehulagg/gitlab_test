@@ -20,8 +20,9 @@ describe Gitlab::Checks::DiffCheck do
         allow(project).to receive(:lfs_enabled?).and_return(false)
       end
 
-      it 'does not invoke :lfs_file_locks_validation' do
-        expect(subject).not_to receive(:lfs_file_locks_validation)
+      it 'skips the validation' do
+        expect(subject).not_to receive(:validate_diff)
+        expect(subject).not_to receive(:validate_file_paths)
 
         subject.validate!
       end

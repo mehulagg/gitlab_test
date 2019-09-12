@@ -97,10 +97,6 @@
                     "id": "/properties/details/properties/finished_at",
                     "type": "string"
                 },
-                "name": {
-                    "id": "/properties/details/properties/name",
-                    "type": "string"
-                },
                 "manual_actions": {
                     "id": "/properties/details/properties/manual_actions",
                     "items": {},
@@ -325,10 +321,6 @@
         },
         "web_url": {
             "id": "/properties/web_url",
-            "type": "string"
-        },
-        "merge_request_event_type": {
-            "id": "/properties/merge_request_event_type",
             "type": "string"
         },
         "user": {

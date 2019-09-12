@@ -4,7 +4,7 @@
 module Projects
   module LfsPointers
     class LfsListService < BaseService
-      REV = 'HEAD'
+      REV = 'HEAD'.freeze
 
       # Retrieve all lfs blob pointers and returns a hash
       # with the structure { lfs_file_oid => lfs_file_size }

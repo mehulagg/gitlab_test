@@ -21,7 +21,9 @@
       %td
         = _("Domain")
       %td
-        = external_link(@domain.url, @domain.url)
+        = link_to @domain.url do
+          = @domain.url
+          = icon('external-link')
     %tr
       %td
         = _("DNS")

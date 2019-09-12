@@ -26,6 +26,8 @@ module Blobs
       # so we can accurately show the rest of the diff when unfolding.
       load_all_blob_data
 
+      @all_lines = blob.data.lines
+
       handle_full_or_end!
     end
 
@@ -44,7 +46,7 @@ module Blobs
 
     def lines
       strong_memoize(:lines) do
-        limit(highlight(to: to).lines).map(&:html_safe)
+        limit(highlight.lines).map(&:html_safe)
       end
     end
 
@@ -74,7 +76,7 @@ module Blobs
 
     def all_lines_size
       strong_memoize(:all_lines_size) do
-        all_lines.size
+        @all_lines.size
       end
     end
 
@@ -99,7 +101,7 @@ module Blobs
 
     def limited_blob_lines
       strong_memoize(:limited_blob_lines) do
-        limit(all_lines)
+        limit(@all_lines)
       end
     end
 

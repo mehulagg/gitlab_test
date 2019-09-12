@@ -287,13 +287,10 @@ describe Ci::Pipeline do
     context 'when pipeline has a build with dependency list reports' do
       let!(:build) { create(:ci_build, :success, name: 'dependency_list', pipeline: pipeline, project: project) }
       let!(:artifact) { create(:ee_ci_job_artifact, :dependency_list, job: build, project: project) }
-      let!(:build2) { create(:ci_build, :success, name: 'license_management', pipeline: pipeline, project: project) }
-      let!(:artifact2) { create(:ee_ci_job_artifact, :license_management, job: build, project: project) }
 
       it 'returns a dependency list report with collected data' do
         expect(subject.dependencies.count).to eq(21)
         expect(subject.dependencies[0][:name]).to eq('mini_portile2')
-        expect(subject.dependencies[0][:licenses]).not_to be_empty
       end
 
       context 'when builds are retried' do
@@ -423,10 +420,8 @@ describe Ci::Pipeline do
         end
       end
     end
-  end
 
-  describe 'state machine transitions' do
-    context 'when pipeline has downstream bridges' do
+    context 'when pipeline has bridged jobs' do
       before do
         pipeline.downstream_bridges << create(:ci_bridge)
       end
@@ -444,32 +439,6 @@ describe Ci::Pipeline do
           expect(::Ci::PipelineBridgeStatusWorker).to receive(:perform_async).with(pipeline.id)
 
           pipeline.block!
-        end
-      end
-    end
-
-    context 'when pipeline is bridge triggered' do
-      before do
-        pipeline.source_bridge = create(:ci_bridge)
-      end
-
-      context 'when source bridge is dependent on pipeline status' do
-        before do
-          allow(pipeline.source_bridge).to receive(:dependent?).and_return(true)
-        end
-
-        it 'schedules the pipeline bridge worker' do
-          expect(::Ci::PipelineBridgeStatusWorker).to receive(:perform_async)
-
-          pipeline.succeed!
-        end
-      end
-
-      context 'when source bridge is not dependent on pipeline status' do
-        it 'does not schedule the pipeline bridge worker' do
-          expect(::Ci::PipelineBridgeStatusWorker).not_to receive(:perform_async)
-
-          pipeline.succeed!
         end
       end
     end

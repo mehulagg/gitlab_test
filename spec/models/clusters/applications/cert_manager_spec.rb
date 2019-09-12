@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Clusters::Applications::CertManager do
   let(:cert_manager) { create(:clusters_applications_cert_manager) }

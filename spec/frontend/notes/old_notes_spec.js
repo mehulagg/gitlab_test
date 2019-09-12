@@ -49,12 +49,17 @@ describe('Old Notes (~/notes.js)', () => {
     setTestTimeoutOnce(4000);
   });
 
-  afterEach(() => {
+  afterEach(done => {
     // The Notes component sets a polling interval. Clear it after every run.
     // Make sure to use jest.runOnlyPendingTimers() instead of runAllTimers().
     jest.clearAllTimers();
 
-    return axios.waitForAll().finally(() => mockAxios.restore());
+    setImmediate(() => {
+      // Wait for any requests to resolve, otherwise we get failures about
+      // unmocked requests.
+      mockAxios.restore();
+      done();
+    });
   });
 
   it('loads the Notes class into the DOM', () => {

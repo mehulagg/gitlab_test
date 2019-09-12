@@ -1,16 +1,21 @@
-import axios from '~/lib/utils/axios_utils';
+import Vue from 'vue';
+import vueResource from 'vue-resource';
+
+Vue.use(vueResource);
 
 class ServiceDeskService {
   constructor(endpoint) {
-    this.endpoint = endpoint;
+    this.serviceDeskResource = Vue.resource(`${endpoint}`);
   }
 
   fetchIncomingEmail() {
-    return axios.get(this.endpoint);
+    return this.serviceDeskResource.get();
   }
 
   toggleServiceDesk(enable) {
-    return axios.put(this.endpoint, { service_desk_enabled: enable });
+    return this.serviceDeskResource.update({
+      service_desk_enabled: enable,
+    });
   }
 }
 

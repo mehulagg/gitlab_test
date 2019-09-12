@@ -88,9 +88,7 @@ DELETE /applications/:id
 
 Parameters:
 
-| Attribute | Type    | Required | Description                                         |
-|:----------|:--------|:---------|:----------------------------------------------------|
-| `id`      | integer | yes      | The id of the application (not the application_id). |
+- `id` (required) - The id of the application (not the application_id)
 
 Example request:
 

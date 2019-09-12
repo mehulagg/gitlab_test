@@ -176,28 +176,14 @@ describe Gitlab::DatabaseImporters::SelfMonitoring::Project::CreateService do
       end
 
       context 'with non default prometheus address' do
-        let(:listen_address) { 'https://localhost:9090' }
-
         let(:prometheus_settings) do
           {
             enable: true,
-            listen_address: listen_address
+            listen_address: 'https://localhost:9090'
           }
         end
 
         it_behaves_like 'has prometheus service', 'https://localhost:9090'
-
-        context 'with :9090 symbol' do
-          let(:listen_address) { :':9090' }
-
-          it_behaves_like 'has prometheus service', 'http://localhost:9090'
-        end
-
-        context 'with 0.0.0.0:9090' do
-          let(:listen_address) { '0.0.0.0:9090' }
-
-          it_behaves_like 'has prometheus service', 'http://localhost:9090'
-        end
       end
 
       context 'when prometheus setting is not present in gitlab.yml' do

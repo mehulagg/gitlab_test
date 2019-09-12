@@ -3,8 +3,8 @@
 module Gitlab
   module Ci
     class CronParser
-      VALID_SYNTAX_SAMPLE_TIME_ZONE = 'UTC'
-      VALID_SYNTAX_SAMPLE_CRON = '* * * * *'
+      VALID_SYNTAX_SAMPLE_TIME_ZONE = 'UTC'.freeze
+      VALID_SYNTAX_SAMPLE_CRON = '* * * * *'.freeze
 
       def initialize(cron, cron_timezone = 'UTC')
         @cron = cron

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Gitlab::SidekiqConfig do
   describe '.workers' do

@@ -13,7 +13,6 @@ export default () => ({
   vulnerabilitiesHistoryDayRange: 90,
   vulnerabilitiesHistoryMaxDayInterval: 7,
   pageInfo: {},
-  pipelineId: null,
   vulnerabilitiesCountEndpoint: null,
   vulnerabilitiesHistoryEndpoint: null,
   vulnerabilitiesEndpoint: null,

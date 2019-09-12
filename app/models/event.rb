@@ -2,6 +2,7 @@
 
 class Event < ApplicationRecord
   include Sortable
+  include IgnorableColumn
   include FromUnion
   default_scope { reorder(nil) }
 
@@ -51,7 +52,6 @@ class Event < ApplicationRecord
 
   belongs_to :author, class_name: "User"
   belongs_to :project
-  belongs_to :group
 
   belongs_to :target, -> {
     # If the association for "target" defines an "author" association we want to

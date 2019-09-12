@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class AwardEmoji < ApplicationRecord
-  DOWNVOTE_NAME = "thumbsdown"
-  UPVOTE_NAME   = "thumbsup"
+  DOWNVOTE_NAME = "thumbsdown".freeze
+  UPVOTE_NAME   = "thumbsup".freeze
 
   include Participable
   include GhostUser

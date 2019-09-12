@@ -8,9 +8,9 @@ module Projects
     class LfsObjectDownloadListService < BaseService
       include Gitlab::Utils::StrongMemoize
 
-      HEAD_REV = 'HEAD'
+      HEAD_REV = 'HEAD'.freeze
       LFS_ENDPOINT_PATTERN = /^\t?url\s*=\s*(.+)$/.freeze
-      LFS_BATCH_API_ENDPOINT = '/info/lfs/objects/batch'
+      LFS_BATCH_API_ENDPOINT = '/info/lfs/objects/batch'.freeze
 
       LfsObjectDownloadListError = Class.new(StandardError)
 

@@ -33,7 +33,6 @@ Event:
 - target_type
 - target_id
 - project_id
-- group_id
 - created_at
 - updated_at
 - action
@@ -329,7 +328,6 @@ CommitStatus:
 - failure_reason
 - scheduled_at
 - upstream_pipeline_id
-- interruptible
 Ci::Variable:
 - id
 - project_id
@@ -468,7 +466,6 @@ ProtectedBranch:
 - name
 - created_at
 - updated_at
-- code_owner_approval_required
 ProtectedTag:
 - id
 - project_id

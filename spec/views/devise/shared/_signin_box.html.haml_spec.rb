@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'devise/shared/_signin_box' do
   describe 'Crowd form' do

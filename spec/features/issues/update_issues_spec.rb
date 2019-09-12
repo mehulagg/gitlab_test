@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Multiple issue updating from issues#index', :js do
   let!(:project)   { create(:project) }

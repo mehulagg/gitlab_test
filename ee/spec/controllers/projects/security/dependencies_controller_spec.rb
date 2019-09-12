@@ -19,7 +19,7 @@ describe Projects::Security::DependenciesController do
 
       context 'when feature is available' do
         before do
-          stub_licensed_features(dependency_list: true, license_management: true)
+          stub_licensed_features(dependency_list: true)
         end
 
         it 'counts usage of the feature' do
@@ -121,23 +121,6 @@ describe Projects::Security::DependenciesController do
           end
         end
 
-        context 'with found license report' do
-          let(:pipeline) { create(:ee_ci_pipeline, :with_dependency_list_report, project: project) }
-          let(:license_build) { create(:ee_ci_build, :success, :license_management, pipeline: pipeline) }
-
-          before do
-            pipeline.builds << license_build
-
-            get :index, params: params, format: :json
-          end
-
-          it 'include license information to response' do
-            nokogiri = json_response['dependencies'].select { |dep| dep['name'] == 'nokogiri' }.first
-
-            expect(nokogiri['licenses']).not_to be_empty
-          end
-        end
-
         context 'without existing report' do
           let!(:pipeline) { create(:ee_ci_pipeline, :with_sast_report, project: project) }
 
@@ -182,21 +165,21 @@ describe Projects::Security::DependenciesController do
         end
       end
 
-      context 'when licensed feature is unavailable' do
+      context 'when feature is not available' do
         before do
           get :index, params: params, format: :json
         end
 
-        it 'returns 403' do
-          expect(response).to have_gitlab_http_status(403)
+        it 'returns 404' do
+          expect(response).to have_gitlab_http_status(404)
         end
       end
     end
 
     context 'with unauthorized user' do
       before do
-        stub_licensed_features(dependency_list: true)
         project.add_guest(user)
+        stub_licensed_features(dependency_list: true)
 
         get :index, params: params, format: :json
       end

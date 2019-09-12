@@ -26,10 +26,6 @@ module Gitlab
               location.present?
             end
 
-            def invalid_location_type?
-              !location.is_a?(String)
-            end
-
             def invalid_extension?
               location.nil? || !::File.basename(location).match?(YAML_WHITELIST_EXTENSION)
             end
@@ -75,9 +71,7 @@ module Gitlab
             end
 
             def validate_location!
-              if invalid_location_type?
-                errors.push("Included file `#{location}` needs to be a string")
-              elsif invalid_extension?
+              if invalid_extension?
                 errors.push("Included file `#{location}` does not have YAML extension!")
               end
             end

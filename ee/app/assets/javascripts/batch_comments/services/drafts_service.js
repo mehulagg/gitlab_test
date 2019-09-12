@@ -1,33 +1,38 @@
-import axios from '~/lib/utils/axios_utils';
+import Vue from 'vue';
+import VueResource from 'vue-resource';
+
+Vue.use(VueResource);
 
 export default {
   createNewDraft(endpoint, data) {
     const postData = Object.assign({}, data, { draft_note: data.note });
     delete postData.note;
 
-    return axios.post(endpoint, postData);
+    return Vue.http.post(endpoint, postData, { emulateJSON: true });
   },
   deleteDraft(endpoint, draftId) {
-    return axios.delete(`${endpoint}/${draftId}`);
+    return Vue.http.delete(`${endpoint}/${draftId}`, { emulateJSON: true });
   },
   publishDraft(endpoint, draftId) {
-    return axios.post(endpoint, { id: draftId });
+    return Vue.http.post(endpoint, { id: draftId }, { emulateJSON: true });
   },
   addDraftToDiscussion(endpoint, data) {
-    return axios.post(endpoint, data);
+    return Vue.http.post(endpoint, data, { emulateJSON: true });
   },
   fetchDrafts(endpoint) {
-    return axios.get(endpoint);
+    return Vue.http.get(endpoint);
   },
   publish(endpoint) {
-    return axios.post(endpoint);
+    return Vue.http.post(endpoint);
   },
   discard(endpoint) {
-    return axios.delete(endpoint);
+    return Vue.http.delete(endpoint);
   },
   update(endpoint, { draftId, note, resolveDiscussion }) {
-    return axios.put(`${endpoint}/${draftId}`, {
-      draft_note: { note, resolve_discussion: resolveDiscussion },
-    });
+    return Vue.http.put(
+      `${endpoint}/${draftId}`,
+      { draft_note: { note, resolve_discussion: resolveDiscussion } },
+      { emulateJSON: true },
+    );
   },
 };

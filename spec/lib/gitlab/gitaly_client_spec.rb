@@ -265,7 +265,7 @@ describe Gitlab::GitalyClient do
 
     context 'in production and when RequestStore is enabled', :request_store do
       before do
-        stub_rails_env('production')
+        allow(Rails.env).to receive(:production?).and_return(true)
       end
 
       context 'when the maximum number of calls is enforced by a feature flag' do

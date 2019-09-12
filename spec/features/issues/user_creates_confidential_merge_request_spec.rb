@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'User creates confidential merge request on issue page', :js do
   include ProjectForksHelper

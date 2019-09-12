@@ -14,11 +14,7 @@ class Admin::GroupsController < Admin::ApplicationController
 
   # rubocop: disable CodeReuse/ActiveRecord
   def show
-    # Group.with_statistics doesn't behave nicely when including other relations.
-    # Group.find_by_full_path includes the routes relation to avoid a common N+1
-    # (at the expense of this action: there are two queries here to find and retrieve
-    # the Group with statistics).
-    @group = Group.with_statistics.find(group&.id)
+    @group = Group.with_statistics.joins(:route).group('routes.path').find_by_full_path(params[:id])
     @members = present_members(
       @group.members.order("access_level DESC").page(params[:members_page]))
     @requesters = present_members(

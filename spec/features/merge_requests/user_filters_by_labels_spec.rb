@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Merge Requests > User filters by labels', :js do
   include FilteredSearchHelpers

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Resolve an open thread in a merge request by creating an issue', :js do
   let(:user) { create(:user) }

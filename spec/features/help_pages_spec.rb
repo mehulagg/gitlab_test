@@ -58,7 +58,7 @@ describe 'Help Pages' do
     before do
       stub_application_setting(version_check_enabled: true)
 
-      stub_rails_env('production')
+      allow(Rails.env).to receive(:production?).and_return(true)
       allow(VersionCheck).to receive(:url).and_return('/version-check-url')
 
       sign_in(create(:user))

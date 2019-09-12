@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Metrics::Dashboard::ProjectDashboardService, :use_clean_rails_memory_store_caching do
   include MetricsDashboardHelpers

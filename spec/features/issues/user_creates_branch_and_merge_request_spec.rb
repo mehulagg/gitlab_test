@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'User creates branch and merge request on issue page', :js do
   let(:membership_level) { :developer }

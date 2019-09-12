@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Geo read-only message', :geo do
   include ::EE::GeoHelpers

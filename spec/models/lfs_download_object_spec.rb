@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe LfsDownloadObject do
   let(:oid) { 'cd293be6cea034bd45a0352775a219ef5dc7825ce55d1f7dae9762d80ce64411' }

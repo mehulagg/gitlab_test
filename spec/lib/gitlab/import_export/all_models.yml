@@ -26,7 +26,6 @@ issues:
 events:
 - author
 - project
-- group
 - target
 - push_event_payload
 notes:
@@ -63,8 +62,6 @@ milestone:
 - participants
 - events
 - boards
-- milestone_release
-- release
 snippets:
 - author
 - project
@@ -75,8 +72,6 @@ releases:
 - author
 - project
 - links
-- milestone_release
-- milestone
 links:
 - release
 project_members:
@@ -489,6 +484,3 @@ lists:
 - board
 - label
 - list_user_preferences
-milestone_releases:
-- milestone
-- release

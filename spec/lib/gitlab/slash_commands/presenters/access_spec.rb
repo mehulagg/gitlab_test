@@ -4,14 +4,12 @@ require 'spec_helper'
 
 describe Gitlab::SlashCommands::Presenters::Access do
   describe '#access_denied' do
-    let(:project) { build(:project) }
-
-    subject { described_class.new.access_denied(project) }
+    subject { described_class.new.access_denied }
 
     it { is_expected.to be_a(Hash) }
 
     it 'displays an error message' do
-      expect(subject[:text]).to match('are not allowed')
+      expect(subject[:text]).to match("is not allowed")
       expect(subject[:response_type]).to be(:ephemeral)
     end
   end

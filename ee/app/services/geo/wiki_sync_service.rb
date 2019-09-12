@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Geo
-  class WikiSyncService < RepositoryBaseSyncService
+  class WikiSyncService < BaseSyncService
     self.type = :wiki
 
     private

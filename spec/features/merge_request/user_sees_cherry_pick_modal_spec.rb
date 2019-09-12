@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Merge request > User cherry-picks', :js do
   let(:group) { create(:group) }

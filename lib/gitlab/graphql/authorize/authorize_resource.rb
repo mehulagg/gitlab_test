@@ -29,25 +29,19 @@ module Gitlab
 
         def authorized_find!(*args)
           object = find_object(*args)
-          object = object.sync if object.respond_to?(:sync)
-
           authorize!(object)
 
           object
         end
 
         def authorize!(object)
-          unless authorized_resource?(object)
+          unless authorized?(object)
             raise Gitlab::Graphql::Errors::ResourceNotAvailable,
                   "The resource that you are attempting to access does not exist or you don't have permission to perform this action"
           end
         end
 
-        # this was named `#authorized?`, however it conflicts with the native
-        # graphql gem version
-        # TODO consider adopting the gem's built in authorization system
-        # https://gitlab.com/gitlab-org/gitlab-ee/issues/13984
-        def authorized_resource?(object)
+        def authorized?(object)
           # Sanity check. We don't want to accidentally allow a developer to authorize
           # without first adding permissions to authorize against
           if self.class.required_permissions.empty?

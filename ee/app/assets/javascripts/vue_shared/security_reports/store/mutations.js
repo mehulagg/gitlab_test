@@ -114,11 +114,6 @@ export default {
     Vue.set(state.sastContainer, 'allIssues', existing);
   },
 
-  [types.RECEIVE_SAST_CONTAINER_DIFF_ERROR](state) {
-    Vue.set(state.sastContainer, 'isLoading', false);
-    Vue.set(state.sastContainer, 'hasError', true);
-  },
-
   [types.RECEIVE_SAST_CONTAINER_ERROR](state) {
     Vue.set(state.sastContainer, 'isLoading', false);
     Vue.set(state.sastContainer, 'hasError', true);
@@ -132,10 +127,6 @@ export default {
 
   [types.SET_DAST_BASE_PATH](state, path) {
     Vue.set(state.dast.paths, 'base', path);
-  },
-
-  [types.SET_DAST_DIFF_ENDPOINT](state, path) {
-    Vue.set(state.dast.paths, 'diffEndpoint', path);
   },
 
   [types.REQUEST_DAST_REPORTS](state) {
@@ -159,20 +150,6 @@ export default {
       Vue.set(state.dast, 'newIssues', newIssues);
       Vue.set(state.dast, 'isLoading', false);
     }
-  },
-
-  [types.RECEIVE_DAST_DIFF_SUCCESS](state, { diff, enrichData }) {
-    const { added, fixed, existing } = parseDiff(diff, enrichData);
-
-    Vue.set(state.dast, 'isLoading', false);
-    Vue.set(state.dast, 'newIssues', added);
-    Vue.set(state.dast, 'resolvedIssues', fixed);
-    Vue.set(state.dast, 'allIssues', existing);
-  },
-
-  [types.RECEIVE_DAST_DIFF_ERROR](state) {
-    Vue.set(state.dast, 'isLoading', false);
-    Vue.set(state.dast, 'hasError', true);
   },
 
   [types.RECEIVE_DAST_ERROR](state) {
@@ -255,11 +232,6 @@ export default {
     Vue.set(state.dependencyScanning, 'newIssues', added);
     Vue.set(state.dependencyScanning, 'resolvedIssues', fixed);
     Vue.set(state.dependencyScanning, 'allIssues', existing);
-  },
-
-  [types.RECEIVE_DEPENDENCY_SCANNING_DIFF_ERROR](state) {
-    Vue.set(state.dependencyScanning, 'isLoading', false);
-    Vue.set(state.dependencyScanning, 'hasError', true);
   },
 
   [types.RECEIVE_DEPENDENCY_SCANNING_ERROR](state) {

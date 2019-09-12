@@ -7,11 +7,11 @@ module Projects
 
     BLOCK_SIZE = 32.kilobytes
     MAX_SIZE = 1.terabyte
-    PUBLIC_DIR = 'public'
+    PUBLIC_DIR = 'public'.freeze
 
     # this has to be invalid group name,
     # as it shares the namespace with groups
-    TMP_EXTRACT_PATH = '@pages.tmp'
+    TMP_EXTRACT_PATH = '@pages.tmp'.freeze
 
     attr_reader :build
 

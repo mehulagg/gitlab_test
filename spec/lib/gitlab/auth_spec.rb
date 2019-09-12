@@ -587,8 +587,7 @@ describe Gitlab::Auth do
       :read_project,
       :build_download_code,
       :build_read_container_image,
-      :build_create_container_image,
-      :build_destroy_container_image
+      :build_create_container_image
     ]
   end
 

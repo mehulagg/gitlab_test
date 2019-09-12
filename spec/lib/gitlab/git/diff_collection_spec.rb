@@ -74,11 +74,6 @@ describe Gitlab::Git::DiffCollection, :seed_helper do
           end
         end
 
-        describe '#line_count' do
-          subject { super().line_count }
-          it { is_expected.to eq file_count * line_count }
-        end
-
         context 'when limiting is disabled' do
           let(:limits) { false }
 
@@ -105,11 +100,6 @@ describe Gitlab::Git::DiffCollection, :seed_helper do
               expect(subject.size).to eq(3)
             end
           end
-
-          describe '#line_count' do
-            subject { super().line_count }
-            it { is_expected.to eq file_count * line_count }
-          end
         end
       end
 
@@ -130,12 +120,6 @@ describe Gitlab::Git::DiffCollection, :seed_helper do
           subject { super().real_size }
           it { is_expected.to eq('0+') }
         end
-
-        describe '#line_count' do
-          subject { super().line_count }
-          it { is_expected.to eq 1000 }
-        end
-
         it { expect(subject.size).to eq(0) }
 
         context 'when limiting is disabled' do
@@ -155,12 +139,6 @@ describe Gitlab::Git::DiffCollection, :seed_helper do
             subject { super().real_size }
             it { is_expected.to eq('3') }
           end
-
-          describe '#line_count' do
-            subject { super().line_count }
-            it { is_expected.to eq file_count * line_count }
-          end
-
           it { expect(subject.size).to eq(3) }
         end
       end
@@ -186,12 +164,6 @@ describe Gitlab::Git::DiffCollection, :seed_helper do
           subject { super().real_size }
           it { is_expected.to eq('10+') }
         end
-
-        describe '#line_count' do
-          subject { super().line_count }
-          it { is_expected.to eq 10 }
-        end
-
         it { expect(subject.size).to eq(10) }
 
         context 'when limiting is disabled' do
@@ -211,12 +183,6 @@ describe Gitlab::Git::DiffCollection, :seed_helper do
             subject { super().real_size }
             it { is_expected.to eq('11') }
           end
-
-          describe '#line_count' do
-            subject { super().line_count }
-            it { is_expected.to eq file_count * line_count }
-          end
-
           it { expect(subject.size).to eq(11) }
         end
       end
@@ -238,12 +204,6 @@ describe Gitlab::Git::DiffCollection, :seed_helper do
           subject { super().real_size }
           it { is_expected.to eq('3+') }
         end
-
-        describe '#line_count' do
-          subject { super().line_count }
-          it { is_expected.to eq 120 }
-        end
-
         it { expect(subject.size).to eq(3) }
 
         context 'when limiting is disabled' do
@@ -263,12 +223,6 @@ describe Gitlab::Git::DiffCollection, :seed_helper do
             subject { super().real_size }
             it { is_expected.to eq('11') }
           end
-
-          describe '#line_count' do
-            subject { super().line_count }
-            it { is_expected.to eq file_count * line_count }
-          end
-
           it { expect(subject.size).to eq(11) }
         end
       end
@@ -294,12 +248,6 @@ describe Gitlab::Git::DiffCollection, :seed_helper do
           subject { super().real_size }
           it { is_expected.to eq('10') }
         end
-
-        describe '#line_count' do
-          subject { super().line_count }
-          it { is_expected.to eq file_count * line_count }
-        end
-
         it { expect(subject.size).to eq(10) }
       end
     end
@@ -322,12 +270,6 @@ describe Gitlab::Git::DiffCollection, :seed_helper do
         subject { super().real_size }
         it { is_expected.to eq('9+') }
       end
-
-      describe '#line_count' do
-        subject { super().line_count }
-        it { is_expected.to eq file_count * line_count }
-      end
-
       it { expect(subject.size).to eq(9) }
 
       context 'when limiting is disabled' do
@@ -347,12 +289,6 @@ describe Gitlab::Git::DiffCollection, :seed_helper do
           subject { super().real_size }
           it { is_expected.to eq('10') }
         end
-
-        describe '#line_count' do
-          subject { super().line_count }
-          it { is_expected.to eq file_count * line_count }
-        end
-
         it { expect(subject.size).to eq(10) }
       end
     end
@@ -379,11 +315,6 @@ describe Gitlab::Git::DiffCollection, :seed_helper do
     describe '#real_size' do
       subject { super().real_size }
       it { is_expected.to eq('0')}
-    end
-
-    describe '#line_count' do
-      subject { super().line_count }
-      it { is_expected.to eq 0 }
     end
   end
 

@@ -131,7 +131,7 @@ describe CacheableAttributes do
 
       context 'in production environment' do
         before do
-          stub_rails_env('production')
+          expect(Rails.env).to receive(:production?).and_return(true)
         end
 
         it 'returns an uncached record and logs a warning' do
@@ -143,7 +143,7 @@ describe CacheableAttributes do
 
       context 'in other environments' do
         before do
-          stub_rails_env('development')
+          expect(Rails.env).to receive(:production?).and_return(false)
         end
 
         it 'returns an uncached record and logs a warning' do

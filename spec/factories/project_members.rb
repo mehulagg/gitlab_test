@@ -17,9 +17,5 @@ FactoryBot.define do
       invite_token 'xxx'
       invite_email 'email@email.com'
     end
-
-    trait :blocked do
-      after(:build) { |project_member, _| project_member.user.block! }
-    end
   end
 end

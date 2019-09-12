@@ -21,7 +21,7 @@ class TodosFinder
 
   requires_cross_project_access unless: -> { project? }
 
-  NONE = '0'
+  NONE = '0'.freeze
 
   TODO_TYPES = Set.new(%w(Issue MergeRequest Epic)).freeze
 

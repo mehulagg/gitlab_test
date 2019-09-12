@@ -4,7 +4,7 @@ require 'fileutils'
 
 module Gitlab
   module RequestProfiler
-    PROFILES_DIR = "#{Gitlab.config.shared.path}/tmp/requests_profiles"
+    PROFILES_DIR = "#{Gitlab.config.shared.path}/tmp/requests_profiles".freeze
 
     def all
       Dir["#{PROFILES_DIR}/*.{html,txt}"].map do |path|

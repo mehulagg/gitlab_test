@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ProjectImportState, type: :model do
   describe 'Project import job' do

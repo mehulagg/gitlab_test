@@ -111,7 +111,6 @@ module EE
 
         prepended do
           expose :unprotect_access_levels, using: ::API::Entities::ProtectedRefAccess
-          expose :code_owner_approval_required
         end
       end
 
@@ -120,17 +119,6 @@ module EE
 
         prepended do
           expose :weight, if: ->(issue, _) { issue.supports_weight? }
-        end
-      end
-
-      module Issue
-        extend ActiveSupport::Concern
-
-        prepended do
-          expose :epic_iid,
-                 if: -> (issue, options) { ::Ability.allowed?(options[:current_user], :read_epic, issue.project&.group) } do |issue|
-            issue.epic&.iid
-          end
         end
       end
 
@@ -206,11 +194,9 @@ module EE
         extend ActiveSupport::Concern
 
         def todo_target_class(target_type)
-          super
-        rescue NameError
-          # false as second argument prevents looking up in module hierarchy
-          # see also https://gitlab.com/gitlab-org/gitlab-ce/issues/59719
           ::EE::API::Entities.const_get(target_type, false)
+        rescue NameError
+          super
         end
       end
 
@@ -331,55 +317,41 @@ module EE
         expose :id, :name, :rule_type
       end
 
-      class ApprovalRule < ApprovalRuleShort
+      class ApprovalSettingRule < ApprovalRuleShort
         def initialize(object, options = {})
           presenter = ::ApprovalRulePresenter.new(object, current_user: options[:current_user])
           super(presenter, options)
         end
 
-        expose :approvers, as: :eligible_approvers, using: ::API::Entities::UserBasic
+        expose :approvers, using: ::API::Entities::UserBasic
         expose :approvals_required
         expose :users, using: ::API::Entities::UserBasic
         expose :groups, using: ::API::Entities::Group
         expose :contains_hidden_groups?, as: :contains_hidden_groups
       end
 
-      # Being used in private project-level approvals API.
-      # This overrides the `eligible_approvers` to be exposed as `approvers`.
-      #
-      # To be removed in https://gitlab.com/gitlab-org/gitlab-ee/issues/13574.
-      class ApprovalSettingRule < ApprovalRule
-        expose :approvers, using: ::API::Entities::UserBasic, override: true
+      class ApprovalRule < ApprovalSettingRule
+        expose :approvers, as: :eligible_approvers, using: ::API::Entities::UserBasic, override: true
       end
 
-      class MergeRequestApprovalRule < ApprovalRule
+      class MergeRequestApprovalRule < ApprovalSettingRule
         class SourceRule < Grape::Entity
           expose :approvals_required
         end
 
-        expose :source_rule, using: SourceRule
-      end
-
-      # Being used in private MR-level approvals API.
-      # This overrides the `eligible_approvers` to be exposed as `approvers` and
-      # include additional properties.
-      #
-      # To be made public in https://gitlab.com/gitlab-org/gitlab-ee/issues/13712
-      # and the `approvers` override can be removed.
-      class MergeRequestApprovalSettingRule < MergeRequestApprovalRule
-        expose :approvers, using: ::API::Entities::UserBasic, override: true
-        expose :code_owner
         expose :approved_approvers, as: :approved_by, using: ::API::Entities::UserBasic
+        expose :code_owner
+        expose :source_rule, using: SourceRule
         expose :approved?, as: :approved
       end
 
       # Decorates ApprovalState
-      class MergeRequestApprovalSettings < Grape::Entity
+      class MergeRequestApprovalRules < Grape::Entity
         expose :approval_rules_overwritten do |approval_state|
           approval_state.approval_rules_overwritten?
         end
 
-        expose :wrapped_approval_rules, as: :rules, using: MergeRequestApprovalSettingRule
+        expose :wrapped_approval_rules, as: :rules, using: MergeRequestApprovalRule
       end
 
       # Decorates Project

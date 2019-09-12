@@ -14,6 +14,8 @@ module SystemCheck
         if Rails.env.production?
           checks << SystemCheck::IncomingEmail::InitdConfiguredCheck
           checks << SystemCheck::IncomingEmail::MailRoomRunningCheck
+        else
+          checks << SystemCheck::IncomingEmail::ForemanConfiguredCheck
         end
 
         SystemCheck.run('Reply by email', checks)

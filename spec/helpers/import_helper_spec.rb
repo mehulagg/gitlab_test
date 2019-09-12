@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe ImportHelper do
   describe '#sanitize_project_name' do

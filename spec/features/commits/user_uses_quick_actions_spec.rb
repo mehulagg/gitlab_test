@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Commit > User uses quick actions', :js do
   include Spec::Support::Helpers::Features::NotesHelpers

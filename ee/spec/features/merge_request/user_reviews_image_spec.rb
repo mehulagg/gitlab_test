@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Merge request > image review', :js do
   include MergeRequestDiffHelpers

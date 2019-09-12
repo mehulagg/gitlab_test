@@ -4,7 +4,7 @@ class StuckCiJobsWorker
   include ApplicationWorker
   include CronjobQueue
 
-  EXCLUSIVE_LEASE_KEY = 'stuck_ci_builds_worker_lease'
+  EXCLUSIVE_LEASE_KEY = 'stuck_ci_builds_worker_lease'.freeze
 
   BUILD_RUNNING_OUTDATED_TIMEOUT = 1.hour
   BUILD_PENDING_OUTDATED_TIMEOUT = 1.day

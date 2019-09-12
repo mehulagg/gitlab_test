@@ -1,4 +1,3 @@
-# coding: utf-8
 # frozen_string_literal: true
 
 module Gitlab
@@ -7,8 +6,8 @@ module Gitlab
       extend ActiveSupport::Concern
       include Gitlab::QuickActions::Dsl
 
-      SHRUG = '¯\\＿(ツ)＿/¯'
-      TABLEFLIP = '(╯°□°)╯︵ ┻━┻'
+      SHRUG = '¯\\＿(ツ)＿/¯'.freeze
+      TABLEFLIP = '(╯°□°)╯︵ ┻━┻'.freeze
 
       included do
         # Issue, MergeRequest, Epic: quick actions definitions

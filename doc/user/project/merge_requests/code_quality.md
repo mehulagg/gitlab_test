@@ -5,7 +5,8 @@ disqus_identifier: 'https://docs.gitlab.com/ee/user/project/merge_requests/code_
 
 # Code Quality **(STARTER)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/1984) in [GitLab Starter](https://about.gitlab.com/pricing/) 9.3.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/1984)
+in [GitLab Starter](https://about.gitlab.com/pricing/) 9.3.
 
 With the help of [GitLab CI/CD](../../../ci/README.md), you can analyze your
 source code quality using GitLab Code Quality.
@@ -25,7 +26,7 @@ Code Quality:
 Going a step further, GitLab can show the Code Quality report right
 in the merge request widget area:
 
-![Code Quality Widget](img/code_quality.png)
+![Code Quality Widget](img/code_quality.gif)
 
 ## Use cases
 

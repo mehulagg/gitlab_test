@@ -17,7 +17,7 @@ describe ShaAttribute do
   describe '#sha_attribute' do
     context 'when in non-production' do
       before do
-        stub_rails_env('development')
+        allow(Rails.env).to receive(:production?).and_return(false)
       end
 
       context 'when the table exists' do
@@ -76,7 +76,7 @@ describe ShaAttribute do
 
     context 'when in production' do
       before do
-        stub_rails_env('production')
+        allow(Rails.env).to receive(:production?).and_return(true)
       end
 
       it 'defines a SHA attribute' do

@@ -15,9 +15,9 @@ module Gitlab
 
       SEARCH_CONTEXT_LINES = 3
       REV_LIST_COMMIT_LIMIT = 2_000
-      GITALY_INTERNAL_URL = 'ssh://gitaly/internal.git'
+      GITALY_INTERNAL_URL = 'ssh://gitaly/internal.git'.freeze
       GITLAB_PROJECTS_TIMEOUT = Gitlab.config.gitlab_shell.git_timeout
-      EMPTY_REPOSITORY_CHECKSUM = '0000000000000000000000000000000000000000'
+      EMPTY_REPOSITORY_CHECKSUM = '0000000000000000000000000000000000000000'.freeze
 
       NoRepository = Class.new(StandardError)
       InvalidRepository = Class.new(StandardError)

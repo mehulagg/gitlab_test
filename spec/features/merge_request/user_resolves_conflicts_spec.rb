@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Merge request > User resolves conflicts', :js do
   let(:project) { create(:project, :repository) }

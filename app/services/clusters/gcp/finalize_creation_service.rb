@@ -26,7 +26,7 @@ module Clusters
       private
 
       def create_gitlab_service_account!
-        Clusters::Kubernetes::CreateOrUpdateServiceAccountService.gitlab_creator(
+        Clusters::Gcp::Kubernetes::CreateOrUpdateServiceAccountService.gitlab_creator(
           kube_client,
           rbac: create_rbac_cluster?
         ).execute
@@ -49,10 +49,10 @@ module Clusters
       end
 
       def request_kubernetes_token
-        Clusters::Kubernetes::FetchKubernetesTokenService.new(
+        Clusters::Gcp::Kubernetes::FetchKubernetesTokenService.new(
           kube_client,
-          Clusters::Kubernetes::GITLAB_ADMIN_TOKEN_NAME,
-          Clusters::Kubernetes::GITLAB_SERVICE_ACCOUNT_NAMESPACE
+          Clusters::Gcp::Kubernetes::GITLAB_ADMIN_TOKEN_NAME,
+          Clusters::Gcp::Kubernetes::GITLAB_SERVICE_ACCOUNT_NAMESPACE
         ).execute
       end
 

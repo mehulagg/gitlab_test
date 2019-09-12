@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 # TODO: https://gitlab.com/gitlab-org/gitlab-ee/issues/9430
 xdescribe 'Merge request > User approves', :js do

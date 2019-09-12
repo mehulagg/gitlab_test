@@ -174,7 +174,7 @@ class Service < ApplicationRecord
   # Also keep track of updated properties in a similar way as ActiveModel::Dirty
   def self.prop_accessor(*args)
     args.each do |arg|
-      class_eval <<~RUBY, __FILE__, __LINE__ + 1
+      class_eval %{
         unless method_defined?(arg)
           def #{arg}
             properties['#{arg}']
@@ -198,7 +198,7 @@ class Service < ApplicationRecord
         def #{arg}_was
           updated_properties['#{arg}']
         end
-      RUBY
+      }
     end
   end
 
@@ -209,12 +209,12 @@ class Service < ApplicationRecord
     self.prop_accessor(*args)
 
     args.each do |arg|
-      class_eval <<~RUBY, __FILE__, __LINE__ + 1
+      class_eval %{
         def #{arg}?
           # '!!' is used because nil or empty string is converted to nil
           !!ActiveRecord::Type::Boolean.new.cast(#{arg})
         end
-      RUBY
+      }
     end
   end
 

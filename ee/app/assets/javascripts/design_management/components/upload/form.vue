@@ -1,5 +1,6 @@
 <script>
 import UploadButton from './button.vue';
+import allVersionsMixin from '../../mixins/all_versions';
 import DesignVersionDropdown from './design_version_dropdown.vue';
 
 export default {
@@ -7,6 +8,7 @@ export default {
     UploadButton,
     DesignVersionDropdown,
   },
+  mixins: [allVersionsMixin],
   props: {
     isSaving: {
       type: Boolean,
@@ -28,7 +30,7 @@ export default {
 <template>
   <header class="row-content-block border-top-0 p-2 d-flex">
     <div class="d-flex justify-content-between align-items-center w-100">
-      <design-version-dropdown />
+      <design-version-dropdown :all-versions="allVersions" />
       <upload-button v-if="canUploadDesign" :is-saving="isSaving" @upload="onFileUploadChange" />
     </div>
   </header>

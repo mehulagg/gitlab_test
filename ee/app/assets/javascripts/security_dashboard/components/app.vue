@@ -36,13 +36,11 @@ export default {
     },
     vulnerabilitiesCountEndpoint: {
       type: String,
-      required: false,
-      default: '',
+      required: true,
     },
     vulnerabilitiesHistoryEndpoint: {
       type: String,
-      required: false,
-      default: '',
+      required: true,
     },
     vulnerabilityFeedbackHelpPath: {
       type: String,
@@ -52,12 +50,7 @@ export default {
       type: Object,
       required: false,
       default: null,
-      validator: project => !isUndefined(project.id),
-    },
-    pipelineId: {
-      type: Number,
-      required: false,
-      default: null,
+      validator: project => !isUndefined(project.id) && !isUndefined(project.name),
     },
   },
   computed: {
@@ -82,15 +75,6 @@ export default {
     isLockedToProject() {
       return this.lockToProject !== null;
     },
-    shouldShowChart() {
-      return Boolean(this.vulnerabilitiesHistoryEndpoint);
-    },
-    shouldShowCountList() {
-      return this.isLockedToProject && Boolean(this.vulnerabilitiesCountEndpoint);
-    },
-  },
-  watch: {
-    'pageInfo.total': 'emitVulnerabilitiesCountChanged',
   },
   created() {
     if (this.isLockedToProject) {
@@ -99,7 +83,6 @@ export default {
         optionId: this.lockToProject.id,
       });
     }
-    this.setPipelineId(this.pipelineId);
     this.setProjectsEndpoint(this.projectsEndpoint);
     this.setVulnerabilitiesEndpoint(this.vulnerabilitiesEndpoint);
     this.setVulnerabilitiesCountEndpoint(this.vulnerabilitiesCountEndpoint);
@@ -107,7 +90,9 @@ export default {
     this.fetchVulnerabilities({ ...this.activeFilters, page: this.pageInfo.page });
     this.fetchVulnerabilitiesCount(this.activeFilters);
     this.fetchVulnerabilitiesHistory(this.activeFilters);
-    this.fetchProjects();
+    if (!this.isLockedToProject) {
+      this.fetchProjects();
+    }
   },
   methods: {
     ...mapActions('vulnerabilities', [
@@ -121,7 +106,6 @@ export default {
       'fetchVulnerabilitiesCount',
       'fetchVulnerabilitiesHistory',
       'openDismissalCommentBox',
-      'setPipelineId',
       'setVulnerabilitiesCountEndpoint',
       'setVulnerabilitiesEndpoint',
       'setVulnerabilitiesHistoryEndpoint',
@@ -132,9 +116,6 @@ export default {
     ]),
     ...mapActions('projects', ['setProjectsEndpoint', 'fetchProjects']),
     ...mapActions('filters', ['lockFilter']),
-    emitVulnerabilitiesCountChanged(count) {
-      this.$emit('vulnerabilitiesCountChanged', count);
-    },
   },
 };
 </script>
@@ -145,17 +126,17 @@ export default {
       <filters />
     </header>
 
-    <vulnerability-count-list v-if="shouldShowCountList" class="mb-0" />
+    <vulnerability-count-list v-if="isLockedToProject" class="mb-0" />
 
     <div class="row mt-4">
-      <article class="col" :class="{ 'col-xl-7': !isLockedToProject }">
+      <main role="main" class="col" :class="{ 'col-xl-7': !isLockedToProject }">
         <security-dashboard-table
           :dashboard-documentation="dashboardDocumentation"
           :empty-state-svg-path="emptyStateSvgPath"
         />
-      </article>
+      </main>
 
-      <aside v-if="shouldShowChart" class="col-xl-5">
+      <aside v-if="!isLockedToProject" class="col-xl-5">
         <vulnerability-chart />
       </aside>
     </div>

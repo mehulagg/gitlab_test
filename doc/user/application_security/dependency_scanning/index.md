@@ -77,7 +77,7 @@ like Gemnasium require sending data to GitLab central servers to analyze them:
 The Gemnasium client does **NOT** send the exact package versions your project relies on.
 
 You can disable the remote checks by [using](#customizing-the-dependency-scanning-settings)
-the `DS_DISABLE_REMOTE_CHECKS` environment variable and setting it to `"true"`.
+the `DS_DISABLE_REMOTE_CHECKS` environment variable and setting it to `true`.
 
 ## Configuration
 
@@ -115,7 +115,7 @@ include:
   template: Dependency-Scanning.gitlab-ci.yml
 
 variables:
-  DS_DISABLE_REMOTE_CHECKS: "true"
+  DS_DISABLE_REMOTE_CHECKS: true
 ```
 
 Because template is [evaluated before](../../../ci/yaml/README.md#include) the pipeline
@@ -314,7 +314,7 @@ the report JSON unless stated otherwise. Presence of optional fields depends on 
 ## Security Dashboard
 
 The Security Dashboard is a good place to get an overview of all the security
-vulnerabilities in your groups, projects and pipelines. Read more about the
+vulnerabilities in your groups and projects. Read more about the
 [Security Dashboard](../security_dashboard/index.md).
 
 ## Interacting with the vulnerabilities

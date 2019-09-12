@@ -2,17 +2,16 @@ import { shallowMount } from '@vue/test-utils';
 import DesignImage from 'ee/design_management/components/image.vue';
 
 describe('Design management large image component', () => {
-  let wrapper;
+  let vm;
 
   function createComponent(propsData) {
-    wrapper = shallowMount(DesignImage, {
-      sync: false,
+    vm = shallowMount(DesignImage, {
       propsData,
     });
   }
 
   afterEach(() => {
-    wrapper.destroy();
+    vm.destroy();
   });
 
   it('renders loading state', () => {
@@ -20,7 +19,7 @@ describe('Design management large image component', () => {
       isLoading: true,
     });
 
-    expect(wrapper.element).toMatchSnapshot();
+    expect(vm.element).toMatchSnapshot();
   });
 
   it('renders image', () => {
@@ -30,6 +29,6 @@ describe('Design management large image component', () => {
       name: 'test',
     });
 
-    expect(wrapper.element).toMatchSnapshot();
+    expect(vm.element).toMatchSnapshot();
   });
 });

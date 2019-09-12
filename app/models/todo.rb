@@ -146,7 +146,6 @@ class Todo < ApplicationRecord
   def parent
     project
   end
-  alias_method :resource_parent, :parent
 
   def unmergeable?
     action == UNMERGEABLE

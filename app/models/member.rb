@@ -399,7 +399,7 @@ class Member < ApplicationRecord
   end
 
   def post_update_hook
-    system_hook_service.execute_hooks_for(self, :update)
+    # override in sub class
   end
 
   def post_destroy_hook

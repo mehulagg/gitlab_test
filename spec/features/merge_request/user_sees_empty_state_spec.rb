@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Merge request > User sees empty state' do
   let(:project) { create(:project, :public, :repository) }

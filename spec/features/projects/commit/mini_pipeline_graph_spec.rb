@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Mini Pipeline Graph in Commit View', :js do
   let(:project) { create(:project, :public, :repository) }

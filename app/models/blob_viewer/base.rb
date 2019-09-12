@@ -2,7 +2,7 @@
 
 module BlobViewer
   class Base
-    PARTIAL_PATH_PREFIX = 'projects/blob/viewers'
+    PARTIAL_PATH_PREFIX = 'projects/blob/viewers'.freeze
 
     class_attribute :partial_name, :loading_partial_name, :type, :extensions, :file_types, :load_async, :binary, :switcher_icon, :switcher_title, :collapse_limit, :size_limit
 

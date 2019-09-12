@@ -86,7 +86,9 @@ describe Gitlab::QueryLimiting::Transaction do
     it 'returns false in a production environment' do
       transaction = described_class.new
 
-      stub_rails_env('production')
+      expect(Rails.env)
+        .to receive(:test?)
+        .and_return(false)
 
       expect(transaction.raise_error?).to eq(false)
     end

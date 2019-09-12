@@ -120,7 +120,7 @@ describe 'GitlabSchema configurations' do
         query_string: query,
         variables: {}.to_s,
         complexity: 181,
-        depth: 13,
+        depth: 0,
         duration: 7
       }
 

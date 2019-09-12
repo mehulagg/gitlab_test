@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe ProfilesHelper do
   describe '#commit_email_select_options' do

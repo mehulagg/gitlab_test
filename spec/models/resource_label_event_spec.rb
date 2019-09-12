@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe ResourceLabelEvent, type: :model do
   subject { build(:resource_label_event, issue: issue) }

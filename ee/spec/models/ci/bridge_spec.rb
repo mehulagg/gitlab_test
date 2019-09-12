@@ -79,19 +79,9 @@ describe Ci::Bridge do
     end
 
     context 'when status is not supported' do
-      (::Ci::Pipeline::AVAILABLE_STATUSES - ::Ci::Pipeline.bridgeable_statuses).each do |status|
-        context "when status is #{status}" do
-          let(:upstream_pipeline) { build(:ci_pipeline, status: status) }
+      let(:upstream_pipeline) { build(:ci_pipeline, status: 'preparing') }
 
-          it 'returns false' do
-            expect(subject).to eq(false)
-          end
-
-          it 'does not change the bridge status' do
-            expect { subject }.not_to change { bridge.status }.from('pending')
-          end
-        end
-      end
+      it { is_expected.to be false }
     end
 
     context 'when status is supported' do
@@ -102,50 +92,12 @@ describe Ci::Bridge do
           it 'inherits the upstream status' do
             expect { subject }.to change { bridge.status }.from('pending').to(status)
           end
-        end
-      end
-    end
-  end
 
-  describe '#inherit_status_from_downstream!' do
-    let(:downstream_pipeline) { build(:ci_pipeline, status: downstream_status) }
+          it 'persists the bridge' do
+            subject
 
-    before do
-      bridge.status = 'pending'
-      create(:ci_sources_pipeline, pipeline: downstream_pipeline, source_job: bridge)
-    end
-
-    subject { bridge.inherit_status_from_downstream!(downstream_pipeline) }
-
-    context 'when status is not supported' do
-      (::Ci::Pipeline::AVAILABLE_STATUSES - ::Ci::Pipeline::COMPLETED_STATUSES).map(&:to_s).each do |status|
-        context "when status is #{status}" do
-          let(:downstream_status) { status }
-
-          it 'returns false' do
-            expect(subject).to eq(false)
+            expect(bridge).to be_persisted
           end
-
-          it 'does not change the bridge status' do
-            expect { subject }.not_to change { bridge.status }.from('pending')
-          end
-        end
-      end
-    end
-
-    context 'when status is supported' do
-      using RSpec::Parameterized::TableSyntax
-
-      where(:downstream_status, :upstream_status) do
-        [
-          %w[success success],
-          *::Ci::Pipeline.completed_statuses.without(:success).map { |status| [status.to_s, 'failed'] }
-        ]
-      end
-
-      with_them do
-        it 'inherits the downstream status' do
-          expect { subject }.to change { bridge.status }.from('pending').to(upstream_status)
         end
       end
     end
@@ -186,20 +138,6 @@ describe Ci::Bridge do
       it 'returns nil' do
         expect(bridge.target_ref).to be_nil
       end
-    end
-  end
-
-  describe '#dependent?' do
-    subject { bridge.dependent? }
-
-    context 'when bridge has strategy depend' do
-      let(:options) { { trigger: { project: 'my/project', strategy: 'depend' } } }
-
-      it { is_expected.to be true }
-    end
-
-    context 'when bridge does not have strategy depend' do
-      it { is_expected.to be false }
     end
   end
 

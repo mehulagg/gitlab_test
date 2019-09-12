@@ -66,12 +66,10 @@ the GitLab Documentation website.
 - [Google Analytics](https://marketingplatform.google.com/about/analytics/)
 - [Google Tag Manager](https://developers.google.com/tag-manager/)
 
-## Global navigation
+## Global nav
 
-Read through the global navigation](global_nav.md) documentation to understand:
-
-- How the global navigation is built.
-- How to add new navigation items.
+To understand how the global nav (left sidebar) is built, please
+read through the [global navigation](global_nav.md) doc.
 
 ## Deployment
 

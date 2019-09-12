@@ -4,8 +4,8 @@ module Ci
   class BuildRunnerPresenter < SimpleDelegator
     include Gitlab::Utils::StrongMemoize
 
-    RUNNER_REMOTE_TAG_PREFIX = 'refs/tags/'
-    RUNNER_REMOTE_BRANCH_PREFIX = 'refs/remotes/origin/'
+    RUNNER_REMOTE_TAG_PREFIX = 'refs/tags/'.freeze
+    RUNNER_REMOTE_BRANCH_PREFIX = 'refs/remotes/origin/'.freeze
 
     def artifacts
       return unless options[:artifacts]

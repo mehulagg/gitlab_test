@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Merge request > User selects branches for new MR', :js do
   let(:project) { create(:project, :public, :repository) }

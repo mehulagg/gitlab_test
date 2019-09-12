@@ -16,34 +16,10 @@ describe('vulnerabilities count actions', () => {
   const data = mockDataVulnerabilitiesCount;
   const params = { filters: { type: ['sast'] } };
   const filteredData = mockDataVulnerabilitiesCount.sast;
-  let state;
-
-  beforeEach(() => {
-    state = initialState();
-  });
-
-  describe('setPipelineId', () => {
-    const pipelineId = 123;
-
-    it('should commit the correct mutation', done => {
-      testAction(
-        actions.setPipelineId,
-        pipelineId,
-        state,
-        [
-          {
-            type: types.SET_PIPELINE_ID,
-            payload: pipelineId,
-          },
-        ],
-        [],
-        done,
-      );
-    });
-  });
 
   describe('setVulnerabilitiesCountEndpoint', () => {
     it('should commit the correct mutuation', done => {
+      const state = initialState;
       const endpoint = 'fakepath.json';
 
       testAction(
@@ -64,6 +40,7 @@ describe('vulnerabilities count actions', () => {
 
   describe('fetchVulnerabilitiesCount', () => {
     let mock;
+    const state = initialState;
 
     beforeEach(() => {
       state.vulnerabilitiesCountEndpoint = `${TEST_HOST}/vulnerabilities_count.json`;
@@ -134,20 +111,12 @@ describe('vulnerabilities count actions', () => {
         );
       });
     });
-
-    describe('with an empty endpoint', () => {
-      beforeEach(() => {
-        state.vulnerabilitiesCountEndpoint = '';
-      });
-
-      it('should not do anything', done => {
-        testAction(actions.fetchVulnerabilitiesCount, {}, state, [], [], done);
-      });
-    });
   });
 
   describe('requestVulnerabilitiesCount', () => {
     it('should commit the request mutation', done => {
+      const state = initialState;
+
       testAction(
         actions.requestVulnerabilitiesCount,
         {},
@@ -161,6 +130,8 @@ describe('vulnerabilities count actions', () => {
 
   describe('receiveVulnerabilitiesCountSuccess', () => {
     it('should commit the success mutation', done => {
+      const state = initialState;
+
       testAction(
         actions.receiveVulnerabilitiesCountSuccess,
         { data },
@@ -174,6 +145,8 @@ describe('vulnerabilities count actions', () => {
 
   describe('receiveVulnerabilitiesCountError', () => {
     it('should commit the error mutation', done => {
+      const state = initialState;
+
       testAction(
         actions.receiveVulnerabilitiesCountError,
         {},
@@ -206,14 +179,10 @@ describe('vulnerabilities actions', () => {
     'X-Total': pageInfo.total,
     'X-Total-Pages': pageInfo.totalPages,
   };
-  let state;
-
-  beforeEach(() => {
-    state = initialState();
-  });
 
   describe('fetchVulnerabilities', () => {
     let mock;
+    const state = initialState;
 
     beforeEach(() => {
       state.vulnerabilitiesEndpoint = `${TEST_HOST}/vulnerabilities.json`;
@@ -284,20 +253,12 @@ describe('vulnerabilities actions', () => {
         );
       });
     });
-
-    describe('with an empty endpoint', () => {
-      beforeEach(() => {
-        state.vulnerabilitiesEndpoint = '';
-      });
-
-      it('should not do anything', done => {
-        testAction(actions.fetchVulnerabilities, {}, state, [], [], done);
-      });
-    });
   });
 
   describe('receiveVulnerabilitiesSuccess', () => {
     it('should commit the success mutation', done => {
+      const state = initialState;
+
       testAction(
         actions.receiveVulnerabilitiesSuccess,
         { headers, data },
@@ -316,6 +277,8 @@ describe('vulnerabilities actions', () => {
 
   describe('receiveVulnerabilitiesError', () => {
     it('should commit the error mutation', done => {
+      const state = initialState;
+
       testAction(
         actions.receiveVulnerabilitiesError,
         {},
@@ -329,6 +292,8 @@ describe('vulnerabilities actions', () => {
 
   describe('requestVulnerabilities', () => {
     it('should commit the request mutation', done => {
+      const state = initialState;
+
       testAction(
         actions.requestVulnerabilities,
         {},
@@ -342,6 +307,7 @@ describe('vulnerabilities actions', () => {
 
   describe('setVulnerabilitiesEndpoint', () => {
     it('should commit the correct mutuation', done => {
+      const state = initialState;
       const endpoint = 'fakepath.json';
 
       testAction(
@@ -362,6 +328,7 @@ describe('vulnerabilities actions', () => {
 
   describe('setVulnerabilitiesPage', () => {
     it('should commit the correct mutuation', done => {
+      const state = initialState;
       const page = 3;
 
       testAction(
@@ -382,13 +349,8 @@ describe('vulnerabilities actions', () => {
 });
 
 describe('openModal', () => {
-  let state;
-
-  beforeEach(() => {
-    state = initialState();
-  });
-
   it('should commit the SET_MODAL_DATA mutation', done => {
+    const state = initialState;
     const vulnerability = mockDataVulnerabilities[0];
 
     testAction(
@@ -434,12 +396,6 @@ describe('downloadPatch', () => {
 });
 
 describe('issue creation', () => {
-  let state;
-
-  beforeEach(() => {
-    state = initialState();
-  });
-
   describe('createIssue', () => {
     const vulnerability = mockDataVulnerabilities[0];
     const data = { issue_url: 'fakepath.html' };
@@ -503,6 +459,7 @@ describe('issue creation', () => {
 
   describe('receiveCreateIssueSuccess', () => {
     it('should commit the success mutation', done => {
+      const state = initialState;
       const data = mockDataVulnerabilities[0];
 
       testAction(
@@ -523,6 +480,8 @@ describe('issue creation', () => {
 
   describe('receiveCreateIssueError', () => {
     it('should commit the error mutation', done => {
+      const state = initialState;
+
       testAction(
         actions.receiveCreateIssueError,
         {},
@@ -536,6 +495,8 @@ describe('issue creation', () => {
 
   describe('requestCreateIssue', () => {
     it('should commit the request mutation', done => {
+      const state = initialState;
+
       testAction(
         actions.requestCreateIssue,
         {},
@@ -549,12 +510,6 @@ describe('issue creation', () => {
 });
 
 describe('merge request creation', () => {
-  let state;
-
-  beforeEach(() => {
-    state = initialState();
-  });
-
   describe('createMergeRequest', () => {
     const vulnerability = mockDataVulnerabilities[0];
     const data = { merge_request_path: 'fakepath.html' };
@@ -618,6 +573,7 @@ describe('merge request creation', () => {
 
   describe('receiveCreateMergeRequestSuccess', () => {
     it('should commit the success mutation', done => {
+      const state = initialState;
       const data = mockDataVulnerabilities[0];
 
       testAction(
@@ -638,6 +594,8 @@ describe('merge request creation', () => {
 
   describe('receiveCreateMergeRequestError', () => {
     it('should commit the error mutation', done => {
+      const state = initialState;
+
       testAction(
         actions.receiveCreateMergeRequestError,
         {},
@@ -651,6 +609,8 @@ describe('merge request creation', () => {
 
   describe('requestCreateMergeRequest', () => {
     it('should commit the request mutation', done => {
+      const state = initialState;
+
       testAction(
         actions.requestCreateMergeRequest,
         {},
@@ -664,12 +624,6 @@ describe('merge request creation', () => {
 });
 
 describe('vulnerability dismissal', () => {
-  let state;
-
-  beforeEach(() => {
-    state = initialState();
-  });
-
   describe('dismissVulnerability', () => {
     const vulnerability = mockDataVulnerabilities[0];
     const data = { vulnerability };
@@ -703,7 +657,7 @@ describe('vulnerability dismissal', () => {
             { type: 'closeDismissalCommentBox' },
             {
               type: 'receiveDismissVulnerabilitySuccess',
-              payload: { data, vulnerability },
+              payload: { data, id: vulnerability.id },
             },
           ],
           done,
@@ -736,6 +690,7 @@ describe('vulnerability dismissal', () => {
 
   describe('receiveDismissVulnerabilitySuccess', () => {
     it('should commit the success mutation', done => {
+      const state = initialState;
       const data = mockDataVulnerabilities[0];
 
       testAction(
@@ -756,6 +711,8 @@ describe('vulnerability dismissal', () => {
 
   describe('receiveDismissVulnerabilityError', () => {
     it('should commit the error mutation', done => {
+      const state = initialState;
+
       testAction(
         actions.receiveDismissVulnerabilityError,
         {},
@@ -769,6 +726,8 @@ describe('vulnerability dismissal', () => {
 
   describe('requestDismissVulnerability', () => {
     it('should commit the request mutation', done => {
+      const state = initialState;
+
       testAction(
         actions.requestDismissVulnerability,
         {},
@@ -782,12 +741,6 @@ describe('vulnerability dismissal', () => {
 });
 
 describe('add vulnerability dismissal comment', () => {
-  let state;
-
-  beforeEach(() => {
-    state = initialState();
-  });
-
   describe('addDismissalComment', () => {
     const vulnerability = mockDataVulnerabilities[2];
     const data = { vulnerability };
@@ -825,7 +778,7 @@ describe('add vulnerability dismissal comment', () => {
           [
             { type: 'requestAddDismissalComment' },
             { type: 'closeDismissalCommentBox' },
-            { type: 'receiveAddDismissalCommentSuccess', payload: { data, vulnerability } },
+            { type: 'receiveAddDismissalCommentSuccess', payload: { data, id: vulnerability.id } },
           ],
           checkPassedData,
         );
@@ -851,6 +804,8 @@ describe('add vulnerability dismissal comment', () => {
 
     describe('receiveAddDismissalCommentSuccess', () => {
       it('should commit the success mutation', done => {
+        const state = initialState;
+
         testAction(
           actions.receiveAddDismissalCommentSuccess,
           { data },
@@ -864,6 +819,8 @@ describe('add vulnerability dismissal comment', () => {
 
     describe('receiveAddDismissalCommentError', () => {
       it('should commit the error mutation', done => {
+        const state = initialState;
+
         testAction(
           actions.receiveAddDismissalCommentError,
           {},
@@ -877,6 +834,8 @@ describe('add vulnerability dismissal comment', () => {
 
     describe('requestAddDismissalComment', () => {
       it('should commit the request mutation', done => {
+        const state = initialState;
+
         testAction(
           actions.requestAddDismissalComment,
           {},
@@ -958,6 +917,8 @@ describe('add vulnerability dismissal comment', () => {
 
     describe('receiveDeleteDismissalCommentSuccess', () => {
       it('should commit the success mutation', done => {
+        const state = initialState;
+
         testAction(
           actions.receiveDeleteDismissalCommentSuccess,
           { data },
@@ -971,6 +932,8 @@ describe('add vulnerability dismissal comment', () => {
 
     describe('receiveDeleteDismissalCommentError', () => {
       it('should commit the error mutation', done => {
+        const state = initialState;
+
         testAction(
           actions.receiveDeleteDismissalCommentError,
           {},
@@ -984,6 +947,8 @@ describe('add vulnerability dismissal comment', () => {
 
     describe('requestDeleteDismissalComment', () => {
       it('should commit the request mutation', done => {
+        const state = initialState;
+
         testAction(
           actions.requestDeleteDismissalComment,
           {},
@@ -998,13 +963,9 @@ describe('add vulnerability dismissal comment', () => {
 });
 
 describe('showDismissalDeleteButtons', () => {
-  let state;
-
-  beforeEach(() => {
-    state = initialState();
-  });
-
   it('commits show dismissal delete buttons', done => {
+    const state = initialState;
+
     testAction(
       actions.showDismissalDeleteButtons,
       null,
@@ -1021,13 +982,9 @@ describe('showDismissalDeleteButtons', () => {
 });
 
 describe('hideDismissalDeleteButtons', () => {
-  let state;
-
-  beforeEach(() => {
-    state = initialState();
-  });
-
   it('commits hide dismissal delete buttons', done => {
+    const state = initialState;
+
     testAction(
       actions.hideDismissalDeleteButtons,
       null,
@@ -1070,7 +1027,7 @@ describe('revert vulnerability dismissal', () => {
           [],
           [
             { type: 'requestUndoDismiss' },
-            { type: 'receiveUndoDismissSuccess', payload: { vulnerability } },
+            { type: 'receiveUndoDismissSuccess', payload: { id: vulnerability.id } },
           ],
           done,
         );
@@ -1156,14 +1113,10 @@ describe('vulnerabilities history actions', () => {
   const data = mockDataVulnerabilitiesHistory;
   const params = { filters: { severity: ['critical'] } };
   const filteredData = mockDataVulnerabilitiesHistory.critical;
-  let state;
-
-  beforeEach(() => {
-    state = initialState();
-  });
 
   describe('setVulnerabilitiesHistoryEndpoint', () => {
     it('should commit the correct mutuation', done => {
+      const state = initialState;
       const endpoint = 'fakepath.json';
 
       testAction(
@@ -1184,6 +1137,7 @@ describe('vulnerabilities history actions', () => {
 
   describe('setVulnerabilitiesHistoryDayRange', () => {
     it('should commit the number of past days to show', done => {
+      const state = initialState;
       const days = DAYS.THIRTY;
       testAction(
         actions.setVulnerabilitiesHistoryDayRange,
@@ -1201,8 +1155,9 @@ describe('vulnerabilities history actions', () => {
     });
   });
 
-  describe('fetchVulnerabilitiesHistory', () => {
+  describe('fetchVulnerabilitiesTimeline', () => {
     let mock;
+    const state = initialState;
 
     beforeEach(() => {
       state.vulnerabilitiesHistoryEndpoint = `${TEST_HOST}/vulnerabilitIES_HISTORY.json`;
@@ -1276,20 +1231,12 @@ describe('vulnerabilities history actions', () => {
         );
       });
     });
-
-    describe('with an empty endpoint', () => {
-      beforeEach(() => {
-        state.vulnerabilitiesHistoryEndpoint = '';
-      });
-
-      it('should not do anything', done => {
-        testAction(actions.fetchVulnerabilitiesHistory, {}, state, [], [], done);
-      });
-    });
   });
 
-  describe('requestVulnerabilitiesHistory', () => {
+  describe('requestVulnerabilitiesTimeline', () => {
     it('should commit the request mutation', done => {
+      const state = initialState;
+
       testAction(
         actions.requestVulnerabilitiesHistory,
         {},
@@ -1301,8 +1248,10 @@ describe('vulnerabilities history actions', () => {
     });
   });
 
-  describe('receiveVulnerabilitiesHistorySuccess', () => {
+  describe('receiveVulnerabilitiesTimelineSuccess', () => {
     it('should commit the success mutation', done => {
+      const state = initialState;
+
       testAction(
         actions.receiveVulnerabilitiesHistorySuccess,
         { data },
@@ -1314,8 +1263,10 @@ describe('vulnerabilities history actions', () => {
     });
   });
 
-  describe('receiveVulnerabilitiesHistoryError', () => {
+  describe('receiveVulnerabilitiesTimelineError', () => {
     it('should commit the error mutation', done => {
+      const state = initialState;
+
       testAction(
         actions.receiveVulnerabilitiesHistoryError,
         {},
@@ -1329,6 +1280,8 @@ describe('vulnerabilities history actions', () => {
 
   describe('openDismissalCommentBox', () => {
     it('should commit the open comment mutation with a default payload', done => {
+      const state = initialState();
+
       testAction(
         actions.openDismissalCommentBox,
         undefined,
@@ -1342,6 +1295,8 @@ describe('vulnerabilities history actions', () => {
 
   describe('closeDismissalCommentBox', () => {
     it('should commit the close comment mutation', done => {
+      const state = initialState();
+
       testAction(
         actions.closeDismissalCommentBox,
         {},

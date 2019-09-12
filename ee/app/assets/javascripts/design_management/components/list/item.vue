@@ -42,11 +42,7 @@ export default {
 
 <template>
   <router-link
-    :to="{
-      name: 'design',
-      params: { id: name },
-      query: $route.query,
-    }"
+    :to="{ name: 'design', params: { id: name } }"
     class="card cursor-pointer text-plain js-design-list-item design-list-item"
   >
     <div class="card-body p-0 d-flex align-items-center overflow-hidden">

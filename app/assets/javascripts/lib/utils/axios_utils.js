@@ -10,18 +10,21 @@ axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 axios.interceptors.request.use(config => {
   window.activeVueResources = window.activeVueResources || 0;
   window.activeVueResources += 1;
+
   return config;
 });
 
 // Remove the global counter
 axios.interceptors.response.use(
-  response => {
+  config => {
     window.activeVueResources -= 1;
-    return response;
+
+    return config;
   },
-  err => {
+  e => {
     window.activeVueResources -= 1;
-    return Promise.reject(err);
+
+    return Promise.reject(e);
   },
 );
 

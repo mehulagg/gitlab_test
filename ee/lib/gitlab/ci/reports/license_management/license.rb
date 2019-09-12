@@ -5,12 +5,10 @@ module Gitlab
     module Reports
       module LicenseManagement
         class License
-          attr_reader :name, :url, :count
+          attr_reader :name, :status
 
-          def initialize(name, count, url)
+          def initialize(name)
             @name = name
-            @count = count
-            @url = url
             @dependencies = Set.new
           end
 

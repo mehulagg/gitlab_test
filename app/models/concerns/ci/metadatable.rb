@@ -15,7 +15,6 @@ module Ci
                          autosave: true
 
       delegate :timeout, to: :metadata, prefix: true, allow_nil: true
-      delegate :interruptible, to: :metadata, prefix: false, allow_nil: true
       before_create :ensure_metadata
     end
 
@@ -49,14 +48,6 @@ module Ci
 
     def yaml_variables=(value)
       write_metadata_attribute(:yaml_variables, :config_variables, value)
-    end
-
-    def interruptible
-      metadata&.interruptible
-    end
-
-    def interruptible=(value)
-      ensure_metadata.interruptible = value
     end
 
     private

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'User adds to merge train when pipeline succeeds', :js do
   let(:project) { create(:project, :repository) }

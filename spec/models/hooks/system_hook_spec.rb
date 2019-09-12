@@ -64,7 +64,7 @@ describe SystemHook do
       ).once
     end
 
-    it "project member create hook" do
+    it "project_create hook" do
       project.add_maintainer(user)
 
       expect(WebMock).to have_requested(:post, system_hook.url).with(
@@ -73,21 +73,12 @@ describe SystemHook do
       ).once
     end
 
-    it "project member destroy hook" do
+    it "project_destroy hook" do
       project.add_maintainer(user)
       project.project_members.destroy_all # rubocop: disable DestroyAll
 
       expect(WebMock).to have_requested(:post, system_hook.url).with(
         body: /user_remove_from_team/,
-        headers: { 'Content-Type' => 'application/json', 'X-Gitlab-Event' => 'System Hook' }
-      ).once
-    end
-
-    it "project member update hook" do
-      project.add_guest(user)
-
-      expect(WebMock).to have_requested(:post, system_hook.url).with(
-        body: /user_update_for_team/,
         headers: { 'Content-Type' => 'application/json', 'X-Gitlab-Event' => 'System Hook' }
       ).once
     end
@@ -125,16 +116,6 @@ describe SystemHook do
 
       expect(WebMock).to have_requested(:post, system_hook.url).with(
         body: /user_remove_from_group/,
-        headers: { 'Content-Type' => 'application/json', 'X-Gitlab-Event' => 'System Hook' }
-      ).once
-    end
-
-    it 'group member update hook' do
-      group.add_guest(user)
-      group.add_maintainer(user)
-
-      expect(WebMock).to have_requested(:post, system_hook.url).with(
-        body: /user_update_for_group/,
         headers: { 'Content-Type' => 'application/json', 'X-Gitlab-Event' => 'System Hook' }
       ).once
     end

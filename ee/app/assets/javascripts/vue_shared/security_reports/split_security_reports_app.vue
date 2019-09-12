@@ -289,8 +289,7 @@ export default {
       :unresolved-issues="dependencyScanning.newIssues"
       :has-issues="dependencyScanning.newIssues.length > 0"
       :popover-options="dependencyScanningPopover"
-      class="js-dss-widget split-report-section"
-      data-qa-selector="dependency_scanning_report"
+      class="js-dss-widget split-report-section qa-dependency-scanning-report"
     />
 
     <report-section

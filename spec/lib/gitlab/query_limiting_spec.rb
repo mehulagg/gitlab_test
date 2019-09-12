@@ -9,14 +9,14 @@ describe Gitlab::QueryLimiting do
     end
 
     it 'returns true in a development environment' do
-      stub_rails_env('development')
-      stub_rails_env('development')
+      allow(Rails.env).to receive(:development?).and_return(true)
 
       expect(described_class.enable?).to eq(true)
     end
 
     it 'returns false on GitLab.com' do
-      stub_rails_env('production')
+      expect(Rails.env).to receive(:development?).and_return(false)
+      expect(Rails.env).to receive(:test?).and_return(false)
       allow(Gitlab).to receive(:com?).and_return(true)
 
       expect(described_class.enable?).to eq(false)
@@ -24,7 +24,8 @@ describe Gitlab::QueryLimiting do
 
     it 'returns false in a non GitLab.com' do
       allow(Gitlab).to receive(:com?).and_return(false)
-      stub_rails_env('production')
+      expect(Rails.env).to receive(:development?).and_return(false)
+      expect(Rails.env).to receive(:test?).and_return(false)
 
       expect(described_class.enable?).to eq(false)
     end

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe API::PagesDomains do
   set(:project) { create(:project, path: 'my.project', pages_https_only: false) }

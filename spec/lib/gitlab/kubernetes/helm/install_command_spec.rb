@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe Gitlab::Kubernetes::Helm::InstallCommand do
   let(:files) { { 'ca.pem': 'some file content' } }

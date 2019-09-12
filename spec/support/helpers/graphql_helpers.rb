@@ -34,14 +34,6 @@ module GraphqlHelpers
     end
   end
 
-  # BatchLoader::GraphQL returns a wrapper, so we need to :sync in order
-  # to get the actual values
-  def batch_sync(max_queries: nil, &blk)
-    result = batch(max_queries: nil, &blk)
-
-    result.is_a?(Array) ? result.map(&:sync) : result&.sync
-  end
-
   def graphql_query_for(name, attributes = {}, fields = nil)
     <<~QUERY
     {
@@ -122,11 +114,7 @@ module GraphqlHelpers
     FIELDS
   end
 
-  def all_graphql_fields_for(class_name, parent_types = Set.new, max_depth: 3)
-    # pulling _all_ fields can generate a _huge_ query (like complexity 180,000),
-    # and significantly increase spec runtime. so limit the depth by default
-    return if max_depth <= 0
-
+  def all_graphql_fields_for(class_name, parent_types = Set.new)
     allow_unlimited_graphql_complexity
     allow_unlimited_graphql_depth
 
@@ -145,9 +133,9 @@ module GraphqlHelpers
 
       if nested_fields?(field)
         fields =
-          all_graphql_fields_for(singular_field_type, parent_types | [type], max_depth: max_depth - 1)
+          all_graphql_fields_for(singular_field_type, parent_types | [type])
 
-        "#{name} { #{fields} }" unless fields.blank?
+        "#{name} { #{fields} }"
       else
         name
       end

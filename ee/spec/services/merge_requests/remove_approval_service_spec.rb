@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe MergeRequests::RemoveApprovalService do
   describe '#execute' do

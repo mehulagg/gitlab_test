@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Projects > Show > Developer views empty project instructions' do
   let(:project) { create(:project, :empty_repo) }

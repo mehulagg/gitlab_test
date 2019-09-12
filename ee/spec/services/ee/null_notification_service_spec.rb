@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ::EE::NullNotificationService do
   it 'responds to methods implemented by NotificationService' do

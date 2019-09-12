@@ -1,14 +1,14 @@
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe Gitlab::Favicon, :request_store do
   describe '.main' do
     it 'defaults to favicon.png' do
-      stub_rails_env('production')
+      allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('production'))
       expect(described_class.main).to match_asset_path '/assets/favicon.png'
     end
 
     it 'has blue favicon for development', unless: Gitlab.ee? do
-      stub_rails_env('development')
+      allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('development'))
       expect(described_class.main).to match_asset_path '/assets/favicon-blue.png'
     end
 
@@ -24,7 +24,7 @@ RSpec.describe Gitlab::Favicon, :request_store do
 
     context 'asset host' do
       before do
-        stub_rails_env('production')
+        allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('production'))
       end
 
       it 'returns a relative url when the asset host is not configured' do

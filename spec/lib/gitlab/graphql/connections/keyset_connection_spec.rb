@@ -8,7 +8,7 @@ describe Gitlab::Graphql::Connections::KeysetConnection do
   end
 
   def encoded_property(value)
-    Base64Bp.urlsafe_encode64(value.to_s, padding: false)
+    Base64.strict_encode64(value.to_s)
   end
 
   describe '#cursor_from_nodes' do

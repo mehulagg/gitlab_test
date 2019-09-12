@@ -285,7 +285,7 @@ class NotificationService
 
     recipients = NotificationRecipientService.build_new_note_recipients(note)
     recipients.each do |recipient|
-      mailer.send(notify_method, recipient.user.id, note.id, recipient.reason).deliver_later
+      mailer.send(notify_method, recipient.user.id, note.id).deliver_later
     end
   end
 
@@ -293,15 +293,10 @@ class NotificationService
   def new_access_request(member)
     return true unless member.notifiable?(:subscription)
 
-    source = member.source
-
-    recipients = source.access_request_approvers_to_be_notified
-
-    if fallback_to_group_access_request_approvers?(recipients, source)
-      recipients = source.group.access_request_approvers_to_be_notified
+    recipients = member.source.members.active_without_invites_and_requests.owners_and_maintainers
+    if fallback_to_group_owners_maintainers?(recipients, member)
+      recipients = member.source.group.members.active_without_invites_and_requests.owners_and_maintainers
     end
-
-    return true if recipients.empty?
 
     recipients.each { |recipient| deliver_access_request_email(recipient, member) }
   end
@@ -616,10 +611,10 @@ class NotificationService
     mailer.member_access_requested_email(member.real_source_type, member.id, recipient.user.id).deliver_later
   end
 
-  def fallback_to_group_access_request_approvers?(recipients, source)
+  def fallback_to_group_owners_maintainers?(recipients, member)
     return false if recipients.present?
 
-    source.respond_to?(:group) && source.group
+    member.source.respond_to?(:group) && member.source.group
   end
 end
 

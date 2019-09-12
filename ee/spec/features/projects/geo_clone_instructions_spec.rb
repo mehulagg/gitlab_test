@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Geo clone instructions', :geo, :js do
   include Devise::Test::IntegrationHelpers

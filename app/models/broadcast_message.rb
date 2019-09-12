@@ -16,7 +16,7 @@ class BroadcastMessage < ApplicationRecord
   default_value_for :color, '#E75E40'
   default_value_for :font,  '#FFFFFF'
 
-  CACHE_KEY = 'broadcast_message_current_json'
+  CACHE_KEY = 'broadcast_message_current_json'.freeze
 
   after_commit :flush_redis_cache
 

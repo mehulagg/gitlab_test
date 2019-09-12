@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'fast_spec_helper'
+
+require_dependency 'gitlab'
 
 describe Gitlab do
   describe '.root' do
@@ -111,7 +113,7 @@ describe Gitlab do
 
     it 'is true when dev env' do
       allow(described_class).to receive_messages(com?: false, org?: false)
-      stub_rails_env('development')
+      allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('development'))
 
       expect(described_class.dev_env_org_or_com?).to eq true
     end

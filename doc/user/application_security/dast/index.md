@@ -84,8 +84,6 @@ There are two ways to define the URL to be scanned by DAST:
 - Set the `DAST_WEBSITE` [variable](../../../ci/yaml/README.md#variables).
 - Add it in an `environment_url.txt` file at the root of your project.
 
-If both values are set, the `DAST_WEBSITE` value will take precedence.  
-
 The included template will create a `dast` job in your CI/CD pipeline and scan
 your project's source code for possible vulnerabilities.
 
@@ -136,7 +134,7 @@ variables:
 
 The DAST settings can be changed through environment variables by using the
 [`variables`](../../../ci/yaml/README.md#variables) parameter in `.gitlab-ci.yml`.
-These variables are documented in [available variables](#available-variables).
+These variables are documented in the [DAST README](https://gitlab.com/gitlab-org/security-products/dast#settings).
 
 For example:
 
@@ -198,7 +196,7 @@ variable value.
 ## Security Dashboard
 
 The Security Dashboard is a good place to get an overview of all the security
-vulnerabilities in your groups, projects and pipelines. Read more about the
+vulnerabilities in your groups and projects. Read more about the
 [Security Dashboard](../security_dashboard/index.md).
 
 ## Interacting with the vulnerabilities

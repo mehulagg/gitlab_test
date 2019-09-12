@@ -14,6 +14,7 @@ class Note < ApplicationRecord
   include CacheMarkdownField
   include AfterCommitQueue
   include ResolvableNote
+  include IgnorableColumn
   include Editable
   include Gitlab::SQL::Pattern
   include ThrottledTouch
@@ -33,7 +34,7 @@ class Note < ApplicationRecord
     end
   end
 
-  self.ignored_columns += %i[original_discussion_id]
+  ignore_column :original_discussion_id
 
   cache_markdown_field :note, pipeline: :note, issuable_state_filter_enabled: true
 
@@ -477,7 +478,6 @@ class Note < ApplicationRecord
   def parent
     project
   end
-  alias_method :resource_parent, :parent
 
   private
 

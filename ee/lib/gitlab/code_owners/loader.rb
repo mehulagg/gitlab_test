@@ -37,10 +37,6 @@ module Gitlab
         code_owners_file.empty?
       end
 
-      def code_owners_path
-        code_owners_file&.path
-      end
-
       private
 
       def load_bare_entries_for_paths

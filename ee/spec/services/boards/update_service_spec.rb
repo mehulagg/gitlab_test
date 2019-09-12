@@ -1,6 +1,21 @@
 require 'spec_helper'
 
 describe Boards::UpdateService, services: true do
+  shared_examples 'board with milestone predefined scope' do
+    let(:project) { create(:project) }
+    let!(:board)  { create(:board) }
+
+    it 'updates board to milestone id' do
+      stub_licensed_features(scoped_issue_board: true)
+
+      described_class
+        .new(project, double, milestone_id: milestone_class.id)
+        .execute(board)
+
+      expect(board.reload.milestone).to eq(milestone_class)
+    end
+  end
+
   describe '#execute' do
     let(:project) { create(:project, group: group) }
     let(:group) { create(:group) }
@@ -56,11 +71,73 @@ describe Boards::UpdateService, services: true do
                                               labels: [])
     end
 
-    it_behaves_like 'setting a milestone scope' do
-      subject { board.reload }
+    it_behaves_like 'board with milestone predefined scope' do
+      let(:milestone_class) { ::Milestone::Upcoming }
+    end
+
+    it_behaves_like 'board with milestone predefined scope' do
+      let(:milestone_class) { ::Milestone::Started }
+    end
+
+    context 'group board milestone' do
+      let!(:milestone) { create(:milestone) }
 
       before do
-        described_class.new(parent, double, milestone_id: milestone.id).execute(board)
+        stub_licensed_features(scoped_issue_board: true)
+      end
+
+      it 'is not updated if it is not within group milestones' do
+        service = described_class.new(group, double, milestone_id: milestone.id)
+
+        service.execute(board)
+
+        expect(board.reload.milestone).to be_nil
+      end
+
+      it 'is updated if it is within group milestones' do
+        milestone.update!(project: nil, group: group)
+        service = described_class.new(group, double, milestone_id: milestone.id)
+
+        service.execute(board)
+
+        expect(board.reload.milestone).to eq(milestone)
+      end
+    end
+
+    context 'project board milestone' do
+      let!(:milestone) { create(:milestone) }
+
+      before do
+        stub_licensed_features(scoped_issue_board: true)
+      end
+
+      it 'is not updated if it is not within project milestones' do
+        service = described_class.new(project, double, milestone_id: milestone.id)
+
+        service.execute(board)
+
+        expect(board.reload.milestone).to be_nil
+      end
+
+      it 'is updated if it is within project milestones' do
+        milestone.update!(project: project)
+        service = described_class.new(project, double, milestone_id: milestone.id)
+
+        service.execute(board)
+
+        expect(board.reload.milestone).to eq(milestone)
+      end
+
+      it 'is updated if it is within project group milestones' do
+        project_group = create(:group)
+        project.update(group: project_group)
+        milestone.update!(project: nil, group: project_group)
+
+        service = described_class.new(project_group, double, milestone_id: milestone.id)
+
+        service.execute(board)
+
+        expect(board.reload.milestone).to eq(milestone)
       end
     end
 

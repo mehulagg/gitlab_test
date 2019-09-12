@@ -132,8 +132,8 @@ export default {
     restartStep() {
       this.$emit('restartStep');
     },
-    showFeedbackContent() {
-      this.$emit('showFeedbackContent', true);
+    showExitTourContent() {
+      this.$emit('showExitTourContent', true);
     },
     callButtonAction(button) {
       this.$emit('clickPopoverButton', button);
@@ -208,7 +208,7 @@ export default {
           </gl-link>
         </li>
         <li>
-          <gl-link class="qa-exit-tour-link d-inline-flex" @click="showFeedbackContent">
+          <gl-link class="qa-exit-tour-link d-inline-flex" @click="showExitTourContent">
             <icon name="leave" class="mr-1" />
             <span>{{ s__("UserOnboardingTour|Exit 'Learn GitLab'") }}</span>
           </gl-link>

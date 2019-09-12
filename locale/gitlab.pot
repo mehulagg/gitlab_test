@@ -2584,10 +2584,7 @@ msgstr ""
 msgid "CICD|The Auto DevOps pipeline will run if no alternative CI configuration file is found."
 msgstr ""
 
-msgid "CICD|You must add a %{base_domain_link_start}base domain%{link_end} to your %{kubernetes_cluster_link_start}Kubernetes cluster%{link_end} in order for your deployment strategy to work."
-msgstr ""
-
-msgid "CICD|You must add a %{kubernetes_cluster_link_start}Kubernetes cluster integration%{link_end} to this project with a domain in order for your deployment strategy to work correctly."
+msgid "CICD|You must add a %{kubernetes_cluster_start}Kubernetes cluster integration%{kubernetes_cluster_end} to this project with a domain in order for your deployment strategy to work correctly."
 msgstr ""
 
 msgid "CICD|group enabled"
@@ -3861,9 +3858,6 @@ msgstr ""
 msgid "Confidentiality"
 msgstr ""
 
-msgid "Configure"
-msgstr ""
-
 msgid "Configure GitLab runners to start using the Web Terminal. %{helpStart}Learn more.%{helpEnd}"
 msgstr ""
 
@@ -4157,7 +4151,13 @@ msgstr ""
 msgid "Could not add admins as members"
 msgstr ""
 
+msgid "Could not add admins as members to self-monitoring project. Errors: %{errors}"
+msgstr ""
+
 msgid "Could not add prometheus URL to whitelist"
+msgstr ""
+
+msgid "Could not add prometheus URL to whitelist, errors: %{errors}"
 msgstr ""
 
 msgid "Could not authorize chat nickname. Try again!"
@@ -4178,6 +4178,9 @@ msgstr ""
 msgid "Could not create group"
 msgstr ""
 
+msgid "Could not create instance administration project. Errors: %{errors}"
+msgstr ""
+
 msgid "Could not create project"
 msgstr ""
 
@@ -4196,10 +4199,16 @@ msgstr ""
 msgid "Could not revoke personal access token %{personal_access_token_name}."
 msgstr ""
 
+msgid "Could not save instance administration project ID, errors: %{errors}"
+msgstr ""
+
 msgid "Could not save project ID"
 msgstr ""
 
 msgid "Could not save prometheus manual configuration"
+msgstr ""
+
+msgid "Could not save prometheus manual configuration for self-monitoring project. Errors: %{errors}"
 msgstr ""
 
 msgid "Coverage"
@@ -4798,9 +4807,6 @@ msgstr ""
 msgid "Deploy key was successfully updated."
 msgstr ""
 
-msgid "Deploy progress not found. To see pods, ensure your environment matches %{linkStart}deploy board criteria%{linkEnd}."
-msgstr ""
-
 msgid "Deploy to..."
 msgstr ""
 
@@ -4997,12 +5003,6 @@ msgid "DesignManagement|Go to next design"
 msgstr ""
 
 msgid "DesignManagement|Go to previous design"
-msgstr ""
-
-msgid "DesignManagement|Requested design version does not exist"
-msgstr ""
-
-msgid "DesignManagement|Requested design version does not exist. Showing latest version instead"
 msgstr ""
 
 msgid "DesignManagement|The maximum number of designs allowed to be uploaded is %{upload_limit}. Please try again."
@@ -5518,9 +5518,6 @@ msgstr ""
 msgid "Ensure connectivity is available from the GitLab server to the Prometheus server"
 msgstr ""
 
-msgid "Ensure your %{linkStart}environment is part of the deploy stage%{linkEnd} of your CI pipeline to track deployments to your cluster."
-msgstr ""
-
 msgid "Enter IP address range"
 msgstr ""
 
@@ -5564,9 +5561,6 @@ msgid "Enter zen mode"
 msgstr ""
 
 msgid "EnviornmentDashboard|You are looking at the last updated environment"
-msgstr ""
-
-msgid "Environment"
 msgstr ""
 
 msgid "Environment variables are applied to environments via the runner. They can be protected by only exposing them to protected branches or tags. Additionally, they can be masked so they are hidden in job logs, though they must match certain regexp requirements to do so. You can use environment variables for passwords, secret keys, or whatever you want."
@@ -6287,9 +6281,6 @@ msgid "Failed to save preferences (%{error_message})."
 msgstr ""
 
 msgid "Failed to save preferences."
-msgstr ""
-
-msgid "Failed to set due date because the date format is invalid."
 msgstr ""
 
 msgid "Failed to signing using smartcard authentication"
@@ -7290,6 +7281,9 @@ msgstr ""
 msgid "GitLab.com import"
 msgstr ""
 
+msgid "GitLab’s issue tracker"
+msgstr ""
+
 msgid "Gitaly"
 msgstr ""
 
@@ -8239,6 +8233,9 @@ msgstr ""
 msgid "Instance Statistics visibility"
 msgstr ""
 
+msgid "Instance administration project already exists"
+msgstr ""
+
 msgid "Instance administrators group already exists"
 msgstr ""
 
@@ -8419,13 +8416,16 @@ msgstr ""
 msgid "Issues, merge requests, pushes, and comments."
 msgstr ""
 
+msgid "IssuesAnalytics | Issues created"
+msgstr ""
+
 msgid "IssuesAnalytics|After you begin creating issues for your projects, we can start tracking and displaying metrics for them"
 msgstr ""
 
 msgid "IssuesAnalytics|Avg/Month:"
 msgstr ""
 
-msgid "IssuesAnalytics|Issues created"
+msgid "IssuesAnalytics|Issues Created"
 msgstr ""
 
 msgid "IssuesAnalytics|Issues created per month"
@@ -8444,9 +8444,6 @@ msgid "IssuesAnalytics|To widen your search, change or remove filters in the fil
 msgstr ""
 
 msgid "IssuesAnalytics|Total:"
-msgstr ""
-
-msgid "It may take up to 30 minutes before the site is available after the first deployment."
 msgstr ""
 
 msgid "It must have a header row and at least two columns: the first column is the issue title and the second column is the issue description. The separator is automatically detected."
@@ -8820,6 +8817,9 @@ msgstr ""
 msgid "Learn more"
 msgstr ""
 
+msgid "Learn more about %{issue_boards_url}, to keep track of issues in multiple lists, using labels, assignees, and milestones. If you’re missing something from issue boards, please create an issue on %{gitlab_issues_url}."
+msgstr ""
+
 msgid "Learn more about Auto DevOps"
 msgstr ""
 
@@ -8836,9 +8836,6 @@ msgid "Learn more about approvals."
 msgstr ""
 
 msgid "Learn more about custom project templates"
-msgstr ""
-
-msgid "Learn more about deploying to a cluster"
 msgstr ""
 
 msgid "Learn more about group-level project templates"
@@ -10097,9 +10094,6 @@ msgstr ""
 msgid "No data to display"
 msgstr ""
 
-msgid "No deployments found"
-msgstr ""
-
 msgid "No details available"
 msgstr ""
 
@@ -10238,9 +10232,6 @@ msgstr ""
 msgid "Not found."
 msgstr ""
 
-msgid "Not helpful"
-msgstr ""
-
 msgid "Not now"
 msgstr ""
 
@@ -10266,9 +10257,6 @@ msgid "Note: Consider asking your GitLab administrator to configure %{github_int
 msgstr ""
 
 msgid "Note: Consider asking your GitLab administrator to configure %{github_integration_link}, which will allow login via GitHub and allow importing repositories without generating a Personal Access Token."
-msgstr ""
-
-msgid "Note: the container registry is always visible when a project is public"
 msgstr ""
 
 msgid "NoteForm|Note"
@@ -10918,6 +10906,9 @@ msgstr ""
 msgid "Pipelines|Loading Pipelines"
 msgstr ""
 
+msgid "Pipelines|Pipelines will not run anymore on shared Runners."
+msgstr ""
+
 msgid "Pipelines|Project cache successfully reset."
 msgstr ""
 
@@ -10945,9 +10936,6 @@ msgstr ""
 msgid "Pipeline|Coverage"
 msgstr ""
 
-msgid "Pipeline|Detached merge request pipeline"
-msgstr ""
-
 msgid "Pipeline|Duration"
 msgstr ""
 
@@ -10955,12 +10943,6 @@ msgid "Pipeline|Existing branch name or tag"
 msgstr ""
 
 msgid "Pipeline|Key"
-msgstr ""
-
-msgid "Pipeline|Merge train pipeline"
-msgstr ""
-
-msgid "Pipeline|Merged result pipeline"
 msgstr ""
 
 msgid "Pipeline|Pipeline"
@@ -11159,9 +11141,6 @@ msgid "Please wait while we connect to your repository. Refresh at will."
 msgstr ""
 
 msgid "Please wait while we import the repository for you. Refresh at will."
-msgstr ""
-
-msgid "Pods in use"
 msgstr ""
 
 msgid "Preferences"
@@ -12058,7 +12037,7 @@ msgstr ""
 msgid "ProjectsNew|Want to house several dependent projects under the same namespace? %{link_start}Create a group.%{link_end}"
 msgstr ""
 
-msgid "Prometheus listen_address in config/gitlab.yml is not a valid URI"
+msgid "Prometheus listen_address is not a valid URI"
 msgstr ""
 
 msgid "PrometheusAlerts|Add alert"
@@ -12302,9 +12281,6 @@ msgid "Public pipelines"
 msgstr ""
 
 msgid "Pull"
-msgstr ""
-
-msgid "Purchase more minutes"
 msgstr ""
 
 msgid "Push"
@@ -13098,7 +13074,7 @@ msgstr ""
 msgid "Runners page."
 msgstr ""
 
-msgid "Runners|You have used %{quotaUsed} out of %{quotaLimit} of your shared Runners pipeline minutes."
+msgid "Runners|You have used all your shared Runners pipeline minutes."
 msgstr ""
 
 msgid "Running"
@@ -13501,9 +13477,6 @@ msgid "Select a file from the left sidebar to begin editing. Afterwards, you'll 
 msgstr ""
 
 msgid "Select a group to invite"
-msgstr ""
-
-msgid "Select a label"
 msgstr ""
 
 msgid "Select a namespace to fork the project"
@@ -14405,9 +14378,6 @@ msgstr ""
 msgid "Star a label to make it a priority label. Order the prioritized labels to change their relative priority, by dragging."
 msgstr ""
 
-msgid "Star labels to start sorting by priority"
-msgstr ""
-
 msgid "Star toggle failed. Try again later."
 msgstr ""
 
@@ -15250,6 +15220,9 @@ msgstr ""
 msgid "The staging stage shows the time between merging the MR and deploying code to the production environment. The data will be automatically added once you deploy to production for the first time."
 msgstr ""
 
+msgid "The tabs below will be removed in a future version"
+msgstr ""
+
 msgid "The testing stage shows the time GitLab CI takes to run every pipeline for the related merge request. The data will automatically be added after your first pipeline finishes running."
 msgstr ""
 
@@ -15499,9 +15472,6 @@ msgstr ""
 msgid "This environment has no deployments yet."
 msgstr ""
 
-msgid "This feature is in development. Please disable the `job_log_json` feature flag"
-msgstr ""
-
 msgid "This feature requires local storage to be enabled"
 msgstr ""
 
@@ -15514,7 +15484,7 @@ msgstr ""
 msgid "This group does not provide any group Runners yet."
 msgstr ""
 
-msgid "This group, including all subgroups, projects and git repositories, will only be reachable from the specified IP address range. Multiple addresses are supported with comma delimiters.<br>Example: <code>192.168.0.0/24,192.168.1.0/24</code>. %{read_more_link}."
+msgid "This group, including all subgroups, projects and git repositories, will only be reachable from the specified IP address range. Multiple addresses are supported with comma delimiters. Example: <code>192.168.0.0/24,192.168.1.0/24</code>. %{read_more_link}."
 msgstr ""
 
 msgid "This is a \"Ghost User\", created to hold all issues authored by users that have since been deleted. This user cannot be removed."
@@ -16721,9 +16691,6 @@ msgstr ""
 msgid "UserOnboardingTour|Click to open the latest commit to see its details."
 msgstr ""
 
-msgid "UserOnboardingTour|Close 'Learn GitLab'"
-msgstr ""
-
 msgid "UserOnboardingTour|Commits are shown in chronological order and can be filtered by the commit message or by the branch."
 msgstr ""
 
@@ -16734,9 +16701,6 @@ msgid "UserOnboardingTour|Exit 'Learn GitLab'"
 msgstr ""
 
 msgid "UserOnboardingTour|Got it"
-msgstr ""
-
-msgid "UserOnboardingTour|Great job! %{clapHands} We hope the tour was helpful and that you learned how to use GitLab.%{lineBreak}%{lineBreak}We'd love to get your feedback on this tour.%{lineBreak}%{lineBreak}%{emphasisStart}How helpful would you say this guided tour was?%{emphasisEnd}%{lineBreak}%{lineBreak}"
 msgstr ""
 
 msgid "UserOnboardingTour|Guided GitLab Tour"
@@ -16802,7 +16766,7 @@ msgstr ""
 msgid "UserOnboardingTour|Take a look. Here's a nifty menu for quickly creating issues, merge requests, snippets, projects and groups. Click on it and select \"New project\" from the \"GitLab\" section to get started."
 msgstr ""
 
-msgid "UserOnboardingTour|Thanks for the feedback! %{thumbsUp}"
+msgid "UserOnboardingTour|Thanks for taking the guided tour. Remember, if you want to go through it again, you can start %{emphasisStart}Learn GitLab%{emphasisEnd} in the help menu on the top right."
 msgstr ""
 
 msgid "UserOnboardingTour|That's it for issues. Let'st take a look at %{emphasisStart}Merge Requests%{emphasisEnd}."
@@ -17007,9 +16971,6 @@ msgid "Verified"
 msgstr ""
 
 msgid "Version"
-msgstr ""
-
-msgid "Very helpful"
 msgstr ""
 
 msgid "View app"
@@ -17219,7 +17180,7 @@ msgstr ""
 msgid "We couldn't find any results matching"
 msgstr ""
 
-msgid "We created a short guided tour that will help you learn the basics of GitLab and how it will help you be better at your job. It should only take a couple of minutes. You will be guided by two types of helpers, best recognized by their color."
+msgid "We created a short guided tour that will help you learn the basics of GitLab and how it will help you be better at your job. It should only take a couple of minutes. You willl be guided by two types of helpers, best recognized by their color."
 msgstr ""
 
 msgid "We detected potential spam in the %{humanized_resource_name}. Please solve the reCAPTCHA to proceed."
@@ -17914,9 +17875,6 @@ msgstr ""
 msgid "Your new personal access token has been created."
 msgstr ""
 
-msgid "Your pages are served under:"
-msgstr ""
-
 msgid "Your password reset token has expired."
 msgstr ""
 
@@ -18317,9 +18275,6 @@ msgstr[1] ""
 msgid "deleted"
 msgstr ""
 
-msgid "deploy"
-msgstr ""
-
 msgid "design"
 msgstr ""
 
@@ -18466,6 +18421,9 @@ msgid "is too long (maximum is 1000 entries)"
 msgstr ""
 
 msgid "issue"
+msgstr ""
+
+msgid "issue boards"
 msgstr ""
 
 msgid "it is stored externally"
@@ -18887,6 +18845,12 @@ msgstr[0] ""
 msgstr[1] ""
 
 msgid "project avatar"
+msgstr ""
+
+msgid "prometheus.enable is not present in gitlab.yml"
+msgstr ""
+
+msgid "prometheus.listen_address is not present in gitlab.yml"
 msgstr ""
 
 msgid "quick actions"

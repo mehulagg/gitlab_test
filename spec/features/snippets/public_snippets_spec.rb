@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Public Snippets', :js do
   it 'Unauthenticated user should see public snippets' do

@@ -37,7 +37,7 @@ module Clusters
     end
 
     def global_params
-      { user: current_user }
+      { user: current_user, namespace_per_environment: Feature.enabled?(:kubernetes_namespace_per_environment, default_enabled: true) }
     end
 
     def clusterable_params

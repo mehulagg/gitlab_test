@@ -74,8 +74,6 @@ GEM
     asciidoctor-plantuml (0.0.9)
       asciidoctor (>= 1.5.6, < 3.0.0)
     ast (2.4.0)
-    atlassian-jwt (0.2.0)
-      jwt (~> 2.1.0)
     attr_encrypted (3.1.0)
       encryptor (~> 3.0.0)
     attr_required (1.0.1)
@@ -157,6 +155,8 @@ GEM
       adamantium (~> 0.2.0)
       equalizer (~> 0.0.9)
     concurrent-ruby (1.1.5)
+    concurrent-ruby-ext (1.1.5)
+      concurrent-ruby (= 1.1.5)
     connection_pool (2.2.2)
     contracts (0.11.0)
     crack (0.4.3)
@@ -344,9 +344,7 @@ GEM
       redis (> 3.0.0, < 5.0.0)
     gitlab-license (1.0.0)
     gitlab-markup (1.7.0)
-    gitlab-peek (0.0.1)
-      railties (>= 4.0.0)
-    gitlab-sidekiq-fetcher (0.5.2)
+    gitlab-sidekiq-fetcher (0.5.1)
       sidekiq (~> 5)
     gitlab-styles (2.8.0)
       rubocop (~> 0.69.0)
@@ -402,7 +400,7 @@ GEM
     graphiql-rails (1.4.10)
       railties
       sprockets-rails
-    graphql (1.9.11)
+    graphql (1.8.4)
     graphql-docs (1.6.0)
       commonmarker (~> 0.16)
       escape_utils (~> 1.2)
@@ -473,9 +471,8 @@ GEM
       opentracing (~> 0.3)
       thrift
     jaro_winkler (1.5.3)
-    jira-ruby (1.7.1)
+    jira-ruby (1.4.1)
       activesupport
-      atlassian-jwt
       multipart-post
       oauth (~> 0.5, >= 0.5.0)
     jmespath (1.3.1)
@@ -665,6 +662,10 @@ GEM
     parser (2.6.3.0)
       ast (~> 2.4.0)
     parslet (1.8.2)
+    peek (1.0.1)
+      concurrent-ruby (>= 0.9.0)
+      concurrent-ruby-ext (>= 0.9.0)
+      railties (>= 4.0.0)
     pg (1.1.4)
     po_to_json (1.0.1)
       json (>= 1.6.0)
@@ -680,7 +681,7 @@ GEM
       parser
       unparser
     procto (0.0.3)
-    prometheus-client-mmap (0.9.9)
+    prometheus-client-mmap (0.9.8)
     pry (0.11.3)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
@@ -1058,7 +1059,6 @@ DEPENDENCIES
   asciidoctor (~> 2.0.10)
   asciidoctor-include-ext (~> 0.3.1)
   asciidoctor-plantuml (= 0.0.9)
-  atlassian-jwt (~> 0.2.0)
   attr_encrypted (~> 3.1.0)
   awesome_print
   aws-sdk
@@ -1133,8 +1133,7 @@ DEPENDENCIES
   gitlab-labkit (~> 0.5)
   gitlab-license (~> 1.0)
   gitlab-markup (~> 1.7.0)
-  gitlab-peek (~> 0.0.1)
-  gitlab-sidekiq-fetcher (= 0.5.2)
+  gitlab-sidekiq-fetcher (= 0.5.1)
   gitlab-styles (~> 2.7)
   gitlab_omniauth-ldap (~> 2.1.1)
   gon (~> 6.2)
@@ -1146,7 +1145,7 @@ DEPENDENCIES
   grape-path-helpers (~> 1.1)
   grape_logging (~> 1.7)
   graphiql-rails (~> 1.4.10)
-  graphql (~> 1.9.11)
+  graphql (= 1.8.4)
   graphql-docs (~> 1.6.0)
   grpc (~> 1.19.0)
   gssapi
@@ -1162,7 +1161,7 @@ DEPENDENCIES
   icalendar
   influxdb (~> 0.2)
   invisible_captcha (~> 0.12.1)
-  jira-ruby (~> 1.7)
+  jira-ruby (~> 1.4)
   js_regex (~> 3.1)
   json-schema (~> 2.8.0)
   jwt (~> 2.1.0)
@@ -1207,9 +1206,10 @@ DEPENDENCIES
   omniauth_crowd (~> 2.2.0)
   omniauth_openid_connect (~> 0.3.1)
   org-ruby (~> 0.9.12)
+  peek (~> 1.0.1)
   pg (~> 1.1)
   premailer-rails (~> 1.9.7)
-  prometheus-client-mmap (~> 0.9.9)
+  prometheus-client-mmap (~> 0.9.8)
   pry-byebug (~> 3.5.1)
   pry-rails (~> 0.3.4)
   puma (~> 3.12)

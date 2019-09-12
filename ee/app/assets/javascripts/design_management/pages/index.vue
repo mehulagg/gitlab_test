@@ -33,6 +33,16 @@ export default {
       },
       update: data => data.project.issue.userPermissions,
     },
+    allVersions: {
+      query: projectQuery,
+      variables() {
+        return {
+          fullPath: this.projectPath,
+          iid: this.issueIid,
+        };
+      },
+      update: data => data.project.issue.designs.versions.edges,
+    },
   },
   data() {
     return {
@@ -40,6 +50,7 @@ export default {
         createDesign: false,
       },
       isSaving: false,
+      allVersions: [],
     };
   },
   computed: {
@@ -54,6 +65,9 @@ export default {
     },
     hasDesigns() {
       return this.designs.length > 0;
+    },
+    hasVersion() {
+      return this.hasValidVersion();
     },
   },
   methods: {
@@ -118,7 +132,7 @@ export default {
           update: (store, { data: { designManagementUpload } }) => {
             const data = store.readQuery({
               query: projectQuery,
-              variables: { fullPath: this.projectPath, iid: this.issueIid, atVersion: null },
+              variables: { fullPath: this.projectPath, iid: this.issueIid },
             });
 
             const newDesigns = data.project.issue.designs.designs.edges.reduce((acc, design) => {
@@ -175,7 +189,7 @@ export default {
 
             store.writeQuery({
               query: projectQuery,
-              variables: { fullPath: this.projectPath, iid: this.issueIid, atVersion: null },
+              variables: { fullPath: this.projectPath, iid: this.issueIid },
               data: newQueryData,
             });
           },
@@ -190,7 +204,7 @@ export default {
           },
         })
         .then(() => {
-          this.$router.push({ name: 'designs' });
+          this.$router.push('/designs');
         })
         .catch(e => {
           createFlash(s__('DesignManagement|Error uploading a new design. Please try again'));
@@ -218,6 +232,7 @@ export default {
       <div v-else-if="error" class="alert alert-danger">
         {{ __('An error occurred while loading designs. Please try again.') }}
       </div>
+      <design-list v-else-if="hasVersion" :designs="versionDesigns" />
       <design-list v-else-if="hasDesigns" :designs="designs" />
       <gl-empty-state
         v-else

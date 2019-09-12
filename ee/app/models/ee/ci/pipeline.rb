@@ -52,6 +52,41 @@ module EE
           metrics: %i[metrics_reports]
         }.freeze
 
+        # Deprecated, to be removed in 12.0
+        # A hash of Ci::JobArtifact file_types
+        # With mapping to the legacy job names,
+        # that has to contain given files
+        LEGACY_REPORT_FORMATS = {
+          codequality: {
+            names: %w(codeclimate codequality code_quality),
+            files: %w(codeclimate.json gl-code-quality-report.json)
+          },
+          sast: {
+            names: %w(deploy sast),
+            files: %w(gl-sast-report.json)
+          },
+          dependency_scanning: {
+            names: %w(dependency_scanning),
+            files: %w(gl-dependency-scanning-report.json)
+          },
+          container_scanning: {
+            names: %w(sast:container container_scanning),
+            files: %w(gl-sast-container-report.json gl-container-scanning-report.json)
+          },
+          dast: {
+            names: %w(dast),
+            files: %w(gl-dast-report.json)
+          },
+          performance: {
+            names: %w(performance deploy),
+            files: %w(performance.json)
+          },
+          license_management: {
+            names: %w(license_management),
+            files: %w(gl-license-management-report.json)
+          }
+        }.freeze
+
         state_machine :status do
           after_transition any => ::Ci::Pipeline.completed_statuses do |pipeline|
             next unless pipeline.has_reports?(::Ci::JobArtifact.security_reports)
@@ -70,18 +105,8 @@ module EE
             end
           end
 
-          after_transition any => ::Ci::Pipeline.completed_statuses do |pipeline|
-            next unless pipeline.bridge_triggered?
-            next unless pipeline.bridge_waiting?
-
-            pipeline.run_after_commit do
-              ::Ci::PipelineBridgeStatusWorker.perform_async(pipeline.id)
-            end
-          end
-
           after_transition created: :pending do |pipeline|
             next unless pipeline.bridge_triggered?
-            next if pipeline.bridge_waiting?
 
             pipeline.update_bridge_status!
           end
@@ -90,10 +115,6 @@ module EE
 
       def bridge_triggered?
         source_bridge.present?
-      end
-
-      def bridge_waiting?
-        source_bridge&.dependent?
       end
 
       def update_bridge_status!
@@ -143,9 +164,6 @@ module EE
         ::Gitlab::Ci::Reports::DependencyList::Report.new.tap do |dependency_list_report|
           builds.latest.with_reports(::Ci::JobArtifact.dependency_list_reports).each do |build|
             build.collect_dependency_list_reports!(dependency_list_report)
-          end
-          builds.latest.with_reports(::Ci::JobArtifact.license_management_reports).each do |build|
-            build.collect_licenses_for_dependency_list!(dependency_list_report)
           end
         end
       end

@@ -60,19 +60,20 @@ describe IconsHelper do
       non_existing = 'non_existing_icon_sprite'
 
       it 'raises in development mode' do
-        stub_rails_env('development')
+        allow(Rails.env).to receive(:development?).and_return(true)
 
         expect { sprite_icon(non_existing) }.to raise_error(ArgumentError, /is not a known icon/)
       end
 
       it 'raises in test mode' do
-        stub_rails_env('test')
+        allow(Rails.env).to receive(:test?).and_return(true)
 
         expect { sprite_icon(non_existing) }.to raise_error(ArgumentError, /is not a known icon/)
       end
 
       it 'does not raise in production mode' do
-        stub_rails_env('production')
+        allow(Rails.env).to receive(:test?).and_return(false)
+        allow(Rails.env).to receive(:development?).and_return(false)
 
         expect { sprite_icon(non_existing) }.not_to raise_error
       end

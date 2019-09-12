@@ -11,7 +11,7 @@ module CacheableAttributes
 
   class_methods do
     def cache_key
-      "#{name}:#{Gitlab::VERSION}:#{Rails.version}"
+      "#{name}:#{Gitlab::VERSION}:#{Rails.version}".freeze
     end
 
     # Can be overridden

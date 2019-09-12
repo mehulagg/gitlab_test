@@ -83,17 +83,6 @@ module EE
         end
       end
 
-      def inherit_status_from_downstream!(pipeline)
-        case pipeline.status
-        when 'success'
-          self.success!
-        when 'failed', 'canceled', 'skipped'
-          self.drop!
-        else
-          false
-        end
-      end
-
       def target_user
         self.user
       end
@@ -116,12 +105,6 @@ module EE
 
       def target_ref
         options&.dig(:trigger, :branch)
-      end
-
-      def dependent?
-        strong_memoize(:dependent) do
-          options&.dig(:trigger, :strategy) == 'depend'
-        end
       end
 
       def downstream_variables

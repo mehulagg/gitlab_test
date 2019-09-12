@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Merge request > User sees deployment widget', :js do
   describe 'when merge request has associated environments' do

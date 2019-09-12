@@ -4,7 +4,6 @@ lint-ci-gitlab:
   extends:
     - .default-tags
     - .default-retry
-    - .except-docs
   image: sdesbure/yamllint:latest
   dependencies: []
   script:

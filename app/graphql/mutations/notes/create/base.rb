@@ -18,6 +18,8 @@ module Mutations
                   required: true,
                   description: copy_field_description(Types::Notes::NoteType, :body)
 
+        private
+
         def resolve(args)
           noteable = authorized_find!(id: args[:noteable_id])
 
@@ -34,8 +36,6 @@ module Mutations
             errors: errors_on_object(note)
           }
         end
-
-        private
 
         def create_note_params(noteable, args)
           {

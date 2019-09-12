@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe MergeRequestMetricsService do
   let(:metrics) { create(:merge_request).metrics }

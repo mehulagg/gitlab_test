@@ -2,7 +2,7 @@
 
 module Wikis
   class CreateAttachmentService < Files::CreateService
-    ATTACHMENT_PATH = 'uploads'
+    ATTACHMENT_PATH = 'uploads'.freeze
     MAX_FILENAME_LENGTH = 255
 
     delegate :wiki, to: :project

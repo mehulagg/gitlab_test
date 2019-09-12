@@ -92,16 +92,6 @@ describe('projects actions', () => {
         );
       });
     });
-
-    describe('with an empty endpoint', () => {
-      beforeEach(() => {
-        state.projectsEndpoint = '';
-      });
-
-      it('should not do anything', done => {
-        testAction(actions.fetchProjects, {}, state, [], [], done);
-      });
-    });
   });
 
   describe('receiveProjectsSuccess', () => {

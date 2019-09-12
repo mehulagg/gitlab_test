@@ -6,7 +6,7 @@ module Gitlab
       attr_reader :project
 
       # The base cache key to use for storing/retrieving milestone IDs.
-      CACHE_KEY = 'github-import/milestone-finder/%{project}/%{iid}'
+      CACHE_KEY = 'github-import/milestone-finder/%{project}/%{iid}'.freeze
 
       # project - An instance of `Project`
       def initialize(project)

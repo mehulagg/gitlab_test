@@ -17,7 +17,7 @@ describe EE::ShaAttribute do
   describe '#sha_attribute' do
     context 'when in non-production' do
       before do
-        stub_rails_env('production')
+        allow(Rails.env).to receive(:production?).and_return(false)
       end
 
       context 'when Geo database is not configured' do

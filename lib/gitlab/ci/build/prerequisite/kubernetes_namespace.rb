@@ -43,7 +43,7 @@ module Gitlab
           end
 
           def create_namespace
-            Clusters::Kubernetes::CreateOrUpdateNamespaceService.new(
+            Clusters::Gcp::Kubernetes::CreateOrUpdateNamespaceService.new(
               cluster: deployment_cluster,
               kubernetes_namespace: kubernetes_namespace || build_namespace_record
             ).execute

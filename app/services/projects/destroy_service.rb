@@ -6,7 +6,7 @@ module Projects
 
     DestroyError = Class.new(StandardError)
 
-    DELETED_FLAG = '+deleted'
+    DELETED_FLAG = '+deleted'.freeze
     REPO_REMOVAL_DELAY = 5.minutes.to_i
 
     def async_execute

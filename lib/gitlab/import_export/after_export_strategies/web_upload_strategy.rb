@@ -4,9 +4,9 @@ module Gitlab
   module ImportExport
     module AfterExportStrategies
       class WebUploadStrategy < BaseAfterExportStrategy
-        PUT_METHOD = 'PUT'
-        POST_METHOD = 'POST'
-        INVALID_HTTP_METHOD = 'invalid. Only PUT and POST methods allowed.'
+        PUT_METHOD = 'PUT'.freeze
+        POST_METHOD = 'POST'.freeze
+        INVALID_HTTP_METHOD = 'invalid. Only PUT and POST methods allowed.'.freeze
 
         validates :url, addressable_url: true
 

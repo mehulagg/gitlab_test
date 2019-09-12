@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class GroupPolicy < BasePolicy
-  include FindGroupProjects
-
   desc "Group is public"
   with_options scope: :subject, score: 0
   condition(:public_group) { @subject.public? }
@@ -24,7 +22,7 @@ class GroupPolicy < BasePolicy
   condition(:can_change_parent_share_with_group_lock) { can?(:change_share_with_group_lock, @subject.parent) }
 
   condition(:has_projects) do
-    group_projects_for(user: @user, group: @subject).any?
+    GroupProjectsFinder.new(group: @subject, current_user: @user, options: { include_subgroups: true, only_owned: true }).execute.any?
   end
 
   with_options scope: :subject, score: 0

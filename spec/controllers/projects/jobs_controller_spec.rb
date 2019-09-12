@@ -12,7 +12,6 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
 
   before do
     stub_feature_flags(ci_enable_live_trace: true)
-    stub_feature_flags(job_log_json: false)
     stub_not_protect_default_branch
   end
 

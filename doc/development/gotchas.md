@@ -18,7 +18,7 @@ end
 Consider the following API spec:
 
 ```ruby
-require 'spec_helper'
+require 'rails_helper'
 
 describe API::Labels do
   it 'creates a first label' do
@@ -69,7 +69,7 @@ is ok, but `create(:label, title: 'label1')` is not.
 Following is the fixed API spec:
 
 ```ruby
-require 'spec_helper'
+require 'rails_helper'
 
 describe API::Labels do
   it 'creates a first label' do

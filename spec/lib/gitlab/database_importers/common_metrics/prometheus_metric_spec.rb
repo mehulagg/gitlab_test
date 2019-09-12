@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Gitlab::DatabaseImporters::CommonMetrics::PrometheusMetric do
   it 'group enum equals ::PrometheusMetric' do

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Merge request > User sets approvers', :js do
   include ProjectForksHelper

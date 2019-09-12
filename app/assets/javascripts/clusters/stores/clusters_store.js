@@ -32,9 +32,6 @@ export default class ClusterStore {
     this.state = {
       helpPath: null,
       ingressHelpPath: null,
-      environmentsHelpPath: null,
-      clustersHelpPath: null,
-      deployBoardsHelpPath: null,
       status: null,
       rbac: false,
       statusReason: null,
@@ -83,24 +80,13 @@ export default class ClusterStore {
           updateFailed: false,
         },
       },
-      environments: [],
     };
   }
 
-  setHelpPaths(
-    helpPath,
-    ingressHelpPath,
-    ingressDnsHelpPath,
-    environmentsHelpPath,
-    clustersHelpPath,
-    deployBoardsHelpPath,
-  ) {
+  setHelpPaths(helpPath, ingressHelpPath, ingressDnsHelpPath) {
     this.state.helpPath = helpPath;
     this.state.ingressHelpPath = ingressHelpPath;
     this.state.ingressDnsHelpPath = ingressDnsHelpPath;
-    this.state.environmentsHelpPath = environmentsHelpPath;
-    this.state.clustersHelpPath = clustersHelpPath;
-    this.state.deployBoardsHelpPath = deployBoardsHelpPath;
   }
 
   setManagePrometheusPath(managePrometheusPath) {
@@ -204,18 +190,5 @@ export default class ClusterStore {
         this.state.applications.runner.updateAvailable = updateAvailable;
       }
     });
-  }
-
-  updateEnvironments(environments = []) {
-    this.state.environments = environments.map(environment => ({
-      name: environment.name,
-      project: environment.project,
-      environmentPath: environment.environment_path,
-      lastDeployment: environment.last_deployment,
-      rolloutStatus: {
-        instances: environment.rollout_status ? environment.rollout_status.instances : [],
-      },
-      updatedAt: environment.updatedAt,
-    }));
   }
 }

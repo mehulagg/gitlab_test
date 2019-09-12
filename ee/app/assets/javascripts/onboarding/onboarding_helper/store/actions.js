@@ -29,10 +29,6 @@ export const switchTourPart = ({ dispatch }, tourKey) => {
   dispatch('setHelpContentIndex', 0);
 };
 
-export const setTourFeedback = ({ commit }, tourFeedback) => {
-  commit(types.SET_FEEDBACK, tourFeedback);
-};
-
 export const setExitTour = ({ commit }, exitTour) => {
   commit(types.SET_EXIT_TOUR, exitTour);
 };

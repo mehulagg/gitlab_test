@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Issues > Labels bulk assignment' do
   let(:user)      { create(:user) }

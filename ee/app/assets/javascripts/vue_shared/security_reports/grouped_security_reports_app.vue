@@ -178,11 +178,6 @@ export default {
 
       return head || diffEndpoint;
     },
-    shouldRenderDast() {
-      const { head, diffEndpoint } = this.dast.paths;
-
-      return head || diffEndpoint;
-    },
   },
 
   created() {
@@ -230,12 +225,7 @@ export default {
       this.fetchSastContainerReports();
     }
 
-    const dastDiffEndpoint = gl && gl.mrWidgetData && gl.mrWidgetData.dast_comparison_path;
-
-    if (gon.features && gon.features.dastMergeRequestReportApi && dastDiffEndpoint) {
-      this.setDastDiffEndpoint(dastDiffEndpoint);
-      this.fetchDastDiff();
-    } else if (this.dastHeadPath) {
+    if (this.dastHeadPath) {
       this.setDastHeadPath(this.dastHeadPath);
 
       if (this.dastBasePath) {
@@ -301,8 +291,6 @@ export default {
       'setSastContainerDiffEndpoint',
       'fetchDependencyScanningDiff',
       'setDependencyScanningDiffEndpoint',
-      'fetchDastDiff',
-      'setDastDiffEndpoint',
     ]),
     ...mapActions('sast', {
       setSastHeadPath: 'setHeadPath',
@@ -385,7 +373,7 @@ export default {
         />
       </template>
 
-      <template v-if="shouldRenderDast">
+      <template v-if="dastHeadPath">
         <summary-row
           :summary="groupedDastText"
           :status-icon="dastStatusIcon"

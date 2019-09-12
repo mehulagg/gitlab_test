@@ -2,11 +2,10 @@ import { shallowMount } from '@vue/test-utils';
 import UploadButton from 'ee/design_management/components/upload/button.vue';
 
 describe('Design management upload button component', () => {
-  let wrapper;
+  let vm;
 
   function createComponent(isSaving = false, isInverted = false) {
-    wrapper = shallowMount(UploadButton, {
-      sync: false,
+    vm = shallowMount(UploadButton, {
       propsData: {
         isSaving,
         isInverted,
@@ -15,38 +14,36 @@ describe('Design management upload button component', () => {
   }
 
   afterEach(() => {
-    wrapper.destroy();
+    vm.destroy();
   });
 
   it('renders upload design button', () => {
     createComponent();
 
-    expect(wrapper.element).toMatchSnapshot();
+    expect(vm.element).toMatchSnapshot();
   });
 
   it('renders inverted upload design button', () => {
     createComponent(false, true);
 
-    expect(wrapper.element).toMatchSnapshot();
+    expect(vm.element).toMatchSnapshot();
   });
 
   it('renders loading icon', () => {
     createComponent(true);
 
-    expect(wrapper.element).toMatchSnapshot();
+    expect(vm.element).toMatchSnapshot();
   });
 
   describe('onFileUploadChange', () => {
     it('emits upload event', () => {
       createComponent();
 
-      jest
-        .spyOn(wrapper.find({ ref: 'fileUpload' }).element, 'files', 'get')
-        .mockReturnValue('test');
+      jest.spyOn(vm.find({ ref: 'fileUpload' }).element, 'files', 'get').mockReturnValue('test');
 
-      wrapper.vm.onFileUploadChange('test');
+      vm.vm.onFileUploadChange('test');
 
-      expect(wrapper.emitted().upload[0]).toEqual(['test']);
+      expect(vm.emitted().upload[0]).toEqual(['test']);
     });
   });
 
@@ -54,9 +51,9 @@ describe('Design management upload button component', () => {
     it('triggers click on input', () => {
       createComponent();
 
-      const clickSpy = jest.spyOn(wrapper.find({ ref: 'fileUpload' }).element, 'click');
+      const clickSpy = jest.spyOn(vm.find({ ref: 'fileUpload' }).element, 'click');
 
-      wrapper.vm.openFileUpload();
+      vm.vm.openFileUpload();
 
       expect(clickSpy).toHaveBeenCalled();
     });

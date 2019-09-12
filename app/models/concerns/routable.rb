@@ -33,12 +33,12 @@ module Routable
     #
     # Returns a single object, or nil.
     def find_by_full_path(path, follow_redirects: false)
-      routable_calls_counter.increment(method: 'find_by_full_path')
+      increment_counter(:routable_find_by_full_path, 'Number of calls to Routable.find_by_full_path')
 
       if Feature.enabled?(:routable_two_step_lookup)
         # Case sensitive match first (it's cheaper and the usual case)
         # If we didn't have an exact match, we perform a case insensitive search
-        found = includes(:route).find_by(routes: { path: path }) || where_full_path_in([path]).take
+        found = joins(:route).find_by(routes: { path: path }) || where_full_path_in([path]).take
       else
         order_sql = Arel.sql("(CASE WHEN routes.path = #{connection.quote(path)} THEN 0 ELSE 1 END)")
         found = where_full_path_in([path]).reorder(order_sql).take
@@ -61,18 +61,22 @@ module Routable
     def where_full_path_in(paths)
       return none if paths.empty?
 
-      routable_calls_counter.increment(method: 'where_full_path_in')
+      increment_counter(:routable_where_full_path_in, 'Number of calls to Routable.where_full_path_in')
 
       wheres = paths.map do |path|
         "(LOWER(routes.path) = LOWER(#{connection.quote(path)}))"
       end
 
-      includes(:route).where(wheres.join(' OR ')).references(:routes)
+      joins(:route).where(wheres.join(' OR '))
     end
 
     # Temporary instrumentation of method calls
-    def routable_calls_counter
-      @routable_calls_counter ||= Gitlab::Metrics.counter(:gitlab_routable_calls_total, 'Number of calls to Routable by method')
+    def increment_counter(counter, description)
+      @counters[counter] ||= Gitlab::Metrics.counter(counter, description)
+
+      @counters[counter].increment
+    rescue
+      # ignore the error
     end
   end
 

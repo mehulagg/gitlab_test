@@ -16,7 +16,7 @@ export const visibilityLevelDescriptions = {
   ),
 };
 
-export const featureAccessLevel = {
+const featureAccessLevel = {
   NOT_ENABLED: 0,
   PROJECT_MEMBERS: 10,
   EVERYONE: 20,

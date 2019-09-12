@@ -2,43 +2,43 @@ import { shallowMount } from '@vue/test-utils';
 import UploadForm from 'ee/design_management/components/upload/form.vue';
 
 describe('Design management upload form component', () => {
-  let wrapper;
+  let vm;
 
   function createComponent(isSaving = false, canUploadDesign = true) {
-    wrapper = shallowMount(UploadForm, {
-      sync: false,
+    vm = shallowMount(UploadForm, {
       propsData: {
         isSaving,
         canUploadDesign,
         projectPath: '',
         issueIid: '',
+        allVersions: [],
       },
     });
   }
 
   afterEach(() => {
-    wrapper.destroy();
+    vm.destroy();
   });
 
   it('renders upload design button', () => {
     createComponent();
 
-    expect(wrapper.element).toMatchSnapshot();
+    expect(vm.element).toMatchSnapshot();
   });
 
   it('hides button if cant upload', () => {
     createComponent(false, false);
 
-    expect(wrapper.element).toMatchSnapshot();
+    expect(vm.element).toMatchSnapshot();
   });
 
   describe('onFileUploadChange', () => {
     it('emits upload event', () => {
       createComponent();
 
-      wrapper.vm.onFileUploadChange('test');
+      vm.vm.onFileUploadChange('test');
 
-      expect(wrapper.emitted().upload[0]).toEqual(['test']);
+      expect(vm.emitted().upload[0]).toEqual(['test']);
     });
   });
 });

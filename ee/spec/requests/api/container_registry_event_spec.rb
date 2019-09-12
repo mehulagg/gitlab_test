@@ -9,7 +9,10 @@ describe API::ContainerRegistryEvent do
 
   describe 'POST /container_registry_event/events' do
     before do
-      allow(Gitlab.config.registry).to receive(:notification_secret) { secret_token }
+      stub_registry_endpoints_configuration([{
+        name: 'geo_event',
+        headers: { 'Authorization' => secret_token }
+      }.with_indifferent_access])
     end
 
     it 'returns 200 status and events are passed to event handler' do
@@ -30,6 +33,10 @@ describe API::ContainerRegistryEvent do
            headers: registry_headers.merge('Authorization' => 'invalid_token')
 
       expect(response.status).to eq 401
+    end
+
+    def stub_registry_endpoints_configuration(configuration)
+      allow(Gitlab.config.registry).to receive(:notifications) { configuration }
     end
   end
 end

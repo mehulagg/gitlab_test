@@ -5,24 +5,9 @@ import { DAYS } from 'ee/security_dashboard/store/modules/vulnerabilities/consta
 import mockData from './data/mock_data_vulnerabilities.json';
 
 describe('vulnerabilities module mutations', () => {
-  let state;
-
-  beforeEach(() => {
-    state = createState();
-  });
-
-  describe('SET_PIPELINE_ID', () => {
-    const pipelineId = 123;
-
-    it(`should set the pipelineId to ${pipelineId}`, () => {
-      mutations[types.SET_PIPELINE_ID](state, pipelineId);
-
-      expect(state.pipelineId).toBe(pipelineId);
-    });
-  });
-
   describe('SET_VULNERABILITIES_ENDPOINT', () => {
     it('should set `vulnerabilitiesEndpoint` to `fakepath.json`', () => {
+      const state = createState();
       const endpoint = 'fakepath.json';
 
       mutations[types.SET_VULNERABILITIES_ENDPOINT](state, endpoint);
@@ -34,6 +19,8 @@ describe('vulnerabilities module mutations', () => {
   describe('SET_VULNERABILITIES_PAGE', () => {
     const page = 3;
     it(`should set pageInfo.page to ${page}`, () => {
+      const state = createState();
+
       mutations[types.SET_VULNERABILITIES_PAGE](state, page);
 
       expect(state.pageInfo.page).toEqual(page);
@@ -41,8 +28,13 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('REQUEST_VULNERABILITIES', () => {
+    let state;
+
     beforeEach(() => {
-      state.errorLoadingVulnerabilities = true;
+      state = {
+        ...createState(),
+        errorLoadingVulnerabilities: true,
+      };
       mutations[types.REQUEST_VULNERABILITIES](state);
     });
 
@@ -57,12 +49,14 @@ describe('vulnerabilities module mutations', () => {
 
   describe('RECEIVE_VULNERABILITIES_SUCCESS', () => {
     let payload;
+    let state;
 
     beforeEach(() => {
       payload = {
         vulnerabilities: mockData,
         pageInfo: { a: 1, b: 2, c: 3 },
       };
+      state = createState();
       mutations[types.RECEIVE_VULNERABILITIES_SUCCESS](state, payload);
     });
 
@@ -81,6 +75,8 @@ describe('vulnerabilities module mutations', () => {
 
   describe('RECEIVE_VULNERABILITIES_ERROR', () => {
     it('should set `isLoadingVulnerabilities` to `false`', () => {
+      const state = createState();
+
       mutations[types.RECEIVE_VULNERABILITIES_ERROR](state);
 
       expect(state.isLoadingVulnerabilities).toBeFalsy();
@@ -89,6 +85,7 @@ describe('vulnerabilities module mutations', () => {
 
   describe('SET_VULNERABILITIES_COUNT_ENDPOINT', () => {
     it('should set `vulnerabilitiesCountEndpoint` to `fakepath.json`', () => {
+      const state = createState();
       const endpoint = 'fakepath.json';
 
       mutations[types.SET_VULNERABILITIES_COUNT_ENDPOINT](state, endpoint);
@@ -98,8 +95,13 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('REQUEST_VULNERABILITIES_COUNT', () => {
+    let state;
+
     beforeEach(() => {
-      state.errorLoadingVulnerabilitiesCount = true;
+      state = {
+        ...createState(),
+        errorLoadingVulnerabilitiesCount: true,
+      };
       mutations[types.REQUEST_VULNERABILITIES_COUNT](state);
     });
 
@@ -114,9 +116,11 @@ describe('vulnerabilities module mutations', () => {
 
   describe('RECEIVE_VULNERABILITIES_COUNT_SUCCESS', () => {
     let payload;
+    let state;
 
     beforeEach(() => {
       payload = mockData;
+      state = createState();
       mutations[types.RECEIVE_VULNERABILITIES_COUNT_SUCCESS](state, payload);
     });
 
@@ -131,6 +135,8 @@ describe('vulnerabilities module mutations', () => {
 
   describe('RECEIVE_VULNERABILITIES_COUNT_ERROR', () => {
     it('should set `isLoadingVulnerabilitiesCount` to `false`', () => {
+      const state = createState();
+
       mutations[types.RECEIVE_VULNERABILITIES_COUNT_ERROR](state);
 
       expect(state.isLoadingVulnerabilitiesCount).toBeFalsy();
@@ -139,6 +145,7 @@ describe('vulnerabilities module mutations', () => {
 
   describe('SET_VULNERABILITIES_HISTORY_ENDPOINT', () => {
     it('should set `vulnerabilitiesHistoryEndpoint` to `fakepath.json`', () => {
+      const state = createState();
       const endpoint = 'fakepath.json';
 
       mutations[types.SET_VULNERABILITIES_HISTORY_ENDPOINT](state, endpoint);
@@ -148,8 +155,13 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('REQUEST_VULNERABILITIES_HISTORY', () => {
+    let state;
+
     beforeEach(() => {
-      state.errorLoadingVulnerabilitiesHistory = true;
+      state = {
+        ...createState(),
+        errorLoadingVulnerabilitiesHistory: true,
+      };
       mutations[types.REQUEST_VULNERABILITIES_HISTORY](state);
     });
 
@@ -164,9 +176,11 @@ describe('vulnerabilities module mutations', () => {
 
   describe('RECEIVE_VULNERABILITIES_HISTORY_SUCCESS', () => {
     let payload;
+    let state;
 
     beforeEach(() => {
       payload = mockData;
+      state = createState();
       mutations[types.RECEIVE_VULNERABILITIES_HISTORY_SUCCESS](state, payload);
     });
 
@@ -181,6 +195,8 @@ describe('vulnerabilities module mutations', () => {
 
   describe('RECEIVE_VULNERABILITIES_HISTORY_ERROR', () => {
     it('should set `isLoadingVulnerabilitiesHistory` to `false`', () => {
+      const state = createState();
+
       mutations[types.RECEIVE_VULNERABILITIES_HISTORY_ERROR](state);
 
       expect(state.isLoadingVulnerabilitiesHistory).toBeFalsy();
@@ -188,6 +204,12 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('SET_VULNERABILITIES_HISTORY_DAY_RANGE', () => {
+    let state;
+
+    beforeEach(() => {
+      state = createState();
+    });
+
     it('should set the vulnerabilitiesHistoryDayRange to number of days', () => {
       mutations[types.SET_VULNERABILITIES_HISTORY_DAY_RANGE](state, DAYS.THIRTY);
 
@@ -211,8 +233,10 @@ describe('vulnerabilities module mutations', () => {
     describe('with all the data', () => {
       const vulnerability = mockData[0];
       let payload;
+      let state;
 
       beforeEach(() => {
+        state = createState();
         payload = { vulnerability };
         mutations[types.SET_MODAL_DATA](state, payload);
       });
@@ -279,6 +303,12 @@ describe('vulnerabilities module mutations', () => {
 
     describe('with irregular data', () => {
       const vulnerability = mockData[0];
+      let state;
+
+      beforeEach(() => {
+        state = createState();
+      });
+
       it('should set isDismissed when the vulnerabilitiy is dismissed', () => {
         const payload = {
           vulnerability: { ...vulnerability, dismissal_feedback: 'I am dismissed' },
@@ -329,18 +359,14 @@ describe('vulnerabilities module mutations', () => {
 
         expect(state.modal.data.instances.value).toEqual(null);
       });
-
-      it('should nullify the file value', () => {
-        const payload = { vulnerability: { ...vulnerability, location: {} } };
-        mutations[types.SET_MODAL_DATA](state, payload);
-
-        expect(state.modal.data.file.value).toEqual(null);
-      });
     });
   });
 
   describe('REQUEST_CREATE_ISSUE', () => {
+    let state;
+
     beforeEach(() => {
+      state = createState();
       mutations[types.REQUEST_CREATE_ISSUE](state);
     });
 
@@ -359,6 +385,7 @@ describe('vulnerabilities module mutations', () => {
 
   describe('RECEIVE_CREATE_ISSUE_SUCCESS', () => {
     it('should fire the visitUrl function on the issue URL', () => {
+      const state = createState();
       const payload = { issue_url: 'fakepath.html' };
       const visitUrl = spyOnDependency(mutations, 'visitUrl');
       mutations[types.RECEIVE_CREATE_ISSUE_SUCCESS](state, payload);
@@ -368,7 +395,10 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('RECEIVE_CREATE_ISSUE_ERROR', () => {
+    let state;
+
     beforeEach(() => {
+      state = createState();
       mutations[types.RECEIVE_CREATE_ISSUE_ERROR](state);
     });
 
@@ -386,7 +416,10 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('REQUEST_CREATE_MERGE_REQUEST', () => {
+    let state;
+
     beforeEach(() => {
+      state = createState();
       mutations[types.REQUEST_CREATE_MERGE_REQUEST](state);
     });
 
@@ -405,6 +438,7 @@ describe('vulnerabilities module mutations', () => {
 
   describe('RECEIVE_CREATE_MERGE_REQUEST_SUCCESS', () => {
     it('should fire the visitUrl function on the merge request URL', () => {
+      const state = createState();
       const payload = { merge_request_path: 'fakepath.html' };
       const visitUrl = spyOnDependency(mutations, 'visitUrl');
       mutations[types.RECEIVE_CREATE_MERGE_REQUEST_SUCCESS](state, payload);
@@ -414,7 +448,10 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('RECEIVE_CREATE_MERGE_REQUEST_ERROR', () => {
+    let state;
+
     beforeEach(() => {
+      state = createState();
       mutations[types.RECEIVE_CREATE_MERGE_REQUEST_ERROR](state);
     });
 
@@ -432,7 +469,10 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('REQUEST_DISMISS_VULNERABILITY', () => {
+    let state;
+
     beforeEach(() => {
+      state = createState();
       mutations[types.REQUEST_DISMISS_VULNERABILITY](state);
     });
 
@@ -450,15 +490,17 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('RECEIVE_DISMISS_VULNERABILITY_SUCCESS', () => {
+    let state;
     let payload;
     let vulnerability;
     let data;
 
     beforeEach(() => {
+      state = createState();
       state.vulnerabilities = mockData;
       [vulnerability] = mockData;
       data = { name: 'dismissal feedback' };
-      payload = { vulnerability, data };
+      payload = { id: vulnerability.id, data };
       mutations[types.RECEIVE_DISMISS_VULNERABILITY_SUCCESS](state, payload);
     });
 
@@ -480,7 +522,10 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('RECEIVE_DISMISS_VULNERABILITY_ERROR', () => {
+    let state;
+
     beforeEach(() => {
+      state = createState();
       mutations[types.RECEIVE_DISMISS_VULNERABILITY_ERROR](state);
     });
 
@@ -498,7 +543,10 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('REQUEST_DELETE_DISMISSAL_COMMENT', () => {
+    let state;
+
     beforeEach(() => {
+      state = createState();
       mutations[types.REQUEST_DELETE_DISMISSAL_COMMENT](state);
     });
 
@@ -516,11 +564,13 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('RECEIVE_DELETE_DISMISSAL_COMMENT_SUCCESS', () => {
+    let state;
     let payload;
     let vulnerability;
     let data;
 
     beforeEach(() => {
+      state = createState();
       state.vulnerabilities = mockData;
       [vulnerability] = mockData;
       data = { name: '' };
@@ -546,7 +596,10 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('RECEIVE_DELETE_DISMISSAL_COMMENT_ERROR', () => {
+    let state;
+
     beforeEach(() => {
+      state = createState();
       mutations[types.RECEIVE_DELETE_DISMISSAL_COMMENT_ERROR](state);
     });
 
@@ -564,7 +617,10 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe(types.SHOW_DISMISSAL_DELETE_BUTTONS, () => {
+    let state;
+
     beforeEach(() => {
+      state = createState();
       mutations[types.SHOW_DISMISSAL_DELETE_BUTTONS](state);
     });
 
@@ -574,7 +630,10 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe(types.HIDE_DISMISSAL_DELETE_BUTTONS, () => {
+    let state;
+
     beforeEach(() => {
+      state = createState();
       mutations[types.HIDE_DISMISSAL_DELETE_BUTTONS](state);
     });
 
@@ -584,7 +643,10 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('REQUEST_ADD_DISMISSAL_COMMENT', () => {
+    let state;
+
     beforeEach(() => {
+      state = createState();
       mutations[types.REQUEST_ADD_DISMISSAL_COMMENT](state);
     });
 
@@ -602,15 +664,17 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('RECEIVE_ADD_DISMISSAL_COMMENT_SUCCESS', () => {
+    let state;
     let payload;
     let vulnerability;
     let data;
 
     beforeEach(() => {
+      state = createState();
       state.vulnerabilities = mockData;
       [vulnerability] = mockData;
       data = { name: 'dismissal feedback' };
-      payload = { vulnerability, data };
+      payload = { id: vulnerability.id, data };
       mutations[types.RECEIVE_ADD_DISMISSAL_COMMENT_SUCCESS](state, payload);
     });
 
@@ -632,7 +696,10 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('RECEIVE_ADD_DISMISSAL_COMMENT_ERROR', () => {
+    let state;
+
     beforeEach(() => {
+      state = createState();
       mutations[types.RECEIVE_ADD_DISMISSAL_COMMENT_ERROR](state);
     });
 
@@ -650,7 +717,10 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('REQUEST_REVERT_DISMISSAL', () => {
+    let state;
+
     beforeEach(() => {
+      state = createState();
       mutations[types.REQUEST_REVERT_DISMISSAL](state);
     });
 
@@ -668,13 +738,15 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('RECEIVE_REVERT_DISMISSAL_SUCCESS', () => {
+    let state;
     let payload;
     let vulnerability;
 
     beforeEach(() => {
+      state = createState();
       state.vulnerabilities = mockData;
       [vulnerability] = mockData;
-      payload = { vulnerability };
+      payload = { id: vulnerability.id };
       mutations[types.RECEIVE_REVERT_DISMISSAL_SUCCESS](state, payload);
     });
 
@@ -696,7 +768,10 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('RECEIVE_REVERT_DISMISSAL_ERROR', () => {
+    let state;
+
     beforeEach(() => {
+      state = createState();
       mutations[types.RECEIVE_REVERT_DISMISSAL_ERROR](state);
     });
 
@@ -714,7 +789,10 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('OPEN_DISMISSAL_COMMENT_BOX', () => {
+    let state;
+
     beforeEach(() => {
+      state = createState();
       mutations[types.OPEN_DISMISSAL_COMMENT_BOX](state);
     });
 
@@ -724,7 +802,10 @@ describe('vulnerabilities module mutations', () => {
   });
 
   describe('CLOSE_DISMISSAL_COMMENT_BOX', () => {
+    let state;
+
     beforeEach(() => {
+      state = createState();
       mutations[types.CLOSE_DISMISSAL_COMMENT_BOX](state);
     });
 

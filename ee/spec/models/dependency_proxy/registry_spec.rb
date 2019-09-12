@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'spec_helper'
+require 'rails_helper'
 
 RSpec.describe DependencyProxy::Registry, type: :model do
   let(:tag)      { '2.3.5-alpine' }

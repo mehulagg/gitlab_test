@@ -8,7 +8,7 @@ module Gitlab
           class Template < Base
             attr_reader :location, :project
 
-            SUFFIX = '.gitlab-ci.yml'
+            SUFFIX = '.gitlab-ci.yml'.freeze
 
             def initialize(params, context)
               @location = params[:template]

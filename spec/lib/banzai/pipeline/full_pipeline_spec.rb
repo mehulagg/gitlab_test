@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Banzai::Pipeline::FullPipeline do
   describe 'References' do

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Projects > Settings > Packages', :js do
   let(:project) { create(:project) }

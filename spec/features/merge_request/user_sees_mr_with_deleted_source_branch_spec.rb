@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 # This test serves as a regression test for a bug that caused an error
 # message to be shown by JavaScript when the source branch was deleted.

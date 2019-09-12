@@ -52,8 +52,7 @@ module ChatMessage
     end
 
     def commit_messages
-      linebreak_chars = commit_message_html ? "<br/>\n<br/>\n" : "\n\n"
-      commits.map { |commit| compose_commit_message(commit) }.join(linebreak_chars)
+      commits.map { |commit| compose_commit_message(commit) }.join("\n\n")
     end
 
     def commit_message_attachments
@@ -64,11 +63,6 @@ module ChatMessage
       author = commit[:author][:name]
       id = Commit.truncate_sha(commit[:id])
       message = commit[:message]
-
-      if commit_message_html
-        message = message.gsub(Gitlab::Regex.breakline_regex, "<br/>\n")
-      end
-
       url = commit[:url]
 
       "[#{id}](#{url}): #{message} - #{author}"

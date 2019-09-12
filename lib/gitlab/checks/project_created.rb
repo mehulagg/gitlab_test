@@ -3,7 +3,7 @@
 module Gitlab
   module Checks
     class ProjectCreated < PostPushMessage
-      PROJECT_CREATED = "project_created"
+      PROJECT_CREATED = "project_created".freeze
 
       def message
         <<~MESSAGE

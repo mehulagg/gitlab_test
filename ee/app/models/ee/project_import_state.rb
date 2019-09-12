@@ -6,7 +6,8 @@ module EE
     extend ::Gitlab::Utils::Override
 
     prepended do
-      self.ignored_columns += %i[created_at updated_at]
+      include IgnorableColumn
+      ignore_column :created_at, :updated_at
 
       BACKOFF_PERIOD = 24.seconds
       JITTER = 6.seconds

@@ -4,8 +4,7 @@
     { "$ref": "../../../../../../../spec/fixtures/api/schemas/public_api/v4/issues.json" },
     {
       "properties": {
-        "weight": { "type": ["integer", "null"] },
-        "epic_iid": { "type": ["integer", "null"] }
+        "weight": { "type": ["integer", "null"] }
       }
     }
   ]

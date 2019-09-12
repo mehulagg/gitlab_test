@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Merge request > User uses quick actions', :js do
   include Spec::Support::Helpers::Features::NotesHelpers

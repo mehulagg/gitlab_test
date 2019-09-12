@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ProjectMember < Member
-  SOURCE_TYPE = 'Project'
+  SOURCE_TYPE = 'Project'.freeze
 
   belongs_to :project, foreign_key: 'source_id'
 

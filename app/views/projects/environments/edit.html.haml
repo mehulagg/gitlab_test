@@ -1,6 +1,8 @@
+- @no_container = true
 - page_title _("Edit"), @environment.name, _("Environments")
 
-%h3.page-title
-  = _('Edit environment')
-%hr
-= render 'form'
+%div{ class: container_class }
+  %h3.page-title
+    = _('Edit environment')
+  %hr
+  = render 'form'

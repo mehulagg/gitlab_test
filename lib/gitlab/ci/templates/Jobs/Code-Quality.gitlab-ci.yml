@@ -25,9 +25,8 @@ code_quality:
     expire_in: 1 week
   dependencies: []
   only:
-    refs:
-      - branches
-      - tags
+    - branches
+    - tags
   except:
     variables:
       - $CODE_QUALITY_DISABLED

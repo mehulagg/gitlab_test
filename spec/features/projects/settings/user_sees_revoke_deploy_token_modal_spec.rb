@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'Repository Settings > User sees revoke deploy token modal', :js do
   let(:project) { create(:project, :public, :repository) }

@@ -1,4 +1,3 @@
-import '~/flash';
 import $ from 'jquery';
 import Vue from 'vue';
 
@@ -334,7 +333,7 @@ describe('AppComponent', () => {
 
       it('hides modal confirmation leave group and remove group item from tree', done => {
         const notice = `You left the "${childGroupItem.fullName}" group.`;
-        spyOn(vm.service, 'leaveGroup').and.returnValue(Promise.resolve({ data: { notice } }));
+        spyOn(vm.service, 'leaveGroup').and.returnValue(returnServicePromise({ notice }));
         spyOn(vm.store, 'removeGroup').and.callThrough();
         spyOn(window, 'Flash');
         spyOn($, 'scrollTo');

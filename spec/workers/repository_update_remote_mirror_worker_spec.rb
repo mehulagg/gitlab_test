@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe RepositoryUpdateRemoteMirrorWorker, :clean_gitlab_redis_shared_state do
   subject { described_class.new }
