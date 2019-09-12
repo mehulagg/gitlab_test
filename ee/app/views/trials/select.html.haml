@@ -7,10 +7,10 @@
 
 = form_tag create_lead_trials_path, method: :post do |f|
   .form-group
-    = label_tag :namespace_id, _('This subscription is for'), class: 'col-form-label'
+    = label_tag :namespace_id, _('This subscription is for'), for: :namespace_id, class: 'col-form-label'
     = select_tag :namespace_id, namespace_options_for_select, class: 'select2', required: true
   #new_group.form-group.hidden
-    = label_tag :new_group_name, _('New Group Name'), class: 'col-form-label'
+    = label_tag :new_group_name, _('New Group Name'), for: :new_group_name, class: 'col-form-label'
     = text_field_tag :new_group_name, nil, class: 'form-control', required: true
   = submit_tag _('Start your free trial'), class: 'btn btn-success btn-block'
 

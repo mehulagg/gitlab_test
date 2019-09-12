@@ -2,7 +2,7 @@
 
 module EE
   module TrialHelper
-    def employees_count_options_for_select
+    def company_size_options_for_select
       options_for_select([
         ['Please select', 0],
         ['1 - 99', 1],
@@ -13,7 +13,7 @@ module EE
       ], 0)
     end
 
-    def trial_users_count_options_for_select
+    def number_of_users_options_for_select
       options_for_select([
         ['Please select', 0],
         ['1 - 49', 1],
