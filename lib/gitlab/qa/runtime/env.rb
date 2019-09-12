@@ -74,6 +74,10 @@ module Gitlab
           env_value_if_defined('GITLAB_QA_DEV_ACCESS_TOKEN')
         end
 
+        def qa_dev_access_token
+          ENV['GITLAB_QA_DEV_ACCESS_TOKEN']
+        end
+
         def host_artifacts_dir
           @host_artifacts_dir ||= File.join(ENV['QA_ARTIFACTS_DIR'] || '/tmp/gitlab-qa', Runtime::Env.run_id)
         end
@@ -107,6 +111,12 @@ module Gitlab
           return unless ENV['GITLAB_QA_ACCESS_TOKEN'].to_s.strip.empty?
 
           raise ArgumentError, "Please provide GITLAB_QA_ACCESS_TOKEN"
+        end
+
+        def require_qa_dev_access_token!
+          return unless ENV['GITLAB_QA_DEV_ACCESS_TOKEN'].to_s.strip.empty?
+
+          raise ArgumentError, "Please provide GITLAB_QA_DEV_ACCESS_TOKEN"
         end
 
         def require_oauth_environment!
