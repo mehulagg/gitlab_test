@@ -11,6 +11,7 @@
 
   .skip-trial {
     margin-bottom: $gl-padding-32;
+    margin-top: $gl-padding;
 
     a {
       display: block;
@@ -18,8 +19,13 @@
 
     .note {
       font-size: $gl-font-size-small;
-      // TODO(vitaly): perhaps it would be better to add spacing to the link
-      margin-top: $gl-padding-8;
+      margin-top: $gl-padding-12;
+    }
+
+    @media (max-height: 800px) {
+      &.fixed-bottom {
+        position: relative;
+      }
     }
   }
 }
