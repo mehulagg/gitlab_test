@@ -1,0 +1,5 @@
+---
+title: Move DAST reports logic for the Merge Request widget to the backend
+merge_request: 16527
+author:
+type: changed

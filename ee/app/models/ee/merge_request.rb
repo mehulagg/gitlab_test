@@ -152,6 +152,18 @@ module EE
       compare_reports(::Ci::CompareSastReportsService, current_user)
     end
 
+    def has_dast_reports?
+      actual_head_pipeline&.has_reports?(::Ci::JobArtifact.sast_reports)
+    end
+
+    def compare_dast_reports(current_user)
+      unless has_dast_reports?
+        return { status: :error, status_reason: 'This merge request does not have DAST reports' }
+      end
+
+      compare_reports(::Ci::CompareDastReportsService, current_user)
+    end
+
     def compare_license_management_reports(current_user)
       unless has_license_management_reports?
         return { status: :error, status_reason: 'This merge request does not have license management reports' }

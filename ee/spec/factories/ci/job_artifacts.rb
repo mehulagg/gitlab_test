@@ -12,6 +12,16 @@ FactoryBot.define do
       end
     end
 
+    trait :dast do
+      file_type :dast
+      file_format :raw
+
+      after(:build) do |artifact, evaluator|
+        artifact.file = fixture_file_upload(
+          Rails.root.join('ee/spec/fixtures/security_reports/master/gl-dast-report.json'), 'text/plain')
+      end
+    end
+
     trait :sast_feature_branch do
       file_format :raw
       file_type :sast
@@ -19,6 +29,26 @@ FactoryBot.define do
       after(:build) do |artifact, _|
         artifact.file = fixture_file_upload(
           Rails.root.join('ee/spec/fixtures/security_reports/feature-branch/gl-sast-report.json'), 'application/json')
+      end
+    end
+
+    trait :dast_feature_branch do
+      file_format :raw
+      file_type :dast
+
+      after(:build) do |artifact, _|
+        artifact.file = fixture_file_upload(
+          Rails.root.join('ee/spec/fixtures/security_reports/feature-branch/gl-dast-report.json'), 'application/json')
+      end
+    end
+
+    trait :dast_with_corrupted_data do
+      file_type :dast
+      file_format :raw
+
+      after(:build) do |artifact, evaluator|
+        artifact.file = fixture_file_upload(
+          Rails.root.join('spec/fixtures/trace/sample_trace'), 'application/json')
       end
     end
 
