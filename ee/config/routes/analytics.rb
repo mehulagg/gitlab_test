@@ -13,4 +13,6 @@ namespace :analytics do
       resources :stages, only: [:index]
     end
   end
+
+  resource :code_analytics, only: :show
 end
