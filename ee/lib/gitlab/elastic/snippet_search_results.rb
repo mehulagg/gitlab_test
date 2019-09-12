@@ -3,38 +3,61 @@
 module Gitlab
   module Elastic
     class SnippetSearchResults < ::Gitlab::SnippetSearchResults
-      def initialize(user, query)
-        @user = user
-        @query = query
-      end
+      extend ::Gitlab::Utils::Override
 
-      def objects(scope, page = nil)
+      override :formatted_count
+      def formatted_count(scope)
         case scope
         when 'snippet_titles'
-          snippet_titles.page(page).per(per_page).records
+          snippet_titles_count.to_s
         when 'snippet_blobs'
-          snippet_blobs.page(page).per(per_page).records
+          snippet_blobs_count.to_s
         else
           super
         end
       end
 
-      private
-
-      def snippet_titles
-        opt = {
-          user: @user
-        }
-
-        Snippet.elastic_search(query, options: opt)
+      def snippet_titles_count
+        limited_snippet_titles_count
       end
 
-      def snippet_blobs
-        opt = {
-          user: @user
-        }
+      def snippet_blobs_count
+        limited_snippet_blobs_count
+      end
 
-        Snippet.elastic_search_code(query, options: opt)
+      private
+
+      override :limited_snippet_titles_count
+      def limited_snippet_titles_count
+        strong_memoize(:limited_snippet_titles_count) do
+          snippet_titles.total_count
+        end
+      end
+
+      override :limited_snippet_blobs_count
+      def limited_snippet_blobs_count
+        strong_memoize(:limited_snippet_blobs_count) do
+          snippet_blobs.total_count
+        end
+      end
+
+      override :snippet_titles
+      def snippet_titles(_ = {})
+        Snippet.elastic_search(query, options: search_params)
+      end
+
+      override :snippet_blobs
+      def snippet_blobs(_ = {})
+        Snippet.elastic_search_code(query, options: search_params)
+      end
+
+      override :paginated_objects
+      def paginated_objects(relation, page)
+        super.records
+      end
+
+      def search_params
+        { user: current_user }
       end
     end
   end

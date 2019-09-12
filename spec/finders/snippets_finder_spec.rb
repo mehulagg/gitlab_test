@@ -91,6 +91,23 @@ describe SnippetsFinder do
       end
     end
 
+    context 'filter personal snippets only' do
+      let(:project) { create(:project, :public) }
+      let!(:public_project_snippet) { create(:project_snippet, :public, project: project) }
+
+      it 'returns all visible snippets by default' do
+        snippets = described_class.new(user, scope: :are_public).execute
+
+        expect(snippets).to contain_exactly(public_personal_snippet, public_project_snippet)
+      end
+
+      it 'returns only personal snippets in the scope' do
+        snippets = described_class.new(user, scope: :are_public, personal_only: true).execute
+
+        expect(snippets).to contain_exactly(public_personal_snippet)
+      end
+    end
+
     context 'project snippets' do
       let(:group) { create(:group, :public) }
       let(:project) { create(:project, :public, group: group) }

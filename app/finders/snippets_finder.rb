@@ -41,13 +41,11 @@
 class SnippetsFinder < UnionFinder
   include FinderMethods
 
-  attr_accessor :current_user, :project, :author, :scope
+  attr_accessor :current_user, :params
 
   def initialize(current_user = nil, params = {})
     @current_user = current_user
-    @project = params[:project]
-    @author = params[:author]
-    @scope = params[:scope].to_s
+    @params = params
 
     if project && author
       raise(
@@ -85,6 +83,8 @@ class SnippetsFinder < UnionFinder
   # over the resulting SQL query.
   def snippets_for_multiple_projects
     queries = [global_snippets]
+
+    return queries.first if personal_only?
 
     if Ability.allowed?(current_user, :read_cross_project)
       queries << snippets_of_visible_projects
@@ -155,5 +155,21 @@ class SnippetsFinder < UnionFinder
     else
       nil
     end
+  end
+
+  def project
+    params.fetch(:project, nil)
+  end
+
+  def author
+    params.fetch(:author, nil)
+  end
+
+  def scope
+    params[:scope].to_s
+  end
+
+  def personal_only?
+    params.fetch(:personal_only, false)
   end
 end
