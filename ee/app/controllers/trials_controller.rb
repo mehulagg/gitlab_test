@@ -15,9 +15,9 @@ class TrialsController < ApplicationController
   end
 
   def create_lead
-    result = GitlabSubscriptions::CreateLeadService.new.execute({ trial_user: company_params })
+    @lead_result = GitlabSubscriptions::CreateLeadService.new.execute({ trial_user: company_params })
 
-    if result[:success]
+    if @lead_result[:success]
       redirect_to select_trials_url
     else
       render :new

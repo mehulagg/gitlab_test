@@ -2,7 +2,7 @@
 
 module EE
   module TrialHelper
-    def company_size_options_for_select
+    def company_size_options_for_select(selected = 0)
       options_for_select([
         ['Please select', 0],
         ['1 - 99', 1],
@@ -10,10 +10,10 @@ module EE
         ['500 - 1,999', 3],
         ['2,000 - 9,999', 4],
         ['10,000 +', 5]
-      ], 0)
+      ], selected)
     end
 
-    def number_of_users_options_for_select
+    def number_of_users_options_for_select(selected = 0)
       options_for_select([
         ['Please select', 0],
         ['1 - 49', 1],
@@ -21,7 +21,7 @@ module EE
         ['100 - 249', 3],
         ['250 - 499', 4],
         ['500 +', 5]
-      ], 0)
+      ], selected)
     end
 
     def namespace_options_for_select
