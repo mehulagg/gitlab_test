@@ -43,4 +43,16 @@ describe GlobalPolicy do
       it { is_expected.to be_allowed(:view_productivity_analytics) }
     end
   end
+
+  describe 'view_code_analytics' do
+    context 'for anonymous' do
+      let(:current_user) { nil }
+
+      it { is_expected.not_to be_allowed(:view_code_analytics) }
+    end
+
+    context 'for authenticated users' do
+      it { is_expected.to be_allowed(:view_code_analytics) }
+    end
+  end
 end

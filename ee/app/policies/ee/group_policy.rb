@@ -133,6 +133,8 @@ module EE
       end
 
       rule { reporter }.enable :view_productivity_analytics
+
+      rule { reporter }.enable :view_code_analytics
     end
 
     override :lookup_access_level!

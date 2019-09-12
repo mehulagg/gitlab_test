@@ -421,4 +421,20 @@ describe GroupPolicy do
       end
     end
   end
+
+  describe 'view_code_analytics' do
+    %w[admin developer maintainer owner reporter].each do |role|
+      context "for a #{role}" do
+        let(:current_user) { public_send(role) }
+
+        it { is_expected.to be_allowed(:view_code_analytics) }
+      end
+    end
+
+    context "for a guest" do
+      let(:current_user) { public_send("guest") }
+
+      it { is_expected.to be_disallowed(:view_code_analytics) }
+    end
+  end
 end
