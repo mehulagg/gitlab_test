@@ -92,6 +92,7 @@ class License < ApplicationRecord
     service_desk
     smartcard_auth
     unprotection_restrictions
+    code_analytics
   ]
   EEP_FEATURES.freeze
 
