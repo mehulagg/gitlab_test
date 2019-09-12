@@ -10,4 +10,6 @@ namespace :analytics do
   constraints(::Constraints::FeatureConstrainer.new(:cycle_analytics)) do
     resource :cycle_analytics, only: :show
   end
+
+  resource :code_analytics, only: :show
 end

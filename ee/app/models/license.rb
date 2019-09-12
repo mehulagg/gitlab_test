@@ -92,6 +92,16 @@ class License < ApplicationRecord
     service_desk
     smartcard_auth
     unprotection_restrictions
+    reject_unsigned_commits
+    commit_committer_check
+    external_authorization_service_api_management
+    ci_cd_projects
+    default_project_deletion_protection
+    protected_environments
+    custom_project_templates
+    group_project_templates
+    packages
+    code_analytics
   ]
   EEP_FEATURES.freeze
 
