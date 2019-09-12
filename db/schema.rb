@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_09_12_061145) do
+ActiveRecord::Schema.define(version: 2019_09_05_233042) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -284,8 +284,6 @@ ActiveRecord::Schema.define(version: 2019_09_12_061145) do
     t.text "asset_proxy_whitelist"
     t.text "encrypted_asset_proxy_secret_key"
     t.string "encrypted_asset_proxy_secret_key_iv"
-    t.string "static_objects_external_storage_url", limit: 255
-    t.string "static_objects_external_storage_auth_token", limit: 255
     t.index ["custom_project_templates_group_id"], name: "index_application_settings_on_custom_project_templates_group_id"
     t.index ["file_template_project_id"], name: "index_application_settings_on_file_template_project_id"
     t.index ["instance_administration_project_id"], name: "index_applicationsettings_on_instance_administration_project_id"
@@ -1997,7 +1995,6 @@ ActiveRecord::Schema.define(version: 2019_09_12_061145) do
     t.boolean "ldap", default: false, null: false
     t.boolean "override", default: false, null: false
     t.index ["access_level"], name: "index_members_on_access_level"
-    t.index ["expires_at"], name: "index_members_on_expires_at"
     t.index ["invite_email"], name: "index_members_on_invite_email"
     t.index ["invite_token"], name: "index_members_on_invite_token", unique: true
     t.index ["requested_at"], name: "index_members_on_requested_at"
@@ -2393,7 +2390,6 @@ ActiveRecord::Schema.define(version: 2019_09_12_061145) do
     t.datetime "revoked_at"
     t.datetime "created_at", null: false
     t.string "scopes"
-    t.index ["application_id"], name: "index_oauth_access_tokens_on_application_id"
     t.index ["refresh_token"], name: "index_oauth_access_tokens_on_refresh_token", unique: true
     t.index ["resource_owner_id"], name: "index_oauth_access_tokens_on_resource_owner_id"
     t.index ["token"], name: "index_oauth_access_tokens_on_token", unique: true
@@ -2694,6 +2690,7 @@ ActiveRecord::Schema.define(version: 2019_09_12_061145) do
     t.boolean "create_issue", default: true, null: false
     t.boolean "send_email", default: false, null: false
     t.text "issue_template_key"
+    t.index ["create_issue"], name: "index_project_incident_management_settings_on_create_issue"
   end
 
   create_table "project_metrics_settings", primary_key: "project_id", id: :integer, default: nil, force: :cascade do |t|
@@ -3569,7 +3566,6 @@ ActiveRecord::Schema.define(version: 2019_09_12_061145) do
     t.integer "bot_type", limit: 2
     t.string "first_name", limit: 255
     t.string "last_name", limit: 255
-    t.string "static_object_token", limit: 255
     t.index ["accepted_term_id"], name: "index_users_on_accepted_term_id"
     t.index ["admin"], name: "index_users_on_admin"
     t.index ["bot_type"], name: "index_users_on_bot_type"
@@ -3589,7 +3585,6 @@ ActiveRecord::Schema.define(version: 2019_09_12_061145) do
     t.index ["state"], name: "index_users_on_state"
     t.index ["state"], name: "index_users_on_state_and_internal", where: "(ghost IS NOT TRUE)"
     t.index ["state"], name: "index_users_on_state_and_internal_ee", where: "((ghost IS NOT TRUE) AND (bot_type IS NULL))"
-    t.index ["static_object_token"], name: "index_users_on_static_object_token", unique: true
     t.index ["unconfirmed_email"], name: "index_users_on_unconfirmed_email", where: "(unconfirmed_email IS NOT NULL)"
     t.index ["username"], name: "index_users_on_username"
     t.index ["username"], name: "index_users_on_username_trigram", opclass: :gin_trgm_ops, using: :gin

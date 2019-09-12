@@ -62,6 +62,57 @@ describe Project do
         expect(described_class.with_wiki_enabled).not_to include(project1)
       end
     end
+
+    describe '.with_incident_issue_creation_enabled' do
+      context 'no incident management settings' do
+        it 'returns a project' do
+          project = create(:project)
+          expect(described_class.with_incident_issue_creation_enabled).to include(project)
+        end
+      end
+
+      context 'with incident management settings' do
+        before do
+          project = create(:project)
+          create(:project_incident_management_setting, project: project, create_issue: enabled)
+        end
+
+        context 'create_issue turned off' do
+          let(:enabled) { false }
+
+          it 'does not return a project' do
+            expect(described_class.with_incident_issue_creation_enabled.count).to be 0
+          end
+        end
+
+        context 'create_issue turned on' do
+          let(:enabled) { true }
+
+          it 'returns a project' do
+            expect(described_class.with_incident_issue_creation_enabled.count).to be 1
+          end
+        end
+      end
+    end
+
+    describe '.with_prometheus_alert_events' do
+      subject { described_class.with_prometheus_alert_events.count }
+      let!(:project) { create(:project) }
+
+      context 'no alert events' do
+        it { is_expected.to eq(0) }
+      end
+
+      context 'with alert events' do
+        before do
+          environment = create(:environment, project: project)
+          alert = create(:prometheus_alert, project: project, environment: environment)
+          create(:prometheus_alert_event, prometheus_alert: alert)
+        end
+
+        it { is_expected.to eq(1) }
+      end
+    end
   end
 
   describe 'validations' do

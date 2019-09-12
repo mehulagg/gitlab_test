@@ -135,6 +135,7 @@ module EE
             feature_flags: count(Operations::FeatureFlag),
             geo_nodes: count(::GeoNode),
             incident_issues: count_incident_issues,
+            projects_auto_issue_creation_enabled: count_auto_issue_creation_projects,
             ldap_group_links: count(::LdapGroupLink),
             ldap_keys: count(::LDAPKey),
             ldap_users: count(::User.ldap),
@@ -169,6 +170,12 @@ module EE
           return 0 unless License.feature_available?(:incident_management)
 
           count(::Issue.authored(::User.alert_bot))
+        end
+
+        def count_auto_issue_creation_projects
+          return 0 unless License.feature_available?(:incident_management)
+
+          count(::Project.with_incident_issue_creation_enabled.with_prometheus_alert_events)
         end
 
         # Source: https://gitlab.com/gitlab-data/analytics/blob/master/transform/snowflake-dbt/data/ping_metrics_to_stage_mapping_data.csv

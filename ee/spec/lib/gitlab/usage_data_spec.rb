@@ -270,4 +270,79 @@ describe Gitlab::UsageData do
       it { expect { subject }.not_to change(User, :count) }
     end
   end
+
+  describe 'auto_issue_creation_projects' do
+    subject { described_class.data.dig(:counts, :projects_auto_issue_creation_enabled) }
+    let!(:project) { create(:project) }
+
+    RSpec.shared_context 'Prometheus alerts exist' do
+      before do
+        environment = create(:environment, project: project)
+        alert = create(:prometheus_alert, project: project, environment: environment)
+        create(:prometheus_alert_event, prometheus_alert: alert)
+      end
+    end
+
+    context 'when incident_management feature is available' do
+      before do
+        stub_licensed_features(incident_management: true)
+      end
+
+      context 'with no alert events yet' do
+        context 'with no settings set' do
+          it { is_expected.to eq(0) }
+        end
+      end
+
+      context 'with alert events' do
+        include_context 'Prometheus alerts exist'
+
+        it { is_expected.to eq(1) }
+      end
+
+      context 'with settings set' do
+        before do
+          create(:project_incident_management_setting, project: project, create_issue: setting)
+        end
+
+        context 'with no alert events yet' do
+          context 'issue creation setting on' do
+            let(:setting) { true }
+
+            it { is_expected.to eq(0) }
+          end
+
+          context 'issue creation setting off' do
+            let(:setting) { false }
+
+            it { is_expected.to eq(0) }
+          end
+        end
+
+        context 'with alert events' do
+          include_context "Prometheus alerts exist"
+
+          context 'issue creation setting on' do
+            let(:setting) { true }
+
+            it { is_expected.to eq(1) }
+          end
+
+          context 'issue creation setting off' do
+            let(:setting) { false }
+
+            it { is_expected.to eq(0) }
+          end
+        end
+      end
+    end
+
+    context 'when incident_management feature is not available' do
+      before do
+        stub_licensed_features(incident_management: false)
+      end
+
+      it { is_expected.to eq(0) }
+    end
+  end
 end

@@ -106,6 +106,13 @@ module EE
       scope :with_security_reports_stored, -> { where('EXISTS (?)', ::Vulnerabilities::Occurrence.scoped_project.select(1)) }
       scope :with_security_reports, -> { where('EXISTS (?)', ::Ci::JobArtifact.security_reports.scoped_project.select(1)) }
 
+      scope :with_incident_issue_creation_enabled, -> do
+        left_outer_joins(:incident_management_setting)
+          .where('project_incident_management_settings.create_issue = true OR project_incident_management_settings.create_issue IS NULL')
+      end
+
+      scope :with_prometheus_alert_events, -> { joins(:prometheus_alert_events).distinct }
+
       delegate :shared_runners_minutes, :shared_runners_seconds, :shared_runners_seconds_last_reset,
         to: :statistics, allow_nil: true
 
