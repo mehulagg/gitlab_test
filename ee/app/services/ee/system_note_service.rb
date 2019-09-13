@@ -243,5 +243,11 @@ module EE
       # See https://gitlab.com/gitlab-org/gitlab-foss/issues/63187.
       create_note(NoteSummary.new(noteable, project, author, body, action: 'merge'))
     end
+
+    def relate_prometheus_alert_issue(noteable, project, author, time, error_details)
+      body = "Alert with the same `groupKey` fired at <time?> on <location of error?>"
+
+      create_note(NoteSummary.new(noteable, project, author, body, action: nil))
+    end
   end
 end

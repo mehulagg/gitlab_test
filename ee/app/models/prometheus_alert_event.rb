@@ -66,6 +66,10 @@ class PrometheusAlertEvent < ApplicationRecord
     find_or_initialize_by(project: project, prometheus_alert: alert, payload_key: payload_key)
   end
 
+  def self.find_by_payload_key(payload_key)
+    find_by(payload_key: payload_key)
+  end
+
   def self.status_value_for(name)
     state_machines[:status].states[name].value
   end
