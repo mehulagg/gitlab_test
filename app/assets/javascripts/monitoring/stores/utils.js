@@ -63,6 +63,20 @@ export function groupQueriesByChartInfo(metrics) {
   return Object.values(metricsByChart);
 }
 
+export const uniqMetricsId = metric => String(metric.metric_id) + String(metric.id);
+
+// Metrics loaded from project-defined dashboards do not have a metric_id.
+// This method creates a unique ID combining metric_id and id, if either is present.
+// This is hopefully a temporary solution until BE processes metrics before passing to fE
+export const normalizeMetric = (metric = {}) =>
+  _.omit(
+    {
+      ...metric,
+      metric_id: uniqMetricsId(metric),
+    },
+    'id',
+  );
+
 export const sortMetrics = metrics =>
   _.chain(metrics)
     .sortBy('title')
