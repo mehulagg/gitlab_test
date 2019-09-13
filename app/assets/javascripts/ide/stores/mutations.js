@@ -244,11 +244,11 @@ export default {
       url: newUrl,
       parentPath: parentPath || oldEntry.parentPath,
 
-      key: `renamed-${oldEntry.key}`,
-      prevId: oldEntry.id,
-      prevPath: oldEntry.path,
-      prevName: oldEntry.name,
-      prevUrl: oldEntry.url,
+      key: oldEntry.key.indexOf('renamed-') !== -1 ? oldEntry.key : `renamed-${oldEntry.key}`,
+      prevId: oldEntry.prevId || oldEntry.id,
+      prevPath: oldEntry.prevPath || oldEntry.path,
+      prevName: oldEntry.prevName || oldEntry.name,
+      prevUrl: oldEntry.prevUrl || oldEntry.url,
     });
 
     Vue.delete(state.entries, oldEntry.path);

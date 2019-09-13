@@ -532,5 +532,34 @@ describe('Multi-file store mutations', () => {
       expect(localState.changedFiles[0].path).toBe('newPath');
       expect(localState.changedFiles[0].content).toBe('Foo');
     });
+
+    it('correctly saves original values if an entry is renamed multiple times', () => {
+      const original = { ...localState.entries.oldPath };
+      mutations.RENAME_ENTRY(localState, { path: 'oldPath', name: 'newPath' });
+
+      expect(localState.entries.newPath.prevId).toBe(original.id);
+      expect(localState.entries.newPath.prevPath).toBe(original.path);
+      expect(localState.entries.newPath.prevName).toBe(original.name);
+      expect(localState.entries.newPath.prevUrl).toBe(original.url);
+
+      mutations.RENAME_ENTRY(localState, { path: 'newPath', name: 'newer' });
+
+      expect(localState.entries.newer.prevId).toBe(original.id);
+      expect(localState.entries.newer.prevPath).toBe(original.path);
+      expect(localState.entries.newer.prevName).toBe(original.name);
+      expect(localState.entries.newer.prevUrl).toBe(original.url);
+    });
+
+    it('keeps the key value consistent after multiple renames', () => {
+      localState.entries.oldPath.key = 'oldPath-blob-oldPath';
+      const newKey = 'renamed-oldPath-blob-oldPath';
+      mutations.RENAME_ENTRY(localState, { path: 'oldPath', name: 'newPath' });
+
+      expect(localState.entries.newPath.key).toBe(newKey);
+
+      mutations.RENAME_ENTRY(localState, { path: 'newPath', name: 'newer' });
+
+      expect(localState.entries.newer.key).toBe(newKey);
+    });
   });
 });
