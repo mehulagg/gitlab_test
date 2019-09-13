@@ -73,6 +73,16 @@ module Gitlab
           ::Gitlab::Ci::Ansi2html.convert(buffer).html
         end
 
+        def json_with_state(state = nil)
+          ::Gitlab::Ci::Ansi2json.convert(stream, state)
+        end
+
+        def json(last_lines: nil)
+          text = raw(last_lines: last_lines)
+          buffer = StringIO.new(text)
+          ::Gitlab::Ci::Ansi2json.convert(buffer).lines
+        end
+
         def extract_coverage(regex)
           return unless valid?
           return unless regex.present?

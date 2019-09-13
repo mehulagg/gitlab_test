@@ -27,6 +27,12 @@ module Gitlab
         end
       end
 
+      def json(last_lines: nil)
+        read do |stream|
+          stream.json(last_lines: last_lines)
+        end
+      end
+
       def raw(last_lines: nil)
         read do |stream|
           stream.raw(last_lines: last_lines)
