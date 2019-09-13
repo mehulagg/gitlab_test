@@ -308,25 +308,26 @@ describe('Multi-file store mutations', () => {
         commitsPath: `${gl.TEST_HOST}/testing-123`,
         blamePath: `${gl.TEST_HOST}/testing-123`,
         replaces: true,
-        key: 'renamed-foo-bar',
       };
       localState.entries.test = f;
       localState.changedFiles.push(f);
 
       mutations.UPDATE_FILE_AFTER_COMMIT(localState, { file: f, lastCommit: { commit: {} } });
 
-      expect(f).toEqual(jasmine.objectContaining({
-        rawPath: `${gl.TEST_HOST}/test`,
-        permalink: `${gl.TEST_HOST}/test`,
-        commitsPath: `${gl.TEST_HOST}/test`,
-        blamePath:`${gl.TEST_HOST}/test`,
-        replaces:false,
-        key: 'foo-bar',
-        prevId: undefined,
-        prevPath: undefined,
-        prevName: undefined,
-        prevUrl: undefined,
-      }));
+      expect(f).toEqual(
+        jasmine.objectContaining({
+          rawPath: `${gl.TEST_HOST}/test`,
+          permalink: `${gl.TEST_HOST}/test`,
+          commitsPath: `${gl.TEST_HOST}/test`,
+          blamePath: `${gl.TEST_HOST}/test`,
+          replaces: false,
+          prevId: undefined,
+          prevPath: undefined,
+          prevName: undefined,
+          prevUrl: undefined,
+          prevKey: undefined,
+        }),
+      );
     });
   });
 
@@ -392,12 +393,13 @@ describe('Multi-file store mutations', () => {
         path: 'newPath',
         name: 'newPath',
         url: `${gl.TEST_HOST}/newPath`,
-        key: `renamed-${oldPathData.key}`,
+        key: jasmine.stringMatching('newPath'),
 
         prevId: 'oldPath',
         prevName: 'oldPath',
         prevPath: 'oldPath',
         prevUrl: `${gl.TEST_HOST}/oldPath`,
+        prevKey: oldPathData.key,
       });
     });
 
@@ -424,12 +426,13 @@ describe('Multi-file store mutations', () => {
         path: newPath,
         name: newPath,
         url: `${gl.TEST_HOST}/new%20path`,
-        key: `renamed-${oldEntry.key}`,
+        key: jasmine.stringMatching(newPath),
 
         prevId: path,
         prevName: path,
         prevPath: path,
         prevUrl: `${gl.TEST_HOST}/my%20fancy%20path`,
+        prevKey: oldEntry.key,
       });
     });
 
@@ -497,7 +500,7 @@ describe('Multi-file store mutations', () => {
     });
 
     it('updates existing changedFiles entry with the renamed one', () => {
-      const key = 'renamed-oldPath';
+      const key = 'newPath';
       const changedFile = {
         ...file('newPath', 'newPath', 'blob'),
         key,
@@ -517,6 +520,59 @@ describe('Multi-file store mutations', () => {
       expect(localState.changedFiles.length).toBe(1);
       expect(localState.changedFiles[0].path).toBe('newPath');
       expect(localState.changedFiles[0].content).toBe('Foo');
+    });
+
+    it('correctly saves original values if an entry is renamed multiple times', () => {
+      const original = { ...localState.entries.oldPath };
+      const paramsToCheck = ['prevId', 'prevPath', 'prevName', 'prevUrl'];
+      const expectedObj = paramsToCheck.reduce(
+        (o, param) => ({ ...o, [param]: original[param.replace('prev', '').toLowerCase()] }),
+        {},
+      );
+
+      mutations.RENAME_ENTRY(localState, { path: 'oldPath', name: 'newPath' });
+
+      expect(localState.entries.newPath).toEqual(jasmine.objectContaining(expectedObj));
+
+      mutations.RENAME_ENTRY(localState, { path: 'newPath', name: 'newer' });
+
+      expect(localState.entries.newer).toEqual(jasmine.objectContaining(expectedObj));
+    });
+
+    describe('key updates', () => {
+      beforeEach(() => {
+        localState.entries = {
+          oldPath: {
+            ...file('oldPath', 'oldPath', 'blob'),
+          },
+          'oldPath.txt': {
+            ...file('oldPath.txt', 'oldPath.txt', 'blob'),
+          },
+        };
+      });
+
+      it('sets properly constucted key while preserving the original one', () => {
+        const key = 'oldPath.txt-blob-oldPath.txt';
+        localState.entries['oldPath.txt'].key = key;
+        mutations.RENAME_ENTRY(localState, { path: 'oldPath.txt', name: 'newPath.md' });
+
+        expect(localState.entries['newPath.md'].key).toBe('newPath.md-blob-newPath.md');
+        expect(localState.entries['newPath.md'].prevKey).toBe(key);
+      });
+
+      it('correctly updates key for an entry without an extension', () => {
+        localState.entries.oldPath.key = 'oldPath-blob-oldPath';
+        mutations.RENAME_ENTRY(localState, { path: 'oldPath', name: 'newPath.md' });
+
+        expect(localState.entries['newPath.md'].key).toBe('newPath.md-blob-newPath.md');
+      });
+
+      it('correctly updates key when new name does not have an extension', () => {
+        localState.entries['oldPath.txt'].key = 'oldPath.txt-blob-oldPath.txt';
+        mutations.RENAME_ENTRY(localState, { path: 'oldPath.txt', name: 'newPath' });
+
+        expect(localState.entries.newPath.key).toBe('newPath-blob-newPath');
+      });
     });
   });
 });
