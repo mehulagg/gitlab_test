@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '~/lib/utils/axios_utils';
 import { __ } from '~/locale';
 import Flash from '~/flash';
 
