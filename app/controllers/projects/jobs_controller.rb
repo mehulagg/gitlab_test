@@ -67,36 +67,20 @@ class Projects::JobsController < Projects::ApplicationController
   # rubocop: enable CodeReuse/ActiveRecord
 
   def trace
-    if Feature.enabled?(:job_log_json, @project)
-      json_trace
-    else
-      html_trace
-    end
-  end
-
-  def html_trace
     build.trace.read do |stream|
       respond_to do |format|
         format.json do
-          result = {
-            id: @build.id, status: @build.status, complete: @build.complete?
-          }
+          # TODO: when the feature flag is removed we should not pass
+          # content_format to serialize method.
+          content_format = Feature.enabled?(:job_log_json, @project) ? :json : :html
 
-          if stream.valid?
-            stream.limit
-            state = params[:state].presence
-            trace = stream.html_with_state(state)
-            result.merge!(trace.to_h)
-          end
+          result = Gitlab::Ci::Trace::StreamSerializer.new(stream, @build)
+            .serialize(content_format: content_format, state: params[:state])
 
           render json: result
         end
       end
     end
-  end
-
-  def json_trace
-    # will be implemented with https://gitlab.com/gitlab-org/gitlab-foss/issues/66454
   end
 
   def retry

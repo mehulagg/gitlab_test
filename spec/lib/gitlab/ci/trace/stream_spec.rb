@@ -248,6 +248,60 @@ describe Gitlab::Ci::Trace::Stream, :clean_gitlab_redis_cache do
     end
   end
 
+  describe '#json_with_state' do
+    shared_examples_for 'json_with_states' do
+      it 'returns json content with state' do
+        result = stream.json_with_state
+
+        expect(result.lines).to eq([{ offset: 0, content: [{ text: '1234' }] }])
+      end
+
+      context 'follow-up state' do
+        let!(:last_result) { stream.json_with_state }
+
+        before do
+          data_stream.seek(4, IO::SEEK_SET)
+          data_stream.write("5678")
+          stream.seek(0)
+        end
+
+        it "returns the new trace" do
+          result = stream.json_with_state(last_result.state)
+
+          expect(result.append).to be_falsey
+          expect(result.lines).to eq([{ offset: 0, content: [{ text: '12345678' }] }])
+        end
+      end
+    end
+
+    context 'when stream is StringIO' do
+      let(:data_stream) do
+        StringIO.new("1234")
+      end
+
+      let(:stream) do
+        described_class.new { data_stream }
+      end
+
+      it_behaves_like 'json_with_states'
+    end
+
+    context 'when stream is ChunkedIO' do
+      let(:data_stream) do
+        Gitlab::Ci::Trace::ChunkedIO.new(build).tap do |chunked_io|
+          chunked_io.write("1234")
+          chunked_io.seek(0, IO::SEEK_SET)
+        end
+      end
+
+      let(:stream) do
+        described_class.new { data_stream }
+      end
+
+      it_behaves_like 'json_with_states'
+    end
+  end
+
   describe '#html_with_state' do
     shared_examples_for 'html_with_states' do
       it 'returns html content with state' do
@@ -299,6 +353,47 @@ describe Gitlab::Ci::Trace::Stream, :clean_gitlab_redis_cache do
       end
 
       it_behaves_like 'html_with_states'
+    end
+  end
+
+  describe '#json' do
+    shared_examples_for 'json lines' do
+      it "returns json" do
+        expect(stream.json).to eq([
+          { offset: 0, content: [{ text: '12' }] },
+          { offset: 3, content: [{ text: '34' }] },
+          { offset: 6, content: [{ text: '56' }] }
+        ])
+      end
+
+      it "returns json for last line only" do
+        expect(stream.json(last_lines: 1)).to eq([
+          { offset: 0, content: [{ text: '56' }] }
+        ])
+      end
+    end
+
+    context 'when stream is StringIO' do
+      let(:stream) do
+        described_class.new do
+          StringIO.new("12\n34\n56")
+        end
+      end
+
+      it_behaves_like 'json lines'
+    end
+
+    context 'when stream is ChunkedIO' do
+      let(:stream) do
+        described_class.new do
+          Gitlab::Ci::Trace::ChunkedIO.new(build).tap do |chunked_io|
+            chunked_io.write("12\n34\n56")
+            chunked_io.seek(0, IO::SEEK_SET)
+          end
+        end
+      end
+
+      it_behaves_like 'json lines'
     end
   end
 
