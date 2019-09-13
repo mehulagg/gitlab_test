@@ -65,9 +65,14 @@ export function groupQueriesByChartInfo(metrics) {
 
 export const uniqMetricsId = metric => String(metric.metric_id) + String(metric.id);
 
-// Metrics loaded from project-defined dashboards do not have a metric_id.
-// This method creates a unique ID combining metric_id and id, if either is present.
-// This is hopefully a temporary solution until BE processes metrics before passing to fE
+/**
+ * Not to confuse with normalizeMetrics (plural)
+ * Metrics loaded from project-defined dashboards do not have a metric_id.
+ * This method creates a unique ID combining metric_id and id, if either is present.
+ * This is hopefully a temporary solution until BE processes metrics before passing to fE
+ * @param {Object} metric - metric
+ * @returns {Object} - normalized metric with a uniqueID
+ */
 export const normalizeMetric = (metric = {}) =>
   _.omit(
     {
