@@ -52,7 +52,7 @@ box, and then click the **"GitLab Community Edition"** search result:
 A new "blade" window will pop-out, where you can read more about the **"GitLab Community Edition"**
 offering which is freely available under the MIT Expat License:
 
-![Azure - New - Select 'GitLab Community Edition'](img/azure-new-gitlab-foss.png)
+![Azure - New - Select 'GitLab Community Edition'](img/azure-new-gitlab-ce.png)
 
 Click **"Create"** and you will be presented with the "Create virtual machine" blade:
 
