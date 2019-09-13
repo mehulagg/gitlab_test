@@ -6,6 +6,7 @@ module Ci
     include ObjectStorage::BackgroundMove
     include UpdateProjectStatistics
     include Sortable
+    include FastDestroyAll
     extend Gitlab::Ci::Model
 
     NotSupportedAdapterError = Class.new(StandardError)
@@ -68,7 +69,7 @@ module Ci
     validate :valid_file_format?, unless: :trace?, on: :create
     before_save :set_size, if: :file_changed?
 
-    update_project_statistics project_statistics_name: :build_artifacts_size
+    update_project_statistics project_statistics_name: :build_artifacts_size, update_after_destroy: false
 
     after_save :update_file_store, if: :saved_change_to_file?
 
@@ -96,11 +97,12 @@ module Ci
       where(file_type: types)
     end
 
+    # This is a very expensive query, .limit is a way to scope it down as much as possible
     scope :expired, -> (limit) { where('expire_at < ?', Time.now).limit(limit) }
 
     scope :scoped_project, -> { where('ci_job_artifacts.project_id = projects.id') }
 
-    delegate :filename, :exists?, :open, to: :file
+    delegate :filename, :exists?, :open, :store_path, to: :file
 
     enum file_type: {
       archive: 1,
@@ -158,12 +160,31 @@ module Ci
       self.update_column(:file_store, file.object_store)
     end
 
-    def self.total_size
-      self.sum(:size)
-    end
+    class << self
+      def artifacts_size_for(project)
+        where(project: project).sum(:size)
+      end
 
-    def self.artifacts_size_for(project)
-      self.where(project: project).sum(:size)
+      def total_size
+        sum(:size)
+      end
+
+      def begin_fast_destroy
+        preload(:project).find_each.map do |artifact|
+          [artifact.project_id, artifact.store_path, artifact.file_store, artifact.size]
+        end
+      end
+
+      def finalize_fast_destroy(params)
+        params.each do |artifact_info|
+          Ci::DeleteStoredArtifactsWorker.perform_async(
+            artifact_info[0], # project_id
+            artifact_info[1], # store_path
+            artifact_info[2], # file_store
+            artifact_info[3]  # size
+          )
+        end
+      end
     end
 
     def local_store?

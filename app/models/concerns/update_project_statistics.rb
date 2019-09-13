@@ -23,6 +23,20 @@ module UpdateProjectStatistics
   extend ActiveSupport::Concern
   include AfterCommitQueue
 
+  # Update a projects statistics directly
+  #
+  # Useful when you want to update project statistics outside of an
+  # ActiveRecord model.
+  def self.update_project_statistics!(project, statistics_name, delta)
+    return if project.pending_delete?
+
+    ProjectStatistics.increment_statistic(project.id, statistics_name, delta)
+
+    if Feature.enabled?(:update_statistics_namespace, project.root_ancestor)
+      Namespaces::ScheduleAggregationWorker.perform_async(project.namespace_id)
+    end
+  end
+
   class_methods do
     attr_reader :project_statistics_name, :statistic_attribute
 
@@ -31,12 +45,12 @@ module UpdateProjectStatistics
     #
     # - project_statistics_name: A column of `ProjectStatistics` to update
     # - statistic_attribute: An attribute of the current model, default to `size`
-    def update_project_statistics(project_statistics_name:, statistic_attribute: :size)
+    def update_project_statistics(project_statistics_name:, statistic_attribute: :size, update_after_save: true, update_after_destroy: true)
       @project_statistics_name = project_statistics_name
       @statistic_attribute = statistic_attribute
 
-      after_save(:update_project_statistics_after_save, if: :update_project_statistics_attribute_changed?)
-      after_destroy(:update_project_statistics_after_destroy, unless: :project_destroyed?)
+      after_save(:update_project_statistics_after_save, if: :update_project_statistics_attribute_changed?) if update_after_save
+      after_destroy(:update_project_statistics_after_destroy, unless: :project_destroyed?) if update_after_destroy
     end
 
     private :update_project_statistics

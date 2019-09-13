@@ -40,6 +40,8 @@
   - 2
 - - chat_notification
   - 2
+- - ci_delete_stored_artifacts
+  - 1
 - - container_repository
   - 1
 - - create_commit_signature

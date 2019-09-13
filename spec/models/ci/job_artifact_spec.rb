@@ -19,23 +19,29 @@ describe Ci::JobArtifact do
 
   it_behaves_like 'having unique enum values'
 
-  context 'with update_project_statistics_after_commit enabled' do
+  describe 'UpdateProjectStatistics' do
+    subject { build(:ci_job_artifact, :archive, size: 106365) }
+
     before do
-      stub_feature_flags(update_project_statistics_after_commit: true)
+      allow(Ci::DeleteStoredArtifactsWorker).to receive(:perform_async)
     end
 
-    it_behaves_like 'UpdateProjectStatistics' do
-      subject { build(:ci_job_artifact, :archive, size: 106365) }
-    end
-  end
+    context 'with update_project_statistics_after_commit enabled' do
+      before do
+        stub_feature_flags(update_project_statistics_after_commit: true)
+      end
 
-  context 'with update_project_statistics_after_commit disabled' do
-    before do
-      stub_feature_flags(update_project_statistics_after_commit: false)
+      it_behaves_like 'UpdateProjectStatisticsAfterCreate'
+      it_behaves_like 'UpdateProjectStatisticsAfterUpdate'
     end
 
-    it_behaves_like 'UpdateProjectStatistics' do
-      subject { build(:ci_job_artifact, :archive, size: 106365) }
+    context 'with update_project_statistics_after_commit disabled' do
+      before do
+        stub_feature_flags(update_project_statistics_after_commit: false)
+      end
+
+      it_behaves_like 'UpdateProjectStatisticsAfterCreate'
+      it_behaves_like 'UpdateProjectStatisticsAfterUpdate'
     end
   end
 
@@ -120,6 +126,47 @@ describe Ci::JobArtifact do
 
       expect(described_class.for_sha(first_pipeline.sha)).to eq([first_artifact])
       expect(described_class.for_sha(second_pipeline.sha)).to eq([second_artifact])
+    end
+  end
+
+  describe '.begin_fast_destroy' do
+    before do
+      stub_artifacts_object_storage
+
+      create(:ci_job_artifact, :metadata, size: 100)
+      create(:ci_job_artifact, :codequality, :remote_store, size: 100)
+    end
+
+    subject { described_class.begin_fast_destroy }
+
+    it 'collects all artifacts' do
+      expect(subject.count).to eq(described_class.count)
+    end
+  end
+
+  describe '.finalize_fast_destroy' do
+    let(:project) { create(:project) }
+
+    let(:artifact_list) do
+      described_class.all.map do |artifact|
+        [artifact.project_id, artifact.store_path, artifact.file_store, artifact.size]
+      end
+    end
+
+    before do
+      stub_artifacts_object_storage
+
+      create_list(:ci_job_artifact, 2, project: project, size: 100)
+      create_list(:ci_job_artifact, 2, :remote_store, project: project, size: 100)
+    end
+
+    subject { described_class.finalize_fast_destroy(artifact_list) }
+
+    it 'calls the async deletion worker' do
+      expect(Ci::DeleteStoredArtifactsWorker).to receive(:perform_async).with(project.id, instance_of(String), nil, instance_of(Integer)).exactly(2).times
+      expect(Ci::DeleteStoredArtifactsWorker).to receive(:perform_async).with(project.id, instance_of(String), ObjectStorage::Store::REMOTE, instance_of(Integer)).exactly(2).times
+
+      subject
     end
   end
 
