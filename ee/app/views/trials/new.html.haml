@@ -1,15 +1,17 @@
 - page_title _('Start a Free Trial')
-%h3.page-title.center
+
+%h3.center.pt-6
   = _('Start a Free Trial')
 
 %p.center
   = _('We need some additional information to activate your free trial')
 
 - if @lead_result&.dig(:errors).present?
-  %h4
-    = _T('We have found the following errors:')
-  %p
-    = @lead_result[:errors]
+  .flash-container
+    .flash-alert.text-center
+      = _('We have found the following errors:')
+      .flash-text
+        = @lead_result[:errors]
 
 = form_tag create_lead_trials_path, method: :post do |f|
   .form-group
