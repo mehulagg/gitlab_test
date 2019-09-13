@@ -159,12 +159,12 @@ export default {
       replaces: false,
       moved: false,
       lastCommitSha: lastCommit.commit.id,
-      key: file.key.replace('renamed-', ''),
 
       prevId: undefined,
       prevPath: undefined,
       prevName: undefined,
       prevUrl: undefined,
+      prevKey: undefined,
     });
 
     if (prevPath) {
@@ -242,13 +242,14 @@ export default {
       path: newPath,
       name: newName,
       url: newUrl,
-      parentPath: parentPath || oldEntry.parentPath,
+      key: oldEntry.key.replace(new RegExp(oldEntry.name, 'g'), newName),
 
-      key: oldEntry.key.indexOf('renamed-') !== -1 ? oldEntry.key : `renamed-${oldEntry.key}`,
+      parentPath: parentPath || oldEntry.parentPath,
       prevId: oldEntry.prevId || oldEntry.id,
       prevPath: oldEntry.prevPath || oldEntry.path,
       prevName: oldEntry.prevName || oldEntry.name,
       prevUrl: oldEntry.prevUrl || oldEntry.url,
+      prevKey: oldEntry.prevKey || oldEntry.key,
     });
 
     Vue.delete(state.entries, oldEntry.path);

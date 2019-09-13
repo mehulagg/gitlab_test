@@ -318,7 +318,6 @@ describe('Multi-file store mutations', () => {
         commitsPath: `${gl.TEST_HOST}/testing-123`,
         blamePath: `${gl.TEST_HOST}/testing-123`,
         replaces: true,
-        key: 'renamed-foo-bar',
       };
       localState.entries.test = f;
       localState.changedFiles.push(f);
@@ -330,11 +329,11 @@ describe('Multi-file store mutations', () => {
       expect(f.commitsPath).toBe(`${gl.TEST_HOST}/test`);
       expect(f.blamePath).toBe(`${gl.TEST_HOST}/test`);
       expect(f.replaces).toBe(false);
-      expect(f.key).toBe('foo-bar');
       expect(f.prevId).toBeUndefined();
       expect(f.prevPath).toBeUndefined();
       expect(f.prevName).toBeUndefined();
       expect(f.prevUrl).toBeUndefined();
+      expect(f.prevKey).toBeUndefined();
     });
   });
 
@@ -400,12 +399,13 @@ describe('Multi-file store mutations', () => {
         path: 'newPath',
         name: 'newPath',
         url: `${gl.TEST_HOST}/newPath`,
-        key: `renamed-${oldPathData.key}`,
+        key: jasmine.stringMatching('newPath'),
 
         prevId: 'oldPath',
         prevName: 'oldPath',
         prevPath: 'oldPath',
         prevUrl: `${gl.TEST_HOST}/oldPath`,
+        prevKey: oldPathData.key,
       });
     });
 
@@ -432,12 +432,13 @@ describe('Multi-file store mutations', () => {
         path: newPath,
         name: newPath,
         url: `${gl.TEST_HOST}/new%20path`,
-        key: `renamed-${oldEntry.key}`,
+        key: jasmine.stringMatching(newPath),
 
         prevId: path,
         prevName: path,
         prevPath: path,
         prevUrl: `${gl.TEST_HOST}/my%20fancy%20path`,
+        prevKey: oldEntry.key,
       });
     });
 
@@ -511,7 +512,7 @@ describe('Multi-file store mutations', () => {
     });
 
     it('updates existing changedFiles entry with the renamed one', () => {
-      const key = 'renamed-oldPath';
+      const key = 'newPath';
       const changedFile = {
         ...file('newPath', 'newPath', 'blob'),
         key,
@@ -550,16 +551,40 @@ describe('Multi-file store mutations', () => {
       expect(localState.entries.newer.prevUrl).toBe(original.url);
     });
 
-    it('keeps the key value consistent after multiple renames', () => {
-      localState.entries.oldPath.key = 'oldPath-blob-oldPath';
-      const newKey = 'renamed-oldPath-blob-oldPath';
-      mutations.RENAME_ENTRY(localState, { path: 'oldPath', name: 'newPath' });
+    describe('key updates', () => {
+      beforeEach(() => {
+        localState.entries = {
+          oldPath: {
+            ...file('oldPath', 'oldPath', 'blob'),
+          },
+          'oldPath.txt': {
+            ...file('oldPath.txt', 'oldPath.txt', 'blob'),
+          },
+        };
+      });
 
-      expect(localState.entries.newPath.key).toBe(newKey);
+      it('sets properly constucted key while preserving the original one', () => {
+        const key = 'oldPath.txt-blob-oldPath.txt';
+        localState.entries['oldPath.txt'].key = key;
+        mutations.RENAME_ENTRY(localState, { path: 'oldPath.txt', name: 'newPath.md' });
 
-      mutations.RENAME_ENTRY(localState, { path: 'newPath', name: 'newer' });
+        expect(localState.entries['newPath.md'].key).toBe('newPath.md-blob-newPath.md');
+        expect(localState.entries['newPath.md'].prevKey).toBe(key);
+      });
 
-      expect(localState.entries.newer.key).toBe(newKey);
+      it('correctly updates key for an entry without an extension', () => {
+        localState.entries.oldPath.key = 'oldPath-blob-oldPath';
+        mutations.RENAME_ENTRY(localState, { path: 'oldPath', name: 'newPath.md' });
+
+        expect(localState.entries['newPath.md'].key).toBe('newPath.md-blob-newPath.md');
+      });
+
+      it('correctly updates key when new name does not have an extension', () => {
+        localState.entries['oldPath.txt'].key = 'oldPath.txt-blob-oldPath.txt';
+        mutations.RENAME_ENTRY(localState, { path: 'oldPath.txt', name: 'newPath' });
+
+        expect(localState.entries.newPath.key).toBe('newPath-blob-newPath');
+      });
     });
   });
 });
