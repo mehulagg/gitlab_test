@@ -25,11 +25,16 @@ module EE
     end
 
     def namespace_options_for_select
-      # TODO(vitaly): current_user is missing
-      options_for_select([
-        ['Please select', 0],
-        ['New Group', 1]
-      ], 0)
+      groups = current_user.manageable_groups.map { |g| [g.name, g.id] }
+      users = [[current_user.namespace.name, current_user.namespace.id]]
+
+      grouped_options = {
+        'New' => [['Create group', 0]],
+        'Groups' => groups,
+        'Users' => users
+      }
+
+      grouped_options_for_select(grouped_options, nil, prompt: 'Please select')
     end
   end
 end
