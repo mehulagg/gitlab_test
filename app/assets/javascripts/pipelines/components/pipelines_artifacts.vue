@@ -24,7 +24,7 @@ export default {
     <button
       v-gl-tooltip
       type="button"
-      class="dropdown-toggle build-artifacts btn btn-default js-pipeline-dropdown-download"
+      class="dropdown-new build-artifacts btn btn-default js-pipeline-dropdown-download"
       :title="__('Artifacts')"
       data-toggle="dropdown"
       :aria-label="__('Artifacts')"

@@ -67,7 +67,11 @@
     }
 
     .pipeline-actions {
-      min-width: 170px; //Guarantees buttons don't break in several lines.
+      .action-buttons-toggleable {
+        position: absolute;
+        right: 0;
+        top: -$gl-padding;
+      }
 
       .btn-default {
         color: $gl-text-color-secondary;
