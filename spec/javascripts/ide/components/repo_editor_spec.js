@@ -410,8 +410,21 @@ describe('RepoEditor', () => {
 
   describe('initEditor', () => {
     beforeEach(() => {
+      vm.file.tempFile = false;
       spyOn(vm.editor, 'createInstance');
       spyOnProperty(vm, 'shouldHideEditor').and.returnValue(true);
+    });
+
+    it('does not fetch file information for temp entries', done => {
+      vm.file.tempFile = true;
+
+      vm.initEditor();
+      vm.$nextTick()
+        .then(() => {
+          expect(vm.getFileData).not.toHaveBeenCalled();
+        })
+        .then(done)
+        .catch(done.fail);
     });
 
     it('is being initialised for files without content even if shouldHideEditor is `true`', done => {
@@ -429,16 +442,13 @@ describe('RepoEditor', () => {
     });
 
     it('does not initialize editor for files already with content', done => {
-      expect(vm.getFileData.calls.count()).toEqual(1);
-      expect(vm.getRawFileData.calls.count()).toEqual(1);
-
       vm.file.content = 'foo';
 
       vm.initEditor();
       vm.$nextTick()
         .then(() => {
-          expect(vm.getFileData.calls.count()).toEqual(1);
-          expect(vm.getRawFileData.calls.count()).toEqual(1);
+          expect(vm.getFileData).not.toHaveBeenCalled();
+          expect(vm.getRawFileData).not.toHaveBeenCalled();
           expect(vm.editor.createInstance).not.toHaveBeenCalled();
         })
         .then(done)
