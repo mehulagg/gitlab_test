@@ -64,33 +64,29 @@ describe Project do
     end
 
     describe '.with_incident_issue_creation_enabled' do
+      subject { described_class.with_incident_issue_creation_enabled.count }
+
       context 'no incident management settings' do
         it 'returns a project' do
-          project = create(:project)
           expect(described_class.with_incident_issue_creation_enabled).to include(project)
         end
       end
 
       context 'with incident management settings' do
         before do
-          project = create(:project)
           create(:project_incident_management_setting, project: project, create_issue: enabled)
         end
 
         context 'create_issue turned off' do
           let(:enabled) { false }
 
-          it 'does not return a project' do
-            expect(described_class.with_incident_issue_creation_enabled.count).to be 0
-          end
+          it { is_expected.to eq(0) }
         end
 
         context 'create_issue turned on' do
           let(:enabled) { true }
 
-          it 'returns a project' do
-            expect(described_class.with_incident_issue_creation_enabled.count).to be 1
-          end
+          it { is_expected.to eq(1) }
         end
       end
     end

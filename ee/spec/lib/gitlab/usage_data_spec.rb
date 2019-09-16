@@ -272,16 +272,17 @@ describe Gitlab::UsageData do
   end
 
   describe 'auto_issue_creation_projects' do
-    subject { described_class.data.dig(:counts, :projects_auto_issue_creation_enabled) }
-    let!(:project) { create(:project) }
-
-    RSpec.shared_context 'Prometheus alerts exist' do
+    shared_context 'Prometheus alerts exist' do
       before do
         environment = create(:environment, project: project)
         alert = create(:prometheus_alert, project: project, environment: environment)
         create(:prometheus_alert_event, prometheus_alert: alert)
       end
     end
+
+    let(:project) { create(:project) }
+
+    subject { described_class.data.dig(:counts, :projects_auto_issue_creation_enabled) }
 
     context 'when incident_management feature is available' do
       before do
@@ -302,7 +303,11 @@ describe Gitlab::UsageData do
 
       context 'with settings set' do
         before do
-          create(:project_incident_management_setting, project: project, create_issue: setting)
+          create(
+            :project_incident_management_setting,
+            project: project,
+            create_issue: setting
+          )
         end
 
         context 'with no alert events yet' do
