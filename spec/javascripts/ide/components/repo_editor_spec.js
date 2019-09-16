@@ -446,23 +446,56 @@ describe('RepoEditor', () => {
     });
   });
 
-  it('calls removePendingTab when old file is pending', done => {
-    spyOnProperty(vm, 'shouldHideEditor').and.returnValue(true);
-    spyOn(vm, 'removePendingTab');
+  describe('updates on file changes', () => {
+    beforeEach(() => {
+      spyOn(vm, 'initEditor');
+    });
 
-    vm.file.pending = true;
+    it('calls removePendingTab when old file is pending', done => {
+      spyOnProperty(vm, 'shouldHideEditor').and.returnValue(true);
+      spyOn(vm, 'removePendingTab');
 
-    vm.$nextTick()
-      .then(() => {
-        vm.file = file('testing');
-        vm.file.content = 'foo'; // need to prevent full cycle of initEditor
+      vm.file.pending = true;
 
-        return vm.$nextTick();
-      })
-      .then(() => {
-        expect(vm.removePendingTab).toHaveBeenCalled();
-      })
-      .then(done)
-      .catch(done.fail);
+      vm.$nextTick()
+        .then(() => {
+          vm.file = file('testing');
+          vm.file.content = 'foo'; // need to prevent full cycle of initEditor
+
+          return vm.$nextTick();
+        })
+        .then(() => {
+          expect(vm.removePendingTab).toHaveBeenCalled();
+        })
+        .then(done)
+        .catch(done.fail);
+    });
+
+    it('does not call initEditor if the file did not change', done => {
+      Vue.set(vm, 'file', vm.file);
+
+      vm.$nextTick()
+        .then(() => {
+          expect(vm.initEditor).not.toHaveBeenCalled();
+        })
+        .then(done)
+        .catch(done.fail);
+    });
+
+    it('calls initEditor when file key is changed', done => {
+      expect(vm.initEditor).not.toHaveBeenCalled();
+
+      Vue.set(vm, 'file', {
+        ...vm.file,
+        key: 'new',
+      });
+
+      vm.$nextTick()
+        .then(() => {
+          expect(vm.initEditor).toHaveBeenCalled();
+        })
+        .then(done)
+        .catch(done.fail);
+    });
   });
 });

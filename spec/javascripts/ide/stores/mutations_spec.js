@@ -541,13 +541,12 @@ describe('Multi-file store mutations', () => {
 
     describe('key updates', () => {
       beforeEach(() => {
+        const rootFolder = file('rootFolder', 'rootFolder', 'tree');
         localState.entries = {
-          oldPath: {
-            ...file('oldPath', 'oldPath', 'blob'),
-          },
-          'oldPath.txt': {
-            ...file('oldPath.txt', 'oldPath.txt', 'blob'),
-          },
+          rootFolder,
+          oldPath: file('oldPath', 'oldPath', 'blob'),
+          'oldPath.txt': file('oldPath.txt', 'oldPath.txt', 'blob'),
+          'rootFolder/oldPath.md': file('oldPath.md', 'oldPath.md', 'blob', rootFolder),
         };
       });
 
@@ -572,6 +571,21 @@ describe('Multi-file store mutations', () => {
         mutations.RENAME_ENTRY(localState, { path: 'oldPath.txt', name: 'newPath' });
 
         expect(localState.entries.newPath.key).toBe('newPath-blob-newPath');
+      });
+
+      it('correctly updates key when renaming an entry in a folder', () => {
+        localState.entries['rootFolder/oldPath.md'].key =
+          'rootFolder/oldPath.md-blob-rootFolder/oldPath.md';
+        mutations.RENAME_ENTRY(localState, {
+          path: 'rootFolder/oldPath.md',
+          name: 'newPath.md',
+          entryPath: null,
+          parentPath: 'rootFolder',
+        });
+
+        expect(localState.entries['rootFolder/newPath.md'].key).toBe(
+          'rootFolder/newPath.md-blob-rootFolder/newPath.md',
+        );
       });
     });
   });

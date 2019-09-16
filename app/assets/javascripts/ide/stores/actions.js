@@ -9,6 +9,7 @@ import { decorateFiles } from '../lib/files';
 import { stageKeys } from '../constants';
 import service from '../services';
 import router from '../ide_router';
+import eventHub from '../eventhub';
 
 export const redirectToUrl = (self, url) => visitUrl(url);
 
@@ -240,6 +241,11 @@ export const renameEntry = (
     const newPath = parentPath ? `${parentPath}/${name}` : name;
 
     const newEntry = state.entries[newPath];
+
+    if (!newEntry.tempFile) {
+      eventHub.$emit(`editor.update.model.dispose.${entry.key}`);
+    }
+
     if (!newEntry.changed) {
       commit(types.TOGGLE_FILE_CHANGED, { file: newEntry, changed: true });
     }

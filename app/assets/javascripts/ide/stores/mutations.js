@@ -236,7 +236,7 @@ export default {
       path: newPath,
       name: newName,
       url: newUrl,
-      key: oldEntry.key.replace(new RegExp(oldEntry.name, 'g'), newName),
+      key: oldEntry.key.replace(new RegExp(oldEntry.path, 'g'), newPath),
 
       parentPath: parentPath || oldEntry.parentPath,
       prevId: oldEntry.prevId || oldEntry.id,
