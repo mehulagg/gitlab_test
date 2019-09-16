@@ -19,6 +19,7 @@ import router from '~/ide/ide_router';
 import { resetStore, file } from '../helpers';
 import testAction from '../../helpers/vuex_action_helper';
 import MockAdapter from 'axios-mock-adapter';
+import eventHub from '~/ide/eventhub';
 
 const store = createStore();
 
@@ -545,6 +546,59 @@ describe('Multi-file store actions', () => {
   });
 
   describe('renameEntry', () => {
+    describe('purging of file model cache', () => {
+      beforeEach(() => {
+        spyOn(eventHub, '$emit');
+      });
+
+      it('does not purge model cache for temporary entries that got renamed', done => {
+        Object.assign(store.state.entries, {
+          test: {
+            ...file('test'),
+            key: 'foo-key',
+            type: 'blob',
+            tempFile: true,
+          },
+        });
+
+        store
+          .dispatch('renameEntry', {
+            path: 'test',
+            name: 'new',
+          })
+          .then(() => {
+            expect(eventHub.$emit.calls.allArgs()).not.toContain(
+              'editor.update.model.dispose.foo-bar',
+            );
+          })
+          .then(done)
+          .catch(done.fail);
+      });
+
+      it('purges model cache for renamed entry', done => {
+        Object.assign(store.state.entries, {
+          test: {
+            ...file('test'),
+            key: 'foo-key',
+            type: 'blob',
+            tempFile: false,
+          },
+        });
+
+        store
+          .dispatch('renameEntry', {
+            path: 'test',
+            name: 'new',
+          })
+          .then(() => {
+            expect(eventHub.$emit).toHaveBeenCalled();
+            expect(eventHub.$emit).toHaveBeenCalledWith(`editor.update.model.dispose.foo-key`);
+          })
+          .then(done)
+          .catch(done.fail);
+      });
+    });
+
     describe('single entry', () => {
       let spy;
 
