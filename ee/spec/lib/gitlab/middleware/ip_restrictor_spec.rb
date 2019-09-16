@@ -32,18 +32,5 @@ describe Gitlab::Middleware::IpRestrictor do
 
       expect { middleware.call(env) }.to raise_error
     end
-
-    context 'when it is internal endpoint' do
-      before do
-        allow(env).to receive(:[]).with('PATH_INFO').and_return('/api/v4/internal/allowed')
-      end
-
-      it 'calls ip address state to set the address' do
-        expect(::Gitlab::IpAddressState).not_to receive(:with)
-        expect(app).to receive(:call)
-
-        middleware.call(env)
-      end
-    end
   end
 end
