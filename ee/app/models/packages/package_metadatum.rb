@@ -3,6 +3,7 @@ class Packages::PackageMetadatum < ApplicationRecord
   belongs_to :package
 
   validates :package, presence: true
+  validates size: { in: 0..10.kilobytes }
 
   def self.map_metadata(metadata)
     metadata.each_pair do |name, metadatum|
