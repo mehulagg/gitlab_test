@@ -230,7 +230,7 @@ export default {
       encodeURI(newPath),
     );
 
-    Vue.set(state.entries, newPath, {
+    const baseProps = {
       ...oldEntry,
       id: newPath,
       path: newPath,
@@ -239,11 +239,21 @@ export default {
       key: oldEntry.key.replace(new RegExp(oldEntry.path, 'g'), newPath),
 
       parentPath: parentPath || oldEntry.parentPath,
-      prevId: oldEntry.prevId || oldEntry.id,
-      prevPath: oldEntry.prevPath || oldEntry.path,
-      prevName: oldEntry.prevName || oldEntry.name,
-      prevUrl: oldEntry.prevUrl || oldEntry.url,
-      prevKey: oldEntry.prevKey || oldEntry.key,
+    };
+
+    const prevProps = oldEntry.tempFile
+      ? {}
+      : {
+          prevId: oldEntry.prevId || oldEntry.id,
+          prevPath: oldEntry.prevPath || oldEntry.path,
+          prevName: oldEntry.prevName || oldEntry.name,
+          prevUrl: oldEntry.prevUrl || oldEntry.url,
+          prevKey: oldEntry.prevKey || oldEntry.key,
+        };
+
+    Vue.set(state.entries, newPath, {
+      ...baseProps,
+      ...prevProps,
     });
 
     Vue.delete(state.entries, oldEntry.path);

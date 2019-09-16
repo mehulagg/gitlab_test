@@ -403,6 +403,24 @@ describe('Multi-file store mutations', () => {
       });
     });
 
+    it('does not store previous attributes on temp files', () => {
+      Object.assign(localState.entries.oldPath, {
+        tempFile: true,
+      });
+      mutations.RENAME_ENTRY(localState, {
+        path: 'oldPath',
+        name: 'newPath',
+        entryPath: null,
+        parentPath: '',
+      });
+
+      expect(localState.entries.newPath.prevId).toBeUndefined();
+      expect(localState.entries.newPath.prevName).toBeUndefined();
+      expect(localState.entries.newPath.prevPath).toBeUndefined();
+      expect(localState.entries.newPath.prevUrl).toBeUndefined();
+      expect(localState.entries.newPath.prevKey).toBeUndefined();
+    });
+
     it('properly handles files with spaces in name', () => {
       const path = 'my fancy path';
       const newPath = 'new path';
