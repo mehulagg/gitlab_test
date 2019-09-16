@@ -9,10 +9,10 @@ describe Boards::Lists::UpdateService do
   shared_examples 'moving list' do
     context 'when user can admin list' do
       it 'calls Lists::MoveService to update list position' do
-        board.parent.add_developer(user)
-        service = described_class.new(board.parent, user, position: 1)
+        board.resource_parent.add_developer(user)
+        service = described_class.new(board.resource_parent, user, position: 1)
 
-        expect(Boards::Lists::MoveService).to receive(:new).with(board.parent, user, { position: 1 }).and_call_original
+        expect(Boards::Lists::MoveService).to receive(:new).with(board.resource_parent, user, { position: 1 }).and_call_original
         expect_any_instance_of(Boards::Lists::MoveService).to receive(:execute).with(list)
 
         service.execute(list)
@@ -21,7 +21,7 @@ describe Boards::Lists::UpdateService do
 
     context 'when user cannot admin list' do
       it 'does not call Lists::MoveService to update list position' do
-        service = described_class.new(board.parent, user, position: 1)
+        service = described_class.new(board.resource_parent, user, position: 1)
 
         expect(Boards::Lists::MoveService).not_to receive(:new)
 
@@ -33,8 +33,8 @@ describe Boards::Lists::UpdateService do
   shared_examples 'updating list preferences' do
     context 'when user can read list' do
       it 'updates list preference for user' do
-        board.parent.add_guest(user)
-        service = described_class.new(board.parent, user, collapsed: true)
+        board.resource_parent.add_guest(user)
+        service = described_class.new(board.resource_parent, user, collapsed: true)
 
         service.execute(list)
 
@@ -44,7 +44,7 @@ describe Boards::Lists::UpdateService do
 
     context 'when user cannot read list' do
       it 'does not update list preference for user' do
-        service = described_class.new(board.parent, user, collapsed: true)
+        service = described_class.new(board.resource_parent, user, collapsed: true)
 
         service.execute(list)
 

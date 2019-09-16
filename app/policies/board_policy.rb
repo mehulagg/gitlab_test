@@ -3,7 +3,7 @@
 class BoardPolicy < BasePolicy
   include FindGroupProjects
 
-  delegate { @subject.parent }
+  delegate { @subject.resource_parent }
 
   condition(:is_group_board) { @subject.group_board? }
   condition(:is_project_board) { @subject.project_board? }
