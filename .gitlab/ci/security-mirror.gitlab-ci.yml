@@ -1,0 +1,27 @@
+# On specific protected branches, trigger a merge train to merge $branch into
+# security/$branch in the security project
+security-merge:
+  script:
+    # Change e.g. `gitlab-org/foo/project` to `gitlab-org/security/foo/project`
+    - export SECURITY_PROJECT_PATH=$(echo "$CI_PROJECT_PATH" | sed -E 's%^([^\/]+)\/(.*)$%\1\/security\/\2%g')
+
+    - git remote add security git@gitlab.com:$SECURITY_PROJECT_PATH.git
+
+    # Allow this to fail in case the branch already exists and has diverged
+    - git push security $CI_COMMIT_REF_NAME:security/$CI_COMMIT_REF_NAME || true
+
+    - curl $MERGE_TRAIN_TRIGGER_URL -X POST \
+        -F token=$MERGE_TRAIN_TRIGGER_TOKEN \
+        -F ref=master \
+        -F "variables[SOURCE_PROJECT]=${CI_PROJECT_PATH}" \
+        -F "variables[TARGET_PROJECT]=${SECURITY_PROJECT_PATH}" \
+        -F "variables[SOURCE_BRANCH]=${CI_COMMIT_REF_NAME}" \
+        -F "variables[TARGET_BRANCH]=security/${CI_COMMIT_REF_NAME}"
+  only:
+    refs:
+      - master
+      - /\d+-\d+-auto-deploy-\d{8}/
+      - /\d+-\d+-stable(-ee)?/
+    variables:
+      - $MERGE_TRAIN_TRIGGER_URL
+      - $MERGE_TRAIN_TRIGGER_TOKEN
