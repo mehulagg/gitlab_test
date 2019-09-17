@@ -25,3 +25,16 @@ security-merge:
     variables:
       - $MERGE_TRAIN_TRIGGER_URL
       - $MERGE_TRAIN_TRIGGER_TOKEN
+
+# Temporary job to debug the `security-merge` job
+security-merge-debug:
+  script:
+    - export SECURITY_PROJECT_PATH=$(echo "$CI_PROJECT_PATH" | sed -E 's%^([^\/]+)\/(.*)$%\1\/security\/\2%g')
+
+    - echo $CI_PROJECT_PATH
+    - echo $SECURITY_PROJECT_PATH
+    - echo $CI_COMMIT_REF_NAME
+
+    - git remote add security git@gitlab.com:$SECURITY_PROJECT_PATH.git
+    - git remote -v
+    - git push security $CI_COMMIT_REF_NAME:security/$CI_COMMIT_REF_NAME -n
