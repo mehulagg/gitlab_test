@@ -165,7 +165,8 @@ export default {
     });
   },
   [types.STAGE_CHANGE](state, path) {
-    const stagedFile = state.stagedFiles.find(f => f.path === path);
+    const entry = state.entries[path];
+    const stagedFile = state.stagedFiles.find(f => [entry.prevPath, path].indexOf(f.path) !== -1);
 
     Object.assign(state, {
       changedFiles: state.changedFiles.filter(f => f.path !== path),

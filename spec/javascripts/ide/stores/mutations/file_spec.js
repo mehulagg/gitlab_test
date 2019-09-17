@@ -356,22 +356,37 @@ describe('IDE store file mutations', () => {
   });
 
   describe('STAGE_CHANGE', () => {
-    it('adds file into stagedFiles array', () => {
+    beforeEach(() => {
       mutations.STAGE_CHANGE(localState, localFile.path);
+    });
 
+    it('adds file into stagedFiles array', () => {
       expect(localState.stagedFiles.length).toBe(1);
       expect(localState.stagedFiles[0]).toEqual(localFile);
     });
 
     it('updates stagedFile if it is already staged', () => {
-      mutations.STAGE_CHANGE(localState, localFile.path);
-
       localFile.raw = 'testing 123';
 
       mutations.STAGE_CHANGE(localState, localFile.path);
 
       expect(localState.stagedFiles.length).toBe(1);
       expect(localState.stagedFiles[0].raw).toEqual('testing 123');
+    });
+
+    it('updates stagedFiles with renamed entry if the original entry has already been staged', () => {
+      const renamedFile = {
+        ...file('renamed'),
+        type: 'blob',
+        prevPath: localFile.path,
+      };
+
+      localState.entries[renamedFile.path] = renamedFile;
+
+      mutations.STAGE_CHANGE(localState, renamedFile.path);
+
+      expect(localState.stagedFiles.length).toBe(1);
+      expect(localState.stagedFiles[0].name).toEqual('renamed');
     });
   });
 
