@@ -350,11 +350,14 @@ quick-rspec geo pg-10 ee:
       - $CI_COMMIT_REF_NAME =~ /(^geo[\/-].*|.*-geo$)/
 
 rspec quarantine pg ee:
-  extends: rspec quarantine pg
+  extends:
+    - .rspec-base-pg-ee
+    - .only-master
   script:
     - export NO_KNAPSACK=1 CACHE_CLASSES=true
     - scripts/gitaly-test-spawn
     - bin/rspec --color --format documentation --format RspecJunitFormatter --out junit_rspec.xml --tag quarantine -- ee/spec/
+  allow_failure: true
 
 db:rollback geo:
   extends:
