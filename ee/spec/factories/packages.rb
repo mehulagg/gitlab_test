@@ -83,12 +83,5 @@ FactoryBot.define do
   factory :package_metadatum, class: Packages::PackageMetadatum do
     package
     metadata ""
-
   end
-
-  factory :package_tag, class: Packages::PackageTag do
-    name "next"
-    package
-  end
-
 end
