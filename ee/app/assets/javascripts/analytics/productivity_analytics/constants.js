@@ -83,10 +83,6 @@ export const dataZoomOptions = [
     bottom: 10,
     start: 0,
   },
-  {
-    type: 'inside',
-    start: 0,
-  },
 ];
 
 /**

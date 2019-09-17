@@ -2,6 +2,7 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import ProductivityApp from 'ee/analytics/productivity_analytics/components/app.vue';
 import MergeRequestTable from 'ee/analytics/productivity_analytics/components/mr_table.vue';
+import MetricChart from 'ee/analytics/productivity_analytics/components/metric_chart.vue';
 import store from 'ee/analytics/productivity_analytics/store';
 import { chartKeys } from 'ee/analytics/productivity_analytics/constants';
 import { TEST_HOST } from 'helpers/test_constants';
@@ -50,13 +51,16 @@ describe('ProductivityApp component', () => {
   });
 
   const findTimeToMergeSection = () => wrapper.find('.qa-time-to-merge');
+  const findTimeToMergeMetricChart = () => findTimeToMergeSection().find(MetricChart);
+  const findTimeBasedSection = () => wrapper.find('.qa-time-based');
+  const findTimeBasedMetricChart = () => findTimeBasedSection().find(MetricChart);
+  const findCommitBasedSection = () => wrapper.find('.qa-commit-based');
+  const findCommitBasedMetricChart = () => findCommitBasedSection().find(MetricChart);
   const findMrTableSortSection = () => wrapper.find('.qa-mr-table-sort');
   const findMrTableSection = () => wrapper.find('.qa-mr-table');
   const findMrTable = () => findMrTableSection().find(MergeRequestTable);
   const findSortFieldDropdown = () => findMrTableSortSection().find(GlDropdown);
   const findSortOrderToggle = () => findMrTableSortSection().find(GlButton);
-  const findTimeBasedSection = () => wrapper.find('.qa-time-based');
-  const findCommitBasedSection = () => wrapper.find('.qa-commit-based');
 
   describe('template', () => {
     describe('without a group being selected', () => {
@@ -75,7 +79,7 @@ describe('ProductivityApp component', () => {
 
       describe('and user has no access to the group', () => {
         beforeEach(() => {
-          store.state.table.hasError = 403;
+          store.state.charts.charts[chartKeys.main].hasError = 403;
         });
 
         it('renders the no access illustration', () => {
@@ -88,12 +92,24 @@ describe('ProductivityApp component', () => {
 
       describe('and user has access to the group', () => {
         beforeEach(() => {
-          store.state.table.hasError = false;
+          store.state.charts.charts[chartKeys.main].hasError = false;
         });
 
         describe('Time to merge chart', () => {
-          it('renders the title', () => {
-            expect(findTimeToMergeSection().text()).toContain('Time to merge');
+          it('renders a metric chart component with the title and description', () => {
+            expect(findTimeToMergeMetricChart().exists()).toBe(true);
+            expect(findTimeToMergeMetricChart().props('title')).toBe('Time to merge');
+            expect(findTimeToMergeMetricChart().props('description')).toBe(
+              "You can filter by 'days to merge' by clicking on the columns in the chart.",
+            );
+          });
+
+          it('renders a column chart in the chart slot', () => {
+            expect(
+              findTimeToMergeMetricChart()
+                .find(GlColumnChart)
+                .exists(),
+            ).toBe(true);
           });
 
           describe('when chart is loading', () => {
@@ -101,12 +117,8 @@ describe('ProductivityApp component', () => {
               store.state.charts.charts[chartKeys.main].isLoading = true;
             });
 
-            it('renders a loading indicator', () => {
-              expect(
-                findTimeToMergeSection()
-                  .find(GlLoadingIcon)
-                  .exists(),
-              ).toBe(true);
+            it('sets isLoading to true on the metric chart', () => {
+              expect(findTimeToMergeMetricChart().props('isLoading')).toBe(true);
             });
           });
 
@@ -115,12 +127,8 @@ describe('ProductivityApp component', () => {
               store.state.charts.charts[chartKeys.main].isLoading = false;
             });
 
-            it('renders a column chart', () => {
-              expect(
-                findTimeToMergeSection()
-                  .find(GlColumnChart)
-                  .exists(),
-              ).toBe(true);
+            it('sets isLoading to false on the metric chart', () => {
+              expect(findTimeToMergeMetricChart().props('isLoading')).toBe(false);
             });
 
             it('calls onMainChartItemClicked when chartItemClicked is emitted on the column chart ', () => {
@@ -143,17 +151,25 @@ describe('ProductivityApp component', () => {
         });
 
         describe('Time based histogram', () => {
+          it('renders a metric chart component', () => {
+            expect(findTimeBasedMetricChart().exists()).toBe(true);
+          });
+
+          it('renders a column chart in the chart slot', () => {
+            expect(
+              findTimeBasedMetricChart()
+                .find(GlColumnChart)
+                .exists(),
+            ).toBe(true);
+          });
+
           describe('when chart is loading', () => {
             beforeEach(() => {
               store.state.charts.charts[chartKeys.timeBasedHistogram].isLoading = true;
             });
 
-            it('renders a loading indicator', () => {
-              expect(
-                findTimeBasedSection()
-                  .find(GlLoadingIcon)
-                  .exists(),
-              ).toBe(true);
+            it('sets isLoading to true on the metric chart', () => {
+              expect(findTimeBasedMetricChart().props('isLoading')).toBe(true);
             });
           });
 
@@ -162,48 +178,41 @@ describe('ProductivityApp component', () => {
               store.state.charts.charts[chartKeys.timeBasedHistogram].isLoading = false;
             });
 
-            it('renders a metric type dropdown', () => {
-              expect(
-                findTimeBasedSection()
-                  .find(GlDropdown)
-                  .exists(),
-              ).toBe(true);
+            it('sets isLoading to false on the metric chart', () => {
+              expect(findTimeBasedMetricChart().props('isLoading')).toBe(false);
             });
 
-            it('should change the metric type', () => {
-              findTimeBasedSection()
-                .findAll(GlDropdownItem)
-                .at(0)
-                .vm.$emit('click');
+            it('should call setMetricType  when `metricTypeChange` is emitted on the metric chart', () => {
+              findTimeBasedMetricChart().vm.$emit('metricTypeChange', 'time_to_merge');
 
               expect(actionSpies.setMetricType).toHaveBeenCalledWith({
-                metricType: 'time_to_first_comment',
+                metricType: 'time_to_merge',
                 chartKey: chartKeys.timeBasedHistogram,
               });
-            });
-
-            it('renders a column chart', () => {
-              expect(
-                findTimeBasedSection()
-                  .find(GlColumnChart)
-                  .exists(),
-              ).toBe(true);
             });
           });
         });
 
         describe('Commit based histogram', () => {
+          it('renders a metric chart component', () => {
+            expect(findCommitBasedMetricChart().exists()).toBe(true);
+          });
+
+          it('renders a column chart in the chart slot', () => {
+            expect(
+              findCommitBasedMetricChart()
+                .find(GlColumnChart)
+                .exists(),
+            ).toBe(true);
+          });
+
           describe('when chart is loading', () => {
             beforeEach(() => {
               store.state.charts.charts[chartKeys.commitBasedHistogram].isLoading = true;
             });
 
-            it('renders a loading indicator', () => {
-              expect(
-                findCommitBasedSection()
-                  .find(GlLoadingIcon)
-                  .exists(),
-              ).toBe(true);
+            it('sets isLoading to true on the metric chart', () => {
+              expect(findCommitBasedMetricChart().props('isLoading')).toBe(true);
             });
           });
 
@@ -212,6 +221,11 @@ describe('ProductivityApp component', () => {
               store.state.charts.charts[chartKeys.commitBasedHistogram].isLoading = false;
             });
 
+            it('sets isLoading to false on the metric chart', () => {
+              expect(findCommitBasedMetricChart().props('isLoading')).toBe(false);
+            });
+
+            /*
             it('renders a metric type dropdown', () => {
               expect(
                 findCommitBasedSection()
@@ -219,25 +233,15 @@ describe('ProductivityApp component', () => {
                   .exists(),
               ).toBe(true);
             });
+            */
 
-            it('should change the metric type', () => {
-              findCommitBasedSection()
-                .findAll(GlDropdownItem)
-                .at(0)
-                .vm.$emit('click');
+            it('should call setMetricType  when `metricTypeChange` is emitted on the metric chart', () => {
+              findCommitBasedMetricChart().vm.$emit('metricTypeChange', 'commits_count');
 
               expect(actionSpies.setMetricType).toHaveBeenCalledWith({
                 metricType: 'commits_count',
                 chartKey: chartKeys.commitBasedHistogram,
               });
-            });
-
-            it('renders a column chart', () => {
-              expect(
-                findCommitBasedSection()
-                  .find(GlColumnChart)
-                  .exists(),
-              ).toBe(true);
             });
           });
         });

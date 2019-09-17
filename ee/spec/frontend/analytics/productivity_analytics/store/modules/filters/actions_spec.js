@@ -2,6 +2,7 @@ import testAction from 'helpers/vuex_action_helper';
 import * as actions from 'ee/analytics/productivity_analytics/store/modules/filters/actions';
 import * as types from 'ee/analytics/productivity_analytics/store/modules/filters/mutation_types';
 import getInitialState from 'ee/analytics/productivity_analytics/store/modules/filters/state';
+import { chartKeys } from 'ee/analytics/productivity_analytics/constants';
 
 describe('Productivity analytics filter actions', () => {
   const groupNamespace = 'gitlab-org';
@@ -20,13 +21,25 @@ describe('Productivity analytics filter actions', () => {
           expect(store.commit).toHaveBeenCalledWith(types.SET_GROUP_NAMESPACE, groupNamespace);
 
           expect(store.dispatch.mock.calls[0]).toEqual([
-            'table/fetchMergeRequests',
-            jasmine.any(Object),
+            'charts/fetchChartData',
+            chartKeys.main,
             { root: true },
           ]);
 
           expect(store.dispatch.mock.calls[1]).toEqual([
-            'charts/fetchAllChartData',
+            'charts/fetchChartData',
+            chartKeys.timeBasedHistogram,
+            { root: true },
+          ]);
+
+          expect(store.dispatch.mock.calls[2]).toEqual([
+            'charts/fetchChartData',
+            chartKeys.commitBasedHistogram,
+            { root: true },
+          ]);
+
+          expect(store.dispatch.mock.calls[3]).toEqual([
+            'table/fetchMergeRequests',
             jasmine.any(Object),
             { root: true },
           ]);

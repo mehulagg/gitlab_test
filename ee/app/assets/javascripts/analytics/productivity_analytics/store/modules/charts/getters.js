@@ -1,3 +1,5 @@
+import _ from 'underscore';
+import httpStatus from '~/lib/utils/http_status';
 import {
   chartKeys,
   metricTypes,
@@ -43,9 +45,7 @@ export const getChartData = state => chartKey => {
     };
   });
 
-  return {
-    full: dataWithSelected,
-  };
+  return dataWithSelected;
 };
 
 export const getMetricDropdownLabel = state => chartKey =>
@@ -105,8 +105,12 @@ export const getColumnChartDatazoomOption = state => chartKey => {
   };
 };
 
-export const isSelectedMetric = state => ({ metric, chartKey }) =>
-  state.charts[chartKey].params.metricType === metric;
+export const getSelectedMetric = state => chartKey => state.charts[chartKey].params.metricType;
+
+export const hasNoAccessError = state =>
+  state.charts[chartKeys.main].hasError === httpStatus.FORBIDDEN;
+
+export const mainChartHasNoData = state => _.isEmpty(state.charts[chartKeys.main].data);
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests
 export default () => {};
