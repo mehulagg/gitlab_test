@@ -22,6 +22,8 @@ import {
   makeTimeAxis,
 } from '../../utils';
 
+// TODO Reduce duplications with `time_series.vue` see https://gitlab.com/gitlab-org/gitlab/issues/32143
+
 export default {
   components: {
     GlLineChart,
