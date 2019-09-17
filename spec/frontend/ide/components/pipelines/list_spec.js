@@ -2,7 +2,10 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import List from '~/ide/components/pipelines/list.vue';
 import JobsList from '~/ide/components/jobs/list.vue';
 import Tab from '~/vue_shared/components/tabs/tab.vue';
+import CiIcon from '~/vue_shared/components/ci_icon.vue';
 import { GlLoadingIcon } from '@gitlab/ui';
+import { pipelines } from '../../../../javascripts/ide/mock_data';
+import { TEST_HOST } from 'helpers/test_constants';
 import Vuex from 'vuex';
 
 const localVue = createLocalVue();
@@ -10,8 +13,16 @@ localVue.use(Vuex);
 
 describe('IDE pipelines list', () => {
   let wrapper;
-  let mockData;
-  let defaultState;
+
+  const defaultState = {
+    links: { ciHelpPagePath: TEST_HOST },
+    pipelinesEmptyStateSvgPath: TEST_HOST,
+    pipelines: {
+      stages: [],
+      failedStages: [],
+      isLoadingJobs: false,
+    },
+  };
 
   const fetchLatestPipelineMock = jest.fn();
   const failedStagesGetterMock = jest.fn().mockReturnValue([]);
@@ -55,30 +66,6 @@ describe('IDE pipelines list', () => {
       sync: false,
     });
   };
-
-  beforeAll(() => {
-    // We can't import mock_data directly as it relies on gl global
-    // We can get rid of this when our Karma -> Jest migration will be complete
-    global.gl = {
-      TEST_HOST: 'https://some.host',
-    };
-    return import('../../../../javascripts/ide/mock_data').then(mock => {
-      mockData = mock;
-      defaultState = {
-        links: { ciHelpPagePath: gl.TEST_HOST },
-        pipelinesEmptyStateSvgPath: gl.TEST_HOST,
-        pipelines: {
-          stages: [],
-          failedStages: [],
-          isLoadingJobs: false,
-        },
-      };
-    });
-  });
-
-  afterAll(() => {
-    delete global.gl;
-  });
 
   afterEach(() => {
     wrapper.destroy();
@@ -143,8 +130,13 @@ describe('IDE pipelines list', () => {
       beforeAll(() => {
         withLatestPipelineState = {
           ...defaultPipelinesLoadedState,
-          latestPipeline: mockData.pipelines[0],
+          latestPipeline: pipelines[0],
         };
+      });
+
+      it('renders ci icon', () => {
+        createComponent({ pipelines: withLatestPipelineState });
+        expect(wrapper.find(CiIcon).exists()).toBe(true);
       });
 
       it('renders pipeline data', () => {
@@ -188,7 +180,7 @@ describe('IDE pipelines list', () => {
           createComponent({
             pipelines: {
               ...defaultPipelinesLoadedState,
-              latestPipeline: { ...mockData.pipelines[0], yamlError },
+              latestPipeline: { ...pipelines[0], yamlError },
             },
           });
 

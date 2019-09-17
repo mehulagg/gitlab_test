@@ -8,8 +8,8 @@ exports[`IDE pipelines list when loaded renders empty state when no latestPipeli
    
   <emptystate-stub
     cansetci="true"
-    emptystatesvgpath="https://some.host"
-    helppagepath="https://some.host"
+    emptystatesvgpath="http://test.host"
+    helppagepath="http://test.host"
   />
 </div>
 `;
