@@ -80,6 +80,7 @@ docs lint:
     - cd /tmp/gitlab-docs
     # Build HTML from Markdown
     - bundle exec nanoc
+    - bundle exec nanoc check external_links
     # Check the internal links
     - bundle exec nanoc check internal_links
     # Check the internal anchor links
