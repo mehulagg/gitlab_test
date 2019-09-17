@@ -251,6 +251,18 @@ These results can also be placed into a PostgreSQL database by setting the
 `RSPEC_PROFILING_POSTGRES_URL` variable. This is used to profile the test suite
 when running in the CI environment.
 
+## Memory profiling
+
+One of the reasons of the increased memory footprint could be Ruby memory fragmentation.
+
+To diagnose it, you can visualize Ruby heap as described in [this post by Aaron Patterson](https://tenderlovemaking.com/2017/09/27/visualizing-your-ruby-heap.html).
+
+Fragmented Ruby heap snapshot could look like this:
+
+![Ruby heap fragmentation](img/memory_ruby_heap_fragmentation.png)
+
+Memory fragmentation could be reduced by tuning GC parameters as described in [this post by Nate Berkopec](https://www.speedshop.co/2017/12/04/malloc-doubles-ruby-memory.html), which should be considered as a tradeoff, as it may affect overall performance of memory allocation and GC cycles.
+
 ## Importance of Changes
 
 When working on performance improvements, it's important to always ask yourself
