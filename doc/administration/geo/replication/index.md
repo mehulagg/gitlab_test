@@ -229,6 +229,10 @@ For more information on Geo security, see [Geo security review](security_review.
 
 For more information on tuning Geo, see [Tuning Geo](tuning.md).
 
+### Set up a geolocation-aware Git URL
+
+For an example of how to set up a Geolocation-aware Git URL with AWS Route53, see [How to set up a Geolocation-aware Git URL with AWS Route53](geolocation_aware_git_url.md).
+
 ## Remove Geo node
 
 For more information on removing a Geo node, see [Removing **secondary** Geo nodes](remove_geo_node.md).
