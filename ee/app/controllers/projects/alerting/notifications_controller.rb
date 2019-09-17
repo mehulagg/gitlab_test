@@ -9,6 +9,7 @@ module Projects
 
       prepend_before_action :repository, :project_without_auth
       before_action :check_generic_alert_endpoint_feature_flag!
+      before_action :check_generic_alert_payload_size!
 
       def create
         token = extract_alert_manager_token(request)
@@ -28,6 +29,10 @@ module Projects
 
       def check_generic_alert_endpoint_feature_flag!
         render_404 unless Feature.enabled?(:generic_alert_endpoint, @project)
+      end
+
+      def check_generic_alert_payload_size!
+        head :bad_request unless Gitlab::Utils::DeepSize.new(permitted_params).valid?
       end
 
       def extract_alert_manager_token(request)

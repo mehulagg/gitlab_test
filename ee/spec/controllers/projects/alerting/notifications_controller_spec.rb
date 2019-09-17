@@ -19,20 +19,20 @@ describe Projects::Alerting::NotificationsController do
     end
 
     context 'when feature flag is on' do
+      let(:permitted_params) { ActionController::Parameters.new(payload).permit! }
+
+      let(:payload) do
+        {
+          title: 'Alert title',
+          hosts: 'https://gitlab.com'
+        }
+      end
+
       before do
         stub_feature_flags(generic_alert_endpoint: true)
       end
 
       context 'when notification service succeeds' do
-        let(:payload) do
-          {
-            title: 'Alert title',
-            hosts: 'https://gitlab.com'
-          }
-        end
-
-        let(:permitted_params) { ActionController::Parameters.new(payload).permit! }
-
         it 'responds with ok' do
           make_request
 
@@ -55,6 +55,20 @@ describe Projects::Alerting::NotificationsController do
           make_request
 
           expect(response).to have_gitlab_http_status(:unauthorized)
+        end
+      end
+
+      context 'when payload is too big' do
+        let(:deep_size) { instance_double(Gitlab::Utils::DeepSize, valid?: false) }
+
+        before do
+          allow(Gitlab::Utils::DeepSize).to receive(:new).with(permitted_params).and_return(deep_size)
+        end
+
+        it 'responds with bad request' do
+          make_request(payload)
+
+          expect(response).to have_gitlab_http_status(:bad_request)
         end
       end
 
