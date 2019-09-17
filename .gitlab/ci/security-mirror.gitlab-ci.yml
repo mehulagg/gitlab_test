@@ -35,7 +35,7 @@ security-merge-debug:
     - echo $SECURITY_PROJECT_PATH
     - echo $CI_COMMIT_REF_NAME
 
-    - git remote add security git@gitlab.com:$SECURITY_PROJECT_PATH.git
+    - git remote add security https://gitlab.com/$SECURITY_PROJECT_PATH.git
     - git remote -v show security
     - git status
     - git push security HEAD:security/$CI_COMMIT_REF_NAME -n
