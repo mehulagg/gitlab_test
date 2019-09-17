@@ -8,7 +8,7 @@ security-merge:
     - git remote add security git@gitlab.com:$SECURITY_PROJECT_PATH.git
 
     # Allow this to fail in case the branch already exists and has diverged
-    - git push security $CI_COMMIT_REF_NAME:security/$CI_COMMIT_REF_NAME || true
+    - git push security HEAD:security/$CI_COMMIT_REF_NAME || true
 
     - curl $MERGE_TRAIN_TRIGGER_URL -X POST \
         -F token=$MERGE_TRAIN_TRIGGER_TOKEN \
@@ -36,6 +36,6 @@ security-merge-debug:
     - echo $CI_COMMIT_REF_NAME
 
     - git remote add security git@gitlab.com:$SECURITY_PROJECT_PATH.git
-    - git remote -v
+    - git remote -v show security
     - git status
-    - git push security $CI_COMMIT_REF_NAME:security/$CI_COMMIT_REF_NAME -n
+    - git push security HEAD:security/$CI_COMMIT_REF_NAME -n
