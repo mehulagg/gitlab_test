@@ -13,10 +13,10 @@ class BoardGroupRecentVisit < ApplicationRecord
   scope :by_user_group, -> (user, group) { where(user: user, group: group) }
 
   def self.visited!(user, board)
-    visit = find_or_create_by(user: user, group: board.group, board: board)
-    visit.touch if visit.updated_at < Time.now
-  rescue ActiveRecord::RecordNotUnique
-    retry
+    safe_ensure_unique(retries: 1) do
+      visit = find_or_create_by(user: user, group: board.group, board: board)
+      visit.touch if visit.updated_at < Time.now
+    end
   end
 
   def self.latest(user, group, count: nil)

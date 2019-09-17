@@ -26,16 +26,19 @@ module Ci
 
     private
 
-    def ensure_stage(attempts: 2)
-      find_stage || create_stage
-    rescue ActiveRecord::RecordNotUnique
-      retry if (attempts -= 1) > 0
-
-      raise EnsureStageError, <<~EOS
-        We failed to find or create a unique pipeline stage after 2 retries.
-        This should never happen and is most likely the result of a bug in
-        the database load balancing code.
-      EOS
+    def ensure_stage
+      Ci::Stage.safe_ensure_unique(
+        retries: 1,
+        on_rescue: lambda do
+          raise EnsureStageError, <<~EOS
+            We failed to find or create a unique pipeline stage after 2 retries.
+            This should never happen and is most likely the result of a bug in
+            the database load balancing code.
+          EOS
+        end
+      ) do
+        find_stage || create_stage
+      end
     end
 
     # rubocop: disable CodeReuse/ActiveRecord

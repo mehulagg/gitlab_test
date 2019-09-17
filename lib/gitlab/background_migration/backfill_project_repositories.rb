@@ -21,12 +21,9 @@ module Gitlab
           shard_id = shards.fetch(name, nil)
           return shard_id if shard_id.present?
 
-          Shard.transaction(requires_new: true) do
+          ApplicationRecord.safe_ensure_unique(retries: 1, before_retry: -> { reload! }) do
             create!(name)
           end
-        rescue ActiveRecord::RecordNotUnique
-          reload!
-          retry
         end
 
         private

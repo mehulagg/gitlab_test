@@ -51,11 +51,9 @@ module Projects
 
     # rubocop: disable CodeReuse/ActiveRecord
     def create_language(name, color)
-      ProgrammingLanguage.transaction do
+      ProgrammingLanguage.safe_ensure_unique(retries: 1) do
         ProgrammingLanguage.where(name: name).first_or_create(color: color)
       end
-    rescue ActiveRecord::RecordNotUnique
-      retry
     end
     # rubocop: enable CodeReuse/ActiveRecord
 

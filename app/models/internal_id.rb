@@ -186,15 +186,13 @@ class InternalId < ApplicationRecord
     # violation. We can safely roll-back the nested transaction and perform
     # a lookup instead to retrieve the record.
     def create_record(init)
-      subject.transaction(requires_new: true) do
+      InternalId.safe_ensure_unique(on_rescue: -> { lookup }) do
         InternalId.create!(
           **scope,
           usage: usage_value,
           last_value: init.call(subject) || 0
         )
       end
-    rescue ActiveRecord::RecordNotUnique
-      lookup
     end
   end
 end

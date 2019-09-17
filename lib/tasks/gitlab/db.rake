@@ -14,11 +14,11 @@ namespace :gitlab do
       end
 
       sql = "INSERT INTO schema_migrations (version) VALUES (#{version})"
-      begin
+      ApplicationRecord.safe_ensure_unique(
+        on_rescue: -> { puts "Migration version '#{version}' is already marked complete".color(:yellow) }
+      ) do
         ActiveRecord::Base.connection.execute(sql)
         puts "Successfully marked '#{version}' as complete".color(:green)
-      rescue ActiveRecord::RecordNotUnique
-        puts "Migration version '#{version}' is already marked complete".color(:yellow)
       end
     end
 

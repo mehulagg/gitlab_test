@@ -20,12 +20,9 @@ class ProjectFeatureUsage < ApplicationRecord
   end
 
   def log_jira_dvcs_integration_usage(cloud: true)
-    transaction(requires_new: true) do
+    self.class.safe_ensure_unique(retries: 1, before_retry: -> { reset }) do
       save unless persisted?
       touch(self.class.jira_dvcs_integration_field(cloud: cloud))
     end
-  rescue ActiveRecord::RecordNotUnique
-    reset
-    retry
   end
 end

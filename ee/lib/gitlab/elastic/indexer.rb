@@ -106,18 +106,12 @@ module Gitlab
         "#{repository.disk_path}.git"
       end
 
-      # rubocop: disable CodeReuse/ActiveRecord
       def update_index_status(to_sha)
         head_commit = repository.try(:commit)
 
         # An index_status should always be created,
         # even if the repository is empty, so we know it's been looked at.
-        @index_status ||=
-          begin
-            IndexStatus.find_or_create_by(project_id: project.id)
-          rescue ActiveRecord::RecordNotUnique
-            retry
-          end
+        @index_status ||= IndexStatus.safe_find_or_create_by(project_id: project.id)
 
         # Don't update the index status if we never reached HEAD
         return if head_commit && to_sha && head_commit.sha != to_sha
@@ -135,7 +129,6 @@ module Gitlab
         @index_status.update(attributes)
         project.reload_index_status
       end
-      # rubocop: enable CodeReuse/ActiveRecord
     end
   end
 end

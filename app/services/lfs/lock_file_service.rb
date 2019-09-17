@@ -7,9 +7,9 @@ module Lfs
         raise Gitlab::GitAccess::UnauthorizedError, 'You have no permissions'
       end
 
-      create_lock!
-    rescue ActiveRecord::RecordNotUnique
-      error('already locked', 409, current_lock)
+      LfsFileLock.safe_ensure_unique(on_rescue: -> { error('already locked', 409, current_lock) }) do
+        create_lock!
+      end
     rescue Gitlab::GitAccess::UnauthorizedError => ex
       error(ex.message, 403)
     rescue => ex

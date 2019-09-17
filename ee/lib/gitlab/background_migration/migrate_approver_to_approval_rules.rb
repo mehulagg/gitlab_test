@@ -51,7 +51,7 @@ module Gitlab
           transaction(requires_new: true) do
             yield
           end
-        rescue ActiveRecord::RecordNotUnique
+        rescue ActiveRecord::RecordNotUnique # rubocop: disable SafeEnsureUnique
           if retries > 0
             retries -= 1
             retry

@@ -61,7 +61,6 @@ module Gitlab
         @members_mapper = members_mapper
         @user = user
         @project = project
-        @imported_object_retries = 0
 
         @relation_hash['project_id'] = @project.id
 
@@ -217,12 +216,11 @@ module Gitlab
           existing_or_new_object.importing = true
         end
 
-        existing_or_new_object
-      rescue ActiveRecord::RecordNotUnique
         # as the operation is not atomic, retry in the unlikely scenario an INSERT is
         # performed on the same object between the SELECT and the INSERT
-        @imported_object_retries += 1
-        retry if @imported_object_retries < IMPORTED_OBJECT_MAX_RETRIES
+        ApplicationRecord.safe_ensure_unique(retries: IMPORTED_OBJECT_MAX_RETRIES) do
+          existing_or_new_object
+        end
       end
 
       def update_note_for_missing_author(author_name)

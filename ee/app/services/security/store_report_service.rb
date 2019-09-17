@@ -56,25 +56,27 @@ module Security
       create_params = occurrence.to_hash
         .except(:compare_key, :identifiers, :location, :scanner) # rubocop: disable CodeReuse/ActiveRecord
 
-      begin
+      Vulnerabilities::Occurrence.safe_ensure_unique(
+        on_rescue: -> { project.vulnerabilities.find_by!(find_params) }
+      ) do
         project.vulnerabilities
           .create_with(create_params)
           .find_or_create_by!(find_params)
-      rescue ActiveRecord::RecordNotUnique
-        project.vulnerabilities.find_by!(find_params)
       end
     end
     # rubocop: enable CodeReuse/ActiveRecord
 
     def create_vulnerability_identifier_object(vulnerability, identifier)
-      vulnerability.occurrence_identifiers.find_or_create_by!( # rubocop: disable CodeReuse/ActiveRecord
-        identifier: identifiers_objects[identifier.key])
-    rescue ActiveRecord::RecordNotUnique
+      Vulnerabilities::OccurrenceIdentifier.safe_ensure_unique(on_rescue: nil) do
+        vulnerability.occurrence_identifiers.find_or_create_by!( # rubocop: disable CodeReuse/ActiveRecord
+          identifier: identifiers_objects[identifier.key])
+      end
     end
 
     def create_vulnerability_pipeline_object(vulnerability, pipeline)
-      vulnerability.occurrence_pipelines.find_or_create_by!(pipeline: pipeline) # rubocop: disable CodeReuse/ActiveRecord
-    rescue ActiveRecord::RecordNotUnique
+      Vulnerabilities::OccurrencePipeline.safe_ensure_unique(on_rescue: nil) do
+        vulnerability.occurrence_pipelines.find_or_create_by!(pipeline: pipeline) # rubocop: disable CodeReuse/ActiveRecord
+      end
     end
 
     def scanners_objects

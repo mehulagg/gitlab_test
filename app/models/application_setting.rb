@@ -295,12 +295,11 @@ class ApplicationSetting < ApplicationRecord
   after_commit :expire_performance_bar_allowed_user_ids_cache, if: -> { previous_changes.key?('performance_bar_allowed_group_id') }
 
   def self.create_from_defaults
-    transaction(requires_new: true) do
+    # In case, creation failed due to unique index, we already have an
+    # ApplicationSetting record, so just return it.
+    safe_ensure_unique(on_rescue: -> { current_without_cache }) do
       super
     end
-  rescue ActiveRecord::RecordNotUnique
-    # We already have an ApplicationSetting record, so just return it.
-    current_without_cache
   end
 
   # By default, the backend is Rails.cache, which uses

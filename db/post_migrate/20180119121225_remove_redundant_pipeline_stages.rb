@@ -9,7 +9,7 @@ class RemoveRedundantPipelineStages < ActiveRecord::Migration[4.2]
     remove_redundant_pipeline_stages!
     remove_outdated_index!
     add_unique_index!
-  rescue ActiveRecord::RecordNotUnique
+  rescue ActiveRecord::RecordNotUnique # rubocop: disable SafeEnsureUnique
     retry if (attempts -= 1) > 0
 
     raise StandardError, <<~EOS

@@ -13,11 +13,10 @@ module Gitlab
           self.table_name = 'ci_builds'
           self.inheritance_column = :_type_disabled
 
-          def ensure_stage!(attempts: 2)
-            find_stage || create_stage!
-          rescue ActiveRecord::RecordNotUnique
-            retry if (attempts -= 1) > 0
-            raise
+          def ensure_stage!
+            ApplicationRecord.safe_ensure_unique(retries: 1, on_rescue: -> { raise }) do
+              find_stage || create_stage!
+            end
           end
 
           def find_stage

@@ -10,7 +10,14 @@ module Gitlab
         # This work must be wrapped in a transaction as otherwise we can leave
         # behind incomplete data in the event of an error. This can then lead
         # to duplicate key errors when jobs are retried.
-        MergeRequest.transaction do
+        MergeRequest.safe_ensure_unique(
+          on_rescue: lambda do
+            # It's possible we previously created the MR, but failed when updating
+            # the Git data. In this case we'll just continue working on the
+            # existing row.
+            [project.merge_requests.find_by(iid: iid), true]
+          end
+        ) do
           # When creating merge requests there are a lot of hooks that may
           # run, for many different reasons. Many of these hooks (e.g. the
           # ones used for rendering Markdown) are completely unnecessary and
@@ -30,11 +37,6 @@ module Gitlab
         # It's possible the project has been deleted since scheduling this
         # job. In this case we'll just skip creating the merge request.
         []
-      rescue ActiveRecord::RecordNotUnique
-        # It's possible we previously created the MR, but failed when updating
-        # the Git data. In this case we'll just continue working on the
-        # existing row.
-        [project.merge_requests.find_by(iid: iid), true]
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
