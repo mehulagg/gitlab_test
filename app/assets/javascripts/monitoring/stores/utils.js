@@ -45,7 +45,7 @@ export function groupQueriesByChartInfo(metrics) {
 
     queries.forEach(queryAttrs => {
       accumulator[chartKey].queries.push({
-        metricId: queryAttrs.metric_id ? queryAttrs.metric_id.toString() : null,
+        metricId: queryAttrs.metric_id && queryAttrs.metric_id.toString(),
         ...queryAttrs,
       });
     });
@@ -56,7 +56,7 @@ export function groupQueriesByChartInfo(metrics) {
   return Object.values(metricsByChart);
 }
 
-export const uniqMetricsId = metric => String(metric.metric_id) + String(metric.id);
+export const uniqMetricsId = metric => `${metric.metric_id}_${metric.id}`;
 
 /**
  * Not to confuse with normalizeMetrics (plural)

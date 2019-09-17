@@ -2,6 +2,8 @@ import Vue from 'vue';
 import * as types from './mutation_types';
 import { normalizeMetrics, sortMetrics, normalizeMetric, normalizeQueryResult } from './utils';
 
+const normalizePanel = panel => panel.metrics.map(normalizeMetric);
+
 export default {
   [types.REQUEST_METRICS_DATA](state) {
     state.emptyState = 'loading';
@@ -10,8 +12,6 @@ export default {
   [types.RECEIVE_METRICS_DATA_SUCCESS](state, groupData) {
     state.groups = groupData.map(group => {
       let { metrics = [], panels = [] } = group;
-
-      const normalizePanel = panel => panel.metrics.map(normalizeMetric);
 
       // for backwards compatibility, and to limit Vue template changes:
       // for each group alias panels to metrics

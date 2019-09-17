@@ -12,8 +12,12 @@ describe('groupQueriesByChartInfo', () => {
     ];
 
     output = [
-      { title: 'title', y_label: 'MB', queries: [{ metricId: null }, { metricId: null }] },
-      { title: 'new title', y_label: 'MB', queries: [{ metricId: null }] },
+      {
+        title: 'title',
+        y_label: 'MB',
+        queries: [{ metricId: undefined }, { metricId: undefined }],
+      },
+      { title: 'new title', y_label: 'MB', queries: [{ metricId: undefined }] },
     ];
 
     expect(groupQueriesByChartInfo(input)).toEqual(output);
@@ -21,8 +25,15 @@ describe('groupQueriesByChartInfo', () => {
 
   // Functionality associated with the /additional_metrics endpoint
   it("associates a chart's stringified metric_id with the metric", () => {
-    input = [{ id: 3, title: 'new title', y_label: 'MB', queries: [{}] }];
-    output = [{ id: 3, title: 'new title', y_label: 'MB', queries: [{ metricId: '3' }] }];
+    input = [{ metric_id: 'undefined_3', title: 'new title', y_label: 'MB', queries: [{}] }];
+    output = [
+      {
+        metric_id: 'undefined_3',
+        title: 'new title',
+        y_label: 'MB',
+        queries: [{ metricId: undefined }],
+      },
+    ];
 
     expect(groupQueriesByChartInfo(input)).toEqual(output);
   });
@@ -37,18 +48,20 @@ describe('groupQueriesByChartInfo', () => {
 });
 
 describe('normalizeMetric', () => {
-  it('normalizes metric with different values of id and metric_id', () => {
-    expect(normalizeMetric()).toEqual({ metric_id: 'undefinedundefined' });
-    expect(normalizeMetric(undefined)).toEqual({ metric_id: 'undefinedundefined' });
-    expect(normalizeMetric({ id: 'something' })).toEqual({ metric_id: 'undefinedsomething' });
-    expect(normalizeMetric({ id: 45 })).toEqual({ metric_id: 'undefined45' });
-    expect(normalizeMetric({ metric_id: 5 })).toEqual({ metric_id: '5undefined' });
-    expect(normalizeMetric({ metric_id: 'something' })).toEqual({
-      metric_id: 'somethingundefined',
+  [
+    { args: [], expected: 'undefined_undefined' },
+    { args: [undefined], expected: 'undefined_undefined' },
+    { args: [{ id: 'something' }], expected: 'undefined_something' },
+    { args: [{ id: 45 }], expected: 'undefined_45' },
+    { args: [{ metric_id: 5 }], expected: '5_undefined' },
+    { args: [{ metric_id: 'something' }], expected: 'something_undefined' },
+    {
+      args: [{ metric_id: 5, id: 'system_metrics_kubernetes_container_memory_total' }],
+      expected: '5_system_metrics_kubernetes_container_memory_total',
+    },
+  ].forEach(({ args, expected }) => {
+    it(`normalizes metric to "${expected}" with args=${JSON.stringify(args)}`, () => {
+      expect(normalizeMetric(...args)).toEqual({ metric_id: expected });
     });
-
-    expect(
-      normalizeMetric({ metric_id: 5, id: 'system_metrics_kubernetes_container_memory_total' }),
-    ).toEqual({ metric_id: '5system_metrics_kubernetes_container_memory_total' });
   });
 });
