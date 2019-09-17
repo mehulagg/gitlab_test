@@ -37,7 +37,7 @@ module IncidentManagement
         relate_issues(issue_result[:issue], related_issues) if issue_result[:issue]
       else
         # Open, create system note (or comment?)
-        create_system_note(issue)
+        create_system_note(issue, alert_hash)
       end
     end
 
@@ -46,15 +46,19 @@ module IncidentManagement
       IssueLinks::CreateService.new(issue, User.alert_bot, issue_params).execute
     end
 
-    def create_system_note(issue)
+    def create_system_note(issue, alert_hash)
       # TODO: Find proper data for this
       SystemNoteService.relate_prometheus_alert_issue(
         issue,
         issue.project,
         User.alert_bot,
-        Time.now,
+        alert_start_time(alert_hash),
         'somewhere in the code'
       )
+    end
+
+    def alert_start_time(alert_hash)
+      alert_hash.dig('startsAt')
     end
 
     def create_issue(project, alert_hash)

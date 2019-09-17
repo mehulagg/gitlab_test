@@ -133,7 +133,7 @@ module Projects
 
         def process_incident_issues
           firings.each do |alert|
-            IncidentManagement::ProcessAlertWorker
+            IncidentManagement::ProcessPrometheusAlertWorker
               .perform_async(group_key, alert.to_h)
           end
         end
