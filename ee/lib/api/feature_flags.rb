@@ -90,6 +90,126 @@ module API
         end
       end
 
+      desc 'Enable a feature flag' do
+        detail 'This feature was introduced in GitLab 12.4.'
+        success EE::API::Entities::FeatureFlag
+      end
+      params do
+        requires :name,              type: String
+        requires :environment_scope, type: String
+        requires :strategy,          type: JSON
+      end
+      post ':id/feature_flags/enable', requirements: FEATURE_FLAG_ENDPOINT_REQUIREMETS do
+        authorize_create_feature_flag!
+
+        result = nil
+
+        if feature_flag = user_project.operations_feature_flags.find_by_name(params[:name])
+          scope = feature_flag.scopes.find_by_environment_scope(params[:environment_scope])
+
+          update_params = unless scope
+            {
+              scopes_attributes:[{
+                active: true,
+                environment_scope: params[:environment_scope],
+                strategies: [params[:strategy]]
+              }]
+            }
+          else
+            {
+              scopes_attributes:[{
+                id: scope.id,
+                active: true,
+                strategies: scope.strategies.push(params[:strategy])
+              }]
+            }
+          end
+
+          result = ::FeatureFlags::UpdateService
+            .new(user_project, current_user, update_params)
+            .execute(feature_flag)
+        else
+          create_params = {
+            name: params[:name],
+            scopes_attributes:[{
+              active: false,
+              environment_scope: '*'
+            },{
+              active: true,
+              environment_scope: params[:environment_scope],
+              strategies: [params[:strategy]]
+            }]
+          }
+
+          result = ::FeatureFlags::CreateService
+            .new(user_project, current_user, create_params)
+            .execute
+        end
+
+        if result.nil?
+          render_api_error!('Bad request', 400)
+        elsif result[:status] == :success
+          present result[:feature_flag], with: EE::API::Entities::FeatureFlag
+        else
+          render_api_error!(result[:message], result[:http_status])
+        end
+      end
+
+      desc 'Disable a feature flag' do
+        detail 'This feature was introduced in GitLab 12.4.'
+        success EE::API::Entities::FeatureFlag
+      end
+      params do
+        requires :name,              type: String
+        requires :environment_scope, type: String
+        requires :strategy,          type: JSON
+      end
+      post ':id/feature_flags/disable', requirements: FEATURE_FLAG_ENDPOINT_REQUIREMETS do
+        authorize_create_feature_flag!
+
+        result = nil
+
+        if feature_flag = user_project.operations_feature_flags.find_by_name(params[:name])
+          scope = feature_flag.scopes.find_by_environment_scope(params[:environment_scope])
+
+          not_modified! unless scope
+
+          remained_strategy = scope.strategies.reject { |str| str['name'] == params[:strategy]['name'] && str['parameters'] == params[:strategy]['parameters'] }
+
+          not_modified! if scope.strategies == remained_strategy
+
+          update_params = if remained_strategy.empty?
+            {
+              scopes_attributes:[{
+                id: scope.id,
+                active: false
+              }]
+            }
+          else
+            {
+              scopes_attributes:[{
+                id: scope.id,
+                strategies: remained_strategy
+              }]
+            }
+          end
+
+          result = ::FeatureFlags::UpdateService
+            .new(user_project, current_user, update_params)
+            .execute(feature_flag)
+        else
+          not_modified!
+        end
+
+        if result.nil?
+          render_api_error!('Bad request', 400)
+        elsif result[:status] == :success
+          present result[:feature_flag], with: EE::API::Entities::FeatureFlag
+        else
+          render_api_error!(result[:message], result[:http_status])
+        end
+      end
+
       desc 'Delete a feature flag' do
         detail 'This feature was introduced in GitLab 12.4.'
         success EE::API::Entities::FeatureFlag

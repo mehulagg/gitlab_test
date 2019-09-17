@@ -19,36 +19,30 @@ module FeatureFlag
         end
 
         def enable(thing = true)
-          # TODO: How to control flags?
-          if persisted?
-
-          else
-
-          end
-
-          strategies = if thing == true
-                         { name: 'default', parameters: {} }
-                       else
-                         { name: 'userWithId', parameters: { userIds: sanitized(thing) } }
-                       end
-
-          responce = HTTParty.post(Unleash.create_feature_flag_url,
+          puts "#{self.class.name} - #{__callee__}: 1"
+          response = HTTParty.post(Unleash.enable_feature_flag_url,
             headers: Unleash.request_headers,
             body: { name: @key,
-              scopes_attributes: [{
-                environment_scope: Gitlab.config.unleash.app_name,
-                active: true,
-                strategies: strategies}]}.to_json)
+                    environment_scope: Gitlab.config.unleash.app_name,
+                    strategy: strategy_for(thing).to_json })
 
-          responce.map do |feature_flag|
-            feature = Feature.new(feature_flag[:name])
-            feature.state = 
-            feature
-          end
+          puts "#{self.class.name} - #{__callee__}: 2"
+          Sidekiq.logger.debug("#{self.class.name} - #{__callee__}: response: #{response}")
+
+          puts "#{self.class.name} - #{__callee__}: 3"
+          response
         end
-    
+
         def disable(thing = false)
-          # Not Supported yet (See https://gitlab.com/gitlab-org/gitlab-ee/issues/9566)
+          response = HTTParty.post(Unleash.disable_feature_flag_url,
+            headers: Unleash.request_headers,
+            body: { name: @key,
+                    environment_scope: Gitlab.config.unleash.app_name,
+                    strategy: strategy_for(thing).to_json })
+
+          Sidekiq.logger.debug("#{self.class.name} - #{__callee__}: response: #{response}")
+
+          response
         end
     
         def enable_group(group)
@@ -70,8 +64,12 @@ module FeatureFlag
 
         private
 
-        def enable(thing = true)
-
+        def strategy_for(thing)
+          if thing == true
+            { name: 'default', parameters: {} }
+          else
+            { name: 'userWithId', parameters: { userIds: sanitized(thing) } }
+          end
         end
 
         def client
@@ -125,8 +123,12 @@ module FeatureFlag
           end
         end
 
-        def create_feature_flag_url
-          "#{api_endpoint}/"
+        def enable_feature_flag_url
+          "#{api_endpoint}/enable"
+        end
+
+        def disable_feature_flag_url
+          "#{api_endpoint}/disable"
         end
 
         def api_endpoint

@@ -27,7 +27,6 @@ describe API::FeatureFlags do
       it 'returns feature flags' do
         get api("/projects/#{project.id}/feature_flags", developer)
 
-        puts "#{self.class.name} - #{__callee__}: json_response: #{JSON.pretty_generate(json_response)}"
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response.count).to eq(2)
         expect(json_response.first['name']).to eq(feature_flag_1.name)
@@ -45,9 +44,7 @@ describe API::FeatureFlags do
       it 'returns a feature flag entry' do
         get api("/projects/#{project.id}/feature_flags/#{feature_flag.name}", developer)
 
-        puts "#{self.class.name} - #{__callee__}: json_response: #{JSON.pretty_generate(json_response)}"
         expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response['id']).to eq(feature_flag.id)
         expect(json_response['name']).to eq(feature_flag.name)
         expect(json_response['description']).to eq(feature_flag.description)
       end
@@ -110,6 +107,136 @@ describe API::FeatureFlags do
 
       expect(response).to have_gitlab_http_status(:ok)
       expect(project.operations_feature_flags.last.description).to eq('bbbb')
+    end
+  end
+
+  describe 'POST /projects/:id/feature_flags/enable' do
+    let(:params) do
+      {
+        name: 'awesome-feature',
+        environment_scope: 'production',
+        strategy: { name: 'userWithId', parameters: { userIds: 'Project:1' } }.to_json
+      }
+    end
+
+    context 'when feature flag & scope do not exist yet' do
+      it 'creates a new feature flag and scope' do
+        post api("/projects/#{project.id}/feature_flags/enable", developer), params: params
+
+        expect(response).to have_gitlab_http_status(:created)
+
+        feature_flag = project.operations_feature_flags.last
+        expect(feature_flag.name).to eq(params[:name])
+
+        scope = feature_flag.scopes.find_by_environment_scope(params[:environment_scope])
+        expect(scope.strategies).to eq([JSON.parse(params[:strategy])])
+      end
+    end
+
+    context 'when feature flag exists already' do
+      let!(:feature_flag) { create_flag(project, params[:name]) }
+
+      context 'when environment scope does not exist yet' do
+        it 'creates a new scope' do
+          post api("/projects/#{project.id}/feature_flags/enable", developer), params: params
+
+          expect(response).to have_gitlab_http_status(:created)
+
+          scope = feature_flag.scopes.find_by_environment_scope(params[:environment_scope])
+          expect(scope.strategies).to eq([JSON.parse(params[:strategy])])
+        end
+      end
+
+      context 'when scope exists already' do
+        let(:defined_strategy) { { name: 'userWithId', parameters: { userIds: 'Project:2' }} }
+
+        before do
+          create_scope(feature_flag, params[:environment_scope], true, [defined_strategy])
+        end
+
+        it 'adds an additional strategy param' do
+          post api("/projects/#{project.id}/feature_flags/enable", developer), params: params
+
+          expect(response).to have_gitlab_http_status(:created)
+
+          scope = feature_flag.scopes.find_by_environment_scope(params[:environment_scope])
+          expect(scope.strategies).to eq([defined_strategy.deep_stringify_keys, JSON.parse(params[:strategy])])
+        end
+      end
+    end
+  end
+
+  describe 'POST /projects/:id/feature_flags/disable' do
+    let(:params) do
+      {
+        name: 'awesome-feature',
+        environment_scope: 'production',
+        strategy: { name: 'userWithId', parameters: { userIds: 'Project:1' } }.to_json
+      }
+    end
+
+    context 'when feature flag & scope do not exist yet' do
+      it 'returns not modified' do
+        post api("/projects/#{project.id}/feature_flags/disable", developer), params: params
+
+        expect(response).to have_gitlab_http_status(:not_modified)
+      end
+    end
+
+    context 'when feature flag exists already' do
+      let!(:feature_flag) { create_flag(project, params[:name]) }
+
+      context 'when environment scope does not exist yet' do
+        it 'returns not modified' do
+          post api("/projects/#{project.id}/feature_flags/disable", developer), params: params
+
+          expect(response).to have_gitlab_http_status(:not_modified)
+        end
+      end
+
+      context 'when scope exists already and can find the corresponding one' do
+        let(:defined_strategies) { [{ name: 'userWithId', parameters: { userIds: 'Project:1' }}, { name: 'userWithId', parameters: { userIds: 'Project:2' }}] }
+
+        before do
+          create_scope(feature_flag, params[:environment_scope], true, defined_strategies)
+        end
+
+        it 'removes the strategy from the scope' do
+          post api("/projects/#{project.id}/feature_flags/disable", developer), params: params
+
+          expect(response).to have_gitlab_http_status(:created)
+
+          scope = feature_flag.scopes.find_by_environment_scope(params[:environment_scope])
+          expect(scope.strategies).to eq([{ name: 'userWithId', parameters: { userIds: 'Project:2' }}.deep_stringify_keys])
+        end
+
+        context 'when strategies become empty array afterward' do
+          let(:defined_strategies) { [{ name: 'userWithId', parameters: { userIds: 'Project:1' }}] }
+
+          it 'deactivates the scope' do
+            post api("/projects/#{project.id}/feature_flags/disable", developer), params: params
+  
+            expect(response).to have_gitlab_http_status(:created)
+  
+            scope = feature_flag.scopes.find_by_environment_scope(params[:environment_scope])
+            expect(scope.active).to eq(false)
+          end
+        end
+      end
+
+      context 'when scope exists already but cannot find the corresponding one' do
+        let(:defined_strategy) { { name: 'userWithId', parameters: { userIds: 'Project:2' }} }
+
+        before do
+          create_scope(feature_flag, params[:environment_scope], true, [defined_strategy])
+        end
+
+        it 'returns not modified' do
+          post api("/projects/#{project.id}/feature_flags/disable", developer), params: params
+
+          expect(response).to have_gitlab_http_status(:not_modified)
+        end
+      end
     end
   end
 
