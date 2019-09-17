@@ -574,14 +574,6 @@ describe('mrWidgetOptions', () => {
     it('renders multiple deployments', () => {
       expect(vm.$el.querySelectorAll('.deploy-heading').length).toBe(2);
     });
-
-    it('renders dropdpown with multiple file changes', () => {
-      expect(
-        vm.$el
-          .querySelector('.js-mr-wigdet-deployment-dropdown')
-          .querySelectorAll('.js-filtered-dropdown-result').length,
-      ).toEqual(changes.length);
-    });
   });
 
   describe('pipeline for target branch after merge', () => {

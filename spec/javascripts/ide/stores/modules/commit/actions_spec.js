@@ -437,26 +437,6 @@ describe('IDE commit module actions', () => {
       });
 
       describe('merge request', () => {
-        it('redirects to new merge request page', done => {
-          spyOn(eventHub, '$on');
-
-          store.state.commit.commitAction = consts.COMMIT_TO_NEW_BRANCH;
-          store.state.commit.shouldCreateMR = true;
-
-          store
-            .dispatch('commit/commitChanges')
-            .then(() => {
-              expect(visitUrl).toHaveBeenCalledWith(
-                `webUrl/merge_requests/new?merge_request[source_branch]=${
-                  store.getters['commit/placeholderBranchName']
-                }&merge_request[target_branch]=master&nav_source=webide`,
-              );
-
-              done();
-            })
-            .catch(done.fail);
-        });
-
         it('does not redirect to new merge request page when shouldCreateMR is not checked', done => {
           spyOn(eventHub, '$on');
 
