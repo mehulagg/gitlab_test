@@ -62,6 +62,10 @@ We need to make Docker Registry send notification events to the
    these settings to its configuration. In this case, you will also have to specify
    notification secret in `registry.notification_secret` section of
    `/etc/gitlab/gitlab.rb` file.
+   NOTE: **Note:**
+   If you use GitLab HA, you will also have to specify
+   notification secret in `registry.notification_secret` section of
+   `/etc/gitlab/gitlab.rb` file for every web node.
 
 1. Reconfigure the **primary** node for the change to take effect:
 
