@@ -13,22 +13,21 @@ export default {
     state.groups = groupData.map(group => {
       let { metrics = [], panels = [] } = group;
 
+      // each panel has metric information that needs to be normalized
+      panels = panels.map(panel => ({
+        ...panel,
+        metrics: normalizePanel(panel),
+      }));
+
       // for backwards compatibility, and to limit Vue template changes:
       // for each group alias panels to metrics
       // for each panel alias metrics to queries
       if (state.useDashboardEndpoint) {
         metrics = panels.map(panel => ({
           ...panel,
-          queries: normalizePanel(panel),
-          metrics: normalizePanel(panel),
+          queries: panel.metrics,
         }));
       }
-
-      // each panel has metric information that needs to be normalized
-      panels = panels.map(panel => ({
-        ...panel,
-        metrics: normalizePanel(panel),
-      }));
 
       return {
         ...group,

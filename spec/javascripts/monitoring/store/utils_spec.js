@@ -1,4 +1,4 @@
-import { groupQueriesByChartInfo, normalizeMetric } from '~/monitoring/stores/utils';
+import { groupQueriesByChartInfo, normalizeMetric, uniqMetricsId } from '~/monitoring/stores/utils';
 
 describe('groupQueriesByChartInfo', () => {
   let input;
@@ -15,9 +15,9 @@ describe('groupQueriesByChartInfo', () => {
       {
         title: 'title',
         y_label: 'MB',
-        queries: [{ metricId: undefined }, { metricId: undefined }],
+        queries: [{ metricId: null }, { metricId: null }],
       },
-      { title: 'new title', y_label: 'MB', queries: [{ metricId: undefined }] },
+      { title: 'new title', y_label: 'MB', queries: [{ metricId: null }] },
     ];
 
     expect(groupQueriesByChartInfo(input)).toEqual(output);
@@ -25,15 +25,8 @@ describe('groupQueriesByChartInfo', () => {
 
   // Functionality associated with the /additional_metrics endpoint
   it("associates a chart's stringified metric_id with the metric", () => {
-    input = [{ metric_id: 'undefined_3', title: 'new title', y_label: 'MB', queries: [{}] }];
-    output = [
-      {
-        metric_id: 'undefined_3',
-        title: 'new title',
-        y_label: 'MB',
-        queries: [{ metricId: undefined }],
-      },
-    ];
+    input = [{ id: 3, title: 'new title', y_label: 'MB', queries: [{}] }];
+    output = [{ id: 3, title: 'new title', y_label: 'MB', queries: [{ metricId: '3' }] }];
 
     expect(groupQueriesByChartInfo(input)).toEqual(output);
   });
@@ -62,6 +55,20 @@ describe('normalizeMetric', () => {
   ].forEach(({ args, expected }) => {
     it(`normalizes metric to "${expected}" with args=${JSON.stringify(args)}`, () => {
       expect(normalizeMetric(...args)).toEqual({ metric_id: expected });
+    });
+  });
+});
+
+describe('uniqMetricsId', () => {
+  [
+    { input: { id: 1 }, expected: 'undefined_1' },
+    { input: { metric_id: 2 }, expected: '2_undefined' },
+    { input: { metric_id: 2, id: 21 }, expected: '2_21' },
+    { input: { metric_id: 22, id: 1 }, expected: '22_1' },
+    { input: { metric_id: 'aaa', id: '_a' }, expected: 'aaa__a' },
+  ].forEach(({ input, expected }) => {
+    it(`creates unique metric ID with ${JSON.stringify(input)}`, () => {
+      expect(uniqMetricsId(input)).toEqual(expected);
     });
   });
 });
