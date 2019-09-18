@@ -50,7 +50,7 @@
             %li.issuable-status
               = _('CLOSED')
           - if issue.assignees.any?
-            %li
+            %li{ data: { qa_selector: 'assignees_list' } }
               = render 'shared/issuable/assignees', project: @project, issuable: issue
 
           = render 'shared/issuable_meta_data', issuable: issue
