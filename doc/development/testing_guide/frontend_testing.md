@@ -457,6 +457,22 @@ it('waits for an event', () => {
 });
 ```
 
+##### Expectations
+
+Try to not use methods such as `toBeTruthy`, `toBeFalsy` for expectations because they coercion value to a boolean inside.
+
+```javascript
+// avoid
+expect(true).toBeTruthy();
+```
+
+Instead test for an explicit value.
+
+```javascript
+// prefer
+expect(true).toBe(true);
+```
+
 #### Migrating flaky Karma tests to Jest
 
 Some of our Karma tests are flaky because they access the properties of a shared scope.
