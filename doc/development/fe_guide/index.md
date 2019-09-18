@@ -77,7 +77,7 @@ Read the [frontend's FAQ](frontend_faq.md) for common small pieces of helpful in
 
 See the relevant style guides for our guidelines and for information on linting:
 
-* [JavaScript](style_guide_js.md). Our guide is based on
+* [JavaScript](style/javascript.md). Our guide is based on
 the excellent [Airbnb][airbnb-js-style-guide] style guide with a few small
 changes.
 * [Vue](style/vue.md)
