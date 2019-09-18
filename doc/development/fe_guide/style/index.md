@@ -17,9 +17,3 @@ Our SCSS conventions which are enforced through [scss-lint][scss-lint].
 Guidelines for writing HTML code consistent with the rest of the codebase.
 
 ## [Vue style guide](vue.md)
-
-# Tooling
-
-## [Prettier](prettier.md)
-
-Our code is automatically formatted with [Prettier](https://prettier.io) to follow our guidelines.

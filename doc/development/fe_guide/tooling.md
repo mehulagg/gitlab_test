@@ -1,8 +1,10 @@
-# Formatting with Prettier
+# Tooling
+
+## Formatting with Prettier
 
 Our code is automatically formatted with [Prettier](https://prettier.io) to follow our style guides. Prettier is taking care of formatting .js, .vue, and .scss files based on the standard prettier rules. You can find all settings for Prettier in `.prettierrc`.
 
-## Editor
+### Editor
 
 The easiest way to include prettier in your workflow is by setting up your preferred editor (all major editors are supported) accordingly. We suggest setting up prettier to run automatically when each file is saved. Find [here](https://prettier.io/docs/en/editors.html) the best way to set it up in your preferred editor.
 
@@ -15,7 +17,7 @@ Please take care that you only let Prettier format the same file types as the gl
   ],
 ```
 
-## Yarn Script
+### Yarn Script
 
 The following yarn scripts are available to do global formatting:
 
@@ -45,7 +47,7 @@ Formats all files in the repository with Prettier. (This should only be used to 
 
 The source of these Yarn scripts can be found in `/scripts/frontend/prettier.js`.
 
-### Scripts during Conversion period
+#### Scripts during Conversion period
 
 ```
 node ./scripts/frontend/prettier.js check-all ./vendor/
@@ -59,9 +61,9 @@ node ./scripts/frontend/prettier.js save-all ./vendor/
 
 This will go over all files in a specific folder and save it.
 
-## VSCode Settings
+### VSCode Settings
 
-### Select Prettier as default formatter
+#### Select Prettier as default formatter
 
 To select Prettier as a formatter, add the following properties to your User or Workspace Settings:
 
@@ -79,7 +81,7 @@ To select Prettier as a formatter, add the following properties to your User or 
 }
 ```
 
-### Format on Save
+#### Format on Save
 
 To automatically format your files with Prettier, add the following properties to your User or Workspace Settings:
 

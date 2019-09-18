@@ -84,6 +84,10 @@ changes.
 * [HTML](style/html.md).
 * [Vue](style/vue.md).
 
+## [Tooling](tooling.md)
+
+Our code is automatically formatted with [Prettier](https://prettier.io) to follow our guidelines.
+
 ## [Performance](performance.md)
 
 Best practices for monitoring and maximizing frontend performance.
