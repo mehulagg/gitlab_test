@@ -231,49 +231,14 @@ When declaring multiple globals, always use one `/* global [name] */` line per v
    /* global jQuery */
    ```
 
-## Modules, Imports, and Exports
-
-### Import syntax
-
-Use ES module syntax to import modules
-
-```javascript
-// bad
-const SomeClass = require('some_class');
-
-// good
-import SomeClass from 'some_class';
-
-// bad
-module.exports = SomeClass;
-
-// good
-export default SomeClass;
-```
-
-Import statements are following usual naming guidelines, for example object literals use camel case:
-
-```javascript
-// some_object file
-export default {
-  key: 'value',
-};
-
-// bad
-import ObjectLiteral from 'some_object';
-
-// good
-import objectLiteral from 'some_object';
-```
-
-### IIFEs
+## IIFEs
 
 Avoid using IIFE. Although we have a lot of examples of files which wrap their
 contents in IIFEs (immediately-invoked function expressions),
 this is no longer necessary after the transition from Sprockets to webpack.
 Do not use them anymore and feel free to remove them when refactoring legacy code.
 
-### The global namespace and side effects
+## The global namespace and side effects
 
 Avoid adding to the global namespace.
 
