@@ -29,6 +29,8 @@ class Group < Namespace
   has_many :members_and_requesters, as: :source, class_name: 'GroupMember'
 
   has_many :milestones
+  has_many :group_group_links, foreign_key: :shared_with_group_id
+  has_many :shared_groups, through: :group_group_links, source: :shared_group
   has_many :project_group_links, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_many :shared_projects, through: :project_group_links, source: :project
 
@@ -319,6 +321,13 @@ class Group < Namespace
       .where(source_id: source_ids)
   end
 
+  def shared_group_members
+    shared_with_group_ids = GroupGroupLink.where(shared_group_id: id)
+                                      .select(:shared_with_group_id)
+    GroupMember.active_without_invites_and_requests
+               .where(source_id: shared_with_group_ids)
+  end
+
   def members_with_descendants
     GroupMember
       .active_without_invites_and_requests
@@ -371,11 +380,10 @@ class Group < Namespace
 
     return GroupMember::OWNER if user.admin?
 
-    members_with_parents
-      .where(user_id: user)
-      .reorder(access_level: :desc)
-      .first&.
-      access_level || GroupMember::NO_ACCESS
+    GroupMember.from_union(
+      [members_with_parents.where(user_id: user),
+       shared_group_members.where(user_id: user)]
+    ).reorder(access_level: :desc).first&.access_level || GroupMember::NO_ACCESS
   end
 
   def mattermost_team_params

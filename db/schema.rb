@@ -1689,6 +1689,16 @@ ActiveRecord::Schema.define(version: 2019_09_18_104222) do
     t.index ["key", "value"], name: "index_group_custom_attributes_on_key_and_value"
   end
 
+  create_table "group_group_links", force: :cascade do |t|
+    t.integer "shared_group_id", null: false
+    t.integer "shared_with_group_id", null: false
+    t.integer "group_access", default: 30, null: false
+    t.date "expires_at"
+    t.index ["shared_group_id", "shared_with_group_id"], name: "index_group_group_links_on_shared_group_and_shared_with_group", unique: true
+    t.index ["shared_group_id"], name: "index_group_group_links_on_shared_group_id"
+    t.index ["shared_with_group_id"], name: "index_group_group_links_on_shared_with_group_id"
+  end
+
   create_table "historical_data", id: :serial, force: :cascade do |t|
     t.date "date", null: false
     t.integer "active_user_count"
@@ -3952,6 +3962,8 @@ ActiveRecord::Schema.define(version: 2019_09_18_104222) do
   add_foreign_key "gpg_signatures", "gpg_keys", on_delete: :nullify
   add_foreign_key "gpg_signatures", "projects", on_delete: :cascade
   add_foreign_key "group_custom_attributes", "namespaces", column: "group_id", on_delete: :cascade
+  add_foreign_key "group_group_links", "namespaces", column: "shared_group_id", name: "fk_d3a0488427", on_delete: :cascade
+  add_foreign_key "group_group_links", "namespaces", column: "shared_with_group_id", name: "fk_2b2353ca49", on_delete: :cascade
   add_foreign_key "identities", "saml_providers", name: "fk_aade90f0fc", on_delete: :cascade
   add_foreign_key "import_export_uploads", "projects", on_delete: :cascade
   add_foreign_key "index_statuses", "projects", name: "fk_74b2492545", on_delete: :cascade
