@@ -149,7 +149,7 @@ RSpec.shared_examples "redis_shared_examples" do
 
       it 'returns an array of hashes with host and port keys' do
         is_expected.to include(host: 'localhost', port: sentinel_port)
-        is_expected.to include(host: 'slave2', port: sentinel_port)
+        is_expected.to include(host: 'secondary2', port: sentinel_port)
       end
     end
 
