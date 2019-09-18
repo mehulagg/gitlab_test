@@ -88,7 +88,7 @@ export default {
     :title="tooltipText"
     :class="cssClass"
     :disabled="isDisabled"
-    class="js-ci-action btn btn-blank btn-transparent ci-action-icon-container ci-action-icon-wrapper"
+    class="js-ci-action btn btn-blank btn-transparent ci-action-icon-container ci-action-icon-wrapper text-center p-0"
     @click="onClickAction"
   >
     <gl-loading-icon v-if="isLoading" class="js-action-icon-loading prepend-top-4" />

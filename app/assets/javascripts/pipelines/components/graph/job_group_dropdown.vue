@@ -65,7 +65,7 @@ export default {
       type="button"
       data-toggle="dropdown"
       data-display="static"
-      class="dropdown-menu-toggle build-content"
+      class="dropdown-menu-toggle build-content rounded-0"
     >
       <ci-icon :status="group.status" />
 
@@ -77,7 +77,7 @@ export default {
     </button>
 
     <ul class="dropdown-menu big-pipeline-graph-dropdown-menu js-grouped-pipeline-dropdown">
-      <li class="scrollable-menu">
+      <li class="scrollable-menu p-0">
         <ul>
           <li v-for="job in group.jobs" :key="job.id">
             <job-item

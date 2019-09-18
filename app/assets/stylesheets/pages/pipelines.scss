@@ -1,6 +1,5 @@
 @mixin flat-connector-before($length: 16px) {
   overflow: visible;
-  position: relative;
 
   &::before {
     content: '';
@@ -512,36 +511,19 @@
     width: 240px;
     white-space: normal;
 
-    .ci-job-dropdown-container {
-      // highlight job whose dropdown is shown
-      &.dropdown.show .build-content {
-        background-color: $ci-action-dropdown-expanded-background;
+    .ci-job-dropdown-container.dropdown.show .build-content {
+      background-color: $blue-50;
 
-        &:hover {
-          background-color: $gray-100;
-        }
+      &:hover {
+        background-color: $gray-100;
       }
+    }
 
-      .build-content {
-        border-radius: 0;
-      }
+    .mini-pipeline-graph-dropdown-item {
+      height: 32px;
 
-      // override dropdown.scss
-      .dropdown-menu li {
-        padding: 0;
-
-        button {
-          padding: 0;
-          text-align: center;
-        }
-
-        a {
-          height: 32px;
-
-          &:hover {
-            background-color: $gray-100;
-          }
-        }
+      &:hover {
+        background-color: $gray-100;
       }
     }
 
@@ -588,7 +570,7 @@
       display: block;
 
       &:hover {
-        background-color: $ci-action-icon-hover-background;
+        background-color: $gl-gray-100;
 
         svg {
           fill: $gl-text-color;
@@ -738,26 +720,19 @@ button.mini-pipeline-graph-dropdown-toggle {
   width: 240px;
   max-width: 240px;
 
-  // override dropdown.scss
-  &.dropdown-menu li button,
-  &.dropdown-menu li a.ci-action-icon-container {
-    padding: 0;
-    text-align: center;
-  }
-
   .ci-action-icon-container {
     position: absolute;
     right: 8px;
-    top: 4px;
+    top: 6px;
 
     &.ci-action-icon-wrapper {
       height: $ci-action-dropdown-button-size;
       width: $ci-action-dropdown-button-size;
-      border-radius: $ci-action-icon-border-radius;
+      border-radius: $border-radius-default;
       display: block;
 
       &:hover {
-        background-color: $ci-action-icon-hover-background;
+        background-color: $gl-gray-100;
 
         svg {
           fill: $gl-text-color;
@@ -782,7 +757,6 @@ button.mini-pipeline-graph-dropdown-toggle {
   }
 
   .scrollable-menu {
-    padding: 0;
     max-height: 245px;
     overflow: auto;
   }
@@ -848,6 +822,10 @@ button.mini-pipeline-graph-dropdown-toggle {
   left: 100%;
   top: -10px;
   box-shadow: 0 1px 5px $black-transparent;
+
+  .ci-action-icon-container {
+    top: 4px;
+  }
 }
 
 /**

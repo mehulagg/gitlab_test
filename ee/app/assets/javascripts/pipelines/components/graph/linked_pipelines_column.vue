@@ -29,7 +29,7 @@ export default {
 
 <template>
   <div :class="columnClass" class="stage-column linked-pipelines-column">
-    <ul>
+    <ul class="list-unstyled">
       <linked-pipeline
         v-for="(pipeline, index) in linkedPipelines"
         :key="pipeline.id"

@@ -70,7 +70,7 @@ export default {
           <job-item
             v-if="group.size === 1"
             :job="group.jobs[0]"
-            css-class-job-name="build-content"
+            css-class-job-name="build-content rounded-0"
             @pipelineActionRequestComplete="pipelineActionRequestComplete"
           />
 
