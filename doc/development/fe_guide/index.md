@@ -73,17 +73,21 @@ How we use UI components.
 
 Read the [frontend's FAQ](frontend_faq.md) for common small pieces of helpful information.
 
-## Style Guides
+## [Style Guides](style/index.md)
 
-### [JavaScript Style Guide](style_guide_js.md)
+#### [JavaScript Style Guide](style_guide_js.md)
 
 We use eslint to enforce our JavaScript style guides. Our guide is based on
 the excellent [Airbnb][airbnb-js-style-guide] style guide with a few small
 changes.
 
-### [SCSS Style Guide](style_guide_scss.md)
+#### [SCSS Style Guide](style_guide_scss.md)
 
 Our SCSS conventions which are enforced through [scss-lint][scss-lint].
+
+#### [HTML Style Guide](style/html.md)
+
+The HTML Style Guide can be found here.
 
 ## [Performance](performance.md)
 
