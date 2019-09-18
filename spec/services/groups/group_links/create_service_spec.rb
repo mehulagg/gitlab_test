@@ -81,8 +81,8 @@ describe Groups::GroupLinks::CreateService, '#execute' do
         subject.execute(shared_group)
 
         expect(Ability.allowed?(user, :read_group, shared_group_parent)).to be_falsey
-        expect(Ability.allowed?(user, :read_group, shared_group)).to be_falsey # TODO: implement inheritance for Groups
-        expect(Ability.allowed?(user, :read_group, shared_group_child)).to be_falsey # TODO: implement inheritance for Groups
+        expect(Ability.allowed?(user, :read_group, shared_group)).to be_truthy
+        expect(Ability.allowed?(user, :read_group, shared_group_child)).to be_truthy
 
         expect(Ability.allowed?(user, :read_project, project_parent)).to be_falsey
         expect(Ability.allowed?(user, :read_project, project)).to be_falsey # TODO: implement inheritance for Projects

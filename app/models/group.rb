@@ -321,11 +321,13 @@ class Group < Namespace
       .where(source_id: source_ids)
   end
 
-  def shared_group_members
-    shared_with_group_ids = GroupGroupLink.where(shared_group_id: id)
-                                      .select(:shared_with_group_id)
+  def shared_group_members_with_parents
+    shared_with_group_ids = GroupGroupLink.where(shared_group_id: self_and_ancestors_ids)
+                              .select(:shared_with_group_id)
+    source_ids = Gitlab::ObjectHierarchy.new(self.class.where(id: shared_with_group_ids))
+                   .base_and_ancestors
     GroupMember.active_without_invites_and_requests
-               .where(source_id: shared_with_group_ids)
+      .where(source_id: source_ids)
   end
 
   def members_with_descendants
@@ -382,7 +384,7 @@ class Group < Namespace
 
     GroupMember.from_union(
       [members_with_parents.where(user_id: user),
-       shared_group_members.where(user_id: user)]
+       shared_group_members_with_parents.where(user_id: user)]
     ).reorder(access_level: :desc).first&.access_level || GroupMember::NO_ACCESS
   end
 
