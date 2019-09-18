@@ -77,12 +77,12 @@ Read the [frontend's FAQ](frontend_faq.md) for common small pieces of helpful in
 
 See the relevant style guides for our guidelines and for information on linting:
 
-* [JavaScript](style/javascript.md). Our guide is based on
+- [JavaScript](style/javascript.md). Our guide is based on
 the excellent [Airbnb][airbnb-js-style-guide] style guide with a few small
 changes.
-* [SCSS](style/scss.md). Our SCSS conventions which are enforced through [scss-lint][scss-lint].
-* [HTML](style/html.md).
-* [Vue](style/vue.md).
+- [SCSS](style/scss.md). Our SCSS conventions which are enforced through [scss-lint][scss-lint].
+- [HTML](style/html.md).
+- [Vue](style/vue.md).
 
 ## [Tooling](tooling.md)
 
