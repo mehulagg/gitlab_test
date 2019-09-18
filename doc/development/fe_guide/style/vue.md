@@ -1,6 +1,6 @@
 # Vue.js
 
-## `eslint-vue-plugin`
+## Linting
 
 We default to [eslint-vue-plugin][eslint-plugin-vue], with the `plugin:vue/recommended`.
 Please check this [rules][eslint-plugin-vue-rules] for more documentation.
@@ -404,3 +404,7 @@ The goal of this accord is to make sure we are all on the same page.
 1. When creating tech debt you must write the tests for that code before hand and those tests may not be rewritten. e.g. jQuery tests rewritten to Vue tests.
 1. You may choose to use VueX as a centralized state management. If you choose not to use VueX, you must use the *store pattern* which can be found in the [Vue.js documentation](https://vuejs.org/v2/guide/state-management.html#Simple-State-Management-from-Scratch).
 1. Once you have chosen a centralized state management solution you must use it for your entire application. i.e. Don't mix and match your state management solutions.
+
+[eslint-plugin-vue]: https://github.com/vuejs/eslint-plugin-vue
+[eslint-plugin-vue-rules]: https://github.com/vuejs/eslint-plugin-vue#bulb-rules
+[vue-order]: https://github.com/vuejs/eslint-plugin-vue/blob/master/docs/rules/order-in-components.md

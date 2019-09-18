@@ -301,10 +301,6 @@ See [our current .eslintrc](https://gitlab.com/gitlab-org/gitlab/blob/master/.es
    </button>
    ```
 
-## SCSS
-
-- [SCSS](style_guide_scss.md)
-
 [airbnb-js-style-guide]: https://github.com/airbnb/javascript
 [eslintrc]: https://gitlab.com/gitlab-org/gitlab/blob/master/.eslintrc
 [eslint-plugin-vue]: https://github.com/vuejs/eslint-plugin-vue
