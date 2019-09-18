@@ -8,8 +8,6 @@ We use eslint to enforce our JavaScript style guides. Our guide is based on
 the excellent [Airbnb][airbnb-js-style-guide] style guide with a few small
 changes.
 
-## [Vue style guide](vue.md)
-
 ## [SCSS style guide](scss.md)
 
 Our SCSS conventions which are enforced through [scss-lint][scss-lint].
@@ -18,7 +16,9 @@ Our SCSS conventions which are enforced through [scss-lint][scss-lint].
 
 Guidelines for writing HTML code consistent with the rest of the codebase.
 
-## Tooling
+## [Vue style guide](vue.md)
+
+# Tooling
 
 ## [Prettier](prettier.md)
 
