@@ -6,11 +6,16 @@ module QA
       module Issue
         class Index < Page::Base
           view 'app/views/projects/issues/_issue.html.haml' do
+            element :assignees_list
             element :issue_link, 'link_to issue.title' # rubocop:disable QA/ElementWithPattern
           end
 
           view 'app/views/shared/issuable/_nav.html.haml' do
             element :closed_issues_link
+          end
+
+          def assignees_list
+            find_element(:assignees_list)
           end
 
           def click_issue_link(title)
