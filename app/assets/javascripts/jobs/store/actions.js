@@ -157,22 +157,24 @@ export const fetchTrace = ({ dispatch, state }) =>
       dispatch('toggleScrollisInBottom', isScrolledToBottom());
       dispatch('receiveTraceSuccess', data);
 
-      if (!data.complete) {
-        traceTimeout = setTimeout(() => {
-          dispatch('fetchTrace');
-        }, 4000);
-      } else {
+      // if (!data.complete) {
+      //   traceTimeout = setTimeout(() => {
+      //     dispatch('fetchTrace');
+      //   }, 4000);
+      // } else {
         dispatch('stopPollingTrace');
-      }
+      // }
+
     })
-    .catch(() => dispatch('receiveTraceError'));
+    .catch((e) => dispatch('receiveTraceError', e));
 
 export const stopPollingTrace = ({ commit }) => {
   commit(types.STOP_POLLING_TRACE);
   clearTimeout(traceTimeout);
 };
 export const receiveTraceSuccess = ({ commit }, log) => commit(types.RECEIVE_TRACE_SUCCESS, log);
-export const receiveTraceError = ({ commit }) => {
+export const receiveTraceError = ({ commit }, e) => {
+  console.log(e)
   commit(types.RECEIVE_TRACE_ERROR);
   clearTimeout(traceTimeout);
   flash(__('An error occurred while fetching the job log.'));

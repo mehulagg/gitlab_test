@@ -1,3 +1,5 @@
+import _ from 'underscore';
+import { duration } from 'moment-mini';
 /**
  * Adds the line number property
  * @param Object line
@@ -7,6 +9,38 @@ export const parseLine = (line = {}, lineNumber) => ({
   ...line,
   lineNumber,
 });
+
+export const parseHeaderLine = (line = {}, lineNumber) => ({
+  isClosed: true,
+  isHeader: true,
+  line: parseLine(line, lineNumber),
+  lines: [],
+});
+
+export const parseNestedSection = (parent, line, lineNumber) => {
+  if (line.content.length) {
+    parent.lines.push(parseHeaderLine(line, lineNumber));
+  }
+};
+
+export const addDurationToHeader = (data, durationLine) => {
+  _.flatten(data).find(el => {
+    debugger;
+    if (_.intersection(el.sections, durationLine.sections)) {
+      el.section_duration = durationLine.section_duration;
+    }
+  });
+};
+
+export const addNestedLine = (last, line, lineNumber) => {
+  _.flatten(last.lines).find(el => {
+    if (_.intersection(el.sections, line.sections)) {
+      if (line.content.length) {
+        el.lines.push(parseLine(line, lineNumber));
+      }
+    }
+  });
+};
 
 /**
  * Parses the job log content into a structure usable by the template
@@ -28,16 +62,15 @@ export const logLinesParser = (lines = [], lineNumberStart) =>
     const last = acc[acc.length - 1];
 
     if (line.section_header) {
-      acc.push({
-        isClosed: true,
-        isHeader: true,
-        line: parseLine(line, lineNumber),
-        lines: [],
-      });
-    } else if (acc.length && last.isHeader && !line.section_duration && line.content.length) {
-      last.lines.push(parseLine(line, lineNumber));
-    } else if (acc.length && last.isHeader && line.section_duration) {
-      last.section_duration = line.section_duration;
+      if (last && last.isHeader && _.intersection(line.sections, last.line.sections)) {
+        parseNestedSection(last, line, lineNumber);
+      } else {
+        acc.push(parseHeaderLine(line, lineNumber));
+      }
+    } else if (last && last.isHeader) {
+      addNestedLine(last, line, lineNumber);
+    } else if (line.section_duration) {
+      addDurationToHeader(acc, line);
     } else if (line.content.length) {
       acc.push(parseLine(line, lineNumber));
     }

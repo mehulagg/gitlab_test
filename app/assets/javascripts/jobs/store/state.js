@@ -18,7 +18,8 @@ export default () => ({
   // Used to check if we should keep the automatic scroll
   isScrolledToBottomBeforeReceivingTrace: true,
 
-  trace: isNewJobLogActive() ? [] : '',
+  //trace: isNewJobLogActive() ? [] : '',
+  trace: [],
   originalTrace: [],
   isTraceComplete: false,
   traceSize: 0,

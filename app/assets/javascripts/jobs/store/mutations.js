@@ -2,6 +2,11 @@ import Vue from 'vue';
 import * as types from './mutation_types';
 import { logLinesParser, updateIncrementalTrace, isNewJobLogActive } from './utils';
 
+//todo remove
+import oldLog from '../mock_data/trace';
+import newLog from '../mock_data/trace_incremental';
+import nested from '../mock_data/nested';
+
 export default {
   [types.SET_JOB_ENDPOINT](state, endpoint) {
     state.jobEndpoint = endpoint;
@@ -45,6 +50,11 @@ export default {
       }
       state.traceSize = log.size || state.traceSize;
     }
+
+    // todo remove
+    state.originalTrace = nested.lines;
+    state.trace = logLinesParser(nested.lines);
+    console.log(state.trace);
 
     if (state.traceSize < log.total) {
       state.isTraceSizeVisible = true;

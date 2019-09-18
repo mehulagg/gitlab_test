@@ -20,6 +20,9 @@ import { sprintf } from '~/locale';
 import delayedJobMixin from '../mixins/delayed_job_mixin';
 import { isNewJobLogActive } from '../store/utils';
 
+//todo remove
+import Log from './log/log.vue';
+
 export default {
   name: 'JobPageApp',
   store: createStore(),
@@ -30,7 +33,8 @@ export default {
     EnvironmentsBlock,
     ErasedBlock,
     Icon,
-    Log: () => (isNewJobLogActive() ? import('./job_log_json.vue') : import('./job_log.vue')),
+    Log,
+    // todo uncomment : () => (isNewJobLogActive() ? import('./job_log_json.vue') : import('./job_log.vue')),
     LogTopBar,
     StuckBlock,
     UnmetPrerequisitesBlock,
