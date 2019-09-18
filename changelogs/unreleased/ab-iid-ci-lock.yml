@@ -1,0 +1,5 @@
+---
+title: Avoid unnecessary locks on internal_ids
+merge_request: 17123
+author:
+type: performance
