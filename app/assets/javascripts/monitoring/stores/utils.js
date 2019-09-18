@@ -44,10 +44,17 @@ export function groupQueriesByChartInfo(metrics) {
     accumulator[chartKey] = accumulator[chartKey] || { ...chart, queries: [] };
 
     queries.forEach(queryAttrs => {
-      accumulator[chartKey].queries.push({
-        metricId: queryAttrs.metric_id && queryAttrs.metric_id.toString(),
-        ...queryAttrs,
-      });
+      let metricId;
+
+      if (chart.id) {
+        metricId = chart.id.toString();
+      } else if (queryAttrs.metric_id) {
+        metricId = queryAttrs.metric_id.toString();
+      } else {
+        metricId = null;
+      }
+
+      accumulator[chartKey].queries.push({ metricId, ...queryAttrs });
     });
 
     return accumulator;
