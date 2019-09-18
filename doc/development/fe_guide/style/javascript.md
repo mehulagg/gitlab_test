@@ -180,7 +180,9 @@ are loaded dynamically with webpack.
 Do not use `innerHTML`, `append()` or `html()` to set content. It opens up too many
 vulnerabilities.
 
-## Disabling ESLint in new files
+## Eslint
+
+### Disabling ESLint in new files
 
 Do not disable ESLint when creating new files. Existing files may have existing rules
 disabled due to legacy compatibility reasons but they are in the process of being refactored.
@@ -193,3 +195,183 @@ rules only if you are invoking/instantiating existing code modules.
 
 > Note: Disable these rules on a per line basis. This makes it easier to refactor
 > in the future. E.g. use `eslint-disable-next-line` or `eslint-disable-line`.
+
+### Disabling ESLint for a single violation
+
+If you do need to disable a rule for a single violation, try to do it as locally as possible
+
+   ```javascript
+   // bad
+   /* eslint-disable no-new */
+
+   import Foo from 'foo';
+
+   new Foo();
+
+   // better
+   import Foo from 'foo';
+
+   // eslint-disable-next-line no-new
+   new Foo();
+   ```
+
+### The `no-undef` rule and declaring globals
+
+**Never** disable the `no-undef` rule. Declare globals with `/* global Foo */` instead.
+
+When declaring multiple globals, always use one `/* global [name] */` line per variable.
+
+   ```javascript
+   // bad
+   /* globals Flash, Cookies, jQuery */
+
+   // good
+   /* global Flash */
+   /* global Cookies */
+   /* global jQuery */
+   ```
+
+## Modules, Imports, and Exports
+
+### Import syntax
+
+Use ES module syntax to import modules
+
+```javascript
+// bad
+const SomeClass = require('some_class');
+
+// good
+import SomeClass from 'some_class';
+
+// bad
+module.exports = SomeClass;
+
+// good
+export default SomeClass;
+```
+
+Import statements are following usual naming guidelines, for example object literals use camel case:
+
+```javascript
+// some_object file
+export default {
+  key: 'value',
+};
+
+// bad
+import ObjectLiteral from 'some_object';
+
+// good
+import objectLiteral from 'some_object';
+```
+
+### IIFEs
+
+Avoid using IIFE. Although we have a lot of examples of files which wrap their
+contents in IIFEs (immediately-invoked function expressions),
+this is no longer necessary after the transition from Sprockets to webpack.
+Do not use them anymore and feel free to remove them when refactoring legacy code.
+
+### The global namespace and side effects
+
+Avoid adding to the global namespace.
+
+```javascript
+// bad
+window.MyClass = class { /* ... */ };
+
+// good
+export default class MyClass { /* ... */ }
+```
+
+Side effects are forbidden in any script which contains export
+
+```javascript
+// bad
+export default class MyClass { /* ... */ }
+
+document.addEventListener("DOMContentLoaded", function(event) {
+  new MyClass();
+}
+```
+
+Avoid constructors with side-effects. Although we aim for code without side-effects we need some side-effects for our code to run.
+
+If the class won't do anything if we only instantiate it, it's ok to add side effects into the constructor (_Note:_ The following is just an example. If the only purpose of the class is to add an event listener and handle the callback a function will be more suitable.)
+
+```javascript
+// Bad
+export class Foo {
+  constructor() {
+    this.init();
+  }
+  init() {
+    document.addEventListener('click', this.handleCallback)
+  },
+  handleCallback() {
+
+  }
+}
+
+// Good
+export class Foo {
+  constructor() {
+    document.addEventListener()
+  }
+  handleCallback() {
+  }
+}
+```
+
+On the other hand, if a class only needs to extend a third party/add event listeners in some specific cases, they should be initialized outside of the constructor.
+
+## Data Mutation and Pure functions
+
+1. Strive to write many small pure functions, and minimize where mutations occur.
+
+   ```javascript
+   // bad
+   const values = {foo: 1};
+
+   function impureFunction(items) {
+     const bar = 1;
+
+     items.foo = items.a * bar + 2;
+
+     return items.a;
+   }
+
+   const c = impureFunction(values);
+
+   // good
+   var values = {foo: 1};
+
+   function pureFunction (foo) {
+     var bar = 1;
+
+     foo = foo * bar + 2;
+
+     return foo;
+   }
+
+   var c = pureFunction(values.foo);
+    ```
+
+1. Prefer `.map`, `.reduce` or `.filter` over `.forEach`
+   A forEach will most likely cause side effects, it will be mutating the array being iterated. Prefer using `.map`,
+   `.reduce` or `.filter`
+
+   ```javascript
+   const users = [ { name: 'Foo' }, { name: 'Bar' } ];
+
+   // bad
+   users.forEach((user, index) => {
+     user.id = index;
+   });
+
+   // good
+   const usersWithId = users.map((user, index) => {
+     return Object.assign({}, user, { id: index });
+   });
+   ```

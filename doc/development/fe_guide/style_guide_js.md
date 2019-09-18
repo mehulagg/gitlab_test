@@ -1,17 +1,11 @@
-# Style guides and linting
-
-See the relevant style guides for our guidelines and for information on linting:
-
-## JavaScript
+# JavaScript Style Guide
 
 We defer to [Airbnb][airbnb-js-style-guide] on most style-related
 conventions and enforce them with eslint.
 
 See [our current .eslintrc](https://gitlab.com/gitlab-org/gitlab/blob/master/.eslintrc.yml) for specific rules and patterns.
 
-### Common
-
-#### ESlint
+## ESlint
 
 1. **Never** disable eslint rules unless you have a good reason.
    You may see a lot of legacy files with `/* eslint-disable some-rule, some-other-rule */`
@@ -92,7 +86,7 @@ See [our current .eslintrc](https://gitlab.com/gitlab-org/gitlab/blob/master/.es
    fn(options) {}
    ```
 
-#### Modules, Imports, and Exports
+## Modules, Imports, and Exports
 
 1. Use ES module syntax to import modules
 
@@ -189,7 +183,7 @@ See [our current .eslintrc](https://gitlab.com/gitlab-org/gitlab/blob/master/.es
    }
    ```
 
-#### Data Mutation and Pure functions
+## Data Mutation and Pure functions
 
 1. Strive to write many small pure functions, and minimize where mutations occur.
 
@@ -270,7 +264,7 @@ See [our current .eslintrc](https://gitlab.com/gitlab-org/gitlab/blob/master/.es
    });
    ```
 
-#### Parse Strings into Numbers
+## Parse Strings into Numbers
 
 1. `parseInt()` is preferable over `Number()` or `+`
 
@@ -285,7 +279,7 @@ See [our current .eslintrc](https://gitlab.com/gitlab-org/gitlab/blob/master/.es
    parseInt('10', 10);
    ```
 
-#### CSS classes used for JavaScript
+## CSS classes used for JavaScript
 
 1. If the class is being used in Javascript it needs to be prepend with `js-`
 
