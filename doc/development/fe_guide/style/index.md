@@ -17,3 +17,6 @@ Our SCSS conventions which are enforced through [scss-lint][scss-lint].
 Guidelines for writing HTML code consistent with the rest of the codebase.
 
 ## [Vue style guide](vue.md)
+
+[airbnb-js-style-guide]: https://github.com/airbnb/javascript
+[scss-lint]: https://github.com/brigade/scss-lint
