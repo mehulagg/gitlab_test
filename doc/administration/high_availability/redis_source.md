@@ -40,15 +40,15 @@ This is the section where we install and set up the new Redis instances.
 - Since Redis 3.2, you must define a password to receive external connections
   (`requirepass`).
 - If you are using Redis with Sentinel, you will also need to define the same
-  password for the slave password definition (`masterauth`) in the same instance.
+  password for the secondary password definition (`masterauth`) in the same instance.
 
 In addition, read the prerequisites as described in the
 [Omnibus Redis HA document](redis.md#prerequisites) since they provide some
 valuable information for the general setup.
 
-### Step 1. Configuring the master Redis instance
+### Step 1. Configuring the primary Redis instance
 
-Assuming that the Redis master instance IP is `10.0.0.1`:
+Assuming that the Redis primary instance IP is `10.0.0.1`:
 
 1. [Install Redis](../../install/installation.md#7-redis).
 1. Edit `/etc/redis/redis.conf`:
@@ -72,9 +72,9 @@ Assuming that the Redis master instance IP is `10.0.0.1`:
 
 1. Restart the Redis service for the changes to take effect.
 
-### Step 2. Configuring the slave Redis instances
+### Step 2. Configuring the secondary Redis instances
 
-Assuming that the Redis slave instance IP is `10.0.0.2`:
+Assuming that the Redis secondary instance IP is `10.0.0.2`:
 
 1. [Install Redis](../../install/installation.md#7-redis).
 1. Edit `/etc/redis/redis.conf`:
@@ -95,12 +95,12 @@ Assuming that the Redis slave instance IP is `10.0.0.2`:
    requirepass redis-password-goes-here
    masterauth redis-password-goes-here
 
-   ## Define `slaveof` pointing to the Redis master instance with IP and port.
+   ## Define `slaveof` pointing to the Redis primary instance with IP and port.
    slaveof 10.0.0.1 6379
    ```
 
 1. Restart the Redis service for the changes to take effect.
-1. Go through the steps again for all the other slave nodes.
+1. Go through the steps again for all the other secondary nodes.
 
 ### Step 3. Configuring the Redis Sentinel instances
 
@@ -109,7 +109,7 @@ configuration options you can define in `redis.conf`, with specific ones
 starting with `sentinel` prefix.
 
 Assuming that the Redis Sentinel is installed on the same instance as Redis
-master with IP `10.0.0.1` (some settings might overlap with the master):
+primary with IP `10.0.0.1` (some settings might overlap with the primary):
 
 1. [Install Redis Sentinel](https://redis.io/topics/sentinel)
 1. Edit `/etc/redis/sentinel.conf`:
@@ -131,11 +131,11 @@ master with IP `10.0.0.1` (some settings might overlap with the master):
    masterauth redis-password-goes-here
 
    ## Define with `sentinel auth-pass` the same shared password you have
-   ## defined for both Redis master and slaves instances.
+   ## defined for both Redis primary and secondaries instances.
    sentinel auth-pass gitlab-redis redis-password-goes-here
 
    ## Define with `sentinel monitor` the IP and port of the Redis
-   ## master node, and the quorum required to start a failover.
+   ## primary node, and the quorum required to start a failover.
    sentinel monitor gitlab-redis 10.0.0.1 6379 2
 
    ## Define with `sentinel down-after-milliseconds` the time in `ms`
@@ -146,21 +146,21 @@ master with IP `10.0.0.1` (some settings might overlap with the master):
    ## meanings:
    ##
    ## * The time needed to re-start a failover after a previous failover was
-   ##   already tried against the same master by a given Sentinel, is two
+   ##   already tried against the same primary by a given Sentinel, is two
    ##   times the failover timeout.
    ##
-   ## * The time needed for a slave replicating to a wrong master according
+   ## * The time needed for a secondary replicating to a wrong primary according
    ##   to a Sentinel current configuration, to be forced to replicate
-   ##   with the right master, is exactly the failover timeout (counting since
+   ##   with the right primary, is exactly the failover timeout (counting since
    ##   the moment a Sentinel detected the misconfiguration).
    ##
    ## * The time needed to cancel a failover that is already in progress but
    ##   did not produced any configuration change (SLAVEOF NO ONE yet not
-   ##   acknowledged by the promoted slave).
+   ##   acknowledged by the promoted secondary).
    ##
-   ## * The maximum time a failover in progress waits for all the slaves to be
-   ##   reconfigured as slaves of the new master. However even after this time
-   ##   the slaves will be reconfigured by the Sentinels anyway, but not with
+   ## * The maximum time a failover in progress waits for all the secondaries to be
+   ##   reconfigured as secondaries of the new primary. However even after this time
+   ##   the secondaries will be reconfigured by the Sentinels anyway, but not with
    ##   the exact parallel-syncs progression as specified.
    sentinel failover_timeout 30000
    ```
@@ -203,7 +203,7 @@ setup:
 
 1. [Restart GitLab][restart] for the changes to take effect.
 
-## Example of minimal configuration with 1 master, 2 slaves and 3 Sentinels
+## Example of minimal configuration with 1 primary, 2 secondaries and 3 Sentinels
 
 In this example we consider that all servers have an internal network
 interface with IPs in the `10.0.0.x` range, and that they can connect
@@ -214,26 +214,26 @@ unauthorized access from other machines, and block traffic from the
 outside ([Internet][it]).
 
 For this example, **Sentinel 1** will be configured in the same machine as the
-**Redis Master**, **Sentinel 2** and **Sentinel 3** in the same machines as the
-**Slave 1** and **Slave 2** respectively.
+**Redis Primary**, **Sentinel 2** and **Sentinel 3** in the same machines as the
+**Secondary 1** and **Secondary 2** respectively.
 
 Here is a list and description of each **machine** and the assigned **IP**:
 
-- `10.0.0.1`: Redis Master + Sentinel 1
-- `10.0.0.2`: Redis Slave 1 + Sentinel 2
-- `10.0.0.3`: Redis Slave 2 + Sentinel 3
+- `10.0.0.1`: Redis Primary + Sentinel 1
+- `10.0.0.2`: Redis Secondary 1 + Sentinel 2
+- `10.0.0.3`: Redis Secondary 2 + Sentinel 3
 - `10.0.0.4`: GitLab application
 
 Please note that after the initial configuration, if a failover is initiated
-by the Sentinel nodes, the Redis nodes will be reconfigured and the **Master**
+by the Sentinel nodes, the Redis nodes will be reconfigured and the **Primary**
 will change permanently (including in `redis.conf`) from one node to the other,
 until a new failover is initiated again.
 
 The same thing will happen with `sentinel.conf` that will be overridden after the
-initial execution, after any new sentinel node starts watching the **Master**,
-or a failover promotes a different **Master** node.
+initial execution, after any new sentinel node starts watching the **Primary**,
+or a failover promotes a different **Primary** node.
 
-### Example configuration for Redis master and Sentinel 1
+### Example configuration for Redis primary and Sentinel 1
 
 1. In `/etc/redis/redis.conf`:
 
@@ -257,7 +257,7 @@ or a failover promotes a different **Master** node.
 
 1. Restart the Redis service for the changes to take effect.
 
-### Example configuration for Redis slave 1 and Sentinel 2
+### Example configuration for Redis secondary 1 and Sentinel 2
 
 1. In `/etc/redis/redis.conf`:
 
@@ -282,7 +282,7 @@ or a failover promotes a different **Master** node.
 
 1. Restart the Redis service for the changes to take effect.
 
-### Example configuration for Redis slave 2 and Sentinel 3
+### Example configuration for Redis secondary 2 and Sentinel 3
 
 1. In `/etc/redis/redis.conf`:
 
