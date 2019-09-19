@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import { duration } from 'moment-mini';
+
 /**
  * Adds the line number property
  * @param Object line
@@ -9,7 +9,14 @@ export const parseLine = (line = {}, lineNumber) => ({
   ...line,
   lineNumber,
 });
-
+/**
+ * When a line has `section_header` set to true, we create a new
+ * structure to allow to nest the lines that belong to the
+ * collpasible section
+ *
+ * @param Object line
+ * @param Number lineNumber
+ */
 export const parseHeaderLine = (line = {}, lineNumber) => ({
   isClosed: true,
   isHeader: true,
@@ -17,27 +24,20 @@ export const parseHeaderLine = (line = {}, lineNumber) => ({
   lines: [],
 });
 
-export const parseNestedSection = (parent, line, lineNumber) => {
-  if (line.content.length) {
-    parent.lines.push(parseHeaderLine(line, lineNumber));
-  }
-};
-
+/**
+ * Some `section_duration` information are sent in the end
+ * of the sections.
+ *
+ * This function finds the section it belongs too and adds it to the correct
+ * object
+ *
+ * @param Array data
+ * @param Object durationLine
+ */
 export const addDurationToHeader = (data, durationLine) => {
   _.flatten(data).find(el => {
-    debugger;
-    if (_.intersection(el.sections, durationLine.sections)) {
-      el.section_duration = durationLine.section_duration;
-    }
-  });
-};
-
-export const addNestedLine = (last, line, lineNumber) => {
-  _.flatten(last.lines).find(el => {
-    if (_.intersection(el.sections, line.sections)) {
-      if (line.content.length) {
-        el.lines.push(parseLine(line, lineNumber));
-      }
+    if (el.line && el.line.section === durationLine.section) {
+      el.line.section_duration = durationLine.section_duration;
     }
   });
 };
@@ -56,27 +56,31 @@ export const addNestedLine = (last, line, lineNumber) => {
  * @param {Array} lines
  * @returns {Array}
  */
-export const logLinesParser = (lines = [], lineNumberStart) =>
+export const logLinesParser = (lines = [], lineNumberStart, accumulator = []) =>
   lines.reduce((acc, line, index) => {
     const lineNumber = lineNumberStart ? lineNumberStart + index : index;
     const last = acc[acc.length - 1];
 
     if (line.section_header) {
-      if (last && last.isHeader && _.intersection(line.sections, last.line.sections)) {
-        parseNestedSection(last, line, lineNumber);
+      if (last && last.isHeader && line.section !== last.line.section) {
+        last.lines.push(parseHeaderLine(line, lineNumber));
       } else {
         acc.push(parseHeaderLine(line, lineNumber));
       }
-    } else if (last && last.isHeader) {
-      addNestedLine(last, line, lineNumber);
+    } else if (last && last.isHeader && !line.section && line.section === last.line.section) {
+      last.lines.push(parseLine(line, lineNumber));
     } else if (line.section_duration) {
-      addDurationToHeader(acc, line);
-    } else if (line.content.length) {
+      if (line.section) {
+        addDurationToHeader(acc, line);
+      } else {
+        acc.push(parseLine(line, lineNumber));
+      }
+    } else {
       acc.push(parseLine(line, lineNumber));
     }
 
     return acc;
-  }, []);
+  }, accumulator);
 
 /**
  * When the trace is not complete, backend may send the last received line

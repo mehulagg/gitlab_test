@@ -52,8 +52,8 @@ export default {
     }
 
     // todo remove
-    state.originalTrace = nested.lines;
-    state.trace = logLinesParser(nested.lines);
+    state.originalTrace = oldLog.lines;
+    state.trace = logLinesParser(oldLog.lines);
     console.log(state.trace);
 
     if (state.traceSize < log.total) {
