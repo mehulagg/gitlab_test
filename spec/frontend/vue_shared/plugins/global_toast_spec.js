@@ -12,13 +12,12 @@ describe('Global toast', () => {
     spyFunc.mockRestore();
   });
 
-  it('should pass all args to Vue toasted', () => {
+  it('should call Vue toasted', () => {
     const arg1 = 'TestMessage';
     const arg2 = { className: 'foo' };
 
     toast(arg1, arg2);
 
     expect(Vue.toasted.show).toHaveBeenCalledTimes(1);
-    expect(Vue.toasted.show).toHaveBeenCalledWith(arg1, arg2);
   });
 });
