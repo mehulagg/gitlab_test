@@ -2,7 +2,7 @@
 import { GlModal } from '@gitlab/ui';
 import { sprintf, s__ } from '~/locale';
 import trackUninstallButtonClickMixin from 'ee_else_ce/clusters/mixins/track_uninstall_button_click';
-import { HELM, INGRESS, CERT_MANAGER, PROMETHEUS, RUNNER, KNATIVE, JUPYTER } from '../constants';
+import { HELM, INGRESS, CERT_MANAGER, PROMETHEUS, RUNNER, KNATIVE, JUPYTER, MODSECURITY } from '../constants';
 
 const CUSTOM_APP_WARNING_TEXT = {
   [HELM]: s__(
@@ -21,6 +21,9 @@ const CUSTOM_APP_WARNING_TEXT = {
   ),
   [JUPYTER]: s__(
     'ClusterIntegration|All data not committed to GitLab will be deleted and cannot be restored.',
+  ),
+  [MODSECURITY]: s__(
+    'ClusterIntegration|All data will be deleted and cannot be restored.',
   ),
 };
 

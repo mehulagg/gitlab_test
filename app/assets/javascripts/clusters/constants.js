@@ -44,7 +44,8 @@ export const KNATIVE = 'knative';
 export const RUNNER = 'runner';
 export const CERT_MANAGER = 'cert_manager';
 export const PROMETHEUS = 'prometheus';
+export const MODSECURITY = 'modsecurity';
 
-export const APPLICATIONS = [HELM, INGRESS, JUPYTER, KNATIVE, RUNNER, CERT_MANAGER, PROMETHEUS];
+export const APPLICATIONS = [HELM, INGRESS, JUPYTER, KNATIVE, RUNNER, CERT_MANAGER, PROMETHEUS, MODSECURITY];
 
 export const INGRESS_DOMAIN_SUFFIX = '.nip.io';

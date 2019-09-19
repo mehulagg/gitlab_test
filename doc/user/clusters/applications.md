@@ -35,6 +35,7 @@ The following applications can be installed:
 
 - [Helm](#helm)
 - [Ingress](#ingress)
+- [Modsecurity](#modsecurity)
 - [Cert-Manager](#cert-manager)
 - [Prometheus](#prometheus)
 - [GitLab Runner](#gitlab-runner)
@@ -129,7 +130,7 @@ chart is used to install this application with a
 [`values.yaml`](https://gitlab.com/gitlab-org/gitlab/blob/master/vendor/ingress/values.yaml)
 file.
 
-#### Modsecurity Application Firewall
+### Modsecurity Application Firewall
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/65192) in GitLab 12.3 (enabled using `ingress_modsecurity` [feature flag](../../development/feature_flags/development.md#enabling-a-feature-flag-in-development)).
 

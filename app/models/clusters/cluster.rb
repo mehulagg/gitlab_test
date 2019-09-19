@@ -18,7 +18,8 @@ module Clusters
       Applications::Prometheus.application_name => Applications::Prometheus,
       Applications::Runner.application_name => Applications::Runner,
       Applications::Jupyter.application_name => Applications::Jupyter,
-      Applications::Knative.application_name => Applications::Knative
+      Applications::Knative.application_name => Applications::Knative,
+      Applications::ModSecurity.application_name => Applications::ModSecurity
     }.merge(PROJECT_ONLY_APPLICATIONS).freeze
     DEFAULT_ENVIRONMENT = '*'
     KUBE_INGRESS_BASE_DOMAIN = 'KUBE_INGRESS_BASE_DOMAIN'
@@ -49,6 +50,7 @@ module Clusters
     has_one_cluster_application :runner
     has_one_cluster_application :jupyter
     has_one_cluster_application :knative
+    has_one_cluster_application :modsecurity
 
     has_many :kubernetes_namespaces
 
@@ -76,6 +78,7 @@ module Clusters
     delegate :available?, to: :application_ingress, prefix: true, allow_nil: true
     delegate :available?, to: :application_prometheus, prefix: true, allow_nil: true
     delegate :available?, to: :application_knative, prefix: true, allow_nil: true
+    delegate :available?, to: :application_modsecurity, prefix: true, allow_nil: true
     delegate :external_ip, to: :application_ingress, prefix: true, allow_nil: true
     delegate :external_hostname, to: :application_ingress, prefix: true, allow_nil: true
 

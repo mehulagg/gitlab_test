@@ -12,6 +12,7 @@ import certManagerLogo from 'images/cluster_app_logos/cert_manager.png';
 import knativeLogo from 'images/cluster_app_logos/knative.png';
 import meltanoLogo from 'images/cluster_app_logos/meltano.png';
 import prometheusLogo from 'images/cluster_app_logos/prometheus.png';
+import modsecurityLogo from 'images/cluster_app_logos/modsecurity.png';
 import { s__, sprintf } from '../../locale';
 import applicationRow from './application_row.vue';
 import clipboardButton from '../../vue_shared/components/clipboard_button.vue';
@@ -76,6 +77,7 @@ export default {
     knativeLogo,
     meltanoLogo,
     prometheusLogo,
+    modsecurityLogo,
   }),
   computed: {
     isProjectCluster() {
@@ -145,6 +147,22 @@ export default {
               ${_.escape(s__('ClusterIntegration|GitLab Integration'))}</a>`,
         },
         false,
+      );
+    },
+    modsecurityDescription() {
+      return sprintf(
+        _.escape(
+          s__(
+            `ClusterIntegration|Modsecurity checks incoming requests
+            against the %{crsLink} to protect your application against
+            common exploits.`
+          ),
+        ),
+        {
+          crsLink: `<a href="https://coreruleset.org"
+              target="_blank" rel="noopener noreferrer">
+              ${_.escape(s__('ClusterIntegration|Core Rule Set'))}</a>`,
+        }
       );
     },
     jupyterInstalled() {
@@ -506,6 +524,24 @@ export default {
             @set="setKnativeHostname"
           />
         </div>
+      </application-row>
+      <application-row
+        :id="modsecurity"
+        :logo-url="modsecurityLogo"
+        :title="applications.modsecurity.title"
+        :status="applications.modsecurity.status"
+        :status-reason="applications.modsecurity.statusReason"
+        :request-status="applications.modsecurity.requestStatus"
+        :request-reason="applications.modsecurity.requestReason"
+        :installed="applications.modsecurity.installed"
+        :install-failed="applications.modsecurity.installFailed"
+        :uninstallable="applications.modsecurity.uninstallable"
+        :uninstall-successful="applications.modsecurity.uninstallSuccessful"
+        :uninstall-failed="applications.modsecurity.uninstallFailed"
+        :disabled="!helmInstalled"
+        title-link="https://modsecurity.org/"
+      >
+        <div slot="description" v-html="modsecurityDescription"></div>
       </application-row>
     </div>
   </section>

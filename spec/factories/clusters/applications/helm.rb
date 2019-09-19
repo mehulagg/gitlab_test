@@ -97,5 +97,10 @@ FactoryBot.define do
       oauth_application factory: :oauth_application
       cluster factory: %i(cluster with_installed_helm provided_by_gcp project)
     end
+
+    factory :clusters_applications_modsecurity, class: Clusters::Applications::Modsecurity do
+      oauth_application factory: :oauth_application
+      cluster factory: %i(cluster with_installed_helm provided_by_gcp project)
+    end
   end
 end
