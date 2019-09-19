@@ -3,8 +3,8 @@
 module Gitlab
   module BackgroundMigration
     class BackfillCodeAnalyticsData
-      BACKFILL_FOR_LAST = 6.months
-      FREQUENCY = 1.month
+      NUM_MONTHS_TO_BACKFILL = 6
+      MONTHLY_FREQUENCY = 1
 
       def perform
         projects_with_premium_license.each do |project|
@@ -23,6 +23,14 @@ module Gitlab
       private
 
       def date_range_breakdown
+        beginning_of_current_month = Date.today.at_beginning_of_month
+        end_of_current_month = Date.today.at_end_of_month
+
+        ranges = [beginning_of_current_month..Date.today]
+        (1..NUM_MONTHS_TO_BACKFILL).each do |months|
+          ranges.add ((beginning_of_current_month << months)..(send_of_current_month << months))
+        end
+        ranges
       end
 
       def upsert_repo_file_edits(repo_file, num_edits)
