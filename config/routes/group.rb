@@ -20,6 +20,7 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
       # TODO: Remove as part of refactor in https://gitlab.com/gitlab-org/gitlab-foss/issues/49693
       get 'shared', action: :show, as: :group_shared
       get 'archived', action: :show, as: :group_archived
+      post :export
     end
 
     get '/', action: :show, as: :group_canonical

@@ -264,6 +264,20 @@ module API
           render_api_error!("Failed to transfer project #{project.errors.messages}", 400)
         end
       end
+
+      desc 'Export group'
+      post ":id/export" do
+        authenticated_as_admin!
+        group = find_group!(params[:id])
+
+        if group
+          Gitlab::ImportExport::Group::ExportWorker.perform_async(group.id, current_user.id)
+
+          present group
+        else
+          render_api_error!("Failed to find group", 400)
+        end
+      end
     end
   end
 end

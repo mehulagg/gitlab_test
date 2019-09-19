@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_09_27_074328) do
+ActiveRecord::Schema.define(version: 2019_09_30_102157) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -1712,6 +1712,29 @@ ActiveRecord::Schema.define(version: 2019_09_27_074328) do
     t.string "value", null: false
     t.index ["group_id", "key"], name: "index_group_custom_attributes_on_group_id_and_key", unique: true
     t.index ["key", "value"], name: "index_group_custom_attributes_on_key_and_value"
+  end
+
+  create_table "group_export_parts", id: :serial, force: :cascade do |t|
+    t.bigint "group_export_id", null: false
+    t.string "status"
+    t.string "jid"
+    t.string "last_error"
+    t.string "name", null: false
+    t.jsonb "params", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["group_export_id", "status"], name: "index_group_export_parts_on_group_export_id_and_status"
+    t.index ["group_export_id"], name: "index_group_export_parts_on_group_export_id"
+  end
+
+  create_table "group_exports", id: :serial, force: :cascade do |t|
+    t.bigint "group_id", null: false
+    t.string "status"
+    t.string "last_error"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["group_id", "status"], name: "index_group_exports_on_group_id_and_status"
+    t.index ["group_id"], name: "index_group_exports_on_group_id"
   end
 
   create_table "historical_data", id: :serial, force: :cascade do |t|
