@@ -12,9 +12,13 @@ require 'logger'
 #   remove weight
 #   remove due date
 
-# Prevent creating system notes
 MOVE_DATE = "2019-09-09".to_date.freeze
 MOVE_NOTE_TEXT = "GitLab is moving all development for both GitLab Community Edition"
+
+# Wait for some seconds before executing next batch
+batch_size = 500
+batch_wait = 5
+batch_count = 0
 
 issue_update_params = {
   milestone_id: nil,
@@ -36,6 +40,7 @@ moved_issues_ids =
     .where('note LIKE ?', "%#{MOVE_NOTE_TEXT}%")
 
 issues = Issue.where(id: moved_issues_ids)
+issues_count = issues.count
 
 issues.each_with_index do |issue, index|
   # In case the script fails in the middle this prevents
@@ -43,15 +48,21 @@ issues.each_with_index do |issue, index|
   # Do not check for label_ids or epic_issue because they execute queries.
   next if issue.milestone_id.nil? && issue.weight.nil? && issue.due_date.nil? && issue.discussion_locked?
 
-  logger.info("[#{index + 1}]-------: Disabling issue https://gitlab.com/gitlab-org/gitlab-foss/issues/#{issue.iid}")
+  batch_count += 1
+
+  if (batch_count % batch_size).zero?
+    logger.info("Waiting #{batch_wait} seconds for next batch")
+    sleep batch_wait
+  end
+
+  logger.info("[#{batch_count}/#{issues_count}]-------: Disabling issue https://gitlab.com/gitlab-org/gitlab-foss/issues/#{issue.iid}")
 
   retried = 0
 
   begin
     issue.update(issue_update_params)
-    issue.epic_issue&.destroy
-    issue.label_links&.destroy_all
-
+    issue.epic_issue&.delete
+    issue.label_links&.delete_all
   rescue => error
     next if retried == 3
 
@@ -63,7 +74,3 @@ issues.each_with_index do |issue, index|
     retry
   end
 end
-
-
-
-
