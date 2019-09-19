@@ -1,12 +1,12 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
+import Vuex from 'vuex';
 import List from '~/ide/components/pipelines/list.vue';
 import JobsList from '~/ide/components/jobs/list.vue';
 import Tab from '~/vue_shared/components/tabs/tab.vue';
 import CiIcon from '~/vue_shared/components/ci_icon.vue';
 import { GlLoadingIcon } from '@gitlab/ui';
-import { pipelines } from '../../../../javascripts/ide/mock_data';
 import { TEST_HOST } from 'helpers/test_constants';
-import Vuex from 'vuex';
+import { pipelines } from '../../../../javascripts/ide/mock_data';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -28,7 +28,7 @@ describe('IDE pipelines list', () => {
   const failedStagesGetterMock = jest.fn().mockReturnValue([]);
 
   const createComponent = (state = {}) => {
-    const { pipelines, ...restOfState } = state;
+    const { pipelines: pipelinesState, ...restOfState } = state;
     const { defaultPipelines, ...defaultRestOfState } = defaultState;
 
     const fakeStore = new Vuex.Store({
@@ -42,7 +42,7 @@ describe('IDE pipelines list', () => {
           namespaced: true,
           state: {
             ...defaultPipelines,
-            ...pipelines,
+            ...pipelinesState,
           },
           actions: {
             fetchLatestPipeline: fetchLatestPipelineMock,
