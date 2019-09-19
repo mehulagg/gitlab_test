@@ -3,7 +3,6 @@ import Vuex from 'vuex';
 import List from '~/ide/components/merge_requests/list.vue';
 import Item from '~/ide/components/merge_requests/item.vue';
 import TokenedInput from '~/ide/components/shared/tokened_input.vue';
-import { __ } from '~/locale';
 import { GlLoadingIcon } from '@gitlab/ui';
 
 const localVue = createLocalVue();
@@ -53,10 +52,14 @@ describe('IDE merge requests list', () => {
 
   it('calls fetch on mounted', () => {
     createComponent();
-    expect(fetchMergeRequests).toHaveBeenCalledWith({
-      search: '',
-      type: '',
-    });
+    expect(fetchMergeRequestsMock).toHaveBeenCalledWith(
+      expect.any(Object),
+      {
+        search: '',
+        type: '',
+      },
+      undefined,
+    );
   });
 
   it('renders loading icon when merge request is loading', () => {
@@ -156,7 +159,7 @@ describe('IDE merge requests list', () => {
         const buttons = findSearchTypeButtons();
         expect(
           wrapper.vm.$options.searchTypes.every(
-            ({ label }) => buttons.filter(w => w.text() === label).length > 0,
+            ({ label }) => buttons.filter(w => w.text().trim() === label).length === 1,
           ),
         ).toBe(true);
       });
