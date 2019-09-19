@@ -180,7 +180,7 @@ are loaded dynamically with webpack.
 Do not use `innerHTML`, `append()` or `html()` to set content. It opens up too many
 vulnerabilities.
 
-## Eslint
+## ESLint
 
 ### Disabling ESLint in new files
 
