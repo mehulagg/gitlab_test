@@ -18,10 +18,6 @@ module Analytics
       Hash[*results.flatten]
     end
 
-    def commits
-      Analytics::CodeAnalytics::RepositoryCommit.arel_table
-    end
-
     def files
       Analytics::CodeAnalytics::RepositoryFile.arel_table
     end
@@ -32,13 +28,11 @@ module Analytics
 
     def query
       file_edits
-        .join(commits)
-        .on(commits[:id].eq(file_edits[:analytics_repository_commit_id]))
-        .where(commits[:committed_date].gteq(@from))
-        .where(commits[:committed_date].lteq(@to))
         .join(files)
         .on(files[:id].eq(file_edits[:analytics_repository_file_id]))
         .where(file_edits[:project_id].eq(@project.id))
+        .where(file_edits[:committed_date].gteq(@from))
+        .where(file_edits[:committed_date].lteq(@to))
         .group(files[:file_path])
         .project(files[:file_path], file_edits[:num_edits].sum)
     end

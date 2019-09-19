@@ -16,16 +16,5 @@ describe Analytics::CodeAnalyticsFinder do
         expect(subject).to include(file[:file_path] => repo_file_edits[:num_edits])
       end
     end
-
-    context "with multiple commits on the same file in given timerange" do
-      set(:second_repo_file_edits) { create(:analytics_repository_file_edits, project: project, analytics_repository_file: file, committed_date: Date.today) }
-
-      it "returns a hash of file with summed edits for all commits on the file" do
-        expect(subject).to include(
-          file[:file_path] =>
-            repo_file_edits[:num_edits] + second_repo_file_edits[:num_edits]
-        )
-      end
-    end
   end
 end
