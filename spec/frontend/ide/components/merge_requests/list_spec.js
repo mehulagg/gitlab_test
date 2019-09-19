@@ -69,7 +69,7 @@ describe('IDE merge requests list', () => {
     const input = wrapper.find(TokenedInput);
     input.vm.$emit('input', 'something');
     return wrapper.vm.$nextTick().then(() => {
-      expect(wrapper.text()).toContain(__('No merge requests found'));
+      expect(wrapper.text()).toContain('No merge requests found');
     });
   });
 
