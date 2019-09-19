@@ -74,7 +74,6 @@ module QA
             click_link_with_text user
           end
         end
-
       end
     end
   end
