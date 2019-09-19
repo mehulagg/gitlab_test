@@ -111,7 +111,7 @@ describe('IDE merge requests list', () => {
           mergeRequests: {
             isLoading: false,
             mergeRequests: [
-              { ...mergeRequests[0], projectPathWithNamespace: 'gitlab-org/gitlab-ce' },
+              { ...mergeRequests[0], projectPathWithNamespace: 'gitlab-org/gitlab-foss' },
             ],
           },
         };
