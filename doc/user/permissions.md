@@ -240,7 +240,7 @@ To learn more, read through the documentation on
 
 When a user is given `Guest` permissions on a project and/or group, and holds no
 higher permission level on any other project or group on the instance, the user
-is considered a guest user by GitLab and will not consume a license seat.
+is considered a guest user by GitLab. However, guest users are counted towards a license seat, except for Gold/Ultimate tiers.
 There is no other specific "guest" designation for newly created users.
 
 If the user is assigned a higher role on any projects or groups, the user will
