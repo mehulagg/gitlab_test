@@ -131,6 +131,15 @@ module QA
             has_css?('.tree-holder')
           end
         end
+
+        def file_content(file)
+          click_link_with_text file
+          wait(reload: false) do
+            has_element? :file_content
+          end
+
+          find_element(:file_content).text
+        end
       end
     end
   end

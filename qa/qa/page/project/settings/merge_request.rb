@@ -15,6 +15,10 @@ module QA
             element :radio_button_merge_ff
           end
 
+          view 'app/views/projects/merge_requests/show.html.haml' do
+            element :merge_request_tabs
+          end
+
           def click_save_changes
             click_element :save_merge_request_changes
           end

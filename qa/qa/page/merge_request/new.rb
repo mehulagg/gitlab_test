@@ -30,6 +30,11 @@ module QA
 
         view 'app/views/shared/issuable/form/_metadata_issuable_assignee.html.haml' do
           element :assign_to_me_link
+          element :assignee_selectbox
+        end
+
+        view 'app/views/projects/merge_requests/conflicts/components/_inline_conflict_lines.html.haml' do
+          element :diff_line
         end
 
         def create_merge_request
@@ -60,6 +65,16 @@ module QA
         def assign_to_me
           click_element :assign_to_me_link
         end
+
+        def assign_to_user(user)
+          click_element :assignee_selectbox
+
+          within_element(:dropdown_menu_assignee) do
+            fill_element :dropdown_input_field, user
+            click_link_with_text user
+          end
+        end
+
       end
     end
   end

@@ -24,7 +24,7 @@ module FormHelper
       toggle_class: 'js-user-search js-assignee-search js-multiselect js-save-user-data',
       title: 'Select assignee',
       filter: true,
-      dropdown_class: 'dropdown-menu-user dropdown-menu-selectable dropdown-menu-assignee',
+      dropdown_class: 'dropdown-menu-user dropdown-menu-selectable dropdown-menu-assignee qa-dropdown-menu-assignee',
       placeholder: _('Search users'),
       data: {
         first_user: current_user&.username,
