@@ -32,7 +32,16 @@ const createComponent = (store, props = componentConfig) => {
 describe('GkeProjectIdDropdown', () => {
   let vm;
   let store;
-  window.gapi = gapi();
+
+  let originalGapi;
+  beforeAll(() => {
+    originalGapi = window.gapi;
+    window.gapi = gapi();
+  });
+
+  afterAll(() => {
+    window.gapi = originalGapi;
+  });
 
   beforeEach(() => {
     store = createStore();
