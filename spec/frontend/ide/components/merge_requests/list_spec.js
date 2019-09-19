@@ -53,7 +53,10 @@ describe('IDE merge requests list', () => {
 
   it('calls fetch on mounted', () => {
     createComponent();
-    expect(fetchMergeRequestsMock).toHaveBeenCalled();
+    expect(fetchMergeRequests).toHaveBeenCalledWith({
+      search: '',
+      type: '',
+    });
   });
 
   it('renders loading icon when merge request is loading', () => {
