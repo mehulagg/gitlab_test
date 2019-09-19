@@ -9,8 +9,6 @@ module EE
     extend ActiveSupport::Concern
 
     prepended do
-      after_destroy :log_geo_deleted_event
-
       SECURITY_REPORT_FILE_TYPES = %w[sast dependency_scanning container_scanning dast].freeze
       LICENSE_SCANNING_REPORT_FILE_TYPES = %w[license_management license_scanning].freeze
       DEPENDENCY_LIST_REPORT_FILE_TYPES = %w[dependency_scanning].freeze
@@ -56,6 +54,19 @@ module EE
         return LICENSE_SCANNING_REPORT_FILE_TYPES if LICENSE_SCANNING_REPORT_FILE_TYPES.include?(file_type)
 
         [file_type]
+      end
+    end
+
+    class_methods do
+      extend ::Gitlab::Utils::Override
+
+      override :begin_fast_destroy
+      def begin_fast_destroy
+        find_each.each do |artifact|
+          artifact.log_geo_deleted_event
+        end
+
+        super
       end
     end
 

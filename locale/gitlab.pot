@@ -2284,10 +2284,7 @@ msgstr ""
 msgid "Artifact ID"
 msgstr ""
 
-msgid "Artifact could not be deleted."
-msgstr ""
-
-msgid "Artifact was successfully deleted."
+msgid "Artifact was deleted."
 msgstr ""
 
 msgid "Artifacts"

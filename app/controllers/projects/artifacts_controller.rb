@@ -30,13 +30,9 @@ class Projects::ArtifactsController < Projects::ApplicationController
   end
 
   def destroy
-    notice = if artifact.destroy
-               _('Artifact was successfully deleted.')
-             else
-               _('Artifact could not be deleted.')
-             end
+    project.job_artifacts.where(id: params[:id]).fast_destroy_all # rubocop:disable CodeReuse/ActiveRecord
 
-    redirect_to project_artifacts_path(@project), status: :see_other, notice: notice
+    redirect_to project_artifacts_path(@project), status: :see_other, notice: _('Artifact was deleted.')
   end
 
   def download
