@@ -200,20 +200,20 @@ rules only if you are invoking/instantiating existing code modules.
 
 If you do need to disable a rule for a single violation, try to do it as locally as possible
 
-   ```javascript
-   // bad
-   /* eslint-disable no-new */
+```javascript
+// bad
+/* eslint-disable no-new */
 
-   import Foo from 'foo';
+import Foo from 'foo';
 
-   new Foo();
+new Foo();
 
-   // better
-   import Foo from 'foo';
+// better
+import Foo from 'foo';
 
-   // eslint-disable-next-line no-new
-   new Foo();
-   ```
+// eslint-disable-next-line no-new
+new Foo();
+```
 
 ### The `no-undef` rule and declaring globals
 
@@ -221,15 +221,15 @@ If you do need to disable a rule for a single violation, try to do it as locally
 
 When declaring multiple globals, always use one `/* global [name] */` line per variable.
 
-   ```javascript
-   // bad
-   /* globals Flash, Cookies, jQuery */
+```javascript
+// bad
+/* globals Flash, Cookies, jQuery */
 
-   // good
-   /* global Flash */
-   /* global Cookies */
-   /* global jQuery */
-   ```
+// good
+/* global Flash */
+/* global Cookies */
+/* global jQuery */
+```
 
 ## IIFEs
 
@@ -323,7 +323,8 @@ On the other hand, if a class only needs to extend a third party/add event liste
    var c = pureFunction(values.foo);
     ```
 
-1. Prefer `.map`, `.reduce` or `.filter` over `.forEach`
+1. Prefer `.map`, `.reduce` or `.filter` over `.forEach`.
+
    A forEach will most likely cause side effects, it will be mutating the array being iterated. Prefer using `.map`,
    `.reduce` or `.filter`
 
