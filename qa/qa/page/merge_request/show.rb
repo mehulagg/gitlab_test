@@ -40,6 +40,7 @@ module QA
         view 'app/views/projects/merge_requests/show.html.haml' do
           element :notes_tab
           element :diffs_tab
+          element :merge_request_tabs
         end
 
         view 'app/assets/javascripts/diffs/components/diff_line_gutter_content.vue' do
@@ -79,6 +80,10 @@ module QA
             click_element :merge_immediately_option
           else
             click_element :merge_button
+          end
+
+          wait(reload: false) do
+            find_element(:mr_section_container).has_text? "Merged by"
           end
         end
 
@@ -172,6 +177,9 @@ module QA
 
         def click_diffs_tab
           click_element :diffs_tab
+          wait(reload: false) do
+            has_element? :new_diff_line
+          end
         end
 
         def add_comment_to_diff(text)
@@ -195,6 +203,51 @@ module QA
         def view_plain_diff
           click_element :dropdown_toggle
           visit_link_in_element(:download_plain_diff)
+        end
+
+        def scroll_to_mr_tabs
+          scroll_to_element :merge_request_tabs
+        end
+
+        def go_to_mr(title)
+          click_link_with_text title
+        end
+
+        def open_comment_section
+          wait(interval: 5) do
+            has_text?("No newline at end of file")
+          end
+          all_elements(:new_diff_line).first.hover
+          click_element :diff_comment
+        end
+
+        def click_suggestion_icon
+          click_element :suggestion_btn
+        end
+
+        def add_suggestion(suggestion)
+          click_suggestion_icon
+          fill_element :reply_input, suggestion
+        end
+
+        def submit_comment
+          click_element :reply_comment_button
+        end
+
+        def insert_suggestion(suggestion)
+          scroll_to_mr_tabs
+          click_diffs_tab
+          open_comment_section
+          add_suggestion(suggestion)
+          submit_comment
+        end
+
+        def apply_suggestion
+          scroll_to_mr_tabs
+          click_element :apply_btn
+          wait(reload: false) do
+            find_element(:suggestion_header).has_text? 'Applied'
+          end
         end
       end
     end

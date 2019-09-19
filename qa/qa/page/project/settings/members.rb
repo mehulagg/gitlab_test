@@ -42,8 +42,9 @@ module QA
             click_element :invite_group_button
           end
 
-          def add_member(username)
+          def add_member(username, permission_type = 'Guest')
             select_user :member_select_input, username
+            select_element :select_permission_type, permission_type unless permission_type == 'Guest'
             click_element :add_member_button
           end
 

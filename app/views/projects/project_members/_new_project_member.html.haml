@@ -7,7 +7,7 @@
       .form-group
         = label_tag :access_level, _("Choose a role permission"), class: "label-bold"
         .select-wrapper
-          = select_tag :access_level, options_for_select(ProjectMember.access_level_roles, @project_member.access_level), class: "form-control project-access-select select-control"
+          = select_tag :access_level, options_for_select(ProjectMember.access_level_roles, @project_member.access_level), class: "form-control project-access-select select-control qa-select-permission-type"
           = icon('chevron-down')
         .form-text.text-muted.append-bottom-10
           - permissions_docs_path = help_page_path('user/permissions')

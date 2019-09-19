@@ -8,6 +8,7 @@ module QA
           include Common
 
           view 'app/views/projects/edit.html.haml' do
+            element :merge_request_settings
             element :save_merge_request_changes
           end
 
@@ -15,18 +16,18 @@ module QA
             element :radio_button_merge_ff
           end
 
-          def click_save_changes
-            click_element :save_merge_request_changes
+          view 'app/views/projects/merge_requests/show.html.haml' do
+            element :merge_request_tabs
           end
 
           def enable_ff_only
-            click_element :radio_button_merge_ff
-            click_save_changes
+            expand_section(:merge_request_settings) do
+              click_element :radio_button_merge_ff
+              click_element :save_merge_request_changes
+            end
           end
         end
       end
     end
   end
 end
-
-QA::Page::Project::Settings::MergeRequest.prepend_if_ee("QA::EE::Page::Project::Settings::MergeRequest")

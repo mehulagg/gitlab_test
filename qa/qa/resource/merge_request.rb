@@ -63,15 +63,13 @@ module QA
       end
 
       def fabricate!
-        populate(:target, :source)
-
         project.visit!
         Page::Project::Show.perform(&:new_merge_request)
         Page::MergeRequest::New.perform do |new|
           new.fill_title(@title)
           new.fill_description(@description)
           new.choose_milestone(@milestone) if @milestone
-          new.assign_to_me if @assignee == 'me'
+          @assignee == 'me' ? new.assign_to_me : new.assign_to_user(@assignee)
           labels.each do |label|
             new.select_label(label)
           end
