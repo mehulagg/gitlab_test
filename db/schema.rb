@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_09_14_223900) do
+ActiveRecord::Schema.define(version: 2019_09_18_104222) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -91,6 +91,21 @@ ActiveRecord::Schema.define(version: 2019_09_14_223900) do
     t.date "snapshot_date", null: false
     t.index ["programming_language_id", "project_id", "snapshot_date"], name: "analytics_repository_languages_unique_index", unique: true
     t.index ["project_id"], name: "analytics_repository_languages_on_project_id"
+  end
+
+  create_table "analytics_repository_file_edits", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "analytics_repository_file_id", null: false
+    t.date "committed_date", null: false
+    t.integer "num_edits", default: 0, null: false
+    t.index ["analytics_repository_file_id", "committed_date", "project_id"], name: "index_file_edits_on_committed_date_file_id_and_project_id", unique: true
+    t.index ["project_id"], name: "index_analytics_repository_file_edits_on_project_id"
+  end
+
+  create_table "analytics_repository_files", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.string "file_path", limit: 4096, null: false
+    t.index ["project_id", "file_path"], name: "index_analytics_repository_files_on_project_id_and_file_path", unique: true
   end
 
   create_table "appearances", id: :serial, force: :cascade do |t|
@@ -2120,6 +2135,7 @@ ActiveRecord::Schema.define(version: 2019_09_14_223900) do
     t.index ["latest_closed_by_id"], name: "index_merge_request_metrics_on_latest_closed_by_id"
     t.index ["merge_request_id", "merged_at"], name: "index_merge_request_metrics_on_merge_request_id_and_merged_at", where: "(merged_at IS NOT NULL)"
     t.index ["merge_request_id"], name: "index_merge_request_metrics"
+    t.index ["merged_at", "id"], name: "index_merge_request_metrics_on_merged_at_and_id"
     t.index ["merged_by_id"], name: "index_merge_request_metrics_on_merged_by_id"
     t.index ["pipeline_id"], name: "index_merge_request_metrics_on_pipeline_id"
   end
@@ -3788,6 +3804,9 @@ ActiveRecord::Schema.define(version: 2019_09_14_223900) do
   add_foreign_key "analytics_cycle_analytics_project_stages", "projects", on_delete: :cascade
   add_foreign_key "analytics_language_trend_repository_languages", "programming_languages", on_delete: :cascade
   add_foreign_key "analytics_language_trend_repository_languages", "projects", on_delete: :cascade
+  add_foreign_key "analytics_repository_file_edits", "analytics_repository_files", on_delete: :cascade
+  add_foreign_key "analytics_repository_file_edits", "projects", on_delete: :cascade
+  add_foreign_key "analytics_repository_files", "projects", on_delete: :cascade
   add_foreign_key "application_settings", "namespaces", column: "custom_project_templates_group_id", on_delete: :nullify
   add_foreign_key "application_settings", "projects", column: "file_template_project_id", name: "fk_ec757bd087", on_delete: :nullify
   add_foreign_key "application_settings", "projects", column: "instance_administration_project_id", on_delete: :nullify

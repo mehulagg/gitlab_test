@@ -3,6 +3,8 @@
 class TrialRegistrationsController < RegistrationsController
   extend ::Gitlab::Utils::Override
 
+  layout 'trial'
+
   before_action :check_if_gl_com
   before_action :check_if_improved_trials_enabled
   before_action :set_redirect_url, only: [:new]
@@ -41,6 +43,8 @@ class TrialRegistrationsController < RegistrationsController
   end
 
   def check_if_improved_trials_enabled
-    render_404 unless Feature.enabled?(:improved_trial_signup)
+    unless Feature.enabled?(:improved_trial_signup)
+      redirect_to("#{EE::SUBSCRIPTIONS_URL}/trials/new?gl_com=true")
+    end
   end
 end

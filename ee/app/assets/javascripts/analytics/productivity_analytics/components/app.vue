@@ -73,6 +73,9 @@ export default {
     showMergeRequestTable() {
       return !this.isLoadingTable && this.mergeRequests.length;
     },
+    showMergeRequestTableNoData() {
+      return !this.isLoadingTable && !this.mergeRequests.length;
+    },
     showSecondaryCharts() {
       return !this.chartLoading(chartKeys.main) && this.chartHasData(chartKeys.main);
     },
@@ -93,6 +96,8 @@ export default {
     onMainChartItemClicked({ params }) {
       const itemValue = params.data.value[0];
       this.chartItemClicked({ chartKey: this.chartKeys.main, item: itemValue });
+      // let's reset the page on the MR table
+      this.setMergeRequestsPage(0);
     },
     getColumnChartOption(chartKey) {
       return {
@@ -119,14 +124,14 @@ export default {
       :svg-path="emptyStateSvgPath"
       :description="
         __(
-          'Start by choosing a group to start exploring the merge requests in that group. You can then proceed to filter by projects, labels, milestones, authors and assignees.',
+          'Start by choosing a group to start exploring the merge requests in that group. You can then proceed to filter by projects, labels, milestones and authors.',
         )
       "
     />
     <gl-empty-state
       v-if="hasNoAccessError"
       class="js-empty-state"
-      :title="__('You don’t have acces to Productivity Analaytics in this group')"
+      :title="__('You don’t have access to Productivity Analytics in this group')"
       :svg-path="noAccessSvgPath"
       :description="
         __(
@@ -208,6 +213,13 @@ export default {
                     </span>
                   </gl-dropdown-item>
                 </gl-dropdown>
+                <p class="text-muted">
+                  {{
+                    __(
+                      'Not all data has been processed yet, the accuracy of the chart for the selected timeframe is limited.',
+                    )
+                  }}
+                </p>
                 <gl-column-chart
                   :data="{ full: getChartData(chartKeys.timeBasedHistogram) }"
                   :option="getColumnChartOption(chartKeys.timeBasedHistogram)"
@@ -266,6 +278,13 @@ export default {
                     </span>
                   </gl-dropdown-item>
                 </gl-dropdown>
+                <p class="text-muted">
+                  {{
+                    __(
+                      'Not all data has been processed yet, the accuracy of the chart for the selected timeframe is limited.',
+                    )
+                  }}
+                </p>
                 <gl-column-chart
                   :data="{ full: getChartData(chartKeys.commitBasedHistogram) }"
                   :option="getColumnChartOption(chartKeys.commitBasedHistogram)"
@@ -330,7 +349,7 @@ export default {
             @columnMetricChange="setColumnMetric"
             @pageChange="setMergeRequestsPage"
           />
-          <div v-else class="bs-callout bs-callout-info">
+          <div v-if="showMergeRequestTableNoData" class="js-no-data bs-callout bs-callout-info">
             {{ __('There is no data available. Please change your selection.') }}
           </div>
         </div>
