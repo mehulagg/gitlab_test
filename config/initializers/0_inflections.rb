@@ -23,6 +23,7 @@ ActiveSupport::Inflector.inflections do |inflect|
     vulnerability_feedback
     vulnerabilities_feedback
     group_view
+    file_edits
   )
   inflect.acronym 'EE'
 end
