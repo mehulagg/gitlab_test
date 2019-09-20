@@ -443,8 +443,8 @@ If you are [running GitLab Pages on a separate server](#running-gitlab-pages-on-
 
 1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the main GitLab server for the changes to take effect.
 
-DANGER: **Danger:**
-Do not edit or replace the `gitlab-secrets.json` file on the main server or you might experience permanent data loss. This file contains secrets that control database encryption. As a precaution, before editing this file on the Pages server, make a backup copy: `cp /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json.bak`
+    DANGER: **Danger:**
+    Do not edit or replace the `gitlab-secrets.json` file on the main server or you might experience permanent data loss. This file contains secrets that control database encryption. As a precaution, before editing this file on the Pages server, make a backup copy: `cp /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json.bak`
 
 1. Add `gitlab_pages['gitlab_server'] = 'URL of main GitLab server` to the `/etc/gitlab/gitlab.rb` file on your Pages server.
 
