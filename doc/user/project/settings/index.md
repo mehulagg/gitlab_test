@@ -1,7 +1,7 @@
 # Project settings
 
 NOTE: **Note:**
-Only project Maintainers and Admin users have the [permissions] to access a project
+Only project Maintainers and Admin users have the [permissions] to access project
 settings.
 
 You can adjust your [project](../index.md) settings by navigating
@@ -14,17 +14,28 @@ functionality of a project.
 
 ### General project settings
 
-Adjust your project's name, description, avatar, [default branch](../repository/branches/index.md#default-branch), and topics:
+Adjust your project's name, description, avatar, and topics:
 
 ![general project settings](img/general_settings.png)
 
 The project description also partially supports [standard markdown](../../markdown.md#standard-markdown-and-extensions-in-gitlab). You can use [emphasis](../../markdown.md#emphasis), [links](../../markdown.md#links), and [line-breaks](../../markdown.md#line-breaks) to add more context to the project description.
 
-### Sharing and permissions
+### Visibility, project features, permissions
 
-Set up your project's access, [visibility](../../../public_access/public_access.md), and enable [Container Registry](../../packages/container_registry/index.md) for your projects:
+Set up and customize your project's:
+  - [Visibility](../../../public_access/public_access.md)
+  - [Issue tracking](../index.md)
+  - [Repository](../repository/index.md), including:
+    - [Merge requests](../merge_requests/index.md)
+    - [Pipelines](../../../ci/pipelines.md)
+    - [Large file storage](../../../workflow/lfs/manage_large_binaries_with_git_lfs.md)
+    - [Packages](../../../administration/packages/index.md)
+  - [Wiki](../wiki/index.md)
+  - [Snippets](../../../snippets.md)
+  - [Pages](../pages/index.md)
 
-![projects sharing permissions](img/sharing_and_permissions_settings.png)
+
+  - [Container registry](../../packages/container_registry/index.md)
 
 If Issues are disabled, or you can't access Issues because you're not a project member, then Labels and Milestones
 links will be missing from the sidebar UI.
