@@ -384,15 +384,19 @@ The default is 100MB.
 
 ## Running GitLab Pages on a separate server
 
-You might want to run the GitLab Pages daemon on a separate server in order to decrease the load on your main application server.
+You can run the GitLab Pages daemon on a separate server in order to decrease the load on your main application server.
 To configure GitLab Pages on a separate server:
 
-1. Suppose you have the main GitLab application server named `app1`. Prepare
-   new Linux server (let's call it `app2`), create NFS share there and configure access to
-   this share from `app1`. Let's use the default GitLab Pages folder `/var/opt/gitlab/gitlab-rails/shared/pages`
-   as the shared folder on `app2` and mount it to `/mnt/pages` on `app1`.
+1. Set up a new server. This will become the GitLab Pages server.
+ 
+1. Create an NFS share on the new server and configure this share to
+   allow access from your main GitLab server. For this example, we use the
+   default GitLab Pages folder `/var/opt/gitlab/gitlab-rails/shared/pages`
+   as the shared folder on the new server and we will mount it to `/mnt/pages`
+   on the main GitLab server.
 
-1. On `app2` install GitLab omnibus and modify `/etc/gitlab/gitlab.rb` this way:
+1. On the new server, install GitLab omnibus and modify `/etc/gitlab/gitlab.rb`
+   to include:
 
    ```shell
    external_url 'http://<ip-address-of-the-server>'
@@ -409,16 +413,17 @@ To configure GitLab Pages on a separate server:
    gitlab_rails['auto_migrate'] = false
    ```
 
-1. Run `sudo gitlab-ctl reconfigure`.
-1. On `app1` apply the following changes to `/etc/gitlab/gitlab.rb`:
+1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the new GitLab Pages server for the changes to take effect.
+
+1. On the main GitLab server, make the following changes to `/etc/gitlab/gitlab.rb`:
 
    ```shell
    gitlab_pages['enable'] = false
-   pages_external_url "http://<your-pages-domain>"
+   pages_external_url "http://<your-pages-server-URL>"
    gitlab_rails['pages_path'] = "/mnt/pages"
    ```
 
-1. Run `sudo gitlab-ctl reconfigure`.
+1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the main GitLab server for the changes to take effect.
 
 ### Access control when running GitLab Pages on a separate server
 
@@ -446,7 +451,7 @@ If you are [running GitLab Pages on a separate server](#running-gitlab-pages-on-
     DANGER: **Danger:**
     Do not edit or replace the `gitlab-secrets.json` file on the main server or you might experience permanent data loss. This file contains secrets that control database encryption. As a precaution, before editing this file on the Pages server, make a backup copy: `cp /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json.bak`
 
-1. Add `gitlab_pages['gitlab_server'] = 'URL of main GitLab server` to the `/etc/gitlab/gitlab.rb` file on your Pages server.
+1. Add `gitlab_pages['gitlab_server'] = `http://<your-pages-server-URL>` to the `/etc/gitlab/gitlab.rb` file on your Pages server.
 
 1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the Pages server for the changes to take effect.
 
