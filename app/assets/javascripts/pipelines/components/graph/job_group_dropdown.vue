@@ -65,7 +65,7 @@ export default {
       type="button"
       data-toggle="dropdown"
       data-display="static"
-      class="dropdown-menu-toggle build-content rounded-0"
+      class="dropdown-menu-toggle build-content"
     >
       <ci-icon :status="group.status" />
 

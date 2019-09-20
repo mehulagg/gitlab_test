@@ -5,7 +5,7 @@
     content: '';
     position: absolute;
     top: 24px;
-    left: -$length;
+    left: -($length + 1); //accounts for 1px border
     border-top: 1px solid $border-color;
     width: $length;
     height: 1px;
@@ -14,13 +14,15 @@
 
 @mixin build-content() {
   display: inline-block;
-  padding: $gl-padding-12 $gl-padding;
+  padding: $gl-padding-12;
+  padding-left: $gl-padding;
   width: 100%;
   border: 1px solid $border-color;
+  border-radius: 0;
   background-color: $white-light;
 
   &:not(.linked-pipeline-content) {
-    height: 50px;
+    height: 48px;
     border-top: 0;
   }
 
@@ -479,7 +481,7 @@
     }
 
     >:last-child,
-    li:last-child a {
+    .build:last-child .build-content {
       border-bottom-left-radius: $border-radius-default;
       border-bottom-right-radius: $border-radius-default;
     }
@@ -496,6 +498,7 @@
   }
 
   .stage-name {
+    height: $pipeline-graph-header-height;
     padding: $gl-padding;
     font-weight: $gl-font-weight-bold;
     line-height: $gl-line-height;
@@ -508,7 +511,7 @@
 
   .build {
     position: relative;
-    width: 240px;
+    width: $pipeline-graph-column-width;
     white-space: normal;
 
     .ci-job-dropdown-container.dropdown.show .build-content {
@@ -520,7 +523,7 @@
     }
 
     .mini-pipeline-graph-dropdown-item {
-      height: 32px;
+      height: $pipeline-dropdown-item-height;
 
       &:hover {
         background-color: $gray-100;
@@ -600,8 +603,10 @@
 
 // Triggers the dropdown in the big pipeline graph
 .dropdown-counter-badge {
-  font-weight: 100;
-  font-size: 14px;
+  font-weight: 200;
+  font-size: $gl-font-size;
+  line-height: $gl-line-height;
+  min-width: 16px;
   position: absolute;
   right: 14px;
   top: 13px;
