@@ -14,11 +14,12 @@ require 'logger'
 
 MOVE_DATE = "2019-09-09".to_date.freeze
 MOVE_NOTE_TEXT = "GitLab is moving all development for both GitLab Community Edition"
+BATCH_SIZE = 1000.freeze
+BATCH_WAIT = 3.freeze
 
-# Wait for some seconds before executing next batch
-batch_size = 500
-batch_wait = 5
-batch_count = 0
+rows_updated = BATCH_SIZE
+
+Issue.include(EachBatch)
 
 issue_update_params = {
   milestone_id: nil,
@@ -31,38 +32,36 @@ logger = Logger.new(STDOUT)
 user_id = User.find_by(username: 'gitlab-bot').id
 source_project_id = Project.find_by_full_path('gitlab-org/gitlab-foss').id
 
-moved_issues_ids =
-  Note.select(:noteable_id)
-    .where(project_id: source_project_id)
-    .where(author_id: user_id)
-    .where(noteable_type: 'Issue')
-    .where('created_at >= ?', MOVE_DATE)
-    .where('note LIKE ?', "%#{MOVE_NOTE_TEXT}%")
+moved_issues =
+  ActiveRecord::Base.transaction do
+    ActiveRecord::Base.connection.execute("SET LOCAL statement_timeout = '3min'")
 
-issues = Issue.where(id: moved_issues_ids)
-issues_count = issues.count
-
-issues.each_with_index do |issue, index|
-  # In case the script fails in the middle this prevents
-  # running queries again for the already disabled ones.
-  # Do not check for label_ids or epic_issue because they execute queries.
-  next if issue.milestone_id.nil? && issue.weight.nil? && issue.due_date.nil? && issue.discussion_locked?
-
-  batch_count += 1
-
-  if (batch_count % batch_size).zero?
-    logger.info("Waiting #{batch_wait} seconds for next batch")
-    sleep batch_wait
+      Note.select(:noteable_id)
+        .where(project_id: source_project_id)
+        .where(author_id: user_id)
+        .where(noteable_type: 'Issue')
+        .where('created_at >= ?', MOVE_DATE)
+        .where('note LIKE ?', "%#{MOVE_NOTE_TEXT}%")
   end
 
-  logger.info("[#{batch_count}/#{issues_count}]-------: Disabling issue https://gitlab.com/gitlab-org/gitlab-foss/issues/#{issue.iid}")
+issues = Issue.where(id: moved_issues)
+issues_count = issues.count
 
+issues.each_batch(of: BATCH_SIZE) do |batch|
   retried = 0
 
   begin
-    issue.update(issue_update_params)
-    issue.epic_issue&.delete
-    issue.label_links&.delete_all
+    logger.info("Processing #{rows_updated} of #{issues_count}....")
+
+    batch.update_all(issue_update_params)
+    EpicIssue.where(issue_id: batch).delete_all
+    LabelLink.where(target_type: 'Issue', target_id: batch).delete_all
+
+    logger.info("Waiting #{BATCH_WAIT} seconds for next batch.")
+
+    sleep BATCH_WAIT
+
+    rows_updated += BATCH_SIZE
   rescue => error
     next if retried == 3
 
