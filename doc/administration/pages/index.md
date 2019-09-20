@@ -307,6 +307,42 @@ Pages access control is disabled by default. To enable it:
 1. [Reconfigure GitLab][reconfigure].
 1. Users can now configure it in their [projects' settings](../../user/project/pages/introduction.md#gitlab-pages-access-control-core-only).
 
+### Access control on a separate server
+
+If you have followed [Running GitLab Pages in a separate server](#running-gitlab-pages-in-a-separate-server), then the procedure you need to follow for access control differs a little.
+
+1. On your main gitlab server you need to add:
+
+    ```ruby
+    gitlab_pages['enable'] = true
+    gitlab_pages['access_control'] = true
+    ```
+
+1. [Reconfigure GitLab on your main server](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
+
+    ```ruby
+    gitlab_pages['enable'] = false
+    ```
+
+1. After your server has been reconfigured, you need to replace the `/etc/gitlab/gitlab-secrets.json` file on the **secondaries** with the same file from the **main server**.
+1. Disable pages on the main server:
+
+    ```ruby
+    gitlab_pages['enable'] = false
+    ```
+
+1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
+
+DANGER: **Danger:**
+Do not edit or replace `gitlab-secrets.json` file on the main server under any circumstances! Losing secrets in that file can lead to permanent data loss due to encryption in the database. Before editing it on pages server ensure to make a copy: `cp /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json.bak`.
+
+1. Add `gitlab_pages['gitlab_server'] = 'URL of primary server` on your secondary servers.
+
+NOTE: **Note:**
+The `gitlab_pages['gitlab_server']` option was added in GitLab 12.0. In prior versions, `gitlab_pages['auth_server']` provided the same functionality. Use the correct option for your version of GitLab.
+
+1. [Reconfigure your GitLab Pages server](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
+
 ### Running behind a proxy
 
 Like the rest of GitLab, Pages can be used in those environments where external
