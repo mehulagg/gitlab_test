@@ -422,7 +422,7 @@ To configure GitLab Pages on a separate server:
 
 ### Access control when running GitLab Pages on a separate server
 
-If you are [Running GitLab Pages on a separate server](#running-Gitlab-pages-on-a-separate-server), then you must use the following procedure to configure access control:
+If you are [running GitLab Pages on a separate server](#running-Gitlab-pages-on-a-separate-server), then you must use the following procedure to configure access control:
 
 1. On your main GitLab server, add the following to the `/etc/gitlab/gitlab.rb` file:
 
