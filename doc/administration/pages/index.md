@@ -384,7 +384,7 @@ The default is 100MB.
 
 ## Running GitLab Pages on a separate server
 
-You may want to run the GitLab Pages daemon on a separate server in order to decrease the load on your main application server.
+You might want to run the GitLab Pages daemon on a separate server in order to decrease the load on your main application server.
 To configure GitLab Pages on a separate server:
 
 1. Suppose you have the main GitLab application server named `app1`. Prepare
