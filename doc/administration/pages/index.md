@@ -388,7 +388,7 @@ You can run the GitLab Pages daemon on a separate server in order to decrease th
 To configure GitLab Pages on a separate server:
 
 1. Set up a new server. This will become the GitLab Pages server.
- 
+
 1. Create an NFS share on the new server and configure this share to
    allow access from your main GitLab server. For this example, we use the
    default GitLab Pages folder `/var/opt/gitlab/gitlab-rails/shared/pages`
