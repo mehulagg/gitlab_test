@@ -15,7 +15,8 @@ module IncidentManagement
         link_issues(project, event, alert_hash)
       else
         # If NO existing issues - create
-        create_issue(project, alert_hash)
+        issue = create_issue(project, alert_hash)&.dig(:issue)
+        relate_issue_to_event(event, issue) if issue
       end
     end
 
@@ -33,11 +34,20 @@ module IncidentManagement
       if issue.closed?
         related_issues = event.related_issues
         # YES, and closed - create & link
-        issue_result = create_issue(project, alert_hash)
-        relate_issues(issue_result[:issue], related_issues) if issue_result[:issue]
+        new_issue = create_issue(project, alert_hash)&.dig(:issue)
+        if new_issue
+          relate_issue_to_event(event, new_issue)
+          relate_issues(new_issue, related_issues)
+        end
       else
         # Open, create system note (or comment?)
         create_system_note(issue, alert_hash)
+      end
+    end
+
+    def relate_issue_to_event(event, issue)
+      if !event.related_issues.include?(issue)
+        event.related_issues << issue
       end
     end
 

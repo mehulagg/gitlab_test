@@ -245,7 +245,7 @@ module EE
     end
 
     def relate_prometheus_alert_issue(noteable, project, author, time, error_details)
-      body = "Alert with the same `groupKey` fired at <time?> on <location of error?>"
+      body = "Alert with the same `groupKey` fired at #{time}."
 
       create_note(NoteSummary.new(noteable, project, author, body, action: nil))
     end

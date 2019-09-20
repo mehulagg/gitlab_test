@@ -66,21 +66,21 @@ class PrometheusAlertEvent < ApplicationRecord
     find_or_initialize_by(project: project, prometheus_alert: alert, payload_key: payload_key)
   end
 
-  def self.find_by_payload_key(payload_key)
-    find_by(payload_key: payload_key)
+  def self.find_by_payload_key(key)
+    find_by(payload_key: payload_key_for(key))
   end
 
   def self.status_value_for(name)
     state_machines[:status].states[name].value
   end
 
-  def self.payload_key_for(group_key)
-    Digest::SHA1.hexdigest(group_key) if group_key
+  def self.payload_key_for(payload_key)
+    Digest::SHA1.hexdigest(payload_key) if payload_key
   end
 
   def last_related_issue
     strong_memoize(:last_related_issue) do
-      related_issues.order(created_at: :asc).first
+      related_issues.order(created_at: :desc).first
     end
   end
 end
