@@ -8,115 +8,130 @@ module API
       FEATURE_FLAG_ENDPOINT_REQUIREMETS = API::NAMESPACE_OR_PROJECT_REQUIREMENTS
           .merge(name: API::NO_SLASH_URL_PART_REGEX)
 
-      before { authorize_read_feature_flag! }
+      before { authorize_read_feature_flags! }
 
       params do
         requires :id, type: String, desc: 'The ID of a project'
-        requires :name, type: String, desc: 'The name of the feature flag'
       end
-      resource 'projects/:id/feature_flags/:name/scopes', requirements: FEATURE_FLAG_ENDPOINT_REQUIREMETS do
-        desc 'Get all scopes of a feature flag' do
+      resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
+        desc 'Get all effective scopes under the project' do
           detail 'This feature was introduced in GitLab 12.4.'
-          success EE::API::Entities::FeatureFlag::Scope
+          success EE::API::Entities::FeatureFlag::DetailedScope
         end
         params do
-          use :pagination
+          requires :environment_scope, type: String, desc: 'The environment scope'
         end
-        get do
-          present paginate(feature_flag.scopes), with: EE::API::Entities::FeatureFlag::Scope
+        get ':id/feature_flag_scopes' do
+          present scopes_for_environment, with: EE::API::Entities::FeatureFlag::DetailedScope
         end
 
-        desc 'Get a scope of a feature flag' do
-          detail 'This feature was introduced in GitLab 12.4.'
-          success EE::API::Entities::FeatureFlag::Scope
-        end
         params do
-          requires :scope_id, type: String
+          requires :name, type: String, desc: 'The name of the feature flag'
         end
-        get ':scope_id' do
-          present scope, with: EE::API::Entities::FeatureFlag::Scope
-        end
-
-        desc 'Create a new scope for a feature flag' do
-          detail 'This feature was introduced in GitLab 12.4.'
-          success EE::API::Entities::FeatureFlag::Scope
-        end
-        params do
-          requires :environment_scope, type: String
-          requires :active, type: Boolean
-          requires :strategies, type: JSON
-        end
-        post do
-          authorize_update_feature_flag!
-
-          param = { scopes_attributes: [declared_params(include_missing: false)] }
-
-          result = ::FeatureFlags::UpdateService
-            .new(user_project, current_user, param)
-            .execute(feature_flag)
-
-          if result[:status] == :success
-            present result[:feature_flag].scopes.last, with: EE::API::Entities::FeatureFlag::Scope
-          else
-            render_api_error!(result[:message], result[:http_status])
+        resource ':id/feature_flags/:name/scopes', requirements: FEATURE_FLAG_ENDPOINT_REQUIREMETS do
+          desc 'Get all scopes of a feature flag' do
+            detail 'This feature was introduced in GitLab 12.4.'
+            success EE::API::Entities::FeatureFlag::Scope
           end
-        end
-
-        desc 'Update a scope of a feature flag' do
-          detail 'This feature was introduced in GitLab 12.4.'
-          success EE::API::Entities::FeatureFlag::Scope
-        end
-        params do
-          requires :scope_id, type: String
-          optional :environment_scope, type: String
-          optional :active, type: Boolean
-          optional :strategies, type: JSON
-        end
-        put ':scope_id' do
-          authorize_update_feature_flag!
-
-          param = declared_params(include_missing: false)
-          param[:id] = param.delete(:scope_id)
-          param = { scopes_attributes: [param] }
-
-          result = ::FeatureFlags::UpdateService
-            .new(user_project, current_user, param)
-            .execute(feature_flag)
-
-          if result[:status] == :success
-            present scope.reload, with: EE::API::Entities::FeatureFlag::Scope
-          else
-            render_api_error!(result[:message], result[:http_status])
+          params do
+            use :pagination
           end
-        end
-
-        desc 'Delete a scope from a feature flag' do
-          detail 'This feature was introduced in GitLab 12.4.'
-          success EE::API::Entities::FeatureFlag::Scope
-        end
-        params do
-          optional :scope_id,         type: String, desc: 'The scope'
-        end
-        delete ':scope_id' do
-          authorize_update_feature_flag!
-
-          param = { scopes_attributes: [{ id: scope.id, _destroy: 1 }] }
-
-          result = ::FeatureFlags::UpdateService
-            .new(user_project, current_user, param)
-            .execute(feature_flag)
-
-          if result[:status] == :success
+          get do
+            present paginate(feature_flag.scopes), with: EE::API::Entities::FeatureFlag::Scope
+          end
+  
+          desc 'Get a scope of a feature flag' do
+            detail 'This feature was introduced in GitLab 12.4.'
+            success EE::API::Entities::FeatureFlag::Scope
+          end
+          params do
+            requires :scope_id, type: String
+          end
+          get ':scope_id' do
             present scope, with: EE::API::Entities::FeatureFlag::Scope
-          else
-            render_api_error!(result[:message], result[:http_status])
+          end
+  
+          desc 'Create a new scope for a feature flag' do
+            detail 'This feature was introduced in GitLab 12.4.'
+            success EE::API::Entities::FeatureFlag::Scope
+          end
+          params do
+            requires :environment_scope, type: String
+            requires :active, type: Boolean
+            requires :strategies, type: JSON
+          end
+          post do
+            authorize_update_feature_flag!
+  
+            param = { scopes_attributes: [declared_params(include_missing: false)] }
+  
+            result = ::FeatureFlags::UpdateService
+              .new(user_project, current_user, param)
+              .execute(feature_flag)
+  
+            if result[:status] == :success
+              present result[:feature_flag].scopes.last, with: EE::API::Entities::FeatureFlag::Scope
+            else
+              render_api_error!(result[:message], result[:http_status])
+            end
+          end
+  
+          desc 'Update a scope of a feature flag' do
+            detail 'This feature was introduced in GitLab 12.4.'
+            success EE::API::Entities::FeatureFlag::Scope
+          end
+          params do
+            requires :scope_id, type: String
+            optional :environment_scope, type: String
+            optional :active, type: Boolean
+            optional :strategies, type: JSON
+          end
+          put ':scope_id' do
+            authorize_update_feature_flag!
+  
+            param = declared_params(include_missing: false)
+            param[:id] = param.delete(:scope_id)
+            param = { scopes_attributes: [param] }
+  
+            result = ::FeatureFlags::UpdateService
+              .new(user_project, current_user, param)
+              .execute(feature_flag)
+  
+            if result[:status] == :success
+              present scope.reload, with: EE::API::Entities::FeatureFlag::Scope
+            else
+              render_api_error!(result[:message], result[:http_status])
+            end
+          end
+  
+          desc 'Delete a scope from a feature flag' do
+            detail 'This feature was introduced in GitLab 12.4.'
+            success EE::API::Entities::FeatureFlag::Scope
+          end
+          params do
+            optional :scope_id,         type: String, desc: 'The scope'
+          end
+          delete ':scope_id' do
+            authorize_update_feature_flag!
+  
+            param = { scopes_attributes: [{ id: scope.id, _destroy: 1 }] }
+  
+            result = ::FeatureFlags::UpdateService
+              .new(user_project, current_user, param)
+              .execute(feature_flag)
+  
+            if result[:status] == :success
+              present scope, with: EE::API::Entities::FeatureFlag::Scope
+            else
+              render_api_error!(result[:message], result[:http_status])
+            end
           end
         end
       end
 
       helpers do
-        def authorize_read_feature_flag!
-          authorize! :read_feature_flag, feature_flag
+        def authorize_read_feature_flags!
+          authorize! :read_feature_flag, user_project
         end
 
         def authorize_update_feature_flag!
@@ -129,6 +144,10 @@ module API
 
         def scope
           @scope ||= feature_flag.scopes.find_by_id!(params[:scope_id])
+        end
+
+        def scopes_for_environment
+          Operations::FeatureFlagScope.for_unleash_client(user_project, params[:environment_scope])
         end
       end
     end

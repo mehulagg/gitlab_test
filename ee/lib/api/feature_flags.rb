@@ -23,7 +23,7 @@ module API
       end
       get ':id/feature_flags' do
         feature_flags = ::FeatureFlagsFinder
-          .new(user_project, current_user, scope: params[:scope])
+          .new(user_project, current_user, params)
           .execute(preload: true)
 
         present paginate(feature_flags), with: EE::API::Entities::FeatureFlag
@@ -90,7 +90,7 @@ module API
         end
       end
 
-      desc 'Enable a feature flag' do
+      desc 'Enable a feature flag for an environment with strategy' do
         detail 'This feature was introduced in GitLab 12.4.'
         success EE::API::Entities::FeatureFlag
       end
@@ -99,7 +99,7 @@ module API
         requires :environment_scope, type: String
         requires :strategy,          type: JSON
       end
-      post ':id/feature_flags/enable', requirements: FEATURE_FLAG_ENDPOINT_REQUIREMETS do
+      post ':id/feature_flags/:name/enable', requirements: FEATURE_FLAG_ENDPOINT_REQUIREMETS do
         authorize_create_feature_flag!
 
         result = nil
@@ -155,7 +155,7 @@ module API
         end
       end
 
-      desc 'Disable a feature flag' do
+      desc 'Disable a feature flag for an environment with strategy' do
         detail 'This feature was introduced in GitLab 12.4.'
         success EE::API::Entities::FeatureFlag
       end
@@ -164,7 +164,7 @@ module API
         requires :environment_scope, type: String
         requires :strategy,          type: JSON
       end
-      post ':id/feature_flags/disable', requirements: FEATURE_FLAG_ENDPOINT_REQUIREMETS do
+      post ':id/feature_flags/:name/disable', requirements: FEATURE_FLAG_ENDPOINT_REQUIREMETS do
         authorize_create_feature_flag!
 
         result = nil

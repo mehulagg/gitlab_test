@@ -800,6 +800,10 @@ module EE
           expose :updated_at
         end
 
+        class DetailedScope < Scope
+          expose :name
+        end
+
         expose :name
         expose :description
         expose :created_at

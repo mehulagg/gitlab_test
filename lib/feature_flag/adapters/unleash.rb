@@ -4,14 +4,20 @@ module FeatureFlag
   module Adapters
     class Unleash
       class Feature
-        attr_reader :key
+        attr_accessor :active
+        attr_accessor :strategies
+        attr_reader :name
 
-        def initialize(key)
-          @key = key.to_s
+        alias_attribute :state, :active
+
+        Gate = Struct.new(:key, :value)
+
+        def initialize(name)
+          @name = name.to_s
         end
 
         def enabled?(thing = nil)
-          client.is_enabled?(key, context(thing))
+          client.is_enabled?(name, context(thing))
         end
 
         def off?(thing = nil)
@@ -19,30 +25,19 @@ module FeatureFlag
         end
 
         def enable(thing = true)
-          puts "#{self.class.name} - #{__callee__}: 1"
-          response = HTTParty.post(Unleash.enable_feature_flag_url,
+          HTTParty.post(Unleash.enable_feature_flag_url(name),
             headers: Unleash.request_headers,
-            body: { name: @key,
+            body: { name: name,
                     environment_scope: Gitlab.config.unleash.app_name,
                     strategy: strategy_for(thing).to_json })
-
-          puts "#{self.class.name} - #{__callee__}: 2"
-          Sidekiq.logger.debug("#{self.class.name} - #{__callee__}: response: #{response}")
-
-          puts "#{self.class.name} - #{__callee__}: 3"
-          response
         end
 
         def disable(thing = false)
-          response = HTTParty.post(Unleash.disable_feature_flag_url,
+          HTTParty.post(Unleash.disable_feature_flag_url(name),
             headers: Unleash.request_headers,
-            body: { name: @key,
+            body: { name: name,
                     environment_scope: Gitlab.config.unleash.app_name,
                     strategy: strategy_for(thing).to_json })
-
-          Sidekiq.logger.debug("#{self.class.name} - #{__callee__}: response: #{response}")
-
-          response
         end
     
         def enable_group(group)
@@ -59,7 +54,18 @@ module FeatureFlag
 
         def persisted?
           toggles = ::Unleash.toggles
-          toggles.present? && toggles.any? { |toggle| toggle['name'] == @key }
+          toggles.present? && toggles.any? { |toggle| toggle['name'] == name }
+        end
+
+        def gates
+          @gates ||= strategies.map { |strategy| Gate.new(strategy['name'], strategy['parameters']) }
+        end
+
+        def gate_values
+          @gate_values ||= strategies.inject({}) do |hash, strategy|
+            hash[strategy['name']] = strategy['parameters'].to_s
+            hash
+          end
         end
 
         private
@@ -97,8 +103,17 @@ module FeatureFlag
         end
 
         def all
-          # TODO: Wrap in Feature
-          Unleash.toggles
+          response = HTTParty.get(get_feature_flag_scopes_url,
+            headers: request_headers,
+            query: { environment_scope: Gitlab.config.unleash.app_name }
+          )
+
+          response.map do |scope|
+            feature = Feature.new(scope['name'])
+            feature.active = scope['active']
+            feature.strategies = scope['strategies']
+            feature
+          end
         end
 
         def get(key)
@@ -122,21 +137,25 @@ module FeatureFlag
           end
         end
 
-        def enable_feature_flag_url
-          "#{api_endpoint}/enable"
+        def get_feature_flag_scopes_url
+          "#{api_endpoint}/feature_flag_scopes"
         end
 
-        def disable_feature_flag_url
-          "#{api_endpoint}/disable"
+        def enable_feature_flag_url(key)
+          "#{api_endpoint}/feature_flags/#{key}/enable"
+        end
+
+        def disable_feature_flag_url(key)
+          "#{api_endpoint}/feature_flags/#{key}/disable"
         end
 
         def api_endpoint
           strong_memoize(:api_endpoint) do
             api_url, project_id = Gitlab.config.unleash.url
-              .scan( %r{(https?://.*/api/v4/)feature_flags/unleash/(\d+)} )
+              .scan( %r{(https?://.*/api/v4)/feature_flags/unleash/(\d+)} )
               .first
 
-            "#{api_url}/projects/#{project_id}/feature_flags"
+            "#{api_url}/projects/#{project_id}/"
           end
         end
 
