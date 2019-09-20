@@ -5,7 +5,7 @@ import mergeRequestMutation from './mutations/merge_request';
 import fileMutations from './mutations/file';
 import treeMutations from './mutations/tree';
 import branchMutations from './mutations/branch';
-import { sortTree, escapeFileUrl, swapInStateArray } from './utils';
+import { sortTree, escapeFileUrl, swapInStateArray, swapInParentTreeWithSorting } from './utils';
 
 export default {
   [types.SET_INITIAL_DATA](state, data) {
@@ -237,7 +237,6 @@ export default {
       name: newName,
       url: newUrl,
       key: oldEntry.key.replace(new RegExp(oldEntry.path, 'g'), newPath),
-
       parentPath: parentPath || oldEntry.parentPath,
     };
 
@@ -256,7 +255,7 @@ export default {
       ...prevProps,
     });
 
-    Vue.delete(state.entries, oldEntry.path);
+    swapInParentTreeWithSorting(state, oldEntry.path, newPath, parentPath);
 
     if (oldEntry.type === 'blob') {
       if (oldEntry.opened) {
@@ -265,15 +264,50 @@ export default {
       swapInStateArray(state, 'changedFiles', oldEntry.key, newPath);
     }
 
-    const parent = parentPath
-      ? state.entries[parentPath]
-      : state.trees[`${state.currentProjectId}/${state.currentBranchId}`];
+    Vue.delete(state.entries, oldEntry.path);
+  },
 
-    if (parent) {
-      const tree = parent.tree.filter(entry => entry.key !== oldEntry.key);
+  [types.REVERT_RENAME_ENTRY](state, path) {
+    const oldEntry = state.entries[path];
+    const baseProps = {
+      ...oldEntry,
+      id: oldEntry.prevId,
+      path: oldEntry.prevPath,
+      name: oldEntry.prevName,
+      url: oldEntry.prevUrl,
+      key: oldEntry.prevKey,
+    };
 
-      parent.tree = sortTree(tree.concat(state.entries[newPath]));
+    const prevProps = {
+      prevId: undefined,
+      prevPath: undefined,
+      prevName: undefined,
+      prevUrl: undefined,
+      prevKey: undefined,
+    };
+
+    Vue.set(state.entries, baseProps.path, {
+      ...baseProps,
+      ...prevProps,
+    });
+
+    swapInParentTreeWithSorting(state, oldEntry.path, baseProps.path, oldEntry.parentPath);
+
+    if (oldEntry.type === 'blob') {
+      if (oldEntry.opened) {
+        swapInStateArray(state, 'openFiles', oldEntry.key, baseProps.path);
+      }
+
+      if (oldEntry.changed) {
+        swapInStateArray(state, 'changedFiles', oldEntry.key, baseProps.path);
+      } else {
+        Object.assign(state, {
+          changedFiles: state.changedFiles.filter(f => f.key !== oldEntry.key),
+        });
+      }
     }
+
+    Vue.delete(state.entries, oldEntry.path);
   },
 
   ...projectMutations,

@@ -449,4 +449,123 @@ describe('Multi-file store utils', () => {
       expect(localState.dummyArray[0]).toBe(file1);
     });
   });
+
+  describe('swapInParentTreeWithSorting', () => {
+    let localState;
+    let branchInfo;
+    const currentProjectId = '123-foo';
+    const currentBranchId = 'master';
+
+    beforeEach(() => {
+      localState = {
+        currentBranchId,
+        currentProjectId,
+        trees: {
+          [`${currentProjectId}/${currentBranchId}`]: {
+            tree: [],
+          },
+        },
+        entries: {
+          oldPath: file('oldPath', 'oldPath', 'blob'),
+          newPath: file('newPath', 'newPath', 'blob'),
+          parentPath: file('parentPath', 'parentPath', 'tree'),
+        },
+      };
+      branchInfo = localState.trees[`${currentProjectId}/${currentBranchId}`];
+    });
+
+    it('does not change tree if newPath is not supplied', () => {
+      branchInfo.tree = [localState.entries.oldPath];
+
+      utils.swapInParentTreeWithSorting(localState, 'oldPath', undefined, undefined);
+
+      expect(branchInfo.tree).toEqual([localState.entries.oldPath]);
+    });
+
+    describe('oldPath to replace is not defined: simple addition to tree', () => {
+      it('adds to tree on the state if there is no parent for the entry', () => {
+        expect(branchInfo.tree.length).toBe(0);
+
+        utils.swapInParentTreeWithSorting(localState, undefined, 'oldPath', undefined);
+
+        expect(branchInfo.tree.length).toBe(1);
+        expect(branchInfo.tree[0].name).toBe('oldPath');
+
+        utils.swapInParentTreeWithSorting(localState, undefined, 'newPath', undefined);
+
+        expect(branchInfo.tree.length).toBe(2);
+        expect(branchInfo.tree).toEqual([
+          jasmine.objectContaining({ name: 'newPath' }),
+          jasmine.objectContaining({ name: 'oldPath' }),
+        ]);
+      });
+
+      it('adds to parent tree if it is supplied', () => {
+        utils.swapInParentTreeWithSorting(localState, undefined, 'newPath', 'parentPath');
+
+        expect(localState.entries.parentPath.tree.length).toBe(1);
+        expect(localState.entries.parentPath.tree).toEqual([
+          jasmine.objectContaining({ name: 'newPath' }),
+        ]);
+
+        localState.entries.parentPath.tree = [localState.entries.oldPath];
+
+        utils.swapInParentTreeWithSorting(localState, undefined, 'newPath', 'parentPath');
+
+        expect(localState.entries.parentPath.tree.length).toBe(2);
+        expect(localState.entries.parentPath.tree).toEqual([
+          jasmine.objectContaining({ name: 'newPath' }),
+          jasmine.objectContaining({ name: 'oldPath' }),
+        ]);
+      });
+    });
+
+    describe('swapping of the items', () => {
+      it('swaps entries if both paths are supplied', () => {
+        branchInfo.tree = [localState.entries.oldPath];
+
+        utils.swapInParentTreeWithSorting(localState, 'oldPath', 'newPath');
+
+        expect(branchInfo.tree).toEqual([jasmine.objectContaining({ name: 'newPath' })]);
+
+        utils.swapInParentTreeWithSorting(localState, 'newPath', 'oldPath');
+
+        expect(branchInfo.tree).toEqual([jasmine.objectContaining({ name: 'oldPath' })]);
+      });
+
+      it('sorts tree after swapping the entries', () => {
+        const alpha = file('alpha', 'alpha', 'blob');
+        const beta = file('beta', 'beta', 'blob');
+        const gamma = file('gamma', 'gamma', 'blob');
+        const theta = file('theta', 'theta', 'blob');
+        localState.entries = { alpha, beta, gamma, theta };
+
+        branchInfo.tree = [alpha, beta, gamma];
+
+        utils.swapInParentTreeWithSorting(localState, 'alpha', 'theta');
+
+        expect(branchInfo.tree).toEqual([
+          jasmine.objectContaining({ name: 'beta' }),
+          jasmine.objectContaining({ name: 'gamma' }),
+          jasmine.objectContaining({ name: 'theta' }),
+        ]);
+
+        utils.swapInParentTreeWithSorting(localState, 'gamma', 'alpha');
+
+        expect(branchInfo.tree).toEqual([
+          jasmine.objectContaining({ name: 'alpha' }),
+          jasmine.objectContaining({ name: 'beta' }),
+          jasmine.objectContaining({ name: 'theta' }),
+        ]);
+
+        utils.swapInParentTreeWithSorting(localState, 'beta', 'gamma');
+
+        expect(branchInfo.tree).toEqual([
+          jasmine.objectContaining({ name: 'alpha' }),
+          jasmine.objectContaining({ name: 'gamma' }),
+          jasmine.objectContaining({ name: 'theta' }),
+        ]);
+      });
+    });
+  });
 });

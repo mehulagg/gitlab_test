@@ -218,3 +218,21 @@ export const swapInStateArray = (state, arr, key, newPath) =>
   Object.assign(state, {
     [arr]: state[arr].filter(f => f.key !== key).concat(state.entries[newPath]),
   });
+
+export const swapInParentTreeWithSorting = (state, existingPath, newPath, parentPath) => {
+  if (!newPath) {
+    return;
+  }
+  const existingEntry = state.entries[existingPath];
+  const parent = parentPath
+    ? state.entries[parentPath]
+    : state.trees[`${state.currentProjectId}/${state.currentBranchId}`];
+
+  if (parent) {
+    const tree = existingEntry? parent.tree.filter(entry => entry.key !== existingEntry.key): parent.tree;
+
+    if (!tree.find(f => f.path === newPath)) {
+      parent.tree = sortTree(tree.concat(state.entries[newPath]));
+    }
+  }
+};
