@@ -35,16 +35,7 @@ export default {
       @toggleLine="handleOnClickCollapsibleLine(section)"
     />
     <template v-if="!section.isClosed">
-      <template v-for="line in section.lines">
-        <collpasible-log-section
-          v-if="line.isHeader"
-          :key="`collapsible-nested-${line.offset}`"
-          :section="line"
-          :trace-endpoint="traceEndpoint"
-          @handleOnClickCollapsibleLine="handleOnClickCollapsibleLine"
-        />
-        <log-line v-else :key="line.offset" :line="line" :path="traceEndpoint" />
-      </template>
+      <log-line v-for="line in section.lines" :key="line.offset" :line="line" :path="traceEndpoint" />
     </template>
   </div>
 </template>

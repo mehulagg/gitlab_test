@@ -54,6 +54,8 @@ export default {
     // todo remove
     state.originalTrace = oldLog.lines;
     state.trace = logLinesParser(oldLog.lines);
+
+    state.trace = updateIncrementalTrace(newLog.lines, state.trace);
     console.log(state.trace);
 
     if (state.traceSize < log.total) {

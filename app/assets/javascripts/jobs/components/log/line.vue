@@ -17,6 +17,11 @@ export default {
       required: true,
     },
   },
+  computed: {
+    hasContent() {
+      return this.line.content && this.line.content.length;
+    },
+  },
 };
 </script>
 
@@ -31,7 +36,7 @@ export default {
     <duration-badge
       v-if="line.section_duration"
       :duration="line.section_duration"
-      :class="{'float-right' : !line.content.length}"
+      :class="{'float-right' : !hasContent}"
     />
   </div>
 </template>
