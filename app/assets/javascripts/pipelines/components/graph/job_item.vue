@@ -1,6 +1,6 @@
 <script>
 import ActionComponent from './action_component.vue';
-import JobNameComponent from './job_name_component.vue';
+import ciIcon from '../../../vue_shared/components/ci_icon.vue';
 import { GlTooltipDirective, GlLink } from '@gitlab/ui';
 import { sprintf } from '~/locale';
 import delayedJobMixin from '~/jobs/mixins/delayed_job_mixin';
@@ -33,7 +33,7 @@ import delayedJobMixin from '~/jobs/mixins/delayed_job_mixin';
 export default {
   components: {
     ActionComponent,
-    JobNameComponent,
+    ciIcon,
     GlLink,
   },
   directives: {
@@ -105,33 +105,27 @@ export default {
 </script>
 <template>
   <div class="ci-job-component">
-    <gl-link
-      v-if="status.has_details"
+    <component
+      :is="status.has_details ? 'gl-link' : 'div'"
       v-gl-tooltip="{ boundary, placement: 'bottom' }"
       :href="status.details_path"
       :title="tooltipText"
       :class="cssClassJobName"
-      class="js-pipeline-graph-job-link qa-job-link"
+      class="js-pipeline-graph-job-link qa-job-link w-100 d-flex flex-row align-items-center"
     >
-      <job-name-component :name="job.name" :status="job.status" />
-    </gl-link>
+      <ci-icon :status="job.status" />
 
-    <div
-      v-else
-      v-gl-tooltip="{ boundary, placement: 'bottom' }"
-      :title="tooltipText"
-      :class="cssClassJobName"
-      class="js-job-component-tooltip non-details-job-component"
-    >
-      <job-name-component :name="job.name" :status="job.status" />
-    </div>
+      <span class="ci-status-text text-truncate gl-pl-2 flex-grow-1">
+        {{ job.name }}
+      </span>
 
-    <action-component
-      v-if="hasAction"
-      :tooltip-text="status.action.title"
-      :link="status.action.path"
-      :action-icon="status.action.icon"
-      @pipelineActionRequestComplete="pipelineActionRequestComplete"
-    />
+      <action-component
+        v-if="hasAction"
+        :tooltip-text="status.action.title"
+        :link="status.action.path"
+        :action-icon="status.action.icon"
+        @pipelineActionRequestComplete="pipelineActionRequestComplete"
+      />
+    </component>
   </div>
 </template>

@@ -65,11 +65,11 @@ export default {
       type="button"
       data-toggle="dropdown"
       data-display="static"
-      class="dropdown-menu-toggle build-content"
+      class="dropdown-menu-toggle build-content d-flex flex-row align-items-center"
     >
       <ci-icon :status="group.status" />
 
-      <span class="ci-status-text text-truncate mw-70p gl-pl-1 d-inline-block align-middle">
+      <span class="ci-status-text text-truncate gl-pl-2 flex-grow-1">
         {{ group.name }}
       </span>
 

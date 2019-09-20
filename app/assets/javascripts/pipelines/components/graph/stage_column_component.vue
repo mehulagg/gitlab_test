@@ -47,14 +47,16 @@ export default {
 </script>
 <template>
   <li class="stage-column">
-    <div class="stage-name position-relative">
-      {{ title }}
+    <div class="stage-name position-relative d-flex flex-row align-items-center">
+      <span class="flex-grow-1">
+        {{ title }}
+      </span>
       <action-component
         v-if="hasAction"
         :action-icon="action.icon"
         :tooltip-text="action.title"
         :link="action.path"
-        class="js-stage-action stage-action position-absolute rounded"
+        class="js-stage-action stage-action rounded"
         @pipelineActionRequestComplete="pipelineActionRequestComplete"
       />
     </div>

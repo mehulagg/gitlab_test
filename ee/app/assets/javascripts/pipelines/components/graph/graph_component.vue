@@ -143,7 +143,6 @@ export default {
             'has-upstream': index === 0 && hasTriggeredBy,
             'has-downstream': index === graph.length - 1 && hasTriggered,
             'has-only-one-job': hasOnlyOneJob(stage),
-            'append-right-46': shouldAddRightMargin(index),
           }"
           :title="capitalizeStageName(stage.name)"
           :groups="stage.groups"
