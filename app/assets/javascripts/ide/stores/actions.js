@@ -222,7 +222,11 @@ export const renameEntry = (
 ) => {
   const entry = state.entries[entryPath || path];
 
-  commit(types.RENAME_ENTRY, { path, name, entryPath, parentPath });
+  if (name === entry.prevName) {
+    commit(types.REVERT_RENAME_ENTRY, path);
+  } else {
+    commit(types.RENAME_ENTRY, { path, name, entryPath, parentPath });
+  }
 
   if (entry.type === 'tree') {
     const slashedParentPath = parentPath ? `${parentPath}/` : '';
@@ -244,10 +248,6 @@ export const renameEntry = (
 
     if (!newEntry.tempFile) {
       eventHub.$emit(`editor.update.model.dispose.${entry.key}`);
-    }
-
-    if (!newEntry.changed) {
-      commit(types.TOGGLE_FILE_CHANGED, { file: newEntry, changed: true });
     }
 
     if (newEntry.opened) {

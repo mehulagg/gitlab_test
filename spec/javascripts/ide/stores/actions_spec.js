@@ -616,7 +616,7 @@ describe('Multi-file store actions', () => {
         resetStore(store);
       });
 
-      it('by default renames an entry and marks it as changed', done => {
+      it('by default renames an entry', done => {
         testAction(
           renameEntry,
           { path: 'test', name: 'new-name' },
@@ -629,12 +629,25 @@ describe('Multi-file store actions', () => {
                 name: 'new-name',
               }),
             },
+          ],
+          [{ type: 'triggerFilesChange' }],
+          done,
+        );
+      });
+
+      it('discards renaming of an entry if it has been renamed previously', done => {
+        Object.assign(store.state.entries.test, {
+          prevName: 'new-name',
+        });
+
+        testAction(
+          renameEntry,
+          { path: 'test', name: 'new-name' },
+          store.state,
+          [
             {
-              type: types.TOGGLE_FILE_CHANGED,
-              payload: {
-                file: store.state.entries['new-name'],
-                changed: true,
-              },
+              type: types.REVERT_RENAME_ENTRY,
+              payload: 'test',
             },
           ],
           [{ type: 'triggerFilesChange' }],
@@ -669,24 +682,8 @@ describe('Multi-file store actions', () => {
             expect(router.push.calls.count()).toBe(1);
             expect(router.push).toHaveBeenCalledWith(`/project/foo-bar.md`);
           })
-          .catch(() => {
-            done.fail();
-          });
-
-        store.state.entries['new-name'].opened = false;
-
-        store
-          .dispatch('renameEntry', {
-            path: 'new-name',
-            name: 'test',
-          })
-          .then(() => {
-            expect(router.push.calls.count()).toBe(1);
-          })
           .then(done)
-          .catch(() => {
-            done.fail();
-          });
+          .catch(done.fail);
       });
 
       it('renames entries with spaces correctly', done => {
@@ -711,13 +708,6 @@ describe('Multi-file store actions', () => {
                 path: 'old entry',
                 name: 'new name',
               }),
-            },
-            {
-              type: types.TOGGLE_FILE_CHANGED,
-              payload: {
-                file: store.state.entries['new name'],
-                changed: true,
-              },
             },
           ],
           [{ type: 'triggerFilesChange' }],
