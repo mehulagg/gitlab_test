@@ -34,7 +34,7 @@ module Operations
 
     def self.with_name_and_description
       joins(:feature_flag)
-        .select(FeatureFlag.arel_table[:name], FeatureFlag.arel_table[:description])
+        .select(::Operations::FeatureFlag.arel_table[:name], ::Operations::FeatureFlag.arel_table[:description])
     end
 
     def self.for_unleash_client(project, environment)

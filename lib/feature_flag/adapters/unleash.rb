@@ -65,7 +65,7 @@ module FeatureFlag
         private
 
         def strategy_for(thing)
-          if thing == true
+          if thing.in?([true, false])
             { name: 'default', parameters: {} }
           else
             { name: 'userWithId', parameters: { userIds: sanitized(thing) } }
@@ -157,7 +157,8 @@ module FeatureFlag
                           url: Gitlab.config.unleash.url,
                           app_name: Gitlab.config.unleash.app_name,
                           instance_id: Gitlab.config.unleash.instance_id,
-                          logger: Gitlab::Unleash::Logger)
+                          logger: Gitlab::Unleash::Logger,
+                          disable_metrics: true)
                       end
         end
       end

@@ -120,7 +120,7 @@ module API
               scopes_attributes:[{
                 id: scope.id,
                 active: true,
-                strategies: scope.strategies.push(params[:strategy])
+                strategies: scope.strategies.push(params[:strategy]).uniq
               }]
             }
           end
@@ -182,7 +182,7 @@ module API
             {
               scopes_attributes:[{
                 id: scope.id,
-                active: false
+                _destroy: 1
               }]
             }
           else
