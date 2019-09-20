@@ -385,6 +385,7 @@ The default is 100MB.
 ## Running GitLab Pages on a separate server
 
 You can run the GitLab Pages daemon on a separate server in order to decrease the load on your main application server.
+
 To configure GitLab Pages on a separate server:
 
 1. Set up a new server. This will become the GitLab Pages server.
@@ -413,7 +414,7 @@ To configure GitLab Pages on a separate server:
    gitlab_rails['auto_migrate'] = false
    ```
 
-1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the new GitLab Pages server for the changes to take effect.
+1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the new Pages server for the changes to take effect.
 
 1. On the main GitLab server, make the following changes to `/etc/gitlab/gitlab.rb`:
 
