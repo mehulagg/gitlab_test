@@ -159,6 +159,21 @@ sast:
     CI_DEBUG_TRACE: "true"
 ```
 
+Note: As of GitLab 12.3, the jobs in the SAST template extend `.sast`. If you
+have overriden the stage that `sast` runs in, you may need to override `.sast`
+instead of `sast`. For example:
+
+```yaml
+stages:
+  - <your-custom-stage>
+
+include:
+  template: SAST.gitlab-ci.yml
+
+.sast:
+  stage: <your-custom-stage>
+```
+
 ### Available variables
 
 SAST can be [configured](#customizing-the-sast-settings) using environment variables.
