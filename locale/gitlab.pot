@@ -3598,6 +3598,9 @@ msgstr ""
 msgid "ClusterIntegration|Remove integration"
 msgstr ""
 
+msgid "ClusterIntegration|Remove integration and resources"
+msgstr ""
+
 msgid "ClusterIntegration|Remove this Kubernetes cluster's configuration from this project. This will not delete your actual Kubernetes cluster."
 msgstr ""
 
@@ -8810,9 +8813,6 @@ msgid "Kubernetes cluster creation time exceeds timeout; %{timeout}"
 msgstr ""
 
 msgid "Kubernetes cluster integration was not removed."
-msgstr ""
-
-msgid "Kubernetes cluster integration was successfully removed."
 msgstr ""
 
 msgid "Kubernetes cluster was successfully updated."

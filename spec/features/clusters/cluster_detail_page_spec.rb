@@ -145,4 +145,38 @@ describe 'Clusterable > Show page' do
       let(:cluster) { create(:cluster, :provided_by_user, :group, groups: [clusterable]) }
     end
   end
+
+  describe 'Remove integration' do
+    let(:clusterable) { create(:project) }
+    let(:cluster) { create(:cluster, :provided_by_gcp, :project, projects: [clusterable]) }
+    let(:cluster_path) { project_cluster_path(clusterable, cluster) }
+
+    before do
+      clusterable.add_maintainer(current_user)
+    end
+
+    it 'deletes cluster without cleanup' do
+      visit cluster_path
+
+      within '#advanced-settings-section' do
+        click_on 'Remove integration'
+      end
+
+      expect(page.status_code).to eq(200)
+      expect(page).to have_content('Kubernetes cluster integration was successfully removed.')
+    end
+
+    it 'starts cleanup' do
+      allow(ClusterCleanupAppWorker).to receive(:perform_async)
+
+      visit cluster_path
+
+      within '#advanced-settings-section' do
+        click_on 'Remove integration and resources'
+      end
+
+      expect(page.status_code).to eq(200)
+      expect(page).to have_content('Kubernetes cluster integration and resources are being removed.')
+    end
+  end
 end

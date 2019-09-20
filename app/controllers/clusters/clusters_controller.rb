@@ -86,13 +86,15 @@ class Clusters::ClustersController < Clusters::BaseController
   end
 
   def destroy
-    if cluster.destroy
-      flash[:notice] = _('Kubernetes cluster integration was successfully removed.')
-      redirect_to clusterable.index_path, status: :found
-    else
-      flash[:notice] = _('Kubernetes cluster integration was not removed.')
-      render :show
-    end
+    response = Clusters::DestroyService
+      .new(current_user, destroy_params)
+      .execute(cluster)
+
+    flash[:notice] = _(response[:message])
+    redirect_to clusterable.index_path, status: :found
+  rescue StandardError => e
+    flash[:notice] = _('Kubernetes cluster integration was not removed.')
+    render :show
   end
 
   def create_gcp
@@ -130,6 +132,10 @@ class Clusters::ClustersController < Clusters::BaseController
   end
 
   private
+
+  def destroy_params
+    params.permit(:cleanup)
+  end
 
   def update_params
     if cluster.provided_by_user?
