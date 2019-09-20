@@ -24,7 +24,7 @@ special searches:
 ## Installing Elasticsearch
 
 Elasticsearch is _not_ included in the Omnibus packages. You will have to
-[install it yourself](https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html "Elasticsearch installation documentation")
+[install it yourself](https://www.elastic.co/guide/en/elasticsearch/reference/6.8/install-elasticsearch.html "Elasticsearch installation documentation")
 whether you are using the Omnibus package or installed GitLab from source.
 Providing detailed information on installing Elasticsearch is out of the scope
 of this document.
