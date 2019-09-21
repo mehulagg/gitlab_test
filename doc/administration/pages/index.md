@@ -441,7 +441,7 @@ If you are [running GitLab Pages on a separate server](#running-gitlab-pages-on-
 
 1. After your server has been reconfigured, copy the `/etc/gitlab/gitlab-secrets.json` file from the main GitLab server to the Pages server.
 
-1. Disable pages on the main server by setting the following in the `/etc/gitlab/gitlab.rb` file:
+1. Disable Pages on the main server by setting the following in the `/etc/gitlab/gitlab.rb` file:
 
     ```ruby
     gitlab_pages['enable'] = false
