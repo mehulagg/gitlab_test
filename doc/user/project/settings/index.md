@@ -21,20 +21,19 @@ The project description also partially supports [standard markdown](../../markdo
 ### Visibility, project features, permissions
 
 Choose visibility level, enable or disable project features, and set permissions on your project's:
-  - [Visibility](../../../public_access/public_access.md)
-  - [Issue tracking](../index.md)
-  - [Repository](../repository/index.md), including:
-    - [Merge requests](../merge_requests/index.md)
-    - [Pipelines](../../../ci/pipelines.md)
-    - [Large file storage](../../../workflow/lfs/manage_large_binaries_with_git_lfs.md)
-    - [Packages](../../../administration/packages/index.md)
-  - [Wiki](../wiki/index.md)
-  - [Snippets](../../../snippets.md)
+- [Visibility](../../../public_access/public_access.md)
+- [Issue tracking](../index.md)
+- [Repository](../repository/index.md), including:
+  - [Merge requests](../merge_requests/index.md)
+  - [Pipelines](../../../ci/pipelines.md)
+  - [Large file storage](../../../workflow/lfs/manage_large_binaries_with_git_lfs.md)
+  - [Packages](../../../administration/packages/index.md)
+- [Wiki](../wiki/index.md)
+- [Snippets](../../../snippets.md)
 
 ### Merge requests
 
 Choose your merge method, merge options, and merge checks.
-
 
   - [Pages](../pages/index.md)
 
