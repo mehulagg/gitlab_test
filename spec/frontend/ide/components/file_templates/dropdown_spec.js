@@ -1,34 +1,27 @@
 import Vuex from 'vuex';
+import $ from 'jquery';
 import { GlLoadingIcon } from '@gitlab/ui';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import Dropdown from '~/ide/components/file_templates/dropdown.vue';
 
-const mockJQueryOn = jest.fn();
-const mockJQueryOff = jest.fn();
-jest.mock('jquery', () =>
-  jest.fn().mockImplementation(() => ({
-    on: mockJQueryOn,
-    off: mockJQueryOff,
-  })),
-);
-
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
-const findFirstOnCall = () => mockJQueryOn.mock.calls.find(([name]) => name === 'show.bs.dropdown');
-
 describe('IDE file templates dropdown component', () => {
   let wrapper;
+  let element;
+  let fetchTemplateTypesMock;
 
   const defaultProps = {
     label: 'label',
   };
-  const fetchTemplateTypesMock = jest.fn();
 
   const findItemButtons = () => wrapper.findAll('button');
   const findSearch = () => wrapper.find('input[type="search"]');
+  const triggerDropdown = () => $(element).trigger('show.bs.dropdown');
 
   const createComponent = ({ props, state } = {}) => {
+    fetchTemplateTypesMock = jest.fn();
     const fakeStore = new Vuex.Store({
       modules: {
         fileTemplates: {
@@ -54,26 +47,13 @@ describe('IDE file templates dropdown component', () => {
       localVue,
       sync: false,
     });
+
+    ({ element } = wrapper);
   };
 
   afterEach(() => {
-    jest.clearAllMocks();
     wrapper.destroy();
     wrapper = null;
-  });
-
-  it('subscribes to `show.bs.dropdown` jquery event on mount', () => {
-    createComponent();
-
-    expect(mockJQueryOn).toHaveBeenCalledWith('show.bs.dropdown', expect.any(Function));
-  });
-
-  it('unsubscribes from `show.bs.dropdown` jquery event on unmount', () => {
-    createComponent();
-    const [, handlerFn] = findFirstOnCall();
-    wrapper.destroy();
-
-    expect(mockJQueryOff).toHaveBeenCalledWith('show.bs.dropdown', handlerFn);
   });
 
   it('calls clickItem on click', () => {
@@ -95,12 +75,21 @@ describe('IDE file templates dropdown component', () => {
   describe('in async mode', () => {
     const defaultAsyncProps = { ...defaultProps, isAsyncData: true };
 
-    it('calls `fetchTemplateTypes` on `show.bs.dropdown` event', () => {
+    it('calls `fetchTemplateTypes` on dropdown event', () => {
       createComponent({ props: defaultAsyncProps });
-      const [, handlerFn] = findFirstOnCall();
-      handlerFn();
+
+      triggerDropdown();
 
       expect(fetchTemplateTypesMock).toHaveBeenCalled();
+    });
+
+    it('does not call `fetchTemplateTypes` on dropdown event if destroyed', () => {
+      createComponent({ props: defaultAsyncProps });
+      wrapper.destroy();
+
+      triggerDropdown();
+
+      expect(fetchTemplateTypesMock).not.toHaveBeenCalled();
     });
 
     it('shows loader when isLoading is true', () => {
@@ -119,11 +108,7 @@ describe('IDE file templates dropdown component', () => {
       });
       const items = findItemButtons();
 
-      expect(
-        templates.every(
-          template => !items.filter(item => item.text().includes(template.name)).isEmpty(),
-        ),
-      ).toBe(true);
+      expect(items.wrappers.map(x => x.text())).toEqual(templates.map(x => x.name));
     });
 
     it('searches template data', () => {
@@ -138,9 +123,7 @@ describe('IDE file templates dropdown component', () => {
         const items = findItemButtons();
 
         expect(items.length).toBe(matches.length);
-        expect(
-          matches.every(entry => !items.filter(item => item.text().includes(entry)).isEmpty()),
-        ).toBe(true);
+        expect(items.wrappers.map(x => x.text())).toEqual(matches);
       });
     });
 
@@ -167,9 +150,7 @@ describe('IDE file templates dropdown component', () => {
       const items = findItemButtons();
 
       expect(items.length).toBe(data.length);
-      expect(
-        data.every(entry => !items.filter(item => item.text().includes(entry.name)).isEmpty()),
-      ).toBe(true);
+      expect(items.wrappers.map(x => x.text())).toEqual(data.map(x => x.name));
     });
 
     it('renders input when `searchable` is true', () => {
@@ -187,9 +168,7 @@ describe('IDE file templates dropdown component', () => {
         const items = findItemButtons();
 
         expect(items.length).toBe(matches.length);
-        expect(
-          matches.every(entry => !items.filter(item => item.text().includes(entry)).isEmpty()),
-        ).toBe(true);
+        expect(items.wrappers.map(x => x.text())).toEqual(matches);
       });
     });
   });
