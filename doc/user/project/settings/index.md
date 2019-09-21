@@ -14,15 +14,13 @@ functionality of a project.
 
 ### General project settings
 
-Adjust your project's name, description, avatar, and topics:
-
-![general project settings](img/general_settings.png)
+Update your project name, topics, description and avatar:
 
 The project description also partially supports [standard markdown](../../markdown.md#standard-markdown-and-extensions-in-gitlab). You can use [emphasis](../../markdown.md#emphasis), [links](../../markdown.md#links), and [line-breaks](../../markdown.md#line-breaks) to add more context to the project description.
 
 ### Visibility, project features, permissions
 
-Set up and customize your project's:
+Choose visibility level, enable or disable project features, and set permissions on your project's:
   - [Visibility](../../../public_access/public_access.md)
   - [Issue tracking](../index.md)
   - [Repository](../repository/index.md), including:
@@ -32,8 +30,13 @@ Set up and customize your project's:
     - [Packages](../../../administration/packages/index.md)
   - [Wiki](../wiki/index.md)
   - [Snippets](../../../snippets.md)
-  - [Pages](../pages/index.md)
 
+### Merge requests
+
+Choose your merge method, merge options, and merge checks.
+
+
+  - [Pages](../pages/index.md)
 
   - [Container registry](../../packages/container_registry/index.md)
 
