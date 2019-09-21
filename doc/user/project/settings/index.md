@@ -67,8 +67,6 @@ Set up your project's merge request settings:
 - Enable [merge only of pipeline succeeds](../merge_requests/merge_when_pipeline_succeeds.md).
 - Enable [merge only when all discussions are resolved](../../discussions/index.md#only-allow-merge-requests-to-be-merged-if-all-threads-are-resolved).
 
-![project's merge request settings](img/merge_requests_settings.png)
-
 ### Service Desk **(PREMIUM)**
 
 Enable [Service Desk](../service_desk.md) for your project to offer customer support.
