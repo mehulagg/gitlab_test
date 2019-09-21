@@ -300,7 +300,7 @@ Pages access control is disabled by default. To enable it:
 
 1. Enable it in `/etc/gitlab/gitlab.rb`:
 
-   ```ruby
+   ```shell
    gitlab_pages['access_control'] = true
    ```
 
@@ -315,7 +315,7 @@ pages:
 
 1. Configure in `/etc/gitlab/gitlab.rb`:
 
-   ```ruby
+   ```shell
    gitlab_pages['http_proxy'] = 'http://example:8080'
    ```
 
@@ -432,7 +432,7 @@ If you are [running GitLab Pages on a separate server](#running-gitlab-pages-on-
 
 1. On your main GitLab server, add the following to the `/etc/gitlab/gitlab.rb` file:
 
-    ```ruby
+    ```shell
     gitlab_pages['enable'] = true
     gitlab_pages['access_control'] = true
     ```
@@ -443,7 +443,7 @@ If you are [running GitLab Pages on a separate server](#running-gitlab-pages-on-
 
 1. Disable Pages on the main server by setting the following in the `/etc/gitlab/gitlab.rb` file:
 
-    ```ruby
+    ```shell
     gitlab_pages['enable'] = false
     ```
 
@@ -454,7 +454,7 @@ If you are [running GitLab Pages on a separate server](#running-gitlab-pages-on-
 
 1. On your GitLab Pages server, add the following to the `/etc/gitlab/gitlab.rb` file:
 
-    ```ruby
+    ```shell
     gitlab_pages['gitlab_server'] = http://<your-pages-server-URL>
     ```
 
