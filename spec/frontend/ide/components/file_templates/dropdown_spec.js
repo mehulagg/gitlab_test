@@ -89,7 +89,7 @@ describe('IDE file templates dropdown component', () => {
     const title = 'Test title';
     createComponent({ props: { title } });
 
-    expect(wrapper.text()).toContain(title);
+    expect(wrapper.find('.dropdown-title').text()).toContain(title);
   });
 
   describe('in async mode', () => {
