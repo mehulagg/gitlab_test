@@ -30,7 +30,7 @@ Choose visibility level, enable or disable project features, and set permissions
   - [Large file storage](../../../workflow/lfs/manage_large_binaries_with_git_lfs.md)
   - [Packages](../../../administration/packages/index.md)
 - [Wiki](../wiki/index.md)
-- [Snippets](../../../snippets.md)
+- [Snippets](../../snippets.md)
 
 ### Merge requests
 
