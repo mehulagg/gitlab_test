@@ -21,6 +21,7 @@ The project description also partially supports [standard markdown](../../markdo
 ### Visibility, project features, permissions
 
 Choose visibility level, enable or disable project features, and set permissions on your project's:
+
 - [Visibility](../../../public_access/public_access.md)
 - [Issue tracking](../index.md)
 - [Repository](../repository/index.md), including:
@@ -35,9 +36,8 @@ Choose visibility level, enable or disable project features, and set permissions
 
 Choose your merge method, merge options, and merge checks.
 
-  - [Pages](../pages/index.md)
-
-  - [Container registry](../../packages/container_registry/index.md)
+- [Pages](../pages/index.md)
+- [Container registry](../../packages/container_registry/index.md)
 
 If Issues are disabled, or you can't access Issues because you're not a project member, then Labels and Milestones
 links will be missing from the sidebar UI.
