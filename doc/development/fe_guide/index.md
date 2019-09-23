@@ -73,7 +73,7 @@ How we use UI components.
 
 Read the [frontend's FAQ](frontend_faq.md) for common small pieces of helpful information.
 
-## [Style Guides](style/index.md)
+## Style Guides
 
 See the relevant style guides for our guidelines and for information on linting:
 
@@ -84,9 +84,9 @@ changes.
 - [HTML](style/html.md).
 - [Vue](style/vue.md).
 
-## [Tooling](tooling.md)
+## Tooling
 
-Our code is automatically formatted with [Prettier](https://prettier.io) to follow our guidelines.
+Our code is automatically formatted with [Prettier](https://prettier.io) to follow our guidelines. Read our [Tooling guide](tooling.md) for more detail.
 
 ## [Performance](performance.md)
 
