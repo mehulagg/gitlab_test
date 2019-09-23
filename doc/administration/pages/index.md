@@ -300,7 +300,7 @@ Pages access control is disabled by default. To enable it:
 
 1. Enable it in `/etc/gitlab/gitlab.rb`:
 
-   ```shell
+   ```ruby
    gitlab_pages['access_control'] = true
    ```
 
