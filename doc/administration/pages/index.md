@@ -315,7 +315,7 @@ pages:
 
 1. Configure in `/etc/gitlab/gitlab.rb`:
 
-   ```shell
+   ```ruby
    gitlab_pages['http_proxy'] = 'http://example:8080'
    ```
 
