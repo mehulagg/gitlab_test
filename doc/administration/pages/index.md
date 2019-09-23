@@ -439,6 +439,10 @@ If you are [running GitLab Pages on a separate server](#running-gitlab-pages-on-
 
 1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the main GitLab server for the changes to take effect.
 
+1. Create a backup of secrets file on the main GitLab server: `cp /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json.bak`.
+
+1. Create a backup of secrets file on the Pages server: `cp /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json.bak`.
+
 1. After your server has been reconfigured, copy the `/etc/gitlab/gitlab-secrets.json` file from the main GitLab server to the Pages server.
 
 1. Disable Pages on the main server by setting the following in the `/etc/gitlab/gitlab.rb` file:
