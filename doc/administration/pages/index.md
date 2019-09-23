@@ -388,13 +388,13 @@ You can run the GitLab Pages daemon on a separate server in order to decrease th
 
 To configure GitLab Pages on a separate server:
 
-1. Set up a new server. This will become the GitLab Pages server.
+1. Set up a new server. This will become the `GitLab Pages server`.
 
 1. Create an NFS share on the new server and configure this share to
-   allow access from your main GitLab server. For this example, we use the
+   allow access from your `main GitLab server`. For this example, we use the
    default GitLab Pages folder `/var/opt/gitlab/gitlab-rails/shared/pages`
    as the shared folder on the new server and we will mount it to `/mnt/pages`
-   on the main GitLab server.
+   on the `main GitLab server`.
 
 1. On the new server, install GitLab omnibus and modify `/etc/gitlab/gitlab.rb`
    to include:
@@ -414,9 +414,9 @@ To configure GitLab Pages on a separate server:
    gitlab_rails['auto_migrate'] = false
    ```
 
-1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the new Pages server for the changes to take effect.
+1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the new `Pages server` for the changes to take effect.
 
-1. On the main GitLab server, make the following changes to `/etc/gitlab/gitlab.rb`:
+1. On the `main GitLab server`, make the following changes to `/etc/gitlab/gitlab.rb`:
 
    ```ruby
    gitlab_pages['enable'] = false
@@ -424,49 +424,57 @@ To configure GitLab Pages on a separate server:
    gitlab_rails['pages_path'] = "/mnt/pages"
    ```
 
-1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the main GitLab server for the changes to take effect.
+1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the `main GitLab server` for the changes to take effect.
 
 ### Access control when running GitLab Pages on a separate server
 
 If you are [running GitLab Pages on a separate server](#running-gitlab-pages-on-a-separate-server), then you must use the following procedure to configure access control:
 
-1. On your main GitLab server, add the following to the `/etc/gitlab/gitlab.rb` file:
+1. On your `main GitLab server`, add the following to the `/etc/gitlab/gitlab.rb` file:
 
-    ```shell
+    ```ruby
     gitlab_pages['enable'] = true
     gitlab_pages['access_control'] = true
     ```
 
-1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the main GitLab server for the changes to take effect.
+1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the `main GitLab server` for the changes to take effect.
 
-1. Create a backup of secrets file on the main GitLab server: `cp /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json.bak`.
+1. Create a backup of the secrets file on the `main GitLab server`: 
 
-1. Create a backup of secrets file on the Pages server: `cp /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json.bak`.
+    ```shell
+    cp /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json.bak
+    ```
 
-1. After your server has been reconfigured, copy the `/etc/gitlab/gitlab-secrets.json` file from the main GitLab server to the Pages server.
+1. Create a backup of the secrets file on the `Pages server`: 
 
-1. Disable Pages on the main server by setting the following in the `/etc/gitlab/gitlab.rb` file:
+    ```shell
+    cp /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json.bak
+    ```
+
+1. Copy the `/etc/gitlab/gitlab-secrets.json` file from the `main GitLab server` to the `Pages server`.
+
+    DANGER: **Danger:**
+    Do not edit or replace the `gitlab-secrets.json` file on the `main GitLab server` or you might experience permanent data loss. This file contains secrets that control database encryption. It is safe to copy this file to the `Pages server`, be certain that you have followed the preceding steps to create a backup copy as a precaution.
+
+1. Disable Pages on the `main GitLab server` by setting the following in the `/etc/gitlab/gitlab.rb` file:
 
     ```ruby
     gitlab_pages['enable'] = false
     ```
 
-1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the main GitLab server for the changes to take effect.
+1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the `main GitLab server` for the changes to take effect.
 
-    DANGER: **Danger:**
-    Do not edit or replace the `gitlab-secrets.json` file on the main server or you might experience permanent data loss. This file contains secrets that control database encryption. As a precaution, before editing this file on the Pages server, make a backup copy: `cp /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json.bak`
-
-1. On your GitLab Pages server, add the following to the `/etc/gitlab/gitlab.rb` file:
+1. On your `GitLab Pages server`, add the following to the `/etc/gitlab/gitlab.rb` file:
 
     ```ruby
     gitlab_pages['gitlab_server'] = "http://<your-main-gitlab-server-URL>"
     ```
 
-1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the Pages server for the changes to take effect.
+1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the `Pages server` for the changes to take effect.
 
 ## Backup
 
-Pages are part of the [regular backup][backup] so there is nothing to configure.
+GitLab Pages are part of the [regular backup][backup], so there is no separate backup to configure.
 
 ## Security
 
