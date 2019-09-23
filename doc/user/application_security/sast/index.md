@@ -159,9 +159,9 @@ sast:
     CI_DEBUG_TRACE: "true"
 ```
 
-Note: As of GitLab 12.3, the jobs in the SAST template extend `.sast`. If you
-have overriden the stage that `sast` runs in, you may need to override `.sast`
-instead of `sast`. For example:
+If you have set your own stages instead of the [default ones](../../../ci/yaml/README.md#stages),
+and `test` is not included, SAST will fail to run. In that case, you need to override the `.sast`
+job (note the dot) instead of `sast`. For example:
 
 ```yaml
 stages:
