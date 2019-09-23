@@ -107,3 +107,47 @@ For instance:
 [Entity]: https://gitlab.com/gitlab-org/gitlab/blob/master/lib/api/entities.rb
 [validation, and coercion of the parameters]: https://github.com/ruby-grape/grape#parameter-validation-and-coercion
 [installing GitLab under a relative URL]: https://docs.gitlab.com/ee/install/relative_url.html
+
+## Avoiding N+1 problems
+
+In order to avoid N+1 problems that are common when returning collections
+of records in an API endpoint, we need to use eager loading.
+
+Models used by the API should implement a scope called
+`with_api_entity_associations` that will preload the associations and
+data returned in the API. An example of this scope can be seen in
+[the `Issue` model](https://gitlab.com/gitlab-org/gitlab/blob/2fedc47b97837ea08c3016cf2fb773a0300a4a25/app%2Fmodels%2Fissue.rb#L62).
+
+This scope will also [automatically preload
+data](https://gitlab.com/gitlab-org/gitlab/blob/19f74903240e209736c7668132e6a5a735954e7c/app%2Fmodels%2Ftodo.rb#L34)
+for Todo targets when returned in the Todos API.
+
+For more context and discussion about preloading see
+[this merge request](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/25711)
+that introduced the scope.
+
+### Verifying with tests
+
+When an API endpoint returns collections, always add a test to verify
+that the API endpoint does not have an N+1 problem, now and in the future.
+We can do this using [`ActiveRecord::QueryRecorder`](query_recorder.md). For example:
+
+```ruby
+def make_api_request
+  get api('/foo', personal_access_token: pat)
+end
+
+it 'avoids N+1 queries', :request_store do
+  # Firstly, record how many PostgreSQL queries the endpoint will make
+  # when it returns a single record
+  create_record
+
+  control = ActiveRecord::QueryRecorder.new { make_api_request }
+
+  # Now create a second record and ensure that the API does not execute
+  # any more queries than before
+  create_record
+
+  expect { make_api_request }.not_to exceed_query_limit(control)
+end
+```
