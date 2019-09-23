@@ -49,19 +49,18 @@ is **not** `19.03.00`. See [troubleshooting information](#error-response-from-da
 
 ## Supported languages and package managers
 
-The following languages and dependency managers are supported.
+The following languages and dependency managers are supported, or will be supported in the future:
 
-| Language (package managers)  | Supported | Scan tool(s) |
+| Language (package managers)  | Supported files | Scan tool(s) |
 |----------------------------- | --------- | ------------ |
-| Java ([Gradle](https://gradle.org/)) | not currently ([issue](https://gitlab.com/gitlab-org/gitlab/issues/13075 "Dependency Scanning for Gradle" )) | not available |
-| Java ([Maven](https://maven.apache.org/)) | yes | [gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
-| JavaScript ([npm](https://www.npmjs.com/), [yarn](https://yarnpkg.com/en/)) | yes | [gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium), [Retire.js](https://retirejs.github.io/retire.js)         |
-| Go ([Golang](https://golang.org/)) | not currently ([issue](https://gitlab.com/gitlab-org/gitlab/issues/7132 "Dependency Scanning for Go")) | not available |
-| PHP ([Composer](https://getcomposer.org/))  | yes | [gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
-| Python ([pip](https://pip.pypa.io/en/stable/)) | yes | [gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
-| Python ([Pipfile](https://docs.pipenv.org/en/latest/basics/)) | not currently ([issue](https://gitlab.com/gitlab-org/gitlab/issues/11756 "Pipfile.lock support for Dependency Scanning"))| not available |
-| Python ([poetry](https://poetry.eustace.io/)) | not currently ([issue](https://gitlab.com/gitlab-org/gitlab/issues/7006 "Support Poetry in Dependency Scanning")) | not available |
-| Ruby ([gem](https://rubygems.org/)) | yes | [gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium), [bundler-audit](https://github.com/rubysec/bundler-audit) |
+| Java ([Gradle](https://gradle.org/)) | not supported ([issue](https://gitlab.com/gitlab-org/gitlab/issues/13075 "Dependency Scanning for Gradle" )) | not available |
+| Java ([Maven](https://maven.apache.org/)) | `pom.xml` | [gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
+| JavaScript ([npm](https://www.npmjs.com/), [yarn](https://yarnpkg.com/en/)) | `package-lock.json`, `npm-shrinkwrap.json`, `yarn.lock` | [gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium), [Retire.js](https://retirejs.github.io/retire.js)         |
+| Go ([Golang](https://golang.org/)) | not supported ([issue](https://gitlab.com/gitlab-org/gitlab/issues/7132 "Dependency Scanning for Go")) | not available |
+| PHP ([Composer](https://getcomposer.org/))  | `composer.lock` | [gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
+| Python ([setuptools](https://setuptools.readthedocs.io/en/latest/), [pip](https://pip.pypa.io/en/stable/), [Pipfile](https://docs.pipenv.org/en/latest/basics/)) | `setup.py`, `requirements.txt`, `Pipfile` | [gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium) |
+| Python ([poetry](https://poetry.eustace.io/)) | not supported ([issue](https://gitlab.com/gitlab-org/gitlab/issues/7006 "Support Poetry in Dependency Scanning")) | not available |
+| Ruby ([gem](https://rubygems.org/)) | `Gemfile.lock`, `gems.locked` | [gemnasium](https://gitlab.com/gitlab-org/security-products/gemnasium), [bundler-audit](https://github.com/rubysec/bundler-audit) |
 
 ## Remote checks
 
