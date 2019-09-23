@@ -621,7 +621,7 @@ describe('Multi-file store actions', () => {
           renameEntry,
           { path: 'test', name: 'new-name' },
           store.state,
-          [
+          jasmine.arrayContaining([
             {
               type: types.RENAME_ENTRY,
               payload: jasmine.objectContaining({
@@ -629,7 +629,23 @@ describe('Multi-file store actions', () => {
                 name: 'new-name',
               }),
             },
-          ],
+          ]),
+          [{ type: 'triggerFilesChange' }],
+          done,
+        );
+      });
+
+      it('by default stages renamed entry immediately', done => {
+        testAction(
+          renameEntry,
+          { path: 'test', name: 'new-name' },
+          store.state,
+          jasmine.arrayContaining([
+            {
+              type: types.STAGE_CHANGE,
+              payload: 'new-name',
+            },
+          ]),
           [{ type: 'triggerFilesChange' }],
           done,
         );
@@ -655,13 +671,52 @@ describe('Multi-file store actions', () => {
         );
       });
 
+      it('unstages an entry if it has been renamed and staged previously and discards its renaming', done => {
+        Object.assign(store.state.entries.test, {
+          prevName: 'new-name',
+          prevPath: 'new-name',
+          staged: true,
+        });
+
+        testAction(
+          renameEntry,
+          { path: 'test', name: 'new-name' },
+          store.state,
+          [
+            {
+              type: types.UNSTAGE_CHANGE,
+              payload: 'test',
+            },
+            {
+              type: types.TOGGLE_FILE_CHANGED,
+              payload: {
+                file: store.state.entries.test,
+                changed: false,
+              },
+            },
+            {
+              type: types.REVERT_RENAME_ENTRY,
+              payload: 'test',
+            },
+          ],
+          [{ type: 'triggerFilesChange' }],
+          done,
+        );
+      });
+
       it('does not mark the file as changed if it is already changed', done => {
         spy.changed = true;
         testAction(
           renameEntry,
           { path: 'test', name: 'new-name' },
           store.state,
-          [jasmine.objectContaining({ type: types.RENAME_ENTRY })],
+          [
+            jasmine.objectContaining({ type: types.RENAME_ENTRY }),
+            {
+              type: types.STAGE_CHANGE,
+              payload: 'new-name',
+            },
+          ],
           [{ type: 'triggerFilesChange' }],
           done,
         );
@@ -709,6 +764,10 @@ describe('Multi-file store actions', () => {
                 name: 'new name',
               }),
             },
+            {
+              type: types.STAGE_CHANGE,
+              payload: 'new name',
+            },
           ],
           [{ type: 'triggerFilesChange' }],
           done,
@@ -748,6 +807,69 @@ describe('Multi-file store actions', () => {
             expect(keys.indexOf('new-folder')).toBe(0);
             expect(keys.indexOf('new-folder/file-1')).toBe(1);
             expect(keys.indexOf('new-folder/file-2')).toBe(2);
+          })
+          .then(done)
+          .catch(done.fail);
+      });
+
+      it('discards renaming of an entry if the root folder is renamed back to a previous name', done => {
+        const rootFolder = file('old-folder', 'old-folder', 'tree');
+        const testEntry = file('test', 'test', 'blob', rootFolder);
+
+        Object.assign(store.state, {
+          entries: {
+            'old-folder': {
+              ...rootFolder,
+              tree: [testEntry],
+            },
+            'old-folder/test': testEntry,
+          },
+        });
+
+        store
+          .dispatch('renameEntry', {
+            path: 'old-folder',
+            name: 'new-folder',
+          })
+          .then(() => {
+            const { entries } = store.state;
+
+            expect(Object.keys(entries).length).toBe(2);
+            expect(entries['old-folder']).toBeUndefined();
+            expect(entries['old-folder/test']).toBeUndefined();
+
+            expect(entries['new-folder']).toBeDefined();
+            expect(entries['new-folder/test']).toEqual(
+              jasmine.objectContaining({
+                path: 'new-folder/test',
+                name: 'test',
+                prevPath: 'old-folder/test',
+                prevName: 'test',
+              }),
+            );
+          })
+          .then(() =>
+            store.dispatch('renameEntry', {
+              path: 'new-folder',
+              name: 'old-folder',
+            }),
+          )
+          .then(() => {
+            const { entries } = store.state;
+
+            expect(Object.keys(entries).length).toBe(2);
+            expect(entries['new-folder']).toBeUndefined();
+            expect(entries['new-folder/test']).toBeUndefined();
+
+            expect(entries['old-folder']).toBeDefined();
+            expect(entries['old-folder/test']).toEqual(
+              jasmine.objectContaining({
+                path: 'old-folder/test',
+                name: 'test',
+                prevPath: undefined,
+                prevName: undefined,
+              }),
+            );
           })
           .then(done)
           .catch(done.fail);

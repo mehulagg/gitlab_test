@@ -380,13 +380,23 @@ describe('IDE store file mutations', () => {
         type: 'blob',
         prevPath: localFile.path,
       };
+      const renamedFile2 = {
+        ...file('re-renamed'),
+        type: 'blob',
+        prevPath: localFile.path,
+      };
 
       localState.entries[renamedFile.path] = renamedFile;
-
-      mutations.STAGE_CHANGE(localState, renamedFile.path);
+      localState.entries[renamedFile2.path] = renamedFile2;
 
       expect(localState.stagedFiles.length).toBe(1);
-      expect(localState.stagedFiles[0].name).toEqual('renamed');
+      expect(localState.stagedFiles[0].name).toEqual('name');
+
+      mutations.STAGE_CHANGE(localState, renamedFile.path);
+      mutations.STAGE_CHANGE(localState, renamedFile2.path);
+
+      expect(localState.stagedFiles.length).toBe(1);
+      expect(localState.stagedFiles[0].name).toEqual('re-renamed');
     });
   });
 
