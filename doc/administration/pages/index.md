@@ -443,7 +443,7 @@ If you are [running GitLab Pages on a separate server](#running-gitlab-pages-on-
 
 1. Disable Pages on the main server by setting the following in the `/etc/gitlab/gitlab.rb` file:
 
-    ```shell
+    ```ruby
     gitlab_pages['enable'] = false
     ```
 
