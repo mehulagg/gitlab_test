@@ -47,6 +47,8 @@ Dir[Rails.root.join("spec/support/shared_contexts/*.rb")].each { |f| require f }
 Dir[Rails.root.join("spec/support/shared_examples/*.rb")].each { |f| require f }
 Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 
+I18n.locale = :zh_CN
+
 quality_level = Quality::TestLevel.new
 
 RSpec.configure do |config|
