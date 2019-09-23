@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_09_19_162036) do
+ActiveRecord::Schema.define(version: 2019_09_23_111146) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -569,7 +569,7 @@ ActiveRecord::Schema.define(version: 2019_09_19_162036) do
     t.index ["project_id", "name"], name: "index_ci_build_trace_section_names_on_project_id_and_name", unique: true
   end
 
-  create_table "ci_build_trace_sections", id: :serial, force: :cascade do |t|
+  create_table "ci_build_trace_sections", id: false, force: :cascade do |t|
     t.integer "project_id", null: false
     t.datetime "date_start", null: false
     t.datetime "date_end", null: false
