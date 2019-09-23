@@ -248,6 +248,7 @@ export default {
           prevName: oldEntry.prevName || oldEntry.name,
           prevUrl: oldEntry.prevUrl || oldEntry.url,
           prevKey: oldEntry.prevKey || oldEntry.key,
+          prevParentPath: oldEntry.prevParentPath || oldEntry.parentPath,
         };
 
     Vue.set(state.entries, newPath, {
@@ -276,6 +277,7 @@ export default {
       name: oldEntry.prevName,
       url: oldEntry.prevUrl,
       key: oldEntry.prevKey,
+      parentPath: oldEntry.prevParentPath,
     };
 
     const prevProps = {
@@ -284,6 +286,7 @@ export default {
       prevName: undefined,
       prevUrl: undefined,
       prevKey: undefined,
+      prevParentPath: undefined
     };
 
     Vue.set(state.entries, baseProps.path, {
@@ -291,7 +294,7 @@ export default {
       ...prevProps,
     });
 
-    swapInParentTreeWithSorting(state, oldEntry.path, baseProps.path, oldEntry.parentPath);
+    swapInParentTreeWithSorting(state, oldEntry.path, baseProps.path, baseProps.parentPath);
 
     if (oldEntry.type === 'blob') {
       if (oldEntry.opened) {

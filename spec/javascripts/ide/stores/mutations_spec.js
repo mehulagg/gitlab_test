@@ -370,6 +370,67 @@ describe('Multi-file store mutations', () => {
       expect(Object.keys(localState.entries).length).toBe(1);
     });
 
+    it('correctly handles consecutive renames for the same entry', () => {
+      mutations.RENAME_ENTRY(localState, {
+        path: 'oldPath',
+        name: 'newPath',
+        entryPath: null,
+        parentPath: '',
+      });
+
+      mutations.RENAME_ENTRY(localState, {
+        path: 'newPath',
+        name: 'newestPath',
+        entryPath: null,
+        parentPath: '',
+      });
+
+      expect(localState.entries.oldPath).toBeUndefined();
+      expect(localState.entries.newPath).toBeUndefined();
+      expect(localState.entries.newestPath).toBeDefined();
+      expect(Object.keys(localState.entries).length).toBe(1);
+
+      expect(localState.changedFiles.length).toBe(1);
+      expect(localState.changedFiles[0].path).toBe('newestPath');
+    });
+
+    it('correctly handles the same entry within a consecutively renamed folder', () => {
+      const oldPath = file('root-folder/oldPath', 'root-folder/oldPath', 'blob');
+      localState.entries = {
+        'root-folder': {
+          ...file('root-folder', 'root-folder', 'tree'),
+          tree: [oldPath],
+        },
+        'root-folder/oldPath': oldPath,
+      };
+      Object.assign(localState.entries['root-folder/oldPath'], {
+        parentPath: 'root-folder',
+        url: 'root-folder/oldPath-blob-root-folder/oldPath',
+      });
+
+      mutations.RENAME_ENTRY(localState, {
+        path: 'root-folder/oldPath',
+        name: 'renamed-folder/oldPath',
+        entryPath: null,
+        parentPath: '',
+      });
+
+      mutations.RENAME_ENTRY(localState, {
+        path: 'renamed-folder/oldPath',
+        name: 'simply-renamed/oldPath',
+        entryPath: null,
+        parentPath: '',
+      });
+
+      expect(localState.entries['root-folder/oldPath']).toBeUndefined();
+      expect(localState.entries['renamed-folder/oldPath']).toBeUndefined();
+      expect(localState.entries['simply-renamed/oldPath']).toBeDefined();
+
+      expect(Object.keys(localState.entries).length).toBe(2);
+      expect(localState.changedFiles.length).toBe(1);
+      expect(localState.changedFiles[0].path).toBe('simply-renamed/oldPath');
+    });
+
     it('renames entry, preserving old parameters', () => {
       Object.assign(localState.entries.oldPath, {
         url: `${gl.TEST_HOST}/oldPath`,
@@ -396,6 +457,7 @@ describe('Multi-file store mutations', () => {
         prevPath: 'oldPath',
         prevUrl: `${gl.TEST_HOST}/oldPath`,
         prevKey: oldPathData.key,
+        prevParentPath: oldPathData.parentPath,
       });
     });
 
@@ -410,11 +472,16 @@ describe('Multi-file store mutations', () => {
         parentPath: '',
       });
 
-      expect(localState.entries.newPath.prevId).toBeUndefined();
-      expect(localState.entries.newPath.prevName).toBeUndefined();
-      expect(localState.entries.newPath.prevPath).toBeUndefined();
-      expect(localState.entries.newPath.prevUrl).toBeUndefined();
-      expect(localState.entries.newPath.prevKey).toBeUndefined();
+      expect(localState.entries.newPath).not.toEqual(
+        jasmine.objectContaining({
+          prevId: jasmine.anything(),
+          prevName: jasmine.anything(),
+          prevPath: jasmine.anything(),
+          prevUrl: jasmine.anything(),
+          prevKey: jasmine.anything(),
+          prevParentPath: jasmine.anything(),
+        }),
+      );
     });
 
     it('properly handles files with spaces in name', () => {
@@ -447,6 +514,7 @@ describe('Multi-file store mutations', () => {
         prevPath: path,
         prevUrl: `${gl.TEST_HOST}/my%20fancy%20path`,
         prevKey: oldEntry.key,
+        prevParentPath: oldEntry.parentPath,
       });
     });
 
@@ -663,6 +731,8 @@ describe('Multi-file store mutations', () => {
 
     it('adds to parent tree', () => {
       localState.entries['root-folder'].tree = [localState.entries[currentPath]];
+      localState.entries[currentPath].prevParentPath = 'root-folder';
+
       const parentEntry = localState.entries['root-folder'];
 
       expect(parentEntry.tree[0].name).toBe(currentName);
