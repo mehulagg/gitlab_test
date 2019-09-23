@@ -1,6 +1,7 @@
 # Services API
 
->**Note:** This API requires an access token with Maintainer or Owner permissions
+NOTE: **Note:**
+This API requires an access token with Maintainer or Owner permissions.
 
 ## Asana
 
@@ -518,7 +519,8 @@ Send IRC messages, on update, to a list of recipients through an Irker gateway.
 
 Set Irker (IRC gateway) service for a project.
 
-> NOTE: Irker does NOT have built-in authentication, which makes it vulnerable to spamming IRC channels if it is hosted outside of a  firewall. Please make sure you run the daemon within a secured network  to prevent abuse. For more details, read: <http://www.catb.org/~esr/irker/security.html>.
+NOTE: **Note:**
+Irker does NOT have built-in authentication, which makes it vulnerable to spamming IRC channels if it is hosted outside of a firewall. Please make sure you run the daemon within a secured network  to prevent abuse. For more details, read: <http://www.catb.org/~esr/irker/security.html>.
 
 ```
 PUT /projects/:id/services/irker
