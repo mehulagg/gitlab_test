@@ -454,8 +454,8 @@ If you are [running GitLab Pages on a separate server](#running-gitlab-pages-on-
 
 1. On your GitLab Pages server, add the following to the `/etc/gitlab/gitlab.rb` file:
 
-    ```shell
-    gitlab_pages['gitlab_server'] = http://<your-pages-server-URL>
+    ```ruby
+    gitlab_pages['gitlab_server'] = "http://<your-main-gitlab-server-URL>"
     ```
 
 1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the Pages server for the changes to take effect.
