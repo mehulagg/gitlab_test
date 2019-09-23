@@ -439,13 +439,13 @@ If you are [running GitLab Pages on a separate server](#running-gitlab-pages-on-
 
 1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the `main GitLab server` for the changes to take effect.
 
-1. Create a backup of the secrets file on the `main GitLab server`: 
+1. Create a backup of the secrets file on the `main GitLab server`:
 
     ```shell
     cp /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json.bak
     ```
 
-1. Create a backup of the secrets file on the `Pages server`: 
+1. Create a backup of the secrets file on the `Pages server`:
 
     ```shell
     cp /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json.bak
