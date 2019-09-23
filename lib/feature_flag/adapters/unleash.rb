@@ -49,7 +49,10 @@ module FeatureFlag
         end
 
         def remove
-          # Not Supported yet (See https://gitlab.com/gitlab-org/gitlab-ee/issues/9566)
+          HTTParty.post(Unleash.delete_feature_flag_url(name),
+            headers: Unleash.request_headers,
+            body: { name: name,
+                    environment_scope: Gitlab.config.unleash.app_name })
         end
 
         def persisted?
@@ -147,6 +150,10 @@ module FeatureFlag
 
         def disable_feature_flag_url(key)
           "#{api_endpoint}/feature_flags/#{key}/disable"
+        end
+
+        def delete_feature_flag_url(key)
+          "#{api_endpoint}/feature_flags/#{key}"
         end
 
         def api_endpoint

@@ -169,37 +169,33 @@ module API
 
         result = nil
 
-        if feature_flag = user_project.operations_feature_flags.find_by_name(params[:name])
-          scope = feature_flag.scopes.find_by_environment_scope(params[:environment_scope])
+        scope = feature_flag.scopes.find_by_environment_scope(params[:environment_scope])
 
-          not_modified! unless scope
+        not_found! unless scope
 
-          remained_strategy = scope.strategies.reject { |str| str['name'] == params[:strategy]['name'] && str['parameters'] == params[:strategy]['parameters'] }
+        remained_strategy = scope.strategies.reject { |str| str['name'] == params[:strategy]['name'] && str['parameters'] == params[:strategy]['parameters'] }
 
-          not_modified! if scope.strategies == remained_strategy
+        not_modified! if scope.strategies == remained_strategy
 
-          update_params = if remained_strategy.empty?
-            {
-              scopes_attributes:[{
-                id: scope.id,
-                _destroy: 1
-              }]
-            }
-          else
-            {
-              scopes_attributes:[{
-                id: scope.id,
-                strategies: remained_strategy
-              }]
-            }
-          end
-
-          result = ::FeatureFlags::UpdateService
-            .new(user_project, current_user, update_params)
-            .execute(feature_flag)
+        update_params = if remained_strategy.empty?
+          {
+            scopes_attributes:[{
+              id: scope.id,
+              _destroy: 1
+            }]
+          }
         else
-          not_modified!
+          {
+            scopes_attributes:[{
+              id: scope.id,
+              strategies: remained_strategy
+            }]
+          }
         end
+
+        result = ::FeatureFlags::UpdateService
+          .new(user_project, current_user, update_params)
+          .execute(feature_flag)
 
         if result.nil?
           render_api_error!('Bad request', 400)
@@ -215,16 +211,38 @@ module API
         success EE::API::Entities::FeatureFlag
       end
       params do
-        optional :name,         type: String, desc: 'The name of the feature flag'
+        requires :name,              type: String, desc: 'The name of the feature flag'
+        optional :environment_scope, type: String, desc: 'The environment scope'
       end
       delete ':id/feature_flags/:name', requirements: FEATURE_FLAG_ENDPOINT_REQUIREMETS do
         authorize_destroy_feature_flag!
 
-        result = ::FeatureFlags::DestroyService
-          .new(user_project, current_user, declared_params(include_missing: false))
-          .execute(feature_flag)
+        result = nil
 
-        if result[:status] == :success
+        if params[:environment_scope]
+          scope = feature_flag.scopes.find_by_environment_scope(params[:environment_scope])
+
+          not_found! unless scope
+
+          update_params = {
+            scopes_attributes:[{
+              id: scope.id,
+              _destroy: 1
+            }]
+          }
+
+          result = ::FeatureFlags::UpdateService
+            .new(user_project, current_user, update_params)
+            .execute(feature_flag)
+        else
+          result = ::FeatureFlags::DestroyService
+            .new(user_project, current_user, declared_params(include_missing: false))
+            .execute(feature_flag)
+        end
+
+        if result.nil?
+          render_api_error!('Bad request', 400)
+        elsif result[:status] == :success
           present result[:feature_flag], with: EE::API::Entities::FeatureFlag
         else
           render_api_error!(result[:message], result[:http_status])
