@@ -418,7 +418,7 @@ To configure GitLab Pages on a separate server:
 
 1. On the main GitLab server, make the following changes to `/etc/gitlab/gitlab.rb`:
 
-   ```shell
+   ```ruby
    gitlab_pages['enable'] = false
    pages_external_url "http://<your-pages-server-URL>"
    gitlab_rails['pages_path'] = "/mnt/pages"
