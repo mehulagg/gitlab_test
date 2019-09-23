@@ -14,7 +14,7 @@ require 'logger'
 
 MOVE_DATE = "2019-09-09".to_date.freeze
 MOVE_NOTE_TEXT = "GitLab is moving all development for both GitLab Community Edition"
-BATCH_SIZE = 1000.freeze
+BATCH_SIZE = 100.freeze
 BATCH_WAIT = 3.freeze
 
 rows_updated = BATCH_SIZE
@@ -33,16 +33,12 @@ user_id = User.find_by(username: 'gitlab-bot').id
 source_project_id = Project.find_by_full_path('gitlab-org/gitlab-foss').id
 
 moved_issues =
-  ActiveRecord::Base.transaction do
-    ActiveRecord::Base.connection.execute("SET LOCAL statement_timeout = '3min'")
-
-      Note.select(:noteable_id)
-        .where(project_id: source_project_id)
-        .where(author_id: user_id)
-        .where(noteable_type: 'Issue')
-        .where('created_at >= ?', MOVE_DATE)
-        .where('note LIKE ?', "%#{MOVE_NOTE_TEXT}%")
-  end
+  Note.select(:noteable_id)
+    .where(project_id: source_project_id)
+    .where(author_id: user_id)
+    .where(noteable_type: 'Issue')
+    .where('created_at >= ?', MOVE_DATE)
+    .where('note LIKE ?', "%#{MOVE_NOTE_TEXT}%")
 
 issues = Issue.where(id: moved_issues)
 issues_count = issues.count
