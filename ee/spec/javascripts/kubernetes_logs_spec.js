@@ -32,7 +32,7 @@ describe('Kubernetes Logs', () => {
 
     it('has the pod name placed on the dropdown', done => {
       kubernetesLog = new KubernetesLogs(kubernetesLogContainer);
-      kubernetesLog.getPodLogs();
+      kubernetesLog.getData();
 
       setTimeout(() => {
         const podDropdown = document
@@ -49,7 +49,7 @@ describe('Kubernetes Logs', () => {
       const toggleDisableSpy = spyOnDependency(KubernetesLogs, 'toggleDisableButton').and.stub();
       kubernetesLog = new KubernetesLogs(kubernetesLogContainer);
 
-      kubernetesLog.getPodLogs();
+      kubernetesLog.getData();
       setTimeout(() => {
         expect(kubernetesLog.isLogComplete).toEqual(true);
         expect(kubernetesLog.$buildOutputContainer.text()).toContain(logMockData[0].trim());
@@ -60,10 +60,10 @@ describe('Kubernetes Logs', () => {
     });
 
     it('asks for the pod logs from another pod', done => {
-      const changePodLogSpy = spyOn(KubernetesLogs.prototype, 'getPodLogs').and.callThrough();
+      const changePodLogSpy = spyOn(KubernetesLogs.prototype, 'getData').and.callThrough();
       kubernetesLog = new KubernetesLogs(kubernetesLogContainer);
 
-      kubernetesLog.getPodLogs();
+      kubernetesLog.getData();
       setTimeout(() => {
         const podDropdown = document.querySelectorAll('.js-pod-dropdown .dropdown-menu button');
         const anotherPod = podDropdown[podDropdown.length - 1];
@@ -79,7 +79,7 @@ describe('Kubernetes Logs', () => {
       const emptySpy = spyOn($.prototype, 'empty').and.callThrough();
       kubernetesLog = new KubernetesLogs(kubernetesLogContainer);
 
-      kubernetesLog.getPodLogs();
+      kubernetesLog.getData();
       setTimeout(() => {
         // This is because it clears both the job log contents and the dropdown
         expect(emptySpy.calls.count()).toEqual(2);

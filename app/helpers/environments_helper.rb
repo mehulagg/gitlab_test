@@ -17,6 +17,15 @@ module EnvironmentsHelper
     }
   end
 
+  def environment_logs_data(project, environment)
+    {
+      "environment-name": environment.name,
+      "environments-path": project_environments_path(project, format: :json),
+      "logs-path": logs_project_environment_path(project, environment, format: :json),
+      "logs-page": logs_project_environment_path(project, environment)
+    }
+  end
+
   def metrics_data(project, environment)
     {
       "settings-path" => edit_project_service_path(project, 'prometheus'),
