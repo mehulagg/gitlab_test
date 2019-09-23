@@ -399,7 +399,7 @@ To configure GitLab Pages on a separate server:
 1. On the new server, install GitLab omnibus and modify `/etc/gitlab/gitlab.rb`
    to include:
 
-   ```shell
+   ```ruby
    external_url 'http://<ip-address-of-the-server>'
    pages_external_url "http://<your-pages-server-URL>"
    postgresql['enable'] = false
