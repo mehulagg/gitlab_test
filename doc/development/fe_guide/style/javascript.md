@@ -207,7 +207,9 @@ If you do need to disable a rule for a single violation, try to do it as locally
 import Foo from 'foo';
 
 new Foo();
+```
 
+```javascript
 // better
 import Foo from 'foo';
 
