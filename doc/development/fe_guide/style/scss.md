@@ -1,3 +1,7 @@
+---
+disqus_identifier: 'https://docs.gitlab.com/ee/development/fe_guide/style_guide_scss.html'
+---
+
 # SCSS style guide
 
 This style guide recommends best practices for SCSS to make styles easy to read,

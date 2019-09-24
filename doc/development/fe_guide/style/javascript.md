@@ -1,3 +1,7 @@
+---
+disqus_identifier: 'https://docs.gitlab.com/ee/development/fe_guide/style_guide_js.html'
+---
+
 # JavaScript style guide
 
 We use [Airbnb's JavaScript Style Guide](https://github.com/airbnb/javascript) and it's accompanying
