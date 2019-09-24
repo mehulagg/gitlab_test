@@ -160,7 +160,7 @@ variables:
   SAST_DISABLE_DIND: "true"
 ```
 
-This will create individual `<analyzer-name>-sast` jobs for each analyzer ran in your CI/CD pipeline.
+This will create individual `<analyzer-name>-sast` jobs for each analyzer that runs in your CI/CD pipeline.
 
 ### Overriding the SAST template
 
