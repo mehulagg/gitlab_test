@@ -38,6 +38,10 @@ module Gitlab
         cache.write(key, cached_content, expires_in: 1.week)
       end
 
+      def exists?
+        cache.exist?(key)
+      end
+
       def clear
         cache.delete(key)
       end
