@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Badge from '~/badges/components/badge.vue';
-import mountComponent from 'spec/helpers/vue_mount_component_helper';
-import { DUMMY_IMAGE_URL, TEST_HOST } from 'spec/test_constants';
+import mountComponent from 'helpers/vue_mount_component_helper';
+import { DUMMY_IMAGE_URL, TEST_HOST } from 'helpers/test_constants';
 
 describe('Badge component', () => {
   const Component = Vue.extend(Badge);
@@ -31,7 +31,6 @@ describe('Badge component', () => {
   afterEach(() => {
     vm.$destroy();
   });
-
   describe('watchers', () => {
     describe('imageUrl', () => {
       it('sets isLoading and resets numRetries and hasError', done => {
@@ -41,9 +40,7 @@ describe('Badge component', () => {
             expect(vm.isLoading).toBe(false);
             vm.hasError = true;
             vm.numRetries = 42;
-
             vm.imageUrl = `${props.imageUrl}#something/else`;
-
             return Vue.nextTick();
           })
           .then(() => {
@@ -56,45 +53,34 @@ describe('Badge component', () => {
       });
     });
   });
-
   describe('methods', () => {
     beforeEach(done => {
       createComponent({ ...dummyProps })
         .then(done)
         .catch(done.fail);
     });
-
     it('onError resets isLoading and sets hasError', () => {
       vm.hasError = false;
       vm.isLoading = true;
-
       vm.onError();
-
       expect(vm.hasError).toBe(true);
       expect(vm.isLoading).toBe(false);
     });
-
     it('onLoad sets isLoading', () => {
       vm.isLoading = true;
-
       vm.onLoad();
-
       expect(vm.isLoading).toBe(false);
     });
-
     it('reloadImage resets isLoading and hasError and increases numRetries', () => {
       vm.hasError = true;
       vm.isLoading = false;
       vm.numRetries = 0;
-
       vm.reloadImage();
-
       expect(vm.hasError).toBe(false);
       expect(vm.isLoading).toBe(true);
       expect(vm.numRetries).toBe(1);
     });
   });
-
   describe('behavior', () => {
     beforeEach(done => {
       setFixtures('<div id="dummy-element"></div>');
@@ -102,25 +88,20 @@ describe('Badge component', () => {
         .then(done)
         .catch(done.fail);
     });
-
     it('shows a badge image after loading', () => {
       expect(vm.isLoading).toBe(false);
       expect(vm.hasError).toBe(false);
       const { badgeImage, loadingIcon, reloadButton } = findElements();
-
       expect(badgeImage).toBeVisible();
       expect(loadingIcon).toBeHidden();
       expect(reloadButton).toBeHidden();
       expect(vm.$el.innerText).toBe('');
     });
-
     it('shows a loading icon when loading', done => {
       vm.isLoading = true;
-
       Vue.nextTick()
         .then(() => {
           const { badgeImage, loadingIcon, reloadButton } = findElements();
-
           expect(badgeImage).toBeHidden();
           expect(loadingIcon).toBeVisible();
           expect(reloadButton).toBeHidden();
@@ -129,14 +110,11 @@ describe('Badge component', () => {
         .then(done)
         .catch(done.fail);
     });
-
     it('shows an error and reload button if loading failed', done => {
       vm.hasError = true;
-
       Vue.nextTick()
         .then(() => {
           const { badgeImage, loadingIcon, reloadButton } = findElements();
-
           expect(badgeImage).toBeHidden();
           expect(loadingIcon).toBeHidden();
           expect(reloadButton).toBeVisible();
