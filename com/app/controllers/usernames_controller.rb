@@ -16,7 +16,6 @@ class UsernamesController < ApplicationController
   private
 
   def validate_params
-    return true
-    # !params[:name].blank?
+    !params[:name].blank?
   end
 end
