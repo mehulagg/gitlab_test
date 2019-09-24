@@ -96,4 +96,113 @@ describe API::Deployments do
       end
     end
   end
+
+  describe 'POST /projects/:id/deployments' do
+    let!(:project) { create(:project, :repository) }
+    let!(:environment) { create(:environment, project: project) }
+
+    context 'as a member of the project' do
+      let(:sha) { 'b83d6e391c22777fca1ed3012fce84f633d7fed0' }
+
+      it 'creates a new deployment' do
+        post(
+          api("/projects/#{project.id}/deployments", user),
+          params: {
+            environment_id: environment.id,
+            sha: sha,
+            ref: 'master',
+            tag: false,
+            status: 'success'
+          }
+        )
+
+        expect(response).to have_gitlab_http_status(201)
+
+        expect(json_response['sha']).to eq(sha)
+        expect(json_response['ref']).to eq('master')
+      end
+    end
+
+    context 'as non member' do
+      it 'returns a 404 status code' do
+        post(
+          api( "/projects/#{project.id}/deployments", non_member),
+          params: {
+            environment_id: environment.id,
+            sha: '123',
+            ref: 'master',
+            tag: false,
+            status: 'success'
+          }
+        )
+
+        expect(response).to have_gitlab_http_status(404)
+      end
+    end
+  end
+
+  describe 'PUT /projects/:id/deployments/:deployment_id' do
+    let(:project) { create(:project) }
+    let(:build) { create(:ci_build, :failed, project: project) }
+    let(:environment) { create(:environment, project: project) }
+    let(:deploy) do
+      create(
+        :deployment,
+        :failed,
+        project: project,
+        deployable: build,
+        environment: environment
+      )
+    end
+
+    context 'as a member that can update deployments' do
+      it 'updates a deployment with an associated build' do
+        put(
+          api("/projects/#{project.id}/deployments/#{deploy.id}", user),
+          params: { status: 'success' }
+        )
+
+        expect(response).to have_gitlab_http_status(200)
+        expect(json_response['status']).to eq('success')
+      end
+
+      it 'updates a deployment without an associated build' do
+        deploy.update(deployable: nil)
+
+        put(
+          api("/projects/#{project.id}/deployments/#{deploy.id}", user),
+          params: { status: 'success' }
+        )
+
+        expect(response).to have_gitlab_http_status(200)
+        expect(json_response['status']).to eq('success')
+      end
+    end
+
+    context 'a a member that can not update deployments' do
+      it 'returns a 403 status code' do
+        developer = create(:user)
+
+        project.add_developer(developer)
+
+        put(
+          api("/projects/#{project.id}/deployments/#{deploy.id}", developer),
+          params: { status: 'success' }
+        )
+
+        expect(response).to have_gitlab_http_status(403)
+      end
+    end
+
+    context 'as non member' do
+      it 'returns a 404 status code' do
+        put(
+          api("/projects/#{project.id}/deployments/#{deploy.id}", non_member),
+          params: { status: 'success' }
+        )
+
+        expect(response).to have_gitlab_http_status(404)
+      end
+    end
+  end
 end

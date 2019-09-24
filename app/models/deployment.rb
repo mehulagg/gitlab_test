@@ -9,7 +9,7 @@ class Deployment < ApplicationRecord
   belongs_to :environment, required: true
   belongs_to :cluster, class_name: 'Clusters::Cluster', optional: true
   belongs_to :user
-  belongs_to :deployable, polymorphic: true # rubocop:disable Cop/PolymorphicAssociations
+  belongs_to :deployable, polymorphic: true, optional: true # rubocop:disable Cop/PolymorphicAssociations
 
   has_internal_id :iid, scope: :project, init: ->(s) do
     Deployment.where(project: s.project).maximum(:iid) if s&.project
@@ -21,6 +21,8 @@ class Deployment < ApplicationRecord
   delegate :name, to: :environment, prefix: true
 
   scope :for_environment, -> (environment) { where(environment_id: environment) }
+
+  scope :visible, -> { where(status: %i[running success failed canceled]) }
 
   state_machine :status, initial: :created do
     event :run do

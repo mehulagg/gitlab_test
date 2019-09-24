@@ -6,7 +6,7 @@ class Environment < ApplicationRecord
 
   belongs_to :project, required: true
 
-  has_many :deployments, -> { success }, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
+  has_many :deployments, -> { visible }, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
 
   has_one :last_deployment, -> { success.order('deployments.id DESC') }, class_name: 'Deployment'
 

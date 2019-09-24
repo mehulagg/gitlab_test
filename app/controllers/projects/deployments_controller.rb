@@ -49,7 +49,7 @@ class Projects::DeploymentsController < Projects::ApplicationController
 
   # rubocop: disable CodeReuse/ActiveRecord
   def deployment
-    @deployment ||= environment.deployments.find_by(iid: params[:id])
+    @deployment ||= environment.deployments.success.find_by!(iid: params[:id])
   end
   # rubocop: enable CodeReuse/ActiveRecord
 
