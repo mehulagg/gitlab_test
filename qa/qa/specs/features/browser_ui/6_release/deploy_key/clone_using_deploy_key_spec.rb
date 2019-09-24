@@ -87,7 +87,7 @@ module QA
           Page::Project::Pipeline::Show.perform(&:click_on_first_job)
 
           Page::Project::Job::Show.perform do |job|
-            expect(job).to be_successful
+            expect(job).to be_successful(timeout: 1200)
             expect(job.output).to include(sha1sum)
           end
         end
