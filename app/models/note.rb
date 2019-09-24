@@ -193,6 +193,14 @@ class Note < ApplicationRecord
       groups
     end
 
+    def position_for_paths(paths)
+      relation =
+        joins(:note_diff_file)
+          .where('note_diff_files.old_path IN (?) OR note_diff_files.new_path IN (?)', paths, paths)
+
+      relation.map(&:position).compact
+    end
+
     def count_for_collection(ids, type)
       user.select('noteable_id', 'COUNT(*) as count')
         .group(:noteable_id)
