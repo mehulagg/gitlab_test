@@ -3,13 +3,12 @@
 module Gitlab
   module BackgroundMigration
     class BackfillCodeAnalyticsData
-      NUM_MONTHS_TO_BACKFILL = 6
-      MONTHLY_FREQUENCY = 1
+      NUM_DAYS_TO_BACKFILL = 30
 
-      def perform
+      def perform(start_id, end_id)
         projects_with_premium_license.each do |project|
-          date_range_breakdown.each do |range|
-            commits_in_range(project, range).each do |commit|
+          (1..NUM_DAYS_TO_BACKFILL).each do |days|
+            commits_in_range(project, Date.today - days).each do |commit|
               edited_files(commit).each do |file, num_edits|
                 repo_file = Analytics::CodeAnalytics::RepositoryFileEdits.upsert(file_path: file.file_path, project: project)
 
@@ -21,17 +20,6 @@ module Gitlab
       end
 
       private
-
-      def date_range_breakdown
-        beginning_of_current_month = Date.today.at_beginning_of_month
-        end_of_current_month = Date.today.at_end_of_month
-
-        ranges = [beginning_of_current_month..Date.today]
-        (1..NUM_MONTHS_TO_BACKFILL).each do |months|
-          ranges.add ((beginning_of_current_month << months)..(send_of_current_month << months))
-        end
-        ranges
-      end
 
       def upsert_repo_file_edits(repo_file, num_edits)
         Analytics::CodeAnalytics::RepositoryFileEdits.upsert(
