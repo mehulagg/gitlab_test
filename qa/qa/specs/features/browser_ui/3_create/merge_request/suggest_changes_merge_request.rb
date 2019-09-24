@@ -31,7 +31,7 @@ module QA
         # 5. As the "developer-user" user, create a merge request (MR) and assign it to the "root" user for review.
         Page::Main::Menu.perform(&:sign_out)
         Runtime::Browser.visit(:gitlab, Page::Main::Login)
-        Page::Main::Login.perform { |login| login.sign_in_using_credentials(@developer_user) }
+        Page::Main::Login.perform { |login| login.sign_in_using_credentials(user: @developer_user) }
 
         merge_request = Resource::MergeRequest.fabricate_via_browser_ui! do |mr|
           mr.project = @project
@@ -55,7 +55,7 @@ module QA
         # 7. As the "developer-user" user, apply the change.
         Page::Main::Menu.perform(&:sign_out)
         Runtime::Browser.visit(:gitlab, Page::Main::Login)
-        Page::Main::Login.perform { |login| login.sign_in_using_credentials(@developer_user) }
+        Page::Main::Login.perform { |login| login.sign_in_using_credentials(user: @developer_user) }
         @project.visit!
         Page::Project::Menu.perform(&:click_merge_requests)
         Page::MergeRequest::Show.perform do |mr|

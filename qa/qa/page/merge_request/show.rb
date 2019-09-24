@@ -231,7 +231,7 @@ module QA
         end
 
         def submit_comment
-          click_element :reply_comment_button
+          click_element :comment_now
         end
 
         def insert_suggestion(suggestion)

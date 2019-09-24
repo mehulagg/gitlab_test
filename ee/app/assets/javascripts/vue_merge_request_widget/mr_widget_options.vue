@@ -310,7 +310,7 @@ export default {
         class="js-reports-container"
         :endpoint="mr.testResultsPath"
       />
-      <div class="mr-widget-section">
+      <div class="mr-widget-section qa-mr-section-container">
         <component :is="componentName" :mr="mr" :service="service" />
 
         <div class="mr-widget-info">
