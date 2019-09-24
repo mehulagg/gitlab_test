@@ -142,6 +142,7 @@ export default {
               },
             };
             data.design.discussions.edges.push(newDiscussion);
+            data.design.notesCount = ++data.design.notesCount;
             store.writeQuery({ query: getDesignQuery, data });
           },
         })
