@@ -18,7 +18,7 @@ sast:
   cache: {}
   variables:
     SAST_BRAKEMAN_LEVEL: 2
-    SAST_DEFAULT_ANALYZERS: "bandit,brakeman,gosec,spotbugs,flawfinder,phpcs-security-audit,security-code-scan,eslint,tslint,secrets,sobelow,pmd-apex"
+    SAST_DEFAULT_ANALYZERS: "bandit,brakeman,gosec,spotbugs,flawfinder,phpcs-security-audit,security-code-scan,eslint,tslint,sobelow,pmd-apex"
 
 dependency_scanning:
   extends: .dedicated-no-docs
