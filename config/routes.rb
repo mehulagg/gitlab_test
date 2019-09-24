@@ -110,10 +110,13 @@ Rails.application.routes.draw do
       draw :security
       draw :smartcard
       draw :jira_connect
-      draw :username
       draw :trial
       draw :trial_registration
       draw :country
+    end
+
+    Gitlab.com do
+      draw :username
     end
 
     Gitlab.ee do

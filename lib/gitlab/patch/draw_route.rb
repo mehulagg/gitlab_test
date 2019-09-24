@@ -10,7 +10,7 @@ module Gitlab
       RoutesNotFound = Class.new(StandardError)
 
       def draw(routes_name)
-        drawn_any = draw_ce(routes_name) | draw_ee(routes_name)
+        drawn_any = draw_ce(routes_name) | draw_ee(routes_name) | draw_com(routes_name)
 
         drawn_any || raise(RoutesNotFound.new("Cannot find #{routes_name}"))
       end
@@ -21,6 +21,11 @@ module Gitlab
 
       def draw_ee(_)
         true
+      end
+
+      #TO DO: move inside of com
+      def draw_com(routes_name)
+        draw_route(route_path("com/config/routes/#{routes_name}.rb"))
       end
 
       def route_path(routes_name)

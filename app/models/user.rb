@@ -1671,3 +1671,4 @@ class User < ApplicationRecord
 end
 
 User.prepend_if_ee('EE::User')
+User.prepend_if_com('Com::User')

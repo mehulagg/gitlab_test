@@ -21,6 +21,17 @@ module InjectEnterpriseEditionModule
   def include_if_ee(constant)
     include(constant.constantize) if Gitlab.ee?
   end
+
+  def prepend_if_com(constant, with_descendants: false)
+    return unless Gitlab.com?
+
+    com_module = constant.constantize
+    prepend(com_module)
+
+    if with_descendants
+      descendants.each { |descendant| descendant.prepend(com_module) }
+    end
+  end
 end
 
 Module.prepend(InjectEnterpriseEditionModule)

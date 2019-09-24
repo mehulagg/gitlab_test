@@ -5,8 +5,7 @@ class UsernamesController < ApplicationController
 
   def suggest
     if validate_params
-      # username = ::User.username_suggestion(params[:name])
-      username = 'test'
+      username = ::User.username_suggestion(params[:name])
 
       render json: { username: username }, status: :ok
     else

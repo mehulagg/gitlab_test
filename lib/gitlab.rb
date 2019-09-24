@@ -44,7 +44,9 @@ module Gitlab
 
   def self.com?
     # Check `gl_subdomain?` as well to keep parity with gitlab.com
-    Gitlab.config.gitlab.url == COM_URL || gl_subdomain?
+    # Gitlab.config.gitlab.url == COM_URL || gl_subdomain?
+    # TO DO: should we include an env variable?
+    return true
   end
 
   def self.org?
@@ -77,6 +79,10 @@ module Gitlab
 
   def self.ee
     yield if ee?
+  end
+
+  def self.com
+    yield if com?
   end
 
   def self.http_proxy_env?
