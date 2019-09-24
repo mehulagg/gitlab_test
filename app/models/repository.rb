@@ -133,6 +133,7 @@ class Repository
     end
   end
 
+  # note
   def commits(ref = nil, path: nil, limit: nil, offset: nil, skip_merges: false, after: nil, before: nil, all: nil)
     options = {
       repo: raw_repository,
@@ -153,6 +154,7 @@ class Repository
     CommitCollection.new(project, commits, ref)
   end
 
+  # note
   def commits_between(from, to)
     commits = Gitlab::Git::Commit.between(raw_repository, from, to)
     commits = Commit.decorate(commits, @project) if commits.present?

@@ -51,6 +51,7 @@ module EE
         where('last_ci_minutes_notification_at IS NOT NULL OR last_ci_minutes_usage_notification_level IS NOT NULL')
       end
 
+      # note
       scope :with_feature_available_in_plan, -> (feature) do
         plans = plans_with_feature(feature)
         matcher = Plan.where(name: plans)

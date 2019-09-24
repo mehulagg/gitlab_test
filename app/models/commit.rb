@@ -489,6 +489,7 @@ class Commit
     end
   end
 
+  # NOTE
   def repo_changes
     changes = { added: [], modified: [], removed: [] }
 

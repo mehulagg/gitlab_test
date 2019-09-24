@@ -10,6 +10,7 @@ module Gitlab
         @repository = repository
       end
 
+      # note
       def ls_files(revision)
         request = Gitaly::ListFilesRequest.new(
           repository: @gitaly_repo,
@@ -32,6 +33,7 @@ module Gitlab
         GitalyClient.call(@repository.storage, :commit_service, :commit_is_ancestor, request, timeout: GitalyClient.fast_timeout).value
       end
 
+      # note
       def diff(from, to, options = {})
         from_id = case from
                   when NilClass
@@ -70,6 +72,7 @@ module Gitlab
         call_commit_diff(request_params, options)
       end
 
+      # note
       def commit_deltas(commit)
         request = Gitaly::CommitDeltaRequest.new(diff_from_parent_request_params(commit))
         response = GitalyClient.call(@repository.storage, :diff_service, :commit_delta, request, timeout: GitalyClient.fast_timeout)
