@@ -56,6 +56,10 @@ class BuildDetailsEntity < JobEntity
 
   expose :failure_reason, if: -> (*) { build.failed? }
 
+  expose :missing_dependencies, using: BuildDetailsEntity do |b|
+    b.dependencies.reject(&:valid_dependency?)
+  end
+
   expose :terminal_path, if: -> (*) { can_create_build_terminal? } do |build|
     terminal_project_job_path(project, build)
   end

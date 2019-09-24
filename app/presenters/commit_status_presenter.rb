@@ -25,6 +25,8 @@ class CommitStatusPresenter < Gitlab::View::Presenter::Delegated
   end
 
   def callout_failure_message
+    return missing_dependencies_message if failure_reason.to_sym == :missing_dependency_failure
+
     self.class.callout_failure_messages.fetch(failure_reason.to_sym)
   end
 
@@ -34,5 +36,18 @@ class CommitStatusPresenter < Gitlab::View::Presenter::Delegated
 
   def unrecoverable?
     script_failure? || missing_dependency_failure? || archived_failure?
+  end
+
+  private
+
+  def missing_dependencies_message
+    [
+      "There were missing dependencies from the following stage(s): #{invalid_stages}",
+      "Please refer to https://docs.gitlab.com/ce/ci/yaml/README.html#when-a-dependent-job-will-fail"
+    ].join("\n")
+  end
+
+  def invalid_stages
+    dependencies.reject(&:valid_dependency?).map(&:name).join(', ')
   end
 end
