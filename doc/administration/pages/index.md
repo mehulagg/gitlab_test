@@ -120,7 +120,7 @@ The Pages daemon doesn't listen to the outside world.
 
 1. Set the external URL for GitLab Pages in `/etc/gitlab/gitlab.rb`:
 
-   ```shell
+   ```ruby
    pages_external_url 'http://example.io'
    ```
 
@@ -145,7 +145,7 @@ outside world.
 1. Place the certificate and key inside `/etc/gitlab/ssl`
 1. In `/etc/gitlab/gitlab.rb` specify the following configuration:
 
-   ```shell
+   ```ruby
    pages_external_url 'https://example.io'
 
    pages_nginx['redirect_http_to_https'] = true
@@ -167,7 +167,7 @@ behavior:
 1. Edit `/etc/gitlab/gitlab.rb`.
 1. Set the `inplace_chroot` to `true` for GitLab Pages:
 
-   ```shell
+   ```ruby
    gitlab_pages['inplace_chroot'] = true
    ```
 
@@ -202,7 +202,7 @@ world. Custom domains are supported, but no TLS.
 
 1. Edit `/etc/gitlab/gitlab.rb`:
 
-   ```shell
+   ```ruby
    pages_external_url "http://example.io"
    nginx['listen_addresses'] = ['192.0.2.1']
    pages_nginx['enable'] = false
@@ -233,7 +233,7 @@ world. Custom domains and TLS are supported.
 
 1. Edit `/etc/gitlab/gitlab.rb`:
 
-   ```shell
+   ```ruby
    pages_external_url "https://example.io"
    nginx['listen_addresses'] = ['192.0.2.1']
    pages_nginx['enable'] = false
@@ -332,7 +332,7 @@ Follow the steps below to configure verbose logging of GitLab Pages daemon.
    If you wish to make it log events with level `DEBUG` you must configure this in
    `/etc/gitlab/gitlab.rb`:
 
-   ```shell
+   ```ruby
    gitlab_pages['log_verbose'] = true
    ```
 
@@ -347,7 +347,7 @@ are stored.
    If you wish to store them in another location you must set it up in
    `/etc/gitlab/gitlab.rb`:
 
-   ```shell
+   ```ruby
    gitlab_rails['pages_path'] = "/mnt/storage/pages"
    ```
 
@@ -363,14 +363,14 @@ Omnibus GitLab 11.1.
    If you wish to disable it you must configure this in
    `/etc/gitlab/gitlab.rb`:
 
-   ```shell
+   ```ruby
    gitlab_pages['listen_proxy'] = nil
    ```
 
    If you wish to make it listen on a different port you must configure this also in
    `/etc/gitlab/gitlab.rb`:
 
-   ```shell
+   ```ruby
    gitlab_pages['listen_proxy'] = "localhost:10080"
    ```
 
@@ -437,7 +437,10 @@ If you are [running GitLab Pages on a separate server](#running-gitlab-pages-on-
     gitlab_pages['access_control'] = true
     ```
 
-1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the `main GitLab server` for the changes to take effect.
+1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the `main GitLab server` for the changes to take effect. The `gitlab-secrets.json` file is now updated with the new configuration.
+
+    DANGER: **Danger:**
+    The `gitlab-secrets.json` file contains secrets that control database encryption. Do not edit or replace this file on the `main GitLab server` or you might experience permanent data loss. Make a backup copy of this file before proceeding, as explained in the following steps.
 
 1. Create a backup of the secrets file on the `main GitLab server`:
 
@@ -452,9 +455,6 @@ If you are [running GitLab Pages on a separate server](#running-gitlab-pages-on-
     ```
 
 1. Copy the `/etc/gitlab/gitlab-secrets.json` file from the `main GitLab server` to the `Pages server`.
-
-    DANGER: **Danger:**
-    Do not edit or replace the `gitlab-secrets.json` file on the `main GitLab server` or you might experience permanent data loss. This file contains secrets that control database encryption. It is safe to copy this file to the `Pages server`, be certain that you have followed the preceding steps to create a backup copy as a precaution.
 
 1. Disable Pages on the `main GitLab server` by setting the following in the `/etc/gitlab/gitlab.rb` file:
 
