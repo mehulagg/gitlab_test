@@ -166,7 +166,8 @@ export const fetchSearchResults = ({ state, dispatch }) => {
 export const requestSearchResults = ({ commit }) => commit(types.REQUEST_SEARCH_RESULTS);
 
 export const receiveSearchResultsSuccess = ({ commit }, results) => {
-  commit(types.RECEIVE_SEARCH_RESULTS_SUCCESS, results);
+  commit(types.RECEIVE_SEARCH_RESULTS_SUCCESS, results.data);
+  commit(types.RECEIVE_SEARCH_RESULTS_HEADERS, results.headers);
 };
 
 export const receiveSearchResultsError = ({ commit }) => {
