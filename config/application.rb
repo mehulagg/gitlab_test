@@ -62,6 +62,15 @@ module Gitlab
       config.paths['app/views'].unshift "#{config.root}/ee/app/views"
     end
 
+    if Gitlab.com?
+      com_paths = config.eager_load_paths.each_with_object([]) do |path, memo|
+        ee_path = config.root.join('com', Pathname.new(path).relative_path_from(config.root))
+        memo << ee_path.to_s
+      end
+
+      config.eager_load_paths.push(*com_paths)
+    end
+
     # Rake tasks ignore the eager loading settings, so we need to set the
     # autoload paths explicitly
     config.autoload_paths = config.eager_load_paths.dup

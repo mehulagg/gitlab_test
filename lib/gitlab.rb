@@ -79,6 +79,10 @@ module Gitlab
     yield if ee?
   end
 
+  def self.com
+    yield if com?
+  end
+
   def self.http_proxy_env?
     HTTP_PROXY_ENV_VARS.any? { |name| ENV[name] }
   end
