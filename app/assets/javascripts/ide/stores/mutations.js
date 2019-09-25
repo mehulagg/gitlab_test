@@ -5,7 +5,13 @@ import mergeRequestMutation from './mutations/merge_request';
 import fileMutations from './mutations/file';
 import treeMutations from './mutations/tree';
 import branchMutations from './mutations/branch';
-import { sortTree, escapeFileUrl, swapInStateArray, swapInParentTreeWithSorting } from './utils';
+import {
+  sortTree,
+  replaceFileUrl,
+  swapInParentTreeWithSorting,
+  updateFileCollections,
+  removeFromParentTree,
+} from './utils';
 
 export default {
   [types.SET_INITIAL_DATA](state, data) {
@@ -159,6 +165,7 @@ export default {
       prevName: undefined,
       prevUrl: undefined,
       prevKey: undefined,
+      prevParentPath: undefined,
     });
 
     if (prevPath) {
@@ -208,7 +215,9 @@ export default {
 
     entry.deleted = true;
 
-    parent.tree = parent.tree.filter(f => f.path !== entry.path);
+    if (parent) {
+      parent.tree = parent.tree.filter(f => f.path !== entry.path);
+    }
 
     if (entry.type === 'blob') {
       if (tempFile) {
@@ -218,96 +227,59 @@ export default {
       }
     }
   },
-  [types.RENAME_ENTRY](state, { path, name, entryPath = null, parentPath }) {
-    const oldEntry = state.entries[entryPath || path];
-    const slashedParentPath = parentPath ? `${parentPath}/` : '';
-    const newName = entryPath ? oldEntry.name : name;
-    const newPath = entryPath
-      ? `${slashedParentPath}${oldEntry.name}`
-      : `${slashedParentPath}${name}`;
-    const newUrl = oldEntry.url.replace(
-      new RegExp(`${escapeFileUrl(oldEntry.path)}/?$`),
-      encodeURI(newPath),
-    );
+  [types.RENAME_ENTRY](state, { path, name, parentPath }) {
+    const oldEntry = state.entries[path];
+    const newPath = parentPath ? `${parentPath}/${name}` : name;
+    const isRevert = newPath === oldEntry.prevPath;
+
+    // question: Do we need to escapeFileUrl here?
+    const newUrl = replaceFileUrl(oldEntry.url, oldEntry.path, newPath);
+
+    const newKey = oldEntry.key.replace(new RegExp(oldEntry.path, 'g'), newPath);
 
     const baseProps = {
       ...oldEntry,
+      name,
       id: newPath,
       path: newPath,
-      name: newName,
       url: newUrl,
-      key: oldEntry.key.replace(new RegExp(oldEntry.path, 'g'), newPath),
+      key: newKey,
       parentPath: parentPath || oldEntry.parentPath,
     };
 
-    const prevProps = oldEntry.tempFile
-      ? {}
-      : {
-          prevId: oldEntry.prevId || oldEntry.id,
-          prevPath: oldEntry.prevPath || oldEntry.path,
-          prevName: oldEntry.prevName || oldEntry.name,
-          prevUrl: oldEntry.prevUrl || oldEntry.url,
-          prevKey: oldEntry.prevKey || oldEntry.key,
-          prevParentPath: oldEntry.prevParentPath || oldEntry.parentPath,
-        };
+    const prevProps =
+      oldEntry.tempFile || isRevert
+        ? {
+            prevId: undefined,
+            prevPath: undefined,
+            prevName: undefined,
+            prevUrl: undefined,
+            prevKey: undefined,
+            prevParentPath: undefined,
+          }
+        : {
+            prevId: oldEntry.prevId || oldEntry.id,
+            prevPath: oldEntry.prevPath || oldEntry.path,
+            prevName: oldEntry.prevName || oldEntry.name,
+            prevUrl: oldEntry.prevUrl || oldEntry.url,
+            prevKey: oldEntry.prevKey || oldEntry.key,
+            prevParentPath: oldEntry.prevParentPath || oldEntry.parentPath,
+          };
 
     Vue.set(state.entries, newPath, {
       ...baseProps,
       ...prevProps,
     });
 
-    swapInParentTreeWithSorting(state, oldEntry.path, newPath, parentPath);
-
-    if (oldEntry.type === 'blob') {
-      if (oldEntry.opened) {
-        swapInStateArray(state, 'openFiles', oldEntry.key, newPath);
-      }
-      swapInStateArray(state, 'changedFiles', oldEntry.key, newPath);
+    if (oldEntry.parentPath === parentPath) {
+      swapInParentTreeWithSorting(state, oldEntry.key, newPath, parentPath);
+    } else {
+      removeFromParentTree(state, oldEntry.key, oldEntry.parentPath);
+      swapInParentTreeWithSorting(state, oldEntry.key, newPath, parentPath);
     }
 
-    Vue.delete(state.entries, oldEntry.path);
-  },
-
-  [types.REVERT_RENAME_ENTRY](state, path) {
-    const oldEntry = state.entries[path];
-    const baseProps = {
-      ...oldEntry,
-      id: oldEntry.prevId,
-      path: oldEntry.prevPath,
-      name: oldEntry.prevName,
-      url: oldEntry.prevUrl,
-      key: oldEntry.prevKey,
-      parentPath: oldEntry.prevParentPath,
-    };
-
-    const prevProps = {
-      prevId: undefined,
-      prevPath: undefined,
-      prevName: undefined,
-      prevUrl: undefined,
-      prevKey: undefined,
-      prevParentPath: undefined
-    };
-
-    Vue.set(state.entries, baseProps.path, {
-      ...baseProps,
-      ...prevProps,
-    });
-
-    swapInParentTreeWithSorting(state, oldEntry.path, baseProps.path, baseProps.parentPath);
-
     if (oldEntry.type === 'blob') {
-      if (oldEntry.opened) {
-        swapInStateArray(state, 'openFiles', oldEntry.key, baseProps.path);
-      }
-
-      if (oldEntry.changed) {
-        swapInStateArray(state, 'changedFiles', oldEntry.key, baseProps.path);
-      } else {
-        Object.assign(state, {
-          changedFiles: state.changedFiles.filter(f => f.key !== oldEntry.key),
-        });
-      }
+      updateFileCollections(state, oldEntry.key, newPath);
     }
 
     Vue.delete(state.entries, oldEntry.path);

@@ -434,7 +434,7 @@ describe('Multi-file store utils', () => {
       expect(localState.dummyArray[0]).toBe(file2);
     });
 
-    it('adds an item if it does not exist yet in array', () => {
+    it('does not add an item if it does not exist yet in array', () => {
       const file1 = file('file');
       Object.assign(localState, {
         dummyArray: [],
@@ -445,8 +445,7 @@ describe('Multi-file store utils', () => {
 
       utils.swapInStateArray(localState, 'dummyArray', 'foo', 'file');
 
-      expect(localState.dummyArray.length).toBe(1);
-      expect(localState.dummyArray[0]).toBe(file1);
+      expect(localState.dummyArray.length).toBe(0);
     });
   });
 
@@ -524,11 +523,11 @@ describe('Multi-file store utils', () => {
       it('swaps entries if both paths are supplied', () => {
         branchInfo.tree = [localState.entries.oldPath];
 
-        utils.swapInParentTreeWithSorting(localState, 'oldPath', 'newPath');
+        utils.swapInParentTreeWithSorting(localState, localState.entries.oldPath.key, 'newPath');
 
         expect(branchInfo.tree).toEqual([jasmine.objectContaining({ name: 'newPath' })]);
 
-        utils.swapInParentTreeWithSorting(localState, 'newPath', 'oldPath');
+        utils.swapInParentTreeWithSorting(localState, localState.entries.newPath.key, 'oldPath');
 
         expect(branchInfo.tree).toEqual([jasmine.objectContaining({ name: 'oldPath' })]);
       });
@@ -542,7 +541,7 @@ describe('Multi-file store utils', () => {
 
         branchInfo.tree = [alpha, beta, gamma];
 
-        utils.swapInParentTreeWithSorting(localState, 'alpha', 'theta');
+        utils.swapInParentTreeWithSorting(localState, alpha.key, 'theta');
 
         expect(branchInfo.tree).toEqual([
           jasmine.objectContaining({ name: 'beta' }),
@@ -550,7 +549,7 @@ describe('Multi-file store utils', () => {
           jasmine.objectContaining({ name: 'theta' }),
         ]);
 
-        utils.swapInParentTreeWithSorting(localState, 'gamma', 'alpha');
+        utils.swapInParentTreeWithSorting(localState, gamma.key, 'alpha');
 
         expect(branchInfo.tree).toEqual([
           jasmine.objectContaining({ name: 'alpha' }),
@@ -558,7 +557,7 @@ describe('Multi-file store utils', () => {
           jasmine.objectContaining({ name: 'theta' }),
         ]);
 
-        utils.swapInParentTreeWithSorting(localState, 'beta', 'gamma');
+        utils.swapInParentTreeWithSorting(localState, beta.key, 'gamma');
 
         expect(branchInfo.tree).toEqual([
           jasmine.objectContaining({ name: 'alpha' }),

@@ -5,7 +5,7 @@ import eventHub from '../../eventhub';
 import service from '../../services';
 import * as types from '../mutation_types';
 import router from '../../ide_router';
-import { setPageTitle } from '../utils';
+import { setPageTitle, replaceFileUrl } from '../utils';
 import { viewerTypes, stageKeys } from '../../constants';
 
 export const closeFile = ({ commit, state, dispatch }, file) => {
@@ -67,7 +67,7 @@ export const getFileData = (
 
   commit(types.TOGGLE_LOADING, { entry: file });
 
-  const url = file.prevPath ? file.url.replace(file.path, file.prevPath) : file.url;
+  const url = file.prevPath ? replaceFileUrl(file.url, file.path, file.prevPath) : file.url;
 
   return service
     .getFileData(joinPaths(gon.relative_url_root || '', url.replace('/-/', '/')))
