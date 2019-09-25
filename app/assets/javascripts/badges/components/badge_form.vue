@@ -17,12 +17,6 @@ export default {
     LoadingButton,
     GlLoadingIcon,
   },
-  props: {
-    isEditing: {
-      type: Boolean,
-      required: true,
-    },
-  },
   data() {
     return {
       wasValidated: false,
@@ -36,6 +30,7 @@ export default {
       'isRendering',
       'isSaving',
       'renderedBadge',
+      'isEditing',
     ]),
     badge() {
       if (this.isEditing) {

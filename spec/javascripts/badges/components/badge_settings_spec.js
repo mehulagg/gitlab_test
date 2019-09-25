@@ -53,7 +53,7 @@ describe('BadgeSettings component', () => {
   });
 
   it('displays a form to add a badge', () => {
-    const form = vm.$el.querySelector('form:nth-of-type(2)');
+    const form = vm.$el.querySelector('form');
 
     expect(form).not.toBe(null);
     const button = form.querySelector('.btn-success');
