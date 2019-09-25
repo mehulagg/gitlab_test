@@ -1,6 +1,15 @@
 import * as types from './mutation_types';
 
 export default {
+  [types.SET_CLUSTER_NAME](state, { clusterName }) {
+    state.clusterName = clusterName;
+  },
+  [types.SET_ENVIRONMENT_SCOPE](state, { environmentScope }) {
+    state.environmentScope = environmentScope;
+  },
+  [types.SET_KUBERNETES_VERSION](state, { kubernetesVersion }) {
+    state.kubernetesVersion = kubernetesVersion;
+  },
   [types.SET_REGION](state, { region }) {
     state.selectedRegion = region;
   },
