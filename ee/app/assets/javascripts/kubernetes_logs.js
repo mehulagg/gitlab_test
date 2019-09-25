@@ -4,9 +4,30 @@ import { getParameterValues } from '~/lib/utils/url_utility';
 import { isScrolledToBottom, scrollDown, toggleDisableButton } from '~/lib/utils/scroll_utils';
 import httpStatusCodes from '~/lib/utils/http_status';
 import LogOutputBehaviours from '~/lib/utils/logoutput_behaviours';
-import createFlash from '~/flash';
-import { sprintf, __, s__ } from '~/locale';
+import flash from '~/flash';
+import { __, s__ } from '~/locale';
 import _ from 'underscore';
+import { backOff } from '~/lib/utils/common_utils';
+
+const REQUEST_WITH_BACKOFF_TIMEOUT = 10000;
+
+const requestWithBackoff = (url, params) =>
+  backOff((next, stop) => {
+    axios
+      .get(url, {
+        params,
+      })
+      .then(res => {
+        if (!res.data) {
+          next();
+          return;
+        }
+        stop(res);
+      })
+      .catch(err => {
+        stop(err);
+      });
+  }, REQUEST_WITH_BACKOFF_TIMEOUT);
 
 export default class KubernetesPodLogs extends LogOutputBehaviours {
   constructor(container) {
@@ -58,8 +79,7 @@ export default class KubernetesPodLogs extends LogOutputBehaviours {
     this.$buildRefreshAnimation.show();
     toggleDisableButton(this.$refreshLogBtn, 'true');
 
-    this.getEnvironments();
-    this.getLogs();
+    return Promise.all([this.getEnvironments(), this.getLogs()]);
   }
 
   getEnvironments() {
@@ -67,81 +87,78 @@ export default class KubernetesPodLogs extends LogOutputBehaviours {
       .get(this.environmentsPath)
       .then(res => {
         const { environments } = res.data;
-
-        this.setupDropdown(
-          this.$envDropdown,
-          this.environmentName,
-          environments.map(env => ({ name: env.name, value: env.id })),
-          el => {
-            const envId = el.currentTarget.value;
-            const envRegexp = /environments\/[0-9]+/gi;
-            const href = this.logsPage.replace(envRegexp, `environments/${envId}`);
-            window.location.href = href;
-          },
-        );
+        this.setupEnvironmentsDropdown(environments);
       })
-      .catch(() => createFlash(__('Something went wrong on our end')));
+      .catch(() => flash(__('Something went wrong on our end')));
   }
 
   getLogs() {
     const { logsPath } = this.options;
     const params = {};
-
     if (this.podName) {
       params.pod_name = this.podName;
     }
-    return axios
-      .get(logsPath, {
-        params,
-      })
+    return requestWithBackoff(logsPath, params)
       .then(res => {
         const { logs, pods } = res.data;
-
-        // Display pods dropdown
-        this.podName = this.podName || pods[0];
-        this.setupDropdown(
-          this.$podDropdown,
-          this.podName,
-          pods.map(podName => ({ name: podName, value: podName })),
-          el => {
-            const selectedPodName = el.currentTarget.value;
-            if (selectedPodName !== this.podName) {
-              this.podName = selectedPodName;
-              this.getData();
-            }
-          },
-        );
-
-        // Display logs
-        const formattedLogs = logs.map(logEntry => `${_.escape(logEntry)} <br />`);
-        this.$buildOutputContainer.append(formattedLogs);
-        scrollDown();
-        this.isLogComplete = true;
-        toggleDisableButton(this.$refreshLogBtn, false);
+        this.setupPodsDropdown(pods);
+        this.displayLogs(logs);
       })
       .catch(err => {
-        if (err.response && err.response.status === httpStatusCodes.NOT_FOUND) {
-          createFlash(
+        if (err.response && err.response.status === httpStatusCodes.BAD_REQUEST) {
+          flash(
             s__(
               'Environments|No pods available for this environment. Please select another environment',
             ),
             'notice',
           );
         } else {
-          let message = '';
-          if (err.response) {
-            message = sprintf(`Error: %{message}`, { message: err.response.data.message });
-          }
-          createFlash(
-            sprintf(__(`Something went wrong on our end. %{message}`), {
-              message,
-            }),
-          );
+          flash(__('Something went wrong on our end.'));
         }
       })
       .finally(() => {
         this.$buildRefreshAnimation.hide();
       });
+  }
+
+  setupEnvironmentsDropdown(environments) {
+    this.setupDropdown(
+      this.$envDropdown,
+      this.environmentName,
+      environments.map(env => ({ name: env.name, value: env.id })),
+      el => {
+        const envId = el.currentTarget.value;
+        const envRegexp = /environments\/[0-9]+/gi;
+        const href = this.logsPage.replace(envRegexp, `environments/${envId}`);
+        window.location.href = href;
+      },
+    );
+  }
+
+  setupPodsDropdown(pods) {
+    // Show first pod, it is selected by default
+    this.podName = this.podName || pods[0];
+    this.setupDropdown(
+      this.$podDropdown,
+      this.podName,
+      pods.map(podName => ({ name: podName, value: podName })),
+      el => {
+        const selectedPodName = el.currentTarget.value;
+        if (selectedPodName !== this.podName) {
+          this.podName = selectedPodName;
+          this.getData();
+        }
+      },
+    );
+  }
+
+  displayLogs(logs) {
+    const formattedLogs = logs.map(logEntry => `${_.escape(logEntry)} <br />`);
+
+    this.$buildOutputContainer.append(formattedLogs);
+    scrollDown();
+    this.isLogComplete = true;
+    toggleDisableButton(this.$refreshLogBtn, false);
   }
 
   setupDropdown($dropdown, activeOption, options, onSelect) {
