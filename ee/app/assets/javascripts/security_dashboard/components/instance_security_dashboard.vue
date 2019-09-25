@@ -107,7 +107,7 @@ export default {
           :title="s__('SecurityDashboard|Add a project to your dashboard')"
           :svg-path="emptyStateSvgPath"
         >
-          <template v-slot:description>
+          <template #description>
             {{
               s__(
                 'SecurityDashboard|The security dashboard displays the latest security findings for projects you wish to monitor. Select "Edit dashboard" to add and remove projects.',
@@ -115,7 +115,7 @@ export default {
             }}
             <gl-link :href="dashboardDocumentation">More information</gl-link>.
           </template>
-          <template v-slot:actions>
+          <template #actions>
             <gl-button new-style variant="success" @click="toggleProjectSelector">
               {{ s__('SecurityDashboard|Add projects') }}
             </gl-button>
