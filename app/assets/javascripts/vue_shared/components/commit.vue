@@ -177,8 +177,8 @@ export default {
 
     <gl-link :href="commitUrl" class="commit-sha mr-0">{{ shortSha }}</gl-link>
 
-    <span class="commit-title">
-      <span v-if="title || !showTitle" :class="{ 'flex-truncate-parent': showTitle }">
+    <span class="commit-title" :class="{ 'flex-truncate-parent': showTitle }">
+      <span v-if="title || !showTitle" class="flex-truncate-child">
         <span v-if="!showTitle" class="append-right-4">{{ __('by') }}</span>
         <user-avatar-link
           v-if="hasAuthor"
@@ -188,7 +188,7 @@ export default {
           :tooltip-text="author.username"
           class="avatar-image-container text-decoration-none"
         />
-        <span v-if="showTitle" class="flex-truncate-child">
+        <span v-if="showTitle">
           <tooltip-on-truncate :title="title">
             <gl-link :href="commitUrl" class="commit-row-message cgray">{{ title }}</gl-link>
           </tooltip-on-truncate>
