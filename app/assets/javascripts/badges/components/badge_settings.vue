@@ -57,9 +57,7 @@ export default {
       <p v-html="deleteModalText"></p>
     </gl-modal>
 
-    <badge-form v-show="isEditing" :is-editing="true" />
-
-    <badge-form v-show="!isEditing" :is-editing="false" />
+    <badge-form />
     <badge-list v-show="!isEditing" />
   </div>
 </template>
