@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module QA
   context 'Configure' do
     describe 'Kubernetes Configuration > Multiple Clusters', :orchestrated, :kubernetes do
