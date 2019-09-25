@@ -100,3 +100,31 @@ Object.assign(global, {
 beforeEach(() => {
   expect.hasAssertions();
 });
+
+window.Element.prototype.getClientRects = function getClientRects() {
+  let node = this;
+
+  while (node) {
+    if (node === document) {
+      break;
+    }
+    // don't know why but style is sometimes undefined
+    if (!node.style || node.style.display === 'none' || node.style.visibility === 'hidden') {
+      return [];
+    }
+    node = node.parentNode;
+  }
+
+  return [
+    {
+      bottom: 0,
+      height: 0,
+      left: 0,
+      right: 0,
+      top: 0,
+      width: 0,
+      x: 0,
+      y: 0,
+    },
+  ];
+};
