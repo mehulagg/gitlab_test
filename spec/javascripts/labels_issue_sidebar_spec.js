@@ -1,4 +1,4 @@
-/* eslint-disable no-new */
+/* eslint-disable no-new */
 
 import $ from 'jquery';
 import MockAdapter from 'axios-mock-adapter';
@@ -16,7 +16,41 @@ import '~/users_select';
 let saveLabelCount = 0;
 let mock;
 
-describe('Issue dropdown sidebar', () => {
+function testLabelSelections(opts) {
+  saveLabelCount = opts.labelCount;
+  console.log(saveLabelCount)
+  return function(done) {
+    $('.edit-link')
+      .get(0)
+      .click();
+
+    setTimeout(() => {
+      console.log(saveLabelCount)
+      const labelsInDropdown = $('.dropdown-content a');
+
+      expect(labelsInDropdown.length).toBe(10);
+
+      const arrayOfLabels = labelsInDropdown.get();
+      const randomArrayOfLabels = _.shuffle(arrayOfLabels);
+      randomArrayOfLabels.forEach((label, i) => {
+        if (i < opts.labelCount) {
+          $(label).click();
+        }
+      });
+
+      $('.edit-link')
+        .get(0)
+        .click();
+
+      setTimeout(() => {
+        expect($('.sidebar-collapsed-icon').attr('data-original-title')).toBe(opts.labelOrder);
+        done();
+      }, 0);
+    }, 0);
+  };
+}
+
+describe('Issue dropdown sidebar', () => {
   preloadFixtures('static/issue_sidebar_label.html');
 
   beforeEach(() => {
@@ -32,7 +66,7 @@ describe('Issue dropdown sidebar', () => {
         .fill()
         .map((_val, i) => ({
           id: i,
-          title: `test ${i}`,
+          title: `test ${i}`,
           color: '#5CB85C',
         }));
 
@@ -44,7 +78,7 @@ describe('Issue dropdown sidebar', () => {
         .fill()
         .map((_val, i) => ({
           id: i,
-          title: `test ${i}`,
+          title: `test ${i}`,
           color: '#5CB85C',
         }));
 
@@ -56,67 +90,17 @@ describe('Issue dropdown sidebar', () => {
     mock.restore();
   });
 
-  it('changes collapsed tooltip when changing labels when less than 5', done => {
-    saveLabelCount = 5;
-    $('.edit-link')
-      .get(0)
-      .click();
+  const fewerThanFive = testLabelSelections({
+    labelCount: 5,
+    labelOrder: 'test 0, test 1, test 2, test 3, test 4',
+  })
 
-    setTimeout(() => {
-      const labelsInDropdown = $('.dropdown-content a');
+  it('changes collapsed tooltip when changing labels when fewer than 5', fewerThanFive);
 
-      expect(labelsInDropdown.length).toBe(10);
+  const greaterThanFive = testLabelSelections({
+    labelCount: 6,
+    labelOrder: 'test 0, test 1, test 2, test 3, test 4, and 1 more',
+  })
 
-      const arrayOfLabels = labelsInDropdown.get();
-      const randomArrayOfLabels = _.shuffle(arrayOfLabels);
-      randomArrayOfLabels.forEach((label, i) => {
-        if (i < saveLabelCount) {
-          $(label).click();
-        }
-      });
-
-      $('.edit-link')
-        .get(0)
-        .click();
-
-      setTimeout(() => {
-        expect($('.sidebar-collapsed-icon').attr('data-original-title')).toBe(
-          'test 0, test 1, test 2, test 3, test 4',
-        );
-        done();
-      }, 0);
-    }, 0);
-  });
-
-  it('changes collapsed tooltip when changing labels when more than 5', done => {
-    saveLabelCount = 6;
-    $('.edit-link')
-      .get(0)
-      .click();
-
-    setTimeout(() => {
-      const labelsInDropdown = $('.dropdown-content a');
-
-      expect(labelsInDropdown.length).toBe(10);
-
-      const arrayOfLabels = labelsInDropdown.get();
-      const randomArrayOfLabels = _.shuffle(arrayOfLabels);
-      randomArrayOfLabels.forEach((label, i) => {
-        if (i < saveLabelCount) {
-          $(label).click();
-        }
-      });
-
-      $('.edit-link')
-        .get(0)
-        .click();
-
-      setTimeout(() => {
-        expect($('.sidebar-collapsed-icon').attr('data-original-title')).toBe(
-          'test 0, test 1, test 2, test 3, test 4, and 1 more',
-        );
-        done();
-      }, 0);
-    }, 0);
-  });
-});
+  it('changes collapsed tooltip when changing labels when greater than 5', greaterThanFive);
+})
