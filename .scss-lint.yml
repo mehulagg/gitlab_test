@@ -12,7 +12,7 @@ linters:
   # Reports when you use improper spacing around ! (the "bang") in !default,
   # !global, !important, and !optional flags.
   BangFormat:
-    enabled: true
+    enabled: false
 
   # Whether or not to prefer `border: 0` over `border: none`.
   BorderZero:
