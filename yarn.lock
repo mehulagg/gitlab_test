@@ -1013,6 +1013,22 @@
     vue "^2.6.10"
     vue-loader "^15.4.2"
 
+"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui.git#limit-modal-footer-buttons":
+  version "5.26.0"
+  resolved "https://gitlab.com/gitlab-org/gitlab-ui.git#edd6758f54c285810e8a5c55833a52b1d286e9f4"
+  dependencies:
+    "@babel/standalone" "^7.0.0"
+    "@gitlab/vue-toasted" "^1.2.1"
+    bootstrap-vue "2.0.0-rc.27"
+    copy-to-clipboard "^3.0.8"
+    echarts "^4.2.1"
+    highlight.js "^9.13.1"
+    js-beautify "^1.8.8"
+    lodash "^4.17.14"
+    url-search-params-polyfill "^5.0.0"
+    vue "^2.6.10"
+    vue-loader "^15.4.2"
+
 "@gitlab/visual-review-tools@1.0.3":
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/@gitlab/visual-review-tools/-/visual-review-tools-1.0.3.tgz#b49c4a6fd8af3a1517d7e7d04096562f8bcb5d14"
