@@ -4,6 +4,8 @@ import { sprintf, s__ } from '~/locale';
 import ClusterFormDropdown from './cluster_form_dropdown.vue';
 import RegionDropdown from './region_dropdown.vue';
 import SecurityGroupDropdown from './security_group_dropdown.vue';
+import { GlFormInput } from '@gitlab/ui';
+import { KUBERNETES_VERSIONS } from '../constants';
 
 const { mapState: mapRolesState, mapActions: mapRolesActions } = createNamespacedHelpers('roles');
 const { mapState: mapRegionsState, mapActions: mapRegionsActions } = createNamespacedHelpers(
@@ -22,9 +24,13 @@ export default {
     ClusterFormDropdown,
     RegionDropdown,
     SecurityGroupDropdown,
+    GlFormInput,
   },
   computed: {
     ...mapState([
+      'clusterName',
+      'environmentScope',
+      'kubernetesVersion',
       'selectedRegion',
       'selectedKeyPair',
       'selectedVpc',
@@ -56,6 +62,9 @@ export default {
       isLoadingSubnets: 'isLoadingItems',
       loadingSubnetsError: 'loadingItemsError',
     }),
+    kubernetesVersions() {
+      return KUBERNETES_VERSIONS;
+    },
     vpcDropdownDisabled() {
       return !this.selectedRegion;
     },
@@ -123,7 +132,7 @@ export default {
     this.fetchRoles();
   },
   methods: {
-    ...mapActions(['setRegion', 'setVpc', 'setSubnet', 'setRole', 'setKeyPair']),
+    ...mapActions(['setClusterName', 'setEnvironmentScope', 'setKubernetesVersion', 'setRegion', 'setVpc', 'setSubnet', 'setRole', 'setKeyPair']),
     ...mapRegionsActions({ fetchRegions: 'fetchItems' }),
     ...mapVpcActions({ fetchVpcs: 'fetchItems' }),
     ...mapSubnetActions({ fetchSubnets: 'fetchItems' }),
@@ -143,6 +152,40 @@ export default {
 </script>
 <template>
   <form name="eks-cluster-configuration-form">
+    <div class="form-group">
+      <label class="label-bold" for="eks-cluster-name">{{
+        s__('ClusterIntegration|Kubernetes cluster name')
+      }}</label>
+      <gl-form-input
+        name="eks-cluster-name"
+        :value="clusterName"
+        @input="setClusterName({ clusterName: $event })"
+      />
+    </div>
+    <div class="form-group">
+      <label class="label-bold" for="eks-environment-scope">{{
+        s__('ClusterIntegration|Environment scope')
+      }}</label>
+      <gl-form-input
+        name="eks-environment-scope"
+        :value="environmentScope"
+        @input="setEnvironmentScope({ environmentScope: $event })"
+      />
+    </div>
+    <div class="form-group">
+      <label class="label-bold" for="eks-kubernetes-version">{{
+        s__('ClusterIntegration|Kubernetes version')
+      }}</label>
+      <cluster-form-dropdown
+        field-id="eks-kubernetes-version"
+        field-name="eks-kubernetes-version"
+        :value="kubernetesVersion"
+        :items="kubernetesVersions"
+        :empty-text="s__('ClusterIntegration|Kubernetes version not found')"
+        @input="setKubernetesVersion({ kubernetesVersion: $event })"
+      />
+      <p class="form-text text-muted" v-html="roleDropdownHelpText"></p>
+    </div>
     <div class="form-group">
       <label class="label-bold" for="eks-role">{{ s__('ClusterIntegration|Role name') }}</label>
       <cluster-form-dropdown

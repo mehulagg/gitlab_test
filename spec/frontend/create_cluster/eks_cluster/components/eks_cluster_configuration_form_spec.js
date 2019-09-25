@@ -29,6 +29,9 @@ describe('EksClusterConfigurationForm', () => {
   beforeEach(() => {
     state = eksClusterFormState();
     actions = {
+      setClusterName: jest.fn(),
+      setEnvironmentScope: jest.fn(),
+      setKubernetesVersion: jest.fn(),
       setRegion: jest.fn(),
       setVpc: jest.fn(),
       setSubnet: jest.fn(),
@@ -109,6 +112,9 @@ describe('EksClusterConfigurationForm', () => {
     vm.destroy();
   });
 
+  const findClusterNameInput = () => vm.find('[name=eks-cluster-name]');
+  const findEnvironmentScopeInput = () => vm.find('[name=eks-environment-scope]');
+  const findKubernetesVersionDropdown = () => vm.find('[field-id="eks-kubernetes-version"]');
   const findRegionDropdown = () => vm.find(RegionDropdown);
   const findKeyPairDropdown = () => vm.find('[field-id="eks-key-pair"]');
   const findVpcDropdown = () => vm.find('[field-id="eks-vpc"]');
@@ -271,6 +277,42 @@ describe('EksClusterConfigurationForm', () => {
         undefined,
       );
     });
+  });
+
+  it('dispatches setClusterName when cluster name input changes', () => {
+    const clusterName = 'name';
+
+    findClusterNameInput().vm.$emit('input', clusterName);
+
+    expect(actions.setClusterName).toHaveBeenCalledWith(
+      expect.anything(),
+      { clusterName },
+      undefined,
+    );
+  });
+
+  it('dispatches setEnvironmentScope when environment scope input changes', () => {
+    const environmentScope = 'production';
+
+    findEnvironmentScopeInput().vm.$emit('input', environmentScope);
+
+    expect(actions.setEnvironmentScope).toHaveBeenCalledWith(
+      expect.anything(),
+      { environmentScope },
+      undefined,
+    );
+  });
+
+  it('dispatches setKubernetesVersion when kubernetes version dropdown changes', () => {
+    const kubernetesVersion = { name: '1.11' };
+
+    findKubernetesVersionDropdown().vm.$emit('input', kubernetesVersion);
+
+    expect(actions.setKubernetesVersion).toHaveBeenCalledWith(
+      expect.anything(),
+      { kubernetesVersion },
+      undefined,
+    );
   });
 
   describe('when vpc is selected', () => {
