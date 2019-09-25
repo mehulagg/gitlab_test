@@ -65,6 +65,7 @@ Learn how to install, configure, update, and maintain your GitLab instance.
 - [Upload a license](../user/admin_area/license.md): Upload a license to unlock features that are in paid tiers of GitLab. **(STARTER ONLY)**
 - [Admin Area](../user/admin_area/index.md): for self-managed instance-wide configuration and maintenance.
 - [S/MIME Signing](smime_signing_email.md): how to sign all outgoing notification emails with S/MIME
+- [Enable hidden features](feature_flags.md): Enable features that are behind a feature flag.
 
 #### Customizing GitLab's appearance
 

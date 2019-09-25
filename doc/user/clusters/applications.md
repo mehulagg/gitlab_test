@@ -131,7 +131,7 @@ file.
 
 #### Modsecurity Application Firewall
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/65192) in GitLab 12.3 (enabled using `ingress_modsecurity` [feature flag](../../development/feature_flags/development.md#enabling-a-feature-flag-in-development)).
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/65192) in GitLab 12.3 (enable using [a feature flag](../../administration/feature_flags.md#ingress_modsecurity)).
 
 GitLab supports
 [`modsecurity`](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#modsecurity)
@@ -145,17 +145,6 @@ This feature:
   ```sh
   kubectl -n gitlab-managed-apps exec -it $(kubectl get pods -n gitlab-managed-apps | grep 'ingress-controller' | awk '{print $1}') -- tail -f /var/log/modsec_audit.log
   ```
-
-There is a small performance overhead by enabling `modsecurity`. However, if this is
-considered significant for your application, you can toggle the feature flag back to
-false by running the following command within the Rails console:
-
-```ruby
-Feature.disable(:ingress_modsecurity)
-```
-
-Once disabled, you must [uninstall](#uninstalling-applications) and reinstall your Ingress
-application for the changes to take effect.
 
 ### JupyterHub
 

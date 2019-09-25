@@ -18,24 +18,8 @@ to approve a merge request before it can be unblocked for merging.
 
 ## Enabling the new approvals interface
 
-NOTE: **Note:**
-Prior to 12.0, if you are running a self-managed instance, the new interface shown on
-this page will not be available unless the feature flag
-`approval_rules` is enabled, which can be done from the Rails console by
-instance administrators.
-
-Use these commands to start the Rails console:
-
-```sh
-# Omnibus GitLab
-gitlab-rails console
-
-# Installation from source
-cd /home/git/gitlab
-sudo -u git -H bin/rails console RAILS_ENV=production
-```
-
-Then run `Feature.enable(:approval_rules)` to enable the feature flag.
+Prior to GitLab 12.0, the new interface shown on this page was available via a
+[feature flag](../../../administration/feature_flags.md#approval_rules-starter).
 
 ## Editing approvals
 

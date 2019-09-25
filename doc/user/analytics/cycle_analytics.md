@@ -8,7 +8,7 @@ as cycle time - for each of your projects. Cycle Analytics displays the median t
 reach production, along with the time typically spent in each DevOps stage along the way.
 
 NOTE: **Note:**
-Use the `cycle_analytics` feature flag to enable at the group level.
+Use the [`cycle_analytics` feature flag](../../administration/feature_flags.md#cycle_analytics-premium) to enable at the group level.
 
 Cycle Analytics is useful in order to quickly determine the velocity of a given
 project. It points to bottlenecks in the development process, enabling management
