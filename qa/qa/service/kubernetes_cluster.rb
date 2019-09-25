@@ -31,6 +31,10 @@ module QA
         self
       end
 
+      def to_s
+        cluster_name
+      end
+
       def remove!
         @provider.teardown
       end

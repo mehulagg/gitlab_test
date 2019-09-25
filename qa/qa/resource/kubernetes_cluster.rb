@@ -5,7 +5,7 @@ require 'securerandom'
 module QA
   module Resource
     class KubernetesCluster < Base
-      attr_writer :project, :cluster,
+      attr_writer :project, :cluster, :environment_scope,
         :install_helm_tiller, :install_ingress, :install_prometheus, :install_runner, :domain
 
       attribute :ingress_ip do
@@ -28,6 +28,7 @@ module QA
           page.set_cluster_name(@cluster.cluster_name)
           page.set_api_url(@cluster.api_url)
           page.set_ca_certificate(@cluster.ca_certificate)
+          page.set_environment_scope(@cluster.environment_scope)
           page.set_token(@cluster.token)
           page.uncheck_rbac! unless @cluster.rbac
           page.add_cluster!

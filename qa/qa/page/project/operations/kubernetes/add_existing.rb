@@ -7,28 +7,32 @@ module QA
         module Kubernetes
           class AddExisting < Page::Base
             view 'app/views/clusters/clusters/user/_form.html.haml' do
-              element :cluster_name, 'text_field :name' # rubocop:disable QA/ElementWithPattern
-              element :api_url, 'url_field :api_url' # rubocop:disable QA/ElementWithPattern
-              element :ca_certificate, 'text_area :ca_cert' # rubocop:disable QA/ElementWithPattern
-              element :token, 'text_field :token' # rubocop:disable QA/ElementWithPattern
-              element :add_cluster_button, "submit s_('ClusterIntegration|Add Kubernetes cluster')" # rubocop:disable QA/ElementWithPattern
+              element :cluster_name_field, required: true
+              element :environment_scope
+              element :api_url_field, required: true
+              element :ca_certificate_field, required: true
+              element :service_token_field, required: true
               element :rbac_checkbox
             end
 
             def set_cluster_name(name)
-              fill_in 'cluster_name', with: name
+              fill_element :cluster_name_field, name
+            end
+
+            def set_environment_scope(scope)
+              fill_element :environment_scope, scope if scope
             end
 
             def set_api_url(api_url)
-              fill_in 'cluster_platform_kubernetes_attributes_api_url', with: api_url
+              fill_element :api_url_field, api_url
             end
 
             def set_ca_certificate(ca_certificate)
-              fill_in 'cluster_platform_kubernetes_attributes_ca_cert', with: ca_certificate
+              fill_element :ca_certificate_field, ca_certificate
             end
 
             def set_token(token)
-              fill_in 'cluster_platform_kubernetes_attributes_token', with: token
+              fill_element :service_token_field, token
             end
 
             def add_cluster!
