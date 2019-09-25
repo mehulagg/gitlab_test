@@ -279,6 +279,30 @@ export default {
             centralizing a number of services into a single entrypoint.`)
             }}
           </p>
+          <div class="form-group">
+            <label for="ingress-modsecurity-blocking-mode-enabled">
+              {{ s__('ClusterIntegration|ModSecurity Blocking Mode Enabled') }}
+            </label>
+            <div class="input-group">
+              <input
+                v-model="applications.ingress.modsecurityBlockingMode"
+                :readonly="ingressInstalled"
+                type="checkbox"
+                class="form-control"
+              />
+            </div>
+            <p class="form-text text-muted">
+              {{
+                s__(`ClusterIntegration|Enable blocking mode`)
+              }}
+              <a
+                href="https://www.modsecurity.org/about.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                >{{ __('More information') }}</a
+              >
+            </p>
+          </div>
 
           <template v-if="ingressInstalled">
             <div class="form-group">

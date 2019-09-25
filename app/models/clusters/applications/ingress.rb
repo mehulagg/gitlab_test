@@ -81,6 +81,22 @@ module Clusters
               "enable-owasp-modsecurity-crs" => "true"
             }
           }
+        }.deep_merge!(specification_overlay)
+      end
+
+
+      def specification_overlay
+        return {} unless self.modsecurity_blocking_mode
+
+        {
+          "controller" => {
+            "service" => {
+              "annotations" => "nginx.ingress.kubernetes.io/modsecurity-snippet" => <<~eos
+                Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+
+                #{self.modsecurity_custom_config}
+              eos
+          }
         }
       end
 
