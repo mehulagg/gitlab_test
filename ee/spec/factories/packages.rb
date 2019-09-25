@@ -28,7 +28,6 @@ FactoryBot.define do
       after :create do |package|
         create :package_file, :npm, package: package
         create :package_tag, package: package
-        create :package_metadatum, package: package
       end
     end
 

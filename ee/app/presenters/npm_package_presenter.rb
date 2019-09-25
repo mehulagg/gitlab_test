@@ -41,19 +41,19 @@ class NpmPackagePresenter
 
   def build_package_version(package, package_file)
     {
-        name: package.name,
-        version: package.version,
-        dist: {
-            shasum: package_file.file_sha1,
-            tarball: tarball_url(package, package_file)
-        }
+      name: package.name,
+      version: package.version,
+      dist: {
+        shasum: package_file.file_sha1,
+        tarball: tarball_url(package, package_file)
+      }
     }
   end
 
   def tarball_url(package, package_file)
     expose_url "#{api_v4_projects_path(id: package.project_id)}" \
-      "/packages/npm/#{package.name}" \
-       "/-/#{package_file.file_name}"
+    "/packages/npm/#{package.name}" \
+    "/-/#{package_file.file_name}"
   end
 
   def sorted_versions

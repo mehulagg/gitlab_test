@@ -6,7 +6,7 @@ describe NpmPackagePresenter do
   let(:project) { create(:project) }
   let(:package) { create(:npm_package, version: '1.0.4', project: project) }
   let(:latest_package) { create(:npm_package, version: '1.0.11', project: project, package_tags: []) }
-  let(:package_tags) { { "latest": "1.0.4", "next": '1.0.11' } }
+  let(:package_tags) { { 'latest': '1.0.4', 'next': '1.0.11' } }
   let(:packages) { [package, latest_package] }
   let(:dist_object) { { shasum: "verylongsha", tarball: "http://gitlab.example.com/v4/api/packages/npm" } }
   let(:dependencies) { { bundleDependencies: {}, peerDependencies: {}, deprecated: "", engines: {} } }
@@ -49,39 +49,34 @@ describe NpmPackagePresenter do
       let(:older_package2) { create(:npm_package, version: '1.1.3', project: project) }
       let(:packages) { [older_package1, older_package2] }
       let(:package_tags) { { "latest": "1.0.2" } }
-      let(:package_file_sha1) { "#{older_package1.package_files.last.file_sha1}" }
-      let(:package_file_name) { "#{older_package1.package_files.last.file_name}" }
-      let(:package1_name) { older_package1.name }
-      let(:package2_name) { older_package2.name }
       let(:package1_version) { older_package1.version }
       let(:package2_version) { older_package2.version }
 
-      subject {described_class.new(project, package1_name, packages, package_tags, 'tags')}
+      subject { described_class.new(project, older_package1.name, packages, package_tags, 'tags') }
 
-      it "Builds the package hash from package_files instead of the package_metadatum.metadata" do
-        versions = {
-
+      it "builds the package hash from package_files instead of the package_metadatum.metadata" do
+        versions =
+          {
             package1_version =>
-                {
-                    dist: {
-                        shasum: package_file_sha1,
-                        tarball: build_package_tarball(older_package1.project_id, package1_name, package_file_name)
-                    },
-                  name: package1_name,
-                  version: package1_version
+              {
+                dist: {
+                  shasum: older_package1.package_files.last.file_sha1,
+                  tarball: build_package_tarball(older_package1.project_id, older_package1.name, older_package1.package_files.last.file_name)
                 },
+                name: older_package1.name,
+                version: package1_version
+              },
             package2_version =>
-                {
-                    dist: {
-                        shasum: package_file_sha1,
-                        tarball: build_package_tarball(older_package2.project_id, package2_name, package_file_name)
-                    },
-                    name: package2_name,
-                    version:  package2_version
-                }
-        }
-
-        expect(older_package1.package_metadatum.metadata.empty?).to eq(true)
+              {
+                dist: {
+                  shasum: older_package1.package_files.last.file_sha1,
+                  tarball: build_package_tarball(older_package2.project_id, older_package2.name, older_package1.package_files.last.file_name)
+                },
+                name: older_package2.name,
+                version: older_package2.version
+              }
+          }
+        expect(older_package1.package_metadatum.present?).to eq(false)
         expect(subject.versions).to eq(versions)
       end
     end

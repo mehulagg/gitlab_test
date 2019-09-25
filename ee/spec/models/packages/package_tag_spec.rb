@@ -14,7 +14,7 @@ RSpec.describe Packages::PackageTag, type: :model do
   end
 
   describe '.with_package_name' do
-    let!(:tagged_package1) { create(:package_tag, package_id: package.id, name: "latest") }
+    let!(:tagged_package1) { create(:package_tag, package_id: package.id, name: 'latest') }
     let!(:tagged_package2) { create(:package_tag, package_id: package.id) }
     subject { described_class.with_package_name(package.name) }
 
@@ -23,7 +23,7 @@ RSpec.describe Packages::PackageTag, type: :model do
     end
   end
 
-  describe 'with_tag_name_and_package_name' do
+  describe '.with_tag_name_and_package_name' do
     let(:package_tag) { create(:package_tag, package: package, name: 'stable') }
     subject { described_class.with_package_name(package.name) }
 
@@ -33,18 +33,19 @@ RSpec.describe Packages::PackageTag, type: :model do
     end
   end
 
-  describe '.build_tags_hash' do
+  describe '.build_tags_hash_for' do
     let!(:package_tag1) { create(:package_tag, package: package, name: 'stable') }
     let!(:package_tag2) { create(:package_tag, package: package, name: 'next') }
     let!(:package_tag3) { create(:package_tag, package: package, name: 'canary') }
 
     let(:tags) do
       {
-          'stable' => package.version,
-          'next' => package.version,
-          'canary' => package.version
+        'stable' => package.version,
+        'next' => package.version,
+        'canary' => package.version
       }
     end
+
     subject { described_class }
 
     it 'returns a hash of package name and their corresponding version' do

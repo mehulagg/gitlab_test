@@ -63,7 +63,9 @@ describe Packages::CreateNpmPackageService do
         expect { service.execute }.to raise_error(ActiveRecord::RecordInvalid)
       end
     end
+  end
 
+  describe '#package_metadata' do
     context 'with newly published packages' do
       let(:params) do
         JSON.parse(fixture_file('npm/payload.json', dir: 'ee')).with_indifferent_access
