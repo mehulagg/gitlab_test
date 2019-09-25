@@ -33,6 +33,7 @@ module Gitlab
           autoload :Geo, 'gitlab/qa/scenario/test/integration/geo'
           autoload :LDAP, 'gitlab/qa/scenario/test/integration/ldap'
           autoload :LDAPNoTLS, 'gitlab/qa/scenario/test/integration/ldap_no_tls'
+          autoload :LDAPNoServer, 'gitlab/qa/scenario/test/integration/ldap_no_server'
           autoload :LDAPTLS, 'gitlab/qa/scenario/test/integration/ldap_tls'
           autoload :SAML, 'gitlab/qa/scenario/test/integration/saml'
           autoload :GroupSAML, 'gitlab/qa/scenario/test/integration/group_saml'

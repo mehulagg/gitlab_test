@@ -1,15 +1,12 @@
-require 'yaml'
-
 module Gitlab
   module QA
     module Scenario
       module Test
         module Integration
-          class LDAPNoTLS < LDAP
+          class LDAPNoServer < LDAP
             def initialize
-              @gitlab_name = 'gitlab-ldap'
-              @spec_suite = 'Test::Integration::LDAPNoTLS'
-              @orchestrate_ldap_server = true
+              @spec_suite = 'Test::Integration::LDAPNoServer'
+              @orchestrate_ldap_server = false
               @tls = false
               super
             end

@@ -9,14 +9,20 @@ module Gitlab
             def initialize
               @gitlab_name = 'gitlab'
               @spec_suite = 'Test::Integration::LDAPTLS'
+              @orchestrate_ldap_server = true
               @tls = true
+              super
             end
 
-            def configure(gitlab, ldap)
-              ldap.set_accept_insecure_certs
+            def set_accept_insecure_certs
+              ::Gitlab::QA::Runtime::Env.accept_insecure_certs = 'true'
+            end
+
+            def configure_omnibus(gitlab)
+              set_accept_insecure_certs
               gitlab.omnibus_config = <<~OMNIBUS
                     gitlab_rails['ldap_enabled'] = true;
-                    gitlab_rails['ldap_servers'] = #{ldap.to_config};
+                    gitlab_rails['ldap_servers'] = #{ldap_servers_omnibus_config};
                     letsencrypt['enable'] = false;
                     external_url '#{gitlab.address}';
                     gitlab_rails['ldap_sync_worker_cron'] = '* * * * *';

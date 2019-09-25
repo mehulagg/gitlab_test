@@ -20,18 +20,9 @@ module Gitlab
 
         LDAP_IMAGE = 'osixia/openldap'.freeze
         LDAP_IMAGE_TAG = 'latest'.freeze
-        LDAP_DOMAIN = 'example.org'.freeze
-        ADMIN_USER = 'admin'.freeze
-        ADMIN_PASSWORD = 'admin'.freeze
         LDAP_USER = 'tanuki'.freeze
         LDAP_PASSWORD = 'password'.freeze
-        LDAP_PORT = 389
-        LDAP_TLS_PORT = 636
-        BASE_DN = 'dc=example,dc=org'.freeze
-        BIND_DN = 'cn=admin,dc=example,dc=org'.freeze
         BOOTSTRAP_LDIF = '/container/service/slapd/assets/config/bootstrap/ldif/custom'.freeze
-        GROUP_BASE = 'ou=Global Groups,dc=example,dc=org'.freeze
-        ADMIN_GROUP = 'AdminGroup'.freeze
         FIXTURE_PATH = File.expand_path('../../../../fixtures/ldap'.freeze, __dir__)
 
         attr_reader :docker
@@ -57,10 +48,6 @@ module Gitlab
           else
             @environment['LDAP_TLS'] = 'false'
           end
-        end
-
-        def tls?
-          @environment['LDAP_TLS'] != 'false'
         end
 
         def username
@@ -140,36 +127,9 @@ module Gitlab
           @docker.pull(LDAP_IMAGE, LDAP_IMAGE_TAG)
         end
 
-        def to_config
-          config = YAML.safe_load <<~CFG
-            main:
-              label: LDAP
-              host: #{hostname}
-              port: #{tls? ? LDAP_TLS_PORT : LDAP_PORT}
-              uid: 'uid'
-              bind_dn: #{BIND_DN}
-              password: #{ADMIN_PASSWORD}
-              encryption: #{tls? ? 'simple_tls' : 'plain'}
-              verify_certificates: false
-              base: #{BASE_DN}
-              user_filter: ''
-              group_base: #{GROUP_BASE}
-              admin_group: #{ADMIN_GROUP}
-              external_groups: ''
-              sync_ssh_keys: false
-          CFG
-
-          # Quotes get eaten up when the string is set in the environment
-          config.to_s.gsub("\"", "\\\"")
-        end
-
         def set_gitlab_credentials
           ::Gitlab::QA::Runtime::Env.ldap_username = username
           ::Gitlab::QA::Runtime::Env.ldap_password = password
-        end
-
-        def set_accept_insecure_certs
-          ::Gitlab::QA::Runtime::Env.accept_insecure_certs = 'true'
         end
       end
     end

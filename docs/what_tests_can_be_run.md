@@ -253,6 +253,38 @@ $ gitlab-qa Test::Integration::LDAPTLS EE
 [test-integration-ldap-tls]: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/qa/qa/scenario/test/integration/ldap_tls.rb
 [test-integration-ldap-tls-certs]: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/tls_certificates/gitlab
 
+### `Test::Integration::LDAPNoServer EE|<full image address>`
+
+This configures a GitLab instance for use with LDAP but does not
+spin up an LDAP server in a docker container.
+
+The LDAP server is created at runtime by the spec so that 
+the test can provide the fixture data for the LDAP server
+as needed.
+
+To run tests against the GitLab containers, a GitLab QA (`gitlab/gitlab-qa`)
+container is spun up and tests are run from it by running the
+`Test::Integration::LDAPNoServer` scenario (located under
+[`gitlab-org/gitlab@qa/qa/scenario/test/integration/ldap_no_server.rb`](https://gitlab.com/gitlab-org/gitlab/blob/master/qa/qa/scenario/test/integration/ldap_no_server.rb)
+in the GitLab project).
+
+In GiLab project, both the GitLab standard and LDAP credentials are needed:
+
+1. The first is used to login as an Admin to enter in the GitLab license.
+2. The second is used to conduct LDAP-related tasks
+
+**Required environment variables:**
+
+- `EE_LICENSE`: A valid Enterprise license.
+
+Example:
+
+```
+$ export EE_LICENSE=$(cat /path/to/GitLab.gitlab_license)
+
+$ gitlab-qa Test::Integration::LDAPNoServer EE
+```     
+
 ### `Test::Integration::GroupSAML EE|<full image address>`
 
 This tests that Group SAML login works as expected with an external SAML identity provider (idp).

@@ -359,6 +359,21 @@ ee:ldap_tls-quarantine:
   <<: *ee-qa
   <<: *quarantine
 
+ee:ldap_no_server:
+  script:
+    - exe/gitlab-qa Test::Integration::LDAPNoServer ${RELEASE:=EE}
+  <<: *test
+  <<: *high-capacity
+  <<: *ee-qa
+
+ee:ldap_no_server-quarantine:
+  script:
+    - exe/gitlab-qa Test::Integration::LDAPNoServer ${RELEASE:=EE} -- --tag quarantine
+  <<: *test
+  <<: *high-capacity
+  <<: *ee-qa
+  <<: *quarantine
+
 ce:instance_saml:
   script:
   - exe/gitlab-qa Test::Integration::InstanceSAML ${RELEASE:=CE}

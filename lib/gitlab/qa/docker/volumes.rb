@@ -7,6 +7,8 @@ module Gitlab
         VOLUMES = { 'config' => '/etc/gitlab',
                     'data' => '/var/opt/gitlab' }.freeze
 
+        QA_CONTAINER_WORKDIR = '/home/gitlab/qa'.freeze
+
         def initialize(volumes = VOLUMES)
           @volumes = volumes
         end
