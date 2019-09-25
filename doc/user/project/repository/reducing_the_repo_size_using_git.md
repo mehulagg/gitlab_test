@@ -62,7 +62,7 @@ removed from the repository.
    cd my_repository/
    ```
 
-1. Change to the branch you want to remove the big file from:
+1. Change to the branch you want to remove the big file or directory from:
 
    ```
    git checkout master
@@ -71,14 +71,16 @@ removed from the repository.
 1. Create a commit removing the large file from the branch, if it still exists:
 
    ```
-   git rm path/to/big_file.mpg
+   git rm big_file.mpg
+   git rm -r directory/to/delete/
    git commit -m 'Remove unneeded large file'
    ```
 
 1. Rewrite history:
 
    ```
-   bfg --delete-files path/to/big_file.mpg
+   bfg --delete-files big_file.mpg
+   bfg --delete-folders directory/to/delete
    ```
 
    An object map file will be written to `object-id-map.old-new.txt`. Keep it
