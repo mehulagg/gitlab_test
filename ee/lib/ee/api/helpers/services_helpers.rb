@@ -81,7 +81,6 @@ module EE
               ::GithubService,
               ::JenkinsService,
               ::JenkinsDeprecatedService,
-              ::AlertsService,
               *super
             ]
           end

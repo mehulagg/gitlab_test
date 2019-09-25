@@ -28,17 +28,12 @@ Service.available_services_names.each do |service|
       end
     end
 
-    let(:licensed_features) do
-      {
-        'github' => :github_project_service_integration,
-        'jenkins' => :jenkins_integration,
-        'jenkins_deprecated' => :jenkins_integration,
-        'alerts' => :incident_management
-      }
-    end
-
     before do
-      enable_license_for_service(service)
+      if service == 'github' && respond_to?(:stub_licensed_features)
+        stub_licensed_features(github_project_service_integration: true)
+        project.clear_memoization(:disabled_services)
+        project.clear_memoization(:licensed_feature_available)
+      end
     end
 
     def initialize_service(service)
@@ -46,19 +41,6 @@ Service.available_services_names.each do |service|
       service_item.properties = service_attrs
       service_item.save!
       service_item
-    end
-
-    private
-
-    def enable_license_for_service(service)
-      return unless respond_to?(:stub_licensed_features)
-
-      licensed_feature = licensed_features[service]
-      return unless licensed_feature
-
-      stub_licensed_features(licensed_feature => true)
-      project.clear_memoization(:disabled_services)
-      project.clear_memoization(:licensed_feature_available)
     end
   end
 end

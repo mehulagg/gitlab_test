@@ -1,4 +1,4 @@
-- return unless @project.alerts_service_available?
+- return unless Feature.enabled?(:generic_alert_endpoint, @project)
 
 .js-alerts-service-settings{ data: { activated: @service.activated?.to_s,
   form_path: project_service_path(@project, @service.to_param),
