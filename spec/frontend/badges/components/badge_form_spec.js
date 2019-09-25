@@ -25,12 +25,10 @@ describe('BadgeForm component', () => {
   });
   describe('methods', () => {
     beforeEach(() => {
+      store.replaceState({ isEditing: false });
       vm = mountComponentWithStore(Component, {
         el: '#dummy-element',
         store,
-        props: {
-          isEditing: false,
-        },
       });
     });
     describe('onCancel', () => {
@@ -70,7 +68,6 @@ describe('BadgeForm component', () => {
     };
 
     beforeEach(() => {
-      console.log('==== start test');
       jest.spyOn(vm, submitAction).mockReturnValue(Promise.resolve());
       store.replaceState({
         ...store.state,
@@ -80,10 +77,6 @@ describe('BadgeForm component', () => {
       });
       setValue(linkUrlSelector, `${TEST_HOST}/link/url`);
       setValue(imageUrlSelector, `${window.location.origin}${DUMMY_IMAGE_URL}`);
-    });
-
-    afterEach(() => {
-      console.log('==== end test');
     });
 
     it('returns immediately if imageUrl is empty', () => {
@@ -112,9 +105,6 @@ describe('BadgeForm component', () => {
     });
     it(`calls ${submitAction}`, () => {
       submitForm();
-      console.log(document.body.innerHTML);
-      console.log(findImageUrlElement().outerHTML);
-      console.log(findImageUrlElement().value);
       expect(findImageUrlElement().checkValidity()).toBe(true);
       expect(findLinkUrlElement().checkValidity()).toBe(true);
       expect(vm[submitAction]).toHaveBeenCalled();
@@ -123,12 +113,10 @@ describe('BadgeForm component', () => {
 
   describe('if isEditing is false', () => {
     beforeEach(() => {
+      store.replaceState({ isEditing: false });
       vm = mountComponentWithStore(Component, {
         el: '#dummy-element',
         store,
-        props: {
-          isEditing: false,
-        },
       });
     });
     it('renders one button', () => {
@@ -143,12 +131,10 @@ describe('BadgeForm component', () => {
   });
   describe('if isEditing is true', () => {
     beforeEach(() => {
+      store.replaceState({ isEditing: true });
       vm = mountComponentWithStore(Component, {
         el: '#dummy-element',
         store,
-        props: {
-          isEditing: true,
-        },
       });
     });
     it('renders two buttons', () => {
