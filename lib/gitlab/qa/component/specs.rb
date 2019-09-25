@@ -8,10 +8,11 @@ module Gitlab
       # the `qa/` directory located in GitLab CE / EE repositories.
       #
       class Specs < Scenario::Template
-        attr_accessor :suite, :release, :network, :args
+        attr_accessor :suite, :release, :network, :args, :volumes
 
         def initialize
           @docker = Docker::Engine.new
+          @volumes = {}
         end
 
         def perform # rubocop:disable Metrics/AbcSize
@@ -29,7 +30,11 @@ module Gitlab
             end
 
             command.volume('/var/run/docker.sock', '/var/run/docker.sock')
-            command.volume(File.join(Runtime::Env.host_artifacts_dir, name), '/home/gitlab/qa/tmp')
+            command.volume(File.join(Runtime::Env.host_artifacts_dir, name), File.join(Docker::Volumes::QA_CONTAINER_WORKDIR, 'tmp'))
+
+            @volumes.to_h.each do |to, from|
+              command.volume(to, from)
+            end
 
             command.name(name)
           end
