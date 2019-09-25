@@ -26,8 +26,8 @@ make a few changes to your `gdk/gitlab/config/gitlab.yml` file.
 
   # And if you want to test your local `gdk/gitlab/qa` changes, you'll need to
   # build the QA image first
-  # In gdk/gitlab/qa:
-  $ docker build -t gitlab/gitlab-ce-qa:your-custom-tag .
+  # In gdk/gitlab:
+  $ docker build -t gitlab/gitlab-ce-qa:your-custom-tag --file ./qa/Dockerfile ./
 
   # Then in gitlab-qa:
   $ exe/gitlab-qa Test::Instance::Any gitlab/gitlab-ce:your-custom-tag http://192.168.0.12:3000 -- qa/specs/features/browser_ui/1_manage/login/log_in_spec.rb
