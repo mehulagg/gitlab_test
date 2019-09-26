@@ -1,5 +1,5 @@
 <script>
-import { mapState, mapActions } from 'vuex';
+import { mapState } from 'vuex';
 import _ from 'underscore';
 import { GlLoadingIcon, GlSearchBoxByType, GlInfiniteScroll } from '@gitlab/ui';
 import ProjectListItem from './project_list_item.vue';
@@ -43,21 +43,16 @@ export default {
       required: false,
       default: false,
     },
-    totalResults: {
-      type: Number,
-      required: false,
-      default: 0,
-    },
-  },
-  computed: {
-    shouldScroll() {
-    },
   },
   data() {
     return {
-      totalResults: 0,
       searchQuery: '',
     };
+  },
+  computed: {
+    ...mapState([
+      'totalResults', 
+    ]), 
   },
   methods: {
     projectClicked(project) {
@@ -84,8 +79,8 @@ export default {
     />
     <div class="d-flex flex-column">
       <gl-infinite-scroll>
-        {{ totalResults }}
         <gl-loading-icon v-if="showLoadingIndicator" :size="2" class="py-2 px-4" />
+        showing x of {{ totalResults }} items
         <div v-if="!showLoadingIndicator" class="d-flex flex-column">
           <project-list-item
             v-for="project in projectSearchResults"
