@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# TEST comment to have a non-empty commit
 require 'carrierwave/orm/activerecord'
 
 class User < ApplicationRecord
