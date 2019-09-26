@@ -151,6 +151,28 @@ etc. For example:
 {"severity":"ERROR","time":"2018-11-23T15:42:11.647Z","exception":"Kubeclient::HttpError","error_code":null,"service":"Clusters::Applications::InstallService","app_id":2,"project_ids":[19],"group_ids":[],"message":"SSL_connect returned=1 errno=0 state=error: certificate verify failed (unable to get local issuer certificate)"}
 ```
 
+## `pipeline.log`
+
+Introduced in GitLab 12.4. This file lives in
+`/var/log/gitlab/gitlab-rails/pipeline.log` for Omnibus GitLab
+packages or in `/home/git/gitlab/log/pipeline.log` for
+installations from source.
+
+It logs information related to the CI/CD Pipeline including jobs, artifacts, traces and
+its errors.
+
+It emits the JSON formatted log in the following structure:
+
+```json
+{
+    "severity": <The severity of the message>,
+    "time": <The time stamp>,
+    "pipeline_id": <The id of the pipeline>,
+    "job_id": <The id of the job>,
+    "message": <The message of the log>
+}
+```
+
 ## `git_json.log`
 
 This file lives in `/var/log/gitlab/gitlab-rails/git_json.log` for
