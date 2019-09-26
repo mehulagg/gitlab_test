@@ -55,9 +55,7 @@ describe('Instance Security Dashboard component', () => {
     });
   };
 
-  const findProjectSelectorToggleButton = () => {
-    return wrapper.find('.js-project-selector-toggle');
-  };
+  const findProjectSelectorToggleButton = () => wrapper.find('.js-project-selector-toggle');
 
   const clickProjectSelectorToggleButton = () => {
     findProjectSelectorToggleButton().vm.$emit('click');

@@ -1,5 +1,5 @@
 <script>
-import { mapActions, mapGetters, mapState } from 'vuex';
+import { mapActions, mapState } from 'vuex';
 import { GlButton, GlEmptyState, GlLink, GlLoadingIcon } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import SecurityDashboard from './app.vue';
@@ -52,16 +52,6 @@ export default {
       showProjectSelector: false,
     };
   },
-  methods: {
-    ...mapActions('projects', ['setProjectsEndpoint', 'fetchProjects']),
-    toggleProjectSelector() {
-      this.showProjectSelector = !this.showProjectSelector;
-    },
-  },
-  created() {
-    this.setProjectsEndpoint(this.projectsEndpoint);
-    this.fetchProjects();
-  },
   computed: {
     ...mapState('projects', ['isInitialized', 'projects']),
     toggleButtonProps() {
@@ -79,6 +69,16 @@ export default {
       return this.isInitialized && this.projects.length === 0;
     },
   },
+  created() {
+    this.setProjectsEndpoint(this.projectsEndpoint);
+    this.fetchProjects();
+  },
+  methods: {
+    ...mapActions('projects', ['setProjectsEndpoint', 'fetchProjects']),
+    toggleProjectSelector() {
+      this.showProjectSelector = !this.showProjectSelector;
+    },
+  },
 };
 </script>
 
@@ -90,8 +90,8 @@ export default {
         v-if="isInitialized"
         new-style
         class="page-title-controls js-project-selector-toggle"
-        @click="toggleProjectSelector"
         :variant="toggleButtonProps.variant"
+        @click="toggleProjectSelector"
         v-text="toggleButtonProps.text"
       />
     </header>
@@ -113,7 +113,10 @@ export default {
                 'SecurityDashboard|The security dashboard displays the latest security findings for projects you wish to monitor. Select "Edit dashboard" to add and remove projects.',
               )
             }}
-            <gl-link :href="dashboardDocumentation">More information</gl-link>.
+            <gl-link :href="dashboardDocumentation">{{
+              s__('SecurityDashboard|More information')
+            }}</gl-link
+            >.
           </template>
           <template #actions>
             <gl-button new-style variant="success" @click="toggleProjectSelector">
