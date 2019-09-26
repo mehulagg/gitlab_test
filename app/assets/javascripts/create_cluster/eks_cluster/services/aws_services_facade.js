@@ -42,7 +42,10 @@ export const fetchRegions = () =>
     ec2
       .describeRegions()
       .on('success', ({ data: { Regions: regions } }) => {
-        const transformedRegions = regions.map(({ RegionName: name }) => ({ name }));
+        const transformedRegions = regions.map(({ RegionName: name }) => ({
+          name,
+          value: name,
+        }));
 
         resolve(transformedRegions);
       })
@@ -59,7 +62,10 @@ export const fetchVpcs = () =>
     ec2
       .describeVpcs()
       .on('success', ({ data: { Vpcs: vpcs } }) => {
-        const transformedVpcs = vpcs.map(({ VpcId: id }) => ({ id, name: id }));
+        const transformedVpcs = vpcs.map(({ VpcId: id }) => ({
+          value: id,
+          name: id,
+        }));
 
         resolve(transformedVpcs);
       })
@@ -78,7 +84,7 @@ export const fetchSubnets = ({ vpc }) =>
         Filters: [
           {
             Name: 'vpc-id',
-            Values: [vpc.id],
+            Values: [vpc],
           },
         ],
       })
@@ -86,6 +92,32 @@ export const fetchSubnets = ({ vpc }) =>
         const transformedSubnets = subnets.map(({ SubnetId: id }) => ({ id, name: id }));
 
         resolve(transformedSubnets);
+      })
+      .on('error', error => {
+        reject(error);
+      })
+      .send();
+  });
+
+export const fetchSecurityGroups = ({ vpc }) =>
+  new Promise((resolve, reject) => {
+    const ec2 = new EC2();
+
+    ec2
+      .describeSecurityGroups({
+        Filters: [
+          {
+            Name: 'vpc-id',
+            Values: [vpc],
+          },
+        ],
+      })
+      .on('success', ({ data: { SecurityGroups: securityGroups } }) => {
+        const transformedSecurityGroups = securityGroups.map(
+          ({ GroupName: name, GroupId: value }) => ({ name, value }),
+        );
+
+        resolve(transformedSecurityGroups);
       })
       .on('error', error => {
         reject(error);

@@ -25,4 +25,7 @@ export default {
   [types.SET_ROLE](state, { role }) {
     state.selectedRole = role;
   },
+  [types.SET_SECURITY_GROUP](state, { securityGroup }) {
+    state.selectedSecurityGroup = securityGroup;
+  },
 };

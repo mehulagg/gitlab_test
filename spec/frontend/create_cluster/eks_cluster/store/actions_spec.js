@@ -11,6 +11,7 @@ import {
   SET_KEY_PAIR,
   SET_SUBNET,
   SET_ROLE,
+  SET_SECURITY_GROUP,
 } from '~/create_cluster/eks_cluster/store/mutation_types';
 
 describe('EKS Cluster Store Actions', () => {
@@ -22,6 +23,7 @@ describe('EKS Cluster Store Actions', () => {
   let subnet;
   let role;
   let keyPair;
+  let securityGroup;
 
   beforeEach(() => {
     clusterName = 'my cluster';
@@ -32,6 +34,7 @@ describe('EKS Cluster Store Actions', () => {
     subnet = { name: 'subnet-1' };
     role = { name: 'role-1' };
     keyPair = { name: 'key-pair-1' };
+    securityGroup = { name: 'default group' };
   });
 
   it.each`
@@ -44,6 +47,7 @@ describe('EKS Cluster Store Actions', () => {
     ${'setKeyPair'}           | ${SET_KEY_PAIR}           | ${{ keyPair }}           | ${'key pair'}
     ${'setVpc'}               | ${SET_VPC}                | ${{ vpc }}               | ${'vpc'}
     ${'setSubnet'}            | ${SET_SUBNET}             | ${{ subnet }}            | ${'subnet'}
+    ${'setSecurityGroup'}     | ${SET_SECURITY_GROUP}     | ${{ securityGroup }}     | ${'securityGroup'}
   `(`$action commits $mutation with $payloadDescription payload`, data => {
     const { action, mutation, payload } = data;
 

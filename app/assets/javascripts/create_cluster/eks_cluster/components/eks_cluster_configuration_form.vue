@@ -3,7 +3,6 @@ import { createNamespacedHelpers, mapState, mapActions } from 'vuex';
 import { sprintf, s__ } from '~/locale';
 import ClusterFormDropdown from './cluster_form_dropdown.vue';
 import RegionDropdown from './region_dropdown.vue';
-import SecurityGroupDropdown from './security_group_dropdown.vue';
 import { GlFormInput } from '@gitlab/ui';
 import { KUBERNETES_VERSIONS } from '../constants';
 
@@ -18,12 +17,12 @@ const { mapState: mapVpcsState, mapActions: mapVpcActions } = createNamespacedHe
 const { mapState: mapSubnetsState, mapActions: mapSubnetActions } = createNamespacedHelpers(
   'subnets',
 );
+const { mapState: mapSecurityGroupsState, mapActions: mapSecurityGroupsActions } = createNamespacedHelpers('securityGroups');
 
 export default {
   components: {
     ClusterFormDropdown,
     RegionDropdown,
-    SecurityGroupDropdown,
     GlFormInput,
   },
   computed: {
@@ -36,6 +35,7 @@ export default {
       'selectedVpc',
       'selectedSubnet',
       'selectedRole',
+      'selectedSecurityGroup',
     ]),
     ...mapRolesState({
       roles: 'items',
@@ -62,6 +62,11 @@ export default {
       isLoadingSubnets: 'isLoadingItems',
       loadingSubnetsError: 'loadingItemsError',
     }),
+    ...mapSecurityGroupsState({
+      securityGroups: 'items',
+      isLoadingSecurityGroups: 'isLoadingItems',
+      loadingSecurityGroupsError: 'loadingItemsError',
+    }),
     kubernetesVersions() {
       return KUBERNETES_VERSIONS;
     },
@@ -72,6 +77,9 @@ export default {
       return !this.selectedRegion;
     },
     subnetDropdownDisabled() {
+      return !this.selectedVpc;
+    },
+    securityGroupDropdownDisabled() {
       return !this.selectedVpc;
     },
     roleDropdownHelpText() {
@@ -126,18 +134,44 @@ export default {
         false,
       );
     },
+    securityGroupDropdownHelpText() {
+      return sprintf(
+        s__(
+          'ClusterIntegration|Choose the %{startLink}security groups%{endLink} to apply to the EKS-managed Elastic Network Interfaces that are created in your worker node subnets.',
+        ),
+        {
+          startLink:
+            '<a href="https://console.aws.amazon.com/vpc/home?#securityGroups" target="_blank" rel="noopener noreferrer">',
+          endLink: '</a>',
+        },
+        false,
+      );
+    },
   },
   mounted() {
     this.fetchRegions();
     this.fetchRoles();
   },
   methods: {
-    ...mapActions(['setClusterName', 'setEnvironmentScope', 'setKubernetesVersion', 'setRegion', 'setVpc', 'setSubnet', 'setRole', 'setKeyPair']),
-    ...mapRegionsActions({ fetchRegions: 'fetchItems' }),
-    ...mapVpcActions({ fetchVpcs: 'fetchItems' }),
-    ...mapSubnetActions({ fetchSubnets: 'fetchItems' }),
-    ...mapRolesActions({ fetchRoles: 'fetchItems' }),
-    ...mapKeyPairsActions({ fetchKeyPairs: 'fetchItems' }),
+    ...mapActions([
+      'setClusterName',
+      'setEnvironmentScope',
+      'setKubernetesVersion',
+      'setRegion',
+      'setVpc',
+      'setSubnet',
+      'setRole',
+      'setKeyPair',
+      'setSecurityGroup',
+    ]),
+    ...mapActions({
+      fetchRegions: 'regions/fetchItems',
+      fetchKeyPairs: 'keyPairs/fetchItems',
+      fetchVpcs: 'vpcs/fetchItems',
+      fetchSubnets: 'subnets/fetchItems',
+      fetchRoles: 'roles/fetchItems',
+      fetchSecurityGroups: 'securityGroups/fetchItems',
+    }),
     setRegionAndFetchVpcsAndKeyPairs(region) {
       this.setRegion({ region });
       this.fetchVpcs({ region });
@@ -146,6 +180,7 @@ export default {
     setVpcAndFetchSubnets(vpc) {
       this.setVpc({ vpc });
       this.fetchSubnets({ vpc });
+      this.fetchSecurityGroups({ vpc });
     },
   },
 };
@@ -275,6 +310,30 @@ export default {
         @input="setSubnet({ subnet: $event })"
       />
       <p class="form-text text-muted" v-html="subnetDropdownHelpText"></p>
+    </div>
+    <div class="form-group">
+      <label class="label-bold" for="eks-security-group">{{
+        s__('ClusterIntegration|Security groups')
+      }}</label>
+      <cluster-form-dropdown
+        field-id="eks-security-group"
+        field-name="eks-security-group"
+        :input="selectedSecurityGroup"
+        :items="securityGroups"
+        :loading="isLoadingSecurityGroups"
+        :disabled="securityGroupDropdownDisabled"
+        :disabled-text="s__('ClusterIntegration|Select a VPC to choose a security group')"
+        :loading-text="s__('ClusterIntegration|Loading security groups')"
+        :placeholder="s__('ClusterIntergation|Select a security group')"
+        :search-field-placeholder="s__('ClusterIntegration|Search security groups')"
+        :empty-text="s__('ClusterIntegration|No security group found')"
+        :has-errors="loadingSubnetsError"
+        :error-message="
+          s__('ClusterIntegration|Could not load security groups for the selected VPC')
+        "
+        @input="setSecurityGroup({ securityGroup: $event })"
+      />
+      <p class="form-text text-muted" v-html="securityGroupDropdownHelpText"></p>
     </div>
   </form>
 </template>

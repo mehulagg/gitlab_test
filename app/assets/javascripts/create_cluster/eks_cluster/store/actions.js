@@ -32,4 +32,8 @@ export const setRole = ({ commit }, payload) => {
   commit(types.SET_ROLE, payload);
 };
 
+export const setSecurityGroup = ({ commit }, payload) => {
+  commit(types.SET_SECURITY_GROUP, payload);
+};
+
 export default () => {};

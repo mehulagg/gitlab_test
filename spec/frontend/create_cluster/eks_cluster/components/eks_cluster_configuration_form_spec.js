@@ -19,11 +19,13 @@ describe('EksClusterConfigurationForm', () => {
   let vpcsState;
   let subnetsState;
   let keyPairsState;
+  let securityGroupsState;
   let vpcsActions;
   let rolesActions;
   let regionsActions;
   let subnetsActions;
   let keyPairsActions;
+  let securityGroupsActions;
   let vm;
 
   beforeEach(() => {
@@ -37,6 +39,7 @@ describe('EksClusterConfigurationForm', () => {
       setSubnet: jest.fn(),
       setRole: jest.fn(),
       setKeyPair: jest.fn(),
+      setSecurityGroup: jest.fn(),
     };
     regionsActions = {
       fetchItems: jest.fn(),
@@ -53,6 +56,9 @@ describe('EksClusterConfigurationForm', () => {
     rolesActions = {
       fetchItems: jest.fn(),
     };
+    securityGroupsActions = {
+      fetchItems: jest.fn(),
+    };
     rolesState = {
       ...clusterDropdownStoreState(),
     };
@@ -66,6 +72,9 @@ describe('EksClusterConfigurationForm', () => {
       ...clusterDropdownStoreState(),
     };
     keyPairsState = {
+      ...clusterDropdownStoreState(),
+    };
+    securityGroupsState = {
       ...clusterDropdownStoreState(),
     };
     store = new Vuex.Store({
@@ -97,6 +106,11 @@ describe('EksClusterConfigurationForm', () => {
           state: keyPairsState,
           actions: keyPairsActions,
         },
+        securityGroups: {
+          namespaced: true,
+          state: securityGroupsState,
+          actions: securityGroupsActions,
+        },
       },
     });
   });
@@ -120,6 +134,7 @@ describe('EksClusterConfigurationForm', () => {
   const findVpcDropdown = () => vm.find('[field-id="eks-vpc"]');
   const findSubnetDropdown = () => vm.find('[field-id="eks-subnet"]');
   const findRoleDropdown = () => vm.find('[field-id="eks-role"]');
+  const findSecurityGroupDropdown = () => vm.find('[field-id="eks-security-group"]');
 
   describe('when mounted', () => {
     it('fetches available regions', () => {
@@ -255,6 +270,36 @@ describe('EksClusterConfigurationForm', () => {
     expect(findSubnetDropdown().props('hasErrors')).toEqual(true);
   });
 
+  it('disables SecurityGroupDropdown when no vpc is selected', () => {
+    expect(findSecurityGroupDropdown().props('disabled')).toBe(true);
+  });
+
+  it('enables SecurityGroupDropdown when a vpc is selected', () => {
+    state.selectedVpc = { name: 'vpc-1 ' };
+
+    return Vue.nextTick().then(() => {
+      expect(findSecurityGroupDropdown().props('disabled')).toBe(false);
+    });
+  });
+
+  it('sets isLoadingSecurityGroups to SecurityGroupDropdown loading property', () => {
+    securityGroupsState.isLoadingItems = true;
+
+    return Vue.nextTick().then(() => {
+      expect(findSecurityGroupDropdown().props('loading')).toBe(securityGroupsState.isLoadingItems);
+    });
+  });
+
+  it('sets securityGroups to SecurityGroupDropdown items property', () => {
+    expect(findSecurityGroupDropdown().props('items')).toBe(securityGroupsState.items);
+  });
+
+  it('sets loadingSecurityGroupsError to SecurityGroupDropdown hasErrors property', () => {
+    expect(findSecurityGroupDropdown().props('hasErrors')).toBe(
+      securityGroupsState.loadingItemsError,
+    );
+  });
+
   describe('when region is selected', () => {
     const region = { name: 'us-west-2' };
 
@@ -329,6 +374,14 @@ describe('EksClusterConfigurationForm', () => {
     it('dispatches fetchSubnets action', () => {
       expect(subnetsActions.fetchItems).toHaveBeenCalledWith(expect.anything(), { vpc }, undefined);
     });
+
+    it('dispatches fetchSecurityGroups action', () => {
+      expect(securityGroupsActions.fetchItems).toHaveBeenCalledWith(
+        expect.anything(),
+        { vpc },
+        undefined,
+      );
+    });
   });
 
   describe('when a subnet is selected', () => {
@@ -364,6 +417,22 @@ describe('EksClusterConfigurationForm', () => {
 
     it('dispatches setKeyPair action', () => {
       expect(actions.setKeyPair).toHaveBeenCalledWith(expect.anything(), { keyPair }, undefined);
+    });
+  });
+
+  describe('when security group is selected', () => {
+    const securityGroup = { name: 'default group' };
+
+    beforeEach(() => {
+      findSecurityGroupDropdown().vm.$emit('input', securityGroup);
+    });
+
+    it('dispatches setSecurityGroup action', () => {
+      expect(actions.setSecurityGroup).toHaveBeenCalledWith(
+        expect.anything(),
+        { securityGroup },
+        undefined,
+      );
     });
   });
 });

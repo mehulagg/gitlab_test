@@ -6,3 +6,4 @@ export const SET_VPC = 'SET_VPC';
 export const SET_KEY_PAIR = 'SET_KEY_PAIR';
 export const SET_SUBNET = 'SET_SUBNET';
 export const SET_ROLE = 'SET_ROLE';
+export const SET_SECURITY_GROUP = 'SET_SECURITY_GROUP';
