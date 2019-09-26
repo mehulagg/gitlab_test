@@ -6,6 +6,8 @@ export default () => ({
     add: null,
   },
   searchQuery: '',
+  totalPages: 0,
+  currentPage: 0,
   totalResults: 0,
   projects: [],
   projectSearchResults: [],

@@ -53,6 +53,8 @@ export default {
       'searchQuery',
       'messages',
       'totalResults',
+      'totalPages',
+      'currentPage',
     ]),
     isSearchingProjects() {
       return this.searchCount > 0;
