@@ -1,5 +1,6 @@
 <script>
 import { GlEmptyState } from '@gitlab/ui';
+import { GlStackedColumnChart } from '@gitlab/ui/dist/charts';
 import { mapActions, mapState, mapGetters } from 'vuex';
 import { featureAccessLevel } from '~/pages/projects/shared/permissions/constants';
 import GroupsDropdownFilter from '../../shared/components/groups_dropdown_filter.vue';
@@ -8,10 +9,39 @@ import DateRangeDropdown from '../../shared/components/date_range_dropdown.vue';
 import SummaryTable from './summary_table.vue';
 import StageTable from './stage_table.vue';
 
+// TODO: replace this test data with an endpoint
+import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
+import { getTimeframeWindowFrom, getDateInPast } from '~/lib/utils/datetime_utility';
+
+// const timeWindow = getTimeframeWindowFrom(new Date(), -30);
+const today = new Date();
+const timeWindow = [...Array(30)].map(i => getDateInPast(today, i));
+
+console.log('timeWindow', timeWindow);
+
+const dataPoints = [];
+
+const typeOfWork = convertObjectPropsToCamelCase(
+  {
+    label_id: __('Bug'),
+    series: [[__('TIMESTAMP_1'), 72], [__('TIMESTAMP_2'), 43]],
+  },
+  {
+    label_id: __('Feature'),
+    series: [[__('TIMESTAMP_1'), 1], [__('TIMESTAMP_5'), 2]],
+  },
+  {
+    label_id: __('Backstage'),
+    series: [[__('TIMESTAMP_1'), 1], [__('TIMESTAMP_5'), 2]],
+  },
+  { deep: true },
+);
+
 export default {
   name: 'CycleAnalytics',
   components: {
     GlEmptyState,
+    GlStackedColumnChart,
     GroupsDropdownFilter,
     ProjectsDropdownFilter,
     DateRangeDropdown,
@@ -61,6 +91,12 @@ export default {
     },
     hasCustomizableCycleAnalytics() {
       return gon && gon.features ? gon.features.customizableCycleAnalytics : false;
+    },
+    typeOfWorkDataset() {
+      return [
+        [58, 49, 38, 23, 27, 68, 38, 35, 7, 64, 65, 31],
+        [8, 6, 34, 19, 9, 7, 17, 25, 14, 7, 10, 32],
+      ];
     },
   },
   methods: {
@@ -177,6 +213,38 @@ export default {
         @selectStage="onStageSelect"
         @showAddStageForm="onShowAddStageForm"
       />
+    </div>
+    <div>
+      <h2>{{ __('Type of work') }}</h2>
+      <p>{{ __('Showing data for __ groups and __ projects from __ to __') }}</p>
+      <div class="col-6">
+        <header>
+          <h3>{{ __('Tasks by type') }}</h3>
+        </header>
+        <section>
+          <gl-stacked-column-chart
+            :data="typeOfWorkDataset"
+            :group-by="[
+              'Jan',
+              'Feb',
+              'Mar',
+              'Apr',
+              'May',
+              'Jun',
+              'Jul',
+              'Aug',
+              'Sep',
+              'Oct',
+              'Nov',
+              'Dec',
+            ]"
+            x-axis-type="category"
+            x-axis-title="January - December 2018"
+            y-axis-title="Commits"
+            :series-names="['Fun 1', 'Fun 2']"
+          />
+        </section>
+      </div>
     </div>
   </div>
 </template>
