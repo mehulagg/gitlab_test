@@ -26,7 +26,8 @@ module Gitlab
       'id_ID' => 'Bahasa Indonesia',
       'fil_PH' => 'Filipino',
       'pl_PL' => 'Polski',
-      'cs_CZ' => 'Čeština'
+      'cs_CZ' => 'Čeština',
+      'zz' => 'Pseudo English'
     }.freeze
 
     def available_locales

@@ -317,7 +317,7 @@ describe JiraService do
 
       it 'returns default values' do
         expect(service.title).to eq('Jira')
-        expect(service.description).to eq('Jira issue tracker')
+        expect(service.description).to eq(_('JiraService|Jira issue tracker'))
       end
     end
   end
@@ -569,7 +569,7 @@ describe JiraService do
         service = create(:jira_service)
 
         expect(service.title).to eq('Jira')
-        expect(service.description).to eq('Jira issue tracker')
+        expect(service.description).to eq(_('JiraService|Jira issue tracker'))
       end
     end
 

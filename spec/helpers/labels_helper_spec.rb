@@ -129,7 +129,7 @@ describe LabelsHelper do
 
     context 'with a group as subject' do
       it 'returns "Create group label"' do
-        expect(create_label_title(group)).to eq 'Create group label'
+        expect(create_label_title(group)).to eq _('Create group label')
       end
     end
 
@@ -137,13 +137,13 @@ describe LabelsHelper do
       set(:project) { create(:project, namespace: group) }
 
       it 'returns "Create project label"' do
-        expect(create_label_title(project)).to eq 'Create project label'
+        expect(create_label_title(project)).to eq _('Create project label')
       end
     end
 
     context 'with no subject' do
       it 'returns "Create new label"' do
-        expect(create_label_title(nil)).to eq 'Create new label'
+        expect(create_label_title(nil)).to eq _('Create new label')
       end
     end
   end
@@ -153,7 +153,7 @@ describe LabelsHelper do
 
     context 'with a group as subject' do
       it 'returns "Manage group labels"' do
-        expect(manage_labels_title(group)).to eq 'Manage group labels'
+        expect(manage_labels_title(group)).to eq _('Manage group labels')
       end
     end
 
@@ -161,13 +161,13 @@ describe LabelsHelper do
       set(:project) { create(:project, namespace: group) }
 
       it 'returns "Manage project labels"' do
-        expect(manage_labels_title(project)).to eq 'Manage project labels'
+        expect(manage_labels_title(project)).to eq _('Manage project labels')
       end
     end
 
     context 'with no subject' do
       it 'returns "Manage labels"' do
-        expect(manage_labels_title(nil)).to eq 'Manage labels'
+        expect(manage_labels_title(nil)).to eq _('Manage labels')
       end
     end
   end
@@ -177,7 +177,7 @@ describe LabelsHelper do
 
     context 'with a group as subject' do
       it 'returns "View group labels"' do
-        expect(view_labels_title(group)).to eq 'View group labels'
+        expect(view_labels_title(group)).to eq _('View group labels')
       end
     end
 
@@ -185,13 +185,13 @@ describe LabelsHelper do
       set(:project) { create(:project, namespace: group) }
 
       it 'returns "View project labels"' do
-        expect(view_labels_title(project)).to eq 'View project labels'
+        expect(view_labels_title(project)).to eq _('View project labels')
       end
     end
 
     context 'with no subject' do
       it 'returns "View labels"' do
-        expect(view_labels_title(nil)).to eq 'View labels'
+        expect(view_labels_title(nil)).to eq _('View labels')
       end
     end
   end

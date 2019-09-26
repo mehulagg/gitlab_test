@@ -528,7 +528,7 @@ describe SystemNoteService do
     end
 
     it 'sets the zoom link added note text' do
-      expect(subject.note).to eq('added a Zoom call to this issue')
+      expect(subject.note).to eq(_('added a Zoom call to this issue'))
     end
   end
 
@@ -540,7 +540,7 @@ describe SystemNoteService do
     end
 
     it 'sets the zoom link removed note text' do
-      expect(subject.note).to eq('removed a Zoom call from this issue')
+      expect(subject.note).to eq(_('removed a Zoom call from this issue'))
     end
   end
 
@@ -859,7 +859,7 @@ describe SystemNoteService do
         it "blocks cross reference when #{type.underscore}_events is false" do
           jira_tracker.update("#{type}_events" => false)
 
-          expect(cross_reference(type)).to eq("Events for #{type.pluralize.humanize.downcase} are disabled.")
+          expect(cross_reference(type)).to eq(_('JiraService|Events for %{noteable_model_name} are disabled.') % { noteable_model_name: type.pluralize.humanize.downcase })
         end
 
         it "creates cross reference when #{type.underscore}_events is true" do

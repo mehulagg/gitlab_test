@@ -65,7 +65,7 @@ describe Admin::UsersController do
       put :block, params: { id: user.username }
       user.reload
       expect(user.blocked?).to be_truthy
-      expect(flash[:notice]).to eq 'Successfully blocked'
+      expect(flash[:notice]).to eq _('Successfully blocked')
     end
   end
 
@@ -81,7 +81,7 @@ describe Admin::UsersController do
         put :unblock, params: { id: user.username }
         user.reload
         expect(user.blocked?).to be_truthy
-        expect(flash[:alert]).to eq 'This user cannot be unlocked manually from GitLab'
+        expect(flash[:alert]).to eq _('This user cannot be unlocked manually from GitLab')
       end
     end
 
@@ -94,7 +94,7 @@ describe Admin::UsersController do
         put :unblock, params: { id: user.username }
         user.reload
         expect(user.blocked?).to be_falsey
-        expect(flash[:notice]).to eq 'Successfully unblocked'
+        expect(flash[:notice]).to eq _('Successfully unblocked')
       end
     end
   end
@@ -144,7 +144,7 @@ describe Admin::UsersController do
       go
 
       expect(flash[:notice])
-        .to eq 'Two-factor Authentication has been disabled for this user'
+        .to eq _('Two-factor Authentication has been disabled for this user')
     end
 
     def go
@@ -159,7 +159,7 @@ describe Admin::UsersController do
 
     it 'shows only one error message for an invalid email' do
       post :create, params: { user: attributes_for(:user, email: 'bogus') }
-      expect(assigns[:user].errors).to contain_exactly("Email is invalid")
+      expect(assigns[:user].errors).to contain_exactly('Email is invalid')
     end
   end
 
@@ -256,7 +256,7 @@ describe Admin::UsersController do
       it "shows a notice" do
         post :impersonate, params: { id: user.username }
 
-        expect(flash[:alert]).to eq("You cannot impersonate a blocked user")
+        expect(flash[:alert]).to eq(_('You cannot impersonate a blocked user'))
       end
 
       it "doesn't sign us in as the user" do

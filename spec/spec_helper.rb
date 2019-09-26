@@ -6,6 +6,10 @@ ENV["IN_MEMORY_APPLICATION_SETTINGS"] = 'true'
 ENV["RSPEC_ALLOW_INVALID_URLS"] = 'true'
 
 require File.expand_path('../config/environment', __dir__)
+
+I18n.default_locale = :zz
+Gitlab::I18n.locale = :zz
+
 require 'rspec/rails'
 require 'shoulda/matchers'
 require 'rspec/retry'

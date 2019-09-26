@@ -1,0 +1,455 @@
+---
+zz:
+  hello: Ⱨęłļò ẃȍŗłɗ
+  activerecord:
+    attributes:
+      issue_link:
+        source: Ṩởųŗċē îṧşʉê
+        target: Ţáŗĝĕẗ íᶊšṹĕ
+      group:
+        path: Ɠȓờűᶈ ỨŘȽ
+      project/error_tracking_setting:
+        token: Ǟưẗӵ Ṫọḳėŋ
+        project: Ƥᵲȍĵèƈŧ
+        api_url: Ṩèŋṫŕÿ ÁƤI ŨȐŁ
+      project/metrics_setting:
+        external_dashboard_url: Ěᶍƫêᶉɳãł ƋàșħƀõãȑƋ ŨŖȽ
+    errors:
+      models:
+        application:
+          attributes:
+            redirect_uri:
+              fragment_present: ȼáńɲӧṯ ɕôńƫäȉň ä ᶂȑáĝɱėɴƫ.
+              invalid_uri: ᵯŭşṯ ƃè å ᶌåŀἶď ǙȒI.
+              relative_uri: ӎūᶊŧ ᶀé åŋ àᵬșṓłúťē ǗƦI.
+  views:
+    pagination:
+      previous: Ƥȓěⱴ
+      next: Ńêᶍƫ
+  date:
+    abbr_day_names: Ṥãṭ
+    abbr_month_names: Đęç
+    day_names: Ṩáţŭȓđâÿ
+    formats:
+      default: "%Y-%m-%d"
+      long: "%B %d, %Y"
+      short: "%b %d"
+      admin: "%e %b, %Y"
+    month_names: Ḓêćêӎɓěᵲ
+    order: :day
+  datetime:
+    time_ago_in_words:
+      half_a_minute: ӵàŀḟ â ṃỉŉứẗē àǵő
+      less_than_x_seconds:
+        one: ŀěᵴᶊ ṫӵáŉ 1 śěĉṓɴđ áǥṓ
+        other: ļëśŝ ťħäň %{count} ᵴèɕőɳƌŝ àģȍ
+      x_seconds:
+        one: 1 șèɕởɴɗ âǧö
+        other: "%{count} şēȼồńȡṡ áģȍ"
+      less_than_x_minutes:
+        one: ƚęșś ťӵåñ â ḿīńűẗé ãǵõ
+        other: ļëŝś ṱħäň %{count} ᵯīñŭƫęᶊ âǵõ
+      x_minutes:
+        one: 1 ӎᵻŉũƫĕ äģô
+        other: "%{count} ṁîɳűŧéş âǧô"
+      about_x_hours:
+        one: áƂỏùƫ 1 ĥồưᵲ ãǧõ
+        other: åƃợǖṱ %{count} ӵŏừȑṡ äǧǒ
+      x_days:
+        one: 1 ƌäỳ âģợ
+        other: "%{count} ȡäýᵴ âǥȍ"
+      about_x_months:
+        one: äɓōũƫ 1 ḿôņṫĥ âǧõ
+        other: äƀӧŭṯ %{count} ᵯõɲṭḥș áǧô
+      x_months:
+        one: 1 ɱờñţḥ ãǧö
+        other: "%{count} ᵯøɲṯӵş äġǿ"
+      about_x_years:
+        one: äƃồųť 1 ỵěáŗ áĝŏ
+        other: åɓõûƫ %{count} ỵēåȓș åģǿ
+      over_x_years:
+        one: ơᶌęᵲ 1 ẙěäᶉ äĝò
+        other: õⱱėᵲ %{count} ɏêäŕş àģợ
+      almost_x_years:
+        one: äłᶆōșƫ 1 ɏêäᵲ âǧõ
+        other: äļɱӧᵴṯ %{count} ƴęáᵲș áǧô
+    distance_in_words:
+      about_x_hours:
+        one: äɓòúţ 1 ħŏúᵲ
+        other: ãḅòṹṯ %{count} ħǒúȓᶊ
+      about_x_months:
+        one: áƃòůŧ 1 ᶬôŋťħ
+        other: àᶀȍưṫ %{count} ᵯǿɳṱḥș
+      about_x_years:
+        one: äᶀöùţ 1 ẏěåȓ
+        other: àḇôůṭ %{count} ẙèãᶉŝ
+      almost_x_years:
+        one: áļɱǿśţ 1 ÿéåᶉ
+        other: àŀṃȍᵴṫ %{count} ŷęàŕș
+      half_a_minute: ḥåƚḟ á ṁïŋǜẗè
+      less_than_x_minutes:
+        one: ļéśš ẗḥáɳ á ӎɨñûẗě
+        other: łéṧş ŧӵåņ %{count} ᶆỉñûŧĕŝ
+      less_than_x_seconds:
+        one: ŀèᵴᶊ ƫḥáņ 1 șéĉŏŉȡ
+        other: ŀęşś ťӵáň %{count} ᵴėĉøŉƌṡ
+      over_x_years:
+        one: ợṿèŗ 1 ÿèäŗ
+        other: ơᶌęᶉ %{count} ỳéàᶉᶊ
+      x_days:
+        one: 1 ȡãɏ
+        other: "%{count} ďåƴᶊ"
+      x_minutes:
+        one: 1 ӎȋɲṻṫę
+        other: "%{count} ᶬȉńǚţĕᵴ"
+      x_months:
+        one: 1 ӎọŋṯĥ
+        other: "%{count} ḿọńƫӵṧ"
+      x_years:
+        one: 1 ỵêåᵲ
+        other: "%{count} ẏëåȑᵴ"
+      x_seconds:
+        one: 1 šëćӧɳɗ
+        other: "%{count} ŝēćởñđş"
+    prompts:
+      day: Ḓàɏ
+      hour: Ḩồṻᶉ
+      minute: Ḿỉɳūṫē
+      month: Ḿȍɲťħ
+      second: ṦéçøɲƋŝ
+      year: Ƴèáŗ
+  errors:
+    format: "%{attribute} %{message}"
+    messages:
+      label_already_exists_at_group_level: ãƚᵲėàƋỵ ēᶍȋșẗš äŧ ġŗŏừƥ ƚęⱴêļ ƒøŕ %{group}.
+        Ṗŀėáṧè çḥṓôᶊė àɲởẗĥēȓ õɳě.
+      wrong_size: ìș ẗӵē ẇᶉőńĝ ṡἶżę (šḥơůłƋ ḅè %{file_size})
+      size_too_small: ȉŝ ṯơô śӎâŀļ (ŝḥȍǘƚƌ ᶀě àṫ łëàᶊẗ %{file_size})
+      size_too_big: îş ṫǒø ᶀỉĝ (šħǿǖłȡ ḃè ãṯ ᶆőŝṯ %{file_size})
+      accepted: ᶬǚšṫ ᶀë åĉčėᶈṫęđ
+      blank: čàŉ'ṱ ƃè ḅłåŉƙ
+      present: ṃùṡƫ ɓĕ ḃłáņǩ
+      confirmation: ɗọėṧņ'ṫ ɱåṱċĥ %{attribute}
+      empty: ƈàɴ'ṫ ḇě éᶆṗṫƴ
+      equal_to: ḿųᶊƫ Ƃè éɋŭâƚ ŧö %{count}
+      even: ᵯŭṧṱ ɓé ėṿěŉ
+      exclusion: ĩś ᵲēṧëŗⱴěƌ
+      greater_than: ӎṻŝƫ ƀę ǵŕèäƫēȓ ŧħãň %{count}
+      greater_than_or_equal_to: ᶆưšẗ ɓë ǵᶉěáṱēᵲ ṭĥàɲ øᶉ ëɋṹãŀ ẗȍ %{count}
+      inclusion: ĭş ɴợţ ĭɲƈļūƋėɗ ἶņ ṫḥě ŀɨšṫ
+      invalid: ɨᶊ ĭñⱴäƚĩƋ
+      less_than: ᶆứśṭ ḅê ļèᶊş ṫĥåɴ %{count}
+      less_than_or_equal_to: ᵯừșť ɓé ļęšᵴ ṱĥãņ ỏȓ éɋừãŀ ṱӧ %{count}
+      model_invalid: 'Ṽåƚïɗàťìơɴ ᶂãïļëɗ: %{errors}'
+      not_a_number: ȉṡ ŋӧŧ á ňứɱᵬęȑ
+      not_an_integer: ᶬứṧť ᶀë åɴ ȉňƫęġēŗ
+      odd: ḿùṡŧ ᶀě ӧđɗ
+      required: ṁʉṧť ĕẋīśṱ
+      taken: ħäṡ áļᵲęáƋỵ ᶀêéŋ ŧáƙĕň
+      too_long:
+        one: îș ṱŏӧ ŀóɳǥ (ᶬâᶍĩṃưᶬ íᵴ 1 çӵãᵲãĉṭēȓ)
+        other: ᵻᶊ ťọǿ łồñǵ (ḿâᶍȉḿʉṃ īᵴ %{count} ĉħäŕåçƫęȑᶊ)
+      too_short:
+        one: ĭš ẗờő šĥõŕẗ (ṃîńĭḿǚḿ ɨş 1 ȼħáᵲãɕṫĕᵲ)
+        other: ᵻᵴ ṫờỏ ᵴӵơŕẗ (ṃïŋỉᶆùḿ ἶᵴ %{count} čӵâŕäĉṱēŗᶊ)
+      wrong_length:
+        one: îṡ ṯħē שּŗọŉģ ƚēņġţӵ (șӵọừŀɗ ƀę 1 ɕĥàŕáɕṯëŗ)
+        other: ĩŝ ŧӵĕ שׂᶉôņǵ ŀëŋġṱħ (ᶊħồʉłƌ ƃē %{count} ċĥãȓäčŧēȑᵴ)
+      other_than: ᵯūşẗ ḅę ỏṱĥéŗ ŧĥåň %{count}
+      carrierwave_processing_error: ᵮàɨļēɗ ṭǒ ḃě ṗᵲӧƈêṧṡěȡ
+      carrierwave_integrity_error: ĭş ñŏṯ õƒ âɳ âļƚŏשׁēƌ ƒɨłę ṭɏƥĕ
+      carrierwave_download_error: ȼõừŀƋ ɳōẗ ƃę ɗǒŵņļơáďėƋ
+      extension_whitelist_error: 'Ýőʉ åŕę ńӧṱ ãļļợשׂĕƌ ṱọ ůṗƚǿåđ %{extension} ᵮìƚëŝ,
+        ãļļởשּęȡ ƫýṗéᵴ: %{allowed_types}'
+      extension_blacklist_error: 'Ŷởů åȑè ňợṭ àŀƚöשׁęď ṫồ ǔᶈłỏâđ %{extension} ᶂīƚëᵴ,
+        ᵽȓǿĥīḅīṫêď ṫỳṕĕṧ: %{prohibited_types}'
+      content_type_whitelist_error: Ұőǜ àᶉė ŋōŧ âŀŀợŵęƌ ṱȍ ữṕƚȍáȡ %{content_type}
+        ƒĩŀêś
+      content_type_blacklist_error: Ұőǜ àᶉė ŋōŧ âŀŀợŵęƌ ṱȍ ữṕƚȍáȡ %{content_type}
+        ƒĩŀêś
+      rmagick_processing_error: Ƒâïƚèȡ ṫõ ӎãņìᶈʉƚãţė שּíṯḥ ŕḿáġᵻćƙ, ɱäỵƂĕ ȉţ ᵻš ņŏṱ
+        ãŉ ìᶆåģę?
+      mini_magick_processing_error: 'Ḟáἶŀéɗ ṯở ṁâņīṗǘłäẗé שׂỉƫḥ ӍĭŋīṀàǧîĉḳ, ᶆäÿḇē îṭ
+        ἶᶊ ňøẗ ãɳ ɨᶆãǧė? Ỏᵲïǥĩňåŀ Ĕŗᶉơŗ: %{e}'
+      min_size_error: Ƒîƚè śỉƶé şӵóûļƋ ƃé ġȑèàẗéȓ ťḥáñ %{min_size}
+      max_size_error: Ƒìłě şȋƶè șḥȍǖłđ ḅě łĕᵴᶊ ƫӵâň %{max_size}
+      already_confirmed: ẇàᶊ àłȑêáƌẏ ĉŏŉḟɨᵲɱëȡ, ṗƚěášē ṯȑŷ šîǧñīŉǧ ȉň
+      confirmation_period_expired: ɲèęƋṧ ŧồ ƀĕ ɕӧñᵮȋȑᶆèƋ ẃỉƫӵɨɲ %{period}, ṕƚėàŝē
+        ᶉëʠṻĕşṫ ä ŉêẇ òŉě
+      expired: ḥåș ęẋṕἶȑëƌ, ᶈƚéáŝë ȑēʠùēśŧ ä ŋéשּ ōɲę
+      not_found: ñŏṱ ƒỏűɲđ
+      not_locked: שׂåṧ ɴơṯ ŀöčķëƋ
+      not_saved:
+        one: '1 èŕȓőᵲ ƥŕӧħĭɓíṫèȡ ṯӵĭṡ %{resource} ƒᶉọṁ ḃĕᵻñǵ ᶊåṿėƋ:'
+        other: "%{count} èŗȑơᵲᶊ ᵱȓồӵᵻƂɨṭęđ ṱӵĩś %{resource} ᶂŗõṁ Ƃĕîňĝ ŝàṽëđ:"
+    template:
+      body: 'Ʈḥėᵲè ẁêᵲê ᵱᶉòɓƚęɱş ŵĭťӵ ṫḥë ᵮỏļŀòשׁȉŋǵ ƒïêļđᵴ:'
+      header:
+        one: 1 ěŕȑỏŗ ƥŗơḥỉḃìťĕɗ ṫħīş %{model} ƒȑõṁ ᶀëìŉǥ ŝãʋėď
+        other: "%{count} éŗŕōȓᵴ ᵽȑóħíḃīṱéƋ ťḥɨŝ %{model} ᶂŕởᶆ Ƃėĩñǧ ŝàⱱëď"
+  helpers:
+    select:
+      prompt: Ṕļëâᶊè şêŀēɕť
+    submit:
+      create: Ćᵲèãƫĕ %{model}
+      submit: Ṧâⱱę %{model}
+      update: Ūᵽƌáṱē %{model}
+  number:
+    currency:
+      format:
+        delimiter: ","
+        format: "%u%n"
+        precision: 2
+        separator: "."
+        significant: false
+        strip_insignificant_zeros: false
+        unit: "$"
+    format:
+      delimiter: ","
+      precision: 3
+      separator: "."
+      significant: false
+      strip_insignificant_zeros: false
+    human:
+      decimal_units:
+        format: "%n %u"
+        units:
+          billion: Ḅîŀļîọń
+          million: Ṁìłłᵻöɳ
+          quadrillion: ԚûåƋŗἶļļỉóň
+          thousand: Ṫӵőữšáņȡ
+          trillion: Țȓíļŀἶồń
+          unit: ''
+      format:
+        delimiter: ''
+        precision: 3
+        significant: true
+        strip_insignificant_zeros: true
+      storage_units:
+        format: "%n %u"
+        units:
+          byte:
+            one: Ḇỵṭé
+            other: Ɓÿṯēš
+          gb: ĢḄ
+          kb: ǨɃ
+          mb: ṀɃ
+          tb: ŤḂ
+    percentage:
+      format:
+        delimiter: ''
+        format: "%n%"
+    precision:
+      format:
+        delimiter: ''
+  support:
+    array:
+      last_word_connector: ", áŉƌ "
+      two_words_connector: " åŋƌ "
+      words_connector: ", "
+  time:
+    am: åᵯ
+    formats:
+      default: "%a, %d %b %Y %H:%M:%S %z"
+      long: "%B %d, %Y %H:%M"
+      short: "%d %b %H:%M"
+      timeago_tooltip: "%b %-đ, %Y %-ŀ:%M%P"
+    pm: ᶈṁ
+  mongoid:
+    errors:
+      models:
+        application:
+          attributes:
+            redirect_uri:
+              fragment_present: ȼáńɲӧṯ ɕôńƫäȉň ä ᶂȑáĝɱėɴƫ.
+              invalid_uri: ᵯŭşṯ ƃè å ᶌåŀἶď ǙȒI.
+              relative_uri: ӎūᶊŧ ᶀé åŋ àᵬșṓłúťē ǗƦI.
+  mongo_mapper:
+    errors:
+      models:
+        application:
+          attributes:
+            redirect_uri:
+              fragment_present: ȼáńɲӧṯ ɕôńƫäȉň ä ᶂȑáĝɱėɴƫ.
+              invalid_uri: ᵯŭşṯ ƃè å ᶌåŀἶď ǙȒI.
+              relative_uri: ӎūᶊŧ ᶀé åŋ àᵬșṓłúťē ǗƦI.
+  doorkeeper:
+    errors:
+      messages:
+        invalid_request: Ţӵé ŗëʠüĕśŧ ȋṧ ɱỉșŝȉñǵ ä ŗêʠųỉᶉēď ṗâᶉâḿěṭêŕ, îñçŀűďèŝ åŉ
+          ǜŉᵴŭƥṗóȑṯĕď ᵽáŗáӎěťěŗ ṽâļüė, õȓ ĭș őẗĥĕᶉẁìşè ᶬäƚƒòᶉᶬèď.
+        invalid_redirect_uri: Țĥë ŕēƌἶᵲëȼŧ ǗȐI īŋçƚúȡéƋ ĭș ņỏŧ ṿåŀĩȡ.
+        unauthorized_client: Ṱӵĕ ƈƚᵻęɳţ ìŝ ňőƫ åùṱħӧᶉɨżëƌ ŧõ ᵱęᶉᶂóᵲᵯ ṭħɨš ŗêʠŭēśṫ
+          ǚšïŋĝ ṯĥĭŝ ᶆèṱḥȍɗ.
+        access_denied: Țħę ᵲęşóūȑĉĕ ӧẇņęŕ ọȓ ãǘƫӵṓᵲἶẓâţìồņ ŝėᵲṿėȑ ƋĕɲíëƋ ƫӵë ȓĕɋųêśṯ.
+        invalid_scope: Ʈĥě ᶉęɋứêṡṱĕď ᵴɕơṕě ᵻš ïńʋáŀïđ, üńķñǒŵŋ, ởȑ ṁåłƒơŗṁēȡ.
+        server_error: Ṭħê âŭţӵởȑἶȥàţȉỏɲ šěȓⱴěᵲ éɴċồứɴţėᵲêď äŋ ūŉëẋᶈėçŧěƋ ćóɴďïŧïởń
+          ẉħíƈĥ ƥŗęṿēňŧęƋ îţ ᶂŗờḿ ḟŭŀḟỉļļȋņĝ ţħê ȓēʠùĕŝţ.
+        temporarily_unavailable: Ṫӵě àṻŧḥởᵲĩƶãṫĩòŉ ᵴėᶉⱴěȓ ᵻṧ ȼûȓᶉěɴṱłɏ ũňåƂłĕ ṫọ ḥäńďłę
+          ŧĥĕ ŕéʠṻéŝẗ Ƌʉĕ ṱô â ṱëᶬƥơȓäŕỵ ợṿēŕŀồáȡìɳģ ợȑ ӎåἶɴẗēňäñĉě őḟ ťĥê ᶊĕȑṿëȓ.
+        credential_flow_not_configured: Ȑêŝòǜŕȼě Ȍŵɴèᵲ ṖåšᶊŵõᶉƋ Ćŕĕɗęɴṫíãļŝ ᵮļọשׂ ᵮáȉłęƋ
+          Ƌǖë ŧō Ḑơøȓǩĕéᵽëŕ.ɕồɳᶂĭǧǘŗè.ȓëśōứŕĉě_ơẘņëᵲ_ḟȑȍᶬ_čŗêđēŋẗȋâŀș ƃèɨņĝ ṻŋɕӧñḟɨǥừᶉêƋ.
+        resource_owner_authenticator_not_configured: Ŕëșøữŕćè Ŏשּŋēŗ ᵮɨɳď ƒàĭƚêđ ɗǖè
+          ṫơ Ďôøᵲḳęęƥëŕ.ȼỏɴḟïġųŕë.ŗĕŝǒṹȓċê_øẁñèȓ_åüţḥĕɴṱìčáṭōᵲ ƃëìņġ ữñƈōñᵮỉġèƌ.
+        unsupported_response_type: Ṫħė äǜŧĥöȓἶᵶàťȉởń ṡĕŕṽėᶉ ɗǒêṡ ɳõṭ ᶊứᵽᵽõȑṭ ẗḥïᶊ
+          ȓêśᶈóɳᵴê ťẏƥē.
+        invalid_client: Ҫƚᵻëɳƫ âưṯḥéñṭἶćáṫíờɴ ƒáᵻłęƌ ƌữē ṯó űɳķñȍẘñ čļĩĕŉṫ, ɴợ çļȋèńṫ
+          àữŧӵĕňṫἶɕáţîŏɲ ĭŉćƚữɗęđ, óȓ ǜɲşǔƥṕồŕƫëđ äũťӵéɴṭĩčåţīöŉ ḿęṫӵøƋ.
+        invalid_grant: Ṱḥë ᵽŕợⱴᵻďéƋ áúƫĥỏŗɨžàṭȉờñ ǥŗãňṭ ȋṧ îňṽáłἶƋ, ęᶍᵽîᶉėɗ, ᶉéᶌöƙēđ,
+          ďồěᵴ ɲŏţ ᶬäṱɕĥ ẗӵě ŗêƌỉȑëƈṭɨōń ǛƦI üᵴéɗ ᵻɳ ťħê àǜṯӵơŕỉẓåṯȉôɴ ȑěɋǔēṧṱ, ǒŗ
+          ẘãş īşşữēɗ ṫȍ äŉȍŧĥêȓ ċƚíëņť.
+        unsupported_grant_type: Ṭӵë ãűṱḥợȓïⱬãŧɨóŉ ǧȑàɴṫ ẗẙᵽę ĩș ɳởṱ ṧǘᶈṕǿȑṫēƌ Ƃŷ ŧӵè
+          äǘṯḥóŗἶźáẗĭǿņ šēŕṽèᶉ.
+        invalid_resource_owner: Ṫӵé ƥŕōⱱĩƌėƌ ȓèśồữᶉçė øẃñéȓ ɕŗēƋêņťᵻåłṧ àȑè ŋŏẗ ṽãłỉɗ,
+          óȓ ŕèᶊŏṹȓƈè öשׂŉëᶉ ȼàŋňờƫ ḇĕ ᵮọữñď
+        invalid_token:
+          revoked: Țĥę âčƈèṡș ťӧḳěņ שׁãᶊ ŗēʋờķèȡ
+          expired: Ťḥë åċćêśš ṯӧǩėń èẋṕɨȑēđ
+          unknown: Ťḥĕ äċçěŝș ţòķëɲ īš ïŉᶌåŀȉđ
+    scopes:
+      api: Āɕɕěšś ƫĥě áüţḥéɲṭíƈâṯêđ ǜᶊëᵲ'ᶊ ӐṖI
+      read_user: Řéåȡ ŧӵé äųṫḥěɴṫïĉåŧěɗ ůșèᶉ'ș ᵽëŕŝŏŉàƚ īñƒŏŕṁàṭïöŉ
+      read_repository: Âƚłỏẇṡ ᵲêáđ-øŋļẙ ãċçëśš ṭṓ ťĥĕ ŕèᵽờṧîŧӧᵲŷ
+      write_repository: Ӑŀƚờẇś ŗėâƌ-ẃȑỉṱĕ äçȼêșś ţȍ ťӵè ᵲęƥŏṡíƫȍŗɏ
+      read_registry: Ģᵲáňţṡ ᶈĕŕṁĩšśĭôń ţő ȓĕáƌ ƈỏňťåᵻñëŗ ȑęǧïŝƫŗỵ íᶬàǵěṧ
+      openid: Ǟṻṱĥëņṭíčâṯē ṹşîńǧ ȮṕéŉIĐ Čǿńɳēɕṭ
+      sudo: Ƥėŕḟóᵲḿ ǞƤI ãĉţìøńş ãᵴ âñỳ ǘŝëȑ ïŋ ťӵè ṡẏşƫęɱ
+      profile: Ȁƚƚǒẃś ȑëãď-ŏňłẙ âčćèṡś ṱӧ ṯħė úšęŕ'ᶊ ƥęŗșøŋâŀ ἶɳᵮồŕᵯãẗỉøɲ ưṧīɴġ ÕṗëŋIḐ
+        Ċǿńňéçṫ
+      email: Àłļồשׁș ᵲëäđ-ṓñƚẙ àĉƈěšš ṭợ ẗӵĕ ůṡėȓ'ṡ ṕᵲɨᶬåŗẏ ėṁàìł áđđᵲēšş ũşȋņǥ ÖṕěŋIḒ
+        Ćõɴɲēɕṱ
+    scope_desc:
+      api: Ɠȓàɴṯş ċọṁṗłėťé ȓęåȡ/שׁᵲỉṫë åčĉěᶊš ţồ ṭħè ÄƤI, ỉɳċļúđîɳĝ âŀŀ ġŕơṻᶈš áɴƌ
+        ᵱŕōᶨëçťş, ṱӵę ɕӧɳṱâîɴĕᶉ ᶉêģìśṱȓý, âņđ ƫĥė ƥáćǩàǥê ᵲėǥíşṱᶉẙ.
+      read_user: Ǥᶉáñṱṡ ŗêáƌ-õŋļỳ äćƈēšš ṫō ṱĥē âǜƫḥèŉṫĭčåṭěđ ųšèȓ'ş ᵱȑöᶂĭļë ṱĥȓợứġӵ
+        ẗĥē /ṻṡèȓ ȂƤI êɴƌṗöỉŉŧ, ẉḥĩɕħ ȉņćŀŭđĕṡ ūšĕŕńâᵯě, ṕùḅļĩć ęṃåĩł, åŋɗ ᵮūļŀ ŉáᵯè.
+        Āŀᶊở ǵŕåńṭṡ àȼçęᶊş ṱồ ᵲĕâȡ-õñłÿ ǞṖI éňƌᵱồìɴţᶊ ǚńɗěŗ /ứșĕᵲṧ.
+      read_repository: Ǧᵲáɲƫś ᵲěåđ-ōɲłý âćçêśᵴ ṱø ȑěᶈøšïţọᵲìëŝ ōñ ṗŕɨᶌãťĕ ᶈŕọᶨęčṭṡ
+        ʉșỉņġ Ǥȋť-ởṿēᵲ-ΉȚȚƤ ởŕ ťħę Ȓĕᶈȍśȉŧõȓẏ Ƒỉŀēŝ ӐƤI.
+      write_repository: Ɠŗàŉƫș ŕěàđ-שׁȓȉṯé äçĉĕšș ţǿ ᶉėṕõșíṱōȓîėś ờɳ ᵱᶉɨⱴåṫě ᶈŗởĵĕƈṫᶊ
+        ûšɨŋǵ Ğíṭ-ǿṿěᵲ-ĦṬṮṔ (ɲõƫ ṹṡἶŉġ ẗӵę ǞṔI).
+      read_registry: Ĝᵲàñṭᶊ ᵲêåɗ-ôɳļɏ åćƈëšṧ ƫō ɕôɴẗäᵻńêᵲ ᶉëĝīśťȓý ïḿàġëṧ ǿŉ ᵽȓȋⱱàţę
+        ƥŗŏʄĕčṫš.
+      openid: Ġᵲåñẗṡ ᵱêȑᶬīᶊṧἶōɳ ṭờ àůṭӵëñṯἶȼâťē ẃȉťĥ ĞỉƫȽáƀ ŭšỉɲǥ ȪᶈëñIĐ Ҫǿɲɳêčṯ.
+        Ȁłŝõ ġɨᶌéᵴ ŕěäđ-ǒɴļẏ âȼĉéşś ṯő ţḥé ůṡěŕ'ş ᵱŕŏᵮἶļė ãņȡ ĝȓőṻṗ ᶬèɱḇėᶉṡħỉᵽș.
+      sudo: Ɠŗâńƫș ᵽëᵲᶬìᶊśȉòɳ ţô ƥēŗḟóȑᶆ ÃṔI áƈṯîồɳš åș åɲɏ ṻšĕȑ ᵻɴ ţĥě şẙŝṯéᶬ, ẉĥëɲ
+        âůṱĥëńṯîćàṭęƌ åš åɲ áđṃîŉ ůşëᵲ.
+      profile: Ɠᵲãňťṡ ȑěãđ-ǒňŀý åɕĉèŝṡ ṱō ŧĥė ứŝĕŕ'ᵴ ᵱᶉṓḟĩļë ȡãƫã ùşĭŋĝ ŌṗĕńIƊ Ҫŏņŉêɕṱ.
+      email: Ğᶉâɳṱš ŗêáď-őɳļŷ åȼĉęśᵴ ṭò ṯḥę ųśéᵲ'ṡ ᶈŕȉᶆåᵲƴ ęᶬàɨƚ åɗđᵲĕᶊᶊ úšȉɳĝ ȪᵽęŉIḐ
+        Ҫӧňɴéćṯ.
+    flash:
+      applications:
+        create:
+          notice: Ṫḥě åᶈƥļĭĉâťïồň שּâṧ ɕȓĕåŧëď ᶊṹɕɕéŝşḟųłŀỳ.
+        destroy:
+          notice: Ƭӵĕ äᵽᶈļïƈåṭȉờɴ ẉàș ȡëƚèṭėȡ şùɕćĕṧşḟűłŀẙ.
+        update:
+          notice: Ţħë âṗᵱłìčáƫỉṓņ ẇãş ǔṕȡåťėȡ ṡŭɕȼĕśṡḟūŀŀɏ.
+      authorized_applications:
+        destroy:
+          notice: Ʈḥè äṗƥļĩȼàṱíōŉ שׁáᶊ ᵲëṿôḳěđ áɕĉèşᵴ.
+  sherlock:
+    title: Ŝħėᶉļӧċǩ
+    delete_all_transactions: Ḑēŀęṱě Āļŀ Ʈᶉàňŝâĉťἶởņš
+    introduction: 'Ɓēŀôẉ ȉṡ ä łỉșŧ òᵮ åƚŀ ṭŗåňşãƈťîôɲᵴ ȓĕćōȓđęɗ ɓÿ Şӵèŗłǒčḳ. Ʀėʠûëṡŧş
+      ṫȍ Šħĕᵲļőȼķ''ᶊ òẘɲ ȑøǘţëş áŗē ᵻǧñǿȓĕƋ.
+
+'
+    no_transactions: Ńơ ƫᵲãɲᵴàçƫỉờɴŝ ṯӧ ᵴӵôשׁ
+    no_queries: Ṋȍ ʠừéȑĭêŝ ťṓ șӵồŵ
+    no_file_samples: Ṅô ᶂἶļę șåṁƥŀēş ŧồ śḥởŵ
+    all_transactions: Äļļ Ṯȑàňŝäčŧìȍņš
+    transaction: Ţᶉáňṡãćŧᵻỏň
+    query: Ԛùèᶉẏ
+    file_sample: Ḟíļē Ṩåᵯᵽļê
+    type: Ƭẏƥė
+    path: Ṗäŧĥ
+    time: Ṭĭḿë
+    queries: Ԛùëȓᵻéᵴ
+    finished_at: ƑỉŉȋᵴḥêƋ âẗ
+    ago: äǥō
+    view: Ṽἶēẁ
+    seconds: ᵴêçǒŉďŝ
+    milliseconds: ᶬṡ
+    general: Ɠêňėȓâł
+    id: IĐ
+    time_inclusive: Ṱíṁě (íɴɕŀữṧỉᶌě)
+    backtrace: Ḇàƈḳṱŗàƈé
+    application_backtrace: Àᶈᶈŀȉĉãṱïờň Ḇãčḳţȑãƈê
+    full_backtrace: Ḟǜļł Ƀàčḳṭȑâɕē
+    origin: Ȯȑɨġīň
+    line: ƚìņė
+    line_capitalized: Ƚᵻňë
+    copy_to_clipboard: Ĉõṗÿ ṯő ȼŀíᵱƀợâȓď
+    query_plan: Ɋṻěᶉȳ Ƥłáɲ
+    events: Ėⱱęŋťş
+    percent: "%"
+    count: Ĉởǘɲŧ
+    query_time: Ԛǘěᶉÿ Ṫìӎě
+  invisible_captcha:
+    sentence_for_humans: Iƒ ƴǒǘ äȓê ĥǘḿäɲ, ṗļęàşè ɨĝńȍᶉė ťӵĭᶊ ƒĩėļď.
+    timestamp_error_message: Ƭħáẗ ẁåṡ à ḃĭṱ ṯóồ ɋűȋćķ! Ṕłéãᶊè ŕĕṧŭᵬᶆĭṯ.
+  devise:
+    confirmations:
+      confirmed: Ýõưᵲ éɱäᵻł ãȡɗᶉéŝᶊ ӵãś ḅĕĕŉ ṧṻċçéŝŝᶂũłłỵ ɕóŉᶂíŗɱëɗ.
+      send_instructions: "¥öǘ ẃᵻŀŀ ȑéčėȉʋę âɴ êᶬâȋŀ שּȋṱḥ ïŉṡṫŕǖƈṯĩồńṧ ƒӧᵲ ӵȍẉ ṱỏ ċŏŋᵮȉȑᶆ
+        ẏõʉᶉ ėᶆåíļ ãɗɗᵲęᶊṧ ïɳ á ḟéשׁ ṁἶɲŭŧèš."
+      send_paranoid_instructions: Iḟ ẏóừŗ ĕɱáïƚ åɗďᵲêᶊš ėẋἶșţŝ íń ọứŕ ďäṫãƃåşē, ŷôǔ
+        ŵȋłŀ ᶉèȼěíṽê äŉ éᶬåᵻƚ שׂỉŧĥ íŋṡṫŕữɕṯĩṓŉș ᶂóȓ ḥǿשׁ ţờ ćӧɴḟɨŗᵯ ȳơūᵲ ēᶆàĭƚ åďƌᵲèșș
+        ᵻń å ƒéẘ ṃỉŉǔṭĕᵴ.
+    failure:
+      already_authenticated: "¥ǿữ áȓè âłȑêãƌÿ ŝïģɳěď ȉŋ."
+      inactive: Ƴőǚŕ âȼčŏứɴŧ ᵻṧ ɲờṭ ãčţĩṽåṱëɗ ýéṫ.
+      invalid: Iñʋâƚĭđ %{authentication_keys} ǒŗ ᵱáᵴŝŵởᶉď.
+      locked: Ƴôùᶉ ãĉċȍừɴť íś ļöĉḳęđ.
+      last_attempt: Ÿӧǘ ħåṿę ồɳē ṁờŗè áťẗêᶆᶈṫ ƀèḟợȑė ƴŏŭȓ àččờʉňƫ ỉᶊ ļōƈķĕȡ.
+      not_found_in_database: Iñʋâƚĭđ %{authentication_keys} ǒŗ ᵱáᵴŝŵởᶉď.
+      timeout: "¥öųŗ şêșŝĩŏń ëẍṕᵻȑēƋ. Ƥłěåšě ŝȋǥń ỉň áǵäíŋ ƫỏ ĉỏňṯïńưė."
+      unauthenticated: Ұòǘ ňēėď ṯờ ŝȉǧň ȉň ỏȑ śȉǵɲ úṕ Ƃëᵮõᶉê ɕǿɲṫἶņǔȋņģ.
+      unconfirmed: Ƴợứ ħâⱱė ŧō ƈợŋḟĭᶉṃ ẙøṹᶉ ĕᶆãᵻł âđđȓêŝᶊ Ƃëᶂợᵲë çồñťĩñừìŉġ.
+    mailer:
+      confirmation_instructions:
+        subject: Ċōɳᶂĩȓḿãṯᵻòŋ ïņᵴƫŕŭćṯᵻǒňś
+      reset_password_instructions:
+        subject: Ŗêšêť ᵱâŝᶊẁòŕɗ ỉŋᶊṱŕŭĉṱȋǿŋś
+      unlock_instructions:
+        subject: Ūńļòɕķ ìɲŝṫᶉǖċťìȍñš
+      password_change:
+        subject: ṔáᶊṡẃõᵲƋ Ҫĥäņǥĕȡ
+    omniauth_callbacks:
+      failure: ĊờǚłƋ ñöť ãừŧħěŋṭɨćåŧĕ ẏøû ƒŕōṁ %{kind} ḇěćåṹᶊê "%{reason}".
+      success: Ṥǔčƈëṧṧᶂữļŀɏ åʉṭḥęñŧīčáƫęƌ ḟŗơᶬ %{kind} áƈćõṹɴţ.
+    passwords:
+      no_token: Ýòư ĉäɲ'ţ åċćěᵴş ṯḥĭṧ ᵽåǥė שּīŧḥõưṭ ɕṓᶬíɲģ ḟȑợɱ ã ƥåṡšẘøᶉđ ᶉēṧêṭ èṁäỉļ.
+        Iᵮ ɏőư ďồ ċôɱĕ ᶂᶉóᵯ á ᶈäŝšשׁǿᵲƋ ᶉĕṡęṭ èṃàȉļ, ᶈŀēãşě ᶆäķè ᵴǘŗē ýờų ừṡėƌ ṫĥė
+        ƒṻƚł ÚŘȽ ᵱᵲǿⱴɨđęȡ.
+      send_instructions: Ұǒṻ ẉïłł ŕéçěíṽë ãņ ëɱåìƚ ẉɨŧĥ îŉṡťȑüƈẗỉợŉŝ ờŉ ħӧŵ ŧŏ ȑěšĕţ
+        ẙȍüᶉ ṗáᵴᵴẃồᵲȡ ïŉ å ᵮéשּ ᶆɨɴǖťěș.
+      send_paranoid_instructions: Iḟ ƴõứȓ èᶆâἶļ âȡďŗěșŝ éẋìᶊṯș íñ őųᶉ ƌãŧáᶀãᵴê, ŷòǖ
+        ẇȉŀł ᶉêɕėĭⱴĕ ã ƥäṧṧשׁởŕɗ ŕêȼôṽèᵲȳ ƚíňķ áť ỵờứȓ ëᵯäȋł âɗđȓěșś ïɴ ä ᶂęẁ ṁȋñůţĕş.
+      updated: Ýõữᶉ ṗåᵴṡשׁơᶉɗ ӵáᵴ ƀěĕɳ ċĥáɴġėƋ şưçčĕŝŝᶂʉƚłÿ. Ÿǒű ãᶉě ñӧẃ ᵴỉġńėƋ ȋŋ.
+      updated_not_active: Ұõůŗ ƥãșṡẉöŕɗ ḥãᵴ ḃěëņ ćĥàɲǵěđ ṡúċɕèšŝḟūŀŀŷ.
+    registrations:
+      destroyed: Ḅɏë! Ŷơũȓ åçĉṓữŋẗ ӵåś ḇėęŉ şǚƈçěšşƒǖļļẙ ĉåňćęƚļēȡ. Ẉě ĥồƥě ŧǿ šĕė
+        ÿōǔ àǥáỉň ṧợöŉ.
+      signed_up: Ẃĕļȼọṁĕ! Ұôů ӵãṽě šîǵńēɗ ǘᵽ șûĉćèṡᶊᶂũłƚẙ.
+      signed_up_but_inactive: Ýóû ӵâṽē śȉǧɲêƋ ůṗ ᵴǘȼčéśᵴḟʉƚƚỳ. Ḩŏẘéᶌéᵲ, שׂē ɕǒʉƚɗ ņȍƫ
+        ᵴíġń ẙǒṻ ĩń ƀēçãüṡě ƴӧữȓ áćɕơùňƫ ἶᵴ ñŏṫ ẏëẗ ãȼťĩṽáṫéɗ.
+      signed_up_but_locked: Ƴòű ħáⱴè śïǥɴėđ ữᵱ șừȼćêšᶊᵮůƚƚŷ. Ħōẇëᶌĕᶉ, שׂë ċờữļď ňợṯ
+        šȉģņ ƴŏų îń ᶀĕċãưśê ẏӧūȓ äćȼőüņţ ᵻś łợćḳěȡ.
+      signed_up_but_unconfirmed: Â ɱĕşśáĝê ŵîţĥ ä ĉőɲƒĩᵲṁäŧἶọň łɨņḳ ḥåṧ ƀėėņ śĕņṭ
+        ṯõ ɏởʉȓ ěӎàīƚ åďƌȑęŝṡ. Ṗŀèàśę ᶂõƚļṓẇ ƫĥé ļĩŉķ ťǿ àȼţíʋâťę ỳôúᶉ áȼƈọǘŉŧ.
+      update_needs_confirmation: Ұȍṻ ůƥđáẗëď ȳôʉŕ àçɕơừŉť șưçƈêᶊŝƒūļƚŷ, ƃừẗ שׁĕ ñĕèƋ
+        ẗờ ṿêȑīᵮẏ ýóŭȓ ɴêשׁ ėᵯäĩŀ âɗďŗěšṧ. Ƥƚĕàŝé ƈḥěƈḳ ŷợʉᶉ éṁãỉļ åɳƋ ḟøƚƚỏẉ ẗӵė ćọŉƒîŗɱ
+        ŀïñǩ ṱŏ čöɴᶂȉŕḿ ỵōǖȑ ŋęŵ èᶬäɨƚ ãđďŗêᵴš.
+      updated: Ŷởữŗ ãȼćǒừɲṯ ħäś Ƃêėņ ůᵱȡáṭèɗ ᶊŭƈƈëŝŝƒüłŀý.
+    sessions:
+      signed_in: Ṧἶǵňĕȡ ᵻñ ᶊūȼçęᵴᵴḟüŀƚŷ.
+      signed_out: Śîĝñĕɗ øǔṱ ŝũɕȼêṧṡƒūƚŀɏ.
+      already_signed_out: Śîĝñĕɗ øǔṱ ŝũɕȼêṧṡƒūƚŀɏ.
+    unlocks:
+      send_instructions: "¥òǜ ẃɨƚļ ȓĕɕėîᶌē äɲ èᵯäĭŀ ẃȋţḥ ɨɲṧẗŕùčṯìờŋș ƒọŗ ḥŏשׂ ṫŏ ữɳŀòȼǩ
+        ŷǿǚᶉ ãčȼǒữŉƫ íŉ à ᶂēẇ ᶆìñùţèŝ."
+      send_paranoid_instructions: Iḟ ỳøůȑ åƈčởṻŋƫ ĕẍɨᶊṭș, ÿǿŭ ẘĩłļ ŗèɕèĩⱱę ãɲ êḿáἶł
+        ẇἶṱĥ ȋɴᵴẗŕṹčťȉöɴș ᶂŏᵲ ĥởẇ ṯṓ ùŋļờĉǩ ἶṭ ᵻŋ ã ƒëẘ ᶬɨŉúṯéᶊ.
+      unlocked: "¥ȍưȓ ãĉɕòũɲť ħãş ƃêěɲ ųńƚøćƙĕƌ śʉȼçėšᵴᶂṻļłẏ. Ƥŀëãṡė śỉĝŉ ìñ ṱǒ ĉởŋŧĭɲữě."

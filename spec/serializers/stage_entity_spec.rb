@@ -27,7 +27,7 @@ describe StageEntity do
 
     it 'contains detailed status' do
       expect(subject[:status]).to include :text, :label, :group, :icon, :tooltip
-      expect(subject[:status][:label]).to eq 'passed'
+      expect(subject[:status][:label]).to eq _('CiStatusLabel|passed')
     end
 
     it 'contains valid name' do
@@ -45,7 +45,7 @@ describe StageEntity do
     end
 
     it 'contains stage title' do
-      expect(subject[:title]).to eq 'test: passed'
+      expect(subject[:title]).to eq "test: #{_('CiStatusLabel|passed')}"
     end
 
     it 'does not contain play_details info' do
