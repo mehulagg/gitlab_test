@@ -171,8 +171,8 @@ export const fetchNextPage = ({ state, dispatch }) => {
 
 export const requestSearchResults = ({ commit }) => commit(types.REQUEST_SEARCH_RESULTS);
 
-export const receiveNextPageSuccess = ({commit}, data) => {
-  commit(types.RECEIVE_NEXT_PAGE_SUCCESS, data);
+export const receiveNextPageSuccess = ({ commit }, results) => {
+  commit(types.RECEIVE_NEXT_PAGE_SUCCESS, results);
 };
 
 export const receiveSearchResultsSuccess = ({ commit }, results) => {

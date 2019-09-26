@@ -56,9 +56,10 @@ export default {
   },
   [types.RECEIVE_SEARCH_RESULTS_HEADERS](state, headers) {
     state.totalResults = parseInt(headers['x-total']);
+    state.totalPages = parseInt(headers['x-total-pages']);
   },
-  [types.RECEIVE_NEXT_PAGE_SUCCESS](state, data) {
-    state.projectSearchResults.concat(data);
+  [types.RECEIVE_NEXT_PAGE_SUCCESS](state, results) {
+    state.projectSearchResults = state.projectSearchResults.concat(results.data);
   },
   [types.RECEIVE_SEARCH_RESULTS_SUCCESS](state, results) {
     state.projectSearchResults = results;
