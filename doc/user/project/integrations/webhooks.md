@@ -44,6 +44,10 @@ update a backup mirror, or even deploy to your production server.
 They are available **per project** for GitLab Community Edition,
 and **per project and per group** for **GitLab Enterprise Edition**.
 
+> **Note:**
+> Webhooks set at the group level are triggered only by events on projects
+> in that group, not events on projects in its [subgroups](https://docs.gitlab.com/ee/user/group/subgroups/).
+
 Navigate to the webhooks page by going to your project's
 **Settings ➔ Integrations**.
 
