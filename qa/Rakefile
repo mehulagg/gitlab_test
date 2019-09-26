@@ -1,5 +1,6 @@
 require_relative 'qa/tools/revoke_all_personal_access_tokens'
 require_relative 'qa/tools/delete_subgroups'
+require_relative 'qa/tools/delete_users'
 require_relative 'qa/tools/generate_perf_testdata'
 
 desc "Revokes all personal access tokens"
@@ -10,6 +11,11 @@ end
 desc "Deletes subgroups within a provided group"
 task :delete_subgroups do
   QA::Tools::DeleteSubgroups.new.run
+end
+
+desc "Deletes users"
+task :delete_users do
+  QA::Tools::DeleteUsers.new.run
 end
 
 desc "Generate Performance Testdata"
