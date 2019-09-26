@@ -14,7 +14,7 @@ module Gitlab
       end
 
       def self.build
-        super.tap { |logger| logger.level = Rails.logger.level } # rubocop:disable Gitlab/RailsLogger
+        super.tap { |logger| puts "MIKE Gitlab::Geo::Logger.build tap logger.level: #{logger.level}, Rails.logger.level: #{Rails.logger.level}"; logger.level = Rails.logger.level } # rubocop:disable Gitlab/RailsLogger
       end
     end
   end

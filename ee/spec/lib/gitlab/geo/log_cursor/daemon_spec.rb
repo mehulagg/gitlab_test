@@ -289,6 +289,73 @@ describe Gitlab::Geo::LogCursor::Daemon, :clean_gitlab_redis_shared_state do
     end
   end
 
+  describe 'logging options' do
+    subject(:logger) { daemon.send(:logger) }
+
+    context 'when Rails logger level is set to INFO' do # dev defaults to debug
+      before do
+        Rails.logger.level = Logger::INFO
+      end
+
+      context 'with --stdout-logging' do
+        context 'with --debug' do
+          let(:options) { { stdout_logging: true, debug: true } }
+
+          it 'outputs debug logs to stdout' do
+            # expect do
+            #   logger.debug('debug message')
+            # end.to output(/debug message/).to_stdout
+            logger.debug('debug message')
+          end
+
+          it 'outputs info logs to stdout' do
+            expect do
+              logger.info('info message')
+            end.to output(/info message/).to_stdout
+          end
+        end
+
+        context 'without --debug' do
+          let(:options) { { stdout_logging: true } }
+
+          it 'does not output debug logs to stdout' do
+            expect do
+              logger.debug('debug message')
+            end.to_not output(/debug message/).to_stdout
+          end
+
+          it 'outputs info logs to stdout' do
+            expect do
+              logger.info('info message')
+            end.to output(/info message/).to_stdout
+          end
+        end
+      end
+
+      context 'without --stdout-logging' do
+        context 'with --debug' do
+          let(:options) { { debug: true } }
+
+          it 'outputs debug logs to geo.log file' do
+            # expect do
+            #   logger.debug('debug message')
+            # end.to output(/debug message/).to_stdout
+            logger.debug('debug message')
+          end
+
+          it 'outputs info logs to geo.log file' do
+            # TODO
+            logger.info('info message')
+          end
+        end
+
+        context 'without --debug' do
+
+        end
+      end
+    end
+  end
+
   def read_gaps
     gaps = []
 

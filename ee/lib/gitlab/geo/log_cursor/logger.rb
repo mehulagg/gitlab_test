@@ -11,6 +11,7 @@ module Gitlab
         def initialize(klass, level = nil)
           @klass = klass
           geo_logger.build.level = level unless level.nil?
+          puts "MIKE Gitlab::Geo::LogCursor::Logger#initialize level #{level}"
         end
 
         def event_info(created_at, message, params = {})

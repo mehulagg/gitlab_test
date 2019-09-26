@@ -47,12 +47,5 @@ if $0 == __FILE__
   # We load rails environment / initializers only here to get faster command line startup when `--help` and `--version`
   require rails_path('config/environment.rb')
 
-  if options[:stdout_logging]
-    # Monkey patch the logging class because multiple places use it (that
-    # contain mostly class methods) and is not possible to pass
-    # options[:stdout_logging] around without a refactor.
-    Gitlab::Geo::Logger.extend(Gitlab::Geo::Logger::StdoutLogger)
-  end
-
   Gitlab::Geo::LogCursor::Daemon.new(options).run!
 end

@@ -15,6 +15,13 @@ module Gitlab
           @options = options
           @exit = false
           @failing_since = nil
+
+          if options[:stdout_logging]
+            # Monkey patch the logging class because multiple places use it (that
+            # contain mostly class methods) and is not possible to pass
+            # options[:stdout_logging] around without a refactor.
+            Gitlab::Geo::Logger.extend(Gitlab::Geo::Logger::StdoutLogger)
+          end
         end
 
         def run!
@@ -182,6 +189,7 @@ module Gitlab
         end
 
         def log_level
+          puts "MIKE Daemon#log_level #{debug_logging? ? :debug : Rails.logger.level}"
           debug_logging? ? :debug : Rails.logger.level # rubocop:disable Gitlab/RailsLogger
         end
 
