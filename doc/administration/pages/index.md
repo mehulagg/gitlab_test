@@ -426,6 +426,13 @@ To configure GitLab Pages on a separate server:
 
 1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on the `main GitLab server` for the changes to take effect.
 
+It is possible to run GitLab Pages on multiple servers if you wish to distribute
+the load. You can do this through standard load balancing practices such as
+configuring your DNS server to return multiple IPs for your Pages server,
+configuring a load balancer to work at the IP level, and so on. If you wish to
+set up GitLab Pages on multiple servers, perform the above procedure for each
+Pages server.
+
 ### Access control when running GitLab Pages on a separate server
 
 If you are [running GitLab Pages on a separate server](#running-gitlab-pages-on-a-separate-server), then you must use the following procedure to configure access control:
