@@ -1,7 +1,7 @@
 - project = project || @project
 
-.git-clone-holder.js-git-clone-holder.input-group
-  %a#clone-dropdown.input-group-text.btn.btn-primary.btn-xs.clone-dropdown-btn.qa-clone-dropdown{ href: '#', data: { toggle: 'dropdown' } }
+.git-clone-holder.js-git-clone-holder
+  %a#clone-dropdown.btn.btn-primary.clone-dropdown-btn.qa-clone-dropdown{ href: '#', data: { toggle: 'dropdown' } }
     %span.append-right-4.js-clone-dropdown-label
       = _('Clone')
     = sprite_icon("arrow-down", css_class: "icon")
@@ -25,3 +25,10 @@
             = clipboard_button(target: '#http_project_clone', title: _("Copy URL"), class: "input-group-text btn-default btn-clipboard")
             = render_if_exists 'projects/buttons/geo'
     = render_if_exists 'projects/buttons/kerberos_clone_field'
+
+- if can?(current_user, :download_code, @project)
+  .project-clone-holder.d-block.d-sm-none
+    = render "shared/mobile_clone_panel"
+
+  .project-clone-holder.d-none.d-sm-inline-block
+    = render "projects/buttons/clone"
