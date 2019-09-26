@@ -10,29 +10,35 @@ import SummaryTable from './summary_table.vue';
 import StageTable from './stage_table.vue';
 
 // TODO: replace this test data with an endpoint
+import { __ } from '~/locale';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
-import { getTimeframeWindowFrom, getDateInPast } from '~/lib/utils/datetime_utility';
+import { getTimeframeWindowFrom, getDateInPast, dateInWords } from '~/lib/utils/datetime_utility';
 
 // const timeWindow = getTimeframeWindowFrom(new Date(), -30);
-const today = new Date();
-const timeWindow = [...Array(30)].map(i => getDateInPast(today, i));
+const today = new Date('2019-09-26T00:00:00.00Z');
+const dataRange = [...Array(7).keys()]
+  .map(i => {
+    const d = getDateInPast(today, i);
+    return dateInWords(new Date(d), true, true);
+  })
+  .reverse();
 
-console.log('timeWindow', timeWindow);
-
-const dataPoints = [];
+function randomInt(range) {
+  return Math.floor(Math.random() * Math.floor(range));
+}
 
 const typeOfWork = convertObjectPropsToCamelCase(
   {
     label_id: __('Bug'),
-    series: [[__('TIMESTAMP_1'), 72], [__('TIMESTAMP_2'), 43]],
+    series: [...dataRange.map(key => [key, randomInt(100)])],
   },
   {
     label_id: __('Feature'),
-    series: [[__('TIMESTAMP_1'), 1], [__('TIMESTAMP_5'), 2]],
+    series: [...dataRange.map(key => [key, randomInt(100)])],
   },
   {
     label_id: __('Backstage'),
-    series: [[__('TIMESTAMP_1'), 1], [__('TIMESTAMP_5'), 2]],
+    series: [...dataRange.map(key => [key, randomInt(100)])],
   },
   { deep: true },
 );
@@ -68,6 +74,10 @@ export default {
       dateOptions: [7, 30, 90],
       groupsQueryParams: {
         min_access_level: featureAccessLevel.EVERYONE,
+      },
+      typeOfWork: {
+        dataset: typeOfWork,
+        range: dataRange,
       },
     };
   },
@@ -224,20 +234,7 @@ export default {
         <section>
           <gl-stacked-column-chart
             :data="typeOfWorkDataset"
-            :group-by="[
-              'Jan',
-              'Feb',
-              'Mar',
-              'Apr',
-              'May',
-              'Jun',
-              'Jul',
-              'Aug',
-              'Sep',
-              'Oct',
-              'Nov',
-              'Dec',
-            ]"
+            :group-by="typeOfWork.range"
             x-axis-type="category"
             x-axis-title="January - December 2018"
             y-axis-title="Commits"
