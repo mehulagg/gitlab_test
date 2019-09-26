@@ -70,6 +70,7 @@ export default {
   },
   methods: {
     ...mapActions([
+      'fetchNextPage',
       'fetchSearchResults',
       'addProjectsToDashboard',
       'fetchProjects',
@@ -88,6 +89,9 @@ export default {
       this.addProjectsToDashboard()
         .then(this.clearSearchResults)
         .catch(this.clearSearchResults);
+    },
+    bottomReached() {
+      this.fetchNextPage(); 
     },
     searched(query) {
       this.setSearchQuery(query);
@@ -120,6 +124,7 @@ export default {
         :show-minimum-search-query-message="messages.minimumQuery"
         :show-search-error-message="messages.searchError"
         :total-results="totalResults"
+        @bottomReached="bottomReached"
         @searched="searched"
         @projectClicked="projectClicked"
       />

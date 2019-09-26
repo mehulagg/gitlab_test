@@ -56,7 +56,9 @@ export default {
   },
   [types.RECEIVE_SEARCH_RESULTS_HEADERS](state, headers) {
     state.totalResults = parseInt(headers['x-total']);
-    console.log(state.totalResults);
+  },
+  [types.RECEIVE_NEXT_PAGE_SUCCESS](state, data) {
+    state.projectSearchResults.concat(data);
   },
   [types.RECEIVE_SEARCH_RESULTS_SUCCESS](state, results) {
     state.projectSearchResults = results;

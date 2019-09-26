@@ -163,7 +163,17 @@ export const fetchSearchResults = ({ state, dispatch }) => {
   }
 };
 
+export const fetchNextPage = ({ state, dispatch }) => {
+  Api.projects(state.searchQuery, { page: 2 })
+    .then(results => dispatch('receiveNextPageSuccess', results))
+    .catch(() => dispatch('receiveSearchResultsError'));
+};
+
 export const requestSearchResults = ({ commit }) => commit(types.REQUEST_SEARCH_RESULTS);
+
+export const receiveNextPageSuccess = ({commit}, data) => {
+  commit(types.RECEIVE_NEXT_PAGE_SUCCESS, data);
+};
 
 export const receiveSearchResultsSuccess = ({ commit }, results) => {
   commit(types.RECEIVE_SEARCH_RESULTS_SUCCESS, results.data);
