@@ -19,8 +19,9 @@ const vulnerabilityFeedbackHelpPath = '/vulnerabilities_feedback_help';
 describe('Instance Security Dashboard component', () => {
   let store;
   let wrapper;
+  let actionResolvers;
 
-  const factory = ({ projects = [], isInitialized = false } = {}) => {
+  const factory = ({ projects = [] } = {}) => {
     store = new Vuex.Store({
       modules: {
         projects: {
@@ -30,13 +31,19 @@ describe('Instance Security Dashboard component', () => {
             setProjectsEndpoint() {},
           },
           state: {
-            isInitialized,
             projects,
           },
         },
       },
     });
-    jest.spyOn(store, 'dispatch').mockImplementation();
+
+    actionResolvers = [];
+    jest.spyOn(store, 'dispatch').mockImplementation(
+      () =>
+        new Promise(resolve => {
+          actionResolvers.push(resolve);
+        }),
+    );
 
     wrapper = shallowMount(InstanceSecurityDashboard, {
       localVue,
@@ -53,6 +60,10 @@ describe('Instance Security Dashboard component', () => {
         vulnerabilityFeedbackHelpPath,
       },
     });
+  };
+
+  const resolveActions = () => {
+    actionResolvers.forEach(resolve => resolve());
   };
 
   const findProjectSelectorToggleButton = () => wrapper.find('.js-project-selector-toggle');
@@ -127,7 +138,8 @@ describe('Instance Security Dashboard component', () => {
 
   describe('given there are no projects', () => {
     beforeEach(() => {
-      factory({ isInitialized: true });
+      factory();
+      resolveActions();
     });
 
     it('renders the empty state', () => {
@@ -145,7 +157,8 @@ describe('Instance Security Dashboard component', () => {
 
   describe('given there are projects', () => {
     beforeEach(() => {
-      factory({ projects: [{ name: 'foo', id: 1 }], isInitialized: true });
+      factory({ projects: [{ name: 'foo', id: 1 }] });
+      resolveActions();
     });
 
     it('renders the security dashboard', () => {

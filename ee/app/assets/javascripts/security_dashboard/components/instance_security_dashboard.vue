@@ -49,11 +49,12 @@ export default {
   },
   data() {
     return {
+      isInitialized: false,
       showProjectSelector: false,
     };
   },
   computed: {
-    ...mapState('projects', ['isInitialized', 'projects']),
+    ...mapState('projects', ['projects']),
     toggleButtonProps() {
       return this.showProjectSelector
         ? {
@@ -71,7 +72,12 @@ export default {
   },
   created() {
     this.setProjectsEndpoint(this.projectsEndpoint);
-    this.fetchProjects();
+    this.fetchProjects()
+      // Failure to fetch projects will be handled in the store, so do nothing here.
+      .catch(() => {})
+      .finally(() => {
+        this.isInitialized = true;
+      });
   },
   methods: {
     ...mapActions('projects', ['setProjectsEndpoint', 'fetchProjects']),
