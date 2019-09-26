@@ -55,7 +55,11 @@ module Gitlab
           'CI_NODE_TOTAL' => :ci_node_total,
           'GITLAB_CI' => :gitlab_ci,
           'QA_SKIP_PULL' => :qa_skip_pull,
-          'ELASTIC_URL' => :elastic_url
+          'ELASTIC_URL' => :elastic_url,
+          'GITLAB_QA_1P_EMAIL' => :gitlab_qa_1p_email,
+          'GITLAB_QA_1P_PASSWORD' => :gitlab_qa_1p_password,
+          'GITLAB_QA_1P_SECRET' => :gitlab_qa_1p_secret,
+          'GITLAB_QA_1P_GITHUB_UUID' => :gitlab_qa_1p_github_uuid
         }.freeze
 
         ENV_VARIABLES.each_value do |accessor|
@@ -120,7 +124,7 @@ module Gitlab
         end
 
         def require_oauth_environment!
-          %w[GITHUB_OAUTH_APP_ID GITHUB_OAUTH_APP_SECRET GITHUB_USERNAME GITHUB_PASSWORD].each do |env_key|
+          %w[GITHUB_OAUTH_APP_ID GITHUB_OAUTH_APP_SECRET GITHUB_USERNAME GITHUB_PASSWORD GITLAB_QA_1P_EMAIL GITLAB_QA_1P_PASSWORD GITLAB_QA_1P_SECRET GITLAB_QA_1P_GITHUB_UUID].each do |env_key|
             raise ArgumentError, "Environment variable #{env_key} must be set to run OAuth specs" unless ENV.key?(env_key)
           end
         end

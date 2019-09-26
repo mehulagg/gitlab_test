@@ -62,6 +62,10 @@ For more details on the internals, please read the
 * `GITHUB_OAUTH_APP_SECRET` - Client Secret for GitHub OAuth app. See https://docs.gitlab.com/ce/integration/github.html for steps to generate this token.
 * `GITHUB_USERNAME` - Username for authenticating with GitHub.
 * `GITHUB_PASSWORD` - Password for authenticating with GitHub.
+* `GITLAB_QA_1P_EMAIL` - Email address for authenticating into 1Password
+* `GITLAB_QA_1P_PASSWORD` - Password for authenticating into 1Password.
+* `GITLAB_QA_1P_SECRET` - Secret for authenticating into 1Password.
+* `GITLAB_QA_1P_GITHUB_UUID` - UUID for GitHub item in GitLab-QA 1Password vault.
 
 ## [Supported Remote Grid environment variables](./running_against_remote_grid.md)
 
@@ -357,6 +361,10 @@ container is spun up and tests are run from it by running the
 - `GITHUB_OAUTH_APP_SECRET`: Client Secret for GitHub OAuth app. This can be found in the shared 1Password vault.
 - `GITHUB_USERNAME`: Username for authenticating with GitHub. This can be found in the shared 1Password vault.
 - `GITHUB_PASSWORD`: Password for authenticating with GitHub. This can be found in the shared 1Password vault.
+- `GITLAB_QA_1P_EMAIL`: Email address for authenticating into 1Password for GitLab-QA vault. This can be found in the shared 1Password vault.
+- `GITLAB_QA_1P_PASSWORD`: Password for authenticating into 1Password for GitLab-QA vault. This can be found in the shared 1Password vault.
+- `GITLAB_QA_1P_SECRET`: Secret for authenticating into 1Password. This can be found in the GitLab-QA 1Password vault.
+- `GITLAB_QA_1P_GITHUB_UUID`: UUID for GitHub item in GitLab-QA 1Password vault. This can be found in the GitLab-QA 1Password vault.
 
 Example:
 
@@ -365,6 +373,10 @@ $ export GITHUB_OAUTH_APP_ID=your_github_oauth_client_id
 $ export GITHUB_OAUTH_APP_SECRET=your_github_oauth_client_secret
 $ export GITHUB_USERNAME=your_github_username
 $ export GITHUB_PASSWORD=your_github_password
+$ export GITLAB_QA_1P_EMAIL=1password_email
+$ export GITLAB_QA_1P_PASSWORD=1password_password
+$ export GITLAB_QA_1P_SECRET=1password_secret
+$ export GITLAB_QA_1P_GITHUB_UUID=1password_gihub_item_uuid
 
 $ gitlab-qa Test::Integration::OAuth CE
 
