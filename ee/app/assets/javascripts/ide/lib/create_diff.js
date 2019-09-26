@@ -34,18 +34,17 @@ const filesWithChanges = ({ stagedFiles = [], changedFiles = [], entries = {} })
   Object.values(changes)
     .filter(change => change.action === commitActionTypes.move)
     .forEach(change => {
-      const prev = changes[change.file.prevPath];
-
-      if (!prev) {
-        return;
-      }
-
-      if (change.file.content === prev.file.content) {
+      if (!change.file.changed) {
         // If content is the same, continue with the move but don't do the prevPath's delete.
         delete changes[change.file.prevPath];
       } else {
         // Otherwise, treat the move as a delete / create.
         Object.assign(change, { action: commitActionTypes.create });
+
+        changes[change.file.prevPath] = {
+          action: commitActionTypes.delete,
+          file: { path: change.file.prevPath },
+        };
       }
     });
 

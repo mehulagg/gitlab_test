@@ -102,11 +102,10 @@ describe('EE IDE lib/create_diff', () => {
   });
 
   it('with file moved, create and delete', () => {
-    const changedFiles = [createMovedFile(PATH_BAR, PATH_FOO, TEXT)];
+    const changedFiles = [createMovedFile(PATH_BAR, PATH_FOO, TEXT, 'Lorem Ipsum\n')];
 
     const result = createDiff({
       changedFiles,
-      stagedFiles: [createDeletedFile(PATH_FOO)],
     });
 
     expect(result).toEqual({

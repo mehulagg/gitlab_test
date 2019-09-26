@@ -5,6 +5,12 @@ export const createFile = (path, content = '') => ({
   raw: content,
 });
 
+export const updateFile = (file, content) =>
+  Object.assign(file, {
+    content,
+    changed: file.raw !== content,
+  });
+
 export const createNewFile = (path, content) =>
   Object.assign(createFile(path, content), {
     tempFile: true,
@@ -17,14 +23,15 @@ export const createDeletedFile = (path, content) =>
   });
 
 export const createUpdatedFile = (path, oldContent, content) =>
-  Object.assign(createFile(path, content), {
-    raw: oldContent,
-  });
+  updateFile(createFile(path, oldContent), content);
 
-export const createMovedFile = (path, prevPath, content) =>
-  Object.assign(createNewFile(path, content), {
+export const createMovedFile = (path, prevPath, content, newContent = null) => {
+  const file = Object.assign(createFile(path, content), {
     prevPath,
   });
+
+  return newContent ? updateFile(file, newContent) : file;
+};
 
 export const createEntries = path =>
   path.split('/').reduce((acc, part, idx, parts) => {
