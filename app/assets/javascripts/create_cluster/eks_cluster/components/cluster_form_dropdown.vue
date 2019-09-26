@@ -99,6 +99,11 @@ export default {
       searchQuery: '',
     };
   },
+  watch: {
+    value(value) {
+      this.selectedItem = findItem(this.items, this.valueProperty, value);
+    },
+  },
   computed: {
     toggleText() {
       if (this.loading && this.loadingText) {
