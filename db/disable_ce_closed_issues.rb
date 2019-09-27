@@ -33,12 +33,16 @@ user_id = User.find_by(username: 'gitlab-bot').id
 source_project_id = Project.find_by_full_path('gitlab-org/gitlab-foss').id
 
 moved_issues =
-  Note.select(:noteable_id)
-    .where(project_id: source_project_id)
-    .where(author_id: user_id)
-    .where(noteable_type: 'Issue')
-    .where('created_at >= ?', MOVE_DATE)
-    .where('note LIKE ?', "%#{MOVE_NOTE_TEXT}%")
+  ActiveRecord::Base.transaction do
+    ActiveRecord::Base.connection.execute("SET LOCAL statement_timeout = '1min'")
+
+    Note.select(:noteable_id)
+      .where(project_id: source_project_id)
+      .where(author_id: user_id)
+      .where(noteable_type: 'Issue')
+      .where('created_at >= ?', MOVE_DATE)
+      .where('note LIKE ?', "%#{MOVE_NOTE_TEXT}%")
+  end
 
 issues = Issue.where(id: moved_issues)
 issues_count = issues.count
