@@ -38,7 +38,7 @@ end
 
 ## Use request specs instead of controller specs
 
-Use a [request spec](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/spec/requests) when writing a N+1 test on the controller level.
+Use a [request spec](../../spec/requests) when writing a N+1 test on the controller level.
 
 Controller specs should not be used to write N+1 tests as the controller is only initialized once per example.
 This could lead to false successes where subsequent "requests" could have queries reduced (e.g. because of memoization).
