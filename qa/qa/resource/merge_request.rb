@@ -63,6 +63,8 @@ module QA
       end
 
       def fabricate!
+        populate(:target, :source)
+
         project.visit!
         Page::Project::Show.perform(&:new_merge_request)
         Page::MergeRequest::New.perform do |new|

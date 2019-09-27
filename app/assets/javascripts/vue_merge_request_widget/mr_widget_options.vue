@@ -326,7 +326,7 @@ export default {
       class="mr-widget-workflow"
       :mr="mr"
     />
-    <div class="mr-section-container mr-widget-workflow qa-mr-section-container">
+    <div class="mr-section-container mr-widget-workflow" data-qa-selector="mr_section_content">
       <grouped-test-reports-app
         v-if="mr.testResultsPath"
         class="js-reports-container"

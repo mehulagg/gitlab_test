@@ -83,7 +83,7 @@ module QA
           end
 
           wait(reload: false) do
-            find_element(:mr_section_container).has_text? "Merged by"
+            find_element(:mr_section_content).has_text? "Merged by"
           end
         end
 
@@ -209,12 +209,12 @@ module QA
           scroll_to_element :merge_request_tabs
         end
 
-        def go_to_mr(title)
+        def click_mr(title)
           click_link_with_text title
         end
 
         def open_comment_section
-          wait(interval: 5) do
+          wait do
             has_text?("No newline at end of file")
           end
           all_elements(:new_diff_line).first.hover
@@ -226,7 +226,6 @@ module QA
         end
 
         def add_suggestion(suggestion)
-          click_suggestion_icon
           fill_element :reply_input, suggestion
         end
 
@@ -246,7 +245,7 @@ module QA
           scroll_to_mr_tabs
           click_element :apply_btn
           wait(reload: false) do
-            find_element(:suggestion_header).has_text? 'Applied'
+            find_element(:suggestion_header_content).has_text? 'Applied'
           end
         end
       end

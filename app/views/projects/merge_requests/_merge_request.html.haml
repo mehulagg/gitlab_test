@@ -6,8 +6,8 @@
   .issuable-info-container
     .issuable-main-info
       .merge-request-title.title
-        %span.merge-request-title-text.js-onboarding-mr-item.qa-merge-request-title-text
-          = link_to merge_request.title, merge_request_path(merge_request)
+        %span.merge-request-title-text.js-onboarding-mr-item
+          = link_to merge_request.title, merge_request_path(merge_request), 'data-qa-selector' => 'merge_request_title_text'
         - if merge_request.tasks?
           %span.task-status.d-none.d-sm-inline-block
             &nbsp;
