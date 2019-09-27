@@ -2,12 +2,14 @@
 
 class ProjectStatistics < ApplicationRecord
   include AfterCommitQueue
+  include CounterAttribute
 
   belongs_to :project
   belongs_to :namespace
 
-  default_value_for :wiki_size, 0
+  counter_attribute :shared_runners_seconds
 
+  default_value_for :wiki_size, 0
   # older migrations fail due to non-existent attribute without this
   def wiki_size
     has_attribute?(:wiki_size) ? super : 0
