@@ -55,10 +55,12 @@ export default {
     state.searchCount += 1;
   },
   [types.RECEIVE_SEARCH_RESULTS_HEADERS](state, headers) {
+    state.nextPage = parseInt(headers['x-next-page']);
     state.totalResults = parseInt(headers['x-total']);
     state.totalPages = parseInt(headers['x-total-pages']);
   },
   [types.RECEIVE_NEXT_PAGE_SUCCESS](state, results) {
+    state.currentPage = state.nextPage;
     state.projectSearchResults = state.projectSearchResults.concat(results.data);
   },
   [types.RECEIVE_SEARCH_RESULTS_SUCCESS](state, results) {

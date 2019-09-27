@@ -54,6 +54,7 @@ export default {
       'messages',
       'totalResults',
       'totalPages',
+      'nextPage',
       'currentPage',
     ]),
     isSearchingProjects() {

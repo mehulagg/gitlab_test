@@ -163,10 +163,12 @@ export const fetchSearchResults = ({ state, dispatch }) => {
   }
 };
 
-export const fetchNextPage = ({ state, dispatch }) => {
-  Api.projects(state.searchQuery, { page: 2 })
-    .then(results => dispatch('receiveNextPageSuccess', results))
-    .catch(() => dispatch('receiveSearchResultsError'));
+export const fetchNextPage = ({ state, dispatch}) => {
+  if(state.currentPage < state.totalPages) {
+    Api.projects(state.searchQuery, { page: state.nextPage })
+      .then(results => dispatch('receiveNextPageSuccess', results))
+      .catch(() => dispatch('receiveSearchResultsError'));
+  }
 };
 
 export const requestSearchResults = ({ commit }) => commit(types.REQUEST_SEARCH_RESULTS);
