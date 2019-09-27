@@ -27,6 +27,9 @@ module Gitlab
     end
 
     def self.without_gitaly_timeout
+      old_use_longer_long_timeout = Gitlab::GitalyClient.use_longer_long_timeout?
+      Gitlab::GitalyClient.use_longer_long_timeout = true
+
       # Remove Gitaly timeout
       old_timeout = Gitlab::CurrentSettings.current_application_settings.gitaly_timeout_default
       Gitlab::CurrentSettings.current_application_settings.update_columns(gitaly_timeout_default: 0)
@@ -35,6 +38,7 @@ module Gitlab
 
       yield
     ensure
+      Gitlab::GitalyClient.use_longer_long_timeout = old_use_longer_long_timeout
       Gitlab::CurrentSettings.current_application_settings.update_columns(gitaly_timeout_default: old_timeout)
       ApplicationSetting.expire
     end

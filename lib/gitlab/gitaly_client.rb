@@ -362,11 +362,20 @@ module Gitlab
     end
 
     def self.long_timeout
-      if Sidekiq.server?
+      if use_longer_long_timeout?
         6.hours
       else
         55.seconds
       end
+    end
+
+    # This method is not threadsafe!
+    def self.use_longer_long_timeout=(value)
+      @use_longer_long_timeout = value
+    end
+
+    def self.use_longer_long_timeout?
+      Sidekiq.server? || @use_longer_long_timeout
     end
 
     def self.storage_metadata_file_path(storage)
