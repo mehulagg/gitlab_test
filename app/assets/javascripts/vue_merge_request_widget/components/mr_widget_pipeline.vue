@@ -28,6 +28,10 @@ export default {
       type: Object,
       required: true,
     },
+    hasPipelineMustSucceedConflict: {
+      type: Boolean,
+      required: false,
+    },
     // This prop needs to be camelCase, html attributes are case insensive
     // https://vuejs.org/v2/guide/components.html#camelCase-vs-kebab-case
     hasCi: {
@@ -83,6 +87,9 @@ export default {
         false,
       );
     },
+    noPipelineText() {
+      return s__('No pipeline has been run for this commit.');
+    },
     isTriggeredByMergeRequest() {
       return Boolean(this.pipeline.merge_request);
     },
@@ -101,7 +108,10 @@ export default {
       <div class="add-border ci-status-icon ci-status-icon-failed ci-error js-ci-error">
         <icon :size="24" name="status_failed_borderless" />
       </div>
-      <div class="media-body prepend-left-default" v-html="errorText"></div>
+      <div
+        class="media-body prepend-left-default"
+        v-html="hasPipelineMustSucceedConflict ? noPipelineText : errorText"
+      ></div>
     </template>
     <template v-else-if="hasPipeline">
       <a :href="status.details_path" class="align-self-start append-right-default">

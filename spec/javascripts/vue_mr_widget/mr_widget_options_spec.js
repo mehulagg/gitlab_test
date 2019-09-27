@@ -73,8 +73,15 @@ describe('mrWidgetOptions', () => {
         expect(vm.shouldRenderPipelines).toBeTruthy();
       });
 
-      it('should return false when hasCI is false', () => {
+      it('should return true when onlyAllowMergeIfPipelineSucceeds is true', () => {
+        vm.mr.onlyAllowMergeIfPipelineSucceeds = true;
+
+        expect(vm.shouldRenderPipelines).toBeTruthy();
+      });
+
+      it('should return false when hasCI is false and onlyAllowMergeIfPipelineSucceeds is false', () => {
         vm.mr.hasCI = false;
+        vm.mr.onlyAllowMergeIfPipelineSucceeds = false;
 
         expect(vm.shouldRenderPipelines).toBeFalsy();
       });

@@ -17,7 +17,7 @@ class MergeRequestPollWidgetEntity < IssuableEntity
   # User entities
   expose :merge_user, using: UserEntity
 
-  expose :actual_head_pipeline, with: PipelineDetailsEntity, as: :pipeline, if: -> (mr, _) { presenter(mr).can_read_pipeline? }
+  expose :actual_head_pipeline, with: PipelineDetailsEntity, as: :pipeline
 
   expose :merge_pipeline, with: PipelineDetailsEntity, if: ->(mr, _) { mr.merged? && can?(request.current_user, :read_pipeline, mr.target_project)}
 

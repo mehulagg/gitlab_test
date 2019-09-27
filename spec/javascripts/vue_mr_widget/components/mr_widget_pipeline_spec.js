@@ -77,17 +77,33 @@ describe('MRWidgetPipeline', () => {
       );
     });
 
-    it('should render CI error when no pipeline is provided', () => {
-      vm = mountComponent(Component, {
-        pipeline: {},
-        hasCi: true,
-        ciStatus: 'success',
-        troubleshootingDocsPath: 'help',
+    describe('without a pipeline', () => {
+      it('should render CI error', () => {
+        vm = mountComponent(Component, {
+          pipeline: {},
+          hasCi: true,
+          ciStatus: 'success',
+          troubleshootingDocsPath: 'help',
+        });
+
+        expect(vm.$el.querySelector('.media-body').textContent.trim()).toContain(
+          'Could not retrieve the pipeline status. For troubleshooting steps, read the documentation.',
+        );
       });
 
-      expect(vm.$el.querySelector('.media-body').textContent.trim()).toContain(
-        'Could not retrieve the pipeline status. For troubleshooting steps, read the documentation.',
-      );
+      it('should render a specific message when pipelines must succeed', () => {
+        vm = mountComponent(Component, {
+          pipeline: {},
+          hasCi: false,
+          ciStatus: null,
+          troubleshootingDocsPath: 'help',
+          hasPipelineMustSucceedConflict: true,
+        });
+
+        expect(vm.$el.querySelector('.media-body').textContent.trim()).toContain(
+          'No pipeline has been run for this commit.',
+        );
+      });
     });
 
     describe('with a pipeline', () => {

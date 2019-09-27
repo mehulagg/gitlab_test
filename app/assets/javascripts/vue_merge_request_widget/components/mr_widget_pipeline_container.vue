@@ -59,6 +59,9 @@ export default {
     pipeline() {
       return this.isPostMerge ? this.mr.mergePipeline : this.mr.pipeline;
     },
+    hasPipelineMustSucceedConflict() {
+      return this.mr.onlyAllowMergeIfPipelineSucceeds && !this.mr.hasCi;
+    },
     showVisualReviewAppLink() {
       return this.mr.visualReviewAppAvailable;
     },
@@ -72,6 +75,7 @@ export default {
   <mr-widget-container>
     <mr-widget-pipeline
       :pipeline="pipeline"
+      :has-pipeline-must-succeed-conflict="hasPipelineMustSucceedConflict"
       :ci-status="mr.ciStatus"
       :has-ci="mr.hasCI"
       :source-branch="branch"

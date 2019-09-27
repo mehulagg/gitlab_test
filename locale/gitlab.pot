@@ -10466,6 +10466,9 @@ msgstr ""
 msgid "No parent group"
 msgstr ""
 
+msgid "No pipeline has been run for this commit."
+msgstr ""
+
 msgid "No preview for this file type"
 msgstr ""
 

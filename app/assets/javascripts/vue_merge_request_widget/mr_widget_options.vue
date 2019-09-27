@@ -96,7 +96,7 @@ export default {
       return stateMaps.statesToShowHelpWidget.indexOf(this.mr.state) > -1;
     },
     shouldRenderPipelines() {
-      return this.mr.hasCI;
+      return this.mr.hasCI || this.mr.onlyAllowMergeIfPipelineSucceeds;
     },
     shouldRenderRelatedLinks() {
       return Boolean(this.mr.relatedLinks) && !this.mr.isNothingToMergeState;
