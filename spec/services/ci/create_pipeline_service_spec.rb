@@ -1851,5 +1851,15 @@ describe Ci::CreatePipelineService do
           .with_message('Insufficient permissions to create a new pipeline')
       end
     end
+
+    context 'when service runs inside an existing transaction' do
+      it 'raises an error' do
+        expect do
+          Ci::Pipeline.transaction do
+            subject
+          end
+        end.to raise_error(Ci::CreatePipelineService::ForbiddenTransactionError)
+      end
+    end
   end
 end

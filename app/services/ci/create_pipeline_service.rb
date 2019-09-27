@@ -5,6 +5,7 @@ module Ci
     attr_reader :pipeline
 
     CreateError = Class.new(StandardError)
+    ForbiddenTransactionError = Class.new(StandardError)
 
     SEQUENCE = [Gitlab::Ci::Pipeline::Chain::Build,
                 Gitlab::Ci::Pipeline::Chain::RemoveUnwantedChatJobs,
@@ -43,6 +44,8 @@ module Ci
         push_options: params[:push_options] || {},
         chat_data: params[:chat_data],
         **extra_options(options))
+
+      ensure_no_running_db_transactions!
 
       sequence = Gitlab::Ci::Pipeline::Chain::Sequence
         .new(pipeline, command, SEQUENCE)
@@ -130,6 +133,15 @@ module Ci
       raise ArgumentError if options.any?
 
       {} # overridden in EE
+    end
+
+    def ensure_no_running_db_transactions!
+      # All specs run inside a transaction to allow rollback
+      max_open_transactions = Rails.env.test? ? 1 : 0
+
+      if ActiveRecord::Base.connection.open_transactions > max_open_transactions
+        raise ForbiddenTransactionError, 'Pipeline cannot be created inside a transaction'
+      end
     end
   end
 end
