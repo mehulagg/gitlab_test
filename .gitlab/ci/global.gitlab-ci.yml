@@ -40,14 +40,13 @@
       - merge_requests
       - tags
 
-.only-code-changes:
+.only:changes-code:
   only:
     changes:
       - ".gitlab/ci/**/*"
       - ".{eslintignore,gitattributes,nvmrc,prettierrc,stylelintrc,yamllint}"
       - ".{codeclimate,eslintrc,gitlab-ci,haml-lint,haml-lint_todo,rubocop,rubocop_todo,scss-lint}.yml"
       - ".csscomb.json"
-      - "Dangerfile"
       - "Dockerfile.assets"
       - "*_VERSION"
       - "Gemfile{,.lock}"
@@ -55,36 +54,34 @@
       - "{babel.config,jest.config}.js"
       - "config.ru"
       - "{package.json,yarn.lock}"
-      - "{app,bin,config,danger,db,ee,fixtures,haml_lint,lib,locale,public,rubocop,scripts,spec,symbol,vendor}/**/*"
-      - "doc/README.md"  # Some RSpec test rely on this file
+      - "{,ee/}{app,bin,config,db,fixtures,haml_lint,lib,locale,public,rubocop,scripts,symbol,vendor}/**/*"
 
-.only-qa-changes:
+.only:changes-qa:
   only:
     changes:
       - ".dockerignore"
       - "qa/**/*"
 
-.only-docs-changes:
+.only:changes-docs:
   only:
     changes:
       - ".gitlab/route-map.yml"
       - "doc/**/*"
       - ".markdownlint.json"
 
-.only-graphql-changes:
+.only:changes-graphql:
   only:
     changes:
       - "{,ee/}app/graphql/**/*"
       - "{,ee/}lib/gitlab/graphql/**/*"
 
-.only-code-qa-changes:
+.only:changes-code-backstage:
   only:
     changes:
       - ".gitlab/ci/**/*"
       - ".{eslintignore,gitattributes,nvmrc,prettierrc,stylelintrc,yamllint}"
       - ".{codeclimate,eslintrc,gitlab-ci,haml-lint,haml-lint_todo,rubocop,rubocop_todo,scss-lint}.yml"
       - ".csscomb.json"
-      - "Dangerfile"
       - "Dockerfile.assets"
       - "*_VERSION"
       - "Gemfile{,.lock}"
@@ -92,8 +89,53 @@
       - "{babel.config,jest.config}.js"
       - "config.ru"
       - "{package.json,yarn.lock}"
-      - "{app,bin,config,danger,db,ee,fixtures,haml_lint,lib,locale,public,rubocop,scripts,spec,symbol,vendor}/**/*"
+      - "{,ee/}{app,bin,config,db,fixtures,haml_lint,lib,locale,public,rubocop,scripts,symbol,vendor}/**/*"
+      # Backstage changes
+      - "Dangerfile"
+      - "danger/**/*"
+      - "{,ee/}spec/**/*"
       - "doc/README.md"  # Some RSpec test rely on this file
+
+.only:changes-code-qa:
+  only:
+    changes:
+      - ".gitlab/ci/**/*"
+      - ".{eslintignore,gitattributes,nvmrc,prettierrc,stylelintrc,yamllint}"
+      - ".{codeclimate,eslintrc,gitlab-ci,haml-lint,haml-lint_todo,rubocop,rubocop_todo,scss-lint}.yml"
+      - ".csscomb.json"
+      - "Dockerfile.assets"
+      - "*_VERSION"
+      - "Gemfile{,.lock}"
+      - "Rakefile"
+      - "{babel.config,jest.config}.js"
+      - "config.ru"
+      - "{package.json,yarn.lock}"
+      - "{,ee/}{app,bin,config,db,fixtures,haml_lint,lib,locale,public,rubocop,scripts,symbol,vendor}/**/*"
+      # QA changes
+      - ".dockerignore"
+      - "qa/**/*"
+
+.only:changes-code-backstage-qa:
+  only:
+    changes:
+      - ".gitlab/ci/**/*"
+      - ".{eslintignore,gitattributes,nvmrc,prettierrc,stylelintrc,yamllint}"
+      - ".{codeclimate,eslintrc,gitlab-ci,haml-lint,haml-lint_todo,rubocop,rubocop_todo,scss-lint}.yml"
+      - ".csscomb.json"
+      - "Dockerfile.assets"
+      - "*_VERSION"
+      - "Gemfile{,.lock}"
+      - "Rakefile"
+      - "{babel.config,jest.config}.js"
+      - "config.ru"
+      - "{package.json,yarn.lock}"
+      - "{,ee/}{app,bin,config,db,fixtures,haml_lint,lib,locale,public,rubocop,scripts,symbol,vendor}/**/*"
+      # Backstage changes
+      - "Dangerfile"
+      - "danger/**/*"
+      - "{,ee/}spec/**/*"
+      - "doc/README.md"  # Some RSpec test rely on this file
+      # QA changes
       - ".dockerignore"
       - "qa/**/*"
 
