@@ -99,7 +99,6 @@ describe('Instance Security Dashboard component', () => {
       expect.objectContaining({
         dashboardDocumentation,
         emptyStateSvgPath: emptyDashboardStateSvgPath,
-        projectsEndpoint,
         vulnerabilitiesEndpoint,
         vulnerabilitiesCountEndpoint,
         vulnerabilitiesHistoryEndpoint,
