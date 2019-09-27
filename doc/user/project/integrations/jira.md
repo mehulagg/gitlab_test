@@ -1,19 +1,40 @@
 # GitLab Jira integration
 
-GitLab Issues are a powerful tool for discussing ideas and planning and tracking work.
-However, many organizations have been using Jira for these purposes and have
-extensive data and business processes built into it.
+GitLab Issues are a powerful tool for discussing ideas, planning work, and tracking work. Many organizations currently use Jira to meet these requirements. Those organizations may choose to migrate to GitLab Issues, or continue using Jira because it's an integral part of their business processes. GitLab and Jira can be integrated, providing the functionality of both applications.
 
-While you can always migrate content and process from Jira to GitLab Issues,
-you can also opt to continue using Jira and use it together with GitLab through
-our integration.
+Integration options are available from both GitLab and Jira. The following table summarizes the features of each option:
+
+| Feature                                                 | Built-in integration | Jira development panel |
+|:--------------------------------------------------------|:---------------------|:-----------------------|
+| Cross-reference GitLab commits and MRs with Jira issues | ✓                    | ✓                      |
+| Add comments to Jira issues with Git commits            | ✓                    | ✓                      |
+| Close a Jira issue with a Git commit                    | ✓                    | ✓                      |
+| Transition a Jira issue with a Git commit               |                      | ✓                      |
+| Record time tracking information against an issue       |                      | ✓                      |
 
 For a video demonstration of integration with Jira, watch [GitLab workflow with Jira issues and Jenkins pipelines](https://youtu.be/Jn-_fyra7xQ).
 
-Once you integrate your GitLab project with your Jira instance, you can automatically
-detect and cross-reference activity between the GitLab project and any of your projects
-in Jira. This includes the ability to close or transition Jira issues when the work
-is completed in GitLab.
+## Integration features
+
+The GitLab and Jira integration options can be used together. Before deciding which integration options to implement, it's important to understand the details of each.
+
+### GitLab integration option
+
+- References to Jira issue IDs in commits or MRs are pushed to Jira in real time.
+- GitLab's integration allows you to reference any project in the Jira instance.
+- To transition a Jira issue, the specific transition IDs must have been pre-configured in GitLab. 
+
+### Jira integration option
+
+- References to Jira issue IDs in commits or MRs are pulled from each GitLab project every 60 minutes. This synchronization can be initiated manually.
+- Jira integration with GitLab must be configured for each GitLab project.
+- Jira integration features a panel for each issue which links to all branches, commits, and merge requests (pull requests) in the linked GitLab project.
+- Jira integration enables use of [Smart Commits](https://confluence.atlassian.com/fisheye/using-smart-commits-960155400.html), which allows you to do the following:
+  - Add a comment on a Jira issue.
+  - Add time tracking information to a Jira issue.
+  - Transition a Jira issue to any available workflow state.
+
+
 
 Here's how the integration responds when you take the following actions in GitLab:
 
