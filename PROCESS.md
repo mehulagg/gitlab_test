@@ -182,13 +182,6 @@ they can [ask for an exception](#asking-for-an-exception) in advance. This is
 preferable to merging something that we are not confident in, but should still
 be a rare case: most features can be allowed to slip a release.
 
-All Community Edition merge requests from GitLab team members merged on the
-freeze date (the 7th) should have a corresponding Enterprise Edition merge
-request, even if there are no conflicts. This is to reduce the size of the
-subsequent EE merge, as we often merge a lot to CE on the release date. For more
-information, see
-[Automatic CE->EE merge][automatic_ce_ee_merge] and
-[Guidelines for implementing Enterprise Edition features][ee_features].
 
 ### After the 7th
 
@@ -362,5 +355,3 @@ rebase with master to see if that solves the issue.
 
 [team]: https://about.gitlab.com/team/
 [done]: https://docs.gitlab.com/ee/development/contributing/merge_request_workflow.html#definition-of-done
-[automatic_ce_ee_merge]: https://docs.gitlab.com/ce/development/automatic_ce_ee_merge.html
-[ee_features]: https://docs.gitlab.com/ce/development/ee_features.html
