@@ -22,7 +22,7 @@ module Gitlab
     require_dependency Rails.root.join('lib/gitlab/current_settings')
     require_dependency Rails.root.join('lib/gitlab/middleware/read_only')
     require_dependency Rails.root.join('lib/gitlab/middleware/basic_health_check')
-    require_dependency Rails.root.join('config/initializers/light_settings')
+    require_dependency Rails.root.join('config/light_settings')
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
@@ -65,8 +65,8 @@ module Gitlab
 
     if LightSettings.com?
       com_paths = config.eager_load_paths.each_with_object([]) do |path, memo|
-        ee_path = config.root.join('com', Pathname.new(path).relative_path_from(config.root))
-        memo << ee_path.to_s
+        com_path = config.root.join('com', Pathname.new(path).relative_path_from(config.root))
+        memo << com_path.to_s
       end
 
       config.eager_load_paths.push(*com_paths)

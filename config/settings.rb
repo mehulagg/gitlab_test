@@ -6,9 +6,8 @@ require 'digest/md5'
 # as Rails uses `load` for `require_dependency` (used when loading the Rails
 # environment). This could then lead to this file being loaded twice.
 require_dependency File.expand_path('../lib/gitlab', __dir__)
-require_dependency File.expand_path('initializers/base_settings', __dir__)
 
-class Settings < BaseSettings
+class Settings < Settingslogic
   source ENV.fetch('GITLAB_CONFIG') { Pathname.new(File.expand_path('..', __dir__)).join('config/gitlab.yml') }
   namespace ENV.fetch('GITLAB_ENV') { Rails.env }
 
@@ -54,6 +53,10 @@ class Settings < BaseSettings
           "#{user_host}:"
         end
       end
+    end
+
+    def build_base_gitlab_url
+      base_url(gitlab).join('')
     end
 
     def build_gitlab_url
@@ -141,6 +144,21 @@ class Settings < BaseSettings
     end
 
     private
+
+    def base_url(config)
+      custom_port = on_standard_port?(config) ? nil : ":#{config.port}"
+
+      [
+        config.protocol,
+        "://",
+        config.host,
+        custom_port
+      ]
+    end
+
+    def on_standard_port?(config)
+      config.port.to_i == (config.https ? 443 : 80)
+    end
 
     # Extract the host part of the given +url+.
     def host(url)

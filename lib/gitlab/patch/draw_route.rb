@@ -12,7 +12,6 @@ module Gitlab
 
       def draw(routes_name)
         drawn_any = draw_ce(routes_name) | draw_ee(routes_name) | draw_com(routes_name)
-
         drawn_any || raise(RoutesNotFound.new("Cannot find #{routes_name}"))
       end
 
@@ -25,7 +24,7 @@ module Gitlab
       end
 
       def draw_com(_)
-        true
+        false
       end
 
       def route_path(routes_name)

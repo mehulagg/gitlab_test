@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Com
   module Gitlab
     module Patch
