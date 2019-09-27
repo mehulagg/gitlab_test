@@ -74,6 +74,12 @@ describe('Instance Security Dashboard component', () => {
     return wrapper.vm.$nextTick();
   };
 
+  const expectComponentWithProps = (Component, props) => {
+    const componentWrapper = wrapper.find(Component);
+    expect(componentWrapper.exists()).toBe(true);
+    expect(componentWrapper.props()).toEqual(expect.objectContaining(props));
+  };
+
   const expectLoadingState = () => {
     expect(findProjectSelectorToggleButton().exists()).toBe(false);
     expect(wrapper.find(GlEmptyState).exists()).toBe(false);
@@ -83,9 +89,12 @@ describe('Instance Security Dashboard component', () => {
 
   const expectEmptyState = () => {
     expect(findProjectSelectorToggleButton().exists()).toBe(true);
-    expect(wrapper.find(GlEmptyState).exists()).toBe(true);
     expect(wrapper.find(GlLoadingIcon).exists()).toBe(false);
     expect(wrapper.find(SecurityDashboard).exists()).toBe(false);
+
+    expectComponentWithProps(GlEmptyState, {
+      svgPath: emptyStateSvgPath,
+    });
   };
 
   const expectDashboardState = () => {
@@ -93,18 +102,14 @@ describe('Instance Security Dashboard component', () => {
     expect(wrapper.find(GlEmptyState).exists()).toBe(false);
     expect(wrapper.find(GlLoadingIcon).exists()).toBe(false);
 
-    const dashboard = wrapper.find(SecurityDashboard);
-    expect(dashboard.exists()).toBe(true);
-    expect(dashboard.props()).toEqual(
-      expect.objectContaining({
-        dashboardDocumentation,
-        emptyStateSvgPath: emptyDashboardStateSvgPath,
-        vulnerabilitiesEndpoint,
-        vulnerabilitiesCountEndpoint,
-        vulnerabilitiesHistoryEndpoint,
-        vulnerabilityFeedbackHelpPath,
-      }),
-    );
+    expectComponentWithProps(SecurityDashboard, {
+      dashboardDocumentation,
+      emptyStateSvgPath: emptyDashboardStateSvgPath,
+      vulnerabilitiesEndpoint,
+      vulnerabilitiesCountEndpoint,
+      vulnerabilitiesHistoryEndpoint,
+      vulnerabilityFeedbackHelpPath,
+    });
   };
 
   const expectProjectSelectorState = () => {
