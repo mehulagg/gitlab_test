@@ -7,7 +7,7 @@ export default () => ({
   },
   searchQuery: '',
   totalPages: 0,
-  currentPage: 1,
+  currentPage: 0,
   nextPage: 0,
   totalResults: 0,
   projects: [],

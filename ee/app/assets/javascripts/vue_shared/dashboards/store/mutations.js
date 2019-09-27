@@ -55,13 +55,15 @@ export default {
     state.searchCount += 1;
   },
   [types.RECEIVE_SEARCH_RESULTS_HEADERS](state, headers) {
+    state.currentPage = parseInt(headers['x-page']);
     state.nextPage = parseInt(headers['x-next-page']);
     state.totalResults = parseInt(headers['x-total']);
     state.totalPages = parseInt(headers['x-total-pages']);
   },
   [types.RECEIVE_NEXT_PAGE_SUCCESS](state, results) {
-    state.currentPage = state.nextPage;
     state.projectSearchResults = state.projectSearchResults.concat(results.data);
+    state.currentPage = parseInt(results.headers['x-page']);
+    state.nextPage = parseInt(results.headers['x-next-page']);
   },
   [types.RECEIVE_SEARCH_RESULTS_SUCCESS](state, results) {
     state.projectSearchResults = results;
