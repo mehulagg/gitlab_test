@@ -118,6 +118,7 @@
 - authorized_projects
 - background_migration
 - chat_notification
+- consolidate_counters
 - create_evidence
 - create_gpg_signature
 - create_note_diff_file

@@ -11,6 +11,16 @@ describe ProjectStatistics do
     it { is_expected.to belong_to(:namespace) }
   end
 
+  it_behaves_like CounterAttribute, [:build_artifacts_size] do
+    subject do
+      ProjectStatistics.find_or_create_by!(project: project, namespace: project.namespace)
+    end
+
+    let(:counter_attribute_events_class) { ProjectStatisticsEvent }
+    let(:counter_attribute_table_name) { 'project_statistics_events' }
+    let(:counter_attribute_foreign_key) { 'project_statistics_id' }
+  end
+
   describe 'scopes' do
     describe '.for_project_ids' do
       it 'returns only requested projects' do

@@ -3276,6 +3276,13 @@ ActiveRecord::Schema.define(version: 2020_01_23_155929) do
     t.index ["project_id"], name: "index_project_statistics_on_project_id", unique: true
   end
 
+  create_table "project_statistics_events", force: :cascade do |t|
+    t.bigint "project_statistics_id", null: false
+    t.bigint "build_artifacts_size", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.index ["project_statistics_id"], name: "index_project_statistics_events_on_project_statistics_id"
+  end
+
   create_table "project_tracing_settings", force: :cascade do |t|
     t.datetime_with_timezone "created_at", null: false
     t.datetime_with_timezone "updated_at", null: false
@@ -4784,6 +4791,7 @@ ActiveRecord::Schema.define(version: 2020_01_23_155929) do
   add_foreign_key "project_repositories", "shards", on_delete: :restrict
   add_foreign_key "project_repository_states", "projects", on_delete: :cascade
   add_foreign_key "project_statistics", "projects", on_delete: :cascade
+  add_foreign_key "project_statistics_events", "project_statistics", on_delete: :cascade
   add_foreign_key "project_tracing_settings", "projects", on_delete: :cascade
   add_foreign_key "projects", "pool_repositories", name: "fk_6e5c14658a", on_delete: :nullify
   add_foreign_key "projects", "users", column: "marked_for_deletion_by_user_id", name: "fk_25d8780d11", on_delete: :nullify
