@@ -78,9 +78,8 @@ export default {
       @input="onInput"
     />
     <div class="d-flex flex-column">
-      <gl-infinite-scroll>
+      <gl-infinite-scroll :fetched-items="projectSearchResults.length" :total-items="totalResults">
         <gl-loading-icon v-if="showLoadingIndicator" :size="2" class="py-2 px-4" />
-        showing x of {{ totalResults }} items
         <div v-if="!showLoadingIndicator" class="d-flex flex-column">
           <project-list-item
             v-for="project in projectSearchResults"
