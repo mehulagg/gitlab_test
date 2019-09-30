@@ -131,11 +131,11 @@ roughly the same:
 
 ```ruby
 `touch /tmp/pawned-by-backticks`
-File.read('|touch /tmp/pawned-by-file-read')
+IO.read('|touch /tmp/pawned-by-file-read')
 ```
 
 The key is to open a 'file' whose name starts with a `|`.
-Affected methods include Kernel#open, File::read, File::open, IO::open and IO::read.
+Affected methods include `Kernel#open`, `IO::open`, and `IO::read`.
 
 You can protect against this behavior of 'open' and 'read' by ensuring that an
 attacker cannot control the start of the filename string you are opening.  For
@@ -146,13 +146,16 @@ a shell command with `|`:
 # we assume repo_path is not controlled by the attacker (user)
 path = File.join(repo_path, user_input)
 # path cannot start with '|' now.
-File.read(path)
+IO.read(path)
 ```
 
 If you have to use user input a relative path, prefix `./` to the path.
 
 Prefixing user-supplied paths also offers extra protection against paths
 starting with `-` (see the discussion about using `--` above).
+
+**Note:** Since Ruby version `2.6`, methods of the `File` class no longer
+support this behavior for strings starting with the `|` character.
 
 ## Guard against path traversal
 

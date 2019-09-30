@@ -293,3 +293,6 @@ Graphql/Descriptions:
   Include:
     - 'app/graphql/**/*'
     - 'ee/app/graphql/**/*'
+
+Gitlab/ForbidKernelOpen:
+  Enabled: true
