@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 module Packages
   class CreatePackageMetadataService < BaseService
-
     def initialize(package, metadata)
       @package = package
       @metadata = metadata
@@ -14,6 +13,5 @@ module Packages
     private
 
     attr_reader :package, :metadata
-
   end
 end
