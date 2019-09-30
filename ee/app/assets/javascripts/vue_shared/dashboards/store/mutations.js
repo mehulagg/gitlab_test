@@ -55,15 +55,15 @@ export default {
     state.searchCount += 1;
   },
   [types.RECEIVE_SEARCH_RESULTS_HEADERS](state, headers) {
-    state.currentPage = parseInt(headers['x-page']);
-    state.nextPage = parseInt(headers['x-next-page']);
-    state.totalResults = parseInt(headers['x-total']);
-    state.totalPages = parseInt(headers['x-total-pages']);
+    Vue.set(state.pageInfo, 'currentPage', parseInt(headers['x-page'], 10));
+    Vue.set(state.pageInfo, 'nextPage', parseInt(headers['x-next-page'], 10));
+    Vue.set(state.pageInfo, 'totalResults', parseInt(headers['x-total'], 10));
+    Vue.set(state.pageInfo, 'totalPages', parseInt(headers['x-total-pages'], 10));
   },
   [types.RECEIVE_NEXT_PAGE_SUCCESS](state, results) {
     state.projectSearchResults = state.projectSearchResults.concat(results.data);
-    state.currentPage = parseInt(results.headers['x-page']);
-    state.nextPage = parseInt(results.headers['x-next-page']);
+    Vue.set(state.pageInfo, 'currentPage', parseInt(results.headers['x-page'], 10));
+    Vue.set(state.pageInfo, 'nextPage', parseInt(results.headers['x-next-page'], 10));
   },
   [types.RECEIVE_SEARCH_RESULTS_SUCCESS](state, results) {
     state.projectSearchResults = results;

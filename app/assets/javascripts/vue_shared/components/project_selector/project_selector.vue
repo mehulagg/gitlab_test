@@ -43,16 +43,16 @@ export default {
       required: false,
       default: false,
     },
+    totalResults: {
+      type: Number,
+      required: false,
+      default: 0,
+    },
   },
   data() {
     return {
       searchQuery: '',
     };
-  },
-  computed: {
-    ...mapState([
-      'totalResults', 
-    ]), 
   },
   methods: {
     projectClicked(project) {

@@ -164,8 +164,8 @@ export const fetchSearchResults = ({ state, dispatch }) => {
 };
 
 export const fetchNextPage = ({ state, dispatch}) => {
-  if(state.currentPage < state.totalPages) {
-    Api.projects(state.searchQuery, { page: state.nextPage })
+  if(state.pageInfo.currentPage < state.pageInfo.totalPages) {
+    Api.projects(state.searchQuery, { page: state.pageInfo.nextPage })
       .then(results => dispatch('receiveNextPageSuccess', results))
       .catch(() => dispatch('receiveSearchResultsError'));
   }

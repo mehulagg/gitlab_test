@@ -52,10 +52,7 @@ export default {
       'searchCount',
       'searchQuery',
       'messages',
-      'totalResults',
-      'totalPages',
-      'nextPage',
-      'currentPage',
+      'pageInfo',
     ]),
     isSearchingProjects() {
       return this.searchCount > 0;
@@ -126,7 +123,7 @@ export default {
         :show-loading-indicator="isSearchingProjects"
         :show-minimum-search-query-message="messages.minimumQuery"
         :show-search-error-message="messages.searchError"
-        :total-results="totalResults"
+        :total-results="pageInfo.totalResults"
         @bottomReached="bottomReached"
         @searched="searched"
         @projectClicked="projectClicked"
