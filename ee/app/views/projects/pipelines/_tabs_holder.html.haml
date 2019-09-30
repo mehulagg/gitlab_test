@@ -9,6 +9,6 @@
 
 - if pipeline.expose_license_scanning_data?
   %li.js-licenses-tab-link
-    = link_to licenses_project_pipeline_path(project, pipeline), data: { target: '#js-tab-licenses', action: 'licenses', toggle: 'tab' }, class: 'licenses-tab' do
+    = link_to licenses_project_pipeline_path(project, pipeline), data: { target: '#js-tab-licenses', action: 'licenses', toggle: 'tab' }, class: 'licenses-tab', 'data-qa-selector': 'licenses_tab' do
       = _("Licenses")
-      %span.badge.badge-pill.js-licenses-counter.hidden
+      %span.badge.badge-pill.js-licenses-counter.hidden{ 'data-qa-selector': 'licenses_counter' }
