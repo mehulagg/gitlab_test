@@ -12,9 +12,8 @@ import StageTable from './stage_table.vue';
 // TODO: replace this test data with an endpoint
 import { __ } from '~/locale';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
-import { getTimeframeWindowFrom, getDateInPast, dateInWords } from '~/lib/utils/datetime_utility';
+import { getDateInPast, dateInWords } from '~/lib/utils/datetime_utility';
 
-// const timeWindow = getTimeframeWindowFrom(new Date(), -30);
 const today = new Date('2019-09-26T00:00:00.00Z');
 const dataRange = [...Array(7).keys()]
   .map(i => {
@@ -27,21 +26,42 @@ function randomInt(range) {
   return Math.floor(Math.random() * Math.floor(range));
 }
 
-const typeOfWork = convertObjectPropsToCamelCase(
+function arrayToObject(arr) {
+  return arr.reduce((acc, curr) => {
+    const [key, value] = curr;
+    return { ...acc, [key]: value };
+  }, {});
+}
+
+const genSeries = () => arrayToObject(dataRange.map(key => [key, randomInt(100)]));
+
+const rawData = [
   {
     label_id: __('Bug'),
-    series: [...dataRange.map(key => [key, randomInt(100)])],
+    series: genSeries(),
   },
   {
     label_id: __('Feature'),
-    series: [...dataRange.map(key => [key, randomInt(100)])],
+    series: genSeries(),
   },
   {
     label_id: __('Backstage'),
-    series: [...dataRange.map(key => [key, randomInt(100)])],
+    series: genSeries(),
   },
-  { deep: true },
-);
+];
+
+const typeOfWork = convertObjectPropsToCamelCase(rawData, { deep: true });
+
+const prepareDataset = ({ dataset, range }) =>
+  dataset.reduce(
+    (acc, curr) => {
+      const { labelId, series } = curr;
+      acc.seriesNames = [...acc.seriesNames, labelId];
+      acc.data = [...acc.data, range.map(index => (series[index] ? series[index] : 0))];
+      return acc;
+    },
+    { data: [], seriesNames: [] },
+  );
 
 export default {
   name: 'CycleAnalytics',
@@ -75,9 +95,13 @@ export default {
       groupsQueryParams: {
         min_access_level: featureAccessLevel.EVERYONE,
       },
+      dataRange,
       typeOfWork: {
-        dataset: typeOfWork,
-        range: dataRange,
+        option: { legend: false },
+        ...prepareDataset({
+          dataset: typeOfWork,
+          range: dataRange,
+        }),
       },
     };
   },
@@ -233,12 +257,13 @@ export default {
         </header>
         <section>
           <gl-stacked-column-chart
-            :data="typeOfWorkDataset"
-            :group-by="typeOfWork.range"
+            :option="typeOfWork.option"
+            :data="typeOfWork.data"
+            :group-by="dataRange"
             x-axis-type="category"
-            x-axis-title="January - December 2018"
-            y-axis-title="Commits"
-            :series-names="['Fun 1', 'Fun 2']"
+            x-axis-title="Date"
+            y-axis-title="Number of tasks"
+            :series-names="typeOfWork.seriesNames"
           />
         </section>
       </div>
