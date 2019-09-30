@@ -31,6 +31,13 @@ module AtomicInternalId
       @internal_id_scopes ||= []
     end
 
+    def internal_id_params(scope_value)
+      usage = table_name.to_sym
+      scope_attrs = { scope_value.class.table_name.singularize.to_sym => scope_value }
+
+      [scope_attrs, usage]
+    end
+
     def has_internal_id(column, scope:, init:, presence: true) # rubocop:disable Naming/PredicateName
       # We require init here to retain the ability to recalculate in the absence of a
       # InternaLId record (we may delete records in `internal_ids` for example).
@@ -47,8 +54,7 @@ module AtomicInternalId
 
         return value unless scope_value
 
-        scope_attrs = { scope_value.class.table_name.singularize.to_sym => scope_value }
-        usage = self.class.table_name.to_sym
+        scope_attrs, usage = self.class.internal_id_params(scope_value)
 
         # We don't have a value yet and use a InternalId record to generate
         # the next value.
@@ -71,8 +77,7 @@ module AtomicInternalId
 
         return value unless scope_value
 
-        scope_attrs = { scope_value.class.table_name.singularize.to_sym => scope_value }
-        usage = self.class.table_name.to_sym
+        scope_attrs, usage = self.class.internal_id_params(scope_value)
 
         InternalId.track_greatest(self, scope_attrs, usage, value, init)
       end
@@ -80,8 +85,7 @@ module AtomicInternalId
       define_method("reset_#{scope}_#{column}") do
         if value = read_attribute(column)
           scope_value = association(scope).reader
-          scope_attrs = { scope_value.class.table_name.singularize.to_sym => scope_value }
-          usage = self.class.table_name.to_sym
+          scope_attrs, usage = self.class.internal_id_params(scope_value)
 
           if InternalId.reset(self, scope_attrs, usage, value)
             write_attribute(column, nil)
