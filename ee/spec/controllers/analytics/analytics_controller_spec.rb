@@ -30,6 +30,15 @@ describe Analytics::AnalyticsController do
 
         expect(response).to redirect_to(analytics_productivity_analytics_path)
       end
+
+      it 'redirects to code analytics' do
+        disable_all_analytics_feature_flags
+        stub_feature_flags(Gitlab::Analytics::CODE_ANALYTICS_FEATURE_FLAG => true)
+
+        get :index
+
+        expect(response).to redirect_to(analytics_code_analytics_path)
+      end
     end
 
     it 'renders 404 all the analytics feature flags are disabled' do

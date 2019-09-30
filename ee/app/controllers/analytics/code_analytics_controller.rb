@@ -3,6 +3,8 @@
 class Analytics::CodeAnalyticsController < Analytics::ApplicationController
   CONFIDENTIAL_ACCESS_LEVEL = Gitlab::Access::REPORTER
 
+  check_feature_flag Gitlab::Analytics::CODE_ANALYTICS_FEATURE_FLAG
+
   before_action :load_group
   before_action :load_project
 

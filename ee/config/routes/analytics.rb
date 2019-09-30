@@ -14,5 +14,7 @@ namespace :analytics do
     end
   end
 
-  resource :code_analytics, only: :show
+  constraints(::Constraints::FeatureConstrainer.new(Gitlab::Analytics::CODE_ANALYTICS_FEATURE_FLAG)) do
+    resource :code_analytics, only: :show
+  end
 end

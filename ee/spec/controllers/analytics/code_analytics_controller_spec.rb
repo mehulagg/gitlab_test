@@ -27,17 +27,31 @@ describe Analytics::CodeAnalyticsController do
     subject { get :show, format: :html, params: {} }
 
     it 'authorizes visibility of code analytics feature' do
+      stub_feature_flags(Gitlab::Analytics::CODE_ANALYTICS_FEATURE_FLAG => true)
+
       expect(Ability).to receive(:allowed?).with(current_user, :view_code_analytics, :global).and_return(false)
+
       subject
 
       expect(response).to have_gitlab_http_status(:forbidden)
     end
 
     it 'returns a forbidden if user does not have premium license' do
+      stub_feature_flags(Gitlab::Analytics::CODE_ANALYTICS_FEATURE_FLAG => true)
       stub_licensed_features(code_analytics: false)
+
       subject
 
       expect(response).to have_gitlab_http_status(:forbidden)
+    end
+
+    it 'renders `404` when feature flag is disabled' do
+      stub_licensed_features(code_analytics: true)
+      stub_feature_flags(Gitlab::Analytics::CODE_ANALYTICS_FEATURE_FLAG => false)
+
+      get :show
+
+      expect(response).to have_gitlab_http_status(404)
     end
   end
 
