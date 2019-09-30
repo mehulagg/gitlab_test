@@ -36,6 +36,50 @@ import {
 } from '../constants';
 import { diffViewerModes } from '~/ide/constants';
 
+let isRendering = false;
+const parseFileLog = f => ({
+  filePath: f.file_path,
+  renderIt: f.renderIt,
+  collapsed: f.viewer && f.viewer.collapsed,
+});
+
+export const startRenderDiffsQueue = ({ state, commit }) => {
+  console.log('TCL: startRenderDiffsQueue:start');
+  console.table(state.diffFiles.map(parseFileLog));
+  isRendering = true;
+
+  const checkItem = () =>
+    new Promise(resolve => {
+      const nextFile = state.diffFiles.find(
+        file =>
+          !file.renderIt &&
+          (file.viewer && (!file.viewer.collapsed || !file.viewer.name === diffViewerModes.text)),
+      );
+
+      if (nextFile) {
+        console.log('TCL: checkItem:nextFile', nextFile.file_path);
+        requestAnimationFrame(() => {
+          commit(types.RENDER_FILE, nextFile);
+          // console.table(state.diffFiles.map(parseFileLog));
+        });
+        requestIdleCallback(
+          () => {
+            checkItem()
+              .then(resolve)
+              .catch(() => {});
+          },
+          { timeout: 1000 },
+        );
+      } else {
+        console.log('TCL: checkItem:nextFile', false);
+        isRendering = false;
+        resolve();
+      }
+    });
+
+  return checkItem();
+};
+
 export const setBaseConfig = ({ commit }, options) => {
   const { endpoint, projectPath, dismissEndpoint, showSuggestPopover } = options;
   commit(types.SET_BASE_CONFIG, { endpoint, projectPath, dismissEndpoint, showSuggestPopover });
@@ -49,22 +93,62 @@ export const fetchDiffFiles = ({ state, commit }) => {
   worker.addEventListener('message', ({ data }) => {
     commit(types.SET_TREE_DATA, data);
 
-    worker.terminate();
+    // worker.terminate();
   });
+
+  const TEST_MODE = true;
+
+  if (TEST_MODE) {
+    const getBatchDiffs = url =>
+      // setTimeout(() =>
+      {
+        const baseUrl = 'http://localhost:3001';
+        const perPage = '&per_page=10';
+        axios
+          .get(baseUrl + url + perPage)
+          .then(({ data }) => {
+            console.log('TCL: getBatchDiffs:start');
+
+            commit(types.SET_LOADING, false);
+            const diffFiles = [...state.diffFiles, ...data.diff_files];
+            // console.table(diffFiles.map(parseFileLog));
+            commit(types.SET_DIFF_DATA, { diff_files: diffFiles });
+
+            worker.postMessage(state.diffFiles);
+
+            if (!isRendering) startRenderDiffsQueue({ state, commit });
+
+            if (data.next_page_href && data.next_page_href.length > 0) {
+              getBatchDiffs(data.next_page_href);
+            } else {
+              worker.terminate();
+            }
+
+            return Vue.nextTick();
+          })
+          .then(handleLocationHash)
+          .catch(() => worker.terminate());
+      };
+    // , 4000);
+
+    getBatchDiffs('/h5bp/html5-boilerplate/merge_requests/1/diffs_batch.json?page=1');
+  }
 
   return axios
     .get(mergeUrlParams({ w: state.showWhitespace ? '0' : '1' }, state.endpoint))
     .then(res => {
       commit(types.SET_LOADING, false);
       commit(types.SET_MERGE_REQUEST_DIFFS, res.data.merge_request_diffs || []);
-      commit(types.SET_DIFF_DATA, res.data);
+      const { data } = res;
+      if (TEST_MODE) data.diff_files = [];
+      commit(types.SET_DIFF_DATA, data);
 
-      worker.postMessage(state.diffFiles);
+      // worker.postMessage(state.diffFiles);
 
       return Vue.nextTick();
     })
-    .then(handleLocationHash)
-    .catch(() => worker.terminate());
+    .then(handleLocationHash);
+  // .catch(() => worker.terminate());
 };
 
 export const setHighlightedRow = ({ commit }, lineCode) => {
@@ -125,35 +209,6 @@ export const renderFileForDiscussionId = ({ commit, rootState, state }, discussi
       }
     }
   }
-};
-
-export const startRenderDiffsQueue = ({ state, commit }) => {
-  const checkItem = () =>
-    new Promise(resolve => {
-      const nextFile = state.diffFiles.find(
-        file =>
-          !file.renderIt &&
-          (file.viewer && (!file.viewer.collapsed || !file.viewer.name === diffViewerModes.text)),
-      );
-
-      if (nextFile) {
-        requestAnimationFrame(() => {
-          commit(types.RENDER_FILE, nextFile);
-        });
-        requestIdleCallback(
-          () => {
-            checkItem()
-              .then(resolve)
-              .catch(() => {});
-          },
-          { timeout: 1000 },
-        );
-      } else {
-        resolve();
-      }
-    });
-
-  return checkItem();
 };
 
 export const setRenderIt = ({ commit }, file) => commit(types.RENDER_FILE, file);
