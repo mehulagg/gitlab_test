@@ -1,10 +1,10 @@
 # GitLab Jira integration
 
-GitLab Issues are a powerful tool for discussing ideas, planning work, and tracking work. Many organizations currently use Jira to meet these requirements. Those organizations may choose to migrate to GitLab Issues, or continue using Jira because it's an integral part of their business processes. GitLab and Jira can be integrated, providing the functionality of both applications.
+GitLab Issues are a powerful tool for discussing ideas, planning work, and tracking work. Many organizations currently use Jira to meet these requirements. Those organizations may choose to migrate to GitLab Issues, or continue using Jira because it is an integral part of their business processes. GitLab and Jira can be integrated, providing the functionality of both applications. In this section, the term _Jira_ refers to both Jira Server and Jira Cloud.
 
 Integration options are available from both GitLab and Jira. The following table summarizes the features of each option:
 
-| Feature                                                 | Built-in integration | Jira development panel |
+| Feature                                                 | GitLab integration | Jira integration option  |
 |:--------------------------------------------------------|:---------------------|:-----------------------|
 | Cross-reference GitLab commits and MRs with Jira issues | ✓                    | ✓                      |
 | Add comments to Jira issues with Git commits            | ✓                    | ✓                      |
@@ -22,7 +22,7 @@ The GitLab and Jira integration options can be used together. Before deciding wh
 
 - References to Jira issue IDs in commits or MRs are pushed to Jira in real time.
 - GitLab's integration allows you to reference any project in the Jira instance.
-- To transition a Jira issue, the specific transition IDs must have been pre-configured in GitLab. 
+- To transition a Jira issue, the specific transition IDs must have been pre-configured in GitLab.
 
 ### Jira integration option
 
@@ -34,7 +34,10 @@ The GitLab and Jira integration options can be used together. Before deciding wh
   - Add time tracking information to a Jira issue.
   - Transition a Jira issue to any available workflow state.
 
+## Configuration
 
+- For details of GitLab configuration with Jira, see [GitLab configuration]().
+- For details of Jira configuration with GitLab, see [Jira configuration]().
 
 Here's how the integration responds when you take the following actions in GitLab:
 
