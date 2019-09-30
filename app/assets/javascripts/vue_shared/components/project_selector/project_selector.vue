@@ -1,5 +1,4 @@
 <script>
-import { mapState } from 'vuex';
 import _ from 'underscore';
 import { GlLoadingIcon, GlSearchBoxByType, GlInfiniteScroll } from '@gitlab/ui';
 import ProjectListItem from './project_list_item.vue';
@@ -79,7 +78,7 @@ export default {
     />
     <div class="d-flex flex-column">
       <gl-infinite-scroll :fetched-items="projectSearchResults.length" :total-items="totalResults">
-        <gl-loading-icon v-if="showLoadingIndicator" :size="2" class="py-2 px-4" />
+        <gl-loading-icon v-if="showLoadingIndicator" :size="1" class="py-2 px-4" />
         <div v-if="!showLoadingIndicator" class="d-flex flex-column">
           <project-list-item
             v-for="project in projectSearchResults"
