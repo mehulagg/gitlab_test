@@ -14,7 +14,7 @@ require 'logger'
 
 MOVE_DATE = "2019-09-09".to_date.freeze
 MOVE_NOTE_TEXT = "GitLab is moving all development for both GitLab Community Edition"
-BATCH_SIZE = 100.freeze
+BATCH_SIZE = 200.freeze
 BATCH_WAIT = 3.freeze
 
 rows_updated = BATCH_SIZE
@@ -32,20 +32,22 @@ logger = Logger.new(STDOUT)
 user_id = User.find_by(username: 'gitlab-bot').id
 source_project_id = Project.find_by_full_path('gitlab-org/gitlab-foss').id
 
-moved_issues =
+moved_issue_ids =
+  Note.select(:noteable_id).
+    where(project_id: source_project_id).
+    where(author_id: user_id).
+    where(noteable_type: 'Issue').
+    where('created_at >= ?', MOVE_DATE).
+    where('note LIKE ?', "%#{MOVE_NOTE_TEXT}%")
+
+issues = Issue.where(id: moved_issue_ids)
+
+issues_count =
   ActiveRecord::Base.transaction do
-    ActiveRecord::Base.connection.execute("SET LOCAL statement_timeout = '1min'")
+    ActiveRecord::Base.connection.execute("SET LOCAL statement_timeout = '5min'")
 
-    Note.select(:noteable_id)
-      .where(project_id: source_project_id)
-      .where(author_id: user_id)
-      .where(noteable_type: 'Issue')
-      .where('created_at >= ?', MOVE_DATE)
-      .where('note LIKE ?', "%#{MOVE_NOTE_TEXT}%")
+    issues.count
   end
-
-issues = Issue.where(id: moved_issues)
-issues_count = issues.count
 
 issues.each_batch(of: BATCH_SIZE) do |batch|
   retried = 0
@@ -53,9 +55,13 @@ issues.each_batch(of: BATCH_SIZE) do |batch|
   begin
     logger.info("Processing #{rows_updated} of #{issues_count}....")
 
-    batch.update_all(issue_update_params)
-    EpicIssue.where(issue_id: batch).delete_all
-    LabelLink.where(target_type: 'Issue', target_id: batch).delete_all
+    ActiveRecord::Base.transaction do
+      ActiveRecord::Base.connection.execute("SET LOCAL statement_timeout = '5min'")
+
+      batch.update_all(issue_update_params)
+      EpicIssue.where(issue_id: batch).delete_all
+      LabelLink.where(target_type: 'Issue', target_id: batch).delete_all
+    end
 
     logger.info("Waiting #{BATCH_WAIT} seconds for next batch.")
 
