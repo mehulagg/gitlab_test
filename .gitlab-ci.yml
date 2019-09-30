@@ -71,17 +71,10 @@ check:rspec:
     - 7gb
     - triggered-packages
 
-.ee-parallel-knapsack: &ee-parallel-knapsack
+.parallel-knapsack: &parallel-knapsack
   parallel: 5
   variables:
-    KNAPSACK_REPORT_PATH: "qa/ee/knapsack/nightly_master_report.json"
-    KNAPSACK_TEST_FILE_PATTERN: "qa/specs/features/**/*_spec.rb"
-    KNAPSACK_GENERATE_REPORT: "true"
-
-.ce-parallel-knapsack: &ce-parallel-knapsack
-  parallel: 5
-  variables:
-    KNAPSACK_REPORT_PATH: "qa/ce/knapsack/nightly_master_report.json"
+    KNAPSACK_REPORT_PATH: "knapsack/master_report.json"
     KNAPSACK_TEST_FILE_PATTERN: "qa/specs/features/**/*_spec.rb"
     KNAPSACK_GENERATE_REPORT: "true"
 
@@ -108,7 +101,7 @@ ce:instance:
   <<: *test
   <<: *high-capacity
   <<: *ce-qa
-  <<: *ce-parallel-knapsack
+  <<: *parallel-knapsack
 
 ce:instance-quarantine:
   script:
@@ -124,7 +117,7 @@ ee:instance:
   <<: *test
   <<: *high-capacity
   <<: *ee-qa
-  <<: *ee-parallel-knapsack
+  <<: *parallel-knapsack
 
 ee:instance-quarantine:
   script:
@@ -154,7 +147,7 @@ ce:relative_url:
   <<: *test
   <<: *high-capacity
   <<: *ce-qa
-  <<: *ce-parallel-knapsack
+  <<: *parallel-knapsack
 
 ce:relative_url-quarantine:
   script:
@@ -170,7 +163,7 @@ ee:relative_url:
   <<: *test
   <<: *high-capacity
   <<: *ee-qa
-  <<: *ee-parallel-knapsack
+  <<: *parallel-knapsack
 
 ee:relative_url-quarantine:
   script:
@@ -198,7 +191,7 @@ ce:update:
   <<: *test
   <<: *high-capacity
   <<: *ce-qa
-  <<: *ce-parallel-knapsack
+  <<: *parallel-knapsack
 
 ce:update-quarantine:
   script:
@@ -214,7 +207,7 @@ ee:update:
   <<: *test
   <<: *high-capacity
   <<: *ee-qa
-  <<: *ee-parallel-knapsack
+  <<: *parallel-knapsack
 
 ee:update-quarantine:
   script:
