@@ -18,7 +18,9 @@ describe Packages::CreatePackageMetadataService do
       let(:package_version) { params[:versions].keys.first }
       let(:package_metadata) { params[:versions][package_version].to_json }
       let!(:package) { create(:npm_package) }
+
       subject(:execute) { described_class.new(package, package_metadata).execute }
+
       it 'creates a metadata binary with the contents of package.json' do
         execute
         expect(package.reload.package_metadatum.metadata).to eq(package_metadata)

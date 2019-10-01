@@ -52,8 +52,8 @@ class NpmPackagePresenter
 
   def tarball_url(package, package_file)
     expose_url "#{api_v4_projects_path(id: package.project_id)}" \
-    "/packages/npm/#{package.name}" \
-    "/-/#{package_file.file_name}"
+      "/packages/npm/#{package.name}" \
+      "/-/#{package_file.file_name}"
   end
 
   def sorted_versions
