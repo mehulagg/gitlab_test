@@ -1,5 +1,92 @@
 # LDAP Troubleshooting for Administrators
 
+## Debugging tools
+
+### ldapsearch
+
+`ldapsearch` is a utility that will allow you to query your LDAP server. You can
+use it to test your LDAP settings and ensure that the settings you're using
+will get you the results you expect.
+
+When using `ldapsearch`, be sure to use the same settings you've already
+specified in your `gitlab.rb` configuration so you can confirm what happens
+when those exact settings are used.
+
+Please see [the official
+`ldapsearch` documentation](https://linux.die.net/man/1/ldapsearch) for
+the available flags.
+
+We also recommended running this command directly on the GitLab host.
+
+For example, consider the following GitLab configuration:
+
+```bash
+gitlab_rails['ldap_servers'] = YAML.load <<-'EOS' # remember to close this block with 'EOS' below
+   main: # 'main' is the GitLab 'provider ID' of this LDAP server
+     label: 'LDAP'
+     host: '127.0.0.1'
+     port: 389
+     uid: 'uid'
+     encryption: 'plain'
+     bind_dn: 'cn=admin,dc=ldap-testing,dc=example,dc=com'
+     password: 'Password1'
+     active_directory: true
+     allow_username_or_email_login: false
+     block_auto_created_users: false
+     base: 'dc=ldap-testing,dc=example,dc=com'
+     user_filter: ''
+     attributes:
+       username: ['uid', 'userid', 'sAMAccountName']
+       email:    ['mail', 'email', 'userPrincipalName']
+       name:       'cn'
+       first_name: 'givenName'
+       last_name:  'sn'
+     group_base: 'ou=groups,dc=ldap-testing,dc=example,dc=com'
+     admin_group: 'gitlab_admin'
+EOS
+```
+
+You would run the following `ldapsearch` to find the `bind_dn` user:
+
+```bash
+ldapsearch -D "cn=admin,dc=ldap-testing,dc=example,dc=com" \
+  -w Password1 \
+  -p 389 \
+  -h 127.0.0.1 \
+  -b "dc=ldap-testing,dc=example,dc=com"
+```
+
+Note that the `bind_dn`, `password`, `port`, `host`, and `base` are all
+identical to what's configured in the `gitlab.rb`.
+
+Please see [the official
+`ldapsearch` documentation](https://linux.die.net/man/1/ldapsearch) for more.
+
+### Check LDAP connection
+
+Once LDAP has been configured and you'd like to test that GitLab is
+successfully able to connect to the LDAP server and read users, run the [LDAP
+rake task to do so](../raketasks/ldap.md#check).
+
+If GitLab can successfully connect to LDAP but doesn't return any
+users, it's likely that either users don't fall under your configured `base`
+or they don't filter through any configured `user_filter`.
+
+## Common workflows
+### Connection errors
+### Errors on User logins
+### Errors with Group memberships
+## Misc.
+
+
+
+
+
+
+
+
+
+
 ## Rails console debugging
 
 Here are some rails console commands you can run to help debug problems you're
