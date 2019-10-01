@@ -26,12 +26,12 @@ class Analytics::CodeAnalyticsController < Analytics::ApplicationController
   private
 
   def hotspots_tree
-    Analytics::HotspotsTree.new.build(Analytics::CodeAnalyticsFinder.new(@project, @from, @to).execute)
+    Analytics::CodeAnalytics::HotspotsTree.new.(Analytics::CodeAnalyticsFinder.new(@project, @from, @to).execute).build
   end
 
   def from_and_to
     case code_analytics_params['timeframe']
-    when "last_30_days"
+    when 'last_30_days'
       [30.days.ago.to_datetime, Time.now.to_datetime]
     else
       nil
@@ -40,16 +40,16 @@ class Analytics::CodeAnalyticsController < Analytics::ApplicationController
 
   def validate_params
     unless @group
-      return render json: "Selected group not found with user's access level.", status: :forbidden
+      return render json: 'Selected group not found with user\'s access level.', status: :forbidden
     end
 
     unless @project
-      return render json: "Selected project not found with user's access level.", status: :forbidden
+      return render json: 'Selected project not found with user\'s access level.', status: :forbidden
     end
 
     @from, @to = from_and_to
     unless @from && @to
-      return render json: "Invalid timeframe.", status: :unprocessable_entity
+      return render json: 'Invalid timeframe.', status: :unprocessable_entity
     end
   end
 

@@ -18,7 +18,7 @@ describe Analytics::CodeAnalyticsController do
   before do
     sign_in(current_user)
     allow_any_instance_of(Analytics::CodeAnalyticsFinder).to receive(:execute).and_return(true)
-    allow_any_instance_of(Analytics::HotspotsTree).to receive(:build).and_return(true)
+    allow_any_instance_of(Analytics::CodeAnalytics::HotspotsTree).to receive(:build).and_return(true)
     stub_licensed_features(code_analytics: true)
   end
 
