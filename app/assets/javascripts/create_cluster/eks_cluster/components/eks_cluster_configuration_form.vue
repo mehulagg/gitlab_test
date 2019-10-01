@@ -1,9 +1,9 @@
 <script>
 import { createNamespacedHelpers, mapState, mapActions } from 'vuex';
 import { sprintf, s__ } from '~/locale';
+import { GlFormInput, GlFormCheckbox } from '@gitlab/ui';
 import ClusterFormDropdown from './cluster_form_dropdown.vue';
 import RegionDropdown from './region_dropdown.vue';
-import { GlFormInput, GlFormCheckbox } from '@gitlab/ui';
 import { KUBERNETES_VERSIONS } from '../constants';
 
 const { mapState: mapRolesState, mapActions: mapRolesActions } = createNamespacedHelpers('roles');
@@ -189,14 +189,12 @@ export default {
       'setSecurityGroup',
       'setGitlabManagedCluster',
     ]),
-    ...mapActions({
-      fetchRegions: 'regions/fetchItems',
-      fetchKeyPairs: 'keyPairs/fetchItems',
-      fetchVpcs: 'vpcs/fetchItems',
-      fetchSubnets: 'subnets/fetchItems',
-      fetchRoles: 'roles/fetchItems',
-      fetchSecurityGroups: 'securityGroups/fetchItems',
-    }),
+    ...mapRegionsActions({ fetchRegions: 'fetchItems' }),
+    ...mapVpcActions({ fetchVpcs: 'fetchItems' }),
+    ...mapSubnetActions({ fetchSubnets: 'fetchItems' }),
+    ...mapRolesActions({ fetchRoles: 'fetchItems' }),
+    ...mapKeyPairsActions({ fetchKeyPairs: 'fetchItems' }),
+    ...mapSecurityGroupsActions({ fetchSecurityGroups: 'fetchItems' }),
     setRegionAndFetchVpcsAndKeyPairs(region) {
       this.setRegion({ region });
       this.fetchVpcs({ region });
@@ -213,9 +211,9 @@ export default {
 <template>
   <form name="eks-cluster-configuration-form">
     <div class="form-group">
-      <label class="label-bold" for="eks-cluster-name">
-        {{ s__('ClusterIntegration|Kubernetes cluster name') }}
-      </label>
+      <label class="label-bold" for="eks-cluster-name">{{
+        s__('ClusterIntegration|Kubernetes cluster name')
+      }}</label>
       <gl-form-input
         name="eks-cluster-name"
         :value="clusterName"
@@ -223,9 +221,9 @@ export default {
       />
     </div>
     <div class="form-group">
-      <label class="label-bold" for="eks-environment-scope">
-        {{ s__('ClusterIntegration|Environment scope') }}
-      </label>
+      <label class="label-bold" for="eks-environment-scope">{{
+        s__('ClusterIntegration|Environment scope')
+      }}</label>
       <gl-form-input
         name="eks-environment-scope"
         :value="environmentScope"
@@ -233,9 +231,9 @@ export default {
       />
     </div>
     <div class="form-group">
-      <label class="label-bold" for="eks-kubernetes-version">
-        {{ s__('ClusterIntegration|Kubernetes version') }}
-      </label>
+      <label class="label-bold" for="eks-kubernetes-version">{{
+        s__('ClusterIntegration|Kubernetes version')
+      }}</label>
       <cluster-form-dropdown
         field-id="eks-kubernetes-version"
         field-name="eks-kubernetes-version"
@@ -337,9 +335,9 @@ export default {
       <p class="form-text text-muted" v-html="subnetDropdownHelpText"></p>
     </div>
     <div class="form-group">
-      <label class="label-bold" for="eks-security-group">
-        {{ s__('ClusterIntegration|Security groups') }}
-      </label>
+      <label class="label-bold" for="eks-security-group">{{
+        s__('ClusterIntegration|Security groups')
+      }}</label>
       <cluster-form-dropdown
         field-id="eks-security-group"
         field-name="eks-security-group"
