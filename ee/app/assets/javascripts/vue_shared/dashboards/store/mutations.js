@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import * as types from './mutation_types';
+import { parseIntPagination, normalizeHeaders } from '~/lib/utils/common_utils';
 
 export default {
   [types.SET_PROJECT_ENDPOINT_LIST](state, url) {
@@ -55,15 +56,17 @@ export default {
     state.searchCount += 1;
   },
   [types.RECEIVE_SEARCH_RESULTS_HEADERS](state, headers) {
-    Vue.set(state.pageInfo, 'currentPage', parseInt(headers['x-page'], 10));
-    Vue.set(state.pageInfo, 'nextPage', parseInt(headers['x-next-page'], 10));
-    Vue.set(state.pageInfo, 'totalResults', parseInt(headers['x-total'], 10));
-    Vue.set(state.pageInfo, 'totalPages', parseInt(headers['x-total-pages'], 10));
+    const pageInfo = parseIntPagination(normalizeHeaders(headers));
+    Vue.set(state.pageInfo, 'currentPage', pageInfo.page);
+    Vue.set(state.pageInfo, 'nextPage', pageInfo.nextPage);
+    Vue.set(state.pageInfo, 'totalResults', pageInfo.total);
+    Vue.set(state.pageInfo, 'totalPages', pageInfo.totalPages);
   },
   [types.RECEIVE_NEXT_PAGE_SUCCESS](state, results) {
     state.projectSearchResults = state.projectSearchResults.concat(results.data);
-    Vue.set(state.pageInfo, 'currentPage', parseInt(results.headers['x-page'], 10));
-    Vue.set(state.pageInfo, 'nextPage', parseInt(results.headers['x-next-page'], 10));
+    const pageInfo = parseIntPagination(normalizeHeaders(results.headers));
+    Vue.set(state.pageInfo, 'currentPage', pageInfo.page);
+    Vue.set(state.pageInfo, 'nextPage', pageInfo.nextPage);
   },
   [types.RECEIVE_SEARCH_RESULTS_SUCCESS](state, results) {
     state.projectSearchResults = results;
