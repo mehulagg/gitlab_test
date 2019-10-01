@@ -305,14 +305,14 @@ describe('IDE store project actions', () => {
       spyOn(store, 'dispatch').and.returnValue(Promise.reject());
 
       loadBranch(store, { projectId, branchId })
-      .then(done.fail)
-      .catch(() => {
-        expect(store.dispatch.calls.allArgs()).toEqual([
-          ['getBranchData', { projectId, branchId }],
-          ['showBranchNotFoundError', branchId],
-        ]);
-        done();
-      });
+        .then(done.fail)
+        .catch(() => {
+          expect(store.dispatch.calls.allArgs()).toEqual([
+            ['getBranchData', { projectId, branchId }],
+            ['showBranchNotFoundError', branchId],
+          ]);
+          done();
+        });
     });
   });
 

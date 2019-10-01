@@ -33,8 +33,7 @@ describe('Multi-file editor commit sidebar list item', () => {
     resetStore(store);
   });
 
-  const findPathText = () =>
-    trimText(findPathEl.textContent);
+  const findPathText = () => trimText(findPathEl.textContent);
 
   it('renders file path', () => {
     expect(findPathText()).toContain(f.path);
