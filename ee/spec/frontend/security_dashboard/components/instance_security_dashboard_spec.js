@@ -135,7 +135,7 @@ describe('Instance Security Dashboard component', () => {
       ]);
     });
 
-    it('displays the loading spinner', () => {
+    it('displays the initial loading state', () => {
       expectLoadingState();
     });
   });
@@ -153,7 +153,7 @@ describe('Instance Security Dashboard component', () => {
     describe('after clicking the project selector toggle button', () => {
       beforeEach(clickProjectSelectorToggleButton);
 
-      it('renders the project selector', () => {
+      it('renders the project selector state', () => {
         expectProjectSelectorState();
       });
     });
@@ -165,14 +165,14 @@ describe('Instance Security Dashboard component', () => {
       resolveActions();
     });
 
-    it('renders the security dashboard', () => {
+    it('renders the security dashboard state', () => {
       expectDashboardState();
     });
 
     describe('after clicking the project selector toggle button', () => {
       beforeEach(clickProjectSelectorToggleButton);
 
-      it('renders the project selector', () => {
+      it('renders the project selector state', () => {
         expectProjectSelectorState();
       });
     });
