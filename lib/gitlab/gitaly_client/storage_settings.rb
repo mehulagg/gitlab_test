@@ -57,7 +57,7 @@ module Gitlab
       end
 
       def gitaly_address
-        @hash.fetch(:gitaly_address)
+        @hash.fetch(:gitaly_address, @hash.fetch('gitaly_address'))
       end
 
       def legacy_disk_path
