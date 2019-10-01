@@ -37,7 +37,8 @@ with all their related data and be moved into a new GitLab instance.
 
 | GitLab version   | Import/Export version |
 | ---------------- | --------------------- |
-| 11.1 to current  | 0.2.4                 |
+| 12.4 to current  | 0.2.5                 |
+| 11.1             | 0.2.4                 |
 | 10.8             | 0.2.3                 |
 | 10.4             | 0.2.2                 |
 | 10.3             | 0.2.1                 |

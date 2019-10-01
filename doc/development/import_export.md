@@ -187,7 +187,7 @@ module Gitlab
     extend self
 
     # For every version update, the version history in import_export.md has to be kept up to date.
-    VERSION = '0.2.4'
+    VERSION = '0.2.5'
 ```
 
 ## Version history
@@ -197,7 +197,8 @@ and it is useful for knowing which versions won't be compatible between them.
 
 | GitLab version   | Import/Export version |
 | ---------------- | --------------------- |
-| 11.1 to current  | 0.2.4                 |
+| 12.4 to current  | 0.2.5                 |
+| 11.1             | 0.2.4                 |
 | 10.8             | 0.2.3                 |
 | 10.4             | 0.2.2                 |
 | ...              | ...                   |
