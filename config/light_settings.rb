@@ -1,12 +1,16 @@
 # frozen_string_literal: true
 
+require_dependency File.expand_path('../lib/gitlab/utils/strong_memoize', __dir__)
+
 class LightSettings
   GL_HOST = 'gitlab.com'
   GL_SUBDOMAIN_REGEX = %r{\A[a-z0-9]+\.gitlab\.com\z}.freeze
 
   class << self
     def com?
-      host == GL_HOST || gl_subdomain?
+      Gitlab::Utils::StrongMemoize.strong_memoize(:is_com) do
+        host == GL_HOST || gl_subdomain?
+      end
     end
 
     private
