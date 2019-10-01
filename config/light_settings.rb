@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_dependency File.expand_path('../lib/gitlab/utils/strong_memoize', __dir__)
+require_relative '../lib/gitlab/utils/strong_memoize'
 
 class LightSettings
   GL_HOST = 'gitlab.com'

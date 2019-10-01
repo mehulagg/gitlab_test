@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'pathname'
+require_relative '../config/light_settings'
 
 module Gitlab
   def self.root
