@@ -15,6 +15,9 @@
 #
 # Uncomment the following lines to make the configuration take effect.
 
+PrePush:
+  GitlabSecurityHarness:
+    enabled: true
 PreCommit:
   RuboCop:
     enabled: true
