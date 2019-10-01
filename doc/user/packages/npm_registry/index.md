@@ -196,3 +196,39 @@ And the `.npmrc` file should look like:
 //gitlab.com/api/v4/packages/npm/:_authToken=<your_oauth_token>
 @foo:registry=https://gitlab.com/api/v4/packages/npm/
 ```
+
+## NPM Dependencies 
+
+Prior to 12.4, the NPM package dependencies were not supported as the package metadata were not exposed from the server to the NPM client. As of 12.4, new packages published to the GitLab NPM registry expose the following attributes to the NPM client:
+
+* name
+* version 
+* dist 
+* dependencies 
+* devDependencies 
+* directories 
+* bundleDependencies 
+* peerDependencies 
+* deprecated 
+* engines 
+* bin
+
+## NPM Dist Tags
+
+Dist Tags for newly published packages are supported, and they follow NPM's convention where they are optional, and each tag can only be assigned to 1 package at
+a time.
+
+Examples of the supported dist tag commands:
+
+````sh
+npm publish @scope/package --tag  #Publish new package with new tag
+npm dist-tag add @scope/package@version tag #add a tag to an existing package
+npm dist-tag ls @scope/package #List all tags under the package 
+npm dist-tag rm @scope/package@version tag #Delete a tag from the package* 
+npm install @scope/package@tag  
+````
+
+*Due to a bug in NPM 6.9.0, deleting dist tags fails. We have submitted a Pull Request to the NPM repository to fix the bug in NPM's next release.
+NOTE:Note: The latest tag is added by default when a package is published without a tag. The same goes to installing a package without specifying the tag or version.
+
+
