@@ -373,31 +373,6 @@ describe('IDE store file mutations', () => {
       expect(localState.stagedFiles.length).toBe(1);
       expect(localState.stagedFiles[0].raw).toEqual('testing 123');
     });
-
-    it('updates stagedFiles with renamed entry if the original entry has already been staged', () => {
-      const renamedFile = {
-        ...file('renamed'),
-        type: 'blob',
-        prevPath: localFile.path,
-      };
-      const renamedFile2 = {
-        ...file('re-renamed'),
-        type: 'blob',
-        prevPath: localFile.path,
-      };
-
-      localState.entries[renamedFile.path] = renamedFile;
-      localState.entries[renamedFile2.path] = renamedFile2;
-
-      expect(localState.stagedFiles.length).toBe(1);
-      expect(localState.stagedFiles[0].name).toEqual('name');
-
-      mutations.STAGE_CHANGE(localState, renamedFile.path);
-      mutations.STAGE_CHANGE(localState, renamedFile2.path);
-
-      expect(localState.stagedFiles.length).toBe(1);
-      expect(localState.stagedFiles[0].name).toEqual('re-renamed');
-    });
   });
 
   describe('UNSTAGE_CHANGE', () => {

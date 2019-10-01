@@ -165,10 +165,7 @@ export default {
     });
   },
   [types.STAGE_CHANGE](state, path) {
-    const entry = state.entries[path];
-    const stagedFile = state.stagedFiles.find(
-      f => [entry.prevPath, path].indexOf(f.path) !== -1 || entry.prevPath === f.prevPath,
-    );
+    const stagedFile = state.stagedFiles.find(f => f.path === path);
 
     Object.assign(state, {
       changedFiles: state.changedFiles.filter(f => f.path !== path),
@@ -246,6 +243,17 @@ export default {
   [types.REMOVE_PENDING_TAB](state, file) {
     Object.assign(state, {
       openFiles: state.openFiles.filter(f => f.key !== file.key),
+    });
+  },
+  [types.REMOVE_FILE_FROM_STAGED_AND_CHANGED](state, file) {
+    Object.assign(state, {
+      changedFiles: state.changedFiles.filter(f => f.key !== file.key),
+      stagedFiles: state.stagedFiles.filter(f => f.key !== file.key),
+    });
+
+    Object.assign(state.entries[file.path], {
+      changed: false,
+      staged: false,
     });
   },
 };

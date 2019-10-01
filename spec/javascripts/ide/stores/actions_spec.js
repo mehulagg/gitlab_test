@@ -454,6 +454,24 @@ describe('Multi-file store actions', () => {
         done,
       );
     });
+
+    it('does not dispatch for parent, if parent does not exist', done => {
+      const f = {
+        ...file(),
+        path: 'test',
+        parentPath: 'testing',
+      };
+      store.state.entries[f.path] = f;
+
+      testAction(
+        updateTempFlagForEntry,
+        { file: f, tempFile: false },
+        store.state,
+        [{ type: 'UPDATE_TEMP_FLAG', payload: { path: f.path, tempFile: false } }],
+        [],
+        done,
+      );
+    });
   });
 
   describe('setCurrentBranchId', () => {
@@ -543,6 +561,38 @@ describe('Multi-file store actions', () => {
         done,
       );
     });
+
+    it('if renamed, reverts the rename before deleting', () => {
+      const testEntry = {
+        path: 'test',
+        name: 'test',
+        prevPath: 'lorem/ipsum',
+        prevName: 'ipsum',
+        prevParentPath: 'lorem',
+      };
+
+      store.state.entries = { test: testEntry };
+      testAction(
+        deleteEntry,
+        testEntry.path,
+        store.state,
+        [],
+        [
+          {
+            type: 'renameEntry',
+            payload: {
+              path: testEntry.path,
+              name: testEntry.prevName,
+              parentPath: testEntry.prevParentPath,
+            },
+          },
+          {
+            type: 'deleteEntry',
+            payload: testEntry.prevPath,
+          },
+        ],
+      );
+    });
   });
 
   describe('renameEntry', () => {
@@ -600,15 +650,22 @@ describe('Multi-file store actions', () => {
     });
 
     describe('single entry', () => {
-      let spy;
+      let origEntry;
+      let renamedEntry;
 
       beforeEach(() => {
-        spy = jasmine.createSpy('new-name');
+        // Need to insert both because `testAction` doesn't actually call the mutation
+        origEntry = file('orig', 'orig', 'blob');
+        renamedEntry = {
+          ...file('renamed', 'renamed', 'blob'),
+          prevKey: origEntry.key,
+          prevName: origEntry.name,
+          prevPath: origEntry.path,
+        };
+
         Object.assign(store.state.entries, {
-          test: {
-            ...file('test', 'test', 'blob'),
-          },
-          'new-name': spy,
+          orig: origEntry,
+          renamed: renamedEntry,
         });
       });
 
@@ -616,87 +673,23 @@ describe('Multi-file store actions', () => {
         resetStore(store);
       });
 
-      it('by default renames an entry', done => {
+      it('by default renames an entry and adds to changed', done => {
         testAction(
           renameEntry,
-          { path: 'test', name: 'new-name' },
+          { path: 'orig', name: 'renamed' },
           store.state,
-          jasmine.arrayContaining([
+          [
             {
               type: types.RENAME_ENTRY,
-              payload: jasmine.objectContaining({
-                path: 'test',
-                name: 'new-name',
-              }),
-            },
-          ]),
-          [{ type: 'triggerFilesChange' }],
-          done,
-        );
-      });
-
-      it('by default stages renamed entry immediately', done => {
-        testAction(
-          renameEntry,
-          { path: 'test', name: 'new-name' },
-          store.state,
-          jasmine.arrayContaining([
-            {
-              type: types.STAGE_CHANGE,
-              payload: 'new-name',
-            },
-          ]),
-          [{ type: 'triggerFilesChange' }],
-          done,
-        );
-      });
-
-      it('discards renaming of an entry if it has been renamed previously', done => {
-        Object.assign(store.state.entries.test, {
-          prevName: 'new-name',
-        });
-
-        testAction(
-          renameEntry,
-          { path: 'test', name: 'new-name' },
-          store.state,
-          [
-            {
-              type: types.REVERT_RENAME_ENTRY,
-              payload: 'test',
-            },
-          ],
-          [{ type: 'triggerFilesChange' }],
-          done,
-        );
-      });
-
-      it('unstages an entry if it has been renamed and staged previously and discards its renaming', done => {
-        Object.assign(store.state.entries.test, {
-          prevName: 'new-name',
-          prevPath: 'new-name',
-          staged: true,
-        });
-
-        testAction(
-          renameEntry,
-          { path: 'test', name: 'new-name' },
-          store.state,
-          [
-            {
-              type: types.UNSTAGE_CHANGE,
-              payload: 'test',
-            },
-            {
-              type: types.TOGGLE_FILE_CHANGED,
               payload: {
-                file: store.state.entries.test,
-                changed: false,
+                path: 'orig',
+                name: 'renamed',
+                parentPath: undefined,
               },
             },
             {
-              type: types.REVERT_RENAME_ENTRY,
-              payload: 'test',
+              type: types.ADD_FILE_TO_CHANGED,
+              payload: 'renamed',
             },
           ],
           [{ type: 'triggerFilesChange' }],
@@ -704,34 +697,53 @@ describe('Multi-file store actions', () => {
         );
       });
 
-      it('does not mark the file as changed if it is already changed', done => {
-        spy.changed = true;
+      it('if not changed, completely unstages entry if renamed to original', done => {
         testAction(
           renameEntry,
-          { path: 'test', name: 'new-name' },
+          { path: 'renamed', name: 'orig' },
           store.state,
           [
-            jasmine.objectContaining({ type: types.RENAME_ENTRY }),
             {
-              type: types.STAGE_CHANGE,
-              payload: 'new-name',
+              type: types.RENAME_ENTRY,
+              payload: {
+                path: 'renamed',
+                name: 'orig',
+                parentPath: undefined,
+              },
+            },
+            {
+              type: types.REMOVE_FILE_FROM_STAGED_AND_CHANGED,
+              payload: origEntry,
             },
           ],
+          [{ type: 'triggerFilesChange' }],
+          done,
+        );
+      });
+
+      it('if already in changed, does not add to change', done => {
+        store.state.changedFiles.push(renamedEntry);
+
+        testAction(
+          renameEntry,
+          { path: 'orig', name: 'renamed' },
+          store.state,
+          [jasmine.objectContaining({ type: types.RENAME_ENTRY })],
           [{ type: 'triggerFilesChange' }],
           done,
         );
       });
 
       it('routes to the renamed file if the original file has been opened', done => {
-        Object.assign(store.state.entries.test, {
+        Object.assign(store.state.entries.orig, {
           opened: true,
           url: '/foo-bar.md',
         });
 
         store
           .dispatch('renameEntry', {
-            path: 'test',
-            name: 'new-name',
+            path: 'orig',
+            name: 'renamed',
           })
           .then(() => {
             expect(router.push.calls.count()).toBe(1);
@@ -739,39 +751,6 @@ describe('Multi-file store actions', () => {
           })
           .then(done)
           .catch(done.fail);
-      });
-
-      it('renames entries with spaces correctly', done => {
-        spy = jasmine.createSpy('new name');
-        Object.assign(store.state, {
-          entries: {
-            'old entry': {
-              ...file('old entry', 'old entry', 'blob'),
-            },
-            'new name': spy,
-          },
-        });
-
-        testAction(
-          renameEntry,
-          { path: 'old entry', name: 'new name' },
-          store.state,
-          [
-            {
-              type: types.RENAME_ENTRY,
-              payload: jasmine.objectContaining({
-                path: 'old entry',
-                name: 'new name',
-              }),
-            },
-            {
-              type: types.STAGE_CHANGE,
-              payload: 'new name',
-            },
-          ],
-          [{ type: 'triggerFilesChange' }],
-          done,
-        );
       });
     });
 

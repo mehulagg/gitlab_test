@@ -147,7 +147,7 @@ export const createCommitPayload = ({
   actions: getCommitFiles(rootState.stagedFiles).map(f => ({
     action: commitActionForFile(f),
     file_path: f.path,
-    previous_path: f.prevPath,
+    previous_path: f.prevPath || undefined,
     content: f.prevPath && !f.changed ? null : f.content || undefined,
     encoding: f.base64 ? 'base64' : 'text',
     last_commit_id:
@@ -214,25 +214,58 @@ export const mergeTrees = (fromTree, toTree) => {
 
 export const escapeFileUrl = fileUrl => encodeURIComponent(fileUrl).replace(/%2F/g, '/');
 
-export const swapInStateArray = (state, arr, key, newPath) =>
+export const replaceFileUrl = (url, oldPath, newPath) => {
+  // Add `/-/` so that we don't accidentally replace project path
+  const result = url.replace(`/-/${escapeFileUrl(oldPath)}`, `/-/${escapeFileUrl(newPath)}`);
+
+  return result;
+};
+
+export const swapInStateArray = (state, arr, key, entryPath) =>
   Object.assign(state, {
-    [arr]: state[arr].filter(f => f.key !== key).concat(state.entries[newPath]),
+    [arr]: state[arr].map(f => (f.key === key ? state.entries[entryPath] : f)),
   });
 
-export const swapInParentTreeWithSorting = (state, existingPath, newPath, parentPath) => {
+export const getEntryOrRoot = (state, path) =>
+  path ? state.entries[path] : state.trees[`${state.currentProjectId}/${state.currentBranchId}`];
+
+export const swapInParentTreeWithSorting = (state, oldKey, newPath, parentPath) => {
   if (!newPath) {
     return;
   }
-  const existingEntry = state.entries[existingPath];
-  const parent = parentPath
-    ? state.entries[parentPath]
-    : state.trees[`${state.currentProjectId}/${state.currentBranchId}`];
+
+  const parent = getEntryOrRoot(state, parentPath);
 
   if (parent) {
-    const tree = existingEntry? parent.tree.filter(entry => entry.key !== existingEntry.key): parent.tree;
+    const tree = parent.tree
+      // filter out old entry && new entry
+      .filter(({ key, path }) => key !== oldKey && path !== newPath)
+      // concat new entry
+      .concat(state.entries[newPath]);
 
-    if (!tree.find(f => f.path === newPath)) {
-      parent.tree = sortTree(tree.concat(state.entries[newPath]));
-    }
+    parent.tree = sortTree(tree);
   }
+};
+
+export const removeFromParentTree = (state, oldKey, parentPath) => {
+  const parent = getEntryOrRoot(state, parentPath);
+
+  if (parent) {
+    parent.tree = sortTree(parent.tree.filter(({ key }) => key !== oldKey));
+  }
+};
+
+export const updateFileCollections = (state, key, entryPath) => {
+  ['openFiles', 'changedFiles', 'stagedFiles'].forEach(fileCollection => {
+    swapInStateArray(state, fileCollection, key, entryPath);
+  });
+};
+
+export const cleanTrailingSlash = path => path.replace(/\/$/, '');
+
+export const pathsAreEqual = (a, b) => {
+  const cleanA = a ? cleanTrailingSlash(a) : '';
+  const cleanB = b ? cleanTrailingSlash(b) : '';
+
+  return cleanA === cleanB;
 };

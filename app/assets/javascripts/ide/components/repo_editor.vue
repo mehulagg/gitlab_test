@@ -155,33 +155,35 @@ export default {
 
       this.editor.clearEditor();
 
-      if (this.file.tempFile) {
-        this.createEditorInstance();
-      } else {
-        this.getFileData({
-          path: this.file.path,
-          makeFileActive: false,
+      this.fetchFileData()
+        .then(() => {
+          this.createEditorInstance();
         })
-          .then(() =>
-            this.getRawFileData({
-              path: this.file.path,
-            }),
-          )
-          .then(() => {
-            this.createEditorInstance();
-          })
-          .catch(err => {
-            flash(
-              __('Error setting up editor. Please try again.'),
-              'alert',
-              document,
-              null,
-              false,
-              true,
-            );
-            throw err;
-          });
+        .catch(err => {
+          flash(
+            __('Error setting up editor. Please try again.'),
+            'alert',
+            document,
+            null,
+            false,
+            true,
+          );
+          throw err;
+        });
+    },
+    fetchFileData() {
+      if (this.file.tempFile) {
+        return Promise.resolve();
       }
+
+      return this.getFileData({
+        path: this.file.path,
+        makeFileActive: false,
+      }).then(() =>
+        this.getRawFileData({
+          path: this.file.path,
+        }),
+      );
     },
     createEditorInstance() {
       this.editor.dispose();
