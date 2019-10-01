@@ -2,7 +2,9 @@
 
 module Analytics
   class CodeAnalyticsFinder
-    MAX_FILES = 500
+    MAX_FILES = 100
+
+    attr_reader :project, :from, :to
 
     def initialize(project:, from:, to:)
       @project = project
@@ -32,9 +34,9 @@ module Analytics
       file_edits
         .join(files)
         .on(files[:id].eq(file_edits[:analytics_repository_file_id]))
-        .where(file_edits[:project_id].eq(@project.id))
-        .where(file_edits[:committed_date].gteq(@from))
-        .where(file_edits[:committed_date].lteq(@to))
+        .where(file_edits[:project_id].eq(project.id))
+        .where(file_edits[:committed_date].gteq(from))
+        .where(file_edits[:committed_date].lteq(to))
         .group(files[:file_path])
         .project(files[:file_path], file_edits[:num_edits].sum)
         .take(MAX_FILES)

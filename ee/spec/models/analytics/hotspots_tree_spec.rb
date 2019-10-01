@@ -2,12 +2,12 @@
 
 require 'spec_helper'
 
-describe Analytics::HotspotsTree do
-  num_edits = 5
+describe Analytics::CodeAnalytics::HotspotsTree do
+  let(:num_edits) { 5 }
 
   describe '#build' do
     set(:project) { create(:project) }
-    subject { described_class.new.build(mapping) }
+    subject { described_class.new(file_edits_mapping: mapping).build }
 
     let(:directory1) { 'gitlab/ee/app/' }
     let(:file_path1) { directory1 + 'a.rb'}

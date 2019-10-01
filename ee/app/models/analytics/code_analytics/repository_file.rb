@@ -3,9 +3,9 @@
 module Analytics
   module CodeAnalytics
     class RepositoryFile < ApplicationRecord
-      belongs_to :project
-
       self.table_name = 'analytics_repository_files'
+
+      belongs_to :project
     end
   end
 end
