@@ -860,7 +860,7 @@ module EE
           expose :format_versions, as: :versions
           expose :format_tags, as: 'dist-tags'
         end
-        expose :format_tags, if: lambda {|instance, object| instance.type == 'tags'}, merge: true
+        expose :format_tags, if: lambda { |instance, object| instance.type == 'tags' }, merge: true
 
         private
 
