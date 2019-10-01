@@ -11,7 +11,7 @@ describe HealthController do
 
   before do
     allow(Settings.monitoring).to receive(:ip_whitelist).and_return([whitelisted_ip])
-    stub_storage_settings({}) # Hide the broken storage
+    #stub_storage_settings({}) # Hide the broken storage
     stub_env('IN_MEMORY_APPLICATION_SETTINGS', 'false')
   end
 
@@ -32,7 +32,8 @@ describe HealthController do
       end
 
       it 'responds with readiness checks data when a failure happens' do
-        allow(Gitlab::HealthChecks::Redis::RedisCheck).to receive(:readiness).and_return(Gitlab::HealthChecks::Result.new(false, "check error"))
+        allow(Gitlab::HealthChecks::Redis::RedisCheck).to receive(:readiness).and_return(
+          Gitlab::HealthChecks::Result.new('redis_check', false, "check error"))
 
         subject
 
