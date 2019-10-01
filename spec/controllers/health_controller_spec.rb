@@ -28,7 +28,7 @@ describe HealthController do
         expect(json_response['cache_check']['status']).to eq('ok')
         expect(json_response['queues_check']['status']).to eq('ok')
         expect(json_response['shared_state_check']['status']).to eq('ok')
-        expect(json_response['gitaly_check']['status']).to eq('ok')
+        expect(json_response['gitaly_check::default']['status']).to eq('ok')
       end
 
       it 'responds with readiness checks data when a failure happens' do

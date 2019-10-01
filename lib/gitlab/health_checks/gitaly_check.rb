@@ -31,7 +31,7 @@ module Gitlab
           result = serv.check
 
           HealthChecks::Result.new(
-            name,
+            "#{name}::#{storage_name}",
             result[:success],
             result[:message],
             shard: storage_name
