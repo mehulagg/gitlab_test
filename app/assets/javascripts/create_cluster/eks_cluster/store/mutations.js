@@ -28,4 +28,7 @@ export default {
   [types.SET_SECURITY_GROUP](state, { securityGroup }) {
     state.selectedSecurityGroup = securityGroup;
   },
+  [types.SET_GITLAB_MANAGED_CLUSTER](state, { gitlabManagedCluster }) {
+    state.gitlabManagedCluster = gitlabManagedCluster;
+  },
 };

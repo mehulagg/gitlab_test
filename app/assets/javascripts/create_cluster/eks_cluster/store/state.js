@@ -13,4 +13,6 @@ export default () => ({
   selectedVpc: '',
   selectedSubnet: '',
   selectedSecurityGroup: '',
+
+  gitlabManagedCluster: true,
 });

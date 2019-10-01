@@ -7,3 +7,4 @@ export const SET_KEY_PAIR = 'SET_KEY_PAIR';
 export const SET_SUBNET = 'SET_SUBNET';
 export const SET_ROLE = 'SET_ROLE';
 export const SET_SECURITY_GROUP = 'SET_SECURITY_GROUP';
+export const SET_GITLAB_MANAGED_CLUSTER = 'SET_GITLAB_MANAGED_CLUSTER';

@@ -3,7 +3,7 @@ import { createNamespacedHelpers, mapState, mapActions } from 'vuex';
 import { sprintf, s__ } from '~/locale';
 import ClusterFormDropdown from './cluster_form_dropdown.vue';
 import RegionDropdown from './region_dropdown.vue';
-import { GlFormInput } from '@gitlab/ui';
+import { GlFormInput, GlFormCheckbox } from '@gitlab/ui';
 import { KUBERNETES_VERSIONS } from '../constants';
 
 const { mapState: mapRolesState, mapActions: mapRolesActions } = createNamespacedHelpers('roles');
@@ -17,13 +17,24 @@ const { mapState: mapVpcsState, mapActions: mapVpcActions } = createNamespacedHe
 const { mapState: mapSubnetsState, mapActions: mapSubnetActions } = createNamespacedHelpers(
   'subnets',
 );
-const { mapState: mapSecurityGroupsState, mapActions: mapSecurityGroupsActions } = createNamespacedHelpers('securityGroups');
+const {
+  mapState: mapSecurityGroupsState,
+  mapActions: mapSecurityGroupsActions,
+} = createNamespacedHelpers('securityGroups');
 
 export default {
   components: {
     ClusterFormDropdown,
     RegionDropdown,
     GlFormInput,
+    GlFormCheckbox,
+  },
+  props: {
+    gitlabManagedClusterHelpPath: {
+      type: String,
+      required: false,
+      default: '',
+    },
   },
   computed: {
     ...mapState([
@@ -36,6 +47,7 @@ export default {
       'selectedSubnet',
       'selectedRole',
       'selectedSecurityGroup',
+      'gitlabManagedCluster',
     ]),
     ...mapRolesState({
       roles: 'items',
@@ -147,6 +159,18 @@ export default {
         false,
       );
     },
+    gitlabManagedHelpText() {
+      return sprintf(
+        s__(
+          'ClusterIntegration|Allow GitLab to manage namespace and service accounts for this cluster. %{startLink}More information%{endLink}',
+        ),
+        {
+          startLink: `<a href="${this.gitlabManagedClusterHelpPath}" target="_blank" rel="noopener noreferrer">`,
+          endLink: '</a>',
+        },
+        false,
+      );
+    },
   },
   mounted() {
     this.fetchRegions();
@@ -163,6 +187,7 @@ export default {
       'setRole',
       'setKeyPair',
       'setSecurityGroup',
+      'setGitlabManagedCluster',
     ]),
     ...mapActions({
       fetchRegions: 'regions/fetchItems',
@@ -188,9 +213,9 @@ export default {
 <template>
   <form name="eks-cluster-configuration-form">
     <div class="form-group">
-      <label class="label-bold" for="eks-cluster-name">{{
-        s__('ClusterIntegration|Kubernetes cluster name')
-      }}</label>
+      <label class="label-bold" for="eks-cluster-name">
+        {{ s__('ClusterIntegration|Kubernetes cluster name') }}
+      </label>
       <gl-form-input
         name="eks-cluster-name"
         :value="clusterName"
@@ -198,9 +223,9 @@ export default {
       />
     </div>
     <div class="form-group">
-      <label class="label-bold" for="eks-environment-scope">{{
-        s__('ClusterIntegration|Environment scope')
-      }}</label>
+      <label class="label-bold" for="eks-environment-scope">
+        {{ s__('ClusterIntegration|Environment scope') }}
+      </label>
       <gl-form-input
         name="eks-environment-scope"
         :value="environmentScope"
@@ -208,9 +233,9 @@ export default {
       />
     </div>
     <div class="form-group">
-      <label class="label-bold" for="eks-kubernetes-version">{{
-        s__('ClusterIntegration|Kubernetes version')
-      }}</label>
+      <label class="label-bold" for="eks-kubernetes-version">
+        {{ s__('ClusterIntegration|Kubernetes version') }}
+      </label>
       <cluster-form-dropdown
         field-id="eks-kubernetes-version"
         field-name="eks-kubernetes-version"
@@ -312,9 +337,9 @@ export default {
       <p class="form-text text-muted" v-html="subnetDropdownHelpText"></p>
     </div>
     <div class="form-group">
-      <label class="label-bold" for="eks-security-group">{{
-        s__('ClusterIntegration|Security groups')
-      }}</label>
+      <label class="label-bold" for="eks-security-group">
+        {{ s__('ClusterIntegration|Security groups') }}
+      </label>
       <cluster-form-dropdown
         field-id="eks-security-group"
         field-name="eks-security-group"
@@ -334,6 +359,14 @@ export default {
         @input="setSecurityGroup({ securityGroup: $event })"
       />
       <p class="form-text text-muted" v-html="securityGroupDropdownHelpText"></p>
+    </div>
+    <div class="form-group">
+      <gl-form-checkbox
+        :checked="gitlabManagedCluster"
+        @input="setGitlabManagedCluster({ gitlabManagedCluster: $event })"
+        >{{ s__('ClusterIntegration|GitLab-managed cluster') }}</gl-form-checkbox
+      >
+      <p class="form-text text-muted" v-html="gitlabManagedHelpText"></p>
     </div>
   </form>
 </template>

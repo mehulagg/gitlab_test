@@ -1,9 +1,10 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
 import Vue from 'vue';
+import { GlFormCheckbox } from '@gitlab/ui';
+
 import EksClusterConfigurationForm from '~/create_cluster/eks_cluster/components/eks_cluster_configuration_form.vue';
 import RegionDropdown from '~/create_cluster/eks_cluster/components/region_dropdown.vue';
-
 import eksClusterFormState from '~/create_cluster/eks_cluster/store/state';
 import clusterDropdownStoreState from '~/create_cluster/eks_cluster/store/cluster_dropdown/state';
 
@@ -40,6 +41,7 @@ describe('EksClusterConfigurationForm', () => {
       setRole: jest.fn(),
       setKeyPair: jest.fn(),
       setSecurityGroup: jest.fn(),
+      setGitlabManagedCluster: jest.fn(),
     };
     regionsActions = {
       fetchItems: jest.fn(),
@@ -135,6 +137,7 @@ describe('EksClusterConfigurationForm', () => {
   const findSubnetDropdown = () => vm.find('[field-id="eks-subnet"]');
   const findRoleDropdown = () => vm.find('[field-id="eks-role"]');
   const findSecurityGroupDropdown = () => vm.find('[field-id="eks-security-group"]');
+  const findGitlabManagedClusterCheckbox = () => vm.find(GlFormCheckbox);
 
   describe('when mounted', () => {
     it('fetches available regions', () => {
@@ -356,6 +359,18 @@ describe('EksClusterConfigurationForm', () => {
     expect(actions.setKubernetesVersion).toHaveBeenCalledWith(
       expect.anything(),
       { kubernetesVersion },
+      undefined,
+    );
+  });
+
+  it('dispatches setGitlabManagedCluster when gitlab managed cluster input changes', () => {
+    const gitlabManagedCluster = false;
+
+    findGitlabManagedClusterCheckbox().vm.$emit('input', gitlabManagedCluster);
+
+    expect(actions.setGitlabManagedCluster).toHaveBeenCalledWith(
+      expect.anything(),
+      { gitlabManagedCluster },
       undefined,
     );
   });

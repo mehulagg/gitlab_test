@@ -7,8 +7,17 @@ export default {
     ServiceCredentialsForm,
     EksClusterConfigurationForm,
   },
+  props: {
+    gitlabManagedClusterHelpPath: {
+      type: String,
+      required: false,
+      default: '',
+    },
+  },
 };
 </script>
 <template>
-  <eks-cluster-configuration-form />
+  <eks-cluster-configuration-form
+    :gitlab-managed-cluster-help-path="gitlabManagedClusterHelpPath"
+  />
 </template>

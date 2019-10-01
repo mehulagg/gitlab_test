@@ -36,4 +36,8 @@ export const setSecurityGroup = ({ commit }, payload) => {
   commit(types.SET_SECURITY_GROUP, payload);
 };
 
+export const setGitlabManagedCluster = ({ commit }, payload) => {
+  commit(types.SET_GITLAB_MANAGED_CLUSTER, payload);
+};
+
 export default () => {};
