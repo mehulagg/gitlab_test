@@ -42,12 +42,7 @@ moved_issue_ids =
 
 issues = Issue.where(id: moved_issue_ids)
 
-issues_count =
-  ActiveRecord::Base.transaction do
-    ActiveRecord::Base.connection.execute("SET LOCAL statement_timeout = '5min'")
-
-    issues.count
-  end
+issues_count = issues.count
 
 issues.each_batch(of: BATCH_SIZE) do |batch|
   retried = 0
@@ -55,13 +50,9 @@ issues.each_batch(of: BATCH_SIZE) do |batch|
   begin
     logger.info("Processing #{rows_updated} of #{issues_count}....")
 
-    ActiveRecord::Base.transaction do
-      ActiveRecord::Base.connection.execute("SET LOCAL statement_timeout = '5min'")
-
-      batch.update_all(issue_update_params)
-      EpicIssue.where(issue_id: batch).delete_all
-      LabelLink.where(target_type: 'Issue', target_id: batch).delete_all
-    end
+    batch.update_all(issue_update_params)
+    EpicIssue.where(issue_id: batch).delete_all
+    LabelLink.where(target_type: 'Issue', target_id: batch).delete_all
 
     logger.info("Waiting #{BATCH_WAIT} seconds for next batch.")
 
