@@ -2248,6 +2248,17 @@ class Project < ApplicationRecord
     Pages::LookupPath.new(self, trim_prefix: trim_prefix, domain: domain)
   end
 
+  # TODO: unit test this method
+  def correct_visibility_level
+    if group && group.visibility_level < visibility_level
+      self.visibility_level = group.visibility_level
+    end
+
+    if Gitlab::CurrentSettings.restricted_visibility_levels.include?(visibility_level)
+      self.visibility_level = Gitlab::VisibilityLevel::PRIVATE
+    end
+  end
+
   private
 
   def merge_requests_allowing_collaboration(source_branch = nil)
