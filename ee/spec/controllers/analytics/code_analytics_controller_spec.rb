@@ -11,11 +11,12 @@ describe Analytics::CodeAnalyticsController do
     {
       group_id: group.full_path,
       project_id: project.full_path,
-      timeframe: 'last_30_days',
+      timeframe: 'last_30_days'
     }
   end
 
   before do
+    group.add_reporter(current_user)
     sign_in(current_user)
     allow_any_instance_of(Analytics::CodeAnalyticsFinder).to receive(:execute).and_return(true)
     allow_any_instance_of(Analytics::CodeAnalytics::HotspotsTree).to receive(:build).and_return(true)
@@ -43,39 +44,44 @@ describe Analytics::CodeAnalyticsController do
   describe 'GET show.json' do
     subject { get :show, format: :json, params: params }
 
-    context 'when signed in user has at least reporter level access' do
+    context 'when the feature is enabled' do
       before do
-        group.add_reporter current_user
-      end
-
-      it 'returns an ok if user has premium license and valid params' do
         stub_licensed_features(code_analytics: true)
-        expect_any_instance_of(described_class).to receive(:hotspots_tree).and_return(true)
-        subject
-
-        expect(response).to have_gitlab_http_status(:ok)
       end
 
-      it 'returns a not_found if group is not found' do
-        params['group_id'] = 'incorrect/path'
-        subject
+      context 'when the project has premium license' do
+        context 'when all params are valid' do
+          it 'returns an ok' do
+            expect_any_instance_of(described_class).to receive(:hotspots_tree).and_return(true)
+            subject
 
-        expect(response).to have_gitlab_http_status(:not_found)
-      end
+            expect(response).to have_gitlab_http_status(:ok)
+          end
+        end
 
-      it 'returns a not_found if project is not found' do
-        params['project_id'] = 'incorrect/path'
-        subject
+        context 'when some params are invalid' do
+          it 'returns a not_found if group is not found' do
+            params['group_id'] = 'incorrect/path'
+            subject
 
-        expect(response).to have_gitlab_http_status(:not_found)
-      end
+            expect(response).to have_gitlab_http_status(:not_found)
+          end
 
-      context 'with invalid timeframe' do
-        it 'returns 422' do
-          params['timeframe'] = 'gibberish'
-          subject
+          it 'returns a not_found if project is not found' do
+            params['project_id'] = 'incorrect/path'
+            subject
 
-          expect(response).to have_gitlab_http_status(:unprocessable_entity)
+            expect(response).to have_gitlab_http_status(:not_found)
+          end
+
+          context 'with invalid timeframe' do
+            it 'returns 422' do
+              params['timeframe'] = 'gibberish'
+              subject
+
+              expect(response).to have_gitlab_http_status(:unprocessable_entity)
+            end
+          end
         end
       end
     end

@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 class Analytics::CodeAnalyticsController < Analytics::ApplicationController
-  include RoutableActions
-
   CONFIDENTIAL_ACCESS_LEVEL = Gitlab::Access::REPORTER
 
   before_action :load_group
   before_action :load_project
+
   before_action -> {
     check_feature_availability!(:code_analytics)
   }
+
   before_action -> {
     authorize_view_productivity_analytics!(:view_code_analytics)
   }
@@ -26,7 +26,7 @@ class Analytics::CodeAnalyticsController < Analytics::ApplicationController
   private
 
   def hotspots_tree
-    Analytics::CodeAnalytics::HotspotsTree.new.(Analytics::CodeAnalyticsFinder.new(@project, @from, @to).execute).build
+    Analytics::CodeAnalytics::HotspotsTree.new(Analytics::CodeAnalyticsFinder.new(@project, @from, @to).execute).build
   end
 
   def from_and_to
