@@ -50,7 +50,31 @@ module Gitlab
 
       def read_tree_hash
         json = IO.read(@path)
-        ActiveSupport::JSON.decode(json)
+        json = ActiveSupport::JSON.decode(json)
+        json = dedup_hash(json)
+        json
+      end
+
+      def dedup_hash(item, map = {})
+        return map[item] if map.key?(item)
+      
+        # TODO:
+        # This is very expansive, we should limit what keys we traverse
+        # I don't think that we want to travese all of them
+        new_item =
+          case item
+          when String
+            item
+          when Array
+            item.map { |a| dedup_hash(a, map) }
+          when Hash
+            item.map { |k, v| [dedup_hash(k, map), dedup_hash(v, map)] }.to_h
+          else
+            item
+          end
+      
+        map[item] = new_item
+        new_item
       end
 
       def members_mapper
@@ -165,6 +189,11 @@ module Gitlab
       end
 
       def build_relation(relation_key, relation_definition, data_hash)
+        # return the cached object
+        if object = data_hash.dig('$active_record')
+          return object
+        end
+
         # TODO: This is hack to not create relation for the author
         # Rather make `RelationFactory#set_note_author` to take care of that
         return data_hash if relation_key == 'author'
@@ -181,7 +210,10 @@ module Gitlab
           merge_requests_mapping: merge_requests_mapping,
           user: @user,
           project: @project,
-          excluded_keys: excluded_keys_for_relation(relation_key))
+          excluded_keys: excluded_keys_for_relation(relation_key)).tap do |object|
+            data_hash.clear
+            data_hash['$active_record'] = object
+          end
       end
 
       def transform_sub_relations!(data_hash, sub_relation_key, sub_relation_definition)
