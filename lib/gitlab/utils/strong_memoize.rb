@@ -5,8 +5,6 @@ require_dependency 'gitlab/utils'
 module Gitlab
   module Utils
     module StrongMemoize
-      extend self
-
       # Instead of writing patterns like this:
       #
       #     def trigger_from_token

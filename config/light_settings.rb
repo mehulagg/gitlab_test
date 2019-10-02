@@ -1,16 +1,14 @@
 # frozen_string_literal: true
 
-require_relative '../lib/gitlab/utils/strong_memoize'
-
 class LightSettings
   GL_HOST = 'gitlab.com'
   GL_SUBDOMAIN_REGEX = %r{\A[a-z0-9]+\.gitlab\.com\z}.freeze
 
   class << self
     def com?
-      Gitlab::Utils::StrongMemoize.strong_memoize(:is_com) do
-        host == GL_HOST || gl_subdomain?
-      end
+      return @is_com if defined?(@is_com)
+
+      @is_com = (host == GL_HOST || gl_subdomain?)
     end
 
     private

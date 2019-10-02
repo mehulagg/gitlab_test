@@ -72,7 +72,7 @@ describe Gitlab do
 
   describe '.com?' do
     before do
-      Gitlab::Utils::StrongMemoize.clear_memoization(:is_com)
+      LightSettings.remove_instance_variable(:@is_com)
     end
 
     it 'is true when on GitLab.com' do
