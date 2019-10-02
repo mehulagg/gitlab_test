@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class SecurityController < ApplicationController
-  before_action :authorize_read_security_dashboard!
+  # before_action :authorize_read_security_dashboard!
   before_action do
     push_frontend_feature_flag(:security_dashboard)
   end
