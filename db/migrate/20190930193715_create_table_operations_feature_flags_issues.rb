@@ -8,7 +8,7 @@ class CreateTableOperationsFeatureFlagsIssues < ActiveRecord::Migration[5.2]
   def change
     create_table :operations_feature_flags_issues do |t|
       t.references :feature_flag, index: false, foreign_key: { on_delete: :cascade, to_table: :operations_feature_flags }, null: false
-      t.references :issue, index: false, foreign_key: { on_delete: :cascade }, null: false
+      t.references :issue, index: true, foreign_key: { on_delete: :cascade }, null: false
       t.timestamps_with_timezone null: false
     end
 

@@ -2508,6 +2508,7 @@ ActiveRecord::Schema.define(version: 2019_09_30_193715) do
     t.datetime_with_timezone "created_at", null: false
     t.datetime_with_timezone "updated_at", null: false
     t.index ["feature_flag_id", "issue_id"], name: "index_ops_feature_flags_issues_on_feature_flag_id_and_issue_id", unique: true
+    t.index ["issue_id"], name: "index_operations_feature_flags_issues_on_issue_id"
   end
 
   create_table "packages_maven_metadata", force: :cascade do |t|
