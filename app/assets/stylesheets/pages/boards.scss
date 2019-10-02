@@ -536,6 +536,10 @@
   }
 }
 
-.board-issue-path.js-show-tooltip {
-  cursor: help;
+.board-issue-path {
+  direction: rtl;
+
+  &.js-show-tooltip {
+    cursor: help;
+  }
 }
