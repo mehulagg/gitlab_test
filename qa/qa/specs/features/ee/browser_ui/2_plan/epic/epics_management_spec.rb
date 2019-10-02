@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Plan' do
+  # Failure issue: https://gitlab.com/gitlab-org/gitlab/issues/33115
+  context 'Plan', :skip do
     describe 'Epics Management' do
       before do
         Runtime::Browser.visit(:gitlab, Page::Main::Login)
