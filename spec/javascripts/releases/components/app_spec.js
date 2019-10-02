@@ -13,8 +13,10 @@ describe('Releases App ', () => {
 
   const props = {
     projectId: 'gitlab-ce',
-    documentationLink: 'help/releases',
+    documentationPath: 'help/releases',
     illustrationPath: 'illustration/path',
+    issuesUrl: 'path/to/issues',
+    mergeRequestsUrl: 'path/to/merge_requests',
   };
 
   beforeEach(() => {

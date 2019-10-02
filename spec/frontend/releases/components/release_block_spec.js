@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import ReleaseBlock from '~/releases/components/release_block.vue';
+import IssueMergeRequestLinks from '~/releases/components/issue_merge_request_links.vue';
 import timeagoMixin from '~/vue_shared/mixins/timeago';
 import { first } from 'underscore';
 import { release } from '../mock_data';
@@ -24,11 +25,15 @@ describe('Release block', () => {
     wrapper = mount(ReleaseBlock, {
       propsData: {
         release: releaseProp,
+        issuesUrl: 'http://example.gitlab.com/issues',
+        mergeRequestsUrl: 'http://example.gitlab.com/merge_requests',
       },
     });
   };
 
   const milestoneListLabel = () => wrapper.find('.js-milestone-list-label');
+
+  const footerExists = () => wrapper.find(IssueMergeRequestLinks).exists();
 
   afterEach(() => {
     wrapper.destroy();
@@ -139,6 +144,12 @@ describe('Release block', () => {
 
       expect(milestoneLink.attributes('data-original-title')).toBe(milestone.description);
     });
+
+    it('renders the footer if at least one milestone is associated to the release', () => {
+      factory(release);
+
+      expect(footerExists()).toBe(true);
+    });
   });
 
   it('does not render the milestone list if no milestones are associated to the release', () => {
@@ -161,6 +172,15 @@ describe('Release block', () => {
         .find('.js-label-text')
         .text(),
     ).toEqual('Milestone');
+  });
+
+  it('does not render the footer if no milestones are associated to the release', () => {
+    const releaseClone = JSON.parse(JSON.stringify(release));
+    delete releaseClone.milestones;
+
+    factory(releaseClone);
+
+    expect(footerExists()).toBe(false);
   });
 
   it('renders upcoming release badge', () => {

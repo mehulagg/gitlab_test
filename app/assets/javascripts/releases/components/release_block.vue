@@ -9,6 +9,7 @@ import { __, n__, sprintf } from '../../locale';
 import { slugify } from '~/lib/utils/text_utility';
 import { getLocationHash } from '~/lib/utils/url_utility';
 import { scrollToElement } from '~/lib/utils/common_utils';
+import IssueMergeRequestLinks from './issue_merge_request_links.vue';
 
 export default {
   name: 'ReleaseBlock',
@@ -17,6 +18,7 @@ export default {
     GlBadge,
     Icon,
     UserAvatarLink,
+    IssueMergeRequestLinks,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -27,6 +29,14 @@ export default {
       type: Object,
       required: true,
       default: () => ({}),
+    },
+    issuesUrl: {
+      type: String,
+      required: true,
+    },
+    mergeRequestsUrl: {
+      type: String,
+      required: true,
     },
   },
   data() {
@@ -62,6 +72,9 @@ export default {
     },
     author() {
       return this.release.author || {};
+    },
+    shouldRenderIssueMergeRequestLinks() {
+      return !_.isEmpty(this.release.milestones);
     },
     hasAuthor() {
       return !_.isEmpty(this.author);
@@ -197,6 +210,14 @@ export default {
       <div class="card-text prepend-top-default">
         <div v-html="release.description_html"></div>
       </div>
+    </div>
+
+    <div v-if="shouldRenderIssueMergeRequestLinks" class="card-footer">
+      <issue-merge-request-links
+        :milestones="release.milestones"
+        :issues-url="issuesUrl"
+        :merge-requests-url="mergeRequestsUrl"
+      />
     </div>
   </div>
 </template>
