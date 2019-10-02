@@ -5,7 +5,7 @@ import mediator from './plugins/mediator';
 import syncWithRouter from './plugins/sync_with_router';
 import filters from './modules/filters/index';
 import projects from './modules/projects/index';
-import projectsSelector from './modules/projectSelector/index';
+import projectSelector from './modules/projectSelector/index';
 import vulnerabilities from './modules/vulnerabilities/index';
 
 Vue.use(Vuex);
@@ -15,7 +15,7 @@ export default ({ plugins = [] } = {}) => {
     modules: {
       filters,
       projects,
-      projectsSelector,
+      projectSelector,
       vulnerabilities,
     },
     plugins: [mediator, syncWithRouter(router), ...plugins],

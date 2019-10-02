@@ -2,6 +2,7 @@
 import { mapActions, mapState } from 'vuex';
 import { GlButton, GlEmptyState, GlLink, GlLoadingIcon } from '@gitlab/ui';
 import { s__ } from '~/locale';
+import ProjectSelector from './instance_security_dashboard_project_selector.vue';
 import SecurityDashboard from './app.vue';
 
 export default {
@@ -11,6 +12,7 @@ export default {
     GlEmptyState,
     GlLink,
     GlLoadingIcon,
+    ProjectSelector,
     SecurityDashboard,
   },
   props: {
@@ -104,7 +106,7 @@ export default {
 
     <template v-if="isInitialized">
       <section v-if="showProjectSelector" class="js-dashboard-project-selector">
-        <h3>{{ s__('SecurityDashboard|Add or remove projects from your dashboard') }}</h3>
+        <project-selector />
       </section>
 
       <template v-else>

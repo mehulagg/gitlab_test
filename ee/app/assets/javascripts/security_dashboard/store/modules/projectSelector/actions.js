@@ -167,5 +167,9 @@ export const receiveSearchResultsError = ({ commit }) => {
   commit(types.RECEIVE_SEARCH_RESULTS_ERROR);
 };
 
+export const minimumQueryMessage = ({ commit }) => {
+  commit(types.SET_MINIMUM_QUERY_MESSAGE);
+};
+
 // prevent babel-plugin-rewire from generating an invalid default during karma tests
 export default () => {};
