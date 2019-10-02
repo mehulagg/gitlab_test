@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class LightSettings
-  GL_HOST = 'gitlab.com'
-  GL_SUBDOMAIN_REGEX = %r{\A[a-z0-9]+\.gitlab\.com\z}.freeze
+  GL_HOST ||= 'gitlab.com'
+  GL_SUBDOMAIN_REGEX ||= %r{\A[a-z0-9]+\.gitlab\.com\z}.freeze
 
   class << self
     def com?
