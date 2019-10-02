@@ -23,6 +23,11 @@ package-and-qa-manual:
   when: manual
   needs: ["build-qa-image", "gitlab:assets:compile pull-cache"]
 
+dummy-job:
+  stage: qa
+  script: echo "done"
+  when: manual
+
 package-and-qa:
   extends:
     - .package-and-qa-base
