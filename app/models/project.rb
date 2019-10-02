@@ -471,9 +471,7 @@ class Project < ApplicationRecord
     min_access_level = nil if user&.admin?
 
     if user
-      where('EXISTS (?) OR projects.visibility_level IN (?)',
-            user.authorizations_for_projects(min_access_level: min_access_level),
-            Gitlab::VisibilityLevel.levels_for_user(user))
+      where('EXISTS (?)',  user.authorizations_for_projects(min_access_level: min_access_level)).union_pushdown(public_to_user(user))
     else
       public_to_user
     end
