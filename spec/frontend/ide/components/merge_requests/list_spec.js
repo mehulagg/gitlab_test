@@ -4,19 +4,20 @@ import List from '~/ide/components/merge_requests/list.vue';
 import Item from '~/ide/components/merge_requests/item.vue';
 import TokenedInput from '~/ide/components/shared/tokened_input.vue';
 import { GlLoadingIcon } from '@gitlab/ui';
+import { mergeRequests as mergeRequestsMock } from '../../mock_data';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
 describe('IDE merge requests list', () => {
   let wrapper;
-
-  const fetchMergeRequestsMock = jest.fn();
+  let fetchMergeRequestsMock;
 
   const findSearchTypeButtons = () => wrapper.findAll('button');
+  const findTokenedInput = () => wrapper.find(TokenedInput);
 
   const createComponent = (state = {}) => {
-    const { mergeRequests, ...restOfState } = state;
+    const { mergeRequests = {}, ...restOfState } = state;
     const fakeStore = new Vuex.Store({
       state: {
         currentMergeRequestId: '1',
@@ -45,6 +46,10 @@ describe('IDE merge requests list', () => {
     });
   };
 
+  beforeEach(() => {
+    fetchMergeRequestsMock = jest.fn();
+  });
+
   afterEach(() => {
     wrapper.destroy();
     wrapper = null;
@@ -68,18 +73,17 @@ describe('IDE merge requests list', () => {
   });
 
   it('renders no search results text when search is not empty', () => {
-    createComponent({ mergeRequests: { mergeRequests: [] } });
-    const input = wrapper.find(TokenedInput);
-    input.vm.$emit('input', 'something');
+    createComponent();
+    findTokenedInput().vm.$emit('input', 'something');
     return wrapper.vm.$nextTick().then(() => {
       expect(wrapper.text()).toContain('No merge requests found');
     });
   });
 
   it('clicking on search type, sets currentSearchType and loads merge requests', () => {
-    createComponent({ mergeRequests: { mergeRequests: [] } });
-    const input = wrapper.find(TokenedInput);
-    input.vm.$emit('focus');
+    createComponent();
+    findTokenedInput().vm.$emit('focus');
+
     return wrapper.vm
       .$nextTick()
       .then(() => {
@@ -89,10 +93,13 @@ describe('IDE merge requests list', () => {
         return wrapper.vm.$nextTick();
       })
       .then(() => {
+        const searchType = wrapper.vm.$options.searchTypes[0];
+
+        expect(findTokenedInput().props('tokens')).toEqual([searchType]);
         expect(fetchMergeRequestsMock).toHaveBeenCalledWith(
           expect.any(Object),
           {
-            type: wrapper.vm.$options.searchTypes[0].type,
+            type: searchType.type,
             search: '',
           },
           undefined,
@@ -104,25 +111,14 @@ describe('IDE merge requests list', () => {
     let defaultStateWithMergeRequests;
 
     beforeAll(() => {
-      // We can't import mock_data directly as it relies on gl global
-      // We can get rid of this when our Karma -> Jest migration will be complete
-      global.gl = {
-        TEST_HOST: 'https://some.host',
+      defaultStateWithMergeRequests = {
+        mergeRequests: {
+          isLoading: false,
+          mergeRequests: [
+            { ...mergeRequestsMock[0], projectPathWithNamespace: 'gitlab-org/gitlab-foss' },
+          ],
+        },
       };
-      return import('../../../../javascripts/ide/mock_data').then(({ mergeRequests }) => {
-        defaultStateWithMergeRequests = {
-          mergeRequests: {
-            isLoading: false,
-            mergeRequests: [
-              { ...mergeRequests[0], projectPathWithNamespace: 'gitlab-org/gitlab-foss' },
-            ],
-          },
-        };
-      });
-    });
-
-    afterAll(() => {
-      delete global.gl;
     });
 
     it('renders list', () => {
@@ -137,59 +133,82 @@ describe('IDE merge requests list', () => {
     describe('when searching merge requests', () => {
       it('calls `loadMergeRequests` on input in search field', () => {
         createComponent(defaultStateWithMergeRequests);
-        const input = wrapper.find(TokenedInput);
+        const input = findTokenedInput();
         input.vm.$emit('input', 'something');
         fetchMergeRequestsMock.mockClear();
 
         jest.runAllTimers();
         return wrapper.vm.$nextTick().then(() => {
-          expect(fetchMergeRequestsMock).toHaveBeenCalled();
+          expect(fetchMergeRequestsMock).toHaveBeenCalledWith(
+            expect.any(Object),
+            {
+              search: 'something',
+              type: '',
+            },
+            undefined,
+          );
         });
       });
     });
   });
 
   describe('on search focus', () => {
-    it('shows search types if has no search value', () => {
-      createComponent({ mergeRequests: { mergeRequests: [] } });
-      const input = wrapper.find(TokenedInput);
-      input.vm.$emit('focus');
+    let input;
 
-      return wrapper.vm.$nextTick().then(() => {
+    beforeEach(() => {
+      createComponent();
+      input = findTokenedInput();
+    });
+
+    describe('without search value', () => {
+      beforeEach(() => {
+        input.vm.$emit('focus');
+        return wrapper.vm.$nextTick();
+      });
+
+      it('shows search types', () => {
         const buttons = findSearchTypeButtons();
-        expect(
-          wrapper.vm.$options.searchTypes.every(
-            ({ label }) => buttons.filter(w => w.text().trim() === label).length === 1,
-          ),
-        ).toBe(true);
+        expect(buttons.wrappers.map(x => x.text().trim())).toEqual(
+          wrapper.vm.$options.searchTypes.map(x => x.label),
+        );
       });
-    });
 
-    it('does not show search types, if already has search value', () => {
-      createComponent({ mergeRequests: { mergeRequests: [] } });
-      const input = wrapper.find(TokenedInput);
-      input.vm.$emit('focus');
-      input.vm.$emit('input', 'something');
-      return wrapper.vm.$nextTick().then(() => {
-        expect(findSearchTypeButtons().exists()).toBe(false);
+      it('hides search types when search changes', () => {
+        input.vm.$emit('input', 'something');
+
+        return wrapper.vm.$nextTick().then(() => {
+          expect(findSearchTypeButtons().exists()).toBe(false);
+        });
       });
-    });
 
-    it('does not show search types, if already has a search type', () => {
-      createComponent({ mergeRequests: { mergeRequests: [] } });
-      const input = wrapper.find(TokenedInput);
-      input.vm.$emit('focus');
-      return wrapper.vm
-        .$nextTick()
-        .then(() => {
+      describe('with search type', () => {
+        beforeEach(() => {
           findSearchTypeButtons()
             .at(0)
             .trigger('click');
-          return wrapper.vm.$nextTick();
-        })
-        .then(() => {
+
+          return wrapper.vm
+            .$nextTick()
+            .then(() => input.vm.$emit('focus'))
+            .then(() => wrapper.vm.$nextTick());
+        });
+
+        it('does not show search types', () => {
           expect(findSearchTypeButtons().exists()).toBe(false);
         });
+      });
+    });
+
+    describe('with search value', () => {
+      beforeEach(() => {
+        input.vm.$emit('input', 'something');
+        input.vm.$emit('focus');
+        return wrapper.vm.$nextTick();
+      });
+
+      it('does not show search types', () => {
+        expect(findSearchTypeButtons().exists()).toBe(false);
+      });
     });
   });
 });
