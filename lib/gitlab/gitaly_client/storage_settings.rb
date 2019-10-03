@@ -57,7 +57,9 @@ module Gitlab
       end
 
       def gitaly_address
-        @hash.fetch(:gitaly_address, @hash.fetch('gitaly_address'))
+        @hash.fetch(:gitaly_address) do |key|
+          @hash.fetch(key.to_s)
+        end
       end
 
       def legacy_disk_path
