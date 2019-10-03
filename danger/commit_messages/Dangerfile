@@ -86,7 +86,7 @@ def unicode_emoji_regex
   ))x
 end
 
-def is_squash
+def squash?
   gitlab_danger.ci? ? gitlab.mr_json['squash'] : false
 end
 
@@ -109,7 +109,7 @@ def lint_commit(commit) # rubocop:disable Metrics/AbcSize
   if is_fixup
     # The MR is set to squash - Danger adds an informative notice
     # The MR is not set to squash - Danger fails. if also WIP warn only, not error
-    if is_squash
+    if squash?
       return false
     end
 
@@ -131,7 +131,7 @@ def lint_commit(commit) # rubocop:disable Metrics/AbcSize
 
   # Fail if a suggestion commit is used and squash is not enabled
   if commit.message.start_with?('Apply suggestion to')
-    if is_squash
+    if squash?
       return false
     else
       fail_commit(
@@ -293,11 +293,11 @@ def lint_commits(commits)
   end
 end
 
-if is_squash
+if squash?
   # MRs with commit squashing enabled will only use the first multi-line commit,
   # if it exists, and will discard the rest.
   squash_commit = find_first_multiline_commit(git.commits)
-  if !squash_commit.nil?
+  unless squash_commit.nil?
     message "Commit squashing is enabled and #{squash_commit} will be picked as the squash commit"
     lint_commits([squash_commit])
   end
