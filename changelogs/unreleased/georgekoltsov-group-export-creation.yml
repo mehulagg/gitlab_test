@@ -1,0 +1,5 @@
+---
+title: Add GroupExport & GroupExportPart models & migrations for Group Export feature
+merge_request: 18080
+author:
+type: added

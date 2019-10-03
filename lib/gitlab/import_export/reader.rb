@@ -5,11 +5,11 @@ module Gitlab
     class Reader
       attr_reader :tree, :attributes_finder
 
-      def initialize(shared:)
+      def initialize(shared:, config: ImportExport::Config.new.to_h)
         @shared = shared
+        @config = config
 
-        @attributes_finder = Gitlab::ImportExport::AttributesFinder.new(
-          config: ImportExport::Config.new.to_h)
+        @attributes_finder = Gitlab::ImportExport::AttributesFinder.new(config: @config)
       end
 
       # Outputs a hash in the format described here: http://api.rubyonrails.org/classes/ActiveModel/Serializers/JSON.html
@@ -19,6 +19,10 @@ module Gitlab
       rescue => e
         @shared.error(e)
         false
+      end
+
+      def group_tree
+        attributes_finder.find_root(:group)
       end
 
       def group_members_tree

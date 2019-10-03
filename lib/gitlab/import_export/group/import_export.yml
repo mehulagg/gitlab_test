@@ -1,0 +1,29 @@
+# Model relationships to be included in the group import/export
+include:
+  - :relations
+  - :attributes
+
+tree:
+  group:
+    - :milestones
+    - :epics
+    - :variables
+    - :badges
+    - labels:
+        - :priorities
+    - :boards
+    - :notification_settings
+    - members:
+        - :user
+
+included_attributes:
+
+excluded_attributes:
+
+methods:
+  labels:
+    - :type
+  badges:
+    - :type
+
+preloads:

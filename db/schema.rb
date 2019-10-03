@@ -1727,6 +1727,29 @@ ActiveRecord::Schema.define(version: 2019_10_04_134055) do
     t.index ["key", "value"], name: "index_group_custom_attributes_on_key_and_value"
   end
 
+  create_table "group_export_parts", id: :serial, force: :cascade do |t|
+    t.bigint "group_export_id", null: false
+    t.integer "status", null: false
+    t.string "status_reason", limit: 255
+    t.string "jid", limit: 255
+    t.string "name", limit: 255, null: false
+    t.jsonb "params", null: false
+    t.datetime_with_timezone "created_at", null: false
+    t.datetime_with_timezone "updated_at", null: false
+    t.index ["group_export_id", "status"], name: "index_group_export_parts_on_group_export_id_and_status"
+    t.index ["group_export_id"], name: "index_group_export_parts_on_group_export_id"
+  end
+
+  create_table "group_exports", id: :serial, force: :cascade do |t|
+    t.bigint "group_id", null: false
+    t.integer "status", null: false
+    t.string "status_reason", limit: 255
+    t.datetime_with_timezone "created_at", null: false
+    t.datetime_with_timezone "updated_at", null: false
+    t.index ["group_id", "status"], name: "index_group_exports_on_group_id_and_status"
+    t.index ["group_id"], name: "index_group_exports_on_group_id"
+  end
+
   create_table "historical_data", id: :serial, force: :cascade do |t|
     t.date "date", null: false
     t.integer "active_user_count"
@@ -4062,6 +4085,8 @@ ActiveRecord::Schema.define(version: 2019_10_04_134055) do
   add_foreign_key "gpg_signatures", "projects", on_delete: :cascade
   add_foreign_key "grafana_integrations", "projects", on_delete: :cascade
   add_foreign_key "group_custom_attributes", "namespaces", column: "group_id", on_delete: :cascade
+  add_foreign_key "group_export_parts", "group_exports", on_delete: :cascade
+  add_foreign_key "group_exports", "namespaces", column: "group_id", on_delete: :cascade
   add_foreign_key "identities", "saml_providers", name: "fk_aade90f0fc", on_delete: :cascade
   add_foreign_key "import_export_uploads", "projects", on_delete: :cascade
   add_foreign_key "index_statuses", "projects", name: "fk_74b2492545", on_delete: :cascade
