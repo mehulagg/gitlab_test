@@ -10,8 +10,8 @@ module Gitlab
       #
       class Template < Badge::Template
         STATUS_COLOR = {
-          latest: '#4c1',
-          none: '#e05d44',
+          latest: '#3076af',
+          none: '#e05d44'
         }.freeze
 
         def initialize(badge)
