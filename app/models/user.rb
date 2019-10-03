@@ -101,7 +101,11 @@ class User < ApplicationRecord
   # Groups
   has_many :members
   has_many :group_members, -> { where(requested_at: nil) }, source: 'GroupMember'
-  has_many :groups, through: :group_members
+  has_many :groups, through: :group_members do
+    def with_minimum_access_level(access_level)
+      where('members.access_level >= ?', access_level)
+    end
+  end
   has_many :owned_groups, -> { where(members: { access_level: Gitlab::Access::OWNER }) }, through: :group_members, source: :group
   has_many :maintainers_groups, -> { where(members: { access_level: Gitlab::Access::MAINTAINER }) }, through: :group_members, source: :group
   has_many :developer_groups, -> { where(members: { access_level: ::Gitlab::Access::DEVELOPER }) }, through: :group_members, source: :group

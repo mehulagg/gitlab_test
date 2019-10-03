@@ -422,6 +422,7 @@ describe User do
 
           it 'returns groups on gold or silver plans' do
             Timecop.freeze(GroupsWithTemplatesFinder::CUT_OFF_DATE + 1.day) do
+              puts user.available_subgroups_with_custom_project_templates.to_sql
               groups = user.available_subgroups_with_custom_project_templates
 
               expect(groups.size).to eq(1)
