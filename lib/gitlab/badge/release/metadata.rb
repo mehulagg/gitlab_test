@@ -3,6 +3,9 @@
 module Gitlab
   module Badge
     module Release
+      ##
+      # Class that describes release badge metadata
+      #
       class Metadata < Badge::Metadata
         def initialize(badge)
           @project = badge.project
