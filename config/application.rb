@@ -203,6 +203,12 @@ module Gitlab
       end
     end
 
+    if LightSettings.com?
+      %w[images javascripts stylesheets].each do |path|
+        config.assets.paths << "#{config.root}/com/app/assets/#{path}"
+      end
+    end
+
     # Import path for EE specific SCSS entry point
     # In CE it will import a noop file, in EE a functioning file
     # Order is important, so that the ee file takes precedence:
@@ -222,6 +228,16 @@ module Gitlab
       LOOSE_EE_APP_ASSETS = lambda do |logical_path, filename|
         filename.start_with?(config.root.join("ee/app/assets").to_s) &&
           !['.js', '.css', ''].include?(File.extname(logical_path))
+      end
+      config.assets.precompile << LOOSE_EE_APP_ASSETS
+    end
+
+    if LightSettings.com?
+      # Compile non-JS/CSS assets in the ee/app/assets folder by default
+      # Mimic sprockets-rails default: https://github.com/rails/sprockets-rails/blob/v3.2.1/lib/sprockets/railtie.rb#L84-L87
+      LOOSE_EE_APP_ASSETS = lambda do |logical_path, filename|
+        filename.start_with?(config.root.join("com/app/assets").to_s) &&
+            !['.js', '.css', ''].include?(File.extname(logical_path))
       end
       config.assets.precompile << LOOSE_EE_APP_ASSETS
     end
