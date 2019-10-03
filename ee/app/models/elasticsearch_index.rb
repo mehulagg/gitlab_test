@@ -16,9 +16,10 @@ class ElasticsearchIndex < ApplicationRecord
   attr_readonly :shards, :replicas
 
   attr_encrypted :aws_secret_access_key,
-    key: Settings.attr_encrypted_db_key_base_truncated,
     mode: :per_attribute_iv,
-    algorithm: 'aes-256-gcm'
+    key: Settings.attr_encrypted_db_key_base_truncated,
+    algorithm: 'aes-256-gcm',
+    encode: true
 
   def urls_as_csv
     urls.to_csv(row_sep: nil)
@@ -30,5 +31,9 @@ class ElasticsearchIndex < ApplicationRecord
 
   def connection_config
     slice(:urls, :aws, :aws_access_key, :aws_secret_access_key, :aws_region).symbolize_keys
+  end
+
+  def client
+    ::Gitlab::Elastic::Client.cached(self)
   end
 end

@@ -1490,7 +1490,7 @@ ActiveRecord::Schema.define(version: 2020_01_13_133352) do
     t.string "aws_region"
     t.string "aws_access_key"
     t.string "encrypted_aws_secret_access_key"
-    t.string "encrypted_aws_secret_access_key_iv"
+    t.string "encrypted_aws_secret_access_key_iv", limit: 255
     t.index ["friendly_name"], name: "index_elasticsearch_indices_on_friendly_name", unique: true
     t.index ["name"], name: "index_elasticsearch_indices_on_name", unique: true
   end

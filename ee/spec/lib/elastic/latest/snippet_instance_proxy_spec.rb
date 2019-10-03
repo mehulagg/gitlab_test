@@ -2,10 +2,10 @@
 
 require 'spec_helper'
 
-describe Elastic::Latest::SnippetInstanceProxy do
+describe Elastic::Latest::SnippetInstanceProxy, :elastic_stub do
   let(:snippet) { create(:personal_snippet) }
 
-  subject { described_class.new(snippet) }
+  subject { described_class.new(snippet, current_es_index) }
 
   context '#as_indexed_json' do
     it 'serializes snippet as hash' do

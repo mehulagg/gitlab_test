@@ -13,7 +13,8 @@ module EE
       INSTANCE_REVIEW_MIN_USERS = 100
       DEFAULT_NUMBER_OF_DAYS_BEFORE_REMOVAL = 7
 
-      belongs_to :file_template_project, class_name: "Project"
+      belongs_to :file_template_project, class_name: 'Project'
+      belongs_to :elasticsearch_read_index, class_name: 'ElasticsearchIndex'
 
       validates :shared_runners_minutes,
                 numericality: { greater_than_or_equal_to: 0 }
@@ -36,25 +37,13 @@ module EE
                 presence: true,
                 numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
-      validates :elasticsearch_shards,
-                presence: true,
-                numericality: { only_integer: true, greater_than: 0 }
-
       validates :deletion_adjourned_period,
                 presence: true,
                 numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 90 }
 
-      validates :elasticsearch_replicas,
-                presence: true,
-                numericality: { only_integer: true, greater_than: 0 }
-
-      validates :elasticsearch_url,
-                presence: { message: "can't be blank when indexing is enabled" },
-                if: ->(setting) { setting.elasticsearch_indexing? }
-
-      validates :elasticsearch_aws_region,
-                presence: { message: "can't be blank when using aws hosted elasticsearch" },
-                if: ->(setting) { setting.elasticsearch_indexing? && setting.elasticsearch_aws? }
+      validates :elasticsearch_read_index,
+                presence: { message: "can't be blank when indexing or searching is enabled" },
+                if: ->(setting) { setting.elasticsearch_indexing? || setting.elasticsearch_search? }
 
       validates :email_additional_text,
                 allow_blank: true,
@@ -81,11 +70,6 @@ module EE
         super.merge(
           allow_group_owners_to_manage_ldap: true,
           default_project_deletion_protection: false,
-          elasticsearch_aws: false,
-          elasticsearch_aws_region: ENV['ELASTIC_REGION'] || 'us-east-1',
-          elasticsearch_replicas: 1,
-          elasticsearch_shards: 5,
-          elasticsearch_url: ENV['ELASTIC_URL'] || 'http://localhost:9200',
           email_additional_text: nil,
           lock_memberships_to_ldap: false,
           max_personal_access_token_lifetime: nil,
@@ -186,26 +170,6 @@ module EE
       else
         false # Never use elasticsearch for the global scope when limiting is on
       end
-    end
-
-    def elasticsearch_url
-      read_attribute(:elasticsearch_url).split(',').map(&:strip)
-    end
-
-    def elasticsearch_url=(values)
-      cleaned = values.split(',').map {|url| url.strip.gsub(%r{/*\z}, '') }
-
-      write_attribute(:elasticsearch_url, cleaned.join(','))
-    end
-
-    def elasticsearch_config
-      {
-        url:                   elasticsearch_url,
-        aws:                   elasticsearch_aws,
-        aws_access_key:        elasticsearch_aws_access_key,
-        aws_secret_access_key: elasticsearch_aws_secret_access_key,
-        aws_region:            elasticsearch_aws_region
-      }
     end
 
     def email_additional_text

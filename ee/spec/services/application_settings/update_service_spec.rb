@@ -63,7 +63,7 @@ describe ApplicationSettings::UpdateService do
         end
       end
 
-      context 'elasticsearch' do
+      context 'elasticsearch', :elastic_stub do
         context 'limiting namespaces and projects' do
           before do
             setting.update!(elasticsearch_indexing: true)

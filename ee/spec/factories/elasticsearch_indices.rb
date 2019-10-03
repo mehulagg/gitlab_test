@@ -5,10 +5,12 @@ FactoryBot.define do
     shards { 14 }
     replicas { 7 }
     aws { false }
-    name { 'v12p1' }
-    friendly_name { 'V 12.1' }
-    version { 'v12p1' }
-    urls { ['http://localhost:9200', 'http://localhost:9201'] }
+    name { generate(:title) }
+    friendly_name { generate(:title) }
+    version { 'V12p1' }
+
+    # In CI we want to use the URL passed down from the environment
+    urls { [ENV['ELASTIC_URL'] || 'http://localhost:9200'] }
 
     trait :aws do
       aws { true }

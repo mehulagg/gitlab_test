@@ -7,15 +7,16 @@ describe ElasticIndexerWorker, :elastic do
 
   before do
     stub_ee_application_setting(elasticsearch_indexing: true)
+  end
 
-    Elasticsearch::Model.client =
-      Gitlab::Elastic::Client.build(Gitlab::CurrentSettings.elasticsearch_config)
+  def search(body = {})
+    current_es_index.client.search(index: current_es_index.name, body: body)
   end
 
   it 'returns true if ES disabled' do
     stub_ee_application_setting(elasticsearch_indexing: false)
 
-    expect_any_instance_of(Elasticsearch::Model).not_to receive(:__elasticsearch__)
+    expect(Elastic::IndexRecordService).not_to receive(:new)
 
     expect(subject.perform("index", "Milestone", 1, 1)).to be_truthy
   end
@@ -55,7 +56,7 @@ describe ElasticIndexerWorker, :elastic do
         expect do
           subject.perform("delete", name, object.id, object.es_id, { 'es_parent' => object.es_parent })
           Gitlab::Elastic::Helper.refresh_index
-        end.to change { Elasticsearch::Model.search('*').total_count }.by(-1)
+        end.to change { search['hits']['total'] }.by(-1)
       end
     end
   end
@@ -84,12 +85,12 @@ describe ElasticIndexerWorker, :elastic do
     Gitlab::Elastic::Helper.refresh_index
 
     ## All database objects + data from repository. The absolute value does not matter
-    expect(Elasticsearch::Model.search('*').total_count).to be > 40
+    expect(search['hits']['total']).to be > 40
 
     subject.perform("delete", "Project", project.id, project.es_id)
     Gitlab::Elastic::Helper.refresh_index
 
-    expect(Elasticsearch::Model.search('*').total_count).to be(0)
+    expect(search['hits']['total']).to be(0)
   end
 
   it 'retries if index raises error' do
@@ -101,7 +102,7 @@ describe ElasticIndexerWorker, :elastic do
 
     expect do
       subject.perform("index", 'Project', object.id, object.es_id)
-    end.to raise_error
+    end.to raise_error(Elastic::IndexRecordService::ImportError)
   end
 
   it 'ignores Elasticsearch::Transport::Transport::Errors::NotFound error' do

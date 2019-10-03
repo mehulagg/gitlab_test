@@ -24,7 +24,7 @@ describe SystemCheck::App::ElasticsearchCheck do
     end
   end
 
-  describe '#check?' do
+  describe '#check?', :elastic_stub do
     using RSpec::Parameterized::TableSyntax
 
     subject { described_class.new.check? }
@@ -43,7 +43,8 @@ describe SystemCheck::App::ElasticsearchCheck do
       before do
         # `current_version` is memoized, so we must clear it out
         described_class.instance_variable_set(:@current_version, nil)
-        allow(Gitlab::Elastic::Client).to receive(:build).and_return(double(info: { 'version' => { 'number' => version } }))
+
+        allow(Gitlab::Elastic::Client).to receive(:cached).and_return(double(info: { 'version' => { 'number' => version } }))
       end
 
       it { is_expected.to eq(result) }

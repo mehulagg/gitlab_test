@@ -5,11 +5,33 @@ require 'faraday_middleware/aws_sigv4'
 module Gitlab
   module Elastic
     module Client
-      # Takes a hash as returned by `ApplicationSetting#elasticsearch_config`,
+      CLIENT_MUTEX = Mutex.new
+
+      cattr_accessor :cached_clients, default: {}
+      cattr_accessor :cached_configs, default: {}
+
+      # Returns a cached client instance for the given index.
+      #
+      # All models will use the same instance per index, which is refreshed
+      # automatically if the settings change.
+      def self.cached(index)
+        CLIENT_MUTEX.synchronize do
+          config = index.connection_config
+
+          if cached_clients[index.id].nil? || config != cached_configs[index.id]
+            cached_clients[index.id] = build(config)
+            cached_configs[index.id] = config
+          end
+        end
+
+        cached_clients[index.id]
+      end
+
+      # Takes a hash as returned by `ElasticsearchIndex#connection_config`,
       # and configures itself based on those parameters
       def self.build(config)
         base_config = {
-          urls: config[:url],
+          urls: config[:urls],
           randomize_hosts: true,
           retry_on_failure: true
         }

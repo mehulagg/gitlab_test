@@ -72,7 +72,7 @@ describe Groups::TransferService, '#execute' do
     end
   end
 
-  context 'when visibility changes' do
+  context 'when visibility changes', :elastic_stub do
     let(:new_group) { create(:group, :private) }
 
     before do

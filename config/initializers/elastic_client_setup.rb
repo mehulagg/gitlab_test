@@ -13,10 +13,6 @@ Gitlab.ee do
   Elasticsearch::Model::Adapter::Multiple::Records.prepend GemExtensions::Elasticsearch::Model::Adapter::Multiple::Records
   Elasticsearch::Model::Indexing::InstanceMethods.prepend GemExtensions::Elasticsearch::Model::Indexing::InstanceMethods
   Elasticsearch::Model::Adapter::ActiveRecord::Importing.prepend GemExtensions::Elasticsearch::Model::Adapter::ActiveRecord::Importing
-  Elasticsearch::Model::Client::InstanceMethods.prepend GemExtensions::Elasticsearch::Model::Client
-  Elasticsearch::Model::Client::ClassMethods.prepend GemExtensions::Elasticsearch::Model::Client
-  Elasticsearch::Model::ClassMethods.prepend GemExtensions::Elasticsearch::Model::Client
-  Elasticsearch::Model.singleton_class.prepend GemExtensions::Elasticsearch::Model::Client
 
   ### Modified from elasticsearch-model/lib/elasticsearch/model.rb
 

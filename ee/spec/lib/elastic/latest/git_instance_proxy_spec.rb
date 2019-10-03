@@ -2,11 +2,11 @@
 
 require 'spec_helper'
 
-describe Elastic::Latest::GitInstanceProxy do
+describe Elastic::Latest::GitInstanceProxy, :elastic_stub do
   let(:project) { create(:project, :repository) }
   let(:included_class) { Elastic::Latest::RepositoryInstanceProxy }
 
-  subject { included_class.new(project.repository) }
+  subject { included_class.new(project.repository, current_es_index) }
 
   describe '.methods_for_all_write_targets' do
     it 'contains extra method' do
@@ -65,7 +65,7 @@ describe Elastic::Latest::GitInstanceProxy do
     it 'is forwarded to all write targets' do
       expect(read_target).not_to receive(:delete_index_for_commits_and_blobs)
       expect(write_targets).to all(
-        receive(:delete_index_for_commits_and_blobs).and_return({ '_shards' => {} })
+        receive(:delete_index_for_commits_and_blobs).and_return({ '_shards' => { 'failed' => 0 } })
       )
 
       project.repository.delete_index_for_commits_and_blobs

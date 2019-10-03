@@ -12,7 +12,7 @@ module Elastic
       generate_forwarding
     end
 
-    def version(version)
+    def version(index)
       super.tap do |elastic_target|
         elastic_target.extend Elasticsearch::Model::Importing::ClassMethods
         elastic_target.extend Elasticsearch::Model::Adapter.from_class(@data_class).importing_mixin

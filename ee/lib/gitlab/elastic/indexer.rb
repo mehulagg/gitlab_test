@@ -106,7 +106,7 @@ module Gitlab
       end
 
       def elasticsearch_config(target)
-        Gitlab::CurrentSettings.elasticsearch_config.merge(
+        target.es_index.connection_config.merge(
           index_name: target.index_name
         ).to_json
       end

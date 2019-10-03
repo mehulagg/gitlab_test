@@ -31,11 +31,14 @@ namespace :gitlab do
 
     desc "GitLab | ElasticSearch | Check project indexing status"
     task index_projects_status: :environment do
-      indexed = IndexStatus.count
-      projects = Project.count
-      percent = (indexed / projects.to_f) * 100.0
+      projects = Project.count.to_f
 
-      puts "Indexing is %.2f%% complete (%d/%d projects)" % [percent, indexed, projects]
+      ElasticsearchIndex.find_each do |index|
+        indexed = IndexStatus.for_index(index.id).count
+        percent = (indexed / projects) * 100.0
+
+        puts "[%s] Indexing is %.2f%% complete (%d/%d projects)" % [index.name, percent, indexed, projects]
+      end
     end
 
     desc 'GitLab | Elasticsearch | Unlock repositories for indexing in case something gets stuck'
@@ -55,10 +58,21 @@ namespace :gitlab do
       logger.info("Indexing snippets... " + "done".color(:green))
     end
 
-    desc "GitLab | Elasticsearch | Create empty index"
+    desc "GitLab | Elasticsearch | Create empty indices"
     task create_empty_index: :environment do
-      Gitlab::Elastic::Helper.create_empty_index
-      puts "Index created".color(:green)
+      # This is currently used by gitlab-qa to setup an ES index.
+      # https://gitlab.com/gitlab-org/gitlab/issues/42684
+      if ENV['CI']
+        ElasticsearchIndex.create!(
+          friendly_name: 'GitLab Test',
+          urls: ENV['ELASTIC_URL'] || 'http://localhost:9200'
+        )
+      end
+
+      ElasticsearchIndex.find_each do |index|
+        Gitlab::Elastic::Helper.create_empty_index(index)
+        puts "Index #{index.name} created".color(:green)
+      end
     end
 
     desc "GitLab | Elasticsearch | Clear indexing status"
@@ -67,16 +81,17 @@ namespace :gitlab do
       puts "Index status has been reset".color(:green)
     end
 
-    desc "GitLab | Elasticsearch | Delete index"
+    desc "GitLab | Elasticsearch | Delete indices"
     task delete_index: :environment do
-      Gitlab::Elastic::Helper.delete_index
-      puts "Index deleted".color(:green)
+      ElasticsearchIndex.find_each do |index|
+        Gitlab::Elastic::Helper.delete_index(index)
+        puts "Index #{index.name} deleted".color(:green)
+      end
     end
 
-    desc "GitLab | Elasticsearch | Recreate index"
+    desc "GitLab | Elasticsearch | Recreate indices"
     task recreate_index: :environment do
-      Gitlab::Elastic::Helper.create_empty_index
-      puts "Index recreated".color(:green)
+      Rake::Task['gitlab:elastic:create_empty_index'].invoke
     end
 
     desc "GitLab | Elasticsearch | Display which projects are not indexed"

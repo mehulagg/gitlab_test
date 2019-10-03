@@ -2,15 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::Elastic::Indexer do
-  include StubENV
-
-  before do
-    stub_env('IN_MEMORY_APPLICATION_SETTINGS', 'true')
-    stub_ee_application_setting(ee_application_setting) if ee_application_setting.present?
-  end
-
-  let(:ee_application_setting) { { elasticsearch_url: ['http://localhost:9200'] } }
+describe Gitlab::Elastic::Indexer, :elastic_stub do
   let(:project) { create(:project, :repository) }
   let(:expected_from_sha) { Gitlab::Git::EMPTY_TREE_ID }
   let(:to_commit) { project.commit }
@@ -63,7 +55,6 @@ describe Gitlab::Elastic::Indexer do
 
     context 'when IndexStatus#last_wiki_commit is no longer in repository', :elastic do
       let(:user) { project.owner }
-      let(:ee_application_setting) { nil }
 
       before do
         stub_ee_application_setting(elasticsearch_indexing: true)
@@ -197,7 +188,6 @@ describe Gitlab::Elastic::Indexer do
   context 'reverting a change', :elastic do
     let(:user) { project.owner }
     let!(:initial_commit) { project.repository.commit('master').sha }
-    let(:ee_application_setting) { nil }
 
     before do
       stub_ee_application_setting(elasticsearch_indexing: true)
@@ -282,8 +272,8 @@ describe Gitlab::Elastic::Indexer do
   end
 
   def elasticsearch_config
-    Gitlab::CurrentSettings.elasticsearch_config.merge(
-      index_name: 'gitlab-test'
+    current_es_index.connection_config.merge(
+      index_name: current_es_index.name
     )
   end
 end

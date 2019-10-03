@@ -6,16 +6,26 @@ module Elastic
   module InstanceProxyUtil
     extend ActiveSupport::Concern
 
-    def initialize(target)
+    def initialize(target, index)
       super(target)
 
       config = version_namespace.const_get('Config', false)
 
-      @index_name = config.index_name
+      @es_index = index
       @document_type = config.document_type
     end
 
     ### Multi-version utils
+
+    attr_reader :es_index
+
+    def index_name
+      es_index.name
+    end
+
+    def client
+      es_index.client
+    end
 
     def real_class
       self.singleton_class.superclass
@@ -27,7 +37,7 @@ module Elastic
 
     class_methods do
       def methods_for_all_write_targets
-        [:index_document, :delete_document, :update_document, :update_document_attributes]
+        [:index_document, :update_document, :update_document_attributes]
       end
 
       def methods_for_one_write_target

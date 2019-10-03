@@ -7,15 +7,11 @@ module Elastic
       extend Elasticsearch::Model::Indexing::ClassMethods
       extend Elasticsearch::Model::Naming::ClassMethods
 
-      self.index_name = [Rails.application.class.parent_name.downcase, Rails.env].join('-')
-
       # ES6 requires a single type per index
       self.document_type = 'doc'
 
       settings \
         index: {
-          number_of_shards: Elastic::AsJSON.new { Gitlab::CurrentSettings.elasticsearch_shards },
-          number_of_replicas: Elastic::AsJSON.new { Gitlab::CurrentSettings.elasticsearch_replicas },
           codec: 'best_compression',
           analysis: {
             analyzer: {

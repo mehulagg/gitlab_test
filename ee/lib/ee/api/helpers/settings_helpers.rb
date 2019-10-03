@@ -8,19 +8,10 @@ module EE
 
         prepended do
           params :optional_params_ee do
-            optional :elasticsearch_aws, type: Grape::API::Boolean, desc: 'Enable support for AWS hosted elasticsearch'
-
-            given elasticsearch_aws: ->(val) { val } do
-              optional :elasticsearch_aws_access_key, type: String, desc: 'AWS IAM access key'
-              requires :elasticsearch_aws_region, type: String, desc: 'The AWS region the elasticsearch domain is configured'
-              optional :elasticsearch_aws_secret_access_key, type: String, desc: 'AWS IAM secret access key'
-            end
-
             optional :elasticsearch_indexing, type: Grape::API::Boolean, desc: 'Enable Elasticsearch indexing'
 
             given elasticsearch_indexing: ->(val) { val } do
               optional :elasticsearch_search, type: Grape::API::Boolean, desc: 'Enable Elasticsearch search'
-              requires :elasticsearch_url, type: String, desc: 'The url to use for connecting to Elasticsearch. Use a comma-separated list to support clustering (e.g., "http://localhost:9200, http://localhost:9201")'
               optional :elasticsearch_limit_indexing, type: Grape::API::Boolean, desc: 'Limit Elasticsearch to index certain namespaces and projects'
             end
 

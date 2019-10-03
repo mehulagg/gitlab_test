@@ -11,7 +11,7 @@ module Elastic
 
       def es_import(**options)
         transform = lambda do |r|
-          proxy = r.__elasticsearch__.version(version_namespace)
+          proxy = r.__elasticsearch__.version(es_index)
 
           { index: { _id: proxy.es_id, data: proxy.as_indexed_json } }.tap do |data|
             data[:index][:routing] = proxy.es_parent if proxy.es_parent
@@ -21,6 +21,36 @@ module Elastic
         options[:transform] = transform
 
         self.import(options)
+      end
+
+      # This replaces the instance-level method of the same name, since we delete
+      # the ES document asynchronously *after* the DB record has been deleted
+      def delete_document(es_id, es_parent = nil)
+        client.delete(
+          index: index_name,
+          type: document_type,
+          id: es_id,
+          routing: es_parent
+        )
+      end
+
+      # This is a custom method from us, which isn't supported by the elasticsearch-model gem.
+      # We define this here so it can go through our multi-version proxy.
+      def delete_child_documents(es_id, record_id)
+        client.delete_by_query({
+          index: index_name,
+          routing: es_id,
+          body: {
+            query: {
+              has_parent: {
+                parent_type: es_type,
+                query: {
+                  term: { id: record_id }
+                }
+              }
+            }
+          }
+        })
       end
 
       private

@@ -16,15 +16,9 @@ describe Admin::ApplicationSettingsController do
       sign_in(admin)
     end
 
-    it 'updates the EE specific application settings' do
+    it 'updates the EE specific application settings', :elastic_stub do
       settings = {
           help_text: 'help_text',
-          elasticsearch_url: 'http://my-elastic.search:9200',
-          elasticsearch_indexing: true,
-          elasticsearch_aws: true,
-          elasticsearch_aws_access_key: 'elasticsearch_aws_access_key',
-          elasticsearch_aws_secret_access_key: 'elasticsearch_aws_secret_access_key',
-          elasticsearch_aws_region: 'elasticsearch_aws_region',
           elasticsearch_search: true,
           repository_size_limit: 1024,
           shared_runners_minutes: 60,
@@ -43,11 +37,10 @@ describe Admin::ApplicationSettingsController do
       put :update, params: { application_setting: settings }
 
       expect(response).to redirect_to(admin_application_settings_path)
-      settings.except(:elasticsearch_url, :repository_size_limit).each do |setting, value|
+      settings.except(:repository_size_limit).each do |setting, value|
         expect(ApplicationSetting.current.public_send(setting)).to eq(value)
       end
       expect(ApplicationSetting.current.repository_size_limit).to eq(settings[:repository_size_limit].megabytes)
-      expect(ApplicationSetting.current.elasticsearch_url).to contain_exactly(settings[:elasticsearch_url])
     end
 
     context 'elasticsearch_aws_secret_access_key setting is blank' do

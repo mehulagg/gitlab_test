@@ -7,27 +7,27 @@ module Elastic
 
     attr_reader :data_class, :data_target
 
-    # TODO: remove once multi-version is functional https://gitlab.com/gitlab-org/gitlab/issues/10156
-    TARGET_VERSION = 'V12p1'
-
-    # @params version [String, Module] can be a string "V12p1" or module (Elastic::V12p1)
-    def version(version)
-      version = Elastic.const_get(version, false) if version.is_a?(String)
-      version.const_get(proxy_class_name, false).new(data_target)
+    def version(index)
+      version = Elastic.const_get(index.version, false)
+      version.const_get(proxy_class_name, false).new(data_target, index)
     end
 
-    # TODO: load from db table https://gitlab.com/gitlab-org/gitlab/issues/12555
+    # TODO: We want to memoize this, but this breaks with the class-level proxies because they persist across requests.
+    # https://gitlab.com/gitlab-org/gitlab/issues/38109
     def elastic_reading_target
-      strong_memoize(:elastic_reading_target) do
-        version(TARGET_VERSION)
-      end
+      index = Gitlab::CurrentSettings.elasticsearch_read_index
+      raise 'No Elasticsearch index configured for reading!' unless index
+
+      version(index)
     end
 
-    # TODO: load from db table https://gitlab.com/gitlab-org/gitlab/issues/12555
+    # TODO: We want to memoize this, but this breaks with the class-level proxies because they persist across requests.
+    # https://gitlab.com/gitlab-org/gitlab/issues/38109
     def elastic_writing_targets
-      strong_memoize(:elastic_writing_targets) do
-        [elastic_reading_target]
-      end
+      indices = ElasticsearchIndex.all.to_a
+      raise 'No Elasticsearch index configured for writing!' unless indices.present?
+
+      indices.map { |index| version(index) }
     end
 
     private
@@ -83,7 +83,13 @@ module Elastic
             elastic_target.public_send(method, *args) # rubocop:disable GitlabSecurity/PublicSend
           end
 
-          responses.find { |response| response['_shards']['successful'] == 0 } || responses.last
+          # TODO: This is needed for the retrying logic in Elastic::IndexRecordService.
+          # Should we move that further down the stack so we only retry failures on the indices where they failed?
+          # TODO: We currently don't retry delete_by_query requests, which report failures in a different format.
+          # https://gitlab.com/gitlab-org/gitlab/issues/38111
+          responses.find do |response|
+            response['_shards'] && response['_shards']['failed'] > 0
+          end || responses.last
         end
       end
     end

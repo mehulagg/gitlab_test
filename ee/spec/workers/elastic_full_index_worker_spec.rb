@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe ElasticFullIndexWorker do
+describe ElasticFullIndexWorker, :elastic_stub do
   subject { described_class.new }
 
   before do

@@ -5,6 +5,14 @@ class ApplicationSetting < ApplicationRecord
   include CacheMarkdownField
   include TokenAuthenticatable
   include ChronicDurationAttribute
+  include IgnorableColumns
+
+  # See https://gitlab.com/gitlab-org/gitlab/issues/38091
+  # TODO: Update remove_after / remove_with before merging https://gitlab.com/gitlab-org/gitlab/merge_requests/17230
+  ignore_columns :elasticsearch_url, :elasticsearch_shards, :elasticsearch_replicas,
+                 :elasticsearch_aws, :elasticsearch_aws_region, :elasticsearch_aws_access_key,
+                 :encrypted_elasticsearch_aws_secret_access_key, :encrypted_elasticsearch_aws_secret_access_key_iv,
+                 remove_after: '2020-03-01', remove_with: 'TBD'
 
   add_authentication_token_field :runners_registration_token, encrypted: -> { Feature.enabled?(:application_settings_tokens_optional_encryption, default_enabled: true) ? :optional : :required }
   add_authentication_token_field :health_check_access_token
@@ -339,7 +347,6 @@ class ApplicationSetting < ApplicationRecord
   attr_encrypted :lets_encrypt_private_key, encryption_options_base_truncated_aes_256_gcm
   attr_encrypted :eks_secret_access_key, encryption_options_base_truncated_aes_256_gcm
   attr_encrypted :akismet_api_key, encryption_options_base_truncated_aes_256_gcm
-  attr_encrypted :elasticsearch_aws_secret_access_key, encryption_options_base_truncated_aes_256_gcm
   attr_encrypted :recaptcha_private_key, encryption_options_base_truncated_aes_256_gcm
   attr_encrypted :recaptcha_site_key, encryption_options_base_truncated_aes_256_gcm
   attr_encrypted :slack_app_secret, encryption_options_base_truncated_aes_256_gcm
