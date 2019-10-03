@@ -4,33 +4,24 @@ module Gitlab
   module Elastic
     class Helper
       # rubocop: disable CodeReuse/ActiveRecord
-      def self.create_empty_index(version = ::Elastic::MultiVersionUtil::TARGET_VERSION, client = nil)
-        settings = {}
-        mappings = {}
+      def self.create_empty_index(index)
+        config = ::Elastic.const_get(index.version, false)::Config
 
-        [
-          Project,
-          Issue,
-          MergeRequest,
-          Snippet,
-          Note,
-          Milestone,
-          ProjectWiki,
-          Repository
-        ].each do |klass|
-          settings.deep_merge!(klass.__elasticsearch__.settings.to_hash)
-          mappings.deep_merge!(klass.__elasticsearch__.mappings.to_hash)
-        end
+        mappings = config.mappings.to_hash
+        settings = config.settings.to_hash.deep_merge(
+          index: {
+            number_of_shards: index.shards,
+            number_of_replicas: index.replicas
+          }
+        )
 
-        proxy = Project.__elasticsearch__.version(version)
-        client ||= proxy.client
-        index_name = proxy.index_name
+        client = index.client
 
         create_index_options = {
-          index: index_name,
+          index: index.name,
           body: {
-            settings: settings.to_hash,
-            mappings: mappings.to_hash
+            mappings: mappings.to_hash,
+            settings: settings.to_hash
           }
         }
 
@@ -44,13 +35,12 @@ module Gitlab
           create_index_options[:include_type_name] = true
         end
 
-        if client.indices.exists? index: index_name
-          client.indices.delete index: index_name
+        if client.indices.exists? index: index.name # rubocop: disable CodeReuse/ActiveRecord
+          client.indices.delete index: index.name
         end
 
-        client.indices.create create_index_options
+        client.indices.create(create_index_options)
       end
-      # rubocop: enable CodeReuse/ActiveRecord
 
       def self.reindex_to_another_cluster(source_cluster_url, destination_cluster_url, version = ::Elastic::MultiVersionUtil::TARGET_VERSION)
         proxy = Project.__elasticsearch__.version(version)
@@ -82,8 +72,8 @@ module Gitlab
         response['task']
       end
 
-      def self.delete_index(version = ::Elastic::MultiVersionUtil::TARGET_VERSION)
-        Project.__elasticsearch__.version(version).delete_index!
+      def self.delete_index(index)
+        index.client.indices.delete index: index.name
       end
 
       def self.index_exists?(version = ::Elastic::MultiVersionUtil::TARGET_VERSION)
@@ -98,11 +88,12 @@ module Gitlab
       # immediately.
       # https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-refresh.html
       def self.refresh_index
+        # Go through a class proxy, so the call gets forwarded to all indices
         Project.__elasticsearch__.refresh_index!
       end
 
-      def self.index_size(version = ::Elastic::MultiVersionUtil::TARGET_VERSION)
-        Project.__elasticsearch__.version(version).client.indices.stats['indices'][Project.__elasticsearch__.index_name]['total']
+      def self.index_size(index)
+        index.client.indices.stats['indices'][index.name]['total']
       end
     end
   end

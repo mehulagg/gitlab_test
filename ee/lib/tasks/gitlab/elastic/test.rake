@@ -3,8 +3,10 @@ namespace :gitlab do
     namespace :test do
       desc 'GitLab | Elasticsearch | Test | Measure space taken by ES indices'
       task index_size: :environment do
-        puts "===== Size stats for index: #{Project.__elasticsearch__.index_name} ====="
-        pp Gitlab::Elastic::Helper.index_size(::Elastic::MultiVersionUtil::TARGET_VERSION).slice(*%w(docs store))
+        ElasticsearchIndex.find_each do |index|
+          puts "===== Size stats for index: #{index.name} ====="
+          pp Gitlab::Elastic::Helper.index_size(index).slice(*%w(docs store))
+        end
       end
 
       desc 'GitLab | Elasticsearch | Test | Measure space taken by ES indices, reindex, and measure space taken again'

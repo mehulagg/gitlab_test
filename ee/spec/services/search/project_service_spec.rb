@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Search::ProjectService do
+describe Search::ProjectService, :elastic_stub do
   include SearchResultHelpers
   include ProjectHelpers
   using RSpec::Parameterized::TableSyntax

@@ -70,4 +70,13 @@ describe ElasticsearchIndex do
       )
     end
   end
+
+  describe '#client' do
+    it 'delegates to Gitlab::Elastic::Client' do
+      client = double
+
+      expect(Gitlab::Elastic::Client).to receive(:cached).with(subject).and_return(client)
+      expect(subject.client).to be(client)
+    end
+  end
 end

@@ -10,7 +10,7 @@ module SystemCheck
 
       def self.current_version
         @current_version ||= begin
-          client = Gitlab::Elastic::Client.build(Gitlab::CurrentSettings.current_application_settings.elasticsearch_config)
+          client = Gitlab::CurrentSettings.elasticsearch_read_index.client
           Gitlab::VersionInfo.parse(client.info['version']['number'])
         end
       end

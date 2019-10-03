@@ -16,12 +16,10 @@ module GemExtensions
             )
           end
 
+          # This is replaced by the class-level method of the same name, since we delete
+          # the ES document asynchronously *after* the DB record has been deleted
           def delete_document(options = {})
-            client.delete(
-              { index: index_name,
-                type:  document_type,
-                id:    self.es_id }.merge(options)
-            )
+            raise NotImplementedError, '#delete_document must be accessed through a class proxy'
           end
 
           # Code copied from gem, to disable checks

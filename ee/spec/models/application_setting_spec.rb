@@ -29,6 +29,7 @@ describe ApplicationSetting do
     it { is_expected.not_to allow_value(subject.mirror_max_capacity + 1).for(:mirror_capacity_threshold) }
     it { is_expected.to allow_value(nil).for(:custom_project_templates_group_id) }
 
+<<<<<<< HEAD
     it { is_expected.to allow_value(10).for(:elasticsearch_shards) }
     it { is_expected.not_to allow_value(nil).for(:elasticsearch_shards) }
     it { is_expected.not_to allow_value(0).for(:elasticsearch_shards) }
@@ -59,6 +60,8 @@ describe ApplicationSetting do
     it { is_expected.not_to allow_value(1.1).for(:elasticsearch_max_bulk_concurrency) }
     it { is_expected.not_to allow_value(-1).for(:elasticsearch_max_bulk_concurrency) }
 
+=======
+>>>>>>> fa578168d86... Use ES indices from database in version proxies
     it { is_expected.to allow_value(nil).for(:required_instance_ci_template) }
     it { is_expected.not_to allow_value("").for(:required_instance_ci_template) }
     it { is_expected.not_to allow_value("  ").for(:required_instance_ci_template) }
@@ -80,6 +83,22 @@ describe ApplicationSetting do
 
       it { is_expected.to allow_value("a" * subject.email_additional_text_character_limit).for(:email_additional_text) }
       it { is_expected.not_to allow_value("a" * (subject.email_additional_text_character_limit + 1)).for(:email_additional_text) }
+    end
+
+    context 'Elasticsearch settings' do
+      it 'requires an index to enable indexing' do
+        subject.elasticsearch_indexing = true
+
+        expect(subject).to validate_presence_of(:elasticsearch_read_index)
+          .with_message("can't be blank when indexing or searching is enabled")
+      end
+
+      it 'requires an index to enable searching' do
+        subject.elasticsearch_search = true
+
+        expect(subject).to validate_presence_of(:elasticsearch_read_index)
+          .with_message("can't be blank when indexing or searching is enabled")
+      end
     end
 
     context 'when validating allowed_ips' do
@@ -187,6 +206,7 @@ describe ApplicationSetting do
 
   describe 'elasticsearch licensing' do
     before do
+      setting.elasticsearch_read_index = create(:elasticsearch_index)
       setting.elasticsearch_search = true
       setting.elasticsearch_indexing = true
     end
@@ -214,34 +234,8 @@ describe ApplicationSetting do
     end
   end
 
-  describe '#elasticsearch_url' do
-    it 'presents a single URL as a one-element array' do
-      setting.elasticsearch_url = 'http://example.com'
-
-      expect(setting.elasticsearch_url).to eq(%w[http://example.com])
-    end
-
-    it 'presents multiple URLs as a many-element array' do
-      setting.elasticsearch_url = 'http://example.com,https://invalid.invalid:9200'
-
-      expect(setting.elasticsearch_url).to eq(%w[http://example.com https://invalid.invalid:9200])
-    end
-
-    it 'strips whitespace from around URLs' do
-      setting.elasticsearch_url = ' http://example.com, https://invalid.invalid:9200 '
-
-      expect(setting.elasticsearch_url).to eq(%w[http://example.com https://invalid.invalid:9200])
-    end
-
-    it 'strips trailing slashes from URLs' do
-      setting.elasticsearch_url = 'http://example.com/, https://example.com:9200/, https://example.com:9200/prefix//'
-
-      expect(setting.elasticsearch_url).to eq(%w[http://example.com https://example.com:9200 https://example.com:9200/prefix])
-    end
-  end
-
-  describe '#elasticsearch_config' do
-    it 'places all elasticsearch configuration values into a hash' do
+  context 'limiting namespaces and projects' do
+    before do
       setting.update!(
         elasticsearch_url: 'http://example.com:9200',
         elasticsearch_aws: false,
@@ -259,54 +253,58 @@ describe ApplicationSetting do
         aws_access_key: 'test-access-key',
         aws_secret_access_key: 'test-secret-access-key',
         max_bulk_size_bytes: 67.megabytes,
-        max_bulk_concurrency: 8
+        max_bulk_concurrency: 8,
+        elasticsearch_read_index: create(:elasticsearch_index),
+        elasticsearch_indexing: true,
+        elasticsearch_limit_indexing: true
       )
     end
 
-    context 'limiting namespaces and projects' do
-      before do
-        setting.update!(elasticsearch_indexing: true)
-        setting.update!(elasticsearch_limit_indexing: true)
+    context 'namespaces' do
+      let(:namespaces) { create_list(:namespace, 2) }
+      let!(:indexed_namespace) { create :elasticsearch_indexed_namespace, namespace: namespaces.last }
+
+      it 'tells you if a namespace is allowed to be indexed' do
+        expect(setting.elasticsearch_indexes_namespace?(namespaces.last)).to be_truthy
+        expect(setting.elasticsearch_indexes_namespace?(namespaces.first)).to be_falsey
       end
 
-      context 'namespaces' do
-        let(:namespaces) { create_list(:namespace, 2) }
-        let!(:indexed_namespace) { create :elasticsearch_indexed_namespace, namespace: namespaces.last }
+      it 'returns namespaces that are allowed to be indexed' do
+        child_namespace = create(:namespace, parent: namespaces.first)
+        create :elasticsearch_indexed_namespace, namespace: child_namespace
 
-        it 'tells you if a namespace is allowed to be indexed' do
-          expect(setting.elasticsearch_indexes_namespace?(namespaces.last)).to be_truthy
-          expect(setting.elasticsearch_indexes_namespace?(namespaces.first)).to be_falsey
-        end
+        child_namespace_indexed_through_parent = create(:namespace, parent: namespaces.last)
 
-        it 'returns namespaces that are allowed to be indexed' do
-          child_namespace = create(:namespace, parent: namespaces.first)
-          create :elasticsearch_indexed_namespace, namespace: child_namespace
-
-          child_namespace_indexed_through_parent = create(:namespace, parent: namespaces.last)
-
+<<<<<<< HEAD
           expect(setting.elasticsearch_limited_namespaces).to match_array(
             [namespaces.last, child_namespace, child_namespace_indexed_through_parent])
           expect(setting.elasticsearch_limited_namespaces(ignore_descendants: true)).to match_array(
             [namespaces.last, child_namespace])
         end
+=======
+        expect(setting.elasticsearch_limited_namespaces).to match_array(
+          [namespaces.last, child_namespace, child_namespace_indexed_through_parent])
+        expect(setting.elasticsearch_limited_namespaces(true)).to match_array(
+          [namespaces.last, child_namespace])
+>>>>>>> fa578168d86... Use ES indices from database in version proxies
+      end
+    end
+
+    context 'projects' do
+      let(:projects) { create_list(:project, 2) }
+      let!(:indexed_project) { create :elasticsearch_indexed_project, project: projects.last }
+
+      it 'tells you if a project is allowed to be indexed' do
+        expect(setting.elasticsearch_indexes_project?(projects.last)).to be(true)
+        expect(setting.elasticsearch_indexes_project?(projects.first)).to be(false)
       end
 
-      context 'projects' do
-        let(:projects) { create_list(:project, 2) }
-        let!(:indexed_project) { create :elasticsearch_indexed_project, project: projects.last }
+      it 'returns projects that are allowed to be indexed' do
+        project_indexed_through_namespace = create(:project)
+        create :elasticsearch_indexed_namespace, namespace: project_indexed_through_namespace.namespace
 
-        it 'tells you if a project is allowed to be indexed' do
-          expect(setting.elasticsearch_indexes_project?(projects.last)).to be(true)
-          expect(setting.elasticsearch_indexes_project?(projects.first)).to be(false)
-        end
-
-        it 'returns projects that are allowed to be indexed' do
-          project_indexed_through_namespace = create(:project)
-          create :elasticsearch_indexed_namespace, namespace: project_indexed_through_namespace.namespace
-
-          expect(setting.elasticsearch_limited_projects).to match_array(
-            [projects.last, project_indexed_through_namespace])
-        end
+        expect(setting.elasticsearch_limited_projects).to match_array(
+          [projects.last, project_indexed_through_namespace])
       end
     end
   end
@@ -331,6 +329,7 @@ describe ApplicationSetting do
 
       before do
         setting.update!(
+          elasticsearch_read_index: create(:elasticsearch_index),
           elasticsearch_indexing: indexing,
           elasticsearch_search: searching,
           elasticsearch_limit_indexing: limiting

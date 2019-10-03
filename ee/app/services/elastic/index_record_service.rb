@@ -2,8 +2,6 @@
 
 module Elastic
   class IndexRecordService
-    include Elasticsearch::Model::Client::ClassMethods
-
     ImportError = Class.new(StandardError)
 
     IMPORT_RETRY_COUNT = 3
@@ -11,8 +9,6 @@ module Elastic
     # @param indexing [Boolean] determines whether operation is "indexing" or "updating"
     def execute(record, indexing, options = {})
       return true unless record.use_elasticsearch?
-
-      record.__elasticsearch__.client = client
 
       import(record, indexing)
 

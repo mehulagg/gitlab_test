@@ -13,7 +13,8 @@ module EE
       INSTANCE_REVIEW_MIN_USERS = 100
       DEFAULT_NUMBER_OF_DAYS_BEFORE_REMOVAL = 7
 
-      belongs_to :file_template_project, class_name: "Project"
+      belongs_to :file_template_project, class_name: 'Project'
+      belongs_to :elasticsearch_read_index, class_name: 'ElasticsearchIndex'
 
       validates :shared_runners_minutes,
                 numericality: { greater_than_or_equal_to: 0 }
@@ -35,10 +36,6 @@ module EE
       validates :repository_size_limit,
                 presence: true,
                 numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-
-      validates :elasticsearch_shards,
-                presence: true,
-                numericality: { only_integer: true, greater_than: 0 }
 
       validates :deletion_adjourned_period,
                 presence: true,
@@ -65,6 +62,10 @@ module EE
       validates :elasticsearch_aws_region,
                 presence: { message: "can't be blank when using aws hosted elasticsearch" },
                 if: ->(setting) { setting.elasticsearch_indexing? && setting.elasticsearch_aws? }
+
+      validates :elasticsearch_read_index,
+                presence: { message: "can't be blank when indexing or searching is enabled" },
+                if: ->(setting) { setting.elasticsearch_indexing? || setting.elasticsearch_search? }
 
       validates :elasticsearch_indexed_field_length_limit,
                 presence: true,

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe ElasticBatchProjectIndexerWorker do
+describe ElasticBatchProjectIndexerWorker, :elastic_stub do
   subject(:worker) { described_class.new }
 
   let(:projects) { create_list(:project, 2) }

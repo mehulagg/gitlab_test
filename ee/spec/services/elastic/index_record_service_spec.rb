@@ -7,9 +7,10 @@ describe Elastic::IndexRecordService, :elastic do
 
   before do
     stub_ee_application_setting(elasticsearch_indexing: true)
+  end
 
-    Elasticsearch::Model.client =
-      Gitlab::Elastic::Client.build(Gitlab::CurrentSettings.elasticsearch_config)
+  def search(body = {})
+    current_es_index.client.search(index: current_es_index.name, body: body)
   end
 
   describe 'Indexing, updating, and deleting records' do
@@ -74,7 +75,7 @@ describe Elastic::IndexRecordService, :elastic do
       end
 
       # Nothing should be in the index at this point
-      expect(Elasticsearch::Model.search('*').total_count).to be(0)
+      expect(search['hits']['total']).to be(0)
     end
 
     it 'indexes records associated with the project' do
@@ -87,7 +88,7 @@ describe Elastic::IndexRecordService, :elastic do
       ensure_elasticsearch_index!
 
       # Fetch all child documents
-      children = Elasticsearch::Model.search(
+      children = search(
         size: 100,
         query: {
           has_parent: {
@@ -100,10 +101,11 @@ describe Elastic::IndexRecordService, :elastic do
       )
 
       # The absolute value does not matter
-      expect(children.total_count).to be > 40
+      expect(children['hits']['total']).to be > 40
 
       # Make sure all types are present
-      expect(children.pluck(:_source).pluck(:type).uniq).to contain_exactly(
+      types = children['hits']['hits'].pluck('_source').pluck('type').uniq
+      expect(types).to contain_exactly(
         'blob',
         'commit',
         'issue',

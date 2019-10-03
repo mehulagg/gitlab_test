@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe ElasticsearchIndexedProject do
+describe ElasticsearchIndexedProject, :elastic_stub do
   before do
     stub_ee_application_setting(elasticsearch_indexing: true)
   end
