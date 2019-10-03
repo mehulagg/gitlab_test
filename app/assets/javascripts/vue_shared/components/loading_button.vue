@@ -56,12 +56,7 @@ export default {
 </script>
 
 <template>
-  <button
-    :class="containerClass"
-    :disabled="loading || disabled"
-    @click="onClick"
-    v-gl-tooltip
-  >
+  <button :class="containerClass" :disabled="loading || disabled" @click="onClick" v-gl-tooltip>
     <transition name="fade-in">
       <gl-loading-icon
         v-if="loading"
