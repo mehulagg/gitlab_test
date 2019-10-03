@@ -297,10 +297,10 @@ describe('EksClusterConfigurationForm', () => {
     expect(findSecurityGroupDropdown().props('items')).toBe(securityGroupsState.items);
   });
 
-  it('sets loadingSecurityGroupsError to SecurityGroupDropdown hasErrors property', () => {
-    expect(findSecurityGroupDropdown().props('hasErrors')).toBe(
-      securityGroupsState.loadingItemsError,
-    );
+  it('sets SecurityGroupDropdown hasErrors to true when loading security groups fails', () => {
+    securityGroupsState.loadingItemsError = new Error();
+
+    expect(findSecurityGroupDropdown().props('hasErrors')).toEqual(true);
   });
 
   describe('when region is selected', () => {

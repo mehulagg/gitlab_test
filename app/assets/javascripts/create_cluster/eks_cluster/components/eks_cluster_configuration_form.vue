@@ -350,7 +350,7 @@ export default {
         :placeholder="s__('ClusterIntergation|Select a security group')"
         :search-field-placeholder="s__('ClusterIntegration|Search security groups')"
         :empty-text="s__('ClusterIntegration|No security group found')"
-        :has-errors="loadingSubnetsError"
+        :has-errors="Boolean(loadingSecurityGroupsError)"
         :error-message="
           s__('ClusterIntegration|Could not load security groups for the selected VPC')
         "
