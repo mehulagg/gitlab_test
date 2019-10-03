@@ -201,23 +201,6 @@ class MergeRequestDiff < ApplicationRecord
     end
   end
 
-  def raw_diffs_in_batch(batch_page, batch_size, diff_options: {})
-    # TODO:
-    # if options[:ignore_whitespace_change]
-    #   compare.diffs(diff_options)
-    # else
-    # end
-    load_diffs_in_batch(batch_page, batch_size)
-  end
-
-  def load_diffs_in_batch(batch_page, batch_size)
-    opening_external_diff do
-      Gitlab::Diff::PaginatedCollectionFactory
-        .new(batch_page, batch_size)
-        .fabricate(merge_request_diff_files)
-    end
-  end
-
   def raw_diffs(options = {})
     if options[:ignore_whitespace_change]
       @diffs_no_whitespace ||= compare.diffs(options)

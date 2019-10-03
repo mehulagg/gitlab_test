@@ -13,28 +13,6 @@ class Projects::MergeRequests::DiffsController < Projects::MergeRequests::Applic
     render_diffs
   end
 
-  def diffs_metadata
-  end
-
-  def diffs_batch
-    batch_page = params[:page]
-    batch_size = params[:per_page]
-
-    request = {
-      current_user: current_user,
-    }
-    options = {
-      merge_request: @merge_request
-    }
-
-    compare = @merge_request.merge_request_diff
-
-    compare.diffs(diff_options).write_cache
-    diffs = compare.diffs_in_batch(batch_page, batch_size, diff_options: diff_options)
-
-    render json: PaginatedDiffSerializer.new(request).represent(diffs, options)
-  end
-
   def diff_for_path
     render_diffs
   end

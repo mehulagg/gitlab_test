@@ -38,16 +38,17 @@ module Gitlab
               # the current paginated set accordingly (collection limit calculation).
               # See: https://docs.gitlab.com/ee/development/diffs.html#diff-collection-limits
               #
-              offset_index = @paginated_collection.first&.index
+              collection = @paginated_collection.to_a
+              offset_index = collection.first&.index
               options = diff_options.dup
 
               collection =
                 if offset_index && offset_index > 0
                   offset_collection = relation.limit(offset_index) # rubocop:disable CodeReuse/ActiveRecord
                   options[:offset_index] = offset_index
-                  offset_collection + @paginated_collection
+                  offset_collection + collection
                 else
-                  @paginated_collection
+                  collection
                 end
 
               Gitlab::Git::DiffCollection.new(collection.map(&:to_hash), options)
