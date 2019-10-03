@@ -2,8 +2,6 @@
 
 class NpmPackagePresenter
   include API::Helpers::RelatedResourcesHelpers
-  METADATA_KEYS = %i(name version dist dependencies devDependencies directories bundleDependencies peerDependencies deprecated engines bin).freeze
-
   attr_reader :project, :name, :packages, :tagged_packages, :type
 
   def initialize(project, name, packages, tagged_packages, type)
@@ -18,14 +16,14 @@ class NpmPackagePresenter
     package_versions = {}
     packages.each do |package|
       package_file = package.package_files.last
-      package_metadatum = package.package_metadatum
-      if package_metadatum.present? && package_metadatum.metadata.present?
-        parsed_metadata = JSON.parse(package_metadatum.metadata).with_indifferent_access
-        package_versions[package.version] = build_metadata(parsed_metadata)
+      package_dependency_links = package.package_dependency_links
+      if package_dependency_links.present?
+        package_versions[package.version] = build_package_version(package, package_file).merge(traverse_dependencies(package_dependency_links))
       else
-        package_versions[package.version] = build_package_version(package, package_file)
+      package_versions[package.version] = build_package_version(package, package_file)
       end
     end
+
     package_versions
   end
 
@@ -34,10 +32,6 @@ class NpmPackagePresenter
   end
 
   private
-
-  def build_metadata(package_json)
-    package_json.slice(METADATA_KEYS).merge(optionalDependencies: package_json[:dependencies])
-  end
 
   def build_package_version(package, package_file)
     {
@@ -59,5 +53,14 @@ class NpmPackagePresenter
   def sorted_versions
     versions = packages.map(&:version).compact
     VersionSorter.sort(versions)
+  end
+
+  def traverse_dependencies(package_links)
+    dependency_hash = Hash.new { |hash, dep_type| hash[dep_type] = {} }
+    package_links.each do |dependency_link|
+      package_dependency = Packages::PackageDependency.find(dependency_link.package_dependency_id)
+      dependency_hash[dependency_link.dependency_type].store package_dependency.name, package_dependency.version_pattern
+    end
+    dependency_hash
   end
 end

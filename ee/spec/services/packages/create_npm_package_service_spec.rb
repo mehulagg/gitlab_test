@@ -80,4 +80,20 @@ describe Packages::CreateNpmPackageService do
       end
     end
   end
+
+  describe '#package_metadata' do
+    context 'with newly published packages' do
+      let(:params) do
+        JSON.parse(fixture_file('npm/payload.json', dir: 'ee')).with_indifferent_access
+      end
+
+      it 'extracts metadata from the package.json' do
+        response = described_class.new(project, user, params)
+        package_version = params[:versions].keys.first
+        package_metadata = params[:versions][package_version].to_json
+
+        expect(response.package_metadata).to eq(package_metadata)
+      end
+    end
+  end
 end

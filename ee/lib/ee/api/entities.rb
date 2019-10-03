@@ -856,7 +856,7 @@ module EE
       end
 
       class NpmPackage < Grape::Entity
-        expose :versions, if: lambda { |instance, object| instance.type != 'tags' }, merge: true do
+        expose :versions, merge: true do
           expose :format_versions, as: :versions
           expose :format_tags, as: 'dist-tags'
         end

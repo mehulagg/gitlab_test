@@ -6,10 +6,14 @@ class Packages::Package < ApplicationRecord
   # package_files must be destroyed by ruby code in order to properly remove carrierwave uploads and update project statistics
   has_many :package_files, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_one :conan_metadatum, inverse_of: :package
+  has_many :package_tags
+  has_many :package_dependencies
+  has_many :package_dependency_links
   has_one :maven_metadatum, inverse_of: :package
 
   accepts_nested_attributes_for :conan_metadatum
   accepts_nested_attributes_for :maven_metadatum
+  accepts_nested_attributes_for :package_metadatum
 
   delegate :recipe, :recipe_path, to: :conan_metadatum, prefix: :conan
 
@@ -58,6 +62,10 @@ class Packages::Package < ApplicationRecord
     with_name(name)
       .joins(:package_files)
       .where(packages_package_files: { file_name: file_name }).last!
+  end
+
+  def self.by_name_and_version(name, version)
+    with_name(name).with_version(version)
   end
 
   def self.pluck_names

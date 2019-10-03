@@ -10,7 +10,7 @@ describe NpmPackagePresenter do
   let(:packages) { [package, latest_package] }
   let(:dist_object) { { shasum: "verylongsha", tarball: "http://gitlab.example.com/v4/api/packages/npm" } }
   let(:dependencies) { { bundleDependencies: {}, peerDependencies: {}, deprecated: "", engines: {} } }
-  let(:package_metadatum) { create(:package_metadatum, package_id: package.id, metadata: { name: package.name, version: package.version, dist: dist_object }.to_json ) }
+  let(:package_dependencies) { create(:package_dependency, package_id: package.id, name: "babel", version_pattern: "3.0.0" ) }
   let(:presenter) { described_class.new(project, package.name, packages, package_tags, 'tags') }
 
   describe '#dist_tags' do
@@ -44,7 +44,7 @@ describe NpmPackagePresenter do
     it { expect(presenter.versions[latest_package.version]).to match_schema('public_api/v4/packages/npm_package_version', dir: 'ee') }
 
     # For older packages without metadata
-    context "Returns package if it doesn't have metadata as long as the package exists" do
+    context "Returns package if it doesn't have dependencies as long as the package exists" do
       let(:older_package1) { create(:npm_package, version: '1.0.2', project: project) }
       let(:older_package2) { create(:npm_package, version: '1.1.3', project: project) }
       let(:packages) { [older_package1, older_package2] }
@@ -54,7 +54,7 @@ describe NpmPackagePresenter do
 
       subject { described_class.new(project, older_package1.name, packages, package_tags, 'tags') }
 
-      it "builds the package hash from package_files instead of the package_metadatum.metadata" do
+      it "builds the package hash from package_files instead of the package_dependencies" do
         versions =
           {
             package1_version =>
@@ -76,7 +76,7 @@ describe NpmPackagePresenter do
                 version: older_package2.version
               }
           }
-        expect(older_package1.package_metadatum.present?).to eq(false)
+        expect(older_package1.package_dependencies.present?).to eq(false)
         expect(subject.versions).to eq(versions)
       end
     end

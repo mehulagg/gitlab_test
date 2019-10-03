@@ -197,9 +197,11 @@ And the `.npmrc` file should look like:
 @foo:registry=https://gitlab.com/api/v4/packages/npm/
 ```
 
-## NPM Dependencies
+## NPM dependencies metadata
 
-Prior to 12.4, the NPM package dependencies were not supported as the package metadata were not exposed from the server to the NPM client. As of 12.4, new packages published to the GitLab NPM registry expose the following attributes to the NPM client:
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/11867) in GitLab Premium 12.4.
+
+Starting from GitLab 12.4, new packages published to the GitLab NPM Registry expose the following attributes to the NPM client:
 
 - name
 - version
@@ -213,20 +215,26 @@ Prior to 12.4, the NPM package dependencies were not supported as the package me
 - engines
 - bin
 
-## NPM Dist Tags
+## NPM distribution tags
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/9425) in GitLab Premium 12.4.
 
 Dist Tags for newly published packages are supported, and they follow NPM's convention where they are optional, and each tag can only be assigned to 1 package at
-a time.
+You can add [distribution tags](https://docs.npmjs.com/cli/dist-tag) for newly
+published packages. They follow NPM's convention where they are optional, and
+each tag can only be assigned to one package at a time. The latest tag is added
+by default when a package is published without a tag. The same goes to installing
+a package without specifying the tag or version.
 
-Examples of the supported dist tag commands:
+Examples of the supported `dist-tag` commands and using tags in general:
 
-````sh
-npm publish @scope/package --tag  #Publish new package with new tag
-npm dist-tag add @scope/package@version tag #add a tag to an existing package
-npm dist-tag ls @scope/package #List all tags under the package
-npm dist-tag rm @scope/package@version tag #Delete a tag from the package*
-npm install @scope/package@tag
-````
+```sh
+npm publish @scope/package --tag               # Publish new package with new tag
+npm dist-tag add @scope/package@version my-tag # Add a tag to an existing package
+npm dist-tag ls @scope/package                 # List all tags under the package
+npm dist-tag rm @scope/package@version my-tag  # Delete a tag from the package
+npm install @scope/package@my-tag              # Install a specific tag
+```
 
-*Due to a bug in NPM 6.9.0, deleting dist tags fails. We have submitted a Pull Request to the NPM repository to fix the bug in NPM's next release.
-NOTE:Note: The latest tag is added by default when a package is published without a tag. The same goes to installing a package without specifying the tag or version.
+CAUTION: **Warning:**
+Due to a bug in NPM 6.9.0, deleting dist tags fails. Make sure your NPM version is greater than 6.9.1.

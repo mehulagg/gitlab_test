@@ -29,17 +29,15 @@ module Packages
 
       ::Packages::PackageTag.transaction do
         ::Packages::CreatePackageFileService.new(package, file_params).execute
-        ::Packages::CreatePackageMetadataService.new(package, package_metadata).execute
+        ::Packages::CreatePackageDependencyService.new(package, package_dependencies).execute
         ::Packages::CreateNpmPackageTagService.new(package, dist_tag).execute
       end
       package
     end
 
-    def package_metadata
-      package_json = params[:versions]
-      version = params[:versions].keys.first
-
-      package_json[version].to_json
+    def package_dependencies
+      _version, version_data = params[:versions].first
+      version_data
     end
   end
 end
