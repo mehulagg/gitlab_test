@@ -40,6 +40,32 @@ shared_examples 'diff statistics' do |test_include_stats_flag: true|
       subject.diff_files
     end
   end
+
+  describe '#diff_stats' do
+    let(:diff_refs) { diffable.diff_refs }
+
+    it 'returns a Gitlab::Git::DiffStatsCollection' do
+      expect(subject.diff_stats).to be_a(Gitlab::Git::DiffStatsCollection)
+    end
+
+    it 'calls Repository#diff_stats with expected arguments' do
+      expect(diffable.project.repository).to receive(:diff_stats)
+        .with(diff_refs.base_sha, diff_refs.head_sha)
+        .and_call_original
+
+      subject.diff_stats
+    end
+
+    context 'when should not request diff stats' do
+      it 'Repository#diff_stats is not called' do
+        collection_default_args[:diff_options][:include_stats] = false
+
+        expect(diffable.project.repository).not_to receive(:diff_stats)
+
+        subject.diff_stats
+      end
+    end
+  end
 end
 
 shared_examples 'unfoldable diff' do

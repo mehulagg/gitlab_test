@@ -34,6 +34,17 @@ module Gitlab
           @diff_files ||= diffs.decorate! { |diff| decorate_diff!(diff) }
         end
 
+        def diff_stats
+          strong_memoize(:diff_stats) do
+            # There are scenarios where we don't need to request Diff Stats,
+            # when caching for instance.
+            next unless @include_stats
+            next unless diff_refs
+
+            @repository.diff_stats(diff_refs.base_sha, diff_refs.head_sha)
+          end
+        end
+
         # This mutates `diff_files` lines.
         def unfold_diff_files(positions)
           positions_grouped_by_path = positions.group_by { |position| position.file_path }
@@ -62,21 +73,10 @@ module Gitlab
 
         private
 
-        def diff_stats_collection
-          strong_memoize(:diff_stats) do
-            # There are scenarios where we don't need to request Diff Stats,
-            # when caching for instance.
-            next unless @include_stats
-            next unless diff_refs
-
-            @repository.diff_stats(diff_refs.base_sha, diff_refs.head_sha)
-          end
-        end
-
         def decorate_diff!(diff)
           return diff if diff.is_a?(File)
 
-          stats = diff_stats_collection&.find_by_path(diff.new_path)
+          stats = diff_stats&.find_by_path(diff.new_path)
 
           Gitlab::Diff::File.new(diff,
                                  repository: project.repository,

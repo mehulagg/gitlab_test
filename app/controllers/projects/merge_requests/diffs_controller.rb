@@ -7,7 +7,7 @@ class Projects::MergeRequests::DiffsController < Projects::MergeRequests::Applic
   before_action :apply_diff_view_cookie!
   before_action :commit, except: :diffs_batch
   before_action :define_diff_vars, except: :diffs_batch
-  before_action :define_diff_comment_vars, except: :diffs_batch
+  before_action :define_diff_comment_vars, except: [:diffs_batch, :diffs_metadata]
 
   def show
     render_diffs
@@ -32,6 +32,11 @@ class Projects::MergeRequests::DiffsController < Projects::MergeRequests::Applic
     render json: PaginatedDiffSerializer.new(current_user: current_user).represent(diffs, options)
   end
 
+  def diffs_metadata
+    render json: DiffsMetadataSerializer.new(project: @merge_request.project)
+                   .represent(@diffs, additional_attributes)
+  end
+
   private
 
   def preloadable_mr_relations
@@ -40,7 +45,6 @@ class Projects::MergeRequests::DiffsController < Projects::MergeRequests::Applic
 
   def render_diffs
     @environment = @merge_request.environments_for(current_user).last
-
     note_positions = renderable_notes.map(&:position).compact
     @diffs.unfold_diff_files(note_positions)
 
