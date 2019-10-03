@@ -70,6 +70,10 @@ module Gitlab
       end
 
       config.eager_load_paths.push(*com_paths)
+      config.helpers_paths.push "#{config.root}/com/app/helpers"
+
+      config.paths['lib/tasks'].unshift "#{config.root}/com/lib/tasks"
+      config.paths['app/views'].unshift "#{config.root}/com/app/views"
     end
 
     # Rake tasks ignore the eager loading settings, so we need to set the
