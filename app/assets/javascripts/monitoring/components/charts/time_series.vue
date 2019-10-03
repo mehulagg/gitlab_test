@@ -277,6 +277,7 @@ export default {
       :data="chartData"
       :option="chartOptions"
       :format-tooltip-text="formatTooltipText"
+      :tooltip-pointer-events="true"
       :thresholds="thresholds"
       :width="width"
       :height="height"
