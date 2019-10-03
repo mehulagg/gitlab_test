@@ -3,7 +3,9 @@
 module Gitlab
   module Badge
     module Release
-
+      ##
+      # Latest Release badge
+      #
       class LatestRelease < Badge::Base
         attr_reader :project, :ref
 
@@ -27,7 +29,6 @@ module Gitlab
         def template
           @template ||= Release::Template.new(self)
         end
-
       end
     end
   end
