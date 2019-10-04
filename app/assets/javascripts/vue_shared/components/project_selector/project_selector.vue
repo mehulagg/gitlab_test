@@ -57,6 +57,9 @@ export default {
     projectClicked(project) {
       this.$emit('projectClicked', project);
     },
+    bottomReached() {
+      this.$emit('bottomReached');
+    },
     isSelected(project) {
       return Boolean(_.find(this.selectedProjects, { id: project.id }));
     },
@@ -77,7 +80,7 @@ export default {
       @input="onInput"
     />
     <div class="d-flex flex-column">
-      <gl-infinite-scroll :fetched-items="projectSearchResults.length" :total-items="totalResults">
+      <gl-infinite-scroll :scroll-offset=402 @bottomReached="bottomReached" :fetched-items="projectSearchResults.length" :total-items="totalResults">
         <gl-loading-icon v-if="showLoadingIndicator" :size="1" class="py-2 px-4" />
         <div v-if="!showLoadingIndicator" class="d-flex flex-column">
           <project-list-item
