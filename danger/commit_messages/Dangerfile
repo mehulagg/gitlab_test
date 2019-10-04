@@ -91,7 +91,7 @@ def squash?
 end
 
 def find_first_multiline_commit(commits)
-  # commits is ordered from most recent to most ancient, we wand to pick the first chronologically
+  # commits are ordered from most recent to most ancient, we want to pick the first chronologically
   commits.reverse.keep_if { |c| c.message.split("\n").length >= 3 }.first
 end
 
@@ -297,7 +297,7 @@ if squash?
   # MRs with commit squashing enabled will only use the first multi-line commit,
   # if it exists, and will discard the rest.
   squash_commit = find_first_multiline_commit(git.commits)
-  unless squash_commit.nil?
+  if squash_commit
     message "Commit squashing is enabled and #{squash_commit} will be picked as the squash commit"
     lint_commits([squash_commit])
   end
