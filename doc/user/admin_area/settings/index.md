@@ -21,7 +21,7 @@ If you are already in a different section of the Admin Area settings, you can cl
 - [Sign-up restrictions](sign_up_restrictions.md)
 - [Sign in restrictions](sign_in_restrictions.md)
 - [Terms of Service and Privacy Policy](terms.md)
-- [External Authentication](user/admin_area/settings/external_authorization.md#configuration)
+- [External Authentication](external_authorization.md#configuration)
 - Web terminal (missing)
 - Web IDE (missing)
 
@@ -37,7 +37,7 @@ If you are already in a different section of the Admin Area settings, you can cl
 
 - [Repository mirror](visibility_and_access_controls.md#allow-mirrors-to-be-set-up-for-projects)
 - [Repository storage](../../../administration/repository_storage_types.md#how-to-migrate-to-hashed-storage)
-- Repository maintenance ([repository checks](../../../administration/repository_checks.md) and [repository housekeeping](administration/housekeeping.md))
+- Repository maintenance ([repository checks](../../../administration/repository_checks.md) and [repository housekeeping](../../../administration/housekeeping.md))
 - [Repository static objects](../../../administration/static_objects_external_storage.md)
 
 ## Templates **(PREMIUM ONLY)**
@@ -82,7 +82,7 @@ If you are already in a different section of the Admin Area settings, you can cl
 - [Email](email.md)
 - [Help page](../../../customization/help_message.md)
 - Pages - [Not all settings here](../../../administration/pages/index.md#custom-domain-verification)
-- [Real-time features](administration/polling.md)
+- [Real-time features](../../../administration/polling.md)
 - Gitaly (missing)
 - Localization - (partially below, partially linked) [time tracking](../../../workflow/time_tracking.md#limit-displayed-units-to-hours-core-only)
 
