@@ -107,6 +107,23 @@ describe Deployments::AfterCreateService do
         expect(subject.environment.external_url).to eq('http://master.review-apps.gitlab.com')
       end
     end
+
+    context 'when auto_stop_in are used' do
+      let(:options) do
+        { name: 'production', auto_stop_in: '1 day' }
+      end
+
+      it 'sets auto stop in' do
+        Timecop.freeze do
+          expect(environment.auto_stop_in).to be_nil
+
+          subject.execute
+
+          expect(environment.auto_stop_at).to eq(1.day.since)
+          expect(environment.auto_stop_in).to eq(1.day.to_i)
+        end
+      end
+    end
   end
 
   describe '#expanded_environment_url' do

@@ -10,7 +10,7 @@ module Gitlab
         class Environment < ::Gitlab::Config::Entry::Node
           include ::Gitlab::Config::Entry::Validatable
 
-          ALLOWED_KEYS = %i[name url action on_stop].freeze
+          ALLOWED_KEYS = %i[name url action on_stop auto_stop_in].freeze
 
           validations do
             validate do
@@ -46,6 +46,7 @@ module Gitlab
                         allow_nil: true
 
               validates :on_stop, type: String, allow_nil: true
+              validates :auto_stop_in, duration: true, allow_nil: true
             end
           end
 
@@ -71,6 +72,10 @@ module Gitlab
 
           def on_stop
             value[:on_stop]
+          end
+
+          def auto_stop_in
+            value[:auto_stop_in]
           end
 
           def value

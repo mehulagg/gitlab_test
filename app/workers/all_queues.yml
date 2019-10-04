@@ -33,6 +33,7 @@
 - cronjob:prune_web_hook_logs
 - cronjob:schedule_migrate_external_diffs
 - cronjob:namespaces_prune_aggregation_schedules
+- cronjob:environments_auto_stop_cron
 
 - gcp_cluster:cluster_install_app
 - gcp_cluster:cluster_patch_app

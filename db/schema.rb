@@ -1372,6 +1372,8 @@ ActiveRecord::Schema.define(version: 2019_10_17_180026) do
     t.string "environment_type"
     t.string "state", default: "available", null: false
     t.string "slug", null: false
+    t.datetime_with_timezone "auto_stop_at"
+    t.index ["auto_stop_at"], name: "index_environments_on_auto_stop_at", where: "(auto_stop_at IS NOT NULL)"
     t.index ["name"], name: "index_environments_on_name_varchar_pattern_ops", opclass: :varchar_pattern_ops
     t.index ["project_id", "name"], name: "index_environments_on_project_id_and_name", unique: true
     t.index ["project_id", "slug"], name: "index_environments_on_project_id_and_slug", unique: true

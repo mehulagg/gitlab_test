@@ -6,10 +6,10 @@ class Projects::EnvironmentsController < Projects::ApplicationController
   layout 'project'
   before_action :authorize_read_environment!
   before_action :authorize_create_environment!, only: [:new, :create]
-  before_action :authorize_stop_environment!, only: [:stop]
+  before_action :authorize_stop_environment!, only: [:stop, :cancel_auto_stop]
   before_action :authorize_update_environment!, only: [:edit, :update]
   before_action :authorize_admin_environment!, only: [:terminal, :terminal_websocket_authorize]
-  before_action :environment, only: [:show, :edit, :update, :stop, :terminal, :terminal_websocket_authorize, :metrics]
+  before_action :environment, only: [:show, :edit, :update, :stop, :terminal, :terminal_websocket_authorize, :metrics, :cancel_auto_stop]
   before_action :verify_api_request!, only: :terminal_websocket_authorize
   before_action :expire_etag_cache, only: [:index]
   before_action only: [:metrics, :additional_metrics, :metrics_dashboard] do
@@ -103,6 +103,26 @@ class Projects::EnvironmentsController < Projects::ApplicationController
     respond_to do |format|
       format.html { redirect_to action_or_env_url }
       format.json { render json: { redirect_url: action_or_env_url } }
+    end
+  end
+
+  def cancel_auto_stop
+    return render_404 unless @environment.available?
+
+    if environment.reset_auto_stop
+      respond_to do |format|
+        message = 'Auto stop successfully canceled'
+
+        format.html { redirect_back_or_default(default: { action: 'show' }, options: { notice: message }) }
+        format.json { render json: { message: message }, status: :ok }
+      end
+    else
+      respond_to do |format|
+        message = 'Auto stop cancel failed'
+
+        format.html { redirect_back_or_default(default: { action: 'show' }, options: { alert: message }) }
+        format.json { render json: { message: message }, status: :unprocessable_entity }
+      end
     end
   end
 

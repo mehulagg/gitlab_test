@@ -24,6 +24,10 @@ class EnvironmentEntity < Grape::Entity
     stop_project_environment_path(environment.project, environment)
   end
 
+  expose :cancel_auto_stop_path do |environment|
+    cancel_auto_stop_project_environment_path(environment.project, environment)
+  end
+
   expose :cluster_type, if: ->(environment, _) { cluster_platform_kubernetes? } do |environment|
     cluster.cluster_type
   end
@@ -36,7 +40,7 @@ class EnvironmentEntity < Grape::Entity
     folder_project_environments_path(environment.project, environment.folder_name)
   end
 
-  expose :created_at, :updated_at
+  expose :created_at, :updated_at, :auto_stop_at
 
   expose :can_stop do |environment|
     environment.available? && can?(current_user, :stop_environment, environment)

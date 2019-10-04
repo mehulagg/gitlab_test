@@ -50,6 +50,8 @@ class Environment < ApplicationRecord
   scope :in_review_folder, -> { where(environment_type: "review") }
   scope :for_name, -> (name) { where(name: name) }
   scope :preload_cluster, -> { preload(last_deployment: :cluster) }
+  scope :preload_project_and_user, -> { preload(:project, last_deployment: :user) }
+  scope :auto_stoppable, -> (limit) { where('auto_stop_at < ?', Time.now).limit(limit) }
 
   ##
   # Search environments which have names like the given query.
@@ -150,6 +152,10 @@ class Environment < ApplicationRecord
     stop_action&.play(current_user)
   end
 
+  def reset_auto_stop
+    update(auto_stop_at: nil)
+  end
+
   def actions_for(environment)
     return [] unless manual_actions
 
@@ -247,6 +253,17 @@ class Environment < ApplicationRecord
     if last_deployment&.cluster
       Clusters::KnativeServicesFinder.new(last_deployment.cluster, self)
     end
+  end
+
+  def auto_stop_in
+    auto_stop_at - Time.now if auto_stop_at
+  end
+
+  def auto_stop_in=(value)
+    self.auto_stop_at =
+      if value
+        ChronicDuration.parse(value)&.seconds&.from_now
+      end
   end
 
   private

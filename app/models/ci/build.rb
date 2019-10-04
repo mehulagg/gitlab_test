@@ -442,6 +442,10 @@ module Ci
       options&.dig(:environment, :on_stop)
     end
 
+    def environment_auto_stop_in
+      options&.dig(:environment, :auto_stop_in)
+    end
+
     ##
     # All variables, including persisted environment variables.
     #

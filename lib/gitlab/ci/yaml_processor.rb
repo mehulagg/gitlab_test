@@ -53,7 +53,7 @@ module Gitlab
             before_script: job[:before_script],
             script: job[:script],
             after_script: job[:after_script],
-            environment: job[:environment],
+            environment: job[:environment], # TODO: We would not want to store `auto_stop_at` in ci_builds.options
             retry: job[:retry],
             parallel: job[:parallel],
             instance: job[:instance],
