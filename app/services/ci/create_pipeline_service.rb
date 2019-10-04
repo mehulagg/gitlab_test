@@ -136,11 +136,9 @@ module Ci
     end
 
     def ensure_no_running_db_transactions!
-      # All specs run inside a transaction to allow rollback
-      max_open_transactions = Rails.env.test? ? 1 : 0
-
-      if ActiveRecord::Base.connection.open_transactions > max_open_transactions
-        raise ForbiddenTransactionError, 'Pipeline cannot be created inside a transaction'
+      if Gitlab::Database.inside_transaction?
+        exception = ForbiddenTransactionError.new('Pipeline cannot be created inside a transaction')
+        Gitlab::Sentry.track_exception(exception, extra: { project_id: project.id })
       end
     end
   end
