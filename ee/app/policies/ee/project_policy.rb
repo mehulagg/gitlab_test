@@ -269,6 +269,16 @@ module EE
       end
 
       rule { build_service_proxy_enabled }.enable :build_service_proxy_enabled
+
+      # TODO:
+      # condition(:can_access_to_protected_environment) do
+      #   subject.protected_environment_accessible_to?(name, @user)
+      # end
+
+      # rule { ~can_access_to_protected_environment }.policy do
+      #   prevent :create_deployment
+      #   prevent :create_environment
+      # end
     end
 
     override :lookup_access_level!

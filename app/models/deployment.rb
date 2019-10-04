@@ -170,6 +170,20 @@ class Deployment < ApplicationRecord
     deployable&.user || user
   end
 
+  def created_by?(user)
+    self.user == user
+  end
+
+  def internal?
+    self.deployable_id.present?
+  end
+
+  ##
+  # If this deployment object is created from an external CD system.
+  def external?
+    !internal?
+  end
+
   private
 
   def ref_path
