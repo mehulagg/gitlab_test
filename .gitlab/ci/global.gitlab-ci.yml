@@ -118,7 +118,7 @@
 
 .use-pg9:
   services:
-    - name: postgres:9.6
+    - name: postgres:11
       command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"]
     - name: redis:alpine
 
@@ -131,7 +131,7 @@
 
 .use-pg9-ee:
   services:
-    - name: postgres:9.6
+    - name: postgres:11
       command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"]
     - name: redis:alpine
     - name: docker.elastic.co/elasticsearch/elasticsearch:5.6.12
