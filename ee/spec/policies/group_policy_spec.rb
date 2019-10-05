@@ -98,6 +98,32 @@ describe GroupPolicy do
           is_expected.not_to be_allowed(:read_group)
         end
 
+        context 'as an admin' do
+          let(:current_user) { admin }
+
+          it 'allows access' do
+            is_expected.to allow_action(:read_group)
+          end
+        end
+
+        context 'as a group owner' do
+          before do
+            group.add_owner(current_user)
+          end
+
+          it 'prevents access without a SAML session' do
+            is_expected.not_to allow_action(:read_group)
+          end
+        end
+
+        context 'with public access' do
+          let(:group) { create(:group, :public) }
+
+          it 'allows access desipte group enforcement' do
+            is_expected.to allow_action(:read_group)
+          end
+        end
+
         it 'allows access with a SAML session' do
           Gitlab::Auth::GroupSaml::SsoEnforcer.new(saml_provider).update_session
 

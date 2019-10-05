@@ -127,9 +127,9 @@ module EE
         prevent :read_group_security_dashboard
       end
 
-      rule { needs_new_sso_session }.policy do
-        prevent :read_group
-      end
+      #rule { needs_new_sso_session & ~admin }.policy do
+      #  prevent :read_group
+      #end
 
       rule { ip_enforcement_prevents_access & ~owner }.policy do
         prevent :read_group
