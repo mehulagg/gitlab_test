@@ -33,9 +33,21 @@ after_script:
       command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"]
     - name: redis:alpine
 
+.default-cache:
+  cache:
+    key: "debian-stretch-ruby-2.6.3-node-12.x"
+    paths:
+      - .go/pkg/mod
+      - vendor/ruby
+      - .yarn-cache/
+      - vendor/gitaly-ruby
+    policy: pull
+
 setup-test-env:
   extends:
     - .use-pg9
+    - .default-cache
+    - .default-before_script
   stage: prepare
   script:
     - bundle exec ruby -Ispec -e 'require "spec_helper" ; TestEnv.init'
