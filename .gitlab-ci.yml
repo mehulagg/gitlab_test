@@ -164,6 +164,7 @@ build-qa-image:
 package-and-qa:
   extends:
     - .package-and-qa-base
+    - .target-qa-branch
   except:
     refs:
       - master
