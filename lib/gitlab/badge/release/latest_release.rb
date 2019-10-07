@@ -6,7 +6,7 @@ module Gitlab
       ##
       # Latest Release badge
       #
-      class LatestRelease < Badge::Base
+      class Latest_Release < Badge::Base
         attr_reader :project, :ref
 
         def initialize(project, ref)
