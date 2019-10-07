@@ -61,6 +61,32 @@ module API
         requires :recipe_path, type: String, desc: 'Package recipe'
       end
 
+      # Get the download urls
+      #
+      # returns the download urls for the existing recipe or package in the registry
+      #
+      # the manifest is a hash of { filename: url }
+      # where the url is the download url for the file
+      desc 'Package Download Urls' do
+        detail 'This feature was introduced in GitLab 12.3'
+      end
+      get 'packages/:package_id/download_urls' do
+        presenter = download_urls_presenter
+        render_api_error!("No recipe manifest found", 404) if presenter.package_urls.empty?
+
+        present presenter, with: EE::API::Entities::ConanPackage::ConanPackageManifest
+      end
+
+      desc 'Recipe Download Urls' do
+        detail 'This feature was introduced in GitLab 12.3'
+      end
+      get 'download_urls' do
+        presenter = download_urls_presenter
+        render_api_error!("No recipe manifest found", 404) if presenter.recipe_urls.empty?
+
+        present presenter, with: EE::API::Entities::ConanPackage::ConanRecipeManifest
+      end
+
       # Get the recipe manifest
       # returns the download urls for the existing recipe in the registry
       #
@@ -70,14 +96,7 @@ module API
         detail 'This feature was introduced in GitLab 12.3'
       end
       get 'packages/:package_id/digest' do
-        recipe = generate_recipe(params[:recipe_path])
-        project = find_project_by_recipe(params[:recipe_path])
-        render_api_error!("No recipe manifest found", 404) unless project
-
-        authorize!(:read_package, project)
-
-        presenter = ConanPackagePresenter.new(recipe, current_user, project, params[:package_id])
-
+        presenter = download_urls_presenter
         render_api_error!("No recipe manifest found", 404) if presenter.package_urls.empty?
 
         present presenter, with: EE::API::Entities::ConanPackage::ConanPackageManifest
@@ -87,14 +106,7 @@ module API
         detail 'This feature was introduced in GitLab 12.3'
       end
       get 'digest' do
-        recipe = generate_recipe(params[:recipe_path])
-        project = find_project_by_recipe(params[:recipe_path])
-        render_api_error!("No recipe manifest found", 404) unless project
-
-        authorize!(:read_package, project)
-
-        presenter = ConanPackagePresenter.new(recipe, current_user, project)
-
+        presenter = download_urls_presenter
         render_api_error!("No recipe manifest found", 404) if presenter.recipe_urls.empty?
 
         present presenter, with: EE::API::Entities::ConanPackage::ConanRecipeManifest
@@ -306,6 +318,14 @@ module API
 
       def valid_recipe_path?(recipe_path)
         recipe_path =~ %r{\A(([\w](\.|\+|-)?)*(\/?)){4}\z}
+      end
+
+      def download_urls_presenter
+        recipe = generate_recipe(params[:recipe_path])
+        project = find_project_by_recipe(params[:recipe_path])
+        render_api_error!("No recipe manifest found", 404) unless project
+
+        ConanPackagePresenter.new(recipe, current_user, project, params[:package_id])
       end
     end
   end
