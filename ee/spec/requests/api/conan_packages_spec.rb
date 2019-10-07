@@ -567,4 +567,93 @@ describe API::ConanPackages do
       end
     end
   end
+
+  describe 'GET /api/v4/packages/conan/v1/files/*url_recipe/-/*path/:file_name' do
+    let(:jwt) { build_jwt(personal_access_token) }
+    let(:headers) { build_auth_headers(jwt.encoded) }
+    let(:package_file_tgz) { conan_package.package_files.find_by(file_type: 'tgz') }
+    let(:metadata) { package_file_tgz.conan_file_metadatum }
+
+    context 'a public project' do
+      it 'returns the file' do
+        download_file_with_token(package_file_tgz.file_name)
+
+        expect(response).to have_gitlab_http_status(200)
+        expect(response.content_type.to_s).to eq('application/octet-stream')
+      end
+    end
+
+    context 'internal project' do
+      before do
+        project.team.truncate
+        project.update!(visibility_level: Gitlab::VisibilityLevel::INTERNAL)
+      end
+
+      it 'returns the file' do
+        download_file_with_token(package_file_tgz.file_name)
+
+        expect(response).to have_gitlab_http_status(200)
+        expect(response.content_type.to_s).to eq('application/octet-stream')
+      end
+
+      it 'denies download with no token' do
+        download_file(package_file_tgz.file_name)
+
+        expect(response).to have_gitlab_http_status(401)
+      end
+    end
+
+    context 'private project' do
+      before do
+        project.update!(visibility_level: Gitlab::VisibilityLevel::PRIVATE)
+      end
+
+      it 'returns the file' do
+        download_file_with_token(package_file_tgz.file_name)
+
+        expect(response).to have_gitlab_http_status(200)
+        expect(response.content_type.to_s).to eq('application/octet-stream')
+      end
+
+      it 'denies download when not enough permissions' do
+        project.add_guest(user)
+
+        download_file_with_token(package_file_tgz.file_name)
+
+        expect(response).to have_gitlab_http_status(403)
+      end
+
+      it 'denies download when no private token' do
+        download_file(package_file_tgz.file_name)
+
+        expect(response).to have_gitlab_http_status(401)
+      end
+    end
+
+    it 'rejects request if feature is not in the license' do
+      stub_licensed_features(packages: false)
+
+      download_file_with_token(package_file_tgz.file_name)
+
+      expect(response).to have_gitlab_http_status(403)
+    end
+
+    context 'project is not found' do
+      let(:invalid_package_name) { 'not/package/for/project' }
+
+      it 'rejects request' do
+        get api("/packages/conan/v1/files/#{invalid_package_name}/-/#{metadata.path}/#{package_file_tgz.file_name}"), headers: headers
+
+        expect(response).to have_gitlab_http_status(404)
+      end
+    end
+
+    def download_file(file_name, params = {}, request_headers = {})
+      get api("/packages/conan/v1/files/#{conan_package.conan_recipe_path}/-/#{metadata.path}/#{file_name}"), params: params, headers: request_headers
+    end
+
+    def download_file_with_token(file_name, params = {}, request_headers = headers)
+      download_file(file_name, params, request_headers)
+    end
+  end
 end
