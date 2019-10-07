@@ -7,6 +7,7 @@ class ObjectStoreSettings
     object_store['direct_upload'] = false if object_store['direct_upload'].nil?
     object_store['background_upload'] = true if object_store['background_upload'].nil?
     object_store['proxy_download'] = false if object_store['proxy_download'].nil?
+    object_store['skip_etag_verify'] = false if object_store['skip_etag_verify'].nil?
 
     # Convert upload connection settings to use string keys, to make Fog happy
     object_store['connection']&.deep_stringify_keys!

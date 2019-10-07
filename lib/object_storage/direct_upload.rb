@@ -24,8 +24,9 @@ module ObjectStorage
 
     attr_reader :credentials, :bucket_name, :object_name
     attr_reader :has_length, :maximum_size
+    attr_reader :skip_etag_verify
 
-    def initialize(credentials, bucket_name, object_name, has_length:, maximum_size: nil)
+    def initialize(credentials, bucket_name, object_name, has_length:, maximum_size: nil, skip_etag_verify: false)
       unless has_length
         raise ArgumentError, 'maximum_size has to be specified if length is unknown' unless maximum_size
       end
@@ -35,6 +36,7 @@ module ObjectStorage
       @object_name = object_name
       @has_length = has_length
       @maximum_size = maximum_size
+      @skip_etag_verify = skip_etag_verify
     end
 
     def to_hash
@@ -45,7 +47,8 @@ module ObjectStorage
         DeleteURL: delete_url,
         MultipartUpload: multipart_upload_hash,
         CustomPutHeaders: true,
-        PutHeaders: upload_options
+        PutHeaders: upload_options,
+        SkipETagVerify: skip_etag_verify
       }.compact
     end
 

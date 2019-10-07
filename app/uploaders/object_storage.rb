@@ -167,6 +167,10 @@ module ObjectStorage
         !proxy_download_enabled?
       end
 
+      def skip_etag_verify?
+        object_store_options.skip_etag_verify
+      end
+
       def object_store_credentials
         object_store_options.connection.to_hash.deep_symbolize_keys
       end
@@ -197,7 +201,7 @@ module ObjectStorage
         id = [CarrierWave.generate_cache_id, SecureRandom.hex].join('-')
         upload_path = File.join(TMP_UPLOAD_PATH, id)
         direct_upload = ObjectStorage::DirectUpload.new(self.object_store_credentials, remote_store_path, upload_path,
-          has_length: has_length, maximum_size: maximum_size)
+          has_length: has_length, maximum_size: maximum_size, skip_etag_verify: skip_etag_verify?)
 
         direct_upload.to_hash.merge(ID: id)
       end
