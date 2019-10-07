@@ -1,6 +1,7 @@
 <script>
 import { createNamespacedHelpers, mapState, mapActions } from 'vuex';
 import { sprintf, s__ } from '~/locale';
+import _ from 'underscore';
 import { GlFormInput, GlFormCheckbox } from '@gitlab/ui';
 import ClusterFormDropdown from './cluster_form_dropdown.vue';
 import RegionDropdown from './region_dropdown.vue';
@@ -32,8 +33,7 @@ export default {
   props: {
     gitlabManagedClusterHelpPath: {
       type: String,
-      required: false,
-      default: '',
+      required: true,
     },
   },
   computed: {
@@ -160,12 +160,14 @@ export default {
       );
     },
     gitlabManagedHelpText() {
+      const escapedUrl = _.escape(this.gitlabManagedClusterHelpPath);
+
       return sprintf(
         s__(
           'ClusterIntegration|Allow GitLab to manage namespace and service accounts for this cluster. %{startLink}More information%{endLink}',
         ),
         {
-          startLink: `<a href="${this.gitlabManagedClusterHelpPath}" target="_blank" rel="noopener noreferrer">`,
+          startLink: `<a href="${escapedUrl}" target="_blank" rel="noopener noreferrer">`,
           endLink: '</a>',
         },
         false,
@@ -215,7 +217,7 @@ export default {
         s__('ClusterIntegration|Kubernetes cluster name')
       }}</label>
       <gl-form-input
-        name="eks-cluster-name"
+        id="eks-cluster-name"
         :value="clusterName"
         @input="setClusterName({ clusterName: $event })"
       />
@@ -225,7 +227,7 @@ export default {
         s__('ClusterIntegration|Environment scope')
       }}</label>
       <gl-form-input
-        name="eks-environment-scope"
+        id="eks-environment-scope"
         :value="environmentScope"
         @input="setEnvironmentScope({ environmentScope: $event })"
       />

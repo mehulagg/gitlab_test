@@ -121,6 +121,9 @@ describe('EksClusterConfigurationForm', () => {
     vm = shallowMount(EksClusterConfigurationForm, {
       localVue,
       store,
+      propsData: {
+        gitlabManagedClusterHelpPath: '',
+      },
     });
   });
 
@@ -128,8 +131,8 @@ describe('EksClusterConfigurationForm', () => {
     vm.destroy();
   });
 
-  const findClusterNameInput = () => vm.find('[name=eks-cluster-name]');
-  const findEnvironmentScopeInput = () => vm.find('[name=eks-environment-scope]');
+  const findClusterNameInput = () => vm.find('[id=eks-cluster-name]');
+  const findEnvironmentScopeInput = () => vm.find('[id=eks-environment-scope]');
   const findKubernetesVersionDropdown = () => vm.find('[field-id="eks-kubernetes-version"]');
   const findRegionDropdown = () => vm.find(RegionDropdown);
   const findKeyPairDropdown = () => vm.find('[field-id="eks-key-pair"]');

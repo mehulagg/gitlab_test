@@ -10,8 +10,7 @@ export default {
   props: {
     gitlabManagedClusterHelpPath: {
       type: String,
-      required: false,
-      default: '',
+      required: true,
     },
   },
 };

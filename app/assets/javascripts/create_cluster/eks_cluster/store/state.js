@@ -6,7 +6,7 @@ export default () => ({
 
   clusterName: '',
   environmentScope: '*',
-  kubernetesVersion: KUBERNETES_VERSIONS[0].value,
+  kubernetesVersion: [KUBERNETES_VERSIONS].value,
   selectedRegion: '',
   selectedRole: '',
   selectedKeyPair: '',
