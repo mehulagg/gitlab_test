@@ -36,6 +36,14 @@ For more details on the internals, please read the
 * `GITLAB_QA_PASSWORD_1` - password for `GITLAB_QA_USERNAME_1` available in environments where signup is disabled (e.g. staging.gitlab.com)
 * `GITLAB_QA_USERNAME_2` - another username available in environments where signup is disabled
 * `GITLAB_QA_PASSWORD_2` - password for `GITLAB_QA_USERNAME_2` available in environments where signup is disabled (e.g. staging.gitlab.com)
+* `GITLAB_QA_USERNAME_3` - another username available in environments where signup is disabled
+* `GITLAB_QA_PASSWORD_3` - password for `GITLAB_QA_USERNAME_3` available in environments where signup is disabled (e.g. staging.gitlab.com)
+* `GITLAB_QA_USERNAME_4` - another username available in environments where signup is disabled
+* `GITLAB_QA_PASSWORD_4` - password for `GITLAB_QA_USERNAME_4` available in environments where signup is disabled (e.g. staging.gitlab.com)
+* `GITLAB_QA_USERNAME_5` - another username available in environments where signup is disabled
+* `GITLAB_QA_PASSWORD_5` - password for `GITLAB_QA_USERNAME_5` available in environments where signup is disabled (e.g. staging.gitlab.com)
+* `GITLAB_QA_USERNAME_6` - another username available in environments where signup is disabled
+* `GITLAB_QA_PASSWORD_6` - password for `GITLAB_QA_USERNAME_6` available in environments where signup is disabled (e.g. staging.gitlab.com)
 * `GITLAB_LDAP_USERNAME` - LDAP username to use when signing into GitLab
 * `GITLAB_LDAP_PASSWORD` - LDAP password to use when signing into GitLab
 * `GITLAB_ADMIN_USERNAME` - Admin username to use when adding a license
