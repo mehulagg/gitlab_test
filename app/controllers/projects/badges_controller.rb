@@ -28,6 +28,13 @@ class Projects::BadgesController < Projects::ApplicationController
     render_badge coverage_report
   end
 
+  def coverage
+    latest_release = Gitlab::Badge::Release::Latest_Release
+      .new(project, params[:ref], params[:job])
+
+    render_badge latest_release
+  end
+
   private
 
   def badge_layout

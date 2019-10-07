@@ -499,8 +499,11 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         collection do
           scope '*ref', constraints: { ref: Gitlab::PathRegex.git_reference_regex } do
             constraints format: /svg/ do
-              get :pipeline # rubocop:todo Cop/PutProjectRoutesUnderScope
-              get :coverage # rubocop:todo Cop/PutProjectRoutesUnderScope
+              # Keep around until 10.0, see gitlab-org/gitlab-ce#35307
+              get :build, to: "badges#pipeline"
+              get :pipeline
+              get :coverage
+              get :release
             end
           end
         end
