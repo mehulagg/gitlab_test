@@ -18,10 +18,7 @@ class ConsolidateCountersWorker
     lock = [self.class.name, model_class, model_id].join(':')
 
     in_lock(lock, retries: MAX_RETRIES, ttl: LOCK_TTL, sleep_sec: LOCK_WAIT_TIME) do
-      events = model.counter_events.where(attribute_name: attribute)
-      # consolidate the events atomically:
-      # * update attribute with the sum of the value of related events
-      # * delete summed events
+      model.slow_consolidate_counter_attribute!(attribute)
     end
   rescue Gitlab::ExclusiveLeaseHelpers::FailedToObtainLockError
     # TODO: what should we do here?

@@ -15,11 +15,16 @@ describe CounterAttribute do
     expect(class_with_counter.events_class).to eq(ProjectStatisticsEvent)
   end
 
+  it 'returns #counter_events_table_name' do
+    expect(subject.counter_events_table_name).to eq('project_statistics_events')
+  end
+
   describe 'counter_attribute' do
     %w[shared_runners_seconds].each do |attribute|
       describe attribute do
         describe "#increment_#{attribute}" do
           it 'logs a new event' do
+            expect(ConsolidateCountersWorker).to receive(:perform_async).and_return(nil)
             expect { subject.send("increment_#{attribute}", 17) }
               .to change { ProjectStatisticsEvent.count }.by(1)
 
@@ -30,7 +35,7 @@ describe CounterAttribute do
           end
         end
 
-        describe "#j#{attribute}=" do
+        describe "##{attribute}=" do
           it 'raises an error as setter method is disabled' do
             expect { subject.send("#{attribute}=", 1) }
               .to raise_error(NoMethodError)
@@ -56,12 +61,11 @@ describe CounterAttribute do
           end
 
           context 'when there are pending events' do
-            before do
+            it 'reads the value from the model table and sums the pending events' do
+              expect(ConsolidateCountersWorker).to receive(:perform_async).twice.and_return(nil)
               subject.send("increment_#{attribute}", 10)
               subject.send("increment_#{attribute}", -40)
-            end
 
-            it 'reads the value from the model table and sums the pending events' do
               expect(subject.send(attribute)).to eq(70)
             end
           end
