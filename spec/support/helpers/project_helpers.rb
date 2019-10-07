@@ -22,4 +22,9 @@ module ProjectHelpers
       builds_access_level: access_level
     )
   end
+
+  def exists?(storage, name)
+    byebug
+    Gitlab.config
+  end
 end

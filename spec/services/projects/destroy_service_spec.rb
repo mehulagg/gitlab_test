@@ -4,6 +4,7 @@ require 'spec_helper'
 
 describe Projects::DestroyService do
   include ProjectForksHelper
+  include ProjectHelpers
 
   let!(:user) { create(:user) }
   let!(:project) { create(:project, :repository, namespace: user.namespace) }
@@ -346,7 +347,8 @@ describe Projects::DestroyService do
     let(:path) { project.disk_path + '.git' }
 
     before do
-      expect(project.gitlab_shell.exists?(project.repository_storage, path)).to be_truthy
+      #expect(project.gitlab_shell.exists?(project.repository_storage, path)).to be_truthy
+      expect(exists?(project.repository_storage, path)).to be_truthy
       expect(project.gitlab_shell.exists?(project.repository_storage, remove_path)).to be_falsey
 
       # Dont run sidekiq to check if renamed repository exists
