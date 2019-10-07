@@ -294,8 +294,11 @@ def lint_commits(commits)
 end
 
 if squash?
-  # MRs with commit squashing enabled will only use the first multi-line commit,
-  # if it exists, and will discard the rest.
+  # MRs with commit squashing enabled will take the first multi-line
+  # commit message, if it exists, and will discard the rest.
+  # If there is no multi-line commit message, gitlab will pick the
+  # merge request title as the squash commit message and we don't need
+  # to lint the commits
   first_multiline_commit = find_first_multiline_commit(git.commits)
   if first_multiline_commit
     message "Squashing is enabled and commit message for #{first_multiline_commit.sha} will be picked as the squashed commit message."
