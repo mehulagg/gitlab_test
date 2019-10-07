@@ -92,7 +92,7 @@ end
 
 def find_first_multiline_commit(commits)
   # commits are ordered from most recent to most ancient, we want to pick the first chronologically
-  commits.reverse.keep_if { |c| c.message.split("\n").length >= 3 }.first
+  commits.reverse_each.find { |c| c.message.count("\n") >= 3 }
 end
 
 def lint_commit(commit) # rubocop:disable Metrics/AbcSize
@@ -296,10 +296,10 @@ end
 if squash?
   # MRs with commit squashing enabled will only use the first multi-line commit,
   # if it exists, and will discard the rest.
-  squash_commit = find_first_multiline_commit(git.commits)
-  if squash_commit
-    message "Commit squashing is enabled and #{squash_commit} will be picked as the squash commit"
-    lint_commits([squash_commit])
+  first_multiline_commit = find_first_multiline_commit(git.commits)
+  if first_multiline_commit
+    message "Squashing is enabled and commit message for #{first_multiline_commit.sha} will be picked as the squashed commit message."
+    lint_commits([first_multiline_commit])
   end
 else
   if git.commits.length > 10 && !ce_upstream?
