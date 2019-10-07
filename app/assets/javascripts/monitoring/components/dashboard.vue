@@ -171,6 +171,14 @@ export default {
       selectedTimeWindow: {},
       isRearrangingPanels: false,
       hasValidDates: true,
+      timeWindows: {},
+      modalCancel: {
+        text: 'Cancel',
+      },
+      modalPrimary: {
+        text: 'Save changes',
+        attributes: [this.setPrimaryActionDisabled()],
+      },
     };
   },
   computed: {
@@ -275,11 +283,13 @@ export default {
       const params = _.pick({ dashboard, group, title, y_label: yLabel }, value => value != null);
       return mergeUrlParams(params, window.location.href);
     },
-    hideAddMetricModal() {
-      this.$refs.addMetricModal.hide();
-    },
     toggleRearrangingPanels() {
       this.isRearrangingPanels = !this.isRearrangingPanels;
+    },
+    onSidebarMutation() {
+      setTimeout(() => {
+        this.elWidth = this.$el.clientWidth;
+      }, sidebarAnimationDuration);
     },
     setFormValidity(isValid) {
       this.formIsValid = isValid;
@@ -316,7 +326,12 @@ export default {
       // Collapse group if no data is available
       return !this.getMetricStates(groupKey).includes(metricStates.OK);
     },
+    setPrimaryActionDisabled() {
+      return !this.formIsValid ? { disabled: true } : null;
+    },
     getAddMetricTrackingOptions,
+    downloadCSVOptions,
+    generateLinkToChartOptions,
   },
   addMetric: {
     title: s__('Metrics|Add metric'),
@@ -420,6 +435,9 @@ export default {
               ref="addMetricModal"
               :modal-id="$options.addMetric.modalId"
               :title="$options.addMetric.title"
+              :modal-action-cancel="modalCancel"
+              :modal-action-primary="modalPrimary"
+              @primary="submitCustomMetricsForm"
             >
               <form ref="customMetricsForm" :action="customMetricsPath" method="post">
                 <custom-metrics-form-fields
@@ -428,18 +446,6 @@ export default {
                   @formValidation="setFormValidity"
                 />
               </form>
-              <div slot="modal-footer">
-                <gl-button @click="hideAddMetricModal">{{ __('Cancel') }}</gl-button>
-                <gl-button
-                  ref="submitCustomMetricsFormBtn"
-                  v-track-event="getAddMetricTrackingOptions()"
-                  :disabled="!formIsValid"
-                  variant="success"
-                  @click="submitCustomMetricsForm"
-                >
-                  {{ __('Save changes') }}
-                </gl-button>
-              </div>
             </gl-modal>
 
             <gl-button
