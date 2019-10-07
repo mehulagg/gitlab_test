@@ -80,9 +80,14 @@ export default {
       @input="onInput"
     />
     <div class="d-flex flex-column">
-      <gl-infinite-scroll :scroll-offset=402 @bottomReached="bottomReached" :fetched-items="projectSearchResults.length" :total-items="totalResults">
+      <gl-infinite-scroll
+        :max-list-height=402
+        :fetched-items="projectSearchResults.length"
+        :total-items="totalResults"
+        @bottomReached="bottomReached"
+        >
         <gl-loading-icon v-if="showLoadingIndicator" :size="1" class="py-2 px-4" />
-        <div v-if="!showLoadingIndicator" class="d-flex flex-column">
+        <div v-if="!showLoadingIndicator" slot="items" class="d-flex flex-column">
           <project-list-item
             v-for="project in projectSearchResults"
             :key="project.id"
