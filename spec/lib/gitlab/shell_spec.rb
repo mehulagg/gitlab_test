@@ -4,6 +4,8 @@ require 'spec_helper'
 require 'stringio'
 
 describe Gitlab::Shell do
+  include ProjectHelpers
+
   set(:project) { create(:project, :repository) }
 
   let(:repository) { project.repository }
@@ -310,18 +312,18 @@ describe Gitlab::Shell do
       let(:disk_path) { "#{project.disk_path}.git" }
 
       it 'returns true when the command succeeds' do
-        expect(gitlab_shell.exists?(project.repository_storage, disk_path)).to be(true)
+        expect(exists?(project.repository_storage, disk_path)).to be(true)
 
         expect(gitlab_shell.remove_repository(project.repository_storage, project.disk_path)).to be(true)
 
-        expect(gitlab_shell.exists?(project.repository_storage, disk_path)).to be(false)
+        expect(exists?(project.repository_storage, disk_path)).to be(false)
       end
 
       it 'keeps the namespace directory' do
         gitlab_shell.remove_repository(project.repository_storage, project.disk_path)
 
-        expect(gitlab_shell.exists?(project.repository_storage, disk_path)).to be(false)
-        expect(gitlab_shell.exists?(project.repository_storage, project.disk_path.gsub(project.name, ''))).to be(true)
+        expect(exists?(project.repository_storage, disk_path)).to be(false)
+        expect(exists?(project.repository_storage, project.disk_path.gsub(project.name, ''))).to be(true)
       end
     end
 
@@ -332,18 +334,18 @@ describe Gitlab::Shell do
         old_path = project2.disk_path
         new_path = "project/new_path"
 
-        expect(gitlab_shell.exists?(project2.repository_storage, "#{old_path}.git")).to be(true)
-        expect(gitlab_shell.exists?(project2.repository_storage, "#{new_path}.git")).to be(false)
+        expect(exists?(project2.repository_storage, "#{old_path}.git")).to be(true)
+        expect(exists?(project2.repository_storage, "#{new_path}.git")).to be(false)
 
         expect(gitlab_shell.mv_repository(project2.repository_storage, old_path, new_path)).to be_truthy
 
-        expect(gitlab_shell.exists?(project2.repository_storage, "#{old_path}.git")).to be(false)
-        expect(gitlab_shell.exists?(project2.repository_storage, "#{new_path}.git")).to be(true)
+        expect(exists?(project2.repository_storage, "#{old_path}.git")).to be(false)
+        expect(exists?(project2.repository_storage, "#{new_path}.git")).to be(true)
       end
 
       it 'returns false when the command fails' do
         expect(gitlab_shell.mv_repository(project2.repository_storage, project2.disk_path, '')).to be_falsy
-        expect(gitlab_shell.exists?(project2.repository_storage, "#{project2.disk_path}.git")).to be(true)
+        expect(exists?(project2.repository_storage, "#{project2.disk_path}.git")).to be(true)
       end
     end
 
@@ -402,23 +404,7 @@ describe Gitlab::Shell do
       it 'creates a namespace' do
         subject.add_namespace(storage, "mepmep")
 
-        expect(subject.exists?(storage, "mepmep")).to be(true)
-      end
-    end
-
-    describe '#exists?' do
-      context 'when the namespace does not exist' do
-        it 'returns false' do
-          expect(subject.exists?(storage, "non-existing")).to be(false)
-        end
-      end
-
-      context 'when the namespace exists' do
-        it 'returns true' do
-          subject.add_namespace(storage, "mepmep")
-
-          expect(subject.exists?(storage, "mepmep")).to be(true)
-        end
+        expect(exists?(storage, "mepmep")).to be(true)
       end
     end
 
@@ -443,7 +429,7 @@ describe Gitlab::Shell do
         subject.add_namespace(storage, "mepmep")
         subject.rm_namespace(storage, "mepmep")
 
-        expect(subject.exists?(storage, "mepmep")).to be(false)
+        expect(exists?(storage, "mepmep")).to be(false)
       end
     end
 
@@ -452,8 +438,8 @@ describe Gitlab::Shell do
         subject.add_namespace(storage, "mepmep")
         subject.mv_namespace(storage, "mepmep", "2mep")
 
-        expect(subject.exists?(storage, "mepmep")).to be(false)
-        expect(subject.exists?(storage, "2mep")).to be(true)
+        expect(exists?(storage, "mepmep")).to be(false)
+        expect(exists?(storage, "2mep")).to be(true)
       end
     end
   end

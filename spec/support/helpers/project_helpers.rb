@@ -24,7 +24,18 @@ module ProjectHelpers
   end
 
   def exists?(storage, name)
-    byebug
-    Gitlab.config
+    storage_path = Gitlab::GitalyClient::StorageSettings.allow_disk_access do
+      Gitlab.config.repositories.storages[storage].legacy_disk_path
+    end
+
+    File.exist?(File.join(storage_path, name))
+  end
+
+  def rm_namespace(storage, name)
+    storage_path = Gitlab::GitalyClient::StorageSettings.allow_disk_access do
+      Gitlab.config.repositories.storages[storage].legacy_disk_path
+    end
+
+    FileUtils.rm_r(File.join(storage_path, name))
   end
 end

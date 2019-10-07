@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 describe Gitlab::BareRepositoryImport::Importer, :seed_helper do
+  include ProjectHelpers
+
   let!(:admin) { create(:admin) }
   let!(:base_dir) { Dir.mktmpdir + '/' }
   let(:bare_repository) { Gitlab::BareRepositoryImport::Repository.new(base_dir, File.join(base_dir, "#{project_path}.git")) }
@@ -90,7 +92,7 @@ describe Gitlab::BareRepositoryImport::Importer, :seed_helper do
         hook_path = File.join(repo_path, 'hooks')
 
         expect(gitlab_shell.repository_exists?(project.repository_storage, repo_path)).to be(true)
-        expect(gitlab_shell.exists?(project.repository_storage, hook_path)).to be(true)
+        expect(exists?(project.repository_storage, hook_path)).to be(true)
       end
 
       context 'hashed storage enabled' do
