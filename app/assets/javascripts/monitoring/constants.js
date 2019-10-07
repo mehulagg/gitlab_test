@@ -23,11 +23,17 @@ export const areaOpacityValues = {
 };
 
 export const colorValues = {
+  primaryColor: '#1f78d1',
   anomalySymbol: '#db3b21',
+  anomalyAreaColor: '#1f78d1',
 };
 
 export const lineTypes = {
   default: 'solid',
+};
+
+export const lineWidths = {
+  default: 2,
 };
 
 export const timeWindows = {
