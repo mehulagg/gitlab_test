@@ -28,6 +28,22 @@ export default {
     });
   },
 
+  ADD_DIFF_DATA_QUEUE(state, data) {
+    prepareDiffData(data);
+
+    state.diffFilesQueue.push(...convertObjectPropsToCamelCase(data).diffFiles);
+  },
+
+  ADD_DIFF_DATA_BULK(state, data) {
+    prepareDiffData(data);
+
+    state.diffFiles.push(...convertObjectPropsToCamelCase(data).diffFiles);
+  },
+
+  ADD_DIFF_DATA(state, data) {
+    state.diffFiles.push(data);
+  },
+
   [types.RENDER_FILE](state, file) {
     Object.assign(file, {
       renderIt: true,

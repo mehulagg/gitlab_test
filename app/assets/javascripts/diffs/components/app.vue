@@ -206,7 +206,7 @@ export default {
           requestIdleCallback(
             () => {
               this.setDiscussions();
-              this.startRenderDiffsQueue();
+              // this.startRenderDiffsQueue();
             },
             { timeout: 1000 },
           );

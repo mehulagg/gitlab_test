@@ -1,0 +1,270 @@
+diff --git a/app/assets/javascripts/diffs/components/app.vue b/app/assets/javascripts/diffs/components/app.vue
+index 19b85710710..4f5a4c3d426 100644
+--- a/app/assets/javascripts/diffs/components/app.vue
++++ b/app/assets/javascripts/diffs/components/app.vue
+@@ -206,7 +206,7 @@ export default {
+           requestIdleCallback(
+             () => {
+               this.setDiscussions();
+-              this.startRenderDiffsQueue();
++              // this.startRenderDiffsQueue();
+             },
+             { timeout: 1000 },
+           );
+diff --git a/app/assets/javascripts/diffs/components/diff_file.vue b/app/assets/javascripts/diffs/components/diff_file.vue
+index 2514274224d..599019e31b8 100644
+--- a/app/assets/javascripts/diffs/components/diff_file.vue
++++ b/app/assets/javascripts/diffs/components/diff_file.vue
+@@ -52,6 +52,7 @@ export default {
+       );
+     },
+     showLoadingIcon() {
++      // return true;
+       return this.isLoadingCollapsedDiff || (!this.file.renderIt && !this.isCollapsed);
+     },
+     hasDiffLines() {
+diff --git a/app/assets/javascripts/diffs/components/diff_file_header.vue b/app/assets/javascripts/diffs/components/diff_file_header.vue
+index bfcc726a030..45f42a47172 100644
+--- a/app/assets/javascripts/diffs/components/diff_file_header.vue
++++ b/app/assets/javascripts/diffs/components/diff_file_header.vue
+@@ -126,9 +126,9 @@ export default {
+     },
+   },
+   mounted() {
+-    polyfillSticky(this.$refs.header);
+-    const fileHeaderHeight = this.$refs.header.clientHeight;
+-    stickyMonitor(this.$refs.header, contentTop() - fileHeaderHeight - 1, false);
++    // polyfillSticky(this.$refs.header);
++    // const fileHeaderHeight = this.$refs.header.clientHeight;
++    // stickyMonitor(this.$refs.header, contentTop() - fileHeaderHeight - 1, false);
+   },
+   methods: {
+     ...mapActions('diffs', [
+diff --git a/app/assets/javascripts/diffs/store/actions.js b/app/assets/javascripts/diffs/store/actions.js
+index 6695d9fe96c..fcf8a108d31 100644
+--- a/app/assets/javascripts/diffs/store/actions.js
++++ b/app/assets/javascripts/diffs/store/actions.js
+@@ -36,6 +36,63 @@ import {
+ } from '../constants';
+ import { diffViewerModes } from '~/ide/constants';
+ 
++let isRendering = false;
++
++export const startRenderDiffsQueue = ({ state, commit }) => {
++  isRendering = true;
++
++  const checkItem = () =>
++    new Promise(resolve => {
++      const nextFile = state.diffFiles.find(
++        file =>
++          !file.renderIt &&
++          (file.viewer && (!file.viewer.collapsed || !file.viewer.name === diffViewerModes.text)),
++      );
++
++      if (nextFile) {
++        requestAnimationFrame(() => {
++          commit(types.RENDER_FILE, nextFile);
++        });
++        requestIdleCallback(
++          () => {
++            checkItem()
++              .then(resolve)
++              .catch(() => {});
++          },
++          { timeout: 1000 },
++        );
++      } else {
++        isRendering = false;
++        resolve();
++      }
++    });
++
++  const nextItem = () =>
++    new Promise(resolve => {
++      while (state.diffFilesQueue.length) {
++        const nextFile = state.diffFilesQueue.shift();
++        nextFile.renderIt = true;
++
++        requestAnimationFrame(() => {
++          commit('ADD_DIFF_DATA', nextFile);
++        });
++        requestIdleCallback(
++          () => {
++            nextItem()
++              .then(resolve)
++              .catch(() => {});
++          },
++          { timeout: 1000 },
++        );
++      }
++      resolve();
++      isRendering = false;
++    });
++
++  return nextItem();
++  // return checkItem();
++};
++
+ export const setBaseConfig = ({ commit }, options) => {
+   const { endpoint, projectPath, dismissEndpoint, showSuggestPopover } = options;
+   commit(types.SET_BASE_CONFIG, { endpoint, projectPath, dismissEndpoint, showSuggestPopover });
+@@ -52,19 +109,51 @@ export const fetchDiffFiles = ({ state, commit }) => {
+     worker.terminate();
+   });
+ 
+-  return axios
+-    .get(mergeUrlParams({ w: state.showWhitespace ? '0' : '1' }, state.endpoint))
+-    .then(res => {
+-      commit(types.SET_LOADING, false);
+-      commit(types.SET_MERGE_REQUEST_DIFFS, res.data.merge_request_diffs || []);
+-      commit(types.SET_DIFF_DATA, res.data);
++  const getBatchDiffs = url => {
++    const baseUrl = 'http://localhost:3001';
++    const perPage = '&per_page=10';
++    axios
++      .get(baseUrl + url + perPage)
++      .then(({ data }) => {
++        commit(types.SET_LOADING, false);
++        // const diffFiles = [...state.diffFiles, ...data.diff_files];
++        // commit(types.SET_DIFF_DATA, { diff_files: diffFiles });
+ 
+-      worker.postMessage(state.diffFiles);
++        commit('ADD_DIFF_DATA_QUEUE', data);
++        // commit('ADD_DIFF_DATA_BULK', data);
+ 
+-      return Vue.nextTick();
+-    })
+-    .then(handleLocationHash)
+-    .catch(() => worker.terminate());
++        // worker.postMessage(state.diffFiles);
++
++        if (!isRendering) startRenderDiffsQueue({ state, commit });
++
++        if (data.pagination.next_page_href) {
++          getBatchDiffs(data.pagination.next_page_href);
++        } else {
++          worker.postMessage(state.diffFiles);
++        }
++
++        return Vue.nextTick();
++      })
++      .then(handleLocationHash)
++      .catch(() => worker.terminate());
++  };
++
++  getBatchDiffs('/h5bp/html5-boilerplate/merge_requests/1/diffs_batch.json?page=1');
++
++  // return axios
++  //   .get(mergeUrlParams({ w: state.showWhitespace ? '0' : '1' }, state.endpoint))
++  //   .then(res => {
++  //     commit(types.SET_LOADING, false);
++  //     commit(types.SET_MERGE_REQUEST_DIFFS, res.data.merge_request_diffs || []);
++  //     const { data } = res;
++  //     commit(types.SET_DIFF_DATA, data);
++
++  //     worker.postMessage(state.diffFiles);
++
++  //     return Vue.nextTick();
++  //   })
++  //   .then(handleLocationHash)
++  //   .catch(() => worker.terminate());
+ };
+ 
+ export const setHighlightedRow = ({ commit }, lineCode) => {
+@@ -127,35 +216,6 @@ export const renderFileForDiscussionId = ({ commit, rootState, state }, discussi
+   }
+ };
+ 
+-export const startRenderDiffsQueue = ({ state, commit }) => {
+-  const checkItem = () =>
+-    new Promise(resolve => {
+-      const nextFile = state.diffFiles.find(
+-        file =>
+-          !file.renderIt &&
+-          (file.viewer && (!file.viewer.collapsed || !file.viewer.name === diffViewerModes.text)),
+-      );
+-
+-      if (nextFile) {
+-        requestAnimationFrame(() => {
+-          commit(types.RENDER_FILE, nextFile);
+-        });
+-        requestIdleCallback(
+-          () => {
+-            checkItem()
+-              .then(resolve)
+-              .catch(() => {});
+-          },
+-          { timeout: 1000 },
+-        );
+-      } else {
+-        resolve();
+-      }
+-    });
+-
+-  return checkItem();
+-};
+-
+ export const setRenderIt = ({ commit }, file) => commit(types.RENDER_FILE, file);
+ 
+ export const setInlineDiffViewType = ({ commit }) => {
+diff --git a/app/assets/javascripts/diffs/store/modules/diff_state.js b/app/assets/javascripts/diffs/store/modules/diff_state.js
+index 6821c8445ea..8b0076c6f8f 100644
+--- a/app/assets/javascripts/diffs/store/modules/diff_state.js
++++ b/app/assets/javascripts/diffs/store/modules/diff_state.js
+@@ -8,13 +8,14 @@ const defaultViewType = INLINE_DIFF_VIEW_TYPE;
+ 
+ export default () => ({
+   isLoading: true,
+-  addedLines: null,
+-  removedLines: null,
++  addedLines: 0,
++  removedLines: 0,
+   endpoint: '',
+   basePath: '',
+   commit: null,
+   startVersion: null,
+   diffFiles: [],
++  diffFilesQueue: [],
+   mergeRequestDiffs: [],
+   mergeRequestDiff: null,
+   diffViewType: viewTypeFromQueryString || viewTypeFromCookie || defaultViewType,
+diff --git a/app/assets/javascripts/diffs/store/mutations.js b/app/assets/javascripts/diffs/store/mutations.js
+index a6915a46c00..779fb61a831 100644
+--- a/app/assets/javascripts/diffs/store/mutations.js
++++ b/app/assets/javascripts/diffs/store/mutations.js
+@@ -28,6 +28,22 @@ export default {
+     });
+   },
+ 
++  ADD_DIFF_DATA_QUEUE(state, data) {
++    prepareDiffData(data);
++
++    state.diffFilesQueue.push(...convertObjectPropsToCamelCase(data).diffFiles);
++  },
++
++  ADD_DIFF_DATA_BULK(state, data) {
++    prepareDiffData(data);
++
++    state.diffFiles.push(...convertObjectPropsToCamelCase(data).diffFiles);
++  },
++
++  ADD_DIFF_DATA(state, data) {
++    state.diffFiles.push(data);
++  },
++
+   [types.RENDER_FILE](state, file) {
+     Object.assign(file, {
+       renderIt: true,
+diff --git a/app/assets/javascripts/diffs/store/utils.js b/app/assets/javascripts/diffs/store/utils.js
+index d46bdea9b50..2da58ecc85c 100644
+--- a/app/assets/javascripts/diffs/store/utils.js
++++ b/app/assets/javascripts/diffs/store/utils.js
+@@ -253,7 +253,7 @@ export function prepareDiffData(diffData) {
+     }
+ 
+     Object.assign(file, {
+-      renderIt: showingLines < LINES_TO_BE_RENDERED_DIRECTLY,
++      renderIt: file.renderIt || showingLines < LINES_TO_BE_RENDERED_DIRECTLY,
+       collapsed:
+         file.viewer.name === diffViewerModes.text && showingLines > MAX_LINES_TO_BE_RENDERED,
+       isShowingFullFile: false,
