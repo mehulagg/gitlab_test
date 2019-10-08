@@ -20,6 +20,15 @@ We have started to migrate frontend tests to the [Jest](https://jestjs.io) testi
 
 Jest tests can be found in `/spec/frontend` and `/ee/spec/frontend` in EE.
 
+### Selector Preferences
+
+When searching the DOM in order to find a component we prefer the following order
+
+1. `.find(Comp)` (Where Comp is the refernce to the imported component)
+2. `.find('[data-testid]')`
+3. `.find({ ref: compRef })`
+4. `.find('.js-ref')`
+
 ### When should I use Jest over Karma?
 
 If you need to update an existing Karma test file (found in `spec/javascripts`), you do not
