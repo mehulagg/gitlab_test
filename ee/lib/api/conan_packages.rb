@@ -257,7 +257,7 @@ module API
           recipe:    recipe
         }
 
-        ::Packages::Conan::CreatePackageFileService.new(package, file_params).execute
+        ::Packages::Conan::CreatePackageFileService.new(package, file_params).execute unless params['file.size'] == 0
       end
     end
 
