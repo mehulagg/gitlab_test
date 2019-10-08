@@ -37,15 +37,8 @@ import {
 import { diffViewerModes } from '~/ide/constants';
 
 let isRendering = false;
-const parseFileLog = f => ({
-  filePath: f.file_path,
-  renderIt: f.renderIt,
-  collapsed: f.viewer && f.viewer.collapsed,
-});
 
 export const startRenderDiffsQueue = ({ state, commit }) => {
-  console.log('TCL: startRenderDiffsQueue:start');
-  console.table(state.diffFiles.map(parseFileLog));
   isRendering = true;
 
   const checkItem = () =>
@@ -57,10 +50,8 @@ export const startRenderDiffsQueue = ({ state, commit }) => {
       );
 
       if (nextFile) {
-        console.log('TCL: checkItem:nextFile', nextFile.file_path);
         requestAnimationFrame(() => {
           commit(types.RENDER_FILE, nextFile);
-          // console.table(state.diffFiles.map(parseFileLog));
         });
         requestIdleCallback(
           () => {
@@ -71,13 +62,35 @@ export const startRenderDiffsQueue = ({ state, commit }) => {
           { timeout: 1000 },
         );
       } else {
-        console.log('TCL: checkItem:nextFile', false);
         isRendering = false;
         resolve();
       }
     });
 
-  return checkItem();
+  const nextItem = () =>
+    new Promise(resolve => {
+      while (state.diffFilesQueue.length) {
+        const nextFile = state.diffFilesQueue.shift();
+        nextFile.renderIt = true;
+
+        requestAnimationFrame(() => {
+          commit('ADD_DIFF_DATA', nextFile);
+        });
+        requestIdleCallback(
+          () => {
+            nextItem()
+              .then(resolve)
+              .catch(() => {});
+          },
+          { timeout: 1000 },
+        );
+      }
+      resolve();
+      isRendering = false;
+    });
+
+  return nextItem();
+  // return checkItem();
 };
 
 export const setBaseConfig = ({ commit }, options) => {
@@ -96,51 +109,51 @@ export const fetchDiffFiles = ({ state, commit }) => {
     worker.terminate();
   });
 
-  // const getBatchDiffs = url => {
-  //   const baseUrl = 'http://localhost:3001';
-  //   const perPage = '&per_page=10';
-  //   axios
-  //     .get(baseUrl + url + perPage)
-  //     .then(({ data }) => {
-  //       console.log('TCL: getBatchDiffs:start');
+  const getBatchDiffs = url => {
+    const baseUrl = 'http://localhost:3001';
+    const perPage = '&per_page=10';
+    axios
+      .get(baseUrl + url + perPage)
+      .then(({ data }) => {
+        commit(types.SET_LOADING, false);
+        // const diffFiles = [...state.diffFiles, ...data.diff_files];
+        // commit(types.SET_DIFF_DATA, { diff_files: diffFiles });
 
-  //       commit(types.SET_LOADING, false);
-  //       const diffFiles = [...state.diffFiles, ...data.diff_files];
-  //       // console.table(diffFiles.map(parseFileLog));
-  //       commit(types.SET_DIFF_DATA, { diff_files: diffFiles });
+        commit('ADD_DIFF_DATA_QUEUE', data);
+        // commit('ADD_DIFF_DATA_BULK', data);
 
-  //       worker.postMessage(state.diffFiles);
+        // worker.postMessage(state.diffFiles);
 
-  //       if (!isRendering) startRenderDiffsQueue({ state, commit });
+        if (!isRendering) startRenderDiffsQueue({ state, commit });
 
-  //       if (data.pagination.next_page_href) {
-  //         getBatchDiffs(data.pagination.next_page_href);
-  //       } else {
-  //         worker.postMessage(state.diffFiles);
-  //       }
+        if (data.pagination.next_page_href) {
+          getBatchDiffs(data.pagination.next_page_href);
+        } else {
+          worker.postMessage(state.diffFiles);
+        }
 
-  //       return Vue.nextTick();
-  //     })
-  //     .then(handleLocationHash)
-  //     .catch(() => worker.terminate());
-  // };
+        return Vue.nextTick();
+      })
+      .then(handleLocationHash)
+      .catch(() => worker.terminate());
+  };
 
-  // getBatchDiffs('/h5bp/html5-boilerplate/merge_requests/1/diffs_batch.json?page=1');
+  getBatchDiffs('/h5bp/html5-boilerplate/merge_requests/1/diffs_batch.json?page=1');
 
-  return axios
-    .get(mergeUrlParams({ w: state.showWhitespace ? '0' : '1' }, state.endpoint))
-    .then(res => {
-      commit(types.SET_LOADING, false);
-      commit(types.SET_MERGE_REQUEST_DIFFS, res.data.merge_request_diffs || []);
-      const { data } = res;
-      commit(types.SET_DIFF_DATA, data);
+  // return axios
+  //   .get(mergeUrlParams({ w: state.showWhitespace ? '0' : '1' }, state.endpoint))
+  //   .then(res => {
+  //     commit(types.SET_LOADING, false);
+  //     commit(types.SET_MERGE_REQUEST_DIFFS, res.data.merge_request_diffs || []);
+  //     const { data } = res;
+  //     commit(types.SET_DIFF_DATA, data);
 
-      worker.postMessage(state.diffFiles);
+  //     worker.postMessage(state.diffFiles);
 
-      return Vue.nextTick();
-    })
-    .then(handleLocationHash)
-    .catch(() => worker.terminate());
+  //     return Vue.nextTick();
+  //   })
+  //   .then(handleLocationHash)
+  //   .catch(() => worker.terminate());
 };
 
 export const setHighlightedRow = ({ commit }, lineCode) => {

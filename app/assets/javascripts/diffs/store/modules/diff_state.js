@@ -8,13 +8,14 @@ const defaultViewType = INLINE_DIFF_VIEW_TYPE;
 
 export default () => ({
   isLoading: true,
-  addedLines: null,
-  removedLines: null,
+  addedLines: 0,
+  removedLines: 0,
   endpoint: '',
   basePath: '',
   commit: null,
   startVersion: null,
   diffFiles: [],
+  diffFilesQueue: [],
   mergeRequestDiffs: [],
   mergeRequestDiff: null,
   diffViewType: viewTypeFromQueryString || viewTypeFromCookie || defaultViewType,

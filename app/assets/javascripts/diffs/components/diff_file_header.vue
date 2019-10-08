@@ -126,9 +126,9 @@ export default {
     },
   },
   mounted() {
-    polyfillSticky(this.$refs.header);
-    const fileHeaderHeight = this.$refs.header.clientHeight;
-    stickyMonitor(this.$refs.header, contentTop() - fileHeaderHeight - 1, false);
+    // polyfillSticky(this.$refs.header);
+    // const fileHeaderHeight = this.$refs.header.clientHeight;
+    // stickyMonitor(this.$refs.header, contentTop() - fileHeaderHeight - 1, false);
   },
   methods: {
     ...mapActions('diffs', [

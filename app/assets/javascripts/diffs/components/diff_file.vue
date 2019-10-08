@@ -52,6 +52,7 @@ export default {
       );
     },
     showLoadingIcon() {
+      // return true;
       return this.isLoadingCollapsedDiff || (!this.file.renderIt && !this.isCollapsed);
     },
     hasDiffLines() {
