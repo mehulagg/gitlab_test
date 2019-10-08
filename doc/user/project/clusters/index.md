@@ -1,4 +1,4 @@
-# Kubernetes clusters
+# Kubernetes clusters - blah blah blha test
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/35954) in GitLab 10.1 for projects.
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/34758) in
@@ -6,7 +6,7 @@
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/39840) in
 >   GitLab 11.11 for [instances](../../instance/clusters/index.md).
 
-GitLab provides many features with a Kubernetes integration. Kubernetes can be
+GitLab provides many features with a Kubernetes integration. Kubernetes can be 
 integrated with projects, but also:
 
 - [Groups](../../group/clusters/index.md).
