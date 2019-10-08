@@ -56,9 +56,6 @@ COPY VERSION ./ee/app/models/license.r[b] /home/gitlab/ee/app/models/
 COPY ./lib/gitlab.rb /home/gitlab/lib/
 COPY ./INSTALLATION_TYPE ./VERSION /home/gitlab/
 RUN cd /home/gitlab/qa/ && bundle install --jobs=$(nproc) --retry=3 --quiet
-COPY ./INSTALLATION_TYPE /home/gitlab/
-COPY ./VERSION /home/gitlab/
-RUN cd /home/gitlab/qa/ && bundle install
 COPY ./qa /home/gitlab/qa
 
 ENTRYPOINT ["bin/test"]
