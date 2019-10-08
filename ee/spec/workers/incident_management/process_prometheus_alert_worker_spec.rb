@@ -23,24 +23,23 @@ describe IncidentManagement::ProcessPrometheusAlertWorker do
 
     it 'creates an issue' do
       expect { subject.perform(project.id, alert_params) }
-        .to change(Issue, :count)
-        .by(1)
+        .to change { project.reload.issues.count }.from(0).to(1)
     end
 
     it 'relates issue to an event' do
       expect { subject.perform(project.id, alert_params) }
-        .to change(prometheus_alert.related_issues, :count).from(0).to(1)
+        .to change { prometheus_alert.reload.related_issues.count }.from(0).to(1)
     end
 
     context 'when project could not be found' do
       it 'does not create an issue' do
         expect { subject.perform('1234', alert_params) }
-          .not_to change(Issue, :count)
+          .not_to change { project.reload.issues.count }
       end
 
       it 'does not relate issue to an event' do
         expect { subject.perform('1234', alert_params) }
-          .not_to change(prometheus_alert.related_issues, :count)
+          .not_to change { prometheus_alert.reload.related_issues.count }
       end
     end
 
@@ -51,12 +50,12 @@ describe IncidentManagement::ProcessPrometheusAlertWorker do
 
       it 'does not create an issue' do
         expect { subject.perform(project.id, alert_params) }
-          .not_to change(Issue, :count)
+          .not_to change { project.reload.issues.count }
       end
 
       it 'does not relate issue to an event' do
         expect { subject.perform(project.id, alert_params) }
-          .not_to change(Issue, :count)
+          .not_to change { prometheus_alert.reload.related_issues.count }
       end
     end
 
@@ -69,7 +68,7 @@ describe IncidentManagement::ProcessPrometheusAlertWorker do
 
       it 'does not relate issue to an event' do
         expect { subject.perform(project.id, alert_params) }
-          .not_to change(prometheus_alert.related_issues, :count)
+          .not_to change { prometheus_alert.reload.related_issues.count }
       end
     end
   end
