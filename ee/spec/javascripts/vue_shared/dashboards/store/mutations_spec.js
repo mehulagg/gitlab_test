@@ -126,6 +126,44 @@ describe('mutations', () => {
     });
   });
 
+  describe('RECEIEVE_NEXT_PAGE_SUCESS', () => {
+    it('sets the nextPage and currentPage of results', () => {
+      localState.projectSearchResults = [{ id: 1 }];
+      const headers = {
+        'x-next-page': '3',
+        'x-page': '2',
+      };
+      const results = { data: projects[1], headers };
+      mutations[types.RECEIVE_NEXT_PAGE_SUCCESS](localState, results);
+
+      expect(localState.projectSearchResults.length).toEqual(2);
+
+      expect(localState.pageInfo.currentPage).toEqual(2);
+
+      expect(localState.pageInfo.nextPage).toEqual(3);
+    });
+  });
+
+  describe('RECEIVE_SEARCH_RESULTS_HEADERS', () => {
+    it('sets the results and page information with the response headers', () => {
+      const headers = {
+        'x-next-page': '2',
+        'x-page': '1',
+        'X-Total': '37',
+        'X-Total-Pages': '2',
+      };
+      mutations[types.RECEIVE_SEARCH_RESULTS_HEADERS](localState, headers);
+
+      expect(localState.pageInfo.currentPage).toEqual(1);
+
+      expect(localState.pageInfo.nextPage).toEqual(2);
+
+      expect(localState.pageInfo.totalResults).toEqual(37);
+
+      expect(localState.pageInfo.totalPages).toEqual(2);
+    });
+  });
+
   describe('RECEIVE_SEARCH_RESULTS_SUCCESS', () => {
     it('resets all messages and sets state.projectSearchResults to the results from the API', () => {
       localState.projectSearchResults = [];

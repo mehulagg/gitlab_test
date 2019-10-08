@@ -91,6 +91,13 @@ describe('ProjectSelector component', () => {
     expect(searchInput.attributes('placeholder')).toBe('Search your projects');
   });
 
+  it(`triggers a "bottomReached" event when user has scrolled to the bottom of the list`, () => {
+    spyOn(vm, '$emit');
+    wrapper.find(GlInfiniteScroll).vm.$emit('bottomReached');
+
+    expect(vm.$emit).toHaveBeenCalledWith('bottomReached');
+  });
+
   it(`triggers a "projectClicked" event when a project is clicked`, () => {
     spyOn(vm, '$emit');
     wrapper.find(ProjectListItem).vm.$emit('click', _.first(searchResults));

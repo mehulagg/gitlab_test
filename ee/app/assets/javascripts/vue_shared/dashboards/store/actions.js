@@ -164,11 +164,12 @@ export const fetchSearchResults = ({ state, dispatch }) => {
 };
 
 export const fetchNextPage = ({ state, dispatch }) => {
-  if(state.pageInfo.currentPage < state.pageInfo.totalPages) {
-    Api.projects(state.searchQuery, { page: state.pageInfo.nextPage })
-      .then(results => dispatch('receiveNextPageSuccess', results))
-      .catch(() => dispatch('receiveSearchResultsError'));
+  if (state.pageInfo.totalPages === state.pageInfo.currentPage) {
+    return;
   }
+  Api.projects(state.searchQuery, { page: state.pageInfo.nextPage })
+    .then(results => dispatch('receiveNextPageSuccess', results))
+    .catch(() => dispatch('receiveSearchResultsError'));
 };
 
 export const requestSearchResults = ({ commit }) => commit(types.REQUEST_SEARCH_RESULTS);
