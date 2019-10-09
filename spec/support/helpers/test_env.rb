@@ -155,6 +155,7 @@ module TestEnv
       version: Gitlab::GitalyClient.expected_server_version,
       task: "gitlab:gitaly:install[#{install_gitaly_args}]") do
         Gitlab::SetupHelper.create_gitaly_configuration(gitaly_dir, { 'default' => repos_path }, force: true)
+        Gitlab::PraefectHelper.create_praefect_configuration(gitaly_dir, { 'praefect' => repos_path }, force: true)
         start_gitaly(gitaly_dir)
       end
   end
@@ -173,7 +174,7 @@ module TestEnv
       return
     end
 
-    FileUtils.mkdir_p("tmp/tests/second_storage") unless File.exist?("tmp/tests/second_storage")
+    FileUtils.mkdir_p('tmp/tests/second_storage') unless File.exist?('tmp/tests/second_storage')
 
     spawn_script = Rails.root.join('scripts/gitaly-test-spawn').to_s
     Bundler.with_original_env do
@@ -185,16 +186,29 @@ module TestEnv
     end
 
     @gitaly_pid = Integer(File.read('tmp/tests/gitaly.pid'))
+    @praefect_pid = Integer(File.read('tmp/tests/praefect.pid'))
 
-    Kernel.at_exit { stop_gitaly }
+    Kernel.at_exit { stop(@gitaly_pid) }
+    Kernel.at_exit { stop(@praefect_pid) }
 
-    wait_gitaly
+    wait('gitaly')
+    wait('praefect')
   end
 
-  def wait_gitaly
+  def stop(pid)
+    Process.kill('KILL', pid)
+  rescue Errno::ESRCH
+    # The process can already be gone if the test run was INTerrupted.
+  end
+
+  def gitaly_url
+    ENV.fetch('GITALY_REPO_URL', nil)
+  end
+
+  def wait(service)
     sleep_time = 10
     sleep_interval = 0.1
-    socket = Gitlab::GitalyClient.address('default').sub('unix:', '')
+    socket = Rails.root.join('tmp', 'tests', 'gitaly', "#{service}.socket").to_s
 
     Integer(sleep_time / sleep_interval).times do
       Socket.unix(socket)
@@ -203,19 +217,7 @@ module TestEnv
       sleep sleep_interval
     end
 
-    raise "could not connect to gitaly at #{socket.inspect} after #{sleep_time} seconds"
-  end
-
-  def stop_gitaly
-    return unless @gitaly_pid
-
-    Process.kill('KILL', @gitaly_pid)
-  rescue Errno::ESRCH
-    # The process can already be gone if the test run was INTerrupted.
-  end
-
-  def gitaly_url
-    ENV.fetch('GITALY_REPO_URL', nil)
+    raise "could not connect to #{service} at #{socket.inspect} after #{sleep_time} seconds"
   end
 
   def setup_factory_repo
