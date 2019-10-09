@@ -32,6 +32,7 @@ Please use your best judgement when to use it and please contribute new points t
   - [ ] **Skeleton based plan** Start with an MR that has the skeleton of the components with placeholder content. In following MRs you can fill the components with interactivity. This also makes it easier to spread out development on multiple people.
   - [ ] **Cookie Mode** Think about hiding the feature behind a cookie flag if the implementation is on top of existing features
   - [ ] **New route** Are you refactoring something big then you might consider adding a new route where you implement the new feature and when finished delete the current route and rename the new one. (for example 'merge_request' and 'new_merge_request')
+  - [ ] **Cleanup** Placeholder or unused code should not remain in the code base for a long time; must be finalized or removed if there's an alternative decision on how to proceed.
 - [ ] **Setup** Is there any specific setup needed for your implementation (for example a kubernetes cluster)? Then let everyone know if it is not already mentioned where they can find documentation (if it doesn't exist - create it)
 - [ ] **Security** Are there any new security relevant implementations? Then please contact the security team for an app security review. If you are not sure ask our [domain expert](https://about.gitlab.com/handbook/engineering/frontend/#frontend-domain-experts)
 
