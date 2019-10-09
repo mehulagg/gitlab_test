@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 
 import $ from 'jquery';
-import Cookies from 'js-cookie';
+import { setCookie } from './lib/utils/cookies';
 import Pager from './pager';
 import { localTimeAgo } from './lib/utils/datetime_utility';
 
@@ -32,7 +32,7 @@ export default class Activities {
     const filter = $sender.attr('id').split('_')[0];
 
     $('.event-filter .active').removeClass('active');
-    Cookies.set('event_filter', filter);
+    setCookie('event_filter', filter);
 
     $sender.closest('li').toggleClass('active');
   }

@@ -11,6 +11,7 @@ module Gitlab
       gon.default_avatar_url     = default_avatar_url
       gon.max_file_size          = Gitlab::CurrentSettings.max_attachment_size
       gon.asset_host             = ActionController::Base.asset_host
+      gon.secure_cookies         = Gitlab.config.gitlab.https
       gon.webpack_public_path    = webpack_public_path
       gon.relative_url_root      = Gitlab.config.gitlab.relative_url_root
       gon.shortcuts_path         = Gitlab::Routing.url_helpers.help_page_path('shortcuts')

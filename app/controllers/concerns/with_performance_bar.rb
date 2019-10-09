@@ -2,6 +2,7 @@
 
 module WithPerformanceBar
   extend ActiveSupport::Concern
+  include CookiesHelper
 
   included do
     before_action :set_peek_enabled_for_current_request
@@ -23,9 +24,9 @@ module WithPerformanceBar
     return false unless Gitlab::PerformanceBar.enabled_for_user?(current_user)
 
     if cookies[:perf_bar_enabled].present?
-      cookies[:perf_bar_enabled] == 'true'
+      set_secure_cookie(:perf_bar_enabled, 'true')
     else
-      cookies[:perf_bar_enabled] = 'true' if Rails.env.development?
+      set_secure_cookie(:perf_bar_enabled, 'true') if Rails.env.development?
     end
   end
 end

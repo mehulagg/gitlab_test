@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import Cookies from 'js-cookie';
+import { setCookie } from '~/lib/utils/cookies';
 import _ from 'underscore';
 import bp from './breakpoints';
 import { parseBoolean } from '~/lib/utils/common_utils';
@@ -57,7 +57,7 @@ export default class ContextualSidebar {
     if (!ContextualSidebar.isDesktopBreakpoint()) {
       return;
     }
-    Cookies.set('sidebar_collapsed', value, { expires: 365 * 10 });
+    setCookie('sidebar_collapsed', value, { expires: 365 * 10 });
   }
 
   toggleSidebarNav(show) {

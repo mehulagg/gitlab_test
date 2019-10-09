@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import Cookies from 'js-cookie';
+import { setCookie } from '../../lib/utils/cookies';
 import Mousetrap from 'mousetrap';
 import axios from '../../lib/utils/axios_utils';
 import { refreshCurrentPage, visitUrl } from '../../lib/utils/url_utility';
@@ -62,9 +62,9 @@ export default class Shortcuts {
     e.preventDefault();
     const performanceBarCookieName = 'perf_bar_enabled';
     if (parseBoolean(Cookies.get(performanceBarCookieName))) {
-      Cookies.set(performanceBarCookieName, 'false', { path: '/' });
+      setCookie(performanceBarCookieName, 'false', { path: '/' });
     } else {
-      Cookies.set(performanceBarCookieName, 'true', { path: '/' });
+      setCookie(performanceBarCookieName, 'true', { path: '/' });
     }
     refreshCurrentPage();
   }

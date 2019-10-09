@@ -2,7 +2,7 @@
 
 import $ from 'jquery';
 import _ from 'underscore';
-import Cookies from 'js-cookie';
+import { setCookie } from './lib/utils/cookies';
 import { __ } from './locale';
 import { updateTooltipTitle } from './lib/utils/common_utils';
 import { isInVueNoteablePage } from './lib/utils/dom_utils';
@@ -512,7 +512,7 @@ export class AwardsHandler {
   addEmojiToFrequentlyUsedList(emoji) {
     if (this.emoji.isEmojiNameValid(emoji)) {
       this.frequentlyUsedEmojis = _.uniq(this.getFrequentlyUsedEmojis().concat(emoji));
-      Cookies.set('frequently_used_emojis', this.frequentlyUsedEmojis.join(','), { expires: 365 });
+      setCookie('frequently_used_emojis', this.frequentlyUsedEmojis.join(','), { expires: 365 });
     }
   }
 

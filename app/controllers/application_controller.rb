@@ -309,7 +309,7 @@ class ApplicationController < ActionController::Base
   def event_filter
     @event_filter ||=
       EventFilter.new(params[:event_filter].presence || cookies[:event_filter]).tap do |new_event_filter|
-        cookies[:event_filter] = new_event_filter.filter
+        set_secure_cookie(:event_filter, new_event_filter.filter)
       end
   end
 

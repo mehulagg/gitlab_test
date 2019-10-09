@@ -280,7 +280,7 @@ module ApplicationHelper
   end
 
   def collapsed_sidebar?
-    cookies["sidebar_collapsed"] == "true"
+    set_secure_cookie("sidebar_collapsed", "true")
   end
 
   def locale_path
