@@ -29,7 +29,8 @@ describe Gitlab::HealthChecks::Probes::Collection do
         expect(subject.json['queues_check']).to contain_exactly(status: 'ok')
         expect(subject.json['shared_state_check']).to contain_exactly(status: 'ok')
         expect(subject.json['gitaly_check']).to contain_exactly(
-          status: 'ok', labels: { shard: 'default' })
+          { status: 'ok', labels: { shard: 'default' } },
+          { status: 'ok', labels: { shard: 'praefect' } })
       end
 
       context 'when Redis fails' do

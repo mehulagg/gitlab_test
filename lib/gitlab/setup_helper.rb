@@ -20,6 +20,8 @@ module Gitlab
         Gitlab.config.repositories.storages.each do |key, val|
           if address
             if address != val['gitaly_address']
+              next if ignore_multiple_gitaly_addresses?
+
               raise ArgumentError, "Your gitlab.yml contains more than one gitaly_address."
             end
           elsif URI(val['gitaly_address']).scheme != 'unix'
@@ -33,6 +35,7 @@ module Gitlab
 
         if Rails.env.test?
           storage_path = Rails.root.join('tmp', 'tests', 'second_storage').to_s
+          storages << { name: "praefect-gitaly", path: storage_paths['default'] }
 
           FileUtils.mkdir(storage_path) unless File.exist?(storage_path)
           storages << { name: 'test_second_storage', path: storage_path }
@@ -59,13 +62,24 @@ module Gitlab
         TomlRB.dump(config)
       end
 
-      # rubocop:disable Rails/Output
+      def gitaly_config_path(dir)
+        File.join(dir, 'config.toml')
+      end
+
       def create_gitaly_configuration(dir, storage_paths, force: false)
-        config_path = File.join(dir, 'config.toml')
+        create_configuration(
+          gitaly_configuration_toml(dir, storage_paths),
+          gitaly_config_path(dir),
+          force: force
+        )
+      end
+
+      # rubocop:disable Rails/Output
+      def create_configuration(toml_data, config_path, force: false)
         FileUtils.rm_f(config_path) if force
 
         File.open(config_path, File::WRONLY | File::CREAT | File::EXCL) do |f|
-          f.puts gitaly_configuration_toml(dir, storage_paths)
+          f.puts toml_data
         end
       rescue Errno::EEXIST
         puts "Skipping config.toml generation:"
@@ -75,6 +89,10 @@ module Gitlab
         puts e.message
       end
       # rubocop:enable Rails/Output
+
+      def ignore_multiple_gitaly_addresses?
+        Rails.env.test?
+      end
     end
   end
 end

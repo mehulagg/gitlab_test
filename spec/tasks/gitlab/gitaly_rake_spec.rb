@@ -60,6 +60,7 @@ describe 'gitlab:gitaly namespace rake task' do
         FileUtils.mkdir_p(clone_path)
         expect(Dir).to receive(:chdir).with(clone_path).and_call_original
         stub_rails_env('development')
+        allow(Gitlab::SetupHelper).to receive(:ignore_multiple_gitaly_addresses?).and_return(true)
       end
 
       context 'gmake is available' do

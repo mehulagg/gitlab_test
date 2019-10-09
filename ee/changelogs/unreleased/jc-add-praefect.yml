@@ -1,0 +1,5 @@
+---
+title: Add praefect as a socket to connect to for requests with praefect as storage
+merge_request: 26323
+author:
+type: other

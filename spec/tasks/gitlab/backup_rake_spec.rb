@@ -283,7 +283,7 @@ describe 'gitlab:app namespace rake task' do
 
     context 'multiple repository storages' do
       let(:test_second_storage) do
-        Gitlab::GitalyClient::StorageSettings.new(@default_storage_hash.merge('path' => 'tmp/tests/custom_storage'))
+        Gitlab::GitalyClient::StorageSettings.new(@default_storage_hash.merge('gitaly_address' => 'unix:tmp/tests/gitaly/gitaly.socket', 'path' => 'tmp/tests/test_second_storage'))
       end
       let(:storages) do
         {
@@ -308,14 +308,14 @@ describe 'gitlab:app namespace rake task' do
       end
 
       after do
-        FileUtils.rm_rf(Settings.absolute('tmp/tests/custom_storage'))
+        FileUtils.rm_rf(Settings.absolute('tmp/tests/test_second_storage'))
       end
 
       it 'includes repositories in all repository storages' do
         project_a = create(:project, :repository)
         project_b = create(:project, :repository, repository_storage: 'test_second_storage')
 
-        b_storage_dir = File.join(Settings.absolute('tmp/tests/custom_storage'), File.dirname(project_b.disk_path))
+        b_storage_dir = File.join(Settings.absolute('tmp/tests/test_second_storage'), File.dirname(project_b.disk_path))
 
         FileUtils.mkdir_p(b_storage_dir)
 
