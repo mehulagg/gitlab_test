@@ -289,7 +289,8 @@ module ApplicationSettingsHelper
       :snowplow_collector_hostname,
       :snowplow_cookie_domain,
       :snowplow_enabled,
-      :snowplow_site_id
+      :snowplow_site_id,
+      :custom_http_clone_host
     ]
   end
 

@@ -3223,20 +3223,46 @@ describe Project do
   describe '#http_url_to_repo' do
     let(:project) { create(:project) }
 
-    it 'returns the url to the repo without a username' do
-      expect(project.http_url_to_repo).to eq("#{project.web_url}.git")
-      expect(project.http_url_to_repo).not_to include('@')
+    context 'when a custom HTTP clone host is not set' do
+      it 'returns the url to the repo without a username' do
+        expect(project.http_url_to_repo).to eq("#{project.web_url}.git")
+        expect(project.http_url_to_repo).not_to include('@')
+      end
+    end
+
+    context 'when a custom HTTP clone host is set' do
+      before do
+        stub_application_setting(custom_http_clone_host: 'git.example.com')
+      end
+
+      it 'returns the url to the repo, with the host replaced with the custom one' do
+        expect(project.http_url_to_repo).to eq("http://git.example.com/#{project.full_path}.git")
+      end
     end
   end
 
   describe '#lfs_http_url_to_repo' do
     let(:project) { create(:project) }
 
-    it 'returns the url to the repo without a username' do
-      lfs_http_url_to_repo = project.lfs_http_url_to_repo('operation_that_doesnt_matter')
+    context 'when a custom HTTP clone host is not set' do
+      it 'returns the url to the repo without a username' do
+        lfs_http_url_to_repo = project.lfs_http_url_to_repo('operation_that_doesnt_matter')
 
-      expect(lfs_http_url_to_repo).to eq("#{project.web_url}.git")
-      expect(lfs_http_url_to_repo).not_to include('@')
+        expect(lfs_http_url_to_repo).to eq("#{project.web_url}.git")
+        expect(lfs_http_url_to_repo).not_to include('@')
+      end
+    end
+
+    context 'when a custom HTTP clone host is set' do
+      before do
+        stub_application_setting(custom_http_clone_host: 'git.example.com')
+      end
+
+      it 'returns the url to the repo, with the host replaced with the custom one' do
+        lfs_http_url_to_repo = project.lfs_http_url_to_repo('operation_that_doesnt_matter')
+
+        expect(lfs_http_url_to_repo).to eq("http://git.example.com/#{project.full_path}.git")
+      end
     end
   end
 

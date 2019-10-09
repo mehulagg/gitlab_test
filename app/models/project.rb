@@ -1314,7 +1314,15 @@ class Project < ApplicationRecord
   end
 
   def http_url_to_repo
-    "#{web_url}.git"
+    options = {}
+
+    if Gitlab::CurrentSettings.custom_http_clone_host.present?
+      options[:host] = Gitlab::CurrentSettings.custom_http_clone_host
+    end
+
+    project_url = Gitlab::Routing.url_helpers.project_url(self, options)
+
+    "#{project_url}.git"
   end
 
   # Is overridden in EE
