@@ -23,7 +23,7 @@ export const areaOpacityValues = {
 };
 
 export const colorValues = {
-  primaryColor: '#1f78d1',
+  primaryColor: '#1f78d1', // $blue-500 (see variables.scss)
   anomalySymbol: '#db3b21',
   anomalyAreaColor: '#1f78d1',
 };

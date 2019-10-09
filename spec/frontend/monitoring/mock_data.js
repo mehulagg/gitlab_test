@@ -1,4 +1,4 @@
-export const mockProjectPath = '/frontend-fixtures/environments-project';
+export const mockProjectDir = '/frontend-fixtures/environments-project';
 
 export const anomalyDeploymentData = [
   {
@@ -116,58 +116,6 @@ export const anomalyMockGraphData = {
       label: 'Upper Limit Metrics RPS',
       metric_id: 91,
       prometheus_endpoint_path: 'MOCK_UPPER_PEP',
-      result: [],
-    },
-    {
-      metricId: '92',
-      id: 'lower',
-      query_range: '...',
-      unit: 'RPS',
-      label: 'Lower Limit Metrics RPS',
-      metric_id: 92,
-      prometheus_endpoint_path: 'MOCK_LOWER_PEP',
-      result: [],
-    },
-  ],
-};
-
-export const anomalyMockGraphDataWithAppearance = {
-  title: 'Requests Per Second Mock Data',
-  type: 'anomaly-chart',
-  weight: 3,
-  metrics: [
-    // Not used
-  ],
-  queries: [
-    {
-      metricId: '90',
-      id: 'metric',
-      query_range: 'MOCK_PROMETHEUS_METRIC_QUERY_RANGE',
-      unit: 'RPS',
-      label: 'Metrics RPS',
-      metric_id: 90,
-      prometheus_endpoint_path: 'MOCK_METRIC_PEP',
-      appearance: {
-        line: {
-          type: 'dashed',
-          width: 4,
-        },
-      },
-      result: [],
-    },
-    {
-      metricId: '91',
-      id: 'upper',
-      query_range: '...',
-      unit: 'RPS',
-      label: 'Upper Limit Metrics RPS',
-      metric_id: 91,
-      prometheus_endpoint_path: 'MOCK_UPPER_PEP',
-      appearance: {
-        area: {
-          opacity: 0.9,
-        },
-      },
       result: [],
     },
     {

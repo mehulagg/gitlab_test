@@ -1,24 +1,21 @@
 import Anomaly from '~/monitoring/components/charts/anomaly.vue';
 
-import { GlLineChart } from '@gitlab/ui/dist/charts';
 import { shallowMount } from '@vue/test-utils';
-import { getSvgIconPathContent } from '~/lib/utils/icon_utils';
-import { graphTypes } from '~/monitoring/constants';
+import { colorValues } from '~/monitoring/constants';
 import {
   anomalyDeploymentData,
-  mockProjectPath,
+  mockProjectDir,
   anomalyMockGraphData,
-  anomalyMockGraphDataWithAppearance,
   anomalyMockResultValues,
 } from '../../mock_data';
 import { TEST_HOST } from 'helpers/test_constants';
+import MonitorTimeSeriesChart from '~/monitoring/components/charts/time_series.vue';
 
-const blue = '#0000FF';
-const blueAsRgb = '0,0,255';
 const mockWidgets = 'mockWidgets';
-const projectPath = `${TEST_HOST}${mockProjectPath}`;
+const mockProjectPath = `${TEST_HOST}${mockProjectDir}`;
 
 jest.mock('~/lib/utils/icon_utils'); // mock getSvgIconPathContent
+
 
 const makeAnomalyGraphData = (datasetName, template = anomalyMockGraphData) => {
   const queries = anomalyMockResultValues[datasetName].map((values, index) => ({
@@ -33,262 +30,240 @@ const makeAnomalyGraphData = (datasetName, template = anomalyMockGraphData) => {
   return { ...template, queries };
 };
 
-const makeAnomalyChart = props =>
-  shallowMount(Anomaly, {
-    propsData: { containerWidth: 100, ...props },
-    slots: {
-      default: mockWidgets,
-    },
-    sync: false,
-  });
-
 describe('Anomaly chart component', () => {
-  describe('general functions', () => {
-    let anomalyChart;
-    let anomalyGraphData;
+  let wrapper;
+
+  const setupAnomalyChart = props => {
+    wrapper = shallowMount(Anomaly, {
+      propsData: { containerWidth: 100, ...props },
+      slots: {
+        default: mockWidgets,
+      },
+      sync: false,
+    });
+  };
+  const findTimeSeries = () => wrapper.find(MonitorTimeSeriesChart);
+  const getTimeSeriesProps = () => findTimeSeries().props();
+
+  describe('wrapped monitor-time-series-chart component', () => {
+    const dataSetName = 'noAnomaly';
+    const dataSet = anomalyMockResultValues[dataSetName];
+    const inputThresholds = ['some threshold'];
+    const inputContainerWidth = 400;
 
     beforeEach(() => {
-      anomalyGraphData = makeAnomalyGraphData('noAnomaly');
-
-      getSvgIconPathContent.mockReturnValue(Promise.resolve('PATH'));
-
-      anomalyChart = makeAnomalyChart({
-        graphData: anomalyGraphData,
+      setupAnomalyChart({
+        graphData: makeAnomalyGraphData(dataSetName),
         deploymentData: anomalyDeploymentData,
-        projectPath,
-        containerWidth: 0,
-        showBorder: false,
-        singleEmbed: false,
-        thresholds: [],
+        thresholds: inputThresholds,
+        containerWidth: inputContainerWidth,
+        projectPath: mockProjectPath,
       });
     });
 
-    it('renders chart title', () => {
-      expect(anomalyChart.find('.js-graph-title').text()).toBe(anomalyGraphData.title);
+    it('is a Vue instance', () => {
+      expect(findTimeSeries().exists()).toBe(true);
+      expect(findTimeSeries().isVueInstance()).toBe(true);
     });
 
-    it('contains graph widgets from slot', () => {
-      expect(anomalyChart.find('.js-graph-widgets').text()).toBe(mockWidgets);
+    describe('receives props correctly', () => {
+      describe('graph-data', () => {
+        it('receives a single "metric" series', () => {
+          const { graphData } = getTimeSeriesProps();
+          expect(graphData.queries.length).toBe(1);
+        });
+
+        it('receives "metric" with all data', () => {
+          const { graphData } = getTimeSeriesProps();
+          const query = graphData.queries[0];
+          const expectedQuery = makeAnomalyGraphData(dataSetName).queries[0];
+          expect(query).toEqual(expectedQuery);
+        });
+
+        it('receives the "metric" results', () => {
+          const { graphData } = getTimeSeriesProps();
+          const { result } = graphData.queries[0];
+          const { values } = result[0];
+          const [metricDataset] = dataSet;
+          expect(values).toEqual(expect.any(Array));
+
+          values.forEach(([, y], index) => {
+            expect(y).toBeCloseTo(metricDataset[index][1]);
+          });
+        });
+      });
+
+      describe('additional-chart-options', () => {
+        let additionalChartOptions;
+
+        beforeEach(() => {
+          ({ additionalChartOptions } = getTimeSeriesProps());
+        });
+
+        it('contains a boundary band', () => {
+          const { series } = additionalChartOptions;
+          expect(series).toEqual(expect.any(Array));
+          expect(series.length).toEqual(2); // 1 upper + 1 lower boundaries
+          expect(series[0].stack).toEqual(series[1].stack);
+
+          series.forEach(s => {
+            expect(s.type).toBe('line');
+            expect(s.lineStyle.width).toBe(0);
+            expect(s.lineStyle.color).toMatch(/rgba\(.+\)/);
+            expect(s.lineStyle.color).toMatch(s.color);
+            expect(s.symbol).toEqual('none');
+          });
+        });
+
+        it('upper boundary values are stacked on top of lower boundary', () => {
+          const { series } = additionalChartOptions;
+          const [lowerSeries, upperSeries] = series;
+          const [, upperDataset, lowerDataset] = dataSet;
+
+          lowerSeries.data.forEach(([, y], i) => {
+            expect(y).toBeCloseTo(lowerDataset[i][1]);
+          });
+
+          upperSeries.data.forEach(([, y], i) => {
+            expect(y).toBeCloseTo(upperDataset[i][1] - lowerDataset[i][1]);
+          });
+        });
+      });
+
+      describe('additional-chart-data-config', () => {
+        let additionalChartDataConfig;
+
+        beforeEach(() => {
+          ({ additionalChartDataConfig } = getTimeSeriesProps());
+        });
+
+        it('display symbols is enabled', () => {
+          expect(additionalChartDataConfig).toEqual(
+            expect.objectContaining({
+              type: 'line',
+              symbol: 'circle',
+              showSymbol: true,
+              symbolSize: expect.any(Function),
+              itemStyle: {
+                color: expect.any(Function),
+              },
+            }),
+          );
+        });
+        it('does not display anomalies', () => {
+          const { symbolSize, itemStyle } = additionalChartDataConfig;
+          const [metricDataset] = dataSet;
+
+          metricDataset.forEach((v, dataIndex) => {
+            const size = symbolSize(null, { dataIndex });
+            const color = itemStyle.color({ dataIndex });
+
+            // normal color and small size
+            expect(size).toBeCloseTo(0);
+            expect(color).toBe(colorValues.primaryColor);
+          });
+        });
+      });
+
+      describe('inherited properties', () => {
+        it('"deployment-data" keeps the same value', () => {
+          const { deploymentData } = getTimeSeriesProps();
+          expect(deploymentData).toEqual(anomalyDeploymentData);
+        });
+        it('"thresholds" keeps the same value', () => {
+          const { thresholds } = getTimeSeriesProps();
+          expect(thresholds).toEqual(inputThresholds);
+        });
+        it('"containerWidth" keeps the same value', () => {
+          const { containerWidth } = getTimeSeriesProps();
+          expect(containerWidth).toEqual(inputContainerWidth);
+        });
+        it('"projectPath" keeps the same value', () => {
+          const { projectPath } = getTimeSeriesProps();
+          expect(projectPath).toEqual(mockProjectPath);
+        });
+      });
     });
   });
 
-  describe('computed', () => {
-    const graphData = makeAnomalyGraphData('noAnomaly');
-    let anomalyChart;
+  describe('with one anomaly', () => {
+    const dataSetName = 'oneAnomaly';
+    const dataSet = anomalyMockResultValues[dataSetName];
+
     beforeEach(() => {
-      anomalyChart = makeAnomalyChart({
-        graphData,
-        containerWidth: 100,
+      setupAnomalyChart({
+        graphData: makeAnomalyGraphData(dataSetName),
+        deploymentData: anomalyDeploymentData,
       });
     });
 
-    describe('yOffset', () => {
-      it('calculates no offset for positive values', () => {
-        expect(anomalyChart.vm.yOffset === 0).toEqual(true);
-      });
+    describe('additional-chart-data-config', () => {
+      it('displays one anomaly', () => {
+        const { additionalChartDataConfig } = getTimeSeriesProps();
+        const { symbolSize, itemStyle } = additionalChartDataConfig;
+        const [metricDataset] = dataSet;
 
-      it('calculates offset for a negative boundary', () => {
-        const expectedOffset = 4;
-        anomalyChart.setProps({
-          graphData: makeAnomalyGraphData('negativeBoundary'),
+        const bigDots = metricDataset.filter((v, dataIndex) => {
+          const size = symbolSize(null, { dataIndex });
+          return size > 0.1;
         });
-        expect(anomalyChart.vm.yOffset).toEqual(expectedOffset);
+        const redDots = metricDataset.filter((v, dataIndex) => {
+          const color = itemStyle.color({ dataIndex });
+          return color === colorValues.anomalySymbol;
+        });
+
+        expect(bigDots.length).toBe(1);
+        expect(redDots.length).toBe(1);
       });
     });
   });
 
-  describe('wrapped gl-line chart', () => {
-    describe('general functions', () => {
-      const graphData = makeAnomalyGraphData('noAnomaly');
-      let glChart;
-      let wrapper;
-      let props;
+  describe('with offset', () => {
+    const dataSetName = 'negativeBoundary';
+    const dataSet = anomalyMockResultValues[dataSetName];
+    const expectedOffset = 4; // Lowst point in mock data is -3.70, it gets rounded
 
-      beforeEach(() => {
-        wrapper = makeAnomalyChart({
-          graphData,
-          deploymentData: anomalyDeploymentData,
-        });
-        wrapper.vm.primaryColor = blue;
-        glChart = wrapper.find(GlLineChart);
-      });
-
-      it('is a Vue instance', () => {
-        expect(glChart.exists()).toBe(true);
-        expect(glChart.isVueInstance()).toBe(true);
-      });
-
-      it('renders the main "metric"', () => {
-        const { values } = graphData.queries[0].result[0];
-
-        props = glChart.props();
-        expect(props.data.length).toBe(1);
-        expect(values).toEqual(props.data[0].data);
-      });
-
-      describe('appearance', () => {
-        const graphDataAppearance = makeAnomalyGraphData(
-          'noAnomaly',
-          anomalyMockGraphDataWithAppearance,
-        );
-
-        beforeEach(done => {
-          wrapper.setProps({
-            graphData: graphDataAppearance,
-          });
-          wrapper.vm.$nextTick(done);
-        });
-
-        it('renders the main "metric" with appearance', () => {
-          props = glChart.props();
-          expect(props.data[0].lineStyle).toEqual(
-            expect.objectContaining({
-              type: 'dashed',
-              width: 4,
-            }),
-          );
-        });
-
-        it('renders the main boundary area with appearance', () => {
-          props = glChart.props();
-          expect(props.option.series[1].areaStyle).toEqual(
-            expect.objectContaining({
-              opacity: 0.9,
-            }),
-          );
-        });
-      });
-
-      describe('deployment data', () => {
-        let deploymentSeries;
-
-        beforeEach(() => {
-          [deploymentSeries] = props.option.series.filter(
-            s => s.type === graphTypes.deploymentData,
-          );
-        });
-        it('is displayed with all data', () => {
-          expect(deploymentSeries.data.length).toEqual(anomalyDeploymentData.length);
-        });
-        it('is displayed at the bottom of the chart', () => {
-          expect(deploymentSeries.data.filter(d => d[1] === 0).length).toEqual(
-            anomalyDeploymentData.length,
-          );
-        });
-      });
-
-      describe('the anomaly boundary', () => {
-        let upperValues;
-        let lowerValues;
-        let boundarySeries;
-
-        beforeEach(() => {
-          props = glChart.props();
-          upperValues = graphData.queries[1].result[0].values;
-          lowerValues = graphData.queries[2].result[0].values;
-          boundarySeries = props.option.series.filter(s => s.stack);
-        });
-
-        it('is 2 stacked line series', () => {
-          boundarySeries.forEach(series => {
-            expect(series).toEqual(
-              expect.objectContaining({
-                lineStyle: {
-                  // a lower opacity shade of `blue`
-                  color: expect.stringContaining(blueAsRgb),
-                },
-                // a lower opacity shade of `blue`
-                color: expect.stringContaining(blueAsRgb),
-                type: 'line',
-              }),
-            );
-          });
-        });
-
-        it('is a visible area on top of an invisible area', () => {
-          const [lowerSeries, upperSeries] = boundarySeries;
-
-          expect(lowerSeries.areaStyle).toBeUndefined();
-          expect(lowerSeries.data.length).toEqual(lowerValues.length);
-          expect(lowerSeries.data).toEqual(lowerValues);
-          expect(upperSeries.areaStyle.opacity).toEqual(expect.any(Number));
-        });
-
-        it('is calculated correctly', () => {
-          const [, upperSeries] = boundarySeries;
-          upperSeries.data.forEach((d, index) => {
-            const [, yVal] = d;
-            const [, yUpper] = upperValues[index];
-            const [, yLower] = lowerValues[index];
-            expect(yVal).toBeCloseTo(yUpper - yLower);
-          });
-        });
-      });
-
-      it('all series maintain the same lengths', () => {
-        expect(wrapper.vm.dataSeries.metric.data).toHaveLength(
-          graphData.queries[0].result[0].values.length,
-        );
-        expect(wrapper.vm.dataSeries.metric.data).toHaveLength(
-          graphData.queries[1].result[0].values.length,
-        );
-        expect(wrapper.vm.dataSeries.metric.data).toHaveLength(
-          graphData.queries[2].result[0].values.length,
-        );
+    beforeEach(() => {
+      setupAnomalyChart({
+        graphData: makeAnomalyGraphData(dataSetName),
+        deploymentData: anomalyDeploymentData,
       });
     });
 
-    describe('with anomalies', () => {
-      const wrapperGraphData = makeAnomalyGraphData('oneAnomaly');
-      let props;
-
-      beforeEach(() => {
-        const wrapper = makeAnomalyChart({
-          graphData: wrapperGraphData,
+    describe('receives props correctly', () => {
+      describe('graph-data', () => {
+        it('receives a single "metric" series', () => {
+          const { graphData } = getTimeSeriesProps();
+          expect(graphData.queries.length).toBe(1);
         });
-        const glChart = wrapper.find(GlLineChart);
-        wrapper.vm.primaryColor = blue;
-        props = glChart.props();
-      });
 
-      it('renders one anomaly using a big symbol (circle)', () => {
-        const symbolSizeFn = props.data[0].symbolSize;
+        it('receives "metric" results and applies the offset to them', () => {
+          const { graphData } = getTimeSeriesProps();
+          const { result } = graphData.queries[0];
+          const { values } = result[0];
+          const [metricDataset] = dataSet;
+          expect(values).toEqual(expect.any(Array));
 
-        expect(symbolSizeFn).toBeInstanceOf(Function);
-        expect(symbolSizeFn(undefined, { dataIndex: 0 })).toBeCloseTo(0);
-        expect(symbolSizeFn(undefined, { dataIndex: 1 })).not.toBeCloseTo(0);
-        expect(symbolSizeFn(undefined, { dataIndex: 2 })).toBeCloseTo(0);
-      });
-      it('renders one anomaly using non-default color', () => {
-        const colorFn = props.data[0].itemStyle.color;
-
-        expect(colorFn).toBeInstanceOf(Function);
-        expect(colorFn({ dataIndex: 0 })).toEqual(blue);
-        expect(colorFn({ dataIndex: 1 })).not.toEqual(blue);
-        expect(colorFn({ dataIndex: 2 })).toEqual(blue);
+          values.forEach(([, y], index) => {
+            expect(y).toBeCloseTo(metricDataset[index][1] + expectedOffset);
+          });
+        });
       });
     });
 
-    describe('with offset', () => {
-      const wrapperGraphData = makeAnomalyGraphData('negativeBoundary');
-      let wrapper;
-      let props;
-      let lowerValues;
-      beforeEach(() => {
-        wrapper = makeAnomalyChart({
-          graphData: wrapperGraphData,
-        });
-        props = wrapper.find(GlLineChart).props();
-        lowerValues = wrapperGraphData.queries[2].result[0].values;
-      });
+    describe('additional-chart-options', () => {
+      it('upper boundary values are stacked on top of lower boundary, plus the offset', () => {
+        const { additionalChartOptions } = getTimeSeriesProps();
+        const { series } = additionalChartOptions;
+        const [lowerSeries, upperSeries] = series;
+        const [, upperDataset, lowerDataset] = dataSet;
 
-      it('is calculated correctly with an offset', () => {
-        const expectedOffset = 4; // Rounded up negative of -3.70
-        const [lowerSeries] = props.option.series.filter(s => s.stack);
-        lowerSeries.data.forEach((d, index) => {
-          const [, yVal] = d;
-          const [, yLower] = lowerValues[index];
-          expect(yVal).toBeCloseTo(yLower + expectedOffset);
+        lowerSeries.data.forEach(([, y], i) => {
+          expect(y).toBeCloseTo(lowerDataset[i][1] + expectedOffset);
+        });
+
+        upperSeries.data.forEach(([, y], i) => {
+          expect(y).toBeCloseTo(upperDataset[i][1] - lowerDataset[i][1]);
         });
       });
     });

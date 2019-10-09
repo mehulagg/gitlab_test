@@ -135,13 +135,17 @@ export default {
             formatter: num => roundOffFloat(num - this.yOffset, 3).toString(),
           },
         },
+        // The boundary is rendered by 2 series
         series: [
-          // The boundary is rendered by 2 series
-          // One area invisible series (opacity: 0) stacked on a visible one
+          // One area invisible series (opacity: 0) stacked on a visible one.
+          // Order is important, lower boundary is stacked *below* the upper boundary
+
+          // Lower boundary
           this.makeBoundarySeries({
             name: this.formatLegendLabel(upperSeries),
             data: calcOffsetY(upperSeries.data, () => this.yOffset),
           }),
+          // Upper boundary
           this.makeBoundarySeries({
             name: this.formatLegendLabel(lowerSeries),
             data: calcOffsetY(lowerSeries.data, i => -upperSeries.data[i][1]),
@@ -192,8 +196,8 @@ export default {
 <template>
   <monitor-time-series-chart
     :graph-data="metricData"
-    :addtional-chart-options="chartOptions"
-    :addtional-chart-data-config="chartDataConfig"
+    :additional-chart-options="chartOptions"
+    :additional-chart-data-config="chartDataConfig"
     :deployment-data="deploymentData"
     :thresholds="thresholds"
     :container-width="containerWidth"

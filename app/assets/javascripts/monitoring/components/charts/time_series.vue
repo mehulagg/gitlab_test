@@ -38,12 +38,12 @@ export default {
       required: true,
       validator: graphDataValidatorForValues.bind(null, false),
     },
-    addtionalChartOptions: {
+    additionalChartOptions: {
       type: Object,
       required: false,
       default: () => ({}),
     },
-    addtionalChartDataConfig: {
+    additionalChartDataConfig: {
       type: Object,
       required: false,
       default: () => ({}),
@@ -134,18 +134,18 @@ export default {
           },
           showSymbol: false,
           areaStyle: this.graphData.type === 'area-chart' ? areaStyle : undefined,
-          ...this.addtionalChartDataConfig,
+          ...this.additionalChartDataConfig,
         });
 
         return acc.concat(series);
       }, []);
     },
     chartOptions() {
-      const options = _.omit(this.addtionalChartOptions || {}, 'series');
+      const options = _.omit(this.additionalChartOptions || {}, 'series');
 
       let series = [];
-      if (this.addtionalChartOptions.series) {
-        series = [...this.addtionalChartOptions.series];
+      if (this.additionalChartOptions.series) {
+        series = [...this.additionalChartOptions.series];
       }
       if (this.scatterSeries) {
         series.push(this.scatterSeries);
