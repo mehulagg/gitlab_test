@@ -1,4 +1,4 @@
-lib = File.expand_path('../lib', __FILE__)
+lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'gitlab/qa/version'
 
@@ -20,11 +20,11 @@ Gem::Specification.new do |spec|
 
   # Some dependencies are pinned, to prevent new cops from breaking the CI pipelines
   spec.add_development_dependency 'climate_control', '~> 0.2'
-  spec.add_development_dependency 'gitlab-styles', '2.2.0'
+  spec.add_development_dependency 'gitlab-styles', '2.4.0'
   spec.add_development_dependency 'pry', '~> 0.11'
   spec.add_development_dependency 'rake', '~> 12.2'
   spec.add_development_dependency 'rspec', '~> 3.7'
-  spec.add_development_dependency 'rubocop', '0.52.0'
+  spec.add_development_dependency 'rubocop', '~> 0.54.0'
   spec.add_development_dependency 'rubocop-rspec', '1.20.1'
   spec.add_development_dependency 'webmock', '3.7.0'
 end

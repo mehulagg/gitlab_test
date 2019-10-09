@@ -20,9 +20,6 @@ Metrics/MethodLength:
 Rails:
   Enabled: false
 
-Style/ExtendSelf:
-  Enabled: false
-
 Style/ModuleFunction:
   Enabled: false
 
