@@ -23,7 +23,7 @@ module Backup
       FileUtils.rm_f(backup_tarball)
 
       if ENV['STRATEGY'] == 'copy'
-        cmd = %W(rsync -a --exclude=lost+found #{app_files_dir} #{Gitlab.config.backup.path})
+        cmd = %W(rsync -a --exclude=lost+found -- #{app_files_dir} #{Gitlab.config.backup.path})
         output, status = Gitlab::Popen.popen(cmd)
 
         unless status.zero?
