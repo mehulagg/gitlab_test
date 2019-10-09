@@ -45,6 +45,7 @@ Sidekiq.configure_server do |config|
     chain.add Gitlab::SidekiqMiddleware::CorrelationLogger
     chain.add Gitlab::SidekiqMiddleware::InstrumentationLogger
     chain.add Gitlab::SidekiqStatus::ServerMiddleware
+    chain.add Gitlab::SidekiqMiddleware::Profiler
   end
 
   if enable_json_logs

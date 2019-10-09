@@ -11,11 +11,27 @@ module Gitlab
       end
 
       def call(env)
-        if profile?(env)
+        if request_profile?(env)
           call_with_profiling(env)
         else
+          set_sidekiq_profile_option(env) if sidekiq_profile?(env)
           @app.call(env)
         end
+      end
+
+      def set_sidekiq_profile_option(env)
+        Thread.current[:profile_sidekiq_worker] = env['HTTP_X_PROFILE_SIDEKIQ_WORKER']
+        p "D" * 100
+        p "Thread from RequestProfiler::Middleware.set_sidekiq_profile_option: #{Thread.current}"
+        p "Thread.current[:profile_sidekiq_worker]: #{Thread.current[:profile_sidekiq_worker]}"
+      end
+
+      def request_profile?(env)
+        profile?(env) && !sidekiq_profile?(env)
+      end
+
+      def sidekiq_profile?(env)
+        profile?(env) && env['HTTP_X_PROFILE_SIDEKIQ_WORKER']
       end
 
       def profile?(env)
