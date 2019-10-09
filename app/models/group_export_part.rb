@@ -10,6 +10,7 @@ class GroupExportPart < ApplicationRecord
   validates :params, :name, presence: true
 
   scope :created, -> { where(status: self.state_machines[:status].states[:created].value) }
+  scope :failed, -> { where(status: self.state_machines[:status].states[:failed].value) }
 
   state_machine :status, initial: :created do
     state :created,   value: 0
@@ -37,6 +38,20 @@ class GroupExportPart < ApplicationRecord
 
     event :abort_op do
       transition [:created, :scheduled] => :aborted
+    end
+
+    after_transition created: :scheduled do |state, _|
+      state.run_after_commit do
+        job_id = Gitlab::ImportExport::Group::ExportPartWorker.perform_async(state.export.id, state.id)
+
+        state.update(jid: job_id) if job_id
+      end
+    end
+
+    after_transition scheduled: :started do |state, _|
+      state.run_after_commit do
+        state.finish!
+      end
     end
 
     after_transition any => :failed do |state, transition|

@@ -119,6 +119,9 @@
 - container_repository:delete_container_repository
 - container_repository:cleanup_container_repository
 
+- group_import_export:import_export_group_export
+- group_import_export:import_export_group_export_part
+
 - default
 - mailers # ActionMailer::DeliveryJob.queue_name
 

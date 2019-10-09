@@ -11054,6 +11054,9 @@ msgid_plural "%d more items"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "One or more export parts failed"
+msgstr ""
+
 msgid "One or more groups that you don't have access to."
 msgstr ""
 

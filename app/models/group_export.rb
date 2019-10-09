@@ -26,8 +26,18 @@ class GroupExport < ApplicationRecord
       transition [:created, :started] => :failed
     end
 
+    after_transition created: :started do |state, _|
+      state.run_after_commit do
+        Gitlab::ImportExport::Group::Parts::Batcher.process_next_batch(state.id)
+      end
+    end
+
     after_transition any => :failed do |state, transition|
       state.update(status_reason: transition.args.first)
+
+      state.parts.created.each do |part|
+        part.abort_op(reason: _('One or more export parts failed'))
+      end
     end
   end
 end

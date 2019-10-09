@@ -183,6 +183,7 @@ gem 'acts-as-taggable-on', '~> 6.0'
 # Background jobs
 gem 'sidekiq', '~> 5.2.7'
 gem 'sidekiq-cron', '~> 1.0'
+gem 'sidekiq-batch', '~> 0.1.6'
 gem 'redis-namespace', '~> 1.6.0'
 gem 'gitlab-sidekiq-fetcher', '0.5.2', require: 'sidekiq-reliable-fetch'
 
