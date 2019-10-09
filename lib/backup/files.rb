@@ -19,6 +19,8 @@ module Backup
 
     # Copy files from public/files to backup/files
     def dump
+      abort "Couldn't find a 'tar' binary" unless tar
+
       FileUtils.mkdir_p(Gitlab.config.backup.path)
       FileUtils.rm_f(backup_tarball)
 
@@ -39,18 +41,15 @@ module Backup
     end
 
     def restore
+      abort "Couldn't find a 'tar' binary" unless tar
+
       backup_existing_files_dir
 
       run_pipeline!([%w(gzip -cd), %W(#{tar} --unlink-first --recursive-unlink -C #{app_files_dir} -xf -)], in: backup_tarball)
     end
 
     def tar
-      if system(*%w[gtar --version], out: '/dev/null')
-        # It looks like we can get GNU tar by running 'gtar'
-        'gtar'
-      else
-        'tar'
-      end
+      Gitlab::TaskHelpers.tar_cmd
     end
 
     def backup_existing_files_dir

@@ -9,16 +9,15 @@ namespace :gitlab do
 Usage: rake "gitlab:gitaly:install[/installation/dir,/storage/path]")
       end
 
+      abort "Couldn't find a 'make' binary" unless make_cmd
+
       args.with_defaults(repo: 'https://gitlab.com/gitlab-org/gitaly.git')
 
       version = Gitlab::GitalyClient.expected_server_version
 
       checkout_or_clone_version(version: version, repo: args.repo, target_dir: args.dir)
 
-      command = %w[/usr/bin/env -u RUBYOPT -u BUNDLE_GEMFILE]
-
-      _, status = Gitlab::Popen.popen(%w[which gmake])
-      command << (status.zero? ? 'gmake' : 'make')
+      command = %W[/usr/bin/env -u RUBYOPT -u BUNDLE_GEMFILE #{make_cmd}]
 
       if Rails.env.test?
         command.push(

@@ -177,5 +177,17 @@ module Gitlab
       run_command!(%W[#{Gitlab.config.git.bin_path} -C #{target_dir} fetch --quiet origin #{version}])
       run_command!(%W[#{Gitlab.config.git.bin_path} -C #{target_dir} checkout -f --quiet FETCH_HEAD --])
     end
+
+    def make_cmd
+      strong_memoize(:make_cmd) do
+        Gitlab::Utils.which('gmake') || Gitlab::Utils.which('make')
+      end
+    end
+
+    def tar_cmd
+      strong_memoize(:tar_cmd) do
+        Gitlab::Utils.which('gtar') || Gitlab::Utils.which('tar')
+      end
+    end
   end
 end

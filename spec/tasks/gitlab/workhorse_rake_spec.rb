@@ -10,10 +10,13 @@ describe 'gitlab:workhorse namespace rake task' do
     let(:clone_path) { Rails.root.join('tmp/tests/gitlab-workhorse').to_s }
     let(:version) { File.read(Rails.root.join(Gitlab::Workhorse::VERSION_FILE)).chomp }
 
+    subject { run_rake_task('gitlab:workhorse:install', clone_path) }
+
     context 'no dir given' do
       it 'aborts and display a help message' do
         # avoid writing task output to spec progress
         allow($stderr).to receive :write
+
         expect { run_rake_task('gitlab:workhorse:install') }.to raise_error /Please specify the directory where you want to install gitlab-workhorse/
       end
     end
@@ -23,7 +26,7 @@ describe 'gitlab:workhorse namespace rake task' do
         expect(main_object)
           .to receive(:checkout_or_clone_version).and_raise 'Git error'
 
-        expect { run_rake_task('gitlab:workhorse:install', clone_path) }.to raise_error 'Git error'
+        expect { subject }.to raise_error 'Git error'
       end
     end
 
@@ -36,41 +39,51 @@ describe 'gitlab:workhorse namespace rake task' do
         expect(main_object)
           .to receive(:checkout_or_clone_version).with(version: version, repo: repo, target_dir: clone_path)
 
-        run_rake_task('gitlab:workhorse:install', clone_path)
+        subject
       end
     end
 
     describe 'gmake/make' do
-      before do
-        FileUtils.mkdir_p(clone_path)
-        expect(Dir).to receive(:chdir).with(clone_path).and_call_original
-      end
+      context 'when gmake and make are not available' do
+        it 'aborts and display a help message' do
+          # avoid writing task output to spec progress
+          allow($stderr).to receive :write
+          allow(main_object).to receive(:make_cmd).and_return(nil)
 
-      context 'gmake is available' do
-        before do
-          expect(main_object).to receive(:checkout_or_clone_version)
-          allow(Object).to receive(:run_command!).with(['gmake']).and_return(true)
-        end
-
-        it 'calls gmake in the gitlab-workhorse directory' do
-          expect(Gitlab::Popen).to receive(:popen).with(%w[which gmake]).and_return(['/usr/bin/gmake', 0])
-          expect(main_object).to receive(:run_command!).with(['gmake']).and_return(true)
-
-          run_rake_task('gitlab:workhorse:install', clone_path)
+          expect { subject }.to raise_error /Couldn't find a 'make' binary/
         end
       end
 
-      context 'gmake is not available' do
+      context 'when gmake or make available' do
         before do
-          expect(main_object).to receive(:checkout_or_clone_version)
-          allow(main_object).to receive(:run_command!).with(['make']).and_return(true)
+          FileUtils.mkdir_p(clone_path)
+          expect(Dir).to receive(:chdir).with(clone_path).and_call_original
         end
 
-        it 'calls make in the gitlab-workhorse directory' do
-          expect(Gitlab::Popen).to receive(:popen).with(%w[which gmake]).and_return(['', 42])
-          expect(main_object).to receive(:run_command!).with(['make']).and_return(true)
+        shared_examples 'command available' do
+          before do
+            expect(main_object).to receive(:checkout_or_clone_version)
+            allow(main_object).to receive(:run_command!).with([cmd]).and_return(true)
+          end
 
-          run_rake_task('gitlab:workhorse:install', clone_path)
+          it 'calls command in the gitlab-workhorse directory' do
+            allow(main_object).to receive(:make_cmd).and_return(cmd)
+            expect(main_object).to receive(:run_command!).with([cmd]).and_return(true)
+
+            subject
+          end
+        end
+
+        context 'gmake is available' do
+          let(:cmd) { '/usr/bin/gmake' }
+
+          it_behaves_like 'command available'
+        end
+
+        context 'gmake is not available' do
+          let(:cmd) { '/usr/bin/make' }
+
+          it_behaves_like 'command available'
         end
       end
     end

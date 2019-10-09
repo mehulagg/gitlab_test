@@ -5,6 +5,10 @@ require 'spec_helper'
 describe Backup::Files do
   let(:progress) { StringIO.new }
   let!(:project) { create(:project) }
+  let(:app_files_dir) { '/var/gitlab-registry' }
+  let(:name) { 'registry' }
+
+  subject { described_class.new(name, app_files_dir) }
 
   before do
     allow(progress).to receive(:puts)
@@ -12,8 +16,8 @@ describe Backup::Files do
     allow(FileUtils).to receive(:mkdir_p).and_return(true)
     allow(FileUtils).to receive(:mv).and_return(true)
     allow(File).to receive(:exist?).and_return(true)
-    allow(File).to receive(:realpath).with("/var/gitlab-registry").and_return("/var/gitlab-registry")
-    allow(File).to receive(:realpath).with("/var/gitlab-registry/..").and_return("/var")
+    allow(File).to receive(:realpath).with(app_files_dir).and_return(app_files_dir)
+    allow(File).to receive(:realpath).with("#{app_files_dir}/..").and_return("/var")
 
     allow_any_instance_of(String).to receive(:color) do |string, _color|
       string
@@ -22,24 +26,45 @@ describe Backup::Files do
     allow_any_instance_of(described_class).to receive(:progress).and_return(progress)
   end
 
+  describe '#dump' do
+    describe 'when gtar and tar are not available' do
+      it 'raises error' do
+        # avoid writing task output to spec progress
+        allow($stderr).to receive :write
+        allow(subject).to receive(:tar).and_return(nil)
+
+        expect { subject.dump }.to raise_error /Couldn't find a 'tar' binary/
+      end
+    end
+  end
+
   describe '#restore' do
-    subject { described_class.new('registry', '/var/gitlab-registry') }
     let(:timestamp) { Time.utc(2017, 3, 22) }
 
     around do |example|
       Timecop.freeze(timestamp) { example.run }
     end
 
+    describe 'when gtar and tar are not available' do
+      it 'raises error' do
+        # avoid writing task output to spec progress
+        allow($stderr).to receive :write
+        allow(subject).to receive(:tar).and_return(nil)
+
+        expect { subject.restore }.to raise_error /Couldn't find a 'tar' binary/
+      end
+    end
+
     describe 'folders with permission' do
       before do
         allow(subject).to receive(:run_pipeline!).and_return(true)
         allow(subject).to receive(:backup_existing_files).and_return(true)
-        allow(Dir).to receive(:glob).with("/var/gitlab-registry/*", File::FNM_DOTMATCH).and_return(["/var/gitlab-registry/.", "/var/gitlab-registry/..", "/var/gitlab-registry/sample1"])
+        allow(Dir).to receive(:glob).with("#{app_files_dir}/*", File::FNM_DOTMATCH).and_return(["#{app_files_dir}/.", "#{app_files_dir}/..", "#{app_files_dir}/sample1"])
       end
 
       it 'moves all necessary files' do
         allow(subject).to receive(:backup_existing_files).and_call_original
-        expect(FileUtils).to receive(:mv).with(["/var/gitlab-registry/sample1"], File.join(Gitlab.config.backup.path, "tmp", "registry.#{Time.now.to_i}"))
+        expect(FileUtils).to receive(:mv).with(["#{app_files_dir}/sample1"], File.join(Gitlab.config.backup.path, "tmp", "#{name}.#{Time.now.to_i}"))
         subject.restore
       end
 
@@ -48,9 +73,9 @@ describe Backup::Files do
       end
 
       it 'calls tar command with unlink' do
-        expect(subject).to receive(:tar).and_return('blabla-tar')
+        allow(subject).to receive(:tar).and_return('blabla-tar')
 
-        expect(subject).to receive(:run_pipeline!).with([%w(gzip -cd), %w(blabla-tar --unlink-first --recursive-unlink -C /var/gitlab-registry -xf -)], any_args)
+        expect(subject).to receive(:run_pipeline!).with([%w(gzip -cd), %W(blabla-tar --unlink-first --recursive-unlink -C #{app_files_dir} -xf -)], any_args)
         subject.restore
       end
     end
@@ -62,7 +87,7 @@ describe Backup::Files do
       end
 
       it 'shows error message' do
-        expect(subject).to receive(:access_denied_error).with("/var/gitlab-registry")
+        expect(subject).to receive(:access_denied_error).with(app_files_dir)
         subject.restore
       end
     end
@@ -74,7 +99,7 @@ describe Backup::Files do
       end
 
       it 'shows error message' do
-        expect(subject).to receive(:resource_busy_error).with("/var/gitlab-registry")
+        expect(subject).to receive(:resource_busy_error).with(app_files_dir)
                              .and_call_original
 
         expect { subject.restore }.to raise_error(/is a mountpoint/)

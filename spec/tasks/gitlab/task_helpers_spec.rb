@@ -94,4 +94,84 @@ describe Gitlab::TaskHelpers do
       expect { subject.run_command!(['bash', '-c', 'exit 1']) }.to raise_error Gitlab::TaskFailedError
     end
   end
+
+  shared_examples 'system command' do
+    it 'memoizes command' do
+      expect(Gitlab::Utils).to receive(:which).once.and_return('foo')
+
+      2.times { command }
+    end
+
+    it 'returns nil if no binary found' do
+      allow(Gitlab::Utils).to receive(:which).with(anything).and_return(nil)
+
+      expect(command).to be_nil
+    end
+  end
+
+  describe '#make_cmd' do
+    let(:make_path) { '/usr/bin/make' }
+    let(:gmake_path) { '/usr/bin/gmake' }
+
+    before do
+      allow(Gitlab::Utils).to receive(:which).with('make').and_return(make_path)
+    end
+
+    context 'when gmake is installed' do
+      before do
+        allow(Gitlab::Utils).to receive(:which).with('gmake').and_return(gmake_path)
+      end
+
+      it 'returns the gmake path' do
+        expect(subject.make_cmd).to eq gmake_path
+      end
+    end
+
+    context 'when gmake is not installed' do
+      before do
+        allow(Gitlab::Utils).to receive(:which).with('gmake').and_return(nil)
+      end
+
+      it 'returns the make path' do
+        expect(subject.make_cmd).to eq make_path
+      end
+    end
+
+    it_behaves_like 'system command' do
+      let(:command) { subject.make_cmd }
+    end
+  end
+
+  describe '#tar_cmd' do
+    let(:tar_path) { '/usr/bin/tar' }
+    let(:gtar_path) { '/usr/bin/gtar' }
+
+    before do
+      allow(Gitlab::Utils).to receive(:which).with('tar').and_return(tar_path)
+    end
+
+    context 'when gtar is installed' do
+      before do
+        allow(Gitlab::Utils).to receive(:which).with('gtar').and_return(gtar_path)
+      end
+
+      it 'returns the gtar path' do
+        expect(subject.tar_cmd).to eq gtar_path
+      end
+    end
+
+    context 'when gtar is not installed' do
+      before do
+        allow(Gitlab::Utils).to receive(:which).with('gtar').and_return(nil)
+      end
+
+      it 'returns the tar path' do
+        expect(subject.tar_cmd).to eq tar_path
+      end
+    end
+
+    it_behaves_like 'system command' do
+      let(:command) { subject.tar_cmd }
+    end
+  end
 end

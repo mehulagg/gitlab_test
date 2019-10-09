@@ -9,7 +9,7 @@ Usage: rake "gitlab:indexer:install[/installation/dir,repo]")
 
       args.with_defaults(repo: 'https://gitlab.com/gitlab-org/gitlab-elasticsearch-indexer.git')
       version = Gitlab::Elastic::Indexer.indexer_version
-      make = Gitlab::Utils.which('gmake') || Gitlab::Utils.which('make')
+      make = make_cmd
 
       abort "Couldn't find a 'make' binary" unless make
 
