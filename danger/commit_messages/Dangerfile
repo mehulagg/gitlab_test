@@ -107,12 +107,7 @@ def lint_commit(commit) # rubocop:disable Metrics/AbcSize
   is_fixup = commit.message.start_with?('fixup!', 'squash!')
 
   if is_fixup
-    # The MR is set to squash - Danger adds an informative notice
     # The MR is not set to squash - Danger fails. if also WIP warn only, not error
-    if squash?
-      return false
-    end
-
     if is_wip
       warn_commit(
         commit,
@@ -129,17 +124,13 @@ def lint_commit(commit) # rubocop:disable Metrics/AbcSize
     return false
   end
 
-  # Fail if a suggestion commit is used and squash is not enabled
+  # Fail if a suggestion commit is used
   if commit.message.start_with?('Apply suggestion to')
-    if squash?
-      return false
-    else
-      fail_commit(
-        commit,
-        'If you are applying suggestions, enable squash in the merge request and re-run the failed job'
-      )
-      return true
-    end
+    fail_commit(
+      commit,
+      'If you are applying suggestions, enable squash in the merge request and re-run the failed job'
+    )
+    return true
   end
 
   failures = false
