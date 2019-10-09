@@ -34,38 +34,38 @@ import {
   INLINE_DIFF_LINES_KEY,
   PARALLEL_DIFF_LINES_KEY,
 } from '../constants';
-import { diffViewerModes } from '~/ide/constants';
+// import { diffViewerModes } from '~/ide/constants';
 
 let isRendering = false;
 
 export const startRenderDiffsQueue = ({ state, commit }) => {
   isRendering = true;
 
-  const checkItem = () =>
-    new Promise(resolve => {
-      const nextFile = state.diffFiles.find(
-        file =>
-          !file.renderIt &&
-          (file.viewer && (!file.viewer.collapsed || !file.viewer.name === diffViewerModes.text)),
-      );
+  // const checkItem = () =>
+  //   new Promise(resolve => {
+  //     const nextFile = state.diffFiles.find(
+  //       file =>
+  //         !file.renderIt &&
+  //         (file.viewer && (!file.viewer.collapsed || !file.viewer.name === diffViewerModes.text)),
+  //     );
 
-      if (nextFile) {
-        requestAnimationFrame(() => {
-          commit(types.RENDER_FILE, nextFile);
-        });
-        requestIdleCallback(
-          () => {
-            checkItem()
-              .then(resolve)
-              .catch(() => {});
-          },
-          { timeout: 1000 },
-        );
-      } else {
-        isRendering = false;
-        resolve();
-      }
-    });
+  //     if (nextFile) {
+  //       requestAnimationFrame(() => {
+  //         commit(types.RENDER_FILE, nextFile);
+  //       });
+  //       requestIdleCallback(
+  //         () => {
+  //           checkItem()
+  //             .then(resolve)
+  //             .catch(() => {});
+  //         },
+  //         { timeout: 1000 },
+  //       );
+  //     } else {
+  //       isRendering = false;
+  //       resolve();
+  //     }
+  //   });
 
   const nextItem = () =>
     new Promise(resolve => {
@@ -108,9 +108,18 @@ export const fetchDiffFiles = ({ state, commit }) => {
 
     worker.terminate();
   });
+  const baseUrl = 'http://localhost:3001';
+
+  const getDiffsMeta = url => {
+    axios
+      .get(baseUrl + url)
+      .then(({ data }) => {
+        console.log('TCL: data', data);
+      })
+      .catch(err => console.error(err));
+  };
 
   const getBatchDiffs = url => {
-    const baseUrl = 'http://localhost:3001';
     const perPage = '&per_page=10';
     axios
       .get(baseUrl + url + perPage)
@@ -138,6 +147,7 @@ export const fetchDiffFiles = ({ state, commit }) => {
       .catch(() => worker.terminate());
   };
 
+  getDiffsMeta('/h5bp/html5-boilerplate/merge_requests/1/diffs_metadata.json');
   getBatchDiffs('/h5bp/html5-boilerplate/merge_requests/1/diffs_batch.json?page=1');
 
   // return axios
