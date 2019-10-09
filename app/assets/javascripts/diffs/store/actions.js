@@ -114,7 +114,9 @@ export const fetchDiffFiles = ({ state, commit }) => {
     axios
       .get(baseUrl + url)
       .then(({ data }) => {
-        console.log('TCL: data', data);
+        commit(types.SET_MERGE_REQUEST_DIFFS, data.merge_request_diffs || []);
+        commit(types.SET_DIFF_DATA, data);
+        worker.postMessage(data.diff_stats);
       })
       .catch(err => console.error(err));
   };
@@ -137,9 +139,10 @@ export const fetchDiffFiles = ({ state, commit }) => {
 
         if (data.pagination.next_page_href) {
           getBatchDiffs(data.pagination.next_page_href);
-        } else {
-          worker.postMessage(state.diffFiles);
         }
+        //  else {
+        // worker.postMessage(state.diffFiles);
+        // }
 
         return Vue.nextTick();
       })

@@ -21,7 +21,7 @@ export default {
   },
 
   [types.SET_DIFF_DATA](state, data) {
-    prepareDiffData(data);
+    if (data.diff_files) prepareDiffData(data);
 
     Object.assign(state, {
       ...convertObjectPropsToCamelCase(data),
