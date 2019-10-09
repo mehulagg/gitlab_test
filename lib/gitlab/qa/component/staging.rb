@@ -84,7 +84,7 @@ module Gitlab
           private
 
           def api_get!
-            @response_body ||=
+            @response_body ||= # rubocop:disable Naming/MemoizedInstanceVariableName
               begin
                 response = GetRequest.new(uri, Runtime::Env.qa_access_token).execute!
                 JSON.parse(response.body)

@@ -8,7 +8,6 @@ module Gitlab
 
             ##
             # rubocop:disable Lint/MissingCopEnableDirective
-            # rubocop:disable Metrics/MethodLength
             # rubocop:disable Metrics/AbcSize
             #
             def perform(release, *rspec_args)

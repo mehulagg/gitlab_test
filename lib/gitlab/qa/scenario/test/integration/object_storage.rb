@@ -6,7 +6,6 @@ module Gitlab
       module Test
         module Integration
           class ObjectStorage < Scenario::Template
-            # rubocop:disable Metrics/AbcSize
             def perform(release, *rspec_args)
               Component::Gitlab.perform do |gitlab|
                 gitlab.release = release
@@ -41,7 +40,6 @@ module Gitlab
                 end
               end
             end
-            # rubocop:enable Metrics/AbcSize
           end
         end
       end
