@@ -7,7 +7,7 @@ import { VALUE_TYPE, CUSTOM_TYPE } from '../../constants';
 import DetailsSectionMixin from '../../mixins/details_section_mixin';
 
 import GeoNodeDetailItem from '../geo_node_detail_item.vue';
-import SectionRevealButton from './section_reveal_button.vue';
+import SectionRevealButton from '~/vue_shared/components/section_reveal_button.vue';
 
 export default {
   components: {

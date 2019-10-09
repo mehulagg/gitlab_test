@@ -1,10 +1,10 @@
 import Vue from 'vue';
 
-import SectionRevealButtonComponent from 'ee/geo_nodes/components/node_detail_sections/section_reveal_button.vue';
+import SectionRevealButton from '~/vue_shared/components/section_reveal_button.vue';
 import mountComponent from 'spec/helpers/vue_mount_component_helper';
 
 const createComponent = (buttonTitle = 'Foo button') => {
-  const Component = Vue.extend(SectionRevealButtonComponent);
+  const Component = Vue.extend(SectionRevealButton);
 
   return mountComponent(Component, {
     buttonTitle,
