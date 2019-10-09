@@ -12,7 +12,7 @@ module QA
         end
       end
 
-      before(:all) do
+      before do
         login
 
         @project = Resource::Project.fabricate! do |project|
