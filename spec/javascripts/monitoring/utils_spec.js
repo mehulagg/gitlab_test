@@ -2,15 +2,12 @@ import {
   getTimeDiff,
   getTimeWindow,
   graphDataValidatorForValues,
-<<<<<<< HEAD
   isDateTimePickerInputValid,
   truncateZerosInDateTime,
   stringToISODate,
   ISODateToString,
   isValidDate,
-=======
   graphDataValidatorForAnomalyValues,
->>>>>>> Fix code based on reviews:
 } from '~/monitoring/utils';
 import { timeWindows, timeWindowsKeyNames } from '~/monitoring/constants';
 import {
@@ -129,7 +126,6 @@ describe('graphDataValidatorForValues', () => {
   });
 });
 
-<<<<<<< HEAD
 describe('stringToISODate', () => {
   ['', 'null', undefined, 'abc'].forEach(input => {
     it(`throws error for invalid input like ${input}`, done => {
@@ -314,18 +310,36 @@ describe('isDateTimePickerInputValid', () => {
     it(`returns ${output} for ${input}`, () => {
       expect(isDateTimePickerInputValid(input)).toBe(output);
     });
-=======
+  });
+});
+
 describe('graphDataValidatorForAnomalyValues', () => {
+  let oneQuery;
+  let threeQueries;
+  let fourQueries;
+  beforeEach(() => {
+    oneQuery = graphDataPrometheusQuery;
+    threeQueries = anomalyMockGraphData;
+
+    const queries = [...threeQueries.queries];
+    queries.push(threeQueries.queries[0]);
+    fourQueries = {
+      ...anomalyMockGraphData,
+      queries,
+    };
+  });
   /*
    * Anomaly charts can accept results for exactly 3 queries,
-   * Anomaly validation also require graphDataValidatorForValues to have `values`
    */
-  it('validates data with the query format', () => {
-    const validAnomalyData = graphDataValidatorForAnomalyValues(anomalyMockGraphData);
-    const validGraphData = graphDataValidatorForValues(false, anomalyMockGraphData);
+  it('validates passes with the right query format', () => {
+    expect(graphDataValidatorForAnomalyValues(threeQueries)).toBe(true);
+  });
 
-    expect(validAnomalyData).toBe(true);
-    expect(validGraphData).toBe(true);
->>>>>>> Fix code based on reviews:
+  it('validation fails for wrong format, 1 metric', () => {
+    expect(graphDataValidatorForAnomalyValues(oneQuery)).toBe(false);
+  });
+
+  it('validation fails for wrong format, more than 3 metrics', () => {
+    expect(graphDataValidatorForAnomalyValues(fourQueries)).toBe(false);
   });
 });

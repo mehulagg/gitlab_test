@@ -195,6 +195,7 @@ export default {
 
 <template>
   <monitor-time-series-chart
+    v-bind="$attrs"
     :graph-data="metricData"
     :option="chartOptions"
     :series-config="metricSeriesConfig"

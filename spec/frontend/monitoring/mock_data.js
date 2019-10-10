@@ -106,7 +106,12 @@ export const anomalyMockGraphData = {
       label: 'Metrics RPS',
       metric_id: 90,
       prometheus_endpoint_path: 'MOCK_METRIC_PEP',
-      result: [],
+      result: [
+        {
+          metric: {},
+          values: [['2019-08-19T19:00:00.000Z', 0]],
+        },
+      ],
     },
     {
       metricId: '91',
@@ -116,7 +121,12 @@ export const anomalyMockGraphData = {
       label: 'Upper Limit Metrics RPS',
       metric_id: 91,
       prometheus_endpoint_path: 'MOCK_UPPER_PEP',
-      result: [],
+      result: [
+        {
+          metric: {},
+          values: [['2019-08-19T19:00:00.000Z', 0]],
+        },
+      ],
     },
     {
       metricId: '92',
@@ -126,7 +136,12 @@ export const anomalyMockGraphData = {
       label: 'Lower Limit Metrics RPS',
       metric_id: 92,
       prometheus_endpoint_path: 'MOCK_LOWER_PEP',
-      result: [],
+      result: [
+        {
+          metric: {},
+          values: [['2019-08-19T19:00:00.000Z', 0]],
+        },
+      ],
     },
   ],
 };

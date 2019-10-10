@@ -979,7 +979,7 @@ export const graphDataPrometheusQuery = {
 
 export const graphDataPrometheusQueryRange = {
   title: 'Super Chart A1',
-  type: 'area',
+  type: 'area-chart',
   weight: 2,
   metrics: [
     {
