@@ -176,9 +176,11 @@ export default {
       placement="top"
     >
       <div slot="title">
-        <gl-link :href="tooltipTitle.link" target="_blank" class="text-bold text-dark">{{
+        <gl-link :href="tooltipTitle.link" target="_blank" class="text-bold text-dark">
+          {{
           tooltipTitle.name
-        }}</gl-link>
+          }}
+        </gl-link>
       </div>
       <div>
         <strong>{{ tooltipContent.value }}</strong>
