@@ -641,65 +641,6 @@ ee:elasticsearch-quarantine:
     - .quarantine
     - .rspec-report-opts
 
-.job-dependencies:
-  dependencies:
-    - ee:docker
-    - ee:elasticsearch
-    - ee:elasticsearch-quarantine
-    - ee:geo
-    - ee:geo-quarantine
-    - ee:group_saml
-    - ee:group_saml-quarantine
-    - ee:image
-    - ee:instance
-    - ee:instance-quarantine
-    - ee:instance_saml
-    - ee:instance_saml-quarantine
-    - ee:kubernetes
-    - ee:kubernetes-quarantine
-    - ee:ldap_no_server
-    - ee:ldap_no_server-quarantine
-    - ee:ldap_no_tls
-    - ee:ldap_no_tls-quarantine
-    - ee:ldap_tls
-    - ee:ldap_tls-quarantine
-    - ee:mattermost
-    - ee:mattermost-quarantine
-    - ee:oauth
-    - ee:oauth-quarantine
-    - ee:object_storage
-    - ee:object_storage-quarantine
-    - ee:relative_url
-    - ee:relative_url-quarantine
-    - ee:update
-    - ee:update-quarantine
-    - ce:docker
-    - ce:image
-    - ce:instance
-    - ce:instance-quarantine
-    - ce:instance_saml
-    - ce:instance_saml-quarantine
-    - ce:kubernetes
-    - ce:kubernetes-quarantine
-    - ce:ldap_no_tls
-    - ce:ldap_no_tls-quarantine
-    - ce:ldap_tls
-    - ce:ldap_tls-quarantine
-    - ce:mattermost
-    - ce:mattermost-quarantine
-    - ce:oauth
-    - ce:oauth-quarantine
-    - ce:object_storage
-    - ce:object_storage-quarantine
-    - ce:relative_url
-    - ce:relative_url-quarantine
-    - ce:update
-    - ce:update-quarantine
-    - ce:upgrade
-    - ce:upgrade-quarantine
-    - ee-previous-to-ce:update
-    - ee-previous-to-ce:update-quarantine
-
 .report-base:
   image: ruby:2.6-alpine
   variables:
@@ -733,7 +674,6 @@ ee:elasticsearch-quarantine:
 notify_upstream_commit:success:
   extends:
     - .report-base
-    - .job-dependencies
     - .notify_upstream_commit
   script:
     - bin/notify_upstream_commit success ${COMBINED_REPORT}
@@ -742,7 +682,6 @@ notify_upstream_commit:success:
 notify_upstream_commit:failure:
   extends:
     - .report-base
-    - .job-dependencies
     - .notify_upstream_commit
   script:
     - bin/notify_upstream_commit failure ${COMBINED_REPORT}
