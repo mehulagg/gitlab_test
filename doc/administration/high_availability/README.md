@@ -253,6 +253,108 @@ adjusted prior to certification based on performance testing.
 | 1 Monitoring node             | 4 CPU, 3.6GB Memory     | n1-highcpu-4   |
 | 1 Load Balancing node[^2] .   | 2 vCPU, 1.8GB Memory    | n1-highcpu-2   |
 
+```plantuml
+@startuml 25k
+package "Load Balancer" as lb {
+  node "Load Balancer node" #6a9be7
+}
+
+rectangle "web" {
+  package "Sidekiq" as sidekiq {
+    node "Sidekiq node1" #ff8dd1
+    node "Sidekiq node2" #ff8dd1
+    node "Sidekiq node3" #ff8dd1
+    node "Sidekiq node4" #ff8dd1
+  }
+
+  package "GitLab Web/API Servers" as gitlab {
+    node node1 #fca326
+    node node2 #fca326
+    node node3 #fca326
+    node node4 #fca326
+    node node5 #fca326
+    node node6 #fca326
+    node node7 #fca326
+
+    note as P #white
+    Puma workers on each node
+    set to 90% of available CPUs
+    with 16 threads
+    end note
+  }
+}
+
+rectangle "storage" as storage {
+  package "Gitaly" as gitaly {
+    node "Gitaly node1" #fdc371
+    node "Gitaly node2" #fdc371
+  }
+
+  package "PostgreSQL" as postgres {
+    node "PGBouncer" as pgbouncer #40b3ff
+    database "Postgres node1 (primary)" as postgres1 #40b3ff
+    database "Postgres node2 (standby)" as postgres2 #40b3ff
+    database "Postgres node3 (standby)" as postgres3 #40b3ff
+
+    pgbouncer -[#40b3ff]-> postgres1
+    pgbouncer -[#40b3ff]-> postgres2
+    pgbouncer -[#40b3ff]-> postgres3
+  }
+
+  package "Redis/Sentinel" as redis {
+    node "Redis Persistent node1" #ea7b73
+    node "Redis Persistent node2" #ea7b73
+    node "Redis Persistent node3" #ea7b73
+    node "Redis Cache node1" #ea7b73
+    node "Redis Cache node2" #ea7b73
+    node "Redis Cache node3" #ea7b73
+
+    note as M #white
+    Cache maxmemory set to 90% of available memory
+    end note
+  }
+
+  package "File Storage" as filestorage {
+    cloud "Object Storage e.g. S3" #white
+    database "NFS Scratch dir" #white
+  }
+
+  gitaly -[hidden]-- redis
+  gitaly -[hidden]-- filestorage
+}
+
+rectangle "monitor" {
+  package "Consul" {
+    node "Consul node1" #e76a9b
+    node "Consul node2" #e76a9b
+    node "Consul node3" #e76a9b
+  }
+
+  package "Monitoring" {
+    node "Prometheus + Grafana node" #e6726b
+  }
+}
+
+lb -[#6a9be7]-> gitlab
+lb -[#6a9be7]-> sidekiq
+lb -[hidden]- web
+
+gitlab -[hidden]--- gitaly
+sidekiq -[hidden]--- gitaly
+gitlab -[hidden]--- postgres
+sidekiq -[hidden]--- postgres
+lb -[hidden]------ monitor
+
+gitlab -[#fca326]----> storage
+sidekiq -[#ff8dd1]----> storage
+storage -[#000000]-> postgres
+storage -[#000000]-> gitaly
+storage -[#000000]-> redis
+storage -[#000000]-> filestorage
+
+@enduml
+```
+
 ### 50,000 User Configuration
 
 - **Supported Users (approximate):** 50,000
