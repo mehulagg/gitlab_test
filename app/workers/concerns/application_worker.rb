@@ -22,27 +22,19 @@ module ApplicationWorker
     end
 
     def set_sidekiq_profile_option
-      p "F" * 100
-      p self.name
+      p "FFFFFF, #{Time.now}  Thread from #{self.class.name}.#{__method__}:line#{__LINE__}: #{Thread.current}, Thread.current[:profile_sidekiq_worker]: #{Thread.current[:profile_sidekiq_worker]}"
       sidekiq_options test_profile: 'test_profile'
 
       return unless self.name == Thread.current[:profile_sidekiq_worker]
 
       sidekiq_options profile: Thread.current[:profile_sidekiq_worker]
 
-      p "B" * 100
-      p "sidekiq_options set for profile"
-
       Thread.current[:profile_sidekiq_worker] = nil
+      p "BBBBBB, #{Time.now}  Thread from #{self.class.name}.#{__method__}:line#{__LINE__}: #{Thread.current}, Thread.current[:profile_sidekiq_worker]: #{Thread.current[:profile_sidekiq_worker]}"
     end
 
     def debug_info(*args)
-      p "A" * 100
-      p "Thread from ApplicationWorker.perform_async: #{Thread.current}"
-      p Thread.current[:profile_sidekiq_worker]
-      p "args: #{args}"
-      p "Worker: #{self.name}"
-      p "ancestors: #{self.ancestors}"
+      p "AAAAAA, #{Time.now}  Thread from #{self.class.name}.#{__method__}:line#{__LINE__}: #{Thread.current}, Thread.current[:profile_sidekiq_worker]: #{Thread.current[:profile_sidekiq_worker]},   args: #{args},  Worker: #{self.name},  ancestors: #{self.ancestors}"
     end
 
     def inherited(subclass)
