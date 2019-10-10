@@ -87,7 +87,7 @@ module QA
 
       def create_many_labels
         30.times do |i|
-          create_a_label_api_req("#{@group_name}%2F#{@project_name}", "label#{i}", "#{Faker::Color.hex_color}")
+          create_a_label_api_req("#{@group_name}%2F#{@project_name}", "label#{i}", "#{FFaker::Color.hex_color}")
         end
         @urls[:labels_page] = @urls[:project_page] + "/labels"
         STDOUT.puts "Created many labels: #{@urls[:labels_page]}"
@@ -127,7 +127,7 @@ module QA
 
         labels_list = (0..15).map { |i| "label#{i}" }.join(',')
         # Add description and labels
-        update_an_issue_api_req("#{@group_name}%2F#{@project_name}", issue_id, "#{Faker::Lorem.sentences(500).join(" ")}", labels_list)
+        update_an_issue_api_req("#{@group_name}%2F#{@project_name}", issue_id, "#{FFaker::Lorem.sentences(500).join(" ")}", labels_list)
         @urls[:large_issue] = @urls[:project_page] + "/issues/#{issue_id}"
         STDOUT.puts "Created an issue with many discussions: #{@urls[:large_issue]}"
       end
@@ -135,7 +135,7 @@ module QA
       def create_an_mr_with_large_files_and_many_mr_discussions
         content_arr = []
         16.times do |i|
-          faker_line_arr = Faker::Lorem.sentences(1500)
+          faker_line_arr = FFaker::Lorem.sentences(1500)
           content = faker_line_arr.join("\n\r")
           create_a_new_file_api_req("hello#{i}.txt", "master", "#{@group_name}%2F#{@project_name}", "Add hello#{i}.txt", content)
           content_arr[i] = faker_line_arr
@@ -202,7 +202,7 @@ module QA
         create_mr_response = create_a_merge_request_api_req(project_path, branch_name, "master", "MR with many commits-#{SecureRandom.hex(8)}")
         @urls[:mr_with_many_commits] = JSON.parse(create_mr_response.body)["web_url"]
         100.times do |i|
-          update_file_api_req(file_name, branch_name, project_path, Faker::Lorem.sentences(5).join(" "), Faker::Lorem.sentences(500).join("\n"))
+          update_file_api_req(file_name, branch_name, project_path, FFaker::Lorem.sentences(5).join(" "), FFaker::Lorem.sentences(500).join("\n"))
         end
         STDOUT.puts "Using branch: #{branch_name}, created an MR with many commits: #{@urls[:mr_with_many_commits]}"
       end
