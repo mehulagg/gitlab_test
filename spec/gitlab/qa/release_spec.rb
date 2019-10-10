@@ -3,18 +3,23 @@ describe Gitlab::QA::Release do
   let(:specific_ce_qa_tag) { '10.8.4-ce' }
   let(:specific_ee_tag) { '11.0.0-rc5.ee.1' }
   let(:specific_ee_qa_tag) { '11.0.0-rc5-ee' }
+  let(:specific_version_timestamp_refs_tag) { '12.4.201910071518-933febe7c6d.aae3944cae6' }
+  let(:specific_tag_with_version_and_gitlab_ref) { '12.4-933febe7c6d' }
   let(:full_ce_address) { 'registry.gitlab.com:5000/foo/gitlab/gitlab-ce' }
   let(:full_ce_address_with_simple_tag) { "#{full_ce_address}:latest" }
   let(:full_ce_address_with_complex_tag) { "#{full_ce_address}:#{specific_ce_tag}" }
   let(:full_ee_address) { 'registry.gitlab.com:5000/foo/gitlab/gitlab-ee' }
   let(:full_ee_address_with_simple_tag) { "#{full_ee_address}:latest" }
   let(:full_ee_address_with_complex_tag) { "#{full_ee_address}:#{specific_ee_tag}" }
-  let(:full_dev_address) { 'dev.gitlab.org:5005/gitlab/omnibus-gitlab/gitlab-ee:latest' }
+  let(:dev_address) { 'dev.gitlab.org:5005/gitlab/omnibus-gitlab/gitlab-ee' }
+  let(:full_dev_address) { "#{dev_address}:latest" }
+  let(:full_dev_address_with_version_timestamp_refs_tag) { "#{dev_address}:#{specific_version_timestamp_refs_tag}" }
   let(:ce_image) { 'gitlab/gitlab-ce' }
   let(:ee_image) { 'gitlab/gitlab-ee' }
   let(:ce_qa_image) { "#{ce_image}-qa" }
   let(:full_ce_qa_image) { "#{full_ce_address}-qa" }
   let(:full_ee_qa_image) { "#{full_ee_address}-qa" }
+  let(:dev_qa_address) { "#{dev_address}-qa" }
 
   describe '#initialize' do
     context 'when release is valid' do
@@ -506,6 +511,12 @@ describe Gitlab::QA::Release do
 
       it { expect(subject.qa_image).to eq full_ce_qa_image }
     end
+
+    context 'when release is a dev image with gitlab ref in tag' do
+      subject { described_class.new(full_dev_address_with_version_timestamp_refs_tag) }
+
+      it { expect(subject.qa_image).to eq dev_qa_address }
+    end
   end
 
   describe '#project_name' do
@@ -677,6 +688,12 @@ describe Gitlab::QA::Release do
       subject { described_class.new("#{full_ce_qa_image}:nightly") }
 
       it { expect(subject.qa_tag).to eq 'nightly' }
+    end
+
+    context 'when release is a dev image with gitlab ref in tag' do
+      subject { described_class.new(full_dev_address_with_version_timestamp_refs_tag) }
+
+      it { expect(subject.qa_tag).to eq specific_tag_with_version_and_gitlab_ref }
     end
   end
 

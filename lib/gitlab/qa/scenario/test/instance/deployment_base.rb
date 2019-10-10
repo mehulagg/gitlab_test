@@ -18,17 +18,6 @@ module Gitlab
 
               args.unshift(release_name) if release_name&.start_with?('--')
 
-              if release.dev_gitlab_org?
-                Docker::Command.execute(
-                  [
-                    'login',
-                    '--username gitlab-qa-bot',
-                    %(--password "#{Runtime::Env.dev_access_token_variable}"),
-                    Release::DEV_REGISTRY
-                  ]
-                )
-              end
-
               Component::Specs.perform do |specs|
                 specs.suite = 'Test::Instance::All'
                 specs.release = release

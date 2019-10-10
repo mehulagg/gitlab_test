@@ -97,6 +97,17 @@ module Gitlab
         def start # rubocop:disable Metrics/AbcSize
           ensure_configured!
 
+          if release.dev_gitlab_org?
+            Docker::Command.execute(
+              [
+                'login',
+                '--username gitlab-qa-bot',
+                %(--password "#{Runtime::Env.dev_access_token_variable}"),
+                Release::DEV_REGISTRY
+              ]
+            )
+          end
+
           docker.run(image, tag) do |command|
             command << "-d -p #{port}"
             command << "--name #{name}"

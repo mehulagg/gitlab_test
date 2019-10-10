@@ -20,6 +20,21 @@ module Gitlab
           (:(?<tag>.+))?
         \z
       }xi
+
+      # Dev tag example:
+      #  12.1.201906121026-325a6632895.b340d0bd35d
+      # |----|------------|-----------|-----------|
+      #   |         |           |           |
+      #   |         |           |      omnibus-ref
+      #   |         |       gitlab-ee ref
+      #   |     timestamp
+      # version
+      DEV_TAG_REGEX = /
+        \A
+          (?<version>\d+\.\d+(.\d+)?)\.(?<timestamp>\d+)\-(?<gitlab_ref>[A-Za-z0-9]+)\.(?<omnibus_ref>[A-Za-z0-9]+)
+        \z
+      /xi
+
       DEFAULT_TAG = 'latest'.freeze
       DEFAULT_CANONICAL_TAG = 'nightly'.freeze
       DEV_REGISTRY = 'dev.gitlab.org:5005'.freeze
@@ -98,7 +113,11 @@ module Gitlab
 
       # Tag scheme for gitlab-{ce,ee}-qa images is like 11.1.0-rc12-ee
       def qa_tag
-        tag.sub(/[-\.]([ce]e)(\.(\d+))?\z/, '-\1')
+        if dev_gitlab_org? && (match_data = tag.match(DEV_TAG_REGEX))
+          "#{match_data[:version]}-#{match_data[:gitlab_ref]}"
+        else
+          tag.sub(/[-\.]([ce]e)(\.(\d+))?\z/, '-\1')
+        end
       end
 
       def dev_gitlab_org?

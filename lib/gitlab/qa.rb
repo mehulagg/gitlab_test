@@ -64,6 +64,12 @@ module Gitlab
       autoload :Elasticsearch, 'gitlab/qa/component/elasticsearch'
     end
 
+    module Support
+      autoload :GetRequest, 'gitlab/qa/support/get_request'
+      autoload :DevEEQAImage, 'gitlab/qa/support/dev_ee_qa_image'
+      autoload :InvalidResponseError, 'gitlab/qa/support/invalid_response_error'
+    end
+
     module Docker
       autoload :Command, 'gitlab/qa/docker/command'
       autoload :Engine, 'gitlab/qa/docker/engine'

@@ -23,9 +23,14 @@ describe Gitlab::QA::Component::Specs do
         .to receive(:host_artifacts_dir)
         .and_return('/tmp/gitlab-qa/gitlab-qa-run-2018-07-11-10-00-00-abc123')
 
+      release = double('release', edition: :ce, project_name: 'gitlab-ce', qa_image: 'gitlab-ce-qa', qa_tag: 'latest')
+      allow(release)
+        .to receive(:dev_gitlab_org?)
+        .and_return(false)
+
       described_class.perform do |specs|
         specs.suite = suite
-        specs.release = double('release', edition: :ce, project_name: 'gitlab-ce', qa_image: 'gitlab-ce-qa', qa_tag: 'latest')
+        specs.release = release
       end
 
       expect(docker_command).to have_received(:volume)
