@@ -27,6 +27,7 @@ module Gitlab
           'GITHUB_ACCESS_TOKEN' => :github_access_token,
           'GITLAB_URL' => :gitlab_url,
           'SIMPLE_SAML_HOSTNAME' => :simple_saml_hostname,
+          'SIMPLE_SAML_FINGERPRINT' => :simple_saml_fingerprint,
           'ACCEPT_INSECURE_CERTS' => :accept_insecure_certs,
           'EE_LICENSE' => :ee_license,
           'GCLOUD_ACCOUNT_EMAIL' => :gcloud_account_email,
