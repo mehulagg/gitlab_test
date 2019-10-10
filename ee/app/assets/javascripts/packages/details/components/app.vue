@@ -81,11 +81,11 @@ export default {
   data() {
     return {
       modalPrimary: {
-        text: 'Delete',
+        text: __('Delete'),
         attributes: [{ variant: 'danger' }, { 'data-method': 'delete' }, { to: this.destroyPath }],
       },
       modalCancel: {
-        text: 'Cancel',
+        text: __('Cancel'),
       },
     };
   },

@@ -173,10 +173,10 @@ export default {
       hasValidDates: true,
       timeWindows: {},
       modalCancel: {
-        text: 'Cancel',
+        text: __('Cancel'),
       },
       modalPrimary: {
-        text: 'Save changes',
+        text: __('Save changes'),
         attributes: [this.setPrimaryActionDisabled()],
       },
     };
