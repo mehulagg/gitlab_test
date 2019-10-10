@@ -22,6 +22,16 @@ export default {
       type: String,
       required: true,
     },
+    newFileUrl: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    oldFileUrl: {
+      type: String,
+      required: false,
+      default: '',
+    },
   },
   data() {
     return {
@@ -48,7 +58,9 @@ export default {
       return this.diffMode === diffModes.renamed;
     },
     imagePath() {
-      return this.isNew || this.isRenamed ? this.newPath : this.oldPath;
+      const oldPath = this.oldFileUrl || this.oldPath;
+      const newPath = this.newFileUrl || this.newPath;
+      return this.isNew || this.isRenamed ? newPath : oldPath;
     },
   },
   methods: {

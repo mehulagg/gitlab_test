@@ -19,6 +19,11 @@ export default {
       type: String,
       required: true,
     },
+    newFileUrl: {
+      type: String,
+      required: false,
+      default: '',
+    },
     newSha: {
       type: String,
       required: true,
@@ -26,6 +31,11 @@ export default {
     oldPath: {
       type: String,
       required: true,
+    },
+    oldFileUrl: {
+      type: String,
+      required: false,
+      default: '',
     },
     oldSha: {
       type: String,
@@ -85,6 +95,8 @@ export default {
       :diff-mode="diffMode"
       :new-path="fullNewPath"
       :old-path="fullOldPath"
+      :new-file-url="newFileUrl"
+      :old-file-url="oldFileUrl"
       :project-path="projectPath"
       :a-mode="aMode"
       :b-mode="bMode"

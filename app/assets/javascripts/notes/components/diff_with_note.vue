@@ -31,12 +31,12 @@ export default {
   computed: {
     ...mapState({
       // projectPath: state => state.diffs.projectPath,
-      projectPath: (state) => {
+      projectPath: state => {
         if (state.diffs) return state.diffs.projectPath;
 
-        console.log('Luke fall back');
+        // TODO: replace this with a proper project path
         return $('[data-project-path]:eq(1)').data('project-path');
-      }
+      },
     }),
     diffMode() {
       return getDiffMode(this.discussion.diff_file);
@@ -127,8 +127,10 @@ export default {
         :diff-viewer-mode="diffViewerMode"
         :new-path="discussion.diff_file.new_path"
         :new-sha="discussion.diff_file.diff_refs.head_sha"
+        :new-file-url="discussion.diff_file.new_file_url"
         :old-path="discussion.diff_file.old_path"
         :old-sha="discussion.diff_file.diff_refs.base_sha"
+        :old-file-url="discussion.diff_file.old_file_url"
         :file-hash="discussion.diff_file.file_hash"
         :project-path="projectPath"
       >
