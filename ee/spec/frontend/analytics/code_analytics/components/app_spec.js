@@ -1,11 +1,15 @@
 import Vuex from 'vuex';
 import { createLocalVue, shallowMount } from '@vue/test-utils';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
 import { GlEmptyState } from '@gitlab/ui';
 import Component from 'ee/analytics/code_analytics/components/app.vue';
 import GroupsDropdownFilter from 'ee/analytics/shared/components/groups_dropdown_filter.vue';
 import ProjectsDropdownFilter from 'ee/analytics/shared/components/projects_dropdown_filter.vue';
+import { DEFAULT_FILE_QUANTITY } from 'ee/analytics/code_analytics/constants';
 import FileQuantityDropdown from 'ee/analytics/code_analytics/components/file_quantity_dropdown.vue';
-import { group, project, DEFAULT_FILE_QUANTITY } from '../mock_data';
+import TreemapChart from 'ee/vue_shared/components/charts/treemap/treemap_chart.vue';
+import { group, project, endpoint, codeHotspotsTransformedData } from '../mock_data';
 
 const emptyStateTitle = 'Identify the most frequently changed files in your repository';
 const emptyStateDescription =
@@ -15,25 +19,43 @@ const emptyStateSvgPath = 'path/to/empty/state';
 const localVue = createLocalVue();
 localVue.use(Vuex);
 
-let wrapper;
-
 const createComponent = (opts = {}) =>
   shallowMount(Component, {
     localVue,
     sync: false,
     propsData: {
       emptyStateSvgPath,
+      endpoint,
     },
     ...opts,
   });
 
 describe('Code Analytics component', () => {
+  let wrapper;
+  let mock;
+
   beforeEach(() => {
+    mock = new MockAdapter(axios);
     wrapper = createComponent();
   });
 
   afterEach(() => {
+    mock.restore();
     wrapper.destroy();
+  });
+
+  describe('created', () => {
+    const actionSpies = {
+      setEndpoint: jest.fn(),
+    };
+
+    beforeEach(() => {
+      wrapper = createComponent({ methods: actionSpies });
+    });
+
+    it('dispatches setEndpoint with the endpoint prop', () => {
+      expect(actionSpies.setEndpoint).toHaveBeenCalledWith(endpoint);
+    });
   });
 
   describe('mounted', () => {
@@ -52,6 +74,10 @@ describe('Code Analytics component', () => {
 
   describe('methods', () => {
     describe('onProjectSelect', () => {
+      beforeEach(() => {
+        wrapper.vm.$store.state.selectedGroup = group;
+      });
+
       it('sets the project to null if no projects are submitted', () => {
         wrapper.vm.onProjectSelect([]);
 
@@ -68,6 +94,10 @@ describe('Code Analytics component', () => {
 
   describe('displays the components as required', () => {
     describe('before a group has been selected', () => {
+      beforeEach(() => {
+        wrapper.vm.$store.state.selectedGroup = null;
+      });
+
       it('displays an empty state', () => {
         const emptyState = wrapper.find(GlEmptyState);
 
@@ -77,16 +107,20 @@ describe('Code Analytics component', () => {
         expect(emptyState.props('svgPath')).toBe(emptyStateSvgPath);
       });
 
-      it('shows the groups filter', () => {
+      it('displays the groups filter', () => {
         expect(wrapper.find(GroupsDropdownFilter).exists()).toBeTruthy();
       });
 
-      it('does not show the projects filter', () => {
+      it('does not display the projects filter', () => {
         expect(wrapper.find(ProjectsDropdownFilter).exists()).toBeFalsy();
       });
 
-      it('does not show the file quantity filter', () => {
+      it('does not display the file quantity filter', () => {
         expect(wrapper.find(FileQuantityDropdown).exists()).toBeFalsy();
+      });
+
+      it('does not display the code hotspots chart', () => {
+        expect(wrapper.find(TreemapChart).exists()).toBeFalsy();
       });
     });
 
@@ -100,7 +134,7 @@ describe('Code Analytics component', () => {
           wrapper.vm.$store.state.selectedProject = null;
         });
 
-        it('still displays an empty state', () => {
+        it('displays an empty state', () => {
           const emptyState = wrapper.find(GlEmptyState);
 
           expect(emptyState.exists()).toBeTruthy();
@@ -109,16 +143,20 @@ describe('Code Analytics component', () => {
           expect(emptyState.props('svgPath')).toBe(emptyStateSvgPath);
         });
 
-        it('still shows the groups filter', () => {
+        it('displays the groups filter', () => {
           expect(wrapper.find(GroupsDropdownFilter).exists()).toBeTruthy();
         });
 
-        it('shows the projects filter', () => {
+        it('displays the projects filter', () => {
           expect(wrapper.find(ProjectsDropdownFilter).exists()).toBeTruthy();
         });
 
-        it('does not show the file quantity filter', () => {
+        it('does not display the file quantity filter', () => {
           expect(wrapper.find(FileQuantityDropdown).exists()).toBeFalsy();
+        });
+
+        it('does not display the code hotspots chart', () => {
+          expect(wrapper.find(TreemapChart).exists()).toBeFalsy();
         });
       });
 
@@ -127,27 +165,36 @@ describe('Code Analytics component', () => {
           wrapper.vm.$store.state.selectedProject = project;
         });
 
-        // This is until the empty state is replaced in a future iteration
-        // https://gitlab.com/gitlab-org/gitlab/merge_requests/18395
-        it('still displays an empty state', () => {
-          const emptyState = wrapper.find(GlEmptyState);
-
-          expect(emptyState.exists()).toBeTruthy();
-          expect(emptyState.props('title')).toBe(emptyStateTitle);
-          expect(emptyState.props('description')).toBe(emptyStateDescription);
-          expect(emptyState.props('svgPath')).toBe(emptyStateSvgPath);
+        it('does not display an empty state', () => {
+          expect(wrapper.find(GlEmptyState).exists()).toBeFalsy();
         });
 
-        it('still shows the groups filter', () => {
+        it('displays the groups filter', () => {
           expect(wrapper.find(GroupsDropdownFilter).exists()).toBeTruthy();
         });
 
-        it('shows the projects filter', () => {
+        it('displays the projects filter', () => {
           expect(wrapper.find(ProjectsDropdownFilter).exists()).toBeTruthy();
         });
 
-        it('shows the file quantity filter', () => {
+        it('displays the file quantity filter', () => {
           expect(wrapper.find(FileQuantityDropdown).exists()).toBeTruthy();
+        });
+
+        describe('with no code hotspots data', () => {
+          it('does not display the code hotspots chart', () => {
+            expect(wrapper.find(TreemapChart).exists()).toBeFalsy();
+          });
+        });
+
+        describe('with code hotspots data', () => {
+          beforeEach(() => {
+            wrapper.vm.$store.state.codeHotspotsData = codeHotspotsTransformedData;
+          });
+
+          it('displays the code hotspots chart', () => {
+            expect(wrapper.find(TreemapChart).exists()).toBeTruthy();
+          });
         });
       });
     });

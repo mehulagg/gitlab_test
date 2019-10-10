@@ -1,7 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
 import { GlDropdownItem } from '@gitlab/ui';
 import FileQuantityDropdown from 'ee/analytics/code_analytics/components/file_quantity_dropdown.vue';
-import { DEFAULT_FILE_QUANTITY } from '../mock_data';
+import { DEFAULT_FILE_QUANTITY } from 'ee/analytics/code_analytics/constants';
 
 describe('FileQuantityDropdown component', () => {
   let wrapper;

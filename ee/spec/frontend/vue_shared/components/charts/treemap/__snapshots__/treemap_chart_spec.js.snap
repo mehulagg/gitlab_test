@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TreemapChart Component matches the snapshot 1`] = `
+<div>
+  <glchart-stub
+    groupid=""
+    options="[object Object]"
+    renderer="svg"
+  />
+   
+  <!---->
+   
+  <treemapchartlegend-stub
+    colors="rgba(26,170,85, 0.2),rgba(26,170,85, 0.4),rgba(26,170,85, 0.6),rgba(26,170,85, 0.8),rgba(252,148,3, 0.8),rgba(219,59,33, 0.8)"
+    title="Number of commits (Darker means more)"
+  />
+</div>
+`;

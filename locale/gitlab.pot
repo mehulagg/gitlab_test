@@ -4110,7 +4110,19 @@ msgstr ""
 msgid "Code owners"
 msgstr ""
 
+msgid "CodeAnalytics|Code hotspots"
+msgstr ""
+
+msgid "CodeAnalytics|Commits"
+msgstr ""
+
 msgid "CodeAnalytics|Max files"
+msgstr ""
+
+msgid "CodeAnalytics|Number of commits (Darker means more)"
+msgstr ""
+
+msgid "CodeAnalytics|Showing data about commits from %{startDate} to %{endDate}"
 msgstr ""
 
 msgid "CodeOwner|Pattern"
