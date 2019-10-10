@@ -1,3 +1,5 @@
+export const DEFAULT_FILE_QUANTITY = 100;
+
 export const group = {
   id: 1,
   name: 'foo',
