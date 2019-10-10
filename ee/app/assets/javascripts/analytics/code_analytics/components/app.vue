@@ -8,6 +8,7 @@ import TreemapChart from 'ee/vue_shared/components/charts/treemap/treemap_chart.
 import GroupsDropdownFilter from '../../shared/components/groups_dropdown_filter.vue';
 import ProjectsDropdownFilter from '../../shared/components/projects_dropdown_filter.vue';
 import FileQuantityDropdown from './file_quantity_dropdown.vue';
+import TreemapChart from 'ee/vue_shared/components/charts/treemap/treemap_chart.vue';
 import { featureAccessLevel } from '~/pages/projects/shared/permissions/constants';
 import { PROJECTS_PER_PAGE, DEFAULT_FILE_QUANTITY, DEFAULT_DAYS_IN_PAST } from '../constants';
 import { dateFormats } from '../../shared/constants';
@@ -152,9 +153,10 @@ export default {
         "
         :svg-path="emptyStateSvgPath"
       />
-      <div v-else-if="!codeHotspotsData.length" class="bs-callout bs-callout-info">
-        {{ __('There is no data available. Please change your selection.') }}
-      </div>
+      <div
+        v-else-if="!codeHotspotsData.length"
+        class="bs-callout bs-callout-info"
+      >{{ __('There is no data available. Please change your selection.') }}</div>
       <template v-else>
         <div class="mt-5">
           <h4>{{ s__('CodeAnalytics|Code hotspots') }}</h4>
