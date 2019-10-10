@@ -78,6 +78,17 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      modalPrimary: {
+        text: 'Delete',
+        attributes: [{ variant: 'danger' }, { 'data-method': 'delete' }, { to: this.destroyPath }],
+      },
+      modalCancel: {
+        text: 'Cancel',
+      },
+    };
+  },
   computed: {
     isNpmPackage() {
       return this.packageEntity.package_type === PackageType.NPM;
@@ -149,9 +160,6 @@ export default {
   methods: {
     formatSize(size) {
       return numberToHumanSize(size);
-    },
-    cancelDelete() {
-      this.$refs.deleteModal.hide();
     },
   },
   i18n: {
@@ -245,22 +253,15 @@ export default {
       </template>
     </gl-table>
 
-    <gl-modal ref="deleteModal" class="js-delete-modal" modal-id="delete-modal">
+    <gl-modal
+      ref="deleteModal"
+      class="js-delete-modal"
+      modal-id="delete-modal"
+      :modal-action-cancel="modalCancel"
+      :modal-action-primary="modalPrimary"
+    >
       <template #modal-title>{{ $options.i18n.deleteModalTitle }}</template>
       <p v-html="deleteModalDescription"></p>
-
-      <div slot="modal-footer" class="w-100">
-        <div class="float-right">
-          <gl-button @click="cancelDelete()">{{ __('Cancel') }}</gl-button>
-          <gl-button
-            data-method="delete"
-            :to="destroyPath"
-            variant="danger"
-            data-qa-selector="delete_modal_button"
-            >{{ __('Delete') }}</gl-button
-          >
-        </div>
-      </div>
     </gl-modal>
   </div>
 </template>
