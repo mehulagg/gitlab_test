@@ -8,14 +8,21 @@ class GroupExport < ApplicationRecord
 
   validates :group, presence: true
 
+  mount_uploader :export_file, ImportExportUploader
+
   state_machine :status, initial: :created do
     state :created,  value: 0
     state :started,  value: 3
+    state :uploaded, value: 4
     state :finished, value: 9
     state :failed,   value: -1
 
     event :start do
       transition created: :started
+    end
+
+    event :upload do
+      transition started: :uploaded
     end
 
     event :finish do

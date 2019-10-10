@@ -6,8 +6,8 @@ module Gitlab
       UNTAR_MASK = 'u+rwX,go+rX,go-w'
       DEFAULT_DIR_MODE = 0700
 
-      def tar_czf(archive:, dir:)
-        tar_with_options(archive: archive, dir: dir, options: 'czf')
+      def tar_czf(archive:, dir:, files: '.')
+        tar_with_options(archive: archive, dir: dir, options: 'czf', files: files)
       end
 
       def untar_zxf(archive:, dir:)
@@ -36,8 +36,8 @@ module Gitlab
         end
       end
 
-      def tar_with_options(archive:, dir:, options:)
-        execute(%W(tar -#{options} #{archive} -C #{dir} .))
+      def tar_with_options(archive:, dir:, options:, files:)
+        execute(%W(tar -#{options} #{archive} -C #{dir} #{files}))
       end
 
       def untar_with_options(archive:, dir:, options:)

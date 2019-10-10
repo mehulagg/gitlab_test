@@ -12,10 +12,13 @@ class GroupExportPart < ApplicationRecord
   scope :created, -> { where(status: self.state_machines[:status].states[:created].value) }
   scope :failed, -> { where(status: self.state_machines[:status].states[:failed].value) }
 
+  mount_uploader :export_file, ImportExportUploader
+
   state_machine :status, initial: :created do
     state :created,   value: 0
     state :scheduled, value: 3
     state :started,   value: 6
+    state :uploaded,  value: 7
     state :finished,  value: 9
     state :failed,    value: -1
     state :aborted,   value: -2
@@ -26,6 +29,10 @@ class GroupExportPart < ApplicationRecord
 
     event :start do
       transition scheduled: :started
+    end
+
+    event :upload do
+      transition started: :uploaded
     end
 
     event :finish do
@@ -50,7 +57,13 @@ class GroupExportPart < ApplicationRecord
 
     after_transition scheduled: :started do |state, _|
       state.run_after_commit do
-        state.finish!
+        Gitlab::ImportExport::Group::Exporters::Exporter.for(state).export
+      end
+    end
+
+    before_transition started: :uploaded do |state, transition|
+      state.run_after_commit do
+        Gitlab::ImportExport::Group::Saver.save(state, transition.args.first)
       end
     end
 
