@@ -93,14 +93,15 @@ describe('Anomaly chart component', () => {
       });
 
       describe('additional-chart-options', () => {
-        let additionalChartOptions;
+        let option;
+        let series;
 
         beforeEach(() => {
-          ({ additionalChartOptions } = getTimeSeriesProps());
+          ({ option } = getTimeSeriesProps());
+          ({ series } = option);
         });
 
         it('contains a boundary band', () => {
-          const { series } = additionalChartOptions;
           expect(series).toEqual(expect.any(Array));
           expect(series.length).toEqual(2); // 1 upper + 1 lower boundaries
           expect(series[0].stack).toEqual(series[1].stack);
@@ -115,7 +116,6 @@ describe('Anomaly chart component', () => {
         });
 
         it('upper boundary values are stacked on top of lower boundary', () => {
-          const { series } = additionalChartOptions;
           const [lowerSeries, upperSeries] = series;
           const [, upperDataset, lowerDataset] = dataSet;
 
@@ -129,15 +129,15 @@ describe('Anomaly chart component', () => {
         });
       });
 
-      describe('additional-chart-data-config', () => {
-        let additionalChartDataConfig;
+      describe('series-config', () => {
+        let seriesConfig;
 
         beforeEach(() => {
-          ({ additionalChartDataConfig } = getTimeSeriesProps());
+          ({ seriesConfig } = getTimeSeriesProps());
         });
 
         it('display symbols is enabled', () => {
-          expect(additionalChartDataConfig).toEqual(
+          expect(seriesConfig).toEqual(
             expect.objectContaining({
               type: 'line',
               symbol: 'circle',
@@ -150,7 +150,7 @@ describe('Anomaly chart component', () => {
           );
         });
         it('does not display anomalies', () => {
-          const { symbolSize, itemStyle } = additionalChartDataConfig;
+          const { symbolSize, itemStyle } = seriesConfig;
           const [metricDataset] = dataSet;
 
           metricDataset.forEach((v, dataIndex) => {
@@ -196,10 +196,10 @@ describe('Anomaly chart component', () => {
       });
     });
 
-    describe('additional-chart-data-config', () => {
+    describe('series-config', () => {
       it('displays one anomaly', () => {
-        const { additionalChartDataConfig } = getTimeSeriesProps();
-        const { symbolSize, itemStyle } = additionalChartDataConfig;
+        const { seriesConfig } = getTimeSeriesProps();
+        const { symbolSize, itemStyle } = seriesConfig;
         const [metricDataset] = dataSet;
 
         const bigDots = metricDataset.filter((v, dataIndex) => {
@@ -250,10 +250,10 @@ describe('Anomaly chart component', () => {
       });
     });
 
-    describe('additional-chart-options', () => {
+    describe('options', () => {
       it('upper boundary values are stacked on top of lower boundary, plus the offset', () => {
-        const { additionalChartOptions } = getTimeSeriesProps();
-        const { series } = additionalChartOptions;
+        const { option } = getTimeSeriesProps();
+        const { series } = option;
         const [lowerSeries, upperSeries] = series;
         const [, upperDataset, lowerDataset] = dataSet;
 

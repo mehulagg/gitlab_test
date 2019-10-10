@@ -137,15 +137,15 @@ export default {
         },
         // The boundary is rendered by 2 series
         series: [
-          // One area invisible series (opacity: 0) stacked on a visible one.
+          // Done having an invisible series (opacity: 0) stacked on a visible one.
           // Order is important, lower boundary is stacked *below* the upper boundary
 
-          // Lower boundary
+          // Upper boundary, plus the offset for negative values
           this.makeBoundarySeries({
             name: this.formatLegendLabel(upperSeries),
             data: calcOffsetY(upperSeries.data, () => this.yOffset),
           }),
-          // Upper boundary
+          // Lower boundary, minus the upper boundary
           this.makeBoundarySeries({
             name: this.formatLegendLabel(lowerSeries),
             data: calcOffsetY(lowerSeries.data, i => -upperSeries.data[i][1]),
@@ -196,7 +196,7 @@ export default {
 <template>
   <monitor-time-series-chart
     :graph-data="metricData"
-    :additional-chart-options="chartOptions"
+    :option="chartOptions"
     :series-config="metricSeriesConfig"
     :deployment-data="deploymentData"
     :thresholds="thresholds"
@@ -204,11 +204,6 @@ export default {
     :project-path="projectPath"
   >
     <slot></slot>
-    <template v-slot:tooltipTitle="slotProps">
-      <div class="text-nowrap">
-        {{ slotProps.tooltip.title }}
-      </div>
-    </template>
     <template v-slot:tooltipContent="slotProps">
       <div
         v-for="(content, seriesIndex) in slotProps.tooltip.content"

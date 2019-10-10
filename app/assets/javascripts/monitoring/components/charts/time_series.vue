@@ -38,7 +38,7 @@ export default {
       required: true,
       validator: graphDataValidatorForValues.bind(null, false),
     },
-    additionalChartOptions: {
+    option: {
       type: Object,
       required: false,
       default: () => ({}),
@@ -140,19 +140,20 @@ export default {
         return acc.concat(series);
       }, []);
     },
-    chartOptions() {
-      const options = _.omit(this.additionalChartOptions || {}, 'series');
-
+    chartOptionSeries() {
       let series = [];
-      if (this.additionalChartOptions.series) {
-        series = [...this.additionalChartOptions.series];
+      if (this.option.series) {
+        series = [...this.option.series];
       }
       if (this.scatterSeries) {
         series.push(this.scatterSeries);
       }
-
+      return series;
+    },
+    chartOptions() {
+      const option = _.omit(this.option || {}, 'series');
       return {
-        series,
+        series: this.chartOptionSeries,
         xAxis: {
           name: __('Time'),
           type: 'time',
@@ -170,7 +171,7 @@ export default {
           },
         },
         dataZoom: [this.dataZoomConfig],
-        ...options,
+        ...option,
       };
     },
     dataZoomConfig() {
@@ -341,7 +342,7 @@ export default {
       </template>
       <template v-else>
         <template slot="tooltipTitle">
-          <slot name="tooltipTitle" :tooltip="tooltip">
+          <slot name="tooltipTitle">
             <div class="text-nowrap">
               {{ tooltip.title }}
             </div>
