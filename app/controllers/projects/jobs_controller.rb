@@ -11,7 +11,7 @@ class Projects::JobsController < Projects::ApplicationController
   before_action :authorize_erase_build!, only: [:erase]
   before_action :authorize_use_build_terminal!, only: [:terminal, :terminal_websocket_authorize]
   before_action :verify_api_request!, only: :terminal_websocket_authorize
-  before_action only: [:trace] do
+  before_action only: [:show] do
     push_frontend_feature_flag(:job_log_json)
   end
 
