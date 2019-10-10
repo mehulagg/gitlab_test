@@ -18,6 +18,17 @@ module Gitlab
         def perform # rubocop:disable Metrics/AbcSize
           raise ArgumentError unless [suite, release].all?
 
+          if release.dev_gitlab_org?
+            Docker::Command.execute(
+              [
+                'login',
+                '--username gitlab-qa-bot',
+                %(--password "#{Runtime::Env.dev_access_token_variable}"),
+                Release::DEV_REGISTRY
+              ]
+            )
+          end
+
           puts "Running test suite `#{suite}` for #{release.project_name}"
 
           name = "#{release.project_name}-qa-#{SecureRandom.hex(4)}"
