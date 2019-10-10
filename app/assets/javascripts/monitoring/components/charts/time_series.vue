@@ -43,7 +43,7 @@ export default {
       required: false,
       default: () => ({}),
     },
-    additionalChartDataConfig: {
+    seriesConfig: {
       type: Object,
       required: false,
       default: () => ({}),
@@ -134,7 +134,7 @@ export default {
           },
           showSymbol: false,
           areaStyle: this.graphData.type === 'area-chart' ? areaStyle : undefined,
-          ...this.additionalChartDataConfig,
+          ...this.seriesConfig,
         });
 
         return acc.concat(series);

@@ -82,7 +82,7 @@ describe('Time series component', () => {
               seriesName: timeSeriesChart.vm.chartData[0].name,
               componentSubType: type,
               value: [mockDate, 5.55555],
-              seriesIndex: 0,
+              dataIndex: 0,
             },
           ],
           value: mockDate,
@@ -101,11 +101,14 @@ describe('Time series component', () => {
           it('formats tooltip content', () => {
             const name = 'Core Usage';
             const value = '5.556';
+            const dataIndex = 0;
             const seriesLabel = timeSeriesChart.find(GlChartSeriesLabel);
 
             expect(seriesLabel.vm.color).toBe('');
             expect(shallowWrapperContainsSlotText(seriesLabel, 'default', name)).toBe(true);
-            expect(timeSeriesChart.vm.tooltip.content).toEqual([{ name, value, color: undefined }]);
+            expect(timeSeriesChart.vm.tooltip.content).toEqual([
+              { name, value, dataIndex, color: undefined },
+            ]);
             expect(
               shallowWrapperContainsSlotText(
                 timeSeriesChart.find(GlAreaChart),

@@ -16,7 +16,6 @@ const mockProjectPath = `${TEST_HOST}${mockProjectDir}`;
 
 jest.mock('~/lib/utils/icon_utils'); // mock getSvgIconPathContent
 
-
 const makeAnomalyGraphData = (datasetName, template = anomalyMockGraphData) => {
   const queries = anomalyMockResultValues[datasetName].map((values, index) => ({
     ...template.queries[index],

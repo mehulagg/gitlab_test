@@ -96,7 +96,7 @@ export default {
       const rgb = hexToRgb(this.areaColor);
       return `rgba(${rgb.join(',')},${this.areaOpacity})`;
     },
-    chartDataConfig() {
+    metricSeriesConfig() {
       return {
         type: 'line',
         symbol: 'circle',
@@ -197,7 +197,7 @@ export default {
   <monitor-time-series-chart
     :graph-data="metricData"
     :additional-chart-options="chartOptions"
-    :additional-chart-data-config="chartDataConfig"
+    :series-config="metricSeriesConfig"
     :deployment-data="deploymentData"
     :thresholds="thresholds"
     :container-width="containerWidth"
