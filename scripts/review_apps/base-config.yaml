@@ -8,10 +8,17 @@ global:
     configureCertmanager: false
     tls:
       secretName: tls-cert
+  service:
+    annotations:
+      app.gitlab.com/app: "${CI_PROJECT_PATH_SLUG}"
+      app.gitlab.com/env: "${CI_ENVIRONMENT_SLUG}"
 certmanager:
   install: false
 gitlab:
   gitaly:
+    annotations:
+      app.gitlab.com/app: "${CI_PROJECT_PATH_SLUG}"
+      app.gitlab.com/env: "${CI_ENVIRONMENT_SLUG}"
     resources:
       requests:
         cpu: 1200m
@@ -23,6 +30,9 @@ gitlab:
       size: 10G
   gitlab-exporter:
     enabled: false
+    annotations:
+      app.gitlab.com/app: "${CI_PROJECT_PATH_SLUG}"
+      app.gitlab.com/env: "${CI_ENVIRONMENT_SLUG}"
   mailroom:
     enabled: false
   migrations:
@@ -49,6 +59,9 @@ gitlab:
       livenessProbe:
         timeoutSeconds: 5
   sidekiq:
+    annotations:
+      app.gitlab.com/app: "${CI_PROJECT_PATH_SLUG}"
+      app.gitlab.com/env: "${CI_ENVIRONMENT_SLUG}"
     resources:
       requests:
         cpu: 650m
@@ -65,6 +78,9 @@ gitlab:
         cpu: 100m
         memory: 700M
   unicorn:
+    annotations:
+      app.gitlab.com/app: "${CI_PROJECT_PATH_SLUG}"
+      app.gitlab.com/env: "${CI_ENVIRONMENT_SLUG}"
     resources:
       requests:
         cpu: 500m
@@ -90,6 +106,9 @@ gitlab:
         periodSeconds: 15  # Default is 10
         timeoutSeconds: 5  # Default is 2
 gitlab-runner:
+  annotations:
+    app.gitlab.com/app: "${CI_PROJECT_PATH_SLUG}"
+    app.gitlab.com/env: "${CI_ENVIRONMENT_SLUG}"
   resources:
     requests:
       cpu: 450m
@@ -98,6 +117,9 @@ gitlab-runner:
       cpu: 675m
       memory: 150M
 minio:
+  annotations:
+    app.gitlab.com/app: "${CI_PROJECT_PATH_SLUG}"
+    app.gitlab.com/env: "${CI_ENVIRONMENT_SLUG}"
   resources:
     requests:
       cpu: 5m
@@ -106,6 +128,9 @@ minio:
       cpu: 10m
       memory: 280M
 nginx-ingress:
+  annotations:
+    app.gitlab.com/app: "${CI_PROJECT_PATH_SLUG}"
+    app.gitlab.com/env: "${CI_ENVIRONMENT_SLUG}"
   controller:
     config:
       ssl-ciphers: ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4
@@ -146,6 +171,9 @@ postgresql:
 prometheus:
   install: false
 redis:
+  annotations:
+    app.gitlab.com/app: "${CI_PROJECT_PATH_SLUG}"
+    app.gitlab.com/env: "${CI_ENVIRONMENT_SLUG}"
   metrics:
     resources:
       enabled: false
@@ -159,6 +187,9 @@ redis:
 redis-ha:
   enabled: false
 registry:
+  annotations:
+    app.gitlab.com/app: "${CI_PROJECT_PATH_SLUG}"
+    app.gitlab.com/env: "${CI_ENVIRONMENT_SLUG}"
   hpa:
     minReplicas: 1
   resources:
