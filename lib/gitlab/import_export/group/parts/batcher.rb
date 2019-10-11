@@ -21,7 +21,7 @@ module Gitlab
               next_batch.each do |part|
                 part.schedule!
               rescue => e
-                part.fail_op(error: e.message)
+                part.fail_op!(error: e.message)
               end
             end
           end

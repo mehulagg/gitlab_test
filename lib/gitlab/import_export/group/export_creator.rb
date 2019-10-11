@@ -48,7 +48,7 @@ module Gitlab
         end
 
         def relative_export_path
-          @export_path ||= Gitlab::ImportExport::Group.relative_path(group)
+          Gitlab::ImportExport::Group.relative_path(group)
         end
 
         def params

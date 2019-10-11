@@ -19,11 +19,11 @@ module Gitlab
           def export
             mkdir_p(export_path) unless File.directory?(export_path)
 
-            filenames = export_part
+            filename_list = export_part
 
-            part.upload!(filenames: filenames)
+            part.upload!(filename_list: filename_list, tmp_dir_path: tmp_dir_path)
           rescue => e
-            part.fail_op(error: e.message)
+            part.fail_op!(error: e.message)
           end
 
           # Implement in sub class

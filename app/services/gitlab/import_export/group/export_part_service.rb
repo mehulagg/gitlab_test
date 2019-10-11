@@ -12,7 +12,7 @@ module Gitlab
         def execute
           part.start!
         rescue => e
-          part.fail_op(error: e.message)
+          part.fail_op!(error: e.message)
         end
 
         private

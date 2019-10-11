@@ -27,7 +27,7 @@ describe GroupExportPart, type: :model do
       subject { create(:group_export_part, :started, export: export) }
 
       before do
-        subject.fail_op(error: 'Error!')
+        subject.fail_op!(error: 'Error!')
       end
 
       it 'updates status to failed' do

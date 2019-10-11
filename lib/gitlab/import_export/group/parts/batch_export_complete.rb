@@ -29,11 +29,11 @@ module Gitlab
               return
             end
 
-            export.finish!
+            export.upload!
           end
 
           def mark_as_failed(export)
-            export.fail_op(reason: _('One or more export parts failed'))
+            export.fail_op!(reason: _('One or more export parts failed'))
           end
         end
       end

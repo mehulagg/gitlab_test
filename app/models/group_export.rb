@@ -39,12 +39,22 @@ class GroupExport < ApplicationRecord
       end
     end
 
+    after_transition started: :uploaded do |state, _|
+      state.run_after_commit do
+        filenames = Gitlab::ImportExport::Group::Downloader.download_parts(state)
+      end
+    end
+
     after_transition any => :failed do |state, transition|
       state.update(status_reason: transition.args.first)
 
       state.parts.created.each do |part|
-        part.abort_op(reason: _('One or more export parts failed'))
+        part.abort_op!(reason: _('One or more export parts failed'))
       end
     end
+  end
+
+  def retrieve_upload(_identifier, paths)
+    Upload.find_by(model: self, path: paths)
   end
 end

@@ -61,14 +61,18 @@ class GroupExportPart < ApplicationRecord
       end
     end
 
-    before_transition started: :uploaded do |state, transition|
+    after_transition started: :uploaded do |state, transition|
       state.run_after_commit do
-        Gitlab::ImportExport::Group::Parts::Saver.save(state, transition.args.first)
+        Gitlab::ImportExport::Group::Saver.save(state, transition.args.first)
       end
     end
 
     after_transition any => :failed do |state, transition|
       state.update(status_reason: transition.args.first)
     end
+  end
+
+  def retrieve_upload(_identifier, paths)
+    Upload.find_by(model: self, path: paths)
   end
 end
