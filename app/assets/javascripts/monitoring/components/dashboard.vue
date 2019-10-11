@@ -195,6 +195,9 @@ export default {
     showRearrangePanelsBtn() {
       return !this.showEmptyState && this.rearrangePanelsAvailable;
     },
+    showToolbar() {
+      return this.hasHeaderButtons || this.environmentsEndpoint;
+    },
     addingMetricsAvailable() {
       return IS_EE && this.canAddMetrics && !this.showEmptyState;
     },
@@ -302,7 +305,10 @@ export default {
 
 <template>
   <div class="prometheus-graphs">
-    <div class="prometheus-graphs-header gl-p-3 pb-0 border-bottom bg-gray-light">
+    <div
+      v-if="showToolbar"
+      class="prometheus-graphs-header gl-p-3 pb-0 border-bottom bg-gray-light"
+    >
       <div class="row">
         <template v-if="environmentsEndpoint">
           <gl-form-group
