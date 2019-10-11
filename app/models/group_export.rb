@@ -26,7 +26,7 @@ class GroupExport < ApplicationRecord
     end
 
     event :finish do
-      transition started: :finished
+      transition uploaded: :finished
     end
 
     event :fail_op do

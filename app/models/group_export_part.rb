@@ -36,7 +36,7 @@ class GroupExportPart < ApplicationRecord
     end
 
     event :finish do
-      transition started: :finished
+      transition uploaded: :finished
     end
 
     event :fail_op do
@@ -63,7 +63,7 @@ class GroupExportPart < ApplicationRecord
 
     before_transition started: :uploaded do |state, transition|
       state.run_after_commit do
-        Gitlab::ImportExport::Group::Saver.save(state, transition.args.first)
+        Gitlab::ImportExport::Group::Parts::Saver.save(state, transition.args.first)
       end
     end
 

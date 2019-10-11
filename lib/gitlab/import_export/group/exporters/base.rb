@@ -19,9 +19,9 @@ module Gitlab
           def export
             mkdir_p(export_path) unless File.directory?(export_path)
 
-            export_part
+            filenames = export_part
 
-            part.finish!
+            part.upload!(filenames: filenames)
           rescue => e
             part.fail_op(error: e.message)
           end
@@ -41,6 +41,10 @@ module Gitlab
 
           def export_path
             Gitlab::ImportExport::Group.export_path(tmp_dir_path)
+          end
+
+          def filepath(filename)
+            File.join(export_path, filename)
           end
         end
       end

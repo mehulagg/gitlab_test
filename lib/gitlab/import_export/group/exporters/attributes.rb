@@ -6,7 +6,9 @@ module Gitlab
       module Exporters
         class Attributes < Base
           def export_part
-            File.write(filename, serialized_attributes)
+            File.write(filepath(filename), serialized_attributes)
+
+            [filename]
           end
 
           private
@@ -16,7 +18,7 @@ module Gitlab
           end
 
           def filename
-            File.join(export_path, "#{Gitlab::ImportExport::Group.group_filename}")
+            Gitlab::ImportExport::Group.group_filename
           end
         end
       end
