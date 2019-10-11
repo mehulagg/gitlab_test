@@ -6,6 +6,32 @@ import { areaOpacityValues, symbolSizes, colorValues } from '../../constants';
 import { graphDataValidatorForAnomalyValues } from '../../utils';
 import MonitorTimeSeriesChart from './time_series.vue';
 
+/**
+ * The anomaly component highlights when a metric shows
+ * some anomalous behavior.
+ *
+ * It shows both a metric line and a boundary band in a
+ * time series chart, the boundary band shows the normal
+ * range of values the metric should take.
+ *
+ * This component accepts 3 queries, which contain the
+ * "metric", "upper" limit and "lower" limit.
+ *
+ * The upper and lower series are "stacked areas" visually
+ * to create the boundary band, and if any "metric" value
+ * is outside this band, it is highlighted to warn users.
+ *
+ * The boundary band stack must be painted above the 0 line
+ * so the area is shown correctly. If any of the values of
+ * the data are negative, the chart data is shifted to be
+ * above 0 line.
+ *
+ * The data passed to the time series is will always be
+ * positive, but reformatted to show the original values of
+ * data.
+ *
+ */
+
 export default {
   components: {
     GlLineChart,
@@ -67,9 +93,13 @@ export default {
         };
       });
     },
+    /**
+     * If any of the values of the data is negative, the
+     * chart data is shifted by the lowest value
+     *
+     * This offset is the lowest value.
+     */
     yOffset() {
-      // in case the any part of the chart is displayed below 0
-      // calculate an offset for the whole chart, so the area can be displayed above it
       const minVals = this.series.map(ser =>
         ser.data.reduce((min, datapoint) => {
           const [, yVal] = datapoint;
@@ -135,11 +165,14 @@ export default {
             formatter: num => roundOffFloat(num - this.yOffset, 3).toString(),
           },
         },
-        // The boundary is rendered by 2 series
+        /**
+         * Boundary is rendered by 2 series: An invisible
+         * series (opacity: 0) stacked on a visible one.
+         *
+         * Order is important, lower boundary is stacked
+         * *below* the upper boundary.
+         */
         series: [
-          // Done having an invisible series (opacity: 0) stacked on a visible one.
-          // Order is important, lower boundary is stacked *below* the upper boundary
-
           // Upper boundary, plus the offset for negative values
           this.makeBoundarySeries({
             name: this.formatLegendLabel(upperSeries),
