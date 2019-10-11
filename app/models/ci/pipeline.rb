@@ -588,22 +588,18 @@ module Ci
     end
 
     def set_config_source
-      if ci_yaml_from_repo
-        self.config_source = :repository_source
-      elsif implied_ci_yaml_file
-        self.config_source = :auto_devops_source
-      end
+      self.config_source = config.source
     end
 
     ##
     # TODO, setting yaml_errors should be moved to the pipeline creation chain.
     #
     def config_processor
-      return unless ci_yaml_file
+      return unless config.content
       return @config_processor if defined?(@config_processor)
 
       @config_processor ||= begin
-        ::Gitlab::Ci::YamlProcessor.new(ci_yaml_file, { project: project, sha: sha, user: user })
+        ::Gitlab::Ci::YamlProcessor.new(config.content, { project: project, sha: sha, user: user })
       rescue Gitlab::Ci::YamlProcessor::ValidationError => e
         self.yaml_errors = e.message
         nil
@@ -613,28 +609,14 @@ module Ci
       end
     end
 
-    def ci_yaml_file_path
-      return unless repository_source? || unknown_source?
-
-      project.ci_config_path.presence || '.gitlab-ci.yml'
+    def config_content
+      strong_memoize(:config_content) do
+        config.content
+      end
     end
 
-    def ci_yaml_file
-      return @ci_yaml_file if defined?(@ci_yaml_file)
-
-      @ci_yaml_file =
-        if auto_devops_source?
-          implied_ci_yaml_file
-        else
-          ci_yaml_from_repo
-        end
-
-      if @ci_yaml_file
-        @ci_yaml_file
-      else
-        self.yaml_errors = "Failed to load CI/CD config file for #{sha}"
-        nil
-      end
+    def config
+      @config ||= Ci::Config.new(self)
     end
 
     def has_yaml_errors?
@@ -705,7 +687,7 @@ module Ci
     def predefined_variables
       Gitlab::Ci::Variables::Collection.new.tap do |variables|
         variables.append(key: 'CI_PIPELINE_IID', value: iid.to_s)
-        variables.append(key: 'CI_CONFIG_PATH', value: ci_yaml_file_path)
+        variables.append(key: 'CI_CONFIG_PATH', value: config.path)
         variables.append(key: 'CI_PIPELINE_SOURCE', value: source.to_s)
         variables.append(key: 'CI_COMMIT_MESSAGE', value: git_commit_message.to_s)
         variables.append(key: 'CI_COMMIT_TITLE', value: git_commit_full_title.to_s)
@@ -899,24 +881,6 @@ module Ci
     end
 
     private
-
-    def ci_yaml_from_repo
-      return unless project
-      return unless sha
-      return unless ci_yaml_file_path
-
-      project.repository.gitlab_ci_yml_for(sha, ci_yaml_file_path)
-    rescue GRPC::NotFound, GRPC::Internal
-      nil
-    end
-
-    def implied_ci_yaml_file
-      return unless project
-
-      if project.auto_devops_enabled?
-        Gitlab::Template::GitlabCiYmlTemplate.find('Auto-DevOps').content
-      end
-    end
 
     def pipeline_data
       Gitlab::DataBuilder::Pipeline.build(self)
