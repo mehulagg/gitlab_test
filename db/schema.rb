@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_04_134055) do
+ActiveRecord::Schema.define(version: 2019_10_11_110631) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -1736,6 +1736,7 @@ ActiveRecord::Schema.define(version: 2019_10_04_134055) do
     t.jsonb "params", null: false
     t.datetime_with_timezone "created_at", null: false
     t.datetime_with_timezone "updated_at", null: false
+    t.text "export_file"
     t.index ["group_export_id", "status"], name: "index_group_export_parts_on_group_export_id_and_status"
     t.index ["group_export_id"], name: "index_group_export_parts_on_group_export_id"
   end
@@ -1746,6 +1747,7 @@ ActiveRecord::Schema.define(version: 2019_10_04_134055) do
     t.string "status_reason", limit: 255
     t.datetime_with_timezone "created_at", null: false
     t.datetime_with_timezone "updated_at", null: false
+    t.text "export_file"
     t.index ["group_id", "status"], name: "index_group_exports_on_group_id_and_status"
     t.index ["group_id"], name: "index_group_exports_on_group_id"
   end
