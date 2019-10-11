@@ -2221,7 +2221,7 @@ describe Ci::Build do
           { key: 'CI_PAGES_URL', value: project.pages_url, public: true, masked: false },
           { key: 'CI_API_V4_URL', value: 'http://localhost/api/v4', public: true, masked: false },
           { key: 'CI_PIPELINE_IID', value: pipeline.iid.to_s, public: true, masked: false },
-          { key: 'CI_CONFIG_PATH', value: pipeline.ci_yaml_file_path, public: true, masked: false },
+          { key: 'CI_CONFIG_PATH', value: pipeline.config.path, public: true, masked: false },
           { key: 'CI_PIPELINE_SOURCE', value: pipeline.source, public: true, masked: false },
           { key: 'CI_COMMIT_MESSAGE', value: pipeline.git_commit_message, public: true, masked: false },
           { key: 'CI_COMMIT_TITLE', value: pipeline.git_commit_title, public: true, masked: false },

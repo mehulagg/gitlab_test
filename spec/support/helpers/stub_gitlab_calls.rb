@@ -19,7 +19,7 @@ module StubGitlabCalls
   end
 
   def stub_ci_pipeline_yaml_file(ci_yaml)
-    allow_any_instance_of(Ci::Pipeline).to receive(:ci_yaml_file) { ci_yaml }
+    allow_any_instance_of(Ci::Pipeline).to receive(:config_content) { ci_yaml }
   end
 
   def stub_pipeline_modified_paths(pipeline, modified_paths)
