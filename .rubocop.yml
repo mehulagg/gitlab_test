@@ -163,6 +163,12 @@ Rails/ApplicationRecord:
     - ee/lib/ee/gitlab/background_migration/**/*.rb
     - ee/spec/**/*.rb
 
+Rails/OutputSafety:
+  Enabled: true
+  Exclude:
+    - spec/**/*.rb
+    - ee/spec/**/*.rb
+
 # GitLab ###################################################################
 
 Gitlab/ModuleWithInstanceVariables:
