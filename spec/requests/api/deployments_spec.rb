@@ -1,11 +1,22 @@
 require 'spec_helper'
 
 describe API::Deployments do
-  let(:user)        { create(:user) }
-  let(:non_member)  { create(:user) }
+  using RSpec::Parameterized::TableSyntax
+
+  let(:maintainer) { create(:user) }
+  let(:developer)  { create(:user) }
+  let(:non_member) { create(:user) }
+  let(:users) do
+    {
+      maintainer: maintainer,
+      developer: developer,
+      non_member: non_member
+    }
+  end
 
   before do
-    project.add_maintainer(user)
+    project.add_maintainer(maintainer)
+    project.add_developer(developer)
   end
 
   describe 'GET /projects/:id/deployments' do
@@ -16,7 +27,7 @@ describe API::Deployments do
 
     context 'as member of the project' do
       it 'returns projects deployments sorted by id asc' do
-        get api("/projects/#{project.id}/deployments", user)
+        get api("/projects/#{project.id}/deployments", developer)
 
         expect(response).to have_gitlab_http_status(200)
         expect(response).to include_pagination_headers
@@ -29,12 +40,10 @@ describe API::Deployments do
       end
 
       describe 'ordering' do
-        using RSpec::Parameterized::TableSyntax
-
         let(:order_by) { nil }
         let(:sort) { nil }
 
-        subject { get api("/projects/#{project.id}/deployments?order_by=#{order_by}&sort=#{sort}", user) }
+        subject { get api("/projects/#{project.id}/deployments?order_by=#{order_by}&sort=#{sort}", developer) }
 
         def expect_deployments(ordered_deployments)
           json_response.each_with_index do |deployment_json, index|
@@ -80,7 +89,7 @@ describe API::Deployments do
 
     context 'as a member of the project' do
       it 'returns the projects deployment' do
-        get api("/projects/#{project.id}/deployments/#{deployment.id}", user)
+        get api("/projects/#{project.id}/deployments/#{deployment.id}", developer)
 
         expect(response).to have_gitlab_http_status(200)
         expect(json_response['sha']).to match /\A\h{40}\z/
@@ -100,13 +109,18 @@ describe API::Deployments do
   describe 'POST /projects/:id/deployments' do
     let!(:project) { create(:project, :repository) }
     let!(:environment) { create(:environment, project: project) }
+    let(:sha) { 'b83d6e391c22777fca1ed3012fce84f633d7fed0' }
 
-    context 'as a member of the project' do
-      let(:sha) { 'b83d6e391c22777fca1ed3012fce84f633d7fed0' }
+    where(:user_type, :expected_status) do
+      :maintainer | 201
+      :developer  | 201
+      :non_member | 404
+    end
 
-      it 'creates a new deployment' do
+    with_them do
+      it 'matches the expected status' do
         post(
-          api("/projects/#{project.id}/deployments", user),
+          api("/projects/#{project.id}/deployments", users[user_type]),
           params: {
             environment_id: environment.id,
             sha: sha,
@@ -116,27 +130,12 @@ describe API::Deployments do
           }
         )
 
-        expect(response).to have_gitlab_http_status(201)
+        expect(response).to have_gitlab_http_status(expected_status)
 
-        expect(json_response['sha']).to eq(sha)
-        expect(json_response['ref']).to eq('master')
-      end
-    end
-
-    context 'as non member' do
-      it 'returns a 404 status code' do
-        post(
-          api( "/projects/#{project.id}/deployments", non_member),
-          params: {
-            environment_id: environment.id,
-            sha: '123',
-            ref: 'master',
-            tag: false,
-            status: 'success'
-          }
-        )
-
-        expect(response).to have_gitlab_http_status(404)
+        if expected_status == 201
+          expect(json_response['sha']).to eq(sha)
+          expect(json_response['ref']).to eq('master')
+        end
       end
     end
   end
@@ -155,53 +154,29 @@ describe API::Deployments do
       )
     end
 
-    context 'as a member that can update deployments' do
-      it 'updates a deployment with an associated build' do
-        put(
-          api("/projects/#{project.id}/deployments/#{deploy.id}", user),
-          params: { status: 'success' }
-        )
-
-        expect(response).to have_gitlab_http_status(200)
-        expect(json_response['status']).to eq('success')
-      end
-
-      it 'updates a deployment without an associated build' do
-        deploy.update(deployable: nil)
-
-        put(
-          api("/projects/#{project.id}/deployments/#{deploy.id}", user),
-          params: { status: 'success' }
-        )
-
-        expect(response).to have_gitlab_http_status(200)
-        expect(json_response['status']).to eq('success')
-      end
+    where(:user_type, :with_associated_build, :expected_status) do
+      :maintainer | true  | 200
+      :maintainer | false | 200
+      :developer  | true  | 403
+      :developer  | false | 200
+      :non_member | true  | 404
+      :non_member | false | 404
     end
 
-    context 'a a member that can not update deployments' do
-      it 'returns a 403 status code' do
-        developer = create(:user)
-
-        project.add_developer(developer)
+    with_them do
+      it 'matches the expected status' do
+        deploy.update(deployable: nil) unless with_associated_build
 
         put(
-          api("/projects/#{project.id}/deployments/#{deploy.id}", developer),
+          api("/projects/#{project.id}/deployments/#{deploy.id}", users[user_type]),
           params: { status: 'success' }
         )
 
-        expect(response).to have_gitlab_http_status(403)
-      end
-    end
+        expect(response).to have_gitlab_http_status(expected_status)
 
-    context 'as non member' do
-      it 'returns a 404 status code' do
-        put(
-          api("/projects/#{project.id}/deployments/#{deploy.id}", non_member),
-          params: { status: 'success' }
-        )
-
-        expect(response).to have_gitlab_http_status(404)
+        if expected_status == 200
+          expect(json_response['status']).to eq('success')
+        end
       end
     end
   end
