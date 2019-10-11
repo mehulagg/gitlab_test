@@ -16,6 +16,7 @@ JSConsoleError = Class.new(StandardError)
 JS_CONSOLE_FILTER = Regexp.union([
   '"[HMR] Waiting for update signal from WDS..."',
   '"[WDS] Hot Module Replacement enabled."',
+  '"[WDS] Live Reloading enabled."',
   "Download the Vue Devtools extension"
 ])
 
@@ -105,7 +106,7 @@ RSpec.configure do |config|
     # fixed. If we raised the `JSException` the fixed test would be marked as
     # failed again.
     if example.exception && !example.exception.is_a?(RSpec::Core::Pending::PendingExampleFixedError)
-      console = page.driver.browser.manage.logs.get(:browser)&.reject { |log| log.message =~ JS_CONSOLE_FILTER }
+      console = page.driver.browser.manage.logs.get(:browser)&.reject { |log| log.message =~ JS_CONSOLE_FILTER || (log.level != "SEVERE" unless example.exception) }
 
       if console.present?
         message = "Unexpected browser console output:\n" + console.map(&:message).join("\n")
