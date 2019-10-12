@@ -1,109 +1,33 @@
 # LDAP Troubleshooting for Administrators
 
-## Debugging tools
+## Narrowing down the problem
 
-### ldapsearch
+To troubleshoot a specific error, go to [Errors](#errors).
 
-`ldapsearch` is a utility that will allow you to query your LDAP server. You can
-use it to test your LDAP settings and ensure that the settings you're using
-will get you the results you expect.
+As an admin troubleshooting LDAP, familiarize yourself with the [various
+debugging tools](#debugging-tools) you can use.
 
-When using `ldapsearch`, be sure to use the same settings you've already
-specified in your `gitlab.rb` configuration so you can confirm what happens
-when those exact settings are used.
+**Users can't login**
 
-Please see [the official
-`ldapsearch` documentation](https://linux.die.net/man/1/ldapsearch) for
-the available flags.
+Run the [LDAP rake task](#ldap-check) to confirm whether a connection to LDAP can
+be established and LDAP users can be found.
 
-Running this command on the GitLab host will also help confirm that it's
-possible for a network connection to be made to LDAP.
+  - Does it successfully connect to the LDAP server?
+  If it doesn't, go to [Connection failures](#connection-failures).
+  - If it successfully connects, the output [should also return up to
+  100 users](../raketasks/ldap.md#check). Do you see them in the output? If
+  not, go to [LDAP check finds no users](#users-arent-found).
+  - Does it connect successfully, return users, but one or more users aren't
+    able to login with their LDAP credentials? If so, go to [User
+    login failures](#user-login-failures).
 
-For example, consider the following GitLab configuration:
+**Users can login but they aren't getting access to a group**
 
-```bash
-gitlab_rails['ldap_servers'] = YAML.load <<-'EOS' # remember to close this block with 'EOS' below
-   main: # 'main' is the GitLab 'provider ID' of this LDAP server
-     label: 'LDAP'
-     host: '127.0.0.1'
-     port: 389
-     uid: 'uid'
-     encryption: 'plain'
-     bind_dn: 'cn=admin,dc=ldap-testing,dc=example,dc=com'
-     password: 'Password1'
-     active_directory: true
-     allow_username_or_email_login: false
-     block_auto_created_users: false
-     base: 'dc=ldap-testing,dc=example,dc=com'
-     user_filter: ''
-     attributes:
-       username: ['uid', 'userid', 'sAMAccountName']
-       email:    ['mail', 'email', 'userPrincipalName']
-       name:       'cn'
-       first_name: 'givenName'
-       last_name:  'sn'
-     group_base: 'ou=groups,dc=ldap-testing,dc=example,dc=com'
-     admin_group: 'gitlab_admin'
-EOS
-```
+Go to [Group Sync failures](#group-sync-failures).
 
-You would run the following `ldapsearch` to find the `bind_dn` user:
+**Users can login but they aren't given Admin or External user access**
 
-```bash
-ldapsearch -D "cn=admin,dc=ldap-testing,dc=example,dc=com" \
-  -w Password1 \
-  -p 389 \
-  -h 127.0.0.1 \
-  -b "dc=ldap-testing,dc=example,dc=com"
-```
-
-Note that the `bind_dn`, `password`, `port`, `host`, and `base` are all
-identical to what's configured in the `gitlab.rb`.
-
-Please see [the official
-`ldapsearch` documentation](https://linux.die.net/man/1/ldapsearch) for more.
-
-### LDAP check
-
-The [rake task to check LDAP](../raketasks/ldap.md#check) is a valuable tool
-to help determine whether GitLab can successfully establish a connection to
-LDAP and can get so far as to even read users.
-
-If a connection can't be established, it is likely either because of your
-configuration or the connection itself. Re-visit your LDAP configuration and
-use [`ldapsearch`](#ldapsearch) to debug where it could be failing.
-
-If GitLab can successfully connect to LDAP but doesn't return any
-users, it's likely that either users don't fall under your configured `base`
-or they don't filter through any configured `user_filter`. Once again, you can
-use [`ldapsearch`](#ldapsearch) to help find the culprit.
-
-### Rails console
-
-CAUTION: **CAUTION:**
-Please note that it is very easy to create, read, modify, and destroy data on the
-rails console, so please be sure to run commands exactly as listed in the docs.
-
-The rails console is a valuable tool to help debug LDAP problems. It allows you to
-directly interact with the application by running commands and seeing how GitLab
-responds to them.
-
-Please refer to [this documentation](https://docs.gitlab.com/omnibus/maintenance/#starting-a-rails-console-session)
-for instructions on how to use the rails console.
-
-#### Debug output
-
-This will provide a greater level of debug output that can be useful to see
-what GitLab is doing and with what. This value is not persisted, and is
-required to see output for many of the rails console commands on this page.
-
-To enable debug output in the rails console, [enter the rails
-console](#rails-console) and
-run:
-
-```ruby
-Rails.logger.level = Logger::DEBUG
-```
+Go to [Admin/External access failures](#adminexternal-access-failures).
 
 ## Common troubleshooting workflows
 
@@ -112,29 +36,116 @@ Rails.logger.level = Logger::DEBUG
 
 
 ### User login failures
-#### Steps to take
-  - does the check return users? no - check base and user_filter. yes - does this user fall under the base?
-#### Run a sample UserSync
 
-### Group membership failures
-#### Test GroupSync
-##### Interpreting the GroupSync output
+This section implies that a [connection to the LDAP server can be
+established](#narrowing-down-the-problem), but one or more users can't login.
+
+#### Users aren't found
+
+If [you've confirmed](#ldap-check) that a connection to LDAP can be
+established but GitLab doesn't show you LDAP users in the output, one of the
+following is most likely true:
+
+  - The `bind_dn` user doesn't have enough permissions to traverse the user tree
+  - The user(s) don't fall under the [configured `base`](ldap.md#configuration)
+  - The configured `user_filter` blocks access to the user(s)
+
+In this case, you con confirm which of the above is true using
+[ldapsearch](#ldapsearch) with the existing LDAP configuration in your
+`/etc/gitlab/gitlab.rb`.
+
+#### Users cannot login
+
+As the user tries to login, tail the logs to look for the failure.
+
+Also see [Invalid credentials when logging in](#invalid-credentials-when-logging-in).
+
+#### Run a UserSync
+
+Run a [user sync](ldap-ee.md#user-sync) in the [rails console](#rails-console) and watch the
+output for any hints as to the problem. This requires that [debug output](#debug-output) be
+enabled.
+
+This can be helpful when debugging why a particular user isn't getting found.
+
+```ruby
+LdapSyncWorker.new.perform
+```
+
+### Group Sync failures
+#### Run a Group Sync
+- have you waited a full hour? Run a groupsync rake task and check again
+- run a group sync in the rails console. does the user exist?
+##### Interpreting the group sync output
+#### Admin/External access failures
+- run a groupsync; check output for the admin/external section; look for
+  errors/hints. nothing found? group not found? users not found? user doesn't
+  exist?
+
+## Errors
+
+### Invalid credentials when logging in
+
+- Make sure the user you are binding with has enough permissions to read the user's
+  tree and traverse it.
+- Check that the `user_filter` is not blocking otherwise valid users.
+- Run [an LDAP check command](#ldap-check) to make sure that the LDAP settings
+  are correct and [GitLab can see your users](#users-arent-found).
+
+### Email has already been taken
+
+A user tries to login with the correct LDAP credentials, is denied access,
+and the [production.log](../logs.md#productionlog) shows an error that looks like this:
+
+```sh
+(LDAP) Error saving user <USER DN> (email@example.com): ["Email has already been taken"]
+```
+
+This error is referring to the email address in LDAP, `email@example.com`. Email
+addresses must be unique in GitLab and LDAP uses a user's primary email (as opposed
+to any of their possibly-numerous secondary emails). Another user (or even the
+same user) has the email `email@example.com` set as a secondary email, which
+is throwing this error.
+
+We can check where this conflicting email address is coming from using the
+[rails console](#rails-console). Once in the console, run the following:
+
+```ruby
+# This searches for an email among the primary AND secondary emails
+user = User.find_by_any_email('email@example.com')
+user.username
+```
+
+This will show you which user has this email address. One of two steps will
+have to be taken here:
+
+  - To create a new GitLab user/username for this user when logging in with LDAP,
+    remove the secondary email to remove the conflict.
+  - To use an existing GitLab user/username for this user to use with LDAP,
+    remove this email as a secondary email and make it a primary one so GitLab
+    will associate this profile to the LDAP identity.
+
+The user can do either of these steps [in their
+profile](../../user/profile/index.md#user-profile) or an admin can do it.
 
 ## Misc.
 
-### Update user accounts when the `dn` and email change
+### User DN or/and email have changed
 
-GitLab associates one of its own users with the corresponding LDAP identity
-with the primary email and/or the `dn` GitLab has for the user. If either
-one of these values change in LDAP, GitLab will search for the user with the
-other value and, once found, update its own records with the latest value from
-LDAP.
+When an LDAP user is created in GitLab, their LDAP DN is stored for later reference.
 
-However, if the primary email _and_ the `dn` change in LDAP, then GitLab will
+If GitLab cannot find a user by their DN, it will attempt to fallback
+to finding the user by their email. If the lookup is successful, GitLab will
+update the stored DN to the new value.
+
+If the email has changed and the DN has not, GitLab will find the user with
+the DN and update its own record of the user's email to match the one in LDAP.
+
+However, if the primary email _and_ the DN change in LDAP, then GitLab will
 have no way of identifying the correct LDAP record of the user and, as a
 result, the user will be blocked. To rectify this, the user's existing
 profile will have to be updated with at least one of the new values (primary
-email or `dn`) so the LDAP record can be found.
+email or DN) so the LDAP record can be found.
 
 The following script will update the emails for all provided users so they
 won't be blocked or unable to access their accounts.
@@ -158,7 +169,7 @@ end
 ```
 
 If your installation has a license, you can then [run a UserSync](#usersync)
-to sync the latest `dn` for each of these users.
+to sync the latest DN for each of these users.
 
 
 
@@ -167,19 +178,8 @@ to sync the latest `dn` for each of these users.
 
 
 
-### UserSync
 
-Run a [user sync]() and watch the output for what GitLab finds in LDAP and
-what it does with it. This requires the [debug output](#get-debug-output) be
-enabled.
-
-This can be helpful when debugging why a particular user isn't getting found.
-
-```ruby
-LdapSyncWorker.new.perform
-```
-
-### GroupSync
+### Group Sync
 
 #### Sync all groups
 
@@ -281,13 +281,6 @@ main: # 'main' is the GitLab 'provider ID' of this LDAP server
       has bit 2 set. See <https://ctogonewild.com/2009/09/03/bitmask-searches-in-ldap/>
       for more information.
 
-### User DN has changed
-
-When an LDAP user is created in GitLab, their LDAP DN is stored for later reference.
-
-If GitLab cannot find a user by their DN, it will attempt to fallback
-to finding the user by their email. If the lookup is successful, GitLab will
-update the stored DN to the new value.
 
 ### User is not being added to a group
 
@@ -359,8 +352,8 @@ step of the sync.
    => #<EE::Gitlab::Auth::LDAP::Group:0x007fcbdd0bb6d8
    ```
 
-1. Query the LDAP group's member DNs and see if the user's DN is in the list.
-   One of the DNs here should match the 'Identifier' from the LDAP identity
+1. Query the LDAP group's member DN and see if the user's DN is in the list.
+   One of the DN here should match the 'Identifier' from the LDAP identity
    checked earlier. If it doesn't, the user does not appear to be in the LDAP
    group.
 
@@ -381,7 +374,7 @@ step of the sync.
    => ['john','mary']
    ```
 
-#### Example log output after a GroupSync
+#### Example log output after a group sync
 
 The output of the last command will be very verbose, but contains lots of
 helpful information. For the most part you can ignore log entries that are SQL
@@ -435,7 +428,7 @@ Usually this is not a cause for concern.
 
 If you think a particular user should already exist in GitLab, but you're seeing
 this entry, it could be due to a mismatched DN stored in GitLab. See
-[User DN has changed](#User-DN-has-changed) to update the user's LDAP identity.
+[User DN and/or email have changed](#user-dn-orand-email-have-changed) to update the user's LDAP identity.
 
 ```bash
 User with DN `uid=john0,ou=people,dc=example,dc=com` should have access
@@ -476,22 +469,6 @@ ldapsearch -H ldaps://$host:$port -D "$bind_dn" -y bind_dn_password.txt  -b "$ba
   port.
 - We are assuming the password for the bind_dn user is in bind_dn_password.txt.
 
-### Invalid credentials when logging in
-
-- Make sure the user you are binding with has enough permissions to read the user's
-  tree and traverse it.
-- Check that the `user_filter` is not blocking otherwise valid users.
-- Run the following check command to make sure that the LDAP settings are
-  correct and GitLab can see your users:
-
-  ```bash
-  # For Omnibus installations
-  sudo gitlab-rake gitlab:ldap:check
-
-  # For installations from source
-  sudo -u git -H bundle exec rake gitlab:ldap:check RAILS_ENV=production
-  ```
-
 ### Connection refused
 
 If you are getting 'Connection Refused' errors when trying to connect to the
@@ -510,3 +487,103 @@ Could not authenticate you from Ldapmain because "Connection timed out - user sp
 If your configured LDAP provider and/or endpoint is offline or otherwise unreachable by GitLab, no LDAP user will be able to authenticate and log in. GitLab does not cache or store credentials for LDAP users to provide authentication during an LDAP outage.
 
 Contact your LDAP provider or administrator if you are seeing this error.
+
+## Debugging tools
+
+### ldapsearch
+
+`ldapsearch` is a utility that will allow you to query your LDAP server. You can
+use it to test your LDAP settings and ensure that the settings you're using
+will get you the results you expect.
+
+When using `ldapsearch`, be sure to use the same settings you've already
+specified in your `gitlab.rb` configuration so you can confirm what happens
+when those exact settings are used.
+
+Running this command on the GitLab host will also help confirm that it's
+possible for a network connection to be made to LDAP.
+
+For example, consider the following GitLab configuration:
+
+```bash
+gitlab_rails['ldap_servers'] = YAML.load <<-'EOS' # remember to close this block with 'EOS' below
+   main: # 'main' is the GitLab 'provider ID' of this LDAP server
+     label: 'LDAP'
+     host: '127.0.0.1'
+     port: 389
+     uid: 'uid'
+     encryption: 'plain'
+     bind_dn: 'cn=admin,dc=ldap-testing,dc=example,dc=com'
+     password: 'Password1'
+     active_directory: true
+     allow_username_or_email_login: false
+     block_auto_created_users: false
+     base: 'dc=ldap-testing,dc=example,dc=com'
+     user_filter: ''
+     attributes:
+       username: ['uid', 'userid', 'sAMAccountName']
+       email:    ['mail', 'email', 'userPrincipalName']
+       name:       'cn'
+       first_name: 'givenName'
+       last_name:  'sn'
+     group_base: 'ou=groups,dc=ldap-testing,dc=example,dc=com'
+     admin_group: 'gitlab_admin'
+EOS
+```
+
+You would run the following `ldapsearch` to find the `bind_dn` user:
+
+```bash
+ldapsearch -D "cn=admin,dc=ldap-testing,dc=example,dc=com" \
+  -w Password1 \
+  -p 389 \
+  -h 127.0.0.1 \
+  -b "dc=ldap-testing,dc=example,dc=com"
+```
+
+Note that the `bind_dn`, `password`, `port`, `host`, and `base` are all
+identical to what's configured in the `gitlab.rb`.
+
+Please see [the official
+`ldapsearch` documentation](https://linux.die.net/man/1/ldapsearch) for more.
+
+### LDAP check
+
+The [rake task to check LDAP](../raketasks/ldap.md#check) is a valuable tool
+to help determine whether GitLab can successfully establish a connection to
+LDAP and can get so far as to even read users.
+
+If a connection can't be established, it is likely either because of your
+configuration or the connection itself. Re-visit your LDAP configuration and
+use [`ldapsearch`](#ldapsearch) to debug where it could be failing.
+
+If GitLab can successfully connect to LDAP but doesn't return any
+users, it's likely that either users don't fall under your configured `base`
+or they don't filter through any configured `user_filter`. Once again, you can
+use [`ldapsearch`](#ldapsearch) to help find the culprit.
+
+### Rails console
+
+CAUTION: **CAUTION:**
+Please note that it is very easy to create, read, modify, and destroy data on the
+rails console, so please be sure to run commands exactly as listed.
+
+The rails console is a valuable tool to help debug LDAP problems. It allows you to
+directly interact with the application by running commands and seeing how GitLab
+responds to them.
+
+Please refer to [this documentation](https://docs.gitlab.com/omnibus/maintenance/#starting-a-rails-console-session)
+for instructions on how to use the rails console.
+
+#### Debug output
+
+This will provide a greater level of debug output that can be useful to see
+what GitLab is doing and with what. This value is not persisted, and is
+required to see output for many of the rails console commands on this page.
+
+To enable debug output in the rails console, [enter the rails
+console](#rails-console) and run:
+
+```ruby
+Rails.logger.level = Logger::DEBUG
+```
