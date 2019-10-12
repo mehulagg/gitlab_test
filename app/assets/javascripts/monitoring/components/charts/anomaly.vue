@@ -7,6 +7,13 @@ import { graphDataValidatorForAnomalyValues } from '../../utils';
 import MonitorTimeSeriesChart from './time_series.vue';
 
 /**
+ * Series indexes
+ */
+const METRIC = 0;
+const UPPER = 1;
+const LOWER = 2;
+
+/**
  * The anomaly component highlights when a metric shows
  * some anomalous behavior.
  *
@@ -31,7 +38,6 @@ import MonitorTimeSeriesChart from './time_series.vue';
  * data.
  *
  */
-
 export default {
   components: {
     GlLineChart,
@@ -72,13 +78,6 @@ export default {
   },
   data() {
     return {
-      tooltip: {
-        title: '',
-        content: [],
-        commitUrl: '',
-        isDeployment: false,
-        sha: '',
-      },
       areaColor: colorValues.anomalyAreaColor,
       areaOpacity: areaOpacityValues.default,
     };
@@ -150,63 +149,78 @@ export default {
       };
     },
     chartOptions() {
+      const [, upperSeries, lowerSeries] = this.series;
       const calcOffsetY = (data, offsetCallback) =>
-        data.map((value, valueIndex) => {
+        data.map((value, dataIndex) => {
           const [x, y] = value;
-          return [x, y + offsetCallback(valueIndex)];
+          return [x, y + offsetCallback(dataIndex)];
         });
 
-      const [, lowerSeries, upperSeries] = this.series;
-
-      return {
-        yAxis: {
-          name: this.yAxisLabel,
-          axisLabel: {
-            formatter: num => roundOffFloat(num - this.yOffset, 3).toString(),
-          },
+      const yAxisWithOffset = {
+        name: this.yAxisLabel,
+        axisLabel: {
+          formatter: num => roundOffFloat(num - this.yOffset, 3).toString(),
         },
-        /**
-         * Boundary is rendered by 2 series: An invisible
-         * series (opacity: 0) stacked on a visible one.
-         *
-         * Order is important, lower boundary is stacked
-         * *below* the upper boundary.
-         */
-        series: [
-          // Upper boundary, plus the offset for negative values
-          this.makeBoundarySeries({
-            name: this.formatLegendLabel(upperSeries),
-            data: calcOffsetY(upperSeries.data, () => this.yOffset),
-          }),
-          // Lower boundary, minus the upper boundary
+      };
+
+      /**
+       * Boundary is rendered by 2 series: An invisible
+       * series (opacity: 0) stacked on a visible one.
+       *
+       * Order is important, lower boundary is stacked
+       * *below* the upper boundary.
+       */
+      const boundarySeries = [];
+
+      if (upperSeries.data.length && lowerSeries.data.length) {
+        // Lower boundary, plus the offset if negative values
+        boundarySeries.push(
           this.makeBoundarySeries({
             name: this.formatLegendLabel(lowerSeries),
-            data: calcOffsetY(lowerSeries.data, i => -upperSeries.data[i][1]),
+            data: calcOffsetY(lowerSeries.data, () => this.yOffset),
+          }),
+        );
+        // Upper boundary, minus the lower boundary
+        boundarySeries.push(
+          this.makeBoundarySeries({
+            name: this.formatLegendLabel(upperSeries),
+            data: calcOffsetY(upperSeries.data, i => -this.yValue(LOWER, i)),
             areaStyle: {
               color: this.areaColor,
               opacity: this.areaOpacity,
             },
           }),
-        ],
-      };
+        );
+      }
+      return { yAxis: yAxisWithOffset, series: boundarySeries };
     },
   },
   methods: {
     formatLegendLabel(query) {
       return query.label;
     },
-    getSeriesValue(seriesIndex, dataIndex) {
-      return this.series[seriesIndex].data[dataIndex];
+    yValue(seriesIndex, dataIndex) {
+      const d = this.series[seriesIndex].data[dataIndex];
+      if (d && d[1]) {
+        return d[1];
+      }
+      return null;
     },
-    getYValueFormatted(seriesIndex, dataIndex) {
-      const [, y] = this.getSeriesValue(seriesIndex, dataIndex);
+    yValueFormatted(seriesIndex, dataIndex) {
+      const y = this.yValue(seriesIndex, dataIndex);
       return y.toFixed(3);
     },
     isDatapointAnomaly(dataIndex) {
-      const [, yVal] = this.getSeriesValue(0, dataIndex);
-      const [, yUpper] = this.getSeriesValue(1, dataIndex);
-      const [, yLower] = this.getSeriesValue(2, dataIndex);
-      return yVal < yLower || yVal > yUpper;
+      const yVal = this.yValue(METRIC, dataIndex);
+      const yUpper = this.yValue(UPPER, dataIndex);
+      if (yUpper && yVal > yUpper) {
+        return true;
+      }
+      const yLower = this.yValue(LOWER, dataIndex);
+      if (yLower && yVal < yLower) {
+        return true;
+      }
+      return false;
     },
     makeBoundarySeries(series) {
       const stackKey = 'anomaly-boundary-series-stack';
@@ -248,7 +262,7 @@ export default {
           {{ content.name }}
         </gl-chart-series-label>
         <div class="prepend-left-32">
-          {{ getYValueFormatted(seriesIndex, content.dataIndex) }}
+          {{ yValueFormatted(seriesIndex, content.dataIndex) }}
         </div>
       </div>
     </template>

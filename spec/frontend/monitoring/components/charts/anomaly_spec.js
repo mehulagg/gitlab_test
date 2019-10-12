@@ -92,7 +92,7 @@ describe('Anomaly chart component', () => {
         });
       });
 
-      describe('additional-chart-options', () => {
+      describe('option', () => {
         let option;
         let series;
 
@@ -185,6 +185,32 @@ describe('Anomaly chart component', () => {
     });
   });
 
+  describe('with no boundary data', () => {
+    const dataSetName = 'noBoundary';
+
+    beforeEach(() => {
+      setupAnomalyChart({
+        graphData: makeAnomalyGraphData(dataSetName),
+        deploymentData: anomalyDeploymentData,
+      });
+    });
+
+    describe('option', () => {
+      let option;
+      let series;
+
+      beforeEach(() => {
+        ({ option } = getTimeSeriesProps());
+        ({ series } = option);
+      });
+
+      it('does not display a boundary band', () => {
+        expect(series).toEqual(expect.any(Array));
+        expect(series.length).toEqual(0); // no boundaries
+      });
+    });
+  });
+
   describe('with one anomaly', () => {
     const dataSetName = 'oneAnomaly';
     const dataSet = anomalyMockResultValues[dataSetName];
@@ -250,7 +276,7 @@ describe('Anomaly chart component', () => {
       });
     });
 
-    describe('options', () => {
+    describe('option', () => {
       it('upper boundary values are stacked on top of lower boundary, plus the offset', () => {
         const { option } = getTimeSeriesProps();
         const { series } = option;
