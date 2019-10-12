@@ -16,7 +16,8 @@ Please see [the official
 `ldapsearch` documentation](https://linux.die.net/man/1/ldapsearch) for
 the available flags.
 
-We also recommended running this command directly on the GitLab host.
+Running this command on the GitLab host will also help confirm that it's
+possible for a network connection to be made to LDAP.
 
 For example, consider the following GitLab configuration:
 
@@ -62,48 +63,109 @@ identical to what's configured in the `gitlab.rb`.
 Please see [the official
 `ldapsearch` documentation](https://linux.die.net/man/1/ldapsearch) for more.
 
-### Check LDAP connection
+### LDAP check
 
-Once LDAP has been configured and you'd like to test that GitLab is
-successfully able to connect to the LDAP server and read users, run the [LDAP
-rake task to do so](../raketasks/ldap.md#check).
+The [rake task to check LDAP](../raketasks/ldap.md#check) is a valuable tool
+to help determine whether GitLab can successfully establish a connection to
+LDAP and can get so far as to even read users.
+
+If a connection can't be established, it is likely either because of your
+configuration or the connection itself. Re-visit your LDAP configuration and
+use [`ldapsearch`](#ldapsearch) to debug where it could be failing.
 
 If GitLab can successfully connect to LDAP but doesn't return any
 users, it's likely that either users don't fall under your configured `base`
-or they don't filter through any configured `user_filter`.
+or they don't filter through any configured `user_filter`. Once again, you can
+use [`ldapsearch`](#ldapsearch) to help find the culprit.
 
-## Common workflows
-### Connection errors
-### Errors on User logins
-### Errors with Group memberships
-## Misc.
+### Rails console
 
+CAUTION: **CAUTION:**
+Please note that it is very easy to create, read, modify, and destroy data on the
+rails console, so please be sure to run commands exactly as listed in the docs.
 
+The rails console is a valuable tool to help debug LDAP problems. It allows you to
+directly interact with the application by running commands and seeing how GitLab
+responds to them.
 
+Please refer to [this documentation](https://docs.gitlab.com/omnibus/maintenance/#starting-a-rails-console-session)
+for instructions on how to use the rails console.
 
-
-
-
-
-
-
-## Rails console debugging
-
-Here are some rails console commands you can run to help debug problems you're
-running into with LDAP. Please note that these commands are all READ-ONLY so
-they won't make any permanent changes.
-
-Enter the rails console with `gitlab-rails console`.
-
-### Get debug output
+#### Debug output
 
 This will provide a greater level of debug output that can be useful to see
 what GitLab is doing and with what. This value is not persisted, and is
 required to see output for many of the rails console commands on this page.
 
+To enable debug output in the rails console, [enter the rails
+console](#rails-console) and
+run:
+
 ```ruby
 Rails.logger.level = Logger::DEBUG
 ```
+
+## Common troubleshooting workflows
+
+### Connection failures
+
+
+
+### User login failures
+#### Steps to take
+  - does the check return users? no - check base and user_filter. yes - does this user fall under the base?
+#### Run a sample UserSync
+
+### Group membership failures
+#### Test GroupSync
+##### Interpreting the GroupSync output
+
+## Misc.
+
+### Update user accounts when the `dn` and email change
+
+GitLab associates one of its own users with the corresponding LDAP identity
+with the primary email and/or the `dn` GitLab has for the user. If either
+one of these values change in LDAP, GitLab will search for the user with the
+other value and, once found, update its own records with the latest value from
+LDAP.
+
+However, if the primary email _and_ the `dn` change in LDAP, then GitLab will
+have no way of identifying the correct LDAP record of the user and, as a
+result, the user will be blocked. To rectify this, the user's existing
+profile will have to be updated with at least one of the new values (primary
+email or `dn`) so the LDAP record can be found.
+
+The following script will update the emails for all provided users so they
+won't be blocked or unable to access their accounts.
+
+>**NOTE**: The following script will require that any new accounts with the new
+email address are removed. This is because emails have to be unique in GitLab.
+
+```ruby
+# Each entry will have to include the old username and the new email
+emails = {
+  'ORIGINAL_USERNAME' => 'NEW_EMAIL_ADDRESS',
+  ...
+}
+
+emails.each do |username, email|
+  user = User.find_by_username(username)
+  user.email = email
+  user.skip_reconfirmation!
+  user.save!
+end
+```
+
+If your installation has a license, you can then [run a UserSync](#usersync)
+to sync the latest `dn` for each of these users.
+
+
+
+
+
+
+
 
 ### UserSync
 
@@ -191,28 +253,6 @@ adapter.ldap_search(options)
 
 For an example, [see the code](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/ee/lib/ee/gitlab/auth/ldap/adapter.rb)
 
-### Update user accounts when the `dn` and email change
-
-The following will require that any accounts with the new email address are removed.  Emails have to be unique in GitLab.  This is expected to work but unverified as of yet.
-
-```ruby
-# Here's an example with a couple users.
-# Each entry will have to include the old username and the new email
-emails = {
-  'ORIGINAL_USERNAME' => 'NEW_EMAIL_ADDRESS',
-  ...
-}
-
-emails.each do |username, email|
-  user = User.find_by_username(username)
-  user.email = email
-  user.skip_reconfirmation!
-  user.save!
-end
-
-# Run a UserSync to sync the above users' data
-LdapSyncWorker.new.perform
-```
 
 ### Referral error
 
@@ -341,7 +381,7 @@ step of the sync.
    => ['john','mary']
    ```
 
-#### Example log output
+#### Example log output after a GroupSync
 
 The output of the last command will be very verbose, but contains lots of
 helpful information. For the most part you can ignore log entries that are SQL
