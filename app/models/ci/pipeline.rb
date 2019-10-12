@@ -14,6 +14,7 @@ module Ci
     include HasRef
     include ShaAttribute
     include FromUnion
+    include Ci::Contextable
 
     sha_attribute :source_sha
     sha_attribute :target_sha
@@ -694,6 +695,14 @@ module Ci
       end
     end
 
+    def scoped_variables(environment: expanded_environment_name)
+      Gitlab::Ci::Variables::Collection.new.tap do |variables|
+        variables.concat(super)
+        variables.concat(gitlab_variables)
+        variables.concat(git_variables)
+      end
+    end
+
     def predefined_variables
       Gitlab::Ci::Variables::Collection.new.tap do |variables|
         variables.append(key: 'CI_PIPELINE_IID', value: iid.to_s)
@@ -884,6 +893,29 @@ module Ci
 
     def persistent_ref
       @persistent_ref ||= PersistentRef.new(pipeline: self)
+    end
+
+    def expanded_environment_name
+      strong_memoize(:expanded_environment_name) do
+        if last_env = environments.last
+          ExpandVariables.expand(last_env, -> { simple_variables })
+        else
+          nil
+        end
+      end
+    end
+
+    def runnable?
+      false
+    end
+
+    # workflow:variables configuration would end up here
+    def yaml_variables
+      {}
+    end
+
+    def trigger_request
+      trigger_requests.last
     end
 
     private

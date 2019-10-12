@@ -796,6 +796,42 @@ describe Ci::Pipeline, :mailer do
     end
   end
 
+  describe '#scoped_variables' do
+    subject { pipeline.scoped_variables.to_hash }
+
+    it 'includes variables provided by the Ci::Contextable#gitlab_variables' do
+      expect(subject).to include({
+        'CI' => 'true',
+        'GITLAB_CI' => 'true',
+        'GITLAB_FEATURES' => project.licensed_features.join(','),
+        'CI_SERVER_HOST' => Gitlab.config.gitlab.host,
+        'CI_SERVER_NAME' => 'GitLab',
+        'CI_SERVER_VERSION' => Gitlab::VERSION,
+        'CI_SERVER_VERSION_MAJOR' => Gitlab.version_info.major.to_s,
+        'CI_SERVER_VERSION_MINOR' => Gitlab.version_info.minor.to_s,
+        'CI_SERVER_VERSION_PATCH' => Gitlab.version_info.patch.to_s,
+        'CI_SERVER_REVISION' => Gitlab.revision
+      })
+    end
+
+    it 'includes variables provided by the Ci::Contextable#git_variables' do
+      expect(subject).to include({
+        'CI_COMMIT_SHA' => pipeline.sha,
+        'CI_COMMIT_SHORT_SHA' => pipeline.short_sha,
+        'CI_COMMIT_BEFORE_SHA' => pipeline.before_sha,
+        'CI_COMMIT_REF_NAME' => pipeline.source_ref,
+        'CI_COMMIT_REF_SLUG' => pipeline.source_ref_slug
+      })
+    end
+
+    context 'when ref is a tag' do
+      # TODO properly set up a tag-ref pipeline and enable this
+      xit 'includes the tag name variable' do
+        expect(subject.to_hash).to include({ 'CI_COMMIT_TAG' => pipeline.ref })
+      end
+    end
+  end
+
   describe '#predefined_variables' do
     subject { pipeline.predefined_variables }
 

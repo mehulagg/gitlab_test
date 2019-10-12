@@ -54,7 +54,21 @@ module Ci
       end
     end
 
-    def predefined_variables # rubocop:disable Metrics/AbcSize
+    def predefined_variables
+      Gitlab::Ci::Variables::Collection.new.tap do |variables|
+        variables.concat(gitlab_variables)
+        variables.append(key: 'CI_JOB_NAME', value: name)
+        variables.append(key: 'CI_JOB_STAGE', value: stage)
+        variables.concat(git_variables)
+        variables.append(key: 'CI_PIPELINE_TRIGGERED', value: 'true') if trigger_request
+        variables.append(key: 'CI_JOB_MANUAL', value: 'true') if action?
+        variables.append(key: 'CI_NODE_INDEX', value: self.options[:instance].to_s) if self.options&.include?(:instance)
+        variables.append(key: 'CI_NODE_TOTAL', value: (self.options&.dig(:parallel) || 1).to_s)
+        variables.concat(legacy_variables)
+      end
+    end
+
+    def gitlab_variables
       Gitlab::Ci::Variables::Collection.new.tap do |variables|
         variables.append(key: 'CI', value: 'true')
         variables.append(key: 'GITLAB_CI', value: 'true')
@@ -66,19 +80,17 @@ module Ci
         variables.append(key: 'CI_SERVER_VERSION_MINOR', value: Gitlab.version_info.minor.to_s)
         variables.append(key: 'CI_SERVER_VERSION_PATCH', value: Gitlab.version_info.patch.to_s)
         variables.append(key: 'CI_SERVER_REVISION', value: Gitlab.revision)
-        variables.append(key: 'CI_JOB_NAME', value: name)
-        variables.append(key: 'CI_JOB_STAGE', value: stage)
+      end
+    end
+
+    def git_variables
+      Gitlab::Ci::Variables::Collection.new.tap do |variables|
         variables.append(key: 'CI_COMMIT_SHA', value: sha)
         variables.append(key: 'CI_COMMIT_SHORT_SHA', value: short_sha)
         variables.append(key: 'CI_COMMIT_BEFORE_SHA', value: before_sha)
         variables.append(key: 'CI_COMMIT_REF_NAME', value: source_ref)
         variables.append(key: 'CI_COMMIT_REF_SLUG', value: source_ref_slug)
-        variables.append(key: "CI_COMMIT_TAG", value: ref) if tag?
-        variables.append(key: "CI_PIPELINE_TRIGGERED", value: 'true') if trigger_request
-        variables.append(key: "CI_JOB_MANUAL", value: 'true') if action?
-        variables.append(key: "CI_NODE_INDEX", value: self.options[:instance].to_s) if self.options&.include?(:instance)
-        variables.append(key: "CI_NODE_TOTAL", value: (self.options&.dig(:parallel) || 1).to_s)
-        variables.concat(legacy_variables)
+        variables.append(key: 'CI_COMMIT_TAG', value: ref) if tag?
       end
     end
 
@@ -104,6 +116,10 @@ module Ci
 
     def secret_project_variables(environment: persisted_environment)
       project.ci_variables_for(ref: git_ref, environment: environment)
+    end
+
+    def pipeline
+      is_a?(Ci::Pipeline) ? self : super
     end
   end
 end
