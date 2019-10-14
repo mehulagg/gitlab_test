@@ -42,10 +42,16 @@ export default {
       return getDiffMode(this.discussion.diff_file);
     },
     diffViewerMode() {
+      if (this.discussion.diff_file.new_file_url || this.discussion.diff_file.new_file_url) {
+        return diffViewerModes.design_image;
+      }
       return this.discussion.diff_file.viewer.name;
     },
     isTextFile() {
       return this.diffViewerMode === diffViewerModes.text;
+    },
+    isDesignImage() {
+      return this.diffViewerMode === diffViewerModes.design_image;
     },
     hasTruncatedDiffLines() {
       return (
@@ -120,6 +126,9 @@ export default {
           <td class="notes-content" colspan="3"><slot></slot></td>
         </tr>
       </table>
+    </div>
+    <div v-else-if="isDesignImage">
+      DESIGN IMAGE
     </div>
     <div v-else>
       <diff-viewer

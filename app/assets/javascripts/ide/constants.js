@@ -37,6 +37,7 @@ export const diffViewerModes = Object.freeze({
   mode_changed: 'mode_changed',
   text: 'text',
   image: 'image',
+  design_image: 'design_image',
 });
 
 export const diffViewerErrors = Object.freeze({
