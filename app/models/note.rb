@@ -38,7 +38,7 @@ class Note < ApplicationRecord
   redact_field :note
 
   # Aliases to make application_helper#edited_time_ago_with_tooltip helper work properly with notes.
-  # See https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/10392/diffs#note_28719102
+  # See https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/10392/diffs#note_28719102
   alias_attribute :last_edited_at, :updated_at
   alias_attribute :last_edited_by, :updated_by
 
@@ -103,6 +103,8 @@ class Note < ApplicationRecord
       errors.add(:project, 'does not match noteable project')
     end
   end
+
+  validate :does_not_exceed_notes_limit?, on: :create, unless: [:system?, :importing?]
 
   # @deprecated attachments are handler by the MarkdownUploader
   mount_uploader :attachment, AttachmentUploader
@@ -193,6 +195,12 @@ class Note < ApplicationRecord
       groups
     end
 
+    def positions
+      where.not(position: nil)
+        .select(:id, :type, :position) # ActiveRecord needs id and type for typecasting.
+        .map(&:position)
+    end
+
     def count_for_collection(ids, type)
       user.select('noteable_id', 'COUNT(*) as count')
         .group(:noteable_id)
@@ -215,7 +223,7 @@ class Note < ApplicationRecord
     if force_cross_reference_regex_check?
       matches_cross_reference_regex?
     else
-      SystemNoteService.cross_reference?(note)
+      ::SystemNotes::IssuablesService.cross_reference?(note)
     end
   end
   # rubocop: enable CodeReuse/ServiceClass
@@ -518,6 +526,12 @@ class Note < ApplicationRecord
     return unless system?
 
     system_note_metadata&.cross_reference_types&.include?(system_note_metadata&.action)
+  end
+
+  def does_not_exceed_notes_limit?
+    return unless noteable
+
+    errors.add(:base, _('Maximum number of comments exceeded')) if noteable.notes.count >= Noteable::MAX_NOTES_LIMIT
   end
 end
 

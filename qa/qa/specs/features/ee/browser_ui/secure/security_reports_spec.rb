@@ -5,15 +5,19 @@ require 'pathname'
 module QA
   context 'Secure', :docker do
     let(:number_of_dependencies_in_fixture) { 1309 }
-    let(:total_vuln_count) { 12 }
+    let(:total_vuln_count) { 52 }
     let(:dependency_scan_vuln_count) { 4 }
     let(:dependency_scan_example_vuln) { 'jQuery before 3.4.0' }
     let(:container_scan_vuln_count) { 8 }
     let(:container_scan_example_vuln) { 'CVE-2017-18269 in glibc' }
+    let(:sast_scan_vuln_count) { 33 }
+    let(:sast_scan_example_vuln) { 'Cipher with no integrity' }
+    let(:dast_scan_vuln_count) { 7 }
+    let(:dast_scan_example_vuln) { 'Cookie Without SameSite Attribute' }
 
     describe 'Security Reports' do
       after do
-        Service::Runner.new(@executor).remove!
+        Service::DockerRun::GitlabRunner.new(@executor).remove!
       end
 
       before do
@@ -45,7 +49,7 @@ module QA
         Page::Project::Menu.perform(&:click_ci_cd_pipelines)
         Page::Project::Pipeline::Index.perform(&:click_on_latest_pipeline)
 
-        wait_for_job "dependency_scanning"
+        wait_for_job "dast"
       end
 
       it 'displays security reports in the pipeline' do
@@ -55,6 +59,8 @@ module QA
         Page::Project::Pipeline::Show.perform do |pipeline|
           pipeline.click_on_security
 
+          expect(pipeline).to have_vulnerability_count_of total_vuln_count
+
           filter_report_and_perform(pipeline, "Dependency Scanning") do
             expect(pipeline).to have_vulnerability_count_of dependency_scan_vuln_count
             expect(pipeline).to have_content dependency_scan_example_vuln
@@ -63,6 +69,16 @@ module QA
           filter_report_and_perform(pipeline, "Container Scanning") do
             expect(pipeline).to have_vulnerability_count_of container_scan_vuln_count
             expect(pipeline).to have_content container_scan_example_vuln
+          end
+
+          filter_report_and_perform(pipeline, "SAST") do
+            expect(pipeline).to have_vulnerability_count_of sast_scan_vuln_count
+            expect(pipeline).to have_content sast_scan_example_vuln
+          end
+
+          filter_report_and_perform(pipeline, "DAST") do
+            expect(pipeline).to have_vulnerability_count_of dast_scan_vuln_count
+            expect(pipeline).to have_content dast_scan_example_vuln
           end
         end
       end
@@ -79,15 +95,23 @@ module QA
           filter_report_and_perform(dashboard, "Container Scanning") do
             expect(dashboard).to have_low_vulnerability_count_of 2
           end
+
+          filter_report_and_perform(dashboard, "SAST") do
+            expect(dashboard).to have_low_vulnerability_count_of 17
+          end
+
+          filter_report_and_perform(dashboard, "DAST") do
+            expect(dashboard).to have_low_vulnerability_count_of 6
+          end
         end
       end
 
       it 'displays security reports in the group security dashboard' do
         Page::Main::Menu.perform(&:go_to_groups)
-        Page::Dashboard::Groups.perform do |page|
+        Page::Dashboard::Groups.perform do |page| # rubocop:disable QA/AmbiguousPageObjectName
           page.click_group @project.group.path
         end
-        EE::Page::Group::Menu.perform(&:click_group_security_link)
+        Page::Group::Menu.perform(&:click_group_security_link)
 
         EE::Page::Group::Secure::Show.perform do |dashboard|
           dashboard.filter_project(@project.name)
@@ -99,13 +123,21 @@ module QA
           filter_report_and_perform(dashboard, "Container Scanning") do
             expect(dashboard).to have_content container_scan_example_vuln
           end
+
+          filter_report_and_perform(dashboard, "SAST") do
+            expect(dashboard).to have_content sast_scan_example_vuln
+          end
+
+          filter_report_and_perform(dashboard, "DAST") do
+            expect(dashboard).to have_content dast_scan_example_vuln
+          end
         end
       end
 
       it 'displays the Dependency List' do
         Page::Project::Menu.perform(&:click_on_dependency_list)
 
-        EE::Page::Project::Secure::DependencyList.perform do |page|
+        EE::Page::Project::Secure::DependencyList.perform do |page| # rubocop:disable QA/AmbiguousPageObjectName
           expect(page).to have_dependency_count_of number_of_dependencies_in_fixture
         end
       end

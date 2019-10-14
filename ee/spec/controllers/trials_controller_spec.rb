@@ -61,7 +61,7 @@ describe TrialsController do
         it 'redirects user to Step 3' do
           post :create_lead
 
-          expect(response).to redirect_to(select_namespace_trials_url)
+          expect(response).to redirect_to(select_trials_url)
         end
       end
 
@@ -72,6 +72,61 @@ describe TrialsController do
           post :create_lead
 
           expect(response).to render_template(:new)
+        end
+      end
+    end
+  end
+
+  describe '#select' do
+    it_behaves_like 'an authenticated endpoint', :get, :select
+  end
+
+  describe '#apply' do
+    let(:user) { create(:user) }
+    let(:namespace) { create(:namespace, owner_id: user.id, path: 'namespace-test') }
+    let(:apply_trial_result) { nil }
+
+    before do
+      sign_in(user)
+
+      allow_any_instance_of(GitlabSubscriptions::ApplyTrialService).to receive(:execute) do
+        { success: apply_trial_result }
+      end
+    end
+
+    context 'on success' do
+      let(:apply_trial_result) { true }
+
+      it "redirects to group's path with the parameter trial as true" do
+        post :apply, params: { namespace_id: namespace.id }
+
+        expect(response).to redirect_to("/#{namespace.path}?trial=true")
+      end
+
+      context 'with a new Group' do
+        it 'creates the Group' do
+          expect do
+            post :apply, params: { new_group_name: 'GitLab' }
+          end.to change { Group.count }.to(1)
+        end
+      end
+    end
+
+    context 'on failure' do
+      let(:apply_trial_result) { false }
+
+      it 'renders the :select view' do
+        post :apply, params: { namespace_id: namespace.id }
+
+        expect(response).to render_template(:select)
+      end
+
+      context 'with a new Group' do
+        it 'renders the :select view' do
+          post :apply, params: { new_group_name: 'admin' }
+
+          expect(response).to render_template(:select)
+          expect(Group.count).to eq(0)
         end
       end
     end

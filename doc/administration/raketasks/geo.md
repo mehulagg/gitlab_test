@@ -2,7 +2,7 @@
 
 ## Git housekeeping
 
-There are few tasks you can run to schedule a git housekeeping to start at the
+There are few tasks you can run to schedule a Git housekeeping to start at the
 next repository sync in a **Secondary node**:
 
 ### Incremental Repack
@@ -54,4 +54,21 @@ sudo gitlab-rake geo:git:housekeeping:gc
 
 ```bash
 sudo -u git -H bundle exec rake geo:git:housekeeping:gc RAILS_ENV=production
+```
+
+## Remove orphaned project registries
+
+Under certain conditions your project registry can contain obsolete records, you
+can remove them using the rake task `geo:run_orphaned_project_registry_cleaner`:
+
+**Omnibus Installation**
+
+```
+sudo gitlab-rake geo:run_orphaned_project_registry_cleaner
+```
+
+**Source Installation**
+
+```bash
+sudo -u git -H bundle exec rake geo:run_orphaned_project_registry_cleaner RAILS_ENV=production
 ```

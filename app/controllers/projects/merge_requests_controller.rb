@@ -5,6 +5,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
   include IssuableActions
   include RendersNotes
   include RendersCommits
+  include RendersAssignees
   include ToggleAwardEmoji
   include IssuableCollections
   include RecordUserLastActivity
@@ -16,6 +17,9 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
   before_action :set_issuables_index, only: [:index]
   before_action :authenticate_user!, only: [:assign_related_issues]
   before_action :check_user_can_push_to_source_branch!, only: [:rebase]
+  before_action only: [:show] do
+    push_frontend_feature_flag(:diffs_batch_load, @project)
+  end
 
   around_action :allow_gitaly_ref_name_caching, only: [:index, :show, :discussions]
 
@@ -41,6 +45,8 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
         # use next to appease Rubocop
         next render('invalid') if target_branch_missing?
 
+        preload_assignees_for_render(@merge_request)
+
         # Build a note object for comment form
         @note = @project.notes.new(noteable: @merge_request)
 
@@ -48,6 +54,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
         @commits_count = @merge_request.commits_count
         @issuable_sidebar = serializer.represent(@merge_request, serializer: 'sidebar')
         @current_user_data = UserSerializer.new(project: @project).represent(current_user, {}, MergeRequestUserEntity).to_json
+        @show_whitespace_default = current_user.nil? || current_user.show_whitespace_in_diffs
 
         set_pipeline_variables
 
@@ -78,7 +85,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
     # Get commits from repository
     # or from cache if already merged
     @commits =
-      set_commits_for_rendering(@merge_request.commits.with_pipeline_status)
+      set_commits_for_rendering(@merge_request.commits.with_latest_pipeline)
 
     render json: { html: view_to_html_string('projects/merge_requests/_commits') }
   end
@@ -210,7 +217,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
   end
 
   def discussions
-    merge_request.preload_discussions_diff_highlight
+    merge_request.discussions_diffs.load_highlight
 
     super
   end
@@ -275,7 +282,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
     if auto_merge_requested?
       if merge_request.auto_merge_enabled?
         # TODO: We should have a dedicated endpoint for updating merge params.
-        #       See https://gitlab.com/gitlab-org/gitlab-ce/issues/63130.
+        #       See https://gitlab.com/gitlab-org/gitlab-foss/issues/63130.
         AutoMergeService.new(project, current_user, merge_params).update(merge_request)
       else
         AutoMergeService.new(project, current_user, merge_params)
@@ -327,8 +334,8 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
   end
 
   def whitelist_query_limiting
-    # Also see https://gitlab.com/gitlab-org/gitlab-ce/issues/42441
-    Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ce/issues/42438')
+    # Also see https://gitlab.com/gitlab-org/gitlab-foss/issues/42441
+    Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/42438')
   end
 
   def reports_response(report_comparison)

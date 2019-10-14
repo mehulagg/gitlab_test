@@ -15,8 +15,8 @@ describe('URL utility', () => {
 
     describe('without relative_url_root', () => {
       it('returns IDE path with route', () => {
-        expect(urlUtils.webIDEUrl('/gitlab-org/gitlab-ce/merge_requests/1')).toBe(
-          '/-/ide/project/gitlab-org/gitlab-ce/merge_requests/1',
+        expect(urlUtils.webIDEUrl('/gitlab-org/gitlab-foss/merge_requests/1')).toBe(
+          '/-/ide/project/gitlab-org/gitlab-foss/merge_requests/1',
         );
       });
     });
@@ -27,8 +27,8 @@ describe('URL utility', () => {
       });
 
       it('returns IDE path with route', () => {
-        expect(urlUtils.webIDEUrl('/gitlab/gitlab-org/gitlab-ce/merge_requests/1')).toBe(
-          '/gitlab/-/ide/project/gitlab-org/gitlab-ce/merge_requests/1',
+        expect(urlUtils.webIDEUrl('/gitlab/gitlab-org/gitlab-foss/merge_requests/1')).toBe(
+          '/gitlab/-/ide/project/gitlab-org/gitlab-foss/merge_requests/1',
         );
       });
     });
@@ -133,6 +133,24 @@ describe('URL utility', () => {
 
         expect(url).toBe('/home?l=en_US#H2');
       });
+    });
+  });
+
+  describe('doesHashExistInUrl', () => {
+    it('should return true when the given string exists in the URL hash', () => {
+      setWindowLocation({
+        href: 'https://gitlab.com/gitlab-org/gitlab-test/issues/1#note_1',
+      });
+
+      expect(urlUtils.doesHashExistInUrl('note_')).toBe(true);
+    });
+
+    it('should return false when the given string does not exist in the URL hash', () => {
+      setWindowLocation({
+        href: 'https://gitlab.com/gitlab-org/gitlab-test/issues/1#note_1',
+      });
+
+      expect(urlUtils.doesHashExistInUrl('doesnotexist')).toBe(false);
     });
   });
 

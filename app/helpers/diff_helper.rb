@@ -60,9 +60,14 @@ module DiffHelper
     if line.blank?
       "&nbsp;".html_safe
     else
-      # We can't use `sub` because the HTML-safeness of `line` will not survive.
-      line[0] = '' if line.start_with?('+', '-', ' ')
-      line
+      # `sub` and substring-ing would destroy HTML-safeness of `line`
+      if line.start_with?('+', '-', ' ')
+        line.dup.tap do |line|
+          line[0] = ''
+        end
+      else
+        line
+      end
     end
   end
 
@@ -189,19 +194,17 @@ module DiffHelper
     params[:w] == '1'
   end
 
-  # rubocop: disable CodeReuse/ActiveRecord
   def params_with_whitespace
     hide_whitespace? ? request.query_parameters.except(:w) : request.query_parameters.merge(w: 1)
   end
-  # rubocop: enable CodeReuse/ActiveRecord
 
   def toggle_whitespace_link(url, options)
     options[:class] = [*options[:class], 'btn btn-default'].join(' ')
     link_to "#{hide_whitespace? ? 'Show' : 'Hide'} whitespace changes", url, class: options[:class]
   end
 
-  def render_overflow_warning?(diff_files)
-    diffs = @merge_request_diff.presence || diff_files
+  def render_overflow_warning?(diffs_collection)
+    diffs = @merge_request_diff.presence || diffs_collection.diff_files
 
     diffs.overflow?
   end

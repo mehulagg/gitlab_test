@@ -334,7 +334,7 @@ export default class AccessDropdown {
       // level.type property is being used in removeSelectedItem()
       // for comparision, and accessLevelsData is provided by
       // gon.create_access_levels which doesn't have `type` included.
-      // See this discussion https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/1629#note_31285823
+      // See this discussion https://gitlab.com/gitlab-org/gitlab/merge_requests/1629#note_31285823
       level.type = LEVEL_TYPES.ROLE;
       return level;
     });
@@ -369,24 +369,27 @@ export default class AccessDropdown {
     });
 
     if (roles.length) {
-      consolidatedData = consolidatedData.concat([{ header: s__('AccessDropdown|Roles') }], roles);
+      consolidatedData = consolidatedData.concat(
+        [{ type: 'header', content: s__('AccessDropdown|Roles') }],
+        roles,
+      );
     }
 
     if (groups.length) {
       if (roles.length) {
-        consolidatedData = consolidatedData.concat(['divider']);
+        consolidatedData = consolidatedData.concat([{ type: 'divider' }]);
       }
 
       consolidatedData = consolidatedData.concat(
-        [{ header: s__('AccessDropdown|Groups') }],
+        [{ type: 'header', content: s__('AccessDropdown|Groups') }],
         groups,
       );
     }
 
     if (users.length) {
       consolidatedData = consolidatedData.concat(
-        ['divider'],
-        [{ header: s__('AccessDropdown|Users') }],
+        [{ type: 'divider' }],
+        [{ type: 'header', content: s__('AccessDropdown|Users') }],
         users,
       );
     }
@@ -442,7 +445,7 @@ export default class AccessDropdown {
         break;
     }
 
-    const isActive = _.findWhere(this.getSelectedItems(), criteria) ? 'is-active' : '';
+    const isActive = _.find(this.getSelectedItems(), criteria) ? 'is-active' : '';
 
     switch (item.type) {
       case LEVEL_TYPES.USER:

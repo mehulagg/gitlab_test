@@ -25,7 +25,6 @@ module EE
         :elasticsearch_aws_access_key,
         :elasticsearch_aws_region,
         :elasticsearch_aws_secret_access_key,
-        :elasticsearch_experimental_indexer,
         :elasticsearch_indexing,
         :elasticsearch_replicas,
         :elasticsearch_search,
@@ -44,7 +43,10 @@ module EE
         :slack_app_enabled,
         :slack_app_id,
         :slack_app_secret,
-        :slack_app_verification_token
+        :slack_app_verification_token,
+        :throttle_incident_management_notification_enabled,
+        :throttle_incident_management_notification_period_in_seconds,
+        :throttle_incident_management_notification_per_period
       ]
     end
 

@@ -20,6 +20,14 @@ describe Repository do
     rugged.references.create("refs/remotes/#{remote_name}/#{branch_name}", target.id)
   end
 
+  describe 'delegated methods' do
+    subject { repository }
+
+    it { is_expected.to delegate_method(:checksum).to(:raw_repository) }
+    it { is_expected.to delegate_method(:find_remote_root_ref).to(:raw_repository) }
+    it { is_expected.to delegate_method(:pull_mirror_branch_prefix).to(:project) }
+  end
+
   describe '#after_sync' do
     it 'expires repository cache' do
       expect(repository).to receive(:expire_all_method_caches)
@@ -79,8 +87,8 @@ describe Repository do
         project = create :project, :repository
         project1 = create :project, :repository
 
-        project.repository.index_commits
-        project1.repository.index_commits
+        project.repository.index_commits_and_blobs
+        project1.repository.index_commits_and_blobs
 
         Gitlab::Elastic::Helper.refresh_index
 
@@ -94,8 +102,7 @@ describe Repository do
       it "returns commits" do
         project = create :project, :repository
 
-        project.repository.index_commits
-
+        project.repository.index_commits_and_blobs
         Gitlab::Elastic::Helper.refresh_index
 
         expect(project.repository.find_commits_by_message_with_elastic('initial').first).to be_a(Commit)
@@ -207,6 +214,63 @@ describe Repository do
       project = create(:project, :custom_repo, files: { Gitlab::Insights::CONFIG_FILE_PATH => "monthlyBugsCreated:\n  title: My chart" })
 
       expect(project.repository.insights_config_for(project.repository.root_ref)).to eq("monthlyBugsCreated:\n  title: My chart")
+    end
+  end
+
+  describe '#upstream_branch_name' do
+    let(:pull_mirror_branch_prefix) { 'upstream/' }
+    let(:branch_name) { 'upstream/master' }
+
+    subject { repository.upstream_branch_name(branch_name) }
+
+    before do
+      project.update(pull_mirror_branch_prefix: pull_mirror_branch_prefix)
+    end
+
+    it { is_expected.to eq('master') }
+
+    context 'when the branch is local (not mirrored)' do
+      let(:branch_name) { 'a-local-branch' }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when pull_mirror_branch_prefix is nil' do
+      let(:pull_mirror_branch_prefix) { nil }
+
+      it { is_expected.to eq(branch_name) }
+    end
+
+    context 'when pull_mirror_branch_prefix is empty' do
+      let(:pull_mirror_branch_prefix) { '' }
+
+      it { is_expected.to eq(branch_name) }
+    end
+
+    context 'when pull_mirror_branch_prefix feature flag is disabled' do
+      before do
+        stub_feature_flags(pull_mirror_branch_prefix: false)
+      end
+
+      it { is_expected.to eq(branch_name) }
+
+      context 'when the branch is local (not mirrored)' do
+        let(:branch_name) { 'a-local-branch' }
+
+        it { is_expected.to eq(branch_name) }
+      end
+
+      context 'when pull_mirror_branch_prefix is nil' do
+        let(:pull_mirror_branch_prefix) { nil }
+
+        it { is_expected.to eq(branch_name) }
+      end
+
+      context 'when pull_mirror_branch_prefix is empty' do
+        let(:pull_mirror_branch_prefix) { '' }
+
+        it { is_expected.to eq(branch_name) }
+      end
     end
   end
 end

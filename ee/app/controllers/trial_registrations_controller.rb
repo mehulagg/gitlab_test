@@ -3,6 +3,10 @@
 class TrialRegistrationsController < RegistrationsController
   extend ::Gitlab::Utils::Override
 
+  layout 'trial'
+
+  skip_before_action :require_no_authentication
+
   before_action :check_if_gl_com
   before_action :check_if_improved_trials_enabled
   before_action :set_redirect_url, only: [:new]
@@ -10,7 +14,7 @@ class TrialRegistrationsController < RegistrationsController
 
   def create
     super do |new_user|
-      new_user.system_hook_service.execute_hooks_for(new_user, :create)
+      new_user.system_hook_service.execute_hooks_for(new_user, :create) if new_user.persisted?
     end
   end
 
@@ -20,7 +24,11 @@ class TrialRegistrationsController < RegistrationsController
   private
 
   def set_redirect_url
-    store_location_for(:user, new_trial_url)
+    if user_signed_in?
+      redirect_to new_trial_url
+    else
+      store_location_for(:user, new_trial_url)
+    end
   end
 
   def skip_confirmation
@@ -41,6 +49,8 @@ class TrialRegistrationsController < RegistrationsController
   end
 
   def check_if_improved_trials_enabled
-    render_404 unless Feature.enabled?(:improved_trial_signup)
+    unless Feature.enabled?(:improved_trial_signup)
+      redirect_to("#{EE::SUBSCRIPTIONS_URL}/trials/new?gl_com=true")
+    end
   end
 end

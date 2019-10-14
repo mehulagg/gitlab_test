@@ -37,8 +37,8 @@ The following are some possible use cases for repository mirroring:
 
 ## Pushing to a remote repository **(CORE)**
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/249) in GitLab Enterprise Edition 8.7.
-> - [Moved to GitLab Core](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/18715) in 10.8.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/249) in GitLab Enterprise Edition 8.7.
+> - [Moved to GitLab Core](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/18715) in 10.8.
 
 For an existing project, you can set up push mirroring as follows:
 
@@ -67,8 +67,8 @@ section.
 
 ### Push only protected branches **(CORE)**
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/3350) in [GitLab Starter](https://about.gitlab.com/pricing/) 10.3.
-> - [Moved to GitLab Core](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/18715) in 10.8.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/3350) in [GitLab Starter](https://about.gitlab.com/pricing/) 10.3.
+> - [Moved to GitLab Core](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/18715) in 10.8.
 
 You can choose to only push your protected branches from GitLab to your remote repository.
 
@@ -79,7 +79,7 @@ mirror.
 
 To set up a mirror from GitLab to GitHub, you need to follow these steps:
 
-1. Create a [GitHub personal access token](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/) with the `public_repo` box checked.
+1. Create a [GitHub personal access token](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line) with the `public_repo` box checked.
 1. Fill in the **Git repository URL** field using this format: `https://<your_github_username>@github.com/<your_github_group>/<your_github_project>.git`.
 1. Fill in **Password** field with your GitHub personal access token.
 1. Click the **Mirror repository** button.
@@ -98,10 +98,10 @@ The repository will push soon. To force a push, click the appropriate button.
 
 ## Pulling from a remote repository **(STARTER)**
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/51) in GitLab Enterprise Edition 8.2.
-> - [Added Git LFS support](https://gitlab.com/gitlab-org/gitlab-ee/issues/10871) in [GitLab Starter](https://about.gitlab.com/pricing/) 11.11.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/51) in GitLab Enterprise Edition 8.2.
+> - [Added Git LFS support](https://gitlab.com/gitlab-org/gitlab/issues/10871) in [GitLab Starter](https://about.gitlab.com/pricing/) 11.11.
 
-NOTE: **Note:** This feature [is available for free](https://gitlab.com/gitlab-org/gitlab-ee/issues/10361) to
+NOTE: **Note:** This feature [is available for free](https://gitlab.com/gitlab-org/gitlab/issues/10361) to
 GitLab.com users until March 22nd, 2020.
 
 You can set up a repository to automatically have its branches, tags, and commits updated from an
@@ -157,8 +157,8 @@ Repository mirrors are updated as Sidekiq becomes available to process them. If 
 
 ### SSH authentication
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/2551) for Pull mirroring in [GitLab Starter](https://about.gitlab.com/pricing/) 9.5.
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/22982) for Push mirroring in [GitLab Core](https://about.gitlab.com/pricing/) 11.6
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/2551) for Pull mirroring in [GitLab Starter](https://about.gitlab.com/pricing/) 9.5.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/22982) for Push mirroring in [GitLab Core](https://about.gitlab.com/pricing/) 11.6
 
 SSH authentication is mutual:
 
@@ -197,10 +197,10 @@ Assuming you used the former, you now need to verify that the fingerprints are
 those you expect. GitLab.com and other code hosting sites publish their
 fingerprints in the open for you to check:
 
-- [AWS CodeCommit](http://docs.aws.amazon.com/codecommit/latest/userguide/regions.html#regions-fingerprints)
-- [Bitbucket](https://confluence.atlassian.com/bitbucket/use-the-ssh-protocol-with-bitbucket-cloud-221449711.html#UsetheSSHprotocolwithBitbucketCloud-KnownhostorBitbucket%27spublickeyfingerprints)
-- [GitHub](https://help.github.com/articles/github-s-ssh-key-fingerprints/)
-- [GitLab.com](https://about.gitlab.com/gitlab-com/settings/#ssh-host-keys-fingerprints)
+- [AWS CodeCommit](https://docs.aws.amazon.com/codecommit/latest/userguide/regions.html#regions-fingerprints)
+- [Bitbucket](https://confluence.atlassian.com/bitbucket/ssh-keys-935365775.html)
+- [GitHub](https://help.github.com/en/articles/githubs-ssh-key-fingerprints)
+- [GitLab.com](../user/gitlab_com/index.md#ssh-host-keys-fingerprints)
 - [Launchpad](https://help.launchpad.net/SSHFingerprints)
 - [Savannah](http://savannah.gnu.org/maintenance/SshAccess/)
 - [SourceForge](https://sourceforge.net/p/forge/documentation/SSH%20Key%20Fingerprints/)
@@ -245,7 +245,7 @@ key to keep the mirror running.
 
 ### Overwrite diverged branches **(STARTER)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/4559) in [GitLab Starter](https://about.gitlab.com/pricing/) 10.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/4559) in [GitLab Starter](https://about.gitlab.com/pricing/) 10.6.
 
 You can choose to always update your local branches with remote versions, even if they have
 diverged from the remote.
@@ -257,7 +257,7 @@ To use this option, check the **Overwrite diverged branches** box when creating 
 
 ### Only mirror protected branches **(STARTER)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/3326) in [GitLab Starter](https://about.gitlab.com/pricing/) 10.3.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/3326) in [GitLab Starter](https://about.gitlab.com/pricing/) 10.3.
 
 You can choose to pull mirror only the protected branches from your remote repository to GitLab.
 Non-protected branches are not mirrored and can diverge.
@@ -266,7 +266,7 @@ To use this option, check the **Only mirror protected branches** box when creati
 
 ### Hard failure **(STARTER)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/3117) in [GitLab Starter](https://about.gitlab.com/pricing/) 10.2.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/3117) in [GitLab Starter](https://about.gitlab.com/pricing/) 10.2.
 
 Once the mirroring process is unsuccessfully retried 14 times in a row, it will get marked as hard
 failed. This will become visible in either the:
@@ -279,7 +279,7 @@ project mirroring again by [Forcing an update](#forcing-an-update-core).
 
 ### Trigger update using API **(STARTER)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/3453) in [GitLab Starter](https://about.gitlab.com/pricing/) 10.3.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/3453) in [GitLab Starter](https://about.gitlab.com/pricing/) 10.3.
 
 Pull mirroring uses polling to detect new branches and commits added upstream, often minutes
 afterwards. If you notify GitLab by [API](../api/projects.md#start-the-pull-mirroring-process-for-a-project-starter),
@@ -398,7 +398,7 @@ CAUTION: **Warning:**
 Bidirectional mirroring should not be used as a permanent configuration. Refer to
 [Migrating from Perforce Helix](../user/project/import/perforce.md) for alternative migration approaches.
 
-[Git Fusion](https://www.perforce.com/video-tutorials/git-fusion-overview) provides a Git interface
+[Git Fusion](https://www.perforce.com/manuals/git-fusion/#Git-Fusion/section_avy_hyc_gl.html) provides a Git interface
 to [Perforce Helix](https://www.perforce.com/products) which can be used by GitLab to bidirectionally
 mirror projects with GitLab. This may be useful in some situations when migrating from Perforce Helix
 to GitLab where overlapping Perforce Helix workspaces cannot be migrated simultaneously to GitLab.
@@ -415,7 +415,7 @@ settings are recommended:
 - `unknown_git` user will be used as the commit author if the GitLab user does not exist in
   Perforce Helix.
 
-Read about [Git Fusion settings on Perforce.com](https://www.perforce.com/perforce/doc.current/manuals/git-fusion/Content/Git-Fusion/section_vss_bdw_w3.html#section_zdp_zz1_3l).
+Read about [Git Fusion settings on Perforce.com](https://www.perforce.com/manuals/git-fusion/Content/Git-Fusion/section_vss_bdw_w3.html#section_zdp_zz1_3l).
 
 ## Troubleshooting
 
@@ -423,4 +423,4 @@ Should an error occur during a push, GitLab will display an "Error" highlight fo
 
 ### 13:Received RST_STREAM with error code 2 with GitHub
 
-If you receive an "13:Received RST_STREAM with error code 2" while mirroring to a GitHub repository, your GitHub settings might be set to block pushes that expose your email address used in commits. Either set your email address on GitHub to be public, or disable the [Block command line pushes that expose my email](http://github.com/settings/emails) setting.
+If you receive an "13:Received RST_STREAM with error code 2" while mirroring to a GitHub repository, your GitHub settings might be set to block pushes that expose your email address used in commits. Either set your email address on GitHub to be public, or disable the [Block command line pushes that expose my email](https://github.com/settings/emails) setting.

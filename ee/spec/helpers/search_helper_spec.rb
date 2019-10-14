@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe SearchHelper do
@@ -60,8 +62,7 @@ describe SearchHelper do
     it "returns parsed result" do
       project = create :project, :repository
 
-      project.repository.index_blobs
-
+      project.repository.index_commits_and_blobs
       Gitlab::Elastic::Helper.refresh_index
 
       result = project.repository.search(
@@ -99,7 +100,7 @@ describe SearchHelper do
       control_count = ActiveRecord::QueryRecorder.new { blob_projects(es_blob_search) }.count
 
       projects = create_list :project, 3, :repository, :public
-      projects.each { |project| project.repository.index_blobs }
+      projects.each { |project| project.repository.index_commits_and_blobs }
 
       Gitlab::Elastic::Helper.refresh_index
 
@@ -108,6 +109,70 @@ describe SearchHelper do
 
       expect { result_projects = blob_projects(es_blob_search) }.not_to exceed_query_limit(control_count)
       expect(result_projects).to match_array(projects)
+    end
+  end
+
+  describe '#search_entries_info_template' do
+    let(:com_value) { true }
+    let(:flag_enabled) { true }
+    let(:elasticsearch_enabled) { true }
+    let(:show_snippets) { true }
+    let(:collection) { Kaminari.paginate_array([:foo]).page(1).per(10) }
+    let(:user) { create(:user) }
+    let(:message) { "Showing %{count} %{scope} for \"%{term}\"" }
+    let(:new_message) { message + " in your personal and project snippets" }
+
+    subject { search_entries_info_template(collection) }
+
+    before do
+      @show_snippets = show_snippets
+      @current_user = user
+
+      allow(Gitlab).to receive(:com?).and_return(com_value)
+      stub_feature_flags(restricted_snippet_scope_search: flag_enabled)
+      stub_ee_application_setting(search_using_elasticsearch: elasticsearch_enabled)
+    end
+
+    shared_examples 'returns old message' do
+      it do
+        expect(subject).to eq message
+      end
+    end
+
+    context 'when all requirements are met' do
+      it 'returns a custom message' do
+        expect(subject).to eq new_message
+      end
+    end
+
+    context 'when not in Gitlab.com' do
+      let(:com_value) { false }
+
+      it_behaves_like 'returns old message'
+    end
+
+    context 'when flag restricted_snippet_scope_search is not enabled' do
+      let(:flag_enabled) { false }
+
+      it_behaves_like 'returns old message'
+    end
+
+    context 'when elastic search is not enabled' do
+      let(:elasticsearch_enabled) { false }
+
+      it_behaves_like 'returns old message'
+    end
+
+    context 'when no user is present' do
+      let(:user) { nil }
+
+      it_behaves_like 'returns old message'
+    end
+
+    context 'when not searching for snippets' do
+      let(:show_snippets) { nil }
+
+      it_behaves_like 'returns old message'
     end
   end
 end

@@ -196,6 +196,10 @@ class MergeRequest < ApplicationRecord
   scope :by_target_branch, ->(branch_name) { where(target_branch: branch_name) }
   scope :preload_source_project, -> { preload(:source_project) }
 
+  scope :with_open_merge_when_pipeline_succeeds, -> do
+    with_state(:opened).where(merge_when_pipeline_succeeds: true)
+  end
+
   after_save :keep_around_commit
 
   alias_attribute :project, :target_project
@@ -233,7 +237,7 @@ class MergeRequest < ApplicationRecord
 
   # Use this method whenever you need to make sure the head_pipeline is synced with the
   # branch head commit, for example checking if a merge request can be merged.
-  # For more information check: https://gitlab.com/gitlab-org/gitlab-ce/issues/40004
+  # For more information check: https://gitlab.com/gitlab-org/gitlab-foss/issues/40004
   def actual_head_pipeline
     head_pipeline&.matches_sha_or_source_sha?(diff_head_sha) ? head_pipeline : nil
   end
@@ -450,26 +454,28 @@ class MergeRequest < ApplicationRecord
     merge_request_diffs.where.not(id: merge_request_diff.id)
   end
 
+  # Overwritten in EE
+  def note_positions_for_paths(paths, _user = nil)
+    positions = notes.new_diff_notes.joins(:note_diff_file)
+      .where('note_diff_files.old_path IN (?) OR note_diff_files.new_path IN (?)', paths, paths)
+      .positions
+
+    Gitlab::Diff::PositionCollection.new(positions, diff_head_sha)
+  end
+
   def preloads_discussion_diff_highlighting?
     true
   end
 
-  def preload_discussions_diff_highlight
-    preloadable_files = note_diff_files.for_commit_or_unresolved
-
-    discussions_diffs.load_highlight(preloadable_files.pluck(:id))
-  end
-
   def discussions_diffs
     strong_memoize(:discussions_diffs) do
+      note_diff_files = NoteDiffFile
+        .joins(:diff_note)
+        .merge(notes.or(commit_notes))
+        .includes(diff_note: :project)
+
       Gitlab::DiscussionsDiff::FileCollection.new(note_diff_files.to_a)
     end
-  end
-
-  def note_diff_files
-    NoteDiffFile
-      .where(diff_note: discussion_notes)
-      .includes(diff_note: :project)
   end
 
   def diff_size
@@ -698,7 +704,7 @@ class MergeRequest < ApplicationRecord
   def create_merge_request_diff
     fetch_ref!
 
-    # n+1: https://gitlab.com/gitlab-org/gitlab-ce/issues/37435
+    # n+1: https://gitlab.com/gitlab-org/gitlab-foss/issues/37435
     Gitlab::GitalyClient.allow_n_plus_1_calls do
       merge_request_diffs.create!
       reload_merge_request_diff
@@ -1396,7 +1402,7 @@ class MergeRequest < ApplicationRecord
   end
 
   # TODO: remove once production database rename completes
-  # https://gitlab.com/gitlab-org/gitlab-ce/issues/47592
+  # https://gitlab.com/gitlab-org/gitlab-foss/issues/47592
   alias_attribute :allow_collaboration, :allow_maintainer_to_push
 
   def allow_collaboration

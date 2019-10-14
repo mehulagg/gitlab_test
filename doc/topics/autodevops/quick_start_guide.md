@@ -25,7 +25,7 @@ Google account (for example, one that you use to access Gmail, Drive, etc.) or c
 TIP: **Tip:**
 Every new Google Cloud Platform (GCP) account receives [$300 in credit](https://console.cloud.google.com/freetrial),
 and in partnership with Google, GitLab is able to offer an additional $200 for new GCP accounts to get started with GitLab's
-Google Kubernetes Engine Integration. All you have to do is [follow this link](https://goo.gl/AaJzRW) and apply for credit.
+Google Kubernetes Engine Integration. All you have to do is [follow this link](https://cloud.google.com/partners/partnercredit/?PCN=a0n60000006Vpz4AAC) and apply for credit.
 
 ## Creating a new project from a template
 
@@ -152,7 +152,7 @@ The pipeline is split into 4 stages, each running a couple of jobs.
 ![Pipeline stages](img/guide_pipeline_stages.png)
 
 In the **build** stage, the application is built into a Docker image and then
-uploaded to your project's [Container Registry](../../user/project/container_registry.md) ([Auto Build](index.md#auto-build)).
+uploaded to your project's [Container Registry](../../user/packages/container_registry/index.md) ([Auto Build](index.md#auto-build)).
 
 In the **test** stage, GitLab runs various checks on the application:
 

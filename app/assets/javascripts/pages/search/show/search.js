@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import '~/gl_dropdown';
 import Flash from '~/flash';
 import Api from '~/api';
 import { __ } from '~/locale';
@@ -30,7 +31,7 @@ export default class Search {
           data.unshift({
             full_name: __('Any'),
           });
-          data.splice(1, 0, 'divider');
+          data.splice(1, 0, { type: 'divider' });
           return callback(data);
         });
       },
@@ -57,7 +58,7 @@ export default class Search {
             data.unshift({
               name_with_namespace: __('Any'),
             });
-            data.splice(1, 0, 'divider');
+            data.splice(1, 0, { type: 'divider' });
 
             return data;
           })

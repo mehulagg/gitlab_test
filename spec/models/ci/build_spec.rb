@@ -2210,11 +2210,13 @@ describe Ci::Build do
           { key: 'CI_BUILD_STAGE', value: 'test', public: true, masked: false },
           { key: 'CI_PROJECT_ID', value: project.id.to_s, public: true, masked: false },
           { key: 'CI_PROJECT_NAME', value: project.path, public: true, masked: false },
+          { key: 'CI_PROJECT_TITLE', value: project.title, public: true, masked: false },
           { key: 'CI_PROJECT_PATH', value: project.full_path, public: true, masked: false },
           { key: 'CI_PROJECT_PATH_SLUG', value: project.full_path_slug, public: true, masked: false },
           { key: 'CI_PROJECT_NAMESPACE', value: project.namespace.full_path, public: true, masked: false },
           { key: 'CI_PROJECT_URL', value: project.web_url, public: true, masked: false },
           { key: 'CI_PROJECT_VISIBILITY', value: 'private', public: true, masked: false },
+          { key: 'CI_PROJECT_REPOSITORY_LANGUAGES', value: project.repository_languages.map(&:name).join(',').downcase, public: true, masked: false },
           { key: 'CI_PAGES_DOMAIN', value: Gitlab.config.pages.host, public: true, masked: false },
           { key: 'CI_PAGES_URL', value: project.pages_url, public: true, masked: false },
           { key: 'CI_API_V4_URL', value: 'http://localhost/api/v4', public: true, masked: false },
@@ -3076,6 +3078,12 @@ describe Ci::Build do
     def run_job_without_exception
       job.run!
     rescue StateMachines::InvalidTransition
+    end
+
+    it 'ensures pipeline ref existence' do
+      expect(job.pipeline.persistent_ref).to receive(:create).once
+
+      run_job_without_exception
     end
 
     shared_examples 'saves data on transition' do

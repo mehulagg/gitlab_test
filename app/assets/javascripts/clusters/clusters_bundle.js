@@ -39,7 +39,10 @@ export default class Clusters {
       updateKnativePath,
       installPrometheusPath,
       managePrometheusPath,
+      clusterEnvironmentsPath,
       hasRbac,
+      providerType,
+      preInstalledKnative,
       clusterType,
       clusterStatus,
       clusterStatusReason,
@@ -49,6 +52,7 @@ export default class Clusters {
       environmentsHelpPath,
       clustersHelpPath,
       deployBoardsHelpPath,
+      cloudRunHelpPath,
       clusterId,
     } = document.querySelector('.js-edit-cluster-form').dataset;
 
@@ -64,10 +68,13 @@ export default class Clusters {
       environmentsHelpPath,
       clustersHelpPath,
       deployBoardsHelpPath,
+      cloudRunHelpPath,
     );
     this.store.setManagePrometheusPath(managePrometheusPath);
     this.store.updateStatus(clusterStatus);
     this.store.updateStatusReason(clusterStatusReason);
+    this.store.updateProviderType(providerType);
+    this.store.updatePreInstalledKnative(preInstalledKnative);
     this.store.updateRbac(hasRbac);
     this.service = new ClustersService({
       endpoint: statusPath,
@@ -79,6 +86,7 @@ export default class Clusters {
       installJupyterEndpoint: installJupyterPath,
       installKnativeEndpoint: installKnativePath,
       updateKnativeEndpoint: updateKnativePath,
+      clusterEnvironmentsEndpoint: clusterEnvironmentsPath,
     });
 
     this.installApplication = this.installApplication.bind(this);
@@ -109,11 +117,25 @@ export default class Clusters {
     this.initApplications(clusterType);
     this.initEnvironments();
 
+    if (clusterEnvironmentsPath && this.environments) {
+      this.store.toggleFetchEnvironments(true);
+
+      this.initPolling(
+        'fetchClusterEnvironments',
+        data => this.handleClusterEnvironmentsSuccess(data),
+        () => this.handleEnvironmentsPollError(),
+      );
+    }
+
     this.updateContainer(null, this.store.state.status, this.store.state.statusReason);
 
     this.addListeners();
     if (statusPath && !this.environments) {
-      this.initPolling();
+      this.initPolling(
+        'fetchClusterStatus',
+        data => this.handleClusterStatusSuccess(data),
+        () => this.handlePollError(),
+      );
     }
   }
 
@@ -137,6 +159,9 @@ export default class Clusters {
             ingressHelpPath: this.state.ingressHelpPath,
             managePrometheusPath: this.state.managePrometheusPath,
             ingressDnsHelpPath: this.state.ingressDnsHelpPath,
+            cloudRunHelpPath: this.state.cloudRunHelpPath,
+            providerType: this.state.providerType,
+            preInstalledKnative: this.state.preInstalledKnative,
             rbac: this.state.rbac,
           },
         });
@@ -162,6 +187,7 @@ export default class Clusters {
       render(createElement) {
         return createElement(Environments, {
           props: {
+            isFetching: this.state.fetchingEnvironments,
             environments: this.state.environments,
             environmentsHelpPath: this.state.environmentsHelpPath,
             clustersHelpPath: this.state.clustersHelpPath,
@@ -170,6 +196,11 @@ export default class Clusters {
         });
       },
     });
+  }
+
+  handleClusterEnvironmentsSuccess(data) {
+    this.store.toggleFetchEnvironments(false);
+    this.store.updateEnvironments(data.data);
   }
 
   static initDismissableCallout() {
@@ -205,21 +236,16 @@ export default class Clusters {
     eventHub.$off('uninstallApplication');
   }
 
-  initPolling() {
+  initPolling(method, successCallback, errorCallback) {
     this.poll = new Poll({
       resource: this.service,
-      method: 'fetchData',
-      successCallback: data => this.handleSuccess(data),
-      errorCallback: () => Clusters.handleError(),
+      method,
+      successCallback,
+      errorCallback,
     });
 
     if (!Visibility.hidden()) {
       this.poll.makeRequest();
-    } else {
-      this.service
-        .fetchData()
-        .then(data => this.handleSuccess(data))
-        .catch(() => Clusters.handleError());
     }
 
     Visibility.change(() => {
@@ -231,11 +257,21 @@ export default class Clusters {
     });
   }
 
+  handlePollError() {
+    this.constructor.handleError();
+  }
+
+  handleEnvironmentsPollError() {
+    this.store.toggleFetchEnvironments(false);
+
+    this.handlePollError();
+  }
+
   static handleError() {
     Flash(s__('ClusterIntegration|Something went wrong on our end.'));
   }
 
-  handleSuccess(data) {
+  handleClusterStatusSuccess(data) {
     const prevStatus = this.store.state.status;
     const prevApplicationMap = Object.assign({}, this.store.state.applications);
 

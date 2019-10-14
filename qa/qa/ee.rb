@@ -13,6 +13,12 @@ module QA
 
     module Page
       module Component
+        autoload :DesignManagement, 'qa/ee/page/component/design_management'
+
+        module IssueBoard
+          autoload :Show, 'qa/ee/page/component/issue_board/show'
+        end
+
         module WebIDE
           autoload :WebTerminalPanel, 'qa/ee/page/component/web_ide/web_terminal_panel'
         end
@@ -26,12 +32,6 @@ module QA
         autoload :Menu, 'qa/ee/page/group/menu'
         autoload :SamlSSOSignIn, 'qa/ee/page/group/saml_sso_sign_in'
         autoload :Members, 'qa/ee/page/group/members'
-
-        module Issue
-          module Board
-            autoload :Show, 'qa/ee/page/group/issue/board/show'
-          end
-        end
 
         module Settings
           autoload :SamlSSO, 'qa/ee/page/group/settings/saml_sso'
@@ -59,6 +59,10 @@ module QA
           end
         end
 
+        module Monitoring
+          autoload :AuditLog, 'qa/ee/page/admin/monitoring/audit_log.rb'
+        end
+
         module Settings
           autoload :Templates, 'qa/ee/page/admin/settings/templates'
           autoload :Integration, 'qa/ee/page/admin/settings/integration'
@@ -83,15 +87,13 @@ module QA
         module SubMenus
           autoload :SecurityCompliance, 'qa/ee/page/project/sub_menus/security_compliance'
           autoload :Repository, 'qa/ee/page/project/sub_menus/repository'
+          autoload :Settings, 'qa/ee/page/project/sub_menus/settings'
+          autoload :Project, 'qa/ee/page/project/sub_menus/project'
         end
 
         module Issue
           autoload :Index, 'qa/ee/page/project/issue/index'
           autoload :Show, 'qa/ee/page/project/issue/show'
-
-          module Board
-            autoload :Show, 'qa/ee/page/project/issue/board/show'
-          end
         end
 
         module Wiki
@@ -99,14 +101,15 @@ module QA
         end
 
         module Milestone
-          autoload :Index, 'qa/ee/page/project/milestone/index'
+          autoload :Show, 'qa/ee/page/project/milestone/show'
         end
 
         module Settings
           autoload :ProtectedBranches, 'qa/ee/page/project/settings/protected_branches'
           autoload :MirroringRepositories, 'qa/ee/page/project/settings/mirroring_repositories'
-          autoload :Main, 'qa/ee/page/project/settings/main'
-          autoload :MergeRequestApproval, 'qa/ee/page/project/settings/merge_request_approval'
+          autoload :MergeRequest, 'qa/ee/page/project/settings/merge_request'
+          autoload :Repository, 'qa/ee/page/project/settings/repository'
+          autoload :PushRules, 'qa/ee/page/project/settings/push_rules'
         end
 
         module Operations

@@ -13,12 +13,13 @@ module EE
           push_frontend_feature_flag(:dast_merge_request_report_api)
           push_frontend_feature_flag(:container_scanning_merge_request_report_api)
           push_frontend_feature_flag(:dependency_scanning_merge_request_report_api)
-          push_frontend_feature_flag(:license_management_merge_request_report_api)
+          push_frontend_feature_flag(:parsed_license_report)
         end
 
         before_action :whitelist_query_limiting_ee_merge, only: [:merge]
         before_action :whitelist_query_limiting_ee_show, only: [:show]
-        before_action :authorize_read_pipeline!, only: [:sast_reports, :dast_reports]
+
+        before_action :authorize_read_pipeline!, only: [:container_scanning_reports, :dependency_scanning_reports, :sast_reports, :dast_reports]
       end
 
       def approve
@@ -112,11 +113,11 @@ module EE
       end
 
       def whitelist_query_limiting_ee_merge
-        ::Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ee/issues/4792')
+        ::Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab/issues/4792')
       end
 
       def whitelist_query_limiting_ee_show
-        ::Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ee/issues/4793')
+        ::Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab/issues/4793')
       end
     end
   end

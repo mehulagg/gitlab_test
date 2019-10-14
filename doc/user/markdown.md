@@ -8,13 +8,13 @@ website uses an extended Kramdown gem, [GitLab Kramdown](https://gitlab.com/gitl
 Consult the [GitLab Kramdown Guide](https://about.gitlab.com/handbook/product/technical-writing/markdown-guide/)
 for a complete Kramdown reference.
 
-NOTE: **Note:** We encourage you to view this document as [rendered by GitLab itself](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/user/markdown.md).
+NOTE: **Note:** We encourage you to view this document as [rendered by GitLab itself](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/user/markdown.md).
 
 ## GitLab Flavored Markdown (GFM)
 
 GitLab uses "GitLab Flavored Markdown" (GFM). It extends the [CommonMark specification](https://spec.commonmark.org/current/)
 (which is based on standard Markdown) in several ways to add additional useful functionality.
-It was inspired by [GitHub Flavored Markdown](https://help.github.com/articles/basic-writing-and-formatting-syntax/).
+It was inspired by [GitHub Flavored Markdown](https://help.github.com/en/articles/basic-writing-and-formatting-syntax).
 
 You can use GFM in the following areas:
 
@@ -108,7 +108,7 @@ changing how standard markdown is used:
 | [code blocks](#code-spans-and-blocks) | [colored code and syntax highlighting](#colored-code-and-syntax-highlighting) |
 | [emphasis](#emphasis)                 | [multiple underscores in words](#multiple-underscores-in-words-and-mid-word-emphasis)
 | [headers](#headers)                   | [linkable Header IDs](#header-ids-and-links) |
-| [images](#images)                     | [embedded videos](#videos) |
+| [images](#images)                     | [embedded videos](#videos) and [audio](#audio) |
 | [linebreaks](#line-breaks)            | [more linebreak control](#newlines) |
 | [links](#links)                       | [automatically linking URLs](#url-auto-linking) |
 
@@ -116,7 +116,7 @@ changing how standard markdown is used:
 
 ### Colors
 
-> If this is not rendered correctly, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/user/markdown.md#colors).
+> If this is not rendered correctly, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/user/markdown.md#colors).
 
 It is possible to have color written in HEX, RGB or HSL format rendered with a color
 indicator.
@@ -153,7 +153,7 @@ Color written inside backticks will be followed by a color "chip":
 
 ### Diagrams and flowcharts using Mermaid
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/15107) in
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/15107) in
 GitLab 10.3.
 
 It is possible to generate diagrams and flowcharts from text using [Mermaid](https://mermaidjs.github.io/).
@@ -221,7 +221,7 @@ end
 
 ### Emoji
 
-> If this is not rendered correctly, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/user/markdown.md#emoji).
+> If this is not rendered correctly, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/user/markdown.md#emoji).
 
 ```md
 Sometimes you want to :monkey: around a bit and add some :star2: to your :speech_balloon:. Well we have a gift for you:
@@ -235,15 +235,15 @@ If you are new to this, don't be :fearful:. You can easily join the emoji :famil
 Consult the [Emoji Cheat Sheet](https://www.emojicopy.com) for a list of all supported emoji codes. :thumbsup:
 ```
 
-Sometimes you want to <img src="https://gitlab.com/gitlab-org/gitlab-ce/raw/master/app/assets/images/emoji/monkey.png" width="20px" height="20px" style="display:inline;margin:0"> around a bit and add some <img src="https://gitlab.com/gitlab-org/gitlab-ce/raw/master/app/assets/images/emoji/star2.png" width="20px" height="20px" style="display:inline;margin:0"> to your <img src="https://gitlab.com/gitlab-org/gitlab-ce/raw/master/app/assets/images/emoji/speech_balloon.png" width="20px" height="20px" style="display:inline;margin:0">. Well we have a gift for you:
+Sometimes you want to <img src="https://gitlab.com/gitlab-org/gitlab-foss/raw/master/app/assets/images/emoji/monkey.png" width="20px" height="20px" style="display:inline;margin:0"> around a bit and add some <img src="https://gitlab.com/gitlab-org/gitlab-foss/raw/master/app/assets/images/emoji/star2.png" width="20px" height="20px" style="display:inline;margin:0"> to your <img src="https://gitlab.com/gitlab-org/gitlab-foss/raw/master/app/assets/images/emoji/speech_balloon.png" width="20px" height="20px" style="display:inline;margin:0">. Well we have a gift for you:
 
-<img src="https://gitlab.com/gitlab-org/gitlab-ce/raw/master/app/assets/images/emoji/zap.png" width="20px" height="20px" style="display:inline;margin:0">You can use emoji anywhere GFM is supported. <img src="https://gitlab.com/gitlab-org/gitlab-ce/raw/master/app/assets/images/emoji/v.png" width="20px" height="20px" style="display:inline;margin:0">
+<img src="https://gitlab.com/gitlab-org/gitlab-foss/raw/master/app/assets/images/emoji/zap.png" width="20px" height="20px" style="display:inline;margin:0">You can use emoji anywhere GFM is supported. <img src="https://gitlab.com/gitlab-org/gitlab-foss/raw/master/app/assets/images/emoji/v.png" width="20px" height="20px" style="display:inline;margin:0">
 
-You can use it to point out a <img src="https://gitlab.com/gitlab-org/gitlab-ce/raw/master/app/assets/images/emoji/bug.png" width="20px" height="20px" style="display:inline;margin:0"> or warn about <img src="https://gitlab.com/gitlab-org/gitlab-ce/raw/master/app/assets/images/emoji/speak_no_evil.png" width="20px" height="20px" style="display:inline;margin:0"> patches. And if someone improves your really <img src="https://gitlab.com/gitlab-org/gitlab-ce/raw/master/app/assets/images/emoji/snail.png" width="20px" height="20px" style="display:inline;margin:0"> code, send them some <img src="https://gitlab.com/gitlab-org/gitlab-ce/raw/master/app/assets/images/emoji/birthday.png" width="20px" height="20px" style="display:inline;margin:0">. People will <img src="https://gitlab.com/gitlab-org/gitlab-ce/raw/master/app/assets/images/emoji/heart.png" width="20px" height="20px" style="display:inline;margin:0"> you for that.
+You can use it to point out a <img src="https://gitlab.com/gitlab-org/gitlab-foss/raw/master/app/assets/images/emoji/bug.png" width="20px" height="20px" style="display:inline;margin:0"> or warn about <img src="https://gitlab.com/gitlab-org/gitlab-foss/raw/master/app/assets/images/emoji/speak_no_evil.png" width="20px" height="20px" style="display:inline;margin:0"> patches. And if someone improves your really <img src="https://gitlab.com/gitlab-org/gitlab-foss/raw/master/app/assets/images/emoji/snail.png" width="20px" height="20px" style="display:inline;margin:0"> code, send them some <img src="https://gitlab.com/gitlab-org/gitlab-foss/raw/master/app/assets/images/emoji/birthday.png" width="20px" height="20px" style="display:inline;margin:0">. People will <img src="https://gitlab.com/gitlab-org/gitlab-foss/raw/master/app/assets/images/emoji/heart.png" width="20px" height="20px" style="display:inline;margin:0"> you for that.
 
-If you are new to this, don't be <img src="https://gitlab.com/gitlab-org/gitlab-ce/raw/master/app/assets/images/emoji/fearful.png" width="20px" height="20px" style="display:inline;margin:0">. You can easily join the emoji <img src="https://gitlab.com/gitlab-org/gitlab-ce/raw/master/app/assets/images/emoji/family.png" width="20px" height="20px" style="display:inline;margin:0">. All you need to do is to look up one of the supported codes.
+If you are new to this, don't be <img src="https://gitlab.com/gitlab-org/gitlab-foss/raw/master/app/assets/images/emoji/fearful.png" width="20px" height="20px" style="display:inline;margin:0">. You can easily join the emoji <img src="https://gitlab.com/gitlab-org/gitlab-foss/raw/master/app/assets/images/emoji/family.png" width="20px" height="20px" style="display:inline;margin:0">. All you need to do is to look up one of the supported codes.
 
-Consult the [Emoji Cheat Sheet](https://www.webfx.com/tools/emoji-cheat-sheet/) for a list of all supported emoji codes. <img src="https://gitlab.com/gitlab-org/gitlab-ce/raw/master/app/assets/images/emoji/thumbsup.png" width="20px" height="20px" style="display:inline;margin:0">
+Consult the [Emoji Cheat Sheet](https://www.webfx.com/tools/emoji-cheat-sheet/) for a list of all supported emoji codes. <img src="https://gitlab.com/gitlab-org/gitlab-foss/raw/master/app/assets/images/emoji/thumbsup.png" width="20px" height="20px" style="display:inline;margin:0">
 
 > **Note:** The emoji example above uses hard-coded images for this documentation. The emoji,
 when rendered within GitLab, may appear different depending on the OS and browser used.
@@ -256,7 +256,7 @@ this font installed by default.
 
 ### Front matter
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/23331) in GitLab 11.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/23331) in GitLab 11.6.
 
 Front matter is metadata included at the beginning of a markdown document, preceding
 its content. This data can be used by static site generators such as [Jekyll](https://jekyllrb.com/docs/front-matter/),
@@ -264,7 +264,7 @@ its content. This data can be used by static site generators such as [Jekyll](ht
 
 When you view a Markdown file rendered by GitLab, any front matter is displayed as-is,
 in a box at the top of the document, before the rendered HTML content. To view an example,
-you can toggle between the source and rendered version of a [GitLab documentation file](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/README.md).
+you can toggle between the source and rendered version of a [GitLab documentation file](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/README.md).
 
 In GitLab, front matter is only used in Markdown files and wiki pages, not the other
 places where Markdown formatting is supported. It must be at the very top of the document,
@@ -319,7 +319,7 @@ $example = array(
 
 ### Inline diff
 
-> If this is not rendered correctly, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/user/markdown.md#inline-diff).
+> If this is not rendered correctly, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/user/markdown.md#inline-diff).
 
 With inline diff tags you can display `{+ additions +}` or `[- deletions -]`.
 
@@ -350,9 +350,9 @@ However the wrapping tags cannot be mixed:
 
 ### Math
 
-> If this is not rendered correctly, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/user/markdown.md#math).
+> If this is not rendered correctly, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/user/markdown.md#math).
 
-It is possible to have math written with LaTeX syntax rendered using [KaTeX](https://github.com/Khan/KaTeX).
+It is possible to have math written with LaTeX syntax rendered using [KaTeX](https://github.com/KaTeX/KaTeX).
 
 Math written between dollar signs `$` will be rendered inline with the text. Math written
 inside a [code block](#code-spans-and-blocks) with the language declared as `math`, will be rendered
@@ -379,7 +379,7 @@ a^2+b^2=c^2
 _Be advised that KaTeX only supports a [subset](https://katex.org/docs/supported.html) of LaTeX._
 
 NOTE: **Note:** This also works for the asciidoctor `:stem: latexmath`. For details see
-the [asciidoctor user manual](http://asciidoctor.org/docs/user-manual/#activating-stem-support).
+the [asciidoctor user manual](https://asciidoctor.org/docs/user-manual/#activating-stem-support).
 
 ### Special GitLab references
 
@@ -415,7 +415,7 @@ GFM will recognize the following:
 
 ### Task lists
 
-> If this is not rendered correctly, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/user/markdown.md#task-lists).
+> If this is not rendered correctly, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/user/markdown.md#task-lists).
 
 You can add task lists anywhere markdown is supported, but you can only "click" to
 toggle the boxes if they are in issues, merge requests, or comments. In other places
@@ -556,7 +556,7 @@ Quote break.
 
 #### Multiline blockquote
 
-> If this is not rendered correctly, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/user/markdown.md#multiline-blockquote).
+> If this is not rendered correctly, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/user/markdown.md#multiline-blockquote).
 
 GFM extends the standard markdown standard by also supporting multiline blockquotes
 fenced by `>>>`:
@@ -637,11 +637,11 @@ Tildes are OK too.
 
 #### Colored code and syntax highlighting
 
-> If this is not rendered correctly, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/user/markdown.md#colored-code-and-syntax-highlighting).
+> If this is not rendered correctly, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/user/markdown.md#colored-code-and-syntax-highlighting).
 
 GitLab uses the [Rouge Ruby library](http://rouge.jneen.net/) for more colorful syntax
 highlighting in code blocks. For a list of supported languages visit the
-[Rouge project wiki](https://github.com/jneen/rouge/wiki/List-of-supported-languages-and-lexers).
+[Rouge project wiki](https://github.com/rouge-ruby/rouge/wiki/List-of-supported-languages-and-lexers).
 Syntax highlighting is only supported in code blocks, it is not possible to highlight
 code when it is inline.
 
@@ -729,7 +729,7 @@ NOTE: **Note:** Strikethrough is not part of the core Markdown standard, but is 
 
 #### Multiple underscores in words and mid-word emphasis
 
-> If this is not rendered correctly, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/user/markdown.md#multiple-underscores-in-words).
+> If this is not rendered correctly, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/user/markdown.md#multiple-underscores-in-words).
 
 It is not usually useful to italicize just _part_ of a word, especially when you're
 dealing with code and names that often appear with multiple underscores. As a result,
@@ -884,7 +884,7 @@ Reference-style (hover to see title text):
 
 #### Videos
 
-> If this is not rendered correctly, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/user/markdown.md#videos).
+> If this is not rendered correctly, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/user/markdown.md#videos).
 
 Image tags that link to files with a video extension are automatically converted to
 a video player. The valid video extensions are `.mp4`, `.m4v`, `.mov`, `.webm`, and `.ogv`:
@@ -899,13 +899,30 @@ Here's a sample video:
 
 ![Sample Video](img/markdown_video.mp4)
 
+#### Audio
+
+> If this is not rendered correctly, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/user/markdown.md#audio).
+
+Similar to videos, link tags for files with an audio extension are automatically converted to
+an audio player. The valid audio extensions are `.mp3`, `.ogg`, and `.wav`:
+
+```md
+Here's a sample audio clip:
+
+![Sample Audio](img/markdown_audio.mp3)
+```
+
+Here's a sample audio clip:
+
+![Sample Audio](img/markdown_audio.mp3)
+
 ### Inline HTML
 
-> To see the markdown rendered within HTML in the second example, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/user/markdown.md#inline-html).
+> To see the markdown rendered within HTML in the second example, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/user/markdown.md#inline-html).
 
 You can also use raw HTML in your Markdown, and it'll usually work pretty well.
 
-See the documentation for HTML::Pipeline's [SanitizationFilter](http://www.rubydoc.info/gems/html-pipeline/1.11.0/HTML/Pipeline/SanitizationFilter#WHITELIST-constant)
+See the documentation for HTML::Pipeline's [SanitizationFilter](https://www.rubydoc.info/gems/html-pipeline/1.11.0/HTML/Pipeline/SanitizationFilter#WHITELIST-constant)
 class for the list of allowed HTML tags and attributes.  In addition to the default
 `SanitizationFilter` whitelist, GitLab allows `span`, `abbr`, `details` and `summary` elements.
 
@@ -962,7 +979,7 @@ are separated into their own lines:
 
 #### Details and Summary
 
-> To see the markdown rendered within HTML in the second example, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/user/markdown.md#details-and-summary).
+> To see the markdown rendered within HTML in the second example, [view it in GitLab itself](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/user/markdown.md#details-and-summary).
 
 Content can be collapsed using HTML's [`<details>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details)
 and [`<summary>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/summary)
@@ -1109,8 +1126,8 @@ Using references:
 
 Some text to show that the reference links can follow later.
 
-[arbitrary case-insensitive reference text]: https://www.mozilla.org
-[1]: http://slashdot.org
+[arbitrary case-insensitive reference text]: https://www.mozilla.org/en-US/
+[1]: https://slashdot.org
 [link text itself]: https://www.reddit.com
 ```
 
@@ -1132,8 +1149,8 @@ Using references:
 
 Some text to show that the reference links can follow later.
 
-[arbitrary case-insensitive reference text]: https://www.mozilla.org
-[1]: http://slashdot.org
+[arbitrary case-insensitive reference text]: https://www.mozilla.org/en-US/
+[1]: https://slashdot.org
 [link text itself]: https://www.reddit.com
 
 NOTE: **Note:** Relative links do not allow the referencing of project files in a wiki
@@ -1147,7 +1164,7 @@ GFM will autolink almost any URL you put into your text:
 
 ```markdown
 - https://www.google.com
-- https://google.com/
+- https://www.google.com
 - ftp://ftp.us.debian.org/debian/
 - smb://foo/bar/baz
 - irc://irc.freenode.net/
@@ -1155,7 +1172,7 @@ GFM will autolink almost any URL you put into your text:
 ```
 
 - <https://www.google.com>
-- <https://google.com/>
+- <https://www.google.com>
 - <ftp://ftp.us.debian.org/debian/>
 - <smb://foo/bar/baz>
 - <irc://irc.freenode.net/>
@@ -1305,7 +1322,7 @@ Example:
 
 ```markdown
 | header 1 | header 2 | header 3 |
-| ---      |  ------  |----------|
+| ---      |  ------  |---------:|
 | cell 1   | cell 2   | cell 3   |
 | cell 4 | cell 5 is longer | cell 6 is much longer than the others, but that's ok. It will eventually wrap the text when the cell is too large for the display size. |
 | cell 7   |          | cell <br> 9 |
@@ -1320,7 +1337,7 @@ Example:
 Additionally, you can choose the alignment of text within columns by adding colons (`:`)
 to the sides of the "dash" lines in the second row. This will affect every cell in the column.
 
-> Note that the headers are always right aligned [within GitLab itself](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/user/markdown.md#tables).
+> Note that the headers are always right aligned [within GitLab itself](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/user/markdown.md#tables).
 
 ```markdown
 | Left Aligned | Centered | Right Aligned | Left Aligned | Centered | Right Aligned |

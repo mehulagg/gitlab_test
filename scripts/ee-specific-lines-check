@@ -37,6 +37,6 @@ end
 
 remove_remotes
 
-say "ℹ️ For more information on why, see https://gitlab.com/gitlab-org/gitlab-ee/issues/2952"
+say "ℹ️ For more information on why, see https://gitlab.com/gitlab-org/gitlab/issues/2952"
 
 exit(offenses.size)

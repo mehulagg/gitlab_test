@@ -35,7 +35,10 @@ export default class ClusterStore {
       environmentsHelpPath: null,
       clustersHelpPath: null,
       deployBoardsHelpPath: null,
+      cloudRunHelpPath: null,
       status: null,
+      providerType: null,
+      preInstalledKnative: false,
       rbac: false,
       statusReason: null,
       applications: {
@@ -84,6 +87,7 @@ export default class ClusterStore {
         },
       },
       environments: [],
+      fetchingEnvironments: false,
     };
   }
 
@@ -94,6 +98,7 @@ export default class ClusterStore {
     environmentsHelpPath,
     clustersHelpPath,
     deployBoardsHelpPath,
+    cloudRunHelpPath,
   ) {
     this.state.helpPath = helpPath;
     this.state.ingressHelpPath = ingressHelpPath;
@@ -101,6 +106,7 @@ export default class ClusterStore {
     this.state.environmentsHelpPath = environmentsHelpPath;
     this.state.clustersHelpPath = clustersHelpPath;
     this.state.deployBoardsHelpPath = deployBoardsHelpPath;
+    this.state.cloudRunHelpPath = cloudRunHelpPath;
   }
 
   setManagePrometheusPath(managePrometheusPath) {
@@ -109,6 +115,14 @@ export default class ClusterStore {
 
   updateStatus(status) {
     this.state.status = status;
+  }
+
+  updateProviderType(providerType) {
+    this.state.providerType = providerType;
+  }
+
+  updatePreInstalledKnative(preInstalledKnative) {
+    this.state.preInstalledKnative = parseBoolean(preInstalledKnative);
   }
 
   updateRbac(rbac) {
@@ -206,6 +220,10 @@ export default class ClusterStore {
     });
   }
 
+  toggleFetchEnvironments(isFetching) {
+    this.state.fetchingEnvironments = isFetching;
+  }
+
   updateEnvironments(environments = []) {
     this.state.environments = environments.map(environment => ({
       name: environment.name,
@@ -213,9 +231,10 @@ export default class ClusterStore {
       environmentPath: environment.environment_path,
       lastDeployment: environment.last_deployment,
       rolloutStatus: {
+        status: environment.rollout_status ? environment.rollout_status.status : null,
         instances: environment.rollout_status ? environment.rollout_status.instances : [],
       },
-      updatedAt: environment.updatedAt,
+      updatedAt: environment.updated_at,
     }));
   }
 }

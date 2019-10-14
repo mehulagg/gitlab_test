@@ -8,10 +8,12 @@ class ApprovalProjectRule < ApplicationRecord
   enum rule_type: {
     regular: 0,
     code_owner: 1, # currently unused
-    report_approver: 2
+    report_approver: 2,
+    any_approver: 3
   }
 
   alias_method :code_owner, :code_owner?
+  validate :validate_default_license_report_name, on: :update, if: :report_approver?
 
   validates :name, uniqueness: { scope: :project_id }
 
@@ -45,5 +47,12 @@ class ApprovalProjectRule < ApplicationRecord
         rule_type: :report_approver,
         report_type: report_type
       )
+  end
+
+  def validate_default_license_report_name
+    return unless name_changed?
+    return unless name_was == ApprovalRuleLike::DEFAULT_NAME_FOR_LICENSE_REPORT
+
+    errors.add(:name, _("cannot be modified"))
   end
 end

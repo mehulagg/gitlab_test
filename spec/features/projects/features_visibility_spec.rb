@@ -211,14 +211,14 @@ describe 'Edit Project Settings' do
       visit activity_project_path(project)
 
       page.within(".event-filter") do
-        expect(page).to have_selector("a", count: 2)
+        expect(page).to have_content("All")
         expect(page).not_to have_content("Push events")
         expect(page).not_to have_content("Merge events")
         expect(page).not_to have_content("Comments")
       end
     end
 
-    # Regression spec for https://gitlab.com/gitlab-org/gitlab-ce/issues/25272
+    # Regression spec for https://gitlab.com/gitlab-org/gitlab-foss/issues/25272
     it "hides comments activity tab only on disabled issues, merge requests and repository" do
       toggle_feature_off('project[project_feature_attributes][issues_access_level]')
 
@@ -259,7 +259,7 @@ describe 'Edit Project Settings' do
     end
   end
 
-  # Regression spec for https://gitlab.com/gitlab-org/gitlab-ce/issues/24056
+  # Regression spec for https://gitlab.com/gitlab-org/gitlab-foss/issues/24056
   describe 'project statistic visibility' do
     let!(:project) { create(:project, :private) }
 
