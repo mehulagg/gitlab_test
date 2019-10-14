@@ -153,7 +153,7 @@ module EE
     end
 
     def has_dast_reports?
-      actual_head_pipeline&.has_reports?(::Ci::JobArtifact.sast_reports)
+      actual_head_pipeline&.has_reports?(::Ci::JobArtifact.dast_reports)
     end
 
     def compare_dast_reports(current_user)
