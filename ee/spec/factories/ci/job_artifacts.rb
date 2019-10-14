@@ -13,8 +13,8 @@ FactoryBot.define do
     end
 
     trait :dast do
-      file_type :dast
-      file_format :raw
+      file_format { :raw }
+      file_type { :dast }
 
       after(:build) do |artifact, evaluator|
         artifact.file = fixture_file_upload(
@@ -33,8 +33,8 @@ FactoryBot.define do
     end
 
     trait :dast_feature_branch do
-      file_format :raw
-      file_type :dast
+      file_format { :raw }
+      file_type { :dast }
 
       after(:build) do |artifact, _|
         artifact.file = fixture_file_upload(
@@ -43,8 +43,8 @@ FactoryBot.define do
     end
 
     trait :dast_with_corrupted_data do
-      file_type :dast
-      file_format :raw
+      file_format { :raw }
+      file_type { :dast }
 
       after(:build) do |artifact, evaluator|
         artifact.file = fixture_file_upload(
