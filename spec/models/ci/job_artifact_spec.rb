@@ -149,7 +149,10 @@ describe Ci::JobArtifact do
 
     let(:artifact_list) do
       described_class.all.map do |artifact|
-        [artifact.project_id, artifact.store_path, artifact.file_store, artifact.size]
+        described_class::ArtifactStatistics.new(
+          artifact.project_id, artifact.store_path,
+          artifact.file_store, artifact.size
+        )
       end
     end
 

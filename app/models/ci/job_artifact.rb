@@ -10,6 +10,7 @@ module Ci
     extend Gitlab::Ci::Model
 
     NotSupportedAdapterError = Class.new(StandardError)
+    ArtifactStatistics = Struct.new(:project_id, :store_path, :file_store, :size)
 
     TEST_REPORT_FILE_TYPES = %w[junit].freeze
     NON_ERASABLE_FILE_TYPES = %w[trace].freeze
@@ -171,17 +172,17 @@ module Ci
 
       def begin_fast_destroy
         preload(:project).find_each.map do |artifact|
-          [artifact.project_id, artifact.store_path, artifact.file_store, artifact.size]
+          ArtifactStatistics.new(artifact.project_id, artifact.store_path, artifact.file_store, artifact.size)
         end
       end
 
       def finalize_fast_destroy(params)
         params.each do |artifact_info|
           Ci::DeleteStoredArtifactsWorker.perform_async(
-            artifact_info[0], # project_id
-            artifact_info[1], # store_path
-            artifact_info[2], # file_store
-            artifact_info[3]  # size
+            artifact_info.project_id,
+            artifact_info.store_path,
+            artifact_info.file_store,
+            artifact_info.size
           )
         end
       end
