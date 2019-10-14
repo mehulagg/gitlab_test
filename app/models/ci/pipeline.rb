@@ -695,33 +695,46 @@ module Ci
       end
     end
 
+    # This method overrides Contextable#scoped_variables because Ci::Pipeline doesn't use it in exactly the way
+    # Ci::Build and Ci::Bridge do. This override could be eliminated if we refactor Contextable.
     def scoped_variables(environment: expanded_environment_name)
-      Gitlab::Ci::Variables::Collection.new.tap do |variables|
-        variables.concat(super)
-        variables.concat(gitlab_variables)
-        variables.concat(git_variables)
+      Gitlab::Ci::Variables::Collection.new.tap do |variables_list|
+        variables_list.concat(predefined_variables)
+        variables_list.concat(project.predefined_variables)
+
+        variables_list.concat(gitlab_variables)
+        variables_list.concat(git_variables)
+
+        # We might remove this entirely
+        variables_list.concat(project.deployment_variables(environment: environment)) if environment
+        variables_list.concat(user_variables)
+        variables_list.concat(secret_group_variables)
+        variables_list.concat(secret_project_variables(environment: environment))
+        variables_list.concat(last_trigger_request.user_variables) if last_trigger_request
+        variables_list.concat(variables)
+        variables_list.concat(pipeline_schedule.job_variables) if pipeline_schedule
       end
     end
 
     def predefined_variables
-      Gitlab::Ci::Variables::Collection.new.tap do |variables|
-        variables.append(key: 'CI_PIPELINE_IID', value: iid.to_s)
-        variables.append(key: 'CI_CONFIG_PATH', value: ci_yaml_file_path)
-        variables.append(key: 'CI_PIPELINE_SOURCE', value: source.to_s)
-        variables.append(key: 'CI_COMMIT_MESSAGE', value: git_commit_message.to_s)
-        variables.append(key: 'CI_COMMIT_TITLE', value: git_commit_full_title.to_s)
-        variables.append(key: 'CI_COMMIT_DESCRIPTION', value: git_commit_description.to_s)
-        variables.append(key: 'CI_COMMIT_REF_PROTECTED', value: (!!protected_ref?).to_s)
+      Gitlab::Ci::Variables::Collection.new.tap do |variables_list|
+        variables_list.append(key: 'CI_PIPELINE_IID', value: iid.to_s)
+        variables_list.append(key: 'CI_CONFIG_PATH', value: ci_yaml_file_path)
+        variables_list.append(key: 'CI_PIPELINE_SOURCE', value: source.to_s)
+        variables_list.append(key: 'CI_COMMIT_MESSAGE', value: git_commit_message.to_s)
+        variables_list.append(key: 'CI_COMMIT_TITLE', value: git_commit_full_title.to_s)
+        variables_list.append(key: 'CI_COMMIT_DESCRIPTION', value: git_commit_description.to_s)
+        variables_list.append(key: 'CI_COMMIT_REF_PROTECTED', value: (!!protected_ref?).to_s)
 
         if merge_request_event? && merge_request
-          variables.append(key: 'CI_MERGE_REQUEST_EVENT_TYPE', value: merge_request_event_type.to_s)
-          variables.append(key: 'CI_MERGE_REQUEST_SOURCE_BRANCH_SHA', value: source_sha.to_s)
-          variables.append(key: 'CI_MERGE_REQUEST_TARGET_BRANCH_SHA', value: target_sha.to_s)
-          variables.concat(merge_request.predefined_variables)
+          variables_list.append(key: 'CI_MERGE_REQUEST_EVENT_TYPE', value: merge_request_event_type.to_s)
+          variables_list.append(key: 'CI_MERGE_REQUEST_SOURCE_BRANCH_SHA', value: source_sha.to_s)
+          variables_list.append(key: 'CI_MERGE_REQUEST_TARGET_BRANCH_SHA', value: target_sha.to_s)
+          variables_list.concat(merge_request.predefined_variables)
         end
 
         if external_pull_request_event? && external_pull_request
-          variables.concat(external_pull_request.predefined_variables)
+          variables_list.concat(external_pull_request.predefined_variables)
         end
       end
     end
@@ -896,26 +909,12 @@ module Ci
     end
 
     def expanded_environment_name
-      strong_memoize(:expanded_environment_name) do
-        if last_env = environments.last
-          ExpandVariables.expand(last_env, -> { simple_variables })
-        else
-          nil
-        end
+    end
+
+    def last_trigger_request
+      strong_memoize(:last_trigger_request) do
+        trigger_requests.last
       end
-    end
-
-    def runnable?
-      false
-    end
-
-    # workflow:variables configuration would end up here
-    def yaml_variables
-      {}
-    end
-
-    def trigger_request
-      trigger_requests.last
     end
 
     private

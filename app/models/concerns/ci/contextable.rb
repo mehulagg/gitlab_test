@@ -117,9 +117,5 @@ module Ci
     def secret_project_variables(environment: persisted_environment)
       project.ci_variables_for(ref: git_ref, environment: environment)
     end
-
-    def pipeline
-      is_a?(Ci::Pipeline) ? self : super
-    end
   end
 end
