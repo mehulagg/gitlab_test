@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import createRouter from 'ee/security_dashboard/store/router';
+import projectSelector from 'ee/security_dashboard/store/plugins/project_selector';
 import syncWithRouter from 'ee/security_dashboard/store/plugins/sync_with_router';
 import createStore from 'ee/security_dashboard/store';
 import InstanceSecurityDashboard from 'ee/security_dashboard/components/instance_security_dashboard.vue';
@@ -11,14 +12,15 @@ if (gon.features && gon.features.securityDashboard) {
       dashboardDocumentation,
       emptyStateSvgPath,
       emptyDashboardStateSvgPath,
-      projectsEndpoint,
+      projectAddEndpoint,
+      projectListEndpoint,
       vulnerabilitiesCountEndpoint,
       vulnerabilitiesEndpoint,
       vulnerabilitiesHistoryEndpoint,
       vulnerabilityFeedbackHelpPath,
     } = el.dataset;
     const router = createRouter();
-    const store = createStore({ plugins: [syncWithRouter(router)] });
+    const store = createStore({ plugins: [projectSelector, syncWithRouter(router)] });
 
     return new Vue({
       el,
@@ -33,7 +35,8 @@ if (gon.features && gon.features.securityDashboard) {
             dashboardDocumentation,
             emptyStateSvgPath,
             emptyDashboardStateSvgPath,
-            projectsEndpoint,
+            projectAddEndpoint,
+            projectListEndpoint,
             vulnerabilitiesCountEndpoint,
             vulnerabilitiesEndpoint,
             vulnerabilitiesHistoryEndpoint,
