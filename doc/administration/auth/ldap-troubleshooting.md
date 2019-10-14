@@ -1,6 +1,6 @@
 # LDAP Troubleshooting for Administrators
 
-## Narrowing down the problem
+## Narrowing down the Problem
 
 To troubleshoot a specific error, go to [Errors](#errors).
 
@@ -16,10 +16,9 @@ be established and LDAP users can be found.
   If it doesn't, go to [Connection failures](#connection-failures).
   - If it successfully connects, the output [should also return up to
   100 users](../raketasks/ldap.md#check). Do you see them in the output? If
-  not, go to [LDAP check finds no users](#users-arent-found).
-  - Does it connect successfully, return users, but one or more users aren't
-    able to login with their LDAP credentials? If so, go to [User
-    login failures](#user-login-failures).
+  not, go to [LDAP users not found](#ldap-users-not-found).
+  - Does it connect successfully, return users, but one or more users
+  are denied access? If so, go to [Users cannot login](#users-cannot-login).
 
 **Users can login but they aren't getting access to a group**
 
@@ -29,7 +28,7 @@ Go to [Group Sync failures](#group-sync-failures).
 
 Go to [Admin/External access failures](#adminexternal-access-failures).
 
-## Common troubleshooting workflows
+## Common Troubleshooting Workflows
 
 ### Connection failures
 
@@ -40,7 +39,7 @@ Go to [Admin/External access failures](#adminexternal-access-failures).
 This section implies that a [connection to the LDAP server can be
 established](#narrowing-down-the-problem), but one or more users can't login.
 
-#### Users aren't found
+#### LDAP Users not found
 
 If [you've confirmed](#ldap-check) that a connection to LDAP can be
 established but GitLab doesn't show you LDAP users in the output, one of the
@@ -57,6 +56,8 @@ In this case, you con confirm which of the above is true using
 #### Users cannot login
 
 As the user tries to login, tail the logs to look for the failure.
+
+Also try a user sync (if on a paid install) to find errors
 
 Also see [Invalid credentials when logging in](#invalid-credentials-when-logging-in).
 
@@ -90,7 +91,7 @@ LdapSyncWorker.new.perform
   tree and traverse it.
 - Check that the `user_filter` is not blocking otherwise valid users.
 - Run [an LDAP check command](#ldap-check) to make sure that the LDAP settings
-  are correct and [GitLab can see your users](#users-arent-found).
+  are correct and [GitLab can see your users](#ldap-users-not-found).
 
 ### Email has already been taken
 
