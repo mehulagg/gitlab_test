@@ -920,14 +920,35 @@ describe Projects::FeatureFlagsController do
         }])
       end
 
-      it 'does not accept extra parameters in the strategy params' do
-        scope = create_scope(feature_flag, 'production', true, [{ name: 'default', parameters: {} }])
-        params = request_params(scope, [{ name: 'userWithId', parameters: { userIds: 'joe', groupId: 'default' } }])
+      context 'when feature_flag_api feature flag is enabled' do
+        before do
+          stub_feature_flags(feature_flag_api: true)
+        end
 
-        put(:update, params: params, format: :json, as: :json)
+        it 'accepts extra parameters in the strategy params' do
+          scope = create_scope(feature_flag, 'production', true, [{ name: 'default', parameters: {} }])
+          params = request_params(scope, [{ name: 'userWithId', parameters: { userIds: 'joe', groupId: 'default' } }])
 
-        expect(response).to have_gitlab_http_status(:bad_request)
-        expect(json_response['message']).to eq(["Scopes strategies parameters are invalid"])
+          put(:update, params: params, format: :json, as: :json)
+
+          expect(response).to have_gitlab_http_status(:ok)
+        end
+      end
+
+      context 'when feature_flag_api feature flag is disabled' do
+        before do
+          stub_feature_flags(feature_flag_api: false)
+        end
+
+        it 'does not accept extra parameters in the strategy params' do
+          scope = create_scope(feature_flag, 'production', true, [{ name: 'default', parameters: {} }])
+          params = request_params(scope, [{ name: 'userWithId', parameters: { userIds: 'joe', groupId: 'default' } }])
+
+          put(:update, params: params, format: :json, as: :json)
+
+          expect(response).to have_gitlab_http_status(:bad_request)
+          expect(json_response['message']).to eq(["Scopes strategies parameters are invalid"])
+        end
       end
     end
   end

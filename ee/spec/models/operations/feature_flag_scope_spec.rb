@@ -8,6 +8,10 @@ describe Operations::FeatureFlagScope do
   end
 
   describe 'validations' do
+    before do
+      stub_feature_flags(feature_flag_api: false)
+    end
+
     context 'when duplicate environment scope is going to be created' do
       let!(:existing_feature_flag_scope) do
         create(:operations_feature_flag_scope)
@@ -58,15 +62,6 @@ describe Operations::FeatureFlagScope do
         scope.save
 
         expect(scope.errors[:strategies]).to be_empty
-      end
-
-      it 'validates multiple strategies' do
-        feature_flag = create(:operations_feature_flag)
-        scope = described_class.create(feature_flag: feature_flag,
-                                       strategies: [{ name: "default", parameters: {} },
-                                                    { name: "invalid", parameters: {} }])
-
-        expect(scope.errors[:strategies]).not_to be_empty
       end
 
       where(:invalid_value) do
@@ -294,6 +289,53 @@ describe Operations::FeatureFlagScope do
             expect(scope.errors[:strategies]).to be_empty
           end
         end
+      end
+    end
+
+    context 'when feature_flag_api feature flag is enabled' do
+      before do
+        stub_feature_flags(feature_flag_api: true)
+      end
+
+      it 'disallows too many strategies' do
+        strategies = Array.new(51) { { name: 'default', parameters: {} } }
+        scope = build(:operations_feature_flag_scope, strategies: strategies )
+
+        expect(scope).not_to be_valid
+        expect(scope.errors[:strategies]).to include('cannot contain more than 50 strategies')
+      end
+
+      it 'disallows too long strategy name' do
+        strategies = [{ name: 'a' * 101, parameters: {} }]
+        scope = build(:operations_feature_flag_scope, strategies: strategies )
+
+        expect(scope).not_to be_valid
+        expect(scope.errors[:strategies]).to include('strategy name is too long')
+      end
+
+      it 'disallows too many keys in parameters' do
+        parameters = 31.times.with_object({}) { |i, h| h[i.to_s] = i.to_s }
+        strategies = [{ name: 'userWithId', parameters: parameters }]
+        scope = build(:operations_feature_flag_scope, strategies: strategies )
+
+        expect(scope).not_to be_valid
+        expect(scope.errors[:strategies]).to include('too many keys in a parameter')
+      end
+
+      it 'disallows too long key in parameters' do
+        strategies = [{ name: 'userWithId', parameters: { 'a' * 101 => 'ok' } }]
+        scope = build(:operations_feature_flag_scope, strategies: strategies )
+
+        expect(scope).not_to be_valid
+        expect(scope.errors[:strategies]).to include('too long key/value in a parameter')
+      end
+
+      it 'disallows too long value in parameters' do
+        strategies = [{ name: 'userWithId', parameters: { 'ok' => 'a' * 1001 } }]
+        scope = build(:operations_feature_flag_scope, strategies: strategies )
+
+        expect(scope).not_to be_valid
+        expect(scope.errors[:strategies]).to include('too long key/value in a parameter')
       end
     end
   end

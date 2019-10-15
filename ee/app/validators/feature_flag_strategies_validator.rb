@@ -11,26 +11,40 @@ class FeatureFlagStrategiesValidator < ActiveModel::EachValidator
     STRATEGY_USERWITHID => ['userIds'].freeze
   }.freeze
   USERID_MAX_LENGTH = 256
+  STRATEGY_NAME_MAX_LENGTH = 100
+  MAX_STRATEGY_COUNT = 50
+  MAX_PARAMETER_KEYS_COUNT = 30
+  MAX_PARAMETER_KEY_LENGTH = 100
+  MAX_PARAMETER_VALUE_LENGTH = 1000
 
   def validate_each(record, attribute, value)
     return unless value
 
-    if value.is_a?(Array) && value.all? { |s| s.is_a?(Hash) }
-      value.each do |strategy|
-        strategy_validations(record, attribute, strategy)
-      end
-    else
-      error(record, attribute, 'must be an array of strategy hashes')
+    unless value.is_a?(Array) && value.all? { |s| s.is_a?(Hash) }
+      return error(record, attribute, 'must be an array of strategy hashes')
+    end
+
+    unless value.length <= MAX_STRATEGY_COUNT
+      return error(record, attribute, "cannot contain more than #{MAX_STRATEGY_COUNT} strategies")
+    end
+
+    value.each do |strategy|
+      strategy_validations(record, attribute, strategy)
     end
   end
 
   private
 
   def strategy_validations(record, attribute, strategy)
-    validate_name(record, attribute, strategy) &&
-    validate_parameters_type(record, attribute, strategy) &&
-    validate_parameters_keys(record, attribute, strategy) &&
-    validate_parameters_values(record, attribute, strategy)
+    if Feature.enabled?(:feature_flag_api, record.feature_flag&.project)
+      validate_name_length(record, attribute, strategy) &&
+        validate_parameters_format(record, attribute, strategy)
+    else
+      validate_name(record, attribute, strategy) &&
+        validate_parameters_type(record, attribute, strategy) &&
+        validate_parameters_keys(record, attribute, strategy) &&
+        validate_parameters_values(record, attribute, strategy)
+    end
   end
 
   def validate_name(record, attribute, strategy)
@@ -39,6 +53,26 @@ class FeatureFlagStrategiesValidator < ActiveModel::EachValidator
 
   def validate_parameters_type(record, attribute, strategy)
     strategy['parameters'].is_a?(Hash) || error(record, attribute, 'parameters are invalid')
+  end
+
+  def validate_name_length(record, attribute, strategy)
+    strategy['name'].length < STRATEGY_NAME_MAX_LENGTH || error(record, attribute, 'strategy name is too long')
+  end
+
+  def validate_parameters_format(record, attribute, strategy)
+    unless strategy['parameters'].is_a?(Hash)
+      return error(record, attribute, 'parameters is not hash')
+    end
+
+    unless strategy['parameters'].keys.length < MAX_PARAMETER_KEYS_COUNT
+      return error(record, attribute, 'too many keys in a parameter')
+    end
+
+    unless strategy['parameters'].all? { |key, value| key.length < MAX_PARAMETER_KEY_LENGTH && value.length < MAX_PARAMETER_VALUE_LENGTH }
+      return error(record, attribute, 'too long key/value in a parameter')
+    end
+
+    true
   end
 
   def validate_parameters_keys(record, attribute, strategy)
