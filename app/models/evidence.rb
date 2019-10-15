@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Evidence < ApplicationRecord
-  belongs_to :release, optional: false
+  belongs_to :release
 
   before_validation :generate_summary
 
@@ -20,6 +20,6 @@ class Evidence < ApplicationRecord
   private
 
   def generate_summary
-    self.summary = Evidences::EvidenceSerializer.new.represent(self) # rubocop: disable CodeReuse/Serializer
+    self.summary = Evidences::CreateService.new(self).generate_summary
   end
 end
