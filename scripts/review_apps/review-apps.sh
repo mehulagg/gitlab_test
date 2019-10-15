@@ -307,3 +307,5 @@ function add_license() {
     puts "License added";
     '
 }
+
+# Trigger pipeline
