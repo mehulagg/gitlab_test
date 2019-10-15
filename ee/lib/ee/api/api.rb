@@ -55,6 +55,7 @@ module EE
         mount ::API::Analytics::CodeReviewAnalytics
         mount ::API::Analytics::GroupActivityAnalytics
         mount ::API::ProtectedEnvironments
+        mount ::API::ElasticsearchIndices
 
         version 'v3', using: :path do
           # Although the following endpoints are kept behind V3 namespace,

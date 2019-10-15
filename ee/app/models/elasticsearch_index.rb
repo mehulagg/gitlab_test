@@ -3,17 +3,23 @@
 require 'csv'
 
 class ElasticsearchIndex < ApplicationRecord
-  validates :shards, :replicas, :name, :friendly_name, :version, presence: true
+  LATEST_VERSION = 'V12p1'.freeze
+
+  include Sortable
+
+  validates :name, :friendly_name, :version, :shards, :replicas, presence: true
+  validates :name, :friendly_name, uniqueness: { case_sensitive: false }
   validates :shards, :replicas, numericality: { only_integer: true, greater_than: 0 }
-  validates :name, :friendly_name, uniqueness: true
+
+  validates :urls, length: { minimum: 1, message: :blank }
+  validates :urls, length: { maximum: 1000, message: _('is too long (maximum is 1000 entries)') }
+  validate :validate_addressable_urls
+
   validates :aws_region,
     presence: { message: _("can't be blank when using AWS hosted Elasticsearch") },
     if: :aws?
-  validates :urls,
-    qualified_domain_array: true,
-    length: { maximum: 1_000, message: N_('is too long (maximum is 1000 entries)') }
 
-  attr_readonly :shards, :replicas
+  attr_readonly :name, :version, :shards, :replicas
 
   attr_encrypted :aws_secret_access_key,
     mode: :per_attribute_iv,
@@ -21,12 +27,14 @@ class ElasticsearchIndex < ApplicationRecord
     algorithm: 'aes-256-gcm',
     encode: true
 
-  def urls_as_csv
-    urls.to_csv(row_sep: nil)
-  end
+  before_validation :set_version
+  before_validation :build_name
 
-  def urls_as_csv=(values)
-    self.urls = values.parse_csv.map {|url| url.strip.gsub(%r{/*\z}, '') }
+  def urls=(values)
+    values = values.split(',') if values.is_a?(String)
+    values = values.map { |url| url.strip.gsub(%r{/*\z}, '') }
+
+    super(values)
   end
 
   def connection_config
@@ -35,5 +43,30 @@ class ElasticsearchIndex < ApplicationRecord
 
   def client
     ::Gitlab::Elastic::Client.cached(self)
+  end
+
+  private
+
+  def validate_addressable_urls
+    return unless urls.present?
+
+    validator = AddressableUrlValidator.new(attributes: [:urls])
+
+    urls.each do |url|
+      validator.validate_each(self, :urls, url)
+    end
+  end
+
+  def set_version
+    self.version ||= LATEST_VERSION
+  end
+
+  def build_name
+    return unless version?
+
+    # Allow multiple indices with the same version, by adding a random string
+    salt = SecureRandom.hex(4)
+
+    self.name ||= [Rails.application.class.parent_name.downcase, Rails.env, version.downcase, salt].join('-')
   end
 end
