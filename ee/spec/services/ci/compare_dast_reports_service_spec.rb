@@ -21,7 +21,8 @@ describe Ci::CompareDastReportsService do
 
       it 'reports new vulnerabilities' do
         expect(subject[:status]).to eq(:parsed)
-        expect(subject[:data]['added'].count).to eq(33)
+        expect(subject[:data]['added'].first['identifiers']).to include(a_hash_including('name' => 'CWE-16'))
+        expect(subject[:data]['added'].count).to eq(2)
         expect(subject[:data]['existing'].count).to eq(0)
         expect(subject[:data]['fixed'].count).to eq(0)
       end
@@ -46,18 +47,16 @@ describe Ci::CompareDastReportsService do
 
       it 'reports new vulnerability' do
         expect(subject[:data]['added'].count).to eq(1)
-        expect(subject[:data]['added'].first['identifiers']).to include(a_hash_including('name' => 'CWE-120'))
+        expect(subject[:data]['added'].first['identifiers']).to include(a_hash_including('name' => 'CWE-352'))
       end
 
-      it 'reports existing dast vulnerabilities' do
-        expect(subject[:data]['existing'].count).to eq(29)
+      it 'all existing vulnerabilities should get resolved' do
+        expect(subject[:data]['existing'].count).to eq(0)
       end
 
       it 'reports fixed dast vulnerabilities' do
-        expect(subject[:data]['fixed'].count).to eq(4)
-        compare_keys = subject[:data]['fixed'].map { |t| t['identifiers'].first['external_id'] }
-        expected_keys = %w(char fopen strcpy char)
-        expect(compare_keys - expected_keys).to eq([])
+        expect(subject[:data]['fixed'].count).to eq(2)
+        expect(subject[:data]['fixed'].first['identifiers']).to include(a_hash_including('name' => 'CWE-16'))
       end
     end
   end
