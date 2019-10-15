@@ -9,7 +9,16 @@ created in snippets, wikis, and repos.
 ## PlantUML Server
 
 Before you can enable PlantUML in GitLab; you need to set up your own PlantUML
-server that will generate the diagrams.
+server that will generate the diagrams or use the public server maintained by
+GitLab..
+
+### Public Server
+
+GitLab maintains a public PlantUML server that can be used by any GitLab
+instance that allows clients to connect to the public internet. **Please
+note that by using GitLab's PlantUML endpoint, diagrams on your private
+server will be shared with GitLab**. The public PlantUML endpoint is
+https://plantuml.gitlab-static.net
 
 ### Docker
 
@@ -83,7 +92,8 @@ that, login with an Admin account and do following:
 - In GitLab, go to **Admin Area > Settings > Integrations**.
 - Expand the **PlantUML** section.
 - Check **Enable PlantUML** checkbox.
-- Set the PlantUML instance as `https://gitlab.example.com/-/plantuml/`.
+- Set the PlantUML instance as `https://gitlab.example.com/-/plantuml/` or
+  `https://plantuml.gitlab-static.net` for GitLab's public PlantUML server.
 
 ## Creating Diagrams
 
