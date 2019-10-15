@@ -12,6 +12,7 @@ class Projects::FeatureFlagsController < Projects::ApplicationController
 
   before_action do
     push_frontend_feature_flag(:feature_flag_permissions)
+    push_frontend_feature_flag(:feature_flag_user_with_id) # TODO: FE should hide the interface in ee/app/assets/javascripts/feature_flags/components/strategies/user_with_id.vue
   end
 
   def index
