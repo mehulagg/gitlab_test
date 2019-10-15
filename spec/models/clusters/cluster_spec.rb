@@ -304,6 +304,76 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
         end
       end
     end
+
+    describe 'management_project namespace validation' do
+      context 'group cluster' do
+        let_it_be(:group) { create(:group) }
+        let(:cluster) { create(:cluster_for_group, groups: [group]) }
+
+        it 'allows a management project under the group hierarchy' do
+          cluster.management_project = create(:project, group: group)
+
+          expect(cluster).to be_valid
+        end
+
+        it 'rejects a management project outside of the group hierarchy' do
+          cluster.management_project = create(:project)
+
+          expect(cluster).not_to be_valid
+          expect(cluster.errors[:management_project]).to include('not in group hierarchy of cluster')
+        end
+
+        context 'cluster in nested group' do
+          let(:child_group) { create(:group, parent: group) }
+          let(:cluster) { create(:cluster_for_group, groups: [child_group]) }
+
+          it 'rejects a management project above the group hierarchy' do
+            cluster.management_project = create(:project, group: group)
+
+            expect(cluster).not_to be_valid
+            expect(cluster.errors[:management_project]).to include('not in group hierarchy of cluster')
+          end
+
+          it 'allows a management project under the group hierarchy' do
+            cluster.management_project = create(:project, group: child_group)
+
+            expect(cluster).to be_valid
+          end
+
+          it 'allows a management project under the group hierarchy' do
+            nested_group = create(:group, parent: child_group)
+            cluster.management_project = create(:project, group: nested_group)
+
+            expect(cluster).to be_valid
+          end
+
+          it 'rejects a management project outside of the group hierarchy' do
+            cluster.management_project = create(:project)
+
+            expect(cluster).not_to be_valid
+            expect(cluster.errors[:management_project]).to include('not in group hierarchy of cluster')
+          end
+        end
+      end
+
+      context 'project cluster' do
+        let_it_be(:project) { create(:project) }
+        let(:cluster) { create(:cluster, projects: [project]) }
+
+        it 'allows a management project under the same namespace' do
+          cluster.management_project = create(:project, namespace: project.namespace)
+
+          expect(cluster).to be_valid
+        end
+
+        it 'rejects a management project outside of namespace' do
+          cluster.management_project = create(:project)
+
+          expect(cluster).not_to be_valid
+          expect(cluster.errors[:management_project]).to include('not in group hierarchy of cluster')
+        end
+      end
+    end
   end
 
   describe '.ancestor_clusters_for_clusterable' do

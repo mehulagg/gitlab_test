@@ -65,6 +65,7 @@ module Clusters
     validate :no_groups, unless: :group_type?
     validate :no_projects, unless: :project_type?
     validate :unique_management_project_environment_scope
+    validate :management_project_within_group_hierarchy
 
     after_save :clear_reactive_cache!
 
@@ -212,6 +213,20 @@ module Clusters
       if duplicate_management_clusters.any?
         errors.add(:environment_scope, "cannot add duplicated environment scope")
       end
+    end
+
+    def management_project_within_group_hierarchy
+      return if management_project.nil?
+      return if instance_type?
+
+      hierarchy =
+        if group_type?
+          first_group.self_and_descendants
+        elsif project_type?
+          first_project.namespace.self_and_descendants
+        end
+
+      errors.add(:management_project, 'not in group hierarchy of cluster') unless hierarchy.include?(management_project.namespace)
     end
 
     def instance_domain
