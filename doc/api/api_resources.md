@@ -114,6 +114,7 @@ The following API resources are available outside of project and group contexts 
 | [Code snippets](snippets.md)                      | `/snippets`                                                             |
 | [Custom attributes](custom_attributes.md)         | `/users/:id/custom_attributes` (also available for groups and projects) |
 | [Deploy keys](deploy_keys.md)                     | `/deploy_keys` (also available for projects)                            |
+| [Elasticsearch indices](elasticsearch_indices.md) **(STARTER)** | `/elasticsearch_indices`                                  |
 | [Events](events.md)                               | `/events`, `/users/:id/events` (also available for projects)            |
 | [Feature flags](features.md)                      | `/features`                                                             |
 | [Geo Nodes](geo_nodes.md) **(PREMIUM ONLY)**      | `/geo_nodes`                                                            |

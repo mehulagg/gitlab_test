@@ -3056,6 +3056,9 @@ msgstr ""
 msgid "Can override approvers and approvals required per merge request"
 msgstr ""
 
+msgid "Can't delete the active search source"
+msgstr ""
+
 msgid "Can't find HEAD commit for this branch"
 msgstr ""
 
@@ -7354,6 +7357,12 @@ msgid "Error uploading file"
 msgstr ""
 
 msgid "Error uploading file: %{stripped}"
+msgstr ""
+
+msgid "Error while creating Elasticsearch index, please check your configuration (%{type}: %{message})"
+msgstr ""
+
+msgid "Error while deleting Elasticsearch index, please check your configuration (%{type}: %{message})"
 msgstr ""
 
 msgid "Error while loading the merge request. Please try again."

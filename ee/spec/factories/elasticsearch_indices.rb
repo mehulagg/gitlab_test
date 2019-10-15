@@ -5,9 +5,7 @@ FactoryBot.define do
     shards { 14 }
     replicas { 7 }
     aws { false }
-    name { generate(:title) }
     friendly_name { generate(:title) }
-    version { 'V12p1' }
 
     # In CI we want to use the URL passed down from the environment
     urls { [ENV['ELASTIC_URL'] || 'http://localhost:9200'] }
