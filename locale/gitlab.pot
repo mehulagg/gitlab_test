@@ -2946,6 +2946,9 @@ msgstr ""
 msgid "Changes won't take place until the index is %{link_start}recreated%{link_end}."
 msgstr ""
 
+msgid "Changing group path can have unintended side effects."
+msgstr ""
+
 msgid "Charts"
 msgstr ""
 
@@ -3343,9 +3346,6 @@ msgid "Closed this %{quick_action_target}."
 msgstr ""
 
 msgid "Closes this %{quick_action_target}."
-msgstr ""
-
-msgid "Cluster %{cluster} was used."
 msgstr ""
 
 msgid "Cluster Health"
@@ -4618,6 +4618,9 @@ msgstr ""
 msgid "Create a GitLab account first, and then connect it to your %{label} account."
 msgstr ""
 
+msgid "Create a Mattermost team for this group"
+msgstr ""
+
 msgid "Create a local proxy for storing frequently used upstream images. %{link_start}Learn more%{link_end} about dependency proxies."
 msgstr ""
 
@@ -5442,6 +5445,9 @@ msgstr ""
 msgid "DesignManagement|An error occurred while loading designs. Please try again."
 msgstr ""
 
+msgid "DesignManagement|Are you sure you want to delete the selected designs?"
+msgstr ""
+
 msgid "DesignManagement|Could not add a new comment. Please try again"
 msgstr ""
 
@@ -5449,6 +5455,18 @@ msgid "DesignManagement|Could not create new discussion, please try again."
 msgstr ""
 
 msgid "DesignManagement|Could not find design, please try again."
+msgstr ""
+
+msgid "DesignManagement|Delete"
+msgstr ""
+
+msgid "DesignManagement|Delete designs confirmation"
+msgstr ""
+
+msgid "DesignManagement|Delete selected"
+msgstr ""
+
+msgid "DesignManagement|Deselect all"
 msgstr ""
 
 msgid "DesignManagement|Error uploading a new design. Please try again"
@@ -5469,6 +5487,9 @@ msgstr ""
 msgid "DesignManagement|Requested design version does not exist. Showing latest version instead"
 msgstr ""
 
+msgid "DesignManagement|Select all"
+msgstr ""
+
 msgid "DesignManagement|The maximum number of designs allowed to be uploaded is %{upload_limit}. Please try again."
 msgstr ""
 
@@ -5476,6 +5497,9 @@ msgid "DesignManagement|The one place for your designs"
 msgstr ""
 
 msgid "DesignManagement|Upload and view the latest designs for this issue. Consistent and easy to find, so everyone is up to date."
+msgstr ""
+
+msgid "DesignManagement|We could not delete design(s). Please try again."
 msgstr ""
 
 msgid "Designs"
@@ -8249,6 +8273,15 @@ msgstr ""
 msgid "GroupSettings|Badges"
 msgstr ""
 
+msgid "GroupSettings|Be careful. Changing a group's parent can have unintended %{side_effects_link_start}side effects%{side_effects_link_end}."
+msgstr ""
+
+msgid "GroupSettings|Change group path"
+msgstr ""
+
+msgid "GroupSettings|Changing group path can have unintended side effects."
+msgstr ""
+
 msgid "GroupSettings|Custom project templates"
 msgstr ""
 
@@ -8261,6 +8294,9 @@ msgstr ""
 msgid "GroupSettings|Disable email notifications"
 msgstr ""
 
+msgid "GroupSettings|If the parent group's visibility is lower than the group current visibility, visibility levels for subgroups and projects will be changed to match the new parent group's visibility."
+msgstr ""
+
 msgid "GroupSettings|Learn more about badges."
 msgstr ""
 
@@ -8271,6 +8307,9 @@ msgid "GroupSettings|New runners registration token has been generated!"
 msgstr ""
 
 msgid "GroupSettings|Pipeline settings was updated for the group"
+msgstr ""
+
+msgid "GroupSettings|Please choose a group path with no special characters."
 msgstr ""
 
 msgid "GroupSettings|Prevent sharing a project within %{group} with other groups"
@@ -8301,6 +8340,15 @@ msgid "GroupSettings|This setting will be applied to all subgroups unless overri
 msgstr ""
 
 msgid "GroupSettings|This setting will override user notification preferences for all members of the group, subgroups, and projects."
+msgstr ""
+
+msgid "GroupSettings|Transfer group"
+msgstr ""
+
+msgid "GroupSettings|You can only transfer the group to a group you manage."
+msgstr ""
+
+msgid "GroupSettings|You will need to update your local repositories to point to the new location."
 msgstr ""
 
 msgid "GroupSettings|cannot be disabled when the parent group \"Share with group lock\" is enabled, except by the owner of the parent group"
@@ -11906,6 +11954,9 @@ msgstr ""
 msgid "Please try again"
 msgstr ""
 
+msgid "Please type %{phrase_code} to proceed or close this modal to cancel."
+msgstr ""
+
 msgid "Please upgrade PostgreSQL to version 9.6 or greater. The status of the replication cannot be determined reliably with the current version."
 msgstr ""
 
@@ -13055,10 +13106,10 @@ msgstr ""
 msgid "ProtectedBranch|Allowed to push:"
 msgstr ""
 
-msgid "ProtectedBranch|Code owner approval"
+msgid "ProtectedBranch|Branch"
 msgstr ""
 
-msgid "ProtectedBranch|Last commit"
+msgid "ProtectedBranch|Code owner approval"
 msgstr ""
 
 msgid "ProtectedBranch|Protect"
@@ -14334,6 +14385,9 @@ msgid "Security Reports|Dismiss vulnerability"
 msgstr ""
 
 msgid "Security Reports|Dismissed '%{vulnerabilityName}'"
+msgstr ""
+
+msgid "Security Reports|Dismissed '%{vulnerabilityName}'. Turn off the hide dismissed toggle to view."
 msgstr ""
 
 msgid "Security Reports|Either you don't have permission to view this dashboard or the dashboard has not been setup. Please check your permission settings with your administrator or check your dashboard configurations to proceed."
@@ -16629,19 +16683,34 @@ msgstr ""
 msgid "This job has not started yet"
 msgstr ""
 
+msgid "This job is an out-of-date deployment to %{environmentLink} using cluster %{clusterNameOrLink}."
+msgstr ""
+
+msgid "This job is an out-of-date deployment to %{environmentLink} using cluster %{clusterNameOrLink}. View the %{deploymentLink}."
+msgstr ""
+
 msgid "This job is an out-of-date deployment to %{environmentLink}."
 msgstr ""
 
-msgid "This job is an out-of-date deployment to %{environmentLink}. View the most recent deployment %{deploymentLink}."
+msgid "This job is an out-of-date deployment to %{environmentLink}. View the %{deploymentLink}."
 msgstr ""
 
 msgid "This job is archived. Only the complete pipeline can be retried."
 msgstr ""
 
-msgid "This job is creating a deployment to %{environmentLink} and will overwrite the %{deploymentLink}."
+msgid "This job is creating a deployment to %{environmentLink} using cluster %{clusterNameOrLink}. This will overwrite the %{deploymentLink}."
 msgstr ""
 
 msgid "This job is creating a deployment to %{environmentLink}."
+msgstr ""
+
+msgid "This job is creating a deployment to %{environmentLink}. This will overwrite the %{deploymentLink}."
+msgstr ""
+
+msgid "This job is deployed to %{environmentLink} using cluster %{clusterNameOrLink}."
+msgstr ""
+
+msgid "This job is deployed to %{environmentLink}."
 msgstr ""
 
 msgid "This job is in pending state and is waiting to be picked by a runner"
@@ -16657,9 +16726,6 @@ msgid "This job is stuck because you don't have any active runners online with a
 msgstr ""
 
 msgid "This job is stuck because you don't have any active runners that can run this job."
-msgstr ""
-
-msgid "This job is the most recent deployment to %{link}."
 msgstr ""
 
 msgid "This job requires a manual action"
@@ -19678,6 +19744,9 @@ msgid "milestone should belong either to a project or a group."
 msgstr ""
 
 msgid "missing"
+msgstr ""
+
+msgid "most recent deployment"
 msgstr ""
 
 msgid "mrWidgetCommitsAdded|%{commitCount} and %{mergeCommitCount} will be added to %{targetBranch}."
