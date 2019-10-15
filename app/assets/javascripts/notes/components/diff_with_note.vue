@@ -7,6 +7,8 @@ import ImageDiffOverlay from '~/diffs/components/image_diff_overlay.vue';
 import { GlSkeletonLoading } from '@gitlab/ui';
 import { getDiffMode } from '~/diffs/store/utils';
 import { diffViewerModes } from '~/ide/constants';
+import DesignImage from '~/vue_shared/components/design_image/image.vue';
+import DesignOverlay from '~/vue_shared/components/design_image/design_overlay.vue';
 
 const FIRST_CHAR_REGEX = /^(\+|-| )/;
 
@@ -16,6 +18,8 @@ export default {
     GlSkeletonLoading,
     DiffViewer,
     ImageDiffOverlay,
+    DesignImage,
+    DesignOverlay,
   },
   props: {
     discussion: {
@@ -26,6 +30,11 @@ export default {
   data() {
     return {
       error: false,
+      annotationCoordinates: null,
+      overlayDimensions: {
+        width: 0,
+        height: 0,
+      },
     };
   },
   computed: {
@@ -76,6 +85,10 @@ export default {
     },
     trimChar(line) {
       return line.replace(FIRST_CHAR_REGEX, '');
+    },
+    setOverlayDimensions(position) {
+      this.overlayDimensions.width = position.width;
+      this.overlayDimensions.height = position.height;
     },
   },
   userColorSchemeClass: window.gon.user_color_scheme,
@@ -128,7 +141,11 @@ export default {
       </table>
     </div>
     <div v-else-if="isDesignImage">
-      DESIGN IMAGE
+      <design-image
+        :image="discussion.diff_file.new_file_url"
+        :name="discussion.diff_file.blob.name"
+        @setOverlayDimensions="setOverlayDimensions"
+      />
       <slot></slot>
     </div>
     <div v-else>
