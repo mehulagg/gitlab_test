@@ -146,6 +146,7 @@ export default {
         :name="discussion.diff_file.blob.name"
         @setOverlayDimensions="setOverlayDimensions"
       />
+      <design-overlay :position="overlayDimensions" :notes="discussion.notes" />
       <slot></slot>
     </div>
     <div v-else>
