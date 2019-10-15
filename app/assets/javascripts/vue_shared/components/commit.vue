@@ -107,7 +107,7 @@ export default {
     },
 
     /**
-     * Indicates whether or not to show the commit title
+     * Indicates whether the parent component says the commit title should be shown
      */
     showTitle: {
       type: Boolean,
@@ -121,6 +121,13 @@ export default {
      */
     shouldShowRefInfo() {
       return this.showRefInfo && (this.commitRef || this.mergeRequestRef);
+    },
+
+    /**
+     * Determines if we should render the commit title
+     */
+    shouldShowTitle() {
+      return this.showTitle && this.title;
     },
 
     /**
@@ -177,9 +184,10 @@ export default {
 
     <gl-link :href="commitUrl" class="commit-sha mr-0">{{ shortSha }}</gl-link>
 
-    <span class="commit-title" :class="{ 'flex-truncate-parent': showTitle }">
-      <span v-if="title || !showTitle" class="flex-truncate-child">
-        <span v-if="!showTitle" class="append-right-4">{{ __('by') }}</span>
+    <span class="commit-title" :class="{ 'flex-truncate-parent': shouldShowTitle }">
+      <span v-if="title" class="flex-truncate-child">
+        <span v-if="!shouldShowTitle" class="append-right-4">{{ __('by') }}</span>
+
         <user-avatar-link
           v-if="hasAuthor"
           :link-href="author.path"
@@ -188,12 +196,12 @@ export default {
           :tooltip-text="author.username"
           class="avatar-image-container text-decoration-none"
         />
-        <span v-if="showTitle">
-          <tooltip-on-truncate :title="title">
-            <gl-link :href="commitUrl" class="commit-row-message cgray">{{ title }}</gl-link>
-          </tooltip-on-truncate>
-        </span>
+
+        <tooltip-on-truncate v-if="shouldShowTitle" :title="title">
+          <gl-link :href="commitUrl" class="commit-row-message cgray">{{ title }}</gl-link>
+        </tooltip-on-truncate>
       </span>
+
       <span v-else>{{ __("Can't find HEAD commit for this branch") }}</span>
     </span>
   </div>

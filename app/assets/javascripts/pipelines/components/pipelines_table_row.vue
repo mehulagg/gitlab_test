@@ -11,6 +11,7 @@ import PipelinesTimeago from './time_ago.vue';
 import CommitComponent from '../../vue_shared/components/commit.vue';
 import LoadingButton from '../../vue_shared/components/loading_button.vue';
 import Icon from '../../vue_shared/components/icon.vue';
+import bp from '~/breakpoints';
 import { PIPELINES_TABLE } from '../constants';
 
 /**
@@ -60,6 +61,7 @@ export default {
   data() {
     return {
       isRetrying: false,
+      breakpoint: null,
     };
   },
   computed: {
@@ -242,13 +244,29 @@ export default {
     isCancelling() {
       return this.cancelingPipeline === this.pipeline.id;
     },
+
+    shouldShowMoreInformation() {
+      return ['xs', 'lg'].includes(this.breakpoint);
+    },
   },
   watch: {
     pipeline() {
       this.isRetrying = false;
     },
   },
+  created() {
+    window.addEventListener('resize', this.onResize);
+  },
+  mounted() {
+    this.onResize();
+  },
+  destroyed() {
+    window.removeEventListener('resize', this.onResize);
+  },
   methods: {
+    onResize() {
+      this.breakpoint = bp.getBreakpointSize();
+    },
     handleCancelClick() {
       eventHub.$emit('openConfirmationModal', {
         pipeline: this.pipeline,
@@ -268,15 +286,8 @@ export default {
       <div class="table-mobile-header" role="rowheader">{{ s__('Pipeline|Status') }}</div>
       <div class="table-mobile-content">
         <ci-badge
-          class="d-none d-md-inline d-xl-none"
           :status="pipelineStatus"
-          :show-text="false"
-          data-qa-selector="pipeline_commit_status"
-        />
-        <ci-badge
-          class="d-md-none d-xl-inline"
-          :status="pipelineStatus"
-          :show-text="!isChildView"
+          :show-text="!isChildView && shouldShowMoreInformation"
           data-qa-selector="pipeline_commit_status"
         />
       </div>
@@ -289,24 +300,13 @@ export default {
       <div class="table-mobile-header" role="rowheader">{{ s__('Pipeline|Commit') }}</div>
       <div class="table-mobile-content">
         <commit-component
-          class="d-none d-md-inline d-xl-none"
-          :tag="commitTag"
-          :commit-ref="commitRef"
-          :commit-url="commitUrl"
-          :merge-request-ref="pipeline.merge_request"
-          :short-sha="commitShortSha"
-          :show-title="false"
-          :author="commitAuthor"
-          :show-ref-info="!isChildView"
-        />
-        <commit-component
-          class="d-md-none d-xl-inline"
           :tag="commitTag"
           :commit-ref="commitRef"
           :commit-url="commitUrl"
           :merge-request-ref="pipeline.merge_request"
           :short-sha="commitShortSha"
           :title="commitTitle"
+          :show-title="shouldShowMoreInformation"
           :author="commitAuthor"
           :show-ref-info="!isChildView"
         />
@@ -336,7 +336,8 @@ export default {
 
     <pipelines-actions-wrapper
       v-if="displayPipelineActions"
-      class="table-section section-20 table-button-footer pipeline-actions position-relative"
+      :show-all-without-toggle="shouldShowMoreInformation"
+      class="table-section section-20 table-button-footer pipeline-actions"
     >
       <template #action-buttons>
         <pipelines-actions-component v-if="actions.length > 0" :actions="actions" />

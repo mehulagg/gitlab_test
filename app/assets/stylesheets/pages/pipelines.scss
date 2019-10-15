@@ -67,12 +67,6 @@
     }
 
     .pipeline-actions {
-      .action-buttons-toggleable {
-        position: absolute;
-        right: 0;
-        top: -$gl-padding;
-      }
-
       .btn-default {
         color: $gl-text-color-secondary;
       }

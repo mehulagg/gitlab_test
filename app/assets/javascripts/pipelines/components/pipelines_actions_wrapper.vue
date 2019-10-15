@@ -1,51 +1,60 @@
 <script>
-import { GlTooltipDirective } from '@gitlab/ui';
-import Icon from '../../vue_shared/components/icon.vue';
+import { GlButton, GlTooltipDirective } from '@gitlab/ui';
+import Icon from '~/vue_shared/components/icon.vue';
 
 export default {
   components: {
+    GlButton,
     Icon,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
   },
+  props: {
+    showAllWithoutToggle: {
+      type: Boolean,
+      required: true,
+    },
+  },
   data() {
     return {
-      showActionButtons: false,
+      expanded: false,
     };
   },
+  computed: {
+    shouldShowButtons() {
+      return this.showAllWithoutToggle || this.expanded;
+    },
+    shouldShowToggle() {
+      return !this.showAllWithoutToggle;
+    },
+  },
   methods: {
-    toggleActionButtons() {
+    handleToggleClick() {
       this.$nextTick(() => {
         this.$root.$emit('bv::hide::tooltip');
       });
 
-      this.showActionButtons = !this.showActionButtons;
+      this.expanded = !this.expanded;
     },
   },
 };
 </script>
 <template>
   <div>
-    <div
-      class="btn-group table-action-buttons action-buttons-expanded d-flex d-md-none d-xl-inline-flex"
-    >
-      <slot name="action-buttons"></slot>
-    </div>
+    <div class="btn-group table-action-buttons">
+      <slot v-if="shouldShowButtons" name="action-buttons"></slot>
 
-    <div
-      class="btn-group table-action-buttons action-buttons-toggleable d-none d-md-inline-flex d-xl-none"
-    >
-      <slot v-if="showActionButtons" name="action-buttons"></slot>
-      <button
+      <gl-button
+        v-if="shouldShowToggle"
         v-gl-tooltip
         type="button"
-        title="Actions"
+        :title="__('Actions')"
         class="pipeline-action-button more-actions-toggle btn btn-transparent"
-        @click="toggleActionButtons"
+        @click="handleToggleClick"
       >
         <icon css-classes="icon" name="ellipsis_v" />
-      </button>
+      </gl-button>
     </div>
   </div>
 </template>
