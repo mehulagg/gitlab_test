@@ -129,6 +129,7 @@ export default {
     </div>
     <div v-else-if="isDesignImage">
       DESIGN IMAGE
+      <slot></slot>
     </div>
     <div v-else>
       <diff-viewer
