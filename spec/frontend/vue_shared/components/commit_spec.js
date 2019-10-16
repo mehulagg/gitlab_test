@@ -225,4 +225,50 @@ describe('Commit component', () => {
       expect(wrapper.find('.ref-name').exists()).toBe(false);
     });
   });
+
+  describe('When showTitle === false', () => {
+    it('should not render the title', () => {
+      props = {
+        title: 'title',
+        showTitle: false,
+      };
+
+      createComponent(props);
+
+      expect(wrapper.contains('title')).toBe(false);
+    });
+
+    it('should render [SHA] by [Author avatar] when author is provided', () => {
+      props = {
+        title: 'title',
+        showTitle: false,
+        shortSha: 'b7836edd',
+        author: {
+          path: 'author_path',
+          avatar_url: 'author_url',
+          username: 'author_username',
+        },
+      };
+
+      createComponent(props);
+
+      expect(wrapper.text()).toContain('b7836edd');
+      expect(wrapper.text()).toContain('by');
+      expect(wrapper.find('.user-avatar-link')).not.toBeNull();
+      expect(wrapper.text()).not.toContain('title');
+    });
+
+    it('should render [SHA] when author is not provided', () => {
+      props = {
+        title: 'title',
+        showTitle: false,
+        shortSha: 'b7836edd',
+      };
+
+      createComponent(props);
+
+      expect(wrapper.text()).toBe('b7836edd');
+      expect(wrapper.text()).not.toContain('title');
+    });
+  });
 });

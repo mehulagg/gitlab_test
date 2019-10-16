@@ -131,6 +131,13 @@ export default {
     },
 
     /**
+     * Determines if we should show the word "by" between the SHA and the author
+     */
+    shouldShowBy() {
+      return this.hasAuthor && !this.shouldShowTitle;
+    },
+
+    /**
      * Used to verify if all the properties needed to render the commit
      * author section were provided.
      *
@@ -186,7 +193,7 @@ export default {
 
     <span class="commit-title" :class="{ 'flex-truncate-parent': shouldShowTitle }">
       <span v-if="title" class="flex-truncate-child">
-        <span v-if="!shouldShowTitle" class="append-right-4">{{ __('by') }}</span>
+        <span v-if="shouldShowBy" class="append-right-4">{{ __('by') }}</span>
 
         <user-avatar-link
           v-if="hasAuthor"

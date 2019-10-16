@@ -42,7 +42,7 @@ export default {
 </script>
 <template>
   <div>
-    <div class="btn-group table-action-buttons">
+    <div class="btn-group table-action-buttons js-pipelines-actions-wrapper">
       <slot v-if="shouldShowButtons" name="action-buttons"></slot>
 
       <gl-button
@@ -50,7 +50,7 @@ export default {
         v-gl-tooltip
         type="button"
         :title="__('Actions')"
-        class="pipeline-action-button more-actions-toggle btn btn-transparent"
+        class="pipeline-action-button js-more-actions-toggle more-actions-toggle btn btn-transparent"
         @click="handleToggleClick"
       >
         <icon css-classes="icon" name="ellipsis_v" />

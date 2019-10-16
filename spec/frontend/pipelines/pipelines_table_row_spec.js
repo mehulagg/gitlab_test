@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils';
 import PipelinesTableRowComponent from '~/pipelines/components/pipelines_table_row.vue';
 import eventHub from '~/pipelines/event_hub';
+import { breakpoints } from '~/breakpoints';
 
 describe('Pipelines Table Row', () => {
   const jsonFixtureName = 'pipelines/pipelines.json';
@@ -14,6 +15,11 @@ describe('Pipelines Table Row', () => {
       },
       sync: false,
     });
+
+  const resizeTo = width => {
+    window.innerWidth = width + 1;
+    window.dispatchEvent(new Event('resize'));
+  };
 
   let wrapper;
   let pipeline;
@@ -52,17 +58,26 @@ describe('Pipelines Table Row', () => {
       );
     });
 
-    it('should render status text on larger screens', () => {
-      expect(
-        component.$el.querySelector('.table-section.commit-link a.d-xl-inline').textContent,
-      ).toContain(pipeline.details.status.text);
+    it('should render status icon', () => {
+      expect(wrapper.contains('.table-section.commit-link .ci-status-icon')).toBe(true);
     });
 
-    it('should render status icon on smaller screens', () => {
-      const badge = component.$el.querySelector('.table-section.commit-link a.d-md-inline');
+    it('should not render status text in small viewports', () => {
+      expect(wrapper.find('.table-section.commit-link .ci-status').text()).toBe('');
+    });
 
-      expect(badge.textContent.trim()).toEqual('');
-      expect(badge.getAttribute('data-original-title')).toContain(pipeline.details.status.text);
+    it('should render status text in large viewports', done => {
+      resizeTo(breakpoints.lg);
+
+      return wrapper.vm
+        .$nextTick()
+        .then(() => {
+          expect(wrapper.find('.table-section.commit-link .ci-status').text()).toBe(
+            pipeline.details.status.text,
+          );
+        })
+        .then(done)
+        .catch(done.fail);
     });
   });
 
@@ -125,6 +140,7 @@ describe('Pipelines Table Row', () => {
         .trim();
 
       return {
+        commitTitleElement,
         commitAuthorElement,
         commitAuthorLink,
         commitAuthorName,
@@ -157,6 +173,31 @@ describe('Pipelines Table Row', () => {
       expect(commitAuthorLink).toEqual(`mailto:${pipelineWithoutAuthor.commit.author_email}`);
       expect(commitAuthorName).toEqual(pipelineWithoutAuthor.commit.author_name);
     });
+
+    it('renders commit title in large viewports', done => {
+      wrapper = createWrapper(pipeline);
+      resizeTo(breakpoints.lg);
+
+      return wrapper.vm
+        .$nextTick()
+        .then(() => {
+          const { commitTitleElement } = findElements();
+
+          expect(commitTitleElement.text()).toContain(pipeline.commit.title);
+          expect(commitTitleElement.text()).not.toContain('by');
+        })
+        .then(done)
+        .catch(done.fail);
+    });
+
+    it('does not render commit title in small viewports', () => {
+      wrapper = createWrapper(pipeline);
+
+      const { commitTitleElement } = findElements();
+
+      expect(commitTitleElement.text()).not.toContain(pipeline.commit.title);
+      expect(commitTitleElement.text()).toContain('by');
+    });
   });
 
   describe('stages column', () => {
@@ -185,9 +226,11 @@ describe('Pipelines Table Row', () => {
       withActions.retry_path = '/retry';
 
       wrapper = createWrapper(withActions);
+
+      resizeTo(breakpoints.lg);
     });
 
-    it('should render the provided actions', () => {
+    it('should render the provided actions in large viewports', () => {
       expect(wrapper.find('.js-pipelines-retry-button').exists()).toBe(true);
       expect(wrapper.find('.js-pipelines-cancel-button').exists()).toBe(true);
       const dropdownMenu = wrapper.find('.dropdown-menu');
@@ -230,6 +273,38 @@ describe('Pipelines Table Row', () => {
         })
         .then(done)
         .catch(done.fail);
+    });
+
+    describe('in small viewports', () => {
+      beforeEach(() => {
+        resizeTo(breakpoints.sm);
+      });
+
+      it('should render only the actions toggle by default', () => {
+        expect(wrapper.contains('.js-more-actions-toggle')).toBe(true);
+        expect(wrapper.contains('.js-pipelines-retry-button')).toBe(false);
+        expect(wrapper.contains('.js-pipelines-cancel-button')).toBe(false);
+      });
+
+      it('should show and hide the actions when the actions toggle is clicked', done => {
+        wrapper.find('.js-more-actions-toggle').trigger('click');
+
+        return wrapper.vm
+          .$nextTick()
+          .then(() => {
+            expect(wrapper.contains('.js-pipelines-retry-button')).toBe(true);
+            expect(wrapper.contains('.js-pipelines-cancel-button')).toBe(true);
+
+            wrapper.find('.js-more-actions-toggle').trigger('click');
+          })
+          .then(wrapper.vm.$nextTick)
+          .then(() => {
+            expect(wrapper.contains('.js-pipelines-retry-button')).toBe(false);
+            expect(wrapper.contains('.js-pipelines-cancel-button')).toBe(false);
+          })
+          .then(done)
+          .catch(done.fail);
+      });
     });
   });
 });
