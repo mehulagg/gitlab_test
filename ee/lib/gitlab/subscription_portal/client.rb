@@ -4,7 +4,10 @@ module Gitlab
   module SubscriptionPortal
     class Client
       def generate_trial(params)
-        response = Gitlab::HTTP.post("#{base_url}/trials", body: params.to_json, headers: headers)
+        options = { body: params.to_json, headers: headers }
+        options.merge!(verify: false) if Gitlab.config.gitlab.url != COM_URL # verify ssl only for production
+
+        response = Gitlab::HTTP.post("#{base_url}/trials", options)
 
         parse_response(response)
       rescue *Gitlab::HTTP::HTTP_ERRORS => e
