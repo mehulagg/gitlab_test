@@ -93,6 +93,10 @@ RSpec.describe Release do
   end
 
   describe '#latest_evidences' do
+    before do
+      Evidences::CreateService.new(release).execute
+    end
+
     context 'when there is no evidence tied to this release' do
       it 'is empty' do
         release.evidences.first.destroy
@@ -119,20 +123,12 @@ RSpec.describe Release do
   end
 
   describe 'evidences' do
-    describe '#create_evidence!' do
-      context 'when a release is created' do
-        it 'creates one Evidence object too' do
-          expect { release }.to change(Evidence, :count).by(1)
-        end
-      end
-    end
-
     context 'when a release is deleted' do
       it 'also deletes the associated evidences' do
         release = create(:release)
         create(:evidence, release: release)
 
-        expect { release.destroy }.to change(Evidence, :count).by(-2)
+        expect { release.destroy }.to change(Evidence, :count).by(-1)
       end
     end
   end

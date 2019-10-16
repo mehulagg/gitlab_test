@@ -30,8 +30,6 @@ class Release < ApplicationRecord
 
   delegate :repository, to: :project
 
-  after_create :create_evidence!
-
   def commit
     strong_memoize(:commit) do
       repository.commit(actual_sha)
@@ -77,10 +75,6 @@ class Release < ApplicationRecord
     strong_memoize(:actual_tag) do
       repository.find_tag(tag)
     end
-  end
-
-  def create_evidence!
-    Evidence.create!(release: self)
   end
 end
 

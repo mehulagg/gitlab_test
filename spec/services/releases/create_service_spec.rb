@@ -35,6 +35,13 @@ describe Releases::CreateService do
 
     it_behaves_like 'a successful release creation'
 
+    it 'creates a new Evidence via a service class' do
+      expect_any_instance_of(Evidences::CreateService).to receive(:execute)
+
+      expect { service.execute }.to change(Evidence, :count).by(1)
+      expect(project.releases.last.evidences.count).to eq(1)
+    end
+
     context 'when the tag does not exist' do
       let(:tag_name) { 'non-exist-tag' }
 

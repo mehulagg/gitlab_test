@@ -44,8 +44,9 @@ module Releases
 
     def create_release(tag)
       release = build_release(tag)
-
       release.save!
+
+      Evidences::CreateService.new(release).execute
 
       success(tag: tag, release: release)
     rescue => e
