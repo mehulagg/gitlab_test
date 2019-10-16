@@ -103,8 +103,7 @@ If you do choose to use EFS, avoid storing GitLab log files (e.g. those in `/var
 there because this will also affect performance. We recommend that the log files be
 stored on a local volume.
 
-For more details on another person's experience with EFS, see
-[Amazon's Elastic File System: Burst Credits](https://rawkode.com/2017/04/16/amazons-elastic-file-system-burst-credits/)
+For more details on another person's experience with EFS, see this [Commit Brooklyn 2019 video](https://youtu.be/K6OS8WodRBQ?t=313).
 
 ## Avoid using CephFS and GlusterFS
 
@@ -118,7 +117,7 @@ across NFS. The GitLab support team will not be able to assist on performance is
 this configuration.
 
 Additionally, this configuration is specifically warned against in the
-[Postgres Documentation](https://www.postgresql.org/docs/current/static/creating-cluster.html#CREATING-CLUSTER-NFS):
+[Postgres Documentation](https://www.postgresql.org/docs/current/creating-cluster.html#CREATING-CLUSTER-NFS):
 
 >PostgreSQL does nothing special for NFS file systems, meaning it assumes NFS behaves exactly like
 >locally-connected drives. If the client or server NFS implementation does not provide standard file

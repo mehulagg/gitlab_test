@@ -23,6 +23,8 @@ A GitLab admin is allowed to push to the protected branches.
 
 See the [Changelog](#changelog) section for changes over time.
 
+The default branch protection level is set in the [Admin Area](../admin_area/settings/visibility_and_access_controls.md#default-branch-protection).
+
 ## Configuring protected branches
 
 To protect a branch, you need to have at least Maintainer permission level. Note
@@ -83,6 +85,20 @@ access.
 Click **Protect** and the branch will appear in the "Protected branch" list.
 
 ![Roles and users list](img/protected_branches_select_roles_and_users_list.png)
+
+## Code Owners approvals **(PREMIUM)**
+
+It is possible to require at least one approval for each entry in the
+[`CODEOWNERS` file](code_owners.md) that matches a file changed in
+the merge request. To enable this feature:
+
+1. Toggle the **Require approval from code owners** slider.
+
+1. Click **Protect**.
+
+When this feature is enabled, all merge requests need approval
+from one code owner per matched rule before they can be merged. Additionally,
+pushes to the protected branch are denied if a rule is matched.
 
 ## Wildcard protected branches
 

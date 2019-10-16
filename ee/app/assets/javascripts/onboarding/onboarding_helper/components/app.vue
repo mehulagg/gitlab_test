@@ -137,15 +137,8 @@ export default {
         }
       }
     },
-    handleClickPopoverButton(button) {
-      const {
-        showExitTourContent,
-        exitTour,
-        redirectPath,
-        nextPart,
-        dismissPopover,
-        showFeedbackTourContent,
-      } = button;
+    handleStepContentButton(button) {
+      const { showExitTourContent, redirectPath, nextPart, dismissPopover } = button;
       const helpContentItems = this.stepContent
         ? this.stepContent.getHelpContent({ projectName: this.projectName })
         : null;
@@ -154,21 +147,9 @@ export default {
         helpContentItems.length > 1 &&
         this.helpContentIndex < helpContentItems.length - 1;
 
-      // display feedback content after user hits the exit button
-      if (showFeedbackTourContent) {
-        this.handleFeedbackTourContent(true);
-        return;
-      }
-
       // display exit tour content
       if (showExitTourContent) {
         this.handleShowExitTourContent(true);
-        return;
-      }
-
-      // quit tour
-      if (exitTour) {
-        this.handleExitTour();
         return;
       }
 
@@ -236,7 +217,7 @@ export default {
       this.showStepContent = true;
       this.setExitTour(showExitTour);
     },
-    handleExitTour() {
+    handleExitTourButton() {
       this.hideActionPopover();
       this.setDismissed(true);
 
@@ -267,13 +248,13 @@ export default {
       :initial-show="initialShowPopover"
       :dismiss-popover="dismissPopover"
       :golden-tanuki-svg-path="goldenTanukiSvgPath"
-      @clickPopoverButton="handleClickPopoverButton"
+      @clickStepContentButton="handleStepContentButton"
+      @clickExitTourButton="handleExitTourButton"
       @clickFeedbackButton="handleFeedbackButton"
       @restartStep="handleRestartStep"
       @skipStep="handleSkipStep"
       @showFeedbackContent="handleFeedbackTourContent"
       @showExitTourContent="handleShowExitTourContent"
-      @exitTour="handleExitTour"
     />
   </transition>
 </template>

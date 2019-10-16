@@ -17,7 +17,7 @@ Find your groups by clicking **Groups > Your Groups** in the top navigation.
 
 ![GitLab Groups](img/groups.png)
 
-> The **Groups** dropdown in the top navigation was [introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/36234) in [GitLab 11.1](https://about.gitlab.com/2018/07/22/gitlab-11-1-released/#groups-dropdown-in-navigation).
+> The **Groups** dropdown in the top navigation was [introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/36234) in [GitLab 11.1](https://about.gitlab.com/blog/2018/07/22/gitlab-11-1-released/#groups-dropdown-in-navigation).
 
 The **Groups** page displays:
 
@@ -182,14 +182,16 @@ There are two different ways to add a new project to a group:
 > Brought to [GitLab Starter][ee] in 10.7.
 > [Moved](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/25975) to [GitLab Core](https://about.gitlab.com/pricing/) in 11.10.
 
-Group owners and administrators can allow users with the
-Developer role to create projects under groups.
+By default, [Developers and Maintainers](../permissions.md#group-members-permissions) can create projects under a group.
 
-By default, [Developers and Maintainers](../permissions.md#group-members-permissions) can create projects under a group. You can change this setting for a specific group within the group settings, or
-you can set this option globally in the Admin area
-at **Settings > General > Visibility and access controls** (you must be a GitLab administrator).
+To change this setting for a specific group:
 
-Available settings are `No one`, `Maintainers`, or `Developers + Maintainers`.
+1. Go to the group's **Settings > General** page.
+1. Expand the **Permissions, LFS, 2FA** section.
+1. Select the desired option in the **Allowed to create projects** dropdown list.
+1. Click **Save changes**.
+
+To change this setting globally, see [Default project creation protection](../admin_area/settings/visibility_and_access_controls.md#default-project-creation-protection).
 
 ## Transfer projects into groups
 
@@ -349,7 +351,7 @@ Add one or more whitelisted IP subnets using CIDR notation in comma separated fo
 coming from a different IP address won't be able to access the restricted
 content.
 
-Restriction currently applies to UI and API access, Git actions via ssh are not restricted.
+Restriction currently applies to UI, API access and Git actions via SSH.
 To avoid accidental lock-out, admins and group owners are are able to access
 the group regardless of the IP restriction.
 
@@ -448,6 +450,11 @@ will affect its value is triggered (e.g., a commit push).
 For performance reasons, we may delay the update up to 1 hour and 30 minutes.
 
 If your namespace shows `N/A` as the total storage usage, you can trigger a recalculation by pushing a commit to any project in that namespace.
+
+### Maximum artifacts size **(CORE ONLY)**
+
+For information about setting a maximum artifact size for a group, see
+[Maximum artifacts size](../admin_area/settings/continuous_integration.md#maximum-artifacts-size-core-only).
 
 ## User contribution analysis **(STARTER)**
 

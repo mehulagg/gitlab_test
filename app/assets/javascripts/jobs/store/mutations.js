@@ -19,15 +19,14 @@ export default {
     state.isSidebarOpen = true;
   },
 
-  [types.RECEIVE_TRACE_SUCCESS](state, log) {
+  [types.RECEIVE_TRACE_SUCCESS](state, log = {}) {
     if (log.state) {
       state.traceState = log.state;
     }
 
     if (log.append) {
       if (isNewJobLogActive()) {
-        state.originalTrace = state.originalTrace.concat(log.trace);
-        state.trace = updateIncrementalTrace(state.originalTrace, state.trace, log.lines);
+        state.trace = updateIncrementalTrace(log.lines, state.trace);
       } else {
         state.trace += log.html;
       }
@@ -38,7 +37,6 @@ export default {
       // html or size. We keep the old value otherwise these
       // will be set to `undefined`
       if (isNewJobLogActive()) {
-        state.originalTrace = log.lines || state.trace;
         state.trace = logLinesParser(log.lines) || state.trace;
       } else {
         state.trace = log.html || state.trace;

@@ -5,10 +5,10 @@ require 'spec_helper'
 describe Projects::EnvironmentsController do
   include MetricsDashboardHelpers
 
-  set(:user) { create(:user) }
-  set(:project) { create(:project) }
+  let_it_be(:user) { create(:user) }
+  let_it_be(:project) { create(:project) }
 
-  set(:environment) do
+  let_it_be(:environment) do
     create(:environment, name: 'production', project: project)
   end
 
@@ -256,7 +256,7 @@ describe Projects::EnvironmentsController do
       it 'loads the terminals for the environment' do
         # In EE we have to stub EE::Environment since it overwrites the
         # "terminals" method.
-        expect_any_instance_of(defined?(EE) ? EE::Environment : Environment)
+        expect_any_instance_of(Gitlab.ee? ? EE::Environment : Environment)
           .to receive(:terminals)
 
         get :terminal, params: environment_params
@@ -282,7 +282,7 @@ describe Projects::EnvironmentsController do
         it 'returns the first terminal for the environment' do
           # In EE we have to stub EE::Environment since it overwrites the
           # "terminals" method.
-          expect_any_instance_of(defined?(EE) ? EE::Environment : Environment)
+          expect_any_instance_of(Gitlab.ee? ? EE::Environment : Environment)
             .to receive(:terminals)
             .and_return([:fake_terminal])
 

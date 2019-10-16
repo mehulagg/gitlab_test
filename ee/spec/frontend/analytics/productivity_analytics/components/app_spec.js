@@ -25,17 +25,16 @@ describe('ProductivityApp component', () => {
   };
 
   const actionSpies = {
-    chartItemClicked: jest.fn(),
+    updateSelectedItems: jest.fn(),
     setSortField: jest.fn(),
-    setMergeRequestsPage: jest.fn(),
+    setPage: jest.fn(),
     toggleSortOrder: jest.fn(),
     setColumnMetric: jest.fn(),
   };
 
   const mainChartData = { 1: 2, 2: 3 };
 
-  beforeEach(() => {
-    mock = new MockAdapter(axios);
+  const createComponent = (scatterplotEnabled = true) => {
     wrapper = shallowMount(localVue.extend(ProductivityApp), {
       localVue,
       store,
@@ -44,7 +43,14 @@ describe('ProductivityApp component', () => {
       methods: {
         ...actionSpies,
       },
+      provide: {
+        glFeatures: { productivityAnalyticsScatterplotEnabled: scatterplotEnabled },
+      },
     });
+  };
+
+  beforeEach(() => {
+    mock = new MockAdapter(axios);
   });
 
   afterEach(() => {
@@ -66,6 +72,7 @@ describe('ProductivityApp component', () => {
   describe('template', () => {
     describe('without a group being selected', () => {
       it('renders the empty state illustration', () => {
+        createComponent();
         const emptyState = wrapper.find(GlEmptyState);
         expect(emptyState.exists()).toBe(true);
 
@@ -75,12 +82,18 @@ describe('ProductivityApp component', () => {
 
     describe('with a group being selected', () => {
       beforeEach(() => {
+        wrapper.vm.$store.dispatch('filters/setDateRange', {
+          skipFetch: true,
+          startDate: new Date('2019-09-01'),
+          endDate: new Date('2019-09-02'),
+        });
         wrapper.vm.$store.dispatch('filters/setGroupNamespace', 'gitlab-org');
         mock.onGet(wrapper.vm.$store.state.endpoint).replyOnce(200);
       });
 
       describe('user has no access to the group', () => {
         beforeEach(() => {
+          createComponent();
           const error = { response: { status: 403 } };
           wrapper.vm.$store.dispatch('charts/receiveChartDataError', {
             chartKey: chartKeys.main,
@@ -100,10 +113,13 @@ describe('ProductivityApp component', () => {
       describe('user has access to the group', () => {
         beforeEach(() => {
           wrapper.vm.$store.state.charts.charts[chartKeys.main].errorCode = null;
+
+          return wrapper.vm.$nextTick();
         });
 
         describe('when the main chart is loading', () => {
           beforeEach(() => {
+            createComponent();
             wrapper.vm.$store.dispatch('charts/requestChartData', chartKeys.main);
           });
 
@@ -128,6 +144,7 @@ describe('ProductivityApp component', () => {
         describe('when the main chart finished loading', () => {
           describe('and has data', () => {
             beforeEach(() => {
+              createComponent();
               wrapper.vm.$store.dispatch('charts/receiveChartDataSuccess', {
                 chartKey: chartKeys.main,
                 data: mainChartData,
@@ -158,15 +175,11 @@ describe('ProductivityApp component', () => {
                   .vm.$emit('chartItemClicked', data);
               });
 
-              it('dispatches chartItemClicked action', () => {
-                expect(actionSpies.chartItemClicked).toHaveBeenCalledWith({
+              it('dispatches updateSelectedItems action', () => {
+                expect(actionSpies.updateSelectedItems).toHaveBeenCalledWith({
                   chartKey: chartKeys.main,
                   item: 0,
                 });
-              });
-
-              it('dispatches setMergeRequestsPage action', () => {
-                expect(actionSpies.setMergeRequestsPage).toHaveBeenCalledWith(0);
               });
             });
 
@@ -254,48 +267,72 @@ describe('ProductivityApp component', () => {
             });
 
             describe('Scatterplot', () => {
-              it('renders a metric chart component', () => {
-                expect(findScatterplotMetricChart().exists()).toBe(true);
-              });
+              describe('when the feature flag is enabled', () => {
+                it('isScatterplotFeatureEnabled returns true', () => {
+                  expect(wrapper.vm.isScatterplotFeatureEnabled()).toBe(true);
+                });
 
-              describe('when chart finished loading', () => {
-                describe('and the chart has data', () => {
-                  beforeEach(() => {
-                    wrapper.vm.$store.dispatch('charts/receiveChartDataSuccess', {
-                      chartKey: chartKeys.scatterplot,
-                      data: {
-                        1: { metric: 2, merged_at: '2019-07-01T07:06:23.193Z' },
-                        2: { metric: 3, merged_at: '2019-07-05T08:27:42.411Z' },
-                      },
-                    });
-                  });
+                it('renders a metric chart component', () => {
+                  expect(findScatterplotMetricChart().exists()).toBe(true);
+                });
 
-                  it('sets isLoading=false on the metric chart', () => {
-                    expect(findScatterplotMetricChart().props('isLoading')).toBe(false);
-                  });
-
-                  it('passes non-empty chartData to the metric chart', () => {
-                    expect(findScatterplotMetricChart().props('chartData')).not.toEqual([]);
-                  });
-
-                  describe('when the user changes the metric', () => {
+                describe('when chart finished loading', () => {
+                  describe('and the chart has data', () => {
                     beforeEach(() => {
-                      jest.spyOn(store, 'dispatch');
-                      findScatterplotMetricChart().vm.$emit('metricTypeChange', 'loc_per_commit');
-                    });
-
-                    it('should call setMetricType  when `metricTypeChange` is emitted on the metric chart', () => {
-                      expect(store.dispatch).toHaveBeenCalledWith('charts/setMetricType', {
-                        metricType: 'loc_per_commit',
+                      wrapper.vm.$store.dispatch('charts/receiveChartDataSuccess', {
                         chartKey: chartKeys.scatterplot,
+                        data: {
+                          1: { metric: 2, merged_at: '2019-09-01T07:06:23.193Z' },
+                          2: { metric: 3, merged_at: '2019-09-05T08:27:42.411Z' },
+                        },
+                        transformedData: [
+                          [{ metric: 2, merged_at: '2019-09-01T07:06:23.193Z' }],
+                          [{ metric: 3, merged_at: '2019-09-05T08:27:42.411Z' }],
+                        ],
                       });
                     });
 
-                    it("should update the chart's y axis label", () => {
-                      const scatterplot = findScatterplotMetricChart().find(Scatterplot);
-                      expect(scatterplot.props('yAxisTitle')).toBe('Number of LOCs per commit');
+                    it('sets isLoading=false on the metric chart', () => {
+                      expect(findScatterplotMetricChart().props('isLoading')).toBe(false);
+                    });
+
+                    it('passes non-empty chartData to the metric chart', () => {
+                      expect(findScatterplotMetricChart().props('chartData')).not.toEqual([]);
+                    });
+
+                    describe('when the user changes the metric', () => {
+                      beforeEach(() => {
+                        jest.spyOn(store, 'dispatch');
+                        findScatterplotMetricChart().vm.$emit('metricTypeChange', 'loc_per_commit');
+                      });
+
+                      it('should call setMetricType  when `metricTypeChange` is emitted on the metric chart', () => {
+                        expect(store.dispatch).toHaveBeenCalledWith('charts/setMetricType', {
+                          metricType: 'loc_per_commit',
+                          chartKey: chartKeys.scatterplot,
+                        });
+                      });
+
+                      it("should update the chart's y axis label", () => {
+                        const scatterplot = findScatterplotMetricChart().find(Scatterplot);
+                        expect(scatterplot.props('yAxisTitle')).toBe('Number of LOCs per commit');
+                      });
                     });
                   });
+                });
+              });
+
+              describe('when the feature flag is disabled', () => {
+                beforeEach(() => {
+                  createComponent(false);
+                });
+
+                it('isScatterplotFeatureEnabled returns false', () => {
+                  expect(wrapper.vm.isScatterplotFeatureEnabled()).toBe(false);
+                });
+
+                it("doesn't render a metric chart component", () => {
+                  expect(findScatterplotMetricChart().exists()).toBe(false);
                 });
               });
             });
@@ -346,7 +383,7 @@ describe('ProductivityApp component', () => {
                   it('should change the page', () => {
                     const page = 2;
                     findMrTable().vm.$emit('pageChange', page);
-                    expect(actionSpies.setMergeRequestsPage).toHaveBeenCalledWith(page);
+                    expect(actionSpies.setPage).toHaveBeenCalledWith(page);
                   });
 
                   describe('sort controls', () => {
@@ -402,6 +439,7 @@ describe('ProductivityApp component', () => {
 
           describe('and has no data', () => {
             beforeEach(() => {
+              createComponent();
               wrapper.vm.$store.dispatch('charts/receiveChartDataSuccess', {
                 chartKey: chartKeys.main,
                 data: {},

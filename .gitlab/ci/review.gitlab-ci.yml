@@ -81,7 +81,7 @@ schedule:review-build-cng:
   extends:
     - .review-build-cng-base
     - .only-review-schedules
-  needs: ["gitlab:assets:compile"]
+  needs: ["gitlab:assets:compile pull-cache"]
 
 .review-deploy-base:
   extends:
@@ -97,7 +97,7 @@ schedule:review-build-cng:
   variables:
     HOST_SUFFIX: "${CI_ENVIRONMENT_SLUG}"
     DOMAIN: "-${CI_ENVIRONMENT_SLUG}.${REVIEW_APPS_DOMAIN}"
-    GITLAB_HELM_CHART_REF: "master"
+    GITLAB_HELM_CHART_REF: "v2.3.7"
     GITLAB_EDITION: "ce"
   environment:
     name: review/${CI_COMMIT_REF_NAME}
@@ -113,13 +113,21 @@ schedule:review-build-cng:
     - install_api_client_dependencies_with_apk
     - source scripts/review_apps/review-apps.sh
   script:
+    - date
     - check_kube_domain
+    - date
     - ensure_namespace
+    - date
     - install_tiller
+    - date
     - install_external_dns
+    - date
     - download_chart
+    - date
     - deploy || (display_deployment_debug && exit 1)
+    - date
     - add_license
+    - date
   artifacts:
     paths: [review_app_url.txt]
     expire_in: 2 days
@@ -183,6 +191,7 @@ review-cleanup-failed-deployment:
     GITLAB_ADMIN_PASSWORD: "${REVIEW_APPS_ROOT_PASSWORD}"
     GITHUB_ACCESS_TOKEN: "${REVIEW_APPS_QA_GITHUB_ACCESS_TOKEN}"
     EE_LICENSE: "${REVIEW_APPS_EE_LICENSE}"
+  needs: ["review-deploy"]
   dependencies: ["review-deploy"]
   artifacts:
     paths:
@@ -209,7 +218,7 @@ review-qa-all:
   when: manual
   parallel: 5
   script:
-    - export KNAPSACK_REPORT_PATH=knapsack/${CI_PROJECT_NAME}/review-qa-all_master_report.json
+    - export KNAPSACK_REPORT_PATH=knapsack/master_report.json
     - export KNAPSACK_TEST_FILE_PATTERN=qa/specs/features/**/*_spec.rb
     - gitlab-qa Test::Instance::Any "${QA_IMAGE}" "${CI_ENVIRONMENT_URL}" -- --format RspecJunitFormatter --out tmp/rspec-${CI_JOB_ID}.xml --format html --out tmp/rspec.htm --color --format documentation
 
@@ -239,6 +248,8 @@ review-performance:
   extends:
     - .review-performance-base
     - .only-review
+  needs: ["review-deploy"]
+  dependencies: ["review-deploy"]
   before_script:
     - export CI_ENVIRONMENT_URL="$(cat review_app_url.txt)"
     - echo "${CI_ENVIRONMENT_URL}"
@@ -259,6 +270,7 @@ schedule:review-performance:
   extends:
     - .review-performance-base
     - .only-review-schedules
+  needs: ["schedule:review-deploy"]
   dependencies: ["schedule:review-deploy"]
 
 parallel-spec-reports:

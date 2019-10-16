@@ -146,10 +146,12 @@ module EE
 
       rule { can?(:developer_access) }.policy do
         enable :read_project_security_dashboard
+        enable :dismiss_vulnerability
       end
 
       rule { security_dashboard_feature_disabled }.policy do
         prevent :read_project_security_dashboard
+        prevent :dismiss_vulnerability
       end
 
       rule { can?(:read_project) & (can?(:read_merge_request) | can?(:read_build)) }.enable :read_vulnerability_feedback
@@ -194,6 +196,7 @@ module EE
         enable :read_deployment
         enable :read_pages
         enable :read_project_security_dashboard
+        enable :dismiss_vulnerability
       end
 
       rule { auditor & ~guest }.policy do
@@ -252,6 +255,14 @@ module EE
       condition(:owner_cannot_destroy_project) do
         ::Gitlab::CurrentSettings.current_application_settings
           .default_project_deletion_protection
+      end
+
+      rule { needs_new_sso_session & ~admin }.policy do
+        prevent :guest_access
+        prevent :reporter_access
+        prevent :developer_access
+        prevent :maintainer_access
+        prevent :owner_access
       end
 
       rule { ip_enforcement_prevents_access }.policy do

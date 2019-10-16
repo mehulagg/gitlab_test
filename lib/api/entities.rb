@@ -378,6 +378,13 @@ module API
 
     class Group < BasicGroupDetails
       expose :path, :description, :visibility
+      expose :share_with_group_lock
+      expose :require_two_factor_authentication
+      expose :two_factor_grace_period
+      expose :project_creation_level_str, as: :project_creation_level
+      expose :auto_devops_enabled
+      expose :subgroup_creation_level_str, as: :subgroup_creation_level
+      expose :emails_disabled
       expose :lfs_enabled?, as: :lfs_enabled
       expose :avatar_url do |group, options|
         group.avatar_url(only_path: false)
@@ -682,6 +689,7 @@ module API
 
     class PipelineBasic < Grape::Entity
       expose :id, :sha, :ref, :status
+      expose :created_at, :updated_at
 
       expose :web_url do |pipeline, _options|
         Gitlab::Routing.url_helpers.project_pipeline_url(pipeline.project, pipeline)
@@ -771,7 +779,7 @@ module API
     end
 
     class MergeRequest < MergeRequestBasic
-      expose :subscribed do |merge_request, options|
+      expose :subscribed, if: -> (_, options) { options.fetch(:include_subscribed, true) } do |merge_request, options|
         merge_request.subscribed?(options[:current_user], options[:project])
       end
 
@@ -1052,7 +1060,7 @@ module API
       expose :job_events
       # Expose serialized properties
       expose :properties do |service, options|
-        # TODO: Simplify as part of https://gitlab.com/gitlab-org/gitlab-ce/issues/63084
+        # TODO: Simplify as part of https://gitlab.com/gitlab-org/gitlab/issues/29404
         if service.data_fields_present?
           service.data_fields.as_json.slice(*service.api_field_names)
         else
@@ -1306,6 +1314,10 @@ module API
           release.links.sorted
         end
       end
+      expose :_links do
+        expose :merge_requests_url
+        expose :issues_url
+      end
 
       private
 
@@ -1316,11 +1328,27 @@ module API
       def commit_path
         return unless object.commit
 
-        Gitlab::Routing.url_helpers.project_commit_path(object.project, object.commit.id)
+        Gitlab::Routing.url_helpers.project_commit_path(project, object.commit.id)
       end
 
       def tag_path
-        Gitlab::Routing.url_helpers.project_tag_path(object.project, object.tag)
+        Gitlab::Routing.url_helpers.project_tag_path(project, object.tag)
+      end
+
+      def merge_requests_url
+        Gitlab::Routing.url_helpers.project_merge_requests_url(project, params_for_issues_and_mrs)
+      end
+
+      def issues_url
+        Gitlab::Routing.url_helpers.project_issues_url(project, params_for_issues_and_mrs)
+      end
+
+      def params_for_issues_and_mrs
+        { scope: 'all', state: 'opened', release_tag: object.tag }
+      end
+
+      def project
+        @project ||= object.project
       end
     end
 
@@ -1466,15 +1494,17 @@ module API
     end
 
     class Deployment < Grape::Entity
-      expose :id, :iid, :ref, :sha, :created_at
+      expose :id, :iid, :ref, :sha, :created_at, :updated_at
       expose :user,        using: Entities::UserBasic
       expose :environment, using: Entities::EnvironmentBasic
       expose :deployable,  using: Entities::Job
+      expose :status
     end
 
     class Environment < EnvironmentBasic
       expose :project, using: Entities::BasicProjectDetails
       expose :last_deployment, using: Entities::Deployment, if: { last_deployment: true }
+      expose :state
     end
 
     class LicenseBasic < Grape::Entity

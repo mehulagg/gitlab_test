@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Group do
-  let!(:group) { create(:group, :access_requestable) }
+  let!(:group) { create(:group) }
 
   describe 'associations' do
     it { is_expected.to have_many :projects }
@@ -331,7 +331,7 @@ describe Group do
   end
 
   describe '#avatar_url' do
-    let!(:group) { create(:group, :access_requestable, :with_avatar) }
+    let!(:group) { create(:group, :with_avatar) }
     let(:user) { create(:user) }
 
     context 'when avatar file is uploaded' do
@@ -876,22 +876,6 @@ describe Group do
 
       it 'returns the group member with the highest access level' do
         expect(highest_group_member.access_level).to eq(Gitlab::Access::OWNER)
-      end
-    end
-  end
-
-  describe '#has_parent?' do
-    context 'when the group has a parent' do
-      it 'is truthy' do
-        group = create(:group, :nested)
-        expect(group.has_parent?).to be_truthy
-      end
-    end
-
-    context 'when the group has no parent' do
-      it 'is falsy' do
-        group = create(:group, parent: nil)
-        expect(group.has_parent?).to be_falsy
       end
     end
   end

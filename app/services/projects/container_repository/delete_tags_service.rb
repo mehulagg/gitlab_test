@@ -32,7 +32,7 @@ module Projects
       # This is a hack as the registry doesn't support deleting individual
       # tags. This code effectively pushes a dummy image and assigns the tag to it.
       # This way when the tag is deleted only the dummy image is affected.
-      # See https://gitlab.com/gitlab-org/gitlab-ce/issues/21405 for a discussion
+      # See https://gitlab.com/gitlab-org/gitlab/issues/15737 for a discussion
       def smart_delete(container_repository, tag_names)
         # generates the blobs for the dummy image
         dummy_manifest = container_repository.client.generate_empty_manifest(container_repository.path)
@@ -48,10 +48,10 @@ module Projects
         # rubocop: disable CodeReuse/ActiveRecord
         Gitlab::Sentry.track_exception(ArgumentError.new('multiple tag digests')) if tag_digests.many?
 
-        # deletes the dummy image
-        # all created tag digests are the same since they all have the same dummy image.
+        # Deletes the dummy image
+        # All created tag digests are the same since they all have the same dummy image.
         # a single delete is sufficient to remove all tags with it
-        if container_repository.client.delete_repository_tag(container_repository.path, tag_digests.first)
+        if container_repository.delete_tag_by_digest(tag_digests.first)
           success(deleted: tag_names)
         else
           error('could not delete tags')

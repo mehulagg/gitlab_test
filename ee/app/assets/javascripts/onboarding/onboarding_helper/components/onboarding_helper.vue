@@ -135,8 +135,11 @@ export default {
     showFeedbackContent() {
       this.$emit('showFeedbackContent', true);
     },
-    callButtonAction(button) {
-      this.$emit('clickPopoverButton', button);
+    callStepContentButton(button) {
+      this.$emit('clickStepContentButton', button);
+    },
+    callExitTour() {
+      this.$emit('clickExitTourButton');
     },
     submitFeedback(button) {
       this.$emit('clickFeedbackButton', button);
@@ -160,7 +163,8 @@ export default {
       :target="helpContentTrigger"
       :show="showPopover"
       :disabled="popoverDismissed"
-      @clickActionButton="callButtonAction"
+      @clickStepContentButton="callStepContentButton"
+      @clickExitTourButton="callExitTour"
       @clickFeedbackButton="submitFeedback"
     />
     <div class="d-flex align-items-center cursor-pointer">

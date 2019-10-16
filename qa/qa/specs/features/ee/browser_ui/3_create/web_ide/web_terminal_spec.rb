@@ -13,15 +13,17 @@ module QA
         Resource::Repository::Commit.fabricate_via_api! do |commit|
           commit.project = project
           commit.commit_message = 'Add .gitlab/.gitlab-webide.yml'
-          commit.files = [
-            {
+          commit.add_files(
+            [
+              {
                 file_path: '.gitlab/.gitlab-webide.yml',
                 content: <<~YAML
                   terminal:
                     script: sleep 60
                 YAML
-            }
-          ]
+              }
+            ]
+          )
         end
 
         @runner = Resource::Runner.fabricate_via_api! do |runner|
@@ -47,7 +49,7 @@ module QA
 
       after do
         # Remove the runner even if the test fails
-        Service::Runner.new(@runner.name).remove! if @runner
+        Service::DockerRun::GitlabRunner.new(@runner.name).remove! if @runner
       end
 
       it 'user starts the web terminal' do

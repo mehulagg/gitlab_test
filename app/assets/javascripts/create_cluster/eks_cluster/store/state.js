@@ -1,28 +1,18 @@
+import { KUBERNETES_VERSIONS } from '../constants';
+
 export default () => ({
   isValidatingCredentials: false,
   validCredentials: false,
 
-  isLoadingRegions: false,
-  isLoadingRoles: false,
-  isLoadingVPCs: false,
-  isLoadingSubnets: false,
-  isLoadingSecurityGroups: false,
-
-  regions: [],
-  roles: [],
-  vpcs: [],
-  subnets: [],
-  securityGroups: [],
-
-  loadingRegionsError: null,
-  loadingRolesError: null,
-  loadingVPCsError: null,
-  loadingSubnetsError: null,
-  loadingSecurityGroupsError: null,
-
+  clusterName: '',
+  environmentScope: '*',
+  kubernetesVersion: [KUBERNETES_VERSIONS].value,
   selectedRegion: '',
   selectedRole: '',
-  selectedVPC: '',
+  selectedKeyPair: '',
+  selectedVpc: '',
   selectedSubnet: '',
   selectedSecurityGroup: '',
+
+  gitlabManagedCluster: true,
 });

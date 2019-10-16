@@ -51,10 +51,10 @@ export default {
     shouldRenderPagination() {
       return this.repo.pagination.total > this.repo.pagination.perPage;
     },
-    modalTitle() {
+    modalAction() {
       return n__(
-        'ContainerRegistry|Remove image',
-        'ContainerRegistry|Remove images',
+        'ContainerRegistry|Remove tag',
+        'ContainerRegistry|Remove tags',
         this.itemsToBeDeleted.length === 0 ? 1 : this.itemsToBeDeleted.length,
       );
     },
@@ -67,16 +67,14 @@ export default {
     setModalDescription(itemIndex = -1) {
       if (itemIndex === -1) {
         this.modalDescription = sprintf(
-          s__(`ContainerRegistry|You are about to delete <b>%{count}</b> images. This will
-              delete the images and all tags pointing to them.`),
+          s__(`ContainerRegistry|You are about to remove <b>%{count}</b> tags. Are you sure?`),
           { count: this.itemsToBeDeleted.length },
         );
       } else {
         const { tag } = this.repo.list[itemIndex];
 
         this.modalDescription = sprintf(
-          s__(`ContainerRegistry|You are about to delete the image <b>%{title}</b>. This will
-              delete the image and all tags pointing to this image.`),
+          s__(`ContainerRegistry|You are about to remove <b>%{title}</b>. Are you sure?`),
           { title: `${this.repo.name}:${tag}` },
         );
       }
@@ -194,9 +192,11 @@ export default {
               v-gl-modal="modalId"
               :disabled="!itemsToBeDeleted || itemsToBeDeleted.length === 0"
               class="js-delete-registry float-right"
+              data-track-event="click_button"
+              data-track-label="bulk_registry_tag_delete"
               variant="danger"
-              :title="s__('ContainerRegistry|Remove selected images')"
-              :aria-label="s__('ContainerRegistry|Remove selected images')"
+              :title="s__('ContainerRegistry|Remove selected tags')"
+              :aria-label="s__('ContainerRegistry|Remove selected tags')"
               @click="deleteMultipleItems()"
             >
               <icon name="remove" />
@@ -246,8 +246,10 @@ export default {
             <gl-button
               v-if="item.canDelete"
               v-gl-modal="modalId"
-              :title="s__('ContainerRegistry|Remove image')"
-              :aria-label="s__('ContainerRegistry|Remove image')"
+              :title="s__('ContainerRegistry|Remove tag')"
+              :aria-label="s__('ContainerRegistry|Remove tag')"
+              data-track-event="click_button"
+              data-track-label="registry_tag_delete"
               variant="danger"
               class="js-delete-registry-row float-right btn-inverted btn-border-color btn-icon"
               @click="deleteSingleItem(index)"
@@ -267,8 +269,8 @@ export default {
     />
 
     <gl-modal ref="deleteModal" :modal-id="modalId" ok-variant="danger">
-      <template v-slot:modal-title>{{ modalTitle }}</template>
-      <template v-slot:modal-ok>{{ s__('ContainerRegistry|Remove image(s) and tags') }}</template>
+      <template v-slot:modal-title>{{ modalAction }}</template>
+      <template v-slot:modal-ok>{{ modalAction }}</template>
       <p v-html="modalDescription"></p>
     </gl-modal>
   </div>

@@ -5,6 +5,7 @@ $: << File.expand_path(File.dirname(__FILE__))
 Encoding.default_external = 'UTF-8'
 
 require_relative '../lib/gitlab'
+require_relative '../lib/gitlab/utils'
 require_relative '../config/initializers/0_inject_enterprise_edition_module'
 
 module QA
@@ -357,6 +358,7 @@ module QA
     # Classes describing components that are used by several pages.
     #
     module Component
+      autoload :CiBadgeLink, 'qa/page/component/ci_badge_link'
       autoload :ClonePanel, 'qa/page/component/clone_panel'
       autoload :LazyLoader, 'qa/page/component/lazy_loader'
       autoload :LegacyClonePanel, 'qa/page/component/legacy_clone_panel'
@@ -394,14 +396,18 @@ module QA
     autoload :Shellout, 'qa/service/shellout'
     autoload :KubernetesCluster, 'qa/service/kubernetes_cluster'
     autoload :Omnibus, 'qa/service/omnibus'
-    autoload :Runner, 'qa/service/runner'
-    autoload :LDAP, 'qa/service/ldap'
 
     module ClusterProvider
       autoload :Base, 'qa/service/cluster_provider/base'
       autoload :Gcloud, 'qa/service/cluster_provider/gcloud'
       autoload :Minikube, 'qa/service/cluster_provider/minikube'
       autoload :K3d, 'qa/service/cluster_provider/k3d'
+    end
+
+    module DockerRun
+      autoload :Base, 'qa/service/docker_run/base'
+      autoload :LDAP, 'qa/service/docker_run/ldap'
+      autoload :GitlabRunner, 'qa/service/docker_run/gitlab_runner'
     end
   end
 
@@ -435,6 +441,10 @@ module QA
         autoload :Login, 'qa/vendor/github/page/login'
       end
     end
+
+    module OnePassword
+      autoload :CLI, 'qa/vendor/one_password/cli'
+    end
   end
 
   # Classes that provide support to other parts of the framework.
@@ -444,6 +454,7 @@ module QA
       autoload :Logging, 'qa/support/page/logging'
     end
     autoload :Api, 'qa/support/api'
+    autoload :Dates, 'qa/support/dates'
     autoload :Waiter, 'qa/support/waiter'
     autoload :Retrier, 'qa/support/retrier'
   end

@@ -5,14 +5,9 @@ module Projects
     class NotifyService < BaseService
       include Gitlab::Utils::StrongMemoize
 
-      # Prevents users to use WIP feature on private GitLab instances
-      # by enabling 'generic_alert_endpoint' feature manually.
-      # TODO: https://gitlab.com/gitlab-org/gitlab/issues/14792
-      DEV_TOKEN = :development_token
-
       def execute(token)
+        return forbidden unless alerts_service_activated?
         return unauthorized unless valid_token?(token)
-        return forbidden unless create_issue?
 
         process_incident_issues
 
@@ -23,16 +18,15 @@ module Projects
 
       private
 
-      def generic_alert_endpoint_enabled?
-        Feature.enabled?(:generic_alert_endpoint, project)
-      end
+      delegate :alerts_service, to: :project
 
       def incident_management_available?
         project.feature_available?(:incident_management)
       end
 
-      def create_issue?
-        incident_management_available? && generic_alert_endpoint_enabled?
+      def alerts_service_activated?
+        incident_management_available? &&
+          alerts_service.try(:active?)
       end
 
       def process_incident_issues
@@ -45,7 +39,7 @@ module Projects
       end
 
       def valid_token?(token)
-        token == DEV_TOKEN
+        token == alerts_service.token
       end
 
       def bad_request

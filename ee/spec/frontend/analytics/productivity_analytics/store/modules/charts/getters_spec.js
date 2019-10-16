@@ -8,18 +8,19 @@ import {
   scatterPlotAddonQueryDays,
 } from 'ee/analytics/productivity_analytics/constants';
 import { getScatterPlotData, getMedianLineData } from 'ee/analytics/productivity_analytics/utils';
-import { mockHistogramData, mockScatterplotData } from '../../../mock_data';
+import { mockHistogramData } from '../../../mock_data';
 
 jest.mock('ee/analytics/productivity_analytics/utils');
-jest.mock('~/lib/utils/datetime_utility', () => ({
-  getDateInPast: jest.fn().mockReturnValue('2019-07-16T00:00:00.00Z'),
-}));
 
 describe('Productivity analytics chart getters', () => {
   let state;
 
   const groupNamespace = 'gitlab-org';
   const projectPath = 'gitlab-org/gitlab-test';
+  const transformedData = [
+    [{ merged_at: '2019-09-01T00:00:000Z', metric: 10 }],
+    [{ merged_at: '2019-09-02T00:00:000Z', metric: 20 }],
+  ];
 
   beforeEach(() => {
     state = createState();
@@ -57,36 +58,42 @@ describe('Productivity analytics chart getters', () => {
 
   describe('getScatterPlotMainData', () => {
     it('calls getScatterPlotData with the raw scatterplot data and the date in past', () => {
-      state.charts.scatterplot.data = mockScatterplotData;
+      state.charts.scatterplot.transformedData = transformedData;
 
       const rootState = {
         filters: {
-          daysInPast: 30,
+          startDate: '2019-09-01',
+          endDate: '2019-09-05',
         },
       };
 
       getters.getScatterPlotMainData(state, null, rootState);
 
       expect(getScatterPlotData).toHaveBeenCalledWith(
-        mockScatterplotData,
-        '2019-07-16T00:00:00.00Z',
+        transformedData,
+        new Date(rootState.filters.startDate),
+        new Date(rootState.filters.endDate),
       );
     });
   });
 
   describe('getScatterPlotMedianData', () => {
     it('calls getMedianLineData with the raw scatterplot data, the getScatterPlotMainData getter and the an additional days offset', () => {
-      state.charts.scatterplot.data = mockScatterplotData;
+      state.charts.scatterplot.transformedData = transformedData;
 
-      const mockGetters = {
-        getScatterPlotMainData: jest.fn(),
+      const rootState = {
+        filters: {
+          startDate: '2019-09-01',
+          endDate: '2019-09-05',
+        },
       };
 
-      getters.getScatterPlotMedianData(state, mockGetters);
+      getters.getScatterPlotMedianData(state, null, rootState);
 
       expect(getMedianLineData).toHaveBeenCalledWith(
-        mockScatterplotData,
-        mockGetters.getScatterPlotMainData,
+        transformedData,
+        new Date(rootState.filters.startDate),
+        new Date(rootState.filters.endDate),
         scatterPlotAddonQueryDays,
       );
     });
@@ -281,6 +288,19 @@ describe('Productivity analytics chart getters', () => {
     it('returns false if errorCode is not set to 403', () => {
       state.charts[chartKeys.main].errorCode = null;
       expect(getters.hasNoAccessError(state)).toEqual(false);
+    });
+  });
+
+  describe('isChartEnabled', () => {
+    const chartKey = chartKeys.scatterplot;
+    it('returns true if the chart is enabled', () => {
+      state.charts[chartKey].enabled = true;
+      expect(getters.isChartEnabled(state)(chartKey)).toBe(true);
+    });
+
+    it('returns false if the chart is disabled', () => {
+      state.charts[chartKey].enabled = false;
+      expect(getters.isChartEnabled(state)(chartKey)).toBe(false);
     });
   });
 });

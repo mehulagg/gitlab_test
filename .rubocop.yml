@@ -51,7 +51,6 @@ Style/FrozenStringLiteralComment:
     - 'danger/**/*'
     - 'db/**/*'
     - 'ee/db/**/*'
-    - 'ee/spec/**/*'
     - 'ee/lib/tasks/**/*'
     - 'lib/tasks/**/*'
     - 'qa/**/*'
@@ -178,6 +177,11 @@ Gitlab/ModuleWithInstanceVariables:
     # We ignore spec helpers because it usually doesn't matter
     - spec/support/**/*.rb
     - features/steps/**/*.rb
+
+Gitlab/ConstGetInheritFalse:
+  Enabled: true
+  Exclude:
+    - 'qa/bin/*'
 
 Gitlab/HTTParty:
   Enabled: true

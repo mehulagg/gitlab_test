@@ -6,6 +6,7 @@ module Clusters
       include Gitlab::Kubernetes
       include EnumWithNil
       include AfterCommitQueue
+      include ReactiveCaching
 
       RESERVED_NAMESPACES = %w(gitlab-managed-apps).freeze
 
@@ -72,7 +73,7 @@ module Clusters
               .append(key: 'KUBE_CA_PEM_FILE', value: ca_pem, file: true)
           end
 
-          if !cluster.managed?
+          if !cluster.managed? || cluster.management_project == project
             namespace = Gitlab::Kubernetes::DefaultNamespace.new(cluster, project: project).from_environment_name(environment_name)
 
             variables

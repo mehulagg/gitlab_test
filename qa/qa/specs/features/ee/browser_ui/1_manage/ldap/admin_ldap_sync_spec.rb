@@ -39,14 +39,14 @@ module QA
       end
 
       def run_ldap_service_with_user_as(user_status)
-        Service::LDAP.new(user_status).tap do |runner|
+        Service::DockerRun::LDAP.new(user_status).tap do |runner|
           runner.pull
           runner.register!
         end
       end
 
       def remove_ldap_service_with_user_as(user_status)
-        Service::LDAP.new(user_status).remove!
+        Service::DockerRun::LDAP.new(user_status).remove!
       end
 
       def login_with_ldap_admin_user
@@ -54,7 +54,7 @@ module QA
           user = Struct.new(:ldap_username, :ldap_password).new('adminuser1', 'password')
 
           QA::Support::Retrier.retry_until(exit_on_failure: true, sleep_interval: 3, max_attempts: 5) do
-            login_page.sign_in_using_ldap_credentials(user)
+            login_page.sign_in_using_ldap_credentials(user: user)
           end
         end
       end

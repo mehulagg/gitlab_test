@@ -216,7 +216,7 @@ describe('User onboarding helper app', () => {
       });
     });
 
-    describe('handleClickPopoverButton', () => {
+    describe('handleStepContentButton', () => {
       it('shows the exitTour content', () => {
         spyOn(vm, 'showExitTourContent');
 
@@ -224,21 +224,9 @@ describe('User onboarding helper app', () => {
           showExitTourContent: true,
         };
 
-        vm.handleClickPopoverButton(button);
+        vm.handleStepContentButton(button);
 
         expect(vm.showExitTourContent).toHaveBeenCalledWith(true);
-      });
-
-      it('quits the tour', () => {
-        spyOn(vm, 'handleExitTour');
-
-        const button = {
-          exitTour: true,
-        };
-
-        vm.handleClickPopoverButton(button);
-
-        expect(vm.handleExitTour).toHaveBeenCalled();
       });
 
       it('sets dismissPopover to true when true/undefined on button config', () => {
@@ -246,13 +234,13 @@ describe('User onboarding helper app', () => {
           dismissPopover: true,
         };
 
-        vm.handleClickPopoverButton(button);
+        vm.handleStepContentButton(button);
 
         expect(vm.dismissPopover).toBe(true);
 
         button = {};
 
-        vm.handleClickPopoverButton(button);
+        vm.handleStepContentButton(button);
 
         expect(vm.dismissPopover).toBe(true);
       });
@@ -262,7 +250,7 @@ describe('User onboarding helper app', () => {
           dismissPopover: false,
         };
 
-        vm.handleClickPopoverButton(button);
+        vm.handleStepContentButton(button);
 
         expect(vm.dismissPopover).toBe(false);
       });
@@ -273,7 +261,7 @@ describe('User onboarding helper app', () => {
           redirectPath: 'my-redirect/path',
         };
 
-        vm.handleClickPopoverButton(button);
+        vm.handleStepContentButton(button);
 
         expect(redirectSpy).toHaveBeenCalledWith(button.redirectPath);
       });
@@ -287,7 +275,7 @@ describe('User onboarding helper app', () => {
           nextPart,
         };
 
-        vm.handleClickPopoverButton(button);
+        vm.handleStepContentButton(button);
 
         expect(vm.$store.dispatch).toHaveBeenCalledWith('switchTourPart', nextPart);
         expect(vm.initActionPopover).toHaveBeenCalled();
@@ -301,7 +289,7 @@ describe('User onboarding helper app', () => {
         vm.$store.state.url = 'http://gitlab-org/gitlab-test/foo';
         vm.$store.state.lastStepIndex = 0;
 
-        vm.handleClickPopoverButton(button);
+        vm.handleStepContentButton(button);
 
         expect(vm.$store.dispatch).toHaveBeenCalledWith('setHelpContentIndex', 1);
       });
@@ -365,19 +353,19 @@ describe('User onboarding helper app', () => {
       });
     });
 
-    describe('handleExitTour', () => {
-      it('calls the "hideActionPopover" method', () => {
-        spyOn(vm, 'hideActionPopover');
+    describe('handleExitTourButton', () => {
+      it('emits the "onboardingHelper.hideActionPopover" event', () => {
+        spyOn(eventHub, '$emit');
 
-        vm.handleExitTour();
+        vm.handleExitTourButton();
 
-        expect(vm.hideActionPopover).toHaveBeenCalled();
+        expect(eventHub.$emit).toHaveBeenCalledWith('onboardingHelper.hideActionPopover');
       });
 
       it('calls the "setDismissed" method with true', () => {
         spyOn(vm.$store, 'dispatch');
 
-        vm.handleExitTour();
+        vm.handleExitTourButton();
 
         expect(vm.$store.dispatch).toHaveBeenCalledWith('setDismissed', true);
       });
@@ -385,7 +373,7 @@ describe('User onboarding helper app', () => {
       it('emits the "onboardingHelper.destroyActionPopover" event', () => {
         spyOn(eventHub, '$emit');
 
-        vm.handleExitTour();
+        vm.handleExitTourButton();
 
         expect(eventHub.$emit).toHaveBeenCalledWith('onboardingHelper.destroyActionPopover');
       });

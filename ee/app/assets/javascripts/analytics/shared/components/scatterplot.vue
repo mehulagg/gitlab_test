@@ -1,7 +1,7 @@
 <script>
 import dateFormat from 'dateformat';
 import { GlDiscreteScatterChart } from '@gitlab/ui/dist/charts';
-import { scatterChartLineProps, defaultDateFormat, defaultDateTimeFormat } from '../constants';
+import { scatterChartLineProps, dateFormats } from '../constants';
 
 export default {
   components: {
@@ -32,8 +32,9 @@ export default {
       tooltipContent: '',
       chartOption: {
         xAxis: {
+          type: 'time',
           axisLabel: {
-            formatter: date => dateFormat(date, defaultDateFormat),
+            formatter: date => dateFormat(date, dateFormats.defaultDate),
           },
         },
         dataZoom: [
@@ -67,9 +68,9 @@ export default {
   },
   methods: {
     renderTooltip({ data }) {
-      const [xValue, yValue] = data;
-      this.tooltipTitle = yValue;
-      this.tooltipContent = dateFormat(xValue, defaultDateTimeFormat);
+      const [, metric, dateTime] = data;
+      this.tooltipTitle = metric;
+      this.tooltipContent = dateFormat(dateTime, dateFormats.defaultDateTime);
     },
   },
 };

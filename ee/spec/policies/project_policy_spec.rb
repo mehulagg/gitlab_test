@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe ProjectPolicy do
@@ -28,7 +30,7 @@ describe ProjectPolicy do
       %i[read_issue_link read_software_license_policy]
     end
     let(:additional_reporter_permissions) { [:admin_issue_link] }
-    let(:additional_developer_permissions) { %i[admin_vulnerability_feedback read_project_security_dashboard read_feature_flag] }
+    let(:additional_developer_permissions) { %i[admin_vulnerability_feedback read_project_security_dashboard read_feature_flag dismiss_vulnerability] }
     let(:additional_maintainer_permissions) { %i[push_code_to_protected_branches admin_feature_flags_client] }
     let(:auditor_permissions) do
       %i[
@@ -41,6 +43,7 @@ describe ProjectPolicy do
         create_merge_request_in award_emoji
         read_project_security_dashboard
         read_vulnerability_feedback read_software_license_policy
+        dismiss_vulnerability
       ]
     end
 
@@ -240,15 +243,26 @@ describe ProjectPolicy do
           let(:current_user) { admin }
 
           it 'allows access' do
-            is_expected.to be_allowed(:read_project)
+            is_expected.to allow_action(:read_project)
           end
         end
 
-        context 'as an owner' do
-          let(:current_user) { owner }
+        context 'as a group owner' do
+          before do
+            group.add_owner(current_user)
+          end
 
           it 'prevents access without a SAML session' do
-            is_expected.not_to be_allowed(:read_project)
+            is_expected.not_to allow_action(:read_project)
+          end
+        end
+
+        context 'with public access' do
+          let(:group) { create(:group, :public) }
+          let(:project) { create(:project, :public, group: saml_provider.group) }
+
+          it 'allows access desipte group enforcement' do
+            is_expected.to allow_action(:read_project)
           end
         end
 
@@ -453,16 +467,30 @@ describe ProjectPolicy do
     end
   end
 
+  shared_context 'when security dashboard feature is not available' do
+    before do
+      stub_licensed_features(security_dashboard: false)
+    end
+  end
+
   describe 'read_project_security_dashboard' do
     context 'with developer' do
       let(:current_user) { developer }
 
-      context 'when security dashboard features is not available' do
-        before do
-          stub_licensed_features(security_dashboard: false)
-        end
+      include_context 'when security dashboard feature is not available'
 
-        it { is_expected.to be_disallowed(:read_project_security_dashboard) }
+      it { is_expected.to be_disallowed(:read_project_security_dashboard) }
+    end
+  end
+
+  describe 'vulnerability permissions' do
+    describe 'dismiss_vulnerability' do
+      context 'with developer' do
+        let(:current_user) { developer }
+
+        include_context 'when security dashboard feature is not available'
+
+        it { is_expected.to be_disallowed(:dismiss_vulnerability) }
       end
     end
   end

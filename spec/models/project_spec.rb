@@ -92,6 +92,7 @@ describe Project do
     it { is_expected.to have_many(:pipeline_schedules) }
     it { is_expected.to have_many(:members_and_requesters) }
     it { is_expected.to have_many(:clusters) }
+    it { is_expected.to have_many(:management_clusters).class_name('Clusters::Cluster') }
     it { is_expected.to have_many(:kubernetes_namespaces) }
     it { is_expected.to have_many(:custom_attributes).class_name('ProjectCustomAttribute') }
     it { is_expected.to have_many(:project_badges).class_name('ProjectBadge') }
@@ -100,6 +101,8 @@ describe Project do
     it { is_expected.to have_many(:deploy_tokens).through(:project_deploy_tokens) }
     it { is_expected.to have_many(:cycle_analytics_stages) }
     it { is_expected.to have_many(:external_pull_requests) }
+    it { is_expected.to have_many(:sourced_pipelines) }
+    it { is_expected.to have_many(:source_pipelines) }
 
     it 'has an inverse relationship with merge requests' do
       expect(described_class.reflect_on_association(:merge_requests).has_inverse?).to eq(:target_project)
@@ -150,7 +153,7 @@ describe Project do
     end
 
     describe '#members & #requesters' do
-      let(:project) { create(:project, :public, :access_requestable) }
+      let(:project) { create(:project, :public) }
       let(:requester) { create(:user) }
       let(:developer) { create(:user) }
       before do
@@ -2387,29 +2390,6 @@ describe Project do
         expect(project.emails_disabled?).to be_truthy
       end
     end
-
-    context 'when :emails_disabled feature flag is off' do
-      before do
-        stub_feature_flags(emails_disabled: false)
-      end
-
-      context 'emails disabled in group' do
-        it 'returns false' do
-          allow(project.namespace).to receive(:emails_disabled?) { true }
-
-          expect(project.emails_disabled?).to be_falsey
-        end
-      end
-
-      context 'emails enabled in group' do
-        it 'returns false' do
-          allow(project.namespace).to receive(:emails_disabled?) { false }
-          project.update_attribute(:emails_disabled, true)
-
-          expect(project.emails_disabled?).to be_falsey
-        end
-      end
-    end
   end
 
   describe '#lfs_enabled?' do
@@ -3469,6 +3449,36 @@ describe Project do
     end
   end
 
+  describe '.filter_by_feature_visibility' do
+    include_context 'ProjectPolicyTable context'
+    include ProjectHelpers
+    using RSpec::Parameterized::TableSyntax
+
+    set(:group) { create(:group) }
+    let!(:project) { create(:project, project_level, namespace: group ) }
+    let(:user) { create_user_from_membership(project, membership) }
+
+    context 'reporter level access' do
+      let(:feature) { MergeRequest }
+
+      where(:project_level, :feature_access_level, :membership, :expected_count) do
+        permission_table_for_reporter_feature_access
+      end
+
+      with_them do
+        it "respects visibility" do
+          update_feature_access_level(project, feature_access_level)
+
+          expected_objects = expected_count == 1 ? [project] : []
+
+          expect(
+            described_class.filter_by_feature_visibility(feature, user)
+          ).to eq(expected_objects)
+        end
+      end
+    end
+  end
+
   describe '#pages_available?' do
     let(:project) { create(:project, group: group) }
 
@@ -3641,14 +3651,6 @@ describe Project do
       end
     end
 
-    describe '#ensure_storage_path_exists' do
-      it 'delegates to gitlab_shell to ensure namespace is created' do
-        expect(gitlab_shell).to receive(:add_namespace).with(project.repository_storage, project.base_dir)
-
-        project.ensure_storage_path_exists
-      end
-    end
-
     describe '#legacy_storage?' do
       it 'returns true when storage_version is nil' do
         project = build(:project, storage_version: nil)
@@ -3760,16 +3762,6 @@ describe Project do
     describe '#disk_path' do
       it 'returns disk_path based on hash of project id' do
         expect(project.disk_path).to eq(hashed_path)
-      end
-    end
-
-    describe '#ensure_storage_path_exists' do
-      it 'delegates to gitlab_shell to ensure namespace is created' do
-        allow(project).to receive(:gitlab_shell).and_return(gitlab_shell)
-
-        expect(gitlab_shell).to receive(:add_namespace).with(project.repository_storage, hashed_prefix)
-
-        project.ensure_storage_path_exists
       end
     end
 
@@ -4203,13 +4195,24 @@ describe Project do
   end
 
   describe '#check_repository_path_availability' do
-    let(:project) { build(:project) }
+    let(:project) { build(:project, :repository, :legacy_storage) }
+    subject { project.check_repository_path_availability }
 
-    it 'skips gitlab-shell exists?' do
-      project.skip_disk_validation = true
+    context 'when the repository already exists' do
+      let(:project) { create(:project, :repository, :legacy_storage) }
 
-      expect(project.gitlab_shell).not_to receive(:exists?)
-      expect(project.check_repository_path_availability).to be_truthy
+      it { is_expected.to be_falsey }
+    end
+
+    context 'when the repository does not exist' do
+      it { is_expected.to be_truthy }
+
+      it 'skips gitlab-shell exists?' do
+        project.skip_disk_validation = true
+
+        expect(project.gitlab_shell).not_to receive(:repository_exists?)
+        is_expected.to be_truthy
+      end
     end
   end
 
@@ -5107,6 +5110,16 @@ describe Project do
     end
   end
 
+  describe '.pages_metadata_not_migrated' do
+    it 'returns only projects that have pages deployed' do
+      _project_with_pages_metadata_migrated = create(:project)
+      project_with_pages_metadata_not_migrated = create(:project)
+      project_with_pages_metadata_not_migrated.pages_metadatum.destroy!
+
+      expect(described_class.pages_metadata_not_migrated).to contain_exactly(project_with_pages_metadata_not_migrated)
+    end
+  end
+
   describe '#pages_group_root?' do
     it 'returns returns true if pages_url is same as pages_group_url' do
       project = build(:project)
@@ -5119,6 +5132,108 @@ describe Project do
       project = build(:project)
 
       expect(project.pages_group_root?).to eq(false)
+    end
+  end
+
+  describe '#closest_setting' do
+    using RSpec::Parameterized::TableSyntax
+
+    shared_examples_for 'fetching closest setting' do
+      let!(:namespace) { create(:namespace) }
+      let!(:project) { create(:project, namespace: namespace) }
+
+      let(:setting_name) { :some_setting }
+      let(:setting) { project.closest_setting(setting_name) }
+
+      before do
+        allow(project).to receive(:read_attribute).with(setting_name).and_return(project_setting)
+        allow(namespace).to receive(:closest_setting).with(setting_name).and_return(group_setting)
+        allow(Gitlab::CurrentSettings).to receive(setting_name).and_return(global_setting)
+      end
+
+      it 'returns closest non-nil value' do
+        expect(setting).to eq(result)
+      end
+    end
+
+    context 'when setting is of non-boolean type' do
+      where(:global_setting, :group_setting, :project_setting, :result) do
+        100 | 200 | 300 | 300
+        100 | 200 | nil | 200
+        100 | nil | nil | 100
+        nil | nil | nil | nil
+      end
+
+      with_them do
+        it_behaves_like 'fetching closest setting'
+      end
+    end
+
+    context 'when setting is of boolean type' do
+      where(:global_setting, :group_setting, :project_setting, :result) do
+        true | true  | false | false
+        true | false | nil   | false
+        true | nil   | nil   | true
+      end
+
+      with_them do
+        it_behaves_like 'fetching closest setting'
+      end
+    end
+  end
+
+  describe '#drop_visibility_level!' do
+    context 'when has a group' do
+      let(:group) { create(:group, visibility_level: group_visibility_level) }
+      let(:project) { build(:project, namespace: group, visibility_level: project_visibility_level) }
+
+      context 'when the group `visibility_level` is more strict' do
+        let(:group_visibility_level) { Gitlab::VisibilityLevel::PRIVATE }
+        let(:project_visibility_level) { Gitlab::VisibilityLevel::INTERNAL }
+
+        it 'sets `visibility_level` value from the group' do
+          expect { project.drop_visibility_level! }
+            .to change { project.visibility_level }
+            .to(Gitlab::VisibilityLevel::PRIVATE)
+        end
+      end
+
+      context 'when the group `visibility_level` is less strict' do
+        let(:group_visibility_level) { Gitlab::VisibilityLevel::INTERNAL }
+        let(:project_visibility_level) { Gitlab::VisibilityLevel::PRIVATE }
+
+        it 'does not change the value of the `visibility_level` field' do
+          expect { project.drop_visibility_level! }
+            .not_to change { project.visibility_level }
+        end
+      end
+    end
+
+    context 'when `restricted_visibility_levels` of the GitLab instance exist' do
+      before do
+        stub_application_setting(restricted_visibility_levels: [Gitlab::VisibilityLevel::INTERNAL])
+      end
+
+      let(:project) { build(:project, visibility_level: project_visibility_level) }
+
+      context 'when `visibility_level` is included into `restricted_visibility_levels`' do
+        let(:project_visibility_level) { Gitlab::VisibilityLevel::INTERNAL }
+
+        it 'sets `visibility_level` value to `PRIVATE`' do
+          expect { project.drop_visibility_level! }
+            .to change { project.visibility_level }
+            .to(Gitlab::VisibilityLevel::PRIVATE)
+        end
+      end
+
+      context 'when `restricted_visibility_levels` does not include `visibility_level`' do
+        let(:project_visibility_level) { Gitlab::VisibilityLevel::PUBLIC }
+
+        it 'does not change the value of the `visibility_level` field' do
+          expect { project.drop_visibility_level! }
+            .to not_change { project.visibility_level }
+        end
+      end
     end
   end
 

@@ -2,6 +2,7 @@
 
 class LfsObject < ApplicationRecord
   include AfterCommitQueue
+  include Checksummable
   include EachBatch
   include ObjectStorage::BackgroundMove
 
@@ -24,7 +25,13 @@ class LfsObject < ApplicationRecord
   end
 
   def project_allowed_access?(project)
-    projects.exists?(project.lfs_storage_project.id)
+    if project.fork_network_member
+      lfs_objects_projects
+        .where("EXISTS(?)", project.fork_network.fork_network_members.select(1).where("fork_network_members.project_id = lfs_objects_projects.project_id"))
+        .exists?
+    else
+      lfs_objects_projects.where(project_id: project.id).exists?
+    end
   end
 
   def local_store?
@@ -40,7 +47,7 @@ class LfsObject < ApplicationRecord
   # rubocop: enable DestroyAll
 
   def self.calculate_oid(path)
-    Digest::SHA256.file(path).hexdigest
+    self.hexdigest(path)
   end
 end
 

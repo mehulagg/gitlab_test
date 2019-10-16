@@ -5,12 +5,8 @@ import * as actions from 'ee/related_items_tree/store/actions';
 import * as types from 'ee/related_items_tree/store/mutation_types';
 
 import * as epicUtils from 'ee/related_items_tree/utils/epic_utils';
-import {
-  ChildType,
-  ChildState,
-  ActionType,
-  PathIdSeparator,
-} from 'ee/related_items_tree/constants';
+import { ChildType, ChildState, PathIdSeparator } from 'ee/related_items_tree/constants';
+import { issuableTypesMap } from 'ee/related_issues/constants';
 
 import axios from '~/lib/utils/axios_utils';
 import testAction from 'spec/helpers/vuex_action_helper';
@@ -806,6 +802,9 @@ describe('RelatedItemTree', () => {
       describe('receiveAddItemSuccess', () => {
         it('should set `state.itemAddInProgress` to false and dispatches actions `setPendingReferences`, `setItemInputValue` and `toggleAddItemForm`', done => {
           state.epicsBeginAtIndex = 0;
+          state.issuableType = issuableTypesMap.EPIC;
+          state.isEpic = true;
+
           const mockEpicsWithoutPerm = mockEpics.map(item =>
             Object.assign({}, item, {
               pathIdSeparator: PathIdSeparator.Epic,
@@ -815,7 +814,7 @@ describe('RelatedItemTree', () => {
 
           testAction(
             actions.receiveAddItemSuccess,
-            { actionType: ActionType.Epic, rawItems: mockEpicsWithoutPerm },
+            { rawItems: mockEpicsWithoutPerm },
             state,
             [
               {
@@ -845,7 +844,7 @@ describe('RelatedItemTree', () => {
               },
               {
                 type: 'toggleAddItemForm',
-                payload: { actionType: ActionType.Epic, toggleState: false },
+                payload: { toggleState: false },
               },
             ],
             done,
@@ -878,7 +877,7 @@ describe('RelatedItemTree', () => {
           actions.receiveAddItemFailure(
             {
               commit: () => {},
-              state: { actionType: ActionType.Epic },
+              state: { issuableType: issuableTypesMap.EPIC },
             },
             {
               message,
@@ -903,9 +902,10 @@ describe('RelatedItemTree', () => {
         });
 
         it('should dispatch `requestAddItem` and `receiveAddItemSuccess` actions on request success', done => {
-          state.actionType = ActionType.Epic;
+          state.issuableType = issuableTypesMap.EPIC;
           state.epicsEndpoint = '/foo/bar';
           state.pendingReferences = ['foo'];
+          state.isEpic = true;
 
           mock.onPost(state.epicsEndpoint).replyOnce(200, { issuables: [mockEpic1] });
 
@@ -920,7 +920,7 @@ describe('RelatedItemTree', () => {
               },
               {
                 type: 'receiveAddItemSuccess',
-                payload: { actionType: ActionType.Epic, rawItems: [mockEpic1] },
+                payload: { rawItems: [mockEpic1] },
               },
             ],
             done,
@@ -928,7 +928,7 @@ describe('RelatedItemTree', () => {
         });
 
         it('should dispatch `requestAddItem` and `receiveAddItemFailure` actions on request failure', done => {
-          state.actionType = ActionType.Epic;
+          state.issuableType = issuableTypesMap.EPIC;
           state.epicsEndpoint = '/foo/bar';
           state.pendingReferences = ['foo'];
 
@@ -976,10 +976,12 @@ describe('RelatedItemTree', () => {
           state.parentItem = {
             fullPath: createdEpic.group.fullPath,
           };
+          state.issuableType = issuableTypesMap.EPIC;
+          state.isEpic = true;
 
           testAction(
             actions.receiveCreateItemSuccess,
-            { rawItem: mockEpic1, actionType: ActionType.Epic },
+            { rawItem: mockEpic1 },
             state,
             [
               {
@@ -998,7 +1000,7 @@ describe('RelatedItemTree', () => {
               },
               {
                 type: 'toggleCreateEpicForm',
-                payload: { actionType: ActionType.Epic, toggleState: false },
+                payload: { toggleState: false },
               },
             ],
             done,
@@ -1027,7 +1029,7 @@ describe('RelatedItemTree', () => {
           actions.receiveCreateItemFailure(
             {
               commit: () => {},
-              state: { actionType: ActionType.Epic },
+              state: {},
             },
             {
               message,
@@ -1046,7 +1048,7 @@ describe('RelatedItemTree', () => {
         beforeEach(() => {
           mock = new MockAdapter(axios);
           state.parentItem = mockParentItem;
-          state.actionType = ActionType.Epic;
+          state.issuableType = issuableTypesMap.EPIC;
         });
 
         afterEach(() => {
@@ -1068,7 +1070,6 @@ describe('RelatedItemTree', () => {
               {
                 type: 'receiveCreateItemSuccess',
                 payload: {
-                  actionType: ActionType.Epic,
                   rawItem: Object.assign({}, mockEpic1, {
                     path: '',
                     state: ChildState.Open,

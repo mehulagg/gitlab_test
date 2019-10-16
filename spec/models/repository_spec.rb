@@ -1075,7 +1075,7 @@ describe Repository do
       let(:ref) { 'refs/heads/master' }
 
       it 'returns nil' do
-        is_expected.to eq(nil)
+        is_expected.to be_nil
       end
     end
 
@@ -1193,33 +1193,21 @@ describe Repository do
   end
 
   describe '#has_visible_content?' do
-    before do
-      # If raw_repository.has_visible_content? gets called more than once then
-      # caching is broken. We don't want that.
+    it 'delegates to raw_repository when true' do
       expect(repository.raw_repository).to receive(:has_visible_content?)
-        .once
-        .and_return(result)
+        .and_return(true)
+
+      expect(repository.has_visible_content?).to eq(true)
     end
 
-    context 'when true' do
-      let(:result) { true }
+    it 'delegates to raw_repository when false' do
+      expect(repository.raw_repository).to receive(:has_visible_content?)
+        .and_return(false)
 
-      it 'returns true and caches it' do
-        expect(repository.has_visible_content?).to eq(true)
-        # Second call hits the cache
-        expect(repository.has_visible_content?).to eq(true)
-      end
+      expect(repository.has_visible_content?).to eq(false)
     end
 
-    context 'when false' do
-      let(:result) { false }
-
-      it 'returns false and caches it' do
-        expect(repository.has_visible_content?).to eq(false)
-        # Second call hits the cache
-        expect(repository.has_visible_content?).to eq(false)
-      end
-    end
+    it_behaves_like 'asymmetric cached method', :has_visible_content?
   end
 
   describe '#branch_exists?' do
@@ -2002,7 +1990,7 @@ describe Repository do
     it 'returns nil if repo does not exist' do
       allow(repository).to receive(:root_ref).and_raise(Gitlab::Git::Repository::NoRepository)
 
-      expect(repository.avatar).to eq(nil)
+      expect(repository.avatar).to be_nil
     end
 
     it 'returns the first avatar file found in the repository' do
@@ -2604,6 +2592,10 @@ describe Repository do
       expect { repository.create_if_not_exists }.to change { repository.exists? }.from(false).to(true)
     end
 
+    it 'returns true' do
+      expect(repository.create_if_not_exists).to eq(true)
+    end
+
     it 'calls out to the repository client to create a repo' do
       expect(repository.raw.gitaly_repository_client).to receive(:create_repository)
 
@@ -2618,6 +2610,10 @@ describe Repository do
 
         repository.create_if_not_exists
       end
+
+      it 'returns nil' do
+        expect(repository.create_if_not_exists).to be_nil
+      end
     end
 
     context 'when the repository exists but the cache is not up to date' do
@@ -2628,6 +2624,10 @@ describe Repository do
         expect(repository.raw).to receive(:create_repository).and_call_original
 
         expect { repository.create_if_not_exists }.not_to raise_error
+      end
+
+      it 'returns nil' do
+        expect(repository.create_if_not_exists).to be_nil
       end
     end
   end

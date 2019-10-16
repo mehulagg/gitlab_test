@@ -35,8 +35,11 @@ export default {
     },
   },
   methods: {
-    callButtonAction(button) {
-      this.$emit('clickActionButton', button);
+    callStepContentButton(button) {
+      this.$emit('clickStepContentButton', button);
+    },
+    callExitTour() {
+      this.$emit('clickExitTourButton');
     },
     submitFeedback(button) {
       this.$emit('clickFeedbackButton', button);
@@ -63,7 +66,7 @@ export default {
             :key="index"
             :class="button.btnClass"
             class="btn btn-sm mr-2"
-            @click="callButtonAction(button)"
+            @click="callStepContentButton(button)"
           >
             {{ button.text }}
           </gl-button>
@@ -71,6 +74,11 @@ export default {
             {{ button.text }}
           </span>
         </template>
+      </template>
+      <template v-if="helpContent.exitTour">
+        <gl-button class="btn btn-sm btn-primary mr-2" @click="callExitTour">
+          {{ s__("UserOnboardingTour|Close 'Learn GitLab'") }}
+        </gl-button>
       </template>
       <template v-if="helpContent.feedbackButtons">
         <gl-button-group>

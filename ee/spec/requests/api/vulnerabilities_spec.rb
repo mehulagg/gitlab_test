@@ -3,178 +3,135 @@
 require 'spec_helper'
 
 describe API::Vulnerabilities do
-  set(:project) { create(:project, :public) }
-  set(:user) { create(:user) }
-
-  let(:pipeline) { create(:ci_empty_pipeline, status: :created, project: project) }
-  let(:pipeline_without_vulnerabilities) { create(:ci_pipeline_without_jobs, status: :created, project: project) }
-
-  let(:build_ds) { create(:ci_build, :success, name: 'ds_job', pipeline: pipeline, project: project) }
-  let(:build_sast) { create(:ci_build, :success, name: 'sast_job', pipeline: pipeline, project: project) }
-
-  let(:ds_report) { pipeline.security_reports.reports["dependency_scanning"] }
-  let(:sast_report) { pipeline.security_reports.reports["sast"] }
-
-  let(:dismissal) do
-    create(:vulnerability_feedback, :dismissal, :sast,
-      project: project,
-      pipeline: pipeline,
-      project_fingerprint: sast_report.occurrences.first.project_fingerprint,
-      vulnerability_data: sast_report.occurrences.first.raw_metadata
-    )
-  end
-
   before do
-    stub_licensed_features(security_dashboard: true, sast: true, dependency_scanning: true, container_scanning: true)
-
-    create(:ee_ci_job_artifact, :dependency_scanning, job: build_ds, project: project)
-    create(:ee_ci_job_artifact, :sast, job: build_sast, project: project)
-    dismissal
+    stub_licensed_features(security_dashboard: true)
   end
+
+  let_it_be(:project) { create(:project, :with_vulnerabilities) }
+  let_it_be(:user) { create(:user) }
 
   describe "GET /projects/:id/vulnerabilities" do
+    let(:project_vulnerabilities_path) { "/projects/#{project.id}/vulnerabilities" }
+
     context 'with an authorized user with proper permissions' do
       before do
         project.add_developer(user)
       end
 
-      it 'returns all non-dismissed vulnerabilities' do
-        occurrence_count = (sast_report.occurrences.count + ds_report.occurrences.count - 1).to_s
-
-        get api("/projects/#{project.id}/vulnerabilities?per_page=40", user)
+      it 'returns all vulnerabilities of a project' do
+        get api(project_vulnerabilities_path, user)
 
         expect(response).to have_gitlab_http_status(200)
         expect(response).to include_pagination_headers
-        expect(response).to match_response_schema('vulnerabilities/occurrence_list', dir: 'ee')
-
-        expect(response.headers['X-Total']).to eq occurrence_count
-
-        expect(json_response.map { |v| v['report_type'] }.uniq).to match_array %w[dependency_scanning sast]
+        expect(response).to match_response_schema('vulnerability_list', dir: 'ee')
+        expect(response.headers['X-Total']).to eq project.vulnerabilities.count.to_s
       end
 
-      it 'does not have N+1 queries' do
-        control_count = ActiveRecord::QueryRecorder.new do
-          get api("/projects/#{project.id}/vulnerabilities", user), params: { report_type: 'dependency_scanning' }
-        end.count
+      it 'paginates the vulnerabilities according to the pagination params' do
+        get api("#{project_vulnerabilities_path}?page=2&per_page=1", user)
 
-        expect { get api("/projects/#{project.id}/vulnerabilities", user) }.not_to exceed_query_limit(control_count)
+        expect(response).to have_gitlab_http_status(200)
+        expect(json_response.map { |v| v['id'] }).to contain_exactly(project.vulnerabilities.second.id)
       end
 
-      describe 'filtering' do
-        it 'returns vulnerabilities with sast report_type' do
-          occurrence_count = (sast_report.occurrences.count - 1).to_s
-
-          get api("/projects/#{project.id}/vulnerabilities", user), params: { report_type: 'sast' }
-
-          expect(response).to have_gitlab_http_status(200)
-
-          expect(response.headers['X-Total']).to eq occurrence_count
-
-          expect(json_response.map { |v| v['report_type'] }.uniq).to match_array %w[sast]
-
-          # occurrences are implicitly sorted by Security::MergeReportsService,
-          # occurrences order differs from what is present in fixture file
-          expect(json_response.first['name']).to eq 'ECB mode is insecure'
+      context 'when "first-class vulnerabilities" feature is disabled' do
+        before do
+          stub_feature_flags(first_class_vulnerabilities: false)
         end
 
-        it 'returns vulnerabilities with dependency_scanning report_type' do
-          occurrence_count = ds_report.occurrences.count.to_s
+        it_behaves_like 'getting list of vulnerability findings'
+      end
+    end
 
-          get api("/projects/#{project.id}/vulnerabilities", user), params: { report_type: 'dependency_scanning' }
+    it_behaves_like 'forbids access to project vulnerabilities endpoint in expected cases'
+  end
 
-          expect(response).to have_gitlab_http_status(200)
+  describe "POST /vulnerabilities:id/dismiss" do
+    before do
+      create_list(:vulnerabilities_occurrence, 2, vulnerability: vulnerability, project: vulnerability.project)
+    end
 
-          expect(response.headers['X-Total']).to eq occurrence_count
+    let(:vulnerability) { project.vulnerabilities.first }
 
-          expect(json_response.map { |v| v['report_type'] }.uniq).to match_array %w[dependency_scanning]
+    subject { post api("/vulnerabilities/#{vulnerability.id}/dismiss", user) }
 
-          # occurrences are implicitly sorted by Security::MergeReportsService,
-          # occurrences order differs from what is present in fixture file
-          expect(json_response.first['name']).to eq 'ruby-ffi DDL loading issue on Windows OS'
-        end
+    context 'with an authorized user with proper permissions' do
+      before do
+        project.add_developer(user)
+      end
 
-        it 'returns dismissed vulnerabilities with `all` scope' do
-          occurrence_count = (sast_report.occurrences.count + ds_report.occurrences.count).to_s
+      it 'dismisses a vulnerability and its associated findings' do
+        subject
 
-          get api("/projects/#{project.id}/vulnerabilities", user), params: { per_page: 40, scope: 'all' }
+        expect(response).to have_gitlab_http_status(201)
+        expect(response).to match_response_schema('vulnerability', dir: 'ee')
 
-          expect(response).to have_gitlab_http_status(200)
+        expect(vulnerability.reload).to be_closed
+        expect(vulnerability.findings).to all have_vulnerability_dismissal_feedback
+      end
 
-          expect(response.headers['X-Total']).to eq occurrence_count
-        end
+      context 'when there is a dismissal error' do
+        before do
+          Grape::Endpoint.before_each do |endpoint|
+            allow(endpoint).to receive(:find_vulnerability!).and_wrap_original do |method, *args|
+              vulnerability = method.call(*args)
 
-        it 'returns vulnerabilities with low severity' do
-          get api("/projects/#{project.id}/vulnerabilities", user), params: { per_page: 40, severity: 'low' }
+              errors = ActiveModel::Errors.new(vulnerability)
+              errors.add(:base, 'something went wrong')
 
-          expect(response).to have_gitlab_http_status(200)
+              allow(vulnerability).to receive(:valid?).and_return(false)
+              allow(vulnerability).to receive(:errors).and_return(errors)
 
-          expect(json_response.map { |v| v['severity'] }.uniq).to eq %w[low]
-        end
-
-        it 'returns vulnerabilities with high confidence' do
-          get api("/projects/#{project.id}/vulnerabilities", user), params: { per_page: 40, confidence: 'high' }
-
-          expect(response).to have_gitlab_http_status(200)
-
-          expect(json_response.map { |v| v['confidence'] }.uniq).to eq %w[high]
-        end
-
-        context 'when pipeline_id is supplied' do
-          it 'returns vulnerabilities from supplied pipeline' do
-            occurrence_count = (sast_report.occurrences.count + ds_report.occurrences.count - 1).to_s
-
-            get api("/projects/#{project.id}/vulnerabilities", user), params: { per_page: 40, pipeline_id: pipeline.id }
-
-            expect(response).to have_gitlab_http_status(200)
-
-            expect(response.headers['X-Total']).to eq occurrence_count
-          end
-
-          context 'pipeline has no reports' do
-            it 'returns empty results' do
-              get api("/projects/#{project.id}/vulnerabilities", user), params: { per_page: 40, pipeline_id: pipeline_without_vulnerabilities.id }
-
-              expect(json_response).to eq []
+              vulnerability
             end
           end
+        end
 
-          context 'with unknown pipeline' do
-            it 'returns empty results' do
-              get api("/projects/#{project.id}/vulnerabilities", user), params: { per_page: 40, pipeline_id: 0 }
+        after do
+          # resetting according to the https://github.com/ruby-grape/grape#stubbing-helpers
+          Grape::Endpoint.before_each nil
+        end
 
-              expect(json_response).to eq []
-            end
-          end
+        it 'responds with error' do
+          subject
+
+          expect(response).to have_gitlab_http_status(400)
+          expect(json_response['message']).to eq('base' => ['something went wrong'])
+        end
+      end
+
+      context 'and when security dashboard feature is not available' do
+        before do
+          stub_licensed_features(security_dashboard: false)
+        end
+
+        it 'responds with 403 Forbidden' do
+          subject
+
+          expect(response).to have_gitlab_http_status(403)
         end
       end
     end
 
-    context 'with authorized user without read permissions' do
+    context 'when user does not have permissions to create a dismissal feedback' do
       before do
         project.add_reporter(user)
-        stub_licensed_features(security_dashboard: false, sast: true, dependency_scanning: true, container_scanning: true)
       end
 
       it 'responds with 403 Forbidden' do
-        get api("/projects/#{project.id}/vulnerabilities", user)
+        subject
 
         expect(response).to have_gitlab_http_status(403)
       end
     end
 
-    context 'with no project access' do
-      it 'responds with 404 Not Found' do
-        private_project = create(:project)
-
-        get api("/projects/#{private_project.id}/vulnerabilities", user)
-
-        expect(response).to have_gitlab_http_status(404)
+    context 'when first-class vulnerabilities feature is disabled' do
+      before do
+        stub_feature_flags(first_class_vulnerabilities: false)
       end
-    end
 
-    context 'with unknown project' do
       it 'responds with 404 Not Found' do
-        get api("/projects/0/vulnerabilities", user)
+        subject
 
         expect(response).to have_gitlab_http_status(404)
       end

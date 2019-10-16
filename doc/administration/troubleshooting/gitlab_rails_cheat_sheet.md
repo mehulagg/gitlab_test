@@ -4,7 +4,7 @@ type: reference
 
 # GitLab Rails Console Cheat Sheet
 
-This is the GitLab Support Team's collection of information regarding the GitLab rails
+This is the GitLab Support Team's collection of information regarding the GitLab Rails
 console, for use while troubleshooting. It is listed here for transparency,
 and it may be useful for users with experience with these tools. If you are currently
 having an issue with GitLab, it is highly recommended that you check your
@@ -688,6 +688,15 @@ u = User.find_by_username('')
 MergeRequests::PostMergeService.new(p, u).execute(m)
 ```
 
+### Delete a merge request
+
+```ruby
+u = User.find_by_username('<username>')
+p = Project.find_by_full_path('<group>/<project>')
+m = p.merge_requests.find_by(iid: <IID>)
+Issuable::DestroyService.new(m.project, u).execute(m)
+```
+
 ### Rebase manually
 
 ```ruby
@@ -701,7 +710,8 @@ MergeRequests::RebaseService.new(m.target_project, u).execute(m)
 
 ### Cancel stuck pending pipelines
 
-See <https://gitlab.com/gitlab-com/support-forum/issues/2449#note_41929707>.
+For more information, see the [confidential issue](../../user/project/issues/confidential_issues.md)
+`https://gitlab.com/gitlab-com/support-forum/issues/2449#note_41929707`.
 
 ```ruby
 Ci::Pipeline.where(project_id: p.id).where(status: 'pending').count
@@ -822,7 +832,7 @@ License.current # check to make sure it applied
 
 From [Zendesk ticket #91083](https://gitlab.zendesk.com/agent/tickets/91083) (internal)
 
-### Poll unicorn requests by seconds
+### Poll Unicorn requests by seconds
 
 ```ruby
 require 'rubygems'
@@ -882,6 +892,23 @@ queue = Sidekiq::Queue.new('repository_import')
 queue.each { |job| job.delete if <condition>}
 ```
 
+`<condition>` probably includes references to job arguments, which depend on the type of job in question.
+
+| queue | worker | job args |
+| ----- | ------ | -------- |
+| repository_import | RepositoryImportWorker | project_id |
+| update_merge_requests | UpdateMergeRequestsWorker | project_id, user_id, oldrev, newrev, ref |
+
+**Example:** Delete all UpdateMergeRequestsWorker jobs associated with a merge request on project_id 125,
+merging branch `ref/heads/my_branch`.
+
+```ruby
+queue = Sidekiq::Queue.new('update_merge_requests')
+queue.each { |job| job.delete if job.args[0]==125 and job.args[4]=='ref/heads/my_branch'}
+```
+
+**Note:** Running jobs will not be killed. Stop sidekiq before doing this, to get all matching jobs.
+
 ### Enable debug logging of Sidekiq
 
 ```ruby
@@ -898,13 +925,13 @@ See <https://github.com/mperham/sidekiq/wiki/Signals#ttin>.
 
 ## Redis
 
-### Connect to redis (omnibus)
+### Connect to Redis (omnibus)
 
 ```sh
 /opt/gitlab/embedded/bin/redis-cli -s /var/opt/gitlab/redis/redis.socket
 ```
 
-### Connect to redis (HA)
+### Connect to Redis (HA)
 
 ```sh
 /opt/gitlab/embedded/bin/redis-cli -h <host ip> -a <password>

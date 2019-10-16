@@ -6,6 +6,7 @@ class Repository
   REF_MERGE_REQUEST = 'merge-requests'
   REF_KEEP_AROUND = 'keep-around'
   REF_ENVIRONMENTS = 'environments'
+  REF_PIPELINES = 'pipelines'
 
   ARCHIVE_CACHE_TIME = 60 # Cache archives referred to by a (mutable) ref for 1 minute
   ARCHIVE_CACHE_TIME_IMMUTABLE = 3600 # Cache archives referred to by an immutable reference for 1 hour
@@ -16,7 +17,7 @@ class Repository
     replace
     #{REF_ENVIRONMENTS}
     #{REF_KEEP_AROUND}
-    #{REF_ENVIRONMENTS}
+    #{REF_PIPELINES}
   ].freeze
 
   include Gitlab::RepositoryCacheAdapter
@@ -567,7 +568,7 @@ class Repository
   delegate :branch_count, :tag_count, :has_visible_content?, to: :raw_repository
   cache_method :branch_count, fallback: 0
   cache_method :tag_count, fallback: 0
-  cache_method :has_visible_content?, fallback: false
+  cache_method_asymmetrically :has_visible_content?
 
   def avatar
     # n+1: https://gitlab.com/gitlab-org/gitlab-foss/issues/38327
@@ -1098,6 +1099,8 @@ class Repository
 
     raw.create_repository
     after_create
+
+    true
   end
 
   def blobs_metadata(paths, ref = 'HEAD')

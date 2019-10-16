@@ -37,7 +37,8 @@ module Gitlab
             description: description_for(release),
             created_at: release.created_at,
             updated_at: release.created_at,
-            released_at: release.published_at,
+            # Draft releases will have a null published_at
+            released_at: release.published_at || Time.current,
             project_id: project.id
           }
         end
@@ -47,11 +48,7 @@ module Gitlab
         end
 
         def description_for(release)
-          if release.body.present?
-            release.body
-          else
-            "Release for tag #{release.tag_name}"
-          end
+          release.body.presence || "Release for tag #{release.tag_name}"
         end
       end
     end
