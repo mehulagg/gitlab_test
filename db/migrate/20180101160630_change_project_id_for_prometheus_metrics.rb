@@ -6,6 +6,6 @@ class ChangeProjectIdForPrometheusMetrics < ActiveRecord::Migration[4.2]
   DOWNTIME = false
 
   def change
-    change_column_null :prometheus_metrics, :project_id, true
+    change_column_null :prometheus_metrics, :project_id, true # rubocop:disable Migration/PostMigrationMethods
   end
 end

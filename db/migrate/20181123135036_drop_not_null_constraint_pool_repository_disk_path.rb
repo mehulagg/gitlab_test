@@ -4,6 +4,6 @@ class DropNotNullConstraintPoolRepositoryDiskPath < ActiveRecord::Migration[5.0]
   DOWNTIME = false
 
   def change
-    change_column_null :pool_repositories, :disk_path, true
+    change_column_null :pool_repositories, :disk_path, true # rubocop:disable Migration/PostMigrationMethods
   end
 end

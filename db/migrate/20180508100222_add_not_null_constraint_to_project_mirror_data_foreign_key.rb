@@ -12,7 +12,7 @@ class AddNotNullConstraintToProjectMirrorDataForeignKey < ActiveRecord::Migratio
   def up
     ProjectImportState.where(project_id: nil).delete_all
 
-    change_column_null :project_mirror_data, :project_id, false
+    change_column_null :project_mirror_data, :project_id, false # rubocop:disable Migration/PostMigrationMethods
   end
 
   def down

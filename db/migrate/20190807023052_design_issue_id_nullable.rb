@@ -6,6 +6,6 @@ class DesignIssueIdNullable < ActiveRecord::Migration[5.2]
   DOWNTIME = false
 
   def change
-    change_column_null :design_management_designs, :issue_id, true
+    change_column_null :design_management_designs, :issue_id, true # rubocop:disable Migration/PostMigrationMethods
   end
 end

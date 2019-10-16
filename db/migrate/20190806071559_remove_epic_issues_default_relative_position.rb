@@ -11,7 +11,7 @@ class RemoveEpicIssuesDefaultRelativePosition < ActiveRecord::Migration[5.2]
     # The column won't exist if someone installed EE, downgraded to CE
     # before it was added in EE, then tries to upgrade CE.
     if column_exists?(:epic_issues, :relative_position)
-      change_column_null :epic_issues, :relative_position, true
+      change_column_null :epic_issues, :relative_position, true # rubocop:disable Migration/PostMigrationMethods
       change_column_default :epic_issues, :relative_position, from: 1073741823, to: nil
     else
       add_column_with_default(:epic_issues, :relative_position, :integer, default: nil, allow_null: true)

@@ -2,7 +2,7 @@ class AddNotNullConstraintsToPrometheusMetricsYLabelAndUnit < ActiveRecord::Migr
   DOWNTIME = false
 
   def change
-    change_column_null(:prometheus_metrics, :y_label, false)
-    change_column_null(:prometheus_metrics, :unit, false)
+    change_column_null(:prometheus_metrics, :y_label, false) # rubocop:disable Migration/PostMigrationMethods
+    change_column_null(:prometheus_metrics, :unit, false) # rubocop:disable Migration/PostMigrationMethods
   end
 end

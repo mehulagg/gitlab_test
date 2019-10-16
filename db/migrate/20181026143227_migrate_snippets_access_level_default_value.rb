@@ -29,7 +29,7 @@ class MigrateSnippetsAccessLevelDefaultValue < ActiveRecord::Migration[4.2]
 
     # We do not need to perform this in a post-deployment migration as the
     # ProjectFeature model already enforces a default value for all new rows.
-    change_column_null :project_features, :snippets_access_level, false
+    change_column_null :project_features, :snippets_access_level, false # rubocop:disable Migration/PostMigrationMethods
   end
 
   def down

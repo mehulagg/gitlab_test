@@ -8,13 +8,13 @@ class BackfillReleasesTableUpdatedAtAndAddNotNullConstraintsToTimestamps < Activ
   disable_ddl_transaction!
 
   def up
-    change_column_null(:releases, :created_at, false, Time.zone.now)
+    change_column_null(:releases, :created_at, false, Time.zone.now) # rubocop:disable Migration/PostMigrationMethods
 
     update_column_in_batches(:releases, :updated_at, Arel.sql('created_at')) do |table, query|
       query.where(table[:updated_at].eq(nil))
     end
 
-    change_column_null(:releases, :updated_at, false, Time.zone.now)
+    change_column_null(:releases, :updated_at, false, Time.zone.now) # rubocop:disable Migration/PostMigrationMethods
   end
 
   def down

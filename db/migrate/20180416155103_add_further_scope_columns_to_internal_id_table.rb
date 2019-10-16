@@ -4,7 +4,7 @@ class AddFurtherScopeColumnsToInternalIdTable < ActiveRecord::Migration[4.2]
   DOWNTIME = false
 
   def up
-    change_column_null :internal_ids, :project_id, true
+    change_column_null :internal_ids, :project_id, true # rubocop:disable Migration/PostMigrationMethods
     add_column :internal_ids, :namespace_id, :integer, null: true
   end
 

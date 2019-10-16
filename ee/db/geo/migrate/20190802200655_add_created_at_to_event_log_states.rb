@@ -16,7 +16,7 @@ class AddCreatedAtToEventLogStates < ActiveRecord::Migration[5.2]
       )
     )')
 
-    change_column_null(:event_log_states, :created_at, false)
+    change_column_null(:event_log_states, :created_at, false) # rubocop:disable Migration/PostMigrationMethods
   end
 
   def down

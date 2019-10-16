@@ -14,7 +14,7 @@ class ChangePackagesSizeDefaultsInProjectStatistics < ActiveRecord::Migration[5.
       query.where(table[:packages_size].eq(nil))
     end
 
-    change_column_null :project_statistics, :packages_size, false
+    change_column_null :project_statistics, :packages_size, false # rubocop:disable Migration/PostMigrationMethods
   end
 
   def down

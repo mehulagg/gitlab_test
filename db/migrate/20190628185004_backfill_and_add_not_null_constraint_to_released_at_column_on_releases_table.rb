@@ -9,7 +9,7 @@ class BackfillAndAddNotNullConstraintToReleasedAtColumnOnReleasesTable < ActiveR
 
   def up
     update_column_in_batches(:releases, :released_at, Arel.sql('created_at'))
-    change_column_null(:releases, :released_at, false)
+    change_column_null(:releases, :released_at, false) # rubocop:disable Migration/PostMigrationMethods
   end
 
   def down

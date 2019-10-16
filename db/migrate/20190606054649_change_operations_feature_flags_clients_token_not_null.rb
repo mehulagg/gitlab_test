@@ -6,6 +6,6 @@ class ChangeOperationsFeatureFlagsClientsTokenNotNull < ActiveRecord::Migration[
   DOWNTIME = false
 
   def change
-    change_column_null :operations_feature_flags_clients, :token, true
+    change_column_null :operations_feature_flags_clients, :token, true # rubocop:disable Migration/PostMigrationMethods
   end
 end

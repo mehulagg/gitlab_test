@@ -11,6 +11,6 @@ class AddColumnsProjectErrorTrackingSettings < ActiveRecord::Migration[5.0]
 
     change_column_default :project_error_tracking_settings, :enabled, from: true, to: false
 
-    change_column_null :project_error_tracking_settings, :api_url, true
+    change_column_null :project_error_tracking_settings, :api_url, true # rubocop:disable Migration/PostMigrationMethods
   end
 end

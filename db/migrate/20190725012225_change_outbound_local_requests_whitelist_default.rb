@@ -19,7 +19,7 @@ class ChangeOutboundLocalRequestsWhitelistDefault < ActiveRecord::Migration[5.2]
       .where(outbound_local_requests_whitelist: nil)
       .update(outbound_local_requests_whitelist: default_value)
 
-    change_column_null(:application_settings, :outbound_local_requests_whitelist, false)
+    change_column_null(:application_settings, :outbound_local_requests_whitelist, false) # rubocop:disable Migration/PostMigrationMethods
   end
 
   def down

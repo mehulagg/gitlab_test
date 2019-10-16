@@ -13,7 +13,7 @@ class AddGroupIdToBoardsCe < ActiveRecord::Migration[4.2]
     add_foreign_key :boards, :namespaces, column: :group_id, on_delete: :cascade
     add_concurrent_index :boards, :group_id
 
-    change_column_null :boards, :project_id, true
+    change_column_null :boards, :project_id, true # rubocop:disable Migration/PostMigrationMethods
   end
 
   def down

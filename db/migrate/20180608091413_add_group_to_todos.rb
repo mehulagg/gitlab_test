@@ -16,7 +16,7 @@ class AddGroupToTodos < ActiveRecord::Migration[4.2]
     add_concurrent_foreign_key :todos, :namespaces, column: :group_id, on_delete: :cascade
     add_concurrent_index :todos, :group_id
 
-    change_column_null :todos, :project_id, true
+    change_column_null :todos, :project_id, true # rubocop:disable Migration/PostMigrationMethods
   end
 
   def down

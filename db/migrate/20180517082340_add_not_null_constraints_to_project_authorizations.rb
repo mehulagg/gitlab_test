@@ -4,6 +4,7 @@ class AddNotNullConstraintsToProjectAuthorizations < ActiveRecord::Migration[4.2
   # Set this constant to true if this migration requires downtime.
   DOWNTIME = false
 
+  # rubocop:disable Migration/PostMigrationMethods
   def up
     if Gitlab::Database.postgresql?
       # One-pass version for PostgreSQL
@@ -19,6 +20,7 @@ class AddNotNullConstraintsToProjectAuthorizations < ActiveRecord::Migration[4.2
       change_column_null :project_authorizations, :access_level, false
     end
   end
+  # rubocop:enable Migration/PostMigrationMethods
 
   def down
     if Gitlab::Database.postgresql?

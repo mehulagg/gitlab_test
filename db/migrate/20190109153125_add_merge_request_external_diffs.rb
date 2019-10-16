@@ -20,6 +20,6 @@ class AddMergeRequestExternalDiffs < ActiveRecord::Migration[5.0]
     add_column :merge_request_diff_files, :external_diff_size, :integer
 
     # If the diff is in object storage, it will be null in the database
-    change_column_null :merge_request_diff_files, :diff, true
+    change_column_null :merge_request_diff_files, :diff, true # rubocop:disable Migration/PostMigrationMethods
   end
 end

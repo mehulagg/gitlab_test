@@ -6,6 +6,6 @@ class ChangeDeployTokensTokenNotNull < ActiveRecord::Migration[5.1]
   DOWNTIME = false
 
   def change
-    change_column_null :deploy_tokens, :token, true
+    change_column_null :deploy_tokens, :token, true # rubocop:disable Migration/PostMigrationMethods
   end
 end
