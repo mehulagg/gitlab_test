@@ -37,7 +37,6 @@
 !/config/initializers/0_inject_enterprise_edition_module.rb
 !/ee/app/models/license.rb
 !/lib/gitlab.rb
-!/lib/gitlab/utils.rb
 !/vendor/ruby/
 # Plus the following:
 # - ./qa/
