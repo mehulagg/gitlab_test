@@ -71,6 +71,7 @@ sast:
           MAVEN_CLI_OPTS \
           MAVEN_PATH \
           MAVEN_REPO_PATH \
+          NODE_OPTIONS \
           SBT_PATH \
           FAIL_NEVER \
         ) \
