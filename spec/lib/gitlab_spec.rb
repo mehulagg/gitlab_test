@@ -154,42 +154,56 @@ describe Gitlab do
       described_class.instance_variable_set(:@is_ee, nil)
     end
 
-    it 'returns true when using Enterprise Edition' do
-      root = Pathname.new('dummy')
-      license_path = double(:path, exist?: true)
+    context 'when using Enterprise Edition' do
+      before do
+        root = Pathname.new('dummy')
+        license_path = double(:path, exist?: true)
 
-      allow(described_class)
-        .to receive(:root)
-              .and_return(root)
+        allow(described_class)
+          .to receive(:root)
+                .and_return(root)
 
-      allow(root)
-        .to receive(:join)
-              .with('ee/app/models/license.rb')
-              .and_return(license_path)
+        allow(root)
+          .to receive(:join)
+                .with('ee/app/models/license.rb')
+                .and_return(license_path)
+      end
 
-      expect(described_class.ee?).to eq(true)
+      it 'returns true if IS_GITLAB_EE is undefined' do
+        expect(described_class.ee?).to eq(true)
+      end
+
+      it 'returns false when IS_GITLAB_EE=0' do
+        stub_env('IS_GITLAB_EE', '0')
+
+        expect(described_class.ee?).to eq(false)
+      end
     end
 
-    it 'returns false when using Community Edition' do
-      root = double(:path)
-      license_path = double(:path, exists?: false)
+    context 'when using Community Edition' do
+      before do
+        root = double(:path)
+        license_path = double(:path, exists?: false)
 
-      allow(described_class)
-        .to receive(:root)
-              .and_return(Pathname.new('dummy'))
+        allow(described_class)
+          .to receive(:root)
+                .and_return(Pathname.new('dummy'))
 
-      allow(root)
-        .to receive(:join)
-              .with('ee/app/models/license.rb')
-              .and_return(license_path)
+        allow(root)
+          .to receive(:join)
+                .with('ee/app/models/license.rb')
+                .and_return(license_path)
+      end
 
-      expect(described_class.ee?).to eq(false)
-    end
+      it 'returns false if IS_GITLAB_EE is undefined' do
+        expect(described_class.ee?).to eq(false)
+      end
 
-    it 'returns true when the IS_GITLAB_EE variable is not empty' do
-      stub_env('IS_GITLAB_EE', '1')
+      it 'returns false when IS_GITLAB_EE=1' do
+        stub_env('IS_GITLAB_EE', '1')
 
-      expect(described_class.ee?).to eq(true)
+        expect(described_class.ee?).to eq(false)
+      end
     end
   end
 
