@@ -15,8 +15,8 @@ describe Gitlab::SidekiqDaemon::MemoryKiller do
     allow(memory_killer).to receive(:sleep) {}
   end
 
-  describe '#run_thread' do
-    subject { memory_killer.send(:run_thread) }
+  describe '#start_working' do
+    subject { memory_killer.send(:start_working) }
 
     before do
       # let enabled? return 3 times: true, true, false
@@ -40,7 +40,7 @@ describe Gitlab::SidekiqDaemon::MemoryKiller do
           .with(
             class: described_class.to_s,
             pid: pid,
-            message: "Exception from run_thread: My Exception")
+            message: "Exception from start_working: My Exception")
 
         expect(memory_killer).to receive(:rss_within_range?)
           .twice
@@ -54,7 +54,7 @@ describe Gitlab::SidekiqDaemon::MemoryKiller do
           .with(
             class: described_class.to_s,
             pid: pid,
-            message: "Exception from run_thread: My Exception")
+            message: "Exception from start_working: My Exception")
 
         expect(memory_killer).to receive(:rss_within_range?)
           .once

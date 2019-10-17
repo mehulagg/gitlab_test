@@ -37,8 +37,8 @@ describe Gitlab::SidekiqDaemon::Monitor do
     end
   end
 
-  describe '#run_thread when notification channel not enabled' do
-    subject { monitor.send(:run_thread) }
+  describe '#start_working when notification channel not enabled' do
+    subject { monitor.send(:start_working) }
 
     it 'return directly' do
       allow(monitor).to receive(:notification_channel_enabled?).and_return(nil)
@@ -52,8 +52,8 @@ describe Gitlab::SidekiqDaemon::Monitor do
     end
   end
 
-  describe '#run_thread when notification channel enabled' do
-    subject { monitor.send(:run_thread) }
+  describe '#start_working when notification channel enabled' do
+    subject { monitor.send(:start_working) }
 
     before do
       # we want to run at most once cycle

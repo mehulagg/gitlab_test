@@ -61,7 +61,7 @@ module Gitlab
         @metrics[:sidekiq_memory_killer_hard_limit_rss].set({}, @hard_limit_rss)
       end
 
-      def run_thread
+      def start_working
         Sidekiq.logger.info(
           class: self.class.to_s,
           action: 'start',

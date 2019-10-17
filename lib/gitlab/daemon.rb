@@ -34,9 +34,7 @@ module Gitlab
       @mutex.synchronize do
         break thread if thread?
 
-        if start_working
-          @thread = Thread.new { run_thread }
-        end
+        @thread = Thread.new { start_working }
       end
     end
 
@@ -59,18 +57,10 @@ module Gitlab
 
     private
 
-    # Executed in lock context before starting thread
-    # Needs to return success
     def start_working
-      true
-    end
-
-    # Executed in separate thread
-    def run_thread
       raise NotImplementedError
     end
 
-    # Executed in lock context
     def stop_working
       # no-ops
     end

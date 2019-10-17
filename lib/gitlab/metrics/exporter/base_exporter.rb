@@ -40,14 +40,7 @@ module Gitlab
             render_probe(liveness_probe, req, res)
           end
           server.mount '/', Rack::Handler::WEBrick, rack_app
-
-          true
-        end
-
-        def run_thread
-          server&.start
-        rescue IOError
-          # ignore forcibily closed servers
+          server.start
         end
 
         def stop_working
