@@ -50,7 +50,7 @@ def spin_for_category(team, project, category, branch_name)
 
   # Make traintainers have triple the chance to be picked as a reviewer
   reviewer = roulette.spin_for_person(reviewers + traintainers + traintainers, random: random)
-  maintainer = roulette.spin_for_person(maintainers, random: random, substitutes: traintainers)
+  maintainer = roulette.spin_for_person(maintainers, substitutes: traintainers, random: random)
 
   "| #{helper.label_for_category(category)} | #{reviewer&.markdown_name || NO_REVIEWER} | #{maintainer&.markdown_name || NO_MAINTAINER} |"
 end
