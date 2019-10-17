@@ -125,6 +125,18 @@ describe Gitlab::Danger::Roulette do
       expect(selected.username).to be_in(persons.map(&:username))
     end
 
+    it 'chooses a substitute if no person available' do
+      selected = subject.spin_for_person([ooo], substitutes: [person1], random: Random.new)
+
+      expect(selected.username).to eql(person1.username)
+    end
+
+    it 'does not choose a substitute if a person is available' do
+      selected = subject.spin_for_person([person1], substitutes: [person2], random: Random.new)
+
+      expect(selected.username).to eql(person1.username)
+    end
+
     it 'excludes OOO persons' do
       expect(subject.spin_for_person([ooo], random: Random.new)).to be_nil
     end

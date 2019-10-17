@@ -40,7 +40,12 @@ module Gitlab
       # Known issue: If someone is rejected due to OOO, and then becomes not OOO, the
       # selection will change on next spin
       # @param [Array<Teammate>] people
-      def spin_for_person(people, random:)
+      def spin_for_person(people, substitutes: [], random:)
+        shuffle_people(people, random: random) ||
+        shuffle_people(substitutes, random: random)
+      end
+
+      def shuffle_people(people, random:)
         people.shuffle(random: random)
           .find(&method(:valid_person?))
       end
