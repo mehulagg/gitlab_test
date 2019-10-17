@@ -1,0 +1,5 @@
+---
+title: Add `NODE_OPTIONS` to the variables propagated in Docker image
+merge_request: 18656
+author:
+type: other
