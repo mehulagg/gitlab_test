@@ -233,6 +233,7 @@ Some analyzers can be customized with environment variables.
 | `MAVEN_REPO_PATH`       | spotbugs | Path to the Maven local repository (shortcut for the `maven.repo.local` property). |
 | `SBT_PATH`              | spotbugs | Path to the `sbt` executable. |
 | `FAIL_NEVER`            | spotbugs | Set to `1` to ignore compilation failure. |
+| `NODE_OPTIONS`          | nodejs-scan | Set `NODE_OPTIONS` like `--max-old-space-size`. Defaults to `--max-old-space-size=1536MB`. |
 
 ## Reports JSON format
 
