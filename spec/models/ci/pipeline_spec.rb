@@ -802,6 +802,133 @@ describe Ci::Pipeline, :mailer do
     end
   end
 
+  describe '#scoped_variables_hash' do
+    subject { pipeline.scoped_variables_hash }
+
+    let(:pipeline) do
+      create(:ci_empty_pipeline,
+        project: project,
+        user: user,
+        status: :created,
+        before_sha: 'c47991bc452109dbfbdd812a9f98c40acd6b6b8b'
+      )
+    end
+
+    # it { is_expected.to eq({}) }
+
+    it 'includes application instance-wide variables' do
+      expect(subject).to include({
+        'CI' => 'true',
+        'GITLAB_CI' => 'true',
+        'GITLAB_FEATURES' => project.licensed_features.join(','),
+        'CI_SERVER_HOST' => Gitlab.config.gitlab.host,
+        'CI_SERVER_NAME' => 'GitLab',
+        'CI_SERVER_VERSION' => Gitlab::VERSION,
+        'CI_SERVER_VERSION_MAJOR' => Gitlab.version_info.major.to_s,
+        'CI_SERVER_VERSION_MINOR' => Gitlab.version_info.minor.to_s,
+        'CI_SERVER_VERSION_PATCH' => Gitlab.version_info.patch.to_s,
+        'CI_SERVER_REVISION' => Gitlab.revision
+      })
+    end
+
+    it 'includes git-related variables' do
+      expect(subject).to include({
+        'CI_COMMIT_SHA' => pipeline.sha,
+        'CI_COMMIT_SHORT_SHA' => pipeline.short_sha,
+        'CI_COMMIT_BEFORE_SHA' => pipeline.before_sha,
+        'CI_COMMIT_REF_NAME' => pipeline.source_ref,
+        'CI_COMMIT_REF_SLUG' => pipeline.source_ref_slug
+      })
+    end
+
+    it 'includes user-related variables' do
+      expect(subject).to include({
+        'GITLAB_USER_ID' => user.id.to_s,
+        'GITLAB_USER_EMAIL' => user.email,
+        'GITLAB_USER_LOGIN' => user.username,
+        'GITLAB_USER_NAME' => user.name
+      })
+    end
+
+    it 'does not include CI_COMMIT_TAG' do
+      expect(subject.keys).not_to include('CI_COMMIT_TAG')
+    end
+
+    it 'does not include build-specific keys' do
+      subject.keys.each do |key|
+        expect(key).not_to match(/CI_(JOB|BUILD)/)
+      end
+    end
+
+    context 'with a project-level variable' do
+      let(:variable) { create(:ci_variable, key: 'test_key', value: 'test_value') }
+
+      before do
+        project.variables << variable
+      end
+
+      it 'includes the variable' do
+        expect(subject).to include('test_key' => 'test_value')
+      end
+    end
+
+    context 'with a pipeline-level variable' do
+      let(:variable) { create(:ci_pipeline_variable, key: 'pipe_key', value: 'pipe_value') }
+
+      before do
+        pipeline.variables << variable
+      end
+
+      it 'includes the variable' do
+        expect(subject).to include('pipe_key' => 'pipe_value')
+      end
+    end
+
+    it 'includes #predefined_variables' do
+      expect(subject).to include(pipeline.predefined_variables.to_hash)
+    end
+
+    context 'with project deployment variables' do
+      let(:deployment_variables) do
+        Gitlab::Ci::Variables::Collection.new.tap do |variables_list|
+          variables_list.append(key: 'platform', value: 'variable')
+        end
+      end
+
+      it 'includes the variables' do
+        expect(pipeline.project).to receive(:deployment_variables)
+          .and_return(deployment_variables)
+
+        expect(subject).to include(deployment_variables.to_hash)
+      end
+    end
+
+    context 'for a schedule pipeline with schedule variables' do
+      let(:job_variable) do
+        Gitlab::Ci::Variables::Collection.new.tap do |variables_list|
+          variables_list.append(key: 'job', value: 'variable')
+        end
+      end
+
+      it 'includes the schedule variables' do
+        allow(pipeline).to receive(:pipeline_schedule)
+          .and_return(double(job_variables: job_variable))
+
+        expect(subject).to include(job_variable.to_hash)
+      end
+    end
+
+    context 'when ref is a tag' do
+      let(:pipeline) do
+        build(:ci_pipeline, ref: 'v1.0.0', tag: true, config: config)
+      end
+
+      it 'includes the tag name variable' do
+        expect(subject.to_hash).to include({ 'CI_COMMIT_TAG' => 'v1.0.0' })
+      end
+    end
+  end
+
   describe '#predefined_variables' do
     subject { pipeline.predefined_variables }
 

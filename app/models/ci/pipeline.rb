@@ -702,6 +702,28 @@ module Ci
       end
     end
 
+    def scoped_variables_hash
+      strong_memoize(:scoped_variables_hash) do
+        # This is a temporary piece of technical debt to allow us access
+        # to the CI variables to evaluate workflow:rules for the pipeline
+        # before any builds have been considered.
+        ::Ci::Build.new(pipeline_attributes).scoped_variables(environment: '*').to_hash
+          .reject { |key, _value| key =~ /\ACI_(JOB|BUILD)/ }
+      end
+    end
+
+    def pipeline_attributes
+      {
+        pipeline: self,
+        project: project,
+        user: user,
+        ref: ref,
+        tag: tag,
+        trigger_request: legacy_trigger,
+        protected: protected_ref?
+      }
+    end
+
     def predefined_variables
       Gitlab::Ci::Variables::Collection.new.tap do |variables|
         variables.append(key: 'CI_PIPELINE_IID', value: iid.to_s)
