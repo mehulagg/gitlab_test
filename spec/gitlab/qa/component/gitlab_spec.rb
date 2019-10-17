@@ -10,7 +10,7 @@ describe Gitlab::QA::Component::Gitlab do
 
       it 'updates environment variables' do
         expect(subject.environment['GITLAB_OMNIBUS_CONFIG'])
-          .to eq('# Be configured')
+          .to eq("gitlab_rails['rack_attack_protected_paths'] = []; # Be configured")
       end
     end
   end

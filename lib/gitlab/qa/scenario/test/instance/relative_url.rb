@@ -11,7 +11,7 @@ module Gitlab
                 gitlab.relative_path = '/relative'
 
                 gitlab.omnibus_config = <<~OMNIBUS
-                  external_url '#{gitlab.address}'
+                  external_url '#{gitlab.address}';
                 OMNIBUS
 
                 gitlab.instance do
