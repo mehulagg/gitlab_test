@@ -270,7 +270,7 @@ $ gitlab-qa Test::Integration::LDAPTLS EE
 This configures a GitLab instance for use with LDAP but does not
 spin up an LDAP server in a docker container.
 
-The LDAP server is created at runtime by the spec so that 
+The LDAP server is created at runtime by the spec so that
 the test can provide the fixture data for the LDAP server
 as needed.
 
@@ -295,7 +295,7 @@ Example:
 $ export EE_LICENSE=$(cat /path/to/GitLab.gitlab_license)
 
 $ gitlab-qa Test::Integration::LDAPNoServer EE
-```     
+```
 
 ### `Test::Integration::GroupSAML EE|<full image address>`
 
@@ -421,6 +421,29 @@ $ gitlab-qa Test::Integration::Mattermost EE
 ```
 
 [test-integration-mattermost]: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/qa/qa/scenario/test/integration/mattermost.rb
+
+### `Test::Integration::Packages CE|EE|<full image address>`
+
+This tests the GitLab Package Registry feature by setting
+`gitlab_rails['packages_enabled'] = true` in the Omnibus configuration
+before starting the GitLab container.
+
+To run tests against the GitLab container, a GitLab QA (`gitlab/gitlab-qa`)
+container is spun up and tests are run from it by running the
+`Test::Instance::All` scenario with the `--tag packages` RSpec parameter,
+which runs only the tests with `:packages` metadata.
+
+**Required environment variables:**
+
+- `EE_LICENSE`: A valid EE license.
+
+Example:
+
+```
+$ export EE_LICENSE=$(cat /path/to/Geo.gitlab_license)
+
+$ gitlab-qa Test::Integration::Packages EE
+```
 
 ### `Test::Instance::Any CE|EE|<full image address>:nightly|latest|any_tag http://your.instance.gitlab`
 
