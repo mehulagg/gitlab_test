@@ -143,6 +143,8 @@ module Gitlab
     # end
     #
     def self.call(storage, service, rpc, request, remote_storage: nil, timeout: default_timeout)
+      raise 'Inside a transaction' if Gitlab::Database.inside_transaction?
+
       start = Gitlab::Metrics::System.monotonic_time
       request_hash = request.is_a?(Google::Protobuf::MessageExts) ? request.to_h : {}
 
