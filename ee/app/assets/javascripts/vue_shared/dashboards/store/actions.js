@@ -179,8 +179,7 @@ export const receiveNextPageSuccess = ({ commit }, results) => {
 };
 
 export const receiveSearchResultsSuccess = ({ commit }, results) => {
-  commit(types.RECEIVE_SEARCH_RESULTS_SUCCESS, results.data);
-  commit(types.RECEIVE_SEARCH_RESULTS_HEADERS, results.headers);
+  commit(types.RECEIVE_SEARCH_RESULTS_SUCCESS, results);
 };
 
 export const receiveSearchResultsError = ({ commit }) => {

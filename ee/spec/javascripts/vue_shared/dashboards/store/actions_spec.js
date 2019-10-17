@@ -484,19 +484,12 @@ describe('actions', () => {
     it('commits the RECEIVE_SEARCH_RESULTS_SUCCESS mutation', done => {
       testAction(
         actions.receiveSearchResultsSuccess,
-        {
-          data: mockProjects,
-          headers: mockHeaders,
-        },
+        mockProjects,
         store.state,
         [
           {
             type: types.RECEIVE_SEARCH_RESULTS_SUCCESS,
             payload: mockProjects,
-          },
-          {
-            type: types.RECEIVE_SEARCH_RESULTS_HEADERS,
-            payload: mockHeaders,
           },
         ],
         [],

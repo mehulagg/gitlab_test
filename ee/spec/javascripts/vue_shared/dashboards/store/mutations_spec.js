@@ -144,15 +144,36 @@ describe('mutations', () => {
     });
   });
 
-  describe('RECEIVE_SEARCH_RESULTS_HEADERS', () => {
-    it('sets the results and page information with the response headers', () => {
-      const headers = {
-        'x-next-page': '2',
-        'x-page': '1',
-        'X-Total': '37',
-        'X-Total-Pages': '2',
+  describe('RECEIVE_SEARCH_RESULTS_SUCCESS', () => {
+    it('resets all messages, sets page info, and sets state.projectSearchResults to the results from the API', () => {
+      localState.projectSearchResults = [];
+      localState.messages = {
+        noResults: true,
+        searchError: true,
+        minimumQuery: true,
       };
-      mutations[types.RECEIVE_SEARCH_RESULTS_HEADERS](localState, headers);
+
+      const results = {
+        data: [{ id: 1 }],
+        headers: {
+          'x-next-page': '2',
+          'x-page': '1',
+          'X-Total': '37',
+          'X-Total-Pages': '2',
+        },
+      };
+
+      mutations[types.RECEIVE_SEARCH_RESULTS_SUCCESS](localState, results);
+
+      expect(localState.projectSearchResults).toEqual(results.data);
+
+      expect(localState.messages.noResults).toBe(false);
+
+      expect(localState.messages.searchError).toBe(false);
+
+      expect(localState.messages.minimumQuery).toBe(false);
+
+      expect(localState.pageInfo.currentPage).toEqual(1);
 
       expect(localState.pageInfo.currentPage).toEqual(1);
 
@@ -162,31 +183,8 @@ describe('mutations', () => {
 
       expect(localState.pageInfo.totalPages).toEqual(2);
     });
-  });
 
-  describe('RECEIVE_SEARCH_RESULTS_SUCCESS', () => {
-    it('resets all messages and sets state.projectSearchResults to the results from the API', () => {
-      localState.projectSearchResults = [];
-      localState.messages = {
-        noResults: true,
-        searchError: true,
-        minimumQuery: true,
-      };
-
-      const searchResults = [{ id: 1 }];
-
-      mutations[types.RECEIVE_SEARCH_RESULTS_SUCCESS](localState, searchResults);
-
-      expect(localState.projectSearchResults).toEqual(searchResults);
-
-      expect(localState.messages.noResults).toBe(false);
-
-      expect(localState.messages.searchError).toBe(false);
-
-      expect(localState.messages.minimumQuery).toBe(false);
-    });
-
-    it('resets all messages and sets state.projectSearchResults to an empty array if no results', () => {
+    it('resets all messages and pageInfo and sets state.projectSearchResults to an empty array if no results', () => {
       localState.projectSearchResults = [];
       localState.messages = {
         noResults: false,
@@ -194,31 +192,35 @@ describe('mutations', () => {
         minimumQuery: true,
       };
 
-      const searchResults = [];
+      const results = { data: [], headers: { 'x-total': 0 } };
 
-      mutations[types.RECEIVE_SEARCH_RESULTS_SUCCESS](localState, searchResults);
+      mutations[types.RECEIVE_SEARCH_RESULTS_SUCCESS](localState, results);
 
-      expect(localState.projectSearchResults).toEqual(searchResults);
+      expect(localState.projectSearchResults).toEqual(results.data);
 
       expect(localState.messages.noResults).toBe(true);
 
       expect(localState.messages.searchError).toBe(false);
 
       expect(localState.messages.minimumQuery).toBe(false);
+
+      expect(localState.pageInfo.totalResults).toEqual(0);
     });
 
     it('decrements the search count by one', () => {
       localState.searchCount = 1;
+      const results = { data: [], headers: {} };
 
-      mutations[types.RECEIVE_SEARCH_RESULTS_SUCCESS](localState, []);
+      mutations[types.RECEIVE_SEARCH_RESULTS_SUCCESS](localState, results);
 
       expect(localState.searchCount).toBe(0);
     });
 
     it('does not decrement the search count to be negative', () => {
       localState.searchCount = 0;
+      const results = { data: [], headers: {} };
 
-      mutations[types.RECEIVE_SEARCH_RESULTS_SUCCESS](localState, []);
+      mutations[types.RECEIVE_SEARCH_RESULTS_SUCCESS](localState, results);
 
       expect(localState.searchCount).toBe(0);
     });

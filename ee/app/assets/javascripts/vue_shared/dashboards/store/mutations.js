@@ -55,13 +55,6 @@ export default {
 
     state.searchCount += 1;
   },
-  [types.RECEIVE_SEARCH_RESULTS_HEADERS](state, headers) {
-    const pageInfo = parseIntPagination(normalizeHeaders(headers));
-    Vue.set(state.pageInfo, 'currentPage', pageInfo.page);
-    Vue.set(state.pageInfo, 'nextPage', pageInfo.nextPage);
-    Vue.set(state.pageInfo, 'totalResults', pageInfo.total);
-    Vue.set(state.pageInfo, 'totalPages', pageInfo.totalPages);
-  },
   [types.RECEIVE_NEXT_PAGE_SUCCESS](state, results) {
     state.projectSearchResults = state.projectSearchResults.concat(results.data);
     const pageInfo = parseIntPagination(normalizeHeaders(results.headers));
@@ -69,10 +62,16 @@ export default {
     Vue.set(state.pageInfo, 'nextPage', pageInfo.nextPage);
   },
   [types.RECEIVE_SEARCH_RESULTS_SUCCESS](state, results) {
-    state.projectSearchResults = results;
+    state.projectSearchResults = results.data;
     Vue.set(state.messages, 'noResults', state.projectSearchResults.length === 0);
     Vue.set(state.messages, 'searchError', false);
     Vue.set(state.messages, 'minimumQuery', false);
+
+    const pageInfo = parseIntPagination(normalizeHeaders(results.headers));
+    Vue.set(state.pageInfo, 'currentPage', pageInfo.page);
+    Vue.set(state.pageInfo, 'nextPage', pageInfo.nextPage);
+    Vue.set(state.pageInfo, 'totalResults', pageInfo.total);
+    Vue.set(state.pageInfo, 'totalPages', pageInfo.totalPages);
 
     state.searchCount = Math.max(0, state.searchCount - 1);
   },
@@ -86,6 +85,7 @@ export default {
   },
   [types.MINIMUM_QUERY_MESSAGE](state) {
     state.projectSearchResults = [];
+    state.pageInfo.totalResults = 0;
     Vue.set(state.messages, 'noResults', false);
     Vue.set(state.messages, 'minimumQuery', true);
     Vue.set(state.messages, 'searchError', false);
