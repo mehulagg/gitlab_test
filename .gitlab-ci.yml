@@ -622,6 +622,25 @@ ee:oauth-quarantine:
     - .quarantine
     - .rspec-report-opts
 
+ee:packages:
+  script:
+    - exe/gitlab-qa Test::Integration::Packages ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
+  extends:
+    - .test
+    - .high-capacity
+    - .ee-qa
+    - .rspec-report-opts
+
+ee:packages-quarantine:
+  script:
+    - exe/gitlab-qa Test::Integration::Packages ${RELEASE:=EE} -- --tag quarantine $RSPEC_REPORT_OPTS
+  extends:
+    - .test
+    - .high-capacity
+    - .ee-qa
+    - .quarantine
+    - .rspec-report-opts
+
 ee:elasticsearch:
   script:
     - exe/gitlab-qa Test::Integration::Elasticsearch ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS

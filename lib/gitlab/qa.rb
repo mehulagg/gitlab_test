@@ -42,6 +42,7 @@ module Gitlab
           autoload :Kubernetes, 'gitlab/qa/scenario/test/integration/kubernetes'
           autoload :ObjectStorage, 'gitlab/qa/scenario/test/integration/object_storage'
           autoload :OAuth, 'gitlab/qa/scenario/test/integration/oauth'
+          autoload :Packages, 'gitlab/qa/scenario/test/integration/packages'
           autoload :Elasticsearch, 'gitlab/qa/scenario/test/integration/elasticsearch'
         end
 
