@@ -30,9 +30,13 @@ describe Gitlab::Metrics::Exporter::WebExporter do
 
     context 'when running server' do
       it 'readiness probe returns succesful status' do
-        expect(readiness_probe.http_status).to eq(200)
-        expect(readiness_probe.json).to include(status: 'ok')
-        expect(readiness_probe.json).to include('web_exporter' => [{ 'status': 'ok' }])
+        expect_any_instance_of(::WEBrick::HTTPServer).to receive(:start) do
+          expect(readiness_probe.http_status).to eq(200)
+          expect(readiness_probe.json).to include(status: 'ok')
+          expect(readiness_probe.json).to include('web_exporter' => [{ 'status': 'ok' }])
+        end
+
+        exporter.thread.join
       end
     end
 
@@ -47,7 +51,11 @@ describe Gitlab::Metrics::Exporter::WebExporter do
           expect(readiness_probe.json).to include('web_exporter' => [{ 'status': 'failed' }])
         end
 
-        exporter.stop
+        expect_any_instance_of(::WEBrick::HTTPServer).to receive(:start) do
+          exporter.stop
+        end
+
+        exporter.thread.join
       end
     end
 
@@ -57,7 +65,11 @@ describe Gitlab::Metrics::Exporter::WebExporter do
       it 'readiness probe returns a failure status' do
         expect(exporter).not_to receive(:sleep)
 
-        exporter.stop
+        expect_any_instance_of(::WEBrick::HTTPServer).to receive(:start) do
+          exporter.stop
+        end
+
+        exporter.thread.join
       end
     end
   end

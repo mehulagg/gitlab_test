@@ -86,11 +86,13 @@ describe Gitlab::Metrics::Exporter::BaseExporter do
     end
 
     describe 'when exporter is running' do
-      before do
-        exporter.start
-      end
-
       describe '#start' do
+        before do
+          allow_any_instance_of(::WEBrick::HTTPServer).to receive(:start)
+
+          exporter.start.join
+        end
+
         it "doesn't start running server" do
           expect_any_instance_of(::WEBrick::HTTPServer).not_to receive(:start)
 
@@ -102,7 +104,11 @@ describe Gitlab::Metrics::Exporter::BaseExporter do
         it 'shutdowns server' do
           expect_any_instance_of(::WEBrick::HTTPServer).to receive(:shutdown)
 
-          expect { exporter.stop }.to change { exporter.thread? }.from(true).to(false)
+          expect_any_instance_of(::WEBrick::HTTPServer).to receive(:start) do
+            expect { exporter.stop }.to change { exporter.thread? }.from(true).to(false)
+          end
+
+          exporter.start.join
         end
       end
     end
