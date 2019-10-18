@@ -85,6 +85,58 @@ describe('feature flags helpers spec', () => {
       expect(mapToScopesViewModel(null)).toEqual([]);
       expect(mapToScopesViewModel(undefined)).toEqual([]);
     });
+
+    it('properly handles multiple userWithId strategies', () => {
+      const input = [
+        {
+          id: 3,
+          environment_scope: 'environment_scope',
+          active: true,
+          can_update: true,
+          protected: true,
+          strategies: [
+            {
+              name: ROLLOUT_STRATEGY_PERCENT_ROLLOUT,
+              parameters: {
+                percentage: '56',
+              },
+            },
+            {
+              name: ROLLOUT_STRATEGY_USER_ID,
+              parameters: {
+                userIds: '123,234',
+              },
+            },
+            {
+              name: ROLLOUT_STRATEGY_USER_ID,
+              parameters: {
+                userIds: '567,89',
+              },
+            },
+          ],
+
+          _destroy: true,
+        },
+      ];
+
+      const expected = [
+        {
+          id: 3,
+          environmentScope: 'environment_scope',
+          active: true,
+          canUpdate: true,
+          protected: true,
+          rolloutStrategy: ROLLOUT_STRATEGY_PERCENT_ROLLOUT,
+          rolloutPercentage: '56',
+          rolloutUserIds: ['123', '234', '567', '89'],
+          shouldBeDestroyed: true,
+        },
+      ];
+
+      const actual = mapToScopesViewModel(input);
+
+      expect(actual).toEqual(expected);
+    });
   });
 
   describe('mapFromScopesViewModel', () => {
