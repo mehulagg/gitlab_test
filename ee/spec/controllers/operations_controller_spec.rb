@@ -423,6 +423,35 @@ describe OperationsController do
           expect(deployable_json['id']).to eq(ci_build.id)
           expect(deployable_json['build_path']).to eq(project_job_path(project, ci_build))
         end
+
+        it "performance testing WIP" do
+          environment = create(:environment, project: project)
+          environment2 = create(:environment, project: project)
+          ci_build1 = create(:ci_build, project: project)
+          ci_build2 = create(:ci_build, project: project)
+          ci_build3 = create(:ci_build, project: project)
+          ci_build4 = create(:ci_build, project: project)
+          ci_build5 = create(:ci_build, project: project)
+          ci_build6 = create(:ci_build, project: project)
+          create(:deployment, project: project, environment: environment, deployable: ci_build1, status: :success)
+          create(:deployment, project: project, environment: environment, deployable: ci_build2, status: :success)
+          create(:deployment, project: project, environment: environment, deployable: ci_build3, status: :success)
+          create(:deployment, project: project, environment: environment, deployable: ci_build4, status: :success)
+          create(:deployment, project: project, environment: environment2, deployable: ci_build5, status: :success)
+          create(:deployment, project: project, environment: environment2, deployable: ci_build6, status: :success)
+
+          get :environments_list
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
+
+          project_json = json_response['projects'].first
+          environment_json = project_json['environments'].first
+          deployable_json = environment_json['last_deployment']['deployable']
+
+          expect(deployable_json['id']).to eq(ci_build4.id)
+          expect(deployable_json['build_path']).to eq(project_job_path(project, ci_build4))
+        end
       end
     end
   end

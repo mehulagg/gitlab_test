@@ -28,9 +28,9 @@ class OperationsController < ApplicationController
 
   def environments_list
     Gitlab::PollingInterval.set_header(response, interval: POLLING_INTERVAL)
-    projects = load_environments_projects(current_user)
+    projects_with_folders, last_deployments = load_environments_projects(current_user)
 
-    render json: { projects: serialize_as_json_for_environments(projects) }
+    render json: { projects: serialize_as_json_for_environments(projects_with_folders, last_deployments) }
   end
 
   def create
@@ -81,7 +81,8 @@ class OperationsController < ApplicationController
     DashboardOperationsSerializer.new(current_user: current_user).represent(projects).as_json
   end
 
-  def serialize_as_json_for_environments(projects)
-    DashboardEnvironmentsSerializer.new(current_user: current_user).represent(projects).as_json
+  def serialize_as_json_for_environments(projects, last_deployments)
+    opts = {last_deployments: last_deployments}
+    DashboardEnvironmentsSerializer.new(current_user: current_user).represent(projects, opts).as_json
   end
 end
