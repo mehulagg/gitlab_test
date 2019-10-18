@@ -12,6 +12,7 @@ module Ci
     include Presentable
     include Importable
     include Gitlab::Utils::StrongMemoize
+    include Deployable
     include HasRef
 
     BuildArchivedError = Class.new(StandardError)
@@ -415,6 +416,10 @@ module Ci
 
     def environment_action
       self.options.fetch(:environment, {}).fetch(:action, 'start') if self.options
+    end
+
+    def has_deployment?
+      !!self.deployment
     end
 
     def outdated_deployment?

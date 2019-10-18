@@ -9,7 +9,6 @@ describe Deployments::AfterCreateService do
 
   let(:job) do
     create(:ci_build,
-      :with_deployment,
       ref: 'master',
       tag: false,
       environment: 'production',
@@ -115,7 +114,6 @@ describe Deployments::AfterCreateService do
     context 'when yaml environment uses $CI_COMMIT_REF_NAME' do
       let(:job) do
         create(:ci_build,
-               :with_deployment,
                ref: 'master',
                environment: 'production',
                project: project,
@@ -128,7 +126,6 @@ describe Deployments::AfterCreateService do
     context 'when yaml environment uses $CI_ENVIRONMENT_SLUG' do
       let(:job) do
         create(:ci_build,
-               :with_deployment,
                ref: 'master',
                environment: 'prod-slug',
                project: project,
@@ -141,7 +138,6 @@ describe Deployments::AfterCreateService do
     context 'when yaml environment uses yaml_variables containing symbol keys' do
       let(:job) do
         create(:ci_build,
-               :with_deployment,
                yaml_variables: [{ key: :APP_HOST, value: 'host' }],
                environment: 'production',
                project: project,
@@ -152,7 +148,7 @@ describe Deployments::AfterCreateService do
     end
 
     context 'when yaml environment does not have url' do
-      let(:job) { create(:ci_build, :with_deployment, environment: 'staging', project: project) }
+      let(:job) { create(:ci_build, environment: 'staging', project: project) }
 
       it 'returns the external_url from persisted environment' do
         is_expected.to be_nil
@@ -178,7 +174,6 @@ describe Deployments::AfterCreateService do
         context 'when job deploys to staging' do
           let(:job) do
             create(:ci_build,
-              :with_deployment,
               ref: 'master',
               tag: false,
               environment: 'staging',

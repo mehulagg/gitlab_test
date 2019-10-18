@@ -966,7 +966,7 @@ describe Ci::Build do
   end
 
   describe 'state transition as a deployable' do
-    let!(:build) { create(:ci_build, :with_deployment, :start_review_app) }
+    let!(:build) { create(:ci_build, :start_review_app) }
     let(:deployment) { build.deployment }
     let(:environment) { deployment.environment }
 
@@ -1052,6 +1052,20 @@ describe Ci::Build do
   end
 
   describe 'deployment' do
+    describe '#has_deployment?' do
+      subject { build.has_deployment? }
+
+      context 'when build has a deployment' do
+        let!(:deployment) { create(:deployment, deployable: build) }
+
+        it { is_expected.to be_truthy }
+      end
+
+      context 'when build does not have a deployment' do
+        it { is_expected.to be_falsy }
+      end
+    end
+
     describe '#outdated_deployment?' do
       subject { build.outdated_deployment? }
 
@@ -1951,7 +1965,7 @@ describe Ci::Build do
     end
 
     context 'when build has a start environment' do
-      let(:build) { create(:ci_build, :with_deployment, :deploy_to_production, pipeline: pipeline) }
+      let(:build) { create(:ci_build, :deploy_to_production, pipeline: pipeline) }
 
       it 'does not expand environment name' do
         expect(build).not_to receive(:expanded_environment_name)

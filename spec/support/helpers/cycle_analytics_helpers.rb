@@ -113,7 +113,6 @@ module CycleAnalyticsHelpers
 
   def new_dummy_job(user, project, environment)
     create(:ci_build,
-      :with_deployment,
       project: project,
       user: user,
       environment: environment,

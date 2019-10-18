@@ -39,18 +39,9 @@ module Ci
           .where(name: build.name)
           .update_all(retried: true)
 
-        create_build!(attributes)
+        project.builds.create!(Hash[attributes])
       end
     end
     # rubocop: enable CodeReuse/ActiveRecord
-
-    private
-
-    def create_build!(attributes)
-      build = project.builds.new(Hash[attributes])
-      build.deployment = ::Gitlab::Ci::Pipeline::Seed::Deployment.new(build).to_resource
-      build.save!
-      build
-    end
   end
 end
