@@ -810,12 +810,12 @@ module Ci
       return unless starts_environment?
 
       if success?
-        return successful_deployment_status
+        successful_deployment_status
       elsif failed?
-        return :failed
+        :failed
+      else
+        :creating
       end
-
-      :creating
     end
 
     private
