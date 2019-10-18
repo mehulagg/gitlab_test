@@ -25,7 +25,8 @@ Jest tests can be found in `/spec/frontend` and `/ee/spec/frontend` in EE.
 When searching the DOM in order to find a component we prefer the following order
 
 1. `.find(Comp)` (Where Comp is the refernce to the imported component)
-2. `.find('[data-testid]')`
+2. `.find('[data-testid="something"]')`
+    1. Using data attributes are a preferred choice over CSS classes because using a `.js-*` CSS class has a chance of being used for styles as well. In addition, it allows us to clean up the noise in the HTML and becomes more maintainable. This also allows us to add generalized helpers for testing and filters to remove in production if desired.
 3. `.find({ ref: compRef })`
 4. `.find('.js-ref')`
 
