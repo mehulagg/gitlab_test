@@ -131,6 +131,19 @@ To fix this:
 
 If you still see the errors, you may have to [erase the Consul database and reinitialize](#recreate-from-scratch) on the affected node.
 
+### Consul servers no cluster leader
+
+```
+2019/10/18 20:15:03 [WARN] raft: no known peers, aborting election
+2019/10/18 20:15:04 [ERR] agent: failed to sync remote state: No cluster leader
+```
+
+Check and verify server/retry join configuration. You can list leader/followers (sepratate from members) with:
+
+```
+/opt/gitlab/embedded/bin/consul operator raft list-peers
+```
+
 ### Consul agents do not start - Multiple private IPs
 
 In the case that a node has multiple private IPs the agent be confused as to which of the private addresses to advertise, and then immediately exit on start.
@@ -155,6 +168,30 @@ To fix this:
    ```
 
 1. Run `gitlab-ctl reconfigure`
+
+### Different Bind/Advertise Address
+
+In the case that a node is binding to an address that is different to the address that will be scraped. IPs can be set explicitly. For example, if running within a container.
+
+Also see [Consul configuration](https://www.consul.io/docs/agent/options.html) for available options.
+
+1. Update your `/etc/gitlab/gitlab.rb`
+
+   ```ruby
+   consul['configuration'] = {
+    advertise_addr: '10.0.0.5',
+   }
+   ```
+
+1. Run `gitlab-ctl reconfigure`
+
+If running within AWS you can use the metadata endpoint to collect the EC2 instance address:
+
+```ruby
+consul['configuration'] = {
+  advertise_addr: Net::HTTP.get(URI('http://169.254.169.254/latest/meta-data/local-ipv4'))
+}
+```
 
 ### Outage recovery
 

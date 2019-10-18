@@ -89,3 +89,57 @@ questions that you know someone might ask.
 Each scenario can be a third-level heading, e.g. `### Getting error message X`.
 If you have none to add when creating a doc, leave this section in place
 but commented out to help encourage others to add to it in the future. -->
+
+## Troubleshooting
+
+### Missing Monitoring data / Missing Targets
+
+If you've configured the app nodes and monitoring nodes but don't see any data.
+
+#### Prometheus
+
+Visit the Prometheus Admin Status => Targets Page (`http://gitlab.example.com:9090/targets`). This will show you each of the services, nodes subscribed to the service, state, last scraped, and any errors.
+
+You can also query directly via Curl.
+
+```bash
+curl http://localhost:9090/api/v1/targets | jq .
+```
+
+#### Checking Consul for services and specifics
+
+**Listing Service Discovery services**
+
+```bash
+/opt/gitlab/embedded/bin/consul catalog services
+```
+
+**Check Specific Service**
+
+```
+curl http://localhost:8500/v1/catalog/service/rails | jq .
+```
+
+**Check Specific Node Health**
+
+```
+curl http://127.0.0.1:8500/v1/health/node/redis1
+```
+
+### Running a single Consul Node
+
+If you only need consul for Monitoring/Service Discovery you can run with less than 3 nodes by configuring the `bootstrap_expect`.
+
+```
+consul['configuration'] = {
+  bootstrap_expect: 1,
+  server: true
+}
+```
+
+Otherwise you may see may see issues on startup for Consul:
+
+```
+2019/10/18 20:15:03 [WARN] raft: no known peers, aborting election
+2019/10/18 20:15:04 [ERR] agent: failed to sync remote state: No cluster leader
+````
