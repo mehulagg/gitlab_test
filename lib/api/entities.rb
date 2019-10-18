@@ -933,8 +933,8 @@ module API
     end
 
     class PushEventPayload < Grape::Entity
-      expose :commit_count, :action, :ref_type, :commit_from, :commit_to
-      expose :ref, :commit_title
+      expose :commit_count, :action, :ref_type, :commit_from, :commit_to, :ref,
+             :commit_title, :ref_count
     end
 
     class Event < Grape::Entity
@@ -988,11 +988,11 @@ module API
 
       def todo_target_url(todo)
         target_type = todo.target_type.underscore
-        target_url = "#{todo.parent.class.to_s.underscore}_#{target_type}_url"
+        target_url = "#{todo.resource_parent.class.to_s.underscore}_#{target_type}_url"
 
         Gitlab::Routing
           .url_helpers
-          .public_send(target_url, todo.parent, todo.target, anchor: todo_target_anchor(todo)) # rubocop:disable GitlabSecurity/PublicSend
+          .public_send(target_url, todo.resource_parent, todo.target, anchor: todo_target_anchor(todo)) # rubocop:disable GitlabSecurity/PublicSend
       end
 
       def todo_target_anchor(todo)
@@ -1314,6 +1314,10 @@ module API
           release.links.sorted
         end
       end
+      expose :_links do
+        expose :merge_requests_url, if: -> (_) { release_mr_issue_urls_available? }
+        expose :issues_url, if: -> (_) { release_mr_issue_urls_available? }
+      end
 
       private
 
@@ -1324,11 +1328,31 @@ module API
       def commit_path
         return unless object.commit
 
-        Gitlab::Routing.url_helpers.project_commit_path(object.project, object.commit.id)
+        Gitlab::Routing.url_helpers.project_commit_path(project, object.commit.id)
       end
 
       def tag_path
-        Gitlab::Routing.url_helpers.project_tag_path(object.project, object.tag)
+        Gitlab::Routing.url_helpers.project_tag_path(project, object.tag)
+      end
+
+      def merge_requests_url
+        Gitlab::Routing.url_helpers.project_merge_requests_url(project, params_for_issues_and_mrs)
+      end
+
+      def issues_url
+        Gitlab::Routing.url_helpers.project_issues_url(project, params_for_issues_and_mrs)
+      end
+
+      def params_for_issues_and_mrs
+        { scope: 'all', state: 'opened', release_tag: object.tag }
+      end
+
+      def release_mr_issue_urls_available?
+        ::Feature.enabled?(:release_mr_issue_urls, project)
+      end
+
+      def project
+        @project ||= object.project
       end
     end
 

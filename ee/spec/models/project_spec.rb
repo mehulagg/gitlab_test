@@ -29,8 +29,6 @@ describe Project do
     it { is_expected.to have_many(:reviews).inverse_of(:project) }
     it { is_expected.to have_many(:path_locks) }
     it { is_expected.to have_many(:vulnerability_feedback) }
-    it { is_expected.to have_many(:sourced_pipelines) }
-    it { is_expected.to have_many(:source_pipelines) }
     it { is_expected.to have_many(:audit_events).dependent(false) }
     it { is_expected.to have_many(:protected_environments) }
     it { is_expected.to have_many(:approvers).dependent(:destroy) }
@@ -329,6 +327,35 @@ describe Project do
         it 'returns empty' do
           expect(described_class.mirrors_to_sync(timestamp)).to be_empty
         end
+      end
+    end
+  end
+
+  describe '#can_store_security_reports?' do
+    context 'when the feature is enabled for the namespace' do
+      it 'returns true' do
+        stub_licensed_features(sast: true)
+        project = create(:project, :private)
+
+        expect(project.can_store_security_reports?).to be_truthy
+      end
+    end
+
+    context 'when the project is public' do
+      it 'returns true' do
+        stub_licensed_features(sast: false)
+        project = create(:project, :public)
+
+        expect(project.can_store_security_reports?).to be_truthy
+      end
+    end
+
+    context 'when the feature is disabled for the namespace and the project is not public' do
+      it 'returns false' do
+        stub_licensed_features(sast: false)
+        project = create(:project, :private)
+
+        expect(project.can_store_security_reports?).to be_falsy
       end
     end
   end
@@ -1108,20 +1135,6 @@ describe Project do
         it { is_expected.to include(*disabled_services) }
       end
     end
-
-    context 'when incident_management is available' do
-      before do
-        stub_licensed_features(incident_management: true)
-      end
-
-      context 'when feature flag generic_alert_endpoint is disabled' do
-        before do
-          stub_feature_flags(generic_alert_endpoint: false)
-        end
-
-        it { is_expected.to include('alerts') }
-      end
-    end
   end
 
   describe '#pull_mirror_available?' do
@@ -1661,18 +1674,6 @@ describe Project do
     end
   end
 
-  describe '#store_security_reports_available?' do
-    let(:project) { create(:project) }
-
-    subject { project.store_security_reports_available? }
-
-    it 'delegates to namespace' do
-      expect(project.namespace).to receive(:store_security_reports_available?).once.and_call_original
-
-      subject
-    end
-  end
-
   describe '#has_pool_repository?' do
     it 'returns false when there is no pool repository' do
       project = create(:project)
@@ -2114,6 +2115,7 @@ describe Project do
   describe '#allowed_to_share_with_group?' do
     context 'for group related project' do
       subject(:project) { build_stubbed(:project, namespace: group, group: group) }
+
       let(:group) { build_stubbed :group }
 
       context 'with lock_memberships_to_ldap application setting enabled' do
@@ -2127,6 +2129,7 @@ describe Project do
 
     context 'personal project' do
       subject(:project) { build_stubbed(:project, namespace: namespace) }
+
       let(:namespace) { build_stubbed :namespace }
 
       context 'with lock_memberships_to_ldap application setting enabled' do

@@ -77,14 +77,11 @@ module EE
       has_many :package_files, through: :packages, class_name: 'Packages::PackageFile'
       has_many :merge_trains, foreign_key: 'target_project_id', inverse_of: :target_project
 
-      has_many :sourced_pipelines, class_name: 'Ci::Sources::Pipeline', foreign_key: :source_project_id
-
-      has_many :source_pipelines, class_name: 'Ci::Sources::Pipeline', foreign_key: :project_id
-
       has_many :webide_pipelines, -> { webide_source }, class_name: 'Ci::Pipeline', inverse_of: :project
 
       has_many :prometheus_alerts, inverse_of: :project
       has_many :prometheus_alert_events, inverse_of: :project
+      has_many :self_managed_prometheus_alert_events, inverse_of: :project
 
       has_many :operations_feature_flags, class_name: 'Operations::FeatureFlag'
       has_one :operations_feature_flags_client, class_name: 'Operations::FeatureFlagsClient'
@@ -148,7 +145,7 @@ module EE
 
       delegate :log_jira_dvcs_integration_usage, :jira_dvcs_server_last_sync_at, :jira_dvcs_cloud_last_sync_at, to: :feature_usage
 
-      delegate :merge_pipelines_enabled, :merge_pipelines_enabled=, :merge_pipelines_enabled?, to: :ci_cd_settings
+      delegate :merge_pipelines_enabled, :merge_pipelines_enabled=, :merge_pipelines_enabled?, :merge_pipelines_were_disabled?, to: :ci_cd_settings
       delegate :merge_trains_enabled, :merge_trains_enabled=, :merge_trains_enabled?, to: :ci_cd_settings
 
       validates :repository_size_limit,
@@ -166,8 +163,6 @@ module EE
 
       default_value_for :packages_enabled, true
 
-      delegate :store_security_reports_available?, to: :namespace
-
       accepts_nested_attributes_for :tracing_setting, update_only: true, allow_destroy: true
       accepts_nested_attributes_for :alerting_setting, update_only: true
       accepts_nested_attributes_for :incident_management_setting, update_only: true
@@ -184,6 +179,10 @@ module EE
         joins('LEFT JOIN services ON services.project_id = projects.id AND services.type = \'GitlabSlackApplicationService\' AND services.active IS true')
           .where('services.id IS NULL')
       end
+    end
+
+    def can_store_security_reports?
+      namespace.store_security_reports_available? || public?
     end
 
     def tracing_external_url
@@ -641,8 +640,7 @@ module EE
     end
 
     def alerts_service_available?
-      ::Feature.enabled?(:generic_alert_endpoint, self) &&
-        feature_available?(:incident_management)
+      feature_available?(:incident_management)
     end
 
     def package_already_taken?(package_name)

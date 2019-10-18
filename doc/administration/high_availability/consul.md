@@ -158,7 +158,7 @@ To fix this:
 
 ### Outage recovery
 
-If you lost enough server agents in the cluster to break quorum, then the cluster is considered failed, and it will not function without manual intervenetion.
+If you lost enough server agents in the cluster to break quorum, then the cluster is considered failed, and it will not function without manual intervention.
 
 #### Recreate from scratch
 
@@ -174,4 +174,4 @@ After this, the cluster should start back up, and the server agents rejoin. Shor
 
 #### Recover a failed cluster
 
-If you have taken advantage of Consul to store other data, and want to restore the failed cluster, please follow the [Consul guide](https://www.consul.io/docs/guides/outage.html) to recover a failed cluster.
+If you have taken advantage of Consul to store other data, and want to restore the failed cluster, please follow the [Consul guide](https://learn.hashicorp.com/consul/day-2-operations/outage) to recover a failed cluster.
