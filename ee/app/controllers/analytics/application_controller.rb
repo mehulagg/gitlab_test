@@ -15,14 +15,13 @@ class Analytics::ApplicationController < ApplicationController
     before_action(*args) { counter_klass.count(counter) }
   end
 
-  def authorize_view_productivity_analytics!(action)
+  def authorize_view_by_action!(action)
     return render_403 unless can?(current_user, action, @group || :global)
   end
 
   def check_feature_availability!(feature)
     return render_403 unless ::License.feature_available?(feature)
-    return unless @group
-    return render_403 unless @group.root_ancestor.feature_available?(feature)
+    return render_403 unless @group && @group.root_ancestor.feature_available?(feature)
   end
 
   def load_group

@@ -14,7 +14,7 @@ class ApprovalMergeRequestRule < ApplicationRecord
     )
   end
   scope :for_unmerged_merge_requests, -> (merge_requests = nil) do
-    query = joins(:merge_request).where.not(merge_requests: { state: 'merged' })
+    query = joins(:merge_request).where.not(merge_requests: { state_id: MergeRequest.available_states[:merged] })
 
     if merge_requests
       query.where(merge_request_id: merge_requests)
@@ -78,7 +78,7 @@ class ApprovalMergeRequestRule < ApplicationRecord
   # Temporary override to handle legacy records that have not yet been migrated
   # To be removed with https://gitlab.com/gitlab-org/gitlab/issues/11834
   def regular?
-    read_attribute(:rule_type) == 'regular' || (!report_approver? && !code_owner)
+    read_attribute(:rule_type) == 'regular' || (!report_approver? && !code_owner && !any_approver?)
   end
   alias_method :regular, :regular?
 
@@ -135,7 +135,7 @@ class ApprovalMergeRequestRule < ApplicationRecord
   end
 
   def refresh_license_management_approvals(project_approval_rule)
-    license_report = merge_request.head_pipeline&.license_management_report
+    license_report = merge_request.head_pipeline&.license_scanning_report
     return if license_report.blank?
 
     if license_report.violates?(project.software_license_policies)

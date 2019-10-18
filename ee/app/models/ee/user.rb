@@ -40,8 +40,6 @@ module EE
       has_many :approvals,                dependent: :destroy # rubocop: disable Cop/ActiveRecordDependent
       has_many :approvers,                dependent: :destroy # rubocop: disable Cop/ActiveRecordDependent
 
-      has_many :developer_groups, -> { where(members: { access_level: ::Gitlab::Access::DEVELOPER }) }, through: :group_members, source: :group
-
       has_many :users_ops_dashboard_projects
       has_many :ops_dashboard_projects, through: :users_ops_dashboard_projects, source: :project
 
@@ -84,7 +82,8 @@ module EE
 
       enum bot_type: {
         support_bot: 1,
-        alert_bot: 2
+        alert_bot: 2,
+        visual_review_bot: 3
       }
     end
 
@@ -106,6 +105,15 @@ module EE
         unique_internal(where(bot_type: :alert_bot), 'alert-bot', email_pattern) do |u|
           u.bio = 'The GitLab alert bot'
           u.name = 'GitLab Alert Bot'
+        end
+      end
+
+      def visual_review_bot
+        email_pattern = "visual_review%s@#{Settings.gitlab.host}"
+
+        unique_internal(where(bot_type: :visual_review_bot), 'visual-review-bot', email_pattern) do |u|
+          u.bio = 'The Gitlab Visual Review feedback bot'
+          u.name = 'Gitlab Visual Review Bot'
         end
       end
 
@@ -184,12 +192,20 @@ module EE
       email_opted_in_source_id == EMAIL_OPT_IN_SOURCE_ID_GITLAB_COM ? 'GitLab.com' : ''
     end
 
-    def available_custom_project_templates(search: nil, subgroup_id: nil)
+    def available_custom_project_templates(search: nil, subgroup_id: nil, project_id: nil)
       templates = ::Gitlab::CurrentSettings.available_custom_project_templates(subgroup_id)
+
+      params = {}
+
+      if project_id
+        templates = templates.where(id: project_id)
+      else
+        params = { search: search, sort: 'name_asc' }
+      end
 
       ::ProjectsFinder.new(current_user: self,
                            project_ids_relation: templates,
-                           params: { search: search, sort: 'name_asc' })
+                           params: params)
                       .execute
     end
 

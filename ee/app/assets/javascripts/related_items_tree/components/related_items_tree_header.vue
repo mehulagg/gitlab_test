@@ -8,11 +8,10 @@ import { sprintf, s__ } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
 import DroplabDropdownButton from '~/vue_shared/components/droplab_dropdown_button.vue';
 
-import { EpicDropdownActions, ActionType } from '../constants';
+import { EpicDropdownActions } from '../constants';
 
 export default {
   EpicDropdownActions,
-  ActionType,
   components: {
     Icon,
     GlButton,
@@ -32,18 +31,15 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['toggleAddItemForm', 'toggleCreateItemForm']),
-    handleActionClick({ id, actionType }) {
+    ...mapActions(['toggleAddItemForm', 'toggleCreateEpicForm']),
+    handleActionClick({ id, issuableType }) {
       if (id === 0) {
         this.toggleAddItemForm({
-          actionType,
+          issuableType,
           toggleState: true,
         });
       } else {
-        this.toggleCreateItemForm({
-          actionType,
-          toggleState: true,
-        });
+        this.toggleCreateEpicForm({ toggleState: true });
       }
     },
   },
@@ -64,7 +60,7 @@ export default {
           :class="{ 'ml-2': index }"
           class="d-inline-flex align-items-center"
         >
-          <icon :size="16" :name="item.iconName" css-classes="text-secondary mr-1" />
+          <icon :size="16" :name="item.iconName" class="text-secondary mr-1" />
           {{ item.count }}
         </span>
       </div>
@@ -83,7 +79,7 @@ export default {
           :class="headerItems[1].qaClass"
           class="ml-1 js-add-issues-button"
           size="sm"
-          @click="handleActionClick({ id: 0, actionType: 'issue' })"
+          @click="handleActionClick({ id: 0, issuableType: 'issue' })"
           >{{ __('Add an issue') }}</gl-button
         >
       </template>

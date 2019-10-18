@@ -55,6 +55,7 @@ describe EE::UserCalloutsHelper do
 
   describe '.show_enable_hashed_storage_warning?' do
     subject { helper.show_enable_hashed_storage_warning? }
+
     let(:user) { create(:user) }
 
     context 'when hashed storage is disabled' do
@@ -87,6 +88,7 @@ describe EE::UserCalloutsHelper do
 
   describe '.show_migrate_hashed_storage_warning?' do
     subject { helper.show_migrate_hashed_storage_warning? }
+
     let(:user) { create(:user) }
 
     context 'when hashed storage is disabled' do
@@ -171,20 +173,35 @@ describe EE::UserCalloutsHelper do
   describe '.show_privacy_policy_update?' do
     subject { helper.show_privacy_policy_update? }
 
-    context 'when user has not dismissed' do
+    context 'when feature `privacy_policy_update_callout` is disabled' do
       before do
-        allow(helper).to receive(:user_dismissed?).and_return(false)
-      end
-
-      it { is_expected.to be true }
-    end
-
-    context 'when user dismissed' do
-      before do
+        Feature.get(:privacy_policy_update_callout).disable
         allow(helper).to receive(:user_dismissed?).and_return(true)
       end
 
       it { is_expected.to be false }
+    end
+
+    context 'when feature `privacy_policy_update_callout` is enabled' do
+      before do
+        Feature.get(:privacy_policy_update_callout).enable
+      end
+
+      context 'when user has not dismissed' do
+        before do
+          allow(helper).to receive(:user_dismissed?).and_return(false)
+        end
+
+        it { is_expected.to be true }
+      end
+
+      context 'when user dismissed' do
+        before do
+          allow(helper).to receive(:user_dismissed?).and_return(true)
+        end
+
+        it { is_expected.to be false }
+      end
     end
   end
 

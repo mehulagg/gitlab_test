@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Groups > Billing', :js do
@@ -9,6 +11,10 @@ describe 'Groups > Billing', :js do
 
   def formatted_date(date)
     date.strftime("%B %-d, %Y")
+  end
+
+  def subscription_table
+    '.subscription-table'
   end
 
   before do
@@ -32,9 +38,11 @@ describe 'Groups > Billing', :js do
       visit group_billings_path(group)
 
       expect(page).to have_content("#{group.name} is currently using the Free plan")
-      expect(page).to have_content("start date #{formatted_date(subscription.start_date)}")
-      expect(page).to have_link("Upgrade", href: "#{EE::SUBSCRIPTIONS_URL}/subscriptions")
-      expect(page).not_to have_link("Manage")
+      within subscription_table do
+        expect(page).to have_content("start date #{formatted_date(subscription.start_date)}")
+        expect(page).to have_link("Upgrade", href: "#{EE::SUBSCRIPTIONS_URL}/subscriptions")
+        expect(page).not_to have_link("Manage")
+      end
     end
   end
 
@@ -52,25 +60,29 @@ describe 'Groups > Billing', :js do
         "#{EE::SUBSCRIPTIONS_URL}/gitlab/namespaces/#{group.id}/upgrade/bronze-external-id"
 
       expect(page).to have_content("#{group.name} is currently using the Bronze plan")
-      expect(page).to have_content("start date #{formatted_date(subscription.start_date)}")
-      expect(page).to have_link("Upgrade", href: upgrade_url)
-      expect(page).to have_link("Manage", href: "#{EE::SUBSCRIPTIONS_URL}/subscriptions")
+      within subscription_table do
+        expect(page).to have_content("start date #{formatted_date(subscription.start_date)}")
+        expect(page).to have_link("Upgrade", href: upgrade_url)
+        expect(page).to have_link("Manage", href: "#{EE::SUBSCRIPTIONS_URL}/subscriptions")
+      end
     end
   end
 
   context 'with a legacy paid plan' do
     let(:plan) { 'bronze' }
 
-    before do
-      group.update_attribute(:plan, bronze_plan)
+    let!(:subscription) do
+      create(:gitlab_subscription, end_date: 1.week.ago, namespace: group, hosted_plan: bronze_plan, seats: 15)
     end
 
     it 'shows the proper title and subscription data' do
       visit group_billings_path(group)
 
       expect(page).to have_content("#{group.name} is currently using the Bronze plan")
-      expect(page).not_to have_link("Upgrade")
-      expect(page).to have_link("Manage", href: "#{EE::SUBSCRIPTIONS_URL}/subscriptions")
+      within subscription_table do
+        expect(page).not_to have_link("Upgrade")
+        expect(page).to have_link("Manage", href: "#{EE::SUBSCRIPTIONS_URL}/subscriptions")
+      end
     end
   end
 end

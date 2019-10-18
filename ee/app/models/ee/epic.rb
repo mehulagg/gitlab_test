@@ -13,8 +13,13 @@ module EE
       include Awardable
       include LabelEventable
       include RelativePositioning
+      include UsageStatistics
 
-      enum state_id: { opened: 1, closed: 2 }
+      enum state_id: {
+        opened: ::Epic.available_states[:opened],
+        closed: ::Epic.available_states[:closed]
+      }
+
       alias_attribute :state, :state_id
 
       belongs_to :closed_by, class_name: 'User'
@@ -77,7 +82,7 @@ module EE
         reorder('relative_position ASC', 'id DESC')
       end
 
-      scope :with_api_entity_associations, -> { preload(:author, :labels, :group) }
+      scope :with_api_entity_associations, -> { preload(:author, :labels, group: :route) }
 
       MAX_HIERARCHY_DEPTH = 5
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Environment > Pod Logs', :js do
@@ -9,6 +11,7 @@ describe 'Environment > Pod Logs', :js do
   let(:pod_name) { pod_names.first }
   let(:project) { create(:project, :repository) }
   let(:environment) { create(:environment, project: project) }
+  let(:service) { create(:cluster_platform_kubernetes, :configured) }
 
   before do
     stub_licensed_features(pod_logs: true)
@@ -16,14 +19,15 @@ describe 'Environment > Pod Logs', :js do
     create(:cluster, :provided_by_gcp, environment_scope: '*', projects: [project])
     create(:deployment, :success, environment: environment)
 
-    allow_any_instance_of(EE::Clusters::Platforms::Kubernetes).to receive(:read_pod_logs)
-      .with(pod_name, environment.deployment_namespace).and_return(kube_logs_body)
+    stub_kubeclient_pod_details(pod_name, environment.deployment_namespace)
+    stub_kubeclient_logs(pod_name, environment.deployment_namespace, container: 'container-0')
+
     allow_any_instance_of(EE::Environment).to receive(:pod_names).and_return(pod_names)
 
     sign_in(project.owner)
   end
 
-  context 'with logs' do
+  context 'with logs', :use_clean_rails_memory_store_caching do
     it "shows pod logs" do
       visit logs_project_environment_path(environment.project, environment, pod_name: pod_name)
 
@@ -39,7 +43,7 @@ describe 'Environment > Pod Logs', :js do
           expect(item.text).to eq(pod_names[i])
         end
       end
-      expect(page).to have_content("Log 1 Log 2 Log 3")
+      expect(page).to have_content("Log 1\\nLog 2\\nLog 3")
     end
   end
 
@@ -77,11 +81,11 @@ describe 'Environment > Pod Logs', :js do
   end
 
   def perf_bar_height
-    page.evaluate_script("$('#js-peek').height()")
+    page.evaluate_script("$('#js-peek').height()").to_i
   end
 
   def navbar_height
-    page.evaluate_script("$('.js-navbar').height()")
+    page.evaluate_script("$('.js-navbar').height()").to_i
   end
 
   def log_header_top

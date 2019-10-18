@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Projects::UpdateService, '#execute' do
@@ -231,6 +233,37 @@ describe Projects::UpdateService, '#execute' do
         update_project(project, admin_user, opts)
 
         expect(project.reload.repository_size_limit).to be_nil
+      end
+    end
+  end
+
+  context 'when there are merge requests in merge train' do
+    before do
+      stub_licensed_features(merge_pipelines: true, merge_trains: true)
+      project.update(merge_pipelines_enabled: true)
+    end
+
+    let!(:first_merge_request) do
+      create(:merge_request, :on_train, target_project: project, source_project: project)
+    end
+
+    let!(:second_merge_request) do
+      create(:merge_request, :on_train, target_project: project, source_project: project, source_branch: 'feature-1')
+    end
+
+    context 'when merge pipelines option is disabled' do
+      it 'drops all merge request in the train' do
+        expect do
+          update_project(project, user, merge_pipelines_enabled: false)
+        end.to change { MergeTrain.count }.from(2).to(0)
+      end
+    end
+
+    context 'when merge pipelines option stays enabled' do
+      it 'does not drop all merge request in the train' do
+        expect do
+          update_project(project, user, merge_pipelines_enabled: true)
+        end.not_to change { MergeTrain.count }
       end
     end
   end

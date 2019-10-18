@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Issue Boards', :js do
@@ -246,6 +248,45 @@ describe 'Issue Boards', :js do
 
         expect(page).not_to have_selector('.js-weight-weight-label')
       end
+    end
+  end
+
+  context 'scoped labels' do
+    let!(:scoped_label_1) { create(:label, project: project, name: 'Scoped::Label1') }
+    let!(:scoped_label_2) { create(:label, project: project, name: 'Scoped::Label2') }
+
+    before do
+      stub_licensed_features(scoped_labels: true)
+
+      visit project_board_path(project, board)
+      wait_for_requests
+    end
+
+    it 'removes existing scoped label' do
+      click_card(card1)
+
+      page.within('.labels') do
+        click_link 'Edit'
+
+        wait_for_requests
+
+        click_link scoped_label_1.title
+        click_link scoped_label_2.title
+
+        wait_for_requests
+
+        find('.dropdown-menu-close-icon').click
+
+        page.within('.value') do
+          expect(page).to have_selector('.scoped-label-wrapper', count: 1)
+          expect(page).not_to have_content(scoped_label_1.title)
+          expect(page).to have_content(scoped_label_2.title)
+        end
+      end
+
+      expect(card1).to have_selector('.scoped-label-wrapper', count: 1)
+      expect(card1).not_to have_content(scoped_label_1.title)
+      expect(card1).to have_content(scoped_label_2.title)
     end
   end
 end

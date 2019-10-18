@@ -120,15 +120,17 @@ export default {
     state.childrenFlags[item.reference].itemRemoveInProgress = false;
   },
 
-  [types.TOGGLE_ADD_ITEM_FORM](state, { actionType, toggleState }) {
-    state.actionType = actionType;
+  [types.TOGGLE_ADD_ITEM_FORM](state, { issuableType, toggleState }) {
+    if (issuableType) {
+      state.issuableType = issuableType;
+    }
+
     state.showAddItemForm = toggleState;
-    state.showCreateItemForm = false;
+    state.showCreateEpicForm = false;
   },
 
-  [types.TOGGLE_CREATE_ITEM_FORM](state, { actionType, toggleState }) {
-    state.actionType = actionType;
-    state.showCreateItemForm = toggleState;
+  [types.TOGGLE_CREATE_EPIC_FORM](state, { toggleState }) {
+    state.showCreateEpicForm = toggleState;
     state.showAddItemForm = false;
   },
 

@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe ElasticBatchProjectIndexerWorker do
   subject(:worker) { described_class.new }
+
   let(:projects) { create_list(:project, 2) }
 
   describe '#perform' do

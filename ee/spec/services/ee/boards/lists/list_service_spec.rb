@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Boards::Lists::ListService do
@@ -9,8 +11,8 @@ describe Boards::Lists::ListService do
 
       context 'when the feature is enabled' do
         before do
-          allow(board.parent).to receive(:feature_available?).with(:board_assignee_lists).and_return(true)
-          allow(board.parent).to receive(:feature_available?).with(:board_milestone_lists).and_return(false)
+          allow(board.resource_parent).to receive(:feature_available?).with(:board_assignee_lists).and_return(true)
+          allow(board.resource_parent).to receive(:feature_available?).with(:board_milestone_lists).and_return(false)
         end
 
         it 'returns all lists' do
@@ -32,8 +34,8 @@ describe Boards::Lists::ListService do
 
       context 'when the feature is enabled' do
         before do
-          allow(board.parent).to receive(:feature_available?).with(:board_assignee_lists).and_return(false)
-          allow(board.parent).to receive(:feature_available?).with(:board_milestone_lists).and_return(true)
+          allow(board.resource_parent).to receive(:feature_available?).with(:board_assignee_lists).and_return(false)
+          allow(board.resource_parent).to receive(:feature_available?).with(:board_milestone_lists).and_return(true)
         end
 
         it 'returns all lists' do

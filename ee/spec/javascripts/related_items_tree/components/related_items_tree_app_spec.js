@@ -4,7 +4,7 @@ import { GlLoadingIcon } from '@gitlab/ui';
 import RelatedItemsTreeApp from 'ee/related_items_tree/components/related_items_tree_app.vue';
 import RelatedItemsTreeHeader from 'ee/related_items_tree/components/related_items_tree_header.vue';
 import createDefaultStore from 'ee/related_items_tree/store';
-import { ActionType } from 'ee/related_items_tree/constants';
+import { issuableTypesMap } from 'ee/related_issues/constants';
 
 import { mockInitialConfig, mockParentItem } from '../mock_data';
 
@@ -105,12 +105,12 @@ describe('RelatedItemsTreeApp', () => {
       });
     });
 
-    describe('handleCreateItemFormSubmit', () => {
+    describe('handleCreateEpicFormSubmit', () => {
       it('calls `createItem` action with `itemTitle` param', () => {
         const newValue = 'foo';
         spyOn(wrapper.vm, 'createItem');
 
-        wrapper.vm.handleCreateItemFormSubmit(newValue);
+        wrapper.vm.handleCreateEpicFormSubmit(newValue);
 
         expect(wrapper.vm.createItem).toHaveBeenCalledWith({
           itemTitle: newValue,
@@ -119,15 +119,12 @@ describe('RelatedItemsTreeApp', () => {
     });
 
     describe('handleAddItemFormCancel', () => {
-      it('calls `toggleAddItemForm` actions with params `toggleState` as true and `actionType` as `ActionType.Epic`', () => {
+      it('calls `toggleAddItemForm` actions with params `toggleState` as `false`', () => {
         spyOn(wrapper.vm, 'toggleAddItemForm');
 
         wrapper.vm.handleAddItemFormCancel();
 
-        expect(wrapper.vm.toggleAddItemForm).toHaveBeenCalledWith({
-          toggleState: false,
-          actionType: '',
-        });
+        expect(wrapper.vm.toggleAddItemForm).toHaveBeenCalledWith({ toggleState: false });
       });
 
       it('calls `setPendingReferences` action with empty array', () => {
@@ -147,22 +144,19 @@ describe('RelatedItemsTreeApp', () => {
       });
     });
 
-    describe('handleCreateItemFormCancel', () => {
-      it('calls `toggleCreateItemForm` actions with params `toggleState` and `actionType`', () => {
-        spyOn(wrapper.vm, 'toggleCreateItemForm');
+    describe('handleCreateEpicFormCancel', () => {
+      it('calls `toggleCreateEpicForm` actions with params `toggleState`', () => {
+        spyOn(wrapper.vm, 'toggleCreateEpicForm');
 
-        wrapper.vm.handleCreateItemFormCancel();
+        wrapper.vm.handleCreateEpicFormCancel();
 
-        expect(wrapper.vm.toggleCreateItemForm).toHaveBeenCalledWith({
-          toggleState: false,
-          actionType: '',
-        });
+        expect(wrapper.vm.toggleCreateEpicForm).toHaveBeenCalledWith({ toggleState: false });
       });
 
       it('calls `setItemInputValue` action with empty string', () => {
         spyOn(wrapper.vm, 'setItemInputValue');
 
-        wrapper.vm.handleCreateItemFormCancel();
+        wrapper.vm.handleCreateEpicFormCancel();
 
         expect(wrapper.vm.setItemInputValue).toHaveBeenCalledWith('');
       });
@@ -216,7 +210,7 @@ describe('RelatedItemsTreeApp', () => {
     it('renders item add/create form container element', done => {
       wrapper.vm.$store.dispatch('toggleAddItemForm', {
         toggleState: true,
-        actionType: ActionType.Epic,
+        issuableType: issuableTypesMap.Epic,
       });
 
       wrapper.vm.$nextTick(() => {
