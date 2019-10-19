@@ -1,0 +1,36 @@
+#!/usr/bin/env rake
+# Add your own tasks in files placed in lib/tasks ending in .rake,
+# for example lib/tasks/capistrano.rake, and they will automatically be available to Rake.
+
+require File.expand_path('config/application-fastrake', __dir__)
+
+namespace :geo do
+  namespace :db do |ns|
+    desc 'Refresh Foreign Tables definition in Geo Secondary node'
+    task :refresh_foreign_tables do
+      require 'pg'
+      require Rails.root.join('ee/lib/gitlab/geo/geo_tasks')
+      require Rails.root.join('ee/lib/gitlab/geo/fdw')
+      require Rails.root.join('ee/lib/gitlab/geo/database_tasks')
+
+      # These are needed to expire the cache, but Rails.cache still returns nil
+      # and I'm not sure what to load (other than the whole Rails environment)
+      # to make it work.
+      #
+      # require Rails.root.join('ee/lib/gitlab/geo')
+      # require Rails.root.join('lib/gitlab/null_request_store')
+      # require Rails.root.join('lib/gitlab/safe_request_store')
+      # require Rails.root.join('lib/gitlab/json_cache')
+      # require Rails.root.join('lib/gitlab/thread_memory_cache')
+
+      if Gitlab::Geo::GeoTasks.foreign_server_configured?
+        print "\nRefreshing foreign tables for FDW: #{Gitlab::Geo::Fdw::FOREIGN_SCHEMA} ... "
+        Gitlab::Geo::GeoTasks.refresh_foreign_tables!(expire_cache: false)
+        puts 'Done!'
+      else
+        puts "Error: Cannot refresh foreign tables, there is no foreign server configured."
+        exit 1
+      end
+    end
+  end
+end

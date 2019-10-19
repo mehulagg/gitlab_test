@@ -35,7 +35,7 @@ module Gitlab
         end
       end
 
-      def refresh_foreign_tables!
+      def refresh_foreign_tables!(expire_cache: true)
         sql = <<~SQL
             DROP SCHEMA IF EXISTS gitlab_secondary CASCADE;
             CREATE SCHEMA gitlab_secondary;
@@ -50,7 +50,7 @@ module Gitlab
           end
         end
 
-        Gitlab::Geo::Fdw.expire_cache!
+        Gitlab::Geo::Fdw.expire_cache! if expire_cache
       end
 
       def foreign_server_configured?
