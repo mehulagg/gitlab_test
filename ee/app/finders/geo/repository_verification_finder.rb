@@ -8,7 +8,7 @@ module Geo
 
     # rubocop: disable CodeReuse/ActiveRecord
     def find_failed_repositories(batch_size:)
-      query = build_query_to_find_failed_projects(type: :repository, batch_size: batch_size)
+      query = build_query_to_find_failed_projects(repo_type: :repository, batch_size: batch_size)
       cte   = Gitlab::SQL::CTE.new(:failed_repositories, query)
 
       Project.with(cte.to_arel)
@@ -19,7 +19,7 @@ module Geo
 
     # rubocop: disable CodeReuse/ActiveRecord
     def find_failed_wikis(batch_size:)
-      query = build_query_to_find_failed_projects(type: :wiki, batch_size: batch_size)
+      query = build_query_to_find_failed_projects(repo_type: :wiki, batch_size: batch_size)
       cte   = Gitlab::SQL::CTE.new(:failed_wikis, query)
 
       Project.with(cte.to_arel)
@@ -29,13 +29,13 @@ module Geo
     # rubocop: enable CodeReuse/ActiveRecord
 
     # rubocop: disable CodeReuse/ActiveRecord
-    def find_recently_updated_projects(batch_size:)
-      query = build_query_to_find_recently_updated_projects(batch_size: batch_size)
+    def find_recently_updated_projects(repo_type, batch_size:)
+      query = build_query_to_find_recently_updated_projects(repo_type, batch_size: batch_size)
       cte   = Gitlab::SQL::CTE.new(:recently_updated_projects, query)
 
       Project.with(cte.to_arel)
              .from(cte.alias_to(projects_table))
-             .order(last_repository_updated_at_asc)
+             .order(last_repository_updated_at_asc(repo_type))
     end
     # rubocop: enable CodeReuse/ActiveRecord
 
@@ -53,11 +53,11 @@ module Geo
     # rubocop: enable CodeReuse/ActiveRecord
 
     def find_reverifiable_repositories(interval:, batch_size:)
-      build_query_to_find_reverifiable_projects(type: :repository, interval: interval, batch_size: batch_size)
+      build_query_to_find_reverifiable_projects(repo_type: :repository, interval: interval, batch_size: batch_size)
     end
 
     def find_reverifiable_wikis(interval:, batch_size:)
-      build_query_to_find_reverifiable_projects(type: :wiki, interval: interval, batch_size: batch_size)
+      build_query_to_find_reverifiable_projects(repo_type: :wiki, interval: interval, batch_size: batch_size)
     end
 
     def count_verified_repositories
@@ -81,14 +81,14 @@ module Geo
     attr_reader :shard_name
 
     # rubocop: disable CodeReuse/ActiveRecord
-    def build_query_to_find_failed_projects(type:, batch_size:)
+    def build_query_to_find_failed_projects(repo_type:, batch_size:)
       query =
         projects_table
           .join(repository_state_table).on(project_id_matcher)
-          .project(projects_table[:id], repository_state_table["#{type}_retry_at"])
+          .project(projects_table[:id], repository_state_table["#{repo_type}_retry_at"])
           .where(
-            repository_state_table["#{type}_retry_at"].lt(Time.now)
-              .and(repository_state_table["last_#{type}_verification_failure"].not_eq(nil))
+            repository_state_table["#{repo_type}_retry_at"].lt(Time.now)
+              .and(repository_state_table["last_#{repo_type}_verification_failure"].not_eq(nil))
           ).take(batch_size)
 
       apply_shard_restriction(query)
@@ -96,20 +96,16 @@ module Geo
     # rubocop: enable CodeReuse/ActiveRecord
 
     # rubocop: disable CodeReuse/ActiveRecord
-    def build_query_to_find_recently_updated_projects(batch_size:)
-      repository_recently_updated =
-        repository_state_table[:repository_verification_checksum].eq(nil)
-          .and(repository_state_table[:last_repository_verification_failure].eq(nil))
-
-      wiki_recently_updated =
-        repository_state_table[:wiki_verification_checksum].eq(nil)
-          .and(repository_state_table[:last_wiki_verification_failure].eq(nil))
+    def build_query_to_find_recently_updated_projects(repo_type, batch_size:)
+      recently_updated =
+        repository_state_table["#{repo_type}_verification_checksum"].eq(nil)
+          .and(repository_state_table["last_#{repo_type}_verification_failure"].eq(nil))
 
       query =
         projects_table
           .join(repository_state_table).on(project_id_matcher)
-          .project(projects_table[:id], projects_table[:last_repository_updated_at])
-          .where(repository_recently_updated.or(wiki_recently_updated))
+          .project(projects_table[:id], projects_table["last_#{repo_type}_updated_at"])
+          .where(recently_updated)
           .take(batch_size)
 
       apply_shard_restriction(query)
@@ -117,21 +113,21 @@ module Geo
     # rubocop: enable CodeReuse/ActiveRecord
 
     # rubocop: disable CodeReuse/ActiveRecord
-    def build_query_to_find_reverifiable_projects(type:, interval:, batch_size:)
+    def build_query_to_find_reverifiable_projects(repo_type:, interval:, batch_size:)
       verification_succeded =
-        repository_state_table["#{type}_verification_checksum"].not_eq(nil)
-          .and(repository_state_table["last_#{type}_verification_failure"].eq(nil))
+        repository_state_table["#{repo_type}_verification_checksum"].not_eq(nil)
+          .and(repository_state_table["last_#{repo_type}_verification_failure"].eq(nil))
 
       verified_before_interval =
-        repository_state_table["last_#{type}_verification_ran_at"].eq(nil).or(
-          repository_state_table["last_#{type}_verification_ran_at"].lteq(interval))
+        repository_state_table["last_#{repo_type}_verification_ran_at"].eq(nil).or(
+          repository_state_table["last_#{repo_type}_verification_ran_at"].lteq(interval))
 
       # We should prioritize less active projects first because high active
       # projects have their repositories verified more frequently.
       query =
         Project.joins(:repository_state)
           .where(verification_succeded.and(verified_before_interval))
-          .order(last_repository_updated_at_asc)
+          .order(last_repository_updated_at_asc(repo_type))
           .limit(batch_size)
 
       apply_shard_restriction(query)
@@ -157,8 +153,8 @@ module Geo
         .join_sources
     end
 
-    def last_repository_updated_at_asc
-      Gitlab::Database.nulls_last_order('projects.last_repository_updated_at', 'ASC')
+    def last_repository_updated_at_asc(repo_type)
+      Gitlab::Database.nulls_last_order("projects.last_#{repo_type}_updated_at", 'ASC')
     end
 
     # rubocop: disable CodeReuse/ActiveRecord

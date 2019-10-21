@@ -15,14 +15,14 @@ module Geo
         attr_reader :project
 
         # rubocop: disable CodeReuse/ActiveRecord
-        def perform(project_id)
+        def perform(project_id, repo_type)
           return unless Gitlab::Geo.primary?
 
           @project = Project.find_by(id: project_id)
           return if project.nil? || project.pending_delete?
 
           try_obtain_lease do
-            Geo::RepositoryVerificationPrimaryService.new(project).execute
+            Geo::RepositoryVerificationPrimaryService.new(project, repo_type).execute
           end
         end
         # rubocop: enable CodeReuse/ActiveRecord
@@ -30,7 +30,7 @@ module Geo
         private
 
         def lease_key
-          "geo:single_repository_verification_worker:#{project.id}"
+          "geo:single_repository_verification_worker:#{repo_type}:#{project.id}"
         end
 
         def lease_timeout

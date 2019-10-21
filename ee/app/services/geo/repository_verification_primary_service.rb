@@ -2,7 +2,7 @@
 
 module Geo
   class RepositoryVerificationPrimaryService < BaseRepositoryVerificationService
-    def initialize(project)
+    def initialize(project, repo_type)
       @project = project
     end
 
