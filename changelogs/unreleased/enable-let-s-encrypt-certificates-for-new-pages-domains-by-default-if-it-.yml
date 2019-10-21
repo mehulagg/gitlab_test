@@ -1,0 +1,6 @@
+---
+title: Resolve Enable Lets Encrypt certificates for new pages domains by default if
+  its enabled on the instance level.
+merge_request: 19043
+author:
+type: changed
