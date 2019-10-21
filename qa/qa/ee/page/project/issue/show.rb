@@ -59,7 +59,7 @@ module QA
             def set_weight(weight)
               click_element(:edit_weight_link)
               fill_element(:weight_input_field, weight)
-              send_keys_to_element(:weight_input_field, :enter)
+              click_body
             end
 
             def wait_for_related_issues_to_load

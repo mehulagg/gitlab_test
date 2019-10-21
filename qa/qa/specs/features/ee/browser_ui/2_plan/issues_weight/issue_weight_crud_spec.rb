@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  # https://gitlab.com/gitlab-org/gitlab/issues/33549
-  context 'Plan', :quarantine do
+  context 'Plan' do
     describe 'Issues weight CRUD operations' do
       let(:issue) do
         Resource::Issue.fabricate_via_api! do |issue|
