@@ -692,7 +692,7 @@ In order to make use of monitoring you need to:
 1. [Deploy Prometheus](../../user/project/integrations/prometheus.md) into your Kubernetes cluster
 1. NGINX Ingress Monitoriing
    1. If you would like response metrics, ensure you are running at least version
-      0.9.0 of NGINX Ingress and [enable Prometheus metrics] (https://github.com/kubernetes/ingress-nginx/blob/master/docs/examples/customization/custom-vts-metrics-prometheus/nginx-vts-metrics-conf.yaml).
+      0.9.0 of NGINX Ingress and [enable Prometheus metrics](https://github.com/kubernetes/ingress-nginx/blob/master/docs/examples/customization/custom-vts-metrics-prometheus/nginx-vts-metrics-conf.yaml).
    1. Finally, [annotate](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/)
       the NGINX Ingress deployment to be scraped by Prometheus using
       `prometheus.io/scrape: "true"` and `prometheus.io/port: "10254"`.
@@ -927,6 +927,7 @@ applications.
 | `AUTO_DEVOPS_CHART_REPOSITORY_NAME`     | From GitLab 11.11, used to set the name of the Helm repository. Defaults to `gitlab`. |
 | `AUTO_DEVOPS_CHART_REPOSITORY_USERNAME` | From GitLab 11.11, used to set a username to connect to the Helm repository. Defaults to no credentials. Also set `AUTO_DEVOPS_CHART_REPOSITORY_PASSWORD`. |
 | `AUTO_DEVOPS_CHART_REPOSITORY_PASSWORD` | From GitLab 11.11, used to set a password to connect to the Helm repository. Defaults to no credentials. Also set `AUTO_DEVOPS_CHART_REPOSITORY_USERNAME`. |
+| `AUTO_DEVOPS_PROMETHEUS_METRICS` | From GitLab 12.5, used to enable kubernetes service annotations that support Prometheus auto discovery | 
 | `BUILDPACK_URL`                         | Buildpack's full URL. Can point to either Git repositories or a tarball URL. For Git repositories, it is possible to point to a specific `ref`. For example `https://github.com/heroku/heroku-buildpack-ruby.git#v142`. |
 | `CANARY_ENABLED`                        | From GitLab 11.0, used to define a [deploy policy for canary environments](#deploy-policy-for-canary-environments-premium). |
 | `CANARY_PRODUCTION_REPLICAS`            | Number of canary replicas to deploy for [Canary Deployments](../../user/project/canary_deployments.md) in the production environment. Takes precedence over `CANARY_REPLICAS`. Defaults to 1. |
