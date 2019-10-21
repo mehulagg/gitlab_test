@@ -722,13 +722,12 @@
   resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.85.0.tgz#c80247ec4764824385df2837136a0d4a84f881dc"
   integrity sha512-yzvKut0MPJEbSx/LExopCLpF5KEZsckF+d/Blbji1VqODVanH85oIVuJNmdECUlc7qxye9Or3evpFjW9Pkshmg==
 
-"@gitlab/ui@8.2.0":
-  version "8.2.0"
-  resolved "https://registry.yarnpkg.com/@gitlab/ui/-/ui-8.2.0.tgz#82cf512407f8a774878969c72c4227d08ce49aa6"
-  integrity sha512-ZzxA3XwmwZpol6QJjqBf3Oblb1wSFbDJ4QENvPiE9lAUHvhbe8wfKBK++RtgOtd6aXtLvoY1o1Du9qill07Jvg==
+"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/326835680/artifacts/raw/gitlab-ui.test-tooltips.tgz":
+  version "5.36.0"
+  resolved "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/326835680/artifacts/raw/gitlab-ui.test-tooltips.tgz#9aecd50cd3b2886d2da8bde6dfd005e1dc655126"
   dependencies:
     "@babel/standalone" "^7.0.0"
-    "@gitlab/vue-toasted" "^1.3.0"
+    "@gitlab/vue-toasted" "^1.2.1"
     bootstrap-vue "2.0.0-rc.27"
     copy-to-clipboard "^3.0.8"
     echarts "^4.2.1"
@@ -745,7 +744,7 @@
   resolved "https://registry.yarnpkg.com/@gitlab/visual-review-tools/-/visual-review-tools-1.2.0.tgz#8d6757917193c1023012bb4a316dc1a97309a27a"
   integrity sha512-GaV/lYLmOF0hWtv8K8MLWGaCZ7PL1LF4D0/gargXYf9HO0Cw4wtz4oWyaLS15wFposJIYdPIHSNfrLVk4Dk9sQ==
 
-"@gitlab/vue-toasted@^1.3.0":
+"@gitlab/vue-toasted@^1.2.1":
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/@gitlab/vue-toasted/-/vue-toasted-1.3.0.tgz#f21550d4ce406ee5f99447a02abf36250ecc922d"
   integrity sha512-xexu7YbbIkQS5FDqPaewrOTQ4/myth5VyU8+hWZ+Tj1e5CuAlDNha3dHbvwyLW8/2flm/2mfslFNPAX2DRe8ZQ==
