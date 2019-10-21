@@ -106,7 +106,6 @@
     refs:
       - master
       - /^\d+-\d+-auto-deploy-\d+$/
-      - /^[\d-]+-stable(-ee)?$/
 
 .only-review-schedules:
   only:
