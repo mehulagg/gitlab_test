@@ -17,21 +17,29 @@ module Geo
       @batch_size = batch_size
     end
 
-    # rubocop:disable CodeReuse/ActiveRecord
-    def execute
-      return Geo::ProjectRegistry.none unless valid_shard?
-
-      Gitlab::Geo::Fdw::ProjectRegistryQueryBuilder
-        .new(current_node.project_registries)
-        .registries_pending_verification
-        .within_shards(shard_name)
-        .limit(batch_size)
+    def wikis
+      pending_verification_registries(:wiki)
     end
-    # rubocop:enable CodeReuse/ActiveRecord
+
+    def repositories
+      pending_verification_registries(:repository)
+    end
 
     private
 
     attr_reader :current_node, :shard_name, :batch_size
+
+    # rubocop:disable CodeReuse/ActiveRecord
+    def pending_verification_registries(type)
+      return Geo::ProjectRegistry.none unless valid_shard?
+
+      Gitlab::Geo::Fdw::ProjectRegistryQueryBuilder
+        .new(current_node.project_registries)
+        .public_send("#{type}s_pending_verification")
+        .within_shards(shard_name)
+        .limit(batch_size)
+    end
+    # rubocop:enable CodeReuse/ActiveRecord
 
     def valid_shard?
       return true unless current_node.selective_sync_by_shards?

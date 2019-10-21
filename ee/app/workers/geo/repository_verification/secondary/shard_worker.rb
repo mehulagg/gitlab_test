@@ -34,16 +34,23 @@ module Geo
         end
 
         def load_pending_resources
-          Geo::ProjectRegistryPendingVerificationFinder
+          finder = Geo::ProjectRegistryPendingVerificationFinder
             .new(current_node: current_node, shard_name: shard_name, batch_size: db_retrieve_batch_size)
-            .execute
-            .pluck_primary_key
+
+          repositories = finder.repositories.pluck_primary_key
+          wikis = finder.wikis.pluck_primary_key
+
+          take_batch(
+            repositories.map { |id| [id, :repository] },
+            wikis.map { |id| [id, :wiki] },
+            batch_size: db_retrieve_batch_size
+          )
         end
 
-        def schedule_job(registry_id)
+        def schedule_job(registry_id, repo_type)
           job_id = Geo::RepositoryVerification::Secondary::SingleWorker.perform_async(registry_id)
 
-          { id: registry_id, job_id: job_id } if job_id
+          { id: registry_id, repo_type: repo_type, job_id: job_id } if job_id
         end
       end
     end

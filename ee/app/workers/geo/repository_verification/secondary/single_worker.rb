@@ -19,27 +19,26 @@ module Geo
         delegate :project, to: :registry
 
         # rubocop: disable CodeReuse/ActiveRecord
-        def perform(registry_id)
+        def perform(registry_id, repo_type)
           return unless Gitlab::Geo.secondary?
 
           @registry = Geo::ProjectRegistry.find_by(id: registry_id)
           return if registry.nil? || project.nil? || project.pending_delete?
 
+          repo_type = repo_type.to_sym
+
           try_obtain_lease do
-            verify_checksum(:repository)
-            verify_checksum(:wiki)
+            if [:repository, :all].include? repo_type
+              Geo::RepositoryVerificationSecondaryService.new(registry).execute
+            end
+            if [:wiki, :all].include? repo_type
+              Geo::WikiVerificationSecondaryService.new(registry).execute
+            end
           end
         end
         # rubocop: enable CodeReuse/ActiveRecord
 
         private
-
-        def verify_checksum(type)
-          Geo::RepositoryVerificationSecondaryService.new(registry, type).execute
-        rescue => e
-          log_error('Error verifying the repository checksum', e, type: type)
-          raise e
-        end
 
         def lease_key
           "geo:repository_verification:secondary:single_worker:#{project.id}"

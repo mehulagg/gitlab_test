@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_21_120133) do
+ActiveRecord::Schema.define(version: 2019_10_21_130116) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -1652,6 +1652,7 @@ ActiveRecord::Schema.define(version: 2019_10_21_120133) do
 
   create_table "geo_reset_checksum_events", force: :cascade do |t|
     t.integer "project_id", null: false
+    t.integer "resource_type"
     t.index ["project_id"], name: "index_geo_reset_checksum_events_on_project_id"
   end
 

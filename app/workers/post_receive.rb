@@ -95,7 +95,7 @@ class PostReceive
   end
 
   def process_wiki_changes(post_received)
-    post_received.project.wiki.repository.update_project_activity
+    post_received.project.wiki.update_project_activity
     post_received.project.wiki.repository.expire_statistics_caches
     ProjectCacheWorker.perform_async(post_received.project.id, [], [:wiki_size])
 

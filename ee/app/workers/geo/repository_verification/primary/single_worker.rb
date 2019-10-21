@@ -21,8 +21,16 @@ module Geo
           @project = Project.find_by(id: project_id)
           return if project.nil? || project.pending_delete?
 
+          repo_type = repo_type.to_sym
+
           try_obtain_lease do
-            Geo::RepositoryVerificationPrimaryService.new(project, repo_type).execute
+            if [:repository, :all].include? repo_type
+              Geo::RepositoryVerificationPrimaryService.new(project).execute
+            end
+
+            if [:wiki, :all].include? repo_type
+              Geo::WikiVerificationPrimaryService.new(project).execute
+            end
           end
         end
         # rubocop: enable CodeReuse/ActiveRecord
@@ -30,7 +38,7 @@ module Geo
         private
 
         def lease_key
-          "geo:single_repository_verification_worker:#{repo_type}:#{project.id}"
+          "geo:single_repository_verification_worker:#{project.id}"
         end
 
         def lease_timeout

@@ -7,8 +7,13 @@ module Gitlab
         class ResetChecksumEvent
           include BaseEvent
 
+          REPOSITORY_TYPES = %(repository wiki).freeze
+
           def process
-            registry.reset_checksum! unless skippable?
+            if REPOSITORY_TYPES.include?(event.resource_type) && !skippable?
+              registry.reset_checksum!(event.resource_type)
+            end
+
             log_event
           end
 
@@ -19,6 +24,7 @@ module Gitlab
               created_at,
               'Reset checksum',
               project_id: event.project_id,
+              resource_type: event.resource_type,
               skippable: skippable?
             )
           end

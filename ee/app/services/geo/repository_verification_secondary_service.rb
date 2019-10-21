@@ -2,9 +2,10 @@
 
 module Geo
   class RepositoryVerificationSecondaryService < BaseRepositoryVerificationService
-    def initialize(registry, type)
+    REPO_TYPE = 'repository'
+
+    def initialize(registry)
       @registry = registry
-      @type     = type.to_sym
     end
 
     def execute
@@ -53,6 +54,7 @@ module Geo
         update_registry!(checksum: checksum)
       end
     rescue => e
+      log_error('Error verifying the repository checksum', e, type: type)
       update_registry!(failure: "Error calculating #{type} checksum", exception: e)
     end
 
@@ -84,11 +86,11 @@ module Geo
     end
 
     def repository
-      @repository ||=
-        case type
-        when :repository then project.repository
-        when :wiki then project.wiki.repository
-        end
+      project.repository
+    end
+
+    def type
+      REPO_TYPE
     end
   end
 end
