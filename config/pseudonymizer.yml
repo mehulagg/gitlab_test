@@ -403,6 +403,7 @@ tables:
     - service_desk_enabled
     - delete_error
     - last_repository_updated_at
+    - last_wiki_updated_at
     - disable_overriding_approvers_per_merge_request
     - storage_version
     - resolve_outdated_diff_discussions

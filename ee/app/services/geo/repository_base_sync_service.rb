@@ -177,9 +177,9 @@ module Geo
     def update_delay_in_seconds
       # We don't track the last update time of repositories and Wiki
       # separately in the main database
-      return unless project.last_repository_updated_at
+      return unless project.public_send("last_#{type}_updated_at")
 
-      (last_successful_sync_at.to_f - project.last_repository_updated_at.to_f).round(3)
+      (last_successful_sync_at.to_f - project.public_send("last_#{type}_updated_at").to_f).round(3)
     end
 
     def download_time_in_seconds

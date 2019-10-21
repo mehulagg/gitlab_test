@@ -371,7 +371,6 @@ class Project < ApplicationRecord
   scope :without_storage_feature, ->(feature) { where('storage_version < :version OR storage_version IS NULL', version: HASHED_STORAGE_FEATURES[feature]) }
   scope :with_unmigrated_storage, -> { where('storage_version < :version OR storage_version IS NULL', version: LATEST_STORAGE_VERSION) }
 
-  # last_activity_at is throttled every minute, but last_repository_updated_at is updated with every push
   scope :sorted_by_activity, -> { reorder(Arel.sql("GREATEST(COALESCE(last_activity_at, '1970-01-01'), COALESCE(last_repository_updated_at, '1970-01-01')) DESC")) }
   scope :sorted_by_stars_desc, -> { reorder(star_count: :desc) }
   scope :sorted_by_stars_asc, -> { reorder(star_count: :asc) }
@@ -1071,7 +1070,7 @@ class Project < ApplicationRecord
   end
 
   def last_activity_date
-    [last_activity_at, last_repository_updated_at, updated_at].compact.max
+    [last_activity_at, last_repository_updated_at, updated_at, last_wiki_updated_at].compact.max
   end
 
   def project_id
@@ -2329,7 +2328,11 @@ class Project < ApplicationRecord
   end
 
   def set_timestamps_for_create
-    update_columns(last_activity_at: self.created_at, last_repository_updated_at: self.created_at)
+    update_columns(
+      last_activity_at: self.created_at,
+      last_repository_updated_at: self.created_at,
+      last_wiki_updated_at: self.created_at
+    )
   end
 
   def cross_namespace_reference?(from)

@@ -222,7 +222,7 @@ class ProjectWiki
   end
 
   def update_project_activity
-    @project.touch(:last_activity_at, :last_repository_updated_at)
+    @project.touch(:last_activity_at, :last_wiki_updated_at)
   end
 end
 
