@@ -23,7 +23,7 @@ module EE
           end
         end
 
-        def new_unused_method_for_attaching_diff_suggestions
+        def new_unused_placeholder_method_for_attaching_diff_suggestions
           here = "is where someone can suggest"
 
           "several" =~ /changes/
