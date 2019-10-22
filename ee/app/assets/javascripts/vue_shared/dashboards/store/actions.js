@@ -164,7 +164,7 @@ export const fetchSearchResults = ({ state, dispatch }) => {
 };
 
 export const fetchNextPage = ({ state, dispatch }) => {
-  if (state.pageInfo.totalPages === state.pageInfo.currentPage) {
+  if (state.pageInfo.totalPages <= state.pageInfo.currentPage) {
     return;
   }
   Api.projects(state.searchQuery, { page: state.pageInfo.nextPage })

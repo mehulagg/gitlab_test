@@ -424,7 +424,7 @@ describe('actions', () => {
       store.state.pageInfo = mockHeaders.pageInfo;
       testAction(
         actions.fetchNextPage,
-        mockHeaders,
+        null,
         store.state,
         [],
         [

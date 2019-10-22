@@ -2,6 +2,14 @@ import Vue from 'vue';
 import * as types from './mutation_types';
 import { parseIntPagination, normalizeHeaders } from '~/lib/utils/common_utils';
 
+export const updatePageInfo = (state, headers) => {
+  const pageInfo = parseIntPagination(normalizeHeaders(headers));
+  Vue.set(state.pageInfo, 'currentPage', pageInfo.page);
+  Vue.set(state.pageInfo, 'nextPage', pageInfo.nextPage);
+  Vue.set(state.pageInfo, 'totalResults', pageInfo.total);
+  Vue.set(state.pageInfo, 'totalPages', pageInfo.totalPages);
+};
+
 export default {
   [types.SET_PROJECT_ENDPOINT_LIST](state, url) {
     state.projectEndpoints.list = url;
@@ -55,11 +63,9 @@ export default {
 
     state.searchCount += 1;
   },
-  [types.RECEIVE_NEXT_PAGE_SUCCESS](state, results) {
-    state.projectSearchResults = state.projectSearchResults.concat(results.data);
-    const pageInfo = parseIntPagination(normalizeHeaders(results.headers));
-    Vue.set(state.pageInfo, 'currentPage', pageInfo.page);
-    Vue.set(state.pageInfo, 'nextPage', pageInfo.nextPage);
+  [types.RECEIVE_NEXT_PAGE_SUCCESS](state, { data, headers }) {
+    state.projectSearchResults = state.projectSearchResults.concat(data);
+    updatePageInfo(state, headers);
   },
   [types.RECEIVE_SEARCH_RESULTS_SUCCESS](state, results) {
     state.projectSearchResults = results.data;
@@ -67,11 +73,7 @@ export default {
     Vue.set(state.messages, 'searchError', false);
     Vue.set(state.messages, 'minimumQuery', false);
 
-    const pageInfo = parseIntPagination(normalizeHeaders(results.headers));
-    Vue.set(state.pageInfo, 'currentPage', pageInfo.page);
-    Vue.set(state.pageInfo, 'nextPage', pageInfo.nextPage);
-    Vue.set(state.pageInfo, 'totalResults', pageInfo.total);
-    Vue.set(state.pageInfo, 'totalPages', pageInfo.totalPages);
+    updatePageInfo(state, results.headers);
 
     state.searchCount = Math.max(0, state.searchCount - 1);
   },

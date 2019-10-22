@@ -134,12 +134,11 @@ describe('mutations', () => {
         'x-page': '2',
       };
       const results = { data: projects[1], headers };
+
       mutations[types.RECEIVE_NEXT_PAGE_SUCCESS](localState, results);
 
       expect(localState.projectSearchResults.length).toEqual(2);
-
       expect(localState.pageInfo.currentPage).toEqual(2);
-
       expect(localState.pageInfo.nextPage).toEqual(3);
     });
   });
@@ -166,22 +165,14 @@ describe('mutations', () => {
       mutations[types.RECEIVE_SEARCH_RESULTS_SUCCESS](localState, results);
 
       expect(localState.projectSearchResults).toEqual(results.data);
-
       expect(localState.messages.noResults).toBe(false);
-
       expect(localState.messages.searchError).toBe(false);
-
-      expect(localState.messages.minimumQuery).toBe(false);
-
-      expect(localState.pageInfo.currentPage).toEqual(1);
-
-      expect(localState.pageInfo.currentPage).toEqual(1);
-
-      expect(localState.pageInfo.nextPage).toEqual(2);
-
-      expect(localState.pageInfo.totalResults).toEqual(37);
-
-      expect(localState.pageInfo.totalPages).toEqual(2);
+      expect(localState.pageInfo).toEqual({
+        currentPage: 1,
+        nextPage: 2,
+        totalPages: 2,
+        totalResults: 37,
+      });
     });
 
     it('resets all messages and pageInfo and sets state.projectSearchResults to an empty array if no results', () => {

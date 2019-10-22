@@ -90,9 +90,6 @@ export default {
         .then(this.clearSearchResults)
         .catch(this.clearSearchResults);
     },
-    bottomReached() {
-      this.fetchNextPage();
-    },
     searched(query) {
       this.setSearchQuery(query);
       this.fetchSearchResults();
@@ -126,7 +123,7 @@ export default {
         :total-results="pageInfo.totalResults"
         @searched="searched"
         @projectClicked="projectClicked"
-        @bottomReached="bottomReached"
+        @bottomReached="fetchNextPage"
       />
     </gl-modal>
 
