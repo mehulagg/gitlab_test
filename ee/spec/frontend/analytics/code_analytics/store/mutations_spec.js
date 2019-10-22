@@ -7,6 +7,7 @@ import {
   codeHotspotsResponseData,
   codeHotspotsTransformedData,
 } from '../mock_data';
+import httpStatus from '~/lib/utils/http_status';
 
 describe('Code analytics mutations', () => {
   let state;
@@ -34,9 +35,9 @@ describe('Code analytics mutations', () => {
   );
 
   it.each`
-    mutation                                  | payload | expectedState
-    ${types.REQUEST_CODE_HOTSPOTS_DATA}       | ${null} | ${{ isLoading: true }}
-    ${types.RECEIVE_CODE_HOTSPOTS_DATA_ERROR} | ${null} | ${{ isLoading: false, codeHotspotsData: [] }}
+    mutation                                  | payload                 | expectedState
+    ${types.REQUEST_CODE_HOTSPOTS_DATA}       | ${null}                 | ${{ isLoading: true }}
+    ${types.RECEIVE_CODE_HOTSPOTS_DATA_ERROR} | ${httpStatus.FORBIDDEN} | ${{ isLoading: false, codeHotspotsData: [], errorCode: httpStatus.FORBIDDEN }}
   `(
     '$mutation with payload $payload will update state with $expectedState',
     ({ mutation, payload, expectedState }) => {

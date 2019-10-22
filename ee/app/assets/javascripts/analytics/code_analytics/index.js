@@ -3,7 +3,7 @@ import CodeAnalytics from './components/app.vue';
 
 export default () => {
   const el = document.querySelector('#js-code-analytics-app');
-  const { endpoint, emptyStateSvgPath } = el.dataset;
+  const { endpoint, emptyStateSvgPath, noAccessSvgPath } = el.dataset;
 
   return new Vue({
     el,
@@ -15,6 +15,7 @@ export default () => {
       createElement(CodeAnalytics, {
         props: {
           emptyStateSvgPath,
+          noAccessSvgPath,
           endpoint,
         },
       }),

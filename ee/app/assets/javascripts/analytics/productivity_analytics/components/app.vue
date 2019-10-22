@@ -145,7 +145,7 @@ export default {
     <gl-empty-state
       v-if="hasNoAccessError"
       class="js-empty-state"
-      :title="__('You don’t have access to Productivity Analytics in this group')"
+      :title="__('You don\'t have access to Productivity Analytics in this group')"
       :svg-path="noAccessSvgPath"
       :description="
         __(

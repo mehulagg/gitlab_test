@@ -1,14 +1,13 @@
 <script>
 import { GlEmptyState, GlLoadingIcon } from '@gitlab/ui';
 import dateFormat from 'dateformat';
-import { mapActions, mapState } from 'vuex';
+import { mapActions, mapState, mapGetters } from 'vuex';
 import { sprintf, s__ } from '~/locale';
 import { getDateInPast } from '~/lib/utils/datetime_utility';
 import TreemapChart from 'ee/vue_shared/components/charts/treemap/treemap_chart.vue';
 import GroupsDropdownFilter from '../../shared/components/groups_dropdown_filter.vue';
 import ProjectsDropdownFilter from '../../shared/components/projects_dropdown_filter.vue';
 import FileQuantityDropdown from './file_quantity_dropdown.vue';
-import TreemapChart from 'ee/vue_shared/components/charts/treemap/treemap_chart.vue';
 import { featureAccessLevel } from '~/pages/projects/shared/permissions/constants';
 import { PROJECTS_PER_PAGE, DEFAULT_FILE_QUANTITY, DEFAULT_DAYS_IN_PAST } from '../constants';
 import { dateFormats } from '../../shared/constants';
@@ -30,6 +29,10 @@ export default {
       type: String,
       required: true,
     },
+    noAccessSvgPath: {
+      type: String,
+      required: true,
+    },
     endpoint: {
       type: String,
       required: true,
@@ -47,9 +50,13 @@ export default {
       'selectedProject',
       'selectedFileQuantity',
       'codeHotspotsData',
+      'errorCode',
     ]),
+    ...mapGetters(['hasNoAccessError']),
     shouldRenderEmptyState() {
-      return !this.selectedGroup || !this.selectedProject;
+      return (
+        !this.selectedGroup || !this.selectedProject || (this.errorCode && !this.hasNoAccessError)
+      );
     },
     displayFileQuantityFilter() {
       return this.selectedGroup && this.selectedProject;
@@ -152,6 +159,16 @@ export default {
           )
         "
         :svg-path="emptyStateSvgPath"
+      />
+      <gl-empty-state
+        v-else-if="hasNoAccessError"
+        :title="__('You don\'t have access to Code Analytics for this project')"
+        :svg-path="noAccessSvgPath"
+        :description="
+          __(
+            'Only \'Reporter\' roles and above on tiers Premium / Silver and above can see Code Analytics.',
+          )
+        "
       />
       <div
         v-else-if="!codeHotspotsData.length"

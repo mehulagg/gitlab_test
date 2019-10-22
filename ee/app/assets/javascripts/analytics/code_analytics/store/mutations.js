@@ -29,10 +29,12 @@ export default {
     }));
 
     state.codeHotspotsData = transformedData;
+    state.errorCode = null;
     state.isLoading = false;
   },
-  [types.RECEIVE_CODE_HOTSPOTS_DATA_ERROR](state) {
+  [types.RECEIVE_CODE_HOTSPOTS_DATA_ERROR](state, errCode) {
     state.codeHotspotsData = [];
+    state.errorCode = errCode;
     state.isLoading = false;
   },
 };

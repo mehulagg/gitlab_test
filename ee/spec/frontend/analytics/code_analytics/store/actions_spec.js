@@ -1,11 +1,14 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import testAction from 'helpers/vuex_action_helper';
+import httpStatus from '~/lib/utils/http_status';
+import createFlash from '~/flash';
 import * as actions from 'ee/analytics/code_analytics/store/actions';
 import * as types from 'ee/analytics/code_analytics/store/mutation_types';
 import { group, project, endpoint, codeHotspotsResponseData } from '../mock_data';
 
 const error = new Error('Request failed with status code 404');
+const flashErrorMessage = 'There was an error while fetching code analytics data.';
 
 describe('Code analytics actions', () => {
   let state;
@@ -42,9 +45,8 @@ describe('Code analytics actions', () => {
   });
 
   it.each`
-    action                            | type
-    ${'requestCodeHotspotsData'}      | ${types.REQUEST_CODE_HOTSPOTS_DATA}
-    ${'receiveCodeHotspotsDataError'} | ${types.RECEIVE_CODE_HOTSPOTS_DATA_ERROR}
+    action                       | type
+    ${'requestCodeHotspotsData'} | ${types.REQUEST_CODE_HOTSPOTS_DATA}
   `('$action should commit mutation with $type', ({ action, type }) => {
     testAction(
       actions[action],
@@ -60,6 +62,10 @@ describe('Code analytics actions', () => {
   });
 
   describe('receiveCodeHotspotsDataSuccess', () => {
+    beforeEach(() => {
+      setFixtures('<div class="flash-container"></div>');
+    });
+
     it(`commits ${types.RECEIVE_CODE_HOTSPOTS_DATA_SUCCESS} mutation with the response data`, () => {
       testAction(
         actions.receiveCodeHotspotsDataSuccess,
@@ -72,6 +78,61 @@ describe('Code analytics actions', () => {
           },
         ],
         [],
+      );
+    });
+
+    it('removes an existing flash error if present', () => {
+      const commit = jest.fn();
+      const dispatch = jest.fn();
+
+      createFlash(flashErrorMessage);
+
+      const flashAlert = document.querySelector('.flash-alert');
+
+      expect(flashAlert).toBeVisible();
+
+      actions.receiveCodeHotspotsDataSuccess({ commit, dispatch, state });
+
+      expect(flashAlert.style.opacity).toBe('0');
+    });
+  });
+
+  describe('receiveCodeHotspotsDataError', () => {
+    beforeEach(() => {
+      setFixtures('<div class="flash-container"></div>');
+    });
+
+    it(`commits ${types.RECEIVE_CODE_HOTSPOTS_DATA_ERROR} mutation with the response data`, () => {
+      testAction(
+        actions.receiveCodeHotspotsDataError,
+        { response: { status: httpStatus.FORBIDDEN } },
+        state,
+        [
+          {
+            type: types.RECEIVE_CODE_HOTSPOTS_DATA_ERROR,
+            payload: httpStatus.FORBIDDEN,
+          },
+        ],
+        [],
+      );
+    });
+
+    it(`flashes an error when the errorCode is not ${httpStatus.FORBIDDEN}`, () => {
+      testAction(
+        actions.receiveCodeHotspotsDataError,
+        { response: { status: httpStatus.NOT_FOUND } },
+        state,
+        [
+          {
+            type: types.RECEIVE_CODE_HOTSPOTS_DATA_ERROR,
+            payload: httpStatus.NOT_FOUND,
+          },
+        ],
+        [],
+      );
+
+      expect(document.querySelector('.flash-container .flash-text').innerText.trim()).toBe(
+        flashErrorMessage,
       );
     });
   });

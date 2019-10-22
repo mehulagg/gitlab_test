@@ -164,9 +164,7 @@ export default {
     >
       <div slot="title">
         <gl-link :href="tooltipTitle.link" target="_blank" class="text-bold text-dark">
-          {{
-          tooltipTitle.name
-          }}
+          {{ tooltipTitle.name }}
         </gl-link>
       </div>
       <div>
