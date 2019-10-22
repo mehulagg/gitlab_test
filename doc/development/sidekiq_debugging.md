@@ -84,7 +84,7 @@ W0 --> T1
 W0 --> TT
 ```
 
-In this example we have `K` server nodes, two of which (`node_0` and `node_1`) are configured to process any jobs written to queues `queue_0` and `queue_1`. 
+In this example we have `K` server nodes, two of which (`node_0` and `node_1`) are configured to process any jobs written to queues `queue_0` and `queue_1`.
 Each node runs `N` Sidekiq processes, each of which in return runs `M` threads. So in total this setup can processes at most `2 * N * M` jobs from the given queues.
 Connections in the diagram are only drawn for the left-most elements for better readability.
 
