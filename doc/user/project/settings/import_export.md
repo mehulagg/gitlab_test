@@ -88,9 +88,9 @@ For more details on the specific data persisted in a project export, see the
 
 1. Go to your project's homepage.
 
-1. Click **Settings** in the sidebar.
+1. Click **Settings** in the sidebar followed by **General**.
 
-1. Scroll down to find the **Export project** button:
+1. Scroll down to find **Advanced** and click on the **Advanced** button to the right.  Click the **Export project** button:
 
    ![Export button](img/import_export_export_button.png)
 
