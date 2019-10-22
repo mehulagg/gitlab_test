@@ -26,7 +26,7 @@ module EE
         def new_unused_placeholder_method_for_attaching_diff_suggestions
           here = "is where someone can suggest"
 
-          "several" =~ /changes/
+          "several" =~ /meaningless changes/
 
           "that can all kick off a ton of pipelines"
 
