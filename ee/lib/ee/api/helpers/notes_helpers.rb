@@ -30,7 +30,7 @@ module EE
 
           "that can all kick off a ton of pipelines"
 
-          to_see_if = "they break"
+          to_see_if = "they break, but it doesn't seem like it"
         end
       end
     end
