@@ -90,6 +90,8 @@ We currently track Sidekiq metrics in prometheus in 3 different places:
 1. [prometheus-main](https://prometheus.gprd.gitlab.net) contains `sidekiq_` metrics that track general infrastructure and cluster health and which have meaning outside of the application context.
 1. [gitlab-exporter](https://gitlab.com/gitlab-org/gitlab-exporter) contains a Sidekiq specific endpoint that prometheus can scrape for metrics. This mostly exists for customers running self-managed environments and should not be used to expose metrics for gitlab.com.
 
+_Note that for the staging environment of gitlab.com, metrics are available on dedicated Prometheus servers ([main](https://prometheus.gstg.gitlab.net) and [app](https://prometheus-app.gstg.gitlab.net))._
+
 In `development` mode, all web-app metrics can be fetched from the `/-/metrics` endpoint, however, the Sidekiq middleware will not export metrics by default. You can enable it in `gitlab.yml` by enabling the `sidekiq_exporter`:
 
 ```yaml
