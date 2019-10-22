@@ -78,6 +78,14 @@ describe Gitlab::ImportExport::GroupTreeSaver do
         expect(labels.first['title']).to eq(label.title)
       end
     end
+
+    it 'saves boards' do
+      expect(saved_group_json['boards'].size).to eq(1)
+    end
+
+    it 'saves board labels' do
+      expect(saved_group_json['boards'].first['labels'].size).to eq(1)
+    end
   end
 
   def expect_successful_save(group_tree_saver)
