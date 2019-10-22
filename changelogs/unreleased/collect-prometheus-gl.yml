@@ -1,0 +1,7 @@
+---
+title: Adds a feature flag, query_metrics, that gets passed down to the GitLab runner
+  for querying metrics from runner instances and shipping these metrics to GitLab
+  as job artifacts
+merge_request:
+author:
+type: added

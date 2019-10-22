@@ -499,7 +499,7 @@ module Ci
     end
 
     def features
-      { trace_sections: true }
+      { trace_sections: true, query_metrics: Feature.enabled?('query_metrics', project) }
     end
 
     def merge_request
