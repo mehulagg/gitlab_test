@@ -48,6 +48,8 @@ namespace :admin do
       end
     end
 
+    resources :designs, only: [:index]
+
     resources :uploads, only: [:index, :destroy]
   end
 
