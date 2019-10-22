@@ -109,10 +109,6 @@ export default () => {
   const securityTab = document.getElementById('js-security-report-app');
 
   if (securityTab) {
-    if (gon.features && gon.features.pipelineReportApi) {
-      initSecurityDashboardApp(securityTab);
-    } else {
-      initSplitSecurityReportsApp(securityTab);
-    }
+    initSecurityDashboardApp(securityTab);
   }
 };
