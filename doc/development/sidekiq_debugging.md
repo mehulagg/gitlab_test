@@ -45,10 +45,50 @@ Since there is only one process, all jobs from all queues are being processed by
 
 For `*.gitlab.com` and for self-managed installations (both of which are deployed from Omnibus packages), Sidekiq runs in **clustered** i.e. multi-process mode. What this does is spin up several Sidekiq processes per server node, each of which then runs its own thread pool. For gitlab.com, we also have multiple **instances** i.e. server nodes (using Google Compute Engine), each running their own cluster of Sidekiq processes. This is illustrated in the diagram below.
 
-![sidekiq_prod_arch](/uploads/4328823d257022ab30efded7bf7abcd5/sidekiq_prod_arch.jpg)
+```mermaid
+graph TD
+subgraph "Queue Level (Redis)"
+  Q0("queue_0")
+  Q1("queue_1")
+  Q("...")
+  QQ("queue_j")
+end
+subgraph Node Level
+  N0("node_0")
+  N1("node_1")
+  N("...")
+  NN("node_k")
+end
+subgraph Process Level
+  W0("sidekiq_0")
+  W1("sidekiq_1")
+  W("...")
+  WW("sidekiq_n")
+end
+subgraph Thread Level
+  T0("thread_0")
+  T1("thread_1")
+  T("...")
+  TT("thread_m")
+end
 
-In this example we have two GCE instances i.e. server nodes called `sidekiq-0` and `sidekiq-1` that are part of the `besteffort` "fleet". In return we have 3 queues that are processed by any of these instances. Each instance runs `N` Sidekiq processes, each of which in return runs `M` threads. So in total this setup can processes at most `2 * N * M` jobs in queues with `besteffort` priority.
+Q0 --> N0
+Q0 --> N1
+Q1 --> N0
+Q1 --> N1
+N0 --> W0
+N0 --> W1
+N0 --> WW
+W0 --> T0
+W0 --> T1
+W0 --> TT
+```
 
+In this example we have `K` server nodes, two of which (`node_0` and `node_1`) are configured to process any jobs written to queues `queue_0` and `queue_1`. 
+Each node runs `N` Sidekiq processes, each of which in return runs `M` threads. So in total this setup can processes at most `2 * N * M` jobs from the given queues.
+Connections in the diagram are only drawn for the left-most elements for better readability.
+
+Queues are furthermore grouped into **queue groups** based on the workloads they represent.
 How queues are mapped to priorities and clusters is well explained in [this issue](https://gitlab.com/gitlab-org/gitlab/issues/32258) and the related links, but to summarize:
 
 - all Sidekiq clusters are configured with a particular **priority configuration** (i.e. scaled according to a particular work load, such as "mostly CPU bound" or "mostly I/O bound")
