@@ -10,7 +10,7 @@ Sidekiq is based on 3 main concepts: workers, jobs, and queues. A **worker** is 
 
 # Sidekiq's execution model
 
-GitLab can run Sidekiq in different modes: as a single process in `development` and multi-process (also called "clustered") in production (and as part of an omnibus installation). Each Sidekiq process operates a thread pool, with each thread representing a worker that gets work assigned from a job. The number of threads is also referred to as the concurrency level at which a Sidekiq process operates. Job queues are stored in Redis, so that the main application process(es) as well as multiple Sidekiq processes can read from and write to any given queue. This is also why job parameters _must_ be serializable, as jobs are stored in Redis as JSON.
+GitLab can run Sidekiq in different modes: as a single process in `development` and multi-process (also called "clustered") in production (and as part of an Omnibus installation). Each Sidekiq process operates a thread pool, with each thread representing a worker that gets work assigned from a job. The number of threads is also referred to as the _concurrency level_ at which a Sidekiq process operates. Job queues are stored in Redis, so that the main application process(es) as well as multiple Sidekiq processes can read from and write to any given queue. This is also why job parameters _must_ be serializable, as jobs are stored in Redis as JSON.
 
 # Sidekiq GitLab setup
 
@@ -18,7 +18,7 @@ At GitLab we have dozens of queues; they are defined in [`config/sidekiq_queues.
 
 ## GDK / development setup
 
-When running GitLab locally with the GDK, Sidekiq will run by default as a single process with 10 worker threads. We can see this when running `gdk start redis rails-background-jobs` to bring up redis and Sidekiq (assuming `runit` is used for process management) and running `pstree -atp`:
+When running GitLab locally e.g. with the GDK, Sidekiq will run by default as a single process with 10 worker threads. We can see this when running `gdk start redis rails-background-jobs` to bring up redis and Sidekiq (assuming `runit` is used for process management) and running `pstree -atp`:
 
 ```
 ...
@@ -36,7 +36,7 @@ When running GitLab locally with the GDK, Sidekiq will run by default as a singl
   │   │   │   │   ├─{util.rb:23},14796
 ...
 ```
-`runsv` is the process supervisor for a service called `rails-background-job`. That service will run a GDK script called `sv/rails-background-jobs/run`, which in return runs `gitlab/bin/background_jobs`, which in turn runs `bundle exec sidekiq`. That's why the process name here is `bundle`, not `sidekiq` (although `ps` will list the process as `sidekiq`, I'm not sure why.) The elements underneath that node wrapped in curly braces `{...}` are threads.
+`runsv` is the process supervisor for a service called `rails-background-job`. That service will run a GDK script called `sv/rails-background-jobs/run`, which in return runs `gitlab/bin/background_jobs`, which in turn runs `bundle exec sidekiq`. That's why the process name here is `bundle`, not `sidekiq` (although `ps` will list the process as `sidekiq`) The elements underneath that node wrapped in curly braces `{...}` are threads.
 
 Since there is only one process, all jobs from all queues are being processed by all workers executed by that process.
 
@@ -46,9 +46,9 @@ For `*.gitlab.com` and for self-managed installations (both of which are deploye
 
 ![sidekiq_prod_arch](/uploads/4328823d257022ab30efded7bf7abcd5/sidekiq_prod_arch.jpg)
 
-Here we have two GCE instances `sidekiq-0` and `sidekiq-1` that are part of the `besteffort` "fleet" (is I think what we call it). In return we have 3 queues that are processed by any of these instances. Each instance runs N Sidekiq processes, each of which in return runs M threads. So in total this setup can processes at most `2 * N * M` jobs in queues with `besteffort` priority.
+In this example we have two GCE instances i.e. server nodes called `sidekiq-0` and `sidekiq-1` that are part of the `besteffort` "fleet". In return we have 3 queues that are processed by any of these instances. Each instance runs `N` Sidekiq processes, each of which in return runs `M` threads. So in total this setup can processes at most `2 * N * M` jobs in queues with `besteffort` priority.
 
-How queues are mapped to priorities and ultimately clusters is well explained in [this issue](https://gitlab.com/gitlab-org/gitlab/issues/32258) and the related links, but the TLDR is:
+How queues are mapped to priorities and clusters is well explained in [this issue](https://gitlab.com/gitlab-org/gitlab/issues/32258) and the related links, but to summarize:
 
 - all Sidekiq clusters are configured with a particular **priority configuration** (i.e. scaled according to a particular work load, such as "mostly CPU bound" or "mostly I/O bound")
 - each queue is then mapped to a priority configuration, either directly, or if there is no explicit mapping, to `besteffort`
@@ -81,13 +81,13 @@ P2:
 
 ## Metrics
 
-We currently track Sidekiq metrics in prometheus in 3 different places, only 2 of which are still recommended to use:
+We currently track Sidekiq metrics in prometheus in 3 different places:
 
 1. [prometheus-app](https://prometheus-app.gprd.gitlab.net) contains `sidekiq_` metrics that are specific to application code executing in Sidekiq workers, most importantly anything we export through our [sidekiq middleware](https://gitlab.com/gitlab-org/gitlab/blob/master/lib%2Fgitlab%2Fsidekiq_middleware%2Fmetrics.rb). Anything that measure per-worker metrics or anything that would rely on the process or thread that is executing our jobs needs to go here.
 1. [prometheus-main](https://prometheus.gprd.gitlab.net) contains `sidekiq_` metrics that track general infrastructure and cluster health and which have meaning outside of the application context.
-1. [gitlab-exporter](https://gitlab.com/gitlab-org/gitlab-exporter) contains a Sidekiq specific endpoint that prometheus can scrape for metrics. My understanding is that this exists largely for customers running self-managed environments and should not be used to expose metrics for gitlab.com.
+1. [gitlab-exporter](https://gitlab.com/gitlab-org/gitlab-exporter) contains a Sidekiq specific endpoint that prometheus can scrape for metrics. This mostly exists for customers running self-managed environments and should not be used to expose metrics for gitlab.com.
 
-In `development` mode, all web-app metrics can be fetched from the `/-/metrics` endpoint, however, the Sidekiq middleware will not export metrics by default. You can enable it in `gitlab.yml` by emabling the `sidekiq_exporter`:
+In `development` mode, all web-app metrics can be fetched from the `/-/metrics` endpoint, however, the Sidekiq middleware will not export metrics by default. You can enable it in `gitlab.yml` by enabling the `sidekiq_exporter`:
 
 ```yaml
 sidekiq_exporter:
