@@ -121,17 +121,7 @@ have a [start or due date](#start-date-and-due-date), a
 
 ## Reordering issues and child epics
 
-New issues and child epics are added to the top of their respective lists in the **Epics and Issues** tab. You can reorder the list of issues and the list of child epics. Issues and child epics cannot be intermingled.
-
-To reorder issues assigned to an epic:
-
-1. Go to the **Epics and Issues** tab.
-1. Drag and drop issues into the desired order.
-
-To reorder child epics assigned to an epic:
-
-1. Go to the **Epics and Issues** tab.
-1. Drag and drop epics into the desired order.
+Drag and drop to reorder issues and child epics. New issues and child epics added to an epic appear at the top of the list.
 
 ## Updating epics
 
