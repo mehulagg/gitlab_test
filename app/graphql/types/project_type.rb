@@ -66,6 +66,10 @@ module Types
             project.avatar_url(only_path: false)
           end
 
+    field :vulnerable, GraphQL::BOOLEAN_TYPE,
+          null: true,
+          resolve: -> (_, _, _) { true }
+
     %i[issues merge_requests wiki snippets].each do |feature|
       field "#{feature}_enabled", GraphQL::BOOLEAN_TYPE, null: true,
             description: "(deprecated) Does this project have #{feature} enabled?. Use `#{feature}_access_level` instead",
