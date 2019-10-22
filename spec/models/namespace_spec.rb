@@ -250,7 +250,7 @@ describe Namespace do
       it "moves dir if path changed" do
         namespace.update(path: namespace.full_path + '_new')
 
-        expect(gitlab_shell.exists?(project.repository_storage, "#{namespace.path}/#{project.path}.git")).to be_truthy
+        expect(gitlab_shell.repository_exists?(project.repository_storage, "#{namespace.path}/#{project.path}.git")).to be_truthy
       end
 
       context 'when #write_projects_repository_config raises an error' do
@@ -358,7 +358,7 @@ describe Namespace do
         namespace.update(path: namespace.full_path + '_new')
 
         expect(before_disk_path).to eq(project.disk_path)
-        expect(gitlab_shell.exists?(project.repository_storage, "#{project.disk_path}.git")).to be_truthy
+        expect(gitlab_shell.repository_exists?(project.repository_storage, "#{project.disk_path}.git")).to be_truthy
       end
     end
 
@@ -952,6 +952,54 @@ describe Namespace do
       group = create(:group, parent: nil)
 
       expect(group.has_parent?).to be_falsy
+    end
+  end
+
+  describe '#closest_setting' do
+    using RSpec::Parameterized::TableSyntax
+
+    shared_examples_for 'fetching closest setting' do
+      let!(:root_namespace) { create(:namespace) }
+      let!(:namespace) { create(:namespace, parent: root_namespace) }
+
+      let(:setting) { namespace.closest_setting(setting_name) }
+
+      before do
+        root_namespace.update_attribute(setting_name, root_setting)
+        namespace.update_attribute(setting_name, child_setting)
+      end
+
+      it 'returns closest non-nil value' do
+        expect(setting).to eq(result)
+      end
+    end
+
+    context 'when setting is of non-boolean type' do
+      where(:root_setting, :child_setting, :result) do
+        100 | 200 | 200
+        100 | nil | 100
+        nil | nil | nil
+      end
+
+      with_them do
+        let(:setting_name) { :max_artifacts_size }
+
+        it_behaves_like 'fetching closest setting'
+      end
+    end
+
+    context 'when setting is of boolean type' do
+      where(:root_setting, :child_setting, :result) do
+        true | false | false
+        true | nil   | true
+        nil  | nil   | nil
+      end
+
+      with_them do
+        let(:setting_name) { :lfs_enabled }
+
+        it_behaves_like 'fetching closest setting'
+      end
     end
   end
 end

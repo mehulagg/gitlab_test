@@ -18,6 +18,7 @@ module EE
         mount ::API::EpicIssues
         mount ::API::EpicLinks
         mount ::API::Epics
+        mount ::API::FeatureFlags
         mount ::API::ContainerRegistryEvent
         mount ::API::Geo
         mount ::API::GeoNodes
@@ -36,6 +37,7 @@ module EE
         mount ::API::ManagedLicenses
         mount ::API::ProjectApprovals
         mount ::API::Vulnerabilities
+        mount ::API::VulnerabilityFindings
         mount ::API::MergeRequestApprovals
         mount ::API::MergeRequestApprovalRules
         mount ::API::ProjectAliases

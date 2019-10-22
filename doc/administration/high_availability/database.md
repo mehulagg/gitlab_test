@@ -708,7 +708,7 @@ After deploying the configuration follow these steps:
 This example uses 3 PostgreSQL servers, and 1 application node.
 
 It differs from the [recommended setup](#example-recommended-setup) by moving the Consul servers into the same servers we use for PostgreSQL.
-The trade-off is between reducing server counts, against the increased operational complexity of needing to deal with postgres [failover](#failover-procedure) and [restore](#restore-procedure) procedures in addition to [Consul outage recovery](consul.md#outage-recovery) on the same set of machines.
+The trade-off is between reducing server counts, against the increased operational complexity of needing to deal with PostgreSQL [failover](#failover-procedure) and [restore](#restore-procedure) procedures in addition to [Consul outage recovery](consul.md#outage-recovery) on the same set of machines.
 
 In this example we start with all servers on the same 10.6.0.0/16 private network range, they can connect to each freely other on those addresses.
 
@@ -926,7 +926,7 @@ repmgr['trust_auth_cidr_addresses'] = %w(192.168.1.44/32 db2.example.com)
 ##### MD5 Authentication
 
 If you are running on an untrusted network, repmgr can use md5 authentication
-with a [.pgpass file](https://www.postgresql.org/docs/9.6/static/libpq-pgpass.html)
+with a [.pgpass file](https://www.postgresql.org/docs/9.6/libpq-pgpass.html)
 to authenticate.
 
 You can specify by IP address, FQDN, or by subnet, using the same format as in

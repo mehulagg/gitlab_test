@@ -6,11 +6,11 @@ import Icon from '~/vue_shared/components/icon.vue';
 import DroplabDropdownButton from '~/vue_shared/components/droplab_dropdown_button.vue';
 import createDefaultStore from 'ee/related_items_tree/store';
 import * as epicUtils from 'ee/related_items_tree/utils/epic_utils';
-import { ActionType } from 'ee/related_items_tree/constants';
+import { issuableTypesMap } from 'ee/related_issues/constants';
 
 import { mockParentItem, mockQueryResponse } from '../mock_data';
 
-const createComponent = () => {
+const createComponent = ({ slots } = {}) => {
   const store = createDefaultStore();
   const localVue = createLocalVue();
   const children = epicUtils.processQueryResponse(mockQueryResponse.data.group);
@@ -29,6 +29,7 @@ const createComponent = () => {
   return shallowMount(RelatedItemsTreeHeader, {
     localVue,
     store,
+    slots,
   });
 };
 
@@ -36,15 +37,15 @@ describe('RelatedItemsTree', () => {
   describe('RelatedItemsTreeHeader', () => {
     let wrapper;
 
-    beforeEach(() => {
-      wrapper = createComponent();
-    });
-
     afterEach(() => {
       wrapper.destroy();
     });
 
     describe('computed', () => {
+      beforeEach(() => {
+        wrapper = createComponent();
+      });
+
       describe('badgeTooltip', () => {
         it('returns string containing epic count and issues count based on available direct children within state', () => {
           expect(wrapper.vm.badgeTooltip).toBe('2 epics and 2 issues');
@@ -53,19 +54,23 @@ describe('RelatedItemsTree', () => {
     });
 
     describe('methods', () => {
+      beforeEach(() => {
+        wrapper = createComponent();
+      });
+
       describe('handleActionClick', () => {
-        const actionType = ActionType.Epic;
+        const issuableType = issuableTypesMap.Epic;
 
         it('calls `toggleAddItemForm` action when provided `id` param as value `0`', () => {
           spyOn(wrapper.vm, 'toggleAddItemForm');
 
           wrapper.vm.handleActionClick({
             id: 0,
-            actionType,
+            issuableType,
           });
 
           expect(wrapper.vm.toggleAddItemForm).toHaveBeenCalledWith({
-            actionType,
+            issuableType,
             toggleState: true,
           });
         });
@@ -81,6 +86,10 @@ describe('RelatedItemsTree', () => {
     });
 
     describe('template', () => {
+      beforeEach(() => {
+        wrapper = createComponent();
+      });
+
       it('renders item badges container', () => {
         const badgesContainerEl = wrapper.find('.issue-count-badge');
 
@@ -114,6 +123,31 @@ describe('RelatedItemsTree', () => {
 
         expect(addIssueBtn.isVisible()).toBe(true);
         expect(addIssueBtn.text()).toBe('Add an issue');
+      });
+    });
+
+    describe('slots', () => {
+      describe('issueActions', () => {
+        it('defaults to button', () => {
+          wrapper = createComponent();
+
+          expect(wrapper.find(GlButton).exists()).toBe(true);
+        });
+
+        it('uses provided slot content', () => {
+          const issueActions = {
+            template: '<p>custom content</p>',
+          };
+
+          wrapper = createComponent({
+            slots: {
+              issueActions,
+            },
+          });
+
+          expect(wrapper.find(GlButton).exists()).toBe(false);
+          expect(wrapper.find(issueActions).exists()).toBe(true);
+        });
       });
     });
   });

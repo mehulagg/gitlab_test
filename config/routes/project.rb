@@ -186,6 +186,10 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
         resource :import, only: [:new, :create, :show]
         resource :avatar, only: [:show, :destroy]
+
+        get 'grafana/proxy/:datasource_id/*proxy_path',
+            to: 'grafana_api#proxy',
+            as: :grafana_api
       end
       # End of the /-/ scope.
 
@@ -270,6 +274,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           get :discussions, format: :json
           post :rebase
           get :test_reports
+          get :exposed_artifacts
 
           scope constraints: { format: nil }, action: :show do
             get :commits, defaults: { tab: 'commits' }
@@ -281,6 +286,8 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             get :commits
             get :pipelines
             get :diffs, to: 'merge_requests/diffs#show'
+            get :diffs_batch, to: 'merge_requests/diffs#diffs_batch'
+            get :diffs_metadata, to: 'merge_requests/diffs#diffs_metadata'
             get :widget, to: 'merge_requests/content#widget'
             get :cached_widget, to: 'merge_requests/content#cached_widget'
           end
@@ -387,6 +394,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           get :builds
           get :failures
           get :status
+          get :test_report
 
           Gitlab.ee do
             get :security

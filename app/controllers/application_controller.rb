@@ -26,8 +26,10 @@ class ApplicationController < ActionController::Base
   before_action :add_gon_variables, unless: [:peek_request?, :json_request?]
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :require_email, unless: :devise_controller?
+  before_action :active_user_check, unless: :devise_controller?
   before_action :set_usage_stats_consent_flag
   before_action :check_impersonation_availability
+  before_action :require_role
 
   around_action :set_locale
   around_action :set_session_storage
@@ -294,6 +296,14 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def active_user_check
+    return unless current_user && current_user.deactivated?
+
+    sign_out current_user
+    flash[:alert] = _("Your account has been deactivated by your administrator. Please log back in to reactivate your account.")
+    redirect_to new_user_session_path
+  end
+
   def ldap_security_check
     if current_user && current_user.requires_ldap_check?
       return unless current_user.try_obtain_ldap_lease
@@ -537,6 +547,16 @@ class ApplicationController < ActionController::Base
 
   def current_user_mode
     @current_user_mode ||= Gitlab::Auth::CurrentUserMode.new(current_user)
+  end
+
+  # A user requires a role when they are part of the experimental signup flow (executed by the Growth team). Users
+  # are redirected to the welcome page when their role is required and the experiment is enabled for the current user.
+  def require_role
+    return unless current_user && current_user.role_required? && experiment_enabled?(:signup_flow)
+
+    store_location_for :user, request.fullpath
+
+    redirect_to users_sign_up_welcome_path
   end
 end
 

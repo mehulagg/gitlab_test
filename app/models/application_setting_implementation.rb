@@ -82,6 +82,8 @@ module ApplicationSettingImplementation
         polling_interval_multiplier: 1,
         project_export_enabled: true,
         protected_ci_variables: false,
+        push_event_hooks_limit: 3,
+        push_event_activities_limit: 3,
         raw_blob_request_limit: 300,
         recaptcha_enabled: false,
         login_recaptcha_protection_enabled: false,
@@ -109,6 +111,9 @@ module ApplicationSettingImplementation
         throttle_protected_paths_in_seconds: 10,
         throttle_protected_paths_per_period: 60,
         protected_paths: DEFAULT_PROTECTED_PATHS,
+        throttle_incident_management_notification_enabled: false,
+        throttle_incident_management_notification_period_in_seconds: 3600,
+        throttle_incident_management_notification_per_period: 3600,
         time_tracking_limit_to_hours: false,
         two_factor_grace_period: 48,
         unique_ips_limit_enabled: false,
@@ -123,7 +128,10 @@ module ApplicationSettingImplementation
         snowplow_collector_hostname: nil,
         snowplow_cookie_domain: nil,
         snowplow_enabled: false,
-        snowplow_site_id: nil
+        snowplow_site_id: nil,
+        custom_http_clone_url_root: nil,
+        pendo_enabled: false,
+        pendo_url: nil
       }
     end
 

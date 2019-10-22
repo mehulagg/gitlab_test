@@ -9,6 +9,8 @@ module Gitlab
 
       def initialize
         @metrics = init_metrics
+
+        @metrics[:sidekiq_concurrency].set({}, Sidekiq.options[:concurrency].to_i)
       end
 
       def call(_worker, job, queue)
@@ -19,9 +21,15 @@ module Gitlab
           @metrics[:sidekiq_jobs_retried_total].increment(labels, 1)
         end
 
+        job_thread_cputime_start = get_thread_cputime
+
         realtime = Benchmark.realtime do
           yield
         end
+
+        job_thread_cputime_end = get_thread_cputime
+        job_thread_cputime = job_thread_cputime_end - job_thread_cputime_start
+        @metrics[:sidekiq_jobs_cpu_seconds].observe(labels, job_thread_cputime)
 
         @metrics[:sidekiq_jobs_completion_seconds].observe(labels, realtime)
       rescue Exception # rubocop: disable Lint/RescueException
@@ -35,10 +43,12 @@ module Gitlab
 
       def init_metrics
         {
+          sidekiq_jobs_cpu_seconds: ::Gitlab::Metrics.histogram(:sidekiq_jobs_cpu_seconds, 'Seconds of cpu time to run sidekiq job', {}, SIDEKIQ_LATENCY_BUCKETS),
           sidekiq_jobs_completion_seconds: ::Gitlab::Metrics.histogram(:sidekiq_jobs_completion_seconds, 'Seconds to complete sidekiq job', {}, SIDEKIQ_LATENCY_BUCKETS),
           sidekiq_jobs_failed_total:       ::Gitlab::Metrics.counter(:sidekiq_jobs_failed_total, 'Sidekiq jobs failed'),
           sidekiq_jobs_retried_total:      ::Gitlab::Metrics.counter(:sidekiq_jobs_retried_total, 'Sidekiq jobs retried'),
-          sidekiq_running_jobs:            ::Gitlab::Metrics.gauge(:sidekiq_running_jobs, 'Number of Sidekiq jobs running', {}, :livesum)
+          sidekiq_running_jobs:            ::Gitlab::Metrics.gauge(:sidekiq_running_jobs, 'Number of Sidekiq jobs running', {}, :all),
+          sidekiq_concurrency:             ::Gitlab::Metrics.gauge(:sidekiq_concurrency, 'Maximum number of Sidekiq jobs', {}, :all)
         }
       end
 
@@ -46,6 +56,10 @@ module Gitlab
         {
           queue: queue
         }
+      end
+
+      def get_thread_cputime
+        defined?(Process::CLOCK_THREAD_CPUTIME_ID) ? Process.clock_gettime(Process::CLOCK_THREAD_CPUTIME_ID) : 0
       end
     end
   end

@@ -47,6 +47,7 @@ PushEventPayload:
 - commit_to
 - ref
 - commit_title
+- ref_count
 Note:
 - id
 - note
@@ -126,6 +127,12 @@ Release:
 - created_at
 - updated_at
 - released_at
+Evidence:
+- id
+- release_id
+- summary
+- created_at
+- updated_at
 Releases::Link:
 - id
 - release_id
@@ -530,7 +537,6 @@ Project:
 - external_webhook_token
 - pages_https_only
 - merge_requests_disable_committers_approval
-- merge_requests_require_code_owner_approval
 - require_password_to_approve
 ProjectTracingSetting:
 - external_url
@@ -745,4 +751,4 @@ DesignManagement::Version:
 - created_at
 - sha
 - issue_id
-- user_id
+- author_id

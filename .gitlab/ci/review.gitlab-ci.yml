@@ -1,7 +1,6 @@
 .except-deploys:
   except:
     refs:
-      - /^[\d-]+-stable(-ee)?$/
       - /^\d+-\d+-auto-deploy-\d+$/
 
 .review-docker:
@@ -81,7 +80,7 @@ schedule:review-build-cng:
   extends:
     - .review-build-cng-base
     - .only-review-schedules
-  needs: ["gitlab:assets:compile"]
+  needs: ["gitlab:assets:compile pull-cache"]
 
 .review-deploy-base:
   extends:
@@ -97,7 +96,10 @@ schedule:review-build-cng:
   variables:
     HOST_SUFFIX: "${CI_ENVIRONMENT_SLUG}"
     DOMAIN: "-${CI_ENVIRONMENT_SLUG}.${REVIEW_APPS_DOMAIN}"
-    GITLAB_HELM_CHART_REF: "master"
+    # v2.3.7 + some stability improvements not yet released:
+    # - sidekiq readinessProbe should be `pgrep -f sidekiq`: https://gitlab.com/gitlab-org/charts/gitlab/merge_requests/991
+    # - Allows livenessProbe and readinessProbe to be configured for unicorn: https://gitlab.com/gitlab-org/charts/gitlab/merge_requests/985
+    GITLAB_HELM_CHART_REF: "df7c52dc69df441909880b8f2fd15e938cdb2047"
     GITLAB_EDITION: "ce"
   environment:
     name: review/${CI_COMMIT_REF_NAME}
@@ -113,13 +115,21 @@ schedule:review-build-cng:
     - install_api_client_dependencies_with_apk
     - source scripts/review_apps/review-apps.sh
   script:
+    - date
     - check_kube_domain
+    - date
     - ensure_namespace
+    - date
     - install_tiller
+    - date
     - install_external_dns
+    - date
     - download_chart
+    - date
     - deploy || (display_deployment_debug && exit 1)
+    - date
     - add_license
+    - date
   artifacts:
     paths: [review_app_url.txt]
     expire_in: 2 days

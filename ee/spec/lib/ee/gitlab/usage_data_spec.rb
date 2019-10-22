@@ -80,7 +80,7 @@ describe Gitlab::UsageData do
       context 'for create' do
         it 'includes accurate usage_activity_by_stage data' do
           user = create(:user)
-          project = create(:project, :repository_private, :requiring_code_owner_approval, :github_imported,
+          project = create(:project, :repository_private, :github_imported,
                            :test_repo, :remote_mirror, creator: user)
           create(:deploy_key, user: user)
           create(:key, user: user)
@@ -95,7 +95,7 @@ describe Gitlab::UsageData do
             deploy_keys: 1,
             keys: 1,
             merge_requests: 1,
-            projects_enforcing_code_owner_approval: 1,
+            projects_enforcing_code_owner_approval: 0,
             projects_imported_from_github: 1,
             projects_with_repositories_enabled: 1,
             protected_branches: 1,

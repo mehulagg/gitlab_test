@@ -92,6 +92,7 @@ describe Project do
     it { is_expected.to have_many(:pipeline_schedules) }
     it { is_expected.to have_many(:members_and_requesters) }
     it { is_expected.to have_many(:clusters) }
+    it { is_expected.to have_many(:management_clusters).class_name('Clusters::Cluster') }
     it { is_expected.to have_many(:kubernetes_namespaces) }
     it { is_expected.to have_many(:custom_attributes).class_name('ProjectCustomAttribute') }
     it { is_expected.to have_many(:project_badges).class_name('ProjectBadge') }
@@ -100,6 +101,8 @@ describe Project do
     it { is_expected.to have_many(:deploy_tokens).through(:project_deploy_tokens) }
     it { is_expected.to have_many(:cycle_analytics_stages) }
     it { is_expected.to have_many(:external_pull_requests) }
+    it { is_expected.to have_many(:sourced_pipelines) }
+    it { is_expected.to have_many(:source_pipelines) }
 
     it 'has an inverse relationship with merge requests' do
       expect(described_class.reflect_on_association(:merge_requests).has_inverse?).to eq(:target_project)
@@ -150,7 +153,7 @@ describe Project do
     end
 
     describe '#members & #requesters' do
-      let(:project) { create(:project, :public, :access_requestable) }
+      let(:project) { create(:project, :public) }
       let(:requester) { create(:user) }
       let(:developer) { create(:user) }
       before do
@@ -628,8 +631,38 @@ describe Project do
   describe "#web_url" do
     let(:project) { create(:project, path: "somewhere") }
 
-    it 'returns the full web URL for this repo' do
-      expect(project.web_url).to eq("#{Gitlab.config.gitlab.url}/#{project.namespace.full_path}/somewhere")
+    context 'when given the only_path option' do
+      subject { project.web_url(only_path: only_path) }
+
+      context 'when only_path is false' do
+        let(:only_path) { false }
+
+        it 'returns the full web URL for this repo' do
+          expect(subject).to eq("#{Gitlab.config.gitlab.url}/#{project.namespace.full_path}/somewhere")
+        end
+      end
+
+      context 'when only_path is true' do
+        let(:only_path) { true }
+
+        it 'returns the relative web URL for this repo' do
+          expect(subject).to eq("/#{project.namespace.full_path}/somewhere")
+        end
+      end
+
+      context 'when only_path is nil' do
+        let(:only_path) { nil }
+
+        it 'returns the full web URL for this repo' do
+          expect(subject).to eq("#{Gitlab.config.gitlab.url}/#{project.namespace.full_path}/somewhere")
+        end
+      end
+    end
+
+    context 'when not given the only_path option' do
+      it 'returns the full web URL for this repo' do
+        expect(project.web_url).to eq("#{Gitlab.config.gitlab.url}/#{project.namespace.full_path}/somewhere")
+      end
     end
   end
 
@@ -3223,20 +3256,78 @@ describe Project do
   describe '#http_url_to_repo' do
     let(:project) { create(:project) }
 
-    it 'returns the url to the repo without a username' do
-      expect(project.http_url_to_repo).to eq("#{project.web_url}.git")
-      expect(project.http_url_to_repo).not_to include('@')
+    context 'when a custom HTTP clone URL root is not set' do
+      it 'returns the url to the repo without a username' do
+        expect(project.http_url_to_repo).to eq("#{project.web_url}.git")
+        expect(project.http_url_to_repo).not_to include('@')
+      end
+    end
+
+    context 'when a custom HTTP clone URL root is set' do
+      before do
+        stub_application_setting(custom_http_clone_url_root: custom_http_clone_url_root)
+      end
+
+      context 'when custom HTTP clone URL root has a relative URL root' do
+        context 'when custom HTTP clone URL root ends with a slash' do
+          let(:custom_http_clone_url_root) { 'https://git.example.com:51234/mygitlab/' }
+
+          it 'returns the url to the repo, with the root replaced with the custom one' do
+            expect(project.http_url_to_repo).to eq("https://git.example.com:51234/mygitlab/#{project.full_path}.git")
+          end
+        end
+
+        context 'when custom HTTP clone URL root does not end with a slash' do
+          let(:custom_http_clone_url_root) { 'https://git.example.com:51234/mygitlab' }
+
+          it 'returns the url to the repo, with the root replaced with the custom one' do
+            expect(project.http_url_to_repo).to eq("https://git.example.com:51234/mygitlab/#{project.full_path}.git")
+          end
+        end
+      end
+
+      context 'when custom HTTP clone URL root does not have a relative URL root' do
+        context 'when custom HTTP clone URL root ends with a slash' do
+          let(:custom_http_clone_url_root) { 'https://git.example.com:51234/' }
+
+          it 'returns the url to the repo, with the root replaced with the custom one' do
+            expect(project.http_url_to_repo).to eq("https://git.example.com:51234/#{project.full_path}.git")
+          end
+        end
+
+        context 'when custom HTTP clone URL root does not end with a slash' do
+          let(:custom_http_clone_url_root) { 'https://git.example.com:51234' }
+
+          it 'returns the url to the repo, with the root replaced with the custom one' do
+            expect(project.http_url_to_repo).to eq("https://git.example.com:51234/#{project.full_path}.git")
+          end
+        end
+      end
     end
   end
 
   describe '#lfs_http_url_to_repo' do
     let(:project) { create(:project) }
 
-    it 'returns the url to the repo without a username' do
-      lfs_http_url_to_repo = project.lfs_http_url_to_repo('operation_that_doesnt_matter')
+    context 'when a custom HTTP clone URL root is not set' do
+      it 'returns the url to the repo without a username' do
+        lfs_http_url_to_repo = project.lfs_http_url_to_repo('operation_that_doesnt_matter')
 
-      expect(lfs_http_url_to_repo).to eq("#{project.web_url}.git")
-      expect(lfs_http_url_to_repo).not_to include('@')
+        expect(lfs_http_url_to_repo).to eq("#{project.web_url}.git")
+        expect(lfs_http_url_to_repo).not_to include('@')
+      end
+    end
+
+    context 'when a custom HTTP clone URL root is set' do
+      before do
+        stub_application_setting(custom_http_clone_url_root: 'https://git.example.com:51234')
+      end
+
+      it 'returns the url to the repo, with the root replaced with the custom one' do
+        lfs_http_url_to_repo = project.lfs_http_url_to_repo('operation_that_doesnt_matter')
+
+        expect(lfs_http_url_to_repo).to eq("https://git.example.com:51234/#{project.full_path}.git")
+      end
     end
   end
 
@@ -4192,13 +4283,24 @@ describe Project do
   end
 
   describe '#check_repository_path_availability' do
-    let(:project) { build(:project) }
+    let(:project) { build(:project, :repository, :legacy_storage) }
+    subject { project.check_repository_path_availability }
 
-    it 'skips gitlab-shell exists?' do
-      project.skip_disk_validation = true
+    context 'when the repository already exists' do
+      let(:project) { create(:project, :repository, :legacy_storage) }
 
-      expect(project.gitlab_shell).not_to receive(:exists?)
-      expect(project.check_repository_path_availability).to be_truthy
+      it { is_expected.to be_falsey }
+    end
+
+    context 'when the repository does not exist' do
+      it { is_expected.to be_truthy }
+
+      it 'skips gitlab-shell exists?' do
+        project.skip_disk_validation = true
+
+        expect(project.gitlab_shell).not_to receive(:repository_exists?)
+        is_expected.to be_truthy
+      end
     end
   end
 
@@ -4912,6 +5014,7 @@ describe Project do
 
   describe '#git_objects_poolable?' do
     subject { project }
+
     context 'when not using hashed storage' do
       let(:project) { create(:project, :legacy_storage, :public, :repository) }
 
@@ -5118,6 +5221,108 @@ describe Project do
       project = build(:project)
 
       expect(project.pages_group_root?).to eq(false)
+    end
+  end
+
+  describe '#closest_setting' do
+    using RSpec::Parameterized::TableSyntax
+
+    shared_examples_for 'fetching closest setting' do
+      let!(:namespace) { create(:namespace) }
+      let!(:project) { create(:project, namespace: namespace) }
+
+      let(:setting_name) { :some_setting }
+      let(:setting) { project.closest_setting(setting_name) }
+
+      before do
+        allow(project).to receive(:read_attribute).with(setting_name).and_return(project_setting)
+        allow(namespace).to receive(:closest_setting).with(setting_name).and_return(group_setting)
+        allow(Gitlab::CurrentSettings).to receive(setting_name).and_return(global_setting)
+      end
+
+      it 'returns closest non-nil value' do
+        expect(setting).to eq(result)
+      end
+    end
+
+    context 'when setting is of non-boolean type' do
+      where(:global_setting, :group_setting, :project_setting, :result) do
+        100 | 200 | 300 | 300
+        100 | 200 | nil | 200
+        100 | nil | nil | 100
+        nil | nil | nil | nil
+      end
+
+      with_them do
+        it_behaves_like 'fetching closest setting'
+      end
+    end
+
+    context 'when setting is of boolean type' do
+      where(:global_setting, :group_setting, :project_setting, :result) do
+        true | true  | false | false
+        true | false | nil   | false
+        true | nil   | nil   | true
+      end
+
+      with_them do
+        it_behaves_like 'fetching closest setting'
+      end
+    end
+  end
+
+  describe '#drop_visibility_level!' do
+    context 'when has a group' do
+      let(:group) { create(:group, visibility_level: group_visibility_level) }
+      let(:project) { build(:project, namespace: group, visibility_level: project_visibility_level) }
+
+      context 'when the group `visibility_level` is more strict' do
+        let(:group_visibility_level) { Gitlab::VisibilityLevel::PRIVATE }
+        let(:project_visibility_level) { Gitlab::VisibilityLevel::INTERNAL }
+
+        it 'sets `visibility_level` value from the group' do
+          expect { project.drop_visibility_level! }
+            .to change { project.visibility_level }
+            .to(Gitlab::VisibilityLevel::PRIVATE)
+        end
+      end
+
+      context 'when the group `visibility_level` is less strict' do
+        let(:group_visibility_level) { Gitlab::VisibilityLevel::INTERNAL }
+        let(:project_visibility_level) { Gitlab::VisibilityLevel::PRIVATE }
+
+        it 'does not change the value of the `visibility_level` field' do
+          expect { project.drop_visibility_level! }
+            .not_to change { project.visibility_level }
+        end
+      end
+    end
+
+    context 'when `restricted_visibility_levels` of the GitLab instance exist' do
+      before do
+        stub_application_setting(restricted_visibility_levels: [Gitlab::VisibilityLevel::INTERNAL])
+      end
+
+      let(:project) { build(:project, visibility_level: project_visibility_level) }
+
+      context 'when `visibility_level` is included into `restricted_visibility_levels`' do
+        let(:project_visibility_level) { Gitlab::VisibilityLevel::INTERNAL }
+
+        it 'sets `visibility_level` value to `PRIVATE`' do
+          expect { project.drop_visibility_level! }
+            .to change { project.visibility_level }
+            .to(Gitlab::VisibilityLevel::PRIVATE)
+        end
+      end
+
+      context 'when `restricted_visibility_levels` does not include `visibility_level`' do
+        let(:project_visibility_level) { Gitlab::VisibilityLevel::PUBLIC }
+
+        it 'does not change the value of the `visibility_level` field' do
+          expect { project.drop_visibility_level! }
+            .to not_change { project.visibility_level }
+        end
+      end
     end
   end
 

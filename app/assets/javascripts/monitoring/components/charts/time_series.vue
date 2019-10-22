@@ -1,6 +1,6 @@
 <script>
 import { s__, __ } from '~/locale';
-import { GlLink, GlButton } from '@gitlab/ui';
+import { GlLink, GlButton, GlTooltip } from '@gitlab/ui';
 import { GlAreaChart, GlLineChart, GlChartSeriesLabel } from '@gitlab/ui/dist/charts';
 import dateFormat from 'dateformat';
 import { debounceByAnimationFrame, roundOffFloat } from '~/lib/utils/common_utils';
@@ -16,6 +16,7 @@ export default {
   components: {
     GlAreaChart,
     GlLineChart,
+    GlTooltip,
     GlButton,
     GlChartSeriesLabel,
     GlLink,
@@ -62,6 +63,11 @@ export default {
       required: false,
       default: s__('Metrics|Max'),
     },
+    groupId: {
+      type: String,
+      required: false,
+      default: '',
+    },
   },
   data() {
     return {
@@ -72,6 +78,7 @@ export default {
         isDeployment: false,
         sha: '',
       },
+      showTitleTooltip: false,
       width: 0,
       height: chartHeight,
       svgs: {},
@@ -202,6 +209,12 @@ export default {
   watch: {
     containerWidth: 'onResize',
   },
+  mounted() {
+    const graphTitleEl = this.$refs.graphTitle;
+    if (graphTitleEl && graphTitleEl.scrollWidth > graphTitleEl.offsetWidth) {
+      this.showTitleTooltip = true;
+    }
+  },
   beforeDestroy() {
     window.removeEventListener('resize', debouncedResize);
   },
@@ -265,8 +278,16 @@ export default {
 <template>
   <div class="prometheus-graph">
     <div class="prometheus-graph-header">
-      <h5 class="prometheus-graph-title js-graph-title">{{ graphData.title }}</h5>
-      <div class="prometheus-graph-widgets js-graph-widgets">
+      <h5
+        ref="graphTitle"
+        class="prometheus-graph-title js-graph-title text-truncate append-right-8"
+      >
+        {{ graphData.title }}
+      </h5>
+      <gl-tooltip :target="() => $refs.graphTitle" :disabled="!showTitleTooltip">
+        {{ graphData.title }}
+      </gl-tooltip>
+      <div class="prometheus-graph-widgets js-graph-widgets flex-fill">
         <slot></slot>
       </div>
     </div>
@@ -274,6 +295,7 @@ export default {
       :is="glChartComponent"
       ref="chart"
       v-bind="$attrs"
+      :group-id="groupId"
       :data="chartData"
       :option="chartOptions"
       :format-tooltip-text="formatTooltipText"
