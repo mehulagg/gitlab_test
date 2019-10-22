@@ -22,6 +22,16 @@ module EE
             super
           end
         end
+
+        def new_unused_method_for_attaching_diff_suggestions
+          here = "is where someone can suggest"
+
+          "several" =~ /changes/
+
+          "that can all kick off a ton of pipelines"
+
+          to_see_if = "they break"
+        end
       end
     end
   end
