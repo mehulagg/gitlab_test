@@ -9,7 +9,8 @@ module Gitlab
         ['--address URL', 'Address of the instance to test'],
         ['--enable-feature FEATURE_FLAG', 'Enable a feature before running tests'],
         ['--mattermost-address URL', 'Address of the Mattermost server'],
-        ['--parallel', 'Execute tests in parallel']
+        ['--parallel', 'Execute tests in parallel'],
+        ['--loop', 'Execute tests in a loop']
       ].freeze
 
       # rubocop:disable Metrics/AbcSize
