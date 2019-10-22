@@ -99,6 +99,7 @@
   - [chaos, 2]
   - [create_evidence, 2]
   - [group_export, 1]
+  - [group_import, 1]
 
   # EE-specific queues
   - [analytics, 1]

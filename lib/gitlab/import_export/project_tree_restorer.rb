@@ -44,24 +44,29 @@ module Gitlab
 
       def relation_tree_restorer
         @relation_tree_restorer ||= RelationTreeRestorer.new(
-          user: @user,
-          shared: @shared,
-          importable: @project,
-          tree_hash: @tree_hash,
-          members_mapper: members_mapper,
+          user:             @user,
+          shared:           @shared,
+          importable:       @project,
+          tree_hash:        @tree_hash,
+          members_mapper:   members_mapper,
+          object_builder:   object_builder,
           relation_factory: relation_factory,
-          reader: reader
+          reader:           reader
         )
       end
 
       def members_mapper
         @members_mapper ||= Gitlab::ImportExport::MembersMapper.new(exported_members: @project_members,
-                                                                    user: @user,
-                                                                    importable: @project)
+                                                                    user:             @user,
+                                                                    importable:       @project)
+      end
+
+      def object_builder
+        Gitlab::ImportExport::GroupProjectObjectBuilder
       end
 
       def relation_factory
-        Gitlab::ImportExport::RelationFactory
+        Gitlab::ImportExport::ProjectRelationFactory
       end
 
       def reader

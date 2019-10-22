@@ -112,7 +112,7 @@ The `AttributeCleaner` removes any prohibited keys:
 # AttributeCleaner
 # Removes all `_ids` and other prohibited keys
     class AttributeCleaner
-      ALLOWED_REFERENCES = RelationFactory::PROJECT_REFERENCES + RelationFactory::USER_REFERENCES + ['group_id']
+      ALLOWED_REFERENCES = ProjectRelationFactory::PROJECT_REFERENCES + ProjectRelationFactory::USER_REFERENCES + ['group_id']
 
       def clean
         @relation_hash.reject do |key, _value|

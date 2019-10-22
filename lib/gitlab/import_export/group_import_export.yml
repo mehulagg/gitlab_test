@@ -7,9 +7,9 @@ tree:
   group:
     - :milestones
     - :badges
+    - :boards
     - labels:
         - :priorities
-    - :boards
     - members:
         - :user
 
