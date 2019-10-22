@@ -11,7 +11,7 @@ class GlobalMilestone
 
   delegate :title, :state, :due_date, :start_date, :participants, :project,
            :group, :expires_at, :closed?, :iid, :group_milestone?, :safe_title,
-           :milestoneish_id, :resource_parent, to: :milestone
+           :milestoneish_id, :resource_parent, :releases, to: :milestone
 
   def to_hash
     {
@@ -28,6 +28,7 @@ class GlobalMilestone
 
   def self.build_collection(projects, params)
     items = Milestone.of_projects(projects)
+                .includes(:releases)
                 .reorder_by_due_date_asc
                 .order_by_name_asc
     items = items.search_title(params[:search_title]) if params[:search_title].present?

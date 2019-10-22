@@ -28,11 +28,14 @@ class Release < ApplicationRecord
 
   scope :sorted, -> { order(released_at: :desc) }
   scope :with_project_and_namespace, -> { includes(project: :namespace) }
+  scope :recent, -> { limit(MAX_NUMBER_TO_DISPLAY) }
 
   delegate :repository, to: :project
 
   after_commit :create_evidence!, on: :create
   after_commit :notify_new_release, on: :create
+
+  MAX_NUMBER_TO_DISPLAY = 3
 
   def commit
     strong_memoize(:commit) do
@@ -59,6 +62,10 @@ class Release < ApplicationRecord
 
   def upcoming_release?
     released_at.present? && released_at > Time.zone.now
+  end
+
+  def self.max_number_to_display
+    MAX_NUMBER_TO_DISPLAY
   end
 
   private
