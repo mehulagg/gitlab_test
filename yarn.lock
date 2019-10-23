@@ -717,10 +717,17 @@
   dependencies:
     vue-eslint-parser "^6.0.4"
 
+<<<<<<< HEAD
 "@gitlab/svgs@^1.85.0":
   version "1.85.0"
   resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.85.0.tgz#c80247ec4764824385df2837136a0d4a84f881dc"
   integrity sha512-yzvKut0MPJEbSx/LExopCLpF5KEZsckF+d/Blbji1VqODVanH85oIVuJNmdECUlc7qxye9Or3evpFjW9Pkshmg==
+=======
+"@gitlab/svgs@^1.79.0":
+  version "1.79.0"
+  resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.79.0.tgz#7e79666118d6adc0247bdb3b3b6b2b299aa5a439"
+  integrity sha512-0pTUviQqwyaKBOB6OL7Mmr2dQn/dGB03XslBMtL9lFZz1baB7d6xf+zxFU0GBAJUJan397IbBddE1jjUAQT8Fw==
+>>>>>>> Update yarn lock file
 
 "@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/326835680/artifacts/raw/gitlab-ui.test-tooltips.tgz":
   version "5.36.0"
