@@ -11552,10 +11552,31 @@ msgstr ""
 msgid "Package information"
 msgstr ""
 
+msgid "Package installation"
+msgstr ""
+
 msgid "Package was removed"
 msgstr ""
 
+msgid "PackageRegistry|Copy npm command"
+msgstr ""
+
+msgid "PackageRegistry|Copy npm setup command"
+msgstr ""
+
+msgid "PackageRegistry|Copy yarn command"
+msgstr ""
+
+msgid "PackageRegistry|Copy yarn setup command"
+msgstr ""
+
 msgid "PackageRegistry|Delete Package Version"
+msgstr ""
+
+msgid "PackageRegistry|Installation"
+msgstr ""
+
+msgid "PackageRegistry|Registry Setup"
 msgstr ""
 
 msgid "PackageRegistry|There was a problem fetching the details for this package."
@@ -11565,6 +11586,15 @@ msgid "PackageRegistry|Unable to load package"
 msgstr ""
 
 msgid "PackageRegistry|You are about to delete version %{boldStart}%{version}%{boldEnd} of %{boldStart}%{name}%{boldEnd}. Are you sure?"
+msgstr ""
+
+msgid "PackageRegistry|You may also need to setup authentication using an auth token. Please %{linkStart}see the documentation%{linkEnd} to find out more."
+msgstr ""
+
+msgid "PackageRegistry|npm"
+msgstr ""
+
+msgid "PackageRegistry|yarn"
 msgstr ""
 
 msgid "Packages"

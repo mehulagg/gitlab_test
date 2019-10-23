@@ -10,6 +10,7 @@ import {
 } from '@gitlab/ui';
 import _ from 'underscore';
 import PackageInformation from './information.vue';
+import PackageInstallation from './installation.vue';
 import Icon from '~/vue_shared/components/icon.vue';
 import { numberToHumanSize } from '~/lib/utils/number_utils';
 import timeagoMixin from '~/vue_shared/mixins/timeago';
@@ -27,6 +28,7 @@ export default {
     GlTable,
     Icon,
     PackageInformation,
+    PackageInstallation,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -196,6 +198,7 @@ export default {
         :heading="packageMetadataTitle"
         :information="packageMetadata"
       />
+      <package-installation v-else :type="packageEntity.package_type" :name="packageEntity.name" />
     </div>
 
     <gl-table
