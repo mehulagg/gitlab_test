@@ -36,7 +36,7 @@
       </div>
     </b-card-header>
     <b-card-body>
-      <div class="d-flex">
+      <div class="d-flex flex-column flex-md-row">
         <div class="flex-grow-1">
           <label class="text-muted">{{ __("Status") }}</label>
           <p>{{ __("Success") }}</p>
