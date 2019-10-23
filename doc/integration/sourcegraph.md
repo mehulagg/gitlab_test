@@ -10,7 +10,10 @@ type: reference, how-to
 (historically provided by the Sourcegraph browser extension) including hover tooltips and go-to-definition
 working by default for all users.
 
-## Sourcegraph
+## Configuration **(CORE ONLY)**
+
+> These steps are required for self-managed instances.
+> Sourcegraph integration is enabled on GitLab.com and ready to use in all public projects.
 
 Before you can enable Sourcegraph code intelligence in GitLab you need to have a
 Sourcegraph instance running and configured with your GitLab instance as an external
