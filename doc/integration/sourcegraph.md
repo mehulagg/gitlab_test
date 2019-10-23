@@ -16,7 +16,7 @@ service.
 
 If you are new to Sourcegraph, head over to the [Sourcegraph installation documentation](https://docs.sourcegraph.com/admin) and get your instance up and running.
 
-### Configure your Sourcegraph instance
+### Configure your Sourcegraph instance with GitLab
 
 1. Navigate to the site admin area in Sourcegraph.
 1. [Configure your GitLab external service](https://docs.sourcegraph.com/admin/external_service/gitlab).
