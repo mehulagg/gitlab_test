@@ -31,11 +31,11 @@ cache:
 ####################################################
 stages:
   - preliminary-testing
-  - create-scratch-org
-  - test-scratch-org
+  - build
+  - test
   - package
   - staging
-  - production
+  - deploy
 
 ####################################################
 # Runs LWC tests on the runner. No org needed.
@@ -69,7 +69,7 @@ test-lwc:
 # the same ref (branch) before creating and deploying.
 ####################################################
 create-scratch-org:
-  stage: create-scratch-org
+  stage: build
   only:
     variables:
       - $CI_COMMIT_REF_NAME == 'master'
@@ -107,7 +107,7 @@ create-scratch-org:
 # when the test script executes.
 ####################################################
 test-apex:
-  stage: test-scratch-org
+  stage: test
   only:
     variables:
       - $CI_COMMIT_REF_NAME == 'master'
@@ -134,7 +134,7 @@ test-apex:
 # See https://docs.gitlab.com/ee/ci/environments.html#stopping-an-environment
 ####################################################
 delete-scratch-org:
-  stage: create-scratch-org
+  stage: build
   variables:
     GIT_STRATEGY: none
   only:
@@ -211,7 +211,7 @@ deploy-sandbox:
 # and installed in the sandbox in the prior stage.
 ####################################################
 deploy-production:
-  stage: production
+  stage: deploy
   only:
     variables:
       - $CI_COMMIT_REF_NAME == 'master'
