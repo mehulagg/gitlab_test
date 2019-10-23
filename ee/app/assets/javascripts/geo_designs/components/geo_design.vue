@@ -3,6 +3,7 @@
   // eslint-disable-next-line import/no-extraneous-dependencies
   import { BCard, BCardHeader, BCardBody } from 'bootstrap-vue'
   import { GlLink, GlButton } from '@gitlab/ui';
+  import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
 
   export default {
     name: 'GeoDesign',
@@ -11,7 +12,8 @@
       BCardHeader,
       BCardBody,
       GlLink,
-      GlButton
+      GlButton,
+      TimeAgo
     },
     props: {
       design: {
@@ -43,15 +45,33 @@
         </div>
         <div class="flex-grow-1">
           <label class="text-muted">{{ __("Last successful sync") }}</label>
-          <p>{{ __("2 days ago") }}</p>
+          <div>
+            <time-ago
+              :time="new Date()"
+              tooltip-placement="bottom"
+              class="js-timeago"
+            />
+          </div>
         </div>
         <div class="flex-grow-1">
           <label class="text-muted">{{ __("Last time verified") }}</label>
-          <p>{{ __("2 days ago") }}</p>
+          <div>
+            <time-ago
+              :time="new Date()"
+              tooltip-placement="bottom"
+              class="js-timeago"
+            />
+          </div>
         </div>
         <div class="flex-grow-1">
           <label class="text-muted">{{ __("Last repository check run") }}</label>
-          <p>{{ __("1 day ago") }}</p>
+          <div>
+            <time-ago
+              :time="new Date()"
+              tooltip-placement="bottom"
+              class="js-timeago"
+            />
+          </div>
         </div>
       </div>
     </b-card-body>
