@@ -9,7 +9,7 @@ extension) including go-to-definitions and find references working by default fo
 ## Sourcegraph
 
 Before you can enable Sourcegraph code intelligence in GitLab you need to have a
-Sourcegraph instance running, and configured with your GitLab instance as an external
+Sourcegraph instance running and configured with your GitLab instance as an external
 service.
 
 ### Set up your Sourcegraph instance
