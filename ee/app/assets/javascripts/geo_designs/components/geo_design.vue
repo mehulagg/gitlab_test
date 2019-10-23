@@ -35,6 +35,25 @@
         <gl-button>{{ __("Resync") }}</gl-button>
       </div>
     </b-card-header>
-    <b-card-body>{{ __("This is the card body") }}</b-card-body>
+    <b-card-body>
+      <div class="d-flex">
+        <div class="flex-grow-1">
+          <label class="text-muted">{{ __("Status") }}</label>
+          <p>{{ __("Success") }}</p>
+        </div>
+        <div class="flex-grow-1">
+          <label class="text-muted">{{ __("Last successful sync") }}</label>
+          <p>{{ __("2 days ago") }}</p>
+        </div>
+        <div class="flex-grow-1">
+          <label class="text-muted">{{ __("Last time verified") }}</label>
+          <p>{{ __("2 days ago") }}</p>
+        </div>
+        <div class="flex-grow-1">
+          <label class="text-muted">{{ __("Last repository check run") }}</label>
+          <p>{{ __("1 day ago") }}</p>
+        </div>
+      </div>
+    </b-card-body>
   </b-card>
 </template>
