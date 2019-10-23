@@ -642,6 +642,7 @@ describe User do
 
     context 'namespace with input name exists' do
       let(:name) { 'Disney' }
+
       before do
         create(:user, name: 'disney')
       end
@@ -655,6 +656,7 @@ describe User do
 
     context 'namespace with input name and suffix exists' do
       let(:name) { 'Disney' }
+
       before do
         create(:user, name: 'disney')
         create(:user, name: 'disney1')

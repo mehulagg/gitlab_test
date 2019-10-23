@@ -6,6 +6,7 @@ describe ApprovalMergeRequestFallback do
 
   let(:merge_request) { create(:merge_request, approvals_before_merge: 2) }
   let(:project) { merge_request.project }
+
   subject(:rule) { described_class.new(merge_request) }
 
   describe '#approvals_required' do

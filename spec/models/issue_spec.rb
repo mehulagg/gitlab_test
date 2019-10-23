@@ -257,6 +257,7 @@ describe Issue do
   describe '#can_move?' do
     let(:user) { create(:user) }
     let(:issue) { create(:issue) }
+
     subject { issue.can_move?(user) }
 
     context 'user is not a member of project issue belongs to' do
@@ -275,6 +276,7 @@ describe Issue do
 
       context 'issue not persisted' do
         let(:issue) { build(:issue, project: project) }
+
         it { is_expected.to eq false }
       end
 
@@ -304,6 +306,7 @@ describe Issue do
 
   describe '#moved?' do
     let(:issue) { create(:issue) }
+
     subject { issue.moved? }
 
     context 'issue not moved' do
@@ -320,6 +323,7 @@ describe Issue do
 
   describe '#duplicated?' do
     let(:issue) { create(:issue) }
+
     subject { issue.duplicated? }
 
     context 'issue not duplicated' do
@@ -378,6 +382,7 @@ describe Issue do
 
   describe '#has_related_branch?' do
     let(:issue) { create(:issue, title: "Blue Bell Knoll") }
+
     subject { issue.has_related_branch? }
 
     context 'branch found' do
@@ -440,6 +445,7 @@ describe Issue do
 
   describe '#can_be_worked_on?' do
     let(:project) { build(:project) }
+
     subject { build(:issue, :opened, project: project) }
 
     context 'is closed' do

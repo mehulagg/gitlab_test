@@ -90,6 +90,7 @@ describe Analytics::CycleAnalytics::StagesController do
 
   describe 'PUT `update`' do
     let(:stage) { create(:cycle_analytics_group_stage, parent: group) }
+
     subject { put :update, params: params.merge(id: stage.id) }
 
     include_examples 'group permission check on the controller level'

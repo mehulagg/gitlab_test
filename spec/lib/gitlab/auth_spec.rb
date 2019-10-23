@@ -4,6 +4,7 @@ require 'spec_helper'
 
 describe Gitlab::Auth do
   let(:gl_auth) { described_class }
+
   set(:project) { create(:project) }
 
   describe 'constants' do

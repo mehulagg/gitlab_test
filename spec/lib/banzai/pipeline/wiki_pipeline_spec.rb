@@ -81,30 +81,36 @@ describe Banzai::Pipeline::WikiPipeline do
 
           context "when creating hierarchical links to the current directory" do
             let(:nesting) { './' }
+
             context 'non file links' do
               let(:extension) { '' }
               let(:expected_page_path) { 'nested/twice/page' }
+
               it_behaves_like 'a correct link rewrite'
             end
 
             context 'file-like links' do
               let(:extension) { '.md' }
               let(:expected_page_path) { 'nested/twice/page.md' }
+
               it_behaves_like 'a correct link rewrite'
             end
           end
 
           context "when creating hierarchical links to the parent directory" do
             let(:nesting) { '../' }
+
             context "non file links" do
               let(:extension) { '' }
               let(:expected_page_path) { 'nested/page' }
+
               it_behaves_like 'a correct link rewrite'
             end
 
             context "file-like links" do
               let(:extension) { '.md' }
               let(:expected_page_path) { 'nested/page.md' }
+
               it_behaves_like 'a correct link rewrite'
             end
           end
@@ -115,12 +121,14 @@ describe Banzai::Pipeline::WikiPipeline do
             context "non file links" do
               let(:extension) { '' }
               let(:expected_page_path) { 'nested/twice/subdirectory/page' }
+
               it_behaves_like 'a correct link rewrite'
             end
 
             context 'file-like links' do
               let(:extension) { '.md' }
               let(:expected_page_path) { 'nested/twice/subdirectory/page.md' }
+
               it_behaves_like 'a correct link rewrite'
             end
           end
@@ -131,30 +139,35 @@ describe Banzai::Pipeline::WikiPipeline do
             context 'non-file links' do
               let(:extension) { '' }
               let(:expected_page_path) { 'page' }
+
               it_behaves_like 'a correct link rewrite'
             end
 
             context 'non-file links (with spaces)' do
               let(:extension) { ' slug' }
               let(:expected_page_path) { 'page%20slug' }
+
               it_behaves_like 'a correct link rewrite'
             end
 
             context "file links" do
               let(:extension) { '.md' }
               let(:expected_page_path) { 'nested/twice/page.md' }
+
               it_behaves_like 'a correct link rewrite'
             end
 
             context 'links with anchor' do
               let(:extension) { '#title' }
               let(:expected_page_path) { 'page#title' }
+
               it_behaves_like 'a correct link rewrite'
             end
 
             context 'links (with spaces) with anchor' do
               let(:extension) { ' two#title' }
               let(:expected_page_path) { 'page%20two#title' }
+
               it_behaves_like 'a correct link rewrite'
             end
           end
@@ -165,12 +178,14 @@ describe Banzai::Pipeline::WikiPipeline do
             context 'non-file links' do
               let(:extension) { '' }
               let(:expected_page_path) { 'page' }
+
               it_behaves_like 'a correct link rewrite'
             end
 
             context 'file links' do
               let(:extension) { '.md' }
               let(:expected_page_path) { 'page.md' }
+
               it_behaves_like 'a correct link rewrite'
             end
           end
@@ -179,6 +194,7 @@ describe Banzai::Pipeline::WikiPipeline do
         describe "linking to pages outside the wiki (absolute)" do
           let(:markdown) { "[Link to Page](http://example.com/page)" }
           let(:page_href)  { 'http://example.com/page' }
+
           it_behaves_like 'a correct link rewrite'
         end
       end
@@ -298,12 +314,14 @@ describe Banzai::Pipeline::WikiPipeline do
     context 'underscores' do
       let(:file_name) { 'video_file_name.mp4' }
       let(:expected_file_path) { 'nested/twice/video_file_name.mp4' }
+
       it_behaves_like 'correct video rewrite'
     end
 
     context 'spaces' do
       let(:file_name) { 'video file name.mp4' }
       let(:expected_file_path) { 'nested/twice/video%20file%20name.mp4' }
+
       it_behaves_like 'correct video rewrite'
     end
 

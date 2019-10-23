@@ -156,6 +156,7 @@ describe Project do
       let(:project) { create(:project, :public) }
       let(:requester) { create(:user) }
       let(:developer) { create(:user) }
+
       before do
         project.request_access(requester)
         project.add_developer(developer)
@@ -806,6 +807,7 @@ describe Project do
 
     context 'with external issues tracker' do
       let!(:internal_issue) { create(:issue, project: project) }
+
       before do
         allow(project).to receive(:external_issue_tracker).and_return(true)
       end
@@ -2256,6 +2258,7 @@ describe Project do
 
   describe '#has_remote_mirror?' do
     let(:project) { create(:project, :remote_mirror, :import_started) }
+
     subject { project.has_remote_mirror? }
 
     before do
@@ -2275,6 +2278,7 @@ describe Project do
 
   describe '#update_remote_mirrors' do
     let(:project) { create(:project, :remote_mirror, :import_started) }
+
     delegate :update_remote_mirrors, to: :project
 
     before do
@@ -3333,6 +3337,7 @@ describe Project do
 
   describe '#pipeline_status' do
     let(:project) { create(:project, :repository) }
+
     it 'builds a pipeline status' do
       expect(project.pipeline_status).to be_a(Gitlab::Cache::Ci::ProjectPipelineStatus)
     end
@@ -4284,6 +4289,7 @@ describe Project do
 
   describe '#check_repository_path_availability' do
     let(:project) { build(:project, :repository, :legacy_storage) }
+
     subject { project.check_repository_path_availability }
 
     context 'when the repository already exists' do
@@ -4443,6 +4449,7 @@ describe Project do
 
   describe '#execute_hooks' do
     let(:data) { { ref: 'refs/heads/master', data: 'data' } }
+
     it 'executes active projects hooks with the specified scope' do
       hook = create(:project_hook, merge_requests_events: false, push_events: true)
       expect(ProjectHook).to receive(:select_active)
@@ -4773,6 +4780,7 @@ describe Project do
 
     context 'when there is a gitlab deploy token associated but is has been revoked' do
       let!(:deploy_token) { create(:deploy_token, :gitlab_deploy_token, :revoked, projects: [project]) }
+
       it { is_expected.to be_nil }
     end
 
@@ -4816,6 +4824,7 @@ describe Project do
 
   context '#members_among' do
     let(:users) { create_list(:user, 3) }
+
     set(:group) { create(:group) }
     set(:project) { create(:project, namespace: group) }
 

@@ -17,6 +17,7 @@ shared_examples 'duplicate quick action' do
 
     context 'when the current user cannot update the issue' do
       let(:guest) { create(:user) }
+
       before do
         project.add_guest(guest)
         gitlab_sign_out

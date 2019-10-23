@@ -2129,6 +2129,7 @@ describe API::Users do
 
   describe 'GET /user/status' do
     let(:path) { '/user/status' }
+
     it_behaves_like 'rendering user status'
   end
 

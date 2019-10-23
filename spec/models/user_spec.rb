@@ -2286,6 +2286,7 @@ describe User do
 
   describe '#authorizations_for_projects' do
     let!(:user) { create(:user) }
+
     subject { Project.where("EXISTS (?)", user.authorizations_for_projects) }
 
     it 'includes projects that belong to a user, but no other projects' do
@@ -3565,6 +3566,7 @@ describe User do
 
   describe '#required_terms_not_accepted?' do
     let(:user) { build(:user) }
+
     subject { user.required_terms_not_accepted? }
 
     context "when terms are not enforced" do

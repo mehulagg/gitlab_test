@@ -166,6 +166,7 @@ describe API::ConanPackages do
   shared_examples 'rejected invalid recipe' do
     context 'with invalid recipe url' do
       let(:recipe) { '../../foo++../..' }
+
       it 'returns 400' do
         subject
 
@@ -208,6 +209,7 @@ describe API::ConanPackages do
         { "conanfile.py": 24,
           "conanmanifext.txt": 123 }
       end
+
       subject { post api("/packages/conan/v1/conans/#{recipe}/upload_urls"), params: params, headers: headers }
 
       it_behaves_like 'rejected invalid recipe'

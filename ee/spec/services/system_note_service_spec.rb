@@ -162,6 +162,7 @@ describe SystemNoteService do
 
   describe '.approve_mr' do
     let(:noteable) { create(:merge_request, source_project: project) }
+
     subject { described_class.approve_mr(noteable, author) }
 
     it_behaves_like 'a system note' do
@@ -177,6 +178,7 @@ describe SystemNoteService do
 
   describe '.unapprove_mr' do
     let(:noteable) { create(:merge_request, source_project: project) }
+
     subject { described_class.unapprove_mr(noteable, author) }
 
     it_behaves_like 'a system note', exclude_project: true do

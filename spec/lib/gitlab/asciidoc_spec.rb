@@ -437,6 +437,7 @@ module Gitlab
 
         context 'with path to a binary file' do
           let(:blob) { fake_blob(path: 'dk.png', binary: true) }
+
           include_examples :invalid_include
         end
 
@@ -486,6 +487,7 @@ module Gitlab
 
             context 'without a commit (only ref)' do
               let(:commit) { nil }
+
               include_examples :valid_include
             end
           end
@@ -497,6 +499,7 @@ module Gitlab
 
             context 'without a commit (only ref)' do
               let(:commit) { nil }
+
               include_examples :valid_include
             end
           end

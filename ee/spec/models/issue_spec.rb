@@ -396,6 +396,7 @@ describe Issue do
 
   describe 'current designs' do
     let(:issue) { create(:issue) }
+
     subject { issue.designs.current }
 
     context 'an issue has no designs' do

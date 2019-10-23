@@ -204,6 +204,7 @@ describe ProductivityAnalytics do
 
       context 'with unknown sorting' do
         let(:custom_sort) { 'weird_stuff' }
+
         it 'does not apply custom sorting' do
           expect(subject).to eq [long_mr, medium_mr, short_mr, short_mr_2]
         end

@@ -304,6 +304,7 @@ describe License do
 
     describe '.plan_includes_feature?' do
       let(:feature) { :deploy_board }
+
       subject { described_class.plan_includes_feature?(plan, feature) }
 
       context 'when addon included' do

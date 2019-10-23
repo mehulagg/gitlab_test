@@ -154,6 +154,7 @@ describe ProjectsFinder do
 
     describe 'filter by non_public' do
       let(:params) { { non_public: true } }
+
       before do
         private_project.add_developer(current_user)
       end
@@ -163,6 +164,7 @@ describe ProjectsFinder do
 
     describe 'filter by starred' do
       let(:params) { { starred: true } }
+
       before do
         current_user.toggle_star(public_project)
       end

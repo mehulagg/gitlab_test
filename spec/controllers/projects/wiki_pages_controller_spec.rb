@@ -245,6 +245,7 @@ describe Projects::WikiPagesController do
 
       context 'the current page has spaces in its title' do
         let(:wiki_title) { 'page a/page b/page c/page d' }
+
         it_behaves_like :wiki_link_rewriter do
           let(:paths) do
             ['regular',
@@ -258,6 +259,7 @@ describe Projects::WikiPagesController do
 
       context 'the current page has an unproblematic title' do
         let(:wiki_title) { 'a/b/c/d' }
+
         it_behaves_like :wiki_link_rewriter do
           let(:paths) do
             ['regular', 'a/b/relative', 'a/b/c/relative', 'a/b/c/e/f/relative', 'title%20with%20spaces']
@@ -267,6 +269,7 @@ describe Projects::WikiPagesController do
 
       context "when there are hyphens in the page name" do
         let(:wiki_title) { 'page-a/page-b/page-c/page-d' }
+
         it_behaves_like :wiki_link_rewriter do
           let(:paths) do
             ['regular',
@@ -308,6 +311,7 @@ describe Projects::WikiPagesController do
   describe 'PATCH #update' do
     let(:new_title) { 'New title' }
     let(:new_content) { 'New content' }
+
     subject do
       patch(:update,
             params: {

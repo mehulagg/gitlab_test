@@ -305,6 +305,7 @@ describe ProjectPolicy do
 
   context 'for a guest in a private project' do
     let(:project) { create(:project, :private) }
+
     subject { described_class.new(guest, project) }
 
     it 'disallows the guest from reading the merge request and merge request iid' do

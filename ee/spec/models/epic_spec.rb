@@ -655,6 +655,7 @@ describe Epic do
 
   describe '#reopen' do
     let(:user) { create(:user) }
+
     subject(:epic) { create(:epic, state: 'closed', closed_at: Time.now, closed_by: user) }
 
     it 'sets closed_at to nil when an epic is reopend' do
