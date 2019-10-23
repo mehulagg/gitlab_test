@@ -52,6 +52,33 @@ describe Geo::DesignRegistryFinder, :geo, :geo_fdw do
       end
     end
 
+    describe '#find_registries' do
+      it 'all the registries' do
+        result = subject.find_registries({})
+
+        expect(result.count).to eq(2)
+      end
+
+      it 'finds by state' do
+        result = subject.find_registries({ sync_status: :failed })
+
+        expect(result.count).to eq(1)
+        expect(result.first.state).to eq('failed')
+      end
+
+      it 'finds by name' do
+        project = create(:project, name: 'bla')
+        create(:design, project: project)
+        create(:geo_design_registry, project: project)
+
+
+        result = subject.find_registries({ search: 'bla' })
+
+        expect(result.count).to eq(1)
+        expect(result.first.project_id).to eq(project.id)
+      end
+    end
+
     context 'selective sync' do
       let(:unsynced_project2) { create(:project, group: unsynced_group) }
       let(:synced_project2) { create(:project, group: synced_group) }

@@ -35,6 +35,14 @@ class Geo::DesignRegistry < Geo::BaseRegistry
     end
   end
 
+  # Search for a list of projects associated with registries,
+  # based on the query given in `query`.
+  #
+  # @param [String] query term that will search over :path, :name and :description
+  def self.with_search(query)
+    where(project: Geo::Fdw::Project.search(query))
+  end
+
   def fail_sync!(message, error, attrs = {})
     new_retry_count = retry_count + 1
 

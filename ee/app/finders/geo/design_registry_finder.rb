@@ -20,6 +20,13 @@ module Geo
       registries_for_design_repositories.count
     end
 
+    def find_registries(params)
+      designs_repositories = Geo::DesignRegistry
+      designs_repositories = designs_repositories.with_state(params[:sync_status]) if params[:sync_status].present?
+      designs_repositories = designs_repositories.with_search(params[:search]) if params[:search].present?
+      designs_repositories
+    end
+
     private
 
     def designs_repositories
