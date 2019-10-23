@@ -19,7 +19,7 @@
             = f.label :sourcegraph_enabled, _('Enable Sourcegraph'), class: 'form-check-label'
         .form-group
           = f.label :sourcegraph_url, _('Sourcegraph URL'), class: 'label-bold'
-          = f.text_field :sourcegraph_url, class: 'form-control', placeholder: 'https://sourcegraph.com'
+          = f.text_field :sourcegraph_url, class: 'form-control', placeholder: 'https://example.sourcegraph.com'
           .form-text.text-muted
             = _('Add %{link} code intelligence to your GitLab instance code views and pull requests.').html_safe % { link: link_to('Sourcegraph', 'https://sourcegraph.com/', target: '_blank') }
       = f.submit _('Save changes'), class: 'btn btn-success'
