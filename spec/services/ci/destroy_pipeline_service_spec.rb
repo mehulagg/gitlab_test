@@ -33,7 +33,15 @@ describe ::Ci::DestroyPipelineService do
     end
 
     context 'when the pipeline has jobs' do
-      let!(:build) { create(:ci_build, project: project, pipeline: pipeline) }
+      let!(:build) { create(:ci_build, :artifacts, project: project, pipeline: pipeline) }
+
+      it 'destroys artifact files' do
+        filename = build.job_artifacts.last.file.path
+
+        subject
+
+        expect(File.exist?(filename)).to be_falsey
+      end
 
       it 'destroys associated jobs' do
         subject

@@ -7,6 +7,13 @@ module Ci
 
       Ci::ExpirePipelineCacheService.new.execute(pipeline, delete: true)
 
+      pipeline.artifacts.find_each do |build|
+        build.job_artifacts.find_each do |artifact|
+          artifact.remove_file!
+          artifact.save
+        end
+      end
+
       pipeline.destroy!
     end
   end
