@@ -1,6 +1,13 @@
 <script>
+import GeoDesignsFilterBar from './geo_designs_filter_bar.vue'
+import GeoDesigns from './geo_designs.vue'
+
 export default {
   name: 'GeoDesignsApp',
+  components: {
+    GeoDesignsFilterBar,
+    GeoDesigns
+  },
   props: {
     /*
     store: {
@@ -16,14 +23,12 @@ export default {
   data() {
     return {};
   },
-  created() {
-    console.log('hello');
-  }
 };
 </script>
 
 <template>
-  <div class="geo-designs-container">
-    <h1>{{ __("Hello World") }}</h1>
-  </div>
+  <article class="geo-designs-container">
+    <geo-designs-filter-bar />
+    <geo-designs />
+  </article>
 </template>
