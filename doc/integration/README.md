@@ -25,6 +25,7 @@ See the documentation below for details on how to configure these services.
 - [PlantUML](../administration/integration/plantuml.md) Configure PlantUML to use diagrams in AsciiDoc documents.
 - [reCAPTCHA](recaptcha.md) Configure GitLab to use Google reCAPTCHA for new users
 - [SAML](saml.md) Configure GitLab as a SAML 2.0 Service Provider
+- [Sourcegraph](sourcegraph.md) Configure Sourcegraph integration
 - [Trello](trello_power_up.md) Integrate Trello with GitLab
 
 > GitLab Enterprise Edition contains [advanced Jenkins support](jenkins.md).
