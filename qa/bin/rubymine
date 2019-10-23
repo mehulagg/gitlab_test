@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+require_relative '../qa'
+
+ARGV.unshift('Test::Instance::All', 'http://localhost:3000', '--')
+
+QA::Scenario
+    .const_get(ARGV.shift)
+    .launch!(ARGV)

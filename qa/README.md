@@ -67,6 +67,22 @@ bundle exec bin/qa Test::Instance::All http://localhost:3000
 Note: If you want to run tests requiring SSH against GDK, you
 will need to [modify your GDK setup](https://gitlab.com/gitlab-org/gitlab-qa/blob/master/docs/run_qa_against_gdk.md).
 
+#### Starting tests using the RubyMine Gutter
+
+RubyMine enables the user to start RSpec tests using the Gutter (play buttons on the side of each test) which makes it
+possible to have the IDE fill out the path for the test and thus have a one time setup and single click test start.
+
+To do this, the IDE needs a modified starting script which is also located inside the `qa/bin` folder appropriately
+called `rubymine`. To use this thou, you must change the template that is used to pre-fill the test configuration.
+These can be found under `Run/Edit Configurations...` where under `Templates/RSpec` a few fields need to be filled.
+
+The first one is to check the `Use custom RSpec runner script` checkbox and beneath that choose the path to the
+`rubymine` executable. After that fill out the working directory to match `gitlab/qa` and select under the Bundler tab
+to use `bundler` for execution.
+
+If there is a need to change any env variables, on the first tab there is the option to do that. Popular examples are
+to set `CHROME_HEADLESS` to `false` and `QA_DEBUG` to `true`.
+
 ### Writing tests
 
 - [Writing tests from scratch tutorial](../doc/development/testing_guide/end_to_end/quick_start_guide.md)
