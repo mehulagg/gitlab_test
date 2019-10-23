@@ -29,7 +29,7 @@ You can skip this step if you already have your GitLab repositories searchable i
 1. In GitLab, go to **Admin Area > Settings > Integrations**.
 1. Expand the **Sourcegraph** configuration section.
 1. Check the **Enable Sourcegraph** checkbox.
-1. Set the Sourcegraph URL to your Sourcegraph instance, e.g. `https://sourcegraph.example.com`.
+1. Set the Sourcegraph URL to your Sourcegraph instance, e.g., `https://sourcegraph.example.com`.
 
 You should now see code intelligence on your files, without needing the browser
 extension installed!
