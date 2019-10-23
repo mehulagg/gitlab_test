@@ -24,7 +24,7 @@ You can skip this step if you already have your GitLab repositories searchable i
 1. Validate that you can search your repositories from GitLab in your Sourcegraph instance by running a test query.
 1. Add your GitLab instance URL to the [`corsOrigin` setting](https://docs.sourcegraph.com/admin/config/site_config#corsOrigin) in your site configuration (e.g. `https://sourcegraph.example.com/site-admin/configuration`).
 
-## GitLab
+## Configure your GitLab instance with Sourcegraph
 
 1. In GitLab, go to **Admin Area > Settings > Integrations**.
 1. Exapnd the **Sourcegraph** configuration section.
