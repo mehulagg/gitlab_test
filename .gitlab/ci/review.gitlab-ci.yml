@@ -55,6 +55,25 @@ schedule:review-cleanup:
   script:
     - ruby -rrubygems scripts/review_apps/automated_cleanup.rb
 
+manual:review-cleanup:
+  extends:
+    - .default-tags
+    - .default-retry
+    - .default-only
+    - .except-deploys
+  stage: prepare
+  image: registry.gitlab.com/gitlab-org/gitlab-build-images:gitlab-charts-build-base
+  allow_failure: true
+  environment:
+    name: review/manual-cleanup
+    action: stop
+  before_script:
+    - source scripts/utils.sh
+    - install_gitlab_gem
+  script:
+    - ruby -rrubygems scripts/review_apps/automated_cleanup.rb
+  when: manual
+
 .review-build-cng-base:
   extends:
     - .default-only
