@@ -19,8 +19,8 @@ If you are new to Sourcegraph, head over to the [Sourcegraph installation docume
 ### Configure your Sourcegraph instance
 
 1. Navigate to the site admin area in Sourcegraph.
-1. [Configure your GitLab external service](https://docs.sourcegraph.com/admin/external_service/gitlab). You can skip this step if you already have your
-GitLab repositories searchable in Sourcegraph).
+1. [Configure your GitLab external service](https://docs.sourcegraph.com/admin/external_service/gitlab).
+You can skip this step if you already have your GitLab repositories searchable in Sourcegraph.
 1. Validate that you can search your repositories from GitLab in your Sourcegraph instance by running a test query.
 1. Add your GitLab URL to the [`corsOrigin` setting](https://docs.sourcegraph.com/admin/config/site_config#corsOrigin) in your site configuration (e.g. `https://sourcegraph.example.com/site-admin/configuration`).
 
