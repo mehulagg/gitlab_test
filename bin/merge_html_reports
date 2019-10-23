@@ -31,6 +31,8 @@ ARGV.each do |report_file|
   header = report.css('div #rspec-header')
   tests = report.css('dt[id^="example_group_"]')
 
+  next if tests.empty?
+
   header.search("//h1/text()").first.content = "Test results for job: #{report_file.slice(/rspec-(.*)\.htm/, 1)}"
 
   tests.each do |test|
