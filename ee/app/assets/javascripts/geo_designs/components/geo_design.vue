@@ -49,30 +49,36 @@
           <label class="text-muted">{{ __("Last successful sync") }}</label>
           <div>
             <time-ago
-              :time="new Date()"
+              v-if="design.last_synced_at"
+              :time="design.last_synced_at"
               tooltip-placement="bottom"
               class="js-timeago"
             />
+            <span v-else>{{ __("Never") }}</span>
           </div>
         </div>
         <div class="flex-grow-1">
           <label class="text-muted">{{ __("Last time verified") }}</label>
           <div>
             <time-ago
-              :time="new Date()"
+              v-if="design.last_verified_at"
+              :time="design.last_verified_at"
               tooltip-placement="bottom"
               class="js-timeago"
             />
+            <span v-else>{{ __("Never") }}</span>
           </div>
         </div>
         <div class="flex-grow-1">
           <label class="text-muted">{{ __("Last repository check run") }}</label>
           <div>
             <time-ago
-              :time="new Date()"
+              v-if="design.last_checked_at"
+              :time="design.last_checked_at"
               tooltip-placement="bottom"
               class="js-timeago"
             />
+            <span v-else>{{ __("Never") }}</span>
           </div>
         </div>
       </div>
