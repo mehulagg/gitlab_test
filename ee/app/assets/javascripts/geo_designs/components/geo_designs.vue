@@ -1,12 +1,16 @@
 <script>
-  import GeoDesign from './geo_design.vue'
+import { mapState } from 'vuex';
+import GeoDesign from './geo_design.vue';
 
-  export default {
-    name: 'GeoDesigns',
-    components: {
-      GeoDesign
-    },
+export default {
+  name: 'GeoDesigns',
+  components: {
+    GeoDesign,
+  },
+  computed: {
+    ...mapState(['isLoading', 'designs']),
   }
+};
 </script>
 
 <template>
