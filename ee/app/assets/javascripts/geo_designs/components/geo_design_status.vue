@@ -15,16 +15,8 @@
       },
     },
     computed: {
-      statusName() {
-        if (this.status) {
-          // ex. in_sync === In sync
-          return this.status[0].toUpperCase() + this.status.slice(1).split('_').join(' ');
-        }
-
-        return __('Never');
-      },
       icon() {
-        if (this.status === 'in_sync') {
+        if (this.status === 'synced') {
           return {
             name: 'status_closed',
             colorClass: 'text-success'
@@ -54,6 +46,6 @@
 
 <template>
   <div>
-    <span class="d-flex align-items-center"><icon :name="icon.name" :class="icon.colorClass" class="mr-2"/> {{ statusName }}</span>
+    <span class="d-flex align-items-center text-capitalize"><icon :name="icon.name" :class="icon.colorClass" class="mr-2"/> {{ status || 'never' }}</span>
   </div>
 </template>

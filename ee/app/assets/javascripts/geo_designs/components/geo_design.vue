@@ -43,7 +43,7 @@
       <div class="d-flex flex-column flex-md-row">
         <div class="flex-grow-1">
           <label class="text-muted">{{ __("Status") }}</label>
-          <geo-design-status :status="design.status" />
+          <geo-design-status :status="design.sync_status" />
         </div>
         <div class="flex-grow-1">
           <label class="text-muted">{{ __("Last successful sync") }}</label>

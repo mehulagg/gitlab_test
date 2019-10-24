@@ -1,5 +1,5 @@
 <script>
-import { mapState } from 'vuex';
+import { mapGetters } from 'vuex';
 import GeoDesign from './geo_design.vue';
 
 export default {
@@ -8,7 +8,9 @@ export default {
     GeoDesign,
   },
   computed: {
-    ...mapState(['isLoading', 'designs']),
+    ...mapGetters({
+      designs: 'getDesignsByFilter'
+    })
   }
 };
 </script>

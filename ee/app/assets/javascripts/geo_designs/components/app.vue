@@ -1,5 +1,5 @@
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapState } from 'vuex';
 import GeoDesignsFilterBar from './geo_designs_filter_bar.vue';
 import GeoDesigns from './geo_designs.vue';
 
@@ -14,6 +14,9 @@ export default {
       type: String,
       required: true,
     },
+  },
+  computed: {
+    ...mapState(['isLoading'])
   },
   created() {
     this.setEndpoint(this.geoDesignsPath);
