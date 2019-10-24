@@ -28,9 +28,6 @@
           Details
         %ul.content-list
           %li
-            %span.light License ID:
-            %strong= @license.md5
-          %li
             %span.light Plan:
             %strong= @license.plan.capitalize
           %li
@@ -57,6 +54,9 @@
             - if @license.expired?
               %span.badge.badge-danger.float-right
                 %strong Expired
+          %li
+            %span.light License ID:
+            %strong= @license.md5
 
     .col-md-6
       .card.border-info
