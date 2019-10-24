@@ -8,6 +8,7 @@ shared_examples 'pages settings editing' do
 
   before do
     allow(Gitlab.config.pages).to receive(:enabled).and_return(true)
+    stub_application_setting(lets_encrypt_terms_of_service_accepted: false)
 
     project.add_role(user, role)
 
@@ -134,17 +135,32 @@ shared_examples 'pages settings editing' do
           KEY
         end
 
-        it 'adds new domain with certificate' do
-          visit new_project_pages_domain_path(project)
+        if Gitlab::LetsEncrypt.enabled?
+          it 'adds new domain with certificate', :js do
+            visit new_project_pages_domain_path(project)
 
-          fill_in 'Domain', with: 'my.test.domain.com'
-          fill_in 'Certificate (PEM)', with: certificate_pem
-          fill_in 'Key (PEM)', with: certificate_key
-          click_button 'Create New Domain'
+            find('.js-auto-ssl-toggle-container .project-feature-toggle').click
 
-          expect(page).to have_content('my.test.domain.com')
+            fill_in 'Domain', with: 'my.test.domain.com'
+            fill_in 'Certificate (PEM)', with: certificate_pem
+            fill_in 'Key (PEM)', with: certificate_key
+            click_button 'Create New Domain'
+
+            expect(page).to have_content('my.test.domain.com')
+          end
+        else
+          it 'adds new domain with certificate' do
+            visit new_project_pages_domain_path(project)
+  
+            fill_in 'Domain', with: 'my.test.domain.com'
+            fill_in 'Certificate (PEM)', with: certificate_pem
+            fill_in 'Key (PEM)', with: certificate_key
+            click_button 'Create New Domain'
+  
+            expect(page).to have_content('my.test.domain.com')
+          end
         end
-
+    
         describe 'updating the certificate for an existing domain' do
           let!(:domain) do
             create(:pages_domain, project: project)
