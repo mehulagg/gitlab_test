@@ -4,6 +4,7 @@
   import { BCard, BCardHeader, BCardBody } from 'bootstrap-vue'
   import { GlLink, GlButton } from '@gitlab/ui';
   import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
+  import GeoDesignStatus from './geo_design_status.vue';
 
   export default {
     name: 'GeoDesign',
@@ -13,7 +14,8 @@
       BCardBody,
       GlLink,
       GlButton,
-      TimeAgo
+      TimeAgo,
+      GeoDesignStatus
     },
     props: {
       design: {
@@ -41,7 +43,7 @@
       <div class="d-flex flex-column flex-md-row">
         <div class="flex-grow-1">
           <label class="text-muted">{{ __("Status") }}</label>
-          <p>{{ __("Success") }}</p>
+          <geo-design-status :status="design.status" />
         </div>
         <div class="flex-grow-1">
           <label class="text-muted">{{ __("Last successful sync") }}</label>
