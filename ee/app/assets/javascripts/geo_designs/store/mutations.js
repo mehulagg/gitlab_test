@@ -20,5 +20,5 @@ export default {
   [types.RECEIVE_DESIGNS_ERROR](state, error) {
     state.isLoading = false;
     state.error = error;
-  }
+  },
 };

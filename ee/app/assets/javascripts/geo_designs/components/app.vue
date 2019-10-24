@@ -16,7 +16,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(['isLoading'])
+    ...mapState(['isLoading']),
   },
   created() {
     this.setEndpoint(this.geoDesignsPath);

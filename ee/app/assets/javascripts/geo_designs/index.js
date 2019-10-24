@@ -26,8 +26,8 @@ export default () => {
       const { geoDesignsPath } = dataset;
 
       return {
-        geoDesignsPath
-      }
+        geoDesignsPath,
+      };
     },
     render(createElement) {
       return createElement('geo-designs-app', {

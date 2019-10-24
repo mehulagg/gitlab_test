@@ -9,9 +9,9 @@ export default {
   },
   computed: {
     ...mapGetters({
-      designs: 'getDesignsByFilter'
-    })
-  }
+      designs: 'getDesignsByFilter',
+    }),
+  },
 };
 </script>
 

@@ -8,5 +8,5 @@ export default () => ({
 
   searchFilter: '',
   currentFilterIndex: 0,
-  filterOptions: ['all', 'synced', 'pending', 'failed', 'never']
+  filterOptions: ['all', 'synced', 'pending', 'failed', 'never'],
 });

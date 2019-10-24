@@ -1,44 +1,53 @@
 <script>
-  import { GlTabs, GlTab, GlFormInput, GlDropdown, GlDropdownItem } from '@gitlab/ui'
-  import Icon from '~/vue_shared/components/icon.vue';
-  import { mapActions, mapState } from 'vuex';
+import { GlTabs, GlTab, GlFormInput, GlDropdown, GlDropdownItem } from '@gitlab/ui';
+import Icon from '~/vue_shared/components/icon.vue';
+import { mapActions, mapState } from 'vuex';
 
-  export default {
-    name: 'GeoDesignsFilterBar',
-    components: {
-      GlTabs,
-      GlTab,
-      GlFormInput,
-      GlDropdown,
-      GlDropdownItem,
-      Icon
+export default {
+  name: 'GeoDesignsFilterBar',
+  components: {
+    GlTabs,
+    GlTab,
+    GlFormInput,
+    GlDropdown,
+    GlDropdownItem,
+    Icon,
+  },
+  computed: {
+    ...mapState(['currentFilterIndex', 'filterOptions', 'searchFilter']),
+    search: {
+      get() {
+        return this.searchFilter;
+      },
+      set(newVal) {
+        this.setSearch(newVal);
+      },
     },
-    computed: {
-      ...mapState(['currentFilterIndex', 'filterOptions', 'searchFilter']),
-      search: {
-        get() {
-          return this.searchFilter;
-        },
-        set(newVal) {
-          this.setSearch(newVal);
-        }
-      }
-    },
-    methods: {
-      ...mapActions(['setFilter', 'setSearch']),
-    },
-  }
+  },
+  methods: {
+    ...mapActions(['setFilter', 'setSearch']),
+  },
+};
 </script>
 
 <template>
   <gl-tabs :value="currentFilterIndex" @input="setFilter">
-    <gl-tab v-for="(filter, index) in filterOptions" :key="index" :title="filter" title-item-class="text-capitalize" />
+    <gl-tab
+      v-for="(filter, index) in filterOptions"
+      :key="index"
+      :title="filter"
+      title-item-class="text-capitalize"
+    />
     <template v-slot:tabs-end>
       <div class="d-flex align-items-center ml-auto">
         <gl-form-input v-model="search" type="text" :placeholder="__(`Filter by name...`)" />
         <gl-dropdown class="ml-2">
           <template v-slot:button-content>
-            <span><icon name="cloud-gear" /> {{ __("Batch operations") }} <icon name="chevron-down" /></span>
+            <span>
+              <icon name="cloud-gear" />
+              {{ __("Batch operations") }}
+              <icon name="chevron-down" />
+            </span>
           </template>
           <gl-dropdown-item>{{ __("Resync all designs") }}</gl-dropdown-item>
           <gl-dropdown-item>{{ __("Reverify all designs") }}</gl-dropdown-item>

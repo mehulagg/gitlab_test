@@ -1,29 +1,29 @@
 <script>
-  // Using this for now, but might need to wrap into a new GlCard.
-  // eslint-disable-next-line import/no-extraneous-dependencies
-  import { BCard, BCardHeader, BCardBody } from 'bootstrap-vue'
-  import { GlLink, GlButton } from '@gitlab/ui';
-  import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
-  import GeoDesignStatus from './geo_design_status.vue';
+// Using this for now, but might need to wrap into a new GlCard.
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { BCard, BCardHeader, BCardBody } from 'bootstrap-vue';
+import { GlLink, GlButton } from '@gitlab/ui';
+import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
+import GeoDesignStatus from './geo_design_status.vue';
 
-  export default {
-    name: 'GeoDesign',
-    components: {
-      BCard,
-      BCardHeader,
-      BCardBody,
-      GlLink,
-      GlButton,
-      TimeAgo,
-      GeoDesignStatus
+export default {
+  name: 'GeoDesign',
+  components: {
+    BCard,
+    BCardHeader,
+    BCardBody,
+    GlLink,
+    GlButton,
+    TimeAgo,
+    GeoDesignStatus,
+  },
+  props: {
+    design: {
+      type: Object,
+      required: true,
     },
-    props: {
-      design: {
-        type: Object,
-        required: true
-      }
-    },
-  }
+  },
+};
 </script>
 
 <template>
