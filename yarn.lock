@@ -1191,10 +1191,10 @@
     consola "^2.3.0"
     node-fetch "^2.3.0"
 
-"@sourcegraph/code-host-integration@^0.0.7":
-  version "0.0.7"
-  resolved "https://registry.npmjs.org/@sourcegraph/code-host-integration/-/code-host-integration-0.0.7.tgz#e7053dd0fda8e5096a662f7aadf2ad56400de1e6"
-  integrity sha512-WeBaFJ6n+jBy7Jr/ShQwRLwq2B4Km2nRNi53DSqJPb34q9D21SromKzFQ1b1cvS/2HTaiEJZYkz5L3HCW/2vTg==
+"@sourcegraph/code-host-integration@^0.0.8":
+  version "0.0.8"
+  resolved "https://registry.npmjs.org/@sourcegraph/code-host-integration/-/code-host-integration-0.0.8.tgz#9f667f946ed80b92362a752f7fde84c2c4c9ba20"
+  integrity sha512-Gl6UwFGyhKddVWCsUnV2GpUEo5HMgFSVpy8RhP+CNXEWejenxA3+0mZqc8tJS5F5dvGe4uee3T5xQxTXWVPlrw==
 
 "@types/anymatch@*":
   version "1.3.0"
