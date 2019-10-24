@@ -13,7 +13,8 @@ working by default for all users.
 ## Configuration **(CORE ONLY)**
 
 > These steps are required for self-managed instances.
-> Sourcegraph integration is enabled on GitLab.com and ready to use in all public projects.
+> Once enabled in your instance, it will become available to all projects (public, internal, and private).
+> Sourcegraph integration is already enabled on GitLab.com and ready to use but restricted to only **public** projects.
 
 Before you can enable Sourcegraph code intelligence in GitLab you need to have a
 Sourcegraph instance running and configured with your GitLab instance as an external
