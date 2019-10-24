@@ -17,7 +17,7 @@ export default {
   },
   created() {
     this.setEndpoint(this.geoDesignsPath);
-    // this.fetchDesigns();
+    this.fetchDesigns();
   },
   methods: {
     ...mapActions(['setEndpoint', 'fetchDesigns']),
