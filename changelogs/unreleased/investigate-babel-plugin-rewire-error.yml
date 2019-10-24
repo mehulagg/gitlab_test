@@ -1,0 +1,5 @@
+---
+title: Update FE guide to reccommend troubleMakers list within spec/javascripts/test_bundle.js
+merge_request: 19094
+author:
+type: changed
