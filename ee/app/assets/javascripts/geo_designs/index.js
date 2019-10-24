@@ -22,10 +22,18 @@ export default () => {
       geoDesignsApp,
     },
     data() {
-      // const { dataset } = this.$options.el;
+      const { dataset } = this.$options.el;
+      const { geoDesignsPath } = dataset;
+
+      return {
+        geoDesignsPath
+      }
     },
     render(createElement) {
       return createElement('geo-designs-app', {
+        props: {
+          geoDesignsPath: this.geoDesignsPath,
+        },
       });
     },
   });

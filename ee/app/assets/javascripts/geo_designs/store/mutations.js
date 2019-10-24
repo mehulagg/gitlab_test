@@ -1,6 +1,9 @@
 import * as types from './mutation_types';
 
 export default {
+  [types.SET_ENDPOINT](state, endpoint) {
+    state.endpoint = endpoint;
+  },
   [types.REQUEST_DESIGNS](state) {
     state.isLoading = true;
   },
@@ -11,5 +14,5 @@ export default {
   [types.RECEIVE_DESIGNS_ERROR](state, error) {
     state.isLoading = false;
     state.error = error;
-  },
+  }
 };

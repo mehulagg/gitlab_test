@@ -3,6 +3,8 @@ import axios from '~/lib/utils/axios_utils';
 import createFlash from '~/flash';
 import { __ } from '~/locale';
 
+export const setEndpoint = ({ commit }, endpoint) => commit(types.SET_ENDPOINT, endpoint);
+
 export const requestDesigns = ({ commit }) => commit(types.REQUEST_DESIGNS);
 export const receiveDesignsSuccess = ({ commit }, data) => commit(types.RECEIVE_DESIGNS_SUCCESS, data);
 export const receiveDesignsError = ({ commit }, error) => commit(types.RECEIVE_DESIGNS_ERROR, error);

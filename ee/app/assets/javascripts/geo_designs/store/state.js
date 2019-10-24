@@ -1,5 +1,5 @@
 export default () => ({
-  endpoint: '/geo_designs',
+  endpoint: '',
 
   isLoading: false,
   error: null,

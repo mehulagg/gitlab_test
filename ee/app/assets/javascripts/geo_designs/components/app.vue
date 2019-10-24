@@ -1,27 +1,26 @@
 <script>
-import GeoDesignsFilterBar from './geo_designs_filter_bar.vue'
-import GeoDesigns from './geo_designs.vue'
+import { mapActions } from 'vuex';
+import GeoDesignsFilterBar from './geo_designs_filter_bar.vue';
+import GeoDesigns from './geo_designs.vue';
 
 export default {
   name: 'GeoDesignsApp',
   components: {
     GeoDesignsFilterBar,
-    GeoDesigns
+    GeoDesigns,
   },
   props: {
-    /*
-    store: {
-      type: Object,
+    geoDesignsPath: {
+      type: String,
       required: true,
     },
-    service: {
-      type: Object,
-      required: true,
-    },
-    */
   },
-  data() {
-    return {};
+  created() {
+    this.setEndpoint(this.geoDesignsPath);
+    // this.fetchDesigns();
+  },
+  methods: {
+    ...mapActions(['setEndpoint', 'fetchDesigns']),
   },
 };
 </script>
