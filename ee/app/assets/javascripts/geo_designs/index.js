@@ -3,7 +3,6 @@ import Vue from 'vue';
 import Translate from '~/vue_shared/translate';
 
 import store from './store';
-// import GeoDesignsService from './service/geo_designs_service';
 
 import geoDesignsApp from './components/app.vue';
 
@@ -24,18 +23,9 @@ export default () => {
     },
     data() {
       // const { dataset } = this.$options.el;
-      // const service = new GeoDesignsService();
-
-      return {
-        // service,
-      };
     },
     render(createElement) {
       return createElement('geo-designs-app', {
-        props: {
-          // store: this.store,
-          // service: this.service,
-        },
       });
     },
   });
