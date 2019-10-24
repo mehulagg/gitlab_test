@@ -14,10 +14,18 @@
       Icon
     },
     computed: {
-      ...mapState(['currentFilterIndex', 'filterOptions'])
+      ...mapState(['currentFilterIndex', 'filterOptions', 'searchFilter']),
+      search: {
+        get() {
+          return this.searchFilter;
+        },
+        set(newVal) {
+          this.setSearch(newVal);
+        }
+      }
     },
     methods: {
-      ...mapActions(['setFilter']),
+      ...mapActions(['setFilter', 'setSearch']),
     },
   }
 </script>
@@ -27,7 +35,7 @@
     <gl-tab v-for="(filter, index) in filterOptions" :key="index" :title="filter" title-item-class="text-capitalize" />
     <template v-slot:tabs-end>
       <div class="d-flex align-items-center ml-auto">
-        <gl-form-input type="text" :placeholder="__(`Filter by name...`)" />
+        <gl-form-input v-model="search" type="text" :placeholder="__(`Filter by name...`)" />
         <gl-dropdown class="ml-2">
           <template v-slot:button-content>
             <span><icon name="cloud-gear" /> {{ __("Batch operations") }} <icon name="chevron-down" /></span>

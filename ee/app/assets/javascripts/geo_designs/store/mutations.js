@@ -7,6 +7,9 @@ export default {
   [types.SET_FILTER](state, filterIndex) {
     state.currentFilterIndex = filterIndex;
   },
+  [types.SET_SEARCH](state, search) {
+    state.searchFilter = search;
+  },
   [types.REQUEST_DESIGNS](state) {
     state.isLoading = true;
   },

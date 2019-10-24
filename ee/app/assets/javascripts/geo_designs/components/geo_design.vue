@@ -23,10 +23,6 @@
         required: true
       }
     },
-    data() {
-      return {
-      }
-    },
   }
 </script>
 
