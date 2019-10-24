@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Geo', :orchestrated, :geo do
+  # https://gitlab.com/gitlab-org/gitlab/issues/34879
+  context 'Geo', :orchestrated, :geo, :quarantine do
     describe 'GitLab wiki SSH push to secondary' do
       wiki_title = 'Geo Replication Wiki'
       wiki_content = 'This tests replication of wikis via SSH to secondary'
