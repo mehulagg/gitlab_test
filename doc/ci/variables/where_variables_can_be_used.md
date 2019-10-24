@@ -32,6 +32,66 @@ There are two places defined variables can be used. On the:
 | `script`, `before_script`, `after_script`  | yes              | Script execution shell | The variable expansion is made by the [execution shell environment](#execution-shell-environment)                                                                                                                                                                                                                                                                                                                                 |
 | `only:variables:[]`, `except:variables:[]` | no               | n/a                    | The variable must be in the form of `$variable`. Not supported are the following:<br/><br/>- Variables that are based on the environment's name (`CI_ENVIRONMENT_NAME`, `CI_ENVIRONMENT_SLUG`).<br/>- Any other variables related to environment (currently only `CI_ENVIRONMENT_URL`).<br/>- [Persisted variables](#persisted-variables).                                                                                            |
 
+If you are using runner debugging to see what variables are created by GitLab, not all of them are available for use by syntax in `.gitlab-ci.yml`.
+
+For example: if you're using rules or only/except policies to determine whether jobs are created, some of the variables in the debug output on the shell runner are not present during pipeline creation.
+
+- Those created by the shell runner:
+
+```
+CI_RUNNER_DESCRIPTION
+CI_RUNNER_EXECUTABLE_ARCH
+CI_RUNNER_ID
+CI_RUNNER_REVISION
+CI_RUNNER_SHORT_TOKEN
+CI_RUNNER_TAGS
+CI_RUNNER_VERSION
+CONFIG_FILE
+```
+
+- Those derived from the shell runner's environment, such as:
+
+```
+HOME
+PATH
+SHELL
+```
+
+- The following are also not available:
+
+```
+CI_BUILD_ID
+CI_BUILDS_DIR
+CI_BUILD_TOKEN
+CI_CONCURRENT_ID
+CI_CONCURRENT_PROJECT_ID
+CI_JOB_ID
+CI_JOB_TOKEN
+CI_JOB_URL
+CI_PIPELINE_ID
+CI_PIPELINE_URL
+CI_PROJECT_DIR
+CI_REGISTRY_PASSWORD
+CI_REGISTRY_USER
+CI_REPOSITORY_URL
+CI_SERVER_TLS_CA_FILE
+CI_SERVER
+CI_SHARED_ENVIRONMENT
+FF_CMD_DISABLE_DELAYED_ERROR_LEVEL_EXPANSION
+FF_USE_LEGACY_BUILDS_DIR_FOR_DOCKER
+FF_USE_LEGACY_VOLUMES_MOUNTING_ORDER
+```
+
+During your development and testing of your CI logic, consider verifing the presence
+of variables you haven't created yourself before relying on them in your logic:
+
+```yaml
+test_job_name:
+  script: /usr/bin/true
+  rules:
+    - if: '$CI_VARIABLE_NAME'
+```
+
 ### `config.toml` file
 
 NOTE: **Note:**
