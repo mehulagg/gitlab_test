@@ -511,6 +511,15 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
             expect(json_response['features']).to eq(expected_features)
           end
 
+          it 'reports an exception with the runner context' do
+            allow_any_instance_of(Ci::Runner).to receive(:active?).and_raise(RuntimeError)
+            expect(Gitlab::Sentry).to receive(:context).with(nil, { runner_id: runner.id })
+
+            request_job info: { platform: :darwin }
+
+            expect(response).to have_gitlab_http_status(500)
+          end
+
           context 'when job is made for tag' do
             let!(:job) { create(:ci_build, :tag, pipeline: pipeline, name: 'spinach', stage: 'test', stage_idx: 0) }
 

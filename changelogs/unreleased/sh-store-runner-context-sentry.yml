@@ -1,0 +1,5 @@
+---
+title: Store CI runner ID in Sentry context
+merge_request: 19104
+author:
+type: other

@@ -4,15 +4,28 @@ require 'spec_helper'
 
 describe Gitlab::Sentry do
   describe '.context' do
-    it 'adds the expected tags' do
+    before do
       expect(described_class).to receive(:enabled?).and_return(true)
       allow(Labkit::Correlation::CorrelationId).to receive(:current_id).and_return('cid')
+    end
 
+    it 'adds the expected tags' do
       described_class.context(nil)
 
       expect(Raven.tags_context[:locale].to_s).to eq(I18n.locale.to_s)
       expect(Raven.tags_context[Labkit::Correlation::CorrelationId::LOG_KEY.to_sym].to_s)
         .to eq('cid')
+    end
+
+    it 'adds additional user context' do
+      user = create(:user)
+
+      described_class.context(user, { test_data: 123 })
+
+      expect(Raven.context.user[:test_data]).to eq(123)
+      expect(Raven.context.user[:id]).to eq(user.id)
+      expect(Raven.context.user[:email]).to eq(user.email)
+      expect(Raven.context.user[:username]).to eq(user.username)
     end
   end
 

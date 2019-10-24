@@ -383,7 +383,14 @@ module API
     def handle_api_exception(exception)
       if report_exception?(exception)
         define_params_for_grape_middleware
-        Gitlab::Sentry.context(current_user)
+        extra_user_context =
+          if current_runner
+            { runner_id: current_runner.id }
+          else
+            {}
+          end
+
+        Gitlab::Sentry.context(current_user, extra_user_context)
         Gitlab::Sentry.track_acceptable_exception(exception, extra: params)
       end
 

@@ -7,18 +7,22 @@ module Gitlab
         Gitlab.config.sentry.enabled
     end
 
-    def self.context(current_user = nil)
+    def self.context(current_user = nil, extra_user_context = {})
       return unless enabled?
 
       Raven.tags_context(default_tags)
 
       if current_user
-        Raven.user_context(
-          id: current_user.id,
-          email: current_user.email,
-          username: current_user.username
+        extra_user_context.merge!(
+          {
+            id: current_user.id,
+            email: current_user.email,
+            username: current_user.username
+          }
         )
       end
+
+      Raven.user_context(extra_user_context) if extra_user_context.present?
     end
 
     # This can be used for investigating exceptions that can be recovered from in
