@@ -4,6 +4,9 @@ export default {
   [types.SET_ENDPOINT](state, endpoint) {
     state.endpoint = endpoint;
   },
+  [types.SET_FILTER](state, filterIndex) {
+    state.currentFilterIndex = filterIndex;
+  },
   [types.REQUEST_DESIGNS](state) {
     state.isLoading = true;
   },

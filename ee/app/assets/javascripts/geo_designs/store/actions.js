@@ -43,6 +43,7 @@ const mockData = [
 ];
 
 export const setEndpoint = ({ commit }, endpoint) => commit(types.SET_ENDPOINT, endpoint);
+export const setFilter = ({ commit }, filterIndex) => commit (types.SET_FILTER, filterIndex);
 
 export const requestDesigns = ({ commit }) => commit(types.REQUEST_DESIGNS);
 export const receiveDesignsSuccess = ({ commit }, data) => commit(types.RECEIVE_DESIGNS_SUCCESS, data);

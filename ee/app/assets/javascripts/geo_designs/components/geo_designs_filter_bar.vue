@@ -1,7 +1,7 @@
 <script>
   import { GlTabs, GlTab, GlFormInput, GlDropdown, GlDropdownItem } from '@gitlab/ui'
   import Icon from '~/vue_shared/components/icon.vue';
-  import { __ } from '~/locale';
+  import { mapActions, mapState } from 'vuex';
 
   export default {
     name: 'GeoDesignsFilterBar',
@@ -13,18 +13,18 @@
       GlDropdownItem,
       Icon
     },
-    data() {
-      return {
-        tabs: [__('All'), __('Synced'), __('Pending'), __("Failed"), __('Never')],
-        currentTab: 0
-      }
+    computed: {
+      ...mapState(['currentFilterIndex', 'filterOptions'])
+    },
+    methods: {
+      ...mapActions(['setFilter']),
     },
   }
 </script>
 
 <template>
-  <gl-tabs v-model="currentTab">
-    <gl-tab v-for="(tab, index) in tabs" :key="index" :title="tab"/>
+  <gl-tabs :value="currentFilterIndex" @input="setFilter">
+    <gl-tab v-for="(filter, index) in filterOptions" :key="index" :title="filter" title-item-class="text-capitalize" />
     <template v-slot:tabs-end>
       <div class="d-flex align-items-center ml-auto">
         <gl-form-input type="text" :placeholder="__(`Filter by name...`)" />
