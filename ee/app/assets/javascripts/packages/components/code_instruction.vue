@@ -1,6 +1,11 @@
 <script>
+import ClipboardButton from '~/vue_shared/components/clipboard_button.vue';
+
 export default {
   name: 'CodeInstruction',
+  components: {
+    ClipboardButton,
+  },
   props: {
     instruction: {
       type: String,

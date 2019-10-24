@@ -11552,9 +11552,6 @@ msgstr ""
 msgid "Package information"
 msgstr ""
 
-msgid "Package installation"
-msgstr ""
-
 msgid "Package was removed"
 msgstr ""
 
@@ -11574,6 +11571,9 @@ msgid "PackageRegistry|Delete Package Version"
 msgstr ""
 
 msgid "PackageRegistry|Installation"
+msgstr ""
+
+msgid "PackageRegistry|Package installation"
 msgstr ""
 
 msgid "PackageRegistry|Registry Setup"
@@ -17885,6 +17885,9 @@ msgid "Updated"
 msgstr ""
 
 msgid "Updated %{updated_at} by %{updated_by}"
+msgstr ""
+
+msgid "Updated at"
 msgstr ""
 
 msgid "Updated to"

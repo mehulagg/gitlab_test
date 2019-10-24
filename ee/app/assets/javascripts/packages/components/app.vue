@@ -59,6 +59,14 @@ export default {
       type: String,
       required: true,
     },
+    npmPath: {
+      type: String,
+      required: true,
+    },
+    npmHelpPath: {
+      type: String,
+      required: true,
+    },
   },
   computed: {
     isValidPackage() {
@@ -98,6 +106,10 @@ export default {
         {
           label: s__('Created on'),
           value: formatDate(this.packageEntity.created_at),
+        },
+        {
+          label: s__('Updated at'),
+          value: formatDate(this.packageEntity.updated_at),
         },
       ];
     },
@@ -198,7 +210,13 @@ export default {
         :heading="packageMetadataTitle"
         :information="packageMetadata"
       />
-      <package-installation v-else :type="packageEntity.package_type" :name="packageEntity.name" />
+      <package-installation
+        v-else
+        :type="packageEntity.package_type"
+        :name="packageEntity.name"
+        :registry-url="npmPath"
+        :help-url="npmHelpPath"
+      />
     </div>
 
     <gl-table
