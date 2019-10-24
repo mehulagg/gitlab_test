@@ -17,15 +17,22 @@ namespace :geo do
       # and I'm not sure what to load (other than the whole Rails environment)
       # to make it work.
       #
-      # require Rails.root.join('ee/lib/gitlab/geo')
-      # require Rails.root.join('lib/gitlab/null_request_store')
-      # require Rails.root.join('lib/gitlab/safe_request_store')
-      # require Rails.root.join('lib/gitlab/json_cache')
-      # require Rails.root.join('lib/gitlab/thread_memory_cache')
+      # Redis
+      require 'redis'
+      require 'connection_pool'
+      require 'redis-rails'
+      require 'request_store'
+      require Rails.root.join('ee/lib/gitlab/geo')
+      require Rails.root.join('lib/gitlab/null_request_store')
+      require Rails.root.join('lib/gitlab/safe_request_store')
+      require Rails.root.join('lib/gitlab/json_cache')
+      require Rails.root.join('lib/gitlab/thread_memory_cache')
+
+      puts "Rails.cache should not be nil. It is: #{Rails.cache.inspect}"
 
       if Gitlab::Geo::GeoTasks.foreign_server_configured?
         print "\nRefreshing foreign tables for FDW: #{Gitlab::Geo::Fdw::FOREIGN_SCHEMA} ... "
-        Gitlab::Geo::GeoTasks.refresh_foreign_tables!(expire_cache: false)
+        Gitlab::Geo::GeoTasks.refresh_foreign_tables!(expire_cache: true)
         puts 'Done!'
       else
         puts "Error: Cannot refresh foreign tables, there is no foreign server configured."

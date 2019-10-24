@@ -29,6 +29,7 @@ module Gitlab
     end
 
     def expire(key)
+      puts "backend #{backend.inspect}"
       backend.delete(cache_key(key))
     end
 
