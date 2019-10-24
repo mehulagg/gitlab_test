@@ -5,9 +5,8 @@ export default {
     state.isLoading = true;
   },
   [types.RECEIVE_DESIGNS_SUCCESS](state, data) {
-    // Do any needed data transformation to the received payload here
-    state.designs = data;
     state.isLoading = false;
+    state.designs = data;
   },
   [types.RECEIVE_DESIGNS_ERROR](state, error) {
     state.isLoading = false;
