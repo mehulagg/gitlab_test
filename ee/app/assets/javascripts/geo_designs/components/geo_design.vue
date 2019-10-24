@@ -50,7 +50,7 @@
           <div>
             <time-ago
               v-if="design.last_synced_at"
-              :time="design.last_synced_at"
+              :time="design.last_synced_at.toString()"
               tooltip-placement="bottom"
               class="js-timeago"
             />
@@ -62,7 +62,7 @@
           <div>
             <time-ago
               v-if="design.last_verified_at"
-              :time="design.last_verified_at"
+              :time="design.last_verified_at.toString()"
               tooltip-placement="bottom"
               class="js-timeago"
             />
@@ -74,7 +74,7 @@
           <div>
             <time-ago
               v-if="design.last_checked_at"
-              :time="design.last_checked_at"
+              :time="design.last_checked_at.toString()"
               tooltip-placement="bottom"
               class="js-timeago"
             />
