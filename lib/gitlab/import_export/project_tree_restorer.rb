@@ -28,8 +28,10 @@ module Gitlab
 
         RelationRenameService.rename(@tree_hash)
 
+        # This will only correct the order up until relations are created
+        # See create_relations below
         correct_pipeline_order
-
+        
         ActiveRecord::Base.uncached do
           ActiveRecord::Base.no_touching do
             create_relations
@@ -239,7 +241,7 @@ module Gitlab
       end
 
       def correct_pipeline_order
-        @tree_hash['ci_pipelines']&.sort_by! { |pipeline| pipeline['created_at'] || Date.new(9999).to_s }
+        @tree_hash['ci_pipelines']&.sort_by! { |pipeline| pipeline['created_at'] || DateTime.new(9999).to_s }
       end
     end
   end

@@ -23,7 +23,7 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
         allow_any_instance_of(Gitlab::Git::Repository).to receive(:create_branch)
 
         project_tree_restorer = described_class.new(user: @user, shared: @shared, project: @project)
-
+        
         expect(Gitlab::ImportExport::RelationFactory).to receive(:create).with(hash_including(excluded_keys: ['whatever'])).and_call_original.at_least(:once)
         allow(project_tree_restorer).to receive(:excluded_keys_for_relation).and_return(['whatever'])
 
@@ -61,12 +61,21 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
       it 'has milestones associated to two separate issues' do
         expect(Milestone.find_by_description('test milestone').issues.count).to eq(2)
       end
-
+      
       it 'has ci pipeline builds in reverse chronological order' do
-        first_build = @project.ci_pipelines.first
-        last_build = @project.ci_pipelines.last
 
-        expect(first_build["created_at"]).to be < last_build["created_at"]
+        expected_order = [
+          "2016-03-22 15:20:39 UTC",
+          "2016-03-22 15:20:38 UTC",
+          "2016-03-22 15:20:37 UTC",
+          "2016-03-22 15:20:36 UTC",
+          "2016-03-22 15:20:35 UTC"
+        ]
+
+        project = Project.find_by_path('project')
+        project.ci_pipelines.each_with_index { | (pipeline), i |
+          expect(pipeline["created_at"].to_s).to eq expected_order[i]
+        }
       end
 
       context 'when importing a project with cached_markdown_version and note_html' do

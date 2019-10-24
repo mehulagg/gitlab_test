@@ -195,6 +195,8 @@ module Ci
       end
     end
 
+    default_scope { order(created_at: :desc) }
+
     scope :internal, -> { where(source: internal_sources) }
     scope :ci_sources, -> { where(config_source: ci_sources_values) }
 
