@@ -10,7 +10,7 @@ type: reference, how-to
 (historically provided by the Sourcegraph browser extension) including hover tooltips and go-to-definition
 working by default for all users.
 
-## Configuration **(CORE ONLY)**
+## Setup **(CORE ONLY)**
 
 > These steps are required for self-managed instances.
 > Once enabled in your instance, it will become available to all projects (public, internal, and private).
