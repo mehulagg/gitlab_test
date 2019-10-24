@@ -1,5 +1,5 @@
 .auto-deploy:
-  image: "registry.gitlab.com/gitlab-org/cluster-integration/auto-deploy-image:v0.3.0"
+  image: "registry.gitlab.com/gitlab-org/cluster-integration/auto-deploy-image/use-helm-install-image:43334ef3e6351d729e95ded8815774f3e4e2fa00"
 
 review:
   extends: .auto-deploy
