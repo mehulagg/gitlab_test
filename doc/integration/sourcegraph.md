@@ -2,7 +2,7 @@
 type: reference, how-to
 ---
 
-# Sourcegraph
+# Sourcegraph integration
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/16556) in GitLab X.X.
 
