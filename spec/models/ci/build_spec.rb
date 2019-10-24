@@ -3695,6 +3695,16 @@ describe Ci::Build do
 
       it { is_expected.to be_falsey }
     end
+
+    context 'when options is a string' do
+      let(:options) { nil }
+
+      before do
+        build.write_attribute(:options, %{{"artifacts"=>{"reports"=>{"junit"=>"junit.xml"}}}})
+      end
+
+      it { is_expected.to be_truthy }
+    end
   end
 
   describe '#runner_required_feature_names' do

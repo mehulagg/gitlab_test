@@ -37,7 +37,9 @@ module Ci
     end
 
     def options
-      read_metadata_attribute(:options, :config_options, {})
+      ret = read_metadata_attribute(:options, :config_options, {})
+      return ret if ret.nil? || ret.is_a?(HashWithIndifferentAccess)
+      HashWithIndifferentAccess.new(JSON.parse(ret.gsub('=>', ':'))) rescue { }
     end
 
     def yaml_variables
