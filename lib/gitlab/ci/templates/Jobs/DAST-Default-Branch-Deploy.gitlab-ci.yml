@@ -1,5 +1,5 @@
 .auto-deploy:
-  image: "registry.gitlab.com/gitlab-org/cluster-integration/auto-deploy-image/use-helm-install-image:43334ef3e6351d729e95ded8815774f3e4e2fa00"
+  image: "registry.gitlab.com/gitlab-org/cluster-integration/auto-deploy-image/use-helm-install-image:eec83aa7112b1831fa3e701bcf0208c92fad488c"
 
 dast_environment_deploy:
   extends: .auto-deploy
