@@ -3,7 +3,7 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import { GlToast } from '@gitlab/ui';
 import VueDraggable from 'vuedraggable';
 import MockAdapter from 'axios-mock-adapter';
-import Dashboard from '~/monitoring/components/dashboard.vue';
+import Dashboard from '~/monitoring/components/dashboard/dashboard.vue';
 import * as types from '~/monitoring/stores/mutation_types';
 import { createStore } from '~/monitoring/stores';
 import axios from '~/lib/utils/axios_utils';
@@ -13,7 +13,7 @@ import MonitoringMock, {
   environmentData,
   singleGroupResponse,
   dashboardGitResponse,
-} from '../mock_data';
+} from '../../mock_data';
 
 const localVue = createLocalVue();
 const propsData = {

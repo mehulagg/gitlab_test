@@ -3,10 +3,8 @@ import _ from 'underscore';
 import { mapActions, mapState } from 'vuex';
 import VueDraggable from 'vuedraggable';
 import {
-  GlButton,
   GlDropdown,
   GlDropdownItem,
-  GlFormGroup,
   GlModal,
   GlModalDirective,
   GlTooltipDirective,
@@ -14,16 +12,21 @@ import {
 import { __, s__ } from '~/locale';
 import createFlash from '~/flash';
 import Icon from '~/vue_shared/components/icon.vue';
-import { getParameterValues, mergeUrlParams, redirectTo } from '~/lib/utils/url_utility';
+import { getParameterValues, mergeUrlParams } from '~/lib/utils/url_utility';
 import invalidUrl from '~/lib/utils/invalid_url';
 import PanelType from 'ee_else_ce/monitoring/components/panel_type.vue';
-import DateTimePicker from './date_time_picker/date_time_picker.vue';
-import MonitorTimeSeriesChart from './charts/time_series.vue';
-import MonitorSingleStatChart from './charts/single_stat.vue';
-import GraphGroup from './graph_group.vue';
-import EmptyState from './empty_state.vue';
+import DashboardHeader from './dashboard_header.vue';
+import MonitorTimeSeriesChart from '../charts/time_series.vue';
+import MonitorSingleStatChart from '../charts/single_stat.vue';
+import GraphGroup from '../graph_group.vue';
+import EmptyState from '../empty_state.vue';
 import TrackEventDirective from '~/vue_shared/directives/track_event';
-import { getTimeDiff, isValidDate, downloadCSVOptions, generateLinkToChartOptions } from '../utils';
+import {
+  getTimeDiff,
+  isValidDate,
+  downloadCSVOptions,
+  generateLinkToChartOptions,
+} from '~/monitoring/utils';
 
 export default {
   components: {
@@ -34,12 +37,10 @@ export default {
     GraphGroup,
     EmptyState,
     Icon,
-    GlButton,
     GlDropdown,
     GlDropdownItem,
-    GlFormGroup,
     GlModal,
-    DateTimePicker,
+    DashboardHeader,
   },
   directives: {
     GlModal: GlModalDirective,
@@ -302,148 +303,24 @@ export default {
     groupHasData(group) {
       return this.chartsWithData(group.metrics).length > 0;
     },
-    onDateTimePickerApply(timeWindowUrlParams) {
-      return redirectTo(mergeUrlParams(timeWindowUrlParams, window.location.href));
-    },
     downloadCSVOptions,
     generateLinkToChartOptions,
-  },
-  addMetric: {
-    title: s__('Metrics|Add metric'),
-    modalId: 'add-metric',
   },
 };
 </script>
 
 <template>
   <div class="prometheus-graphs">
-    <div class="prometheus-graphs-header gl-p-3 pb-0 border-bottom bg-gray-light">
-      <div class="row">
-        <template v-if="environmentsEndpoint">
-          <gl-form-group
-            :label="__('Dashboard')"
-            label-size="sm"
-            label-for="monitor-dashboards-dropdown"
-            class="col-sm-12 col-md-6 col-lg-2"
-          >
-            <gl-dropdown
-              id="monitor-dashboards-dropdown"
-              class="mb-0 d-flex js-dashboards-dropdown"
-              toggle-class="dropdown-menu-toggle"
-              :text="selectedDashboardText"
-            >
-              <gl-dropdown-item
-                v-for="dashboard in allDashboards"
-                :key="dashboard.path"
-                :active="dashboard.path === currentDashboard"
-                active-class="is-active"
-                :href="`?dashboard=${dashboard.path}`"
-                >{{ dashboard.display_name || dashboard.path }}</gl-dropdown-item
-              >
-            </gl-dropdown>
-          </gl-form-group>
-
-          <gl-form-group
-            :label="s__('Metrics|Environment')"
-            label-size="sm"
-            label-for="monitor-environments-dropdown"
-            class="col-sm-6 col-md-6 col-lg-2"
-          >
-            <gl-dropdown
-              id="monitor-environments-dropdown"
-              class="mb-0 d-flex js-environments-dropdown"
-              toggle-class="dropdown-menu-toggle"
-              :text="currentEnvironmentName"
-              :disabled="environments.length === 0"
-            >
-              <gl-dropdown-item
-                v-for="environment in environments"
-                :key="environment.id"
-                :active="environment.name === currentEnvironmentName"
-                active-class="is-active"
-                :href="environment.metrics_path"
-                >{{ environment.name }}</gl-dropdown-item
-              >
-            </gl-dropdown>
-          </gl-form-group>
-
-          <gl-form-group
-            v-if="!showEmptyState"
-            :label="s__('Metrics|Show last')"
-            label-size="sm"
-            label-for="monitor-time-window-dropdown"
-            class="col-sm-6 col-md-6 col-lg-4"
-          >
-            <date-time-picker
-              :selected-time-window="selectedTimeWindow"
-              @onApply="onDateTimePickerApply"
-            />
-          </gl-form-group>
-        </template>
-
-        <gl-form-group
-          v-if="addingMetricsAvailable || showRearrangePanelsBtn || externalDashboardUrl.length"
-          label-for="prometheus-graphs-dropdown-buttons"
-          class="dropdown-buttons col-md d-md-flex col-lg d-lg-flex align-items-end"
-        >
-          <div id="prometheus-graphs-dropdown-buttons">
-            <gl-button
-              v-if="showRearrangePanelsBtn"
-              :pressed="isRearrangingPanels"
-              variant="default"
-              class="mr-2 mt-1 js-rearrange-button"
-              @click="toggleRearrangingPanels"
-            >
-              {{ __('Arrange charts') }}
-            </gl-button>
-            <gl-button
-              v-if="addingMetricsAvailable"
-              v-gl-modal="$options.addMetric.modalId"
-              variant="outline-success"
-              class="mr-2 mt-1 js-add-metric-button"
-            >
-              {{ $options.addMetric.title }}
-            </gl-button>
-            <gl-modal
-              v-if="addingMetricsAvailable"
-              ref="addMetricModal"
-              :modal-id="$options.addMetric.modalId"
-              :title="$options.addMetric.title"
-            >
-              <form ref="customMetricsForm" :action="customMetricsPath" method="post">
-                <custom-metrics-form-fields
-                  :validate-query-path="validateQueryPath"
-                  form-operation="post"
-                  @formValidation="setFormValidity"
-                />
-              </form>
-              <div slot="modal-footer">
-                <gl-button @click="hideAddMetricModal">{{ __('Cancel') }}</gl-button>
-                <gl-button
-                  :disabled="!formIsValid"
-                  variant="success"
-                  @click="submitCustomMetricsForm"
-                >
-                  {{ __('Save changes') }}
-                </gl-button>
-              </div>
-            </gl-modal>
-
-            <gl-button
-              v-if="externalDashboardUrl.length"
-              class="mt-1 js-external-dashboard-link"
-              variant="primary"
-              :href="externalDashboardUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {{ __('View full dashboard') }}
-              <icon name="external-link" />
-            </gl-button>
-          </div>
-        </gl-form-group>
-      </div>
-    </div>
+    <dashboard-header
+      :current-environment-name="currentEnvironmentName"
+      :external-dashboard-url="externalDashboardUrl"
+      :selected-time-window="selectedTimeWindow"
+      :current-dashboard="currentDashboard"
+      :custom-metrics-available="customMetricsAvailable"
+      :custom-metrics-path="customMetricsPath"
+      :rearrange-panels-available="rearrangePanelsAvailable"
+      :validate-query-path="validateQueryPath"
+    />
 
     <div v-if="!showEmptyState">
       <graph-group
