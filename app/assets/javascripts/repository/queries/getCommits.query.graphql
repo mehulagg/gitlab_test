@@ -3,6 +3,7 @@ query getCommits {
     sha
     message
     committedDate
+    committedTimeago
     commitPath
     fileName
     type

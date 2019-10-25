@@ -2,15 +2,20 @@ import axios from '~/lib/utils/axios_utils';
 import getCommits from './queries/getCommits.query.graphql';
 import getProjectPath from './queries/getProjectPath.query.graphql';
 import getRef from './queries/getRef.query.graphql';
+import { truncate } from '../lib/utils/text_utility';
+import { getTimeago } from '../lib/utils/datetime_utility';
 
 let fetchpromise;
 let resolvers = [];
 
 export function normalizeData(data) {
+  const timeago = getTimeago();
+
   return data.map(d => ({
     sha: d.commit.id,
-    message: d.commit.message,
+    message: truncate(d.commit.message, 100),
     committedDate: d.commit.committed_date,
+    committedTimeago: timeago.format(d.commit.committed_date),
     commitPath: d.commit_path,
     fileName: d.file_name,
     type: d.type,

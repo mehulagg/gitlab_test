@@ -99,6 +99,22 @@
 
   .tree-table {
     margin-bottom: 0;
+    
+    &.tree-table-vue {
+      table-layout: fixed;
+
+      th:nth-child(1) {
+        width: 30%;
+      }
+
+      th:nth-child(2) {
+        width: 50%;
+      }
+
+      th:nth-child(3) {
+        width: 20%;
+      }
+    }
 
     tr {
       border-bottom: 1px solid $white-normal;

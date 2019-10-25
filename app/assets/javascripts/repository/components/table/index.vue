@@ -117,7 +117,7 @@ export default {
 <template>
   <div class="tree-content-holder">
     <div class="table-holder bordered-box">
-      <table class="table tree-table qa-file-tree" aria-live="polite">
+      <table class="table tree-table tree-table-vue qa-file-tree" aria-live="polite">
         <caption class="sr-only">
           {{
             tableCaption

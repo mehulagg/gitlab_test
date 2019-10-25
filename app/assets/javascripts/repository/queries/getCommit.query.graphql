@@ -3,6 +3,7 @@ query getCommit($fileName: String!, $type: String!, $path: String!) {
     sha
     message
     committedDate
+    committedTimeago
     commitPath
     fileName
     type
