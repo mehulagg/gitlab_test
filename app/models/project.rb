@@ -255,13 +255,16 @@ class Project < ApplicationRecord
   has_many :commit_statuses
   # The relation :all_pipelines is intended to be used when we want to get the
   # whole list of pipelines associated to the project
-  has_many :all_pipelines, class_name: 'Ci::Pipeline', inverse_of: :project
+  has_many :all_pipelines, 
+          -> { order "created_at DESC" },
+          class_name: 'Ci::Pipeline', 
+          inverse_of: :project
   # The relation :ci_pipelines is intended to be used when we want to get only
   # those pipeline which are directly related to CI. There are
   # other pipelines, like webide ones, that we won't retrieve
   # if we use this relation.
   has_many :ci_pipelines,
-          -> { ci_sources },
+          -> { ci_sources.order(created_at: :desc) },
           class_name: 'Ci::Pipeline',
           inverse_of: :project
   has_many :stages, class_name: 'Ci::Stage', inverse_of: :project
