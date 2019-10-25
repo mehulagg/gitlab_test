@@ -128,9 +128,10 @@ export default {
           <parent-row v-show="showParentRow" :commit-ref="ref" :path="path" />
           <template v-for="val in entries">
             <table-row
-              v-for="entry in val"
+              v-for="(entry, index) in val"
               :id="entry.id"
               :key="`${entry.flatPath}-${entry.id}`"
+              :index="index"
               :project-path="projectPath"
               :current-path="path"
               :name="entry.name"

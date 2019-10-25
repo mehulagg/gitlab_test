@@ -26,6 +26,10 @@ export default {
   },
   mixins: [getRefMixin],
   props: {
+    index: {
+      type: Number,
+      required: true,
+    },
     id: {
       type: String,
       required: true,
@@ -125,13 +129,17 @@ export default {
       <a v-if="commit" :href="commit.commitPath" class="tree-commit-link str-truncated-100">
         {{ commit.message }}
       </a>
-      <gl-skeleton-loading v-else :lines="1" class="h-auto" />
+      <gl-skeleton-loading v-else-if="index <= 25 && type === 'tree'" :lines="1" class="h-auto" />
     </td>
     <td class="tree-time-ago text-right">
       <time v-if="commit" :datetime="commit.committedDate" :title="commit.committedDate">
         {{ commit.committedTimeago }}
       </time>
-      <gl-skeleton-loading v-else :lines="1" class="ml-auto h-auto w-50" />
+      <gl-skeleton-loading
+        v-else-if="index <= 25 && type === 'tree'"
+        :lines="1"
+        class="ml-auto h-auto w-50"
+      />
     </td>
   </tr>
 </template>
