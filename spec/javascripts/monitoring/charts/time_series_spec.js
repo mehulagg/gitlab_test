@@ -247,10 +247,6 @@ describe('Time series component', () => {
             expect(optionSeries.length).toEqual(2);
             expect(optionSeries[0].name).toEqual(mockSeriesName);
           });
-
-          afterEach(() => {
-            timeSeriesChart.setProps({ option: {} });
-          });
         });
 
         describe('yAxis formatter', () => {

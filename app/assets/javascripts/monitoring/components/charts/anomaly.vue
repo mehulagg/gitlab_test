@@ -1,4 +1,5 @@
 <script>
+import { flatten, isNumber } from 'underscore';
 import { GlLineChart, GlChartSeriesLabel } from '@gitlab/ui/dist/charts';
 import { roundOffFloat } from '~/lib/utils/common_utils';
 import { hexToRgb } from '~/lib/utils/color_utils';
@@ -12,6 +13,13 @@ import MonitorTimeSeriesChart from './time_series.vue';
 const METRIC = 0;
 const UPPER = 1;
 const LOWER = 2;
+
+/**
+ * Boundary area appearance
+ */
+const AREA_COLOR = colorValues.anomalyAreaColor;
+const AREA_OPACITY = areaOpacityValues.default;
+const AREA_COLOR_RGBA = `rgba(${hexToRgb(AREA_COLOR).join(',')},${AREA_OPACITY})`;
 
 /**
  * The anomaly component highlights when a metric shows
@@ -94,18 +102,14 @@ export default {
     },
     /**
      * If any of the values of the data is negative, the
-     * chart data is shifted by the lowest value
+     * chart data is shifted to the lowest value
      *
      * This offset is the lowest value.
      */
     yOffset() {
-      const minVals = this.series.map(ser =>
-        ser.data.reduce((min, datapoint) => {
-          const [, yVal] = datapoint;
-          return Math.floor(Math.min(min, yVal));
-        }, Infinity),
-      );
-      return -Math.min(...minVals);
+      const values = flatten(this.series.map(ser => ser.data.map(([, y]) => y)));
+      const min = values.length ? Math.floor(Math.min(...values)) : 0;
+      return min < 0 ? -min : 0;
     },
     metricData() {
       const originalMetricQuery = this.graphData.queries[0];
@@ -120,10 +124,6 @@ export default {
         type: 'line-chart',
         queries: [metricQuery],
       };
-    },
-    areaColorRgba() {
-      const rgb = hexToRgb(this.areaColor);
-      return `rgba(${rgb.join(',')},${this.areaOpacity})`;
     },
     metricSeriesConfig() {
       return {
@@ -186,8 +186,8 @@ export default {
             name: this.formatLegendLabel(upperSeries),
             data: calcOffsetY(upperSeries.data, i => -this.yValue(LOWER, i)),
             areaStyle: {
-              color: this.areaColor,
-              opacity: this.areaOpacity,
+              color: AREA_COLOR,
+              opacity: AREA_OPACITY,
             },
           }),
         );
@@ -201,26 +201,17 @@ export default {
     },
     yValue(seriesIndex, dataIndex) {
       const d = this.series[seriesIndex].data[dataIndex];
-      if (d && d[1]) {
-        return d[1];
-      }
-      return null;
+      return d && d[1];
     },
     yValueFormatted(seriesIndex, dataIndex) {
       const y = this.yValue(seriesIndex, dataIndex);
-      return y.toFixed(3);
+      return isNumber(y) ? y.toFixed(3) : '';
     },
     isDatapointAnomaly(dataIndex) {
       const yVal = this.yValue(METRIC, dataIndex);
       const yUpper = this.yValue(UPPER, dataIndex);
-      if (yUpper && yVal > yUpper) {
-        return true;
-      }
       const yLower = this.yValue(LOWER, dataIndex);
-      if (yLower && yVal < yLower) {
-        return true;
-      }
-      return false;
+      return (isNumber(yUpper) && yVal > yUpper) || (isNumber(yLower) && yVal < yLower);
     },
     makeBoundarySeries(series) {
       const stackKey = 'anomaly-boundary-series-stack';
@@ -229,9 +220,9 @@ export default {
         stack: stackKey,
         lineStyle: {
           width: 0,
-          color: this.areaColorRgba, // legend color
+          color: AREA_COLOR_RGBA, // legend color
         },
-        color: this.areaColorRgba, // tooltip color
+        color: AREA_COLOR_RGBA, // tooltip color
         symbol: 'none',
         ...series,
       };

@@ -141,17 +141,10 @@ export default {
       }, []);
     },
     chartOptionSeries() {
-      let series = [];
-      if (this.option.series) {
-        series = [...this.option.series];
-      }
-      if (this.scatterSeries) {
-        series.push(this.scatterSeries);
-      }
-      return series;
+      return (this.option.series || []).concat(this.scatterSeries ? [this.scatterSeries] : []);
     },
     chartOptions() {
-      const option = _.omit(this.option || {}, 'series');
+      const option = _.omit(this.option, 'series');
       return {
         series: this.chartOptionSeries,
         xAxis: {
@@ -179,6 +172,14 @@ export default {
 
       return handleIcon ? { handleIcon } : {};
     },
+    /**
+     * This method returns the earliest time value in all series of a chart.
+     * Takes a chart data with data to populate a timeseries.
+     * data should be an array of data points [t, y] where t is a ISO formatted date,
+     * and is sorted by t (time).
+     * @returns {(String|null)} earliest x value from all series, or null when the
+     * chart series data is empty.
+     */
     earliestDatapoint() {
       return this.chartData.reduce((acc, series) => {
         const { data } = series;

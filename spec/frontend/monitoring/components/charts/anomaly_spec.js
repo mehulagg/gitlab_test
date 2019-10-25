@@ -162,6 +162,12 @@ describe('Anomaly chart component', () => {
             expect(color).toBe(colorValues.primaryColor);
           });
         });
+
+        it('can format y values (to use in tooltips)', () => {
+          expect(parseFloat(wrapper.vm.yValueFormatted(0, 0))).toEqual(dataSet[0][0][1]);
+          expect(parseFloat(wrapper.vm.yValueFormatted(1, 0))).toEqual(dataSet[1][0][1]);
+          expect(parseFloat(wrapper.vm.yValueFormatted(2, 0))).toEqual(dataSet[2][0][1]);
+        })
       });
 
       describe('inherited properties', () => {
@@ -187,6 +193,7 @@ describe('Anomaly chart component', () => {
 
   describe('with no boundary data', () => {
     const dataSetName = 'noBoundary';
+    const dataSet = anomalyMockResultValues[dataSetName];
 
     beforeEach(() => {
       setupAnomalyChart({
@@ -208,6 +215,12 @@ describe('Anomaly chart component', () => {
         expect(series).toEqual(expect.any(Array));
         expect(series.length).toEqual(0); // no boundaries
       });
+
+      it('can format y values (to use in tooltips)', () => {
+        expect(parseFloat(wrapper.vm.yValueFormatted(0, 0))).toEqual(dataSet[0][0][1]);
+        expect(wrapper.vm.yValueFormatted(1, 0)).toBe(''); // missing boundary
+        expect(wrapper.vm.yValueFormatted(2, 0)).toBe(''); // missing boundary
+      })
     });
   });
 
