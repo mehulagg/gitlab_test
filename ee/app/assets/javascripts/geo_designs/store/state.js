@@ -1,3 +1,5 @@
+import { FILTER_STATES } from './constants';
+
 export default () => ({
   endpoint: '',
 
@@ -8,5 +10,6 @@ export default () => ({
 
   searchFilter: '',
   currentFilterIndex: 0,
-  filterOptions: ['all', 'synced', 'pending', 'failed', 'never'],
+  filterStates: FILTER_STATES,
+  filterOptions: Object.values(FILTER_STATES),
 });

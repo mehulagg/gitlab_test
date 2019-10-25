@@ -22,8 +22,9 @@ export default () => {
       geoDesignsApp,
     },
     data() {
-      const { dataset } = this.$options.el;
-      const { geoDesignsPath } = dataset;
+      const {
+        dataset: { geoDesignsPath },
+      } = this.$options.el;
 
       return {
         geoDesignsPath,

@@ -1,5 +1,6 @@
 <script>
 import Icon from '~/vue_shared/components/icon.vue';
+import { mapState } from 'vuex';
 
 export default {
   name: 'GeoDesignStatus',
@@ -13,31 +14,40 @@ export default {
       default: null,
     },
   },
+  data() {
+    return {
+      iconName: '',
+      iconClass: '',
+    };
+  },
   computed: {
-    icon() {
-      if (this.status === 'synced') {
-        return {
-          name: 'status_closed',
-          colorClass: 'text-success',
-        };
-      }
-      if (this.status === 'pending') {
-        return {
-          name: 'status_scheduled',
-          colorClass: 'text-warning',
-        };
-      }
-      if (this.status === 'failed') {
-        return {
-          name: 'status_failed',
-          colorClass: 'text-danger',
-        };
-      }
+    ...mapState(['filterStates']),
+  },
+  created() {
+    this.iconProperties(this.status);
+  },
+  methods: {
+    iconProperties(status) {
+      switch (status) {
+        case this.filterStates.SYNCED:
+          this.iconName = 'status_closed';
+          this.iconClass = 'text-success';
+          break;
 
-      return {
-        name: 'status_notfound',
-        colorClass: 'text-muted',
-      };
+        case this.filterStates.PENDING:
+          this.iconName = 'status_scheduled';
+          this.iconClass = 'text-warning';
+          break;
+
+        case this.filterStates.FAILED:
+          this.iconName = 'status_failed';
+          this.iconClass = 'text-danger';
+          break;
+
+        default:
+          this.iconName = 'status_notfound';
+          this.iconClass = 'text-muted';
+      }
     },
   },
 };
@@ -46,7 +56,7 @@ export default {
 <template>
   <div>
     <span class="d-flex align-items-center text-capitalize">
-      <icon :name="icon.name" :class="icon.colorClass" class="mr-2" />
+      <icon :name="iconName" :class="iconClass" class="mr-2" />
       {{ status || 'never' }}
     </span>
   </div>

@@ -17,6 +17,15 @@ export default {
 
 <template>
   <section>
-    <geo-design v-for="design in designs" :key="design.id" :design="design" />
+    <geo-design
+      v-for="design in designs"
+      :key="design.id"
+      :name="design.name"
+      :url="design.url"
+      :sync-status="design.sync_status"
+      :last-synced="design.last_synced_at"
+      :last-verified="design.last_verified_at"
+      :last-checked="design.last_checked_at"
+    />
   </section>
 </template>

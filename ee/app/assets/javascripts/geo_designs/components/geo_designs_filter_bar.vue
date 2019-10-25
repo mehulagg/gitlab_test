@@ -45,12 +45,12 @@ export default {
           <template v-slot:button-content>
             <span>
               <icon name="cloud-gear" />
-              {{ __("Batch operations") }}
+              {{ __('Batch operations') }}
               <icon name="chevron-down" />
             </span>
           </template>
-          <gl-dropdown-item>{{ __("Resync all designs") }}</gl-dropdown-item>
-          <gl-dropdown-item>{{ __("Reverify all designs") }}</gl-dropdown-item>
+          <gl-dropdown-item>{{ __('Resync all designs') }}</gl-dropdown-item>
+          <gl-dropdown-item>{{ __('Reverify all designs') }}</gl-dropdown-item>
         </gl-dropdown>
       </div>
     </template>
