@@ -137,7 +137,7 @@ module Gitlab
           revision: encode_binary(revision)
         )
 
-        response = GitalyClient.call(@gitaly_repo.storage_name, :blob_service, :get_all_lfs_pointers, request, timeout: GitalyClient.medium_timeout)
+        response = GitalyClient.call(@gitaly_repo.storage_name, :blob_service, :get_all_lfs_pointers, request, timeout: GitalyClient.long_timeout)
 
         map_lfs_pointers(response)
       end
