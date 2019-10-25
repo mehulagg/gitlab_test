@@ -2,7 +2,6 @@ import axios from '~/lib/utils/axios_utils';
 import getCommits from './queries/getCommits.query.graphql';
 import getProjectPath from './queries/getProjectPath.query.graphql';
 import getRef from './queries/getRef.query.graphql';
-import { truncate } from '../lib/utils/text_utility';
 import { getTimeago } from '../lib/utils/datetime_utility';
 
 let fetchpromise;
