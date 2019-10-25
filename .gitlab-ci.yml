@@ -5,6 +5,7 @@ stages:
   - check
   - test
   - notify
+  - release
 
 variables:
   TEST_IMAGE: registry.gitlab.com/gitlab-org/gitlab-build-images:gitlab-qa
@@ -717,3 +718,16 @@ staging:
     - .high-capacity
     - .only-qa
   when: manual
+
+release:
+  stage: release
+  script:
+    - mv $RUBYGEMS_GITLAB_QA_CREDENTIALS ~/.gem/credentials && chmod 0600 ~/.gem/credentials
+    - bundle exec rake release
+  artifacts:
+    paths:
+      - pkg/
+    expire_in: 30 days
+  only:
+    refs:
+      - tags
