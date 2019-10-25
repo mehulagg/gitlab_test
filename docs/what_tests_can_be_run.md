@@ -82,6 +82,32 @@ For more details on the internals, please read the
 It is possible to enable a feature flag before running tests. See the [QA
 framework documentation](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/qa/README.md#running-tests-with-a-feature-flag-enabled) for details.
 
+## Specifying the GitLab version
+
+In each of the examples below, it is possible to test a specific version of GitLab
+by providing the full image name, or an abbreviation followed by the image tag.
+
+For example, to test GitLab version `12.4.0-ee`, the image tag is [`12.4.0-ee.0`](https://hub.docker.com/layers/gitlab/gitlab-ee/12.4.0-ee.0/images/sha256-65df19d8abbb0debdccb64bfe96871563806098cd84da0b818ae8cfdd928b9aa)
+and so you could run the tests with the command:
+
+```
+$ gitlab-qa Test::Instance::Image gitlab/gitlab-ee:12.4.0-ee.0
+```
+
+Or with the command:
+
+```
+$ gitlab-qa Test::Instance::Image EE:12.4.0-ee.0
+```
+
+If you only provide the abbreviation, it will run the tests against the latest nightly image.
+
+For example, the following command would use the image named `gitlab/gitlab-ee:nightly`
+
+```
+$ gitlab-qa Test::Instance::Image EE
+```
+
 ## Examples
 
 ### `Test::Instance::Image CE|EE|<full image address>`
