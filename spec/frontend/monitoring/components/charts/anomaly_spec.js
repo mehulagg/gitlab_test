@@ -167,7 +167,7 @@ describe('Anomaly chart component', () => {
           expect(parseFloat(wrapper.vm.yValueFormatted(0, 0))).toEqual(dataSet[0][0][1]);
           expect(parseFloat(wrapper.vm.yValueFormatted(1, 0))).toEqual(dataSet[1][0][1]);
           expect(parseFloat(wrapper.vm.yValueFormatted(2, 0))).toEqual(dataSet[2][0][1]);
-        })
+        });
       });
 
       describe('inherited properties', () => {
@@ -220,7 +220,7 @@ describe('Anomaly chart component', () => {
         expect(parseFloat(wrapper.vm.yValueFormatted(0, 0))).toEqual(dataSet[0][0][1]);
         expect(wrapper.vm.yValueFormatted(1, 0)).toBe(''); // missing boundary
         expect(wrapper.vm.yValueFormatted(2, 0)).toBe(''); // missing boundary
-      })
+      });
     });
   });
 
