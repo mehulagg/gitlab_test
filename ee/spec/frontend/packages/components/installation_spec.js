@@ -18,7 +18,7 @@ describe('PackageInstallation', () => {
   const npmInstall = `npm i ${packageScopeName}`;
   const npmSetup = `echo ${packageScope}:registry=${registryUrl} >> .npmrc`;
   const yarnInstall = `yarn add ${packageScopeName}`;
-  const yarnSetup = `echo "${packageScopeName}" ${registryUrl} >> .yarnrc`;
+  const yarnSetup = `echo \\"${packageScope}:registry\\" \\"${registryUrl}\\" >> .yarnrc`;
 
   const installCommand = type => wrapper.find(`.js-${type}-install > input`);
   const setupCommand = type => wrapper.find(`.js-${type}-setup > input`);

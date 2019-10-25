@@ -37,21 +37,22 @@ export default {
 
       return this.registryUrl;
     },
+    npmScope() {
+      return this.name.substring(0, this.name.indexOf('/'));
+    },
     npmCommand() {
       // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
       return `npm i ${this.name}`;
     },
     npmSetupCommand() {
-      const scope = this.name.substring(0, this.name.indexOf('/'));
-      return `echo ${scope}:registry=${this.packageRegistryUrl} >> .npmrc`;
+      return `echo ${this.npmScope}:registry=${this.packageRegistryUrl} >> .npmrc`;
     },
     yarnCommand() {
       // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
       return `yarn add ${this.name}`;
     },
     yarnSetupCommand() {
-      // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
-      return `echo "${this.name}" ${this.packageRegistryUrl} >> .yarnrc`;
+      return `echo \\"${this.npmScope}:registry\\" \\"${this.packageRegistryUrl}\\" >> .yarnrc`;
     },
     helpText() {
       return sprintf(
