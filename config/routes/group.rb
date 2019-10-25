@@ -17,7 +17,7 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
       get :details, as: :details_group
       get :activity, as: :activity_group
       put :transfer, as: :transfer_group
-      # TODO: Remove as part of refactor in https://gitlab.com/gitlab-org/gitlab-ce/issues/49693
+      # TODO: Remove as part of refactor in https://gitlab.com/gitlab-org/gitlab-foss/issues/49693
       get 'shared', action: :show, as: :group_shared
       get 'archived', action: :show, as: :group_archived
     end
@@ -30,7 +30,7 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
         as: :group,
         constraints: { group_id: Gitlab::PathRegex.full_namespace_route_regex }) do
     namespace :settings do
-      resource :ci_cd, only: [:show], controller: 'ci_cd' do
+      resource :ci_cd, only: [:show, :update], controller: 'ci_cd' do
         put :reset_registration_token
         patch :update_auto_devops
       end
@@ -77,6 +77,8 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
         post :pause
       end
     end
+
+    resources :container_registries, only: [:index], controller: 'registry/repositories'
   end
 
   scope(path: '*id',

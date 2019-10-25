@@ -1,5 +1,17 @@
 - page_description brand_title unless page_description
 
+-# Needs a redirect on the client side since it's using an anchor to distuingish
+-# between sign in and registration. We need to inline the JS to not render
+-# anything from this page beforehand.
+-# Part of an experiment to build a new sign up flow. Will be removed again with
+-# https://gitlab.com/gitlab-org/growth/engineering/issues/64
+- if experiment_enabled?(:signup_flow) && current_path?("sessions#new")
+  = javascript_tag nonce: true do
+    :plain
+      if (window.location.hash === '#register-pane') {
+        window.location.replace("/users/sign_up")
+      }
+
 - site_name = "GitLab"
 %head{ prefix: "og: http://ogp.me/ns#" }
   %meta{ charset: "utf-8" }
@@ -77,4 +89,5 @@
 
   = render 'layouts/google_analytics' if extra_config.has_key?('google_analytics_id')
   = render 'layouts/piwik' if extra_config.has_key?('piwik_url') && extra_config.has_key?('piwik_site_id')
-  = render_if_exists 'layouts/snowplow'
+  = render 'layouts/snowplow'
+  = render_if_exists 'layouts/pendo'

@@ -1,4 +1,3 @@
-# encoding: utf-8
 # frozen_string_literal: true
 
 require 'spec_helper'
@@ -319,6 +318,22 @@ describe Blob do
         blob = fake_blob(path: 'file.md')
 
         expect(blob.rich_viewer).to be_a(BlobViewer::Markup)
+      end
+    end
+
+    context 'when the blob is video' do
+      it 'returns a video viewer' do
+        blob = fake_blob(path: 'file.mp4', binary: true)
+
+        expect(blob.rich_viewer).to be_a(BlobViewer::Video)
+      end
+    end
+
+    context 'when the blob is audio' do
+      it 'returns an audio viewer' do
+        blob = fake_blob(path: 'file.wav', binary: true)
+
+        expect(blob.rich_viewer).to be_a(BlobViewer::Audio)
       end
     end
   end

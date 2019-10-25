@@ -1,11 +1,13 @@
 <script>
 import Icon from '~/vue_shared/components/icon.vue';
 import LineNumber from './line_number.vue';
+import DurationBadge from './duration_badge.vue';
 
 export default {
   components: {
     Icon,
     LineNumber,
+    DurationBadge,
   },
   props: {
     line: {
@@ -19,6 +21,11 @@ export default {
     path: {
       type: String,
       required: true,
+    },
+    duration: {
+      type: String,
+      required: false,
+      default: '',
     },
   },
   computed: {
@@ -35,11 +42,20 @@ export default {
 </script>
 
 <template>
-  <div class="line collapsible-line" role="button" @click="handleOnClick">
-    <icon :name="iconName" class="arrow" />
+  <div
+    class="log-line collapsible-line d-flex justify-content-between ws-normal"
+    role="button"
+    @click="handleOnClick"
+  >
+    <icon :name="iconName" class="arrow position-absolute" />
     <line-number :line-number="line.lineNumber" :path="path" />
-    <span v-for="(content, i) in line.content" :key="i" class="line-text" :class="content.style">{{
-      content.text
-    }}</span>
+    <span
+      v-for="(content, i) in line.content"
+      :key="i"
+      class="line-text w-100 ws-pre-wrap"
+      :class="content.style"
+      >{{ content.text }}</span
+    >
+    <duration-badge v-if="duration" :duration="duration" />
   </div>
 </template>

@@ -253,14 +253,14 @@ describe Todo do
     end
   end
 
-  describe '.for_group_and_descendants' do
+  describe '.for_group_ids_and_descendants' do
     it 'returns the todos for a group and its descendants' do
       parent_group = create(:group)
       child_group = create(:group, parent: parent_group)
 
       todo1 = create(:todo, group: parent_group)
       todo2 = create(:todo, group: child_group)
-      todos = described_class.for_group_and_descendants(parent_group)
+      todos = described_class.for_group_ids_and_descendants([parent_group.id])
 
       expect(todos).to contain_exactly(todo1, todo2)
     end
@@ -271,6 +271,22 @@ describe Todo do
       todo = create(:todo)
 
       expect(described_class.any_for_target?(todo.target)).to eq(true)
+    end
+
+    it 'returns true if there is at least one todo for a given target with state pending' do
+      issue = create(:issue)
+      create(:todo, state: :done, target: issue)
+      create(:todo, state: :pending, target: issue)
+
+      expect(described_class.any_for_target?(issue)).to eq(true)
+    end
+
+    it 'returns false if there are only todos for a given target with state done while searching for pending' do
+      issue = create(:issue)
+      create(:todo, state: :done, target: issue)
+      create(:todo, state: :done, target: issue)
+
+      expect(described_class.any_for_target?(issue, :pending)).to eq(false)
     end
 
     it 'returns false if there are no todos for a given target' do

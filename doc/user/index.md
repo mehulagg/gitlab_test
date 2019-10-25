@@ -26,11 +26,11 @@ For more information, see [All GitLab Features](https://about.gitlab.com/feature
 
 To get familiar with the concepts needed to develop code on GitLab, read the following articles:
 
-- [Demo: Mastering Code Review With GitLab](https://about.gitlab.com/2017/03/17/demo-mastering-code-review-with-gitlab/).
-- [GitLab Workflow: An Overview](https://about.gitlab.com/2016/10/25/gitlab-workflow-an-overview/#gitlab-workflow-use-case-scenario).
-- [Tutorial: It's all connected in GitLab](https://about.gitlab.com/2016/03/08/gitlab-tutorial-its-all-connected/): an overview on code collaboration with GitLab.
-- [Trends in Version Control Land: Microservices](https://about.gitlab.com/2016/08/16/trends-in-version-control-land-microservices/).
-- [Trends in Version Control Land: Innersourcing](https://about.gitlab.com/2016/07/07/trends-version-control-innersourcing/).
+- [Demo: Mastering Code Review With GitLab](https://about.gitlab.com/blog/2017/03/17/demo-mastering-code-review-with-gitlab/).
+- [GitLab Workflow: An Overview](https://about.gitlab.com/blog/2016/10/25/gitlab-workflow-an-overview/#gitlab-workflow-use-case-scenario).
+- [Tutorial: It's all connected in GitLab](https://about.gitlab.com/blog/2016/03/08/gitlab-tutorial-its-all-connected/): an overview on code collaboration with GitLab.
+- [Trends in Version Control Land: Microservices](https://about.gitlab.com/blog/2016/08/16/trends-in-version-control-land-microservices/).
+- [Trends in Version Control Land: Innersourcing](https://about.gitlab.com/blog/2016/07/07/trends-version-control-innersourcing/).
 
 ## Use cases
 
@@ -44,7 +44,7 @@ GitLab is a Git-based platform that integrates a great number of essential tools
   branch with [Review Apps](../ci/review_apps/index.md).
 - Building, testing, and deploying with built-in [Continuous Integration](../ci/README.md).
 - Deploying personal and professional static websites with [GitLab Pages](project/pages/index.md).
-- Integrating with Docker by using [GitLab Container Registry](project/container_registry.md).
+- Integrating with Docker by using [GitLab Container Registry](packages/container_registry/index.md).
 - Tracking the development lifecycle by using [GitLab Cycle Analytics](project/cycle_analytics.md).
 
 With GitLab Enterprise Edition, you can also:
@@ -88,11 +88,11 @@ it all at once, from one single project.
 Use built-in [GitLab CI/CD](../ci/README.md) to test, build, and deploy your applications
 directly from GitLab. No third-party integrations needed.
 
-- [GitLab Auto Deploy](../ci/autodeploy/index.md): Deploy your application out-of-the-box with GitLab Auto Deploy.
+- [GitLab Auto Deploy](../topics/autodevops/index.md#auto-deploy): Deploy your application out-of-the-box with GitLab Auto Deploy.
 - [Review Apps](../ci/review_apps/index.md): Live-preview the changes introduced by a merge request with Review Apps.
 - [GitLab Pages](project/pages/index.md): Publish your static site directly from
   GitLab with GitLab Pages. You can build, test, and deploy any Static Site Generator with Pages.
-- [GitLab Container Registry](project/container_registry.md): Build and deploy Docker
+- [GitLab Container Registry](packages/container_registry/index.md): Build and deploy Docker
   images with Container Registry.
 
 ## Account
@@ -130,7 +130,7 @@ gather feedback through [resolvable threads](discussions/index.md#resolvable-com
 
 Read through the [GFM documentation](markdown.md) to learn how to apply
 the best of GitLab Flavored Markdown in your threads, comments,
-issues and merge requests descriptions, and everywhere else GMF is
+issues and merge requests descriptions, and everywhere else GFM is
 supported.
 
 ## Todos

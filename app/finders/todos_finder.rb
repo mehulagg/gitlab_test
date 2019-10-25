@@ -33,6 +33,8 @@ class TodosFinder
   end
 
   def execute
+    return Todo.none if current_user.nil?
+
     items = current_user.todos
     items = by_action_id(items)
     items = by_action(items)
@@ -47,11 +49,12 @@ class TodosFinder
     sort(items)
   end
 
-  # Returns `true` if the current user has any todos for the given target.
+  # Returns `true` if the current user has any todos for the given target with the optional given state.
   #
   # target - The value of the `target_type` column, such as `Issue`.
-  def any_for_target?(target)
-    current_user.todos.any_for_target?(target)
+  # state - The value of the `state` column, such as `pending` or `done`.
+  def any_for_target?(target, state = nil)
+    current_user.todos.any_for_target?(target, state)
   end
 
   private
@@ -64,8 +67,20 @@ class TodosFinder
     params[:action_id]
   end
 
+  def action_array_provided?
+    params[:action].is_a?(Array)
+  end
+
+  def map_actions_to_ids
+    params[:action].map { |item| Todo::ACTION_NAMES.key(item.to_sym) }
+  end
+
   def to_action_id
-    Todo::ACTION_NAMES.key(action.to_sym)
+    if action_array_provided?
+      map_actions_to_ids
+    else
+      Todo::ACTION_NAMES.key(action.to_sym)
+    end
   end
 
   def action?
@@ -132,9 +147,19 @@ class TodosFinder
     end
   end
 
+  def action_id_array_provided?
+    params[:action_id].is_a?(Array) && params[:action_id].any?
+  end
+
+  def by_action_ids(items)
+    items.for_action(action_id)
+  end
+
   def by_action_id(items)
+    return by_action_ids(items) if action_id_array_provided?
+
     if action_id?
-      items.for_action(action_id)
+      by_action_ids(items)
     else
       items
     end
@@ -157,11 +182,9 @@ class TodosFinder
   end
 
   def by_group(items)
-    if group?
-      items.for_group_and_descendants(group)
-    else
-      items
-    end
+    return items unless group?
+
+    items.for_group_ids_and_descendants(params[:group_id])
   end
 
   def by_state(items)

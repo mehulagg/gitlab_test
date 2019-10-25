@@ -259,7 +259,7 @@ describe Environment, :use_clean_rails_memory_store_caching do
     let(:head_commit)   { project.commit }
     let(:commit)        { project.commit.parent }
 
-    it 'returns deployment id for the environment' do
+    it 'returns deployment id for the environment', :sidekiq_might_not_need_inline do
       expect(environment.first_deployment_for(commit.id)).to eq deployment1
     end
 
@@ -267,7 +267,7 @@ describe Environment, :use_clean_rails_memory_store_caching do
       expect(environment.first_deployment_for(head_commit.id)).to eq nil
     end
 
-    it 'returns a UTF-8 ref' do
+    it 'returns a UTF-8 ref', :sidekiq_might_not_need_inline do
       expect(environment.first_deployment_for(commit.id).ref).to be_utf8
     end
   end
@@ -727,6 +727,51 @@ describe Environment, :use_clean_rails_memory_store_caching do
     end
   end
 
+  describe '#prometheus_status' do
+    context 'when a cluster is present' do
+      context 'when a deployment platform is present' do
+        let(:cluster) { create(:cluster, :provided_by_user, :project) }
+        let(:environment) { create(:environment, project: cluster.project) }
+
+        subject { environment.prometheus_status }
+
+        context 'when the prometheus application status is :updating' do
+          let!(:prometheus) { create(:clusters_applications_prometheus, :updating, cluster: cluster) }
+
+          it { is_expected.to eq(:updating) }
+        end
+
+        context 'when the prometheus application state is :updated' do
+          let!(:prometheus) { create(:clusters_applications_prometheus, :updated, cluster: cluster) }
+
+          it { is_expected.to eq(:updated) }
+        end
+
+        context 'when the prometheus application is not installed' do
+          it { is_expected.to be_nil }
+        end
+      end
+
+      context 'when a deployment platform is not present' do
+        let(:cluster) { create(:cluster, :project) }
+        let(:environment) { create(:environment, project: cluster.project) }
+
+        subject { environment.prometheus_status }
+
+        it { is_expected.to be_nil }
+      end
+    end
+
+    context 'when a cluster is not present' do
+      let(:project) { create(:project, :stubbed_repository) }
+      let(:environment) { create(:environment, project: project) }
+
+      subject { environment.prometheus_status }
+
+      it { is_expected.to be_nil }
+    end
+  end
+
   describe '#additional_metrics' do
     let(:project) { create(:prometheus_project) }
     let(:metric_params) { [] }
@@ -880,6 +925,21 @@ describe Environment, :use_clean_rails_memory_store_caching do
           is_expected.to eq :finder
         end
       end
+    end
+  end
+
+  describe '.find_or_create_by_name' do
+    it 'finds an existing environment if it exists' do
+      env = create(:environment)
+
+      expect(described_class.find_or_create_by_name(env.name)).to eq(env)
+    end
+
+    it 'creates an environment if it does not exist' do
+      env = project.environments.find_or_create_by_name('kittens')
+
+      expect(env).to be_an_instance_of(described_class)
+      expect(env).to be_persisted
     end
   end
 end

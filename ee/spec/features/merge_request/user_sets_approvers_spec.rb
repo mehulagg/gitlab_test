@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Merge request > User sets approvers', :js do
@@ -43,7 +45,7 @@ describe 'Merge request > User sets approvers', :js do
       visit project_new_merge_request_path(forked_project, merge_request: { target_branch: 'master', source_branch: 'feature' })
     end
 
-    it 'allows setting other users as approvers but does not allow setting the current user as an approver, and filters non members from approvers list' do
+    it 'allows setting other users as approvers but does not allow setting the current user as an approver, and filters non members from approvers list', :sidekiq_might_not_need_inline do
       open_modal
       open_approver_select
 

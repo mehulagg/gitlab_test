@@ -19,6 +19,7 @@ describe 'Epic show', :js do
   end
 
   let(:epic) { create(:epic, group: group, title: epic_title, description: markdown, author: user) }
+  let!(:not_child) { create(:epic, group: group, title: 'not child epic', description: markdown, author: user, start_date: 50.days.ago, end_date: 10.days.ago) }
   let!(:child_epic_a) { create(:epic, group: group, title: 'Child epic A', description: markdown, parent: epic, start_date: 50.days.ago, end_date: 10.days.ago) }
   let!(:child_epic_b) { create(:epic, group: group, title: 'Child epic B', description: markdown, parent: epic, start_date: 100.days.ago, end_date: 20.days.ago) }
 
@@ -48,25 +49,19 @@ describe 'Epic show', :js do
 
     it 'shows epic tabs' do
       page.within('.js-epic-tabs-container') do
-        expect(find('.epic-tabs #discussion-tab')).to have_content('Discussion')
-        expect(find('.epic-tabs #tree-tab')).to have_content('Tree')
+        expect(find('.epic-tabs #tree-tab')).to have_content('Epics and Issues')
         expect(find('.epic-tabs #roadmap-tab')).to have_content('Roadmap')
       end
     end
 
     it 'shows epic thread filter dropdown' do
-      page.within('.js-epic-tabs-container') do
+      page.within('.js-noteable-awards') do
         expect(find('.js-discussion-filter-container #discussion-filter-dropdown')).to have_content('Show all activity')
       end
     end
   end
 
-  describe 'Tree tab' do
-    before do
-      find('.js-epic-tabs-container #tree-tab').click
-      wait_for_requests
-    end
-
+  describe 'Epics and Issues tab' do
     it 'shows Related items tree with child epics' do
       page.within('.js-epic-tabs-content #tree') do
         expect(page).to have_selector('.related-items-tree-container')
@@ -91,6 +86,7 @@ describe 'Epic show', :js do
         expect(page).to have_selector('.roadmap-container .roadmap-shell')
 
         page.within('.roadmap-shell .epics-list-section') do
+          expect(page).not_to have_content(not_child.title)
           expect(find('.epics-list-item:nth-child(1) .epic-title a')).to have_content('Child epic B')
           expect(find('.epics-list-item:nth-child(2) .epic-title a')).to have_content('Child epic A')
         end
@@ -98,7 +94,7 @@ describe 'Epic show', :js do
     end
 
     it 'does not show thread filter dropdown' do
-      expect(find('.js-epic-tabs-container')).to have_selector('.js-discussion-filter-container', visible: false)
+      expect(find('.js-noteable-awards')).to have_selector('.js-discussion-filter-container', visible: false)
     end
 
     it 'has no limit on container width' do

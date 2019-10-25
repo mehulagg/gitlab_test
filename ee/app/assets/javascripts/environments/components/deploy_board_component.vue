@@ -7,7 +7,7 @@
  * - Information area with percentage of completion.
  * - Instances with status.
  * - Button Actions.
- * [Mockup](https://gitlab.com/gitlab-org/gitlab-ce/uploads/2f655655c0eadf655d0ae7467b53002a/environments__deploy-graphic.png)
+ * [Mockup](https://gitlab.com/gitlab-org/gitlab-foss/uploads/2f655655c0eadf655d0ae7467b53002a/environments__deploy-graphic.png)
  */
 import _ from 'underscore';
 import { n__, s__, sprintf } from '~/locale';
@@ -98,7 +98,7 @@ export default {
 </script>
 <template>
   <div class="js-deploy-board deploy-board">
-    <gl-loading-icon v-if="isLoading" />
+    <gl-loading-icon v-if="isLoading" class="loading-icon" />
     <template v-else>
       <div v-if="hasLegacyAppLabel" class="bs-callout bs-callout-warning mb-0 mt-0">
         <span v-html="legacyLabelWarningMessage"></span>

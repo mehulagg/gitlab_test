@@ -83,7 +83,7 @@ describe Projects::ContainerRepository::CleanupTagsService do
       end
 
       it 'does not remove the tag' do
-        # Issue: https://gitlab.com/gitlab-org/gitlab-ce/issues/21405
+        # Issue: https://gitlab.com/gitlab-org/gitlab-foss/issues/21405
 
         is_expected.to include(status: :success, deleted: [])
       end
@@ -157,6 +157,6 @@ describe Projects::ContainerRepository::CleanupTagsService do
   def expect_delete(digest)
     expect_any_instance_of(ContainerRegistry::Client)
       .to receive(:delete_repository_tag)
-      .with(repository.path, digest)
+      .with(repository.path, digest) { true }
   end
 end

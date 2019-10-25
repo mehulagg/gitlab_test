@@ -21,7 +21,7 @@ describe Clusters::Applications::Ingress do
   describe '#can_uninstall?' do
     subject { ingress.can_uninstall? }
 
-    it 'returns true if application_jupyter_nil_or_installable? AND external_ip_or_hostname? are true' do
+    it 'returns true if external ip is set and no application exists' do
       ingress.external_ip = 'IP'
 
       is_expected.to be_truthy
@@ -29,6 +29,12 @@ describe Clusters::Applications::Ingress do
 
     it 'returns false if application_jupyter_nil_or_installable? is false' do
       create(:clusters_applications_jupyter, :installed, cluster: ingress.cluster)
+
+      is_expected.to be_falsey
+    end
+
+    it 'returns false if application_elastic_stack_nil_or_installable? is false' do
+      create(:clusters_applications_elastic_stack, :installed, cluster: ingress.cluster)
 
       is_expected.to be_falsey
     end
@@ -96,7 +102,7 @@ describe Clusters::Applications::Ingress do
     it 'is initialized with ingress arguments' do
       expect(subject.name).to eq('ingress')
       expect(subject.chart).to eq('stable/nginx-ingress')
-      expect(subject.version).to eq('1.1.2')
+      expect(subject.version).to eq('1.22.1')
       expect(subject).to be_rbac
       expect(subject.files).to eq(ingress.files)
     end
@@ -113,7 +119,7 @@ describe Clusters::Applications::Ingress do
       let(:ingress) { create(:clusters_applications_ingress, :errored, version: 'nginx') }
 
       it 'is initialized with the locked version' do
-        expect(subject.version).to eq('1.1.2')
+        expect(subject.version).to eq('1.22.1')
       end
     end
   end
@@ -129,6 +135,61 @@ describe Clusters::Applications::Ingress do
       expect(values).to include('repository')
       expect(values).to include('stats')
       expect(values).to include('podAnnotations')
+    end
+  end
+
+  describe '#values' do
+    let(:project) { build(:project) }
+    let(:cluster) { build(:cluster, projects: [project]) }
+
+    context 'when ingress_modsecurity is enabled' do
+      before do
+        stub_feature_flags(ingress_modsecurity: true)
+
+        allow(subject).to receive(:cluster).and_return(cluster)
+      end
+
+      it 'includes modsecurity module enablement' do
+        expect(subject.values).to include("enable-modsecurity: 'true'")
+      end
+
+      it 'includes modsecurity core ruleset enablement' do
+        expect(subject.values).to include("enable-owasp-modsecurity-crs: 'true'")
+      end
+
+      it 'includes modsecurity.conf content' do
+        expect(subject.values).to include('modsecurity.conf')
+        # Includes file content from Ingress#modsecurity_config_content
+        expect(subject.values).to include('SecAuditLog')
+
+        expect(subject.values).to include('extraVolumes')
+        expect(subject.values).to include('extraVolumeMounts')
+      end
+    end
+
+    context 'when ingress_modsecurity is disabled' do
+      before do
+        stub_feature_flags(ingress_modsecurity: false)
+
+        allow(subject).to receive(:cluster).and_return(cluster)
+      end
+
+      it 'excludes modsecurity module enablement' do
+        expect(subject.values).not_to include('enable-modsecurity')
+      end
+
+      it 'excludes modsecurity core ruleset enablement' do
+        expect(subject.values).not_to include('enable-owasp-modsecurity-crs')
+      end
+
+      it 'excludes modsecurity.conf content' do
+        expect(subject.values).not_to include('modsecurity.conf')
+        # Excludes file content from Ingress#modsecurity_config_content
+        expect(subject.values).not_to include('SecAuditLog')
+
+        expect(subject.values).not_to include('extraVolumes')
+        expect(subject.values).not_to include('extraVolumeMounts')
+      end
     end
   end
 end

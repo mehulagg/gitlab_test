@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe OmniAuth::Strategies::KerberosSpnego do
   subject { described_class.new(:app) }
+
   let(:session) { {} }
 
   before do

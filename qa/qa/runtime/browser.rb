@@ -65,7 +65,7 @@ module QA
 
           # QA::Runtime::Env.browser.capitalize will work for every driver type except PhantomJS.
           # We will have no use to use PhantomJS so this shouldn't be a problem.
-          options = Selenium::WebDriver.const_get(QA::Runtime::Env.browser.capitalize)::Options.new
+          options = Selenium::WebDriver.const_get(QA::Runtime::Env.browser.capitalize, false)::Options.new
 
           if QA::Runtime::Env.browser == :chrome
             options.add_argument("window-size=1480,2200")
@@ -82,7 +82,7 @@ module QA
               options.add_argument("disable-gpu")
             end
 
-            # Disable /dev/shm use in CI. See https://gitlab.com/gitlab-org/gitlab-ee/issues/4252
+            # Disable /dev/shm use in CI. See https://gitlab.com/gitlab-org/gitlab/issues/4252
             options.add_argument("disable-dev-shm-usage") if QA::Runtime::Env.running_in_ci?
           end
 

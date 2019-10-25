@@ -1,4 +1,4 @@
-/* eslint-disable no-return-assign, one-var, no-var, consistent-return, object-shorthand, prefer-template, class-methods-use-this, no-lonely-if, vars-on-top */
+/* eslint-disable no-return-assign, one-var, no-var, consistent-return, class-methods-use-this, no-lonely-if, vars-on-top */
 
 import $ from 'jquery';
 import { escape, throttle } from 'underscore';
@@ -95,10 +95,10 @@ export class SearchAutocomplete {
       this.createAutocomplete();
     }
 
-    this.searchInput.addClass('disabled');
     this.saveTextLength();
     this.bindEvents();
     this.dropdownToggle.dropdown();
+    this.searchInput.addClass('js-autocomplete-disabled');
   }
 
   // Finds an element inside wrapper element
@@ -171,7 +171,7 @@ export class SearchAutocomplete {
         params: {
           project_id: this.projectId,
           project_ref: this.projectRef,
-          term: term,
+          term,
         },
       })
       .then(response => {
@@ -338,7 +338,7 @@ export class SearchAutocomplete {
     if (!this.dropdown.hasClass('show')) {
       this.loadingSuggestions = false;
       this.dropdownToggle.dropdown('toggle');
-      return this.searchInput.removeClass('disabled');
+      return this.searchInput.removeClass('js-autocomplete-disabled');
     }
   }
 
@@ -416,7 +416,7 @@ export class SearchAutocomplete {
     inputs = Object.keys(this.originalState);
     for (i = 0, len = inputs.length; i < len; i += 1) {
       input = inputs[i];
-      this.getElement('#' + input).val(this.originalState[input]);
+      this.getElement(`#${input}`).val(this.originalState[input]);
     }
   }
 
@@ -426,14 +426,14 @@ export class SearchAutocomplete {
     results = [];
     for (i = 0, len = inputs.length; i < len; i += 1) {
       input = inputs[i];
-      results.push(this.getElement('#' + input).val(''));
+      results.push(this.getElement(`#${input}`).val(''));
     }
     return results;
   }
 
   disableAutocomplete() {
-    if (!this.searchInput.hasClass('disabled') && this.dropdown.hasClass('show')) {
-      this.searchInput.addClass('disabled');
+    if (!this.searchInput.hasClass('js-autocomplete-disabled') && this.dropdown.hasClass('show')) {
+      this.searchInput.addClass('js-autocomplete-disabled');
       this.dropdown.removeClass('show').trigger('hidden.bs.dropdown');
       this.restoreMenu();
     }

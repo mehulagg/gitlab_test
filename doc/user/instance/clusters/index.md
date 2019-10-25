@@ -1,6 +1,6 @@
 # Instance-level Kubernetes clusters
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/39840) in GitLab 11.11.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/39840) in GitLab 11.11.
 
 ## Overview
 
@@ -20,3 +20,9 @@ GitLab will try match to clusters in the following order:
 
 To be selected, the cluster must be enabled and
 match the [environment selector](../../../ci/environments.md#scoping-environments-with-specs).
+
+## Cluster environments **(PREMIUM)**
+
+For a consolidated view of which CI [environments](../../../ci/environments.md)
+are deployed to the Kubernetes cluster, see the documentation for
+[cluster environments](../../clusters/environments.md).

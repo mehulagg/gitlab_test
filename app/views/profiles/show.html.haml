@@ -72,7 +72,7 @@
         %p= s_("Profiles|You can set your current timezone here")
       .col-lg-8
         -# TODO: might need an entry in user/profile.md to describe some of these settings
-        -# https://gitlab.com/gitlab-org/gitlab-ce/issues/60070
+        -# https://gitlab.com/gitlab-org/gitlab-foss/issues/60070
         %h5= ("Time zone")
         = dropdown_tag(_("Select a timezone"), options: { toggle_class: 'btn js-timezone-dropdown input-lg', title: _("Select a timezone"), filter: true, placeholder: s_("OfSearchInADropdown|Filter"), data: { data: timezone_data } } )
         %input.hidden{ :type => 'hidden', :id => 'user_timezone', :name => 'user[timezone]', value: @user.timezone }
@@ -94,6 +94,7 @@
         - else
           = f.text_field :name, label: s_('Profiles|Full name'), required: true, title: s_("Profiles|Using emojis in names seems fun, but please try to set a status message instead"), wrapper: { class: 'col-md-9 qa-full-name rspec-full-name' }, help: s_("Profiles|Enter your name, so people you know can recognize you")
         = f.text_field :id, readonly: true, label: s_('Profiles|User ID'), wrapper: { class: 'col-md-3' }
+      = f.select :role, ::User.roles.keys.map { |role| [role.titleize, role] }, {}, class: 'input-md'
 
       = render_if_exists 'profiles/email_settings', form: f
       = f.text_field :skype, class: 'input-md', placeholder: s_("Profiles|username")

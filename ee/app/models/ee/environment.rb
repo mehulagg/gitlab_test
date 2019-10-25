@@ -14,8 +14,8 @@ module EE
       # Returns environments where its latest deployment is to a cluster
       scope :deployed_to_cluster, -> (cluster) do
         environments = model.arel_table
-        deployments = Deployment.arel_table
-        later_deployments = Deployment.arel_table.alias('latest_deployments')
+        deployments = ::Deployment.arel_table
+        later_deployments = ::Deployment.arel_table.alias('latest_deployments')
         join_conditions = later_deployments[:environment_id]
           .eq(deployments[:environment_id])
           .and(deployments[:id].lt(later_deployments[:id]))
@@ -25,7 +25,7 @@ module EE
           .on(join_conditions)
 
         model
-          .joins(:deployments)
+          .joins(:successful_deployments)
           .joins(join.join_sources)
           .where(later_deployments[:id].eq(nil))
           .where(deployments[:cluster_id].eq(cluster.id))
@@ -46,11 +46,31 @@ module EE
       ::Gitlab::EtagCaching::Store.new.tap do |store|
         store.touch(
           ::Gitlab::Routing.url_helpers.project_environments_path(project, format: :json))
+
+        store.touch(cluster_environments_etag_key) if cluster_environments_etag_key
+      end
+    end
+
+    def cluster_environments_etag_key
+      strong_memoize(:cluster_environments_key) do
+        cluster = last_deployment&.cluster
+
+        if cluster&.group_type?
+          ::Gitlab::Routing.url_helpers.environments_group_cluster_path(cluster.group, cluster)
+        elsif cluster&.instance_type?
+          ::Gitlab::Routing.url_helpers.environments_admin_cluster_path(cluster)
+        end
       end
     end
 
     def pod_names
-      return [] unless rollout_status
+      return [] unless rollout_status_available?
+
+      rollout_status = rollout_status_with_reactive_cache
+
+      # If cache has not been populated yet, rollout_status will be nil and the
+      # caller should try again later.
+      return unless rollout_status
 
       rollout_status.instances.map do |instance|
         instance[:pod_name]
@@ -74,13 +94,23 @@ module EE
     end
 
     def rollout_status
-      return unless has_terminals?
+      return unless rollout_status_available?
 
-      result = with_reactive_cache do |data|
-        deployment_platform.rollout_status(self, data)
-      end
+      result = rollout_status_with_reactive_cache
 
       result || ::Gitlab::Kubernetes::RolloutStatus.loading
+    end
+
+    private
+
+    def rollout_status_available?
+      has_terminals?
+    end
+
+    def rollout_status_with_reactive_cache
+      with_reactive_cache do |data|
+        deployment_platform.rollout_status(self, data)
+      end
     end
   end
 end

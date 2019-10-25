@@ -34,6 +34,7 @@ Click on the service links to see further configuration instructions and details
 | [Emails on push](emails_on_push.md) | Email the commits and diff of each push to a list of recipients |
 | External Wiki | Replaces the link to the internal wiki with a link to an external wiki |
 | Flowdock | Flowdock is a collaboration web app for technical teams |
+| [Generic alerts](generic_alerts.md) **(ULTIMATE)** | Receive alerts on GitLab from any source |
 | [GitHub](github.md) **(PREMIUM)** | Sends pipeline notifications to GitHub |
 | [Hangouts Chat](hangouts_chat.md) | Receive events notifications in Google Hangouts Chat |
 | [HipChat](hipchat.md) | Private group chat and IM |
@@ -55,6 +56,16 @@ Click on the service links to see further configuration instructions and details
 | [Redmine](redmine.md) | Redmine issue tracker |
 | [YouTrack](youtrack.md) | YouTrack issue tracker |
 
+## Push hooks limit
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/31009) in GitLab 12.4.
+
+If a single push includes changes to more than three branches or tags, services
+supported by `push_hooks` and `tag_push_hooks` events won't be executed.
+
+The number of branches or tags supported can be changed via
+[`push_event_hooks_limit` application setting](../../../api/settings.md#list-of-settings-that-can-be-accessed-via-api-calls).
+
 ## Services templates
 
 Services templates is a way to set some predefined values in the Service of
@@ -73,5 +84,5 @@ For an overview of what projects services are available, please see the
 
 Contributions are welcome!
 
-[projects-code]: https://gitlab.com/gitlab-org/gitlab-ce/tree/master/app/models/project_services
+[projects-code]: https://gitlab.com/gitlab-org/gitlab-foss/tree/master/app/models/project_services
 [permissions]: ../../permissions.md

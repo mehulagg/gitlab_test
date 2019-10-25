@@ -34,6 +34,8 @@ module API
         optional :created_before, type: DateTime, desc: 'Return epics created before the specified time'
         optional :updated_after, type: DateTime, desc: 'Return epics updated after the specified time'
         optional :updated_before, type: DateTime, desc: 'Return epics updated before the specified time'
+        optional :include_ancestor_groups, type: Boolean, default: false, desc: 'Include epics from ancestor groups'
+        optional :include_descendant_groups, type: Boolean, default: true, desc: 'Include epics from descendant groups'
         use :pagination
       end
       get ':id/(-/)epics' do
@@ -52,7 +54,9 @@ module API
       get ':id/(-/)epics/:epic_iid' do
         authorize_can_read!
 
-        present epic, with: EE::API::Entities::Epic, user: current_user
+        present epic, options, user: current_user,
+                               with: EE::API::Entities::Epic,
+                               include_subscribed: true
       end
 
       desc 'Create a new epic' do

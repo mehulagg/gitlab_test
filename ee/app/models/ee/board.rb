@@ -15,7 +15,7 @@ module EE
 
       # These can safely be changed to has_many when we support
       # multiple assignees on the board configuration.
-      # https://gitlab.com/gitlab-org/gitlab-ee/issues/3786
+      # https://gitlab.com/gitlab-org/gitlab/issues/3786
       has_one :board_assignee
       has_one :assignee, through: :board_assignee
 
@@ -28,7 +28,7 @@ module EE
 
     override :scoped?
     def scoped?
-      return super unless parent.feature_available?(:scoped_issue_board)
+      return super unless resource_parent.feature_available?(:scoped_issue_board)
 
       EMPTY_SCOPE_STATE.exclude?(milestone_id) ||
         EMPTY_SCOPE_STATE.exclude?(weight) ||
@@ -37,7 +37,7 @@ module EE
     end
 
     def milestone
-      return unless parent&.feature_available?(:scoped_issue_board)
+      return unless resource_parent&.feature_available?(:scoped_issue_board)
 
       case milestone_id
       when ::Milestone::Upcoming.id

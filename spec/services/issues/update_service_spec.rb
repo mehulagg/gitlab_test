@@ -1,4 +1,3 @@
-# coding: utf-8
 # frozen_string_literal: true
 
 require 'spec_helper'
@@ -7,7 +6,8 @@ describe Issues::UpdateService, :mailer do
   let(:user) { create(:user) }
   let(:user2) { create(:user) }
   let(:user3) { create(:user) }
-  let(:project) { create(:project) }
+  let(:group) { create(:group, :public) }
+  let(:project) { create(:project, :repository, group: group) }
   let(:label) { create(:label, project: project) }
   let(:label2) { create(:label) }
 
@@ -169,7 +169,7 @@ describe Issues::UpdateService, :mailer do
         end
       end
 
-      context 'with background jobs processed' do
+      context 'with background jobs processed', :sidekiq_might_not_need_inline do
         before do
           perform_enqueued_jobs do
             update_issue(opts)
@@ -366,7 +366,7 @@ describe Issues::UpdateService, :mailer do
 
         it_behaves_like 'system notes for milestones'
 
-        it 'sends notifications for subscribers of changed milestone' do
+        it 'sends notifications for subscribers of changed milestone', :sidekiq_might_not_need_inline do
           issue.milestone = create(:milestone, project: project)
 
           issue.save
@@ -398,7 +398,7 @@ describe Issues::UpdateService, :mailer do
 
         it_behaves_like 'system notes for milestones'
 
-        it 'sends notifications for subscribers of changed milestone' do
+        it 'sends notifications for subscribers of changed milestone', :sidekiq_might_not_need_inline do
           perform_enqueued_jobs do
             update_issue(milestone: create(:milestone, project: project))
           end
@@ -435,7 +435,7 @@ describe Issues::UpdateService, :mailer do
         end
       end
 
-      it 'sends notifications for subscribers of newly added labels' do
+      it 'sends notifications for subscribers of newly added labels', :sidekiq_might_not_need_inline do
         opts = { label_ids: [label.id] }
 
         perform_enqueued_jobs do
@@ -668,6 +668,7 @@ describe Issues::UpdateService, :mailer do
 
     context 'updating mentions' do
       let(:mentionable) { issue }
+
       include_examples 'updating mentions', described_class
     end
 

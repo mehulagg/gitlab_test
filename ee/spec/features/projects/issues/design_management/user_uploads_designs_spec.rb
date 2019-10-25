@@ -1,11 +1,13 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'User uploads new design', :js do
   include DesignManagementTestHelpers
 
-  let(:user) { project.owner }
-  let(:project) { create(:project_empty_repo, :public) }
-  let(:issue) { create(:issue, project: project) }
+  set(:project) { create(:project_empty_repo, :public) }
+  set(:user) { project.owner }
+  set(:issue) { create(:issue, project: project) }
 
   before do
     sign_in(user)
@@ -22,7 +24,7 @@ describe 'User uploads new design', :js do
       wait_for_requests
     end
 
-    it 'uploads design' do
+    it 'uploads designs' do
       attach_file(:design_file, logo_fixture, make_visible: true)
 
       expect(page).to have_selector('.js-design-list-item', count: 1)
@@ -30,6 +32,10 @@ describe 'User uploads new design', :js do
       within first('#designs-tab .card') do
         expect(page).to have_content('dk.png')
       end
+
+      attach_file(:design_file, gif_fixture, make_visible: true)
+
+      expect(page).to have_selector('.js-design-list-item', count: 2)
     end
   end
 
@@ -45,5 +51,9 @@ describe 'User uploads new design', :js do
 
   def logo_fixture
     Rails.root.join('spec', 'fixtures', 'dk.png')
+  end
+
+  def gif_fixture
+    Rails.root.join('spec', 'fixtures', 'banana_sample.gif')
   end
 end

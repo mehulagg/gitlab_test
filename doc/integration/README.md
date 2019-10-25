@@ -25,6 +25,7 @@ See the documentation below for details on how to configure these services.
 - [PlantUML](../administration/integration/plantuml.md) Configure PlantUML to use diagrams in AsciiDoc documents.
 - [reCAPTCHA](recaptcha.md) Configure GitLab to use Google reCAPTCHA for new users
 - [SAML](saml.md) Configure GitLab as a SAML 2.0 Service Provider
+- [Sentry](../user/project/operations/error_tracking.md#sentry-error-tracking) Enable issue linking from Sentry and view Sentry crash reports in GitLab
 - [Trello](trello_power_up.md) Integrate Trello with GitLab
 
 > GitLab Enterprise Edition contains [advanced Jenkins support](jenkins.md).
@@ -47,10 +48,10 @@ application, most likely Sidekiq. There are 2 approaches you can take to solve t
 
 **OS main trusted chain**
 
-This [resource](http://kb.kerio.com/product/kerio-connect/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html)
+This [resource](https://manuals.gfi.com/en/kerio/connect/content/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html)
 has all the information you need to add a certificate to the main trusted chain.
 
-This [answer](http://superuser.com/questions/437330/how-do-you-add-a-certificate-authority-ca-to-ubuntu)
+This [answer](https://superuser.com/questions/437330/how-do-you-add-a-certificate-authority-ca-to-ubuntu)
 at Super User also has relevant information.
 
 **Omnibus Trusted Chain**

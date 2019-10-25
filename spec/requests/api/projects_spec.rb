@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 require 'spec_helper'
 
 shared_examples 'languages and percentages JSON response' do
@@ -16,7 +15,7 @@ shared_examples 'languages and percentages JSON response' do
   end
 
   context "when the languages haven't been detected yet" do
-    it 'returns expected language values' do
+    it 'returns expected language values', :sidekiq_might_not_need_inline do
       get api("/projects/#{project.id}/languages", user)
 
       expect(response).to have_gitlab_http_status(:ok)
@@ -607,6 +606,7 @@ describe API::Projects do
         merge_requests_enabled: false,
         wiki_enabled: false,
         resolve_outdated_diff_discussions: false,
+        remove_source_branch_after_merge: true,
         only_allow_merge_if_pipeline_succeeds: false,
         request_access_enabled: true,
         only_allow_merge_if_all_discussions_are_resolved: false,
@@ -629,6 +629,33 @@ describe API::Projects do
       expect(project.project_feature.issues_access_level).to eq(ProjectFeature::DISABLED)
       expect(project.project_feature.merge_requests_access_level).to eq(ProjectFeature::DISABLED)
       expect(project.project_feature.wiki_access_level).to eq(ProjectFeature::DISABLED)
+    end
+
+    it 'creates a project using a template' do
+      expect { post api('/projects', user), params: { template_name: 'rails', name: 'rails-test' } }
+        .to change { Project.count }.by(1)
+
+      expect(response).to have_gitlab_http_status(201)
+
+      project = Project.find(json_response['id'])
+      expect(project).to be_saved
+      expect(project.import_type).to eq('gitlab_project')
+    end
+
+    it 'returns 400 for an invalid template' do
+      expect { post api('/projects', user), params: { template_name: 'unknown', name: 'rails-test' } }
+        .not_to change { Project.count }
+
+      expect(response).to have_gitlab_http_status(400)
+      expect(json_response['message']['template_name']).to eq(["'unknown' is unknown or invalid"])
+    end
+
+    it 'disallows creating a project with an import_url and template' do
+      project_params = { import_url: 'http://example.com', template_name: 'rails', name: 'rails-test' }
+      expect { post api('/projects', user), params: project_params }
+        .not_to change {  Project.count }
+
+      expect(response).to have_gitlab_http_status(400)
     end
 
     it 'sets a project as public' do
@@ -694,6 +721,22 @@ describe API::Projects do
       post api('/projects', user), params: project
 
       expect(json_response['resolve_outdated_diff_discussions']).to be_truthy
+    end
+
+    it 'sets a project as not removing source branches' do
+      project = attributes_for(:project, remove_source_branch_after_merge: false)
+
+      post api('/projects', user), params: project
+
+      expect(json_response['remove_source_branch_after_merge']).to be_falsey
+    end
+
+    it 'sets a project as removing source branches' do
+      project = attributes_for(:project, remove_source_branch_after_merge: true)
+
+      post api('/projects', user), params: project
+
+      expect(json_response['remove_source_branch_after_merge']).to be_truthy
     end
 
     it 'sets a project as allowing merge even if build fails' do
@@ -867,7 +910,7 @@ describe API::Projects do
       expect { post api("/projects/user/#{user.id}", admin), params: { name: 'Foo Project' } }.to change { Project.count }.by(1)
       expect(response).to have_gitlab_http_status(201)
 
-      project = Project.last
+      project = Project.find(json_response['id'])
 
       expect(project.name).to eq('Foo Project')
       expect(project.path).to eq('foo-project')
@@ -878,7 +921,7 @@ describe API::Projects do
         .to change { Project.count }.by(1)
       expect(response).to have_gitlab_http_status(201)
 
-      project = Project.last
+      project = Project.find(json_response['id'])
 
       expect(project.name).to eq('Foo Project')
       expect(project.path).to eq('path-project-Foo')
@@ -952,6 +995,22 @@ describe API::Projects do
       post api("/projects/user/#{user.id}", admin), params: project
 
       expect(json_response['resolve_outdated_diff_discussions']).to be_truthy
+    end
+
+    it 'sets a project as not removing source branches' do
+      project = attributes_for(:project, remove_source_branch_after_merge: false)
+
+      post api("/projects/user/#{user.id}", admin), params: project
+
+      expect(json_response['remove_source_branch_after_merge']).to be_falsey
+    end
+
+    it 'sets a project as removing source branches' do
+      project = attributes_for(:project, remove_source_branch_after_merge: true)
+
+      post api("/projects/user/#{user.id}", admin), params: project
+
+      expect(json_response['remove_source_branch_after_merge']).to be_truthy
     end
 
     it 'sets a project as allowing merge even if build fails' do
@@ -1131,6 +1190,7 @@ describe API::Projects do
         expect(json_response['wiki_access_level']).to be_present
         expect(json_response['builds_access_level']).to be_present
         expect(json_response['resolve_outdated_diff_discussions']).to eq(project.resolve_outdated_diff_discussions)
+        expect(json_response['remove_source_branch_after_merge']).to be_truthy
         expect(json_response['container_registry_enabled']).to be_present
         expect(json_response['created_at']).to be_present
         expect(json_response['last_activity_at']).to be_present

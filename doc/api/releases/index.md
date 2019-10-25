@@ -1,6 +1,6 @@
 # Releases API
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/41766) in GitLab 11.7.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/41766) in GitLab 11.7.
 > - Using this API you can manipulate GitLab's [Release](../../user/project/releases/index.md) entries.
 > - For manipulating links as a release asset, see [Release Links API](links.md).
 
@@ -85,6 +85,8 @@ Example response:
             "web_url":"https://gitlab.example.com/root/awesome-app/-/milestones/2"
          }
       ],
+      "commit_path":"/root/awesome-app/commit/588440f66559714280628a4f9799f0c4eb880a4a",
+      "tag_path":"/root/awesome-app/-/tags/v0.11.1",
       "assets":{
          "count":6,
          "sources":[
@@ -119,7 +121,7 @@ Example response:
                "external":true
             }
          ]
-      }
+      },
    },
    {
       "tag_name":"v0.1",
@@ -175,7 +177,7 @@ Example response:
          "links":[
 
          ]
-      }
+      },
    }
 ]
 ```
@@ -261,6 +263,8 @@ Example response:
          "web_url":"https://gitlab.example.com/root/awesome-app/-/milestones/2"
        }
    ],
+   "commit_path":"/root/awesome-app/commit/588440f66559714280628a4f9799f0c4eb880a4a",
+   "tag_path":"/root/awesome-app/-/tags/v0.11.1",
    "assets":{
       "count":4,
       "sources":[
@@ -284,7 +288,7 @@ Example response:
       "links":[
 
       ]
-   }
+   },
 }
 ```
 
@@ -296,18 +300,18 @@ Create a Release. You need push access to the repository to create a Release.
 POST /projects/:id/releases
 ```
 
-| Attribute          | Type            | Required | Description                                                                                                                      |
-| -------------------| --------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `id`               | integer/string  | yes      | The ID or [URL-encoded path of the project](../README.md#namespaced-path-encoding).                                              |
-| `name`             | string          | yes      | The release name.                                                                                                                |
-| `tag_name`         | string          | yes      | The tag where the release will be created from.                                                                                  |
-| `description`      | string          | yes      | The description of the release. You can use [markdown](../../user/markdown.md).                                                  |
-| `ref`              | string          | no       | If `tag_name` doesn't exist, the release will be created from `ref`. It can be a commit SHA, another tag name, or a branch name. |
-| `milestones`       | array of string | no       | The title of each milestone the release is associated with.                                                                      |
-| `assets:links`     | array of hash   | no       | An array of assets links.                                                                                                        |
-| `assets:links:name`| string          | required by: `assets:links` | The name of the link.                                                                                         |
-| `assets:links:url` | string          | required by: `assets:links` | The url of the link.                                                                                          |
-| `released_at`      | datetime        | no       | The date when the release will be/was ready. Defaults to the current time. Expected in ISO 8601 format (`2019-03-15T08:00:00Z`). |
+| Attribute          | Type            | Required                    | Description                                                                                                                      |
+| -------------------| --------------- | --------                    | -------------------------------------------------------------------------------------------------------------------------------- |
+| `id`               | integer/string  | yes                         | The ID or [URL-encoded path of the project](../README.md#namespaced-path-encoding).                                              |
+| `name`             | string          | yes                         | The release name.                                                                                                                |
+| `tag_name`         | string          | yes                         | The tag where the release will be created from.                                                                                  |
+| `description`      | string          | yes                         | The description of the release. You can use [markdown](../../user/markdown.md).                                                  |
+| `ref`              | string          | yes, if `tag_name` doesn't exist | If `tag_name` doesn't exist, the release will be created from `ref`. It can be a commit SHA, another tag name, or a branch name. |
+| `milestones`       | array of string | no                          | The title of each milestone the release is associated with.                                                                      |
+| `assets:links`     | array of hash   | no                          | An array of assets links.                                                                                                        |
+| `assets:links:name`| string          | required by: `assets:links` | The name of the link.                                                                                                            |
+| `assets:links:url` | string          | required by: `assets:links` | The url of the link.                                                                                                             |
+| `released_at`      | datetime        | no                          | The date when the release will be/was ready. Defaults to the current time. Expected in ISO 8601 format (`2019-03-15T08:00:00Z`). |
 
 Example request:
 
@@ -379,6 +383,8 @@ Example response:
          "web_url":"https://gitlab.example.com/root/awesome-app/-/milestones/2"
        }
    ],
+   "commit_path":"/root/awesome-app/commit/588440f66559714280628a4f9799f0c4eb880a4a",
+   "tag_path":"/root/awesome-app/-/tags/v0.11.1",
    "assets":{
       "count":5,
       "sources":[
@@ -407,7 +413,7 @@ Example response:
             "external":true
          }
       ]
-   }
+   },
 }
 ```
 
@@ -483,6 +489,8 @@ Example response:
          "web_url":"https://gitlab.example.com/root/awesome-app/-/milestones/3"
       }
    ],
+   "commit_path":"/root/awesome-app/commit/588440f66559714280628a4f9799f0c4eb880a4a",
+   "tag_path":"/root/awesome-app/-/tags/v0.11.1",
    "assets":{
       "count":4,
       "sources":[
@@ -506,7 +514,7 @@ Example response:
       "links":[
 
       ]
-   }
+   },
 }
 ```
 
@@ -563,6 +571,8 @@ Example response:
       "committer_email":"admin@example.com",
       "committed_date":"2019-01-03T01:53:28.000Z"
    },
+   "commit_path":"/root/awesome-app/commit/588440f66559714280628a4f9799f0c4eb880a4a",
+   "tag_path":"/root/awesome-app/-/tags/v0.11.1",
    "assets":{
       "count":4,
       "sources":[
@@ -586,13 +596,13 @@ Example response:
       "links":[
 
       ]
-   }
+   },
 }
 ```
 
 ## Upcoming Releases
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/38105) in GitLab 12.1.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/38105) in GitLab 12.1.
 
 A release with a `released_at` attribute set to a future date will be labeled an **Upcoming Release** in the UI:
 

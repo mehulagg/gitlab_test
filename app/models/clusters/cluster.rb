@@ -18,12 +18,14 @@ module Clusters
       Applications::Prometheus.application_name => Applications::Prometheus,
       Applications::Runner.application_name => Applications::Runner,
       Applications::Jupyter.application_name => Applications::Jupyter,
-      Applications::Knative.application_name => Applications::Knative
+      Applications::Knative.application_name => Applications::Knative,
+      Applications::ElasticStack.application_name => Applications::ElasticStack
     }.merge(PROJECT_ONLY_APPLICATIONS).freeze
     DEFAULT_ENVIRONMENT = '*'
     KUBE_INGRESS_BASE_DOMAIN = 'KUBE_INGRESS_BASE_DOMAIN'
 
     belongs_to :user
+    belongs_to :management_project, class_name: '::Project', optional: true
 
     has_many :cluster_projects, class_name: 'Clusters::Project'
     has_many :projects, through: :cluster_projects, class_name: '::Project'
@@ -34,16 +36,23 @@ module Clusters
 
     # we force autosave to happen when we save `Cluster` model
     has_one :provider_gcp, class_name: 'Clusters::Providers::Gcp', autosave: true
+    has_one :provider_aws, class_name: 'Clusters::Providers::Aws', autosave: true
 
     has_one :platform_kubernetes, class_name: 'Clusters::Platforms::Kubernetes', inverse_of: :cluster, autosave: true
 
-    has_one :application_helm, class_name: 'Clusters::Applications::Helm'
-    has_one :application_ingress, class_name: 'Clusters::Applications::Ingress'
-    has_one :application_cert_manager, class_name: 'Clusters::Applications::CertManager'
-    has_one :application_prometheus, class_name: 'Clusters::Applications::Prometheus'
-    has_one :application_runner, class_name: 'Clusters::Applications::Runner'
-    has_one :application_jupyter, class_name: 'Clusters::Applications::Jupyter'
-    has_one :application_knative, class_name: 'Clusters::Applications::Knative'
+    def self.has_one_cluster_application(name) # rubocop:disable Naming/PredicateName
+      application = APPLICATIONS[name.to_s]
+      has_one application.association_name, class_name: application.to_s, inverse_of: :cluster # rubocop:disable Rails/ReflectionClassName
+    end
+
+    has_one_cluster_application :helm
+    has_one_cluster_application :ingress
+    has_one_cluster_application :cert_manager
+    has_one_cluster_application :prometheus
+    has_one_cluster_application :runner
+    has_one_cluster_application :jupyter
+    has_one_cluster_application :knative
+    has_one_cluster_application :elastic_stack
 
     has_many :kubernetes_namespaces
 
@@ -58,6 +67,7 @@ module Clusters
     validate :restrict_modification, on: :update
     validate :no_groups, unless: :group_type?
     validate :no_projects, unless: :project_type?
+    validate :unique_management_project_environment_scope
 
     after_save :clear_reactive_cache!
 
@@ -89,17 +99,25 @@ module Clusters
 
     enum provider_type: {
       user: 0,
-      gcp: 1
+      gcp: 1,
+      aws: 2
     }
 
     scope :enabled, -> { where(enabled: true) }
     scope :disabled, -> { where(enabled: false) }
-    scope :user_provided, -> { where(provider_type: ::Clusters::Cluster.provider_types[:user]) }
-    scope :gcp_provided, -> { where(provider_type: ::Clusters::Cluster.provider_types[:gcp]) }
-    scope :gcp_installed, -> { gcp_provided.includes(:provider_gcp).where(cluster_providers_gcp: { status: ::Clusters::Providers::Gcp.state_machines[:status].states[:created].value }) }
+
+    scope :user_provided, -> { where(provider_type: :user) }
+    scope :gcp_provided, -> { where(provider_type: :gcp) }
+    scope :aws_provided, -> { where(provider_type: :aws) }
+
+    scope :gcp_installed, -> { gcp_provided.joins(:provider_gcp).merge(Clusters::Providers::Gcp.with_status(:created)) }
+    scope :aws_installed, -> { aws_provided.joins(:provider_aws).merge(Clusters::Providers::Aws.with_status(:created)) }
+
     scope :managed, -> { where(managed: true) }
 
     scope :default_environment, -> { where(environment_scope: DEFAULT_ENVIRONMENT) }
+
+    scope :for_project_namespace, -> (namespace_id) { joins(:projects).where(projects: { namespace_id: namespace_id }) }
 
     def self.ancestor_clusters_for_clusterable(clusterable, hierarchy_order: :asc)
       return [] if clusterable.is_a?(Instance)
@@ -127,19 +145,17 @@ module Clusters
     end
 
     def applications
-      [
-        application_helm || build_application_helm,
-        application_ingress || build_application_ingress,
-        application_cert_manager || build_application_cert_manager,
-        application_prometheus || build_application_prometheus,
-        application_runner || build_application_runner,
-        application_jupyter || build_application_jupyter,
-        application_knative || build_application_knative
-      ]
+      APPLICATIONS.values.map do |application_class|
+        public_send(application_class.association_name) || public_send("build_#{application_class.association_name}") # rubocop:disable GitlabSecurity/PublicSend
+      end
     end
 
     def provider
-      return provider_gcp if gcp?
+      if gcp?
+        provider_gcp
+      elsif aws?
+        provider_aws
+      end
     end
 
     def platform
@@ -173,7 +189,7 @@ module Clusters
       persisted_namespace = Clusters::KubernetesNamespaceFinder.new(
         self,
         project: project,
-        environment_slug: environment.slug
+        environment_name: environment.name
       ).execute
 
       persisted_namespace&.namespace || Gitlab::Kubernetes::DefaultNamespace.new(self, project: project).from_environment_slug(environment.slug)
@@ -195,7 +211,23 @@ module Clusters
       end
     end
 
+    def knative_pre_installed?
+      provider&.knative_pre_installed?
+    end
+
     private
+
+    def unique_management_project_environment_scope
+      return unless management_project
+
+      duplicate_management_clusters = management_project.management_clusters
+        .where(environment_scope: environment_scope)
+        .where.not(id: id)
+
+      if duplicate_management_clusters.any?
+        errors.add(:environment_scope, "cannot add duplicated environment scope")
+      end
+    end
 
     def instance_domain
       @instance_domain ||= Gitlab::CurrentSettings.auto_devops_domain
@@ -235,7 +267,7 @@ module Clusters
     # as the AUTO_DEVOPS_DOMAIN is needed for CI_ENVIRONMENT_URL
     #
     # This method should is scheduled to be removed on
-    # https://gitlab.com/gitlab-org/gitlab-ce/issues/56959
+    # https://gitlab.com/gitlab-org/gitlab-foss/issues/56959
     def legacy_auto_devops_domain
       if project_type?
         project&.auto_devops&.domain.presence ||

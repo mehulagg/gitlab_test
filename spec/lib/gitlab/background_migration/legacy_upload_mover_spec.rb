@@ -32,7 +32,7 @@ describe Gitlab::BackgroundMigration::LegacyUploadMover do
 
     if with_file
       upload = create(:upload, :with_file, :attachment_upload, params)
-      model.update(attachment: upload.build_uploader)
+      model.update(attachment: upload.retrieve_uploader)
       model.attachment.upload
     else
       create(:upload, :attachment_upload, params)
@@ -91,13 +91,24 @@ describe Gitlab::BackgroundMigration::LegacyUploadMover do
     end
   end
 
-  context 'when no model found for the upload' do
+  context 'when no note found for the upload' do
     before do
-      legacy_upload.model = nil
+      legacy_upload.model_id = nil
+      legacy_upload.model_type = 'Note'
       expect_error_log
     end
 
     it_behaves_like 'legacy upload deletion'
+  end
+
+  context 'when upload does not belong to a note' do
+    before do
+      legacy_upload.model = create(:appearance)
+    end
+
+    it 'does not remove the upload' do
+      expect { described_class.new(legacy_upload).execute }.not_to change { Upload.count }
+    end
   end
 
   context 'when the upload move fails' do

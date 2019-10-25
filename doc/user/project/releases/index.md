@@ -4,7 +4,7 @@ type: reference, howto
 
 # Releases
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/41766) in GitLab 11.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/41766) in GitLab 11.7.
 
 It's typical to create a [Git tag](../../../university/training/topics/tags.md) at
 the moment of release to introduce a checkpoint in your source code
@@ -64,6 +64,18 @@ Navigate to **Project > Releases** in order to see the list of releases for a gi
 project.
 
 ![Releases list](img/releases.png)
+
+## Notification for Releases
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/26001) in GitLab 12.4.
+
+You can be notified by email when a new Release is created for your project.
+
+To subscribe to these notifications, navigate to your **Project**'s landing page, then click on the
+bell icon. Choose **Custom** from the dropdown menu. The
+following modal window will be then displayed, from which you can select **New release** to complete your subscription to new Releases notifications.
+
+![Custom notification - New release](img/custom_notifications_new_release_v12_4.png)
 
 <!-- ## Troubleshooting
 

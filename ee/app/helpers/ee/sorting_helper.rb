@@ -64,6 +64,47 @@ module EE
       end
     end
 
+    def packages_sort_options_hash
+      {
+        sort_value_recently_created  => sort_title_created_date,
+        sort_value_oldest_created    => sort_title_created_date,
+        sort_value_name              => sort_title_name,
+        sort_value_name_desc         => sort_title_name,
+        sort_value_version_desc      => sort_title_version,
+        sort_value_version_asc       => sort_title_version,
+        sort_value_type_desc         => sort_title_type,
+        sort_value_type_asc          => sort_title_type,
+        sort_value_project_name_desc => sort_title_project_name,
+        sort_value_project_name_asc  => sort_title_project_name
+      }
+    end
+
+    def packages_reverse_sort_order_hash
+      {
+        sort_value_recently_created  => sort_value_oldest_created,
+        sort_value_oldest_created    => sort_value_recently_created,
+        sort_value_name              => sort_value_name_desc,
+        sort_value_name_desc         => sort_value_name,
+        sort_value_version_desc      => sort_value_version_asc,
+        sort_value_version_asc       => sort_value_version_desc,
+        sort_value_type_desc         => sort_value_type_asc,
+        sort_value_type_asc          => sort_value_type_desc,
+        sort_value_project_name_desc => sort_value_project_name_asc,
+        sort_value_project_name_asc  => sort_value_project_name_desc
+      }
+    end
+
+    def packages_sort_option_title(sort_value)
+      packages_sort_options_hash[sort_value] || sort_title_created_date
+    end
+
+    def packages_sort_direction_button(sort_value)
+      reverse_sort = packages_reverse_sort_order_hash[sort_value]
+      url = package_sort_path(sort: reverse_sort)
+
+      sort_direction_button(url, reverse_sort, sort_value)
+    end
+
     # Creates a button with the opposite ordering for the current field in UI.
     def sort_order_button(sort)
       opposite_sorting_param = epics_ordering_options_hash[sort] || epics_ordering_options_hash.key(sort)
@@ -95,6 +136,18 @@ module EE
       s_('SortOptions|Weight')
     end
 
+    def sort_title_project_name
+      s_('SortOptions|Project')
+    end
+
+    def sort_title_version
+      s_('SortOptions|Version')
+    end
+
+    def sort_title_type
+      s_('SortOptions|Type')
+    end
+
     def sort_value_start_date
       'start_date_asc'
     end
@@ -117,6 +170,30 @@ module EE
 
     def sort_value_weight
       'weight'
+    end
+
+    def sort_value_project_name_asc
+      'project_name_asc'
+    end
+
+    def sort_value_project_name_desc
+      'project_name_desc'
+    end
+
+    def sort_value_version_asc
+      'version_asc'
+    end
+
+    def sort_value_version_desc
+      'version_desc'
+    end
+
+    def sort_value_type_asc
+      'type_asc'
+    end
+
+    def sort_value_type_desc
+      'type_desc'
     end
   end
 end

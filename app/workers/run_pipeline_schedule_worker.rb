@@ -5,6 +5,7 @@ class RunPipelineScheduleWorker
   include PipelineQueue
 
   queue_namespace :pipeline_creation
+  feature_category :continuous_integration
 
   # rubocop: disable CodeReuse/ActiveRecord
   def perform(schedule_id, user_id)
@@ -39,7 +40,7 @@ class RunPipelineScheduleWorker
 
     Gitlab::Sentry
       .track_exception(error,
-                       issue_url: 'https://gitlab.com/gitlab-org/gitlab-ce/issues/41231',
+                       issue_url: 'https://gitlab.com/gitlab-org/gitlab-foss/issues/41231',
                        extra: { schedule_id: schedule.id })
   end
   # rubocop:enable Gitlab/RailsLogger

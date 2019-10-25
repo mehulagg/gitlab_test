@@ -1,9 +1,9 @@
 import Vue from 'vue';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import { GlToast } from '@gitlab/ui';
+import VueDraggable from 'vuedraggable';
 import MockAdapter from 'axios-mock-adapter';
 import Dashboard from '~/monitoring/components/dashboard.vue';
-import { timeWindows, timeWindowsKeyNames } from '~/monitoring/constants';
 import * as types from '~/monitoring/stores/mutation_types';
 import { createStore } from '~/monitoring/stores';
 import axios from '~/lib/utils/axios_utils';
@@ -36,6 +36,12 @@ const propsData = {
   validateQueryPath: '',
 };
 
+const resetSpy = spy => {
+  if (spy) {
+    spy.calls.reset();
+  }
+};
+
 export default propsData;
 
 describe('Dashboard', () => {
@@ -50,11 +56,6 @@ describe('Dashboard', () => {
       <div class="prometheus-graphs"></div>
       <div class="layout-page"></div>
     `);
-
-    window.gon = {
-      ...window.gon,
-      ee: false,
-    };
 
     store = createStore();
     mock = new MockAdapter(axios);
@@ -100,8 +101,13 @@ describe('Dashboard', () => {
   });
 
   describe('requests information to the server', () => {
+    let spy;
     beforeEach(() => {
       mock.onGet(mockApiEndpoint).reply(200, metricsGroupsAPIResponse);
+    });
+
+    afterEach(() => {
+      resetSpy(spy);
     });
 
     it('shows up a loading state', done => {
@@ -276,7 +282,7 @@ describe('Dashboard', () => {
       });
     });
 
-    it('renders the time window dropdown with a set of options', done => {
+    it('renders the datetimepicker dropdown', done => {
       component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
         propsData: {
@@ -286,17 +292,9 @@ describe('Dashboard', () => {
         },
         store,
       });
-      const numberOfTimeWindows = Object.keys(timeWindows).length;
 
       setTimeout(() => {
-        const timeWindowDropdown = component.$el.querySelector('.js-time-window-dropdown');
-        const timeWindowDropdownEls = component.$el.querySelectorAll(
-          '.js-time-window-dropdown .dropdown-item',
-        );
-
-        expect(timeWindowDropdown).not.toBeNull();
-        expect(timeWindowDropdownEls.length).toEqual(numberOfTimeWindows);
-
+        expect(component.$el.querySelector('.js-time-window-dropdown')).not.toBeNull();
         done();
       });
     });
@@ -333,8 +331,8 @@ describe('Dashboard', () => {
     });
 
     it('shows a specific time window selected from the url params', done => {
-      const start = 1564439536;
-      const end = 1564441336;
+      const start = '2019-10-01T18:27:47.000Z';
+      const end = '2019-10-01T18:57:47.000Z';
       spyOnDependency(Dashboard, 'getTimeDiff').and.returnValue({
         start,
         end,
@@ -359,7 +357,7 @@ describe('Dashboard', () => {
       });
     });
 
-    it('defaults to the eight hours time window for non valid url parameters', done => {
+    it('shows an error message if invalid url parameters are passed', done => {
       spyOnDependency(Dashboard, 'getParameterValues').and.returnValue([
         '<script>alert("XSS")</script>',
       ]);
@@ -370,11 +368,107 @@ describe('Dashboard', () => {
         store,
       });
 
-      Vue.nextTick(() => {
-        expect(component.selectedTimeWindowKey).toEqual(timeWindowsKeyNames.eightHours);
+      spy = spyOn(component, 'showInvalidDateError');
+      component.$mount();
 
+      component.$nextTick(() => {
+        expect(component.showInvalidDateError).toHaveBeenCalled();
         done();
       });
+    });
+  });
+
+  describe('drag and drop function', () => {
+    let wrapper;
+    let expectedPanelCount; // also called metrics, naming to be improved: https://gitlab.com/gitlab-org/gitlab/issues/31565
+    const findDraggables = () => wrapper.findAll(VueDraggable);
+    const findEnabledDraggables = () => findDraggables().filter(f => !f.attributes('disabled'));
+    const findDraggablePanels = () => wrapper.findAll('.js-draggable-panel');
+    const findRearrangeButton = () => wrapper.find('.js-rearrange-button');
+
+    beforeEach(done => {
+      mock.onGet(mockApiEndpoint).reply(200, metricsGroupsAPIResponse);
+      expectedPanelCount = metricsGroupsAPIResponse.data.reduce(
+        (acc, d) => d.metrics.length + acc,
+        0,
+      );
+      store.dispatch('monitoringDashboard/setFeatureFlags', { additionalPanelTypesEnabled: true });
+
+      wrapper = shallowMount(DashboardComponent, {
+        localVue,
+        sync: false,
+        propsData: { ...propsData, hasMetrics: true },
+        store,
+      });
+
+      // not using $nextTicket becuase we must wait for the dashboard
+      // to be populated with the mock data results.
+      setTimeout(done);
+    });
+
+    it('wraps vuedraggable', () => {
+      expect(findDraggablePanels().exists()).toBe(true);
+      expect(findDraggablePanels().length).toEqual(expectedPanelCount);
+    });
+
+    it('is disabled by default', () => {
+      expect(findRearrangeButton().exists()).toBe(false);
+      expect(findEnabledDraggables().length).toBe(0);
+    });
+
+    describe('when rearrange is enabled', () => {
+      beforeEach(done => {
+        wrapper.setProps({ rearrangePanelsAvailable: true });
+        wrapper.vm.$nextTick(done);
+      });
+
+      it('displays rearrange button', () => {
+        expect(findRearrangeButton().exists()).toBe(true);
+      });
+
+      describe('when rearrange button is clicked', () => {
+        const findFirstDraggableRemoveButton = () =>
+          findDraggablePanels()
+            .at(0)
+            .find('.js-draggable-remove');
+
+        beforeEach(done => {
+          findRearrangeButton().vm.$emit('click');
+          wrapper.vm.$nextTick(done);
+        });
+
+        it('it enables draggables', () => {
+          expect(findRearrangeButton().attributes('pressed')).toBeTruthy();
+          expect(findEnabledDraggables()).toEqual(findDraggables());
+        });
+
+        it('shows a remove button, which removes a panel', done => {
+          expect(findFirstDraggableRemoveButton().isEmpty()).toBe(false);
+
+          expect(findDraggablePanels().length).toEqual(expectedPanelCount);
+          findFirstDraggableRemoveButton().trigger('click');
+
+          wrapper.vm.$nextTick(() => {
+            // At present graphs will not be removed in backend
+            // See https://gitlab.com/gitlab-org/gitlab/issues/27835
+            expect(findDraggablePanels().length).toEqual(expectedPanelCount - 1);
+            done();
+          });
+        });
+
+        it('it disables draggables when clicked again', done => {
+          findRearrangeButton().vm.$emit('click');
+          wrapper.vm.$nextTick(() => {
+            expect(findRearrangeButton().attributes('pressed')).toBeFalsy();
+            expect(findEnabledDraggables().length).toBe(0);
+            done();
+          });
+        });
+      });
+    });
+
+    afterEach(() => {
+      wrapper.destroy();
     });
   });
 
@@ -445,42 +539,67 @@ describe('Dashboard', () => {
     });
   });
 
-  describe('when the window resizes', () => {
+  describe('responds to window resizes', () => {
+    let promPanel;
+    let promGroup;
+    let panelToggle;
+    let chart;
     beforeEach(() => {
       mock.onGet(mockApiEndpoint).reply(200, metricsGroupsAPIResponse);
-      jasmine.clock().install();
-    });
 
-    afterEach(() => {
-      jasmine.clock().uninstall();
-    });
-
-    it('sets elWidth to page width when the sidebar is resized', done => {
       component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
         propsData: {
           ...propsData,
           hasMetrics: true,
-          showPanels: false,
+          showPanels: true,
         },
         store,
       });
 
-      expect(component.elWidth).toEqual(0);
+      component.$store.dispatch('monitoringDashboard/setFeatureFlags', {
+        prometheusEndpoint: false,
+      });
 
-      const pageLayoutEl = document.querySelector('.layout-page');
-      pageLayoutEl.classList.add('page-with-icon-sidebar');
+      component.$store.commit(
+        `monitoringDashboard/${types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS}`,
+        environmentData,
+      );
 
-      Vue.nextTick()
-        .then(() => {
-          jasmine.clock().tick(1000);
-          return Vue.nextTick();
-        })
-        .then(() => {
-          expect(component.elWidth).toEqual(pageLayoutEl.clientWidth);
-          done();
-        })
-        .catch(done.fail);
+      component.$store.commit(
+        `monitoringDashboard/${types.RECEIVE_METRICS_DATA_SUCCESS}`,
+        singleGroupResponse,
+      );
+
+      component.$store.commit(
+        `monitoringDashboard/${types.SET_ALL_DASHBOARDS}`,
+        dashboardGitResponse,
+      );
+
+      return Vue.nextTick().then(() => {
+        promPanel = component.$el.querySelector('.prometheus-panel');
+        promGroup = promPanel.querySelector('.prometheus-graph-group');
+        panelToggle = promPanel.querySelector('.js-graph-group-toggle');
+        chart = promGroup.querySelector('.position-relative svg');
+      });
+    });
+
+    it('setting chart size to zero when panel group is hidden', () => {
+      expect(promGroup.style.display).toBe('');
+      expect(chart.clientWidth).toBeGreaterThan(0);
+
+      panelToggle.click();
+      return Vue.nextTick().then(() => {
+        expect(promGroup.style.display).toBe('none');
+        expect(chart.clientWidth).toBe(0);
+        promPanel.style.width = '500px';
+      });
+    });
+
+    it('expanding chart panel group after resize displays chart', () => {
+      panelToggle.click();
+
+      expect(chart.clientWidth).toBeGreaterThan(0);
     });
   });
 
@@ -527,7 +646,6 @@ describe('Dashboard', () => {
 
       component.$store.dispatch('monitoringDashboard/setFeatureFlags', {
         prometheusEndpoint: false,
-        multipleDashboardsEnabled: true,
       });
 
       component.$store.commit(

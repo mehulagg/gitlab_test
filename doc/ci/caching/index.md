@@ -12,8 +12,9 @@ content of a previous job. It can be particularly useful when you are
 developing software that depends on other libraries which are fetched via the
 internet during build time.
 
-If caching is enabled, it's shared between pipelines and jobs by default,
-starting from GitLab 9.0.
+If caching is enabled, it's shared between pipelines and jobs at the project
+level by default, starting from GitLab 9.0. Caches are not shared across
+projects.
 
 Make sure you read the [`cache` reference](../yaml/README.md#cache) to learn
 how it is defined in `.gitlab-ci.yml`.
@@ -43,7 +44,7 @@ needed to compile the project:
   directories relative to the build directory** and specifying paths which don't
   comply to this rule trigger an unintuitive and illogical error message (an
   enhancement is discussed at
-  [https://gitlab.com/gitlab-org/gitlab-ce/issues/15530](https://gitlab.com/gitlab-org/gitlab-ce/issues/15530)
+  [https://gitlab.com/gitlab-org/gitlab-foss/issues/15530](https://gitlab.com/gitlab-org/gitlab-foss/issues/15530)
   ). Artifacts need to be uploaded to the GitLab instance (not only the GitLab
   runner) before the next stage job(s) can start, so you need to evaluate
   carefully whether your bandwidth allows you to profit from parallelization
@@ -202,12 +203,12 @@ For more fine tuning, read also about the
 
 The most common use case of cache is to preserve contents between subsequent
 runs of jobs for things like dependencies and commonly used libraries
-(Nodejs packages, PHP packages, rubygems, python libraries, etc.),
+(Nodejs packages, PHP packages, rubygems, Python libraries, etc.),
 so they don't have to be re-fetched from the public internet.
 
 NOTE: **Note:**
 For more examples, check out our [GitLab CI/CD
-templates](https://gitlab.com/gitlab-org/gitlab-ce/tree/master/lib/gitlab/ci/templates).
+templates](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/lib/gitlab/ci/templates).
 
 ### Caching Nodejs dependencies
 
@@ -218,7 +219,7 @@ Nodejs modules are installed in `node_modules/` and are cached per-branch:
 
 ```yaml
 #
-# https://gitlab.com/gitlab-org/gitlab-ce/tree/master/lib/gitlab/ci/templates/Nodejs.gitlab-ci.yml
+# https://gitlab.com/gitlab-org/gitlab-foss/tree/master/lib/gitlab/ci/templates/Nodejs.gitlab-ci.yml
 #
 image: node:latest
 
@@ -245,7 +246,7 @@ are cached per-branch:
 
 ```yaml
 #
-# https://gitlab.com/gitlab-org/gitlab-ce/tree/master/lib/gitlab/ci/templates/PHP.gitlab-ci.yml
+# https://gitlab.com/gitlab-org/gitlab-foss/tree/master/lib/gitlab/ci/templates/PHP.gitlab-ci.yml
 #
 image: php:7.2
 
@@ -268,13 +269,13 @@ test:
 ### Caching Python dependencies
 
 Assuming your project is using [pip](https://pip.pypa.io/en/stable/) to install
-the python dependencies, the following example defines `cache` globally so that
+the Python dependencies, the following example defines `cache` globally so that
 all jobs inherit it. Python libraries are installed in a virtualenv under `venv/`,
 pip's cache is defined under `.cache/pip/` and both are cached per-branch:
 
 ```yaml
 #
-# https://gitlab.com/gitlab-org/gitlab-ce/tree/master/lib/gitlab/ci/templates/Python.gitlab-ci.yml
+# https://gitlab.com/gitlab-org/gitlab-foss/tree/master/lib/gitlab/ci/templates/Python.gitlab-ci.yml
 #
 image: python:latest
 
@@ -314,7 +315,7 @@ jobs inherit it. Gems are installed in `vendor/ruby/` and are cached per-branch:
 
 ```yaml
 #
-# https://gitlab.com/gitlab-org/gitlab-ce/tree/master/lib/gitlab/ci/templates/Ruby.gitlab-ci.yml
+# https://gitlab.com/gitlab-org/gitlab-foss/tree/master/lib/gitlab/ci/templates/Ruby.gitlab-ci.yml
 #
 image: ruby:2.6
 
@@ -490,8 +491,8 @@ job B:
 To fix that, use different `keys` for each job.
 
 In another case, let's assume you have more than one Runners assigned to your
-project, but the distributed cache is not enabled. We want the second time the
-pipeline is run, `job A` and `job B` to re-use their cache (which in this case
+project, but the distributed cache is not enabled. The second time the
+pipeline is run, we want `job A` and `job B` to re-use their cache (which in this case
 will be different):
 
 ```yaml
@@ -517,7 +518,7 @@ job B:
 ```
 
 In that case, even if the `key` is different (no fear of overwriting), you
-might experience the cached files to "get cleaned" before each stage if the
+might experience that the cached files "get cleaned" before each stage if the
 jobs run on different Runners in the subsequent pipelines.
 
 ## Clearing the cache
@@ -535,7 +536,7 @@ next run of the pipeline, the cache will be stored in a different location.
 
 ### Clearing the cache manually
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/41249) in GitLab 10.4.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/41249) in GitLab 10.4.
 
 If you want to avoid editing `.gitlab-ci.yml`, you can easily clear the cache
 via GitLab's UI:

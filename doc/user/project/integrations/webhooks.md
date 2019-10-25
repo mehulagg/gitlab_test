@@ -53,7 +53,7 @@ Navigate to the webhooks page by going to your project's
   [Slack](https://api.slack.com/incoming-webhooks) every time a job fails.
 - You can [integrate with Twilio to be notified via SMS](https://www.datadoghq.com/blog/send-alerts-sms-customizable-webhooks-twilio/)
   every time an issue is created for a specific project or group within GitLab
-- You can use them to [automatically assign labels to merge requests](https://about.gitlab.com/2016/08/19/applying-gitlab-labels-automatically/).
+- You can use them to [automatically assign labels to merge requests](https://about.gitlab.com/blog/2016/08/19/applying-gitlab-labels-automatically/).
 
 ## Webhook endpoint tips
 
@@ -86,7 +86,7 @@ You can turn this off in the webhook settings in your GitLab projects.
 
 ## Branch filtering
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/20338) in GitLab 11.3.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/20338) in GitLab 11.3.
 
 Push events can be filtered by branch using a branch name or wildcard pattern
 to limit which push events are sent to your webhook endpoint. By default the
@@ -106,6 +106,9 @@ attribute will only contain the first 20 for performance reasons. Loading
 detailed commit data is expensive. Note that despite only 20 commits being
 present in the `commits` attribute, the `total_commits_count` attribute will
 contain the actual total.
+
+Also, if a single push includes changes for more than three (by default, depending on
+[`push_event_hooks_limit` setting](../../../api/settings.md#list-of-settings-that-can-be-accessed-via-api-calls)) branches, this hook won't be executed.
 
 **Request header**:
 
@@ -189,6 +192,10 @@ X-Gitlab-Event: Push Hook
 ### Tag events
 
 Triggered when you create (or delete) tags to the repository.
+
+NOTE: **Note:**
+If a single push includes changes for more than three (by default, depending on
+[`push_event_hooks_limit` setting](../../../api/settings.md#list-of-settings-that-can-be-accessed-via-api-calls)) tags, this hook won't be executed.
 
 **Request header**:
 
@@ -1251,8 +1258,8 @@ its description:
 ```
 
 It will appear in the webhook body as the below (assuming that GitLab is
-installed at gitlab.example.com, and the project is at
-example-group/example-project):
+installed at `gitlab.example.com`, and the project is at
+`example-group/example-project`):
 
 ```markdown
 ![image](https://gitlab.example.com/example-group/example-project/uploads/$sha/image.png)

@@ -9,7 +9,13 @@ module EE
         License.feature_available?(:operations_dashboard)
       end
 
-      rule { operations_dashboard_available }.enable :read_operations_dashboard
+      condition(:security_dashboard_available) do
+        License.feature_available?(:security_dashboard)
+      end
+
+      rule { ~anonymous & operations_dashboard_available }.enable :read_operations_dashboard
+      rule { ~anonymous & security_dashboard_available }.enable :read_security_dashboard
+
       rule { admin }.policy do
         enable :read_licenses
         enable :destroy_licenses
@@ -17,7 +23,10 @@ module EE
 
       rule { support_bot }.prevent :use_quick_actions
 
-      rule { ~anonymous }.enable :view_productivity_analytics
+      rule { ~anonymous }.policy do
+        enable :view_productivity_analytics
+        enable :view_code_analytics
+      end
     end
   end
 end

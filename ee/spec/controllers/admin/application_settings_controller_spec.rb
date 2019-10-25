@@ -115,22 +115,30 @@ describe Admin::ApplicationSettingsController do
     it 'does not accept negative repository_size_limit' do
       put :update, params: { application_setting: { repository_size_limit: '-100' } }
 
-      expect(response).to render_template(:show)
+      expect(response).to render_template(:general)
       expect(assigns(:application_setting).errors[:repository_size_limit]).to be_present
     end
 
     it 'does not accept invalid repository_size_limit' do
       put :update, params: { application_setting: { repository_size_limit: 'one thousand' } }
 
-      expect(response).to render_template(:show)
+      expect(response).to render_template(:general)
       expect(assigns(:application_setting).errors[:repository_size_limit]).to be_present
     end
 
     it 'does not accept empty repository_size_limit' do
       put :update, params: { application_setting: { repository_size_limit: '' } }
 
-      expect(response).to render_template(:show)
+      expect(response).to render_template(:general)
       expect(assigns(:application_setting).errors[:repository_size_limit]).to be_present
+    end
+
+    describe 'verify panel actions' do
+      Admin::ApplicationSettingsController::EE_VALID_SETTING_PANELS.each do |valid_action|
+        it_behaves_like 'renders correct panels' do
+          let(:action) { valid_action }
+        end
+      end
     end
   end
 end

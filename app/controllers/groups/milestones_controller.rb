@@ -3,14 +3,13 @@
 class Groups::MilestonesController < Groups::ApplicationController
   include MilestoneActions
 
-  before_action :group_projects
   before_action :milestone, only: [:edit, :show, :update, :merge_requests, :participants, :labels, :destroy]
   before_action :authorize_admin_milestones!, only: [:edit, :new, :create, :update, :destroy]
 
   def index
     respond_to do |format|
       format.html do
-        @milestone_states = Milestone.states_count(group_projects, [group])
+        @milestone_states = Milestone.states_count(group_projects_with_access, [group])
         @milestones = Kaminari.paginate_array(milestones).page(params[:page])
       end
       format.json do
@@ -45,7 +44,7 @@ class Groups::MilestonesController < Groups::ApplicationController
     # all projects milestones states at once.
     milestones, update_params = get_milestones_for_update
     milestones.each do |milestone|
-      Milestones::UpdateService.new(milestone.parent, current_user, update_params).execute(milestone)
+      Milestones::UpdateService.new(milestone.resource_parent, current_user, update_params).execute(milestone)
     end
 
     redirect_to milestone_path
@@ -100,13 +99,18 @@ class Groups::MilestonesController < Groups::ApplicationController
   end
 
   def legacy_milestones
-    GroupMilestone.build_collection(group, group_projects, params)
+    GroupMilestone.build_collection(group, group_projects_with_access, params)
+  end
+
+  def group_projects_with_access
+    group_projects.with_issues_available_for_user(current_user)
+      .or(group_projects.with_merge_requests_available_for_user(current_user))
   end
 
   def milestone
     @milestone =
       if params[:title]
-        GroupMilestone.build(group, group_projects, params[:title])
+        GroupMilestone.build(group, group_projects_with_access, params[:title])
       else
         group.milestones.find_by_iid(params[:id])
       end

@@ -75,13 +75,13 @@ class Todo < ApplicationRecord
   after_save :keep_around_commit, if: :commit_id
 
   class << self
-    # Returns all todos for the given group and its descendants.
+    # Returns all todos for the given group ids and their descendants.
     #
-    # group - A `Group` to retrieve todos for.
+    # group_ids - Group Ids to retrieve todos for.
     #
     # Returns an `ActiveRecord::Relation`.
-    def for_group_and_descendants(group)
-      groups = group.self_and_descendants
+    def for_group_ids_and_descendants(group_ids)
+      groups = Group.groups_including_descendants_by(group_ids)
 
       from_union([
         for_project(Project.for_group(groups)),
@@ -89,11 +89,12 @@ class Todo < ApplicationRecord
       ])
     end
 
-    # Returns `true` if the current user has any todos for the given target.
+    # Returns `true` if the current user has any todos for the given target with the optional given state.
     #
     # target - The value of the `target_type` column, such as `Issue`.
-    def any_for_target?(target)
-      exists?(target: target)
+    # state - The value of the `state` column, such as `pending` or `done`.
+    def any_for_target?(target, state = nil)
+      state.nil? ? exists?(target: target) : exists?(target: target, state: state)
     end
 
     # Updates the state of a relation of todos to the new state.
@@ -143,10 +144,9 @@ class Todo < ApplicationRecord
     end
   end
 
-  def parent
+  def resource_parent
     project
   end
-  alias_method :resource_parent, :parent
 
   def unmergeable?
     action == UNMERGEABLE

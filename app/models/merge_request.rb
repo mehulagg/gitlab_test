@@ -85,7 +85,13 @@ class MergeRequest < ApplicationRecord
   # when creating new merge request
   attr_accessor :can_be_created, :compare_commits, :diff_options, :compare
 
-  state_machine :state, initial: :opened do
+  # Keep states definition to be evaluated before the state_machine block to avoid spec failures.
+  # If this gets evaluated after, the `merged` and `locked` states which are overrided can be nil.
+  def self.available_state_names
+    super + [:merged, :locked]
+  end
+
+  state_machine :state_id, initial: :opened do
     event :close do
       transition [:opened] => :closed
     end
@@ -116,10 +122,17 @@ class MergeRequest < ApplicationRecord
       end
     end
 
-    state :opened
-    state :closed
-    state :merged
-    state :locked
+    state :opened, value: MergeRequest.available_states[:opened]
+    state :closed, value: MergeRequest.available_states[:closed]
+    state :merged, value: MergeRequest.available_states[:merged]
+    state :locked, value: MergeRequest.available_states[:locked]
+  end
+
+  # Alias to state machine .with_state_id method
+  # This needs to be defined after the state machine block to avoid errors
+  class << self
+    alias_method :with_state, :with_state_id
+    alias_method :with_states, :with_state_ids
   end
 
   state_machine :merge_status, initial: :unchecked do
@@ -196,6 +209,10 @@ class MergeRequest < ApplicationRecord
   scope :by_target_branch, ->(branch_name) { where(target_branch: branch_name) }
   scope :preload_source_project, -> { preload(:source_project) }
 
+  scope :with_open_merge_when_pipeline_succeeds, -> do
+    with_state(:opened).where(merge_when_pipeline_succeeds: true)
+  end
+
   after_save :keep_around_commit
 
   alias_attribute :project, :target_project
@@ -203,12 +220,12 @@ class MergeRequest < ApplicationRecord
   alias_attribute :auto_merge_enabled, :merge_when_pipeline_succeeds
   alias_method :issuing_parent, :target_project
 
+  RebaseLockTimeout = Class.new(StandardError)
+
+  REBASE_LOCK_MESSAGE = _("Failed to enqueue the rebase operation, possibly due to a long-lived transaction. Try again later.")
+
   def self.reference_prefix
     '!'
-  end
-
-  def self.available_states
-    @available_states ||= super.merge(merged: 3, locked: 4)
   end
 
   # Returns the top 100 target branches
@@ -233,7 +250,7 @@ class MergeRequest < ApplicationRecord
 
   # Use this method whenever you need to make sure the head_pipeline is synced with the
   # branch head commit, for example checking if a merge request can be merged.
-  # For more information check: https://gitlab.com/gitlab-org/gitlab-ce/issues/40004
+  # For more information check: https://gitlab.com/gitlab-org/gitlab-foss/issues/40004
   def actual_head_pipeline
     head_pipeline&.matches_sha_or_source_sha?(diff_head_sha) ? head_pipeline : nil
   end
@@ -396,9 +413,7 @@ class MergeRequest < ApplicationRecord
   # Set off a rebase asynchronously, atomically updating the `rebase_jid` of
   # the MR so that the status of the operation can be tracked.
   def rebase_async(user_id)
-    transaction do
-      lock!
-
+    with_rebase_lock do
       raise ActiveRecord::StaleObjectError if !open? || rebase_in_progress?
 
       # Although there is a race between setting rebase_jid here and clearing it
@@ -448,6 +463,15 @@ class MergeRequest < ApplicationRecord
 
   def non_latest_diffs
     merge_request_diffs.where.not(id: merge_request_diff.id)
+  end
+
+  # Overwritten in EE
+  def note_positions_for_paths(paths, _user = nil)
+    positions = notes.new_diff_notes.joins(:note_diff_file)
+      .where('note_diff_files.old_path IN (?) OR note_diff_files.new_path IN (?)', paths, paths)
+      .positions
+
+    Gitlab::Diff::PositionCollection.new(positions, diff_head_sha)
   end
 
   def preloads_discussion_diff_highlighting?
@@ -691,7 +715,7 @@ class MergeRequest < ApplicationRecord
   def create_merge_request_diff
     fetch_ref!
 
-    # n+1: https://gitlab.com/gitlab-org/gitlab-ce/issues/37435
+    # n+1: https://gitlab.com/gitlab-org/gitlab-foss/issues/37435
     Gitlab::GitalyClient.allow_n_plus_1_calls do
       merge_request_diffs.create!
       reload_merge_request_diff
@@ -1057,7 +1081,7 @@ class MergeRequest < ApplicationRecord
     return true unless project.only_allow_merge_if_pipeline_succeeds?
     return false unless actual_head_pipeline
 
-    actual_head_pipeline.success? || actual_head_pipeline.skipped?
+    actual_head_pipeline.success?
   end
 
   def environments_for(current_user)
@@ -1233,6 +1257,27 @@ class MergeRequest < ApplicationRecord
     compare_reports(Ci::CompareTestReportsService)
   end
 
+  def has_exposed_artifacts?
+    return false unless Feature.enabled?(:ci_expose_arbitrary_artifacts_in_mr, default_enabled: true)
+
+    actual_head_pipeline&.has_exposed_artifacts?
+  end
+
+  # TODO: this method and compare_test_reports use the same
+  # result type, which is handled by the controller's #reports_response.
+  # we should minimize mistakes by isolating the common parts.
+  # issue: https://gitlab.com/gitlab-org/gitlab/issues/34224
+  def find_exposed_artifacts
+    unless has_exposed_artifacts?
+      return { status: :error, status_reason: 'This merge request does not have exposed artifacts' }
+    end
+
+    compare_reports(Ci::GenerateExposedArtifactsReportService)
+  end
+
+  # TODO: consider renaming this as with exposed artifacts we generate reports,
+  # not always compare
+  # issue: https://gitlab.com/gitlab-org/gitlab/issues/34224
   def compare_reports(service_class, current_user = nil)
     with_reactive_cache(service_class.name, current_user&.id) do |data|
       unless service_class.new(project, current_user)
@@ -1247,6 +1292,8 @@ class MergeRequest < ApplicationRecord
   def calculate_reactive_cache(identifier, current_user_id = nil, *args)
     service_class = identifier.constantize
 
+    # TODO: the type check should change to something that includes exposed artifacts service
+    # issue: https://gitlab.com/gitlab-org/gitlab/issues/34224
     raise NameError, service_class unless service_class < Ci::CompareReportsBaseService
 
     current_user = User.find_by(id: current_user_id)
@@ -1389,7 +1436,7 @@ class MergeRequest < ApplicationRecord
   end
 
   # TODO: remove once production database rename completes
-  # https://gitlab.com/gitlab-org/gitlab-ce/issues/47592
+  # https://gitlab.com/gitlab-org/gitlab-foss/issues/47592
   alias_attribute :allow_collaboration, :allow_maintainer_to_push
 
   def allow_collaboration
@@ -1422,6 +1469,30 @@ class MergeRequest < ApplicationRecord
   end
 
   private
+
+  def with_rebase_lock
+    if Feature.enabled?(:merge_request_rebase_nowait_lock, default_enabled: true)
+      with_retried_nowait_lock { yield }
+    else
+      with_lock(true) { yield }
+    end
+  end
+
+  # If the merge request is idle in transaction or has a SELECT FOR
+  # UPDATE, we don't want to block indefinitely or this could cause a
+  # queue of SELECT FOR UPDATE calls. Instead, try to get the lock for
+  # 5 s before raising an error to the user.
+  def with_retried_nowait_lock
+    # Try at most 0.25 + (1.5 * .25) + (1.5^2 * .25) ... (1.5^5 * .25) = 5.2 s to get the lock
+    Retriable.retriable(on: ActiveRecord::LockWaitTimeout, tries: 6, base_interval: 0.25) do
+      with_lock('FOR UPDATE NOWAIT') do
+        yield
+      end
+    end
+  rescue ActiveRecord::LockWaitTimeout => e
+    Gitlab::Sentry.track_acceptable_exception(e)
+    raise RebaseLockTimeout, REBASE_LOCK_MESSAGE
+  end
 
   def source_project_variables
     Gitlab::Ci::Variables::Collection.new.tap do |variables|

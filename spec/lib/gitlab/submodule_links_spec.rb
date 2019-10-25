@@ -3,12 +3,14 @@
 require 'spec_helper'
 
 describe Gitlab::SubmoduleLinks do
-  let(:submodule_item) { double(id: 'hash', path: 'gitlab-ce') }
+  let(:submodule_item) { double(id: 'hash', path: 'gitlab-foss') }
   let(:repo) { double }
   let(:links) { described_class.new(repo) }
 
   describe '#for' do
-    subject { links.for(submodule_item, 'ref') }
+    let(:ref) { 'ref' }
+
+    subject { links.for(submodule_item, ref) }
 
     context 'when there is no .gitmodules file' do
       before do
@@ -32,11 +34,23 @@ describe Gitlab::SubmoduleLinks do
 
     context 'when the submodule is known' do
       before do
-        stub_urls({ 'gitlab-ce' => 'git@gitlab.com:gitlab-org/gitlab-ce.git' })
+        stub_urls({ 'gitlab-foss' => 'git@gitlab.com:gitlab-org/gitlab-foss.git' })
       end
 
-      it 'returns links' do
-        expect(subject).to eq(['https://gitlab.com/gitlab-org/gitlab-ce', 'https://gitlab.com/gitlab-org/gitlab-ce/tree/hash'])
+      it 'returns links and caches the by ref' do
+        expect(subject).to eq(['https://gitlab.com/gitlab-org/gitlab-foss', 'https://gitlab.com/gitlab-org/gitlab-foss/tree/hash'])
+
+        cache_store = links.instance_variable_get("@cache_store")
+
+        expect(cache_store[ref]).to eq({ "gitlab-foss" => "git@gitlab.com:gitlab-org/gitlab-foss.git" })
+      end
+
+      context 'when ref name contains a dash' do
+        let(:ref) { 'signed-commits' }
+
+        it 'returns links' do
+          expect(subject).to eq(['https://gitlab.com/gitlab-org/gitlab-foss', 'https://gitlab.com/gitlab-org/gitlab-foss/tree/hash'])
+        end
       end
     end
   end

@@ -31,7 +31,16 @@
   }
 }
 
-.ci-status-icon-preparing,
+.ci-status-icon-preparing {
+  svg {
+    fill: $gray-500;
+  }
+
+  &.add-border {
+    @include borderless-status-icon($gray-500);
+  }
+}
+
 .ci-status-icon-running {
   svg {
     fill: $blue-400;
@@ -89,4 +98,19 @@
   align-items: center;
   justify-content: center;
   color: $gray-700;
+}
+
+.svg-icon {
+  display: inline-flex;
+  align-self: center;
+
+  svg {
+    height: 1em;
+    width: 1em;
+  }
+
+  &.svg-baseline svg {
+    top: 0.125em;
+    position: relative;
+  }
 }

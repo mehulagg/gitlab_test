@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Referencing Epics', :js do
@@ -103,7 +105,7 @@ describe 'Referencing Epics', :js do
         wait_for_requests
       end
 
-      it 'creates a note with reference and cross references the epic' do
+      it 'creates a note with reference and cross references the epic', :sidekiq_might_not_need_inline do
         page.within('div#notes li.note div.note-text') do
           expect(page).to have_content(note_text)
           expect(page.find('a')).to have_content(epic.to_reference(full: true))
@@ -129,7 +131,7 @@ describe 'Referencing Epics', :js do
           wait_for_requests
         end
 
-        it 'creates a note with reference and cross references the issue' do
+        it 'creates a note with reference and cross references the issue', :sidekiq_might_not_need_inline do
           page.within('div#notes li.note div.note-text') do
             expect(page).to have_content(note_text)
             expect(page.find('a')).to have_content(issue.to_reference(full: true))

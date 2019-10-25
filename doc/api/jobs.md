@@ -399,7 +399,7 @@ Possible response status codes:
 | 200       | Serves the artifacts file.      |
 | 404       | Build not found or no artifacts.|
 
-[ce-2893]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/2893
+[ce-2893]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/2893
 
 ## Download the artifacts archive
 
@@ -466,7 +466,7 @@ Possible response status codes:
 | 200       | Serves the artifacts file.      |
 | 404       | Build not found or no artifacts.|
 
-[ce-5347]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/5347
+[ce-5347]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/5347
 
 ## Download a single artifact file by job ID
 
@@ -504,7 +504,7 @@ Possible response status codes:
 
 ## Download a single artifact file from specific tag or branch
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/23538) in GitLab 11.5.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/23538) in GitLab 11.5.
 
 Download a single artifact file for a specific job of the latest successful
 pipeline for the given reference name from within the job's artifacts archive.
@@ -537,9 +537,9 @@ Possible response status codes:
 | 400       | Invalid path provided                |
 | 404       | Build not found or no file/artifacts |
 
-## Get a trace file
+## Get a log file
 
-Get a trace of a specific job of a project
+Get a log (trace) of a specific job of a project:
 
 ```
 GET /projects/:id/jobs/:job_id/trace
@@ -556,10 +556,10 @@ curl --location --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.ex
 
 Possible response status codes:
 
-| Status    | Description                       |
-|-----------|-----------------------------------|
-| 200       | Serves the trace file             |
-| 404       | Build not found or no trace file  |
+| Status    | Description                   |
+|-----------|-------------------------------|
+| 200       | Serves the log file           |
+| 404       | Job not found or no log file  |
 
 ## Cancel a job
 
@@ -661,7 +661,7 @@ Example of response
 
 ## Erase a job
 
-Erase a single job of a project (remove job artifacts and a job trace)
+Erase a single job of a project (remove job artifacts and a job log)
 
 ```
 POST /projects/:id/jobs/:job_id/erase
@@ -769,7 +769,7 @@ Example response:
 
 ## Delete artifacts
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/25522) in GitLab 11.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/25522) in GitLab 11.9.
 
 Delete artifacts of a job.
 
@@ -843,5 +843,5 @@ Example of response
 ```
 
 [ee]: https://about.gitlab.com/pricing/
-[ee-2346]: https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/2346
+[ee-2346]: https://gitlab.com/gitlab-org/gitlab/merge_requests/2346
 [triggers]: ../ci/triggers/README.md#when-a-pipeline-depends-on-the-artifacts-of-another-pipeline-premium

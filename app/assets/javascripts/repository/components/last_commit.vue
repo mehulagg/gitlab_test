@@ -1,5 +1,4 @@
 <script>
-/* eslint-disable @gitlab/vue-i18n/no-bare-strings */
 import { GlTooltipDirective, GlLink, GlButton, GlLoadingIcon } from '@gitlab/ui';
 import { sprintf, s__ } from '~/locale';
 import Icon from '../../vue_shared/components/icon.vue';
@@ -113,7 +112,7 @@ export default {
             >
               {{ commit.author.name }}
             </gl-link>
-            authored
+            {{ s__('LastCommit|authored') }}
             <timeago-tooltip :time="commit.authoredDate" tooltip-placement="bottom" />
           </div>
           <pre
@@ -125,26 +124,29 @@ export default {
           </pre>
         </div>
         <div class="commit-actions flex-row">
-          <gl-link
-            v-if="commit.latestPipeline"
-            v-gl-tooltip
-            :href="commit.latestPipeline.detailedStatus.detailsPath"
-            :title="statusTitle"
-            class="js-commit-pipeline"
-          >
-            <ci-icon
-              :status="commit.latestPipeline.detailedStatus"
-              :size="24"
-              :aria-label="statusTitle"
-            />
-          </gl-link>
+          <div v-if="commit.signatureHtml" v-html="commit.signatureHtml"></div>
+          <div class="ci-status-link">
+            <gl-link
+              v-if="commit.latestPipeline"
+              v-gl-tooltip
+              :href="commit.latestPipeline.detailedStatus.detailsPath"
+              :title="statusTitle"
+              class="js-commit-pipeline"
+            >
+              <ci-icon
+                :status="commit.latestPipeline.detailedStatus"
+                :size="24"
+                :aria-label="statusTitle"
+              />
+            </gl-link>
+          </div>
           <div class="commit-sha-group d-flex">
             <div class="label label-monospace monospace">
               {{ showCommitId }}
             </div>
             <clipboard-button
               :text="commit.sha"
-              :title="__('Copy commit SHA to clipboard')"
+              :title="__('Copy commit SHA')"
               tooltip-placement="bottom"
             />
           </div>

@@ -10,8 +10,8 @@ module Gitlab
       @instance
     end
 
-    def self.instance
-      @instance ||= initialize_instance
+    def self.instance(*args)
+      @instance ||= initialize_instance(*args)
     end
 
     attr_reader :thread
@@ -34,7 +34,9 @@ module Gitlab
       @mutex.synchronize do
         break thread if thread?
 
-        @thread = Thread.new { start_working }
+        if start_working
+          @thread = Thread.new { run_thread }
+        end
       end
     end
 
@@ -57,10 +59,18 @@ module Gitlab
 
     private
 
+    # Executed in lock context before starting thread
+    # Needs to return success
     def start_working
+      true
+    end
+
+    # Executed in separate thread
+    def run_thread
       raise NotImplementedError
     end
 
+    # Executed in lock context
     def stop_working
       # no-ops
     end

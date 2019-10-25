@@ -156,7 +156,7 @@ An admin can enable/disable a specific Runner for projects:
 
 ## Protected Runners
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/13194) in GitLab 10.0.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/13194) in GitLab 10.0.
 
 You can protect Runners from revealing sensitive information.
 Whenever a Runner is protected, the Runner picks only jobs created on
@@ -365,8 +365,8 @@ We're always looking for contributions that can mitigate these
 ### Resetting the registration token for a Project
 
 If you think that registration token for a Project was revealed, you should
-reset them. It's recommended because such token can be used to register another
-Runner to the Project. It may be next used to obtain the values of secret
+reset them. It's recommended because such a token can be used to register another
+Runner to the Project. It may then be used to obtain the values of secret
 variables or clone the project code, that normally may be unavailable for the
 attacker.
 
@@ -379,14 +379,14 @@ To reset the token:
 1. After the page is refreshed, expand the **Runners settings** section
    and check the registration token - it should be changed.
 
-From now on the old token is not valid anymore and will not allow to register
-a new Runner to the project. If you are using any tools to provision and
-register new Runners, you should now update the token that is used to the
-new value.
+From now on the old token is no longer valid and will not register
+any new Runners to the project. If you are using any tools to provision and
+register new Runners, the tokens used in those tools should be updated to reflect the
+value of the new token.
 
 ## Determining the IP address of a Runner
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/17286) in GitLab 10.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/17286) in GitLab 10.6.
 
 It may be useful to know the IP address of a Runner so you can troubleshoot
 issues with that Runner. GitLab stores and displays the IP address by viewing

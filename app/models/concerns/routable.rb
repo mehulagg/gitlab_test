@@ -29,7 +29,7 @@ module Routable
     #
     # Usage:
     #
-    #     Klass.find_by_full_path('gitlab-org/gitlab-ce')
+    #     Klass.find_by_full_path('gitlab-org/gitlab-foss')
     #
     # Returns a single object, or nil.
     def find_by_full_path(path, follow_redirects: false)
@@ -48,17 +48,24 @@ module Routable
     #
     # Usage:
     #
-    #     Klass.where_full_path_in(%w{gitlab-org/gitlab-ce gitlab-org/gitlab-ee})
+    #     Klass.where_full_path_in(%w{gitlab-org/gitlab-foss gitlab-org/gitlab})
     #
     # Returns an ActiveRecord::Relation.
-    def where_full_path_in(paths)
+    def where_full_path_in(paths, use_includes: true)
       return none if paths.empty?
 
       wheres = paths.map do |path|
         "(LOWER(routes.path) = LOWER(#{connection.quote(path)}))"
       end
 
-      includes(:route).where(wheres.join(' OR ')).references(:routes)
+      route =
+        if use_includes
+          includes(:route).references(:routes)
+        else
+          joins(:route)
+        end
+
+      route.where(wheres.join(' OR '))
     end
   end
 

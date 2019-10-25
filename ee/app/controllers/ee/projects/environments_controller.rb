@@ -9,6 +9,9 @@ module EE
         before_action :authorize_read_pod_logs!, only: [:logs]
         before_action :environment_ee, only: [:logs]
         before_action :authorize_create_environment_terminal!, only: [:terminal]
+        before_action do
+          push_frontend_feature_flag(:environment_logs_use_vue_ui)
+        end
       end
 
       def logs
@@ -18,10 +21,15 @@ module EE
             ::Gitlab::UsageCounters::PodLogs.increment(project.id)
             ::Gitlab::PollingInterval.set_header(response, interval: 3_000)
 
-            render json: {
-              logs: pod_logs.strip.split("\n").as_json,
-              pods: environment.pod_names
-            }
+            result = PodLogsService.new(environment, params: params.permit!).execute
+
+            if result[:status] == :processing
+              head :accepted
+            elsif result[:status] == :success
+              render json: result
+            else
+              render status: :bad_request, json: result
+            end
           end
         end
       end
@@ -30,10 +38,6 @@ module EE
 
       def environment_ee
         environment
-      end
-
-      def pod_logs
-        environment.deployment_platform.read_pod_logs(params[:pod_name], environment.deployment_namespace)
       end
 
       def authorize_create_environment_terminal!

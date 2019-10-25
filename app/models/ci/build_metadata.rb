@@ -25,6 +25,10 @@ module Ci
 
     chronic_duration_attr_reader :timeout_human_readable, :timeout
 
+    scope :scoped_build, -> { where('ci_builds_metadata.build_id = ci_builds.id') }
+    scope :with_interruptible, -> { where(interruptible: true) }
+    scope :with_exposed_artifacts, -> { where(has_exposed_artifacts: true) }
+
     enum timeout_source: {
         unknown_timeout_source: 1,
         project_timeout_source: 2,

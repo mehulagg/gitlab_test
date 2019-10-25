@@ -371,11 +371,13 @@ class ProjectsController < Projects::ApplicationController
       :path,
       :printing_merge_request_link_enabled,
       :public_builds,
+      :remove_source_branch_after_merge,
       :request_access_enabled,
       :runners_token,
       :tag_list,
       :visibility_level,
       :template_name,
+      :template_project_id,
       :merge_method,
       :initialize_with_readme,
 
@@ -457,7 +459,7 @@ class ProjectsController < Projects::ApplicationController
   end
 
   def whitelist_query_limiting
-    Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ce/issues/42440')
+    Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/42440')
   end
 
   def present_project

@@ -51,6 +51,48 @@ describe ApplicationSetting do
     it { is_expected.to allow_value(nil).for(:static_objects_external_storage_url) }
     it { is_expected.to allow_value(http).for(:static_objects_external_storage_url) }
     it { is_expected.to allow_value(https).for(:static_objects_external_storage_url) }
+    it { is_expected.to allow_value(['/example'] * 100).for(:protected_paths) }
+    it { is_expected.not_to allow_value(['/example'] * 101).for(:protected_paths) }
+    it { is_expected.not_to allow_value(nil).for(:protected_paths) }
+    it { is_expected.to allow_value([]).for(:protected_paths) }
+
+    it { is_expected.to allow_value(3).for(:push_event_hooks_limit) }
+    it { is_expected.not_to allow_value('three').for(:push_event_hooks_limit) }
+    it { is_expected.not_to allow_value(nil).for(:push_event_hooks_limit) }
+
+    it { is_expected.to allow_value(3).for(:push_event_activities_limit) }
+    it { is_expected.not_to allow_value('three').for(:push_event_activities_limit) }
+    it { is_expected.not_to allow_value(nil).for(:push_event_activities_limit) }
+
+    context 'when snowplow is enabled' do
+      before do
+        setting.snowplow_enabled = true
+      end
+
+      it { is_expected.not_to allow_value(nil).for(:snowplow_collector_hostname) }
+      it { is_expected.to allow_value("snowplow.gitlab.com").for(:snowplow_collector_hostname) }
+      it { is_expected.not_to allow_value('/example').for(:snowplow_collector_hostname) }
+    end
+
+    context 'when snowplow is not enabled' do
+      it { is_expected.to allow_value(nil).for(:snowplow_collector_hostname) }
+    end
+
+    context 'when pendo is enabled' do
+      before do
+        setting.pendo_enabled = true
+      end
+
+      it { is_expected.not_to allow_value(nil).for(:pendo_url) }
+      it { is_expected.to allow_value(http).for(:pendo_url) }
+      it { is_expected.to allow_value(https).for(:pendo_url) }
+      it { is_expected.not_to allow_value(ftp).for(:pendo_url) }
+      it { is_expected.not_to allow_value('http://127.0.0.1').for(:pendo_url) }
+    end
+
+    context 'when pendo is not enabled' do
+      it { is_expected.to allow_value(nil).for(:pendo_url) }
+    end
 
     context "when user accepted let's encrypt terms of service" do
       before do

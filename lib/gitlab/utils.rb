@@ -13,14 +13,6 @@ module Gitlab
       path
     end
 
-    # Run system command without outputting to stdout.
-    #
-    # @param  cmd [Array<String>]
-    # @return [Boolean]
-    def system_silent(cmd)
-      Popen.popen(cmd).last.zero?
-    end
-
     def force_utf8(str)
       str.dup.force_encoding(Encoding::UTF_8)
     end
@@ -137,6 +129,16 @@ module Gitlab
 
       IPAddr.new(str)
     rescue IPAddr::InvalidAddressError
+    end
+
+    # Filter a Hash against a mapping of keys to sets of allowed values.
+    #
+    # Keys that do not pass the filter will be removed from the Hash.
+    # This mutates the input hash.
+    def allow_hash_values(hash, allowed)
+      allowed.each do |key, allowed_values|
+        hash.delete(key) if hash.key?(key) && !allowed_values.include?(hash[key])
+      end
     end
   end
 end

@@ -2,7 +2,7 @@
 /**
  * This file is intended to be deleted.
  * The existing functions will removed one by one in favor of using the board store directly.
- * see https://gitlab.com/gitlab-org/gitlab-ce/issues/61621
+ * see https://gitlab.com/gitlab-org/gitlab-foss/issues/61621
  */
 
 import boardsStore from '~/boards/stores/boards_store';
@@ -32,8 +32,8 @@ export default class BoardService {
     return boardsStore.createList(entityId, entityType);
   }
 
-  updateList(id, position) {
-    return boardsStore.updateList(id, position);
+  updateList(id, position, collapsed) {
+    return boardsStore.updateList(id, position, collapsed);
   }
 
   destroyList(id) {
@@ -46,6 +46,16 @@ export default class BoardService {
 
   moveIssue(id, fromListId = null, toListId = null, moveBeforeId = null, moveAfterId = null) {
     return boardsStore.moveIssue(id, fromListId, toListId, moveBeforeId, moveAfterId);
+  }
+
+  moveMultipleIssues({
+    ids,
+    fromListId = null,
+    toListId = null,
+    moveBeforeId = null,
+    moveAfterId = null,
+  }) {
+    return boardsStore.moveMultipleIssues({ ids, fromListId, toListId, moveBeforeId, moveAfterId });
   }
 
   newIssue(id, issue) {

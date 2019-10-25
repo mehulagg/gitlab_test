@@ -45,7 +45,7 @@ describe Members::DestroyService do
   shared_examples 'a service destroying a member with access' do
     it_behaves_like 'a service destroying a member'
 
-    it 'invalidates cached counts for assigned issues and merge requests', :aggregate_failures do
+    it 'invalidates cached counts for assigned issues and merge requests', :aggregate_failures, :sidekiq_might_not_need_inline do
       create(:issue, project: group_project, assignees: [member_user])
       create(:merge_request, source_project: group_project, assignees: [member_user])
       create(:todo, :pending, project: group_project, user: member_user)
@@ -223,7 +223,7 @@ describe Members::DestroyService do
         group.add_owner(current_user)
       end
 
-      # Regression spec for issue: https://gitlab.com/gitlab-org/gitlab-ce/issues/32504
+      # Regression spec for issue: https://gitlab.com/gitlab-org/gitlab-foss/issues/32504
       it_behaves_like 'a service destroying a member' do
         let(:member) { project_invited_member }
       end

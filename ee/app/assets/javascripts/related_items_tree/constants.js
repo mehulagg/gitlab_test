@@ -17,9 +17,14 @@ export const PathIdSeparator = {
   Issue: '#',
 };
 
-export const ActionType = {
-  Epic: 'epic',
-  Issue: 'issue',
+export const idProp = {
+  Epic: 'id',
+  Issue: 'epicIssueId',
+};
+
+export const relativePositions = {
+  Before: 'before',
+  After: 'after',
 };
 
 export const RemoveItemModalProps = {
@@ -36,21 +41,6 @@ export const RemoveItemModalProps = {
     ),
   },
 };
-
-export const EpicDropdownActions = [
-  {
-    id: 0,
-    actionType: ActionType.Epic,
-    title: s__('Epics|Add an epic'),
-    description: s__('Epics|Add an existing epic as a child epic.'),
-  },
-  {
-    id: 1,
-    actionType: ActionType.Epic,
-    title: s__('Epics|Create new epic'),
-    description: s__('Epics|Create an epic within this group and add it as a child epic.'),
-  },
-];
 
 export const OVERFLOW_AFTER = 5;
 

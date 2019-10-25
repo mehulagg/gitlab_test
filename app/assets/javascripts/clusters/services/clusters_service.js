@@ -11,13 +11,14 @@ export default class ClusterService {
       prometheus: this.options.installPrometheusEndpoint,
       jupyter: this.options.installJupyterEndpoint,
       knative: this.options.installKnativeEndpoint,
+      elastic_stack: this.options.installElasticStackEndpoint,
     };
     this.appUpdateEndpointMap = {
       knative: this.options.updateKnativeEndpoint,
     };
   }
 
-  fetchData() {
+  fetchClusterStatus() {
     return axios.get(this.options.endpoint);
   }
 

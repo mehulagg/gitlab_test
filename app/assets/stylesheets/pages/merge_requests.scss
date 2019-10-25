@@ -19,6 +19,8 @@
   border-top: 1px solid $border-color;
 }
 
+.mr-widget-margin-left { margin-left: $mr-widget-margin-left; }
+
 .media-section {
   @include media-breakpoint-down(md) {
     align-items: flex-start;
@@ -460,10 +462,6 @@
     .issuable-meta {
       .author-link {
         display: inline-block;
-      }
-
-      .issuable-comments {
-        height: 18px;
       }
     }
 

@@ -2,7 +2,7 @@
 import { mapState, mapActions } from 'vuex';
 import GroupsDropdownFilter from '../../shared/components/groups_dropdown_filter.vue';
 import ProjectsDropdownFilter from '../../shared/components/projects_dropdown_filter.vue';
-import { accessLevelReporter } from '../constants';
+import { accessLevelReporter, projectsPerPage } from '../constants';
 
 export default {
   components: {
@@ -12,9 +12,6 @@ export default {
   data() {
     return {
       groupId: null,
-      groupsQueryParams: {
-        min_access_level: accessLevelReporter,
-      },
     };
   },
   computed: {
@@ -28,18 +25,33 @@ export default {
     onGroupSelected({ id, full_path }) {
       this.groupId = id;
       this.setGroupNamespace(full_path);
-      this.$emit('groupSelected', full_path);
+      this.$emit('groupSelected', { groupId: id, groupNamespace: full_path });
     },
     onProjectsSelected(selectedProjects) {
-      const pathWithNamespace = selectedProjects.length
-        ? selectedProjects[0].path_with_namespace
-        : null;
-      this.setProjectPath(pathWithNamespace);
+      let projectNamespace = null;
+      let projectId = null;
+
+      if (selectedProjects.length) {
+        projectNamespace = selectedProjects[0].path_with_namespace;
+        projectId = selectedProjects[0].id;
+      }
+
+      this.setProjectPath(projectNamespace);
       this.$emit('projectSelected', {
-        namespacePath: this.groupNamespace,
-        project: pathWithNamespace,
+        groupNamespace: this.groupNamespace,
+        groupId: this.groupId,
+        projectNamespace,
+        projectId,
       });
     },
+  },
+  groupsQueryParams: {
+    min_access_level: accessLevelReporter,
+  },
+  projectsQueryParams: {
+    per_page: projectsPerPage,
+    with_shared: false, // exclude forks
+    order_by: 'last_activity_at',
   },
 };
 </script>
@@ -48,13 +60,14 @@ export default {
   <div class="dropdown-container d-flex flex-column flex-lg-row">
     <groups-dropdown-filter
       class="group-select"
-      :query-params="groupsQueryParams"
+      :query-params="$options.groupsQueryParams"
       @selected="onGroupSelected"
     />
     <projects-dropdown-filter
       v-if="showProjectsDropdownFilter"
       :key="groupId"
       class="project-select"
+      :query-params="$options.projectsQueryParams"
       :group-id="groupId"
       @selected="onProjectsSelected"
     />

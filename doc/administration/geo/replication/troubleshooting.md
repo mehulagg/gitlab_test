@@ -115,11 +115,19 @@ Any **secondary** nodes should point only to read-only instances.
 
 #### Can Geo detect the current node correctly?
 
-Geo uses the defined node from the **Admin Area > Geo** screen, and tries to match
-it with the value defined in the `/etc/gitlab/gitlab.rb` configuration file.
-The relevant line looks like: `external_url "http://gitlab.example.com"`.
+Geo finds the current machine's name in `/etc/gitlab/gitlab.rb` by first looking
+for `gitlab_rails['geo_node_name']`. If it is not defined, then it defaults to
+the external URL defined in e.g. `external_url "http://gitlab.example.com"`. To
+get a machine's name, run:
 
-To check if the node on the current machine is correctly detected type:
+```sh
+sudo gitlab-rails runner "puts GeoNode.current_node_name"
+```
+
+This name is used to look up the node with the same **Name** in
+**Admin Area > Geo**.
+
+To check if current machine is correctly finding its node:
 
 ```sh
 sudo gitlab-rails runner "puts Gitlab::Geo.current_node.inspect"
@@ -252,7 +260,7 @@ to start again from scratch, there are a few steps that can help you:
    gitlab-ctl stop geo-logcursor
    ```
 
-   You can watch sidekiq logs to know when sidekiq jobs processing have finished:
+   You can watch Sidekiq logs to know when Sidekiq jobs processing have finished:
 
    ```sh
    gitlab-ctl tail sidekiq
@@ -280,8 +288,8 @@ to start again from scratch, there are a few steps that can help you:
    Any uploaded content like file attachments, avatars or LFS objects are stored in a
    subfolder in one of the two paths below:
 
-   - /var/opt/gitlab/gitlab-rails/shared
-   - /var/opt/gitlab/gitlab-rails/uploads
+   - `/var/opt/gitlab/gitlab-rails/shared`
+   - `/var/opt/gitlab/gitlab-rails/uploads`
 
    To rename all of them:
 
@@ -511,6 +519,20 @@ to [cleanup orphan artifact files](../../../raketasks/cleanup.md#remove-orphan-a
 On a Geo **secondary** node, this command will also clean up all Geo
 registry record related to the orphan files on disk.
 
+## Fixing sign in errors
+
+### Message: The redirect URI included is not valid
+
+If you are able to log in to the **primary** node, but you receive this error
+when attempting to log into a **secondary**, you should check that the Geo
+node's URL matches its external URL.
+
+1. On the primary, visit **Admin Area > Geo**.
+1. Find the affected **secondary** and click **Edit**.
+1. Ensure the **URL** field matches the value found in `/etc/gitlab/gitlab.rb`
+   in `external_url "https://gitlab.example.com"` on the frontend server(s) of
+   the **secondary** node.
+
 ## Fixing common errors
 
 This section documents common errors reported in the Admin UI and how to fix them.
@@ -577,3 +599,8 @@ This error means the Geo Tracking Database doesn't have the FDW server and crede
 configured.
 
 See ["Foreign Data Wrapper (FDW) is not configured" error?](#foreign-data-wrapper-fdw-is-not-configured-error).
+
+### GitLab indicates that more than 100% of repositories were synced
+
+This can be caused by orphaned records in the project registry. You can clear them
+[using a Rake task](../../../administration/raketasks/geo.md#remove-orphaned-project-registries).

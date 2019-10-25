@@ -2,7 +2,7 @@ import * as types from 'ee/analytics/productivity_analytics/store/modules/charts
 import mutations from 'ee/analytics/productivity_analytics/store/modules/charts/mutations';
 import getInitialState from 'ee/analytics/productivity_analytics/store/modules/charts/state';
 import { chartKeys } from 'ee/analytics/productivity_analytics/constants';
-import { mockHistogramData } from '../../../mock_data';
+import { mockHistogramData, mockScatterplotData } from '../../../mock_data';
 
 describe('Productivity analytics chart mutations', () => {
   let state;
@@ -34,18 +34,56 @@ describe('Productivity analytics chart mutations', () => {
       mutations[types.RECEIVE_CHART_DATA_SUCCESS](state, { chartKey, data: mockHistogramData });
 
       expect(state.charts[chartKey].isLoading).toBe(false);
-      expect(state.charts[chartKey].hasError).toBe(false);
+      expect(state.charts[chartKey].errorCode).toBe(null);
       expect(state.charts[chartKey].data).toEqual(mockHistogramData);
+    });
+
+    it('updates the transformedData when chartKey=scatterplot', () => {
+      const transformedData = [
+        [
+          {
+            metric: 139,
+            merged_at: '2019-08-18T22:00:00.000Z',
+          },
+        ],
+        [
+          {
+            metric: 138,
+            merged_at: '2019-08-17T22:00:00.000Z',
+          },
+        ],
+      ];
+      mutations[types.RECEIVE_CHART_DATA_SUCCESS](state, {
+        chartKey: chartKeys.scatterplot,
+        data: mockScatterplotData,
+        transformedData,
+      });
+
+      expect(state.charts[chartKey].isLoading).toBe(false);
+      expect(state.charts[chartKey].errorCode).toBe(null);
+      expect(state.charts[chartKey].data).toEqual(mockScatterplotData);
+      expect(state.charts[chartKey].transformedData).toEqual(transformedData);
     });
   });
 
   describe(types.RECEIVE_CHART_DATA_ERROR, () => {
-    it('sets isError and clears data', () => {
-      mutations[types.RECEIVE_CHART_DATA_ERROR](state, chartKey);
+    const status = 500;
 
+    it('sets errorCode to 500', () => {
+      mutations[types.RECEIVE_CHART_DATA_ERROR](state, { chartKey, status });
       expect(state.charts[chartKey].isLoading).toBe(false);
-      expect(state.charts[chartKey].hasError).toBe(true);
+      expect(state.charts[chartKey].errorCode).toBe(status);
+    });
+
+    it('clears data', () => {
+      mutations[types.RECEIVE_CHART_DATA_ERROR](state, { chartKey, status });
+      expect(state.charts[chartKey].isLoading).toBe(false);
       expect(state.charts[chartKey].data).toEqual({});
+    });
+
+    it('clears transformedData when chartKey=scatterplot', () => {
+      mutations[types.RECEIVE_CHART_DATA_ERROR](state, { chartKey: chartKeys.scatterplot, status });
+      expect(state.charts[chartKey].transformedData).toEqual([]);
     });
   });
 
@@ -64,6 +102,12 @@ describe('Productivity analytics chart mutations', () => {
     chartKey = chartKeys.timeBasedHistogram;
     const item = 5;
 
+    it('sets the list of selected items to [] when the item is null', () => {
+      mutations[types.UPDATE_SELECTED_CHART_ITEMS](state, { chartKey, item: null });
+
+      expect(state.charts[chartKey].selected).toEqual([]);
+    });
+
     it('adds the item to the list of selected items when not included', () => {
       mutations[types.UPDATE_SELECTED_CHART_ITEMS](state, { chartKey, item });
 
@@ -76,6 +120,22 @@ describe('Productivity analytics chart mutations', () => {
       mutations[types.UPDATE_SELECTED_CHART_ITEMS](state, { chartKey, item });
 
       expect(state.charts[chartKey].selected).toEqual([]);
+    });
+  });
+
+  describe(types.SET_CHART_ENABLED, () => {
+    chartKey = chartKeys.scatterplot;
+
+    it('sets the enabled flag to true on the scatterplot chart', () => {
+      mutations[types.SET_CHART_ENABLED](state, { chartKey, isEnabled: true });
+
+      expect(state.charts[chartKey].enabled).toBe(true);
+    });
+
+    it('sets the enabled flag to false on the scatterplot chart', () => {
+      mutations[types.SET_CHART_ENABLED](state, { chartKey, isEnabled: false });
+
+      expect(state.charts[chartKey].enabled).toBe(false);
     });
   });
 });

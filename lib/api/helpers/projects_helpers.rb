@@ -30,6 +30,7 @@ module API
 
         optional :shared_runners_enabled, type: Boolean, desc: 'Flag indication if shared runners are enabled for that project'
         optional :resolve_outdated_diff_discussions, type: Boolean, desc: 'Automatically resolve merge request diffs discussions on lines changed with a push'
+        optional :remove_source_branch_after_merge, type: Boolean, desc: 'Remove the source branch by default after merge'
         optional :container_registry_enabled, type: Boolean, desc: 'Flag indication if the container registry is enabled for that project'
         optional :lfs_enabled, type: Boolean, desc: 'Flag indication if Git LFS is enabled for that project'
         optional :visibility, type: String, values: Gitlab::VisibilityLevel.string_values, desc: 'The visibility of the project.'
@@ -38,7 +39,7 @@ module API
         optional :only_allow_merge_if_pipeline_succeeds, type: Boolean, desc: 'Only allow to merge if builds succeed'
         optional :only_allow_merge_if_all_discussions_are_resolved, type: Boolean, desc: 'Only allow to merge if all discussions are resolved'
         optional :tag_list, type: Array[String], desc: 'The list of tags for a project'
-        # TODO: remove rubocop disable - https://gitlab.com/gitlab-org/gitlab-ee/issues/14960
+        # TODO: remove rubocop disable - https://gitlab.com/gitlab-org/gitlab/issues/14960
         optional :avatar, type: File, desc: 'Avatar image for project' # rubocop:disable Scalability/FileUploads
         optional :printing_merge_request_link_enabled, type: Boolean, desc: 'Show link to create/view merge request when pushing from the command line'
         optional :merge_method, type: String, values: %w(ff rebase_merge merge), desc: 'The merge method used when merging merge requests'
@@ -54,6 +55,14 @@ module API
       params :optional_project_params do
         use :optional_project_params_ce
         use :optional_project_params_ee
+      end
+
+      params :optional_create_project_params_ee do
+      end
+
+      params :optional_create_project_params do
+        use :optional_project_params
+        use :optional_create_project_params_ee
       end
 
       params :optional_filter_params_ee do
@@ -86,6 +95,7 @@ module API
           :path,
           :printing_merge_request_link_enabled,
           :public_builds,
+          :remove_source_branch_after_merge,
           :repository_access_level,
           :request_access_enabled,
           :resolve_outdated_diff_discussions,
@@ -101,7 +111,6 @@ module API
           :jobs_enabled,
           :merge_requests_enabled,
           :wiki_enabled,
-          :jobs_enabled,
           :snippets_enabled
         ]
       end

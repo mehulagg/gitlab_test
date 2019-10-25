@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import LinkedPipelinesMiniList from 'ee/vue_shared/components/linked_pipelines_mini_list.vue';
-import mockData from 'ee_spec/pipelines/graph/linked_pipelines_mock_data';
+import mockData from './linked_pipelines_mock_data';
 
 const ListComponent = Vue.extend(LinkedPipelinesMiniList);
 
@@ -21,7 +21,7 @@ describe('Linked pipeline mini list', function() {
     it('should render a linked pipeline with the correct href', () => {
       const linkElement = this.component.$el.querySelector('.linked-pipeline-mini-item');
 
-      expect(linkElement.getAttribute('href')).toBe('/gitlab-org/gitlab-ce/pipelines/129');
+      expect(linkElement.getAttribute('href')).toBe('/gitlab-org/gitlab-foss/pipelines/129');
     });
 
     it('should render one ci status icon', () => {

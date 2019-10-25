@@ -43,61 +43,6 @@ describe API::Internal::Base do
     end
   end
 
-  describe 'GET /internal/broadcast_message' do
-    context 'broadcast message exists' do
-      let!(:broadcast_message) { create(:broadcast_message, starts_at: 1.day.ago, ends_at: 1.day.from_now ) }
-
-      it 'returns one broadcast message' do
-        get api('/internal/broadcast_message'), params: { secret_token: secret_token }
-
-        expect(response).to have_gitlab_http_status(200)
-        expect(json_response['message']).to eq(broadcast_message.message)
-      end
-    end
-
-    context 'broadcast message does not exist' do
-      it 'returns nothing' do
-        get api('/internal/broadcast_message'), params: { secret_token: secret_token }
-
-        expect(response).to have_gitlab_http_status(200)
-        expect(json_response).to be_empty
-      end
-    end
-
-    context 'nil broadcast message' do
-      it 'returns nothing' do
-        allow(BroadcastMessage).to receive(:current).and_return(nil)
-
-        get api('/internal/broadcast_message'), params: { secret_token: secret_token }
-
-        expect(response).to have_gitlab_http_status(200)
-        expect(json_response).to be_empty
-      end
-    end
-  end
-
-  describe 'GET /internal/broadcast_messages' do
-    context 'broadcast message(s) exist' do
-      let!(:broadcast_message) { create(:broadcast_message, starts_at: 1.day.ago, ends_at: 1.day.from_now ) }
-
-      it 'returns active broadcast message(s)' do
-        get api('/internal/broadcast_messages'), params: { secret_token: secret_token }
-
-        expect(response).to have_gitlab_http_status(200)
-        expect(json_response[0]['message']).to eq(broadcast_message.message)
-      end
-    end
-
-    context 'broadcast message does not exist' do
-      it 'returns nothing' do
-        get api('/internal/broadcast_messages'), params: { secret_token: secret_token }
-
-        expect(response).to have_gitlab_http_status(200)
-        expect(json_response).to be_empty
-      end
-    end
-  end
-
   describe 'GET /internal/two_factor_recovery_codes' do
     it 'returns an error message when the key does not exist' do
       post api('/internal/two_factor_recovery_codes'),
@@ -231,14 +176,6 @@ describe API::Internal::Base do
   describe "GET /internal/discover" do
     it "finds a user by key id" do
       get(api("/internal/discover"), params: { key_id: key.id, secret_token: secret_token })
-
-      expect(response).to have_gitlab_http_status(200)
-
-      expect(json_response['name']).to eq(user.name)
-    end
-
-    it "finds a user by user id" do
-      get(api("/internal/discover"), params: { user_id: user.id, secret_token: secret_token })
 
       expect(response).to have_gitlab_http_status(200)
 
@@ -379,6 +316,7 @@ describe API::Internal::Base do
           expect(json_response["gitaly"]["repository"]["relative_path"]).to eq(project.repository.gitaly_repository.relative_path)
           expect(json_response["gitaly"]["address"]).to eq(Gitlab::GitalyClient.address(project.repository_storage))
           expect(json_response["gitaly"]["token"]).to eq(Gitlab::GitalyClient.token(project.repository_storage))
+          expect(json_response["gitaly"]["features"]).to eq('gitaly-feature-get-all-lfs-pointers-go' => 'true', 'gitaly-feature-inforef-uploadpack-cache' => 'true')
           expect(user.reload.last_activity_on).to eql(Date.today)
         end
       end
@@ -398,17 +336,36 @@ describe API::Internal::Base do
             expect(json_response["gitaly"]["repository"]["relative_path"]).to eq(project.repository.gitaly_repository.relative_path)
             expect(json_response["gitaly"]["address"]).to eq(Gitlab::GitalyClient.address(project.repository_storage))
             expect(json_response["gitaly"]["token"]).to eq(Gitlab::GitalyClient.token(project.repository_storage))
+            expect(json_response["gitaly"]["features"]).to eq('gitaly-feature-get-all-lfs-pointers-go' => 'true', 'gitaly-feature-inforef-uploadpack-cache' => 'true')
             expect(user.reload.last_activity_on).to be_nil
           end
         end
 
         context 'when receive_max_input_size has been updated' do
-          it 'returns custom git config' do
+          before do
             allow(Gitlab::CurrentSettings).to receive(:receive_max_input_size) { 1 }
+          end
 
+          it 'returns custom git config' do
             push(key, project)
 
             expect(json_response["git_config_options"]).to be_present
+            expect(json_response["git_config_options"]).to include("uploadpack.allowFilter=true")
+            expect(json_response["git_config_options"]).to include("uploadpack.allowAnySHA1InWant=true")
+          end
+
+          context 'when gitaly_upload_pack_filter feature flag is disabled' do
+            before do
+              stub_feature_flags(gitaly_upload_pack_filter: { enabled: false, thing: project })
+            end
+
+            it 'does not include allowFilter and allowAnySha1InWant in the git config options' do
+              push(key, project)
+
+              expect(json_response["git_config_options"]).to be_present
+              expect(json_response["git_config_options"]).not_to include("uploadpack.allowFilter=true")
+              expect(json_response["git_config_options"]).not_to include("uploadpack.allowAnySHA1InWant=true")
+            end
           end
         end
 
@@ -452,7 +409,6 @@ describe API::Internal::Base do
 
     context "custom action" do
       let(:access_checker) { double(Gitlab::GitAccess) }
-      let(:message) { 'CustomActionError message' }
       let(:payload) do
         {
           'action' => 'geo_proxy_to_primary',
@@ -463,8 +419,8 @@ describe API::Internal::Base do
           }
         }
       end
-
-      let(:custom_action_result) { Gitlab::GitAccessResult::CustomAction.new(payload, message) }
+      let(:console_messages) { ['informational message'] }
+      let(:custom_action_result) { Gitlab::GitAccessResult::CustomAction.new(payload, console_messages) }
 
       before do
         project.add_guest(user)
@@ -491,8 +447,8 @@ describe API::Internal::Base do
 
           expect(response).to have_gitlab_http_status(300)
           expect(json_response['status']).to be_truthy
-          expect(json_response['message']).to eql(message)
           expect(json_response['payload']).to eql(payload)
+          expect(json_response['gl_console_messages']).to eql(console_messages)
           expect(user.reload.last_activity_on).to be_nil
         end
       end
@@ -622,6 +578,7 @@ describe API::Internal::Base do
           expect(json_response["gitaly"]["repository"]["relative_path"]).to eq(project.repository.gitaly_repository.relative_path)
           expect(json_response["gitaly"]["address"]).to eq(Gitlab::GitalyClient.address(project.repository_storage))
           expect(json_response["gitaly"]["token"]).to eq(Gitlab::GitalyClient.token(project.repository_storage))
+          expect(json_response["gitaly"]["features"]).to eq('gitaly-feature-get-all-lfs-pointers-go' => 'true', 'gitaly-feature-inforef-uploadpack-cache' => 'true')
         end
       end
 
@@ -748,47 +705,6 @@ describe API::Internal::Base do
 
         expect(response).to have_gitlab_http_status(404)
         expect(json_response['status']).to be_falsy
-      end
-    end
-  end
-
-  describe 'GET /internal/merge_request_urls' do
-    let(:repo_name) { "#{project.full_path}" }
-    let(:changes) { URI.escape("#{Gitlab::Git::BLANK_SHA} 570e7b2abdd848b95f2f578043fc23bd6f6fd24d refs/heads/new_branch") }
-
-    before do
-      project.add_developer(user)
-    end
-
-    it 'returns link to create new merge request' do
-      get api("/internal/merge_request_urls?project=#{repo_name}&changes=#{changes}"), params: { secret_token: secret_token }
-
-      expect(json_response).to match [{
-        "branch_name" => "new_branch",
-        "url" => "http://#{Gitlab.config.gitlab.host}/#{project.full_path}/merge_requests/new?merge_request%5Bsource_branch%5D=new_branch",
-        "new_merge_request" => true
-      }]
-    end
-
-    it 'returns empty array if printing_merge_request_link_enabled is false' do
-      project.update!(printing_merge_request_link_enabled: false)
-
-      get api("/internal/merge_request_urls?project=#{repo_name}&changes=#{changes}"), params: { secret_token: secret_token }
-
-      expect(json_response).to eq([])
-    end
-
-    context 'with a gl_repository parameter' do
-      let(:gl_repository) { "project-#{project.id}" }
-
-      it 'returns link to create new merge request' do
-        get api("/internal/merge_request_urls?gl_repository=#{gl_repository}&changes=#{changes}"), params: { secret_token: secret_token }
-
-        expect(json_response).to match [{
-          "branch_name" => "new_branch",
-          "url" => "http://#{Gitlab.config.gitlab.host}/#{project.full_path}/merge_requests/new?merge_request%5Bsource_branch%5D=new_branch",
-          "new_merge_request" => true
-        }]
       end
     end
   end
@@ -928,6 +844,19 @@ describe API::Internal::Base do
       message = <<~MESSAGE.strip
         To create a merge request for #{branch_name}, visit:
           http://#{Gitlab.config.gitlab.host}/#{project.full_path}/merge_requests/new?merge_request%5Bsource_branch%5D=#{branch_name}
+      MESSAGE
+
+      expect(json_response['messages']).to include(build_basic_message(message))
+    end
+
+    it 'returns the link to an existing merge request when it exists' do
+      merge_request = create(:merge_request, source_project: project, source_branch: branch_name, target_branch: 'master')
+
+      post api('/internal/post_receive'), params: valid_params
+
+      message = <<~MESSAGE.strip
+        View merge request for feature:
+          #{project_merge_request_url(project, merge_request)}
       MESSAGE
 
       expect(json_response['messages']).to include(build_basic_message(message))

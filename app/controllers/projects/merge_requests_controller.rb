@@ -5,6 +5,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
   include IssuableActions
   include RendersNotes
   include RendersCommits
+  include RendersAssignees
   include ToggleAwardEmoji
   include IssuableCollections
   include RecordUserLastActivity
@@ -12,10 +13,17 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
   skip_before_action :merge_request, only: [:index, :bulk_update]
   before_action :whitelist_query_limiting, only: [:assign_related_issues, :update]
   before_action :authorize_update_issuable!, only: [:close, :edit, :update, :remove_wip, :sort]
-  before_action :authorize_test_reports!, only: [:test_reports]
+  before_action :authorize_read_actual_head_pipeline!, only: [:test_reports, :exposed_artifacts]
   before_action :set_issuables_index, only: [:index]
   before_action :authenticate_user!, only: [:assign_related_issues]
   before_action :check_user_can_push_to_source_branch!, only: [:rebase]
+  before_action only: [:show] do
+    push_frontend_feature_flag(:diffs_batch_load, @project)
+  end
+
+  before_action do
+    push_frontend_feature_flag(:vue_issuable_sidebar, @project.group)
+  end
 
   around_action :allow_gitaly_ref_name_caching, only: [:index, :show, :discussions]
 
@@ -40,6 +48,8 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
       format.html do
         # use next to appease Rubocop
         next render('invalid') if target_branch_missing?
+
+        preload_assignees_for_render(@merge_request)
 
         # Build a note object for comment form
         @note = @project.notes.new(noteable: @merge_request)
@@ -79,7 +89,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
     # Get commits from repository
     # or from cache if already merged
     @commits =
-      set_commits_for_rendering(@merge_request.commits.with_pipeline_status)
+      set_commits_for_rendering(@merge_request.commits.with_latest_pipeline)
 
     render json: { html: view_to_html_string('projects/merge_requests/_commits') }
   end
@@ -103,6 +113,14 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
 
   def test_reports
     reports_response(@merge_request.compare_test_reports)
+  end
+
+  def exposed_artifacts
+    if @merge_request.has_exposed_artifacts?
+      reports_response(@merge_request.find_exposed_artifacts)
+    else
+      head :no_content
+    end
   end
 
   def edit
@@ -208,6 +226,8 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
     @merge_request.rebase_async(current_user.id)
 
     head :ok
+  rescue MergeRequest::RebaseLockTimeout => e
+    render json: { merge_error: e.message }, status: :conflict
   end
 
   def discussions
@@ -276,7 +296,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
     if auto_merge_requested?
       if merge_request.auto_merge_enabled?
         # TODO: We should have a dedicated endpoint for updating merge params.
-        #       See https://gitlab.com/gitlab-org/gitlab-ce/issues/63130.
+        #       See https://gitlab.com/gitlab-org/gitlab-foss/issues/63130.
         AutoMergeService.new(project, current_user, merge_params).update(merge_request)
       else
         AutoMergeService.new(project, current_user, merge_params)
@@ -328,8 +348,8 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
   end
 
   def whitelist_query_limiting
-    # Also see https://gitlab.com/gitlab-org/gitlab-ce/issues/42441
-    Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ce/issues/42438')
+    # Also see https://gitlab.com/gitlab-org/gitlab-foss/issues/42441
+    Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/42438')
   end
 
   def reports_response(report_comparison)
@@ -347,8 +367,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
     end
   end
 
-  def authorize_test_reports!
-    # MergeRequest#actual_head_pipeline is the pipeline accessed in MergeRequest#compare_reports.
+  def authorize_read_actual_head_pipeline!
     return render_404 unless can?(current_user, :read_build, merge_request.actual_head_pipeline)
   end
 end

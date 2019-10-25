@@ -1,6 +1,6 @@
 # Issue Boards
 
-> [Introduced][ce-5554] in [GitLab 8.11](https://about.gitlab.com/2016/08/22/gitlab-8-11-released/#issue-board).
+> [Introduced][ce-5554] in [GitLab 8.11](https://about.gitlab.com/blog/2016/08/22/gitlab-8-11-released/#issue-board).
 
 ## Overview
 
@@ -125,9 +125,9 @@ Cards finished by the UX team will automatically appear in the **Frontend** colu
 
 NOTE: **Note:**
 For a broader use case, please see the blog post
-[GitLab Workflow, an Overview](https://about.gitlab.com/2016/10/25/gitlab-workflow-an-overview/#gitlab-workflow-use-case-scenario).
+[GitLab Workflow, an Overview](https://about.gitlab.com/blog/2016/10/25/gitlab-workflow-an-overview/#gitlab-workflow-use-case-scenario).
 For a real use case example, you can read why
-[Codepen decided to adopt Issue Boards](https://about.gitlab.com/2017/01/27/codepen-welcome-to-gitlab/#project-management-everything-in-one-place)
+[Codepen decided to adopt Issue Boards](https://about.gitlab.com/blog/2017/01/27/codepen-welcome-to-gitlab/#project-management-everything-in-one-place)
 to improve their workflow with multiple boards.
 
 #### Quick assignments
@@ -160,7 +160,7 @@ For a collection of [features per tier](#summary-of-features-per-tier), check th
 
 ### Multiple Issue Boards
 
-> - Multiple Issue Boards per project [moved](https://gitlab.com/gitlab-org/gitlab-ce/issues/53811) to [GitLab Core](https://about.gitlab.com/pricing/) in GitLab 12.1.
+> - Multiple Issue Boards per project [moved](https://gitlab.com/gitlab-org/gitlab-foss/issues/53811) to [GitLab Core](https://about.gitlab.com/pricing/) in GitLab 12.1.
 > - Multiple Issue Boards per group is available in [GitLab Premium Edition](https://about.gitlab.com/pricing/).
 
 Multiple Issue Boards, as the name suggests, allow for more than one Issue Board
@@ -180,9 +180,21 @@ These are shortcuts to your last 4 visited boards.
 When you're revisiting an issue board in a project or group with multiple boards,
 GitLab will automatically load the last board you visited.
 
+### Multi-select Issue Cards
+
+As the name suggest, multi-select issue cards allows more than one issue card
+to be dragged and dropped across different lists. This becomes helpful while
+moving and grooming a lot of issues at once.
+
+You can multi-select an issue card by pressing `CTRL` + `Left mouse click` on
+Windows or `CMD` + `Left mouse click` on MacOS. Once done, start by dragging one
+of the issue card you have selected and drop it in the new list you want.
+
+![Multi-select Issue Cards](img/issue_boards_multi_select.png)
+
 ### Configurable Issue Boards **(STARTER)**
 
-> Introduced in [GitLab Starter Edition 10.2](https://about.gitlab.com/2017/11/22/gitlab-10-2-released/#issue-boards-configuration).
+> Introduced in [GitLab Starter Edition 10.2](https://about.gitlab.com/blog/2017/11/22/gitlab-10-2-released/#issue-boards-configuration).
 
 An Issue Board can be associated with a GitLab [Milestone](milestones/index.md#milestones),
 [Labels](labels.md), Assignee and Weight
@@ -202,7 +214,7 @@ If you don't have editing permission in a board, you're still able to see the co
 
 ### Focus mode **(STARTER)**
 
-> Introduced in [GitLab Starter 9.1](https://about.gitlab.com/2017/04/22/gitlab-9-1-released/#issue-boards-focus-mode-ees-eep).
+> Introduced in [GitLab Starter 9.1](https://about.gitlab.com/blog/2017/04/22/gitlab-9-1-released/#issue-boards-focus-mode-ees-eep).
 
 Click the button at the top right to toggle focus mode on and off. In focus mode, the navigation UI is hidden, allowing you to focus on issues in the board.
 
@@ -218,7 +230,7 @@ especially in combination with [assignee lists](#assignee-lists-premium).
 
 ### Group Issue Boards **(PREMIUM)**
 
-> Introduced in [GitLab Premium 10.0](https://about.gitlab.com/2017/09/22/gitlab-10-0-released/#group-issue-boards).
+> Introduced in [GitLab Premium 10.0](https://about.gitlab.com/blog/2017/09/22/gitlab-10-0-released/#group-issue-boards).
 
 Accessible at the group navigation level, a group issue board offers the same features as a project-level board,
 but it can display issues from all projects in that
@@ -227,14 +239,14 @@ boards. When updating milestones and labels for an issue through the sidebar upd
 group-level objects are available.
 
 NOTE: **Note:**
-Multiple group issue boards were originally introduced in [GitLab 10.0 Premium](https://about.gitlab.com/2017/09/22/gitlab-10-0-released/#group-issue-boards) and
+Multiple group issue boards were originally introduced in [GitLab 10.0 Premium](https://about.gitlab.com/blog/2017/09/22/gitlab-10-0-released/#group-issue-boards) and
 one group issue board per group was made available in GitLab 10.6 Core.
 
 ![Group issue board](img/group_issue_board.png)
 
 ### Assignee lists **(PREMIUM)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/5784) in GitLab 11.0 Premium.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/5784) in GitLab 11.0 Premium.
 
 Like a regular list that shows all issues that have the list label, you can add
 an assignee list that shows all issues assigned to the given user.
@@ -253,7 +265,7 @@ To remove an assignee list, just as with a label list, click the trash icon.
 
 ### Milestone lists **(PREMIUM)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/6469) in GitLab 11.2 Premium.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/6469) in GitLab 11.2 Premium.
 
 As of 11.2, you're also able to create lists of a milestone. As the name states,
 these are lists that filter issues by the assigned milestone, giving you more
@@ -275,7 +287,7 @@ Different issue board features are available in different [GitLab tiers](https:/
 
 | Tier     | Number of Project Issue Boards | Number of Group Issue Boards | Configurable Issue Boards | Assignee Lists |
 |----------|--------------------------------|------------------------------|---------------------------|----------------|
-| Core / Free     | 1                              | 1                            | No                        | No             |
+| Core / Free     | Multiple                              | 1                            | No                        | No             |
 | Starter / Bronze  | Multiple                       | 1                            | Yes                       | No             |
 | Premium / Silver | Multiple                       | Multiple                     | Yes                       | Yes            |
 | Ultimate / Gold | Multiple                       | Multiple                     | Yes                       | Yes            |
@@ -451,6 +463,6 @@ A few things to remember:
   by default. If you have more than 20 issues start scrolling down and the next
   20 will appear.
 
-[ce-5554]: https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/5554
+[ce-5554]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/5554
 [scrum]: https://en.wikipedia.org/wiki/Scrum_(software_development)
 [kanban]: https://en.wikipedia.org/wiki/Kanban_(development)

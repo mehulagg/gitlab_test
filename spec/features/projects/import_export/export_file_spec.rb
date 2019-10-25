@@ -38,7 +38,7 @@ describe 'Import/Export - project export integration test', :js do
       sign_in(user)
     end
 
-    it 'exports a project successfully' do
+    it 'exports a project successfully', :sidekiq_might_not_need_inline do
       visit edit_project_path(project)
 
       expect(page).to have_content('Export project')
@@ -49,8 +49,7 @@ describe 'Import/Export - project export integration test', :js do
 
       expect(page).to have_content('Download export')
 
-      expect(file_permissions(project.export_path)).to eq(0700)
-
+      expect(project.export_status).to eq(:finished)
       expect(project.export_file.path).to include('tar.gz')
 
       in_directory_with_expanded_export(project) do |exit_status, tmpdir|

@@ -9,10 +9,11 @@
   extends:
     - .default-tags
     - .default-retry
-    - .assets-compile-cache
+    - .default-only
     - .default-before_script
-    - .except-docs
-  image: dev.gitlab.org:5005/gitlab/gitlab-build-images:ruby-2.6.3-git-2.22-chrome-73.0-node-12.x-yarn-1.16-graphicsmagick-1.3.33-docker-18.06.1
+    - .assets-compile-cache
+    - .only-code-qa-changes
+  image: registry.gitlab.com/gitlab-org/gitlab-build-images:ruby-2.6.3-git-2.22-chrome-73.0-node-12.x-yarn-1.16-graphicsmagick-1.3.33-docker-18.06.1
   stage: test
   dependencies: ["setup-test-env"]
   needs: ["setup-test-env"]
@@ -45,30 +46,23 @@
     - scripts/clean-old-cached-assets
     - rm -f /etc/apt/sources.list.d/google*.list  # We don't need to update Chrome here
   only:
-    - /.+/@gitlab-org/gitlab-foss
-    - /.+/@gitlab-org/gitlab
-    - /.+/@gitlab/gitlabhq
-    - /.+/@gitlab/gitlab-ee
+    variables:
+      - $CI_SERVER_HOST == "gitlab.com" && $CI_PROJECT_NAMESPACE =~ /^gitlab-org($|\/)/  # Matches the gitlab-org group and its subgroups
+      - $CI_SERVER_HOST == "dev.gitlab.org"
   tags:
     - gitlab-org
     - docker
 
-gitlab:assets:compile:
+gitlab:assets:compile pull-push-cache:
   extends: .gitlab:assets:compile-metadata
   only:
     refs:
-      - master@gitlab-org/gitlab-foss
-      - master@gitlab-org/gitlab
+      - master
   cache:
     policy: pull-push
 
 gitlab:assets:compile pull-cache:
   extends: .gitlab:assets:compile-metadata
-  except:
-    refs:
-      - master@gitlab-org/gitlab-foss
-      - master@gitlab-org/gitlab
-      - /(^docs[\/-].+|.+-docs$)/
   cache:
     policy: pull
 
@@ -76,9 +70,11 @@ gitlab:assets:compile pull-cache:
   extends:
     - .default-tags
     - .default-retry
-    - .assets-compile-cache
+    - .default-only
     - .default-before_script
-    - .use-pg
+    - .assets-compile-cache
+    - .only-code-qa-changes
+    - .use-pg9
   stage: prepare
   script:
     - node --version
@@ -90,42 +86,56 @@ gitlab:assets:compile pull-cache:
     # we override the max_old_space_size to prevent OOM errors
     NODE_OPTIONS: --max_old_space_size=3584
   cache:
-    key: "assets-compile:test:vendor_ruby:.yarn-cache:tmp_cache_assets_sprockets:v6"
+    key: "assets-compile:v7"
   artifacts:
     expire_in: 7d
     paths:
       - node_modules
       - public/assets
 
-compile-assets:
-  extends:
-    - .compile-assets-metadata
+compile-assets pull-push-cache:
+  extends: .compile-assets-metadata
   only:
     refs:
-      - master@gitlab-org/gitlab-foss
-      - master@gitlab-org/gitlab
+      - master
   cache:
     policy: pull-push
 
+compile-assets pull-push-cache foss:
+  extends: [".compile-assets-metadata", ".only-ee-as-if-foss"]
+  only:
+    refs:
+      - master
+  cache:
+    policy: pull-push
+    key: "assets-compile:v7:foss"
+
 compile-assets pull-cache:
   extends: .compile-assets-metadata
-  except:
-    refs:
-      - master@gitlab-org/gitlab-foss
-      - master@gitlab-org/gitlab
-      - /(^docs[\/-].+|.+-docs$)/
   cache:
     policy: pull
 
-karma:
+compile-assets pull-cache foss:
+  extends: [".compile-assets-metadata", ".only-ee-as-if-foss"]
+  cache:
+    policy: pull
+    key: "assets-compile:v7:foss"
+
+.only-code-frontend-job-base:
   extends:
     - .default-tags
     - .default-retry
     - .default-cache
+    - .default-only
     - .default-before_script
-    - .use-pg
-    - .except-docs
-  dependencies: ["compile-assets", "compile-assets pull-cache", "setup-test-env"]
+    - .only-code-changes
+    - .use-pg9
+  stage: test
+  needs: ["setup-test-env", "compile-assets pull-cache"]
+  dependencies: ["setup-test-env", "compile-assets pull-cache"]
+
+.karma-base:
+  extends: .only-code-frontend-job-base
   variables:
     # we override the max_old_space_size to prevent OOM errors
     NODE_OPTIONS: --max_old_space_size=3584
@@ -135,6 +145,9 @@ karma:
     - scripts/gitaly-test-spawn
     - date
     - bundle exec rake karma
+
+karma:
+  extends: .karma-base
   coverage: '/^Statements *: (\d+\.\d+%)/'
   artifacts:
     name: coverage-javascript
@@ -147,21 +160,27 @@ karma:
     reports:
       junit: junit_karma.xml
 
-jest:
+karma-foss:
   extends:
-    - .default-tags
-    - .default-retry
-    - .default-cache
-    - .default-before_script
-    - .use-pg
-    - .except-docs-qa
-  dependencies: ["compile-assets", "compile-assets pull-cache", "setup-test-env"]
+    - .karma-base
+    - .only-ee-as-if-foss
+
+.jest-base:
+  extends: .only-code-frontend-job-base
   script:
     - scripts/gitaly-test-spawn
     - date
     - bundle exec rake frontend:fixtures
     - date
     - yarn jest --ci --coverage
+  cache:
+    key: jest
+    paths:
+      - tmp/jest/jest/
+    policy: pull-push
+
+jest:
+  extends: .jest-base
   artifacts:
     name: coverage-frontend
     expire_in: 31d
@@ -172,42 +191,22 @@ jest:
       - tmp/tests/frontend/
     reports:
       junit: junit_jest.xml
-  cache:
-    key: jest
-    paths:
-      - tmp/jest/jest/
-    policy: pull-push
 
-.qa:
+jest-foss:
   extends:
-    - .default-tags
-    - .default-retry
-    - .default-cache
-    - .except-docs
-  dependencies: []
-  stage: test
-  variables:
-    SETUP_DB: "false"
-  before_script:
-    - cd qa/
-    - bundle install
-
-qa:internal:
-  extends: .qa
-  script:
-    - bundle exec rspec
-
-qa:selectors:
-  extends: .qa
-  script:
-    - bundle exec bin/qa Test::Sanity::Selectors
+    - .jest-base
+    - .only-ee-as-if-foss
+  cache:
+    policy: pull
 
 .qa-frontend-node:
   extends:
     - .default-tags
     - .default-retry
     - .default-cache
-    - .except-docs
+    - .default-only
+    - .only-code-changes
+  stage: test
   dependencies: []
   cache:
     key: "$CI_JOB_NAME"
@@ -238,10 +237,12 @@ webpack-dev-server:
     - .default-tags
     - .default-retry
     - .default-cache
-    - .except-docs-qa
-  dependencies: ["compile-assets", "compile-assets pull-cache", "setup-test-env"]
+    - .default-only
+    - .only-code-changes
+  stage: test
+  needs: ["setup-test-env", "compile-assets pull-cache"]
+  dependencies: ["setup-test-env", "compile-assets pull-cache"]
   variables:
-    SETUP_DB: "false"
     WEBPACK_MEMORY_TEST: "true"
   script:
     - node --version

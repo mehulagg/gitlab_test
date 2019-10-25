@@ -118,32 +118,7 @@ describe Admin::ApplicationSettingsController do
     end
 
     describe 'verify panel actions' do
-      shared_examples 'renders correct panels' do
-        it 'renders correct action on error' do
-          expect_next_instance_of(ApplicationSettings::UpdateService) do |service|
-            allow(service).to receive(:execute).and_return(false)
-          end
-
-          patch action, params: { application_setting: { unused_param: true } }
-
-          expect(subject).to render_template(action)
-        end
-
-        it 'redirects to same panel on success' do
-          expect_next_instance_of(ApplicationSettings::UpdateService) do |service|
-            allow(service).to receive(:execute).and_return(true)
-          end
-
-          referer_path = public_send("#{action}_admin_application_settings_path")
-          request.env["HTTP_REFERER"] = referer_path
-
-          patch action, params: { application_setting: { unused_param: true } }
-
-          expect(subject).to redirect_to(referer_path)
-        end
-      end
-
-      (Admin::ApplicationSettingsController::VALID_SETTING_PANELS - %w(show templates geo)).each do |valid_action|
+      Admin::ApplicationSettingsController::VALID_SETTING_PANELS.each do |valid_action|
         it_behaves_like 'renders correct panels' do
           let(:action) { valid_action }
         end
@@ -166,6 +141,24 @@ describe Admin::ApplicationSettingsController do
       subject
 
       expect(response).to redirect_to(admin_runners_path)
+    end
+  end
+
+  describe 'GET #lets_encrypt_terms_of_service' do
+    include LetsEncryptHelpers
+
+    before do
+      sign_in(admin)
+
+      stub_lets_encrypt_client
+    end
+
+    subject { get :lets_encrypt_terms_of_service }
+
+    it 'redirects the user to the terms of service page' do
+      subject
+
+      expect(response).to redirect_to("https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf")
     end
   end
 end

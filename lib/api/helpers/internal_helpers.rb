@@ -56,7 +56,7 @@ module API
       end
 
       def process_mr_push_options(push_options, project, user, changes)
-        Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-ce/issues/61359')
+        Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/61359')
 
         service = ::MergeRequests::PushOptionsHandlerService.new(
           project,
@@ -140,7 +140,8 @@ module API
         {
           repository: repository.gitaly_repository,
           address: Gitlab::GitalyClient.address(project.repository_storage),
-          token: Gitlab::GitalyClient.token(project.repository_storage)
+          token: Gitlab::GitalyClient.token(project.repository_storage),
+          features: Feature::Gitaly.server_feature_flags
         }
       end
     end

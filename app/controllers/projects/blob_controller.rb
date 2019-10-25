@@ -7,6 +7,7 @@ class Projects::BlobController < Projects::ApplicationController
   include RendersBlob
   include NotesHelper
   include ActionView::Helpers::SanitizeHelper
+  include RedirectsForMissingPathOnTree
   prepend_before_action :authenticate_user!, only: [:edit]
 
   around_action :allow_gitaly_ref_name_caching, only: [:show]
@@ -95,7 +96,7 @@ class Projects::BlobController < Projects::ApplicationController
     @form = Blobs::UnfoldPresenter.new(blob, diff_params)
 
     # keep only json rendering when
-    # https://gitlab.com/gitlab-org/gitlab-ce/issues/44988 is done
+    # https://gitlab.com/gitlab-org/gitlab-foss/issues/44988 is done
     if rendered_for_merge_request?
       render json: DiffLineSerializer.new.represent(@form.diff_lines)
     else
@@ -119,7 +120,7 @@ class Projects::BlobController < Projects::ApplicationController
         end
       end
 
-      return render_404
+      return redirect_to_tree_root_for_missing_path(@project, @ref, @path)
     end
   end
 

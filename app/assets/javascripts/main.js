@@ -312,6 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const action = `${this.action}${link.search === '' ? '?' : '&'}`;
 
     event.preventDefault();
+    // eslint-disable-next-line no-jquery/no-serialize
     visitUrl(`${action}${$(this).serialize()}`);
   });
 

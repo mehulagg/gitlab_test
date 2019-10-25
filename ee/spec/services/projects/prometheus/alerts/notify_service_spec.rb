@@ -33,7 +33,7 @@ describe Projects::Prometheus::Alerts::NotifyService do
     let(:create_incident_service) { spy }
 
     it 'processes issues', :sidekiq do
-      expect(IncidentManagement::ProcessAlertWorker)
+      expect(IncidentManagement::ProcessPrometheusAlertWorker)
         .to receive(:perform_async)
         .with(project.id, kind_of(Hash))
         .exactly(amount).times
@@ -46,7 +46,7 @@ describe Projects::Prometheus::Alerts::NotifyService do
 
   shared_examples 'does not process incident issues' do
     it 'does not process issues' do
-      expect(IncidentManagement::ProcessAlertWorker)
+      expect(IncidentManagement::ProcessPrometheusAlertWorker)
         .not_to receive(:perform_async)
 
       expect(subject).to eq(true)
@@ -232,7 +232,7 @@ describe Projects::Prometheus::Alerts::NotifyService do
       context 'when incident_management_setting does not exist' do
         it_behaves_like 'persists events'
 
-        it 'does not send notification email' do
+        it 'does not send notification email', :sidekiq_might_not_need_inline do
           expect(project.feature_available?(:incident_management)).to eq(true)
 
           expect_next_instance_of(NotificationService) do |service|

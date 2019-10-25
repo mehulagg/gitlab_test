@@ -24,32 +24,51 @@ module Security
     end
 
     def execute
-      pipeline_reports.each_with_object([]) do |(type, report), occurrences|
+      reports = pipeline_reports
+
+      return [] if reports.nil?
+
+      occurrences = reports.each_with_object([]) do |(type, report), occurrences|
         next unless requested_type?(type)
 
-        normalized_occurrences = normalize_report_occurrences(report.occurrences)
+        raise ParseError, 'JSON parsing failed' if report.error.is_a?(Gitlab::Ci::Parsers::Security::Common::SecurityReportParserError)
+
+        normalized_occurrences = normalize_report_occurrences(
+          report.occurrences,
+          vulnerabilities_by_finding_fingerprint(type, report))
         filtered_occurrences = filter(normalized_occurrences)
 
         occurrences.concat(filtered_occurrences)
       end
 
-    # Created follow-up issue to better handle exception case - https://gitlab.com/gitlab-org/gitlab-ee/issues/14007
-    rescue NoMethodError => _ # propagate error for CompareReportsBaseService
-      raise ParseError, 'JSON parsing failed'
+      occurrences.sort_by { |x| [-x.severity_value, -x.confidence_value] }
     end
 
     private
 
     def pipeline_reports
-      pipeline.security_reports.reports
+      pipeline&.security_reports&.reports
     end
 
-    def normalize_report_occurrences(report_occurrences)
+    def vulnerabilities_by_finding_fingerprint(report_type, report)
+      Vulnerabilities::Occurrence
+        .with_vulnerabilities_for_state(
+          project: pipeline.project,
+          report_type: report_type,
+          project_fingerprints: report.occurrences.map(&:project_fingerprint))
+       .each_with_object({}) do |occurrence, hash|
+        hash[occurrence.project_fingerprint] = occurrence.vulnerability
+      end
+    end
+
+    def normalize_report_occurrences(report_occurrences, vulnerabilities)
       report_occurrences.map do |report_occurrence|
         occurrence_hash = report_occurrence.to_hash
-          .except(:compare_key, :identifiers, :location, :scanner) # rubocop:disable CodeReuse/ActiveRecord
+          .except(:compare_key, :identifiers, :location, :scanner)
 
         occurrence = Vulnerabilities::Occurrence.new(occurrence_hash)
+        # assigning Vulnerabilities to Findings to enable the computed state
+        occurrence.vulnerability = vulnerabilities[occurrence.project_fingerprint]
 
         occurrence.project = pipeline.project
         occurrence.build_scanner(report_occurrence.scanner.to_hash)

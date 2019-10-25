@@ -80,6 +80,7 @@ export default {
               __typename: 'NoteEdge',
               node: createNote.note,
             });
+            data.design.notesCount += 1;
             store.writeQuery({ query: getDesignQuery, data });
           },
         })
@@ -108,7 +109,10 @@ export default {
 <template>
   <div class="design-discussion-wrapper">
     <div class="badge badge-pill" type="button">{{ discussionIndex }}</div>
-    <div class="design-discussion bordered-box position-relative">
+    <div
+      class="design-discussion bordered-box position-relative"
+      data-qa-selector="design_discussion_content"
+    >
       <design-note v-for="note in discussion.notes" :key="note.id" :note="note" />
       <div class="reply-wrapper">
         <reply-placeholder

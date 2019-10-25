@@ -3,14 +3,14 @@ import { GlButton } from '@gitlab/ui';
 
 import RelatedItemsTreeHeader from 'ee/related_items_tree/components/related_items_tree_header.vue';
 import Icon from '~/vue_shared/components/icon.vue';
-import DroplabDropdownButton from '~/vue_shared/components/droplab_dropdown_button.vue';
 import createDefaultStore from 'ee/related_items_tree/store';
 import * as epicUtils from 'ee/related_items_tree/utils/epic_utils';
-import { ActionType } from 'ee/related_items_tree/constants';
+import { issuableTypesMap } from 'ee/related_issues/constants';
+import EpicActionsSplitButton from 'ee/related_items_tree/components/epic_actions_split_button.vue';
 
 import { mockParentItem, mockQueryResponse } from '../mock_data';
 
-const createComponent = () => {
+const createComponent = ({ slots } = {}) => {
   const store = createDefaultStore();
   const localVue = createLocalVue();
   const children = epicUtils.processQueryResponse(mockQueryResponse.data.group);
@@ -29,6 +29,7 @@ const createComponent = () => {
   return shallowMount(RelatedItemsTreeHeader, {
     localVue,
     store,
+    slots,
   });
 };
 
@@ -36,15 +37,18 @@ describe('RelatedItemsTree', () => {
   describe('RelatedItemsTreeHeader', () => {
     let wrapper;
 
-    beforeEach(() => {
-      wrapper = createComponent();
-    });
+    const findAddIssuesButton = () => wrapper.find(GlButton);
+    const findEpicsSplitButton = () => wrapper.find(EpicActionsSplitButton);
 
     afterEach(() => {
       wrapper.destroy();
     });
 
     describe('computed', () => {
+      beforeEach(() => {
+        wrapper = createComponent();
+      });
+
       describe('badgeTooltip', () => {
         it('returns string containing epic count and issues count based on available direct children within state', () => {
           expect(wrapper.vm.badgeTooltip).toBe('2 epics and 2 issues');
@@ -52,34 +56,87 @@ describe('RelatedItemsTree', () => {
       });
     });
 
-    describe('methods', () => {
-      describe('handleActionClick', () => {
-        const actionType = ActionType.Epic;
+    describe('epic actions split button', () => {
+      beforeEach(() => {
+        wrapper = createComponent();
+      });
 
-        it('calls `toggleAddItemForm` action when provided `id` param as value `0`', () => {
-          spyOn(wrapper.vm, 'toggleAddItemForm');
+      describe('showAddEpicForm event', () => {
+        let toggleAddItemForm;
 
-          wrapper.vm.handleActionClick({
-            id: 0,
-            actionType,
-          });
-
-          expect(wrapper.vm.toggleAddItemForm).toHaveBeenCalledWith({
-            actionType,
-            toggleState: true,
+        beforeEach(() => {
+          toggleAddItemForm = jasmine.createSpy();
+          wrapper.vm.$store.hotUpdate({
+            actions: {
+              toggleAddItemForm,
+            },
           });
         });
 
-        it('calls `toggleCreateItemForm` action when provided `id` param value is not `0`', () => {
-          spyOn(wrapper.vm, 'toggleCreateItemForm');
+        it('dispatches toggleAddItemForm action', () => {
+          findEpicsSplitButton().vm.$emit('showAddEpicForm');
 
-          wrapper.vm.handleActionClick({
-            id: 1,
-            actionType,
+          expect(toggleAddItemForm).toHaveBeenCalled();
+
+          const payload = toggleAddItemForm.calls.mostRecent().args[1];
+
+          expect(payload).toEqual({
+            issuableType: issuableTypesMap.EPIC,
+            toggleState: true,
           });
+        });
+      });
 
-          expect(wrapper.vm.toggleCreateItemForm).toHaveBeenCalledWith({
-            actionType,
+      describe('showCreateEpicForm event', () => {
+        let toggleCreateEpicForm;
+
+        beforeEach(() => {
+          toggleCreateEpicForm = jasmine.createSpy();
+          wrapper.vm.$store.hotUpdate({
+            actions: {
+              toggleCreateEpicForm,
+            },
+          });
+        });
+
+        it('dispatches toggleCreateEpicForm action', () => {
+          findEpicsSplitButton().vm.$emit('showCreateEpicForm');
+
+          expect(toggleCreateEpicForm).toHaveBeenCalled();
+
+          const payload = toggleCreateEpicForm.calls.mostRecent().args[1];
+
+          expect(payload).toEqual({ toggleState: true });
+        });
+      });
+    });
+
+    describe('add issues button', () => {
+      beforeEach(() => {
+        wrapper = createComponent();
+      });
+
+      describe('click event', () => {
+        let toggleAddItemForm;
+
+        beforeEach(() => {
+          toggleAddItemForm = jasmine.createSpy();
+          wrapper.vm.$store.hotUpdate({
+            actions: {
+              toggleAddItemForm,
+            },
+          });
+        });
+
+        it('dispatches toggleAddItemForm action', () => {
+          findAddIssuesButton().vm.$emit('click');
+
+          expect(toggleAddItemForm).toHaveBeenCalled();
+
+          const payload = toggleAddItemForm.calls.mostRecent().args[1];
+
+          expect(payload).toEqual({
+            issuableType: issuableTypesMap.ISSUE,
             toggleState: true,
           });
         });
@@ -87,6 +144,10 @@ describe('RelatedItemsTree', () => {
     });
 
     describe('template', () => {
+      beforeEach(() => {
+        wrapper = createComponent();
+      });
+
       it('renders item badges container', () => {
         const badgesContainerEl = wrapper.find('.issue-count-badge');
 
@@ -112,14 +173,39 @@ describe('RelatedItemsTree', () => {
       });
 
       it('renders `Add an epic` dropdown button', () => {
-        expect(wrapper.find(DroplabDropdownButton).isVisible()).toBe(true);
+        expect(findEpicsSplitButton().isVisible()).toBe(true);
       });
 
       it('renders `Add an issue` dropdown button', () => {
-        const addIssueBtn = wrapper.find(GlButton);
+        const addIssueBtn = findAddIssuesButton();
 
         expect(addIssueBtn.isVisible()).toBe(true);
         expect(addIssueBtn.text()).toBe('Add an issue');
+      });
+    });
+
+    describe('slots', () => {
+      describe('issueActions', () => {
+        it('defaults to button', () => {
+          wrapper = createComponent();
+
+          expect(findAddIssuesButton().exists()).toBe(true);
+        });
+
+        it('uses provided slot content', () => {
+          const issueActions = {
+            template: '<p>custom content</p>',
+          };
+
+          wrapper = createComponent({
+            slots: {
+              issueActions,
+            },
+          });
+
+          expect(findAddIssuesButton().exists()).toBe(false);
+          expect(wrapper.find(issueActions).exists()).toBe(true);
+        });
       });
     });
   });

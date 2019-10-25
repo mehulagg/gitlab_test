@@ -71,6 +71,7 @@ describe Ci::CreatePipelineService do
         expect(Gitlab::Metrics).to receive(:counter)
           .with(:pipelines_created_total, "Counter of pipelines created")
           .and_call_original
+        allow(Gitlab::Metrics).to receive(:counter).and_call_original # allow other counters
 
         pipeline
       end
@@ -96,7 +97,7 @@ describe Ci::CreatePipelineService do
         end
 
         context 'when the head pipeline sha equals merge request sha' do
-          it 'updates head pipeline of each merge request' do
+          it 'updates head pipeline of each merge request', :sidekiq_might_not_need_inline do
             merge_request_1
             merge_request_2
 
@@ -139,7 +140,7 @@ describe Ci::CreatePipelineService do
           let!(:project) { fork_project(target_project, nil, repository: true) }
           let!(:target_project) { create(:project, :repository) }
 
-          it 'updates head pipeline for merge request' do
+          it 'updates head pipeline for merge request', :sidekiq_might_not_need_inline do
             merge_request = create(:merge_request, source_branch: 'feature',
                                                    target_branch: "master",
                                                    source_project: project,
@@ -171,7 +172,7 @@ describe Ci::CreatePipelineService do
             stub_ci_pipeline_yaml_file('some invalid syntax')
           end
 
-          it 'updates merge request head pipeline reference' do
+          it 'updates merge request head pipeline reference', :sidekiq_might_not_need_inline do
             merge_request = create(:merge_request, source_branch: 'master',
                                                    target_branch: 'feature',
                                                    source_project: project)
@@ -191,7 +192,7 @@ describe Ci::CreatePipelineService do
               .and_return('some commit [ci skip]')
           end
 
-          it 'updates merge request head pipeline' do
+          it 'updates merge request head pipeline', :sidekiq_might_not_need_inline do
             merge_request = create(:merge_request, source_branch: 'master',
                                                    target_branch: 'feature',
                                                    source_project: project)
@@ -217,21 +218,21 @@ describe Ci::CreatePipelineService do
           expect(pipeline.reload).to have_attributes(status: 'pending', auto_canceled_by_id: nil)
         end
 
-        it 'auto cancel pending non-HEAD pipelines' do
+        it 'auto cancel pending non-HEAD pipelines', :sidekiq_might_not_need_inline do
           pipeline_on_previous_commit
           pipeline
 
           expect(pipeline_on_previous_commit.reload).to have_attributes(status: 'canceled', auto_canceled_by_id: pipeline.id)
         end
 
-        it 'cancels running outdated pipelines' do
+        it 'cancels running outdated pipelines', :sidekiq_might_not_need_inline do
           pipeline_on_previous_commit.run
           head_pipeline = execute_service
 
           expect(pipeline_on_previous_commit.reload).to have_attributes(status: 'canceled', auto_canceled_by_id: head_pipeline.id)
         end
 
-        it 'cancel created outdated pipelines' do
+        it 'cancel created outdated pipelines', :sidekiq_might_not_need_inline do
           pipeline_on_previous_commit.update(status: 'created')
           pipeline
 
@@ -287,42 +288,11 @@ describe Ci::CreatePipelineService do
               expect(pipeline.builds.find_by(name: 'rspec').interruptible).to be_falsy
             end
           end
-
-          context 'not defined, but an environment is' do
-            before do
-              config = YAML.dump(rspec: { script: 'echo', environment: { name: "review/$CI_COMMIT_REF_NAME" } })
-              stub_ci_pipeline_yaml_file(config)
-            end
-
-            it 'is not cancelable' do
-              pipeline = execute_service
-
-              expect(pipeline.builds.find_by(name: 'rspec').interruptible).to be_nil
-            end
-          end
-
-          context 'overriding the environment definition' do
-            before do
-              config = YAML.dump(rspec: { script: 'echo', environment: { name: "review/$CI_COMMIT_REF_NAME" }, interruptible: true })
-              stub_ci_pipeline_yaml_file(config)
-            end
-
-            it 'is cancelable' do
-              pipeline = execute_service
-
-              expect(pipeline.builds.find_by(name: 'rspec').interruptible).to be_truthy
-            end
-          end
         end
 
         context 'interruptible builds' do
           before do
-            Feature.enable(:ci_support_interruptible_pipelines)
             stub_ci_pipeline_yaml_file(YAML.dump(config))
-          end
-
-          after do
-            Feature.disable(:ci_support_interruptible_pipelines)
           end
 
           let(:config) do
@@ -331,7 +301,8 @@ describe Ci::CreatePipelineService do
 
               build_1_1: {
                 stage: 'stage1',
-                script: 'echo'
+                script: 'echo',
+                interruptible: true
               },
               build_1_2: {
                 stage: 'stage1',
@@ -342,7 +313,8 @@ describe Ci::CreatePipelineService do
                 stage: 'stage2',
                 script: 'echo',
                 when: 'delayed',
-                start_in: '10 minutes'
+                start_in: '10 minutes',
+                interruptible: true
               },
               build_3_1: {
                 stage: 'stage3',
@@ -364,9 +336,9 @@ describe Ci::CreatePipelineService do
                 .pluck(:name, 'ci_builds_metadata.interruptible')
 
             expect(interruptible_status).to contain_exactly(
-              ['build_1_1', nil],
+              ['build_1_1', true],
               ['build_1_2', true],
-              ['build_2_1', nil],
+              ['build_2_1', true],
               ['build_3_1', false],
               ['build_4_1', nil]
             )
@@ -374,7 +346,7 @@ describe Ci::CreatePipelineService do
 
           context 'when only interruptible builds are running' do
             context 'when build marked explicitly by interruptible is running' do
-              it 'cancels running outdated pipelines' do
+              it 'cancels running outdated pipelines', :sidekiq_might_not_need_inline do
                 pipeline_on_previous_commit
                   .builds
                   .find_by_name('build_1_2')
@@ -388,7 +360,7 @@ describe Ci::CreatePipelineService do
             end
 
             context 'when build that is not marked as interruptible is running' do
-              it 'cancels running outdated pipelines' do
+              it 'cancels running outdated pipelines', :sidekiq_might_not_need_inline do
                 pipeline_on_previous_commit
                   .builds
                   .find_by_name('build_2_1')
@@ -404,7 +376,7 @@ describe Ci::CreatePipelineService do
           end
 
           context 'when an uninterruptible build is running' do
-            it 'does not cancel running outdated pipelines' do
+            it 'does not cancel running outdated pipelines', :sidekiq_might_not_need_inline do
               pipeline_on_previous_commit
                 .builds
                 .find_by_name('build_3_1')
@@ -419,7 +391,7 @@ describe Ci::CreatePipelineService do
           end
 
           context 'when an build is waiting on an interruptible scheduled task' do
-            it 'cancels running outdated pipelines' do
+            it 'cancels running outdated pipelines', :sidekiq_might_not_need_inline do
               allow(Ci::BuildScheduleWorker).to receive(:perform_at)
 
               pipeline_on_previous_commit
@@ -435,7 +407,7 @@ describe Ci::CreatePipelineService do
           end
 
           context 'when a uninterruptible build has finished' do
-            it 'does not cancel running outdated pipelines' do
+            it 'does not cancel running outdated pipelines', :sidekiq_might_not_need_inline do
               pipeline_on_previous_commit
                 .builds
                 .find_by_name('build_3_1')
@@ -761,6 +733,28 @@ describe Ci::CreatePipelineService do
 
           expect(result).to be_persisted
         end.not_to change { Environment.count }
+      end
+    end
+
+    context 'when environment with duplicate names' do
+      let(:ci_yaml) do
+        {
+          deploy: { environment: { name: 'production' }, script: 'ls' },
+          deploy_2: { environment: { name: 'production' }, script: 'ls' }
+        }
+      end
+
+      before do
+        stub_ci_pipeline_yaml_file(YAML.dump(ci_yaml))
+      end
+
+      it 'creates a pipeline with the environment' do
+        result = execute_service
+
+        expect(result).to be_persisted
+        expect(Environment.find_by(name: 'production')).to be_present
+        expect(result.builds.first.deployment).to be_persisted
+        expect(result.builds.first.deployment.deployable).to be_a(Ci::Build)
       end
     end
 
@@ -1242,7 +1236,7 @@ describe Ci::CreatePipelineService do
               let!(:project) { fork_project(target_project, nil, repository: true) }
               let!(:target_project) { create(:project, :repository) }
 
-              it 'creates a legacy detached merge request pipeline in the forked project' do
+              it 'creates a legacy detached merge request pipeline in the forked project', :sidekiq_might_not_need_inline do
                 expect(pipeline).to be_persisted
                 expect(project.ci_pipelines).to eq([pipeline])
                 expect(target_project.ci_pipelines).to be_empty

@@ -2,11 +2,15 @@
 import { mapState, mapActions } from 'vuex';
 import { GlButton, GlLoadingIcon } from '@gitlab/ui';
 
+import { ChildType } from '../constants';
+import TreeDragAndDropMixin from '../mixins/tree_dd_mixin';
+
 export default {
   components: {
     GlButton,
     GlLoadingIcon,
   },
+  mixins: [TreeDragAndDropMixin],
   props: {
     parentItem: {
       type: Object,
@@ -23,7 +27,10 @@ export default {
     };
   },
   computed: {
-    ...mapState(['childrenFlags']),
+    ...mapState(['childrenFlags', 'userSignedIn']),
+    currentItemIssuesBeginAtIndex() {
+      return this.children.findIndex(item => item.type === ChildType.Issue);
+    },
     hasMoreChildren() {
       const flags = this.childrenFlags[this.parentItem.reference];
 
@@ -31,7 +38,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['fetchNextPageItems']),
+    ...mapActions(['fetchNextPageItems', 'reorderItem']),
     handleShowMoreClick() {
       this.fetchInProgress = true;
       this.fetchNextPageItems({
@@ -49,7 +56,13 @@ export default {
 </script>
 
 <template>
-  <ul class="list-unstyled related-items-list tree-root">
+  <component
+    :is="treeRootWrapper"
+    v-bind="treeRootOptions"
+    class="list-unstyled related-items-list tree-root"
+    @start="handleDragOnStart"
+    @end="handleDragOnEnd"
+  >
     <tree-item v-for="item in children" :key="item.id" :parent-item="parentItem" :item="item" />
     <li v-if="hasMoreChildren" class="tree-item list-item pt-0 pb-0 d-flex justify-content-center">
       <gl-button
@@ -61,5 +74,5 @@ export default {
       >
       <gl-loading-icon v-else size="sm" class="mt-1 mb-1" />
     </li>
-  </ul>
+  </component>
 </template>

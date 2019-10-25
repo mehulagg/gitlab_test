@@ -14,9 +14,13 @@ The [epic issues API](epic_issues.md) allows you to interact with issues associa
 
 > [Introduced][ee-6448] in GitLab 11.3.
 
-Since start date and due date can be dynamically sourced from related issue milestones, when user has edit permission, additional fields will be shown. These include two boolean fields `start_date_is_fixed` and `due_date_is_fixed`, and four date fields `start_date_fixed`, `start_date_from_milestones`, `due_date_fixed` and `due_date_from_milestones`.
+Since start date and due date can be dynamically sourced from related issue milestones, when user has edit permission,
+additional fields will be shown. These include two boolean fields `start_date_is_fixed` and `due_date_is_fixed`,
+and four date fields `start_date_fixed`, `start_date_from_inherited_source`, `due_date_fixed` and `due_date_from_inherited_source`.
 
-`end_date` has been deprecated in favor of `due_date`.
+- `end_date` has been deprecated in favor of `due_date`.
+- `start_date_from_milestones` has been deprecated in favor of `start_date_from_inherited_source`
+- `due_date_from_milestones` has been deprecated in favor of `due_date_from_inherited_source`
 
 ## Epics pagination
 
@@ -49,6 +53,8 @@ GET /groups/:id/epics?state=opened
 | `created_before`    | datetime         | no         | Return epics created on or before the given time                                                                            |
 | `updated_after`     | datetime         | no         | Return epics updated on or after the given time                                                                             |
 | `updated_before`    | datetime         | no         | Return epics updated on or before the given time                                                                            |
+| `include_ancestor_groups` | boolean    | no         | Include epics from the requested group's ancestors. Default is `false`                                                      |
+| `include_descendant_groups` | boolean  | no         | Include epics from the requested group's descendants. Default is `true`                                                     |
 
 ```bash
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics
@@ -65,7 +71,7 @@ Example response:
   "title": "Accusamus iste et ullam ratione voluptatem omnis debitis dolor est.",
   "description": "Molestias dolorem eos vitae expedita impedit necessitatibus quo voluptatum.",
   "state": "opened",
-  "web_edit_url": "http://localhost:3001/groups/test/-/epics/4",
+  "web_url": "http://localhost:3001/groups/test/-/epics/4",
   "reference": "&4",
   "author": {
     "id": 10,
@@ -78,14 +84,17 @@ Example response:
   "start_date": null,
   "start_date_is_fixed": false,
   "start_date_fixed": null,
-  "start_date_from_milestones": null,
-  "end_date": "2018-07-31",
+  "start_date_from_milestones": null,       //deprecated in favor of start_date_from_inherited_source
+  "start_date_from_inherited_source": null,
+  "end_date": "2018-07-31",                 //deprecated in favor of due_date
   "due_date": "2018-07-31",
   "due_date_is_fixed": false,
   "due_date_fixed": null,
-  "due_date_from_milestones": "2018-07-31",
+  "due_date_from_milestones": "2018-07-31", //deprecated in favor of start_date_from_inherited_source
+  "due_date_from_inherited_source": "2018-07-31",
   "created_at": "2018-07-17T13:36:22.770Z",
   "updated_at": "2018-07-18T12:22:05.239Z",
+  "closed_at": "2018-08-18T12:22:05.239Z",
   "labels": [],
   "upvotes": 4,
   "downvotes": 0
@@ -120,7 +129,7 @@ Example response:
   "title": "Ea cupiditate dolores ut vero consequatur quasi veniam voluptatem et non.",
   "description": "Molestias dolorem eos vitae expedita impedit necessitatibus quo voluptatum.",
   "state": "opened",
-  "web_edit_url": "http://localhost:3001/groups/test/-/epics/5",
+  "web_url": "http://localhost:3001/groups/test/-/epics/5",
   "reference": "&5",
   "author":{
     "id": 7,
@@ -133,17 +142,21 @@ Example response:
   "start_date": null,
   "start_date_is_fixed": false,
   "start_date_fixed": null,
-  "start_date_from_milestones": null,
-  "end_date": "2018-07-31",
+  "start_date_from_milestones": null,       //deprecated in favor of start_date_from_inherited_source
+  "start_date_from_inherited_source": null,
+  "end_date": "2018-07-31",                 //deprecated in favor of due_date
   "due_date": "2018-07-31",
   "due_date_is_fixed": false,
   "due_date_fixed": null,
-  "due_date_from_milestones": "2018-07-31",
+  "due_date_from_milestones": "2018-07-31", //deprecated in favor of start_date_from_inherited_source
+  "due_date_from_inherited_source": "2018-07-31",
   "created_at": "2018-07-17T13:36:22.770Z",
   "updated_at": "2018-07-18T12:22:05.239Z",
+  "closed_at": "2018-08-18T12:22:05.239Z",
   "labels": [],
   "upvotes": 4,
-  "downvotes": 0
+  "downvotes": 0,
+  "subscribed": true
 }
 ```
 
@@ -165,7 +178,7 @@ POST /groups/:id/epics
 | `id`                | integer/string   | yes        | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) owned by the authenticated user                |
 | `title`             | string           | yes        | The title of the epic |
 | `labels`            | string           | no         | The comma separated list of labels |
-| `description`       | string           | no         | The description of the epic. Limited to 1 000 000 characters.  |
+| `description`       | string           | no         | The description of the epic. Limited to 1,048,576 characters.  |
 | `start_date_is_fixed` | boolean        | no         | Whether start date should be sourced from `start_date_fixed` or from milestones (since 11.3) |
 | `start_date_fixed`  | string           | no         | The fixed start date of an epic (since 11.3) |
 | `due_date_is_fixed` | boolean          | no         | Whether due date should be sourced from `due_date_fixed` or from milestones (since 11.3) |
@@ -186,7 +199,7 @@ Example response:
   "title": "Epic",
   "description": "Epic description",
   "state": "opened",
-  "web_edit_url": "http://localhost:3001/groups/test/-/epics/6",
+  "web_url": "http://localhost:3001/groups/test/-/epics/5",
   "reference": "&6",
   "author": {
     "name" : "Alexandra Bashirian",
@@ -199,14 +212,17 @@ Example response:
   "start_date": null,
   "start_date_is_fixed": false,
   "start_date_fixed": null,
-  "start_date_from_milestones": null,
-  "end_date": "2018-07-31",
+  "start_date_from_milestones": null,       //deprecated in favor of start_date_from_inherited_source
+  "start_date_from_inherited_source": null,
+  "end_date": "2018-07-31",                 //deprecated in favor of due_date
   "due_date": "2018-07-31",
   "due_date_is_fixed": false,
   "due_date_fixed": null,
-  "due_date_from_milestones": "2018-07-31",
+  "due_date_from_milestones": "2018-07-31", //deprecated in favor of start_date_from_inherited_source
+  "due_date_from_inherited_source": "2018-07-31",
   "created_at": "2018-07-17T13:36:22.770Z",
   "updated_at": "2018-07-18T12:22:05.239Z",
+  "closed_at": "2018-08-18T12:22:05.239Z",
   "labels": [],
   "upvotes": 4,
   "downvotes": 0
@@ -231,7 +247,7 @@ PUT /groups/:id/epics/:epic_iid
 | `id`                | integer/string   | yes        | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) owned by the authenticated user                |
 | `epic_iid`          | integer/string   | yes        | The internal ID  of the epic  |
 | `title`             | string           | no         | The title of an epic |
-| `description`       | string           | no         | The description of an epic. Limited to 1 000 000 characters.  |
+| `description`       | string           | no         | The description of an epic. Limited to 1,048,576 characters.  |
 | `labels`            | string           | no         | The comma separated list of labels |
 | `start_date_is_fixed` | boolean        | no         | Whether start date should be sourced from `start_date_fixed` or from milestones (since 11.3) |
 | `start_date_fixed`  | string           | no         | The fixed start date of an epic (since 11.3) |
@@ -253,7 +269,7 @@ Example response:
   "title": "New Title",
   "description": "Epic description",
   "state": "opened",
-  "web_edit_url": "http://localhost:3001/groups/test/-/epics/6",
+  "web_url": "http://localhost:3001/groups/test/-/epics/5",
   "reference": "&6",
   "author": {
     "name" : "Alexandra Bashirian",
@@ -266,14 +282,17 @@ Example response:
   "start_date": null,
   "start_date_is_fixed": false,
   "start_date_fixed": null,
-  "start_date_from_milestones": null,
-  "end_date": "2018-07-31",
+  "start_date_from_milestones": null,       //deprecated in favor of start_date_from_inherited_source
+  "start_date_from_inherited_source": null,
+  "end_date": "2018-07-31",                 //deprecated in favor of due_date
   "due_date": "2018-07-31",
   "due_date_is_fixed": false,
   "due_date_fixed": null,
-  "due_date_from_milestones": "2018-07-31",
+  "due_date_from_milestones": "2018-07-31", //deprecated in favor of start_date_from_inherited_source
+  "due_date_from_inherited_source": "2018-07-31",
   "created_at": "2018-07-17T13:36:22.770Z",
   "updated_at": "2018-07-18T12:22:05.239Z",
+  "closed_at": "2018-08-18T12:22:05.239Z",
   "labels": [],
   "upvotes": 4,
   "downvotes": 0
@@ -356,7 +375,8 @@ Example response:
     "start_date": null,
     "end_date": null,
     "created_at": "2018-01-21T06:21:13.165Z",
-    "updated_at": "2018-01-22T12:41:41.166Z"
+    "updated_at": "2018-01-22T12:41:41.166Z",
+    "closed_at": "2018-08-18T12:22:05.239Z"
   },
   "target_url": "https://gitlab.example.com/groups/epics/5",
   "body": "Vel voluptas atque dicta mollitia adipisci qui at.",
@@ -365,4 +385,4 @@ Example response:
 }
 ```
 
-[ee-6448]: https://gitlab.com/gitlab-org/gitlab-ee/merge_requests/6448
+[ee-6448]: https://gitlab.com/gitlab-org/gitlab/merge_requests/6448

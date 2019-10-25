@@ -20,7 +20,7 @@ you can also view all the issues collectively at the group level.
 - Accepting feature proposals, questions, support requests, or bug reports
 - Elaborating on new code implementations
 
-See also [Always start a discussion with an issue](https://about.gitlab.com/2016/03/03/start-with-an-issue/).
+See also [Always start a discussion with an issue](https://about.gitlab.com/blog/2016/03/03/start-with-an-issue/).
 
 ## Parts of an issue
 
@@ -146,7 +146,7 @@ message in the Activity stream about the reference, with a link to the other iss
 
 ### Similar issues
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/22866) in GitLab 11.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/22866) in GitLab 11.6.
 
 To prevent duplication of issues for the same topic, GitLab searches for similar issues
 when new issues are being created.

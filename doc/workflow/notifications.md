@@ -51,8 +51,8 @@ Organization like this is suitable for users that belong to different groups but
 same need for being notified for every group they are member of.
 These settings can be configured on group page under the name of the group. It will be the dropdown with the bell icon. They can also be configured on the user profile notifications dropdown.
 
-The group owner can disable email notifications for a group, which also includes
-it's subgroups and projects.  If this is the case, you will not receive any corresponding notifications,
+The group owner can disable email notifications for a group, which includes
+its subgroups and projects. If this is the case, you will not receive any corresponding notifications,
 and the notification button will be disabled with an explanatory tooltip.
 
 ### Project Settings
@@ -64,7 +64,7 @@ other setting.
 This is suitable for users that have different needs for notifications per project basis.
 These settings can be configured on project page under the name of the project. It will be the dropdown with the bell icon. They can also be configured on the user profile notifications dropdown.
 
-The project owner (or it's group owner) can disable email notifications for the project.
+The project owner (or its group owner) can disable email notifications for the project.
 If this is the case, you will not receive any corresponding notifications, and the notification
 button will be disabled with an explanatory tooltip.
 
@@ -78,12 +78,13 @@ Below is the table of events users can be notified of:
 | New email added              | User                | Security email, always sent. |
 | Email changed                | User                | Security email, always sent. |
 | Password changed             | User                | Security email, always sent. |
-| New user created             | User                | Sent on user creation, except for omniauth (LDAP)|
+| New user created             | User                | Sent on user creation, except for OmniAuth (LDAP)|
 | User added to project        | User                | Sent when user is added to project |
 | Project access level changed | User                | Sent when user project access level is changed |
 | User added to group          | User                | Sent when user is added to group |
 | Group access level changed   | User                | Sent when user group access level is changed |
 | Project moved                | Project members (1) | (1) not disabled |
+| New release                  | Project members     | Custom notification          |
 
 ### Issue / Epics / Merge request events
 
@@ -150,7 +151,7 @@ Notification emails include headers that provide extra content about the notific
 | X-GitLab-Pipeline-Id        | Only in pipeline emails, the ID of the pipeline the notification is for |
 | X-GitLab-Reply-Key          | A unique token to support reply by email                                |
 | X-GitLab-NotificationReason | The reason for being notified. "mentioned", "assigned", etc             |
-| List-Id                     | The path of the project in a RFC 2919 mailing list identifier useful for email organization, for example, with GMail filters |
+| List-Id                     | The path of the project in a RFC 2919 mailing list identifier useful for email organization, for example, with Gmail filters |
 
 #### X-GitLab-NotificationReason
 
@@ -168,4 +169,4 @@ reason `assigned` will have this sentence in the footer:
 
 NOTE: **Note:**
 Only reasons listed above have been implemented so far.
-Further implementation is [being discussed](https://gitlab.com/gitlab-org/gitlab-ce/issues/42062).
+Further implementation is [being discussed](https://gitlab.com/gitlab-org/gitlab-foss/issues/42062).

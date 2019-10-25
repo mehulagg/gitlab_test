@@ -58,7 +58,7 @@ describe Gitlab::Ci::Trace::Stream, :clean_gitlab_redis_cache do
           expect(result.encoding).to eq(Encoding.default_external)
         end
 
-        # See https://gitlab.com/gitlab-org/gitlab-ce/issues/30796
+        # See https://gitlab.com/gitlab-org/gitlab-foss/issues/30796
         it 'reads in binary, output as Encoding.default_external' do
           stream.limit(52)
 
@@ -245,60 +245,6 @@ describe Gitlab::Ci::Trace::Stream, :clean_gitlab_redis_cache do
       end
 
       it_behaves_like 'sets'
-    end
-  end
-
-  describe '#html_with_state' do
-    shared_examples_for 'html_with_states' do
-      it 'returns html content with state' do
-        result = stream.html_with_state
-
-        expect(result.html).to eq("<span>1234</span>")
-      end
-
-      context 'follow-up state' do
-        let!(:last_result) { stream.html_with_state }
-
-        before do
-          data_stream.seek(4, IO::SEEK_SET)
-          data_stream.write("5678")
-          stream.seek(0)
-        end
-
-        it "returns appended trace" do
-          result = stream.html_with_state(last_result.state)
-
-          expect(result.append).to be_truthy
-          expect(result.html).to eq("<span>5678</span>")
-        end
-      end
-    end
-
-    context 'when stream is StringIO' do
-      let(:data_stream) do
-        StringIO.new("1234")
-      end
-
-      let(:stream) do
-        described_class.new { data_stream }
-      end
-
-      it_behaves_like 'html_with_states'
-    end
-
-    context 'when stream is ChunkedIO' do
-      let(:data_stream) do
-        Gitlab::Ci::Trace::ChunkedIO.new(build).tap do |chunked_io|
-          chunked_io.write("1234")
-          chunked_io.seek(0, IO::SEEK_SET)
-        end
-      end
-
-      let(:stream) do
-        described_class.new { data_stream }
-      end
-
-      it_behaves_like 'html_with_states'
     end
   end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Epics::CreateService do
@@ -21,6 +23,21 @@ describe Epics::CreateService do
       expect(epic.parent).to eq(parent_epic)
       expect(epic.relative_position).not_to be_nil
       expect(NewEpicWorker).to have_received(:perform_async).with(epic.id, user.id)
+    end
+  end
+
+  context 'handling fixed dates' do
+    it 'sets the fixed date correctly' do
+      date = Date.new(2019, 10, 10)
+      params[:start_date_fixed] = date
+      params[:start_date_is_fixed] = true
+
+      subject
+
+      epic = Epic.last
+      expect(epic.start_date).to eq(date)
+      expect(epic.start_date_fixed).to eq(date)
+      expect(epic.start_date_is_fixed).to be_truthy
     end
   end
 end

@@ -10,7 +10,7 @@ FactoryBot.define do
       trait "legacy_#{report_type}".to_sym do
         success
         artifacts
-        name report_type
+        name { report_type }
 
         options do
           {
@@ -29,7 +29,7 @@ FactoryBot.define do
     end
 
     trait :dependency_list do
-      name :dependency_scanning
+      name { :dependency_scanning }
 
       after(:build) do |build|
         build.job_artifacts << build(:ee_ci_job_artifact, :dependency_list, job: build)
@@ -93,6 +93,12 @@ FactoryBot.define do
     trait :corrupted_license_management_report do
       after(:build) do |build|
         build.job_artifacts << create(:ee_ci_job_artifact, :corrupted_license_management_report, job: build)
+      end
+    end
+
+    trait :low_severity_dast_report do
+      after(:build) do |build|
+        build.job_artifacts << create(:ee_ci_job_artifact, :low_severity_dast_report, job: build)
       end
     end
   end

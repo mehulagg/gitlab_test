@@ -1,5 +1,4 @@
 ---
-table_display_block: true
 type: reference
 ---
 
@@ -57,7 +56,7 @@ the need to specify the value itself.
 
 #### Variable types
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/46806) in GitLab 11.11.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/46806) in GitLab 11.11.
 
 There are two types of variables supported by GitLab:
 
@@ -87,7 +86,7 @@ Variable types can be set via the [UI](#via-the-ui) or the [API](../../api/proje
 
 #### Masked variables
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/13784) in GitLab 11.10
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/13784) in GitLab 11.10
 
 Variables can be created as masked variables.
 This means that the value of the variable will be hidden in job logs,
@@ -96,7 +95,7 @@ though it must match certain requirements to do so:
 - The value must be in a single line.
 - The value must only consist of characters from the Base64 alphabet (RFC4648).
 
-  [In GitLab 12.2](https://gitlab.com/gitlab-org/gitlab-ce/issues/63043)
+  [In GitLab 12.2](https://gitlab.com/gitlab-org/gitlab-foss/issues/63043)
   and newer, `@` and `:` are also valid values.
 - The value must be at least 8 characters long.
 - The value must not use variables.
@@ -253,7 +252,7 @@ export CI_JOB_ID="50"
 export CI_COMMIT_SHA="1ecfd275763eff1d6b4844ea3168962458c9f27a"
 export CI_COMMIT_SHORT_SHA="1ecfd275"
 export CI_COMMIT_REF_NAME="master"
-export CI_REPOSITORY_URL="https://gitlab-ci-token:abcde-1234ABCD5678ef@example.com/gitlab-org/gitlab-ce.git"
+export CI_REPOSITORY_URL="https://gitlab-ci-token:abcde-1234ABCD5678ef@example.com/gitlab-org/gitlab-foss.git"
 export CI_COMMIT_TAG="1.0.0"
 export CI_JOB_NAME="spec:other"
 export CI_JOB_STAGE="test"
@@ -263,15 +262,16 @@ export CI_JOB_TOKEN="abcde-1234ABCD5678ef"
 export CI_PIPELINE_ID="1000"
 export CI_PIPELINE_IID="10"
 export CI_PAGES_DOMAIN="gitlab.io"
-export CI_PAGES_URL="https://gitlab-org.gitlab.io/gitlab-ce"
+export CI_PAGES_URL="https://gitlab-org.gitlab.io/gitlab-foss"
 export CI_PROJECT_ID="34"
-export CI_PROJECT_DIR="/builds/gitlab-org/gitlab-ce"
-export CI_PROJECT_NAME="gitlab-ce"
+export CI_PROJECT_DIR="/builds/gitlab-org/gitlab-foss"
+export CI_PROJECT_NAME="gitlab-foss"
+export CI_PROJECT_TITLE="GitLab FOSS"
 export CI_PROJECT_NAMESPACE="gitlab-org"
-export CI_PROJECT_PATH="gitlab-org/gitlab-ce"
-export CI_PROJECT_URL="https://example.com/gitlab-org/gitlab-ce"
+export CI_PROJECT_PATH="gitlab-org/gitlab-foss"
+export CI_PROJECT_URL="https://example.com/gitlab-org/gitlab-foss"
 export CI_REGISTRY="registry.example.com"
-export CI_REGISTRY_IMAGE="registry.example.com/gitlab-org/gitlab-ce"
+export CI_REGISTRY_IMAGE="registry.example.com/gitlab-org/gitlab-foss"
 export CI_RUNNER_ID="10"
 export CI_RUNNER_DESCRIPTION="my runner"
 export CI_RUNNER_TAGS="docker, linux"
@@ -418,7 +418,7 @@ An example project service that defines deployment variables is the
 
 ### Auto DevOps environment variables
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/49056) in GitLab 11.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/49056) in GitLab 11.7.
 
 You can configure [Auto DevOps](../../topics/autodevops/index.md) to
 pass CI variables to the running application by prefixing the key of the
@@ -435,7 +435,7 @@ limitations with the current Auto DevOps scripting environment.
 
 ### Environment variables triggered manually
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/44059) in GitLab 10.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/44059) in GitLab 10.8.
 
 [Manually triggered pipelines](../pipelines.md#manually-executing-pipelines) allow you to override the value of a current variable.
 
@@ -555,7 +555,7 @@ Below you can find supported syntax reference:
    Pattern matching is case-sensitive by default. Use `i` flag modifier, like
    `/pattern/i` to make a pattern case-insensitive.
 
-1. Conjunction / Disjunction ([introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/27925) in GitLab 12.0)
+1. Conjunction / Disjunction ([introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/27925) in GitLab 12.0)
 
    Examples:
 
@@ -568,7 +568,7 @@ Below you can find supported syntax reference:
    Precedence of operators follows standard Ruby 2.5 operation
    [precedence](https://ruby-doc.org/core-2.5.0/doc/syntax/precedence_rdoc.html).
 
-## Debug tracing
+## Debug logging
 
 > Introduced in GitLab Runner 1.7.
 
@@ -576,24 +576,24 @@ CAUTION: **Warning:**
 Enabling debug tracing can have severe security implications. The
 output **will** contain the content of all your variables and any other
 secrets! The output **will** be uploaded to the GitLab server and made visible
-in job traces!
+in job logs!
 
 By default, GitLab Runner hides most of the details of what it is doing when
-processing a job. This behavior keeps job traces short, and prevents secrets
-from being leaked into the trace unless your script writes them to the screen.
+processing a job. This behavior keeps job logs short, and prevents secrets
+from being leaked into the log unless your script writes them to the screen.
 
 If a job isn't working as expected, this can make the problem difficult to
 investigate; in these cases, you can enable debug tracing in `.gitlab-ci.yml`.
 Available on GitLab Runner v1.7+, this feature enables the shell's execution
-trace, resulting in a verbose job trace listing all commands that were run,
+log, resulting in a verbose job log listing all commands that were run,
 variables that were set, etc.
 
 Before enabling this, you should ensure jobs are visible to
 [team members only](../../user/permissions.md#project-features). You should
-also [erase](../pipelines.md#accessing-individual-jobs) all generated job traces
+also [erase](../pipelines.md#accessing-individual-jobs) all generated job logs
 before making them visible again.
 
-To enable debug traces, set the `CI_DEBUG_TRACE` variable to `true`:
+To enable debug logs (traces), set the `CI_DEBUG_TRACE` variable to `true`:
 
 ```yaml
 job_name:
@@ -601,7 +601,7 @@ job_name:
     CI_DEBUG_TRACE: "true"
 ```
 
-Example truncated output with debug trace set to true:
+Example truncated output with `CI_DEBUG_TRACE` set to `true`:
 
 ```bash
 ...
@@ -708,6 +708,8 @@ Running on runner-8a2f473d-project-1796893-concurrent-0 via runner-8a2f473d-mach
 ++ CI_PROJECT_ID=17893
 ++ export CI_PROJECT_NAME=ci-debug-trace
 ++ CI_PROJECT_NAME=ci-debug-trace
+++ export 'CI_PROJECT_TITLE="GitLab FOSS'
+++ CI_PROJECT_TITLE='GitLab FOSS'
 ++ export CI_PROJECT_PATH=gitlab-examples/ci-debug-trace
 ++ CI_PROJECT_PATH=gitlab-examples/ci-debug-trace
 ++ export CI_PROJECT_NAMESPACE=gitlab-examples
@@ -741,7 +743,7 @@ MIIFQzCCBCugAwIBAgIRAL/ElDjuf15xwja1ZnCocWAwDQYJKoZIhvcNAQELBQAw'
 ...
 ```
 
-[ce-13784]: https://gitlab.com/gitlab-org/gitlab-ce/issues/13784 "Simple protection of CI variables"
+[ce-13784]: https://gitlab.com/gitlab-org/gitlab-foss/issues/13784 "Simple protection of CI variables"
 [envs]: ../environments.md
 [protected branches]: ../../user/project/protected_branches.md
 [protected tags]: ../../user/project/protected_tags.md

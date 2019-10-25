@@ -58,7 +58,7 @@ this method only supports replies, and not the other features of [incoming email
 ## Set it up
 
 If you want to use Gmail / Google Apps for incoming emails, make sure you have
-[IMAP access enabled](https://support.google.com/mail/troubleshooter/1668960?hl=en#ts=1665018)
+[IMAP access enabled](https://support.google.com/mail/answer/7126229)
 and [allowed less secure apps to access the account](https://support.google.com/accounts/answer/6010255)
 or [turn-on 2-step validation](https://support.google.com/accounts/answer/185839)
 and use [an application password](https://support.google.com/mail/answer/185833).
@@ -92,7 +92,7 @@ authenticate solely based on access to an email domain such as `*.hooli.com.`
 Alternatively, use a dedicated domain for GitLab email communications such as
 `hooli-gitlab.com`.
 
-See GitLab issue [#30366](https://gitlab.com/gitlab-org/gitlab-ce/issues/30366)
+See GitLab issue [#30366](https://gitlab.com/gitlab-org/gitlab-foss/issues/30366)
 for a real-world example of this exploit.
 
 ### Omnibus package installations

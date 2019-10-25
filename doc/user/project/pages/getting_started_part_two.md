@@ -35,7 +35,7 @@ same way you do for the other ones. To get started with GitLab Pages, you have t
 
 ### Use one of the popular Pages templates bundled with GitLab
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/47857)
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/47857)
 in GitLab 11.8.
 
 The simplest way to create a GitLab Pages site is to
@@ -122,7 +122,7 @@ where you'll find its default URL.
 
 > **Notes:**
 >
-> - GitLab Pages [supports any SSG](https://about.gitlab.com/2016/06/17/ssg-overview-gitlab-pages-part-3-examples-ci/), but,
+> - GitLab Pages [supports any SSG](https://about.gitlab.com/blog/2016/06/17/ssg-overview-gitlab-pages-part-3-examples-ci/), but,
 >   if you don't find yours among the templates, you'll need
 >   to configure your own `.gitlab-ci.yml`. To do that, please
 >   read through the article [Creating and Tweaking GitLab CI/CD for GitLab Pages](getting_started_part_four.md). New SSGs are very welcome among

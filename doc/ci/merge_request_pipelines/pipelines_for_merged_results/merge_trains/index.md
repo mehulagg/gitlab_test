@@ -5,7 +5,7 @@ last_update: 2019-07-03
 
 # Merge Trains **(PREMIUM)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/9186) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.0.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/9186) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.0.
 
 [Pipelines for merged results](../index.md#pipelines-for-merged-results-premium) introduces
 running a build on the result of the merged code prior to merging, as a way to keep master green.
@@ -119,8 +119,14 @@ To check the reason:
 is unavailable when
 [Pipelines for Merged Results is enabled](../index.md#enabling-pipelines-for-merged-results).
 
-Follow [this issue](https://gitlab.com/gitlab-org/gitlab-ee/issues/12267) to
+Follow [this issue](https://gitlab.com/gitlab-org/gitlab/issues/12267) to
 track progress on this issue.
+
+### Merge Train Pipeline cannot be retried
+
+A Merge Train pipeline cannot be retried because the merge request is dropped from the merge train upon failure. For this reason, the retry button does not appear next to the pipeline icon.
+
+In the case of pipeline failure, you should [re-enqueue](#how-to-add-a-merge-request-to-a-merge-train) the merge request to the merge train, which will then initiate a new pipeline.
 
 ### Merge Train disturbs your workflow
 

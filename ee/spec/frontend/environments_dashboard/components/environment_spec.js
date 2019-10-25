@@ -73,12 +73,49 @@ describe('Environment', () => {
       });
 
       it('binds author', () => {
-        expect(commit.props('author')).toBe(environment.last_deployment.commit.author);
+        expect(commit.props('author')).toEqual({
+          avatar_url: environment.last_deployment.commit.author_gravatar_url,
+          path: `mailto:${environment.last_deployment.commit.author_email}`,
+          username: environment.last_deployment.commit.author_name,
+        });
       });
 
       it('binds tag', () => {
         expect(commit.props('tag')).toBe(environment.last_deployment.ref.tag);
       });
     });
+  });
+
+  it('renders an environment without a deployment', () => {
+    propsData = {
+      environment: {
+        ...environment,
+        last_deployment: null,
+      },
+    };
+    wrapper = shallowMount(Component, {
+      localVue,
+      propsData,
+    });
+
+    expect(wrapper.text()).toContain('This environment has no deployments yet.');
+  });
+
+  it('renders an environment with a deployment without a deployable', () => {
+    propsData = {
+      environment: {
+        ...environment,
+        last_deployment: {
+          ...environment.last_deployment,
+          deployable: null,
+        },
+      },
+    };
+    wrapper = shallowMount(Component, {
+      localVue,
+      propsData,
+    });
+
+    expect(wrapper.text()).toContain('This environment has no deployments yet.');
   });
 });

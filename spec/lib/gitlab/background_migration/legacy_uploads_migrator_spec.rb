@@ -24,7 +24,7 @@ describe Gitlab::BackgroundMigration::LegacyUploadsMigrator do
 
     if with_file
       upload = create(:upload, :with_file, :attachment_upload, params)
-      model.update(attachment: upload.build_uploader)
+      model.update(attachment: upload.retrieve_uploader)
       model.attachment.upload
     else
       create(:upload, :attachment_upload, params)
@@ -34,6 +34,8 @@ describe Gitlab::BackgroundMigration::LegacyUploadsMigrator do
   let!(:legacy_upload) { create_upload(note1) }
   let!(:legacy_upload_no_file) { create_upload(note2, false) }
   let!(:legacy_upload_legacy_project) { create_upload(note_legacy) }
+
+  let!(:appearance) { create(:appearance, :with_logo) }
 
   let(:start_id) { 1 }
   let(:end_id) { 10000 }
@@ -52,12 +54,18 @@ describe Gitlab::BackgroundMigration::LegacyUploadsMigrator do
     expect(File.exist?(legacy_upload_legacy_project.absolute_path)).to be_falsey
   end
 
-  it 'removes all AttachmentUploader records' do
-    expect { subject }.to change { Upload.where(uploader: 'AttachmentUploader').count }.from(3).to(0)
+  it 'removes all Note AttachmentUploader records' do
+    expect { subject }.to change { Upload.where(uploader: 'AttachmentUploader').count }.from(4).to(1)
   end
 
   it 'creates new uploads for successfully migrated records' do
     expect { subject }.to change { Upload.where(uploader: 'FileUploader').count }.from(0).to(2)
+  end
+
+  it 'does not remove appearance uploads' do
+    subject
+
+    expect(appearance.logo.file).to exist
   end
 end
 # rubocop: enable RSpec/FactoriesInMigrationSpecs

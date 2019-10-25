@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe MergeRequestWidgetEntity do
@@ -353,6 +355,28 @@ describe MergeRequestWidgetEntity do
 
       it 'returns available auto merge strategies' do
         expect(subject[:available_auto_merge_strategies]).to be_empty
+      end
+    end
+  end
+
+  describe 'exposed_artifacts_path' do
+    context 'when merge request has exposed artifacts' do
+      before do
+        expect(resource).to receive(:has_exposed_artifacts?).and_return(true)
+      end
+
+      it 'set the path to poll data' do
+        expect(subject[:exposed_artifacts_path]).to be_present
+      end
+    end
+
+    context 'when merge request has no exposed artifacts' do
+      before do
+        expect(resource).to receive(:has_exposed_artifacts?).and_return(false)
+      end
+
+      it 'set the path to poll data' do
+        expect(subject[:exposed_artifacts_path]).to be_nil
       end
     end
   end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Admin::AuditLogs', :js do
@@ -45,7 +47,7 @@ describe 'Admin::AuditLogs', :js do
       it 'filters by user' do
         filter_by_type('User Events')
 
-        click_button 'User'
+        click_button 'Search users'
         wait_for_requests
 
         within '.dropdown-menu-user' do
@@ -107,7 +109,8 @@ describe 'Admin::AuditLogs', :js do
   end
 
   def filter_by_type(type)
-    click_button 'Events'
+    click_button 'All Events'
+
     within '.dropdown-menu-type' do
       click_link type
     end

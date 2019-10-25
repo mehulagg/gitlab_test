@@ -2,8 +2,7 @@
 
 class OperationsController < ApplicationController
   before_action :authorize_read_operations_dashboard!
-
-  before_action :dashboard_feature_flag, only: [:environments]
+  before_action :environments_dashboard_feature_flag, only: %i[environments environments_list]
 
   respond_to :json, only: [:list]
 
@@ -13,10 +12,6 @@ class OperationsController < ApplicationController
   end
 
   def environments
-  end
-
-  def dashboard_feature_flag
-    push_frontend_feature_flag(:environments_dashboard)
   end
 
   def list
@@ -61,6 +56,10 @@ class OperationsController < ApplicationController
     render_404 unless can?(current_user, :read_operations_dashboard)
   end
 
+  def environments_dashboard_feature_flag
+    render_404 unless Feature.enabled?(:environments_dashboard, current_user)
+  end
+
   def load_projects(current_user)
     Dashboard::Operations::ListService.new(current_user).execute
   end
@@ -82,6 +81,6 @@ class OperationsController < ApplicationController
   end
 
   def serialize_as_json_for_environments(projects)
-    DashboardEnvironmentsSerializer.new.represent(projects).as_json
+    DashboardEnvironmentsSerializer.new(current_user: current_user).represent(projects).as_json
   end
 end

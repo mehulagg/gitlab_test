@@ -1,6 +1,6 @@
 # Web terminals
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/7690)
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/7690)
 in GitLab 8.15. Only project maintainers and owners can access web terminals.
 
 With the introduction of the [Kubernetes integration](../../user/project/clusters/index.md),
@@ -60,8 +60,8 @@ guides document the necessary steps for a selection of popular reverse proxies:
 
 - [Apache](https://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html)
 - [NGINX](https://www.nginx.com/blog/websocket-nginx/)
-- [HAProxy](http://blog.haproxy.com/2012/11/07/websockets-load-balancing-with-haproxy/)
-- [Varnish](https://www.varnish-cache.org/docs/4.1/users-guide/vcl-example-websockets.html)
+- [HAProxy](https://www.haproxy.com/blog/websockets-load-balancing-with-haproxy/)
+- [Varnish](https://varnish-cache.org/docs/4.1/users-guide/vcl-example-websockets.html)
 
 Workhorse won't let WebSocket requests through to non-WebSocket endpoints, so
 it's safe to enable support for these headers globally. If you'd rather had a
@@ -92,7 +92,7 @@ they will receive a `Connection failed` message.
 
 ## Limiting WebSocket connection time
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/8413)
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/8413)
 in GitLab 8.17.
 
 Terminal sessions use long-lived connections; by default, these may last

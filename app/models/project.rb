@@ -68,13 +68,17 @@ class Project < ApplicationRecord
     :snippets_access_level, :builds_access_level, :repository_access_level,
     to: :project_feature, allow_nil: true
 
-  delegate :base_dir, :disk_path, :ensure_storage_path_exists, to: :storage
+  delegate :base_dir, :disk_path, to: :storage
 
   delegate :scheduled?, :started?, :in_progress?,
     :failed?, :finished?,
     prefix: :import, to: :import_state, allow_nil: true
 
   delegate :no_import?, to: :import_state, allow_nil: true
+
+  # TODO: remove once GitLab 12.5 is released
+  # https://gitlab.com/gitlab-org/gitlab/issues/34638
+  self.ignored_columns += %i[merge_requests_require_code_owner_approval]
 
   default_value_for :archived, false
   default_value_for :resolve_outdated_diff_discussions, false
@@ -87,6 +91,7 @@ class Project < ApplicationRecord
   default_value_for :wiki_enabled, gitlab_config_features.wiki
   default_value_for :snippets_enabled, gitlab_config_features.snippets
   default_value_for :only_allow_merge_if_all_discussions_are_resolved, false
+  default_value_for :remove_source_branch_after_merge, true
 
   add_authentication_token_field :runners_token, encrypted: -> { Feature.enabled?(:projects_tokens_optional_encryption, default_enabled: true) ? :optional : :required }
 
@@ -104,6 +109,9 @@ class Project < ApplicationRecord
     unless: :ci_cd_settings,
     if: proc { ProjectCiCdSetting.available? }
 
+  after_create :create_pages_metadatum,
+    unless: :pages_metadatum
+
   after_create :set_timestamps_for_create
   after_update :update_forks_visibility_level
 
@@ -119,8 +127,6 @@ class Project < ApplicationRecord
   # Storage specific hooks
   after_initialize :use_hashed_storage
   after_create :check_repository_absence!
-  after_create :ensure_storage_path_exists
-  after_save :ensure_storage_path_exists, if: :saved_change_to_namespace_id?
 
   acts_as_ordered_taggable
 
@@ -192,6 +198,7 @@ class Project < ApplicationRecord
   has_one :project_repository, inverse_of: :project
   has_one :error_tracking_setting, inverse_of: :project, class_name: 'ErrorTracking::ProjectErrorTrackingSetting'
   has_one :metrics_setting, inverse_of: :project, class_name: 'ProjectMetricsSetting'
+  has_one :grafana_integration, inverse_of: :project
 
   # Merge Requests for target project should be removed with it
   has_many :merge_requests, foreign_key: 'target_project_id', inverse_of: :target_project
@@ -242,8 +249,8 @@ class Project < ApplicationRecord
 
   has_one :cluster_project, class_name: 'Clusters::Project'
   has_many :clusters, through: :cluster_project, class_name: 'Clusters::Cluster'
-  has_many :cluster_ingresses, through: :clusters, source: :application_ingress, class_name: 'Clusters::Applications::Ingress'
   has_many :kubernetes_namespaces, class_name: 'Clusters::KubernetesNamespace'
+  has_many :management_clusters, class_name: 'Clusters::Cluster', foreign_key: :management_project_id, inverse_of: :management_project
 
   has_many :prometheus_metrics
 
@@ -276,12 +283,13 @@ class Project < ApplicationRecord
   has_many :builds, class_name: 'Ci::Build', inverse_of: :project, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_many :build_trace_section_names, class_name: 'Ci::BuildTraceSectionName'
   has_many :build_trace_chunks, class_name: 'Ci::BuildTraceChunk', through: :builds, source: :trace_chunks
+  has_many :job_artifacts, class_name: 'Ci::JobArtifact'
   has_many :runner_projects, class_name: 'Ci::RunnerProject', inverse_of: :project
   has_many :runners, through: :runner_projects, source: :runner, class_name: 'Ci::Runner'
   has_many :variables, class_name: 'Ci::Variable'
   has_many :triggers, class_name: 'Ci::Trigger'
   has_many :environments
-  has_many :deployments, -> { success }
+  has_many :deployments
   has_many :pipeline_schedules, class_name: 'Ci::PipelineSchedule'
   has_many :project_deploy_tokens
   has_many :deploy_tokens, through: :project_deploy_tokens
@@ -297,6 +305,11 @@ class Project < ApplicationRecord
 
   has_many :external_pull_requests, inverse_of: :project
 
+  has_many :sourced_pipelines, class_name: 'Ci::Sources::Pipeline', foreign_key: :source_project_id
+  has_many :source_pipelines, class_name: 'Ci::Sources::Pipeline', foreign_key: :project_id
+
+  has_one :pages_metadatum, class_name: 'ProjectPagesMetadatum', inverse_of: :project
+
   accepts_nested_attributes_for :variables, allow_destroy: true
   accepts_nested_attributes_for :project_feature, update_only: true
   accepts_nested_attributes_for :import_data
@@ -309,6 +322,7 @@ class Project < ApplicationRecord
 
   accepts_nested_attributes_for :error_tracking_setting, update_only: true
   accepts_nested_attributes_for :metrics_setting, update_only: true, allow_destroy: true
+  accepts_nested_attributes_for :grafana_integration, update_only: true, allow_destroy: true
 
   delegate :name, to: :owner, allow_nil: true, prefix: true
   delegate :members, to: :team, prefix: true
@@ -427,6 +441,15 @@ class Project < ApplicationRecord
     .where(project_ci_cd_settings: { group_runners_enabled: true })
   end
 
+  scope :with_pages_deployed, -> do
+    joins(:pages_metadatum).merge(ProjectPagesMetadatum.deployed)
+  end
+
+  scope :pages_metadata_not_migrated, -> do
+    left_outer_joins(:pages_metadatum)
+      .where(project_pages_metadata: { project_id: nil })
+  end
+
   enum auto_cancel_pending_pipelines: { disabled: 0, enabled: 1 }
 
   chronic_duration_attr :build_timeout_human_readable, :build_timeout,
@@ -471,7 +494,7 @@ class Project < ApplicationRecord
   # the feature is either public, enabled, or internal with permission for the user.
   # Note: this scope doesn't enforce that the user has access to the projects, it just checks
   # that the user has access to the feature. It's important to use this scope with others
-  # that checks project authorizations first.
+  # that checks project authorizations first (e.g. `filter_by_feature_visibility`).
   #
   # This method uses an optimised version of `with_feature_access_level` for
   # logged in users to more efficiently get private projects with the given
@@ -497,6 +520,11 @@ class Project < ApplicationRecord
       visible << nil
       with_feature_access_level(feature, visible)
     end
+  end
+
+  # This scope returns projects where user has access to both the project and the feature.
+  def self.filter_by_feature_visibility(feature, user)
+    with_feature_available_for_user(feature, user).public_or_visible_to_user(user)
   end
 
   scope :active, -> { joins(:issues, :notes, :merge_requests).order('issues.created_at, notes.created_at, merge_requests.created_at DESC') }
@@ -648,7 +676,7 @@ class Project < ApplicationRecord
   def emails_disabled?
     strong_memoize(:emails_disabled) do
       # disabling in the namespace overrides the project setting
-      Feature.enabled?(:emails_disabled, self, default_enabled: true) && (super || namespace.emails_disabled?)
+      super || namespace.emails_disabled?
     end
   end
 
@@ -756,6 +784,15 @@ class Project < ApplicationRecord
     latest_successful_build_for_ref(job_name, ref) || raise(ActiveRecord::RecordNotFound.new("Couldn't find job #{job_name}"))
   end
 
+  def latest_pipeline_for_ref(ref = default_branch)
+    ref = ref.presence || default_branch
+    sha = commit(ref)&.sha
+
+    return unless sha
+
+    ci_pipelines.newest_first(ref: ref, sha: sha).first
+  end
+
   def merge_base_commit(first_commit_id, second_commit_id)
     sha = repository.merge_base(first_commit_id, second_commit_id)
     commit_by(oid: sha) if sha
@@ -778,7 +815,7 @@ class Project < ApplicationRecord
       if forked?
         RepositoryForkWorker.perform_async(id)
       elsif gitlab_project_import?
-        # Do not retry on Import/Export until https://gitlab.com/gitlab-org/gitlab-ce/issues/26189 is solved.
+        # Do not retry on Import/Export until https://gitlab.com/gitlab-org/gitlab-foss/issues/26189 is solved.
         RepositoryImportWorker.set(retry: false).perform_async(self.id)
       else
         RepositoryImportWorker.perform_async(self.id)
@@ -1007,8 +1044,8 @@ class Project < ApplicationRecord
     end
   end
 
-  def web_url
-    Gitlab::Routing.url_helpers.project_url(self)
+  def web_url(only_path: nil)
+    Gitlab::Routing.url_helpers.project_url(self, only_path: only_path)
   end
 
   def readme_url
@@ -1287,7 +1324,18 @@ class Project < ApplicationRecord
   end
 
   def http_url_to_repo
-    "#{web_url}.git"
+    custom_root = Gitlab::CurrentSettings.custom_http_clone_url_root
+
+    project_url = if custom_root.present?
+                    Gitlab::Utils.append_path(
+                      custom_root,
+                      web_url(only_path: true)
+                    )
+                  else
+                    web_url
+                  end
+
+    "#{project_url}.git"
   end
 
   # Is overridden in EE
@@ -1310,7 +1358,7 @@ class Project < ApplicationRecord
       result = self
 
       # TODO: Make this go to the fork_network root immeadiatly
-      # dependant on the discussion in: https://gitlab.com/gitlab-org/gitlab-ce/issues/39769
+      # dependant on the discussion in: https://gitlab.com/gitlab-org/gitlab-foss/issues/39769
       result = result.fork_source while result&.forked?
 
       result || self
@@ -1322,7 +1370,7 @@ class Project < ApplicationRecord
   # network, or it is the base of the fork network.
   #
   # TODO: refactor this to get the correct lfs objects when implementing
-  #       https://gitlab.com/gitlab-org/gitlab-ce/issues/39769
+  #       https://gitlab.com/gitlab-org/gitlab-foss/issues/39769
   def all_lfs_objects
     lfs_storage_project.lfs_objects
   end
@@ -1636,6 +1684,10 @@ class Project < ApplicationRecord
     "#{url}/#{url_path}"
   end
 
+  def pages_group_root?
+    pages_group_url == pages_url
+  end
+
   def pages_subdomain
     full_path.partition('/').first
   end
@@ -1674,6 +1726,7 @@ class Project < ApplicationRecord
     # Projects with a missing namespace cannot have their pages removed
     return unless namespace
 
+    mark_pages_as_not_deployed unless destroyed?
     ::Projects::UpdatePagesConfigurationService.new(self).execute
 
     # 1. We rename pages to temporary directory
@@ -1686,6 +1739,14 @@ class Project < ApplicationRecord
     end
   end
   # rubocop: enable CodeReuse/ServiceClass
+
+  def mark_pages_as_deployed
+    ensure_pages_metadatum.update!(deployed: true)
+  end
+
+  def mark_pages_as_not_deployed
+    ensure_pages_metadatum.update!(deployed: false)
+  end
 
   # rubocop:disable Gitlab/RailsLogger
   def write_repository_config(gl_full_path: full_path)
@@ -1810,6 +1871,7 @@ class Project < ApplicationRecord
     Gitlab::Ci::Variables::Collection.new
       .append(key: 'CI_PROJECT_ID', value: id.to_s)
       .append(key: 'CI_PROJECT_NAME', value: path)
+      .append(key: 'CI_PROJECT_TITLE', value: title)
       .append(key: 'CI_PROJECT_PATH', value: full_path)
       .append(key: 'CI_PROJECT_PATH_SLUG', value: full_path_slug)
       .append(key: 'CI_PROJECT_NAMESPACE', value: namespace.full_path)
@@ -2206,11 +2268,36 @@ class Project < ApplicationRecord
     members.maintainers.order_recent_sign_in.limit(ACCESS_REQUEST_APPROVERS_TO_BE_NOTIFIED_LIMIT)
   end
 
-  def pages_lookup_path(domain: nil)
-    Pages::LookupPath.new(self, domain: domain)
+  def pages_lookup_path(trim_prefix: nil, domain: nil)
+    Pages::LookupPath.new(self, trim_prefix: trim_prefix, domain: domain)
+  end
+
+  def closest_setting(name)
+    setting = read_attribute(name)
+    setting = closest_namespace_setting(name) if setting.nil?
+    setting = app_settings_for(name) if setting.nil?
+    setting
+  end
+
+  def drop_visibility_level!
+    if group && group.visibility_level < visibility_level
+      self.visibility_level = group.visibility_level
+    end
+
+    if Gitlab::CurrentSettings.restricted_visibility_levels.include?(visibility_level)
+      self.visibility_level = Gitlab::VisibilityLevel::PRIVATE
+    end
   end
 
   private
+
+  def closest_namespace_setting(name)
+    namespace.closest_setting(name)
+  end
+
+  def app_settings_for(name)
+    Gitlab::CurrentSettings.send(name) # rubocop:disable GitlabSecurity/PublicSend
+  end
 
   def merge_requests_allowing_collaboration(source_branch = nil)
     relation = source_of_merge_requests.opened.where(allow_collaboration: true)
@@ -2257,7 +2344,7 @@ class Project < ApplicationRecord
   end
 
   def repository_with_same_path_already_exists?
-    gitlab_shell.exists?(repository_storage, "#{disk_path}.git")
+    gitlab_shell.repository_exists?(repository_storage, "#{disk_path}.git")
   end
 
   def set_timestamps_for_create
@@ -2323,7 +2410,7 @@ class Project < ApplicationRecord
     Gitlab::SafeRequestStore.fetch("project-#{id}:branch-#{branch_name}:user-#{user.id}:branch_allows_collaboration") do
       next false if empty_repo?
 
-      # Issue for N+1: https://gitlab.com/gitlab-org/gitlab-ce/issues/49322
+      # Issue for N+1: https://gitlab.com/gitlab-org/gitlab-foss/issues/49322
       Gitlab::GitalyClient.allow_n_plus_1_calls do
         merge_requests_allowing_collaboration(branch_name).any? do |merge_request|
           merge_request.can_be_merged_by?(user)
@@ -2334,6 +2421,13 @@ class Project < ApplicationRecord
 
   def services_templates
     @services_templates ||= Service.where(template: true)
+  end
+
+  def ensure_pages_metadatum
+    pages_metadatum || create_pages_metadatum!
+  rescue ActiveRecord::RecordNotUnique
+    reset
+    retry
   end
 end
 

@@ -14,6 +14,22 @@ module Resolvers
              required: false,
              description: 'Filter epics by state'
 
+    argument :search, GraphQL::STRING_TYPE,
+             required: false,
+             description: 'Filter epics by title and description'
+
+    argument :sort, Types::EpicSortEnum,
+             required: false,
+             description: 'List epics by sort order'
+
+    argument :author_username, GraphQL::STRING_TYPE,
+             required: false,
+             description: 'Filter epics by author'
+
+    argument :label_name, [GraphQL::STRING_TYPE],
+             required: false,
+             description: 'Filter epics by labels'
+
     argument :start_date, Types::TimeType,
              required: false,
              description: 'List epics within a time frame where epics.start_date is between start_date and end_date parameters (end_date parameter must be present)'
@@ -83,7 +99,7 @@ module Resolvers
 
     # If we're querying for multiple iids and selecting issues, then ideally
     # we want to batch the epic and issue queries into one to reduce N+1 and memory.
-    # https://gitlab.com/gitlab-org/gitlab-ee/issues/11841
+    # https://gitlab.com/gitlab-org/gitlab/issues/11841
     # Until we do that, add in child_complexity for each iid requested
     # (minus one for the automatically added child_complexity in the BaseField)
     def self.resolver_complexity(args, child_complexity:)

@@ -1,8 +1,8 @@
 # Multiple Assignees for Issues **(STARTER)**
 
 > **Note:**
-[Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/1904)
-in [GitLab Starter 9.2](https://about.gitlab.com/2017/05/22/gitlab-9-2-released/#multiple-assignees-for-issues).
+[Introduced](https://gitlab.com/gitlab-org/gitlab/issues/1904)
+in [GitLab Starter 9.2](https://about.gitlab.com/blog/2017/05/22/gitlab-9-2-released/#multiple-assignees-for-issues).
 
 ## Overview
 

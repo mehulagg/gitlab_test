@@ -169,6 +169,18 @@ describe API::Commits do
         end
       end
 
+      context 'first_parent optional parameter' do
+        it 'returns all first_parent commits' do
+          commit_count = project.repository.count_commits(ref: SeedRepo::Commit::ID, first_parent: true)
+
+          get api("/projects/#{project_id}/repository/commits", user), params: { ref_name: SeedRepo::Commit::ID, first_parent: 'true' }
+
+          expect(response).to include_pagination_headers
+          expect(commit_count).to eq(12)
+          expect(response.headers['X-Total']).to eq(commit_count.to_s)
+        end
+      end
+
       context 'with_stats optional parameter' do
         let(:project) { create(:project, :public, :repository) }
 
@@ -357,7 +369,7 @@ describe API::Commits do
                   valid_c_params[:start_project] = public_project.id
                 end
 
-                it 'adds a new commit to forked_project and returns a 201' do
+                it 'adds a new commit to forked_project and returns a 201', :sidekiq_might_not_need_inline do
                   expect_request_with_status(201) { post api(url, guest), params: valid_c_params }
                     .to change { last_commit_id(forked_project, valid_c_params[:branch]) }
                     .and not_change { last_commit_id(public_project, valid_c_params[:start_branch]) }
@@ -369,14 +381,14 @@ describe API::Commits do
                   valid_c_params[:start_project] = public_project.full_path
                 end
 
-                it 'adds a new commit to forked_project and returns a 201' do
+                it 'adds a new commit to forked_project and returns a 201', :sidekiq_might_not_need_inline do
                   expect_request_with_status(201) { post api(url, guest), params: valid_c_params }
                     .to change { last_commit_id(forked_project, valid_c_params[:branch]) }
                     .and not_change { last_commit_id(public_project, valid_c_params[:start_branch]) }
                 end
               end
 
-              context 'when branch already exists' do
+              context 'when branch already exists', :sidekiq_might_not_need_inline do
                 before do
                   valid_c_params.delete(:start_branch)
                   valid_c_params[:branch] = 'master'
@@ -823,7 +835,7 @@ describe API::Commits do
         }
       end
 
-      it 'allows pushing to the source branch of the merge request' do
+      it 'allows pushing to the source branch of the merge request', :sidekiq_might_not_need_inline do
         post api(url, user), params: push_params('feature')
 
         expect(response).to have_gitlab_http_status(:created)
@@ -1405,7 +1417,7 @@ describe API::Commits do
 
       let(:project_id) { forked_project.id }
 
-      it 'allows access from a maintainer that to the source branch' do
+      it 'allows access from a maintainer that to the source branch', :sidekiq_might_not_need_inline do
         post api(route, user), params: { branch: 'feature' }
 
         expect(response).to have_gitlab_http_status(:created)

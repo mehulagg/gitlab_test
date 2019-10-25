@@ -4,6 +4,7 @@ require 'spec_helper'
 
 describe Gitlab::Cleanup::ProjectUploads do
   subject { described_class.new(logger: logger) }
+
   let(:logger) { double(:logger) }
 
   before do
@@ -125,7 +126,7 @@ describe Gitlab::Cleanup::ProjectUploads do
         end
 
         # We will probably want to add logic (Reschedule background upload) to
-        # cover Case 2 in https://gitlab.com/gitlab-org/gitlab-ce/issues/46535#note_75355104
+        # cover Case 2 in https://gitlab.com/gitlab-org/gitlab-foss/issues/46535#note_75355104
         context 'when the file should be in object storage' do
           context 'when the file otherwise has the correct local path' do
             let!(:orphaned) { create(:upload, :issuable_upload, :object_storage, model: build(:project, :legacy_storage)) }
