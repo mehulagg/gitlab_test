@@ -33,7 +33,7 @@ module Gitlab
         # This will only correct the order up until relations are created
         # See create_relations below
         correct_pipeline_order
-        
+
         ActiveRecord::Base.uncached do
           ActiveRecord::Base.no_touching do
             update_project_params!
