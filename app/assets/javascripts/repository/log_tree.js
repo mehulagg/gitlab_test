@@ -13,7 +13,7 @@ export function normalizeData(data) {
 
   return data.map(d => ({
     sha: d.commit.id,
-    message: truncate(d.commit.message, 100),
+    message: d.commit.message.substr(0, 150),
     committedDate: d.commit.committed_date,
     committedTimeago: timeago.format(d.commit.committed_date),
     commitPath: d.commit_path,

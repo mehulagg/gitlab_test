@@ -116,7 +116,7 @@ export default {
   <tr class="tree-item" @click="openRow">
     <td v-once class="tree-item-file-name">
       <i :aria-label="type" role="img" :class="iconName" class="fa fa-fw"></i>
-      <component :is="linkComponent" :to="routerLinkTo" :href="url">
+      <component :is="linkComponent" :to="routerLinkTo" :href="url" class="str-truncated">
         {{ fullPath }}
       </component>
       <!-- eslint-disable-next-line @gitlab/vue-i18n/no-bare-strings -->
@@ -129,17 +129,13 @@ export default {
       <a v-if="commit" :href="commit.commitPath" class="tree-commit-link str-truncated-100">
         {{ commit.message }}
       </a>
-      <gl-skeleton-loading v-else-if="index <= 25 && type === 'tree'" :lines="1" class="h-auto" />
+      <gl-skeleton-loading v-else-if="index <= 25" :lines="1" class="h-auto" />
     </td>
     <td class="tree-time-ago text-right">
       <time v-if="commit" :datetime="commit.committedDate" :title="commit.committedDate">
         {{ commit.committedTimeago }}
       </time>
-      <gl-skeleton-loading
-        v-else-if="index <= 25 && type === 'tree'"
-        :lines="1"
-        class="ml-auto h-auto w-50"
-      />
+      <gl-skeleton-loading v-else-if="index <= 25" :lines="1" class="ml-auto h-auto w-50" />
     </td>
   </tr>
 </template>

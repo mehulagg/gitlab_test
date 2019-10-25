@@ -16,6 +16,7 @@ function factory(propsData = {}) {
   vm = shallowMount(TableRow, {
     propsData: {
       ...propsData,
+      index: 0,
       name: propsData.path,
       projectPath: 'gitlab-org/gitlab-ce',
       url: `https://test.com`,
