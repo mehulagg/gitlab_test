@@ -146,6 +146,7 @@
     "xterm": "^3.5.0"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-optional-chaining": "^7.6.0",
     "@babel/plugin-transform-modules-commonjs": "^7.5.0",
     "@gitlab/eslint-config": "^1.6.0",
     "@gitlab/eslint-plugin-i18n": "^1.1.0",
