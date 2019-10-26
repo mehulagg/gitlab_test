@@ -36,8 +36,12 @@ module Gitlab
           FOREIGN_SCHEMA + ".#{table_name}"
         end
 
-        def foreign_tables_up_to_date?
-          has_foreign_schema? && foreign_schema_tables_match?
+        def foreign_tables_up_to_date?(skip_cache: false)
+          if skip_cache
+            uncached_has_foreign_schema? && uncached_foreign_schema_tables_match?
+          else
+            has_foreign_schema? && foreign_schema_tables_match?
+          end
         end
 
         # Number of existing tables
@@ -83,13 +87,19 @@ module Gitlab
 
         def has_foreign_schema?
           Gitlab::Geo.cache_value(:geo_FOREIGN_SCHEMA_exist) do
-            sql = <<~SQL
-              SELECT 1
-                FROM information_schema.schemata
-               WHERE schema_name='#{FOREIGN_SCHEMA}'
-            SQL
+            uncached_has_foreign_schema?
+          end
+        end
 
-            ::Geo::TrackingBase.connection.execute(sql).count.positive?
+        def uncached_has_foreign_schema?
+          sql = <<~SQL
+            SELECT 1
+              FROM information_schema.schemata
+            WHERE schema_name='#{FOREIGN_SCHEMA}'
+          SQL
+
+          Gitlab::Geo::DatabaseTasks.with_geo_db do
+            ActiveRecord::Base.connection.execute(sql).count.positive?
           end
         end
 
@@ -98,22 +108,32 @@ module Gitlab
         # @return [Boolean] whether schemas match and are not empty
         def foreign_schema_tables_match?
           Gitlab::Geo.cache_value(:geo_foreign_schema_tables_match) do
-            gitlab_schema_tables = retrieve_gitlab_schema_tables.to_set
-            foreign_schema_tables = retrieve_foreign_schema_tables.to_set
-
-            gitlab_schema_tables.present? && (gitlab_schema_tables == foreign_schema_tables)
+            uncached_foreign_schema_tables_match?
           end
         end
 
+        def uncached_foreign_schema_tables_match?
+          gitlab_schema_tables = retrieve_gitlab_schema_tables.to_set
+          foreign_schema_tables = retrieve_foreign_schema_tables.to_set
+
+          gitlab_schema_tables.present? && (gitlab_schema_tables == foreign_schema_tables)
+        end
+
         def retrieve_foreign_schema_tables
-          retrieve_schema_tables(::Geo::TrackingBase, Rails.configuration.geo_database['database'], FOREIGN_SCHEMA).to_a
+          database_configs = Gitlab::Geo::DatabaseTasks.geo_settings[:database_config]
+          env = ActiveRecord::Tasks::DatabaseTasks.env
+          database = database_configs[env]['database']
+
+          Gitlab::Geo::DatabaseTasks.with_geo_db do
+            retrieve_schema_tables(database, FOREIGN_SCHEMA).to_a
+          end
         end
 
         def retrieve_gitlab_schema_tables
-          retrieve_schema_tables(ActiveRecord::Base, ActiveRecord::Base.connection_config[:database], DEFAULT_SCHEMA).to_a
+          retrieve_schema_tables(ActiveRecord::Base.connection_config[:database], DEFAULT_SCHEMA).to_a
         end
 
-        def retrieve_schema_tables(adapter, database, schema)
+        def retrieve_schema_tables(database, schema)
           sql = <<~SQL
               SELECT table_name, column_name, data_type
                 FROM information_schema.columns
@@ -123,7 +143,7 @@ module Gitlab
             ORDER BY table_name, column_name, data_type
           SQL
 
-          adapter.connection.select_all(sql)
+          ActiveRecord::Base.connection.select_all(sql)
         end
       end
     end

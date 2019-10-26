@@ -35,6 +35,10 @@ module Gitlab
         end
       end
 
+      def foreign_tables_up_to_date?
+        Gitlab::Geo::Fdw.foreign_tables_up_to_date?(skip_cache: true)
+      end
+
       def refresh_foreign_tables!
         sql = <<~SQL
             DROP SCHEMA IF EXISTS gitlab_secondary CASCADE;
