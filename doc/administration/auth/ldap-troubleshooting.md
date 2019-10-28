@@ -47,8 +47,8 @@ When using `ldapsearch`, be sure to use the same settings you've already
 specified in your `gitlab.rb` configuration so you can confirm what happens
 when those exact settings are used.
 
-Running this command on the GitLab host will also help confirm that it's
-possible for a network connection to be made to LDAP.
+Running this command on the GitLab host will also help confirm that there's no
+obstruction between the GitLab host and LDAP.
 
 For example, consider the following GitLab configuration:
 
@@ -94,11 +94,11 @@ identical to what's configured in the `gitlab.rb`.
 Please see [the official
 `ldapsearch` documentation](https://linux.die.net/man/1/ldapsearch) for more.
 
-#### Debug LDAP user filter with ldapsearch
+#### Debug LDAP user filter
 
-This example assumes you are using ActiveDirectory. The
-following query returns the login names of the users that will be allowed to
-log in to GitLab if you configure your own user_filter.
+[`ldapsearch`](#ldapsearch) allows you to test your configured
+[user filter](ldap.md#using-an-ldap-filter-to-limit-access-to-your-gitlab-server)
+to confirm that it returns the users you expect it to return.
 
 ```sh
 ldapsearch -H ldaps://$host:$port -D "$bind_dn" -y bind_dn_password.txt  -b "$base" "$user_filter" sAMAccountName
@@ -139,10 +139,11 @@ responds to them.
 Please refer to [this guide](https://docs.gitlab.com/omnibus/maintenance/#starting-a-rails-console-session)
 for instructions on how to use the rails console.
 
-#### Get debug output
+#### Enable debug output
 
-This will provide debug output that can be useful to see
-what GitLab is doing and with what. This value is not persisted.
+This will provide debug output that will be useful to see
+what GitLab is doing and with what. This value is not persisted, and will only
+be enabled for this session in the rails console.
 
 To enable debug output in the rails console, [enter the rails
 console](#rails-console) and run:
@@ -154,12 +155,13 @@ Rails.logger.level = Logger::DEBUG
 #### Query a user in LDAP
 
 This could expose potential errors connecting to and/or querying LDAP that may seem to
-fail silently in the GitLab UI. This [requires debug output](#get-debug-output).
+fail silently in the GitLab UI.
 
 ```ruby
 Rails.logger.level = Logger::DEBUG
+
 adapter = Gitlab::Auth::LDAP::Adapter.new('ldapmain') # If `main` is the LDAP provider
-user = Gitlab::Auth::LDAP::Person.find_by_uid('<username>', adapter)
+Gitlab::Auth::LDAP::Person.find_by_uid('<uid>', adapter)
 ```
 
 #### Sync all users **(STARTER ONLY)**
@@ -167,11 +169,9 @@ user = Gitlab::Auth::LDAP::Person.find_by_uid('<username>', adapter)
 The output from a manual [user sync][user-sync] can show you what happens when
 GitLab tries to sync its users against LDAP.
 
-Once you've run the following in the [rails console](#rails-console), find a
-user with their DN or email.
-
 ```ruby
 Rails.logger.level = Logger::DEBUG
+
 LdapSyncWorker.new.perform
 ```
 
@@ -183,9 +183,16 @@ NOTE: **NOTE:**
 To sync all groups manually when debugging is unnecessary, [use the rake
 task](../raketasks/ldap.md#run-a-group-sync) instead.
 
+The output from a manual [group sync][group-sync] can show you what happens
+when GitLab syncs its LDAP group memberships against LDAP.
+
 ```ruby
+Rails.logger.level = Logger::DEBUG
+
 LdapAllGroupsSyncWorker.new.perform
 ```
+
+Next, [learn how to read the output](#example-log-output-after-a-group-sync).
 
 #### Sync one group **(STARTER ONLY)**
 
@@ -193,6 +200,8 @@ LdapAllGroupsSyncWorker.new.perform
 group = Group.find_by(name: 'my_gitlab_group')
 EE::Gitlab::Auth::LDAP::Sync::Group.execute_all_providers(group)
 ```
+
+Next, [learn how to read the output](#example-log-output-after-a-group-sync).
 
 #### Query a group in LDAP **(STARTER ONLY)**
 
@@ -234,10 +243,10 @@ For an example, [see the code](https://gitlab.com/gitlab-org/gitlab-ee/blob/mast
 
 #### Example log output after a user sync **(STARTER ONLY)**
 
-The output from a [user sync](#debug-a-usersync) will be verbose, and will
-look like this:
+The output from a [user sync](#debug-a-usersync) will be very verbose, and a
+single user's successful sync can look like this:
 
-```sql
+```ruby
 Syncing user John, email@example.com
   Identity Load (0.9ms)  SELECT  "identities".* FROM "identities" WHERE "identities"."user_id" = 20 AND (provider LIKE 'ldap%') LIMIT 1
 Instantiating Gitlab::Auth::LDAP::Person with LDIF:
@@ -260,24 +269,32 @@ uid: John
   User Update (1.1ms)  UPDATE "users" SET "updated_at" = '2019-10-17 14:40:59.751685', "last_credential_check_at" = '2019-10-17 14:40:59.738714' WHERE "users"."id" = 20
 ```
 
-Let's break it down. First, you'll see the user's name and email, as they
+There's a lot here, so let's go over what could be helpful when debugging.
+
+First, GitLab will look for all users that have have previously
+logged in with LDAP and iterate on them. Each user's sync will start with
+the following line that contains the user's username and email, as they
 exist in GitLab now:
 
-```ruby
+```bash
 Syncing user John, email@example.com
 ```
 
-Next, GitLab searches the `identities` table in its database for the existing
+If you don't find a particular user's GitLab email in the output, then that
+user hasn't logged in with LDAP yet.
+
+Next, GitLab searches its `identities` table for the existing
 link between this user and the configured LDAP provider(s):
 
 ```sql
   Identity Load (0.9ms)  SELECT  "identities".* FROM "identities" WHERE "identities"."user_id" = 20 AND (provider LIKE 'ldap%') LIMIT 1
 ```
 
-The identity found will contain an `extern_uid` value, which will be the DN of
-the user.
+The identity object will have the DN that GitLab will use to look for the user
+in LDAP. If the DN isn't found, the email is used instead. We can see that
+this user is found:
 
-```ruby
+```bash
 Instantiating Gitlab::Auth::LDAP::Person with LDIF:
 dn: cn=John Smith,ou=people,dc=example,dc=com
 cn: John Smith
@@ -287,9 +304,9 @@ uid: John
 ```
 
 If the user wasn't found in LDAP with either the DN or email, you may see the
-following error instead:
+following message instead:
 
-```ruby
+```bash
 LDAP search error: No Such Object
 ```
 
@@ -299,23 +316,19 @@ LDAP search error: No Such Object
   User Update (0.4ms)  UPDATE "users" SET "state" = $1, "updated_at" = $2 WHERE "users"."id" = $3  [["state", "ldap_blocked"], ["updated_at", "2019-10-18 15:46:22.902177"], ["id", 51]]
 ```
 
-If there's a failure or an error, it will be visible in the output.
-
 #### Example log output after a group sync **(STARTER ONLY)**
 
-The output [from running a group sync](#sync-all-groups) will be very verbose,
-but contains lots of helpful information. For the most part you can ignore log
-entries that are SQL statements.
-
-**Find why members aren't assigned to a group**
+Like the output from the user sync, the output from the [manual group
+sync](#sync-all-groups) will also be very verbose. However, it contains lots
+of helpful information.
 
 Indicates the point where syncing actually begins:
 
 ```bash
-Started syncing all providers for 'my_group' group
+Started syncing 'ldapmain' provider for 'my_group' group
 ```
 
-The follow entry shows an array of all user DNs GitLab sees in the LDAP server.
+The following entry shows an array of all user DNs GitLab sees in the LDAP server.
 Note that these are the users for a single LDAP group, not a GitLab group. If
 you have multiple LDAP groups linked to this GitLab group, you will see multiple
 log entries like this - one for each LDAP group. If you don't see an LDAP user
@@ -372,7 +385,26 @@ Finally, the following entry says syncing has finished for this group:
 Finished syncing all providers for 'my_group' group
 ```
 
-**Debugging why admins aren't granted access**
+Once all the configured group links have been synchronized, GitLab will look
+for any Administrators or External users to sync:
+
+```bash
+Syncing admin users for 'ldapmain' provider
+```
+
+The output will look similar to what happens with a single group, and then
+this line will indicate the sync is finished:
+
+```bash
+Finished syncing admin users for 'ldapmain' provider
+```
+
+If [admin sync][admin-sync] is not configured, you'll see a message
+stating as such:
+
+```bash
+No `admin_group` configured for 'ldapmain' provider. Skipping
+```
 
 ## Common Problems and Errors
 
@@ -527,7 +559,7 @@ step of the sync.
    sudo -u git -H bundle exec rails console production
    ```
 
-1. Set the log level to debug (only for this session):
+1. [Set the log level to debug](#enable-debug-output):
 
    ```ruby
    Rails.logger.level = Logger::DEBUG
@@ -594,15 +626,15 @@ the following are true:
 
 - A [`group_base` is also configured](ldap-ee.md#group-sync)
 - The configured `admin_group` in the `gitlab.rb` is a CN, rather than a DN or an array
-- This CN falls under the configured `group_base`
-- The users to be admins have already logged into GitLab with their LDAP
-  credentials. Only users that have logged in to GitLab with their LDAP
-  credentials will be granted this access.
+- This CN falls under the scope of the configured `group_base`
+- The members of the `admin_group` have already logged into GitLab with their LDAP
+  credentials. GitLab will only grant this admin access to the users whose
+  accounts are already connected to LDAP.
 
-If all the above are true and the users are still not getting access, [sync
-all groups in the rails console](#sync-all-groups), [look for the relevant
-section in the logs](), and the output will have more details to understand
-why.
+If all the above are true and the users are still not getting access, [run a manual
+group sync](#sync-all-groups) in the rails console and [look through the
+output](#example-log-output-after-a-group-sync) to see what GitLab does when
+it syncs the `admin_group`.
 
 ### User DN or/and email have changed
 
