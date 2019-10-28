@@ -104,6 +104,15 @@ The next time someone tries to access your website and the access control is
 enabled, they will be presented with a page to sign into GitLab and verify they
 can access the website.
 
+### Terminating Pages session
+
+If you want to log out from your pages website,
+you can do so by revoking application access token for GitLab Pages.
+
+1. Navigate to your profile's **Settings > Applications**.
+1. Find **Authorized applications** at the bottom of the pages.
+1. Find **GitLab Pages** application and press the **Revoke** button.
+
 ## Unpublishing your Pages
 
 If you ever feel the need to purge your Pages content, you can do so by going
