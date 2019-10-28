@@ -32,6 +32,10 @@ widget. Reviewers can add their approval by [approving additionally](../user/pro
 Getting your merge request **merged** also requires a maintainer. If it requires
 more than one approval, the last maintainer to review and approve it will also merge it.
 
+## Meeting the reviewer/maintainer
+
+Communication happens easier when you personally know who's reviewing the code. Inviting the reviewer/maintainer for a coffee chat to get to know them is advised as it breaks the ice and facilitates future communication.
+
 ### Reviewer roulette
 
 The [Danger bot](dangerbot.md) randomly picks a reviewer and a maintainer for
