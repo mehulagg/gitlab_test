@@ -1,9 +1,6 @@
 import Vue from 'vue';
-
 import Translate from '~/vue_shared/translate';
-
 import store from './store';
-
 import geoDesignsApp from './components/app.vue';
 
 Vue.use(Translate);
