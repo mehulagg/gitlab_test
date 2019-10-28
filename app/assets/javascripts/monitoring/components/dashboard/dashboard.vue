@@ -288,9 +288,6 @@ export default {
       const params = _.pick({ dashboard, group, title, y_label: yLabel }, value => value != null);
       return mergeUrlParams(params, window.location.href);
     },
-    hideAddMetricModal() {
-      this.$refs.addMetricModal.hide();
-    },
     toggleRearrangingPanels() {
       this.isRearrangingPanels = !this.isRearrangingPanels;
     },

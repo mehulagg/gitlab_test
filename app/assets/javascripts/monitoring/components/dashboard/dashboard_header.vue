@@ -115,12 +115,6 @@ export default {
     },
   },
   methods: {
-    ...mapActions('monitoringDashboard', [
-      'fetchData',
-      'setGettingStartedEmptyState',
-      'setEndpoints',
-      'setDashboardEnabled',
-    ]),
     hideAddMetricModal() {
       this.$refs.addMetricModal.hide();
     },
