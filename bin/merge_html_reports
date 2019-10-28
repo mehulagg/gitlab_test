@@ -14,11 +14,12 @@ unless base_artifact_url
   exit 1
 end
 
-# Create the base report with empty body tag
+# Create the base report with body tag (empty except for the onload method)
 new_report = Nokogiri::HTML.parse(File.read(ARGV[0]))
 new_report.at_css('body').remove
-empty_body = Nokogiri::XML::Node.new('body', new_report)
-new_report.at_css('head').add_next_sibling(empty_body)
+body = Nokogiri::XML::Node.new('body', new_report)
+body[:onload] = "apply_filters()"
+new_report.at_css('head').add_next_sibling(body)
 
 ARGV.each do |report_file|
   report = Nokogiri::HTML.parse(File.read(report_file))
@@ -34,6 +35,9 @@ ARGV.each do |report_file|
   next if tests.empty?
 
   header.search("//h1/text()").first.content = "Test results for job: #{report_file.slice(/rspec-(.*)\.htm/, 1)}"
+  header.css("#display-filters input").each do |filter|
+    filter.remove_attribute('checked') if filter[:id] != "failed_checkbox"
+  end
 
   tests.each do |test|
     title = test.parent
