@@ -357,7 +357,12 @@ Group-level variables can be added by:
 1. Inputing variable types, keys, and values in the **Variables** section.
    Any variables of [subgroups](../../user/group/subgroups/index.md) will be inherited recursively.
 
-Once you set them, they will be available for all subsequent pipelines.
+Once you set them, they will be available for all subsequent pipelines. Any group-level user defined variables can be viewed in a read-only list per-project by:
+
+1. Navigating to your project's **Settings > CI/CD** page.
+2. Expanding the **Variables** section.
+
+![CI/CD settings - inherited variables](img/inherited_group_vars.png)
 
 ## Priority of environment variables
 
