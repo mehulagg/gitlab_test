@@ -48,10 +48,6 @@ export default {
       required: false,
       default: () => ({}),
     },
-    containerWidth: {
-      type: Number,
-      required: true,
-    },
     deploymentData: {
       type: Array,
       required: false,

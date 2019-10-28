@@ -59,10 +59,6 @@ export default {
       required: true,
       validator: graphDataValidatorForAnomalyValues,
     },
-    containerWidth: {
-      type: Number,
-      required: true,
-    },
     deploymentData: {
       type: Array,
       required: false,
@@ -239,7 +235,6 @@ export default {
     :series-config="metricSeriesConfig"
     :deployment-data="deploymentData"
     :thresholds="thresholds"
-    :container-width="containerWidth"
     :project-path="projectPath"
   >
     <slot></slot>

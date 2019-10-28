@@ -34,7 +34,7 @@ describe('Anomaly chart component', () => {
 
   const setupAnomalyChart = props => {
     wrapper = shallowMount(Anomaly, {
-      propsData: { containerWidth: 100, ...props },
+      propsData: { ...props },
       slots: {
         default: mockWidgets,
       },
@@ -48,14 +48,12 @@ describe('Anomaly chart component', () => {
     const dataSetName = 'noAnomaly';
     const dataSet = anomalyMockResultValues[dataSetName];
     const inputThresholds = ['some threshold'];
-    const inputContainerWidth = 400;
 
     beforeEach(() => {
       setupAnomalyChart({
         graphData: makeAnomalyGraphData(dataSetName),
         deploymentData: anomalyDeploymentData,
         thresholds: inputThresholds,
-        containerWidth: inputContainerWidth,
         projectPath: mockProjectPath,
       });
     });
@@ -178,10 +176,6 @@ describe('Anomaly chart component', () => {
         it('"thresholds" keeps the same value', () => {
           const { thresholds } = getTimeSeriesProps();
           expect(thresholds).toEqual(inputThresholds);
-        });
-        it('"containerWidth" keeps the same value', () => {
-          const { containerWidth } = getTimeSeriesProps();
-          expect(containerWidth).toEqual(inputContainerWidth);
         });
         it('"projectPath" keeps the same value', () => {
           const { projectPath } = getTimeSeriesProps();

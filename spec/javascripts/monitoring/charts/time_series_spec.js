@@ -29,7 +29,6 @@ describe('Time series component', () => {
       shallowMount(TimeSeries, {
         propsData: {
           graphData: { ...graphData, type },
-          containerWidth: 0,
           deploymentData: store.state.monitoringDashboard.deploymentData,
           projectPath,
         },
