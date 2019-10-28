@@ -34,7 +34,9 @@ more than one approval, the last maintainer to review and approve it will also m
 
 ## Meeting the reviewer/maintainer
 
-Communication happens easier when you personally know who's reviewing the code. Inviting the reviewer/maintainer for a coffee chat to get to know them is advised as it breaks the ice and facilitates future communication.
+Communication happens easier when you are familiar with the person reviewing the code. Take
+opportunities (for example coffee chats) to get to know reviewers to break the ice and
+facilitate future communication.
 
 ### Reviewer roulette
 
