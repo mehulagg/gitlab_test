@@ -34,20 +34,20 @@ describe('PackageInstallation', () => {
     });
   }
 
+  beforeEach(() => {
+    createComponent();
+  });
+
   afterEach(() => {
     if (wrapper) wrapper.destroy();
   });
 
   it('renders the correct npm commands', () => {
-    createComponent();
-
     expect(installCommand('npm').element.value).toBe(npmInstall);
     expect(setupCommand('npm').element.value).toBe(npmSetup);
   });
 
   it('renders the correct yarn commands', () => {
-    createComponent();
-
     expect(installCommand('yarn').element.value).toBe(yarnInstall);
     expect(setupCommand('yarn').element.value).toBe(yarnSetup);
   });

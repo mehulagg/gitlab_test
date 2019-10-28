@@ -84,6 +84,12 @@ describe('PackagesApp', () => {
     expect(packageInstallation()).toExist();
   });
 
+  it('does not render package installation instructions for non npm packages', () => {
+    createComponent();
+
+    expect(packageInstallation().exists()).toBe(false);
+  });
+
   it('renders a single file for an npm package as they only contain one file', () => {
     createComponent({
       packageEntity: npmPackage,
