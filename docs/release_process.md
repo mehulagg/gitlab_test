@@ -19,14 +19,18 @@ when we make a change - no matter the size of the change.
 
 ## How-to
 
-- Update [`lib/gitlab/qa/version.rb`] to an appropriate [semantic version](https://semver.org).
-- Create a new tag via the UI (https://gitlab.com/gitlab-org/gitlab-qa/-/tags/new)
+- Check if there is an [open merge request to bump the version] (to avoid creating a duplicate).
+  - If there is one, update it if necessary.
+  - If not, update [`lib/gitlab/qa/version.rb`] to an appropriate [semantic version](https://semver.org) in a new merge request using the [release template].
+- Merge the merge request.
+- Create a new tag via the UI (https://gitlab.com/gitlab-org/gitlab-qa/-/tags/new).
   * **Tag name**: The same version found in [`lib/gitlab/qa/version.rb`], prefixed with `v`, e.g. if the version is `4.7.1`, the tag would be `v4.7.1`.
-  * **Message**: This can be something simple such as "<version> release"
-  * **Release notes**: This should be a more detailed message of what the change introduces.  Make sure to link the 
-    Merge Request(s) in this. See [`Release.md`](https://gitlab.com/gitlab-org/gitlab-qa/blob/7325c1f723ca666580e76df4d0ef5206da731bdf/.gitlab/merge_request_templates/Release.md).
-  * Click *Create Tag*
+  * **Message**: This can be something simple such as "<version> release".
+  * **Release notes**: Copy the release notes from the merge request.
+  * Click *Create Tag*.
   
-GitLab will then starts a pipeline for this new tag, and the `release` job will build and push the new version of `gitlab-qa` to RubyGems.
+GitLab will then start a pipeline for this new tag, and the `release` job will build and push the new version of `gitlab-qa` to RubyGems.
 
-[`lib/gitlab/qa/version.rb`]: https://gitlab.com/gitlab-org/gitlab-qa/blob/a4822daa230bfd7639b035aea847b129e5dfdfb5/lib/gitlab/qa/version.rb#L3
+[`lib/gitlab/qa/version.rb`]: https://gitlab.com/gitlab-org/gitlab-qa/blob/master/lib/gitlab/qa/version.rb#L3
+[release template]: https://gitlab.com/gitlab-org/gitlab-qa/blob/master/.gitlab/merge_request_templates/Release.md
+[open merge request to bump the version]: https://gitlab.com/gitlab-org/gitlab-qa/merge_requests?scope=all&utf8=%E2%9C%93&state=opened&search=bump+version
