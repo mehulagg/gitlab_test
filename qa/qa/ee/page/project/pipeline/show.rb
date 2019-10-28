@@ -27,7 +27,7 @@ module QA::EE::Page
           end
 
           view 'app/assets/javascripts/reports/components/issue_status_icon.vue' do
-            element :icon_status, ':data-qa-selector="`icon_status_${status}`"' # rubocop:disable QA/ElementWithPattern
+            element :icon_status, ':data-qa-selector="`status_${status}_icon`" ' # rubocop:disable QA/ElementWithPattern
           end
         end
       end
@@ -59,13 +59,13 @@ module QA::EE::Page
 
       def has_approved_license?(name)
         within_element(:report_item_row, text: name) do
-          has_element?(:icon_status_success)
+          has_element?(:status_success_icon)
         end
       end
 
       def has_blacklisted_license?(name)
         within_element(:report_item_row, text: name) do
-          has_element?(:icon_status_failed)
+          has_element?(:status_failed_icon)
         end
       end
     end

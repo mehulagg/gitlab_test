@@ -50,6 +50,6 @@ export default {
     }"
     class="report-block-list-icon"
   >
-    <icon :name="iconName" :size="statusIconSize" :data-qa-selector="`icon_status_${status}`" />
+    <icon :name="iconName" :size="statusIconSize" :data-qa-selector="`status_${status}_icon`" />
   </div>
 </template>

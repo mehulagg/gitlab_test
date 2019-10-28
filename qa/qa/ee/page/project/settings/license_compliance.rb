@@ -21,7 +21,7 @@ module QA::EE
           end
 
           view 'ee/app/assets/javascripts/vue_shared/license_management/components/license_management_row.vue' do
-            element :license_name
+            element :license_name_content
           end
 
           def approve_license(license)
@@ -32,7 +32,7 @@ module QA::EE
             click_element :add_license_submit_button
 
             within_element :license_compliance_list do
-              has_element?(:license_name, text: license)
+              has_element?(:license_name_content, text: license)
             end
           end
 
@@ -44,7 +44,7 @@ module QA::EE
             click_element :add_license_submit_button
 
             within_element :license_compliance_list do
-              has_element?(:license_name, text: license)
+              has_element?(:license_name_content, text: license)
             end
           end
         end

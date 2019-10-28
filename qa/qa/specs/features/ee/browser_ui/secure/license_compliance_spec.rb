@@ -19,9 +19,9 @@ module QA
         Runtime::Browser.visit(:gitlab, Page::Main::Login)
         Page::Main::Login.perform(&:sign_in_using_credentials)
 
-        @project = Resource::Project.fabricate_via_api! do |p|
-          p.name = Runtime::Env.auto_devops_project_name || 'project-with-secure'
-          p.description = 'Project with Secure'
+        @project = Resource::Project.fabricate_via_api! do |project|
+          project.name = Runtime::Env.auto_devops_project_name || 'project-with-secure'
+          project.description = 'Project with Secure'
         end
 
         Resource::Runner.fabricate! do |runner|
@@ -31,19 +31,19 @@ module QA
         end
 
         # Push fixture to generate Secure reports
-        Resource::Repository::ProjectPush.fabricate! do |push|
-          push.project = @project
-          push.directory = Pathname
+        Resource::Repository::ProjectPush.fabricate! do |project_push|
+          project_push.project = @project
+          project_push.directory = Pathname
             .new(__dir__)
             .join('../../../../../ee/fixtures/secure_premade_reports')
-          push.commit_message = 'Create Secure compatible application to serve premade reports'
+          project_push.commit_message = 'Create Secure compatible application to serve premade reports'
         end.project.visit!
 
         Page::Project::Menu.perform(&:go_to_ci_cd_settings)
         Page::Project::Settings::CICD.perform(&:expand_license_compliance)
-        QA::EE::Page::Project::Settings::LicenseCompliance.perform do |show|
-          show.approve_license approved_license_name
-          show.deny_license denied_license_name
+        QA::EE::Page::Project::Settings::LicenseCompliance.perform do |license_compliance|
+          license_compliance.approve_license approved_license_name
+          license_compliance.deny_license denied_license_name
         end
 
         Page::Project::Menu.perform(&:click_ci_cd_pipelines)
