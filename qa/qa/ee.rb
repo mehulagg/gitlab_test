@@ -41,6 +41,10 @@ module QA
           autoload :LDAPSync, 'qa/ee/page/group/settings/ldap_sync'
           autoload :General, 'qa/ee/page/group/settings/general'
         end
+
+        module SubMenus
+          autoload :Packages, 'qa/ee/page/group/sub_menus/packages'
+        end
       end
 
       module File

@@ -426,6 +426,7 @@ module QA
       autoload :NodeJs, 'qa/service/docker_run/node_js'
       autoload :GitlabRunner, 'qa/service/docker_run/gitlab_runner'
       autoload :MailHog, 'qa/service/docker_run/mail_hog'
+      autoload :DependencyProxy, 'qa/service/docker_run/dependency_proxy'
     end
   end
 
