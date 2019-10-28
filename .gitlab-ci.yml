@@ -731,3 +731,22 @@ release:
   only:
     refs:
       - tags
+
+.notify_slack:
+  image: alpine
+  stage: notify
+  dependencies: []
+  cache: {}
+  before_script:
+    - apk update && apk add git curl bash
+  only:
+    variables:
+      - $TOP_UPSTREAM_SOURCE_JOB
+      - $NOTIFY_CHANNEL
+
+notify_slack:
+  extends:
+    - .notify_slack
+  script:
+    - bin/slack $NOTIFY_CHANNEL "☠️ Pipeline against $RELEASE failed! ☠️ See $CI_PIPELINE_URL (triggered from $TOP_UPSTREAM_SOURCE_JOB)" ci_failing
+  when: on_failure
