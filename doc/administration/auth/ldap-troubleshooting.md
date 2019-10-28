@@ -96,7 +96,7 @@ Please see [the official
 
 #### Debug LDAP user filter with ldapsearch
 
-This example uses `ldapsearch` and assumes you are using ActiveDirectory. The
+This example assumes you are using ActiveDirectory. The
 following query returns the login names of the users that will be allowed to
 log in to GitLab if you configure your own user_filter.
 
@@ -109,7 +109,8 @@ ldapsearch -H ldaps://$host:$port -D "$bind_dn" -y bind_dn_password.txt  -b "$ba
 - Replace `ldaps://` with `ldap://` if you are using the plain authentication method.
   Port `389` is the default `ldap://` port and `636` is the default `ldaps://`
   port.
-- We are assuming the password for the bind_dn user is in bind_dn_password.txt.
+- We are assuming the password for the `bind_dn` user is in `bind_dn_password.txt`.
+
 ### LDAP check
 
 The [rake task to check LDAP][ldap-check] is a valuable tool
@@ -140,9 +141,8 @@ for instructions on how to use the rails console.
 
 #### Get debug output
 
-This will provide a greater level of debug output that can be useful to see
-what GitLab is doing and with what. This value is not persisted, and is
-required to see output for many of the rails console commands on this page.
+This will provide debug output that can be useful to see
+what GitLab is doing and with what. This value is not persisted.
 
 To enable debug output in the rails console, [enter the rails
 console](#rails-console) and run:
@@ -153,63 +153,35 @@ Rails.logger.level = Logger::DEBUG
 
 #### Query a user in LDAP
 
+This could expose potential errors connecting to and/or querying LDAP that may seem to
+fail silently in the GitLab UI. This [requires debug output](#get-debug-output).
+
 ```ruby
-# This could expose potential errors connecting to and/or querying LDAP that may seem to
-# fail silently in the GitLab UI
+Rails.logger.level = Logger::DEBUG
 adapter = Gitlab::Auth::LDAP::Adapter.new('ldapmain') # If `main` is the LDAP provider
 user = Gitlab::Auth::LDAP::Person.find_by_uid('<username>', adapter)
 ```
 
 #### Sync all users **(STARTER ONLY)**
 
-It may be helpful to run a [user sync][user-sync] in the
-[rails console](#rails-console) and look for the user's DN or email to see what GitLab
-does with it. This requires that [debug output](#debug-output) be enabled.
+The output from a manual [user sync][user-sync] can show you what happens when
+GitLab tries to sync its users against LDAP.
+
+Once you've run the following in the [rails console](#rails-console), find a
+user with their DN or email.
 
 ```ruby
 Rails.logger.level = Logger::DEBUG
 LdapSyncWorker.new.perform
 ```
 
-See [example log output after a user
-sync](#example-log-output-after-a-user-sync) for help reading the output.
-
-#### Example log output after a user sync
-
-Once you [run a user sync](#debug-a-usersync), search for the user's email address in
-the output. Look for a section like this:
-
-```ruby
-Syncing user John, email@example.com
-  Identity Load (0.9ms)  SELECT  "identities".* FROM "identities" WHERE "identities"."user_id" = 20 AND (provider LIKE 'ldap%') LIMIT 1
-Instantiating Gitlab::Auth::LDAP::Person with LDIF:
-dn: cn=John Smith,ou=people,dc=example,dc=com
-cn: John Smith
-mail: email@example.com
-memberof: cn=admin_staff,ou=people,dc=example,dc=com
-uid: John
-
-  UserSyncedAttributesMetadata Load (0.9ms)  SELECT  "user_synced_attributes_metadata".* FROM "user_synced_attributes_metadata" WHERE "user_synced_attributes_metadata"."user_id" = 20 LIMIT 1
-   (0.3ms)  BEGIN
-  Namespace Load (1.0ms)  SELECT  "namespaces".* FROM "namespaces" WHERE "namespaces"."owner_id" = 20 AND "namespaces"."type" IS NULL LIMIT 1
-  Route Load (0.8ms)  SELECT  "routes".* FROM "routes" WHERE "routes"."source_id" = 27 AND "routes"."source_type" = 'Namespace' LIMIT 1
-  Ci::Runner Load (1.1ms)  SELECT "ci_runners".* FROM "ci_runners" INNER JOIN "ci_runner_namespaces" ON "ci_runners"."id" = "ci_runner_namespaces"."runner_id" WHERE "ci_runner_namespaces"."namespace_id" = 27
-   (0.7ms)  COMMIT
-   (0.4ms)  BEGIN
-  Route Load (0.8ms)  SELECT "routes".* FROM "routes" WHERE (LOWER("routes"."path") = LOWER('John'))
-  Namespace Load (1.0ms)  SELECT  "namespaces".* FROM "namespaces" WHERE "namespaces"."id" = 27 LIMIT 1
-  Route Exists (0.9ms)  SELECT  1 AS one FROM "routes" WHERE LOWER("routes"."path") = LOWER('John') AND "routes"."id" != 50 LIMIT 1
-  User Update (1.1ms)  UPDATE "users" SET "updated_at" = '2019-10-17 14:40:59.751685', "last_credential_check_at" = '2019-10-17 14:40:59.738714' WHERE "users"."id" = 20
-```
-
-From the output, note that GitLab searches kkkkkk
-If there's a failure or an error, it will be visible in the output.
+Next, [learn how to read the output](#example-log-output-after-a-user-sync).
 
 #### Sync all groups **(STARTER ONLY)**
 
 NOTE: **NOTE:**
 To sync all groups manually when debugging is unnecessary, [use the rake
-command](../raketasks/ldap.md#run-a-group-sync) instead.
+task](../raketasks/ldap.md#run-a-group-sync) instead.
 
 ```ruby
 LdapAllGroupsSyncWorker.new.perform
@@ -260,14 +232,82 @@ adapter.ldap_search(options)
 
 For an example, [see the code](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/ee/lib/ee/gitlab/auth/ldap/adapter.rb)
 
+#### Example log output after a user sync **(STARTER ONLY)**
 
+The output from a [user sync](#debug-a-usersync) will be verbose, and will
+look like this:
 
+```sql
+Syncing user John, email@example.com
+  Identity Load (0.9ms)  SELECT  "identities".* FROM "identities" WHERE "identities"."user_id" = 20 AND (provider LIKE 'ldap%') LIMIT 1
+Instantiating Gitlab::Auth::LDAP::Person with LDIF:
+dn: cn=John Smith,ou=people,dc=example,dc=com
+cn: John Smith
+mail: email@example.com
+memberof: cn=admin_staff,ou=people,dc=example,dc=com
+uid: John
 
-#### Example log output after a group sync
+  UserSyncedAttributesMetadata Load (0.9ms)  SELECT  "user_synced_attributes_metadata".* FROM "user_synced_attributes_metadata" WHERE "user_synced_attributes_metadata"."user_id" = 20 LIMIT 1
+   (0.3ms)  BEGIN
+  Namespace Load (1.0ms)  SELECT  "namespaces".* FROM "namespaces" WHERE "namespaces"."owner_id" = 20 AND "namespaces"."type" IS NULL LIMIT 1
+  Route Load (0.8ms)  SELECT  "routes".* FROM "routes" WHERE "routes"."source_id" = 27 AND "routes"."source_type" = 'Namespace' LIMIT 1
+  Ci::Runner Load (1.1ms)  SELECT "ci_runners".* FROM "ci_runners" INNER JOIN "ci_runner_namespaces" ON "ci_runners"."id" = "ci_runner_namespaces"."runner_id" WHERE "ci_runner_namespaces"."namespace_id" = 27
+   (0.7ms)  COMMIT
+   (0.4ms)  BEGIN
+  Route Load (0.8ms)  SELECT "routes".* FROM "routes" WHERE (LOWER("routes"."path") = LOWER('John'))
+  Namespace Load (1.0ms)  SELECT  "namespaces".* FROM "namespaces" WHERE "namespaces"."id" = 27 LIMIT 1
+  Route Exists (0.9ms)  SELECT  1 AS one FROM "routes" WHERE LOWER("routes"."path") = LOWER('John') AND "routes"."id" != 50 LIMIT 1
+  User Update (1.1ms)  UPDATE "users" SET "updated_at" = '2019-10-17 14:40:59.751685', "last_credential_check_at" = '2019-10-17 14:40:59.738714' WHERE "users"."id" = 20
+```
 
-The output of the last command will be very verbose, but contains lots of
-helpful information. For the most part you can ignore log entries that are SQL
-statements.
+Let's break it down. First, you'll see the user's name and email, as they
+exist in GitLab now:
+
+```ruby
+Syncing user John, email@example.com
+```
+
+Next, GitLab searches the `identities` table in its database for the existing
+link between this user and the configured LDAP provider(s):
+
+```sql
+  Identity Load (0.9ms)  SELECT  "identities".* FROM "identities" WHERE "identities"."user_id" = 20 AND (provider LIKE 'ldap%') LIMIT 1
+```
+
+The identity found will contain an `extern_uid` value, which will be the DN of
+the user.
+
+```ruby
+Instantiating Gitlab::Auth::LDAP::Person with LDIF:
+dn: cn=John Smith,ou=people,dc=example,dc=com
+cn: John Smith
+mail: email@example.com
+memberof: cn=admin_staff,ou=people,dc=example,dc=com
+uid: John
+```
+
+If the user wasn't found in LDAP with either the DN or email, you may see the
+following error instead:
+
+```ruby
+LDAP search error: No Such Object
+```
+
+...in which case the user will be blocked:
+
+```ruby
+  User Update (0.4ms)  UPDATE "users" SET "state" = $1, "updated_at" = $2 WHERE "users"."id" = $3  [["state", "ldap_blocked"], ["updated_at", "2019-10-18 15:46:22.902177"], ["id", 51]]
+```
+
+If there's a failure or an error, it will be visible in the output.
+
+#### Example log output after a group sync **(STARTER ONLY)**
+
+The output [from running a group sync](#sync-all-groups) will be very verbose,
+but contains lots of helpful information. For the most part you can ignore log
+entries that are SQL statements.
+
+**Find why members aren't assigned to a group**
 
 Indicates the point where syncing actually begins:
 
@@ -331,6 +371,8 @@ Finally, the following entry says syncing has finished for this group:
 ```bash
 Finished syncing all providers for 'my_group' group
 ```
+
+**Debugging why admins aren't granted access**
 
 ## Common Problems and Errors
 
@@ -546,7 +588,21 @@ step of the sync.
 
 #### Admin priviliges not granted
 
-<!-- TODO: docs here -->
+When [Administrator sync](ldap-ee.md#administrator-sync) has been configured
+but the configured users aren't granted the correct admin privileges, confirm
+the following are true:
+
+- A [`group_base` is also configured](ldap-ee.md#group-sync)
+- The configured `admin_group` in the `gitlab.rb` is a CN, rather than a DN or an array
+- This CN falls under the configured `group_base`
+- The users to be admins have already logged into GitLab with their LDAP
+  credentials. Only users that have logged in to GitLab with their LDAP
+  credentials will be granted this access.
+
+If all the above are true and the users are still not getting access, [sync
+all groups in the rails console](#sync-all-groups), [look for the relevant
+section in the logs](), and the output will have more details to understand
+why.
 
 ### User DN or/and email have changed
 
@@ -591,6 +647,8 @@ end
 You can then [run a UserSync](#usersync) **(STARTER ONLY)** to sync the latest DN
 for each of these users.
 
+<!-- LINK REFERENCES -->
+
 [tail-logs]: https://docs.gitlab.com/omnibus/settings/logs.html#tail-logs-in-a-console-on-the-server
 [production-log]: ../logs.md#productionlog
 [application-log]: ../logs.md#applicationlog
@@ -598,6 +656,7 @@ for each of these users.
 [restart]: ../restart_gitlab.md#installations-from-source
 [ldap-check]: ../raketasks/ldap.md#check
 [user-sync]: ldap-ee.md#user-sync
+[config]: ldap.md#configuration
 
 [^1]: In Active Directory, a user is marked as disabled/blocked if the user
       account control attribute (`userAccountControl:1.2.840.113556.1.4.803`)
