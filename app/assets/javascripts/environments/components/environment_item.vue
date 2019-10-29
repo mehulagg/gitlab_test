@@ -42,17 +42,22 @@ export default {
   mixins: [environmentItemMixin],
 
   props: {
+    canReadEnvironment: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+
     model: {
       type: Object,
       required: true,
       default: () => ({}),
     },
 
-    canReadEnvironment: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
+    tableSpacing: {
+      type: Object,
+      required: true,
+    }
   },
 
   computed: {
@@ -106,21 +111,44 @@ export default {
     },
 
     /**
-     * Verifies if the date to be shown is present.
+     * Verifies if the autostop date is present.
      *
      * @returns {Boolean|Undefined}
      */
-    canShowDate() {
+    canShowAutoStopDate() {
+      // return (this.model && this.model.auto_stop_at) || true;
+      return Boolean(this.model && this.model.auto_stop_at);
+    },
+
+    /**
+     * Human readable deployment date.
+     *
+     * @returns {String}
+     */
+    autoStopDate() {
+      if (this.canShowAutoStopDate) {
+        return timeagoInstance.format(this.model.auto_stop_at);
+      }
+      // return '';
+      return timeagoInstance.format('2019-11-05T11:38:18.005Z');
+    },
+
+    /**
+     * Verifies if the deployment date is present.
+     *
+     * @returns {Boolean|Undefined}
+     */
+    canShowDeploymentDate() {
       return this.model && this.model.last_deployment && this.model.last_deployment.deployed_at;
     },
 
     /**
-     * Human readable date.
+     * Human readable deployment date.
      *
      * @returns {String}
      */
     deployedDate() {
-      if (this.canShowDate) {
+      if (this.canShowDeploymentDate) {
         return timeagoInstance.format(this.model.last_deployment.deployed_at);
       }
       return '';
@@ -446,7 +474,7 @@ export default {
     class="gl-responsive-table-row"
     role="row"
   >
-    <div class="table-section section-wrap section-15 text-truncate" role="gridcell">
+    <div class="table-section section-wrap text-truncate" :class="tableSpacing.name" role="gridcell">
       <div v-if="!model.isFolder" class="table-mobile-header" role="rowheader">
         {{ s__('Environments|Environment') }}
       </div>
@@ -488,7 +516,8 @@ export default {
     </div>
 
     <div
-      class="table-section section-10 deployment-column d-none d-sm-none d-md-block"
+      class="table-section deployment-column d-none d-sm-none d-md-block"
+      :class="tableSpacing.deploy"
       role="gridcell"
     >
       <span v-if="shouldRenderDeploymentID" class="text-break-word">
@@ -507,7 +536,7 @@ export default {
       </span>
     </div>
 
-    <div class="table-section section-15 d-none d-sm-none d-md-block" role="gridcell">
+    <div class="table-section d-none d-sm-none d-md-block" :class="tableSpacing.build" role="gridcell">
       <a
         v-if="shouldRenderBuildName"
         :href="buildPath"
@@ -517,7 +546,7 @@ export default {
       </a>
     </div>
 
-    <div v-if="!model.isFolder" class="table-section section-20" role="gridcell">
+    <div v-if="!model.isFolder" class="table-section" :class="tableSpacing.commit" role="gridcell">
       <div role="rowheader" class="table-mobile-header">{{ s__('Environments|Commit') }}</div>
       <div v-if="hasLastDeploymentKey" class="js-commit-component table-mobile-content">
         <commit-component
@@ -534,16 +563,24 @@ export default {
       </div>
     </div>
 
-    <div v-if="!model.isFolder" class="table-section section-10" role="gridcell">
+    <div v-if="!model.isFolder" class="table-section" :class="tableSpacing.date" role="gridcell">
       <div role="rowheader" class="table-mobile-header">{{ s__('Environments|Updated') }}</div>
-      <span v-if="canShowDate" class="environment-created-date-timeago table-mobile-content">
+      <span v-if="canShowDeploymentDate" class="environment-created-date-timeago table-mobile-content">
         {{ deployedDate }}
+      </span>
+    </div>
+
+    <div v-if="!model.isFolder" class="table-section" :class="tableSpacing.autoStop" role="gridcell">
+      <div role="rowheader" class="table-mobile-header">{{ s__('Environments|Auto-stop in') }}</div>
+      <span v-if="canShowAutoStopDate || true" class="environment-created-date-timeago table-mobile-content">
+        {{ autoStopDate }}
       </span>
     </div>
 
     <div
       v-if="!model.isFolder && displayEnvironmentActions"
-      class="table-section section-30 table-button-footer"
+      class="table-section table-button-footer"
+      :class="tableSpacing.actions"
       role="gridcell"
     >
       <div class="btn-group table-action-buttons" role="group">

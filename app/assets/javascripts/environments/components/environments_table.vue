@@ -41,6 +41,18 @@ export default {
           : env,
       );
     },
+    tableSpacing() {
+      return {
+        // percent spacing for cols, should add up to 100
+        'name': 'section-15',
+        'deploy': 'section-10',
+        'build': 'section-15',
+        'commit': 'section-20',
+        'date': 'section-10',
+        'autoStop': 'section-5',
+        'actions': 'section-25',
+      }
+    }
   },
   methods: {
     folderUrl(model) {
@@ -79,20 +91,23 @@ export default {
 <template>
   <div class="ci-table" role="grid">
     <div class="gl-responsive-table-row table-row-header" role="row">
-      <div class="table-section section-15 environments-name" role="columnheader">
+      <div class="table-section environments-name" :class="tableSpacing.name" role="columnheader">
         {{ s__('Environments|Environment') }}
       </div>
-      <div class="table-section section-10 environments-deploy" role="columnheader">
+      <div class="table-section environments-deploy" :class="tableSpacing.deploy" role="columnheader">
         {{ s__('Environments|Deployment') }}
       </div>
-      <div class="table-section section-15 environments-build" role="columnheader">
+      <div class="table-section environments-build" :class="tableSpacing.build" role="columnheader">
         {{ s__('Environments|Job') }}
       </div>
-      <div class="table-section section-20 environments-commit" role="columnheader">
+      <div class="table-section environments-commit" :class="tableSpacing.commit" role="columnheader">
         {{ s__('Environments|Commit') }}
       </div>
-      <div class="table-section section-10 environments-date" role="columnheader">
+      <div class="table-section environments-date"  :class="tableSpacing.date" role="columnheader">
         {{ s__('Environments|Updated') }}
+      </div>
+      <div class="table-section environments-auto-stop" :class="tableSpacing.autoStop" role="columnheader">
+        {{ s__('Environments|Auto stop in') }}
       </div>
     </div>
     <template v-for="(model, i) in sortedEnvironments" :model="model">
@@ -101,6 +116,7 @@ export default {
         :key="`environment-item-${i}`"
         :model="model"
         :can-read-environment="canReadEnvironment"
+        :table-spacing="tableSpacing"
       />
 
       <div

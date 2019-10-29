@@ -33,7 +33,8 @@ export default {
     },
     cssContainerClass: {
       type: String,
-      required: true,
+      required: false,
+      default: ''
     },
     newEnvironmentPath: {
       type: String,
