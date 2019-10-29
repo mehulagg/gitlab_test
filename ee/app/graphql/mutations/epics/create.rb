@@ -13,7 +13,7 @@ module Mutations
       field :epic,
             Types::EpicType,
             null: true,
-            description: 'The epic created'
+            description: 'The created epic'
 
       def resolve(args)
         group_path = args.delete(:group_path)
