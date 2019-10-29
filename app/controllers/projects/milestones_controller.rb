@@ -30,6 +30,7 @@ class Projects::MilestonesController < Projects::ApplicationController
         # but we don't need to show them on the project milestones page itself.
         @milestones = @milestones.for_projects
         @milestones = @milestones.page(params[:page])
+        RecentReleases.preload_for_milestones(@milestones)
       end
       format.json do
         render json: @milestones.to_json(methods: :name)

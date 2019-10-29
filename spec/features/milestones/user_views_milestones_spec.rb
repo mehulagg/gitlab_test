@@ -59,6 +59,24 @@ describe "User views milestones" do
         expect(page).to have_link(third_release.name, href: project_releases_path(project, anchor: third_release.tag))
         expect(page).to have_link("2 more releases", href: project_releases_path(project))
       end
+
+      context "with multiple milestones" do
+        set(:second_milestone) { create(:milestone, project: project, name: "The Second Milestone") }
+        set(:sixth_release) { create(:release, project: project, name: "The sixth release", milestones: [second_milestone], released_at: fifth_release.released_at + 1.day) }
+        set(:seventh_release) { create(:release, project: project, name: "The seventh release", milestones: [second_milestone], released_at: sixth_release.released_at + 1.day) }
+
+        it "shows the associated releases and the truncation text for all milestones" do
+          expect(page).to have_content("Releases #{fifth_release.name} • #{fourth_release.name} • #{third_release.name} • 2 more releases")
+          expect(page).to have_content("Releases #{seventh_release.name} • #{sixth_release.name}")
+
+          expect(page).to have_link(fifth_release.name, href: project_releases_path(project, anchor: fifth_release.tag))
+          expect(page).to have_link(fourth_release.name, href: project_releases_path(project, anchor: fourth_release.tag))
+          expect(page).to have_link(third_release.name, href: project_releases_path(project, anchor: third_release.tag))
+          expect(page).to have_link("2 more releases", href: project_releases_path(project))
+          expect(page).to have_link(sixth_release.name, href: project_releases_path(project, anchor: sixth_release.tag))
+          expect(page).to have_link(seventh_release.name, href: project_releases_path(project, anchor: seventh_release.tag))
+        end
+      end
     end
   end
 end

@@ -29,6 +29,7 @@ class Milestone < ApplicationRecord
 
   has_many :milestone_releases
   has_many :releases, through: :milestone_releases
+  has_many :recent_releases, -> { sorted.recent }, through: :milestone_releases, source: :release
 
   has_internal_id :iid, scope: :project, init: ->(s) { s&.project&.milestones&.maximum(:iid) }
   has_internal_id :iid, scope: :group, init: ->(s) { s&.group&.milestones&.maximum(:iid) }

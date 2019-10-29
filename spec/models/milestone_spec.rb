@@ -73,6 +73,30 @@ describe Milestone do
         end
       end
     end
+
+    describe '.recent_releases' do
+      it 'returns the most recent releases' do
+        project = create(:project)
+        release_a = create(:release, project: project, released_at: Time.zone.parse('2018-10-01T16:00:00Z'))
+        release_b = create(:release, project: project, released_at: Time.zone.parse('2018-10-02T16:00:00Z'))
+        release_c = create(:release, project: project, released_at: Time.zone.parse('2018-10-03T16:00:00Z'))
+        release_d = create(:release, project: project, released_at: Time.zone.parse('2018-10-04T16:00:00Z'))
+        release_e = create(:release, project: project, released_at: Time.zone.parse('2018-10-05T16:00:00Z'))
+        milestone = create(:milestone, project: project, releases: [release_a, release_b, release_c, release_d, release_e])
+
+        expect(milestone.recent_releases.map(&:id)).to contain_exactly(release_e.id, release_d.id, release_c.id)
+      end
+
+      it 'orders the most recent releases by released_at' do
+        project = create(:project)
+        release_a = create(:release, project: project, released_at: Time.zone.parse('2018-10-01T16:00:00Z'))
+        release_b = create(:release, project: project, released_at: Time.zone.parse('2018-10-07T16:00:00Z'))
+        release_c = create(:release, project: project, released_at: Time.zone.parse('2018-10-03T16:00:00Z'))
+        milestone = create(:milestone, project: project, releases: [release_a, release_b, release_c])
+
+        expect(milestone.recent_releases.map(&:id)).to eq([release_b.id, release_c.id, release_a.id])
+      end
+    end
   end
 
   describe "Associations" do

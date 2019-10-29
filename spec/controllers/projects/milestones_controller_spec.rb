@@ -95,6 +95,43 @@ describe Projects::MilestonesController do
         expect(rendered_milestone_ids)
           .to match_array(project.milestones.pluck(:id))
       end
+
+      context 'with releases' do
+        render_views
+
+        xit 'does not suffer from an N+1 problem' do
+          release = create(:release, project: project, released_at: Time.zone.parse('2018-10-01T16:00:00Z'))
+          milestone.update!(releases: [release])
+
+          control_count = ActiveRecord::QueryRecorder.new { render_index(project: project, page: 1) }.count
+
+          release_b = create(:release, project: project, released_at: Time.zone.parse('2018-10-02T16:00:00Z'))
+          release_c = create(:release, project: project, released_at: Time.zone.parse('2018-10-03T16:00:00Z'))
+          release_d = create(:release, project: project, released_at: Time.zone.parse('2018-10-04T16:00:00Z'))
+          create(:milestone, project: project, releases: [release_b, release_c, release_d])
+
+          expect { render_index(project: project, page: 1) }.not_to exceed_query_limit(control_count)
+        end
+
+        xit 'does not suffer from an N+1 problem with more records' do
+          release = create(:release, project: project, released_at: Time.zone.parse('2018-10-01T16:00:00Z'))
+          milestone.update!(releases: [release])
+
+          control_count = ActiveRecord::QueryRecorder.new { render_index(project: project, page: 1) }.count
+
+          release_b = create(:release, project: project, released_at: Time.zone.parse('2018-10-02T16:00:00Z'))
+          release_c = create(:release, project: project, released_at: Time.zone.parse('2018-10-03T16:00:00Z'))
+          release_d = create(:release, project: project, released_at: Time.zone.parse('2018-10-04T16:00:00Z'))
+          create(:milestone, project: project, releases: [release_b, release_c, release_d])
+          release_e = create(:release, project: project, released_at: Time.zone.parse('2018-10-05T16:00:00Z'))
+          release_f = create(:release, project: project, released_at: Time.zone.parse('2018-10-06T16:00:00Z'))
+          release_g = create(:release, project: project, released_at: Time.zone.parse('2018-10-07T16:00:00Z'))
+          release_h = create(:release, project: project, released_at: Time.zone.parse('2018-10-08T16:00:00Z'))
+          create(:milestone, project: project, releases: [release_e, release_f, release_g, release_h])
+
+          expect { render_index(project: project, page: 1) }.not_to exceed_query_limit(control_count)
+        end
+      end
     end
 
     context "as json" do
