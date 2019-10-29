@@ -28,7 +28,6 @@ class GlobalMilestone
 
   def self.build_collection(projects, params)
     items = Milestone.of_projects(projects)
-                .includes(:releases)
                 .reorder_by_due_date_asc
                 .order_by_name_asc
     items = items.search_title(params[:search_title]) if params[:search_title].present?
