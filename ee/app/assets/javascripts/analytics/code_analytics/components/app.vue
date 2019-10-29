@@ -6,11 +6,9 @@ import ProjectsDropdownFilter from '../../shared/components/projects_dropdown_fi
 import FileQuantityDropdown from './file_quantity_dropdown.vue';
 import { featureAccessLevel } from '~/pages/projects/shared/permissions/constants';
 import { PROJECTS_PER_PAGE, DEFAULT_FILE_QUANTITY } from '../constants';
-import createStore from '../store';
 
 export default {
   name: 'CodeAnalytics',
-  store: createStore(),
   components: {
     GlEmptyState,
     GroupsDropdownFilter,

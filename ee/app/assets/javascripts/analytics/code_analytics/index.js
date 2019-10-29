@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import CodeAnalytics from './components/app.vue';
+import store from './store';
 
 export default () => {
   const el = document.querySelector('#js-code-analytics-app');
@@ -7,6 +8,7 @@ export default () => {
 
   return new Vue({
     el,
+    store,
     name: 'CodeAnalyticsApp',
     components: {
       CodeAnalytics,

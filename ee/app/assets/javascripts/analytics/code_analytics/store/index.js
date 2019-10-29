@@ -6,9 +6,11 @@ import state from './state';
 
 Vue.use(Vuex);
 
-export default () =>
+const createStore = () =>
   new Vuex.Store({
     actions,
     mutations,
     state,
   });
+
+export default createStore();

@@ -2,6 +2,7 @@ import Vuex from 'vuex';
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import { GlEmptyState } from '@gitlab/ui';
 import Component from 'ee/analytics/code_analytics/components/app.vue';
+import store from 'ee/analytics/code_analytics/store';
 import GroupsDropdownFilter from 'ee/analytics/shared/components/groups_dropdown_filter.vue';
 import ProjectsDropdownFilter from 'ee/analytics/shared/components/projects_dropdown_filter.vue';
 import FileQuantityDropdown from 'ee/analytics/code_analytics/components/file_quantity_dropdown.vue';
@@ -21,6 +22,7 @@ const createComponent = (opts = {}) =>
   shallowMount(Component, {
     localVue,
     sync: false,
+    store,
     propsData: {
       emptyStateSvgPath,
     },
