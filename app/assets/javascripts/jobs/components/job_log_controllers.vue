@@ -69,9 +69,9 @@ export default {
 };
 </script>
 <template>
-  <div class="top-bar">
+  <div class="top-bar d-flex">
     <!-- truncate information -->
-    <div class="js-truncated-info truncated-info d-none d-sm-block float-left">
+    <div class="js-truncated-info truncated-info d-none d-sm-block mr-auto">
       <template v-if="isTraceSizeVisible">
         {{ jobLogSize }}
         <gl-link
@@ -81,10 +81,12 @@ export default {
           >{{ s__('Job|Complete Raw') }}</gl-link
         >
       </template>
+      <slot></slot>
     </div>
     <!-- eo truncate information -->
 
-    <div class="controllers float-right">
+
+    <div class="controllers align-self-end">
       <!-- links -->
       <gl-link
         v-if="rawPath"
@@ -127,10 +129,13 @@ export default {
           class="js-scroll-bottom btn-scroll btn-transparent btn-blank"
           :class="{ animate: isScrollingDown }"
           @click="handleScrollToBottom"
-          v-html="$options.scrollDown"
-        />
+        >
+          <icon name="scroll_down" />
+        </gl-button>
       </div>
       <!-- eo scroll buttons -->
+
+      <slot name="buttons"></slot>
     </div>
   </div>
 </template>
