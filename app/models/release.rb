@@ -28,7 +28,7 @@ class Release < ApplicationRecord
 
   scope :sorted, -> { order(released_at: :desc) }
   scope :with_project_and_namespace, -> { includes(project: :namespace) }
-  scope :recent, -> { limit(MAX_NUMBER_TO_DISPLAY) }
+  scope :recent, -> { sorted.limit(MAX_NUMBER_TO_DISPLAY) }
 
   delegate :repository, to: :project
 
