@@ -5,61 +5,25 @@ module Gitlab
     class RelationFactory
       prepend_if_ee('::EE::Gitlab::ImportExport::RelationFactory') # rubocop: disable Cop/InjectEnterpriseEditionModule
 
-      OVERRIDES = { snippets: :project_snippets,
-                    ci_pipelines: 'Ci::Pipeline',
-                    pipelines: 'Ci::Pipeline',
-                    stages: 'Ci::Stage',
-                    statuses: 'commit_status',
-                    triggers: 'Ci::Trigger',
-                    pipeline_schedules: 'Ci::PipelineSchedule',
-                    builds: 'Ci::Build',
-                    runners: 'Ci::Runner',
-                    hooks: 'ProjectHook',
-                    merge_access_levels: 'ProtectedBranch::MergeAccessLevel',
-                    push_access_levels: 'ProtectedBranch::PushAccessLevel',
-                    create_access_levels: 'ProtectedTag::CreateAccessLevel',
-                    labels: :project_labels,
-                    priorities: :label_priorities,
-                    auto_devops: :project_auto_devops,
-                    label: :project_label,
-                    custom_attributes: 'ProjectCustomAttribute',
-                    project_badges: 'Badge',
-                    metrics: 'MergeRequest::Metrics',
-                    ci_cd_settings: 'ProjectCiCdSetting',
-                    error_tracking_setting: 'ErrorTracking::ProjectErrorTrackingSetting',
-                    links: 'Releases::Link',
-                    metrics_setting: 'ProjectMetricsSetting' }.freeze
-
       USER_REFERENCES = %w[author_id assignee_id updated_by_id merged_by_id latest_closed_by_id user_id created_by_id last_edited_by_id merge_user_id resolved_by_id closed_by_id owner_id].freeze
 
       PROJECT_REFERENCES = %w[project_id source_project_id target_project_id].freeze
 
-      BUILD_MODELS = %i[Ci::Build commit_status].freeze
-
       IMPORTED_OBJECT_MAX_RETRIES = 5.freeze
 
-      EXISTING_OBJECT_CHECK = %i[milestone milestones label labels project_label project_labels group_label group_labels project_feature merge_request ProjectCiCdSetting].freeze
+      EXISTING_OBJECT_CHECK = %w[Milestone Label ProjectLabel GroupLabel ProjectFeature MergeRequest ProjectCiCdSetting].freeze
 
-      TOKEN_RESET_MODELS = %i[Project Namespace Ci::Trigger Ci::Build Ci::Runner ProjectHook].freeze
+      TOKEN_RESET_MODELS = %w[Project Namespace Ci::Trigger Ci::Build Ci::Runner ProjectHook].freeze
 
       # This represents all relations that have unique key on `project_id`
-      UNIQUE_RELATIONS = %i[project_feature ProjectCiCdSetting].freeze
+      UNIQUE_RELATIONS = %w[ProjectFeature ProjectCiCdSetting].freeze
 
       def self.create(*args)
         new(*args).create
       end
 
-      def self.relation_class(relation_name)
-        # There are scenarios where the model is pluralized (e.g.
-        # MergeRequest::Metrics), and we don't want to force it to singular
-        # with #classify.
-        relation_name.to_s.classify.constantize
-      rescue NameError
-        relation_name.to_s.constantize
-      end
-
-      def initialize(relation_sym:, relation_hash:, members_mapper:, merge_requests_mapping:, user:, project:, excluded_keys: [])
-        @relation_name = self.class.overrides[relation_sym]&.to_sym || relation_sym
+      def initialize(relation_class:, relation_hash:, members_mapper:, merge_requests_mapping:, user:, project:, excluded_keys: [])
+        @relation_class = relation_class
         @relation_hash = relation_hash.except('noteable_id')
         @members_mapper = members_mapper
         @merge_requests_mapping = merge_requests_mapping
@@ -82,8 +46,6 @@ module Gitlab
       # the relation_hash, updating references with new object IDs, mapping users using
       # the "members_mapper" object, also updating notes if required.
       def create
-        return if unknown_service?
-
         # Do not import legacy triggers
         return if !Feature.enabled?(:use_legacy_pipeline_triggers, @project) && legacy_trigger?
 
@@ -103,17 +65,14 @@ module Gitlab
       private
 
       def setup_models
-        case @relation_name
-        when :merge_request_diff_files       then setup_diff
-        when :notes                          then setup_note
-        end
-
+        setup_diff if @relation_class == ::MergeRequestDiffFile
+        setup_note if @relation_class <= ::Note
         update_user_references
         update_project_references
         update_group_references
         remove_duplicate_assignees
 
-        if @relation_name == :'Ci::Pipeline'
+        if @relation_class == ::Ci::Pipeline
           update_merge_request_references
           setup_pipeline
         end
@@ -165,7 +124,7 @@ module Gitlab
       end
 
       def generate_imported_object
-        if BUILD_MODELS.include?(@relation_name)
+        if @relation_class <= CommitStatus
           @relation_hash.delete('trace') # old export files have trace
           @relation_hash.delete('token')
           @relation_hash.delete('commands')
@@ -174,7 +133,7 @@ module Gitlab
           @relation_hash.delete('artifacts_size')
 
           imported_object
-        elsif @relation_name == :merge_requests
+        elsif @relation_class <= MergeRequest
           MergeRequestParser.new(@project, @relation_hash.delete('diff_head_sha'), imported_object, @relation_hash).parse!
         else
           imported_object
@@ -195,7 +154,7 @@ module Gitlab
       end
 
       def update_group_references
-        return unless self.class.existing_object_check.include?(@relation_name)
+        return unless self.class.existing_object_check.include?(@relation_class.name)
         return unless @relation_hash['group_id']
 
         @relation_hash['group_id'] = @project.namespace_id
@@ -224,25 +183,21 @@ module Gitlab
       end
 
       def reset_tokens!
-        return unless Gitlab::ImportExport.reset_tokens? && TOKEN_RESET_MODELS.include?(@relation_name)
+        return unless Gitlab::ImportExport.reset_tokens? && TOKEN_RESET_MODELS.include?(@relation_class.name)
 
         # If we import/export a project to the same instance, tokens will have to be reset.
         # We also have to reset them to avoid issues when the gitlab secrets file cannot be copied across.
-        relation_class.attribute_names.select { |name| name.include?('token') }.each do |token|
+        @relation_class.attribute_names.select { |name| name.include?('token') }.each do |token|
           @relation_hash[token] = nil
         end
       end
 
       def remove_encrypted_attributes!
-        return unless relation_class.respond_to?(:encrypted_attributes) && relation_class.encrypted_attributes.any?
+        return unless @relation_class.respond_to?(:encrypted_attributes) && @relation_class.encrypted_attributes.any?
 
-        relation_class.encrypted_attributes.each_key do |key|
+        @relation_class.encrypted_attributes.each_key do |key|
           @relation_hash[key.to_s] = nil
         end
-      end
-
-      def relation_class
-        @relation_class ||= self.class.relation_class(@relation_name)
       end
 
       def imported_object
@@ -268,8 +223,9 @@ module Gitlab
       end
 
       def parsed_relation_hash
-        @parsed_relation_hash ||= Gitlab::ImportExport::AttributeCleaner.clean(relation_hash: @relation_hash,
-                                                                               relation_class: relation_class)
+        @parsed_relation_hash ||= Gitlab::ImportExport::AttributeCleaner.clean(
+          relation_hash: @relation_hash,
+          relation_class: @relation_class)
       end
 
       def setup_diff
@@ -288,7 +244,7 @@ module Gitlab
         # Only find existing records to avoid mapping tables such as milestones
         # Otherwise always create the record, skipping the extra SELECT clause.
         @existing_or_new_object ||= begin
-          if self.class.existing_object_check.include?(@relation_name)
+          if self.class.existing_object_check.include?(@relation_class.name)
             attribute_hash = attribute_hash_for(['events'])
 
             existing_object.assign_attributes(attribute_hash) if attribute_hash.any?
@@ -297,9 +253,9 @@ module Gitlab
           else
             # Because of single-type inheritance, we need to be careful to use the `type` field
             # See https://gitlab.com/gitlab-org/gitlab/issues/34860#note_235321497
-            inheritance_column = relation_class.try(:inheritance_column)
+            inheritance_column = @relation_class.try(:inheritance_column)
             inheritance_attributes = parsed_relation_hash.slice(inheritance_column)
-            object = relation_class.new(inheritance_attributes)
+            object = @relation_class.new(inheritance_attributes)
             object.assign_attributes(parsed_relation_hash)
             object
           end
@@ -317,33 +273,35 @@ module Gitlab
         @existing_object ||= find_or_create_object!
       end
 
-      def unknown_service?
-        @relation_name == :services && parsed_relation_hash['type'] &&
-          !Object.const_defined?(parsed_relation_hash['type'])
-      end
-
       def legacy_trigger?
-        @relation_name == :'Ci::Trigger' && @relation_hash['owner_id'].nil?
+        @relation_class == ::Ci::Trigger && @relation_hash['owner_id'].nil?
       end
 
       def find_or_create_object!
-        return relation_class.find_or_create_by(project_id: @project.id) if UNIQUE_RELATIONS.include?(@relation_name)
+        puts "#{@relation_class} => #{parsed_relation_hash}!!"
 
-        return find_or_create_merge_request! if @relation_name == :merge_request
+        if UNIQUE_RELATIONS.include?(@relation_class.name)
+          return @relation_class.find_or_create_by(project_id: @project.id)
+        end
+
+        return find_or_create_merge_request! if @relation_class <= ::MergeRequest
 
         # Can't use IDs as validation exists calling `group` or `project` attributes
         finder_hash = parsed_relation_hash.tap do |hash|
-          hash['group'] = @project.group if relation_class.attribute_method?('group_id')
-          hash['project'] = @project if relation_class.reflect_on_association(:project)
+          hash['group'] = @project.group if @relation_class.attribute_method?('group_id')
+          hash['project'] = @project if @relation_class.reflect_on_association(:project)
           hash.delete('project_id')
         end
 
-        GroupProjectObjectBuilder.build(relation_class, finder_hash)
+        GroupProjectObjectBuilder.build(@relation_class, finder_hash)
+      rescue => e
+        puts "FAIL: #{@relation_class}: #{@relation_hash}: #{finder_hash}"
+        raise e
       end
 
       def find_or_create_merge_request!
         @project.merge_requests.find_by(iid: parsed_relation_hash['iid']) ||
-          relation_class.new(parsed_relation_hash)
+          @relation_class.new(parsed_relation_hash)
       end
     end
   end

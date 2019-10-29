@@ -29,10 +29,16 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
 
         project_tree_restorer = described_class.new(user: @user, shared: @shared, project: @project)
 
-        expect(Gitlab::ImportExport::RelationFactory).to receive(:create).with(hash_including(excluded_keys: ['whatever'])).and_call_original.at_least(:once)
-        allow(project_tree_restorer).to receive(:excluded_keys_for_relation).and_return(['whatever'])
+        expect(Gitlab::ImportExport::RelationFactory).to receive(:create)
+          .with(hash_including(excluded_keys: ['whatever']))
+          .and_call_original
+          .at_least(:once)
+
+        allow(project_tree_restorer).to receive(:excluded_keys_for_relation)
+          .and_return(['whatever'])
 
         @restored_project_json = project_tree_restorer.restore
+        puts @restored_project_json
       end
     end
 

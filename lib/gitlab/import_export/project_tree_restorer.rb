@@ -85,14 +85,17 @@ module Gitlab
         # we do not care if we process array or hash
         data_hashes = [data_hashes] unless data_hashes.is_a?(Array)
 
+        # reflect object class
+        relation_class = reflect_association(Project, relation_key)
+
         # consume and remove objects from memory
         while data_hash = data_hashes.shift
-          process_project_relation_item!(relation_key, relation_definition, data_hash)
+          process_project_relation_item!(relation_class, relation_key, relation_definition, data_hash)
         end
       end
 
-      def process_project_relation_item!(relation_key, relation_definition, data_hash)
-        relation_object = build_relation(relation_key, relation_definition, data_hash)
+      def process_project_relation_item!(relation_class, relation_key, relation_definition, data_hash)
+        relation_object = build_relation(relation_class, relation_key, relation_definition, data_hash)
         return unless relation_object
         return if group_model?(relation_object)
 
@@ -154,33 +157,42 @@ module Gitlab
         @project_override_params ||= @project.import_data&.data&.fetch('override_params', nil) || {}
       end
 
-      def build_relations(relation_key, relation_definition, data_hashes)
+      def build_relations(relation_class, relation_key, relation_definition, data_hashes)
         data_hashes.map do |data_hash|
-          build_relation(relation_key, relation_definition, data_hash)
+          build_relation(relation_class, relation_key, relation_definition, data_hash)
         end.compact
       end
 
-      def build_relation(relation_key, relation_definition, data_hash)
+      def build_relation(relation_class, relation_key, relation_definition, data_hash)
+        # TODO: this should not happen, but possible!
+        return unless relation_class
+
         # TODO: This is hack to not create relation for the author
         # Rather make `RelationFactory#set_note_author` to take care of that
         return data_hash if relation_key == 'author'
 
+        # convert relation class to real STI class based on data attributes
+        relation_class = reflect_sti_class(relation_class, data_hash)
+
         # create relation objects recursively for all sub-objects
         relation_definition.each do |sub_relation_key, sub_relation_definition|
-          transform_sub_relations!(data_hash, sub_relation_key, sub_relation_definition)
+          sub_relation_class = reflect_association(relation_class, sub_relation_key)
+          transform_sub_relations!(data_hash, sub_relation_class, sub_relation_key, sub_relation_definition)
         end
 
         Gitlab::ImportExport::RelationFactory.create(
-          relation_sym: relation_key.to_sym,
+          relation_class: relation_class,
           relation_hash: data_hash,
           members_mapper: members_mapper,
           merge_requests_mapping: merge_requests_mapping,
           user: @user,
           project: @project,
           excluded_keys: excluded_keys_for_relation(relation_key))
+      rescue ActiveRecord::SubclassNotFound
+        # Handle unknown STI types
       end
 
-      def transform_sub_relations!(data_hash, sub_relation_key, sub_relation_definition)
+      def transform_sub_relations!(data_hash, sub_relation_class, sub_relation_key, sub_relation_definition)
         sub_data_hash = data_hash[sub_relation_key]
         return unless sub_data_hash
 
@@ -189,11 +201,13 @@ module Gitlab
         sub_data_hash =
           if sub_data_hash.is_a?(Array)
             build_relations(
+              sub_relation_class,
               sub_relation_key,
               sub_relation_definition,
               sub_data_hash).presence
           else
             build_relation(
+              sub_relation_class,
               sub_relation_key,
               sub_relation_definition,
               sub_data_hash)
@@ -204,6 +218,38 @@ module Gitlab
           data_hash[sub_relation_key] = sub_data_hash
         else
           data_hash.delete(sub_relation_key)
+        end
+      end
+
+      def reflect_association(klass, relation_key)
+        # This is hack for `Ci::Pipeline#notes=` that does
+        # not define proper Active Record relation
+        if klass == ::Ci::Pipeline && relation_key == 'notes'
+          return Note
+        end
+
+        reflection = klass.reflect_on_association(relation_key)
+        # TODO: do we ignore it?
+        raise ArgumentError, "#{klass} does not implement #{relation_key}" unless reflection
+
+        puts "#{klass} => #{relation_key} => #{reflection.klass}"
+        reflection.klass
+      end
+
+      def reflect_sti_class(klass, attributes)
+        inheritance_column = klass.try(:inheritance_column)
+        inheritance_type = attributes[inheritance_column.to_s]
+
+        # TODO:
+        # This is hack as we try to import GroupLabel,
+        # but it can be imported only as ProjectLabel
+        # in context of Project
+        inheritance_type = 'ProjectLabel' if inheritance_type == 'GroupLabel'
+
+        if inheritance_type
+          klass.new(inheritance_column => inheritance_type).class
+        else
+          klass
         end
       end
 
