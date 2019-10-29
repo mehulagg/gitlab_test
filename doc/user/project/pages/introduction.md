@@ -106,7 +106,7 @@ can access the website.
 
 ### Terminating Pages session
 
-If you want to log out from your pages website,
+If you want to log out from your Pages website,
 you can do so by revoking application access token for GitLab Pages.
 
 1. Navigate to your profile's **Settings > Applications**.
