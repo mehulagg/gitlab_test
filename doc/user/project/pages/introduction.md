@@ -111,7 +111,7 @@ you can do so by revoking application access token for GitLab Pages:
 
 1. Navigate to your profile's **Settings > Applications**.
 1. Find **Authorized applications** at the bottom of the page.
-1. Find **GitLab Pages** application and press the **Revoke** button.
+1. Find **GitLab Pages** and press the **Revoke** button.
 
 ## Unpublishing your Pages
 
