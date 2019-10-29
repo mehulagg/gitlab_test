@@ -3,9 +3,9 @@ services:
 
 stages:
   - check
+  - release
   - test
   - notify
-  - release
 
 variables:
   TEST_IMAGE: registry.gitlab.com/gitlab-org/gitlab-build-images:gitlab-qa
@@ -721,16 +721,17 @@ staging:
 
 release:
   stage: release
+  rules:
+    - if: '$GEM_HOST_API_KEY && $CI_COMMIT_REF_NAME == "master" && $CI_COMMIT_TAG'
+      when: on_success
+    - if: '$GEM_HOST_API_KEY && $CI_COMMIT_REF_NAME == "master" && $CI_PIPELINE_SOURCE != "schedule"'
+      when: manual
   script:
-    - mv $RUBYGEMS_GITLAB_QA_CREDENTIALS ~/.gem/credentials && chmod 0600 ~/.gem/credentials
     - bundle exec rake release
   artifacts:
     paths:
       - pkg/
     expire_in: 30 days
-  only:
-    refs:
-      - tags
 
 .notify_slack:
   image: alpine
