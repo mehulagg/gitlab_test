@@ -64,10 +64,6 @@ class Release < ApplicationRecord
     released_at.present? && released_at > Time.zone.now
   end
 
-  def self.max_number_to_display
-    MAX_NUMBER_TO_DISPLAY
-  end
-
   private
 
   def actual_sha
