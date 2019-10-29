@@ -534,6 +534,10 @@ export default {
           class="js-deploy-user-container float-none"
         />
       </span>
+
+      <div v-if="!hasLastDeploymentKey" class="commit-title table-mobile-content">
+        {{ s__('Environments|No deployments yet') }}
+      </div>
     </div>
 
     <div class="table-section d-none d-sm-none d-md-block" :class="tableSpacing.build" role="gridcell">
@@ -557,9 +561,6 @@ export default {
           :title="commitTitle"
           :author="commitAuthor"
         />
-      </div>
-      <div v-if="!hasLastDeploymentKey" class="commit-title table-mobile-content">
-        {{ s__('Environments|No deployments yet') }}
       </div>
     </div>
 
