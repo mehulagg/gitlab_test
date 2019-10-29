@@ -13,22 +13,8 @@ module QA
         end
 
         def pull
-          setup_insecure_registry
           super()
           shell %Q{docker image rm #{@image}}
-          clean_insecure_registry
-        end
-
-        private
-
-        def setup_insecure_registry
-          shell %Q{echo '{ "insecure-registries" : ["#{uri.host}:#{uri.port}"] }' > /etc/docker/daemon.json}
-          shell %q{service docker restart}
-        end
-
-        def clean_insecure_registry
-          shell %q{rm /etc/docker/daemon.json}
-          shell %q{service docker restart}
         end
       end
     end

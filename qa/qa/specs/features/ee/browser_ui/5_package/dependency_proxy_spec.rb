@@ -8,7 +8,7 @@ module QA
         Page::Main::Login.perform(&:sign_in_using_credentials)
 
         group = Resource::Group.fabricate_via_api!
-        Service::DockerRun::DependencyProxy.new(group).pull!
+        Service::DockerRun::DependencyProxy.new(group).pull
 
         group.visit!
 
