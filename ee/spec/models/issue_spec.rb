@@ -615,4 +615,37 @@ describe Issue do
   end
 
   it_behaves_like 'having health status'
+
+  describe ".weight_total_by_state" do
+    let_it_be(:group) { create(:group) }
+    let_it_be(:project) { create(:project, namespace: group) }
+    let_it_be(:subgroup) { create(:group, :private, parent: group)}
+    let_it_be(:subproject) { create(:project, namespace: subgroup) }
+    # open, public
+    let_it_be(:issue1) { create(:issue, project: project, weight: 1) }
+    let_it_be(:issue2) { create(:issue, project: project, weight: 1) }
+    # closed
+    let_it_be(:issue3) { create(:issue, project: project, weight: 1, state: :closed) }
+    let_it_be(:issue4) { create(:issue, project: project, weight: 1, state: :closed) }
+    # confidential
+    let_it_be(:issue5) { create(:issue, project: project, weight: 1, confidential: true) }
+    let_it_be(:issue6) { create(:issue, project: project, weight: 1, confidential: true) }
+    # in private subgroup
+    let_it_be(:issue7) { create(:issue, project: project, weight: 1) }
+    let_it_be(:issue8) { create(:issue, project: project, weight: 1) }
+    # subgroup, confidential
+    let_it_be(:issue9) { create(:issue, project: project, weight: 1, confidential: true) }
+    let_it_be(:issue10) { create(:issue, project: project, weight: 1, confidential: true) }
+    # nil weight doesn't break it
+    let_it_be(:issue1) { create(:issue, project: project, weight: 0) }
+    let_it_be(:issue2) { create(:issue, project: project, weight: nil) }
+
+    it 'sums all the weights, even confidential, or in private groups' do
+      opened_state_id = described_class.available_states[:opened]
+      closed_state_id = described_class.available_states[:closed]
+      expected_result = { opened_state_id => 8, closed_state_id => 2 }
+
+      expect(project.issues.weight_total_by_state).to eq expected_result
+    end
+  end
 end

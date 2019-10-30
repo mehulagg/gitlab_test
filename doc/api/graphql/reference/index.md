@@ -294,6 +294,7 @@ Represents an epic.
 | `closedAt` | Time | Timestamp of the epic's closure |
 | `createdAt` | Time | Timestamp of the epic's creation |
 | `descendantCounts` | EpicDescendantCount | Number of open and closed descendant epics and issues |
+| `descendantWeightSum` | EpicDescendantWeights | Total weight of open and closed descendant epic's issues |
 | `description` | String | Description of the epic |
 | `downvotes` | Int! | Number of downvotes the epic has received |
 | `dueDate` | Time | Due date of the epic |
@@ -333,6 +334,13 @@ Counts of descendent epics.
 | `closedIssues` | Int | Number of closed epic issues |
 | `openedEpics` | Int | Number of opened sub-epics |
 | `openedIssues` | Int | Number of opened epic issues |
+
+## EpicDescendantWeights
+
+| Name  | Type  | Description |
+| ---   |  ---- | ----------  |
+| `closedIssues` | Int | Total weight of completed (closed) issues in this epic, including epic descendants |
+| `openedIssues` | Int | Total weight of opened issues in this epic, including epic descendants |
 
 ## EpicIssue
 
