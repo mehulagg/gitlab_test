@@ -72,7 +72,7 @@ The API can be explored interactively using the [GraphiQL IDE](../index.md#graph
 | ---   |  ---- | ----------  |
 | `clientMutationId` | String | A unique identifier for the client performing the mutation. |
 | `errors` | String! => Array | Reasons why the mutation failed. |
-| `epic` | Epic | The epic created |
+| `epic` | Epic | The created epic |
 
 ### CreateImageDiffNotePayload
 
