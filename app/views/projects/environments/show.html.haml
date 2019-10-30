@@ -38,6 +38,7 @@
     %p.align-self-end.prepend-left-8
       = s_('Environments|Auto stops in %{auto_stop_time}').html_safe % {auto_stop_time: time_ago_with_tooltip(@environment.auto_stop_at)}
   .nav-controls.ml-auto.my-2
+    = render 'projects/environments/pin_button', environment: @environment
     = render 'projects/environments/terminal_button', environment: @environment
     = render 'projects/environments/external_url', environment: @environment
     = render 'projects/environments/metrics_button', environment: @environment

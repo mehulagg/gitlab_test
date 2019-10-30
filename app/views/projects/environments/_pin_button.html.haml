@@ -1,0 +1,3 @@
+- if @environment.auto_stop_at?
+  = button_tag class: 'btn btn-secondary has-tooltip', title: _('Prevent environment from auto-stopping'), type: 'button' do
+    = sprite_icon('thumbtack')
