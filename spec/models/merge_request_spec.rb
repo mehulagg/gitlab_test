@@ -653,6 +653,57 @@ describe MergeRequest do
     end
   end
 
+  describe '#diff_head_sha' do
+    subject { merge_request.diff_head_sha }
+
+    let(:project) { create(:project, :repository) }
+    let(:expected_sha) { project.repository.commit('feature').sha }
+
+    context 'when merge request is persisted' do
+      let(:merge_request) do
+        create(:merge_request,
+          source_project: project,
+          target_project: project,
+          source_branch: 'feature',
+          target_branch: 'master')
+      end
+
+      it 'returns diff head sha via database' do
+        expect(merge_request.merge_request_diff).to receive(:head_commit_sha).at_least(:once).and_call_original
+
+        is_expected.to eq(expected_sha)
+      end
+
+      context 'when merge_request_diff association is not persisted' do
+        before do
+          allow(merge_request).to receive(:merge_request_diff) { nil }
+        end
+
+        it 'returns diff head sha via gitaly' do
+          expect(merge_request).to receive(:source_branch_head).at_least(:once).and_call_original
+
+          is_expected.to eq(expected_sha)
+        end
+      end
+    end
+
+    context 'when merge request is not persisted' do
+      let(:merge_request) do
+        build(:merge_request,
+          source_project: project,
+          target_project: project,
+          source_branch: 'feature',
+          target_branch: 'master')
+      end
+
+      it 'returns diff head sha via gitaly' do
+        expect(merge_request).to receive(:source_branch_head).at_least(:once).and_call_original
+
+        is_expected.to eq(expected_sha)
+      end
+    end
+  end
+
   describe '#note_positions_for_paths' do
     let(:merge_request) { create(:merge_request, :with_diffs) }
     let(:project) { merge_request.project }

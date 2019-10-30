@@ -1,0 +1,5 @@
+---
+title: Fix AutoMergeProcessWorker is retried by head_commit_sha is not found
+merge_request: 19337
+author:
+type: fixed

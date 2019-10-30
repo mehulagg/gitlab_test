@@ -562,7 +562,7 @@ class MergeRequest < ApplicationRecord
   end
 
   def diff_head_sha
-    if persisted?
+    if persisted? && merge_request_diff
       merge_request_diff.head_commit_sha
     else
       source_branch_head.try(:sha)
