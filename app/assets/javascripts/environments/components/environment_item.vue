@@ -118,7 +118,6 @@ export default {
      * @returns {Boolean|Undefined}
      */
     canShowAutoStopDate() {
-      // return (this.model && this.model.auto_stop_at) || true;
       return Boolean(this.model && this.model.auto_stop_at);
     },
 
@@ -131,8 +130,7 @@ export default {
       if (this.canShowAutoStopDate) {
         return timeagoInstance.format(this.model.auto_stop_at);
       }
-      // return '';
-      return timeagoInstance.format('2019-11-05T11:38:18.005Z');
+      return '';
     },
 
     /**
@@ -583,7 +581,7 @@ export default {
 
     <div v-if="!model.isFolder" class="table-section" :class="tableSpacing.autoStop" role="gridcell">
       <div role="rowheader" class="table-mobile-header">{{ s__('Environments|Auto-stop in') }}</div>
-      <span v-if="canShowAutoStopDate || true" class="environment-created-date-timeago table-mobile-content">
+      <span v-if="canShowAutoStopDate" class="environment-created-date-timeago table-mobile-content">
         {{ autoStopDate }}
       </span>
     </div>
@@ -596,7 +594,7 @@ export default {
     >
       <div class="btn-group table-action-buttons" role="group">
         <pin-component
-          v-if="canShowAutoStopDate || true"
+          v-if="canShowAutoStopDate"
           :auto-stop-path="autoStopUrl"/>
 
         <external-url-component
