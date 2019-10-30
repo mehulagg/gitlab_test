@@ -19,9 +19,10 @@ when we make a change - no matter the size of the change.
 
 ## How-to
 
-- Check if there is an [open merge request to bump the version] (to avoid creating a duplicate).
+- Check if there is an [open merge request to bump the version](https://gitlab.com/gitlab-org/gitlab-qa/merge_requests?scope=all&utf8=%E2%9C%93&state=opened&search=bump+version) (to avoid creating a duplicate).
   - If there is one, update it if necessary.
-  - If not, update [`lib/gitlab/qa/version.rb`] to an appropriate [semantic version](https://semver.org) in a new merge request using the [release template](https://gitlab.com/gitlab-org/gitlab-qa/blob/master/.gitlab/merge_request_templates/Release.md).
+  - If not, update [`lib/gitlab/qa/version.rb`] to an appropriate [semantic version](https://semver.org) in a new merge request using the [release template](https://gitlab.com/gitlab-org/gitlab-qa/blob/master/.gitlab/merge_request_templates/Release.md)
+    and title the MR like `"Bump version to <version>"`.
 - Merge the merge request.
 - Create a new tag via the UI (https://gitlab.com/gitlab-org/gitlab-qa/-/tags/new).
   * **Tag name**: The same version found in [`lib/gitlab/qa/version.rb`], prefixed with `v`, e.g. if the version is `4.7.1`, the tag would be `v4.7.1`.
@@ -32,4 +33,3 @@ when we make a change - no matter the size of the change.
 GitLab will then start a pipeline for this new tag, and the `release` job will build and push the new version of `gitlab-qa` to RubyGems.
 
 [`lib/gitlab/qa/version.rb`]: https://gitlab.com/gitlab-org/gitlab-qa/blob/master/lib/gitlab/qa/version.rb#L3
-[open merge request to bump the version]: https://gitlab.com/gitlab-org/gitlab-qa/merge_requests?scope=all&utf8=%E2%9C%93&state=opened&search=bump+version
