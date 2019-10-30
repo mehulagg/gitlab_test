@@ -32,5 +32,4 @@ when we make a change - no matter the size of the change.
 GitLab will then start a pipeline for this new tag, and the `release` job will build and push the new version of `gitlab-qa` to RubyGems.
 
 [`lib/gitlab/qa/version.rb`]: https://gitlab.com/gitlab-org/gitlab-qa/blob/master/lib/gitlab/qa/version.rb#L3
-[release template]: https://gitlab.com/gitlab-org/gitlab-qa/blob/master/.gitlab/merge_request_templates/Release.md
 [open merge request to bump the version]: https://gitlab.com/gitlab-org/gitlab-qa/merge_requests?scope=all&utf8=%E2%9C%93&state=opened&search=bump+version
