@@ -1,3 +1,5 @@
+image: ruby:2.6
+
 services:
  - docker:1.13-dind
 
@@ -14,8 +16,14 @@ variables:
   QA_ARTIFACTS_DIR: $CI_PROJECT_DIR
   QA_CAN_TEST_GIT_PROTOCOL_V2: 'false'
 
+cache:
+  key: "ruby:2.6"
+  paths:
+    - vendor/ruby
+
 before_script:
-  - bundle install
+  - bundle version
+  - bundle install --clean --jobs=$(nproc) --path=vendor --retry=3 --quiet && bundle check
   - if [ -n "$TRIGGERED_USER" ] && [ -n "$TRIGGER_SOURCE" ]; then
       echo "Pipeline triggered by $TRIGGERED_USER at $TRIGGER_SOURCE";
     fi
@@ -722,11 +730,15 @@ staging:
 release:
   stage: release
   rules:
-    - if: '$GEM_HOST_API_KEY && $CI_COMMIT_REF_NAME == "master" && $CI_COMMIT_TAG'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "pipeline" || $CI_COMMIT_REF_NAME != "master"'
+      when: never
+    - if: '$CI_COMMIT_TAG'
       when: on_success
-    - if: '$GEM_HOST_API_KEY && $CI_COMMIT_REF_NAME == "master" && $CI_PIPELINE_SOURCE != "schedule"'
-      when: manual
+    - when: manual
   script:
+    - gem update --system
+    - ruby --version
+    - gem env version
     - bundle exec rake release
   artifacts:
     paths:
