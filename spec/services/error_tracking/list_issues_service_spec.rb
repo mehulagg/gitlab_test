@@ -16,13 +16,10 @@ describe ErrorTracking::ListIssuesService do
 
   let(:sentry_url) { 'https://sentrytest.gitlab.com/api/0/projects/sentry-org/sentry-project' }
   let(:token) { 'test-token' }
-  let(:result) { subject.execute }
 
   let(:error_tracking_setting) do
     create(:project_error_tracking_setting, api_url: sentry_url, token: token, project: project)
   end
-
-  subject { described_class.new(project, user, params) }
 
   before do
     expect(project).to receive(:error_tracking_setting).at_least(:once).and_return(error_tracking_setting)
@@ -31,6 +28,8 @@ describe ErrorTracking::ListIssuesService do
   end
 
   describe '#execute' do
+    subject(:result) { described_class.new(project, user, params).execute }
+
     context 'with authorized user' do
       context 'when list_sentry_issues returns issues' do
         let(:issues) { [:list, :of, :issues] }
@@ -105,11 +104,9 @@ describe ErrorTracking::ListIssuesService do
     context 'with unauthorized user' do
       let(:unauthorized_user) { create(:user) }
 
-      subject { described_class.new(project, unauthorized_user) }
+      subject(:result) { described_class.new(project, unauthorized_user).execute }
 
       it 'returns error' do
-        result = subject.execute
-
         expect(result).to include(
           status: :error,
           message: 'Access denied',
@@ -124,8 +121,6 @@ describe ErrorTracking::ListIssuesService do
       end
 
       it 'raises error' do
-        result = subject.execute
-
         expect(result).to include(status: :error, message: 'Error Tracking is not enabled')
       end
     end
@@ -134,10 +129,12 @@ describe ErrorTracking::ListIssuesService do
   describe '#sentry_external_url' do
     let(:external_url) { 'https://sentrytest.gitlab.com/sentry-org/sentry-project' }
 
+    subject { described_class.new(project, user, params).external_url }
+
     it 'calls ErrorTracking::ProjectErrorTrackingSetting' do
       expect(error_tracking_setting).to receive(:sentry_external_url).and_call_original
 
-      subject.external_url
+      subject
     end
   end
 end
