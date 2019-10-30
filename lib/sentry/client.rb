@@ -12,8 +12,12 @@ module Sentry
       @token = token
     end
 
-    def list_issues(issue_status:, limit:)
-      issues = get_issues(issue_status: issue_status, limit: limit)
+    def list_issues(issue_status:, limit:, search_term: '')
+      issues = get_issues(
+        issue_status: issue_status,
+        limit: limit,
+        search_term: search_term
+      )
 
       handle_mapping_exceptions do
         map_to_errors(issues)
@@ -54,9 +58,12 @@ module Sentry
       handle_response(response)
     end
 
-    def get_issues(issue_status:, limit:)
+    def get_issues(issue_status:, limit:, search_term: '')
+      query = "is:#{issue_status}"
+      query = "#{query} #{search_term}" if search_term.present?
+
       http_get(issues_api_url, query: {
-        query: "is:#{issue_status}",
+        query: query,
         limit: limit
       })
     end
