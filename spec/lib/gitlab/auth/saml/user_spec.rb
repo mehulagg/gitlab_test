@@ -403,7 +403,7 @@ describe Gitlab::Auth::Saml::User do
     end
   end
 
-  describe '#bypass_two_factor?' do
+  describe '#bypass_two_factor?', :reset_rails_routes do
     let(:saml_config) { mock_saml_config_with_upstream_two_factor_authn_contexts }
 
     subject { saml_user.bypass_two_factor? }

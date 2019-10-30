@@ -28,7 +28,7 @@ describe 'No Password Alert' do
     end
   end
 
-  context 'with internal auth disabled' do
+  context 'with internal auth disabled', :reset_rails_routes do
     let(:user) { create(:omniauth_user, extern_uid: 'my-uid', provider: 'saml') }
 
     before do

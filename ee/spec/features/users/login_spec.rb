@@ -18,7 +18,7 @@ describe 'Login' do
       .to change { SecurityEvent.where(entity_id: -1).count }.from(0).to(1)
   end
 
-  it 'creates a security event for an invalid OAuth login' do
+  it 'creates a security event for an invalid OAuth login', :reset_rails_routes do
     stub_omniauth_saml_config(
       enabled: true,
       auto_link_saml_user: false,

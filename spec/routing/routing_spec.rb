@@ -278,17 +278,13 @@ describe "Authentication", "routing" do
     expect(put("/users/password")).to route_to('passwords#update')
   end
 
-  context 'with LDAP configured' do
+  context 'with LDAP configured', :reset_rails_routes do
     include LdapHelpers
 
     let(:ldap_settings) { { enabled: true } }
 
     before do
       stub_ldap_setting(ldap_settings)
-      Rails.application.reload_routes!
-    end
-
-    after(:all) do
       Rails.application.reload_routes!
     end
 

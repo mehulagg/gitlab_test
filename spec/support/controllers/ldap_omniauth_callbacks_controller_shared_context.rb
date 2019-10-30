@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-shared_context 'Ldap::OmniauthCallbacksController' do
+shared_context 'Ldap::OmniauthCallbacksController', :reset_rails_routes do
   include LoginHelpers
   include LdapHelpers
 
@@ -37,9 +37,5 @@ shared_context 'Ldap::OmniauthCallbacksController' do
 
   after do
     Rails.application.env_config['omniauth.auth'] = @original_env_config_omniauth_auth
-  end
-
-  after(:all) do
-    Rails.application.reload_routes!
   end
 end

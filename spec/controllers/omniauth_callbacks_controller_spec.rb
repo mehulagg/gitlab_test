@@ -268,7 +268,7 @@ describe OmniauthCallbacksController, type: :controller do
     end
   end
 
-  describe '#saml' do
+  describe '#saml', :reset_rails_routes do
     let(:last_request_id) { 'ONELOGIN_4fee3b046395c4e751011e97f8900b5273d56685' }
     let(:user) { create(:omniauth_user, :two_factor, extern_uid: 'my-uid', provider: 'saml') }
     let(:mock_saml_response) { File.read('spec/fixtures/authentication/saml_response.xml') }

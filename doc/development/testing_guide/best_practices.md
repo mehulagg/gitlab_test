@@ -446,6 +446,14 @@ for modifications. If you have no other choice, an `around` block similar to the
 example for global variables, above, can be used, but this should be avoided if
 at all possible.
 
+#### Rails routes
+
+Changes to Rails routes are persisted between tests, so care must be taken to reset them to avoid undefined behaviour for later tests.
+
+For example, Rails routes will be modified during test runs when calling `Rails.application.reload_routes!`, `routes.formatter`, or `routes.draw`.
+
+Setting the `:reset_rails_routes` Rspec tag will ensure that routes are returned to their original state.
+
 ### Table-based / Parameterized tests
 
 This style of testing is used to exercise one piece of code with a comprehensive

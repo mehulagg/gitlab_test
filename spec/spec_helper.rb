@@ -307,6 +307,10 @@ RSpec.configure do |config|
     Gitlab::CurrentSettings.clear_in_memory_application_settings!
   end
 
+  config.after(:all, :reset_rails_routes) do
+    Rails.application.reload_routes!
+  end
+
   # This makes sure the `ApplicationController#can?` method is stubbed with the
   # original implementation for all view specs.
   config.before(:each, type: :view) do

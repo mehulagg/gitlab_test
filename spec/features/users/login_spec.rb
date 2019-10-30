@@ -300,7 +300,7 @@ describe 'Login' do
       end
     end
 
-    context 'when logging in via OAuth' do
+    context 'when logging in via OAuth', :reset_rails_routes do
       let(:user) { create(:omniauth_user, :two_factor, extern_uid: 'my-uid', provider: 'saml')}
       let(:mock_saml_response) do
         File.read('spec/fixtures/authentication/saml_response.xml')
@@ -763,7 +763,7 @@ describe 'Login' do
       end
     end
 
-    context 'when the user does not have an email configured' do
+    context 'when the user does not have an email configured', :reset_rails_routes do
       let(:user) { create(:omniauth_user, extern_uid: 'my-uid', provider: 'saml', email: 'temp-email-for-oauth-user@gitlab.localhost') }
 
       before do
