@@ -72,4 +72,26 @@ describe Gitlab::RepositorySetCache, :clean_gitlab_redis_cache do
       expect(cache.include?(:foo, 'bar')).to be(false)
     end
   end
+
+  context 'large sets' do
+    let(:set_size) { 20_000 }
+    let(:large_set) { (1..set_size).map { |i| "tag-#{i}" }.to_set }
+
+    before do
+      cache.write(:foo, large_set)
+    end
+
+    after do
+      cache.expire(:foo)
+    end
+
+    it 'handles very large sets' do
+      expect(cache.include?(:foo, 'tag-20000')).to be(true)
+      expect(cache.include?(:foo, 'tag-DNE')).to be(false)
+    end
+
+    it 'returns all values for large sets' do
+      expect(cache.read(:foo).to_set).to eq(large_set)
+    end
+  end
 end

@@ -25,6 +25,11 @@ module Gitlab
     end
 
     def read(key)
+      # TODO: This SMEMEMBERS call to Redis on GitLab.com, with very large sets (20k+), leads to
+      # Redis performance degradations and slowlog reports. We should consider improving this.
+      # Previously, SSCAN was tried, but this also experienced very poor performance on large sets
+      # due to the number of roundtrips required to fetch the full set.
+      # https://gitlab.com/gitlab-org/gitlab/issues/37041
       with { |redis| redis.smembers(cache_key(key)) }
     end
 
@@ -47,11 +52,10 @@ module Gitlab
     end
 
     def fetch(key, &block)
-      if exist?(key)
-        read(key)
-      else
-        write(key, yield)
-      end
+      result = read(key)
+      return result unless result.empty?
+
+      write(key, yield)
     end
 
     def include?(key, value)
