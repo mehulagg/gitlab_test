@@ -8,12 +8,13 @@ import UserAvatarLink from '~/vue_shared/components/user_avatar/user_avatar_link
 import Icon from '~/vue_shared/components/icon.vue';
 import environmentItemMixin from 'ee_else_ce/environments/mixins/environment_item_mixin';
 import ActionsComponent from './environment_actions.vue';
-import ExternalUrlComponent from './environment_external_url.vue';
-import StopComponent from './environment_stop.vue';
-import RollbackComponent from './environment_rollback.vue';
-import TerminalButtonComponent from './environment_terminal_button.vue';
-import MonitoringButtonComponent from './environment_monitoring.vue';
 import CommitComponent from '../../vue_shared/components/commit.vue';
+import ExternalUrlComponent from './environment_external_url.vue';
+import MonitoringButtonComponent from './environment_monitoring.vue';
+import PinComponent from './environment_pin.vue';
+import RollbackComponent from './environment_rollback.vue';
+import StopComponent from './environment_stop.vue';
+import TerminalButtonComponent from './environment_terminal_button.vue';
 import eventHub from '../event_hub';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 
@@ -26,15 +27,16 @@ const timeagoInstance = new Timeago();
 
 export default {
   components: {
-    UserAvatarLink,
-    CommitComponent,
-    Icon,
     ActionsComponent,
+    CommitComponent,
     ExternalUrlComponent,
-    StopComponent,
-    RollbackComponent,
-    TerminalButtonComponent,
+    Icon,
     MonitoringButtonComponent,
+    PinComponent,
+    RollbackComponent,
+    StopComponent,
+    TerminalButtonComponent,
+    UserAvatarLink,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -443,6 +445,14 @@ export default {
       return '';
     },
 
+    autoStopUrl() {
+      if (this.model && this.model.cancel_auto_stop_path) {
+        return this.model.cancel_auto_stop_path;
+      }
+
+      return '';
+    },
+
     displayEnvironmentActions() {
       return (
         this.actions.length > 0 ||
@@ -585,6 +595,10 @@ export default {
       role="gridcell"
     >
       <div class="btn-group table-action-buttons" role="group">
+        <pin-component
+          v-if="canShowAutoStopDate || true"
+          :auto-stop-path="autoStopUrl"/>
+
         <external-url-component
           v-if="externalURL && canReadEnvironment"
           :external-url="externalURL"
