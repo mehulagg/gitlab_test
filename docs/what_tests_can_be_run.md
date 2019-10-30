@@ -74,6 +74,7 @@ For more details on the internals, please read the
 * `GITLAB_QA_1P_PASSWORD` - Password for authenticating into 1Password.
 * `GITLAB_QA_1P_SECRET` - Secret for authenticating into 1Password.
 * `GITLAB_QA_1P_GITHUB_UUID` - UUID for GitHub item in GitLab-QA 1Password vault.
+* `GITLAB_QA_LOOP_RUNNER_MINUTES` - Minutes to run and repeat a spec while using the '--loop' option; default value is 1 minute.
 
 ## [Supported Remote Grid environment variables](./running_against_remote_grid.md)
 
