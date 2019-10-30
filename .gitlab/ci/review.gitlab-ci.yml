@@ -14,6 +14,33 @@
     DOCKER_HOST: tcp://docker:2375
     GITLAB_EDITION: "ce"
 
+build-gems-bundle-image:
+  extends:
+    - .default-tags
+    - .default-retry
+    - .default-cache
+    - .default-only
+    - .only:changes-code-qa
+    - .except:refs-deploy
+  image: registry.gitlab.com/gitlab-org/gitlab-build-images:ruby-2.6.3-git-2.22-chrome-73.0-node-12.x-yarn-1.16-graphicsmagick-1.3.33-docker-18.06.1
+  services:
+    - docker:19.03.0-dind
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375
+  tags:
+    - gitlab-org
+    - docker
+  stage: prepare
+  before_script:
+    - bundle install --clean --deployment --without development test mysql aws kerberos --jobs=$(nproc) --path=vendor --retry=3 --quiet
+    - bundle check
+    - RUBY_VERSION=$(ruby -v | cut -d' ' -f2)
+    - GEMFILE_LOCK_HASH=$(openssl dgst -md5 Gemfile.lock | cut -d' ' -f2)
+    - export GITLAB_GEMS_BUNDLE_TAG="${RUBY_VERSION}-${GEMFILE_LOCK_HASH}"
+  script:
+    - time scripts/build-gems-bundle-image
+
 build-qa-image:
   extends:
     - .review-docker
@@ -61,12 +88,15 @@ manual:review-cleanup:
     - .default-tags
     - .default-retry
     - .default-only
-  image: ruby:2.6-alpine
+  image: ruby:2.6.3-alpine
   stage: review-prepare
   before_script:
     - source scripts/utils.sh
     - install_api_client_dependencies_with_apk
     - install_gitlab_gem
+    - RUBY_VERSION=$(ruby -v | cut -d' ' -f2)
+    - GEMFILE_LOCK_HASH=$(openssl dgst -md5 Gemfile.lock | cut -d' ' -f2)
+    - export GITLAB_GEMS_BUNDLE_TAG="${RUBY_VERSION}-${GEMFILE_LOCK_HASH}"
   dependencies: []
   script:
     - BUILD_TRIGGER_TOKEN=$REVIEW_APPS_BUILD_TRIGGER_TOKEN ./scripts/trigger-build cng
@@ -76,13 +106,13 @@ review-build-cng:
     - .review-build-cng-base
     - .only-review
     - .only:changes-code-qa
-  needs: ["gitlab:assets:compile pull-cache"]
+  needs: ["build-gems-bundle-image", "gitlab:assets:compile pull-cache"]
 
 schedule:review-build-cng:
   extends:
     - .review-build-cng-base
     - .only-review-schedules
-  needs: ["gitlab:assets:compile pull-cache"]
+  needs: ["build-gems-bundle-image", "gitlab:assets:compile pull-cache"]
 
 .review-workflow-base:
   extends:
@@ -280,7 +310,7 @@ parallel-spec-reports:
     - .default-only
     - .only-review
     - .only:changes-code-qa
-  image: ruby:2.6-alpine
+  image: ruby:2.6.3-alpine
   stage: post-test
   dependencies: ["review-qa-all"]
   variables:

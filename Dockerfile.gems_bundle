@@ -1,0 +1,4 @@
+# Simple container to store assets for later use
+FROM scratch
+ADD vendor/bundle /gems-bundle/
+CMD /bin/true
