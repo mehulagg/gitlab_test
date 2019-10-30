@@ -1,7 +1,7 @@
 <script>
 /* eslint-disable @gitlab/vue-i18n/no-bare-strings */
 import { __, sprintf } from '~/locale';
-import Timeago from 'timeago.js';
+import timeagoMixin from '~/vue_shared/mixins/timeago';
 import _ from 'underscore';
 import { GlTooltipDirective } from '@gitlab/ui';
 import UserAvatarLink from '~/vue_shared/components/user_avatar/user_avatar_link.vue';
@@ -23,7 +23,6 @@ import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
  *
  * Renders a table row for each environment.
  */
-const timeagoInstance = new Timeago();
 
 export default {
   components: {
@@ -41,7 +40,7 @@ export default {
   directives: {
     GlTooltip: GlTooltipDirective,
   },
-  mixins: [environmentItemMixin],
+  mixins: [environmentItemMixin, timeagoMixin],
 
   props: {
     canReadEnvironment: {
@@ -128,9 +127,15 @@ export default {
      */
     autoStopDate() {
       if (this.canShowAutoStopDate) {
-        return timeagoInstance.format(this.model.auto_stop_at);
+        return {
+          formatted: this.timeFormated(this.model.auto_stop_at),
+          tooltip: this.tooltipTitle(this.model.auto_stop_at)
+        };
       }
-      return '';
+      return {
+        formatted: '',
+        tooltip: '',
+      };
     },
 
     /**
@@ -149,9 +154,15 @@ export default {
      */
     deployedDate() {
       if (this.canShowDeploymentDate) {
-        return timeagoInstance.format(this.model.last_deployment.deployed_at);
+        return {
+          formatted: this.timeFormated(this.model.last_deployment.deployed_at),
+          tooltip: this.tooltipTitle(this.model.last_deployment.deployed_at)
+        };
       }
-      return '';
+      return {
+        formatted: '',
+        tooltip: '',
+      };
     },
 
     actions() {
@@ -574,15 +585,25 @@ export default {
 
     <div v-if="!model.isFolder" class="table-section" :class="tableSpacing.date" role="gridcell">
       <div role="rowheader" class="table-mobile-header">{{ s__('Environments|Updated') }}</div>
-      <span v-if="canShowDeploymentDate" class="environment-created-date-timeago table-mobile-content">
-        {{ deployedDate }}
+      <span
+        v-if="canShowDeploymentDate"
+        v-gl-tooltip
+        :title="deployedDate.tooltip"
+        class="environment-created-date-timeago table-mobile-content"
+      >
+        {{ deployedDate.formatted }}
       </span>
     </div>
 
     <div v-if="!model.isFolder" class="table-section" :class="tableSpacing.autoStop" role="gridcell">
       <div role="rowheader" class="table-mobile-header">{{ s__('Environments|Auto-stop in') }}</div>
-      <span v-if="canShowAutoStopDate" class="environment-created-date-timeago table-mobile-content">
-        {{ autoStopDate }}
+      <span
+        v-if="canShowAutoStopDate"
+        v-gl-tooltip
+        :title="autoStopDate.tooltip"
+        class="environment-created-date-timeago table-mobile-content"
+      >
+        {{ autoStopDate.formatted }}
       </span>
     </div>
 
