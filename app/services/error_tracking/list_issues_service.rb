@@ -4,13 +4,17 @@ module ErrorTracking
   class ListIssuesService < ::BaseService
     DEFAULT_ISSUE_STATUS = 'unresolved'
     DEFAULT_LIMIT = 20
+    DEFAULT_SEARCH_TERM = ''
 
     def execute
       return error('Error Tracking is not enabled') unless enabled?
       return error('Access denied', :unauthorized) unless can_read?
 
-      result = project_error_tracking_setting
-        .list_sentry_issues(issue_status: issue_status, limit: limit)
+      result = project_error_tracking_setting.list_sentry_issues(
+        issue_status: issue_status,
+        limit: limit,
+        search_term: search_term
+      )
 
       # our results are not yet ready
       unless result
@@ -49,6 +53,10 @@ module ErrorTracking
 
     def limit
       params[:limit] || DEFAULT_LIMIT
+    end
+
+    def search_term
+      params[:search_term].presence || DEFAULT_SEARCH_TERM
     end
 
     def enabled?

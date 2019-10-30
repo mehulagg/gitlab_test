@@ -5,6 +5,14 @@ require 'spec_helper'
 describe ErrorTracking::ListIssuesService do
   set(:user) { create(:user) }
   set(:project) { create(:project) }
+  let(:params) { { search_term: 'something' } }
+  let(:list_sentry_issues_args) do
+    {
+      issue_status: 'unresolved',
+      limit: 20,
+      search_term: params[:search_term]
+    }
+  end
 
   let(:sentry_url) { 'https://sentrytest.gitlab.com/api/0/projects/sentry-org/sentry-project' }
   let(:token) { 'test-token' }
@@ -14,7 +22,7 @@ describe ErrorTracking::ListIssuesService do
     create(:project_error_tracking_setting, api_url: sentry_url, token: token, project: project)
   end
 
-  subject { described_class.new(project, user) }
+  subject { described_class.new(project, user, params) }
 
   before do
     expect(project).to receive(:error_tracking_setting).at_least(:once).and_return(error_tracking_setting)
@@ -29,7 +37,9 @@ describe ErrorTracking::ListIssuesService do
 
         before do
           expect(error_tracking_setting)
-            .to receive(:list_sentry_issues).and_return(issues: issues)
+            .to receive(:list_sentry_issues)
+            .with(list_sentry_issues_args)
+            .and_return(issues: issues)
         end
 
         it 'returns the issues' do
@@ -40,7 +50,9 @@ describe ErrorTracking::ListIssuesService do
       context 'when list_sentry_issues returns nil' do
         before do
           expect(error_tracking_setting)
-            .to receive(:list_sentry_issues).and_return(nil)
+            .to receive(:list_sentry_issues)
+            .with(list_sentry_issues_args)
+            .and_return(nil)
         end
 
         it 'result is not ready' do
@@ -53,6 +65,7 @@ describe ErrorTracking::ListIssuesService do
         before do
           allow(error_tracking_setting)
             .to receive(:list_sentry_issues)
+            .with(list_sentry_issues_args)
             .and_return(
               error: 'Sentry response status code: 401',
               error_type: ErrorTracking::ProjectErrorTrackingSetting::SENTRY_API_ERROR_TYPE_NON_20X_RESPONSE
@@ -72,6 +85,7 @@ describe ErrorTracking::ListIssuesService do
         before do
           allow(error_tracking_setting)
             .to receive(:list_sentry_issues)
+            .with(list_sentry_issues_args)
             .and_return(
               error: 'Sentry API response is missing keys. key not found: "id"',
               error_type: ErrorTracking::ProjectErrorTrackingSetting::SENTRY_API_ERROR_TYPE_MISSING_KEYS
