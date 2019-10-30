@@ -241,6 +241,7 @@ The API can be explored interactively using the [GraphiQL IDE](../index.md#graph
 | `reference` | String! |  |
 | `subscribed` | Boolean! | Boolean flag for whether the currently logged in user is subscribed to this epic |
 | `descendantCounts` | EpicDescendantCount | Number of open and closed descendant epics and issues |
+| `descendantWeightSum` | EpicDescendantWeights | Total weight of open and closed descendant epic's issues |
 
 ### EpicDescendantCount
 
@@ -250,6 +251,13 @@ The API can be explored interactively using the [GraphiQL IDE](../index.md#graph
 | `closedEpics` | Int | Number of closed sub-epics |
 | `openedIssues` | Int | Number of opened epic issues |
 | `closedIssues` | Int | Number of closed epic issues |
+
+### EpicDescendantWeights
+
+| Name  | Type  | Description |
+| ---   |  ---- | ----------  |
+| `openedIssues` | Int | Total weight of opened issues in this epic, including epic descendants |
+| `closedIssues` | Int | Total weight of completed (closed) issues in this epic, including epic descendants |
 
 ### EpicIssue
 

@@ -18,6 +18,7 @@ module EE
       scope :order_weight_asc, -> { reorder ::Gitlab::Database.nulls_last_order('weight') }
       scope :order_created_at_desc, -> { reorder(created_at: :desc) }
       scope :service_desk, -> { where(author: ::User.support_bot) }
+      scope :weight_total_by_state, -> { reorder(nil).where('weight IS NOT NULL AND weight > 0').group(:state_id).sum(:weight) }
 
       scope :in_epics, ->(epics) do
         issue_ids = EpicIssue.where(epic_id: epics).select(:issue_id)

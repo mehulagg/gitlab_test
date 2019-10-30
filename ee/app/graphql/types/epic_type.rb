@@ -112,5 +112,11 @@ module Types
       resolve: -> (epic, args, ctx) do
         Epics::DescendantCountService.new(epic, ctx[:current_user])
       end
+
+    field :descendant_weight_sum, Types::EpicDescendantWeightSumType, null: true, complexity: 10,
+      description: "Total weight of open and closed descendant epic's issues",
+      resolve: -> (epic, args, ctx) do
+        Epics::DescendantWeightService.new(epic, ctx[:current_user])
+      end
   end
 end

@@ -548,4 +548,23 @@ describe Issue do
       it { is_expected.to eq(expected) }
     end
   end
+
+  describe ".weight_total_by_state" do
+    let_it_be(:group) { create(:group) }
+    let_it_be(:project) { create(:project, namespace: group) }
+    let_it_be(:issue1) { create(:issue, project: project, weight: 1) }
+    let_it_be(:issue2) { create(:issue, project: project, weight: 3) }
+    let_it_be(:issue3) { create(:issue, project: project, state: :closed, weight: 5) }
+    let_it_be(:issue4) { create(:issue, project: project, state: :closed, weight: 7) }
+    let_it_be(:issue5) { create(:issue, project: project, weight: nil) }
+    let_it_be(:issue6) { create(:issue, project: project, state: :closed, weight: nil) }
+
+    it 'sums the weights properly' do
+      opened_state_id = described_class.available_states[:opened]
+      closed_state_id = described_class.available_states[:closed]
+      expected_result = { opened_state_id => 4, closed_state_id => 12 }
+
+      expect(project.issues.weight_total_by_state).to eq expected_result
+    end
+  end
 end
