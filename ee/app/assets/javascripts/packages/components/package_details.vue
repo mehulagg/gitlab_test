@@ -18,7 +18,7 @@ import { __, s__, sprintf } from '~/locale';
 import PackageType from '../constants';
 
 export default {
-  name: 'PackagesApp',
+  name: 'PackageDetails',
   components: {
     GlButton,
     GlEmptyState,

@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import PackagesApp from './components/app.vue';
+import PackageDetails from './components/package_details.vue';
 import Translate from '~/vue_shared/translate';
 
 Vue.use(Translate);
@@ -8,7 +8,7 @@ export default () =>
   new Vue({
     el: '#js-vue-packages-detail',
     components: {
-      PackagesApp,
+      PackageDetails,
     },
     data() {
       const { dataset } = document.querySelector(this.$options.el);
@@ -25,7 +25,7 @@ export default () =>
       };
     },
     render(createElement) {
-      return createElement('packages-app', {
+      return createElement('package-details', {
         props: {
           packageEntity: this.packageData,
           files: this.packageFiles,

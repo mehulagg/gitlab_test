@@ -1,10 +1,10 @@
 import { mount } from '@vue/test-utils';
 import { GlModal } from '@gitlab/ui';
-import PackagesApp from 'ee/packages/components/app.vue';
+import PackageDetails from 'ee/packages/components/package_details.vue';
 import PackageInformation from 'ee/packages/components/information.vue';
 import { mavenPackage, mavenFiles, npmPackage, npmFiles } from '../mock_data';
 
-describe('PackagesApp', () => {
+describe('PackageDetails', () => {
   let wrapper;
 
   const defaultProps = {
@@ -21,7 +21,7 @@ describe('PackagesApp', () => {
       ...props,
     };
 
-    wrapper = mount(PackagesApp, {
+    wrapper = mount(PackageDetails, {
       propsData,
     });
   }
