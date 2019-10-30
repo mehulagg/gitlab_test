@@ -1761,10 +1761,10 @@ msgstr ""
 msgid "Appearance was successfully updated."
 msgstr ""
 
-msgid "Append the comment with %{TABLEFLIP}"
+msgid "Append the comment with %{shrug}"
 msgstr ""
 
-msgid "Append the comment with %{shrug}"
+msgid "Append the comment with %{tableflip}"
 msgstr ""
 
 msgid "Application"
@@ -2421,9 +2421,6 @@ msgstr ""
 msgid "BillingPlans|Learn more about each plan by reading our %{faq_link}, or start a free 30-day trial of GitLab.com Gold."
 msgstr ""
 
-msgid "BillingPlans|Learn more about each plan by reading our %{faq_link}."
-msgstr ""
-
 msgid "BillingPlans|Learn more about each plan by visiting our %{pricing_page_link}."
 msgstr ""
 
@@ -2442,16 +2439,13 @@ msgstr ""
 msgid "BillingPlans|To manage the plan for this group, visit the billing section of %{parent_billing_page_link}."
 msgstr ""
 
-msgid "BillingPlans|Your GitLab.com trial expired on %{expiration_date}. %{learn_more_text}"
+msgid "BillingPlans|Your GitLab.com Gold trial expired on %{expiration_date}. You can restore access to the Gold features at any time by upgrading below."
 msgstr ""
 
-msgid "BillingPlans|Your GitLab.com trial will <strong>expire after %{expiration_date}</strong>. You can learn more about GitLab.com Gold by reading about our %{features_link}."
+msgid "BillingPlans|Your GitLab.com Gold trial will <strong>expire after %{expiration_date}</strong>. You can retain access to the Gold features by upgrading below."
 msgstr ""
 
 msgid "BillingPlans|billed annually at %{price_per_year}"
-msgstr ""
-
-msgid "BillingPlans|features"
 msgstr ""
 
 msgid "BillingPlans|frequently asked questions"
@@ -4226,6 +4220,9 @@ msgstr ""
 msgid "Commits per weekday"
 msgstr ""
 
+msgid "Commits to"
+msgstr ""
+
 msgid "Commits|An error occurred while fetching merge requests data."
 msgstr ""
 
@@ -4508,18 +4505,6 @@ msgid "Contributions per group member"
 msgstr ""
 
 msgid "Contributors"
-msgstr ""
-
-msgid "ContributorsPage|%{startDate} – %{endDate}"
-msgstr ""
-
-msgid "ContributorsPage|Building repository graph."
-msgstr ""
-
-msgid "ContributorsPage|Commits to %{branch_name}, excluding merge commits. Limited to 6,000 commits."
-msgstr ""
-
-msgid "ContributorsPage|Please wait a moment, this page will automatically refresh when ready."
 msgstr ""
 
 msgid "Control emails linked to your account"
@@ -5751,6 +5736,9 @@ msgstr ""
 msgid "Dockerfile"
 msgstr ""
 
+msgid "Documentation"
+msgstr ""
+
 msgid "Documentation for popular identity providers"
 msgstr ""
 
@@ -6345,10 +6333,10 @@ msgstr ""
 msgid "Environments|This action will relaunch the job for commit %{linkStart}%{commitId}%{linkEnd}, putting the environment in a previous version. Are you sure you want to continue?"
 msgstr ""
 
-msgid "Environments|This action will run the job defined by %{name} for commit %{linkStart}%{commitId}%{linkEnd} putting the environment in a previous version. You can revert it by re-deploying the latest version of your application. Are you sure you want to continue?"
+msgid "Environments|This action will run the job defined by %{environment_name} for commit %{commit_id}, putting the environment in a previous version. You can revert it by re-deploying the latest version of your application. Are you sure you want to continue?"
 msgstr ""
 
-msgid "Environments|This action will run the job defined by staging for commit %{commit_id}, putting the environment in a previous version. You can revert it by re-deploying the latest version of your application. Are you sure you want to continue?"
+msgid "Environments|This action will run the job defined by %{name} for commit %{linkStart}%{commitId}%{linkEnd} putting the environment in a previous version. You can revert it by re-deploying the latest version of your application. Are you sure you want to continue?"
 msgstr ""
 
 msgid "Environments|Updated"
@@ -6463,9 +6451,6 @@ msgid "Error creating epic"
 msgstr ""
 
 msgid "Error deleting  %{issuableType}"
-msgstr ""
-
-msgid "Error fetching contributors data."
 msgstr ""
 
 msgid "Error fetching diverging counts for branches. Please try again."
@@ -6703,6 +6688,9 @@ msgid "Example: Usage = single query. (Requested) / (Capacity) = multiple querie
 msgstr ""
 
 msgid "Except policy:"
+msgstr ""
+
+msgid "Excluding merge commits. Limited to 6,000 commits."
 msgstr ""
 
 msgid "Existing"
@@ -8216,6 +8204,24 @@ msgstr ""
 msgid "Grafana URL"
 msgstr ""
 
+msgid "GrafanaIntegration|API Token"
+msgstr ""
+
+msgid "GrafanaIntegration|Embed Grafana charts in GitLab issues."
+msgstr ""
+
+msgid "GrafanaIntegration|Enter the Grafana API Token."
+msgstr ""
+
+msgid "GrafanaIntegration|Enter the base URL of the Grafana instance."
+msgstr ""
+
+msgid "GrafanaIntegration|Grafana Authentication"
+msgstr ""
+
+msgid "GrafanaIntegration|Grafana URL"
+msgstr ""
+
 msgid "Grant access"
 msgstr ""
 
@@ -8277,6 +8283,9 @@ msgid "Group maintainers can register group runners in the %{link}"
 msgstr ""
 
 msgid "Group name"
+msgstr ""
+
+msgid "Group overview"
 msgstr ""
 
 msgid "Group overview content"
@@ -8654,6 +8663,9 @@ msgstr[0] ""
 msgstr[1] ""
 
 msgid "Hide values"
+msgstr ""
+
+msgid "Hiding all labels"
 msgstr ""
 
 msgid "Highest number of requests per minute for each raw path, default to 300. To disable throttling set to 0."
@@ -10508,6 +10520,9 @@ msgstr ""
 msgid "Metrics|There was an error fetching the environments data, please try again"
 msgstr ""
 
+msgid "Metrics|There was an error fetching the logs, please try again"
+msgstr ""
+
 msgid "Metrics|There was an error getting deployment information."
 msgstr ""
 
@@ -11317,6 +11332,9 @@ msgid "Number of changes (branches or tags) in a single push to determine whethe
 msgstr ""
 
 msgid "Number of changes (branches or tags) in a single push to determine whether webhooks and services will be fired or not. Webhooks and services won't be submitted if it surpasses that value."
+msgstr ""
+
+msgid "Number of commits"
 msgstr ""
 
 msgid "Number of commits per MR"
@@ -12734,6 +12752,9 @@ msgstr ""
 msgid "Project name"
 msgstr ""
 
+msgid "Project overview"
+msgstr ""
+
 msgid "Project slug"
 msgstr ""
 
@@ -12912,6 +12933,9 @@ msgid "ProjectSettings|No merge commits are created"
 msgstr ""
 
 msgid "ProjectSettings|Only signed commits can be pushed to this repository."
+msgstr ""
+
+msgid "ProjectSettings|Pages"
 msgstr ""
 
 msgid "ProjectSettings|Pipelines must succeed"
@@ -14813,6 +14837,9 @@ msgstr ""
 msgid "Select user"
 msgstr ""
 
+msgid "Select your role"
+msgstr ""
+
 msgid "Selected levels cannot be used by non-admin users for groups, projects or snippets. If the public level is restricted, user profiles are only visible to logged in users."
 msgstr ""
 
@@ -15176,6 +15203,9 @@ msgid "Showing Version #%{versionNumber}"
 msgstr ""
 
 msgid "Showing all issues"
+msgstr ""
+
+msgid "Showing all labels"
 msgstr ""
 
 msgid "Showing last %{size} of log -"
@@ -15835,6 +15865,9 @@ msgstr ""
 msgid "StorageSize|Unknown"
 msgstr ""
 
+msgid "Subgroup overview"
+msgstr ""
+
 msgid "SubgroupCreationLevel|Allowed to create subgroups"
 msgstr ""
 
@@ -16402,6 +16435,9 @@ msgid "The group and any public projects can be viewed without any authenticatio
 msgstr ""
 
 msgid "The group and its projects can only be viewed by members."
+msgstr ""
+
+msgid "The group has already been shared with this group"
 msgstr ""
 
 msgid "The group settings for %{group_links} require you to enable Two-Factor Authentication for your account. You can %{leave_group_links}."
@@ -17332,7 +17368,7 @@ msgstr ""
 msgid "To preserve performance only <strong>%{display_size} of %{real_size}</strong> files are displayed."
 msgstr ""
 
-msgid "To protect this issue's confidentiality, %{link_start}fork the project%{link_end} and set the forks visiblity to private."
+msgid "To protect this issue's confidentiality, %{link_start}fork the project%{link_end} and set the forks visibility to private."
 msgstr ""
 
 msgid "To protect this issue's confidentiality, a private fork of this project was selected."
@@ -18894,6 +18930,9 @@ msgid "Wiki|Title"
 msgstr ""
 
 msgid "Will deploy to"
+msgstr ""
+
+msgid "With GitLab Pages you can host your static websites on GitLab"
 msgstr ""
 
 msgid "With contribution analytics you can have an overview for the activity of issues, merge requests and push events of your organization and its members."
@@ -20486,6 +20525,9 @@ msgid "syntax is correct"
 msgstr ""
 
 msgid "syntax is incorrect"
+msgstr ""
+
+msgid "tag name"
 msgstr ""
 
 msgid "this document"
