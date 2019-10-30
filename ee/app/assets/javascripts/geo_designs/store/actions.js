@@ -2,7 +2,6 @@ import * as types from './mutation_types';
 import createFlash from '~/flash';
 import { __ } from '~/locale';
 
-// import mockData from './mock_data';
 import axios from '~/lib/utils/axios_utils';
 
 export const setEndpoint = ({ commit }) => commit(types.SET_ENDPOINT);
@@ -19,18 +18,6 @@ export const receiveDesignsError = ({ commit }, error) => {
 
 export const fetchDesigns = ({ state, dispatch }) => {
   dispatch('requestDesigns');
-
-  /*
-  console.log(`Mocking call to ${state.endpoint}`);
-
-  new Promise(resolve => setTimeout(resolve, 3000))
-    .then(() => {
-      dispatch('receiveDesignsSuccess', mockData);
-    })
-    .catch(error => {
-      dispatch('receiveDesignsError', error);
-    });
-  */
 
   axios.get(state.endpoint)
     .then(({ data }) => dispatch('receiveDesignsSuccess', data))
