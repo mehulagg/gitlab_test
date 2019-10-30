@@ -20,8 +20,6 @@ import { downloadCSVOptions, generateLinkToChartOptions } from '../utils';
 export default {
   components: {
     MonitorSingleStatChart,
-    MonitorTimeSeriesChart,
-    MonitorAnomalyChart,
     MonitorEmptyChart,
     Icon,
     GlDropdown,
@@ -104,7 +102,6 @@ export default {
   <component
     :is="monitorChartComponent"
     v-else-if="graphDataHasMetrics"
-    ref="panel-type-chart"
     :graph-data="graphData"
     :deployment-data="deploymentData"
     :project-path="projectPath"

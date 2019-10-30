@@ -1,4 +1,3 @@
-import { __ } from '~/locale';
 import dateformat from 'dateformat';
 import { secondsIn, dateTimePickerRegex, dateFormats } from './constants';
 
@@ -146,43 +145,6 @@ export const graphDataValidatorForAnomalyValues = graphData => {
     graphData.queries.length === anomalySeriesCount &&
     graphDataValidatorForValues(false, graphData)
   );
-};
-
-/**
- * This function returns the earliest time value in all series of a chart.
- * @param {Object} chartData  chart data with data to populate a timeseries.
- * data should be an array of data points [t, y] where t is a ISO formatted date,
- * and is sorted by t (time).
- * @returns {(String|null)} earliest x value from all series, or null when the
- * chart series data is empty.
- */
-export const getEarliestDatapoint = chartData =>
-  chartData.reduce((acc, series) => {
-    const { data } = series;
-    const { length } = data;
-    if (!length) {
-      return acc;
-    }
-
-    const [first] = data[0];
-    const [last] = data[length - 1];
-    const seriesEarliest = first < last ? first : last;
-
-    return seriesEarliest < acc || acc === null ? seriesEarliest : acc;
-  }, null);
-
-export const makeTimeAxis = config => {
-  const defaults = {
-    name: __('Time'),
-    type: 'time',
-    axisLabel: {
-      formatter: date => dateformat(date, dateFormats.timeOfDay),
-    },
-    axisPointer: {
-      snap: true,
-    },
-  };
-  return { ...defaults, ...config };
 };
 
 export default {};

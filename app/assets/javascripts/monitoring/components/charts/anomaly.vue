@@ -59,32 +59,6 @@ export default {
       required: true,
       validator: graphDataValidatorForAnomalyValues,
     },
-    deploymentData: {
-      type: Array,
-      required: false,
-      default: () => [],
-    },
-    projectPath: {
-      type: String,
-      required: false,
-      default: '',
-    },
-    singleEmbed: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
-    thresholds: {
-      type: Array,
-      required: false,
-      default: () => [],
-    },
-  },
-  data() {
-    return {
-      areaColor: colorValues.anomalyAreaColor,
-      areaOpacity: areaOpacityValues.default,
-    };
   },
   computed: {
     series() {
@@ -233,9 +207,6 @@ export default {
     :graph-data="metricData"
     :option="chartOptions"
     :series-config="metricSeriesConfig"
-    :deployment-data="deploymentData"
-    :thresholds="thresholds"
-    :project-path="projectPath"
   >
     <slot></slot>
     <template v-slot:tooltipContent="slotProps">
