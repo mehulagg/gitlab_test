@@ -14,6 +14,11 @@ module API
       expose :web_url do |milestone, _options|
         Gitlab::UrlBuilder.build(milestone)
       end
+
+      expose :issue_stats do
+        expose :total_issues_count, as: :total
+        expose :closed_issues_count, as: :closed
+      end
     end
   end
 end
