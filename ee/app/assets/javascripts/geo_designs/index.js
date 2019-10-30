@@ -19,19 +19,9 @@ export default () => {
       geoDesignsApp,
     },
     data() {
-      const {
-        dataset: { geoDesignsPath },
-      } = this.$options.el;
-
-      return {
-        geoDesignsPath,
-      };
     },
     render(createElement) {
       return createElement('geo-designs-app', {
-        props: {
-          geoDesignsPath: this.geoDesignsPath,
-        },
       });
     },
   });

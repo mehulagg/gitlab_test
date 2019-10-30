@@ -1,7 +1,7 @@
 import { FILTER_STATES } from './constants';
 
 export default () => ({
-  endpoint: '',
+  endpoint: null,
 
   isLoading: false,
   error: null,

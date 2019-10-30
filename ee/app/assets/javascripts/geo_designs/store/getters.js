@@ -6,9 +6,9 @@ export const getDesignsByFilter = state => {
   if (activeFilter === 'all') {
     designsByStatus = state.designs;
   } else if (activeFilter === 'never') {
-    designsByStatus = state.designs.filter(design => !design.sync_status);
+    designsByStatus = state.designs.filter(design => !design.state);
   } else {
-    designsByStatus = state.designs.filter(design => design.sync_status === activeFilter);
+    designsByStatus = state.designs.filter(design => design.state === activeFilter);
   }
 
   return designsByStatus.filter(design => design.name.includes(state.searchFilter));

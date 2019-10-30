@@ -1,8 +1,9 @@
+import Api from 'ee/api';
 import * as types from './mutation_types';
 
 export default {
-  [types.SET_ENDPOINT](state, endpoint) {
-    state.endpoint = endpoint;
+  [types.SET_ENDPOINT](state) {
+    state.endpoint = Api.buildUrl(Api.geoDesignsPath);
   },
   [types.SET_FILTER](state, filterIndex) {
     state.currentFilterIndex = filterIndex;

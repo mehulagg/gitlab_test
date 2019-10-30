@@ -11,17 +11,11 @@ export default {
     GeoDesignsFilterBar,
     GeoDesigns,
   },
-  props: {
-    geoDesignsPath: {
-      type: String,
-      required: true,
-    },
-  },
   computed: {
     ...mapState(['isLoading']),
   },
   created() {
-    this.setEndpoint(this.geoDesignsPath);
+    this.setEndpoint();
     this.fetchDesigns();
   },
   methods: {

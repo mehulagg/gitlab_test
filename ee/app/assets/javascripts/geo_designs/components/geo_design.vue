@@ -22,10 +22,6 @@ export default {
       type: String,
       required: true,
     },
-    url: {
-      type: String,
-      required: true,
-    },
     syncStatus: {
       type: String,
       required: false,
@@ -53,7 +49,7 @@ export default {
 <template>
   <b-card no-body>
     <b-card-header class="d-flex align-center">
-      <gl-link class="font-weight-bold" :href="url" target="_blank">{{ name }}</gl-link>
+      <gl-link class="font-weight-bold" :href="`/${name}`" target="_blank">{{ name }}</gl-link>
       <div class="ml-auto">
         <gl-button>{{ __('Reverify') }}</gl-button>
         <gl-button>{{ __('Resync') }}</gl-button>
