@@ -21,7 +21,7 @@ when we make a change - no matter the size of the change.
 
 - Check if there is an [open merge request to bump the version] (to avoid creating a duplicate).
   - If there is one, update it if necessary.
-  - If not, update [`lib/gitlab/qa/version.rb`] to an appropriate [semantic version](https://semver.org) in a new merge request using the [release template].
+  - If not, update [`lib/gitlab/qa/version.rb`] to an appropriate [semantic version](https://semver.org) in a new merge request using the [release template](https://gitlab.com/gitlab-org/gitlab-qa/blob/master/.gitlab/merge_request_templates/Release.md).
 - Merge the merge request.
 - Create a new tag via the UI (https://gitlab.com/gitlab-org/gitlab-qa/-/tags/new).
   * **Tag name**: The same version found in [`lib/gitlab/qa/version.rb`], prefixed with `v`, e.g. if the version is `4.7.1`, the tag would be `v4.7.1`.
