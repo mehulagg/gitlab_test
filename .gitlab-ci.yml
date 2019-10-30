@@ -752,8 +752,7 @@ release:
     - apk update && apk add git curl bash
   only:
     variables:
-      - $TOP_UPSTREAM_SOURCE_JOB
-      - $NOTIFY_CHANNEL
+      - $TOP_UPSTREAM_SOURCE_JOB && $NOTIFY_CHANNEL
 
 notify_slack:
   extends:
