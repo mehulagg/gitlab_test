@@ -6,3 +6,9 @@ export const FILTER_STATES = {
   FAILED: 'failed',
   NEVER: 'never',
 };
+
+export const ACTION_TYPES = {
+  RESYNC: 'resync',
+  REVERIFY: 'reverify',
+  FORCE_REDOWNLOAD: 'force_redownload',
+};

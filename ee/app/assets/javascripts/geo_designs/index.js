@@ -18,8 +18,6 @@ export default () => {
     components: {
       geoDesignsApp,
     },
-    data() {
-    },
     render(createElement) {
       return createElement('geo-designs-app', {
       });

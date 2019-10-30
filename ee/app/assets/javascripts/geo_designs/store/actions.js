@@ -26,3 +26,22 @@ export const fetchDesigns = ({ state, dispatch }) => {
       createFlash(__('There was an error'))
     });
 };
+
+export const requestDesignsBatchAction = ({ commit }) => commit(types.REQUEST_DESIGNS_BATCH_ACTION);
+export const requestDesignsBatchActionSuccess = ({ commit }) =>
+  commit(types.REQUEST_DESIGNS_BATCH_ACTION_SUCCESS);
+export const requestDesignsBatchActionError = ({ commit }, error) => {
+  createFlash(__('There was an error'));
+  commit(types.REQUEST_DESIGNS_BATCH_ACTION_ERROR, error);
+};
+
+export const designsBatchAction = ({ state, dispatch }, action) => {
+  dispatch('requestDesignsBatchAction');
+
+  axios.post(`${state.endpoint}/${action}`, {})
+    .then(() => dispatch('requestDesignsBatchActionSuccess'))
+    .catch((error) => {
+      dispatch('requestDesignsBatchActionError', error)
+      createFlash(__('There was an error'))
+    });
+};

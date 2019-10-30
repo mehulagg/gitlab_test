@@ -22,4 +22,14 @@ export default {
     state.isLoading = false;
     state.error = error;
   },
+  [types.REQUEST_DESIGNS_BATCH_ACTION](state) {
+    state.isLoading = true;
+  },
+  [types.REQUEST_DESIGNS_BATCH_ACTION_SUCCESS](state) {
+    state.isLoading = false;
+  },
+  [types.REQUEST_DESIGNS_BATCH_ACTION_ERROR](state, error) {
+    state.isLoading = false;
+    state.error = error;
+  },
 };

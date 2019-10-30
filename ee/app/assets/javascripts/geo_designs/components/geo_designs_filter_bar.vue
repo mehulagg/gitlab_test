@@ -2,6 +2,7 @@
 import { GlTabs, GlTab, GlFormInput, GlDropdown, GlDropdownItem } from '@gitlab/ui';
 import Icon from '~/vue_shared/components/icon.vue';
 import { mapActions, mapState } from 'vuex';
+import { ACTION_TYPES } from '../store/constants'
 
 export default {
   name: 'GeoDesignsFilterBar',
@@ -12,6 +13,11 @@ export default {
     GlDropdown,
     GlDropdownItem,
     Icon,
+  },
+  data() {
+    return {
+      actionTypes: ACTION_TYPES
+    }
   },
   computed: {
     ...mapState(['currentFilterIndex', 'filterOptions', 'searchFilter']),
@@ -25,7 +31,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['setFilter', 'setSearch']),
+    ...mapActions(['setFilter', 'setSearch', 'designsBatchAction']),
   },
 };
 </script>
@@ -49,8 +55,8 @@ export default {
               <icon name="chevron-down" />
             </span>
           </template>
-          <gl-dropdown-item>{{ __('Resync all designs') }}</gl-dropdown-item>
-          <gl-dropdown-item>{{ __('Reverify all designs') }}</gl-dropdown-item>
+          <gl-dropdown-item @click="designsBatchAction(actionTypes.RESYNC)">{{ __('Resync all designs') }}</gl-dropdown-item>
+          <gl-dropdown-item @click="designsBatchAction(actionTypes.REVERIFY)">{{ __('Reverify all designs') }}</gl-dropdown-item>
         </gl-dropdown>
       </div>
     </template>
