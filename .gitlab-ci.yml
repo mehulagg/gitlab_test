@@ -730,19 +730,17 @@ staging:
 release:
   stage: release
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "pipeline" || $CI_COMMIT_REF_NAME != "master"'
-      when: never
     - if: '$CI_COMMIT_TAG'
       when: on_success
-    - when: manual
   script:
     - gem update --system
     - ruby --version
     - gem env version
-    - bundle exec rake release
+    - gem build gitlab-qa.gemspec
+    - gem push gitlab-qa*.gem
   artifacts:
     paths:
-      - pkg/
+      - gitlab-qa*.gem
     expire_in: 30 days
 
 .notify_slack:
