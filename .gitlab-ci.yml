@@ -1,5 +1,5 @@
 services:
- - docker:1.13-dind
+ - docker:19.03.0-dind
 
 stages:
   - check
