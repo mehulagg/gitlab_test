@@ -130,7 +130,7 @@ module ApplicationHelper
   #
   # Returns an HTML-safe String
   def time_ago_with_tooltip(time, placement: 'top', html_class: '', short_format: false)
-    css_classes = [short_format ? 'js-short-timeago' : 'js-timeago']
+    css_classes = [short_format ? 'js-short-timeago cursor-pointer' : 'js-timeago cursor-pointer']
     css_classes << html_class unless html_class.blank?
 
     element = content_tag :time, l(time, format: "%b %d, %Y"),
