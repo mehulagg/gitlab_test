@@ -3,6 +3,7 @@ import { GlLoadingIcon } from '@gitlab/ui';
 import { mapActions, mapState } from 'vuex';
 import GeoDesignsFilterBar from './geo_designs_filter_bar.vue';
 import GeoDesigns from './geo_designs.vue';
+import GeoEmptyState from './geo_empty_state.vue'
 
 export default {
   name: 'GeoDesignsApp',
@@ -10,9 +11,10 @@ export default {
     GlLoadingIcon,
     GeoDesignsFilterBar,
     GeoDesigns,
+    GeoEmptyState
   },
   computed: {
-    ...mapState(['isLoading']),
+    ...mapState(['isLoading', 'totalDesigns']),
   },
   created() {
     this.setEndpoint();
@@ -29,7 +31,10 @@ export default {
     <geo-designs-filter-bar />
     <section>
       <gl-loading-icon v-if="isLoading" size="xl" />
-      <geo-designs v-else />
+      <section v-else>
+        <geo-designs v-if="totalDesigns > 0" :total-designs="totalDesigns" />
+        <geo-empty-state v-else />
+      </section>
     </section>
   </article>
 </template>

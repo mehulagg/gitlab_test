@@ -9,8 +9,14 @@ export default {
     GlPagination,
     GeoDesign,
   },
+  props: {
+    totalDesigns: {
+      type: Number,
+      required: true
+    }
+  },
   computed: {
-    ...mapState(['designs', 'totalDesigns', 'currentPage', 'pageSize']),
+    ...mapState(['designs','currentPage', 'pageSize']),
     page: {
       get() {
         return this.currentPage;
