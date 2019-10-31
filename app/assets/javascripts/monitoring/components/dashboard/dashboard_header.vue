@@ -110,9 +110,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions('monitoringDashboard', [
-      'toggleRearrangingPanels'
-    ]),
+    ...mapActions('monitoringDashboard', ['toggleRearrangingPanels']),
     hideAddMetricModal() {
       this.$refs.addMetricModal.hide();
     },

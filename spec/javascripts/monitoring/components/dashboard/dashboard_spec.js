@@ -418,7 +418,7 @@ describe('Dashboard', () => {
 
     describe('when rearrange is enabled', () => {
       beforeEach(done => {
-        wrapper.setProps({ rearrangePanelsAvailable: true, externalDashboardUrl: '/mockUrl', });
+        wrapper.setProps({ rearrangePanelsAvailable: true, externalDashboardUrl: '/mockUrl' });
         wrapper.vm.$nextTick(done);
       });
 
