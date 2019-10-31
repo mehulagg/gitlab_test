@@ -19,8 +19,7 @@ export default () => {
       geoDesignsApp,
     },
     render(createElement) {
-      return createElement('geo-designs-app', {
-      });
+      return createElement('geo-designs-app', {});
     },
   });
 };

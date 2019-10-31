@@ -14,7 +14,7 @@ export default {
     state.searchFilter = search;
   },
   [types.SET_PAGE](state, page) {
-    state.currentPage = page
+    state.currentPage = page;
   },
   [types.REQUEST_DESIGNS](state) {
     state.isLoading = true;
@@ -22,8 +22,8 @@ export default {
   [types.RECEIVE_DESIGNS_SUCCESS](state, { data, perPage, total }) {
     state.isLoading = false;
     state.designs = data;
-    state.pageSize = Number(perPage)
-    state.totalDesigns = Number(total)
+    state.pageSize = Number(perPage);
+    state.totalDesigns = Number(total);
   },
   [types.RECEIVE_DESIGNS_ERROR](state, error) {
     state.isLoading = false;

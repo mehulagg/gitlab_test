@@ -3,7 +3,7 @@ import { GlTabs, GlTab, GlFormInput, GlDropdown, GlDropdownItem } from '@gitlab/
 import Icon from '~/vue_shared/components/icon.vue';
 import { mapActions, mapState } from 'vuex';
 import _ from 'underscore';
-import { ACTION_TYPES } from '../store/constants'
+import { ACTION_TYPES } from '../store/constants';
 
 export default {
   name: 'GeoDesignsFilterBar',
@@ -17,8 +17,8 @@ export default {
   },
   data() {
     return {
-      actionTypes: ACTION_TYPES
-    }
+      actionTypes: ACTION_TYPES,
+    };
   },
   computed: {
     ...mapState(['currentFilterIndex', 'filterOptions', 'searchFilter']),
@@ -28,7 +28,7 @@ export default {
       },
       set: _.debounce(function debounceSearch(newVal) {
         this.setSearch(newVal);
-      }, 500)
+      }, 500),
     },
   },
   methods: {
@@ -56,7 +56,9 @@ export default {
               <icon name="chevron-down" />
             </span>
           </template>
-          <gl-dropdown-item @click="designsBatchAction(actionTypes.RESYNC)">{{ __('Resync all designs') }}</gl-dropdown-item>
+          <gl-dropdown-item
+            @click="designsBatchAction(actionTypes.RESYNC)"
+          >{{ __('Resync all designs') }}</gl-dropdown-item>
         </gl-dropdown>
       </div>
     </template>

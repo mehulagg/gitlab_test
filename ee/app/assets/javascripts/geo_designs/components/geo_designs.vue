@@ -11,18 +11,18 @@ export default {
   },
   computed: {
     ...mapState(['designs', 'totalDesigns', 'currentPage', 'pageSize']),
-     page: {
+    page: {
       get() {
         return this.currentPage;
       },
       set(newVal) {
         this.setPage(newVal);
       },
-     },
+    },
   },
   methods: {
     ...mapActions(['setPage']),
-  }
+  },
 };
 </script>
 
