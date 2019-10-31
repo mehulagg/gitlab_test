@@ -10,6 +10,7 @@ export default {
   groupEpicsPath:
     '/api/:version/groups/:id/epics?include_ancestor_groups=:includeAncestorGroups&include_descendant_groups=:includeDescendantGroups',
   epicIssuePath: '/api/:version/groups/:id/epics/:epic_iid/issues/:issue_id',
+  searchProjectBlobsPath: '/api/:version/projects/:id/search?scope=blobs&search=:search',
 
   userSubscription(namespaceId) {
     const url = Api.buildUrl(this.subscriptionPath).replace(':id', encodeURIComponent(namespaceId));
@@ -69,5 +70,13 @@ export default {
       .replace(':issue_id', epicIssueId);
 
     return axios.delete(url);
+  },
+
+  searchProjectBlobs(id, { search }) {
+    const url = Api.buildUrl(this.searchProjectBlobsPath)
+      .replace(':id', encodeURIComponent(id))
+      .replace(':search', encodeURIComponent(search));
+
+    return axios.get(url);
   },
 };

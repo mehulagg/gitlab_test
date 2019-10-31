@@ -9,6 +9,7 @@ import {
   GlTable,
 } from '@gitlab/ui';
 import _ from 'underscore';
+import AddPackageToProject from './add_package_to_project.vue';
 import PackageInformation from './information.vue';
 import PackageInstallation from './installation.vue';
 import Icon from '~/vue_shared/components/icon.vue';
@@ -21,6 +22,7 @@ import PackageType from '../constants';
 export default {
   name: 'PackagesApp',
   components: {
+    AddPackageToProject,
     GlButton,
     GlEmptyState,
     GlLink,
@@ -193,14 +195,17 @@ export default {
   <div v-else class="packages-app">
     <div class="detail-page-header d-flex justify-content-between">
       <strong class="js-version-title">{{ packageEntity.version }}</strong>
-      <gl-button
-        v-if="canDeletePackage"
-        v-gl-modal="'delete-modal'"
-        class="js-delete-button"
-        variant="danger"
-        data-qa-selector="delete_button"
-        >{{ __('Delete') }}</gl-button
-      >
+      <div class="d-flex">
+        <add-package-to-project class="append-right-8" :package-entity="packageEntity" />
+        <gl-button
+          v-if="canDeletePackage"
+          v-gl-modal="'delete-modal'"
+          class="js-delete-button"
+          variant="danger"
+          data-qa-selector="delete_button"
+          >{{ __('Delete') }}</gl-button
+        >
+      </div>
     </div>
 
     <div class="row prepend-top-default" data-qa-selector="package_information_content">

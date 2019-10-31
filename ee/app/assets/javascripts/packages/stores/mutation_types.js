@@ -1,0 +1,6 @@
+export const SET_PACKAGE = 'SET_PACKAGE';
+export const REMOVE_PACKAGE = 'REMOVE_PACKAGE';
+export const SET_PROJECT_ID = 'SET_PROJECT_ID';
+export const SET_SELECTED_PROJECT = 'SET_SELECTED_PROJECT';
+export const SET_BRANCH_NAME = 'SET_BRANCH_NAME';
+export const SET_LOADING = 'SET_LOADING';
