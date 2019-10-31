@@ -1,0 +1,5 @@
+---
+title: Propagate custom ENV vars to Auto DevOps containers
+merge_request: 19411
+author:
+type: changed
