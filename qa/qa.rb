@@ -120,6 +120,7 @@ module QA
       module Instance
         autoload :All, 'qa/scenario/test/instance/all'
         autoload :Smoke, 'qa/scenario/test/instance/smoke'
+        autoload :TLS, 'qa/scenario/test/instance/tls'
       end
 
       module Integration
