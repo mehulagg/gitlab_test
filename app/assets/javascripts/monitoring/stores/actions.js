@@ -221,5 +221,9 @@ export const fetchEnvironmentsData = ({ state, dispatch }) => {
     });
 };
 
+export const toggleRearrangingPanels = ({ commit }, isRearrangingPanels) => {
+  commit(types.TOGGLE_REARRANGE_PANELS_STATE, isRearrangingPanels);
+};
+
 // prevent babel-plugin-rewire from generating an invalid default during karma tests
 export default () => {};

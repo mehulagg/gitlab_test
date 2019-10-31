@@ -6,7 +6,7 @@ import state from './state';
 
 Vue.use(Vuex);
 
-export const createStore = () =>
+export const createStore = (baseState = {}) =>
   new Vuex.Store({
     modules: {
       monitoringDashboard: {
@@ -14,8 +14,9 @@ export const createStore = () =>
         actions,
         mutations,
         state,
+        ...baseState
       },
     },
   });
 
-export default createStore();
+export default createStore;

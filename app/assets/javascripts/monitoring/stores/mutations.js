@@ -105,4 +105,7 @@ export default {
   [types.SET_SHOW_ERROR_BANNER](state, enabled) {
     state.showErrorBanner = enabled;
   },
+  [types.TOGGLE_REARRANGE_PANELS_STATE](state, isRearrangingPanels) {
+    state.isRearrangingPanels = isRearrangingPanels;
+  },
 };

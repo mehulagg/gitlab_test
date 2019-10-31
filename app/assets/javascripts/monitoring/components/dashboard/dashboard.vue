@@ -156,18 +156,11 @@ export default {
       required: false,
       default: false,
     },
-    rearrangePanelsAvailable: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
   },
   data() {
     return {
       state: 'gettingStarted',
-      formIsValid: null,
       selectedTimeWindow: {},
-      isRearrangingPanels: false,
     };
   },
   computed: {
@@ -183,6 +176,7 @@ export default {
       'metricsWithData',
       'useDashboardEndpoint',
       'allDashboards',
+      'isRearrangingPanels',
       'additionalPanelTypesEnabled',
     ]),
     firstDashboard() {
@@ -191,25 +185,9 @@ export default {
     selectedDashboardText() {
       return this.currentDashboard || this.firstDashboard.display_name;
     },
-    showRearrangePanelsBtn() {
-      return !this.showEmptyState && this.rearrangePanelsAvailable;
-    },
-    addingMetricsAvailable() {
-      return IS_EE && this.canAddMetrics && !this.showEmptyState;
-    },
     alertWidgetAvailable() {
       return IS_EE && this.prometheusAlertsAvailable && this.alertsEndpoint;
     },
-  },
-  created() {
-    this.setEndpoints({
-      metricsEndpoint: this.metricsEndpoint,
-      environmentsEndpoint: this.environmentsEndpoint,
-      deploymentsEndpoint: this.deploymentsEndpoint,
-      dashboardEndpoint: this.dashboardEndpoint,
-      currentDashboard: this.currentDashboard,
-      projectPath: this.projectPath,
-    });
   },
   mounted() {
     if (!this.hasMetrics) {
@@ -288,15 +266,6 @@ export default {
       const params = _.pick({ dashboard, group, title, y_label: yLabel }, value => value != null);
       return mergeUrlParams(params, window.location.href);
     },
-    toggleRearrangingPanels() {
-      this.isRearrangingPanels = !this.isRearrangingPanels;
-    },
-    setFormValidity(isValid) {
-      this.formIsValid = isValid;
-    },
-    submitCustomMetricsForm() {
-      this.$refs.customMetricsForm.submit();
-    },
     groupHasData(group) {
       return this.chartsWithData(group.metrics).length > 0;
     },
@@ -315,7 +284,7 @@ export default {
       :current-dashboard="currentDashboard"
       :custom-metrics-available="customMetricsAvailable"
       :custom-metrics-path="customMetricsPath"
-      :rearrange-panels-available="rearrangePanelsAvailable"
+      :rearrange-panels-available="isRearrangingPanels"
       :validate-query-path="validateQueryPath"
     />
 

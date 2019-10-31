@@ -65,11 +65,6 @@ export default {
       required: false,
       default: invalidUrl,
     },
-    rearrangePanelsAvailable: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
     validateQueryPath: {
       type: String,
       required: false,
@@ -79,7 +74,6 @@ export default {
   data() {
     return {
       formIsValid: null,
-      isRearrangingPanels: false,
     };
   },
   computed: {
@@ -93,6 +87,7 @@ export default {
       'useDashboardEndpoint',
       'allDashboards',
       'environmentsEndpoint',
+      'isRearrangingPanels',
       'additionalPanelTypesEnabled',
     ]),
     canAddMetrics() {
@@ -105,7 +100,7 @@ export default {
       return this.currentDashboard || this.firstDashboard.display_name;
     },
     showRearrangePanelsBtn() {
-      return !this.showEmptyState && this.rearrangePanelsAvailable;
+      return !this.showEmptyState && this.isRearrangingPanels;
     },
     addingMetricsAvailable() {
       return IS_EE && this.canAddMetrics && !this.showEmptyState;
@@ -115,11 +110,11 @@ export default {
     },
   },
   methods: {
+    ...mapActions('monitoringDashboard', [
+      'toggleRearrangingPanels'
+    ]),
     hideAddMetricModal() {
       this.$refs.addMetricModal.hide();
-    },
-    toggleRearrangingPanels() {
-      this.isRearrangingPanels = !this.isRearrangingPanels;
     },
     setFormValidity(isValid) {
       this.formIsValid = isValid;

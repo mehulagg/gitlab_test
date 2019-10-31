@@ -4,6 +4,7 @@ export default () => ({
   hasMetrics: false,
   showPanels: true,
   metricsEndpoint: null,
+  isRearrangingPanels: false,
   environmentsEndpoint: null,
   deploymentsEndpoint: null,
   dashboardEndpoint: invalidUrl,
