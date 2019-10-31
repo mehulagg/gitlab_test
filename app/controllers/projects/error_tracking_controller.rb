@@ -26,7 +26,11 @@ class Projects::ErrorTrackingController < Projects::ApplicationController
   private
 
   def render_index_json
-    service = ErrorTracking::ListIssuesService.new(project, current_user)
+    service = ErrorTracking::ListIssuesService.new(
+      project,
+      current_user,
+      list_issues_params
+    )
     result = service.execute
 
     unless result[:status] == :success
@@ -60,6 +64,10 @@ class Projects::ErrorTrackingController < Projects::ApplicationController
         }
       )
     end
+  end
+
+  def list_issues_params
+    params.permit(:search_term).to_h
   end
 
   def list_projects_params
