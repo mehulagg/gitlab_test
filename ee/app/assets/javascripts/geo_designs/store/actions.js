@@ -21,7 +21,7 @@ export const fetchDesigns = ({ state, dispatch }) => {
   const statusFilterName = state.filterOptions[state.currentFilterIndex]
   const query = {
     page: state.currentPage ? state.currentPage : 1,
-    name: state.searchFilter ? state.searchFilter : null,
+    search: state.searchFilter ? state.searchFilter : null,
     sync_status: statusFilterName === FILTER_STATES.ALL ? null : statusFilterName
   }
 

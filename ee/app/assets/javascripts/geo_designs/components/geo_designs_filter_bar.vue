@@ -2,6 +2,7 @@
 import { GlTabs, GlTab, GlFormInput, GlDropdown, GlDropdownItem } from '@gitlab/ui';
 import Icon from '~/vue_shared/components/icon.vue';
 import { mapActions, mapState } from 'vuex';
+import _ from 'underscore';
 import { ACTION_TYPES } from '../store/constants'
 
 export default {
@@ -25,9 +26,9 @@ export default {
       get() {
         return this.searchFilter;
       },
-      set(newVal) {
+      set: _.debounce(function debounceSearch(newVal) {
         this.setSearch(newVal);
-      },
+      }, 500)
     },
   },
   methods: {
