@@ -1417,11 +1417,11 @@ describe Ci::Build do
   describe 'erasable build' do
     shared_examples 'erasable' do
       it 'removes artifact file' do
-        expect(build.artifacts_file.present?).to be_falsy
+        expect(build.reload.artifacts_file.present?).to be_falsy
       end
 
       it 'removes artifact metadata file' do
-        expect(build.artifacts_metadata.present?).to be_falsy
+        expect(build.reload.artifacts_metadata.present?).to be_falsy
       end
 
       it 'removes all job_artifacts' do

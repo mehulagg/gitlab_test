@@ -85,7 +85,7 @@ describe Projects::ArtifactsController do
 
     it 'deletes the artifact' do
       expect { subject }.to change { Ci::JobArtifact.count }.by(-1)
-      expect(artifact).not_to exist
+      expect { artifact.reload }.to raise_error(ActiveRecord::RecordNotFound)
     end
 
     it 'redirects to artifacts index page' do
