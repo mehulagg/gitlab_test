@@ -56,7 +56,6 @@ export default {
             </span>
           </template>
           <gl-dropdown-item @click="designsBatchAction(actionTypes.RESYNC)">{{ __('Resync all designs') }}</gl-dropdown-item>
-          <gl-dropdown-item @click="designsBatchAction(actionTypes.REVERIFY)">{{ __('Reverify all designs') }}</gl-dropdown-item>
         </gl-dropdown>
       </div>
     </template>

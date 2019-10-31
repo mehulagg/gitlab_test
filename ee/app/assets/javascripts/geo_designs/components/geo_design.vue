@@ -51,7 +51,6 @@ export default {
     <b-card-header class="d-flex align-center">
       <gl-link class="font-weight-bold" :href="`/${name}`" target="_blank">{{ name }}</gl-link>
       <div class="ml-auto">
-        <gl-button>{{ __('Reverify') }}</gl-button>
         <gl-button>{{ __('Resync') }}</gl-button>
       </div>
     </b-card-header>
@@ -82,7 +81,7 @@ export default {
               tooltip-placement="bottom"
               class="js-timeago"
             />
-            <span v-else>{{ __('Never') }}</span>
+            <span v-else>{{ __('Not Implemented') }}</span>
           </div>
         </div>
         <div class="flex-grow-1">
@@ -94,7 +93,7 @@ export default {
               tooltip-placement="bottom"
               class="js-timeago"
             />
-            <span v-else>{{ __('Never') }}</span>
+            <span v-else>{{ __('Not Implemented') }}</span>
           </div>
         </div>
       </div>

@@ -9,6 +9,7 @@ export const FILTER_STATES = {
 
 export const ACTION_TYPES = {
   RESYNC: 'resync',
+  // Below not implemented yet
   REVERIFY: 'reverify',
   FORCE_REDOWNLOAD: 'force_redownload',
 };

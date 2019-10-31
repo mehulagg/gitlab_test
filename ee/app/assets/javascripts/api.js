@@ -4,7 +4,7 @@ import axios from '~/lib/utils/axios_utils';
 export default {
   ...Api,
   geoNodesPath: '/api/:version/geo_nodes',
-  geoDesignsPath: '/api/:version/geo_designs',
+  geoDesignsPath: '/api/:version//geo_replication/designs',
   ldapGroupsPath: '/api/:version/ldap/:provider/groups.json',
   subscriptionPath: '/api/:version/namespaces/:id/gitlab_subscription',
   childEpicPath: '/api/:version/groups/:id/epics/:epic_iid/epics',
