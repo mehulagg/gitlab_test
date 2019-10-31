@@ -22,7 +22,16 @@ performance:
     - |
       printenv | grep -E '^(DOCKER_|CI|GITLAB_|FF_|HOME|PWD|OLDPWD|PATH|SHLVL|HOSTNAME)' | cut -d'=' -f1 | \
         (while IFS='\\n' read -r VAR; do unset -v "$VAR"; done; /bin/printenv > .env)
-    - docker run --env-file .env --shm-size=1g --rm -v "$(pwd)":/sitespeed.io sitespeedio/sitespeed.io:$SITESPEED_VERSION --plugins.add ./gitlab-exporter --outputFolder sitespeed-results $URL $SITESPEED_OPTIONS
+    - docker run \
+        --env-file .env \
+        --shm-size=1g \
+        --rm \
+        -v "$(pwd)":/sitespeed.io \
+        sitespeedio/sitespeed.io:$SITESPEED_VERSION \
+          --plugins.add ./gitlab-exporter \
+          --outputFolder sitespeed-results \
+          $URL \
+          $SITESPEED_OPTIONS
     - mv sitespeed-results/data/performance.json performance.json
   artifacts:
     paths:
