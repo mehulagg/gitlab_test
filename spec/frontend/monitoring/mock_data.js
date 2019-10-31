@@ -159,3 +159,38 @@ export const anomalyMockGraphData = {
     },
   ],
 };
+
+export const graphDataPrometheusQuery = {
+  title: 'Super Chart A2',
+  type: 'single-stat',
+  weight: 2,
+  metrics: [
+    {
+      id: 'metric_a1',
+      metric_id: 2,
+      query: 'max(go_memstats_alloc_bytes{job="prometheus"}) by (job) /1024/1024',
+      unit: 'MB',
+      label: 'Total Consumption',
+      prometheus_endpoint_path:
+        '/root/kubernetes-gke-project/environments/35/prometheus/api/v1/query?query=max%28go_memstats_alloc_bytes%7Bjob%3D%22prometheus%22%7D%29+by+%28job%29+%2F1024%2F1024',
+    },
+  ],
+  queries: [
+    {
+      metricId: null,
+      id: 'metric_a1',
+      metric_id: 2,
+      query: 'max(go_memstats_alloc_bytes{job="prometheus"}) by (job) /1024/1024',
+      unit: 'MB',
+      label: 'Total Consumption',
+      prometheus_endpoint_path:
+        '/root/kubernetes-gke-project/environments/35/prometheus/api/v1/query?query=max%28go_memstats_alloc_bytes%7Bjob%3D%22prometheus%22%7D%29+by+%28job%29+%2F1024%2F1024',
+      result: [
+        {
+          metric: { job: 'prometheus' },
+          value: ['2019-06-26T21:03:20.881Z', 91],
+        },
+      ],
+    },
+  ],
+};

@@ -1,11 +1,16 @@
+import ColumnChart from '~/monitoring/components/charts/column.vue';
+
 import { shallowMount } from '@vue/test-utils';
 import { GlColumnChart } from '@gitlab/ui/dist/charts';
-import ColumnChart from '~/monitoring/components/charts/column.vue';
+import { getSvgIconPathContent } from '~/lib/utils/icon_utils';
+
+jest.mock('~/lib/utils/icon_utils'); // mock getSvgIconPathContent
 
 describe('Column component', () => {
   let columnChart;
-
   beforeEach(() => {
+    getSvgIconPathContent.mockResolvedValue();
+
     columnChart = shallowMount(ColumnChart, {
       propsData: {
         graphData: {
@@ -30,26 +35,20 @@ describe('Column component', () => {
       },
     });
   });
-
   afterEach(() => {
     columnChart.destroy();
   });
-
   describe('wrapped components', () => {
     describe('GitLab UI column chart', () => {
       let glColumnChart;
-
       beforeEach(() => {
         glColumnChart = columnChart.find(GlColumnChart);
       });
-
       it('is a Vue instance', () => {
         expect(glColumnChart.isVueInstance()).toBe(true);
       });
-
       it('receives data properties needed for proper chart render', () => {
         const props = glColumnChart.props();
-
         expect(props.data).toBe(columnChart.vm.chartData);
         expect(props.option).toBe(columnChart.vm.chartOptions);
       });
