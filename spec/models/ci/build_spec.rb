@@ -50,6 +50,7 @@ describe Ci::Build do
     context 'when running after_create callback' do
       it 'triggers asynchronous build hooks worker' do
         expect(BuildHooksWorker).to receive(:perform_async)
+        expect(BuildCreatedWorker).to receive(:perform_async)
 
         create(:ci_build)
       end
@@ -3082,6 +3083,12 @@ describe Ci::Build do
 
     it 'ensures pipeline ref existence' do
       expect(job.pipeline.persistent_ref).to receive(:create).once
+
+      run_job_without_exception
+    end
+
+    it 'queues BuildStartedWorker' do
+      expect(BuildStartedWorker).to receive(:perform_async).with(job.id)
 
       run_job_without_exception
     end

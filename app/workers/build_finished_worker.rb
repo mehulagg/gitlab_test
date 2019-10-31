@@ -3,6 +3,7 @@
 class BuildFinishedWorker
   include ApplicationWorker
   include PipelineQueue
+  include CiMetrics
 
   queue_namespace :pipeline_processing
   latency_sensitive_worker!
@@ -25,6 +26,8 @@ class BuildFinishedWorker
   #
   # @param [Ci::Build] build The build to process.
   def process_build(build)
+    count_finished_job(build)
+
     # We execute these in sync to reduce IO.
     BuildTraceSectionsWorker.new.perform(build.id)
     BuildCoverageWorker.new.perform(build.id)

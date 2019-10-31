@@ -87,6 +87,8 @@
 - pipeline_default:pipeline_notification
 - pipeline_hooks:build_hooks
 - pipeline_hooks:pipeline_hooks
+- pipeline_processing:build_created
+- pipeline_processing:build_started
 - pipeline_processing:build_finished
 - pipeline_processing:ci_build_prepare
 - pipeline_processing:build_queue
