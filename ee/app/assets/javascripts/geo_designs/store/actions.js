@@ -2,7 +2,6 @@ import * as types from './mutation_types';
 import createFlash from '~/flash';
 import { __ } from '~/locale';
 import { FILTER_STATES } from './constants';
-
 import axios from '~/lib/utils/axios_utils';
 
 // Core Actions
