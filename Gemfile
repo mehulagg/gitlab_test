@@ -8,12 +8,12 @@ gem 'bootsnap', '~> 1.4'
 gem 'nakayoshi_fork', '~> 0.0.4'
 
 # Responders respond_to and respond_with
-gem 'responders', '~> 2.0'
+gem 'responders', '~> 3.0'
 
 gem 'sprockets', '~> 3.7.0'
 
 # Default values for AR models
-gem 'default_value_for', '~> 3.2.0'
+gem 'default_value_for', '~> 3.3.0'
 
 # Supported DBs
 gem 'pg', '~> 1.1'
@@ -175,7 +175,7 @@ group :puma do
 end
 
 # State machine
-gem 'state_machines-activerecord', '~> 0.5.1'
+gem 'state_machines-activerecord', '~> 0.6.0'
 
 # Issue tags
 gem 'acts-as-taggable-on', '~> 6.0'
@@ -331,7 +331,6 @@ group :metrics do
 end
 
 group :development do
-  gem 'foreman', '~> 0.84.0'
   gem 'brakeman', '~> 4.2', require: false
   gem 'danger', '~> 6.0', require: false
 
@@ -388,7 +387,6 @@ group :development, :test do
 
   gem 'benchmark-ips', '~> 2.3.0', require: false
 
-  gem 'license_finder', '~> 5.4', require: false
   gem 'knapsack', '~> 1.17'
 
   gem 'stackprof', '~> 0.2.10', require: false
@@ -396,6 +394,11 @@ group :development, :test do
   gem 'simple_po_parser', '~> 1.1.2', require: false
 
   gem 'timecop', '~> 0.8.0'
+end
+
+# Gems required in omnibus-gitlab pipeline
+group :development, :test, :omnibus do
+  gem 'license_finder', '~> 5.4', require: false
 end
 
 group :test do

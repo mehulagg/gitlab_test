@@ -725,6 +725,8 @@ or a `.buildpacks` file in your project:
 CAUTION: **Caution:**
 Using multiple buildpacks isn't yet supported by Auto DevOps.
 
+CAUTION: **Caution:** When using the `.buildpacks` file, Auto Test will not work. The buildpack [heroku-buildpack-multi](https://github.com/heroku/heroku-buildpack-multi/) (which is used under the hood to parse the `.buildpacks` file) doesn't provide the necessary commands `bin/test-compile` and `bin/test`. Make sure to provide the project variable `BUILDPACK_URL` instead.
+
 ### Custom `Dockerfile`
 
 If your project has a `Dockerfile` in the root of the project repo, Auto DevOps
@@ -969,7 +971,6 @@ The following table lists variables related to security tools.
 
 | **Variable**                            | **Description**                    |
 | `SAST_CONFIDENCE_LEVEL`                 | Minimum confidence level of security issues you want to be reported; `1` for Low, `2` for Medium, `3` for High. Defaults to `3`. |
-| `DS_DISABLE_REMOTE_CHECKS`              | Whether remote Dependency Scanning checks are disabled. Defaults to `"false"`. Set to `"true"` to disable checks that send data to GitLab central servers. [Read more about remote checks](../../user/application_security/dependency_scanning/index.md#remote-checks). |
 
 #### Disable jobs
 
