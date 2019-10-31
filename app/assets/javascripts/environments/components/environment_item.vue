@@ -589,7 +589,7 @@ export default {
         v-if="canShowDeploymentDate"
         v-gl-tooltip
         :title="deployedDate.tooltip"
-        class="environment-created-date-timeago table-mobile-content cursor-pointer"
+        class="environment-created-date-timeago table-mobile-content"
       >
         {{ deployedDate.formatted }}
       </span>
@@ -601,7 +601,7 @@ export default {
         v-if="canShowAutoStopDate"
         v-gl-tooltip
         :title="autoStopDate.tooltip"
-        class="environment-created-date-timeago table-mobile-content cursor-pointer"
+        class="environment-created-date-timeago table-mobile-content"
       >
         {{ autoStopDate.formatted }}
       </span>
