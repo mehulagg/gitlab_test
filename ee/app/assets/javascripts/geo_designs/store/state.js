@@ -7,6 +7,9 @@ export default () => ({
   error: null,
 
   designs: [],
+  totalDesigns: 100,
+  pageSize: null,
+  currentPage: 1,
 
   searchFilter: '',
   currentFilterIndex: 0,

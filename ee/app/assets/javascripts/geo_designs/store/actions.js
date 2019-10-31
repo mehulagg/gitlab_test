@@ -4,10 +4,6 @@ import { __ } from '~/locale';
 
 import axios from '~/lib/utils/axios_utils';
 
-export const setEndpoint = ({ commit }) => commit(types.SET_ENDPOINT);
-export const setFilter = ({ commit }, filterIndex) => commit(types.SET_FILTER, filterIndex);
-export const setSearch = ({ commit }, search) => commit(types.SET_SEARCH, search);
-
 export const requestDesigns = ({ commit }) => commit(types.REQUEST_DESIGNS);
 export const receiveDesignsSuccess = ({ commit }, data) =>
   commit(types.RECEIVE_DESIGNS_SUCCESS, data);
@@ -19,8 +15,10 @@ export const receiveDesignsError = ({ commit }, error) => {
 export const fetchDesigns = ({ state, dispatch }) => {
   dispatch('requestDesigns');
 
-  axios.get(state.endpoint)
-    .then(({ data }) => dispatch('receiveDesignsSuccess', data))
+  axios.get(state.endpoint, { params: { page: state.currentPage }})
+    .then((res) => {
+      dispatch('receiveDesignsSuccess', { data: res.data, perPage: res.headers['x-per-page'], total: res.headers['x-total'] })
+    })
     .catch((error) => {
       dispatch('receiveDesignsError', error)
       createFlash(__('There was an error'))
@@ -45,3 +43,12 @@ export const designsBatchAction = ({ state, dispatch }, action) => {
       createFlash(__('There was an error'))
     });
 };
+
+export const setEndpoint = ({ commit }) => commit(types.SET_ENDPOINT);
+export const setFilter = ({ commit }, filterIndex) => commit(types.SET_FILTER, filterIndex);
+export const setSearch = ({ commit }, search) => commit(types.SET_SEARCH, search);
+export const setPage = ({ commit, dispatch }, page) => {
+  commit(types.SET_PAGE, page);
+  dispatch('fetchDesigns');
+}
+
