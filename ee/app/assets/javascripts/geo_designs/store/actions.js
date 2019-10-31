@@ -1,8 +1,11 @@
 import * as types from './mutation_types';
 import createFlash from '~/flash';
 import { __ } from '~/locale';
+import { FILTER_STATES } from './constants'
 
 import axios from '~/lib/utils/axios_utils';
+
+export const setEndpoint = ({ commit }) => commit(types.SET_ENDPOINT);
 
 export const requestDesigns = ({ commit }) => commit(types.REQUEST_DESIGNS);
 export const receiveDesignsSuccess = ({ commit }, data) =>
@@ -15,7 +18,14 @@ export const receiveDesignsError = ({ commit }, error) => {
 export const fetchDesigns = ({ state, dispatch }) => {
   dispatch('requestDesigns');
 
-  axios.get(state.endpoint, { params: { page: state.currentPage }})
+  const statusFilterName = state.filterOptions[state.currentFilterIndex]
+  const query = {
+    page: state.currentPage ? state.currentPage : 1,
+    name: state.searchFilter ? state.searchFilter : null,
+    sync_status: statusFilterName === FILTER_STATES.ALL ? null : statusFilterName
+  }
+
+  axios.get(state.endpoint, { params: query })
     .then((res) => {
       dispatch('receiveDesignsSuccess', { data: res.data, perPage: res.headers['x-per-page'], total: res.headers['x-total'] })
     })
@@ -44,9 +54,14 @@ export const designsBatchAction = ({ state, dispatch }, action) => {
     });
 };
 
-export const setEndpoint = ({ commit }) => commit(types.SET_ENDPOINT);
-export const setFilter = ({ commit }, filterIndex) => commit(types.SET_FILTER, filterIndex);
-export const setSearch = ({ commit }, search) => commit(types.SET_SEARCH, search);
+export const setFilter = ({ commit, dispatch }, filterIndex) => {
+  commit(types.SET_FILTER, filterIndex);
+  dispatch('fetchDesigns');
+}
+export const setSearch = ({ commit, dispatch }, search) => {
+  commit(types.SET_SEARCH, search);
+  dispatch('fetchDesigns');
+}
 export const setPage = ({ commit, dispatch }, page) => {
   commit(types.SET_PAGE, page);
   dispatch('fetchDesigns');

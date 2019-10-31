@@ -4,7 +4,6 @@ export const FILTER_STATES = {
   SYNCED: 'synced',
   PENDING: 'pending',
   FAILED: 'failed',
-  NEVER: 'never',
 };
 
 export const ACTION_TYPES = {

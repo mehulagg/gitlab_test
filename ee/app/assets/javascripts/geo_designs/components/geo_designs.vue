@@ -1,5 +1,5 @@
 <script>
-import { mapGetters, mapState, mapActions } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 import { GlPagination } from '@gitlab/ui';
 import GeoDesign from './geo_design.vue';
 
@@ -10,10 +10,7 @@ export default {
     GeoDesign,
   },
   computed: {
-    ...mapGetters({
-      designs: 'getDesignsByFilter',
-    }),
-    ...mapState(['totalDesigns', 'currentPage', 'pageSize']),
+    ...mapState(['designs', 'totalDesigns', 'currentPage', 'pageSize']),
      page: {
       get() {
         return this.currentPage;
