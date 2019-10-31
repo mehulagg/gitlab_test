@@ -29,6 +29,10 @@ module Deployments
           environment.external_url = url
         end
 
+        if deployable
+          environment.auto_stop_in = deployable.environment_auto_stop_in
+        end
+
         environment.fire_state_event(action)
 
         if environment.save && !environment.stopped?

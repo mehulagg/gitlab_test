@@ -28,7 +28,8 @@ module Gitlab
           def attributes
             {
               project: job.project,
-              name: expanded_environment_name
+              name: expanded_environment_name,
+              auto_stop_in: job.environment_auto_stop_in
             }
           end
         end
