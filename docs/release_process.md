@@ -26,7 +26,7 @@ when we make a change - no matter the size of the change.
 - Merge the merge request.
 - Create a new tag via the UI (https://gitlab.com/gitlab-org/gitlab-qa/-/tags/new).
   * **Tag name**: The same version found in [`lib/gitlab/qa/version.rb`], prefixed with `v`, e.g. if the version is `4.7.1`, the tag would be `v4.7.1`.
-  * **Message**: This can be something simple such as "<version> release".
+  * **Message**: Set it to "Version x.y.z", e.g. if the version is `4.7.1`, the message would be "Version 4.7.1".
   * **Release notes**: Copy the release notes from the merge request.
   * Click *Create Tag*.
   
