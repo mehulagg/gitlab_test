@@ -4,7 +4,9 @@
 import { BCard, BCardHeader, BCardBody } from 'bootstrap-vue';
 import { GlLink, GlButton } from '@gitlab/ui';
 import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
+import { mapActions } from 'vuex';
 import GeoDesignStatus from './geo_design_status.vue';
+import { ACTION_TYPES } from '../store/constants'
 
 export default {
   name: 'GeoDesign',
@@ -20,6 +22,10 @@ export default {
   props: {
     name: {
       type: String,
+      required: true,
+    },
+    projectId: {
+      type: Number,
       required: true,
     },
     syncStatus: {
@@ -43,6 +49,14 @@ export default {
       default: null,
     },
   },
+  methods: {
+    ...mapActions(['designAction'])
+  },
+  data() {
+    return {
+      actionTypes: ACTION_TYPES
+    }
+  },
 };
 </script>
 
@@ -51,7 +65,7 @@ export default {
     <b-card-header class="d-flex align-center">
       <gl-link class="font-weight-bold" :href="`/${name}`" target="_blank">{{ name }}</gl-link>
       <div class="ml-auto">
-        <gl-button>{{ __('Resync') }}</gl-button>
+        <gl-button @click="designAction({ projectId: projectId, action: actionTypes.RESYNC })">{{ __('Resync') }}</gl-button>
       </div>
     </b-card-header>
     <b-card-body>

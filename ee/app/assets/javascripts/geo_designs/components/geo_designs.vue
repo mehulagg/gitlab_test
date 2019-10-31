@@ -32,6 +32,7 @@ export default {
       v-for="design in designs"
       :key="design.id"
       :name="design.name"
+      :project-id="design.project_id"
       :sync-status="design.state"
       :last-synced="design.last_synced_at"
       :last-verified="design.last_verified_at"

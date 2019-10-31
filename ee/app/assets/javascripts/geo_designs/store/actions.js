@@ -5,8 +5,10 @@ import { FILTER_STATES } from './constants'
 
 import axios from '~/lib/utils/axios_utils';
 
+// Core Actions
 export const setEndpoint = ({ commit }) => commit(types.SET_ENDPOINT);
 
+// Fetch Designs
 export const requestDesigns = ({ commit }) => commit(types.REQUEST_DESIGNS);
 export const receiveDesignsSuccess = ({ commit }, data) =>
   commit(types.RECEIVE_DESIGNS_SUCCESS, data);
@@ -35,9 +37,12 @@ export const fetchDesigns = ({ state, dispatch }) => {
     });
 };
 
+// Designs Batch Action
 export const requestDesignsBatchAction = ({ commit }) => commit(types.REQUEST_DESIGNS_BATCH_ACTION);
-export const requestDesignsBatchActionSuccess = ({ commit }) =>
+export const requestDesignsBatchActionSuccess = ({ commit, dispatch }) => {
   commit(types.REQUEST_DESIGNS_BATCH_ACTION_SUCCESS);
+  dispatch('fetchDesigns');
+}
 export const requestDesignsBatchActionError = ({ commit }, error) => {
   createFlash(__('There was an error'));
   commit(types.REQUEST_DESIGNS_BATCH_ACTION_ERROR, error);
@@ -54,6 +59,29 @@ export const designsBatchAction = ({ state, dispatch }, action) => {
     });
 };
 
+// Design Action
+export const requestDesignAction = ({ commit }) => commit(types.REQUEST_DESIGN_ACTION);
+export const requestDesignActionSuccess = ({ commit, dispatch }) => {
+  commit(types.REQUEST_DESIGN_ACTION_SUCCESS);
+  dispatch('fetchDesigns');
+}
+export const requestDesignActionError = ({ commit }, error) => {
+  createFlash(__('There was an error'));
+  commit(types.REQUEST_DESIGN_ACTION_ERROR, error);
+};
+
+export const designAction = ({ state, dispatch }, { projectId, action }) => {
+  dispatch('requestDesignAction');
+
+  axios.put(`${state.endpoint}/${projectId}/${action}`, {})
+    .then(() => dispatch('requestDesignActionSuccess'))
+    .catch((error) => {
+      dispatch('requestDesignActionError', error)
+      createFlash(__('There was an error'))
+    });
+};
+
+// Filtering/Pagination
 export const setFilter = ({ commit, dispatch }, filterIndex) => {
   commit(types.SET_FILTER, filterIndex);
   dispatch('fetchDesigns');
