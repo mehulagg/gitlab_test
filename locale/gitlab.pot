@@ -411,9 +411,6 @@ msgstr ""
 msgid "%{verb} %{time_spent_value} spent time."
 msgstr ""
 
-msgid "&middot;"
-msgstr ""
-
 msgid "'%{level}' is not a valid visibility level"
 msgstr ""
 
@@ -2898,6 +2895,9 @@ msgstr ""
 msgid "Change assignee(s)."
 msgstr ""
 
+msgid "Change branches"
+msgstr ""
+
 msgid "Change label"
 msgstr ""
 
@@ -3585,7 +3585,13 @@ msgstr ""
 msgid "ClusterIntegration|Every new Google Cloud Platform (GCP) account receives $300 in credit upon %{sign_up_link}. In partnership with Google, GitLab is able to offer an additional $200 for both new and existing GCP accounts to get started with GitLab's Google Kubernetes Engine Integration."
 msgstr ""
 
+msgid "ClusterIntegration|Failed to configure EKS provider: %{message}"
+msgstr ""
+
 msgid "ClusterIntegration|Failed to configure Google Kubernetes Engine Cluster: %{message}"
+msgstr ""
+
+msgid "ClusterIntegration|Failed to fetch CloudFormation stack: %{message}"
 msgstr ""
 
 msgid "ClusterIntegration|Failed to request to Google Cloud Platform: %{message}"
@@ -4796,6 +4802,12 @@ msgid "Created At"
 msgstr ""
 
 msgid "Created a branch and a merge request to resolve this issue."
+msgstr ""
+
+msgid "Created after"
+msgstr ""
+
+msgid "Created before"
 msgstr ""
 
 msgid "Created branch '%{branch_name}' and a merge request to resolve this issue."
@@ -7397,6 +7409,9 @@ msgstr ""
 msgid "From %{providerTitle}"
 msgstr ""
 
+msgid "From %{source_title} into"
+msgstr ""
+
 msgid "From Bitbucket"
 msgstr ""
 
@@ -8072,7 +8087,7 @@ msgstr ""
 msgid "Go back"
 msgstr ""
 
-msgid "Go back (while searching for files"
+msgid "Go back (while searching for files)"
 msgstr ""
 
 msgid "Go back to %{startTag}Open issues%{endTag} and select some issues to add to your board."
@@ -8492,6 +8507,9 @@ msgstr ""
 msgid "GroupSettings|cannot be disabled when the parent group \"Share with group lock\" is enabled, except by the owner of the parent group"
 msgstr ""
 
+msgid "GroupSettings|cannot change when group contains projects with NPM packages"
+msgstr ""
+
 msgid "GroupSettings|remove the share with group lock from %{ancestor_group_name}"
 msgstr ""
 
@@ -8833,6 +8851,9 @@ msgstr ""
 msgid "If your HTTP repository is not publicly accessible, add your credentials."
 msgstr ""
 
+msgid "Iglu registry URL (optional)"
+msgstr ""
+
 msgid "ImageDiffViewer|2-up"
 msgstr ""
 
@@ -9142,6 +9163,9 @@ msgid "Invalid URL"
 msgstr ""
 
 msgid "Invalid date"
+msgstr ""
+
+msgid "Invalid date format. Please use UTC format as YYYY-MM-DD"
 msgstr ""
 
 msgid "Invalid feature"
@@ -9523,6 +9547,9 @@ msgid "Kubernetes deployment not found"
 msgstr ""
 
 msgid "Kubernetes error: %{error_code}"
+msgstr ""
+
+msgid "Kubernetes popover"
 msgstr ""
 
 msgid "LDAP"
@@ -10285,6 +10312,9 @@ msgid "Merge immediately"
 msgstr ""
 
 msgid "Merge in progress"
+msgstr ""
+
+msgid "Merge options"
 msgstr ""
 
 msgid "Merge request"
@@ -14871,6 +14901,9 @@ msgstr ""
 msgid "Select an existing Kubernetes cluster or create a new one"
 msgstr ""
 
+msgid "Select branch"
+msgstr ""
+
 msgid "Select branch/tag"
 msgstr ""
 
@@ -17633,6 +17666,9 @@ msgstr ""
 msgid "TransferGroup|Database is not supported."
 msgstr ""
 
+msgid "TransferGroup|Group contains projects with NPM packages."
+msgstr ""
+
 msgid "TransferGroup|Group is already a root group."
 msgstr ""
 
@@ -17658,6 +17694,9 @@ msgid "TransferProject|Project cannot be transferred, because tags are present i
 msgstr ""
 
 msgid "TransferProject|Project with same name or path in target namespace already exists"
+msgstr ""
+
+msgid "TransferProject|Root namespace can't be updated if project has NPM packages"
 msgstr ""
 
 msgid "TransferProject|Transfer failed, please contact an admin."
@@ -18861,10 +18900,7 @@ msgstr ""
 msgid "Wiki pages"
 msgstr ""
 
-msgid "Wiki was successfully created"
-msgstr ""
-
-msgid "Wiki was successfully updated"
+msgid "Wiki was successfully updated."
 msgstr ""
 
 msgid "WikiClone|Clone your wiki"
@@ -18880,18 +18916,6 @@ msgid "WikiClone|It is recommended to install %{markdown} so that GFM features r
 msgstr ""
 
 msgid "WikiClone|Start Gollum and edit locally"
-msgstr ""
-
-msgid "WikiDirEmpty|A wiki is where you can store all the details about your project. This can include why you've created it, its principles, how to use it, and so on."
-msgstr ""
-
-msgid "WikiDirEmpty|Create a page"
-msgstr ""
-
-msgid "WikiDirEmpty|Create a page in this directory"
-msgstr ""
-
-msgid "WikiDirEmpty|This directory has no wiki pages"
 msgstr ""
 
 msgid "WikiEditPageTip|Tip: You can move this page by adding the path to the beginning of the title."
@@ -18912,9 +18936,6 @@ msgstr ""
 msgid "WikiEmpty|A wiki is where you can store all the details about your project. This can include why you've created it, its principles, how to use it, and so on."
 msgstr ""
 
-msgid "WikiEmpty|Create this page"
-msgstr ""
-
 msgid "WikiEmpty|Create your first page"
 msgstr ""
 
@@ -18922,9 +18943,6 @@ msgid "WikiEmpty|Suggest wiki improvement"
 msgstr ""
 
 msgid "WikiEmpty|The wiki lets you write documentation for your project"
-msgstr ""
-
-msgid "WikiEmpty|This page does not exist"
 msgstr ""
 
 msgid "WikiEmpty|This project has no wiki pages"
@@ -18981,9 +18999,6 @@ msgstr ""
 msgid "WikiPage|Write your content or drag files here…"
 msgstr ""
 
-msgid "Wiki|Contents"
-msgstr ""
-
 msgid "Wiki|Create New Page"
 msgstr ""
 
@@ -18994,9 +19009,6 @@ msgid "Wiki|Created date"
 msgstr ""
 
 msgid "Wiki|Edit Page"
-msgstr ""
-
-msgid "Wiki|Hide folder contents"
 msgstr ""
 
 msgid "Wiki|More Pages"
@@ -19017,13 +19029,10 @@ msgstr ""
 msgid "Wiki|Pages"
 msgstr ""
 
-msgid "Wiki|Show files separately"
-msgstr ""
-
-msgid "Wiki|Show folder contents"
-msgstr ""
-
 msgid "Wiki|Title"
+msgstr ""
+
+msgid "Wiki|Wiki Pages"
 msgstr ""
 
 msgid "Will deploy to"
@@ -19195,6 +19204,9 @@ msgid "You can specify notification level per group or per project."
 msgstr ""
 
 msgid "You can test your .gitlab-ci.yml in %{linkStart}CI Lint%{linkEnd}."
+msgstr ""
+
+msgid "You can try again using %{begin_link}basic search%{end_link}"
 msgstr ""
 
 msgid "You cannot access the raw file. Please wait a minute."
