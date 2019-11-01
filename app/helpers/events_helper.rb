@@ -218,7 +218,7 @@ module EventsHelper
   def event_user_info(event)
     content_tag(:div, class: "event-user-info") do
       concat content_tag(:span, link_to_author(event), class: "author_name")
-      concat "&nbsp;".html_safe
+      concat "&nbsp;".html_safe # rubocop: disable Rails/OutputSafety
       concat content_tag(:span, event.author.to_reference, class: "username")
     end
   end

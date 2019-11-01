@@ -9,7 +9,7 @@ module MirrorHelper
   end
 
   def mirror_lfs_sync_message
-    _('The Git LFS objects will <strong>not</strong> be synced.').html_safe
+    _('The Git LFS objects will <strong>not</strong> be synced.').html_safe # rubocop: disable Rails/OutputSafety
   end
 end
 

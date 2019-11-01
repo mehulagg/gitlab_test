@@ -65,7 +65,7 @@ module Clusters
     def contracted_group_name(group)
       sanitize(group.full_name)
         .sub(%r{\/.*\/}, "/ #{contracted_icon} /")
-        .html_safe
+        .html_safe # rubocop: disable Rails/OutputSafety
     end
 
     def contracted_icon

@@ -21,7 +21,7 @@ module TreeHelper
     end
 
     tree << render(partial: 'projects/tree/tree_row', collection: items) if items.present?
-    tree.join.html_safe
+    tree.join.html_safe # rubocop: disable Rails/OutputSafety
   end
   # rubocop: enable CodeReuse/ActiveRecord
 
@@ -109,7 +109,7 @@ module TreeHelper
     message = _("Your changes can be committed to %{branch_name} because a merge "\
                 "request is open.") % { branch_name: "<strong>#{branch_name}</strong>" }
 
-    message.html_safe
+    message.html_safe # rubocop: disable Rails/OutputSafety
   end
 
   def path_breadcrumbs(max_links = 6)

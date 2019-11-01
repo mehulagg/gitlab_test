@@ -64,10 +64,10 @@ module EntityDateHelper
         .remove('about ')
       remaining_or_ago = is_upcoming ? _('remaining') : _('ago')
 
-      "#{content} #{remaining_or_ago}".html_safe
+      "#{content} #{remaining_or_ago}".html_safe # rubocop: disable Rails/OutputSafety
     elsif start_date&.past?
       days = (Date.today - start_date).to_i
-      "#{content_tag(:strong, days)} #{'day'.pluralize(days)} elapsed".html_safe
+      "#{content_tag(:strong, days)} #{'day'.pluralize(days)} elapsed".html_safe # rubocop: disable Rails/OutputSafety
     end
   end
 end

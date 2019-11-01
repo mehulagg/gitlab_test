@@ -31,7 +31,7 @@ class Notify < BaseMailer
   def test_email(recipient_email, subject, body)
     mail(to: recipient_email,
          subject: subject,
-         body: body.html_safe,
+         body: body.html_safe, # rubocop: disable Rails/OutputSafety
          content_type: 'text/html'
         )
   end

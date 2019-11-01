@@ -37,10 +37,10 @@ module DropdownsHelper
         end
 
         output << dropdown_loading
-        output.join.html_safe
+        output.join.html_safe # rubocop: disable Rails/OutputSafety
       end
 
-      dropdown_output.html_safe
+      dropdown_output.html_safe # rubocop: disable Rails/OutputSafety
     end
   end
 
@@ -49,13 +49,13 @@ module DropdownsHelper
     content_tag(:button, disabled: options[:disabled], class: "dropdown-menu-toggle #{options[:toggle_class] if options.key?(:toggle_class)}", id: (options[:id] if options.key?(:id)), type: "button", data: data_attr) do
       output = content_tag(:span, toggle_text, class: "dropdown-toggle-text #{'is-default' if toggle_text == default_label}")
       output << icon('chevron-down')
-      output.html_safe
+      output.html_safe # rubocop: disable Rails/OutputSafety
     end
   end
 
   def dropdown_toggle_link(toggle_text, data_attr, options = {})
     output = content_tag(:a, toggle_text, class: "dropdown-toggle-text #{options[:toggle_class] if options.key?(:toggle_class)}", id: (options[:id] if options.key?(:id)), data: data_attr)
-    output.html_safe
+    output.html_safe # rubocop: disable Rails/OutputSafety
   end
 
   def dropdown_title(title, options: {})
@@ -76,7 +76,7 @@ module DropdownsHelper
         end
       end
 
-      title_output.join.html_safe
+      title_output.join.html_safe # rubocop: disable Rails/OutputSafety
     end
   end
 
@@ -85,7 +85,7 @@ module DropdownsHelper
       filter_output = text_field_tag input_id, nil, class: "dropdown-input-field dropdown-no-filter", placeholder: placeholder, autocomplete: 'off'
       filter_output << icon('times', class: "dropdown-input-clear js-dropdown-input-clear", role: "button")
 
-      filter_output.html_safe
+      filter_output.html_safe # rubocop: disable Rails/OutputSafety
     end
   end
 
@@ -95,7 +95,7 @@ module DropdownsHelper
       filter_output << icon('search', class: "dropdown-input-search")
       filter_output << icon('times', class: "dropdown-input-clear js-dropdown-input-clear", role: "button")
 
-      filter_output.html_safe
+      filter_output.html_safe # rubocop: disable Rails/OutputSafety
     end
   end
 

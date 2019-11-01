@@ -171,7 +171,7 @@ module IssuesHelper
     link = issue_closed_link(issue, current_user, css_class: 'text-white text-underline')
 
     if link
-      s_('IssuableStatus|Closed (%{link})').html_safe % { link: link }
+      s_('IssuableStatus|Closed (%{link})').html_safe % { link: link } # rubocop: disable Rails/OutputSafety
     else
       s_('IssuableStatus|Closed')
     end

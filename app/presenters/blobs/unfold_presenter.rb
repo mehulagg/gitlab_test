@@ -44,7 +44,7 @@ module Blobs
 
     def lines
       strong_memoize(:lines) do
-        limit(highlight(to: to).lines).map(&:html_safe)
+        limit(highlight(to: to).lines).map(&:html_safe) # rubocop: disable Rails/OutputSafety
       end
     end
 

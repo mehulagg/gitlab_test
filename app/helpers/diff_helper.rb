@@ -53,12 +53,12 @@ module DiffHelper
       html << content_tag(:td, text, class: [*content_line_class, ('right-side' if view == :parallel)])
     end
 
-    html.join.html_safe
+    html.join.html_safe # rubocop: disable Rails/OutputSafety
   end
 
   def diff_line_content(line)
     if line.blank?
-      "&nbsp;".html_safe
+      "&nbsp;".html_safe # rubocop: disable Rails/OutputSafety
     else
       # `sub` and substring-ing would destroy HTML-safeness of `line`
       if line.start_with?('+', '-', ' ')
@@ -109,7 +109,7 @@ module DiffHelper
       content_tag(:span, link_to(truncate(blob.name, length: 40), project_url)),
       '@',
       content_tag(:span, commit_id, class: 'commit-sha')
-    ].join(' ').html_safe
+    ].join(' ').html_safe # rubocop: disable Rails/OutputSafety
   end
 
   def diff_file_blob_raw_url(diff_file, only_path: false)

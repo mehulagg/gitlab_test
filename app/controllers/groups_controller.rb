@@ -124,7 +124,7 @@ class GroupsController < Groups::ApplicationController
       flash[:notice] = "Group '#{@group.name}' was successfully transferred."
       redirect_to group_path(@group)
     else
-      flash[:alert] = service.error.html_safe
+      flash[:alert] = service.error.html_safe # rubocop: disable Rails/OutputSafety
       redirect_to edit_group_path(@group)
     end
   end

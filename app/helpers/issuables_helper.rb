@@ -190,14 +190,14 @@ module IssuablesHelper
 
   def issuable_meta(issuable, project, text)
     output = []
-    output << "Opened #{time_ago_with_tooltip(issuable.created_at)} by ".html_safe
+    output << "Opened #{time_ago_with_tooltip(issuable.created_at)} by ".html_safe # rubocop: disable Rails/OutputSafety
 
     output << content_tag(:strong) do
       author_output = link_to_member(project, issuable.author, size: 24, mobile_classes: "d-none d-sm-inline")
       author_output << link_to_member(project, issuable.author, size: 24, by_username: true, avatar: false, mobile_classes: "d-inline d-sm-none")
 
       if status = user_status(issuable.author)
-        author_output << "#{status}".html_safe
+        author_output << "#{status}".html_safe # rubocop: disable Rails/OutputSafety
       end
 
       author_output
@@ -208,7 +208,7 @@ module IssuablesHelper
     output << content_tag(:span, (issuable.task_status if issuable.tasks?), id: "task_status", class: "d-none d-sm-none d-md-inline-block prepend-left-8")
     output << content_tag(:span, (issuable.task_status_short if issuable.tasks?), id: "task_status_short", class: "d-md-none")
 
-    output.join.html_safe
+    output.join.html_safe # rubocop: disable Rails/OutputSafety
   end
 
   def issuable_labels_tooltip(labels, limit: 5)
@@ -237,7 +237,7 @@ module IssuablesHelper
       html << " " << content_tag(:span, number_with_delimiter(count), class: 'badge badge-pill')
     end
 
-    html.html_safe
+    html.html_safe # rubocop: disable Rails/OutputSafety
   end
 
   def issuable_first_contribution_icon

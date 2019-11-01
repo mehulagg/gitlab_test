@@ -6,7 +6,7 @@ module ProfilesHelper
     verified_emails = user.verified_emails - [private_email]
 
     [
-      [s_("Profiles|Use a private email - %{email}").html_safe % { email: private_email }, Gitlab::PrivateCommitEmail::TOKEN],
+      [s_("Profiles|Use a private email - %{email}").html_safe % { email: private_email }, Gitlab::PrivateCommitEmail::TOKEN], # rubocop: disable Rails/OutputSafety
       *verified_emails
     ]
   end

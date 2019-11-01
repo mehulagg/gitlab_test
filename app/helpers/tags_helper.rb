@@ -22,7 +22,7 @@ module TagsHelper
       html << link_to(tag, tag_path(tag))
     end
 
-    html.join.html_safe
+    html.join.html_safe # rubocop: disable Rails/OutputSafety
   end
 
   def protected_tag?(project, tag)
@@ -36,6 +36,6 @@ module TagsHelper
       link_end: '</a>'
     }
 
-    text.html_safe
+    text.html_safe # rubocop: disable Rails/OutputSafety
   end
 end

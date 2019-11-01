@@ -65,7 +65,7 @@ module MarkupHelper
       fragment.css('a.gfm').add_class(html_options[:class])
     end
 
-    fragment.to_html.html_safe
+    fragment.to_html.html_safe # rubocop: disable Rails/OutputSafety
   end
 
   # Return the first line of +text+, up to +max_chars+, after parsing the line
@@ -89,7 +89,7 @@ module MarkupHelper
 
     # since <img> tags are stripped, this can leave empty <a> tags hanging around
     # (as our markdown wraps images in links)
-    options[:allow_images] ? text : strip_empty_link_tags(text).html_safe
+    options[:allow_images] ? text : strip_empty_link_tags(text).html_safe # rubocop: disable Rails/OutputSafety
   end
 
   def markdown(text, context = {})

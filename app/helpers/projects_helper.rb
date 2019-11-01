@@ -70,13 +70,13 @@ module ProjectsHelper
 
     author_html << capture(&block) if block
 
-    author_html = author_html.join.html_safe
+    author_html = author_html.join.html_safe # rubocop: disable Rails/OutputSafety
 
     if opts[:name]
-      link_to(author_html, user_path(author), class: "author-link js-user-link #{"#{opts[:extra_class]}" if opts[:extra_class]} #{"#{opts[:mobile_classes]}" if opts[:mobile_classes]}", data: data_attrs).html_safe
+      link_to(author_html, user_path(author), class: "author-link js-user-link #{"#{opts[:extra_class]}" if opts[:extra_class]} #{"#{opts[:mobile_classes]}" if opts[:mobile_classes]}", data: data_attrs).html_safe # rubocop: disable Rails/OutputSafety
     else
       title = opts[:title].sub(":name", sanitize(author.name))
-      link_to(author_html, user_path(author), class: "author-link has-tooltip", title: title, data: { container: 'body', qa_selector: 'assignee_link' }).html_safe
+      link_to(author_html, user_path(author), class: "author-link has-tooltip", title: title, data: { container: 'body', qa_selector: 'assignee_link' }).html_safe # rubocop: disable Rails/OutputSafety
     end
   end
 
@@ -91,13 +91,13 @@ module ProjectsHelper
 
     project_link = link_to project_path(project) do
       icon = project_icon(project, alt: project.name, class: 'avatar-tile', width: 15, height: 15) if project.avatar_url && !Rails.env.test?
-      [icon, content_tag("span", simple_sanitize(project.name), class: "breadcrumb-item-text js-breadcrumb-item-text")].join.html_safe
+      [icon, content_tag("span", simple_sanitize(project.name), class: "breadcrumb-item-text js-breadcrumb-item-text")].join.html_safe # rubocop: disable Rails/OutputSafety
     end
 
     namespace_link = breadcrumb_list_item(namespace_link) unless project.group
     project_link = breadcrumb_list_item project_link
 
-    "#{namespace_link} #{project_link}".html_safe
+    "#{namespace_link} #{project_link}".html_safe # rubocop: disable Rails/OutputSafety
   end
 
   def remove_project_message(project)
@@ -174,7 +174,7 @@ module ProjectsHelper
   def autodeploy_flash_notice(branch_name)
     translation = _("Branch <strong>%{branch_name}</strong> was created. To set up auto deploy, choose a GitLab CI Yaml template and commit your changes. %{link_to_autodeploy_doc}") %
       { branch_name: truncate(sanitize(branch_name)), link_to_autodeploy_doc: link_to_autodeploy_doc }
-    translation.html_safe
+    translation.html_safe # rubocop: disable Rails/OutputSafety
   end
 
   def project_list_cache_key(project, pipeline_status: true)
@@ -347,7 +347,7 @@ module ProjectsHelper
         _("You can invite a new member to <strong>%{project_name}</strong>.")
       end
 
-    description.html_safe % { project_name: project.name }
+    description.html_safe % { project_name: project.name } # rubocop: disable Rails/OutputSafety
   end
 
   def metrics_external_dashboard_url
@@ -578,7 +578,7 @@ module ProjectsHelper
   end
 
   def project_permissions_panel_data_json(project)
-    project_permissions_panel_data(project).to_json.html_safe
+    project_permissions_panel_data(project).to_json.html_safe # rubocop: disable Rails/OutputSafety
   end
 
   def project_allowed_visibility_levels(project)

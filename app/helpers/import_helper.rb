@@ -29,7 +29,7 @@ module ImportHelper
 
   def import_svn_message(_ci_cd_only)
     svn_link = link_to _('this document'), help_page_path('user/project/import/svn')
-    _('To import an SVN repository, check out %{svn_link}.').html_safe % { svn_link: svn_link }
+    _('To import an SVN repository, check out %{svn_link}.').html_safe % { svn_link: svn_link } # rubocop: disable Rails/OutputSafety
   end
 
   def import_in_progress_title
@@ -50,18 +50,18 @@ module ImportHelper
 
   def import_github_personal_access_token_message
     link_url = 'https://github.com/settings/tokens'
-    link_start = '<a href="%{url}" target="_blank" rel="noopener noreferrer">'.html_safe % { url: link_url }
+    link_start = '<a href="%{url}" target="_blank" rel="noopener noreferrer">'.html_safe % { url: link_url } # rubocop: disable Rails/OutputSafety
 
-    _('Create and provide your GitHub %{link_start}Personal Access Token%{link_end}. You will need to select the <code>repo</code> scope, so we can display a list of your public and private repositories which are available to import.').html_safe % { link_start: link_start, link_end: '</a>'.html_safe }
+    _('Create and provide your GitHub %{link_start}Personal Access Token%{link_end}. You will need to select the <code>repo</code> scope, so we can display a list of your public and private repositories which are available to import.').html_safe % { link_start: link_start, link_end: '</a>'.html_safe } # rubocop: disable Rails/OutputSafety
   end
 
   def import_configure_github_admin_message
     github_integration_link = link_to 'GitHub integration', help_page_path('integration/github')
 
     if current_user.admin?
-      _('Note: As an administrator you may like to configure %{github_integration_link}, which will allow login via GitHub and allow importing repositories without generating a Personal Access Token.').html_safe % { github_integration_link: github_integration_link }
+      _('Note: As an administrator you may like to configure %{github_integration_link}, which will allow login via GitHub and allow importing repositories without generating a Personal Access Token.').html_safe % { github_integration_link: github_integration_link } # rubocop: disable Rails/OutputSafety
     else
-      _('Note: Consider asking your GitLab administrator to configure %{github_integration_link}, which will allow login via GitHub and allow importing repositories without generating a Personal Access Token.').html_safe % { github_integration_link: github_integration_link }
+      _('Note: Consider asking your GitLab administrator to configure %{github_integration_link}, which will allow login via GitHub and allow importing repositories without generating a Personal Access Token.').html_safe % { github_integration_link: github_integration_link } # rubocop: disable Rails/OutputSafety
     end
   end
 end

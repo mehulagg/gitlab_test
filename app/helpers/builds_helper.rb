@@ -6,7 +6,7 @@ module BuildsHelper
       if skip
         link_to _("View job log"), pipeline_job_url(build.pipeline, build)
       else
-        build.trace.html(last_lines: 10).html_safe
+        build.trace.html(last_lines: 10).html_safe # rubocop: disable Rails/OutputSafety
       end
     else
       _("No job log")

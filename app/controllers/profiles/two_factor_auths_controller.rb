@@ -127,6 +127,6 @@ class Profiles::TwoFactorAuthsController < Profiles::ApplicationController
     leave_group_links = groups.map { |group| view_context.link_to (s_("leave %{group_name}") % { group_name: group.full_name }), leave_group_members_path(group), remote: false, method: :delete}.to_sentence
 
     s_(%{The group settings for %{group_links} require you to enable Two-Factor Authentication for your account. You can %{leave_group_links}.})
-      .html_safe % { group_links: group_links.html_safe, leave_group_links: leave_group_links.html_safe }
+      .html_safe % { group_links: group_links.html_safe, leave_group_links: leave_group_links.html_safe } # rubocop: disable Rails/OutputSafety
   end
 end

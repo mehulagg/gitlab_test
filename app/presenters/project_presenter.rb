@@ -146,10 +146,10 @@ class ProjectPresenter < Gitlab::View::Presenter::Delegated
   def files_anchor_data
     AnchorData.new(true,
                    statistic_icon('doc-code') +
-                   _('%{strong_start}%{human_size}%{strong_end} Files').html_safe % {
+                   _('%{strong_start}%{human_size}%{strong_end} Files').html_safe % { # rubocop: disable Rails/OutputSafety
                      human_size: storage_counter(statistics.total_repository_size),
-                     strong_start: '<strong class="project-stat-value">'.html_safe,
-                     strong_end: '</strong>'.html_safe
+                     strong_start: '<strong class="project-stat-value">'.html_safe, # rubocop: disable Rails/OutputSafety
+                     strong_end: '</strong>'.html_safe # rubocop: disable Rails/OutputSafety
                    },
                    empty_repo? ? nil : project_tree_path(project))
   end
@@ -157,10 +157,10 @@ class ProjectPresenter < Gitlab::View::Presenter::Delegated
   def commits_anchor_data
     AnchorData.new(true,
                    statistic_icon('commit') +
-                   n_('%{strong_start}%{commit_count}%{strong_end} Commit', '%{strong_start}%{commit_count}%{strong_end} Commits', statistics.commit_count).html_safe % {
+                   n_('%{strong_start}%{commit_count}%{strong_end} Commit', '%{strong_start}%{commit_count}%{strong_end} Commits', statistics.commit_count).html_safe % { # rubocop: disable Rails/OutputSafety
                      commit_count: number_with_delimiter(statistics.commit_count),
-                     strong_start: '<strong class="project-stat-value">'.html_safe,
-                     strong_end: '</strong>'.html_safe
+                     strong_start: '<strong class="project-stat-value">'.html_safe, # rubocop: disable Rails/OutputSafety
+                     strong_end: '</strong>'.html_safe # rubocop: disable Rails/OutputSafety
                    },
                    empty_repo? ? nil : project_commits_path(project, repository.root_ref))
   end
@@ -168,10 +168,10 @@ class ProjectPresenter < Gitlab::View::Presenter::Delegated
   def branches_anchor_data
     AnchorData.new(true,
                    statistic_icon('branch') +
-                   n_('%{strong_start}%{branch_count}%{strong_end} Branch', '%{strong_start}%{branch_count}%{strong_end} Branches', repository.branch_count).html_safe % {
+                   n_('%{strong_start}%{branch_count}%{strong_end} Branch', '%{strong_start}%{branch_count}%{strong_end} Branches', repository.branch_count).html_safe % { # rubocop: disable Rails/OutputSafety
                      branch_count: number_with_delimiter(repository.branch_count),
-                     strong_start: '<strong class="project-stat-value">'.html_safe,
-                     strong_end: '</strong>'.html_safe
+                     strong_start: '<strong class="project-stat-value">'.html_safe, # rubocop: disable Rails/OutputSafety
+                     strong_end: '</strong>'.html_safe # rubocop: disable Rails/OutputSafety
                    },
                    empty_repo? ? nil : project_branches_path(project))
   end
@@ -179,10 +179,10 @@ class ProjectPresenter < Gitlab::View::Presenter::Delegated
   def tags_anchor_data
     AnchorData.new(true,
                    statistic_icon('label') +
-                   n_('%{strong_start}%{tag_count}%{strong_end} Tag', '%{strong_start}%{tag_count}%{strong_end} Tags', repository.tag_count).html_safe % {
+                   n_('%{strong_start}%{tag_count}%{strong_end} Tag', '%{strong_start}%{tag_count}%{strong_end} Tags', repository.tag_count).html_safe % { # rubocop: disable Rails/OutputSafety
                      tag_count: number_with_delimiter(repository.tag_count),
-                     strong_start: '<strong class="project-stat-value">'.html_safe,
-                     strong_end: '</strong>'.html_safe
+                     strong_start: '<strong class="project-stat-value">'.html_safe, # rubocop: disable Rails/OutputSafety
+                     strong_end: '</strong>'.html_safe # rubocop: disable Rails/OutputSafety
                    },
                    empty_repo? ? nil : project_tags_path(project))
   end

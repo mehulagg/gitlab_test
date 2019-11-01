@@ -96,7 +96,7 @@ class Projects::MilestonesController < Projects::ApplicationController
   end
 
   def flash_notice_for(milestone, group)
-    ''.html_safe + "#{milestone.title} promoted to " + view_context.link_to('<u>group milestone</u>'.html_safe, group_milestone_path(group, milestone.iid)) + '.'
+    ''.html_safe + "#{milestone.title} promoted to " + view_context.link_to('<u>group milestone</u>'.html_safe, group_milestone_path(group, milestone.iid)) + '.' # rubocop: disable Rails/OutputSafety
   end
 
   def destroy

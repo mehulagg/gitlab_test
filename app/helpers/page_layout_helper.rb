@@ -74,7 +74,7 @@ module PageLayoutHelper
       tags << tag(:meta, property: "twitter:data#{i + 1}",  content: pair[1])
     end
 
-    tags.join.html_safe
+    tags.join.html_safe # rubocop: disable Rails/OutputSafety
   end
 
   def header_title(title = nil, title_url = nil)

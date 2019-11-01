@@ -132,7 +132,7 @@ module MilestonesHelper
         "(#{time_ago} #{state})"
       ].join(" ")
 
-      content.html_safe
+      content.html_safe # rubocop: disable Rails/OutputSafety
     else
       title
     end
@@ -153,7 +153,7 @@ module MilestonesHelper
       content << n_("1 closed issue", "%{issues} closed issues", issues["closed"]) % { issues: issues["closed"] }
     end
 
-    content.join('<br />').html_safe
+    content.join('<br />').html_safe # rubocop: disable Rails/OutputSafety
   end
 
   def milestone_merge_requests_tooltip_text(milestone)
@@ -167,7 +167,7 @@ module MilestonesHelper
     content << n_("1 closed merge request", "%{merge_requests} closed merge requests", merge_requests.closed.count) % { merge_requests: merge_requests.closed.count } if merge_requests.closed.any?
     content << n_("1 merged merge request", "%{merge_requests} merged merge requests", merge_requests.merged.count) % { merge_requests: merge_requests.merged.count } if merge_requests.merged.any?
 
-    content.join('<br />').html_safe
+    content.join('<br />').html_safe # rubocop: disable Rails/OutputSafety
   end
 
   def milestone_tooltip_due_date(milestone)

@@ -52,7 +52,7 @@ class Projects::PipelineSchedulesController < Projects::ApplicationController
     if job_id
       pipelines_link_start = "<a href=\"#{project_pipelines_path(@project)}\">"
       message = _("Successfully scheduled a pipeline to run. Go to the %{pipelines_link_start}Pipelines page%{pipelines_link_end} for details.") % { pipelines_link_start: pipelines_link_start, pipelines_link_end: "</a>" }
-      flash[:notice] = message.html_safe
+      flash[:notice] = message.html_safe # rubocop: disable Rails/OutputSafety
     else
       flash[:alert] = _('Unable to schedule a pipeline to run immediately')
     end

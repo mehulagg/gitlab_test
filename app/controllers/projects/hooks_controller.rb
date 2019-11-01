@@ -21,7 +21,7 @@ class Projects::HooksController < Projects::ApplicationController
 
     unless @hook.valid?
       @hooks = @project.hooks.select(&:persisted?)
-      flash[:alert] = @hook.errors.full_messages.join.html_safe
+      flash[:alert] = @hook.errors.full_messages.join.html_safe # rubocop: disable Rails/OutputSafety
     end
 
     redirect_to project_settings_integrations_path(@project)

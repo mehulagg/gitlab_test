@@ -27,7 +27,7 @@ class Projects::DeployKeysController < Projects::ApplicationController
     @key = DeployKeys::CreateService.new(current_user, create_params).execute(project: @project)
 
     unless @key.valid?
-      flash[:alert] = @key.errors.full_messages.join(', ').html_safe
+      flash[:alert] = @key.errors.full_messages.join(', ').html_safe # rubocop: disable Rails/OutputSafety
     end
 
     redirect_to_repository_settings(@project, anchor: 'js-deploy-keys-settings')

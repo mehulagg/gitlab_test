@@ -3,7 +3,7 @@
 module ExternalLinkHelper
   def external_link(body, url, options = {})
     link_to url, { target: '_blank', rel: 'noopener noreferrer' }.merge(options) do
-      "#{body} #{icon('external-link')}".html_safe
+      "#{body} #{icon('external-link')}".html_safe # rubocop: disable Rails/OutputSafety
     end
   end
 end

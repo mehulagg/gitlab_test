@@ -23,7 +23,7 @@ module IconsHelper
 
   def custom_icon(icon_name, size: 16)
     # We can't simply do the below, because there are some .erb SVGs.
-    #  File.read(Rails.root.join("app/views/shared/icons/_#{icon_name}.svg")).html_safe
+    #  File.read(Rails.root.join("app/views/shared/icons/_#{icon_name}.svg")).html_safe # rubocop: disable Rails/OutputSafety
     render "shared/icons/#{icon_name}.svg", size: size
   end
 

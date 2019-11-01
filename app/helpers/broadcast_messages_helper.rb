@@ -34,6 +34,6 @@ module BroadcastMessagesHelper
   end
 
   def render_broadcast_message(broadcast_message)
-    Banzai.render_field(broadcast_message, :message).html_safe
+    Banzai.render_field(broadcast_message, :message).html_safe # rubocop: disable Rails/OutputSafety
   end
 end

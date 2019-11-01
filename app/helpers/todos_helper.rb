@@ -183,7 +183,7 @@ module TodosHelper
       "Due #{is_due_today ? "today" : todo.target.due_date.to_s(:medium)}"
     end
 
-    "&middot; #{content}".html_safe
+    "&middot; #{content}".html_safe # rubocop: disable Rails/OutputSafety
   end
 
   private

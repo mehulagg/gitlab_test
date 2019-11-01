@@ -34,7 +34,7 @@ module WikiHelper
       when WikiPage::PageChangedError
         page_link = link_to s_("WikiPageConflictMessage|the page"), project_wiki_path(@project, @page), target: "_blank"
         concat(
-          (s_("WikiPageConflictMessage|Someone edited the page the same time you did. Please check out %{page_link} and make sure your changes will not unintentionally remove theirs.") % { page_link: page_link }).html_safe
+          (s_("WikiPageConflictMessage|Someone edited the page the same time you did. Please check out %{page_link} and make sure your changes will not unintentionally remove theirs.") % { page_link: page_link }).html_safe # rubocop: disable Rails/OutputSafety
         )
       when WikiPage::PageRenameError
         s_("WikiEdit|There is already a page with the same title in that path.")

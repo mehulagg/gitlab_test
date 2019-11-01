@@ -14,7 +14,7 @@ module FormHelper
           model.errors.full_messages
             .map { |msg| content_tag(:li, msg) }
             .join
-            .html_safe
+            .html_safe # rubocop: disable Rails/OutputSafety
         end
     end
   end

@@ -49,22 +49,22 @@ module Ci
     def ref_text
       if pipeline.detached_merge_request_pipeline?
         _("for %{link_to_merge_request} with %{link_to_merge_request_source_branch}")
-          .html_safe % {
+          .html_safe % { # rubocop: disable Rails/OutputSafety
             link_to_merge_request: link_to_merge_request,
             link_to_merge_request_source_branch: link_to_merge_request_source_branch
           }
       elsif pipeline.merge_request_pipeline?
         _("for %{link_to_merge_request} with %{link_to_merge_request_source_branch} into %{link_to_merge_request_target_branch}")
-          .html_safe % {
+          .html_safe % { # rubocop: disable Rails/OutputSafety
             link_to_merge_request: link_to_merge_request,
             link_to_merge_request_source_branch: link_to_merge_request_source_branch,
             link_to_merge_request_target_branch: link_to_merge_request_target_branch
           }
       elsif pipeline.ref && pipeline.ref_exists?
         _("for %{link_to_pipeline_ref}")
-        .html_safe % { link_to_pipeline_ref: link_to_pipeline_ref }
+        .html_safe % { link_to_pipeline_ref: link_to_pipeline_ref } # rubocop: disable Rails/OutputSafety
       elsif pipeline.ref
-        _("for %{ref}").html_safe % { ref: plain_ref_name }
+        _("for %{ref}").html_safe % { ref: plain_ref_name } # rubocop: disable Rails/OutputSafety
       end
     end
 
@@ -76,7 +76,7 @@ module Ci
           count: all_related_merge_requests.count,
           pluralized_subject: 'merge request'.pluralize(all_related_merge_requests.count),
           links: all_related_merge_request_links.join(', ')
-        }).html_safe
+        }).html_safe # rubocop: disable Rails/OutputSafety
       end
     end
 

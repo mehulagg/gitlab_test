@@ -20,7 +20,7 @@ class Projects::MirrorsController < Projects::ApplicationController
     if result[:status] == :success
       flash[:notice] = _('Mirroring settings were successfully updated.')
     else
-      flash[:alert] = project.errors.full_messages.join(', ').html_safe
+      flash[:alert] = project.errors.full_messages.join(', ').html_safe # rubocop: disable Rails/OutputSafety
     end
 
     respond_to do |format|

@@ -53,7 +53,7 @@ module CommitsHelper
       end
     end
 
-    crumbs.html_safe
+    crumbs.html_safe # rubocop: disable Rails/OutputSafety
   end
 
   # Return Project default branch, if it present in array
@@ -73,7 +73,7 @@ module CommitsHelper
   def commit_branches_links(project, branches)
     branches.sort.map do |branch|
       commit_branch_link(project_ref_path(project, branch), branch)
-    end.join(' ').html_safe
+    end.join(' ').html_safe # rubocop: disable Rails/OutputSafety
   end
 
   # Returns a link formatted as a commit tag link
@@ -88,7 +88,7 @@ module CommitsHelper
     sorted = VersionSorter.rsort(tags)
     sorted.map do |tag|
       commit_tag_link(project_ref_path(project, tag), tag)
-    end.join(' ').html_safe
+    end.join(' ').html_safe # rubocop: disable Rails/OutputSafety
   end
 
   def link_to_browse_code(project, commit)

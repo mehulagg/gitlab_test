@@ -84,7 +84,7 @@ module VisibilityLevelHelper
     end
 
     reasons = reasons.any? ? ' because ' + reasons.to_sentence : ''
-    "This project cannot be #{level_name}#{reasons}.#{instructions.join}".html_safe
+    "This project cannot be #{level_name}#{reasons}.#{instructions.join}".html_safe # rubocop: disable Rails/OutputSafety
   end
 
   # Note: these messages closely mirror the form validation strings found in the group
@@ -110,7 +110,7 @@ module VisibilityLevelHelper
     end
 
     reasons = reasons.any? ? ' because ' + reasons.to_sentence : ''
-    "This group cannot be #{level_name}#{reasons}.#{instructions.join}".html_safe
+    "This group cannot be #{level_name}#{reasons}.#{instructions.join}".html_safe # rubocop: disable Rails/OutputSafety
   end
 
   def visibility_icon_description(form_model)

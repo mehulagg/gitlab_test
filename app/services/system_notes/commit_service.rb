@@ -56,7 +56,7 @@ module SystemNotes
       existing_commit_summary = existing_commit_summary(noteable, existing_commits, oldrev)
       new_commit_summary = new_commit_summary(new_commits).join
 
-      content_tag('ul', "#{existing_commit_summary}#{new_commit_summary}".html_safe)
+      content_tag('ul', "#{existing_commit_summary}#{new_commit_summary}".html_safe) # rubocop: disable Rails/OutputSafety
     end
 
     # Build a single line summarizing existing commits being added in a merge
@@ -95,7 +95,7 @@ module SystemNotes
       branch = "#{noteable.target_project_namespace}:#{branch}" if noteable.for_fork?
 
       branch_name = content_tag('code', branch)
-      content_tag('li', "#{commit_ids} - #{commits_text} from branch #{branch_name}".html_safe)
+      content_tag('li', "#{commit_ids} - #{commits_text} from branch #{branch_name}".html_safe) # rubocop: disable Rails/OutputSafety
     end
 
     def diff_comparison_path(merge_request, project, oldrev)

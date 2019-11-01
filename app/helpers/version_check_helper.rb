@@ -12,7 +12,7 @@ module VersionCheckHelper
   def link_to_version
     if Gitlab.pre_release?
       commit_link = link_to(Gitlab.revision, Gitlab::COM_URL + namespace_project_commits_path('gitlab-org', source_code_project, Gitlab.revision))
-      [Gitlab::VERSION, content_tag(:small, commit_link)].join(' ').html_safe
+      [Gitlab::VERSION, content_tag(:small, commit_link)].join(' ').html_safe # rubocop: disable Rails/OutputSafety
     else
       link_to Gitlab::VERSION, Gitlab::COM_URL + namespace_project_tag_path('gitlab-org', source_code_project, "v#{Gitlab::VERSION}")
     end

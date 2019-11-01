@@ -67,7 +67,7 @@ module LabelsHelper
       %(title="#{escape_once(title)}" data-container="body">) +
       %(#{escape_once(label.name)}#{label_suffix}</span>)
 
-    span.html_safe
+    span.html_safe # rubocop: disable Rails/OutputSafety
   end
 
   def label_tooltip_title(label)
@@ -106,7 +106,7 @@ module LabelsHelper
     end
 
     content_tag(:div, class: 'suggest-colors') do
-      colors_html.join.html_safe
+      colors_html.join.html_safe # rubocop: disable Rails/OutputSafety
     end
   end
 

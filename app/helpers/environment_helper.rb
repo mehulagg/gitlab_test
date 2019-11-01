@@ -55,7 +55,7 @@ module EnvironmentHelper
       end
 
     klass = "ci-status ci-#{status.dasherize}"
-    text = "#{ci_icon_for_status(status)} #{status_text}".html_safe
+    text = "#{ci_icon_for_status(status)} #{status_text}".html_safe # rubocop: disable Rails/OutputSafety
 
     if deployment.deployable
       link_to(text, deployment_path(deployment), class: klass)

@@ -19,7 +19,7 @@ module EmailsHelper
         }
 
       content_tag :script, type: 'application/ld+json' do
-        data.to_json.html_safe
+        data.to_json.html_safe # rubocop: disable Rails/OutputSafety
       end
     end
   end
@@ -95,7 +95,7 @@ module EmailsHelper
       case format
       when :html
         merge_request_link = link_to(merge_request.to_reference, merge_request.web_url)
-        _("via merge request %{link}").html_safe % { link: merge_request_link }
+        _("via merge request %{link}").html_safe % { link: merge_request_link } # rubocop: disable Rails/OutputSafety
       else
         # If it's not HTML nor text then assume it's text to be safe
         _("via merge request %{link}") % { link: "#{merge_request.to_reference} (#{merge_request.web_url})" }

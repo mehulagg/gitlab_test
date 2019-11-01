@@ -128,8 +128,8 @@ class BuildDetailsEntity < JobEntity
     docs_url = "https://docs.gitlab.com/ce/ci/yaml/README.html#dependencies"
 
     [
-      failure_message.html_safe,
-      help_message(docs_url).html_safe
+      failure_message.html_safe, # rubocop: disable Rails/OutputSafety
+      help_message(docs_url).html_safe # rubocop: disable Rails/OutputSafety
     ].join("<br />")
   end
 

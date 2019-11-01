@@ -82,7 +82,7 @@ module SearchHelper
     (s_("SearchResults|We couldn't find any %{scope} matching %{term}") % {
       scope: search_entries_scope_label(scope, 0),
       term: "<code>#{h(term)}</code>"
-    }).html_safe
+    }).html_safe # rubocop: disable Rails/OutputSafety
   end
 
   def find_project_for_result_blob(projects, result)
