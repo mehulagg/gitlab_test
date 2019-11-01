@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 module Packages
   class CreatePackageDependencyService < BaseService
-    METADATA_KEYS = %i(dependencies devDependencies bundleDependencies peerDependencies, deprecated).freeze
+    METADATA_KEYS = %i(dependencies devDependencies bundleDependencies peerDependencies deprecated).freeze
 
     def initialize(package, dependencies)
       @package = package
@@ -19,8 +19,8 @@ module Packages
     def create_dependency(type)
       if dependencies[type].present?
         dependencies[type].each do |pkg_dependency|
-          package_dependency = package.package_dependencies.find_or_create(name: pkg_dependency[0], version_pattern: pkg_dependency[1])
-          package.package_dependency_links.create(package_dependency_id: package_dependency.id, dependency_type: type)
+          package_dependency = package.package_dependencies.find_or_create_by_version_pattern(pkg_dependency[0], pkg_dependency[1])
+          package.package_dependency_links.find_or_create_by_dependency_type(package_dependency.id, type)
         end
       end
     end
