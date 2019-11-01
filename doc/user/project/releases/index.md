@@ -1,5 +1,6 @@
 ---
 type: reference, howto
+disqus_identifier: 'https://docs.gitlab.com/ee/workflow/releases.html'
 ---
 
 # Releases
