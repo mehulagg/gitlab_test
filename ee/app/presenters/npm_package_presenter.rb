@@ -17,13 +17,12 @@ class NpmPackagePresenter
     packages.each do |package|
       package_file = package.package_files.last
       package_dependency_links = package.package_dependency_links
-      if package_dependency_links.present?
-        package_versions[package.version] = build_package_version(package, package_file).merge(traverse_dependencies(package_dependency_links))
-      else
-      package_versions[package.version] = build_package_version(package, package_file)
-      end
+      package_versions[package.version] = if package_dependency_links.present?
+                                            build_package_version(package, package_file).merge(traverse_dependencies(package_dependency_links))
+                                          else
+                                            package_versions[package.version] = build_package_version(package, package_file)
+                                          end
     end
-
     package_versions
   end
 
