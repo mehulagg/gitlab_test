@@ -152,9 +152,9 @@ class Note < ApplicationRecord
   before_validation :nullify_blank_type, :nullify_blank_line_code
   before_validation :set_discussion_id, on: :create
   after_save :keep_around_commit, if: :for_project_noteable?
-  after_save :expire_etag_cache
+  after_save :expire_noteable_cache
   after_save :touch_noteable
-  after_destroy :expire_etag_cache
+  after_destroy :expire_noteable_cache
 
   class << self
     def model_name
@@ -440,8 +440,8 @@ class Note < ApplicationRecord
     refs
   end
 
-  def expire_etag_cache
-    noteable&.expire_note_etag_cache
+  def expire_noteable_cache
+    noteable&.expire_notes_cache
   end
 
   def touch(*args)

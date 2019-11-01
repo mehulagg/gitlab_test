@@ -19,8 +19,8 @@ class ResourceLabelEvent < ApplicationRecord
   validates :label, presence: { unless: :importing? }, on: :create
   validate :exactly_one_issuable
 
-  after_save :expire_etag_cache
-  after_destroy :expire_etag_cache
+  after_save :expire_issuable_cache
+  after_destroy :expire_issuable_cache
 
   enum action: {
     add: 1,
@@ -110,8 +110,8 @@ class ResourceLabelEvent < ApplicationRecord
     errors.add(:base, "Exactly one of #{self.class.issuable_attrs.join(', ')} is required")
   end
 
-  def expire_etag_cache
-    issuable.expire_note_etag_cache
+  def expire_issuable_cache
+    issuable.expire_notes_cache
   end
 
   def local_label?

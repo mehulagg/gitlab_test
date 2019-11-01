@@ -23,7 +23,7 @@ module ResourceEvents
       end
 
       Gitlab::Database.bulk_insert(ResourceLabelEvent.table_name, labels)
-      resource.expire_note_etag_cache
+      resource.expire_notes_cache
     end
 
     private

@@ -21,7 +21,7 @@ shared_examples 'issuable notes filter' do
   it 'expires notes e-tag cache for issuable if filter changed' do
     notes_filter = UserPreference::NOTES_FILTERS[:only_comments]
 
-    expect_any_instance_of(issuable.class).to receive(:expire_note_etag_cache)
+    expect_any_instance_of(issuable.class).to receive(:expire_notes_cache)
 
     get :discussions, params: params.merge(notes_filter: notes_filter)
   end
@@ -30,7 +30,7 @@ shared_examples 'issuable notes filter' do
     notes_filter = UserPreference::NOTES_FILTERS[:only_comments]
     user.set_notes_filter(notes_filter, issuable)
 
-    expect_any_instance_of(issuable.class).not_to receive(:expire_note_etag_cache)
+    expect_any_instance_of(issuable.class).not_to receive(:expire_notes_cache)
 
     get :discussions, params: params.merge(notes_filter: notes_filter)
   end

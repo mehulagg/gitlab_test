@@ -1,0 +1,5 @@
+---
+title: Cache discussions_to_be_resolved field for noteables
+merge_request: 19478
+author:
+type: performance

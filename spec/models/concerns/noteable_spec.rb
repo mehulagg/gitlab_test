@@ -219,6 +219,34 @@ describe Noteable do
           end
         end
       end
+
+      context 'the calculation is cached', :use_clean_rails_memory_store_caching do
+        let(:user) { create(:user) }
+
+        def cached_value
+          Rails.cache.read("merge_request:#{subject.id}:discussions_to_be_resolved")
+        end
+
+        before do
+          subject.discussions_to_be_resolved?
+        end
+
+        it "on the first call" do
+          expect(cached_value).to eq(true)
+        end
+
+        context 'a discussion is being resolved' do
+          it 'clears the cache' do
+            expect { first_discussion.resolve!(user) }.to change { cached_value }.from(true).to(nil)
+          end
+        end
+
+        context 'a discussion is being unresolved' do
+          it 'clears the cache' do
+            expect { first_discussion.unresolve! }.to change { cached_value }.from(true).to(nil)
+          end
+        end
+      end
     end
 
     describe "#discussions_to_be_resolved" do

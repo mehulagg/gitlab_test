@@ -103,6 +103,8 @@ module ResolvableDiscussion
 
     yield(notes_relation)
 
+    noteable.expire_notes_cache
+
     # Set the notes array to the updated notes
     @notes = notes_relation.fresh.to_a # rubocop:disable Gitlab/ModuleWithInstanceVariables
 

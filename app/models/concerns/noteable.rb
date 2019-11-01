@@ -109,7 +109,9 @@ module Noteable
   end
 
   def discussions_to_be_resolved?
-    discussions_resolvable? && !discussions_resolved?
+    Rails.cache.fetch(discussions_to_be_resolved_cache_key) do
+      discussions_resolvable? && !discussions_resolved?
+    end
   end
 
   def discussions_to_be_resolved
@@ -128,7 +130,17 @@ module Noteable
     false
   end
 
-  def expire_note_etag_cache
+  def expire_notes_cache
+    expire_notes_etag_cache
+
+    Rails.cache.delete(discussions_to_be_resolved_cache_key)
+  end
+
+  def discussions_to_be_resolved_cache_key
+    "#{self.class.name.underscore}:#{id}:discussions_to_be_resolved"
+  end
+
+  def expire_notes_etag_cache
     return unless discussions_rendered_on_frontend?
     return unless etag_caching_enabled?
 

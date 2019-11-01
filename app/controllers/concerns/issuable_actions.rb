@@ -165,7 +165,7 @@ module IssuableActions
         # We need to invalidate the cache for polling notes otherwise it will
         # ignore the filter.
         # The ideal would be to invalidate the cache for each user.
-        issuable.expire_note_etag_cache if notes_filter_updated?
+        issuable.expire_notes_cache if notes_filter_updated?
 
         notes_filter
       end
