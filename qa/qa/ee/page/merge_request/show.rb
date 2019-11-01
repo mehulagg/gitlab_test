@@ -37,6 +37,24 @@ module QA
                 element :approver_list
               end
 
+              view 'ee/app/assets/javascripts/vue_shared/license_management/mr_widget_license_report.vue' do
+                element :license_compliance_report
+              end
+
+              view 'app/assets/javascripts/reports/components/report_item.vue' do
+                element :report_item_row
+              end
+
+              view 'app/assets/javascripts/reports/components/issue_status_icon.vue' do
+                element :icon_status, ':data-qa-selector="`status_${status}_icon`" ' # rubocop:disable QA/ElementWithPattern
+              end
+
+              view 'app/assets/javascripts/vue_shared/license_management/components/set_approval_status_modal.vue' do
+                element :license_compliance_modal
+                element :approve_license_button
+                element :blacklist_license_button
+              end
+
               view 'ee/app/assets/javascripts/vue_shared/security_reports/grouped_security_reports_app.vue' do
                 element :vulnerability_report_grouped
                 element :sast_scan_report
@@ -110,6 +128,53 @@ module QA
 
           def unresolve_review_discussion
             check_element :unresolve_review_discussion_checkbox
+          end
+
+          def expand_license_report
+            within_element :license_compliance_report do
+              click_element :expand_report_button
+            end
+          end
+
+          def click_license(name)
+            within_element :license_compliance_report do
+              click_on name
+            end
+            wait_for_animated_element :license_compliance_modal
+          end
+
+          def license_report_expanded?
+            within_element :license_compliance_report do
+              has_element?(:expand_report_button, text: "Collapse")
+            end
+          end
+
+          def approve_license_with_mr(name)
+            expand_license_report unless license_report_expanded?
+            click_license(name)
+            click_element :approve_license_button
+          end
+
+          def has_approved_license?(name)
+            within_element :license_compliance_report do
+              within_element(:report_item_row, text: name) do
+                has_element?(:status_success_icon, wait: 1)
+              end
+            end
+          end
+
+          def blacklist_license_with_mr(name)
+            expand_license_report unless license_report_expanded?
+            click_license(name)
+            click_element :blacklist_license_button
+          end
+
+          def has_blacklisted_license?(name)
+            within_element :license_compliance_report do
+              within_element(:report_item_row, text: name) do
+                has_element?(:status_failed_icon, wait: 1)
+              end
+            end
           end
 
           def expand_vulnerability_report

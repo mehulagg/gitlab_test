@@ -125,6 +125,7 @@ export default {
       :class="reportSectionClass"
       :always-open="alwaysOpen"
       class="license-report-widget mr-report"
+      data-qa-selector="license_compliance_report"
     >
       <div v-if="showActionButtons" slot="actionButtons" class="append-right-default">
         <a

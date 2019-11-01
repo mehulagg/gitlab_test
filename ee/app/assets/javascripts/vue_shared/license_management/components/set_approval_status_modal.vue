@@ -46,6 +46,7 @@ export default {
     :header-title-text="headerTitleText"
     modal-size="lg"
     @cancel="resetLicenseInModal"
+    data-qa-selector="license_compliance_modal"
   >
     <slot v-if="currentLicenseInModal">
       <div class="row prepend-top-10 append-bottom-10 js-license-name">
@@ -94,6 +95,7 @@ export default {
         class="btn btn-remove btn-inverted js-modal-secondary-action"
         data-dismiss="modal"
         @click="blacklistLicense(currentLicenseInModal)"
+        data-qa-selector="blacklist_license_button"
       >
         {{ s__('LicenseCompliance|Blacklist license') }}
       </button>
@@ -103,6 +105,7 @@ export default {
         class="btn btn-success js-modal-primary-action"
         data-dismiss="modal"
         @click="approveLicense(currentLicenseInModal)"
+        data-qa-selector="approve_license_button"
       >
         {{ s__('LicenseCompliance|Approve license') }}
       </button>
