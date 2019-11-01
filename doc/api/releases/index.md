@@ -121,7 +121,7 @@ Example response:
                "external":true
             }
          ]
-      }
+      },
    },
    {
       "tag_name":"v0.1",
@@ -177,7 +177,7 @@ Example response:
          "links":[
 
          ]
-      }
+      },
    }
 ]
 ```
@@ -288,7 +288,7 @@ Example response:
       "links":[
 
       ]
-   }
+   },
 }
 ```
 
@@ -413,7 +413,7 @@ Example response:
             "external":true
          }
       ]
-   }
+   },
 }
 ```
 
@@ -514,7 +514,7 @@ Example response:
       "links":[
 
       ]
-   }
+   },
 }
 ```
 
@@ -596,7 +596,7 @@ Example response:
       "links":[
 
       ]
-   }
+   },
 }
 ```
 

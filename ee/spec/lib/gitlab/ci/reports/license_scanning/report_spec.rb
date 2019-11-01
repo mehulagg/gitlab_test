@@ -3,42 +3,168 @@
 require 'spec_helper'
 
 describe Gitlab::Ci::Reports::LicenseScanning::Report do
-  subject { build(:ci_reports_license_scanning_report, :mit) }
+  include LicenseScanningReportHelpers
+
+  describe '#by_license_name' do
+    subject { report.by_license_name(name) }
+
+    let(:report) { build(:ci_reports_license_scanning_report, :report_2) }
+
+    context 'with existing license' do
+      let(:name) { 'MIT' }
+
+      it 'finds right name' do
+        is_expected.to be_a(Gitlab::Ci::Reports::LicenseScanning::License)
+        expect(subject.name).to eq('MIT')
+      end
+    end
+
+    context 'without existing license' do
+      let(:name) { 'TIM' }
+
+      it { is_expected.to be_nil }
+    end
+  end
+
+  describe '#merge_dependencies_info!' do
+    subject { report.merge_dependencies_info!(dependencies) }
+
+    let(:report) { build(:ci_reports_license_scanning_report, :report_2) }
+    let(:dependency_list_report) { Gitlab::Ci::Reports::DependencyList::Report.new }
+
+    context 'without licensed dependencies' do
+      let(:library1) { build(:dependency, name: 'Library1') }
+      let(:library3) { build(:dependency, name: 'Library3') }
+      let(:dependencies) { [library3, library1] }
+
+      before do
+        subject
+      end
+
+      it 'does not merge dependency path' do
+        paths = all_dependency_paths(report)
+
+        expect(paths).to be_empty
+      end
+    end
+
+    context 'with licensed dependencies' do
+      let(:library1) { build(:dependency, :with_licenses, name: 'Library1') }
+      let(:library3) { build(:dependency, :with_licenses, name: 'Library3') }
+      let(:library4) { build(:dependency, :with_licenses, name: 'Library4') }
+      let(:dependencies) { [library1, library3, library4] }
+
+      let(:mit_license) { report.by_license_name('MIT') }
+      let(:apache_license) { report.by_license_name('Apache 2.0') }
+
+      before do
+        mit_license.add_dependency('Library4')
+        apache_license.add_dependency('Library3')
+
+        subject
+      end
+
+      it 'merge path to matched dependencies' do
+        dep1 = dependency_by_name(mit_license, 'Library1')
+        dep4 = dependency_by_name(mit_license, 'Library4')
+        dep3 = dependency_by_name(apache_license, 'Library3')
+
+        expect(dep1.path).to eq(library1.dig(:location, :blob_path))
+        expect(dep4.path).to eq(library4.dig(:location, :blob_path))
+        expect(dep3.path).to be_nil
+      end
+    end
+  end
 
   describe '#violates?' do
+    subject { report.violates?(project.software_license_policies) }
+
     let(:project) { create(:project) }
-    let(:mit_license) { build(:software_license, :mit) }
-    let(:apache_license) { build(:software_license, :apache_2_0) }
 
-    context 'when a blacklisted license is found in the report' do
-      let(:mit_blacklist) { build(:software_license_policy, :blacklist, software_license: mit_license) }
+    context "when checking for violations using v1 license scan report" do
+      let(:report) { build(:license_scan_report) }
+
+      let(:mit_license) { build(:software_license, :mit, spdx_identifier: nil) }
+      let(:apache_license) { build(:software_license, :apache_2_0, spdx_identifier: nil) }
 
       before do
-        project.software_license_policies << mit_blacklist
+        report
+          .add_license(id: nil, name: 'MIT')
+          .add_dependency('rails')
       end
 
-      it { expect(subject.violates?(project.software_license_policies)).to be(true) }
+      context 'when a blacklisted license is found in the report' do
+        let(:mit_blacklist) { build(:software_license_policy, :blacklist, software_license: mit_license) }
+
+        before do
+          project.software_license_policies << mit_blacklist
+        end
+
+        it { is_expected.to be_truthy }
+      end
+
+      context 'when a blacklisted license is discovered with a different casing for the name' do
+        let(:mit_blacklist) { build(:software_license_policy, :blacklist, software_license: mit_license) }
+
+        before do
+          mit_license.update!(name: 'mit')
+          project.software_license_policies << mit_blacklist
+        end
+
+        it { is_expected.to be_truthy }
+      end
+
+      context 'when none of the licenses discovered in the report violate the blacklist policy' do
+        let(:apache_blacklist) { build(:software_license_policy, :blacklist, software_license: apache_license) }
+
+        before do
+          project.software_license_policies << apache_blacklist
+        end
+
+        it { is_expected.to be_falsey }
+      end
     end
 
-    context 'when a blacklisted license is discovered with a different casing for the name' do
-      let(:mit_blacklist) { build(:software_license_policy, :blacklist, software_license: mit_license) }
+    context "when checking for violations using the v2 license scan reports" do
+      let(:report) { build(:license_scan_report) }
 
-      before do
-        mit_license.update!(name: 'mit')
-        project.software_license_policies << mit_blacklist
+      context "when a blacklisted license with a SPDX identifier is also in the report" do
+        let(:mit_spdx_id) { 'MIT' }
+        let(:mit_license) { build(:software_license, :mit, spdx_identifier: mit_spdx_id) }
+        let(:mit_policy) { build(:software_license_policy, :blacklist, software_license: mit_license) }
+
+        before do
+          report.add_license(id: mit_spdx_id, name: 'MIT License')
+          project.software_license_policies << mit_policy
+        end
+
+        it { is_expected.to be_truthy }
       end
 
-      it { expect(subject.violates?(project.software_license_policies)).to be(true) }
-    end
+      context "when a blacklisted license does not have an SPDX identifier because it was provided by an end user" do
+        let(:custom_license) { build(:software_license, name: 'custom', spdx_identifier: nil) }
+        let(:custom_policy) { build(:software_license_policy, :blacklist, software_license: custom_license) }
 
-    context 'when none of the licenses discovered in the report violate the blacklist policy' do
-      let(:apache_blacklist) { build(:software_license_policy, :blacklist, software_license: apache_license) }
+        before do
+          report.add_license(id: nil, name: 'Custom')
+          project.software_license_policies << custom_policy
+        end
 
-      before do
-        project.software_license_policies << apache_blacklist
+        it { is_expected.to be_truthy }
       end
 
-      it { expect(subject.violates?(project.software_license_policies)).to be(false) }
+      context "when none of the licenses discovered match any of the blacklisted software policies" do
+        let(:apache_license) { build(:software_license, :apache_2_0, spdx_identifier: 'Apache-2.0') }
+        let(:apache_policy) { build(:software_license_policy, :blacklist, software_license: apache_license) }
+
+        before do
+          report.add_license(id: nil, name: 'Custom')
+          report.add_license(id: 'MIT', name: 'MIT License')
+          project.software_license_policies << apache_policy
+        end
+
+        it { is_expected.to be_falsey }
+      end
     end
   end
 
@@ -139,6 +265,7 @@ describe Gitlab::Ci::Reports::LicenseScanning::Report do
   describe '.parse_from' do
     context 'when parsing a v1 report' do
       subject { described_class.parse_from(v1_json) }
+
       let(:v1_json) { fixture_file('security_reports/master/gl-license-management-report.json', dir: 'ee') }
 
       it { expect(subject.version).to eql('1.0') }
@@ -147,6 +274,7 @@ describe Gitlab::Ci::Reports::LicenseScanning::Report do
 
     context 'when parsing a v2 report' do
       subject { described_class.parse_from(v2_json) }
+
       let(:v2_json) { fixture_file('security_reports/gl-license-management-report-v2.json', dir: 'ee') }
 
       it { expect(subject.version).to eql('2.0') }

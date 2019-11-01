@@ -53,7 +53,10 @@ class GroupPolicy < BasePolicy
     enable :upload_file
   end
 
-  rule { admin }.enable :read_group
+  rule { admin }.policy do
+    enable :read_group
+    enable :update_max_artifacts_size
+  end
 
   rule { has_projects }.policy do
     enable :read_group
@@ -127,6 +130,8 @@ class GroupPolicy < BasePolicy
   rule { create_projects_disabled }.prevent :create_projects
 
   rule { owner | admin }.enable :read_statistics
+
+  rule { maintainer & can?(:create_projects) }.enable :transfer_projects
 
   def access_level
     return GroupMember::NO_ACCESS if @user.nil?

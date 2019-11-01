@@ -119,6 +119,19 @@ module Gitlab
     def breakline_regex
       @breakline_regex ||= /\r\n|\r|\n/
     end
+
+    # https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html
+    def aws_arn_regex
+      /\Aarn:\S+\z/
+    end
+
+    def aws_arn_regex_message
+      "must be a valid Amazon Resource Name"
+    end
+
+    def utc_date_regex
+      @utc_date_regex ||= /\A[0-9]{4}-[0-9]{2}-[0-9]{2}\z/.freeze
+    end
   end
 end
 

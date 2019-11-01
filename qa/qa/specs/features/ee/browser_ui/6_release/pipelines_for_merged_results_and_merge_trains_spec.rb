@@ -21,6 +21,7 @@ module QA
           project_push.commit_message = 'Add .gitlab-ci.yml'
           project_push.file_content = <<~EOF
             test:
+              tags: ["qa"]
               script: echo 'OK'
               only:
               - merge_requests
@@ -44,7 +45,7 @@ module QA
       end
 
       after(:context) do
-        Service::Runner.new(@executor).remove!
+        Service::DockerRun::GitlabRunner.new(@executor).remove!
       end
 
       it 'creates a pipeline with merged results' do

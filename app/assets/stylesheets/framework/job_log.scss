@@ -17,7 +17,7 @@
 }
 
 .line-number {
-  color: $gl-text-color-inverted;
+  color: $gl-gray-500;
   padding: 0 $gl-padding-8;
   min-width: $job-line-number-width;
   margin-left: -$job-line-number-margin;
@@ -27,7 +27,7 @@
   &:active,
   &:visited {
     text-decoration: underline;
-    color: $gl-text-color-inverted;
+    color: $gl-gray-500;
   }
 }
 

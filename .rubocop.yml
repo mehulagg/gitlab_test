@@ -56,7 +56,7 @@ Style/FrozenStringLiteralComment:
     - 'qa/**/*'
     - 'rubocop/**/*'
     - 'scripts/**/*'
-    - 'spec/**/*'
+    - 'spec/lib/**/*'
 
 RSpec/FilePath:
   Exclude:
@@ -183,6 +183,11 @@ Gitlab/ModuleWithInstanceVariables:
     # We ignore spec helpers because it usually doesn't matter
     - spec/support/**/*.rb
     - features/steps/**/*.rb
+
+Gitlab/ConstGetInheritFalse:
+  Enabled: true
+  Exclude:
+    - 'qa/bin/*'
 
 Gitlab/HTTParty:
   Enabled: true

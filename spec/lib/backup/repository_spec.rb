@@ -70,7 +70,7 @@ describe Backup::Repository do
     end
 
     context 'restoring object pools' do
-      it 'schedules restoring of the pool' do
+      it 'schedules restoring of the pool', :sidekiq_might_not_need_inline do
         pool_repository = create(:pool_repository, :failed)
         pool_repository.delete_object_pool
 
@@ -80,30 +80,6 @@ describe Backup::Repository do
         expect(pool_repository).not_to be_failed
         expect(pool_repository.object_pool.exists?).to be(true)
       end
-    end
-  end
-
-  describe '#prepare_directories', :seed_helper do
-    before do
-      allow(FileUtils).to receive(:mkdir_p).and_call_original
-      allow(FileUtils).to receive(:mv).and_call_original
-    end
-
-    after(:all) do
-      ensure_seeds
-    end
-
-    it' removes all repositories' do
-      # Sanity check: there should be something for us to delete
-      expect(list_repositories).to include(File.join(SEED_STORAGE_PATH, TEST_REPO_PATH))
-
-      subject.prepare_directories
-
-      expect(list_repositories).to be_empty
-    end
-
-    def list_repositories
-      Dir[File.join(SEED_STORAGE_PATH, '*.git')]
     end
   end
 

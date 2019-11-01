@@ -18,6 +18,7 @@ module EE
         mount ::API::EpicIssues
         mount ::API::EpicLinks
         mount ::API::Epics
+        mount ::API::FeatureFlags
         mount ::API::ContainerRegistryEvent
         mount ::API::Geo
         mount ::API::GeoNodes
@@ -41,6 +42,7 @@ module EE
         mount ::API::MergeRequestApprovalRules
         mount ::API::ProjectAliases
         mount ::API::Dependencies
+        mount ::API::VisualReviewDiscussions
 
         version 'v3', using: :path do
           # Although the following endpoints are kept behind V3 namespace,

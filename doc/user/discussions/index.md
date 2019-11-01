@@ -24,6 +24,9 @@ You can also reply to a comment notification email to reply to the comment if
 creates another standard comment. Replying to a threaded comment creates a reply in the thread. Email replies support
 [Markdown] and [quick actions], just as if you replied from the web.
 
+NOTE: **Note:**
+There is a limit of 5,000 comments for every object, for example: issue, epic, and merge request.
+
 ## Resolvable comments and threads
 
 > **Notes:**
@@ -349,7 +352,10 @@ bottom of the screen with two buttons:
   Clicking **Submit review** will publish all comments. Any quick actions
   submitted are performed at this time.
 
-Alternatively, every pending comment has a button to finish the entire review.
+Alternatively, to finish the entire review from a pending comment:
+
+- Click the **Finish review** button on the comment.
+- Use the `/submit_review` [quick action](../project/quick_actions.md) in the text of the comment.
 
 ![Review submission](img/review_preview.png)
 

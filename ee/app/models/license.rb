@@ -48,6 +48,7 @@ class License < ApplicationRecord
     board_milestone_lists
     ci_cd_projects
     cluster_deployments
+    code_analytics
     code_owner_approval_required
     commit_committer_check
     cross_project_pipelines
@@ -74,6 +75,7 @@ class License < ApplicationRecord
     issues_analytics
     jira_dev_panel_integration
     ldap_group_sync_filter
+    marking_project_for_deletion
     merge_pipelines
     merge_request_performance_metrics
     merge_trains

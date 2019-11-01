@@ -94,4 +94,7 @@ export const release = {
       },
     ],
   },
+  _links: {
+    edit_url: 'http://0.0.0.0:3001/root/release-test/-/releases/v0.3/edit',
+  },
 };

@@ -68,13 +68,17 @@ class Project < ApplicationRecord
     :snippets_access_level, :builds_access_level, :repository_access_level,
     to: :project_feature, allow_nil: true
 
-  delegate :base_dir, :disk_path, :ensure_storage_path_exists, to: :storage
+  delegate :base_dir, :disk_path, to: :storage
 
   delegate :scheduled?, :started?, :in_progress?,
     :failed?, :finished?,
     prefix: :import, to: :import_state, allow_nil: true
 
   delegate :no_import?, to: :import_state, allow_nil: true
+
+  # TODO: remove once GitLab 12.5 is released
+  # https://gitlab.com/gitlab-org/gitlab/issues/34638
+  self.ignored_columns += %i[merge_requests_require_code_owner_approval]
 
   default_value_for :archived, false
   default_value_for :resolve_outdated_diff_discussions, false
@@ -87,6 +91,7 @@ class Project < ApplicationRecord
   default_value_for :wiki_enabled, gitlab_config_features.wiki
   default_value_for :snippets_enabled, gitlab_config_features.snippets
   default_value_for :only_allow_merge_if_all_discussions_are_resolved, false
+  default_value_for :remove_source_branch_after_merge, true
 
   add_authentication_token_field :runners_token, encrypted: -> { Feature.enabled?(:projects_tokens_optional_encryption, default_enabled: true) ? :optional : :required }
 
@@ -122,8 +127,6 @@ class Project < ApplicationRecord
   # Storage specific hooks
   after_initialize :use_hashed_storage
   after_create :check_repository_absence!
-  after_create :ensure_storage_path_exists
-  after_save :ensure_storage_path_exists, if: :saved_change_to_namespace_id?
 
   acts_as_ordered_taggable
 
@@ -247,6 +250,7 @@ class Project < ApplicationRecord
   has_one :cluster_project, class_name: 'Clusters::Project'
   has_many :clusters, through: :cluster_project, class_name: 'Clusters::Cluster'
   has_many :kubernetes_namespaces, class_name: 'Clusters::KubernetesNamespace'
+  has_many :management_clusters, class_name: 'Clusters::Cluster', foreign_key: :management_project_id, inverse_of: :management_project
 
   has_many :prometheus_metrics
 
@@ -282,7 +286,7 @@ class Project < ApplicationRecord
   has_many :variables, class_name: 'Ci::Variable'
   has_many :triggers, class_name: 'Ci::Trigger'
   has_many :environments
-  has_many :deployments, -> { success }
+  has_many :deployments
   has_many :pipeline_schedules, class_name: 'Ci::PipelineSchedule'
   has_many :project_deploy_tokens
   has_many :deploy_tokens, through: :project_deploy_tokens
@@ -297,6 +301,9 @@ class Project < ApplicationRecord
   has_many :cycle_analytics_stages, class_name: 'Analytics::CycleAnalytics::ProjectStage'
 
   has_many :external_pull_requests, inverse_of: :project
+
+  has_many :sourced_pipelines, class_name: 'Ci::Sources::Pipeline', foreign_key: :source_project_id
+  has_many :source_pipelines, class_name: 'Ci::Sources::Pipeline', foreign_key: :project_id
 
   has_one :pages_metadatum, class_name: 'ProjectPagesMetadatum', inverse_of: :project
 
@@ -607,11 +614,11 @@ class Project < ApplicationRecord
       joins(:namespace).where(namespaces: { type: 'Group' }).select(:namespace_id)
     end
 
-    # Returns ids of projects with milestones available for given user
+    # Returns ids of projects with issuables available for given user
     #
-    # Used on queries to find milestones which user can see
-    # For example: Milestone.where(project_id: ids_with_milestone_available_for(user))
-    def ids_with_milestone_available_for(user)
+    # Used on queries to find milestones or labels which user can see
+    # For example: Milestone.where(project_id: ids_with_issuables_available_for(user))
+    def ids_with_issuables_available_for(user)
       with_issues_enabled = with_issues_available_for_user(user).select(:id)
       with_merge_requests_enabled = with_merge_requests_available_for_user(user).select(:id)
 
@@ -1034,8 +1041,8 @@ class Project < ApplicationRecord
     end
   end
 
-  def web_url
-    Gitlab::Routing.url_helpers.project_url(self)
+  def web_url(only_path: nil)
+    Gitlab::Routing.url_helpers.project_url(self, only_path: only_path)
   end
 
   def readme_url
@@ -1258,6 +1265,10 @@ class Project < ApplicationRecord
     end
   end
 
+  def to_ability_name
+    model_name.singular
+  end
+
   # rubocop: disable CodeReuse/ServiceClass
   def execute_hooks(data, hooks_scope = :push_hooks)
     run_after_commit_or_now do
@@ -1314,7 +1325,18 @@ class Project < ApplicationRecord
   end
 
   def http_url_to_repo
-    "#{web_url}.git"
+    custom_root = Gitlab::CurrentSettings.custom_http_clone_url_root
+
+    project_url = if custom_root.present?
+                    Gitlab::Utils.append_path(
+                      custom_root,
+                      web_url(only_path: true)
+                    )
+                  else
+                    web_url
+                  end
+
+    "#{project_url}.git"
   end
 
   # Is overridden in EE
@@ -1942,27 +1964,6 @@ class Project < ApplicationRecord
     return [] unless auto_devops_enabled?
 
     (auto_devops || build_auto_devops)&.predefined_variables
-  end
-
-  def append_or_update_attribute(name, value)
-    if Project.reflect_on_association(name).try(:macro) == :has_many
-      # if this is 1-to-N relation, update the parent object
-      value.each do |item|
-        item.update!(
-          Project.reflect_on_association(name).foreign_key => id)
-      end
-
-      # force to drop relation cache
-      public_send(name).reset # rubocop:disable GitlabSecurity/PublicSend
-
-      # succeeded
-      true
-    else
-      # if this is another relation or attribute, update just object
-      update_attribute(name, value)
-    end
-  rescue ActiveRecord::RecordInvalid => e
-    raise e, "Failed to set #{name}: #{e.message}"
   end
 
   # Tries to set repository as read_only, checking for existing Git transfers in progress beforehand

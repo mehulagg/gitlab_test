@@ -108,12 +108,14 @@
     background: $white-light;
 
     &.image_file,
+    &.audio,
     &.video {
       background: $gray-darker;
       text-align: center;
       padding: 30px;
 
       img,
+      audio,
       video {
         max-width: 80%;
       }
@@ -254,6 +256,17 @@
       .preview {
         padding: $gl-padding;
       }
+    }
+  }
+
+  .file-editor {
+    .ace_underline {
+      text-decoration: none;
+    }
+
+    .ace_line a {
+      pointer-events: auto;
+      color: inherit;
     }
   }
 }

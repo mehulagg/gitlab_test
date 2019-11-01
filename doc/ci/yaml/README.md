@@ -23,7 +23,7 @@ We have complete examples of configuring pipelines:
 - To see a large `.gitlab-ci.yml` file used in an enterprise, see the [`.gitlab-ci.yml` file for `gitlab`](https://gitlab.com/gitlab-org/gitlab/blob/master/.gitlab-ci.yml).
 
 NOTE: **Note:**
-If you have a [mirrored repository where GitLab pulls from](../../workflow/repository_mirroring.md#pulling-from-a-remote-repository-starter),
+If you have a [mirrored repository where GitLab pulls from](../../user/project/repository/repository_mirroring.md#pulling-from-a-remote-repository-starter),
 you may need to enable pipeline triggering in your project's
 **Settings > Repository > Pull from a remote repository > Trigger pipelines for mirror updates**.
 
@@ -106,7 +106,7 @@ The following table lists available parameters for jobs:
 | [`when`](#when)                                    | When to run job. Also available: `when:manual` and `when:delayed`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | [`environment`](#environment)                      | Name of an environment to which the job deploys. Also available: `environment:name`, `environment:url`, `environment:on_stop`, and `environment:action`.                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | [`cache`](#cache)                                  | List of files that should be cached between subsequent runs. Also available: `cache:paths`, `cache:key`, `cache:untracked`, and `cache:policy`.                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| [`artifacts`](#artifacts)                          | List of files and directories to attach to a job on success. Also available: `artifacts:paths`, `artifacts:name`, `artifacts:untracked`, `artifacts:when`, `artifacts:expire_in`, `artifacts:reports`, and `artifacts:reports:junit`.<br><br>In GitLab [Enterprise Edition](https://about.gitlab.com/pricing/), these are available: `artifacts:reports:codequality`, `artifacts:reports:sast`, `artifacts:reports:dependency_scanning`, `artifacts:reports:container_scanning`, `artifacts:reports:dast`, `artifacts:reports:license_management`, `artifacts:reports:performance` and `artifacts:reports:metrics`. |
+| [`artifacts`](#artifacts)                          | List of files and directories to attach to a job on success. Also available: `artifacts:paths`, `artifacts:expose_as`, `artifacts:name`, `artifacts:untracked`, `artifacts:when`, `artifacts:expire_in`, `artifacts:reports`, and `artifacts:reports:junit`.<br><br>In GitLab [Enterprise Edition](https://about.gitlab.com/pricing/), these are available: `artifacts:reports:codequality`, `artifacts:reports:sast`, `artifacts:reports:dependency_scanning`, `artifacts:reports:container_scanning`, `artifacts:reports:dast`, `artifacts:reports:license_management`, `artifacts:reports:performance` and `artifacts:reports:metrics`. |
 | [`dependencies`](#dependencies)                    | Restrict which artifacts are passed to a specific job by providing a list of jobs to fetch artifacts from.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | [`coverage`](#coverage)                            | Code coverage settings for a given job.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | [`retry`](#retry)                                  | When and how many times a job can be auto-retried in case of a failure.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -181,6 +181,25 @@ that the YAML parser knows to interpret the whole thing as a string rather than
 a "key: value" pair. Be careful when using special characters:
 `:`, `{`, `}`, `[`, `]`, `,`, `&`, `*`, `#`, `?`, `|`, `-`, `<`, `>`, `=`, `!`, `%`, `@`, `` ` ``.
 
+#### YAML anchors for `script`
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/23005) in GitLab 12.5.
+
+You can use [YAML anchors](#anchors) with scripts, which makes it possible to
+include a predefined list of commands in multiple jobs.
+
+Example:
+
+```yaml
+.something: &something
+- echo 'something'
+
+job_name:
+  script:
+    - *something
+    - echo 'this is the script'
+```
+
 ### `image`
 
 Used to specify [a Docker image](../docker/using_docker_images.md#what-is-an-image) to use for the job.
@@ -242,10 +261,10 @@ For more information, see see [Available settings for `services`](../docker/usin
 
 `before_script` is used to define the command that should be run before all
 jobs, including deploy jobs, but after the restoration of [artifacts](#artifacts).
-This can be an array or a multi-line string.
+This must be an an array.
 
 `after_script` is used to define the command that will be run after all
-jobs, including failed ones. This has to be an array or a multi-line string.
+jobs, including failed ones. This must be an an array.
 
 Scripts specified in `before_script` are:
 
@@ -284,6 +303,33 @@ job:
     - execute this after my script
 ```
 
+#### YAML anchors for `before_script` and `after_script`
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/23005) in GitLab 12.5.
+
+You can use [YAML anchors](#anchors) with `before_script` and `after_script`,
+which makes it possible to include a predefined list of commands in multiple
+jobs.
+
+Example:
+
+```yaml
+.something_before: &something_before
+- echo 'something before'
+
+.something_after: &something_after
+- echo 'something after'
+
+
+job_name:
+  before_script:
+    - *something_before
+  script:
+    - echo 'this is the script'
+  after_script:
+    - *something_after
+```
+
 ### `stages`
 
 `stages` is used to define stages that can be used by jobs and is defined
@@ -318,6 +364,48 @@ There are also two edge cases worth mentioning:
    `test` and `deploy` are allowed to be used as job's stage by default.
 1. If a job doesn't specify a `stage`, the job is assigned the `test` stage.
 
+#### `.pre` and `.post`
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/31441) in GitLab 12.4.
+
+The following stages are available to every pipeline:
+
+- `.pre`, which is guaranteed to always be the first stage in a pipeline.
+- `.post`, which is guaranteed to always be the last stage in a pipeline.
+
+User-defined stages are executed after `.pre` and before `.post`.
+
+The order of `.pre` and `.post` cannot be changed, even if defined out of order in `.gitlab-ci.yml`.
+For example, the following are equivalent configuration:
+
+- Configured in order:
+
+  ```yml
+  stages:
+    - .pre
+    - a
+    - b
+    - .post
+  ```
+
+- Configured out of order:
+
+  ```yml
+  stages:
+    - a
+    - .pre
+    - b
+    - .post
+  ```
+
+- Not explicitly configured:
+
+  ```yml
+  stages:
+    - a
+    - b
+  ```
+
 ### `stage`
 
 `stage` is defined per-job and relies on [`stages`](#stages) which is defined
@@ -329,6 +417,10 @@ stages:
   - build
   - test
   - deploy
+
+job 0:
+  stage: .pre
+  script: make something useful before build stage
 
 job 1:
   stage: build
@@ -345,6 +437,10 @@ job 3:
 job 4:
   stage: deploy
   script: make deploy
+
+job 5:
+  stage: .post
+  script: make something useful at the end of pipeline
 ```
 
 #### Using your own Runners
@@ -1086,12 +1182,52 @@ Manual actions are considered to be write actions, so permissions for
 [protected branches](../../user/project/protected_branches.md) are used when
 a user wants to trigger an action. In other words, in order to trigger a manual
 action assigned to a branch that the pipeline is running for, the user needs to
-have the ability to merge to this branch.
+have the ability to merge to this branch. It is possible to use protected environments
+to more strictly [protect manual deployments](#protecting-manual-jobs-premium) from being
+run by unauthorized users.
 
 NOTE: **Note:**
 Using `when:manual` and `trigger` together results in the error `jobs:#{job-name} when
 should be on_success, on_failure or always`, because `when:manual` prevents triggers
 being used.
+
+##### Protecting manual jobs **(PREMIUM)**
+
+It's possible to use [protected environments](../environments/protected_environments.md)
+to define a precise list of users authorized to run a manual job. By allowing only
+users associated with a protected environment to trigger manual jobs, it is possible
+to implement some special use cases, such as:
+
+- More precisely limiting who can deploy to an environment.
+- Enabling a pipeline to be blocked until an approved user "approves" it.
+
+To do this, you must:
+
+1. Add an `environment` to the job. For example:
+
+   ```yaml
+   deploy_prod:
+     stage: deploy
+     script:
+       - echo "Deploy to production server"
+     environment:
+       name: production
+       url: https://example.com
+     when: manual
+     only:
+       - master
+   ```
+
+1. In the [protected environments settings](../environments/protected_environments.md#protecting-environments),
+   select the environment (`production` in the example above) and add the users, roles or groups
+   that are authorized to trigger the manual job to the **Allowed to Deploy** list. Only those in
+   this list will be able to trigger this manual job, as well as GitLab administrators
+   who are always able to use protected environments.
+
+Additionally, if a manual job is defined as blocking by adding `allow_failure: false`,
+the next stages of the pipeline will not run until the manual job is triggered. This
+can be used as a way to have a defined list of users allowed to "approve" later pipeline
+stages by triggering the blocking manual job.
 
 #### `when:delayed`
 
@@ -1536,6 +1672,47 @@ release-job:
   only:
     - tags
 ```
+
+#### `artifacts:expose_as`
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/15018) in GitLab 12.5.
+
+The `expose_as` keyword can be used to expose [job artifacts](../../user/project/pipelines/job_artifacts.md)
+in the [merge request](../../user/project/merge_requests/index.md) UI.
+
+For example, to match a single file:
+
+```yml
+test:
+  script: [ 'echo 1' ]
+  artifacts:
+    expose_as: 'artifact 1'
+    paths: ['path/to/file.txt']
+```
+
+With this configuration, GitLab will add a link **artifact 1** to the relevant merge request
+that points to `file1.txt`.
+
+An example that will match an entire directory:
+
+```yml
+test:
+  script: [ 'echo 1' ]
+  artifacts:
+    expose_as: 'artifact 1'
+    paths: ['path/to/directory/']
+```
+
+Note the following:
+
+- A maximum of 10 job artifacts per merge request can be exposed.
+- Glob patterns are unsupported.
+- If a directory is specified, the link will be to the job [artifacts browser](../../user/project/pipelines/job_artifacts.md#browsing-artifacts) if there is more than
+  one file in the directory.
+- For exposed single file artifacts with `.html`, `.htm`, `.txt`, `.json`, `.xml`,
+  and `.log` extensions, if [GitLab Pages](../../administration/pages/index.md) is:
+  - Enabled, GitLab will automatically render the artifact.
+  - Not enabled, you will see the file in the artifacts browser.
 
 #### `artifacts:name`
 
@@ -2188,6 +2365,24 @@ staging:
   trigger:
     project: my/deployment
     branch: stable
+```
+
+It is possible to mirror the status from a triggered pipeline:
+
+```
+trigger_job:
+  trigger:
+    project: my/project
+    strategy: depend
+```
+
+It is possible to mirror the status from an upstream pipeline:
+
+```
+upstream_bridge:
+  stage: test
+  needs:
+    pipeline: other/project
 ```
 
 ### `interruptible`

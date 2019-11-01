@@ -104,6 +104,16 @@ class ApplicationSetting < ApplicationRecord
             hostname: true,
             if: :snowplow_enabled
 
+  validates :snowplow_iglu_registry_url,
+            addressable_url: true,
+            allow_blank: true,
+            if: :snowplow_enabled
+
+  validates :pendo_url,
+            presence: true,
+            public_url: true,
+            if: :pendo_enabled
+
   validates :max_attachment_size,
             presence: true,
             numericality: { only_integer: true, greater_than: 0 }
@@ -213,6 +223,12 @@ class ApplicationSetting < ApplicationRecord
   validates :protected_paths,
             length: { maximum: 100, message: N_('is too long (maximum is 100 entries)') },
             allow_nil: false
+
+  validates :push_event_hooks_limit,
+            numericality: { greater_than_or_equal_to: 0 }
+
+  validates :push_event_activities_limit,
+            numericality: { greater_than_or_equal_to: 0 }
 
   SUPPORTED_KEY_TYPES.each do |type|
     validates :"#{type}_key_restriction", presence: true, key_restriction: { type: type }

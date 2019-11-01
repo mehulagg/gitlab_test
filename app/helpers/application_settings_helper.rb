@@ -289,7 +289,13 @@ module ApplicationSettingsHelper
       :snowplow_collector_hostname,
       :snowplow_cookie_domain,
       :snowplow_enabled,
-      :snowplow_site_id
+      :snowplow_site_id,
+      :snowplow_iglu_registry_url,
+      :push_event_hooks_limit,
+      :push_event_activities_limit,
+      :custom_http_clone_url_root,
+      :pendo_enabled,
+      :pendo_url
     ]
   end
 

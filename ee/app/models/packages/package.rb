@@ -23,6 +23,7 @@ class Packages::Package < ApplicationRecord
   scope :with_name, ->(name) { where(name: name) }
   scope :with_name_like, ->(name) { where(arel_table[:name].matches(name)) }
   scope :with_version, ->(version) { where(version: version) }
+  scope :with_package_type, ->(package_type) { where(package_type: package_type) }
   scope :has_version, -> { where.not(version: nil) }
   scope :preload_files, -> { preload(:package_files) }
   scope :last_of_each_version, -> { where(id: all.select('MAX(id) AS id').group(:version)) }
@@ -36,6 +37,8 @@ class Packages::Package < ApplicationRecord
   scope :order_version_desc, -> { reorder('version DESC') }
   scope :order_type, -> { reorder('package_type ASC') }
   scope :order_type_desc, -> { reorder('package_type DESC') }
+  scope :order_project_name, -> { joins(:project).reorder('projects.name ASC') }
+  scope :order_project_name_desc, -> { joins(:project).reorder('projects.name DESC') }
 
   def self.for_projects(projects)
     return none unless projects.any?
@@ -66,6 +69,8 @@ class Packages::Package < ApplicationRecord
     when 'version_desc' then order_version_desc
     when 'type_asc' then order_type
     when 'type_desc' then order_type_desc
+    when 'project_name_asc' then order_project_name
+    when 'project_name_desc' then order_project_name_desc
     else
       order_created_desc
     end
