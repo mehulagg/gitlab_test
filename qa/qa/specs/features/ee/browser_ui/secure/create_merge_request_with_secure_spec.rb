@@ -14,15 +14,19 @@ module QA
       after do
         Service::DockerRun::GitlabRunner.new(@executor).remove!
 
-        Runtime::Feature.enable('job_log_json') if @job_log_json_flag_enabled
+        perform_as_admin do
+          Runtime::Feature.enable('job_log_json') if @job_log_json_flag_enabled
+        end
       end
 
       before do
         @executor = "qa-runner-#{Time.now.to_i}"
 
         # Handle WIP Job Logs flag - https://gitlab.com/gitlab-org/gitlab/issues/31162
-        @job_log_json_flag_enabled = Runtime::Feature.enabled?('job_log_json')
-        Runtime::Feature.disable('job_log_json') if @job_log_json_flag_enabled
+        perform_as_admin do
+          @job_log_json_flag_enabled = Runtime::Feature.enabled?('job_log_json')
+          Runtime::Feature.disable('job_log_json') if @job_log_json_flag_enabled
+        end
 
         Runtime::Browser.visit(:gitlab, Page::Main::Login)
         Page::Main::Login.perform(&:sign_in_using_credentials)
@@ -97,6 +101,14 @@ module QA
         Page::Project::Job::Show.perform do |job|
           expect(job).to be_successful(timeout: 600)
         end
+      end
+
+      def perform_as_admin
+        Page::Main::Menu.perform(&:sign_out_if_signed_in)
+        Runtime::Browser.visit(:gitlab, Page::Main::Login)
+        Page::Main::Login.perform(&:sign_in_using_admin_credentials)
+        yield
+        Page::Main::Menu.perform(&:sign_out)
       end
     end
   end

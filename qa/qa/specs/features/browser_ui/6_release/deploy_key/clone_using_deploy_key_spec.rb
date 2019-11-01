@@ -7,8 +7,10 @@ module QA
     describe 'Git clone using a deploy key' do
       before do
         # Handle WIP Job Logs flag - https://gitlab.com/gitlab-org/gitlab/issues/31162
-        @job_log_json_flag_enabled = Runtime::Feature.enabled?('job_log_json')
-        Runtime::Feature.disable('job_log_json') if @job_log_json_flag_enabled
+        perform_as_admin do
+          @job_log_json_flag_enabled = Runtime::Feature.enabled?('job_log_json')
+          Runtime::Feature.disable('job_log_json') if @job_log_json_flag_enabled
+        end
 
         Runtime::Browser.visit(:gitlab, Page::Main::Login)
         Page::Main::Login.perform(&:sign_in_using_credentials)
@@ -30,7 +32,9 @@ module QA
       end
 
       after do
-        Runtime::Feature.enable('job_log_json') if @job_log_json_flag_enabled
+        perform_as_admin do
+          Runtime::Feature.enable('job_log_json') if @job_log_json_flag_enabled
+        end
         Service::DockerRun::GitlabRunner.new(@runner_name).remove!
       end
 
@@ -96,6 +100,14 @@ module QA
             expect(job.output).to include(sha1sum)
           end
         end
+      end
+
+      def perform_as_admin
+        Page::Main::Menu.perform(&:sign_out_if_signed_in)
+        Runtime::Browser.visit(:gitlab, Page::Main::Login)
+        Page::Main::Login.perform(&:sign_in_using_admin_credentials)
+        yield
+        Page::Main::Menu.perform(&:sign_out)
       end
     end
   end
