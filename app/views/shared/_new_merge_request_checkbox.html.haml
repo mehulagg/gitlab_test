@@ -4,5 +4,5 @@
   = label_tag "create_merge_request-#{nonce}", class: 'form-check-label' do
     - translation_variables = { new_merge_request: "<strong>#{_('new merge request')}</strong>" }
     - translation = _('Start a %{new_merge_request} with these changes') % translation_variables
-    #{ translation.html_safe }
+    #{ translation.html_safe } # rubocop: disable Rails/OutputSafety
 

@@ -5,7 +5,7 @@
     %h4.prepend-top-0
       = _("Fork project")
     %p
-      = _("A fork is a copy of a project.<br />Forking a repository allows you to make changes without affecting the original project.").html_safe
+      = _("A fork is a copy of a project.<br />Forking a repository allows you to make changes without affecting the original project.").html_safe # rubocop: disable Rails/OutputSafety
   .col-lg-9
     - if @namespaces.present?
       .fork-thumbnail-container.js-fork-content

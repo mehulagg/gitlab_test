@@ -7,7 +7,7 @@
     .col-md-4
       %h4= _('Resolve conflicts on source branch')
       .resolve-info{ "v-pre": true }
-        = translation.html_safe
+        = translation.html_safe # rubocop: disable Rails/OutputSafety
     .col-md-8
       %label.label-bold{ "for" => "commit-message" }
         #{ _('Commit message') }

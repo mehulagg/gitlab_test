@@ -5,10 +5,10 @@
 %ul
   %li
     - link_to_kubernetes_engine = link_to(s_('ClusterIntegration|access to Google Kubernetes Engine'), 'https://console.cloud.google.com/freetrial?utm_campaign=2018_cpanel&utm_source=gitlab&utm_medium=referral', target: '_blank', rel: 'noopener noreferrer')
-    = s_('ClusterIntegration|Your account must have %{link_to_kubernetes_engine}').html_safe % { link_to_kubernetes_engine: link_to_kubernetes_engine }
+    = s_('ClusterIntegration|Your account must have %{link_to_kubernetes_engine}').html_safe % { link_to_kubernetes_engine: link_to_kubernetes_engine } # rubocop: disable Rails/OutputSafety
     %li
       - link_to_requirements = link_to(s_('ClusterIntegration|meets the requirements'), 'https://cloud.google.com/kubernetes-engine/docs/quickstart?utm_campaign=2018_cpanel&utm_source=gitlab&utm_medium=referral', target: '_blank', rel: 'noopener noreferrer')
-      = s_('ClusterIntegration|Make sure your account %{link_to_requirements} to create Kubernetes clusters').html_safe % { link_to_requirements: link_to_requirements }
+      = s_('ClusterIntegration|Make sure your account %{link_to_requirements} to create Kubernetes clusters').html_safe % { link_to_requirements: link_to_requirements } # rubocop: disable Rails/OutputSafety
     %li
       - link_to_container_project = link_to(s_('ClusterIntegration|Google Kubernetes Engine project'), 'https://console.cloud.google.com/home/dashboard?utm_campaign=2018_cpanel&utm_source=gitlab&utm_medium=referral', target: '_blank', rel: 'noopener noreferrer')
-      = s_('ClusterIntegration|This account must have permissions to create a Kubernetes cluster in the %{link_to_container_project} specified below').html_safe % { link_to_container_project: link_to_container_project }
+      = s_('ClusterIntegration|This account must have permissions to create a Kubernetes cluster in the %{link_to_container_project} specified below').html_safe % { link_to_container_project: link_to_container_project } # rubocop: disable Rails/OutputSafety

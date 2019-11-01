@@ -7,7 +7,7 @@
     %i.fa.fa-comment
     = link_to_member(project, note.author, avatar: false)
     - link_to_project = link_to(project.full_name, project)
-    = _("commented on %{link_to_project}").html_safe % { link_to_project: link_to_project }
+    = _("commented on %{link_to_project}").html_safe % { link_to_project: link_to_project } # rubocop: disable Rails/OutputSafety
     &middot;
 
     - if note.for_commit?

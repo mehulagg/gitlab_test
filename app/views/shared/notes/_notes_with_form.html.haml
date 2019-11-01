@@ -21,12 +21,12 @@
   .disabled-comment.text-center.prepend-top-default
     - link_to_register = link_to(_("register"), new_session_path(:user, redirect_to_referer: 'yes', anchor: 'register-pane'), class: 'js-register-link')
     - link_to_sign_in = link_to(_("sign in"), new_session_path(:user, redirect_to_referer: 'yes'), class: 'js-sign-in-link')
-    = _("Please %{link_to_register} or %{link_to_sign_in} to comment").html_safe % { link_to_register: link_to_register, link_to_sign_in: link_to_sign_in }
+    = _("Please %{link_to_register} or %{link_to_sign_in} to comment").html_safe % { link_to_register: link_to_register, link_to_sign_in: link_to_sign_in } # rubocop: disable Rails/OutputSafety
 - elsif discussion_locked
   .disabled-comment.text-center.prepend-top-default
     %span.issuable-note-warning
       = sprite_icon('lock', size: 16, css_class: 'icon')
       %span
-        = _("This %{issuable} is locked. Only <strong>project members</strong> can comment.").html_safe % { issuable: issuable.class.to_s.titleize.downcase }
+        = _("This %{issuable} is locked. Only <strong>project members</strong> can comment.").html_safe % { issuable: issuable.class.to_s.titleize.downcase } # rubocop: disable Rails/OutputSafety
 -# haml-lint:disable InlineJavaScript
-%script.js-notes-data{ type: "application/json" }= initial_notes_data(autocomplete).to_json.html_safe
+%script.js-notes-data{ type: "application/json" }= initial_notes_data(autocomplete).to_json.html_safe # rubocop: disable Rails/OutputSafety

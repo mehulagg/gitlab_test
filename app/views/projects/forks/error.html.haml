@@ -5,7 +5,7 @@
       = sprite_icon('fork', size: 16)
       = _("Fork Error!")
     %p
-      = _("You tried to fork %{link_to_the_project} but it failed for the following reason:").html_safe % { link_to_the_project: link_to_project(@project) }
+      = _("You tried to fork %{link_to_the_project} but it failed for the following reason:").html_safe % { link_to_the_project: link_to_project(@project) } # rubocop: disable Rails/OutputSafety
 
     - if @forked_project && @forked_project.errors.any?
       %p

@@ -96,4 +96,4 @@
       = icon('info-circle fw')
 
       - link_to_merge_request = link_to(@merge_request.to_reference, diffs_project_merge_request_path(@project, @merge_request, commit_id: @commit.id))
-      = _('This commit is part of merge request %{link_to_merge_request}. Comments created here will be created in the context of that merge request.').html_safe % { link_to_merge_request: link_to_merge_request }
+      = _('This commit is part of merge request %{link_to_merge_request}. Comments created here will be created in the context of that merge request.').html_safe % { link_to_merge_request: link_to_merge_request } # rubocop: disable Rails/OutputSafety

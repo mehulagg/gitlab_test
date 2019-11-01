@@ -1,5 +1,5 @@
 - title = capture do
-  = _('This commit was signed with a <strong>verified</strong> signature and the committer email is verified to belong to the same user.').html_safe
+  = _('This commit was signed with a <strong>verified</strong> signature and the committer email is verified to belong to the same user.').html_safe # rubocop: disable Rails/OutputSafety
 
 - locals = { signature: signature, title: title, label: _('Verified'), css_class: 'valid', icon: 'status_success_borderless', show_user: true }
 

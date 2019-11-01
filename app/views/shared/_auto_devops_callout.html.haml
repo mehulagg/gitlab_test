@@ -7,7 +7,7 @@
     %p= s_('AutoDevOps|It will automatically build, test, and deploy your application based on a predefined CI/CD configuration.')
     %p
       - link = link_to(s_('AutoDevOps|Auto DevOps documentation'), help_page_path('topics/autodevops/index.md'), target: '_blank', rel: 'noopener noreferrer')
-      = s_('AutoDevOps|Learn more in the %{link_to_documentation}').html_safe % { link_to_documentation: link }
+      = s_('AutoDevOps|Learn more in the %{link_to_documentation}').html_safe % { link_to_documentation: link } # rubocop: disable Rails/OutputSafety
     .banner-buttons
       = link_to s_('AutoDevOps|Enable in settings'), project_settings_ci_cd_path(@project, anchor: 'autodevops-settings'), class: 'btn js-close-callout'
 

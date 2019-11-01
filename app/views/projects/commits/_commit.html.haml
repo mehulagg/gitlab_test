@@ -35,7 +35,7 @@
         - commit_author_link = commit_author_link(commit, avatar: false, size: 24)
         - commit_timeago = time_ago_with_tooltip(commit.authored_date, placement: 'bottom')
         - commit_text =  _('%{commit_author_link} authored %{commit_timeago}') % { commit_author_link: commit_author_link, commit_timeago: commit_timeago }
-        #{ commit_text.html_safe }
+        #{ commit_text.html_safe } # rubocop: disable Rails/OutputSafety
       = render_if_exists 'projects/commits/project_namespace', show_project_name: show_project_name, project: project
 
       - if commit.description?

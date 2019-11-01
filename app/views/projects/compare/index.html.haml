@@ -8,9 +8,9 @@
     %code.ref-name master
   - example_sha = capture do
     %code.ref-name 4eedf23
-  = (_("Choose a branch/tag (e.g. %{master}) or enter a commit (e.g. %{sha}) to see what's changed or to create a merge request.") % { master: example_master, sha: example_sha }).html_safe
+  = (_("Choose a branch/tag (e.g. %{master}) or enter a commit (e.g. %{sha}) to see what's changed or to create a merge request.") % { master: example_master, sha: example_sha }).html_safe # rubocop: disable Rails/OutputSafety
   %br
-  = (_("Changes are shown as if the <b>source</b> revision was being merged into the <b>target</b> revision.")).html_safe
+  = (_("Changes are shown as if the <b>source</b> revision was being merged into the <b>target</b> revision.")).html_safe # rubocop: disable Rails/OutputSafety
 
 .prepend-top-20
   = render "form"

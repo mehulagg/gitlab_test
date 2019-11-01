@@ -35,7 +35,7 @@
     %p.form-text.text-muted
       - reset_link = link_to s_('AccessTokens|reset it'), [:reset, :feed_token, :profile], method: :put, data: { confirm: s_('AccessTokens|Are you sure? Any RSS or calendar URLs currently in use will stop working.') }
       - reset_message = s_('AccessTokens|Keep this token secret. Anyone who gets ahold of it can read activity and issue RSS feeds or your calendar feed as if they were you. You should %{link_reset_it} if that ever happens.') % { link_reset_it: reset_link }
-      = reset_message.html_safe
+      = reset_message.html_safe # rubocop: disable Rails/OutputSafety
 
 - if incoming_email_token_enabled?
   %hr
@@ -53,7 +53,7 @@
       %p.form-text.text-muted
         - reset_link = link_to s_('AccessTokens|reset it'), [:reset, :incoming_email_token, :profile], method: :put, data: { confirm: s_('AccessTokens|Are you sure? Any issue email addresses currently in use will stop working.') }
         - reset_message = s_('AccessTokens|Keep this token secret. Anyone who gets ahold of it can create issues as if they were you. You should %{link_reset_it} if that ever happens.') % { link_reset_it: reset_link }
-        = reset_message.html_safe
+        = reset_message.html_safe # rubocop: disable Rails/OutputSafety
 
 - if static_objects_external_storage_enabled?
   %hr
@@ -70,7 +70,7 @@
       = text_field_tag :static_object_token, current_user.static_object_token, class: 'form-control', readonly: true, onclick: 'this.select()'
       %p.form-text.text-muted
         - reset_link = url_for [:reset, :static_object_token, :profile]
-        - reset_link_start = '<a data-confirm="%{confirm}" rel="nofollow" data-method="put" href="%{url}">'.html_safe % { confirm: s_('AccessTokens|Are you sure?'), url: reset_link }
-        - reset_link_end = '</a>'.html_safe
+        - reset_link_start = '<a data-confirm="%{confirm}" rel="nofollow" data-method="put" href="%{url}">'.html_safe % { confirm: s_('AccessTokens|Are you sure?'), url: reset_link } # rubocop: disable Rails/OutputSafety
+        - reset_link_end = '</a>'.html_safe # rubocop: disable Rails/OutputSafety
         - reset_message = s_('AccessTokens|Keep this token secret. Anyone who gets ahold of it can access repository static objects as if they were you. You should %{reset_link_start}reset it%{reset_link_end} if that ever happens.') % { reset_link_start: reset_link_start, reset_link_end: reset_link_end }
-        = reset_message.html_safe
+        = reset_message.html_safe # rubocop: disable Rails/OutputSafety

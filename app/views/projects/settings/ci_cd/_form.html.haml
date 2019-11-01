@@ -7,7 +7,7 @@
           %h5.prepend-top-0
             = _("Git strategy for pipelines")
           %p
-            = _("Choose between <code>clone</code> or <code>fetch</code> to get the recent application code").html_safe
+            = _("Choose between <code>clone</code> or <code>fetch</code> to get the recent application code").html_safe # rubocop: disable Rails/OutputSafety
             = link_to icon('question-circle'), help_page_path('user/project/pipelines/settings', anchor: 'git-strategy'), target: '_blank'
           .form-check
             = f.radio_button :build_allow_git_fetch, 'false', { class: 'form-check-input' }
@@ -54,7 +54,7 @@
           = f.label :ci_config_path, _('Custom CI configuration path'), class: 'label-bold'
           = f.text_field :ci_config_path, class: 'form-control', placeholder: '.gitlab-ci.yml'
           %p.form-text.text-muted
-            = _("The path to the CI configuration file. Defaults to <code>.gitlab-ci.yml</code>").html_safe
+            = _("The path to the CI configuration file. Defaults to <code>.gitlab-ci.yml</code>").html_safe # rubocop: disable Rails/OutputSafety
             = link_to icon('question-circle'), help_page_path('user/project/pipelines/settings', anchor: 'custom-ci-config-path'), target: '_blank'
 
         %hr

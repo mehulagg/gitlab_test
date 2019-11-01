@@ -18,6 +18,6 @@
             %span.ref-name= params[:from]
           - target_branch = capture do
             %span.ref-name= params[:to]
-          = (s_("CompareBranches|%{source_branch} and %{target_branch} are the same.") % { source_branch: source_branch, target_branch: target_branch }).html_safe
+          = (s_("CompareBranches|%{source_branch} and %{target_branch} are the same.") % { source_branch: source_branch, target_branch: target_branch }).html_safe # rubocop: disable Rails/OutputSafety
         - else
           = _("You'll need to use different branch names to get a valid comparison.")

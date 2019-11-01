@@ -19,7 +19,7 @@
     :preserve
       gem install gollum
   %p
-    = (s_("WikiClone|It is recommended to install %{markdown} so that GFM features render locally:") % { markdown: "<code>github-markdown</code>" }).html_safe
+    = (s_("WikiClone|It is recommended to install %{markdown} so that GFM features render locally:") % { markdown: "<code>github-markdown</code>" }).html_safe # rubocop: disable Rails/OutputSafety
   %pre.dark
     :preserve
       gem install github-markdown

@@ -32,7 +32,7 @@
     - mail_to_invite_email = mail_to(@member.invite_email)
     - mail_to_current_user = mail_to(current_user.email)
     - link_to_current_user = link_to(current_user.to_reference, user_url(current_user))
-    = _("Note that this invitation was sent to %{mail_to_invite_email}, but you are signed in as %{link_to_current_user} with email %{mail_to_current_user}.").html_safe % { mail_to_invite_email: mail_to_invite_email, mail_to_current_user: mail_to_current_user, link_to_current_user: link_to_current_user }
+    = _("Note that this invitation was sent to %{mail_to_invite_email}, but you are signed in as %{link_to_current_user} with email %{mail_to_current_user}.").html_safe % { mail_to_invite_email: mail_to_invite_email, mail_to_current_user: mail_to_current_user, link_to_current_user: link_to_current_user } # rubocop: disable Rails/OutputSafety
 
 - unless is_member
   .actions

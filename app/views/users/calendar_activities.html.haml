@@ -1,5 +1,5 @@
 %h4.prepend-top-20
-  = _("Contributions for <strong>%{calendar_date}</strong>").html_safe % { calendar_date: @calendar_date.to_s(:medium) }
+  = _("Contributions for <strong>%{calendar_date}</strong>").html_safe % { calendar_date: @calendar_date.to_s(:medium) } # rubocop: disable Rails/OutputSafety
 
 - if @events.any?
   %ul.bordered-list

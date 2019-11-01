@@ -27,8 +27,8 @@
           = _('Your Commit Email will be used for web based operations, such as edits and merges.')
         %li
           - address = profile_notifications_path
-          - notification_message = _('Your Default Notification Email will be used for account notifications if a %{openingTag}group-specific email address%{closingTag} is not set.') % { openingTag: "<a href='#{address}'>".html_safe, closingTag: '</a>'.html_safe}
-          = notification_message.html_safe
+          - notification_message = _('Your Default Notification Email will be used for account notifications if a %{openingTag}group-specific email address%{closingTag} is not set.') % { openingTag: "<a href='#{address}'>".html_safe, closingTag: '</a>'.html_safe} # rubocop: disable Rails/OutputSafety
+          = notification_message.html_safe # rubocop: disable Rails/OutputSafety
         %li
           = _('Your Public Email will be displayed on your public profile.')
         %li

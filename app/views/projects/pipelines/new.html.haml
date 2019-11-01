@@ -32,11 +32,11 @@
             = render 'ci/variables/url_query_variable_row', form_field: 'pipeline', variable: variable
         = render 'ci/variables/variable_row', form_field: 'pipeline', only_key_value: true
       .form-text.text-muted
-        = (s_("Pipeline|Specify variable values to be used in this run. The values specified in %{settings_link} will be used by default.") % {settings_link: settings_link}).html_safe
+        = (s_("Pipeline|Specify variable values to be used in this run. The values specified in %{settings_link} will be used by default.") % {settings_link: settings_link}).html_safe # rubocop: disable Rails/OutputSafety
 
   .form-actions
     = f.submit s_('Pipeline|Run Pipeline'), class: 'btn btn-success js-variables-save-button', tabindex: 3
     = link_to _('Cancel'), project_pipelines_path(@project), class: 'btn btn-default float-right'
 
 -# haml-lint:disable InlineJavaScript
-%script#availableRefs{ type: "application/json" }= @project.repository.ref_names.to_json.html_safe
+%script#availableRefs{ type: "application/json" }= @project.repository.ref_names.to_json.html_safe # rubocop: disable Rails/OutputSafety

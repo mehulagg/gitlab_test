@@ -32,7 +32,7 @@
           = label_tag :terms_opt_in do
             - terms_link = link_to s_("I accept the|Terms of Service and Privacy Policy"), terms_path, target: "_blank"
             - accept_terms_label = _("I accept the %{terms_link}") % { terms_link: terms_link }
-            = accept_terms_label.html_safe
+            = accept_terms_label.html_safe # rubocop: disable Rails/OutputSafety
       = render_if_exists 'devise/shared/email_opted_in', f: f
       %div
       - if show_recaptcha_sign_up?

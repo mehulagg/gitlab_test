@@ -18,8 +18,8 @@
     %h5
       = _("Configure Let's Encrypt")
     %p
-      - lets_encrypt_link_start = '<a href="%{url}" target="_blank" rel="noopener noreferrer">'.html_safe % { url: "https://letsencrypt.org/" }
-      = _("%{lets_encrypt_link_start}Let's Encrypt%{lets_encrypt_link_end} is a free, automated, and open certificate authority (CA), that give digital certificates in order to enable HTTPS (SSL/TLS) for websites.").html_safe % { lets_encrypt_link_start: lets_encrypt_link_start, lets_encrypt_link_end: '</a>'.html_safe }
+      - lets_encrypt_link_start = '<a href="%{url}" target="_blank" rel="noopener noreferrer">'.html_safe % { url: "https://letsencrypt.org/" } # rubocop: disable Rails/OutputSafety
+      = _("%{lets_encrypt_link_start}Let's Encrypt%{lets_encrypt_link_end} is a free, automated, and open certificate authority (CA), that give digital certificates in order to enable HTTPS (SSL/TLS) for websites.").html_safe % { lets_encrypt_link_start: lets_encrypt_link_start, lets_encrypt_link_end: '</a>'.html_safe } # rubocop: disable Rails/OutputSafety
     .form-group
       = f.label :lets_encrypt_notification_email, _("Email"), class: 'label-bold'
       = f.text_field :lets_encrypt_notification_email, class: 'form-control'
@@ -29,7 +29,7 @@
       .form-check
         = f.check_box :lets_encrypt_terms_of_service_accepted, class: 'form-check-input'
         = f.label :lets_encrypt_terms_of_service_accepted, class: 'form-check-label' do
-          - terms_of_service_link_start = '<a href="%{url}" target="_blank" rel="noopener noreferrer">'.html_safe % { url: lets_encrypt_terms_of_service_admin_application_settings_path }
-          = _("I have read and agree to the Let's Encrypt %{link_start}Terms of Service%{link_end} (PDF)").html_safe % { link_start: terms_of_service_link_start, link_end: '</a>'.html_safe }
+          - terms_of_service_link_start = '<a href="%{url}" target="_blank" rel="noopener noreferrer">'.html_safe % { url: lets_encrypt_terms_of_service_admin_application_settings_path } # rubocop: disable Rails/OutputSafety
+          = _("I have read and agree to the Let's Encrypt %{link_start}Terms of Service%{link_end} (PDF)").html_safe % { link_start: terms_of_service_link_start, link_end: '</a>'.html_safe } # rubocop: disable Rails/OutputSafety
 
   = f.submit _('Save changes'), class: "btn btn-success"

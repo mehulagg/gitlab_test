@@ -4,7 +4,7 @@
       = _("Environments")
     %p
       - link_to_read_more = link_to(_("Read more about environments"), help_page_path("ci/environments"))
-      = _("Environments allow you to track deployments of your application %{link_to_read_more}.").html_safe % { link_to_read_more: link_to_read_more }
+      = _("Environments allow you to track deployments of your application %{link_to_read_more}.").html_safe % { link_to_read_more: link_to_read_more } # rubocop: disable Rails/OutputSafety
 
   = form_for [@project.namespace.becomes(Namespace), @project, @environment], html: { class: 'col-lg-9' } do |f|
     = form_errors(@environment)

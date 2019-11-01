@@ -12,12 +12,12 @@
       %p
         - if @user.avatar?
           - if gravatar_enabled?
-            = s_("Profiles|You can change your avatar here or remove the current avatar to revert to %{gravatar_link}").html_safe % { gravatar_link: gravatar_link }
+            = s_("Profiles|You can change your avatar here or remove the current avatar to revert to %{gravatar_link}").html_safe % { gravatar_link: gravatar_link } # rubocop: disable Rails/OutputSafety
           - else
             = s_("Profiles|You can change your avatar here")
         - else
           - if gravatar_enabled?
-            = s_("Profiles|You can upload your avatar here or change it at %{gravatar_link}").html_safe % { gravatar_link: gravatar_link }
+            = s_("Profiles|You can upload your avatar here or change it at %{gravatar_link}").html_safe % { gravatar_link: gravatar_link } # rubocop: disable Rails/OutputSafety
           - else
             = s_("Profiles|You can upload your avatar here")
     .col-lg-8

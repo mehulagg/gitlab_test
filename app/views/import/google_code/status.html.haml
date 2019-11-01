@@ -9,7 +9,7 @@
     = _('Select projects you want to import.')
   %p.light
     - link_to_customize = link_to(_("customize"), new_user_map_import_google_code_path)
-    = _("Optionally, you can %{link_to_customize} how Google Code email addresses and usernames are imported into GitLab.").html_safe % { link_to_customize: link_to_customize }
+    = _("Optionally, you can %{link_to_customize} how Google Code email addresses and usernames are imported into GitLab.").html_safe % { link_to_customize: link_to_customize } # rubocop: disable Rails/OutputSafety
   %hr
   %p
   - if @incompatible_repos.any?
@@ -72,6 +72,6 @@
   %p
     = _("One or more of your Google Code projects cannot be imported into GitLab directly because they use Subversion or Mercurial for version control, rather than Git.")
     - link_to_import_flow = link_to(_("import flow"), new_import_google_code_path)
-    = _("Please convert them to Git on Google Code, and go through the %{link_to_import_flow} again.").html_safe % { link_to_import_flow: link_to_import_flow }
+    = _("Please convert them to Git on Google Code, and go through the %{link_to_import_flow} again.").html_safe % { link_to_import_flow: link_to_import_flow } # rubocop: disable Rails/OutputSafety
 
 .js-importer-status{ data: { jobs_import_path: "#{jobs_import_google_code_path}", import_path: "#{import_google_code_path}" } }

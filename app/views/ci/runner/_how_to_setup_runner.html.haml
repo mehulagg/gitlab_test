@@ -4,7 +4,7 @@
 
 %ol
   %li
-    = link.html_safe
+    = link.html_safe # rubocop: disable Rails/OutputSafety
   %li
     = _("Specify the following URL during the Runner setup:")
     %code#coordinator_address= root_url(only_path: false)

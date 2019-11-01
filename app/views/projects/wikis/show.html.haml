@@ -12,7 +12,7 @@
     %h2.wiki-page-title= @page.human_title
     %span.wiki-last-edit-by
       - if @page.last_version
-        = (_("Last edited by %{name}") % { name: "<strong>#{@page.last_version.author_name}</strong>" }).html_safe
+        = (_("Last edited by %{name}") % { name: "<strong>#{@page.last_version.author_name}</strong>" }).html_safe # rubocop: disable Rails/OutputSafety
         #{time_ago_with_tooltip(@page.last_version.authored_date)}
 
   .nav-controls.pb-md-3.pb-lg-0
@@ -23,7 +23,7 @@
     = s_("WikiHistoricalPage|This is an old version of this page.")
     - most_recent_link = link_to s_("WikiHistoricalPage|most recent version"), project_wiki_path(@project, @page)
     - history_link = link_to s_("WikiHistoricalPage|history"), project_wiki_history_path(@project, @page)
-    = (s_("WikiHistoricalPage|You can view the %{most_recent_link} or browse the %{history_link}.") % { most_recent_link: most_recent_link, history_link: history_link }).html_safe
+    = (s_("WikiHistoricalPage|You can view the %{most_recent_link} or browse the %{history_link}.") % { most_recent_link: most_recent_link, history_link: history_link }).html_safe # rubocop: disable Rails/OutputSafety
 
 .prepend-top-default.append-bottom-default
   .md.md-file{ data: { qa_selector: 'wiki_page_content' } }

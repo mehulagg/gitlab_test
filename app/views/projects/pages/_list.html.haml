@@ -25,8 +25,8 @@
             = link_to s_('GitLabPages|Remove'), project_pages_domain_path(@project, domain), data: { confirm: s_('GitLabPages|Are you sure?')}, method: :delete, class: "btn btn-remove btn-sm btn-grouped"
         - if verification_enabled && domain.unverified?
           %li.list-group-item.bs-callout-warning
-            - details_link_start = "<a href='#{project_pages_domain_path(@project, domain)}'>".html_safe
-            - details_link_end = '</a>'.html_safe
-            = s_('GitLabPages|%{domain} is not verified. To learn how to verify ownership, visit your %{link_start}domain details%{link_end}.').html_safe % { domain: domain.domain,
+            - details_link_start = "<a href='#{project_pages_domain_path(@project, domain)}'>".html_safe # rubocop: disable Rails/OutputSafety
+            - details_link_end = '</a>'.html_safe # rubocop: disable Rails/OutputSafety
+            = s_('GitLabPages|%{domain} is not verified. To learn how to verify ownership, visit your %{link_start}domain details%{link_end}.').html_safe % { domain: domain.domain, # rubocop: disable Rails/OutputSafety
                 link_start: details_link_start,
                 link_end: details_link_end }

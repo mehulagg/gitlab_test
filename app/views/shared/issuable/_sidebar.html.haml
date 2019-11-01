@@ -131,11 +131,11 @@
 
         - if issuable_sidebar.has_key?(:confidential)
           -# haml-lint:disable InlineJavaScript
-          %script#js-confidential-issue-data{ type: "application/json" }= { is_confidential: issuable_sidebar[:confidential], is_editable: can_edit_issuable }.to_json.html_safe
+          %script#js-confidential-issue-data{ type: "application/json" }= { is_confidential: issuable_sidebar[:confidential], is_editable: can_edit_issuable }.to_json.html_safe # rubocop: disable Rails/OutputSafety
           #js-confidential-entry-point
 
         -# haml-lint:disable InlineJavaScript
-        %script#js-lock-issue-data{ type: "application/json" }= { is_locked: !!issuable_sidebar[:discussion_locked], is_editable: can_edit_issuable }.to_json.html_safe
+        %script#js-lock-issue-data{ type: "application/json" }= { is_locked: !!issuable_sidebar[:discussion_locked], is_editable: can_edit_issuable }.to_json.html_safe # rubocop: disable Rails/OutputSafety
         #js-lock-entry-point
 
         .js-sidebar-participants-entry-point
@@ -179,4 +179,4 @@
                     = icon('spinner spin', class: 'sidebar-move-issue-confirmation-loading-icon')
 
       -# haml-lint:disable InlineJavaScript
-      %script.js-sidebar-options{ type: "application/json" }= issuable_sidebar_options(issuable_sidebar).to_json.html_safe
+      %script.js-sidebar-options{ type: "application/json" }= issuable_sidebar_options(issuable_sidebar).to_json.html_safe # rubocop: disable Rails/OutputSafety

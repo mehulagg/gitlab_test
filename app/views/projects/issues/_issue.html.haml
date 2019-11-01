@@ -57,4 +57,4 @@
 
         .float-right.issuable-updated-at.d-none.d-sm-inline-block
           %span
-            = _('updated %{time_ago}').html_safe % { time_ago: time_ago_with_tooltip(issue.updated_at, placement: 'bottom', html_class: 'issue_update_ago') }
+            = _('updated %{time_ago}').html_safe % { time_ago: time_ago_with_tooltip(issue.updated_at, placement: 'bottom', html_class: 'issue_update_ago') } # rubocop: disable Rails/OutputSafety

@@ -15,7 +15,7 @@
         - if group_link.expires?
           ·
           %span{ class: ('text-warning' if group_link.expires_soon?) }
-            = _("Expires in %{expires_at}").html_safe % { expires_at: distance_of_time_in_words_to_now(group_link.expires_at) }
+            = _("Expires in %{expires_at}").html_safe % { expires_at: distance_of_time_in_words_to_now(group_link.expires_at) } # rubocop: disable Rails/OutputSafety
   .controls.member-controls.align-items-center
     = form_tag project_group_link_path(@project, group_link), method: :put, remote: true, class: 'js-edit-member-form form-group d-sm-flex' do
       = hidden_field_tag "group_link[group_access]", group_link.group_access

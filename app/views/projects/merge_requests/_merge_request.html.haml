@@ -62,4 +62,4 @@
 
       .float-right.issuable-updated-at.d-none.d-sm-inline-block
         %span
-          = _('updated %{time_ago}').html_safe % { time_ago: time_ago_with_tooltip(merge_request.updated_at, placement: 'bottom', html_class: 'merge_request_updated_ago') }
+          = _('updated %{time_ago}').html_safe % { time_ago: time_ago_with_tooltip(merge_request.updated_at, placement: 'bottom', html_class: 'merge_request_updated_ago') } # rubocop: disable Rails/OutputSafety

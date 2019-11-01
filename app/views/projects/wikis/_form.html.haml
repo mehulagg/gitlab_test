@@ -37,11 +37,11 @@
 
       .form-text.text-muted
         = succeed '.' do
-          = (s_("WikiMarkdownTip|To link to a (new) page, simply type %{link_example}") % { link_example: '<code>[Link Title](page-slug)</code>' }).html_safe
+          = (s_("WikiMarkdownTip|To link to a (new) page, simply type %{link_example}") % { link_example: '<code>[Link Title](page-slug)</code>' }).html_safe # rubocop: disable Rails/OutputSafety
 
         = succeed '.' do
           - markdown_link = link_to s_("WikiMarkdownDocs|documentation"), help_page_path('user/markdown', anchor: 'wiki-specific-markdown')
-          = (s_("WikiMarkdownDocs|More examples are in the %{docs_link}") % { docs_link: markdown_link }).html_safe
+          = (s_("WikiMarkdownDocs|More examples are in the %{docs_link}") % { docs_link: markdown_link }).html_safe # rubocop: disable Rails/OutputSafety
 
   .form-group.row
     .col-sm-12= f.label :commit_message, class: 'control-label-full-width'

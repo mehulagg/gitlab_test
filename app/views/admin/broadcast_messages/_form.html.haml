@@ -24,7 +24,7 @@
       .input-group
         .input-group-prepend
           .input-group-text.label-color-preview{ :style => 'background-color: ' + @broadcast_message.color + '; color: ' + @broadcast_message.font }
-            = '&nbsp;'.html_safe
+            = '&nbsp;'.html_safe # rubocop: disable Rails/OutputSafety
         = f.text_field :color, class: "form-control"
       .form-text.text-muted
         = _('Choose any color.')

@@ -39,13 +39,13 @@
       = f.label :default_artifacts_expire_in, _('Default artifacts expiration'), class: 'label-bold'
       = f.text_field :default_artifacts_expire_in, class: 'form-control'
       .form-text.text-muted
-        = _("Set the default expiration time for each job's artifacts. 0 for unlimited. The default unit is in seconds, but you can define an alternative. For example: <code>4 mins 2 sec</code>, <code>2h42min</code>.").html_safe
+        = _("Set the default expiration time for each job's artifacts. 0 for unlimited. The default unit is in seconds, but you can define an alternative. For example: <code>4 mins 2 sec</code>, <code>2h42min</code>.").html_safe # rubocop: disable Rails/OutputSafety
         = link_to icon('question-circle'), help_page_path('user/admin_area/settings/continuous_integration', anchor: 'default-artifacts-expiration')
     .form-group
       = f.label :archive_builds_in_human_readable, _('Archive jobs'), class: 'label-bold'
       = f.text_field :archive_builds_in_human_readable, class: 'form-control', placeholder: 'never'
       .form-text.text-muted
-        = _("Set the duration for which the jobs will be considered as old and expired. Once that time passes, the jobs will be archived and no longer able to be retried. Make it empty to never expire jobs. It has to be no less than 1 day, for example: <code>15 days</code>, <code>1 month</code>, <code>2 years</code>.").html_safe
+        = _("Set the duration for which the jobs will be considered as old and expired. Once that time passes, the jobs will be archived and no longer able to be retried. Make it empty to never expire jobs. It has to be no less than 1 day, for example: <code>15 days</code>, <code>1 month</code>, <code>2 years</code>.").html_safe # rubocop: disable Rails/OutputSafety
     .form-group
       .form-check
         = f.check_box :protected_ci_variables, class: 'form-check-input'

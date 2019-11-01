@@ -14,12 +14,12 @@
           = s_("SearchCodeResults|in")
           .mx-md-1
             = render partial: "shared/ref_switcher", locals: { ref: repository_ref, form_path: request.fullpath, field_name: 'repository_ref' }
-          = s_('SearchCodeResults|of %{link_to_project}').html_safe % { link_to_project: link_to_project }
+          = s_('SearchCodeResults|of %{link_to_project}').html_safe % { link_to_project: link_to_project } # rubocop: disable Rails/OutputSafety
         - else
-          = _("in project %{link_to_project}").html_safe % { link_to_project: link_to_project }
+          = _("in project %{link_to_project}").html_safe % { link_to_project: link_to_project } # rubocop: disable Rails/OutputSafety
       - elsif @group
         - link_to_group = link_to(@group.name, @group, class: 'ml-md-1')
-        = _("in group %{link_to_group}").html_safe % { link_to_group: link_to_group }
+        = _("in group %{link_to_group}").html_safe % { link_to_group: link_to_group } # rubocop: disable Rails/OutputSafety
   = render_if_exists 'shared/promotions/promote_advanced_search'
 
   .results.prepend-top-10

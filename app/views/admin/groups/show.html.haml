@@ -101,7 +101,7 @@
         .card-body.form-holder
           %p.light
             - link_to_help = link_to(_("here"), help_page_path("user/permissions"))
-            = _('Read more about project permissions <strong>%{link_to_help}</strong>').html_safe % { link_to_help: link_to_help }
+            = _('Read more about project permissions <strong>%{link_to_help}</strong>').html_safe % { link_to_help: link_to_help } # rubocop: disable Rails/OutputSafety
 
           = form_tag admin_group_members_update_path(@group), id: "new_project_member", class: "bulk_import", method: :put do
             %div
@@ -114,7 +114,7 @@
 
     .card
       .card-header
-        = _("<strong>%{group_name}</strong> group members").html_safe % { group_name: @group.name }
+        = _("<strong>%{group_name}</strong> group members").html_safe % { group_name: @group.name } # rubocop: disable Rails/OutputSafety
         %span.badge.badge-pill= @group.members.size
         .float-right
           = link_to icon('pencil-square-o', text: _('Manage access')), group_group_members_path(@group), class: "btn btn-sm"

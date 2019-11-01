@@ -12,7 +12,7 @@
               %p.dz-message.light
                 - upload_link = link_to s_('UploadLink|click to upload'), '#', class: "markdown-selector"
                 - dropzone_text = _('Attach a file by drag &amp; drop or %{upload_link}') % { upload_link: upload_link }
-                #{ dropzone_text.html_safe }
+                #{ dropzone_text.html_safe } # rubocop: disable Rails/OutputSafety
 
           %br
           .dropzone-alerts.alert.alert-danger.data{ style: "display:none" }

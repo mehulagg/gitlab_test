@@ -4,11 +4,11 @@
 - machine_type_link_url = 'https://cloud.google.com/compute/docs/machine-types'
 - pricing_link_url = 'https://cloud.google.com/compute/pricing#machinetype'
 - kubernetes_integration_url = help_page_path('user/project/clusters/index')
-- help_link_start = '<a href="%{url}" target="_blank" rel="noopener noreferrer">'.html_safe
-- help_link_end = ' %{external_link_icon}</a>'.html_safe % { external_link_icon: external_link_icon }
+- help_link_start = '<a href="%{url}" target="_blank" rel="noopener noreferrer">'.html_safe # rubocop: disable Rails/OutputSafety
+- help_link_end = ' %{external_link_icon}</a>'.html_safe % { external_link_icon: external_link_icon } # rubocop: disable Rails/OutputSafety
 
 %p
-  = s_('ClusterIntegration|Read our %{link_start}help page%{link_end} on Kubernetes cluster integration.').html_safe % { link_start: help_link_start % { url: kubernetes_integration_url }, link_end: '</a>'.html_safe }
+  = s_('ClusterIntegration|Read our %{link_start}help page%{link_end} on Kubernetes cluster integration.').html_safe % { link_start: help_link_start % { url: kubernetes_integration_url }, link_end: '</a>'.html_safe } # rubocop: disable Rails/OutputSafety
 
 %p= link_to('Select a different Google account', @authorize_url)
 
@@ -46,7 +46,7 @@
               = _('Select project to choose zone')
             = icon('chevron-down')
       %p.form-text.text-muted
-        = s_('ClusterIntegration|Learn more about %{help_link_start}zones%{help_link_end}.').html_safe % { help_link_start: help_link_start % { url: zones_link_url }, help_link_end: help_link_end }
+        = s_('ClusterIntegration|Learn more about %{help_link_start}zones%{help_link_end}.').html_safe % { help_link_start: help_link_start % { url: zones_link_url }, help_link_end: help_link_end } # rubocop: disable Rails/OutputSafety
 
     = provider_gcp_field.number_field :num_nodes, required: true, placeholder: '3',
       title: s_('ClusterIntegration|Number of nodes must be a numerical value.'),
@@ -62,7 +62,7 @@
               = _('Select project and zone to choose machine type')
             = icon('chevron-down')
       %p.form-text.text-muted
-        = s_('ClusterIntegration|Learn more about %{help_link_start_machine_type}machine types%{help_link_end} and %{help_link_start_pricing}pricing%{help_link_end}.').html_safe % { help_link_start_machine_type: help_link_start % { url: machine_type_link_url }, help_link_start_pricing: help_link_start % { url: pricing_link_url }, help_link_end: help_link_end }
+        = s_('ClusterIntegration|Learn more about %{help_link_start_machine_type}machine types%{help_link_end} and %{help_link_start_pricing}pricing%{help_link_end}.').html_safe % { help_link_start_machine_type: help_link_start % { url: machine_type_link_url }, help_link_start_pricing: help_link_start % { url: pricing_link_url }, help_link_end: help_link_end } # rubocop: disable Rails/OutputSafety
 
     - if Feature.enabled?(:create_cloud_run_clusters, clusterable)
       .form-group

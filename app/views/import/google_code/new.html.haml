@@ -13,37 +13,37 @@
     %li
       %p
         - link_to_google_takeout = link_to(_("Google Takeout"), "https://www.google.com/settings/takeout", target: '_blank', rel: 'noopener noreferrer')
-        = _("Go to %{link_to_google_takeout}.").html_safe % { link_to_google_takeout: link_to_google_takeout }
+        = _("Go to %{link_to_google_takeout}.").html_safe % { link_to_google_takeout: link_to_google_takeout } # rubocop: disable Rails/OutputSafety
     %li
       %p
         = _("Make sure you're logged into the account that owns the projects you'd like to import.")
     %li
       %p
-        = _('Click the <strong>Select none</strong> button on the right, since we only need "Google Code Project Hosting".').html_safe
+        = _('Click the <strong>Select none</strong> button on the right, since we only need "Google Code Project Hosting".').html_safe # rubocop: disable Rails/OutputSafety
     %li
       %p
-        = _('Scroll down to <strong>Google Code Project Hosting</strong> and enable the switch on the right.').html_safe
+        = _('Scroll down to <strong>Google Code Project Hosting</strong> and enable the switch on the right.').html_safe # rubocop: disable Rails/OutputSafety
     %li
       %p
-        = _('Choose <strong>Next</strong> at the bottom of the page.').html_safe
+        = _('Choose <strong>Next</strong> at the bottom of the page.').html_safe # rubocop: disable Rails/OutputSafety
     %li
       %p
         = _('Leave the "File type" and "Delivery method" options on their default values.')
     %li
       %p
-        = _('Choose <strong>Create archive</strong> and wait for archiving to complete.').html_safe
+        = _('Choose <strong>Create archive</strong> and wait for archiving to complete.').html_safe # rubocop: disable Rails/OutputSafety
     %li
       %p
-        = _('Click the <strong>Download</strong> button and wait for downloading to complete.').html_safe
+        = _('Click the <strong>Download</strong> button and wait for downloading to complete.').html_safe # rubocop: disable Rails/OutputSafety
     %li
       %p
         = _('Find the downloaded ZIP file and decompress it.')
     %li
       %p
-        = _('Find the newly extracted <code>Takeout/Google Code Project Hosting/GoogleCodeProjectHosting.json</code> file.').html_safe
+        = _('Find the newly extracted <code>Takeout/Google Code Project Hosting/GoogleCodeProjectHosting.json</code> file.').html_safe # rubocop: disable Rails/OutputSafety
     %li
       %p
-        = _('Upload <code>GoogleCodeProjectHosting.json</code> here:').html_safe
+        = _('Upload <code>GoogleCodeProjectHosting.json</code> here:').html_safe # rubocop: disable Rails/OutputSafety
       %p
         %input{ type: "file", name: "dump_file", id: "dump_file" }
     %li

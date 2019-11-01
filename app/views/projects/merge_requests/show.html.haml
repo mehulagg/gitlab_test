@@ -62,7 +62,7 @@
       #notes.notes.tab-pane.voting_notes
         .row
           %section.col-md-12
-            %script.js-notes-data{ type: "application/json" }= initial_notes_data(true).to_json.html_safe
+            %script.js-notes-data{ type: "application/json" }= initial_notes_data(true).to_json.html_safe # rubocop: disable Rails/OutputSafety
             .issuable-discussion.js-vue-notes-event
               #js-vue-mr-discussions{ data: { notes_data: notes_data(@merge_request).to_json,
                 noteable_data: serialize_issuable(@merge_request, serializer: 'noteable'),

@@ -10,7 +10,7 @@
         %p= share_project_description(@project)
       - else
         %p
-          = _("Members can be added by project <i>Maintainers</i> or <i>Owners</i>").html_safe
+          = _("Members can be added by project <i>Maintainers</i> or <i>Owners</i>").html_safe # rubocop: disable Rails/OutputSafety
 
     .light
       - if can_admin_project_members && project_can_be_shared?

@@ -36,13 +36,13 @@
 
         .cgray
           - if member.request?
-            = _("Requested %{time_ago}").html_safe % { time_ago: time_ago_with_tooltip(member.requested_at) }
+            = _("Requested %{time_ago}").html_safe % { time_ago: time_ago_with_tooltip(member.requested_at) } # rubocop: disable Rails/OutputSafety
           - else
-            = _("Given access %{time_ago}").html_safe % { time_ago: time_ago_with_tooltip(member.created_at) }
+            = _("Given access %{time_ago}").html_safe % { time_ago: time_ago_with_tooltip(member.created_at) } # rubocop: disable Rails/OutputSafety
           - if member.expires?
             ·
             %span{ class: "#{"text-warning" if member.expires_soon?} has-tooltip", title: member.expires_at.to_time.in_time_zone.to_s(:medium) }
-              = _("Expires in %{expires_at}").html_safe % { expires_at: distance_of_time_in_words_to_now(member.expires_at) }
+              = _("Expires in %{expires_at}").html_safe % { expires_at: distance_of_time_in_words_to_now(member.expires_at) } # rubocop: disable Rails/OutputSafety
 
     - else
       = image_tag avatar_icon_for_email(member.invite_email, 40), class: "avatar s40 flex-shrink-0 flex-grow-0", alt: ''

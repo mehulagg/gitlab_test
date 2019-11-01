@@ -10,7 +10,7 @@
         %span.user-status-emoji.d-flex.align-items-center
           = emoji_icon current_user.status.emoji
         %span.user-status-message.str-truncated
-          = current_user.status.message_html.html_safe
+          = current_user.status.message_html.html_safe # rubocop: disable Rails/OutputSafety
   %li.divider
   - if can?(current_user, :update_user_status, current_user)
     %li

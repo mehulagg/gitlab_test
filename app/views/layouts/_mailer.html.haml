@@ -72,7 +72,7 @@
             %div
               - manage_notifications_link = link_to(_("Manage all notifications"), profile_notifications_url, style: "color:#3777b0;text-decoration:none;")
               - help_link = link_to(_("Help"), help_url, style: "color:#3777b0;text-decoration:none;")
-              = _("You're receiving this email because of your account on %{host}. %{manage_notifications_link} &middot; %{help_link}").html_safe % { host: Gitlab.config.gitlab.host, manage_notifications_link: manage_notifications_link, help_link: help_link }
+              = _("You're receiving this email because of your account on %{host}. %{manage_notifications_link} &middot; %{help_link}").html_safe % { host: Gitlab.config.gitlab.host, manage_notifications_link: manage_notifications_link, help_link: help_link } # rubocop: disable Rails/OutputSafety
 
         = yield :additional_footer
         %tr

@@ -30,7 +30,7 @@
       %span.js-pipeline-url-failure.badge.badge-danger.has-tooltip{ title: @pipeline.failure_reason }
         error
     - if @pipeline.auto_devops_source?
-      - popover_title_text = _('This pipeline makes use of a predefined CI/CD configuration enabled by <b>Auto DevOps.</b>').html_safe
+      - popover_title_text = _('This pipeline makes use of a predefined CI/CD configuration enabled by <b>Auto DevOps.</b>').html_safe # rubocop: disable Rails/OutputSafety
       - popover_content_url = help_page_path('topics/autodevops/index.md')
       - popover_content_text = _('Learn more about Auto DevOps')
       %a.js-pipeline-url-autodevops.badge.badge-info.autodevops-badge{ href: "#", tabindex: "0", role: "button", data: { container: "body",

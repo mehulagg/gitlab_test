@@ -4,22 +4,22 @@
       .modal-header
         %h3.page-title
           - link_to_client = link_to(@pre_auth.client.name, @pre_auth.redirect_uri, target: '_blank', rel: 'noopener noreferrer')
-          = _("Authorize %{link_to_client} to use your account?").html_safe % { link_to_client: link_to_client }
+          = _("Authorize %{link_to_client} to use your account?").html_safe % { link_to_client: link_to_client } # rubocop: disable Rails/OutputSafety
 
       .modal-body
         - if current_user.admin?
           .text-warning
             %p
               = icon("exclamation-triangle fw")
-              = _('You are an admin, which means granting access to <strong>%{client_name}</strong> will allow them to interact with GitLab as an admin as well. Proceed with caution.').html_safe % { client_name: @pre_auth.client.name }
+              = _('You are an admin, which means granting access to <strong>%{client_name}</strong> will allow them to interact with GitLab as an admin as well. Proceed with caution.').html_safe % { client_name: @pre_auth.client.name } # rubocop: disable Rails/OutputSafety
         %p
           - link_to_client = link_to(@pre_auth.client.name, @pre_auth.redirect_uri, target: '_blank', rel: 'noopener noreferrer')
-          = _("An application called %{link_to_client} is requesting access to your GitLab account.").html_safe % { link_to_client: link_to_client }
+          = _("An application called %{link_to_client} is requesting access to your GitLab account.").html_safe % { link_to_client: link_to_client } # rubocop: disable Rails/OutputSafety
 
           - auth_app_owner = @pre_auth.client.application.owner
           - if auth_app_owner
             - link_to_owner = link_to(auth_app_owner.name, user_path(auth_app_owner))
-            = _("This application was created by %{link_to_owner}.").html_safe % { link_to_owner: link_to_owner }
+            = _("This application was created by %{link_to_owner}.").html_safe % { link_to_owner: link_to_owner } # rubocop: disable Rails/OutputSafety
 
           = _("Please note that this application is not provided by GitLab and you should verify its authenticity before allowing access.")
         - if @pre_auth.scopes

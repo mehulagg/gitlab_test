@@ -43,8 +43,8 @@
       = expanded ? _('Collapse') : _('Expand')
     %p
       - auto_devops_url = help_page_path('topics/autodevops/index')
-      - auto_devops_start = '<a href="%{url}" target="_blank" rel="noopener noreferrer">'.html_safe % { url: auto_devops_url }
-      = s_('GroupSettings|Auto DevOps will automatically build, test and deploy your application based on a predefined Continuous Integration and Delivery configuration. %{auto_devops_start}Learn more about Auto DevOps%{auto_devops_end}').html_safe % { auto_devops_start: auto_devops_start, auto_devops_end: '</a>'.html_safe }
+      - auto_devops_start = '<a href="%{url}" target="_blank" rel="noopener noreferrer">'.html_safe % { url: auto_devops_url } # rubocop: disable Rails/OutputSafety
+      = s_('GroupSettings|Auto DevOps will automatically build, test and deploy your application based on a predefined Continuous Integration and Delivery configuration. %{auto_devops_start}Learn more about Auto DevOps%{auto_devops_end}').html_safe % { auto_devops_start: auto_devops_start, auto_devops_end: '</a>'.html_safe } # rubocop: disable Rails/OutputSafety
 
   .settings-content
     = render 'groups/settings/ci_cd/auto_devops_form', group: @group

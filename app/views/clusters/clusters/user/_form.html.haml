@@ -5,7 +5,7 @@
 
 - api_url_help_text = s_('ClusterIntegration|The URL used to access the Kubernetes API.')
 - ca_cert_help_text = s_('ClusterIntegration|The Kubernetes certificate used to authenticate to the cluster.')
-- token_help_text = s_('ClusterIntegration|A service token scoped to %{code}kube-system%{end_code} with %{code}cluster-admin%{end_code} privileges.').html_safe % { code: '<code>'.html_safe, end_code: '</code>'.html_safe }
+- token_help_text = s_('ClusterIntegration|A service token scoped to %{code}kube-system%{end_code} with %{code}cluster-admin%{end_code} privileges.').html_safe % { code: '<code>'.html_safe, end_code: '</code>'.html_safe } # rubocop: disable Rails/OutputSafety
 - rbac_help_text = s_('ClusterIntegration|Enable this setting if using role-based access control (RBAC).') + ' '
 - rbac_help_text << s_('ClusterIntegration|This option will allow you to install applications on RBAC clusters.')
 
@@ -22,21 +22,21 @@
     = platform_kubernetes_field.url_field :api_url, required: true,
       title: s_('ClusterIntegration|API URL should be a valid http/https url.'),
       label: s_('ClusterIntegration|API URL'), label_class: 'label-bold',
-      help: '%{help_text} %{help_link}'.html_safe % { help_text: api_url_help_text, help_link: more_info_link }
+      help: '%{help_text} %{help_link}'.html_safe % { help_text: api_url_help_text, help_link: more_info_link } # rubocop: disable Rails/OutputSafety
 
     = platform_kubernetes_field.text_area :ca_cert,
       rows: '10',
       placeholder: s_('ClusterIntegration|Certificate Authority bundle (PEM format)'),
       label: s_('ClusterIntegration|CA Certificate'), label_class: 'label-bold',
-      help: '%{help_text} %{help_link}'.html_safe % { help_text: ca_cert_help_text, help_link: more_info_link }
+      help: '%{help_text} %{help_link}'.html_safe % { help_text: ca_cert_help_text, help_link: more_info_link } # rubocop: disable Rails/OutputSafety
 
     = platform_kubernetes_field.text_field :token, required: true,
       title: s_('ClusterIntegration|Service token is required.'), label: s_('ClusterIntegration|Service Token'),
       autocomplete: 'off', label_class: 'label-bold',
-      help: '%{help_text} %{help_link}'.html_safe % { help_text: token_help_text, help_link: more_info_link }
+      help: '%{help_text} %{help_link}'.html_safe % { help_text: token_help_text, help_link: more_info_link } # rubocop: disable Rails/OutputSafety
 
     = platform_kubernetes_field.form_group :authorization_type,
-      { help: '%{help_text} %{help_link}'.html_safe % { help_text: rbac_help_text, help_link: rbac_help_link } } do
+      { help: '%{help_text} %{help_link}'.html_safe % { help_text: rbac_help_text, help_link: rbac_help_link } } do # rubocop: disable Rails/OutputSafety
       = platform_kubernetes_field.check_box :authorization_type,
         { class: 'qa-rbac-checkbox', label: s_('ClusterIntegration|RBAC-enabled cluster'),
         label_class: 'label-bold', inline: true }, 'rbac', 'abac'

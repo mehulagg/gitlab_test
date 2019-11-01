@@ -7,7 +7,7 @@
                                 target: '_blank',
                                 rel: 'noopener noreferrer')
 
-  = _('You can easily install a Runner on a Kubernetes cluster. %{link_to_help_page}').html_safe % { link_to_help_page: link_to_help_page }
+  = _('You can easily install a Runner on a Kubernetes cluster. %{link_to_help_page}').html_safe % { link_to_help_page: link_to_help_page } # rubocop: disable Rails/OutputSafety
 
 %ol
   %li

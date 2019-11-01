@@ -9,7 +9,7 @@
 
   - if ssh_info.blank?
     %p
-      = _('SSH host keys are not available on this system. Please use <code>ssh-keyscan</code> command or contact your GitLab administrator for more information.').html_safe
+      = _('SSH host keys are not available on this system. Please use <code>ssh-keyscan</code> command or contact your GitLab administrator for more information.').html_safe # rubocop: disable Rails/OutputSafety
   - else
     %p
       = _('Below are the fingerprints for the current instance SSH host keys.')

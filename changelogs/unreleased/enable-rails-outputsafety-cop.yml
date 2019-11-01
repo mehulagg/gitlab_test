@@ -1,0 +1,5 @@
+---
+title: Enable Rails/OutputSafety cop to prevent XSS
+merge_request: 18472
+author:
+type: other

@@ -8,7 +8,7 @@
 
 %p
   - link_to_noteable_text = link_to(noteable_text, url_for([@sent_notification.project.namespace.becomes(Namespace), @sent_notification.project, noteable]))
-  = _("Are you sure you want to unsubscribe from the %{type}: %{link_to_noteable_text}?").html_safe % { type: noteable_type, link_to_noteable_text: link_to_noteable_text }
+  = _("Are you sure you want to unsubscribe from the %{type}: %{link_to_noteable_text}?").html_safe % { type: noteable_type, link_to_noteable_text: link_to_noteable_text } # rubocop: disable Rails/OutputSafety
 
 %p
   = link_to _('Unsubscribe'), unsubscribe_sent_notification_path(@sent_notification, force: true),
