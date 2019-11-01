@@ -111,7 +111,7 @@ The following table depicts the various user permission levels in a project.
 | Turn on/off protected branch push for devs        |         |            |             | ✓        | ✓      |
 | Enable/disable tag protections                    |         |            |             | ✓        | ✓      |
 | Edit project                                      |         |            |             | ✓        | ✓      |
-| Add deploy keys to project                        |         |            |             | ✓        | ✓      |
+| Manage [deploy keys](https://docs.gitlab.com/ee/ssh/#deploy-keys) |         |            |             | ✓        | ✓      |
 | Configure project hooks                           |         |            |             | ✓        | ✓      |
 | Manage Runners                                    |         |            |             | ✓        | ✓      |
 | Manage job triggers                               |         |            |             | ✓        | ✓      |
