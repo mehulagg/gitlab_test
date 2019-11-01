@@ -61,6 +61,12 @@ export default {
     }
   },
 
+  data() {
+    return {
+      hideAutoStop: false,
+    }
+  },
+
   computed: {
     /**
      * Verifies if `last_deployment` key exists in the current Environment.
@@ -117,7 +123,7 @@ export default {
      * @returns {Boolean|Undefined}
      */
     canShowAutoStopDate() {
-      return Boolean(this.model && this.model.auto_stop_at);
+      return Boolean(this.model && this.model.auto_stop_at && !this.hideAutoStop);
     },
 
     /**
@@ -481,6 +487,9 @@ export default {
     onClickFolder() {
       eventHub.$emit('toggleFolder', this.model);
     },
+    onPinClick() {
+      eventHub.$emit('cancelAutoStop', this.autoStopUrl);
+    }
   },
 };
 </script>
@@ -616,7 +625,8 @@ export default {
       <div class="btn-group table-action-buttons" role="group">
         <pin-component
           v-if="canShowAutoStopDate"
-          :auto-stop-path="autoStopUrl"/>
+          :clickFn="onPinClick"
+        />
 
         <external-url-component
           v-if="externalURL && canReadEnvironment"

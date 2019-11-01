@@ -6,6 +6,7 @@
 import { GlButton, GlTooltipDirective } from '@gitlab/ui';
 import Icon from '~/vue_shared/components/icon.vue';
 import { __ } from '~/locale';
+import eventHub from '../event_hub';
 
 export default {
   components: {
@@ -16,8 +17,8 @@ export default {
     GlTooltip: GlTooltipDirective,
   },
   props: {
-    autoStopPath: {
-      type: String,
+    clickFn: {
+      type: Function,
       required: false,
       default: '',
     },
@@ -39,8 +40,8 @@ export default {
     v-gl-tooltip
     :title="title"
     :aria-label="title"
-    :href="autoStopPath"
     :class="{ disabled: disabled }"
+    @click="clickFn"
   >
     <icon name="thumbtack" />
   </gl-button>
