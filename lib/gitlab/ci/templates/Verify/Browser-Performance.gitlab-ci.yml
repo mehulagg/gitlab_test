@@ -20,10 +20,13 @@ performance:
     - wget -O ./gitlab-exporter/index.js https://gitlab.com/gitlab-org/gl-performance/raw/master/index.js
     - mkdir sitespeed-results
     - |
-      printenv | grep -E '^(DOCKER_|CI|GITLAB_|FF_|HOME|PWD|OLDPWD|PATH|SHLVL|HOSTNAME)' | cut -d'=' -f1 | \
-        (while IFS='\\n' read -r VAR; do unset -v "$VAR"; done; /bin/printenv > .env)
+      function propagate_env_vars {
+        for var in $(compgen -e); do
+          [[ ! $var =~ ^(DOCKER_|CI|GITLAB_|FF_|HOME|PWD|OLDPWD|PATH|SHLVL|HOSTNAME) ]] && echo "--env ${var} "
+        done
+      }
     - docker run \
-        --env-file .env \
+        $(propagate_env_vars)
         --shm-size=1g \
         --rm \
         -v "$(pwd)":/sitespeed.io \

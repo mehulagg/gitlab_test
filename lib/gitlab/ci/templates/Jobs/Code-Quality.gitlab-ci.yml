@@ -15,10 +15,13 @@ code_quality:
         fi
       fi
     - |
-      printenv | grep -E '^(DOCKER_|CI|GITLAB_|FF_|HOME|PWD|OLDPWD|PATH|SHLVL|HOSTNAME)' | cut -d'=' -f1 | \
-        (while IFS='\\n' read -r VAR; do unset -v "$VAR"; done; /bin/printenv > .env)
+      function propagate_env_vars {
+        for var in $(compgen -e); do
+          [[ ! $var =~ ^(DOCKER_|CI|GITLAB_|FF_|HOME|PWD|OLDPWD|PATH|SHLVL|HOSTNAME) ]] && echo "--env ${var} "
+        done
+      }
     - docker run
-        --env-file .env
+        $(propagate_env_vars)
         --env SOURCE_CODE="$PWD"
         --volume "$PWD":/code
         --volume /var/run/docker.sock:/var/run/docker.sock

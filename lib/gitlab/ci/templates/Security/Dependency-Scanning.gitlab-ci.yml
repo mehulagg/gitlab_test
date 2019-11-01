@@ -27,32 +27,15 @@ dependency_scanning:
           export DOCKER_HOST='tcp://localhost:2375'
         fi
       fi
-    - | # this is required to avoid undesirable reset of Docker image ENV variables being set on build stage
-      function propagate_env_vars() {
-        CURRENT_ENV=$(printenv)
-
-        for VAR_NAME; do
-          echo $CURRENT_ENV | grep "${VAR_NAME}=" > /dev/null && echo "--env $VAR_NAME "
+    - |
+      function propagate_env_vars {
+        for var in $(compgen -e); do
+          [[ ! $var =~ ^(DOCKER_|CI|GITLAB_|FF_|HOME|PWD|OLDPWD|PATH|SHLVL|HOSTNAME) ]] && echo "--env ${var} "
         done
       }
     - |
       docker run \
-        $(propagate_env_vars \
-          DS_ANALYZER_IMAGES \
-          DS_ANALYZER_IMAGE_PREFIX \
-          DS_ANALYZER_IMAGE_TAG \
-          DS_DEFAULT_ANALYZERS \
-          DS_EXCLUDED_PATHS \
-          DEP_SCAN_DISABLE_REMOTE_CHECKS \
-          DS_DOCKER_CLIENT_NEGOTIATION_TIMEOUT \
-          DS_PULL_ANALYZER_IMAGE_TIMEOUT \
-          DS_RUN_ANALYZER_TIMEOUT \
-          DS_PYTHON_VERSION \
-          DS_PIP_DEPENDENCY_PATH \
-          PIP_INDEX_URL \
-          PIP_EXTRA_INDEX_URL \
-          MAVEN_CLI_OPTS \
-        ) \
+        $(propagate_env_vars)
         --volume "$PWD:/code" \
         --volume /var/run/docker.sock:/var/run/docker.sock \
         "registry.gitlab.com/gitlab-org/security-products/dependency-scanning:$DS_VERSION" /code
