@@ -201,7 +201,7 @@ And the `.npmrc` file should look like:
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/11867) in GitLab Premium 12.4.
 
-Starting from GitLab 12.4, new packages published to the GitLab NPM Registry expose the following attributes to the NPM client:
+Starting from GitLab 12.5, new packages published to the GitLab NPM Registry expose the following attributes to the NPM client:
 
 - name
 - version
