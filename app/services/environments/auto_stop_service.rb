@@ -12,10 +12,10 @@ module Environments
     LOCK_TIMEOUT = 50.minutes
 
     ##
-    # Destroy expired job artifacts on GitLab instance
+    # Stop expired environments on GitLab instance
     #
-    # This destroy process cannot run for more than 45 minutes. This is for
-    # preventing multiple `ExpireBuildArtifactsWorker` CRON jobs run concurrently,
+    # This auto stop process cannot run for more than 45 minutes. This is for
+    # preventing multiple `AutoStopCronWorker` CRON jobs run concurrently,
     # which is scheduled at every hour.
     def execute
       in_lock(EXCLUSIVE_LOCK_KEY, ttl: LOCK_TIMEOUT, retries: 1) do

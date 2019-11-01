@@ -30,6 +30,7 @@ module Deployments
         end
 
         if deployable
+          # Renew auto stop date as the environment got a new deployment
           environment.auto_stop_in = deployable.environment_auto_stop_in
         end
 
