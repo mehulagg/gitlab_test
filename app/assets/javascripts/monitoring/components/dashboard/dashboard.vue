@@ -189,6 +189,16 @@ export default {
       return IS_EE && this.prometheusAlertsAvailable && this.alertsEndpoint;
     },
   },
+  created() {
+    this.setEndpoints({
+      metricsEndpoint: this.metricsEndpoint,
+      environmentsEndpoint: this.environmentsEndpoint,
+      deploymentsEndpoint: this.deploymentsEndpoint,
+      dashboardEndpoint: this.dashboardEndpoint,
+      currentDashboard: this.currentDashboard,
+      projectPath: this.projectPath,
+    });
+  },
   mounted() {
     if (!this.hasMetrics) {
       this.setGettingStartedEmptyState();
