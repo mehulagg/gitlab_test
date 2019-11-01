@@ -32,8 +32,6 @@ ARGV.each do |report_file|
   header = report.css('div #rspec-header')
   tests = report.css('dt[id^="example_group_"]')
 
-  next if tests.empty?
-
   header.search("//h1/text()").first.content = "Test results for job: #{report_file.slice(/rspec-(.*)\.htm/, 1)}"
   header.css("#display-filters input").each do |filter|
     filter.remove_attribute('checked') if filter[:id] != "failed_checkbox"
@@ -73,8 +71,11 @@ ARGV.each do |report_file|
   duration = report.at_css('p#duration')
   totals = report.at_css('p#totals')
 
-  duration_script = report.css('div.results script')[-2]
-  totals_script = report.css('div.results script')[-1]
+  # Also capture results from empty tests for awareness
+  results_loc = tests.empty? ? 'div.rspec-report script' : 'div.results script'
+
+  duration_script = report.css(results_loc)[-2]
+  totals_script = report.css(results_loc)[-1]
 
   duration_text = duration_script.text.slice(49..-3)
   totals_text = totals_script.text.slice(47..-3)
