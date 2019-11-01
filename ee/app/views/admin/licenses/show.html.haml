@@ -56,7 +56,13 @@
                 %strong Expired
           %li
             %span.light License ID:
-            %strong= @license.md5
+            %strong#license_id= @license.license_id
+            = clipboard_button(target: '#license_id', title: _("Copy ID"), class: "btn-transparent btn-clipboard")
+          %li
+            %spanlight License MD5:
+            %strong#license_md5= @license.md5
+            = clipboard_button(target: '#license_md5', title: _("Copy MD5"), class: "btn-transparent btn-clipboard")
+
 
     .col-md-6
       .card.border-info
