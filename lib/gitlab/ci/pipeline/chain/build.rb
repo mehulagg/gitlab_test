@@ -23,7 +23,7 @@ module Gitlab
               variables_attributes: Array(@command.variables_attributes)
             )
 
-            @pipeline.set_config_source
+            @pipeline.config_source = @pipeline.config.source
           end
 
           def break?

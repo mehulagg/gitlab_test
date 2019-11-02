@@ -587,10 +587,6 @@ module Ci
       end
     end
 
-    def set_config_source
-      self.config_source = config.source
-    end
-
     ##
     # TODO, setting yaml_errors should be moved to the pipeline creation chain.
     #
@@ -606,12 +602,6 @@ module Ci
       rescue
         self.yaml_errors = 'Undefined error'
         nil
-      end
-    end
-
-    def config_content
-      strong_memoize(:config_content) do
-        config.content
       end
     end
 
