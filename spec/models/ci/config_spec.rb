@@ -13,98 +13,89 @@ describe Ci::Config do
   describe '#content' do
     let(:implied_yml) { Gitlab::Template::GitlabCiYmlTemplate.find('Auto-DevOps').content }
 
-    context 'when the source is unknown' do
+    context 'when file is found in the repository' do
       before do
-        expect(config).to receive(:source).and_return(nil)
+        expect(pipeline.project.repository).to receive(:gitlab_ci_yml_for) { 'the-config-content'}
       end
 
-      it 'returns the configuration if found' do
-        allow(pipeline.project.repository).to receive(:gitlab_ci_yml_for)
-          .and_return('config')
-
-        expect(config.content).to be_a(String)
-        expect(config.content).not_to eq(implied_yml)
-        expect(pipeline.yaml_errors).to be_nil
-      end
-
-      it 'sets yaml errors in pipeline if not found' do
-        expect(config.content).to be_nil
-        expect(pipeline.yaml_errors)
-            .to start_with('Failed to load CI/CD config file')
-      end
-    end
-
-    context 'the source is the repository' do
-      before do
-        expect(config).to receive(:source).and_return(:repository_source)
-      end
-
-      it 'returns the configuration if found' do
-        allow(pipeline.project.repository).to receive(:gitlab_ci_yml_for)
-          .and_return('config')
-
-        expect(config.content).to be_a(String)
-        expect(config.content).not_to eq(implied_yml)
-        expect(pipeline.yaml_errors).to be_nil
-      end
-
-      it 'sets yaml errors in pipeline if not found' do
-        expect(config.content).to be_nil
-        expect(pipeline.yaml_errors)
-            .to start_with('Failed to load CI/CD config file')
-      end
-    end
-
-    context 'when the source is auto_devops_source' do
-      before do
-        expect(config).to receive(:source).and_return(:auto_devops_source)
-      end
-
-      it 'finds the implied config' do
-        expect(config.content).to eq(implied_yml)
-        expect(pipeline.yaml_errors).to be_nil
-      end
-    end
-  end
-
-  describe '#path' do
-    subject { config.path }
-
-    %i[unknown_source repository_source].each do |source|
-      context source.to_s do
+      context 'when config is specified in ci_config_path' do
         before do
-          pipeline.config_source = Ci::Pipeline.config_sources.fetch(source)
+          project.update!(ci_config_path: 'the-config.yml')
         end
 
-        it 'returns the path from project' do
-          allow(pipeline.project).to receive(:ci_config_path) { 'custom/path' }
-
-          is_expected.to eq('custom/path')
+        it 'sets repository source' do
+          expect(config.source).to eq(:repository_source)
         end
 
-        it 'returns default when custom path is nil' do
-          allow(pipeline.project).to receive(:ci_config_path) { nil }
-
-          is_expected.to eq('.gitlab-ci.yml')
+        it 'sets the content to the one from the repository' do
+          expect(config.content).to eq('the-config-content')
         end
 
-        it 'returns default when custom path is empty' do
-          allow(pipeline.project).to receive(:ci_config_path) { '' }
+        it 'returns the path to the file' do
+          expect(config.path).to eq('the-config.yml')
+        end
+      end
 
-          is_expected.to eq('.gitlab-ci.yml')
+      context 'when config is the default .gitlab-ci.yml' do
+        before do
+          project.update!(ci_config_path: nil)
+        end
+
+        it 'sets repository source' do
+          expect(config.source).to eq(:repository_source)
+        end
+
+        it 'sets the content to the one from the repository' do
+          expect(config.content).to eq('the-config-content')
+        end
+
+        it 'returns the path to the file' do
+          expect(config.path).to eq('.gitlab-ci.yml')
         end
       end
     end
 
-    context 'when pipeline is for auto-devops' do
+    context 'when file is not found in the repository' do
       before do
-        pipeline.config_source = 'auto_devops_source'
+        expect(pipeline.project.repository).to receive(:gitlab_ci_yml_for) { nil }
       end
 
-      it 'does not return config file' do
-        is_expected.to be_nil
+      context 'when auto-devops is enabled' do
+        before do
+          expect(project).to receive(:auto_devops_enabled?) { true }
+        end
+
+        it 'sets auto-devops source' do
+          expect(config.source).to eq(:auto_devops_source)
+        end
+
+        it 'sets the content to the one from the implied auto-devops file' do
+          auto_devops_content = Gitlab::Template::GitlabCiYmlTemplate.find('Auto-DevOps').content
+          expect(config.content).to eq(auto_devops_content)
+        end
+
+        it 'does not return a path' do
+          expect(config.path).to be_nil
+        end
+      end
+
+      context 'when auto-devops is disabled' do
+        before do
+          expect(project).to receive(:auto_devops_enabled?) { false }
+        end
+
+        it 'does not set a source' do
+          expect(config.source).to be_nil
+        end
+
+        it 'does not set a content' do
+          expect(config.content).to be_nil
+        end
+
+        it 'returns the path to the default .gitlab-ci.yml' do
+          expect(config.path).to eq('.gitlab-ci.yml')
+        end
       end
     end
   end
-
 end

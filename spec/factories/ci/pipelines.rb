@@ -18,9 +18,7 @@ FactoryBot.define do
 
     factory :ci_pipeline_with_one_job do
       after(:build) do |pipeline|
-        allow(pipeline).to receive(:config_content) do
-          pipeline.config.instance_variable_set(:@content, YAML.dump({ rspec: { script: "ls" } }))
-        end
+        pipeline.config.instance_variable_set(:@content, YAML.dump({ rspec: { script: "ls" } }))
       end
     end
 
@@ -41,9 +39,16 @@ FactoryBot.define do
           pipeline.config.instance_variable_set(:@content, YAML.dump(evaluator.config))
 
           # Populates pipeline with errors
-          pipeline.config_processor if evaluator.config
+          pipeline.config_processor
         else
           pipeline.config.instance_variable_set(:@content, File.read(Rails.root.join('spec/support/gitlab_stubs/gitlab_ci.yml')))
+        end
+      end
+
+      trait :without_config do
+        after(:build) do |pipeline, evaluator|
+          pipeline.config.instance_variable_set(:@content, nil)
+          pipeline.config.instance_variable_set(:@source, nil)
         end
       end
 
