@@ -21,7 +21,7 @@ describe Gitlab::Ci::Pipeline::Chain::Validate::Config do
 
   context 'when pipeline has no YAML configuration' do
     let(:pipeline) do
-      build_stubbed(:ci_pipeline, project: project)
+      build(:ci_pipeline, :without_config, project: project)
     end
 
     it 'appends errors about missing configuration' do

@@ -1,47 +1,23 @@
 # frozen_string_literal: true
 
+# TODO: change this class to Ci::Pipeline::Config
+# as it represent the config for a specific pipeline
 module Ci
   class Config
     include Gitlab::Utils::StrongMemoize
 
+    attr_reader :content, :source
+
     def initialize(pipeline)
       @pipeline = pipeline
-    end
+      load_data!
 
-    def source
-      strong_memoize(:source) do
-        if ci_yaml_from_repo
-          :repository_source
-        elsif implied_ci_yaml_file
-          :auto_devops_source
-        else
-          # no yaml found
-        end
-      end
-    end
-
-    def content
-      strong_memoize(:content) do
-        content = case source
-                  when :auto_devops_source
-                    implied_ci_yaml_file
-                  else
-                    # TODO: why are we looking at the yaml in the repo
-                    # if source is unknown? shouldn't we do that only if
-                    # source is :repository_source?
-                    ci_yaml_from_repo
-                  end
-
-        unless content
-          pipeline.yaml_errors = "Failed to load CI/CD config file for #{sha}"
-        end
-
-        content
-      end
+      # TODO: move this outside into the pipeline chain
+      pipeline.yaml_errors = "Failed to load CI/CD config file for #{sha}" unless @content
     end
 
     def path
-      return unless pipeline.repository_source? || pipeline.unknown_source?
+      return if auto_devops_source?
 
       project.ci_config_path.presence || '.gitlab-ci.yml'
     end
@@ -50,7 +26,19 @@ module Ci
 
     attr_reader :pipeline
 
-    def ci_yaml_from_repo
+    def load_data!
+      if @content = content_from_repo
+        @source = :repository_source
+      elsif @content = content_from_auto_devops
+        @source = :auto_devops_source
+      end
+    end
+
+    def auto_devops_source?
+      source == :auto_devops_source
+    end
+
+    def content_from_repo
       return unless project
       return unless sha
       return unless path
@@ -60,7 +48,7 @@ module Ci
       nil
     end
 
-    def implied_ci_yaml_file
+    def content_from_auto_devops
       return unless project&.auto_devops_enabled?
 
       Gitlab::Template::GitlabCiYmlTemplate.find('Auto-DevOps').content
