@@ -20,7 +20,7 @@ module Dashboard
           .new(user)
           .execute(user.ops_dashboard_projects)
 
-        EnvironmentFolder.find_for_projects(projects)
+        projects
       end
     end
   end
