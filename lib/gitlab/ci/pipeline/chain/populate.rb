@@ -25,14 +25,14 @@ module Gitlab
             ##
             # Gather all runtime build/stage errors
             #
-            if seeds_errors = pipeline.stage_seeds.flat_map(&:errors).compact.presence
+            if seeds_errors = stage_seeds.flat_map(&:errors).compact.presence
               return error(seeds_errors.join("\n"), config_error: true)
             end
 
             ##
             # Populate pipeline with all stages, and stages with builds.
             #
-            pipeline.stages = pipeline.stage_seeds.map(&:to_resource)
+            pipeline.stages = stage_seeds.map(&:to_resource)
 
             if pipeline.stages.none?
               return error('No stages / jobs for this pipeline.')
@@ -47,6 +47,12 @@ module Gitlab
 
           def break?
             pipeline.errors.any?
+          end
+
+          private
+
+          def stage_seeds
+            @stage_seeds ||= @config.processor.stage_seeds(pipeline)
           end
         end
       end

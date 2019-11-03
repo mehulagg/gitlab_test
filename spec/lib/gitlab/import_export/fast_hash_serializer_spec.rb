@@ -132,11 +132,6 @@ describe Gitlab::ImportExport::FastHashSerializer do
   end
 
   it 'has no when YML attributes but only the DB column' do
-    # TODO: should we remove this stub? It doesn't get called if replaced with "expected" mock
-    allow_any_instance_of(Ci::Config)
-      .to receive(:content)
-      .and_return(File.read(Rails.root.join('spec/support/gitlab_stubs/gitlab_ci.yml')))
-
     expect_any_instance_of(Gitlab::Ci::YamlProcessor).not_to receive(:build_attributes)
 
     subject

@@ -22,8 +22,6 @@ module Gitlab
               external_pull_request: @command.external_pull_request,
               variables_attributes: Array(@command.variables_attributes)
             )
-
-            @pipeline.config_source = @pipeline.config.source
           end
 
           def break?

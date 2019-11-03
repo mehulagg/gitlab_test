@@ -901,11 +901,12 @@ module Ci
       end
     end
 
-    def build_attributes_from_config
-      return {} unless pipeline.config_processor
+    # TODO: is this used?
+    # def build_attributes_from_config
+    #   return {} unless pipeline.config_processor
 
-      pipeline.config_processor.build_attributes(name)
-    end
+    #   pipeline.config_processor.build_attributes(name)
+    # end
   end
 end
 

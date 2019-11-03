@@ -19,7 +19,8 @@ describe Gitlab::Ci::Pipeline::Chain::Validate::Abilities do
       trigger_request: trigger_request)
   end
 
-  let(:step) { described_class.new(pipeline, command) }
+  let(:config) { double(:config) }
+  let(:step) { described_class.new(pipeline, command, config) }
 
   let(:ref) { 'master' }
   let(:origin_ref) { ref }

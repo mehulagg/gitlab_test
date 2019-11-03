@@ -9,9 +9,17 @@ module Gitlab
             include Chain::Helpers
 
             def perform!
-              unless @pipeline.config_processor
-                unless @pipeline.config.content
-                  return error("Missing #{@pipeline.config.path} file")
+              @pipeline.config_source = @config.source
+
+              unless @config.processor
+                # TODO: remove this comment:
+                # this was originally in the pipeline.config_processor error handling
+                @pipeline.yaml_errors = @config.errors.join(', ')
+
+                # TODO: we could have this error generated inside @config and
+                # appended to @config.errors
+                unless @config.content
+                  return error("Missing #{@config.path} file")
                 end
 
                 if @command.save_incompleted && @pipeline.has_yaml_errors?

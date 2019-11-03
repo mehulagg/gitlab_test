@@ -8,9 +8,10 @@ module EE
           class Size < Ci::Limit
             include ActionView::Helpers::TextHelper
 
-            def initialize(namespace, pipeline)
+            def initialize(namespace, pipeline, config)
               @namespace = namespace
               @pipeline = pipeline
+              @config = config
             end
 
             def enabled?
@@ -33,7 +34,7 @@ module EE
             private
 
             def excessive_seeds_count
-              @excessive ||= @pipeline.seeds_size - @namespace.max_pipeline_size
+              @excessive ||= @config.processor.seeds_size(@pipeline) - @namespace.max_pipeline_size
             end
           end
         end

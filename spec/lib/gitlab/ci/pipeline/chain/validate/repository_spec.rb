@@ -6,8 +6,9 @@ describe Gitlab::Ci::Pipeline::Chain::Validate::Repository do
   set(:project) { create(:project, :repository) }
   set(:user) { create(:user) }
   let(:pipeline) { build_stubbed(:ci_pipeline) }
+  let(:config) { double(:config) }
 
-  let!(:step) { described_class.new(pipeline, command) }
+  let!(:step) { described_class.new(pipeline, command, config) }
 
   before do
     step.perform!

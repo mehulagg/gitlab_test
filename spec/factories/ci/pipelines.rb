@@ -10,15 +10,19 @@ FactoryBot.define do
 
     project
 
+    # TODO: replace the usage of this factory using stub_ci_pipeline_yaml_file instead
     factory :ci_pipeline_without_jobs do
       after(:build) do |pipeline|
-        pipeline.config.instance_variable_set(:@content, YAML.dump({}))
+        # TODO: this should be removed and stubbed explicitly
+        # pipeline.config.instance_variable_set(:@content, YAML.dump({}))
       end
     end
 
+    # TODO: replace the usage of this factory using stub_ci_pipeline_yaml_file instead
     factory :ci_pipeline_with_one_job do
       after(:build) do |pipeline|
-        pipeline.config.instance_variable_set(:@content, YAML.dump({ rspec: { script: "ls" } }))
+        # TODO: this should be removed and stubbed explicitly
+        # pipeline.config.instance_variable_set(:@content, YAML.dump({ rspec: { script: "ls" } }))
       end
     end
 
@@ -32,16 +36,21 @@ FactoryBot.define do
     end
 
     factory :ci_pipeline do
+      # TODO: remove this transient as it should not be used
       transient { config { nil } }
 
       after(:build) do |pipeline, evaluator|
         if evaluator.config
-          pipeline.config.instance_variable_set(:@content, YAML.dump(evaluator.config))
+          # TODO: this should be removed and stubbed explicitly
+          # pipeline.config.instance_variable_set(:@content, YAML.dump(evaluator.config))
 
+          # TODO: remove this too
           # Populates pipeline with errors
-          pipeline.config_processor
+          # config = Gitlab::Ci::Yaml.new(project: pipeline.project, content: YAML.dump(evaluator.config))
+          # pipeline.yaml_errors = config.errors.join(', ') unless config.valid?
         else
-          pipeline.config.instance_variable_set(:@content, File.read(Rails.root.join('spec/support/gitlab_stubs/gitlab_ci.yml')))
+          # TODO: this should be removed and stubbed explicitly
+          # pipeline.config.instance_variable_set(:@content, File.read(Rails.root.join('spec/support/gitlab_stubs/gitlab_ci.yml')))
         end
       end
 

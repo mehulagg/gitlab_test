@@ -6,6 +6,8 @@ describe Gitlab::Ci::Pipeline::Chain::Validate::Config do
   set(:project) { create(:project, :repository) }
   set(:user) { create(:user) }
 
+  let(:pipeline) { build(:ci_pipeline, project: project) }
+
   let(:command) do
     Gitlab::Ci::Pipeline::Chain::Command.new(
       project: project,
@@ -13,18 +15,18 @@ describe Gitlab::Ci::Pipeline::Chain::Validate::Config do
       save_incompleted: true)
   end
 
-  let!(:step) { described_class.new(pipeline, command) }
+  let(:yaml) { Gitlab::Ci::Yaml.new(project: project, sha: project.repository.commit.id) }
+
+  let(:step) { described_class.new(pipeline, command, yaml) }
 
   subject { step.perform! }
 
-  context 'when pipeline has no YAML configuration' do
-    let(:pipeline) do
-      build(:ci_pipeline, project: project)
-    end
+  before do
+    stub_ci_pipeline_yaml_file(config)
+  end
 
-    before do
-      allow(pipeline.config).to receive(:content) { nil }
-    end
+  context 'when project has no YAML configuration' do
+    let(:config) { nil }
 
     it 'appends errors about missing configuration' do
       subject
@@ -41,9 +43,7 @@ describe Gitlab::Ci::Pipeline::Chain::Validate::Config do
   end
 
   context 'when YAML configuration contains errors' do
-    let(:pipeline) do
-      build(:ci_pipeline, project: project, config: 'invalid YAML')
-    end
+    let(:config) { 'invalid YAML' }
 
     it 'appends errors about YAML errors' do
       subject
@@ -96,16 +96,12 @@ describe Gitlab::Ci::Pipeline::Chain::Validate::Config do
 
   context 'when pipeline contains configuration validation errors' do
     let(:config) do
-      {
+      YAML.dump({
         rspec: {
           before_script: 10,
           script: 'ls -al'
         }
-      }
-    end
-
-    let(:pipeline) do
-      build(:ci_pipeline, project: project, config: config)
+      })
     end
 
     it 'appends configuration validation errors to pipeline errors' do
@@ -123,14 +119,22 @@ describe Gitlab::Ci::Pipeline::Chain::Validate::Config do
   end
 
   context 'when pipeline is correct and complete' do
-    let(:pipeline) do
-      build(:ci_pipeline_with_one_job, project: project)
+    let(:config) do
+      YAML.dump({
+        rspec: { script: 'echo' }
+      })
     end
 
     it 'does not invalidate the pipeline' do
       subject
 
       expect(pipeline).to be_valid
+    end
+
+    it 'sets a valid config source' do
+      subject
+
+      expect(pipeline.repository_source?).to be true
     end
 
     it 'does not break the chain' do
@@ -141,35 +145,31 @@ describe Gitlab::Ci::Pipeline::Chain::Validate::Config do
   end
 
   context 'when pipeline source is merge request' do
-    before do
-      stub_ci_pipeline_yaml_file(YAML.dump(config))
-    end
-
-    let(:pipeline) { build_stubbed(:ci_pipeline, project: project) }
-
-    let(:merge_request_pipeline) do
+    let(:pipeline) do
       build(:ci_pipeline, source: :merge_request_event, project: project)
     end
 
-    let(:chain) { described_class.new(merge_request_pipeline, command).tap(&:perform!) }
-
     context "when config contains 'merge_requests' keyword" do
-      let(:config) { { rspec: { script: 'echo', only: ['merge_requests'] } } }
+      let(:config) do
+        YAML.dump({ rspec: { script: 'echo', only: ['merge_requests'] } })
+      end
 
       it 'does not break the chain' do
         subject
 
-        expect(chain).not_to be_break
+        expect(step).not_to be_break
       end
     end
 
     context "when config contains 'merge_request' keyword" do
-      let(:config) { { rspec: { script: 'echo', only: ['merge_request'] } } }
+      let(:config) do
+        YAML.dump({ rspec: { script: 'echo', only: ['merge_request'] } })
+      end
 
       it 'does not break the chain' do
         subject
 
-        expect(chain).not_to be_break
+        expect(step).not_to be_break
       end
     end
   end
