@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# TODO: If this is only being references inside /lib as part of
+# pipeline creation. Consider Renaming it to Gitlab::Ci::ProjectConfig
+
 # This class represents the actual pipeline configuration.
 # It defines the logic for finding the config content, path and source
 # that is used to trigger a pipeline, even when multiple configurations

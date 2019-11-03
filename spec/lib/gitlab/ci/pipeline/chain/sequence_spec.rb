@@ -8,12 +8,13 @@ describe Gitlab::Ci::Pipeline::Chain::Sequence do
 
   let(:pipeline) { build_stubbed(:ci_pipeline) }
   let(:command) { Gitlab::Ci::Pipeline::Chain::Command.new }
+  let(:config) { double(:config) }
   let(:first_step) { spy('first step') }
   let(:second_step) { spy('second step') }
   let(:sequence) { [first_step, second_step] }
 
   subject do
-    described_class.new(pipeline, command, sequence)
+    described_class.new(pipeline, command, config, sequence)
   end
 
   context 'when one of steps breaks the chain' do

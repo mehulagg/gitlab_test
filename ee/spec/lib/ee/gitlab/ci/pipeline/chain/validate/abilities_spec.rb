@@ -15,7 +15,8 @@ describe Gitlab::Ci::Pipeline::Chain::Validate::Abilities do
       .new(project: project, current_user: user, origin_ref: ref)
   end
 
-  let(:step) { described_class.new(pipeline, command) }
+  let(:config) { double(:config) }
+  let(:step) { described_class.new(pipeline, command, config) }
   let(:ref) { 'master' }
 
   describe '#perform!' do

@@ -44,8 +44,10 @@ module Ci
         chat_data: params[:chat_data],
         **extra_options(options))
 
+      config = Gitlab::Ci::Yaml.new(project: project, sha: command.sha, user: current_user)
+
       sequence = Gitlab::Ci::Pipeline::Chain::Sequence
-        .new(pipeline, command, SEQUENCE)
+        .new(pipeline, command, config, SEQUENCE)
 
       sequence.build! do |pipeline, sequence|
         schedule_head_pipeline_update

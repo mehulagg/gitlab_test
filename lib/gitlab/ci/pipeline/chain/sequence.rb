@@ -5,16 +5,17 @@ module Gitlab
     module Pipeline
       module Chain
         class Sequence
-          def initialize(pipeline, command, sequence)
+          def initialize(pipeline, command, config, sequence)
             @pipeline = pipeline
             @command = command
+            @config = config
             @sequence = sequence
             @completed = []
           end
 
           def build!
             @sequence.each do |chain|
-              step = chain.new(@pipeline, @command)
+              step = chain.new(@pipeline, @command, @config)
 
               step.perform!
               break if step.break?

@@ -15,7 +15,8 @@ describe Gitlab::Ci::Pipeline::Chain::Skip do
       save_incompleted: true)
   end
 
-  let(:step) { described_class.new(pipeline, command) }
+  let(:config) { double(:config) }
+  let(:step) { described_class.new(pipeline, command, config) }
 
   context 'when pipeline has been skipped by a user' do
     before do

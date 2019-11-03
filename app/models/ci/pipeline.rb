@@ -551,23 +551,6 @@ module Ci
       end
     end
 
-    def stage_seeds
-      return [] unless config_processor
-
-      strong_memoize(:stage_seeds) do
-        seeds = config_processor.stages_attributes.inject([]) do |previous_stages, attributes|
-          seed = Gitlab::Ci::Pipeline::Seed::Stage.new(self, attributes, previous_stages)
-          previous_stages + [seed]
-        end
-
-        seeds.select(&:included?)
-      end
-    end
-
-    def seeds_size
-      stage_seeds.sum(&:size)
-    end
-
     def has_kubernetes_active?
       project.deployment_platform&.active?
     end
@@ -587,35 +570,8 @@ module Ci
       end
     end
 
-    ##
-    # TODO, setting yaml_errors should be moved to the pipeline creation chain.
-    #
-    def config_processor
-      config_content = config.content.tap do |content|
-        self.yaml_errors = "Failed to load CI/CD config file for #{sha}" unless content
-      end
-      return unless config_content
-
-      return @config_processor if defined?(@config_processor)
-
-      @config_processor ||= begin
-        ::Gitlab::Ci::YamlProcessor.new(config_content, { project: project, sha: sha, user: user })
-      rescue Gitlab::Ci::YamlProcessor::ValidationError => e
-        self.yaml_errors = e.message
-        nil
-      rescue => ex
-        self.yaml_errors = "Undefined error (#{Labkit::Correlation::CorrelationId.current_id})"
-
-        Gitlab::Sentry.track_acceptable_exception(ex, extra: {
-          project_id: project.id,
-          sha: sha,
-          ci_yaml_file: ci_yaml_file_path
-        })
-        nil
-      end
-    end
-
     # TODO: remove this from Pipeline
+    # after fixing app/views/projects/pipelines/_with_tabs.html.haml
     def config
       @config ||= Ci::Config.new(project, sha)
     end

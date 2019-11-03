@@ -9,10 +9,14 @@ module Gitlab
             include Chain::Helpers
 
             def perform!
-              unless @pipeline.config_processor
-                unless @pipeline.config.content
-                  return error("Missing #{@pipeline.config.path} file")
+              @pipeline.config_source = @config.source
+
+              unless @config.processor
+                unless @config.content
+                  return error("Missing #{@config.path} file")
                 end
+
+                @pipeline.yaml_errors = @config.errors.join(', ')
 
                 if @command.save_incompleted && @pipeline.has_yaml_errors?
                   @pipeline.drop!(:config_error)

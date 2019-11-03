@@ -15,7 +15,8 @@ describe ::Gitlab::Ci::Pipeline::Chain::Limit::JobActivity do
     create(:ci_pipeline, project: project)
   end
 
-  let(:step) { described_class.new(pipeline, command) }
+  let(:config) { double(:config) }
+  let(:step) { described_class.new(pipeline, command, config) }
 
   subject { step.perform! }
 

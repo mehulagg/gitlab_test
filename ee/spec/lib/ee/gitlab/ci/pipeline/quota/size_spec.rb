@@ -8,29 +8,32 @@ describe EE::Gitlab::Ci::Pipeline::Quota::Size do
   set(:project) { create(:project, :repository, namespace: namespace) }
 
   let(:pipeline) { build_stubbed(:ci_pipeline, project: project) }
-  let(:limit) { described_class.new(namespace, pipeline) }
+  let(:yaml) { Gitlab::Ci::Yaml.new(project: project, sha: project.repository.commit.id) }
+  let(:limit) { described_class.new(namespace, pipeline, yaml) }
 
   before do
     create(:gitlab_subscription, namespace: namespace, hosted_plan: gold_plan)
   end
 
   shared_context 'pipeline size limit exceeded' do
-    let(:pipeline) do
-      config = { rspec: { script: 'rspec' },
-                 spinach: { script: 'spinach' } }
-
-      build(:ci_pipeline, project: project, config: config)
-    end
-
     before do
+      config = YAML.dump({
+        rspec: { script: 'rspec' },
+        spinach: { script: 'spinach' }
+      })
+      stub_ci_pipeline_yaml_file(config)
+
       gold_plan.update_column(:pipeline_size_limit, 1)
     end
   end
 
   shared_context 'pipeline size limit not exceeded' do
-    let(:pipeline) { build(:ci_pipeline_with_one_job, project: project) }
-
     before do
+      config = YAML.dump({
+        rspec: { script: 'rspec' }
+      })
+      stub_ci_pipeline_yaml_file(config)
+
       gold_plan.update_column(:pipeline_size_limit, 2)
     end
   end

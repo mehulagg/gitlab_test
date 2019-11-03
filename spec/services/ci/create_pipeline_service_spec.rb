@@ -65,6 +65,7 @@ describe Ci::CreatePipelineService do
         expect(pipeline.iid).not_to be_nil
         expect(pipeline.repository_source?).to be true
         expect(pipeline.builds.first).to be_kind_of(Ci::Build)
+        expect(pipeline.yaml_errors).not_to be_present
       end
 
       it 'increments the prometheus counter' do

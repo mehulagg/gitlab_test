@@ -15,7 +15,8 @@ describe Gitlab::Ci::Pipeline::Chain::Create do
       project: project, current_user: user)
   end
 
-  let(:step) { described_class.new(pipeline, command) }
+  let(:config) { double(:config) }
+  let(:step) { described_class.new(pipeline, command, config) }
 
   context 'when pipeline is ready to be saved' do
     before do

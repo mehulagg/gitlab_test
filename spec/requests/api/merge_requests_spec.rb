@@ -1039,14 +1039,12 @@ describe API::MergeRequests do
 
   describe 'POST /projects/:id/merge_requests/:merge_request_iid/pipelines' do
     before do
-      allow_any_instance_of(Ci::Config)
-        .to receive(:content)
-        .and_return(YAML.dump({
-          rspec: {
-            script: 'ls',
-            only: ['merge_requests']
-          }
-        }))
+      stub_ci_pipeline_yaml_file(YAML.dump({
+        rspec: {
+          script: 'ls',
+          only: ['merge_requests']
+        }
+      }))
     end
 
     let(:project) do
@@ -1490,7 +1488,7 @@ describe API::MergeRequests do
   end
 
   describe "PUT /projects/:id/merge_requests/:merge_request_iid/merge" do
-    let(:pipeline) { create(:ci_pipeline_without_jobs) }
+    let(:pipeline) { create(:ci_pipeline) }
 
     it "returns merge_request in case of success" do
       put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/merge", user)

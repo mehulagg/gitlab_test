@@ -1932,6 +1932,145 @@ module Gitlab
           it { is_expected.to be_nil }
         end
       end
+
+      describe '#stage_seeds' do
+        let(:pipeline) { build(:ci_pipeline) }
+        let(:config) { YAML.dump(rspec: { script: 'rake' }) }
+        let(:stage_seeds) { subject.stage_seeds(pipeline) }
+
+        it 'returns preseeded stage seeds object' do
+          expect(stage_seeds)
+            .to all(be_a Gitlab::Ci::Pipeline::Seed::Base)
+          expect(stage_seeds.count).to eq 1
+        end
+
+        context 'when no refs policy is specified' do
+          let(:config) do
+            YAML.dump({
+              production: { stage: 'deploy', script: 'cap prod' },
+              rspec: { stage: 'test', script: 'rspec' },
+              spinach: { stage: 'test', script: 'spinach' }
+            })
+          end
+
+          it 'correctly fabricates a stage seeds object' do
+            seeds = stage_seeds
+            expect(seeds.size).to eq 2
+            expect(seeds.first.attributes[:name]).to eq 'test'
+            expect(seeds.second.attributes[:name]).to eq 'deploy'
+            expect(seeds.dig(0, 0, :name)).to eq 'rspec'
+            expect(seeds.dig(0, 1, :name)).to eq 'spinach'
+            expect(seeds.dig(1, 0, :name)).to eq 'production'
+          end
+        end
+
+        context 'when refs policy is specified' do
+          let(:pipeline) do
+            build(:ci_pipeline, ref: 'feature', tag: true)
+          end
+
+          let(:config) do
+            YAML.dump(
+              production: { stage: 'deploy', script: 'cap prod', only: ['master'] },
+              spinach: { stage: 'test', script: 'spinach', only: ['tags'] })
+          end
+
+          it 'returns stage seeds only assigned to master to master' do
+            seeds = stage_seeds
+
+            expect(seeds.size).to eq 1
+            expect(seeds.first.attributes[:name]).to eq 'test'
+            expect(seeds.dig(0, 0, :name)).to eq 'spinach'
+          end
+        end
+
+        context 'when source policy is specified' do
+          let(:pipeline) { build(:ci_pipeline, source: :schedule) }
+
+          let(:config) do
+            YAML.dump(
+              production: { stage: 'deploy', script: 'cap prod', only: ['triggers'] },
+              spinach: { stage: 'test', script: 'spinach', only: ['schedules'] })
+          end
+
+          it 'returns stage seeds only assigned to schedules' do
+            seeds = stage_seeds
+
+            expect(seeds.size).to eq 1
+            expect(seeds.first.attributes[:name]).to eq 'test'
+            expect(seeds.dig(0, 0, :name)).to eq 'spinach'
+          end
+        end
+
+        context 'when kubernetes policy is specified' do
+          let(:config) do
+            YAML.dump(
+              spinach: { stage: 'test', script: 'spinach' },
+              production: {
+                stage: 'deploy',
+                script: 'cap',
+                only: { kubernetes: 'active' }
+              })
+          end
+
+          context 'when kubernetes is active' do
+            context 'when user configured kubernetes from CI/CD > Clusters' do
+              let!(:cluster) { create(:cluster, :project, :provided_by_gcp) }
+              let(:project) { cluster.project }
+              let(:pipeline) { build(:ci_pipeline, project: project) }
+
+              it 'returns seeds for kubernetes dependent job' do
+                seeds = stage_seeds
+
+                expect(seeds.size).to eq 2
+                expect(seeds.dig(0, 0, :name)).to eq 'spinach'
+                expect(seeds.dig(1, 0, :name)).to eq 'production'
+              end
+            end
+          end
+
+          context 'when kubernetes is not active' do
+            it 'does not return seeds for kubernetes dependent job' do
+              seeds = stage_seeds
+
+              expect(seeds.size).to eq 1
+              expect(seeds.dig(0, 0, :name)).to eq 'spinach'
+            end
+          end
+        end
+
+        context 'when variables policy is specified' do
+          let(:config) do
+            YAML.dump(
+              unit: { script: 'minitest', only: { variables: ['$CI_PIPELINE_SOURCE'] } },
+              feature: { script: 'spinach', only: { variables: ['$UNDEFINED'] } })
+          end
+
+          it 'returns stage seeds only when variables expression is truthy' do
+            seeds = stage_seeds
+
+            expect(seeds.size).to eq 1
+            expect(seeds.dig(0, 0, :name)).to eq 'unit'
+          end
+        end
+      end
+
+      describe '#seeds_size' do
+        let(:seeds_size) { subject.seeds_size(pipeline) }
+        let(:pipeline) { build(:ci_pipeline, ref: 'feature', tag: true) }
+
+        context 'when refs policy is specified' do
+          let(:config) do
+            YAML.dump(
+              production: { stage: 'deploy', script: 'cap prod', only: ['master'] },
+              spinach: { stage: 'test', script: 'spinach', only: ['tags'] })
+          end
+
+          it 'returns real seeds size' do
+            expect(seeds_size).to eq 1
+          end
+        end
+      end
     end
   end
 end
