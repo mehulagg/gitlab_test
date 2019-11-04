@@ -19,6 +19,12 @@ class DashboardEnvironmentEntity < Grape::Entity
     PipelineDetailsEntity.represent(environment.last_visible_pipeline, options.merge(request: request_with_project))
   end
 
+  expose :alert_count do |environment|
+    environment.firing_alert_events.count
+  end
+
+  expose :last_alert, using: PrometheusAlertEntity
+
   private
 
   alias_method :environment, :object

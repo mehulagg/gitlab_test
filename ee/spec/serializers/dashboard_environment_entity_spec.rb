@@ -12,8 +12,8 @@ describe DashboardEnvironmentEntity do
 
       result = described_class.new(environment, request: request).as_json
 
-      expect(result.keys.sort).to eq([:environment_path, :external_url, :id,
-                                      :last_deployment, :last_pipeline, :name])
+      expect(result.keys.sort).to eq([:alert_count, :environment_path, :external_url, :id,
+                                      :last_alert, :last_deployment, :last_pipeline, :name])
     end
   end
 end

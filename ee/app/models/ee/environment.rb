@@ -7,8 +7,17 @@ module EE
     include ::Gitlab::Utils::StrongMemoize
 
     prepended do
+      has_one :last_alert, -> do
+        select('DISTINCT ON (prometheus_alert_events.id) prometheus_alerts.*')
+          .joins(:prometheus_alert_events)
+          .order('prometheus_alert_events.id DESC')
+      end, class_name: 'PrometheusAlert'
       has_many :prometheus_alerts, inverse_of: :environment
       has_many :self_managed_prometheus_alert_events, inverse_of: :environment
+      has_many :firing_alert_events,
+        -> { joins(:prometheus_alert).firing },
+        class_name: 'PrometheusAlertEvent',
+        foreign_key: 'prometheus_alerts.environment_id'
 
       # Returns environments where its latest deployment is to a cluster
       scope :deployed_to_cluster, -> (cluster) do

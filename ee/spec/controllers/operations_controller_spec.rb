@@ -466,6 +466,92 @@ describe OperationsController do
           expect(project_json['environments'].count).to eq(3)
         end
 
+        it 'returns an alert for an environment' do
+          environment = create(:environment, project: project)
+          alert = create(:prometheus_alert, project: project, environment: environment)
+          firing_alert_event = create(:prometheus_alert_event, prometheus_alert: alert)
+
+          get :environments_list
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
+
+          project_json = json_response['projects'].first
+          environment_json = project_json['environments'].first
+          expected_alert_path = project_prometheus_alert_path(
+            project, alert.prometheus_metric_id, environment_id: environment.id, format: :json
+          )
+
+          expect(environment_json['alert_count']).to eq(1)
+          expect(environment_json['last_alert']['id']).to eq(firing_alert_event.prometheus_alert.id)
+          expect(environment_json['last_alert']['alert_path']).to eq(expected_alert_path)
+          expect(environment_json['last_alert']['title']).to eq(alert.title)
+          expect(environment_json['last_alert']['query']).to eq(alert.query)
+        end
+
+        it 'counts only firing alerts' do
+          environment = create(:environment, project: project)
+          alert = create(:prometheus_alert, project: project, environment: environment)
+          create(:prometheus_alert_event, prometheus_alert: alert)
+          last_firing_alert = create(:prometheus_alert_event, prometheus_alert: alert)
+          create(:prometheus_alert_event, :resolved, prometheus_alert: alert)
+
+          get :environments_list
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
+
+          project_json = json_response['projects'].first
+          environment_json = project_json['environments'].first
+
+          expect(environment_json['alert_count']).to eq(2)
+          expect(environment_json['last_alert']['id']).to eq(last_firing_alert.prometheus_alert.id)
+        end
+
+        it 'returns alerts for multiple environments' do
+          environment_a = create(:environment, project: project)
+          environment_b = create(:environment, project: project)
+          alert_a = create(:prometheus_alert, project: project, environment: environment_a)
+          alert_b = create(:prometheus_alert, project: project, environment: environment_b)
+          event_a = create(:prometheus_alert_event, prometheus_alert: alert_a)
+          event_b = create(:prometheus_alert_event, prometheus_alert: alert_b)
+
+          get :environments_list
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
+
+          project_json = json_response['projects'].first
+          environment_a_json = project_json['environments'].find { |e| e['id'] == environment_a.id }
+          environment_b_json = project_json['environments'].find { |e| e['id'] == environment_b.id }
+
+          expect(environment_a_json['alert_count']).to eq(1)
+          expect(environment_a_json['last_alert']['id']).to eq(event_a.prometheus_alert.id)
+          expect(environment_b_json['alert_count']).to eq(1)
+          expect(environment_b_json['last_alert']['id']).to eq(event_b.prometheus_alert.id)
+        end
+
+        it 'returns multiple alerts for an environment' do
+          environment = create(:environment, project: project)
+          alert_a = create(:prometheus_alert, project: project, environment: environment)
+          alert_b = create(:prometheus_alert, project: project, environment: environment)
+          alert_c = create(:prometheus_alert, project: project, environment: environment)
+          create(:prometheus_alert_event, prometheus_alert: alert_a)
+          create(:prometheus_alert_event, prometheus_alert: alert_b)
+          event_c = create(:prometheus_alert_event, prometheus_alert: alert_c)
+
+          get :environments_list
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
+
+          project_json = json_response['projects'].first
+          environment_json = project_json['environments'].first
+
+          expect(environment_json['alert_count']).to eq(3)
+          expect(environment_json['last_alert']['id']).to eq(event_c.prometheus_alert.id)
+        end
+
         context 'with a pipeline' do
           let(:project) { create(:project, :repository) }
           let(:commit) { project.commit }
