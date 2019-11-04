@@ -2667,6 +2667,12 @@ describe Ci::Build do
       it { is_expected.to include(deployment_variable) }
     end
 
+    context 'when project has default CI config path' do
+      let(:ci_config_path) { { key: 'CI_CONFIG_PATH', value: '.gitlab-ci.yml', public: true, masked: false } }
+
+      it { is_expected.to include(ci_config_path) }
+    end
+
     context 'when project has custom CI config path' do
       let(:ci_config_path) { { key: 'CI_CONFIG_PATH', value: 'custom', public: true, masked: false } }
 
