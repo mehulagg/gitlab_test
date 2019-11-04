@@ -435,6 +435,37 @@ describe OperationsController do
           expect(last_deployment_json['id']).to eq(deployment.id)
         end
 
+        it 'returns a maximum of seven projects' do
+          projects = Array.new(8).map do
+            project = create(:project)
+            project.add_developer(user)
+            project
+          end
+          user.update!(ops_dashboard_projects: projects)
+
+          get :environments_list
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
+          expect(json_response['projects'].count).to eq(7)
+        end
+
+        it 'returns a maximum of three environments' do
+          create(:environment, project: project)
+          create(:environment, project: project)
+          create(:environment, project: project)
+          create(:environment, project: project)
+
+          get :environments_list
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
+
+          project_json = json_response['projects'].first
+
+          expect(project_json['environments'].count).to eq(3)
+        end
+
         context 'with a pipeline' do
           let(:project) { create(:project, :repository) }
           let(:commit) { project.commit }
