@@ -22,7 +22,7 @@ performance:
     - |
       function propagate_env_vars {
         for var in $(compgen -e); do
-          [[ ! $var =~ ^(DOCKER_|CI|GITLAB_|FF_|HOME|PWD|OLDPWD|PATH|SHLVL|HOSTNAME) ]] && echo "--env ${var} "
+          [[ ! $var =~ ^(DOCKER_|CI|GITLAB_|FF_|HOME|PWD|OLDPWD|PATH|SHLVL|HOSTNAME) ]] && echo -n "--env ${var} "
         done
       }
     - docker run \
