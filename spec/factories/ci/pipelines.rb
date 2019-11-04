@@ -45,13 +45,6 @@ FactoryBot.define do
         end
       end
 
-      trait :without_config do
-        after(:build) do |pipeline, evaluator|
-          pipeline.config.instance_variable_set(:@content, nil)
-          pipeline.config.instance_variable_set(:@source, nil)
-        end
-      end
-
       trait :invalid do
         config do
           { rspec: nil }

@@ -15,21 +15,27 @@ describe Gitlab::Ci::Pipeline::Chain::Validate::Config do
 
   let!(:step) { described_class.new(pipeline, command) }
 
-  before do
-    step.perform!
-  end
+  subject { step.perform! }
 
   context 'when pipeline has no YAML configuration' do
     let(:pipeline) do
-      build(:ci_pipeline, :without_config, project: project)
+      build(:ci_pipeline, project: project)
+    end
+
+    before do
+      allow(pipeline.config).to receive(:content) { nil }
     end
 
     it 'appends errors about missing configuration' do
+      subject
+
       expect(pipeline.errors.to_a)
         .to include 'Missing .gitlab-ci.yml file'
     end
 
     it 'breaks the chain' do
+      subject
+
       expect(step.break?).to be true
     end
   end
@@ -40,11 +46,15 @@ describe Gitlab::Ci::Pipeline::Chain::Validate::Config do
     end
 
     it 'appends errors about YAML errors' do
+      subject
+
       expect(pipeline.errors.to_a)
         .to include 'Invalid configuration format'
     end
 
     it 'breaks the chain' do
+      subject
+
       expect(step.break?).to be true
     end
 
@@ -56,10 +66,14 @@ describe Gitlab::Ci::Pipeline::Chain::Validate::Config do
       end
 
       it 'fails the pipeline' do
+        subject
+
         expect(pipeline.reload).to be_failed
       end
 
       it 'sets a config error failure reason' do
+        subject
+
         expect(pipeline.reload.config_error?).to eq true
       end
     end
@@ -72,6 +86,8 @@ describe Gitlab::Ci::Pipeline::Chain::Validate::Config do
       end
 
       it 'does not drop pipeline' do
+        subject
+
         expect(pipeline).not_to be_failed
         expect(pipeline).not_to be_persisted
       end
@@ -93,11 +109,15 @@ describe Gitlab::Ci::Pipeline::Chain::Validate::Config do
     end
 
     it 'appends configuration validation errors to pipeline errors' do
+      subject
+
       expect(pipeline.errors.to_a)
         .to include "jobs:rspec:before_script config should be an array containing strings and arrays of strings"
     end
 
     it 'breaks the chain' do
+      subject
+
       expect(step.break?).to be true
     end
   end
@@ -108,10 +128,14 @@ describe Gitlab::Ci::Pipeline::Chain::Validate::Config do
     end
 
     it 'does not invalidate the pipeline' do
+      subject
+
       expect(pipeline).to be_valid
     end
 
     it 'does not break the chain' do
+      subject
+
       expect(step.break?).to be false
     end
   end
@@ -133,6 +157,8 @@ describe Gitlab::Ci::Pipeline::Chain::Validate::Config do
       let(:config) { { rspec: { script: 'echo', only: ['merge_requests'] } } }
 
       it 'does not break the chain' do
+        subject
+
         expect(chain).not_to be_break
       end
     end
@@ -141,6 +167,8 @@ describe Gitlab::Ci::Pipeline::Chain::Validate::Config do
       let(:config) { { rspec: { script: 'echo', only: ['merge_request'] } } }
 
       it 'does not break the chain' do
+        subject
+
         expect(chain).not_to be_break
       end
     end

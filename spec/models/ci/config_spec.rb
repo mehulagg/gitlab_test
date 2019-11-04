@@ -15,7 +15,7 @@ describe Ci::Config do
 
     context 'when file is found in the repository' do
       before do
-        expect(pipeline.project.repository).to receive(:gitlab_ci_yml_for) { 'the-config-content'}
+        allow(pipeline.project.repository).to receive(:gitlab_ci_yml_for) { 'the-config-content'}
       end
 
       context 'when config is specified in ci_config_path' do
@@ -57,12 +57,12 @@ describe Ci::Config do
 
     context 'when file is not found in the repository' do
       before do
-        expect(pipeline.project.repository).to receive(:gitlab_ci_yml_for) { nil }
+        allow(pipeline.project.repository).to receive(:gitlab_ci_yml_for) { nil }
       end
 
       context 'when auto-devops is enabled' do
         before do
-          expect(project).to receive(:auto_devops_enabled?) { true }
+          allow(project).to receive(:auto_devops_enabled?) { true }
         end
 
         it 'sets auto-devops source' do
@@ -74,14 +74,24 @@ describe Ci::Config do
           expect(config.content).to eq(auto_devops_content)
         end
 
-        it 'does not return a path' do
-          expect(config.path).to be_nil
+        context 'when source is unknown' do
+          it 'does not return a path' do
+            expect(config.path).to eq('.gitlab-ci.yml')
+          end
+        end
+
+        context 'when source is "auto_devops_source"' do
+          it 'does not return a path' do
+            config.source # fetch data
+
+            expect(config.path).to be_nil
+          end
         end
       end
 
       context 'when auto-devops is disabled' do
         before do
-          expect(project).to receive(:auto_devops_enabled?) { false }
+          allow(project).to receive(:auto_devops_enabled?) { false }
         end
 
         it 'does not set a source' do

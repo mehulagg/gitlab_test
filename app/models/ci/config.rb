@@ -35,7 +35,7 @@ module Ci
         if content = content_from_repo
           { content: content, source: :repository_source }
         elsif content = content_from_auto_devops
-          { content: content, source: :repository_source }
+          { content: content, source: :auto_devops_source }
         else
           {}
         end
