@@ -382,5 +382,5 @@ Parameters:
 Example request:
 
 ```bash
-curl --header 'Private-Token: <your_access_token>' https://gitlab.example.com/api/v4/projects/26/clusters/23'
+curl -X DELETE --header 'Private-Token: <your_access_token>' https://gitlab.example.com/api/v4/projects/26/clusters/23
 ```
