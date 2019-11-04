@@ -2677,7 +2677,7 @@ describe Ci::Build do
       let(:ci_config_path) { { key: 'CI_CONFIG_PATH', value: 'custom', public: true, masked: false } }
 
       before do
-        project.update(ci_config_path: 'custom')
+        expect_any_instance_of(Project).to receive(:ci_config_path) { 'custom' }
       end
 
       it { is_expected.to include(ci_config_path) }
