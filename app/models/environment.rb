@@ -157,6 +157,10 @@ class Environment < ApplicationRecord
     update(auto_stop_at: nil)
   end
 
+  def will_auto_stop?
+    auto_stop_at.present?
+  end
+
   def actions_for(environment)
     return [] unless manual_actions
 

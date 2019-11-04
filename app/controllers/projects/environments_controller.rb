@@ -107,9 +107,10 @@ class Projects::EnvironmentsController < Projects::ApplicationController
   end
 
   def cancel_auto_stop
-    return render_404 unless @environment.available?
+    result = Environments::ResetAutoStopService.new(project, current_user)
+      .execute(environment)
 
-    if environment.reset_auto_stop
+    if result[:status] == :success
       respond_to do |format|
         message = 'Auto stop successfully canceled'
 
@@ -118,7 +119,7 @@ class Projects::EnvironmentsController < Projects::ApplicationController
       end
     else
       respond_to do |format|
-        message = 'Auto stop cancel failed'
+        message = "Auto stop cancel failed because #{result[:status]}"
 
         format.html { redirect_back_or_default(default: { action: 'show' }, options: { alert: message }) }
         format.json { render json: { message: message }, status: :unprocessable_entity }
