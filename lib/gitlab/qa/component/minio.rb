@@ -11,6 +11,7 @@ module Gitlab
 
         MINIO_IMAGE = 'minio/minio'.freeze
         MINIO_IMAGE_TAG = 'latest'.freeze
+        # These are secrets used in a local Minio container, they're not used for any online S3 server.
         AWS_ACCESS_KEY = 'AKIAIOSFODNN7EXAMPLE'.freeze
         AWS_SECRET_KEY = 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'.freeze
         DATA_DIR = '/data'.freeze
