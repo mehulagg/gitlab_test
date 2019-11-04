@@ -3,7 +3,7 @@
 module Environments
   class ResetAutoStopService < ::BaseService
     def execute(environment)
-      return error('the environment has already cancelled auto stop') unless environment.will_auto_stop?
+      return error('the environment has already cancelled auto stop') unless environment.auto_stop_at?
 
       if environment.reset_auto_stop
         success
