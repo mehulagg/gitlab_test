@@ -1,19 +1,23 @@
 # frozen_string_literal: true
 
-# TODO: change this class to Ci::Pipeline::Config
-# as it represent the config for a specific pipeline
+# This class represents the actual pipeline configuration.
+# It defines the logic for finding the config content, path and source
+# that is used to trigger a pipeline, even when multiple configurations
+# are provided (e.g. Auto-DevOps and file in repo)
 module Ci
   class Config
     include Gitlab::Utils::StrongMemoize
 
-    attr_reader :content, :source
-
     def initialize(pipeline)
       @pipeline = pipeline
-      load_data!
+    end
 
-      # TODO: move this outside into the pipeline chain
-      pipeline.yaml_errors = "Failed to load CI/CD config file for #{sha}" unless @content
+    def content
+      @content ||= data[:content]
+    end
+
+    def source
+      @source ||= data[:source]
     end
 
     def path
@@ -26,16 +30,20 @@ module Ci
 
     attr_reader :pipeline
 
-    def load_data!
-      if @content = content_from_repo
-        @source = :repository_source
-      elsif @content = content_from_auto_devops
-        @source = :auto_devops_source
+    def data
+      strong_memoize(:data) do
+        if content = content_from_repo
+          { content: content, source: :repository_source }
+        elsif content = content_from_auto_devops
+          { content: content, source: :repository_source }
+        else
+          {}
+        end
       end
     end
 
     def auto_devops_source?
-      source == :auto_devops_source
+      @source == :auto_devops_source
     end
 
     def content_from_repo

@@ -591,11 +591,15 @@ module Ci
     # TODO, setting yaml_errors should be moved to the pipeline creation chain.
     #
     def config_processor
-      return unless config.content
+      config_content = config.content.tap do |content|
+        self.yaml_errors = "Failed to load CI/CD config file for #{sha}" unless content
+      end
+      return unless config_content
+
       return @config_processor if defined?(@config_processor)
 
       @config_processor ||= begin
-        ::Gitlab::Ci::YamlProcessor.new(config.content, { project: project, sha: sha, user: user })
+        ::Gitlab::Ci::YamlProcessor.new(config_content, { project: project, sha: sha, user: user })
       rescue Gitlab::Ci::YamlProcessor::ValidationError => e
         self.yaml_errors = e.message
         nil
