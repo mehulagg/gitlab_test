@@ -32,7 +32,7 @@ widget. Reviewers can add their approval by [approving additionally](../user/pro
 Getting your merge request **merged** also requires a maintainer. If it requires
 more than one approval, the last maintainer to review and approve it will also merge it.
 
-## Meeting the reviewer/maintainer
+### Meeting the reviewer/maintainer
 
 Communication happens easier when you are familiar with the person reviewing the code. Take
 opportunities (for example coffee chats) to get to know reviewers to break the ice and
