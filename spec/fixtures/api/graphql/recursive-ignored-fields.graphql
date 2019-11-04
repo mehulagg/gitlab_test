@@ -1,0 +1,17 @@
+{
+  project(fullPath: "gitlab-org/gitlab-ce") {
+    issues {
+      nodes {
+        assignees {
+          nodes {
+            todos {
+              nodes {
+                id
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

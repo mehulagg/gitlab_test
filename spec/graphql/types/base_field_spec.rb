@@ -3,6 +3,19 @@
 require 'spec_helper'
 
 describe Types::BaseField do
+  describe '#initialize' do
+    it 'raises an error if the field name is one of the IGNORED_FIELDS of the recursion analyzer' do
+      ['nodes', :nodes].each do |name|
+        expect do
+          described_class.new(name: name, type: GraphQL::STRING_TYPE, null: true)
+        end.to raise_error(
+          ArgumentError,
+          "Field name cannot be one of: #{Gitlab::Graphql::QueryAnalyzers::RecursionAnalyzer::IGNORED_FIELDS.to_sentence}"
+        )
+      end
+    end
+  end
+
   context 'when considering complexity' do
     let(:resolver) do
       Class.new(described_class) do

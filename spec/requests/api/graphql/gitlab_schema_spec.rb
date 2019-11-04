@@ -55,37 +55,66 @@ describe 'GitlabSchema configurations' do
     end
   end
 
-  context 'depth, complexity and recursion checking' do
-    context 'unauthenticated recursive queries' do
-      context 'a not-quite-recursive-enough introspective query' do
-        it 'succeeds' do
-          query = File.read(Rails.root.join('spec/fixtures/api/graphql/small-recursive-introspection.graphql'))
+  describe 'recursion checking' do
+    before do
+      post_graphql(query, current_user: nil)
+    end
 
-          post_graphql(query, current_user: nil)
-
-          expect_graphql_errors_to_be_empty
-        end
+    # Returns true if any field within the query appears more than `RECURSION_THRESHOLD`.
+    # This is used to assert that a query has recursion in it, but not necessarily that our
+    # recursion analyzer will fail it.
+    def query_is_recursive
+      tokens = query.scan(/\s\w+[^{]/).map(&:strip)
+      tokens.uniq.any? do |token|
+        tokens.count(token) > Gitlab::Graphql::QueryAnalyzers::RecursionAnalyzer::RECURSION_THRESHOLD
       end
+    end
 
-      context 'a deep but simple recursive introspective query' do
-        it 'fails due to recursion' do
-          query = File.read(Rails.root.join('spec/fixtures/api/graphql/recursive-introspection.graphql'))
+    context 'a query that does not have recursion' do
+      let(:query) { File.read(Rails.root.join('spec/fixtures/api/graphql/simple.graphql')) }
 
-          post_graphql(query, current_user: nil)
-
-          expect_graphql_errors_to_include [/Recursive query/]
-        end
+      it 'does not fail' do
+        expect(query_is_recursive).to eq(false)
+        expect_graphql_errors_to_be_empty
       end
+    end
 
-      context 'a deep recursive non-introspective query' do
-        it 'fails due to recursion, complexity and depth' do
-          allow(GitlabSchema).to receive(:max_query_complexity).and_return 1
-          query = File.read(Rails.root.join('spec/fixtures/api/graphql/recursive-query.graphql'))
+    context 'a recursive query' do
+      let(:query) { File.read(Rails.root.join('spec/fixtures/api/graphql/recursive.graphql')) }
 
-          post_graphql(query, current_user: nil)
+      it 'fails due to recursion' do
+        expect(query_is_recursive).to eq(true)
+        expect_graphql_errors_to_include [/Recursive query/]
+      end
+    end
 
-          expect_graphql_errors_to_include [/Recursive query/, /exceeds max complexity/, /exceeds max depth/]
-        end
+    context 'a recursive introspection query' do
+      let(:query) { File.read(Rails.root.join('spec/fixtures/api/graphql/deep-recursive-introspection.graphql')) }
+
+      it 'fails due to recursion' do
+        expect(query_is_recursive).to eq(true)
+        expect_graphql_errors_to_include [/Recursive query/]
+      end
+    end
+
+    context 'a recursive query of ignored fields' do
+      let(:query) { File.read(Rails.root.join('spec/fixtures/api/graphql/recursive-ignored-fields.graphql')) }
+
+      it 'succeeds' do
+        expect(query_is_recursive).to eq(true)
+        expect_graphql_errors_to_be_empty
+      end
+    end
+
+    context 'a deep and recursive query' do
+      let(:query) { File.read(Rails.root.join('spec/fixtures/api/graphql/deep-recursive.graphql')) }
+
+      it 'fails due to recursion, complexity and depth' do
+        allow(GitlabSchema).to receive(:max_query_complexity).and_return 1
+        post_graphql(query, current_user: nil)
+
+        expect(query_is_recursive).to eq(true)
+        expect_graphql_errors_to_include [/Recursive query/, /exceeds max complexity/, /exceeds max depth/]
       end
     end
   end
@@ -147,16 +176,6 @@ describe 'GitlabSchema configurations' do
 
         expect(json_response.last['data']['project']['userPermissions']['createIssue']).to be(true)
       end
-    end
-  end
-
-  context 'when IntrospectionQuery' do
-    it 'is not too complex nor recursive' do
-      query = File.read(Rails.root.join('spec/fixtures/api/graphql/introspection.graphql'))
-
-      post_graphql(query, current_user: nil)
-
-      expect_graphql_errors_to_be_empty
     end
   end
 

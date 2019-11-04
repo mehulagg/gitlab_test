@@ -7,6 +7,8 @@ module Types
     DEFAULT_COMPLEXITY = 1
 
     def initialize(*args, **kwargs, &block)
+      validate_field_name!(kwargs[:name].to_s)
+
       @calls_gitaly = !!kwargs.delete(:calls_gitaly)
       @constant_complexity = !!kwargs[:complexity]
       kwargs[:complexity] ||= field_complexity(kwargs[:resolver_class])
@@ -29,6 +31,16 @@ module Types
     end
 
     private
+
+    def validate_field_name!(name)
+      return unless reserved_names.include?(name)
+
+      raise ArgumentError, "Field name cannot be one of: #{reserved_names.to_sentence}"
+    end
+
+    def reserved_names
+      Gitlab::Graphql::QueryAnalyzers::RecursionAnalyzer::IGNORED_FIELDS
+    end
 
     def field_complexity(resolver_class)
       if resolver_class
