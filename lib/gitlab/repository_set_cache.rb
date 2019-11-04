@@ -25,7 +25,7 @@ module Gitlab
     end
 
     def read(key)
-      with { |redis| redis.sscan_each(cache_key(key)).to_a }
+      with { |redis| redis.smembers(cache_key(key)) }
     end
 
     def write(key, value)
