@@ -63,6 +63,10 @@ module Gitlab
       can_push_to_branch?(ref) || can_merge_to_branch?(ref)
     end
 
+    def can_update_merge_request_ref?(merge_request)
+      can_update_branch?(merge_request.source_branch) || merge_request.author == user
+    end
+
     request_cache def can_push_to_branch?(ref)
       return false unless can_access_git?
       return false unless project

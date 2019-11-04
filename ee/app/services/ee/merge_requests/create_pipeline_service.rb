@@ -20,7 +20,7 @@ module EE
 
           ref_payload = result.payload.fetch(:merge_ref_head)
 
-          ::Ci::CreatePipelineService.new(merge_request.source_project, current_user,
+          ::Ci::CreatePipelineService.new(merge_request.pipeline_project, current_user,
                                           ref: merge_request.merge_ref_path,
                                           checkout_sha: ref_payload[:commit_id],
                                           target_sha: ref_payload[:target_id],

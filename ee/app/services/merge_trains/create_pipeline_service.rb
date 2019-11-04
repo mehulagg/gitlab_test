@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module MergeTrains
-  class CreatePipelineService < BaseService
+  class CreatePipelineService < MergeRequests::BaseService
     def execute(merge_request, previous_ref)
       validation_status = validate(merge_request)
       return validation_status unless validation_status[:status] == :success
@@ -16,7 +16,7 @@ module MergeTrains
     def validate(merge_request)
       return error('merge trains is disabled') unless merge_request.project.merge_trains_enabled?
       return error('merge request is not on a merge train') unless merge_request.on_train?
-      return error('fork merge request is not supported') if merge_request.for_fork?
+      return error('merge request cannot create pipelines in the target project') unless merge_request.can_create_pipelines_in_target_project?
 
       success
     end
@@ -39,7 +39,7 @@ module MergeTrains
     end
 
     def create_pipeline(merge_request, merge_status)
-      pipeline = ::Ci::CreatePipelineService.new(merge_request.source_project, merge_request.merge_user,
+      pipeline = ::Ci::CreatePipelineService.new(merge_request.pipeline_project, merge_request.merge_user,
         ref: merge_request.train_ref_path,
         checkout_sha: merge_status[:commit_id],
         target_sha: merge_status[:target_id],

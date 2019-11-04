@@ -10,11 +10,11 @@ module MergeRequests
 
     def create_detached_merge_request_pipeline(merge_request)
       if can_use_merge_request_ref?(merge_request)
-        Ci::CreatePipelineService.new(merge_request.source_project, current_user,
+        Ci::CreatePipelineService.new(merge_request.pipeline_project, current_user,
                                       ref: merge_request.ref_path)
           .execute(:merge_request_event, merge_request: merge_request)
       else
-        Ci::CreatePipelineService.new(merge_request.source_project, current_user,
+        Ci::CreatePipelineService.new(merge_request.pipeline_project, current_user,
                                       ref: merge_request.source_branch)
           .execute(:merge_request_event, merge_request: merge_request)
       end

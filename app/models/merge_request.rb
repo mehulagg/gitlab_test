@@ -934,6 +934,11 @@ class MergeRequest < ApplicationRecord
     target_project != source_project
   end
 
+  def can_create_pipelines_in_target_project?
+    !for_fork? ||
+      (for_fork? && target_project.allow_fork_pipelines_to_run_in_parent?)
+  end
+
   # If the merge request closes any issues, save this information in the
   # `MergeRequestsClosingIssues` model. This is a performance optimization.
   # Calculating this information for a number of merge requests requires
@@ -1240,10 +1245,18 @@ class MergeRequest < ApplicationRecord
 
     strong_memoize(:all_pipelines) do
       Ci::Pipeline.from_union(
-        [source_project.ci_pipelines.merge_request_pipelines(self, shas),
-         source_project.ci_pipelines.detached_merge_request_pipelines(self, shas),
-         source_project.ci_pipelines.triggered_for_branch(source_branch).for_sha(shas)],
+        [pipeline_project.ci_pipelines.merge_request_pipelines(self, shas),
+         pipeline_project.ci_pipelines.detached_merge_request_pipelines(self, shas),
+         pipeline_project.ci_pipelines.triggered_for_branch(source_branch).for_sha(shas)],
          remove_duplicates: false).sort_by_merge_request_pipelines
+    end
+  end
+
+  def pipeline_project
+    if can_create_pipelines_in_target_project?
+      target_project
+    else
+      source_project
     end
   end
 

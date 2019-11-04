@@ -61,7 +61,7 @@ describe MergeTrains::CreatePipelineService do
       end
 
       it_behaves_like 'returns an error' do
-        let(:expected_reason) { 'fork merge request is not supported' }
+        let(:expected_reason) { 'merge request cannot create pipelines in the target project' }
       end
     end
 

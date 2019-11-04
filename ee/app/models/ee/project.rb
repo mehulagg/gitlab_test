@@ -158,6 +158,7 @@ module EE
 
       delegate :merge_pipelines_enabled, :merge_pipelines_enabled=, :merge_pipelines_enabled?, :merge_pipelines_were_disabled?, to: :ci_cd_settings
       delegate :merge_trains_enabled, :merge_trains_enabled=, :merge_trains_enabled?, to: :ci_cd_settings
+      delegate :allow_fork_pipelines_to_run_in_parent, :allow_fork_pipelines_to_run_in_parent=, :allow_fork_pipelines_to_run_in_parent?, to: :ci_cd_settings
 
       validates :repository_size_limit,
         numericality: { only_integer: true, greater_than_or_equal_to: 0, allow_nil: true }

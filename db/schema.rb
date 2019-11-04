@@ -2878,6 +2878,7 @@ ActiveRecord::Schema.define(version: 2019_11_12_232338) do
     t.boolean "merge_pipelines_enabled"
     t.boolean "merge_trains_enabled", default: false, null: false
     t.integer "default_git_depth"
+    t.boolean "allow_fork_pipelines_to_run_in_parent", default: false, null: false
     t.index ["project_id"], name: "index_project_ci_cd_settings_on_project_id", unique: true
   end
 
