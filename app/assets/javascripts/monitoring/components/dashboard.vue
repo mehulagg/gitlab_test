@@ -22,11 +22,8 @@ import MonitorTimeSeriesChart from './charts/time_series.vue';
 import MonitorSingleStatChart from './charts/single_stat.vue';
 import GraphGroup from './graph_group.vue';
 import EmptyState from './empty_state.vue';
-import { sidebarAnimationDuration } from '../constants';
 import TrackEventDirective from '~/vue_shared/directives/track_event';
 import { getTimeDiff, isValidDate, downloadCSVOptions, generateLinkToChartOptions } from '../utils';
-
-let sidebarMutationObserver;
 
 export default {
   components: {
@@ -167,7 +164,6 @@ export default {
   data() {
     return {
       state: 'gettingStarted',
-      elWidth: 0,
       formIsValid: null,
       selectedTimeWindow: {},
       isRearrangingPanels: false,
@@ -178,7 +174,7 @@ export default {
       return this.customMetricsAvailable && this.customMetricsPath.length;
     },
     ...mapState('monitoringDashboard', [
-      'groups',
+      'dashboard',
       'emptyState',
       'showEmptyState',
       'environments',
@@ -214,11 +210,6 @@ export default {
       projectPath: this.projectPath,
     });
   },
-  beforeDestroy() {
-    if (sidebarMutationObserver) {
-      sidebarMutationObserver.disconnect();
-    }
-  },
   mounted() {
     if (!this.hasMetrics) {
       this.setGettingStartedEmptyState();
@@ -239,13 +230,6 @@ export default {
       } else {
         this.fetchData(range);
       }
-
-      sidebarMutationObserver = new MutationObserver(this.onSidebarMutation);
-      sidebarMutationObserver.observe(document.querySelector('.layout-page'), {
-        attributes: true,
-        childList: false,
-        subtree: false,
-      });
     }
   },
   methods: {
@@ -254,6 +238,7 @@ export default {
       'setGettingStartedEmptyState',
       'setEndpoints',
       'setDashboardEnabled',
+      'setPanelGroupMetrics',
     ]),
     chartsWithData(charts) {
       if (!this.useDashboardEndpoint) {
@@ -290,10 +275,17 @@ export default {
       this.$toast.show(__('Link copied'));
     },
     // TODO: END
-    removeGraph(metrics, graphIndex) {
-      // At present graphs will not be removed, they should removed using the vuex store
-      // See https://gitlab.com/gitlab-org/gitlab/issues/27835
-      metrics.splice(graphIndex, 1);
+    updateMetrics(key, metrics) {
+      this.setPanelGroupMetrics({
+        metrics,
+        key,
+      });
+    },
+    removeMetric(key, metrics, graphIndex) {
+      this.setPanelGroupMetrics({
+        metrics: metrics.filter((v, i) => i !== graphIndex),
+        key,
+      });
     },
     showInvalidDateError() {
       createFlash(s__('Metrics|Link contains an invalid time window.'));
@@ -305,11 +297,6 @@ export default {
     },
     hideAddMetricModal() {
       this.$refs.addMetricModal.hide();
-    },
-    onSidebarMutation() {
-      setTimeout(() => {
-        this.elWidth = this.$el.clientWidth;
-      }, sidebarAnimationDuration);
     },
     toggleRearrangingPanels() {
       this.isRearrangingPanels = !this.isRearrangingPanels;
@@ -468,7 +455,7 @@ export default {
 
     <div v-if="!showEmptyState">
       <graph-group
-        v-for="(groupData, index) in groups"
+        v-for="(groupData, index) in dashboard.panel_groups"
         :key="`${groupData.group}.${groupData.priority}`"
         :name="groupData.group"
         :show-panels="showPanels"
@@ -476,10 +463,11 @@ export default {
       >
         <template v-if="additionalPanelTypesEnabled">
           <vue-draggable
-            :list="groupData.metrics"
+            :value="groupData.metrics"
             group="metrics-dashboard"
             :component-data="{ attrs: { class: 'row mx-0 w-100' } }"
             :disabled="!isRearrangingPanels"
+            @input="updateMetrics(groupData.key, $event)"
           >
             <div
               v-for="(graphData, graphIndex) in groupData.metrics"
@@ -491,7 +479,7 @@ export default {
                 <div
                   v-if="isRearrangingPanels"
                   class="draggable-remove js-draggable-remove p-2 w-100 position-absolute d-flex justify-content-end"
-                  @click="removeGraph(groupData.metrics, graphIndex)"
+                  @click="removeMetric(groupData.key, groupData.metrics, graphIndex)"
                 >
                   <a class="mx-2 p-2 draggable-remove-link" :aria-label="__('Remove')"
                     ><icon name="close"
@@ -503,7 +491,6 @@ export default {
                     generateLink(groupData.group, graphData.title, graphData.y_label)
                   "
                   :graph-data="graphData"
-                  :dashboard-width="elWidth"
                   :alerts-endpoint="alertsEndpoint"
                   :prometheus-alerts-available="prometheusAlertsAvailable"
                   :index="`${index}-${graphIndex}`"
@@ -520,7 +507,6 @@ export default {
             :graph-data="graphData"
             :deployment-data="deploymentData"
             :thresholds="getGraphAlertValues(graphData.queries)"
-            :container-width="elWidth"
             :project-path="projectPath"
             group-id="monitor-time-series-chart"
           >

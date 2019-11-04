@@ -442,6 +442,28 @@ describe('Dashboard', () => {
           expect(findEnabledDraggables()).toEqual(findDraggables());
         });
 
+        it('metrics can be swapped', done => {
+          const firstDraggable = findDraggables().at(0);
+          const mockMetrics = [...metricsGroupsAPIResponse.data[0].metrics];
+          const value = () => firstDraggable.props('value');
+
+          expect(value().length).toBe(mockMetrics.length);
+          value().forEach((metric, i) => {
+            expect(metric.title).toBe(mockMetrics[i].title);
+          });
+
+          // swap two elements and `input` them
+          [mockMetrics[0], mockMetrics[1]] = [mockMetrics[1], mockMetrics[0]];
+          firstDraggable.vm.$emit('input', mockMetrics);
+
+          firstDraggable.vm.$nextTick(() => {
+            value().forEach((metric, i) => {
+              expect(metric.title).toBe(mockMetrics[i].title);
+            });
+            done();
+          });
+        });
+
         it('shows a remove button, which removes a panel', done => {
           expect(findFirstDraggableRemoveButton().isEmpty()).toBe(false);
 
@@ -449,8 +471,6 @@ describe('Dashboard', () => {
           findFirstDraggableRemoveButton().trigger('click');
 
           wrapper.vm.$nextTick(() => {
-            // At present graphs will not be removed in backend
-            // See https://gitlab.com/gitlab-org/gitlab/issues/27835
             expect(findDraggablePanels().length).toEqual(expectedPanelCount - 1);
             done();
           });
@@ -539,42 +559,67 @@ describe('Dashboard', () => {
     });
   });
 
-  describe('when the window resizes', () => {
+  describe('responds to window resizes', () => {
+    let promPanel;
+    let promGroup;
+    let panelToggle;
+    let chart;
     beforeEach(() => {
       mock.onGet(mockApiEndpoint).reply(200, metricsGroupsAPIResponse);
-      jasmine.clock().install();
-    });
 
-    afterEach(() => {
-      jasmine.clock().uninstall();
-    });
-
-    it('sets elWidth to page width when the sidebar is resized', done => {
       component = new DashboardComponent({
         el: document.querySelector('.prometheus-graphs'),
         propsData: {
           ...propsData,
           hasMetrics: true,
-          showPanels: false,
+          showPanels: true,
         },
         store,
       });
 
-      expect(component.elWidth).toEqual(0);
+      component.$store.dispatch('monitoringDashboard/setFeatureFlags', {
+        prometheusEndpoint: false,
+      });
 
-      const pageLayoutEl = document.querySelector('.layout-page');
-      pageLayoutEl.classList.add('page-with-icon-sidebar');
+      component.$store.commit(
+        `monitoringDashboard/${types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS}`,
+        environmentData,
+      );
 
-      Vue.nextTick()
-        .then(() => {
-          jasmine.clock().tick(1000);
-          return Vue.nextTick();
-        })
-        .then(() => {
-          expect(component.elWidth).toEqual(pageLayoutEl.clientWidth);
-          done();
-        })
-        .catch(done.fail);
+      component.$store.commit(
+        `monitoringDashboard/${types.RECEIVE_METRICS_DATA_SUCCESS}`,
+        singleGroupResponse,
+      );
+
+      component.$store.commit(
+        `monitoringDashboard/${types.SET_ALL_DASHBOARDS}`,
+        dashboardGitResponse,
+      );
+
+      return Vue.nextTick().then(() => {
+        promPanel = component.$el.querySelector('.prometheus-panel');
+        promGroup = promPanel.querySelector('.prometheus-graph-group');
+        panelToggle = promPanel.querySelector('.js-graph-group-toggle');
+        chart = promGroup.querySelector('.position-relative svg');
+      });
+    });
+
+    it('setting chart size to zero when panel group is hidden', () => {
+      expect(promGroup.style.display).toBe('');
+      expect(chart.clientWidth).toBeGreaterThan(0);
+
+      panelToggle.click();
+      return Vue.nextTick().then(() => {
+        expect(promGroup.style.display).toBe('none');
+        expect(chart.clientWidth).toBe(0);
+        promPanel.style.width = '500px';
+      });
+    });
+
+    it('expanding chart panel group after resize displays chart', () => {
+      panelToggle.click();
+
+      expect(chart.clientWidth).toBeGreaterThan(0);
     });
   });
 
@@ -661,7 +706,9 @@ describe('Dashboard', () => {
         `monitoringDashboard/${types.RECEIVE_METRICS_DATA_SUCCESS}`,
         MonitoringMock.data,
       );
-      [mockGraphData] = component.$store.state.monitoringDashboard.groups[0].metrics;
+      [
+        mockGraphData,
+      ] = component.$store.state.monitoringDashboard.dashboard.panel_groups[0].metrics;
     });
 
     describe('csvText', () => {

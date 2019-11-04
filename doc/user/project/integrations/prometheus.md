@@ -117,7 +117,7 @@ You can view the performance dashboard for an environment by [clicking on the mo
 
 Custom metrics can be monitored by adding them on the monitoring dashboard page. Once saved, they will be displayed on the environment performance dashboard provided that either:
 
-- A [connected Kubernetes cluster](../clusters/index.md#adding-and-removing-clusters) with the environment scope of `*` is used and [Prometheus installed on the cluster](#enabling-prometheus-integration), or
+- A [connected Kubernetes cluster](../clusters/add_remove_clusters.md) with the environment scope of `*` is used and [Prometheus installed on the cluster](#enabling-prometheus-integration)
 - Prometheus is [manually configured](#manual-configuration-of-prometheus).
 
 ![Add New Metric](img/prometheus_add_metric.png)
@@ -139,7 +139,7 @@ GitLab supports a limited set of [CI variables](../../../ci/variables/README.htm
 - CI_ENVIRONMENT_SLUG
 - KUBE_NAMESPACE
 
-To specify a variable in a query, enclose it in curly braces with a leading percent. For example: `%{ci_environment_slug}`.
+To specify a variable in a query, enclose it in quotation marks with curly braces with a leading percent. For example: `"%{ci_environment_slug}"`.
 
 ### Defining custom dashboards per project
 
@@ -286,6 +286,35 @@ Note the following properties:
 
 ![single stat panel type](img/prometheus_dashboard_single_stat_panel_type.png)
 
+##### Heatmaps
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/30581) in GitLab 12.5.
+
+To add a heatmap panel type to a dashboard, look at the following sample dashboard file:
+
+```yaml
+dashboard: 'Dashboard Title'
+panel_groups:
+  - group: 'Group Title'
+    panels:
+      - title: "Heatmap"
+        type: "heatmap"
+        metrics:
+        - id: 10
+          query: 'sum(rate(nginx_upstream_responses_total{upstream=~"%{kube_namespace}-%{ci_environment_slug}-.*"}[60m])) by (status_code)'
+          unit: req/sec
+          label: "Status code"
+```
+
+Note the following properties:
+
+| Property | Type | Required | Description |
+| ------ | ------ | ------ | ------ |
+| type | string | yes | Type of panel to be rendered. For heatmap panel types, set to `heatmap` |
+| query_range | yes | yes | For area panel types, you must use a [range query](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries) |
+
+![heatmap panel type](img/heatmap_panel_type.png)
+
 ### Downloading data as CSV
 
 Data from Prometheus charts on the metrics dashboard can be downloaded as CSV.
@@ -354,6 +383,8 @@ Once enabled, an issue will be opened automatically when an alert is triggered w
   - `full_query`: Alert query extracted from `generatorURL`
   - Optional list of attached annotations extracted from `annotations/*`
 - Alert [GFM](../../markdown.md): GitLab Flavored Markdown from `annotations/gitlab_incident_markdown`
+
+When GitLab recieves a **Recovery Alert**, it will automatically close the associated issue. This action will be recorded as a system message on the issue indicated that it was closed automatically by the GitLab Alert bot.
 
 To further customize the issue, you can add labels, mentions, or any other supported [quick action](../quick_actions.md) in the selected issue template, which will apply to all incidents. To limit quick actions or other information to only specific types of alerts, use the `annotations/gitlab_incident_markdown` field.
 

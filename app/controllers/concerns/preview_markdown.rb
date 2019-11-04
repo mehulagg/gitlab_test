@@ -5,14 +5,15 @@ module PreviewMarkdown
 
   # rubocop:disable Gitlab/ModuleWithInstanceVariables
   def preview_markdown
-    result = PreviewMarkdownService.new(@project, current_user, params).execute
+    result = PreviewMarkdownService.new(@project, current_user, markdown_service_params).execute
 
     markdown_params =
       case controller_name
+      when 'wikis'    then { pipeline: :wiki, project_wiki: @project_wiki, page_slug: params[:id] }
       when 'snippets' then { skip_project_check: true }
       when 'groups'   then { group: group }
       when 'projects' then projects_filter_params
-      else preview_markdown_params
+      else {}
       end
 
     render json: {
@@ -24,7 +25,8 @@ module PreviewMarkdown
       }
     }
   end
-  # rubocop:enable Gitlab/ModuleWithInstanceVariables
+
+  private
 
   def projects_filter_params
     {
@@ -33,10 +35,8 @@ module PreviewMarkdown
     }
   end
 
-  private
-
-  # Override this method to customise the markdown for your controller
-  def preview_markdown_params
-    {}
+  def markdown_service_params
+    params
   end
+  # rubocop:enable Gitlab/ModuleWithInstanceVariables
 end

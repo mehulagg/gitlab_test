@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe API::Settings, 'Settings' do
@@ -176,7 +178,8 @@ describe API::Settings, 'Settings' do
           snowplow_collector_hostname: "snowplow.example.com",
           snowplow_cookie_domain: ".example.com",
           snowplow_enabled: true,
-          snowplow_site_id: "site_id"
+          snowplow_site_id: "site_id",
+          snowplow_iglu_registry_url: 'https://example.com'
         }
       end
 

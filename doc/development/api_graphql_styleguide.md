@@ -146,6 +146,10 @@ query($project_path: ID!) {
 }
 ```
 
+To ensure that we get consistent ordering, we will append an ordering on the primary
+key, in descending order.  This is usually `id`, so basically we will add `order(id: :desc)`
+to the end of the relation.  A primary key _must_ be available on the underlying table.
+
 ### Exposing permissions for a type
 
 To expose permissions the current user has on a resource, you can call
@@ -547,7 +551,7 @@ it 'returns a successful response' do
 end
 ```
 
-## Documentation
+## Documentation and Schema
 
-For information on generating GraphQL documentation, see
-[Rake tasks related to GraphQL](rake_tasks.md#update-graphql-documentation).
+For information on generating GraphQL documentation and schema files, see
+[Rake tasks related to GraphQL](rake_tasks.md#update-graphql-documentation-and-schema-definitions).
