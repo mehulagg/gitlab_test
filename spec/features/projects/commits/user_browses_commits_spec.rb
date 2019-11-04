@@ -56,8 +56,6 @@ describe 'User browses commits' do
       project.enable_ci
 
       create(:ci_build, pipeline: pipeline)
-
-      allow_any_instance_of(Ci::Pipeline).to receive(:config_content).and_return('')
     end
 
     it 'renders commit ci info' do
