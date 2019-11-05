@@ -20,7 +20,7 @@ performance:
     - |
       function propagate_env_vars {
         for var in $(awk 'END { for (var in ENVIRON) {print var;}}' < /dev/null); do
-          echo $var | egrep -v '^(DOCKER_|CI|GITLAB_|FF_|HOME|PWD|OLDPWD|PATH|SHLVL|HOSTNAME)' && echo "--env ${var} "
+          echo $var | egrep -v '^(DOCKER_|CI|GITLAB_|FF_|HOME|PWD|OLDPWD|PATH|SHLVL|HOSTNAME)' > /dev/null && echo "--env ${var} "
         done
       }
     - |
@@ -28,7 +28,7 @@ performance:
       then
         sed -i -e 's@^@'"$CI_ENVIRONMENT_URL"'@' .gitlab-urls.txt
         docker run \
-          $(propagate_env_vars)
+          $(propagate_env_vars) \
           --shm-size=1g \
           --rm \
           -v "$(pwd)":/sitespeed.io \
@@ -38,7 +38,7 @@ performance:
             .gitlab-urls.txt
       else
         docker run \
-          $(propagate_env_vars)
+          $(propagate_env_vars) \
           --shm-size=1g \
           --rm \
           -v "$(pwd)":/sitespeed.io \
