@@ -1,6 +1,6 @@
 GIT
   remote: https://gitlab.com/gitlab-org/gitlab-qa
-  revision: 2e88467c81abb14db66bf2604a75f92c125e08ff
+  revision: fe159b5ee1d1c2cfd4c2b1345ea531517773e595
   branch: qa-k3s-provider
   specs:
     gitlab-qa (4.5.0)
