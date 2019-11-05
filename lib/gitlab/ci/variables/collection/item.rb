@@ -5,9 +5,13 @@ module Gitlab
     module Variables
       class Collection
         class Item
-          def initialize(key:, value:, public: true, file: false, masked: false)
+          attr_reader :auth
+
+          def initialize(key:, value:, public: true, file: false, masked: false, auth:)
             raise ArgumentError, "`#{key}` must be of type String or nil value, while it was: #{value.class}" unless
               value.is_a?(String) || value.nil?
+
+            @auth = auth
 
             @variable = {
               key: key, value: value, public: public, file: file, masked: masked
@@ -33,12 +37,12 @@ module Gitlab
             end
           end
 
-          def self.fabricate(resource)
+          def self.fabricate(resource, auth:)
             case resource
             when Hash
-              self.new(resource.symbolize_keys)
+              self.new(resource.symbolize_keys, auth: auth)
             when ::HasVariable
-              self.new(resource.to_runner_variable)
+              self.new(resource.to_runner_variable, auth: auth)
             when self
               resource.dup
             else

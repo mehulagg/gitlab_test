@@ -694,7 +694,7 @@ module Ci
     end
 
     def persisted_variables
-      Gitlab::Ci::Variables::Collection.new.tap do |variables|
+      Gitlab::Ci::Variables::Collection.new(auth: :read_pipeline_variables).tap do |variables|
         break variables unless persisted?
 
         variables.append(key: 'CI_PIPELINE_ID', value: id.to_s)
@@ -703,7 +703,7 @@ module Ci
     end
 
     def predefined_variables
-      Gitlab::Ci::Variables::Collection.new.tap do |variables|
+      Gitlab::Ci::Variables::Collection.new(auth: :read_pipeline_variables).tap do |variables|
         variables.append(key: 'CI_PIPELINE_IID', value: iid.to_s)
         variables.append(key: 'CI_CONFIG_PATH', value: ci_yaml_file_path)
         variables.append(key: 'CI_PIPELINE_SOURCE', value: source.to_s)

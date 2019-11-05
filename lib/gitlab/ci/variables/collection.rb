@@ -6,14 +6,17 @@ module Gitlab
       class Collection
         include Enumerable
 
-        def initialize(variables = [])
+        attr_reader :auth
+
+        def initialize(variables = [], auth: nil)
           @variables = []
+          @auth = auth
 
           variables.each { |variable| self.append(variable) }
         end
 
         def append(resource)
-          tap { @variables.append(Collection::Item.fabricate(resource)) }
+          tap { @variables.append(Collection::Item.fabricate(resource, auth: auth)) }
         end
 
         def concat(resources)
@@ -33,12 +36,12 @@ module Gitlab
           end
         end
 
-        def to_runner_variables
-          self.map(&:to_runner_variable)
+        def to_runner_variables(user, project)
+          self.select { |variable| can?(user, variable.auth, project) }.map(&:to_runner_variable)
         end
 
-        def to_hash
-          self.to_runner_variables
+        def to_hash(user, project)
+          self.to_runner_variables(user)
             .map { |env| [env.fetch(:key), env.fetch(:value)] }
             .to_h.with_indifferent_access
         end
