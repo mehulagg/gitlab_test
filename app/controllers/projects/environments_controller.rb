@@ -111,6 +111,8 @@ class Projects::EnvironmentsController < Projects::ApplicationController
       .execute(environment)
 
     if result[:status] == :success
+      expire_etag_cache(force: true)
+
       respond_to do |format|
         message = 'Auto stop successfully canceled'
 
@@ -197,8 +199,8 @@ class Projects::EnvironmentsController < Projects::ApplicationController
     Gitlab::Workhorse.verify_api_request!(request.headers)
   end
 
-  def expire_etag_cache
-    return if request.format.json?
+  def expire_etag_cache(force: false)
+    return if !force && request.format.json?
 
     # this forces to reload json content
     Gitlab::EtagCaching::Store.new.tap do |store|
