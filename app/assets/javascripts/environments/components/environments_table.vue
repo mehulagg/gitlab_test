@@ -148,6 +148,7 @@ export default {
             :key="`env-item-${i}-${index}`"
             :model="children"
             :can-read-environment="canReadEnvironment"
+            :table-spacing="tableSpacing"
           />
 
           <div :key="`sub-div-${i}`">
