@@ -18,9 +18,9 @@ performance:
     - wget -O gitlab-exporter/index.js https://gitlab.com/gitlab-org/gl-performance/raw/10-5/index.js
     - mkdir sitespeed-results
     - |
-      function propagate_env_vars {
+      propagate_env_vars() {
         for var in $(awk 'END { for (var in ENVIRON) {print var;}}' < /dev/null); do
-          echo $var | egrep -v '^(DOCKER_|CI|GITLAB_|FF_|HOME|PWD|OLDPWD|PATH|SHLVL|HOSTNAME)' > /dev/null && echo "--env ${var} "
+          echo "${var}" | grep -E -v '^(DOCKER_|CI|GITLAB_|FF_|HOME|PWD|OLDPWD|PATH|SHLVL|HOSTNAME)' > /dev/null && echo "--env ${var} "
         done
       }
     - |
