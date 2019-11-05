@@ -15,6 +15,7 @@ module Gitlab
           def to_resource
             return job.deployment if job.deployment
             return unless job.starts_environment?
+            return unless can_create_deployment?
 
             deployment = ::Deployment.new(attributes)
             deployment.environment = environment.to_resource
@@ -35,6 +36,10 @@ module Gitlab
           end
 
           private
+
+          def can_create_deployment?
+            Ability.allowed?(job.user, :create_deployment, job.project)
+          end
 
           def attributes
             {
