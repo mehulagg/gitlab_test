@@ -136,6 +136,7 @@ module Ci
     scope :with_live_trace, -> { where('EXISTS (?)', Ci::BuildTraceChunk.where('ci_builds.id = ci_build_trace_chunks.build_id').select(1)) }
     scope :with_stale_live_trace, -> { with_live_trace.finished_before(12.hours.ago) }
     scope :finished_before, -> (date) { finished.where('finished_at < ?', date) }
+    scope :non_limited, -> () { where('limited <> t') }
 
     scope :with_secure_reports_from_options, -> (job_type) { where('options like :job_type', job_type: "%:artifacts:%:reports:%:#{job_type}:%") }
 

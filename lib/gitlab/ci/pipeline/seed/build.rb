@@ -137,8 +137,15 @@ module Gitlab
               ref: @pipeline.ref,
               tag: @pipeline.tag,
               trigger_request: @pipeline.legacy_trigger,
-              protected: @pipeline.protected_ref?
+              protected: @pipeline.protected_ref?,
+              limited: limited? # or enum :access_level
             }
+          end
+
+          def limited?
+            @pipeline.for_fork? &&
+              !can?(user, :read_project_runner, @pipeline.project) ||
+              !can?(user, :read_group_runner, @pipeline.project.group)
           end
 
           def included_by_rules?

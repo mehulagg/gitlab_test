@@ -155,7 +155,7 @@ module Ci
 
     # rubocop: disable CodeReuse/ActiveRecord
     def builds_for_project_runner
-      new_builds.where(project: runner.projects.without_deleted.with_builds_enabled).order('id ASC')
+      new_builds.where(project: runner.projects.without_deleted.with_builds_enabled).non_limited.order('id ASC')
     end
     # rubocop: enable CodeReuse/ActiveRecord
 
@@ -169,7 +169,7 @@ module Ci
         .with_group_runners_enabled
         .with_builds_enabled
         .without_deleted
-      new_builds.where(project: projects).order('id ASC')
+      new_builds.where(project: projects).non_limited.order('id ASC')
     end
     # rubocop: enable CodeReuse/ActiveRecord
 
