@@ -30,7 +30,7 @@ dependency_scanning:
     - |
       propagate_env_vars() {
         for var in $(awk 'END { for (var in ENVIRON) {print var;}}' < /dev/null); do
-          echo "${var}" | grep -E -v '^(DOCKER_|CI|GITLAB_|FF_|HOME|PWD|OLDPWD|PATH|SHLVL|HOSTNAME)' > /dev/null && echo "--env ${var} "
+          echo "${var}" | grep -E -v '^(DOCKER_|CI|GITLAB_|FF_|HOME|PWD|OLDPWD|PATH|SHLVL|HOSTNAME)' > /dev/null && echo -n "--env ${var} "
         done
       }
     - |
