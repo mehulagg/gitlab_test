@@ -119,7 +119,7 @@ class Projects::EnvironmentsController < Projects::ApplicationController
       end
     else
       respond_to do |format|
-        message = "Auto stop cancel failed because #{result[:status]}"
+        message = "Auto stop cancel failed because #{result[:message]}"
 
         format.html { redirect_back_or_default(default: { action: 'show' }, options: { alert: message }) }
         format.json { render json: { message: message }, status: :unprocessable_entity }
