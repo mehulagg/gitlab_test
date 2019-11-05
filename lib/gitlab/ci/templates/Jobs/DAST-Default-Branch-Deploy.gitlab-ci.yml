@@ -1,6 +1,3 @@
-.auto-deploy:
-  image: "registry.gitlab.com/gitlab-org/cluster-integration/auto-deploy-image:v0.4.0"
-
 dast_environment_deploy:
   extends: .auto-deploy
   stage: review
