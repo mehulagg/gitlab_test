@@ -200,6 +200,34 @@
       - ".dockerignore"
       - "qa/**/*"
 
+.only:changes-code-backstage-qa-graphql:
+  only:
+    changes:
+      - ".gitlab/ci/**/*"
+      - ".{eslintignore,gitattributes,nvmrc,prettierrc,stylelintrc,yamllint}"
+      - ".{codeclimate,eslintrc,gitlab-ci,haml-lint,haml-lint_todo,rubocop,rubocop_todo,scss-lint}.yml"
+      - ".csscomb.json"
+      - "Dockerfile.assets"
+      - "*_VERSION"
+      - "Gemfile{,.lock}"
+      - "Rakefile"
+      - "{babel.config,jest.config}.js"
+      - "config.ru"
+      - "{package.json,yarn.lock}"
+      - "{,ee/}{app,bin,config,db,haml_lint,lib,locale,public,scripts,symbol,vendor}/**/*"
+      # Backstage changes
+      - "Dangerfile"
+      - "danger/**/*"
+      - "{,ee/}fixtures/**/*"
+      - "{,ee/}rubocop/**/*"
+      - "{,ee/}spec/**/*"
+      - "doc/README.md"  # Some RSpec test rely on this file
+      # QA changes
+      - ".dockerignore"
+      - "qa/**/*"
+      # GraphQL schema changes
+      - "doc/api/graphql/**/*"
+
 .use-pg9:
   services:
     - name: postgres:9.6

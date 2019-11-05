@@ -36,6 +36,7 @@
 setup-test-env:
   extends:
     - .only-code-qa-rails-job-base
+    - .only:changes-code-backstage-qa-graphql
     - .use-pg9
   stage: prepare
   script:
