@@ -18,7 +18,7 @@ class Analytics::TasksByTypeController < Analytics::ApplicationController
   def counts_by_labels
     Gitlab::Analytics::TypeOfWork::TasksByType.new(group: @group, current_user: current_user, params: {
       subject: params[:subject],
-      label_ids: Array(params[:label_ids]),
+      label_ids: params[:label_ids].to_s.split(','),
       project_ids: Array(params[:project_ids]),
       created_after: @created_after.to_time.utc.beginning_of_day,
       created_before: @created_before.to_time.utc.end_of_day

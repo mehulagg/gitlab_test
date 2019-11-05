@@ -6,7 +6,7 @@ describe Analytics::TasksByTypeController do
   let(:user) { create(:user) }
   let(:group) { create(:group) }
   let(:label) { create(:group_label, group: group) }
-  let(:params) { { group_id: group.full_path, label_ids: [label.id], created_after: 10.days.ago, subject: 'Issue' } }
+  let(:params) { { group_id: group.full_path, label_ids: "#{label.id}", created_after: 10.days.ago, subject: 'Issue' } }
   let!(:issue) { create(:labeled_issue, created_at: 5.days.ago, project: create(:project, group: group), labels: [label]) }
   subject { get :show, params: params }
 
@@ -110,5 +110,19 @@ describe Analytics::TasksByTypeController do
     end
 
     it_behaves_like 'expects unprocessable_entity response'
+  end
+
+  context 'when multiple `label_ids` are given' do
+    before do
+      params[:label_ids] = '1,2,3'
+    end
+
+    it 'passes an array of ids to the finder query' do
+      expect(GroupLabel).to receive(:where).with(id: %w[1 2 3]).and_call_original
+
+      subject
+
+      expect(response).to be_successful
+    end
   end
 end
