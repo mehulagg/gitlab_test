@@ -55,7 +55,7 @@ export default {
       default: () => ({}),
     },
 
-    tableSpacing: {
+    tableData: {
       type: Object,
       required: true,
     }
@@ -502,9 +502,9 @@ export default {
     class="gl-responsive-table-row"
     role="row"
   >
-    <div class="table-section section-wrap text-truncate" :class="tableSpacing.name" role="gridcell">
+    <div class="table-section section-wrap text-truncate" :class="tableData.name.spacing" role="gridcell">
       <div v-if="!model.isFolder" class="table-mobile-header" role="rowheader">
-        {{ s__('Environments|Environment') }}
+        {{ tableData.name.title }}
       </div>
 
       <span v-if="shouldRenderDeployBoard" class="deploy-board-icon" @click="toggleDeployBoard">
@@ -545,7 +545,7 @@ export default {
 
     <div
       class="table-section deployment-column d-none d-sm-none d-md-block"
-      :class="tableSpacing.deploy"
+      :class="tableData.deploy.spacing"
       role="gridcell"
     >
       <span v-if="shouldRenderDeploymentID" class="text-break-word">
@@ -568,7 +568,7 @@ export default {
       </div>
     </div>
 
-    <div class="table-section d-none d-sm-none d-md-block" :class="tableSpacing.build" role="gridcell">
+    <div class="table-section d-none d-sm-none d-md-block" :class="tableData.build.spacing" role="gridcell">
       <a
         v-if="shouldRenderBuildName"
         :href="buildPath"
@@ -578,8 +578,8 @@ export default {
       </a>
     </div>
 
-    <div v-if="!model.isFolder" class="table-section" :class="tableSpacing.commit" role="gridcell">
-      <div role="rowheader" class="table-mobile-header">{{ s__('Environments|Commit') }}</div>
+    <div v-if="!model.isFolder" class="table-section" :class="tableData.commit.spacing" role="gridcell">
+      <div role="rowheader" class="table-mobile-header">{{ tableData.commit.title }}</div>
       <div v-if="hasLastDeploymentKey" class="js-commit-component table-mobile-content">
         <commit-component
           :tag="commitTag"
@@ -592,8 +592,8 @@ export default {
       </div>
     </div>
 
-    <div v-if="!model.isFolder" class="table-section" :class="tableSpacing.date" role="gridcell">
-      <div role="rowheader" class="table-mobile-header">{{ s__('Environments|Updated') }}</div>
+    <div v-if="!model.isFolder" class="table-section" :class="tableData.date.spacing" role="gridcell">
+      <div role="rowheader" class="table-mobile-header">{{ tableData.date.title }}</div>
       <span
         v-if="canShowDeploymentDate"
         v-gl-tooltip
@@ -604,8 +604,8 @@ export default {
       </span>
     </div>
 
-    <div v-if="!model.isFolder" class="table-section" :class="tableSpacing.autoStop" role="gridcell">
-      <div role="rowheader" class="table-mobile-header">{{ s__('Environments|Auto-stop in') }}</div>
+    <div v-if="!model.isFolder" class="table-section" :class="tableData.autoStop.spacing" role="gridcell">
+      <div role="rowheader" class="table-mobile-header">{{ tableData.autoStop.title }}</div>
       <span
         v-if="canShowAutoStopDate"
         v-gl-tooltip
@@ -619,7 +619,7 @@ export default {
     <div
       v-if="!model.isFolder && displayEnvironmentActions"
       class="table-section table-button-footer"
-      :class="tableSpacing.actions"
+      :class="tableData.actions.spacing"
       role="gridcell"
     >
       <div class="btn-group table-action-buttons" role="group">

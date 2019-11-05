@@ -4,6 +4,7 @@
  */
 import { GlLoadingIcon } from '@gitlab/ui';
 import _ from 'underscore';
+import { s__ } from '~/locale';
 import environmentTableMixin from 'ee_else_ce/environments/mixins/environments_table_mixin';
 import EnvironmentItem from './environment_item.vue';
 
@@ -41,16 +42,36 @@ export default {
           : env,
       );
     },
-    tableSpacing() {
+    tableData() {
       return {
         // percent spacing for cols, should add up to 100
-        'name': 'section-15',
-        'deploy': 'section-10',
-        'build': 'section-15',
-        'commit': 'section-20',
-        'date': 'section-10',
-        'autoStop': 'section-5',
-        'actions': 'section-25',
+        'name': {
+          title: s__('Environments|Environment'),
+          spacing: 'section-15',
+        },
+        'deploy': {
+          title: s__('Environments|Deployment'),
+          spacing: 'section-10',
+        },
+        'build': {
+          title: s__('Environments|Job'),
+          spacing: 'section-15',
+        },
+        'commit': {
+          title: s__('Environments|Commit'),
+          spacing: 'section-20',
+        },
+        'date': {
+          title: s__('Environments|Updated'),
+          spacing: 'section-10',
+        },
+        'autoStop': {
+          title: s__('Environments|Auto stop in'),
+          spacing: 'section-5',
+        },
+        'actions': {
+          spacing: 'section-25',
+        },
       }
     }
   },
@@ -91,23 +112,23 @@ export default {
 <template>
   <div class="ci-table" role="grid">
     <div class="gl-responsive-table-row table-row-header" role="row">
-      <div class="table-section environments-name" :class="tableSpacing.name" role="columnheader">
-        {{ s__('Environments|Environment') }}
+      <div class="table-section environments-name" :class="tableData.name.spacing" role="columnheader">
+        {{ tableData.name.title }}
       </div>
-      <div class="table-section environments-deploy" :class="tableSpacing.deploy" role="columnheader">
-        {{ s__('Environments|Deployment') }}
+      <div class="table-section environments-deploy" :class="tableData.deploy.spacing" role="columnheader">
+        {{ tableData.deploy.title }}
       </div>
-      <div class="table-section environments-build" :class="tableSpacing.build" role="columnheader">
-        {{ s__('Environments|Job') }}
+      <div class="table-section environments-build" :class="tableData.build.spacing" role="columnheader">
+        {{ tableData.build.title }}
       </div>
-      <div class="table-section environments-commit" :class="tableSpacing.commit" role="columnheader">
-        {{ s__('Environments|Commit') }}
+      <div class="table-section environments-commit" :class="tableData.commit.spacing" role="columnheader">
+        {{ tableData.commit.title }}
       </div>
-      <div class="table-section environments-date"  :class="tableSpacing.date" role="columnheader">
-        {{ s__('Environments|Updated') }}
+      <div class="table-section environments-date"  :class="tableData.date.spacing" role="columnheader">
+        {{ tableData.date.title }}
       </div>
-      <div class="table-section environments-auto-stop" :class="tableSpacing.autoStop" role="columnheader">
-        {{ s__('Environments|Auto stop in') }}
+      <div class="table-section environments-auto-stop" :class="tableData.autoStop.spacing" role="columnheader">
+        {{ tableData.autoStop.title }}
       </div>
     </div>
     <template v-for="(model, i) in sortedEnvironments" :model="model">
@@ -116,7 +137,7 @@ export default {
         :key="`environment-item-${i}`"
         :model="model"
         :can-read-environment="canReadEnvironment"
-        :table-spacing="tableSpacing"
+        :table-data="tableData"
       />
 
       <div
@@ -148,7 +169,7 @@ export default {
             :key="`env-item-${i}-${index}`"
             :model="children"
             :can-read-environment="canReadEnvironment"
-            :table-spacing="tableSpacing"
+            :table-data="tableData"
           />
 
           <div :key="`sub-div-${i}`">
