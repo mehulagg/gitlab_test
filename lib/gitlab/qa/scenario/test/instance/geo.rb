@@ -14,7 +14,6 @@ module Gitlab
               Component::Specs.perform do |specs|
                 specs.suite = 'QA::EE::Scenario::Test::Geo'
                 specs.release = Release.new(release)
-                specs.network = 'geo'
                 specs.args = [
                   '--primary-address', primary_address,
                   '--secondary-address', secondary_address,
