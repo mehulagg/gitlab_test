@@ -210,6 +210,11 @@ msgstr ""
 msgid "%{count} more assignees"
 msgstr ""
 
+msgid "%{count} more release"
+msgid_plural "%{count} more releases"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "%{count} of %{required} approvals from %{name}"
 msgstr ""
 
@@ -3399,6 +3404,9 @@ msgstr ""
 msgid "ClusterIntegration|%{title} updated successfully."
 msgstr ""
 
+msgid "ClusterIntegration|A cluster management project can be used to run deployment jobs with Kubernetes <code>cluster-admin</code> privileges."
+msgstr ""
+
 msgid "ClusterIntegration|A service token scoped to %{code}kube-system%{end_code} with %{code}cluster-admin%{end_code} privileges."
 msgstr ""
 
@@ -3505,6 +3513,9 @@ msgid "ClusterIntegration|Cloud Run"
 msgstr ""
 
 msgid "ClusterIntegration|Cluster health"
+msgstr ""
+
+msgid "ClusterIntegration|Cluster management project (alpha)"
 msgstr ""
 
 msgid "ClusterIntegration|Cluster name is required."
@@ -8330,6 +8341,9 @@ msgstr ""
 msgid "Group pipeline minutes were successfully reset."
 msgstr ""
 
+msgid "Group variables (inherited)"
+msgstr ""
+
 msgid "Group was successfully updated."
 msgstr ""
 
@@ -9529,6 +9543,9 @@ msgid "Jun"
 msgstr ""
 
 msgid "June"
+msgstr ""
+
+msgid "Key"
 msgstr ""
 
 msgid "Key (PEM)"
@@ -11593,6 +11610,9 @@ msgid "Options"
 msgstr ""
 
 msgid "Or you can choose one of the suggested colors below"
+msgstr ""
+
+msgid "Origin"
 msgstr ""
 
 msgid "Other Labels"
@@ -13788,7 +13808,9 @@ msgid "Related merge requests"
 msgstr ""
 
 msgid "Release"
-msgstr ""
+msgid_plural "Releases"
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "Release notes"
 msgstr ""
@@ -15587,6 +15609,9 @@ msgstr ""
 msgid "Something went wrong while fetching latest comments."
 msgstr ""
 
+msgid "Something went wrong while fetching projects"
+msgstr ""
+
 msgid "Something went wrong while fetching related merge requests."
 msgstr ""
 
@@ -16922,6 +16947,9 @@ msgid "There was an error with the reCAPTCHA. Please solve the reCAPTCHA again."
 msgstr ""
 
 msgid "These existing issues have a similar title. It might be better to comment there instead of creating another similar issue."
+msgstr ""
+
+msgid "These variables are configured in the parent group settings, and will be active in the current project in addition to the project variables."
 msgstr ""
 
 msgid "They can be managed using the %{link}."
