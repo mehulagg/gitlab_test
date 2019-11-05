@@ -42,7 +42,9 @@ module API
       post ':id/environments' do
         authorize! :create_environment, user_project
 
-        environment = user_project.environments.create(declared_params)
+        param = declared_params
+        param = param.merge(user: current_user)
+        environment = user_project.environments.create(param)
 
         if environment.persisted?
           present environment, with: Entities::Environment, current_user: current_user

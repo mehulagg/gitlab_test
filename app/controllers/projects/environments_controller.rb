@@ -71,7 +71,7 @@ class Projects::EnvironmentsController < Projects::ApplicationController
   end
 
   def create
-    @environment = project.environments.create(environment_params)
+    @environment = project.environments.create(create_params)
 
     if @environment.persisted?
       redirect_to project_environment_path(project, @environment)
@@ -187,6 +187,10 @@ class Projects::EnvironmentsController < Projects::ApplicationController
 
   def environment_params
     params.require(:environment).permit(:name, :external_url)
+  end
+
+  def create_params
+    environment_params.merge(user: current_user)
   end
 
   def environment

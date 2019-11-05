@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_29_191901) do
+ActiveRecord::Schema.define(version: 2019_11_01_172405) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -1376,10 +1376,12 @@ ActiveRecord::Schema.define(version: 2019_10_29_191901) do
     t.string "environment_type"
     t.string "state", default: "available", null: false
     t.string "slug", null: false
+    t.bigint "user_id"
     t.index ["name"], name: "index_environments_on_name_varchar_pattern_ops", opclass: :varchar_pattern_ops
     t.index ["project_id", "name"], name: "index_environments_on_project_id_and_name", unique: true
     t.index ["project_id", "slug"], name: "index_environments_on_project_id_and_slug", unique: true
     t.index ["project_id", "state"], name: "index_environments_on_project_id_and_state"
+    t.index ["user_id"], name: "index_environments_on_user_id"
   end
 
   create_table "epic_issues", id: :serial, force: :cascade do |t|
@@ -4206,6 +4208,7 @@ ActiveRecord::Schema.define(version: 2019_10_29_191901) do
   add_foreign_key "elasticsearch_indexed_namespaces", "namespaces", on_delete: :cascade
   add_foreign_key "elasticsearch_indexed_projects", "projects", on_delete: :cascade
   add_foreign_key "environments", "projects", name: "fk_d1c8c1da6a", on_delete: :cascade
+  add_foreign_key "environments", "users"
   add_foreign_key "epic_issues", "epics", on_delete: :cascade
   add_foreign_key "epic_issues", "issues", on_delete: :cascade
   add_foreign_key "epic_metrics", "epics", on_delete: :cascade
