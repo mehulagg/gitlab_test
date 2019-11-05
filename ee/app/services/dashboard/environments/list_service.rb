@@ -15,6 +15,7 @@ module Dashboard
 
       attr_reader :user
 
+      # rubocop: disable CodeReuse/ActiveRecord
       def load_projects(user)
         dashboard_project_ids = user.users_ops_dashboard_projects.pluck(:project_id)
         projects = ::Dashboard::Operations::ProjectsService
@@ -22,8 +23,19 @@ module Dashboard
           .execute(dashboard_project_ids)
           .take(7)
 
+        ActiveRecord::Associations::Preloader.new.preload(projects, [
+          :route,
+          environments_for_dashboard: [
+            :last_visible_pipeline,
+            last_visible_deployment: [:deployable, project: [namespace: :route]],
+            project: [:project_feature, :group, namespace: :route]
+          ],
+          namespace: [:route, :owner]
+        ])
+
         projects
       end
+      # rubocop: enable CodeReuse/ActiveRecord
     end
   end
 end

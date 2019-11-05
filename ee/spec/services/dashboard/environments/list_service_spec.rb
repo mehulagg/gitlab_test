@@ -25,7 +25,7 @@ describe Dashboard::Environments::ListService do
       expect(projects_with_environments).to eq([project])
     end
 
-    xit 'preloads only relevant ci_builds' do
+    it 'preloads only relevant ci_builds' do
       user, project = setup
 
       ci_build_a = create(:ci_build, project: project)
@@ -41,10 +41,12 @@ describe Dashboard::Environments::ListService do
 
       expect(CommitStatus).to receive(:instantiate)
         .with(a_hash_including("id" => ci_build_b.id), anything)
+        .at_least(:once)
         .and_call_original
 
       expect(CommitStatus).to receive(:instantiate)
         .with(a_hash_including("id" => ci_build_c.id), anything)
+        .at_least(:once)
         .and_call_original
 
       described_class.new(user).execute

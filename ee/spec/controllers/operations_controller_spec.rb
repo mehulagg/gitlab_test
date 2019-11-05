@@ -450,7 +450,7 @@ describe OperationsController do
           expect(json_response['projects'].count).to eq(7)
         end
 
-        it 'returns a maximum of three environments' do
+        it 'returns a maximum of three environments for a project' do
           create(:environment, project: project)
           create(:environment, project: project)
           create(:environment, project: project)
@@ -464,6 +464,31 @@ describe OperationsController do
           project_json = json_response['projects'].first
 
           expect(project_json['environments'].count).to eq(3)
+        end
+
+        it 'returns a maximum of three environments for multiple projects' do
+          project_b = create(:project)
+          project_b.add_developer(user)
+          create(:environment, project: project)
+          create(:environment, project: project)
+          create(:environment, project: project)
+          create(:environment, project: project)
+          create(:environment, project: project_b)
+          create(:environment, project: project_b)
+          create(:environment, project: project_b)
+          create(:environment, project: project_b)
+          user.update!(ops_dashboard_projects: [project, project_b])
+
+          get :environments_list
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to match_response_schema('dashboard/operations/environments_list', dir: 'ee')
+
+          project_json = json_response['projects'].find { |p| p['id'] == project.id }
+          project_b_json = json_response['projects'].find { |p| p['id'] == project_b.id }
+
+          expect(project_json['environments'].count).to eq(3)
+          expect(project_b_json['environments'].count).to eq(3)
         end
 
         it 'returns an alert for an environment' do
