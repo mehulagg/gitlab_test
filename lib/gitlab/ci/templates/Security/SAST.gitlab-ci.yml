@@ -36,11 +36,14 @@ sast:
         fi
       fi
     - |
-      printenv | grep -E '^(DOCKER_|CI|GITLAB_|FF_|HOME|PWD|OLDPWD|PATH|SHLVL|HOSTNAME)' | cut -d'=' -f1 | \
-        (while IFS='\\n' read -r VAR; do unset -v "$VAR"; done; /bin/printenv > .env)
+      function propagate_env_vars {
+        for var in $(awk 'END { for (var in ENVIRON) {print var;}}' < /dev/null); do
+          echo $var | egrep -v '^(DOCKER_|CI|GITLAB_|FF_|HOME|PWD|OLDPWD|PATH|SHLVL|HOSTNAME)' > /dev/null && echo "--env ${var} "
+        done
+      }
     - |
       docker run \
-        --env-file .env \
+        $(propagate_env_vars) \
         --volume "$PWD:/code" \
         --volume /var/run/docker.sock:/var/run/docker.sock \
         "registry.gitlab.com/gitlab-org/security-products/sast:$SAST_VERSION" /app/bin/run /code
