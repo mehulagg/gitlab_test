@@ -758,5 +758,9 @@ notify_slack:
   extends:
     - .notify_slack
   script:
+    - echo "NOTIFY_CHANNEL is $NOTIFY_CHANNEL"
+    - echo "RELEASE is $RELEASE"
+    - echo "CI_PIPELINE_URL is $CI_PIPELINE_URL"
+    - echo "TOP_UPSTREAM_SOURCE_JOB is $TOP_UPSTREAM_SOURCE_JOB"
     - bin/slack $NOTIFY_CHANNEL "☠️ Pipeline against $RELEASE failed! ☠️ See $CI_PIPELINE_URL (triggered from $TOP_UPSTREAM_SOURCE_JOB)" ci_failing
   when: on_failure
