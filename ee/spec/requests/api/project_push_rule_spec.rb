@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# TODO: commit_author_check
 
 require 'spec_helper'
 

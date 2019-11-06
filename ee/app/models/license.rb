@@ -52,6 +52,7 @@ class License < ApplicationRecord
     cluster_deployments
     code_analytics
     code_owner_approval_required
+    commit_author_check
     commit_committer_check
     cross_project_pipelines
     custom_file_templates

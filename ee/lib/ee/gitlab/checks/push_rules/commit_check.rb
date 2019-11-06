@@ -6,6 +6,8 @@ module EE
       module PushRules
         class CommitCheck < ::Gitlab::Checks::BaseChecker
           ERROR_MESSAGES = {
+            author_not_verified: "Author email '%{author_email}' is not verified.",
+            author_not_allowed: "You cannot push commits for '%{author_email}'. You can only push commits that were authored with one of your own verified emails.",
             committer_not_verified: "Committer email '%{committer_email}' is not verified.",
             committer_not_allowed: "You cannot push commits for '%{committer_email}'. You can only push commits that were committed with one of your own verified emails."
           }.freeze
@@ -92,6 +94,18 @@ module EE
                 ERROR_MESSAGES[:committer_not_verified] % { committer_email: commit.committer_email }
               else
                 ERROR_MESSAGES[:committer_not_allowed] % { committer_email: commit.committer_email }
+              end
+            end
+          end
+
+          def author_check(commit)
+            unless push_rule.author_allowed?(commit.author_email, user_access.user)
+              author_is_current_user = commit.author == user_access.user
+
+              if author_is_current_user && !commit.author.verified_email?(commit.author_email)
+                ERROR_MESSAGES[:author_not_verified] % { author_email: commit.author_email }
+              else
+                ERROR_MESSAGES[:author_not_allowed] % { author_email: commit.author_email }
               end
             end
           end

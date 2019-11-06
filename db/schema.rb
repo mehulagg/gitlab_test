@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_08_071112) do
+ActiveRecord::Schema.define(version: 2019_12_11_153535) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -3472,6 +3472,7 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
     t.boolean "commit_committer_check"
     t.boolean "regexp_uses_re2", default: true
     t.string "commit_message_negative_regex"
+    t.boolean "commit_author_check"
     t.index ["is_sample"], name: "index_push_rules_on_is_sample", where: "is_sample"
     t.index ["project_id"], name: "index_push_rules_on_project_id"
   end

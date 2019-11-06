@@ -1,0 +1,5 @@
+---
+title: Add author restriction push rule
+merge_request: 19698
+author:
+type: added

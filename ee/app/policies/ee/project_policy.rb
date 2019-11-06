@@ -51,6 +51,16 @@ module EE
         @subject.feature_available?(:commit_committer_check)
       end
 
+      with_scope :global
+      condition(:commit_author_check_disabled_globally) do
+        !PushRule.global&.commit_author_check
+      end
+
+      with_scope :subject
+      condition(:commit_author_check_available) do
+        @subject.feature_available?(:commit_author_check)
+      end
+
       with_scope :subject
       condition(:reject_unsigned_commits_available) do
         @subject.feature_available?(:reject_unsigned_commits)
@@ -246,6 +256,18 @@ module EE
 
       rule { ~commit_committer_check_available }.policy do
         prevent :change_commit_committer_check
+      end
+
+      rule { admin | (commit_author_check_disabled_globally & can?(:maintainer_access)) }.policy do
+        enable :change_commit_author_check
+      end
+
+      rule { commit_author_check_available }.policy do
+        enable :read_commit_author_check
+      end
+
+      rule { ~commit_author_check_available }.policy do
+        prevent :change_commit_author_check
       end
 
       rule { owner | reporter }.enable :build_read_project

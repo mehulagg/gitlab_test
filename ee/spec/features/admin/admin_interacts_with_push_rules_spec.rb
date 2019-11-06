@@ -11,7 +11,8 @@ describe "Admin interacts with push rules" do
 
   push_rules_with_titles = {
     reject_unsigned_commits: "Reject unsigned commits",
-    commit_committer_check: "Committer restriction"
+    commit_committer_check: 'Committer email restriction',
+    commit_author_check: 'Author email restriction'
   }
 
   push_rules_with_titles.each do |rule_attr, title|

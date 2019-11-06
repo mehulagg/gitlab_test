@@ -38,6 +38,10 @@ class Admin::PushRulesController < Admin::ApplicationController
       allowed_fields << :commit_committer_check
     end
 
+    if @push_rule.available?(:commit_committer_check)
+      allowed_fields << :commit_author_check
+    end
+
     params.require(:push_rule).permit(allowed_fields)
   end
 

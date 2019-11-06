@@ -249,6 +249,8 @@ module EE
         expose :member_check, :prevent_secrets, :author_email_regex
         expose :file_name_regex, :max_file_size
         expose_restricted :commit_committer_check, &:project
+        expose_restricted :commit_author_check, &:project
+        expose_restricted :commit_author_check, &:project
         expose_restricted :reject_unsigned_commits, &:project
       end
 

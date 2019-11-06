@@ -7,6 +7,13 @@ module PushRulesHelper
     push_rule_update_description(message, push_rule, :reject_unsigned_commits)
   end
 
+  def commit_author_check_description(push_rule)
+    message = s_("ProjectSettings|Users can only push commits to this repository "\
+                 "that were authored with one of their own verified emails.")
+
+    push_rule_update_description(message, push_rule, :commit_author_check)
+  end
+
   def commit_committer_check_description(push_rule)
     message = s_("ProjectSettings|Users can only push commits to this repository "\
                  "that were committed with one of their own verified emails.")

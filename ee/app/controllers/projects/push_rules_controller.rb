@@ -40,6 +40,10 @@ class Projects::PushRulesController < Projects::ApplicationController
       allowed_fields << :commit_committer_check
     end
 
+    if can?(current_user, :change_commit_author_check, project)
+      allowed_fields << :commit_author_check
+    end
+
     params.require(:push_rule).permit(allowed_fields)
   end
 end

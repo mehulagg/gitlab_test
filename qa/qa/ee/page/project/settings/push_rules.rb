@@ -27,12 +27,20 @@ module QA
               element :committer_restriction_checkbox
             end
 
+            view 'ee/app/views/shared/push_rules/_commit_author_check_setting.html.haml' do
+              element :author_restriction_checkbox
+            end
+
             def check_reject_unsigned_commits
               check_element :reject_unsigned_commits_checkbox
             end
 
             def check_committer_restriction
               check_element :committer_restriction_checkbox
+            end
+
+            def check_author_restriction
+              check_element :author_restriction_checkbox
             end
 
             def check_deny_delete_tag

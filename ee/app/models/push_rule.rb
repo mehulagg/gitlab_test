@@ -31,6 +31,7 @@ class PushRule < ApplicationRecord
   SETTINGS_WITH_GLOBAL_DEFAULT = %i[
     reject_unsigned_commits
     commit_committer_check
+    commit_author_check
   ].freeze
 
   def self.global
@@ -44,6 +45,7 @@ class PushRule < ApplicationRecord
       author_email_regex.present? ||
       reject_unsigned_commits ||
       commit_committer_check ||
+      commit_author_check ||
       member_check ||
       file_name_regex.present? ||
       prevent_secrets
@@ -59,6 +61,13 @@ class PushRule < ApplicationRecord
   def committer_allowed?(committer_email, current_user)
     return true unless available?(:commit_committer_check)
     return true unless commit_committer_check
+
+    current_user.verified_email?(committer_email)
+  end
+
+  def author_allowed?(author_email, current_user)
+    return true unless available?(:commit_author_check)
+    return true unless commit_author_check
 
     current_user.verified_email?(committer_email)
   end
@@ -115,6 +124,15 @@ class PushRule < ApplicationRecord
 
   def commit_committer_check=(value)
     write_setting_with_global_default(:commit_committer_check, value)
+  end
+
+  def commit_author_check
+    read_setting_with_global_default(:commit_author_check)
+  end
+  alias_method :commit_author_check?, :commit_author_check
+
+  def commit_author_check=(value)
+    write_setting_with_global_default(:commit_author_check, value)
   end
 
   private

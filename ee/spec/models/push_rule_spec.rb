@@ -104,6 +104,7 @@ describe PushRule do
       :file_name_regex         | 'regex'       | true
       :reject_unsigned_commits | true          | true
       :commit_committer_check  | true          | true
+      :commit_author_check     | true          | true
       :member_check            | true          | true
       :prevent_secrets         | true          | true
       :max_file_size           | 1             | false
@@ -242,10 +243,12 @@ describe PushRule do
     it 'memoizes the right push rules' do
       expect(described_class).to receive(:global).twice.and_return(global_push_rule)
       expect(global_push_rule).to receive(:public_send).with(:commit_committer_check).and_return(false)
+      expect(global_push_rule).to receive(:public_send).with(:commit_author_check).and_return(false)
       expect(global_push_rule).to receive(:public_send).with(:reject_unsigned_commits).and_return(true)
 
       2.times do
         expect(push_rule.commit_committer_check).to be_falsey
+        expect(push_rule.commit_author_check).to be_falsey
         expect(push_rule_second.reject_unsigned_commits).to be_truthy
       end
     end

@@ -1,5 +1,7 @@
 = render 'shared/push_rules/commit_committer_check_setting', form: f, push_rule: f.object
 
+= render 'shared/push_rules/commit_author_check_setting', form: f, push_rule: f.object
+
 = render 'shared/push_rules/reject_unsigned_commits_setting', form: f, push_rule: f.object
 
 .form-check
@@ -15,7 +17,6 @@
   = f.label :member_check, "Check whether author is a GitLab user", class: "label-bold form-check-label"
   %p.text-muted
     Restrict commits by author (email) to existing GitLab users
-
 
 .form-check
   = f.check_box :prevent_secrets, class: "form-check-input", data: { qa_selector: 'prevent_secrets_checkbox' }

@@ -13854,6 +13854,9 @@ msgstr ""
 msgid "ProjectSettings|This will dictate the commit history when you merge a merge request"
 msgstr ""
 
+msgid "ProjectSettings|Users can only push commits to this repository that were authored with one of their own verified emails."
+msgstr ""
+
 msgid "ProjectSettings|Users can only push commits to this repository that were committed with one of their own verified emails."
 msgstr ""
 
@@ -14352,7 +14355,10 @@ msgstr ""
 msgid "Push to create a project"
 msgstr ""
 
-msgid "PushRule|Committer restriction"
+msgid "PushRule|Author email restriction"
+msgstr ""
+
+msgid "PushRule|Committer email restriction"
 msgstr ""
 
 msgid "Pushed"
