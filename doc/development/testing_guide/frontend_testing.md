@@ -20,6 +20,8 @@ We have started to migrate frontend tests to the [Jest](https://jestjs.io) testi
 
 Jest tests can be found in `/spec/frontend` and `/ee/spec/frontend` in EE.
 
+## Vue Test Utils
+
 ### Selector Preferences
 
 When searching the DOM in order to find a component we prefer the following order
