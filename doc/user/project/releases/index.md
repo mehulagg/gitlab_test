@@ -103,7 +103,7 @@ Each time a new release is created, specific data related to it is collected in
 parallel. This dataset will form a snapshot representing what defines this new release (eg. linked milestones and issues). It will also serve as evidence of the chain of custody, which can be critical for any audit led for a given project, for example.
 
 The gathered Evidence data is stored in the database upon creation of a new
-release, as a JSON object. Here's what this object can look like: 
+release, as a JSON object. Here's what this object can look like:
 
 ```json
 {

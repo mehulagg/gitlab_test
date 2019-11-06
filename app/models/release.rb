@@ -69,6 +69,10 @@ class Release < ApplicationRecord
     released_at.present? && released_at > Time.zone.now
   end
 
+  def evidence_sha
+    evidence&.summary_sha
+  end
+
   private
 
   def actual_sha
