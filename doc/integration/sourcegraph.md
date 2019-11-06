@@ -7,7 +7,7 @@ type: reference, how-to
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/16556) in GitLab X.X.
 
 [Sourcegraph](https://sourcegraph.com) provides complete code intelligence functionality
-(historically provided by the Sourcegraph browser extension) including hover tooltips with go-to-definition and
+historically provided by the Sourcegraph browser extensions. Sourcegraph provides tooltips on hover with go-to definitions as well as
 find references working by default for all users.
 
 ## Setup **(CORE ONLY)**
