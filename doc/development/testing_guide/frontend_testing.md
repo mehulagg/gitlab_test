@@ -13,24 +13,23 @@ in the future.
 See the [Testing Standards and Style Guidelines](index.md) page for more
 information on general testing practices at GitLab.
 
+## Vue Test Utils
+
+### Selector Preferences
+
+When finding child components in `@vue/test-utils`, please adhere to the following preference:
+
+1. **Most preferred:** `.find(ChildComponent)` where `ChildComponent` is a Vue component.
+2. `.find('[data-testid="something"]')`
+3. `.find({ ref: 'compRef' })`
+4. **Least preferred:** `.find('.js-ref')` using a class or some other CSS selector.
+
 ## Jest
 
 We have started to migrate frontend tests to the [Jest](https://jestjs.io) testing framework (see also the corresponding
 [epic](https://gitlab.com/groups/gitlab-org/-/epics/895)).
 
 Jest tests can be found in `/spec/frontend` and `/ee/spec/frontend` in EE.
-
-## Vue Test Utils
-
-### Selector Preferences
-
-When searching the DOM in order to find a component we prefer the following order
-
-1. `.find(Comp)` (Where Comp is the refernce to the imported component)
-2. `.find('[data-testid="something"]')`
-    1. Using data attributes are a preferred choice over CSS classes because using a `.js-*` CSS class has a chance of being used for styles as well. In addition, it allows us to clean up the noise in the HTML and becomes more maintainable. This also allows us to add generalized helpers for testing and filters to remove in production if desired.
-3. `.find({ ref: compRef })`
-4. `.find('.js-ref')`
 
 ### When should I use Jest over Karma?
 
