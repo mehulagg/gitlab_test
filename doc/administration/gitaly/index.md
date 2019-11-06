@@ -328,6 +328,8 @@ When you tail the Gitaly logs on your Gitaly server you should see requests
 coming in. One sure way to trigger a Gitaly request is to clone a repository
 from your GitLab server over HTTP.
 
+DANGER: **Danger:** If you have [custom server-side Git hooks](../custom_hooks.md#custom-server-side-git-hooks) configured, either per repository or globally, you must move these to the Gitaly node. If you have multiple Gitaly nodes, copy your custom hook(s) to all nodes.
+
 ### Disabling the Gitaly service in a cluster environment
 
 If you are running Gitaly [as a remote
@@ -405,11 +407,11 @@ To configure Gitaly with TLS:
    ```
 
 1. Save the file and [reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on client node(s).
-1. Create the `/etc/gitlab/ssl` directory and copy your key and certificate there:
+1. On the Gitaly server, create the `/etc/gitlab/ssl` directory and copy your key and certificate there:
 
    ```sh
    sudo mkdir -p /etc/gitlab/ssl
-   sudo chmod 700 /etc/gitlab/ssl
+   sudo chmod 755 /etc/gitlab/ssl
    sudo cp key.pem cert.pem /etc/gitlab/ssl/
    ```
 

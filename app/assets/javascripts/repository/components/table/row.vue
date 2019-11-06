@@ -97,11 +97,13 @@ export default {
     },
   },
   methods: {
-    openRow() {
-      if (this.isFolder) {
+    openRow(e) {
+      if (e.target.tagName === 'A') return;
+
+      if (this.isFolder && !e.metaKey) {
         this.$router.push(this.routerLinkTo);
       } else {
-        visitUrl(this.url);
+        visitUrl(this.url, e.metaKey);
       }
     },
   },
@@ -122,13 +124,18 @@ export default {
       </template>
     </td>
     <td class="d-none d-sm-table-cell tree-commit">
-      <gl-link v-if="commit" :href="commit.commitPath" class="str-truncated-100 tree-commit-link">
+      <gl-link
+        v-if="commit"
+        :href="commit.commitPath"
+        :title="commit.message"
+        class="str-truncated-100 tree-commit-link"
+      >
         {{ commit.message }}
       </gl-link>
       <gl-skeleton-loading v-else :lines="1" class="h-auto" />
     </td>
     <td class="tree-time-ago text-right">
-      <timeago-tooltip v-if="commit" :time="commit.committedDate" tooltip-placement="bottom" />
+      <timeago-tooltip v-if="commit" :time="commit.committedDate" />
       <gl-skeleton-loading v-else :lines="1" class="ml-auto h-auto w-50" />
     </td>
   </tr>

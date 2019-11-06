@@ -755,6 +755,7 @@ module API
       end
       expose :diff_head_sha, as: :sha
       expose :merge_commit_sha
+      expose :squash_commit_sha
       expose :discussion_locked
       expose :should_remove_source_branch?, as: :should_remove_source_branch
       expose :force_remove_source_branch?, as: :force_remove_source_branch
@@ -1324,6 +1325,7 @@ module API
       expose :_links do
         expose :merge_requests_url, expose_nil: false
         expose :issues_url, expose_nil: false
+        expose :edit_url, expose_nil: false
       end
 
       private
