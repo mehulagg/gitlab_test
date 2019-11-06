@@ -1,4 +1,3 @@
-- expanded = true if !@application_setting.valid? && @application_setting.errors.any? { |k| k.to_s.start_with?('sourcegraph_') }
 %section.settings.as-sourcegraph.no-animate#js-sourcegraph-settings{ class: ('expanded' if expanded) }
   .settings-header
     %h4
@@ -17,6 +16,9 @@
           .form-check
             = f.check_box :sourcegraph_enabled, class: 'form-check-input'
             = f.label :sourcegraph_enabled, _('Enable Sourcegraph'), class: 'form-check-label'
+            = link_to icon('question-circle'),
+              help_page_path('integration/sourcegraph.md'),
+              target: '_blank'
         .form-group
           = f.label :sourcegraph_url, _('Sourcegraph URL'), class: 'label-bold'
           = f.text_field :sourcegraph_url, class: 'form-control', placeholder: 'https://example.sourcegraph.com'
