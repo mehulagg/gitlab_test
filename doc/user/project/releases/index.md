@@ -97,6 +97,62 @@ There are several ways to add release notes:
 
 ![tags](img/tags.png)
 
+## Evidence collection for Releases
+
+Each time a new release is created, specific data related to it is collected in
+parallel. This dataset will form a snapshot representing what defines this new release (eg. linked milestones and issues). It will also serve as evidence of the chain of custody, which can be critical for any audit led for a given project, for example.
+
+The gathered Evidence data is stored in the database upon creation of a new
+release, as a JSON object. Here's what this object can look like: 
+
+```json
+{
+  "release": {
+    "id": 5,
+    "tag": "v4.0",
+    "name": "New release",
+    "project_id": 45,
+    "project_name": "Project name",
+    "released_at": "2019-06-28 13:23:40 UTC",
+    "milestones": [
+      {
+        "id": 11,
+        "title": "v4.0-rc1",
+        "state": "closed",
+        "due_date": "2019-05-12 12:00:00 UTC",
+        "created_at": "2019-04-17 15:45:12 UTC",
+        "issues": [
+          {
+            "id": 82,
+            "title": "The top-right popup is broken",
+            "author_name": "John Doe",
+            "author_email": "john@doe.com",
+            "state": "closed",
+            "due_date": "2019-05-10 12:00:00 UTC"
+          },
+          {
+            "id": 89,
+            "title": "The title of this page is misleading",
+            "author_name": "Jane Smith",
+            "author_email": "jane@smith.com",
+            "state": "closed",
+            "due_date": "nil"
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "v4.0-rc2",
+        "state": "closed",
+        "due_date": "2019-05-30 18:30:00 UTC",
+        "created_at": "2019-04-17 15:45:12 UTC",
+        "issues": []
+      }
+    ]
+  }
+}
+```
+
 <!-- ## Troubleshooting
 
 Include any troubleshooting steps that you can foresee. If you know beforehand what issues
