@@ -1,5 +1,4 @@
 /* eslint-disable import/prefer-default-export */
-import _ from 'underscore';
 
 /**
  * @param {Array} queryResults - Array of Result objects
