@@ -19,10 +19,13 @@ export const makeDataSeries = (queryResults, defaultConfig) =>
       if (name) {
         series.name = `${defaultConfig.name}: ${name}`;
       } else {
-        const template = _.template(defaultConfig.name, {
-          interpolate: /\{\{(.+?)\}\}/g,
+        series.name = defaultConfig.name;
+        Object.keys(result.metric).forEach(variable => {
+          const value = result.metric[variable];
+          const regex = new RegExp(`{{\\s*${variable}\\s*}}`, 'g');
+
+          series.name = series.name.replace(regex, value);
         });
-        series.name = template(result.metric);
       }
 
       return { ...defaultConfig, ...series };
