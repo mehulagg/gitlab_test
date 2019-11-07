@@ -3,19 +3,16 @@
 require 'spec_helper'
 
 describe Ci::Config do
-  let(:config) { described_class.new(pipeline) }
-  set(:project) { create(:project) }
-
-  let(:pipeline) do
-    create(:ci_empty_pipeline, status: :created, project: project)
-  end
+  let(:config) { described_class.new(project, sha) }
+  let(:sha) { double }
+  let_it_be(:project) { create(:project) }
 
   describe '#content' do
     let(:implied_yml) { Gitlab::Template::GitlabCiYmlTemplate.find('Auto-DevOps').content }
 
     context 'when file is found in the repository' do
       before do
-        allow(pipeline.project.repository).to receive(:gitlab_ci_yml_for) { 'the-config-content'}
+        allow(project.repository).to receive(:gitlab_ci_yml_for) { 'the-config-content'}
       end
 
       context 'when config is specified in ci_config_path' do
@@ -57,7 +54,7 @@ describe Ci::Config do
 
     context 'when file is not found in the repository' do
       before do
-        allow(pipeline.project.repository).to receive(:gitlab_ci_yml_for) { nil }
+        allow(project.repository).to receive(:gitlab_ci_yml_for) { nil }
       end
 
       context 'when auto-devops is enabled' do
