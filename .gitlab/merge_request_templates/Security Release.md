@@ -26,6 +26,8 @@ manually merging CE into EE is no longer required.
 - [ ] Add a link to this MR in the `links` section of related issue
 - [ ] Set up an EE MR (always required for CE merge requests): EE_MR_LINK_HERE
 - [ ] Assign to a reviewer (that is not a release manager)
+- [ ] Ping appsec asking for a review with `Please review this MR and check "MR has been approved by appsec" when you are happy`
+- [ ] MR has been approved by appsec
 
 ## Reviewer checklist
 
