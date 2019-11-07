@@ -615,8 +615,9 @@ module Ci
       end
     end
 
+    # TODO: remove this from Pipeline
     def config
-      @config ||= Ci::Config.new(self)
+      @config ||= Ci::Config.new(project, sha)
     end
 
     def has_yaml_errors?

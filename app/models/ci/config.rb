@@ -8,8 +8,9 @@ module Ci
   class Config
     include Gitlab::Utils::StrongMemoize
 
-    def initialize(pipeline)
-      @pipeline = pipeline
+    def initialize(project, sha)
+      @project = project
+      @sha = sha
     end
 
     def content
@@ -28,7 +29,7 @@ module Ci
 
     private
 
-    attr_reader :pipeline
+    attr_reader :project, :sha
 
     def data
       strong_memoize(:data) do
@@ -60,14 +61,6 @@ module Ci
       return unless project&.auto_devops_enabled?
 
       Gitlab::Template::GitlabCiYmlTemplate.find('Auto-DevOps').content
-    end
-
-    def project
-      @project ||= pipeline.project
-    end
-
-    def sha
-      @sha ||= pipeline.sha
     end
   end
 end
