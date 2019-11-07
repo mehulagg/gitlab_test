@@ -379,6 +379,8 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           get '/terminal.ws/authorize', to: 'environments#terminal_websocket_authorize', constraints: { format: nil }
 
           get '/prometheus/api/v1/*proxy_path', to: 'environments/prometheus_api#proxy', as: :prometheus_api
+
+          get '/sample_metrics', to: 'environments/sample_metrics#query'
         end
 
         collection do
