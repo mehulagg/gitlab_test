@@ -1,10 +1,9 @@
-/* eslint-disable import/prefer-default-export */
-
 /**
  * @param {Array} queryResults - Array of Result objects
  * @param {Object} defaultConfig - Default chart config values (e.g. lineStyle, name)
  * @returns {Array} The formatted values
  */
+// eslint-disable-next-line import/prefer-default-export
 export const makeDataSeries = (queryResults, defaultConfig) =>
   queryResults
     .map(result => {
