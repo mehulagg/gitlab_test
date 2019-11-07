@@ -20,6 +20,7 @@
         "committed_at": { "type": ["date", "null"] },
         "duration": { "type": ["number", "null"] },
         "coverage": { "type": ["string", "null"] },
+        "source": { "type": ["string"] },
         "detailed_status": {
           "oneOf": [
             { "type": "null" },

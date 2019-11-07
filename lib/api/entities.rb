@@ -1455,6 +1455,7 @@ module API
       expose :created_at, :updated_at, :started_at, :finished_at, :committed_at
       expose :duration
       expose :coverage
+      expose :source
       expose :detailed_status, using: DetailedStatusEntity do |pipeline, options|
         pipeline.detailed_status(options[:current_user])
       end
