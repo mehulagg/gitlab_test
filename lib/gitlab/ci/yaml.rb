@@ -46,6 +46,9 @@ module Gitlab
       def initiate_processor!
         if content
           ::Gitlab::Ci::YamlProcessor.new(content, { project: project, sha: sha, user: user })
+        else
+          @errors << "Missing #{path} file"
+          nil
         end
       rescue Gitlab::Ci::YamlProcessor::ValidationError => e
         @errors << e.message
