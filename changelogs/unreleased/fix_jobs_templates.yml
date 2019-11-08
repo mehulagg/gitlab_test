@@ -1,0 +1,5 @@
+---
+title: Reset defaults for security and code_quality jobs
+merge_request: 19837
+author:
+type: fixed
