@@ -16,6 +16,10 @@ module QA
               element :remove_related_issue_button
             end
 
+            view 'ee/app/assets/javascripts/epic/components/epic_body.vue' do
+              element :related_issues_block
+            end
+
             view 'ee/app/assets/javascripts/epic/components/epic_header.vue' do
               element :close_reopen_epic_button
             end
@@ -72,6 +76,14 @@ module QA
 
             def has_no_related_issuable_item?
               has_no_element?(:related_issuable_item)
+            end
+
+            def wait_related_issues_finish_loading
+              within_element(:related_issues_block) do
+                wait(reload: false, max: 30, interval: 1) do
+                  finished_loading? && (block_given? ? yield : true)
+                end
+              end
             end
           end
         end
