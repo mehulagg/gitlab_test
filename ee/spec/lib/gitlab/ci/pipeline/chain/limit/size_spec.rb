@@ -24,7 +24,7 @@ describe ::Gitlab::Ci::Pipeline::Chain::Limit::Size do
       gold_plan = create(:gold_plan, pipeline_size_limit: 1)
       create(:gitlab_subscription, namespace: namespace, hosted_plan: gold_plan)
 
-      stub_ci_pipeline_yaml(YAML.dump({
+      stub_ci_pipeline_yaml_file(YAML.dump({
         rspec: { script: 'rspec' },
         spinach: { script: 'spinach' }
       }))
