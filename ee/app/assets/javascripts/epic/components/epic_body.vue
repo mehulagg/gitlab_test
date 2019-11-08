@@ -94,6 +94,7 @@ export default {
       :title="__('Issues')"
       issuable-type="issue"
       css-class="js-related-issues-block"
+      data-qa-selector="related_issues_block"
       path-id-separator="#"
     />
     <issuable-sidebar
