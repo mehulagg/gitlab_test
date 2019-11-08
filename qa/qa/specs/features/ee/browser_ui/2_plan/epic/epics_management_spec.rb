@@ -42,6 +42,7 @@ module QA
           epic.visit!
 
           EE::Page::Group::Epic::Show.perform do |show|
+            show.wait_related_issues_finish_loading
             show.add_issue_to_epic(issue.web_url)
 
             expect(show).to have_related_issuable_item
