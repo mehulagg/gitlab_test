@@ -50,4 +50,16 @@ describe 'EE-specific project routing' do
       expect(post('/gitlab/gitlabhq/-/settings/operations/reset_alerting_token')).to route_to('projects/settings/operations#reset_alerting_token', namespace_id: 'gitlab', project_id: 'gitlabhq')
     end
   end
+
+  describe Projects::Security::DependenciesController do
+    it 'to #index' do
+      expect(get('/gitlab/gitlabhq/security/dependencies')).to route_to('projects/security/dependencies#index', namespace_id: 'gitlab', project_id: 'gitlabhq')
+    end
+  end
+
+  describe Projects::Security::LicensesController do
+    it 'to #index' do
+      expect(get('/gitlab/gitlabhq/security/licenses')).to route_to('projects/security/licenses#index', namespace_id: 'gitlab', project_id: 'gitlabhq')
+    end
+  end
 end

@@ -119,9 +119,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
       end
 
-      resource :dependencies, only: [:show]
-      resource :licenses, only: [:show]
-
       namespace :security do
         resources :dependencies, only: [:index]
         resources :licenses, only: [:index]
@@ -141,6 +138,9 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           end
         end
       end
+
+      resource :dependencies, only: [:show]
+      resource :licenses, only: [:show]
     end
   end
 end
