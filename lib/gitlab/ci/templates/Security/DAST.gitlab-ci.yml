@@ -32,6 +32,10 @@ dast:
   # Perform ZAP Full Scan, which includes both passive and active scanning:
   # DAST_FULL_SCAN_ENABLED: "true"
   allow_failure: true
+  tags: []
+  before_script: []
+  cache: {}
+  dependencies: []
   script:
     - export DAST_WEBSITE=${DAST_WEBSITE:-$(cat environment_url.txt)}
     - /analyze -t $DAST_WEBSITE

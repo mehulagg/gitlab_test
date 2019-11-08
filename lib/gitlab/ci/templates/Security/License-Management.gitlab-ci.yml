@@ -15,12 +15,15 @@ license_management:
   variables:
     SETUP_CMD: $LICENSE_MANAGEMENT_SETUP_CMD
   allow_failure: true
+  tags: []
+  before_script: []
+  cache: {}
+  dependencies: []
   script:
     - /run.sh analyze .
   artifacts:
     reports:
       license_management: gl-license-management-report.json
-  dependencies: []
   only:
     refs:
       - branches

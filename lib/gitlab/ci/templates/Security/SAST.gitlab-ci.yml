@@ -13,6 +13,10 @@ variables:
 sast:
   stage: test
   allow_failure: true
+  tags: []
+  before_script: []
+  cache: {}
+  dependencies: []
   artifacts:
     reports:
       sast: gl-sast-report.json

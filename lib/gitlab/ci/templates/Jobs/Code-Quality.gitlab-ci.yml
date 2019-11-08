@@ -2,6 +2,10 @@ code_quality:
   stage: test
   image: docker:stable
   allow_failure: true
+  tags: []
+  before_script: []
+  cache: {}
+  dependencies: []
   services:
     - docker:stable-dind
   variables:
@@ -23,7 +27,6 @@ code_quality:
     reports:
       codequality: gl-code-quality-report.json
     expire_in: 1 week
-  dependencies: []
   only:
     refs:
       - branches

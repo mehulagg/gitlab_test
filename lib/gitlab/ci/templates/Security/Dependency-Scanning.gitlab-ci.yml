@@ -17,6 +17,10 @@ dependency_scanning:
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: ""
   allow_failure: true
+  tags: []
+  before_script: []
+  cache: {}
+  dependencies: []
   services:
     - docker:stable-dind
   script:
@@ -59,7 +63,6 @@ dependency_scanning:
   artifacts:
     reports:
       dependency_scanning: gl-dependency-scanning-report.json
-  dependencies: []
   only:
     refs:
       - branches

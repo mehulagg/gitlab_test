@@ -18,6 +18,10 @@ container_scanning:
     # for details
     GIT_STRATEGY: none
   allow_failure: true
+  tags: []
+  before_script: []
+  cache: {}
+  dependencies: []
   services:
     - name: $CLAIR_DB_IMAGE
       alias: clair-vulnerabilities-db
@@ -29,7 +33,6 @@ container_scanning:
   artifacts:
     reports:
       container_scanning: gl-container-scanning-report.json
-  dependencies: []
   only:
     refs:
       - branches
