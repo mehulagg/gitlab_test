@@ -472,6 +472,23 @@ $ export EE_LICENSE=$(cat /path/to/Geo.gitlab_license)
 $ gitlab-qa Test::Integration::Packages EE
 ```
 
+### `Test::Integration::Praefect CE|EE|<full image address>`
+
+This tests [Praefect](https://docs.gitlab.com/ee/administration/gitaly/praefect.html),
+which is a reverse-proxy for Gitaly. It sets the Omnibus configuration
+to use Praefect as the default storage backed by a single Gitaly node
+before starting the GitLab container.
+
+To run tests against the GitLab container, a GitLab QA (`gitlab/gitlab-qa`)
+container is spun up and tests are run from it by running the
+`Test::Instance::All` scenario.
+
+Example:
+
+```
+$ gitlab-qa Test::Integration::Praefect EE
+```
+
 ### `Test::Instance::Any CE|EE|<full image address>:nightly|latest|any_tag http://your.instance.gitlab`
 
 This tests that a live GitLab instance works as expected by running tests
