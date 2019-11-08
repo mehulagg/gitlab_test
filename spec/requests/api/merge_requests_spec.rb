@@ -1488,7 +1488,7 @@ describe API::MergeRequests do
   end
 
   describe "PUT /projects/:id/merge_requests/:merge_request_iid/merge" do
-    let(:pipeline) { create(:ci_pipeline_without_jobs) }
+    let(:pipeline) { create(:ci_pipeline) }
 
     it "returns merge_request in case of success" do
       put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/merge", user)

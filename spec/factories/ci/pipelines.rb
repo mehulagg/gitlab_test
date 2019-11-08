@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
+  # TODO: we can remove this factory in favour of :ci_pipeline
   factory :ci_empty_pipeline, class: Ci::Pipeline do
     source { :push }
     ref { 'master' }
@@ -9,22 +10,6 @@ FactoryBot.define do
     add_attribute(:protected) { false }
 
     project
-
-    # TODO: replace the usage of this factory using stub_ci_pipeline_yaml_file instead
-    factory :ci_pipeline_without_jobs do
-      after(:build) do |pipeline|
-        # TODO: this should be removed and stubbed explicitly
-        # pipeline.config.instance_variable_set(:@content, YAML.dump({}))
-      end
-    end
-
-    # TODO: replace the usage of this factory using stub_ci_pipeline_yaml_file instead
-    factory :ci_pipeline_with_one_job do
-      after(:build) do |pipeline|
-        # TODO: this should be removed and stubbed explicitly
-        # pipeline.config.instance_variable_set(:@content, YAML.dump({ rspec: { script: "ls" } }))
-      end
-    end
 
     # Persist merge request head_pipeline_id
     # on pipeline factories to avoid circular references
@@ -36,29 +21,8 @@ FactoryBot.define do
     end
 
     factory :ci_pipeline do
-      # TODO: remove this transient as it should not be used
-      transient { config { nil } }
-
-      after(:build) do |pipeline, evaluator|
-        if evaluator.config
-          # TODO: this should be removed and stubbed explicitly
-          # pipeline.config.instance_variable_set(:@content, YAML.dump(evaluator.config))
-
-          # TODO: remove this too
-          # Populates pipeline with errors
-          # config = Gitlab::Ci::Yaml.new(project: pipeline.project, content: YAML.dump(evaluator.config))
-          # pipeline.yaml_errors = config.errors.join(', ') unless config.valid?
-        else
-          # TODO: this should be removed and stubbed explicitly
-          # pipeline.config.instance_variable_set(:@content, File.read(Rails.root.join('spec/support/gitlab_stubs/gitlab_ci.yml')))
-        end
-      end
-
       trait :invalid do
-        config do
-          { rspec: nil }
-        end
-
+        yaml_errors { 'Invalid YAML' }
         failure_reason { :config_error }
       end
 
