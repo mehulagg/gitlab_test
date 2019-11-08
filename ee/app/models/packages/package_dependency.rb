@@ -12,5 +12,4 @@ class Packages::PackageDependency < ApplicationRecord
 
     Packages::PackageDependency.create(name: name, version_pattern: version_pattern)
   end
-
 end
