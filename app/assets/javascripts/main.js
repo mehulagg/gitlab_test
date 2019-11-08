@@ -33,7 +33,6 @@ import initBreadcrumbs from './breadcrumb';
 import initUsagePingConsent from './usage_ping_consent';
 import initPerformanceBar from './performance_bar';
 import initSearchAutocomplete from './search_autocomplete';
-import initSourcegraph from './sourcegraph';
 import GlFieldErrors from './gl_field_errors';
 import initUserPopovers from './user_popovers';
 import { initUserTracking } from './tracking';
@@ -180,10 +179,6 @@ function deferredInitialisation() {
     if (canaryLink) {
       canaryLink.classList.add('hidden');
     }
-  }
-
-  if (gon.sourcegraph_enabled) {
-    initSourcegraph();
   }
 }
 
