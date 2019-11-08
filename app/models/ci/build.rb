@@ -900,13 +900,6 @@ module Ci
         value.with_indifferent_access
       end
     end
-
-    # TODO: is this used?
-    # def build_attributes_from_config
-    #   return {} unless pipeline.config_processor
-
-    #   pipeline.config_processor.build_attributes(name)
-    # end
   end
 end
 
