@@ -102,15 +102,6 @@ ActiveRecord::Schema.define(version: 2019_11_05_094625) do
     t.index ["project_id", "committed_date", "analytics_repository_file_id"], name: "index_file_commits_on_committed_date_file_id_and_project_id", unique: true
   end
 
-  create_table "analytics_repository_file_edits", force: :cascade do |t|
-    t.bigint "project_id", null: false
-    t.bigint "analytics_repository_file_id", null: false
-    t.date "committed_date", null: false
-    t.integer "num_edits", default: 0, null: false
-    t.index ["analytics_repository_file_id", "committed_date", "project_id"], name: "index_file_edits_on_committed_date_file_id_and_project_id", unique: true
-    t.index ["project_id"], name: "index_analytics_repository_file_edits_on_project_id"
-  end
-
   create_table "analytics_repository_files", force: :cascade do |t|
     t.bigint "project_id", null: false
     t.string "file_path", limit: 4096, null: false
@@ -338,12 +329,12 @@ ActiveRecord::Schema.define(version: 2019_11_05_094625) do
     t.boolean "throttle_incident_management_notification_enabled", default: false, null: false
     t.integer "throttle_incident_management_notification_period_in_seconds", default: 3600
     t.integer "throttle_incident_management_notification_per_period", default: 3600
-    t.string "snowplow_iglu_registry_url", limit: 255
     t.integer "push_event_hooks_limit", default: 3, null: false
     t.integer "push_event_activities_limit", default: 3, null: false
     t.string "custom_http_clone_url_root", limit: 511
     t.boolean "pendo_enabled", default: false, null: false
     t.string "pendo_url", limit: 255
+    t.string "snowplow_iglu_registry_url", limit: 255
     t.integer "deletion_adjourned_period", default: 7, null: false
     t.boolean "eks_integration_enabled", default: false, null: false
     t.string "eks_account_id", limit: 128
@@ -4100,8 +4091,6 @@ ActiveRecord::Schema.define(version: 2019_11_05_094625) do
   add_foreign_key "analytics_language_trend_repository_languages", "projects", on_delete: :cascade
   add_foreign_key "analytics_repository_file_commits", "analytics_repository_files", on_delete: :cascade
   add_foreign_key "analytics_repository_file_commits", "projects", on_delete: :cascade
-  add_foreign_key "analytics_repository_file_edits", "analytics_repository_files", on_delete: :cascade
-  add_foreign_key "analytics_repository_file_edits", "projects", on_delete: :cascade
   add_foreign_key "analytics_repository_files", "projects", on_delete: :cascade
   add_foreign_key "application_settings", "namespaces", column: "custom_project_templates_group_id", on_delete: :nullify
   add_foreign_key "application_settings", "projects", column: "file_template_project_id", name: "fk_ec757bd087", on_delete: :nullify
@@ -4408,7 +4397,7 @@ ActiveRecord::Schema.define(version: 2019_11_05_094625) do
   add_foreign_key "project_statistics", "projects", on_delete: :cascade
   add_foreign_key "project_tracing_settings", "projects", on_delete: :cascade
   add_foreign_key "projects", "pool_repositories", name: "fk_6e5c14658a", on_delete: :nullify
-  add_foreign_key "projects", "users", column: "marked_for_deletion_by_user_id", name: "fk_25d8780d11", on_delete: :nullify
+  add_foreign_key "projects", "users", column: "marked_for_deletion_by_user_id", name: "fk_0a31cca0b8", on_delete: :nullify
   add_foreign_key "prometheus_alert_events", "projects", on_delete: :cascade
   add_foreign_key "prometheus_alert_events", "prometheus_alerts", on_delete: :cascade
   add_foreign_key "prometheus_alerts", "environments", on_delete: :cascade
