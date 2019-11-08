@@ -13,7 +13,6 @@ class Packages::Package < ApplicationRecord
 
   accepts_nested_attributes_for :conan_metadatum
   accepts_nested_attributes_for :maven_metadatum
-  accepts_nested_attributes_for :package_metadatum
 
   delegate :recipe, :recipe_path, to: :conan_metadatum, prefix: :conan
 
