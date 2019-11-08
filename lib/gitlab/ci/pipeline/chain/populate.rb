@@ -6,33 +6,17 @@ module Gitlab
       module Chain
         class Populate < Chain::Base
           include Chain::Helpers
+          include Gitlab::Utils::StrongMemoize
 
           PopulateError = Class.new(StandardError)
 
           def perform!
-            # Allocate next IID. This operation must be outside of transactions of pipeline creations.
-            pipeline.ensure_project_iid!
-
-            # Protect the pipeline. This is assigned in Populate instead of
-            # Build to prevent erroring out on ambiguous refs.
-            pipeline.protected = @command.protected_ref?
-
-            ##
-            # Populate pipeline with block argument of CreatePipelineService#execute.
-            #
-            @command.seeds_block&.call(pipeline)
-
-            ##
-            # Gather all runtime build/stage errors
-            #
-            if seeds_errors = stage_seeds.flat_map(&:errors).compact.presence
-              return error(seeds_errors.join("\n"), config_error: true)
-            end
+            raise ArgumentError, 'missing stage seeds' unless @command.stage_seeds
 
             ##
             # Populate pipeline with all stages, and stages with builds.
             #
-            pipeline.stages = stage_seeds.map(&:to_resource)
+            pipeline.stages = @command.stage_seeds.map(&:to_resource)
 
             if pipeline.stages.none?
               return error('No stages / jobs for this pipeline.')
@@ -47,12 +31,6 @@ module Gitlab
 
           def break?
             pipeline.errors.any?
-          end
-
-          private
-
-          def stage_seeds
-            @stage_seeds ||= @config.processor.stage_seeds(pipeline)
           end
         end
       end

@@ -7,11 +7,13 @@ module Ci
     CreateError = Class.new(StandardError)
 
     SEQUENCE = [Gitlab::Ci::Pipeline::Chain::Build,
-                Gitlab::Ci::Pipeline::Chain::RemoveUnwantedChatJobs,
                 Gitlab::Ci::Pipeline::Chain::Validate::Abilities,
                 Gitlab::Ci::Pipeline::Chain::Validate::Repository,
-                Gitlab::Ci::Pipeline::Chain::Validate::Config,
+                Gitlab::Ci::Pipeline::Chain::Config::Content,
+                Gitlab::Ci::Pipeline::Chain::Config::Process,
+                Gitlab::Ci::Pipeline::Chain::RemoveUnwantedChatJobs,
                 Gitlab::Ci::Pipeline::Chain::Skip,
+                Gitlab::Ci::Pipeline::Chain::Seed,
                 Gitlab::Ci::Pipeline::Chain::Limit::Size,
                 Gitlab::Ci::Pipeline::Chain::Populate,
                 Gitlab::Ci::Pipeline::Chain::Create,
@@ -44,10 +46,8 @@ module Ci
         chat_data: params[:chat_data],
         **extra_options(options))
 
-      config = Gitlab::Ci::Yaml.new(project: project, sha: command.sha, user: current_user)
-
       sequence = Gitlab::Ci::Pipeline::Chain::Sequence
-        .new(pipeline, command, config, SEQUENCE)
+        .new(pipeline, command, SEQUENCE)
 
       sequence.build! do |pipeline, sequence|
         schedule_head_pipeline_update

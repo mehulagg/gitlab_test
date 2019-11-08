@@ -570,12 +570,6 @@ module Ci
       end
     end
 
-    # TODO: remove this from Pipeline
-    # after fixing app/views/projects/pipelines/_with_tabs.html.haml
-    def config
-      @config ||= Ci::Config.new(project, sha)
-    end
-
     def has_yaml_errors?
       yaml_errors.present?
     end
@@ -644,7 +638,7 @@ module Ci
     def predefined_variables
       Gitlab::Ci::Variables::Collection.new.tap do |variables|
         variables.append(key: 'CI_PIPELINE_IID', value: iid.to_s)
-        variables.append(key: 'CI_CONFIG_PATH', value: config.path)
+        variables.append(key: 'CI_CONFIG_PATH', value: ci_yaml_file_path)
         variables.append(key: 'CI_PIPELINE_SOURCE', value: source.to_s)
         variables.append(key: 'CI_COMMIT_MESSAGE', value: git_commit_message.to_s)
         variables.append(key: 'CI_COMMIT_TITLE', value: git_commit_full_title.to_s)
@@ -662,6 +656,14 @@ module Ci
           variables.concat(external_pull_request.predefined_variables)
         end
       end
+    end
+
+    # TODO: this is not-accurate and should be persisted in
+    # `ci_pipelines.config_path`
+    def ci_yaml_file_path
+      return unless repository_source? || unknown_source?
+
+      project.ci_config_path.presence || '.gitlab-ci.yml'
     end
 
     def queued_duration

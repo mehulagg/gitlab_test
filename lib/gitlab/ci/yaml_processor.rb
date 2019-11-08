@@ -88,16 +88,6 @@ module Gitlab
         stage_seeds(pipeline).sum(&:size)
       end
 
-      # TODO: move this to Pipeline::Chain::Populate instead
-      def stage_seeds(pipeline)
-        seeds = stages_attributes.inject([]) do |previous_stages, attributes|
-          seed = Gitlab::Ci::Pipeline::Seed::Stage.new(pipeline, attributes, previous_stages)
-          previous_stages + [seed]
-        end
-
-        seeds.select(&:included?)
-      end
-
       def self.validation_message(content, opts = {})
         return 'Please provide content of .gitlab-ci.yml' if content.blank?
 
