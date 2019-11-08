@@ -1,55 +1,114 @@
 # GitLab Jira integration
 
-GitLab Issues are a powerful tool for discussing ideas, planning work, and tracking work.
-However, many organizations have been using Jira for these purposes and have
-extensive data and business processes built into it.
+GitLab Issues are a powerful tool for discussing ideas, planning work, and tracking work. However, you may have a significant investment in Jira. In that case you have several options:
 
-These organizations have the following options:
+- Migrate from Jira to GitLab.
+- Use Jira permanently as your issue tracker, instead of the GitLab issue tracker.
+- Use Jira temporarily as your issue tracker, and migrate later to the GitLab issue tracker.
+- Use both Jira and the GitLab issue tracker.
 
-- Migrate content and process to GitLab Issues.
-- Use GitLab together with Jira.
+The topics covered here assume you have chosen to continue using Jira, temporarily or permanently.
 
-Integrating GitLab and Jira can be a temporary, or permanent arrangement. For example,
-organizations can integrate the two systems while planning a migration from Jira to
-GitLab.
+## Integration
 
-There are two integration options available:
+Integration of GitLab and Jira enables the following features:
 
-- Basic integration
+- Mention of a Jira issue's ID in a GitLab commit or merge request results in a link to the issue.
+- Jira issue comments can be added in a Git commit.
+- A Jira issue can be closed with a Git commit.
+
+For more details, see [integration features](#integration-features).
+
+## Integration methods
+
+There are two options for integrating GitLab and Jira:
+
+- GitLab Project Services
 - Jira development panel
 
-Integrating GitLab and Jira provides the following features:
+GitLab Project Services enables you to link Git commits and merge requests to Jira issues. The Jira development panel is shown on the Jira View Issue screen and provides links to the relevant commits, branches, and merge requests. Each method can be used alone, or they can be used together.
 
-- Cross-reference GitLab commits and MRs with Jira issues.
-- Add comments to Jira issues with Git commits.
-- Close a Jira issue with Git commits.
-- Transition a Jira issue with Git commits.[^1]
-- Record time tracking information against an issue.[^1]
+| Compatibility | GitLab.com | Self-hosted GitLab |
+|:--------------|:-----------|:-------------------|
+| Jira Server   | ✓          | ✓                  |
+| Jira Cloud    | ✓          | ✓                  |
 
-[^1] Only available with the Jira development panel.
+## Integration features
 
----
+The GitLab and Jira integration options can be used simultaneously. Before deciding which integration option to implement, it's important to understand the features of each.
+
+| Feature                                                 | GitLab Project Services | Jira development panel |
+|:--------------------------------------------------------|:------------------------|:-----------------------|
+| One GitLab project connects to a Jira instance          | ✓                       |                        |
+| All GitLab projects connect to a Jira instance          |                         | ✓                      |
+| Cross-reference GitLab commits and MRs with Jira issues | ✓                       | ✓                      |
+| Add comments to Jira issues with Git commits            | ✓                       | ✓                      |
+| Close a Jira issue with a Git commit                    | ✓                       | ✓                      |
+| Transition a Jira issue with a Git commit               |                         | ✓                      |
+| Record time tracking information against an issue       |                         | ✓                      |
 
 For a video demonstration of integration with Jira, watch [GitLab workflow with Jira issues and Jenkins pipelines](https://youtu.be/Jn-_fyra7xQ).
+
+## Enabling integration
+
+To enable integration of GitLab and Jira, you need:
+
+- Administrator access to Jira
+- Administrator access to GitLab
+
+NOTE: **Note:**
+- Only Jira versions `v6.x` and `v7.x.` are supported.
+- GitLab 7.8 or higher is required.
+- For GitLab 8.13 and earlier, you must follow [alternate instructions][jira-repo-old-docs].
+- To support Oracle's Access Manager, GitLab will send additional cookies to enable Basic Auth. The cookie being added to each request is `OBBasicAuth` with a value of `fromDialog`.
+
+### Enabling GitLab's Project Services integration with Jira
+
+To enable GitLab's Project Services integration with Jira, complete the following tasks:
+
+1. [Enabling GitLab's access to Jira](#enabling-gitlabs-access-to-jira).
+1. Configuring Jira.
+1. Configuring GitLab.
+
+### Enabling the Jira development panel integration with GitLab
+
+To enable the Jira development panel integration with GitLab, complete the following tasks:
+
+1. Enable Jira access to GitLab.
+1. Configure the Jira development panel.
+1. Configure GitLab.
+
+#### Enabling GitLab's access to Jira
+
+> NOTE: **Note:**
+>
+> - This procedure can only be completed by a Jira administrator.
+> - Atlassian [deprecated](https://developer.atlassian.com/cloud/jira/platform/deprecation-notice-basic-auth-and-cookie-based-auth/)  basic authentication from June 3rd, 2019. Access to Jira via the API requires use of an access token. Instructions for obtaining a token are included in this section.
+
+GitLab's Project Services integration requires write access to the relevant Jira projects.
+
+Complete the following procedure, depending on which product you're using:
+
+- [Enable access to Jira Server](jira_server_configuration.md).
+- [Enable access to Jira Cloud](jira_cloud_configuration.md).
+
+#### Configuring Jira
+
+
+
+#### Requirements
+
+Each GitLab project can be configured to connect to an entire Jira instance. That means one GitLab project can interact with _all_ Jira projects in that instance. If you have one Jira instance, you can pre-fill the settings page with a default
+template. See the [Services Templates][services-templates] docs.
+
+In order to enable the Jira service in GitLab, you need to first configure the project in Jira and then enter the correct values in GitLab.
+
+---
 
 Once you integrate your GitLab project with your Jira instance, you can automatically
 detect and cross-reference activity between the GitLab project and any of your projects
 in Jira. This includes the ability to close or transition Jira issues when the work
 is completed in GitLab.
-
-Here's how the integration responds when you take the following actions in GitLab:
-
-- **Mention a Jira issue ID** in a commit message or MR (merge request).
-  - GitLab hyperlinks to the Jira issue.
-  - The Jira issue adds an issue link to the commit/MR in GitLab.
-  - The Jira issue adds a comment reflecting the comment made in GitLab, the comment author, and a link to the commit/MR in GitLab.
-- **Mention that a commit or MR 'closes', 'resolves', or 'fixes' a Jira issue ID**. When the commit is made on master or the change is merged to master:
-  - GitLab's merge request page displays a note that it "Closed" the Jira issue, with a link to the issue. (Note: Before the merge, an MR will display that it "Closes" the Jira issue.)
-  - The Jira issue shows the activity and the Jira issue is closed, or otherwise transitioned.
-
-You can also use [Jira's Smart Commits](https://confluence.atlassian.com/fisheye/using-smart-commits-298976812.html)
-directly from GitLab, as covered in the article
-[How and why to integrate GitLab with Jira](https://www.programmableweb.com/news/how-and-why-to-integrate-gitlab-Jira/how-to/2017/04/25).
 
 ## Configuration
 
