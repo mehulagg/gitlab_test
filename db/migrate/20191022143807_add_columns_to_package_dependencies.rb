@@ -10,10 +10,11 @@ class AddColumnsToPackageDependencies < ActiveRecord::Migration[5.2]
 
   def up
     add_column :packages_package_dependencies, :version_pattern, :string, limit: 255
+    add_column :packages_package_dependencies, :name, :string, limit: 255
   end
 
   def down
-    add_column :packages_package_dependencies, :name, :string, limit: 255
-    add_column :packages_package_dependencies, :metadata, :binary
+    remove_column :packages_package_dependencies, :name
+    remove_column :packages_package_dependencies, :version_pattern
   end
 end

@@ -3,6 +3,7 @@ class Packages::PackageDependency < ApplicationRecord
   belongs_to :package
   has_many :package_dependency_links
   validates :package, presence: true
+  self.ignored_columns += %i[metadata]
 
   def self.find_or_create_by_version_pattern(name, version_pattern)
     package_dependency = Packages::PackageDependency.find_by(version_pattern: version_pattern)
@@ -11,4 +12,5 @@ class Packages::PackageDependency < ApplicationRecord
 
     Packages::PackageDependency.create(name: name, version_pattern: version_pattern)
   end
+
 end
