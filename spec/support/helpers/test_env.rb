@@ -104,6 +104,8 @@ module TestEnv
 
     setup_gitaly
 
+    setup_gitlab_pages
+
     # Create repository for FactoryBot.create(:project)
     setup_factory_repo
 
@@ -158,6 +160,18 @@ module TestEnv
         Gitlab::SetupHelper.create_gitaly_configuration(gitaly_dir, { 'default' => repos_path }, force: true)
         start_gitaly(gitaly_dir)
       end
+  end
+
+  def setup_gitlab_pages
+    pages_url = 'https://gitlab.com/gitlab-org/gitlab-pages.git'
+    pages_dir = File.join(Rails.root, 'tmp/tests/gitlab-pages')
+    install_pages_args = [pages_dir, pages_url].compact.join(',')
+
+    component_timed_setup('GitLab Pages',
+                          install_dir: pages_dir,
+                          version: Gitlab::Pages::VERSION,
+                          task: "gitlab:pages:install[#{install_pages_args}]"
+                         )
   end
 
   def gitaly_socket_path
@@ -343,6 +357,7 @@ module TestEnv
     @test_dirs ||= %w[
       frontend
       gitaly
+      gitlab-pages
       gitlab-shell
       gitlab-test
       gitlab-test_bare
