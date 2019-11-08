@@ -221,6 +221,7 @@ The Praefect configuration must be kept in sync on all servers.
      }
    })
    ```
+   
    - **praefect-gitaly-3**:
 
    ```ruby
