@@ -26,21 +26,30 @@ For this document, the following network topology is assumed:
 graph TB
   subgraph "GitLab Server"
   GitLab-Rails -.-> Local-Gitaly;
-  GitLab-Rails -.-> Praefect;
+  GitLab-Rails -.-> Praefect-Main;
   end
-  Praefect --> Praefect-Gitaly-1;
-  Praefect --> Praefect-Gitaly-2;
-  Praefect --> Praefect-Gitaly-3;
+  subgraph "Gitaly 3"
+  Praefect-Main --> Gitaly-3;
+  Gitaly-3 -.-> Local-Praefect-3
+  end
+  subgraph "Gitaly 2"
+  Praefect-Main --> Gitaly-2;
+  Gitaly-2 -.-> Local-Praefect-2
+  end
+  subgraph "Gitaly 1"
+  Praefect-Main --> Gitaly-1;
+  Gitaly-1 -.-> Local-Praefect-1
+  end
 ```
 
 `GitLab Server` is a standard Omnibus GitLab installation.
 `Local-Gitaly` is a Gitaly daemon running on the GitLab server using local storage.
 `Praefect` is also run locally and does not store any repository data. Instead,
-it connects to three Gitaly nodes, `Praefect-Gitaly-1`,  `Praefect-Gitaly-2`,
-and `Praefect-Gitaly-3`.
+it connects to three Gitaly nodes, `Gitaly-1`,  `Gitaly-2`,
+and `Gitaly-3`.
 
-Praefect may be run on GitLab application server or on its own node; in the example below
-we will run it on the GitLab server.
+Praefect is run on GitLab application as service. In addition, Praefect will also run on each Gitaly
+node to enable inter-Gitaly communication.
 
 Praefect will handle all Gitaly RPC requests to its child nodes. However, the child nodes
 will still need to communicate with the GitLab server via its internal API for authentication
@@ -166,7 +175,30 @@ your GitLab application server.
    gitaly['listen_addr'] = "0.0.0.0:8075"
    ```
 
-1. Copy all of settings starting with `praefect` from your GitLab server and paste them into the file.
+1. Copy the `praefect` settings from your GitLab server and paste them into the file.
+The Praefect configuration must be kept in sync on all servers.
+
+   ```ruby
+   praefect['enable'] = true
+   praefect['listen_addr'] = 'localhost:2305'
+   praefect['auth_token'] = 'praefect_token'
+   praefect['virtual_storage_name'] = 'praefect'
+   praefect['storage_nodes'] = {
+     'praefect-gitaly-1' => {
+       'address' => 'tcp://gitaly-1.example.com:8075',
+       'token'   => 'praefect_gitaly_token',
+       'primary' => true
+     },
+     'praefect-gitaly-2' => {
+       'address' => 'tcp://gitaly-2.example.com:8075',
+       'token'   => 'praefect_gitaly_token'
+     },
+     'praefect-gitaly-3' => {
+       'address' => 'tcp://gitaly-3.example.com:8075',
+       'token'   => 'praefect_gitaly_token'
+     }
+   }
+   ```
 
 1. Append the following for each respective server:
 
