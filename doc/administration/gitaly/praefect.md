@@ -28,15 +28,15 @@ graph TB
   GitLab-Rails -.-> Local-Gitaly;
   GitLab-Rails -.-> Praefect-Main;
   end
-  subgraph "Gitaly 3"
+  subgraph "Gitaly Server 3"
   Praefect-Main --> Gitaly-3;
   Gitaly-3 -.-> Local-Praefect-3
   end
-  subgraph "Gitaly 2"
+  subgraph "Gitaly Server 2"
   Praefect-Main --> Gitaly-2;
   Gitaly-2 -.-> Local-Praefect-2
   end
-  subgraph "Gitaly 1"
+  subgraph "Gitaly Server 1"
   Praefect-Main --> Gitaly-1;
   Gitaly-1 -.-> Local-Praefect-1
   end
@@ -202,7 +202,8 @@ The Praefect configuration must be kept in sync on all servers.
 
 1. Append the following for each respective server:
 
-   * **praefect-gitaly-1**:
+   - **praefect-gitaly-1**:
+
    ```ruby
    git_data_dirs({
      'praefect-gitaly-1' => {
@@ -211,7 +212,8 @@ The Praefect configuration must be kept in sync on all servers.
    })
    ```
 
-   * **praefect-gitaly-2**:
+   - **praefect-gitaly-2**:
+
    ```ruby
    git_data_dirs({
      'praefect-gitaly-2' => {
@@ -219,7 +221,8 @@ The Praefect configuration must be kept in sync on all servers.
      }
    })
    ```
-   * **praefect-gitaly-3**:
+   - **praefect-gitaly-3**:
+
    ```ruby
    git_data_dirs({
      'praefect-gitaly-3' => {
@@ -227,7 +230,6 @@ The Praefect configuration must be kept in sync on all servers.
      }
    })
    ```
-
 
 1. Save your changes and [reconfigure the Gitaly servers](../restart_gitlab.md#omnibus-gitlab-reconfigure).
 
@@ -241,19 +243,19 @@ create a new project and check the "Initialize repository with a README" box.
 
 If you receive an error, check `/var/log/gitlab/gitlab-rails/production.log`.
 
-Here are common errors and their causes:
+Here are common errors and potential causes:
 
-  * 500 response code
-    * **ActionView::Template::Error (7:permission denied)**
-      * `praefect['auth_token']` and `gitlab_rails['gitaly_token']` do not match on the GitLab server
-    * **Unable to save project. Error: 7:permission denied**
-      * Secret token in `praefect['storage_nodes']` on GitLab server does not match the 
-       value in `gitaly['auth_token']` on one or more Gitaly servers
-  * 503 response code
-    * **GRPC::Unavailable (14:failed to connect to all addresses)**
-      * GitLab was unable to reach Praefect
-    * **GRPC::Unavailable (14:all SubCons are in TransientFailure...)**
-      * Praefect cannot reach one or more of its child Gitaly nodes
+- 500 response code
+  - **ActionView::Template::Error (7:permission denied)**
+    - `praefect['auth_token']` and `gitlab_rails['gitaly_token']` do not match on the GitLab server
+  - **Unable to save project. Error: 7:permission denied**
+    - Secret token in `praefect['storage_nodes']` on GitLab server does not match the
+      value in `gitaly['auth_token']` on one or more Gitaly servers
+- 503 response code
+  - **GRPC::Unavailable (14:failed to connect to all addresses)**
+    - GitLab was unable to reach Praefect
+  - **GRPC::Unavailable (14:all SubCons are in TransientFailure...)**
+    - Praefect cannot reach one or more of its child Gitaly nodes
 
 If the project is created but the README is not, or if creating new files fails
 after project creation, then ensure that the`/etc/gitlab/gitlab-secrets.json` file
