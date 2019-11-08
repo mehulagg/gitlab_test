@@ -1191,10 +1191,10 @@
     consola "^2.3.0"
     node-fetch "^2.3.0"
 
-"@sourcegraph/code-host-integration@^0.0.10":
-  version "0.0.10"
-  resolved "https://registry.yarnpkg.com/@sourcegraph/code-host-integration/-/code-host-integration-0.0.10.tgz#6e93c3808de35fdeda052d10be29f19012d0a236"
-  integrity sha512-gzbpeD+es+8AkmW5nUvElF5tDWymQEzQ0EunHw2Wp0Tb8ZjWtncI2bdSJBmHYgCE6PP5HYfwThomEFwedXK+tQ==
+"@sourcegraph/code-host-integration@^0.0.11":
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/@sourcegraph/code-host-integration/-/code-host-integration-0.0.11.tgz#2d2f51b0729013f99637d834b79516c94f013257"
+  integrity sha512-mo+jzDfN58wOXwRXBFyAqphN3LRq2BFqyI9+Poa5TZqrYAqwXz1JhDKlw+dUnKgrgF5XInSCIPB4miq2rbtbXQ==
 
 "@types/anymatch@*":
   version "1.3.0"
