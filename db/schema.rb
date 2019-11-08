@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_12_115317) do
+ActiveRecord::Schema.define(version: 2019_11_07_173446) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -353,6 +353,7 @@ ActiveRecord::Schema.define(version: 2019_11_12_115317) do
     t.datetime_with_timezone "productivity_analytics_start_date"
     t.boolean "sourcegraph_enabled", default: false, null: false
     t.string "sourcegraph_url", limit: 255
+    t.boolean "sourcegraph_public_only", default: true, null: false
     t.index ["custom_project_templates_group_id"], name: "index_application_settings_on_custom_project_templates_group_id"
     t.index ["file_template_project_id"], name: "index_application_settings_on_file_template_project_id"
     t.index ["instance_administration_project_id"], name: "index_applicationsettings_on_instance_administration_project_id"
@@ -3765,6 +3766,7 @@ ActiveRecord::Schema.define(version: 2019_11_12_115317) do
     t.string "projects_sort", limit: 64
     t.boolean "show_whitespace_in_diffs", default: true, null: false
     t.boolean "setup_for_company"
+    t.boolean "sourcegraph_enabled"
     t.index ["user_id"], name: "index_user_preferences_on_user_id", unique: true
   end
 
