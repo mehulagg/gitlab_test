@@ -126,6 +126,9 @@ auth tokens from Praefect instead of GitLab.
 Note that just as with a standard Gitaly server, `/etc/gitlab/gitlab-secrets.json` must
 be copied from the GitLab server to the Gitaly node for authentication purposes.
 
+Update `gitlab_rails['internal_api_url']` with the external URL or internal address of
+your GitLab application server.
+
 `gitaly['auth_token']` must match the `token` value for that node listed under
 `praefect['storage_nodes']` on the GitLab server.
 
@@ -163,6 +166,8 @@ be copied from the GitLab server to the Gitaly node for authentication purposes.
    gitaly['listen_addr'] = "0.0.0.0:8075"
    ```
 
+1. Copy all of settings starting with `praefect` from your GitLab server and paste them into the file.
+
 1. Append the following for each respective server:
 
    * **praefect-gitaly-1**:
@@ -190,6 +195,7 @@ be copied from the GitLab server to the Gitaly node for authentication purposes.
      }
    })
    ```
+
 
 1. Save your changes and [reconfigure the Gitaly servers](../restart_gitlab.md#omnibus-gitlab-reconfigure).
 
