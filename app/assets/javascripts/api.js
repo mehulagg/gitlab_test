@@ -403,10 +403,15 @@ const Api = {
     return axios.post(url);
   },
 
-  releases(id) {
+  releases(id, options = {}) {
     const url = Api.buildUrl(this.releasesPath).replace(':id', encodeURIComponent(id));
 
-    return axios.get(url);
+    return axios.get(url, {
+      params: {
+        per_page: 20,
+        ...options,
+      },
+    });
   },
 
   release(projectPath, tagName) {
