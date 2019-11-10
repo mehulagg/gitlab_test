@@ -10,7 +10,7 @@ class RemoveMetadataColumnsDependency < ActiveRecord::Migration[5.2]
   DOWNTIME = false
 
   def up
-    remove_column :packages_package_dependencies, :metadata
+    remove_column :packages_package_metadata, :metadata
   end
 
   def down

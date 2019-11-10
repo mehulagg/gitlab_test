@@ -16,5 +16,4 @@ class RenamePackageMetadataTable < ActiveRecord::Migration[5.2]
   def down
     rename_table :packages_package_dependencies, :packages_package_metadata
   end
-
 end
