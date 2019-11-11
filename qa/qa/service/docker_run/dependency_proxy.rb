@@ -14,7 +14,7 @@ module QA
 
         def pull
           super()
-          shell %Q{docker image rm #{@image}}
+          shell %Q{DOCKER_TLS_CERTDIR="" docker image rm #{@image}}
         end
       end
     end
