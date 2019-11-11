@@ -1,0 +1,5 @@
+---
+title: Revert Auto-DevOps helm to v2.14.0
+merge_request: 19910
+author:
+type: fixed
