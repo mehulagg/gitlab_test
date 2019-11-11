@@ -52,6 +52,12 @@ module API
       optional :domain_blacklist_enabled, type: Boolean, desc: 'Enable domain blacklist for sign ups'
       optional :domain_blacklist, type: Array[String], coerce_with: Validations::Types::CommaSeparatedToArray.coerce, desc: 'Users with e-mail addresses that match these domain(s) will NOT be able to sign-up. Wildcards allowed. Use separate lines for multiple entries. Ex: domain.com, *.domain.com'
       optional :domain_whitelist, type: Array[String], coerce_with: Validations::Types::CommaSeparatedToArray.coerce, desc: 'ONLY users with e-mail addresses that match these domain(s) will be able to sign-up. Wildcards allowed. Use separate lines for multiple entries. Ex: domain.com, *.domain.com'
+      optional :eks_integration_enabled, type: Boolean, desc: 'Enable integration with Amazon EKS'
+      given eks_integration_enabled: -> (val) { val } do
+        requires :eks_account_id, type: String, desc: 'Amazon account ID for EKS integration'
+        requires :eks_access_key_id, type: String, desc: 'Access key ID for the EKS integration IAM user'
+        requires :eks_secret_access_key, type: String, desc: 'Secret access key for the EKS integration IAM user'
+      end
       optional :email_author_in_body, type: Boolean, desc: 'Some email servers do not support overriding the email sender name. Enable this option to include the name of the author of the issue, merge request or comment in the email body instead.'
       optional :enabled_git_access_protocol, type: String, values: %w[ssh http nil], desc: 'Allow only the selected protocols to be used for Git access.'
       optional :gitaly_timeout_default, type: Integer, desc: 'Default Gitaly timeout, in seconds. Set to 0 to disable timeouts.'
@@ -139,7 +145,7 @@ module API
       given snowplow_enabled: ->(val) { val } do
         requires :snowplow_collector_hostname, type: String, desc: 'The Snowplow collector hostname'
         optional :snowplow_cookie_domain, type: String, desc: 'The Snowplow cookie domain'
-        optional :snowplow_site_id, type: String, desc: 'The Snowplow site name / application ic'
+        optional :snowplow_app_id, type: String, desc: 'The Snowplow site name / application id'
       end
       optional :pendo_enabled, type: Grape::API::Boolean, desc: 'Enable Pendo tracking'
       given pendo_enabled: ->(val) { val } do

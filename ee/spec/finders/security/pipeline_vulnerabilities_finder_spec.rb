@@ -22,6 +22,7 @@ describe Security::PipelineVulnerabilitiesFinder do
   describe '#execute' do
     set(:project) { create(:project, :repository) }
     set(:pipeline) { create(:ci_pipeline, :success, project: project) }
+    let(:params) { {} }
 
     set(:build_cs) { create(:ci_build, :success, name: 'cs_job', pipeline: pipeline, project: project) }
     set(:build_dast) { create(:ci_build, :success, name: 'dast_job', pipeline: pipeline, project: project) }
@@ -52,6 +53,10 @@ describe Security::PipelineVulnerabilitiesFinder do
 
     subject { described_class.new(pipeline: pipeline, params: params).execute }
 
+    it 'assigns commit sha to findings' do
+      expect(subject.map(&:sha).uniq).to eq [pipeline.sha]
+    end
+
     context 'by order' do
       let(:params) { { report_type: %w[sast] } }
       let!(:high_high) { build(:vulnerabilities_occurrence, confidence: :high, severity: :high) }
@@ -78,24 +83,30 @@ describe Security::PipelineVulnerabilitiesFinder do
     context 'by report type' do
       context 'when sast' do
         let(:params) { { report_type: %w[sast] } }
+        let(:sast_report_fingerprints) {pipeline.security_reports.reports['sast'].occurrences.map(&:location).map(&:fingerprint) }
 
         it 'includes only sast' do
+          expect(subject.map(&:location_fingerprint)).to match_array(sast_report_fingerprints)
           expect(subject.count).to eq sast_count
         end
       end
 
       context 'when dependency_scanning' do
         let(:params) { { report_type: %w[dependency_scanning] } }
+        let(:ds_report_fingerprints) {pipeline.security_reports.reports['dependency_scanning'].occurrences.map(&:location).map(&:fingerprint) }
 
         it 'includes only dependency_scanning' do
+          expect(subject.map(&:location_fingerprint)).to match_array(ds_report_fingerprints)
           expect(subject.count).to eq ds_count
         end
       end
 
       context 'when dast' do
         let(:params) { { report_type: %w[dast] } }
+        let(:dast_report_fingerprints) {pipeline.security_reports.reports['dast'].occurrences.map(&:location).map(&:fingerprint) }
 
         it 'includes only dast' do
+          expect(subject.map(&:location_fingerprint)).to match_array(dast_report_fingerprints)
           expect(subject.count).to eq dast_count
         end
       end
@@ -104,6 +115,8 @@ describe Security::PipelineVulnerabilitiesFinder do
         let(:params) { { report_type: %w[container_scanning] } }
 
         it 'includes only container_scanning' do
+          fingerprints = pipeline.security_reports.reports['container_scanning'].occurrences.map(&:location).map(&:fingerprint)
+          expect(subject.map(&:location_fingerprint)).to match_array(fingerprints)
           expect(subject.count).to eq cs_count
         end
       end

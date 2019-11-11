@@ -212,6 +212,10 @@ are listed in the descriptions of the relevant settings.
 | `dsa_key_restriction`                    | integer          | no                                   | The minimum allowed bit length of an uploaded DSA key. Default is `0` (no restriction). `-1` disables DSA keys. |
 | `ecdsa_key_restriction`                  | integer          | no                                   | The minimum allowed curve size (in bits) of an uploaded ECDSA key. Default is `0` (no restriction). `-1` disables ECDSA keys. |
 | `ed25519_key_restriction`                | integer          | no                                   | The minimum allowed curve size (in bits) of an uploaded ED25519 key. Default is `0` (no restriction). `-1` disables ED25519 keys. |
+| `eks_integration_enabled`                | boolean          | no                                   | Enable integration with Amazon EKS |
+| `eks_account_id`                         | string           | no                                   | Amazon account ID |
+| `eks_access_key_id`                      | string           | no                                   | AWS IAM access key ID |
+| `eks_secret_access_key`                  | string           | no                                   | AWS IAM secret access key |
 | `elasticsearch_aws_access_key`           | string           | no                                   | **(PREMIUM)** AWS IAM access key |
 | `elasticsearch_aws`                      | boolean          | no                                   | **(PREMIUM)** Enable the use of AWS hosted Elasticsearch |
 | `elasticsearch_aws_region`               | string           | no                                   | **(PREMIUM)** The AWS region the Elasticsearch domain is configured |
@@ -315,7 +319,7 @@ are listed in the descriptions of the relevant settings.
 | `snowplow_collector_hostname`            | string           | required by: `snowplow_enabled`      | The Snowplow collector hostname. (e.g. `snowplow.trx.gitlab.net`) |
 | `snowplow_cookie_domain`                 | string           | no                                   | The Snowplow cookie domain. (e.g. `.gitlab.com`) |
 | `snowplow_enabled`                       | boolean          | no                                   | Enable snowplow tracking. |
-| `snowplow_site_id`                       | string           | no                                   | The Snowplow site name / application id. (e.g. `gitlab`) |
+| `snowplow_app_id`                        | string           | no                                   | The Snowplow site name / application id. (e.g. `gitlab`) |
 | `snowplow_iglu_registry_url`             | string           | no                                   | The Snowplow base Iglu Schema Registry URL to use for custom context and self describing events'|
 | `pendo_url`                              | string           | required by: `pendo_enabled`         | The Pendo endpoint url with js snippet. (e.g. `https://cdn.pendo.io/agent/static/your-api-key/pendo.js`) |
 | `pendo_enabled`                          | boolean          | no                                   | Enable pendo tracking. |

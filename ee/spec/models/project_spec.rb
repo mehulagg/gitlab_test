@@ -1417,6 +1417,31 @@ describe Project do
     end
   end
 
+  describe '#latest_pipeline_with_reports' do
+    let(:project) { create(:project) }
+    let!(:pipeline_1) { create(:ee_ci_pipeline, :with_sast_report, project: project) }
+    let!(:pipeline_2) { create(:ee_ci_pipeline, :with_sast_report, project: project) }
+    let!(:pipeline_3) { create(:ee_ci_pipeline, :with_dependency_scanning_report, project: project) }
+
+    subject { project.latest_pipeline_with_reports(reports) }
+
+    context 'when reports are found' do
+      let(:reports) { ::Ci::JobArtifact.sast_reports }
+
+      it "returns the latest pipeline with reports of right type" do
+        is_expected.to eq(pipeline_2)
+      end
+    end
+
+    context 'when reports are not found' do
+      let(:reports) { ::Ci::JobArtifact.metrics_reports }
+
+      it 'returns nothing' do
+        is_expected.to be_nil
+      end
+    end
+  end
+
   describe '#protected_environment_by_name' do
     let(:project) { create(:project) }
 
@@ -1875,27 +1900,29 @@ describe Project do
     end
   end
 
-  describe "#design_management_enabled?" do
+  describe '#design_management_enabled?' do
     let(:project) { build(:project) }
 
-    where(
-      feature_enabled: [false, true],
-      license_enabled: [false, true],
-      lfs_enabled: [false, true]
-    )
+    where(:feature_enabled, :license_enabled, :lfs_enabled, :hashed_storage_enabled, :hash_storage_required, :expectation) do
+      false | false | false | false | false | false
+      true  | false | false | false | false | false
+      true  | true  | false | false | false | false
+      true  | true  | true  | false | false | true
+      true  | true  | true  | false | true  | false
+      true  | true  | true  | true  | false | true
+      true  | true  | true  | true  | true  | true
+    end
 
     with_them do
       before do
         stub_licensed_features(design_management: license_enabled)
-        stub_feature_flags(design_management_flag: feature_enabled)
+        stub_feature_flags(design_management_flag: feature_enabled, design_management_require_hashed_storage: hash_storage_required)
         expect(project).to receive(:lfs_enabled?).and_return(lfs_enabled)
+        allow(project).to receive(:hashed_storage?).with(:repository).and_return(hashed_storage_enabled)
       end
 
-      # Design management is only available if all dependencies are enabled
-      let(:expected) { feature_enabled && license_enabled && lfs_enabled }
-
-      it "knows if design management is available" do
-        expect(project.design_management_enabled?).to be(expected)
+      it do
+        expect(project.design_management_enabled?).to be(expectation)
       end
     end
   end

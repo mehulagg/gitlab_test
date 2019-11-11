@@ -42,6 +42,8 @@ module EE
 
       has_many :users_ops_dashboard_projects
       has_many :ops_dashboard_projects, through: :users_ops_dashboard_projects, source: :project
+      has_many :users_security_dashboard_projects
+      has_many :security_dashboard_projects, through: :users_security_dashboard_projects, source: :project
 
       has_many :group_saml_identities, -> { where.not(saml_provider_id: nil) }, source: :identities, class_name: "::Identity"
 
@@ -183,11 +185,6 @@ module EE
       self.auditor = (new_level == 'auditor')
     end
 
-    # Does the user have access to all private groups & projects?
-    def full_private_access?
-      super || auditor?
-    end
-
     def email_opted_in_source
       email_opted_in_source_id == EMAIL_OPT_IN_SOURCE_ID_GITLAB_COM ? 'GitLab.com' : ''
     end
@@ -232,6 +229,13 @@ module EE
       ::Namespace
         .from("(#{namespace_union(:trial_ends_on)}) #{::Namespace.table_name}")
         .where('trial_ends_on > ?', Time.now.utc)
+        .any?
+    end
+
+    def any_namespace_without_trial?
+      ::Namespace
+        .from("(#{namespace_union(:trial_ends_on)}) #{::Namespace.table_name}")
+        .where(trial_ends_on: nil)
         .any?
     end
 
@@ -295,6 +299,7 @@ module EE
       super
     end
 
+    override :internal?
     def internal?
       super || bot?
     end
