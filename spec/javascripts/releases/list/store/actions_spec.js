@@ -7,8 +7,9 @@ import {
 import state from '~/releases/list/store/state';
 import * as types from '~/releases/list/store/mutation_types';
 import api from '~/api';
+import { historyPushState, buildUrlWithCurrentLocation } from '~/lib/utils/common_utils';
 import testAction from 'spec/helpers/vuex_action_helper';
-import { releases } from '../../mock_data';
+import { pageInfo, pageInfoHeaders, releases } from '../../mock_data';
 
 describe('Releases State actions', () => {
   let mockedState;
@@ -25,12 +26,16 @@ describe('Releases State actions', () => {
 
   describe('fetchReleases', () => {
     describe('success', () => {
-      it('dispatches requestReleases and receiveReleasesSuccess ', done => {
-        spyOn(api, 'releases').and.returnValue(Promise.resolve({ data: releases }));
+      it('dispatches requestReleases and receiveReleasesSuccess', done => {
+        spyOn(api, 'releases').and.callFake((id, options) => {
+          expect(id).toEqual(1);
+          expect(options.page).toEqual('1');
+          return Promise.resolve({ data: releases, headers: pageInfoHeaders });
+        });
 
         testAction(
           fetchReleases,
-          releases,
+          1,
           mockedState,
           [],
           [
@@ -38,7 +43,34 @@ describe('Releases State actions', () => {
               type: 'requestReleases',
             },
             {
-              payload: releases,
+              payload: { data: releases, headers: pageInfoHeaders },
+              type: 'receiveReleasesSuccess',
+            },
+          ],
+          done,
+        );
+      });
+
+      it('dispatches requestReleases and receiveReleasesSuccess on page two', done => {
+        spyOn(api, 'releases').and.callFake((_, options) => {
+          expect(options.page).toEqual('2');
+          historyPushState(buildUrlWithCurrentLocation(''));
+          return Promise.resolve({ data: releases, headers: pageInfoHeaders });
+        });
+
+        historyPushState(buildUrlWithCurrentLocation(`?page=2`));
+
+        testAction(
+          fetchReleases,
+          null,
+          mockedState,
+          [],
+          [
+            {
+              type: 'requestReleases',
+            },
+            {
+              payload: { data: releases, headers: pageInfoHeaders },
               type: 'receiveReleasesSuccess',
             },
           ],
@@ -48,7 +80,7 @@ describe('Releases State actions', () => {
     });
 
     describe('error', () => {
-      it('dispatches requestReleases and receiveReleasesError ', done => {
+      it('dispatches requestReleases and receiveReleasesError', done => {
         spyOn(api, 'releases').and.returnValue(Promise.reject());
 
         testAction(
@@ -74,9 +106,9 @@ describe('Releases State actions', () => {
     it('should commit RECEIVE_RELEASES_SUCCESS mutation', done => {
       testAction(
         receiveReleasesSuccess,
-        releases,
+        { data: releases, headers: pageInfoHeaders },
         mockedState,
-        [{ type: types.RECEIVE_RELEASES_SUCCESS, payload: releases }],
+        [{ type: types.RECEIVE_RELEASES_SUCCESS, payload: { pageInfo, data: releases } }],
         [],
         done,
       );

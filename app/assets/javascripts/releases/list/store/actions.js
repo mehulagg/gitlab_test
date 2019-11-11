@@ -23,14 +23,13 @@ export const fetchReleases = ({ dispatch }, projectId) => {
   dispatch('requestReleases');
 
   api
-    .releases(projectId, { page: page })
+    .releases(projectId, { page })
     .then(response => dispatch('receiveReleasesSuccess', response))
     .catch(() => dispatch('receiveReleasesError'));
 };
 
-export const receiveReleasesSuccess = ({ commit }, resp) => {
-  const data = resp.data;
-  const pageInfo = parseIntPagination(normalizeHeaders(resp.headers));
+export const receiveReleasesSuccess = ({ commit }, { data, headers }) => {
+  const pageInfo = parseIntPagination(normalizeHeaders(headers));
   commit(types.RECEIVE_RELEASES_SUCCESS, { data, pageInfo });
 };
 

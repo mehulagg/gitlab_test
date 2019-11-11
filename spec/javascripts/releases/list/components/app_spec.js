@@ -4,7 +4,12 @@ import createStore from '~/releases/list/store';
 import api from '~/api';
 import { mountComponentWithStore } from 'spec/helpers/vue_mount_component_helper';
 import { resetStore } from '../store/helpers';
-import { releases } from '../../mock_data';
+import {
+  pageInfoHeaders,
+  pageInfoHeadersPagination,
+  releases,
+  releasesPagination,
+} from '../../mock_data';
 
 describe('Releases App ', () => {
   const Component = Vue.extend(app);
@@ -28,7 +33,7 @@ describe('Releases App ', () => {
 
   describe('while loading', () => {
     beforeEach(() => {
-      spyOn(api, 'releases').and.returnValue(Promise.resolve({ data: [] }));
+      spyOn(api, 'releases').and.returnValue(Promise.resolve({ data: [], headers: {} }));
       vm = mountComponentWithStore(Component, { props, store });
     });
 
@@ -36,6 +41,7 @@ describe('Releases App ', () => {
       expect(vm.$el.querySelector('.js-loading')).not.toBeNull();
       expect(vm.$el.querySelector('.js-empty-state')).toBeNull();
       expect(vm.$el.querySelector('.js-success-state')).toBeNull();
+      expect(vm.$el.querySelector('.gl-pagination')).toBeNull();
 
       setTimeout(() => {
         done();
@@ -45,7 +51,9 @@ describe('Releases App ', () => {
 
   describe('with successful request', () => {
     beforeEach(() => {
-      spyOn(api, 'releases').and.returnValue(Promise.resolve({ data: releases }));
+      spyOn(api, 'releases').and.returnValue(
+        Promise.resolve({ data: releases, headers: pageInfoHeaders }),
+      );
       vm = mountComponentWithStore(Component, { props, store });
     });
 
@@ -54,6 +62,27 @@ describe('Releases App ', () => {
         expect(vm.$el.querySelector('.js-loading')).toBeNull();
         expect(vm.$el.querySelector('.js-empty-state')).toBeNull();
         expect(vm.$el.querySelector('.js-success-state')).not.toBeNull();
+        expect(vm.$el.querySelector('.gl-pagination')).toBeNull();
+
+        done();
+      }, 0);
+    });
+  });
+
+  describe('with successful request and pagination', () => {
+    beforeEach(() => {
+      spyOn(api, 'releases').and.returnValue(
+        Promise.resolve({ data: releasesPagination, headers: pageInfoHeadersPagination }),
+      );
+      vm = mountComponentWithStore(Component, { props, store });
+    });
+
+    it('renders success state', done => {
+      setTimeout(() => {
+        expect(vm.$el.querySelector('.js-loading')).toBeNull();
+        expect(vm.$el.querySelector('.js-empty-state')).toBeNull();
+        expect(vm.$el.querySelector('.js-success-state')).not.toBeNull();
+        expect(vm.$el.querySelector('.gl-pagination')).not.toBeNull();
 
         done();
       }, 0);
@@ -62,7 +91,7 @@ describe('Releases App ', () => {
 
   describe('with empty request', () => {
     beforeEach(() => {
-      spyOn(api, 'releases').and.returnValue(Promise.resolve({ data: [] }));
+      spyOn(api, 'releases').and.returnValue(Promise.resolve({ data: [], headers: {} }));
       vm = mountComponentWithStore(Component, { props, store });
     });
 
@@ -71,6 +100,7 @@ describe('Releases App ', () => {
         expect(vm.$el.querySelector('.js-loading')).toBeNull();
         expect(vm.$el.querySelector('.js-empty-state')).not.toBeNull();
         expect(vm.$el.querySelector('.js-success-state')).toBeNull();
+        expect(vm.$el.querySelector('.gl-pagination')).toBeNull();
 
         done();
       }, 0);

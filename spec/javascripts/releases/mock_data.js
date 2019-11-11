@@ -1,3 +1,30 @@
+export const pageInfo = {
+  total: 19,
+  perPage: 20,
+  page: 1,
+  totalPages: 1,
+  nextPage: NaN,
+  previousPage: NaN,
+};
+
+export const pageInfoHeaders = {
+  'x-next-page': '',
+  'x-page': '1',
+  'x-per-page': '20',
+  'x-prev-page': '',
+  'x-total': '19',
+  'x-total-pages': '1',
+};
+
+export const pageInfoHeadersPagination = {
+  'x-next-page': '2',
+  'x-page': '1',
+  'x-per-page': '20',
+  'x-prev-page': '',
+  'x-total': '21',
+  'x-total-pages': '2',
+};
+
 export const release = {
   name: 'Bionic Beaver',
   tag_name: '18.04',
@@ -128,3 +155,7 @@ export const releases = [
     },
   },
 ];
+
+export const releasesPagination = Array(21)
+  .fill(release)
+  .map((item, index) => ({ ...item, tag_name: `${index}.00` }));
