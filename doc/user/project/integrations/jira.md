@@ -66,26 +66,39 @@ NOTE: **Note:**
 
 To enable GitLab's Project Services integration with Jira, complete the following tasks:
 
-1. [Enabling GitLab's access to Jira](#enabling-gitlabs-access-to-jira).
+1. [Create Jira user and grant access](jira_create_user.md).
+1. [Create Jira access token](#creating-jira-access-token).
+1. [Enable GitLab access to Jira](#enabling-gitlabs-access-to-jira).
 1. Configuring Jira.
-1. Configuring GitLab.
+1. Configuring GitLab Project Services.
 
 ### Enabling the Jira development panel integration with GitLab
 
 To enable the Jira development panel integration with GitLab, complete the following tasks:
 
+1. [Create Jira user and grant access](jira_create_user.md).
+1. [Create Jira access token](#creating-jira-access-token).
 1. Enable Jira access to GitLab.
 1. Configure the Jira development panel.
 1. Configure GitLab.
 
-#### Enabling GitLab's access to Jira
+#### Creating Jira access token
+
+> - Atlassian [deprecated](https://developer.atlassian.com/cloud/jira/platform/deprecation-notice-basic-auth-and-cookie-based-auth/) basic API authentication from June 3rd, 2019. Access to Jira via the API requires use of an access token. Each token is unique to each Atlassian account.
+
+Create an Atlassian API token for the user created in [Create Jira user and grant access](jira_create_user.md). For details, see [API tokens](https://confluence.atlassian.com/cloud/api-tokens-938839638.html).
+
+NOTE: **Note:**
+Record the value of the API token. It is not possible to view the token's value after creating it.
+
+#### Enabling GitLab access to Jira
 
 > NOTE: **Note:**
 >
 > - This procedure can only be completed by a Jira administrator.
-> - Atlassian [deprecated](https://developer.atlassian.com/cloud/jira/platform/deprecation-notice-basic-auth-and-cookie-based-auth/)  basic authentication from June 3rd, 2019. Access to Jira via the API requires use of an access token. Instructions for obtaining a token are included in this section.
 
-GitLab's Project Services integration requires write access to the relevant Jira projects.
+
+
 
 Complete the following procedure, depending on which product you're using:
 
@@ -133,17 +146,6 @@ When connecting to **Jira Server**, which supports basic authentication, a **use
 When connecting to **Jira Cloud**, which supports authentication via API token, an **email and API token**, are required. [Set up a user in Jira Cloud](jira_cloud_configuration.md) first and then proceed to [Configuring GitLab](#configuring-gitlab).
 
 ### Configuring GitLab
-
-> **Notes:**
->
-> - The currently supported Jira versions are `v6.x` and `v7.x.`. GitLab 7.8 or
->   higher is required.
-> - GitLab 8.14 introduced a new way to integrate with Jira which greatly simplified
->   the configuration options you have to enter. If you are using an older version,
->   [follow this documentation][jira-repo-old-docs].
-> - In order to support Oracle's Access Manager, GitLab will send additional cookies
->   to enable Basic Auth. The cookie being added to each request is `OBBasicAuth` with
->   a value of `fromDialog`.
 
 To enable the Jira integration in a project, navigate to the
 [Integrations page](project_services.md#accessing-the-project-services), click
