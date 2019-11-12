@@ -30,9 +30,10 @@ cache:
 # https://docs.gitlab.com/ee/ci/yaml/README.html#stages
 ####################################################
 stages:
-  - preliminary-testing
   - build
   - test
+  - create-scratch-org
+  - test-scratch-org
   - package
   - staging
   - deploy
@@ -45,7 +46,7 @@ stages:
 # pipeline on failure.
 ####################################################
 test-lwc:
-  stage: preliminary-testing
+  stage: test
   except:
     variables:
       - $TEST_DISABLED
@@ -69,11 +70,12 @@ test-lwc:
 # the same ref (branch) before creating and deploying.
 ####################################################
 create-scratch-org:
-  stage: build
+  stage: create-scratch-org
   only:
     variables:
-      - $CI_COMMIT_REF_NAME == 'master'
       - $DEPLOY_SCRATCH_ON_EVERY_COMMIT == 'true'
+    refs:
+      - master
   except:
     variables:
       - $SCRATCH_DISABLED
@@ -107,11 +109,12 @@ create-scratch-org:
 # when the test script executes.
 ####################################################
 test-apex:
-  stage: test
+  stage: test-scratch-org
   only:
     variables:
-      - $CI_COMMIT_REF_NAME == 'master'
       - $DEPLOY_SCRATCH_ON_EVERY_COMMIT == 'true'
+    refs:
+      - master
   except:
     variables:
       - $SCRATCH_DISABLED
@@ -134,13 +137,14 @@ test-apex:
 # See https://docs.gitlab.com/ee/ci/environments.html#stopping-an-environment
 ####################################################
 delete-scratch-org:
-  stage: build
+  stage: create-scratch-org
   variables:
     GIT_STRATEGY: none
   only:
     variables:
-      - $CI_COMMIT_REF_NAME == 'master'
       - $DEPLOY_SCRATCH_ON_EVERY_COMMIT == 'true'
+    refs:
+      - master
   except:
     variables:
       - $SCRATCH_DISABLED
@@ -162,8 +166,8 @@ delete-scratch-org:
 create-package-version:
   stage: package
   only:
-    variables:
-      - $CI_COMMIT_REF_NAME == 'master'
+    refs:
+      - master
   script:
     - install_salesforce_cli
     - install_jq
@@ -186,8 +190,8 @@ create-package-version:
 deploy-sandbox:
   stage: staging
   only:
-    variables:
-      - $CI_COMMIT_REF_NAME == 'master'
+    refs:
+      - master
   except:
     variables:
       - $SANDBOX_DISABLED
@@ -213,8 +217,8 @@ deploy-sandbox:
 deploy-production:
   stage: deploy
   only:
-    variables:
-      - $CI_COMMIT_REF_NAME == 'master'
+    refs:
+      - master
   except:
     variables:
       - $PRODUCTION_DISABLED
