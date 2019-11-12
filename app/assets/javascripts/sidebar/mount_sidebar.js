@@ -47,7 +47,7 @@ function mountConfidentialComponent(mediator) {
   new ConfidentialComp({
     propsData: {
       isConfidential: initialData.is_confidential,
-      isEditable: initialData.is_editable,
+      isEditable: Boolean(initialData.is_editable),
       service: mediator.service,
     },
   }).$mount(el);
@@ -66,7 +66,7 @@ function mountLockComponent(mediator) {
   new LockComp({
     propsData: {
       isLocked: initialData.is_locked,
-      isEditable: initialData.is_editable,
+      isEditable: Boolean(initialData.is_editable),
       mediator,
       issuableType: gl.utils.isInIssuePage() ? 'issue' : 'merge_request',
     },
