@@ -45,11 +45,7 @@ repository:
 That's it! Assuming the hook code is properly implemented the hook will fire
 as appropriate.
 
-> If you are using [hashed storage](https://docs.gitlab.com/ee/administration/repository_storage_types.html#hashed-storage), you may find that the project's repository directory does not exactly match the instructions above. In this case, you can find the repository directory for a project by opening a Rails console (`sudo gitlab-rails console`) and running the following commands:
-> ```
-> p = Project.find_by_full_path('namespace/project-name') # Replace 'namespace' and 'project-name' with your own values
-> p.repository.path_to_repo
-> ```
+> If you are using [hashed storage](https://docs.gitlab.com/ee/administration/repository_storage_types.html#hashed-storage), you may find that the project's repository directory does not exactly match the instructions above. In this case, you can find the repository directory for a project by opening the Admin panel on your instance, going to **Projects**, and selecting the project for which you'd like to add a hook. You can find the path to its repository under "Gitaly relative path" on this page.
 
 ## Set a global Git hook for all repositories
 
