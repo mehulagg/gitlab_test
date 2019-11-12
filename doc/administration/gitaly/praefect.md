@@ -53,13 +53,13 @@ Gitaly nodes, and lastly the GitLab server configuration.
 
 Below we need to manage the following secrets and make them match across hosts.
 
-1.  `GITLAB_SHELL_SECRET_TOKEN`: this is used by Git hooks to make
+1. `GITLAB_SHELL_SECRET_TOKEN`: this is used by Git hooks to make
     callback HTTP API requests to GitLab when accepting a Git push. This
     secret is shared with gitlab-shell for legacy reasons.
-2.  `PRAEFECT_EXTERNAL_TOKEN`: repositories hosted on your Praefect
+1. `PRAEFECT_EXTERNAL_TOKEN`: repositories hosted on your Praefect
     cluster can only be accessed by Gitaly clients that carry this
     token.
-3.  `PRAEFECT_INTERNAL_TOKEN`: this token is used for replication
+1. `PRAEFECT_INTERNAL_TOKEN`: this token is used for replication
     traffic inside your Praefect cluster. This is distinct from
     `PRAEFECT_EXTERNAL_TOKEN` because Gitaly clients must not be able to
     access internal nodes of the Praefect cluster directly; that could
