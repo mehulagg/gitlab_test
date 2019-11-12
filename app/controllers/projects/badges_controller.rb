@@ -28,9 +28,9 @@ class Projects::BadgesController < Projects::ApplicationController
     render_badge coverage_report
   end
 
-  def coverage
+  def release
     latest_release = Gitlab::Badge::Release::Latest_Release
-      .new(project, params[:ref], params[:job])
+      .new(project, params[:ref])
 
     render_badge latest_release
   end
