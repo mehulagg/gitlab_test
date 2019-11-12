@@ -166,7 +166,6 @@ gitlab_shell['secret_token'] = 'GITLAB_SHELL_SECRET_TOKEN'
 # Configure the gitlab-shell API callback URL. Without this, `git push` will
 # fail. This can be your 'front door' GitLab URL or an internal load
 # balancer.
-# Don't forget to copy `/etc/gitlab/gitlab-secrets.json` from web server to Gitaly server.
 gitlab_rails['internal_api_url'] = 'https://gitlab.example.com'
 
 # Replace PRAEFECT_INTERNAL_TOKEN below with a real secret.
@@ -183,9 +182,6 @@ git_data_dirs({
   }
 })
 ```
-
-Note that just as with a standard Gitaly server, `/etc/gitlab/gitlab-secrets.json` must
-be copied from the GitLab server to the Gitaly node for authentication purposes.
 
 For more information on Gitaly server configuration, see our [gitaly documentation](index.md#3-gitaly-server-configuration).
 
