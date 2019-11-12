@@ -154,8 +154,9 @@ Rails.logger.level = Logger::DEBUG
 
 #### Query a user in LDAP
 
-This could expose potential errors connecting to and/or querying LDAP that may seem to
-fail silently in the GitLab UI.
+This will test that GitLab can reach out to LDAP and read a particular user.
+It can expose potential errors connecting to and/or querying LDAP
+that may seem to fail silently in the Gitlab UI.
 
 ```ruby
 Rails.logger.level = Logger::DEBUG
@@ -196,14 +197,25 @@ Next, [learn how to read the output](#example-log-output-after-a-group-sync).
 
 #### Sync one group **(STARTER ONLY)**
 
+[Syncing all groups](#sync-all-groups-starter-only) can produce a lot of noise in the output, which can be
+distracting when you're only interested in troubleshooting the memberships of
+a single GitLab group. In that case, here's how you can just sync this group
+and see its debug output:
+
 ```ruby
+Rails.logger.level = Logger::DEBUG
+
 group = Group.find_by(name: 'my_gitlab_group')
 EE::Gitlab::Auth::LDAP::Sync::Group.execute_all_providers(group)
 ```
 
-Next, [learn how to read the output](#example-log-output-after-a-group-sync).
+The output will be similar to
+[that you'd get from syncing all groups](#example-log-output-after-a-group-sync).
 
 #### Query a group in LDAP **(STARTER ONLY)**
+
+When you'd like to confirm that GitLab can read a LDAP group and see all its members,
+you can run the following:
 
 ```ruby
 # Find the adapter and the group itself
@@ -217,8 +229,10 @@ ldap_group.member_uids
 
 #### Query LDAP **(STARTER ONLY)**
 
-If you'd like to see whether GitLab has access to a certain user or group, you
-can try the following.
+The following allows you to perform a search in LDAP using the rails console.
+Depending on what you're trying to do, it may make more sense to query [a
+user](#query-a-user-in-ldap) or [a group](#query-a-group-in-ldap-starter-only) directly, or
+even [use `ldapsearch`](#ldapsearch) instead.
 
 ```ruby
 adapter = Gitlab::Auth::LDAP::Adapter.new('ldapmain')
@@ -239,7 +253,8 @@ options = {
 adapter.ldap_search(options)
 ```
 
-For an example, [see the code](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/ee/lib/ee/gitlab/auth/ldap/adapter.rb)
+For examples of how this is run,
+[review the `Adapter` module](https://gitlab.com/gitlab-org/gitlab/blob/master/ee/lib/ee/gitlab/auth/ldap/adapter.rb).
 
 #### Example log output after a user sync **(STARTER ONLY)**
 
@@ -688,6 +703,7 @@ for each of these users.
 [restart]: ../restart_gitlab.md#installations-from-source
 [ldap-check]: ../raketasks/ldap.md#check
 [user-sync]: ldap-ee.md#user-sync
+[group-sync]: ldap-ee.md#group-sync
 [config]: ldap.md#configuration
 
 [^1]: In Active Directory, a user is marked as disabled/blocked if the user
