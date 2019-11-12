@@ -298,7 +298,11 @@ export default {
 </script>
 
 <template>
-  <div v-gl-resize-observer-directive="onResize" class="prometheus-graph">
+  <div
+    v-gl-resize-observer-directive="onResize"
+    class="prometheus-graph col-12 p-0"
+    :class="{ 'col-lg-6': !singleEmbed }"
+  >
     <div class="prometheus-graph-header">
       <h5
         ref="graphTitle"
