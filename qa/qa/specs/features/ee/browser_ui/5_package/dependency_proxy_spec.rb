@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Package', :docker, :orchestrated do
+  context 'Package', :docker, :orchestrated, :tls do
     describe 'Dependency Proxy' do
       it 'pulls from the gitlab proxy' do
         Runtime::Browser.visit(:gitlab, Page::Main::Login)
