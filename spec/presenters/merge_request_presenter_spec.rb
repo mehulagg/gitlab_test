@@ -613,4 +613,20 @@ describe MergeRequestPresenter do
       end
     end
   end
+
+  describe '#mergeable_discussions_state' do
+    context 'merge request is not in a mergeable state' do
+      before do
+        allow(resource).to receive(:mergeable_state?).and_return(false)
+      end
+
+      it 'false is returned without calling mergeable_discussions_state? method' do
+        expect(resource).not_to receive(:mergeable_discussions_state?)
+
+        result = described_class.new(resource).mergeable_discussions_state
+
+        expect(result).to eq(false)
+      end
+    end
+  end
 end

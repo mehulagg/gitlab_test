@@ -781,7 +781,9 @@ module API
 
       expose :cannot_be_merged?, as: :has_conflicts
 
-      expose :mergeable_discussions_state?, as: :blocking_discussions_resolved
+      expose :mergeable_discussions_state?, as: :blocking_discussions_resolved do |merge_request|
+        MergeRequestPresenter.new(merge_request).mergeable_discussions_state
+      end
     end
 
     class MergeRequest < MergeRequestBasic
