@@ -39,6 +39,11 @@ export default {
       loading: false,
     };
   },
+  computed: {
+    editable() {
+      return Boolean(this.store.editable);
+    },
+  },
   created() {
     this.removeAssignee = this.store.removeAssignee.bind(this.store);
     this.addAssignee = this.store.addAssignee.bind(this.store);
@@ -87,14 +92,14 @@ export default {
     <assignee-title
       :number-of-assignees="store.assignees.length"
       :loading="loading || store.isFetching.assignees"
-      :editable="store.editable"
+      :editable="editable"
       :show-toggle="!signedIn"
     />
     <assignees
       v-if="!store.isFetching.assignees"
       :root-path="store.rootPath"
       :users="store.assignees"
-      :editable="store.editable"
+      :editable="editable"
       :issuable-type="issuableType"
       class="value"
       @assign-self="assignSelf"
