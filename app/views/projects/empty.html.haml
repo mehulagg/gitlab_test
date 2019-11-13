@@ -14,6 +14,11 @@
       = _('You can create files directly in GitLab using one of the following options.')
 
   .project-buttons.qa-quick-actions
+    .project-clone-holder.d-block.d-md-none
+      = render "shared/mobile_clone_panel"
+
+    .project-clone-holder.d-none.d-md-inline-block
+      = render "projects/buttons/clone"
     = render 'stat_anchor_list', anchors: @project.empty_repo_statistics_buttons
 
   - if can?(current_user, :push_code, @project)
