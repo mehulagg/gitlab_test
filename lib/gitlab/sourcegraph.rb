@@ -2,23 +2,25 @@
 
 module Gitlab
   class Sourcegraph
-    def self.feature_conditional?
-      self.feature.conditional?
-    end
+    class << self
+      def feature_conditional?
+        feature.conditional?
+      end
 
-    def self.feature_available?
-      # The sourcegraph_bundle feature could be conditionally applied, so check if `!off?`
-      !self.feature.off?
-    end
+      def feature_available?
+        # The sourcegraph_bundle feature could be conditionally applied, so check if `!off?`
+        !feature.off?
+      end
 
-    def self.feature_enabled?(thing = true)
-      self.feature.enabled?(thing)
-    end
+      def feature_enabled?(thing = true)
+        feature.enabled?(thing)
+      end
 
-    private
+      private
 
-    def self.feature
-      Feature.get(:sourcegraph)
+      def feature
+        Feature.get(:sourcegraph)
+      end
     end
   end
 end
