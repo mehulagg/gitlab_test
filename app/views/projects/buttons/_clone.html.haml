@@ -25,10 +25,3 @@
             = clipboard_button(target: '#http_project_clone', title: _("Copy URL"), class: "input-group-text btn-default btn-clipboard")
             = render_if_exists 'projects/buttons/geo'
     = render_if_exists 'projects/buttons/kerberos_clone_field'
-
-- if can?(current_user, :download_code, @project)
-  .project-clone-holder.d-block.d-sm-none
-    = render "shared/mobile_clone_panel"
-
-  .project-clone-holder.d-none.d-sm-inline-block
-    = render "projects/buttons/clone"
