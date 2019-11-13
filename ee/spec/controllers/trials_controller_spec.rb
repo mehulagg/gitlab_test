@@ -75,6 +75,48 @@ describe TrialsController do
         end
       end
     end
+
+    context 'request params to Lead Service' do
+      let(:user) { create(:user) }
+      let(:params) do
+        {
+            company_name: 'Gitlab',
+            company_size: '1-99',
+            phone_number: '1111111111',
+            number_of_users: "20",
+            country: 'IN'
+        }
+      end
+      let(:extra_params) do
+        {
+            first_name: user.first_name,
+            last_name: user.last_name,
+            work_email: user.email,
+            uid: user.id,
+            skip_email_confirmation: true,
+            gitlab_com_trial: true,
+            provider: 'gitlab'
+        }
+      end
+      let(:expected_params) { ActionController::Parameters.new(params).merge(extra_params).permit! }
+
+      before do
+        sign_in(user)
+
+        expect_any_instance_of(GitlabSubscriptions::CreateLeadService).to receive(:execute).with({ trial_user: expected_params }).and_return({ success: true })
+      end
+
+      it 'sends appropriate request params' do
+        post :create_lead, params: params
+      end
+
+      it 'sends newsletter segment parameter, if user opts to receive updates' do
+        user.update(email_opted_in: true)
+        expected_params[:newsletter_segment] = user.email_opted_in
+
+        post :create_lead, params: params
+      end
+    end
   end
 
   describe '#select' do
