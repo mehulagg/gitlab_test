@@ -18,7 +18,9 @@ describe API::Settings, 'Settings' do
       expect(json_response['password_authentication_enabled']).to be_truthy
       expect(json_response['plantuml_enabled']).to be_falsey
       expect(json_response['plantuml_url']).to be_nil
+      expect(json_response['sourcegraph_enabled']).to be_falsey
       expect(json_response['sourcegraph_url']).to be_nil
+      expect(json_response['sourcegraph_public_only']).to be_truthy
       expect(json_response['default_project_visibility']).to be_a String
       expect(json_response['default_snippet_visibility']).to be_a String
       expect(json_response['default_group_visibility']).to be_a String
