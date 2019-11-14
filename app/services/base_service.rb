@@ -6,7 +6,7 @@ class BaseService
   attr_accessor :project, :current_user, :params
 
   def initialize(project, user = nil, params = {})
-    @project, @current_user, @params = project, user, params.dup
+    @project, @current_user, @params = project, user, params.deep_dup
   end
 
   def notification_service
