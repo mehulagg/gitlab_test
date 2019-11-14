@@ -5,7 +5,7 @@ require 'spec_helper'
 describe 'profiles/preferences/show' do
   using RSpec::Parameterized::TableSyntax
 
-  let(:user) { create(:user) }
+  let_it_be(:user) { build(:user) }
 
   before do
     assign(:user, user)
@@ -45,7 +45,7 @@ describe 'profiles/preferences/show' do
         it 'does not display sourcegraph field' do
           expect(rendered).not_to have_sourcegraph_field
         end
-        
+
         it 'does not display integrations settings' do
           expect(rendered).not_to have_integrations_section
         end
