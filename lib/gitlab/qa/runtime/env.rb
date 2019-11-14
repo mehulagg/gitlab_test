@@ -61,7 +61,8 @@ module Gitlab
           'GITLAB_QA_1P_PASSWORD' => :gitlab_qa_1p_password,
           'GITLAB_QA_1P_SECRET' => :gitlab_qa_1p_secret,
           'GITLAB_QA_1P_GITHUB_UUID' => :gitlab_qa_1p_github_uuid,
-          'GITLAB_QA_LOOP_RUNNER_MINUTES' => :gitlab_qa_loop_runner_minutes
+          'GITLAB_QA_LOOP_RUNNER_MINUTES' => :gitlab_qa_loop_runner_minutes,
+          'QA_CAN_TEST_ADMIN_FEATURES' => :qa_can_test_admin_features
         }.freeze
 
         ENV_VARIABLES.each_value do |accessor|
