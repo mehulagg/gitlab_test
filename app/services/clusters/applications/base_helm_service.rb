@@ -5,11 +5,34 @@ module Clusters
     class BaseHelmService
       attr_accessor :app
 
+      ERROR_TRANSLATIONS = {
+        install: _('Failed to install.'),
+        patch: _('Failed to update.'),
+        upgrade: _('Failed to upgrade.'),
+        uninstall: _('Failed to uninstall.')
+      }.freeze
+
       def initialize(app)
         @app = app
       end
 
       protected
+
+      def issue_helm_command(command, worker:)
+        log_event("begin_#{command}")
+
+        yield
+
+        log_event("schedule_wait_for_#{command}")
+        worker.perform_in(worker::INTERVAL, app.name, app.id)
+
+      rescue Kubeclient::HttpError => e
+        log_error(e)
+        app.make_errored!(_('Kubernetes error: %{error_code}') % { error_code: e.error_code })
+      rescue StandardError => e
+        log_error(e)
+        app.make_errored!(ERROR_TRANSLATIONS[command])
+      end
 
       def log_error(error)
         meta = {

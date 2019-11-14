@@ -7147,6 +7147,9 @@ msgstr ""
 msgid "Failed to signing using smartcard authentication"
 msgstr ""
 
+msgid "Failed to uninstall."
+msgstr ""
+
 msgid "Failed to update branch!"
 msgstr ""
 
