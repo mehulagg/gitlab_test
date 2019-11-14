@@ -23,6 +23,10 @@ export default {
       type: String,
       required: true,
     },
+    canUserEditReleases: {
+      type: Boolean,
+      required: true,
+    },
   },
   computed: {
     ...mapState(['isLoading', 'releases', 'hasError']),
@@ -64,6 +68,7 @@ export default {
         v-for="(release, index) in releases"
         :key="release.tag_name"
         :release="release"
+        :show-edit-button="canUserEditReleases"
         :class="{ 'linked-card': releases.length > 1 && index !== releases.length - 1 }"
       />
     </div>

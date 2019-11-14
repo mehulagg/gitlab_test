@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import _ from 'underscore';
 import App from './components/app.vue';
 import createStore from './store';
 
@@ -17,6 +18,7 @@ export default () => {
           projectId: element.dataset.projectId,
           documentationLink: element.dataset.documentationPath,
           illustrationPath: element.dataset.illustrationPath,
+          canUserEditReleases: !_.isUndefined(element.dataset.canUserEditReleases),
         },
       });
     },

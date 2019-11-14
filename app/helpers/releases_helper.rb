@@ -16,7 +16,8 @@ module ReleasesHelper
     {
       project_id: @project.id,
       illustration_path: illustration,
-      documentation_path: help_page
+      documentation_path: help_page,
+      can_user_edit_releases: can?(current_user, :update_release, @project.releases.first)
     }
   end
 

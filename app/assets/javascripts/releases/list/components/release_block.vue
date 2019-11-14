@@ -32,6 +32,10 @@ export default {
       required: true,
       default: () => ({}),
     },
+    showEditButton: {
+      type: Boolean,
+      required: true,
+    },
   },
   data() {
     return {
@@ -78,7 +82,10 @@ export default {
     },
     shouldShowEditButton() {
       return Boolean(
-        this.glFeatures.releaseEditPage && this.release._links && this.release._links.edit_url,
+        this.glFeatures.releaseEditPage &&
+          this.showEditButton &&
+          this.release._links &&
+          this.release._links.edit_url,
       );
     },
     shouldShowFooter() {

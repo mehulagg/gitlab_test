@@ -1,0 +1,5 @@
+---
+title: Only render edit button on Releases page if user has access
+merge_request: 20077
+author:
+type: fixed

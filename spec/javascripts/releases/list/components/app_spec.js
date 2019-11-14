@@ -15,6 +15,7 @@ describe('Releases App ', () => {
     projectId: 'gitlab-ce',
     documentationLink: 'help/releases',
     illustrationPath: 'illustration/path',
+    canUserEditReleases: true,
   };
 
   beforeEach(() => {
