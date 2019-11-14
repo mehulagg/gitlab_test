@@ -1495,6 +1495,9 @@ msgstr ""
 msgid "Amazon EKS integration allows you to provision EKS clusters from GitLab."
 msgstr ""
 
+msgid "Amazon Web Services"
+msgstr ""
+
 msgid "Amazon authentication is not %{link_start}correctly configured%{link_end}. Ask your GitLab administrator if you want to use this service."
 msgstr ""
 
@@ -3646,6 +3649,12 @@ msgstr ""
 msgid "ClusterIntegration|Creating Kubernetes cluster"
 msgstr ""
 
+msgid "ClusterIntegration|Crossplane"
+msgstr ""
+
+msgid "ClusterIntegration|Crossplane enables declarative provisioning of managed services from your cloud of choice using kubectl or %{gitlabIntegrationLink}. Crossplane runs inside your Kubernetes cluster and supports secure connectivity and secrets management between app containers and the cloud services they depend on."
+msgstr ""
+
 msgid "ClusterIntegration|Did you know?"
 msgstr ""
 
@@ -3659,6 +3668,9 @@ msgid "ClusterIntegration|Enable or disable GitLab's connection to your Kubernet
 msgstr ""
 
 msgid "ClusterIntegration|Enable this setting if using role-based access control (RBAC)."
+msgstr ""
+
+msgid "ClusterIntegration|Enabled stack"
 msgstr ""
 
 msgid "ClusterIntegration|Enter the details for your Amazon EKS Kubernetes cluster"
@@ -3707,6 +3719,9 @@ msgid "ClusterIntegration|GitLab Runner connects to the repository and executes 
 msgstr ""
 
 msgid "ClusterIntegration|GitLab-managed cluster"
+msgstr ""
+
+msgid "ClusterIntegration|Gitlab"
 msgstr ""
 
 msgid "ClusterIntegration|Google Cloud Platform project"
@@ -4977,6 +4992,9 @@ msgid "Cron Timezone"
 msgstr ""
 
 msgid "Cron syntax"
+msgstr ""
+
+msgid "Crossplane"
 msgstr ""
 
 msgid "Current Branch"
@@ -8430,6 +8448,9 @@ msgstr ""
 msgid "Golden Tanuki"
 msgstr ""
 
+msgid "Google Cloud Platform"
+msgstr ""
+
 msgid "Google Code import"
 msgstr ""
 
@@ -10871,6 +10892,9 @@ msgid "Metrics|e.g. rate(http_requests_total[5m])"
 msgstr ""
 
 msgid "Metrics|e.g. req/sec"
+msgstr ""
+
+msgid "Microsoft Azure"
 msgstr ""
 
 msgid "Migrated %{success_count}/%{total_count} files."
@@ -14621,6 +14645,9 @@ msgstr ""
 msgid "Rollback"
 msgstr ""
 
+msgid "Rook"
+msgstr ""
+
 msgid "Run CI/CD pipelines for external repositories"
 msgstr ""
 
@@ -15192,6 +15219,9 @@ msgstr ""
 msgid "Select Page"
 msgstr ""
 
+msgid "Select Stack"
+msgstr ""
+
 msgid "Select a file from the left sidebar to begin editing. Afterwards, you'll be able to commit your changes."
 msgstr ""
 
@@ -15214,6 +15244,9 @@ msgid "Select a project to read Insights configuration file"
 msgstr ""
 
 msgid "Select a repository"
+msgstr ""
+
+msgid "Select a stack to install Crossplane."
 msgstr ""
 
 msgid "Select a template repository"
@@ -19741,6 +19774,9 @@ msgid "You must provide a valid current password"
 msgstr ""
 
 msgid "You must provide your current password in order to change it."
+msgstr ""
+
+msgid "You must select a stack for configuring your cloud provider. Learn more about"
 msgstr ""
 
 msgid "You need a different license to enable FileLocks feature"

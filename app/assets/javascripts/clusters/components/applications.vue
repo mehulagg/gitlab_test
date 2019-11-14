@@ -9,6 +9,7 @@ import jeagerLogo from 'images/cluster_app_logos/jeager.png';
 import jupyterhubLogo from 'images/cluster_app_logos/jupyterhub.png';
 import kubernetesLogo from 'images/cluster_app_logos/kubernetes.png';
 import certManagerLogo from 'images/cluster_app_logos/cert_manager.png';
+import crossplaneLogo from 'images/cluster_app_logos/crossplane.png';
 import knativeLogo from 'images/cluster_app_logos/knative.png';
 import meltanoLogo from 'images/cluster_app_logos/meltano.png';
 import prometheusLogo from 'images/cluster_app_logos/prometheus.png';
@@ -20,6 +21,7 @@ import KnativeDomainEditor from './knative_domain_editor.vue';
 import { CLUSTER_TYPE, PROVIDER_TYPE, APPLICATION_STATUS, INGRESS } from '../constants';
 import LoadingButton from '~/vue_shared/components/loading_button.vue';
 import eventHub from '~/clusters/event_hub';
+import CrossplaneProviderStack from './crossplane_provider_stack.vue';
 
 export default {
   components: {
@@ -28,6 +30,7 @@ export default {
     LoadingButton,
     GlLoadingIcon,
     KnativeDomainEditor,
+    CrossplaneProviderStack,
   },
   props: {
     type: {
@@ -89,6 +92,7 @@ export default {
     jupyterhubLogo,
     kubernetesLogo,
     certManagerLogo,
+    crossplaneLogo,
     knativeLogo,
     meltanoLogo,
     prometheusLogo,
@@ -115,6 +119,12 @@ export default {
     },
     certManagerInstalled() {
       return this.applications.cert_manager.status === APPLICATION_STATUS.INSTALLED;
+    },
+    crossplaneInstalled() {
+      return this.applications.crossplane.status === APPLICATION_STATUS.INSTALLED;
+    },
+    enableClusterApplicationCrossplane() {
+      return gon.features && gon.features.enableClusterApplicationCrossplane;
     },
     enableClusterApplicationElasticStack() {
       return gon.features && gon.features.enableClusterApplicationElasticStack;
@@ -151,6 +161,23 @@ export default {
         false,
       );
     },
+    crossplaneDescription() {
+      return sprintf(
+        _.escape(
+          s__(
+            `ClusterIntegration|Crossplane enables declarative provisioning of managed services from your cloud of choice using kubectl or %{gitlabIntegrationLink}.
+Crossplane runs inside your Kubernetes cluster and supports secure connectivity and secrets management between app containers and the cloud services they depend on.`,
+          ),
+        ),
+        {
+          gitlabIntegrationLink: `<a href="https://blog.crossplane.io/crossplane-composes-fully-managed-services-in-kubernetes-to-deploy-gitlab-into-multiple-clouds"
+          target="_blank" rel="noopener noreferrer">
+          ${_.escape(s__('ClusterIntegration|Gitlab'))}</a>`,
+        },
+        false,
+      );
+    },
+
     prometheusDescription() {
       return sprintf(
         _.escape(
@@ -181,6 +208,9 @@ export default {
     },
     knative() {
       return this.applications.knative;
+    },
+    crossplane() {
+      return this.applications.crossplane;
     },
     cloudRun() {
       return this.providerType === PROVIDER_TYPE.GCP && this.preInstalledKnative;
@@ -216,6 +246,12 @@ export default {
       eventHub.$emit('setKnativeHostname', {
         id: 'knative',
         hostname,
+      });
+    },
+    setCrossplaneProviderStack(stack) {
+      eventHub.$emit('setCrossplaneProviderStack', {
+        id: 'crossplane',
+        stack,
       });
     },
   },
@@ -441,6 +477,34 @@ export default {
           }}
         </div>
       </application-row>
+      <application-row
+        v-if="enableClusterApplicationCrossplane"
+        id="crossplane"
+        :logo-url="crossplaneLogo"
+        :title="applications.crossplane.title"
+        :status="applications.crossplane.status"
+        :status-reason="applications.crossplane.statusReason"
+        :request-status="applications.crossplane.requestStatus"
+        :request-reason="applications.crossplane.requestReason"
+        :installed="applications.crossplane.installed"
+        :install-failed="applications.crossplane.installFailed"
+        :uninstallable="applications.crossplane.uninstallable"
+        :uninstall-successful="applications.crossplane.uninstallSuccessful"
+        :uninstall-failed="applications.crossplane.uninstallFailed"
+        :install-application-request-params="{ stack: applications.crossplane.stack }"
+        :disabled="!helmInstalled"
+        title-link="https://crossplane.io"
+      >
+        <template>
+          <div slot="description">
+            <p v-html="crossplaneDescription"></p>
+            <div class="form-group">
+              <CrossplaneProviderStack :crossplane="crossplane" @set="setCrossplaneProviderStack" />
+            </div>
+          </div>
+        </template>
+      </application-row>
+
       <application-row
         id="jupyter"
         :logo-url="jupyterhubLogo"
