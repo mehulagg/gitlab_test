@@ -165,7 +165,7 @@ export default {
       return sprintf(
         _.escape(
           s__(
-            `ClusterIntegration|Crossplane enables declarative provisioning of managed services from your cloud of choice using kubectl or %{gitlabIntegrationLink}.
+            `ClusterIntegration|Crossplane enables declarative provisioning of managed services from your cloud of choice using %{kubectl} or %{gitlabIntegrationLink}.
 Crossplane runs inside your Kubernetes cluster and supports secure connectivity and secrets management between app containers and the cloud services they depend on.`,
           ),
         ),
@@ -173,6 +173,9 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
           gitlabIntegrationLink: `<a href="https://docs.gitlab.com/ce/user/project/integrations/crossplane.html"
           target="_blank" rel="noopener noreferrer">
           ${_.escape(s__('ClusterIntegration|Gitlab Integration'))}</a>`,
+        },
+        {
+          kubectl: `'<code>kubectl</code>',`,
         },
         false,
       );
@@ -264,7 +267,7 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
     <p class="append-bottom-0">
       {{
         s__(`ClusterIntegration|Choose which applications to install on your Kubernetes cluster.
-      Helm Tiller is required to install any of the following applications.`)
+            Helm Tiller is required to install any of the following applications.`)
       }}
       <a :href="helpPath">{{ __('More information') }}</a>
     </p>
@@ -289,9 +292,9 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
         <div slot="description">
           {{
             s__(`ClusterIntegration|Helm streamlines installing
-          and managing Kubernetes applications.
-          Tiller runs inside of your Kubernetes Cluster,
-          and manages releases of your charts.`)
+                    and managing Kubernetes applications.
+                    Tiller runs inside of your Kubernetes Cluster,
+                    and manages releases of your charts.`)
           }}
         </div>
       </application-row>
@@ -299,7 +302,7 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
         <div class="svg-container" v-html="helmInstallIllustration"></div>
         {{
           s__(`ClusterIntegration|You must first install Helm Tiller before
-        installing the applications below`)
+                installing the applications below`)
         }}
       </div>
       <application-row
@@ -322,8 +325,8 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
           <p>
             {{
               s__(`ClusterIntegration|Ingress gives you a way to route
-            requests to services based on the request host or path,
-            centralizing a number of services into a single entrypoint.`)
+                        requests to services based on the request host or path,
+                        centralizing a number of services into a single entrypoint.`)
             }}
           </p>
 
@@ -355,8 +358,8 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
               <p class="form-text text-muted">
                 {{
                   s__(`ClusterIntegration|Point a wildcard DNS to this
-                generated endpoint in order to access
-                your application after it has been deployed.`)
+                                generated endpoint in order to access
+                                your application after it has been deployed.`)
                 }}
                 <a :href="ingressDnsHelpPath" target="_blank" rel="noopener noreferrer">
                   {{ __('More information') }}
@@ -367,8 +370,8 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
             <p v-if="!ingressExternalEndpoint" class="settings-message js-no-endpoint-message">
               {{
                 s__(`ClusterIntegration|The endpoint is in
-              the process of being assigned. Please check your Kubernetes
-              cluster or Quotas on Google Kubernetes Engine if it takes a long time.`)
+                            the process of being assigned. Please check your Kubernetes
+                            cluster or Quotas on Google Kubernetes Engine if it takes a long time.`)
               }}
               <a :href="ingressDnsHelpPath" target="_blank" rel="noopener noreferrer">
                 {{ __('More information') }}
@@ -415,7 +418,7 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
               <p class="form-text text-muted">
                 {{
                   s__(`ClusterIntegration|Issuers represent a certificate authority.
-                You must provide an email address for your Issuer. `)
+                                You must provide an email address for your Issuer. `)
                 }}
                 <a
                   href="http://docs.cert-manager.io/en/latest/reference/issuers.html?highlight=email"
@@ -471,9 +474,9 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
         <div slot="description">
           {{
             s__(`ClusterIntegration|GitLab Runner connects to the
-          repository and executes CI/CD jobs,
-          pushing results back and deploying
-          applications to production.`)
+                    repository and executes CI/CD jobs,
+                    pushing results back and deploying
+                    applications to production.`)
           }}
         </div>
       </application-row>
@@ -526,10 +529,10 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
           <p>
             {{
               s__(`ClusterIntegration|JupyterHub, a multi-user Hub, spawns,
-            manages, and proxies multiple instances of the single-user
-            Jupyter notebook server. JupyterHub can be used to serve
-            notebooks to a class of students, a corporate data science group,
-            or a scientific research group.`)
+                        manages, and proxies multiple instances of the single-user
+                        Jupyter notebook server. JupyterHub can be used to serve
+                        notebooks to a class of students, a corporate data science group,
+                        or a scientific research group.`)
             }}
           </p>
 
@@ -556,7 +559,7 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
               <p v-if="ingressInstalled" class="form-text text-muted">
                 {{
                   s__(`ClusterIntegration|Replace this with your own hostname if you want.
-                If you do so, point hostname to Ingress IP Address from above.`)
+                                If you do so, point hostname to Ingress IP Address from above.`)
                 }}
                 <a :href="ingressDnsHelpPath" target="_blank" rel="noopener noreferrer">
                   {{ __('More information') }}
@@ -602,9 +605,9 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
           <p>
             {{
               s__(`ClusterIntegration|Knative extends Kubernetes to provide
-            a set of middleware components that are essential to build modern,
-            source-centric, and container-based applications that can run
-            anywhere: on premises, in the cloud, or even in a third-party data center.`)
+                        a set of middleware components that are essential to build modern,
+                        source-centric, and container-based applications that can run
+                        anywhere: on premises, in the cloud, or even in a third-party data center.`)
             }}
           </p>
 
@@ -676,7 +679,7 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
               <p v-if="ingressInstalled" class="form-text text-muted">
                 {{
                   s__(`ClusterIntegration|Replace this with your own hostname if you want.
-                If you do so, point hostname to Ingress IP Address from above.`)
+                                If you do so, point hostname to Ingress IP Address from above.`)
                 }}
                 <a :href="ingressDnsHelpPath" target="_blank" rel="noopener noreferrer">
                   {{ __('More information') }}

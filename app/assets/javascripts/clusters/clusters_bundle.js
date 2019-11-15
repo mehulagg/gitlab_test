@@ -8,7 +8,7 @@ import Flash from '../flash';
 import Poll from '../lib/utils/poll';
 import initSettingsPanels from '../settings_panels';
 import eventHub from './event_hub';
-import { APPLICATION_STATUS, INGRESS, INGRESS_DOMAIN_SUFFIX } from './constants';
+import { APPLICATION_STATUS, INGRESS, INGRESS_DOMAIN_SUFFIX, CROSSPLANE } from './constants';
 import ClustersService from './services/clusters_service';
 import ClustersStore from './stores/clusters_store';
 import Applications from './components/applications.vue';
@@ -225,7 +225,6 @@ export default class Clusters {
   addListeners() {
     if (this.showTokenButton) this.showTokenButton.addEventListener('click', this.showToken);
     eventHub.$on('installApplication', this.installApplication);
-    eventHub.$on('installApplicationError', data => this.installApplicationError(data));
     eventHub.$on('updateApplication', data => this.updateApplication(data));
     eventHub.$on('saveKnativeDomain', data => this.saveKnativeDomain(data));
     eventHub.$on('setKnativeHostname', data => this.setKnativeHostname(data));
@@ -243,12 +242,7 @@ export default class Clusters {
     eventHub.$off('saveKnativeDomain');
     eventHub.$off('setKnativeHostname');
     eventHub.$off('setCrossplaneProviderStack');
-    eventHub.$off('installApplicationError', this.installApplicationError);
     eventHub.$off('uninstallApplication');
-  }
-
-  installApplicationError({ id: appId, message }) {
-    this.store.updateAppProperty(appId, 'validationError', message);
   }
 
   initPolling(method, successCallback, errorCallback) {
@@ -414,18 +408,32 @@ export default class Clusters {
   }
 
   installApplication({ id: appId, params }) {
-    this.store.updateAppProperty(appId, 'requestReason', null);
-    this.store.updateAppProperty(appId, 'statusReason', null);
+    Clusters.validateInstallation(appId, params)
+      .then(() => {
+        this.store.updateAppProperty(appId, 'requestReason', null);
+        this.store.updateAppProperty(appId, 'statusReason', null);
+        this.store.installApplication(appId);
 
-    this.store.installApplication(appId);
+        return this.service.installApplication(appId, params).catch(() => {
+          this.store.notifyInstallFailure(appId);
+          this.store.updateAppProperty(
+            appId,
+            'requestReason',
+            s__('ClusterIntegration|Request to begin installing failed'),
+          );
+        });
+      })
+      .catch(error => this.store.updateAppProperty(appId, 'validationError', error));
+  }
 
-    return this.service.installApplication(appId, params).catch(() => {
-      this.store.notifyInstallFailure(appId);
-      this.store.updateAppProperty(
-        appId,
-        'requestReason',
-        s__('ClusterIntegration|Request to begin installing failed'),
-      );
+  static validateInstallation(appId, params) {
+    return new Promise((resolve, reject) => {
+      if (appId === CROSSPLANE && !params.stack) {
+        reject(s__('ClusterIntegration|Select a stack to install Crossplane.'));
+        return;
+      }
+
+      resolve();
     });
   }
 

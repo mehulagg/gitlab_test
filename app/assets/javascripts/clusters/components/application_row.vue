@@ -10,7 +10,7 @@ import loadingButton from '../../vue_shared/components/loading_button.vue';
 import UninstallApplicationButton from './uninstall_application_button.vue';
 import UninstallApplicationConfirmationModal from './uninstall_application_confirmation_modal.vue';
 
-import { APPLICATION_STATUS, CROSSPLANE } from '../constants';
+import { APPLICATION_STATUS } from '../constants';
 
 export default {
   components: {
@@ -264,25 +264,10 @@ export default {
   },
   methods: {
     installClicked() {
-      if (this.validateInstallation()) {
-        eventHub.$emit('installApplication', {
-          id: this.id,
-          params: this.installApplicationRequestParams,
-        });
-      }
-    },
-    validateInstallation() {
-      let isValid = true;
-
-      if (this.id === CROSSPLANE && !this.installApplicationRequestParams.stack) {
-        isValid = false;
-        eventHub.$emit('installApplicationError', {
-          id: this.id,
-          message: __('Select a stack to install Crossplane.'),
-        });
-      }
-
-      return isValid;
+      eventHub.$emit('installApplication', {
+        id: this.id,
+        params: this.installApplicationRequestParams,
+      });
     },
     updateClicked() {
       eventHub.$emit('updateApplication', {
@@ -395,7 +380,6 @@ export default {
           <loading-button
             v-if="displayInstallButton"
             :loading="installButtonLoading"
-            :disabled="disabled || installButtonDisabled"
             :label="installButtonLabel"
             class="js-cluster-application-install-button"
             @click="installClicked"
