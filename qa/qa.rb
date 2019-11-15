@@ -422,6 +422,7 @@ module QA
       autoload :Maven, 'qa/service/docker_run/maven'
       autoload :NodeJs, 'qa/service/docker_run/node_js'
       autoload :GitlabRunner, 'qa/service/docker_run/gitlab_runner'
+      autoload :MailHog, 'qa/service/docker_run/mail_hog'
     end
   end
 
