@@ -2,7 +2,7 @@
 
 The GitLab Rails application code suffers from memory leaks. For web requests
 this problem is made manageable using
-[unicorn-worker-killer](https://github.com/kzk/unicorn-worker-killer) which
+[`unicorn-worker-killer`](https://github.com/kzk/unicorn-worker-killer) which
 restarts Unicorn worker processes in between requests when needed. The Sidekiq
 MemoryKiller applies the same approach to the Sidekiq processes used by GitLab
 to process background jobs.
@@ -10,8 +10,8 @@ to process background jobs.
 Unlike unicorn-worker-killer, which is enabled by default for all GitLab
 installations since GitLab 6.4, the Sidekiq MemoryKiller is enabled by default
 _only_ for Omnibus packages. The reason for this is that the MemoryKiller
-relies on Runit to restart Sidekiq after a memory-induced shutdown and GitLab
-installations from source do not all use Runit or an equivalent.
+relies on runit to restart Sidekiq after a memory-induced shutdown and GitLab
+installations from source do not all use runit or an equivalent.
 
 With the default settings, the MemoryKiller will cause a Sidekiq restart no
 more often than once every 15 minutes, with the restart causing about one
@@ -34,7 +34,7 @@ The MemoryKiller is controlled using environment variables.
   In _daemon_ mode, the MemoryKiller checks the Sidekiq process RSS every 3 seconds
   (defined by `SIDEKIQ_MEMORY_KILLER_CHECK_INTERVAL`).
 
-- `SIDEKIQ_MEMORY_KILLER_MAX_RSS`: if this variable is set, and its value is greater
+- `SIDEKIQ_MEMORY_KILLER_MAX_RSS` (KB): if this variable is set, and its value is greater
   than 0, the MemoryKiller is enabled. Otherwise the MemoryKiller is disabled.
 
   `SIDEKIQ_MEMORY_KILLER_MAX_RSS` defines the Sidekiq process allowed RSS.
@@ -49,10 +49,10 @@ The MemoryKiller is controlled using environment variables.
   the restart will be aborted.
 
   The default value for Omnibus packages is set
-  [in the omnibus-gitlab
+  [in the Omnibus GitLab
   repository](https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/files/gitlab-cookbooks/gitlab/attributes/default.rb).
 
-- `SIDEKIQ_MEMORY_KILLER_HARD_LIMIT_RSS`: is used by _daemon_ mode. If the Sidekiq
+- `SIDEKIQ_MEMORY_KILLER_HARD_LIMIT_RSS` (KB): is used by _daemon_ mode. If the Sidekiq
   process RSS (expressed in kilobytes) exceeds `SIDEKIQ_MEMORY_KILLER_HARD_LIMIT_RSS`,
   an immediate graceful restart of Sidekiq is triggered.
 
@@ -72,4 +72,4 @@ The MemoryKiller is controlled using environment variables.
   If the process hard shutdown/restart is not performed by Sidekiq,
   the Sidekiq process will be forcefully terminated after
   `Sidekiq.options[:timeout] * 2` seconds. An external supervision mechanism
-  (e.g. Runit) must restart Sidekiq afterwards.
+  (e.g. runit) must restart Sidekiq afterwards.

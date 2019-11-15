@@ -77,11 +77,7 @@ class WikiPage
 
   # The escaped URL path of this page.
   def slug
-    if @attributes[:slug].present?
-      @attributes[:slug]
-    else
-      wiki.wiki.preview_slug(title, format)
-    end
+    @attributes[:slug].presence || wiki.wiki.preview_slug(title, format)
   end
 
   alias_method :to_param, :slug
@@ -116,11 +112,6 @@ class WikiPage
     wiki.page_title_and_dir(slug)&.last.to_s
   end
 
-  # The processed/formatted content of this page.
-  def formatted_content
-    @attributes[:formatted_content] ||= @wiki.page_formatted_data(@page)
-  end
-
   # The markup format for the page.
   def format
     @attributes[:format] || :markdown
@@ -136,6 +127,12 @@ class WikiPage
     return unless persisted?
 
     @version ||= @page.version
+  end
+
+  def path
+    return unless persisted?
+
+    @path ||= @page.path
   end
 
   def versions(options = {})

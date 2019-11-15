@@ -1,12 +1,13 @@
-/* eslint-disable func-names, no-var, consistent-return, prefer-arrow-callback, no-return-assign */
+/* eslint-disable consistent-return, no-return-assign */
 
 function notificationGranted(message, opts, onclick) {
-  var notification;
-  notification = new Notification(message, opts);
-  setTimeout(function() {
-    // Hide the notification after X amount of seconds
-    return notification.close();
-  }, 8000);
+  const notification = new Notification(message, opts);
+  setTimeout(
+    () =>
+      // Hide the notification after X amount of seconds
+      notification.close(),
+    8000,
+  );
 
   return (notification.onclick = onclick || notification.close);
 }
@@ -19,8 +20,7 @@ function notifyPermissions() {
 }
 
 function notifyMe(message, body, icon, onclick) {
-  var opts;
-  opts = {
+  const opts = {
     body,
     icon,
   };
@@ -32,7 +32,7 @@ function notifyMe(message, body, icon, onclick) {
     // If it's okay let's create a notification
     return notificationGranted(message, opts, onclick);
   } else if (Notification.permission !== 'denied') {
-    return Notification.requestPermission(function(permission) {
+    return Notification.requestPermission(permission => {
       // If the user accepts, let's create a notification
       if (permission === 'granted') {
         return notificationGranted(message, opts, onclick);

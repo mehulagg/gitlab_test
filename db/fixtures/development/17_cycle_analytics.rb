@@ -150,9 +150,11 @@ class Gitlab::Seeder::CycleAnalytics
       ::Git::BranchPushService.new(
         issue.project,
         @user,
-        oldrev: issue.project.repository.commit("master").sha,
-        newrev: commit_sha,
-        ref: 'refs/heads/master'
+        change: {
+          oldrev: issue.project.repository.commit("master").sha,
+          newrev: commit_sha,
+          ref: 'refs/heads/master'
+        }
       ).execute
 
       branch_name
@@ -215,7 +217,7 @@ Gitlab::Seeder.quiet do
   flag = 'SEED_CYCLE_ANALYTICS'
 
   if ENV[flag]
-    Project.find_each do |project|
+    Project.not_mass_generated.find_each do |project|
       # This seed naively assumes that every project has a repository, and every
       # repository has a `master` branch, which may be the case for a pristine
       # GDK seed, but is almost never true for a GDK that's actually had

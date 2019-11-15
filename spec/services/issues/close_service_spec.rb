@@ -8,6 +8,7 @@ describe Issues::CloseService do
   let(:user2) { create(:user, email: "user2@example.com") }
   let(:guest) { create(:user) }
   let(:issue) { create(:issue, title: "My issue", project: project, assignees: [user2], author: create(:user)) }
+  let(:external_issue) { ExternalIssue.new('JIRA-123', project) }
   let(:closing_merge_request) { create(:merge_request, source_project: project) }
   let(:closing_commit) { create(:commit, project: project) }
   let!(:todo) { create(:todo, :assigned, user: user, project: project, target: issue, author: user2) }
@@ -36,6 +37,16 @@ describe Issues::CloseService do
       expect(service.execute(issue)).to eq(issue)
     end
 
+    it 'closes the external issue even when the user is not authorized to do so' do
+      allow(service).to receive(:can?).with(user, :update_issue, external_issue)
+        .and_return(false)
+
+      expect(service).to receive(:close_issue)
+        .with(external_issue, closed_via: nil, notifications: true, system_note: true)
+
+      service.execute(external_issue)
+    end
+
     it 'closes the issue when the user is authorized to do so' do
       allow(service).to receive(:can?).with(user, :update_issue, issue)
         .and_return(true)
@@ -59,7 +70,7 @@ describe Issues::CloseService do
   end
 
   describe '#close_issue' do
-    context "closed by a merge request" do
+    context "closed by a merge request", :sidekiq_might_not_need_inline do
       it 'mentions closure via a merge request' do
         perform_enqueued_jobs do
           described_class.new(project, user).close_issue(issue, closed_via: closing_merge_request)
@@ -89,7 +100,7 @@ describe Issues::CloseService do
       end
     end
 
-    context "closed by a commit" do
+    context "closed by a commit", :sidekiq_might_not_need_inline do
       it 'mentions closure via a commit' do
         perform_enqueued_jobs do
           described_class.new(project, user).close_issue(issue, closed_via: closing_commit)
@@ -135,7 +146,7 @@ describe Issues::CloseService do
         expect(issue.closed_by_id).to be(user.id)
       end
 
-      it 'sends email to user2 about assign of new issue' do
+      it 'sends email to user2 about assign of new issue', :sidekiq_might_not_need_inline do
         email = ActionMailer::Base.deliveries.last
         expect(email.to.first).to eq(user2.email)
         expect(email.subject).to include(issue.title)

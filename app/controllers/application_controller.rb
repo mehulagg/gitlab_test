@@ -12,30 +12,36 @@ class ApplicationController < ActionController::Base
   include EnforcesTwoFactorAuthentication
   include WithPerformanceBar
   include SessionlessAuthentication
+  include SessionsHelper
   include ConfirmEmailWarning
+  include Gitlab::Tracking::ControllerConcern
+  include Gitlab::Experimentation::ControllerConcern
 
-  before_action :authenticate_user!
+  before_action :authenticate_user!, except: [:route_not_found]
   before_action :enforce_terms!, if: :should_enforce_terms?
   before_action :validate_user_service_ticket!
-  before_action :check_password_expiration
+  before_action :check_password_expiration, if: :html_request?
   before_action :ldap_security_check
   before_action :sentry_context
   before_action :default_headers
-  before_action :add_gon_variables, unless: [:peek_request?, :json_request?]
+  before_action :add_gon_variables, if: :html_request?
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :require_email, unless: :devise_controller?
+  before_action :active_user_check, unless: :devise_controller?
   before_action :set_usage_stats_consent_flag
   before_action :check_impersonation_availability
+  before_action :required_signup_info
 
   around_action :set_locale
   around_action :set_session_storage
 
   after_action :set_page_title_header, if: :json_request?
-  after_action :limit_unauthenticated_session_times
+  after_action :limit_session_time, if: -> { !current_user }
 
   protect_from_forgery with: :exception, prepend: true
 
   helper_method :can?
+  helper_method :current_user_mode
   helper_method :import_sources_enabled?, :github_import_enabled?,
     :gitea_import_enabled?, :github_import_configured?,
     :gitlab_import_enabled?, :gitlab_import_configured?,
@@ -92,26 +98,10 @@ class ApplicationController < ActionController::Base
     if current_user
       not_found
     else
-      authenticate_user!
+      store_location_for(:user, request.fullpath) unless request.xhr?
+
+      redirect_to new_user_session_path, alert: I18n.t('devise.failure.unauthenticated')
     end
-  end
-
-  # By default, all sessions are given the same expiration time configured in
-  # the session store (e.g. 1 week). However, unauthenticated users can
-  # generate a lot of sessions, primarily for CSRF verification. It makes
-  # sense to reduce the TTL for unauthenticated to something much lower than
-  # the default (e.g. 1 hour) to limit Redis memory. In addition, Rails
-  # creates a new session after login, so the short TTL doesn't even need to
-  # be extended.
-  def limit_unauthenticated_session_times
-    return if current_user
-
-    # Rack sets this header, but not all tests may have it: https://github.com/rack/rack/blob/fdcd03a3c5a1c51d1f96fc97f9dfa1a9deac0c77/lib/rack/session/abstract/id.rb#L251-L259
-    return unless request.env['rack.session.options']
-
-    # This works because Rack uses these options every time a request is handled:
-    # https://github.com/rack/rack/blob/fdcd03a3c5a1c51d1f96fc97f9dfa1a9deac0c77/lib/rack/session/abstract/id.rb#L342
-    request.env['rack.session.options'][:expire_after] = Settings.gitlab['unauthenticated_session_expire_delay']
   end
 
   def render(*args)
@@ -226,6 +216,10 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def respond_201
+    head :created
+  end
+
   def respond_422
     head :unprocessable_entity
   end
@@ -286,11 +280,17 @@ class ApplicationController < ActionController::Base
   def check_password_expiration
     return if session[:impersonator_id] || !current_user&.allow_password_authentication?
 
-    password_expires_at = current_user&.password_expires_at
-
-    if password_expires_at && password_expires_at < Time.now
+    if current_user&.password_expired?
       return redirect_to new_profile_password_path
     end
+  end
+
+  def active_user_check
+    return unless current_user && current_user.deactivated?
+
+    sign_out current_user
+    flash[:alert] = _("Your account has been deactivated by your administrator. Please log back in to reactivate your account.")
+    redirect_to new_user_session_path
   end
 
   def ldap_security_check
@@ -455,8 +455,8 @@ class ApplicationController < ActionController::Base
     response.headers['Page-Title'] = URI.escape(page_title('GitLab'))
   end
 
-  def peek_request?
-    request.path.start_with?('/-/peek')
+  def html_request?
+    request.format.html?
   end
 
   def json_request?
@@ -466,7 +466,7 @@ class ApplicationController < ActionController::Base
   def should_enforce_terms?
     return false unless Gitlab::CurrentSettings.current_application_settings.enforce_terms
 
-    !(peek_request? || devise_controller?)
+    html_request? && !devise_controller?
   end
 
   def set_usage_stats_consent_flag
@@ -532,6 +532,23 @@ class ApplicationController < ActionController::Base
     ::Gitlab::GitalyClient.allow_ref_name_caching do
       yield
     end
+  end
+
+  def current_user_mode
+    @current_user_mode ||= Gitlab::Auth::CurrentUserMode.new(current_user)
+  end
+
+  # A user requires a role and have the setup_for_company attribute set when they are part of the experimental signup
+  # flow (executed by the Growth team). Users are redirected to the welcome page when their role is required and the
+  # experiment is enabled for the current user.
+  def required_signup_info
+    return unless current_user
+    return unless current_user.role_required?
+    return unless experiment_enabled?(:signup_flow)
+
+    store_location_for :user, request.fullpath
+
+    redirect_to users_sign_up_welcome_path
   end
 end
 

@@ -23,13 +23,21 @@ describe API::Scim do
         end
       end
 
-      it 'responds with an error if there is no filter' do
+      it 'responds with paginated users when there is no filter' do
         get scim_api("scim/v2/groups/#{group.full_path}/Users")
+
+        expect(response).to have_gitlab_http_status(200)
+        expect(json_response['Resources']).not_to be_empty
+        expect(json_response['totalResults']).to eq(Identity.count)
+      end
+
+      it 'responds with an error for unsupported filters' do
+        get scim_api("scim/v2/groups/#{group.full_path}/Users?filter=id ne \"#{identity.extern_uid}\"")
 
         expect(response).to have_gitlab_http_status(412)
       end
 
-      context 'existing user' do
+      context 'existing user matches filter' do
         it 'responds with 200' do
           get scim_api("scim/v2/groups/#{group.full_path}/Users?filter=id eq \"#{identity.extern_uid}\"")
 
@@ -37,9 +45,17 @@ describe API::Scim do
           expect(json_response['Resources']).not_to be_empty
           expect(json_response['totalResults']).to eq(1)
         end
+
+        it 'sets default values as required by the specification' do
+          get scim_api(%{scim/v2/groups/#{group.full_path}/Users?filter=id eq "#{identity.extern_uid}"})
+
+          expect(json_response['schemas']).to eq(['urn:ietf:params:scim:api:messages:2.0:ListResponse'])
+          expect(json_response['itemsPerPage']).to eq(20)
+          expect(json_response['startIndex']).to eq(1)
+        end
       end
 
-      context 'no user' do
+      context 'no user matches filter' do
         it 'responds with 200' do
           get scim_api("scim/v2/groups/#{group.full_path}/Users?filter=id eq \"nonexistent\"")
 

@@ -2,7 +2,7 @@
 
 # Sync remaining records for issues/merge_requests tables where state_id
 # is still null.
-# For more information check: https://gitlab.com/gitlab-org/gitlab-ee/issues/26823
+# For more information check: https://gitlab.com/gitlab-org/gitlab/issues/26823
 # It creates a temporary index before performing the UPDATES to sync values.
 #
 # In 09-11-2019 we have the following numbers for records with state_id == nil:
@@ -62,6 +62,7 @@ class SyncIssuablesStateId < ActiveRecord::Migration[5.2]
       CASE state
       WHEN 'opened' THEN 1
       WHEN 'closed' THEN 2
+      ELSE 2
       END
     SQL
   end
@@ -73,6 +74,7 @@ class SyncIssuablesStateId < ActiveRecord::Migration[5.2]
       WHEN 'closed' THEN 2
       WHEN 'merged' THEN 3
       WHEN 'locked' THEN 4
+      ELSE 2
       END
     SQL
   end

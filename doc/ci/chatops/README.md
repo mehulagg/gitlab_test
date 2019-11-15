@@ -19,7 +19,7 @@ GitLab ChatOps is built upon two existing features:
 - [GitLab CI/CD](../README.md).
 - [Slack Slash Commands](../../user/project/integrations/slack_slash_commands.md).
 
-A new `run` action has been added to the [slash commands](../../integration/slash_commands.md), which takes two arguments: a `<job name>` to execute and the `<job arguments>`. When executed, ChatOps will look up the specified job name and attempt to match it to a corresponding job in [.gitlab-ci.yml](../yaml/README.md). If a matching job is found on `master`, a pipeline containing just that job is scheduled. Two additional [CI/CD variables](../variables/README.md#predefined-environment-variables) are passed to the job: `CHAT_INPUT` contains any additional arguments, and `CHAT_CHANNEL` is set to the name of channel the action was triggered in.
+A new `run` action has been added to the [slash commands](../../integration/slash_commands.md), which takes two arguments: a `<job name>` to execute and the `<job arguments>`. When executed, ChatOps will look up the specified job name and attempt to match it to a corresponding job in [`.gitlab-ci.yml`](../yaml/README.md). If a matching job is found on `master`, a pipeline containing just that job is scheduled. Two additional [CI/CD variables](../variables/README.md#predefined-environment-variables) are passed to the job: `CHAT_INPUT` contains any additional arguments, and `CHAT_CHANNEL` is set to the name of channel the action was triggered in.
 
 After the job has finished, its output is sent back to Slack provided it has completed within 30 minutes. If a job takes more than 30 minutes to run it must use the Slack API to manually send data back to a channel.
 
@@ -57,6 +57,11 @@ ls:
     - echo "This command will not be shown."
     - echo -e "section_start:$( date +%s ):chat_reply\r\033[0K\n$( ls -la )\nsection_end:$( date +%s ):chat_reply\r\033[0K"
 ```
+
+## GitLab ChatOps Examples
+
+The GitLab.com team created a repository of [common ChatOps scripts they use to interact with our Production instance of GitLab](https://gitlab.com/gitlab-com/chatops). They are likely useful
+to other adminstrators of GitLab instances and can serve as inspiration for ChatOps scripts you can write to interact with your own applications.
 
 ## GitLab ChatOps icon
 

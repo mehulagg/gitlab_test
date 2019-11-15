@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Ci::CreatePipelineService, '#execute' do
   set(:namespace) { create(:namespace) }
   set(:gold_plan) { create(:gold_plan) }
+  set(:plan_limits) { create(:plan_limits, plan: gold_plan) }
   set(:project) { create(:project, :repository, namespace: namespace) }
   set(:user) { create(:user) }
 
@@ -34,7 +37,7 @@ describe Ci::CreatePipelineService, '#execute' do
 
     context 'when pipeline activity limit is exceeded' do
       before do
-        gold_plan.update_column(:active_pipelines_limit, 2)
+        plan_limits.update_column(:ci_active_pipelines, 2)
 
         create(:ci_pipeline, project: project, status: 'pending')
         create(:ci_pipeline, project: project, status: 'running')
@@ -53,7 +56,7 @@ describe Ci::CreatePipelineService, '#execute' do
 
     context 'when pipeline size limit is exceeded' do
       before do
-        gold_plan.update_column(:pipeline_size_limit, 2)
+        plan_limits.update_column(:ci_pipeline_size, 2)
       end
 
       it 'drops pipeline without creating jobs' do

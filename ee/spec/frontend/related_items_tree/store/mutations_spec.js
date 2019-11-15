@@ -364,31 +364,27 @@ describe('RelatedItemsTree', () => {
       });
 
       describe(types.TOGGLE_ADD_ITEM_FORM, () => {
-        it('should set value of `actionType`, `showAddItemForm` as it is and `showCreateItemForm` as false on state', () => {
+        it('should set value of `issuableType`, `showAddItemForm` as it is and `showCreateEpicForm` as false on state', () => {
           const data = {
-            actionType: 'Epic',
+            issuableType: 'Epic',
             toggleState: true,
           };
 
           mutations[types.TOGGLE_ADD_ITEM_FORM](state, data);
 
-          expect(state.actionType).toBe(data.actionType);
+          expect(state.issuableType).toBe(data.issuableType);
           expect(state.showAddItemForm).toBe(data.toggleState);
-          expect(state.showCreateItemForm).toBe(false);
+          expect(state.showCreateEpicForm).toBe(false);
         });
       });
 
-      describe(types.TOGGLE_CREATE_ITEM_FORM, () => {
-        it('should set value of `actionType`, `showCreateItemForm` as it is and `showAddItemForm` as false on state', () => {
-          const data = {
-            actionType: 'Epic',
-            toggleState: true,
-          };
+      describe(types.TOGGLE_CREATE_EPIC_FORM, () => {
+        it('should set value of `showCreateEpicForm` as it is and `showAddItemForm` as false on state', () => {
+          const data = { toggleState: true };
 
-          mutations[types.TOGGLE_CREATE_ITEM_FORM](state, data);
+          mutations[types.TOGGLE_CREATE_EPIC_FORM](state, data);
 
-          expect(state.actionType).toBe(data.actionType);
-          expect(state.showCreateItemForm).toBe(data.toggleState);
+          expect(state.showCreateEpicForm).toBe(data.toggleState);
           expect(state.showAddItemForm).toBe(false);
         });
       });

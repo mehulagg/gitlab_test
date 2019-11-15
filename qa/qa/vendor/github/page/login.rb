@@ -12,6 +12,16 @@ module QA
             fill_in 'password', with: QA::Runtime::Env.github_password
             click_on 'Sign in'
 
+            Support::Retrier.retry_until(exit_on_failure: true) do
+              otp = OnePassword::CLI.new.otp
+
+              fill_in 'otp', with: otp
+
+              click_on 'Verify'
+
+              !has_text?('Two-factor authentication failed', wait: 1.0)
+            end
+
             click_on 'Authorize gitlab-qa' if has_button?('Authorize gitlab-qa')
           end
         end

@@ -133,6 +133,32 @@ describe Snippet do
     end
   end
 
+  describe 'when default snippet visibility set to internal' do
+    using RSpec::Parameterized::TableSyntax
+
+    before do
+      stub_application_setting(default_snippet_visibility: Gitlab::VisibilityLevel::INTERNAL)
+    end
+
+    where(:attribute_name, :value) do
+      :visibility | 'private'
+      :visibility_level | Gitlab::VisibilityLevel::PRIVATE
+      'visibility' | 'private'
+      'visibility_level' | Gitlab::VisibilityLevel::PRIVATE
+    end
+
+    with_them do
+      it 'sets the visibility level' do
+        snippet = described_class.new(attribute_name => value, title: 'test', file_name: 'test.rb', content: 'test data')
+
+        expect(snippet.visibility_level).to eq(Gitlab::VisibilityLevel::PRIVATE)
+        expect(snippet.title).to eq('test')
+        expect(snippet.file_name).to eq('test.rb')
+        expect(snippet.content).to eq('test data')
+      end
+    end
+  end
+
   describe '.with_optional_visibility' do
     context 'when a visibility level is provided' do
       it 'returns snippets with the given visibility' do
@@ -157,12 +183,12 @@ describe Snippet do
     end
   end
 
-  describe '.only_global_snippets' do
+  describe '.only_personal_snippets' do
     it 'returns snippets not associated with any projects' do
       create(:project_snippet)
 
       snippet = create(:snippet)
-      snippets = described_class.only_global_snippets
+      snippets = described_class.only_personal_snippets
 
       expect(snippets).to eq([snippet])
     end
@@ -423,43 +449,6 @@ describe Snippet do
       expect(blob).to be_a(Blob)
       expect(blob.path).to eq(snippet.file_name)
       expect(blob.data).to eq(snippet.content)
-    end
-  end
-
-  describe '#embeddable?' do
-    context 'project snippet' do
-      [
-        { project: :public,   snippet: :public,   embeddable: true },
-        { project: :internal, snippet: :public,   embeddable: false },
-        { project: :private,  snippet: :public,   embeddable: false },
-        { project: :public,   snippet: :internal, embeddable: false },
-        { project: :internal, snippet: :internal, embeddable: false },
-        { project: :private,  snippet: :internal, embeddable: false },
-        { project: :public,   snippet: :private,  embeddable: false },
-        { project: :internal, snippet: :private,  embeddable: false },
-        { project: :private,  snippet: :private,  embeddable: false }
-      ].each do |combination|
-        it 'only returns true when both project and snippet are public' do
-          project = create(:project, combination[:project])
-          snippet = create(:project_snippet, combination[:snippet], project: project)
-
-          expect(snippet.embeddable?).to eq(combination[:embeddable])
-        end
-      end
-    end
-
-    context 'personal snippet' do
-      [
-        { snippet: :public,   embeddable: true },
-        { snippet: :internal, embeddable: false },
-        { snippet: :private,  embeddable: false }
-      ].each do |combination|
-        it 'only returns true when snippet is public' do
-          snippet = create(:personal_snippet, combination[:snippet])
-
-          expect(snippet.embeddable?).to eq(combination[:embeddable])
-        end
-      end
     end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'rubocop'
 require 'rubocop/rspec/support'
@@ -122,6 +124,19 @@ describe RuboCop::Cop::LineBreakAroundConditionalBlock do
     it "doesn't flag violation for #{conditional} preceded by a block definition" do
       source = <<~RUBY
           on_block(param_a) do |item|
+            #{conditional} condition
+              do_something
+            end
+          end
+      RUBY
+      inspect_source(source)
+
+      expect(cop.offenses).to be_empty
+    end
+
+    it "doesn't flag violation for #{conditional} preceded by a block definition with a comment" do
+      source = <<~RUBY
+          on_block(param_a) do |item| # a short comment
             #{conditional} condition
               do_something
             end

@@ -40,6 +40,7 @@ class Service < ApplicationRecord
   scope :external_wikis, -> { where(type: 'ExternalWikiService').active }
   scope :active, -> { where(active: true) }
   scope :without_defaults, -> { where(default: false) }
+  scope :by_type, -> (type) { where(type: type) }
 
   scope :push_hooks, -> { where(push_events: true, active: true) }
   scope :tag_push_hooks, -> { where(tag_push_events: true, active: true) }
@@ -291,6 +292,12 @@ class Service < ApplicationRecord
 
   def self.build_from_template(project_id, template)
     service = template.dup
+
+    if template.supports_data_fields?
+      data_fields = template.data_fields.dup
+      data_fields.service = service
+    end
+
     service.template = false
     service.project_id = project_id
     service.active = false if service.active? && !service.valid?
@@ -307,6 +314,11 @@ class Service < ApplicationRecord
 
   def self.find_by_template
     find_by(template: true)
+  end
+
+  # override if needed
+  def supports_data_fields?
+    false
   end
 
   private

@@ -47,6 +47,18 @@ module Gitlab
     Gitlab.config.gitlab.url == COM_URL || gl_subdomain?
   end
 
+  def self.canary?
+    Gitlab::Utils.to_boolean(ENV['CANARY'])
+  end
+
+  def self.com_and_canary?
+    com? && canary?
+  end
+
+  def self.com_but_not_canary?
+    com? && !canary?
+  end
+
   def self.org?
     Gitlab.config.gitlab.url == 'https://dev.gitlab.org'
   end
@@ -65,14 +77,18 @@ module Gitlab
 
   def self.ee?
     @is_ee ||=
-      if ENV['IS_GITLAB_EE'] && !ENV['IS_GITLAB_EE'].empty?
-        Gitlab::Utils.to_boolean(ENV['IS_GITLAB_EE'])
-      else
-        # We may use this method when the Rails environment is not loaded. This
-        # means that checking the presence of the License class could result in
-        # this method returning `false`, even for an EE installation.
-        root.join('ee/app/models/license.rb').exist?
-      end
+      # We use this method when the Rails environment is not loaded. This
+      # means that checking the presence of the License class could result in
+      # this method returning `false`, even for an EE installation.
+      #
+      # The `FOSS_ONLY` is always `string` or `nil`
+      # Thus the nil or empty string will result
+      # in using default value: false
+      #
+      # The behavior needs to be synchronised with
+      # config/helpers/is_ee_env.js
+      root.join('ee/app/models/license.rb').exist? &&
+        !%w[true 1].include?(ENV['FOSS_ONLY'].to_s)
   end
 
   def self.ee

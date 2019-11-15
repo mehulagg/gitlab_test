@@ -28,7 +28,7 @@ If all the jobs in a stage:
 - Fail, the next stage is not (usually) executed and the pipeline ends early.
 
 NOTE: **Note:**
-If you have a [mirrored repository that GitLab pulls from](../workflow/repository_mirroring.md#pulling-from-a-remote-repository-starter),
+If you have a [mirrored repository that GitLab pulls from](../user/project/repository/repository_mirroring.md#pulling-from-a-remote-repository-starter),
 you may need to enable pipeline triggering in your project's
 **Settings > Repository > Pull from a remote repository > Trigger pipelines for mirror updates**.
 
@@ -269,6 +269,38 @@ To execute a pipeline manually:
 
 The pipeline will execute the jobs as configured.
 
+#### Using a query string
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/24146) in GitLab 12.5.
+
+Variables on the **Run Pipeline** page can be pre-populated by passing variable keys and values
+in a query string appended to the `pipelines/new` URL. The format is:
+
+```plaintext
+.../pipelines/new?ref=<branch>&var[<variable_key>]=<value>&file_var[<file_key>]=<value>
+```
+
+The following parameters are supported:
+
+- `ref`: specify the branch to populate the **Run for** field with.
+- `var`: specify a `Variable` variable.
+- `file_var`: specify a `File` variable.
+
+For each `var` or `file_var`, a key and value are required.
+
+For example, the query string
+`.../pipelines/new?ref=my_branch&var[foo]=bar&file_var[file_foo]=file_bar` will pre-populate the
+**Run Pipeline** page as follows:
+
+- **Run for** field: `my_branch`.
+- **Variables** section:
+  - Variable:
+    - Key: `foo`
+    - Value: `bar`
+  - File:
+    - Key: `file_foo`
+    - Value: `file_bar`
+
 ### Accessing pipelines
 
 You can find the current and historical pipeline runs under your project's
@@ -283,11 +315,11 @@ You can also access pipelines for a merge request by navigating to its **Pipelin
 
 When you access a pipeline, you can see the related jobs for that pipeline.
 
-Clicking on an individual job will show you its job trace, and allow you to:
+Clicking on an individual job will show you its job log, and allow you to:
 
 - Cancel the job.
 - Retry the job.
-- Erase the job trace.
+- Erase the job log.
 
 ### Seeing the failure reason for jobs
 
@@ -379,6 +411,8 @@ This functionality is only available:
 
 ## Most Recent Pipeline
 
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/50499) in GitLab 12.3.
+
 There's a link to the latest pipeline for the last commit of a given branch at `/project/pipelines/[branch]/latest`. Also, `/project/pipelines/latest` will redirect you to the latest pipeline for the last commit on the project's default branch.
 
 ## Security on protected branches
@@ -405,3 +439,32 @@ branches, avoiding untrusted code to be executed on the protected runner and
 preserving deployment keys and other credentials from being unintentionally
 accessed. In order to ensure that jobs intended to be executed on protected
 runners will not use regular runners, they must be tagged accordingly.
+
+## Persistent pipeline refs
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/17043) in GitLab 12.4.
+
+Previously, you'd have encountered unexpected pipeline failures when you force-pushed
+a branch to its remote repository. To illustrate the problem, suppose you've had the current workflow:
+
+1. A user creates a feature branch named `example` and pushes it to a remote repository.
+1. A new pipeline starts running on the `example` branch.
+1. A user rebases the `example` branch on the latest `master` branch and force-pushes it to its remote repository.
+1. A new pipeline starts running on the `example` branch again, however,
+   the previous pipeline (2) fails because of `fatal: reference is not a tree:` error.
+
+This is because the previous pipeline cannot find a checkout-SHA (which associated with the pipeline record)
+from the `example` branch that the commit history has already been overwritten by the force-push.
+Similarly, [Pipelines for merged results](merge_request_pipelines/pipelines_for_merged_results/index.md)
+might have failed intermittently due to [the same reason](merge_request_pipelines/pipelines_for_merged_results/index.md#intermittently-pipelines-fail-by-fatal-reference-is-not-a-tree-error).
+
+As of GitLab 12.4, we've improved this behavior by persisting pipeline refs exclusively.
+To illustrate its life cycle:
+
+1. A pipeline is created on a feature branch named `example`.
+1. A persistent pipeline ref is created at `refs/pipelines/<pipeline-id>`,
+   which retains the checkout-SHA of the associated pipeline record.
+   This persistent ref stays intact during the pipeline execution,
+   even if the commit history of the `example` branch has been overwritten by force-push.
+1. GitLab Runner fetches the persistent pipeline ref and gets source code from the checkout-SHA.
+1. When the pipeline finished, its persistent ref is cleaned up in a background process.

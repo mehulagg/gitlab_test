@@ -1,12 +1,13 @@
-import { DEFAULT_DATA_TIME_FRAME } from '../constants';
-
 export default () => ({
   endpoints: {
-    cycleAnalyticsData: '',
-    stageData: '',
+    cycleAnalyticsData: null,
+    stageData: null,
+    cycleAnalyticsStagesAndEvents: null,
+    summaryData: null,
   },
 
-  dataTimeframe: DEFAULT_DATA_TIME_FRAME,
+  startDate: null,
+  endDate: null,
 
   isLoading: false,
   isLoadingStage: false,
@@ -15,12 +16,17 @@ export default () => ({
   errorCode: null,
 
   isAddingCustomStage: false,
+  isSavingCustomStage: false,
 
   selectedGroup: null,
   selectedProjectIds: [],
-  selectedStageName: null,
+  selectedStageId: null,
 
-  events: [],
+  currentStageEvents: [],
+
   stages: [],
   summary: [],
+  labels: [],
+
+  customStageFormEvents: [],
 });

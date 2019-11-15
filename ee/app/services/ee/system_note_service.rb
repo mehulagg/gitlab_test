@@ -7,6 +7,7 @@
 module EE
   module SystemNoteService
     extend ActiveSupport::Concern
+    include ActionView::RecordIdentifier
 
     prepended do
       # ::SystemNoteService wants the methods to be available as both class and
@@ -15,36 +16,64 @@ module EE
       extend_if_ee('EE::SystemNoteService') # rubocop: disable Cop/InjectEnterpriseEditionModule
     end
 
-    #
-    # noteable     - Noteable object
-    # noteable_ref - Referenced noteable object
-    # user         - User performing reference
-    #
-    # Example Note text:
-    #
-    #   "marked this issue as related to gitlab-foss#9001"
-    #
-    # Returns the created Note object
     def relate_issue(noteable, noteable_ref, user)
-      body = "marked this issue as related to #{noteable_ref.to_reference(noteable.project)}"
-
-      create_note(NoteSummary.new(noteable, noteable.project, user, body, action: 'relate'))
+      ::SystemNotes::IssuablesService.new(noteable: noteable, project: noteable.project, author: user).relate_issue(noteable_ref)
     end
 
-    #
-    # noteable     - Noteable object
-    # noteable_ref - Referenced noteable object
-    # user         - User performing reference
+    def unrelate_issue(noteable, noteable_ref, user)
+      ::SystemNotes::IssuablesService.new(noteable: noteable, project: noteable.project, author: user).unrelate_issue(noteable_ref)
+    end
+
+    # Parameters:
+    #   - version [DesignManagement::Version]
     #
     # Example Note text:
     #
-    #   "removed the relation with gitlab-foss#9001"
+    #   "added [1 designs](link-to-version)"
+    #   "changed [2 designs](link-to-version)"
+    #
+    # Returns [Array<Note>]: the created Note objects
+    def design_version_added(version)
+      events = DesignManagement::Action.events
+      issue = version.issue
+      project = issue.project
+      user = version.author
+      link_href = designs_path(project, issue, version: version.id)
+
+      version.designs_by_event.map do |(event_name, designs)|
+        note_data = design_event_note_data(events[event_name])
+        icon_name = note_data[:icon]
+        n = designs.size
+
+        body = "%s [%d %s](%s)" % [note_data[:past_tense], n, 'design'.pluralize(n), link_href]
+
+        create_note(NoteSummary.new(issue, project, user, body, action: icon_name))
+      end
+    end
+
+    # Called when a new discussion is created on a design
+    #
+    # discussion_note - DiscussionNote
+    #
+    # Example Note text:
+    #
+    #   "started a discussion on screen.png"
     #
     # Returns the created Note object
-    def unrelate_issue(noteable, noteable_ref, user)
-      body = "removed the relation with #{noteable_ref.to_reference(noteable.project)}"
+    def design_discussion_added(discussion_note)
+      design = discussion_note.noteable
+      issue = design.issue
+      project = design.project
+      user = discussion_note.author
+      body = _('started a discussion on %{design_link}') % {
+        design_link: '[%s](%s)' % [
+          design.filename,
+          designs_path(project, issue, vueroute: design.filename, anchor: dom_id(discussion_note))
+        ]
+      }
+      action = :designs_discussion_added
 
-      create_note(NoteSummary.new(noteable, noteable.project, user, body, action: 'unrelate'))
+      create_note(NoteSummary.new(issue, project, user, body, action: action))
     end
 
     def epic_issue(epic, issue, user, type)
@@ -122,15 +151,11 @@ module EE
     #
     # Returns the created Note object
     def approve_mr(noteable, user)
-      body = "approved this merge request"
-
-      create_note(NoteSummary.new(noteable, noteable.project, user, body, action: 'approved'))
+      ::SystemNotes::MergeRequestsService.new(noteable: noteable, project: noteable.project, author: user).approve_mr
     end
 
     def unapprove_mr(noteable, user)
-      body = "unapproved this merge request"
-
-      create_note(NoteSummary.new(noteable, noteable.project, user, body, action: 'unapproved'))
+      ::SystemNotes::MergeRequestsService.new(noteable: noteable, project: noteable.project, author: user).unapprove_mr
     end
 
     # Called when the weight of a Noteable is changed
@@ -147,8 +172,7 @@ module EE
     #
     # Returns the created Note object
     def change_weight_note(noteable, project, author)
-      body = noteable.weight ? "changed weight to **#{noteable.weight}**" : 'removed the weight'
-      create_note(NoteSummary.new(noteable, project, author, body, action: 'weight'))
+      ::SystemNotes::IssuablesService.new(noteable: noteable, project: project, author: author).change_weight_note
     end
 
     # Called when the start or end date of an Issuable is changed
@@ -242,6 +266,40 @@ module EE
       # TODO: Abort message should be sent by the system, not a particular user.
       # See https://gitlab.com/gitlab-org/gitlab-foss/issues/63187.
       create_note(NoteSummary.new(noteable, project, author, body, action: 'merge'))
+    end
+
+    def auto_resolve_prometheus_alert(noteable, project, author)
+      body = 'automatically closed this issue because the alert resolved.'
+
+      create_note(NoteSummary.new(noteable, project, author, body, action: 'closed'))
+    end
+
+    private
+
+    def designs_path(project, issue, params = {})
+      url_helpers.designs_project_issue_path(project, issue, params)
+    end
+
+    # Take one of the `DesignManagement::Action.events` and
+    # return:
+    #   * an English past-tense verb.
+    #   * the name of an icon used in renderin a system note
+    #
+    # We do not currently internationalize our system notes,
+    # instead we just produce English-language descriptions.
+    # See: https://gitlab.com/gitlab-org/gitlab/issues/30408
+    # See: https://gitlab.com/gitlab-org/gitlab/issues/14056
+    def design_event_note_data(event)
+      case event
+      when DesignManagement::Action.events[:creation]
+        { icon: 'designs_added', past_tense: 'added' }
+      when DesignManagement::Action.events[:modification]
+        { icon: 'designs_modified', past_tense: 'updated' }
+      when DesignManagement::Action.events[:deletion]
+        { icon: 'designs_removed', past_tense: 'removed' }
+      else
+        raise "Unknown event: #{event}"
+      end
     end
   end
 end

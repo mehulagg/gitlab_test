@@ -1,7 +1,12 @@
 require 'spec_helper'
 
 describe Gitlab::ImportExport::FastHashSerializer do
-  subject { described_class.new(project, tree).execute }
+  # FastHashSerializer#execute generates the hash which is not easily accessible
+  # and includes `JSONBatchRelation` items which are serialized at this point.
+  # Wrapping the result into JSON generating/parsing is for making
+  # the testing more convenient. Doing this, we can check that
+  # all items are properly serialized while traversing the simple hash.
+  subject { JSON.parse(JSON.generate(described_class.new(project, tree).execute)) }
 
   let!(:project) { setup_project }
   let(:user) { create(:user) }
@@ -127,10 +132,6 @@ describe Gitlab::ImportExport::FastHashSerializer do
   end
 
   it 'has no when YML attributes but only the DB column' do
-    allow_any_instance_of(Ci::Pipeline)
-      .to receive(:ci_yaml_file)
-      .and_return(File.read(Rails.root.join('spec/support/gitlab_stubs/gitlab_ci.yml')))
-
     expect_any_instance_of(Gitlab::Ci::YamlProcessor).not_to receive(:build_attributes)
 
     subject

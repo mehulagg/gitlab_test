@@ -7,9 +7,12 @@ module QA
     # creating it if it doesn't yet exist.
     #
     class Sandbox < Base
+      include Members
+
       attr_accessor :path
 
       attribute :id
+      attribute :runners_token
 
       def initialize
         @path = Runtime::Namespace.sandbox_name

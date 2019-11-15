@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe API::Snippets do
@@ -254,7 +256,7 @@ describe API::Snippets do
 
         it 'creates a spam log' do
           expect { create_snippet(visibility: 'public') }
-            .to change { SpamLog.count }.by(1)
+            .to log_spam(title: 'Test Title', user_id: user.id, noteable_type: 'PersonalSnippet')
         end
       end
     end
@@ -344,8 +346,7 @@ describe API::Snippets do
         end
 
         it 'creates a spam log' do
-          expect { update_snippet(title: 'Foo') }
-            .to change { SpamLog.count }.by(1)
+          expect { update_snippet(title: 'Foo') }.to log_spam(title: 'Foo', user_id: user.id, noteable_type: 'PersonalSnippet')
         end
       end
 
@@ -359,7 +360,7 @@ describe API::Snippets do
 
         it 'creates a spam log' do
           expect { update_snippet(title: 'Foo', visibility: 'public') }
-            .to change { SpamLog.count }.by(1)
+            .to log_spam(title: 'Foo', user_id: user.id, noteable_type: 'PersonalSnippet')
         end
       end
     end

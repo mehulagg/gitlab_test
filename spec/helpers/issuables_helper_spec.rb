@@ -203,43 +203,82 @@ describe IssuablesHelper do
     end
 
     describe '#zoomMeetingUrl in issue' do
-      let(:issue) { create(:issue, author: user, description: description) }
+      let(:issue) { create(:issue, author: user) }
 
       before do
         assign(:project, issue.project)
       end
 
-      context 'no zoom links in the issue description' do
-        let(:description) { 'issue text' }
-
-        it 'does not set zoomMeetingUrl' do
-          expect(helper.issuable_initial_data(issue))
-              .not_to include(:zoomMeetingUrl)
+      shared_examples 'sets zoomMeetingUrl to nil' do
+        specify do
+          expect(helper.issuable_initial_data(issue)[:zoomMeetingUrl])
+            .to be_nil
         end
       end
 
-      context 'no zoom links in the issue description if it has link but not a zoom link' do
-        let(:description) { 'issue text https://stackoverflow.com/questions/22' }
+      context 'with no "added" zoom mettings' do
+        it_behaves_like 'sets zoomMeetingUrl to nil'
 
-        it 'does not set zoomMeetingUrl' do
-          expect(helper.issuable_initial_data(issue))
-              .not_to include(:zoomMeetingUrl)
+        context 'with multiple removed meetings' do
+          before do
+            create(:zoom_meeting, issue: issue, issue_status: :removed)
+            create(:zoom_meeting, issue: issue, issue_status: :removed)
+          end
+
+          it_behaves_like 'sets zoomMeetingUrl to nil'
         end
       end
 
-      context 'with two zoom links in description' do
-        let(:description) do
-          <<~TEXT
-            issue text and
-            zoom call on https://zoom.us/j/123456789 this url
-            and new zoom url https://zoom.us/s/lastone and some more text
-          TEXT
+      context 'with "added" zoom meeting' do
+        before do
+          create(:zoom_meeting, issue: issue)
         end
 
-        it 'sets zoomMeetingUrl value to the last url' do
-          expect(helper.issuable_initial_data(issue))
-            .to include(zoomMeetingUrl: 'https://zoom.us/s/lastone')
+        shared_examples 'sets zoomMeetingUrl to canonical meeting url' do
+          specify do
+            expect(helper.issuable_initial_data(issue))
+              .to include(zoomMeetingUrl: 'https://zoom.us/j/123456789')
+          end
         end
+
+        it_behaves_like 'sets zoomMeetingUrl to canonical meeting url'
+
+        context 'with muliple "removed" zoom meetings' do
+          before do
+            create(:zoom_meeting, issue: issue, issue_status: :removed)
+            create(:zoom_meeting, issue: issue, issue_status: :removed)
+          end
+
+          it_behaves_like 'sets zoomMeetingUrl to canonical meeting url'
+        end
+      end
+    end
+  end
+
+  describe '#assignee_sidebar_data' do
+    let(:user) { create(:user) }
+    let(:merge_request) { nil }
+    subject { helper.assignee_sidebar_data(user, merge_request: merge_request) }
+
+    it 'returns hash of assignee data' do
+      is_expected.to eql({
+        avatar_url: user.avatar_url,
+        name: user.name,
+        username: user.username
+      })
+    end
+
+    context 'with merge_request' do
+      let(:merge_request) { build_stubbed(:merge_request) }
+
+      where(can_merge: [true, false])
+
+      with_them do
+        before do
+          allow(merge_request).to receive(:can_be_merged_by?).and_return(can_merge)
+        end
+
+        it { is_expected.to include({ can_merge: can_merge })}
       end
     end
   end

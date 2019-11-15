@@ -1,11 +1,9 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Signup on EE' do
   let(:user_attrs) { attributes_for(:user) }
-
-  before do
-    stub_feature_flags(invisible_captcha: false)
-  end
 
   context 'for Gitlab.com' do
     before do

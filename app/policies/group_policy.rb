@@ -44,30 +44,37 @@ class GroupPolicy < BasePolicy
 
   rule { public_group }.policy do
     enable :read_group
-    enable :read_list
-    enable :read_label
+    enable :read_package
   end
 
   rule { logged_in_viewable }.enable :read_group
 
   rule { guest }.policy do
     enable :read_group
-    enable :read_list
     enable :upload_file
-    enable :read_label
   end
 
-  rule { admin }.enable :read_group
+  rule { admin }.policy do
+    enable :read_group
+    enable :update_max_artifacts_size
+  end
 
   rule { has_projects }.policy do
+    enable :read_group
+  end
+
+  rule { can?(:read_group) }.policy do
+    enable :read_milestone
     enable :read_list
     enable :read_label
-    enable :read_group
   end
 
   rule { has_access }.enable :read_namespace
 
-  rule { developer }.enable :admin_milestone
+  rule { developer }.policy do
+    enable :admin_milestone
+    enable :read_package
+  end
 
   rule { reporter }.policy do
     enable :read_container_image
@@ -127,6 +134,8 @@ class GroupPolicy < BasePolicy
   rule { create_projects_disabled }.prevent :create_projects
 
   rule { owner | admin }.enable :read_statistics
+
+  rule { maintainer & can?(:create_projects) }.enable :transfer_projects
 
   def access_level
     return GroupMember::NO_ACCESS if @user.nil?

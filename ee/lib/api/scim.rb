@@ -12,6 +12,8 @@ module API
         requires :group, type: String
       end
 
+      helpers ::EE::API::Helpers::ScimPagination
+
       helpers do
         def logger
           API.logger
@@ -60,7 +62,7 @@ module API
         # rubocop: disable CodeReuse/ActiveRecord
         def update_scim_user(identity)
           parser = EE::Gitlab::Scim::ParamsParser.new(params)
-          parsed_hash = parser.result
+          parsed_hash = parser.update_params
 
           if parser.deprovision_user?
             destroy_identity(identity)
@@ -86,7 +88,6 @@ module API
 
       resource :Users do
         before do
-          check_group_scim_enabled(find_group(params[:group]))
           check_group_saml_configured
         end
 
@@ -94,15 +95,17 @@ module API
           detail 'This feature was introduced in GitLab 11.10.'
         end
         get do
-          scim_error!(message: 'Missing filter params') unless params[:filter]
-
           group = find_and_authenticate_group!(params[:group])
-          parsed_hash = EE::Gitlab::Scim::ParamsParser.new(params).result
-          identity = GroupSamlIdentityFinder.find_by_group_and_uid(group: group, uid: parsed_hash[:extern_uid])
+
+          results = ScimFinder.new(group).search(params)
+          response_page = scim_paginate(results)
 
           status 200
 
-          present identity || {}, with: ::EE::Gitlab::Scim::Users
+          result_set = { resources: response_page, total_results: results.count, items_per_page: per_page(params[:count]), start_index: params[:startIndex] }
+          present result_set, with: ::EE::Gitlab::Scim::Users
+        rescue ScimFinder::UnsupportedFilter
+          scim_error!(message: 'Unsupported Filter')
         end
 
         desc 'Get a SAML user' do
@@ -126,7 +129,7 @@ module API
         post do
           group = find_and_authenticate_group!(params[:group])
           parser = EE::Gitlab::Scim::ParamsParser.new(params)
-          result = EE::Gitlab::Scim::ProvisioningService.new(group, parser.result).execute
+          result = EE::Gitlab::Scim::ProvisioningService.new(group, parser.post_params).execute
 
           case result.status
           when :success

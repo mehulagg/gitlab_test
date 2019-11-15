@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Merge request > image review', :js do
@@ -9,6 +11,7 @@ describe 'Merge request > image review', :js do
   let(:merge_request) { create(:merge_request_with_diffs, :with_image_diffs, source_project: project, author: user) }
 
   before do
+    stub_feature_flags(single_mr_diff_view: false)
     stub_licensed_features(batch_comments: true)
 
     sign_in(user)
@@ -20,6 +23,8 @@ describe 'Merge request > image review', :js do
 
     wait_for_requests
   end
+
+  it_behaves_like 'rendering a single diff version'
 
   it 'leaves review' do
     find('.js-add-image-diff-note-button', match: :first).click

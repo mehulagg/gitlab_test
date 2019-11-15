@@ -86,30 +86,30 @@ describe Gitlab::Danger::Helper do
   describe '#ee?' do
     subject { helper.ee? }
 
-    it 'returns true if CI_PROJECT_NAME if set to gitlab-ee' do
-      stub_env('CI_PROJECT_NAME', 'gitlab-ee')
-      expect(File).not_to receive(:exist?)
+    it 'returns true if CI_PROJECT_NAME if set to gitlab' do
+      stub_env('CI_PROJECT_NAME', 'gitlab')
+      expect(Dir).not_to receive(:exist?)
 
       is_expected.to be_truthy
     end
 
     it 'delegates to CHANGELOG-EE.md existence if CI_PROJECT_NAME is set to something else' do
       stub_env('CI_PROJECT_NAME', 'something else')
-      expect(File).to receive(:exist?).with('../../CHANGELOG-EE.md') { true }
+      expect(Dir).to receive(:exist?).with('../../ee') { true }
 
       is_expected.to be_truthy
     end
 
-    it 'returns true if CHANGELOG-EE.md exists' do
+    it 'returns true if ee exists' do
       stub_env('CI_PROJECT_NAME', nil)
-      expect(File).to receive(:exist?).with('../../CHANGELOG-EE.md') { true }
+      expect(Dir).to receive(:exist?).with('../../ee') { true }
 
       is_expected.to be_truthy
     end
 
-    it "returns false if CHANGELOG-EE.md doesn't exist" do
+    it "returns false if ee doesn't exist" do
       stub_env('CI_PROJECT_NAME', nil)
-      expect(File).to receive(:exist?).with('../../CHANGELOG-EE.md') { false }
+      expect(Dir).to receive(:exist?).with('../../ee') { false }
 
       is_expected.to be_falsy
     end
@@ -118,16 +118,16 @@ describe Gitlab::Danger::Helper do
   describe '#project_name' do
     subject { helper.project_name }
 
-    it 'returns gitlab-ee if ee? returns true' do
+    it 'returns gitlab if ee? returns true' do
       expect(helper).to receive(:ee?) { true }
 
-      is_expected.to eq('gitlab-ee')
+      is_expected.to eq('gitlab')
     end
 
     it 'returns gitlab-ce if ee? returns false' do
       expect(helper).to receive(:ee?) { false }
 
-      is_expected.to eq('gitlab-ce')
+      is_expected.to eq('gitlab-foss')
     end
   end
 
@@ -178,6 +178,7 @@ describe Gitlab::Danger::Helper do
       'app/assets/foo'       | :frontend
       'app/views/foo'        | :frontend
       'public/foo'           | :frontend
+      'scripts/frontend/foo' | :frontend
       'spec/javascripts/foo' | :frontend
       'spec/frontend/bar'    | :frontend
       'vendor/assets/foo'    | :frontend
@@ -193,10 +194,8 @@ describe Gitlab::Danger::Helper do
       'app/models/foo' | :backend
       'bin/foo'        | :backend
       'config/foo'     | :backend
-      'danger/foo'     | :backend
       'lib/foo'        | :backend
       'rubocop/foo'    | :backend
-      'scripts/foo'    | :backend
       'spec/foo'       | :backend
       'spec/foo/bar'   | :backend
 
@@ -209,16 +208,24 @@ describe Gitlab::Danger::Helper do
       'vendor/languages.yml'    | :backend
       'vendor/licenses.csv'     | :backend
 
-      'Dangerfile'     | :backend
       'Gemfile'        | :backend
       'Gemfile.lock'   | :backend
       'Procfile'       | :backend
       'Rakefile'       | :backend
       'FOO_VERSION'    | :backend
 
+      'Dangerfile'                                            | :engineering_productivity
+      'danger/commit_messages/Dangerfile'                     | :engineering_productivity
+      'ee/danger/commit_messages/Dangerfile'                  | :engineering_productivity
+      'danger/commit_messages/'                               | :engineering_productivity
+      'ee/danger/commit_messages/'                            | :engineering_productivity
       '.gitlab-ci.yml'                                        | :engineering_productivity
       '.gitlab/ci/cng.gitlab-ci.yml'                          | :engineering_productivity
       '.gitlab/ci/ee-specific-checks.gitlab-ci.yml'           | :engineering_productivity
+      'scripts/foo'                                           | :engineering_productivity
+      'lib/gitlab/danger/foo'                                 | :engineering_productivity
+      'ee/lib/gitlab/danger/foo'                              | :engineering_productivity
+
       'lib/gitlab/ci/templates/Security/SAST.gitlab-ci.yml'   | :backend
 
       'ee/FOO_VERSION' | :unknown
@@ -273,7 +280,7 @@ describe Gitlab::Danger::Helper do
     where(:category, :expected_label) do
       :backend   | '~backend'
       :database  | '~database'
-      :docs      | '~Documentation'
+      :docs      | '~documentation'
       :foo       | '~foo'
       :frontend  | '~frontend'
       :none      | ''

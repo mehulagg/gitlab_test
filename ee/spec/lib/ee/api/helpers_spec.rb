@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe EE::API::Helpers do
@@ -93,6 +95,7 @@ describe EE::API::Helpers do
 
   describe '#authorize_change_param' do
     subject { Class.new.include(described_class).new }
+
     let(:project) { create(:project) }
 
     before do

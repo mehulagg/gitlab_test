@@ -6,17 +6,15 @@ import { GlButton, GlTooltipDirective } from '@gitlab/ui';
 import { sprintf, s__ } from '~/locale';
 
 import Icon from '~/vue_shared/components/icon.vue';
-import DroplabDropdownButton from '~/vue_shared/components/droplab_dropdown_button.vue';
+import { issuableTypesMap } from 'ee/related_issues/constants';
 
-import { EpicDropdownActions, ActionType } from '../constants';
+import EpicActionsSplitButton from './epic_actions_split_button.vue';
 
 export default {
-  EpicDropdownActions,
-  ActionType,
   components: {
     Icon,
     GlButton,
-    DroplabDropdownButton,
+    EpicActionsSplitButton,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -32,19 +30,21 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['toggleAddItemForm', 'toggleCreateItemForm']),
-    handleActionClick({ id, actionType }) {
-      if (id === 0) {
-        this.toggleAddItemForm({
-          actionType,
-          toggleState: true,
-        });
-      } else {
-        this.toggleCreateItemForm({
-          actionType,
-          toggleState: true,
-        });
-      }
+    ...mapActions(['toggleAddItemForm', 'toggleCreateEpicForm']),
+    showAddEpicForm() {
+      this.toggleAddItemForm({
+        issuableType: issuableTypesMap.EPIC,
+        toggleState: true,
+      });
+    },
+    showAddIssueForm() {
+      this.toggleAddItemForm({
+        issuableType: issuableTypesMap.ISSUE,
+        toggleState: true,
+      });
+    },
+    showCreateEpicForm() {
+      this.toggleCreateEpicForm({ toggleState: true });
     },
   },
 };
@@ -64,28 +64,28 @@ export default {
           :class="{ 'ml-2': index }"
           class="d-inline-flex align-items-center"
         >
-          <icon :size="16" :name="item.iconName" css-classes="text-secondary mr-1" />
+          <icon :size="16" :name="item.iconName" class="text-secondary mr-1" />
           {{ item.count }}
         </span>
       </div>
     </div>
     <div class="d-inline-flex">
       <template v-if="parentItem.userPermissions.adminEpic">
-        <droplab-dropdown-button
-          :actions="$options.EpicDropdownActions"
-          :default-action="0"
-          :primary-button-class="`${headerItems[0].qaClass} js-add-epics-button`"
-          class="btn-create-epic"
-          size="sm"
-          @onActionClick="handleActionClick"
+        <epic-actions-split-button
+          :class="headerItems[0].qaClass"
+          @showAddEpicForm="showAddEpicForm"
+          @showCreateEpicForm="showCreateEpicForm"
         />
-        <gl-button
-          :class="headerItems[1].qaClass"
-          class="ml-1 js-add-issues-button"
-          size="sm"
-          @click="handleActionClick({ id: 0, actionType: 'issue' })"
-          >{{ __('Add an issue') }}</gl-button
-        >
+
+        <slot name="issueActions">
+          <gl-button
+            :class="headerItems[1].qaClass"
+            class="ml-1 js-add-issues-button"
+            size="sm"
+            @click="showAddIssueForm"
+            >{{ __('Add an issue') }}</gl-button
+          >
+        </slot>
       </template>
     </div>
   </div>

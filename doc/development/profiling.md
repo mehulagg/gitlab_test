@@ -42,6 +42,10 @@ Passing a `logger:` keyword argument to `Gitlab::Profiler.profile` will send
 ActiveRecord and ActionController log output to that logger. Further options are
 documented with the method source.
 
+```ruby
+Gitlab::Profiler.profile('/gitlab-org/gitlab-test', user: User.first, logger: Logger.new(STDOUT))
+```
+
 There is also a RubyProf printer available:
 `Gitlab::Profiler::TotalTimeFlatPrinter`. This acts like
 `RubyProf::FlatPrinter`, but its `min_percent` option works on the method's
@@ -86,8 +90,8 @@ that builds on this to add some additional niceties, such as allowing
 configuration with a single Yaml file for multiple URLs, and uploading of the
 profile and log output to S3.
 
-For GitLab.com, you can find the latest results here:
-<http://redash.gitlab.com/dashboard/gitlab-profiler-statistics>
+For GitLab.com, you can find the latest results here (restricted to GitLab Team members only):
+`https://redash.gitlab.com/dashboard/gitlab-profiler-statistics`
 
 ## Sherlock
 

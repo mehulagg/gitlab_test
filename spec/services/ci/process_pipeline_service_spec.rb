@@ -27,7 +27,7 @@ describe Ci::ProcessPipelineService, '#execute' do
       create_build('deploy', stage_idx: 2)
     end
 
-    it 'processes a pipeline' do
+    it 'processes a pipeline', :sidekiq_might_not_need_inline do
       expect(process_pipeline).to be_truthy
 
       succeed_pending
@@ -58,7 +58,7 @@ describe Ci::ProcessPipelineService, '#execute' do
       create_build('test_job', stage_idx: 1, allow_failure: true)
     end
 
-    it 'automatically triggers a next stage when build finishes' do
+    it 'automatically triggers a next stage when build finishes', :sidekiq_might_not_need_inline do
       expect(process_pipeline).to be_truthy
       expect(builds_statuses).to eq ['pending']
 
@@ -72,7 +72,7 @@ describe Ci::ProcessPipelineService, '#execute' do
     end
   end
 
-  context 'when optional manual actions are defined' do
+  context 'when optional manual actions are defined', :sidekiq_might_not_need_inline do
     before do
       create_build('build', stage_idx: 0)
       create_build('test', stage_idx: 1)
@@ -241,7 +241,7 @@ describe Ci::ProcessPipelineService, '#execute' do
     end
   end
 
-  context 'when delayed jobs are defined' do
+  context 'when delayed jobs are defined', :sidekiq_might_not_need_inline do
     context 'when the scene is timed incremental rollout' do
       before do
         create_build('build', stage_idx: 0)
@@ -422,6 +422,18 @@ describe Ci::ProcessPipelineService, '#execute' do
     end
   end
 
+  context 'when an exception is raised during a persistent ref creation' do
+    before do
+      successful_build('test', stage_idx: 0)
+
+      allow_any_instance_of(Ci::PersistentRef).to receive(:delete_refs) { raise ArgumentError }
+    end
+
+    it 'process the pipeline' do
+      expect { process_pipeline }.not_to raise_error
+    end
+  end
+
   context 'when there are manual action in earlier stages' do
     context 'when first stage has only optional manual actions' do
       before do
@@ -446,7 +458,7 @@ describe Ci::ProcessPipelineService, '#execute' do
         process_pipeline
       end
 
-      it 'skips second stage and continues on third stage' do
+      it 'skips second stage and continues on third stage', :sidekiq_might_not_need_inline do
         expect(all_builds_statuses).to eq(%w[pending created created])
 
         builds.first.success
@@ -490,7 +502,7 @@ describe Ci::ProcessPipelineService, '#execute' do
         play_manual_action('deploy')
       end
 
-      it 'queues the action and pipeline' do
+      it 'queues the action and pipeline', :sidekiq_might_not_need_inline do
         expect(all_builds_statuses).to eq(%w[pending])
 
         expect(pipeline.reload).to be_pending
@@ -498,7 +510,7 @@ describe Ci::ProcessPipelineService, '#execute' do
     end
   end
 
-  context 'when blocking manual actions are defined' do
+  context 'when blocking manual actions are defined', :sidekiq_might_not_need_inline do
     before do
       create_build('code:test', stage_idx: 0)
       create_build('staging:deploy', stage_idx: 1, when: 'manual')
@@ -606,7 +618,7 @@ describe Ci::ProcessPipelineService, '#execute' do
     end
   end
 
-  context 'when second stage has only on_failure jobs' do
+  context 'when second stage has only on_failure jobs', :sidekiq_might_not_need_inline do
     before do
       create_build('check', stage_idx: 0)
       create_build('build', stage_idx: 1, when: 'on_failure')
@@ -624,7 +636,7 @@ describe Ci::ProcessPipelineService, '#execute' do
     end
   end
 
-  context 'when failed build in the middle stage is retried' do
+  context 'when failed build in the middle stage is retried', :sidekiq_might_not_need_inline do
     context 'when failed build is the only unsuccessful build in the stage' do
       before do
         create_build('build:1', stage_idx: 0)
@@ -671,7 +683,7 @@ describe Ci::ProcessPipelineService, '#execute' do
     end
   end
 
-  context 'when builds with auto-retries are configured' do
+  context 'when builds with auto-retries are configured', :sidekiq_might_not_need_inline do
     before do
       create_build('build:1', stage_idx: 0, user: user, options: { script: 'aa', retry: 2 })
       create_build('test:1', stage_idx: 1, user: user, when: :on_failure)
@@ -700,7 +712,7 @@ describe Ci::ProcessPipelineService, '#execute' do
     end
   end
 
-  context 'when pipeline with needs is created' do
+  context 'when pipeline with needs is created', :sidekiq_might_not_need_inline do
     let!(:linux_build) { create_build('linux:build', stage: 'build', stage_idx: 0) }
     let!(:mac_build) { create_build('mac:build', stage: 'build', stage_idx: 0) }
     let!(:linux_rspec) { create_build('linux:rspec', stage: 'test', stage_idx: 1) }
@@ -905,6 +917,10 @@ describe Ci::ProcessPipelineService, '#execute' do
 
   def create_build(name, **opts)
     create(:ci_build, :created, pipeline: pipeline, name: name, **opts)
+  end
+
+  def successful_build(name, **opts)
+    create(:ci_build, :success, pipeline: pipeline, name: name, **opts)
   end
 
   def delayed_options

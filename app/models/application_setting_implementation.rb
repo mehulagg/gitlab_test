@@ -4,7 +4,7 @@ module ApplicationSettingImplementation
   extend ActiveSupport::Concern
   include Gitlab::Utils::StrongMemoize
 
-  DOMAIN_LIST_SEPARATOR = %r{\s*[,;]\s*     # comma or semicolon, optionally surrounded by whitespace
+  STRING_LIST_SEPARATOR = %r{\s*[,;]\s*     # comma or semicolon, optionally surrounded by whitespace
                             |               # or
                             \s              # any whitespace character
                             |               # or
@@ -15,6 +15,19 @@ module ApplicationSettingImplementation
   # forbidden.
   FORBIDDEN_KEY_VALUE = KeyRestrictionValidator::FORBIDDEN
   SUPPORTED_KEY_TYPES = %i[rsa dsa ecdsa ed25519].freeze
+
+  DEFAULT_PROTECTED_PATHS = [
+    '/users/password',
+    '/users/sign_in',
+    '/api/v3/session.json',
+    '/api/v3/session',
+    '/api/v4/session.json',
+    '/api/v4/session',
+    '/users',
+    '/users/confirmation',
+    '/unsubscribes/',
+    '/import/github/personal_access_token'
+  ].freeze
 
   class_methods do
     def defaults
@@ -29,6 +42,7 @@ module ApplicationSettingImplementation
         container_registry_token_expire_delay: 5,
         default_artifacts_expire_in: '30 days',
         default_branch_protection: Settings.gitlab['default_branch_protection'],
+        default_ci_config_path: nil,
         default_group_visibility: Settings.gitlab.default_projects_features['visibility_level'],
         default_project_creation: Settings.gitlab['default_project_creation'],
         default_project_visibility: Settings.gitlab.default_projects_features['visibility_level'],
@@ -41,6 +55,10 @@ module ApplicationSettingImplementation
         dsa_key_restriction: 0,
         ecdsa_key_restriction: 0,
         ed25519_key_restriction: 0,
+        eks_integration_enabled: false,
+        eks_account_id: nil,
+        eks_access_key_id: nil,
+        eks_secret_access_key: nil,
         first_day_of_week: 0,
         gitaly_timeout_default: 55,
         gitaly_timeout_fast: 10,
@@ -69,6 +87,8 @@ module ApplicationSettingImplementation
         polling_interval_multiplier: 1,
         project_export_enabled: true,
         protected_ci_variables: false,
+        push_event_hooks_limit: 3,
+        push_event_activities_limit: 3,
         raw_blob_request_limit: 300,
         recaptcha_enabled: false,
         login_recaptcha_protection_enabled: false,
@@ -92,6 +112,13 @@ module ApplicationSettingImplementation
         throttle_unauthenticated_enabled: false,
         throttle_unauthenticated_period_in_seconds: 3600,
         throttle_unauthenticated_requests_per_period: 3600,
+        throttle_protected_paths_enabled: false,
+        throttle_protected_paths_in_seconds: 10,
+        throttle_protected_paths_per_period: 60,
+        protected_paths: DEFAULT_PROTECTED_PATHS,
+        throttle_incident_management_notification_enabled: false,
+        throttle_incident_management_notification_period_in_seconds: 3600,
+        throttle_incident_management_notification_per_period: 3600,
         time_tracking_limit_to_hours: false,
         two_factor_grace_period: 48,
         unique_ips_limit_enabled: false,
@@ -106,7 +133,10 @@ module ApplicationSettingImplementation
         snowplow_collector_hostname: nil,
         snowplow_cookie_domain: nil,
         snowplow_enabled: false,
-        snowplow_site_id: nil
+        snowplow_app_id: nil,
+        snowplow_iglu_registry_url: nil,
+        custom_http_clone_url_root: nil,
+        productivity_analytics_start_date: Time.now
       }
     end
 
@@ -149,11 +179,11 @@ module ApplicationSettingImplementation
   end
 
   def domain_whitelist_raw=(values)
-    self.domain_whitelist = domain_strings_to_array(values)
+    self.domain_whitelist = strings_to_array(values)
   end
 
   def domain_blacklist_raw=(values)
-    self.domain_blacklist = domain_strings_to_array(values)
+    self.domain_blacklist = strings_to_array(values)
   end
 
   def domain_blacklist_file=(file)
@@ -167,7 +197,7 @@ module ApplicationSettingImplementation
   def outbound_local_requests_whitelist_raw=(values)
     clear_memoization(:outbound_local_requests_whitelist_arrays)
 
-    self.outbound_local_requests_whitelist = domain_strings_to_array(values)
+    self.outbound_local_requests_whitelist = strings_to_array(values)
   end
 
   def add_to_outbound_local_requests_whitelist(values_array)
@@ -200,8 +230,16 @@ module ApplicationSettingImplementation
     end
   end
 
+  def protected_paths_raw
+    array_to_string(self.protected_paths)
+  end
+
+  def protected_paths_raw=(values)
+    self.protected_paths = strings_to_array(values)
+  end
+
   def asset_proxy_whitelist=(values)
-    values = domain_strings_to_array(values) if values.is_a?(String)
+    values = strings_to_array(values) if values.is_a?(String)
 
     # make sure we always whitelist the running host
     values << Gitlab.config.gitlab.host unless values.include?(Gitlab.config.gitlab.host)
@@ -316,11 +354,11 @@ module ApplicationSettingImplementation
     arr&.join("\n")
   end
 
-  def domain_strings_to_array(values)
+  def strings_to_array(values)
     return [] unless values
 
     values
-      .split(DOMAIN_LIST_SEPARATOR)
+      .split(STRING_LIST_SEPARATOR)
       .map(&:strip)
       .reject(&:empty?)
       .uniq

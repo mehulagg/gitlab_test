@@ -12,16 +12,16 @@ class Gitlab::Seeder::Burndown
     Sidekiq::Worker.skipping_transaction_check do
       Sidekiq::Testing.inline! do
         create_milestone
-        puts '.'
+        print '.'
 
         create_issues
-        puts '.'
+        print '.'
 
         close_issues
-        puts '.'
+        print '.'
 
         reopen_issues
-        puts '.'
+        print '.'
       end
     end
 
@@ -88,7 +88,7 @@ Gitlab::Seeder.quiet do
     seeder = Gitlab::Seeder::Burndown.new(project)
     seeder.seed!
   else
-    Project.all.each do |project|
+    Project.not_mass_generated.each do |project|
       seeder = Gitlab::Seeder::Burndown.new(project)
       seeder.seed!
     end

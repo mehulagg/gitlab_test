@@ -11,14 +11,18 @@ module EE
         mount ::EE::API::Boards
         mount ::EE::API::GroupBoards
 
+        mount ::API::AuditEvents
         mount ::API::ProjectApprovalRules
         mount ::API::ProjectApprovalSettings
         mount ::API::Unleash
         mount ::API::EpicIssues
         mount ::API::EpicLinks
         mount ::API::Epics
+        mount ::API::FeatureFlags
+        mount ::API::FeatureFlagScopes
         mount ::API::ContainerRegistryEvent
         mount ::API::Geo
+        mount ::API::GeoReplication
         mount ::API::GeoNodes
         mount ::API::IssueLinks
         mount ::API::Ldap
@@ -29,16 +33,19 @@ module EE
         mount ::API::ConanPackages
         mount ::API::MavenPackages
         mount ::API::NpmPackages
-        mount ::API::Packages
+        mount ::API::ProjectPackages
+        mount ::API::GroupPackages
         mount ::API::PackageFiles
         mount ::API::Scim
         mount ::API::ManagedLicenses
         mount ::API::ProjectApprovals
         mount ::API::Vulnerabilities
+        mount ::API::VulnerabilityFindings
         mount ::API::MergeRequestApprovals
         mount ::API::MergeRequestApprovalRules
         mount ::API::ProjectAliases
         mount ::API::Dependencies
+        mount ::API::VisualReviewDiscussions
 
         version 'v3', using: :path do
           # Although the following endpoints are kept behind V3 namespace,

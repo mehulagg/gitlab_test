@@ -3,6 +3,9 @@
 class ImportIssuesCsvWorker
   include ApplicationWorker
 
+  feature_category :issue_tracking
+  worker_resource_boundary :cpu
+
   sidekiq_retries_exhausted do |job|
     Upload.find(job['args'][2]).destroy
   end
@@ -12,7 +15,7 @@ class ImportIssuesCsvWorker
     @project = Project.find(project_id)
     @upload = Upload.find(upload_id)
 
-    importer = Issues::ImportCsvService.new(@user, @project, @upload.build_uploader)
+    importer = Issues::ImportCsvService.new(@user, @project, @upload.retrieve_uploader)
     importer.execute
 
     @upload.destroy

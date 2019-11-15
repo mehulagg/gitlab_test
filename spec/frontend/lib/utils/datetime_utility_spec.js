@@ -388,20 +388,6 @@ describe('prettyTime methods', () => {
       expect(datetimeUtility.stringifyTime(timeObject, true)).toEqual('1 week 1 hour');
     });
   });
-
-  describe('abbreviateTime', () => {
-    it('should abbreviate stringified times for weeks', () => {
-      const fullTimeString = '1w 3d 4h 5m';
-
-      expect(datetimeUtility.abbreviateTime(fullTimeString)).toBe('1w');
-    });
-
-    it('should abbreviate stringified times for non-weeks', () => {
-      const fullTimeString = '0w 3d 4h 5m';
-
-      expect(datetimeUtility.abbreviateTime(fullTimeString)).toBe('3d');
-    });
-  });
 });
 
 describe('calculateRemainingMilliseconds', () => {
@@ -438,5 +424,61 @@ describe('newDate', () => {
     const initialDate = datetimeUtility.newDate();
 
     expect(initialDate instanceof Date).toBe(true);
+  });
+});
+
+describe('getDateInPast', () => {
+  const date = new Date('2019-07-16T00:00:00.000Z');
+  const daysInPast = 90;
+
+  it('returns the correct date in the past', () => {
+    const dateInPast = datetimeUtility.getDateInPast(date, daysInPast);
+    const expectedDateInPast = new Date('2019-04-17T00:00:00.000Z');
+
+    expect(dateInPast).toStrictEqual(expectedDateInPast);
+  });
+
+  it('does not modifiy the original date', () => {
+    datetimeUtility.getDateInPast(date, daysInPast);
+    expect(date).toStrictEqual(new Date('2019-07-16T00:00:00.000Z'));
+  });
+});
+
+describe('getDatesInRange', () => {
+  it('returns an empty array if 1st or 2nd argument is not a Date object', () => {
+    const d1 = new Date('2019-01-01');
+    const d2 = 90;
+    const range = datetimeUtility.getDatesInRange(d1, d2);
+
+    expect(range).toEqual([]);
+  });
+
+  it('returns a range of dates between two given dates', () => {
+    const d1 = new Date('2019-01-01');
+    const d2 = new Date('2019-01-31');
+
+    const range = datetimeUtility.getDatesInRange(d1, d2);
+
+    expect(range.length).toEqual(31);
+  });
+
+  it('applies mapper function if provided fro each item in range', () => {
+    const d1 = new Date('2019-01-01');
+    const d2 = new Date('2019-01-31');
+    const formatter = date => date.getDate();
+
+    const range = datetimeUtility.getDatesInRange(d1, d2, formatter);
+
+    range.forEach((formattedItem, index) => {
+      expect(formattedItem).toEqual(index + 1);
+    });
+  });
+});
+
+describe('secondsToMilliseconds', () => {
+  it('converts seconds to milliseconds correctly', () => {
+    expect(datetimeUtility.secondsToMilliseconds(0)).toBe(0);
+    expect(datetimeUtility.secondsToMilliseconds(60)).toBe(60000);
+    expect(datetimeUtility.secondsToMilliseconds(123)).toBe(123000);
   });
 });

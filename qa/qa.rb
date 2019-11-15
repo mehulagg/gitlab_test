@@ -5,9 +5,18 @@ $: << File.expand_path(File.dirname(__FILE__))
 Encoding.default_external = 'UTF-8'
 
 require_relative '../lib/gitlab'
+require_relative '../lib/gitlab/utils'
 require_relative '../config/initializers/0_inject_enterprise_edition_module'
 
 module QA
+  ##
+  # Helper classes to represent frequently used sequences of actions
+  # (e.g., login)
+  #
+  module Flow
+    autoload :Login, 'qa/flow/login'
+  end
+
   ##
   # GitLab QA runtime classes, mostly singletons.
   #
@@ -114,6 +123,7 @@ module QA
       module Integration
         autoload :Github, 'qa/scenario/test/integration/github'
         autoload :LDAPNoTLS, 'qa/scenario/test/integration/ldap_no_tls'
+        autoload :LDAPNoServer, 'qa/scenario/test/integration/ldap_no_server'
         autoload :LDAPTLS, 'qa/scenario/test/integration/ldap_tls'
         autoload :InstanceSAML, 'qa/scenario/test/integration/instance_saml'
         autoload :OAuth, 'qa/scenario/test/integration/oauth'
@@ -155,6 +165,7 @@ module QA
     module Dashboard
       autoload :Projects, 'qa/page/dashboard/projects'
       autoload :Groups, 'qa/page/dashboard/groups'
+      autoload :Welcome, 'qa/page/dashboard/welcome'
 
       module Snippet
         autoload :New, 'qa/page/dashboard/snippet/new'
@@ -290,6 +301,8 @@ module QA
       autoload :Menu, 'qa/page/profile/menu'
       autoload :PersonalAccessTokens, 'qa/page/profile/personal_access_tokens'
       autoload :SSHKeys, 'qa/page/profile/ssh_keys'
+      autoload :Emails, 'qa/page/profile/emails'
+      autoload :Password, 'qa/page/profile/password'
       autoload :TwoFactorAuth, 'qa/page/profile/two_factor_auth'
     end
 
@@ -327,9 +340,17 @@ module QA
 
         module Component
           autoload :IpLimits, 'qa/page/admin/settings/component/ip_limits'
+          autoload :OutboundRequests, 'qa/page/admin/settings/component/outbound_requests'
           autoload :RepositoryStorage, 'qa/page/admin/settings/component/repository_storage'
           autoload :AccountAndLimit, 'qa/page/admin/settings/component/account_and_limit'
           autoload :PerformanceBar, 'qa/page/admin/settings/component/performance_bar'
+        end
+      end
+
+      module Overview
+        module Users
+          autoload :Index, 'qa/page/admin/overview/users/index'
+          autoload :Show, 'qa/page/admin/overview/users/show'
         end
       end
     end
@@ -347,6 +368,7 @@ module QA
     # Classes describing components that are used by several pages.
     #
     module Component
+      autoload :CiBadgeLink, 'qa/page/component/ci_badge_link'
       autoload :ClonePanel, 'qa/page/component/clone_panel'
       autoload :LazyLoader, 'qa/page/component/lazy_loader'
       autoload :LegacyClonePanel, 'qa/page/component/legacy_clone_panel'
@@ -384,13 +406,21 @@ module QA
     autoload :Shellout, 'qa/service/shellout'
     autoload :KubernetesCluster, 'qa/service/kubernetes_cluster'
     autoload :Omnibus, 'qa/service/omnibus'
-    autoload :Runner, 'qa/service/runner'
 
     module ClusterProvider
       autoload :Base, 'qa/service/cluster_provider/base'
       autoload :Gcloud, 'qa/service/cluster_provider/gcloud'
       autoload :Minikube, 'qa/service/cluster_provider/minikube'
       autoload :K3d, 'qa/service/cluster_provider/k3d'
+    end
+
+    module DockerRun
+      autoload :Base, 'qa/service/docker_run/base'
+      autoload :Jenkins, 'qa/service/docker_run/jenkins'
+      autoload :LDAP, 'qa/service/docker_run/ldap'
+      autoload :Maven, 'qa/service/docker_run/maven'
+      autoload :NodeJs, 'qa/service/docker_run/node_js'
+      autoload :GitlabRunner, 'qa/service/docker_run/gitlab_runner'
     end
   end
 
@@ -401,6 +431,7 @@ module QA
     autoload :Config, 'qa/specs/config'
     autoload :Runner, 'qa/specs/runner'
     autoload :ParallelRunner, 'qa/specs/parallel_runner'
+    autoload :LoopRunner, 'qa/specs/loop_runner'
 
     module Helpers
       autoload :Quarantine, 'qa/specs/helpers/quarantine'
@@ -418,11 +449,26 @@ module QA
       end
     end
 
+    module Jenkins
+      module Page
+        autoload :Base, 'qa/vendor/jenkins/page/base'
+        autoload :Login, 'qa/vendor/jenkins/page/login'
+        autoload :Configure, 'qa/vendor/jenkins/page/configure'
+        autoload :NewCredentials, 'qa/vendor/jenkins/page/new_credentials'
+        autoload :NewJob, 'qa/vendor/jenkins/page/new_job'
+        autoload :ConfigureJob, 'qa/vendor/jenkins/page/configure_job'
+      end
+    end
+
     module Github
       module Page
         autoload :Base, 'qa/vendor/github/page/base'
         autoload :Login, 'qa/vendor/github/page/login'
       end
+    end
+
+    module OnePassword
+      autoload :CLI, 'qa/vendor/one_password/cli'
     end
   end
 
@@ -433,6 +479,7 @@ module QA
       autoload :Logging, 'qa/support/page/logging'
     end
     autoload :Api, 'qa/support/api'
+    autoload :Dates, 'qa/support/dates'
     autoload :Waiter, 'qa/support/waiter'
     autoload :Retrier, 'qa/support/retrier'
   end

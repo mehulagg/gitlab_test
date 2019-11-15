@@ -12,17 +12,19 @@
 ActiveSupport::Inflector.inflections do |inflect|
   inflect.uncountable %w(
     award_emoji
-    project_statistics
-    system_note_metadata
+    container_repository_registry
+    design_registry
     event_log
+    file_registry
+    group_view
+    job_artifact_registry
+    lfs_object_registry
     project_auto_devops
     project_registry
-    file_registry
-    job_artifact_registry
-    container_repository_registry
-    vulnerability_feedback
+    project_statistics
+    system_note_metadata
     vulnerabilities_feedback
-    group_view
+    vulnerability_feedback
   )
   inflect.acronym 'EE'
 end

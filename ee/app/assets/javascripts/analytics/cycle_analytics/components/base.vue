@@ -1,10 +1,12 @@
 <script>
-import { GlEmptyState } from '@gitlab/ui';
+import { GlEmptyState, GlDaterangePicker, GlLoadingIcon } from '@gitlab/ui';
 import { mapActions, mapState, mapGetters } from 'vuex';
+import { getDateInPast } from '~/lib/utils/datetime_utility';
 import { featureAccessLevel } from '~/pages/projects/shared/permissions/constants';
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
+import { PROJECTS_PER_PAGE, DEFAULT_DAYS_IN_PAST } from '../constants';
 import GroupsDropdownFilter from '../../shared/components/groups_dropdown_filter.vue';
 import ProjectsDropdownFilter from '../../shared/components/projects_dropdown_filter.vue';
-import DateRangeDropdown from '../../shared/components/date_range_dropdown.vue';
 import SummaryTable from './summary_table.vue';
 import StageTable from './stage_table.vue';
 
@@ -12,12 +14,14 @@ export default {
   name: 'CycleAnalytics',
   components: {
     GlEmptyState,
+    GlLoadingIcon,
     GroupsDropdownFilter,
     ProjectsDropdownFilter,
-    DateRangeDropdown,
     SummaryTable,
     StageTable,
+    GlDaterangePicker,
   },
+  mixins: [glFeatureFlagsMixin()],
   props: {
     emptyStateSvgPath: {
       type: String,
@@ -36,9 +40,6 @@ export default {
     return {
       multiProjectSelect: true,
       dateOptions: [7, 30, 90],
-      groupsQueryParams: {
-        min_access_level: featureAccessLevel.EVERYONE,
-      },
     };
   },
   computed: {
@@ -47,37 +48,61 @@ export default {
       'isLoadingStage',
       'isEmptyStage',
       'isAddingCustomStage',
+      'isSavingCustomStage',
       'selectedGroup',
       'selectedProjectIds',
-      'selectedStageName',
-      'events',
+      'selectedStageId',
       'stages',
       'summary',
-      'dataTimeframe',
+      'labels',
+      'currentStageEvents',
+      'customStageFormEvents',
+      'errorCode',
+      'startDate',
+      'endDate',
     ]),
-    ...mapGetters(['currentStage', 'defaultStage', 'hasNoAccessError']),
+    ...mapGetters(['currentStage', 'defaultStage', 'hasNoAccessError', 'currentGroupPath']),
     shouldRenderEmptyState() {
       return !this.selectedGroup;
     },
     hasCustomizableCycleAnalytics() {
-      return gon && gon.features ? gon.features.customizableCycleAnalytics : false;
+      return Boolean(this.glFeatures.customizableCycleAnalytics);
     },
+    shouldDisplayFilters() {
+      return this.selectedGroup && !this.errorCode;
+    },
+    dateRange: {
+      get() {
+        return { startDate: this.startDate, endDate: this.endDate };
+      },
+      set({ startDate, endDate }) {
+        this.setDateRange({ startDate, endDate });
+      },
+    },
+  },
+  mounted() {
+    this.initDateRange();
   },
   methods: {
     ...mapActions([
+      'fetchCustomStageFormData',
+      'fetchCycleAnalyticsData',
+      'fetchStageData',
+      'fetchGroupStagesAndEvents',
       'setCycleAnalyticsDataEndpoint',
       'setStageDataEndpoint',
       'setSelectedGroup',
-      'fetchCycleAnalyticsData',
       'setSelectedProjects',
       'setSelectedTimeframe',
       'fetchStageData',
-      'setSelectedStageName',
-      'showCustomStageForm',
+      'setSelectedStageId',
       'hideCustomStageForm',
+      'showCustomStageForm',
+      'setDateRange',
+      'createCustomStage',
     ]),
     onGroupSelect(group) {
-      this.setCycleAnalyticsDataEndpoint(group.path);
+      this.setCycleAnalyticsDataEndpoint(group.full_path);
       this.setSelectedGroup(group);
       this.fetchCycleAnalyticsData();
     },
@@ -86,19 +111,31 @@ export default {
       this.setSelectedProjects(projectIds);
       this.fetchCycleAnalyticsData();
     },
-    onTimeframeSelect(days) {
-      this.setSelectedTimeframe(days);
-      this.fetchCycleAnalyticsData();
-    },
     onStageSelect(stage) {
       this.hideCustomStageForm();
-      this.setSelectedStageName(stage.name);
+      this.setSelectedStageId(stage.id);
       this.setStageDataEndpoint(this.currentStage.slug);
       this.fetchStageData(this.currentStage.name);
     },
     onShowAddStageForm() {
       this.showCustomStageForm();
     },
+    initDateRange() {
+      const endDate = new Date(Date.now());
+      const startDate = getDateInPast(endDate, DEFAULT_DAYS_IN_PAST);
+      this.setDateRange({ skipFetch: true, startDate, endDate });
+    },
+    onCreateCustomStage(data) {
+      this.createCustomStage(data);
+    },
+  },
+  groupsQueryParams: {
+    min_access_level: featureAccessLevel.EVERYONE,
+  },
+  projectsQueryParams: {
+    per_page: PROJECTS_PER_PAGE,
+    with_shared: false,
+    order_by: 'last_activity_at',
   },
 };
 </script>
@@ -114,27 +151,30 @@ export default {
       >
         <groups-dropdown-filter
           class="js-groups-dropdown-filter dropdown-select"
-          :query-params="groupsQueryParams"
+          :query-params="$options.groupsQueryParams"
           @selected="onGroupSelect"
         />
         <projects-dropdown-filter
-          v-if="selectedGroup"
+          v-if="shouldDisplayFilters"
           :key="selectedGroup.id"
           class="js-projects-dropdown-filter ml-md-1 mt-1 mt-md-0 dropdown-select"
           :group-id="selectedGroup.id"
+          :query-params="$options.projectsQueryParams"
           :multi-select="multiProjectSelect"
           @selected="onProjectsSelect"
         />
         <div
-          v-if="selectedGroup"
+          v-if="shouldDisplayFilters"
           class="ml-0 ml-md-auto mt-2 mt-md-0 d-flex flex-column flex-md-row align-items-md-center justify-content-md-end"
         >
-          <label class="text-bold mb-0 mr-1">{{ __('Timeframe') }}</label>
-          <date-range-dropdown
-            class="js-timeframe-dropdown"
-            :available-days-in-past="dateOptions"
-            :default-selected="dataTimeframe"
-            @selected="onTimeframeSelect"
+          <gl-daterange-picker
+            v-model="dateRange"
+            class="d-flex flex-column flex-lg-row js-daterange-picker"
+            :default-start-date="startDate"
+            :default-end-date="endDate"
+            start-picker-class="d-flex flex-column flex-lg-row align-items-lg-center mr-lg-2"
+            end-picker-class="d-flex flex-column flex-lg-row align-items-lg-center"
+            theme="animate-picker"
           />
         </div>
       </div>
@@ -161,23 +201,32 @@ export default {
           )
         "
       />
-      <div v-else class="cycle-analytics mt-0">
-        <summary-table class="js-summary-table" :items="summary" />
-        <stage-table
-          v-if="currentStage"
-          class="js-stage-table"
-          :current-stage="currentStage"
-          :stages="stages"
-          :is-loading-stage="isLoadingStage"
-          :is-empty-stage="isEmptyStage"
-          :is-adding-custom-stage="isAddingCustomStage"
-          :events="events"
-          :no-data-svg-path="noDataSvgPath"
-          :no-access-svg-path="noAccessSvgPath"
-          :can-edit-stages="hasCustomizableCycleAnalytics"
-          @selectStage="onStageSelect"
-          @showAddStageForm="onShowAddStageForm"
-        />
+      <div v-else-if="!errorCode">
+        <div v-if="isLoading">
+          <gl-loading-icon class="mt-4" size="md" />
+        </div>
+        <div v-else>
+          <summary-table class="js-summary-table" :items="summary" />
+          <stage-table
+            v-if="currentStage"
+            class="js-stage-table"
+            :current-stage="currentStage"
+            :stages="stages"
+            :is-loading="isLoadingStage"
+            :is-empty-stage="isEmptyStage"
+            :is-adding-custom-stage="isAddingCustomStage"
+            :is-saving-custom-stage="isSavingCustomStage"
+            :current-stage-events="currentStageEvents"
+            :custom-stage-form-events="customStageFormEvents"
+            :labels="labels"
+            :no-data-svg-path="noDataSvgPath"
+            :no-access-svg-path="noAccessSvgPath"
+            :can-edit-stages="hasCustomizableCycleAnalytics"
+            @selectStage="onStageSelect"
+            @showAddStageForm="onShowAddStageForm"
+            @submit="onCreateCustomStage"
+          />
+        </div>
       </div>
     </div>
   </div>

@@ -50,6 +50,7 @@ describe Projects::ForkService do
           it { expect(to_project.star_count).to be_zero }
           it { expect(to_project.description).to eq(@from_project.description) }
           it { expect(to_project.avatar.file).to be_exists }
+          it { expect(to_project.ci_config_path).to eq(@from_project.ci_config_path) }
 
           # This test is here because we had a bug where the from-project lost its
           # avatar after being forked.
@@ -78,7 +79,7 @@ describe Projects::ForkService do
             expect(fork_network.projects).to contain_exactly(@from_project, to_project)
           end
 
-          it 'imports the repository of the forked project' do
+          it 'imports the repository of the forked project', :sidekiq_might_not_need_inline do
             to_project = fork_project(@from_project, @to_user, repository: true)
 
             expect(to_project.empty_repo?).to be_falsy
@@ -215,7 +216,8 @@ describe Projects::ForkService do
         @project     = create(:project, :repository,
                               creator_id: @group_owner.id,
                               star_count: 777,
-                              description: 'Wow, such a cool project!')
+                              description: 'Wow, such a cool project!',
+                              ci_config_path: 'debian/salsa-ci.yml')
         @group = create(:group)
         @group.add_user(@group_owner, GroupMember::OWNER)
         @group.add_user(@developer,   GroupMember::DEVELOPER)
@@ -228,14 +230,15 @@ describe Projects::ForkService do
         it 'group owner successfully forks project into the group' do
           to_project = fork_project(@project, @group_owner, @opts)
 
-          expect(to_project).to             be_persisted
-          expect(to_project.errors).to      be_empty
-          expect(to_project.owner).to       eq(@group)
-          expect(to_project.namespace).to   eq(@group)
-          expect(to_project.name).to        eq(@project.name)
-          expect(to_project.path).to        eq(@project.path)
-          expect(to_project.description).to eq(@project.description)
-          expect(to_project.star_count).to  be_zero
+          expect(to_project).to                be_persisted
+          expect(to_project.errors).to         be_empty
+          expect(to_project.owner).to          eq(@group)
+          expect(to_project.namespace).to      eq(@group)
+          expect(to_project.name).to           eq(@project.name)
+          expect(to_project.path).to           eq(@project.path)
+          expect(to_project.description).to    eq(@project.description)
+          expect(to_project.ci_config_path).to eq(@project.ci_config_path)
+          expect(to_project.star_count).to     be_zero
         end
       end
 

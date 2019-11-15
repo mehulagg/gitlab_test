@@ -190,6 +190,7 @@ according to each stage (Verify, Package, Release).
    - Store Docker images with [Container Registry](../../user/packages/container_registry/index.md).
    - Store NPM packages with [NPM Registry](../../user/packages/npm_registry/index.md). **(PREMIUM)**
    - Store Maven artifacts with [Maven Repository](../../user/packages/maven_repository/index.md). **(PREMIUM)**
+   - Store Conan packages with [Conan Repository](../../user/packages/conan_repository/index.md). **(PREMIUM)**
 1. **Release**:
    - Continuous Deployment, automatically deploying your app to production.
    - Continuous Delivery, manually click to deploy your app to production.
@@ -206,7 +207,7 @@ With GitLab CI/CD you can also:
 - Deploy your app to different [environments](../environments.md).
 - Install your own [GitLab Runner](https://docs.gitlab.com/runner/).
 - [Schedule pipelines](../../user/project/pipelines/schedules.md).
-- Check for app vulnerabilities with [Security Test reports](../../user/project/merge_requests/index.md#security-reports-ultimate). **(ULTIMATE)**
+- Check for app vulnerabilities with [Security Test reports](../../user/application_security/index.md). **(ULTIMATE)**
 
 To see all CI/CD features, navigate back to the [CI/CD index](../README.md).
 

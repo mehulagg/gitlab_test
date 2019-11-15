@@ -2,6 +2,7 @@
 
 class LfsObject < ApplicationRecord
   include AfterCommitQueue
+  include Checksummable
   include EachBatch
   include ObjectStorage::BackgroundMove
 
@@ -17,6 +18,11 @@ class LfsObject < ApplicationRecord
 
   after_save :update_file_store, if: :saved_change_to_file?
 
+  def self.not_linked_to_project(project)
+    where('NOT EXISTS (?)',
+          project.lfs_objects_projects.select(1).where('lfs_objects_projects.lfs_object_id = lfs_objects.id'))
+  end
+
   def update_file_store
     # The file.object_store is set during `uploader.store!`
     # which happens after object is inserted/updated
@@ -24,7 +30,13 @@ class LfsObject < ApplicationRecord
   end
 
   def project_allowed_access?(project)
-    projects.exists?(project.lfs_storage_project.id)
+    if project.fork_network_member
+      lfs_objects_projects
+        .where("EXISTS(?)", project.fork_network.fork_network_members.select(1).where("fork_network_members.project_id = lfs_objects_projects.project_id"))
+        .exists?
+    else
+      lfs_objects_projects.where(project_id: project.id).exists?
+    end
   end
 
   def local_store?
@@ -40,7 +52,7 @@ class LfsObject < ApplicationRecord
   # rubocop: enable DestroyAll
 
   def self.calculate_oid(path)
-    Digest::SHA256.file(path).hexdigest
+    self.hexdigest(path)
   end
 end
 

@@ -5,12 +5,13 @@ import * as types from './mutation_types';
 export default {
   [types.SET_INITIAL_CONFIG](
     state,
-    { epicsEndpoint, issuesEndpoint, autoCompleteEpics, autoCompleteIssues },
+    { epicsEndpoint, issuesEndpoint, autoCompleteEpics, autoCompleteIssues, userSignedIn },
   ) {
     state.epicsEndpoint = epicsEndpoint;
     state.issuesEndpoint = issuesEndpoint;
     state.autoCompleteEpics = autoCompleteEpics;
     state.autoCompleteIssues = autoCompleteIssues;
+    state.userSignedIn = userSignedIn;
   },
 
   [types.SET_INITIAL_PARENT_ITEM](state, data) {
@@ -120,15 +121,17 @@ export default {
     state.childrenFlags[item.reference].itemRemoveInProgress = false;
   },
 
-  [types.TOGGLE_ADD_ITEM_FORM](state, { actionType, toggleState }) {
-    state.actionType = actionType;
+  [types.TOGGLE_ADD_ITEM_FORM](state, { issuableType, toggleState }) {
+    if (issuableType) {
+      state.issuableType = issuableType;
+    }
+
     state.showAddItemForm = toggleState;
-    state.showCreateItemForm = false;
+    state.showCreateEpicForm = false;
   },
 
-  [types.TOGGLE_CREATE_ITEM_FORM](state, { actionType, toggleState }) {
-    state.actionType = actionType;
-    state.showCreateItemForm = toggleState;
+  [types.TOGGLE_CREATE_EPIC_FORM](state, { toggleState }) {
+    state.showCreateEpicForm = toggleState;
     state.showAddItemForm = false;
   },
 

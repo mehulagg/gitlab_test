@@ -281,10 +281,7 @@ module IssuablesHelper
     }
 
     data[:hasClosingMergeRequest] = issuable.merge_requests_count(current_user) != 0 if issuable.is_a?(Issue)
-
-    zoom_links = Gitlab::ZoomLinkExtractor.new(issuable.description).links
-
-    data[:zoomMeetingUrl] = zoom_links.last if zoom_links.any?
+    data[:zoomMeetingUrl] = ZoomMeeting.canonical_meeting_url(issuable) if issuable.is_a?(Issue)
 
     if parent.is_a?(Group)
       data[:groupPath] = parent.path
@@ -370,6 +367,12 @@ module IssuablesHelper
 
   def has_filter_bar_param?
     finder.class.scalar_params.any? { |p| params[p].present? }
+  end
+
+  def assignee_sidebar_data(assignee, merge_request: nil)
+    { avatar_url: assignee.avatar_url, name: assignee.name, username: assignee.username }.tap do |data|
+      data[:can_merge] = merge_request.can_be_merged_by?(assignee) if merge_request
+    end
   end
 
   private

@@ -1,4 +1,4 @@
-/* eslint-disable func-names, no-var, no-underscore-dangle, no-param-reassign, prefer-template, consistent-return, one-var, no-else-return */
+/* eslint-disable func-names, no-underscore-dangle, no-param-reassign, consistent-return, no-else-return */
 
 import $ from 'jquery';
 
@@ -82,13 +82,13 @@ LineHighlighter.prototype.highlightHash = function(newHash) {
 };
 
 LineHighlighter.prototype.clickHandler = function(event) {
-  var current, lineNumber, range;
+  let range;
   event.preventDefault();
   this.clearHighlight();
-  lineNumber = $(event.target)
+  const lineNumber = $(event.target)
     .closest('a')
     .data('lineNumber');
-  current = this.hashToRange(this._hash);
+  const current = this.hashToRange(this._hash);
   if (!(current[0] && event.shiftKey)) {
     // If there's no current selection, or there is but Shift wasn't held,
     // treat this like a single-line selection.
@@ -106,7 +106,7 @@ LineHighlighter.prototype.clickHandler = function(event) {
 };
 
 LineHighlighter.prototype.clearHighlight = function() {
-  return $('.' + this.highlightLineClass).removeClass(this.highlightLineClass);
+  return $(`.${this.highlightLineClass}`).removeClass(this.highlightLineClass);
 };
 
 // Convert a URL hash String into line numbers
@@ -121,12 +121,11 @@ LineHighlighter.prototype.clearHighlight = function() {
 //
 // Returns an Array
 LineHighlighter.prototype.hashToRange = function(hash) {
-  var first, last, matches;
   // ?L(\d+)(?:-(\d+))?$/)
-  matches = hash.match(/^#?L(\d+)(?:-(\d+))?$/);
+  const matches = hash.match(/^#?L(\d+)(?:-(\d+))?$/);
   if (matches && matches.length) {
-    first = parseInt(matches[1], 10);
-    last = matches[2] ? parseInt(matches[2], 10) : null;
+    const first = parseInt(matches[1], 10);
+    const last = matches[2] ? parseInt(matches[2], 10) : null;
     return [first, last];
   } else {
     return [null, null];
@@ -137,7 +136,7 @@ LineHighlighter.prototype.hashToRange = function(hash) {
 //
 // lineNumber - Line number to highlight
 LineHighlighter.prototype.highlightLine = function(lineNumber) {
-  return $('#LC' + lineNumber).addClass(this.highlightLineClass);
+  return $(`#LC${lineNumber}`).addClass(this.highlightLineClass);
 };
 
 // Highlight all lines within a range
@@ -160,11 +159,11 @@ LineHighlighter.prototype.highlightRange = function(range) {
 
 // Set the URL hash string
 LineHighlighter.prototype.setHash = function(firstLineNumber, lastLineNumber) {
-  var hash;
+  let hash;
   if (lastLineNumber) {
-    hash = '#L' + firstLineNumber + '-' + lastLineNumber;
+    hash = `#L${firstLineNumber}-${lastLineNumber}`;
   } else {
-    hash = '#L' + firstLineNumber;
+    hash = `#L${firstLineNumber}`;
   }
   this._hash = hash;
   return this.__setLocationHash__(hash);

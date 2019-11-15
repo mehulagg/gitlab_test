@@ -1,5 +1,361 @@
 Please view this file on the master branch, on stable branches it's out of date.
 
+## 12.4.2
+
+### Fixed (1 change)
+
+- Fix feature flag check for productivity analytics. !19025
+
+
+## 12.4.1
+
+### Security (6 changes)
+
+- Do not display project labels that are not visible for user accessing group labels.
+- Do not index system notes for issue update.
+- Redact search results based on Ability.allowed?.
+- Do not show private cross references in epic notes.
+- Filter out packages the user does'nt have permission to see at group level.
+- Fixes a Open Redirect issue in `InternalRedirect`.
+
+
+## 12.4.0
+
+### Security (2 changes)
+
+- Prevent IDOR when adding groups to protected environments.
+- Hide approvers if a rule has any hidden groups.
+
+### Removed (1 change)
+
+- Remove db_load_balancing_index gauge metric. !17561
+
+### Fixed (26 changes, 1 of them is from the community)
+
+- Admin settings errors now shown in the correct panel. !14374
+- Add missing error handling for epic quick actions. !15648
+- Fix project exports clobbering concurrent export paths. !16280
+- Fixes scroll handle icon in time series. !16354
+- Remove hardcoded Medium confidence for Container Scanning vulnerabilities. !16395
+- Fixed renaming changed files. !16539
+- Fix project-defined metrics dashboards not rendering. !16589
+- Remove duplication of Licenses in Dependency List page. !16946
+- Backfill SPDX identifiers in software_licenses table. !17004
+- Monitor charts: Validate form for creating an alert before submitting. !17109
+- Hide Push rules link when you dont have a license installed. !17530
+- Operations Dashboard: fix minimum query message. !17574
+- Fix page layout for sidebar on designs view. !17579
+- Display error for invalid insights config. !17589
+- Display appropriate approval status icon next to license. !17613
+- Fix deduplication of WASC vulnerabilities in the Security dashboard. !17778
+- Fix burndown negative count edge case. !18053
+- Change design management empty state button style. !18060 (George Tsiolis)
+- Decouple dependency list parser from v1.0 license scanning report. !18103
+- Respect Group SSO Enforcement on projects where the user is an owner. !18154
+- Scoped labels do not remove old label in board sidebar. !18313
+- Restrict number of users input to positive numbers. !18381
+- Fix undefined method log_geo_deleted_event for MergeRequestDiff. !18405
+- Add default empty values to prevent parser errors from approving the Vulnerability-Check rule. !18423
+- Fix time tracking info when the sidebar is collapsed.
+- Fix Discussion tab counter on Issues.
+
+### Changed (18 changes, 1 of them is from the community)
+
+- Style burndown charts with gitlab-ui. !15463
+- Add epic_iid parameter to issues API. !15640
+- Use a single badge to show number of active alerts on metrics dashboards. !15789
+- Allow files with .svg extensions to be uploaded as designs for Design Management. !16160
+- Implement dismissal behaviour when dismissed vulnerabilities are hidden. !16207
+- Remove environment_metrics_show_multiple_dashboards feature flag. !16640
+- Make name an optional parameter of releases. !16647
+- Expose epics closed_at on API. !17156
+- Add static_context API param when editing GitHub project service. !17397
+- Support variable expansion in branch property of bridge jobs. !17430
+- Add environment dropdown to pod logs screen. !17532
+- Parse v2 license scanning reports. !17646
+- Remove broken HTML5 routing behaviour from Pipeline Security Dashboard. !17767
+- Change Prometheus Alert details list from bulleted to description list. !18116 (Vitali Tatarintev)
+- Check for software license violations using SPDX identifiers. !18300
+- Move 'Advanced search' message to search page title. !18349
+- Add alert message for feature 'require approval from code owners' being moved. !18715
+- Enable Productivity Analytics feature by default. !18754
+
+### Performance (1 change)
+
+- Reduce excessive GC on pull mirrors. !17931
+
+### Added (35 changes)
+
+- Allow Design Management files and data to be included in the project exporter/importer. !14702
+- Create system notes for design events. !14791
+- Paginate SCIM responses using count and startIndex. !14892
+- Front-End UI for design deletion. !15034
+- Add max issue count to lists. !15116
+- Sign in / sign up step for trial. !15289
+- Add notification for updated privacy policy. !15435
+- Show Billing Plan as Cards in profile and groups. !15437
+- Add Audit Event API. !15698
+- Add configurable Code Owner approvals for protected branches. !15862
+- Add Alerts Service to Projects. !16117
+- Add Conan check_credentials API endpoint. !16215
+- Initial endpoint for exposing Cycle Analytics stages for the new frontend. !16240
+- Add ability to multi select issue board cards. !16317
+- Add License-Check approval UI. !16371
+- Add links to associated releases on Tags page. !16479
+- Frontend implementation for improved trial sign-up experience for GitLab.com (SaaS) users. !16732
+- Return Todos for Designs via the REST API. !16885
+- Set active insights dashboard tab from hash fragment. !16904
+- Extend group IP restriction to Git activity. !16980
+- Inactivate pipeline retries for Merge Trains. !17065
+- Expose time when the build was generated. !17113
+- Add new table for recording commit counts per file. !17277
+- Add vendored template for Browser Performance Testing. !17319
+- Link Gitlab managed Prometheus alerts and issues. !17477
+- Disable insights tab navigation whilst current page loads. !17678
+- Drop all merge requests from merge trains when the project-level setting is disabled. !17774
+- Implement DAST for default branches. !17789
+- Add rack attack settings for prometheus and generic alert endpoint. !17859
+- Add Licenses list backend usage ping. !17925
+- Associate self-managed Prometheus Alerts and Issues. !18046
+- Operator can see all projects using an instance level cluster. !18173
+- Expose subscribed attribute for Epics in GraphQL. !18607
+- Expose epic participants on GraphQL. !18691
+- Adds a generic alert integration which can accept alerts from any source via a generic webhook receiver.
+
+### Other (4 changes)
+
+- Productivity analytics: Add scatterplot. !15569
+- Updated sidebar navigation icons to be horizontally centered when bar is condensed. !16820
+- Pin major version of SAST analyzers. !17110
+- Docs for protected branch code owner approval API. !17132
+
+
+## 12.3.4
+
+### Fixed (2 changes)
+
+- Fix replies to service desk emails for projects with issue access as Only Project Members. !17401
+- Geo: LFS not being synced. !17633
+
+
+## 12.3.2
+
+### Security (2 changes)
+
+- Hide approvers if a rule has any hidden groups.
+- Prevent IDOR when adding groups to protected environments.
+
+
+## 12.3.1
+
+- No changes.
+
+## 12.3.0
+
+### Security (3 changes)
+
+- Limit number of jobs in running pipelines for the past hour on per plan basis. !1182
+- Filter out old system notes for epics in notes api endpoint response.
+- Do not allow creation of projects from group templates if project is not descendant of that group.
+
+### Removed (1 change)
+
+- Remove Ruby Elasticsearch indexer. !15641
+
+### Fixed (53 changes, 5 of them are from the community)
+
+- LDAP group sync: check parent group membership and improve performance. !13435 (Alex Lossent)
+- Added a migration which fixes discussions for existing promoted epics. !14708
+- Fix Docker Registry access when Group SAML session enforcement is active. !14843
+- Fix missing borders between settings items. !14877
+- SCIM uses fallbacks when name.formatted not present. !14878
+- Fix visibility of link to dependency-list in project sidebar based on permissions. !15066
+- Hide info for unlicensed projects on Ops Dashboard. !15099
+- Fix focus-visibility of vulnerability-actions within security dashboard. !15115
+- Resolve Design viewer does not respect version. !15119
+- Fix bug to display alert menu correctly in dashboards. !15261
+- Allow developer role to access group-level templates when creating a new project. !15364
+- Maintain related issues after moving issue. !15391
+- Fix the documentation link on the empty Dependency List page. !15402
+- Fix broken docs link on security dashboard. !15404
+- Change epics count in sidebar to only count open epics. !15459
+- Include ancestor group labels in autocomplete for epics. !15460
+- Enable target users across all feature flag environment scopes. !15500
+- Change payload for comparing security reports in MR widget. !15531
+- Add space between CI usage warning messages. !15563 (briankabiro)
+- Make sure groups with templates finder returns subgroups. !15631
+- Properly delete files when a package is removed. !15634
+- Fix x-axis burndown chart offset by timezone. !15690
+- Resolve SRV records for DB load balancing. !15691
+- Ensure all CI minutes used are reset for all namespaces and relative projects. !15744
+- Show proper error in SCIM create user endpoint. !15756
+- Update permissions on Dependency List page. !15771
+- Allow ancestor group milestones in issue board scope. !15858
+- Show weight on new board issue. !16028 (Lee Tickett)
+- Do not show 'automatically removed' suffix for manually removed labels. !16079
+- Link to the embedded doc in the Geo callout about hashed storage. !16114
+- Fix LFS authentication URL in EE. !16146
+- Prevent project's approval rules having same name. !16216
+- Fix create issue for container scanning from security dashboard. !16226
+- Add current_user to security report comparison services. !16252
+- Fix setting of weight of a new issue in board list. !16299
+- Update ExternalPullRequest on :synchronize action to ensure source_sha is updated locally. !16318
+- Fix wrong tier error message for Operations dashboard. !16319
+- Perform case insensitive diff on license names. !16335
+- Moves Buy additional minutes button to the pipelines tab. !16443
+- Update GitHub Importer Personal Access Token field description for CI/CD projects only to reflect latest OAuth changes. !16453
+- Use Pull Request number instead of internal Pull Request ID. !16504
+- Fix service desk emails not creating issues intermittently. !16577
+- Reinitialize metrics files on webserver master process start. !16623
+- Fix the group's epic page. The Paste issue link placeholder shown as 'undefinedundefinedundefined' in Chinese environment. And the error message showed nothing. !16628 (wdmcheng)
+- Fix issue redirects going to /issues/:id/designs. !16638
+- Eliminate analytics feature flag requirement for /analytics routes. !16663
+- Match environment names case insensitively for feature flag spec search. !16691
+- Fix merge request redirects going to /commits page. !16705
+- Align text color for edited with issue/mr. !16721
+- Added Packages top item to the group level packages fly out navigation menu. !16791
+- Restores data for assignee changes in merge request webhooks. !16812 (Jesse Hall @jessehall3)
+- Fix alignment of comments count in issue and MR lists. !16829
+- Wait until pipeline is completed before checking for software license violations. !16853
+
+### Changed (27 changes, 1 of them is from the community)
+
+-  Geo: Refactor data-sources to allow for replication of content in Object Storage. !13997
+- Improve UX multi assignees in MR. !14851
+- Add ability to block API pushes to protected branches when contents match CODEOWNERS rule. !14900
+- Add browser notications to add/edit/delete vulnability dismissal reasons. !15015
+- Geo: Add orphaned project registry cleaner. !15021
+- Update Security Dashboard for improved usability. !15050
+- Present SAST report comparison logic to backend. !15114
+- Ensure design notifications are sent. !15250
+- Apply the group setting "Restrict access by IP address" to API requests. !15282
+- Hide boards-switcher on group boards. !15293 (briankabiro)
+- Group Security Dashboard shows projects with security reports only. !15334
+- Use GlEmptyState component for design management empty state. !15374
+- DB Load Balancing: Log Prometheus current number of hosts and current index. !15440
+- Clarify SSO enforcement setting behaviour. !15533
+- DB Load Balancing: Support SRV lookups. !15558
+- Add status checking behaviors to pipeline triggers. !15580
+- Only show Service Desk email address to project members. !15676
+- Use static status check names on GitHub integrations. !15737
+- Display the Security Dashboard in the Security tab of the pipeline view. !15824
+- Remove primary button from feature flags empty state and update text. !15841
+- Extend License Compliance entity for Pipelines and MR view. !15957
+- Improve DB load balancing log to log host offline due to replication lag. !15995
+- Eliminating `analytics` feature flag and introduce separate feature flags for Analytics features. !16102
+- Add asterisk to name field in new feature flag form. !16248
+- Update Container Scanning job template, use klar image. !16342
+- Improve projects list page UI. !16656
+- Add user feedback to exit routine of onboarding tour.
+
+### Performance (2 changes)
+
+- Send only necessary fields on mr-widget auto-refresh. !15495
+- Two step Routable lookup. !16621
+
+### Added (46 changes, 1 of them is from the community)
+
+- Public project-level approval rule API. !13895
+- Support reordering issues and epics using Drag&Drop. !14565
+- Add deletion support for designs. !14656
+- Add Epics select dropdown to Issue sidebar. !14763
+- Edit delete vuln dismissal message. !14770
+- add Productivity Analytics page with basic charts. !14772
+- Add License information to the Dependency List based on current license rules. !14905
+- Adds an api to generate suggestions for username. !15048
+- Add Upgrade button to the User Billing page. !15075
+- Enable "only/except: external_pull_request" with GitHub integration when a pull request is open for the given ref. !15082
+- Allow to filter epics by timeframe or state using GraphQL. !15110
+- Support restricting group access by multiple IP subnets. !15142
+- Merge License info to Dependency List report. !15157
+- Add Licenses info into Dependencies response. !15160
+- Add 'License-Check' approval rule to enforce license compliance policy. !15196
+- Added a toggle to show/hide dismissed vulnerabilities in the security dashboard. !15333
+- Add audit event for archiving & unarchiving projects. !15362
+- Pressing the Escape key now closes designs in Design Management. !15379
+- Expose a count of Notes for a Design in a new notes_count property of DesignType in GraphQL. !15433
+- Implement public MR-level approval rules API. !15441
+- Cancel redundant merge train pipelines. !15450
+- Add vulnerabilities to Dependencies API. !15485
+- Expose a new events property of DesignType in GraphQL that represents the change that happened to a Design within a given version. !15561
+- Add new layout for trial. !15630
+- Track repository pushes as audit events. !15667
+- Create Metadata/Tags table. !15770
+- Allow SmartCard authentication to use SAN extensions. !15773
+- Maximum Users metric in Admin Dashboard includes current active user count. !15810
+- Public MR-level approval state API endpoint. !15859
+- Add secondary lag message on Git push over HTTP. !15901
+- Expose epic_iid in issues API. !15998
+- Refresh license approval check when a license is blacklisted. !16070
+- Disable editing of the 'License-Check' approval rule name. !16149
+- Implement Cluster Environments polling. !16316
+- Support creating project from template via API. !16352
+- Add link to additional shared minutes from pipeline quote overview. !16389
+- Add audit events for protected branches. !16399
+- Geo: Exit LogCursor if it has been failing for too long. !16408
+- Implement design comment counts and current-version status icon indicator. !16416
+- Track page view counts for Cycle Analytics and Productivity Analytics features. !16431
+- Update release blocks to support association of milestones. !16562
+- Set default whitespace diff behaviour. !16570 (Lee Tickett)
+- Implement `/zoom` and `/remove_zoom` quick actions. !16609
+- Add Snowplow click tracking for issue sidebar. !16833
+- Upgrade pages to 1.9.0.
+- Adds total usage information to the usage quotas page.
+
+### Other (27 changes, 8 of them are from the community)
+
+- Update Pipelines Minutes expiry banner to Alert Component. !14786
+- Add internal API for group cluster environments. !15096
+- Rename approval rule. !15140
+- Productivity Analytics: Add error handling for reporting on groups which have no plan. !15291
+- Convert Issue Analytics chart into ECharts. !15389
+- Display group's full name when creating a project from custom group-level project templates. !15392
+- Only in ee available selection entries in user settings adapted to match ce. !15452 (Marc Schwede)
+- Rename Approvers field and modal title. !15461
+- Add a tooltip to Add Designs button. !15471
+- Show the paths for groups in groups dropdown. !15513
+- Turn epic dates into one clickable block. !15722 (Lee Tickett)
+- Add default route for admin/geo. !15726 (Lee Tickett)
+- Improve unapproved MR merge button text. !15745 (Lee Tickett)
+- Update the ES indexer to v1.3.0. !15821
+- Groups dropdown: Fix group styles in dropdown. !15839
+- Document SRV handling for DB load balancing. !16000
+- Internationalization of shared/promotions/_promote_audit_events.html.haml. !16033 (Takuya Noguchi)
+- Remove vue-resource from service_desk_service.js. !16041 (Lee Tickett)
+- Remove unused classes for report comparison. !16045
+- Remove vue-resource from related-issues. !16057 (Lee Tickett)
+- Add CI variable for repository languages. !16477
+- SAST template that doesn't rely on Docker-in-Docker. !16487
+- Adding docs for Web IDE Default Commit Options. !16629
+- Adding top border back to snippet files. !16709
+- Remove vue-resource from drafts. (Lee Tickett)
+- Changing instance of key-modern icon to key icon.
+- Fixes style-lint errors and warnings for EE builds.scss file.
+
+
+## 12.2.8
+
+### Fixed (1 change)
+
+- Geo: LFS not being synced. !17633
+
+
+## 12.2.7
+
+### Security (1 change)
+
+- Restrict access for security reports in MR widget.
+
+
+## 12.2.6
+
+### Security (3 changes)
+
+- Hide approvers if a rule has any hidden groups.
+- Fix Gitaly SearchBlobs flag RPC injection [Gitaly v1.59.3].
+- Prevent IDOR when adding groups to protected environments.
+
+
 ## 12.2.5
 
 ### Security (1 change)
@@ -250,6 +606,23 @@ Please view this file on the master branch, on stable branches it's out of date.
 - Remove deprecated name sast_container from licensed features. !14980
 - Remove default relative_position from epic_issues. !15008
 - Fix alignment of activity dropdown in epic tabs; add counter to discussion tab.
+
+
+## 12.1.14
+
+### Fixed (1 change)
+
+- Geo: LFS not being synced. !17633
+
+
+## 12.1.12
+
+### Security (4 changes)
+
+- Hide approvers if a rule has any hidden groups.
+- Fix Gitaly SearchBlobs flag RPC injection [Gitaly v1.53.4].
+- Prevent IDOR when adding groups to protected environments.
+- Upgrade mermaid to prevent XSS.
 
 
 ## 12.1.10
@@ -3808,7 +4181,7 @@ Please view this file on the master branch, on stable branches it's out of date.
 - Show hook errors for fast-forward merges. !1375
 - Allow all parameters of group webhooks to be set through the UI. !1376
 - Fix Elasticsearch queries when a group_id is specified. !1423
-- Check the right index mapping based on Rails environment for rake gitlab:elastic:add_feature_visiblity_levels_to_project. !1473
+- Check the right index mapping based on Rails environment for rake gitlab:elastic:add_feature_visibility_levels_to_project. !1473
 - Fix issues with another milestone that has a matching list label could not be added to a board.
 - Only admins or group owners can set LDAP overrides.
 - Add support for load balancing database queries.
@@ -4028,7 +4401,7 @@ Please view this file on the master branch, on stable branches it's out of date.
 ## 8.14.0 (2016-11-22)
 
 - Added Backfill service for Geo. !861
-- Fix for autosuggested approvers(https://gitlab.com/gitlab-org/gitlab-ee/issues/1273).
+- Fix for autosuggested approvers(https://gitlab.com/gitlab-org/gitlab/issues/1273).
 - Gracefully recover from previously failed rebase.
 - Disable retries for remote mirror update worker. !848
 - Fix Approvals API documentation.

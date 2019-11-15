@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Path Locks', :js do
@@ -6,7 +8,6 @@ describe 'Path Locks', :js do
   let(:tree_path) { project_tree_path(project, project.repository.root_ref) }
 
   before do
-    stub_feature_flags(vue_file_list: false)
     allow(project).to receive(:feature_available?).with(:file_locks) { true }
 
     project.add_maintainer(user)
@@ -23,11 +24,7 @@ describe 'Path Locks', :js do
     end
     click_link "Lock"
 
-    expect(page).to have_selector('.fa-lock')
-
-    visit tree_path
-
-    expect(page).to have_selector('.fa-lock')
+    expect(page).to have_link('Unlock')
   end
 
   it 'Locking files' do
@@ -41,12 +38,6 @@ describe 'Path Locks', :js do
       click_link "Lock"
 
       expect(page).to have_link('Unlock')
-    end
-
-    visit tree_path
-
-    within page_tree do
-      expect(page).to have_selector('.fa-lock')
     end
   end
 

@@ -25,11 +25,15 @@ module CycleAnalyticsHelpers
 
     return if skip_push_handler
 
-    Git::BranchPushService.new(project,
-                       user,
-                       oldrev: oldrev,
-                       newrev: commit_shas.last,
-                       ref: 'refs/heads/master').execute
+    Git::BranchPushService.new(
+      project,
+      user,
+      change: {
+        oldrev: oldrev,
+        newrev: commit_shas.last,
+        ref: 'refs/heads/master'
+      }
+    ).execute
   end
 
   def create_cycle(user, project, issue, mr, milestone, pipeline)
@@ -73,7 +77,7 @@ module CycleAnalyticsHelpers
                        .new(project, user)
                        .closed_by_merge_requests(issue)
 
-    merge_requests.each { |merge_request| MergeRequests::MergeService.new(project, user).execute(merge_request) }
+    merge_requests.each { |merge_request| MergeRequests::MergeService.new(project, user, sha: merge_request.diff_head_sha).execute(merge_request) }
   end
 
   def deploy_master(user, project, environment: 'production')
@@ -109,6 +113,7 @@ module CycleAnalyticsHelpers
 
   def new_dummy_job(user, project, environment)
     create(:ci_build,
+      :with_deployment,
       project: project,
       user: user,
       environment: environment,

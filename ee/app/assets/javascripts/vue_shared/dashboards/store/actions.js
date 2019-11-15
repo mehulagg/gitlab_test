@@ -151,20 +151,32 @@ export const receiveRemoveProjectError = () => {
 export const setSearchQuery = ({ commit }, query) => commit(types.SET_SEARCH_QUERY, query);
 
 export const fetchSearchResults = ({ state, dispatch }) => {
+  const { searchQuery } = state;
   dispatch('requestSearchResults');
 
-  if (!state.searchQuery) {
-    dispatch('receiveSearchResultsError');
-  } else if (state.searchQuery.lengh < API_MINIMUM_QUERY_LENGTH) {
-    dispatch('receiveSearchResultsError', 'minimumQuery');
+  if (!searchQuery || searchQuery.length < API_MINIMUM_QUERY_LENGTH) {
+    dispatch('minimumQueryMessage');
   } else {
-    Api.projects(state.searchQuery, {})
+    Api.projects(searchQuery, {})
       .then(results => dispatch('receiveSearchResultsSuccess', results))
       .catch(() => dispatch('receiveSearchResultsError'));
   }
 };
 
+export const fetchNextPage = ({ state, dispatch }) => {
+  if (state.pageInfo.totalPages <= state.pageInfo.currentPage) {
+    return;
+  }
+  Api.projects(state.searchQuery, { page: state.pageInfo.nextPage })
+    .then(results => dispatch('receiveNextPageSuccess', results))
+    .catch(() => dispatch('receiveSearchResultsError'));
+};
+
 export const requestSearchResults = ({ commit }) => commit(types.REQUEST_SEARCH_RESULTS);
+
+export const receiveNextPageSuccess = ({ commit }, results) => {
+  commit(types.RECEIVE_NEXT_PAGE_SUCCESS, results);
+};
 
 export const receiveSearchResultsSuccess = ({ commit }, results) => {
   commit(types.RECEIVE_SEARCH_RESULTS_SUCCESS, results);
@@ -177,6 +189,14 @@ export const receiveSearchResultsError = ({ commit }) => {
 export const setProjectEndpoints = ({ commit }, endpoints) => {
   commit(types.SET_PROJECT_ENDPOINT_LIST, endpoints.list);
   commit(types.SET_PROJECT_ENDPOINT_ADD, endpoints.add);
+};
+
+export const minimumQueryMessage = ({ commit }) => {
+  commit(types.MINIMUM_QUERY_MESSAGE);
+};
+
+export const setProjects = ({ commit }, projects) => {
+  commit(types.SET_PROJECTS, projects);
 };
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests

@@ -115,9 +115,9 @@ You can view the performance dashboard for an environment by [clicking on the mo
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/3799) in [GitLab Premium](https://about.gitlab.com/pricing/) 10.6.
 
-Custom metrics can be monitored by adding them on the Prometheus integration page. Once saved, they will be displayed on the environment performance dashboard provided that either:
+Custom metrics can be monitored by adding them on the monitoring dashboard page. Once saved, they will be displayed on the environment performance dashboard provided that either:
 
-- A [connected Kubernetes cluster](../clusters/index.md#adding-and-removing-clusters) with the environment scope of `*` is used and [Prometheus installed on the cluster](#enabling-prometheus-integration), or
+- A [connected Kubernetes cluster](../clusters/add_remove_clusters.md) with the environment scope of `*` is used and [Prometheus installed on the cluster](#enabling-prometheus-integration)
 - Prometheus is [manually configured](#manual-configuration-of-prometheus).
 
 ![Add New Metric](img/prometheus_add_metric.png)
@@ -139,7 +139,7 @@ GitLab supports a limited set of [CI variables](../../../ci/variables/README.htm
 - CI_ENVIRONMENT_SLUG
 - KUBE_NAMESPACE
 
-To specify a variable in a query, enclose it in curly braces with a leading percent. For example: `%{ci_environment_slug}`.
+To specify a variable in a query, enclose it in quotation marks with curly braces with a leading percent. For example: `"%{ci_environment_slug}"`.
 
 ### Defining custom dashboards per project
 
@@ -211,11 +211,11 @@ The following tables outline the details of expected properties.
 
 | Property | Type | Required | Description |
 | ------ | ------ | ------ | ------- |
-| `type` | enum | no, defaults to `area-chart` | Specifies the chart type to use, can be `area-chart` or `line-chart` |
+| `type` | enum | no, defaults to `area-chart` | Specifies the chart type to use, can be: `area-chart`, `line-chart` or `anomaly-chart`. |
 | `title` | string | yes | Heading for the panel. |
 | `y_label` | string | no, but highly encouraged | Y-Axis label for the panel. |
 | `weight` | number | no, defaults to order in file | Order to appear within the grouping. Lower number means higher priority, which will be higher on the page. Numbers do not need to be consecutive. |
-| `metrics` | array | yes | The metrics which should be displayed in the panel. |
+| `metrics` | array | yes | The metrics which should be displayed in the panel. Any number of metrics can be displayed when `type` is `area-chart` or `line-chart`, whereas only 3 can be displayed when `type` is `anomaly-chart`. |
 
 **Metrics (`metrics`) properties:**
 
@@ -231,20 +231,20 @@ The following tables outline the details of expected properties.
 
 The below panel types are supported in monitoring dashboards.
 
-##### Area
+##### Area or Line Chart
 
-To add an area panel type to a dashboard, look at the following sample dashboard file:
+To add an area chart panel type to a dashboard, look at the following sample dashboard file:
 
 ```yaml
 dashboard: 'Dashboard Title'
 panel_groups:
   - group: 'Group Title'
     panels:
-      - type: area-chart
-        title: "Chart Title"
+      - type: area-chart # or line-chart
+        title: 'Area Chart Title'
         y_label: "Y-Axis"
         metrics:
-          - id: 10
+          - id: area_http_requests_total
             query_range: 'http_requests_total'
             label: "Metric of Ages"
             unit: "count"
@@ -255,9 +255,51 @@ Note the following properties:
 | Property | Type | Required | Description |
 | ------ | ------ | ------ | ------ |
 | type | string | no | Type of panel to be rendered. Optional for area panel types |
-| query_range | yes | required | For area panel types, you must use a [range query](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries) |
+| query_range | string | required | For area panel types, you must use a [range query](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries) |
 
 ![area panel type](img/prometheus_dashboard_area_panel_type.png)
+
+##### Anomaly chart
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/16530) in GitLab 12.5.
+
+To add an anomaly chart panel type to a dashboard, add add a panel with *exactly* 3 metrics.
+
+The first metric represents the current state, and the second and third metrics represent the upper and lower limit respectively:
+
+```yaml
+dashboard: 'Dashboard Title'
+panel_groups:
+  - group: 'Group Title'
+    panels:
+      - type: anomaly-chart
+        title: "Chart Title"
+        y_label: "Y-Axis"
+        metrics:
+          - id: anomaly_requests_normal
+            query_range: 'http_requests_total'
+            label: "# of Requests"
+            unit: "count"
+        metrics:
+          - id: anomaly_requests_upper_limit
+            query_range: 10000
+            label: "Max # of requests"
+            unit: "count"
+        metrics:
+          - id: anomaly_requests_lower_limit
+            query_range: 2000
+            label: "Min # of requests"
+            unit: "count"
+```
+
+Note the following properties:
+
+| Property | Type | Required | Description |
+| ------ | ------ | ------ | ------ |
+| type | string | required | Must be `anomaly-chart` for anomaly panel types |
+| query_range | yes | required | For anomaly panel types, you must use a [range query](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries) in every metric. |
+
+![anomaly panel type](img/prometheus_dashboard_anomaly_panel_type.png)
 
 ##### Single Stat
 
@@ -286,6 +328,35 @@ Note the following properties:
 
 ![single stat panel type](img/prometheus_dashboard_single_stat_panel_type.png)
 
+##### Heatmaps
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/30581) in GitLab 12.5.
+
+To add a heatmap panel type to a dashboard, look at the following sample dashboard file:
+
+```yaml
+dashboard: 'Dashboard Title'
+panel_groups:
+  - group: 'Group Title'
+    panels:
+      - title: "Heatmap"
+        type: "heatmap"
+        metrics:
+        - id: 10
+          query: 'sum(rate(nginx_upstream_responses_total{upstream=~"%{kube_namespace}-%{ci_environment_slug}-.*"}[60m])) by (status_code)'
+          unit: req/sec
+          label: "Status code"
+```
+
+Note the following properties:
+
+| Property | Type | Required | Description |
+| ------ | ------ | ------ | ------ |
+| type | string | yes | Type of panel to be rendered. For heatmap panel types, set to `heatmap` |
+| query_range | yes | yes | For area panel types, you must use a [range query](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries) |
+
+![heatmap panel type](img/heatmap_panel_type.png)
+
 ### Downloading data as CSV
 
 Data from Prometheus charts on the metrics dashboard can be downloaded as CSV.
@@ -300,8 +371,12 @@ Data from Prometheus charts on the metrics dashboard can be downloaded as CSV.
 
 For managed Prometheus instances using auto configuration, alerts for metrics [can be configured](#adding-additional-metrics-premium) directly in the performance dashboard.
 
-To set an alert, click on the alarm icon in the top right corner of the metric you want to create the alert for. A dropdown
-will appear, with options to set the threshold and operator. Click **Add** to save and activate the alert.
+To set an alert:
+
+1. Click on the ellipsis icon in the top right corner of the metric you want to create the alert for.
+1. Choose **Alerts**
+1. Set threshold and operator.
+1. Click **Add** to save and activate the alert.
 
 ![Adding an alert](img/prometheus_alert.png)
 
@@ -328,9 +403,12 @@ receivers:
   ...
 ```
 
+In order for GitLab to associate your alerts with an [environment](../../../ci/environments.md), you need to configure a `gitlab_environment_name` label on the alerts you set up in Prometheus. The value of this should match the name of your Environment in GitLab.
+
 ### Taking action on incidents **(ULTIMATE)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/4925) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.11.
+>- [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/4925) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.11.
+>- [From GitLab Ultimate 12.5](https://gitlab.com/gitlab-org/gitlab/issues/13401), when GitLab receives a recovery alert, it will automatically close the associated issue.
 
 Alerts can be used to trigger actions, like open an issue automatically (enabled by default since `12.1`). To configure the actions:
 
@@ -350,6 +428,8 @@ Once enabled, an issue will be opened automatically when an alert is triggered w
   - `full_query`: Alert query extracted from `generatorURL`
   - Optional list of attached annotations extracted from `annotations/*`
 - Alert [GFM](../../markdown.md): GitLab Flavored Markdown from `annotations/gitlab_incident_markdown`
+
+When GitLab receives a **Recovery Alert**, it will automatically close the associated issue. This action will be recorded as a system message on the issue indicated that it was closed automatically by the GitLab Alert bot.
 
 To further customize the issue, you can add labels, mentions, or any other supported [quick action](../quick_actions.md) in the selected issue template, which will apply to all incidents. To limit quick actions or other information to only specific types of alerts, use the `annotations/gitlab_incident_markdown` field.
 
@@ -410,6 +490,12 @@ The following requirements must be met for the metric to unfurl:
 
 ![Embedded Metrics](img/embed_metrics.png)
 
+### Embedding metrics in issue templates
+
+It is also possible to embed either a dashboard or individual metrics in issue templates. The entire dashboard can be embedded as well as individual metrics, separated by either a comma or a space.
+
+![Embedded Metrics in issue templates](img/embed_metrics_issue_template.png)
+
 ### Embedding live Grafana charts
 
 It is also possible to embed live [Grafana](https://docs.gitlab.com/omnibus/settings/grafana.html) charts within issues, as a [Direct Linked Rendered Image](https://grafana.com/docs/reference/sharing/#direct-link-rendered-image).
@@ -441,7 +527,7 @@ If the "No data found" screen continues to appear, it could be due to:
   [run a query](prometheus_library/kubernetes.html#metrics-supported), replacing `$CI_ENVIRONMENT_SLUG`
   with the name of your environment.
 
-[autodeploy]: ../../../ci/autodeploy/index.md
+[autodeploy]: ../../../topics/autodevops/index.md#auto-deploy
 [kubernetes]: https://kubernetes.io
 [kube]: ./kubernetes.md
 [prometheus-k8s-sd]: https://prometheus.io/docs/operating/configuration/#<kubernetes_sd_config>

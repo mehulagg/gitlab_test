@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Gitlab::Geo, :geo, :request_store do
@@ -75,6 +77,30 @@ describe Gitlab::Geo, :geo, :request_store do
 
         expect(described_class.primary_node_configured?).to be_falsey
       end
+    end
+  end
+
+  describe '.current_node_misconfigured?' do
+    it 'returns true when current node is not set' do
+      expect(described_class.current_node_misconfigured?).to be_truthy
+    end
+
+    it 'returns false when primary' do
+      stub_current_geo_node(primary_node)
+
+      expect(described_class.current_node_misconfigured?).to be_falsey
+    end
+
+    it 'returns false when secondary' do
+      stub_current_geo_node(secondary_node)
+
+      expect(described_class.current_node_misconfigured?).to be_falsey
+    end
+
+    it 'returns false when Geo is disabled' do
+      GeoNode.delete_all
+
+      expect(described_class.current_node_misconfigured?).to be_falsey
     end
   end
 
@@ -158,14 +184,35 @@ describe Gitlab::Geo, :geo, :request_store do
 
   describe '.expire_cache!' do
     it 'clears the Geo cache keys', :request_store do
-      described_class::CACHE_KEYS.each do |raw_key|
-        expanded_key = "geo:#{raw_key}:#{Gitlab::VERSION}:#{Rails.version}"
+      described_class::CACHE_KEYS.each do |key|
+        content = "#{key}-content"
 
-        expect(Rails.cache).to receive(:delete).with(expanded_key).and_call_original
-        expect(Gitlab::ThreadMemoryCache.cache_backend).to receive(:delete).with(expanded_key).and_call_original
+        described_class.cache_value(key) { content }
+        expect(described_class.cache_value(key)).to eq(content)
       end
 
       described_class.expire_cache!
+
+      described_class::CACHE_KEYS.each do |key|
+        expect(described_class.cache_value(key) { nil }).to be_nil
+      end
+    end
+  end
+
+  describe '.expire_cache_keys!' do
+    it 'clears specified keys', :request_store do
+      cache_data = { one: 1, two: 2 }
+
+      cache_data.each do |key, value|
+        described_class.cache_value(key) { value }
+        expect(described_class.cache_value(key)).to eq(value)
+      end
+
+      described_class.expire_cache_keys!(cache_data.keys)
+
+      cache_data.keys.each do |key|
+        expect(described_class.cache_value(key) { nil }).to be_nil
+      end
     end
   end
 

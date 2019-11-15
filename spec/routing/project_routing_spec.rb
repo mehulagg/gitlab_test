@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'project routing' do
@@ -276,6 +278,11 @@ describe 'project routing' do
       expect(get('/gitlab/gitlabhq/refs/feature%2B45/logs_tree/foo/bar/baz')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'feature+45', path: 'foo/bar/baz')
       expect(get('/gitlab/gitlabhq/refs/feature@45/logs_tree/foo/bar/baz')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'feature@45', path: 'foo/bar/baz')
       expect(get('/gitlab/gitlabhq/refs/stable/logs_tree/files.scss')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'stable', path: 'files.scss')
+      assert_routing({ path: "/gitlab/gitlabhq/refs/stable/logs_tree/new%0A%0Aline.txt",
+                       method: :get },
+                     { controller: 'projects/refs', action: 'logs_tree',
+                       namespace_id: 'gitlab', project_id: 'gitlabhq',
+                       id: "stable", path: "new\n\nline.txt" })
     end
   end
 
@@ -779,6 +786,12 @@ describe 'project routing' do
   describe Projects::DeployTokensController, 'routing' do
     it 'routes to deploy_tokens#revoke' do
       expect(put("/gitlab/gitlabhq/-/deploy_tokens/1/revoke")).to route_to("projects/deploy_tokens#revoke", namespace_id: 'gitlab', project_id: 'gitlabhq', id: '1')
+    end
+  end
+
+  describe Projects::UsagePingController, 'routing' do
+    it 'routes to usage_ping#web_ide_clientside_preview' do
+      expect(post('/gitlab/gitlabhq/usage_ping/web_ide_clientside_preview')).to route_to('projects/usage_ping#web_ide_clientside_preview', namespace_id: 'gitlab', project_id: 'gitlabhq')
     end
   end
 end

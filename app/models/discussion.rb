@@ -16,8 +16,10 @@ class Discussion
             :commit_id,
             :for_commit?,
             :for_merge_request?,
+            :noteable_ability_name,
             :to_ability_name,
             :editable?,
+            :visible_for?,
 
             to: :first_note
 

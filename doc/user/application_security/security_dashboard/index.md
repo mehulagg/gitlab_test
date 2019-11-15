@@ -36,7 +36,7 @@ To use the group, project or pipeline security dashboard:
 
 ## Pipeline Security Dashboard
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/13496) in [GitLab Ultimate](https://about.gitlab.com/pricing) 12.3.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/13496) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.3.
 
 At the pipeline level, the Security Dashboard displays the vulnerabilities present in the branch of the project the pipeline was run against.
 
@@ -46,7 +46,7 @@ Visit the page for any pipeline which has run any of the [supported reports](#su
 
 ## Project Security Dashboard
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/6165) in [GitLab Ultimate](https://about.gitlab.com/pricing) 11.1.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/6165) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.1.
 
 At the project level, the Security Dashboard displays the latest security reports
 for your project. Use it to find and fix vulnerabilities affecting the
@@ -56,7 +56,7 @@ for your project. Use it to find and fix vulnerabilities affecting the
 
 ## Group Security Dashboard
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/6709) in [GitLab Ultimate](https://about.gitlab.com/pricing) 11.5.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/6709) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 11.5.
 
 The group Security Dashboard gives an overview of the vulnerabilities of all the
 projects in a group and its subgroups.
@@ -71,12 +71,12 @@ Once you're on the dashboard, at the top you should see a series of filters for:
 - Report type
 - Project
 
-To the right of the filters, you should see a **Hide dismissed** toggle button.
+To the right of the filters, you should see a **Hide dismissed** toggle button ([available in GitLab Ultimate 12.5](https://gitlab.com/gitlab-org/gitlab/issues/9102)).
 
 NOTE: **Note:**
 The dashboard only shows projects with [security reports](#supported-reports) enabled in a group.
 
-![dashboard with action buttons and metrics](img/group_security_dashboard_v12_3.png)
+![dashboard with action buttons and metrics](img/group_security_dashboard_v12_4.png)
 
 Selecting one or more filters will filter the results in this page. Disabling the **Hide dismissed**
 toggle button will let you also see vulnerabilities that have been dismissed.

@@ -4,7 +4,7 @@ module API
   class Dependencies < Grape::API
     helpers do
       def dependencies_by(params)
-        pipeline = user_project.all_pipelines.latest_successful_for_ref(user_project.default_branch)
+        pipeline = ::Security::ReportFetchService.new(user_project, ::Ci::JobArtifact.dependency_list_reports).pipeline
 
         return [] unless pipeline
 

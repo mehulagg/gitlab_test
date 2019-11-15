@@ -104,7 +104,9 @@ describe Projects::DiscussionsController do
         end
 
         it "sends notifications if all discussions are resolved" do
-          expect_any_instance_of(MergeRequests::ResolvedDiscussionNotificationService).to receive(:execute).with(merge_request)
+          expect_next_instance_of(MergeRequests::ResolvedDiscussionNotificationService) do |instance|
+            expect(instance).to receive(:execute).with(merge_request)
+          end
 
           post :resolve, params: request_params
         end
@@ -122,8 +124,10 @@ describe Projects::DiscussionsController do
         end
 
         it "renders discussion with serializer" do
-          expect_any_instance_of(DiscussionSerializer).to receive(:represent)
-            .with(instance_of(Discussion), { context: instance_of(described_class), render_truncated_diff_lines: true })
+          expect_next_instance_of(DiscussionSerializer) do |instance|
+            expect(instance).to receive(:represent)
+              .with(instance_of(Discussion), { context: instance_of(described_class), render_truncated_diff_lines: true })
+          end
 
           post :resolve, params: request_params
         end
@@ -189,12 +193,14 @@ describe Projects::DiscussionsController do
 
         context "when vue_mr_discussions cookie is present" do
           before do
-            allow(controller).to receive(:cookies).and_return({ vue_mr_discussions: 'true' })
+            cookies[:vue_mr_discussions] = 'true'
           end
 
           it "renders discussion with serializer" do
-            expect_any_instance_of(DiscussionSerializer).to receive(:represent)
-              .with(instance_of(Discussion), { context: instance_of(described_class), render_truncated_diff_lines: true })
+            expect_next_instance_of(DiscussionSerializer) do |instance|
+              expect(instance).to receive(:represent)
+                .with(instance_of(Discussion), { context: instance_of(described_class), render_truncated_diff_lines: true })
+            end
 
             delete :unresolve, params: request_params
           end

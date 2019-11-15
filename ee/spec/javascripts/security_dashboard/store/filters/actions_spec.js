@@ -3,6 +3,7 @@ import Tracking from '~/tracking';
 import createState from 'ee/security_dashboard/store/modules/filters/state';
 import * as types from 'ee/security_dashboard/store/modules/filters/mutation_types';
 import module, * as actions from 'ee/security_dashboard/store/modules/filters/actions';
+import { ALL } from 'ee/security_dashboard/store/modules/filters/constants';
 
 describe('filters actions', () => {
   beforeEach(() => {
@@ -12,7 +13,26 @@ describe('filters actions', () => {
   describe('setFilter', () => {
     it('should commit the SET_FILTER mutuation', done => {
       const state = createState();
-      const payload = { filterId: 'type', optionId: 'sast' };
+      const payload = { filterId: 'report_type', optionId: 'sast' };
+
+      testAction(
+        actions.setFilter,
+        payload,
+        state,
+        [
+          {
+            type: types.SET_FILTER,
+            payload: { ...payload, lazy: false },
+          },
+        ],
+        [],
+        done,
+      );
+    });
+
+    it('should commit the SET_FILTER mutuation passing through lazy = true', done => {
+      const state = createState();
+      const payload = { filterId: 'report_type', optionId: 'sast', lazy: true };
 
       testAction(
         actions.setFilter,
@@ -33,7 +53,7 @@ describe('filters actions', () => {
   describe('setFilterOptions', () => {
     it('should commit the SET_FILTER_OPTIONS mutuation', done => {
       const state = createState();
-      const payload = { filterId: 'project', options: [] };
+      const payload = { filterId: 'project_id', options: [{ id: ALL }] };
 
       testAction(
         actions.setFilterOptions,
@@ -43,6 +63,59 @@ describe('filters actions', () => {
           {
             type: types.SET_FILTER_OPTIONS,
             payload,
+          },
+        ],
+        [],
+        done,
+      );
+    });
+
+    it('should commit the SET_FILTER_OPTIONS and SET_FILTER mutation when filter selection is invalid', done => {
+      const state = createState();
+      const payload = { filterId: 'project_id', options: [{ id: 'foo' }] };
+
+      testAction(
+        actions.setFilterOptions,
+        payload,
+        state,
+        [
+          {
+            type: types.SET_FILTER_OPTIONS,
+            payload,
+          },
+          {
+            type: types.SET_FILTER,
+            payload: jasmine.objectContaining({
+              filterId: 'project_id',
+              optionId: ALL,
+            }),
+          },
+        ],
+        [],
+        done,
+      );
+    });
+
+    it('should commit the SET_FILTER_OPTIONS and SET_FILTER mutation when filter selection is invalid, passing the lazy flag', done => {
+      const state = createState();
+      const payload = { filterId: 'project_id', options: [{ id: 'foo' }] };
+
+      testAction(
+        actions.setFilterOptions,
+        { ...payload, lazy: true },
+        state,
+        [
+          {
+            type: types.SET_FILTER_OPTIONS,
+            payload,
+          },
+          {
+            type: types.SET_FILTER,
+            payload: {
+              filterId: 'project_id',
+              optionId: ALL,
+              lazy: true,
+            },
           },
         ],
         [],
@@ -73,32 +146,43 @@ describe('filters actions', () => {
   });
 
   describe('setHideDismissedToggleInitialState', () => {
-    it('should not do anything if hide_dismissed param is not present', done => {
-      spyOnDependency(module, 'getParameterValues').and.returnValue([]);
-      const state = createState();
-      testAction(actions.setHideDismissedToggleInitialState, {}, state, [], [], done);
-    });
-
-    it('should commit the SET_TOGGLE_VALUE mutation if hide_dismissed param is present', done => {
-      const state = createState();
-      spyOnDependency(module, 'getParameterValues').and.returnValue([false]);
-
-      testAction(
-        actions.setHideDismissedToggleInitialState,
-        {},
-        state,
-        [
-          {
-            type: types.SET_TOGGLE_VALUE,
-            payload: {
-              key: 'hide_dismissed',
-              value: false,
+    [
+      {
+        description: 'should set hideDismissed to true if scope param is not present',
+        returnValue: [],
+        hideDismissedValue: true,
+      },
+      {
+        description: 'should set hideDismissed to false if scope param is "all"',
+        returnValue: ['all'],
+        hideDismissedValue: false,
+      },
+      {
+        description: 'should set hideDismissed to true if scope param is "dismissed"',
+        returnValue: ['dismissed'],
+        hideDismissedValue: true,
+      },
+    ].forEach(testCase => {
+      it(testCase.description, done => {
+        spyOnDependency(module, 'getParameterValues').and.returnValue(testCase.returnValue);
+        const state = createState();
+        testAction(
+          actions.setHideDismissedToggleInitialState,
+          {},
+          state,
+          [
+            {
+              type: types.SET_TOGGLE_VALUE,
+              payload: {
+                key: 'hideDismissed',
+                value: testCase.hideDismissedValue,
+              },
             },
-          },
-        ],
-        [],
-        done,
-      );
+          ],
+          [],
+          done,
+        );
+      });
     });
   });
 

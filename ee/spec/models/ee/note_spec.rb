@@ -9,6 +9,18 @@ describe Note do
     it { is_expected.to belong_to(:review).inverse_of(:notes) }
   end
 
+  describe 'scopes' do
+    describe '.with_suggestions' do
+      it 'returns the correct note' do
+        note_with_suggestion = create(:note, suggestions: [create(:suggestion)])
+        note_without_suggestion = create(:note)
+
+        expect(described_class.with_suggestions).to include(note_with_suggestion)
+        expect(described_class.with_suggestions).not_to include(note_without_suggestion)
+      end
+    end
+  end
+
   describe 'callbacks' do
     describe '#notify_after_create' do
       it 'calls #after_note_created on the noteable' do
@@ -64,12 +76,12 @@ describe Note do
     end
   end
 
-  describe '#parent' do
+  describe '#resource_parent' do
     it 'returns group for epic notes' do
       group = create(:group)
       note = create(:note_on_epic, noteable: create(:epic, group: group))
 
-      expect(note.parent).to eq(group)
+      expect(note.resource_parent).to eq(group)
     end
   end
 

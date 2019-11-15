@@ -58,6 +58,8 @@ GET /projects
 | `wiki_checksum_failed`        | boolean | no | **(PREMIUM)** Limit projects where the wiki checksum calculation has failed ([Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/6137) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.2) |
 | `repository_checksum_failed`  | boolean | no | **(PREMIUM)** Limit projects where the repository checksum calculation has failed ([Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/6137) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.2) |
 | `min_access_level`            | integer | no | Limit by current user minimal [access level](members.md) |
+| `id_after`                    | integer | no | Limit results to projects with IDs greater than the specified ID |
+| `id_before`                   | integer | no | Limit results to projects with IDs less than the specified ID |
 
 When `simple=true` or the user is unauthenticated this returns something like:
 
@@ -148,6 +150,7 @@ When the user is authenticated and `simple` is not set this returns something li
     "shared_with_groups": [],
     "only_allow_merge_if_pipeline_succeeds": false,
     "only_allow_merge_if_all_discussions_are_resolved": false,
+    "remove_source_branch_after_merge": false,
     "request_access_enabled": false,
     "merge_method": "merge",
     "statistics": {
@@ -232,6 +235,7 @@ When the user is authenticated and `simple` is not set this returns something li
     "shared_with_groups": [],
     "only_allow_merge_if_pipeline_succeeds": false,
     "only_allow_merge_if_all_discussions_are_resolved": false,
+    "remove_source_branch_after_merge": false,
     "request_access_enabled": false,
     "merge_method": "merge",
     "statistics": {
@@ -302,6 +306,8 @@ GET /users/:user_id/projects
 | `with_merge_requests_enabled` | boolean | no | Limit by enabled merge requests feature |
 | `with_programming_language` | string | no | Limit by projects which use the given programming language |
 | `min_access_level` | integer | no | Limit by current user minimal [access level](members.md) |
+| `id_after`                    | integer | no | Limit results to projects with IDs greater than the specified ID |
+| `id_before`                   | integer | no | Limit results to projects with IDs less than the specified ID |
 
 ```json
 [
@@ -357,6 +363,7 @@ GET /users/:user_id/projects
     "shared_with_groups": [],
     "only_allow_merge_if_pipeline_succeeds": false,
     "only_allow_merge_if_all_discussions_are_resolved": false,
+    "remove_source_branch_after_merge": false,
     "request_access_enabled": false,
     "merge_method": "merge",
     "statistics": {
@@ -441,6 +448,7 @@ GET /users/:user_id/projects
     "shared_with_groups": [],
     "only_allow_merge_if_pipeline_succeeds": false,
     "only_allow_merge_if_all_discussions_are_resolved": false,
+    "remove_source_branch_after_merge": false,
     "request_access_enabled": false,
     "merge_method": "merge",
     "statistics": {
@@ -550,6 +558,7 @@ Example response:
     "shared_with_groups": [],
     "only_allow_merge_if_pipeline_succeeds": false,
     "only_allow_merge_if_all_discussions_are_resolved": false,
+    "remove_source_branch_after_merge": false,
     "request_access_enabled": false,
     "merge_method": "merge",
     "statistics": {
@@ -631,6 +640,7 @@ Example response:
     "shared_with_groups": [],
     "only_allow_merge_if_pipeline_succeeds": false,
     "only_allow_merge_if_all_discussions_are_resolved": false,
+    "remove_source_branch_after_merge": false,
     "request_access_enabled": false,
     "merge_method": "merge",
     "statistics": {
@@ -757,6 +767,7 @@ GET /projects/:id
   "repository_storage": "default",
   "only_allow_merge_if_pipeline_succeeds": false,
   "only_allow_merge_if_all_discussions_are_resolved": false,
+  "remove_source_branch_after_merge": false,
   "printing_merge_requests_link_enabled": true,
   "request_access_enabled": false,
   "merge_method": "merge",
@@ -917,6 +928,7 @@ POST /projects
 | `only_allow_merge_if_pipeline_succeeds` | boolean | no | Set whether merge requests can only be merged with successful jobs |
 | `only_allow_merge_if_all_discussions_are_resolved` | boolean | no | Set whether merge requests can only be merged when all the discussions are resolved |
 | `merge_method` | string | no | Set the [merge method](#project-merge-method) used |
+| `remove_source_branch_after_merge` | boolean | no | Enable `Delete source branch` option by default for all new merge requests |
 | `lfs_enabled` | boolean | no | Enable LFS |
 | `request_access_enabled` | boolean | no | Allow users to request member access |
 | `tag_list`    | array   | no       | The list of tags for a project; put array of tags, that should be finally assigned to a project |
@@ -978,6 +990,7 @@ POST /projects/user/:user_id
 | `only_allow_merge_if_pipeline_succeeds` | boolean | no | Set whether merge requests can only be merged with successful jobs |
 | `only_allow_merge_if_all_discussions_are_resolved` | boolean | no | Set whether merge requests can only be merged when all the discussions are resolved |
 | `merge_method` | string | no | Set the [merge method](#project-merge-method) used |
+| `remove_source_branch_after_merge` | boolean | no | Enable `Delete source branch` option by default for all new merge requests |
 | `lfs_enabled` | boolean | no | Enable LFS |
 | `request_access_enabled` | boolean | no | Allow users to request member access |
 | `tag_list`    | array   | no       | The list of tags for a project; put array of tags, that should be finally assigned to a project |
@@ -1039,6 +1052,7 @@ PUT /projects/:id
 | `only_allow_merge_if_pipeline_succeeds` | boolean | no | Set whether merge requests can only be merged with successful jobs |
 | `only_allow_merge_if_all_discussions_are_resolved` | boolean | no | Set whether merge requests can only be merged when all the discussions are resolved |
 | `merge_method` | string | no | Set the [merge method](#project-merge-method) used |
+| `remove_source_branch_after_merge` | boolean | no | Enable `Delete source branch` option by default for all new merge requests |
 | `lfs_enabled` | boolean | no | Enable LFS |
 | `request_access_enabled` | boolean | no | Allow users to request member access |
 | `tag_list`    | array   | no       | The list of tags for a project; put array of tags, that should be finally assigned to a project |
@@ -1165,6 +1179,7 @@ Example responses:
     "shared_with_groups": [],
     "only_allow_merge_if_pipeline_succeeds": false,
     "only_allow_merge_if_all_discussions_are_resolved": false,
+    "remove_source_branch_after_merge": false,
     "request_access_enabled": false,
     "merge_method": "merge",
     "_links": {
@@ -1252,6 +1267,7 @@ Example response:
   "shared_with_groups": [],
   "only_allow_merge_if_pipeline_succeeds": false,
   "only_allow_merge_if_all_discussions_are_resolved": false,
+  "remove_source_branch_after_merge": false,
   "request_access_enabled": false,
   "merge_method": "merge",
   "_links": {
@@ -1338,6 +1354,7 @@ Example response:
   "shared_with_groups": [],
   "only_allow_merge_if_pipeline_succeeds": false,
   "only_allow_merge_if_all_discussions_are_resolved": false,
+  "remove_source_branch_after_merge": false,
   "request_access_enabled": false,
   "merge_method": "merge",
   "_links": {
@@ -1511,6 +1528,7 @@ Example response:
   "shared_with_groups": [],
   "only_allow_merge_if_pipeline_succeeds": false,
   "only_allow_merge_if_all_discussions_are_resolved": false,
+  "remove_source_branch_after_merge": false,
   "request_access_enabled": false,
   "merge_method": "merge",
   "_links": {
@@ -1616,6 +1634,7 @@ Example response:
   "shared_with_groups": [],
   "only_allow_merge_if_pipeline_succeeds": false,
   "only_allow_merge_if_all_discussions_are_resolved": false,
+  "remove_source_branch_after_merge": false,
   "request_access_enabled": false,
   "merge_method": "merge",
   "_links": {
@@ -2023,7 +2042,7 @@ Read more in the [Project members](members.md) documentation.
 
 ## Start the pull mirroring process for a Project **(STARTER)**
 
-> Introduced in [GitLab Starter](https://about.gitlab.com/pricing) 10.3.
+> Introduced in [GitLab Starter](https://about.gitlab.com/pricing/) 10.3.
 
 ```
 POST /projects/:id/mirror/pull

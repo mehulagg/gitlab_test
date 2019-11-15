@@ -48,8 +48,10 @@ module Geo
       strong_memoize(:file_registry) do
         if job_artifact?
           ::Geo::JobArtifactRegistry.find_by(artifact_id: object_db_id)
+        elsif lfs?
+          ::Geo::LfsObjectRegistry.find_by(lfs_object_id: object_db_id)
         else
-          ::Geo::FileRegistry.find_by(file_type: object_type, file_id: object_db_id)
+          ::Geo::UploadRegistry.find_by(file_type: object_type, file_id: object_db_id)
         end
       end
     end
@@ -79,7 +81,7 @@ module Geo
         when :job_artifact
           Ci::JobArtifact.find(object_db_id).file
         when *Gitlab::Geo::Replication::USER_UPLOADS_OBJECT_TYPES
-          Upload.find(object_db_id).build_uploader
+          Upload.find(object_db_id).retrieve_uploader
         else
           raise NameError, "Unrecognized type: #{object_type}"
         end

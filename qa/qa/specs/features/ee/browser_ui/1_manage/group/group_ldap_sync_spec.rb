@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Manage', :orchestrated, :ldap_tls, :ldap_no_tls do
+  context 'Manage', :orchestrated, :ldap_tls, :ldap_no_tls, :requires_admin do
     describe 'LDAP Group sync' do
       include Support::Api
 
@@ -164,7 +164,7 @@ module QA
 
         Runtime::Browser.visit(:gitlab, Page::Main::Login)
         Page::Main::Login.perform do |login_page|
-          login_page.sign_in_using_ldap_credentials(user)
+          login_page.sign_in_using_ldap_credentials(user: user)
         end
 
         group.visit!

@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
-describe 'Group elastic search', :js, :elastic do
+describe 'Group elastic search', :js, :elastic, :sidekiq_might_not_need_inline do
   let(:user) { create(:user) }
   let(:group) { create(:group) }
   let(:project) { create(:project, :repository, :wiki_repo, namespace: group) }

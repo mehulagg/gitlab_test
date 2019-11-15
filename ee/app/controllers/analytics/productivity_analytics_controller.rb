@@ -9,9 +9,13 @@ class Analytics::ProductivityAnalyticsController < Analytics::ApplicationControl
   before_action :load_project
   before_action -> {
     check_feature_availability!(:productivity_analytics)
+  }, if: -> { request.format.json? }
+
+  before_action -> {
+    authorize_view_by_action!(:view_productivity_analytics)
   }
   before_action -> {
-    authorize_view_productivity_analytics!(:view_productivity_analytics)
+    push_frontend_feature_flag(:productivity_analytics_scatterplot_enabled, default_enabled: true)
   }
 
   include IssuableCollections

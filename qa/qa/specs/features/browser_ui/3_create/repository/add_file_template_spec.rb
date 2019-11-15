@@ -1,13 +1,16 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Create' do
+  # Failure issue: https://gitlab.com/gitlab-org/gitlab/issues/34551
+  context 'Create', :quarantine do
     describe 'File templates' do
       include Runtime::Fixtures
 
       def login
-        Runtime::Browser.visit(:gitlab, Page::Main::Login)
-        Page::Main::Login.perform(&:sign_in_using_credentials)
+        unless Page::Main::Menu.perform(&:signed_in?)
+          Runtime::Browser.visit(:gitlab, Page::Main::Login)
+          Page::Main::Login.perform(&:sign_in_using_credentials)
+        end
       end
 
       before(:all) do
@@ -57,12 +60,10 @@ module QA
           @project.visit!
 
           Page::Project::Show.perform(&:create_new_file!)
-          Page::File::Form.perform do |page| # rubocop:disable QA/AmbiguousPageObjectName
-            page.select_template template[:file_name], template[:name]
+          Page::File::Form.perform do |form|
+            form.select_template template[:file_name], template[:name]
           end
 
-          expect(page).to have_content('Template applied')
-          expect(page).to have_button('Undo')
           expect(page).to have_content(content[0..100])
 
           Page::File::Form.perform(&:commit_changes)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :geo_event_log, class: Geo::EventLog do
     trait :created_event do
@@ -47,6 +49,10 @@ FactoryBot.define do
     trait :container_repository_updated_event do
       container_repository_updated_event factory: :geo_container_repository_updated_event
     end
+
+    trait :design_repository_updated_event do
+      repository_updated_event factory: :geo_design_repository_updated_event
+    end
   end
 
   factory :geo_repository_created_event, class: Geo::RepositoryCreatedEvent do
@@ -61,9 +67,17 @@ FactoryBot.define do
   factory :geo_repository_updated_event, class: Geo::RepositoryUpdatedEvent do
     project
 
-    source 0
-    branches_affected 0
-    tags_affected 0
+    source { Geo::RepositoryUpdatedEvent::REPOSITORY }
+    branches_affected { 0 }
+    tags_affected { 0 }
+  end
+
+  factory :geo_design_repository_updated_event, class: Geo::RepositoryUpdatedEvent do
+    project
+
+    source { Geo::RepositoryUpdatedEvent::DESIGN }
+    branches_affected { 0 }
+    tags_affected { 0 }
   end
 
   factory :geo_repository_deleted_event, class: Geo::RepositoryDeletedEvent do

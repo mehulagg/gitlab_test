@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'epics list', :js do
@@ -43,6 +45,13 @@ describe 'epics list', :js do
           expect(find('.issuable-updated-at')).to have_content('updated just now')
           expect(find('.issuable-comments')).to have_content('0')
         end
+      end
+    end
+
+    it 'shows epic start and/or end dates when present' do
+      page.within('.issuable-list') do
+        expect(find("li[data-id='#{epic1.id}'] .issuable-info .issuable-dates")).to have_content("Until #{epic1.end_date.strftime('%b %d, %Y')}")
+        expect(find("li[data-id='#{epic2.id}'] .issuable-info .issuable-dates")).to have_content("From #{epic2.start_date.strftime('%b %d, %Y')}")
       end
     end
 

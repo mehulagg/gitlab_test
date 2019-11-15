@@ -6,8 +6,9 @@ module QA
   module Resource
     class Runner < Base
       attr_writer :name, :tags, :image
-      attr_accessor :config
+      attr_accessor :config, :token
 
+      attribute :id
       attribute :project do
         Project.fabricate_via_api! do |resource|
           resource.name = 'project-with-ci-cd'
@@ -28,16 +29,27 @@ module QA
       end
 
       def fabricate_via_api!
-        Service::Runner.new(name).tap do |runner|
+        Service::DockerRun::GitlabRunner.new(name).tap do |runner|
           runner.pull
-          runner.token = project.runners_token
+          runner.token = @token ||= project.runners_token
           runner.address = Runtime::Scenario.gitlab_address
           runner.tags = tags
           runner.image = image
           runner.config = config if config
-          runner.run_untagged = true
           runner.register!
         end
+      end
+
+      def remove_via_api!
+        @id = project.runners.find { |runner| runner[:description] == name }[:id]
+
+        super
+
+        Service::DockerRun::GitlabRunner.new(name).remove!
+      end
+
+      def api_delete_path
+        "/runners/#{id}"
       end
 
       def api_get_path

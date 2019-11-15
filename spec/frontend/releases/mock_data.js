@@ -30,6 +30,7 @@ export const milestones = [
 export const release = {
   name: 'New release',
   tag_name: 'v0.3',
+  tag_path: '/root/release-test/-/tags/v0.3',
   description: 'A super nice release!',
   description_html: '<p data-sourcepos="1:1-1:21" dir="auto">A super nice release!</p>',
   created_at: '2019-08-26T17:54:04.952Z',
@@ -56,8 +57,9 @@ export const release = {
     committer_email: 'admin@example.com',
     committed_date: '2019-08-26T17:47:07.000Z',
   },
+  commit_path: '/root/release-test/commit/c22b0728d1b465f82898c884d32b01aa642f96c1',
   upcoming_release: false,
-  milestone: milestones[0],
+  milestones,
   assets: {
     count: 5,
     sources: [
@@ -89,9 +91,12 @@ export const release = {
         id: 2,
         name: 'my second link',
         url:
-          'https://gitlab.com/gitlab-org/gitlab-ce/-/jobs/artifacts/v11.6.0-rc4/download?job=rspec-mysql+41%2F50',
+          'https://gitlab.com/gitlab-org/gitlab-foss/-/jobs/artifacts/v11.6.0-rc4/download?job=rspec-mysql+41%2F50',
         external: false,
       },
     ],
+  },
+  _links: {
+    edit_url: 'http://0.0.0.0:3001/root/release-test/-/releases/v0.3/edit',
   },
 };

@@ -10,10 +10,10 @@ other installation options, see the [main installation page](README.md).
 It was created for and tested on **Debian/Ubuntu** operating systems.
 Read [requirements.md](requirements.md) for hardware and operating system requirements.
 If you want to install on RHEL/CentOS, we recommend using the
-[Omnibus packages](https://about.gitlab.com/downloads/).
+[Omnibus packages](https://about.gitlab.com/install/).
 
 This guide is long because it covers many cases and includes all commands you
-need, this is [one of the few installation scripts that actually works out of the box](https://twitter.com/robinvdvleuten/status/424163226532986880).
+need, this is [one of the few installation scripts that actually work out of the box](https://twitter.com/robinvdvleuten/status/424163226532986880).
 The following steps have been known to work. **Use caution when you deviate**
 from this guide. Make sure you don't violate any assumptions GitLab makes about
 its environment. For example, many people run into permission problems because
@@ -25,17 +25,17 @@ following the
 
 ## Consider the Omnibus package installation
 
-Since an installation from source is a lot of work and error prone we strongly recommend the fast and reliable [Omnibus package installation](https://about.gitlab.com/downloads/) (deb/rpm).
+Since an installation from source is a lot of work and error prone we strongly recommend the fast and reliable [Omnibus package installation](https://about.gitlab.com/install/) (deb/rpm).
 
-One reason the Omnibus package is more reliable is its use of Runit to restart any of the GitLab processes in case one crashes.
+One reason the Omnibus package is more reliable is its use of runit to restart any of the GitLab processes in case one crashes.
 On heavily used GitLab instances the memory usage of the Sidekiq background worker will grow over time.
 
 Omnibus packages solve this by [letting the Sidekiq terminate gracefully](../administration/operations/sidekiq_memory_killer.md) if it uses too much memory.
-After this termination Runit will detect Sidekiq is not running and will start it.
-Since installations from source don't use Runit for process supervision, Sidekiq
+After this termination runit will detect Sidekiq is not running and will start it.
+Since installations from source don't use runit for process supervision, Sidekiq
 can't be terminated and its memory usage will grow over time.
 
-## Select version to install
+## Select a version to install
 
 Make sure you view [this installation guide](https://gitlab.com/gitlab-org/gitlab/blob/master/doc/install/installation.md) from the branch (version) of GitLab you would like to install (e.g., `11-7-stable`).
 You can select the branch in the version dropdown in the top left corner of GitLab (below the menu bar).
@@ -56,7 +56,7 @@ of this page:
 |       |-- repositories
 ```
 
-- `/home/git/.ssh` - Contains OpenSSH settings. Specifically the `authorized_keys`
+- `/home/git/.ssh` - Contains OpenSSH settings. Specifically, the `authorized_keys`
   file managed by GitLab Shell.
 - `/home/git/gitlab` - GitLab core software.
 - `/home/git/gitlab-shell` - Core add-on component of GitLab. Maintains SSH
@@ -84,7 +84,7 @@ The GitLab installation consists of setting up the following components:
 1. [Database](#6-database).
 1. [Redis](#7-redis).
 1. [GitLab](#8-gitlab).
-1. [Nginx](#9-nginx).
+1. [NGINX](#9-nginx).
 
 ## 1. Packages and dependencies
 
@@ -183,7 +183,7 @@ sudo make prefix=/usr/local install
 # When editing config/gitlab.yml (Step 5), change the git -> bin_path to /usr/local/bin/git
 ```
 
-For the [Custom Favicon](../customization/favicon.md) to work, GraphicsMagick
+For the [Custom Favicon](../user/admin_area/appearance.md#favicon) to work, GraphicsMagick
 needs to be installed.
 
 ```sh
@@ -205,7 +205,7 @@ The Ruby interpreter is required to run GitLab.
 **Note:** The current supported Ruby (MRI) version is 2.6.x. GitLab 12.2
   dropped support for Ruby 2.5.x.
 
-The use of Ruby version managers such as [RVM], [rbenv] or [chruby] with GitLab
+The use of Ruby version managers such as [RVM], [rbenv](https://github.com/rbenv/rbenv) or [chruby] with GitLab
 in production, frequently leads to hard to diagnose problems. For example,
 GitLab Shell is called from OpenSSH, and having a version manager can prevent
 pushing and pulling over SSH. Version managers are not supported and we strongly
@@ -315,7 +315,7 @@ use of extensions and concurrent index removal, you need at least PostgreSQL 9.2
    sudo -u postgres psql -d template1 -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
    ```
 
-1. Create the GitLab production database and grant all privileges on database:
+1. Create the GitLab production database and grant all privileges on the database:
 
    ```sh
    sudo -u postgres psql -d template1 -c "CREATE DATABASE gitlabhq_production OWNER git;"
@@ -397,7 +397,7 @@ sudo usermod -aG redis git
 ## 8. GitLab
 
 ```sh
-# We'll install GitLab into home directory of the user "git"
+# We'll install GitLab into the home directory of the user "git"
 cd /home/git
 ```
 
@@ -424,7 +424,7 @@ cd /home/git/gitlab
 # Copy the example GitLab config
 sudo -u git -H cp config/gitlab.yml.example config/gitlab.yml
 
-# Update GitLab config file, follow the directions at top of file
+# Update GitLab config file, follow the directions at top of the file
 sudo -u git -H editor config/gitlab.yml
 
 # Copy the example secrets file
@@ -448,7 +448,7 @@ sudo -u git -H mkdir -p public/uploads/
 # now that files in public/uploads are served by gitlab-workhorse
 sudo chmod 0700 public/uploads
 
-# Change the permissions of the directory where CI job traces are stored
+# Change the permissions of the directory where CI job logs are stored
 sudo chmod -R u+rwX builds/
 
 # Change the permissions of the directory where CI artifacts are stored
@@ -465,7 +465,7 @@ nproc
 
 # Enable cluster mode if you expect to have a high load instance
 # Set the number of workers to at least the number of cores
-# Ex. change amount of workers to 3 for 2GB RAM server
+# Ex. change the amount of workers to 3 for 2GB RAM server
 sudo -u git -H editor config/unicorn.rb
 
 # Copy the example Rack attack config
@@ -483,6 +483,9 @@ sudo -u git -H git config --global repack.writeBitmaps true
 
 # Enable push options
 sudo -u git -H git config --global receive.advertisePushOptions true
+
+# Enable fsyncObjectFiles to reduce risk of repository corruption if the server crashes
+sudo -u git -H git config --global core.fsyncObjectFiles true
 
 # Configure Redis connection settings
 sudo -u git -H cp config/resque.yml.example config/resque.yml
@@ -529,7 +532,7 @@ sudo -u git -H chmod o-rwx config/database.yml
 ### Install Gems
 
 NOTE: **Note:**
-As of Bundler 1.5.2, you can invoke `bundle install -jN` (where `N` is the number of your processor cores) and enjoy parallel gems installation with measurable difference in completion time (~60% faster). Check the number of your cores with `nproc`. For more information, see this [post](https://robots.thoughtbot.com/parallel-gem-installing-using-bundler).
+As of Bundler 1.5.2, you can invoke `bundle install -jN` (where `N` is the number of your processor cores) and enjoy parallel gems installation with measurable difference in completion time (~60% faster). Check the number of your cores with `nproc`. For more information, see this [post](https://thoughtbot.com/blog/parallel-gem-installing-using-bundler).
 
 Make sure you have `bundle` (run `bundle -v`):
 
@@ -585,7 +588,7 @@ You can specify a different Git repository by providing it as an extra parameter
 sudo -u git -H bundle exec rake "gitlab:workhorse:install[/home/git/gitlab-workhorse,https://example.com/gitlab-workhorse.git]" RAILS_ENV=production
 ```
 
-### Install gitlab-elasticsearch-indexer
+### Install GitLab-Elasticsearch-indexer
 
 GitLab-Elasticsearch-Indexer uses [GNU Make](https://www.gnu.org/software/make/). The
 following command-line will install GitLab-Elasticsearch-Indexer in `/home/git/gitlab-elasticsearch-indexer`
@@ -643,7 +646,7 @@ sudo -u git -H editor config.toml
 ```
 
 For more information about configuring Gitaly see
-[doc/administration/gitaly](../administration/gitaly).
+[the Gitaly documentation](../administration/gitaly/index.md).
 
 ### Start Gitaly
 
@@ -667,7 +670,7 @@ sudo -u git -H bundle exec rake gitlab:setup RAILS_ENV=production
 # or you can skip the question by adding force=yes
 sudo -u git -H bundle exec rake gitlab:setup RAILS_ENV=production force=yes
 
-# When done you see 'Administrator account created:'
+# When done, you see 'Administrator account created:'
 ```
 
 NOTE: **Note:**
@@ -681,7 +684,7 @@ sudo -u git -H bundle exec rake gitlab:setup RAILS_ENV=production GITLAB_ROOT_PA
 
 The `secrets.yml` file stores encryption keys for sessions and secure variables.
 Backup `secrets.yml` someplace safe, but don't store it in the same place as your database backups.
-Otherwise your secrets are exposed if one of your backups is compromised.
+Otherwise, your secrets are exposed if one of your backups is compromised.
 
 ### Install Init Script
 
@@ -746,10 +749,10 @@ sudo service gitlab start
 sudo /etc/init.d/gitlab restart
 ```
 
-## 9. Nginx
+## 9. NGINX
 
 NOTE: **Note:**
-Nginx is the officially supported web server for GitLab. If you cannot or do not want to use Nginx as your web server, see [GitLab recipes](https://gitlab.com/gitlab-org/gitlab-recipes/).
+NGINX is the officially supported web server for GitLab. If you cannot or do not want to use NGINX as your web server, see [GitLab recipes](https://gitlab.com/gitlab-org/gitlab-recipes/).
 
 ### Installation
 
@@ -781,21 +784,21 @@ Make sure to edit the config file to match your setup. Also, ensure that you mat
 sudo editor /etc/nginx/sites-available/gitlab
 ```
 
-If you intend to enable GitLab pages, there is a separate Nginx config you need
+If you intend to enable GitLab Pages, there is a separate NGINX config you need
 to use. Read all about the needed configuration at the
 [GitLab Pages administration guide](../administration/pages/index.md).
 
-**Note:** If you want to use HTTPS, replace the `gitlab` Nginx config with `gitlab-ssl`. See [Using HTTPS](#using-https) for HTTPS configuration details.
+**Note:** If you want to use HTTPS, replace the `gitlab` NGINX config with `gitlab-ssl`. See [Using HTTPS](#using-https) for HTTPS configuration details.
 
 ### Test Configuration
 
-Validate your `gitlab` or `gitlab-ssl` Nginx config file with the following command:
+Validate your `gitlab` or `gitlab-ssl` NGINX config file with the following command:
 
 ```sh
 sudo nginx -t
 ```
 
-You should receive `syntax is okay` and `test is successful` messages. If you receive errors check your `gitlab` or `gitlab-ssl` Nginx config file for typos, etc. as indicated in the error message given.
+You should receive `syntax is okay` and `test is successful` messages. If you receive errors check your `gitlab` or `gitlab-ssl` NGINX config file for typos, etc. as indicated in the error message given.
 
 NOTE: **Note:**
 Verify that the installed version is greater than 1.12.1 by running `nginx -v`. If it's lower, you may receive the error below:
@@ -832,7 +835,7 @@ initial administrator account. Enter your desired password and you'll be
 redirected back to the login screen.
 
 The default account's username is **root**. Provide the password you created
-earlier and login. After login you can change the username if you wish.
+earlier and login. After login, you can change the username if you wish.
 
 **Enjoy!**
 
@@ -855,7 +858,7 @@ To use GitLab with HTTPS:
 1. In the `config.yml` of GitLab Shell:
    1. Set `gitlab_url` option to the HTTPS endpoint of GitLab (e.g. `https://git.example.com`).
    1. Set the certificates using either the `ca_file` or `ca_path` option.
-1. Use the `gitlab-ssl` Nginx example config instead of the `gitlab` config.
+1. Use the `gitlab-ssl` NGINX example config instead of the `gitlab` config.
    1. Update `YOUR_SERVER_FQDN`.
    1. Update `ssl_certificate` and `ssl_certificate_key`.
    1. Review the configuration file and consider applying other security and performance enhancing features.
@@ -881,9 +884,9 @@ See the ["Reply by email" documentation](../administration/reply_by_email.md) fo
 
 You can configure LDAP authentication in `config/gitlab.yml`. Restart GitLab after editing this file.
 
-### Using Custom Omniauth Providers
+### Using Custom OmniAuth Providers
 
-See the [omniauth integration document](../integration/omniauth.md).
+See the [OmniAuth integration documentation](../integration/omniauth.md).
 
 ### Build your projects
 
@@ -902,7 +905,7 @@ for the changes to take effect.
 
 ### Custom Redis Connection
 
-If you'd like to connect to a Redis server on a non-standard port or on a different host, you can configure its connection string via the `config/resque.yml` file.
+If you'd like to connect to a Redis server on a non-standard port or a different host, you can configure its connection string via the `config/resque.yml` file.
 
 ```
 # example
@@ -918,7 +921,7 @@ production:
   url: unix:/path/to/redis/socket
 ```
 
-Also you can use environment variables in the `config/resque.yml` file:
+Also, you can use environment variables in the `config/resque.yml` file:
 
 ```
 # example
@@ -942,7 +945,7 @@ You also need to change the corresponding options (e.g. `ssh_user`, `ssh_host`, 
 
 ### Additional Markup Styles
 
-Apart from the always supported markdown style, there are other rich text files that GitLab can display. But you might have to install a dependency to do so. See the [github-markup gem README](https://github.com/gitlabhq/markup#markups) for more information.
+Apart from the always supported Markdown style, there are other rich text files that GitLab can display. But you might have to install a dependency to do so. See the [`github-markup` gem README](https://github.com/gitlabhq/markup#markups) for more information.
 
 ### Using Puma
 
@@ -968,12 +971,12 @@ To use GitLab with Puma:
 ### "You appear to have cloned an empty repository."
 
 If you see this message when attempting to clone a repository hosted by GitLab,
-this is likely due to an outdated Nginx or Apache configuration, or a missing or
+this is likely due to an outdated NGINX or Apache configuration, or a missing or
 misconfigured GitLab Workhorse instance. Double-check that you've
 [installed Go](#3-go), [installed GitLab Workhorse](#install-gitlab-workhorse),
-and correctly [configured Nginx](#site-configuration).
+and correctly [configured NGINX](#site-configuration).
 
-### google-protobuf "LoadError: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.14' not found"
+### `google-protobuf` "LoadError: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.14' not found"
 
 This can happen on some platforms for some versions of the
 `google-protobuf` gem. The workaround is to install a source-only
@@ -1022,5 +1025,4 @@ sudo yum groupinstall 'Development Tools'
 ```
 
 [RVM]: https://rvm.io/ "RVM Homepage"
-[rbenv]: https://github.com/sstephenson/rbenv "rbenv on GitHub"
 [chruby]: https://github.com/postmodern/chruby "chruby on GitHub"

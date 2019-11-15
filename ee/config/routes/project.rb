@@ -49,6 +49,8 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             get '(*ref)', action: 'show', as: '', constraints: { ref: Gitlab::PathRegex.git_reference_regex }
           end
         end
+
+        resources :subscriptions, only: [:create, :destroy]
       end
       # End of the /-/ scope.
 
@@ -67,27 +69,47 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
       end
 
+      resources :issues, only: [], constraints: { id: /\d+/ } do
+        member do
+          get '/descriptions/:version_id/diff', action: :description_diff, as: :description_diff
+        end
+      end
+
       resources :merge_requests, only: [], constraints: { id: /\d+/ } do
         member do
+          get '/descriptions/:version_id/diff', action: :description_diff, as: :description_diff
           get :metrics_reports
           get :license_management_reports
           get :container_scanning_reports
           get :dependency_scanning_reports
           get :sast_reports
+          get :dast_reports
         end
       end
 
-      resource :insights, only: [:show] do
+      resource :insights, only: [:show], trailing_slash: true do
         collection do
           post :query
         end
       end
 
       resource :dependencies, only: [:show]
+      resource :licenses, only: [:show]
 
       namespace :security do
         resources :dependencies, only: [:index]
+        resources :licenses, only: [:index]
+        # We have to define both legacy and new routes for Vulnerability Findings
+        # because they are loaded upon application initialization and preloaded by
+        # web server.
+        # TODO: remove this comment and `resources :vulnerabilities` when applicable
+        # see https://gitlab.com/gitlab-org/gitlab/issues/33488
         resources :vulnerabilities, only: [:index] do
+          collection do
+            get :summary
+          end
+        end
+        resources :vulnerability_findings, only: [:index] do
           collection do
             get :summary
           end

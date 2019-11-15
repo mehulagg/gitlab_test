@@ -1,4 +1,4 @@
-/* eslint-disable func-names, no-var, no-underscore-dangle, one-var, consistent-return, prefer-arrow-callback */
+/* eslint-disable func-names, no-var, no-underscore-dangle, one-var, consistent-return */
 
 import $ from 'jquery';
 import { __ } from '~/locale';
@@ -17,14 +17,7 @@ function MergeRequest(opts) {
   this.opts = opts != null ? opts : {};
   this.submitNoteForm = this.submitNoteForm.bind(this);
   this.$el = $('.merge-request');
-  this.$('.show-all-commits').on(
-    'click',
-    (function(_this) {
-      return function() {
-        return _this.showAllCommits();
-      };
-    })(this),
-  );
+  this.$('.show-all-commits').on('click', () => this.showAllCommits());
 
   this.initTabs();
   this.initMRBtnListeners();
@@ -105,7 +98,7 @@ MergeRequest.prototype.submitNoteForm = function(form, $button) {
 };
 
 MergeRequest.prototype.initCommitMessageListeners = function() {
-  $(document).on('click', 'a.js-with-description-link', function(e) {
+  $(document).on('click', 'a.js-with-description-link', e => {
     var textarea = $('textarea.js-commit-message');
     e.preventDefault();
 
@@ -114,7 +107,7 @@ MergeRequest.prototype.initCommitMessageListeners = function() {
     $('.js-without-description-hint').show();
   });
 
-  $(document).on('click', 'a.js-without-description-link', function(e) {
+  $(document).on('click', 'a.js-without-description-link', e => {
     var textarea = $('textarea.js-commit-message');
     e.preventDefault();
 

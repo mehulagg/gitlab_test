@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Gitlab::Middleware::ReadOnly do
@@ -66,6 +68,13 @@ describe Gitlab::Middleware::ReadOnly do
       it_behaves_like 'whitelisted request', :post, '/admin/geo/projects/1/force_redownload'
 
       it_behaves_like 'whitelisted request', :delete, '/admin/geo/uploads/1'
+    end
+
+    it 'expects geo replication node api requests to be allowed' do
+      response = request.post("/api/#{API::API.version}/geo_replication/designs/resync")
+
+      expect(response).not_to be_redirect
+      expect(subject).not_to disallow_request
     end
   end
 end

@@ -126,7 +126,7 @@ module EE
 
       override :send_git_archive
       def send_git_archive(repository, **kwargs)
-        AuditEvents::RepositoryDownloadStartedAuditEventService.new(
+        EE::AuditEvents::RepositoryDownloadStartedAuditEventService.new(
           current_user,
           repository.project,
           ip_address
@@ -163,10 +163,6 @@ module EE
 
       def authorize_manage_saml!(group)
         unauthorized! unless can?(current_user, :admin_group_saml, group)
-      end
-
-      def check_group_scim_enabled(group)
-        forbidden!('Group SCIM not enabled.') unless ::Feature.enabled?(:group_scim, group)
       end
 
       def check_group_saml_configured

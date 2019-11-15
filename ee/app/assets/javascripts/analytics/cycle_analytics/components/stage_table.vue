@@ -32,7 +32,7 @@ export default {
       type: Object,
       required: true,
     },
-    isLoadingStage: {
+    isLoading: {
       type: Boolean,
       required: true,
     },
@@ -44,7 +44,19 @@ export default {
       type: Boolean,
       required: true,
     },
-    events: {
+    isSavingCustomStage: {
+      type: Boolean,
+      required: true,
+    },
+    currentStageEvents: {
+      type: Array,
+      required: true,
+    },
+    customStageFormEvents: {
+      type: Array,
+      required: true,
+    },
+    labels: {
       type: Array,
       required: true,
     },
@@ -63,11 +75,11 @@ export default {
   },
   computed: {
     stageName() {
-      return this.currentStage ? this.currentStage.legend : __('Related Issues');
+      return this.currentStage ? this.currentStage.title : __('Related Issues');
     },
     shouldDisplayStage() {
-      const { events = [], isLoadingStage, isEmptyStage } = this;
-      return events.length && !isLoadingStage && !isEmptyStage;
+      const { currentStageEvents = [], isLoading, isEmptyStage } = this;
+      return currentStageEvents.length && !isLoading && !isEmptyStage;
     },
     stageHeaders() {
       return [
@@ -87,21 +99,15 @@ export default {
           title: this.stageName,
           description: __('The collection of events added to the data gathered for that stage.'),
           classes: 'event-header pl-3',
+          displayHeader: !this.isAddingCustomStage,
         },
         {
           title: __('Total Time'),
           description: __('The time taken by each data entry gathered by that stage.'),
           classes: 'total-time-header pr-5 text-right',
+          displayHeader: !this.isAddingCustomStage,
         },
       ];
-    },
-  },
-  methods: {
-    selectStage(stage) {
-      this.$emit('selectStage', stage);
-    },
-    showAddStageForm() {
-      this.$emit('showAddStageForm');
     },
   },
 };
@@ -113,7 +119,8 @@ export default {
         <nav class="col-headers">
           <ul>
             <stage-table-header
-              v-for="({ title, description, classes }, i) in stageHeaders"
+              v-for="({ title, description, classes, displayHeader = true }, i) in stageHeaders"
+              v-show="displayHeader"
               :key="`stage-header-${i}`"
               :header-classes="classes"
               :title="title"
@@ -130,28 +137,32 @@ export default {
               :key="`ca-stage-title-${stage.title}`"
               :title="stage.title"
               :value="stage.value"
-              :is-active="!isAddingCustomStage && stage.name === currentStage.name"
-              :is-user-allowed="stage.isUserAllowed"
-              @select="selectStage(stage)"
+              :is-active="!isAddingCustomStage && stage.id === currentStage.id"
+              :is-default-stage="!stage.custom"
+              @select="$emit('selectStage', stage)"
             />
             <add-stage-button
               v-if="canEditStages"
               :active="isAddingCustomStage"
-              @showform="showAddStageForm"
+              @showform="$emit('showAddStageForm')"
             />
           </ul>
         </nav>
         <div class="section stage-events">
-          <gl-loading-icon v-if="isLoadingStage" class="mt-4" size="md" />
-          <gl-empty-state
-            v-else-if="currentStage && !currentStage.isUserAllowed"
-            :title="__('You need permission.')"
-            :description="__('Want to see the data? Please ask an administrator for access.')"
-            :svg-path="noAccessSvgPath"
+          <gl-loading-icon v-if="isLoading" class="mt-4" size="md" />
+          <custom-stage-form
+            v-else-if="isAddingCustomStage"
+            :events="customStageFormEvents"
+            :labels="labels"
+            :is-saving-custom-stage="isSavingCustomStage"
+            @submit="$emit('submit', $event)"
           />
-          <custom-stage-form v-else-if="isAddingCustomStage" />
           <template v-else>
-            <stage-event-list v-if="shouldDisplayStage" :stage="currentStage" :events="events" />
+            <stage-event-list
+              v-if="shouldDisplayStage"
+              :stage="currentStage"
+              :events="currentStageEvents"
+            />
             <gl-empty-state
               v-if="isEmptyStage"
               :title="__('We don\'t have enough data to show this stage.')"

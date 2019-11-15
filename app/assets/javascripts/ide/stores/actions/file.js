@@ -5,7 +5,7 @@ import eventHub from '../../eventhub';
 import service from '../../services';
 import * as types from '../mutation_types';
 import router from '../../ide_router';
-import { setPageTitle } from '../utils';
+import { setPageTitle, replaceFileUrl, addFinalNewlineIfNeeded } from '../utils';
 import { viewerTypes, stageKeys } from '../../constants';
 
 export const closeFile = ({ commit, state, dispatch }, file) => {
@@ -67,7 +67,7 @@ export const getFileData = (
 
   commit(types.TOGGLE_LOADING, { entry: file });
 
-  const url = file.prevPath ? file.url.replace(file.path, file.prevPath) : file.url;
+  const url = file.prevPath ? replaceFileUrl(file.url, file.path, file.prevPath) : file.url;
 
   return service
     .getFileData(joinPaths(gon.relative_url_root || '', url.replace('/-/', '/')))
@@ -140,7 +140,10 @@ export const getRawFileData = ({ state, commit, dispatch, getters }, { path }) =
 
 export const changeFileContent = ({ commit, dispatch, state }, { path, content }) => {
   const file = state.entries[path];
-  commit(types.UPDATE_FILE_CONTENT, { path, content });
+  commit(types.UPDATE_FILE_CONTENT, {
+    path,
+    content: addFinalNewlineIfNeeded(content),
+  });
 
   const indexOfChangedFile = state.changedFiles.findIndex(f => f.path === path);
 
@@ -184,11 +187,6 @@ export const discardFileChanges = ({ dispatch, state, commit, getters }, path) =
 
   if (file.deleted && file.parentPath) {
     dispatch('restoreTree', file.parentPath);
-  }
-
-  if (file.movedPath) {
-    commit(types.DISCARD_FILE_CHANGES, file.movedPath);
-    commit(types.REMOVE_FILE_FROM_CHANGED, file.movedPath);
   }
 
   commit(types.DISCARD_FILE_CHANGES, path);

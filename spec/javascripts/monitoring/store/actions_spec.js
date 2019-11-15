@@ -240,8 +240,6 @@ describe('Monitoring store actions', () => {
       const response = metricsDashboardResponse;
 
       response.all_dashboards = dashboardGitResponse;
-      state.multipleDashboardsEnabled = true;
-
       receiveMetricsDashboardSuccess({ state, commit, dispatch }, { response, params });
 
       expect(commit).toHaveBeenCalledWith(types.SET_ALL_DASHBOARDS, dashboardGitResponse);
@@ -293,9 +291,9 @@ describe('Monitoring store actions', () => {
     it('dispatches fetchPrometheusMetric for each panel query', done => {
       const params = {};
       const state = storeState();
-      state.groups = metricsDashboardResponse.dashboard.panel_groups;
+      state.dashboard.panel_groups = metricsDashboardResponse.dashboard.panel_groups;
 
-      const metric = state.groups[0].panels[0].metrics[0];
+      const metric = state.dashboard.panel_groups[0].panels[0].metrics[0];
 
       fetchPrometheusMetrics({ state, commit, dispatch }, params)
         .then(() => {
@@ -319,7 +317,7 @@ describe('Monitoring store actions', () => {
       const metric = metricsDashboardResponse.dashboard.panel_groups[0].panels[0].metrics[0];
       const state = storeState();
 
-      const data = metricsGroupsAPIResponse.data[0].metrics[0].queries[0];
+      const data = metricsGroupsAPIResponse[0].panels[0].metrics[0];
       const response = { data };
       mock.onGet('http://test').reply(200, response);
 

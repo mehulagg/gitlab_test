@@ -2,6 +2,8 @@
 require 'spec_helper'
 
 RSpec.describe Packages::Package, type: :model do
+  include SortingHelper
+
   describe 'relationships' do
     it { is_expected.to belong_to(:project) }
     it { is_expected.to have_many(:package_files).dependent(:destroy) }
@@ -95,6 +97,16 @@ RSpec.describe Packages::Package, type: :model do
 
       it 'includes only packages with specified version' do
         is_expected.to match_array([package2, package3])
+      end
+    end
+
+    describe '.with_conan_channel' do
+      let!(:package) { create(:conan_package) }
+
+      subject { described_class.with_conan_channel('stable') }
+
+      it 'includes only packages with specified version' do
+        is_expected.to match_array([package])
       end
     end
   end

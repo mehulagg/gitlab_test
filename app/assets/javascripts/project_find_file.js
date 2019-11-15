@@ -1,10 +1,11 @@
-/* eslint-disable func-names, no-var, consistent-return, one-var, no-cond-assign, prefer-template, no-return-assign */
+/* eslint-disable func-names, no-var, consistent-return, one-var, no-cond-assign, no-return-assign */
 
 import $ from 'jquery';
 import fuzzaldrinPlus from 'fuzzaldrin-plus';
 import axios from '~/lib/utils/axios_utils';
 import flash from '~/flash';
 import { __ } from '~/locale';
+import sanitize from 'sanitize-html';
 
 // highlight text(awefwbwgtc -> <b>a</b>wefw<b>b</b>wgt<b>c</b> )
 const highlighter = function(element, text, matches) {
@@ -74,7 +75,7 @@ export default class ProjectFindFile {
 
   findFile() {
     var result, searchText;
-    searchText = this.inputElement.val();
+    searchText = sanitize(this.inputElement.val());
     result =
       searchText.length > 0 ? fuzzaldrinPlus.filter(this.filePaths, searchText) : this.filePaths;
     return this.renderList(result, searchText);
@@ -112,10 +113,13 @@ export default class ProjectFindFile {
       if (searchText) {
         matches = fuzzaldrinPlus.match(filePath, searchText);
       }
-      blobItemUrl = this.options.blobUrlTemplate + '/' + encodeURIComponent(filePath);
+      blobItemUrl = `${this.options.blobUrlTemplate}/${encodeURIComponent(filePath)}`;
       html = ProjectFindFile.makeHtml(filePath, matches, blobItemUrl);
       results.push(this.element.find('.tree-table > tbody').append(html));
     }
+
+    this.element.find('.empty-state').toggleClass('hidden', Boolean(results.length));
+
     return results;
   }
 

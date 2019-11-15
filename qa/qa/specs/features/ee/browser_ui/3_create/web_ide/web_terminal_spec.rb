@@ -13,21 +13,24 @@ module QA
         Resource::Repository::Commit.fabricate_via_api! do |commit|
           commit.project = project
           commit.commit_message = 'Add .gitlab/.gitlab-webide.yml'
-          commit.files = [
-            {
+          commit.add_files(
+            [
+              {
                 file_path: '.gitlab/.gitlab-webide.yml',
                 content: <<~YAML
                   terminal:
+                    tags: ["web-ide"]
                     script: sleep 60
                 YAML
-            }
-          ]
+              }
+            ]
+          )
         end
 
         @runner = Resource::Runner.fabricate_via_api! do |runner|
           runner.project = project
           runner.name = "qa-runner-#{Time.now.to_i}"
-          runner.tags = %w[qa docker web-ide]
+          runner.tags = %w[web-ide]
           runner.image = 'gitlab/gitlab-runner:latest'
           runner.config = <<~END
             concurrent = 1
@@ -47,7 +50,7 @@ module QA
 
       after do
         # Remove the runner even if the test fails
-        Service::Runner.new(@runner.name).remove! if @runner
+        Service::DockerRun::GitlabRunner.new(@runner.name).remove! if @runner
       end
 
       it 'user starts the web terminal' do

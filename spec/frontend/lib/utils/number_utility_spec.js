@@ -6,6 +6,9 @@ import {
   numberToHumanSize,
   sum,
   isOdd,
+  median,
+  changeInPercent,
+  formattedChangeInPercent,
 } from '~/lib/utils/number_utils';
 
 describe('Number Utils', () => {
@@ -107,6 +110,56 @@ describe('Number Utils', () => {
 
     it('should return 1 with a odd number', () => {
       expect(isOdd(1)).toEqual(1);
+    });
+  });
+
+  describe('median', () => {
+    it('computes the median for a given array with odd length', () => {
+      const items = [10, 27, 20, 5, 19];
+      expect(median(items)).toBe(19);
+    });
+
+    it('computes the median for a given array with even length', () => {
+      const items = [10, 27, 20, 5, 19, 4];
+      expect(median(items)).toBe(14.5);
+    });
+  });
+
+  describe('changeInPercent', () => {
+    it.each`
+      firstValue | secondValue | expectedOutput
+      ${99}      | ${100}      | ${1}
+      ${100}     | ${99}       | ${-1}
+      ${0}       | ${99}       | ${Infinity}
+      ${2}       | ${2}        | ${0}
+      ${-100}    | ${-99}      | ${1}
+    `(
+      'computes the change between $firstValue and $secondValue in percent',
+      ({ firstValue, secondValue, expectedOutput }) => {
+        expect(changeInPercent(firstValue, secondValue)).toBe(expectedOutput);
+      },
+    );
+  });
+
+  describe('formattedChangeInPercent', () => {
+    it('prepends "%" to the output', () => {
+      expect(formattedChangeInPercent(1, 2)).toMatch(/%$/);
+    });
+
+    it('indicates if the change was a decrease', () => {
+      expect(formattedChangeInPercent(100, 99)).toContain('-1');
+    });
+
+    it('indicates if the change was an increase', () => {
+      expect(formattedChangeInPercent(99, 100)).toContain('+1');
+    });
+
+    it('shows "-" per default if the change can not be expressed in an integer', () => {
+      expect(formattedChangeInPercent(0, 1)).toBe('-');
+    });
+
+    it('shows the given fallback if the change can not be expressed in an integer', () => {
+      expect(formattedChangeInPercent(0, 1, { nonFiniteResult: '*' })).toBe('*');
     });
   });
 });

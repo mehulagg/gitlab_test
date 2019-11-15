@@ -9,6 +9,7 @@ module QA
       include Members
 
       attr_writer :initialize_with_readme
+      attr_writer :auto_devops_enabled
       attr_writer :visibility
 
       attribute :id
@@ -47,6 +48,7 @@ module QA
         @standalone = false
         @description = 'My awesome project'
         @initialize_with_readme = false
+        @auto_devops_enabled = true
         @visibility = 'public'
       end
 
@@ -88,6 +90,10 @@ module QA
         "#{api_get_path}/members"
       end
 
+      def api_runners_path
+        "#{api_get_path}/runners"
+      end
+
       def api_post_path
         '/projects'
       end
@@ -97,7 +103,8 @@ module QA
           name: name,
           description: description,
           visibility: @visibility,
-          initialize_with_readme: @initialize_with_readme
+          initialize_with_readme: @initialize_with_readme,
+          auto_devops_enabled: @auto_devops_enabled
         }
 
         unless @standalone
@@ -106,6 +113,11 @@ module QA
         end
 
         post_body
+      end
+
+      def runners
+        response = get Runtime::API::Request.new(api_client, api_runners_path).url
+        parse_body(response)
       end
 
       def share_with_group(invitee, access_level = Resource::Members::AccessLevel::DEVELOPER)

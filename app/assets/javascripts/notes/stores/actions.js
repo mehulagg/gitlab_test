@@ -12,6 +12,7 @@ import service from '../services/notes_service';
 import loadAwardsHandler from '../../awards_handler';
 import sidebarTimeTrackingEventHub from '../../sidebar/event_hub';
 import { isInViewport, scrollToElement, isInMRPage } from '../../lib/utils/common_utils';
+import { mergeUrlParams } from '../../lib/utils/url_utility';
 import mrWidgetEventHub from '../../vue_merge_request_widget/event_hub';
 import { __ } from '~/locale';
 import Api from '~/api';
@@ -251,58 +252,80 @@ export const saveNote = ({ commit, dispatch }, noteData) => {
     }
   }
 
-  return dispatch(methodToDispatch, postData, { root: true }).then(res => {
+  const processErrors = res => {
     const { errors } = res;
-    const commandsChanges = res.commands_changes;
-
-    if (errors && Object.keys(errors).length) {
-      /*
-       The following reply means that quick actions have been successfully applied:
-
-       {"commands_changes":{},"valid":false,"errors":{"commands_only":["Commands applied"]}}
-       */
-      if (hasQuickActions) {
-        eTagPoll.makeRequest();
-
-        $('.js-gfm-input').trigger('clear-commands-cache.atwho');
-        Flash(__('Commands applied'), 'notice', noteData.flashContainer);
-      } else {
-        throw new Error(__('Failed to save comment!'));
-      }
+    if (!errors || !Object.keys(errors).length) {
+      return res;
     }
 
-    if (commandsChanges) {
-      if (commandsChanges.emoji_award) {
-        const votesBlock = $('.js-awards-block').eq(0);
+    /*
+     The following reply means that quick actions have been successfully applied:
 
-        loadAwardsHandler()
-          .then(awardsHandler => {
-            awardsHandler.addAwardToEmojiBar(votesBlock, commandsChanges.emoji_award);
-            awardsHandler.scrollToAwards();
-          })
-          .catch(() => {
-            Flash(
-              __('Something went wrong while adding your award. Please try again.'),
-              'alert',
-              noteData.flashContainer,
-            );
-          });
-      }
+     {"commands_changes":{},"valid":false,"errors":{"commands_only":["Commands applied"]}}
+     */
+    if (hasQuickActions) {
+      eTagPoll.makeRequest();
 
-      if (commandsChanges.spend_time != null || commandsChanges.time_estimate != null) {
-        sidebarTimeTrackingEventHub.$emit('timeTrackingUpdated', res);
-      }
+      $('.js-gfm-input').trigger('clear-commands-cache.atwho');
+
+      const { commands_only: message } = errors;
+      Flash(message || __('Commands applied'), 'notice', noteData.flashContainer);
+
+      return res;
     }
 
-    if (errors && errors.commands_only) {
-      Flash(errors.commands_only, 'notice', noteData.flashContainer);
+    throw new Error(__('Failed to save comment!'));
+  };
+
+  const processEmojiAward = res => {
+    const { commands_changes: commandsChanges } = res;
+    const { emoji_award: emojiAward } = commandsChanges || {};
+    if (!emojiAward) {
+      return res;
     }
+
+    const votesBlock = $('.js-awards-block').eq(0);
+
+    return loadAwardsHandler()
+      .then(awardsHandler => {
+        awardsHandler.addAwardToEmojiBar(votesBlock, emojiAward);
+        awardsHandler.scrollToAwards();
+      })
+      .catch(() => {
+        Flash(
+          __('Something went wrong while adding your award. Please try again.'),
+          'alert',
+          noteData.flashContainer,
+        );
+      })
+      .then(() => res);
+  };
+
+  const processTimeTracking = res => {
+    const { commands_changes: commandsChanges } = res;
+    const { spend_time: spendTime, time_estimate: timeEstimate } = commandsChanges || {};
+    if (spendTime != null || timeEstimate != null) {
+      sidebarTimeTrackingEventHub.$emit('timeTrackingUpdated', {
+        commands_changes: commandsChanges,
+      });
+    }
+
+    return res;
+  };
+
+  const removePlaceholder = res => {
     if (replyId) {
       commit(types.REMOVE_PLACEHOLDER_NOTES);
     }
 
     return res;
-  });
+  };
+
+  return dispatch(methodToDispatch, postData, { root: true })
+    .then(processErrors)
+    .then(processEmojiAward)
+    .then(processTimeTracking)
+    .then(removePlaceholder);
 };
 
 const pollSuccessCallBack = (resp, commit, state, getters, dispatch) => {
@@ -430,10 +453,13 @@ export const updateResolvableDiscussionsCounts = ({ commit }) =>
 export const submitSuggestion = (
   { commit, dispatch },
   { discussionId, noteId, suggestionId, flashContainer },
-) =>
-  Api.applySuggestion(suggestionId)
+) => {
+  const dispatchResolveDiscussion = () =>
+    dispatch('resolveDiscussion', { discussionId }).catch(() => {});
+
+  return Api.applySuggestion(suggestionId)
     .then(() => commit(types.APPLY_SUGGESTION, { discussionId, noteId, suggestionId }))
-    .then(() => dispatch('resolveDiscussion', { discussionId }).catch(() => {}))
+    .then(dispatchResolveDiscussion)
     .catch(err => {
       const defaultMessage = __(
         'Something went wrong while applying the suggestion. Please try again.',
@@ -442,12 +468,28 @@ export const submitSuggestion = (
 
       Flash(__(flashMessage), 'alert', flashContainer);
     });
+};
 
 export const convertToDiscussion = ({ commit }, noteId) =>
   commit(types.CONVERT_TO_DISCUSSION, noteId);
 
 export const removeConvertedDiscussion = ({ commit }, noteId) =>
   commit(types.REMOVE_CONVERTED_DISCUSSION, noteId);
+
+export const fetchDescriptionVersion = (_, { endpoint, startingVersion }) => {
+  let requestUrl = endpoint;
+
+  if (startingVersion) {
+    requestUrl = mergeUrlParams({ start_version_id: startingVersion }, requestUrl);
+  }
+
+  return axios
+    .get(requestUrl)
+    .then(res => res.data)
+    .catch(() => {
+      Flash(__('Something went wrong while fetching description changes. Please try again.'));
+    });
+};
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests
 export default () => {};

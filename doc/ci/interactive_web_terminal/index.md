@@ -30,7 +30,7 @@ Two things need to be configured for the interactive web terminal to work:
 
 NOTE: **Note:**
 Interactive web terminals are not yet supported by
-[`gitlab-runner` helm chart](https://docs.gitlab.com/charts/charts/gitlab/gitlab-runner/index.html),
+[`gitlab-runner` Helm chart](https://docs.gitlab.com/charts/charts/gitlab/gitlab-runner/index.html),
 but support [is planned](https://gitlab.com/gitlab-org/charts/gitlab-runner/issues/79).
 
 ## Debugging a running job
@@ -59,7 +59,7 @@ the terminal and type commands like a normal shell.
 
 If you have the terminal open and the job has finished with its tasks, the
 terminal will block the job from finishing for the duration configured in
-[`[session_server].terminal_max_retention_time`](https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-session_server-section) until you
+[`[session_server].session_timeout`](https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-session_server-section) until you
 close the terminal window.
 
 ![finished job with terminal open](img/finished_job_with_terminal_open.png)

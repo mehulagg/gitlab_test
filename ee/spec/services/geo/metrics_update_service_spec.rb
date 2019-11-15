@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Geo::MetricsUpdateService, :geo, :prometheus do
@@ -31,6 +33,9 @@ describe Geo::MetricsUpdateService, :geo, :prometheus do
       container_repositories_count: 100,
       container_repositories_synced_count: 50,
       container_repositories_failed_count: 12,
+      design_repositories_count: 100,
+      design_repositories_synced_count: 50,
+      design_repositories_failed_count: 12,
       attachments_count: 30,
       attachments_synced_count: 30,
       attachments_failed_count: 25,

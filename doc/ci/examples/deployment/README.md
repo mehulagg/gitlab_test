@@ -35,8 +35,8 @@ apt-get install ruby-dev
 The Dpl provides support for vast number of services, including: Heroku, Cloud Foundry, AWS/S3, and more.
 To use it simply define provider and any additional parameters required by the provider.
 
-For example if you want to use it to deploy your application to heroku, you need to specify `heroku` as provider, specify `api-key` and `app`.
-There's more and all possible parameters can be found here: <https://github.com/travis-ci/dpl#heroku>.
+For example if you want to use it to deploy your application to Heroku, you need to specify `heroku` as provider, specify `api-key` and `app`.
+All possible parameters can be found here: <https://github.com/travis-ci/dpl#heroku-api>.
 
 ```yaml
 staging:
@@ -46,7 +46,7 @@ staging:
   - dpl --provider=heroku --app=my-app-staging --api-key=$HEROKU_STAGING_API_KEY
 ```
 
-In the above example we use Dpl to deploy `my-app-staging` to Heroku server with api-key stored in `HEROKU_STAGING_API_KEY` secure variable.
+In the above example we use Dpl to deploy `my-app-staging` to Heroku server with API key stored in `HEROKU_STAGING_API_KEY` secure variable.
 
 To use different provider take a look at long list of [Supported Providers](https://github.com/travis-ci/dpl#supported-providers).
 

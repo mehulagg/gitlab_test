@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe EE::API::Entities::GeoNodeStatus do
@@ -92,6 +94,18 @@ describe EE::API::Entities::GeoNodeStatus do
       )
 
       expect(subject[:container_repositories_synced_in_percentage]).to eq '48.05%'
+    end
+  end
+
+  describe '#design_repositories_synced_in_percentage' do
+    it 'formats as percentage' do
+      geo_node_status.assign_attributes(
+        design_repositories_count: 256,
+        design_repositories_failed_count: 12,
+        design_repositories_synced_count: 123
+      )
+
+      expect(subject[:design_repositories_synced_in_percentage]).to eq '48.05%'
     end
   end
 

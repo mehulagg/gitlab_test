@@ -1,5 +1,4 @@
 <script>
-/* eslint-disable @gitlab/vue-i18n/no-bare-strings */
 import { GlTooltipDirective, GlLink, GlButton, GlLoadingIcon } from '@gitlab/ui';
 import { sprintf, s__ } from '~/locale';
 import Icon from '../../vue_shared/components/icon.vue';
@@ -39,7 +38,14 @@ export default {
           path: this.currentPath.replace(/^\//, ''),
         };
       },
-      update: data => data.project.repository.tree.lastCommit,
+      update: data => {
+        const pipelines = data.project.repository.tree.lastCommit.pipelines.edges;
+
+        return {
+          ...data.project.repository.tree.lastCommit,
+          pipeline: pipelines.length && pipelines[0].node,
+        };
+      },
       context: {
         isSingleRequest: true,
       },
@@ -62,7 +68,7 @@ export default {
   computed: {
     statusTitle() {
       return sprintf(s__('Commits|Commit: %{commitText}'), {
-        commitText: this.commit.latestPipeline.detailedStatus.text,
+        commitText: this.commit.pipeline.detailedStatus.text,
       });
     },
     isLoading() {
@@ -82,7 +88,7 @@ export default {
 
 <template>
   <div class="info-well d-none d-sm-flex project-last-commit commit p-3">
-    <gl-loading-icon v-if="isLoading" size="md" class="mx-auto" />
+    <gl-loading-icon v-if="isLoading" size="md" class="m-auto" />
     <template v-else>
       <user-avatar-link
         v-if="commit.author"
@@ -113,7 +119,7 @@ export default {
             >
               {{ commit.author.name }}
             </gl-link>
-            authored
+            {{ s__('LastCommit|authored') }}
             <timeago-tooltip :time="commit.authoredDate" tooltip-placement="bottom" />
           </div>
           <pre
@@ -125,26 +131,29 @@ export default {
           </pre>
         </div>
         <div class="commit-actions flex-row">
-          <gl-link
-            v-if="commit.latestPipeline"
-            v-gl-tooltip
-            :href="commit.latestPipeline.detailedStatus.detailsPath"
-            :title="statusTitle"
-            class="js-commit-pipeline"
-          >
-            <ci-icon
-              :status="commit.latestPipeline.detailedStatus"
-              :size="24"
-              :aria-label="statusTitle"
-            />
-          </gl-link>
+          <div v-if="commit.signatureHtml" v-html="commit.signatureHtml"></div>
+          <div class="ci-status-link">
+            <gl-link
+              v-if="commit.pipeline"
+              v-gl-tooltip.left
+              :href="commit.pipeline.detailedStatus.detailsPath"
+              :title="statusTitle"
+              class="js-commit-pipeline"
+            >
+              <ci-icon
+                :status="commit.pipeline.detailedStatus"
+                :size="24"
+                :aria-label="statusTitle"
+              />
+            </gl-link>
+          </div>
           <div class="commit-sha-group d-flex">
             <div class="label label-monospace monospace">
               {{ showCommitId }}
             </div>
             <clipboard-button
               :text="commit.sha"
-              :title="__('Copy commit SHA to clipboard')"
+              :title="__('Copy commit SHA')"
               tooltip-placement="bottom"
             />
           </div>
@@ -153,3 +162,9 @@ export default {
     </template>
   </div>
 </template>
+
+<style scoped>
+.commit {
+  min-height: 4.75rem;
+}
+</style>

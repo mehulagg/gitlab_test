@@ -7,7 +7,7 @@ describe Gitlab::ImportExport::Shared do
 
   context 'with a repository on disk' do
     let(:project) { create(:project, :repository) }
-    let(:base_path) { %(/tmp/project_exports/#{project.disk_path}/) }
+    let(:base_path) { %(/tmp/gitlab_exports/#{project.disk_path}/) }
 
     describe '#archive_path' do
       it 'uses a random hash to avoid conflicts' do
@@ -53,16 +53,17 @@ describe Gitlab::ImportExport::Shared do
       subject.error(error)
     end
 
-    it 'calls the error logger with the full message' do
-      expect(subject).to receive(:log_error).with(hash_including(message: error.message))
+    it 'calls the error logger without a backtrace' do
+      expect(subject).to receive(:log_error).with(message: error.message)
 
       subject.error(error)
     end
 
-    it 'calls the debug logger with a backtrace' do
-      error.set_backtrace('backtrace')
+    it 'calls the error logger with the full message' do
+      backtrace = caller
+      allow(error).to receive(:backtrace).and_return(caller)
 
-      expect(subject).to receive(:log_debug).with(hash_including(backtrace: 'backtrace'))
+      expect(subject).to receive(:log_error).with(message: error.message, error_backtrace: Gitlab::Profiler.clean_backtrace(backtrace))
 
       subject.error(error)
     end

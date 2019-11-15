@@ -36,6 +36,7 @@ class License < ApplicationRecord
     scoped_issue_board
     usage_quotas
     visual_review_app
+    wip_limits
   ].freeze
 
   EEP_FEATURES = EES_FEATURES + %i[
@@ -47,6 +48,7 @@ class License < ApplicationRecord
     board_milestone_lists
     ci_cd_projects
     cluster_deployments
+    code_analytics
     code_owner_approval_required
     commit_committer_check
     cross_project_pipelines
@@ -59,6 +61,7 @@ class License < ApplicationRecord
     default_project_deletion_protection
     dependency_proxy
     deploy_board
+    description_diffs
     design_management
     email_additional_text
     extended_audit_events
@@ -73,6 +76,7 @@ class License < ApplicationRecord
     issues_analytics
     jira_dev_panel_integration
     ldap_group_sync_filter
+    marking_project_for_deletion
     merge_pipelines
     merge_request_performance_metrics
     merge_trains
@@ -91,7 +95,9 @@ class License < ApplicationRecord
     scoped_labels
     service_desk
     smartcard_auth
+    type_of_work_analytics
     unprotection_restrictions
+    ci_project_subscriptions
   ]
   EEP_FEATURES.freeze
 
@@ -105,6 +111,7 @@ class License < ApplicationRecord
     group_ip_restriction
     incident_management
     insights
+    licenses_list
     license_management
     pod_logs
     prometheus_alerts
@@ -256,6 +263,14 @@ class License < ApplicationRecord
 
     def global_feature?(feature)
       GLOBAL_FEATURES.include?(feature)
+    end
+
+    def eligible_for_trial?
+      Gitlab::CurrentSettings.license_trial_ends_on.nil?
+    end
+
+    def trial_ends_on
+      Gitlab::CurrentSettings.license_trial_ends_on
     end
   end
 
@@ -412,9 +427,24 @@ class License < ApplicationRecord
     HistoricalData.max_historical_user_count(license: self, from: from, to: to)
   end
 
+  def maximum_user_count
+    [historical_max, current_active_users_count].max
+  end
+
   def historical_max_with_default_period
     @historical_max_with_default_period ||=
       historical_max
+  end
+
+  def update_trial_setting
+    return unless license.restrictions[:trial]
+    return if license.expires_at.nil?
+
+    settings = ApplicationSetting.current
+    return if settings.nil?
+    return if settings.license_trial_ends_on.present?
+
+    settings.update license_trial_ends_on: license.expires_at
   end
 
   private

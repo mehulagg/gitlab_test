@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'raven/transports/dummy'
 require_relative '../../../config/initializers/sentry'
@@ -343,6 +345,8 @@ describe API::Helpers do
   end
 
   context 'sudo' do
+    include_context 'custom session'
+
     shared_examples 'successful sudo' do
       it 'sets current_user' do
         expect(current_user).to eq(user)

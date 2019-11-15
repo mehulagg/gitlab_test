@@ -15,7 +15,7 @@ module Gitlab
     end
 
     def storage_path
-      File.join(Settings.shared['path'], 'tmp/project_exports')
+      File.join(Settings.shared['path'], 'tmp/gitlab_exports')
     end
 
     def import_upload_path(filename:)
@@ -38,6 +38,10 @@ module Gitlab
       "lfs-objects"
     end
 
+    def wiki_repo_bundle_filename
+      "project.wiki.bundle"
+    end
+
     def config_file
       Rails.root.join('lib/gitlab/import_export/import_export.yml')
     end
@@ -46,8 +50,8 @@ module Gitlab
       'VERSION'
     end
 
-    def export_filename(project:)
-      basename = "#{Time.now.strftime('%Y-%m-%d_%H-%M-%3N')}_#{project.full_path.tr('/', '_')}"
+    def export_filename(exportable:)
+      basename = "#{Time.now.strftime('%Y-%m-%d_%H-%M-%3N')}_#{exportable.full_path.tr('/', '_')}"
 
       "#{basename[0..FILENAME_LIMIT]}_export.tar.gz"
     end
@@ -59,5 +63,15 @@ module Gitlab
     def reset_tokens?
       true
     end
+
+    def group_filename
+      'group.json'
+    end
+
+    def group_config_file
+      Rails.root.join('lib/gitlab/import_export/group_import_export.yml')
+    end
   end
 end
+
+Gitlab::ImportExport.prepend_if_ee('EE::Gitlab::ImportExport')

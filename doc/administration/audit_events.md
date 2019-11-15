@@ -59,6 +59,8 @@ From there, you can see the following actions:
 - 2FA enforcement/grace period changed
 - Roles allowed to create project changed
 
+Group events can also be accessed via the [Group Audit Events API](../api/audit_events.md#group-audit-events-starter)
+
 ### Project events **(STARTER)**
 
 NOTE: **Note:**
@@ -107,6 +109,8 @@ the filter drop-down. You can further filter by specific group, project or user
 
 ![audit log](img/audit_log.png)
 
+Instance events can also be accessed via the [Instance Audit Events API](../api/audit_events.md#instance-audit-events-premium-only)
+
 ### Missing events
 
 Some events are not being tracked in Audit Events. Please see the following
@@ -116,6 +120,35 @@ on adding these events into GitLab:
 - [Project settings and activity](https://gitlab.com/groups/gitlab-org/-/epics/474)
 - [Group settings and activity](https://gitlab.com/groups/gitlab-org/-/epics/475)
 - [Instance-level settings and activity](https://gitlab.com/groups/gitlab-org/-/epics/476)
+
+### Disabled events
+
+#### Repository push
+
+The current architecture of audit events is not prepared to receive a very high amount of records.
+It may make your project/admin audit logs UI very busy and the disk space consumed by the
+`audit_events` Postgres table will increase considerably. Thus, it's disabled by default
+to prevent performance degradations on GitLab instances with very high Git write traffic.
+
+In an upcoming release, Audit Logs for Git push events will be enabled
+by default. Follow [#7865](https://gitlab.com/gitlab-org/gitlab/issues/7865) for updates.
+
+If you still wish to enable **Repository push** events in your instance, follow
+the steps bellow.
+
+**In Omnibus installations:**
+
+1. Enter the Rails console:
+
+   ```sh
+   sudo gitlab-rails console
+   ```
+
+1. Flip the switch and enable the feature flag:
+
+   ```ruby
+   Feature.enable(:repository_push_audit_event)
+   ```
 
 [ee-2336]: https://gitlab.com/gitlab-org/gitlab/issues/2336
 [ee]: https://about.gitlab.com/pricing/

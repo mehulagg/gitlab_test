@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe MergeRequests::MergeService do
   let(:user) { create(:user) }
   let(:merge_request) { create(:merge_request, :simple) }
   let(:project) { merge_request.project }
-  let(:service) { described_class.new(project, user, commit_message: 'Awesome message') }
+  let(:service) { described_class.new(project, user, sha: merge_request.diff_head_sha, commit_message: 'Awesome message') }
 
   before do
     project.add_maintainer(user)

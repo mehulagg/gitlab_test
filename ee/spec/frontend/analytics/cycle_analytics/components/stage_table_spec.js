@@ -1,7 +1,13 @@
 import Vue from 'vue';
 import { shallowMount, mount } from '@vue/test-utils';
 import StageTable from 'ee/analytics/cycle_analytics/components/stage_table.vue';
-import { issueEvents, issueStage, allowedStages } from '../mock_data';
+import {
+  issueEvents,
+  issueStage,
+  allowedStages,
+  groupLabels,
+  customStageEvents,
+} from '../mock_data';
 
 let wrapper = null;
 const $sel = {
@@ -25,14 +31,16 @@ function createComponent(props = {}, shallow = false) {
     propsData: {
       stages: allowedStages,
       currentStage: issueStage,
-      events: issueEvents,
-      isLoadingStage: false,
+      currentStageEvents: issueEvents,
+      labels: groupLabels,
+      isLoading: false,
       isEmptyStage: false,
-      isUserAllowed: true,
       isAddingCustomStage: false,
+      isSavingCustomStage: false,
       noDataSvgPath,
       noAccessSvgPath,
       canEditStages: false,
+      customStageFormEvents: customStageEvents,
       ...props,
     },
     stubs: {
@@ -118,12 +126,10 @@ describe('StageTable', () => {
 
         selectStage(1);
 
-        Vue.nextTick()
-          .then(() => {
-            expect(wrapper.emitted().selectStage.length).toEqual(1);
-          })
-          .then(done)
-          .catch(done.fail);
+        Vue.nextTick(() => {
+          expect(wrapper.emitted().selectStage.length).toEqual(1);
+          done();
+        });
       });
 
       it('will emit `selectStage` with the new stage title', done => {
@@ -131,19 +137,17 @@ describe('StageTable', () => {
 
         selectStage(1);
 
-        Vue.nextTick()
-          .then(() => {
-            const [params] = wrapper.emitted('selectStage')[0];
-            expect(params).toMatchObject({ title: secondStage.title });
-          })
-          .then(done)
-          .catch(done.fail);
+        Vue.nextTick(() => {
+          const [params] = wrapper.emitted('selectStage')[0];
+          expect(params).toMatchObject({ title: secondStage.title });
+          done();
+        });
       });
     });
   });
 
-  it('isLoadingStage = true', () => {
-    wrapper = createComponent({ isLoadingStage: true }, true);
+  it('isLoading = true', () => {
+    wrapper = createComponent({ isLoading: true }, true);
     expect(wrapper.find('gl-loading-icon-stub').exists()).toEqual(true);
   });
 
@@ -161,44 +165,8 @@ describe('StageTable', () => {
       expect(wrapper.find($sel.illustration).html()).toContain(noDataSvgPath);
     });
 
-    it('will display the no data title', () => {
+    it('will display the no data message', () => {
       expect(wrapper.html()).toContain("We don't have enough data to show this stage.");
-    });
-
-    it('will display the no data description', () => {
-      expect(wrapper.html()).toContain(
-        'The issue stage shows the time it takes from creating an issue to assigning the issue to a milestone, or add the issue to a list on your Issue Board. Begin creating issues to see data for this stage.',
-      );
-    });
-  });
-
-  describe('isUserAllowed = false', () => {
-    beforeEach(() => {
-      wrapper = createComponent({
-        currentStage: {
-          ...issueStage,
-          isUserAllowed: false,
-        },
-      });
-    });
-
-    afterEach(() => {
-      wrapper.destroy();
-    });
-
-    it('will render the no access illustration', () => {
-      expect(wrapper.find($sel.illustration).exists()).toBeTruthy();
-      expect(wrapper.find($sel.illustration).html()).toContain(noAccessSvgPath);
-    });
-
-    it('will display the no access title', () => {
-      expect(wrapper.html()).toContain('You need permission.');
-    });
-
-    it('will display the no access description', () => {
-      expect(wrapper.html()).toContain(
-        'Want to see the data? Please ask an administrator for access.',
-      );
     });
   });
 

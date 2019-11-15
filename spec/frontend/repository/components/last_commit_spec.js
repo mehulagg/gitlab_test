@@ -17,7 +17,7 @@ function createCommitData(data = {}) {
       avatarUrl: 'https://test.com',
       webUrl: 'https://test.com/test',
     },
-    latestPipeline: {
+    pipeline: {
       detailedStatus: {
         detailsPath: 'https://test.com/pipeline',
         icon: 'failed',
@@ -74,7 +74,7 @@ describe('Repository last commit component', () => {
   });
 
   it('hides pipeline components when pipeline does not exist', () => {
-    factory(createCommitData({ latestPipeline: null }));
+    factory(createCommitData({ pipeline: null }));
 
     expect(vm.find('.js-commit-pipeline').exists()).toBe(false);
   });
@@ -106,5 +106,11 @@ describe('Repository last commit component', () => {
 
     expect(vm.find('.commit-row-description').isVisible()).toBe(true);
     expect(vm.find('.text-expander').classes('open')).toBe(true);
+  });
+
+  it('renders the signature HTML as returned by the backend', () => {
+    factory(createCommitData({ signatureHtml: '<button>Verified</button>' }));
+
+    expect(vm.element).toMatchSnapshot();
   });
 });

@@ -5,6 +5,8 @@ module QA
     module Page
       module MergeRequest
         module Show
+          include Page::Component::LicenseManagement
+
           def self.prepended(page)
             page.module_eval do
               view 'app/assets/javascripts/vue_merge_request_widget/components/states/sha_mismatch.vue' do
@@ -79,6 +81,8 @@ module QA
 
           def click_approve
             click_element :approve_button
+
+            find_element :approve_button, text: "Revoke approval"
           end
 
           def start_review
@@ -112,8 +116,32 @@ module QA
             check_element :unresolve_review_discussion_checkbox
           end
 
+          def expand_license_report
+            within_element(:license_report_widget) do
+              click_element(:expand_report_button)
+            end
+          end
+
+          def license_report_expanded?
+            within_element(:license_report_widget) do
+              has_element?(:expand_report_button, text: "Collapse")
+            end
+          end
+
+          def approve_license_with_mr(name)
+            expand_license_report unless license_report_expanded?
+            approve_license(name)
+          end
+
+          def blacklist_license_with_mr(name)
+            expand_license_report unless license_report_expanded?
+            blacklist_license(name)
+          end
+
           def expand_vulnerability_report
-            click_element :expand_report_button
+            within_element :vulnerability_report_grouped do
+              click_element :expand_report_button
+            end
           end
 
           def click_vulnerability(name)
@@ -126,6 +154,10 @@ module QA
             expand_vulnerability_report
             click_vulnerability(name)
             click_element :resolve_split_button
+
+            wait(reload: false) do
+              has_no_element?(:resolve_split_button)
+            end
           end
 
           def has_vulnerability_report?(timeout: 60)
@@ -138,27 +170,33 @@ module QA
 
           def has_total_vulnerability_count_of?(expected)
             # Match text cut off in order to find both "1 vulnerability" and "X vulnerabilities"
-            find_element(:vulnerability_report_grouped).has_content?("Security scanning detected #{expected} vulnerabilit")
+            find_element(:vulnerability_report_grouped).has_content?(/Security scanning detected #{expected}( new)? vulnerabilit/)
           end
 
           def has_sast_vulnerability_count_of?(expected)
-            find_element(:sast_scan_report).has_content?("SAST detected #{expected} vulnerabilit")
+            find_element(:sast_scan_report).has_content?(/SAST detected #{expected}( new)? vulnerabilit/)
           end
 
           def has_dependency_vulnerability_count_of?(expected)
-            find_element(:dependency_scan_report).has_content?("Dependency scanning detected #{expected} vulnerabilit")
+            find_element(:dependency_scan_report).has_content?(/Dependency scanning detected #{expected}( new)? vulnerabilit/)
           end
 
           def has_container_vulnerability_count_of?(expected)
-            find_element(:container_scan_report).has_content?("Container scanning detected #{expected} vulnerabilit")
+            find_element(:container_scan_report).has_content?(/Container scanning detected #{expected}( new)? vulnerabilit/)
           end
 
           def has_dast_vulnerability_count_of?(expected)
-            find_element(:dast_scan_report).has_content?("DAST detected #{expected} vulnerabilit")
+            find_element(:dast_scan_report).has_content?(/DAST detected #{expected}( new)? vulnerabilit/)
           end
 
           def num_approvals_required
             approvals_content.match(/Requires (\d+) more approvals/)[1].to_i
+          end
+
+          def merge_via_merge_train
+            raise ElementNotFound, "Not ready to merge" unless ready_to_merge?
+
+            click_element(:merge_button, text: "Start merge train")
           end
 
           private

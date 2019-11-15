@@ -18,6 +18,7 @@ module Gitlab
 
       def execute
         return unless upload
+        return unless upload.model_type == 'Note'
 
         if !project
           # if we don't have models associated with the upload we can not move it
@@ -92,7 +93,7 @@ module Gitlab
 
       def legacy_file_uploader
         strong_memoize(:legacy_file_uploader) do
-          uploader = upload.build_uploader
+          uploader = upload.retrieve_uploader
           uploader.retrieve_from_store!(File.basename(upload.path))
           uploader
         end

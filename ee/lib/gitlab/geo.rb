@@ -44,6 +44,10 @@ module Gitlab
       self.enabled? && self.current_node&.secondary?
     end
 
+    def self.current_node_misconfigured?
+      self.enabled? && self.current_node.nil?
+    end
+
     def self.current_node_enabled?
       # No caching of the enabled! If we cache it and an admin disables
       # this node, an active Geo::RepositorySyncWorker would keep going for up
@@ -98,9 +102,13 @@ module Gitlab
     end
 
     def self.expire_cache!
-      CACHE_KEYS.each do |raw_key|
-        l1_cache.expire(raw_key)
-        l2_cache.expire(raw_key)
+      expire_cache_keys!(CACHE_KEYS)
+    end
+
+    def self.expire_cache_keys!(keys)
+      keys.each do |key|
+        l1_cache.expire(key)
+        l2_cache.expire(key)
       end
 
       true

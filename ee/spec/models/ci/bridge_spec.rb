@@ -178,6 +178,14 @@ describe Ci::Bridge do
       it 'returns a ref name' do
         expect(bridge.target_ref).to eq 'master'
       end
+
+      context 'when using variable expansion' do
+        let(:options) { { trigger: { project: 'my/project', branch: '$BRIDGE-master' } } }
+
+        it 'correctly expands variables' do
+          expect(bridge.target_ref).to eq('cross-master')
+        end
+      end
     end
 
     context 'when trigger does not have project defined' do
@@ -217,13 +225,40 @@ describe Ci::Bridge do
     end
 
     context 'when using variables interpolation' do
+      let(:yaml_variables) do
+        [
+          {
+            key: 'EXPANDED',
+            value: '$BRIDGE-bridge',
+            public: true
+          },
+          {
+            key: 'UPSTREAM_CI_PIPELINE_ID',
+            value: '$CI_PIPELINE_ID',
+            public: true
+          },
+          {
+            key: 'UPSTREAM_CI_PIPELINE_URL',
+            value: '$CI_PIPELINE_URL',
+            public: true
+          }
+        ]
+      end
+
       before do
-        bridge.yaml_variables << { key: 'EXPANDED', value: '$BRIDGE-bridge', public: true }
+        bridge.yaml_variables.concat(yaml_variables)
       end
 
       it 'correctly expands variables with interpolation' do
+        expanded_values = pipeline
+          .persisted_variables
+          .to_hash
+          .transform_keys { |key| "UPSTREAM_#{key}" }
+          .map { |key, value| { key: key, value: value } }
+          .push(key: 'EXPANDED', value: 'cross-bridge')
+
         expect(bridge.downstream_variables)
-          .to include(key: 'EXPANDED', value: 'cross-bridge')
+          .to match(a_collection_including(*expanded_values))
       end
     end
 

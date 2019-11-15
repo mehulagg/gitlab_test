@@ -9,18 +9,20 @@ Serverless is currently in [alpha](https://about.gitlab.com/handbook/product/#al
 
 Serverless architectures offer Operators and Developers the ability write highly scalable applications without provisioning a single server.
 
-Gitlab supports several ways deploy Serverless applications in both Kubernetes Environments and also major cloud FAAS environments.
+GitLab supports several ways deploy Serverless applications in both Kubernetes Environments and also major cloud FAAS environments.
 
 Currently we support:
 
-- [Knative](#knative): Build Knative applications with Knative and gitlabktl on GKE
-- [AWS Lambda](aws.md): Create serverless applications via the Serverless Framework and gitlab-ci
+- [Knative](#knative): Build Knative applications with Knative and gitlabktl on GKE.
+- [AWS Lambda](aws.md): Create serverless applications via the Serverless Framework and GitLab CI.
 
 ## Knative
 
 Run serverless workloads on Kubernetes using [Knative](https://cloud.google.com/knative/).
 
-Knative extends Kubernetes to provide a set of middleware components that are useful to build modern, source-centric, container-based applications. Knative brings some significant benefits out of the box through its main components:
+Knative extends Kubernetes to provide a set of middleware components that are useful to build
+modern, source-centric, container-based applications. Knative brings some significant benefits out
+of the box through its main components:
 
 - [Serving](https://github.com/knative/serving): Request-driven compute that can scale to zero.
 - [Eventing](https://github.com/knative/eventing): Management and delivery of events.
@@ -31,7 +33,7 @@ With GitLab Serverless, you can deploy both functions-as-a-service (FaaS) and se
 
 ## Prerequisites
 
-To run Knative on Gitlab, you will need:
+To run Knative on GitLab, you will need:
 
 1. **Existing GitLab project:** You will need a GitLab project to associate all resources. The simplest way to get started:
 
@@ -39,7 +41,7 @@ To run Knative on Gitlab, you will need:
    - If you are planning on deploying a serverless application, clone the sample [Knative Ruby App](https://gitlab.com/knative-examples/knative-ruby-app) to get started.
 
 1. **Kubernetes Cluster:** An RBAC-enabled Kubernetes cluster is required to deploy Knative.
-   The simplest way to get started is to add a cluster using [GitLab's GKE integration](../index.md#add-new-gke-cluster).
+   The simplest way to get started is to add a cluster using [GitLab's GKE integration](../add_remove_clusters.md#add-new-gke-cluster).
    The set of minimum recommended cluster specifications to run Knative is 3 nodes, 6 vCPUs, and 22.50 GB memory.
 1. **Helm Tiller:** Helm is a package manager for Kubernetes and is required to install
    Knative.
@@ -68,24 +70,24 @@ To run Knative on Gitlab, you will need:
 NOTE: **Note:**
 The minimum recommended cluster size to run Knative is 3-nodes, 6 vCPUs, and 22.50 GB memory. **RBAC must be enabled.**
 
-1. [Add a Kubernetes cluster](../index.md) and [install Helm](../index.md#installing-applications).
+1. [Add a Kubernetes cluster](../add_remove_clusters.md) and [install Helm](../index.md#installing-applications).
 1. Once Helm has been successfully installed, scroll down to the Knative app section. Enter the domain to be used with
    your application/functions (e.g. `example.com`) and click **Install**.
 
    ![install-knative](img/install-knative.png)
 
 1. After the Knative installation has finished, you can wait for the IP address or hostname to be displayed in the
-   **Knative Endpoint** field or [retrieve the Istio Ingress Endpoint manually](../#manually-determining-the-external-endpoint).
+   **Knative Endpoint** field or [retrieve the Istio Ingress Endpoint manually](../../../clusters/applications.md#determining-the-external-endpoint-manually).
 
    NOTE: **Note:**
    Running `kubectl` commands on your cluster requires setting up access to the cluster first.
    For clusters created on GKE, see [GKE Cluster Access](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl),
    for other platforms [Install kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
 
-1. The ingress is now available at this address and will route incoming requests to the proper service based on the DNS
+1. The Ingress is now available at this address and will route incoming requests to the proper service based on the DNS
    name in the request. To support this, a wildcard DNS A record should be created for the desired domain name. For example,
    if your Knative base domain is `knative.info` then you need to create an A record or CNAME record with domain `*.knative.info`
-   pointing the ip address or hostname of the ingress.
+   pointing the ip address or hostname of the Ingress.
 
    ![dns entry](img/dns-entry.png)
 
@@ -108,7 +110,7 @@ You must do the following:
 
 1. Follow the steps to
    [add an existing Kubernetes
-   cluster](../index.md#add-existing-kubernetes-cluster).
+   cluster](../add_remove_clusters.md#add-existing-cluster).
 
 1. Ensure GitLab can manage Knative:
    - For a non-GitLab managed cluster, ensure that the service account for the token
@@ -310,6 +312,41 @@ The sample function can now be triggered from any HTTP client using a simple `PO
   1. Using a web-based tool (ie. postman, restlet, etc)
 
      ![function execution](img/function-execution.png)
+
+### Running functions locally
+
+Running a function locally is a good way to quickly verify behavior during development.
+
+Running functions locally requires:
+
+- Go 1.12 or newer installed.
+- Docker Engine installed and running.
+- `gitlabktl` installed using the Go package manager:
+  
+  ```shell
+  GO111MODULE=on go get gitlab.com/gitlab-org/gitlabktl
+  ```
+
+To run a function locally:
+
+1. Navigate to the root of your GitLab serverless project.
+1. Build your function into a Docker image:
+
+   ```shell
+   gitlabktl serverless build
+   ```
+
+1. Run your function in Docker:
+
+   ```shell
+   docker run -itp 8080:8080 <your_function_name>
+   ```
+
+1. Invoke your function:
+
+   ```shell
+   curl http://localhost:8080
+   ```
 
 ## Deploying Serverless applications
 

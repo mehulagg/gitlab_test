@@ -36,7 +36,7 @@ include a regression test are merged quickly, while new features without proper
 tests might be slower to receive feedback. The workflow to make a merge
 request is as follows:
 
-1. [Fork](../../workflow/forking_workflow.md#creating-a-fork) the project into
+1. [Fork](../../user/project/repository/forking_workflow.md) the project into
    your personal namespace (or group) on GitLab.com.
 1. Create a feature branch in your fork (don't work off `master`).
 1. Write [tests](../rake_tasks.md#run-tests) and code.
@@ -69,7 +69,7 @@ request is as follows:
       the issue(s) once the merge request is merged.
 1. If you're allowed to (Core team members, for example), set a relevant milestone
    and [labels](issue_workflow.md).
-1. If the MR changes the UI, it should include *Before* and *After* screenshots.
+1. If the MR changes the UI, you'll need approval from a Product Designer (UX), based on the appropriate [product category](https://about.gitlab.com/handbook/product/categories/). UI changes should use available components from the GitLab Design System, [Pajamas](https://design.gitlab.com/). The MR must include *Before* and *After* screenshots.
 1. If the MR changes CSS classes, please include the list of affected pages, which
    can be found by running `grep css-class ./app -R`.
 1. Be prepared to answer questions and incorporate feedback into your MR with new
@@ -89,7 +89,7 @@ request is as follows:
 1. Write tests for more complex migrations.
 1. Merge requests **must** adhere to the [merge request performance guidelines](../merge_request_performance_guidelines.md).
 1. For tests that use Capybara, read
-   [how to write reliable, asynchronous integration tests](https://robots.thoughtbot.com/write-reliable-asynchronous-integration-tests-with-capybara).
+   [how to write reliable, asynchronous integration tests](https://thoughtbot.com/blog/write-reliable-asynchronous-integration-tests-with-capybara).
 1. If your merge request introduces changes that require additional steps when
    installing GitLab from source, add them to `doc/install/installation.md` in
    the same merge request.
@@ -101,7 +101,7 @@ request is as follows:
 
 If you would like quick feedback on your merge request feel free to mention someone
 from the [core team](https://about.gitlab.com/community/core-team/) or one of the
-[merge request coaches](https://about.gitlab.com/team/). When having your code reviewed
+[merge request coaches](https://about.gitlab.com/company/team/). When having your code reviewed
 and when reviewing merge requests, please keep the [code review guidelines](../code_review.md)
 in mind. And if your code also makes changes to the database, or does expensive queries,
 check the [database review guidelines](../database_review.md).
@@ -220,7 +220,9 @@ requirements.
 1. Working and clean code that is commented where needed.
 1. [Unit, integration, and system tests](../testing_guide/index.md) that all pass
    on the CI server.
-1. Performance/scalability implications have been considered, addressed, and tested.
+1. Regressions and bugs are covered with tests that reduce the risk of the issue happening
+   again.
+1. [Performance guidelines](../merge_request_performance_guidelines.md) have been followed.
 1. [Documented](../documentation/index.md) in the `/doc` directory.
 1. [Changelog entry added](../changelog.md), if necessary.
 1. Reviewed by relevant (UX/FE/BE/tech writing) reviewers and all concerns are addressed.

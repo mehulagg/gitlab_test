@@ -251,7 +251,9 @@ describe SnippetsController do
 
     context 'when the snippet is spam' do
       before do
-        allow_any_instance_of(AkismetService).to receive(:spam?).and_return(true)
+        allow_next_instance_of(AkismetService) do |instance|
+          allow(instance).to receive(:spam?).and_return(true)
+        end
       end
 
       context 'when the snippet is private' do
@@ -269,7 +271,7 @@ describe SnippetsController do
 
         it 'creates a spam log' do
           expect { create_snippet(visibility_level: Snippet::PUBLIC) }
-            .to change { SpamLog.count }.by(1)
+            .to log_spam(title: 'Title', user: user, noteable_type: 'PersonalSnippet')
         end
 
         it 'renders :new with recaptcha disabled' do
@@ -323,7 +325,9 @@ describe SnippetsController do
 
     context 'when the snippet is spam' do
       before do
-        allow_any_instance_of(AkismetService).to receive(:spam?).and_return(true)
+        allow_next_instance_of(AkismetService) do |instance|
+          allow(instance).to receive(:spam?).and_return(true)
+        end
       end
 
       context 'when the snippet is private' do
@@ -345,7 +349,7 @@ describe SnippetsController do
 
         it 'creates a spam log' do
           expect { update_snippet(title: 'Foo', visibility_level: Snippet::PUBLIC) }
-            .to change { SpamLog.count }.by(1)
+            .to log_spam(title: 'Foo', user: user, noteable_type: 'PersonalSnippet')
         end
 
         it 'renders :edit with recaptcha disabled' do
@@ -389,8 +393,8 @@ describe SnippetsController do
         end
 
         it 'creates a spam log' do
-          expect { update_snippet(title: 'Foo') }
-            .to change { SpamLog.count }.by(1)
+          expect {update_snippet(title: 'Foo') }
+            .to log_spam(title: 'Foo', user: user, noteable_type: 'PersonalSnippet')
         end
 
         it 'renders :edit with recaptcha disabled' do
@@ -431,7 +435,9 @@ describe SnippetsController do
     let(:snippet) { create(:personal_snippet, :public, author: user) }
 
     before do
-      allow_any_instance_of(AkismetService).to receive_messages(submit_spam: true)
+      allow_next_instance_of(AkismetService) do |instance|
+        allow(instance).to receive_messages(submit_spam: true)
+      end
       stub_application_setting(akismet_enabled: true)
     end
 

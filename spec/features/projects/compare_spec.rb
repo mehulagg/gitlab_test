@@ -12,6 +12,23 @@ describe "Compare", :js do
   end
 
   describe "branches" do
+    shared_examples 'compares branches' do
+      it 'compares branches' do
+        visit project_compare_index_path(project, from: 'master', to: 'master')
+
+        select_using_dropdown 'from', 'feature'
+        expect(find('.js-compare-from-dropdown .dropdown-toggle-text')).to have_content('feature')
+
+        select_using_dropdown 'to', 'binary-encoding'
+        expect(find('.js-compare-to-dropdown .dropdown-toggle-text')).to have_content('binary-encoding')
+
+        click_button 'Compare'
+
+        expect(page).to have_content 'Commits'
+        expect(page).to have_link 'Create merge request'
+      end
+    end
+
     it "pre-populates fields" do
       visit project_compare_index_path(project, from: "master", to: "master")
 
@@ -19,19 +36,14 @@ describe "Compare", :js do
       expect(find(".js-compare-to-dropdown .dropdown-toggle-text")).to have_content("master")
     end
 
-    it "compares branches" do
-      visit project_compare_index_path(project, from: "master", to: "master")
+    it_behaves_like 'compares branches'
 
-      select_using_dropdown "from", "feature"
-      expect(find(".js-compare-from-dropdown .dropdown-toggle-text")).to have_content("feature")
+    context 'on a read-only instance' do
+      before do
+        allow(Gitlab::Database).to receive(:read_only?).and_return(true)
+      end
 
-      select_using_dropdown "to", "binary-encoding"
-      expect(find(".js-compare-to-dropdown .dropdown-toggle-text")).to have_content("binary-encoding")
-
-      click_button "Compare"
-
-      expect(page).to have_content "Commits"
-      expect(page).to have_link 'Create merge request'
+      it_behaves_like 'compares branches'
     end
 
     it 'renders additions info when click unfold diff' do
@@ -95,7 +107,9 @@ describe "Compare", :js do
         visit project_compare_index_path(project, from: "feature", to: "master")
 
         allow(Commit).to receive(:max_diff_options).and_return(max_files: 3)
-        allow_any_instance_of(DiffHelper).to receive(:render_overflow_warning?).and_return(true)
+        allow_next_instance_of(DiffHelper) do |instance|
+          allow(instance).to receive(:render_overflow_warning?).and_return(true)
+        end
 
         click_button('Compare')
 
@@ -124,7 +138,7 @@ describe "Compare", :js do
   def select_using_dropdown(dropdown_type, selection, commit: false)
     dropdown = find(".js-compare-#{dropdown_type}-dropdown")
     dropdown.find(".compare-dropdown-toggle").click
-    # find input before using to wait for the inputs visiblity
+    # find input before using to wait for the inputs visibility
     dropdown.find('.dropdown-menu')
     dropdown.fill_in("Filter by Git revision", with: selection)
     wait_for_requests
@@ -132,7 +146,7 @@ describe "Compare", :js do
     if commit
       dropdown.find('input[type="search"]').send_keys(:return)
     else
-      # find before all to wait for the items visiblity
+      # find before all to wait for the items visibility
       dropdown.find("a[data-ref=\"#{selection}\"]", match: :first)
       dropdown.all("a[data-ref=\"#{selection}\"]").last.click
     end

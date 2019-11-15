@@ -33,22 +33,24 @@ the `author` field. GitLab team members **should not**.
 
 ## What warrants a changelog entry?
 
+- Any change that introduces a database migration **must** have a changelog entry.
 - Any user-facing change **should** have a changelog entry. Example: "GitLab now
   uses system fonts for all text."
+- Performance improvements **should** have a changelog entry.
+- _Any_ contribution from a community member, no matter how small, **may** have
+  a changelog entry regardless of these guidelines if the contributor wants one.
+  Example: "Fixed a typo on the search results page."
 - Any docs-only changes **should not** have a changelog entry.
-- Any change behind a feature flag **should not** have a changelog entry. The entry should be added [in the merge request removing the feature flags](feature_flags/development.md).
+- Any change behind a feature flag **should not** have a changelog entry. The
+  entry should be added [in the merge request removing the feature flags](feature_flags/development.md).
+  If the change includes a database migration, there should be a changelog entry
+  for the migration change.
 - A fix for a regression introduced and then fixed in the same release (i.e.,
   fixing a bug introduced during a monthly release candidate) **should not**
   have a changelog entry.
 - Any developer-facing change (e.g., refactoring, technical debt remediation,
   test suite changes) **should not** have a changelog entry. Example: "Reduce
   database records created during Cycle Analytics model spec."
-- _Any_ contribution from a community member, no matter how small, **may** have
-  a changelog entry regardless of these guidelines if the contributor wants one.
-  Example: "Fixed a typo on the search results page."
-- Performance improvements **should** have a changelog entry.
-- Any change that introduces a database migration **must** have a
-  changelog entry.
 
 ## Writing good changelog entries
 
@@ -80,7 +82,7 @@ changes.
 
 - **Bad:** Strip out `nil`s in the Array of Commit objects returned from
   `find_commits_by_message_with_elastic`
-- **Good:** Fix 500 errors caused by elasticsearch results referencing
+- **Good:** Fix 500 errors caused by Elasticsearch results referencing
   garbage-collected commits
 
 The first example focuses on _how_ we fixed something, not on _what_ it fixes.

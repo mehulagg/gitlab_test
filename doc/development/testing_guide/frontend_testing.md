@@ -119,6 +119,50 @@ Global mocks introduce magic and can affect how modules are imported in your tes
 
 When in doubt, construct mocks in your test file using [`jest.mock()`](https://jestjs.io/docs/en/jest-object#jestmockmodulename-factory-options), [`jest.spyOn()`](https://jestjs.io/docs/en/jest-object#jestspyonobject-methodname), etc.
 
+### Data-driven tests
+
+Similar to [RSpec's parameterized tests](best_practices.md#table-based--parameterized-tests),
+Jest supports data-driven tests for:
+
+- Individual tests using [`test.each`](https://jestjs.io/docs/en/api#testeachtable-name-fn-timeout) (aliased to `it.each`).
+- Groups of tests using [`describe.each`](https://jestjs.io/docs/en/api#describeeachtable-name-fn-timeout).
+
+These can be useful for reducing repetition within tests. Each option can take an array of
+data values or a tagged template literal.
+
+For example:
+
+```javascript
+// function to test
+const icon = status => status ? 'pipeline-passed' : 'pipeline-failed'
+const message = status => status ? 'pipeline-passed' : 'pipeline-failed'
+
+// test with array block
+it.each([
+    [false, 'pipeline-failed'],
+    [true, 'pipeline-passed']
+])('icon with %s will return %s',
+ (status, icon) => {
+    expect(renderPipeline(status)).toEqual(icon)
+ }
+);
+
+// test suite with tagged template literal block
+describe.each`
+    status   | icon                 | message
+    ${false} | ${'pipeline-failed'} | ${'Pipeline failed - boo-urns'}
+    ${true}  | ${'pipeline-passed'} | ${'Pipeline succeeded - win!'}
+`('pipeline component', ({ status, icon, message }) => {
+    it(`returns icon ${icon} with status ${status}`, () => {
+        expect(icon(status)).toEqual(message)
+    })
+
+    it(`returns message ${message} with status ${status}`, () => {
+        expect(message(status)).toEqual(message)
+    })
+});
+```
+
 ## Karma test suite
 
 GitLab uses the [Karma][karma] test runner with [Jasmine] as its test
@@ -457,6 +501,39 @@ it('waits for an event', () => {
 });
 ```
 
+#### Ensuring that tests are isolated
+
+Tests are normally architected in a pattern which requires a recurring setup and breakdown of the component under test. This is done by making use of the `beforeEach` and `afterEach` hooks.
+
+Example
+
+```javascript
+  let wrapper;
+
+  beforeEach(() => {
+    wrapper = mount(Component);
+  });
+
+  afterEach(() => {
+    wrapper.destroy();
+  });
+```
+
+When looking at this initially you'd suspect that the component is setup before each test and then broken down afterwards, providing isolation between tests.
+
+This is however not entirely true as the `destroy` method does not remove everything which has been mutated on the `wrapper` object. For functional components, destroy only removes the rendered DOM elements from the document.
+
+In order to ensure that a clean wrapper object and DOM are being used in each test, the breakdown of the component should rather be performed as follows:
+
+```javascript
+  afterEach(() => {
+    wrapper.destroy();
+    wrapper = null;
+  });
+```
+
+See also the [Vue Test Utils documention on `destroy`](https://vue-test-utils.vuejs.org/api/wrapper/#destroy).
+
 #### Migrating flaky Karma tests to Jest
 
 Some of our Karma tests are flaky because they access the properties of a shared scope.
@@ -482,7 +559,7 @@ As long as the fixtures don't change, `yarn test` is sufficient (and saves you s
 
 While developing locally, it may be helpful to keep Karma running so that you
 can get instant feedback on as you write tests and modify code. To do this
-you can start Karma with `yarn run karma-start`. It will compile the javascript
+you can start Karma with `yarn run karma-start`. It will compile the JavaScript
 assets and run a server at `http://localhost:9876/` where it will automatically
 run the tests on any browser which connects to it. You can enter that url on
 multiple browsers at once to have it run the tests on each in parallel.
@@ -515,11 +592,6 @@ glob otherwise your shell may split it into multiple arguments:
 # Run all specs named `file_spec` within the IDE subdirectory
 yarn karma -f 'spec/javascripts/ide/**/file_spec.js'
 ```
-
-## RSpec feature integration tests
-
-Information on setting up and running RSpec integration tests with
-[Capybara] can be found in the [Testing Best Practices](best_practices.md).
 
 ## Frontend test fixtures
 
@@ -598,7 +670,6 @@ end
 [karma]: http://karma-runner.github.io/
 [vue-test]: ../fe_guide/vue.md#testing-vue-components
 [rspec]: https://github.com/rspec/rspec-rails#feature-specs
-[capybara]: https://github.com/teamcapybara/capybara
 [jasmine]: https://jasmine.github.io/
 
 ## Overview of Frontend Testing Levels
@@ -955,7 +1026,11 @@ graph RL
 In contrast to [frontend integration tests](#frontend-integration-tests), feature tests make requests against the real backend instead of using fixtures.
 This also implies that database queries are executed which makes this category significantly slower.
 
-See also the [RSpec testing guidelines](../testing_guide/best_practices.md#rspec).
+See also
+
+- The [RSpec testing guidelines](../testing_guide/best_practices.md#rspec).
+- System / Feature tests in the [Testing Best Practices](best_practices.md#system--feature-tests).
+- [Issue #26159](https://gitlab.com/gitlab-org/gitlab/issues/26159) which aims at combine those guidelines with this page.
 
 ```mermaid
 graph RL

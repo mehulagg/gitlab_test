@@ -5,10 +5,10 @@ module Projects
     class NotificationsController < Projects::ApplicationController
       respond_to :json
 
+      skip_before_action :verify_authenticity_token
       skip_before_action :project
 
       prepend_before_action :repository, :project_without_auth
-      before_action :check_generic_alert_endpoint_feature_flag!
 
       def create
         token = extract_alert_manager_token(request)
@@ -19,15 +19,9 @@ module Projects
 
       private
 
-      PARAMS_TO_EXCLUDE = %w(controller action namespace_id project_id).freeze
-
       def project_without_auth
         @project ||= Project
           .find_by_full_path("#{params[:namespace_id]}/#{params[:project_id]}")
-      end
-
-      def check_generic_alert_endpoint_feature_flag!
-        render_404 unless Feature.enabled?(:generic_alert_endpoint, @project)
       end
 
       def extract_alert_manager_token(request)
@@ -36,7 +30,7 @@ module Projects
 
       def notify_service
         Projects::Alerting::NotifyService
-          .new(project, current_user, permitted_params)
+          .new(project, current_user, notification_payload)
       end
 
       def response_status(result)
@@ -45,8 +39,8 @@ module Projects
         result.http_status
       end
 
-      def permitted_params
-        params.except(*PARAMS_TO_EXCLUDE).permit!
+      def notification_payload
+        params.permit![:notification]
       end
     end
   end

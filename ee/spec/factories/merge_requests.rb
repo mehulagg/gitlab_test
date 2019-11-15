@@ -13,8 +13,8 @@ FactoryBot.modify do
         train_creator { author }
       end
 
-      auto_merge_enabled true
-      auto_merge_strategy AutoMergeService::STRATEGY_MERGE_TRAIN
+      auto_merge_enabled { true }
+      auto_merge_strategy { AutoMergeService::STRATEGY_MERGE_TRAIN }
       merge_user { train_creator }
 
       after :create do |merge_request, evaluator|
@@ -34,14 +34,14 @@ FactoryBot.modify do
     end
 
     trait :add_to_merge_train_when_pipeline_succeeds do
-      auto_merge_enabled true
-      auto_merge_strategy AutoMergeService::STRATEGY_ADD_TO_MERGE_TRAIN_WHEN_PIPELINE_SUCCEEDS
+      auto_merge_enabled { true }
+      auto_merge_strategy { AutoMergeService::STRATEGY_ADD_TO_MERGE_TRAIN_WHEN_PIPELINE_SUCCEEDS }
       merge_user { author }
     end
 
     trait :with_productivity_metrics do
       transient do
-        metrics_data {}
+        metrics_data { {} }
       end
 
       after :build do |mr, evaluator|
@@ -53,8 +53,8 @@ FactoryBot.modify do
     end
 
     transient do
-      approval_groups []
-      approval_users []
+      approval_groups { [] }
+      approval_users { [] }
     end
 
     after :create do |merge_request, evaluator|
@@ -113,6 +113,18 @@ FactoryBot.define do
           :ee_ci_pipeline,
           :success,
           :with_sast_report,
+          project: merge_request.source_project,
+          ref: merge_request.source_branch,
+          sha: merge_request.diff_head_sha)
+      end
+    end
+
+    trait :with_dast_reports do
+      after(:build) do |merge_request|
+        merge_request.head_pipeline = build(
+          :ee_ci_pipeline,
+          :success,
+          :with_dast_report,
           project: merge_request.source_project,
           ref: merge_request.source_branch,
           sha: merge_request.diff_head_sha)

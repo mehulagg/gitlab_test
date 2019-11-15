@@ -245,14 +245,6 @@ $note-form-margin-left: 72px;
       }
     }
 
-    .note-header {
-      @include notes-media('max', map-get($grid-breakpoints, xs)) {
-        .inline {
-          display: block;
-        }
-      }
-    }
-
     .note-emoji-button {
       position: relative;
       line-height: 1;
@@ -318,6 +310,17 @@ $note-form-margin-left: 72px;
     .note-body {
       overflow: hidden;
 
+      .description-version {
+        pre {
+          max-height: $dropdown-max-height-lg;
+          white-space: pre-wrap;
+
+          &.loading-state {
+            height: 94px;
+          }
+        }
+      }
+
       .system-note-commit-list-toggler {
         color: $blue-600;
         padding: 10px 0 0;
@@ -363,10 +366,13 @@ $note-form-margin-left: 72px;
     }
   }
 
+  .timeline-icon {
+    float: left;
+  }
+
   .system-note,
   .discussion-filter-note {
     .timeline-icon {
-      float: left;
       display: flex;
       align-items: center;
       background-color: $white-light;
@@ -635,10 +641,6 @@ $note-form-margin-left: 72px;
 
 .note-headline-light {
   display: inline;
-
-  @include notes-media('max', map-get($grid-breakpoints, xs)) {
-    display: block;
-  }
 }
 
 .note-headline-light,

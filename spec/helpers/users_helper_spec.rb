@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe UsersHelper do
@@ -72,6 +74,10 @@ describe UsersHelper do
     before do
       allow(helper).to receive(:current_user).and_return(user)
       allow(helper).to receive(:can?).and_return(false)
+    end
+
+    after do
+      expect(items).not_to include(:start_trial)
     end
 
     it 'includes all default items' do

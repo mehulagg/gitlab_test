@@ -1,13 +1,15 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
-describe Gitlab::Elastic::SearchResults, :elastic do
+describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inline do
   before do
     stub_ee_application_setting(elasticsearch_search: true, elasticsearch_indexing: true)
   end
 
   let(:user) { create(:user) }
-  let(:project_1) { create(:project, :repository, :wiki_repo) }
-  let(:project_2) { create(:project, :repository, :wiki_repo) }
+  let(:project_1) { create(:project, :public, :repository, :wiki_repo) }
+  let(:project_2) { create(:project, :public, :repository, :wiki_repo) }
   let(:limit_project_ids) { [project_1.id] }
 
   describe 'counts' do
@@ -98,7 +100,7 @@ describe Gitlab::Elastic::SearchResults, :elastic do
       expect(parsed).to be_kind_of(::Gitlab::Search::FoundBlob)
       expect(parsed).to have_attributes(
         id: nil,
-        filename: 'path/file.ext',
+        path: 'path/file.ext',
         basename: 'path/file',
         ref: 'sha',
         startline: 2,
@@ -152,7 +154,7 @@ describe Gitlab::Elastic::SearchResults, :elastic do
     end
 
     it 'lists issue when search by a valid iid' do
-      results = described_class.new(user, '#2', limit_project_ids)
+      results = described_class.new(user, '#2', limit_project_ids, nil, false)
       issues = results.objects('issues')
 
       expect(issues).not_to include @issue_1
@@ -213,11 +215,50 @@ describe Gitlab::Elastic::SearchResults, :elastic do
       expect(results.objects('notes')).to be_empty
       expect(results.notes_count).to eq 0
     end
+
+    it 'redacts issue comments on public projects where issue has lower access_level' do
+      project_1.project_feature.update!(issues_access_level: ProjectFeature::PRIVATE)
+
+      results = described_class.new(user, 'foo', limit_project_ids)
+
+      expect(results.send(:logger))
+        .to receive(:error)
+        .with(hash_including(message: "redacted_search_results", filtered: array_including([
+          { class_name: "Note", id: @note_1.id, ability: :read_note },
+          { class_name: "Note", id: @note_2.id, ability: :read_note }
+      ])))
+
+      expect(results.notes_count).to eq(2) # 2 because redacting only happens when we instantiate the results
+      expect(results.objects('notes')).to be_empty
+    end
+
+    it 'redacts commit comments when user is a guest on a private project' do
+      project_1.update(visibility_level: Gitlab::VisibilityLevel::PRIVATE)
+      project_1.add_guest(user)
+      note_on_commit = create(
+        :note_on_commit,
+        project: project_1,
+        note: 'foo note on commit'
+      )
+
+      Gitlab::Elastic::Helper.refresh_index
+
+      results = described_class.new(user, 'foo', limit_project_ids)
+
+      expect(results.send(:logger))
+        .to receive(:error)
+        .with(hash_including(message: "redacted_search_results", filtered: array_including([
+          { class_name: "Note", id: note_on_commit.id, ability: :read_note }
+      ])))
+
+      expect(results.notes_count).to eq(3) # 3 because redacting only happens when we instantiate the results
+      expect(results.objects('notes')).to match_array([@note_1, @note_2])
+    end
   end
 
   describe 'confidential issues' do
-    let(:project_3) { create(:project) }
-    let(:project_4) { create(:project) }
+    let(:project_3) { create(:project, :public) }
+    let(:project_4) { create(:project, :public) }
     let(:limit_project_ids) { [project_1.id, project_2.id, project_3.id] }
     let(:author) { create(:user) }
     let(:assignee) { create(:user) }
@@ -316,8 +357,8 @@ describe Gitlab::Elastic::SearchResults, :elastic do
         expect(issues).to include @security_issue_2
         expect(issues).to include @security_issue_3
         expect(issues).to include @security_issue_4
-        expect(issues).not_to include @security_issue_5
-        expect(results.issues_count).to eq 5
+        expect(issues).to include @security_issue_5
+        expect(results.issues_count).to eq 6
       end
     end
 
@@ -401,8 +442,8 @@ describe Gitlab::Elastic::SearchResults, :elastic do
         expect(issues).not_to include @security_issue_2
         expect(issues).to include @security_issue_3
         expect(issues).to include @security_issue_4
-        expect(issues).not_to include @security_issue_5
-        expect(results.issues_count).to eq 3
+        expect(issues).to include @security_issue_5
+        expect(results.issues_count).to eq 4
       end
     end
   end
@@ -537,6 +578,7 @@ describe Gitlab::Elastic::SearchResults, :elastic do
     it 'finds blobs from public projects only' do
       project_2 = create :project, :repository, :private
       project_2.repository.index_commits_and_blobs
+      project_2.add_reporter(user)
       Gitlab::Elastic::Helper.refresh_index
 
       results = described_class.new(user, 'def', [project_1.id])
@@ -668,6 +710,7 @@ describe Gitlab::Elastic::SearchResults, :elastic do
       project_2 = create :project, :repository, :private, :wiki_repo
       project_2.wiki.create_page('index_page', 'term')
       project_2.wiki.index_wiki_blobs
+      project_2.add_guest(user)
       Gitlab::Elastic::Helper.refresh_index
 
       expect(results.wiki_blobs_count).to eq 1
@@ -704,6 +747,10 @@ describe Gitlab::Elastic::SearchResults, :elastic do
       context 'search by member' do
         let(:limit_project_ids) { [project_1.id] }
 
+        before do
+          project_1.add_guest(user)
+        end
+
         it { is_expected.not_to be_empty }
       end
 
@@ -734,6 +781,7 @@ describe Gitlab::Elastic::SearchResults, :elastic do
     it 'finds commits from public projects only' do
       project_2 = create :project, :private, :repository
       project_2.repository.index_commits_and_blobs
+      project_2.add_reporter(user)
       Gitlab::Elastic::Helper.refresh_index
 
       results = described_class.new(user, 'add', [project_1.id])
@@ -860,15 +908,20 @@ describe Gitlab::Elastic::SearchResults, :elastic do
 
       context 'when project_ids is not present' do
         context 'when project_ids is :any' do
-          it 'returns all milestones' do
+          it 'returns all milestones and redacts them when the user has no access' do
             results = described_class.new(user, 'project', :any)
+            expect(results.send(:logger))
+              .to receive(:error)
+              .with(hash_including(message: "redacted_search_results", filtered: [{ class_name: "Milestone", id: milestone_2.id, ability: :read_milestone }]))
+
             milestones = results.objects('milestones')
 
+            expect(results.milestones_count).to eq(4) # 4 because redacting only happens when we instantiate the results
+
             expect(milestones).to include(milestone_1)
-            expect(milestones).to include(milestone_2)
+            expect(milestones).not_to include(milestone_2)
             expect(milestones).to include(milestone_3)
             expect(milestones).to include(milestone_4)
-            expect(results.milestones_count).to eq(4)
           end
         end
 

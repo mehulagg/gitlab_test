@@ -3,11 +3,11 @@
 module ApplicationSettingsHelper
   extend self
 
-  delegate  :allow_signup?,
-            :gravatar_enabled?,
-            :password_authentication_enabled_for_web?,
-            :akismet_enabled?,
-            to: :'Gitlab::CurrentSettings.current_application_settings'
+  delegate :allow_signup?,
+           :gravatar_enabled?,
+           :password_authentication_enabled_for_web?,
+           :akismet_enabled?,
+           to: :'Gitlab::CurrentSettings.current_application_settings'
 
   def user_oauth_applications?
     Gitlab::CurrentSettings.user_oauth_applications
@@ -176,6 +176,7 @@ module ApplicationSettingsHelper
       :container_registry_token_expire_delay,
       :default_artifacts_expire_in,
       :default_branch_protection,
+      :default_ci_config_path,
       :default_group_visibility,
       :default_project_creation,
       :default_project_visibility,
@@ -193,6 +194,10 @@ module ApplicationSettingsHelper
       :dsa_key_restriction,
       :ecdsa_key_restriction,
       :ed25519_key_restriction,
+      :eks_integration_enabled,
+      :eks_account_id,
+      :eks_access_key_id,
+      :eks_secret_access_key,
       :email_author_in_body,
       :enabled_git_access_protocol,
       :enforce_terms,
@@ -265,6 +270,10 @@ module ApplicationSettingsHelper
       :throttle_unauthenticated_enabled,
       :throttle_unauthenticated_period_in_seconds,
       :throttle_unauthenticated_requests_per_period,
+      :throttle_protected_paths_enabled,
+      :throttle_protected_paths_period_in_seconds,
+      :throttle_protected_paths_requests_per_period,
+      :protected_paths_raw,
       :time_tracking_limit_to_hours,
       :two_factor_grace_period,
       :unique_ips_limit_enabled,
@@ -285,7 +294,11 @@ module ApplicationSettingsHelper
       :snowplow_collector_hostname,
       :snowplow_cookie_domain,
       :snowplow_enabled,
-      :snowplow_site_id
+      :snowplow_app_id,
+      :snowplow_iglu_registry_url,
+      :push_event_hooks_limit,
+      :push_event_activities_limit,
+      :custom_http_clone_url_root
     ]
   end
 
@@ -305,8 +318,16 @@ module ApplicationSettingsHelper
     Rails.env.test?
   end
 
+  def integration_expanded?(substring)
+    @application_setting.errors.any? { |k| k.to_s.start_with?(substring) }
+  end
+
   def instance_clusters_enabled?
     can?(current_user, :read_cluster, Clusters::Instance.new)
+  end
+
+  def omnibus_protected_paths_throttle?
+    Rack::Attack.throttles.key?('protected paths')
   end
 end
 

@@ -114,9 +114,9 @@ module Gitlab
 
       def self.parse_search_result(result)
         ref = result["_source"]["blob"]["commit_sha"]
-        filename = result["_source"]["blob"]["path"]
-        extname = File.extname(filename)
-        basename = filename.sub(/#{extname}$/, '')
+        path = result["_source"]["blob"]["path"]
+        extname = File.extname(path)
+        basename = path.sub(/#{extname}$/, '')
         content = result["_source"]["blob"]["content"]
         project_id = result['_source']['project_id'].to_i
         total_lines = content.lines.size
@@ -151,7 +151,7 @@ module Gitlab
         data = content.lines[from..to]
 
         ::Gitlab::Search::FoundBlob.new(
-          filename: filename,
+          path: path,
           basename: basename,
           ref: ref,
           startline: from + 1,
@@ -167,9 +167,26 @@ module Gitlab
       def eager_load(es_result, page, eager:)
         paginated_base = es_result.page(page).per(per_page)
         relation = paginated_base.records.includes(eager) # rubocop:disable CodeReuse/ActiveRecord
+        filtered_results = []
+        permitted_results = relation.select do |o|
+          ability = :"read_#{o.to_ability_name}"
+          if Ability.allowed?(current_user, ability, o)
+            true
+          else
+            # Redact any search result the user may not have access to. This
+            # could be due to incorrect data in the index or a bug in our query
+            # so we log this as an error.
+            filtered_results << { ability: ability, id: o.id, class_name: o.class.name }
+            false
+          end
+        end
+
+        if filtered_results.any?
+          logger.error(message: "redacted_search_results", filtered: filtered_results, current_user_id: current_user&.id, query: query)
+        end
 
         Kaminari.paginate_array(
-          relation,
+          permitted_results,
           total_count: paginated_base.total_count,
           limit: per_page,
           offset: per_page * (page - 1)
@@ -278,20 +295,26 @@ module Gitlab
       end
 
       def wiki_filter
-        blob_filter(:wiki_access_level, visible_for_guests: true)
+        blob_filter(:wiki, visible_for_guests: true)
       end
 
       def repository_filter
-        blob_filter(:repository_access_level)
+        blob_filter(:repository)
       end
 
-      def blob_filter(project_feature_name, visible_for_guests: false)
+      def blob_filter(feature, visible_for_guests: false)
         project_ids = visible_for_guests ? limit_project_ids : non_guest_project_ids
+        key_name = "#{feature}_access_level"
 
         conditions =
           if project_ids == :any
             [{ exists: { field: "id" } }]
           else
+            project_ids = Project
+              .id_in(project_ids)
+              .filter_by_feature_visibility(feature, current_user)
+              .pluck_primary_key
+
             [{ terms: { id: project_ids } }]
           end
 
@@ -300,7 +323,7 @@ module Gitlab
                           bool: {
                             filter: [
                               { term: { visibility_level: Project::PUBLIC } },
-                              { term: { project_feature_name => ProjectFeature::ENABLED } }
+                              { term: { key_name => ProjectFeature::ENABLED } }
                             ]
                           }
                         }
@@ -310,7 +333,7 @@ module Gitlab
                             bool: {
                               filter: [
                                 { term: { visibility_level: Project::INTERNAL } },
-                                { term: { project_feature_name => ProjectFeature::ENABLED } }
+                                { term: { key_name => ProjectFeature::ENABLED } }
                               ]
                             }
                           }
@@ -323,7 +346,7 @@ module Gitlab
             query: {
               bool: {
                 should: conditions,
-                must_not: { term: { project_feature_name => ProjectFeature::DISABLED } }
+                must_not: { term: { key_name => ProjectFeature::DISABLED } }
               }
             }
           }
@@ -356,6 +379,10 @@ module Gitlab
 
       def per_page
         20
+      end
+
+      def logger
+        @logger ||= Gitlab::ProjectServiceLogger.build
       end
     end
   end

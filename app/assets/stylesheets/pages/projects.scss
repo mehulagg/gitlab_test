@@ -252,6 +252,7 @@
 
     .fa-caret-down {
       margin-left: 3px;
+      line-height: 0;
 
       &.dropdown-btn-icon {
         margin-left: 0;
@@ -271,6 +272,12 @@
   .count-badge,
   .btn-xs {
     height: 24px;
+  }
+
+  .git-clone-holder {
+    .btn {
+      height: auto;
+    }
   }
 
   .dropdown-toggle,
@@ -997,6 +1004,14 @@ pre.light-well {
       @include media-breakpoint-down(xs) {
         &:first-child {
           margin-left: 0;
+        }
+      }
+    }
+
+    &:not(.with-pipeline-status) {
+      .icon-wrapper:first-of-type {
+        @include media-breakpoint-up(lg) {
+          margin-left: $gl-padding-32;
         }
       }
     }

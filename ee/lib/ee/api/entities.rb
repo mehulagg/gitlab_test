@@ -109,9 +109,12 @@ module EE
         extend ActiveSupport::Concern
 
         prepended do
-          expose :epic_iid,
-                 if: -> (issue, options) { ::Ability.allowed?(options[:current_user], :read_epic, issue.project&.group) } do |issue|
-            issue.epic&.iid
+          with_options if: -> (issue, options) { ::Ability.allowed?(options[:current_user], :read_epic, issue.project&.group) } do
+            expose :epic_iid do |issue|
+              issue.epic&.iid
+            end
+
+            expose :epic, using: EpicBaseEntity
           end
         end
       end
@@ -147,7 +150,7 @@ module EE
           expose :name
           expose :group, using: ::API::Entities::BasicGroupDetails
 
-          with_options if: ->(board, _) { board.parent.feature_available?(:scoped_issue_board) } do
+          with_options if: ->(board, _) { board.resource_parent.feature_available?(:scoped_issue_board) } do
             expose :milestone do |board|
               if board.milestone.is_a?(Milestone)
                 ::API::Entities::Milestone.represent(board.milestone)
@@ -168,6 +171,7 @@ module EE
         prepended do
           expose :milestone, using: ::API::Entities::Milestone, if: -> (entity, _) { entity.milestone? }
           expose :user, as: :assignee, using: ::API::Entities::UserSafe, if: -> (entity, _) { entity.assignee? }
+          expose :max_issue_count, if: -> (list, _) { list.board.resource_parent.feature_available?(:wip_limits) }
         end
       end
 
@@ -185,8 +189,10 @@ module EE
       end
 
       module Todo
+        extend ::Gitlab::Utils::Override
         extend ActiveSupport::Concern
 
+        override :todo_target_class
         def todo_target_class(target_type)
           super
         rescue NameError
@@ -194,11 +200,35 @@ module EE
           # see also https://gitlab.com/gitlab-org/gitlab-foss/issues/59719
           ::EE::API::Entities.const_get(target_type, false)
         end
+
+        override :todo_target_url
+        def todo_target_url(todo)
+          return super unless todo.target_type == ::DesignManagement::Design.name
+
+          design = todo.target
+          path_options = {
+            anchor: todo_target_anchor(todo),
+            vueroute: design.filename
+          }
+
+          ::Gitlab::Routing.url_helpers.designs_project_issue_url(design.project, design.issue, path_options)
+        end
       end
 
       ########################
       # EE-specific entities #
       ########################
+      module DesignManagement
+        class Design < Grape::Entity
+          expose :id
+          expose :project_id
+          expose :filename
+          expose :image_url do |design|
+            ::Gitlab::UrlBuilder.build(design)
+          end
+        end
+      end
+
       class ProjectPushRule < Grape::Entity
         extend EntityHelpers
         expose :id, :project_id, :created_at
@@ -238,6 +268,17 @@ module EE
         end
       end
 
+      class AuditEvent < Grape::Entity
+        expose :id
+        expose :author_id
+        expose :entity_id
+        expose :entity_type
+        expose :details do |audit_event|
+          audit_event.formatted_details
+        end
+        expose :created_at
+      end
+
       class Epic < Grape::Entity
         can_admin_epic = ->(epic, opts) { Ability.allowed?(opts[:user], :admin_epic, epic) }
 
@@ -250,20 +291,22 @@ module EE
         expose :author, using: ::API::Entities::UserBasic
         expose :start_date
         expose :start_date_is_fixed?, as: :start_date_is_fixed, if: can_admin_epic
-        expose :start_date_fixed, :start_date_from_milestones, if: can_admin_epic
-        expose :end_date # @deprecated
+        expose :start_date_fixed, :start_date_from_inherited_source, if: can_admin_epic
+        expose :start_date_from_milestones, if: can_admin_epic # @deprecated in favor of start_date_from_inherited_source
+        expose :end_date # @deprecated in favor of due_date
         expose :end_date, as: :due_date
         expose :due_date_is_fixed?, as: :due_date_is_fixed, if: can_admin_epic
-        expose :due_date_fixed, :due_date_from_milestones, if: can_admin_epic
+        expose :due_date_fixed, :due_date_from_inherited_source, if: can_admin_epic
+        expose :due_date_from_milestones, if: can_admin_epic # @deprecated in favor of due_date_from_inherited_source
         expose :state
-        expose :web_edit_url, if: can_admin_epic do |epic|
-          ::Gitlab::Routing.url_helpers.group_epic_path(epic.group, epic)
-        end
+        expose :web_edit_url, if: can_admin_epic # @deprecated
+        expose :web_url
         expose :reference, if: { with_reference: true } do |epic|
           epic.to_reference(full: true)
         end
         expose :created_at
         expose :updated_at
+        expose :closed_at
         expose :labels do |epic|
           # Avoids an N+1 query since labels are preloaded
           epic.labels.map(&:title).sort
@@ -283,6 +326,23 @@ module EE
           else
             epic.downvotes
           end
+        end
+
+        # Calculating the value of subscribed field triggers Markdown
+        # processing. We can't do that for multiple epics
+        # requests in a single API request.
+        expose :subscribed, if: -> (_, options) { options.fetch(:include_subscribed, false) } do |epic, options|
+          user = options[:user]
+
+          user.present? ? epic.subscribed?(user) : false
+        end
+
+        def web_url
+          ::Gitlab::Routing.url_helpers.group_epic_url(object.group, object)
+        end
+
+        def web_edit_url
+          ::Gitlab::Routing.url_helpers.group_epic_path(object.group, object)
         end
       end
 
@@ -423,8 +483,7 @@ module EE
         end
 
         expose :suggested_approvers, using: ::API::Entities::UserBasic do |approval_state, options|
-          # TODO order by relevance
-          approval_state.unactioned_approvers
+          approval_state.suggested_approvers(current_user: options[:current_user])
         end
 
         # @deprecated, reads from first regular rule instead
@@ -483,6 +542,7 @@ module EE
           :starts_at,
           :expires_at,
           :historical_max,
+          :maximum_user_count,
           :licensee,
           :add_ons
 
@@ -517,7 +577,7 @@ module EE
         expose :repos_max_capacity
         expose :verification_max_capacity
         expose :container_repositories_max_capacity
-        expose :sync_object_storage, if: ->(geo_node, _) { ::Feature.enabled?(:geo_object_storage_replication) && geo_node.secondary? }
+        expose :sync_object_storage, if: ->(geo_node, _) { geo_node.secondary? }
 
         # Retained for backwards compatibility. Remove in API v5
         expose :clone_protocol do |_record, _options|
@@ -591,6 +651,13 @@ module EE
         expose :container_repositories_failed_count
         expose :container_repositories_synced_in_percentage do |node|
           number_to_percentage(node.container_repositories_synced_in_percentage, precision: 2)
+        end
+
+        expose :design_repositories_count
+        expose :design_repositories_synced_count
+        expose :design_repositories_failed_count
+        expose :design_repositories_synced_in_percentage do |node|
+          number_to_percentage(node.design_repositories_synced_in_percentage, precision: 2)
         end
 
         expose :projects_count
@@ -745,6 +812,28 @@ module EE
         end
       end
 
+      module ConanPackage
+        class ConanPackageManifest < Grape::Entity
+          expose :package_urls, merge: true
+        end
+
+        class ConanPackageSnapshot < Grape::Entity
+          expose :package_snapshot, merge: true
+        end
+
+        class ConanRecipeManifest < Grape::Entity
+          expose :recipe_urls, merge: true
+        end
+
+        class ConanRecipeSnapshot < Grape::Entity
+          expose :recipe_snapshot, merge: true
+        end
+
+        class ConanUploadUrls < Grape::Entity
+          expose :upload_urls, merge: true
+        end
+      end
+
       class NpmPackage < Grape::Entity
         expose :name
         expose :versions
@@ -788,6 +877,55 @@ module EE
         def can_read_vulnerabilities?(user, project)
           Ability.allowed?(user, :read_project_security_dashboard, project)
         end
+      end
+
+      class FeatureFlag < Grape::Entity
+        class Scope < Grape::Entity
+          expose :id
+          expose :active
+          expose :environment_scope
+          expose :strategies
+          expose :created_at
+          expose :updated_at
+        end
+
+        class DetailedScope < Scope
+          expose :name
+        end
+
+        expose :name
+        expose :description
+        expose :created_at
+        expose :updated_at
+        expose :scopes, using: Scope
+      end
+
+      class Vulnerability < Grape::Entity
+        expose :id
+        expose :title
+        expose :description
+
+        expose :state
+        expose :severity
+        expose :confidence
+        expose :report_type
+
+        expose :project, using: ::API::Entities::ProjectIdentity
+
+        expose :author_id
+        expose :updated_by_id
+        expose :last_edited_by_id
+        expose :resolved_by_id
+        expose :closed_by_id
+
+        expose :start_date
+        expose :due_date
+
+        expose :created_at
+        expose :updated_at
+        expose :last_edited_at
+        expose :resolved_at
+        expose :closed_at
       end
     end
   end

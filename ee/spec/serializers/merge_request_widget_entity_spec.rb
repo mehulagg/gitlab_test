@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe MergeRequestWidgetEntity do
@@ -269,7 +271,7 @@ describe MergeRequestWidgetEntity do
       end
 
       it 'does not count a merged and hidden blocking MR' do
-        blocking_mr.update_columns(state: 'merged')
+        blocking_mr.update_columns(state_id: MergeRequest.available_states[:merged])
 
         is_expected.to eq(
           hidden_count: 0,

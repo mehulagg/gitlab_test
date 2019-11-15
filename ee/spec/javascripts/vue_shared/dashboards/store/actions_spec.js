@@ -5,7 +5,7 @@ import * as types from 'ee/vue_shared/dashboards/store/mutation_types';
 import defaultActions, * as actions from 'ee/vue_shared/dashboards/store/actions';
 import testAction from 'spec/helpers/vuex_action_helper';
 import clearState from '../helpers';
-import { mockText, mockProjectData } from '../mock_data';
+import { mockHeaders, mockText, mockProjectData } from '../mock_data';
 
 describe('actions', () => {
   const mockAddEndpoint = 'mock-add_endpoint';
@@ -328,7 +328,34 @@ describe('actions', () => {
   });
 
   describe('fetchSearchResults', () => {
-    it('dispatches an error if the search query was empty', done => {
+    it('dispatches minimumQueryMessage if the search query is falsy', done => {
+      const searchQueries = [null, undefined, false, NaN];
+
+      Promise.all(
+        searchQueries.map(searchQuery => {
+          store.state.searchQuery = searchQuery;
+
+          return testAction(
+            actions.fetchSearchResults,
+            null,
+            store.state,
+            [],
+            [
+              {
+                type: 'requestSearchResults',
+              },
+              {
+                type: 'minimumQueryMessage',
+              },
+            ],
+          );
+        }),
+      )
+        .then(done)
+        .catch(done.fail);
+    });
+
+    it('dispatches minimumQueryMessage if the search query was empty', done => {
       store.state.searchQuery = '';
 
       testAction(
@@ -341,14 +368,14 @@ describe('actions', () => {
             type: 'requestSearchResults',
           },
           {
-            type: 'receiveSearchResultsError',
+            type: 'minimumQueryMessage',
           },
         ],
         done,
       );
     });
 
-    it(`dispatches an error if the search query wasn't long enough`, done => {
+    it(`dispatches minimumQueryMessage if the search query wasn't long enough`, done => {
       store.state.searchQuery = 'a';
 
       testAction(
@@ -361,7 +388,7 @@ describe('actions', () => {
             type: 'requestSearchResults',
           },
           {
-            type: 'receiveSearchResultsError',
+            type: 'minimumQueryMessage',
           },
         ],
         done,
@@ -369,7 +396,7 @@ describe('actions', () => {
     });
 
     it(`dispatches the correct actions when the query is valid`, done => {
-      mockAxios.onAny().replyOnce(200, mockProjects);
+      mockAxios.onAny().reply(200, mockProjects, mockHeaders);
       store.state.searchQuery = 'mock-query';
 
       testAction(
@@ -383,11 +410,38 @@ describe('actions', () => {
           },
           {
             type: 'receiveSearchResultsSuccess',
-            payload: mockProjects,
+            payload: { data: mockProjects, headers: mockHeaders },
           },
         ],
         done,
       );
+    });
+  });
+
+  describe('fetchNextPage', () => {
+    it(`fetches the next page`, done => {
+      mockAxios.onAny().reply(200, mockProjects, mockHeaders);
+      store.state.pageInfo = mockHeaders.pageInfo;
+      testAction(
+        actions.fetchNextPage,
+        null,
+        store.state,
+        [],
+        [
+          {
+            type: 'receiveNextPageSuccess',
+            payload: { data: mockProjects, headers: mockHeaders },
+          },
+        ],
+        done,
+      );
+    });
+
+    it(`stops fetching if current page is the last page`, done => {
+      mockAxios.onAny().reply(200, mockProjects, mockHeaders);
+      store.state.pageInfo.totalPages = 3;
+      store.state.pageInfo.currentPage = 3;
+      testAction(actions.fetchNextPage, mockHeaders, store.state, [], [], done);
     });
   });
 
@@ -400,6 +454,24 @@ describe('actions', () => {
         [
           {
             type: types.REQUEST_SEARCH_RESULTS,
+          },
+        ],
+        [],
+        done,
+      );
+    });
+  });
+
+  describe('receiveNextPageSuccess', () => {
+    it(`commits the RECEIVE_NEXT_PAGE_SUCCESS mutation`, done => {
+      testAction(
+        actions.receiveNextPageSuccess,
+        mockHeaders,
+        store.state,
+        [
+          {
+            type: types.RECEIVE_NEXT_PAGE_SUCCESS,
+            payload: mockHeaders,
           },
         ],
         [],
