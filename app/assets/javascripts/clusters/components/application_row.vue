@@ -380,6 +380,7 @@ export default {
           <loading-button
             v-if="displayInstallButton"
             :loading="installButtonLoading"
+            :disabled="disabled || installButtonDisabled"
             :label="installButtonLabel"
             class="js-cluster-application-install-button"
             @click="installClicked"

@@ -14,7 +14,9 @@ module Clusters
 
       default_value_for :version, VERSION
 
-      default_value_for :stack
+      default_value_for :stack do |crossplane|
+        ''
+      end
 
       validates :stack, presence: true
 

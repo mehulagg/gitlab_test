@@ -408,13 +408,13 @@ export default class Clusters {
   }
 
   installApplication({ id: appId, params }) {
-    Clusters.validateInstallation(appId, params)
+    return Clusters.validateInstallation(appId, params)
       .then(() => {
         this.store.updateAppProperty(appId, 'requestReason', null);
         this.store.updateAppProperty(appId, 'statusReason', null);
         this.store.installApplication(appId);
 
-        return this.service.installApplication(appId, params).catch(() => {
+        this.service.installApplication(appId, params).catch(() => {
           this.store.notifyInstallFailure(appId);
           this.store.updateAppProperty(
             appId,
