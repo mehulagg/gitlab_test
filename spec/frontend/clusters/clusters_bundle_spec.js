@@ -291,6 +291,7 @@ describe('Clusters', () => {
 
       cluster.store.state.applications[applicationId].status = INSTALLABLE;
 
+      // eslint-disable-next-line promise/valid-params
       cluster
         .installApplication({ id: applicationId })
         .then(() => {

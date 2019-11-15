@@ -414,6 +414,7 @@ export default class Clusters {
         this.store.updateAppProperty(appId, 'statusReason', null);
         this.store.installApplication(appId);
 
+        // eslint-disable-next-line promise/no-nesting
         this.service.installApplication(appId, params).catch(() => {
           this.store.notifyInstallFailure(appId);
           this.store.updateAppProperty(
