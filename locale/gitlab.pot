@@ -3652,7 +3652,7 @@ msgstr ""
 msgid "ClusterIntegration|Crossplane"
 msgstr ""
 
-msgid "ClusterIntegration|Crossplane enables declarative provisioning of managed services from your cloud of choice using kubectl or %{gitlabIntegrationLink}. Crossplane runs inside your Kubernetes cluster and supports secure connectivity and secrets management between app containers and the cloud services they depend on."
+msgid "ClusterIntegration|Crossplane enables declarative provisioning of managed services from your cloud of choice using %{kubectl} or %{gitlabIntegrationLink}. Crossplane runs inside your Kubernetes cluster and supports secure connectivity and secrets management between app containers and the cloud services they depend on."
 msgstr ""
 
 msgid "ClusterIntegration|Did you know?"
@@ -4043,6 +4043,9 @@ msgid "ClusterIntegration|Select a region to choose a Key Pair"
 msgstr ""
 
 msgid "ClusterIntegration|Select a region to choose a VPC"
+msgstr ""
+
+msgid "ClusterIntegration|Select a stack to install Crossplane."
 msgstr ""
 
 msgid "ClusterIntegration|Select machine type"
@@ -15244,9 +15247,6 @@ msgid "Select a project to read Insights configuration file"
 msgstr ""
 
 msgid "Select a repository"
-msgstr ""
-
-msgid "Select a stack to install Crossplane."
 msgstr ""
 
 msgid "Select a template repository"
