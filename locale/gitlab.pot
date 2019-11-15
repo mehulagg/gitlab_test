@@ -3721,7 +3721,7 @@ msgstr ""
 msgid "ClusterIntegration|GitLab-managed cluster"
 msgstr ""
 
-msgid "ClusterIntegration|Gitlab"
+msgid "ClusterIntegration|Gitlab Integration"
 msgstr ""
 
 msgid "ClusterIntegration|Google Cloud Platform project"
