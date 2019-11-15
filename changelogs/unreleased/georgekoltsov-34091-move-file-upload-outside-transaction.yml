@@ -1,0 +1,5 @@
+---
+title: Move file upload outside transaction during project import
+merge_request: 20225
+author:
+type: fixed

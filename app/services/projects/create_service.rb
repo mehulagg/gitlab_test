@@ -145,7 +145,7 @@ module Projects
         end
       end
 
-      if @project.import?
+      if @import_export_upload && @project.gitlab_project_import?
         @project.import_export_upload = @import_export_upload
         @project.save
       end
