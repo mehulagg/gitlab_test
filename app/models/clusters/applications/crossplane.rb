@@ -14,9 +14,7 @@ module Clusters
 
       default_value_for :version, VERSION
 
-      default_value_for :stack do |crossplane|
-        ''
-      end
+      default_value_for :stack
 
       validates :stack, presence: true
 
@@ -43,14 +41,16 @@ module Clusters
         crossplane_values.to_yaml
       end
 
+      private
+
       def crossplane_values
         {
-            "clusterStacks" => {
-                self.stack => {
-                    "deploy" => true,
-                    "version" => "alpha"
-                }
+          "clusterStacks" => {
+             self.stack => {
+               "deploy" => true,
+                  "version" => "alpha"
             }
+          }
         }
       end
     end

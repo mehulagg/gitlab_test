@@ -10,6 +10,10 @@ describe Clusters::Applications::Crossplane do
   include_examples 'cluster application version specs', :clusters_applications_crossplane
   include_examples 'cluster application initial status specs'
 
+  describe 'validations' do
+    it { is_expected.to validate_presence_of(:stack) }
+  end
+
   describe '#can_uninstall?' do
     subject { crossplane.can_uninstall? }
 
@@ -40,7 +44,14 @@ describe Clusters::Applications::Crossplane do
     end
   end
 
-  describe 'validations' do
-    it { is_expected.to validate_presence_of(:stack) }
+  describe '#files' do
+    let(:application) { crossplane }
+    let(:values) { subject[:'values.yaml'] }
+
+    subject { application.files }
+
+    it 'includes crossplane specific keys in the values.yaml file' do
+      expect(values).to include('clusterStacks')
+    end
   end
 end

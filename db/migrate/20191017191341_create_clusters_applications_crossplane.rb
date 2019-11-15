@@ -1,4 +1,4 @@
-# frozen_string_literal: true# frozen_string_literal: true
+# frozen_string_literal: true
 
 class CreateClustersApplicationsCrossplane < ActiveRecord::Migration[5.2]
   include Gitlab::Database::MigrationHelpers
