@@ -8,6 +8,7 @@ module Resolvers
              description: 'Include also subgroup projects'
 
     type Types::ProjectType, null: true
+    complexity 10
 
     def resolve(include_subgroups:)
       # The namespace could have been loaded in batch by `BatchLoader`.
@@ -21,11 +22,6 @@ module Resolvers
       else
         namespace.projects.with_route
       end
-    end
-
-    def self.resolver_complexity(args, child_complexity:)
-      complexity = super
-      complexity + 10
     end
   end
 end

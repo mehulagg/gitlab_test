@@ -14,7 +14,8 @@ module Resolvers
               description: 'Current state of Issue'
     argument :label_name, GraphQL::STRING_TYPE.to_list_type,
               required: false,
-              description: 'Labels applied to the Issue'
+              description: 'Labels applied to the Issue',
+              complexity: 2
     argument :created_before, Types::TimeType,
               required: false,
               description: 'Issues created before this date'
@@ -34,11 +35,13 @@ module Resolvers
               required: false,
               description: 'Issues closed after this date'
     argument :search, GraphQL::STRING_TYPE, # rubocop:disable Graphql/Descriptions
-              required: false
+              required: false,
+              complexity: 5
     argument :sort, Types::IssueSortEnum,
               description: 'Sort issues by this criteria',
               required: false,
-              default_value: 'created_desc'
+              default_value: 'created_desc',
+              complexity: 1
 
     type Types::IssueType, null: true
 
@@ -55,13 +58,6 @@ module Resolvers
       args[:iids] ||= [args[:iid]].compact
 
       IssuesFinder.new(context[:current_user], args).execute
-    end
-
-    def self.resolver_complexity(args, child_complexity:)
-      complexity = super
-      complexity += 2 if args[:labelName]
-
-      complexity
     end
   end
 end

@@ -4,6 +4,15 @@ module Gitlab
   module Graphql
     # Wraps the field resolution to count Gitaly calls before and after.
     # Raises an error if the field calls Gitaly but hadn't declared such.
+
+    # I wonder if we could replace this with
+    # named complexities
+    #
+    # complexity: :gitaly_simple
+    # complexity: :gitaly_complex
+    # complexity: :postgres_simple
+    # etc
+    # with symbols map to complexity scores
     module CallsGitaly
       extend ActiveSupport::Concern
 

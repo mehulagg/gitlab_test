@@ -12,21 +12,13 @@ module ResolvesPipelines
     argument :ref,
              GraphQL::STRING_TYPE,
              required: false,
-             description: "Filter pipelines by the ref they are run for"
+             description: "Filter pipelines by the ref they are run for",
+             complexity: 2
     argument :sha,
              GraphQL::STRING_TYPE,
              required: false,
-             description: "Filter pipelines by the sha of the commit they are run for"
-  end
-
-  class_methods do
-    def resolver_complexity(args, child_complexity:)
-      complexity = super
-      complexity += 2 if args[:sha]
-      complexity += 2 if args[:ref]
-
-      complexity
-    end
+             description: "Filter pipelines by the sha of the commit they are run for",
+             complexity: 2
   end
 
   def resolve_pipelines(project, params = {})

@@ -131,6 +131,7 @@ module Types
     field :issues,
           Types::IssueType.connection_type,
           null: true,
+          complexity: 1,
           description: 'Issues of the project',
           resolver: Resolvers::IssuesResolver
 

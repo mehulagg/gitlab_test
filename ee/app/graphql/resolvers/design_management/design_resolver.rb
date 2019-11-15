@@ -7,6 +7,7 @@ module Resolvers
       argument :at_version,
                GraphQL::ID_TYPE,
                required: false,
+               complexity: 1,
                description: 'Filters designs to only those that existed at the version. ' \
                             'If argument is omitted or nil then all designs will reflect the latest version.'
 

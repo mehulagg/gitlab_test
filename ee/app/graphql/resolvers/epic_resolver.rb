@@ -16,11 +16,13 @@ module Resolvers
 
     argument :search, GraphQL::STRING_TYPE,
              required: false,
-             description: 'Filter epics by title and description'
+             description: 'Filter epics by title and description',
+             complexity: 5
 
     argument :sort, Types::EpicSortEnum,
              required: false,
-             description: 'List epics by sort order'
+             description: 'List epics by sort order',
+             complexity: 1
 
     argument :author_username, GraphQL::STRING_TYPE,
              required: false,
@@ -95,18 +97,6 @@ module Resolvers
       return resolver_object if resolver_object.is_a?(Group)
 
       parent.group
-    end
-
-    # If we're querying for multiple iids and selecting issues, then ideally
-    # we want to batch the epic and issue queries into one to reduce N+1 and memory.
-    # https://gitlab.com/gitlab-org/gitlab/issues/11841
-    # Until we do that, add in child_complexity for each iid requested
-    # (minus one for the automatically added child_complexity in the BaseField)
-    def self.resolver_complexity(args, child_complexity:)
-      complexity  = super
-      complexity += (args[:iids].count - 1) * child_complexity if args[:iids]
-
-      complexity
     end
   end
 end

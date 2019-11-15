@@ -6,7 +6,6 @@ module Gitlab
   module Graphql
     module QueryAnalyzers
       class RecursionAnalyzer
-        IGNORED_FIELDS = %w(node edges ofType).freeze
         RECURSION_THRESHOLD = 2
 
         def initial_value(query)
@@ -43,7 +42,7 @@ module Gitlab
         private
 
         def recursion_too_deep?(node_name, times_encountered)
-          return if IGNORED_FIELDS.include?(node_name)
+          return if ::Gitlab::Graphql::QueryAnalyzers::IGNORED_FIELDS.include?(node_name)
 
           times_encountered > recursion_threshold
         end

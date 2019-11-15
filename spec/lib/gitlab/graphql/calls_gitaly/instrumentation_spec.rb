@@ -16,7 +16,7 @@ describe Gitlab::Graphql::CallsGitaly::Instrumentation do
 
     context 'if there is at least 1 Gitaly call' do
       it 'raises an error if calls_gitaly: is false or not defined' do
-        expect { subject.send(:calls_gitaly_check, no_gitaly_field, 1) }.to raise_error(/specify a constant complexity or add `calls_gitaly: true`/)
+        expect { subject.send(:calls_gitaly_check, no_gitaly_field, 1) }.to raise_error(/specify a complexity or add `calls_gitaly: true`/)
       end
     end
   end

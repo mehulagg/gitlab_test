@@ -7,6 +7,7 @@ describe 'GitlabSchema configurations' do
 
   set(:project) { create(:project) }
 
+  # Does this still work?
   shared_examples 'imposing query limits' do
     describe '#max_complexity' do
       context 'when complexity is too high' do
@@ -160,6 +161,7 @@ describe 'GitlabSchema configurations' do
         duration: 7
       }
 
+      # This breaks
       expect_any_instance_of(Gitlab::Graphql::QueryAnalyzers::LoggerAnalyzer).to receive(:duration).and_return(7)
       expect(Gitlab::GraphqlLogger).to receive(:info).with(analyzer_memo)
 
@@ -167,6 +169,7 @@ describe 'GitlabSchema configurations' do
     end
 
     it 'logs using `format_message`' do
+      # This breaks
       expect_any_instance_of(Gitlab::GraphqlLogger).to receive(:format_message)
 
       post_graphql(query, current_user: nil)

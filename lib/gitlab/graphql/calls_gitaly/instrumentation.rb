@@ -4,12 +4,15 @@ module Gitlab
   module Graphql
     module CallsGitaly
       class Instrumentation
-        # Check if any `calls_gitaly: true` declarations need to be added
-        # Do nothing if a constant complexity was provided
+
+        MINIMUM_GITALY_CALL_COMPLEXITY = (::GitlabSchema::DEFAULT_FIELD_COMPLEXITY + ::GitlabSchema::GITALY_CALL_COMPLEXITY).freeze
+
+        # Check if any `calls_gitaly: true` declarations need to be added.
+        # Do nothing if a complexity was provided
         def instrument(_type, field)
           type_object = field.metadata[:type_class]
-          return field unless type_object.respond_to?(:calls_gitaly?)
-          return field if type_object.constant_complexity? || type_object.calls_gitaly?
+          return field unless type_object.respond_to?(:field_complexity)
+          return field unless type_object.field_complexity.to_i < MINIMUM_GITALY_CALL_COMPLEXITY
 
           old_resolver_proc = field.resolve_proc
 
@@ -31,7 +34,7 @@ module Gitlab
 
           # Will inform you if there needs to be `calls_gitaly: true` as a kwarg in the field declaration
           # if there is at least 1 Gitaly call involved with the field resolution.
-          error = RuntimeError.new("Gitaly is called for field '#{type_object.name}' on #{type_object.owner.try(:name)} - please either specify a constant complexity or add `calls_gitaly: true` to the field declaration")
+          error = RuntimeError.new("Gitaly is called for field '#{type_object.name}' on #{type_object.owner.try(:name)} - please either specify a complexity or add `calls_gitaly: true` to the field declaration")
           Gitlab::Sentry.track_exception(error)
         end
       end

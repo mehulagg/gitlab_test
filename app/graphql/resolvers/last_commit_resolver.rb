@@ -3,6 +3,7 @@
 module Resolvers
   class LastCommitResolver < BaseResolver
     type Types::CommitType, null: true
+    complexity 10
 
     alias_method :tree, :object
 

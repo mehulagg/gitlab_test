@@ -173,6 +173,24 @@ module GraphqlHelpers
     post_graphql(mutation.query, current_user: current_user, variables: mutation.variables)
   end
 
+  def type_factory
+    Class.new(Types::BaseObject) do
+      graphql_name 'TestType'
+
+      field :name, GraphQL::STRING_TYPE, null: true
+
+      yield(self) if block_given?
+    end
+  end
+
+  def query_factory
+    Class.new(Types::BaseObject) do
+      graphql_name 'TestQuery'
+
+      yield(self) if block_given?
+    end
+  end
+
   # this implements GraphQL multipart request v2
   # https://github.com/jaydenseric/graphql-multipart-request-spec/tree/v2.0.0-alpha.2
   # this is simplified and do not support file deduplication

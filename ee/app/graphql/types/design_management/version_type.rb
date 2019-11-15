@@ -9,11 +9,12 @@ module Types
 
       authorize :read_design
 
-      field :id, GraphQL::ID_TYPE, null: false # rubocop:disable Graphql/Descriptions
-      field :sha, GraphQL::ID_TYPE, null: false # rubocop:disable Graphql/Descriptions
+      field :id, GraphQL::ID_TYPE, null: false, complexity: 0 # rubocop:disable Graphql/Descriptions
+      field :sha, GraphQL::ID_TYPE, null: false, complexity: 0 # rubocop:disable Graphql/Descriptions
       field :designs,
             Types::DesignManagement::DesignType.connection_type,
             null: false,
+            complexity: 1,
             description: "All designs that were changed in this version"
     end
   end

@@ -4,6 +4,7 @@ module Resolvers
   module DesignManagement
     class VersionResolver < BaseResolver
       type Types::DesignManagement::VersionType.connection_type, null: false
+      complexity 1
 
       alias_method :design_or_collection, :object
 

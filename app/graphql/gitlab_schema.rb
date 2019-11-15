@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class GitlabSchema < GraphQL::Schema
+  DEFAULT_FIELD_COMPLEXITY = 1
+  GITALY_CALL_COMPLEXITY   = 1
   # Currently an IntrospectionQuery has a complexity of 179.
   # These values will evolve over time.
   DEFAULT_MAX_COMPLEXITY   = 200
@@ -9,6 +11,8 @@ class GitlabSchema < GraphQL::Schema
 
   DEFAULT_MAX_DEPTH = 15
   AUTHENTICATED_MAX_DEPTH = 20
+
+  DEFAULT_MAX_PAGE_SIZE = 100
 
   use BatchLoader::GraphQL
   use Gitlab::Graphql::Authorize
@@ -19,6 +23,8 @@ class GitlabSchema < GraphQL::Schema
 
   query_analyzer Gitlab::Graphql::QueryAnalyzers::LoggerAnalyzer.new
   query_analyzer Gitlab::Graphql::QueryAnalyzers::RecursionAnalyzer.new
+  # TODO pass it a log level or something?
+  query_analyzer Gitlab::Graphql::QueryAnalyzers::ComplexityAnalyzer.new
 
   max_complexity DEFAULT_MAX_COMPLEXITY
   max_depth DEFAULT_MAX_DEPTH
@@ -26,7 +32,7 @@ class GitlabSchema < GraphQL::Schema
   query Types::QueryType
   mutation Types::MutationType
 
-  default_max_page_size 100
+  default_max_page_size DEFAULT_MAX_PAGE_SIZE
 
   class << self
     def multiplex(queries, **kwargs)
@@ -73,8 +79,6 @@ class GitlabSchema < GraphQL::Schema
       end
     end
 
-    private
-
     def max_query_complexity(ctx)
       current_user = ctx&.fetch(:current_user, nil)
 
@@ -86,6 +90,8 @@ class GitlabSchema < GraphQL::Schema
         DEFAULT_MAX_COMPLEXITY
       end
     end
+
+    private
 
     def max_query_depth(ctx)
       current_user = ctx&.fetch(:current_user, nil)
