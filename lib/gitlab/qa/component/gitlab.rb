@@ -19,7 +19,6 @@ module Gitlab
 
         CERTIFICATES_PATH = File.expand_path('../../../../tls_certificates/gitlab'.freeze, __dir__)
         SSL_PATH = '/etc/gitlab/ssl'.freeze
-        DEFAULT_OMNIBUS_CONFIG = "gitlab_rails['rack_attack_protected_paths'] = []; ".freeze
 
         def initialize
           @docker = Docker::Engine.new
@@ -34,7 +33,7 @@ module Gitlab
         end
 
         def omnibus_config=(config)
-          @environment['GITLAB_OMNIBUS_CONFIG'] = DEFAULT_OMNIBUS_CONFIG + config.tr("\n", ' ')
+          @environment['GITLAB_OMNIBUS_CONFIG'] = config.tr("\n", ' ')
         end
 
         def elastic_url=(url)
