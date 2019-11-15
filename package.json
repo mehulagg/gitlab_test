@@ -38,7 +38,7 @@
     "@babel/plugin-syntax-import-meta": "^7.2.0",
     "@babel/preset-env": "^7.6.2",
     "@gitlab/svgs": "^1.82.0",
-    "@gitlab/ui": "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/332461565/artifacts/raw/gitlab-ui.upgrade-bootstrap-vue.tgz",
+    "@gitlab/ui": "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/352212925/artifacts/raw/gitlab-ui.upgrade-bootstrap-vue.tgz",
     "@gitlab/visual-review-tools": "1.2.0",
     "@sentry/browser": "^5.7.1",
     "apollo-cache-inmemory": "^1.6.3",
