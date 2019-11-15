@@ -10,6 +10,7 @@ module Projects
       @initialize_with_readme = Gitlab::Utils.to_boolean(@params.delete(:initialize_with_readme))
       @import_data            = @params.delete(:import_data)
       @relations_block        = @params.delete(:relations_block)
+      @import_export_upload   = @params.delete(:import_export_upload)
     end
 
     def execute
@@ -142,6 +143,11 @@ module Projects
             raise 'Failed to create repository' unless @project.create_repository
           end
         end
+      end
+
+      if @project.import?
+        @project.import_export_upload = @import_export_upload
+        @project.save
       end
     end
 
