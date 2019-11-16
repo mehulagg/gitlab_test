@@ -15,7 +15,7 @@ exports[`Confidential merge request project form group component renders empty s
       class="text-muted mt-1 mb-0"
     >
       
-        No forks available to you.
+        No forks are available to you.
       <br />
        
       <span>
@@ -24,9 +24,9 @@ exports[`Confidential merge request project form group component renders empty s
           class="help-link"
           href="https://test.com"
         >
-          fork the project
+          fork this project
         </a>
-         and set the forks visibility to private.
+         and set the fork's visibility to private.
       </span>
        
       <gllink-stub
@@ -65,7 +65,7 @@ exports[`Confidential merge request project form group component renders fork dr
       class="text-muted mt-1 mb-0"
     >
       
-        No forks available to you.
+        No forks are available to you.
       <br />
        
       <span>
@@ -74,9 +74,9 @@ exports[`Confidential merge request project form group component renders fork dr
           class="help-link"
           href="https://test.com"
         >
-          fork the project
+          fork this project
         </a>
-         and set the forks visibility to private.
+         and set the fork's visibility to private.
       </span>
        
       <gllink-stub
