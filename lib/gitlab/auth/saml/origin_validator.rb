@@ -2,7 +2,7 @@
 
 module Gitlab
   module Auth
-    module Saml
+    module SAML
       class OriginValidator
         AUTH_REQUEST_SESSION_KEY = "last_authn_request_id".freeze
 

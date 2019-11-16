@@ -4,7 +4,7 @@ require 'rails/generators'
 require 'rails/generators/active_record'
 require 'rails/generators/active_record/migration/migration_generator'
 
-class GeoMigrationGenerator < ActiveRecord::Generators::MigrationGenerator
+class Generators::GeoMigrationGenerator < ActiveRecord::Generators::MigrationGenerator
   source_root File.join(Rails.root, 'generator_templates/active_record/migration')
 
   def create_migration_file

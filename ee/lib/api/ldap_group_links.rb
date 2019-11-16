@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module API
-  class LdapGroupLinks < Grape::API
+  class LDAPGroupLinks < Grape::API
     before { authenticate! }
 
     params do
@@ -9,7 +9,7 @@ module API
     end
     resource :groups do
       desc 'Add a linked LDAP group to group' do
-        success EE::API::Entities::LdapGroupLink
+        success EE::API::Entities::LDAPGroupLink
       end
       params do
         requires 'cn', type: String, desc: 'The CN of a LDAP group'
@@ -23,7 +23,7 @@ module API
 
         ldap_group_link = group.ldap_group_links.new(declared_params(include_missing: false))
         if ldap_group_link.save
-          present ldap_group_link, with: EE::API::Entities::LdapGroupLink
+          present ldap_group_link, with: EE::API::Entities::LDAPGroupLink
         else
           render_api_error!(ldap_group_link.errors.full_messages.first, 409)
         end

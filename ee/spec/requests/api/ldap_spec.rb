@@ -2,9 +2,9 @@
 
 require 'spec_helper'
 
-describe API::Ldap do
+describe API::LDAP do
   include ApiHelpers
-  include LdapHelpers
+  include LDAPHelpers
 
   set(:user) { create(:user) }
   set(:admin) { create(:admin) }

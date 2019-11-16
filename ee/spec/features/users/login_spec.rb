@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe 'Login' do
-  include LdapHelpers
+  include LDAPHelpers
   include UserLoginHelper
   include DeviseHelpers
 

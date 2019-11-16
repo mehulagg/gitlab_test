@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe SessionsController do
   include DeviseHelpers
-  include LdapHelpers
+  include LDAPHelpers
 
   describe '#new' do
     before do

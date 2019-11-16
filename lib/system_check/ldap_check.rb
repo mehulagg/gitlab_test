@@ -2,7 +2,7 @@
 
 module SystemCheck
   # Used by gitlab:ldap:check rake task
-  class LdapCheck < BaseCheck
+  class LDAPCheck < BaseCheck
     set_name 'LDAP:'
 
     def multi_check

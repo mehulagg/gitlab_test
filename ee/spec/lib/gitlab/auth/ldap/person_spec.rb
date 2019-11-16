@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Gitlab::Auth::LDAP::Person do
-  include LdapHelpers
+  include LDAPHelpers
 
   let(:entry) { ldap_user_entry('john.doe') }
 

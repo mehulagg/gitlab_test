@@ -37,7 +37,7 @@ describe Gitlab::Auth::GroupSaml::IdentityLinker do
   context 'identity needs to be created' do
     context 'with identity provider initiated request' do
       it 'attempting to link accounts raises an exception' do
-        expect { subject.link }.to raise_error(Gitlab::Auth::Saml::IdentityLinker::UnverifiedRequest)
+        expect { subject.link }.to raise_error(Gitlab::Auth::SAML::IdentityLinker::UnverifiedRequest)
       end
     end
 

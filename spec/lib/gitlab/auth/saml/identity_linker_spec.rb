@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::Auth::Saml::IdentityLinker do
+describe Gitlab::Auth::SAML::IdentityLinker do
   let(:user) { create(:user) }
   let(:provider) { 'saml' }
   let(:uid) { user.email }
@@ -60,7 +60,7 @@ describe Gitlab::Auth::Saml::IdentityLinker do
     let(:session) { { 'last_authn_request_id' => nil } }
 
     it 'attempting to link accounts raises an exception' do
-      expect { subject.link }.to raise_error(Gitlab::Auth::Saml::IdentityLinker::UnverifiedRequest)
+      expect { subject.link }.to raise_error(Gitlab::Auth::SAML::IdentityLinker::UnverifiedRequest)
     end
   end
 end

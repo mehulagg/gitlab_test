@@ -3,7 +3,7 @@
 module EE
   module Gitlab
     module Auth
-      module Saml
+      module SAML
         module User
           extend ::Gitlab::Utils::Override
 

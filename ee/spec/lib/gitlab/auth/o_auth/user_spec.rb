@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Gitlab::Auth::OAuth::User do
-  include LdapHelpers
+  include LDAPHelpers
 
   describe 'login through kerberos with linkable LDAP user' do
     let(:uid)        { 'foo' }

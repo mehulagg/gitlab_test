@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 
-describe Gitlab::Auth::Saml::User do
-  include LdapHelpers
+describe Gitlab::Auth::SAML::User do
+  include LDAPHelpers
   include LoginHelpers
 
   let(:saml_user) { described_class.new(auth_hash) }
@@ -26,15 +26,15 @@ describe Gitlab::Auth::Saml::User do
     end
 
     def stub_basic_saml_config
-      allow(Gitlab::Auth::Saml::Config).to receive_messages({ options: { name: 'saml', args: {} } })
+      allow(Gitlab::Auth::SAML::Config).to receive_messages({ options: { name: 'saml', args: {} } })
     end
 
     def stub_saml_required_group_config(groups)
-      allow(Gitlab::Auth::Saml::Config).to receive_messages({ options: { name: 'saml', groups_attribute: 'groups', required_groups: groups, args: {} } })
+      allow(Gitlab::Auth::SAML::Config).to receive_messages({ options: { name: 'saml', groups_attribute: 'groups', required_groups: groups, args: {} } })
     end
 
     def stub_saml_group_config(type, groups)
-      allow(Gitlab::Auth::Saml::Config).to receive_messages({ options: { name: 'saml', groups_attribute: 'groups', "#{type}_groups": groups, args: {} } })
+      allow(Gitlab::Auth::SAML::Config).to receive_messages({ options: { name: 'saml', groups_attribute: 'groups', "#{type}_groups": groups, args: {} } })
     end
 
     before do

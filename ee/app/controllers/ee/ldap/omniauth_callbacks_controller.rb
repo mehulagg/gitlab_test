@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module EE
-  module Ldap
+  module LDAP
     module OmniauthCallbacksController
       extend ::Gitlab::Utils::Override
 

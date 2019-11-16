@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'gitlab/metrics/methods/metric_options'
+
 # rubocop:disable Style/ClassVars
 
 module Gitlab

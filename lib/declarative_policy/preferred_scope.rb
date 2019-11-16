@@ -1,30 +1,34 @@
 # frozen_string_literal: true
 
 module DeclarativePolicy
-  PREFERRED_SCOPE_KEY = :"DeclarativePolicy.preferred_scope"
+  module PreferredScope
+    extend ActiveSupport::Concern
 
-  class << self
-    def with_preferred_scope(scope)
-      Thread.current[PREFERRED_SCOPE_KEY], old_scope = scope, Thread.current[PREFERRED_SCOPE_KEY]
-      yield
-    ensure
-      Thread.current[PREFERRED_SCOPE_KEY] = old_scope
-    end
+    PREFERRED_SCOPE_KEY = :"DeclarativePolicy.preferred_scope"
 
-    def preferred_scope
-      Thread.current[PREFERRED_SCOPE_KEY]
-    end
+    class_methods do
+      def with_preferred_scope(scope)
+        Thread.current[PREFERRED_SCOPE_KEY], old_scope = scope, Thread.current[PREFERRED_SCOPE_KEY]
+        yield
+      ensure
+        Thread.current[PREFERRED_SCOPE_KEY] = old_scope
+      end
 
-    def user_scope(&block)
-      with_preferred_scope(:user, &block)
-    end
+      def preferred_scope
+        Thread.current[PREFERRED_SCOPE_KEY]
+      end
 
-    def subject_scope(&block)
-      with_preferred_scope(:subject, &block)
-    end
+      def user_scope(&block)
+        with_preferred_scope(:user, &block)
+      end
 
-    def preferred_scope=(scope)
-      Thread.current[PREFERRED_SCOPE_KEY] = scope
+      def subject_scope(&block)
+        with_preferred_scope(:subject, &block)
+      end
+
+      def preferred_scope=(scope)
+        Thread.current[PREFERRED_SCOPE_KEY] = scope
+      end
     end
   end
 end

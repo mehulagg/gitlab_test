@@ -164,7 +164,7 @@ describe API::Groups do
     context "when authenticated as user with group permissions" do
       it "creates an ldap_group_link if ldap_cn and ldap_access are supplied" do
         group_attributes = attributes_for_group_api ldap_cn: 'ldap-group', ldap_access: Gitlab::Access::DEVELOPER
-        expect { post api("/groups", admin), params: group_attributes }.to change { LdapGroupLink.count }.by(1)
+        expect { post api("/groups", admin), params: group_attributes }.to change { LDAPGroupLink.count }.by(1)
       end
 
       context 'when shared_runners_minutes_limit is given' do
@@ -217,7 +217,7 @@ describe API::Groups do
           end
 
           it 'queues a sync job' do
-            expect { ldap_sync(group.id, user, :fake!) }.to change(LdapGroupSyncWorker.jobs, :size).by(1)
+            expect { ldap_sync(group.id, user, :fake!) }.to change(LDAPGroupSyncWorker.jobs, :size).by(1)
           end
 
           it 'sets the ldap_sync state to pending' do
@@ -237,7 +237,7 @@ describe API::Groups do
           end
 
           it 'does not queue a sync job' do
-            expect { ldap_sync(group.id, user, :fake!) }.not_to change(LdapGroupSyncWorker.jobs, :size)
+            expect { ldap_sync(group.id, user, :fake!) }.not_to change(LDAPGroupSyncWorker.jobs, :size)
           end
 
           it 'does not change the ldap_sync state' do

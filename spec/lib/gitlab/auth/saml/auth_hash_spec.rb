@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::Auth::Saml::AuthHash do
+describe Gitlab::Auth::SAML::AuthHash do
   include LoginHelpers
 
   let(:raw_info_attr) { { 'groups' => %w(Developers Freelancers) } }

@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe EE::Gitlab::Auth::LDAP::Sync::ExternalUsers do
-  include LdapHelpers
+  include LDAPHelpers
 
   describe '#update_permissions' do
     let(:adapter) { ldap_adapter }

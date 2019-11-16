@@ -213,11 +213,11 @@ module LoginHelpers
   end
 
   def stub_basic_saml_config
-    allow(Gitlab::Auth::Saml::Config).to receive_messages({ options: { name: 'saml', args: {} } })
+    allow(Gitlab::Auth::SAML::Config).to receive_messages({ options: { name: 'saml', args: {} } })
   end
 
   def stub_saml_group_config(groups)
-    allow(Gitlab::Auth::Saml::Config).to receive_messages({ options: { name: 'saml', groups_attribute: 'groups', external_groups: groups, args: {} } })
+    allow(Gitlab::Auth::SAML::Config).to receive_messages({ options: { name: 'saml', groups_attribute: 'groups', external_groups: groups, args: {} } })
   end
 end
 

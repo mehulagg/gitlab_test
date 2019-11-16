@@ -3,7 +3,7 @@
 module Gitlab
   module Auth
     module GroupSaml
-      class IdentityLinker < Gitlab::Auth::Saml::IdentityLinker
+      class IdentityLinker < Gitlab::Auth::SAML::IdentityLinker
         attr_reader :saml_provider
 
         def initialize(current_user, oauth, session, saml_provider)

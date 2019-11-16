@@ -3,7 +3,7 @@
 module Gitlab
   module Auth
     module GroupSaml
-      class Config < Gitlab::Auth::Saml::Config
+      class Config < Gitlab::Auth::SAML::Config
         def self.options
           {}
         end

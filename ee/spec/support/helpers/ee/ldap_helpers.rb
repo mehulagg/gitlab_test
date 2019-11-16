@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module EE
-  module LdapHelpers
+  module LDAPHelpers
     def proxy(adapter, provider = 'ldapmain')
       EE::Gitlab::Auth::LDAP::Sync::Proxy.new(provider, adapter)
     end

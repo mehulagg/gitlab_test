@@ -24,7 +24,7 @@ module SystemCheck
           SystemCheck::RakeTask::GitalyTask,
           SystemCheck::RakeTask::SidekiqTask,
           SystemCheck::RakeTask::IncomingEmailTask,
-          SystemCheck::RakeTask::LdapTask,
+          SystemCheck::RakeTask::LDAPTask,
           SystemCheck::RakeTask::AppTask
         ]
       end

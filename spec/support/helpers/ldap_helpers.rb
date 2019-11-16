@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module LdapHelpers
+module LDAPHelpers
   def ldap_adapter(provider = 'ldapmain', ldap = double(:ldap))
     ::Gitlab::Auth::LDAP::Adapter.new(provider, ldap)
   end
@@ -71,4 +71,4 @@ module LdapHelpers
   end
 end
 
-LdapHelpers.include_if_ee('EE::LdapHelpers')
+LDAPHelpers.include_if_ee('EE::LDAPHelpers')

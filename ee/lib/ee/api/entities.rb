@@ -60,7 +60,7 @@ module EE
         prepended do
           expose :ldap_cn, :ldap_access
           expose :ldap_group_links,
-                 using: EE::API::Entities::LdapGroupLink,
+                 using: EE::API::Entities::LDAPGroupLink,
                  if: ->(group, options) { group.ldap_group_links.any? }
 
           expose :checked_file_template_project_id,
@@ -273,7 +273,7 @@ module EE
         expose_restricted :reject_unsigned_commits, &:project
       end
 
-      class LdapGroupLink < Grape::Entity
+      class LDAPGroupLink < Grape::Entity
         expose :cn, :group_access, :provider
       end
 
@@ -579,7 +579,7 @@ module EE
         end
       end
 
-      class LdapGroup < Grape::Entity
+      class LDAPGroup < Grape::Entity
         expose :cn
       end
 

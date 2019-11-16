@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 
-describe Gitlab::Auth::Saml::User do
-  include LdapHelpers
+describe Gitlab::Auth::SAML::User do
+  include LDAPHelpers
   include LoginHelpers
 
   let(:saml_user) { described_class.new(auth_hash) }

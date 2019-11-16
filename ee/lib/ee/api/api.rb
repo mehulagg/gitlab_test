@@ -26,8 +26,8 @@ module EE
         mount ::API::GeoReplication
         mount ::API::GeoNodes
         mount ::API::IssueLinks
-        mount ::API::Ldap
-        mount ::API::LdapGroupLinks
+        mount ::API::LDAP
+        mount ::API::LDAPGroupLinks
         mount ::API::License
         mount ::API::ProjectMirror
         mount ::API::ProjectPushRule

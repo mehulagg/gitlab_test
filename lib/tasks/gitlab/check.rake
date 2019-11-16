@@ -43,7 +43,7 @@ namespace :gitlab do
     task :check, [:limit] => :gitlab_environment do |_, args|
       ENV['LDAP_CHECK_LIMIT'] = args.limit if args.limit.present?
 
-      SystemCheck::RakeTask::LdapTask.run!
+      SystemCheck::RakeTask::LDAPTask.run!
     end
   end
 

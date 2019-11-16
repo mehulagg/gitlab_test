@@ -12,7 +12,7 @@ class Groups::OmniauthCallbacksController < OmniauthCallbacksController
     identity_linker = Gitlab::Auth::GroupSaml::IdentityLinker.new(current_user, oauth, session, @saml_provider)
 
     omniauth_flow(Gitlab::Auth::GroupSaml, identity_linker: identity_linker)
-  rescue Gitlab::Auth::Saml::IdentityLinker::UnverifiedRequest
+  rescue Gitlab::Auth::SAML::IdentityLinker::UnverifiedRequest
     redirect_unverified_saml_initiation
   end
 

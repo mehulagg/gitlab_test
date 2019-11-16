@@ -58,7 +58,7 @@ describe 'check.rake' do
   end
 
   describe 'gitlab:ldap:check rake task' do
-    include LdapHelpers
+    include LDAPHelpers
 
     subject { run_rake_task('gitlab:ldap:check') }
 

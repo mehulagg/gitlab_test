@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'gitlab/metrics/web_transaction'
+
 module Gitlab
   module Metrics
     # Rack middleware for tracking Rails and Grape requests.

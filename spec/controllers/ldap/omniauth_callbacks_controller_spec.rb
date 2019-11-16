@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 
-describe Ldap::OmniauthCallbacksController do
-  include_context 'Ldap::OmniauthCallbacksController'
+describe LDAP::OmniauthCallbacksController do
+  include_context 'LDAP::OmniauthCallbacksController'
 
   it 'allows sign in' do
     post provider

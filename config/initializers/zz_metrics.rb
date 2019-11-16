@@ -139,12 +139,6 @@ if Gitlab::Metrics.enabled? && !Rails.env.test? && !(Rails.env.development? && d
   require 'connection_pool'
   require 'method_source'
 
-  # These are manually require'd so the classes are registered properly with
-  # ActiveSupport.
-  require_dependency 'gitlab/metrics/subscribers/action_view'
-  require_dependency 'gitlab/metrics/subscribers/active_record'
-  require_dependency 'gitlab/metrics/subscribers/rails_cache'
-
   Gitlab::Application.configure do |config|
     config.middleware.use(Gitlab::Metrics::RackMiddleware)
     config.middleware.use(Gitlab::Middleware::RailsQueueDuration)

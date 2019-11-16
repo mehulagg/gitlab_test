@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 
-describe LdapGroupSyncWorker do
-  include LdapHelpers
+describe LDAPGroupSyncWorker do
+  include LDAPHelpers
   let(:subject) { described_class.new }
   let(:group) { create(:group) }
 

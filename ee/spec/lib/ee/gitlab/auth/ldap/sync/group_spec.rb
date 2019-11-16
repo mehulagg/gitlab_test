@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe EE::Gitlab::Auth::LDAP::Sync::Group do
-  include LdapHelpers
+  include LDAPHelpers
 
   let(:adapter) { ldap_adapter }
   let(:user) { create(:user) }

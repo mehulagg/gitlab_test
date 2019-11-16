@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class LdapGroupLink < ApplicationRecord
+class LDAPGroupLink < ApplicationRecord
   include Gitlab::Access
   belongs_to :group
 

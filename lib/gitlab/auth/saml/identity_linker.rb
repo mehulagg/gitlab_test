@@ -2,7 +2,7 @@
 
 module Gitlab
   module Auth
-    module Saml
+    module SAML
       class IdentityLinker < OmniauthIdentityLinkerBase
         extend ::Gitlab::Utils::Override
 

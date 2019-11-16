@@ -8,7 +8,7 @@ describe Gitlab::SidekiqConfig do
       worker_classes = described_class.workers.map(&:klass)
 
       expect(worker_classes).to include(RepositoryUpdateMirrorWorker)
-      expect(worker_classes).to include(LdapGroupSyncWorker)
+      expect(worker_classes).to include(LDAPGroupSyncWorker)
     end
   end
 
@@ -52,7 +52,7 @@ describe Gitlab::SidekiqConfig do
   describe '.all_queues_yml_outdated?' do
     let(:workers) do
       [
-        LdapGroupSyncWorker,
+        LDAPGroupSyncWorker,
         RepositoryUpdateMirrorWorker
       ].map { |worker| described_class::Worker.new(worker, ee: true) }
     end

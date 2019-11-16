@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'gitlab/metrics/influx_db'
+require 'gitlab/metrics/prometheus'
+
 module Gitlab
   module Metrics
     include Gitlab::Metrics::InfluxDb

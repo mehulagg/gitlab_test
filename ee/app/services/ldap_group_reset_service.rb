@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class LdapGroupResetService
+class LDAPGroupResetService
   def execute(group, current_user)
     # Only for ldap connected users
     # reset last_credential_check_at to force LDAP::Access::update_permissions

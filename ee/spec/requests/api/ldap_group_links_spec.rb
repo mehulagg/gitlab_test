@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe API::LdapGroupLinks, api: true do
+describe API::LDAPGroupLinks, api: true do
   include ApiHelpers
 
   let(:owner) { create(:user) }

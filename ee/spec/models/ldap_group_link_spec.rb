@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe LdapGroupLink do
+describe LDAPGroupLink do
   let(:klass) { described_class }
   let(:ldap_group_link) { build :ldap_group_link }
 

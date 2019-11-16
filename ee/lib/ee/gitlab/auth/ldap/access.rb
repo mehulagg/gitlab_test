@@ -129,11 +129,11 @@ module EE
             # LDAP group sync will take care of things.
             return unless user.created_at > 5.minutes.ago && !user.last_credential_check_at
 
-            group_ids = ::LdapGroupLink.where(cn: ldap_user.group_cns, provider: provider)
+            group_ids = ::LDAPGroupLink.where(cn: ldap_user.group_cns, provider: provider)
                           .distinct(:group_id)
                           .pluck(:group_id)
 
-            ::LdapGroupSyncWorker.perform_async(group_ids, provider) if group_ids.any?
+            ::LDAPGroupSyncWorker.perform_async(group_ids, provider) if group_ids.any?
           end
           # rubocop: enable CodeReuse/ActiveRecord
         end

@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Gitlab::Auth::LDAP::AuthHash do
-  include LdapHelpers
+  include LDAPHelpers
 
   let(:auth_hash) do
     described_class.new(

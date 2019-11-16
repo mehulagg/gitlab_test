@@ -277,7 +277,7 @@ describe "Authentication", "routing" do
   end
 
   context 'with LDAP configured' do
-    include LdapHelpers
+    include LDAPHelpers
 
     let(:ldap_settings) { { enabled: true } }
 

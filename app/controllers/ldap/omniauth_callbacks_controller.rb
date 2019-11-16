@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Ldap::OmniauthCallbacksController < OmniauthCallbacksController
+class LDAP::OmniauthCallbacksController < OmniauthCallbacksController
   extend ::Gitlab::Utils::Override
 
   def self.define_providers!
@@ -34,4 +34,4 @@ class Ldap::OmniauthCallbacksController < OmniauthCallbacksController
   end
 end
 
-Ldap::OmniauthCallbacksController.prepend_if_ee('EE::Ldap::OmniauthCallbacksController')
+LDAP::OmniauthCallbacksController.prepend_if_ee('EE::LDAP::OmniauthCallbacksController')

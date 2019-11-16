@@ -608,13 +608,13 @@ is needed.
 Rails.logger.level = Logger::DEBUG
 
 # Run a UserSync (normally performed once a day)
-LdapSyncWorker.new.perform
+LDAPSyncWorker.new.perform
 
 # Run a GroupSync for all groups (9.3-)
-LdapGroupSyncWorker.new.perform
+LDAPGroupSyncWorker.new.perform
 
 # Run a GroupSync for all groups (9.3+)
-LdapAllGroupsSyncWorker.new.perform
+LDAPAllGroupsSyncWorker.new.perform
 
 # Run a GroupSync for a single group (10.6-)
 group = Group.find_by(name: 'my_gitlab_group')
@@ -683,7 +683,7 @@ emails.each do |username, email|
 end
 
 # Run the UserSync to update the above users' data
-LdapSyncWorker.new.perform
+LDAPSyncWorker.new.perform
 ```
 
 ## Routes

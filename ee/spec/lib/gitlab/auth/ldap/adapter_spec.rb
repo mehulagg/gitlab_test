@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Gitlab::Auth::LDAP::Adapter do
-  include LdapHelpers
+  include LDAPHelpers
 
   let(:adapter) { ldap_adapter('ldapmain') }
 

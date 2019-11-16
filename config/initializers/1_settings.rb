@@ -514,10 +514,10 @@ Gitlab.ee do
   Settings.cron_jobs['import_software_licenses_worker']['job_class'] = 'ImportSoftwareLicensesWorker'
   Settings.cron_jobs['ldap_group_sync_worker'] ||= Settingslogic.new({})
   Settings.cron_jobs['ldap_group_sync_worker']['cron'] ||= '0 * * * *'
-  Settings.cron_jobs['ldap_group_sync_worker']['job_class'] = 'LdapAllGroupsSyncWorker'
+  Settings.cron_jobs['ldap_group_sync_worker']['job_class'] = 'LDAPAllGroupsSyncWorker'
   Settings.cron_jobs['ldap_sync_worker'] ||= Settingslogic.new({})
   Settings.cron_jobs['ldap_sync_worker']['cron'] ||= '30 1 * * *'
-  Settings.cron_jobs['ldap_sync_worker']['job_class'] = 'LdapSyncWorker'
+  Settings.cron_jobs['ldap_sync_worker']['job_class'] = 'LDAPSyncWorker'
   Settings.cron_jobs['pseudonymizer_worker'] ||= Settingslogic.new({})
   Settings.cron_jobs['pseudonymizer_worker']['cron'] ||= '0 23 * * *'
   Settings.cron_jobs['pseudonymizer_worker']['job_class'] ||= 'PseudonymizerWorker'

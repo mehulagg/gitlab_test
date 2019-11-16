@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe EE::Gitlab::Auth::LDAP::Group do
-  include LdapHelpers
+  include LDAPHelpers
 
   before do
     stub_ldap_config(active_directory: true)

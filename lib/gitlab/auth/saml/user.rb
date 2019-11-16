@@ -7,9 +7,9 @@
 #
 module Gitlab
   module Auth
-    module Saml
+    module SAML
       class User < Gitlab::Auth::OAuth::User
-        prepend_if_ee('::EE::Gitlab::Auth::Saml::User') # rubocop: disable Cop/InjectEnterpriseEditionModule
+        prepend_if_ee('::EE::Gitlab::Auth::SAML::User') # rubocop: disable Cop/InjectEnterpriseEditionModule
 
         extend ::Gitlab::Utils::Override
 
@@ -45,7 +45,7 @@ module Gitlab
         protected
 
         def saml_config
-          Gitlab::Auth::Saml::Config
+          Gitlab::Auth::SAML::Config
         end
 
         def auto_link_saml_user?
@@ -57,7 +57,7 @@ module Gitlab
         end
 
         def auth_hash=(auth_hash)
-          @auth_hash = Gitlab::Auth::Saml::AuthHash.new(auth_hash)
+          @auth_hash = Gitlab::Auth::SAML::AuthHash.new(auth_hash)
         end
       end
     end

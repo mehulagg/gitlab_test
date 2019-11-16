@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Users
-  class RepairLdapBlockedService
+  class RepairLDAPBlockedService
     attr_accessor :user
 
     def initialize(user)

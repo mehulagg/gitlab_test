@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class LdapAllGroupsSyncWorker
+class LDAPAllGroupsSyncWorker
   include ApplicationWorker
   include CronjobQueue
 

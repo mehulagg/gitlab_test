@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe 'devise/sessions/new' do
   describe 'ldap' do
-    include LdapHelpers
+    include LDAPHelpers
 
     let(:server) { { provider_name: 'ldapmain', label: 'LDAP' }.with_indifferent_access }
 

@@ -80,7 +80,7 @@ module EE
             authorize! :admin_group, group
 
             if group.pending_ldap_sync
-              ::LdapGroupSyncWorker.perform_async(group.id)
+              ::LDAPGroupSyncWorker.perform_async(group.id)
             end
 
             status 202

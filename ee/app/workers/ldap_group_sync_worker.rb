@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class LdapGroupSyncWorker
+class LDAPGroupSyncWorker
   include ApplicationWorker
 
   feature_category :authentication_and_authorization

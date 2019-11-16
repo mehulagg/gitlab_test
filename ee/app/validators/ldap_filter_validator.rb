@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-# LdapFilteralidator
+# LDAPFilteralidator
 #
 # Custom validator for LDAP filters
 #
 # Example:
 #
-#   class LdapGroupLink < ActiveRecord::Base
+#   class LDAPGroupLink < ActiveRecord::Base
 #     validates :filter, ldap_filter: true
 #   end
 #
-class LdapFilterValidator < ActiveModel::EachValidator
+class LDAPFilterValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
     Net::LDAP::Filter::FilterParser.parse(value)
   rescue Net::LDAP::FilterSyntaxInvalidError

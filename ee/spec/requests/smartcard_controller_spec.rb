@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe SmartcardController, type: :request do
-  include LdapHelpers
+  include LDAPHelpers
 
   let(:certificate_headers) { { 'X-SSL-CLIENT-CERTIFICATE': 'certificate' } }
   let(:openssl_certificate_store) { instance_double(OpenSSL::X509::Store) }

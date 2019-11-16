@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 
-describe Groups::LdapsController do
-  include LdapHelpers
+describe Groups::LDAPsController do
+  include LDAPHelpers
 
   let(:group) { create(:group) }
   let(:user)  { create(:user) }

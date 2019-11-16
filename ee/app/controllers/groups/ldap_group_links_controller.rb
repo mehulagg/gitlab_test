@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Groups::LdapGroupLinksController < Groups::ApplicationController
+class Groups::LDAPGroupLinksController < Groups::ApplicationController
   before_action :group
   before_action :require_ldap_enabled
   before_action :authorize_admin_group!

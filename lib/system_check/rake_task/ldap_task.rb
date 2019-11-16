@@ -3,7 +3,7 @@
 module SystemCheck
   module RakeTask
     # Used by gitlab:ldap:check rake task
-    class LdapTask
+    class LDAPTask
       extend RakeTaskHelpers
 
       def self.name
@@ -11,7 +11,7 @@ module SystemCheck
       end
 
       def self.checks
-        [SystemCheck::LdapCheck]
+        [SystemCheck::LDAPCheck]
       end
     end
   end

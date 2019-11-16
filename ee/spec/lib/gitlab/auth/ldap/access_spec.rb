@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Gitlab::Auth::LDAP::Access do
-  include LdapHelpers
+  include LDAPHelpers
 
   let(:user) { create(:omniauth_user) }
   let(:provider) { user.ldap_identity.provider }
@@ -212,7 +212,7 @@ describe Gitlab::Auth::LDAP::Access do
           group_link_2 = create(:ldap_group_link, cn: 'Group2', provider: provider)
           group_ids = [group_link_1, group_link_2].map(&:group_id)
 
-          expect(LdapGroupSyncWorker).to receive(:perform_async)
+          expect(LDAPGroupSyncWorker).to receive(:perform_async)
             .with(a_collection_containing_exactly(*group_ids), provider)
 
           access.update_user
@@ -223,7 +223,7 @@ describe Gitlab::Auth::LDAP::Access do
           create(:ldap_group_link, cn: 'Group1', provider: provider)
           create(:ldap_group_link, cn: 'Group2', provider: provider)
 
-          expect(LdapGroupSyncWorker).not_to receive(:perform_async)
+          expect(LDAPGroupSyncWorker).not_to receive(:perform_async)
 
           access.update_user
         end
@@ -233,7 +233,7 @@ describe Gitlab::Auth::LDAP::Access do
                                      cn: 'Group1',
                                      provider: 'not-this-ldap')
 
-          expect(LdapGroupSyncWorker).not_to receive(:perform_async)
+          expect(LDAPGroupSyncWorker).not_to receive(:perform_async)
 
           access.update_user
         end
@@ -243,8 +243,8 @@ describe Gitlab::Auth::LDAP::Access do
           user.last_credential_check_at = Time.now
           user.save
 
-          expect(LdapGroupLink).not_to receive(:where)
-          expect(LdapGroupSyncWorker).not_to receive(:perform_async)
+          expect(LDAPGroupLink).not_to receive(:where)
+          expect(LDAPGroupSyncWorker).not_to receive(:perform_async)
 
           access.update_user
         end
@@ -253,8 +253,8 @@ describe Gitlab::Auth::LDAP::Access do
       it "doesn't continue when there is no `memberOf` param" do
         stub_ldap_person_find_by_dn(entry, provider)
 
-        expect(LdapGroupLink).not_to receive(:where)
-        expect(LdapGroupSyncWorker).not_to receive(:perform_async)
+        expect(LDAPGroupLink).not_to receive(:where)
+        expect(LDAPGroupSyncWorker).not_to receive(:perform_async)
 
         access.update_user
       end

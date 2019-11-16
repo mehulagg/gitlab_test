@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Groups::LdapsController < Groups::ApplicationController
+class Groups::LDAPsController < Groups::ApplicationController
   before_action :group
   before_action :authorize_admin_group!
   before_action :check_enabled_extras!
@@ -12,7 +12,7 @@ class Groups::LdapsController < Groups::ApplicationController
     # likely the group will never transition out of its current state,
     # so we should tell the group owner.
     if @group.pending_ldap_sync
-      LdapGroupSyncWorker.perform_async(@group.id)
+      LDAPGroupSyncWorker.perform_async(@group.id)
       message = 'The group sync has been scheduled'
     elsif @group.valid?
       message = 'The group sync is already scheduled'

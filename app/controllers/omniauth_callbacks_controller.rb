@@ -40,8 +40,8 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
   end
 
   def saml
-    omniauth_flow(Gitlab::Auth::Saml)
-  rescue Gitlab::Auth::Saml::IdentityLinker::UnverifiedRequest
+    omniauth_flow(Gitlab::Auth::SAML)
+  rescue Gitlab::Auth::SAML::IdentityLinker::UnverifiedRequest
     redirect_unverified_saml_initiation
   end
 
