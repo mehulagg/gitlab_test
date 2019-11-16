@@ -11366,7 +11366,7 @@ msgstr ""
 msgid "No files found."
 msgstr ""
 
-msgid "No forks available to you."
+msgid "No forks are available to you."
 msgstr ""
 
 msgid "No issues for the selected time period."
@@ -18011,7 +18011,7 @@ msgstr ""
 msgid "To preserve performance only <strong>%{display_size} of %{real_size}</strong> files are displayed."
 msgstr ""
 
-msgid "To protect this issue's confidentiality, %{link_start}fork the project%{link_end} and set the forks visibility to private."
+msgid "To protect this issue's confidentiality, %{link_start}fork this project%{link_end} and set the fork's visibility to private."
 msgstr ""
 
 msgid "To protect this issue's confidentiality, a private fork of this project was selected."
