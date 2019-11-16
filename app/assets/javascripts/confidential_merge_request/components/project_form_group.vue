@@ -41,9 +41,9 @@ export default {
     noForkText() {
       return sprintf(
         __(
-          "To protect this issue's confidentiality, %{link_start}fork the project%{link_end} and set the forks visibility to private.",
+          "To protect this issue's confidentiality, %{link_start}fork this project%{link_end} and set the fork's visibility to private.",
         ),
-        { link_start: `<div><a class="btn btn-primary text-center" href="${this.newForkPath}" class="help-link">`, link_end: '</a></div>' },
+        { link_start: `<a href="${this.newForkPath}" class="help-link">`, link_end: '</a>' },
         false,
       );
     },
@@ -123,7 +123,7 @@ export default {
           }}
         </template>
         <template v-else>
-          {{ __('No forks available to you.') }}<br />
+          {{ __('No forks are available to you.') }}<br />
           <span v-html="noForkText"></span>
         </template>
         <gl-link
