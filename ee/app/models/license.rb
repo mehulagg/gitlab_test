@@ -61,6 +61,7 @@ class License < ApplicationRecord
     default_project_deletion_protection
     dependency_proxy
     deploy_board
+    description_diffs
     design_management
     email_additional_text
     extended_audit_events
@@ -96,6 +97,7 @@ class License < ApplicationRecord
     smartcard_auth
     type_of_work_analytics
     unprotection_restrictions
+    ci_project_subscriptions
   ]
   EEP_FEATURES.freeze
 

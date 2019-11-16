@@ -17,6 +17,9 @@ describe Gitlab::UsageData do
       create(:service, project: projects[0], type: 'SlackSlashCommandsService', active: true)
       create(:service, project: projects[1], type: 'SlackService', active: true)
       create(:service, project: projects[2], type: 'SlackService', active: true)
+      create(:service, project: projects[2], type: 'MattermostService', active: true)
+      create(:service, project: projects[2], type: 'JenkinsService', active: true)
+      create(:service, project: projects[2], type: 'CustomIssueTrackerService', active: true)
       create(:project_error_tracking_setting, project: projects[0])
       create(:project_error_tracking_setting, project: projects[1], enabled: false)
       create_list(:issue, 4, project: projects[0])
@@ -44,6 +47,10 @@ describe Gitlab::UsageData do
       create(:clusters_applications_runner, :installed, cluster: gcp_cluster)
       create(:clusters_applications_knative, :installed, cluster: gcp_cluster)
       create(:clusters_applications_elastic_stack, :installed, cluster: gcp_cluster)
+
+      create(:grafana_integration, project: projects[0], enabled: true)
+      create(:grafana_integration, project: projects[1], enabled: true)
+      create(:grafana_integration, project: projects[2], enabled: false)
 
       ProjectFeature.first.update_attribute('repository_access_level', 0)
     end
@@ -137,6 +144,7 @@ describe Gitlab::UsageData do
         clusters_applications_knative
         clusters_applications_elastic_stack
         in_review_folder
+        grafana_integrated_projects
         groups
         issues
         issues_with_associated_zoom_link
@@ -157,6 +165,9 @@ describe Gitlab::UsageData do
         projects_jira_cloud_active
         projects_slack_notifications_active
         projects_slack_slash_active
+        projects_custom_issue_tracker_active
+        projects_jenkins_active
+        projects_mattermost_active
         projects_prometheus_active
         projects_with_repositories_enabled
         projects_with_error_tracking_enabled
@@ -190,6 +201,9 @@ describe Gitlab::UsageData do
       expect(count_data[:projects_jira_cloud_active]).to eq(2)
       expect(count_data[:projects_slack_notifications_active]).to eq(2)
       expect(count_data[:projects_slack_slash_active]).to eq(1)
+      expect(count_data[:projects_custom_issue_tracker_active]).to eq(1)
+      expect(count_data[:projects_jenkins_active]).to eq(1)
+      expect(count_data[:projects_mattermost_active]).to eq(1)
       expect(count_data[:projects_with_repositories_enabled]).to eq(3)
       expect(count_data[:projects_with_error_tracking_enabled]).to eq(1)
       expect(count_data[:issues_with_associated_zoom_link]).to eq(2)
@@ -212,6 +226,7 @@ describe Gitlab::UsageData do
       expect(count_data[:clusters_applications_runner]).to eq(1)
       expect(count_data[:clusters_applications_knative]).to eq(1)
       expect(count_data[:clusters_applications_elastic_stack]).to eq(1)
+      expect(count_data[:grafana_integrated_projects]).to eq(2)
     end
 
     it 'works when queries time out' do

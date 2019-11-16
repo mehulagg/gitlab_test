@@ -136,7 +136,7 @@ gem 'faraday_middleware-aws-signers-v4'
 
 # Markdown and HTML processing
 gem 'html-pipeline', '~> 2.8'
-gem 'deckar01-task_list', '2.2.0'
+gem 'deckar01-task_list', '2.2.1'
 gem 'gitlab-markup', '~> 1.7.0'
 gem 'github-markup', '~> 1.7.0', require: 'github/markup'
 gem 'commonmarker', '~> 0.17'
@@ -159,6 +159,7 @@ gem 'icalendar'
 
 # Diffs
 gem 'diffy', '~> 3.1.0'
+gem 'diff_match_patch', '~> 0.1.0'
 
 # Application server
 gem 'rack', '~> 2.0.7'
@@ -449,7 +450,7 @@ group :ed25519 do
 end
 
 # Gitaly GRPC protocol definitions
-gem 'gitaly', '~> 1.65.0'
+gem 'gitaly', '~> 1.70.0'
 
 gem 'grpc', '~> 1.24.0'
 

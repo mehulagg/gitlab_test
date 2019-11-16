@@ -42,6 +42,7 @@ module API
       optional :asset_proxy_whitelist, type: Array[String], coerce_with: Validations::Types::CommaSeparatedToArray.coerce, desc: 'Assets that match these domain(s) will NOT be proxied. Wildcards allowed. Your GitLab installation URL is automatically whitelisted.'
       optional :container_registry_token_expire_delay, type: Integer, desc: 'Authorization token duration (minutes)'
       optional :default_artifacts_expire_in, type: String, desc: "Set the default expiration time for each job's artifacts"
+      optional :default_ci_config_path, type: String, desc: 'The instance default CI configuration path for new projects'
       optional :default_project_creation, type: Integer, values: ::Gitlab::Access.project_creation_values, desc: 'Determine if developers can create projects in the group'
       optional :default_branch_protection, type: Integer, values: ::Gitlab::Access.protection_values, desc: 'Determine if developers can push to master'
       optional :default_group_visibility, type: String, values: Gitlab::VisibilityLevel.string_values, desc: 'The default group visibility'
@@ -135,6 +136,11 @@ module API
       optional :sign_in_text, type: String, desc: 'The sign in text of the GitLab application'
       optional :signin_enabled, type: Boolean, desc: 'Flag indicating if password authentication is enabled for the web interface' # support legacy names, can be removed in v5
       optional :signup_enabled, type: Boolean, desc: 'Flag indicating if sign up is enabled'
+      optional :sourcegraph_enabled, type: Boolean, desc: 'Enable Sourcegraph'
+      optional :sourcegraph_public_only, type: Boolean, desc: 'Only allow public projects to communicate with Sourcegraph'
+      given sourcegraph_enabled: ->(val) { val } do
+        requires :sourcegraph_url, type: String, desc: 'The configured Sourcegraph instance URL'
+      end
       optional :terminal_max_session_time, type: Integer, desc: 'Maximum time for web terminal websocket connection (in seconds). Set to 0 for unlimited time.'
       optional :usage_ping_enabled, type: Boolean, desc: 'Every week GitLab will report license usage back to GitLab, Inc.'
       optional :instance_statistics_visibility_private, type: Boolean, desc: 'When set to `true` Instance statistics will only be available to admins'

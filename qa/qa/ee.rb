@@ -14,6 +14,7 @@ module QA
     module Page
       module Component
         autoload :DesignManagement, 'qa/ee/page/component/design_management'
+        autoload :LicenseManagement, 'qa/ee/page/component/license_management'
 
         module IssueBoard
           autoload :Show, 'qa/ee/page/component/issue_board/show'
@@ -31,6 +32,7 @@ module QA
       module Group
         autoload :Menu, 'qa/ee/page/group/menu'
         autoload :SamlSSOSignIn, 'qa/ee/page/group/saml_sso_sign_in'
+        autoload :SamlSSOSignUp, 'qa/ee/page/group/saml_sso_sign_up'
         autoload :Members, 'qa/ee/page/group/members'
 
         module Settings

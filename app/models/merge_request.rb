@@ -68,6 +68,7 @@ class MergeRequest < ApplicationRecord
   has_many :cached_closes_issues, through: :merge_requests_closing_issues, source: :issue
   has_many :pipelines_for_merge_request, foreign_key: 'merge_request_id', class_name: 'Ci::Pipeline'
   has_many :suggestions, through: :notes
+  has_many :unresolved_notes, -> { unresolved }, as: :noteable, class_name: 'Note'
 
   has_many :merge_request_assignees
   has_many :assignees, class_name: "User", through: :merge_request_assignees
@@ -211,8 +212,8 @@ class MergeRequest < ApplicationRecord
   scope :join_project, -> { joins(:target_project) }
   scope :references_project, -> { references(:target_project) }
   scope :with_api_entity_associations, -> {
-    preload(:assignees, :author, :notes, :labels, :milestone, :timelogs,
-            latest_merge_request_diff: [:merge_request_diff_commits],
+    preload(:assignees, :author, :unresolved_notes, :labels, :milestone,
+            :timelogs, :latest_merge_request_diff,
             metrics: [:latest_closed_by, :merged_by],
             target_project: [:route, { namespace: :route }],
             source_project: [:route, { namespace: :route }])
@@ -373,16 +374,21 @@ class MergeRequest < ApplicationRecord
     "#{project.to_reference(from, full: full)}#{reference}"
   end
 
-  def commits
-    return merge_request_diff.commits if persisted?
+  def commits(limit: nil)
+    return merge_request_diff.commits(limit: limit) if persisted?
 
     commits_arr = if compare_commits
-                    compare_commits.reverse
+                    reversed_commits = compare_commits.reverse
+                    limit ? reversed_commits.take(limit) : reversed_commits
                   else
                     []
                   end
 
     CommitCollection.new(source_project, commits_arr, source_branch)
+  end
+
+  def recent_commits
+    commits(limit: MergeRequestDiff::COMMITS_SAFE_SIZE)
   end
 
   def commits_count
@@ -395,14 +401,17 @@ class MergeRequest < ApplicationRecord
     end
   end
 
-  def commit_shas
-    if persisted?
-      merge_request_diff.commit_shas
-    elsif compare_commits
-      compare_commits.to_a.reverse.map(&:sha)
-    else
-      Array(diff_head_sha)
-    end
+  def commit_shas(limit: nil)
+    return merge_request_diff.commit_shas(limit: limit) if persisted?
+
+    shas =
+      if compare_commits
+        compare_commits.to_a.reverse.map(&:sha)
+      else
+        Array(diff_head_sha)
+      end
+
+    limit ? shas.take(limit) : shas
   end
 
   # Returns true if there are commits that match at least one commit SHA.
@@ -912,7 +921,7 @@ class MergeRequest < ApplicationRecord
 
   def commit_notes
     # Fetch comments only from last 100 commits
-    commit_ids = commit_shas.take(100)
+    commit_ids = commit_shas(limit: 100)
 
     Note
       .user
@@ -923,7 +932,7 @@ class MergeRequest < ApplicationRecord
   def mergeable_discussions_state?
     return true unless project.only_allow_merge_if_all_discussions_are_resolved?
 
-    !discussions_to_be_resolved?
+    unresolved_notes.none?(&:to_be_resolved?)
   end
 
   def for_fork?

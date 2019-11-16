@@ -99,6 +99,10 @@ class ApplicationSetting < ApplicationRecord
             presence: true,
             if: :plantuml_enabled
 
+  validates :sourcegraph_url,
+            presence: true,
+            if: :sourcegraph_enabled
+
   validates :snowplow_collector_hostname,
             presence: true,
             hostname: true,
@@ -297,6 +301,12 @@ class ApplicationSetting < ApplicationRecord
                  pass: :external_auth_client_key_pass,
                  if: -> (setting) { setting.external_auth_client_cert.present? }
 
+  validates :default_ci_config_path,
+    format: { without: %r{(\.{2}|\A/)},
+              message: N_('cannot include leading slash or directory traversal.') },
+    length: { maximum: 255 },
+    allow_blank: true
+
   attr_encrypted :asset_proxy_secret_key,
                  mode: :per_attribute_iv,
                  key: Settings.attr_encrypted_db_key_base_truncated,
@@ -336,6 +346,10 @@ class ApplicationSetting < ApplicationRecord
     reset_memoized_terms
   end
   after_commit :expire_performance_bar_allowed_user_ids_cache, if: -> { previous_changes.key?('performance_bar_allowed_group_id') }
+
+  def sourcegraph_url_is_com?
+    !!(sourcegraph_url =~ /\Ahttps:\/\/(www\.)?sourcegraph\.com/)
+  end
 
   def self.create_from_defaults
     transaction(requires_new: true) do

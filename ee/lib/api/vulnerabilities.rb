@@ -19,14 +19,6 @@ module API
         end
       end
 
-      def authorize_can_read!
-        authorize! :read_project_security_dashboard, user_project
-      end
-
-      def authorize_can_create!
-        authorize! :create_vulnerability, user_project
-      end
-
       def render_vulnerability(vulnerability)
         if vulnerability.valid?
           present vulnerability, with: EE::API::Entities::Vulnerability
@@ -51,7 +43,7 @@ module API
       end
       post ':id/resolve' do
         vulnerability = find_and_authorize_vulnerability!(:resolve_vulnerability)
-        break not_modified! if vulnerability.closed?
+        break not_modified! if vulnerability.resolved?
 
         vulnerability = ::Vulnerabilities::ResolveService.new(current_user, vulnerability).execute
         render_vulnerability(vulnerability)
@@ -80,7 +72,7 @@ module API
         use :pagination
       end
       get ':id/vulnerabilities' do
-        authorize_can_read!
+        authorize! :read_vulnerability, user_project
 
         vulnerabilities = paginate(
           vulnerabilities_by(user_project)
@@ -96,7 +88,7 @@ module API
         requires :finding_id, type: Integer, desc: 'The id of confirmed vulnerability finding'
       end
       post ':id/vulnerabilities' do
-        authorize_can_create!
+        authorize! :create_vulnerability, user_project
 
         vulnerability = ::Vulnerabilities::CreateService.new(
           user_project, current_user, finding_id: params[:finding_id]
