@@ -258,7 +258,7 @@ For examples of how this is run,
 
 #### Example log output after a user sync **(STARTER ONLY)**
 
-The output from a [user sync](#debug-a-usersync) will be very verbose, and a
+The output from a [manual user sync](#debug-a-usersync) will be very verbose, and a
 single user's successful sync can look like this:
 
 ```ruby
@@ -307,7 +307,7 @@ link between this user and the configured LDAP provider(s):
 
 The identity object will have the DN that GitLab will use to look for the user
 in LDAP. If the DN isn't found, the email is used instead. We can see that
-this user is found:
+this user is found in LDAP:
 
 ```bash
 Instantiating Gitlab::Auth::LDAP::Person with LDIF:
@@ -328,8 +328,11 @@ LDAP search error: No Such Object
 ...in which case the user will be blocked:
 
 ```ruby
-  User Update (0.4ms)  UPDATE "users" SET "state" = $1, "updated_at" = $2 WHERE "users"."id" = $3  [["state", "ldap_blocked"], ["updated_at", "2019-10-18 15:46:22.902177"], ["id", 51]]
+  User Update (0.4ms)  UPDATE "users" SET "state" = $1, "updated_at" = $2 WHERE "users"."id" = $3  [["state", "ldap_blocked"], ["updated_at", "2019-10-18 15:46:22.902177"], ["id", 20]]
 ```
+
+Once the user is found in LDAP the rest of the output will update the GitLab
+database with any changes.
 
 #### Example log output after a group sync **(STARTER ONLY)**
 
