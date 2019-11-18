@@ -99,10 +99,6 @@ class ApplicationSetting < ApplicationRecord
             presence: true,
             if: :plantuml_enabled
 
-  validates :sourcegraph_url,
-            presence: true,
-            if: :sourcegraph_enabled
-
   validates :snowplow_collector_hostname,
             presence: true,
             hostname: true,
@@ -346,10 +342,6 @@ class ApplicationSetting < ApplicationRecord
     reset_memoized_terms
   end
   after_commit :expire_performance_bar_allowed_user_ids_cache, if: -> { previous_changes.key?('performance_bar_allowed_group_id') }
-
-  def sourcegraph_url_is_com?
-    !!(sourcegraph_url =~ /\Ahttps:\/\/(www\.)?sourcegraph\.com/)
-  end
 
   def self.create_from_defaults
     transaction(requires_new: true) do

@@ -5,7 +5,6 @@ import { handleLocationHash } from '~/lib/utils/common_utils';
 import howToMerge from '~/how_to_merge';
 import initPipelines from '~/commit/pipelines/pipelines_bundle';
 import initVueIssuableSidebarApp from '~/issuable_sidebar/sidebar_bundle';
-import initSourcegraph from '~/sourcegraph';
 import initWidget from '../../../vue_merge_request_widget';
 
 export default function() {
@@ -20,5 +19,4 @@ export default function() {
   handleLocationHash();
   howToMerge();
   initWidget();
-  initSourcegraph();
 }

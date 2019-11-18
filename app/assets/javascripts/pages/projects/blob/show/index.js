@@ -3,7 +3,6 @@ import commitPipelineStatus from '~/projects/tree/components/commit_pipeline_sta
 import BlobViewer from '~/blob/viewer/index';
 import initBlob from '~/pages/projects/init_blob';
 import GpgBadges from '~/gpg_badges';
-import '~/sourcegraph/load';
 
 document.addEventListener('DOMContentLoaded', () => {
   new BlobViewer(); // eslint-disable-line no-new

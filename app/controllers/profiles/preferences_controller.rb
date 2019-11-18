@@ -47,8 +47,7 @@ class Profiles::PreferencesController < Profiles::ApplicationController
       :preferred_language,
       :time_display_relative,
       :time_format_in_24h,
-      :show_whitespace_in_diffs,
-      :sourcegraph_enabled
+      :show_whitespace_in_diffs
     ]
   end
 end
