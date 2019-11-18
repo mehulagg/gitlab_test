@@ -184,5 +184,58 @@ describe Ci::CreateCrossProjectPipelineService, '#execute' do
         end
       end
     end
+
+    context 'when configured with bridge job rules' do
+      before do
+        stub_ci_pipeline_yaml_file(config)
+
+        upstream_project
+        downstream_project
+
+        downstream_project.add_maintainer(upstream_project.owner)
+      end
+
+      let(:config) do
+        <<-EOY
+          hello:
+            script: echo world
+
+          bridge-job:
+            rules:
+              - if: $CI_COMMIT_REF_NAME == "master"
+            trigger:
+              project: #{downstream_project.full_path}
+              branch: master
+        EOY
+      end
+
+      let(:primary_pipeline) do
+        params = { ref: 'master',
+                   before: '00000000',
+                   after: upstream_project.commit.id,
+                   commits: [{ message: 'Message' }],
+                   variables_attributes: nil,
+                   push_options: nil,
+                   source_sha: nil,
+                   target_sha: nil }
+
+        Ci::CreatePipelineService.new(upstream_project, upstream_project.owner, params).execute(:push,
+          save_on_errors: false,
+          trigger_request: nil,
+          merge_request: nil,
+          external_pull_request: nil
+        )
+      end
+
+      let(:bridge)             { primary_pipeline.processables.find_by(name: 'bridge-job') }
+      let(:service)            { described_class.new(upstream_project, upstream_project.owner) }
+
+      context 'that include the bridge job' do
+        it 'creates the downstream pipeline' do
+          expect { service.execute(bridge) }
+            .to change(downstream_project.ci_pipelines, :count).by(1)
+        end
+      end
+    end
   end
 end
