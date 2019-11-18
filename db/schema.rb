@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_12_221821) do
+ActiveRecord::Schema.define(version: 2019_11_14_173624) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -1075,15 +1075,13 @@ ActiveRecord::Schema.define(version: 2019_11_12_221821) do
     t.index ["cluster_id"], name: "index_clusters_applications_cert_managers_on_cluster_id", unique: true
   end
 
-  create_table "clusters_applications_crossplane", id: :serial, force: :cascade do |t|
+  create_table "clusters_applications_crossplane", primary_key: "cluster_id", id: :integer, default: nil, force: :cascade do |t|
     t.datetime_with_timezone "created_at", null: false
     t.datetime_with_timezone "updated_at", null: false
-    t.bigint "cluster_id", null: false
     t.integer "status", null: false
     t.string "version", limit: 255, null: false
     t.string "stack", limit: 255, null: false
     t.text "status_reason"
-    t.index ["cluster_id"], name: "index_clusters_applications_crossplane_on_cluster_id", unique: true
   end
 
   create_table "clusters_applications_elastic_stacks", force: :cascade do |t|

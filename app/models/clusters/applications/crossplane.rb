@@ -6,6 +6,7 @@ module Clusters
       VERSION = '0.4.1'
 
       self.table_name = 'clusters_applications_crossplane'
+      self.primary_key = 'cluster_id'
 
       include ::Clusters::Concerns::ApplicationCore
       include ::Clusters::Concerns::ApplicationStatus
