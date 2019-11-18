@@ -26,9 +26,9 @@ Go to [Group Sync failures](#group-sync-failures).
 
 Go to [Admin/External access failures](#adminexternal-access-failures).
 
-## Debugging tools
+## Debugging Tools
 
-### GitLab Logs
+### GitLab logs
 
 If a user account is blocked or unblocked due to the LDAP configuration, a
 message will be [logged to `application.log`][application-log].
@@ -261,7 +261,7 @@ For examples of how this is run,
 The output from a [manual user sync](#debug-a-usersync) will be very verbose, and a
 single user's successful sync can look like this:
 
-```ruby
+```bash
 Syncing user John, email@example.com
   Identity Load (0.9ms)  SELECT  "identities".* FROM "identities" WHERE "identities"."user_id" = 20 AND (provider LIKE 'ldap%') LIMIT 1
 Instantiating Gitlab::Auth::LDAP::Person with LDIF:
@@ -327,7 +327,7 @@ LDAP search error: No Such Object
 
 ...in which case the user will be blocked:
 
-```ruby
+```bash
   User Update (0.4ms)  UPDATE "users" SET "state" = $1, "updated_at" = $2 WHERE "users"."id" = $3  [["state", "ldap_blocked"], ["updated_at", "2019-10-18 15:46:22.902177"], ["id", 20]]
 ```
 
@@ -424,7 +424,7 @@ stating as such:
 No `admin_group` configured for 'ldapmain' provider. Skipping
 ```
 
-## Common Problems and Errors
+## Common Problems
 
 ### Connection to LDAP
 
@@ -468,7 +468,7 @@ main: # 'main' is the GitLab 'provider ID' of this LDAP server
 
 #### All users are getting blocked
 
-### User Logins
+### User logins
 
 This section implies that a [connection to the LDAP server can be
 established](#narrowing-down-the-problem), but one or more users can't login.
@@ -496,9 +496,9 @@ It can also be helpful to [try finding the user]() or
 [debug a user sync](#debug-a-user-sync) **(STARTER ONLY)** to investigate
 further.
 
-Also see [Invalid credentials when logging in](#invalid-credentials-when-logging-in).
+Also see [Invalid credentials when logging in](#invalid-credentials-on-login).
 
-#### Invalid credentials when logging in
+#### Invalid credentials on login
 
 - Make sure the user you are binding with has enough permissions to read the user's
   tree and traverse it.
@@ -542,47 +542,33 @@ have to be taken here:
 The user can do either of these steps [in their
 profile](../../user/profile/index.md#user-profile) or an admin can do it.
 
-### User Permissions or Access to Groups **(STARTER ONLY)**
+### Group memberships **(STARTER ONLY)**
 
-#### User is not being added to a group **(STARTER ONLY)**
+#### Membership(s) not granted **(STARTER ONLY)**
 
 Sometimes you may think a particular user should be added to a GitLab group via
 LDAP group sync, but for some reason it's not happening. There are several
 things to check to debug the situation.
 
-- Ensure LDAP configuration has a `group_base` specified. This configuration is
-  required for group sync to work properly.
-- Ensure the correct LDAP group link is added to the GitLab group. Check group
-  links by visiting the GitLab group, then **Settings dropdown > LDAP groups**.
+- Ensure LDAP configuration has a `group_base` specified.
+  [This configuration][group-sync] is required for group sync to work properly.
+- Ensure the correct [LDAP group link is added to the GitLab group](ldap-ee.md#adding-group-links).
 - Check that the user has an LDAP identity:
   1. Sign in to GitLab as an administrator user.
   1. Navigate to **Admin area > Users**.
   1. Search for the user
   1. Open the user, by clicking on their name. Do not click 'Edit'.
   1. Navigate to the **Identities** tab. There should be an LDAP identity with
-     an LDAP DN as the 'Identifier'.
+     an LDAP DN as the 'Identifier'. If not, this user hasn't logged in with
+     LDAP yet and must do so first.
 
 If all of the above looks good, jump in to a little more advanced debugging.
 Often, the best way to learn more about why group sync is behaving a certain
 way is to enable debug logging. There is verbose output that details every
 step of the sync.
 
-1. Start a Rails console:
-
-   ```bash
-   # For Omnibus installations
-   sudo gitlab-rails console
-
-   # For installations from source
-   sudo -u git -H bundle exec rails console production
-   ```
-
-1. [Set the log level to debug](#enable-debug-output):
-
-   ```ruby
-   Rails.logger.level = Logger::DEBUG
-   ```
-
+1. Enter the [rails console](#rails-console).
+1. Set the [log level to debug](#enable-debug-output):
 1. Choose a GitLab group to test with. This group should have an LDAP group link
    already configured. If the output is `nil`, the group could not be found.
    If a bunch of group attributes are output, your group was found successfully.
@@ -600,8 +586,10 @@ step of the sync.
    EE::Gitlab::Auth::LDAP::Sync::Group.execute_all_providers(group)
    ```
 
-1. Look through the output of the sync. See [example log output](#example-log-output)
-   below for more information about the output.
+1. Look through the output of the sync. See [example log
+   output](#example-log-output-after-a-group-sync-starter-only)
+   for more information about the output.
+
 1. If you still aren't able to see why the user isn't being added, query the
    LDAP group directly to see what members are listed. Still in the Rails console,
    run the following query:
@@ -642,25 +630,26 @@ When [Administrator sync](ldap-ee.md#administrator-sync) has been configured
 but the configured users aren't granted the correct admin privileges, confirm
 the following are true:
 
-- A [`group_base` is also configured](ldap-ee.md#group-sync)
-- The configured `admin_group` in the `gitlab.rb` is a CN, rather than a DN or an array
-- This CN falls under the scope of the configured `group_base`
+- A [`group_base` is also configured](ldap-ee.md#group-sync).
+- The configured `admin_group` in the `gitlab.rb` is a CN, rather than a DN or an array.
+- This CN falls under the scope of the configured `group_base`.
 - The members of the `admin_group` have already logged into GitLab with their LDAP
   credentials. GitLab will only grant this admin access to the users whose
   accounts are already connected to LDAP.
 
 If all the above are true and the users are still not getting access, [run a manual
 group sync](#sync-all-groups) in the rails console and [look through the
-output](#example-log-output-after-a-group-sync) to see what GitLab does when
-it syncs the `admin_group`.
+output](#example-log-output-after-a-group-sync) to see what happens when
+GitLab syncs the `admin_group`.
 
 ### User DN or/and email have changed
 
 When an LDAP user is created in GitLab, their LDAP DN is stored for later reference.
 
-If GitLab cannot find a user by their DN, it will attempt to fallback
+If GitLab cannot find a user by their DN, it will fall back
 to finding the user by their email. If the lookup is successful, GitLab will
-update the stored DN to the new value.
+update the stored DN to the new value so both values will now match what's in
+LDAP.
 
 If the email has changed and the DN has not, GitLab will find the user with
 the DN and update its own record of the user's email to match the one in LDAP.
@@ -675,7 +664,7 @@ The following script will update the emails for all provided users so they
 won't be blocked or unable to access their accounts.
 
 >**NOTE**: The following script will require that any new accounts with the new
-email address are removed. This is because emails have to be unique in GitLab.
+email address are removed first. This is because emails have to be unique in GitLab.
 
 Go to the [rails console](#rails-console) and then run:
 
@@ -694,7 +683,7 @@ emails.each do |username, email|
 end
 ```
 
-You can then [run a UserSync](#usersync) **(STARTER ONLY)** to sync the latest DN
+You can then [run a UserSync](#sync-all-users) **(STARTER ONLY)** to sync the latest DN
 for each of these users.
 
 <!-- LINK REFERENCES -->
@@ -707,6 +696,7 @@ for each of these users.
 [ldap-check]: ../raketasks/ldap.md#check
 [user-sync]: ldap-ee.md#user-sync
 [group-sync]: ldap-ee.md#group-sync
+[admin-sync]: ldap-ee.md#administrator-sync
 [config]: ldap.md#configuration
 
 [^1]: In Active Directory, a user is marked as disabled/blocked if the user
