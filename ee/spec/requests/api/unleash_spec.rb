@@ -259,13 +259,16 @@ describe API::Unleash do
 
             expect(response).to have_gitlab_http_status(:ok)
             feature_json = json_response['features'].first
-            expect(feature_json['enabled']).to eq(true)
-            expect(feature_json['strategies']).to eq([{
-              'name' => 'userWithId',
-              'parameters' => {
-                'userIds' => 'fred'
+            expect(feature_json['enabled']).to eq(false)
+            expect(feature_json['strategies']).to contain_exactly(
+              { 'name' => "default", 'parameters' => {} },
+              {
+                'name' => 'userWithId',
+                'parameters' => {
+                  'userIds' => 'fred'
+                }
               }
-            }])
+            )
           end
         end
 
