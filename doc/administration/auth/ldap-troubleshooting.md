@@ -97,7 +97,7 @@ Please see [the official
 #### Debug LDAP user filter
 
 [`ldapsearch`](#ldapsearch) allows you to test your configured
-[user filter](ldap.md#using-an-ldap-filter-to-limit-access-to-your-gitlab-server)
+[user filter][user-filter]
 to confirm that it returns the users you expect it to return.
 
 ```sh
@@ -468,10 +468,12 @@ main: # 'main' is the GitLab 'provider ID' of this LDAP server
 
 #### All users are getting blocked
 
+<!-- TODO -->
+
 ### User logins
 
 This section implies that a [connection to the LDAP server can be
-established](#narrowing-down-the-problem), but one or more users can't login.
+established](#troubleshooting-workflow), but one or more users can't login.
 
 #### No users are found
 
@@ -479,9 +481,9 @@ If [you've confirmed](#ldap-check) that a connection to LDAP can be
 established but GitLab doesn't show you LDAP users in the output, one of the
 following is most likely true:
 
-  - The `bind_dn` user doesn't have enough permissions to traverse the user tree
-  - The user(s) don't fall under the [configured `base`](ldap.md#configuration)
-  - The configured `user_filter` blocks access to the user(s)
+  - The `bind_dn` user doesn't have enough permissions to traverse the user tree.
+  - The user(s) don't fall under the [configured `base`](ldap.md#configuration).
+  - The [configured `user_filter`][user-filter] blocks access to the user(s).
 
 In this case, you con confirm which of the above is true using
 [ldapsearch](#ldapsearch) with the existing LDAP configuration in your
@@ -489,14 +491,31 @@ In this case, you con confirm which of the above is true using
 
 #### User(s) cannot login
 
-As the user tries to login, [tail the logs][tail-logs] and [look through the
-output](#using-logs) for any errors or other messages pertaining to this user.
+A user can have trouble logging in for any number of reasons. To get started,
+here are some questions to ask yourself:
 
-It can also be helpful to [try finding the user]() or
-[debug a user sync](#debug-a-user-sync) **(STARTER ONLY)** to investigate
-further.
+  - Does the user fall under the [configured `base`](ldap.md#configuration) in
+    LDAP? The user must fall under this `base` to login.
+  - Does the user pass through the [configured `user_filter`][user-filter]?
+    If one is not configured, this question can be ignored. If it is, then the
+    user must also pass through this filter to be allowed to login.
+    - Refer to our docs on [debugging the `user_filter`](#debug-ldap-user-filter).
 
-Also see [Invalid credentials when logging in](#invalid-credentials-on-login).
+If the above are both okay, the next place to look for the problem is
+the logs themselves while reproducing the issue.
+
+  - Ask the user to login and let it fail.
+  - [Look through the output](#gitlab-logs) for any errors or other
+    messages about the login. You may see one of the other error messages on
+    this page, in which case that section can help resolve the issue.
+
+If the logs don't lead to the root of the problem, use the
+[rails console](#rails-console) to [query this user](#query-a-user-in-ldap)
+to see if GitLab can read this user on the LDAP server.
+
+It can also be helpful to
+[debug a user sync](#sync-all-users-starter-only) **(STARTER ONLY)** to
+investigate further.
 
 #### Invalid credentials on login
 
@@ -541,6 +560,13 @@ have to be taken here:
 
 The user can do either of these steps [in their
 profile](../../user/profile/index.md#user-profile) or an admin can do it.
+
+#### Duplicate account
+
+<!-- TODO
+  different emails
+  creates account with username ending in `1`
+-->
 
 ### Group memberships **(STARTER ONLY)**
 
@@ -694,6 +720,7 @@ for each of these users.
 [reconfigure]: ../restart_gitlab.md#omnibus-gitlab-reconfigure
 [restart]: ../restart_gitlab.md#installations-from-source
 [ldap-check]: ../raketasks/ldap.md#check
+[user-filter]: ldap.md#using-an-ldap-filter-to-limit-access-to-your-gitlab-server
 [user-sync]: ldap-ee.md#user-sync
 [group-sync]: ldap-ee.md#group-sync
 [admin-sync]: ldap-ee.md#administrator-sync
