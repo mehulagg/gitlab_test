@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Git HTTP requests' do
@@ -450,7 +452,7 @@ describe 'Git HTTP requests' do
           context "when authentication fails" do
             context "when the user is IP banned" do
               before do
-                stub_rack_attack_setting(enabled: true)
+                stub_rack_attack_setting(enabled: true, ip_whitelist: [])
               end
 
               it "responds with status 403" do

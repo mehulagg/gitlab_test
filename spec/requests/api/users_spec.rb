@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe API::Users do
@@ -630,32 +632,6 @@ describe API::Users do
       let(:api_call) { method(:api) }
 
       include_examples 'does not allow the "read_user" scope'
-    end
-  end
-
-  describe "GET /users/sign_up" do
-    context 'when experimental signup_flow is active' do
-      before do
-        stub_experiment_for_user(signup_flow: true)
-      end
-
-      it "shows sign up page" do
-        get "/users/sign_up"
-        expect(response).to have_gitlab_http_status(200)
-        expect(response).to render_template(:new)
-      end
-    end
-
-    context 'when experimental signup_flow is not active' do
-      before do
-        stub_experiment_for_user(signup_flow: false)
-      end
-
-      it "redirects to sign in page" do
-        get "/users/sign_up"
-        expect(response).to have_gitlab_http_status(302)
-        expect(response).to redirect_to(new_user_session_path(anchor: 'register-pane'))
-      end
     end
   end
 
