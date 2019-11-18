@@ -439,11 +439,14 @@ GitLab. Common combinations are `encryption: 'plain'` and `port: 389`, OR
 
 If GitLab cannot reach your LDAP endpoint, you will see a message like this:
 
-```
+```bash
 Could not authenticate you from Ldapmain because "Connection timed out - user specified timeout".
 ```
 
-If your configured LDAP provider and/or endpoint is offline or otherwise unreachable by GitLab, no LDAP user will be able to authenticate and log in. GitLab does not cache or store credentials for LDAP users to provide authentication during an LDAP outage.
+If your configured LDAP provider and/or endpoint is offline or otherwise
+unreachable by GitLab, no LDAP user will be able to authenticate and log in.
+GitLab does not cache or store credentials for LDAP users to provide authentication
+during an LDAP outage.
 
 Contact your LDAP provider or administrator if you are seeing this error.
 
@@ -465,10 +468,6 @@ main: # 'main' is the GitLab 'provider ID' of this LDAP server
   group_base: 'cn=my_group,ou=groups,dc=example,dc=com'
   admin_group: 'my_admin_group'
 ```
-
-#### All users are getting blocked
-
-<!-- TODO -->
 
 ### User logins
 
