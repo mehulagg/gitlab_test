@@ -1,6 +1,16 @@
 <script>
+import _ from 'underscore';
 import { mapActions, mapState, mapGetters } from 'vuex';
-import { GlDropdown, GlDropdownItem, GlFormGroup, GlButton, GlTooltipDirective } from '@gitlab/ui';
+import {
+  GlDropdown,
+  GlDropdownHeader,
+  GlSearchBoxByClick,
+  GlSearchBoxByType,
+  GlDropdownItem,
+  GlFormGroup,
+  GlButton,
+  GlTooltipDirective,
+} from '@gitlab/ui';
 import {
   canScroll,
   isScrolledToTop,
@@ -13,6 +23,9 @@ import Icon from '~/vue_shared/components/icon.vue';
 export default {
   components: {
     GlDropdown,
+    GlSearchBoxByType,
+    GlSearchBoxByClick,
+    GlDropdownHeader,
     GlDropdownItem,
     GlFormGroup,
     GlButton,
@@ -58,6 +71,14 @@ export default {
     showLoader() {
       return this.logs.isLoading || !this.logs.isComplete;
     },
+    environmentSearchTerm: {
+      get() {
+        return this.environments.searchTerm;
+      },
+      set(value) {
+        this.debouncedUpdateSearchTerm(value);
+      },
+    },
   },
   watch: {
     trace(val) {
@@ -76,21 +97,32 @@ export default {
   mounted() {
     this.setInitData({
       projectPath: this.projectFullPath,
+      environmentsPath: this.environmentsPath,
       environmentId: this.environmentId,
       podName: this.currentPodName,
     });
 
-    this.fetchEnvironments(this.environmentsPath);
+    this.fetchEnvironments();
   },
   destroyed() {
     window.removeEventListener('scroll', this.updateScrollState);
   },
   methods: {
-    ...mapActions('environmentLogs', ['setInitData', 'showPodLogs', 'fetchEnvironments']),
+    ...mapActions('environmentLogs', [
+      'setInitData',
+      'showPodLogs',
+      'fetchEnvironments',
+      'updateSearchTerm',
+    ]),
     updateScrollState() {
       this.scrollToTopEnabled = canScroll() && !isScrolledToTop();
       this.scrollToBottomEnabled = canScroll() && !isScrolledToBottom();
     },
+
+    debouncedUpdateSearchTerm: _.debounce(function debounceUpdateSearchTerm(value) {
+      this.updateSearchTerm(value);
+    }, 500),
+
     scrollUp,
     scrollDown,
   },
@@ -110,10 +142,11 @@ export default {
           <gl-dropdown
             id="environments-dropdown"
             :text="currentEnvironmentName"
-            :disabled="environments.isLoading"
             class="d-flex js-environments-dropdown"
             toggle-class="dropdown-menu-toggle"
           >
+            <gl-dropdown-header>{{ s__('Environments|Environment') }}</gl-dropdown-header>
+            <gl-search-box-by-type v-model.trim="environmentSearchTerm" class="m-2" />
             <gl-dropdown-item
               v-for="env in environments.options"
               :key="env.id"
@@ -121,6 +154,7 @@ export default {
             >
               {{ env.name }}
             </gl-dropdown-item>
+            <div v-if="environments.isLoading">loading... :)</div>
           </gl-dropdown>
         </gl-form-group>
         <gl-form-group

@@ -1,3 +1,5 @@
+import invalidUrl from '~/lib/utils/invalid_url';
+
 export default () => ({
   /**
    * Current project path
@@ -8,6 +10,8 @@ export default () => ({
    * Environments list information
    */
   environments: {
+    environmentsPath: invalidUrl,
+    searchTerm: '',
     options: [],
     isLoading: false,
     current: null,

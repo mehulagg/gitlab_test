@@ -2,12 +2,16 @@ import * as types from './mutation_types';
 
 export default {
   /** Project data */
-  [types.SET_PROJECT_ENVIRONMENT](state, { projectPath, environmentId }) {
+  [types.SET_PROJECT_ENVIRONMENT](state, { projectPath, environmentId, environmentsPath }) {
     state.projectPath = projectPath;
+    state.environments.environmentsPath = environmentsPath;
     state.environments.current = environmentId;
   },
 
   /** Environments data */
+  [types.SET_ENVIRONMENTS_SEARCH_TERM](state, searchTerm) {
+    state.environments.searchTerm = searchTerm;
+  },
   [types.REQUEST_ENVIRONMENTS_DATA](state) {
     state.environments.options = [];
     state.environments.isLoading = true;

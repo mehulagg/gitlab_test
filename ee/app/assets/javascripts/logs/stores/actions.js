@@ -21,8 +21,11 @@ const requestLogsUntilData = ({ projectPath, environmentId, podName }) =>
       });
   });
 
-export const setInitData = ({ dispatch, commit }, { projectPath, environmentId, podName }) => {
-  commit(types.SET_PROJECT_ENVIRONMENT, { projectPath, environmentId });
+export const setInitData = (
+  { dispatch, commit },
+  { projectPath, environmentId, environmentsPath, podName },
+) => {
+  commit(types.SET_PROJECT_ENVIRONMENT, { projectPath, environmentId, environmentsPath });
   commit(types.SET_CURRENT_POD_NAME, podName);
   dispatch('fetchLogs');
 };
@@ -32,11 +35,25 @@ export const showPodLogs = ({ dispatch, commit }, podName) => {
   dispatch('fetchLogs');
 };
 
-export const fetchEnvironments = ({ commit }, environmentsPath) => {
+export const updateSearchTerm = ({ dispatch, commit }, searchTerm) => {
+  commit(types.SET_ENVIRONMENTS_SEARCH_TERM, searchTerm);
+  dispatch('fetchEnvironments');
+};
+
+export const fetchEnvironments = ({ commit, state }) => {
   commit(types.REQUEST_ENVIRONMENTS_DATA);
 
+  let url = state.environments.environmentsPath;
+  // if (state.environments.searchTerm) {
+    url = state.environments.environmentsPath.replace(
+      'environments.json',
+      `environments/search.json?query=${state.environments.searchTerm || ''}`,
+    );
+  // }
+  console.log('Fetching from...', url);
+
   axios
-    .get(environmentsPath)
+    .get(url)
     .then(({ data }) => {
       commit(types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS, data.environments);
     })
