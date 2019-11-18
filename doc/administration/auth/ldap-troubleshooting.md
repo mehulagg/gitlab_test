@@ -519,6 +519,9 @@ investigate further.
 
 #### Invalid credentials on login
 
+If that the login credentials used are accurate on LDAP, ensure the following
+are true for the user in question:
+
 - Make sure the user you are binding with has enough permissions to read the user's
   tree and traverse it.
 - Check that the `user_filter` is not blocking otherwise valid users.
@@ -535,7 +538,7 @@ and the [production.log][production-log] shows an error that looks like this:
 ```
 
 This error is referring to the email address in LDAP, `email@example.com`. Email
-addresses must be unique in GitLab and LDAP uses a user's primary email (as opposed
+addresses must be unique in GitLab and LDAP links to a user's primary email (as opposed
 to any of their possibly-numerous secondary emails). Another user (or even the
 same user) has the email `email@example.com` set as a secondary email, which
 is throwing this error.
@@ -560,13 +563,6 @@ have to be taken here:
 
 The user can do either of these steps [in their
 profile](../../user/profile/index.md#user-profile) or an admin can do it.
-
-#### Duplicate account
-
-<!-- TODO
-  different emails
-  creates account with username ending in `1`
--->
 
 ### Group memberships **(STARTER ONLY)**
 
