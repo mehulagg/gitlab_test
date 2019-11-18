@@ -74,7 +74,10 @@ module EE
 
             entry :rules, ::Gitlab::Ci::Config::Entry::Rules,
               description: 'List of evaluable Rules to determine job inclusion.',
-              inherit: false
+              inherit: false,
+              metadata: {
+                allowed_when: %w[on_success on_failure always never manual delayed].freeze
+              }
 
             entry :variables, ::Gitlab::Ci::Config::Entry::Variables,
               description: 'Environment variables available for this job.',
