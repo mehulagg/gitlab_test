@@ -13,7 +13,8 @@ module Gitlab
 
       def check!
         version = File.open(version_file, &:readline)
-        verify_version!(version)
+        VersionManager.check(version)
+        @shared.set_version(version)
       rescue => e
         @shared.error(e)
         false

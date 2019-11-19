@@ -67,6 +67,7 @@ tree:
       - stages:
         - :statuses
       - :external_pull_request
+      - :merge_request
     - :external_pull_requests
     - :auto_devops
     - :triggers

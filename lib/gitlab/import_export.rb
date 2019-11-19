@@ -7,7 +7,7 @@ module Gitlab
     # For every version update the version history in these docs must be kept up to date:
     # - development/import_export.md
     # - user/project/settings/import_export.md
-    VERSION = '0.2.4'
+    VERSION = '0.2.5'
     FILENAME_LIMIT = 50
 
     def export_path(relative_path:)
@@ -42,10 +42,6 @@ module Gitlab
       "project.wiki.bundle"
     end
 
-    def config_file
-      Rails.root.join('lib/gitlab/import_export/import_export.yml')
-    end
-
     def version_filename
       'VERSION'
     end
@@ -66,10 +62,6 @@ module Gitlab
 
     def group_filename
       'group.json'
-    end
-
-    def group_config_file
-      Rails.root.join('lib/gitlab/import_export/group_import_export.yml')
     end
   end
 end

@@ -23,7 +23,7 @@
 module Gitlab
   module ImportExport
     class Shared
-      attr_reader :errors, :exportable, :logger
+      attr_reader :errors, :exportable, :logger, :version
 
       LOCKS_DIRECTORY = 'locks'
 
@@ -67,6 +67,10 @@ module Gitlab
 
       def add_error_message(message)
         @errors << filtered_error_message(message)
+      end
+
+      def set_version(version)
+        @version = version
       end
 
       def after_export_in_progress?

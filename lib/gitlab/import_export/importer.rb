@@ -34,65 +34,23 @@ module Gitlab
       attr_accessor :archive_file, :current_user, :project, :shared
 
       def restorers
-        [repo_restorer, wiki_restorer, project_tree, avatar_restorer,
-         uploads_restorer, lfs_restorer, statistics_restorer]
+        import_manager.restorers
+      end
+
+      def import_manager
+        @import_manager ||= VersionManager.import_manager_klass_for_version(shared.version).new(project: project)
       end
 
       def import_file
-        Gitlab::ImportExport::FileImporter.import(project: project,
-                                                  archive_file: archive_file,
-                                                  shared: shared)
+        import_manager.import_file
       end
 
       def check_version!
-        Gitlab::ImportExport::VersionChecker.check!(shared: shared)
-      end
-
-      def project_tree
-        @project_tree ||= Gitlab::ImportExport::ProjectTreeRestorer.new(user: current_user,
-                                                                        shared: shared,
-                                                                        project: project)
-      end
-
-      def avatar_restorer
-        Gitlab::ImportExport::AvatarRestorer.new(project: project, shared: shared)
-      end
-
-      def repo_restorer
-        Gitlab::ImportExport::RepoRestorer.new(path_to_bundle: repo_path,
-                                               shared: shared,
-                                               project: project)
-      end
-
-      def wiki_restorer
-        Gitlab::ImportExport::WikiRestorer.new(path_to_bundle: wiki_repo_path,
-                                               shared: shared,
-                                               project: ProjectWiki.new(project),
-                                               wiki_enabled: project.wiki_enabled?)
-      end
-
-      def uploads_restorer
-        Gitlab::ImportExport::UploadsRestorer.new(project: project, shared: shared)
-      end
-
-      def lfs_restorer
-        Gitlab::ImportExport::LfsRestorer.new(project: project, shared: shared)
-      end
-
-      def statistics_restorer
-        Gitlab::ImportExport::StatisticsRestorer.new(project: project, shared: shared)
+        VersionChecker.check!
       end
 
       def path_with_namespace
         File.join(project.namespace.full_path, project.path)
-      end
-
-      def repo_path
-        File.join(shared.export_path, Gitlab::ImportExport.project_bundle_filename)
-      end
-
-      def wiki_repo_path
-        File.join(shared.export_path, Gitlab::ImportExport.wiki_repo_bundle_filename)
       end
 
       def remove_import_file
@@ -131,5 +89,3 @@ module Gitlab
     end
   end
 end
-
-Gitlab::ImportExport::Importer.prepend_if_ee('EE::Gitlab::ImportExport::Importer')

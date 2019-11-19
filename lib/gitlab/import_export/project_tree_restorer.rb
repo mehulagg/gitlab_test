@@ -27,8 +27,6 @@ module Gitlab
 
         @project_members = @tree_hash.delete('project_members')
 
-        RelationRenameService.rename(@tree_hash)
-
         ActiveRecord::Base.uncached do
           ActiveRecord::Base.no_touching do
             update_project_params!
@@ -54,14 +52,9 @@ module Gitlab
       end
 
       def members_mapper
-        @members_mapper ||= Gitlab::ImportExport::MembersMapper.new(exported_members: @project_members,
+        @members_mapper ||= MembersMapper.new(exported_members: @project_members,
                                                                     user: @user,
                                                                     project: @project)
-      end
-
-      # A Hash of the imported merge request ID -> imported ID.
-      def merge_requests_mapping
-        @merge_requests_mapping ||= {}
       end
 
       # Loops through the tree of models defined in import_export.yml and
@@ -98,18 +91,6 @@ module Gitlab
 
         relation_object.project = @project
         relation_object.save!
-
-        save_id_mapping(relation_key, data_hash, relation_object)
-      end
-
-      # Older, serialized CI pipeline exports may only have a
-      # merge_request_id and not the full hash of the merge request. To
-      # import these pipelines, we need to preserve the mapping between
-      # the old and new the merge request ID.
-      def save_id_mapping(relation_key, data_hash, relation_object)
-        return unless relation_key == 'merge_requests'
-
-        merge_requests_mapping[data_hash['id']] = relation_object.id
       end
 
       def project_relations
@@ -129,7 +110,7 @@ module Gitlab
           present_project_override_params)
 
         # Cleaning all imported and overridden params
-        project_params = Gitlab::ImportExport::AttributeCleaner.clean(
+        project_params = AttributeCleaner.clean(
           relation_hash: project_params,
           relation_class: Project,
           excluded_keys: excluded_keys_for_relation(:project))
@@ -170,11 +151,10 @@ module Gitlab
           transform_sub_relations!(data_hash, sub_relation_key, sub_relation_definition)
         end
 
-        Gitlab::ImportExport::RelationFactory.create(
+        RelationFactory.create(
           relation_sym: relation_key.to_sym,
           relation_hash: data_hash,
           members_mapper: members_mapper,
-          merge_requests_mapping: merge_requests_mapping,
           user: @user,
           project: @project,
           excluded_keys: excluded_keys_for_relation(relation_key))
@@ -212,7 +192,7 @@ module Gitlab
       end
 
       def reader
-        @reader ||= Gitlab::ImportExport::Reader.new(shared: @shared)
+        @reader ||= Reader.new(shared: @shared)
       end
 
       def excluded_keys_for_relation(relation)

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module EE::Projects::ImportExport::ExportService
+module EE::Projects::ImportExport::ExportManager
   extend ActiveSupport::Concern
   extend ::Gitlab::Utils::Override
 

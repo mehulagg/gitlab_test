@@ -3,7 +3,18 @@
 module Gitlab
   module ImportExport
     class Config
-      def initialize(config: Gitlab::ImportExport.config_file)
+
+      class << self
+        def config_file
+          Rails.root.join('lib/gitlab/import_export/import_export.yml')
+        end
+
+        def group_config_file
+          Rails.root.join('lib/gitlab/import_export/group_import_export.yml')
+        end
+      end
+
+      def initialize(config: Config.config_file)
         @config = config
         @hash = parse_yaml
         @hash.deep_symbolize_keys!

@@ -36,35 +36,16 @@ module Projects
       end
 
       def exporters
-        [version_saver, avatar_saver, project_tree_saver, uploads_saver, repo_saver, wiki_repo_saver, lfs_saver]
+        export_manager.exporters
+      end
+
+      def export_manager
+        @export_manager ||= Gitlab::ImportExport::VersionManager.export_manager_klass_for_version(Gitlab::ImportExport::VERSION)
+                                                                .new(project, user, params)
       end
 
       def version_saver
         Gitlab::ImportExport::VersionSaver.new(shared: shared)
-      end
-
-      def avatar_saver
-        Gitlab::ImportExport::AvatarSaver.new(project: project, shared: shared)
-      end
-
-      def project_tree_saver
-        Gitlab::ImportExport::ProjectTreeSaver.new(project: project, current_user: current_user, shared: shared, params: params)
-      end
-
-      def uploads_saver
-        Gitlab::ImportExport::UploadsSaver.new(project: project, shared: shared)
-      end
-
-      def repo_saver
-        Gitlab::ImportExport::RepoSaver.new(project: project, shared: shared)
-      end
-
-      def wiki_repo_saver
-        Gitlab::ImportExport::WikiRepoSaver.new(project: project, shared: shared)
-      end
-
-      def lfs_saver
-        Gitlab::ImportExport::LfsSaver.new(project: project, shared: shared)
       end
 
       def cleanup_and_notify_error
@@ -91,5 +72,3 @@ module Projects
     end
   end
 end
-
-Projects::ImportExport::ExportService.prepend_if_ee('EE::Projects::ImportExport::ExportService')

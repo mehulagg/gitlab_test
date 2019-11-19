@@ -18,29 +18,31 @@
 # and also it will with the newer versions.
 module Gitlab
   module ImportExport
-    class RelationRenameService
-      RENAMES = {
-        'pipelines' => 'ci_pipelines' # Added in 11.6, remove in 11.7
-      }.freeze
+    module V0_2_4 # rubocop:disable Naming/ClassAndModuleCamelCase
+      class RelationRenameService
+        RENAMES = {
+          'pipelines' => 'ci_pipelines' # Added in 11.6, remove in 11.7
+        }.freeze
 
-      def self.rename(tree_hash)
-        return unless tree_hash&.present?
+        def self.rename(tree_hash)
+          return unless tree_hash&.present?
 
-        RENAMES.each do |old_name, new_name|
-          old_entry = tree_hash.delete(old_name)
+          RENAMES.each do |old_name, new_name|
+            old_entry = tree_hash.delete(old_name)
 
-          next if tree_hash[new_name]
-          next unless old_entry
+            next if tree_hash[new_name]
+            next unless old_entry
 
-          tree_hash[new_name] = old_entry
+            tree_hash[new_name] = old_entry
+          end
         end
-      end
 
-      def self.add_new_associations(tree_hash)
-        RENAMES.each do |old_name, new_name|
-          next if tree_hash.key?(old_name)
+        def self.add_new_associations(tree_hash)
+          RENAMES.each do |old_name, new_name|
+            next if tree_hash.key?(old_name)
 
-          tree_hash[old_name] = tree_hash[new_name]
+            tree_hash[old_name] = tree_hash[new_name]
+          end
         end
       end
     end

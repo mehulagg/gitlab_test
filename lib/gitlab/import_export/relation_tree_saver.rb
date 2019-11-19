@@ -3,11 +3,11 @@
 module Gitlab
   module ImportExport
     class RelationTreeSaver
-      include Gitlab::ImportExport::CommandLineUtil
+      include CommandLineUtil
 
       def serialize(exportable, relations_tree)
         if Feature.enabled?(:export_fast_serialize, default_enabled: true)
-          Gitlab::ImportExport::FastHashSerializer
+          FastHashSerializer
             .new(exportable, relations_tree)
             .execute
         else
