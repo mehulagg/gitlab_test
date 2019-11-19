@@ -17,17 +17,36 @@ module Gitlab
           # class that can be used to obtain a dashboard.
           # @return [Gitlab::Metrics::Dashboard::Services::BaseService]
           def call(params)
-            return SERVICES::CustomMetricEmbedService if custom_metric_embed?(params)
-            return SERVICES::GrafanaMetricEmbedService if grafana_metric_embed?(params)
-            return SERVICES::DynamicEmbedService if dynamic_embed?(params)
-            return SERVICES::DefaultEmbedService if params[:embedded]
-            return SERVICES::SystemDashboardService if system_dashboard?(params[:dashboard_path])
-            return SERVICES::ProjectDashboardService if params[:dashboard_path]
-
-            default_service
+            if result = embed_service(params)
+              result
+            elsif result = dashboard_service(params)
+              result
+            else
+              default_service
+            end
           end
 
           private
+
+          def embed_service(params)
+            if custom_metric_embed?(params)
+              SERVICES::CustomMetricEmbedService
+            elsif grafana_metric_embed?(params)
+              SERVICES::GrafanaMetricEmbedService
+            elsif dynamic_embed?(params)
+              SERVICES::DynamicEmbedService
+            elsif params[:embedded]
+              SERVICES::DefaultEmbedService
+            end
+          end
+
+          def dashboard_service(params)
+            if system_dashboard?(params[:dashboard_path])
+              SERVICES::SystemDashboardService
+            elsif params[:dashboard_path]
+              SERVICES::ProjectDashboardService
+            end
+          end
 
           def default_service
             SERVICES::SystemDashboardService
