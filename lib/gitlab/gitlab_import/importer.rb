@@ -41,7 +41,7 @@ module Gitlab
               iid: issue["iid"],
               description: body.join,
               title: issue["title"],
-              state: issue["state"],
+              state_id: Issue.available_states[issue["state"]],
               updated_at: issue["updated_at"],
               author_id: gitlab_user_id(project, issue["author"]["id"]),
               confidential: issue["confidential"]

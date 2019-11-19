@@ -18,19 +18,29 @@ describe Gitlab::GitlabImport::Importer do
             'id' => 283999,
             'name' => 'John Doe'
           }
+        },
+        {
+          'id' => 2579858,
+          'iid' => 4,
+          'title' => 'Issue',
+          'description' => 'Dolum Amet',
+          'state' => 'closed',
+          'confidential' => false,
+          'author' => {
+            'id' => 283999,
+            'name' => 'John Doe'
+          }
         }
       ])
       stub_request('issues/3/notes', [])
+      stub_request('issues/4/notes', [])
     end
 
-    it 'persists issues' do
+    it 'persists issues with correct attributes' do
       project = create(:project, import_source: 'asd/vim')
       project.build_import_data(credentials: { password: 'password' })
-
       subject = described_class.new(project)
-      subject.execute
-
-      expected_attributes = {
+      issue_1_expected_attributes = {
         iid: 3,
         title: 'Issue',
         description: "*Created by: John Doe*\n\nLorem ipsum",
@@ -38,8 +48,21 @@ describe Gitlab::GitlabImport::Importer do
         confidential: true,
         author_id: project.creator_id
       }
+      issue_2_expected_attributes = {
+        iid: 4,
+        title: 'Issue',
+        description: "*Created by: John Doe*\n\nDolum Amet",
+        state: 'closed',
+        confidential: false,
+        author_id: project.creator_id
+      }
 
-      expect(project.issues.first).to have_attributes(expected_attributes)
+      subject.execute
+
+      [issue_1_expected_attributes, issue_2_expected_attributes].each do |expected_attributes|
+        issue = project.issues.find_by_iid(expected_attributes[:iid])
+        expect(issue).to have_attributes(expected_attributes)
+      end
     end
 
     def stub_request(path, body)

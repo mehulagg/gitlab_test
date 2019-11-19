@@ -10,7 +10,7 @@ module Gitlab
           milestone: milestone,
           title: raw_data.title,
           description: description,
-          state: state,
+          state_id: Issue.available_states[state],
           author_id: author_id,
           assignee_ids: Array(assignee_id),
           created_at: raw_data.created_at,

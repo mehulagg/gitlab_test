@@ -25,7 +25,11 @@ FactoryBot.define do
       closed_at { Time.now }
     end
 
-    after(:build) do |issue, evaluator|
+    transient do
+      state { "opened" }
+    end
+
+    after(:build, :stub) do |issue, evaluator|
       issue.state_id = Issue.available_states[evaluator.state]
     end
 

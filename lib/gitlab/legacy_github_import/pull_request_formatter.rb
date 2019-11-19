@@ -17,7 +17,7 @@ module Gitlab
           target_project: target_branch_project,
           target_branch: target_branch_name,
           target_branch_sha: target_branch_sha,
-          state: state,
+          state_id: MergeRequest.available_states[state],
           milestone: milestone,
           author_id: author_id,
           assignee_id: assignee_id,

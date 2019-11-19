@@ -136,26 +136,6 @@ module Issuable
 
     strip_attributes :title
 
-    # The state_machine gem will reset the value of state_id unless it
-    # is a raw attribute passed in here:
-    # https://gitlab.com/gitlab-org/gitlab/issues/35746#note_241148787
-    #
-    # This assumes another initialize isn't defined. Otherwise this
-    # method may need to be prepended.
-    def initialize(attributes = nil)
-      if attributes.is_a?(Hash)
-        attr = attributes.symbolize_keys
-
-        if attr.key?(:state) && !attr.key?(:state_id)
-          value = attr.delete(:state)
-          state_id = self.class.available_states[value]
-          attributes[:state_id] = state_id if state_id
-        end
-      end
-
-      super(attributes)
-    end
-
     # We want to use optimistic lock for cases when only title or description are involved
     # http://api.rubyonrails.org/classes/ActiveRecord/Locking/Optimistic.html
     def locking_enabled?
@@ -330,10 +310,6 @@ module Issuable
 
   def state
     self.class.available_states.key(state_id)
-  end
-
-  def state=(value)
-    self.state_id = self.class.available_states[value]
   end
 
   def resource_parent

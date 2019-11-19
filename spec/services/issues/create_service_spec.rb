@@ -37,6 +37,26 @@ describe Issues::CreateService do
         expect(issue.due_date).to eq Date.tomorrow
       end
 
+      context 'when passing state parameter' do
+        it 'creates issue with correct state' do
+          opts[state:] = 'closed'
+
+          expect(issue).to be_persisted
+          expect(issue.state).to eq('closed')
+          expect(issue.state_id).to eq(Issue.available_states[:closed])
+        end
+
+        context 'when state_id parameter is also present' do
+          it 'creates issue with correct state' do
+            opts.merge!(state: 'opened', state_id: Issue.available_states[:closed])
+
+            expect(issue).to be_persisted
+            expect(issue.state).to eq('closed')
+            expect(issue.state_id).to eq(Issue.available_states[:closed])
+          end
+        end
+      end
+
       it 'refreshes the number of open issues', :use_clean_rails_memory_store_caching do
         expect { issue }.to change { project.open_issues_count }.from(0).to(1)
       end

@@ -181,7 +181,7 @@ module Gitlab
             target_project: project,
             target_branch: pull_request.target_branch_name,
             target_branch_sha: target_branch_sha,
-            state: pull_request.state,
+            state_id: MergeRequest.available_states[pull_request.state],
             author_id: gitlab_user_id(project, pull_request.author),
             assignee_id: nil,
             created_at: pull_request.created_at,

@@ -127,6 +127,7 @@ module Gitlab
 
           assignee_id = user_info(bug['ixPersonAssignedTo'])[:gitlab_id]
           author_id = user_info(bug['ixPersonOpenedBy'])[:gitlab_id] || project.creator_id
+          state = bug['fOpen'] == 'true' ? 'opened' : 'closed'
 
           issue = Issue.create!(
             iid:          bug['ixBug'],
@@ -135,7 +136,7 @@ module Gitlab
             description:  body,
             author_id:    author_id,
             assignee_ids: [assignee_id],
-            state:        bug['fOpen'] == 'true' ? 'opened' : 'closed',
+            state_id:     Issue.available_states[state],
             created_at:   date,
             updated_at:   DateTime.parse(bug['dtLastUpdated'])
           )

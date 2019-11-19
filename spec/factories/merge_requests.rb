@@ -39,6 +39,10 @@ FactoryBot.define do
       target_branch { "feature" }
     end
 
+    transient do
+      state { "opened" }
+    end
+
     trait :merged do
       state_id { MergeRequest.available_states[:merged] }
     end
@@ -51,7 +55,7 @@ FactoryBot.define do
     trait :merged_last_month do
       merged
 
-      after(:build) do |merge_request|
+      after(:build, :stub) do |merge_request|
         merge_request.build_metrics.merged_at = 1.month.ago
       end
     end

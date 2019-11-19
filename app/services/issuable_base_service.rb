@@ -28,9 +28,24 @@ class IssuableBaseService < BaseService
       params.delete(:discussion_locked)
     end
 
+    filter_state(issuable)
     filter_assignee(issuable)
     filter_milestone
     filter_labels
+  end
+
+  # 'state' column has been deprecated on database
+  # in order to still support it on services
+  # this filter is needed.
+  def filter_state(issuable)
+    return if params[:state].blank?
+
+    state = params.delete(:state)
+
+    # Give preference over state_id
+    return if params[:state_id]
+
+    params[:state_id] = issuable.class.available_states[state]
   end
 
   def filter_assignee(issuable)
