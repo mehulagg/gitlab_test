@@ -1,13 +1,16 @@
 import state from '~/releases/list/store/state';
 import mutations from '~/releases/list/store/mutations';
 import * as types from '~/releases/list/store/mutation_types';
-import { pageInfo, releases } from '../../mock_data';
+import { parseIntPagination } from '~/lib/utils/common_utils';
+import { pageInfoHeadersWithoutPagination, releases } from '../../mock_data';
 
 describe('Releases Store Mutations', () => {
   let stateCopy;
+  let pageInfo;
 
   beforeEach(() => {
     stateCopy = state();
+    pageInfo = parseIntPagination(pageInfoHeadersWithoutPagination);
   });
 
   describe('REQUEST_RELEASES', () => {

@@ -1,20 +1,22 @@
 import Vue from 'vue';
+import _ from 'underscore';
 import app from '~/releases/list/components/app.vue';
 import createStore from '~/releases/list/store';
 import api from '~/api';
 import { mountComponentWithStore } from 'spec/helpers/vue_mount_component_helper';
 import { resetStore } from '../store/helpers';
 import {
-  pageInfoHeaders,
-  pageInfoHeadersPagination,
+  pageInfoHeadersWithoutPagination,
+  pageInfoHeadersWithPagination,
+  release,
   releases,
-  releasesPagination,
 } from '../../mock_data';
 
 describe('Releases App ', () => {
   const Component = Vue.extend(app);
   let store;
   let vm;
+  let releasesPagination;
 
   const props = {
     projectId: 'gitlab-ce',
@@ -24,6 +26,7 @@ describe('Releases App ', () => {
 
   beforeEach(() => {
     store = createStore();
+    releasesPagination = _.range(21).map(index => ({ ...release, tag_name: `${index}.00` }));
   });
 
   afterEach(() => {
@@ -52,7 +55,7 @@ describe('Releases App ', () => {
   describe('with successful request', () => {
     beforeEach(() => {
       spyOn(api, 'releases').and.returnValue(
-        Promise.resolve({ data: releases, headers: pageInfoHeaders }),
+        Promise.resolve({ data: releases, headers: pageInfoHeadersWithoutPagination }),
       );
       vm = mountComponentWithStore(Component, { props, store });
     });
@@ -72,7 +75,7 @@ describe('Releases App ', () => {
   describe('with successful request and pagination', () => {
     beforeEach(() => {
       spyOn(api, 'releases').and.returnValue(
-        Promise.resolve({ data: releasesPagination, headers: pageInfoHeadersPagination }),
+        Promise.resolve({ data: releasesPagination, headers: pageInfoHeadersWithPagination }),
       );
       vm = mountComponentWithStore(Component, { props, store });
     });

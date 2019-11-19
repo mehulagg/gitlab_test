@@ -1,7 +1,11 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 import { GlSkeletonLoading, GlEmptyState } from '@gitlab/ui';
-import { historyPushState, buildUrlWithCurrentLocation } from '~/lib/utils/common_utils';
+import {
+  getParameterByName,
+  historyPushState,
+  buildUrlWithCurrentLocation,
+} from '~/lib/utils/common_utils';
 import TablePagination from '~/vue_shared/components/pagination/table_pagination.vue';
 import ReleaseBlock from './release_block.vue';
 
@@ -37,13 +41,16 @@ export default {
     },
   },
   created() {
-    this.fetchReleases(this.projectId);
+    this.fetchReleases({
+      page: getParameterByName('page'),
+      projectId: this.projectId,
+    });
   },
   methods: {
     ...mapActions(['fetchReleases']),
     onChangePage(page) {
       historyPushState(buildUrlWithCurrentLocation(`?page=${page}`));
-      this.fetchReleases(this.projectId);
+      this.fetchReleases({ page, projectId: this.projectId });
     },
   },
 };
