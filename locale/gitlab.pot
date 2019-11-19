@@ -15116,16 +15116,13 @@ msgstr ""
 msgid "SearchCodeResults|of %{link_to_project}"
 msgstr ""
 
-msgid "SearchResults|Showing %{count} %{scope} for \"%{term}\""
+msgid "SearchResults|Showing %{count} %{scope} for#{term}"
 msgstr ""
 
-msgid "SearchResults|Showing %{count} %{scope} for \"%{term}\" in your personal and project snippets"
+msgid "SearchResults|Showing %{count} %{scope} for#{term} in your personal and project snippets"
 msgstr ""
 
-msgid "SearchResults|Showing %{from} - %{to} of %{count} %{scope} for \"%{term}\""
-msgstr ""
-
-msgid "SearchResults|Showing %{from} - %{to} of %{count} %{scope} for \"%{term}\" in your personal and project snippets"
+msgid "SearchResults|Showing %{from} - %{to} of %{count} %{scope} for#{term}"
 msgstr ""
 
 msgid "SearchResults|We couldn't find any %{scope} matching %{term}"
