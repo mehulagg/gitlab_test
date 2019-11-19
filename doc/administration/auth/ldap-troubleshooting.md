@@ -5,26 +5,54 @@
 As an admin troubleshooting LDAP, familiarize yourself with the [various
 debugging tools](#debugging-tools) you can use and how you can use them.
 
-**Users can't login**
+Here are some useful questions to ask and workflows to use when
+debugging problems with LDAP.
+
+**Can GitLab connect to LDAP and read users?**
 
 Run the [LDAP rake task](#ldap-check) to confirm whether a connection to LDAP can
 be established and LDAP users can be found.
 
-  - Does it successfully connect to the LDAP server?
-  If it doesn't, go to [Connection failures](#connection-failures).
-  - If it successfully connects, the output [should also return up to
-  100 users][ldap-check]. Do you see them in the output? If
-  not, go to [LDAP users not found](#ldap-users-not-found).
-  - Does it connect successfully, return users, but one or more users
-  are denied access? If so, go to [Users cannot login](#users-cannot-login).
+- Does it successfully connect to the LDAP server?
+  If not, [confirm your configuration with `ldapsearch`](#ldapsearch) and review
+  how to troubleshoot your [connection to LDAP](#connection).
+- If it successfully connects, the output should also [return up to
+  100 users that would be allowed access][ldap-check]. Do you see them in the output? If
+  not, go to [LDAP users not found](#no-users-are-found).
 
-**Users can login but they aren't getting access to a group**
+**Can some users login but others can't?**
 
-Go to [Group Sync failures](#group-sync-failures).
+If some users can successfully login using their LDAP credentials but others fail to do
+so, go to [Users cannot login](#users-cannot-login).
 
-**Users can login but they aren't given Admin or External user access**
+**Do group memberships for one or more users fail to sync with LDAP?** **(STARTER ONLY)**
 
-Go to [Admin/External access failures](#adminexternal-access-failures).
+Confirm that you've done the following:
+
+- Configured [group sync][group-sync].
+- Configured a [group link in the GitLab group][group-links].
+- Confirmed that the users in question have already logged into GitLab with LDAP. Group sync
+  only works for users accounts that are already connected to LDAP, which
+  happens on that first login.
+- You've waited an hour or [the configured
+  interval](ldap-ee.md#adjusting-ldap-group-sync-schedule) for the group to
+  sync. To speed up the process, either go to the GitLab group **Settings ->
+  Members** and press **Sync now** (sync one group) or [run the group sync rake
+  task][group-sync-rake] (sync all groups).
+
+If you're still having trouble, visit [Group membership
+failures](#group-memberships) to further investigate.
+
+**Do some users fail to be made admins?** **(STARTER ONLY)**
+
+If you've [configured administrator sync][admin-sync] but these users aren't
+being made admins, have you waited an hour or [the configured
+interval](ldap-ee.md#adjusting-ldap-group-sync-schedule) for the admins to
+sync? To speed up the process, [run the group sync rake
+task][group-sync-rake].
+
+If the problem still exists after confirming the above, go to
+[Admin privileges not granted](#admin-privileges-not-granted).
 
 ## Debugging Tools
 
@@ -182,7 +210,7 @@ Next, [learn how to read the output](#example-log-output-after-a-user-sync).
 
 NOTE: **NOTE:**
 To sync all groups manually when debugging is unnecessary, [use the rake
-task](../raketasks/ldap.md#run-a-group-sync) instead.
+task][group-sync-rake] instead.
 
 The output from a manual [group sync][group-sync] can show you what happens
 when GitLab syncs its LDAP group memberships against LDAP.
@@ -426,7 +454,9 @@ No `admin_group` configured for 'ldapmain' provider. Skipping
 
 ## Common Problems
 
-### Connection to LDAP
+### Connection
+
+<!-- TODO: Confirm your settings with ldapsearch -->
 
 #### Connection refused
 
@@ -449,6 +479,20 @@ GitLab does not cache or store credentials for LDAP users to provide authenticat
 during an LDAP outage.
 
 Contact your LDAP provider or administrator if you are seeing this error.
+
+#### No users are found
+
+If [you've confirmed](#ldap-check) that a connection to LDAP can be
+established but GitLab doesn't show you LDAP users in the output, one of the
+following is most likely true:
+
+  - The `bind_dn` user doesn't have enough permissions to traverse the user tree.
+  - The user(s) don't fall under the [configured `base`](ldap.md#configuration).
+  - The [configured `user_filter`][user-filter] blocks access to the user(s).
+
+In this case, you con confirm which of the above is true using
+[ldapsearch](#ldapsearch) with the existing LDAP configuration in your
+`/etc/gitlab/gitlab.rb`.
 
 #### Referral error
 
@@ -473,20 +517,6 @@ main: # 'main' is the GitLab 'provider ID' of this LDAP server
 
 This section implies that a [connection to the LDAP server can be
 established](#troubleshooting-workflow), but one or more users can't login.
-
-#### No users are found
-
-If [you've confirmed](#ldap-check) that a connection to LDAP can be
-established but GitLab doesn't show you LDAP users in the output, one of the
-following is most likely true:
-
-  - The `bind_dn` user doesn't have enough permissions to traverse the user tree.
-  - The user(s) don't fall under the [configured `base`](ldap.md#configuration).
-  - The [configured `user_filter`][user-filter] blocks access to the user(s).
-
-In this case, you con confirm which of the above is true using
-[ldapsearch](#ldapsearch) with the existing LDAP configuration in your
-`/etc/gitlab/gitlab.rb`.
 
 #### User(s) cannot login
 
@@ -573,10 +603,11 @@ things to check to debug the situation.
 
 - Ensure LDAP configuration has a `group_base` specified.
   [This configuration][group-sync] is required for group sync to work properly.
-- Ensure the correct [LDAP group link is added to the GitLab group](ldap-ee.md#adding-group-links).
+- Ensure the correct [LDAP group link is added to the GitLab
+  group][group-links].
 - Check that the user has an LDAP identity:
   1. Sign in to GitLab as an administrator user.
-  1. Navigate to **Admin area > Users**.
+  1. Navigate to **Admin area -> Users**.
   1. Search for the user
   1. Open the user, by clicking on their name. Do not click 'Edit'.
   1. Navigate to the **Identities** tab. There should be an LDAP identity with
@@ -589,7 +620,7 @@ way is to enable debug logging. There is verbose output that details every
 step of the sync.
 
 1. Enter the [rails console](#rails-console).
-1. Set the [log level to debug](#enable-debug-output):
+1. Set the [log level to debug](#enable-debug-output).
 1. Choose a GitLab group to test with. This group should have an LDAP group link
    already configured. If the output is `nil`, the group could not be found.
    If a bunch of group attributes are output, your group was found successfully.
@@ -715,11 +746,13 @@ for each of these users.
 [reconfigure]: ../restart_gitlab.md#omnibus-gitlab-reconfigure
 [restart]: ../restart_gitlab.md#installations-from-source
 [ldap-check]: ../raketasks/ldap.md#check
+[group-sync-rake]: ../raketasks/ldap.md#run-a-group-sync
 [user-filter]: ldap.md#using-an-ldap-filter-to-limit-access-to-your-gitlab-server
 [user-sync]: ldap-ee.md#user-sync
 [group-sync]: ldap-ee.md#group-sync
 [admin-sync]: ldap-ee.md#administrator-sync
 [config]: ldap.md#configuration
+[group-links]: ldap-ee.md#adding-group-links
 
 [^1]: In Active Directory, a user is marked as disabled/blocked if the user
       account control attribute (`userAccountControl:1.2.840.113556.1.4.803`)
