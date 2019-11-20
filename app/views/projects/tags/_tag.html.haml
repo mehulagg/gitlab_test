@@ -1,7 +1,7 @@
 - commit = @repository.commit(tag.dereferenced_target)
 - release = @releases.find { |release| release.tag == tag.name }
-%li.flex-row
-  .row-main-content.str-truncated
+%li.d-flex
+  .mr-auto.mw-70p
     = icon('tag')
     = link_to tag.name, project_tag_path(@project, tag.name), class: 'item-title ref-name prepend-left-4'
 
@@ -26,10 +26,10 @@
         = _("Release")
         = link_to release.name, project_releases_path(@project, anchor: release.tag), class: 'tag-release-link'
       - if release.description.present?
-        .description.md.prepend-top-default
+        .md.prepend-top-default
           = markdown_field(release, :description)
 
-  .row-fixed-content.controls.flex-row
+  .flex-shrink-0.align-self-center
     = render 'projects/buttons/download', project: @project, ref: tag.name, pipeline: @tags_pipelines[tag.name]
 
     - if can?(current_user, :admin_tag, @project)
