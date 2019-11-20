@@ -55,7 +55,13 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
         resources :designs, only: [], constraints: { id: /\d+/ } do
           member do
-            get '(*ref)', action: 'show', as: '', constraints: { ref: Gitlab::PathRegex.git_reference_regex }
+            get ':size(/*ref)',
+                action: 'show',
+                as: '',
+                constraints: {
+                  ref: Gitlab::PathRegex.git_reference_regex,
+                  size: %r{#{DesignManagement::IMAGE_SIZES.join('|')}}
+                }
           end
         end
 

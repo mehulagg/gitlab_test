@@ -137,6 +137,7 @@ describe "Getting designs related to an issue" do
         design_collection["designs"]["edges"]
       end
 
+      # TODO
       def image_url(design, sha = nil)
         Gitlab::Routing.url_helpers.project_design_url(design.project, design, sha)
       end

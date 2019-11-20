@@ -8,6 +8,7 @@ describe 'Users views raw design image files' do
   set(:project) { create(:project, :public) }
   set(:issue) { create(:issue, project: project) }
   set(:design) { create(:design, :with_file, issue: issue, versions_count: 2) }
+  let(:size) { 'original' }
   let(:newest_version) { design.versions.ordered.first }
   let(:oldest_version) { design.versions.ordered.last }
 
@@ -16,7 +17,7 @@ describe 'Users views raw design image files' do
   end
 
   it 'serves the latest design version when no ref is given' do
-    visit project_design_path(design.project, design)
+    visit project_design_path(design.project, design, size)
 
     expect(response_headers[Gitlab::Workhorse::SEND_DATA_HEADER]).to eq(
       workhorse_data_header_for_version(oldest_version.sha)
@@ -24,7 +25,7 @@ describe 'Users views raw design image files' do
   end
 
   it 'serves the correct design version when a ref is given' do
-    visit project_design_path(design.project, design, oldest_version.sha)
+    visit project_design_path(design.project, design, size, oldest_version.sha)
 
     expect(response_headers[Gitlab::Workhorse::SEND_DATA_HEADER]).to eq(
       workhorse_data_header_for_version(oldest_version.sha)

@@ -23,6 +23,8 @@ describe Projects::DesignsController do
           namespace_id: project.namespace,
           project_id: project,
           id: design.id,
+          # size: 'original',
+          size: 'small',
           ref: 'HEAD'
       })
     end

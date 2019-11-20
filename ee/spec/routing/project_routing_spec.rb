@@ -33,9 +33,11 @@ describe 'EE-specific project routing' do
 
   describe Projects::DesignsController, 'routing' do
     it 'to #show' do
-      expect(get('/gitlab/gitlabhq/-/designs/1/master')).to route_to('projects/designs#show', namespace_id: 'gitlab', project_id: 'gitlabhq', id: '1', ref: 'master')
-      expect(get('/gitlab/gitlabhq/-/designs/1/my/branch')).to route_to('projects/designs#show', namespace_id: 'gitlab', project_id: 'gitlabhq', id: '1', ref: 'my/branch')
-      expect(get('/gitlab/gitlabhq/-/designs/1/f166f5c7afaed9e1236e4e5965585f235795db4c3f45e8a9f6ea9dde098c')).to route_to('projects/designs#show', namespace_id: 'gitlab', project_id: 'gitlabhq', id: '1', ref: 'f166f5c7afaed9e1236e4e5965585f235795db4c3f45e8a9f6ea9dde098c')
+      expect(get('/gitlab/gitlabhq/-/designs/1/small/master')).to route_to('projects/designs#show', namespace_id: 'gitlab', project_id: 'gitlabhq', id: '1', size: 'small', ref: 'master')
+      expect(get('/gitlab/gitlabhq/-/designs/1/original/master')).to route_to('projects/designs#show', namespace_id: 'gitlab', project_id: 'gitlabhq', id: '1', size: 'original', ref: 'master')
+      # expect(get('/gitlab/gitlabhq/-/designs/1/invalidsize/master')).to route_to('projects/designs#show', namespace_id: 'gitlab', project_id: 'gitlabhq', id: '1', ref: 'master', size: 'small')
+      expect(get('/gitlab/gitlabhq/-/designs/1/small/my/branch')).to route_to('projects/designs#show', namespace_id: 'gitlab', project_id: 'gitlabhq', id: '1', size: 'small', ref: 'my/branch')
+      expect(get('/gitlab/gitlabhq/-/designs/1/small/f166f5c7afaed9e1236e4e5965585f235795db4c3f45e8a9f6ea9dde098c')).to route_to('projects/designs#show', namespace_id: 'gitlab', project_id: 'gitlabhq', id: '1', size: 'small', ref: 'f166f5c7afaed9e1236e4e5965585f235795db4c3f45e8a9f6ea9dde098c')
     end
   end
 
