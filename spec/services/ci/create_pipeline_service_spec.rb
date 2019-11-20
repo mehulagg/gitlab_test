@@ -1907,40 +1907,6 @@ describe Ci::CreatePipelineService do
           it_behaves_like 'rules jobs are excluded'
         end
       end
-
-      context 'when configured with bridge job rules' do
-        let(:downstream_project) { create(:project, :repository) }
-
-        let(:config) do
-          <<-EOY
-            image: alpine:latest
-
-            hello:
-              script: echo world
-
-            bridge-job:
-              rules:
-                - if: $CI_COMMIT_REF_NAME == "master"
-              trigger:
-                project: #{downstream_project.full_path}
-                branch: master
-          EOY
-        end
-
-        context 'that include the bridge job' do
-          it 'persists the bridge job' do
-            expect(pipeline.processables.pluck(:name)).to contain_exactly('hello', 'bridge-job')
-          end
-        end
-
-        context 'that exclude the bridge job' do
-          let(:ref_name) { 'refs/heads/wip' }
-
-          it 'does not include the bridge job' do
-            expect(pipeline.processables.pluck(:name)).to eq(%w[hello])
-          end
-        end
-      end
     end
   end
 
