@@ -185,6 +185,9 @@ describe Ci::CreateCrossProjectPipelineService, '#execute' do
       end
     end
 
+    # TODO: Move this context into a feature spec that uses
+    # multiple pipeline processing services. Location TBD in:
+    # https://gitlab.com/gitlab-org/gitlab/issues/36216
     context 'when configured with bridge job rules' do
       before do
         stub_ci_pipeline_yaml_file(config)
