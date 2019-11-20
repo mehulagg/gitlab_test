@@ -298,6 +298,7 @@ The following table shows the possible return codes for API requests.
 | Return values | Description |
 | ------------- | ----------- |
 | `200 OK` | The `GET`, `PUT` or `DELETE` request was successful, the resource(s) itself is returned as JSON. |
+| `202 Accept` | The request has been accepted for processing, but the processing has not been completed. (asynchronous Project Export) |
 | `204 No Content` | The server has successfully fulfilled the request and that there is no additional content to send in the response payload body. |
 | `201 Created` | The `POST` request was successful and the resource is returned as JSON. |
 | `304 Not Modified` | Indicates that the resource has not been modified since the last request. |
