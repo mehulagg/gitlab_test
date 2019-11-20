@@ -21,13 +21,18 @@ export const mapToScopesViewModel = scopesFromRails =>
       strat => strat.name === ROLLOUT_STRATEGY_PERCENT_ROLLOUT,
     );
 
-    const rolloutStrategy = percentStrategy ? percentStrategy.name : ROLLOUT_STRATEGY_ALL_USERS;
-
     const rolloutPercentage = fetchPercentageParams(percentStrategy) || DEFAULT_PERCENT_ROLLOUT;
 
     const userStrategy = (s.strategies || []).find(
       strat => strat.name === ROLLOUT_STRATEGY_USER_ID,
     );
+
+    let rolloutStrategy = ROLLOUT_STRATEGY_ALL_USERS;
+
+    rolloutStrategy =
+      (percentStrategy && percentStrategy.name) ||
+      (userStrategy && userStrategy.name) ||
+      ROLLOUT_STRATEGY_ALL_USERS;
 
     let rolloutUserIds = '';
 

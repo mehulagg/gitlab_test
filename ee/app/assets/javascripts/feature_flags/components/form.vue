@@ -87,6 +87,7 @@ export default {
 
   ROLLOUT_STRATEGY_ALL_USERS,
   ROLLOUT_STRATEGY_PERCENT_ROLLOUT,
+  ROLLOUT_STRATEGY_USER_ID,
 
   // Matches numbers 0 through 100
   rolloutPercentageRegex: /^[0-9]$|^[1-9][0-9]$|^100$/,
