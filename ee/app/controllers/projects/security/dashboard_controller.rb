@@ -7,13 +7,19 @@ module Projects
 
       alias_method :vulnerable, :project
 
-      before_action only: [:show] do
-        push_frontend_feature_flag(:hide_dismissed_vulnerabilities)
-      end
+      # before_action only: [:show] do
+      #   push_frontend_feature_flag(:hide_dismissed_vulnerabilities)
+      # end
 
       def show
         @pipeline = @project.latest_pipeline_with_security_reports
           &.present(current_user: current_user)
+      end
+
+      def index
+        Rails.logger.info "fdfdsfsfsfsdf"
+
+        head :ok
       end
     end
   end

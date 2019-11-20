@@ -28,7 +28,7 @@ module EE
     def security_dashboard_data
       OpenStruct.new(is_link: false,
                      label: statistic_icon('lock') + _('Security Dashboard'),
-                     link: project_security_dashboard_path(project),
+                     link: "",
                      class_modifier: 'default')
     end
   end
