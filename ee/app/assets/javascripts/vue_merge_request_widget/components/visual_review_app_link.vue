@@ -32,6 +32,16 @@ export default {
   data() {
     return {
       modalId: 'visual-review-app-info',
+      modalPrimary: {
+        text: s__('VisualReviewApp|Open review app'),
+        attributes: [
+          { to: this.link },
+          { target: '_blank' },
+          { rel: 'noopener noreferrer nofollow' },
+          { 'data-track-event': 'open_review_app' },
+          { 'data-track-label': 'review_app' },
+        ],
+      },
     };
   },
   computed: {
@@ -129,21 +139,8 @@ export default {
       :title="modalTitle"
       size="lg"
       class="text-2 ws-normal"
-      ok-variant="success"
+      :modal-action-primary="modalPrimary"
     >
-      <template slot="modal-ok">
-        <a
-          :href="link"
-          target="_blank"
-          rel="noopener noreferrer nofollow"
-          class="text-white js-review-app-link"
-          data-track-event="open_review_app"
-          data-track-label="review_app"
-        >
-          {{ s__('VisualReviewApp|Open review app') }}
-          <icon class="fwhite" name="external-link" />
-        </a>
-      </template>
       <p v-html="instructionText.intro.p1"></p>
       <p v-html="instructionText.intro.p2"></p>
       <div>

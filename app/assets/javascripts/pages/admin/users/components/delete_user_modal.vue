@@ -46,6 +46,17 @@ export default {
   data() {
     return {
       enteredUsername: '',
+      modalPrimary: {
+        text: this.action,
+      },
+      primaryAttrs: { variant: 'danger' },
+      modalCancel: {
+        text: s__('Cancel'),
+      },
+      modalSecondary: {
+        text: this.secondaryAction,
+      },
+      secondaryAttrs: { variant: 'warning' },
     };
   },
   computed: {
@@ -76,8 +87,8 @@ export default {
     secondaryButtonLabel() {
       return s__('AdminUsers|Block user');
     },
-    canSubmit() {
-      return this.enteredUsername === this.username;
+    submitHandler() {
+      return this.enteredUsername === this.username ? null : { disabled: true };
     },
   },
   methods: {
@@ -105,7 +116,18 @@ export default {
 </script>
 
 <template>
-  <gl-modal ref="modal" modal-id="delete-user-modal" :title="modalTitle" kind="danger">
+  <gl-modal
+    ref="modal"
+    modal-id="delete-user-modal"
+    :title="modalTitle"
+    kind="danger"
+    :modal-action-cancel="modalCancel"
+    :modal-action-primary="{ ...modalPrimary, attributes: [primaryAttrs, submitHandler] }"
+    :modal-action-secondary="{ ...modalSecondary, attributes: [secondaryAttrs, submitHandler] }"
+    @ok="onSubmit"
+    @cancel="onCancel"
+    @close="onSecondaryAction"
+  >
     <template>
       <p v-html="text"></p>
       <p v-html="confirmationTextLabel"></p>
@@ -120,13 +142,6 @@ export default {
           autocomplete="off"
         />
       </form>
-    </template>
-    <template slot="modal-footer">
-      <gl-button variant="secondary" @click="onCancel">{{ s__('Cancel') }}</gl-button>
-      <gl-button :disabled="!canSubmit" variant="warning" @click="onSecondaryAction">
-        {{ secondaryAction }}
-      </gl-button>
-      <gl-button :disabled="!canSubmit" variant="danger" @click="onSubmit">{{ action }}</gl-button>
     </template>
   </gl-modal>
 </template>

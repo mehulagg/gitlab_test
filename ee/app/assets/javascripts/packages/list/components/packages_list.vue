@@ -34,6 +34,10 @@ export default {
     return {
       modalId: 'confirm-delete-pacakge',
       itemToBeDeleted: null,
+      modalPrimary: {
+        text: this.modalAction,
+        attributes: [{ variant: 'danger' }],
+      },
     };
   },
   computed: {
@@ -224,12 +228,11 @@ export default {
       <gl-modal
         ref="packageListDeleteModal"
         :modal-id="modalId"
-        ok-variant="danger"
+        :modal-action-primary="modalPrimary"
         @ok="deleteItemConfirmation"
         @cancel="deleteItemCanceled"
       >
         <template v-slot:modal-title>{{ modalAction }}</template>
-        <template v-slot:modal-ok>{{ modalAction }}</template>
         <p v-html="deletePackageDescription"></p>
       </gl-modal>
     </template>

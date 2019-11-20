@@ -45,6 +45,10 @@ export default {
       tracking: {
         label: 'registry_repository_delete',
       },
+      modalPrimary: {
+        text: __('Remove'),
+        attributes: [{ variant: 'danger' }],
+      },
     };
   },
   computed: {
@@ -126,10 +130,11 @@ export default {
         class="mx-auto my-0"
       />
     </div>
+
     <gl-modal
       ref="deleteModal"
       :modal-id="modalId"
-      ok-variant="danger"
+      :modal-action-primary="modalPrimary"
       @ok="handleDeleteRepository"
       @cancel="track('cancel_delete')"
     >
@@ -144,7 +149,6 @@ export default {
           )
         "
       ></p>
-      <template v-slot:modal-ok>{{ __('Remove') }}</template>
     </gl-modal>
   </div>
 </template>

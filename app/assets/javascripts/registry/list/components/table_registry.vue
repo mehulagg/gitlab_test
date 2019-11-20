@@ -42,6 +42,10 @@ export default {
       modalId: `confirm-image-deletion-modal-${this.repo.id}`,
       selectAllChecked: false,
       modalDescription: '',
+      modalPrimary: {
+        text: this.modalAction,
+        attributes: [{ variant: 'danger' }],
+      },
     };
   },
   computed: {
@@ -277,12 +281,11 @@ export default {
     <gl-modal
       ref="deleteModal"
       :modal-id="modalId"
-      ok-variant="danger"
+      :modal-action-primary="modalPrimary"
       @ok="onDeletionConfirmed"
       @cancel="track('cancel_delete')"
     >
       <template v-slot:modal-title>{{ modalAction }}</template>
-      <template v-slot:modal-ok>{{ modalAction }}</template>
       <p v-html="modalDescription"></p>
     </gl-modal>
   </div>
