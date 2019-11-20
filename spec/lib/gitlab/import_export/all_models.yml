@@ -415,7 +415,7 @@ project:
 - push_rule
 - jenkins_service
 - jenkins_deprecated_service
-- index_status
+- index_statuses
 - feature_usage
 - approval_rules
 - approval_merge_request_rules

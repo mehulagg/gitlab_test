@@ -30,7 +30,7 @@ class ElasticBatchProjectIndexerWorker
 
     logger.info "Indexing #{project.full_name} (ID=#{project.id})..."
 
-    Gitlab::Elastic::Indexer.new(project).run
+    Gitlab::Elastic::Indexer.run(project)
 
     logger.info "Indexing #{project.full_name} (ID=#{project.id}) is done!"
   rescue => err
@@ -39,7 +39,7 @@ class ElasticBatchProjectIndexerWorker
 
   # rubocop: disable CodeReuse/ActiveRecord
   def build_relation(start, finish)
-    relation = Project.includes(:index_status)
+    relation = Project.all
 
     table = Project.arel_table
     relation = relation.where(table[:id].gteq(start)) if start

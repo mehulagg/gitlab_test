@@ -6,68 +6,70 @@
 module Gitlab
   module Elastic
     class Indexer
-      include Gitlab::Utils::StrongMemoize
-
       Error = Class.new(StandardError)
 
       class << self
+        def run(project, to_sha: nil, wiki: false)
+          repository = wiki ? project.wiki.repository : project.repository
+          targets = repository.__elasticsearch__.elastic_writing_targets
+
+          targets.each do |target|
+            Indexer.new(project, repository, target).run(to_sha)
+          end
+        end
+
         def indexer_version
           Rails.root.join('GITLAB_ELASTICSEARCH_INDEXER_VERSION').read.chomp
         end
       end
 
-      attr_reader :project, :index_status
+      attr_reader :project, :repository, :target, :index, :index_status
 
-      def initialize(project, wiki: false)
+      def initialize(project, repository, target)
         @project = project
-        @wiki = wiki
+        @repository = repository
+        @target = target
 
-        # Use the eager-loaded association if available.
-        @index_status = project.index_status
+        @index = target.es_index
+        @index_status = project.index_statuses.for_index(index).first
       end
 
       def run(to_sha = nil)
         to_sha = nil if to_sha == Gitlab::Git::BLANK_SHA
 
-        head_commit = repository.try(:commit)
-
-        if repository.nil? || !repository.exists? || repository.empty? || head_commit.nil?
+        if repository.empty?
+          delete_indexed_data
           update_index_status(Gitlab::Git::BLANK_SHA)
           return
         end
 
-        repository.__elasticsearch__.elastic_writing_targets.each do |target|
-          run_indexer!(to_sha, target)
+        if last_commit.present? && repository.commit(last_commit).present?
+          from_sha = last_commit
+        else
+          from_sha = Gitlab::Git::EMPTY_TREE_ID
+          delete_indexed_data
         end
-        update_index_status(to_sha)
 
-        true
+        run_indexer!(from_sha, to_sha)
+        update_index_status(to_sha)
       end
 
       private
 
       def wiki?
-        @wiki
+        repository.repo_type == Gitlab::GlRepository::WIKI
       end
 
-      def repository
-        wiki? ? project.wiki.repository : project.repository
-      end
-
-      def run_indexer!(to_sha, target)
+      def run_indexer!(from_sha, to_sha)
         # We accept any form of settings, including string and array
         # This is why JSON is needed
         vars = {
           'RAILS_ENV'               => Rails.env,
-          'ELASTIC_CONNECTION_INFO' => elasticsearch_config(target),
-          'GITALY_CONNECTION_INFO'  => gitaly_connection_info,
+          'ELASTIC_CONNECTION_INFO' => elasticsearch_connection_info.to_json,
+          'GITALY_CONNECTION_INFO'  => gitaly_connection_info.to_json,
           'FROM_SHA'                => from_sha,
           'TO_SHA'                  => to_sha
         }
-
-        if index_status && !repository_contains_last_indexed_commit?
-          target.delete_index_for_commits_and_blobs(wiki: wiki?)
-        end
 
         path_to_indexer = Gitlab.config.elasticsearch.indexer_path
 
@@ -91,33 +93,25 @@ module Gitlab
         end
       end
 
-      def from_sha
-        repository_contains_last_indexed_commit? ? last_commit : Gitlab::Git::EMPTY_TREE_ID
-      end
-
-      def repository_contains_last_indexed_commit?
-        strong_memoize(:repository_contains_last_indexed_commit) do
-          last_commit.present? && repository.commit(last_commit).present?
-        end
-      end
-
       def repository_path
         "#{repository.disk_path}.git"
       end
 
-      def elasticsearch_config(target)
-        target.es_index.connection_config.merge(
-          index_name: target.index_name
-        ).to_json
+      def elasticsearch_connection_info
+        index.connection_config.merge(
+          index_name: index.name
+        ).tap do |config|
+          # The indexer expects the :url key, rather than the :urls key we use on the Rails side.
+          config[:url] = config.delete(:urls)
+        end
       end
 
       def gitaly_connection_info
-        {
+        Gitlab::GitalyClient.connection_data(project.repository_storage).merge(
           storage: project.repository_storage
-        }.merge(Gitlab::GitalyClient.connection_data(project.repository_storage)).to_json
+        )
       end
 
-      # rubocop: disable CodeReuse/ActiveRecord
       def update_index_status(to_sha)
         head_commit = repository.try(:commit)
 
@@ -125,8 +119,9 @@ module Gitlab
         # even if the repository is empty, so we know it's been looked at.
         @index_status ||=
           begin
-            IndexStatus.find_or_create_by(project_id: project.id)
+            project.index_statuses.find_or_create_by(elasticsearch_index_id: index.id) # rubocop: disable CodeReuse/ActiveRecord
           rescue ActiveRecord::RecordNotUnique
+            # Race condition with another indexing job, let's try again to find the created record
             retry
           end
 
@@ -143,10 +138,14 @@ module Gitlab
             { last_commit: sha, indexed_at: Time.now }
           end
 
-        @index_status.update(attributes)
-        project.reload_index_status
+        index_status.update!(attributes)
       end
-      # rubocop: enable CodeReuse/ActiveRecord
+
+      def delete_indexed_data
+        return unless index_status
+
+        target.delete_index_for_commits_and_blobs(wiki: wiki?)
+      end
     end
   end
 end

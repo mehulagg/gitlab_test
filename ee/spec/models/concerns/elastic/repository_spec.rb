@@ -117,7 +117,7 @@ describe Repository, :elastic do
     it "returns commits" do
       project = create :project, :repository
 
-      Gitlab::Elastic::Indexer.new(project).run
+      Gitlab::Elastic::Indexer.run(project)
       Gitlab::Elastic::Helper.refresh_index
 
       expect(project.repository.find_commits_by_message_with_elastic('initial').first).to be_a(Commit)

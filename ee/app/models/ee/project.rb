@@ -38,7 +38,6 @@ module EE
       has_one :repository_state, class_name: 'ProjectRepositoryState', inverse_of: :project
       has_one :project_registry, class_name: 'Geo::ProjectRegistry', inverse_of: :project
       has_one :push_rule, ->(project) { project&.feature_available?(:push_rules) ? all : none }
-      has_one :index_status
 
       has_one :jenkins_service
       has_one :jenkins_deprecated_service
@@ -61,6 +60,7 @@ module EE
       has_many :audit_events, as: :entity
       has_many :designs, inverse_of: :project, class_name: 'DesignManagement::Design'
       has_many :path_locks
+      has_many :index_statuses
 
       # the rationale behind vulnerabilities and vulnerability_findings can be found here:
       # https://gitlab.com/gitlab-org/gitlab/issues/10252#terminology

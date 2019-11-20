@@ -35,9 +35,9 @@ describe ProjectWiki, :elastic do
       project.wiki.find_page('omega_page').delete
       last_commit = project.wiki.repository.commit.sha
 
-      expect_next_instance_of(Gitlab::Elastic::Indexer) do |indexer|
-        expect(indexer).to receive(:run).with(last_commit).and_call_original
-      end
+      expect(Gitlab::Elastic::Indexer).to receive(:run)
+        .with(project, to_sha: last_commit, wiki: true)
+        .and_call_original
 
       project.wiki.index_wiki_blobs(last_commit)
 

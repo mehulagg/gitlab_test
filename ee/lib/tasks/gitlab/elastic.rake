@@ -34,7 +34,7 @@ namespace :gitlab do
       projects = Project.count.to_f
 
       ElasticsearchIndex.find_each do |index|
-        indexed = IndexStatus.for_index(index.id).count
+        indexed = IndexStatus.for_index(index.id).with_indexed_data.count
         percent = (indexed / projects) * 100.0
 
         puts "[%s] Indexing is %.2f%% complete (%d/%d projects)" % [index.name, percent, indexed, projects]
@@ -109,7 +109,7 @@ namespace :gitlab do
       relation = Project
 
       unless ENV['UPDATE_INDEX']
-        relation = relation.includes(:index_status).where('index_statuses.id IS NULL').references(:index_statuses)
+        relation = relation.includes(:index_statuses).where('index_statuses.id IS NULL').references(:index_statuses)
       end
 
       if ::Gitlab::CurrentSettings.elasticsearch_limit_indexing?

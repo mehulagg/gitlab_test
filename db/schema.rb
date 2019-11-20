@@ -2068,7 +2068,10 @@ ActiveRecord::Schema.define(version: 2020_01_13_133352) do
     t.datetime "updated_at", null: false
     t.binary "last_wiki_commit"
     t.datetime_with_timezone "wiki_indexed_at"
-    t.index ["project_id"], name: "index_index_statuses_on_project_id", unique: true
+    t.integer "elasticsearch_index_id", null: false
+    t.index ["elasticsearch_index_id"], name: "index_index_statuses_on_elasticsearch_index_id"
+    t.index ["project_id", "elasticsearch_index_id"], name: "index_index_statuses_on_project_id_and_elasticsearch_index_id", unique: true
+    t.index ["project_id"], name: "index_index_statuses_on_project_id"
   end
 
   create_table "insights", id: :serial, force: :cascade do |t|
@@ -4652,6 +4655,7 @@ ActiveRecord::Schema.define(version: 2020_01_13_133352) do
   add_foreign_key "identities", "saml_providers", name: "fk_aade90f0fc", on_delete: :cascade
   add_foreign_key "import_export_uploads", "namespaces", column: "group_id", name: "fk_83319d9721", on_delete: :cascade
   add_foreign_key "import_export_uploads", "projects", on_delete: :cascade
+  add_foreign_key "index_statuses", "elasticsearch_indices", name: "fk_7d96272479", on_delete: :cascade
   add_foreign_key "index_statuses", "projects", name: "fk_74b2492545", on_delete: :cascade
   add_foreign_key "insights", "namespaces", on_delete: :cascade
   add_foreign_key "insights", "projects", on_delete: :cascade
