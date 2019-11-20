@@ -10,10 +10,10 @@ debugging problems with LDAP.
 
 - Can GitLab connect to LDAP?
 
-  - Reproduce the problem and review the [logs](#gitlab-logs) for
+  - Reproduce the problem and [review the logs](#gitlab-logs) for
     [errors or other messages](#connection).
-  - Run the [LDAP rake task](#ldap-check) to confirm whether a connection to LDAP can
-    be established and use [`ldapsearch`](#ldapsearch) to debug any failures.
+  - Run the [LDAP rake task](#ldap-check) to check whether a connection to LDAP can
+    be established. If not, use [`ldapsearch`](#ldapsearch) to debug it.
 
 - Does logging in with LDAP fail for everyone?
 
@@ -32,7 +32,7 @@ debugging problems with LDAP.
 
 - Do group memberships for one or more users fail to sync with LDAP?
 
-  - See [Group membership failures](#group-memberships) to investigate.
+  - See [what to check when memberships aren't granted).
 
 - Do some users fail to be made admins?
 
@@ -442,8 +442,6 @@ No `admin_group` configured for 'ldapmain' provider. Skipping
 ## Common Problems
 
 ### Connection
-
-<!-- TODO: Confirm your settings with ldapsearch -->
 
 #### Connection refused
 
