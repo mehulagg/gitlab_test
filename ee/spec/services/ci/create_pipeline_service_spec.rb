@@ -11,13 +11,15 @@ describe Ci::CreatePipelineService, '#execute' do
   let(:ref_name) { 'master' }
 
   let(:service) do
-    params = { ref: ref_name,
-               before: '00000000',
-               after: project.commit.id,
-               commits: [{ message: 'some commit' }] }
-
-    described_class.new(project, user, params)
+    described_class.new(project, user, {
+      ref: ref_name,
+      before: '00000000',
+      after: project.commit.id,
+      commits: [{ message: 'some commit' }]
+    })
   end
+
+  let(:pipeline) { service.execute(:push) }
 
   before do
     create(:gitlab_subscription, namespace: namespace, hosted_plan: gold_plan)
@@ -29,8 +31,6 @@ describe Ci::CreatePipelineService, '#execute' do
   describe 'CI/CD Quotas / Limits' do
     context 'when there are not limits enabled' do
       it 'enqueues a new pipeline' do
-        pipeline = create_pipeline!
-
         expect(pipeline).to be_persisted
         expect(pipeline).to be_pending
       end
@@ -45,8 +45,6 @@ describe Ci::CreatePipelineService, '#execute' do
       end
 
       it 'drops the pipeline and does not process jobs' do
-        pipeline = create_pipeline!
-
         expect(pipeline).to be_persisted
         expect(pipeline).to be_failed
         expect(pipeline.statuses).not_to be_empty
@@ -61,8 +59,6 @@ describe Ci::CreatePipelineService, '#execute' do
       end
 
       it 'drops pipeline without creating jobs' do
-        pipeline = create_pipeline!
-
         expect(pipeline).to be_persisted
         expect(pipeline).to be_failed
         expect(pipeline.statuses).to be_empty
@@ -88,8 +84,6 @@ describe Ci::CreatePipelineService, '#execute' do
     end
 
     it 'creates bridge jobs correctly' do
-      pipeline = create_pipeline!
-
       test = pipeline.statuses.find_by(name: 'test')
       bridge = pipeline.statuses.find_by(name: 'deploy')
 
@@ -126,8 +120,6 @@ describe Ci::CreatePipelineService, '#execute' do
 
       context 'that include the bridge job' do
         it 'persists the bridge job' do
-          pipeline = create_pipeline!
-
           expect(pipeline.processables.pluck(:name)).to contain_exactly('hello', 'bridge-job')
         end
       end
@@ -136,15 +128,9 @@ describe Ci::CreatePipelineService, '#execute' do
         let(:ref_name) { 'refs/heads/wip' }
 
         it 'does not include the bridge job' do
-          pipeline = create_pipeline!
-
           expect(pipeline.processables.pluck(:name)).to eq(%w[hello])
         end
       end
     end
-  end
-
-  def create_pipeline!
-    service.execute(:push)
   end
 end
