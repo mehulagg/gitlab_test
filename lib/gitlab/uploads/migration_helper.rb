@@ -5,6 +5,7 @@ module Gitlab
     class MigrationHelper
       attr_reader :logger
 
+      # Should we add DesignManagement here? If it doesn't work, new issue to migrate designs https://docs.gitlab.com/ee/administration/raketasks/uploads/migrate.html#migrate-to-object-storage
       CATEGORIES = [%w(AvatarUploader Project :avatar),
                     %w(AvatarUploader Group :avatar),
                     %w(AvatarUploader User :avatar),

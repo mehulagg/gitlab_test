@@ -9,7 +9,9 @@ module EE
       def url
         case object
         when DesignManagement::Design
-          project_design_url(object.project, object)
+          size = options[:size] || DesignManagement::IMAGE_SIZE_ORIGINAL
+          ref = options[:ref]
+          project_design_url(object.project, object, size, ref)
         when Epic
           group_epic_url(object.group, object)
         else

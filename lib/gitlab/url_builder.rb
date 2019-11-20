@@ -6,10 +6,8 @@ module Gitlab
     include GitlabRoutingHelper
     include ActionView::RecordIdentifier
 
-    attr_reader :object
-
-    def self.build(object)
-      new(object).url
+    def self.build(object, options = {})
+      new(object, options).url
     end
 
     def url
@@ -41,8 +39,11 @@ module Gitlab
 
     private
 
-    def initialize(object)
+    attr_reader :object, :options
+
+    def initialize(object, options = {})
       @object = object
+      @options = options
     end
 
     def commit_url(opts = {})

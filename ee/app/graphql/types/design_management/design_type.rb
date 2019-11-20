@@ -26,7 +26,17 @@ module Types
             null: false,
             description: 'The change that happened to the design at this version',
             extras: [:parent]
-      field :image, GraphQL::STRING_TYPE, null: false, extras: [:parent] # rubocop:disable Graphql/Descriptions
+      field :image,
+            GraphQL::STRING_TYPE,
+            null: false,
+            description: '(Deprecated) Full-size image of the design',
+            deprecation_reason: 'Use images.orignalUrl instead',
+            extras: [:parent]
+      field :images,
+            Types::DesignManagement::DesignImagesType,
+            null: false,
+            description: 'Image data for the design',
+            extras: [:parent]
       field :diff_refs, Types::DiffRefsType, null: false, calls_gitaly: true # rubocop:disable Graphql/Descriptions
       field :versions,
             Types::DesignManagement::VersionType.connection_type,
@@ -34,10 +44,14 @@ module Types
             description: 'All versions related to this design ordered newest first',
             extras: [:parent]
 
+      # DEPRECATED
       def image(parent:)
-        sha = cached_stateful_version(parent).sha
+        images(parent: parent).original_url
+      end
 
-        Gitlab::Routing.url_helpers.project_design_url(design.project, design, sha)
+      def images(parent:)
+        version = cached_stateful_version(parent)
+        ::DesignManagement::DesignAtVersion.new(design: design, version: version).image
       end
 
       def event(parent:)

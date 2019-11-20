@@ -8,13 +8,20 @@ class Projects::DesignsController < Projects::ApplicationController
   def show
     blob = design_repository.blob_at(ref, design.full_path)
 
-    send_blob(design_repository, blob, { inline: false })
+    send_blob(design_repository, blob, inline: false, version: image_size_version)
   end
 
   private
 
   def ref
     @ref ||= params[:ref] || design_repository.root_ref
+  end
+
+  def image_size_version
+    # 'original' size is 'no size'
+    return if params[:size] == 'original'
+
+    { namespace: :design_management, version: params[:size] }
   end
 
   def design

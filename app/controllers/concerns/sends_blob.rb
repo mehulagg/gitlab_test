@@ -8,16 +8,16 @@ module SendsBlob
     include SendFileUpload
   end
 
-  def send_blob(repository, blob, params = {})
+  def send_blob(repository, blob, inline: nil, version: nil)
     if blob
       headers['X-Content-Type-Options'] = 'nosniff'
 
-      return if cached_blob?(blob)
+      return if cached_blob?(blob, version: version)
 
       if blob.stored_externally?
-        send_lfs_object(blob)
+        send_lfs_object(blob, version: version)
       else
-        send_git_blob(repository, blob, params)
+        send_git_blob(repository, blob, inline: inline)
       end
     else
       render_404
@@ -26,8 +26,10 @@ module SendsBlob
 
   private
 
-  def cached_blob?(blob)
-    stale = stale?(etag: blob.id) # The #stale? method sets cache headers.
+  def cached_blob?(blob, version: nil)
+    etag = [blob.id, version].join
+
+    stale = stale?(etag: etag) # The #stale? method sets cache headers.
 
     # Because we are opinionated we set the cache headers ourselves.
     response.cache_control[:public] = project.public?
@@ -44,18 +46,29 @@ module SendsBlob
         Blob::CACHE_TIME
       end
 
-    response.etag = blob.id
+    response.etag = etag
     !stale
   end
 
-  def send_lfs_object(blob)
+  def send_lfs_object(blob, version: nil)
     lfs_object = find_lfs_object(blob)
 
-    if lfs_object && lfs_object.project_allowed_access?(project)
-      send_upload(lfs_object.file, attachment: blob.name)
+    return render_404 unless lfs_object && lfs_object.project_allowed_access?(project)
+
+    if version
+      namespace, version = version.values_at(:namespace, :version)
+
+      # Uncomment this to have the images generated in this request:
+      #
+      # lfs_object.file.enable_version_namespace(namespace)
+      # lfs_object.file.recreate_versions!
+
+      lfs_object_file = lfs_object.file.version(namespace, version)
     else
-      render_404
+      lfs_object_file = lfs_object.file
     end
+
+    send_upload(lfs_object_file, attachment: blob.name)
   end
 
   def find_lfs_object(blob)
