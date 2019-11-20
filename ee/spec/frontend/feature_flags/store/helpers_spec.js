@@ -51,7 +51,7 @@ describe('feature flags helpers spec', () => {
           protected: true,
           rolloutStrategy: ROLLOUT_STRATEGY_PERCENT_ROLLOUT,
           rolloutPercentage: '56',
-          rolloutUserIds: ['123', '234'],
+          rolloutUserIds: '123, 234',
           shouldBeDestroyed: true,
         }),
       ];
@@ -308,7 +308,7 @@ describe('feature flags helpers spec', () => {
         id: expect.stringContaining(INTERNAL_ID_PREFIX),
         rolloutStrategy: ROLLOUT_STRATEGY_ALL_USERS,
         rolloutPercentage: DEFAULT_PERCENT_ROLLOUT,
-        rolloutUserIds: [],
+        rolloutUserIds: '',
       };
 
       const actual = createNewEnvironmentScope();
@@ -328,7 +328,7 @@ describe('feature flags helpers spec', () => {
         id: expect.stringContaining(INTERNAL_ID_PREFIX),
         rolloutStrategy: ROLLOUT_STRATEGY_ALL_USERS,
         rolloutPercentage: DEFAULT_PERCENT_ROLLOUT,
-        rolloutUserIds: [],
+        rolloutUserIds: '',
       };
 
       const actual = createNewEnvironmentScope(overrides);

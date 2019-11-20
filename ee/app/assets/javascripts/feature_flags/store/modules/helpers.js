@@ -10,16 +10,6 @@ import {
   fetchUserIdParams,
 } from '../../constants';
 
-/*
- * Part of implementing https://gitlab.com/gitlab-org/gitlab/issues/34363
- * involves moving the current Array-based list of user IDs (as it is stored as
- * a list of tokens) to a String-based list of user IDs, editable in a text area
- * per environment.
- */
-const shouldShowUsersPerEnvironment = () =>
-  (window.gon && window.gon.features && window.gon.features.featureFlagsUsersPerEnvironment) ||
-  false;
-
 /**
  * Converts raw scope objects fetched from the API into an array of scope
  * objects that is easier/nicer to bind to in Vue.
@@ -41,14 +31,10 @@ export const mapToScopesViewModel = scopesFromRails =>
 
     let rolloutUserIds = '';
 
-    if (shouldShowUsersPerEnvironment()) {
-      rolloutUserIds = (fetchUserIdParams(userStrategy) || '')
-        .split(',')
-        .filter(id => id)
-        .join(', ');
-    } else {
-      rolloutUserIds = (fetchUserIdParams(userStrategy) || '').split(',').filter(id => id);
-    }
+    rolloutUserIds = (fetchUserIdParams(userStrategy) || '')
+      .split(',')
+      .filter(id => id)
+      .join(', ');
 
     return {
       id: s.id,
@@ -82,7 +68,7 @@ export const mapFromScopesViewModel = params => {
 
     const hasUsers = s.shouldIncludeUserIds || s.rolloutStrategy === ROLLOUT_STRATEGY_USER_ID;
 
-    if (shouldShowUsersPerEnvironment() && hasUsers) {
+    if (hasUsers) {
       userIdParameters.userIds = (s.rolloutUserIds || '').replace(/, /g, ',');
     } else if (Array.isArray(s.rolloutUserIds) && s.rolloutUserIds.length > 0) {
       userIdParameters.userIds = s.rolloutUserIds.join(',');
@@ -138,7 +124,7 @@ export const createNewEnvironmentScope = (overrides = {}, featureFlagPermissions
     id: _.uniqueId(INTERNAL_ID_PREFIX),
     rolloutStrategy: ROLLOUT_STRATEGY_ALL_USERS,
     rolloutPercentage: DEFAULT_PERCENT_ROLLOUT,
-    rolloutUserIds: shouldShowUsersPerEnvironment() ? '' : [],
+    rolloutUserIds: '',
   };
 
   const newScope = {
