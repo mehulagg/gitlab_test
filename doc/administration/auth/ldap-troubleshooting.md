@@ -471,9 +471,9 @@ If [you've confirmed](#ldap-check) that a connection to LDAP can be
 established but GitLab doesn't show you LDAP users in the output, one of the
 following is most likely true:
 
-  - The `bind_dn` user doesn't have enough permissions to traverse the user tree.
-  - The user(s) don't fall under the [configured `base`](ldap.md#configuration).
-  - The [configured `user_filter`][user-filter] blocks access to the user(s).
+- The `bind_dn` user doesn't have enough permissions to traverse the user tree.
+- The user(s) don't fall under the [configured `base`](ldap.md#configuration).
+- The [configured `user_filter`][user-filter] blocks access to the user(s).
 
 In this case, you con confirm which of the above is true using
 [ldapsearch](#ldapsearch) with the existing LDAP configuration in your
@@ -508,20 +508,20 @@ established](#troubleshooting-workflow), but one or more users can't login.
 A user can have trouble logging in for any number of reasons. To get started,
 here are some questions to ask yourself:
 
-  - Does the user fall under the [configured `base`](ldap.md#configuration) in
-    LDAP? The user must fall under this `base` to login.
-  - Does the user pass through the [configured `user_filter`][user-filter]?
-    If one is not configured, this question can be ignored. If it is, then the
-    user must also pass through this filter to be allowed to login.
-    - Refer to our docs on [debugging the `user_filter`](#debug-ldap-user-filter).
+- Does the user fall under the [configured `base`](ldap.md#configuration) in
+  LDAP? The user must fall under this `base` to login.
+- Does the user pass through the [configured `user_filter`][user-filter]?
+  If one is not configured, this question can be ignored. If it is, then the
+  user must also pass through this filter to be allowed to login.
+  - Refer to our docs on [debugging the `user_filter`](#debug-ldap-user-filter).
 
 If the above are both okay, the next place to look for the problem is
 the logs themselves while reproducing the issue.
 
-  - Ask the user to login and let it fail.
-  - [Look through the output](#gitlab-logs) for any errors or other
-    messages about the login. You may see one of the other error messages on
-    this page, in which case that section can help resolve the issue.
+- Ask the user to login and let it fail.
+- [Look through the output](#gitlab-logs) for any errors or other
+  messages about the login. You may see one of the other error messages on
+  this page, in which case that section can help resolve the issue.
 
 If the logs don't lead to the root of the problem, use the
 [rails console](#rails-console) to [query this user](#query-a-user-in-ldap)
@@ -569,11 +569,11 @@ user.username
 This will show you which user has this email address. One of two steps will
 have to be taken here:
 
-  - To create a new GitLab user/username for this user when logging in with LDAP,
-    remove the secondary email to remove the conflict.
-  - To use an existing GitLab user/username for this user to use with LDAP,
-    remove this email as a secondary email and make it a primary one so GitLab
-    will associate this profile to the LDAP identity.
+- To create a new GitLab user/username for this user when logging in with LDAP,
+  remove the secondary email to remove the conflict.
+- To use an existing GitLab user/username for this user to use with LDAP,
+  remove this email as a secondary email and make it a primary one so GitLab
+  will associate this profile to the LDAP identity.
 
 The user can do either of these steps [in their
 profile](../../user/profile/index.md#user-profile) or an admin can do it.
