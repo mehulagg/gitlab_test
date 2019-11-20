@@ -148,7 +148,25 @@ export const receiveCreateIssueError = ({ commit }, { flashError }) => {
   }
 };
 
-export const dismissVulnerability = (
+export const dismissVulnerability = ({ state, rootState }, { vulnerability }) => {
+  const projectId = vulnerability.project.id;
+  const findingId = vulnerability.id;
+
+  axios
+    .post(`/api/v4/projects/${projectId}/vulnerabilities?finding_id=${findingId}`)
+    .then(data => {
+      debugger;
+    })
+    .catch(error => {
+      debugger;
+    });
+
+  axios.get(`/api/v4/projects/${projectId}/vulnerabilities`).then(data => {
+    debugger;
+  });
+};
+
+export const xDismissVulnerability = (
   { dispatch, state, rootState },
   { vulnerability, flashError, comment },
 ) => {

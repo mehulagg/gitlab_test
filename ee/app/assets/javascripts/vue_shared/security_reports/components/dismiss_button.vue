@@ -54,7 +54,7 @@ export default {
     <loading-button
       :loading="isDismissing"
       :disabled="isDismissing || disabled"
-      :label="buttonText"
+      label="promote vulnerability"
       container-class="js-dismiss-btn btn btn-close"
       @click="handleDismissClick"
     />
