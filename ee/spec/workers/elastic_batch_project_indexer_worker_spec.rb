@@ -21,8 +21,8 @@ describe ElasticBatchProjectIndexerWorker, :elastic_stub do
       it 'only indexes the enabled project' do
         projects.each { |project| expect_index(project).and_call_original }
 
-        expect(Gitlab::Elastic::Indexer).to receive(:new).with(projects.first).and_return(double(run: true))
-        expect(Gitlab::Elastic::Indexer).not_to receive(:new).with(projects.last)
+        expect(Gitlab::Elastic::Indexer).to receive(:run).with(projects.first)
+        expect(Gitlab::Elastic::Indexer).not_to receive(:run)
 
         worker.perform(projects.first.id, projects.last.id)
       end
@@ -45,9 +45,7 @@ describe ElasticBatchProjectIndexerWorker, :elastic_stub do
       Gitlab::Redis::SharedState.with { |redis| redis.sadd(:elastic_projects_indexing, projects.first.id) }
 
       expect_index(projects.first).and_call_original
-      expect_next_instance_of(Gitlab::Elastic::Indexer) do |indexer|
-        expect(indexer).to receive(:run)
-      end
+      expect(Gitlab::Elastic::Indexer).to receive(:run).with(projects.first)
 
       expect { worker.perform(projects.first.id, projects.first.id) }
         .to change { project_locked?(projects.first) }.from(true).to(false)
@@ -58,17 +56,6 @@ describe ElasticBatchProjectIndexerWorker, :elastic_stub do
       expect_index(projects.last)
 
       worker.perform(projects.first.id, projects.last.id)
-    end
-
-    it 'indexes all projects it receives even if already indexed', :sidekiq_might_not_need_inline do
-      projects.first.index_status.update!(last_commit: 'foo')
-
-      expect_index(projects.first).and_call_original
-      expect_next_instance_of(Gitlab::Elastic::Indexer) do |indexer|
-        expect(indexer).to receive(:run)
-      end
-
-      worker.perform(projects.first.id, projects.first.id)
     end
   end
 

@@ -214,6 +214,14 @@ p.each do |project|
 end
 ```
 
+### Identify un-indexed projects
+
+```ruby
+Project.includes(:index_statuses).find_each do |project|
+  puts "id #{project.id}: #{project.namespace.name.to_s}/#{project.name.to_s}" if project.index_statuses.blank?
+end
+```
+
 ## Wikis
 
 ### Recreate

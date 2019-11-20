@@ -55,13 +55,13 @@ describe Git::BranchPushService do
       end
 
       it 'runs ElasticCommitIndexerWorker' do
-        expect(ElasticCommitIndexerWorker).to receive(:perform_async).with(project.id, oldrev, newrev)
+        expect(ElasticCommitIndexerWorker).to receive(:perform_async).with(project.id, nil, newrev)
 
         subject.execute
       end
 
       it "triggers indexer when push to default branch", :sidekiq_might_not_need_inline do
-        expect_any_instance_of(Gitlab::Elastic::Indexer).to receive(:run)
+        expect(Gitlab::Elastic::Indexer).to receive(:run)
 
         subject.execute
       end
@@ -70,7 +70,7 @@ describe Git::BranchPushService do
         let(:ref) { 'refs/heads/other' }
 
         it 'does not trigger indexer when push to non-default branch' do
-          expect_any_instance_of(Gitlab::Elastic::Indexer).not_to receive(:run)
+          expect(Gitlab::Elastic::Indexer).not_to receive(:run)
 
           subject.execute
         end
@@ -95,7 +95,7 @@ describe Git::BranchPushService do
           end
 
           it 'runs ElasticCommitIndexerWorker' do
-            expect(ElasticCommitIndexerWorker).to receive(:perform_async).with(project.id, oldrev, newrev)
+            expect(ElasticCommitIndexerWorker).to receive(:perform_async).with(project.id, nil, newrev)
 
             subject.execute
           end
@@ -110,7 +110,7 @@ describe Git::BranchPushService do
           end
 
           it 'runs ElasticCommitIndexerWorker' do
-            expect(ElasticCommitIndexerWorker).to receive(:perform_async).with(project.id, oldrev, newrev)
+            expect(ElasticCommitIndexerWorker).to receive(:perform_async).with(project.id, nil, newrev)
 
             subject.execute
           end
