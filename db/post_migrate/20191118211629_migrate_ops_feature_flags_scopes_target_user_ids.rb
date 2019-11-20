@@ -25,6 +25,18 @@ class MigrateOpsFeatureFlagsScopesTargetUserIds < ActiveRecord::Migration[5.2]
           })
         end
       end
+
+      if scope.active
+        userwithid_strategy = scope.strategies.find { |s| s['name'] == 'userWithId' }
+        default_strategy = scope.strategies.find { |s| s['name'] == 'default' }
+
+        if userwithid_strategy.present? && default_strategy.present?
+          scope.update!({
+            active: true,
+            strategies: [default_strategy]
+          })
+        end
+      end
     end
   end
 

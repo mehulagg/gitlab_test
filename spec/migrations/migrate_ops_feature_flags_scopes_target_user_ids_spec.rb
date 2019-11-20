@@ -53,6 +53,20 @@ describe MigrateOpsFeatureFlagsScopesTargetUserIds, :migration do
     expect(scope.strategies).to eq([{ 'name' => 'userWithId', 'parameters' => { 'userIds' => 'amy@gmail.com,karen@gmail.com' } }])
   end
 
+  it 'migrates an enabled scope with a default strategy and a userWithId strategy' do
+    flag = setup
+    scope = scopes.create!(feature_flag_id: flag.id, active: true, strategies: [
+      { name: 'default', parameters: {} },
+      { name: 'userWithId', parameters: { userIds: 'tim' } }
+    ])
+
+    disable_migrations_output { migrate! }
+
+    scope.reload
+    expect(scope.active).to eq(true)
+    expect(scope.strategies).to eq([{ 'name' => 'default', 'parameters' => {} }])
+  end
+
   it 'does not alter an enabled scope with a userWithId strategy' do
     flag = setup
     scope = scopes.create!(feature_flag_id: flag.id, active: true, strategies: [
@@ -65,7 +79,7 @@ describe MigrateOpsFeatureFlagsScopesTargetUserIds, :migration do
     scope.reload
     expect(scope.active).to eq(true)
     expect(scope.strategies).to eq([
-      { 'name' => 'gradualRolloutUserId', 'parameters' => { groupId: 'default', 'percentage' => '50' } },
+      { 'name' => 'gradualRolloutUserId', 'parameters' => { 'groupId' => 'default', 'percentage' => '50' } },
       { 'name' => 'userWithId', 'parameters' => { 'userIds' => '5' } }
     ])
   end
