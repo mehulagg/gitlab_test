@@ -20,9 +20,9 @@ function setup_db_user_only() {
 function setup_db() {
     setup_db_user_only
 
-    bundle exec rake db:drop db:create db:schema:load db:migrate
+    bundle exec rails db:drop db:create db:schema:load db:migrate
 
-    bundle exec rake gitlab:db:setup_ee
+    bundle exec rails gitlab:db:setup_ee
 }
 
 function install_api_client_dependencies_with_apk() {
