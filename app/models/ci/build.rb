@@ -40,6 +40,7 @@ module Ci
     }.freeze
 
     has_one :deployment, as: :deployable, class_name: 'Deployment'
+    has_one :job_lock, class_name: 'Ci::JobLock', foreign_key: :job_id
     has_many :trace_sections, class_name: 'Ci::BuildTraceSection'
     has_many :trace_chunks, class_name: 'Ci::BuildTraceChunk', foreign_key: :build_id
 
@@ -60,6 +61,7 @@ module Ci
     delegate :terminal_specification, to: :runner_session, allow_nil: true
     delegate :gitlab_deploy_token, to: :project
     delegate :trigger_short_token, to: :trigger_request, allow_nil: true
+    delegate :try_lock, to: :job_lock
 
     ##
     # Since Gitlab 11.5, deployments records started being created right after
@@ -347,6 +349,10 @@ module Ci
       self.when == 'delayed' && options[:start_in].present?
     end
 
+    def lockable?
+      job_lock.present?
+    end
+
     def options_scheduled_at
       ChronicDuration.parse(options[:start_in])&.seconds&.from_now
     end
@@ -418,6 +424,10 @@ module Ci
 
     def has_environment?
       environment.present?
+    end
+
+    def has_lock?
+      options[:lock].present?
     end
 
     def starts_environment?

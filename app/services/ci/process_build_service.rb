@@ -4,7 +4,9 @@ module Ci
   class ProcessBuildService < BaseService
     def execute(build, current_status)
       if valid_statuses_for_when(build.when).include?(current_status)
-        if build.schedulable?
+        if build.lockable?
+          build.try_lock
+        elsif build.schedulable?
           build.schedule
         elsif build.action?
           build.actionize

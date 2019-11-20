@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_18_182722) do
+ActiveRecord::Schema.define(version: 2019_11_20_184725) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -755,6 +755,16 @@ ActiveRecord::Schema.define(version: 2019_11_18_182722) do
     t.index ["project_id"], name: "index_ci_job_artifacts_on_project_id_for_security_reports", where: "(file_type = ANY (ARRAY[5, 6, 7, 8]))"
   end
 
+  create_table "ci_job_locks", force: :cascade do |t|
+    t.bigint "semaphore_id", null: false
+    t.bigint "job_id", null: false
+    t.integer "status", limit: 2, null: false
+    t.integer "blocked_duration"
+    t.datetime_with_timezone "created_at", null: false
+    t.datetime_with_timezone "updated_at", null: false
+    t.index ["semaphore_id", "job_id"], name: "index_ci_job_locks_on_semaphore_id_and_job_id", unique: true
+  end
+
   create_table "ci_job_variables", force: :cascade do |t|
     t.string "key", null: false
     t.text "encrypted_value"
@@ -853,6 +863,15 @@ ActiveRecord::Schema.define(version: 2019_11_18_182722) do
     t.index ["project_id"], name: "index_ci_pipelines_on_project_id"
     t.index ["status"], name: "index_ci_pipelines_on_status"
     t.index ["user_id"], name: "index_ci_pipelines_on_user_id"
+  end
+
+  create_table "ci_project_semaphores", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.string "semaphore", null: false
+    t.integer "concurrency", default: 1, null: false
+    t.datetime_with_timezone "created_at", null: false
+    t.datetime_with_timezone "updated_at", null: false
+    t.index ["project_id", "semaphore"], name: "index_ci_project_semaphores_on_project_id_and_semaphore", unique: true
   end
 
   create_table "ci_runner_namespaces", id: :serial, force: :cascade do |t|
@@ -4278,6 +4297,8 @@ ActiveRecord::Schema.define(version: 2019_11_18_182722) do
   add_foreign_key "ci_group_variables", "namespaces", column: "group_id", name: "fk_33ae4d58d8", on_delete: :cascade
   add_foreign_key "ci_job_artifacts", "ci_builds", column: "job_id", on_delete: :cascade
   add_foreign_key "ci_job_artifacts", "projects", on_delete: :cascade
+  add_foreign_key "ci_job_locks", "ci_builds", column: "job_id", on_delete: :cascade
+  add_foreign_key "ci_job_locks", "ci_project_semaphores", column: "semaphore_id", on_delete: :cascade
   add_foreign_key "ci_job_variables", "ci_builds", column: "job_id", on_delete: :cascade
   add_foreign_key "ci_pipeline_chat_data", "chat_names", on_delete: :cascade
   add_foreign_key "ci_pipeline_chat_data", "ci_pipelines", column: "pipeline_id", on_delete: :cascade
@@ -4290,6 +4311,7 @@ ActiveRecord::Schema.define(version: 2019_11_18_182722) do
   add_foreign_key "ci_pipelines", "external_pull_requests", name: "fk_190998ef09", on_delete: :nullify
   add_foreign_key "ci_pipelines", "merge_requests", name: "fk_a23be95014", on_delete: :cascade
   add_foreign_key "ci_pipelines", "projects", name: "fk_86635dbd80", on_delete: :cascade
+  add_foreign_key "ci_project_semaphores", "projects", on_delete: :cascade
   add_foreign_key "ci_runner_namespaces", "ci_runners", column: "runner_id", on_delete: :cascade
   add_foreign_key "ci_runner_namespaces", "namespaces", on_delete: :cascade
   add_foreign_key "ci_runner_projects", "projects", name: "fk_4478a6f1e4", on_delete: :cascade
