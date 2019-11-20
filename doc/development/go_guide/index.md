@@ -70,17 +70,19 @@ projects:
 
 - Avoid global variables, even in packages. By doing so you will introduce side
   effects if the package is included multiple times.
-- Use `goimports -local gitlab.com` before committing.
+- Use `goimports -local gitlab.com/gitlab-org` before committing.
   [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports)
   is a tool that automatically formats Go source code using
   [Gofmt](https://golang.org/cmd/gofmt/), in addition to formatting import lines,
   adding missing ones and removing unreferenced ones.
 
-  By using the `-local gitlab.com` option, `goimports` will group locally referenced
-  packages separately from external ones.
+  By using the `-local gitlab.com/gitlab-org` option, `goimports` will group locally referenced
+  packages separately from external ones.  See
+  [the imports section](https://github.com/golang/go/wiki/CodeReviewComments#imports)
+  of the Code Review Comments page on the Go wiki for more details.
 
-  Most text editors will allow you to set up a `before-save` command to automatically
-  execute `goimports` so that it's applied to every file when saving.
+  Most editors/IDEs will allow you to run commands before/after saving a file, you can set it
+  up to run `goimports -local` so that it's applied to every file when saving.
 - Place private methods below the first caller method in the source file.
 
 ### Automatic linting
