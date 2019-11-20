@@ -186,7 +186,8 @@ Rails.logger.level = Logger::DEBUG
 LdapSyncWorker.new.perform
 ```
 
-Next, [learn how to read the output](#example-log-output-after-a-user-sync).
+Next, [learn how to read the
+output](#example-log-output-after-a-user-sync-starter-only).
 
 #### Sync all groups **(STARTER ONLY)**
 
@@ -203,7 +204,8 @@ Rails.logger.level = Logger::DEBUG
 LdapAllGroupsSyncWorker.new.perform
 ```
 
-Next, [learn how to read the output](#example-log-output-after-a-group-sync).
+Next, [learn how to read the
+output](#example-log-output-after-a-group-sync-starter-only).
 
 #### Sync one group **(STARTER ONLY)**
 
@@ -225,7 +227,7 @@ EE::Gitlab::Auth::LDAP::Sync::Group.execute_all_providers(group)
 ```
 
 The output will be similar to
-[that you'd get from syncing all groups](#example-log-output-after-a-group-sync).
+[that you'd get from syncing all groups](#example-log-output-after-a-group-sync-starter-only).
 
 #### Query a group in LDAP **(STARTER ONLY)**
 
@@ -273,7 +275,7 @@ For examples of how this is run,
 
 #### Example log output after a user sync **(STARTER ONLY)**
 
-The output from a [manual user sync](#debug-a-usersync) will be very verbose, and a
+The output from a [manual user sync](#sync-all-users-starter-only) will be very verbose, and a
 single user's successful sync can look like this:
 
 ```bash
@@ -352,7 +354,7 @@ database with any changes.
 #### Example log output after a group sync **(STARTER ONLY)**
 
 Like the output from the user sync, the output from the [manual group
-sync](#sync-all-groups) will also be very verbose. However, it contains lots
+sync](#sync-all-groups-starter-only) will also be very verbose. However, it contains lots
 of helpful information.
 
 Indicates the point where syncing actually begins:
@@ -540,7 +542,7 @@ are true for the user in question:
   tree and traverse it.
 - Check that the `user_filter` is not blocking otherwise valid users.
 - Run [an LDAP check command](#ldap-check) to make sure that the LDAP settings
-  are correct and [GitLab can see your users](#ldap-users-not-found).
+  are correct and [GitLab can see your users](#no-users-are-found).
 
 #### Email has already been taken
 
@@ -620,7 +622,7 @@ the rails console.
    UIDs here should match the 'Identifier' from the LDAP identity checked earlier. If it doesn't,
    the user does not appear to be in the LDAP group.
 
-#### Admin priviliges not granted
+#### Admin privileges not granted
 
 When [Administrator sync](ldap-ee.md#administrator-sync) has been configured
 but the configured users aren't granted the correct admin privileges, confirm
@@ -634,8 +636,8 @@ the following are true:
   accounts are already connected to LDAP.
 
 If all the above are true and the users are still not getting access, [run a manual
-group sync](#sync-all-groups) in the rails console and [look through the
-output](#example-log-output-after-a-group-sync) to see what happens when
+group sync](#sync-all-groups-starter-only) in the rails console and [look through the
+output](#example-log-output-after-a-group-sync-starter-only) to see what happens when
 GitLab syncs the `admin_group`.
 
 ### User DN or/and email have changed
@@ -679,7 +681,7 @@ emails.each do |username, email|
 end
 ```
 
-You can then [run a UserSync](#sync-all-users) **(STARTER ONLY)** to sync the latest DN
+You can then [run a UserSync](#sync-all-users-starter-only) **(STARTER ONLY)** to sync the latest DN
 for each of these users.
 
 <!-- LINK REFERENCES -->
