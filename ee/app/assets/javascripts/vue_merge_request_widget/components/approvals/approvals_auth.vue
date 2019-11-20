@@ -1,5 +1,6 @@
 <script>
 import { GlLoadingIcon, GlModal } from '@gitlab/ui';
+import { s__ } from '~/locale';
 
 export default {
   components: {
@@ -25,6 +26,12 @@ export default {
   data() {
     return {
       approvalPassword: '',
+      modalCancel: {
+        text: s__('Cancel'),
+      },
+      modalPrimary: {
+        text: s__('Approve'),
+      },
     };
   },
   methods: {
@@ -49,8 +56,9 @@ export default {
     :modal-id="modalId"
     :ok-disabled="isApproving"
     :title="s__('Enter your password to approve')"
-    ok-variant="success"
     modal-class="js-mr-approvals-modal"
+    :modal-action-primary="modalPrimary"
+    :modal-action-cancel="modalCancel"
     @ok="approve"
     @hide="onHide"
     @show="onShow"
@@ -82,12 +90,5 @@ export default {
         <span class="gl-field-error">{{ s__('mrWidget|Approval password is invalid.') }}</span>
       </div>
     </form>
-
-    <template slot="modal-cancel">{{ s__('Cancel') }}</template>
-
-    <template slot="modal-ok">
-      <gl-loading-icon v-if="isApproving" inline />
-      {{ s__('Approve') }}
-    </template>
   </gl-modal>
 </template>
