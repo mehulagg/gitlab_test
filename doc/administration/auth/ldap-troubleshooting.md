@@ -215,7 +215,12 @@ and see its debug output:
 ```ruby
 Rails.logger.level = Logger::DEBUG
 
+# Find the GitLab group.
+# If the output is `nil`, the group could not be found.
+# If a bunch of group attributes are in the output, your group was found successfully.
 group = Group.find_by(name: 'my_gitlab_group')
+
+# Sync this group against LDAP
 EE::Gitlab::Auth::LDAP::Sync::Group.execute_all_providers(group)
 ```
 
@@ -601,67 +606,21 @@ things to check to debug the situation.
   Members** and press **Sync now** (sync one group) or [run the group sync rake
   task][group-sync-rake] (sync all groups).
 
-If all of the above looks good, jump in to a little more advanced debugging.
-Often, the best way to learn more about why group sync is behaving a certain
-way is to enable debug logging. There is verbose output that details every
-step of the sync.
+If all of the above looks good, jump in to a little more advanced debugging in
+the rails console.
 
 1. Enter the [rails console](#rails-console).
-1. Set the [log level to debug](#enable-debug-output).
 1. Choose a GitLab group to test with. This group should have an LDAP group link
-   already configured. If the output is `nil`, the group could not be found.
-   If a bunch of group attributes are output, your group was found successfully.
-
-   ```ruby
-   group = Group.find_by(name: 'my_group')
-
-   # Output
-   => #<Group:0x007fe825196558 id: 1234, name: "my_group"...>
-   ```
-
-1. Run a group sync for this particular group.
-
-   ```ruby
-   EE::Gitlab::Auth::LDAP::Sync::Group.execute_all_providers(group)
-   ```
-
+   already configured.
+1. [Enable debug logging, find the above GitLab group, and sync it with LDAP](#sync-one-group-starter-only).
 1. Look through the output of the sync. See [example log
    output](#example-log-output-after-a-group-sync-starter-only)
-   for more information about the output.
-
-1. If you still aren't able to see why the user isn't being added, query the
-   LDAP group directly to see what members are listed. Still in the Rails console,
-   run the following query:
-
-   ```ruby
-   adapter = Gitlab::Auth::LDAP::Adapter.new('ldapmain') # If `main` is the LDAP provider
-   ldap_group = EE::Gitlab::Auth::LDAP::Group.find_by_cn('group_cn_here', adapter)
-
-   # Output
-   => #<EE::Gitlab::Auth::LDAP::Group:0x007fcbdd0bb6d8
-   ```
-
-1. Query the LDAP group's member DN and see if the user's DN is in the list.
-   One of the DN here should match the 'Identifier' from the LDAP identity
-   checked earlier. If it doesn't, the user does not appear to be in the LDAP
-   group.
-
-   ```ruby
-   ldap_group.member_dns
-
-   # Output
-   => ["uid=john,ou=people,dc=example,dc=com", "uid=mary,ou=people,dc=example,dc=com"]
-   ```
-
-1. Some LDAP servers don't store members by DN. Rather, they use UIDs instead.
-   If you didn't see results from the last query, try querying by UIDs instead.
-
-   ```ruby
-   ldap_group.member_uids
-
-   # Output
-   => ['john','mary']
-   ```
+   for how to read the output.
+1. If you still aren't able to see why the user isn't being added, [query the
+   LDAP group directly](#query-a-group-in-ldap-starter-only) to see what members are listed.
+1. Is the user's DN or UID in one of the lists from the above output? One of the DNs or
+   UIDs here should match the 'Identifier' from the LDAP identity checked earlier. If it doesn't,
+   the user does not appear to be in the LDAP group.
 
 #### Admin priviliges not granted
 
