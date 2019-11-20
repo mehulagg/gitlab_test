@@ -442,4 +442,109 @@ describe Deployment do
       expect(deploy2.previous_environment_deployment).to be_nil
     end
   end
+
+  # We use hooks to test this method, ensuring both the method and the hook
+  # work.
+  describe '#ensure_finished_at' do
+    it 'sets the finished_at attribute when using the status "success"' do
+      Timecop.freeze do
+        deploy = create(:deployment, status: :success)
+
+        expect(deploy.read_attribute(:finished_at)).to eq(Time.now)
+      end
+    end
+
+    it 'sets the finished_at attribute when using the status "failed"' do
+      Timecop.freeze do
+        deploy = create(:deployment, status: :failed)
+
+        expect(deploy.read_attribute(:finished_at)).to eq(Time.now)
+      end
+    end
+
+    it 'sets the finished_at attribute when using the status "canceled"' do
+      Timecop.freeze do
+        deploy = create(:deployment, status: :canceled)
+
+        expect(deploy.read_attribute(:finished_at)).to eq(Time.now)
+      end
+    end
+
+    it 'does not set finished_at when the status is "running"' do
+      deploy = create(:deployment, status: :running)
+
+      expect(deploy.read_attribute(:finished_at)).to be_nil
+    end
+
+    it 'does not set finished_at when the status is "created"' do
+      deploy = create(:deployment, status: :created)
+
+      expect(deploy.read_attribute(:finished_at)).to be_nil
+    end
+  end
+
+  # We use hooks to test this method, ensuring both the method and the hook
+  # work.
+  describe '#run_finished_worker' do
+    it 'schedules a Deployments::FinishedWorker job when the status is "success"' do
+      expect(Deployments::FinishedWorker)
+        .to receive(:perform_async)
+        .once
+        .with(an_instance_of(Integer))
+
+      create(:deployment, status: :success)
+    end
+
+    it 'schedules a Deployments::FinishedWorker job when the status is "failed"' do
+      expect(Deployments::FinishedWorker)
+        .to receive(:perform_async)
+        .once
+        .with(an_instance_of(Integer))
+
+      create(:deployment, status: :failed)
+    end
+
+    it 'schedules a Deployments::FinishedWorker job when the status is "canceled"' do
+      expect(Deployments::FinishedWorker)
+        .to receive(:perform_async)
+        .once
+        .with(an_instance_of(Integer))
+
+      create(:deployment, status: :canceled)
+    end
+
+    it 'does not schedule a Deployments::FinishedWorker job when the status is "running"' do
+      expect(Deployments::FinishedWorker).not_to receive(:perform_async)
+
+      create(:deployment, status: :running)
+    end
+
+    it 'does not schedule a Deployments::FinishedWorker job when the status is "created"' do
+      expect(Deployments::FinishedWorker).not_to receive(:perform_async)
+
+      create(:deployment, status: :created)
+    end
+  end
+
+  describe '#finished?' do
+    it 'returns true when the status is "success"' do
+      expect(build(:deployment, status: :success)).to be_finished
+    end
+
+    it 'returns true when the status is "failed"' do
+      expect(build(:deployment, status: :failed)).to be_finished
+    end
+
+    it 'returns true when the status is "canceled"' do
+      expect(build(:deployment, status: :canceled)).to be_finished
+    end
+
+    it 'returns false when the status is "running"' do
+      expect(build(:deployment, status: :running)).not_to be_finished
+    end
+
+    it 'returns false when the status is "created"' do
+      expect(build(:deployment, status: :created)).not_to be_finished
+    end
+  end
 end

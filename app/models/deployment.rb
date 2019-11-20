@@ -22,6 +22,9 @@ class Deployment < ApplicationRecord
   validates :sha, presence: true
   validates :ref, presence: true
 
+  before_save :ensure_finished_at, if: :finished?
+  after_commit :run_finished_worker, if: :finished?
+
   delegate :name, to: :environment, prefix: true
 
   scope :for_environment, -> (environment) { where(environment_id: environment) }
@@ -45,19 +48,9 @@ class Deployment < ApplicationRecord
       transition any - [:canceled] => :canceled
     end
 
-    before_transition any => [:success, :failed, :canceled] do |deployment|
-      deployment.finished_at = Time.now
-    end
-
     after_transition any => :success do |deployment|
       deployment.run_after_commit do
         Deployments::SuccessWorker.perform_async(id)
-      end
-    end
-
-    after_transition any => [:success, :failed, :canceled] do |deployment|
-      deployment.run_after_commit do
-        Deployments::FinishedWorker.perform_async(id)
       end
     end
   end
@@ -207,6 +200,18 @@ class Deployment < ApplicationRecord
       (merge_request_id, deployment_id)
       #{select}
     SQL
+  end
+
+  def finished?
+    success? || failed? || canceled?
+  end
+
+  def ensure_finished_at
+    self.finished_at = Time.now
+  end
+
+  def run_finished_worker
+    Deployments::FinishedWorker.perform_async(id)
   end
 
   private

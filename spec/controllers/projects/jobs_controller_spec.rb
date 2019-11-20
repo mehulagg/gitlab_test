@@ -262,13 +262,14 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
         let(:merge_request) { create(:merge_request, source_project: project) }
         let(:environment) { create(:environment, project: project, name: 'staging', state: :available) }
         let(:job) { create(:ci_build, :running, environment: environment.name, pipeline: pipeline) }
+        let(:project) { create(:project, :repository) }
 
         before do
           create(:deployment, :success, :on_cluster, environment: environment, project: project)
           project.add_maintainer(user) # Need to be a maintianer to view cluster.path
         end
 
-        it 'exposes the deployment information', :sidekiq_might_not_need_inline do
+        it 'exposes the deployment information', :sidekiq_inline do
           get_show_json
 
           expect(response).to have_gitlab_http_status(:ok)
