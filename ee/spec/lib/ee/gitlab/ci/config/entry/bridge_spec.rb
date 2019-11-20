@@ -176,7 +176,7 @@ describe EE::Gitlab::Ci::Config::Entry::Bridge do
       it { is_expected.not_to be_valid }
     end
 
-    context 'when bridge configuration uses rules with only/except' do
+    context 'when bridge configuration uses rules with only' do
       let(:config) do
         {
           trigger: { project: 'some/project', branch: 'feature' },
@@ -184,6 +184,21 @@ describe EE::Gitlab::Ci::Config::Entry::Bridge do
           extends: '.some-key',
           stage: 'deploy',
           only: { variables: %w[$SOMEVARIABLE] },
+          rules: [{ if: '$VAR == null', when: 'never' }],
+          variables: { VARIABLE: '123' }
+        }
+      end
+
+      it { is_expected.not_to be_valid }
+    end
+
+    context 'when bridge configuration uses rules with except' do
+      let(:config) do
+        {
+          trigger: { project: 'some/project', branch: 'feature' },
+          needs: { pipeline: 'other/project' },
+          extends: '.some-key',
+          stage: 'deploy',
           except: { refs: %w[feature] },
           rules: [{ if: '$VAR == null', when: 'never' }],
           variables: { VARIABLE: '123' }
