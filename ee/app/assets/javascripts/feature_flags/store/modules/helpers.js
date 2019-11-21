@@ -27,16 +27,12 @@ export const mapToScopesViewModel = scopesFromRails =>
       strat => strat.name === ROLLOUT_STRATEGY_USER_ID,
     );
 
-    let rolloutStrategy = ROLLOUT_STRATEGY_ALL_USERS;
-
-    rolloutStrategy =
+    const rolloutStrategy =
       (percentStrategy && percentStrategy.name) ||
       (userStrategy && userStrategy.name) ||
       ROLLOUT_STRATEGY_ALL_USERS;
 
-    let rolloutUserIds = '';
-
-    rolloutUserIds = (fetchUserIdParams(userStrategy) || '')
+    const rolloutUserIds = (fetchUserIdParams(userStrategy) || '')
       .split(',')
       .filter(id => id)
       .join(', ');
@@ -71,9 +67,7 @@ export const mapFromScopesViewModel = params => {
 
     const userIdParameters = {};
 
-    const hasUsers = s.shouldIncludeUserIds || s.rolloutStrategy === ROLLOUT_STRATEGY_USER_ID;
-
-    if (hasUsers) {
+    if (s.shouldIncludeUserIds || s.rolloutStrategy === ROLLOUT_STRATEGY_USER_ID) {
       userIdParameters.userIds = (s.rolloutUserIds || '').replace(/, /g, ',');
     } else if (Array.isArray(s.rolloutUserIds) && s.rolloutUserIds.length > 0) {
       userIdParameters.userIds = s.rolloutUserIds.join(',');
