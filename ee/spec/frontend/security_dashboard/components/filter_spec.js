@@ -1,18 +1,13 @@
 import Vue from 'vue';
-import component from 'ee/security_dashboard/components/filter.vue';
+import { mount } from '@vue/test-utils';
+import FilterComponent from 'ee/security_dashboard/components/filter.vue';
 import createStore from 'ee/security_dashboard/store';
-import { mountComponentWithStore } from 'helpers/vue_mount_component_helper';
 
 describe('Filter component', () => {
   let vm;
   let props;
   let store;
-  let Component;
-
-  function isDropdownOpen() {
-    const toggleButton = vm.$el.querySelector('.dropdown-toggle');
-    return toggleButton.getAttribute('aria-expanded') === 'true';
-  }
+  let wrapper;
 
   function setProjectsCount(count) {
     const projects = new Array(count).fill(null).map((_, i) => ({
@@ -26,33 +21,58 @@ describe('Filter component', () => {
     });
   }
 
-  const findSearchInput = () => vm.$refs.searchBox && vm.$refs.searchBox.$el.querySelector('input');
+  function createComponent({ props: propsData, store: initialStore }) {
+    return mount(FilterComponent, {
+      sync: false,
+      attachToDocument: true,
+      store: initialStore,
+      propsData,
+    });
+  }
+
+  const findSearchInput = () => wrapper.find('input');
+  const findDropdownItem = () => wrapper.findAll('.dropdown-item');
+  const findCheckedDropdownOptions = () => wrapper.findAll('.dropdown-item .js-check');
+  const findOptionName = () => wrapper.findAll('.js-name');
+  const findDropdownToggle = () => wrapper.find('.dropdown-toggle');
+
+  function isDropdownOpen() {
+    console.log('wrapper::html', wrapper.html());
+    const toggleButton = findDropdownToggle();
+    console.log('isDropdown', toggleButton.attrs('aria-expanded'));
+    return toggleButton.attrs('aria-expanded') === 'true';
+  }
 
   beforeEach(() => {
     store = createStore();
-    Component = Vue.extend(component);
+    wrapper = null;
   });
 
   afterEach(() => {
-    vm.$destroy();
+    wrapper.destroy();
   });
 
-  describe('severity', () => {
+  describe.only('severity', () => {
     beforeEach(() => {
       props = { filterId: 'severity' };
-      vm = mountComponentWithStore(Component, { store, props });
+      wrapper = createComponent({ store, props });
+      return Vue.nextTick();
     });
 
     it('should display all 8 severity options', () => {
-      expect(vm.$el.querySelectorAll('.dropdown-item').length).toEqual(8);
+      expect(findDropdownItem().length).toEqual(8);
     });
 
     it('should display a check next to only the selected item', () => {
-      expect(vm.$el.querySelectorAll('.dropdown-item .js-check').length).toEqual(1);
+      expect(findCheckedDropdownOptions().length).toEqual(1);
     });
 
     it('should display "Severity" as the option name', () => {
-      expect(vm.$el.querySelector('.js-name').textContent).toContain('Severity');
+      expect(
+        findOptionName()
+          .at(0)
+          .text(),
+      ).toContain('Severity');
     });
 
     it('should not have a search box', () => {
@@ -64,17 +84,22 @@ describe('Filter component', () => {
     });
 
     describe('when the dropdown is open', () => {
-      beforeEach(done => {
-        vm.$el.querySelector('.dropdown-toggle').click();
-        vm.$on('bv::dropdown::shown', () => {
-          done();
-        });
+      beforeEach(() => {
+        findDropdownToggle().trigger('click');
+        // vm.$on('bv::dropdown::shown', () => {
+        //   done();
+        // });
+
+        return Vue.nextTick();
       });
 
       it('should keep the menu open after clicking on an item', done => {
         expect(isDropdownOpen()).toBe(true);
-        vm.$el.querySelector('.dropdown-item').click();
-        vm.$nextTick(() => {
+        findDropdownItem()
+          .at(0)
+          .trigger('click');
+
+        Vue.nextTick(() => {
           expect(isDropdownOpen()).toBe(true);
           done();
         });
@@ -91,22 +116,22 @@ describe('Filter component', () => {
     });
   });
 
-  describe('Project', () => {
+  describe.only('Project', () => {
     describe('when there are lots of projects', () => {
       const lots = 30;
       beforeEach(done => {
         props = { filterId: 'project_id', dashboardDocumentation: '' };
-        vm = mountComponentWithStore(Component, { store, props });
+        wrapper = createComponent({ store, props });
         setProjectsCount(lots);
-        vm.$nextTick(done);
+        Vue.nextTick(done);
       });
 
       it('should display a search box', () => {
-        expect(findSearchInput()).toEqual(jasmine.any(HTMLElement));
+        expect(findSearchInput().exists()).toEqual(true);
       });
 
       it(`should show all projects`, () => {
-        expect(vm.$el.querySelectorAll('.dropdown-item').length).toBe(lots);
+        expect(findDropdownItem().length).toBe(lots);
       });
 
       it('should show only matching projects when a search term is entered', done => {
