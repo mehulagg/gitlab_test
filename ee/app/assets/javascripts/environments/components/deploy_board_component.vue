@@ -44,11 +44,11 @@ export default {
     },
     environmentName: {
       type: String,
-      required: true
+      required: true,
     },
     projectPath: {
       type: String,
-      required: true
+      required: true,
     },
     hasLegacyAppLabel: {
       type: Boolean,

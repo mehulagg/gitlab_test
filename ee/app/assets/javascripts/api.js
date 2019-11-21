@@ -93,22 +93,20 @@ export default {
    * @returns {Promise} Axios promise for the result of a GET request of logs
    */
   getPodLogs({ projectPath, environmentName, podName, containerName }) {
-    let logPath = this.podLogsPath;
+    const url = this.buildUrl(this.podLogsPath).replace(':project_full_path', projectPath);
 
-    let url = this.buildUrl(logPath).replace(':project_full_path', projectPath)
-
-    let params = {
-      environment_name: environmentName
+    const params = {
+      environment_name: environmentName,
     };
 
     if (podName) {
-      params['pod_name'] = podName;
+      params.pod_name = podName;
     }
     if (containerName) {
-      params['container_name'] = containerName;
+      params.container_name = containerName;
     }
 
-    return axios.get(url, {params: params});
+    return axios.get(url, { params });
   },
 
   groupPackages(id, options = {}) {
