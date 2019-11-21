@@ -135,6 +135,14 @@ export default {
         },
       };
     },
+    designImage() {
+      if (!this.design) return undefined;
+
+      const { image, images } = this.design;
+      if (images && images.originalUrl) return images.originalUrl;
+
+      return image;
+    },
     issue() {
       return {
         ...this.design.issue,
@@ -233,7 +241,7 @@ export default {
           </gl-alert>
         </div>
         <design-presentation
-          :image="design.image"
+          :image="designImage"
           :image-name="design.filename"
           :discussions="discussions"
           :is-annotating="isAnnotating"

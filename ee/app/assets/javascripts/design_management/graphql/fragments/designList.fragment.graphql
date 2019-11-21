@@ -4,4 +4,9 @@ fragment DesignListItem on Design {
   event
   filename
   notesCount
+  images {
+    smallUrl
+    originalUrl
+    isProcessing
+  }
 }
