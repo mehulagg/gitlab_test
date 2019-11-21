@@ -69,7 +69,7 @@ module EE
             ::Gitlab::EtagCaching::Store.new.tap do |store|
               store.touch(
                 ::Gitlab::Routing.url_helpers.project_logs_path(
-                  environment.project
+                  environment.project,
                   query: {
                     environment_name: environment.name
                     pod_name: opts['pod_name']
