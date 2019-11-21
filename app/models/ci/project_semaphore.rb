@@ -8,7 +8,7 @@ module Ci
 
     has_many :job_locks, class_name: 'Ci::JobLock', foreign_key: :semaphore_id
 
-    validates :semaphore, presence: true
+    validates :key, length: { minimum: 1, maximum: 255 }
 
     def under_limit?
       job_locks.locking.count < concurrency

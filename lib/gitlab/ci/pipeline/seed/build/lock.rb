@@ -36,7 +36,7 @@ module Gitlab
             def attributes_for_semaphore
               {
                 project: job.project,
-                semaphore: job.expanded_lock_value
+                key: job.expanded_lock_key
               }
             end
           end

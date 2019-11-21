@@ -914,13 +914,13 @@ describe Ci::CreatePipelineService do
 
         context 'when the other job has already obtained the lock' do
           before do
-            job = create(:ci_build)
-            ci_semaphore = project.ci_semaphores.create!(semaphore: 'deploy')
-            ci_semaphore.job_locks.create!(job: job)
+            ci_semaphore = project.ci_semaphores.create!(key: 'tmp-key')
+            ci_semaphore.job_locks.create!(job: create(:ci_build)).obtain!
           end
 
           it 'has the deploy job with blocked status' do
             result = execute_service
+            test_job = result.builds.find_by_name!(:test)
             deploy_job = result.builds.find_by_name!(:deploy)
   
             expect(deploy_job).to be_created
@@ -939,14 +939,8 @@ describe Ci::CreatePipelineService do
       context 'when Limit per job' do
         before do
           config = YAML.dump(
-            test: {
-              script: 'ls'
-            },
-            deploy: {
-              script: 'ls',
-              environment: { name: 'prd' },
-              lock: '$CI_JOB_NAME'
-            }
+            test: { stage: 'test', script: 'ls' },
+            deploy: { stage: 'deploy', script: 'ls', lock: '$CI_JOB_NAME', environment: 'prd' }
           )
 
           stub_ci_pipeline_yaml_file(config)
@@ -968,30 +962,6 @@ describe Ci::CreatePipelineService do
           expect(deploy_job.job_lock).to be_present
           expect(deploy_job.job_lock.ci_semaphore).to eq(project_semaphore)
         end
-
-        it 'has the deploy job with locking status' do
-          result = execute_service
-          deploy_job = result.builds.find_by_name!(:deploy)
-
-          expect(deploy_job).to be_created
-          expect(deploy_job.job_lock).to be_locking
-        end
-
-        context 'when the other job obtains the lock already' do
-          before do
-            job = create(:ci_build)
-            ci_semaphore = project.ci_semaphores.create!(semaphore: 'deploy')
-            ci_semaphore.job_locks.create!(job: job)
-          end
-
-          it 'has the deploy job with blocked status' do
-            result = execute_service
-            deploy_job = result.builds.find_by_name!(:deploy)
-  
-            expect(deploy_job).to be_created
-            expect(deploy_job.job_lock).to be_blocked
-          end
-        end
       end
 
       context 'when Limit per job per branch' do
@@ -1012,7 +982,7 @@ describe Ci::CreatePipelineService do
 
           expect(result).to be_persisted
           expect(test_job).to be_lockable
-          expect(project.ci_semaphores.exist?(semaphore: 'master:test')).to eq(true)
+          expect(project.ci_semaphores.exist?(key: 'master:test')).to eq(true)
         end
       end
 
@@ -1035,12 +1005,12 @@ describe Ci::CreatePipelineService do
 
           expect(result).to be_persisted
           expect(test_job).to be_lockable
-          expect(project.ci_semaphores.exist?(semaphore: 'prd')).to eq(true)
+          expect(project.ci_semaphores.exist?(key: 'prd')).to eq(true)
         end
       end
 
       context 'when two same locks exist in the same pipeline' do
-        # TODO:
+        # TODO: Test edge case
       end
     end
 

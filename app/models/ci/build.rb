@@ -430,8 +430,16 @@ module Ci
       options[:lock].present?
     end
 
-    def lock_value
+    def lock_key
       options.fetch(:lock, nil)
+    end
+
+    def expanded_lock_key
+      return unless has_lock?
+
+      strong_memoize(:expanded_lock_key) do
+        ExpandVariables.expand(lock_key, -> { simple_variables })
+      end
     end
 
     def starts_environment?

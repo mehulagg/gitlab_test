@@ -867,11 +867,11 @@ ActiveRecord::Schema.define(version: 2019_11_20_184725) do
 
   create_table "ci_project_semaphores", force: :cascade do |t|
     t.bigint "project_id", null: false
-    t.string "semaphore", null: false
+    t.string "key", null: false
     t.integer "concurrency", default: 1, null: false
     t.datetime_with_timezone "created_at", null: false
     t.datetime_with_timezone "updated_at", null: false
-    t.index ["project_id", "semaphore"], name: "index_ci_project_semaphores_on_project_id_and_semaphore", unique: true
+    t.index ["project_id", "key"], name: "index_ci_project_semaphores_on_project_id_and_key", unique: true
   end
 
   create_table "ci_runner_namespaces", id: :serial, force: :cascade do |t|

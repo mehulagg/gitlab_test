@@ -10,11 +10,11 @@ module Ci
     delegate :under_limit?, to: :ci_semaphore
 
     state_machine :status, initial: :created do
-      event :lock do
+      event :obtain do
         transition created: :locking
       end
 
-      event :block do
+      event :wait do
         transition created: :blocked
       end
 
@@ -39,7 +39,7 @@ module Ci
     }
 
     def try_lock
-      under_limit? ? lock : block
+      under_limit? ? obtain : wait
     end
   end
 end

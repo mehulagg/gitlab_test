@@ -6,9 +6,9 @@ class CiProjectSemaphores < ActiveRecord::Migration[5.2]
   def change
     create_table :ci_project_semaphores do |t|
       t.references :project, null: false, index: false, foreign_key: { on_delete: :cascade }
-      t.string :semaphore, null: false
+      t.string :key, null: false
       t.integer :concurrency, null: false, default: 1
-      t.index %i[project_id semaphore], unique: true
+      t.index %i[project_id key], unique: true
       t.timestamps_with_timezone
     end
 
