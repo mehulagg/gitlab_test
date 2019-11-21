@@ -101,6 +101,14 @@ export default {
         atVersion: this.designsVersion,
       };
     },
+    designImage() {
+      if (!this.design) return undefined;
+
+      const { image, images } = this.design;
+      if (images && images.originalUrl) return images.originalUrl;
+
+      return image;
+    },
   },
   mounted() {
     Mousetrap.bind('esc', this.closeDesign);
@@ -238,13 +246,13 @@ export default {
               :updated-at="design.updatedAt"
               :updated-by="design.updatedBy"
               :is-latest-version="isLatestVersion"
-              @delete="mutate()"
+              @delete="mutate"
             />
           </template>
         </design-destroyer>
         <div class="d-flex flex-column h-100 mh-100 position-relative">
           <design-image
-            :image="design.image"
+            :image="designImage"
             :name="design.filename"
             @setOverlayDimensions="setOverlayDimensions"
           />

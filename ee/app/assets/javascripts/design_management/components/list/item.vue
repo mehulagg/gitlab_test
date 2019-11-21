@@ -21,8 +21,8 @@ export default {
       type: Number,
       required: true,
     },
-    image: {
-      type: String,
+    images: {
+      type: Object,
       required: true,
     },
     filename: {
@@ -30,6 +30,11 @@ export default {
       required: true,
     },
     updatedAt: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    image: {
       type: String,
       required: false,
       default: null,
@@ -61,6 +66,11 @@ export default {
     notesLabel() {
       return n__('%d comment', '%d comments', this.notesCount);
     },
+    displayImage() {
+      const { smallUrl, originalUrl } = this.images;
+      // TODO(tom) check css works from any image size (i.e. its resized appropriately)
+      return smallUrl || originalUrl || this.image;
+    },
   },
 };
 </script>
@@ -81,7 +91,7 @@ export default {
         </span>
       </div>
       <img
-        :src="image"
+        :src="displayImage"
         :alt="filename"
         class="block ml-auto mr-auto mw-100 mh-100 design-img"
         data-qa-selector="design_image"

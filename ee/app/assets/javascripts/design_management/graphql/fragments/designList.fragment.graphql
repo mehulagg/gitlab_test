@@ -1,7 +1,11 @@
 fragment DesignListItem on Design {
   id
-  image
   event
   filename
   notesCount
+  images {
+    smallUrl
+    originalUrl
+    isProcessing
+  }
 }
