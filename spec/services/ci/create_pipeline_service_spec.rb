@@ -910,12 +910,22 @@ describe Ci::CreatePipelineService do
 
           expect(deploy_job).to be_pending
           expect(deploy_job.job_lock).to be_locking
+
+          # when deploy job finished
+          deploy_job.success!
+          deploy_job.reload
+
+          expect(deploy_job).to be_success
+          expect(deploy_job.job_lock).to be_released
         end
 
         context 'when the other job has already obtained the lock' do
+          let(:other_job) { create(:ci_build, name: 'other') }
+
           before do
             ci_semaphore = project.ci_semaphores.create!(key: 'tmp-key')
-            ci_semaphore.job_locks.create!(job: create(:ci_build)).obtain!
+            ci_semaphore.job_locks.create!(job: other_job).obtain!
+            other_job.reload
           end
 
           it 'has the deploy job with blocked status' do
@@ -932,6 +942,23 @@ describe Ci::CreatePipelineService do
 
             expect(deploy_job).to be_created
             expect(deploy_job.job_lock).to be_blocked
+
+            # when other job finished
+            other_job.success!
+            other_job.reload
+            deploy_job.reload
+
+            expect(other_job).to be_success
+            expect(other_job.job_lock).to be_released
+            expect(deploy_job).to be_pending
+            expect(deploy_job.job_lock).to be_locking
+
+            # when deploy job finished
+            deploy_job.success!
+            deploy_job.reload
+
+            expect(deploy_job).to be_success
+            expect(deploy_job.job_lock).to be_released
           end
         end
       end

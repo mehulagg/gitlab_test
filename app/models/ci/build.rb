@@ -259,6 +259,8 @@ module Ci
       end
 
       after_transition any => [:success, :failed, :canceled] do |build|
+        build.job_lock&.release
+
         build.run_after_commit do
           BuildFinishedWorker.perform_async(id)
         end
