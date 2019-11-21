@@ -42,6 +42,11 @@ export default {
       required: false,
       default: false,
     },
+    imageV432x230: {
+      type: String,
+      required: false,
+      default: null,
+    },
   },
   computed: {
     icon() {
@@ -92,7 +97,7 @@ export default {
       <gl-loading-icon v-if="isLoading" size="md" />
       <img
         v-else
-        :src="image"
+        :src="imageV432x230 || image"
         :alt="filename"
         class="block ml-auto mr-auto mw-100 mh-100 design-img"
         data-qa-selector="design_image"
