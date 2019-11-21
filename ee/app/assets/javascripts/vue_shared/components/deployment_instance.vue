@@ -44,13 +44,19 @@ export default {
       default: true,
     },
 
+    environmentName: {
+      type: String,
+      required: false,
+      default: '',
+    },
+
     podName: {
       type: String,
       required: false,
       default: '',
     },
 
-    logsPath: {
+    projectPath: {
       type: String,
       required: true,
     },
@@ -65,7 +71,7 @@ export default {
     },
 
     computedLogPath() {
-      return `${this.logsPath}?pod_name=${this.podName}`;
+      return `${this.projectPath}/logs?environment_name=${this.environmentName}&pod_name=${this.podName}`;
     },
   },
 };

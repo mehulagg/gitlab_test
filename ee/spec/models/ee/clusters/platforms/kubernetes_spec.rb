@@ -317,11 +317,13 @@ describe Clusters::Platforms::Kubernetes do
         expect_next_instance_of(Gitlab::EtagCaching::Store) do |store|
           expect(store).to receive(:touch)
             .with(
-              ::Gitlab::Routing.url_helpers.k8s_pod_logs_project_environment_path(
+              ::Gitlab::Routing.url_helpers.project_logs_path(
                 environment.project,
-                environment,
-                opts['pod_name'],
-                opts['container_name'],
+                query: {
+                  environment_name: environment.name
+                  pod_name: opts['pod_name']
+                  container_name: opts['container_name']
+                },
                 format: :json
               )
             )
