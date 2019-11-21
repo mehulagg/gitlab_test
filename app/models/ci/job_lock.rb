@@ -36,7 +36,7 @@ module Ci
       end
     end
 
-    enum :status {
+    enum status: {
       created: 0,
       locking: 1,
       blocked: 2,

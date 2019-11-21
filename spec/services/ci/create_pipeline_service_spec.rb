@@ -885,6 +885,29 @@ describe Ci::CreatePipelineService do
       end
     end
 
+    context 'with lock' do
+      before do
+        config = YAML.dump(
+          deploy: {
+            script: 'ls',
+            environment: { name: 'review/$CI_COMMIT_REF_NAME' },
+            lock: '$CI_ENVIRONMENT_NAME'
+          }
+        )
+
+        stub_ci_pipeline_yaml_file(config)
+      end
+
+      it 'persists lock attribute to build option' do
+        result = execute_service
+        job = result.builds.find_by_name(:deploy)
+
+        expect(result).to be_persisted
+        expect(job).to be_has_lock
+        expect(job.lock_value).to eq('$CI_ENVIRONMENT_NAME')
+      end
+    end
+
     shared_examples 'when ref is protected' do
       let(:user) { create(:user) }
 

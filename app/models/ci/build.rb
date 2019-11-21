@@ -430,6 +430,10 @@ module Ci
       options[:lock].present?
     end
 
+    def lock_value
+      options.fetch(:lock, nil)
+    end
+
     def starts_environment?
       has_environment? && self.environment_action == 'start'
     end

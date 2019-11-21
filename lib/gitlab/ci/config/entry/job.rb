@@ -16,7 +16,8 @@ module Gitlab
           ALLOWED_KEYS = %i[tags script only except rules type image services
                             allow_failure type stage when start_in artifacts cache
                             dependencies before_script needs after_script variables
-                            environment coverage retry parallel extends interruptible timeout].freeze
+                            environment coverage retry parallel extends interruptible timeout
+                            lock].freeze
 
           REQUIRED_BY_NEEDS = %i[stage].freeze
 
@@ -51,6 +52,7 @@ module Gitlab
               validates :dependencies, array_of_strings: true
               validates :extends, array_of_strings_or_string: true
               validates :rules, array_of_hashes: true
+              validates :lock, type: String
             end
 
             validates :start_in, duration: { limit: '1 day' }, if: :delayed?
@@ -151,7 +153,7 @@ module Gitlab
 
           attributes :script, :tags, :allow_failure, :when, :dependencies,
                      :needs, :retry, :parallel, :extends, :start_in, :rules,
-                     :interruptible, :timeout
+                     :interruptible, :timeout, :lock
 
           def self.matching?(name, config)
             !name.to_s.start_with?('.') &&
@@ -231,7 +233,8 @@ module Gitlab
               artifacts: artifacts_value,
               after_script: after_script_value,
               ignore: ignored?,
-              needs: needs_defined? ? needs_value : nil }
+              needs: needs_defined? ? needs_value : nil,
+              lock: lock }
           end
         end
       end
