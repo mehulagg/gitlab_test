@@ -885,26 +885,162 @@ describe Ci::CreatePipelineService do
       end
     end
 
-    context 'with lock' do
-      before do
-        config = YAML.dump(
-          deploy: {
-            script: 'ls',
-            environment: { name: 'review/$CI_COMMIT_REF_NAME' },
-            lock: '$CI_ENVIRONMENT_NAME'
-          }
-        )
+    context 'with lock', :sidekiq_inline do
+      context 'when Limit per job' do
+        before do
+          config = YAML.dump(
+            test: { stage: 'test', script: 'ls' },
+            deploy: { stage: 'deploy', script: 'ls', lock: 'tmp-key' }
+          )
 
-        stub_ci_pipeline_yaml_file(config)
+          stub_ci_pipeline_yaml_file(config)
+        end
+
+        it 'has the deploy job with locking status' do
+          result = execute_service
+          test_job = result.builds.find_by_name!(:test)
+          deploy_job = result.builds.find_by_name!(:deploy)
+
+          expect(deploy_job).to be_created
+          expect(deploy_job.job_lock).to be_created
+
+          # when test job finished
+          test_job.success!
+          deploy_job.reload
+
+          expect(deploy_job).to be_pending
+          expect(deploy_job.job_lock).to be_locking
+        end
+
+        context 'when the other job has already obtained the lock' do
+          before do
+            job = create(:ci_build)
+            ci_semaphore = project.ci_semaphores.create!(semaphore: 'deploy')
+            ci_semaphore.job_locks.create!(job: job)
+          end
+
+          it 'has the deploy job with blocked status' do
+            result = execute_service
+            deploy_job = result.builds.find_by_name!(:deploy)
+  
+            expect(deploy_job).to be_created
+            expect(deploy_job.job_lock).to be_created
+
+            # when test job finished
+            test_job.success!
+            deploy_job.reload
+
+            expect(deploy_job).to be_created
+            expect(deploy_job.job_lock).to be_blocked
+          end
+        end
       end
 
-      it 'persists lock attribute to build option' do
-        result = execute_service
-        job = result.builds.find_by_name(:deploy)
+      context 'when Limit per job' do
+        before do
+          config = YAML.dump(
+            test: {
+              script: 'ls'
+            },
+            deploy: {
+              script: 'ls',
+              environment: { name: 'prd' },
+              lock: '$CI_JOB_NAME'
+            }
+          )
 
-        expect(result).to be_persisted
-        expect(job).to be_has_lock
-        expect(job.lock_value).to eq('$CI_ENVIRONMENT_NAME')
+          stub_ci_pipeline_yaml_file(config)
+        end
+
+        it 'persists the association correctly' do
+          result = execute_service
+          test_job = result.builds.find_by_name!(:test)
+          deploy_job = result.builds.find_by_name!(:deploy)
+          project_semaphore = project.ci_semaphores.find_by_semaphore!('deploy')
+
+          expect(result).to be_persisted
+          expect(test_job).not_to be_has_lock
+          expect(deploy_job).to be_has_lock
+          expect(deploy_job.lock_value).to eq('$CI_JOB_NAME')
+          expect(project.ci_semaphores.count).to eq(1)
+          expect(project_semaphore.job_locks.count).to eq(1)
+          expect(test_job.job_lock).not_to be_present
+          expect(deploy_job.job_lock).to be_present
+          expect(deploy_job.job_lock.ci_semaphore).to eq(project_semaphore)
+        end
+
+        it 'has the deploy job with locking status' do
+          result = execute_service
+          deploy_job = result.builds.find_by_name!(:deploy)
+
+          expect(deploy_job).to be_created
+          expect(deploy_job.job_lock).to be_locking
+        end
+
+        context 'when the other job obtains the lock already' do
+          before do
+            job = create(:ci_build)
+            ci_semaphore = project.ci_semaphores.create!(semaphore: 'deploy')
+            ci_semaphore.job_locks.create!(job: job)
+          end
+
+          it 'has the deploy job with blocked status' do
+            result = execute_service
+            deploy_job = result.builds.find_by_name!(:deploy)
+  
+            expect(deploy_job).to be_created
+            expect(deploy_job.job_lock).to be_blocked
+          end
+        end
+      end
+
+      context 'when Limit per job per branch' do
+        before do
+          config = YAML.dump(
+            test: {
+              script: 'ls',
+              lock: '$CI_COMMIT_REF_NAME:$CI_JOB_NAME'
+            }
+          )
+
+          stub_ci_pipeline_yaml_file(config)
+        end
+
+        it 'persists lock attribute to build option' do
+          result = execute_service
+          test_job = result.builds.find_by_name!(:test)
+
+          expect(result).to be_persisted
+          expect(test_job).to be_lockable
+          expect(project.ci_semaphores.exist?(semaphore: 'master:test')).to eq(true)
+        end
+      end
+
+      context 'when Limit per environment' do
+        before do
+          config = YAML.dump(
+            test: {
+              script: 'ls',
+              environment: 'prd',
+              lock: '$CI_ENVIRONMENT_NAME' # This needs to fetch `persisted_environment_variables` in `simple_variables`
+            }
+          )
+
+          stub_ci_pipeline_yaml_file(config)
+        end
+
+        it 'persists lock attribute to build option' do
+          result = execute_service
+          test_job = result.builds.find_by_name!(:test)
+
+          expect(result).to be_persisted
+          expect(test_job).to be_lockable
+          expect(project.ci_semaphores.exist?(semaphore: 'prd')).to eq(true)
+        end
+      end
+
+      context 'when two same locks exist in the same pipeline' do
+        # TODO:
       end
     end
 

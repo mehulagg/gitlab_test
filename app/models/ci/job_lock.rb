@@ -4,17 +4,12 @@ module Ci
   class JobLock < ApplicationRecord
     self.table_name = 'ci_job_locks'
 
-    belongs_to :ci_semaphore, class_name: 'Ci::ProjectSemaphore', inverse_of: :ci_semaphores
+    belongs_to :ci_semaphore, class_name: 'Ci::ProjectSemaphore', foreign_key: :semaphore_id, inverse_of: :job_locks
     belongs_to :job, class_name: 'Ci::Build', inverse_of: :job_lock
 
     delegate :under_limit?, to: :ci_semaphore
 
     state_machine :status, initial: :created do
-      event :try_lock do
-        transition created: :locking, if: :under_limit?
-        transition created: :blocked, unless: :under_limit?
-      end
-
       event :lock do
         transition created: :locking
       end
@@ -42,5 +37,9 @@ module Ci
       blocked: 2,
       released: 3,
     }
+
+    def try_lock
+      under_limit? ? lock : block
+    end
   end
 end

@@ -78,6 +78,7 @@ module Gitlab
               else
                 ::Ci::Build.new(attributes).tap do |job|
                   job.deployment = Seed::Deployment.new(job).to_resource
+                  job.job_lock = Seed::Build::Lock.new(job).to_resource
                 end
               end
             end
