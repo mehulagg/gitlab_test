@@ -118,6 +118,8 @@ GEM
     brakeman (4.2.1)
     browser (2.5.3)
     builder (3.2.3)
+    bulk_insert (1.7.0)
+      activerecord (>= 3.2.0)
     bullet (5.5.1)
       activesupport (>= 3.0.0)
       uniform_notifier (~> 1.10.0)
@@ -1138,6 +1140,7 @@ DEPENDENCIES
   bootstrap_form (~> 4.2.0)
   brakeman (~> 4.2)
   browser (~> 2.5)
+  bulk_insert
   bullet (~> 5.5.0)
   bundler-audit (~> 0.5.0)
   capybara (~> 3.22.0)

@@ -80,9 +80,22 @@ module Gitlab
         # we do not care if we process array or hash
         data_hashes = [data_hashes] unless data_hashes.is_a?(Array)
 
-        # consume and remove objects from memory
-        while data_hash = data_hashes.shift
+        # TODO: suboptimal, we may want to batch it
+        objects = data_hashes.map do |data_hash|
           process_project_relation_item!(relation_key, relation_definition, data_hash)
+        end.compact
+
+        return if objects.empty?
+
+        objects.first.class.bulk_insert do |worker|
+          objects.each do |object|
+            attrs = object.attributes
+            attrs.each do |key, val|
+              attrs[key] = val.to_json if val.is_a?(Hash)
+            end
+
+            worker.add(attrs)
+          end
         end
       end
 
@@ -92,7 +105,8 @@ module Gitlab
         return if group_model?(relation_object)
 
         relation_object.project = @project
-        relation_object.save!
+
+        relation_object
       end
 
       def project_relations
