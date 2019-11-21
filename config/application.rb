@@ -246,6 +246,14 @@ module Gitlab
           methods: :any,
           expose: ['Link', 'X-Total', 'X-Total-Pages', 'X-Per-Page', 'X-Page', 'X-Next-Page', 'X-Prev-Page']
       end
+
+      allow do
+        origins 'https://sourcegraph.com'
+        resource '*',
+          credentials: false,
+          headers: :any,
+          methods: :any
+      end
     end
 
     # Use caching across all environments
