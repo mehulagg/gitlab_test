@@ -41,6 +41,8 @@ function factory(commit = createCommitData(), loading = false) {
         },
       },
     },
+    sync: false,
+    attachToDocument: true,
   });
   vm.setData({ commit });
   vm.vm.$apollo.queries.commit.loading = loading;
