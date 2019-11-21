@@ -14,27 +14,18 @@ class MigrateOpsFeatureFlagsScopesTargetUserIds < ActiveRecord::Migration[5.2]
     scopes = OperationsFeatureFlagScope.all
 
     scopes.each do |scope|
-      if scope.active == false
+      userwithid_strategy = scope.strategies.find { |s| s['name'] == 'userWithId' }
 
-        userwithid_strategy = scope.strategies.find { |s| s['name'] == 'userWithId' }
-
-        if userwithid_strategy.present?
-          scope.update!({
-            active: true,
-            strategies: [userwithid_strategy]
-          })
-        end
-      end
-
-      if scope.active
-        userwithid_strategy = scope.strategies.find { |s| s['name'] == 'userWithId' }
+      if userwithid_strategy.present? && !scope.active
+        scope.update({
+          active: true,
+          strategies: [userwithid_strategy]
+        })
+      elsif userwithid_strategy.present? && scope.active
         default_strategy = scope.strategies.find { |s| s['name'] == 'default' }
 
-        if userwithid_strategy.present? && default_strategy.present?
-          scope.update!({
-            active: true,
-            strategies: [default_strategy]
-          })
+        if default_strategy.present?
+          scope.update({ strategies: [default_strategy] })
         end
       end
     end
