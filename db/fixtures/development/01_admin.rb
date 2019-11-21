@@ -1,4 +1,4 @@
-# require './spec/support/sidekiq_middleware'
+require './spec/support/sidekiq_middleware'
 
 Gitlab::Seeder.quiet do
   User.create!(
