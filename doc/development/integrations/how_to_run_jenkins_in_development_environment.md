@@ -1,11 +1,11 @@
 # How to run Jenkins in development environment (on OSX)
 
-This is a step by step guide on how to set up Jenkins on your locale machine and connect it your GitLab instance. 
-GitLab is triggering webhooks on Jenkins and Jenkins is connecting back to GitLab over the API. By running both applications on the same machine, we can make sure they are able to access each other.
+This is a step by step guide on how to set up Jenkins on your locale machine and connect it your GitLab instance. GitLab is triggering webhooks on Jenkins and Jenkins is connecting back to GitLab over the API. By running both applications on the same machine, we can make sure they are able to access each other.
 
 ## Install Jenkins
 
 Jenkins can be installed with Homebrew
+
 ```
 brew install jenkins
 brew services start jenkins
@@ -13,14 +13,14 @@ brew services start jenkins
 
 ## Configure GitLab
 
-GitLab doesn't allow requests to localhost or the local network. When running Jenkins on your local machine, you need to turn this off.
+GitLab does not allow requests to localhost or the local network. When running Jenkins on your local machine, you need to turn this off.
 
 1. On your GitLab instance, go to the admin area > Settings > Network
 1. Expand `Outbound requests` and make sure `Allow requests to the local network from web hooks and services` and `Allow requests to the local network from system hooks` is active
 
 Read more about it [here](https://docs.gitlab.com/ee/security/webhooks.html)
 
-Jenkins uses the GitLab API and needs an access token. 
+Jenkins uses the GitLab API and needs an access token.
 
 1. On your GitLab instance, when you are logged in go to Settings > Access Tokens
 1. Create a personal access token with access to the API. Remember the token
@@ -52,6 +52,7 @@ Set up the Jenkins project you are going to run your build on
 1. Updating the status on GitLab has to be done by the pipeline skript. Add GitLab update steps like in the example below
 
 **Example Pipeline Skript:**
+
 ```
 pipeline {
    agent any
