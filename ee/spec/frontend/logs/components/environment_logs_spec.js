@@ -26,8 +26,7 @@ describe('EnvironmentLogs', () => {
 
   const propsData = {
     projectFullPath: mockProjectPath,
-    environmentId: mockEnvId,
-    currentEnvironmentName: mockEnvName,
+    environmentName: mockEnvName,
     environmentsPath: mockEnvironmentsEndpoint,
   };
 

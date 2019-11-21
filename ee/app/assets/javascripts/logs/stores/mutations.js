@@ -2,9 +2,11 @@ import * as types from './mutation_types';
 
 export default {
   /** Project data */
-  [types.SET_PROJECT_ENVIRONMENT](state, { projectPath, environmentId }) {
+  [types.SET_PROJECT_PATH](state, { projectPath }) {
     state.projectPath = projectPath;
-    state.environments.current = environmentId;
+  },
+  [types.SET_PROJECT_ENVIRONMENT](state, { environmentName }) {
+    state.environments.current = environmentName;
   },
 
   /** Environments data */
