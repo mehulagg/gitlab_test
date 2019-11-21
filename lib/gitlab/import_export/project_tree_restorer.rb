@@ -59,11 +59,6 @@ module Gitlab
                                                                     project: @project)
       end
 
-      # A Hash of the imported merge request ID -> imported ID.
-      def merge_requests_mapping
-        @merge_requests_mapping ||= {}
-      end
-
       # Loops through the tree of models defined in import_export.yml and
       # finds them in the imported JSON so they can be instantiated and saved
       # in the DB. The structure and relationships between models are guessed from
@@ -98,18 +93,6 @@ module Gitlab
 
         relation_object.project = @project
         relation_object.save!
-
-        save_id_mapping(relation_key, data_hash, relation_object)
-      end
-
-      # Older, serialized CI pipeline exports may only have a
-      # merge_request_id and not the full hash of the merge request. To
-      # import these pipelines, we need to preserve the mapping between
-      # the old and new the merge request ID.
-      def save_id_mapping(relation_key, data_hash, relation_object)
-        return unless relation_key == 'merge_requests'
-
-        merge_requests_mapping[data_hash['id']] = relation_object.id
       end
 
       def project_relations
@@ -174,7 +157,6 @@ module Gitlab
           relation_sym: relation_key.to_sym,
           relation_hash: data_hash,
           members_mapper: members_mapper,
-          merge_requests_mapping: merge_requests_mapping,
           user: @user,
           project: @project,
           excluded_keys: excluded_keys_for_relation(relation_key))
