@@ -8,7 +8,8 @@ module Gitlab
           def self.extended_statuses
             [[Status::SuccessWarning,
               Status::Pipeline::Delayed,
-              Status::Pipeline::Blocked]]
+              Status::Pipeline::Blocked,
+              Status::Pipeline::BlockedBySemaphore]]
           end
 
           def self.common_helpers

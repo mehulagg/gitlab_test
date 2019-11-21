@@ -8,6 +8,7 @@ module Gitlab
           def self.extended_statuses
             [[Status::Build::Erased,
               Status::Build::Scheduled,
+              Status::Build::BlockedBySemaphore,
               Status::Build::Manual,
               Status::Build::Canceled,
               Status::Build::Created,
