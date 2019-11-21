@@ -119,17 +119,13 @@ CAUTION: **Caution:**
 If this strategy is selected, then the Unleash client **must** be given a user
 ID for the feature to be enabled. See the [Ruby example](#ruby-application-example) below.
 
-### Target users strategy
+### User IDs
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/8240) in GitLab 12.2.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/8240) in GitLab 12.2. [Updated](https://gitlab.com/gitlab-org/gitlab/issues/34363) to be defined per environment in GitLab 12.6.
 
 A feature flag may be enabled for a list of target users. It is implemented
 using the Unleash [`userWithId`](https://unleash.github.io/docs/activation_strategy#userwithid)
 activation strategy.
-
-The feature will always be enabled for all users in the list across all environments even if the matching environment spec **Status** is disabled.
-
-![Feature flag target users](img/target_users_v12_2.png)
 
 CAUTION: **Caution:**
 The Unleash client **must** be given a user ID for the feature to be enabled for
