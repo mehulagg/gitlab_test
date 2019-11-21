@@ -16,6 +16,11 @@ module EE
         def design_management
           DesignManagementObject.new(nil)
         end
+
+        field :vulnerability_occurrence, ::Types::Vulnerabilities::OccurrenceType,
+              null: true,
+              resolver: ::Resolvers::Vulnerabilities::OccurrenceResolver,
+              description: 'Found vulnerabilities'
       end
     end
   end
