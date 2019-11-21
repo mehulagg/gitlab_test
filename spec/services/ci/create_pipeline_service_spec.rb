@@ -977,12 +977,12 @@ describe Ci::CreatePipelineService do
           result = execute_service
           test_job = result.builds.find_by_name!(:test)
           deploy_job = result.builds.find_by_name!(:deploy)
-          project_semaphore = project.ci_semaphores.find_by_semaphore!('deploy')
+          project_semaphore = project.ci_semaphores.find_by_key!('deploy')
 
           expect(result).to be_persisted
           expect(test_job).not_to be_has_lock
           expect(deploy_job).to be_has_lock
-          expect(deploy_job.lock_value).to eq('$CI_JOB_NAME')
+          expect(deploy_job.lock_key).to eq('$CI_JOB_NAME')
           expect(project.ci_semaphores.count).to eq(1)
           expect(project_semaphore.job_locks.count).to eq(1)
           expect(test_job.job_lock).not_to be_present
@@ -1009,7 +1009,7 @@ describe Ci::CreatePipelineService do
 
           expect(result).to be_persisted
           expect(test_job).to be_lockable
-          expect(project.ci_semaphores.exist?(key: 'master:test')).to eq(true)
+          expect(project.ci_semaphores.exists?(key: 'master:test')).to eq(true)
         end
       end
 
@@ -1019,7 +1019,7 @@ describe Ci::CreatePipelineService do
             test: {
               script: 'ls',
               environment: 'prd',
-              lock: '$CI_ENVIRONMENT_NAME' # This needs to fetch `persisted_environment_variables` in `simple_variables`
+              lock: '$CI_ENVIRONMENT_NAME' # TODO: This needs to fetch `persisted_environment_variables` in `simple_variables`
             }
           )
 

@@ -4,7 +4,9 @@ module Ci
   class JobLock < ApplicationRecord
     self.table_name = 'ci_job_locks'
 
-    belongs_to :ci_semaphore, class_name: 'Ci::ProjectSemaphore', foreign_key: :semaphore_id, inverse_of: :job_locks
+    belongs_to :ci_semaphore, class_name: 'Ci::ProjectSemaphore',
+      foreign_key: :semaphore_id, inverse_of: :job_locks
+
     belongs_to :job, class_name: 'Ci::Build', inverse_of: :job_lock
 
     delegate :under_limit?, :unlock_next, to: :ci_semaphore

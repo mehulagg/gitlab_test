@@ -17,9 +17,8 @@ module Gitlab
 
               semaphore = find_or_create_semaphore
 
-              unless semaphore
+              unless semaphore.valid? && semaphore.persisted?
                 # TODO: Gitlab::Sentry.track_exception or invalid parameters
-                raise ArgumentError
                 return
               end
 
