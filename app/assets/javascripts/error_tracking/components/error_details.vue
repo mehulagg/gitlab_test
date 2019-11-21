@@ -66,21 +66,47 @@ export default {
       return `${this.error.title}`;
     },
     errorUrl() {
-      return sprintf(__('Sentry event: %{external_url}'), {
-        external_url: this.error.external_url,
-      });
+      return sprintf(
+        __('%{external_url}'),
+        {
+          external_url: `<li><strong>Sentry Error:</strong> ${this.error.external_url}</li>`,
+        },
+        false,
+      );
     },
     errorFirstSeen() {
-      return sprintf(__('First seen: %{first_seen}'), { first_seen: this.error.first_seen });
+      return sprintf(
+        __('%{first_seen}'),
+        {
+          first_seen: `<li><strong>First Seen:</strong> ${this.formatDate(
+            this.error.first_seen,
+          )}</li>`,
+        },
+        false,
+      );
     },
     errorLastSeen() {
-      return sprintf(__('Last seen: %{last_seen}'), { last_seen: this.error.last_seen });
+      return sprintf(
+        __('%{last_seen}'),
+        {
+          last_seen: `<li><strong>Last Seen:</strong>this.formatDate(this.error.last_seen)}</li>`,
+        },
+        false,
+      );
     },
     errorCount() {
-      return sprintf(__('Events: %{count}'), { count: this.error.count });
+      return sprintf(
+        __('%{count}'),
+        { count: `<li><strong>Events:</strong>${this.error.count}</li>` },
+        false,
+      );
     },
     errorUserCount() {
-      return sprintf(__('Users: %{user_count}'), { user_count: this.error.user_count });
+      return sprintf(
+        __('%{user_count}'),
+        { user_count: `<li><strong>Users:</strong>${this.error.user_count}</li></ul>` },
+        false,
+      );
     },
     issueLink() {
       return `${this.issueProjectPath}?issue[title]=${encodeURIComponent(
@@ -88,7 +114,13 @@ export default {
       )}&issue[description]=${encodeURIComponent(this.issueDescription)}`;
     },
     issueDescription() {
-      return `${this.errorUrl}${this.errorFirstSeen}${this.errorLastSeen}${this.errorCount}${this.errorUserCount}`;
+      return sprintf(
+        __('%{description}'),
+        {
+          description: `<h3>Error Details:</h3><ul>${this.errorUrl}${this.errorFirstSeen}${this.errorLastSeen}${this.errorCount}${this.errorUserCount}`,
+        },
+        false,
+      );
     },
   },
   mounted() {
