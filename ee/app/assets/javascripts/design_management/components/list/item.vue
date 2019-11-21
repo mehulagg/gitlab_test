@@ -21,8 +21,8 @@ export default {
       type: Number,
       required: true,
     },
-    image: {
-      type: String,
+    images: {
+      type: Object,
       required: true,
     },
     filename: {
@@ -60,6 +60,11 @@ export default {
     },
     notesLabel() {
       return n__('%d comment', '%d comments', this.notesCount);
+    },
+    image() {
+      const { smallUrl, originalUrl } = this.images;
+      // TODO(tom) check css works from any image size (i.e. its resized appropriately)
+      return smallUrl || originalUrl;
     },
   },
 };
