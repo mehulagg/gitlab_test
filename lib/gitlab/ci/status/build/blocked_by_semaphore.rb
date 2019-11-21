@@ -22,7 +22,7 @@ module Gitlab
           end
 
           def self.matches?(subject, user)
-            subject.job_lock&.blocked? # TODO: Hyper slow
+            subject.job_lock&.blocked? # TODO: Hyper slow. User compond status.
           end
         end
       end
