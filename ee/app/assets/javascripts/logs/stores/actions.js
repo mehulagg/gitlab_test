@@ -22,8 +22,8 @@ const requestLogsUntilData = ({ projectPath, environmentName, podName }) =>
   });
 
 export const setInitData = ({ dispatch, commit }, { projectPath, environmentName, podName }) => {
-  commit(types.SET_PROJECT_PATH, { projectPath });
-  commit(types.SET_PROJECT_ENVIRONMENT, { environmentName });
+  commit(types.SET_PROJECT_PATH, projectPath);
+  commit(types.SET_PROJECT_ENVIRONMENT, environmentName);
   commit(types.SET_CURRENT_POD_NAME, podName);
   dispatch('fetchLogs');
 };
@@ -34,7 +34,7 @@ export const showPodLogs = ({ dispatch, commit }, podName) => {
 };
 
 export const showEnvironment = ({ dispatch, commit }, environmentName) => {
-  commit(types.SET_PROJECT_ENVIRONMENT, { environmentName });
+  commit(types.SET_PROJECT_ENVIRONMENT, environmentName);
   commit(types.SET_CURRENT_POD_NAME, null);
   dispatch('fetchLogs');
 };

@@ -2,14 +2,14 @@ import * as types from './mutation_types';
 
 export default {
   /** Project data */
-  [types.SET_PROJECT_PATH](state, { projectPath }) {
+  [types.SET_PROJECT_PATH](state, projectPath) {
     state.projectPath = projectPath;
-  },
-  [types.SET_PROJECT_ENVIRONMENT](state, { environmentName }) {
-    state.environments.current = environmentName;
   },
 
   /** Environments data */
+  [types.SET_PROJECT_ENVIRONMENT](state, environmentName) {
+    state.environments.current = environmentName;
+  },
   [types.REQUEST_ENVIRONMENTS_DATA](state) {
     state.environments.options = [];
     state.environments.isLoading = true;
