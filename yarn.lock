@@ -722,9 +722,9 @@
   resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.82.0.tgz#c059c460afc13ebfe9df370521ca8963fa5afb80"
   integrity sha512-9L4Brys2LCk44lHvFsCFDKN768lYjoMVYDb4PD7FSjqUEruQQ1SRj0rvb1RWKLhiTCDKrtDOXkH6I1TTEms24w==
 
-"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/352212925/artifacts/raw/gitlab-ui.upgrade-bootstrap-vue.tgz":
-  version "7.11.0"
-  resolved "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/352212925/artifacts/raw/gitlab-ui.upgrade-bootstrap-vue.tgz#d7b775dcda332e7753dae179b974a49194012c7e"
+"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/358950978/artifacts/raw/gitlab-ui.upgrade-bootstrap-vue.tgz":
+  version "7.16.1"
+  resolved "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/358950978/artifacts/raw/gitlab-ui.upgrade-bootstrap-vue.tgz#f4dd141251325beb2e15edc7038e884d6017b799"
   dependencies:
     "@babel/standalone" "^7.0.0"
     "@gitlab/vue-toasted" "^1.3.0"
