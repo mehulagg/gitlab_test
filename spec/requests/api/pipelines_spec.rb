@@ -238,32 +238,55 @@ describe API::Pipelines do
         end
 
         context 'when order_by and sort are specified' do
-          context 'when order_by user_id' do
+          context 'when parameters are valid' do
+            using RSpec::Parameterized::TableSyntax
+
             before do
-              3.times do
-                create(:ci_pipeline, project: project, user: create(:user))
+              pipeline.destroy
+              subject
+            end
+
+            let(:order_by) { nil }
+            let!(:pipeline_1) { create(:ci_pipeline, :scheduled, project: project, iid: 11, ref: 'master', created_at: Time.now, updated_at: Time.now, user: create(:user)) }
+            let!(:pipeline_2) { create(:ci_pipeline, :created, project: project, iid: 12, ref: 'feature', created_at: 1.day.ago, updated_at: 2.hours.ago, user: create(:user)) }
+            let!(:pipeline_3) { create(:ci_pipeline, :success, project: project, iid: 8, ref: 'patch', created_at: 2.days.ago, updated_at: 1.hour.ago, user: create(:user)) }
+            let(:sort) { nil }
+
+            subject do
+              get api("/projects/#{project.id}/pipelines", user), params: { order_by: order_by, sort: sort }
+            end
+
+            def expect_pipelines(ordered_pipelines)
+              json_response.each_with_index do |pipeline_json, index|
+                expect(pipeline_json['id']).to eq(public_send(ordered_pipelines[index]).id)
               end
             end
 
-            context 'when sort parameter is valid' do
-              it 'sorts as user_id: :desc' do
-                get api("/projects/#{project.id}/pipelines", user), params: { order_by: 'user_id', sort: 'desc' }
-
-                expect(response).to have_gitlab_http_status(:ok)
-                expect(response).to include_pagination_headers
-                expect(json_response).not_to be_empty
-
-                pipeline_ids = Ci::Pipeline.all.order(user_id: :desc).pluck(:id)
-                expect(json_response.map { |r| r['id'] }).to eq(pipeline_ids)
-              end
+            where(:order_by, :sort, :ordered_pipelines) do
+              'id'         | 'asc'  | [:pipeline_1, :pipeline_2, :pipeline_3]
+              'id'         | 'desc' | [:pipeline_3, :pipeline_2, :pipeline_1]
+              'ref'        | 'asc'  | [:pipeline_2, :pipeline_1, :pipeline_3]
+              'ref'        | 'desc' | [:pipeline_3, :pipeline_1, :pipeline_2]
+              'status'     | 'asc'  | [:pipeline_2, :pipeline_1, :pipeline_3]
+              'status'     | 'desc' | [:pipeline_3, :pipeline_1, :pipeline_2]
+              'updated_at' | 'asc'  | [:pipeline_2, :pipeline_3, :pipeline_1]
+              'updated_at' | 'desc' | [:pipeline_1, :pipeline_3, :pipeline_2]
+              'user_id'    | 'asc'  | [:pipeline_1, :pipeline_2, :pipeline_3]
+              'user_id'    | 'desc' | [:pipeline_3, :pipeline_2, :pipeline_1]
             end
 
-            context 'when sort parameter is invalid' do
-              it 'returns bad_request' do
-                get api("/projects/#{project.id}/pipelines", user), params: { order_by: 'user_id', sort: 'invalid_sort' }
-
-                expect(response).to have_gitlab_http_status(:bad_request)
+            with_them do
+              it 'returns the pipelines ordered' do
+                expect_pipelines(ordered_pipelines)
               end
+            end
+          end
+
+          context 'when sort parameter is invalid' do
+            it 'returns bad_request' do
+              get api("/projects/#{project.id}/pipelines", user), params: { order_by: 'user_id', sort: 'invalid_sort' }
+
+              expect(response).to have_gitlab_http_status(:bad_request)
             end
           end
 
