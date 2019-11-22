@@ -56,8 +56,14 @@ class EnvironmentsFinder
     environments = project.environments
     environments = by_name(environments)
     environments = by_search(environments)
+    environments = by_ability(environments)
 
     environments
+  end
+
+  def default_environment
+    environments = find
+    environments.select{ |e| e.name == "production" }.first || environments.first
   end
 
   private
@@ -81,6 +87,16 @@ class EnvironmentsFinder
   def by_search(environments)
     if params[:search].present?
       environments.for_name_like(params[:search], limit: nil)
+    else
+      environments
+    end
+  end
+
+  def by_ability(environments)
+    if params[:ability].present?
+      environments.select do |environment|
+        Ability.allowed?(current_user, params[:ability], environment)
+      end
     else
       environments
     end

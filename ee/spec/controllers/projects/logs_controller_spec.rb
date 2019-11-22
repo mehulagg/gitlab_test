@@ -24,7 +24,6 @@ describe Projects::LogsController do
     let(:container) { 'container-1' }
 
     context "html format" do
-
       context 'when unlicensed' do
         before do
           stub_licensed_features(pod_logs: false)
@@ -59,7 +58,6 @@ describe Projects::LogsController do
     end
 
     context "json format" do
-
       let(:service_result) do
         {
           status: :success,
@@ -169,7 +167,6 @@ describe Projects::LogsController do
           expect(response).to have_gitlab_http_status(:accepted)
         end
       end
-
     end
   end
 

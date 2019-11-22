@@ -14,7 +14,7 @@ describe('Deploy Board Instance', () => {
       propsData: {
         status: 'ready',
         tooltipText: 'This is a pod',
-        logsPath: folder.log_path,
+        projectPath: folder.project_path,
       },
     }).$mount();
 
@@ -26,7 +26,7 @@ describe('Deploy Board Instance', () => {
     const component = new DeployBoardInstanceComponent({
       propsData: {
         status: 'deploying',
-        logsPath: folder.log_path,
+        projectPath: folder.project_path,
       },
     }).$mount();
 
@@ -39,7 +39,7 @@ describe('Deploy Board Instance', () => {
       propsData: {
         status: 'deploying',
         stable: false,
-        logsPath: folder.log_path,
+        projectPath: folder.project_path,
       },
     }).$mount();
 
@@ -51,7 +51,7 @@ describe('Deploy Board Instance', () => {
       propsData: {
         status: 'deploying',
         stable: false,
-        logsPath: folder.log_path,
+        projectPath: folder.project_path,
         podName: 'tanuki-1',
       },
     }).$mount();

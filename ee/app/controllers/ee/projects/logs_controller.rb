@@ -51,7 +51,11 @@ module EE
       end
 
       def environment
-        @environment ||= index_params[:environment_name] ? project.environments.where(name: index_params[:environment_name]).first : project.default_environment
+        @environment ||= if index_params.key?(:environment_name)
+                           EnvironmentsFinder.new(project, current_user, ability: :read_environment, name: index_params[:environment_name]).find.first
+                         else
+                           EnvironmentsFinder.new(project, current_user, ability: :read_environment).default_environment
+                         end
       end
     end
   end
