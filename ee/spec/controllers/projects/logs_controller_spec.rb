@@ -18,8 +18,7 @@ describe Projects::LogsController do
     sign_in(user)
   end
 
-  describe 'GET #index' do
-    let(:project) { create(:project) }
+  describe 'GET #show' do
     let(:pod_name) { "foo" }
     let(:container) { 'container-1' }
 
@@ -30,7 +29,7 @@ describe Projects::LogsController do
         end
 
         it 'renders forbidden' do
-          get :index, params: environment_params
+          get :show, params: environment_params
 
           expect(response).to have_gitlab_http_status(:not_found)
         end
@@ -42,17 +41,17 @@ describe Projects::LogsController do
         end
 
         it 'renders empty logs page if no environment exists' do
-          get :index, params: { project_id: project.id }
+          get :show, params: { namespace_id: project.namespace, project_id: project }
 
           expect(response).to be_ok
           expect(response).to render_template 'empty_logs'
         end
 
-        it 'renders logs template' do
-          get :index, params: environment_params
+        it 'renders show template' do
+          get :show, params: environment_params
 
           expect(response).to be_ok
-          expect(response).to render_template 'logs'
+          expect(response).to render_template 'show'
         end
       end
     end
@@ -77,7 +76,7 @@ describe Projects::LogsController do
 
       shared_examples 'resource not found' do |message|
         it 'returns 400', :aggregate_failures do
-          get :index, params: environment_params(pod_name: pod_name, format: :json)
+          get :show, params: environment_params(pod_name: pod_name, format: :json)
 
           expect(response).to have_gitlab_http_status(:bad_request)
           expect(json_response['message']).to eq(message)
@@ -88,7 +87,7 @@ describe Projects::LogsController do
       end
 
       it 'returns the logs for a specific pod', :aggregate_failures do
-        get :index, params: environment_params(pod_name: pod_name, format: :json)
+        get :show, params: environment_params(pod_name: pod_name, format: :json)
 
         expect(response).to have_gitlab_http_status(:success)
         expect(json_response["logs"]).to match_array(["Log 1", "Log 2", "Log 3"])
@@ -101,7 +100,7 @@ describe Projects::LogsController do
       it 'registers a usage of the endpoint' do
         expect(::Gitlab::UsageCounters::PodLogs).to receive(:increment).with(project.id)
 
-        get :index, params: environment_params(pod_name: pod_name, format: :json)
+        get :show, params: environment_params(pod_name: pod_name, format: :json)
       end
 
       context 'when kubernetes API returns error' do
@@ -116,7 +115,7 @@ describe Projects::LogsController do
         end
 
         it 'returns bad request' do
-          get :index, params: environment_params(pod_name: pod_name, format: :json)
+          get :show, params: environment_params(pod_name: pod_name, format: :json)
 
           expect(response).to have_gitlab_http_status(:bad_request)
           expect(json_response["logs"]).to eq(nil)
@@ -150,7 +149,7 @@ describe Projects::LogsController do
         end
 
         it 'returns the error without pods, pod_name and container_name' do
-          get :index, params: environment_params(pod_name: pod_name, format: :json)
+          get :show, params: environment_params(pod_name: pod_name, format: :json)
 
           expect(response).to have_gitlab_http_status(:bad_request)
           expect(json_response['message']).to eq('No deployment platform')
@@ -162,7 +161,7 @@ describe Projects::LogsController do
         let(:service_result) { { status: :processing } }
 
         it 'renders accepted' do
-          get :index, params: environment_params(pod_name: pod_name, format: :json)
+          get :show, params: environment_params(pod_name: pod_name, format: :json)
 
           expect(response).to have_gitlab_http_status(:accepted)
         end
@@ -171,7 +170,8 @@ describe Projects::LogsController do
   end
 
   def environment_params(opts = {})
-    opts.reverse_merge(project_id: project.id,
+    opts.reverse_merge(namespace_id: project.namespace,
+                       project_id: project,
                        environment_name: environment.name)
   end
 end
