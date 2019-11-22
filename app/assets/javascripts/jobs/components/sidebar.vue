@@ -132,13 +132,13 @@ export default {
             >
           </div>
 
-          <gl-button
+          <!-- <gl-button
             :aria-label="__('Toggle Sidebar')"
             type="button"
             class="btn btn-blank gutter-toggle float-right d-block d-md-none js-sidebar-build-toggle"
             @click="toggleSidebar"
           >
-            <i aria-hidden="true" data-hidden="true" class="fa fa-angle-double-right"></i>
+            <i aria-hidden="true" data-hidden="true" class="fa fa-angle-double-right"></i> -->
           </gl-button>
         </div>
 

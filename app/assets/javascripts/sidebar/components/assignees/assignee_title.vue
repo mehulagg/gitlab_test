@@ -45,14 +45,14 @@ export default {
     >
       {{ __('Edit') }}
     </a>
-    <a
+    <!-- <a
       v-if="showToggle"
       :aria-label="__('Toggle sidebar')"
       class="gutter-toggle float-right js-sidebar-toggle"
       href="#"
       role="button"
     >
-      <i aria-hidden="true" data-hidden="true" class="fa fa-angle-double-right"></i>
+      <i aria-hidden="true" data-hidden="true" class="fa fa-angle-double-right"></i> -->
     </a>
   </div>
 </template>

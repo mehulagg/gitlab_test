@@ -135,7 +135,7 @@ export default {
 sidebar-toggle-btn js-sidebar-build-toggle js-sidebar-build-toggle-header"
       @click="onClickSidebarButton"
     >
-      <i class="fa fa-angle-double-left" aria-hidden="true" aria-labelledby="toggleSidebar"> </i>
+      <icon :name="clickedSidebarButton ? 'collapse-left' : 'collapse-right'" class="sidebar-collapse-icon" aria-hidden="true" aria-labelledby="toggleSidebar">
     </gl-button>
   </header>
 </template>

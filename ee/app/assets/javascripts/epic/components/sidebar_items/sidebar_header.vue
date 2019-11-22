@@ -25,11 +25,11 @@ export default {
 <template>
   <div class="block issuable-sidebar-header">
     <span class="issuable-header-text hide-collapsed float-left">{{ __('To Do') }}</span>
-    <toggle-sidebar
+    <!-- <toggle-sidebar
       :collapsed="sidebarCollapsed"
       css-classes="float-right"
       @toggle="toggleSidebar({ sidebarCollapsed })"
-    />
-    <sidebar-todo v-show="!sidebarCollapsed" :sidebar-collapsed="sidebarCollapsed" />
+    /> -->
+    <!-- <sidebar-todo v-show="!sidebarCollapsed" :sidebar-collapsed="sidebarCollapsed" /> -->
   </div>
 </template>

@@ -32,7 +32,7 @@ export default {
 </script>
 
 <template>
-  <button
+  <!-- <button
     v-tooltip
     :title="tooltipLabel"
     :class="cssClasses"
@@ -51,6 +51,6 @@ export default {
       :aria-label="__('toggle collapse')"
       class="fa"
     >
-    </i>
+    </i> -->
   </button>
 </template>
