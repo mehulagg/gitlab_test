@@ -222,6 +222,29 @@ describe JenkinsService do
                 .with(headers: { 'Authorization' => jenkins_authorization })
             ).to have_been_made.once
           end
+
+          it 'starts a new pipeline' do
+            # TODO Don't use sha from sample data
+            expect { jenkins_service.execute(push_sample_data) }.to change { project.ci_pipelines.for_sha('da1560886d4f094c3e6c9ef40349f7d38b5d27d7').count }.from(0).to(1)
+            # TODO Find a more reliable way to get the latest pipeline
+            pipeline = project.ci_pipelines.for_sha('da1560886d4f094c3e6c9ef40349f7d38b5d27d7').first
+            pipeline.update_status
+            expect(pipeline.status).to eq('pending')
+          end
+
+          context 'when hook response is not successful' do
+            it 'starts a new pipeline and lets it fail' do
+              # TODO Don't use sha from sample data
+              # TODO What if webhook doesn't return error but a non successful response status?
+              allow_any_instance_of(WebHookService).to receive(:execute).and_return(status: :error, message: 'it failed')
+              jenkins_service.execute(push_sample_data)
+              # TODO Find a more reliable way to get the latest pipeline
+              pipeline = project.ci_pipelines.for_sha('da1560886d4f094c3e6c9ef40349f7d38b5d27d7').first
+              pipeline.update_status
+              expect(pipeline.status).to eq('failed')
+              # TODO Set expectation for description as well
+            end
+          end
         end
       end
     end

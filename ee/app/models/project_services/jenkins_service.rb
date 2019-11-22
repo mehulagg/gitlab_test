@@ -32,7 +32,42 @@ class JenkinsService < CiService
     return if project.disabled_services.include?(to_param)
     return unless supported_events.include?(data[:object_kind])
 
-    service_hook.execute(data, "#{data[:object_kind]}_hook")
+    if data[:object_kind] == 'push'
+      # TODO Find a more elegant way to do this. Maybe in another service class
+      pipeline = start_pipeline(data)
+      status = find_or_create_status(pipeline)
+      status.enqueue!
+    end
+
+    hook_response = service_hook.execute(data, "#{data[:object_kind]}_hook")
+
+    if hook_response[:status] == :error
+      status.update(description: hook_response[:message])
+      status.drop!
+    end
+
+    hook_response
+  end
+
+  def start_pipeline(data)
+    commit_sha = data[:checkout_sha]
+    ref = data[:ref]
+    project.ci_pipelines.create!(
+      source: :external,
+      sha: commit_sha,
+      ref: ref,
+      protected: project.protected_for?(ref)
+    )
+  end
+
+  def find_or_create_status(pipeline)
+    GenericCommitStatus.running_or_pending.find_or_create_by(
+      project: project,
+      pipeline: pipeline,
+      name: 'build',
+      ref: pipeline.ref,
+      protected: project.protected_for?(pipeline.ref)
+    )
   end
 
   def test(data)
