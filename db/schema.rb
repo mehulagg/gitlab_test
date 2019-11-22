@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_18_182722) do
+ActiveRecord::Schema.define(version: 2019_11_19_023952) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -498,6 +498,7 @@ ActiveRecord::Schema.define(version: 2019_11_18_182722) do
     t.integer "project_id"
     t.integer "group_id"
     t.string "type", null: false
+    t.string "name", limit: 255
     t.datetime_with_timezone "created_at", null: false
     t.datetime_with_timezone "updated_at", null: false
     t.index ["group_id"], name: "index_badges_on_group_id"
@@ -850,6 +851,7 @@ ActiveRecord::Schema.define(version: 2019_11_18_182722) do
     t.index ["project_id", "sha"], name: "index_ci_pipelines_on_project_id_and_sha"
     t.index ["project_id", "source"], name: "index_ci_pipelines_on_project_id_and_source"
     t.index ["project_id", "status", "config_source"], name: "index_ci_pipelines_on_project_id_and_status_and_config_source"
+    t.index ["project_id", "status", "updated_at"], name: "index_ci_pipelines_on_project_id_and_status_and_updated_at"
     t.index ["project_id"], name: "index_ci_pipelines_on_project_id"
     t.index ["status"], name: "index_ci_pipelines_on_status"
     t.index ["user_id"], name: "index_ci_pipelines_on_user_id"
@@ -3628,6 +3630,7 @@ ActiveRecord::Schema.define(version: 2019_11_18_182722) do
     t.boolean "secret", default: false, null: false
     t.index ["author_id"], name: "index_snippets_on_author_id"
     t.index ["content"], name: "index_snippets_on_content_trigram", opclass: :gin_trgm_ops, using: :gin
+    t.index ["created_at"], name: "index_snippets_on_created_at"
     t.index ["file_name"], name: "index_snippets_on_file_name_trigram", opclass: :gin_trgm_ops, using: :gin
     t.index ["project_id", "visibility_level"], name: "index_snippets_on_project_id_and_visibility_level"
     t.index ["title"], name: "index_snippets_on_title_trigram", opclass: :gin_trgm_ops, using: :gin
