@@ -60,7 +60,7 @@
         "folder_path": {
             "type": "string"
         },
-        "logs_path": {
+        "project_path": {
             "type": "string"
         },
         "created_at": {
