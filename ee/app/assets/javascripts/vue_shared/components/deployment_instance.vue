@@ -59,6 +59,7 @@ export default {
     projectPath: {
       type: String,
       required: true,
+      default: '',
     },
   },
 

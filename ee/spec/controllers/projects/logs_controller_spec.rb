@@ -40,8 +40,11 @@ describe Projects::LogsController do
           stub_licensed_features(pod_logs: true)
         end
 
+        let(:empty_project) { create(:project) }
+
         it 'renders empty logs page if no environment exists' do
-          get :show, params: { namespace_id: project.namespace, project_id: project }
+          empty_project.add_maintainer(user)
+          get :show, params: { namespace_id: empty_project.namespace, project_id: empty_project }
 
           expect(response).to be_ok
           expect(response).to render_template 'empty_logs'
