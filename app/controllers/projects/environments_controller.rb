@@ -223,4 +223,8 @@ class Projects::EnvironmentsController < Projects::ApplicationController
   def authorize_stop_environment!
     access_denied! unless can?(current_user, :stop_environment, environment)
   end
+
+  def authorize_create_environment_terminal!
+    return render_404 unless can?(current_user, :create_environment_terminal, environment)
+  end
 end
