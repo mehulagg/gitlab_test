@@ -43,7 +43,7 @@ export default {
         __(
           "To protect this issue's confidentiality, %{link_start}fork this project%{link_end} and set the fork's visibility to private.",
         ),
-        { link_start: `<a href="${this.newForkPath}" class="help-link">`, link_end: '</a>' },
+        { link_start: `<a href="${this.newForkPath}" target="_blank" class="help-link">`, link_end: '</a>' },
         false,
       );
     },
