@@ -277,7 +277,7 @@ Successfully installed knapsack-1.16.0
    -> 0.0080s
 -- add_index("container_repositories", ["project_id"], {:name=>"index_container_repositories_on_project_id", :using=>:btree})
    -> 0.0070s
--- create_table("conversational_development_index_metrics", {:force=>:cascade})
+-- create_table("dev_ops_score_metrics", {:force=>:cascade})
    -> 0.0204s
 -- create_table("deploy_keys_projects", {:force=>:cascade})
    -> 0.0154s

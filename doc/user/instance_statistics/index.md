@@ -12,5 +12,5 @@ and can be accessed via the top bar.
 
 There are two kinds of statistics:
 
-- [Conversational Development (ConvDev) Index](convdev.md): Provides an overview of your entire instance's feature usage.
+- [Conversational Development (devops) Index](devops.md): Provides an overview of your entire instance's feature usage.
 - [User Cohorts](user_cohorts.md): Display the monthly cohorts of new users and their activities over time.

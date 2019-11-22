@@ -5,7 +5,7 @@
 NOTE: **Note:**
 Your GitLab instance's [usage ping](../admin_area/settings/usage_statistics.md#usage-ping-core-only) must be activated in order to use this feature.
 
-The [Conversational Development](http://conversationaldevelopment.com/2017/04/16/what-is-conversational-development/) Index (ConvDev Index) gives you an overview of your entire
+The [Conversational Development](http://conversationaldevelopment.com/2017/04/16/what-is-conversational-development/) Index (devops Index) gives you an overview of your entire
 instance's adoption of [Concurrent DevOps](https://about.gitlab.com/concurrent-devops/)
 from planning to monitoring.
 
@@ -16,7 +16,7 @@ of top-performing instances based on [usage ping data](../admin_area/settings/us
 collected. Your score is compared to the lead score of each feature and then expressed as a percentage at the bottom of said feature.
 Your overall index score is an average of all your feature score percentages - this percentage value is presented above all the of features on the page.
 
-![ConvDev index](img/convdev_index.png)
+![devops index](img/devops_index.png)
 
 The page also provides helpful links to articles and GitLab docs, to help you
 improve your scores.
