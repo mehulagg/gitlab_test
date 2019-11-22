@@ -319,11 +319,9 @@ describe Clusters::Platforms::Kubernetes do
             .with(
               ::Gitlab::Routing.url_helpers.project_logs_path(
                 environment.project,
-                query: {
-                  environment_name: environment.name,
-                  pod_name: opts['pod_name'],
-                  container_name: opts['container_name']
-                },
+                environment_name: environment.name,
+                pod_name: opts['pod_name'],
+                container_name: opts['container_name'],
                 format: :json
               )
             )
