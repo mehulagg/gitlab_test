@@ -6,20 +6,20 @@ module EE
       extend ActiveSupport::Concern
 
       prepended do
-        before_action :authorize_read_pod_logs!, only: [:index]
-        before_action :environment, only: [:index]
+        before_action :authorize_read_pod_logs!, only: [:show]
+        before_action :environment, only: [:show]
         before_action do
           push_frontend_feature_flag(:environment_logs_use_vue_ui)
         end
       end
 
-      def index
+      def show
         respond_to do |format|
           format.html do
             if environment.nil?
               render :empty_logs
             else
-              render :index
+              render :show
             end
           end
 
@@ -42,7 +42,7 @@ module EE
 
       private
 
-      def index_params
+      def show_params
         params.permit(:environment_name)
       end
 
@@ -51,10 +51,10 @@ module EE
       end
 
       def environment
-        @environment ||= if index_params.key?(:environment_name)
-                           EnvironmentsFinder.new(project, current_user, ability: :read_environment, name: index_params[:environment_name]).find.first
+        @environment ||= if show_params.key?(:environment_name)
+                           EnvironmentsFinder.new(project, current_user, name: show_params[:environment_name]).find.first
                          else
-                           EnvironmentsFinder.new(project, current_user, ability: :read_environment).default_environment
+                           project.default_environment
                          end
       end
     end
