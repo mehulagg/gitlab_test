@@ -89,7 +89,7 @@ export default {
       return sprintf(
         __('%{last_seen}'),
         {
-          last_seen: `<li><strong>Last Seen:</strong>this.formatDate(this.error.last_seen)}</li>`,
+          last_seen: `<li><strong>Last Seen:</strong>${this.formatDate(this.error.last_seen)}</li>`,
         },
         false,
       );

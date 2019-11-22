@@ -190,6 +190,9 @@ msgstr ""
 msgid "%{cores} cores"
 msgstr ""
 
+msgid "%{count}"
+msgstr ""
+
 msgid "%{count} LOC/commit"
 msgstr ""
 
@@ -234,6 +237,9 @@ msgstr[1] ""
 msgid "%{count} related %{pluralized_subject}: %{links}"
 msgstr ""
 
+msgid "%{description}"
+msgstr ""
+
 msgid "%{duration}ms"
 msgstr ""
 
@@ -249,6 +255,9 @@ msgstr ""
 msgid "%{edit_in_new_fork_notice} Try to upload a file again."
 msgstr ""
 
+msgid "%{external_url}"
+msgstr ""
+
 msgid "%{extra} more downstream pipelines"
 msgstr ""
 
@@ -256,6 +265,9 @@ msgid "%{filePath} deleted"
 msgstr ""
 
 msgid "%{firstLabel} +%{labelCount} more"
+msgstr ""
+
+msgid "%{first_seen}"
 msgstr ""
 
 msgid "%{from} to %{to}"
@@ -274,6 +286,9 @@ msgid "%{issuableType} will be removed! Are you sure?"
 msgstr ""
 
 msgid "%{label_for_message} unavailable"
+msgstr ""
+
+msgid "%{last_seen}"
 msgstr ""
 
 msgid "%{lets_encrypt_link_start}Let's Encrypt%{lets_encrypt_link_end} is a free, automated, and open certificate authority (CA), that give digital certificates in order to enable HTTPS (SSL/TLS) for websites."
@@ -410,6 +425,9 @@ msgid "%{userName} (cannot merge)"
 msgstr ""
 
 msgid "%{userName}'s avatar"
+msgstr ""
+
+msgid "%{user_count}"
 msgstr ""
 
 msgid "%{user_name} profile page"
