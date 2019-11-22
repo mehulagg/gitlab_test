@@ -49,9 +49,9 @@ Set up the Jenkins project you are going to run your build on
 1. Choose your GitLab connection from the dropdown
 1. Check `Build when a change is pushed to GitLab`
 1. Check the boxes `Accepted Merge Request Events` and `Closed Merge Request Events`
-1. Updating the status on GitLab has to be done by the pipeline skript. Add GitLab update steps like in the example below
+1. Updating the status on GitLab has to be done by the pipeline script. Add GitLab update steps like in the example below
 
-**Example Pipeline Skript:**
+**Example Pipeline Script:**
 
 ```
 pipeline {
