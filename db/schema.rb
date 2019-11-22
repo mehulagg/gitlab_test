@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_19_023952) do
+ActiveRecord::Schema.define(version: 2019_11_22_145829) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -1218,41 +1218,6 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.index ["project_id"], name: "index_container_repositories_on_project_id"
   end
 
-  create_table "conversational_development_index_metrics", id: :serial, force: :cascade do |t|
-    t.float "leader_issues", null: false
-    t.float "instance_issues", null: false
-    t.float "leader_notes", null: false
-    t.float "instance_notes", null: false
-    t.float "leader_milestones", null: false
-    t.float "instance_milestones", null: false
-    t.float "leader_boards", null: false
-    t.float "instance_boards", null: false
-    t.float "leader_merge_requests", null: false
-    t.float "instance_merge_requests", null: false
-    t.float "leader_ci_pipelines", null: false
-    t.float "instance_ci_pipelines", null: false
-    t.float "leader_environments", null: false
-    t.float "instance_environments", null: false
-    t.float "leader_deployments", null: false
-    t.float "instance_deployments", null: false
-    t.float "leader_projects_prometheus_active", null: false
-    t.float "instance_projects_prometheus_active", null: false
-    t.float "leader_service_desk_issues", null: false
-    t.float "instance_service_desk_issues", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.float "percentage_boards", default: 0.0, null: false
-    t.float "percentage_ci_pipelines", default: 0.0, null: false
-    t.float "percentage_deployments", default: 0.0, null: false
-    t.float "percentage_environments", default: 0.0, null: false
-    t.float "percentage_issues", default: 0.0, null: false
-    t.float "percentage_merge_requests", default: 0.0, null: false
-    t.float "percentage_milestones", default: 0.0, null: false
-    t.float "percentage_notes", default: 0.0, null: false
-    t.float "percentage_projects_prometheus_active", default: 0.0, null: false
-    t.float "percentage_service_desk_issues", default: 0.0, null: false
-  end
-
   create_table "dependency_proxy_blobs", id: :serial, force: :cascade do |t|
     t.integer "group_id", null: false
     t.datetime_with_timezone "created_at", null: false
@@ -1380,6 +1345,41 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.integer "mentioned_groups_ids", array: true
     t.index ["design_id", "note_id"], name: "design_user_mentions_on_design_id_and_note_id_index"
     t.index ["note_id"], name: "index_design_user_mentions_on_note_id", unique: true
+  end
+
+  create_table "dev_ops_score_metrics", id: :serial, force: :cascade do |t|
+    t.float "leader_issues", null: false
+    t.float "instance_issues", null: false
+    t.float "leader_notes", null: false
+    t.float "instance_notes", null: false
+    t.float "leader_milestones", null: false
+    t.float "instance_milestones", null: false
+    t.float "leader_boards", null: false
+    t.float "instance_boards", null: false
+    t.float "leader_merge_requests", null: false
+    t.float "instance_merge_requests", null: false
+    t.float "leader_ci_pipelines", null: false
+    t.float "instance_ci_pipelines", null: false
+    t.float "leader_environments", null: false
+    t.float "instance_environments", null: false
+    t.float "leader_deployments", null: false
+    t.float "instance_deployments", null: false
+    t.float "leader_projects_prometheus_active", null: false
+    t.float "instance_projects_prometheus_active", null: false
+    t.float "leader_service_desk_issues", null: false
+    t.float "instance_service_desk_issues", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.float "percentage_boards", default: 0.0, null: false
+    t.float "percentage_ci_pipelines", default: 0.0, null: false
+    t.float "percentage_deployments", default: 0.0, null: false
+    t.float "percentage_environments", default: 0.0, null: false
+    t.float "percentage_issues", default: 0.0, null: false
+    t.float "percentage_merge_requests", default: 0.0, null: false
+    t.float "percentage_milestones", default: 0.0, null: false
+    t.float "percentage_notes", default: 0.0, null: false
+    t.float "percentage_projects_prometheus_active", default: 0.0, null: false
+    t.float "percentage_service_desk_issues", default: 0.0, null: false
   end
 
   create_table "draft_notes", force: :cascade do |t|
