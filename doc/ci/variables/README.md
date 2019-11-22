@@ -471,11 +471,14 @@ value you set for this specific pipeline:
 
 ## Environment variables expressions
 
-> Introduced in GitLab 10.7.
+> Introduced in GitLab 10.7. (only/except)
+> Introduced in GitLab 12.3. (rules)
 
-It is possible to use variables expressions with only / except policies in
-`.gitlab-ci.yml`. By using this approach you can limit what jobs are going to
-be created within a pipeline after pushing a code to GitLab.
+Variable expressions can be used to limit what jobs are going to be created
+within a pipeline after pushing a code to GitLab.
+
+This can be done in `.gitlab-ci.yml` preferably with [rules](../yaml/README.html#rules) but
+also with only / except policies, which are [now deprecated.](../yaml/README.html#onlyexcept-basic)
 
 This is particularly useful in combination with variables and triggered
 pipeline variables.
@@ -497,6 +500,8 @@ a new job is going to be created. If any of the expressions evaluates to truth
 when `except` is being used, a job is not going to be created.
 
 This follows usual rules for [`only` / `except` policies](../yaml/README.md#onlyexcept-advanced).
+
+The [rules documentation](../yaml/README.html#rules) has examples that use variables.
 
 ### Supported syntax
 
