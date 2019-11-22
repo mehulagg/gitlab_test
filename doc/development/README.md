@@ -128,7 +128,7 @@ description: 'Learn how to contribute to GitLab.'
 ## Integration guides
 
 - [Jira Connect app](integrations/jira_connect.md)
-- [How to run Jenkins in development environment](integrations/how_to_run_jenkins_in_development_environment.md)
+- [How to run Jenkins in development environment](integrations/jenkins.md)
 
 ## Testing guides
 
