@@ -570,9 +570,8 @@ Below you can find supported syntax reference:
    - `$VARIABLE =~ /^content.*/`
    - `$VARIABLE_1 !~ /^content.*/` (introduced in GitLab 11.11)
 
-   It is possible perform pattern matching against a variable and regular
-   expression. Expression like this evaluates to truth if matches are found
-   when using `=~`. It evaluates to truth if matches are not found when `!~` is used.
+   Expressions like this evaluate to truth if matches are found when using `=~`.
+   It evaluates to truth if matches are not found when `!~` is used.
 
    Pattern matching is case-sensitive by default. Use `i` flag modifier, like
    `/pattern/i` to make a pattern case-insensitive.
@@ -589,6 +588,25 @@ Below you can find supported syntax reference:
    supported syntax may be used in a conjunctive or disjunctive statement.
    Precedence of operators follows standard Ruby 2.5 operation
    [precedence](https://ruby-doc.org/core-2.5.0/doc/syntax/precedence_rdoc.html).
+
+### Pattern matching against a variable
+
+It is possible perform pattern matching against a variable containing a regular expression.
+
+NOTE: **Note:**
+Not all regular expression syntax works because of a [bug.](https://gitlab.com/gitlab-org/gitlab/issues/35438)
+Confirm this by directly testing the regular expression, for example: `- if: '$RELEASE =~ /staging.*/'`
+
+```yaml
+variables:
+  STAGINGRELS: '/staging0|staging1/'
+
+deploy_staging:
+  script: do.sh deploy staging
+  environment: staging
+  rules:
+    - if: '$RELEASE =~ $STAGINGRELS'
+```
 
 ## Debug logging
 
