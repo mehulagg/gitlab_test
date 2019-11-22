@@ -7,7 +7,6 @@ import EnvironmentLogs from 'ee/logs/components/environment_logs.vue';
 import { createStore } from 'ee/logs/stores';
 import {
   mockProjectPath,
-  mockEnvId,
   mockEnvName,
   mockEnvironments,
   mockPods,
@@ -33,6 +32,7 @@ describe('EnvironmentLogs', () => {
   const actionMocks = {
     setInitData: jest.fn(),
     showPodLogs: jest.fn(),
+    showEnvironment: jest.fn(),
     fetchEnvironments: jest.fn(),
   };
 
@@ -94,16 +94,16 @@ describe('EnvironmentLogs', () => {
 
     expect(actionMocks.setInitData).toHaveBeenCalledTimes(1);
     expect(actionMocks.setInitData).toHaveBeenLastCalledWith({
-      environmentId: mockEnvId,
       projectPath: mockProjectPath,
+      environmentName: mockEnvName,
       podName: null,
     });
 
     expect(actionMocks.fetchEnvironments).toHaveBeenCalledTimes(1);
     expect(actionMocks.fetchEnvironments).toHaveBeenLastCalledWith(mockEnvironmentsEndpoint);
 
-    expect(findEnvironmentsDropdown().props('text')).toBe(mockEnvName);
-    expect(findPodsDropdown().props('text').length).toBeGreaterThan(0);
+    // expect(findEnvironmentsDropdown().props('text')).toBe(mockEnvName);
+    // expect(findPodsDropdown().props('text').length).toBeGreaterThan(0);
   });
 
   describe('loading state', () => {
@@ -147,6 +147,7 @@ describe('EnvironmentLogs', () => {
     beforeEach(() => {
       actionMocks.setInitData.mockImplementation(() => {
         state.pods.options = mockPods;
+        state.environments.current = mockEnvName;
         [state.pods.current] = state.pods.options;
 
         state.logs.isComplete = false;
@@ -182,9 +183,7 @@ describe('EnvironmentLogs', () => {
       expect(items.length).toBe(mockEnvironments.length);
       mockEnvironments.forEach((env, i) => {
         const item = items.at(i);
-
         expect(item.text()).toBe(env.name);
-        expect(item.attributes('href')).toBe(env.logs_path);
       });
     });
 
@@ -214,6 +213,18 @@ describe('EnvironmentLogs', () => {
     });
 
     describe('when user clicks', () => {
+      it('environment name, trace is refreshed', () => {
+        const items = findEnvironmentsDropdown().findAll(GlDropdownItem);
+        const index = 1; // any env
+
+        expect(actionMocks.showEnvironment).toHaveBeenCalledTimes(0);
+
+        items.at(index).vm.$emit('click');
+
+        expect(actionMocks.showEnvironment).toHaveBeenCalledTimes(1);
+        expect(actionMocks.showEnvironment).toHaveBeenLastCalledWith(mockEnvironments[index].name);
+      });
+
       it('pod name, trace is refreshed', () => {
         const items = findPodsDropdown().findAll(GlDropdownItem);
         const index = 2; // any pod

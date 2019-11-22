@@ -52,8 +52,8 @@ export default {
   mounted() {
     this.setInitData({
       projectPath: this.projectFullPath,
-      podName: this.currentPodName,
       environmentName: this.environmentName,
+      podName: this.currentPodName,
     });
 
     this.fetchEnvironments(this.environmentsPath);
