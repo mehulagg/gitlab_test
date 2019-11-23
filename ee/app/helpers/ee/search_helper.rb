@@ -56,11 +56,9 @@ module EE
       return super unless gitlab_com_snippet_db_search?
 
       if collection.total_pages > 1
-        term = "<span>&nbsp;<code>%{term}</code>&nbsp;</span>"
-        s_("SearchResults|Showing %{count} %{scope} for#{term} in your personal and project snippets").html_safe
+        s_("SearchResults|Showing %{from} - %{to} of %{count} %{scope} for%{term_element} in your personal and project snippets")
       else
-        term = "<span>&nbsp;<code>%{term}</code>&nbsp;</span>"
-        s_("SearchResults|Showing %{count} %{scope} for#{term} in your personal and project snippets").html_safe
+        s_("SearchResults|Showing %{count} %{scope} for%{term_element} in your personal and project snippets")
       end
     end
 
