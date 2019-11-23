@@ -12145,6 +12145,9 @@ msgstr ""
 msgid "Password (optional)"
 msgstr ""
 
+msgid "Password Policy Guidelines"
+msgstr ""
+
 msgid "Password authentication is unavailable."
 msgstr ""
 
@@ -15370,6 +15373,9 @@ msgid "SecurityDashboard|The security dashboard displays the latest security fin
 msgstr ""
 
 msgid "SecurityDashboard|Unable to add %{invalidProjects}"
+msgstr ""
+
+msgid "See GitLab's %{password_policy_guidelines}"
 msgstr ""
 
 msgid "See metrics"

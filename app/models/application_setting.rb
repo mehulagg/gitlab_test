@@ -6,6 +6,9 @@ class ApplicationSetting < ApplicationRecord
   include TokenAuthenticatable
   include ChronicDurationAttribute
 
+  DEFAULT_MINIMUM_PASSWORD_LENGTH = 8
+  DEFAULT_MAXIMUM_PASSWORD_LENGTH = 128
+
   # Only remove this >= %12.6 and >= 2019-12-01
   self.ignored_columns += %i[
       pendo_enabled
@@ -51,6 +54,12 @@ class ApplicationSetting < ApplicationRecord
   validates :session_expire_delay,
             presence: true,
             numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+
+  validates :minimum_password_length,
+            presence: true,
+            numericality: { only_integer: true,
+                            greater_than_or_equal_to: DEFAULT_MINIMUM_PASSWORD_LENGTH,
+                            less_than_or_equal_to: DEFAULT_MAXIMUM_PASSWORD_LENGTH }
 
   validates :home_page_url,
             allow_blank: true,

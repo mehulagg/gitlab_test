@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_19_023952) do
+ActiveRecord::Schema.define(version: 2019_11_23_062354) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -355,6 +355,7 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.boolean "sourcegraph_enabled", default: false, null: false
     t.string "sourcegraph_url", limit: 255
     t.boolean "sourcegraph_public_only", default: true, null: false
+    t.integer "minimum_password_length", default: 8, null: false
     t.index ["custom_project_templates_group_id"], name: "index_application_settings_on_custom_project_templates_group_id"
     t.index ["file_template_project_id"], name: "index_application_settings_on_file_template_project_id"
     t.index ["instance_administration_project_id"], name: "index_applicationsettings_on_instance_administration_project_id"
