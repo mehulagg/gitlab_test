@@ -461,6 +461,34 @@ describe User, :do_not_mock_admin_mode do
       end
     end
 
+    describe '.password_length' do
+      let(:password_length) { described_class.password_length }
+
+      it 'is expected to be a Range' do
+        expect(password_length).to be_a(Range)
+      end
+
+      context 'minimum value' do
+        before do
+          stub_application_setting(minimum_password_length: 101)
+        end
+
+        it 'is determined by the current value of `minimum_password_length` attribute of application_setting' do
+          expect(password_length.min).to eq(101)
+        end
+      end
+
+      context 'maximum value' do
+        before do
+          stub_const('ApplicationSetting::DEFAULT_MAXIMUM_PASSWORD_LENGTH', 201)
+        end
+
+        it 'is determined by the current value of `ApplicationSetting::DEFAULT_MAXIMUM_PASSWORD_LENGTH`' do
+          expect(password_length.max).to eq(201)
+        end
+      end
+    end
+
     describe '.limit_to_todo_authors' do
       context 'when filtering by todo authors' do
         let(:user1) { create(:user) }
