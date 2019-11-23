@@ -948,9 +948,9 @@ class User < ApplicationRecord
     union_sql = ::Gitlab::SQL::Union.new(
       [owned_groups,
        maintainers_groups,
-       groups_with_developer_maintainer_project_access]).to_sql
+       groups_with_developer_maintainer_project_access]).to_q
 
-    ::Group.from("(#{union_sql}) #{::Group.table_name}").any?
+       ::Group.from("(#{union_sql.to_sql}) #{::Group.table_name}").any?
   end
 
   def namespace_id

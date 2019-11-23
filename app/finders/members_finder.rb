@@ -51,7 +51,7 @@ class MembersFinder
 
   def distinct_union_of_members(union_members)
     union = Gitlab::SQL::Union.new(union_members, remove_duplicates: false) # rubocop: disable Gitlab/Union
-    sql = distinct_on(union)
+    sql = distinct_on(union.to_q)
 
     Member.includes(:user).from([Arel.sql("(#{sql}) AS #{Member.table_name}")]) # rubocop: disable CodeReuse/ActiveRecord
   end

@@ -37,9 +37,9 @@ module Gitlab
 
       # Returns the Arel relation for this CTE.
       def to_arel
-        sql = Arel::Nodes::SqlLiteral.new(Union.new(@queries).to_sql)
+        omg = Union.new(@queries).to_q
 
-        Arel::Nodes::As.new(table, Arel::Nodes::Grouping.new(sql))
+        Arel::Nodes::As.new(table, Arel::Nodes::Grouping.new(omg))
       end
 
       # Returns an "AS" statement that aliases the CTE name as the given table

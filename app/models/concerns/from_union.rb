@@ -38,9 +38,9 @@ module FromUnion
     def from_union(members, remove_duplicates: true, alias_as: table_name)
       union = Gitlab::SQL::Union
         .new(members, remove_duplicates: remove_duplicates)
-        .to_sql
+        .to_q
 
-      from(Arel.sql("(#{union}) #{alias_as}"))
+      from(Arel::Nodes::TableAlias.new(union, alias_as))
     end
     # rubocop: enable Gitlab/Union
   end
