@@ -5,7 +5,6 @@ module QA
     describe 'mail notification' do
       before do
         @mailhog_server = run_mailhog_service
-        p @mailhog_server
       end
 
       it 'user receives email for project invitation' do
@@ -28,19 +27,19 @@ module QA
         expect(page).to have_content(/@#{user.username}(\n| )?Given access/)
 
         # Wait for Action Mailer to deliver messages
-        mailhog_messages = Support::Retrier.retry_until(sleep_interval: 1) do
+        mailhog_json = Support::Retrier.retry_until(sleep_interval: 1) do
           mailhog_response = Net::HTTP.start(@mailhog_server.host_name, 8025, use_ssl: false) do |http|
             http.request(Net::HTTP::Get.new('/api/v2/messages'))
           end
 
           mailhog_data = JSON.parse(mailhog_response.body)
 
-          mailhog_data if mailhog_data["total"] > 0
+          mailhog_data if mailhog_data.dig('total') > 0
         end
 
         # Check json result from mailhog
-        puts "FOO: #{mailhog_messages}"
-        expect(mailhog_messages).not_to be_nil
+        mailhog_items = mailhog_json.dig('items')
+        expect(mailhog_items).to include(an_object_satisfying { |o| /project was granted/ === o.dig('Content', 'Headers', 'Subject', 0) })
       end
 
       after do
