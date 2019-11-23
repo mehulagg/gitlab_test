@@ -52,12 +52,13 @@ describe('Deploy Board Instance', () => {
         status: 'deploying',
         stable: false,
         projectPath: folder.project_path,
+        environmentName: 'foo',
         podName: 'tanuki-1',
       },
     }).$mount();
 
     expect(component.computedLogPath).toEqual(
-      '/root/review-app/environments/12/logs?pod_name=tanuki-1',
+      '/root/review-app/logs?environment_name=foo&pod_name=tanuki-1',
     );
   });
 });
