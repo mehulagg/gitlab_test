@@ -27,8 +27,7 @@ module Gitlab
         def replicable_delete
           return if skip_replicable_events?
 
-          # TODO
-          # strategy::Events::DeleteEvent.create_for(self)
+          strategy::Events::DeleteEvent.create_for(self)
         end
 
         def skip_replicable_events?

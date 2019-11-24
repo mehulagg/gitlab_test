@@ -32,6 +32,7 @@ class CreateGeoReplicableEvents < ActiveRecord::Migration[5.2]
       t.string :event_class_name, null: false, limit: 255
       t.string :registry_class_name, null: false, limit: 255
       t.integer :model_id, null: false
+      t.jsonb :payload, null: false, default: {}
       t.datetime_with_timezone :created_at, null: false
     end
   end

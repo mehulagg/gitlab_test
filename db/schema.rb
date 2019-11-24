@@ -1760,6 +1760,7 @@ ActiveRecord::Schema.define(version: 2019_11_23_001949) do
     t.string "event_class_name", limit: 255, null: false
     t.string "registry_class_name", limit: 255, null: false
     t.integer "model_id", null: false
+    t.jsonb "payload", default: {}, null: false
     t.datetime_with_timezone "created_at", null: false
   end
 

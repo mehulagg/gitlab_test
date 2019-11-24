@@ -100,6 +100,12 @@ module Gitlab
             def enqueue_sync
               ::Geo::ReplicableRepositorySyncWorker.perform_async(self.class.name, self.id)
             end
+
+            # Enqueues a job to delete the repository
+            # Returns the job ID
+            def enqueue_delete(repository_storage_name, deleted_path)
+              # TODO delete the repo and this registry?
+            end
           end
         end
       end

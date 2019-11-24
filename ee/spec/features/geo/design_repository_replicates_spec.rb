@@ -5,9 +5,9 @@ require 'spec_helper'
 describe 'Design repository replicates', :geo do
   include DesignManagementTestHelpers
 
-  set(:project) { create(:project) }
-  set(:user) { project.owner }
-  set(:issue) { create(:issue, project: project) }
+  let(:project) { create(:project) }
+  let(:user) { project.owner }
+  let(:issue) { create(:issue, project: project) }
   let(:repository) { project.design_repository }
 
   context 'when the feature is available' do
