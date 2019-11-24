@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_19_023952) do
+ActiveRecord::Schema.define(version: 2019_11_23_001949) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -1754,6 +1754,13 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.index ["access_key"], name: "index_geo_nodes_on_access_key"
     t.index ["name"], name: "index_geo_nodes_on_name", unique: true
     t.index ["primary"], name: "index_geo_nodes_on_primary"
+  end
+
+  create_table "geo_replicable_events", force: :cascade do |t|
+    t.string "event_class_name", limit: 255, null: false
+    t.string "registry_class_name", limit: 255, null: false
+    t.integer "model_id", null: false
+    t.datetime_with_timezone "created_at", null: false
   end
 
   create_table "geo_repositories_changed_events", force: :cascade do |t|

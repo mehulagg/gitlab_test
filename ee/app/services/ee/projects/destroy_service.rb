@@ -32,6 +32,8 @@ module EE
       end
 
       def log_geo_event(project)
+        project.design_repository.replicate_delete if project.design_repository.exists?
+
         ::Geo::RepositoryDeletedEventStore.new(
           project,
           repo_path: repo_path,

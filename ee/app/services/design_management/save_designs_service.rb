@@ -23,7 +23,7 @@ module DesignManagement
       skipped_designs = designs - uploaded_designs
 
       # Create a Geo event so changes will be replicated to secondary node(s)
-      repository.log_geo_updated_event
+      repository.replicable_update
 
       success({ designs: uploaded_designs, skipped_designs: skipped_designs })
     rescue ::ActiveRecord::RecordInvalid => e

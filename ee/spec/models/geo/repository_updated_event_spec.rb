@@ -15,7 +15,6 @@ RSpec.describe Geo::RepositoryUpdatedEvent, type: :model do
     using RSpec::Parameterized::TableSyntax
 
     where(:source, :consumer_klass_name) do
-      :design | 'DesignRepositoryUpdatedEvent'
       :repository | 'RepositoryUpdatedEvent'
       :wiki | 'RepositoryUpdatedEvent'
     end
@@ -30,6 +29,6 @@ RSpec.describe Geo::RepositoryUpdatedEvent, type: :model do
   end
 
   describe '#source' do
-    it { is_expected.to define_enum_for(:source).with_values([:repository, :wiki, :design]) }
+    it { is_expected.to define_enum_for(:source).with_values([:repository, :wiki]) }
   end
 end

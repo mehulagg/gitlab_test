@@ -11,11 +11,26 @@ module EE
 
     MIRROR_REMOTE = "upstream".freeze
 
+    REPLICABLE_REGISTRY_CLASSES = {
+      ::Gitlab::GlRepository::PROJECT => ::Geo::ProjectRegistry,
+      ::Gitlab::GlRepository::WIKI    => ::Geo::ProjectRegistry, # TODO WikiRegistry
+      ::EE::Gitlab::GlRepository::DESIGN  => ::Geo::DesignRegistry
+    }.freeze
+
     prepended do
       include Elastic::RepositoriesSearch
+      include ::Gitlab::Geo::Replicable::Strategies::Repository::Model
 
       delegate :checksum, :find_remote_root_ref, to: :raw_repository
       delegate :pull_mirror_branch_prefix, to: :project
+    end
+
+    def registry
+      replicable_registry_class.find_by(project_id: project.id)
+    end
+
+    def replicable_registry_class
+      REPLICABLE_REGISTRY_CLASSES[repo_type]
     end
 
     # Transiently sets a configuration variable
@@ -80,6 +95,13 @@ module EE
       end
     end
 
+    override :after_create
+    def after_create
+      super
+    ensure
+      replicable_create
+    end
+
     override :keep_around
     def keep_around(*shas)
       super
@@ -95,9 +117,13 @@ module EE
     end
 
     def log_geo_updated_event
-      return unless ::Gitlab::Geo.primary?
+      if repo_type.design?
+        replicable_update
+      else
+        return unless ::Gitlab::Geo.primary?
 
-      ::Geo::RepositoryUpdatedService.new(self).execute
+        ::Geo::RepositoryUpdatedService.new(self).execute
+      end
     end
 
     def code_owners_blob(ref: 'HEAD')

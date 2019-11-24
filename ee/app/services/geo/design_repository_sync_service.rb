@@ -8,6 +8,7 @@ module Geo
 
     def sync_repository
       return if Feature.disabled?(:enable_geo_design_sync)
+      check_shard_health
 
       start_registry_sync!
       fetch_repository
@@ -82,6 +83,14 @@ module Geo
 
     def redownload?
       registry.should_be_redownloaded?
+    end
+
+    def check_shard_health
+      return if Gitlab::ShardHealthCache.healthy_shard?(project.repository_storage)
+
+      e = Struct.new(message: "Unhealthy shard \"#{project.repository_storage}\"")
+
+      fail_registry_sync!('Error syncing design repository', e)
     end
   end
 end
