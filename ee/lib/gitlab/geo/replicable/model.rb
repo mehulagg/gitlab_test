@@ -21,8 +21,7 @@ module Gitlab
         def replicable_move
           return if skip_replicable_events?
 
-          # TODO
-          # strategy::Events::MoveEvent.create_for(self)
+          raise "Immutable paths are required for Geo replicables"
         end
 
         def replicable_delete
