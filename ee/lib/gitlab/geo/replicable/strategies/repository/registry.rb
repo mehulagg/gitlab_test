@@ -96,6 +96,10 @@ module Gitlab
 
               retry_count > RETRIES_BEFORE_REDOWNLOAD
             end
+
+            def enqueue_sync
+              ::Geo::ReplicableRepositorySyncWorker.perform_async(self.class.name, self.id)
+            end
           end
         end
       end

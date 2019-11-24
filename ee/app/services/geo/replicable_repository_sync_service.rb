@@ -1,13 +1,21 @@
 # frozen_string_literal: true
 
 module Geo
-  class DesignRepositorySyncService < RepositoryBaseSyncService
-    self.type = :design
+  class ReplicableRepositorySyncService < RepositoryBaseSyncService
+    def initialize(registry_class_name, registry_id)
+      @registry = registry_class_name.constantize.find(registry_id)
+      @project = @registry.project
+      @new_repository = false
+      self.class.type = @registry.repo_type
+    end
+
+    def execute
+      super unless registry.class.skippable?
+    end
 
     private
 
     def sync_repository
-      return if Feature.disabled?(:enable_geo_design_sync)
       check_shard_health
 
       start_registry_sync!
@@ -17,20 +25,24 @@ module Geo
       # In some cases repository does not exist, the only way to know about this is to parse the error text.
       # If it does not exist we should consider it as successfully downloaded.
       if e.message.include? Gitlab::GitAccess::ERROR_MESSAGES[:no_repo]
-        log_info('Design repository is not found, marking it as successfully synced')
+        log_info("#{registry.replicable_human_name} is not found, marking it as successfully synced")
         mark_sync_as_successful(missing_on_primary: true)
       else
-        fail_registry_sync!('Error syncing design repository', e)
+        fail_registry_sync!("Error syncing #{registry.replicable_human_name}", e)
       end
     rescue Gitlab::Git::Repository::NoRepository => e
-      log_info('Marking the design repository for a forced re-download')
-      fail_registry_sync!('Invalid design repository', e, force_to_redownload: true)
+      log_info("Marking the #{registry.replicable_human_name} for a forced re-download")
+      fail_registry_sync!("Invalid #{registry.replicable_human_name}", e, force_to_redownload: true)
     ensure
       expire_repository_caches
     end
 
+    def registry
+      @registry
+    end
+
     def repository
-      project.design_repository
+      registry.replicable
     end
 
     def ensure_repository
@@ -38,7 +50,7 @@ module Geo
     end
 
     def expire_repository_caches
-      log_info('Expiring caches for design repository')
+      log_info("Expiring caches for #{registry.replicable_human_name}")
       repository.after_sync
     end
 
@@ -51,31 +63,25 @@ module Geo
     end
 
     def start_registry_sync!
-      log_info("Marking design sync as started")
+      log_info("Marking #{registry.replicable_human_name} sync as started")
       registry.start_sync!
     end
 
     def mark_sync_as_successful(missing_on_primary: false)
-      log_info("Marking design sync as successful")
+      log_info("Marking #{registry.replicable_human_name} sync as successful")
 
       persisted = registry.finish_sync!(missing_on_primary)
 
       reschedule_sync unless persisted
 
-      log_info("Finished design sync", download_time_s: download_time_in_seconds)
+      log_info("Finished #{registry.replicable_human_name} sync", download_time_s: download_time_in_seconds)
     end
 
     def reschedule_sync
-      log_info("Reschedule design sync because a RepositoryUpdateEvent was processed during the sync")
+      log_info("Reschedule #{registry.replicable_human_name} sync because a concurrent update occurred")
 
-      ::Geo::DesignRepositorySyncWorker.perform_async(project.id)
+      ::Geo::ReplicableRepositorySyncWorker.perform_async(registry.class.name, registry.id)
     end
-
-    # rubocop: disable CodeReuse/ActiveRecord
-    def registry
-      @registry ||= Geo::DesignRegistry.find_or_initialize_by(project_id: project.id)
-    end
-    # rubocop: enable CodeReuse/ActiveRecord
 
     def download_time_in_seconds
       (Time.now.to_f - registry.last_synced_at.to_f).round(3)
@@ -90,7 +96,7 @@ module Geo
 
       e = Struct.new(message: "Unhealthy shard \"#{project.repository_storage}\"")
 
-      fail_registry_sync!('Error syncing design repository', e)
+      fail_registry_sync!("Error syncing #{registry.replicable_human_name}", e)
     end
   end
 end

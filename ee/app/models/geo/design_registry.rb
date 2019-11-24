@@ -14,16 +14,18 @@ class Geo::DesignRegistry < Geo::BaseRegistry
   end
 
   def self.sync_service_class
-    Geo::DesignRepositorySyncService
+    Geo::ReplicableRepositorySyncService
   end
 
   def replicable
     project.design_repository
   end
 
-  def enqueue_sync
-    # TODO Introduce ::Geo::RepositorySyncWorker.perform_async(self.class.name, self.id)
-    # so we can move this method to the Strategy
-    ::Geo::DesignRepositorySyncWorker.perform_async(project_id)
+  def replicable_human_name
+    'design repository'
+  end
+
+  def repo_type
+    :design
   end
 end
