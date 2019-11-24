@@ -39,7 +39,7 @@ module Clusters
 
           application.make_scheduled!
 
-          worker.perform_async(application.name, application.id)
+          worker.perform_async(application.name, application.id) #Adds a new background job
         end
       end
 

@@ -98,6 +98,10 @@ export default class ClusterStore {
           title: s__('ClusterIntegration|Elastic Stack'),
           kibana_hostname: null,
         },
+        cilium: {
+          ...applicationInitialState,
+          title: s__('ClusterIntegration|Cilium'),
+        },
       },
       environments: [],
       fetchingEnvironments: false,

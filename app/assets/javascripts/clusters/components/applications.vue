@@ -14,6 +14,7 @@ import knativeLogo from 'images/cluster_app_logos/knative.png';
 import meltanoLogo from 'images/cluster_app_logos/meltano.png';
 import prometheusLogo from 'images/cluster_app_logos/prometheus.png';
 import elasticStackLogo from 'images/cluster_app_logos/elastic_stack.png';
+import ciliumLogo from 'images/cluster_app_logos/cilium.png';
 import { s__, sprintf } from '../../locale';
 import applicationRow from './application_row.vue';
 import clipboardButton from '../../vue_shared/components/clipboard_button.vue';
@@ -97,6 +98,7 @@ export default {
     meltanoLogo,
     prometheusLogo,
     elasticStackLogo,
+    ciliumLogo,
   }),
   computed: {
     isProjectCluster() {
@@ -195,6 +197,17 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
         false,
       );
     },
+
+    ciliumDescription() {
+      return sprintf(
+        _.escape(
+          s__(
+            `ClusterIntegration|Cilium is open source software for transparently securing the network connectivity between application services deployed using Linux container management platforms like Docker and Kubernetes.`
+          ),
+        ),
+      );
+    },
+
     jupyterInstalled() {
       return this.applications.jupyter.status === APPLICATION_STATUS.INSTALLED;
     },
@@ -686,6 +699,24 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
             </div>
           </template>
         </div>
+      </application-row>
+      <application-row
+        id="cilium"
+        :logo-url="ciliumLogo"
+        :title="applications.cilium.title"
+        :status="applications.cilium.status"
+        :status-reason="applications.cilium.statusReason"
+        :request-status="applications.cilium.requestStatus"
+        :request-reason="applications.cilium.requestReason"
+        :installed="applications.cilium.installed"
+        :install-failed="applications.cilium.installFailed"
+        :uninstallable="applications.cilium.uninstallable"
+        :uninstall-successful="applications.cilium.uninstallSuccessful"
+        :uninstall-failed="applications.cilium.uninstallFailed"
+        :disabled="!helmInstalled"
+        title-link="https://cilium.readthedocs.io/en/stable/"
+      >
+        <div slot="description" v-html="ciliumDescription"></div>
       </application-row>
     </div>
   </section>

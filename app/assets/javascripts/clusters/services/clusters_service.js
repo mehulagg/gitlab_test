@@ -13,6 +13,7 @@ export default class ClusterService {
       jupyter: this.options.installJupyterEndpoint,
       knative: this.options.installKnativeEndpoint,
       elastic_stack: this.options.installElasticStackEndpoint,
+      cilium: this.options.installCiliumEndpoint,
     };
     this.appUpdateEndpointMap = {
       knative: this.options.updateKnativeEndpoint,

@@ -15,7 +15,7 @@ module Clusters
 
       def install
         log_event(:begin_install)
-        helm_api.install(install_command)
+        helm_api.install(install_command) #helm_api comes from gitlab/app/services/clusters/applications/base_helm_service.rb
 
         log_event(:schedule_wait_for_installation)
         ClusterWaitForAppInstallationWorker.perform_in(

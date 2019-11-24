@@ -6,7 +6,7 @@ class Clusters::ApplicationsController < Clusters::BaseController
   before_action :authorize_update_cluster!, only: [:update]
   before_action :authorize_admin_cluster!, only: [:destroy]
 
-  def create
+  def create #Initial action
     request_handler do
       Clusters::Applications::CreateService
         .new(@cluster, current_user, cluster_application_params)

@@ -5,7 +5,7 @@ module Clusters
     class CreateService < Clusters::Applications::BaseService
       private
 
-      def worker_class(application)
+      def worker_class(application) #Returns ClusterInstallAppWorker to be triggered the background job
         application.updateable? ? ClusterUpgradeAppWorker : ClusterInstallAppWorker
       end
 

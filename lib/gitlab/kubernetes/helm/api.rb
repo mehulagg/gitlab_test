@@ -9,7 +9,7 @@ module Gitlab
           @namespace = Gitlab::Kubernetes::Namespace.new(Gitlab::Kubernetes::Helm::NAMESPACE, kubeclient)
         end
 
-        def install(command)
+        def install(command) #Wraps up most of the K8s/Helm
           namespace.ensure_exists!
 
           create_service_account(command)

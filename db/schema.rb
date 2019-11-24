@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_15_091425) do
+ActiveRecord::Schema.define(version: 2019_11_22_175619) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -1078,7 +1078,18 @@ ActiveRecord::Schema.define(version: 2019_11_15_091425) do
     t.index ["cluster_id"], name: "index_clusters_applications_cert_managers_on_cluster_id", unique: true
   end
 
-  create_table "clusters_applications_crossplane", id: :serial, force: :cascade do |t|
+  create_table "clusters_applications_cilium", force: :cascade do |t|
+    t.bigint "cluster_id", null: false
+    t.integer "status", null: false
+    t.string "version", null: false
+    t.string "hostname"
+    t.text "status_reason"
+    t.datetime_with_timezone "created_at", null: false
+    t.datetime_with_timezone "updated_at", null: false
+    t.index ["cluster_id"], name: "index_clusters_applications_cilium_on_cluster_id", unique: true
+  end
+
+  create_table "clusters_applications_crossplane", force: :cascade do |t|
     t.datetime_with_timezone "created_at", null: false
     t.datetime_with_timezone "updated_at", null: false
     t.bigint "cluster_id", null: false
@@ -4315,6 +4326,7 @@ ActiveRecord::Schema.define(version: 2019_11_15_091425) do
   add_foreign_key "clusters", "projects", column: "management_project_id", name: "fk_f05c5e5a42", on_delete: :nullify
   add_foreign_key "clusters", "users", on_delete: :nullify
   add_foreign_key "clusters_applications_cert_managers", "clusters", on_delete: :cascade
+  add_foreign_key "clusters_applications_cilium", "clusters", on_delete: :cascade
   add_foreign_key "clusters_applications_crossplane", "clusters", on_delete: :cascade
   add_foreign_key "clusters_applications_elastic_stacks", "clusters", on_delete: :cascade
   add_foreign_key "clusters_applications_helm", "clusters", on_delete: :cascade

@@ -35,11 +35,11 @@ module Clusters
           # and no exit transitions.
           state :pre_installed, value: 9
 
-          event :make_scheduled do
+          event :make_scheduled do #Initial change of state
             transition [:installable, :errored, :installed, :updated, :update_errored, :uninstall_errored] => :scheduled
           end
 
-          event :make_installing do
+          event :make_installing do #Second change of state
             transition [:scheduled] => :installing
           end
 

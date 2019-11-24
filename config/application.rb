@@ -265,6 +265,7 @@ module Gitlab
     config.active_job.queue_adapter = :sidekiq
 
     # This is needed for gitlab-shell
+    ENV['SIDEKIQ_LOG_ARGUMENTS'] = '1'
     ENV['GITLAB_PATH_OUTSIDE_HOOK'] = ENV['PATH']
     ENV['GIT_TERMINAL_PROMPT'] = '0'
 
