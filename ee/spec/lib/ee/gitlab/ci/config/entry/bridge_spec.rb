@@ -34,6 +34,17 @@ describe EE::Gitlab::Ci::Config::Entry::Bridge do
       end
 
       it { is_expected.to be_falsey }
+
+      context 'with rules' do
+        let(:config) do
+          {
+            script: 'ls -al',
+            rules: [{ if: '$VAR == "value"', when: 'always' }]
+          }
+        end
+
+        it { is_expected.to be_falsey }
+      end
     end
 
     context 'when config is a bridge job' do
