@@ -30,12 +30,12 @@ module EE
       project.feature_available?(:custom_prometheus_metrics) && can?(current_user, :admin_project, project)
     end
 
-    def environment_logs_data(project, environment)
+    def environment_logs_data(project, cluster, clusters)
       {
-        "environment-name": environment.name,
-        "environments-path": project_environments_path(project, format: :json),
+        "clusters": clusters.map{|c| {id: c.id, name: c.name} }.to_json,
+        "default-cluster-name": cluster.name,
         "project-full-path": project.full_path,
-        "environment-id": environment.id
+        "filters-path": filters_project_logs_path(project, format: :json)
       }
     end
 

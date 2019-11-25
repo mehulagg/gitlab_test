@@ -6,21 +6,23 @@ export default {
     state.projectPath = projectPath;
   },
 
-  /** Environments data */
-  [types.SET_PROJECT_ENVIRONMENT](state, environmentName) {
-    state.environments.current = environmentName;
+  /** Clusters data */
+  [types.SET_CLUSTER_NAME](state, clusterName) {
+    state.selectedCluster = clusterName;
   },
-  [types.REQUEST_ENVIRONMENTS_DATA](state) {
-    state.environments.options = [];
-    state.environments.isLoading = true;
+  [types.REQUEST_FILTERS_DATA](state) {
+    state.filters.data = [];
+    state.filters.isLoading = true;
   },
-  [types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS](state, environmentOptions) {
-    state.environments.options = environmentOptions;
-    state.environments.isLoading = false;
+  [types.RECEIVE_FILTERS_DATA_SUCCESS](state, data) {
+    state.filters.data = data;
+    state.filters.isLoading = false;
+
+    state.pods.options = data.pods.map(pod => pod.name)
   },
-  [types.RECEIVE_ENVIRONMENTS_DATA_ERROR](state) {
-    state.environments.options = [];
-    state.environments.isLoading = false;
+  [types.RECEIVE_FILTERS_DATA_ERROR](state) {
+    state.filters.data = [];
+    state.filters.isLoading = false;
   },
 
   /** Logs data */
@@ -41,16 +43,7 @@ export default {
   },
 
   /** Pods data */
-  [types.SET_CURRENT_POD_NAME](state, podName) {
+  [types.SET_POD_NAME](state, podName) {
     state.pods.current = podName;
-  },
-  [types.REQUEST_PODS_DATA](state) {
-    state.pods.options = [];
-  },
-  [types.RECEIVE_PODS_DATA_SUCCESS](state, podOptions) {
-    state.pods.options = podOptions;
-  },
-  [types.RECEIVE_PODS_DATA_ERROR](state) {
-    state.pods.options = [];
   },
 };

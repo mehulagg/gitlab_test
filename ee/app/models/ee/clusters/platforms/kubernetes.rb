@@ -29,14 +29,14 @@ module EE
           ::Gitlab::Kubernetes::RolloutStatus.from_deployments(*deployments, pods: pods, legacy_deployments: legacy_deployments)
         end
 
-        def read_pod_logs(environment_id, pod_name, namespace, container: nil)
+        def read_pod_logs(namespace: nil, pod: nil, container: nil)
           # environment_id is required for use in reactive_cache_updated(),
           # to invalidate the ETag cache.
           with_reactive_cache(
             CACHE_KEY_GET_POD_LOG,
-            'environment_id' => environment_id,
-            'pod_name' => pod_name,
+            'cluster' => cluster.name,
             'namespace' => namespace,
+            'pod' => pod,
             'container' => container
           ) do |result|
             result
@@ -46,14 +46,12 @@ module EE
         def calculate_reactive_cache(request, opts)
           case request
           when CACHE_KEY_GET_POD_LOG
-            container = opts['container']
-            pod_name = opts['pod_name']
             namespace = opts['namespace']
+            pod = opts['pod']
+            container = opts['container']
 
-            handle_exceptions(_('Pod not found'), pod_name: pod_name, container_name: container) do
-              container ||= container_names_of(pod_name, namespace).first
-
-              pod_logs(pod_name, namespace, container: container)
+            handle_exceptions(_('Pod not found'), namespace: namespace, pod: pod, container: container) do
+              pod_logs(namespace: namespace, pod: pod, container: container)
             end
           end
         end
@@ -70,9 +68,10 @@ module EE
               store.touch(
                 ::Gitlab::Routing.url_helpers.project_logs_path(
                   environment.project,
-                  environment_name: environment.name,
-                  pod_name: opts['pod_name'],
-                  container_name: opts['container_name'],
+                  cluster: cluster.name,
+                  namespace: opts['namespace'],
+                  pod: opts['pod'],
+                  container: opts['container'],
                   format: :json
                 )
               )
@@ -82,34 +81,32 @@ module EE
 
         private
 
-        def pod_logs(pod_name, namespace, container: nil)
+        def pod_logs(namespace: nil, pod: nil, container: nil)
           logs = if ::Feature.enabled?(:enable_cluster_application_elastic_stack) && elastic_stack_client
-                   elastic_stack_pod_logs(namespace, pod_name, container)
+                   elastic_stack_pod_logs(namespace, pod, container)
                  else
-                   platform_pod_logs(namespace, pod_name, container)
+                   platform_pod_logs(namespace, pod, container)
                  end
 
           {
             logs: logs,
-            status: :success,
-            pod_name: pod_name,
-            container_name: container
+            status: :success
           }
         end
 
-        def platform_pod_logs(namespace, pod_name, container_name)
+        def platform_pod_logs(namespace, pod, container)
           logs = kubeclient.get_pod_log(
-            pod_name, namespace, container: container_name, tail_lines: LOGS_LIMIT
+            pod, namespace, container: container, tail_lines: LOGS_LIMIT
           ).body
 
           logs.strip.split("\n")
         end
 
-        def elastic_stack_pod_logs(namespace, pod_name, container_name)
+        def elastic_stack_pod_logs(namespace, pod, container)
           client = elastic_stack_client
           return [] if client.nil?
 
-          ::Gitlab::Elasticsearch::Logs.new(client).pod_logs(namespace, pod_name, container_name)
+          ::Gitlab::Elasticsearch::Logs.new(client).pod_logs(namespace, pod, container)
         end
 
         def elastic_stack_client
@@ -134,14 +131,6 @@ module EE
             },
             status: :error
           }.merge(opts)
-        end
-
-        def container_names_of(pod_name, namespace)
-          return [] unless pod_name.present?
-
-          pod_details = kubeclient.get_pod(pod_name, namespace)
-
-          pod_details.spec.containers.collect(&:name)
         end
 
         def read_deployments(namespace)

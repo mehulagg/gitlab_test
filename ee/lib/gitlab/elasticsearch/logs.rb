@@ -10,42 +10,46 @@ module Gitlab
         @client = client
       end
 
-      def pod_logs(namespace, pod_name, container_name = nil)
-        query = {
-          bool: {
-            must: [
-              {
-                match_phrase: {
-                  "kubernetes.pod.name" => {
-                    query: pod_name
-                  }
-                }
-              },
-              {
-                match_phrase: {
-                  "kubernetes.namespace" => {
-                    query: namespace
-                  }
-                }
+      def pod_logs(namespace = nil, pod = nil, container = nil)
+        matches = []
+
+        # A cluster can contain multiple namespaces.
+        # By default we return logs from every namespace
+        unless namespace.nil?
+          matches << {
+            match_phrase: {
+              "kubernetes.namespace" => {
+                query: namespace
               }
-            ]
+            }
           }
-        }
+        end
+
+        # A namespace can contain multiple pods.
+        # By default we return logs from every pod
+        unless pod.nil?
+          matches << {
+            match_phrase: {
+              "kubernetes.pod.name" => {
+                query: pod
+              }
+            }
+          }
+        end
 
         # A pod can contain multiple containers.
         # By default we return logs from every container
-        unless container_name.nil?
-          query[:bool][:must] << {
+        unless container.nil?
+          matches << {
             match_phrase: {
               "kubernetes.container.name" => {
-                query: container_name
+                query: container
               }
             }
           }
         end
 
         body = {
-          query: query,
           # reverse order so we can query N-most recent records
           sort: [
             { "@timestamp": { order: :desc } },
@@ -56,6 +60,14 @@ module Gitlab
           # fixed limit for now, we should support paginated queries
           size: ::Gitlab::Elasticsearch::Logs::LOGS_LIMIT
         }
+
+        if matches.any?
+          body[:query] = {
+            bool: {
+              must: matches
+            }
+          }
+        end
 
         response = @client.search body: body
         result = response.fetch("hits", {}).fetch("hits", []).map { |h| h["_source"]["message"] }
