@@ -7,10 +7,11 @@ export default () => ({
   /**
    * Environments list information
    */
-  environments: {
-    options: [],
+  selectedCluster: '',
+
+  filters: {
+    data: [],
     isLoading: false,
-    current: null,
   },
 
   /**

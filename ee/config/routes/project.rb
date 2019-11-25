@@ -188,7 +188,9 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       resource :dependencies, only: [:show]
       resource :licenses, only: [:show]
 
-      resource :logs, only: [:show]
+      resource :logs, only: [:show] do
+        get 'filters'
+      end
 
       resources :protected_environments, only: [:create, :update, :destroy], constraints: { id: /\d+/ } do
         collection do

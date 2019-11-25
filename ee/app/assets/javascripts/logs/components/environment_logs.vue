@@ -16,24 +16,28 @@ export default {
       type: String,
       required: true,
     },
-    environmentName: {
+    filtersPath: {
       type: String,
-      required: false,
-      default: '',
+      required: true,
     },
-    currentPodName: {
+    defaultPodName: {
       type: [String, null],
       required: false,
       default: null,
     },
-    environmentsPath: {
-      type: String,
+    defaultClusterName: {
+      type: [String, null],
       required: false,
-      default: '',
+      default: null,
+    },
+    clusters: {
+      type: Array,
+      required: false,
+      default: [],
     },
   },
   computed: {
-    ...mapState('environmentLogs', ['environments', 'logs', 'pods']),
+    ...mapState('environmentLogs', ['selectedCluster', 'filters', 'logs', 'pods']),
     ...mapGetters('environmentLogs', ['trace']),
     showLoader() {
       return this.logs.isLoading || !this.logs.isComplete;
@@ -56,14 +60,14 @@ export default {
       podName: this.currentPodName,
     });
 
-    this.fetchEnvironments(this.environmentsPath);
+    this.fetchFilters(this.filtersPath);
   },
   methods: {
     ...mapActions('environmentLogs', [
       'setInitData',
       'showPodLogs',
-      'showEnvironment',
-      'fetchEnvironments',
+      'showCluster',
+      'fetchFilters',
     ]),
   },
 };
@@ -73,26 +77,23 @@ export default {
     <div class="top-bar js-top-bar d-flex">
       <div class="row">
         <gl-form-group
-          id="environments-dropdown-fg"
-          :label="s__('Environments|Environment')"
+          id="clusters-dropdown-fg"
+          :label="s__('Clusters|Cluster')"
           label-size="sm"
-          label-for="environments-dropdown"
+          label-for="clusters-dropdown"
           class="col-6"
         >
           <gl-dropdown
-            id="environments-dropdown"
-            :text="environments.current"
-            :disabled="environments.isLoading"
-            class="d-flex js-environments-dropdown"
+            id="clusters-dropdown"
+            :text="selectedCluster"
+            class="d-flex js-clusters-dropdown"
             toggle-class="dropdown-menu-toggle"
           >
             <gl-dropdown-item
-              v-for="env in environments.options"
-              :key="env.id"
-              @click="showEnvironment(env.name)"
-            >
-              {{ env.name }}
-            </gl-dropdown-item>
+              v-for="cluster in clusters"
+              :key="cluster.id"
+              @click="showCluster(cluster.name)"
+            >{{ cluster.name }}</gl-dropdown-item>
           </gl-dropdown>
         </gl-form-group>
         <gl-form-group
@@ -104,18 +105,20 @@ export default {
         >
           <gl-dropdown
             id="pods-dropdown"
-            :text="pods.current || s__('Environments|No pods to display')"
-            :disabled="logs.isLoading"
+            :text="pods.current || s__('Environments|All pods')"
+            :disabled="filters.isLoading"
             class="d-flex js-pods-dropdown"
             toggle-class="dropdown-menu-toggle"
           >
             <gl-dropdown-item
+              @click="showPodLogs(null)"
+            >{{ s__('Environments|All pods') }}</gl-dropdown-item>
+            <gl-dropdown-divider />
+            <gl-dropdown-item
               v-for="podName in pods.options"
               :key="podName"
               @click="showPodLogs(podName)"
-            >
-              {{ podName }}
-            </gl-dropdown-item>
+            >{{ podName }}</gl-dropdown-item>
           </gl-dropdown>
         </gl-form-group>
       </div>
