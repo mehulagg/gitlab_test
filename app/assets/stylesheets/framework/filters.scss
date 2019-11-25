@@ -169,6 +169,7 @@
   overflow-x: auto;
   white-space: nowrap;
   width: 100%;
+
 }
 
 .filtered-search-box {
@@ -177,7 +178,6 @@
   display: flex;
   width: 100%;
   min-width: 0;
-  border: 1px solid $border-color;
   background-color: $white-light;
 
   @include media-breakpoint-down(sm) {
@@ -188,12 +188,13 @@
   &:hover {
     @extend .form-control:hover;
   }
-
-  &.focus,
-  &.focus:hover {
-    border-color: $blue-300;
-    box-shadow: 0 0 4px $dropdown-input-focus-shadow;
+  &:focus {
+    color: $gl-text-color;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
   }
+
+  
 
   gl-emoji {
     display: inline-block;
@@ -222,6 +223,7 @@
       border-color: transparent;
       box-shadow: none;
     }
+    
   }
 
   .fa-times {
@@ -246,6 +248,18 @@
   flex: 1;
   position: relative;
   min-width: 0;
+  border-top: 1px solid $border-color;
+  border-right: 1px solid $border-color;
+  border-bottom: 1px solid $border-color;
+  border-left: 0px solid $border-color;
+  border-radius: 0px 3px 3px 0px;
+
+  &:focus-within {
+    color: $gl-text-color;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+
 }
 
 .filtered-search-input-dropdown-menu {
@@ -271,17 +285,22 @@
 .filtered-search-history-dropdown-toggle-button {
   flex: 1;
   width: auto;
-  border-radius: 0;
-  border: 0;
-  border-right: 1px solid $border-color;
+  border-radius: 3px 0px 0px 3px;
+  border: 1px solid $border-color;
   color: $gl-text-color-secondary;
   transition: color 0.1s linear;
+  transition: border-color 100ms linear;
 
-  &:hover,
+  &:hover {
+    color: $common-gray-dark;
+    border-color: #c4c4c4;
+    background-color: #f0f0f0;
+    outline: none;
+  }
   &:focus {
     color: $gl-text-color;
-    border-color: $blue-300;
-    outline: none;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
   }
 
   svg {
