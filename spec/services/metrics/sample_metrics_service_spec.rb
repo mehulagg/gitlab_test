@@ -12,11 +12,11 @@ describe Metrics::SampleMetricsService do
 
     context 'when the file is found' do
       let(:identifier) { 'sample_metric_query_result' }
+      let(:directory_name) { Metrics::SampleMetricsService::DIRECTORY }
       let(:source) { File.join(Rails.root, 'spec/fixtures/gitlab/sample_metrics', "#{identifier}.yml") }
-      let(:destination) { File.join(Rails.root, Metrics::SampleMetricsService::DIRECTORY, "#{identifier}.yml") }
+      let(:destination) { File.join(Rails.root, directory_name, "#{identifier}.yml") }
 
       before do
-        directory_name = Metrics::SampleMetricsService::DIRECTORY
         Dir.mkdir(directory_name) unless File.exist?(directory_name)
         FileUtils.cp(source, destination)
       end
