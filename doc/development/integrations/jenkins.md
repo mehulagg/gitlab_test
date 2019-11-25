@@ -1,6 +1,6 @@
 # How to run Jenkins in development environment (on OSX)
 
-This is a step by step guide on how to set up Jenkins on your locale machine and connect it your GitLab instance. GitLab is triggering webhooks on Jenkins and Jenkins is connecting back to GitLab over the API. By running both applications on the same machine, we can make sure they are able to access each other.
+This is a step by step guide on how to set up Jenkins on your local machine and connect it your GitLab instance. GitLab triggers webhooks on Jenkins and Jenkins is connecting back to GitLab over the API. By running both applications on the same machine, we can make sure they are able to access each other.
 
 ## Install Jenkins
 
