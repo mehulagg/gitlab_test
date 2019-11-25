@@ -82,6 +82,16 @@ describe EE::Gitlab::Ci::Config::Entry::Bridge do
       subject.compose!
     end
 
+    let(:base_config) do
+      {
+        trigger: { project: 'some/project', branch: 'feature' },
+        needs: { pipeline: 'other/project' },
+        extends: '.some-key',
+        stage: 'deploy',
+        variables: { VARIABLE: '123' }
+      }
+    end
+
     context 'when trigger config is a non-empty string' do
       let(:config) { { trigger: 'some/project' } }
 
@@ -141,47 +151,28 @@ describe EE::Gitlab::Ci::Config::Entry::Bridge do
 
     context 'when bridge configuration contains trigger, needs, when, extends, stage, only, except, and variables' do
       let(:config) do
-        {
-          trigger: { project: 'some/project', branch: 'feature' },
-          needs: { pipeline: 'other/project' },
+        base_config.merge({
           when: 'always',
-          extends: '.some-key',
-          stage: 'deploy',
           only: { variables: %w[$SOMEVARIABLE] },
           except: { refs: %w[feature] },
-          variables: { VARIABLE: '123' }
-        }
+        })
       end
 
       it { is_expected.to be_valid }
     end
 
     context 'when bridge configuration uses rules' do
-      let(:config) do
-        {
-          trigger: { project: 'some/project', branch: 'feature' },
-          needs: { pipeline: 'other/project' },
-          extends: '.some-key',
-          stage: 'deploy',
-          rules: [{ if: '$VAR == null', when: 'never' }],
-          variables: { VARIABLE: '123' }
-        }
-      end
+      let(:config) { base_config.merge({ rules: [{ if: '$VAR == null', when: 'never' }] }) }
 
       it { is_expected.to be_valid }
     end
 
     context 'when bridge configuration uses rules with job:when' do
       let(:config) do
-        {
-          trigger: { project: 'some/project', branch: 'feature' },
-          needs: { pipeline: 'other/project' },
-          extends: '.some-key',
+        base_config.merge({
           when: 'always',
-          stage: 'deploy',
           rules: [{ if: '$VAR == null', when: 'never' }],
-          variables: { VARIABLE: '123' }
-        }
+        })
       end
 
       it { is_expected.not_to be_valid }
@@ -189,15 +180,10 @@ describe EE::Gitlab::Ci::Config::Entry::Bridge do
 
     context 'when bridge configuration uses rules with only' do
       let(:config) do
-        {
-          trigger: { project: 'some/project', branch: 'feature' },
-          needs: { pipeline: 'other/project' },
-          extends: '.some-key',
-          stage: 'deploy',
+        base_config.merge({
           only: { variables: %w[$SOMEVARIABLE] },
           rules: [{ if: '$VAR == null', when: 'never' }],
-          variables: { VARIABLE: '123' }
-        }
+        })
       end
 
       it { is_expected.not_to be_valid }
@@ -205,15 +191,10 @@ describe EE::Gitlab::Ci::Config::Entry::Bridge do
 
     context 'when bridge configuration uses rules with except' do
       let(:config) do
-        {
-          trigger: { project: 'some/project', branch: 'feature' },
-          needs: { pipeline: 'other/project' },
-          extends: '.some-key',
-          stage: 'deploy',
+        base_config.merge({
           except: { refs: %w[feature] },
           rules: [{ if: '$VAR == null', when: 'never' }],
-          variables: { VARIABLE: '123' }
-        }
+        })
       end
 
       it { is_expected.not_to be_valid }

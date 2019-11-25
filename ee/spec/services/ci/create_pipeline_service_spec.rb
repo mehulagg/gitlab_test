@@ -112,8 +112,6 @@ describe Ci::CreatePipelineService, '#execute' do
 
       let(:config) do
         <<-EOY
-          image: alpine:latest
-
           hello:
             script: echo world
 
