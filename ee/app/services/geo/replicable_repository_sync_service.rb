@@ -15,6 +15,8 @@ module Geo
 
     private
 
+    attr_reader :registry
+
     def sync_repository
       check_shard_health
 
@@ -35,10 +37,6 @@ module Geo
       fail_registry_sync!("Invalid #{registry.replicable_human_name}", e, force_to_redownload: true)
     ensure
       expire_repository_caches
-    end
-
-    def registry
-      @registry
     end
 
     def repository

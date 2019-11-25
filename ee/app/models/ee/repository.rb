@@ -12,13 +12,14 @@ module EE
     MIRROR_REMOTE = "upstream".freeze
 
     REPLICABLE_REGISTRY_CLASSES = {
-      ::Gitlab::GlRepository::PROJECT => ::Geo::ProjectRegistry,
-      ::Gitlab::GlRepository::WIKI    => ::Geo::ProjectRegistry, # TODO WikiRegistry
-      ::EE::Gitlab::GlRepository::DESIGN  => ::Geo::DesignRegistry
+      ::Gitlab::GlRepository::PROJECT    => ::Geo::ProjectRegistry,
+      ::Gitlab::GlRepository::WIKI       => ::Geo::ProjectRegistry, # TODO WikiRegistry
+      ::EE::Gitlab::GlRepository::DESIGN => ::Geo::DesignRegistry
     }.freeze
 
     prepended do
       include Elastic::RepositoriesSearch
+      include ::Gitlab::Geo::Replicable::Model
       include ::Gitlab::Geo::Replicable::Strategies::Repository::Model
 
       delegate :checksum, :find_remote_root_ref, to: :raw_repository

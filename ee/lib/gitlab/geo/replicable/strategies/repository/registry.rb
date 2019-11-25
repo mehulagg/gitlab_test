@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# The including class should include ::Gitlab::Geo::Replicable::Registry first
 module Gitlab
   module Geo
     module Replicable
@@ -8,7 +11,6 @@ module Gitlab
 
             included do
               include ::Delay
-              include ::Gitlab::Geo::Replicable::Registry
 
               RETRIES_BEFORE_REDOWNLOAD = 5
 
@@ -39,21 +41,21 @@ module Gitlab
                   transition [:synced, :failed, :started] => :pending
                 end
               end
-            end
 
-            # Search for a list of projects associated with registries,
-            # based on the query given in `query`.
-            #
-            # @param [String] query term that will search over :path, :name and :description
-            def self.with_search_by_project(query)
-              where(project: Geo::Fdw::Project.search(query))
-            end
+              # Search for a list of projects associated with registries,
+              # based on the query given in `query`.
+              #
+              # @param [String] query term that will search over :path, :name and :description
+              def self.with_search_by_project(query)
+                where(project: ::Geo::Fdw::Project.search(query))
+              end
 
-            def self.search(params)
-              repositories = self
-              repositories = repositories.with_state(params[:sync_status]) if params[:sync_status].present?
-              repositories = repositories.with_search_by_project(params[:search]) if params[:search].present?
-              repositories
+              def self.search(params)
+                repositories = self
+                repositories = repositories.with_state(params[:sync_status]) if params[:sync_status].present?
+                repositories = repositories.with_search_by_project(params[:search]) if params[:search].present?
+                repositories
+              end
             end
 
             def fail_sync!(message, error, attrs = {})

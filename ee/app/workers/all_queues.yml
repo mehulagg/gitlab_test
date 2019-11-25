@@ -33,9 +33,9 @@
 - geo:geo_hashed_storage_migration
 - geo:geo_project_sync
 - geo:geo_container_repository_sync
-- geo:geo_design_repository_sync
 - geo:geo_rename_repository
 - geo:geo_secondary_repository_backfill
+- geo:geo_replicable_repository_sync
 - geo:geo_repositories_clean_up
 - geo:geo_repository_cleanup
 - geo:geo_repository_destroy

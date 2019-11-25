@@ -84,7 +84,7 @@ describe Mutations::DesignManagement::Delete do
           end
         end
 
-        it 'runs no more than 28 queries' do
+        it 'runs no more than 30 queries' do
           filenames.each(&:present?) # ignore setup
           # Queries: as of 2019-08-28
           # -------------
@@ -115,8 +115,12 @@ describe Mutations::DesignManagement::Delete do
           # 26.   validate version.issue.present?
           # 27.   validate version.sha is unique
           # 28. leave transaction 1
+          # 29. start transaction 1
+          # 30.   insert geo_replicable_events
+          # 31. leave transaction 1
           #
-          expect { run_mutation }.not_to exceed_query_limit(28)
+          # Yes, there are 31. Maybe `exceed_query_limit` is off-by-one?
+          expect { run_mutation }.not_to exceed_query_limit(30)
         end
       end
 

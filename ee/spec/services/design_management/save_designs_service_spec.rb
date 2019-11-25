@@ -184,8 +184,8 @@ describe DesignManagement::SaveDesignsService do
             end
           end
 
-          it 'calls repository#log_geo_updated_event' do
-            expect(design_repository).to receive(:log_geo_updated_event)
+          it 'calls repository#replicable_update' do
+            expect(design_repository).to receive(:replicable_update)
 
             allow_any_instance_of(described_class).to receive(:repository).and_return(design_repository)
 

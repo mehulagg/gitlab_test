@@ -129,12 +129,6 @@ module Geo
       false
     end
 
-    # rubocop: disable CodeReuse/ActiveRecord
-    def registry
-      @registry ||= Geo::ProjectRegistry.find_or_initialize_by(project_id: project.id)
-    end
-    # rubocop: enable CodeReuse/ActiveRecord
-
     def mark_sync_as_successful(missing_on_primary: false)
       log_info("Marking #{type} sync as successful")
 

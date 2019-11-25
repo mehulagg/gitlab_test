@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# The including class should include ::Gitlab::Geo::Replicable::Model first
 module Gitlab
   module Geo
     module Replicable
@@ -7,7 +10,6 @@ module Gitlab
             extend ActiveSupport::Concern
 
             included do
-              include ::Gitlab::Geo::Replicable::Model
             end
 
             def strategy

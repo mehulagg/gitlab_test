@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Geo::DesignRegistry < Geo::BaseRegistry
+  include ::Gitlab::Geo::Replicable::Registry
   include ::Gitlab::Geo::Replicable::Strategies::Repository::Registry
 
   belongs_to :project

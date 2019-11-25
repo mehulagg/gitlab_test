@@ -56,17 +56,9 @@ describe DesignManagement::Repository do
     end
   end
 
-  context 'project repository already exists' do
-    before do
-      project
-    end
-
-    it_behaves_like 'a replicable repository model' do
-      def create_replicable_repository
-        repository.create_if_not_exists
-
-        repository
-      end
+  it_behaves_like 'a replicable repository model' do
+    def create_replicable_repository
+      repository.create_if_not_exists
     end
   end
 end

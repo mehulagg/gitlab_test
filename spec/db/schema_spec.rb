@@ -41,6 +41,7 @@ describe 'Database schema' do
     geo_lfs_object_deleted_events: %w[lfs_object_id],
     geo_node_statuses: %w[last_event_id cursor_last_event_id],
     geo_nodes: %w[oauth_application_id],
+    geo_replicable_events: %w[model_id],
     geo_repository_deleted_events: %w[project_id],
     geo_upload_deleted_events: %w[upload_id model_id],
     identities: %w[user_id],

@@ -89,11 +89,11 @@ describe DesignManagement::DeleteDesignsService do
           expect { run_service }.to change { DesignManagement::Version.where(issue: issue).count }.by(1)
         end
 
-        it 'calls repository#log_geo_updated_event' do
+        it 'calls repository#replicable_update' do
           design_repository = EE::Gitlab::GlRepository::DESIGN.repository_accessor.call(project)
           allow_any_instance_of(described_class).to receive(:repository).and_return(design_repository)
 
-          expect(design_repository).to receive(:log_geo_updated_event)
+          expect(design_repository).to receive(:replicable_update)
 
           run_service
         end

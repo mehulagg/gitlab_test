@@ -40,6 +40,12 @@ module Geo
       project.repository.after_sync
     end
 
+    # rubocop: disable CodeReuse/ActiveRecord
+    def registry
+      @registry ||= Geo::ProjectRegistry.find_or_initialize_by(project_id: project.id)
+    end
+    # rubocop: enable CodeReuse/ActiveRecord
+
     def repository
       project.repository
     end
