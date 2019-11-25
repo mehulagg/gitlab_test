@@ -34,7 +34,8 @@ module QA
 
           mailhog_data = JSON.parse(mailhog_response.body)
 
-          mailhog_data if mailhog_data.dig('total') > 0
+          # Expect at least two invitation messages: group and project
+          mailhog_data if mailhog_data.dig('total') >= 2
         end
 
         # Check json result from mailhog
