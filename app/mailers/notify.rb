@@ -130,7 +130,10 @@ class Notify < BaseMailer
       @reply_by_email = true
     end
 
-    mail(headers)
+    mail(headers) do |format|
+      format.html { render layout: 'mailer' }
+      format.text { render layout: 'mailer' }
+    end
   end
 
   # `model` is used on EE code
