@@ -23,6 +23,7 @@ exports[`Confidential merge request project form group component renders empty s
         <a
           class="help-link"
           href="https://test.com"
+          target="_blank"
         >
           fork this project
         </a>
@@ -73,6 +74,7 @@ exports[`Confidential merge request project form group component renders fork dr
         <a
           class="help-link"
           href="https://test.com"
+          target="_blank"
         >
           fork this project
         </a>
