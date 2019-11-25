@@ -15,14 +15,14 @@ brew services start jenkins
 
 GitLab does not allow requests to localhost or the local network. When running Jenkins on your local machine, you need to turn this off.
 
-1. On your GitLab instance, go to the admin area > Settings > Network
+1. On your GitLab instance, go to the admin area > Settings > Network. Or [http://localhost:3000/admin/application_settings/network](http://localhost:3000/admin/application_settings/network)
 1. Expand `Outbound requests` and make sure `Allow requests to the local network from web hooks and services` and `Allow requests to the local network from system hooks` is active
 
 Read more about it [here](https://docs.gitlab.com/ee/security/webhooks.html)
 
 Jenkins uses the GitLab API and needs an access token.
 
-1. On your GitLab instance, when you are logged in go to Settings > Access Tokens
+1. On your GitLab instance, when you are logged in go to user account dropdown > Settings > Access Tokens. Or [http://localhost:3000/profile/personal_access_tokens](http://localhost:3000/profile/personal_access_tokens)
 1. Create a personal access token with access to the API. Remember the token
 
 ## Configure Jenkins
