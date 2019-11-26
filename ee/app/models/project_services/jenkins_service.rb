@@ -64,7 +64,7 @@ class JenkinsService < CiService
     GenericCommitStatus.running_or_pending.find_or_create_by(
       project: project,
       pipeline: pipeline,
-      name: 'build',
+      name: 'Jenkins Webhook',
       ref: pipeline.ref,
       protected: project.protected_for?(pipeline.ref)
     )
