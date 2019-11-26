@@ -9,7 +9,7 @@ shared_examples_for 'a replicable repository model' do
 
       expect(Geo::ReplicableEvent.last.attributes).to include(
         'event_class_name' => 'Gitlab::Geo::Replicable::Strategies::Repository::Events::CreateEvent',
-        'registry_class_name' => 'Geo::DesignRegistry',
+        'registry_class_name' => registry_class_name,
         'model_id' => repository.project.id
       )
     end

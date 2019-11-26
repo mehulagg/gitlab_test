@@ -17,7 +17,7 @@ describe 'Design repository replicates', :geo do
 
     let(:registry_class) { ::Geo::DesignRegistry }
 
-    it_behaves_like 'repository replication feature' do
+    it_behaves_like 'a replicable repository feature' do
       def create_repository
         repository.create_if_not_exists
 

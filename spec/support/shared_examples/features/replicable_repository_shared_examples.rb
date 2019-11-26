@@ -9,7 +9,7 @@
 #   - update_repository
 #   - registry_class
 #
-shared_examples_for 'repository replication feature' do
+shared_examples_for 'a replicable repository feature' do
   include EE::GeoHelpers
 
   let(:primary) { create(:geo_node, :primary) }
