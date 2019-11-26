@@ -289,8 +289,8 @@
 
   &:hover {
     color: $common-gray-dark;
-    border-color: #c4c4c4;
-    background-color: #f0f0f0;
+    border-color: $gray-darkest;
+    background-color: $white-normal;
     outline: none;
   }
   &:focus {
