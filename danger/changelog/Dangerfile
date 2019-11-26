@@ -3,7 +3,7 @@
 
 require 'yaml'
 
-NO_CHANGELOG_LABELS = %w[backstage ci-build meta].freeze
+NO_CHANGELOG_LABELS = %w[backstage ci-build meta docs-only].freeze
 SEE_DOC = "See [the documentation](https://docs.gitlab.com/ce/development/changelog.html)."
 CREATE_CHANGELOG_MESSAGE = <<~MSG
 You can create one with:
