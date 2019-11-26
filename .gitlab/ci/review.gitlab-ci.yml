@@ -122,7 +122,6 @@ schedule:review-build-cng:
     - download_chart
     - date
     - deploy || (display_deployment_debug && exit 1)
-    - add_license
     - add_secure_seeds
   artifacts:
     paths: [review_app_url.txt]
