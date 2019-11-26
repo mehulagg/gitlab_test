@@ -56,7 +56,6 @@ export default {
   mounted() {
     this.setInitData({
       projectPath: this.projectFullPath,
-      environmentName: this.environmentName,
       podName: this.currentPodName,
     });
 
