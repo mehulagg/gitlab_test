@@ -17,6 +17,7 @@ import Translate from '~/vue_shared/translate';
 import TrackEventDirective from '~/vue_shared/directives/track_event';
 import Icon from '~/vue_shared/components/icon.vue';
 import { alertsValidator, queriesValidator } from '../validators';
+import AlertWidgetFormGroupTemplate from './alert_widget_form_group_template.vue';
 
 Vue.use(Translate);
 
@@ -49,6 +50,7 @@ export default {
     GlModal,
     GlLink,
     Icon,
+    AlertWidgetFormGroupTemplate,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -88,6 +90,14 @@ export default {
       prometheusMetricId: null,
       selectedAlert: {},
       alertQuery: '',
+      alerts: [
+        {
+          operator: null,
+          threshold: null,
+          alert: {},
+          prometheus_metric_id: null,
+        },
+      ],
     };
   },
   computed: {
@@ -190,10 +200,31 @@ export default {
       };
     },
     addMetricGroup() {
-      console.log('Adding metric group...');
+      this.alerts.push({
+        alert: {},
+        operator: null,
+        threshold: null,
+        prometheus_metric_id: null,
+      });
     },
     deleteMetricGroup() {
-      console.log('Deleting metric group...');
+      this.alerts.pop();
+    },
+    handleOperator({ operator = '', groupId = null }) {
+      this.alerts[groupId].operator = operator;
+    },
+    handleThreshold({ threshold = null, groupId = null }) {
+      this.alerts[groupId].threshold = threshold;
+    },
+    handleAlertData({ data = {}, groupId = null }) {
+      this.alerts[groupId] = {
+        ...this.alerts[groupId],
+        prometheus_metric_id: data.prometheusMetricId,
+        alert: data.alert,
+      };
+    },
+    handleAllAlertsSubmit() {
+      this.$emit('createMultiple', this.alerts);
     },
   },
   alertQueryText: {
@@ -221,6 +252,19 @@ export default {
       <div v-if="errorMessage" class="alert-modal-message danger_message">{{ errorMessage }}</div>
       <div class="row">
         <div class="col-9">
+          <div>New implementation</div>
+          <alert-widget-form-group-template
+            v-for="(alert, index) in alerts"
+            :key="index"
+            :disabled="disabled"
+            :template-id="index"
+            :alerts-to-manage="alertsToManage"
+            :relevant-queries="relevantQueries"
+            @update-operator="handleOperator"
+            @update-threshold="handleThreshold"
+            @update-alert-data="handleAlertData"
+          />
+          <div>Current implementation</div>
           <div class="alert-form">
             <gl-form-group
               v-if="supportsComputedAlerts"
@@ -304,9 +348,12 @@ export default {
             <icon name="plus" />
             {{ __('Add another metric group') }}
           </gl-button>
+          <gl-button id="create-all-alerts" @click="handleAllAlertsSubmit">
+            Create all alerts
+          </gl-button>
         </div>
         <div class="col-3">
-          <gl-button id="delete-metric-group" @click="deleteMetricGroup" variant="danger">
+          <gl-button id="delete-metric-group" variant="danger" @click="deleteMetricGroup">
             <icon name="remove" />
           </gl-button>
         </div>

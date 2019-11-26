@@ -124,6 +124,27 @@ export default {
           this.isLoading = false;
         });
     },
+    handleMultipleCreate(alerts = []) {
+      // TODO: Use multiple promises to handle this
+      this.isLoading = true;
+      const newAlert = {
+        operator: alerts[0].operator,
+        threshold: alerts[0].threshold,
+        prometheus_metric_id: alerts[0].prometheus_metric_id,
+      };
+
+      this.service
+        .createAlert(newAlert)
+        .then(alertAttributes => {
+          this.setAlert(alertAttributes, alerts[0].prometheus_metric_id);
+          this.isLoading = false;
+          this.hideModal();
+        })
+        .catch(() => {
+          this.errorMessage = s__('PrometheusAlerts|Error creating alert');
+          this.isLoading = false;
+        });
+    },
     handleUpdate({ alert, operator, threshold }) {
       const updatedAlert = { operator, threshold };
       this.isLoading = true;
@@ -187,6 +208,7 @@ export default {
       @delete="handleDelete"
       @cancel="hideModal"
       @setAction="handleSetApiAction"
+      @createMultiple="handleMultipleCreate"
     />
   </div>
 </template>
