@@ -93,7 +93,8 @@ export default {
               v-for="cluster in clusters"
               :key="cluster.id"
               @click="showCluster(cluster.name)"
-            >{{ cluster.name }}</gl-dropdown-item>
+              >{{ cluster.name }}</gl-dropdown-item
+            >
           </gl-dropdown>
         </gl-form-group>
         <gl-form-group
@@ -110,15 +111,16 @@ export default {
             class="d-flex js-pods-dropdown"
             toggle-class="dropdown-menu-toggle"
           >
-            <gl-dropdown-item
-              @click="showPodLogs(null)"
-            >{{ s__('Environments|All pods') }}</gl-dropdown-item>
+            <gl-dropdown-item @click="showPodLogs(null)">{{
+              s__('Environments|All pods')
+            }}</gl-dropdown-item>
             <gl-dropdown-divider />
             <gl-dropdown-item
               v-for="podName in pods.options"
               :key="podName"
               @click="showPodLogs(podName)"
-            >{{ podName }}</gl-dropdown-item>
+              >{{ podName }}</gl-dropdown-item
+            >
           </gl-dropdown>
         </gl-form-group>
       </div>
