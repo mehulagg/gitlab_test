@@ -169,7 +169,6 @@
   overflow-x: auto;
   white-space: nowrap;
   width: 100%;
-
 }
 
 .filtered-search-box {
@@ -188,13 +187,12 @@
   &:hover {
     @extend .form-control:hover;
   }
+
   &:focus {
     color: $gl-text-color;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
   }
-
-  
 
   gl-emoji {
     display: inline-block;
@@ -223,7 +221,6 @@
       border-color: transparent;
       box-shadow: none;
     }
-    
   }
 
   .fa-times {
@@ -259,7 +256,6 @@
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
   }
-
 }
 
 .filtered-search-input-dropdown-menu {
