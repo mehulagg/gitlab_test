@@ -395,6 +395,30 @@ ee:elasticsearch:
     - .high-capacity
     - .ee-qa
     - .rspec-report-opts
+    
+ce:praefect:
+  script:
+    - exe/gitlab-qa Test::Integration::Praefect ${RELEASE:=CE} -- $RSPEC_REPORT_OPTS
+  extends:
+    - .test
+    - .high-capacity
+    - .ce-qa
+    - .knapsack-variables
+    - .rspec-report-opts
+  parallel: 5
+  when: manual
+
+ee:praefect:
+  script:
+    - exe/gitlab-qa Test::Integration::Praefect ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
+  extends:
+    - .test
+    - .high-capacity
+    - .ee-qa
+    - .knapsack-variables
+    - .rspec-report-opts
+  parallel: 5
+  when: manual
 
 .report-base:
   image: ruby:2.6-alpine
