@@ -7,7 +7,7 @@ module Resolvers
       type Types::Vulnerabilities::OccurrenceType, null: true
 
       def resolve(**args)
-        Vulnerabilities::Occurrence.all
+        ::Vulnerabilities::Occurrence.last
       end
     end
   end
