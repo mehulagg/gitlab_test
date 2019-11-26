@@ -34,6 +34,11 @@ export default {
       required: false,
       default: null,
     },
+    file: {
+      type: File,
+      required: false,
+      default: null,
+    },
   },
   computed: {
     icon() {
@@ -58,8 +63,23 @@ export default {
 
       return icons[normalizedEvent] ? icons[normalizedEvent] : {};
     },
+    imgSrc() {
+      return this.getFileObjectUrl(this.file) || this.image;
+    },
     notesLabel() {
       return n__('%d comment', '%d comments', this.notesCount);
+    },
+  },
+  methods: {
+    /**
+     * @param {File} file
+     */
+    getFileObjectUrl(file) {
+      try {
+        return URL.createObjectURL(file);
+      } catch (e) {
+        return undefined;
+      }
     },
   },
 };
@@ -81,7 +101,7 @@ export default {
         </span>
       </div>
       <img
-        :src="image"
+        :src="imgSrc"
         :alt="filename"
         class="block ml-auto mr-auto mw-100 mh-100 design-img"
         data-qa-selector="design_image"

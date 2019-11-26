@@ -48,6 +48,7 @@ export default {
       },
       isSaving: false,
       selectedDesigns: [],
+      newDesignFiles: {},
     };
   },
   computed: {
@@ -82,6 +83,11 @@ export default {
     },
   },
   methods: {
+    syncNewDesignFiles(newFiles = []) {
+      newFiles.forEach(file => {
+        this.newDesignFiles[file.name] = file;
+      });
+    },
     onUploadDesign(files) {
       if (!this.canCreateDesign) return null;
 
@@ -99,6 +105,10 @@ export default {
 
         return null;
       }
+
+      // add File objects to a temporary cache so that
+      // we can display content in the UI instantly
+      this.syncNewDesignFiles(Array.from(files));
 
       const optimisticResponse = Array.from(files).map(file => ({
         // False positive i18n lint: https://gitlab.com/gitlab-org/frontend/eslint-plugin-i18n/issues/26
@@ -241,7 +251,7 @@ export default {
       </div>
       <ol v-else-if="hasDesigns" class="list-unstyled row">
         <li v-for="design in designs" :key="design.id" class="col-md-6 col-lg-4 mb-3">
-          <design v-bind="design" />
+          <design v-bind="design" :file="newDesignFiles[design.filename]" />
           <input
             v-if="isLatestVersion && canCreateDesign"
             :checked="isDesignSelected(design.filename)"
