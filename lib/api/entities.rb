@@ -1611,6 +1611,24 @@ module API
         expose :artifact_format
       end
 
+      class Release < Grape::Entity
+        class Assets < Grape::Entity
+          class Link < Grape::Entity
+            expose :name
+            expose :url
+          end
+        end
+
+        expose :tag
+        expose :name
+        expose :description
+        expose :assets do
+          expose :links, using: Assets::Link do |release|
+            release.dig(:assets, :links)
+          end
+        end
+      end
+
       class Cache < Grape::Entity
         expose :key, :untracked, :paths, :policy
       end
@@ -1650,6 +1668,9 @@ module API
         expose :credentials, using: Credentials
         expose :dependencies, using: Dependency
         expose :features
+        expose :release, using: Release do |build|
+          build.options[:release]
+        end
       end
     end
 

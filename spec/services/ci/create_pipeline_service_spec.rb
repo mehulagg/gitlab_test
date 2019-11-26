@@ -502,6 +502,52 @@ describe Ci::CreatePipelineService do
         end
       end
 
+      context 'when config contains release entry' do
+        before do
+          content = YAML.dump(
+            stages: ["build", "test", "release"], # rubocop:disable Style/WordArray
+            release: {
+              stage: "release",
+              script: ["make changelog | tee release_changelog.txt"],
+              release: {
+                tag: "$CI_TAG_NAME",
+                name: "Release $CI_TAG_NAME",
+                description: "./release_changelog.txt",
+                assets: {
+                  links: [
+                    {
+                      name: "cool-app.zip",
+                      url: "http://my.awesome.download.site/1.0-$CI_COMMIT_SHORT_SHA.zip"
+                    },
+                    {
+                      name: "cool-app.exe",
+                      url: "http://my.awesome.download.site/1.0-$CI_COMMIT_SHORT_SHA.exe"
+                    }
+                  ]
+                }
+              }
+            }
+          )
+
+          stub_ci_pipeline_yaml_file(content)
+        end
+
+        it 'is valid config' do
+          pipeline = execute_service
+          expect(pipeline).to be_kind_of(Ci::Pipeline)
+          expect(pipeline).to be_persisted
+          build = pipeline.builds.first
+          puts "#{self.class.name} - #{__callee__}: build.options: #{build.options}"
+          expect(build.options[:release][:tag]).to eq('$CI_TAG_NAME')
+          expect(build.options[:release][:name]).to eq('Release $CI_TAG_NAME')
+          expect(build.options[:release][:description]).to eq('./release_changelog.txt')
+          expect(build.options[:release][:assets][:links].first[:name]).to eq('cool-app.zip')
+          expect(build.options[:release][:assets][:links].first[:url]).to eq('http://my.awesome.download.site/1.0-$CI_COMMIT_SHORT_SHA.zip')
+          expect(build.options[:release][:assets][:links].second[:name]).to eq('cool-app.exe')
+          expect(build.options[:release][:assets][:links].second[:url]).to eq('http://my.awesome.download.site/1.0-$CI_COMMIT_SHORT_SHA.exe')
+        end
+      end
+
       context 'when config is not found' do
         before do
           stub_ci_pipeline_yaml_file(nil)

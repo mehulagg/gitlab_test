@@ -16,7 +16,7 @@ module Gitlab
           ALLOWED_KEYS = %i[tags script only except rules type image services
                             allow_failure type stage when start_in artifacts cache
                             dependencies before_script needs after_script variables
-                            environment coverage retry parallel extends interruptible timeout].freeze
+                            environment coverage retry parallel extends interruptible release timeout].freeze
 
           REQUIRED_BY_NEEDS = %i[stage].freeze
 
@@ -105,10 +105,6 @@ module Gitlab
             description: 'Timeout duration of this job.',
             inherit: true
 
-          entry :retry, Entry::Retry,
-            description: 'Retry configuration for this job.',
-            inherit: true
-
           entry :only, Entry::Policy,
             description: 'Refs policy this job will be executed for.',
             default: Entry::Policy::DEFAULT_ONLY,
@@ -146,14 +142,22 @@ module Gitlab
             description: 'Coverage configuration for this job.',
             inherit: false
 
+          entry :retry, Entry::Retry,
+            description: 'Retry configuration for this job.',
+            inherit: false
+
+          entry :release, Entry::Release,
+            description: 'This job will produce a release.',
+            inherit: false
+
           helpers :before_script, :script, :stage, :type, :after_script,
                   :cache, :image, :services, :only, :except, :variables,
                   :artifacts, :environment, :coverage, :retry, :rules,
-                  :parallel, :needs, :interruptible
+                  :parallel, :needs, :interruptible, :release
 
           attributes :script, :tags, :allow_failure, :when, :dependencies,
                      :needs, :retry, :parallel, :extends, :start_in, :rules,
-                     :interruptible, :timeout
+                     :interruptible, :timeout, :release
 
           def self.matching?(name, config)
             !name.to_s.start_with?('.') &&
@@ -231,6 +235,7 @@ module Gitlab
               interruptible: interruptible_defined? ? interruptible_value : nil,
               timeout: has_timeout? ? ChronicDuration.parse(timeout.to_s) : nil,
               artifacts: artifacts_value,
+              release: release_value,
               after_script: after_script_value,
               ignore: ignored?,
               needs: needs_defined? ? needs_value : nil }
