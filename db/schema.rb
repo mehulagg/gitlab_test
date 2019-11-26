@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_19_023952) do
+ActiveRecord::Schema.define(version: 2019_11_26_104501) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -351,10 +351,10 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.text "encrypted_eks_secret_access_key"
     t.string "snowplow_app_id"
     t.datetime_with_timezone "productivity_analytics_start_date"
-    t.string "default_ci_config_path", limit: 255
     t.boolean "sourcegraph_enabled", default: false, null: false
     t.string "sourcegraph_url", limit: 255
     t.boolean "sourcegraph_public_only", default: true, null: false
+    t.string "default_ci_config_path", limit: 255
     t.index ["custom_project_templates_group_id"], name: "index_application_settings_on_custom_project_templates_group_id"
     t.index ["file_template_project_id"], name: "index_application_settings_on_file_template_project_id"
     t.index ["instance_administration_project_id"], name: "index_applicationsettings_on_instance_administration_project_id"
@@ -498,9 +498,9 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.integer "project_id"
     t.integer "group_id"
     t.string "type", null: false
-    t.string "name", limit: 255
     t.datetime_with_timezone "created_at", null: false
     t.datetime_with_timezone "updated_at", null: false
+    t.string "name", limit: 255
     t.index ["group_id"], name: "index_badges_on_group_id"
     t.index ["project_id"], name: "index_badges_on_project_id"
   end
@@ -1080,7 +1080,7 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.index ["cluster_id"], name: "index_clusters_applications_cert_managers_on_cluster_id", unique: true
   end
 
-  create_table "clusters_applications_crossplane", id: :serial, force: :cascade do |t|
+  create_table "clusters_applications_crossplane", force: :cascade do |t|
     t.datetime_with_timezone "created_at", null: false
     t.datetime_with_timezone "updated_at", null: false
     t.bigint "cluster_id", null: false
@@ -1467,7 +1467,6 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
   end
 
   create_table "epics", id: :serial, force: :cascade do |t|
-    t.integer "milestone_id"
     t.integer "group_id", null: false
     t.integer "author_id", null: false
     t.integer "assignee_id"
@@ -1505,7 +1504,6 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.index ["end_date"], name: "index_epics_on_end_date"
     t.index ["group_id"], name: "index_epics_on_group_id"
     t.index ["iid"], name: "index_epics_on_iid"
-    t.index ["milestone_id"], name: "index_milestone"
     t.index ["parent_id"], name: "index_epics_on_parent_id"
     t.index ["start_date"], name: "index_epics_on_start_date"
     t.index ["start_date_sourcing_epic_id"], name: "index_epics_on_start_date_sourcing_epic_id", where: "(start_date_sourcing_epic_id IS NOT NULL)"
@@ -1582,14 +1580,6 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.integer "root_project_id"
     t.string "deleted_root_project_name"
     t.index ["root_project_id"], name: "index_fork_networks_on_root_project_id", unique: true
-  end
-
-  create_table "forked_project_links", id: :serial, force: :cascade do |t|
-    t.integer "forked_to_project_id", null: false
-    t.integer "forked_from_project_id", null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.index ["forked_to_project_id"], name: "index_forked_project_links_on_forked_to_project_id", unique: true
   end
 
   create_table "geo_cache_invalidation_events", force: :cascade do |t|
@@ -3861,8 +3851,8 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.boolean "time_format_in_24h"
     t.string "projects_sort", limit: 64
     t.boolean "show_whitespace_in_diffs", default: true, null: false
-    t.boolean "sourcegraph_enabled"
     t.boolean "setup_for_company"
+    t.boolean "sourcegraph_enabled"
     t.index ["user_id"], name: "index_user_preferences_on_user_id", unique: true
   end
 
@@ -4043,10 +4033,10 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.boolean "severity_overridden", default: false
     t.integer "confidence", limit: 2, null: false
     t.boolean "confidence_overridden", default: false
-    t.bigint "resolved_by_id"
-    t.datetime_with_timezone "resolved_at"
     t.integer "report_type", limit: 2, null: false
     t.integer "cached_markdown_version"
+    t.bigint "resolved_by_id"
+    t.datetime_with_timezone "resolved_at"
     t.index ["author_id"], name: "index_vulnerabilities_on_author_id"
     t.index ["closed_by_id"], name: "index_vulnerabilities_on_closed_by_id"
     t.index ["due_date_sourcing_milestone_id"], name: "index_vulnerabilities_on_due_date_sourcing_milestone_id"
@@ -4366,7 +4356,6 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
   add_foreign_key "epics", "epics", column: "due_date_sourcing_epic_id", name: "fk_013c9f36ca", on_delete: :nullify
   add_foreign_key "epics", "epics", column: "parent_id", name: "fk_25b99c1be3", on_delete: :cascade
   add_foreign_key "epics", "epics", column: "start_date_sourcing_epic_id", name: "fk_9d480c64b2", on_delete: :nullify
-  add_foreign_key "epics", "milestones", on_delete: :nullify
   add_foreign_key "epics", "namespaces", column: "group_id", name: "fk_f081aa4489", on_delete: :cascade
   add_foreign_key "epics", "users", column: "assignee_id", name: "fk_dccd3f98fc", on_delete: :nullify
   add_foreign_key "epics", "users", column: "author_id", name: "fk_3654b61b03", on_delete: :cascade
@@ -4380,7 +4369,6 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
   add_foreign_key "fork_network_members", "projects", column: "forked_from_project_id", name: "fk_b01280dae4", on_delete: :nullify
   add_foreign_key "fork_network_members", "projects", on_delete: :cascade
   add_foreign_key "fork_networks", "projects", column: "root_project_id", name: "fk_e7b436b2b5", on_delete: :nullify
-  add_foreign_key "forked_project_links", "projects", column: "forked_to_project_id", name: "fk_434510edb0", on_delete: :cascade
   add_foreign_key "geo_container_repository_updated_events", "container_repositories", name: "fk_212c89c706", on_delete: :cascade
   add_foreign_key "geo_event_log", "geo_cache_invalidation_events", column: "cache_invalidation_event_id", name: "fk_42c3b54bed", on_delete: :cascade
   add_foreign_key "geo_event_log", "geo_container_repository_updated_events", column: "container_repository_updated_event_id", name: "fk_6ada82d42a", on_delete: :cascade
