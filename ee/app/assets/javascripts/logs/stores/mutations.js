@@ -18,7 +18,7 @@ export default {
     state.filters.data = data;
     state.filters.isLoading = false;
 
-    state.pods.options = data.pods.map(pod => pod.name)
+    state.pods.options = data.pods.map(pod => pod.name);
   },
   [types.RECEIVE_FILTERS_DATA_ERROR](state) {
     state.filters.data = [];
