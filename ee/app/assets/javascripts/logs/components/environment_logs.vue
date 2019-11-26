@@ -1,6 +1,6 @@
 <script>
 import { mapActions, mapState, mapGetters } from 'vuex';
-import { GlDropdown, GlDropdownItem, GlFormGroup } from '@gitlab/ui';
+import { GlDropdown, GlDropdownItem, GlDropdownDivider, GlFormGroup } from '@gitlab/ui';
 import { scrollDown } from '~/lib/utils/scroll_utils';
 import LogControlButtons from './log_control_buttons.vue';
 
@@ -8,6 +8,7 @@ export default {
   components: {
     GlDropdown,
     GlDropdownItem,
+    GlDropdownDivider,
     GlFormGroup,
     LogControlButtons,
   },
