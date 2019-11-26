@@ -65,7 +65,7 @@ module QA
         {
           parent_id: sandbox.id,
           path: path,
-          name: path,
+          name: name,
           visibility: 'public'
         }
       end
