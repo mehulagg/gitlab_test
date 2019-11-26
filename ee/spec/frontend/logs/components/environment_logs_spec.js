@@ -74,6 +74,10 @@ describe('EnvironmentLogs', () => {
     actionMocks.setInitData.mockReset();
     actionMocks.showPodLogs.mockReset();
     actionMocks.fetchEnvironments.mockReset();
+
+    if (wrapper) {
+      wrapper.destroy();
+    }
   });
 
   it('displays UI elements', () => {
@@ -101,9 +105,6 @@ describe('EnvironmentLogs', () => {
 
     expect(actionMocks.fetchEnvironments).toHaveBeenCalledTimes(1);
     expect(actionMocks.fetchEnvironments).toHaveBeenLastCalledWith(mockEnvironmentsEndpoint);
-
-    // expect(findEnvironmentsDropdown().props('text')).toBe(mockEnvName);
-    // expect(findPodsDropdown().props('text').length).toBeGreaterThan(0);
   });
 
   describe('loading state', () => {
@@ -178,7 +179,6 @@ describe('EnvironmentLogs', () => {
 
     it('populates environments dropdown', () => {
       const items = findEnvironmentsDropdown().findAll(GlDropdownItem);
-
       expect(findEnvironmentsDropdown().props('text')).toBe(mockEnvName);
       expect(items.length).toBe(mockEnvironments.length);
       mockEnvironments.forEach((env, i) => {
