@@ -4,7 +4,7 @@ module Resolvers
   module Vulnerabilities
     class OccurrenceResolver < BaseResolver
       argument :id, GraphQL::ID_TYPE, required: true,
-               description: 'bla bla bla'
+               description: 'id of vulnerability in db'
 
       type Types::Vulnerabilities::OccurrenceType, null: true
 
