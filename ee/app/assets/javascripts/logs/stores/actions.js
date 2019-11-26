@@ -6,9 +6,9 @@ import { s__ } from '~/locale';
 import Api from 'ee/api';
 import * as types from './mutation_types';
 
-const requestLogsUntilData = ({ projectPath, clusterName, podName }) =>
+const requestLogsUntilData = ({ projectPath, cluster, namespace, pod }) =>
   backOff((next, stop) => {
-    Api.getPodLogs({ projectPath, clusterName, podName })
+    Api.getPodLogs({ projectPath, cluster, namespace, pod })
       .then(res => {
         if (res.status === httpStatusCodes.ACCEPTED) {
           next();
@@ -21,43 +21,48 @@ const requestLogsUntilData = ({ projectPath, clusterName, podName }) =>
       });
   });
 
-export const setInitData = ({ dispatch, commit }, { projectPath, clusterName, podName }) => {
+export const setInitData = ({ dispatch, commit }, { projectPath, filtersPath, cluster, pod, clusters }) => {
   commit(types.SET_PROJECT_PATH, projectPath);
-  commit(types.SET_CLUSTER_NAME, clusterName);
-  commit(types.SET_POD_NAME, podName);
+  commit(types.SET_FILTERS_PATH, filtersPath);
+  commit(types.SET_CLUSTER_LIST, clusters);
+  commit(types.SET_CLUSTER_NAME, cluster);
+  commit(types.SET_POD_NAME, pod);
+  dispatch('fetchFilters');
+};
+
+export const showPodLogs = ({ dispatch, commit }, pod) => {
+  commit(types.SET_POD_NAME, pod);
   dispatch('fetchLogs');
 };
 
-export const showPodLogs = ({ dispatch, commit }, podName) => {
-  commit(types.SET_POD_NAME, podName);
-  dispatch('fetchLogs');
-};
-
-export const showCluster = ({ dispatch, commit }, clusterName) => {
-  commit(types.SET_CLUSTER_NAME, clusterName);
+export const showCluster = ({ dispatch, commit }, cluster) => {
+  commit(types.SET_CLUSTER_NAME, cluster);
   commit(types.SET_POD_NAME, null);
-  dispatch('fetchLogs');
+  dispatch('fetchFilters');
 };
 
-export const fetchFilters = ({ commit }, filtersPath) => {
+export const fetchFilters = ({ dispatch, commit, state }) => {
   commit(types.REQUEST_FILTERS_DATA);
 
   axios
-    .get(filtersPath)
+    .get(state.filtersPath, {params: { cluster: state.clusters.current }})
     .then(({ data }) => {
       commit(types.RECEIVE_FILTERS_DATA_SUCCESS, data);
+      dispatch('fetchLogs');
     })
     .catch(() => {
       commit(types.RECEIVE_FILTERS_DATA_ERROR);
       flash(s__('Metrics|There was an error fetching the filter values, please try again'));
     });
+
 };
 
 export const fetchLogs = ({ commit, state }) => {
   const params = {
     projectPath: state.projectPath,
-    clusterName: state.selectedCluster,
-    podName: state.pods.current,
+    cluster: state.clusters.current,
+    namespace: state.filters.data.pods.find( ({ name }) => name === state.pods.current ).namespace,
+    pod: state.pods.current,
   };
 
   commit(types.REQUEST_LOGS_DATA);

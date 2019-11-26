@@ -32,7 +32,7 @@ module EE
 
     def environment_logs_data(project, cluster, clusters)
       {
-        "clusters": clusters.map{|c| {id: c.id, name: c.name} }.to_json,
+        "default-clusters": clusters.map(&:name).to_json,
         "default-cluster-name": cluster.name,
         "project-full-path": project.full_path,
         "filters-path": filters_project_logs_path(project, format: :json)

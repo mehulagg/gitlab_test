@@ -31,14 +31,14 @@ export default {
       required: false,
       default: null,
     },
-    clusters: {
+    defaultClusters: {
       type: Array,
       required: false,
       default: [],
     },
   },
   computed: {
-    ...mapState('environmentLogs', ['selectedCluster', 'filters', 'logs', 'pods']),
+    ...mapState('environmentLogs', ['clusters', 'filters', 'logs', 'pods']),
     ...mapGetters('environmentLogs', ['trace']),
     showLoader() {
       return this.logs.isLoading || !this.logs.isComplete;
@@ -57,11 +57,11 @@ export default {
   mounted() {
     this.setInitData({
       projectPath: this.projectFullPath,
-      clusterName: this.defaultClusterName,
-      podName: this.defaultPodName,
+      filtersPath: this.filtersPath,
+      clusters: this.defaultClusters,
+      cluster: this.defaultClusterName,
+      pod: this.defaultPodName,
     });
-
-    this.fetchFilters(this.filtersPath);
   },
   methods: {
     ...mapActions('environmentLogs', [
@@ -86,15 +86,15 @@ export default {
         >
           <gl-dropdown
             id="clusters-dropdown"
-            :text="selectedCluster"
+            :text="clusters.current"
             class="d-flex js-clusters-dropdown"
             toggle-class="dropdown-menu-toggle"
           >
             <gl-dropdown-item
-              v-for="cluster in clusters"
-              :key="cluster.id"
-              @click="showCluster(cluster.name)"
-              >{{ cluster.name }}</gl-dropdown-item
+              v-for="cluster in clusters.options"
+              :key="cluster"
+              @click="showCluster(cluster)"
+              >{{ cluster }}</gl-dropdown-item
             >
           </gl-dropdown>
         </gl-form-group>
@@ -117,10 +117,10 @@ export default {
             }}</gl-dropdown-item>
             <gl-dropdown-divider />
             <gl-dropdown-item
-              v-for="podName in pods.options"
-              :key="podName"
-              @click="showPodLogs(podName)"
-              >{{ podName }}</gl-dropdown-item
+              v-for="pod in pods.options"
+              :key="pod"
+              @click="showPodLogs(pod)"
+              >{{ pod }}</gl-dropdown-item
             >
           </gl-dropdown>
         </gl-form-group>

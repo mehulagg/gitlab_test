@@ -3,12 +3,19 @@ export default () => ({
    * Current project path
    */
   projectPath: '',
+  filtersPath: '',
 
   /**
-   * Environments list information
+   * Clusters list information
    */
-  selectedCluster: '',
+  clusters: {
+    options: [],
+    current: null,
+  },
 
+  /**
+   * Filters list information
+   */
   filters: {
     data: [],
     isLoading: false,
