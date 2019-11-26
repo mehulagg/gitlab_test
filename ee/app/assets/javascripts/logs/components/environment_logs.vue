@@ -56,7 +56,8 @@ export default {
   mounted() {
     this.setInitData({
       projectPath: this.projectFullPath,
-      podName: this.currentPodName,
+      clusterName: this.defaultClusterName,
+      podName: this.defaultPodName,
     });
 
     this.fetchFilters(this.filtersPath);
