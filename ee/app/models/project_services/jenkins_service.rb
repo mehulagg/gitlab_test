@@ -51,7 +51,10 @@ class JenkinsService < CiService
 
   def start_pipeline(data)
     commit_sha = data[:checkout_sha]
-    ref = data[:ref]
+    ref = data[:ref].dup
+
+    # TODO is it right to slice it like this? It is what the plugin does too https://github.com/jenkinsci/gitlab-plugin/blob/d316c20bfe9074feb2888b88dee3dba5c0a298ad/src/main/java/com/dabsquared/gitlabjenkins/trigger/handler/pipeline/PipelineHookTriggerHandlerImpl.java#L91
+    ref.slice!('refs/heads/')
     project.ci_pipelines.create!(
       source: :external,
       sha: commit_sha,

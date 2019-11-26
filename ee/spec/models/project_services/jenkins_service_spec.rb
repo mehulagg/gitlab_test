@@ -230,6 +230,7 @@ describe JenkinsService do
             pipeline = project.ci_pipelines.for_sha('da1560886d4f094c3e6c9ef40349f7d38b5d27d7').first
             pipeline.update_status
             expect(pipeline.status).to eq('pending')
+            expect(pipeline.ref).to eq('master')
           end
 
           context 'when hook response is not successful' do
