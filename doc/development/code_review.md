@@ -127,6 +127,12 @@ through Slack). If you can't assign a merge request, `@` mentioning a maintainer
 This
 [saves reviewers time and helps authors catch mistakes earlier](https://www.ibm.com/developerworks/rational/library/11-proven-practices-for-peer-review/index.html#__RefHeading__97_174136755).
 
+Additionally, it's the author's responsibility to set the correct metadata on
+their merge requests. Thus, before assigning an MR to a reviewer, make sure it:
+
+- Has a milestone set
+- Is properly labelled
+
 ### The responsibility of the reviewer
 
 [Review the merge request](#reviewing-code) thoroughly. When you are confident
@@ -310,7 +316,6 @@ experience, refactors the existing code). Then:
   "LGTM :thumbsup:", or "Just a couple things to address."
 - Assign the merge request to the author if changes are required following your
   review.
-- Set the milestone before merging a merge request.
 - Ensure the target branch is not too far behind master. If
 [master is red](https://about.gitlab.com/handbook/engineering/workflow/#broken-master),
 it should be no more than 100 commits behind.
