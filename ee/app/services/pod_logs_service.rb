@@ -47,9 +47,9 @@ class PodLogsService < ::BaseService
 
   def pod_logs(result)
     response = cluster.platform.read_pod_logs(
-      namespace: result[:namespace],
-      pod_name: result[:pod_name],
-      container_name: result[:container_name]
+      result[:pod_name],
+      result[:namespace],
+      container: result[:container_name]
     )
 
     return { status: :processing } unless response
