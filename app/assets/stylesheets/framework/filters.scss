@@ -248,8 +248,8 @@
   border-top: 1px solid $border-color;
   border-right: 1px solid $border-color;
   border-bottom: 1px solid $border-color;
-  border-left: 0px solid $border-color;
-  border-radius: 0px 3px 3px 0px;
+  border-left: 0 solid $border-color;
+  border-radius: 0 3px 3px 0;
 
   &:focus-within {
     color: $gl-text-color;
@@ -281,11 +281,10 @@
 .filtered-search-history-dropdown-toggle-button {
   flex: 1;
   width: auto;
-  border-radius: 3px 0px 0px 3px;
-  border: 1px solid $border-color;
+  border-radius: 3px 0 0 3px;
+  border: 1 solid $border-color;
   color: $gl-text-color-secondary;
   transition: color 0.1s linear;
-  transition: border-color 100ms linear;
 
   &:hover {
     color: $common-gray-dark;
@@ -293,6 +292,7 @@
     background-color: $white-normal;
     outline: none;
   }
+
   &:focus {
     color: $gl-text-color;
     outline: 0;
