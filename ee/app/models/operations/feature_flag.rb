@@ -7,9 +7,13 @@ module Operations
   # operations_feature_flag_scopes's override policy.
   # You can calculate actual `active` values with `for_environment` method.
   class FeatureFlag < ApplicationRecord
+    include AtomicInternalId
+
     self.table_name = 'operations_feature_flags'
 
     belongs_to :project
+
+    has_internal_id :iid, scope: :project, init: ->(s) { s&.project&.operations_feature_flags&.maximum(:iid) }
 
     default_value_for :active, true
 
