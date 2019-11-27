@@ -57,6 +57,5 @@ export default {
   /** Pods data */
   [types.SET_POD_NAME](state, pod) {
     state.pods.current = pod;
-    console.log(pod)
   },
 };

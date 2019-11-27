@@ -64,12 +64,7 @@ export default {
     });
   },
   methods: {
-    ...mapActions('environmentLogs', [
-      'setInitData',
-      'showPodLogs',
-      'showCluster',
-      'fetchFilters',
-    ]),
+    ...mapActions('environmentLogs', ['setInitData', 'showPodLogs', 'showCluster', 'fetchFilters']),
   },
 };
 </script>
@@ -116,12 +111,9 @@ export default {
               s__('Environments|All pods')
             }}</gl-dropdown-item>
             <gl-dropdown-divider />
-            <gl-dropdown-item
-              v-for="pod in pods.options"
-              :key="pod"
-              @click="showPodLogs(pod)"
-              >{{ pod }}</gl-dropdown-item
-            >
+            <gl-dropdown-item v-for="pod in pods.options" :key="pod" @click="showPodLogs(pod)">{{
+              pod
+            }}</gl-dropdown-item>
           </gl-dropdown>
         </gl-form-group>
       </div>

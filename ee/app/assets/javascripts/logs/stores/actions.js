@@ -21,7 +21,10 @@ const requestLogsUntilData = ({ projectPath, cluster, namespace, pod }) =>
       });
   });
 
-export const setInitData = ({ dispatch, commit }, { projectPath, filtersPath, cluster, pod, clusters }) => {
+export const setInitData = (
+  { dispatch, commit },
+  { projectPath, filtersPath, cluster, pod, clusters },
+) => {
   commit(types.SET_PROJECT_PATH, projectPath);
   commit(types.SET_FILTERS_PATH, filtersPath);
   commit(types.SET_CLUSTER_LIST, clusters);
@@ -45,7 +48,7 @@ export const fetchFilters = ({ dispatch, commit, state }) => {
   commit(types.REQUEST_FILTERS_DATA);
 
   axios
-    .get(state.filtersPath, {params: { cluster: state.clusters.current }})
+    .get(state.filtersPath, { params: { cluster: state.clusters.current } })
     .then(({ data }) => {
       commit(types.RECEIVE_FILTERS_DATA_SUCCESS, data);
       dispatch('fetchLogs');
@@ -54,14 +57,13 @@ export const fetchFilters = ({ dispatch, commit, state }) => {
       commit(types.RECEIVE_FILTERS_DATA_ERROR);
       flash(s__('Metrics|There was an error fetching the filter values, please try again'));
     });
-
 };
 
 export const fetchLogs = ({ commit, state }) => {
   const params = {
     projectPath: state.projectPath,
     cluster: state.clusters.current,
-    namespace: state.filters.data.pods.find( ({ name }) => name === state.pods.current ).namespace,
+    namespace: state.filters.data.pods.find(({ name }) => name === state.pods.current).namespace,
     pod: state.pods.current,
   };
 
