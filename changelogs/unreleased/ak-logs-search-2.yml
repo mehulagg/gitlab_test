@@ -1,5 +1,5 @@
 ---
-title: Navigate logs by cluster and display all pods
+title: Navigate logs by cluster
 merge_request: 20733
 author:
 type: changed
