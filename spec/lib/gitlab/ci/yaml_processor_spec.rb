@@ -149,6 +149,28 @@ module Gitlab
               expect(subject[:options]).not_to have_key(:retry)
             end
           end
+
+          context 'when retry count is specified by default' do
+            let(:config) do
+              YAML.dump(default: { retry: { max: 1 } },
+                        rspec: { script: 'rspec' })
+            end
+
+            it 'does use the default value' do
+              expect(subject[:options]).to include(retry: { max: 1 })
+            end
+          end
+
+          context 'when retry count default value is overridden' do
+            let(:config) do
+              YAML.dump(default: { retry: { max: 1 } },
+                        rspec: { script: 'rspec', retry: { max: 2 } })
+            end
+
+            it 'does use the job value' do
+              expect(subject[:options]).to include(retry: { max: 2 })
+            end
+          end
         end
 
         describe 'allow failure entry' do
@@ -1375,7 +1397,7 @@ module Gitlab
           end
 
           it 'raises an error for invalid number' do
-            expect { builds }.to raise_error('jobs:deploy_to_production timeout should be a duration')
+            expect { builds }.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:deploy_to_production:timeout config should be a duration')
           end
         end
 
