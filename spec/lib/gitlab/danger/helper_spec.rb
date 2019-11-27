@@ -312,4 +312,17 @@ describe Gitlab::Danger::Helper do
       it { is_expected.to match_array(['database', 'database::review pending']) }
     end
   end
+
+  describe '#sanitize_mr_title' do
+    where(:mr_title, :expected_mr_title) do
+      'My MR title'      | 'My MR title'
+      'WIP: My MR title' | 'My MR title'
+    end
+
+    with_them do
+      subject { helper.sanitize_mr_title(mr_title) }
+
+      it { is_expected.to eq(expected_mr_title) }
+    end
+  end
 end

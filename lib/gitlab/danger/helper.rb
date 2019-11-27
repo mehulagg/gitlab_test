@@ -174,6 +174,10 @@ module Gitlab
         labels - current_mr_labels
       end
 
+      def sanitize_mr_title(title)
+        title.gsub(/^WIP: */, '').gsub(/`/, '\\\`')
+      end
+
       private
 
       def has_database_scoped_labels?(current_mr_labels)

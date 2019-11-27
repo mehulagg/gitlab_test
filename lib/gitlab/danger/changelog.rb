@@ -18,10 +18,6 @@ module Gitlab
         NO_CHANGELOG_LABELS.map { |label| "~#{label}" }.join(', ')
       end
 
-      def sanitized_mr_title
-        gitlab.mr_json["title"].gsub(/^WIP: */, '').gsub(/`/, '\\\`')
-      end
-
       def ee_changelog?(changelog_path)
         changelog_path =~ /unreleased-ee/
       end

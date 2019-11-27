@@ -4,6 +4,9 @@ require 'json'
 
 URL_LIMIT_SUBJECT = "https://chris.beams.io/posts/git-commit/#limit-50"
 URL_GIT_COMMIT = "https://chris.beams.io/posts/git-commit/"
+COMMIT_SUBJECT_MIN_WORDS = 3
+COMMIT_SUBJECT_MAX_LENGTH = 50
+COMMIT_BODY_MAX_LENGTH = 72
 
 # rubocop: disable Style/SignalException
 # rubocop: disable Metrics/CyclomaticComplexity
@@ -39,6 +42,10 @@ end
 
 def gitlab_danger
   @gitlab_danger ||= GitlabDanger.new(helper.gitlab_helper)
+end
+
+def squash?
+  gitlab_danger.ci? ? gitlab.mr_json['squash'] : false
 end
 
 def fail_commit(commit, message)
@@ -100,14 +107,13 @@ def lint_commit(commit) # rubocop:disable Metrics/AbcSize
   # We ignore revert commits as they are well structured by Git already
   return false if commit.message.start_with?('Revert "')
 
-  is_squash = gitlab_danger.ci? ? gitlab.mr_json['squash'] : false
   is_wip = gitlab_danger.ci? ? gitlab.mr_json['work_in_progress'] : false
   is_fixup = commit.message.start_with?('fixup!', 'squash!')
 
   if is_fixup
     # The MR is set to squash - Danger adds an informative notice
     # The MR is not set to squash - Danger fails. if also WIP warn only, not error
-    if is_squash
+    if squash?
       return false
     end
 
@@ -129,7 +135,7 @@ def lint_commit(commit) # rubocop:disable Metrics/AbcSize
 
   # Fail if a suggestion commit is used and squash is not enabled
   if commit.message.start_with?('Apply suggestion to')
-    if is_squash
+    if squash?
       return false
     else
       fail_commit(
@@ -143,7 +149,7 @@ def lint_commit(commit) # rubocop:disable Metrics/AbcSize
   failures = false
   subject, separator, details = commit.message.split("\n", 3)
 
-  if subject.split.length < 3
+  if subject.split.length < COMMIT_SUBJECT_MIN_WORDS
     fail_commit(
       commit,
       'The commit subject must contain at least three words'
@@ -152,17 +158,17 @@ def lint_commit(commit) # rubocop:disable Metrics/AbcSize
     failures = true
   end
 
-  if subject.length > 72
+  if subject.length > COMMIT_BODY_MAX_LENGTH
     fail_commit(
       commit,
-      'The commit subject may not be longer than 72 characters'
+      "The commit subject may not be longer than #{COMMIT_BODY_MAX_LENGTH} characters"
     )
 
     failures = true
-  elsif subject.length > 50
+  elsif subject.length > COMMIT_SUBJECT_MAX_LENGTH
     warn_commit(
       commit,
-      "This commit's subject line is acceptable, but please try to [reduce it to 50 characters](#{URL_LIMIT_SUBJECT})."
+      "This commit's subject line is acceptable, but please try to [reduce it to #{COMMIT_SUBJECT_MAX_LENGTH} characters](#{URL_LIMIT_SUBJECT})."
     )
   end
 
@@ -188,17 +194,17 @@ def lint_commit(commit) # rubocop:disable Metrics/AbcSize
   details&.each_line do |line|
     line = line.strip
 
-    next if line.length <= 72
+    next if line.length <= COMMIT_BODY_MAX_LENGTH
 
     url_size = line.scan(%r((https?://\S+))).sum { |(url)| url.length }
 
     # If the line includes a URL, we'll allow it to exceed 72 characters, but
     # only if the line _without_ the URL does not exceed this limit.
-    next if line.length - url_size <= 72
+    next if line.length - url_size <= COMMIT_BODY_MAX_LENGTH
 
     fail_commit(
       commit,
-      'The commit body should not contain more than 72 characters per line'
+      "The commit body should not contain more than #{COMMIT_BODY_MAX_LENGTH} characters per line"
     )
 
     failures = true
@@ -250,16 +256,58 @@ def lint_commit(commit) # rubocop:disable Metrics/AbcSize
   failures
 end
 
+def lint_mr_title
+  mr_title = helper.sanitize_mr_title(gitlab.mr_json["title"])
+
+  failures = false
+
+  if mr_title.split.length < COMMIT_SUBJECT_MIN_WORDS
+    failures = true
+    fail(
+      'The MR title must contain at least three words if it is set to be squashed'
+    )
+  end
+
+  if mr_title.length > COMMIT_BODY_MAX_LENGTH
+    failures = true
+    fail(
+      "The MR title may not be longer than #{COMMIT_BODY_MAX_LENGTH} characters if it is set to be squashed"
+    )
+  elsif mr_title.length > COMMIT_SUBJECT_MAX_LENGTH
+    warn(
+      "This MR's title is acceptable, but please try to [reduce it to #{COMMIT_SUBJECT_MAX_LENGTH} characters](#{URL_LIMIT_SUBJECT}) if it is set to be squashed."
+    )
+  end
+
+  unless subject_starts_with_capital?(mr_title)
+    failures = true
+    fail('The MR title must start with a capital letter if it is set to be squashed')
+  end
+
+  if mr_title.end_with?('.')
+    failures = true
+    fail('The MR title must not end with a period if it is set to be squashed')
+  end
+
+  failures
+end
+
 def lint_commits(commits)
-  failed = commits.select do |commit|
-    lint_commit(commit)
+  failed_message_intro = 'One or more commit messages do'
+  if squash?
+    failed_message_intro = "This MR's title does"
+    failed = [lint_mr_title]
+  else
+    failed = commits.select do |commit|
+      lint_commit(commit)
+    end
   end
 
   if failed.any?
     markdown(<<~MARKDOWN)
       ## Commit message standards
 
-      One or more commit messages do not meet our Git commit message standards.
+      #{failed_message_intro} not meet our Git commit message standards.
       For more information on how to write a good commit message, take a look at
       [How to Write a Git Commit Message](#{URL_GIT_COMMIT}).
 
