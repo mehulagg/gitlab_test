@@ -26,7 +26,21 @@ class MergeRequest::Pipelines
     end
   end
 
+  def actual_head
+    filter_by_sha(all, merge_request.diff_head_sha)
+      .or(filter_by_source_sha(all, merge_request.diff_head_sha))
+      .first
+  end
+
   private
+
+  def filter_by_sha(pipelines, shas)
+    pipelines.where(sha: shas)
+  end
+
+  def filter_by_source_sha(pipelines, shas)
+    pipelines.where(source_sha: shas)
+  end
 
   def triggered_by_merge_request
     source_project.ci_pipelines
@@ -34,17 +48,18 @@ class MergeRequest::Pipelines
   end
 
   def detached_pipelines
-    triggered_by_merge_request.for_sha(all_commit_shas)
+    filter_by_sha(triggered_by_merge_request, all_commit_shas)
   end
 
   def source_pipelines
-    triggered_by_merge_request.for_source_sha(all_commit_shas)
+    filter_by_source_sha(triggered_by_merge_request, all_commit_shas)
   end
 
   def triggered_for_branch
-    source_project.ci_pipelines
+    pipelines = source_project.ci_pipelines
       .where(source: branch_pipeline_sources, ref: source_branch, tag: false)
-      .for_sha(all_commit_shas)
+
+    filter_by_sha(pipelines, all_commit_shas)
   end
 
   def sources

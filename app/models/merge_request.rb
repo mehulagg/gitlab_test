@@ -1220,7 +1220,7 @@ class MergeRequest < ApplicationRecord
 
   def all_pipelines
     strong_memoize(:all_pipelines) do
-      MergeRequest::Pipelines.new(self).all
+      merge_request_pipelines.all
     end
   end
 
@@ -1468,7 +1468,7 @@ class MergeRequest < ApplicationRecord
   end
 
   def find_actual_head_pipeline
-    all_pipelines.for_sha_or_source_sha(diff_head_sha).first
+    merge_request_pipelines.actual_head
   end
 
   def etag_caching_enabled?
@@ -1476,6 +1476,10 @@ class MergeRequest < ApplicationRecord
   end
 
   private
+
+  def merge_request_pipelines
+    MergeRequest::Pipelines.new(self)
+  end
 
   def with_rebase_lock
     if Feature.enabled?(:merge_request_rebase_nowait_lock, default_enabled: true)

@@ -3,12 +3,12 @@
 require 'spec_helper'
 
 describe MergeRequest::Pipelines do
+  let(:merge_request) { create(:merge_request) }
+  let(:project) { merge_request.source_project }
+
+  subject { described_class.new(merge_request) }
+
   describe '#all' do
-    let(:merge_request) { create(:merge_request) }
-    let(:project) { merge_request.source_project }
-
-    subject { described_class.new(merge_request) }
-
     shared_examples 'returning pipelines with proper ordering' do
       let!(:all_pipelines) do
         merge_request.all_commit_shas.map do |sha|
@@ -148,6 +148,28 @@ describe MergeRequest::Pipelines do
         it 'includes the detached merge request pipeline even though the ref is custom path' do
           expect(merge_request.all_pipelines).to include(detached_merge_request_pipeline)
         end
+      end
+    end
+  end
+
+  describe '#actual_head' do
+    context 'by sha' do
+      let!(:ci_pipeline) { create(:ci_pipeline, project: project, sha: merge_request.diff_head_sha) }
+
+      it 'returns a pipeline with diff head sha as sha' do
+        expect(subject.actual_head).to eq(ci_pipeline)
+      end
+    end
+
+    context 'by source_sha' do
+      let!(:ci_pipeline) do
+        create(:ci_pipeline, project: project,
+          source_sha: merge_request.diff_head_sha,
+          source: :merge_request_event, merge_request: merge_request)
+      end
+
+      it 'returns a pipeline with diff head sha as source_sha' do
+        expect(subject.actual_head).to eq(ci_pipeline)
       end
     end
   end
