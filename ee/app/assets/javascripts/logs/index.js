@@ -5,21 +5,21 @@ import store from './stores';
 
 export default (props = {}) => {
   const el = document.getElementById('environment-logs');
-  const [defaultPodName] = getParameterValues('pod');
+  const [currentPodName] = getParameterValues('pod_name');
 
   // eslint-disable-next-line no-new
   new Vue({
     el,
     store,
     render(createElement) {
-      let defaultClusters = JSON.parse(el.dataset.defaultClusters);
+      let currentClusters = JSON.parse(el.dataset.currentClusters);
       delete el.dataset.clusters;
 
       return createElement(LogViewer, {
         props: {
           ...el.dataset,
-          defaultClusters,
-          defaultPodName,
+          currentClusters,
+          currentPodName,
           ...props,
         },
       });

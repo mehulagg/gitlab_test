@@ -88,11 +88,11 @@ export default {
    * @param {Object} params
    * @param {string} param.projectFullPath - Path of the project, in format `/<namespace>/<project-key>`
    * @param {String} param.cluster - Name of the cluster
-   * @param {string=} params.pod - Pod name, if not set the backend assumes a default one
-   * @param {string=} params.container - Container name, if not set the backend assumes a default one
+   * @param {string=} params.podName - Pod name, if not set the backend assumes a default one
+   * @param {string=} params.containerName - Container name, if not set the backend assumes a default one
    * @returns {Promise} Axios promise for the result of a GET request of logs
    */
-  getPodLogs({ projectPath, cluster, namespace, pod, container }) {
+  getPodLogs({ projectPath, cluster, namespace, podName, containerName }) {
     const url = this.buildUrl(this.podLogsPath).replace(':project_full_path', projectPath);
 
     const params = {
@@ -102,11 +102,11 @@ export default {
     if (namespace) {
       params.namespace = namespace;
     }
-    if (pod) {
-      params.pod = pod;
+    if (podName) {
+      params.pod_name = podName;
     }
-    if (container) {
-      params.container = container;
+    if (containerName) {
+      params.container_name = containerName;
     }
 
     return axios.get(url, { params });

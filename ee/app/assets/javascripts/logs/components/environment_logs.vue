@@ -1,6 +1,6 @@
 <script>
 import { mapActions, mapState, mapGetters } from 'vuex';
-import { GlDropdown, GlDropdownItem, GlDropdownDivider, GlFormGroup } from '@gitlab/ui';
+import { GlDropdown, GlDropdownItem, GlFormGroup } from '@gitlab/ui';
 import { scrollDown } from '~/lib/utils/scroll_utils';
 import LogControlButtons from './log_control_buttons.vue';
 
@@ -8,7 +8,6 @@ export default {
   components: {
     GlDropdown,
     GlDropdownItem,
-    GlDropdownDivider,
     GlFormGroup,
     LogControlButtons,
   },
@@ -21,17 +20,17 @@ export default {
       type: String,
       required: true,
     },
-    defaultPodName: {
+    currentPodName: {
       type: [String, null],
       required: false,
       default: null,
     },
-    defaultClusterName: {
+    currentClusterName: {
       type: [String, null],
       required: false,
       default: null,
     },
-    defaultClusters: {
+    currentClusters: {
       type: Array,
       required: false,
       default: [],
@@ -58,9 +57,9 @@ export default {
     this.setInitData({
       projectPath: this.projectFullPath,
       filtersPath: this.filtersPath,
-      clusters: this.defaultClusters,
-      cluster: this.defaultClusterName,
-      pod: this.defaultPodName,
+      clusters: this.currentClusters,
+      cluster: this.currentClusterName,
+      pod: this.currentPodName,
     });
   },
   methods: {
@@ -102,15 +101,11 @@ export default {
         >
           <gl-dropdown
             id="pods-dropdown"
-            :text="pods.current || s__('Environments|All pods')"
+            :text="pods.current || s__('Environments|No pods to display')"
             :disabled="filters.isLoading"
             class="d-flex js-pods-dropdown"
             toggle-class="dropdown-menu-toggle"
           >
-            <gl-dropdown-item @click="showPodLogs(null)">{{
-              s__('Environments|All pods')
-            }}</gl-dropdown-item>
-            <gl-dropdown-divider />
             <gl-dropdown-item v-for="pod in pods.options" :key="pod" @click="showPodLogs(pod)">{{
               pod
             }}</gl-dropdown-item>

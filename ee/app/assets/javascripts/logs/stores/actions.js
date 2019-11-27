@@ -6,9 +6,9 @@ import { s__ } from '~/locale';
 import Api from 'ee/api';
 import * as types from './mutation_types';
 
-const requestLogsUntilData = ({ projectPath, cluster, namespace, pod }) =>
+const requestLogsUntilData = ({ projectPath, cluster, namespace, podName }) =>
   backOff((next, stop) => {
-    Api.getPodLogs({ projectPath, cluster, namespace, pod })
+    Api.getPodLogs({ projectPath, cluster, namespace, podName })
       .then(res => {
         if (res.status === httpStatusCodes.ACCEPTED) {
           next();
@@ -23,24 +23,24 @@ const requestLogsUntilData = ({ projectPath, cluster, namespace, pod }) =>
 
 export const setInitData = (
   { dispatch, commit },
-  { projectPath, filtersPath, cluster, pod, clusters },
+  { projectPath, filtersPath, cluster, podName, clusters },
 ) => {
   commit(types.SET_PROJECT_PATH, projectPath);
   commit(types.SET_FILTERS_PATH, filtersPath);
   commit(types.SET_CLUSTER_LIST, clusters);
   commit(types.SET_CLUSTER_NAME, cluster);
-  commit(types.SET_POD_NAME, pod);
+  commit(types.SET_CURRENT_POD_NAME, podName);
   dispatch('fetchFilters');
 };
 
-export const showPodLogs = ({ dispatch, commit }, pod) => {
-  commit(types.SET_POD_NAME, pod);
+export const showPodLogs = ({ dispatch, commit }, podName) => {
+  commit(types.SET_CURRENT_POD_NAME, podName);
   dispatch('fetchLogs');
 };
 
 export const showCluster = ({ dispatch, commit }, cluster) => {
   commit(types.SET_CLUSTER_NAME, cluster);
-  commit(types.SET_POD_NAME, null);
+  commit(types.SET_CURRENT_POD_NAME, null);
   dispatch('fetchFilters');
 };
 
@@ -64,7 +64,7 @@ export const fetchLogs = ({ commit, state }) => {
     projectPath: state.projectPath,
     cluster: state.clusters.current,
     namespace: state.filters.data.pods.find(({ name }) => name === state.pods.current).namespace,
-    pod: state.pods.current,
+    podName: state.pods.current,
   };
 
   commit(types.REQUEST_LOGS_DATA);

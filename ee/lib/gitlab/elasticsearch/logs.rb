@@ -10,7 +10,7 @@ module Gitlab
         @client = client
       end
 
-      def pod_logs(namespace = nil, pod = nil, container = nil)
+      def pod_logs(namespace = nil, pod_name = nil, container_name = nil)
         matches = []
 
         # A cluster can contain multiple namespaces.
@@ -27,11 +27,11 @@ module Gitlab
 
         # A namespace can contain multiple pods.
         # By default we return logs from every pod
-        unless pod.nil?
+        unless pod_name.nil?
           matches << {
             match_phrase: {
               "kubernetes.pod.name" => {
-                query: pod
+                query: pod_name
               }
             }
           }
@@ -39,11 +39,11 @@ module Gitlab
 
         # A pod can contain multiple containers.
         # By default we return logs from every container
-        unless container.nil?
+        unless container_name.nil?
           matches << {
             match_phrase: {
               "kubernetes.container.name" => {
-                query: container
+                query: container_name
               }
             }
           }

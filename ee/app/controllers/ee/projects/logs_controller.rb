@@ -51,7 +51,7 @@ module EE
       end
 
       def filter_params
-        params.permit(:namespace, :container, :pod)
+        params.permit(:namespace, :container_name, :pod_name)
       end
 
       def cluster

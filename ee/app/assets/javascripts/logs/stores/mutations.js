@@ -55,7 +55,7 @@ export default {
   },
 
   /** Pods data */
-  [types.SET_POD_NAME](state, pod) {
-    state.pods.current = pod;
+  [types.SET_CURRENT_POD_NAME](state, podName) {
+    state.pods.current = podName;
   },
 };

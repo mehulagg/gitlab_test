@@ -29,14 +29,14 @@ module EE
           ::Gitlab::Kubernetes::RolloutStatus.from_deployments(*deployments, pods: pods, legacy_deployments: legacy_deployments)
         end
 
-        def read_pod_logs(namespace: nil, pod: nil, container: nil)
+        def read_pod_logs(pod_name, namespace, container: nil)
           # environment_id is required for use in reactive_cache_updated(),
           # to invalidate the ETag cache.
           with_reactive_cache(
             CACHE_KEY_GET_POD_LOG,
             'cluster' => cluster.name,
+            'pod_name' => pod_name,
             'namespace' => namespace,
-            'pod' => pod,
             'container' => container
           ) do |result|
             result
@@ -46,12 +46,12 @@ module EE
         def calculate_reactive_cache(request, opts)
           case request
           when CACHE_KEY_GET_POD_LOG
+            container = opts['container_name']
+            pod_name = opts['pod_name']
             namespace = opts['namespace']
-            pod = opts['pod']
-            container = opts['container']
 
-            handle_exceptions(_('Pod not found'), namespace: namespace, pod: pod, container: container) do
-              pod_logs(namespace: namespace, pod: pod, container: container)
+            handle_exceptions(_('Pod not found'), pod_name: pod_name, container_name: container) do
+              pod_logs(pod_name, namespace, container: container)
             end
           end
         end
@@ -70,8 +70,8 @@ module EE
                   environment.project,
                   cluster: cluster.name,
                   namespace: opts['namespace'],
-                  pod: opts['pod'],
-                  container: opts['container'],
+                  pod_name: opts['pod_name'],
+                  container_name: opts['container_name'],
                   format: :json
                 )
               )
@@ -81,11 +81,11 @@ module EE
 
         private
 
-        def pod_logs(namespace: nil, pod: nil, container: nil)
+        def pod_logs(pod_name, namespace, container: nil)
           logs = if ::Feature.enabled?(:enable_cluster_application_elastic_stack) && elastic_stack_client
-                   elastic_stack_pod_logs(namespace, pod, container)
+                   elastic_stack_pod_logs(namespace, pod_name, container)
                  else
-                   platform_pod_logs(namespace, pod, container)
+                   platform_pod_logs(namespace, pod_name, container)
                  end
 
           {
@@ -94,19 +94,19 @@ module EE
           }
         end
 
-        def platform_pod_logs(namespace, pod, container)
+        def platform_pod_logs(namespace, pod_name, container_name)
           logs = kubeclient.get_pod_log(
-            pod, namespace, container: container, tail_lines: LOGS_LIMIT
+            pod_name, namespace, container: container_name, tail_lines: LOGS_LIMIT
           ).body
 
           logs.strip.split("\n")
         end
 
-        def elastic_stack_pod_logs(namespace, pod, container)
+        def elastic_stack_pod_logs(namespace, pod_name, container_name)
           client = elastic_stack_client
           return [] if client.nil?
 
-          ::Gitlab::Elasticsearch::Logs.new(client).pod_logs(namespace, pod, container)
+          ::Gitlab::Elasticsearch::Logs.new(client).pod_logs(namespace, pod_name, container_name)
         end
 
         def elastic_stack_client

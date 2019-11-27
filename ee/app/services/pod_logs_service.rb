@@ -7,7 +7,7 @@ class PodLogsService < ::BaseService
 
   K8S_NAME_MAX_LENGTH = 253
 
-  PARAMS = %w(namespace pod container).freeze
+  PARAMS = %w(namespace pod_name container_name).freeze
 
   SUCCESS_RETURN_KEYS = [:status, :logs].freeze
 
@@ -28,28 +28,28 @@ class PodLogsService < ::BaseService
 
   def check_param_lengths(_result)
     namespace = params['namespace'].presence
-    pod = params['pod'].presence
-    container = params['container'].presence
+    pod_name = params['pod_name'].presence
+    container_name = params['container_name'].presence
 
     if namespace&.length.to_i > K8S_NAME_MAX_LENGTH
       return error(_('namespace cannot be larger than %{max_length}'\
         ' chars' % { max_length: K8S_NAME_MAX_LENGTH }))
-    elsif pod&.length.to_i > K8S_NAME_MAX_LENGTH
-      return error(_('pod cannot be larger than %{max_length}'\
+    elsif pod_name&.length.to_i > K8S_NAME_MAX_LENGTH
+      return error(_('pod_name cannot be larger than %{max_length}'\
         ' chars' % { max_length: K8S_NAME_MAX_LENGTH }))
-    elsif container&.length.to_i > K8S_NAME_MAX_LENGTH
-      return error(_('container cannot be larger than'\
+    elsif container_name&.length.to_i > K8S_NAME_MAX_LENGTH
+      return error(_('container_name cannot be larger than'\
         ' %{max_length} chars' % { max_length: K8S_NAME_MAX_LENGTH }))
     end
 
-    success(namespace: namespace, pod: pod, container: container)
+    success(namespace: namespace, pod_name: pod_name, container_name: container_name)
   end
 
   def pod_logs(result)
     response = cluster.platform.read_pod_logs(
       namespace: result[:namespace],
-      pod: result[:pod],
-      container: result[:container]
+      pod_name: result[:pod_name],
+      container_name: result[:container_name]
     )
 
     return { status: :processing } unless response
