@@ -1,6 +1,15 @@
 <script>
+import _ from 'underscore';
 import { mapActions, mapState, mapGetters } from 'vuex';
-import { GlDropdown, GlDropdownItem, GlDropdownDivider, GlFormGroup } from '@gitlab/ui';
+import {
+  GlDropdown,
+  GlDropdownItem,
+  GlDropdownHeader,
+  GlDropdownDivider,
+  GlFormGroup,
+  GlSearchBoxByClick,
+  GlTable,
+} from '@gitlab/ui';
 import { scrollDown } from '~/lib/utils/scroll_utils';
 import LogControlButtons from './log_control_buttons.vue';
 
@@ -8,8 +17,11 @@ export default {
   components: {
     GlDropdown,
     GlDropdownItem,
+    GlDropdownHeader,
     GlDropdownDivider,
+    GlSearchBoxByClick,
     GlFormGroup,
+    GlTable,
     LogControlButtons,
   },
   props: {
@@ -34,12 +46,22 @@ export default {
     defaultClusters: {
       type: Array,
       required: false,
-      default: [],
+      default: () => [],
+    },
+    defautlSearch: {
+      type: [String],
+      required: false,
+      default: '',
     },
   },
+  data() {
+    return {
+      searchModel: '',
+    };
+  },
   computed: {
-    ...mapState('environmentLogs', ['clusters', 'filters', 'logs', 'pods']),
-    ...mapGetters('environmentLogs', ['trace']),
+    ...mapState('environmentLogs', ['clusters', 'filters', 'search', 'logs', 'pods']),
+    ...mapGetters('environmentLogs', ['trace', 'table']),
     showLoader() {
       return this.logs.isLoading || !this.logs.isComplete;
     },
@@ -60,6 +82,7 @@ export default {
       filtersPath: this.filtersPath,
       clusters: this.defaultClusters,
       cluster: this.defaultClusterName,
+      search: this.defautlSearch,
       pod: this.defaultPodName,
     });
   },
@@ -68,6 +91,7 @@ export default {
       'setInitData',
       'showPodLogs',
       'showCluster',
+      'setSearch',
       'fetchFilters',
     ]),
   },
@@ -75,68 +99,56 @@ export default {
 </script>
 <template>
   <div class="build-page-pod-logs mt-3">
-    <div class="top-bar js-top-bar d-flex">
-      <div class="row">
-        <gl-form-group
-          id="clusters-dropdown-fg"
-          :label="s__('Clusters|Cluster')"
-          label-size="sm"
-          label-for="clusters-dropdown"
-          class="col-6"
+    <div class="top-bar js-top-bar d-flex align-items-start">
+      <div class="m-2">
+        <gl-dropdown
+          id="clusters-dropdown"
+          :text="clusters.current"
+          class="js-clusters-dropdown"
+          toggle-class="dropdown-menu-toggle"
         >
-          <gl-dropdown
-            id="clusters-dropdown"
-            :text="clusters.current"
-            class="d-flex js-clusters-dropdown"
-            toggle-class="dropdown-menu-toggle"
+          <gl-dropdown-header>{{ s__('Clusters|Cluster') }}</gl-dropdown-header>
+          <gl-dropdown-item
+            v-for="cluster in clusters.options"
+            :key="cluster"
+            @click="showCluster(cluster)"
+            >{{ cluster }}</gl-dropdown-item
           >
-            <gl-dropdown-item
-              v-for="cluster in clusters.options"
-              :key="cluster"
-              @click="showCluster(cluster)"
-              >{{ cluster }}</gl-dropdown-item
-            >
-          </gl-dropdown>
-        </gl-form-group>
-        <gl-form-group
-          id="environments-dropdown-fg"
-          :label="s__('Environments|Pod logs from')"
-          label-size="sm"
-          label-for="pods-dropdown"
-          class="col-6"
-        >
-          <gl-dropdown
-            id="pods-dropdown"
-            :text="pods.current || s__('Environments|All pods')"
-            :disabled="filters.isLoading"
-            class="d-flex js-pods-dropdown"
-            toggle-class="dropdown-menu-toggle"
-          >
-            <gl-dropdown-item @click="showPodLogs(null)">{{
-              s__('Environments|All pods')
-            }}</gl-dropdown-item>
-            <gl-dropdown-divider />
-            <gl-dropdown-item
-              v-for="pod in pods.options"
-              :key="pod"
-              @click="showPodLogs(pod)"
-              >{{ pod }}</gl-dropdown-item
-            >
-          </gl-dropdown>
-        </gl-form-group>
+        </gl-dropdown>
       </div>
-
+      <div class="m-2">
+        <gl-dropdown
+          id="pods-dropdown"
+          :text="pods.current || s__('Environments|All pods')"
+          :disabled="filters.isLoading"
+          class="js-pods-dropdown"
+          toggle-class="dropdown-menu-toggle"
+        >
+          <gl-dropdown-header>{{ s__('Environments|Pods logs from') }}</gl-dropdown-header>
+          <gl-dropdown-item @click="showPodLogs(null)">{{
+            s__('Environments|All pods')
+          }}</gl-dropdown-item>
+          <gl-dropdown-divider />
+          <gl-dropdown-item v-for="pod in pods.options" :key="pod" @click="showPodLogs(pod)">{{
+            pod
+          }}</gl-dropdown-item>
+        </gl-dropdown>
+      </div>
+      <gl-search-box-by-click
+        id="logs-search"
+        placeholder="Search logs"
+        v-model.trim="searchModel"
+        class="m-2 flex-fill"
+        @change="setSearch(searchModel)"
+      />
       <log-control-buttons
         ref="scrollButtons"
-        class="controllers align-self-end"
+        class="controllers m-2"
         @refresh="showPodLogs(pods.current)"
       />
     </div>
-    <pre class="build-trace js-log-trace"><code class="bash js-build-output">{{trace}}
-      <div v-if="showLoader" class="build-loader-animation js-build-loader-animation">
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-      </div></code></pre>
+    <gl-table
+      :items="table"
+    />
   </div>
 </template>

@@ -17,6 +17,11 @@ export default {
     state.clusters.options = clusters;
   },
 
+  /** Search */
+  [types.SET_SEARCH](state, search) {
+    state.search = search;
+  },
+
   /** Filters data */
   [types.REQUEST_FILTERS_DATA](state) {
     state.filters.data = [];
@@ -57,6 +62,6 @@ export default {
   /** Pods data */
   [types.SET_POD_NAME](state, pod) {
     state.pods.current = pod;
-    console.log(pod)
+    console.log(pod);
   },
 };

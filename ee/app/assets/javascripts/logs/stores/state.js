@@ -6,6 +6,11 @@ export default () => ({
   filtersPath: '',
 
   /**
+   * Search query term
+   */
+  search: '',
+
+  /**
    * Clusters list information
    */
   clusters: {

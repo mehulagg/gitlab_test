@@ -9,21 +9,24 @@
 
   .top-bar {
     @include build-trace-top-bar($gl-line-height * 5);
+    
+    // TODO Use another css file
+    // .dropdown-menu-toggle {
+    //   width: 200px;
 
-    .dropdown-menu-toggle {
-      width: 200px;
+    //   @include media-breakpoint-up(sm) {
+    //     width: 300px;
+    //   }
+    // }
 
-      @include media-breakpoint-up(sm) {
-        width: 300px;
-      }
-    }
-
-    .dropdown-menu {
-      width: 300px;
-    }
+    // TODO Use another css file
+    // .dropdown-menu {
+    //   width: 300px;
+    // }
 
     .controllers {
-      @include build-controllers(16px, flex-end, true, 2);
+     // TODO Use another css file
+      @include build-controllers(16px, flex-end, true, 0);
     }
 
     .refresh-control {

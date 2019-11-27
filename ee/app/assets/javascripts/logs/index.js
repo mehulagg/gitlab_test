@@ -5,6 +5,7 @@ import store from './stores';
 
 export default (props = {}) => {
   const el = document.getElementById('environment-logs');
+  const [defaultSearch] = getParameterValues('search');
   const [defaultPodName] = getParameterValues('pod');
 
   // eslint-disable-next-line no-new
@@ -19,6 +20,7 @@ export default (props = {}) => {
         props: {
           ...el.dataset,
           defaultClusters,
+          defaultSearch,
           defaultPodName,
           ...props,
         },
