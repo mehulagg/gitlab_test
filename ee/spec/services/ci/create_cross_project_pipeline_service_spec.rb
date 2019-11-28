@@ -4,10 +4,10 @@ require 'spec_helper'
 
 describe Ci::CreateCrossProjectPipelineService, '#execute' do
   set(:user) { create(:user) }
-  set(:upstream_project) { create(:project, :repository) }
+  let(:upstream_project) { create(:project, :repository) }
   set(:downstream_project) { create(:project, :repository) }
 
-  set(:upstream_pipeline) do
+  let!(:upstream_pipeline) do
     create(:ci_pipeline, :running, project: upstream_project)
   end
 
@@ -126,21 +126,102 @@ describe Ci::CreateCrossProjectPipelineService, '#execute' do
       end
     end
 
-    context 'when circular dependency is defined' do
+    context 'when downstream project is the same as the job project' do
       let(:trigger) do
         { trigger: { project: upstream_project.full_path } }
       end
 
-      it 'does not create a new pipeline' do
-        expect { service.execute(bridge) }
-          .not_to change { Ci::Pipeline.count }
+      before do
+        downstream_project.add_developer(user)
       end
 
-      it 'changes status of the bridge build' do
-        service.execute(bridge)
+      context 'detects a circular dependency' do
+        it 'does not create a new pipeline' do
+          expect { service.execute(bridge) }
+            .not_to change { Ci::Pipeline.count }
+        end
 
-        expect(bridge.reload).to be_failed
-        expect(bridge.failure_reason).to eq 'invalid_bridge_trigger'
+        it 'changes status of the bridge build' do
+          service.execute(bridge)
+
+          expect(bridge.reload).to be_failed
+          expect(bridge.failure_reason).to eq 'invalid_bridge_trigger'
+        end
+      end
+
+      context 'when a custom YAML is provided' do
+        before do
+          file_content = YAML.dump(
+            rspec: { script: 'rspec' },
+            echo: { script: 'echo' })
+          upstream_project.repository.create_file(
+            user, 'child-pipeline.yml', file_content, message: 'message', branch_name: 'master')
+
+          upstream_pipeline.update!(sha: upstream_project.commit.id)
+        end
+
+        let(:trigger) do
+          {
+            trigger: {
+              project: upstream_project.full_path,
+              yaml: YAML.dump({ include: 'child-pipeline.yml' })
+            }
+          }
+        end
+
+        it 'creates only one new pipeline' do
+          expect { service.execute(bridge) }
+            .to change { Ci::Pipeline.count }.by(1)
+        end
+
+        it 'creates a child pipeline in the same project' do
+          pipeline = service.execute(bridge)
+          pipeline.reload
+
+          expect(pipeline.builds.map(&:name)).to eq %w[rspec echo]
+          expect(pipeline.user).to eq bridge.user
+          expect(pipeline.project).to eq bridge.project
+          expect(bridge.sourced_pipelines.first.pipeline).to eq pipeline
+          expect(pipeline.triggered_by_pipeline).to eq upstream_pipeline
+          expect(pipeline.source_bridge).to eq bridge
+          expect(pipeline.source_bridge).to be_a ::Ci::Bridge
+        end
+
+        it 'updates bridge status when downstream pipeline gets proceesed' do
+          pipeline = service.execute(bridge)
+
+          expect(pipeline.reload).to be_pending
+          expect(bridge.reload).to be_success
+        end
+
+        it 'propagates parent pipeline settings to the child pipeline' do
+          pipeline = service.execute(bridge)
+          pipeline.reload
+
+          expect(pipeline.ref).to eq(upstream_pipeline.ref)
+          expect(pipeline.sha).to eq(upstream_pipeline.sha)
+          expect(pipeline.source_sha).to eq(upstream_pipeline.source_sha)
+          expect(pipeline.target_sha).to eq(upstream_pipeline.target_sha)
+          expect(pipeline.target_sha).to eq(upstream_pipeline.target_sha)
+          expect(pipeline.pipeline_schedule).to eq(upstream_pipeline.pipeline_schedule)
+
+          expect(pipeline.trigger_requests.last).to eq(bridge.trigger_request)
+        end
+
+        context 'when parent pipeline has a schedule' do
+          let(:pipeline_schedule) { create(:ci_pipeline_schedule, project: upstream_project) }
+
+          before do
+            upstream_pipeline.update!(pipeline_schedule: pipeline_schedule)
+          end
+
+          it 'propagates the schedule to the child pipeline' do
+            pipeline = service.execute(bridge)
+            pipeline.reload
+
+            expect(pipeline.pipeline_schedule).to eq(upstream_pipeline.pipeline_schedule)
+          end
+        end
       end
     end
 

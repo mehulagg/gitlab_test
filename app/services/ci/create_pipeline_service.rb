@@ -22,7 +22,7 @@ module Ci
                 Gitlab::Ci::Pipeline::Chain::Limit::JobActivity].freeze
 
     # rubocop: disable Metrics/ParameterLists
-    def execute(source, ignore_skip_ci: false, save_on_errors: true, trigger_request: nil, schedule: nil, merge_request: nil, external_pull_request: nil, **options, &block)
+    def execute(source, ignore_skip_ci: false, save_on_errors: true, trigger_request: nil, schedule: nil, merge_request: nil, external_pull_request: nil, config_content: nil, **options, &block)
       @pipeline = Ci::Pipeline.new
 
       command = Gitlab::Ci::Pipeline::Chain::Command.new(
@@ -45,6 +45,7 @@ module Ci
         current_user: current_user,
         push_options: params[:push_options] || {},
         chat_data: params[:chat_data],
+        config_content: config_content,
         **extra_options(options))
 
       sequence = Gitlab::Ci::Pipeline::Chain::Sequence
@@ -103,19 +104,33 @@ module Ci
       if Feature.enabled?(:ci_support_interruptible_pipelines, project, default_enabled: true)
         project.ci_pipelines
           .where(ref: pipeline.ref)
-          .where.not(id: pipeline.id)
+          .where.not(id: related_pipeline_ids)
           .where.not(sha: project.commit(pipeline.ref).try(:id))
           .alive_or_scheduled
           .with_only_interruptible_builds
       else
         project.ci_pipelines
           .where(ref: pipeline.ref)
-          .where.not(id: pipeline.id)
+          .where.not(id: related_pipeline_ids)
           .where.not(sha: project.commit(pipeline.ref).try(:id))
           .created_or_pending
       end
     end
     # rubocop: enable CodeReuse/ActiveRecord
+
+    # If pipeline is a child of another pipeline we don't want to
+    # cancel all related pipelines (siblings + parent) having the
+    # same ref and sha.
+    def related_pipeline_ids
+      upstream_pipeline = pipeline.triggered_by_pipeline
+
+      if upstream_pipeline && upstream_pipeline.project == pipeline.project
+        child_pipeline_ids = upstream_pipeline&.triggered_pipelines&.pluck(:id) || []
+        child_pipeline_ids + [upstream_pipeline.id]
+      else
+        [pipeline.id]
+      end
+    end
 
     def pipeline_created_counter
       @pipeline_created_counter ||= Gitlab::Metrics
