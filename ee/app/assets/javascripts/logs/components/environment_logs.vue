@@ -33,7 +33,7 @@ export default {
     currentClusters: {
       type: Array,
       required: false,
-      default: [],
+      default: () => [],
     },
   },
   computed: {
@@ -59,7 +59,7 @@ export default {
       filtersPath: this.filtersPath,
       clusters: this.currentClusters,
       cluster: this.currentClusterName,
-      pod: this.currentPodName,
+      podName: this.currentPodName,
     });
   },
   methods: {
@@ -106,9 +106,12 @@ export default {
             class="d-flex js-pods-dropdown"
             toggle-class="dropdown-menu-toggle"
           >
-            <gl-dropdown-item v-for="podName in pods.options" :key="podName" @click="showPodLogs(podName)">{{
-              pod
-            }}</gl-dropdown-item>
+            <gl-dropdown-item
+              v-for="podName in pods.options"
+              :key="podName"
+              @click="showPodLogs(podName)"
+              >{{ podName }}</gl-dropdown-item
+            >
           </gl-dropdown>
         </gl-form-group>
       </div>

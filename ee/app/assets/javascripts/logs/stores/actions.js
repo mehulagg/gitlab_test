@@ -53,7 +53,7 @@ export const fetchFilters = ({ dispatch, commit, state }) => {
       commit(types.RECEIVE_FILTERS_DATA_SUCCESS, data);
       dispatch('fetchLogs');
     })
-    .catch(() => {
+    .catch(error => {
       commit(types.RECEIVE_FILTERS_DATA_ERROR);
       flash(s__('Metrics|There was an error fetching the filter values, please try again'));
     });
@@ -63,9 +63,14 @@ export const fetchLogs = ({ commit, state }) => {
   const params = {
     projectPath: state.projectPath,
     cluster: state.clusters.current,
-    namespace: state.filters.data.pods.find(({ name }) => name === state.pods.current).namespace,
     podName: state.pods.current,
   };
+
+  if (state.pods.current) {
+    params.namespace = state.filters.data.pods.find(
+      ({ name }) => name === state.pods.current,
+    ).namespace;
+  }
 
   commit(types.REQUEST_LOGS_DATA);
 

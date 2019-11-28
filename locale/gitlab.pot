@@ -4273,6 +4273,9 @@ msgstr ""
 msgid "ClusterIntergation|Select role name"
 msgstr ""
 
+msgid "Clusters|Cluster"
+msgstr ""
+
 msgid "Code"
 msgstr ""
 
@@ -11000,6 +11003,9 @@ msgstr ""
 msgid "Metrics|There was an error fetching the environments data, please try again"
 msgstr ""
 
+msgid "Metrics|There was an error fetching the filter values, please try again"
+msgstr ""
+
 msgid "Metrics|There was an error fetching the logs, please try again"
 msgstr ""
 
@@ -11508,9 +11514,6 @@ msgstr ""
 msgid "No data to display"
 msgstr ""
 
-msgid "No deployment platform available"
-msgstr ""
-
 msgid "No deployments found"
 msgstr ""
 
@@ -11575,9 +11578,6 @@ msgid "No other labels with such name or description"
 msgstr ""
 
 msgid "No parent group"
-msgstr ""
-
-msgid "No pods available"
 msgstr ""
 
 msgid "No preview for this file type"
@@ -21273,6 +21273,9 @@ msgid "must be greater than start date"
 msgstr ""
 
 msgid "n/a"
+msgstr ""
+
+msgid "namespace cannot be larger than %{max_length} chars"
 msgstr ""
 
 msgid "needs to be between 10 minutes and 1 month"

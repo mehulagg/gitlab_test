@@ -2,14 +2,7 @@ import mutations from 'ee/logs/stores/mutations';
 import * as types from 'ee/logs/stores/mutation_types';
 
 import logsPageState from 'ee/logs/stores/state';
-import {
-  mockProjectPath,
-  mockEnvName,
-  mockEnvironments,
-  mockPods,
-  mockPodName,
-  mockLines,
-} from '../mock_data';
+import { mockFilters, mockPods, mockPodName, mockLines } from '../mock_data';
 
 describe('Logs Store Mutations', () => {
   let state;
@@ -24,44 +17,54 @@ describe('Logs Store Mutations', () => {
     });
   });
 
-  describe('SET_PROJECT_ENVIRONMENT', () => {
-    it('sets the project path', () => {
-      mutations[types.SET_PROJECT_PATH](state, mockProjectPath);
-      expect(state.projectPath).toEqual(mockProjectPath);
-    });
-
-    it('sets the environment', () => {
-      mutations[types.SET_PROJECT_ENVIRONMENT](state, mockEnvName);
-      expect(state.environments.current).toEqual(mockEnvName);
-    });
-  });
-
-  describe('REQUEST_ENVIRONMENTS_DATA', () => {
+  describe('REQUEST_FILTERS_DATA', () => {
     it('inits data', () => {
-      mutations[types.REQUEST_ENVIRONMENTS_DATA](state);
-      expect(state.environments.options).toEqual([]);
-      expect(state.environments.isLoading).toEqual(true);
+      mutations[types.REQUEST_FILTERS_DATA](state);
+      expect(state.filters.data).toEqual([]);
+      expect(state.filters.isLoading).toEqual(true);
+      expect(state.pods.options).toEqual([]);
+      expect(state.pods.current).toEqual(null);
     });
   });
 
-  describe('RECEIVE_ENVIRONMENTS_DATA_SUCCESS', () => {
-    it('receives environments data and stores it as options', () => {
-      expect(state.environments.options).toEqual([]);
+  describe('RECEIVE_FILTERS_DATA_SUCCESS', () => {
+    it('receives filters data and stores it as data', () => {
+      expect(state.filters.data).toEqual([]);
 
-      mutations[types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS](state, mockEnvironments);
+      mutations[types.RECEIVE_FILTERS_DATA_SUCCESS](state, mockFilters);
 
-      expect(state.environments.options).toEqual(mockEnvironments);
-      expect(state.environments.isLoading).toEqual(false);
+      expect(state.filters.data).toEqual(mockFilters);
+      expect(state.filters.isLoading).toEqual(false);
+
+      expect(state.pods.options).toEqual(mockPods);
+      expect(state.pods.current).toEqual(mockPodName);
+    });
+    it('receives filters data and stores it as data w/ pre-set pod', () => {
+      expect(state.filters.data).toEqual([]);
+
+      state.pods.current = mockPods[2];
+
+      mutations[types.RECEIVE_FILTERS_DATA_SUCCESS](state, mockFilters);
+
+      expect(state.filters.data).toEqual(mockFilters);
+      expect(state.filters.isLoading).toEqual(false);
+
+      expect(state.pods.options).toEqual(mockPods);
+      expect(state.pods.current).toEqual(mockPods[2]);
     });
   });
 
-  describe('RECEIVE_ENVIRONMENTS_DATA_ERROR', () => {
-    it('captures an error loading environments', () => {
-      mutations[types.RECEIVE_ENVIRONMENTS_DATA_ERROR](state);
+  describe('RECEIVE_FILTERS_DATA_ERROR', () => {
+    it('captures an error loading filters', () => {
+      mutations[types.RECEIVE_FILTERS_DATA_ERROR](state);
 
-      expect(state.environments).toEqual({
-        options: [],
+      expect(state.filters).toEqual({
+        data: [],
         isLoading: false,
+      });
+
+      expect(state.pods).toEqual({
+        options: [],
         current: null,
       });
     });
@@ -114,39 +117,6 @@ describe('Logs Store Mutations', () => {
       mutations[types.SET_CURRENT_POD_NAME](state, mockPodName);
 
       expect(state.pods.current).toEqual(mockPodName);
-    });
-  });
-  describe('REQUEST_PODS_DATA', () => {
-    it('receives log data error and stops loading', () => {
-      mutations[types.REQUEST_PODS_DATA](state);
-
-      expect(state.pods).toEqual(
-        expect.objectContaining({
-          options: [],
-        }),
-      );
-    });
-  });
-  describe('RECEIVE_PODS_DATA_SUCCESS', () => {
-    it('receives pods data success', () => {
-      mutations[types.RECEIVE_PODS_DATA_SUCCESS](state, mockPods);
-
-      expect(state.pods).toEqual(
-        expect.objectContaining({
-          options: mockPods,
-        }),
-      );
-    });
-  });
-  describe('RECEIVE_PODS_DATA_ERROR', () => {
-    it('receives pods data error', () => {
-      mutations[types.RECEIVE_PODS_DATA_ERROR](state);
-
-      expect(state.pods).toEqual(
-        expect.objectContaining({
-          options: [],
-        }),
-      );
     });
   });
 });

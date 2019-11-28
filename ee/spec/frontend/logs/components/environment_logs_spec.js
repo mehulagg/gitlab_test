@@ -7,12 +7,12 @@ import EnvironmentLogs from 'ee/logs/components/environment_logs.vue';
 import { createStore } from 'ee/logs/stores';
 import {
   mockProjectPath,
-  mockEnvName,
-  mockEnvironments,
+  mockCluster,
+  mockClusters,
   mockPods,
   mockLines,
   mockPodName,
-  mockEnvironmentsEndpoint,
+  mockFiltersEndpoint,
 } from '../mock_data';
 
 jest.mock('~/lib/utils/scroll_utils');
@@ -25,20 +25,20 @@ describe('EnvironmentLogs', () => {
 
   const propsData = {
     projectFullPath: mockProjectPath,
-    environmentName: mockEnvName,
-    environmentsPath: mockEnvironmentsEndpoint,
+    filtersPath: mockFiltersEndpoint,
+    currentClusterName: mockCluster,
   };
 
   const actionMocks = {
     setInitData: jest.fn(),
     showPodLogs: jest.fn(),
-    showEnvironment: jest.fn(),
-    fetchEnvironments: jest.fn(),
+    showCluster: jest.fn(),
+    fetchFilters: jest.fn(),
   };
 
   const updateControlBtnsMock = jest.fn();
 
-  const findEnvironmentsDropdown = () => wrapper.find('.js-environments-dropdown');
+  const findClustersDropdown = () => wrapper.find('.js-clusters-dropdown');
   const findPodsDropdown = () => wrapper.find('.js-pods-dropdown');
   const findLogControlButtons = () => wrapper.find({ name: 'log-control-buttons-stub' });
   const findLogTrace = () => wrapper.find('.js-log-trace');
@@ -73,7 +73,7 @@ describe('EnvironmentLogs', () => {
   afterEach(() => {
     actionMocks.setInitData.mockReset();
     actionMocks.showPodLogs.mockReset();
-    actionMocks.fetchEnvironments.mockReset();
+    actionMocks.fetchFilters.mockReset();
 
     if (wrapper) {
       wrapper.destroy();
@@ -87,7 +87,7 @@ describe('EnvironmentLogs', () => {
     expect(wrapper.isEmpty()).toBe(false);
     expect(findLogTrace().isEmpty()).toBe(false);
 
-    expect(findEnvironmentsDropdown().is(GlDropdown)).toBe(true);
+    expect(findClustersDropdown().is(GlDropdown)).toBe(true);
     expect(findPodsDropdown().is(GlDropdown)).toBe(true);
 
     expect(findLogControlButtons().exists()).toBe(true);
@@ -99,12 +99,11 @@ describe('EnvironmentLogs', () => {
     expect(actionMocks.setInitData).toHaveBeenCalledTimes(1);
     expect(actionMocks.setInitData).toHaveBeenLastCalledWith({
       projectPath: mockProjectPath,
-      environmentName: mockEnvName,
+      filtersPath: mockFiltersEndpoint,
+      cluster: mockCluster,
+      clusters: [],
       podName: null,
     });
-
-    expect(actionMocks.fetchEnvironments).toHaveBeenCalledTimes(1);
-    expect(actionMocks.fetchEnvironments).toHaveBeenLastCalledWith(mockEnvironmentsEndpoint);
   });
 
   describe('loading state', () => {
@@ -114,15 +113,10 @@ describe('EnvironmentLogs', () => {
       state.logs.lines = [];
       state.logs.isLoading = true;
 
-      state.environments.options = [];
-      state.environments.isLoading = true;
+      state.filters.data = [];
+      state.filters.isLoading = true;
 
       initWrapper();
-    });
-
-    it('displays a disabled environments dropdown', () => {
-      expect(findEnvironmentsDropdown().attributes('disabled')).toEqual('true');
-      expect(findEnvironmentsDropdown().findAll(GlDropdownItem).length).toBe(0);
     });
 
     it('displays a disabled pods dropdown', () => {
@@ -147,23 +141,17 @@ describe('EnvironmentLogs', () => {
   describe('state with data', () => {
     beforeEach(() => {
       actionMocks.setInitData.mockImplementation(() => {
-        state.pods.options = mockPods;
-        state.environments.current = mockEnvName;
-        [state.pods.current] = state.pods.options;
+        state.clusters.current = mockCluster;
+        state.clusters.options = mockClusters;
 
-        state.logs.isComplete = false;
-        state.logs.lines = mockLines;
-      });
-      actionMocks.showPodLogs.mockImplementation(podName => {
         state.pods.options = mockPods;
-        [state.pods.current] = podName;
+        state.pods.current = mockPodName;
 
-        state.logs.isComplete = false;
         state.logs.lines = mockLines;
+        state.logs.isComplete = true;
       });
-      actionMocks.fetchEnvironments.mockImplementation(() => {
-        state.environments.options = mockEnvironments;
-      });
+      actionMocks.showPodLogs.mockImplementation(() => {});
+      actionMocks.fetchFilters.mockImplementation(() => {});
 
       initWrapper();
     });
@@ -174,16 +162,16 @@ describe('EnvironmentLogs', () => {
 
       actionMocks.setInitData.mockReset();
       actionMocks.showPodLogs.mockReset();
-      actionMocks.fetchEnvironments.mockReset();
+      actionMocks.fetchFilters.mockReset();
     });
 
-    it('populates environments dropdown', () => {
-      const items = findEnvironmentsDropdown().findAll(GlDropdownItem);
-      expect(findEnvironmentsDropdown().props('text')).toBe(mockEnvName);
-      expect(items.length).toBe(mockEnvironments.length);
-      mockEnvironments.forEach((env, i) => {
+    it('populates clusters dropdown', () => {
+      const items = findClustersDropdown().findAll(GlDropdownItem);
+      expect(findClustersDropdown().props('text')).toBe(mockCluster);
+      expect(items.length).toBe(mockClusters.length);
+      mockClusters.forEach((clusters, i) => {
         const item = items.at(i);
-        expect(item.text()).toBe(env.name);
+        expect(item.text()).toBe(clusters);
       });
     });
 
@@ -214,15 +202,15 @@ describe('EnvironmentLogs', () => {
 
     describe('when user clicks', () => {
       it('environment name, trace is refreshed', () => {
-        const items = findEnvironmentsDropdown().findAll(GlDropdownItem);
+        const items = findClustersDropdown().findAll(GlDropdownItem);
         const index = 1; // any env
 
-        expect(actionMocks.showEnvironment).toHaveBeenCalledTimes(0);
+        expect(actionMocks.showCluster).toHaveBeenCalledTimes(0);
 
         items.at(index).vm.$emit('click');
 
-        expect(actionMocks.showEnvironment).toHaveBeenCalledTimes(1);
-        expect(actionMocks.showEnvironment).toHaveBeenLastCalledWith(mockEnvironments[index].name);
+        expect(actionMocks.showCluster).toHaveBeenCalledTimes(1);
+        expect(actionMocks.showCluster).toHaveBeenLastCalledWith(mockClusters[index]);
       });
 
       it('pod name, trace is refreshed', () => {

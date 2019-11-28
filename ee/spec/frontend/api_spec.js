@@ -166,7 +166,8 @@ describe('Api', () => {
 
   describe('getPodLogs', () => {
     const projectPath = 'root/test-project';
-    const environmentName = 'production';
+    const cluster = 'production';
+    const namespace = 'kube-system';
     const podName = 'pod';
     const containerName = 'container';
 
@@ -183,11 +184,12 @@ describe('Api', () => {
     });
 
     it('calls `axios.get` with pod_name and container_name', done => {
-      Api.getPodLogs({ projectPath, environmentName, podName, containerName })
+      Api.getPodLogs({ projectPath, cluster, namespace, podName, containerName })
         .then(() => {
           expect(getRequest().url).toBe(expectedUrl);
           expect(getRequest().params).toEqual({
-            environment_name: environmentName,
+            cluster: cluster,
+            namespace: namespace,
             pod_name: podName,
             container_name: containerName,
           });
@@ -197,11 +199,12 @@ describe('Api', () => {
     });
 
     it('calls `axios.get` without pod_name and container_name', done => {
-      Api.getPodLogs({ projectPath, environmentName })
+      Api.getPodLogs({ projectPath, cluster, namespace })
         .then(() => {
           expect(getRequest().url).toBe(expectedUrl);
           expect(getRequest().params).toEqual({
-            environment_name: environmentName,
+            cluster: cluster,
+            namespace: namespace,
           });
         })
         .then(done)
@@ -209,11 +212,12 @@ describe('Api', () => {
     });
 
     it('calls `axios.get` with pod_name', done => {
-      Api.getPodLogs({ projectPath, environmentName, podName })
+      Api.getPodLogs({ projectPath, cluster, namespace, podName })
         .then(() => {
           expect(getRequest().url).toBe(expectedUrl);
           expect(getRequest().params).toEqual({
-            environment_name: environmentName,
+            cluster: cluster,
+            namespace: namespace,
             pod_name: podName,
           });
         })

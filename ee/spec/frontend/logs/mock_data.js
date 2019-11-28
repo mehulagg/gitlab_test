@@ -1,28 +1,42 @@
 export const mockProjectPath = 'root/autodevops-deploy';
-export const mockEnvName = 'production';
-export const mockEnvironmentsEndpoint = `${mockProjectPath}/environments.json`;
-export const mockEnvId = '99';
+export const mockCluster = 'production';
+export const mockFiltersEndpoint = `${mockProjectPath}/logs/filters.json`;
 
-const makeMockEnvironment = (id, name) => ({
-  id,
-  logs_path: `${mockProjectPath}/environments/${id}/logs`,
-  name,
-});
-
-export const mockEnvironment = makeMockEnvironment(mockEnvId, mockEnvName);
-export const mockEnvironments = [
-  mockEnvironment,
-  makeMockEnvironment(101, 'staging'),
-  makeMockEnvironment(102, 'review/a-feature'),
-];
+export const mockClusters = ['production', 'staging'];
 
 export const mockPodName = 'production-764c58d697-aaaaa';
+export const mockNamespace = 'kube-system';
 export const mockPods = [
   mockPodName,
   'production-764c58d697-bbbbb',
   'production-764c58d697-ccccc',
   'production-764c58d697-ddddd',
 ];
+
+export const mockFilters = {
+  pods: [
+    {
+      name: mockPods[0],
+      namespace: mockNamespace,
+      containers: ['first', 'second'],
+    },
+    {
+      name: mockPods[1],
+      namespace: 'gitlab-managed-apps',
+      containers: ['test'],
+    },
+    {
+      name: mockPods[2],
+      namespace: 'gitlab-managed-apps',
+      containers: ['test'],
+    },
+    {
+      name: mockPods[3],
+      namespace: 'gitlab-managed-apps',
+      containers: ['test'],
+    },
+  ],
+};
 
 export const mockLines = [
   '10.36.0.1 - - [16/Oct/2019:06:29:48 UTC] "GET / HTTP/1.1" 200 13',
