@@ -25,6 +25,11 @@ module EE
           end
 
           format.json do
+            if cluster.nil?
+              render status: :bad_request
+              return
+            end
+
             ::Gitlab::UsageCounters::PodLogs.increment(project.id)
             ::Gitlab::PollingInterval.set_header(response, interval: 3_000)
 
@@ -60,7 +65,7 @@ module EE
         @cluster ||= if show_params.key?(:cluster)
                        project.clusters.where(name: show_params[:cluster]).first
                      else
-                       project.default_environment.deployment_platform.cluster
+                       project.default_environment&.deployment_platform&.cluster
                      end
       end
       # rubocop: enable CodeReuse/ActiveRecord

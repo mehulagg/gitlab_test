@@ -1,0 +1,505 @@
+[
+  {
+    "metadata": {
+      "name": "event-exporter-v0.2.4-5f88c66fb7-lttgs",
+      "generateName": "event-exporter-v0.2.4-5f88c66fb7-",
+      "namespace": "kube-system",
+      "selfLink": "/api/v1/namespaces/kube-system/pods/event-exporter-v0.2.4-5f88c66fb7-lttgs",
+      "uid": "5cdb4ce7-106b-11ea-83b4-42010aa4006c",
+      "resourceVersion": "615",
+      "creationTimestamp": "2019-11-26T16:39:49Z",
+      "labels": {
+        "k8s-app": "event-exporter",
+        "pod-template-hash": "5f88c66fb7",
+        "version": "v0.2.4"
+      },
+      "ownerReferences": [
+        {
+          "apiVersion": "apps/v1",
+          "kind": "ReplicaSet",
+          "name": "event-exporter-v0.2.4-5f88c66fb7",
+          "uid": "5cd28015-106b-11ea-83b4-42010aa4006c",
+          "controller": true,
+          "blockOwnerDeletion": true
+        }
+      ]
+    },
+    "spec": {
+      "volumes": [
+        {
+          "name": "ssl-certs",
+          "hostPath": {
+            "path": "/etc/ssl/certs",
+            "type": ""
+          }
+        },
+        {
+          "name": "event-exporter-sa-token-glmtg",
+          "secret": {
+            "secretName": "event-exporter-sa-token-glmtg",
+            "defaultMode": 420
+          }
+        }
+      ],
+      "containers": [
+        {
+          "name": "event-exporter",
+          "image": "k8s.gcr.io/event-exporter:v0.2.4",
+          "command": [
+            "/event-exporter",
+            "-sink-opts=-stackdriver-resource-model=old"
+          ],
+          "resources": {
+          },
+          "volumeMounts": [
+            {
+              "name": "event-exporter-sa-token-glmtg",
+              "readOnly": true,
+              "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+            }
+          ],
+          "terminationMessagePath": "/dev/termination-log",
+          "terminationMessagePolicy": "File",
+          "imagePullPolicy": "IfNotPresent"
+        },
+        {
+          "name": "prometheus-to-sd-exporter",
+          "image": "k8s.gcr.io/prometheus-to-sd:v0.5.0",
+          "command": [
+            "/monitor",
+            "--stackdriver-prefix=container.googleapis.com/internal/addons",
+            "--api-override=https://monitoring.googleapis.com/",
+            "--source=event_exporter:http://localhost:80?whitelisted=stackdriver_sink_received_entry_count,stackdriver_sink_request_count,stackdriver_sink_successfully_sent_entry_count",
+            "--pod-id=$(POD_NAME)",
+            "--namespace-id=$(POD_NAMESPACE)"
+          ],
+          "env": [
+            {
+              "name": "POD_NAME",
+              "valueFrom": {
+                "fieldRef": {
+                  "apiVersion": "v1",
+                  "fieldPath": "metadata.name"
+                }
+              }
+            },
+            {
+              "name": "POD_NAMESPACE",
+              "valueFrom": {
+                "fieldRef": {
+                  "apiVersion": "v1",
+                  "fieldPath": "metadata.namespace"
+                }
+              }
+            }
+          ],
+          "resources": {
+          },
+          "volumeMounts": [
+            {
+              "name": "event-exporter-sa-token-glmtg",
+              "readOnly": true,
+              "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+            }
+          ],
+          "terminationMessagePath": "/dev/termination-log",
+          "terminationMessagePolicy": "File",
+          "imagePullPolicy": "IfNotPresent"
+        }
+      ],
+      "restartPolicy": "Always",
+      "terminationGracePeriodSeconds": 30,
+      "dnsPolicy": "ClusterFirst",
+      "serviceAccountName": "event-exporter-sa",
+      "serviceAccount": "event-exporter-sa",
+      "nodeName": "gke-akohlbecker-project--default-pool-a3ea1c5d-x04v",
+      "securityContext": {
+      },
+      "schedulerName": "default-scheduler",
+      "tolerations": [
+        {
+          "key": "node.kubernetes.io/not-ready",
+          "operator": "Exists",
+          "effect": "NoExecute",
+          "tolerationSeconds": 300
+        },
+        {
+          "key": "node.kubernetes.io/unreachable",
+          "operator": "Exists",
+          "effect": "NoExecute",
+          "tolerationSeconds": 300
+        }
+      ],
+      "priority": 0,
+      "enableServiceLinks": true
+    },
+    "status": {
+      "phase": "Running",
+      "conditions": [
+        {
+          "type": "Initialized",
+          "status": "True",
+          "lastProbeTime": null,
+          "lastTransitionTime": "2019-11-26T16:40:01Z"
+        },
+        {
+          "type": "Ready",
+          "status": "True",
+          "lastProbeTime": null,
+          "lastTransitionTime": "2019-11-26T16:40:15Z"
+        },
+        {
+          "type": "ContainersReady",
+          "status": "True",
+          "lastProbeTime": null,
+          "lastTransitionTime": "2019-11-26T16:40:15Z"
+        },
+        {
+          "type": "PodScheduled",
+          "status": "True",
+          "lastProbeTime": null,
+          "lastTransitionTime": "2019-11-26T16:40:01Z"
+        }
+      ],
+      "hostIP": "10.164.0.18",
+      "podIP": "10.5.0.2",
+      "startTime": "2019-11-26T16:40:01Z",
+      "containerStatuses": [
+        {
+          "name": "event-exporter",
+          "state": {
+            "running": {
+              "startedAt": "2019-11-26T16:40:07Z"
+            }
+          },
+          "lastState": {
+          },
+          "ready": true,
+          "restartCount": 0,
+          "image": "k8s.gcr.io/event-exporter:v0.2.4",
+          "imageID": "docker-pullable://k8s.gcr.io/event-exporter@sha256:16ca66e2b5dc7a1ce6a5aafcb21d0885828b75cdfc08135430480f7ad2364adc",
+          "containerID": "docker://775cada4c2b90931d664533f199df0c01830f5541c76a7d88160ec4e91261e25"
+        },
+        {
+          "name": "prometheus-to-sd-exporter",
+          "state": {
+            "running": {
+              "startedAt": "2019-11-26T16:40:09Z"
+            }
+          },
+          "lastState": {
+          },
+          "ready": true,
+          "restartCount": 0,
+          "image": "k8s.gcr.io/prometheus-to-sd:v0.5.0",
+          "imageID": "docker-pullable://k8s.gcr.io/prometheus-to-sd@sha256:14666989f40bb7c896c3e775a93c6873e2b791d65bc65579f58a078b7f9a764e",
+          "containerID": "docker://320f8ed13d10ebbc61f55d40d3eb589d92282b4ccc73281d6dc39ad7ee9b7184"
+        }
+      ],
+      "qosClass": "BestEffort"
+    }
+  },
+  {
+    "metadata": {
+      "name": "heapster-7f56df9ff6-6f8qt",
+      "generateName": "heapster-7f56df9ff6-",
+      "namespace": "kube-system",
+      "selfLink": "/api/v1/namespaces/kube-system/pods/heapster-7f56df9ff6-6f8qt",
+      "uid": "5d454e5b-106b-11ea-83b4-42010aa4006c",
+      "resourceVersion": "708",
+      "creationTimestamp": "2019-11-26T16:39:50Z",
+      "labels": {
+        "k8s-app": "heapster",
+        "pod-template-hash": "7f56df9ff6",
+        "version": "v1.7.0"
+      },
+      "annotations": {
+        "scheduler.alpha.kubernetes.io/critical-pod": "",
+        "seccomp.security.alpha.kubernetes.io/pod": "docker/default"
+      },
+      "ownerReferences": [
+        {
+          "apiVersion": "apps/v1",
+          "kind": "ReplicaSet",
+          "name": "heapster-7f56df9ff6",
+          "uid": "5d3f4006-106b-11ea-83b4-42010aa4006c",
+          "controller": true,
+          "blockOwnerDeletion": true
+        }
+      ]
+    },
+    "spec": {
+      "volumes": [
+        {
+          "name": "heapster-config-volume",
+          "configMap": {
+            "name": "heapster-config",
+            "defaultMode": 420
+          }
+        },
+        {
+          "name": "heapster-token-25n7g",
+          "secret": {
+            "secretName": "heapster-token-25n7g",
+            "defaultMode": 420
+          }
+        }
+      ],
+      "containers": [
+        {
+          "name": "heapster",
+          "image": "gke.gcr.io/heapster:v1.7.0",
+          "command": [
+            "/heapster",
+            "--source=kubernetes.summary_api:?host_id_annotation=container.googleapis.com/instance_id",
+            "--sink=stackdriver:?cluster_name=akohlbecker-project-2&use_old_resources=true&use_new_resources=false&min_interval_sec=100&batch_export_timeout_sec=110&cluster_location=europe-west4-a"
+          ],
+          "resources": {
+          },
+          "volumeMounts": [
+            {
+              "name": "heapster-token-25n7g",
+              "readOnly": true,
+              "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+            }
+          ],
+          "livenessProbe": {
+            "httpGet": {
+              "path": "/healthz",
+              "port": 8082,
+              "scheme": "HTTP"
+            },
+            "initialDelaySeconds": 180,
+            "timeoutSeconds": 5,
+            "periodSeconds": 10,
+            "successThreshold": 1,
+            "failureThreshold": 3
+          },
+          "terminationMessagePath": "/dev/termination-log",
+          "terminationMessagePolicy": "File",
+          "imagePullPolicy": "IfNotPresent"
+        },
+        {
+          "name": "prom-to-sd",
+          "image": "k8s.gcr.io/prometheus-to-sd:v0.5.0",
+          "command": [
+            "/monitor",
+            "--source=heapster:http://localhost:8082?whitelisted=stackdriver_requests_count,stackdriver_timeseries_count",
+            "--stackdriver-prefix=container.googleapis.com/internal/addons",
+            "--api-override=https://monitoring.googleapis.com/",
+            "--pod-id=$(POD_NAME)",
+            "--namespace-id=$(POD_NAMESPACE)"
+          ],
+          "env": [
+            {
+              "name": "POD_NAME",
+              "valueFrom": {
+                "fieldRef": {
+                  "apiVersion": "v1",
+                  "fieldPath": "metadata.name"
+                }
+              }
+            },
+            {
+              "name": "POD_NAMESPACE",
+              "valueFrom": {
+                "fieldRef": {
+                  "apiVersion": "v1",
+                  "fieldPath": "metadata.namespace"
+                }
+              }
+            }
+          ],
+          "resources": {
+          },
+          "volumeMounts": [
+            {
+              "name": "heapster-token-25n7g",
+              "readOnly": true,
+              "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+            }
+          ],
+          "terminationMessagePath": "/dev/termination-log",
+          "terminationMessagePolicy": "File",
+          "imagePullPolicy": "IfNotPresent"
+        },
+        {
+          "name": "heapster-nanny",
+          "image": "k8s.gcr.io/addon-resizer:1.8.3",
+          "command": [
+            "/pod_nanny",
+            "--config-dir=/etc/config",
+            "--cpu=10m",
+            "--extra-cpu=0.5m",
+            "--memory=100Mi",
+            "--extra-memory=4Mi",
+            "--threshold=5",
+            "--deployment=heapster-v1.7.0",
+            "--container=heapster",
+            "--poll-period=300000",
+            "--estimator=exponential",
+            "--minClusterSize=5"
+          ],
+          "env": [
+            {
+              "name": "MY_POD_NAME",
+              "valueFrom": {
+                "fieldRef": {
+                  "apiVersion": "v1",
+                  "fieldPath": "metadata.name"
+                }
+              }
+            },
+            {
+              "name": "MY_POD_NAMESPACE",
+              "valueFrom": {
+                "fieldRef": {
+                  "apiVersion": "v1",
+                  "fieldPath": "metadata.namespace"
+                }
+              }
+            }
+          ],
+          "resources": {
+            "limits": {
+              "cpu": "50m",
+              "memory": "92560Ki"
+            },
+            "requests": {
+              "cpu": "50m",
+              "memory": "92560Ki"
+            }
+          },
+          "volumeMounts": [
+            {
+              "name": "heapster-config-volume",
+              "mountPath": "/etc/config"
+            },
+            {
+              "name": "heapster-token-25n7g",
+              "readOnly": true,
+              "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+            }
+          ],
+          "terminationMessagePath": "/dev/termination-log",
+          "terminationMessagePolicy": "File",
+          "imagePullPolicy": "IfNotPresent"
+        }
+      ],
+      "restartPolicy": "Always",
+      "terminationGracePeriodSeconds": 30,
+      "dnsPolicy": "ClusterFirst",
+      "serviceAccountName": "heapster",
+      "serviceAccount": "heapster",
+      "nodeName": "gke-akohlbecker-project--default-pool-a3ea1c5d-x04v",
+      "securityContext": {
+        "supplementalGroups": [
+          65534
+        ],
+        "fsGroup": 65534
+      },
+      "schedulerName": "default-scheduler",
+      "tolerations": [
+        {
+          "key": "CriticalAddonsOnly",
+          "operator": "Exists"
+        },
+        {
+          "key": "node.kubernetes.io/not-ready",
+          "operator": "Exists",
+          "effect": "NoExecute",
+          "tolerationSeconds": 300
+        },
+        {
+          "key": "node.kubernetes.io/unreachable",
+          "operator": "Exists",
+          "effect": "NoExecute",
+          "tolerationSeconds": 300
+        }
+      ],
+      "priorityClassName": "system-cluster-critical",
+      "priority": 2000000000,
+      "enableServiceLinks": true
+    },
+    "status": {
+      "phase": "Running",
+      "conditions": [
+        {
+          "type": "Initialized",
+          "status": "True",
+          "lastProbeTime": null,
+          "lastTransitionTime": "2019-11-26T16:40:01Z"
+        },
+        {
+          "type": "Ready",
+          "status": "True",
+          "lastProbeTime": null,
+          "lastTransitionTime": "2019-11-26T16:40:34Z"
+        },
+        {
+          "type": "ContainersReady",
+          "status": "True",
+          "lastProbeTime": null,
+          "lastTransitionTime": "2019-11-26T16:40:34Z"
+        },
+        {
+          "type": "PodScheduled",
+          "status": "True",
+          "lastProbeTime": null,
+          "lastTransitionTime": "2019-11-26T16:40:01Z"
+        }
+      ],
+      "hostIP": "10.164.0.18",
+      "podIP": "10.5.0.4",
+      "startTime": "2019-11-26T16:40:01Z",
+      "containerStatuses": [
+        {
+          "name": "heapster",
+          "state": {
+            "running": {
+              "startedAt": "2019-11-26T16:40:28Z"
+            }
+          },
+          "lastState": {
+          },
+          "ready": true,
+          "restartCount": 0,
+          "image": "gke.gcr.io/heapster:v1.7.0",
+          "imageID": "docker-pullable://gke.gcr.io/heapster@sha256:a9c899ab08312640c779837e3345c8e0a8591b352cd421167f7c7af852d40393",
+          "containerID": "docker://8664620bc1c4dd781fa018ca5ae6d80fa9ee1114fd32e5ffca1c8b4878678837"
+        },
+        {
+          "name": "heapster-nanny",
+          "state": {
+            "running": {
+              "startedAt": "2019-11-26T16:40:33Z"
+            }
+          },
+          "lastState": {
+          },
+          "ready": true,
+          "restartCount": 0,
+          "image": "k8s.gcr.io/addon-resizer:1.8.3",
+          "imageID": "docker-pullable://k8s.gcr.io/addon-resizer@sha256:07353f7b26327f0d933515a22b1de587b040d3d85c464ea299c1b9f242529326",
+          "containerID": "docker://d9dacc4ac49054f762b558df09fa41cfeaee091f12e23773532059173e3a8cb3"
+        },
+        {
+          "name": "prom-to-sd",
+          "state": {
+            "running": {
+              "startedAt": "2019-11-26T16:40:29Z"
+            }
+          },
+          "lastState": {
+          },
+          "ready": true,
+          "restartCount": 0,
+          "image": "k8s.gcr.io/prometheus-to-sd:v0.5.0",
+          "imageID": "docker-pullable://k8s.gcr.io/prometheus-to-sd@sha256:14666989f40bb7c896c3e775a93c6873e2b791d65bc65579f58a078b7f9a764e",
+          "containerID": "docker://7696b0662fc7920b21046473817ec9c512a6296827bb0d754a363ca472a99a83"
+        }
+      ],
+      "qosClass": "Burstable"
+    }
+  }
+]

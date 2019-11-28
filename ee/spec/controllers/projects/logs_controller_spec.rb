@@ -6,11 +6,11 @@ describe Projects::LogsController do
   include KubernetesHelpers
 
   set(:user) { create(:user) }
-  set(:project) { create(:project) }
 
-  set(:environment) do
-    create(:environment, name: 'production', project: project)
-  end
+  let(:service) { create(:cluster_platform_kubernetes, :configured) }
+  let(:cluster) { create(:cluster, :project, enabled: true, platform_kubernetes: service) }
+  let(:project) { cluster.project }
+  let(:environment) { create(:environment, name: 'production', project: project) }
 
   before do
     project.add_maintainer(user)
@@ -172,9 +172,44 @@ describe Projects::LogsController do
     end
   end
 
+  describe 'GET #filters' do
+    let(:filters) do
+      {
+        pods: [
+          {
+            name: "foo",
+            namespace: "bar",
+            containers: ['baz']
+          },
+          {
+            name: "abc",
+            namespace: "def",
+            containers: ['ghi', 'jkl']
+          }
+        ]
+      }
+    end
+    let(:pods_raw) { fixture_file('kubernetes/pods.json', dir: 'ee') }
+
+    before do
+      stub_licensed_features(pod_logs: true)
+      kubeclient = instance_double(Gitlab::Kubernetes::KubeClient)
+      allow_any_instance_of(Clusters::Cluster).to receive(:kubeclient).and_return(kubeclient)
+      allow_any_instance_of(kubeclient).to receive(:get_pods).and_return(pods_raw)
+    end
+
+    it 'returns results' do
+      get :filters, params: environment_params(format: :json)
+
+      expect(response).to have_gitlab_http_status(:success)
+      expect(json_response).to eq(filters)
+    end
+  end
+
   def environment_params(opts = {})
-    opts.reverse_merge(namespace_id: project.namespace,
+    opts.reverse_merge(namespace: environment.deployment_namespace,
+                       namespace_id: project.namespace,
                        project_id: project,
-                       environment_name: environment.name)
+                       cluster: cluster.name)
   end
 end
