@@ -29,11 +29,12 @@ module EE
           ::Gitlab::Kubernetes::RolloutStatus.from_deployments(*deployments, pods: pods, legacy_deployments: legacy_deployments)
         end
 
-        def read_pod_logs(pod_name, namespace, container: nil)
-          # environment_id is required for use in reactive_cache_updated(),
+        def read_pod_logs(project_id, pod_name, namespace, container: nil)
+          # project_id is required for use in reactive_cache_updated(),
           # to invalidate the ETag cache.
           with_reactive_cache(
             CACHE_KEY_GET_POD_LOG,
+            'project_id' => project_id,
             'cluster' => cluster.name,
             'pod_name' => pod_name,
             'namespace' => namespace,
@@ -61,14 +62,14 @@ module EE
 
           case request
           when CACHE_KEY_GET_POD_LOG
-            environment = ::Environment.find_by(id: opts['environment_id'])
-            return unless environment
+            project = ::Project.find_by(id: opts['project_id'])
+            return unless project
 
             ::Gitlab::EtagCaching::Store.new.tap do |store|
               store.touch(
                 ::Gitlab::Routing.url_helpers.project_logs_path(
-                  environment.project,
-                  cluster: cluster.name,
+                  project,
+                  cluster: opts['cluster'],
                   namespace: opts['namespace'],
                   pod_name: opts['pod_name'],
                   container_name: opts['container_name'],

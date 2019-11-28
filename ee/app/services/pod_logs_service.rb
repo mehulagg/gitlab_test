@@ -3,6 +3,7 @@
 class PodLogsService < ::BaseService
   include Stepable
 
+  attr_reader :project
   attr_reader :cluster
 
   K8S_NAME_MAX_LENGTH = 253
@@ -15,7 +16,8 @@ class PodLogsService < ::BaseService
     :pod_logs,
     :filter_return_keys
 
-  def initialize(cluster, params: {})
+  def initialize(project, cluster, params: {})
+    @project = project
     @cluster = cluster
     @params = filter_params(params.dup).to_hash
   end
@@ -47,6 +49,7 @@ class PodLogsService < ::BaseService
 
   def pod_logs(result)
     response = cluster.platform.read_pod_logs(
+      project.id,
       result[:pod_name],
       result[:namespace],
       container: result[:container_name]

@@ -28,7 +28,7 @@ module EE
             ::Gitlab::UsageCounters::PodLogs.increment(project.id)
             ::Gitlab::PollingInterval.set_header(response, interval: 3_000)
 
-            result = PodLogsService.new(cluster, params: filter_params).execute
+            result = PodLogsService.new(project, cluster, params: filter_params).execute
 
             if result[:status] == :processing
               head :accepted

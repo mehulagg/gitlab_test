@@ -53,7 +53,7 @@ export const fetchFilters = ({ dispatch, commit, state }) => {
       commit(types.RECEIVE_FILTERS_DATA_SUCCESS, data);
       dispatch('fetchLogs');
     })
-    .catch(error => {
+    .catch(() => {
       commit(types.RECEIVE_FILTERS_DATA_ERROR);
       flash(s__('Metrics|There was an error fetching the filter values, please try again'));
     });

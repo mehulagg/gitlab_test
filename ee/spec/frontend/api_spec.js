@@ -188,8 +188,8 @@ describe('Api', () => {
         .then(() => {
           expect(getRequest().url).toBe(expectedUrl);
           expect(getRequest().params).toEqual({
-            cluster: cluster,
-            namespace: namespace,
+            cluster,
+            namespace,
             pod_name: podName,
             container_name: containerName,
           });
@@ -203,8 +203,8 @@ describe('Api', () => {
         .then(() => {
           expect(getRequest().url).toBe(expectedUrl);
           expect(getRequest().params).toEqual({
-            cluster: cluster,
-            namespace: namespace,
+            cluster,
+            namespace,
           });
         })
         .then(done)
@@ -216,8 +216,8 @@ describe('Api', () => {
         .then(() => {
           expect(getRequest().url).toBe(expectedUrl);
           expect(getRequest().params).toEqual({
-            cluster: cluster,
-            namespace: namespace,
+            cluster,
+            namespace,
             pod_name: podName,
           });
         })

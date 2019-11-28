@@ -18,18 +18,11 @@ describe Gitlab::Elasticsearch::Logs do
   let(:pod_name) { "production-6866bc8974-m4sk4" }
   let(:container_name) { "auto-deploy-app" }
 
-  let(:body) do
+  let(:body_with_namespace) do
     {
       query: {
         bool: {
             must: [
-                {
-                    match_phrase: {
-                        "kubernetes.pod.name" => {
-                            query: pod_name
-                        }
-                    }
-                },
                 {
                     match_phrase: {
                         "kubernetes.namespace" => {
@@ -57,59 +50,75 @@ describe Gitlab::Elasticsearch::Logs do
       ],
       size: 500
     }
+  end
+
+  let(:body_with_pod) do
+    body_with_namespace.deep_merge({
+        query: {
+            bool: {
+                must: [
+                    {
+                        match_phrase: {
+                            "kubernetes.namespace" => {
+                                query: namespace
+                            }
+                        }
+                    },
+                    {
+                        match_phrase: {
+                            "kubernetes.pod.name" => {
+                                query: pod_name
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    })
   end
 
   let(:body_with_container) do
-    {
-      query: {
-        bool: {
-            must: [
-                {
-                    match_phrase: {
-                        "kubernetes.pod.name" => {
-                            query: pod_name
+    body_with_namespace.deep_merge({
+        query: {
+            bool: {
+                must: [
+                    {
+                        match_phrase: {
+                            "kubernetes.namespace" => {
+                                query: namespace
+                            }
+                        }
+                    },
+                    {
+                        match_phrase: {
+                            "kubernetes.pod.name" => {
+                                query: pod_name
+                            }
+                        }
+                    },
+                    {
+                        match_phrase: {
+                            "kubernetes.container.name" => {
+                                query: container_name
+                            }
                         }
                     }
-                },
-                {
-                    match_phrase: {
-                        "kubernetes.namespace" => {
-                            query: namespace
-                        }
-                    }
-                },
-                {
-                    match_phrase: {
-                        "kubernetes.container.name" => {
-                            query: container_name
-                        }
-                    }
-                }
-            ]
-        }
-      },
-      sort: [
-        {
-            :@timestamp => {
-                order: :desc
-            }
-        },
-        {
-            offset: {
-                order: :desc
+                ]
             }
         }
-      ],
-      _source: [
-          "message"
-      ],
-      size: 500
-    }
+    })
   end
 
   describe '#pod_logs' do
-    it 'returns the logs as an array' do
-      expect(client).to receive(:search).with(body: body).and_return(es_response)
+    it 'returns the logs as an array by namespace' do
+      expect(client).to receive(:search).with(body: body_with_namespace).and_return(es_response)
+
+      result = subject.pod_logs(namespace)
+      expect(result).to eq([es_message_4, es_message_3, es_message_2, es_message_1])
+    end
+
+    it 'returns the logs as an array by pod name' do
+      expect(client).to receive(:search).with(body: body_with_pod).and_return(es_response)
 
       result = subject.pod_logs(namespace, pod_name)
       expect(result).to eq([es_message_4, es_message_3, es_message_2, es_message_1])

@@ -12,7 +12,7 @@ export default (props = {}) => {
     el,
     store,
     render(createElement) {
-      let currentClusters = JSON.parse(el.dataset.currentClusters);
+      const currentClusters = JSON.parse(el.dataset.currentClusters);
       delete el.dataset.clusters;
 
       return createElement(LogViewer, {

@@ -6,6 +6,8 @@ describe EnvironmentsHelper do
   let(:environment) { create(:environment) }
   let(:project) { environment.project }
   let(:user) { create(:user) }
+  let(:cluster) { create(:cluster) }
+  let(:clusters) { [cluster] }
 
   describe '#metrics_data' do
     subject { helper.metrics_data(project, environment) }
@@ -32,19 +34,19 @@ describe EnvironmentsHelper do
   end
 
   describe '#environment_logs_data' do
-    subject { helper.environment_logs_data(project, environment) }
+    subject { helper.environment_logs_data(project, cluster, clusters) }
 
     it 'returns environment parameters data' do
       expect(subject).to include(
-        "environment-name": environment.name,
-        "environments-path": project_environments_path(project, format: :json)
+        "current-clusters": clusters.map(&:name).to_json,
+        "current-cluster-name": cluster.name,
       )
     end
 
     it 'returns parameters for forming the pod logs API URL' do
       expect(subject).to include(
         "project-full-path": project.full_path,
-        "environment-id": environment.id
+        "filters-path": filters_project_logs_path(project, format: :json)
       )
     end
   end

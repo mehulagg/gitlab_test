@@ -95,10 +95,7 @@ export default {
    */
   getPodLogs({ projectPath, cluster, namespace, podName, containerName }) {
     const url = this.buildUrl(this.podLogsPath).replace(':project_full_path', projectPath);
-
-    const params = {
-      cluster: cluster,
-    };
+    const params = { cluster };
 
     if (namespace) {
       params.namespace = namespace;

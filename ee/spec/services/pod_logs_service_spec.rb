@@ -9,6 +9,7 @@ describe PodLogsService do
   describe '#execute' do
     let(:environment) { create(:environment, name: 'production') }
     let(:project) { environment.project }
+    let(:cluster) { create(:cluster, :provided_by_gcp, environment_scope: '*', projects: [project]) }
     let(:pod_name) { 'pod-1' }
     let(:response_pod_name) { pod_name }
     let(:pods) { [pod_name] }
@@ -19,21 +20,19 @@ describe PodLogsService do
     let(:params) do
       ActionController::Parameters.new(
         {
+          'namespace' => environment.deployment_namespace,
           'pod_name' => pod_name,
           'container_name' => container_name
         }
       ).permit!
     end
 
-    subject { described_class.new(environment, params: params) }
+    subject { described_class.new(project, cluster, params: params) }
 
     shared_examples 'success' do |message|
       it do
         expect(result[:status]).to eq(:success)
         expect(result[:logs]).to eq(logs)
-        expect(result[:pods]).to eq(pods)
-        expect(result[:pod_name]).to eq(response_pod_name)
-        expect(result[:container_name]).to eq(container_name)
       end
     end
 
@@ -44,22 +43,13 @@ describe PodLogsService do
       end
     end
 
-    shared_examples 'returns pod_name and container_name' do
-      it do
-        expect(result[:pod_name]).to eq(response_pod_name)
-        expect(result[:container_name]).to eq(container_name)
-      end
-    end
-
     shared_context 'return error' do |message|
       before do
         allow_any_instance_of(EE::Clusters::Platforms::Kubernetes).to receive(:read_pod_logs)
-          .with(environment.id, pod_name, environment.deployment_namespace, container: container_name)
+          .with(project.id, pod_name, environment.deployment_namespace, container: container_name)
           .and_return({
             status: :error,
-            error: message,
-            pod_name: response_pod_name,
-            container_name: container_name
+            error: message
           })
       end
     end
@@ -67,12 +57,10 @@ describe PodLogsService do
     shared_context 'return success' do
       before do
         allow_any_instance_of(EE::Clusters::Platforms::Kubernetes).to receive(:read_pod_logs)
-          .with(environment.id, response_pod_name, environment.deployment_namespace, container: container_name)
+          .with(project.id, response_pod_name, environment.deployment_namespace, container: container_name)
           .and_return({
             status: :success,
-            logs: ["Log 1", "Log 2", "Log 3"],
-            pod_name: response_pod_name,
-            container_name: container_name
+            logs: ["Log 1", "Log 2", "Log 3"]
           })
       end
     end
@@ -89,19 +77,13 @@ describe PodLogsService do
       it_behaves_like 'error', 'container_name cannot be larger than 253 chars'
     end
 
-    context 'without deployment platform' do
-      it_behaves_like 'error', 'No deployment platform available'
-    end
-
     context 'with deployment platform' do
       let(:rollout_status) do
         instance_double(::Gitlab::Kubernetes::RolloutStatus, instances: [{ pod_name: response_pod_name }])
       end
 
       before do
-        create(:cluster, :provided_by_gcp,
-          environment_scope: '*', projects: [project])
-
+        cluster
         create(:deployment, :success, environment: environment)
         allow(environment).to receive(:rollout_status_with_reactive_cache)
           .and_return(rollout_status)
@@ -111,8 +93,6 @@ describe PodLogsService do
         include_context 'return error', 'Pod not found'
 
         it_behaves_like 'error', 'Pod not found'
-
-        it_behaves_like 'returns pod_name and container_name'
       end
 
       context 'when container_name is specified' do
@@ -127,6 +107,7 @@ describe PodLogsService do
         let(:params) do
           ActionController::Parameters.new(
             {
+              'namespace' => environment.deployment_namespace,
               'pod_name' => pod_name,
               'container_name' => nil
             }
@@ -139,41 +120,21 @@ describe PodLogsService do
       end
 
       context 'when pod_name is not specified' do
-        let(:pod_name) { '' }
+        let(:pod_name) { nil }
         let(:container_name) { nil }
         let(:first_pod_name) { 'some-pod' }
         let(:pods) { [first_pod_name] }
-        let(:response_pod_name) { first_pod_name }
+        let(:response_pod_name) { nil }
 
         include_context 'return success'
 
         it_behaves_like 'success'
 
-        it 'returns logs of first pod' do
+        it 'returns logs of all pods' do
           expect_any_instance_of(EE::Clusters::Platforms::Kubernetes).to receive(:read_pod_logs)
-            .with(environment.id, first_pod_name, environment.deployment_namespace, container: nil)
+            .with(project.id, nil, environment.deployment_namespace, container: nil)
 
           subject.execute
-        end
-
-        context 'when there are no pods' do
-          let(:rollout_status) { instance_double(::Gitlab::Kubernetes::RolloutStatus, instances: []) }
-
-          it 'returns error' do
-            expect(result[:status]).to eq(:error)
-            expect(result[:message]).to eq('No pods available')
-          end
-        end
-
-        context 'when rollout_status cache is empty' do
-          before do
-            allow(environment).to receive(:rollout_status_with_reactive_cache)
-              .and_return(nil)
-          end
-
-          it 'returns nil' do
-            expect(subject.execute).to eq(status: :processing, last_step: :check_pod_names)
-          end
         end
       end
 
@@ -181,14 +142,12 @@ describe PodLogsService do
         include_context 'return error', 'Kubernetes API returned status code: 400'
 
         it_behaves_like 'error', 'Kubernetes API returned status code: 400'
-
-        it_behaves_like 'returns pod_name and container_name'
       end
 
       context 'when nil is returned' do
         before do
           allow_any_instance_of(EE::Clusters::Platforms::Kubernetes).to receive(:read_pod_logs)
-            .with(environment.id, pod_name, environment.deployment_namespace, container: container_name)
+            .with(project.id, pod_name, environment.deployment_namespace, container: container_name)
             .and_return(nil)
         end
 

@@ -42,7 +42,7 @@ describe('Logs Store Mutations', () => {
     it('receives filters data and stores it as data w/ pre-set pod', () => {
       expect(state.filters.data).toEqual([]);
 
-      state.pods.current = mockPods[2];
+      [ , , state.pods.current ] = mockPods;
 
       mutations[types.RECEIVE_FILTERS_DATA_SUCCESS](state, mockFilters);
 
