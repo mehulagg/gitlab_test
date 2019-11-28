@@ -61,9 +61,9 @@ describe DesignManagement::Repository do
   end
 
   it_behaves_like 'a replicable repository model' do
-    let(:registry_class_name) { 'Geo::DesignRegistry' }
+    let(:registry_class) { Geo::DesignRegistry }
 
-    def create_replicable_repository
+    def create_repository
       repository.create_if_not_exists
     end
   end

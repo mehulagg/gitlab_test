@@ -2,7 +2,7 @@
 
 # White-box system tests (way faster than true E2E) for replication.
 #
-# The user of these shared examples must define:
+# The caller of these shared examples must define:
 #
 #   - repository
 #   - create_repository
