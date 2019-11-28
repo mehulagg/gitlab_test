@@ -41,8 +41,9 @@ module Gitlab
 
     GIT_DOWNLOAD_COMMANDS = %w{git-upload-pack git-upload-archive}.freeze
     GIT_PUSH_COMMANDS = %w{git-receive-pack}.freeze
+    GIT_LFS_COMMANDS = %w{git-lfs-authenticate}.freeze
 
-    ALL_COMMANDS = GIT_DOWNLOAD_COMMANDS + GIT_PUSH_COMMANDS
+    ALL_COMMANDS = GIT_DOWNLOAD_COMMANDS + GIT_PUSH_COMMANDS + GIT_LFS_COMMANDS
 
     attr_reader :actor, :project, :protocol, :authentication_abilities, :namespace_path, :project_path, :redirected_path, :auth_result_type, :changes, :logger
 

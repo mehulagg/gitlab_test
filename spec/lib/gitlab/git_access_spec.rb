@@ -412,6 +412,26 @@ describe Gitlab::GitAccess do
     end
   end
 
+  describe '#check_command_existence' do
+    before do
+      project.add_maintainer(user)
+    end
+
+    context 'for an invalid command' do
+      let(:bad_command_access_check) { access.check('bad-command', changes) }
+
+      it { expect { bad_command_access_check }.to raise_error }
+    end
+
+    context 'for valid commands' do
+      let(:lfs_authenticate_access_check) { access.check('git-lfs-authenticate', changes) }
+
+      it { expect { pull_access_check }.not_to raise_error }
+      it { expect { push_access_check }.not_to raise_error }
+      it { expect { lfs_authenticate_access_check }.not_to raise_error }
+    end
+  end
+
   describe '#check_db_accessibility!' do
     context 'when in a read-only GitLab instance' do
       before do
