@@ -1061,6 +1061,20 @@ a helpful link back to how the feature was developed.
   > [Introduced](<link-to-issue>) in [GitLab Starter](https://about.gitlab.com/pricing/) 11.3.
   ```
 
+### Versions in the past or future
+
+When describing functionality available in past or future versions, use:
+
+- **Earlier**, and not **older** or **before**.
+- **Later**, and not **newer** or **after**.
+
+For example:
+
+- Available in GitLab 12.3 and earlier.
+- Available in GitLab 12.4 and later.
+- If using GitLab 11.4 or earlier, ...
+- If using GitLab 10.6 or later, ...
+
 ### Importance of referencing GitLab versions and tiers
 
 Mentioning GitLab versions and tiers is important to all users and contributors
