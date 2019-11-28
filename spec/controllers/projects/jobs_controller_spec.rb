@@ -513,7 +513,7 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
 
     def get_show_json
       expect { get_show(id: job.id, format: :json) }
-        .not_to change { Gitlab::GitalyClient.get_request_count }
+        .to change { Gitlab::GitalyClient.get_request_count }.by_at_most(1)
     end
 
     def get_show(**extra_params)
