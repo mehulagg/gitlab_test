@@ -88,6 +88,7 @@ export default {
    * @param {Object} params
    * @param {string} param.projectFullPath - Path of the project, in format `/<namespace>/<project-key>`
    * @param {String} param.cluster - Name of the cluster
+   * @param {String} param.namespace - Name of the namespace
    * @param {string=} params.podName - Pod name, if not set the backend assumes a default one
    * @param {string=} params.containerName - Container name, if not set the backend assumes a default one
    * @returns {Promise} Axios promise for the result of a GET request of logs

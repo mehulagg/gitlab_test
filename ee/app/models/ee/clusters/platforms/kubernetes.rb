@@ -46,7 +46,7 @@ module EE
         def calculate_reactive_cache(request, opts)
           case request
           when CACHE_KEY_GET_POD_LOG
-            container = opts['container_name']
+            container = opts['container']
             pod_name = opts['pod_name']
             namespace = opts['namespace']
 

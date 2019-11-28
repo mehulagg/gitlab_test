@@ -106,7 +106,7 @@ export default {
             class="d-flex js-pods-dropdown"
             toggle-class="dropdown-menu-toggle"
           >
-            <gl-dropdown-item v-for="pod in pods.options" :key="pod" @click="showPodLogs(pod)">{{
+            <gl-dropdown-item v-for="podName in pods.options" :key="podName" @click="showPodLogs(podName)">{{
               pod
             }}</gl-dropdown-item>
           </gl-dropdown>

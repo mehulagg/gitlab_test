@@ -6,8 +6,9 @@ module EE
       extend ActiveSupport::Concern
 
       prepended do
-        before_action :authorize_read_pod_logs!, only: [:show]
-        before_action :cluster, only: [:show]
+        before_action :authorize_read_pod_logs!, only: [:show, :filters]
+        before_action :cluster, only: [:show, :filters]
+        before_action :clusters, only: [:show]
         before_action do
           push_frontend_feature_flag(:environment_logs_use_vue_ui)
         end
@@ -41,7 +42,7 @@ module EE
       end
 
       def filters
-        render json: { pods: cluster.kubeclient.get_pods.map { |pod| { name: pod.metadata.name, namespace: pod.metadata.namespace, containers: pod.spec.containers.map(&:name)} } }
+        render json: { pods: cluster.kubeclient.get_pods.map { |pod| { name: pod.metadata.name, namespace: pod.metadata.namespace, containers: pod.spec.containers.map(&:name) } } }
       end
 
       private
@@ -54,13 +55,18 @@ module EE
         params.permit(:namespace, :container_name, :pod_name)
       end
 
+      # rubocop: disable CodeReuse/ActiveRecord
       def cluster
-        @clusters ||= project.clusters
         @cluster ||= if show_params.key?(:cluster)
-                           project.clusters.where(name: show_params[:cluster]).first
-                         else
-                           project.default_environment.deployment_platform.cluster
-                         end
+                       project.clusters.where(name: show_params[:cluster]).first
+                     else
+                       project.default_environment.deployment_platform.cluster
+                     end
+      end
+      # rubocop: enable CodeReuse/ActiveRecord
+
+      def clusters
+        @clusters ||= project.clusters
       end
     end
   end
