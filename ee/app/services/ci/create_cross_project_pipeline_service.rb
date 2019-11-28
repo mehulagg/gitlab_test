@@ -77,6 +77,37 @@ module Ci
         end
     end
 
+    def create_child_pipeline!
+      parent_pipeline = @bridge.pipeline
+
+      ::Ci::CreatePipelineService
+        .new(@bridge.project, @bridge.user,
+          ref: parent_pipeline.ref,
+          checkout_sha: parent_pipeline.sha,
+          before: parent_pipeline.before_sha,
+          source_sha: parent_pipeline.source_sha,
+          target_sha: parent_pipeline.target_sha
+        )
+        .execute(:pipeline,
+          ignore_skip_ci: true,
+          config_content: downstream_yaml,
+          schedule: parent_pipeline.pipeline_schedule) do |pipeline|
+            @bridge.sourced_pipelines.build(
+              source_pipeline: @bridge.pipeline,
+              source_project: @bridge.project,
+              project: target_project,
+              pipeline: pipeline)
+
+            pipeline.variables.build(@bridge.downstream_variables)
+          end
+    end
+
+    def downstream_yaml
+      return unless @bridge.triggers_child_pipeline?
+
+      @bridge.downstream_yaml
+    end
+
     def target_user
       strong_memoize(:target_user) { @bridge.target_user }
     end
