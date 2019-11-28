@@ -124,7 +124,7 @@ export default {
             "
           >
             <template #forkLink>
-              <a :href="newForkPath" target="_blank" class="help-link">fork this project</a>
+              <a :href="newForkPath" target="_blank" class="help-link">{{ __('fork this project') }}</a>
             </template>
           </gl-sprintf>
         </template>
