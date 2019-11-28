@@ -39,9 +39,10 @@ module Gitlab
       Timing information for debugging purposes:
     MESSAGE
 
-    DOWNLOAD_COMMANDS = %w{git-upload-pack git-upload-archive}.freeze
-    PUSH_COMMANDS = %w{git-receive-pack}.freeze
-    ALL_COMMANDS = DOWNLOAD_COMMANDS + PUSH_COMMANDS
+    GIT_DOWNLOAD_COMMANDS = %w{git-upload-pack git-upload-archive}.freeze
+    GIT_PUSH_COMMANDS = %w{git-receive-pack}.freeze
+
+    ALL_COMMANDS = GIT_DOWNLOAD_COMMANDS + GIT_PUSH_COMMANDS
 
     attr_reader :actor, :project, :protocol, :authentication_abilities, :namespace_path, :project_path, :redirected_path, :auth_result_type, :changes, :logger
 
@@ -79,9 +80,9 @@ module Gitlab
       check_repository_existence!
 
       case cmd
-      when *DOWNLOAD_COMMANDS
+      when *GIT_DOWNLOAD_COMMANDS
         check_download_access!
-      when *PUSH_COMMANDS
+      when *GIT_PUSH_COMMANDS
         check_push_access!
       end
 
@@ -147,11 +148,11 @@ module Gitlab
 
     def check_authentication_abilities!(cmd)
       case cmd
-      when *DOWNLOAD_COMMANDS
+      when *GIT_DOWNLOAD_COMMANDS
         unless authentication_abilities.include?(:download_code) || authentication_abilities.include?(:build_download_code)
           raise UnauthorizedError, ERROR_MESSAGES[:auth_download]
         end
-      when *PUSH_COMMANDS
+      when *GIT_PUSH_COMMANDS
         unless authentication_abilities.include?(:push_code)
           raise UnauthorizedError, ERROR_MESSAGES[:auth_upload]
         end
