@@ -32,9 +32,11 @@ There are two places defined variables can be used. On the:
 | `script`, `before_script`, `after_script`  | yes              | Script execution shell | The variable expansion is made by the [execution shell environment](#execution-shell-environment)                                                                                                                                                                                                                                                                                                                                 |
 | `only:variables:[]`, `except:variables:[]` | no               | n/a                    | The variable must be in the form of `$variable`. Not supported are the following:<br/><br/>- Variables that are based on the environment's name (`CI_ENVIRONMENT_NAME`, `CI_ENVIRONMENT_SLUG`).<br/>- Any other variables related to environment (currently only `CI_ENVIRONMENT_URL`).<br/>- [Persisted variables](#persisted-variables).                                                                                            |
 
-If you are using runner debugging to see what variables are created by GitLab, not all of them are available for use by syntax in `.gitlab-ci.yml`.
+If you are using runner debugging to see what variables are created by GitLab, not all of them are available for use in `.gitlab-ci.yml`.
 
-For example: if you're using rules or only/except policies to determine whether jobs are created, some of the variables in the debug output on the shell runner are not present during pipeline creation.
+For example: if you're using [`rules`](../yaml/README.html#rules), or [`only` / `except`](../yaml/README.html#onlyexcept-basic)
+to determine whether or not jobs are created, some of the variables in the debug output on the shell
+runner are not available during pipeline creation.
 
 - Those created by the shell runner:
 
@@ -82,8 +84,8 @@ FF_USE_LEGACY_BUILDS_DIR_FOR_DOCKER
 FF_USE_LEGACY_VOLUMES_MOUNTING_ORDER
 ```
 
-During your development and testing of your CI logic, consider verifing the presence
-of variables you haven't created yourself before relying on them in your logic:
+During development and testing of your CI configuration, consider verifying the presence
+of variables you haven't created yourself in a test job, before relying on them:
 
 ```yaml
 test_job_name:

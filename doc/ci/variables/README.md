@@ -471,14 +471,13 @@ value you set for this specific pipeline:
 
 ## Environment variables expressions
 
-> Introduced in GitLab 10.7. (only/except)
-> Introduced in GitLab 12.3. (rules)
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/37397) in GitLab 10.7 for [the `only` and `except` CI keywords](../yaml/README.md#onlyexcept-advanced)
+> - [Expanded](https://gitlab.com/gitlab-org/gitlab/issues/27863) in GitLab 12.3 with [the `rules` keyword](../yaml/README.html#rules)
 
 Variable expressions can be used to limit what jobs are going to be created
-within a pipeline after pushing a code to GitLab.
+within a pipeline after pushing changes to GitLab.
 
-This can be done in `.gitlab-ci.yml` preferably with [rules](../yaml/README.html#rules) but
-also with only / except policies, which are [now deprecated.](../yaml/README.html#onlyexcept-basic)
+Originally, this was configured with [`only` and `except`](../yaml/README.html#onlyexcept-basic) in the `.gitlab-ci.yml`, but this is now deprecated. Variable expressions should now only be used with [`rules`](../yaml/README.html#rules).
 
 This is particularly useful in combination with variables and triggered
 pipeline variables.
@@ -500,8 +499,6 @@ a new job is going to be created. If any of the expressions evaluates to truth
 when `except` is being used, a job is not going to be created.
 
 This follows usual rules for [`only` / `except` policies](../yaml/README.md#onlyexcept-advanced).
-
-The [rules documentation](../yaml/README.html#rules) has examples that use variables.
 
 ### Supported syntax
 
@@ -567,11 +564,8 @@ Below you can find supported syntax reference:
 
    Examples:
 
-   - `$VARIABLE =~ /^content.*/`
-   - `$VARIABLE_1 !~ /^content.*/` (introduced in GitLab 11.11)
-
-   Expressions like this evaluate to truth if matches are found when using `=~`.
-   It evaluates to truth if matches are not found when `!~` is used.
+   - `=~`: True if pattern is matched. Ex: `$VARIABLE =~ /^content.*/`
+   - `!~`: True if pattern is not matched. Ex: `$VARIABLE_1 !~ /^content.*/` ([Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/61900) in GitLab 11.11)
 
    Pattern matching is case-sensitive by default. Use `i` flag modifier, like
    `/pattern/i` to make a pattern case-insensitive.
@@ -591,11 +585,14 @@ Below you can find supported syntax reference:
 
 ### Pattern matching against a variable
 
-It is possible perform pattern matching against a variable containing a regular expression.
+It is possible to store a regular expression in a variable, to be used for pattern matching.
 
 NOTE: **Note:**
-Not all regular expression syntax works because of a [bug.](https://gitlab.com/gitlab-org/gitlab/issues/35438)
-Confirm this by directly testing the regular expression, for example: `- if: '$RELEASE =~ /staging.*/'`
+The available regular expression syntax is limited. See [related issue](https://gitlab.com/gitlab-org/gitlab/issues/35438)
+for more details. You may need to test your expression in a test pipeline to verify
+it works as intended.
+
+For example, test the `staging.*` regular expression by adding it to a test pipeline:
 
 ```yaml
 variables:
