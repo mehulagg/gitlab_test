@@ -98,29 +98,31 @@ module EE
         self.user
       end
 
-      def target_project_path
+      def target_project
         downstream_project || upstream_project
       end
 
       def triggers_child_pipeline?
-        same_project? && yaml_for_downstream.present?
+        yaml_for_downstream.present?
       end
 
       def downstream_project
         strong_memoize(:downstream_project) do
-          options&.dig(:trigger, :project)
+          (downstream_project_path && ::Project.find_by_full_path(downstream_project_path)) ||
+            (triggers_child_pipeline? && project)
         end
       end
 
       def yaml_for_downstream
         strong_memoize(:yaml_for_downstream) do
-          options&.dig(:trigger, :yaml)
+          includes = options&.dig(:trigger, :include)
+          YAML.dump('include' => includes) if includes
         end
       end
 
       def upstream_project
         strong_memoize(:upstream_project) do
-          options&.dig(:bridge_needs, :pipeline)
+          upstream_project_path && ::Project.find_by_full_path(upstream_project_path)
         end
       end
 
@@ -151,8 +153,16 @@ module EE
 
       private
 
-      def same_project?
-        ::Project.find_by_full_path(downstream_project) == project
+      def downstream_project_path
+        strong_memoize(:downstream_project_path) do
+          options&.dig(:trigger, :project)
+        end
+      end
+
+      def upstream_project_path
+        strong_memoize(:upstream_project_path) do
+          options&.dig(:bridge_needs, :pipeline)
+        end
       end
     end
   end

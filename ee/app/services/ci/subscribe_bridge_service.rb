@@ -29,7 +29,9 @@ module Ci
 
     def upstream_project
       strong_memoize(:upstream_project) do
-        ::Project.find_by_full_path(@bridge.target_project_path)
+        # TODO: shouldn't this be @bridge.upstream_project?
+        # otherwise it could potentially default to the downstream project
+        @bridge.target_project
       end
     end
 
