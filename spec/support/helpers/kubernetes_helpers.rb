@@ -59,9 +59,13 @@ module KubernetesHelpers
     WebMock.stub_request(:get, pods_url).to_return(response || kube_pods_response)
   end
 
-  def stub_kubeclient_pods(namespace, status: nil)
+  def stub_kubeclient_pods(namespace = nil, status: nil)
     stub_kubeclient_discover(service.api_url)
-    pods_url = service.api_url + "/api/v1/namespaces/#{namespace}/pods"
+    pods_url = if namespace.nil?
+                 service.api_url + "/api/v1/pods"
+               else
+                 service.api_url + "/api/v1/namespaces/#{namespace}/pods"
+               end
     response = { status: status } if status
 
     WebMock.stub_request(:get, pods_url).to_return(response || kube_pods_response)
@@ -297,7 +301,7 @@ module KubernetesHelpers
   def kube_pods_body
     {
       "kind" => "PodList",
-      "items" => [kube_pod]
+      "items" => [kube_pod, kube_pod(name: "kube-pod-2")]
     }
   end
 

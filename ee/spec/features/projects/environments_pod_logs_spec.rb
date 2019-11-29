@@ -7,20 +7,22 @@ describe 'Environment > Pod Logs', :js do
 
   SCROLL_DISTANCE = 400
 
-  let(:pod_names) { %w(foo bar) }
+  let(:pod_names) { %w(kube-pod kube-pod-2) }
   let(:pod_name) { pod_names.first }
   let(:project) { create(:project, :repository) }
   let(:environment) { create(:environment, project: project) }
   let(:service) { create(:cluster_platform_kubernetes, :configured) }
+  let(:cluster) { create(:cluster, :provided_by_gcp, environment_scope: '*', projects: [project]) }
 
   before do
     stub_licensed_features(pod_logs: true)
 
-    create(:cluster, :provided_by_gcp, environment_scope: '*', projects: [project])
+    cluster
     create(:deployment, :success, environment: environment)
 
     stub_kubeclient_pod_details(pod_name, environment.deployment_namespace)
-    stub_kubeclient_logs(pod_name, environment.deployment_namespace, container: 'container-0')
+    stub_kubeclient_logs(pod_name, "project-namespace")
+    stub_kubeclient_pods
 
     # rollout_status_instances = [{ pod_name: foo }, {pod_name: bar}]
     rollout_status_instances = pod_names.collect { |name| { pod_name: name } }
@@ -34,29 +36,29 @@ describe 'Environment > Pod Logs', :js do
     sign_in(project.owner)
   end
 
-  it "shows environments in dropdown" do
-    create(:environment, project: project)
+  it "shows clusters in dropdown" do
+    create(:cluster, :provided_by_gcp, name: 'test-cluster-2', environment_scope: 'foo', projects: [project])
 
-    visit project_logs_path(environment.project, environment_name: environment.name, pod_name: pod_name)
+    visit project_logs_path(environment.project, cluster: cluster.name, pod_name: pod_name)
 
     wait_for_requests
 
-    page.within('.js-environments-dropdown') do
+    page.within('.js-clusters-dropdown') do
       toggle = find(".dropdown-menu-toggle:not([disabled])")
 
-      expect(toggle).to have_content(environment.name)
+      expect(toggle).to have_content(cluster.name)
 
       toggle.click
 
       dropdown_items = find(".dropdown-menu").all(".dropdown-item")
-      expect(dropdown_items.first).to have_content(environment.name)
+      expect(dropdown_items.first).to have_content(cluster.name)
       expect(dropdown_items.size).to eq(2)
     end
   end
 
   context 'with logs', :use_clean_rails_memory_store_caching do
     it "shows pod logs", :sidekiq_might_not_need_inline do
-      visit project_logs_path(environment.project, environment_name: environment.name, pod_name: pod_name)
+      visit project_logs_path(environment.project, cluster: cluster.name, pod_name: pod_name)
 
       wait_for_requests
 
