@@ -22,6 +22,7 @@ gem 'rugged', '~> 0.28'
 gem 'grape-path-helpers', '~> 1.1'
 
 gem 'faraday', '~> 0.12'
+gem 'marginalia', '~> 1.8.0'
 
 # Authentication libraries
 gem 'devise', '~> 4.6'
@@ -170,8 +171,8 @@ group :unicorn do
 end
 
 group :puma do
-  gem 'puma', '~> 3.12', require: false
-  gem 'puma_worker_killer', require: false
+  gem 'puma', '~> 4.3.0', require: false
+  gem 'puma_worker_killer', '~> 0.1.1', require: false
   gem 'rack-timeout', require: false
 end
 
@@ -312,8 +313,7 @@ gem 'gettext', '~> 3.2.2', require: false, group: :development
 gem 'batch-loader', '~> 1.4.0'
 
 # Perf bar
-# https://gitlab.com/gitlab-org/gitlab/issues/13996
-gem 'gitlab-peek', '~> 0.0.1', require: 'peek'
+gem 'peek', '~> 1.1'
 
 # Snowplow events tracking
 gem 'snowplow-tracker', '~> 0.6.1'
@@ -381,7 +381,7 @@ group :development, :test do
 
   gem 'knapsack', '~> 1.17'
 
-  gem 'stackprof', '~> 0.2.10', require: false
+  gem 'stackprof', '~> 0.2.13', require: false
 
   gem 'simple_po_parser', '~> 1.1.2', require: false
 
@@ -402,7 +402,7 @@ group :test do
 
   gem 'capybara', '~> 3.22.0'
   gem 'capybara-screenshot', '~> 1.0.22'
-  gem 'selenium-webdriver', '~> 3.141'
+  gem 'selenium-webdriver', '~> 3.142'
 
   gem 'shoulda-matchers', '~> 4.0.1', require: false
   gem 'email_spec', '~> 2.2.0'

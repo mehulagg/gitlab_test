@@ -49,6 +49,8 @@ shared_examples 'languages and percentages JSON response' do
 end
 
 describe API::Projects do
+  include ProjectForksHelper
+
   let(:user) { create(:user) }
   let(:user2) { create(:user) }
   let(:user3) { create(:user) }
@@ -566,6 +568,87 @@ describe API::Projects do
         let(:filter) { {} }
         let(:current_user) { admin }
         let(:projects) { Project.all }
+      end
+    end
+
+    context 'with keyset pagination' do
+      let(:current_user) { user }
+      let(:projects) { [public_project, project, project2, project3] }
+
+      context 'headers and records' do
+        let(:params) { { pagination: 'keyset', order_by: :id, sort: :asc, per_page: 1 } }
+
+        it 'includes a pagination header with link to the next page' do
+          get api('/projects', current_user), params: params
+
+          expect(response.header).to include('Links')
+          expect(response.header['Links']).to include('pagination=keyset')
+          expect(response.header['Links']).to include("id_after=#{public_project.id}")
+        end
+
+        it 'contains only the first project with per_page = 1' do
+          get api('/projects', current_user), params: params
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response).to be_an Array
+          expect(json_response.map { |p| p['id'] }).to contain_exactly(public_project.id)
+        end
+
+        it 'does not include a link if the end has reached and there is no more data' do
+          get api('/projects', current_user), params: params.merge(id_after: project2.id)
+
+          expect(response.header).not_to include('Links')
+        end
+
+        it 'responds with 501 if order_by is different from id' do
+          get api('/projects', current_user), params: params.merge(order_by: :created_at)
+
+          expect(response).to have_gitlab_http_status(501)
+        end
+      end
+
+      context 'with descending sorting' do
+        let(:params) { { pagination: 'keyset', order_by: :id, sort: :desc, per_page: 1 } }
+
+        it 'includes a pagination header with link to the next page' do
+          get api('/projects', current_user), params: params
+
+          expect(response.header).to include('Links')
+          expect(response.header['Links']).to include('pagination=keyset')
+          expect(response.header['Links']).to include("id_before=#{project3.id}")
+        end
+
+        it 'contains only the last project with per_page = 1' do
+          get api('/projects', current_user), params: params
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response).to be_an Array
+          expect(json_response.map { |p| p['id'] }).to contain_exactly(project3.id)
+        end
+      end
+
+      context 'retrieving the full relation' do
+        let(:params) { { pagination: 'keyset', order_by: :id, sort: :desc, per_page: 2 } }
+
+        it 'returns all projects' do
+          url = '/projects'
+          requests = 0
+          ids = []
+
+          while url && requests <= 5 # circuit breaker
+            requests += 1
+            get api(url, current_user), params: params
+
+            links = response.header['Links']
+            url = links&.match(/<[^>]+(\/projects\?[^>]+)>; rel="next"/) do |match|
+              match[1]
+            end
+
+            ids += JSON.parse(response.body).map { |p| p['id'] }
+          end
+
+          expect(ids).to contain_exactly(*projects.map(&:id))
+        end
       end
     end
   end
@@ -1163,6 +1246,18 @@ describe API::Projects do
         expect(json_response.keys).not_to include('permissions')
       end
 
+      context 'the project is a public fork' do
+        it 'hides details of a public fork parent' do
+          public_project = create(:project, :repository, :public)
+          fork = fork_project(public_project)
+
+          get api("/projects/#{fork.id}")
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response['forked_from_project']).to be_nil
+        end
+      end
+
       context 'and the project has a private repository' do
         let(:project) { create(:project, :repository, :public, :repository_private) }
         let(:protected_attributes) { %w(default_branch ci_config_path) }
@@ -1476,6 +1571,28 @@ describe API::Projects do
           expect(links.has_key?('merge_requests')).to be_falsy
           expect(links.has_key?('issues')).to be_falsy
           expect(links['self']).to end_with("/api/v4/projects/#{project.id}")
+        end
+      end
+
+      context 'the project is a fork' do
+        it 'shows details of a visible fork parent' do
+          fork = fork_project(project, user)
+
+          get api("/projects/#{fork.id}", user)
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response['forked_from_project']).to include('id' => project.id)
+        end
+
+        it 'hides details of a hidden fork parent' do
+          fork = fork_project(project, user)
+          fork_user = create(:user)
+          fork.team.add_developer(fork_user)
+
+          get api("/projects/#{fork.id}", fork_user)
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response['forked_from_project']).to be_nil
         end
       end
 

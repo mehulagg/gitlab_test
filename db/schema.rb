@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_24_150431) do
+ActiveRecord::Schema.define(version: 2019_11_25_140458) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -180,11 +180,8 @@ ActiveRecord::Schema.define(version: 2019_11_24_150431) do
     t.integer "metrics_timeout", default: 10
     t.integer "metrics_method_call_threshold", default: 10
     t.boolean "recaptcha_enabled", default: false
-    t.string "recaptcha_site_key"
-    t.string "recaptcha_private_key"
     t.integer "metrics_port", default: 8089
     t.boolean "akismet_enabled", default: false
-    t.string "akismet_api_key"
     t.integer "metrics_sample_interval", default: 15
     t.boolean "email_author_in_body", default: false
     t.integer "default_group_visibility"
@@ -231,7 +228,6 @@ ActiveRecord::Schema.define(version: 2019_11_24_150431) do
     t.boolean "elasticsearch_aws", default: false, null: false
     t.string "elasticsearch_aws_region", default: "us-east-1"
     t.string "elasticsearch_aws_access_key"
-    t.string "elasticsearch_aws_secret_access_key"
     t.integer "geo_status_timeout", default: 10
     t.string "uuid"
     t.decimal "polling_interval_multiplier", default: "1.0", null: false
@@ -247,8 +243,6 @@ ActiveRecord::Schema.define(version: 2019_11_24_150431) do
     t.string "help_page_support_url"
     t.boolean "slack_app_enabled", default: false
     t.string "slack_app_id"
-    t.string "slack_app_secret"
-    t.string "slack_app_verification_token"
     t.integer "performance_bar_allowed_group_id"
     t.boolean "allow_group_owners_to_manage_ldap", default: true, null: false
     t.boolean "hashed_storage_enabled", default: true, null: false
@@ -355,6 +349,18 @@ ActiveRecord::Schema.define(version: 2019_11_24_150431) do
     t.boolean "sourcegraph_enabled", default: false, null: false
     t.string "sourcegraph_url", limit: 255
     t.boolean "sourcegraph_public_only", default: true, null: false
+    t.text "encrypted_akismet_api_key"
+    t.string "encrypted_akismet_api_key_iv", limit: 255
+    t.text "encrypted_elasticsearch_aws_secret_access_key"
+    t.string "encrypted_elasticsearch_aws_secret_access_key_iv", limit: 255
+    t.text "encrypted_recaptcha_private_key"
+    t.string "encrypted_recaptcha_private_key_iv", limit: 255
+    t.text "encrypted_recaptcha_site_key"
+    t.string "encrypted_recaptcha_site_key_iv", limit: 255
+    t.text "encrypted_slack_app_secret"
+    t.string "encrypted_slack_app_secret_iv", limit: 255
+    t.text "encrypted_slack_app_verification_token"
+    t.string "encrypted_slack_app_verification_token_iv", limit: 255
     t.index ["custom_project_templates_group_id"], name: "index_application_settings_on_custom_project_templates_group_id"
     t.index ["file_template_project_id"], name: "index_application_settings_on_file_template_project_id"
     t.index ["instance_administration_project_id"], name: "index_applicationsettings_on_instance_administration_project_id"
@@ -595,6 +601,7 @@ ActiveRecord::Schema.define(version: 2019_11_24_150431) do
   create_table "ci_build_needs", id: :serial, force: :cascade do |t|
     t.integer "build_id", null: false
     t.text "name", null: false
+    t.boolean "artifacts", default: true, null: false
     t.index ["build_id", "name"], name: "index_ci_build_needs_on_build_id_and_name", unique: true
   end
 
@@ -1939,6 +1946,18 @@ ActiveRecord::Schema.define(version: 2019_11_24_150431) do
     t.index ["group_id"], name: "index_import_export_uploads_on_group_id", unique: true, where: "(group_id IS NOT NULL)"
     t.index ["project_id"], name: "index_import_export_uploads_on_project_id"
     t.index ["updated_at"], name: "index_import_export_uploads_on_updated_at"
+  end
+
+  create_table "import_failures", force: :cascade do |t|
+    t.integer "relation_index"
+    t.bigint "project_id", null: false
+    t.datetime_with_timezone "created_at", null: false
+    t.string "relation_key", limit: 64
+    t.string "exception_class", limit: 128
+    t.string "correlation_id_value", limit: 128
+    t.string "exception_message", limit: 255
+    t.index ["correlation_id_value"], name: "index_import_failures_on_correlation_id_value"
+    t.index ["project_id"], name: "index_import_failures_on_project_id"
   end
 
   create_table "index_statuses", id: :serial, force: :cascade do |t|

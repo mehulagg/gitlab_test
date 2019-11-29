@@ -5272,10 +5272,19 @@ msgstr ""
 msgid "CycleAnalytics|All stages"
 msgstr ""
 
+msgid "CycleAnalytics|Date"
+msgstr ""
+
+msgid "CycleAnalytics|Days to completion"
+msgstr ""
+
 msgid "CycleAnalytics|No stages selected"
 msgstr ""
 
 msgid "CycleAnalytics|Stages"
+msgstr ""
+
+msgid "CycleAnalytics|Total days to completion"
 msgstr ""
 
 msgid "CycleAnalytics|group dropdown filter"
@@ -6452,6 +6461,9 @@ msgstr ""
 msgid "Enter merge request URLs"
 msgstr ""
 
+msgid "Enter new AWS Secret Access Key"
+msgstr ""
+
 msgid "Enter the issue description"
 msgstr ""
 
@@ -6498,6 +6510,9 @@ msgid "Environments Dashboard"
 msgstr ""
 
 msgid "Environments allow you to track deployments of your application %{link_to_read_more}."
+msgstr ""
+
+msgid "Environments in %{name}"
 msgstr ""
 
 msgid "EnvironmentsDashboard|Add a project to the dashboard"
@@ -7651,6 +7666,9 @@ msgstr ""
 msgid "FogBugz import"
 msgstr ""
 
+msgid "Folder/%{name}"
+msgstr ""
+
 msgid "Follow the steps below to export your Google Code project data."
 msgstr ""
 
@@ -7699,7 +7717,7 @@ msgstr ""
 msgid "ForkedFromProjectPath|Forked from"
 msgstr ""
 
-msgid "ForkedFromProjectPath|Forked from %{project_name} (deleted)"
+msgid "ForkedFromProjectPath|Forked from an inaccessible project"
 msgstr ""
 
 msgid "Forking in progress"
@@ -12044,6 +12062,18 @@ msgstr ""
 msgid "Package was removed"
 msgstr ""
 
+msgid "PackageRegistry|Copy Maven XML"
+msgstr ""
+
+msgid "PackageRegistry|Copy Maven command"
+msgstr ""
+
+msgid "PackageRegistry|Copy Maven registry XML"
+msgstr ""
+
+msgid "PackageRegistry|Copy and paste this inside your %{codeStart}pom.xml%{codeEnd} %{codeStart}dependencies%{codeEnd} block."
+msgstr ""
+
 msgid "PackageRegistry|Copy npm command"
 msgstr ""
 
@@ -12062,10 +12092,22 @@ msgstr ""
 msgid "PackageRegistry|Delete package"
 msgstr ""
 
+msgid "PackageRegistry|For more information on the Maven registry, %{linkStart}see the documentation%{linkEnd}."
+msgstr ""
+
+msgid "PackageRegistry|If you haven't already done so, you will need to add the below to your %{codeStart}pom.xml%{codeEnd} file."
+msgstr ""
+
 msgid "PackageRegistry|Installation"
 msgstr ""
 
 msgid "PackageRegistry|Learn how to %{noPackagesLinkStart}publish and share your packages%{noPackagesLinkEnd} with GitLab."
+msgstr ""
+
+msgid "PackageRegistry|Maven Command"
+msgstr ""
+
+msgid "PackageRegistry|Maven XML"
 msgstr ""
 
 msgid "PackageRegistry|Package installation"
@@ -12234,6 +12276,9 @@ msgid "Performance optimization"
 msgstr ""
 
 msgid "PerformanceBar|Download"
+msgstr ""
+
+msgid "PerformanceBar|Frontend resources"
 msgstr ""
 
 msgid "PerformanceBar|Gitaly calls"
@@ -17609,6 +17654,9 @@ msgstr ""
 msgid "There was an error while fetching cycle analytics data."
 msgstr ""
 
+msgid "There was an error while fetching cycle analytics duration data."
+msgstr ""
+
 msgid "There was an error while fetching cycle analytics summary data."
 msgstr ""
 
@@ -17927,7 +17975,10 @@ msgstr ""
 msgid "This will redirect you to an external sign in page."
 msgstr ""
 
-msgid "This will remove the fork relationship to source project"
+msgid "This will remove the fork relationship between this project and %{fork_source}."
+msgstr ""
+
+msgid "This will remove the fork relationship between this project and other projects in the fork network."
 msgstr ""
 
 msgid "Those emails automatically become issues (with the comments becoming the email conversation) listed here."
@@ -19846,7 +19897,7 @@ msgstr ""
 msgid "You are going to remove %{project_full_name}. Removed project CANNOT be restored! Are you ABSOLUTELY sure?"
 msgstr ""
 
-msgid "You are going to remove the fork relationship to source project %{forked_from_project}. Are you ABSOLUTELY sure?"
+msgid "You are going to remove the fork relationship from %{project_full_name}. Are you ABSOLUTELY sure?"
 msgstr ""
 
 msgid "You are going to transfer %{project_full_name} to another owner. Are you ABSOLUTELY sure?"
@@ -20338,6 +20389,9 @@ msgstr ""
 msgid "assign yourself"
 msgstr ""
 
+msgid "at line %{errorLine}%{errorColumn}"
+msgstr ""
+
 msgid "attach a new file"
 msgstr ""
 
@@ -20816,6 +20870,9 @@ msgid "import flow"
 msgstr ""
 
 msgid "importing"
+msgstr ""
+
+msgid "in %{errorFn} "
 msgstr ""
 
 msgid "in group %{link_to_group}"

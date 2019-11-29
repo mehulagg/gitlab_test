@@ -32,7 +32,7 @@ your users to quickly scan the differences between each one you publish.
 
 NOTE: **Note:**
 [Git's tagging messages](https://git-scm.com/book/en/v2/Git-Basics-Tagging) and
-Release descriptions are unrelated. Description supports [markdown](../../markdown.md).
+Release descriptions are unrelated. Description supports [Markdown](../../markdown.md).
 
 ### Release assets
 
@@ -126,7 +126,7 @@ following modal window will be then displayed, from which you can select **New r
 ## Add release notes to Git tags
 
 You can add release notes to any Git tag using the notes feature. Release notes
-behave like any other markdown form in GitLab so you can write text and
+behave like any other Markdown form in GitLab so you can write text and
 drag and drop files to it. Release notes are stored in GitLab's database.
 
 There are several ways to add release notes:
@@ -147,7 +147,7 @@ You can also edit an existing tag to add release notes:
 
 ## Release Evidence
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/26019) in GitLab 12.5.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/26019) in GitLab 12.6.
 
 Each time a new release is created, specific related data is collected in
 parallel. This dataset will be a snapshot this new release (including linked
@@ -155,7 +155,7 @@ milestones and issues) at moment of creation. Such collection of data will
 provide a chain of custody and facilitate processes like external audits, for example.
 
 The gathered Evidence data is stored in the database upon creation of a new
-release as a JSON object. In GitLab 12.5, a link to
+release as a JSON object. In GitLab 12.6, a link to
 the Evidence data is provided for [each Release](#releases-list).
 
 Here's what this object can look like:
