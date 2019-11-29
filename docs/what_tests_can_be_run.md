@@ -65,6 +65,11 @@ For more details on the internals, please read the
 * `QA_DEBUG` - set to `true` to verbosely log page object actions. Note: if enabled be aware that sensitive data might be logged. If an input element has a QA selector with `password` in the name, data entered into the input element will be masked. If the element doesn't have `password` in its name it won't be masked.
 * `QA_LOG_PATH` - path to output debug logging to. If not set logging will be output to STDOUT
 * `QA_CAN_TEST_GIT_PROTOCOL_V2` - set to `false` to skip tests that require Git protocol v2 if your environment doesn't support it.
+* `QA_CAN_TEST_ADMIN_FEATURES` - set to `false` to skip tests that require admin access.
+* `QA_DISABLE_RSPEC_RETRY` - set to `true` to turn off retrying tests on failure.
+* `QA_SIMULATE_SLOW_CONNECTION` - set to `true` to configure Chrome's network settings to simulate a slow connection.
+* `QA_SLOW_CONNECTION_LATENCY_MS` - the additional latency (in ms) of the simulated slow connection (default 2000 ms).
+* `QA_SLOW_CONNECTION_THROUGHPUT_KBPS` - the maximum throughput (in kbps) of the simulated slow connection (default 32 kbps).
 * `QA_SKIP_PULL` - set to `true` to skip pulling docker images (e.g., to use one you built locally).
 * `GITHUB_OAUTH_APP_ID` - Client ID for GitHub OAuth app. See https://docs.gitlab.com/ce/integration/github.html for steps to generate this token.
 * `GITHUB_OAUTH_APP_SECRET` - Client Secret for GitHub OAuth app. See https://docs.gitlab.com/ce/integration/github.html for steps to generate this token.
@@ -75,7 +80,6 @@ For more details on the internals, please read the
 * `GITLAB_QA_1P_SECRET` - Secret for authenticating into 1Password.
 * `GITLAB_QA_1P_GITHUB_UUID` - UUID for GitHub item in GitLab-QA 1Password vault.
 * `GITLAB_QA_LOOP_RUNNER_MINUTES` - Minutes to run and repeat a spec while using the '--loop' option; default value is 1 minute.
-* `QA_CAN_TEST_ADMIN_FEATURES` - set to 'false' to skip tests that require admin access
 
 ## [Supported Remote Grid environment variables](./running_against_remote_grid.md)
 
