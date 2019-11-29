@@ -158,7 +158,8 @@ Example response:
   "allow_local_requests_from_web_hooks_and_services": true,
   "allow_local_requests_from_system_hooks": false,
   "npm_package_requests_forwarding": true,
-  "issues_create_limit": 300
+  "issues_create_limit": 300,
+  "personal_access_token_prefix": "GL-"
 }
 ```
 

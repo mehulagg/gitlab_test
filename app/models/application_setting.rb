@@ -221,6 +221,10 @@ class ApplicationSetting < ApplicationRecord
 
   validates :user_default_internal_regex, js_regex: true, allow_nil: true
 
+  validates :personal_access_token_prefix, 
+             length: { maximum: 20, message: N_('is too long (maximum is 20 characters)') },
+             allow_blank: true
+
   validates :commit_email_hostname, format: { with: /\A[^@]+\z/ }
 
   validates :archive_builds_in_seconds,

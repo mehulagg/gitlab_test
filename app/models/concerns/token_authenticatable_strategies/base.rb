@@ -57,7 +57,11 @@ module TokenAuthenticatableStrategies
 
     def write_new_token(instance)
       new_token = generate_available_token
-      set_token(instance, new_token)
+      if instance.is_a?(PersonalAccessToken)
+        set_token(instance, "#{PersonalAccessToken::TOKEN_PREFIX}#{new_token}")
+      else
+        set_token(instance, new_token)
+      end
     end
 
     def unique

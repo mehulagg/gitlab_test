@@ -135,9 +135,13 @@ module Gitlab
         route_setting(:authentication) || {}
       end
 
-      def access_token
+      def access_token(raises=true)
         strong_memoize(:access_token) do
-          find_oauth_access_token || find_personal_access_token
+          token = find_personal_access_token || find_oauth_access_token
+          if raises
+            raise UnauthorizedError unless token
+          end
+          token
         end
       end
 
@@ -149,19 +153,16 @@ module Gitlab
         return unless token
 
         # Expiration, revocation and scopes are verified in `validate_access_token!`
-        PersonalAccessToken.find_by_token(token) || raise(UnauthorizedError)
+        PersonalAccessToken.find_by_token(token)
       end
 
       def find_oauth_access_token
         token = parsed_oauth_token
         return unless token
 
-        # PATs with OAuth headers are not handled by OauthAccessToken
-        return if matches_personal_access_token_length?(token)
-
         # Expiration, revocation and scopes are verified in `validate_access_token!`
         oauth_token = OauthAccessToken.by_token(token)
-        raise UnauthorizedError unless oauth_token
+        return unless oauth_token
 
         oauth_token.revoke_previous_refresh_token!
         oauth_token
@@ -177,10 +178,6 @@ module Gitlab
 
       def parsed_oauth_token
         Doorkeeper::OAuth::Token.from_request(current_request, *Doorkeeper.configuration.access_token_methods)
-      end
-
-      def matches_personal_access_token_length?(token)
-        token.length == PersonalAccessToken::TOKEN_LENGTH
       end
 
       # Check if the request is GET/HEAD, or if CSRF token is valid.

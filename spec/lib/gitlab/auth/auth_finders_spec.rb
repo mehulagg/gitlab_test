@@ -191,7 +191,7 @@ describe Gitlab::Auth::AuthFinders do
     end
 
     it 'returns nil if no access_token present' do
-      expect(find_user_from_access_token).to be_nil
+      expect { find_user_from_access_token }.to raise_error(Gitlab::Auth::UnauthorizedError)
     end
 
     context 'when validate_access_token! returns valid' do
@@ -219,7 +219,7 @@ describe Gitlab::Auth::AuthFinders do
       it 'returns exception if invalid personal_access_token' do
         env['HTTP_AUTHORIZATION'] = 'Bearer invalid_20byte_token'
 
-        expect { find_personal_access_token }.to raise_error(Gitlab::Auth::UnauthorizedError)
+        expect(find_personal_access_token).to be_nil
       end
     end
   end
@@ -300,7 +300,7 @@ describe Gitlab::Auth::AuthFinders do
     it 'returns exception if invalid personal_access_token' do
       env[described_class::PRIVATE_TOKEN_HEADER] = 'invalid_token'
 
-      expect { find_personal_access_token }.to raise_error(Gitlab::Auth::UnauthorizedError)
+      expect(find_personal_access_token).to be_nil
     end
   end
 
@@ -331,7 +331,7 @@ describe Gitlab::Auth::AuthFinders do
     it 'returns exception if invalid oauth_access_token' do
       env['HTTP_AUTHORIZATION'] = "Bearer invalid_token"
 
-      expect { find_oauth_access_token }.to raise_error(Gitlab::Auth::UnauthorizedError)
+      expect(find_oauth_access_token).to be_nil
     end
   end
 
@@ -453,7 +453,7 @@ describe Gitlab::Auth::AuthFinders do
     let(:personal_access_token) { create(:personal_access_token, user: user) }
 
     it 'returns nil if no access_token present' do
-      expect(validate_access_token!).to be_nil
+      expect { validate_access_token! }.to raise_error(Gitlab::Auth::UnauthorizedError)
     end
 
     context 'token is not valid' do

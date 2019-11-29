@@ -105,8 +105,8 @@ describe PersonalAccessToken, 'TokenAuthenticatable' do
     it 'sets new token' do
       subject
 
-      expect(personal_access_token.token).to eq(token_value)
-      expect(personal_access_token.token_digest).to eq(Gitlab::CryptoHelper.sha256(token_value))
+      expect(personal_access_token.token).to eq("#{PersonalAccessToken::TOKEN_PREFIX}#{token_value}")
+      expect(personal_access_token.token_digest).to eq(Gitlab::CryptoHelper.sha256("#{PersonalAccessToken::TOKEN_PREFIX}#{token_value}"))
     end
   end
 

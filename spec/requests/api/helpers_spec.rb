@@ -148,7 +148,7 @@ describe API::Helpers do
       it "returns a 401 response for an invalid token" do
         env[Gitlab::Auth::AuthFinders::PRIVATE_TOKEN_HEADER] = 'invalid token'
 
-        expect { current_user }.to raise_error /401/
+        expect(current_user).to be_nil
       end
 
       it "returns a 403 response for a user without access" do

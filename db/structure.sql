@@ -402,6 +402,7 @@ CREATE TABLE public.application_settings (
     issues_create_limit integer DEFAULT 300 NOT NULL,
     push_rule_id bigint,
     group_owners_can_manage_default_branch_protection boolean DEFAULT true NOT NULL
+    personal_access_token_prefix character varying
 );
 
 CREATE SEQUENCE public.application_settings_id_seq
@@ -13266,5 +13267,6 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200416111111
 20200416120128
 20200416120354
+20210415133701
 \.
 
