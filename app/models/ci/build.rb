@@ -206,7 +206,8 @@ module Ci
 
     state_machine :status do
       event :enqueue do
-        transition [:created, :skipped, :manual, :scheduled] => :preparing, if: :any_unmet_prerequisites?
+        transition [:created, :skipped, :manual, :scheduled, :waiting_for_resource] => :waiting_for_resource, if: :requires_resource?
+        transition [:created, :skipped, :manual, :scheduled, :waiting_for_resource] => :preparing, if: :any_unmet_prerequisites?
       end
 
       event :actionize do
@@ -239,6 +240,16 @@ module Ci
         build.scheduled_at = build.options_scheduled_at
       end
 
+      before_transition any => :waiting_for_resource do |build|
+        build.waiting_for_resource_at ||= Time.now
+      end
+
+      after_transition any => :waiting_for_resource do |build|
+        build.run_after_commit do
+          Ci::ResourceGroups::RetainResourceForBuildWorker.perform_async(build.id)
+        end
+      end
+
       after_transition created: :scheduled do |build|
         build.run_after_commit do
           Ci::BuildScheduleWorker.perform_at(build.scheduled_at, build.id)
@@ -264,6 +275,14 @@ module Ci
           build.pipeline.persistent_ref.create
 
           BuildHooksWorker.perform_async(id)
+        end
+      end
+
+      after_transition any => ::Ci::Build.completed_statuses do |build|
+        next unless build.retains_resource?
+
+        build.run_after_commit do
+          Ci::ResourceGroups::ReleaseResourceFromBuildWorker.perform_async(build.id)
         end
       end
 

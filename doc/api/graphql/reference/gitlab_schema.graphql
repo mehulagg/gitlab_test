@@ -4321,6 +4321,7 @@ enum PipelineStatusEnum {
   SCHEDULED
   SKIPPED
   SUCCESS
+  WAITING_FOR_RESOURCE
 }
 
 type Project {

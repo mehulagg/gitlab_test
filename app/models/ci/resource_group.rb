@@ -16,12 +16,19 @@ module Ci
 
     before_create :ensure_resource
 
+    ##
+    # NOTE: This is concurrency-safe method that the subquery in the `UPDATE`
+    # works as explicit locking.
     def retain_resource_for(build)
       resources.free.limit(1).update_all(build_id: build.id) > 0
     end
 
     def release_resource_from(build)
       resources.retained_by(build).update_all(build_id: nil) > 0
+    end
+
+    def waiting_build
+      builds.waiting_for_resource.take
     end
 
     private

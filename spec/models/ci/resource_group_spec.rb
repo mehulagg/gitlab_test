@@ -17,6 +17,28 @@ describe Ci::ResourceGroup do
     end
   end
 
+  describe '.waiting_build' do
+    subject { resource_group.waiting_build }
+
+    let!(:resource_group) { create(:ci_resource_group) }
+
+    context 'when build status is waiting_for_resource' do
+      let!(:build) { create(:ci_build, :waiting_for_resource, resource_group: resource_group) }
+
+      it 'returns the build' do
+        is_expected.to eq(build)
+      end
+    end
+
+    context 'when build status is created' do
+      let!(:build) { create(:ci_build, :created, resource_group: resource_group) }
+
+      it 'does not return anything' do
+        is_expected.to be_nil
+      end
+    end
+  end
+
   describe '#ensure_resource' do
     it 'creates one resource when resource group is created' do
       resource_group = create(:ci_resource_group)

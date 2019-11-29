@@ -1097,6 +1097,85 @@ describe Ci::Build do
     end
   end
 
+  describe 'state transition with resource group' do
+    let(:resource_group) { create(:ci_resource_group, project: project) }
+
+    context 'when build status is created' do
+      let(:build) { create(:ci_build, :created, project: project, resource_group: resource_group) }
+
+      it 'is waiting for resource when build is enqueued' do
+        expect(Ci::ResourceGroups::RetainResourceForBuildWorker).to receive(:perform_async).with(build.id)
+
+        expect { build.enqueue! }.to change { build.status }.from('created').to('waiting_for_resource')
+
+        expect(build.waiting_for_resource_at).not_to be_nil
+      end
+
+      context 'when build retains a resource' do
+        before do
+          resource_group.retain_resource_for(build)
+        end
+
+        it 'is enqueued when build is enqueued' do
+          expect { build.enqueue! }.to change { build.status }.from('created').to('pending')
+        end
+
+        it 'releases a resource when build finished' do
+          expect(Ci::ResourceGroups::ReleaseResourceFromBuildWorker).to receive(:perform_async).with(build.id)
+
+          build.success!
+        end
+
+        context 'when build has prerequisites' do
+          before do
+            allow(build).to receive(:any_unmet_prerequisites?) { true }
+          end
+
+          it 'is preparing when build is enqueued' do
+            expect { build.enqueue! }.to change { build.status }.from('created').to('preparing')
+          end
+        end
+      end
+    end
+
+    context 'when build status is waiting_for_resource' do
+      let(:build) do
+        create(:ci_build, :waiting_for_resource, resource_group: resource_group,
+          waiting_for_resource_at: waiting_for_resource_at)
+      end
+
+      let(:waiting_for_resource_at) { 1.minute.ago }
+
+      it 'keeps waiting for resource when build is enqueued' do
+        Timecop.travel 1.minute.from_now do
+          expect { build.enqueue! }.not_to change { build.status }
+
+          expect(build.waiting_for_resource_at.to_i).to eq(waiting_for_resource_at.to_i)
+        end
+      end
+
+      context 'when build retains a resource' do
+        before do
+          resource_group.retain_resource_for(build)
+        end
+
+        it 'is enqueued when build is enqueued' do
+          expect { build.enqueue! }.to change { build.status }.from('waiting_for_resource').to('pending')
+        end
+
+        context 'when build has prerequisites' do
+          before do
+            allow(build).to receive(:any_unmet_prerequisites?) { true }
+          end
+
+          it 'is preparing when build is enqueued' do
+            expect { build.enqueue! }.to change { build.status }.from('waiting_for_resource').to('preparing')
+          end
+        end
+      end
+    end
+  end
+
   describe '#on_stop' do
     subject { build.on_stop }
 

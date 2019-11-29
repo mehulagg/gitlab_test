@@ -90,7 +90,7 @@ class CommitStatus < ApplicationRecord
       # A CommitStatus will never have prerequisites, but this event
       # is shared by Ci::Build, which cannot progress unless prerequisites
       # are satisfied.
-      transition [:created, :preparing, :skipped, :manual, :scheduled] => :pending, unless: :any_unmet_prerequisites?
+      transition [:created, :waiting_for_resource, :preparing, :skipped, :manual, :scheduled] => :pending, if: :all_met_to_become_pending?
     end
 
     event :run do
@@ -98,22 +98,22 @@ class CommitStatus < ApplicationRecord
     end
 
     event :skip do
-      transition [:created, :preparing, :pending] => :skipped
+      transition [:created, :waiting_for_resource, :preparing, :pending] => :skipped
     end
 
     event :drop do
-      transition [:created, :preparing, :pending, :running, :scheduled] => :failed
+      transition [:created, :waiting_for_resource, :preparing, :pending, :running, :scheduled] => :failed
     end
 
     event :success do
-      transition [:created, :preparing, :pending, :running] => :success
+      transition [:created, :waiting_for_resource, :preparing, :pending, :running] => :success
     end
 
     event :cancel do
-      transition [:created, :preparing, :pending, :running, :manual, :scheduled] => :canceled
+      transition [:created, :waiting_for_resource, :preparing, :pending, :running, :manual, :scheduled] => :canceled
     end
 
-    before_transition [:created, :preparing, :skipped, :manual, :scheduled] => :pending do |commit_status|
+    before_transition [:created, :waiting_for_resource, :preparing, :skipped, :manual, :scheduled] => :pending do |commit_status|
       commit_status.queued_at = Time.now
     end
 
@@ -212,7 +212,15 @@ class CommitStatus < ApplicationRecord
     false
   end
 
+  def all_met_to_become_pending?
+    !any_unmet_prerequisites? && !requires_resource?
+  end
+
   def any_unmet_prerequisites?
+    false
+  end
+
+  def requires_resource?
     false
   end
 
