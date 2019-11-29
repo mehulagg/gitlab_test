@@ -89,7 +89,7 @@ of variables you haven't created yourself in a test job, before relying on them:
 
 ```yaml
 test_job_name:
-  script: /usr/bin/true
+  script: /bin/true
   rules:
     - if: '$CI_VARIABLE_NAME'
 ```
