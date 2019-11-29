@@ -585,14 +585,7 @@ Below you can find supported syntax reference:
 
 ### Pattern matching against a variable
 
-It is possible to store a regular expression in a variable, to be used for pattern matching.
-
-NOTE: **Note:**
-The available regular expression syntax is limited. See [related issue](https://gitlab.com/gitlab-org/gitlab/issues/35438)
-for more details. You may need to test your expression in a test pipeline to verify
-it works as intended.
-
-For example, test the `staging.*` regular expression by adding it to a test pipeline:
+It is possible to store a regular expression in a variable, to be used for pattern matching:
 
 ```yaml
 variables:
@@ -603,6 +596,28 @@ deploy_staging:
   environment: staging
   rules:
     - if: '$RELEASE =~ $STAGINGRELS'
+```
+
+NOTE: **Note:**
+The available regular expression syntax is limited. See [related issue](https://gitlab.com/gitlab-org/gitlab/issues/35438)
+for more details.
+
+Use a test pipeline to determine whether a regular expression will work in a variable. For example:
+
+```yaml
+variables:
+  MYSTRING: 'master'
+  MYREGEX: '/^mast.*/'
+
+testdirect:
+  script: /bin/true
+  rules:
+    - if: '$MYSTRING =~ /^mast.*/'
+
+testvariable:
+  script: /bin/true
+  rules:
+    - if: '$MYSTRING =~ $MYREGEX'
 ```
 
 ## Debug logging
