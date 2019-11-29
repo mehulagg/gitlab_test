@@ -223,6 +223,15 @@ module Sentry
       stack_trace_entry.dig('stacktrace', 'frames')
     end
 
+    def parse_gitlab_issue(plugin_issues)
+      return unless plugin_issues
+
+      gitlab_plugin = issue.find{|item| item.id == "gitlab"}
+      return unless gitlab_plugin
+
+      gitlab_plugin.dig('issue', 'url')
+    end
+
     def map_to_detailed_error(issue)
       Gitlab::ErrorTracking::DetailedError.new(
         id: issue.fetch('id'),
@@ -238,6 +247,7 @@ module Sentry
         external_base_url: project_url,
         short_id: issue.fetch('shortId', nil),
         status: issue.fetch('status', nil),
+        gitlab_issue: parse_gitlab_issue(issue.fetch('pluginIssues', nil)),
         frequency: issue.dig('stats', '24h'),
         project_id: issue.dig('project', 'id'),
         project_name: issue.dig('project', 'name'),
