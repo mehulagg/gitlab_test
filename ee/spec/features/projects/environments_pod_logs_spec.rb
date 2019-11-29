@@ -37,7 +37,7 @@ describe 'Environment > Pod Logs', :js do
   it "shows environments in dropdown" do
     create(:environment, project: project)
 
-    visit logs_project_environment_path(environment.project, environment, pod_name: pod_name)
+    visit project_logs_path(environment.project, environment_name: environment.name, pod_name: pod_name)
 
     wait_for_requests
 
