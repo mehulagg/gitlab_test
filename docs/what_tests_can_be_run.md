@@ -68,7 +68,7 @@ For more details on the internals, please read the
 * `QA_CAN_TEST_ADMIN_FEATURES` - set to `false` to skip tests that require admin access.
 * `QA_DISABLE_RSPEC_RETRY` - set to `true` to turn off retrying tests on failure.
 * `QA_SIMULATE_SLOW_CONNECTION` - set to `true` to configure Chrome's network settings to simulate a slow connection.
-* `QA_SLOW_CONNECTION_LATENCY_MS` - the additional latency (in ms) of the simulated slow connection (default 2000 ms)
+* `QA_SLOW_CONNECTION_LATENCY_MS` - the additional latency (in ms) of the simulated slow connection (default 2000 ms).
 * `QA_SLOW_CONNECTION_THROUGHPUT_KBPS` - the maximum throughput (in kbps) of the simulated slow connection (default 32 kbps).
 * `QA_SKIP_PULL` - set to `true` to skip pulling docker images (e.g., to use one you built locally).
 * `GITHUB_OAUTH_APP_ID` - Client ID for GitHub OAuth app. See https://docs.gitlab.com/ce/integration/github.html for steps to generate this token.
