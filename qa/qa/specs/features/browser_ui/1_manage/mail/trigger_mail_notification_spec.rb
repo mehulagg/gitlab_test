@@ -3,16 +3,21 @@
 module QA
   context 'Manage', :orchestrated, :smtp do
     describe 'mail notification' do
-      let(:user) { Resource::User.fabricate_or_use(Runtime::Env.gitlab_qa_username_1, Runtime::Env.gitlab_qa_password_1) }
+      let(:user) do
+        Resource::User.fabricate_or_use(Runtime::Env.gitlab_qa_username_1, Runtime::Env.gitlab_qa_password_1)
+      end
+
+      let(:project) do
+        Resource::Project.fabricate_via_api! do |resource|
+          resource.name = 'email-notification-test'
+        end
+      end
 
       before do
         # Add user to new project
         Runtime::Browser.visit(:gitlab, Page::Main::Login)
         Page::Main::Login.perform(&:sign_in_using_credentials)
 
-        project = Resource::Project.fabricate_via_api! do |resource|
-          resource.name = 'email-notification-test'
-        end
         project.visit!
       end
 
