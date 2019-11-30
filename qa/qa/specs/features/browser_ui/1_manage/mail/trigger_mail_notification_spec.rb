@@ -1,12 +1,8 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Manage', :docker do
+  context 'Manage', :orchestrated, :smtp do
     describe 'mail notification' do
-      before do
-        @mailhog_server = run_mailhog_service
-      end
-
       it 'user receives email for project invitation' do
         # Add user to new project
         Runtime::Browser.visit(:gitlab, Page::Main::Login)
@@ -28,7 +24,7 @@ module QA
 
         # Wait for Action Mailer to deliver messages
         mailhog_json = Support::Retrier.retry_until(sleep_interval: 1) do
-          mailhog_response = Net::HTTP.start(@mailhog_server.host_name, 8025, use_ssl: false) do |http|
+          mailhog_response = Net::HTTP.start('mailhog.test', 8025, use_ssl: false) do |http|
             http.request(Net::HTTP::Get.new('/api/v2/messages'))
           end
 
@@ -41,21 +37,6 @@ module QA
         # Check json result from mailhog
         mailhog_items = mailhog_json.dig('items')
         expect(mailhog_items).to include(an_object_satisfying { |o| /project was granted/ === o.dig('Content', 'Headers', 'Subject', 0) })
-      end
-
-      after do
-        remove_mailhog_service
-      end
-
-      def run_mailhog_service
-        Service::DockerRun::MailHog.new.tap do |runner|
-          runner.pull
-          runner.register!
-        end
-      end
-
-      def remove_mailhog_service
-        Service::DockerRun::MailHog.new.remove!
       end
     end
   end

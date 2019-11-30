@@ -130,6 +130,7 @@ module QA
         autoload :Kubernetes, 'qa/scenario/test/integration/kubernetes'
         autoload :Mattermost, 'qa/scenario/test/integration/mattermost'
         autoload :ObjectStorage, 'qa/scenario/test/integration/object_storage'
+        autoload :SMTP, 'qa/scenario/test/integration/smtp'
       end
 
       module Sanity
