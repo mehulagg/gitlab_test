@@ -3,7 +3,7 @@ import { GlLoadingIcon } from '@gitlab/ui';
 import LastCommit from '~/repository/components/last_commit.vue';
 import UserAvatarLink from '~/vue_shared/components/user_avatar/user_avatar_link.vue';
 
-let vm;
+let wrapper;
 
 function createCommitData(data = {}) {
   return {
@@ -31,7 +31,7 @@ function createCommitData(data = {}) {
 }
 
 function factory(commit = createCommitData(), loading = false) {
-  vm = shallowMount(LastCommit, {
+  wrapper = shallowMount(LastCommit, {
     mocks: {
       $apollo: {
         queries: {
@@ -41,14 +41,16 @@ function factory(commit = createCommitData(), loading = false) {
         },
       },
     },
+    sync: false,
+    attachToDocument: true,
   });
-  vm.setData({ commit });
-  vm.vm.$apollo.queries.commit.loading = loading;
+  wrapper.setData({ commit });
+  wrapper.vm.$apollo.queries.commit.loading = loading;
 }
 
 describe('Repository last commit component', () => {
   afterEach(() => {
-    vm.destroy();
+    wrapper.destroy();
   });
 
   it.each`
@@ -58,59 +60,69 @@ describe('Repository last commit component', () => {
   `('$label when loading icon $loading is true', ({ loading }) => {
     factory(createCommitData(), loading);
 
-    expect(vm.find(GlLoadingIcon).exists()).toBe(loading);
+    return wrapper.vm.$nextTick(() => {
+      expect(wrapper.find(GlLoadingIcon).exists()).toBe(loading);
+    });
   });
 
   it('renders commit widget', () => {
     factory();
 
-    expect(vm.element).toMatchSnapshot();
+    expect(wrapper.element).toMatchSnapshot();
   });
 
-  it('renders short commit ID', () => {
+  it('renders short commit ID', async () => {
     factory();
 
-    expect(vm.find('.label-monospace').text()).toEqual('12345678');
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.find('.label-monospace').text()).toEqual('12345678');
   });
 
   it('hides pipeline components when pipeline does not exist', () => {
     factory(createCommitData({ pipeline: null }));
 
-    expect(vm.find('.js-commit-pipeline').exists()).toBe(false);
+    expect(wrapper.find('.js-commit-pipeline').exists()).toBe(false);
   });
 
-  it('renders pipeline components', () => {
+  it('renders pipeline components', async () => {
     factory();
 
-    expect(vm.find('.js-commit-pipeline').exists()).toBe(true);
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.find('.js-commit-pipeline').exists()).toBe(true);
   });
 
   it('hides author component when author does not exist', () => {
     factory(createCommitData({ author: null }));
 
-    expect(vm.find('.js-user-link').exists()).toBe(false);
-    expect(vm.find(UserAvatarLink).exists()).toBe(false);
+    expect(wrapper.find('.js-user-link').exists()).toBe(false);
+    expect(wrapper.find(UserAvatarLink).exists()).toBe(false);
   });
 
   it('does not render description expander when description is null', () => {
     factory(createCommitData({ description: null }));
 
-    expect(vm.find('.text-expander').exists()).toBe(false);
-    expect(vm.find('.commit-row-description').exists()).toBe(false);
+    expect(wrapper.find('.text-expander').exists()).toBe(false);
+    expect(wrapper.find('.commit-row-description').exists()).toBe(false);
   });
 
-  it('expands commit description when clicking expander', () => {
+  it('expands commit description when clicking expander', async () => {
     factory(createCommitData({ description: 'Test description' }));
 
-    vm.find('.text-expander').vm.$emit('click');
+    await wrapper.vm.$nextTick();
 
-    expect(vm.find('.commit-row-description').isVisible()).toBe(true);
-    expect(vm.find('.text-expander').classes('open')).toBe(true);
+    wrapper.find('.text-expander').trigger('click');
+
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.find('.commit-row-description').isVisible()).toBe(true);
+    expect(wrapper.find('.text-expander').classes('open')).toBe(true);
   });
 
   it('renders the signature HTML as returned by the backend', () => {
     factory(createCommitData({ signatureHtml: '<button>Verified</button>' }));
 
-    expect(vm.element).toMatchSnapshot();
+    expect(wrapper.element).toMatchSnapshot();
   });
 });
