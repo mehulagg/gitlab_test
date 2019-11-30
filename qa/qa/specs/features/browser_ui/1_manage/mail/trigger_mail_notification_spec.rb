@@ -3,18 +3,20 @@
 module QA
   context 'Manage', :orchestrated, :smtp do
     describe 'mail notification' do
-      it 'user receives email for project invitation' do
+      let(:user) { Resource::User.fabricate_or_use(Runtime::Env.gitlab_qa_username_1, Runtime::Env.gitlab_qa_password_1) }
+
+      before do
         # Add user to new project
         Runtime::Browser.visit(:gitlab, Page::Main::Login)
         Page::Main::Login.perform(&:sign_in_using_credentials)
-
-        user = Resource::User.fabricate_or_use(Runtime::Env.gitlab_qa_username_1, Runtime::Env.gitlab_qa_password_1)
 
         project = Resource::Project.fabricate_via_api! do |resource|
           resource.name = 'email-notification-test'
         end
         project.visit!
+      end
 
+      it 'user receives email for project invitation' do
         Page::Project::Menu.perform(&:go_to_members_settings)
         Page::Project::Settings::Members.perform do |page| # rubocop:disable QA/AmbiguousPageObjectName
           page.add_member(user.username)
@@ -24,9 +26,7 @@ module QA
 
         # Wait for Action Mailer to deliver messages
         mailhog_json = Support::Retrier.retry_until(sleep_interval: 1) do
-          mailhog_response = Net::HTTP.start('mailhog.test', 8025, use_ssl: false) do |http|
-            http.request(Net::HTTP::Get.new('/api/v2/messages'))
-          end
+          mailhog_response = get 'http://mailhog.test:8025/api/v2/messages'
 
           mailhog_data = JSON.parse(mailhog_response.body)
 
