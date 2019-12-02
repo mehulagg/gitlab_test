@@ -5,9 +5,9 @@ require 'spec_helper'
 describe Metrics::SampleMetricsService do
   describe 'query' do
     context 'when the file is not found' do
-      subject { -> { described_class.new(nil).query } }
+      subject { described_class.new(nil).query }
 
-      it { is_expected.to raise_error(Metrics::SampleMetricsService::MissingSampleMetricsFile) }
+      it { is_expected.to be_nil }
     end
 
     context 'when the file is found' do

@@ -13,15 +13,6 @@ describe Projects::Environments::SampleMetricsController do
   end
 
   describe 'GET #query' do
-    let(:expected_params) do
-      ActionController::Parameters.new(
-        environment_params(
-          controller: 'projects/environments/sample_metrics',
-          action: 'query'
-        )
-      ).permit!
-    end
-
     context 'when the file is not found' do
       before do
         get :query, params: environment_params
@@ -38,12 +29,9 @@ describe Projects::Environments::SampleMetricsController do
         get :query, params: environment_params
       end
 
-      it 'returns a 200 status code' do
-        expect(response).to have_gitlab_http_status(:ok)
-      end
-
-      it 'returns JSON with a message' do
+      it 'returns JSON with a message and a 200 status code' do
         expect(json_response.keys).to contain_exactly('status', 'data')
+        expect(response).to have_gitlab_http_status(:ok)
       end
     end
   end

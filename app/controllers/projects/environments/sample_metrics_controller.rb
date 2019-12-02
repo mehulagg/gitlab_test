@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 class Projects::Environments::SampleMetricsController < Projects::ApplicationController
-  rescue_from(Metrics::SampleMetricsService::MissingSampleMetricsFile) do
-    render_404
-  end
-
   def query
     result = Metrics::SampleMetricsService.new(params[:identifier]).query
-    render json: { "status": "success", "data": { "resultType": "matrix", "result": result } }
+
+    if result
+      render json: { "status": "success", "data": { "resultType": "matrix", "result": result } }
+    else
+      render_404
+    end
   end
 end

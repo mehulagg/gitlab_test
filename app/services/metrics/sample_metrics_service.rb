@@ -4,8 +4,6 @@ module Metrics
   class SampleMetricsService
     DIRECTORY = "sample_metrics"
 
-    MissingSampleMetricsFile = Class.new(StandardError)
-
     attr_reader :identifier
 
     def initialize(identifier)
@@ -13,7 +11,7 @@ module Metrics
     end
 
     def query
-      raise MissingSampleMetricsFile unless File.exist?(file_location)
+      return unless File.exist?(file_location)
 
       YAML.load_file(File.expand_path(file_location, __dir__))
     end
