@@ -92,8 +92,8 @@ module API
         )
         options[:with] = Entities::BasicProjectDetails if params[:simple]
 
-        projects = options[:with].prepare_relation(projects, options)
         projects = paginate(projects)
+        projects = options[:with].prepare_relation(projects, options)
 
         present projects, options
       end
