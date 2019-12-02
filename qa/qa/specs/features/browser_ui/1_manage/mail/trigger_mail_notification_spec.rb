@@ -23,8 +23,8 @@ module QA
 
       it 'user receives email for project invitation' do
         Page::Project::Menu.perform(&:go_to_members_settings)
-        Page::Project::Settings::Members.perform do |page| # rubocop:disable QA/AmbiguousPageObjectName
-          page.add_member(user.username)
+        Page::Project::Settings::Members.perform do |member_settings|
+          member_settings.add_member(user.username)
         end
 
         expect(page).to have_content(/@#{user.username}(\n| )?Given access/)
