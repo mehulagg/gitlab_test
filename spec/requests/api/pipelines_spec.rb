@@ -16,7 +16,7 @@ describe API::Pipelines do
     project.add_maintainer(user)
   end
 
-  describe 'GET /projects/:id/pipelines ' do
+  shared_examples 'GET /projects/:id/pipelines' do
     it_behaves_like 'pipelines visibility table'
 
     context 'authorized user' do
@@ -301,6 +301,22 @@ describe API::Pipelines do
         expect(json_response).not_to be_an Array
       end
     end
+  end
+
+  context 'when `fast_pipelines_api` feature is enabled' do
+    before do
+      stub_feature_flags(fast_pipelines_api: true)
+    end
+
+    include_examples 'GET /projects/:id/pipelines'
+  end
+
+  context 'when `fast_pipelines_api` feature is disabled' do
+    before do
+      stub_feature_flags(fast_pipelines_api: false)
+    end
+
+    include_examples 'GET /projects/:id/pipelines'
   end
 
   describe 'POST /projects/:id/pipeline ' do

@@ -37,7 +37,13 @@ module API
         authorize! :read_build, user_project
 
         pipelines = PipelinesFinder.new(user_project, current_user, params).execute
-        present paginate(pipelines), with: Entities::PipelineBasic
+        paginated = paginate(pipelines)
+
+        if Feature.enabled?(:fast_pipelines_api)
+          body SqlEntities::Pipeline.present_collection(scope: paginated, project: user_project)
+        else
+          present paginated, with: Entities::PipelineBasic
+        end
       end
 
       desc 'Create a new pipeline' do
