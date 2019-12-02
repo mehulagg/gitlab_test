@@ -21,12 +21,13 @@ module Gitlab
                   praefect['enable'] = true;
                   praefect['listen_addr'] = '0.0.0.0:2305';
                   praefect['auth_token'] = 'praefect-token';
-                  praefect['virtual_storage_name'] = 'default';
-                  praefect['storage_nodes'] = {
-                    'praefect-gitaly-0' => {
-                      'address' => 'unix:/var/opt/gitlab/gitaly/gitaly.socket',
-                      'token'   => 'praefect-gitaly-token',
-                      'primary' => true
+                  praefect['virtual_storages'] = {
+                    'default' => {
+                      'praefect-gitaly-0' => {
+                        'address' => 'unix:/var/opt/gitlab/gitaly/gitaly.socket',
+                        'token'   => 'praefect-gitaly-token',
+                        'primary' => true
+                      }
                     }
                   };
                   gitlab_rails['gitaly_token'] = 'praefect-token';
