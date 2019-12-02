@@ -118,20 +118,6 @@ module Ci
     end
     # rubocop: enable CodeReuse/ActiveRecord
 
-    # If pipeline is a child of another pipeline we don't want to
-    # cancel all related pipelines (siblings + parent) having the
-    # same ref and sha.
-    def related_pipeline_ids
-      upstream_pipeline = pipeline.triggered_by_pipeline
-
-      if upstream_pipeline && upstream_pipeline.project == pipeline.project
-        child_pipeline_ids = upstream_pipeline&.triggered_pipelines&.pluck(:id) || []
-        child_pipeline_ids + [upstream_pipeline.id]
-      else
-        [pipeline.id]
-      end
-    end
-
     def pipeline_created_counter
       @pipeline_created_counter ||= Gitlab::Metrics
         .counter(:pipelines_created_total, "Counter of pipelines created")
