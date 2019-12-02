@@ -3,6 +3,11 @@ LABEL maintainer "Grzegorz Bizon <grzegorz@gitlab.com>"
 ENV DEBIAN_FRONTEND noninteractive
 
 ##
+# Enable support for UTF encoded stdin/stdout
+#
+ENV LANG C.UTF-8
+
+##
 # Add support for stretch-backports
 #
 RUN echo "deb http://ftp.debian.org/debian stretch-backports main" >> /etc/apt/sources.list
