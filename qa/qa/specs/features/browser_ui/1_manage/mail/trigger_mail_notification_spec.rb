@@ -14,7 +14,6 @@ module QA
       end
 
       before do
-        # Add user to new project
         Runtime::Browser.visit(:gitlab, Page::Main::Login)
         Page::Main::Login.perform(&:sign_in_using_credentials)
 
@@ -31,7 +30,7 @@ module QA
 
         # Wait for Action Mailer to deliver messages
         mailhog_json = Support::Retrier.retry_until(sleep_interval: 1) do
-          Runtime::Logger.debug(%Q[retrieving "#{QA::Runtime::MailHog::api_messages_url}"]) if Runtime::Env.debug?
+          Runtime::Logger.debug(%Q[retrieving "#{QA::Runtime::MailHog.api_messages_url}"]) if Runtime::Env.debug?
 
           mailhog_response = get QA::Runtime::MailHog.api_messages_url
 
