@@ -19,6 +19,50 @@ module ApplicationWorker
       subclass.set_queue
     end
 
+    def perform_async(*args)
+      set_sidekiq_profile_option(jid, profile_option) do
+        super(*args)
+      end
+    end
+
+    def parse_sidekiq_profile_option
+      profile_option = nil
+
+      if Gitlab::SafeRequestStore[:sidekiq_profile_mode] && Gitlab::SafeRequestStore[:sidekiq_profile_worker] && self.name == Gitlab::SafeRequestStore[:sidekiq_profile_worker]
+        profile_option = { mode: Gitlab::SafeRequestStore[:sidekiq_profile_mode], worker: Gitlab::SafeRequestStore[:sidekiq_profile_worker] }
+      end
+
+      profile_option
+    end
+
+    SIDEKIQ_PROFILE_KEY = 'sidekiq-profile:%s'
+    DEFAULT_EXPIRATION = 30.minutes.to_i
+
+    def set_sidekiq_profile_option(expire = DEFAULT_EXPIRATION)
+      jid_or_jids = yield
+
+      profile_option = parse_sidekiq_profile_option
+      return jid_or_jids unless profile_option
+
+      jids = jid_or_jids.is_a?(Array)? jid_or_jids: [ jid_or_jids ]
+
+      jids.each do |jid|
+        redis.set(sidekiq_profile_key_for(jid_or_jids), profile_option.to_json, ex: expire)
+        p "qingyudebug: set_sidekiq_profile_option happened!"
+        Rails.logger.error('qingyudebug: set_sidekiq_profile_option happened!')
+      end
+
+      Rails.logger.error( "qingyudebug: jid_or_jids: #{jid_or_jids}")
+      p "qingyudebug: jid_or_jids"
+      p jid_or_jids
+
+      jid_or_jids
+    end
+
+    def sidekiq_profile_key_for(jid)
+      SIDEKIQ_PROFILE_KEY % jid
+    end
+
     def set_queue
       queue_name = [queue_namespace, base_queue_name].compact.join(':')
 
@@ -52,7 +96,9 @@ module ApplicationWorker
     end
 
     def bulk_perform_async(args_list)
-      Sidekiq::Client.push_bulk('class' => self, 'args' => args_list)
+      set_sidekiq_profile_option do
+        Sidekiq::Client.push_bulk('class' => self, 'args' => args_list)
+      end
     end
 
     def bulk_perform_in(delay, args_list)
@@ -63,7 +109,9 @@ module ApplicationWorker
         raise ArgumentError, _('The schedule time must be in the future!')
       end
 
-      Sidekiq::Client.push_bulk('class' => self, 'args' => args_list, 'at' => schedule)
+      set_sidekiq_profile_option do
+        Sidekiq::Client.push_bulk('class' => self, 'args' => args_list, 'at' => schedule)
+      end
     end
   end
 end

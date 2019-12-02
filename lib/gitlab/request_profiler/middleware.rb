@@ -34,9 +34,19 @@ module Gitlab
           call_with_call_stack_profiling(env)
         when 'memory'
           call_with_memory_profiling(env)
+        when 'sidekiq_memory', 'sidekiq_execution'
+          call_with_sidekiq_profile_option(env)
         else
           raise ActionController::BadRequest, invalid_profile_mode(env)
         end
+      end
+
+      def call_with_sidekiq_profile_option(env)
+
+        Gitlab::SafeRequestStore[:sidekiq_profile_mode] = env['HTTP_X_PROFILE_MODE']
+        Gitlab::SafeRequestStore[:sidekiq_profile_worker] = env['HTTP_X_PROFILE_SIDEKIQ_WORKER']
+
+        @app.call(env)
       end
 
       def invalid_profile_mode(env)
