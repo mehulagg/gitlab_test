@@ -33,6 +33,7 @@ describe Project do
     it { is_expected.to have_one(:microsoft_teams_service) }
     it { is_expected.to have_one(:mattermost_service) }
     it { is_expected.to have_one(:hangouts_chat_service) }
+    it { is_expected.to have_one(:unify_circuit_service) }
     it { is_expected.to have_one(:packagist_service) }
     it { is_expected.to have_one(:pushover_service) }
     it { is_expected.to have_one(:asana_service) }
@@ -1661,7 +1662,7 @@ describe Project do
   end
 
   describe '.search' do
-    let(:project) { create(:project, description: 'kitten mittens') }
+    let_it_be(:project) { create(:project, description: 'kitten mittens') }
 
     it 'returns projects with a matching name' do
       expect(described_class.search(project.name)).to eq([project])
@@ -1697,6 +1698,39 @@ describe Project do
 
     it 'returns projects with a matching path regardless of the casing' do
       expect(described_class.search(project.path.upcase)).to eq([project])
+    end
+
+    context 'by full path' do
+      let_it_be(:group) { create(:group) }
+      let_it_be(:project) { create(:project, group: group) }
+
+      context 'when feature is enabled' do
+        before do
+          stub_feature_flags(project_search_by_full_path: true)
+        end
+
+        it 'returns projects that match the group path' do
+          expect(described_class.search(group.path)).to eq([project])
+        end
+
+        it 'returns projects that match the full path' do
+          expect(described_class.search(project.full_path)).to eq([project])
+        end
+      end
+
+      context 'when feature is disabled' do
+        before do
+          stub_feature_flags(project_search_by_full_path: false)
+        end
+
+        it 'returns no results when searching by group path' do
+          expect(described_class.search(group.path)).to be_empty
+        end
+
+        it 'returns no results when searching by full path' do
+          expect(described_class.search(project.full_path)).to be_empty
+        end
+      end
     end
 
     describe 'with pending_delete project' do
@@ -2924,7 +2958,7 @@ describe Project do
   end
 
   describe '#any_lfs_file_locks?', :request_store do
-    set(:project) { create(:project) }
+    let_it_be(:project) { create(:project) }
 
     it 'returns false when there are no LFS file locks' do
       expect(project.any_lfs_file_locks?).to be_falsey
@@ -3411,6 +3445,20 @@ describe Project do
         expect(projects).to eq([public_project])
       end
     end
+
+    context 'min_access_level' do
+      let!(:private_project) { create(:project, :private) }
+
+      before do
+        private_project.add_guest(user)
+      end
+
+      it 'excludes projects when user does not have required minimum access level' do
+        projects = described_class.all.public_or_visible_to_user(user, Gitlab::Access::REPORTER)
+
+        expect(projects).to contain_exactly(public_project)
+      end
+    end
   end
 
   describe '.ids_with_issuables_available_for' do
@@ -3539,7 +3587,7 @@ describe Project do
     include ProjectHelpers
     using RSpec::Parameterized::TableSyntax
 
-    set(:group) { create(:group) }
+    let_it_be(:group) { create(:group) }
     let!(:project) { create(:project, project_level, namespace: group ) }
     let(:user) { create_user_from_membership(project, membership) }
 
@@ -3548,6 +3596,66 @@ describe Project do
 
       where(:project_level, :feature_access_level, :membership, :expected_count) do
         permission_table_for_reporter_feature_access
+      end
+
+      with_them do
+        it "respects visibility" do
+          update_feature_access_level(project, feature_access_level)
+
+          expected_objects = expected_count == 1 ? [project] : []
+
+          expect(
+            described_class.filter_by_feature_visibility(feature, user)
+          ).to eq(expected_objects)
+        end
+      end
+    end
+
+    context 'issues' do
+      let(:feature) { Issue }
+
+      where(:project_level, :feature_access_level, :membership, :expected_count) do
+        permission_table_for_guest_feature_access
+      end
+
+      with_them do
+        it "respects visibility" do
+          update_feature_access_level(project, feature_access_level)
+
+          expected_objects = expected_count == 1 ? [project] : []
+
+          expect(
+            described_class.filter_by_feature_visibility(feature, user)
+          ).to eq(expected_objects)
+        end
+      end
+    end
+
+    context 'wiki' do
+      let(:feature) { :wiki }
+
+      where(:project_level, :feature_access_level, :membership, :expected_count) do
+        permission_table_for_guest_feature_access
+      end
+
+      with_them do
+        it "respects visibility" do
+          update_feature_access_level(project, feature_access_level)
+
+          expected_objects = expected_count == 1 ? [project] : []
+
+          expect(
+            described_class.filter_by_feature_visibility(feature, user)
+          ).to eq(expected_objects)
+        end
+      end
+    end
+
+    context 'code' do
+      let(:feature) { :repository }
+
+      where(:project_level, :feature_access_level, :membership, :expected_count) do
+        permission_table_for_guest_feature_access_and_non_private_project_only
       end
 
       with_them do
@@ -5014,10 +5122,22 @@ describe Project do
       it { is_expected.not_to be_git_objects_poolable }
     end
 
-    context 'when the project is not public' do
+    context 'when the project is private' do
       let(:project) { create(:project, :private) }
 
       it { is_expected.not_to be_git_objects_poolable }
+    end
+
+    context 'when the project is public' do
+      let(:project) { create(:project, :repository, :public) }
+
+      it { is_expected.to be_git_objects_poolable }
+    end
+
+    context 'when the project is internal' do
+      let(:project) { create(:project, :repository, :internal) }
+
+      it { is_expected.to be_git_objects_poolable }
     end
 
     context 'when objects are poolable' do
