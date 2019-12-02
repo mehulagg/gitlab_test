@@ -27,6 +27,7 @@ before_script:
   - if [ -n "$TRIGGERED_USER" ] && [ -n "$TRIGGER_SOURCE" ]; then
       echo "Pipeline triggered by $TRIGGERED_USER at $TRIGGER_SOURCE";
     fi
+  - export LANG=C.UTF-8
 
 check:rubocop:
   stage: check
