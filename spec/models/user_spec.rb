@@ -98,6 +98,33 @@ describe User, :do_not_mock_admin_mode do
   end
 
   describe 'validations' do
+    describe 'password' do
+      before do
+        allow(described_class).to receive(:password_length).and_return(10..130)
+      end
+
+      context 'length' do
+        it { is_expected.to validate_length_of(:password).is_at_least(10).is_at_most(130) }
+      end
+
+      context 'length validator' do
+        it 'has only one length validator' do
+          validators = described_class.validators_on :password
+          length_validators = validators.select { |v| v.kind == :length }
+
+          expect(length_validators.size).to eq(1)
+        end
+
+        it 'supports dynamic minimum and maximum length validation' do
+          validators = described_class.validators_on :password
+          length_validator = validators.find { |v| v.kind == :length }
+
+          expect(length_validator.options[:minimum]).to be_a_kind_of(Proc)
+          expect(length_validator.options[:maximum]).to be_a_kind_of(Proc)
+        end
+      end
+    end
+
     describe 'name' do
       it { is_expected.to validate_presence_of(:name) }
       it { is_expected.to validate_length_of(:name).is_at_most(128) }
@@ -480,10 +507,10 @@ describe User, :do_not_mock_admin_mode do
 
       context 'maximum value' do
         before do
-          stub_const('ApplicationSetting::DEFAULT_MAXIMUM_PASSWORD_LENGTH', 201)
+          allow(Devise.password_length).to receive(:max).and_return(201)
         end
 
-        it 'is determined by the current value of `ApplicationSetting::DEFAULT_MAXIMUM_PASSWORD_LENGTH`' do
+        it 'is determined by the current value of `Devise.password_length.max`' do
           expect(password_length.max).to eq(201)
         end
       end

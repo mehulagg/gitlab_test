@@ -11213,6 +11213,9 @@ msgstr ""
 msgid "Minimum length is %{minimum_password_length} characters."
 msgstr ""
 
+msgid "Minimum password length"
+msgstr ""
+
 msgid "Minutes"
 msgstr ""
 

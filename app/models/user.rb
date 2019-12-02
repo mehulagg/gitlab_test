@@ -20,7 +20,6 @@ class User < ApplicationRecord
   include WithUploads
   include OptionallySearch
   include FromUnion
-  include DeviseValidatable
 
   DEFAULT_NOTIFICATION_LEVEL = :participating
 
@@ -52,7 +51,7 @@ class User < ApplicationRecord
   serialize :otp_backup_codes, JSON # rubocop:disable Cop/ActiveRecordSerialize
 
   devise :lockable, :recoverable, :rememberable, :trackable,
-         :omniauthable, :confirmable, :registerable
+         :validatable, :omniauthable, :confirmable, :registerable
 
   BLOCKED_MESSAGE = "Your account has been blocked. Please contact your GitLab " \
                     "administrator if you think this is an error."
@@ -159,7 +158,8 @@ class User < ApplicationRecord
   #
   # Validations
   #
-  # Note: DeviseValidatable adds validations for :email and :password
+  # Note: devise :validatable above adds validations for :email
+  validates :password, length: { maximum: proc { password_length.max }, minimum: proc { password_length.min } }, allow_blank: true
   validates :name, presence: true, length: { maximum: 128 }
   validates :first_name, length: { maximum: 255 }
   validates :last_name, length: { maximum: 255 }
@@ -1743,7 +1743,7 @@ class User < ApplicationRecord
   end
 
   def self.password_length
-    Gitlab::CurrentSettings.minimum_password_length..ApplicationSetting::DEFAULT_MAXIMUM_PASSWORD_LENGTH
+    Gitlab::CurrentSettings.minimum_password_length..Devise.password_length.max
   end
 end
 

@@ -13,9 +13,9 @@
         = f.label :send_user_confirmation_email, class: 'form-check-label' do
           Send confirmation email on sign-up
     .form-group
-      = f.label :minimum_password_length, 'Password Requirements', class: 'label-bold'
-      = f.text_field :minimum_password_length, placeholder: 'minimum password length', class: 'form-control', rows: 4
-      - password_policy_guidelines_link = link_to _('Password Policy Guidelines'), 'https://about.gitlab.com/handbook/security/#gitlab-password-policy-guidelines', target: '_blank'
+      = f.label :minimum_password_length, _('Minimum password length'), class: 'label-bold'
+      = f.number_field :minimum_password_length, class: 'form-control', rows: 4, min: ApplicationSetting::DEFAULT_MINIMUM_PASSWORD_LENGTH, max: Devise.password_length.max
+      - password_policy_guidelines_link = link_to _('Password Policy Guidelines'), 'https://about.gitlab.com/handbook/security/#gitlab-password-policy-guidelines', target: '_blank', rel: 'noopener noreferrer nofollow'
       .form-text.text-muted
         = _("See GitLab's %{password_policy_guidelines}").html_safe % { password_policy_guidelines: password_policy_guidelines_link }
     .form-group

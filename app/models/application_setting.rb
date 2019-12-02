@@ -9,8 +9,6 @@ class ApplicationSetting < ApplicationRecord
 
   ignore_columns :pendo_enabled, :pendo_url, remove_after: '2019-12-01', remove_with: '12.6'
 
-  DEFAULT_MINIMUM_PASSWORD_LENGTH = 8
-
   add_authentication_token_field :runners_registration_token, encrypted: -> { Feature.enabled?(:application_settings_tokens_optional_encryption, default_enabled: true) ? :optional : :required }
   add_authentication_token_field :health_check_access_token
   add_authentication_token_field :static_objects_external_storage_auth_token
@@ -55,7 +53,7 @@ class ApplicationSetting < ApplicationRecord
             presence: true,
             numericality: { only_integer: true,
                             greater_than_or_equal_to: DEFAULT_MINIMUM_PASSWORD_LENGTH,
-                            less_than_or_equal_to: DEFAULT_MAXIMUM_PASSWORD_LENGTH }
+                            less_than_or_equal_to: Devise.password_length.max }
 
   validates :home_page_url,
             allow_blank: true,
