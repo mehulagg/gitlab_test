@@ -81,5 +81,16 @@ module Gitaly
           Gitaly::ServerInfoResponse.new(git_version: '', server_version: '', storage_statuses: [])
         end
     end
+
+    def disk_statistics
+      @disk_statistics ||=
+        begin
+          Gitlab::GitalyClient::ServerService.new(@storage).disk_statistics
+        rescue GRPC::Unavailable, GRPC::DeadlineExceeded => ex
+          Gitlab::ErrorTracking.track_exception(ex)
+          # This will show the server as being out of date
+          Gitaly::ServerInfoResponse.new(git_version: '', server_version: '', storage_statuses: [])
+        end
+    end
   end
 end

@@ -13,6 +13,10 @@ module Gitlab
       def info
         GitalyClient.call(@storage, :server_service, :server_info, Gitaly::ServerInfoRequest.new, timeout: GitalyClient.fast_timeout)
       end
+
+      def disk_statistics
+        GitalyClient.call(@storage, :server_service, :disk_statistics, Gitaly::DiskStatisticsRequest.new, timeout: GitalyClient.fast_timeout)
+      end
     end
   end
 end
