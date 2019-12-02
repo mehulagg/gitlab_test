@@ -33,6 +33,7 @@ module QA
     autoload :Fixtures, 'qa/runtime/fixtures'
     autoload :Logger, 'qa/runtime/logger'
     autoload :GPG, 'qa/runtime/gpg'
+    autoload :MailHog, 'qa/runtime/mail_hog'
 
     module API
       autoload :Client, 'qa/runtime/api/client'
