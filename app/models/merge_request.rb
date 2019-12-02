@@ -17,6 +17,7 @@ class MergeRequest < ApplicationRecord
   include FromUnion
   include DeprecatedAssignee
   include ShaAttribute
+  include IgnorableColumns
 
   sha_attribute :squash_commit_sha
 
@@ -239,8 +240,7 @@ class MergeRequest < ApplicationRecord
     with_state(:opened).where(auto_merge_enabled: true)
   end
 
-  # Only remove after 2019-12-22 and with %12.7
-  self.ignored_columns += %i[state]
+  ignore_column :state, remove_with: '12.7', remove_after: '2019-12-22'
 
   after_save :keep_around_commit
 
@@ -277,7 +277,7 @@ class MergeRequest < ApplicationRecord
   def self.recent_target_branches(limit: 100)
     group(:target_branch)
       .select(:target_branch)
-      .reorder('MAX(merge_requests.updated_at) DESC')
+      .reorder(arel_table[:updated_at].maximum.desc)
       .limit(limit)
       .pluck(:target_branch)
   end
