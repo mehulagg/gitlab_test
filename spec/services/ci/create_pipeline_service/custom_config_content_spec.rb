@@ -19,7 +19,7 @@ describe Ci::CreatePipelineService do
     it 'creates a pipeline using the content passed in as param' do
       expect(pipeline).to be_persisted
       expect(pipeline.builds.map(&:name)).to eq %w[rspec custom]
-      expect(pipeline.config_source).to eq 'parent_pipeline_source'
+      expect(pipeline.config_source).to eq 'runtime_source'
     end
   end
 end

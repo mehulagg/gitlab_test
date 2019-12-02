@@ -203,24 +203,8 @@ describe Ci::CreateCrossProjectPipelineService, '#execute' do
           expect(pipeline.source_sha).to eq(upstream_pipeline.source_sha)
           expect(pipeline.target_sha).to eq(upstream_pipeline.target_sha)
           expect(pipeline.target_sha).to eq(upstream_pipeline.target_sha)
-          expect(pipeline.pipeline_schedule).to eq(upstream_pipeline.pipeline_schedule)
 
           expect(pipeline.trigger_requests.last).to eq(bridge.trigger_request)
-        end
-
-        context 'when parent pipeline has a schedule' do
-          let(:pipeline_schedule) { create(:ci_pipeline_schedule, project: upstream_project) }
-
-          before do
-            upstream_pipeline.update!(pipeline_schedule: pipeline_schedule)
-          end
-
-          it 'propagates the schedule to the child pipeline' do
-            pipeline = service.execute(bridge)
-            pipeline.reload
-
-            expect(pipeline.pipeline_schedule).to eq(upstream_pipeline.pipeline_schedule)
-          end
         end
       end
     end

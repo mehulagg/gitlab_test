@@ -104,33 +104,19 @@ module Ci
       if Feature.enabled?(:ci_support_interruptible_pipelines, project, default_enabled: true)
         project.ci_pipelines
           .where(ref: pipeline.ref)
-          .where.not(id: related_pipeline_ids)
+          .where.not(id: pipeline.same_family_pipeline_ids)
           .where.not(sha: project.commit(pipeline.ref).try(:id))
           .alive_or_scheduled
           .with_only_interruptible_builds
       else
         project.ci_pipelines
           .where(ref: pipeline.ref)
-          .where.not(id: related_pipeline_ids)
+          .where.not(id: pipeline.same_family_pipeline_ids)
           .where.not(sha: project.commit(pipeline.ref).try(:id))
           .created_or_pending
       end
     end
     # rubocop: enable CodeReuse/ActiveRecord
-
-    # If pipeline is a child of another pipeline we don't want to
-    # cancel all related pipelines (siblings + parent) having the
-    # same ref and sha.
-    def related_pipeline_ids
-      upstream_pipeline = pipeline.triggered_by_pipeline
-
-      if upstream_pipeline && upstream_pipeline.project == pipeline.project
-        child_pipeline_ids = upstream_pipeline&.triggered_pipelines&.pluck(:id) || []
-        child_pipeline_ids + [upstream_pipeline.id]
-      else
-        [pipeline.id]
-      end
-    end
 
     def pipeline_created_counter
       @pipeline_created_counter ||= Gitlab::Metrics

@@ -103,7 +103,7 @@ module EE
       end
 
       def triggers_child_pipeline?
-        same_project? && downstream_yaml.present?
+        same_project? && yaml_for_downstream.present?
       end
 
       def downstream_project
@@ -112,8 +112,8 @@ module EE
         end
       end
 
-      def downstream_yaml
-        strong_memoize(:downstream_yaml) do
+      def yaml_for_downstream
+        strong_memoize(:yaml_for_downstream) do
           options&.dig(:trigger, :yaml)
         end
       end
