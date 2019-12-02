@@ -14,17 +14,11 @@ module QA
       end
 
       before do
-        Runtime::Browser.visit(:gitlab, Page::Main::Login)
-        Page::Main::Login.perform(&:sign_in_using_credentials)
-
-        project.visit!
+        Flow::Login.sign_in
       end
 
       it 'user receives email for project invitation' do
-        Page::Project::Menu.perform(&:go_to_members_settings)
-        Page::Project::Settings::Members.perform do |member_settings|
-          member_settings.add_member(user.username)
-        end
+        Flow::Project.add_member(project: project, username: user.username)
 
         expect(page).to have_content(/@#{user.username}(\n| )?Given access/)
 

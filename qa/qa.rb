@@ -15,6 +15,7 @@ module QA
   #
   module Flow
     autoload :Login, 'qa/flow/login'
+    autoload :Project, 'qa/flow/project'
   end
 
   ##
