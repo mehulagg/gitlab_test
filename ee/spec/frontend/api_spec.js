@@ -477,5 +477,46 @@ describe('Api', () => {
           .catch(done.fail);
       });
     });
+
+    describe('cycleAnalyticsDurationChart', () => {
+      it('fetches stage duration data', done => {
+        const response = [];
+        const params = {
+          group_id: groupId,
+          created_after: createdAfter,
+          created_before: createdBefore,
+        };
+        const expectedUrl = `${dummyUrlRoot}/-/analytics/cycle_analytics/stages/thursday/duration_chart`;
+        mock.onGet(expectedUrl).reply(200, response);
+
+        Api.cycleAnalyticsDurationChart(stageId, params)
+          .then(responseObj =>
+            expectRequestWithCorrectParameters(responseObj, {
+              response,
+              params,
+              expectedUrl,
+            }),
+          )
+          .then(done)
+          .catch(done.fail);
+      });
+    });
+  });
+
+  describe('getGeoDesigns', () => {
+    it('fetches designs', () => {
+      const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/geo_replication/designs`;
+      const apiResponse = [{ id: 1, name: 'foo' }, { id: 2, name: 'bar' }];
+      const mockParams = { page: 1 };
+
+      jest.spyOn(Api, 'buildUrl').mockReturnValue(expectedUrl);
+      jest.spyOn(axios, 'get');
+      mock.onGet(expectedUrl).replyOnce(200, apiResponse);
+
+      return Api.getGeoDesigns(mockParams).then(({ data }) => {
+        expect(data).toEqual(apiResponse);
+        expect(axios.get).toHaveBeenCalledWith(expectedUrl, { params: mockParams });
+      });
+    });
   });
 });

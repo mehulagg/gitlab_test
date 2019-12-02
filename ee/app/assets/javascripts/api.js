@@ -4,6 +4,7 @@ import axios from '~/lib/utils/axios_utils';
 export default {
   ...Api,
   geoNodesPath: '/api/:version/geo_nodes',
+  geoDesignsPath: '/api/:version/geo_replication/designs',
   ldapGroupsPath: '/api/:version/ldap/:provider/groups.json',
   subscriptionPath: '/api/:version/namespaces/:id/gitlab_subscription',
   childEpicPath: '/api/:version/groups/:id/epics/:epic_iid/epics',
@@ -23,6 +24,7 @@ export default {
   cycleAnalyticsGroupStagesAndEventsPath: '/-/analytics/cycle_analytics/stages',
   cycleAnalyticsStageEventsPath: '/groups/:group_id/-/cycle_analytics/events/:stage_id.json',
   cycleAnalyticsStagePath: '/-/analytics/cycle_analytics/stages/:stage_id',
+  cycleAnalyticsDurationChartPath: '/-/analytics/cycle_analytics/stages/:stage_id/duration_chart',
 
   userSubscription(namespaceId) {
     const url = Api.buildUrl(this.subscriptionPath).replace(':id', encodeURIComponent(namespaceId));
@@ -49,7 +51,7 @@ export default {
 
   createChildEpic({ groupId, parentEpicIid, title }) {
     const url = Api.buildUrl(this.childEpicPath)
-      .replace(':id', groupId)
+      .replace(':id', encodeURIComponent(groupId))
       .replace(':epic_iid', parentEpicIid);
 
     return axios.post(url, {
@@ -154,6 +156,7 @@ export default {
 
   cycleAnalyticsGroupStagesAndEvents(groupId, params = {}) {
     const url = Api.buildUrl(this.cycleAnalyticsGroupStagesAndEventsPath);
+
     return axios.get(url, {
       params: { group_id: groupId, ...params },
     });
@@ -193,5 +196,18 @@ export default {
     return axios.delete(url, {
       params: { group_id: groupId },
     });
+  },
+
+  cycleAnalyticsDurationChart(stageSlug, params = {}) {
+    const url = Api.buildUrl(this.cycleAnalyticsDurationChartPath).replace(':stage_id', stageSlug);
+
+    return axios.get(url, {
+      params,
+    });
+  },
+
+  getGeoDesigns(params = {}) {
+    const url = Api.buildUrl(this.geoDesignsPath);
+    return axios.get(url, { params });
   },
 };

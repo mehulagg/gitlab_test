@@ -147,7 +147,7 @@ module EE
             namespace.billable_members_count(options[:requested_hosted_plan])
           end
           expose :plan, if: ->(namespace, opts) { ::Ability.allowed?(opts[:current_user], :admin_namespace, namespace) } do |namespace, _|
-            namespace.actual_plan&.name
+            namespace.actual_plan_name
           end
         end
       end
@@ -181,7 +181,8 @@ module EE
         prepended do
           expose :milestone, using: ::API::Entities::Milestone, if: -> (entity, _) { entity.milestone? }
           expose :user, as: :assignee, using: ::API::Entities::UserSafe, if: -> (entity, _) { entity.assignee? }
-          expose :max_issue_count, if: -> (list, _) { list.board.resource_parent.feature_available?(:wip_limits) }
+          expose :max_issue_count, if: -> (list, _) { list.wip_limits_available? }
+          expose :max_issue_weight, if: -> (list, _) { list.wip_limits_available? }
         end
       end
 
@@ -936,6 +937,14 @@ module EE
         expose :last_edited_at
         expose :resolved_at
         expose :closed_at
+      end
+
+      class VulnerabilityRelatedIssue < ::API::Entities::IssueBasic
+        # vulnerability_link_* attributes come from joined Vulnerabilities::IssueLink record
+        expose :vulnerability_link_id
+        expose :vulnerability_link_type do |related_issue|
+          ::Vulnerabilities::IssueLink.link_types.key(related_issue.vulnerability_link_type)
+        end
       end
     end
   end

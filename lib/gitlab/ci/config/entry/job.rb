@@ -51,7 +51,7 @@ module Gitlab
               validates :rules, array_of_hashes: true
             end
 
-            validates :start_in, duration: { limit: '1 day' }, if: :delayed?
+            validates :start_in, duration: { limit: '1 week' }, if: :delayed?
             validates :start_in, absence: true, if: -> { has_rules? || !delayed? }
 
             validate do
@@ -105,6 +105,10 @@ module Gitlab
             description: 'Timeout duration of this job.',
             inherit: true
 
+          entry :retry, Entry::Retry,
+            description: 'Retry configuration for this job.',
+            inherit: true
+
           entry :only, Entry::Policy,
             description: 'Refs policy this job will be executed for.',
             default: Entry::Policy::DEFAULT_ONLY,
@@ -140,10 +144,6 @@ module Gitlab
 
           entry :coverage, Entry::Coverage,
             description: 'Coverage configuration for this job.',
-            inherit: false
-
-          entry :retry, Entry::Retry,
-            description: 'Retry configuration for this job.',
             inherit: false
 
           helpers :before_script, :script, :stage, :type, :after_script,

@@ -5,18 +5,18 @@ require 'spec_helper'
 describe Metrics::SampleMetricsService do
   describe 'query' do
     context 'when the file is not found' do
-      subject { -> { described_class.new(nil).query } }
+      subject { described_class.new(nil, nil).query }
 
-      it { is_expected.to raise_error(Metrics::SampleMetricsService::MissingSampleMetricsFile) }
+      it { is_expected.to be_nil }
     end
 
     context 'when the file is found' do
       let(:identifier) { 'sample_metric_query_result' }
-      let(:directory_name) { Metrics::SampleMetricsService::DIRECTORY }
       let(:source) { File.join(Rails.root, 'spec/fixtures/gitlab/sample_metrics', "#{identifier}.yml") }
-      let(:destination) { File.join(Rails.root, directory_name, "#{identifier}.yml") }
+      let(:destination) { File.join(Rails.root, Metrics::SampleMetricsService::DIRECTORY, "#{identifier}.yml") }
 
       before do
+        directory_name = Metrics::SampleMetricsService::DIRECTORY
         Dir.mkdir(directory_name) unless File.exist?(directory_name)
         FileUtils.cp(source, destination)
       end

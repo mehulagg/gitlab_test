@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_19_023952) do
+ActiveRecord::Schema.define(version: 2019_11_25_140458) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -180,11 +180,8 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.integer "metrics_timeout", default: 10
     t.integer "metrics_method_call_threshold", default: 10
     t.boolean "recaptcha_enabled", default: false
-    t.string "recaptcha_site_key"
-    t.string "recaptcha_private_key"
     t.integer "metrics_port", default: 8089
     t.boolean "akismet_enabled", default: false
-    t.string "akismet_api_key"
     t.integer "metrics_sample_interval", default: 15
     t.boolean "email_author_in_body", default: false
     t.integer "default_group_visibility"
@@ -231,7 +228,6 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.boolean "elasticsearch_aws", default: false, null: false
     t.string "elasticsearch_aws_region", default: "us-east-1"
     t.string "elasticsearch_aws_access_key"
-    t.string "elasticsearch_aws_secret_access_key"
     t.integer "geo_status_timeout", default: 10
     t.string "uuid"
     t.decimal "polling_interval_multiplier", default: "1.0", null: false
@@ -247,8 +243,6 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.string "help_page_support_url"
     t.boolean "slack_app_enabled", default: false
     t.string "slack_app_id"
-    t.string "slack_app_secret"
-    t.string "slack_app_verification_token"
     t.integer "performance_bar_allowed_group_id"
     t.boolean "allow_group_owners_to_manage_ldap", default: true, null: false
     t.boolean "hashed_storage_enabled", default: true, null: false
@@ -334,7 +328,7 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.boolean "throttle_protected_paths_enabled", default: false, null: false
     t.integer "throttle_protected_paths_requests_per_period", default: 10, null: false
     t.integer "throttle_protected_paths_period_in_seconds", default: 60, null: false
-    t.string "protected_paths", limit: 255, default: ["/users/password", "/users/sign_in", "/api/v3/session.json", "/api/v3/session", "/api/v4/session.json", "/api/v4/session", "/users", "/users/confirmation", "/unsubscribes/", "/import/github/personal_access_token"], array: true
+    t.string "protected_paths", limit: 255, default: ["/users/password", "/users/sign_in", "/api/v3/session.json", "/api/v3/session", "/api/v4/session.json", "/api/v4/session", "/users", "/users/confirmation", "/unsubscribes/", "/import/github/personal_access_token", "/admin/session"], array: true
     t.boolean "throttle_incident_management_notification_enabled", default: false, null: false
     t.integer "throttle_incident_management_notification_period_in_seconds", default: 3600
     t.integer "throttle_incident_management_notification_per_period", default: 3600
@@ -355,6 +349,19 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.boolean "sourcegraph_enabled", default: false, null: false
     t.string "sourcegraph_url", limit: 255
     t.boolean "sourcegraph_public_only", default: true, null: false
+    t.text "encrypted_akismet_api_key"
+    t.string "encrypted_akismet_api_key_iv", limit: 255
+    t.text "encrypted_elasticsearch_aws_secret_access_key"
+    t.string "encrypted_elasticsearch_aws_secret_access_key_iv", limit: 255
+    t.text "encrypted_recaptcha_private_key"
+    t.string "encrypted_recaptcha_private_key_iv", limit: 255
+    t.text "encrypted_recaptcha_site_key"
+    t.string "encrypted_recaptcha_site_key_iv", limit: 255
+    t.text "encrypted_slack_app_secret"
+    t.string "encrypted_slack_app_secret_iv", limit: 255
+    t.text "encrypted_slack_app_verification_token"
+    t.string "encrypted_slack_app_verification_token_iv", limit: 255
+    t.bigint "snippet_size_limit", default: 52428800, null: false
     t.index ["custom_project_templates_group_id"], name: "index_application_settings_on_custom_project_templates_group_id"
     t.index ["file_template_project_id"], name: "index_application_settings_on_file_template_project_id"
     t.index ["instance_administration_project_id"], name: "index_applicationsettings_on_instance_administration_project_id"
@@ -566,6 +573,7 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.string "font"
     t.text "message_html", null: false
     t.integer "cached_markdown_version"
+    t.string "target_path", limit: 255
     t.index ["starts_at", "ends_at", "id"], name: "index_broadcast_messages_on_starts_at_and_ends_at_and_id"
   end
 
@@ -595,6 +603,7 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
   create_table "ci_build_needs", id: :serial, force: :cascade do |t|
     t.integer "build_id", null: false
     t.text "name", null: false
+    t.boolean "artifacts", default: true, null: false
     t.index ["build_id", "name"], name: "index_ci_build_needs_on_build_id_and_name", unique: true
   end
 
@@ -1892,6 +1901,13 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.index ["key", "value"], name: "index_group_custom_attributes_on_key_and_value"
   end
 
+  create_table "group_deletion_schedules", primary_key: "group_id", id: :bigint, default: nil, force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.date "marked_for_deletion_on", null: false
+    t.index ["marked_for_deletion_on"], name: "index_group_deletion_schedules_on_marked_for_deletion_on"
+    t.index ["user_id"], name: "index_group_deletion_schedules_on_user_id"
+  end
+
   create_table "group_group_links", force: :cascade do |t|
     t.datetime_with_timezone "created_at", null: false
     t.datetime_with_timezone "updated_at", null: false
@@ -1932,6 +1948,18 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.index ["group_id"], name: "index_import_export_uploads_on_group_id", unique: true, where: "(group_id IS NOT NULL)"
     t.index ["project_id"], name: "index_import_export_uploads_on_project_id"
     t.index ["updated_at"], name: "index_import_export_uploads_on_updated_at"
+  end
+
+  create_table "import_failures", force: :cascade do |t|
+    t.integer "relation_index"
+    t.bigint "project_id", null: false
+    t.datetime_with_timezone "created_at", null: false
+    t.string "relation_key", limit: 64
+    t.string "exception_class", limit: 128
+    t.string "correlation_id_value", limit: 128
+    t.string "exception_message", limit: 255
+    t.index ["correlation_id_value"], name: "index_import_failures_on_correlation_id_value"
+    t.index ["project_id"], name: "index_import_failures_on_project_id"
   end
 
   create_table "index_statuses", id: :serial, force: :cascade do |t|
@@ -2251,6 +2279,7 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.integer "user_id"
     t.integer "milestone_id"
     t.integer "max_issue_count", default: 0, null: false
+    t.integer "max_issue_weight", default: 0, null: false
     t.index ["board_id", "label_id"], name: "index_lists_on_board_id_and_label_id", unique: true
     t.index ["label_id"], name: "index_lists_on_label_id"
     t.index ["list_type"], name: "index_lists_on_list_type"
@@ -3469,7 +3498,7 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.text "reference_html"
     t.index ["epic_id"], name: "index_resource_label_events_on_epic_id"
     t.index ["issue_id"], name: "index_resource_label_events_on_issue_id"
-    t.index ["label_id"], name: "index_resource_label_events_on_label_id"
+    t.index ["label_id", "action"], name: "index_resource_label_events_on_label_id_and_action"
     t.index ["merge_request_id"], name: "index_resource_label_events_on_merge_request_id"
     t.index ["user_id"], name: "index_resource_label_events_on_user_id"
   end
@@ -3569,6 +3598,7 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
     t.boolean "confidential_note_events", default: true
     t.boolean "deployment_events", default: false, null: false
     t.string "description", limit: 500
+    t.boolean "comment_on_event_enabled", default: true, null: false
     t.index ["project_id"], name: "index_services_on_project_id"
     t.index ["template"], name: "index_services_on_template"
     t.index ["type"], name: "index_services_on_type"
@@ -4412,6 +4442,8 @@ ActiveRecord::Schema.define(version: 2019_11_19_023952) do
   add_foreign_key "gpg_signatures", "projects", on_delete: :cascade
   add_foreign_key "grafana_integrations", "projects", on_delete: :cascade
   add_foreign_key "group_custom_attributes", "namespaces", column: "group_id", on_delete: :cascade
+  add_foreign_key "group_deletion_schedules", "namespaces", column: "group_id", on_delete: :cascade
+  add_foreign_key "group_deletion_schedules", "users", on_delete: :nullify
   add_foreign_key "group_group_links", "namespaces", column: "shared_group_id", on_delete: :cascade
   add_foreign_key "group_group_links", "namespaces", column: "shared_with_group_id", on_delete: :cascade
   add_foreign_key "identities", "saml_providers", name: "fk_aade90f0fc", on_delete: :cascade

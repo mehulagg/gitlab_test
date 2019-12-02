@@ -4,8 +4,6 @@ module Metrics
   class SampleMetricsService
     DIRECTORY = "sample_metrics"
 
-    MissingSampleMetricsFile = Class.new(StandardError)
-
     attr_reader :identifier, :range_minutes
 
     def initialize(identifier, range)
@@ -14,7 +12,7 @@ module Metrics
     end
 
     def query
-      raise MissingSampleMetricsFile unless File.exist?(file_location)
+      return unless File.exist?(file_location)
 
       query_interval
     end

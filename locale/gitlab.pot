@@ -1702,6 +1702,9 @@ msgstr ""
 msgid "An error occurred while saving the approval settings"
 msgstr ""
 
+msgid "An error occurred while saving the template. Please check if the template exists."
+msgstr ""
+
 msgid "An error occurred while subscribing to notifications."
 msgstr ""
 
@@ -2169,6 +2172,9 @@ msgid "Assigns %{assignee_users_sentence}."
 msgstr ""
 
 msgid "At least one approval from a code owner is required to change files matching the respective CODEOWNER rules."
+msgstr ""
+
+msgid "At least one of group_id or project_id must be specified"
 msgstr ""
 
 msgid "Attach a file"
@@ -3358,6 +3364,9 @@ msgstr ""
 msgid "Clear"
 msgstr ""
 
+msgid "Clear chart filters"
+msgstr ""
+
 msgid "Clear input"
 msgstr ""
 
@@ -3467,6 +3476,9 @@ msgid "Closes this %{quick_action_target}."
 msgstr ""
 
 msgid "Cluster Health"
+msgstr ""
+
+msgid "Cluster cache cleared."
 msgstr ""
 
 msgid "ClusterIntegration| %{custom_domain_start}More information%{custom_domain_end}."
@@ -3599,6 +3611,12 @@ msgid "ClusterIntegration|Choose which applications to install on your Kubernete
 msgstr ""
 
 msgid "ClusterIntegration|Choose which of your environments will use this cluster."
+msgstr ""
+
+msgid "ClusterIntegration|Clear cluster cache"
+msgstr ""
+
+msgid "ClusterIntegration|Clear the local cache of namespace and service accounts. This is necessary if your integration has become out of sync. The cache is repopulated during the next CI job that requires namespace and service accounts."
 msgstr ""
 
 msgid "ClusterIntegration|Cloud Run"
@@ -5257,15 +5275,25 @@ msgid_plural "CycleAnalytics|%d projects selected"
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "CycleAnalytics|%{stageName}"
-msgid_plural "CycleAnalytics|%d stages selected"
-msgstr[0] ""
-msgstr[1] ""
+msgid "CycleAnalytics|%{stageCount} stages selected"
+msgstr ""
 
 msgid "CycleAnalytics|All stages"
 msgstr ""
 
+msgid "CycleAnalytics|Date"
+msgstr ""
+
+msgid "CycleAnalytics|Days to completion"
+msgstr ""
+
+msgid "CycleAnalytics|No stages selected"
+msgstr ""
+
 msgid "CycleAnalytics|Stages"
+msgstr ""
+
+msgid "CycleAnalytics|Total days to completion"
 msgstr ""
 
 msgid "CycleAnalytics|group dropdown filter"
@@ -5773,7 +5801,13 @@ msgstr ""
 msgid "Deselect all"
 msgstr ""
 
+msgid "Design Management"
+msgstr ""
+
 msgid "Design Management files and data"
+msgstr ""
+
+msgid "Design Sync Not Enabled"
 msgstr ""
 
 msgid "DesignManagement|%{current_design} of %{designs_count}"
@@ -5843,6 +5877,9 @@ msgid "DesignManagement|We could not delete %{design}. Please try again."
 msgstr ""
 
 msgid "Designs"
+msgstr ""
+
+msgid "Designs coming soon."
 msgstr ""
 
 msgid "Destroy"
@@ -6433,6 +6470,9 @@ msgstr ""
 msgid "Enter merge request URLs"
 msgstr ""
 
+msgid "Enter new AWS Secret Access Key"
+msgstr ""
+
 msgid "Enter the issue description"
 msgstr ""
 
@@ -6481,6 +6521,9 @@ msgstr ""
 msgid "Environments allow you to track deployments of your application %{link_to_read_more}."
 msgstr ""
 
+msgid "Environments in %{name}"
+msgstr ""
+
 msgid "EnvironmentsDashboard|Add a project to the dashboard"
 msgstr ""
 
@@ -6503,15 +6546,6 @@ msgid "EnvironmentsDashboard|The environments dashboard provides a summary of ea
 msgstr ""
 
 msgid "Environments|An error occurred while fetching the environments."
-msgstr ""
-
-msgid "Environments|An error occurred while fetching the logs"
-msgstr ""
-
-msgid "Environments|An error occurred while fetching the logs - Error: %{message}"
-msgstr ""
-
-msgid "Environments|An error occurred while fetching the logs for this environment or pod. Please try again"
 msgstr ""
 
 msgid "Environments|An error occurred while making the request."
@@ -6641,6 +6675,9 @@ msgid "Environments|protected"
 msgstr ""
 
 msgid "Epic"
+msgstr ""
+
+msgid "Epic cannot be found."
 msgstr ""
 
 msgid "Epic events"
@@ -6916,6 +6953,9 @@ msgstr ""
 msgid "Estimated"
 msgstr ""
 
+msgid "Event Actions"
+msgstr ""
+
 msgid "EventFilterBy|Filter by all"
 msgstr ""
 
@@ -7154,9 +7194,6 @@ msgid "Failed to change the owner"
 msgstr ""
 
 msgid "Failed to check related branches."
-msgstr ""
-
-msgid "Failed to connect to the prometheus server"
 msgstr ""
 
 msgid "Failed to create Merge Request. Please try again."
@@ -7638,6 +7675,9 @@ msgstr ""
 msgid "FogBugz import"
 msgstr ""
 
+msgid "Folder/%{name}"
+msgstr ""
+
 msgid "Follow the steps below to export your Google Code project data."
 msgstr ""
 
@@ -7686,7 +7726,7 @@ msgstr ""
 msgid "ForkedFromProjectPath|Forked from"
 msgstr ""
 
-msgid "ForkedFromProjectPath|Forked from %{project_name} (deleted)"
+msgid "ForkedFromProjectPath|Forked from an inaccessible project"
 msgstr ""
 
 msgid "Forking in progress"
@@ -7794,10 +7834,16 @@ msgstr ""
 msgid "Geo"
 msgstr ""
 
+msgid "Geo Designs"
+msgstr ""
+
 msgid "Geo Nodes"
 msgstr ""
 
 msgid "Geo Settings"
+msgstr ""
+
+msgid "Geo Troubleshooting"
 msgstr ""
 
 msgid "Geo allows you to replicate your GitLab instance to other geographical locations."
@@ -9212,6 +9258,9 @@ msgstr ""
 msgid "If using GitHub, you’ll see pipeline statuses on GitHub for your commits and pull requests. %{more_info_link}"
 msgstr ""
 
+msgid "If you believe this page to be an error, check out the links below for more information."
+msgstr ""
+
 msgid "If you lose your recovery codes you can generate new ones, invalidating all previous codes."
 msgstr ""
 
@@ -9604,10 +9653,16 @@ msgstr ""
 msgid "Issue"
 msgstr ""
 
+msgid "Issue %{issue_reference} has already been added to epic %{epic_reference}."
+msgstr ""
+
 msgid "Issue Boards"
 msgstr ""
 
 msgid "Issue board focus mode"
+msgstr ""
+
+msgid "Issue cannot be found."
 msgstr ""
 
 msgid "Issue events"
@@ -11573,6 +11628,15 @@ msgstr ""
 msgid "No value set by top-level parent group."
 msgstr ""
 
+msgid "No vulnerabilities found for this group"
+msgstr ""
+
+msgid "No vulnerabilities found for this pipeline"
+msgstr ""
+
+msgid "No vulnerabilities found for this project"
+msgstr ""
+
 msgid "No, directly import the existing email addresses and usernames."
 msgstr ""
 
@@ -12019,6 +12083,18 @@ msgstr ""
 msgid "Package was removed"
 msgstr ""
 
+msgid "PackageRegistry|Copy Maven XML"
+msgstr ""
+
+msgid "PackageRegistry|Copy Maven command"
+msgstr ""
+
+msgid "PackageRegistry|Copy Maven registry XML"
+msgstr ""
+
+msgid "PackageRegistry|Copy and paste this inside your %{codeStart}pom.xml%{codeEnd} %{codeStart}dependencies%{codeEnd} block."
+msgstr ""
+
 msgid "PackageRegistry|Copy npm command"
 msgstr ""
 
@@ -12037,10 +12113,22 @@ msgstr ""
 msgid "PackageRegistry|Delete package"
 msgstr ""
 
+msgid "PackageRegistry|For more information on the Maven registry, %{linkStart}see the documentation%{linkEnd}."
+msgstr ""
+
+msgid "PackageRegistry|If you haven't already done so, you will need to add the below to your %{codeStart}pom.xml%{codeEnd} file."
+msgstr ""
+
 msgid "PackageRegistry|Installation"
 msgstr ""
 
 msgid "PackageRegistry|Learn how to %{noPackagesLinkStart}publish and share your packages%{noPackagesLinkEnd} with GitLab."
+msgstr ""
+
+msgid "PackageRegistry|Maven Command"
+msgstr ""
+
+msgid "PackageRegistry|Maven XML"
 msgstr ""
 
 msgid "PackageRegistry|Package installation"
@@ -12181,6 +12269,9 @@ msgstr ""
 msgid "Path:"
 msgstr ""
 
+msgid "Paths can contain wildcards, like */welcome"
+msgstr ""
+
 msgid "Pause"
 msgstr ""
 
@@ -12206,6 +12297,12 @@ msgid "Perform common operations on GitLab project"
 msgstr ""
 
 msgid "Performance optimization"
+msgstr ""
+
+msgid "PerformanceBar|Download"
+msgstr ""
+
+msgid "PerformanceBar|Frontend resources"
 msgstr ""
 
 msgid "PerformanceBar|Gitaly calls"
@@ -13349,6 +13446,12 @@ msgid "ProjectService|%{service_title}: status off"
 msgstr ""
 
 msgid "ProjectService|%{service_title}: status on"
+msgstr ""
+
+msgid "ProjectService|Comment"
+msgstr ""
+
+msgid "ProjectService|Comment will be posted on each event"
 msgstr ""
 
 msgid "ProjectService|Integrations"
@@ -14954,6 +15057,9 @@ msgstr ""
 msgid "Save pipeline schedule"
 msgstr ""
 
+msgid "Save template"
+msgstr ""
+
 msgid "Save variables"
 msgstr ""
 
@@ -15274,12 +15380,6 @@ msgid "Security Reports|There was an error reverting this dismissal."
 msgstr ""
 
 msgid "Security Reports|Undo dismiss"
-msgstr ""
-
-msgid "Security Reports|We've found no vulnerabilities for your group"
-msgstr ""
-
-msgid "Security Reports|While it's rare to have no vulnerabilities for your group, it can happen. In any event, we ask that you please double check your settings to make sure you've set up your dashboard correctly."
 msgstr ""
 
 msgid "Security configuration help link"
@@ -15621,6 +15721,12 @@ msgstr ""
 msgid "Service Desk is enabled but not yet active"
 msgstr ""
 
+msgid "Service Desk is off"
+msgstr ""
+
+msgid "Service Desk is on"
+msgstr ""
+
 msgid "Service Templates"
 msgstr ""
 
@@ -15903,9 +16009,6 @@ msgid "Sign in using smart card"
 msgstr ""
 
 msgid "Sign in via 2FA code"
-msgstr ""
-
-msgid "Sign in with Google"
 msgstr ""
 
 msgid "Sign in with Single Sign-On"
@@ -16751,7 +16854,7 @@ msgstr ""
 msgid "Subscriptions"
 msgstr ""
 
-msgid "Subscriptions allow successfully completed pipelines on the %{default_branch_docs} of the subscribed project to trigger a new pipeline on thee default branch of this project."
+msgid "Subscriptions allow successfully completed pipelines on the %{default_branch_docs} of the subscribed project to trigger a new pipeline on the default branch of this project."
 msgstr ""
 
 msgid "Subtracted"
@@ -17024,6 +17127,9 @@ msgstr ""
 msgid "Target Branch"
 msgstr ""
 
+msgid "Target Path"
+msgstr ""
+
 msgid "Target branch"
 msgstr ""
 
@@ -17037,6 +17143,12 @@ msgid "Telephone number"
 msgstr ""
 
 msgid "Template"
+msgstr ""
+
+msgid "Template to append to all Service Desk issues"
+msgstr ""
+
+msgid "Template was successfully saved."
 msgstr ""
 
 msgid "Templates"
@@ -17533,6 +17645,9 @@ msgstr ""
 msgid "There was an error fetching label data for the selected group"
 msgstr ""
 
+msgid "There was an error fetching the Designs"
+msgstr ""
+
 msgid "There was an error gathering the chart data"
 msgstr ""
 
@@ -17573,6 +17688,9 @@ msgid "There was an error when unsubscribing from this label."
 msgstr ""
 
 msgid "There was an error while fetching cycle analytics data."
+msgstr ""
+
+msgid "There was an error while fetching cycle analytics duration data."
 msgstr ""
 
 msgid "There was an error while fetching cycle analytics summary data."
@@ -17675,6 +17793,9 @@ msgid "This domain is not verified. You will need to verify ownership before acc
 msgstr ""
 
 msgid "This environment has no deployments yet."
+msgstr ""
+
+msgid "This epic already has the maximum number of child epics."
 msgstr ""
 
 msgid "This epic does not exist or you don't have sufficient permission."
@@ -17890,7 +18011,10 @@ msgstr ""
 msgid "This will redirect you to an external sign in page."
 msgstr ""
 
-msgid "This will remove the fork relationship to source project"
+msgid "This will remove the fork relationship between this project and %{fork_source}."
+msgstr ""
+
+msgid "This will remove the fork relationship between this project and other projects in the fork network."
 msgstr ""
 
 msgid "Those emails automatically become issues (with the comments becoming the email conversation) listed here."
@@ -18408,6 +18532,9 @@ msgid "Tree view"
 msgstr ""
 
 msgid "Trending"
+msgstr ""
+
+msgid "Trigger"
 msgstr ""
 
 msgid "Trigger pipelines for mirror updates"
@@ -19486,12 +19613,6 @@ msgstr ""
 msgid "Want to see the data? Please ask an administrator for access."
 msgstr ""
 
-msgid "We can't find an epic that matches what you are looking for."
-msgstr ""
-
-msgid "We can't find an issue that matches what you are looking for."
-msgstr ""
-
 msgid "We could not determine the path to remove the epic"
 msgstr ""
 
@@ -19520,6 +19641,9 @@ msgid "We sent you an email with reset password instructions"
 msgstr ""
 
 msgid "We want to be sure it is you, please confirm you are not a robot."
+msgstr ""
+
+msgid "We've found no vulnerabilities"
 msgstr ""
 
 msgid "Web IDE"
@@ -19588,6 +19712,18 @@ msgid "When using the <code>http://</code> or <code>https://</code> protocols, p
 msgstr ""
 
 msgid "When:"
+msgstr ""
+
+msgid "While it's rare to have no vulnerabilities for your group, it can happen. In any event, we ask that you double check your settings to make sure you've set up your dashboard correctly."
+msgstr ""
+
+msgid "While it's rare to have no vulnerabilities for your pipeline, it can happen. In any event, we ask that you double check your settings to make sure all security scanning jobs have passed successfully."
+msgstr ""
+
+msgid "While it's rare to have no vulnerabilities for your project, it can happen. In any event, we ask that you double check your settings to make sure you've set up your dashboard correctly."
+msgstr ""
+
+msgid "While it's rare to have no vulnerabilities, it can happen. In any event, we ask that you please double check your settings to make sure you've set up your dashboard correctly."
 msgstr ""
 
 msgid "White helpers give contextual information."
@@ -19812,7 +19948,7 @@ msgstr ""
 msgid "You are going to remove %{project_full_name}. Removed project CANNOT be restored! Are you ABSOLUTELY sure?"
 msgstr ""
 
-msgid "You are going to remove the fork relationship to source project %{forked_from_project}. Are you ABSOLUTELY sure?"
+msgid "You are going to remove the fork relationship from %{project_full_name}. Are you ABSOLUTELY sure?"
 msgstr ""
 
 msgid "You are going to transfer %{project_full_name} to another owner. Are you ABSOLUTELY sure?"
@@ -20304,6 +20440,9 @@ msgstr ""
 msgid "assign yourself"
 msgstr ""
 
+msgid "at line %{errorLine}%{errorColumn}"
+msgstr ""
+
 msgid "attach a new file"
 msgstr ""
 
@@ -20784,6 +20923,9 @@ msgstr ""
 msgid "importing"
 msgstr ""
 
+msgid "in %{errorFn} "
+msgstr ""
+
 msgid "in group %{link_to_group}"
 msgstr ""
 
@@ -20820,6 +20962,9 @@ msgid "is not a valid X509 certificate."
 msgstr ""
 
 msgid "is not an email you own"
+msgstr ""
+
+msgid "is too long (%{current_value}). The maximum size is %{max_size}."
 msgstr ""
 
 msgid "is too long (maximum is 100 entries)"
@@ -21215,9 +21360,6 @@ msgid "nounSeries|%{item}, and %{lastItem}"
 msgstr ""
 
 msgid "opened %{timeAgoString} by %{user}"
-msgstr ""
-
-msgid "or %{link_start}create a new Google account%{link_end}"
 msgstr ""
 
 msgid "out of %d total test"

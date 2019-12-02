@@ -9,18 +9,12 @@ namespace :gitlab do
     Dir.mkdir(sample_metrics_directory_name) unless File.exist?(sample_metrics_directory_name)
 
     metrics.each do |metric|
+      query = metric.query % query_variables
+      result = environment.prometheus_adapter.prometheus_client.query_range(query, start: 7.days.ago)
+
       next unless metric.identifier
 
-      query = metric.query % query_variables
-      result = {}
-      query_ranges.each do |query_range|
-        result[query_range] = environment.prometheus_adapter.prometheus_client.query_range(query, start: query_range.minutes.ago)
-      end
       File.write("#{sample_metrics_directory_name}/#{metric.identifier}.yml", result.to_yaml)
     end
   end
-end
-
-def query_ranges
-  [30, 180, 480, 1440, 4320, 10080]
 end
