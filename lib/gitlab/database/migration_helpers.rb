@@ -627,7 +627,7 @@ module Gitlab
         # new one. Rows with NULL values in our source column are skipped since
         # the target column is already NULL at this point.
         relation.where.not(column => nil).each_batch(of: batch_size) do |batch, index|
-          start_id, end_id = batch.pluck('MIN(id), MAX(id)').first
+          start_id, end_id = batch.pluck(Arel.sql('MIN(id), MAX(id)')).first
           max_index = index
 
           BackgroundMigrationWorker.perform_in(
@@ -718,7 +718,7 @@ module Gitlab
         # new one. Rows with NULL values in our source column are skipped since
         # the target column is already NULL at this point.
         model.where.not(old_column => nil).each_batch(of: batch_size) do |batch, index|
-          start_id, end_id = batch.pluck('MIN(id), MAX(id)').first
+          start_id, end_id = batch.pluck(Arel.sql('MIN(id), MAX(id)')).first
           max_index = index
 
           BackgroundMigrationWorker.perform_in(
@@ -959,7 +959,7 @@ into similar problems in the future (e.g. when new tables are created).
         table_name = model_class.quoted_table_name
 
         model_class.each_batch(of: batch_size) do |relation|
-          start_id, end_id = relation.pluck("MIN(#{table_name}.id)", "MAX(#{table_name}.id)").first
+          start_id, end_id = relation.pluck(Arel.sql("MIN(#{table_name}.id)"), Arel.sql("MAX(#{table_name}.id)")).first
 
           if jobs.length >= BACKGROUND_MIGRATION_JOB_BUFFER_SIZE
             # Note: This code path generally only helps with many millions of rows
