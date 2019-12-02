@@ -226,7 +226,7 @@ module Sentry
     def parse_gitlab_issue(plugin_issues)
       return unless plugin_issues
 
-      gitlab_plugin = issue.find{|item| item.id == "gitlab"}
+      gitlab_plugin = plugin_issues&.detect{|item| item['id'] == "gitlab"}
       return unless gitlab_plugin
 
       gitlab_plugin.dig('issue', 'url')
@@ -247,11 +247,11 @@ module Sentry
         external_base_url: project_url,
         short_id: issue.fetch('shortId', nil),
         status: issue.fetch('status', nil),
-        gitlab_issue: parse_gitlab_issue(issue.fetch('pluginIssues', nil)),
         frequency: issue.dig('stats', '24h'),
         project_id: issue.dig('project', 'id'),
         project_name: issue.dig('project', 'name'),
         project_slug: issue.dig('project', 'slug'),
+        gitlab_issue: parse_gitlab_issue(issue.fetch('pluginIssues', nil)),
         first_release_last_commit: issue.dig('firstRelease', 'lastCommit'),
         last_release_last_commit: issue.dig('lastRelease', 'lastCommit'),
         first_release_short_version: issue.dig('firstRelease', 'shortVersion'),
