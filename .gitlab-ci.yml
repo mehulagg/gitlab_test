@@ -396,7 +396,7 @@ ee:elasticsearch:
     - .high-capacity
     - .ee-qa
     - .rspec-report-opts
-    
+
 ce:praefect:
   script:
     - exe/gitlab-qa Test::Integration::Praefect ${RELEASE:=CE} -- $RSPEC_REPORT_OPTS

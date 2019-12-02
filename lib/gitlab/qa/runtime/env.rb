@@ -56,6 +56,7 @@ module Gitlab
           'KNAPSACK_TEST_FILE_PATTERN' => :knapsack_test_file_pattern,
           'KNAPSACK_TEST_DIR' => :knapsack_test_dir,
           'CI' => :ci,
+          'CI_RUNNER_ID' => :ci_runner_id,
           'CI_NODE_INDEX' => :ci_node_index,
           'CI_NODE_TOTAL' => :ci_node_total,
           'GITLAB_CI' => :gitlab_ci,
