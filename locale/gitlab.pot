@@ -1702,6 +1702,9 @@ msgstr ""
 msgid "An error occurred while saving the approval settings"
 msgstr ""
 
+msgid "An error occurred while saving the template. Please check if the template exists."
+msgstr ""
+
 msgid "An error occurred while subscribing to notifications."
 msgstr ""
 
@@ -3359,6 +3362,9 @@ msgid "ClassificationLabelUnavailable|is unavailable: %{reason}"
 msgstr ""
 
 msgid "Clear"
+msgstr ""
+
+msgid "Clear chart filters"
 msgstr ""
 
 msgid "Clear input"
@@ -9647,6 +9653,9 @@ msgstr ""
 msgid "Issue"
 msgstr ""
 
+msgid "Issue %{issue_reference} has already been added to epic %{epic_reference}."
+msgstr ""
+
 msgid "Issue Boards"
 msgstr ""
 
@@ -12258,6 +12267,9 @@ msgid "Path, transfer, remove"
 msgstr ""
 
 msgid "Path:"
+msgstr ""
+
+msgid "Paths can contain wildcards, like */welcome"
 msgstr ""
 
 msgid "Pause"
@@ -15045,6 +15057,9 @@ msgstr ""
 msgid "Save pipeline schedule"
 msgstr ""
 
+msgid "Save template"
+msgstr ""
+
 msgid "Save variables"
 msgstr ""
 
@@ -15704,6 +15719,12 @@ msgid "Service Desk"
 msgstr ""
 
 msgid "Service Desk is enabled but not yet active"
+msgstr ""
+
+msgid "Service Desk is off"
+msgstr ""
+
+msgid "Service Desk is on"
 msgstr ""
 
 msgid "Service Templates"
@@ -16833,7 +16854,7 @@ msgstr ""
 msgid "Subscriptions"
 msgstr ""
 
-msgid "Subscriptions allow successfully completed pipelines on the %{default_branch_docs} of the subscribed project to trigger a new pipeline on thee default branch of this project."
+msgid "Subscriptions allow successfully completed pipelines on the %{default_branch_docs} of the subscribed project to trigger a new pipeline on the default branch of this project."
 msgstr ""
 
 msgid "Subtracted"
@@ -17106,6 +17127,9 @@ msgstr ""
 msgid "Target Branch"
 msgstr ""
 
+msgid "Target Path"
+msgstr ""
+
 msgid "Target branch"
 msgstr ""
 
@@ -17119,6 +17143,12 @@ msgid "Telephone number"
 msgstr ""
 
 msgid "Template"
+msgstr ""
+
+msgid "Template to append to all Service Desk issues"
+msgstr ""
+
+msgid "Template was successfully saved."
 msgstr ""
 
 msgid "Templates"
@@ -20932,6 +20962,9 @@ msgid "is not a valid X509 certificate."
 msgstr ""
 
 msgid "is not an email you own"
+msgstr ""
+
+msgid "is too long (%{current_value}). The maximum size is %{max_size}."
 msgstr ""
 
 msgid "is too long (maximum is 100 entries)"
