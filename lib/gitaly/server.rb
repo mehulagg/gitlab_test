@@ -24,6 +24,14 @@ module Gitaly
       @storage = storage
     end
 
+    def disk_used
+      disk_statistics.fetch('Used')
+    end
+
+    def disk_available
+      disk_statistics.fetch('Available')
+    end
+
     def server_version
       info.server_version
     end
@@ -80,6 +88,11 @@ module Gitaly
           # This will show the server as being out of date
           Gitaly::ServerInfoResponse.new(git_version: '', server_version: '', storage_statuses: [])
         end
+    end
+
+    def disk_statistics
+      @disk_statistics ||=
+        Gitlab::GitalyClient::ServerService.new(@storage).disk_statistics
     end
   end
 end
