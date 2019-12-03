@@ -45,9 +45,14 @@ export default {
       tracking: {
         label: 'registry_repository_delete',
       },
-      modalPrimary: {
-        text: __('Remove'),
-        attributes: [{ variant: 'danger' }],
+      modalConfig: {
+        primary: {
+          text: __('Remove'),
+          attributes: [{ variant: 'danger' }],
+        },
+        secondary: {
+          text: __('Cancel'),
+        },
       },
     };
   },
@@ -116,7 +121,12 @@ export default {
     <gl-loading-icon v-if="repo.isLoading" size="md" class="append-bottom-20" />
 
     <div v-else-if="!repo.isLoading && isOpen" class="container-image-tags">
-      <table-registry v-if="repo.list.length" :repo="repo" :can-delete-repo="canDeleteRepo" />
+      <table-registry
+        v-if="repo.list.length"
+        :repo="repo"
+        :can-delete-repo="canDeleteRepo"
+        :modal-config="modalConfig"
+      />
       <gl-empty-state
         v-else
         :title="s__('ContainerRegistry|This image has no active tags')"
@@ -134,7 +144,8 @@ export default {
     <gl-modal
       ref="deleteModal"
       :modal-id="modalId"
-      :modal-action-primary="modalPrimary"
+      :modal-action-primary="modalConfig.primary"
+      :modal-action-secondary="modalConfig.secondary"
       @ok="handleDeleteRepository"
       @cancel="track('cancel_delete')"
     >

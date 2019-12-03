@@ -34,6 +34,13 @@ export default {
       default: false,
       required: false,
     },
+    modalConfig: {
+      type: Object,
+      required: false,
+      default: () => ({
+        primary: {},
+      }),
+    },
   },
   data() {
     return {
@@ -42,10 +49,6 @@ export default {
       modalId: `confirm-image-deletion-modal-${this.repo.id}`,
       selectAllChecked: false,
       modalDescription: '',
-      modalPrimary: {
-        text: this.modalAction,
-        attributes: [{ variant: 'danger' }],
-      },
     };
   },
   computed: {
@@ -70,6 +73,15 @@ export default {
       return {
         property: this.repo.name,
         label: this.isMultiDelete ? 'bulk_registry_tag_delete' : 'registry_tag_delete',
+      };
+    },
+    tableModalConfig() {
+      return {
+        ...this.modalConfig,
+        primary: {
+          ...this.modalConfig.primary,
+          text: this.modalAction,
+        },
       };
     },
   },
@@ -281,7 +293,8 @@ export default {
     <gl-modal
       ref="deleteModal"
       :modal-id="modalId"
-      :modal-action-primary="modalPrimary"
+      :modal-action-primary="tableModalConfig.primary"
+      :modal-action-secondary="tableModalConfig.secondary"
       @ok="onDeletionConfirmed"
       @cancel="track('cancel_delete')"
     >

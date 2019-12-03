@@ -3,7 +3,7 @@ import { mapState } from 'vuex';
 import { GlTable, GlPagination, GlButton, GlSorting, GlSortingItem, GlModal } from '@gitlab/ui';
 import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
 import Icon from '~/vue_shared/components/icon.vue';
-import { s__, sprintf } from '~/locale';
+import { s__, sprintf, __ } from '~/locale';
 import {
   LIST_KEY_NAME,
   LIST_KEY_PROJECT,
@@ -34,10 +34,6 @@ export default {
     return {
       modalId: 'confirm-delete-pacakge',
       itemToBeDeleted: null,
-      modalPrimary: {
-        text: this.modalAction,
-        attributes: [{ variant: 'danger' }],
-      },
     };
   },
   computed: {
@@ -129,6 +125,17 @@ export default {
         { packageName: `${this.itemToBeDeleted.name}:${this.itemToBeDeleted.version}` },
         false,
       );
+    },
+    modalConfig() {
+      return {
+        primary: {
+          text: this.modalAction,
+          attributes: [{ variant: 'danger' }],
+        },
+        secondary: {
+          text: __('Cancel'),
+        },
+      };
     },
   },
   methods: {
@@ -228,7 +235,8 @@ export default {
       <gl-modal
         ref="packageListDeleteModal"
         :modal-id="modalId"
-        :modal-action-primary="modalPrimary"
+        :modal-action-primary="modalConfig.primary"
+        :modal-action-secondary="modalConfig.secondary"
         @ok="deleteItemConfirmation"
         @cancel="deleteItemCanceled"
       >
