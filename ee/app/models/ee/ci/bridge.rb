@@ -106,10 +106,20 @@ module EE
         yaml_for_downstream.present?
       end
 
+      def downstream_pipeline_params
+        return child_params if triggers_child_pipeline?
+        return cross_project_params if downstream_project.present?
+
+        {}
+      end
+
       def downstream_project
         strong_memoize(:downstream_project) do
-          (downstream_project_path && ::Project.find_by_full_path(downstream_project_path)) ||
-            (triggers_child_pipeline? && project)
+          if downstream_project_path
+            ::Project.find_by_full_path(downstream_project_path)
+          elsif triggers_child_pipeline?
+            project
+          end
         end
       end
 
@@ -151,8 +161,6 @@ module EE
         end
       end
 
-      private
-
       def downstream_project_path
         strong_memoize(:downstream_project_path) do
           options&.dig(:trigger, :project)
@@ -163,6 +171,37 @@ module EE
         strong_memoize(:upstream_project_path) do
           options&.dig(:bridge_needs, :pipeline)
         end
+      end
+
+      private
+
+      def cross_project_params
+        {
+          project: downstream_project,
+          source: :cross_project_pipeline,
+          target_revision: {
+            ref: target_ref || downstream_project.default_branch
+          }
+        }
+      end
+
+      def child_params
+        parent_pipeline = pipeline
+
+        {
+          project: project,
+          source: :parent_pipeline,
+          target_revision: {
+            ref: parent_pipeline.ref,
+            checkout_sha: parent_pipeline.sha,
+            before: parent_pipeline.before_sha,
+            source_sha: parent_pipeline.source_sha,
+            target_sha: parent_pipeline.target_sha
+          },
+          other_execute_params: {
+            config_content: yaml_for_downstream
+          }
+        }
       end
     end
   end

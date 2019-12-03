@@ -83,10 +83,6 @@ describe EE::Gitlab::Ci::Config::Entry::Trigger do
     end
 
     context '#include' do
-      before do
-        stub_feature_flags(ci_parent_child_pipelines: true)
-      end
-
       context 'with simple include' do
         let(:config) { { include: 'path/to/config.yml' } }
 
@@ -104,7 +100,7 @@ describe EE::Gitlab::Ci::Config::Entry::Trigger do
 
         it 'is returns an error' do
           expect(subject.errors.first)
-            .to match /should not contain project when include is used/
+            .to match /config contains unknown keys: project/
         end
       end
 
@@ -115,20 +111,20 @@ describe EE::Gitlab::Ci::Config::Entry::Trigger do
 
         it 'is returns an error' do
           expect(subject.errors.first)
-            .to match /should not contain branch when include is used/
+            .to match /config contains unknown keys: branch/
         end
       end
 
       context 'when feature flag is off' do
         before do
-          stub_feature_flags(ci_parent_child_pipelines: false)
+          stub_feature_flags(ci_parent_child_pipeline: false)
         end
 
-        let(:config) { { project: 'some/project', include: 'path/to/config.yml' } }
+        let(:config) { { include: 'path/to/config.yml' } }
 
         it 'is returns an error if include is used' do
           expect(subject.errors.first)
-            .to match /include keyword is not allowed/
+            .to match /config must specify project/
         end
       end
     end
