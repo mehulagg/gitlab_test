@@ -494,6 +494,25 @@ Example:
 $ gitlab-qa Test::Integration::Praefect EE
 ```
 
+### `Test::Integration::SMTP CE|EE|<full image address>`
+
+This tests SMTP notification email delivery from Gitlab by using
+[MailHog](https://github.com/mailhog/MailHog) as MTA.
+It starts up a Docker container for MailHog and sets the Omnibus configuration
+to use it for SMTP delivery. The MailHog container will expose the configured
+port for SMTP delivery, and also another port for the HTTP MailHog API used for
+querying the delivered messages.
+
+To run tests against the GitLab container, a GitLab QA (`gitlab/gitlab-qa`)
+container is spun up and tests are run from it by running the
+`Test::Integration::SMTP` scenario.
+
+Example:
+
+```
+$ gitlab-qa Test::Integration::SMTP CE
+```
+
 ### `Test::Instance::Any CE|EE|<full image address>:nightly|latest|any_tag http://your.instance.gitlab`
 
 This tests that a live GitLab instance works as expected by running tests
