@@ -191,7 +191,7 @@
   &:focus {
     color: $gl-text-color;
     outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    box-shadow: $focus-drop-shadow;
   }
 
   gl-emoji {
@@ -254,7 +254,7 @@
   &:focus-within {
     color: $gl-text-color;
     outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    box-shadow: $focus-drop-shadow;
   }
 }
 
@@ -296,7 +296,7 @@
   &:focus {
     color: $gl-text-color;
     outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    box-shadow: $focus-drop-shadow;
   }
 
   svg {
