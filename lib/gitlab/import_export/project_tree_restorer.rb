@@ -29,12 +29,10 @@ module Gitlab
 
         RelationRenameService.rename(@tree_hash)
 
-        ActiveRecord::Base.uncached do
-          ActiveRecord::Base.no_touching do
-            update_project_params!
-            create_project_relations!
-            post_import!
-          end
+        ActiveRecord::Base.no_touching do
+          update_project_params!
+          create_project_relations!
+          post_import!
         end
 
         # ensure that we have latest version of the restore
@@ -95,6 +93,9 @@ module Gitlab
       end
 
       def process_project_relation_item!(relation_key, relation_definition, relation_index, data_hash)
+        # recycle memory from previous run
+        ActiveRecord::Base.connection.clear_query_cache
+
         relation_object = build_relation(relation_key, relation_definition, data_hash)
         return unless relation_object
         return if group_model?(relation_object)
