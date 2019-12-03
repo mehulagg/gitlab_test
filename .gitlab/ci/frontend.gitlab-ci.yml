@@ -168,7 +168,9 @@ karma-foss:
 lint-jest-migration:
   extends: .only-code-frontend-job-base
   script:
+    - set +eo pipefail  # don't abort if any following command fails
     - ./scripts/frontend/check_no_partial_karma_jest.sh
+    - ./scripts/frontend/check_no_new_karma.sh $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA
   only:
     - merge_requests
 
