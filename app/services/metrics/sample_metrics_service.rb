@@ -8,7 +8,7 @@ module Metrics
 
     def initialize(identifier, range)
       @identifier = identifier
-      @range_minutes = ((range[:end_range].to_time - range[:start_range].to_time) / 1.minute).to_i
+      @range_minutes = convert_range_minutes(range)
     end
 
     def query
@@ -26,6 +26,10 @@ module Metrics
     def query_interval
       result = YAML.load_file(File.expand_path(file_location, __dir__))
       result[range_minutes]
+    end
+
+    def convert_range_minutes(range)
+      ((range[:end_range].to_time - range[:start_range].to_time) / 1.minute).to_i
     end
   end
 end

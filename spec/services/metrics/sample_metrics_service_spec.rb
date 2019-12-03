@@ -4,8 +4,10 @@ require 'spec_helper'
 
 describe Metrics::SampleMetricsService do
   describe 'query' do
+    let(:range) { { start_range: '2019-12-02T23:31:45.000Z', end_range: '2019-12-03T00:01:45.000Z' } }
+
     context 'when the file is not found' do
-      subject { described_class.new(nil, nil).query }
+      subject { described_class.new(nil, range).query }
 
       it { is_expected.to be_nil }
     end
@@ -21,7 +23,7 @@ describe Metrics::SampleMetricsService do
         FileUtils.cp(source, destination)
       end
 
-      subject { described_class.new(identifier).query }
+      subject { described_class.new(identifier, range).query }
 
       it { expect(subject[0]['values']).not_to be_empty }
 
