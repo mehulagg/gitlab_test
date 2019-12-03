@@ -283,7 +283,9 @@ module API
       expose :shared_runners_enabled
       expose :lfs_enabled?, as: :lfs_enabled
       expose :creator_id
-      expose :forked_from_project, using: Entities::BasicProjectDetails, if: lambda { |project, options| project.forked? }
+      expose :forked_from_project, using: Entities::BasicProjectDetails, if: ->(project, options) do
+        project.forked? && Ability.allowed?(options[:current_user], :read_project, project.forked_from_project)
+      end
       expose :import_status
 
       expose :import_error, if: lambda { |_project, options| options[:user_can_admin_project] } do |project|
@@ -530,7 +532,7 @@ module API
 
     class PersonalSnippet < Snippet
       expose :raw_url do |snippet|
-        Gitlab::UrlBuilder.build(snippet) + "/raw"
+        Gitlab::UrlBuilder.build(snippet, raw: true)
       end
     end
 
@@ -660,6 +662,8 @@ module API
       expose :subscribed, if: -> (_, options) { options.fetch(:include_subscribed, true) } do |issue, options|
         issue.subscribed?(options[:current_user], options[:project] || issue.project)
       end
+
+      expose :moved_to_id
     end
 
     class IssuableTimeStats < Grape::Entity

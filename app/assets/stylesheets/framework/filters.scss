@@ -245,10 +245,8 @@
   flex: 1;
   position: relative;
   min-width: 0;
-  border-top: 1px solid $border-color;
-  border-right: 1px solid $border-color;
-  border-bottom: 1px solid $border-color;
-  border-left: 0 solid $border-color;
+  border: 1px solid $border-color;
+  border-left-width: 0;
   border-radius: 0 3px 3px 0;
 
   &:focus-within {

@@ -31,6 +31,7 @@ class Project < ApplicationRecord
   include FeatureGate
   include OptionallySearch
   include FromUnion
+  include IgnorableColumns
   extend Gitlab::Cache::RequestCache
 
   extend Gitlab::ConfigHelper
@@ -62,23 +63,9 @@ class Project < ApplicationRecord
 
   cache_markdown_field :description, pipeline: :description
 
-  delegate :feature_available?, :builds_enabled?, :wiki_enabled?, :merge_requests_enabled?,
-    :issues_enabled?, :pages_enabled?, :public_pages?, :private_pages?,
-    :merge_requests_access_level, :issues_access_level, :wiki_access_level,
-    :snippets_access_level, :builds_access_level, :repository_access_level,
-    to: :project_feature, allow_nil: true
-
-  delegate :base_dir, :disk_path, to: :storage
-
-  delegate :scheduled?, :started?, :in_progress?,
-    :failed?, :finished?,
-    prefix: :import, to: :import_state, allow_nil: true
-
-  delegate :no_import?, to: :import_state, allow_nil: true
-
   # TODO: remove once GitLab 12.5 is released
   # https://gitlab.com/gitlab-org/gitlab/issues/34638
-  self.ignored_columns += %i[merge_requests_require_code_owner_approval]
+  ignore_column :merge_requests_require_code_owner_approval, remove_after: '2019-12-01', remove_with: '12.6'
 
   default_value_for :archived, false
   default_value_for :resolve_outdated_diff_discussions, false
@@ -183,6 +170,7 @@ class Project < ApplicationRecord
   has_one :microsoft_teams_service
   has_one :packagist_service
   has_one :hangouts_chat_service
+  has_one :unify_circuit_service
 
   has_one :root_of_fork_network,
           foreign_key: 'root_project_id',
@@ -193,6 +181,7 @@ class Project < ApplicationRecord
   has_one :forked_from_project, through: :fork_network_member
   has_many :forked_to_members, class_name: 'ForkNetworkMember', foreign_key: 'forked_from_project_id'
   has_many :forks, through: :forked_to_members, source: :project, inverse_of: :forked_from_project
+  has_many :fork_network_projects, through: :fork_network, source: :projects
 
   has_one :import_state, autosave: true, class_name: 'ProjectImportState', inverse_of: :project
   has_one :import_export_upload, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
@@ -309,6 +298,8 @@ class Project < ApplicationRecord
 
   has_one :pages_metadatum, class_name: 'ProjectPagesMetadatum', inverse_of: :project
 
+  has_many :import_failures, inverse_of: :project
+
   accepts_nested_attributes_for :variables, allow_destroy: true
   accepts_nested_attributes_for :project_feature, update_only: true
   accepts_nested_attributes_for :import_data
@@ -323,6 +314,15 @@ class Project < ApplicationRecord
   accepts_nested_attributes_for :metrics_setting, update_only: true, allow_destroy: true
   accepts_nested_attributes_for :grafana_integration, update_only: true, allow_destroy: true
 
+  delegate :feature_available?, :builds_enabled?, :wiki_enabled?, :merge_requests_enabled?,
+    :issues_enabled?, :pages_enabled?, :public_pages?, :private_pages?,
+    :merge_requests_access_level, :issues_access_level, :wiki_access_level,
+    :snippets_access_level, :builds_access_level, :repository_access_level,
+    to: :project_feature, allow_nil: true
+  delegate :scheduled?, :started?, :in_progress?, :failed?, :finished?,
+    prefix: :import, to: :import_state, allow_nil: true
+  delegate :base_dir, :disk_path, to: :storage
+  delegate :no_import?, to: :import_state, allow_nil: true
   delegate :name, to: :owner, allow_nil: true, prefix: true
   delegate :members, to: :team, prefix: true
   delegate :add_user, :add_users, to: :team
@@ -517,7 +517,11 @@ class Project < ApplicationRecord
 
   # This scope returns projects where user has access to both the project and the feature.
   def self.filter_by_feature_visibility(feature, user)
-    with_feature_available_for_user(feature, user).public_or_visible_to_user(user)
+    with_feature_available_for_user(feature, user)
+      .public_or_visible_to_user(
+        user,
+        ProjectFeature.required_minimum_access_level_for_private_project(feature)
+      )
   end
 
   scope :active, -> { joins(:issues, :notes, :merge_requests).order('issues.created_at, notes.created_at, merge_requests.created_at DESC') }
@@ -539,7 +543,11 @@ class Project < ApplicationRecord
     #
     # query - The search query as a String.
     def search(query)
-      fuzzy_search(query, [:path, :name, :description])
+      if Feature.enabled?(:project_search_by_full_path, default_enabled: true)
+        joins(:route).fuzzy_search(query, [Route.arel_table[:path], :name, :description])
+      else
+        fuzzy_search(query, [:path, :name, :description])
+      end
     end
 
     def search_by_title(query)
@@ -714,6 +722,10 @@ class Project < ApplicationRecord
 
   def daily_statistics_enabled?
     Feature.enabled?(:project_daily_statistics, self, default_enabled: true)
+  end
+
+  def unlink_forks_upon_visibility_decrease_enabled?
+    Feature.enabled?(:unlink_fork_network_upon_visibility_decrease, self)
   end
 
   def empty_repo?
@@ -1534,6 +1546,7 @@ class Project < ApplicationRecord
 
   # update visibility_level of forks
   def update_forks_visibility_level
+    return if unlink_forks_upon_visibility_decrease_enabled?
     return unless visibility_level < visibility_level_before_last_save
 
     forks.each do |forked_project|
@@ -2243,12 +2256,13 @@ class Project < ApplicationRecord
   # Git objects are only poolable when the project is or has:
   # - Hashed storage -> The object pool will have a remote to its members, using relative paths.
   #                     If the repository path changes we would have to update the remote.
-  # - Public         -> User will be able to fetch Git objects that might not exist
-  #                     in their own repository.
+  # - not private    -> The visibility level or repository access level has to be greater than private
+  #                     to prevent fetching objects that might not exist
   # - Repository     -> Else the disk path will be empty, and there's nothing to pool
   def git_objects_poolable?
     hashed_storage?(:repository) &&
-      public? &&
+      visibility_level > Gitlab::VisibilityLevel::PRIVATE &&
+      repository_access_level > ProjectFeature::PRIVATE &&
       repository_exists? &&
       Gitlab::CurrentSettings.hashed_storage_enabled
   end
