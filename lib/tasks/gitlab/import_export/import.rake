@@ -38,6 +38,8 @@ class GitlabProjectImport
   def import
     show_import_start_message
 
+    disable_timeout
+
     run_isolated_sidekiq_job
 
     show_import_failures_count
@@ -71,6 +73,10 @@ class GitlabProjectImport
 
       true
     end
+  end
+
+  def disable_timeout
+    ActiveRecord::Base.connection.execute("SET statement_timeout TO 0")
   end
 
   def create_project
