@@ -63,6 +63,7 @@ performed 33,415 read operations per second and 11,219 write operations
 per second. A spinning disk might yield 2,000 and 700 read and write
 operations per second.
 Typical values to be used as a reference are **8,000 iops** for **read** operations and **2,000 iops** for **write** operations.
+For more details about interpreting the results see: [Inspecting disk IO performance with fio](https://www.linux.com/tutorials/inspecting-disk-io-performance-fio/).
 
 ### Simple benchmarking
 
