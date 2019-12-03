@@ -15,7 +15,7 @@ module Prometheus
     attr_reader :deployment_platform, :project
 
     def prometheus_adapter
-      @prometheus_adapter ||= if service_prometheus_adapter.can_query?
+      @prometheus_adapter ||= if service_prometheus_adapter.configured?
                                 service_prometheus_adapter
                               else
                                 cluster_prometheus_adapter

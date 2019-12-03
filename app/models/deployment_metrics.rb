@@ -13,7 +13,7 @@ class DeploymentMetrics
   end
 
   def has_metrics?
-    deployment.success? && prometheus_adapter&.can_query?
+    deployment.success? && prometheus_adapter&.configured?
   end
 
   def metrics
@@ -36,7 +36,7 @@ class DeploymentMetrics
     strong_memoize(:prometheus_adapter) do
       service = project.find_or_initialize_service('prometheus')
 
-      if service.can_query?
+      if service.configured?
         service
       else
         cluster_prometheus
