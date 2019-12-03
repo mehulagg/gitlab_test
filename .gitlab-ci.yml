@@ -421,6 +421,24 @@ ee:praefect:
   parallel: 5
   when: manual
 
+ce:smtp:
+  script:
+    - exe/gitlab-qa Test::Integration::SMTP ${RELEASE:=CE} -- $RSPEC_REPORT_OPTS
+  extends:
+    - .test
+    - .high-capacity
+    - .ce-qa
+    - .rspec-report-opts
+
+ee:smtp:
+  script:
+    - exe/gitlab-qa Test::Integration::SMTP ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
+  extends:
+    - .test
+    - .high-capacity
+    - .ee-qa
+    - .rspec-report-opts
+
 .report-base:
   image: ruby:2.6-alpine
   variables:

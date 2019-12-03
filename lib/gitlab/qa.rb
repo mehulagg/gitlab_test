@@ -46,6 +46,7 @@ module Gitlab
           autoload :Packages, 'gitlab/qa/scenario/test/integration/packages'
           autoload :Praefect, 'gitlab/qa/scenario/test/integration/praefect'
           autoload :Elasticsearch, 'gitlab/qa/scenario/test/integration/elasticsearch'
+          autoload :SMTP, 'gitlab/qa/scenario/test/integration/smtp'
         end
 
         module Sanity
@@ -65,6 +66,7 @@ module Gitlab
       autoload :Minio, 'gitlab/qa/component/minio'
       autoload :Preprod, 'gitlab/qa/component/preprod'
       autoload :Elasticsearch, 'gitlab/qa/component/elasticsearch'
+      autoload :MailHog, 'gitlab/qa/component/mail_hog'
     end
 
     module Support
