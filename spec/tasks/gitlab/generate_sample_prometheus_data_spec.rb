@@ -19,7 +19,8 @@ describe 'gitlab:generate_sample_prometheus_data rake task' do
   end
 
   it 'returns the correct results' do
-    expect(sample_query_result[0]['values']).not_to be_empty
+    expect(sample_query_result[30][0]['values']).not_to be_empty
+    expect(sample_query_result[180][0]['values']).not_to be_empty
   end
 
   after do
