@@ -21,31 +21,43 @@ const requestLogsUntilData = ({ projectPath, environmentName, podName }) =>
       });
   });
 
-export const setInitData = ({ dispatch, commit }, { projectPath, environmentName, podName }) => {
+export const setInitData = (
+  { dispatch, commit },
+  { projectPath, environmentsPath, environmentName, podName },
+) => {
   commit(types.SET_PROJECT_PATH, projectPath);
   commit(types.SET_PROJECT_ENVIRONMENT, environmentName);
   commit(types.SET_CURRENT_POD_NAME, podName);
-  dispatch('fetchLogs');
+  dispatch('fetchEnvironments', environmentsPath);
 };
 
-export const showPodLogs = ({ dispatch, commit }, podName) => {
+export const showPodLogs = ({ dispatch, commit, state }, podName) => {
+  if (state.pods.current == podName) {
+    return;
+  }
   commit(types.SET_CURRENT_POD_NAME, podName);
   dispatch('fetchLogs');
 };
 
-export const showEnvironment = ({ dispatch, commit }, environmentName) => {
+export const showEnvironment = ({ dispatch, commit, state }, environmentName) => {
+  if (state.environments.current == environmentName) {
+    return;
+  }
   commit(types.SET_PROJECT_ENVIRONMENT, environmentName);
   commit(types.SET_CURRENT_POD_NAME, null);
+  commit(types.REDRAW_POD_DROPDOWN);
   dispatch('fetchLogs');
 };
 
-export const fetchEnvironments = ({ commit }, environmentsPath) => {
+export const fetchEnvironments = ({ commit, dispatch }, environmentsPath) => {
   commit(types.REQUEST_ENVIRONMENTS_DATA);
 
   axios
     .get(environmentsPath)
     .then(({ data }) => {
-      commit(types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS, data.environments);
+      commit(types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS, data);
+      commit(types.REDRAW_POD_DROPDOWN);
+      dispatch('fetchLogs');
     })
     .catch(() => {
       commit(types.RECEIVE_ENVIRONMENTS_DATA_ERROR);
@@ -60,19 +72,13 @@ export const fetchLogs = ({ commit, state }) => {
     podName: state.pods.current,
   };
 
-  commit(types.REQUEST_PODS_DATA);
   commit(types.REQUEST_LOGS_DATA);
 
   return requestLogsUntilData(params)
     .then(({ data }) => {
-      const { pod_name, pods, logs } = data;
-      commit(types.SET_CURRENT_POD_NAME, pod_name);
-
-      commit(types.RECEIVE_PODS_DATA_SUCCESS, pods);
-      commit(types.RECEIVE_LOGS_DATA_SUCCESS, logs);
+      commit(types.RECEIVE_LOGS_DATA_SUCCESS, data.logs);
     })
     .catch(() => {
-      commit(types.RECEIVE_PODS_DATA_ERROR);
       commit(types.RECEIVE_LOGS_DATA_ERROR);
       flash(s__('Metrics|There was an error fetching the logs, please try again'));
     });

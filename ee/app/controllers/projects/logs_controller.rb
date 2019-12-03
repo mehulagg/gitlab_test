@@ -31,6 +31,32 @@ module Projects
       end
     end
 
+    def filters
+      environments = project.environments.map do |e|
+        item = {
+          name: e.name,
+          namespace: e.deployment_namespace,
+          es_enabled: false,
+          pods: []
+        }
+
+        deployment_platform = e.deployment_platform
+        unless deployment_platform.nil?
+          item[:es_enabled] = !deployment_platform.elastic_stack_client.nil?
+          item[:pods] = deployment_platform.kubeclient.get_pods(namespace: e.deployment_namespace).map do |pod|
+            {
+              name: pod.metadata.name,
+              containers: pod.spec.containers.map(&:name)
+            }
+          end
+        end
+
+        item
+      end
+
+      render json: environments
+    end
+
     private
 
     def index_params

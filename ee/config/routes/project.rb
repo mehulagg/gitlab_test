@@ -73,6 +73,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         resources :logs, only: [:index] do
           collection do
             get :k8s
+            get :filters
           end
         end
 

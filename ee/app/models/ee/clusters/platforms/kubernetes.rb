@@ -80,6 +80,12 @@ module EE
           end
         end
 
+        def elastic_stack_client
+          strong_memoize(:elastic_stack_client) do
+            cluster.application_elastic_stack&.elasticsearch_client
+          end
+        end
+
         private
 
         def pod_logs(pod_name, namespace, container: nil)
@@ -91,9 +97,7 @@ module EE
 
           {
             logs: logs,
-            status: :success,
-            pod_name: pod_name,
-            container_name: container
+            status: :success
           }
         end
 
@@ -110,12 +114,6 @@ module EE
           return [] if client.nil?
 
           ::Gitlab::Elasticsearch::Logs.new(client).pod_logs(namespace, pod_name, container_name)
-        end
-
-        def elastic_stack_client
-          strong_memoize(:elastic_stack_client) do
-            cluster.application_elastic_stack&.elasticsearch_client
-          end
         end
 
         def handle_exceptions(resource_not_found_error_message, opts, &block)

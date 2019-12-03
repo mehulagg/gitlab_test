@@ -52,11 +52,10 @@ export default {
   mounted() {
     this.setInitData({
       projectPath: this.projectFullPath,
+      environmentsPath: this.environmentsPath,
       environmentName: this.environmentName,
       podName: this.currentPodName,
     });
-
-    this.fetchEnvironments(this.environmentsPath);
   },
   methods: {
     ...mapActions('environmentLogs', [
@@ -105,7 +104,7 @@ export default {
           <gl-dropdown
             id="pods-dropdown"
             :text="pods.current || s__('Environments|No pods to display')"
-            :disabled="logs.isLoading"
+            :disabled="environments.isLoading"
             class="d-flex js-pods-dropdown"
             toggle-class="dropdown-menu-toggle"
           >
