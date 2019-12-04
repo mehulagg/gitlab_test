@@ -155,7 +155,7 @@ describe 'Two merge requests on a merge train' do
     end
   end
 
-  context 'when merge request 1 is canceled by a user' do
+  context 'when merge request 1 is canceled by a user', :sidekiq_inline do
     before do
       AutoMergeService.new(project, maintainer_1).cancel(merge_request_1)
 
@@ -217,11 +217,15 @@ describe 'Two merge requests on a merge train' do
     end
   end
 
-  context 'when master got a new commit and pipeline for merge request 1 finished', :sidekiq_might_not_need_inline do
+  context 'when master got a new commit', :sidekiq_inline do
     before do
       create_file_in_repo(project, 'master', 'master', 'test.txt', 'This is test')
 
-      merge_request_1.merge_train.pipeline.succeed!
+      changes = Base64.encode64("123456 789012 refs/heads/master")
+      key_id = create(:key, user: project.owner).shell_id
+
+      PostReceive.new.perform("project-#{project.id}", key_id, changes)
+
       merge_request_1.reload
       merge_request_2.reload
     end
@@ -236,6 +240,13 @@ describe 'Two merge requests on a merge train' do
       expect(merge_request_2.all_pipelines.count).to eq(2)
       expect(merge_request_2.merge_train.pipeline.target_sha)
         .to eq(project.repository.commit(merge_request_1.train_ref_path).sha)
+    end
+
+    context 'when merge request 1 refreshed again' do
+      it 'does not recreate pipeline' do
+        expect { merge_request_1.merge_train.send(:refresh_async) }
+          .not_to change { merge_request_1.all_pipelines.count }
+      end
     end
 
     context 'when the pipeline for merge request 1 succeeded' do
