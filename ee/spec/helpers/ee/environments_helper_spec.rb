@@ -37,7 +37,7 @@ describe EnvironmentsHelper do
     it 'returns environment parameters data' do
       expect(subject).to include(
         "environment-name": environment.name,
-        "environments-path": project_environments_path(project, format: :json)
+        "environments-path": filters_project_logs_path(project, format: :json)
       )
     end
 
