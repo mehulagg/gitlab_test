@@ -45,6 +45,16 @@ module Gitlab
       # This represents all relations that have unique key on `project_id`
       UNIQUE_RELATIONS = %i[project_feature ProjectCiCdSetting].freeze
 
+      PRELOAD_PROJECT = {
+        project_id: :project=,
+        source_project_id: :source_project=,
+        target_project_id: :target_project=
+      }.freeze
+
+      PRELOAD_GROUP = {
+        group_id: :group=
+      }.freeze
+
       def self.create(*args)
         new(*args).create
       end
@@ -89,7 +99,12 @@ module Gitlab
 
         setup_models
 
-        generate_imported_object
+        object = generate_imported_object
+
+        # We preload the project and group to re-use objects
+        object = preload_keys(object, PRELOAD_PROJECT, @project)
+        object = preload_keys(object, PRELOAD_GROUP, @project.group)
+        object
       end
 
       def self.overrides
@@ -120,6 +135,18 @@ module Gitlab
 
         reset_tokens!
         remove_encrypted_attributes!
+      end
+
+      def preload_keys(object, setters, value)
+        setters.each do |key, setter|
+          next unless object.respond_to?(key) && object.respond_to?(setter)
+
+          if object.public_send(key) == value&.id
+            object.public_send(setter, value)
+          end
+        end
+
+        object
       end
 
       def update_user_references
