@@ -25,9 +25,38 @@ describe ServiceHook do
 
   describe '#log_execution' do
     let(:hook) { create(:service_hook) }
+    let(:params) { { something: 'something' } }
+    let(:log_message) do
+      {
+        service_class: 'Service',
+        project_id: hook.service.project_id,
+        project_path: hook.service.project.full_path,
+        message: nil
+      }.merge(params)
+    end
 
-    it do
-      expect { hook.log_execution(anything) }.to not_change(WebHookLog, :count)
+    specify do
+      expect(Gitlab::ProjectServiceLogger).to receive(:info).with(log_message)
+      hook.log_execution(params)
+    end
+
+    context 'when it logs an error' do
+      let(:params) { { error_message: 'Something went wrong', something: 'something' } }
+      let(:log_message) do
+        {
+          service_class: 'Service',
+          project_id: hook.service.project_id,
+          project_path: hook.service.project.full_path,
+          message: 'Something went wrong',
+          something: 'something'
+        }
+      end
+
+      specify do
+        expect(Gitlab::ProjectServiceLogger).to receive(:error).with(log_message)
+        expect(Gitlab::ProjectServiceLogger).not_to receive(:info)
+        hook.log_execution(params)
+      end
     end
   end
 end

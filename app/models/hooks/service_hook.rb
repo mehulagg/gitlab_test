@@ -10,7 +10,34 @@ class ServiceHook < WebHook
   end
   # rubocop: enable CodeReuse/ServiceClass
 
-  def log_execution(_)
-    # Do not log service hooks
+  def log_execution(params)
+    return log_error(params) if params[:error_message]
+
+    log_info(params)
+  end
+
+  private
+
+  def log_error(options)
+    message = log_message
+    message[:message] = options.delete(:error_message)
+    Gitlab::ProjectServiceLogger.error(message.merge(options))
+  end
+
+  def log_info(options)
+    Gitlab::ProjectServiceLogger.info(log_message.merge(options))
+  end
+
+  def log_message
+    {
+      service_class: service.class.name,
+      project_id: project.id,
+      project_path: project.full_path,
+      message: nil
+    }
+  end
+
+  def project
+    @project ||= service.project
   end
 end

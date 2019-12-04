@@ -108,7 +108,7 @@ describe WebHook do
     it do
       hook_log = hook.log_execution(trigger: 'push_hooks', headers: headers, request_data: request_data, response_status: '200', execution_duration: 1)
       expect(hook_log.trigger).to eq('push_hooks')
-      expect(hook_log.url).to eq('http://example27.test')
+      expect(hook_log.url).to eq(hook.url)
       expect(hook_log.request_headers).to eq(headers)
       expect(hook_log.request_data).to eq(request_data)
       expect(hook_log.response_body).to eq('')
