@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+# frozen_string_literal: true #test
 
 module SearchHelper
   SEARCH_PERMITTED_PARAMS = [:search, :scope, :project_id, :group_id, :repository_ref, :snippets].freeze
