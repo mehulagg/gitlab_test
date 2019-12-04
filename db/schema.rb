@@ -349,7 +349,6 @@ ActiveRecord::Schema.define(version: 2019_12_03_145829) do
     t.boolean "sourcegraph_enabled", default: false, null: false
     t.string "sourcegraph_url", limit: 255
     t.boolean "sourcegraph_public_only", default: true, null: false
-    t.bigint "snippet_size_limit", default: 52428800, null: false
     t.text "encrypted_akismet_api_key"
     t.string "encrypted_akismet_api_key_iv", limit: 255
     t.text "encrypted_elasticsearch_aws_secret_access_key"
@@ -362,6 +361,7 @@ ActiveRecord::Schema.define(version: 2019_12_03_145829) do
     t.string "encrypted_slack_app_secret_iv", limit: 255
     t.text "encrypted_slack_app_verification_token"
     t.string "encrypted_slack_app_verification_token_iv", limit: 255
+    t.bigint "snippet_size_limit", default: 52428800, null: false
     t.index ["custom_project_templates_group_id"], name: "index_application_settings_on_custom_project_templates_group_id"
     t.index ["file_template_project_id"], name: "index_application_settings_on_file_template_project_id"
     t.index ["instance_administration_project_id"], name: "index_applicationsettings_on_instance_administration_project_id"
@@ -860,6 +860,7 @@ ActiveRecord::Schema.define(version: 2019_12_03_145829) do
     t.index ["project_id", "sha"], name: "index_ci_pipelines_on_project_id_and_sha"
     t.index ["project_id", "source"], name: "index_ci_pipelines_on_project_id_and_source"
     t.index ["project_id", "status", "config_source"], name: "index_ci_pipelines_on_project_id_and_status_and_config_source"
+    t.index ["project_id", "status", "updated_at"], name: "index_ci_pipelines_on_project_id_and_status_and_updated_at"
     t.index ["project_id"], name: "index_ci_pipelines_on_project_id"
     t.index ["status"], name: "index_ci_pipelines_on_status"
     t.index ["user_id"], name: "index_ci_pipelines_on_user_id"
@@ -1227,41 +1228,6 @@ ActiveRecord::Schema.define(version: 2019_12_03_145829) do
     t.index ["project_id"], name: "index_container_repositories_on_project_id"
   end
 
-  create_table "conversational_development_index_metrics", id: :serial, force: :cascade do |t|
-    t.float "leader_issues", null: false
-    t.float "instance_issues", null: false
-    t.float "leader_notes", null: false
-    t.float "instance_notes", null: false
-    t.float "leader_milestones", null: false
-    t.float "instance_milestones", null: false
-    t.float "leader_boards", null: false
-    t.float "instance_boards", null: false
-    t.float "leader_merge_requests", null: false
-    t.float "instance_merge_requests", null: false
-    t.float "leader_ci_pipelines", null: false
-    t.float "instance_ci_pipelines", null: false
-    t.float "leader_environments", null: false
-    t.float "instance_environments", null: false
-    t.float "leader_deployments", null: false
-    t.float "instance_deployments", null: false
-    t.float "leader_projects_prometheus_active", null: false
-    t.float "instance_projects_prometheus_active", null: false
-    t.float "leader_service_desk_issues", null: false
-    t.float "instance_service_desk_issues", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.float "percentage_boards", default: 0.0, null: false
-    t.float "percentage_ci_pipelines", default: 0.0, null: false
-    t.float "percentage_deployments", default: 0.0, null: false
-    t.float "percentage_environments", default: 0.0, null: false
-    t.float "percentage_issues", default: 0.0, null: false
-    t.float "percentage_merge_requests", default: 0.0, null: false
-    t.float "percentage_milestones", default: 0.0, null: false
-    t.float "percentage_notes", default: 0.0, null: false
-    t.float "percentage_projects_prometheus_active", default: 0.0, null: false
-    t.float "percentage_service_desk_issues", default: 0.0, null: false
-  end
-
   create_table "dependency_proxy_blobs", id: :serial, force: :cascade do |t|
     t.integer "group_id", null: false
     t.datetime_with_timezone "created_at", null: false
@@ -1389,6 +1355,41 @@ ActiveRecord::Schema.define(version: 2019_12_03_145829) do
     t.integer "mentioned_groups_ids", array: true
     t.index ["design_id", "note_id"], name: "design_user_mentions_on_design_id_and_note_id_index"
     t.index ["note_id"], name: "index_design_user_mentions_on_note_id", unique: true
+  end
+
+  create_table "dev_ops_score_metrics", id: :serial, force: :cascade do |t|
+    t.float "leader_issues", null: false
+    t.float "instance_issues", null: false
+    t.float "leader_notes", null: false
+    t.float "instance_notes", null: false
+    t.float "leader_milestones", null: false
+    t.float "instance_milestones", null: false
+    t.float "leader_boards", null: false
+    t.float "instance_boards", null: false
+    t.float "leader_merge_requests", null: false
+    t.float "instance_merge_requests", null: false
+    t.float "leader_ci_pipelines", null: false
+    t.float "instance_ci_pipelines", null: false
+    t.float "leader_environments", null: false
+    t.float "instance_environments", null: false
+    t.float "leader_deployments", null: false
+    t.float "instance_deployments", null: false
+    t.float "leader_projects_prometheus_active", null: false
+    t.float "instance_projects_prometheus_active", null: false
+    t.float "leader_service_desk_issues", null: false
+    t.float "instance_service_desk_issues", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.float "percentage_boards", default: 0.0, null: false
+    t.float "percentage_ci_pipelines", default: 0.0, null: false
+    t.float "percentage_deployments", default: 0.0, null: false
+    t.float "percentage_environments", default: 0.0, null: false
+    t.float "percentage_issues", default: 0.0, null: false
+    t.float "percentage_merge_requests", default: 0.0, null: false
+    t.float "percentage_milestones", default: 0.0, null: false
+    t.float "percentage_notes", default: 0.0, null: false
+    t.float "percentage_projects_prometheus_active", default: 0.0, null: false
+    t.float "percentage_service_desk_issues", default: 0.0, null: false
   end
 
   create_table "draft_notes", force: :cascade do |t|
@@ -1901,6 +1902,13 @@ ActiveRecord::Schema.define(version: 2019_12_03_145829) do
     t.index ["key", "value"], name: "index_group_custom_attributes_on_key_and_value"
   end
 
+  create_table "group_deletion_schedules", primary_key: "group_id", id: :bigint, default: nil, force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.date "marked_for_deletion_on", null: false
+    t.index ["marked_for_deletion_on"], name: "index_group_deletion_schedules_on_marked_for_deletion_on"
+    t.index ["user_id"], name: "index_group_deletion_schedules_on_user_id"
+  end
+
   create_table "group_group_links", force: :cascade do |t|
     t.datetime_with_timezone "created_at", null: false
     t.datetime_with_timezone "updated_at", null: false
@@ -2272,6 +2280,7 @@ ActiveRecord::Schema.define(version: 2019_12_03_145829) do
     t.integer "user_id"
     t.integer "milestone_id"
     t.integer "max_issue_count", default: 0, null: false
+    t.integer "max_issue_weight", default: 0, null: false
     t.index ["board_id", "label_id"], name: "index_lists_on_board_id_and_label_id", unique: true
     t.index ["label_id"], name: "index_lists_on_label_id"
     t.index ["list_type"], name: "index_lists_on_list_type"
@@ -3491,7 +3500,7 @@ ActiveRecord::Schema.define(version: 2019_12_03_145829) do
     t.text "reference_html"
     t.index ["epic_id"], name: "index_resource_label_events_on_epic_id"
     t.index ["issue_id"], name: "index_resource_label_events_on_issue_id"
-    t.index ["label_id"], name: "index_resource_label_events_on_label_id"
+    t.index ["label_id", "action"], name: "index_resource_label_events_on_label_id_and_action"
     t.index ["merge_request_id"], name: "index_resource_label_events_on_merge_request_id"
     t.index ["user_id"], name: "index_resource_label_events_on_user_id"
   end
@@ -3591,6 +3600,7 @@ ActiveRecord::Schema.define(version: 2019_12_03_145829) do
     t.boolean "confidential_note_events", default: true
     t.boolean "deployment_events", default: false, null: false
     t.string "description", limit: 500
+    t.boolean "comment_on_event_enabled", default: true, null: false
     t.index ["project_id"], name: "index_services_on_project_id"
     t.index ["template"], name: "index_services_on_template"
     t.index ["type"], name: "index_services_on_type"
@@ -4434,6 +4444,8 @@ ActiveRecord::Schema.define(version: 2019_12_03_145829) do
   add_foreign_key "gpg_signatures", "projects", on_delete: :cascade
   add_foreign_key "grafana_integrations", "projects", on_delete: :cascade
   add_foreign_key "group_custom_attributes", "namespaces", column: "group_id", on_delete: :cascade
+  add_foreign_key "group_deletion_schedules", "namespaces", column: "group_id", on_delete: :cascade
+  add_foreign_key "group_deletion_schedules", "users", on_delete: :nullify
   add_foreign_key "group_group_links", "namespaces", column: "shared_group_id", on_delete: :cascade
   add_foreign_key "group_group_links", "namespaces", column: "shared_with_group_id", on_delete: :cascade
   add_foreign_key "identities", "saml_providers", name: "fk_aade90f0fc", on_delete: :cascade
