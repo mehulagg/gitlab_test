@@ -4,9 +4,11 @@ require 'spec_helper'
 require Rails.root.join('db', 'post_migrate', '20191127180927_backfill_operations_feature_flags_iid.rb')
 
 describe BackfillOperationsFeatureFlagsIid, :migration do
-  let(:namespaces) { table(:namespaces) }
-  let(:projects)   { table(:projects) }
-  let(:flags)      { table(:operations_feature_flags) }
+  let(:namespaces)   { table(:namespaces) }
+  let(:projects)     { table(:projects) }
+  let(:flags)        { table(:operations_feature_flags) }
+  let(:issues)       { table(:issues) }
+  let(:internal_ids) { table(:internal_ids) }
 
   def setup
     namespace = namespaces.create!(name: 'foo', path: 'foo')
@@ -78,6 +80,40 @@ describe BackfillOperationsFeatureFlagsIid, :migration do
 
     flag.reload
     expect(flag.iid).to eq(5)
+  end
+
+  it 'does not change an iid for an issue' do
+    project = setup
+    flag = flags.create!(project_id: project.id, active: true, name: 'test_flag')
+    issue = issues.create!(project_id: project.id, iid: 8)
+    internal_id = internal_ids.create!(project_id: project.id, usage: 0, last_value: issue.iid)
+
+    disable_migrations_output { migrate! }
+
+    flag.reload
+    issue.reload
+    internal_id.reload
+    expect(flag.iid).to eq(1)
+    expect(issue.iid).to eq(8)
+    expect(internal_id.usage).to eq(0)
+    expect(internal_id.last_value).to eq(8)
+  end
+
+  it 'updates the internal_ids table' do
+    project = setup
+    flags.create!(project_id: project.id, active: true, name: 'test_flag')
+    flags.create!(project_id: project.id, active: true, name: 'other_flag')
+    flags.create!(project_id: project.id, active: true, name: 'last_flag')
+
+    expect(internal_ids.count).to eq(0)
+
+    disable_migrations_output { migrate! }
+
+    internal_id = internal_ids.first
+    expect(internal_ids.count).to eq(1)
+    expect(internal_id.project_id).to eq(project.id)
+    expect(internal_id.usage).to eq(6)
+    expect(internal_id.last_value).to eq(3)
   end
 
   it 'backfills the iid for flags when some flags for the project already have an iid' do
