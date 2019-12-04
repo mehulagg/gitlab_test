@@ -1,16 +1,6 @@
 # frozen_string_literal: true
 
 class WebHookService
-  class InternalErrorResponse
-    attr_reader :body, :headers, :code
-
-    def initialize
-      @headers = Gitlab::HTTP::Response::Headers.new({})
-      @body = ''
-      @code = 'internal error'
-    end
-  end
-
   attr_accessor :hook, :data, :hook_name, :request_options
 
   def initialize(hook, data, hook_name)
@@ -32,11 +22,13 @@ class WebHookService
                  make_request_with_auth
                end
 
-    log_execution(
+    hook.log_execution(
       trigger: hook_name,
-      url: hook.url,
+      headers: build_headers(hook_name),
       request_data: data,
-      response: response,
+      response_headers: format_response_headers(response.headers),
+      response_body: response.body,
+      response_status: response.code,
       execution_duration: Gitlab::Metrics::System.monotonic_time - start_time
     )
 
@@ -46,11 +38,11 @@ class WebHookService
       message: response.to_s
     }
   rescue SocketError, OpenSSL::SSL::SSLError, Errno::ECONNRESET, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Net::OpenTimeout, Net::ReadTimeout, Gitlab::HTTP::BlockedUrlError, Gitlab::HTTP::RedirectionTooDeep => e
-    log_execution(
+    hook.log_execution(
       trigger: hook_name,
-      url: hook.url,
+      headers: build_headers(hook_name),
       request_data: data,
-      response: InternalErrorResponse.new,
+      response_status: 'internal error',
       execution_duration: Gitlab::Metrics::System.monotonic_time - start_time,
       error_message: e.to_s
     )
@@ -91,24 +83,6 @@ class WebHookService
     make_request(post_url, basic_auth)
   end
 
-  def log_execution(trigger:, url:, request_data:, response:, execution_duration:, error_message: nil)
-    # logging for ServiceHook's is not available
-    return if hook.is_a?(ServiceHook)
-
-    WebHookLog.create(
-      web_hook: hook,
-      trigger: trigger,
-      url: url,
-      execution_duration: execution_duration,
-      request_headers: build_headers(hook_name),
-      request_data: request_data,
-      response_headers: format_response_headers(response),
-      response_body: safe_response_body(response),
-      response_status: response.code,
-      internal_error_message: error_message
-    )
-  end
-
   def build_headers(hook_name)
     @headers ||= begin
       {
@@ -123,13 +97,7 @@ class WebHookService
   # Make response headers more stylish
   # Net::HTTPHeader has downcased hash with arrays: { 'content-type' => ['text/html; charset=utf-8'] }
   # This method format response to capitalized hash with strings: { 'Content-Type' => 'text/html; charset=utf-8' }
-  def format_response_headers(response)
-    response.headers.each_capitalized.to_h
-  end
-
-  def safe_response_body(response)
-    return '' unless response.body
-
-    response.body.encode('UTF-8', invalid: :replace, undef: :replace, replace: '')
+  def format_response_headers(headers)
+    headers.each_capitalized.to_h
   end
 end

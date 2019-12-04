@@ -37,4 +37,25 @@ class WebHook < ApplicationRecord
   def allow_local_requests?
     Gitlab::CurrentSettings.allow_local_requests_from_web_hooks_and_services?
   end
+
+  def log_execution(trigger:, headers:, request_data:, response_headers: {}, response_body: '', response_status:, execution_duration:, error_message: nil)
+    self.web_hook_logs.create(
+      trigger: trigger,
+      url: url,
+      execution_duration: execution_duration,
+      request_headers: headers,
+      request_data: request_data,
+      response_headers: response_headers,
+      response_body: safe_response_body(response_body),
+      response_status: response_status,
+      internal_error_message: error_message
+    )
+  end
+
+  private
+
+  # Todo: this could be a before_save hook in WebHookLog
+  def safe_response_body(body)
+    body.encode('UTF-8', invalid: :replace, undef: :replace, replace: '')
+  end
 end

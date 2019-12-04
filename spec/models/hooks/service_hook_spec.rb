@@ -22,4 +22,12 @@ describe ServiceHook do
       hook.execute(data)
     end
   end
+
+  describe '#log_execution' do
+    let(:hook) { create(:service_hook) }
+
+    it do
+      expect { hook.log_execution(anything) }.to not_change(WebHookLog, :count)
+    end
+  end
 end

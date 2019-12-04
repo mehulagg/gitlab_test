@@ -94,4 +94,28 @@ describe WebHook do
       expect { web_hook.destroy }.to change(web_hook.web_hook_logs, :count).by(-3)
     end
   end
+
+  describe '#log_execution' do
+    let(:hook) { create(:project_hook) }
+    let(:headers) do
+      {
+        'Content-Type' => 'application/json',
+        'X-Gitlab-Event' => 'Push Hook'
+      }
+    end
+    let(:request_data) { { event_type: 'Push' } }
+
+    it do
+      hook_log = hook.log_execution(trigger: 'push_hooks', headers: headers, request_data: request_data, response_status: '200', execution_duration: 1)
+      expect(hook_log.trigger).to eq('push_hooks')
+      expect(hook_log.url).to eq('http://example27.test')
+      expect(hook_log.request_headers).to eq(headers)
+      expect(hook_log.request_data).to eq(request_data)
+      expect(hook_log.response_body).to eq('')
+      expect(hook_log.response_status).to eq('200')
+      expect(hook_log.execution_duration).to eq(1)
+      expect(hook_log.internal_error_message).to be_nil
+      expect(hook_log).to be_persisted
+    end
+  end
 end
