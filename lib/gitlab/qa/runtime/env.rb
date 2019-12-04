@@ -57,6 +57,8 @@ module Gitlab
           'KNAPSACK_TEST_DIR' => :knapsack_test_dir,
           'CI' => :ci,
           'CI_RUNNER_ID' => :ci_runner_id,
+          'CI_SERVER_HOST' => :ci_server_host,
+          'CI_SERVER_PERSONAL_ACCESS_TOKEN' => :ci_server_personal_access_token,
           'CI_NODE_INDEX' => :ci_node_index,
           'CI_NODE_TOTAL' => :ci_node_total,
           'GITLAB_CI' => :gitlab_ci,
