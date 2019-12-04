@@ -80,6 +80,7 @@ For more details on the internals, please read the
 * `GITLAB_QA_1P_SECRET` - Secret for authenticating into 1Password.
 * `GITLAB_QA_1P_GITHUB_UUID` - UUID for GitHub item in GitLab-QA 1Password vault.
 * `GITLAB_QA_LOOP_RUNNER_MINUTES` - Minutes to run and repeat a spec while using the '--loop' option; default value is 1 minute.
+* `CI_SERVER_PERSONAL_ACCESS_TOKEN` - Personal access token of the server that is running the CI pipeline. This is used for pulling CI_RUNNER information in certain tests.
 
 ## [Supported Remote Grid environment variables](./running_against_remote_grid.md)
 
