@@ -3,7 +3,13 @@ import MockAdapter from 'axios-mock-adapter';
 import testAction from 'helpers/vuex_action_helper';
 import * as types from 'ee/logs/stores/mutation_types';
 import logsPageState from 'ee/logs/stores/state';
-import { setInitData, showPodLogs, fetchEnvironments, fetchLogs } from 'ee/logs/stores/actions';
+import {
+  setInitData,
+  showPodLogs,
+  showEnvironment,
+  fetchEnvironments,
+  fetchLogs
+} from 'ee/logs/stores/actions';
 import axios from '~/lib/utils/axios_utils';
 
 import flash from '~/flash';
@@ -43,7 +49,7 @@ describe('Logs Store actions', () => {
           { type: types.SET_PROJECT_ENVIRONMENT, payload: mockEnvName },
           { type: types.SET_CURRENT_POD_NAME, payload: mockPodName },
         ],
-        [{ type: 'fetchLogs' }],
+        [{ type: 'fetchEnvironments' }],
         done,
       );
     });
@@ -60,6 +66,33 @@ describe('Logs Store actions', () => {
         done,
       );
     });
+    it('should not commit when there are no changes', done => {
+      state.pods.current = mockPodName;
+
+      testAction(showPodLogs, mockPodName, state, [], [], done);
+    });
+  });
+
+  describe('showEnvironment', () => {
+    it('should commit environment name', done => {
+      testAction(
+        showEnvironment,
+        mockEnvName,
+        state,
+        [
+          { type: types.SET_PROJECT_ENVIRONMENT, payload: mockEnvName },
+          { type: types.SET_CURRENT_POD_NAME, payload: null },
+          { type: types.REDRAW_POD_DROPDOWN },
+        ],
+        [{ type: 'fetchLogs' }],
+        done,
+      );
+    });
+    it('should not commit when there are no changes', done => {
+      state.environments.current = mockEnvName;
+
+      testAction(showEnvironment, mockEnvName, state, [], [], done);
+    });
   });
 
   describe('fetchEnvironments', () => {
@@ -75,9 +108,13 @@ describe('Logs Store actions', () => {
         state,
         [
           { type: types.REQUEST_ENVIRONMENTS_DATA },
-          { type: types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS, payload: mockEnvironments },
+          {
+            type: types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS,
+            payload: { environments: mockEnvironments },
+          },
+          { type: types.REDRAW_POD_DROPDOWN },
         ],
-        [],
+        [{ type: 'fetchLogs' }],
         done,
       );
     });
@@ -132,10 +169,7 @@ describe('Logs Store actions', () => {
         null,
         state,
         [
-          { type: types.REQUEST_PODS_DATA },
           { type: types.REQUEST_LOGS_DATA },
-          { type: types.SET_CURRENT_POD_NAME, payload: mockPodName },
-          { type: types.RECEIVE_PODS_DATA_SUCCESS, payload: mockPods },
           { type: types.RECEIVE_LOGS_DATA_SUCCESS, payload: mockLines },
         ],
         [],
@@ -161,10 +195,7 @@ describe('Logs Store actions', () => {
         null,
         state,
         [
-          { type: types.REQUEST_PODS_DATA },
           { type: types.REQUEST_LOGS_DATA },
-          { type: types.SET_CURRENT_POD_NAME, payload: mockPodName },
-          { type: types.RECEIVE_PODS_DATA_SUCCESS, payload: mockPods },
           { type: types.RECEIVE_LOGS_DATA_SUCCESS, payload: mockLines },
         ],
         [],
@@ -183,12 +214,7 @@ describe('Logs Store actions', () => {
         fetchLogs,
         null,
         state,
-        [
-          { type: types.REQUEST_PODS_DATA },
-          { type: types.REQUEST_LOGS_DATA },
-          { type: types.RECEIVE_PODS_DATA_ERROR },
-          { type: types.RECEIVE_LOGS_DATA_ERROR },
-        ],
+        [{ type: types.REQUEST_LOGS_DATA }, { type: types.RECEIVE_LOGS_DATA_ERROR }],
         [],
         () => {
           expect(flash).toHaveBeenCalledTimes(1);

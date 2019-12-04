@@ -116,35 +116,19 @@ describe('Logs Store Mutations', () => {
       expect(state.pods.current).toEqual(mockPodName);
     });
   });
-  describe('REQUEST_PODS_DATA', () => {
-    it('receives log data error and stops loading', () => {
-      mutations[types.REQUEST_PODS_DATA](state);
 
-      expect(state.pods).toEqual(
-        expect.objectContaining({
-          options: [],
-        }),
-      );
-    });
-  });
-  describe('RECEIVE_PODS_DATA_SUCCESS', () => {
+  describe('REDRAW_POD_DROPDOWN', () => {
     it('receives pods data success', () => {
-      mutations[types.RECEIVE_PODS_DATA_SUCCESS](state, mockPods);
+      state.pods.current = null;
+      state.environments.current = mockEnvName;
+      state.environments.options = mockEnvironments;
+
+      mutations[types.REDRAW_POD_DROPDOWN](state);
 
       expect(state.pods).toEqual(
         expect.objectContaining({
+          current: mockPodName,
           options: mockPods,
-        }),
-      );
-    });
-  });
-  describe('RECEIVE_PODS_DATA_ERROR', () => {
-    it('receives pods data error', () => {
-      mutations[types.RECEIVE_PODS_DATA_ERROR](state);
-
-      expect(state.pods).toEqual(
-        expect.objectContaining({
-          options: [],
         }),
       );
     });

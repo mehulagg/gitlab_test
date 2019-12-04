@@ -1,20 +1,6 @@
 export const mockProjectPath = 'root/autodevops-deploy';
 export const mockEnvName = 'production';
 export const mockEnvironmentsEndpoint = `${mockProjectPath}/environments.json`;
-export const mockEnvId = '99';
-
-const makeMockEnvironment = (id, name) => ({
-  id,
-  logs_path: `${mockProjectPath}/environments/${id}/logs`,
-  name,
-});
-
-export const mockEnvironment = makeMockEnvironment(mockEnvId, mockEnvName);
-export const mockEnvironments = [
-  mockEnvironment,
-  makeMockEnvironment(101, 'staging'),
-  makeMockEnvironment(102, 'review/a-feature'),
-];
 
 export const mockPodName = 'production-764c58d697-aaaaa';
 export const mockPods = [
@@ -22,6 +8,22 @@ export const mockPods = [
   'production-764c58d697-bbbbb',
   'production-764c58d697-ccccc',
   'production-764c58d697-ddddd',
+];
+
+const makeMockEnvironment = (name, mockPods) => ({
+  name,
+  namespace: 'foo',
+  es_enabled: true,
+  pods: mockPods.map(name => {
+    return { name: name };
+  }),
+});
+
+export const mockEnvironment = makeMockEnvironment(mockEnvName, mockPods);
+export const mockEnvironments = [
+  mockEnvironment,
+  makeMockEnvironment('staging', mockPods),
+  makeMockEnvironment('review/a-feature', mockPods),
 ];
 
 export const mockLines = [

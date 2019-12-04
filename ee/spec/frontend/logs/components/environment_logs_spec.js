@@ -100,11 +100,9 @@ describe('EnvironmentLogs', () => {
     expect(actionMocks.setInitData).toHaveBeenLastCalledWith({
       projectPath: mockProjectPath,
       environmentName: mockEnvName,
+      environmentsPath: mockEnvironmentsEndpoint,
       podName: null,
     });
-
-    expect(actionMocks.fetchEnvironments).toHaveBeenCalledTimes(1);
-    expect(actionMocks.fetchEnvironments).toHaveBeenLastCalledWith(mockEnvironmentsEndpoint);
   });
 
   describe('loading state', () => {
@@ -148,8 +146,10 @@ describe('EnvironmentLogs', () => {
     beforeEach(() => {
       actionMocks.setInitData.mockImplementation(() => {
         state.pods.options = mockPods;
-        state.environments.current = mockEnvName;
         [state.pods.current] = state.pods.options;
+
+        state.environments.current = mockEnvName;
+        state.environments.options = mockEnvironments;
 
         state.logs.isComplete = false;
         state.logs.lines = mockLines;
@@ -160,9 +160,6 @@ describe('EnvironmentLogs', () => {
 
         state.logs.isComplete = false;
         state.logs.lines = mockLines;
-      });
-      actionMocks.fetchEnvironments.mockImplementation(() => {
-        state.environments.options = mockEnvironments;
       });
 
       initWrapper();
