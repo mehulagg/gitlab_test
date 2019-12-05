@@ -25,12 +25,6 @@ describe Projects::FeatureFlagsController do
 
     subject { get(:index, params: view_params) }
 
-    it 'pushes the feature_flag_iid feature flag to the frontend' do
-      subject
-
-      expect(Gon.features.keys).to include('featureFlagIid')
-    end
-
     context 'when there is no feature flags' do
       before do
         subject

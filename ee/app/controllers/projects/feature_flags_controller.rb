@@ -12,7 +12,6 @@ class Projects::FeatureFlagsController < Projects::ApplicationController
 
   before_action do
     push_frontend_feature_flag(:feature_flag_permissions)
-    push_frontend_feature_flag(:feature_flag_iid)
   end
 
   def index

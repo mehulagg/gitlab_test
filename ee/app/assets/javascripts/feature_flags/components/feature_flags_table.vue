@@ -38,9 +38,6 @@ export default {
     permissions() {
       return this.glFeatures.featureFlagPermissions;
     },
-    hasIIDs() {
-      return this.glFeatures.featureFlagIid;
-    },
     modalTitle() {
       return sprintf(
         s__('FeatureFlags|Delete %{name}?'),
@@ -100,7 +97,7 @@ export default {
 <template>
   <div class="table-holder js-feature-flag-table">
     <div class="gl-responsive-table-row table-row-header" role="row">
-      <div v-if="hasIIDs" class="table-section section-10">
+      <div class="table-section section-10">
         {{ s__('FeatureFlags|ID') }}
       </div>
       <div class="table-section section-10" role="columnheader">
@@ -116,7 +113,7 @@ export default {
 
     <template v-for="featureFlag in featureFlags">
       <div :key="featureFlag.id" class="gl-responsive-table-row" role="row">
-        <div v-if="hasIIDs" class="table-section section-10" role="gridcell">
+        <div class="table-section section-10" role="gridcell">
           <div class="table-mobile-header" role="rowheader">{{ s__('FeatureFlags|ID') }}</div>
           <div class="table-mobile-content js-feature-flag-id">^{{ featureFlag.iid }}</div>
         </div>

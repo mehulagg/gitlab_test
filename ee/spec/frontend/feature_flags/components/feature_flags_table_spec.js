@@ -60,9 +60,7 @@ describe('Feature flag table', () => {
   describe('with an active scope and a standard rollout strategy', () => {
     beforeEach(() => {
       props.featureFlags[0].iid = 1;
-      createWrapper(props, {
-        provide: { glFeatures: { featureFlagIid: true } },
-      });
+      createWrapper(props);
     });
 
     it('Should render a table', () => {

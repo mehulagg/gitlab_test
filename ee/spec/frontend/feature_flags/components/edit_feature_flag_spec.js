@@ -32,7 +32,6 @@ describe('Edit feature flag form', () => {
       provide: {
         glFeatures: {
           featureFlagToggle,
-          featureFlagIid: true,
         },
       },
       store,
