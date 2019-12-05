@@ -1,6 +1,7 @@
 <script>
 import { GlLoadingIcon, GlTooltipDirective, GlButton } from '@gitlab/ui';
 import CiStatus from '~/vue_shared/components/ci_icon.vue';
+import { __ } from '~/locale';
 
 export default {
   directives: {
@@ -29,6 +30,15 @@ export default {
     },
     projectName() {
       return this.pipeline.project.name;
+    },
+    parent() {
+      return this.pipeline.parent;
+    },
+    child() {
+      return this.pipeline.child;
+    },
+    label() {
+      return this.parent ? __('Parent') : __('Child');
     },
   },
   methods: {
@@ -60,6 +70,9 @@ export default {
         class="js-linked-pipeline-status"
       />
       <span class="str-truncated align-bottom"> {{ projectName }} &#8226; #{{ pipeline.id }} </span>
+      <div v-if="parent || child" class="parent-child-label-container">
+        <span class="badge badge-primary">{{ label }}</span>
+      </div>
     </gl-button>
   </li>
 </template>
