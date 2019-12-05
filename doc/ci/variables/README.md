@@ -583,7 +583,7 @@ Below you can find supported syntax reference:
    Precedence of operators follows the [ruby 2.5 standard](https://ruby-doc.org/core-2.5.0/doc/syntax/precedence_rdoc.html),
    so `&&` is evaluated before `||`.
 
-### Pattern matching against a variable
+### Storing regular expressions in variables
 
 It is possible to store a regular expression in a variable, to be used for pattern matching:
 
