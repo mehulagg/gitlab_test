@@ -15,6 +15,10 @@ class BackfillOperationsFeatureFlagsIid < ActiveRecord::Migration[5.2]
     has_internal_id :iid, scope: :project, init: ->(s) { s&.project&.operations_feature_flags&.maximum(:iid) }
   end
 
+  ###
+  # This should update about 500 rows on gitlab.com
+  # https://gitlab.com/gitlab-org/gitlab/merge_requests/20871#note_251723686
+  ###
   def up
     OperationsFeatureFlags.where(iid: nil).find_each do |flag|
       flag.ensure_project_iid!
