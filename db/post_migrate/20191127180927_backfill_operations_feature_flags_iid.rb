@@ -8,7 +8,6 @@ class BackfillOperationsFeatureFlagsIid < ActiveRecord::Migration[5.2]
   disable_ddl_transaction!
 
   class OperationsFeatureFlags < ActiveRecord::Base
-    include EachBatch
     include AtomicInternalId
 
     belongs_to :project
@@ -17,11 +16,9 @@ class BackfillOperationsFeatureFlagsIid < ActiveRecord::Migration[5.2]
   end
 
   def up
-    OperationsFeatureFlags.where(iid: nil).each_batch do |flags|
-      flags.each do |flag|
-        flag.ensure_project_iid!
-        flag.save
-      end
+    OperationsFeatureFlags.where(iid: nil).find_each do |flag|
+      flag.ensure_project_iid!
+      flag.save
     end
   end
 
