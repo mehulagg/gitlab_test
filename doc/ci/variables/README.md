@@ -602,7 +602,9 @@ NOTE: **Note:**
 The available regular expression syntax is limited. See [related issue](https://gitlab.com/gitlab-org/gitlab/issues/35438)
 for more details.
 
-Use a test pipeline to determine whether a regular expression will work in a variable. For example:
+If needed, you can use a test pipeline to determine whether a regular expression will
+work in a variable. The example below tests the `^mast.*` regular expression directly,
+as well as from within a variable:
 
 ```yaml
 variables:
