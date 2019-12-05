@@ -14,8 +14,8 @@ The topics covered here assume you have chosen to continue using Jira, temporari
 Integration of GitLab and Jira enables the following features:
 
 - Mention of a Jira issue's ID in a GitLab commit or merge request results in a link to the issue.
-- Jira issue comments can be added in a Git commit.
-- A Jira issue can be closed with a Git commit.
+- Jira issue comments can be added using a Git commit.
+- A Jira issue can be closed using a Git commit.
 
 For more details, see [integration features](#integration-features).
 
