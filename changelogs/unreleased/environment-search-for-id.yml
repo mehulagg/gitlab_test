@@ -1,0 +1,6 @@
+---
+title: Adds Projects::EnvironmentsController#search_for_id endpoint to return name
+  and id
+merge_request: 21273
+author:
+type: added
