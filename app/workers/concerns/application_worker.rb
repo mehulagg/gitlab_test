@@ -20,7 +20,9 @@ module ApplicationWorker
     end
 
     def perform_async(*args)
-      set_sidekiq_profile_option(jid, profile_option) do
+     # binding.pry
+      Rails.logger.error( "qingyudebug: enter perform_async, with args: #{args},  Worker: #{self.name}")
+      set_sidekiq_profile_option do
         super(*args)
       end
     end
@@ -39,22 +41,28 @@ module ApplicationWorker
     DEFAULT_EXPIRATION = 30.minutes.to_i
 
     def set_sidekiq_profile_option(expire = DEFAULT_EXPIRATION)
+      Rails.logger.error( "qingyudebug: enter set_sidekiq_profile_option,   Worker: #{self.name}")
       jid_or_jids = yield
+      Rails.logger.error( "qingyudebug: after yield jid_or_jids: #{jid_or_jids},   Worker: #{self.name}")
+
 
       profile_option = parse_sidekiq_profile_option
-      return jid_or_jids unless profile_option
+      Rails.logger.error( "qingyudebug: after parse_sidekiq_profile_option:  profile_option: #{profile_option},   Worker: #{self.name}")
 
-      jids = jid_or_jids.is_a?(Array)? jid_or_jids: [ jid_or_jids ]
+      if profile_option
+        jids = jid_or_jids.is_a?(Array)? jid_or_jids: [ jid_or_jids ]
 
-      jids.each do |jid|
-        redis.set(sidekiq_profile_key_for(jid_or_jids), profile_option.to_json, ex: expire)
-        p "qingyudebug: set_sidekiq_profile_option happened!"
-        Rails.logger.error('qingyudebug: set_sidekiq_profile_option happened!')
+        jids.each do |jid|
+          ::Gitlab::Redis::SharedState.with do |redis|
+            redis.set(sidekiq_profile_key_for(jid_or_jids), profile_option.to_json, ex: expire)
+          end
+          Rails.logger.error("qingyudebug: set_sidekiq_profile_option happened! Worker: #{self.name}, key: #{sidekiq_profile_key_for(jid_or_jids)}, value: #{profile_option.to_json}, expire: #{expire} ")
+        end
+      else
+        Rails.logger.error("qingyudebug: profile option not found for this worker #{self.name}, did not set redis key")
       end
 
-      Rails.logger.error( "qingyudebug: jid_or_jids: #{jid_or_jids}")
-      p "qingyudebug: jid_or_jids"
-      p jid_or_jids
+      Rails.logger.error( "qingyudebug: jid_or_jids will return from set_sidekiq_profile_option: #{jid_or_jids}")
 
       jid_or_jids
     end
@@ -96,12 +104,15 @@ module ApplicationWorker
     end
 
     def bulk_perform_async(args_list)
+      Rails.logger.error( "qingyudebug: enter bulk_perform_async, with args_list: #{args_list},  Worker: #{self.name}")
       set_sidekiq_profile_option do
         Sidekiq::Client.push_bulk('class' => self, 'args' => args_list)
       end
     end
 
     def bulk_perform_in(delay, args_list)
+      Rails.logger.error( "qingyudebug: enter bulk_perform_async, with args_list: #{args_list},  Worker: #{self.name}")
+
       now = Time.now.to_i
       schedule = now + delay.to_i
 
