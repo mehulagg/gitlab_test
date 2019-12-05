@@ -23,6 +23,9 @@ export default {
   computed: {
     ...mapState(['entries', 'promotionSvgPath', 'links']),
     ...mapGetters(['packageJson', 'currentProject']),
+    hasManager() {
+      return this.manager && !_.isEmpty(this.manager);
+    },
     normalizedEntries() {
       return Object.keys(this.entries).reduce((acc, path) => {
         const file = this.entries[path];
@@ -64,11 +67,18 @@ export default {
   watch: {
     entries: {
       deep: true,
-      handler: 'update',
+      handler() {
+        this.updateManager();
+      },
     },
   },
   mounted() {
     this.loading = true;
+    this.updateManager = _.debounce(() => {
+      if (this.hasManager) {
+        this.manager.updatePreview(this.sandboxOpts);
+      }
+    }, 250);
 
     return this.loadFileContent(packageJsonPath)
       .then(() => {
@@ -78,7 +88,7 @@ export default {
       .then(() => this.initPreview());
   },
   beforeDestroy() {
-    if (!_.isEmpty(this.manager)) {
+    if (this.hasManager) {
       this.manager.listener();
     }
     this.manager = {};
@@ -86,9 +96,6 @@ export default {
     if (this.listener) {
       this.listener();
     }
-
-    clearTimeout(this.timeout);
-    this.timeout = null;
   },
   methods: {
     ...mapActions(['getFileData', 'getRawFileData']),
@@ -111,6 +118,7 @@ export default {
               isFile: p => Promise.resolve(Boolean(this.entries[createPathWithExt(p)])),
               readFile: p => this.loadFileContent(createPathWithExt(p)).then(content => content),
             },
+            bundlerURL: 'http://sandpack.local:8000',
           });
 
           this.listener = listen(e => {
@@ -124,23 +132,8 @@ export default {
           });
         });
     },
-    update() {
-      if (!this.sandpackReady) return;
-
-      clearTimeout(this.timeout);
-
-      this.timeout = setTimeout(() => {
-        if (_.isEmpty(this.manager)) {
-          this.initPreview();
-
-          return;
-        }
-
-        this.manager.updatePreview(this.sandboxOpts);
-      }, 250);
-    },
-    initManager(el, opts, resolver) {
-      this.manager = new Manager(el, opts, resolver);
+    initManager(el, sandboxInfo, opts) {
+      this.manager = new Manager(el, sandboxInfo, opts);
     },
   },
 };
