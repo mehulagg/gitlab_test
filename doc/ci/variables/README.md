@@ -633,7 +633,8 @@ secrets! The output **will** be uploaded to the GitLab server and made visible
 in job logs!
 
 [Some of the variables](where_variables_can_be_used.md) in the debug output
-are not available for use in `.gitlab-ci.yml`.
+Not all variables in the debug output are [available for use](where_variables_can_be_used.md)
+in `.gitlab-ci.yml`.
 
 By default, GitLab Runner hides most of the details of what it is doing when
 processing a job. This behavior keeps job logs short, and prevents secrets
