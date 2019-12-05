@@ -5,7 +5,7 @@ class AddIidToOperationsFeatureFlags < ActiveRecord::Migration[5.2]
   DOWNTIME = false
 
   def up
-    add_column :operations_feature_flags, :iid, :bigint
+    add_column :operations_feature_flags, :iid, :integer
   end
 
   def down
