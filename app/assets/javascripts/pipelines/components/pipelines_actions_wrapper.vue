@@ -50,10 +50,11 @@ export default {
         v-gl-tooltip
         type="button"
         :title="__('Actions')"
-        class="pipeline-action-button js-more-actions-toggle more-actions-toggle btn btn-transparent"
+        class="pipeline-action-button js-more-actions-toggle more-actions-toggle btn"
         @click="handleToggleClick"
       >
         <icon css-classes="icon" name="ellipsis_v" />
+        <icon css-classes="icon" name="chevron-down" />
       </gl-button>
     </div>
   </div>
