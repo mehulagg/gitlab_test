@@ -580,8 +580,8 @@ Below you can find supported syntax reference:
 
    It is possible to join multiple conditions using `&&` or `||`. Any of the otherwise
    supported syntax may be used in a conjunctive or disjunctive statement.
-   Precedence of operators: `&&` happens before `||`, following Ruby 2.5
-   [precedence](https://ruby-doc.org/core-2.5.0/doc/syntax/precedence_rdoc.html).
+   Precedence of operators follows the [ruby 2.5 standard](https://ruby-doc.org/core-2.5.0/doc/syntax/precedence_rdoc.html),
+   so `&&` is evaluated before `||`.
 
 ### Pattern matching against a variable
 
