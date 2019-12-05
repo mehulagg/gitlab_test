@@ -7,7 +7,7 @@ class BackfillOperationsFeatureFlagsIid < ActiveRecord::Migration[5.2]
 
   disable_ddl_transaction!
 
-  class OperationsFeatureFlags < ActiveRecord::Base
+  class OperationsFeatureFlag < ActiveRecord::Base
     include AtomicInternalId
 
     belongs_to :project
@@ -23,7 +23,7 @@ class BackfillOperationsFeatureFlagsIid < ActiveRecord::Migration[5.2]
   # https://gitlab.com/gitlab-org/gitlab/merge_requests/20871#note_254891446
   ###
   def up
-    OperationsFeatureFlags.where(iid: nil).find_each do |flag|
+    OperationsFeatureFlag.where(iid: nil).find_each do |flag|
       flag.ensure_project_iid!
       flag.save
     end
