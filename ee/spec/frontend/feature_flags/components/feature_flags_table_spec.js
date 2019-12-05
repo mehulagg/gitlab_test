@@ -61,7 +61,7 @@ describe('Feature flag table', () => {
     beforeEach(() => {
       props.featureFlags[0].iid = 1;
       createWrapper(props, {
-        provide: { glFeatures: { featureFlagIID: true } },
+        provide: { glFeatures: { featureFlagIid: true } },
       });
     });
 

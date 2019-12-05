@@ -47,7 +47,7 @@ export default {
         : sprintf(s__('Edit %{name}'), { name: this.name });
     },
     hasFeatureFlagsIID() {
-      return this.glFeatures.featureFlagIID && this.iid;
+      return this.glFeatures.featureFlagIid && this.iid;
     },
     hasFeatureFlagToggle() {
       return this.glFeatures.featureFlagToggle;

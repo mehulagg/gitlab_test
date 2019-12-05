@@ -39,7 +39,7 @@ export default {
       return this.glFeatures.featureFlagPermissions;
     },
     hasIIDs() {
-      return this.glFeatures.featureFlagIID;
+      return this.glFeatures.featureFlagIid;
     },
     modalTitle() {
       return sprintf(

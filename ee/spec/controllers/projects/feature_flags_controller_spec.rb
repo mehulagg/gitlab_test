@@ -25,6 +25,12 @@ describe Projects::FeatureFlagsController do
 
     subject { get(:index, params: view_params) }
 
+    it 'pushes the feature_flag_iid feature flag to the frontend' do
+      subject
+
+      expect(Gon.features.keys).to include('featureFlagIid')
+    end
+
     context 'when there is no feature flags' do
       before do
         subject
@@ -98,6 +104,14 @@ describe Projects::FeatureFlagsController do
       subject
 
       expect(response).to match_response_schema('feature_flags', dir: 'ee')
+    end
+
+    it 'returns the feature flag iid' do
+      subject
+
+      feature_flag_json = json_response['feature_flags'].first
+
+      expect(feature_flag_json['iid']).to eq(feature_flag_active.iid)
     end
 
     context 'when scope is specified' do
