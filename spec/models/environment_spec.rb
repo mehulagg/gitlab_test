@@ -119,6 +119,16 @@ describe Environment, :use_clean_rails_memory_store_caching do
     end
   end
 
+  describe '.pluck_ids_and_names' do
+    subject { described_class.pluck_ids_and_names }
+
+    let!(:environment) { create(:environment, name: 'production', project: project) }
+
+    it 'plucks id and name' do
+      is_expected.to eq([[environment.id, environment.name]])
+    end
+  end
+
   describe '#expire_etag_cache' do
     let(:store) { Gitlab::EtagCaching::Store.new }
 

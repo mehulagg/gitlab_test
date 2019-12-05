@@ -237,6 +237,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             get :metrics, action: :metrics_redirect
             get :folder, path: 'folders/*id', constraints: { format: /(html|json)/ }
             get :search
+            get :search_for_id
           end
 
           resources :deployments, only: [:index] do

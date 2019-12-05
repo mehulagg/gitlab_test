@@ -94,6 +94,10 @@ class Environment < ApplicationRecord
     pluck(:name)
   end
 
+  def self.pluck_ids_and_names
+    pluck(:id, :name)
+  end
+
   def self.find_or_create_by_name(name)
     find_or_create_by(name: name)
   end

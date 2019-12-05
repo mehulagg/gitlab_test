@@ -701,6 +701,104 @@ describe Projects::EnvironmentsController do
     end
   end
 
+  describe 'GET #search_for_id' do
+    let_it_be(:staging) { create(:environment, name: 'staging', project: project) }
+    let_it_be(:staging2) { create(:environment, name: 'staging2', project: project) }
+    let_it_be(:review) { create(:environment, name: 'review', project: project) }
+    let_it_be(:review_patch) { create(:environment, name: 'review/patch-1', project: project) }
+
+    let(:query) { 'pro' }
+
+    it 'responds with status code 200' do
+      get :search_for_id, params: environment_params(format: :json, query: query)
+
+      expect(response).to have_gitlab_http_status(:ok)
+    end
+
+    it 'returns matched results' do
+      get :search_for_id, params: environment_params(format: :json, query: query)
+
+      expected_response = [[environment.id, environment.name]]
+
+      expect(json_response).to match_array(expected_response)
+    end
+
+    context 'when query is review' do
+      let(:query) { 'review' }
+
+      it 'returns matched results' do
+        get :search_for_id, params: environment_params(format: :json, query: query)
+
+        expected_response = [
+          [review.id, review.name],
+          [review_patch.id, review_patch.name]
+        ]
+
+        expect(json_response).to match_array(expected_response)
+      end
+    end
+
+    context 'when query is empty' do
+      let(:query) { '' }
+
+      it 'returns matched results' do
+        get :search_for_id, params: environment_params(format: :json, query: query)
+
+        expected_response = [
+          [review.id, review.name],
+          [review_patch.id, review_patch.name],
+          [environment.id, environment.name],
+          [staging.id, staging.name],
+          [staging2.id, staging2.name]
+        ]
+
+        expect(json_response).to match_array(expected_response)
+      end
+    end
+
+    context 'when query is review/patch-3' do
+      let(:query) { 'review/patch-3' }
+
+      it 'responds with status code 204' do
+        get :search_for_id, params: environment_params(format: :json, query: query)
+
+        expect(response).to have_gitlab_http_status(:no_content)
+      end
+    end
+
+    context 'when query is partially matched in the middle of environment name' do
+      let(:query) { 'patch' }
+
+      it 'responds with status code 204' do
+        get :search_for_id, params: environment_params(format: :json, query: query)
+
+        expect(response).to have_gitlab_http_status(:no_content)
+      end
+    end
+
+    context 'when query contains a wildcard character' do
+      let(:query) { 'review%' }
+
+      it 'prevents wildcard injection' do
+        get :search_for_id, params: environment_params(format: :json, query: query)
+
+        expect(response).to have_gitlab_http_status(:no_content)
+      end
+    end
+
+    context 'when query matches case insensitively' do
+      let(:query) { 'Prod' }
+
+      it 'returns matched results' do
+        get :search_for_id, params: environment_params(format: :json, query: query)
+
+        expected_response = [[environment.id, environment.name]]
+
+        expect(json_response).to match_array(expected_response)
+      end
+    end
+  end
+
   def environment_params(opts = {})
     opts.reverse_merge(namespace_id: project.namespace,
                        project_id: project,
