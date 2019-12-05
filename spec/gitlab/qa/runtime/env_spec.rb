@@ -111,4 +111,38 @@ describe Gitlab::QA::Runtime::Env do
                                                 'GITLAB_URL' => 'http://localhost:9999' })
     end
   end
+
+  describe '.require_kubernetes_environment!' do
+    around do |example|
+      ClimateControl.modify(
+        GCLOUD_ACCOUNT_EMAIL: nil,
+        GCLOUD_ACCOUNT_KEY: nil,
+        CLOUDSDK_CORE_PROJECT: nil
+      ) { example.run }
+    end
+
+    it 'raises an error when required variables are not present' do
+      expect { described_class.require_kubernetes_environment! }.to raise_error(ArgumentError)
+    end
+
+    it 'raises an error with detailed message when one required element is not present' do
+      ClimateControl.modify(
+        CLOUDSDK_CORE_PROJECT: 'foo',
+        GCLOUD_ACCOUNT_EMAIL: 'me@example.com'
+        # GCLOUD_ACCOUNT_KEY: nil
+      ) do
+        expect { described_class.require_kubernetes_environment! }.to raise_error(/GCLOUD_ACCOUNT_KEY/)
+      end
+    end
+
+    it 'doesnt raise an error when all variables are present' do
+      ClimateControl.modify(
+        CLOUDSDK_CORE_PROJECT: 'foo',
+        GCLOUD_ACCOUNT_EMAIL: 'me@example.com',
+        GCLOUD_ACCOUNT_KEY: 'bar'
+      ) do
+        expect { described_class.require_kubernetes_environment! }.not_to raise_error
+      end
+    end
+  end
 end
