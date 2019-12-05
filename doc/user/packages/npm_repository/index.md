@@ -1,22 +1,22 @@
-# GitLab NPM Registry **(PREMIUM)**
+# GitLab NPM Repositoryy **(PREMIUM)**
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/5934) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.7.
 
-With the GitLab NPM Registry, every
+With the GitLab NPM Repository, every
 project can have its own space to store NPM packages.
 
-![GitLab NPM Registry](img/npm_package_view_v12_5.png)
+![GitLab NPM Repository](img/npm_package_view_v12_5.png)
 
 NOTE: **Note:**
 Only [scoped](https://docs.npmjs.com/misc/scope) packages are supported.
 
-## Enabling the NPM Registry
+## Enabling the NPM Repository
 
 NOTE: **Note:**
 This option is available only if your GitLab administrator has
-[enabled support for the NPM registry](../../../administration/packages/index.md).**(PREMIUM ONLY)**
+[enabled support for the NPM Repository](../../../administration/packages/index.md).**(PREMIUM ONLY)**
 
-After the NPM registry is enabled, it will be available for all new projects
+After the NPM Repository is enabled, it will be available for all new projects
 by default. To enable it for existing projects, or if you want to disable it:
 
 1. Navigate to your project's **Settings > General > Permissions**.
@@ -25,7 +25,7 @@ by default. To enable it for existing projects, or if you want to disable it:
 
 You should then be able to see the **Packages** section on the left sidebar.
 
-Before proceeding to authenticating with the GitLab NPM Registry, you should
+Before proceeding to authenticating with the GitLab NPM Repository, you should
 get familiar with the package naming convention.
 
 ## Package naming convention
@@ -60,15 +60,15 @@ CAUTION: **When updating the path of a user/group or transferring a (sub)group/p
 If you update the root namespace of a project with NPM packages, your changes will be rejected. To be allowed to do that, make sure to remove any NPM package first. Don't forget to update your `.npmrc` files to follow the above naming convention and run `npm publish` if necessary.
 
 Now, you can configure your project to authenticate with the GitLab NPM
-Registry.
+Repository.
 
-## Authenticating to the GitLab NPM Registry
+## Authenticating to the GitLab NPM Repository
 
 If a project is private or you want to upload an NPM package to GitLab,
 credentials will need to be provided for authentication. Support is available for [OAuth tokens](../../../api/oauth2.md#resource-owner-password-credentials-flow) or [personal access tokens](../../profile/personal_access_tokens.md).
 
 CAUTION: **2FA is only supported with personal access tokens:**
-If you have 2FA enabled, you need to use a [personal access token](../../profile/personal_access_tokens.md) with OAuth headers with the scope set to `api`. Standard OAuth tokens won't be able to authenticate to the GitLab NPM Registry.
+If you have 2FA enabled, you need to use a [personal access token](../../profile/personal_access_tokens.md) with OAuth headers with the scope set to `api`. Standard OAuth tokens won't be able to authenticate to the GitLab NPM Repository.
 
 ### Authenticating with an OAuth token
 
@@ -155,7 +155,7 @@ page of your project, and replace `@foo` with your own scope.
 If you have a self-hosted GitLab installation, replace `gitlab.com` with your
 domain name.
 
-Once you have enabled it and set up [authentication](#authenticating-to-the-gitlab-npm-registry),
+Once you have enabled it and set up [authentication](#authenticating-to-the-gitlab-npm-repository),
 you can upload an NPM package to your project:
 
 ```sh
@@ -177,9 +177,9 @@ more than once, even if it has been deleted.
 
 ## Troubleshooting
 
-### Error running yarn with NPM registry
+### Error running yarn with NPM Repository
 
-If you are using [yarn](https://yarnpkg.com/en/) with the NPM registry, you may get
+If you are using [yarn](https://yarnpkg.com/en/) with the NPM Repository, you may get
 an error message like:
 
 ```sh
@@ -212,7 +212,7 @@ should look like:
 {
   "name": "@foo/my-package",
   "version": "1.0.0",
-  "description": "Example package for GitLab NPM registry",
+  "description": "Example package for GitLab NPM Repository",
   "publishConfig": {
     "@foo:registry":"https://gitlab.com/api/v4/projects/<your_project_id>/packages/npm/"
   }
