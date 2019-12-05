@@ -74,12 +74,7 @@ describe BackfillOperationsFeatureFlagsIid, :migration do
     project = setup
     flag = flags.create!(project_id: project.id, active: true, name: 'test_flag', iid: 5)
 
-    expect(flag.iid).to eq(5)
-
-    disable_migrations_output { migrate! }
-
-    flag.reload
-    expect(flag.iid).to eq(5)
+    expect { disable_migrations_output { migrate! } }.not_to change { flag.reload.iid }.from(5)
   end
 
   it 'does not change an iid for an issue' do
@@ -90,12 +85,9 @@ describe BackfillOperationsFeatureFlagsIid, :migration do
 
     disable_migrations_output { migrate! }
 
-    flag.reload
-    issue.reload
-    internal_id.reload
-    expect(flag.iid).to eq(1)
-    expect(issue.iid).to eq(8)
-    expect(internal_id.usage).to eq(0)
+    expect(flag.reload.iid).to eq(1)
+    expect(issue.reload.iid).to eq(8)
+    expect(internal_id.reload.usage).to eq(0)
     expect(internal_id.last_value).to eq(8)
   end
 
@@ -122,17 +114,9 @@ describe BackfillOperationsFeatureFlagsIid, :migration do
     flag_b = flags.create!(project_id: project.id, active: false, name: 'other_flag')
     flag_c = flags.create!(project_id: project.id, active: false, name: 'another_flag', iid: 5)
 
-    expect(flag_a.iid).to eq(4)
-    expect(flag_b.iid).to be_nil
-    expect(flag_c.iid).to eq(5)
+    expect { disable_migrations_output { migrate! } }.to change { flag_b.reload.iid }.from(nil).to(6)
 
-    disable_migrations_output { migrate! }
-
-    flag_a.reload
-    flag_b.reload
-    flag_c.reload
-    expect(flag_a.iid).to eq(4)
-    expect(flag_b.iid).to eq(6)
-    expect(flag_c.iid).to eq(5)
+    expect(flag_a.reload.iid).to eq(4)
+    expect(flag_c.reload.iid).to eq(5)
   end
 end
