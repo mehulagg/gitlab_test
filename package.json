@@ -26,6 +26,7 @@
     "stylelint-file": "node node_modules/stylelint/bin/stylelint.js",
     "stylelint-create-utility-map": "node scripts/frontend/stylelint/stylelint-utility-map.js",
     "test": "node scripts/frontend/test",
+    "testcafe": "testcafe chrome spec/frontendtoend/boards_spec.js",
     "webpack": "NODE_OPTIONS=\"--max-old-space-size=3584\" webpack --config config/webpack.config.js",
     "webpack-prod": "NODE_OPTIONS=\"--max-old-space-size=3584\" NODE_ENV=production webpack --config config/webpack.config.js"
   },
@@ -192,6 +193,7 @@
     "stylelint": "^10.1.0",
     "stylelint-config-recommended": "^2.2.0",
     "stylelint-scss": "^3.9.2",
+    "testcafe": "^1.7.0",
     "timezone-mock": "^1.0.8",
     "vue-jest": "^4.0.0-beta.2",
     "webpack-dev-server": "^3.8.1",
