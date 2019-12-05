@@ -340,7 +340,7 @@ EOF
   eval "${HELM_CMD}"
 }
 
-function add_secure_seeds() {
+function add_review_seeds() {
   task_runner_pod=$(get_pod "task-runner");
   if [ -z "${task_runner_pod}" ]; then echo "Task runner pod not found" && return; fi
 

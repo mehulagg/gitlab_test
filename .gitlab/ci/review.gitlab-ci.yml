@@ -122,7 +122,6 @@ schedule:review-build-cng:
     - download_chart
     - date
     - deploy || (display_deployment_debug && exit 1)
-    - add_secure_seeds
   artifacts:
     paths: [review_app_url.txt]
     expire_in: 2 days
@@ -138,6 +137,22 @@ schedule:review-deploy:
   extends:
     - .review-deploy-base
     - .only-review-schedules
+
+.review-seed-base:
+  extends:
+    - .review-workflow-base
+  stage: review
+  allow_failure: true
+  before_script:
+    - source scripts/utils.sh
+    - install_api_client_dependencies_with_apk
+    - source scripts/review_apps/review-apps.sh
+  script:
+    - add_review_seeds
+
+review-seed-data:
+  extends: .review-seed-base
+  when: manual
 
 .base-review-stop:
   extends:
