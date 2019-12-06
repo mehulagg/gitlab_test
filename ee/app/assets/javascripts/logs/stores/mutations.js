@@ -49,7 +49,7 @@ export default {
       .find(env => env.name == state.environments.current)
       .pods.map(pod => pod.name);
 
-    // current pod can be set on load by the ?pod= parameter
+    // current pod can be set on load by the ?pod_name= parameter
     // otherwise default to selecting the first in the list
     state.pods.current = state.pods.current || state.pods.options[0];
   },
