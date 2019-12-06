@@ -43,7 +43,7 @@ module QA
       end
     end
 
-    describe 'Auto DevOps support', :docker do
+    describe 'Auto DevOps support', :orchestrated, :kubernetes do
       context 'when dependency scanning is enabled' do
         before(:all) do
           @cluster = Service::KubernetesCluster.new.create!
@@ -65,21 +65,11 @@ module QA
 
           disable_optional_jobs(@project)
 
-          # Set an application secret CI variable (prefixed with K8S_SECRET_)
-          Resource::CiVariable.fabricate! do |resource|
-            resource.project = @project
-            resource.key = 'K8S_SECRET_OPTIONAL_MESSAGE'
-            resource.value = 'you_can_see_this_variable'
-            resource.masked = false
-          end
-
           # Connect K8s cluster
           Resource::KubernetesCluster.fabricate! do |cluster|
             cluster.project = @project
             cluster.cluster = @cluster
             cluster.install_helm_tiller = true
-            cluster.install_ingress = true
-            cluster.install_prometheus = true
             cluster.install_runner = true
           end
 
