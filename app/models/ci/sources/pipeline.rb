@@ -18,6 +18,8 @@ module Ci
       validates :source_project, presence: true
       validates :source_job, presence: true
       validates :source_pipeline, presence: true
+
+      scope :same_project, -> { where("#{table_name}.source_project_id = #{table_name}.project_id") }
     end
   end
 end

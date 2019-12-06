@@ -40,6 +40,7 @@ class PipelineSerializer < BaseSerializer
 
   def preloaded_relations
     [
+      :project,
       :stages,
       :retryable_builds,
       :cancelable_statuses,

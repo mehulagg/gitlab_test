@@ -59,7 +59,9 @@ module Ci
     has_one :chat_data, class_name: 'Ci::PipelineChatData'
 
     has_many :triggered_pipelines, through: :sourced_pipelines, source: :pipeline
+    has_many :child_pipelines, -> { merge(Ci::Sources::Pipeline.same_project) }, through: :sourced_pipelines, source: :pipeline
     has_one :triggered_by_pipeline, through: :source_pipeline, source: :source_pipeline
+    has_one :parent_pipeline, -> { merge(Ci::Sources::Pipeline.same_project) }, through: :source_pipeline, source: :source_pipeline
     has_one :source_job, through: :source_pipeline, source: :source_job
 
     accepts_nested_attributes_for :variables, reject_if: :persisted?
@@ -694,6 +696,14 @@ module Ci
       else
         [self.id]
       end
+    end
+
+    def child?
+      parent_pipeline.present?
+    end
+
+    def parent?
+      child_pipelines.exists?
     end
 
     def detailed_status(current_user)
