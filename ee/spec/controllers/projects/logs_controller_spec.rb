@@ -170,6 +170,42 @@ describe Projects::LogsController do
     end
   end
 
+  describe 'GET #filters' do
+    let(:service) { create(:cluster_platform_kubernetes, :configured) }
+
+    let(:filters) do
+      [
+        {
+          "es_enabled" => false,
+          "name" => "production",
+          "namespace" => "project1-1-production",
+          "pods" => [
+            {
+              "containers" => ["container-0", "container-1"],
+              "name" => "kube-pod"
+            }
+          ]
+        }
+      ]
+    end
+
+    before do
+      stub_licensed_features(pod_logs: true)
+
+      create(:cluster, :provided_by_gcp, environment_scope: '*', projects: [project])
+      create(:deployment, :success, environment: environment)
+
+      stub_kubeclient_pods(environment.deployment_namespace)
+    end
+
+    it 'returns results' do
+      get :filters, params: environment_params(format: :json)
+
+      expect(response).to have_gitlab_http_status(:success)
+      expect(json_response).to eq(filters)
+    end
+  end
+
   def environment_params(opts = {})
     opts.reverse_merge(namespace_id: project.namespace,
                        project_id: project,

@@ -132,6 +132,13 @@ module EE
             },
             status: :error
           }.merge(opts)
+        rescue => e
+          ::Gitlab::Sentry.track_acceptable_exception(e)
+
+          {
+            error: e.message,
+            status: :error
+          }.merge(opts)
         end
 
         def container_names_of(pod_name, namespace)

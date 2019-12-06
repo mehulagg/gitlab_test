@@ -53,9 +53,9 @@ class PodLogsService < ::BaseService
   def pod_logs(result)
     response = environment.deployment_platform.read_pod_logs(
       environment.id,
-      params[:pod_name],
+      params['pod_name'],
       namespace,
-      container: params[:container_name]
+      container: params['container_name']
     )
 
     return { status: :processing } unless response

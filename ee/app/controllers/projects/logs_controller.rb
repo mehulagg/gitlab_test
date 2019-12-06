@@ -32,7 +32,7 @@ module Projects
     end
 
     def filters
-      environments = project.environments.map do |e|
+      environments = project.environments.sort_by(&:name).map do |e|
         item = {
           name: e.name,
           namespace: e.deployment_namespace,

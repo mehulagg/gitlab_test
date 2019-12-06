@@ -21,6 +21,7 @@ describe 'Environment > Pod Logs', :js do
 
     stub_kubeclient_pod_details(pod_name, environment.deployment_namespace)
     stub_kubeclient_logs(pod_name, environment.deployment_namespace, container: 'container-0')
+    stub_kubeclient_pods(environment.deployment_namespace)
 
     # rollout_status_instances = [{ pod_name: foo }, {pod_name: bar}]
     rollout_status_instances = pod_names.collect { |name| { pod_name: name } }
@@ -35,7 +36,8 @@ describe 'Environment > Pod Logs', :js do
   end
 
   it "shows environments in dropdown" do
-    create(:environment, project: project)
+    environment2 = create(:environment, project: project)
+    stub_kubeclient_pods(environment2.deployment_namespace)
 
     visit project_logs_path(environment.project, environment_name: environment.name, pod_name: pod_name)
 
@@ -64,11 +66,8 @@ describe 'Environment > Pod Logs', :js do
         find(".dropdown-menu-toggle:not([disabled])").click
 
         dropdown_items = find(".dropdown-menu").all(".dropdown-item")
-        expect(dropdown_items.size).to eq(2)
-
-        dropdown_items.each_with_index do |item, i|
-          expect(item.text).to eq(pod_names[i])
-        end
+        expect(dropdown_items.size).to eq(1)
+        expect(dropdown_items.first.text).to eq('kube-pod')
       end
       expect(page).to have_content("Log 1 Log 2 Log 3")
     end
