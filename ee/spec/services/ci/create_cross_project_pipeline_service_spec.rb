@@ -30,7 +30,6 @@ describe Ci::CreateCrossProjectPipelineService, '#execute' do
   let(:service) { described_class.new(upstream_project, user) }
 
   before do
-    stub_ci_pipeline_to_return_yaml_file
     upstream_project.add_developer(user)
   end
 
