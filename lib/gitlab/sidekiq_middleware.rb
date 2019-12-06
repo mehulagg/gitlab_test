@@ -18,6 +18,7 @@ module Gitlab
         chain.add Gitlab::SidekiqMiddleware::CorrelationLogger
         chain.add Gitlab::SidekiqMiddleware::InstrumentationLogger
         chain.add Gitlab::SidekiqStatus::ServerMiddleware
+        chain.add Gitlab::SidekiqMiddleware::Profiler
       end
     end
 
