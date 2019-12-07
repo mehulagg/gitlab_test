@@ -55,6 +55,7 @@ module Gitlab
 
       # Eager load should load CE first
       config.eager_load_paths.push(*ee_paths)
+      config.eager_load_paths.push("#{config.root}/ee/app/replicators")
       config.helpers_paths.push "#{config.root}/ee/app/helpers"
 
       # Other than Ruby modules we load EE first
