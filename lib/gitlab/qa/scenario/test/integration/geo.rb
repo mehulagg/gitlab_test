@@ -4,8 +4,7 @@ module Gitlab
       module Test
         module Integration
           class Geo < Scenario::Template
-            GIT_LFS_VERSION = '2.8.0'.freeze
-
+            include Scenario::CLICommands
             ##
             # rubocop:disable Lint/MissingCopEnableDirective
             # rubocop:disable Metrics/AbcSize
@@ -101,13 +100,6 @@ module Gitlab
               @fast_ssh_key_lookup_commands ||= [
                 %(echo -e "\n#{fast_ssh_key_lookup_content.chomp}" >> /assets/sshd_config),
                 'gitlab-ctl restart sshd'
-              ]
-            end
-
-            def git_lfs_install_commands
-              @git_lfs_install_commands ||= [
-                "cd /tmp ; curl -qsL https://github.com/git-lfs/git-lfs/releases/download/v#{GIT_LFS_VERSION}/git-lfs-linux-amd64-v#{GIT_LFS_VERSION}.tar.gz | tar xzvf -",
-                'cp /tmp/git-lfs /usr/local/bin'
               ]
             end
           end
