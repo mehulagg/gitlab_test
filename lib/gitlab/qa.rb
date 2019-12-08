@@ -10,6 +10,7 @@ module Gitlab
     module Scenario
       autoload :Actable, 'gitlab/qa/scenario/actable'
       autoload :Template, 'gitlab/qa/scenario/template'
+      autoload :CLICommands, 'gitlab/qa/scenario/cli_commands'
 
       module Test
         module Instance
