@@ -1,3 +1,5 @@
+require './db/fixtures/review/sidekiq_middleware'
+
 # frozen_string_literal: true
 
 # rubocop:disable Rails/Output
@@ -81,12 +83,16 @@ Gitlab::Seeder.quiet do
 
       project = Projects::CreateService.new(User.first, params).execute
 
-      # Seed-Fu runs this entire fixture in a transaction, so the `after_commit`
-      # hook won't run until after the fixture is loaded. That is too late
-      # since the Sidekiq::Testing block has already exited. Force clearing
-      # the `after_commit` queue to ensure the job is run now.
-      project.send(:_run_after_commit_queue)
-      project.import_state.send(:_run_after_commit_queue)
+      Sidekiq::Worker.skipping_transaction_check do
+        project = ::Projects::CreateService.new(User.first, params).execute
+  
+        # Seed-Fu runs this entire fixture in a transaction, so the `after_commit`
+        # hook won't run until after the fixture is loaded. That is too late
+        # since the Sidekiq::Testing block has already exited. Force clearing
+        # the `after_commit` queue to ensure the job is run now.
+        project.send(:_run_after_commit_queue)
+        project.import_state.send(:_run_after_commit_queue)
+      end
 
       if project.valid? && project.valid_repo?
         print '.'
