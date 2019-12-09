@@ -204,12 +204,13 @@ describe WebHookService do
         end
       end
 
-      context 'should not log ServiceHooks' do
+      context 'should not log ServiceHooks when feature flag is disabled' do
         let(:service_hook) { create(:service_hook) }
         let(:service_instance) { described_class.new(service_hook, data, 'service_hook') }
 
         before do
           stub_full_request(service_hook.url, method: :post).to_return(status: 200, body: 'Success')
+          stub_feature_flags(service_hook_logging: false)
         end
 
         it { expect { service_instance.execute }.not_to change(WebHookLog, :count) }

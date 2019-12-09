@@ -10,7 +10,9 @@ class ServiceHook < WebHook
   end
   # rubocop: enable CodeReuse/ServiceClass
 
-  def log_execution(_)
-    # logging for ServiceHook's is not available
+  def log_execution(attributes)
+    return unless Feature.enabled?(:service_hook_logging, service.project)
+
+    super(attributes)
   end
 end
