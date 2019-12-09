@@ -81,6 +81,10 @@ class Release < ApplicationRecord
     evidence&.summary || {}
   end
 
+  def dummy_for_test
+    'dummy_for_test'
+  end
+
   private
 
   def actual_sha
