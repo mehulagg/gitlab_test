@@ -9,6 +9,8 @@ class WebHookLog < ApplicationRecord
 
   validates :web_hook, presence: true
 
+  before_save :encode_response_body
+
   def self.recent
     where('created_at >= ?', 2.days.ago.beginning_of_day)
       .order(created_at: :desc)
@@ -16,5 +18,11 @@ class WebHookLog < ApplicationRecord
 
   def success?
     response_status =~ /^2/
+  end
+
+  private
+
+  def encode_response_body
+    self.response_body = response_body.encode('UTF-8', invalid: :replace, undef: :replace, replace: '')
   end
 end

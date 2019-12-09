@@ -29,6 +29,16 @@ describe WebHookLog do
     end
   end
 
+  describe '#save' do
+    let(:wrong_encoded_response_body) { "\xBB" }
+    let(:hook_log) { build(:web_hook_log, response_body: wrong_encoded_response_body) }
+
+    it do
+      hook_log.save
+      expect(hook_log.response_body).to eq('')
+    end
+  end
+
   describe '#success?' do
     let(:web_hook_log) { build(:web_hook_log, response_status: status) }
 
