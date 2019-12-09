@@ -10,6 +10,7 @@ module Resolvers
 
     def resolve(**args)
       project = ::Project.find(args[:project_id])
+      pp project.id
       report_service = ::Security::ReportFetchService.new(project, ::Ci::JobArtifact.dependency_list_reports)
       pipeline = report_service.pipeline
       ::Security::DependencyListService.new(pipeline: pipeline, params: {}).execute

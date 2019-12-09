@@ -20,10 +20,15 @@ module Types
             description: 'Location of a dependency in a project'
 
       # field :licenses, Types::Security::License.connection_type, null: true,
-      #       description: 'Licenses associated with a dependency'
+      #       description: 'Licenses associated with a dependency',
+      #       resolve: -> (dependency, _, _) do
+      #       end
 
-      # field :vulnerabilities Types::Security::Vulnerability.connection_type, null: true,
-      #       description: 'Vulnerabilities associated with a dependency'
+      # field :vulnerabilities, [::Types::Security::Vulnerability], null: true,
+      #       description: 'Vulnerabilities associated with a dependency',
+      #       resolve: -> (dependency, _args, _ctx) do
+      #           dependency[:vulnerabilities]
+      # end
     end
   end
 end
