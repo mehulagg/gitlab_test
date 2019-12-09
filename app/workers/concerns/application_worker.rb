@@ -50,7 +50,7 @@ module ApplicationWorker
       Rails.logger.error( "qingyudebug: after parse_sidekiq_profile_option:  profile_option: #{profile_option},   Worker: #{self.name}")
 
       if profile_option
-        jids = jid_or_jids.is_a?(Array)? jid_or_jids: [ jid_or_jids ]
+        jids = Array(jid_or_jids)
 
         jids.each do |jid|
           ::Gitlab::Redis::SharedState.with do |redis|
