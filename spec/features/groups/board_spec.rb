@@ -42,6 +42,7 @@ describe 'Group Boards', :js do
 
     it 'Deletes a group issue board' do
       find(:css, '.js-dropdown-toggle').click
+      wait_for_requests
       find(:css, '.js-delete-board button').click
       find(:css, '.board-config-modal .js-primary-button').click
 
