@@ -13,6 +13,7 @@ const getDefaultProps = () => ({
   featureFlags: [
     {
       id: 1,
+      iid: 1,
       active: true,
       name: 'flag name',
       description: 'flag description',
@@ -59,7 +60,6 @@ describe('Feature flag table', () => {
 
   describe('with an active scope and a standard rollout strategy', () => {
     beforeEach(() => {
-      props.featureFlags[0].iid = 1;
       createWrapper(props);
     });
 
@@ -136,5 +136,13 @@ describe('Feature flag table', () => {
 
       expect(trimText(envColumn.find('.badge-inactive').text())).toBe('scope');
     });
+  });
+
+  it('renders a feature flag without an iid', () => {
+    delete props.featureFlags[0].iid;
+    createWrapper(props);
+
+    expect(wrapper.find('.js-feature-flag-id').exists()).toBe(true);
+    expect(trimText(wrapper.find('.js-feature-flag-id').text())).toEqual('');
   });
 });

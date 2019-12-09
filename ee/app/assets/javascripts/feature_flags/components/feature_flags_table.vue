@@ -81,6 +81,9 @@ export default {
 
       return `${displayName}${displayPercentage}`;
     },
+    featureFlagIidText(featureFlag) {
+      return featureFlag.iid ? `^${featureFlag.iid}` : '';
+    },
     canDeleteFlag(flag) {
       return !this.permissions || (flag.scopes || []).every(scope => scope.can_update);
     },
@@ -115,7 +118,9 @@ export default {
       <div :key="featureFlag.id" class="gl-responsive-table-row" role="row">
         <div class="table-section section-10" role="gridcell">
           <div class="table-mobile-header" role="rowheader">{{ s__('FeatureFlags|ID') }}</div>
-          <div class="table-mobile-content js-feature-flag-id">^{{ featureFlag.iid }}</div>
+          <div class="table-mobile-content js-feature-flag-id">
+            {{ featureFlagIidText(featureFlag) }}
+          </div>
         </div>
         <div class="table-section section-10" role="gridcell">
           <div class="table-mobile-header" role="rowheader">{{ s__('FeatureFlags|Status') }}</div>
