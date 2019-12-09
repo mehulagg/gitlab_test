@@ -1,16 +1,6 @@
 # frozen_string_literal: true
 
 class WebHookService
-  class InternalErrorResponse
-    attr_reader :body, :headers, :code
-
-    def initialize
-      @headers = Gitlab::HTTP::Response::Headers.new({})
-      @body = ''
-      @code = 'internal error'
-    end
-  end
-
   attr_accessor :hook, :data, :hook_name, :request_options
 
   def initialize(hook, data, hook_name)
