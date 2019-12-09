@@ -7,6 +7,7 @@ describe 'Group Boards', :js do
   let(:user) { create(:group_member, :maintainer, user: create(:user), group: group ).user }
 
   before do
+    stub_licensed_features(multiple_group_issue_boards: true)
     sign_in(user)
     visit group_boards_path(group)
     wait_for_requests
@@ -36,7 +37,6 @@ describe 'Group Boards', :js do
 
   context 'Group board deletion' do
     before do
-      stub_licensed_features(multiple_group_issue_boards: true)
       @new_board = create(:board, group: group, name: 'New board')
     end
 
