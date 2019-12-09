@@ -25,7 +25,7 @@ const Api = {
   projectMergeRequestVersionsPath: '/api/:version/projects/:id/merge_requests/:mrid/versions',
   projectRunnersPath: '/api/:version/projects/:id/runners',
   mergeRequestsPath: '/api/:version/merge_requests',
-  groupLabelsPath: '/groups/:namespace_path/-/labels',
+  groupLabelsPath: '/api/:version/groups/:group_id/labels',
   issuableTemplatePath: '/:namespace_path/:project_path/templates/:type/:key',
   projectTemplatePath: '/api/:version/projects/:id/templates/:type/:key',
   projectTemplatesPath: '/api/:version/projects/:id/templates/:type',
@@ -80,9 +80,9 @@ const Api = {
       });
   },
 
-  groupLabels(namespace) {
-    const url = Api.buildUrl(Api.groupLabelsPath).replace(':namespace_path', namespace);
-    return axios.get(url).then(({ data }) => data);
+  groupLabels(groupId, params) {
+    const url = Api.buildUrl(Api.groupLabelsPath).replace(':group_id', groupId);
+    return axios.get(url, { params }).then(({ data }) => data);
   },
 
   // Return namespaces list. Filtered by query

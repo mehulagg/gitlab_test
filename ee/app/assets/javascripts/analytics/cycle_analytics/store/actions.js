@@ -127,10 +127,10 @@ export const requestGroupLabels = ({ commit }) => commit(types.REQUEST_GROUP_LAB
 export const fetchGroupLabels = ({ dispatch, state }) => {
   dispatch('requestGroupLabels');
   const {
-    selectedGroup: { fullPath },
+    selectedGroup: { id },
   } = state;
 
-  return Api.groupLabels(fullPath)
+  return Api.groupLabels(id, { with_counts: true })
     .then(data => dispatch('receiveGroupLabelsSuccess', data))
     .catch(error => dispatch('receiveGroupLabelsError', error));
 };
