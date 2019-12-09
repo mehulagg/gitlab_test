@@ -38,7 +38,7 @@ module Ci
         auto_devops_source: 2,
         remote_source: 4,
         external_project_source: 5,
-        runtime_source: 6
+        bridge_source: 6
       }
     end
 

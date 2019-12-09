@@ -9,13 +9,13 @@ module Gitlab
             # This case represents when a config content is passed in
             # as parameter to Ci::CreatePipelineService from the outside.
             # For example when creating a child pipeline.
-            class Runtime < Source
+            class Bridge < Source
               def content
                 @command.config_content
               end
 
               def source
-                :runtime_source
+                :bridge_source
               end
             end
           end

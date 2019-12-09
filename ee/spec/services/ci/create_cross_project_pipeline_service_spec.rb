@@ -149,6 +149,46 @@ describe Ci::CreateCrossProjectPipelineService, '#execute' do
       end
 
       context 'when a custom YAML is provided' do
+        shared_examples 'creates a child pipeline' do
+          it 'creates only one new pipeline' do
+            expect { service.execute(bridge) }
+              .to change { Ci::Pipeline.count }.by(1)
+          end
+
+          it 'creates a child pipeline in the same project' do
+            pipeline = service.execute(bridge)
+            pipeline.reload
+
+            expect(pipeline.builds.map(&:name)).to eq %w[rspec echo]
+            expect(pipeline.user).to eq bridge.user
+            expect(pipeline.project).to eq bridge.project
+            expect(bridge.sourced_pipelines.first.pipeline).to eq pipeline
+            expect(pipeline.triggered_by_pipeline).to eq upstream_pipeline
+            expect(pipeline.source_bridge).to eq bridge
+            expect(pipeline.source_bridge).to be_a ::Ci::Bridge
+          end
+
+          it 'updates bridge status when downstream pipeline gets proceesed' do
+            pipeline = service.execute(bridge)
+
+            expect(pipeline.reload).to be_pending
+            expect(bridge.reload).to be_success
+          end
+
+          it 'propagates parent pipeline settings to the child pipeline' do
+            pipeline = service.execute(bridge)
+            pipeline.reload
+
+            expect(pipeline.ref).to eq(upstream_pipeline.ref)
+            expect(pipeline.sha).to eq(upstream_pipeline.sha)
+            expect(pipeline.source_sha).to eq(upstream_pipeline.source_sha)
+            expect(pipeline.target_sha).to eq(upstream_pipeline.target_sha)
+            expect(pipeline.target_sha).to eq(upstream_pipeline.target_sha)
+
+            expect(pipeline.trigger_requests.last).to eq(bridge.trigger_request)
+          end
+        end
+
         before do
           file_content = YAML.dump(
             rspec: { script: 'rspec' },
@@ -168,42 +208,16 @@ describe Ci::CreateCrossProjectPipelineService, '#execute' do
           }
         end
 
-        it 'creates only one new pipeline' do
-          expect { service.execute(bridge) }
-            .to change { Ci::Pipeline.count }.by(1)
-        end
+        it_behaves_like 'creates a child pipeline'
 
-        it 'creates a child pipeline in the same project' do
-          pipeline = service.execute(bridge)
-          pipeline.reload
+        context 'when latest sha for the ref changed in the meantime' do
+          before do
+            upstream_project.repository.create_file(
+              user, 'another-change', 'test', message: 'message', branch_name: 'master')
+          end
 
-          expect(pipeline.builds.map(&:name)).to eq %w[rspec echo]
-          expect(pipeline.user).to eq bridge.user
-          expect(pipeline.project).to eq bridge.project
-          expect(bridge.sourced_pipelines.first.pipeline).to eq pipeline
-          expect(pipeline.triggered_by_pipeline).to eq upstream_pipeline
-          expect(pipeline.source_bridge).to eq bridge
-          expect(pipeline.source_bridge).to be_a ::Ci::Bridge
-        end
-
-        it 'updates bridge status when downstream pipeline gets proceesed' do
-          pipeline = service.execute(bridge)
-
-          expect(pipeline.reload).to be_pending
-          expect(bridge.reload).to be_success
-        end
-
-        it 'propagates parent pipeline settings to the child pipeline' do
-          pipeline = service.execute(bridge)
-          pipeline.reload
-
-          expect(pipeline.ref).to eq(upstream_pipeline.ref)
-          expect(pipeline.sha).to eq(upstream_pipeline.sha)
-          expect(pipeline.source_sha).to eq(upstream_pipeline.source_sha)
-          expect(pipeline.target_sha).to eq(upstream_pipeline.target_sha)
-          expect(pipeline.target_sha).to eq(upstream_pipeline.target_sha)
-
-          expect(pipeline.trigger_requests.last).to eq(bridge.trigger_request)
+          # it does not auto-cancel pipelines from the same family
+          it_behaves_like 'creates a child pipeline'
         end
       end
     end

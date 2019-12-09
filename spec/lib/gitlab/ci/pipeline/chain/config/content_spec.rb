@@ -25,7 +25,7 @@ describe Gitlab::Ci::Pipeline::Chain::Config::Content do
         it 'returns the content already available in command' do
           subject.perform!
 
-          expect(pipeline.config_source).to eq 'runtime_source'
+          expect(pipeline.config_source).to eq 'bridge_source'
           expect(command.config_content).to eq 'the-content'
         end
       end
@@ -133,7 +133,7 @@ describe Gitlab::Ci::Pipeline::Chain::Config::Content do
       it 'returns the content already available in command' do
         subject.perform!
 
-        expect(pipeline.config_source).to eq 'runtime_source'
+        expect(pipeline.config_source).to eq 'bridge_source'
         expect(command.config_content).to eq 'the-content'
       end
     end
