@@ -9,4 +9,8 @@ class ServiceHook < WebHook
     WebHookService.new(self, data, hook_name).execute
   end
   # rubocop: enable CodeReuse/ServiceClass
+
+  def log_execution(_)
+    # logging for ServiceHook's is not available
+  end
 end

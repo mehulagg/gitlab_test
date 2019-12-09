@@ -32,11 +32,13 @@ class WebHookService
                  make_request_with_auth
                end
 
-    log_execution(
+    hook.log_execution(
       trigger: hook_name,
-      url: hook.url,
+      headers: build_headers(hook_name),
       request_data: data,
-      response: response,
+      response_headers: format_response_headers(response),
+      response_body: response.body,
+      response_status: response.code,
       execution_duration: Gitlab::Metrics::System.monotonic_time - start_time
     )
 
@@ -46,11 +48,11 @@ class WebHookService
       message: response.to_s
     }
   rescue SocketError, OpenSSL::SSL::SSLError, Errno::ECONNRESET, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Net::OpenTimeout, Net::ReadTimeout, Gitlab::HTTP::BlockedUrlError, Gitlab::HTTP::RedirectionTooDeep => e
-    log_execution(
+    hook.log_execution(
       trigger: hook_name,
-      url: hook.url,
+      headers: build_headers(hook_name),
       request_data: data,
-      response: InternalErrorResponse.new,
+      response_status: 'internal error',
       execution_duration: Gitlab::Metrics::System.monotonic_time - start_time,
       error_message: e.to_s
     )
@@ -89,24 +91,6 @@ class WebHookService
       password: CGI.unescape(parsed_url.password.presence || '')
     }
     make_request(post_url, basic_auth)
-  end
-
-  def log_execution(trigger:, url:, request_data:, response:, execution_duration:, error_message: nil)
-    # logging for ServiceHook's is not available
-    return if hook.is_a?(ServiceHook)
-
-    WebHookLog.create(
-      web_hook: hook,
-      trigger: trigger,
-      url: url,
-      execution_duration: execution_duration,
-      request_headers: build_headers(hook_name),
-      request_data: request_data,
-      response_headers: format_response_headers(response),
-      response_body: response.body,
-      response_status: response.code,
-      internal_error_message: error_message
-    )
   end
 
   def build_headers(hook_name)
