@@ -13,9 +13,10 @@ module Gitlab
         # As recommended by https://github.com/mperham/sidekiq/wiki/Advanced-Options#concurrency
         @max_concurrency = 50
         @environment = ENV['RAILS_ENV'] || 'development'
-        @pid = nil
+        @pidfile = nil
         @interval = 5
         @alive = true
+        @requested_processes = nil
         @processes = []
         @logger = Logger.new(log_output)
         @rails_path = Dir.pwd
@@ -30,21 +31,26 @@ module Gitlab
       def run(argv = ARGV)
         if argv.empty?
           raise CommandError,
-            'You must specify at least one queue to start a worker for'
+            'Usage: ' + option_parser.help
         end
 
         option_parser.parse!(argv)
 
-        queue_groups = SidekiqCluster.parse_queues(argv)
-
         all_queues = SidekiqConfig.worker_queues(@rails_path)
 
-        queue_groups.map! do |queues|
-          SidekiqConfig.expand_queues(queues, all_queues)
-        end
+        queue_groups = []
+        if @requested_processes
+          # with the -p switch, each process will operate on all queues
+          @requested_processes.times { queue_groups << all_queues }
+        else
+          # otherwise, parse queue groups from CLI and dynamically determine process count
+          queue_groups = SidekiqCluster.parse_queues(argv).map do |queues|
+            SidekiqConfig.expand_queues(queues, all_queues)
+          end
 
-        if @negate_queues
-          queue_groups.map! { |queues| all_queues - queues }
+          if @negate_queues
+            queue_groups.map! { |queues| all_queues - queues }
+          end
         end
 
         @logger.info("Starting cluster with #{queue_groups.length} processes")
@@ -60,7 +66,7 @@ module Gitlab
       end
 
       def write_pid
-        SidekiqCluster.write_pid(@pid) if @pid
+        SidekiqCluster.write_pid(@pidfile) if @pidfile
       end
 
       def trap_signals
@@ -107,15 +113,19 @@ module Gitlab
             @environment = env
           end
 
+          opt.on('-p', '--processes INT', 'Number of processes to start. If set, [QUEUE]s will be ignored and all processes will operate on all queues.') do |procs|
+            @requested_processes = procs.to_i
+          end
+
           opt.on('-P', '--pidfile PATH', 'Path to the PID file') do |pid|
-            @pid = pid
+            @pidfile = pid
           end
 
           opt.on('-r', '--require PATH', 'Location of the Rails application') do |path|
             @rails_path = path
           end
 
-          opt.on('-n', '--negate', 'Run workers for all queues in sidekiq_queues.yml except the given ones') do
+          opt.on('-n', '--negate', 'Run workers for all queues in sidekiq_queues.yml except the given ones. Has no effect when -p is passed.') do
             @negate_queues = true
           end
 

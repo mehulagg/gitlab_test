@@ -45,7 +45,7 @@ start_sidekiq()
     cmd="${cmd} ${chpst} -P"
   fi
 
-  ${cmd} bundle exec sidekiq -C "${sidekiq_config}" -e $RAILS_ENV "$@"
+  ${cmd} ee/bin/sidekiq-cluster -p 2 -e $RAILS_ENV
 }
 
 load_ok()
