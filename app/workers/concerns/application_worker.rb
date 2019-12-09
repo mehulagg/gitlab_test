@@ -14,6 +14,9 @@ module ApplicationWorker
     set_queue
   end
 
+  SIDEKIQ_PROFILE_KEY = 'sidekiq-profile:%s'
+  DEFAULT_EXPIRATION_MINUTES = 30.minutes.to_i
+
   class_methods do
     def inherited(subclass)
       subclass.set_queue
@@ -30,17 +33,17 @@ module ApplicationWorker
     def parse_sidekiq_profile_option
       profile_option = nil
 
-      if Gitlab::SafeRequestStore[:sidekiq_profile_mode] && Gitlab::SafeRequestStore[:sidekiq_profile_worker] && self.name == Gitlab::SafeRequestStore[:sidekiq_profile_worker]
-        profile_option = { mode: Gitlab::SafeRequestStore[:sidekiq_profile_mode], worker: Gitlab::SafeRequestStore[:sidekiq_profile_worker] }
+      profile_mode = Gitlab::SafeRequestStore[:sidekiq_profile_mode]
+      profile_worker = Gitlab::SafeRequestStore[:sidekiq_profile_worker]
+
+      if profile_mode && profile_worker && self.name == profile_worker
+        profile_option = { mode: profile_mode, worker: profile_worker }
       end
 
       profile_option
     end
 
-    SIDEKIQ_PROFILE_KEY = 'sidekiq-profile:%s'
-    DEFAULT_EXPIRATION = 30.minutes.to_i
-
-    def set_sidekiq_profile_option(expire = DEFAULT_EXPIRATION)
+    def set_sidekiq_profile_option(expire = DEFAULT_EXPIRATION_MINUTES)
       Rails.logger.error( "qingyudebug: enter set_sidekiq_profile_option,   Worker: #{self.name}")
       jid_or_jids = yield
       Rails.logger.error( "qingyudebug: after yield jid_or_jids: #{jid_or_jids},   Worker: #{self.name}")
@@ -54,7 +57,7 @@ module ApplicationWorker
 
         jids.each do |jid|
           ::Gitlab::Redis::SharedState.with do |redis|
-            redis.set(sidekiq_profile_key_for(jid_or_jids), profile_option.to_json, ex: expire)
+            redis.set(sidekiq_profile_key_for(jid), profile_option.to_json, ex: expire)
           end
           Rails.logger.error("qingyudebug: set_sidekiq_profile_option happened! Worker: #{self.name}, key: #{sidekiq_profile_key_for(jid_or_jids)}, value: #{profile_option.to_json}, expire: #{expire} ")
         end
