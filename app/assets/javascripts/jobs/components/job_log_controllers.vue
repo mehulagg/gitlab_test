@@ -115,10 +115,10 @@ export default {
           :disabled="isScrollTopDisabled"
           type="button"
           class="js-scroll-top btn-scroll btn-transparent btn-blank"
+          :style="'transform: rotate(180deg) translateY(4px)'"
           @click="handleScrollToTop"
-        >
-          <icon name="scroll_up" />
-        </gl-button>
+          v-html="$options.scrollDown"
+        />
       </div>
 
       <div v-gl-tooltip :title="s__('Job|Scroll to bottom')" class="controllers-buttons">
