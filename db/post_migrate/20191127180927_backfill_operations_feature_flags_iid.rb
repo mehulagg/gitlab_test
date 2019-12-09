@@ -7,12 +7,19 @@ class BackfillOperationsFeatureFlagsIid < ActiveRecord::Migration[5.2]
 
   disable_ddl_transaction!
 
+  class Project < ::Project
+    self.table_name = 'projects'
+    self.inheritance_column = :_type_disabled
+
+    has_many :operations_feature_flags, class_name: 'BackfillOperationsFeatureFlagsIid::OperationsFeatureFlag'
+  end
+
   class OperationsFeatureFlag < ActiveRecord::Base
     include AtomicInternalId
     self.table_name = 'operations_feature_flags'
     self.inheritance_column = :_type_disabled
 
-    belongs_to :project
+    belongs_to :project, class_name: 'BackfillOperationsFeatureFlagsIid::Project'
 
     has_internal_id :iid, scope: :project, init: ->(s) { s&.project&.operations_feature_flags&.maximum(:iid) }
   end
