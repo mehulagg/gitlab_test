@@ -2,19 +2,18 @@
 
 require 'spec_helper'
 
-describe 'Group Boards' do
+describe 'Group Boards', :js do
   let(:group) { create(:group) }
-  let!(:project) { create(:project_empty_repo, group: group) }
   let(:user) { create(:group_member, :maintainer, user: create(:user), group: group ).user }
 
   before do
     sign_in(user)
+    visit group_boards_path(group)
+    wait_for_requests
   end
 
-  context 'Creates a an issue', :js do
-    before do
-      visit group_boards_path(group)
-    end
+  context 'Creates a an issue' do
+    let!(:project) { create(:project_empty_repo, group: group) }
 
     it 'Adds an issue to the backlog' do
       page.within(find('.board', match: :first)) do
@@ -32,6 +31,26 @@ describe 'Group Boards' do
 
         expect(page).to have_content(issue_title)
       end
+    end
+  end
+
+  context 'Group board deletion' do
+    before do
+      stub_licensed_features(multiple_group_issue_boards: true)
+      @new_board = create(:board, group: group, name: 'New board')
+    end
+
+    it 'Deletes a group issue board' do
+      find(:css, '.js-dropdown-toggle').click
+      find(:css, '.js-delete-board button').click
+      find(:css, '.board-config-modal .js-primary-button').click
+
+      wait_for_requests
+
+      find(:css, '.js-dropdown-toggle').click
+
+      expect(page).not_to have_content('Development')
+      expect(page).to have_content(@new_board.name)
     end
   end
 end
