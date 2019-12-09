@@ -9,6 +9,8 @@ class BackfillOperationsFeatureFlagsIid < ActiveRecord::Migration[5.2]
 
   class OperationsFeatureFlag < ActiveRecord::Base
     include AtomicInternalId
+    self.table_name = 'operations_feature_flags'
+    self.inheritance_column = :_type_disabled
 
     belongs_to :project
 
