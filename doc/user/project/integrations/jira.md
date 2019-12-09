@@ -78,18 +78,44 @@ To enable the Jira development panel integration with GitLab, complete the follo
 
 1. [Create Jira user and grant access](jira_create_user.md).
 1. [Create Jira access token](#creating-jira-access-token).
+1. [Obtain Jira transition IDs](#obtaining-jira-transition-ids)
 1. Enable Jira access to GitLab.
 1. Configure the Jira development panel.
 1. Configure GitLab.
 
 #### Creating Jira access token
 
-> - Atlassian [deprecated](https://developer.atlassian.com/cloud/jira/platform/deprecation-notice-basic-auth-and-cookie-based-auth/) basic API authentication from June 3rd, 2019. Access to Jira via the API requires use of an access token. Each token is unique to each Atlassian account.
+> Atlassian [deprecated](https://developer.atlassian.com/cloud/jira/platform/deprecation-notice-basic-auth-and-cookie-based-auth/) basic API authentication from June 3, 2019. Access to Jira via the API requires use of an access token. Each token is unique to each Atlassian account.
 
 Create an Atlassian API token for the user created in [Create Jira user and grant access](jira_create_user.md). For details, see [API tokens](https://confluence.atlassian.com/cloud/api-tokens-938839638.html).
 
 NOTE: **Note:**
-Record the value of the API token. It is not possible to view the token's value after creating it.
+Record the value of the API token. It is not possible to view the token's value after creating it. GitLab recommends not storing the API token's value because doing so is a security risk. You can create a new token and provide that to GitLab if required.
+
+
+#### Obtaining Jira transition IDs
+
+NOTE: **Note:**
+
+
+A Jira workflow defines the statuses an issue may be in, and the transitions between them. For example, changing a Jira issue from **OPEN** to **CLOSED** is a transition. Transition IDs are specific to each workflow. For more details, see Atlassian's [Working with workflows](https://confluence.atlassian.com/adminjiracloud/working-with-workflows-776636540.html). In order to transition a Jira issue to closed from a GitLab commit, you need to know the relevant transition IDs.
+
+1. Log in to your Jira instance as an administrator.
+
+1. Go to **Administration** (gear icon) **> Projects** and select the relevant project.
+
+1. Click **Workflows** on the left of the **Project Summary** page then click **View**.
+
+1. Click **Edit** (pencil icon).
+
+1. Note the desired transition IDs.
+
+   1. In each **Step Name** row, find the **CLOSED** badge in the **Transitions** column.
+   1. Note the transition ID of the transition immediately above the **CLOSED** badge.
+
+   In the following example, to transition an issue from **OPEN** to **CLOSED** requires the _Close Issue_ transition, which has an ID of `2`.
+
+   ![Example Jira workflow status and transition IDs](img/jira_workflow_transition_ids_v12_6.png)
 
 #### Enabling GitLab access to Jira
 
