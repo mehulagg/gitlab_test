@@ -17,14 +17,6 @@ describe BackfillOperationsFeatureFlagsIid, :migration do
     project
   end
 
-  it 'migrates successfully when there are no flags in the database' do
-    setup
-
-    disable_migrations_output { migrate! }
-
-    expect(flags.count).to eq(0)
-  end
-
   it 'backfills the iid for a flag' do
     project = setup
     flag = flags.create!(project_id: project.id, active: true, name: 'test_flag')
