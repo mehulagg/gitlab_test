@@ -142,6 +142,17 @@ describe UsersHelper do
       end
     end
 
+    context 'with user who is using a license seat' do
+      it 'returns the is using seat badge' do
+        user = create(:user)
+        allow(user).to receive(:using_license_seat?).and_return(true)
+
+        badges = helper.user_badges_in_admin_section(user)
+
+        expect(badges).to eq([text: "Is using seat", variant: "light"])
+      end
+    end
+
     context 'with the current user' do
       it 'returns the "It\'s You" badge' do
         badges = helper.user_badges_in_admin_section(user)

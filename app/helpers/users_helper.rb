@@ -79,6 +79,7 @@ module UsersHelper
       badges << { text: s_('AdminUsers|Blocked'), variant: 'danger' } if user.blocked?
       badges << { text: s_('AdminUsers|Admin'), variant: 'success' } if user.admin?
       badges << { text: s_('AdminUsers|External'), variant: 'secondary' } if user.external?
+      badges << { text: s_("AdminUsers|Is using seat"), variant: 'light' } if user.using_license_seat?
       badges << { text: s_("AdminUsers|It's you!"), variant: nil } if current_user == user
     end
   end
