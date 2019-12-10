@@ -1,0 +1,48 @@
+/* Checkout Page */
+.subscriptions-layout-html {
+  $cutoff-point: map-get($grid-breakpoints, lg);
+
+  .subscriptions-page {
+    height: 100vh;
+  }
+
+  .container {
+    margin: 0;
+    max-width: none;
+    padding-top: 40px;
+  }
+
+  .row {
+    flex-direction: column;
+    flex-wrap: nowrap;
+
+    @media(min-width: $cutoff-point) {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+  }
+
+  .checkout-pane {
+    border-bottom: 1px solid $gray-200;
+    flex-grow: 1;
+    flex-shrink: 0;
+    padding-right: $gl-padding;
+    padding-left: $gl-padding;
+
+    @media(min-width: $cutoff-point) {
+      border-bottom: 0;
+      border-right: 1px solid $border-color;
+    }
+  }
+
+  .summary-pane {
+    padding-bottom: $gl-padding;
+    padding-right: $gl-padding;
+    padding-left: $gl-padding;
+
+    @media(min-width: $cutoff-point) {
+      padding-left: 48px;
+      padding-right: 48px;
+    }
+  }
+}
