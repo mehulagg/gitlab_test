@@ -8,7 +8,7 @@ If you are looking to integrate into the [Secure Stage](https://about.gitlab.com
 
 - During the Gitlab CI/CD step Developers submit changes via a branch which triggers a pipeline and its associated jobs on this updated code. Then the merge request (MR) is where it is best to review these changes and the corresponding security analyses.
 
-- Jobs serve a variety of purposes, for this feature we are concerned with ones that have Security, Policy, or Compliance implications. The job will report back on its status, and create a report artifact as a result.
+- Jobs serve a variety of purposes, for this feature we are concerned with ones that have Security, Policy, or Compliance implications. The job will report back on its status, and create a [job artifact](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html) as a result.
 
 - Feedback about the findings are shown in the [Merge Request report area](https://docs.gitlab.com/ee/user/project/merge_requests/#security-reports-ultimate)
 
@@ -36,24 +36,24 @@ If you are looking to integrate into the [Secure Stage](https://about.gitlab.com
   1. Get Test account - [GitLab.com Gold Subscription Sandbox Request](https://about.gitlab.com/partners/integrate/#gitlabcom-gold-subscription-sandbox-request) or [EE Developer License](https://about.gitlab.com/partners/integrate/#requesting-ee-dev-license-for-rd)
 1. Pipeline job(s)
   1. You need to integrate into CI using [pipeline jobs](https://docs.gitlab.com/ee/development/pipelines.html)
-1. Artifact
-  1. Your job needs to generate a report artifact in the correct format
-  1. [Example job definition that also defines the artifact created](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/Container-Scanning.gitlab-ci.yml)
-  1. [What is an artifact](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html)
-    1. [SAST artifact](https://docs.gitlab.com/ee/user/application_security/sast/#reports-json-format)
-    1. Secret Detection artifact - link or issue needed
-    1. DAST artifact - link or issue needed
-    1. [Dependency Scanning artifact](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#reports-json-format)
-    1. License artifact - link or issue needed
-    1. Container Scanning artifact - link or issue needed
+1. [Job Artifact](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html)
+  1. Your job needs to generate a [job artifact](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html) in the correct format, and this artifact will be saved in the job's working directory
+  1. [Example secure job definition that also defines the artifact created](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/Container-Scanning.gitlab-ci.yml)
+  2. Secure reports
+    1. [SAST report](https://docs.gitlab.com/ee/user/application_security/sast/#reports-json-format)
+    1. Secret Detection report - link or issue needed
+    1. DAST report - link or issue needed
+    1. [Dependency Scanning report](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#reports-json-format)
+    1. License Compliance Report - link or issue needed
+    1. Container Scanning report - link or issue needed
     1. Did you need a new kind of scan/report? [Create an issue here](https://gitlab.com/gitlab-org/gitlab/issues/new#) and add label `devops::secure`
-  1. Additional fields in artifacts
+  1. Additional fields in secure reports
     1. We are working to define and add an area to make it more clear what software identified findings in [issue 36147](https://gitlab.com/gitlab-org/gitlab/issues/36147) if you would like to comment.
   1. Once the job is completed (which generates the artifact in the working directory of the job) the data can now be seen:
-    1. In [MR Report](https://docs.gitlab.com/ee/user/project/merge_requests/#security-reports-ultimate)
-      1. [MR Report data flow](https://gitlab.com/snippets/1910005#merge-request-view) *can we improve on this, where should it live?*
-    1. In Pipeline Job Report - link?
-    1. In [Security dashboard](https://docs.gitlab.com/ee/user/application_security/security_dashboard/)
+    1. In [Merge Request Security Report](https://docs.gitlab.com/ee/user/project/merge_requests/#security-reports-ultimate)
+      1. [MR Security Report data flow](https://gitlab.com/snippets/1910005#merge-request-view) *can we improve on this, where should it live?*
+    1. [Browse Artifact](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html#browsing-artifacts)
+    1. In [Security Dashboard](https://docs.gitlab.com/ee/user/application_security/security_dashboard/)
       1. [Dashboard data flow](https://gitlab.com/snippets/1910005#project-and-group-dashboards) *can we improve on this, where should it live?*
 1. Optional: Auto Remediation
   1. If you specified a `remediations` in your artifact, it will be proposed through [auto remediation](https://docs.gitlab.com/ee/user/application_security/index.html#solutions-for-vulnerabilities-auto-remediation)
