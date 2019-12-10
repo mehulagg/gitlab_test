@@ -10,7 +10,7 @@ If you are looking to integrate into the [Secure Stage](https://about.gitlab.com
 
 - Jobs serve a variety of purposes, for this feature we are concerned with ones that have Security, Policy, or Compliance implications. The job will report back on its status, and create a [job artifact](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html) as a result.
 
-- Feedback about the findings are shown in the [Merge Request report area](https://docs.gitlab.com/ee/user/project/merge_requests/#security-reports-ultimate)
+- Feedback about the findings are shown in the [Merge Request Security Widget](https://docs.gitlab.com/ee/user/project/merge_requests/#security-reports-ultimate)
 
 - A developer may expand and review a summary of the findings in the MR report, and then view more information as needed.
 
