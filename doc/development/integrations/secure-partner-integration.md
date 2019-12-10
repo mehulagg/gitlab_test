@@ -39,14 +39,14 @@ If you are looking to integrate into the [Secure Stage](https://about.gitlab.com
 1. Artifact
   1. Your job needs to generate a report artifact in the correct format
   1. [Example job definition that also defines the artifact created](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/Container-Scanning.gitlab-ci.yml)
-  1. What is an artifact (in general)? https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html
+  1. [What is an artifact](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html)
     1. [SAST artifact](https://docs.gitlab.com/ee/user/application_security/sast/#reports-json-format)
     1. Secret Detection artifact - link or issue needed
     1. DAST artifact - link or issue needed
     1. [Dependency Scanning artifact](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#reports-json-format)
     1. License artifact - link or issue needed
     1. Container Scanning artifact - link or issue needed
-    1. Did you need a new kind of scan/report? Make a suggestion - [Create an issue here](https://gitlab.com/gitlab-org/gitlab/issues/new#) and add label `devops::secure`
+    1. Did you need a new kind of scan/report? [Create an issue here](https://gitlab.com/gitlab-org/gitlab/issues/new#) and add label `devops::secure`
   1. Additional fields in artifacts - what is missing? We are working to define and add an area to make it more clear what software identified findings in [issue 36147](https://gitlab.com/gitlab-org/gitlab/issues/36147) if you would like to comment.
   1. Once the job is completed (which generates the artifact) the data can now be seen:
     1. In [MR Report](https://docs.gitlab.com/ee/user/project/merge_requests/#security-reports-ultimate)
@@ -56,7 +56,7 @@ If you are looking to integrate into the [Secure Stage](https://about.gitlab.com
       1. [Dashboard data flow](https://gitlab.com/snippets/1910005#project-and-group-dashboards) *can we improve on this, where should it live?*
 1. Optional: Auto Remediation
   1. If you specified a “remediations” in your artifact, it will be proposed through [auto remediation](https://docs.gitlab.com/ee/user/application_security/index.html#solutions-for-vulnerabilities-auto-remediation)
-  1. Example on how to populate that field *this needs to be improbved to include full example https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#reports-json-format and if all fields are optional or required*
+  1. Example on how to populate that field *this needs to be improved to include full example https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#reports-json-format and if all fields are optional or required*
 1. Optional: Interacting with vulnerabilities
   1. Users will be able to interact with the findings from your artifact within their workflow. They will be able to dismiss, or accept and create a backlog issue.
   1. If you wish to automatically create Issues without user interaction you may use the [issue API](https://docs.gitlab.com/ee/api/issues.html)
