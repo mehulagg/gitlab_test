@@ -1,0 +1,6 @@
+{
+  "fullName": "Alex",
+  "planData": "[{\"id\":\"bronze_plan_id\",\"code\":\"bronze\",\"price_per_year\":48.0},{\"id\":\"silver_plan_id\",\"code\":\"silver\",\"price_per_year\":228.0},{\"id\":\"gold_plan_id\",\"code\":\"gold\",\"price_per_year\":1188.0}]",
+  "planId": "gold_plan_id",
+  "setupForCompany": "false"
+}

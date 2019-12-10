@@ -1,0 +1,88 @@
+# frozen_string_literal: true
+
+module Subscriptions
+  class CreateService
+    attr_reader :current_user, :customer_params, :subscription_params
+
+    def initialize(current_user, customer_params, subscription_params)
+      @current_user = current_user
+      @customer_params = customer_params
+      @subscription_params = subscription_params
+    end
+
+    def execute
+      response = client.create_customer(create_customer_params)
+      response = HashWithIndifferentAccess.new(response[:data])
+      return response unless response[:success]
+
+      token = response[:customer][:authentication_token]
+      client.create_subscription(create_subscription_params, current_user.email, token)
+    end
+
+    private
+
+    def create_customer_params
+      {
+        provider: 'gitlab',
+        uid: current_user.id,
+        credentials: credentials_attrs,
+        customer: customer_attrs,
+        info: info_attrs
+      }
+    end
+
+    def credentials_attrs
+      token = oauth_token
+      {
+        token: token.token_digest,
+        expires: token.expires_at
+      }
+    end
+
+    def customer_attrs
+      {
+        country: country_code(customer_params[:country]),
+        address_1: customer_params[:address_1],
+        address_2: customer_params[:address_2],
+        city: customer_params[:city],
+        state: customer_params[:state],
+        zip_code: customer_params[:zip_code],
+        company: customer_params[:company]
+      }
+    end
+
+    def info_attrs
+      {
+        first_name: current_user.first_name,
+        last_name: current_user.last_name,
+        email: current_user.email
+      }
+    end
+
+    def create_subscription_params
+      {
+        plan_id: subscription_params[:plan_id],
+        payment_method_id: subscription_params[:payment_method_id],
+        products: {
+          main: {
+            quantity: subscription_params[:quantity]
+          }
+        },
+        preview: 'false'
+      }
+    end
+
+    def country_code(country)
+      World.alpha3_from_alpha2(country)
+    end
+
+    def oauth_token
+      tokens = PersonalAccessTokensFinder.new(user: current_user, impersonation: true, state: :active).execute
+      tokens.present? ? tokens.last : tokens.create(name: 'Customers', scopes: [:api])
+    end
+
+    def client
+      Gitlab::SubscriptionPortal::Client
+    end
+  end
+end

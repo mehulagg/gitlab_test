@@ -45,4 +45,190 @@
       padding-right: 48px;
     }
   }
+
+  #checkout {
+    align-items: center;
+    flex-grow: 1;
+    margin-top: 16px;
+    max-width: 454px;
+    width: 100%;
+
+    @media(min-width: $cutoff-point) {
+      justify-content: inherit !important;
+      margin-top: 36px;
+      max-width: none;
+    }
+
+    .full-width {
+      max-width: 541px;
+      width: 100%;
+    }
+  }
+
+  .step {
+    margin-bottom: 16px;
+
+    @media(min-width: $cutoff-point) {
+      margin-bottom: 32px;
+    }
+  }
+
+  .bar {
+    @media(min-width: $cutoff-point) {
+      width: 400px;
+    }
+
+    .phase {
+      border-bottom: 5px solid $gray-200;
+      color: $gray-700;
+      flex-basis: 100%;
+      font-size: $gl-font-size-12;
+      line-height: $gl-line-height;
+      padding-bottom: $gl-padding-8;
+
+      &.current,
+      &.finished {
+        border-bottom-color: $blue-400;
+      }
+
+      &.current {
+        color: $gray-900;
+      }
+    }
+  }
+
+  h2 {
+    margin: 24px 0 16px;
+
+    @media(min-width: $cutoff-point) {
+      margin-bottom: 32px;
+    }
+  }
+
+  .checkmark {
+    color: $green-500;
+    margin-top: -1px;
+  }
+
+  .card {
+    margin-bottom: 0;
+    min-height: 32px;
+    padding: $gl-padding;
+    max-width: 541px;
+
+    @media(min-width: $cutoff-point) {
+      width: 541px;
+    }
+  }
+
+  .gl-form-group,
+  .combined {
+    flex-grow: 1;
+    max-width: 420px;
+
+    .gl-form-input,
+    .gl-form-select {
+      height: 32px;
+    }
+  }
+
+  .number {
+    width: 50%;
+
+    @media(min-width: $cutoff-point) {
+      max-width: 202px;
+    }
+  }
+
+  .label {
+    padding: 0;
+    width: 50%;
+
+    .gl-link {
+      font-size: inherit;
+    }
+  }
+
+  .btn {
+    line-height: $gl-line-height-14;
+    padding: $gl-padding-8 $gl-padding-12;
+    width: 100%;
+
+    @media(min-width: $cutoff-point) {
+      width: initial;
+    }
+  }
+
+  #zuora_payment {
+    margin-right: -8px;
+
+    @media(min-width: $cutoff-point) {
+      margin-right: 0;
+    }
+
+    iframe {
+      background-color: $white-light;
+      margin: -4px;
+      width: 100% !important;
+    }
+  }
+
+  .overview {
+    line-height: $gl-line-height-20;
+
+    .btn {
+      height: 24px;
+      padding: 1px 8px;
+      width: 48px;
+
+      @media(min-width: $cutoff-point) {
+        width: initial;
+      }
+    }
+  }
+
+  #order-summary {
+    margin-top: 5px;
+    max-width: 454px;
+
+    .large-media {
+      display: none;
+    }
+
+    h4 {
+      font-size: 16px;
+    }
+
+    @media(min-width: $cutoff-point) {
+      margin-top: 34px;
+      max-width: none;
+
+      .small-media {
+        display: none;
+      }
+
+      .large-media {
+        display: block;
+      }
+
+      h4 {
+        font-size: 21px;
+      }
+    }
+
+    i {
+      font-size: 10px;
+      padding-right: 5px;
+      padding-top: 4px;
+    }
+
+    .header {
+      margin: 10px 0;
+    }
+
+    .divider {
+      border-bottom: 1px solid $border-color;
+      margin: 20px 0;
+    }
+  }
 }

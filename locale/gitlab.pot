@@ -3194,6 +3194,147 @@ msgstr ""
 msgid "Checking username availability..."
 msgstr ""
 
+msgid "Checkout"
+msgstr ""
+
+msgid "Checkout|$%{amount}"
+msgstr ""
+
+msgid "Checkout|$%{pricePerUserPerYear} per user per year"
+msgstr ""
+
+msgid "Checkout|%{cardType} ending in %{lastFourDigits}"
+msgstr ""
+
+msgid "Checkout|%{name}'s GitLab subscription"
+msgstr ""
+
+msgid "Checkout|%{selectedPlanText} plan"
+msgstr ""
+
+msgid "Checkout|%{startDate} - %{endDate}"
+msgstr ""
+
+msgid "Checkout|(x%{numberOfUsers})"
+msgstr ""
+
+msgid "Checkout|-"
+msgstr ""
+
+msgid "Checkout|1. Your profile"
+msgstr ""
+
+msgid "Checkout|2. Checkout"
+msgstr ""
+
+msgid "Checkout|3. Your GitLab group"
+msgstr ""
+
+msgid "Checkout|Billing address"
+msgstr ""
+
+msgid "Checkout|Checkout"
+msgstr ""
+
+msgid "Checkout|City"
+msgstr ""
+
+msgid "Checkout|Confirm purchase"
+msgstr ""
+
+msgid "Checkout|Continue to billing"
+msgstr ""
+
+msgid "Checkout|Continue to payment"
+msgstr ""
+
+msgid "Checkout|Country"
+msgstr ""
+
+msgid "Checkout|Credit card form failed to load. Please try again."
+msgstr ""
+
+msgid "Checkout|Credit card form failed to load: %{message}"
+msgstr ""
+
+msgid "Checkout|Edit"
+msgstr ""
+
+msgid "Checkout|Exp %{expirationMonth}/%{expirationYear}"
+msgstr ""
+
+msgid "Checkout|Failed to confirm your order! Please try again."
+msgstr ""
+
+msgid "Checkout|Failed to confirm your order: \"%{message}\". Please try again."
+msgstr ""
+
+msgid "Checkout|Failed to load countries. Please try again."
+msgstr ""
+
+msgid "Checkout|Failed to load states. Please try again."
+msgstr ""
+
+msgid "Checkout|Failed to register credit card. Please try again."
+msgstr ""
+
+msgid "Checkout|GitLab plan"
+msgstr ""
+
+msgid "Checkout|Group"
+msgstr ""
+
+msgid "Checkout|Name of company or organization using GitLab"
+msgstr ""
+
+msgid "Checkout|Need more users? Purchase GitLab for your %{company}."
+msgstr ""
+
+msgid "Checkout|Number of users"
+msgstr ""
+
+msgid "Checkout|Payment method"
+msgstr ""
+
+msgid "Checkout|Please select a country"
+msgstr ""
+
+msgid "Checkout|Please select a state"
+msgstr ""
+
+msgid "Checkout|State"
+msgstr ""
+
+msgid "Checkout|Street address"
+msgstr ""
+
+msgid "Checkout|Submitting the credit card form failed with code %{code}: %{message}"
+msgstr ""
+
+msgid "Checkout|Subscription details"
+msgstr ""
+
+msgid "Checkout|Subtotal"
+msgstr ""
+
+msgid "Checkout|Tax"
+msgstr ""
+
+msgid "Checkout|Total"
+msgstr ""
+
+msgid "Checkout|Users"
+msgstr ""
+
+msgid "Checkout|Your organization"
+msgstr ""
+
+msgid "Checkout|Zip code"
+msgstr ""
+
+msgid "Checkout|company or team"
+msgstr ""
+
 msgid "Cherry-pick this commit"
 msgstr ""
 
