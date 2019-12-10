@@ -39,7 +39,7 @@ If you are looking to integrate into the [Secure Stage](https://about.gitlab.com
 1. [Job Artifact](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html)
   1. Your job needs to generate a [job artifact](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html) in the correct format, and this artifact will be saved in the job's working directory
   1. [Example secure job definition that also defines the artifact created](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/Container-Scanning.gitlab-ci.yml)
-  2. Secure reports
+  1. Secure reports - a specific kind of artifact
     1. [SAST report](https://docs.gitlab.com/ee/user/application_security/sast/#reports-json-format)
     1. Secret Detection report - link or issue needed
     1. DAST report - link or issue needed
