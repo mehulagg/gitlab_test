@@ -32,20 +32,21 @@ If you are looking to integrate into the [Secure Stage](https://about.gitlab.com
 ## What are the (technical) steps to onboard?
 
 1. Read about our [partnerships](https://about.gitlab.com/partners/integrate/)
-  1. [Create an issue](https://about.gitlab.com/partners/integrate/#contact-us)
+  1. [Create an issue](https://gitlab.com/gitlab-com/alliances/alliances/issues/new?issuable_template=new_partner)
   1. Get Test account - [GitLab.com Gold Subscription Sandbox Request](https://about.gitlab.com/partners/integrate/#gitlabcom-gold-subscription-sandbox-request) or [EE Developer License](https://about.gitlab.com/partners/integrate/#requesting-ee-dev-license-for-rd)
 1. Pipeline job(s)
   1. You need to integrate into CI using [pipeline jobs](https://docs.gitlab.com/ee/development/pipelines.html)
-1. [Job Artifact](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html)
-  1. Your job needs to generate a [job artifact](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html) in the correct format, and this artifact will be saved in the job's working directory
-  1. [Example secure job definition that also defines the artifact created](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/Container-Scanning.gitlab-ci.yml)
-  1. Secure reports - a specific kind of artifact
+1. Your job must be configured to generate a report artifact
+  1. About [job report artifact](https://docs.gitlab.com/ee/ci/yaml/README.html#artifactsreports)
+  1. About [job artifacts](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html) in general.
+  1. Your report artifact must be in the correct format as specified for each scanner (below).
     1. [SAST report](https://docs.gitlab.com/ee/user/application_security/sast/#reports-json-format)
     1. Secret Detection report - link or issue needed
     1. DAST report - link or issue needed
     1. [Dependency Scanning report](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#reports-json-format)
     1. License Compliance Report - link or issue needed
     1. Container Scanning report - link or issue needed
+    1. [Example secure job definition that also defines the artifact created](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/Container-Scanning.gitlab-ci.yml)
     1. Did you need a new kind of scan/report? [Create an issue here](https://gitlab.com/gitlab-org/gitlab/issues/new#) and add label `devops::secure`
   1. Additional fields in secure reports
     1. We are working to define and add an area to make it more clear what software identified findings in [issue 36147](https://gitlab.com/gitlab-org/gitlab/issues/36147) if you would like to comment.
