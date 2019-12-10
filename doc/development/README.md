@@ -130,6 +130,7 @@ description: 'Learn how to contribute to GitLab.'
 ## Integration guides
 
 - [Jira Connect app](integrations/jira_connect.md)
+- [Secure Partner Integration](integrations/secure-partner-integration.md)
 
 ## Testing guides
 
