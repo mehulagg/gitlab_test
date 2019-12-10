@@ -31,7 +31,7 @@ If you are looking to integrate into the [Secure Stage](https://about.gitlab.com
 
 ## What are the (technical) steps to onboard?
 
-1. Read about our partnerships (LINK partner page https://about.gitlab.com/partners/integrate/)
+1. Read about our [partnerships](https://about.gitlab.com/partners/integrate/)
   1. [Create an issue](https://about.gitlab.com/partners/integrate/#contact-us)
   1. Get Test account - [GitLab.com Gold Subscription Sandbox Request](https://about.gitlab.com/partners/integrate/#gitlabcom-gold-subscription-sandbox-request) or [EE Developer License](https://about.gitlab.com/partners/integrate/#requesting-ee-dev-license-for-rd)
 1. Pipeline job(s)
