@@ -100,7 +100,7 @@ describe SubmoduleHelper do
         allow(repo).to receive(:project).and_return(project)
 
         stub_url('./')
-        expect(subject).to eq(["/master-project/#{project.path}", "/master-project/#{project.path}/tree/hash"])
+        expect(subject).to eq(["/master-project/#{project.path}", "/master-project/#{project.path}/-/tree/hash"])
       end
     end
 
@@ -171,7 +171,7 @@ describe SubmoduleHelper do
         stub_url(relative_path)
         result = subject
 
-        expect(result).to eq([expected_path, "#{expected_path}/tree/#{submodule_item.id}"])
+        expect(result).to eq([expected_path, "#{expected_path}/-/tree/#{submodule_item.id}"])
       end
 
       it 'handles project under same group' do
