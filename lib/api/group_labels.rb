@@ -20,10 +20,12 @@ module API
                  desc: 'Include issue and merge request counts'
         optional :include_ancestor_groups, type: Boolean, default: true,
                  desc: 'Include ancestor groups'
+        optional :only_group_labels, type: Boolean, default: true,
+                 desc: 'Limit response to only group labels'
         use :pagination
       end
       get ':id/labels' do
-        get_labels(user_group, Entities::GroupLabel, include_ancestor_groups: params[:include_ancestor_groups])
+        get_labels(user_group, Entities::GroupLabel, include_ancestor_groups: params[:include_ancestor_groups], only_group_labels: params[:only_group_labels])
       end
 
       desc 'Get a single label' do

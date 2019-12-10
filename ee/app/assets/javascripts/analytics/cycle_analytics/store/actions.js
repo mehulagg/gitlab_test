@@ -130,7 +130,7 @@ export const fetchGroupLabels = ({ dispatch, state }) => {
     selectedGroup: { id },
   } = state;
 
-  return Api.groupLabels(id, { with_counts: true })
+  return Api.groupLabels(id, { with_counts: true, only_group_labels: false })
     .then(data => dispatch('receiveGroupLabelsSuccess', data))
     .catch(error => dispatch('receiveGroupLabelsError', error));
 };
