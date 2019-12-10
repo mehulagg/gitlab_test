@@ -5,6 +5,7 @@
 
 .rake-exec:
   extends:
+    - .default-git-depth
     - .default-tags
     - .default-retry
     - .default-cache
@@ -17,6 +18,7 @@
 
 .only-code-rails-job-base:
   extends:
+    - .default-git-depth
     - .default-tags
     - .default-retry
     - .default-cache
@@ -26,6 +28,7 @@
 
 .only-code-qa-rails-job-base:
   extends:
+    - .default-git-depth
     - .default-tags
     - .default-retry
     - .default-cache

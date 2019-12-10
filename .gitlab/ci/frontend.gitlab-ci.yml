@@ -7,6 +7,7 @@
 
 .gitlab:assets:compile-metadata:
   extends:
+    - .default-git-depth
     - .default-tags
     - .default-retry
     - .default-only
@@ -68,6 +69,7 @@ gitlab:assets:compile pull-cache:
 
 .compile-assets-metadata:
   extends:
+    - .default-git-depth
     - .default-tags
     - .default-retry
     - .default-only
@@ -123,6 +125,7 @@ compile-assets pull-cache foss:
 
 .only-code-frontend-job-base:
   extends:
+    - .default-git-depth
     - .default-tags
     - .default-retry
     - .default-cache
@@ -201,6 +204,7 @@ jest-foss:
 
 .qa-frontend-node:
   extends:
+    - .default-git-depth
     - .default-tags
     - .default-retry
     - .default-cache
@@ -234,6 +238,7 @@ qa-frontend-node:latest:
 
 webpack-dev-server:
   extends:
+    - .default-git-depth
     - .default-tags
     - .default-retry
     - .default-cache

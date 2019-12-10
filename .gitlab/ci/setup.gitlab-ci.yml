@@ -2,6 +2,7 @@
 # rubygems.org in the future.
 cache gems:
   extends:
+    - .default-git-depth
     - .default-tags
     - .default-retry
     - .default-cache
@@ -25,6 +26,7 @@ cache gems:
 
 .minimal-job:
   extends:
+    - .default-git-depth
     - .default-tags
     - .default-retry
     - .default-only

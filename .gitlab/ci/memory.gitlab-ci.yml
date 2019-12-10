@@ -1,5 +1,6 @@
 .only-code-memory-job-base:
   extends:
+    - .default-git-depth
     - .default-tags
     - .default-retry
     - .default-cache

@@ -1,5 +1,6 @@
 .tests-metadata-state:
   extends:
+    - .default-git-depth
     - .default-only
     - .only:changes-code-backstage
   variables:
@@ -45,6 +46,7 @@ update-tests-metadata:
 
 flaky-examples-check:
   extends:
+    - .default-git-depth
     - .default-tags
     - .default-retry
     - .default-only

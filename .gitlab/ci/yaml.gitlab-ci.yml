@@ -2,6 +2,7 @@
 # This uses rules from project root `.yamllint`.
 lint-ci-gitlab:
   extends:
+    - .default-git-depth
     - .default-tags
     - .default-retry
     - .default-only

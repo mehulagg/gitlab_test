@@ -1,5 +1,6 @@
 .review-docs:
   extends:
+    - .default-git-depth
     - .default-tags
     - .default-retry
     - .only:variables-canonical-dot-com
@@ -46,6 +47,7 @@ review-docs-cleanup:
 
 docs lint:
   extends:
+    - .default-git-depth
     - .default-tags
     - .default-retry
     - .default-only
@@ -70,6 +72,7 @@ docs lint:
 graphql-reference-verify:
   extends:
     - .only-ee
+    - .default-git-depth
     - .default-tags
     - .default-retry
     - .default-cache
