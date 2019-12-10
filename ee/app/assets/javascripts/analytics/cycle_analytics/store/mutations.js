@@ -60,11 +60,16 @@ export default {
     };
   },
   [types.RECEIVE_GROUP_LABELS_SUCCESS](state, data = []) {
+    const MAX_LABELS = 15;
     const { tasksByType } = state;
-    state.labels = data.map(convertObjectPropsToCamelCase);
+    const labels = data.map(convertObjectPropsToCamelCase);
+    state.labels = labels;
     state.tasksByType = {
       ...tasksByType,
-      labelIds: data.map(({ id }) => id),
+      labelIds: labels
+        .sort((a, b) => a.closed_issues_count > b.closed_issues_count)
+        .slice(0, MAX_LABELS)
+        .map(({ id }) => id),
     };
   },
   [types.RECEIVE_GROUP_LABELS_ERROR](state) {
