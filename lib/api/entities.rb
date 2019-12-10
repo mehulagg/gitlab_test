@@ -378,6 +378,7 @@ module API
       expose :user, merge: true, using: UserBasic
       expose :access_level
       expose :expires_at
+      expose(:is_using_seat) { |entity, _options| !!entity.user&.using_license_seat? }
     end
 
     class AccessRequester < Grape::Entity
