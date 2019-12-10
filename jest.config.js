@@ -40,6 +40,10 @@ const moduleNameMapper = {
   '^spec/test_constants$': '<rootDir>/spec/frontend/helpers/test_constants',
 };
 
+const moduleDirectories = !Boolean(process.env.CI)
+  ? ['<rootDir>/node_modules', 'node_modules']
+  : ['node_modules'];
+
 if (IS_EE) {
   const rootDirEE = '<rootDir>/ee/app/assets/javascripts$1';
   Object.assign(moduleNameMapper, {
@@ -73,6 +77,7 @@ module.exports = {
   testEnvironmentOptions: {
     IS_EE,
   },
+  moduleDirectories,
 };
 
 const karmaTestFile = process.argv.find(arg => arg.includes('spec/javascripts/'));
