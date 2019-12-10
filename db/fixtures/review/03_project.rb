@@ -41,15 +41,6 @@ Gitlab::Seeder.quiet do
       https://github.com/googlesamples/android-topeka.git
     ]
 
-    large_project_urls = %w[
-      https://github.com/torvalds/linux.git
-      https://gitlab.gnome.org/GNOME/gimp.git
-      https://gitlab.gnome.org/GNOME/gnome-mud.git
-      https://gitlab.com/fdroid/fdroidclient.git
-      https://gitlab.com/inkscape/inkscape.git
-      https://github.com/gnachman/iTerm2.git
-    ]
-
     def create_project(url, force_latest_storage: false)
       group_path, project_path = url.split('/')[-2..-1]
 
@@ -103,35 +94,11 @@ Gitlab::Seeder.quiet do
     end
 
     # You can specify how many projects you need during seed execution
-    size = ENV['SIZE'].present? ? ENV['SIZE'].to_i : 8
+    size = ENV['SIZE'].present? ? ENV['SIZE'].to_i : 2
+    print `Creating #{size} projects`
 
     project_urls.first(size).each_with_index do |url, i|
       create_project(url, force_latest_storage: i.even?)
-    end
-
-    if ENV['LARGE_PROJECTS'].present?
-      large_project_urls.each(&method(:create_project))
-
-      if ENV['FORK'].present?
-        puts "\nGenerating forks"
-
-        project_name = ENV['FORK'] == 'true' ? 'torvalds/linux' : ENV['FORK']
-
-        project = Project.find_by_full_path(project_name)
-
-        User.offset(1).first(5).each do |user|
-          new_project = Projects::ForkService.new(project, user).execute
-
-          if new_project.valid? && (new_project.valid_repo? || new_project.import_state.scheduled?)
-            print '.'
-          else
-            new_project.errors.full_messages.each do |error|
-              puts "#{new_project.full_path}: #{error}"
-            end
-            print 'F'
-          end
-        end
-      end
     end
   end
 end
