@@ -42,7 +42,7 @@ module Ci
     def create_cross_project_pipeline!
       ::Ci::CreatePipelineService
         .new(target_project, target_user, ref: target_ref)
-        .execute(:pipeline, ignore_skip_ci: true) do |pipeline|
+        .execute(:cross_project_pipeline, ignore_skip_ci: true) do |pipeline|
           @bridge.sourced_pipelines.build(
             source_pipeline: @bridge.pipeline,
             source_project: @bridge.project,
@@ -66,7 +66,7 @@ module Ci
           source_sha: parent_pipeline.source_sha,
           target_sha: parent_pipeline.target_sha
         )
-        .execute(:pipeline, ignore_skip_ci: true, config_content: @bridge.yaml_for_downstream) do |pipeline|
+        .execute(:parent_pipeline, ignore_skip_ci: true, config_content: @bridge.yaml_for_downstream) do |pipeline|
           @bridge.sourced_pipelines.build(
             source_pipeline: @bridge.pipeline,
             source_project: @bridge.project,

@@ -22,10 +22,11 @@ module Ci
         schedule: 4,
         api: 5,
         external: 6,
-        pipeline: 7,
+        cross_project_pipeline: 7,
         chat: 8,
         merge_request_event: 10,
-        external_pull_request_event: 11
+        external_pull_request_event: 11,
+        parent_pipeline: 12
       }
     end
 
