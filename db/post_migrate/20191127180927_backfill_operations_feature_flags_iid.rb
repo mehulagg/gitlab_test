@@ -5,17 +5,7 @@ class BackfillOperationsFeatureFlagsIid < ActiveRecord::Migration[5.2]
 
   DOWNTIME = false
 
-  disable_ddl_transaction!
-
-  class OperationsFeatureFlag < ActiveRecord::Base
-    include AtomicInternalId
-    self.table_name = 'operations_feature_flags'
-    self.inheritance_column = :_type_disabled
-
-    belongs_to :project
-
-    has_internal_id :iid, scope: :project, init: ->(s) { s&.project&.operations_feature_flags&.maximum(:iid) }
-  end
+  # disable_ddl_transaction!
 
   ###
   # This should update about 500 rows on gitlab.com
@@ -27,12 +17,29 @@ class BackfillOperationsFeatureFlagsIid < ActiveRecord::Migration[5.2]
   # https://gitlab.com/gitlab-org/gitlab/merge_requests/20871#note_255449819
   ###
   def up
-    return unless Gitlab.ee?
+    execute('LOCK operations_feature_flags')
 
-    OperationsFeatureFlag.where(iid: nil).find_each do |flag|
-      flag.ensure_project_iid!
-      flag.save
-    end
+    execute('UPDATE operations_feature_flags SET iid = NULL')
+
+    sql = <<-END
+      UPDATE operations_feature_flags
+      SET iid = feature_flags_with_calculated_iid.iid_num
+      FROM (
+        SELECT id, rank() OVER (PARTITION BY project_id ORDER BY id ASC) AS iid_num FROM operations_feature_flags
+      ) AS feature_flags_with_calculated_iid
+      WHERE operations_feature_flags.id = feature_flags_with_calculated_iid.id
+    END
+
+    execute(sql)
+
+    # insert_sql = <<-END
+    #   INSERT INTO internal_ids (project_id, usage, last_value)
+    #   SELECT project_id, 6, MAX(iid)
+    #   FROM operations_feature_flags
+    #   GROUP BY project_id
+    # END
+    #
+    # execute(insert_sql)
   end
 
   def down
