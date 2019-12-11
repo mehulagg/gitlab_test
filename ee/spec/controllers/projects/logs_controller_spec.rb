@@ -179,7 +179,7 @@ describe Projects::LogsController do
         {
           "es_enabled" => false,
           "name" => "production",
-          "namespace" => "project1-1-production",
+          "namespace" => environment.deployment_namespace,
           "pods" => [
             {
               "containers" => ["container-0", "container-1"],

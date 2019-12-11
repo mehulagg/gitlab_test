@@ -1,12 +1,13 @@
 export const mockProjectPath = 'root/autodevops-deploy';
 export const mockEnvName = 'production';
+export const mockPodName = 'production-764c58d697-aaaaa';
 export const mockEnvironmentsEndpoint = `${mockProjectPath}/environments.json`;
 
 const makeMockPods = (name, env) => [
-  { name: name, containers: [] },
-  { name: env + '-764c58d697-bbbbb', containers: [] },
-  { name: env + '-764c58d697-ccccc', containers: [] },
-  { name: env + '-764c58d697-ddddd', containers: [] },
+  { name, containers: [] },
+  { name: `${env}-764c58d697-bbbbb`, containers: [] },
+  { name: `${env}-764c58d697-ccccc`, containers: [] },
+  { name: `${env}-764c58d697-ddddd`, containers: [] },
 ];
 
 const makeMockEnvironment = name => ({
@@ -16,7 +17,6 @@ const makeMockEnvironment = name => ({
   pods: makeMockPods(mockPodName, name),
 });
 
-export const mockPodName = 'production-764c58d697-aaaaa';
 export const mockPods = makeMockPods(mockPodName, mockEnvName);
 
 export const mockEnvironment = makeMockEnvironment(mockEnvName, mockPods);
