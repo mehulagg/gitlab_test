@@ -25,7 +25,7 @@ gem 'faraday', '~> 0.12'
 
 # Authentication libraries
 gem 'devise', '~> 4.6'
-gem 'doorkeeper', '~> 4.3'
+gem 'doorkeeper', '~> 4.4.0'
 gem 'doorkeeper-openid_connect', '~> 1.5'
 gem 'omniauth', '~> 1.8'
 gem 'omniauth-auth0', '~> 2.0.0'

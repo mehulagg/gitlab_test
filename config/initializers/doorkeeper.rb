@@ -114,15 +114,6 @@ Doorkeeper.configure do
   base_controller '::Gitlab::BaseDoorkeeperController'
 end
 
-# Monkey patch to avoid creating new applications if the scope of the
-# app created does not match the complete list of scopes of the configured app.
-# It also prevents the OAuth authorize application window to appear every time.
-
-# Remove after we upgrade the doorkeeper gem from version 4.3.2
-if Doorkeeper.gem_version > Gem::Version.new('4.3.2')
-  raise "Doorkeeper was upgraded, please remove the monkey patch in #{__FILE__}"
-end
-
 module Doorkeeper
   module AccessTokenMixin
     module ClassMethods
