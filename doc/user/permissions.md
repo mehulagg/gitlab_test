@@ -309,7 +309,7 @@ There is no other specific "guest" designation for newly created users.
 
 If the user is assigned a higher role on any projects or groups, the user will
 take a license seat. If a user creates a project, the user becomes a Maintainer
-on the project, resulting in the use of a license seat. Also, note that if your
+on the project, resulting in the use of a license seat (this also applies to users that have been added to the system and do not have a role yet, including the guest role). Also, note that if your
 project is internal or private, Guest users will have all the abilities that are
 mentioned in the [permissions table above](#project-members-permissions) (they
 will not be able to browse the project's repository for example).
