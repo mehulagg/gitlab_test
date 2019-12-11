@@ -32,7 +32,7 @@ export const setInitData = (
 };
 
 export const showPodLogs = ({ dispatch, commit, state }, podName) => {
-  if (state.pods.current == podName) {
+  if (state.pods.current === podName) {
     return;
   }
   commit(types.SET_CURRENT_POD_NAME, podName);
@@ -40,7 +40,7 @@ export const showPodLogs = ({ dispatch, commit, state }, podName) => {
 };
 
 export const showEnvironment = ({ dispatch, commit, state }, environmentName) => {
-  if (state.environments.current == environmentName) {
+  if (state.environments.current === environmentName) {
     return;
   }
   commit(types.SET_PROJECT_ENVIRONMENT, environmentName);

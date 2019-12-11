@@ -145,7 +145,7 @@ describe('EnvironmentLogs', () => {
   describe('state with data', () => {
     beforeEach(() => {
       actionMocks.setInitData.mockImplementation(() => {
-        state.pods.options = mockPods;
+        state.pods.options = mockPods.map(pod => pod.name);
         [state.pods.current] = state.pods.options;
 
         state.environments.current = mockEnvName;
@@ -155,7 +155,7 @@ describe('EnvironmentLogs', () => {
         state.logs.lines = mockLines;
       });
       actionMocks.showPodLogs.mockImplementation(podName => {
-        state.pods.options = mockPods;
+        state.pods.options = mockPods.map(pod => pod.name);
         [state.pods.current] = podName;
 
         state.logs.isComplete = false;
@@ -191,7 +191,7 @@ describe('EnvironmentLogs', () => {
       expect(items.length).toBe(mockPods.length);
       mockPods.forEach((pod, i) => {
         const item = items.at(i);
-        expect(item.text()).toBe(pod);
+        expect(item.text()).toBe(pod.name);
       });
     });
 
@@ -231,7 +231,7 @@ describe('EnvironmentLogs', () => {
         items.at(index).vm.$emit('click');
 
         expect(actionMocks.showPodLogs).toHaveBeenCalledTimes(1);
-        expect(actionMocks.showPodLogs).toHaveBeenLastCalledWith(mockPods[index]);
+        expect(actionMocks.showPodLogs).toHaveBeenLastCalledWith(mockPods[index].name);
       });
 
       it('refresh button, trace is refreshed', () => {

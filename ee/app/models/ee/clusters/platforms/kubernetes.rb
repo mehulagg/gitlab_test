@@ -118,25 +118,22 @@ module EE
 
         def handle_exceptions(resource_not_found_error_message, opts, &block)
           yield
-        rescue Kubeclient::ResourceNotFoundError
-          {
-            error: resource_not_found_error_message,
-            status: :error
-          }.merge(opts)
-        rescue Kubeclient::HttpError => e
-          ::Gitlab::Sentry.track_acceptable_exception(e)
-
-          {
-            error: _('Kubernetes API returned status code: %{error_code}') % {
-              error_code: e.error_code
-            },
-            status: :error
-          }.merge(opts)
         rescue => e
           ::Gitlab::Sentry.track_acceptable_exception(e)
 
+          message = case e.class
+                    when Kubeclient::ResourceNotFoundError
+                      resource_not_found_error_message
+                    when Kubeclient::HttpError
+                      _('Kubernetes API returned status code: %{error_code}') % {
+                        error_code: e.error_code
+                      }
+                    else
+                      e.message
+                    end
+
           {
-            error: e.message,
+            error: message,
             status: :error
           }.merge(opts)
         end

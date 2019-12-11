@@ -125,12 +125,8 @@ describe('Logs Store Mutations', () => {
 
       mutations[types.REDRAW_POD_DROPDOWN](state);
 
-      expect(state.pods).toEqual(
-        expect.objectContaining({
-          current: mockPodName,
-          options: mockPods,
-        }),
-      );
+      expect(state.pods.current).toEqual(mockPodName);
+      expect(state.pods.options).toEqual(mockPods.map(pod => pod.name));
     });
   });
 });

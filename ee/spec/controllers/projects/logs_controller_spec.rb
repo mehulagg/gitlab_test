@@ -43,6 +43,7 @@ describe Projects::LogsController do
 
       it 'renders empty logs page if no environment exists' do
         empty_project.add_maintainer(user)
+
         get :index, params: { namespace_id: empty_project.namespace, project_id: empty_project }
 
         expect(response).to be_ok

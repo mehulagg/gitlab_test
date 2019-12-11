@@ -9,11 +9,7 @@ module Projects
     end
 
     def index
-      if environment.nil?
-        render :empty_logs
-      else
-        render :index
-      end
+      render environment.nil? ? :empty_logs : :index
     end
 
     def k8s
@@ -22,9 +18,10 @@ module Projects
 
       result = PodLogsService.new(environment, params: filter_params).execute
 
-      if result[:status] == :processing
+      case result[:status]
+      when :processing
         head :accepted
-      elsif result[:status] == :success
+      when :success
         render json: result
       else
         render status: :bad_request, json: result
@@ -41,9 +38,11 @@ module Projects
         }
 
         deployment_platform = e.deployment_platform
-        unless deployment_platform.nil?
-          item[:es_enabled] = !deployment_platform.elastic_stack_client.nil?
-          item[:pods] = deployment_platform.kubeclient.get_pods(namespace: e.deployment_namespace).map do |pod|
+        if deployment_platform
+          item[:es_enabled] = !!deployment_platform.elastic_stack_client
+
+          pods = deployment_platform.kubeclient.get_pods(namespace: e.deployment_namespace)
+          item[:pods] = pods.map do |pod|
             {
               name: pod.metadata.name,
               containers: pod.spec.containers.map(&:name)

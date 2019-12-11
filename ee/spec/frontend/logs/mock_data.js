@@ -2,28 +2,28 @@ export const mockProjectPath = 'root/autodevops-deploy';
 export const mockEnvName = 'production';
 export const mockEnvironmentsEndpoint = `${mockProjectPath}/environments.json`;
 
-export const mockPodName = 'production-764c58d697-aaaaa';
-export const mockPods = [
-  mockPodName,
-  'production-764c58d697-bbbbb',
-  'production-764c58d697-ccccc',
-  'production-764c58d697-ddddd',
+const makeMockPods = (name, env) => [
+  { name: name, containers: [] },
+  { name: env + '-764c58d697-bbbbb', containers: [] },
+  { name: env + '-764c58d697-ccccc', containers: [] },
+  { name: env + '-764c58d697-ddddd', containers: [] },
 ];
 
-const makeMockEnvironment = (name, mockPods) => ({
+const makeMockEnvironment = name => ({
   name,
   namespace: 'foo',
   es_enabled: true,
-  pods: mockPods.map(name => {
-    return { name: name };
-  }),
+  pods: makeMockPods(mockPodName, name),
 });
+
+export const mockPodName = 'production-764c58d697-aaaaa';
+export const mockPods = makeMockPods(mockPodName, mockEnvName);
 
 export const mockEnvironment = makeMockEnvironment(mockEnvName, mockPods);
 export const mockEnvironments = [
   mockEnvironment,
-  makeMockEnvironment('staging', mockPods),
-  makeMockEnvironment('review/a-feature', mockPods),
+  makeMockEnvironment('staging'),
+  makeMockEnvironment('review/a-feature'),
 ];
 
 export const mockLines = [

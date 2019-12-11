@@ -8,7 +8,7 @@ import {
   showPodLogs,
   showEnvironment,
   fetchEnvironments,
-  fetchLogs
+  fetchLogs,
 } from 'ee/logs/stores/actions';
 import axios from '~/lib/utils/axios_utils';
 
@@ -19,7 +19,6 @@ import {
   mockPodName,
   mockEnvironmentsEndpoint,
   mockEnvironments,
-  mockPods,
   mockLines,
   mockEnvName,
 } from '../mock_data';
@@ -157,8 +156,6 @@ describe('Logs Store actions', () => {
       mock
         .onGet(endpoint, { params: { environment_name: mockEnvName, pod_name: mockPodName } })
         .reply(200, {
-          pod_name: mockPodName,
-          pods: mockPods,
           logs: mockLines,
         });
 
@@ -184,8 +181,6 @@ describe('Logs Store actions', () => {
       const endpoint = `/${mockProjectPath}/-/logs/k8s.json`;
 
       mock.onGet(endpoint, { params: { environment_name: mockEnvName } }).reply(200, {
-        pod_name: mockPodName,
-        pods: mockPods,
         logs: mockLines,
       });
       mock.onGet(endpoint).replyOnce(202); // mock reactive cache

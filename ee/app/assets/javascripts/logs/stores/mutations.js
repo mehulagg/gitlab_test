@@ -14,8 +14,8 @@ export default {
     state.environments.options = [];
     state.environments.isLoading = true;
   },
-  [types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS](state, data) {
-    state.environments.options = data;
+  [types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS](state, environmentOptions) {
+    state.environments.options = environmentOptions;
     state.environments.isLoading = false;
   },
   [types.RECEIVE_ENVIRONMENTS_DATA_ERROR](state) {
@@ -46,8 +46,8 @@ export default {
   },
   [types.REDRAW_POD_DROPDOWN](state) {
     state.pods.options = state.environments.options
-      .find(env => env.name == state.environments.current)
-      .pods.map(pod => pod.name);
+      .find(({ name }) => name === state.environments.current)
+      .pods.map(({ name }) => name);
 
     // current pod can be set on load by the ?pod_name= parameter
     // otherwise default to selecting the first in the list
