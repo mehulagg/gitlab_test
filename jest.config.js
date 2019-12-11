@@ -40,9 +40,10 @@ const moduleNameMapper = {
   '^spec/test_constants$': '<rootDir>/spec/frontend/helpers/test_constants',
 };
 
-const moduleDirectories = !Boolean(process.env.CI)
-  ? ['<rootDir>/node_modules', 'node_modules']
-  : ['node_modules'];
+let moduleDirectories = ['node_modules'];
+if (process.env.CI) {
+  moduleDirectories = ['<rootDir>/node_modules', 'node_modules'];
+}
 
 const collectCoverageFrom = ['<rootDir>/app/assets/javascripts/**/*.{js,vue}'];
 
