@@ -5,11 +5,6 @@
 With the GitLab NPM Registry, every
 project can have its own space to store NPM packages.
 
-![GitLab NPM Registry](img/npm_package_view_v12_5.png)
-
-NOTE: **Note:**
-Only [scoped](https://docs.npmjs.com/misc/scope) packages are supported.
-
 ## Enabling the NPM Registry
 
 NOTE: **Note:**
@@ -65,15 +60,15 @@ Registry.
 ## Authenticating to the GitLab NPM Registry
 
 If a project is private or you want to upload an NPM package to GitLab,
-credentials will need to be provided for authentication. Support is available for [OAuth tokens](../../../api/oauth2.md#resource-owner-password-credentials-flow) or [personal access tokens](../../profile/personal_access_tokens.md).
+credentials will need to be provided for authentication. Support is available for [personal access tokens](../../profile/personal_access_tokens.md)
+[CI job tokens](https://docs.gitlab.com/ee/user/project/new_ci_build_permissions_model.html#job-token) or [OAuth tokens](../../../api/oauth2.md#resource-owner-password-credentials-flow).
 
 CAUTION: **2FA is only supported with personal access tokens:**
 If you have 2FA enabled, you need to use a [personal access token](../../profile/personal_access_tokens.md) with OAuth headers with the scope set to `api`. Standard OAuth tokens won't be able to authenticate to the GitLab NPM Registry.
 
-### Authenticating with an OAuth token
+### Authenticating with the GitLab Personal Access Token
 
-To authenticate with an [OAuth token](../../../api/oauth2.md#resource-owner-password-credentials-flow)
-or [personal access token](../../profile/personal_access_tokens.md), add a corresponding section to your `.npmrc` file:
+To authenticate with your [personal access token](../../profile/personal_access_tokens.md), add a corresponding section to your `.npmrc` file:
 
 ```ini
 ; Set URL for your scoped packages.
@@ -90,16 +85,27 @@ or [personal access token](../../profile/personal_access_tokens.md), add a corre
 ```
 
 Replace `<your_project_id>` with your project ID which can be found on the home page
-of your project and `<your_token>` with your OAuth or personal access token.
+of your project and `<your_token>` with your personal access token.
 
 If you have a self-hosted GitLab installation, replace `gitlab.com` with your
 domain name.
 
 You should now be able to download and upload NPM packages to your project.
 
-NOTE: **Note:**
-If you encounter an error message with [Yarn](https://yarnpkg.com/en/), see the
-[troubleshooting section](#troubleshooting).
+### Authenticating with a CI job token
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/9104) in GitLab Premium 12.5.
+
+If you’re using NPM with GitLab CI/CD, a CI job token can be used instead of a personal access token.
+The token will inherit the permissions of the user that generates the pipeline.
+
+Add a corresponding section to your `.npmrc` file:
+
+```ini
+@foo:registry=https://gitlab.com/api/v4/packages/npm/
+//gitlab.com/api/v4/packages/npm/:_authToken=${env.CI_JOB_TOKEN}
+//gitlab.com/api/v4/projects/{env.CI_PROJECT_ID>/packages/npm/:_authToken=${env.CI_JOB_TOKEN}
+```
 
 ### Using variables to avoid hard-coding auth token values
 
@@ -122,21 +128,6 @@ Then, you could run `npm publish` either locally or via GitLab CI/CD:
 
 - **GitLab CI/CD:** Set an `NPM_TOKEN` [variable](../../../ci/variables/README.md)
   under your project's **Settings > CI/CD > Variables**.
-
-### Authenticating with a CI job token
-
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/9104) in GitLab Premium 12.5.
-
-If you’re using NPM with GitLab CI/CD, a CI job token can be used instead of a personal access token.
-The token will inherit the permissions of the user that generates the pipeline.
-
-Add a corresponding section to your `.npmrc` file:
-
-```ini
-@foo:registry=https://gitlab.com/api/v4/packages/npm/
-//gitlab.com/api/v4/packages/npm/:_authToken=${env.CI_JOB_TOKEN}
-//gitlab.com/api/v4/projects/{env.CI_PROJECT_ID>/packages/npm/:_authToken=${env.CI_JOB_TOKEN}
-```
 
 ## Uploading packages
 
@@ -165,8 +156,7 @@ npm publish
 You can then navigate to your project's **Packages** page and see the uploaded
 packages or even delete them.
 
-If you attempt to publish a package with a name that already exists within
-a given scope, you will receive a `403 Forbidden!` error.
+![GitLab NPM Registry](img/npm_package_view_v12_5.png)
 
 ## Uploading a package with the same version twice
 
@@ -174,6 +164,25 @@ You cannot upload a package with the same name and version twice, unless you
 delete the existing package first. This aligns with npmjs.org's behavior, with
 the exception that npmjs.org does not allow users to ever publish the same version
 more than once, even if it has been deleted.
+
+If you attempt to publish a package with a name that already exists within
+a given scope, you will receive a `403 Forbidden!` error.
+
+## NPM dependencies metadata
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/11867) in GitLab Premium 12.6.
+
+Starting from GitLab 12.6, new packages published to the GitLab NPM Registry expose the following attributes to the NPM client:
+
+- name
+- version
+- dist-tags
+- dependencies
+  - dependencies
+  - devDependencies
+  - bundleDependencies
+  - peerDependencies
+  - deprecated
 
 ## Troubleshooting
 
@@ -226,19 +235,3 @@ And the `.npmrc` file should look like:
 //gitlab.com/api/v4/packages/npm/:_authToken=<your_oauth_token>
 @foo:registry=https://gitlab.com/api/v4/packages/npm/
 ```
-
-## NPM dependencies metadata
-
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/11867) in GitLab Premium 12.6.
-
-Starting from GitLab 12.6, new packages published to the GitLab NPM Registry expose the following attributes to the NPM client:
-
-- name
-- version
-- dist-tags
-- dependencies
-  - dependencies
-  - devDependencies
-  - bundleDependencies
-  - peerDependencies
-  - deprecated
