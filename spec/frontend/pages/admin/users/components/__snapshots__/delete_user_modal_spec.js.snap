@@ -37,27 +37,5 @@ exports[`User Operation confirmation modal renders modal with form included 1`] 
       value=""
     />
   </form>
-   
-  <gl-button-stub
-    variant="secondary"
-  >
-    Cancel
-  </gl-button-stub>
-   
-  <gl-button-stub
-    disabled="true"
-    variant="warning"
-  >
-    
-      secondaryAction
-    
-  </gl-button-stub>
-   
-  <gl-button-stub
-    disabled="true"
-    variant="danger"
-  >
-    action
-  </gl-button-stub>
 </div>
 `;

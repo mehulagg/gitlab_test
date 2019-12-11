@@ -1,7 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`User Operation confirmation modal renders modal with form included 1`] = `
-<gl-modal-stub
+<glmodal-stub
+  modalactionprimary="[object Object]"
   modalclass=""
   modalid="user-operation-modal"
   ok-title="action"
