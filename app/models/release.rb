@@ -25,6 +25,7 @@ class Release < ApplicationRecord
 
   validates :description, :project, :tag, presence: true
   validates_associated :milestone_releases, message: -> (_, obj) { obj[:value].map(&:errors).map(&:full_messages).join(",") }
+  validates :tag, uniqueness: { scope: :project_id }
 
   scope :sorted, -> { order(released_at: :desc) }
   scope :preloaded, -> { includes(project: :namespace) }

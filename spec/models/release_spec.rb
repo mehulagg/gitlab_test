@@ -22,6 +22,7 @@ RSpec.describe Release do
     it { is_expected.to validate_presence_of(:project) }
     it { is_expected.to validate_presence_of(:description) }
     it { is_expected.to validate_presence_of(:tag) }
+    it { is_expected.to validate_uniqueness_of(:tag).scoped_to(:project_id) }
 
     context 'when a release exists in the database without a name' do
       it 'does not require name' do
