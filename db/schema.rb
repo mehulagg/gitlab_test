@@ -2957,7 +2957,6 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
     t.string "scopes", default: "--- []\n", null: false
     t.boolean "impersonation", default: false, null: false
     t.string "token_digest"
-    t.boolean "expire_notification_delivered", default: false, null: false
     t.index ["token_digest"], name: "index_personal_access_tokens_on_token_digest", unique: true
     t.index ["user_id", "expires_at"], name: "index_pat_on_user_id_and_expires_at"
     t.index ["user_id"], name: "index_personal_access_tokens_on_user_id"
