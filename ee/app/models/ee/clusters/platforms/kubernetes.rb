@@ -121,10 +121,10 @@ module EE
         rescue => e
           ::Gitlab::Sentry.track_acceptable_exception(e)
 
-          message = case e.class
-                    when Kubeclient::ResourceNotFoundError
+          message = case e.class.to_s
+                    when 'Kubeclient::ResourceNotFoundError'
                       resource_not_found_error_message
-                    when Kubeclient::HttpError
+                    when 'Kubeclient::HttpError'
                       _('Kubernetes API returned status code: %{error_code}') % {
                         error_code: e.error_code
                       }
