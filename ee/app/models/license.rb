@@ -114,7 +114,6 @@ class License < ApplicationRecord
     insights
     licenses_list
     license_management
-    personal_access_token_expiration_policy
     pod_logs
     prometheus_alerts
     pseudonymizer

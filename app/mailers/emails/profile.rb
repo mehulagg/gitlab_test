@@ -46,5 +46,3 @@ module Emails
     end
   end
 end
-
-Emails::Profile.prepend_if_ee('EE::Emails::Profile')

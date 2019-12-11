@@ -71,5 +71,3 @@ class PersonalAccessToken < ApplicationRecord
     "gitlab:personal_access_token:#{user_id}"
   end
 end
-
-PersonalAccessToken.prepend_if_ee('EE::PersonalAccessToken')
