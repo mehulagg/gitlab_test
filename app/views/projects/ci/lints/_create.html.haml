@@ -45,4 +45,5 @@
       %b= _("Status:")
       = _("syntax is incorrect")
   %pre
-    = @error
+    - @errors.each do |message|
+      %p= message

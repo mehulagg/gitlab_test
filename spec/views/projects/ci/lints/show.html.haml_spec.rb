@@ -87,7 +87,7 @@ describe 'projects/ci/lints/show' do
     before do
       assign(:project, project)
       assign(:status, false)
-      assign(:error, 'Undefined error')
+      assign(:errors, ['Undefined error'])
     end
 
     it 'shows error message' do
