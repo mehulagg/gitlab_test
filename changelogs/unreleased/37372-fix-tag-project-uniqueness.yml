@@ -1,0 +1,5 @@
+---
+title: Added uniqueness constraint in the Release model
+merge_request: 21559
+author:
+type: fixed
