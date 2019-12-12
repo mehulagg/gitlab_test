@@ -18,9 +18,9 @@ module QA
         end
 
         def host_name
-          if Scenario.gitlab_address.include?('localhost')
+          if Runtime::Scenario.gitlab_address.include?('localhost')
             'localhost'
-          elsif QA::Runtime::Env.running_in_ci? && !URI.parse(Scenario.gitlab_address).host.include?('test') # Running in CI against static env
+          elsif QA::Runtime::Env.running_in_ci? && !URI.parse(Runtime::Scenario.gitlab_address).host.include?('test') # Running in CI against static env
             fetch_current_ip_address
           else
             super
