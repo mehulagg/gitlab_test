@@ -1,16 +1,5 @@
-const updateCache = (store, query, data, transform) => {
-  const cacheData = store.readQuery({
-    query: query.query,
-    variables: query.variables,
-  });
-
-  const newCacheData = transform(query, cacheData, data);
-
-  store.writeQuery(newCacheData);
-};
-
-const transformDesignUpload = (query, cachedData, designManagementUpload) => {
-  const newDesigns = cachedData.project.issue.designCollection.designs.edges.reduce(
+export const transformDesignUpload = (query, cacheData, designManagementUpload) => {
+  const newDesigns = cacheData.project.issue.designCollection.designs.edges.reduce(
     (acc, design) => {
       if (!acc.find(d => d.filename === design.node.filename)) {
         acc.push(design.node);
@@ -34,7 +23,7 @@ const transformDesignUpload = (query, cachedData, designManagementUpload) => {
 
   const newVersions = [
     ...(newVersionNode || []),
-    ...cachedData.project.issue.designCollection.versions.edges,
+    ...cacheData.project.issue.designCollection.versions.edges,
   ];
 
   const updatedDesigns = {
@@ -54,16 +43,14 @@ const transformDesignUpload = (query, cachedData, designManagementUpload) => {
 
   return {
     ...query,
-    project: {
-      ...cachedData.project,
-      issue: {
-        ...cachedData.issue,
-        designCollection: updatedDesigns,
+    data: {
+      project: {
+        ...cacheData.project,
+        issue: {
+          ...cacheData.project.issue,
+          designCollection: updatedDesigns,
+        },
       },
     },
   };
-};
-
-export const afterDesignUpload = (store, query, data) => {
-  updateCache(store, query, data, transformDesignUpload);
 };
