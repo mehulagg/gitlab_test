@@ -63,7 +63,7 @@ module Gitlab
           end
 
           def official?
-            Release::DEV_OFFICIAL_TAG_REGEX.match?(api_get!.fetch('version'))
+            Release::DEV_OFFICIAL_TAG_REGEX.match?(version)
           end
 
           def tag_end
