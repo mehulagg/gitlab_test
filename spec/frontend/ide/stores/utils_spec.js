@@ -693,4 +693,88 @@ describe('Multi-file store utils', () => {
       });
     });
   });
+
+  describe('isFileDeletedAndReadded', () => {
+    const f = { ...file('sample'), content: 'sample', raw: 'sample' };
+
+    it.each([
+      {
+        entry: { ...f, tempFile: true },
+        staged: { ...f, deleted: true },
+        output: true,
+      },
+      {
+        entry: { ...f, content: 'changed' },
+        staged: { ...f, content: 'changed' },
+        output: false,
+      },
+      {
+        entry: { ...f, content: 'changed' },
+        output: false,
+      },
+    ])(
+      'checks staged and unstaged files to see if a file was deleted and readded (case %#)',
+      ({ entry, staged, output }) => {
+        const state = {
+          entries: {
+            [entry.path]: entry,
+          },
+          stagedFiles: [],
+        };
+        if (staged) state.stagedFiles.push(staged);
+
+        expect(utils.isFileDeletedAndReadded(state, entry.path)).toBe(output);
+      },
+    );
+  });
+
+  describe('getDiffInfo', () => {
+    const f = { ...file('sample'), content: 'sample', raw: 'sample' };
+    it.each([
+      {
+        entry: { ...f, tempFile: true },
+        staged: { ...f, deleted: true },
+        output: { deleted: false, changed: false, tempFile: false },
+      },
+      {
+        entry: { ...f, tempFile: true, content: 'changed', raw: '' },
+        staged: { ...f, deleted: true },
+        output: { deleted: false, changed: true, tempFile: false },
+      },
+      {
+        entry: { ...f, content: 'changed' },
+        output: { changed: true },
+      },
+      {
+        entry: { ...f, content: 'sample' },
+        staged: { ...f, content: 'changed' },
+        output: { changed: false },
+      },
+      {
+        entry: { ...f, deleted: true },
+        output: { deleted: true, changed: false },
+      },
+      {
+        entry: { ...f, prevPath: 'old_path' },
+        output: { renamed: true, changed: false },
+      },
+      {
+        entry: { ...f, prevPath: 'old_path', content: 'changed' },
+        output: { renamed: true, changed: true },
+      },
+    ])(
+      'compares changes in a file entry and returns a resulting diff info (case %#)',
+      ({ entry, staged, output }) => {
+        const state = {
+          entries: {
+            [entry.path]: entry,
+          },
+          stagedFiles: [],
+        };
+        if (staged) state.stagedFiles.push(staged);
+
+        expect(utils.getDiffInfo(state, entry.path)).toEqual(expect.objectContaining(output));
+      },
+    );
+  });
 });

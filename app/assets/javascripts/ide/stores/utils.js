@@ -278,3 +278,28 @@ export const pathsAreEqual = (a, b) => {
 // if the contents of a file dont end with a newline, this function adds a newline
 export const addFinalNewlineIfNeeded = content =>
   content.charAt(content.length - 1) !== '\n' ? `${content}\n` : content;
+
+export const isFileDeletedAndReadded = (state, path) => {
+  const stagedFile = state.stagedFiles.find(f => f.path === path);
+  const file = state.entries[path];
+  return Boolean(stagedFile && stagedFile.deleted && file.tempFile);
+};
+
+// checks if any diff exists in the staged or unstaged changes for this path
+export const getDiffInfo = (state, path) => {
+  const stagedFile = state.stagedFiles.find(f => f.path === path);
+  const file = state.entries[path];
+  const renamed = file.prevPath ? file.path !== file.prevPath : false;
+  const deletedAndReadded = isFileDeletedAndReadded(state, path);
+  const deleted = deletedAndReadded ? false : file.deleted;
+  const tempFile = deletedAndReadded ? false : file.tempFile;
+  const changed = file.content !== (deletedAndReadded ? stagedFile.raw : file.raw);
+
+  return {
+    exists: changed || renamed || deleted || tempFile,
+    changed,
+    renamed,
+    deleted,
+    tempFile,
+  };
+};
