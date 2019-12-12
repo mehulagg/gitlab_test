@@ -4,6 +4,8 @@ module QA
   module Service
     module DockerRun
       class Jenkins < Base
+        include QA::Runtime::IPAddress
+
         def initialize
           @image = 'registry.gitlab.com/gitlab-org/gitlab-qa/jenkins-gitlab:version1'
           @name = 'jenkins-server'
@@ -16,9 +18,13 @@ module QA
         end
 
         def host_name
-          return 'localhost' unless QA::Runtime::Env.running_in_ci?
-
-          super
+          if Scenario.gitlab_address.include?('localhost')
+            'localhost'
+          elsif QA::Runtime::Env.running_in_ci? && !URI.parse(Scenario.gitlab_address).host.include?('test') # Running in CI against static env
+            fetch_current_ip_address
+          else
+            super
+          end
         end
 
         def register!

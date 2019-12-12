@@ -15,7 +15,10 @@ module QA
           end
 
           def visit!
-            page.visit URI.join(Base.host, path).to_s
+            url = URI.join(Base.host, path).to_s
+            Runtime::Logger.debug(%Q[Visiting #{self.class.name} at "#{url}"])
+
+            page.visit url
           end
         end
       end
