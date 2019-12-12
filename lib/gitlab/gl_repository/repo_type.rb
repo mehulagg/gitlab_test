@@ -81,6 +81,20 @@ module Gitlab
       def default_container_accessor
         -> (id) { Project.find_by_id(id) }
       end
+
+      def valid?(repository_path)
+        repository_path.end_with?(path_suffix) &&
+        (
+          !snippet? ||
+          repository_path.match?(Gitlab::PathRegex.full_snippets_repository_path_regex)
+        )
+      end
+
+      private
+
+      def default_repositorable_accessor
+        -> (id) { Project.find_by_id(id) }
+      end
     end
   end
 end
