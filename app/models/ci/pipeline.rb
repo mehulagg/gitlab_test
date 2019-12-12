@@ -688,11 +688,8 @@ module Ci
     # If pipeline is a child of another pipeline, include the parent
     # and the siblings, otherwise return only itself.
     def same_family_pipeline_ids
-      upstream_pipeline = triggered_by_pipeline
-
-      if upstream_pipeline && upstream_pipeline.project == self.project
-        child_pipeline_ids = upstream_pipeline&.triggered_pipelines&.pluck(:id) || []
-        child_pipeline_ids + [upstream_pipeline.id]
+      if (parent = parent_pipeline)
+        [parent.id] + parent.child_pipelines.pluck(:id)
       else
         [self.id]
       end
