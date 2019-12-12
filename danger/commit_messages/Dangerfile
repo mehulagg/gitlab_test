@@ -44,8 +44,8 @@ def gitlab_danger
   @gitlab_danger ||= GitlabDanger.new(helper.gitlab_helper)
 end
 
-def squash?
-  gitlab_danger.ci? ? gitlab.mr_json['squash'] : false
+def squash?(mr)
+  gitlab_danger.ci? ? mr['squash'] : false
 end
 
 def fail_commit(commit, message)
@@ -256,8 +256,8 @@ def lint_commit(commit) # rubocop:disable Metrics/AbcSize
   failures
 end
 
-def lint_mr_title
-  mr_title = helper.sanitize_mr_title(gitlab.mr_json["title"])
+def lint_mr_title(mr_title)
+  mr_title = helper.sanitize_mr_title(mr_title)
 
   failures = false
 
@@ -292,11 +292,11 @@ def lint_mr_title
   failures
 end
 
-def lint_commits(commits)
+def lint_commits(mr, commits)
   failed_message_intro = 'One or more commit messages do'
-  if squash?
+  if squash?(mr)
     failed_message_intro = "This MR's title does"
-    failed = [lint_mr_title]
+    failed = [lint_mr_title(mr["title"])]
   else
     failed = commits.select do |commit|
       lint_commit(commit)
@@ -345,5 +345,5 @@ if count_filtered_commits(git.commits) > 10 && !ce_upstream?
       'Please rebase these commits into a smaller number of commits.'
   )
 else
-  lint_commits(git.commits)
+  lint_commits(gitlab.mr_json, git.commits)
 end
