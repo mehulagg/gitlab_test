@@ -333,43 +333,135 @@ describe('IDE store file mutations', () => {
     });
   });
 
-  describe('STAGE_CHANGE', () => {
-    beforeEach(() => {
-      mutations.STAGE_CHANGE(localState, localFile.path);
-    });
-
-    it('adds file into stagedFiles array', () => {
-      expect(localState.stagedFiles.length).toBe(1);
-      expect(localState.stagedFiles[0]).toEqual(localFile);
-    });
-
-    it('updates stagedFile if it is already staged', () => {
-      localFile.raw = 'testing 123';
-
-      mutations.STAGE_CHANGE(localState, localFile.path);
-
-      expect(localState.stagedFiles.length).toBe(1);
-      expect(localState.stagedFiles[0].raw).toEqual('testing 123');
-    });
-  });
-
-  describe('UNSTAGE_CHANGE', () => {
-    let f;
+  describe.each`
+    mutationName        | mutation
+    ${'STAGE_CHANGE'}   | ${mutations.STAGE_CHANGE}
+    ${'UNSTAGE_CHANGE'} | ${mutations.UNSTAGE_CHANGE}
+  `('$mutationName', ({ mutation }) => {
+    let unstagedFile;
+    let stagedFile;
 
     beforeEach(() => {
-      f = { ...file(), type: 'blob', staged: true };
+      unstagedFile = {
+        ...file('file'),
+        type: 'blob',
+        raw: 'original content',
+        content: 'changed content',
+      };
 
-      localState.stagedFiles.push(f);
-      localState.changedFiles.push(f);
-      localState.entries[f.path] = f;
+      stagedFile = {
+        ...unstagedFile,
+        content: 'staged content',
+        staged: true,
+      };
+
+      localState.changedFiles.push(unstagedFile);
+      localState.stagedFiles.push(stagedFile);
+      localState.entries[unstagedFile.path] = unstagedFile;
     });
 
-    it('removes from stagedFiles array', () => {
-      mutations.UNSTAGE_CHANGE(localState, f.path);
+    it('removes all changes of a file if staged and unstaged change contents are equal', () => {
+      unstagedFile.content = 'original content';
+
+      mutation(localState, unstagedFile.path);
+
+      expect(localState.entries.file).toEqual(
+        expect.objectContaining({
+          content: 'original content',
+          staged: false,
+          changed: false,
+        }),
+      );
 
       expect(localState.stagedFiles.length).toBe(0);
-      expect(localState.changedFiles.length).toBe(1);
+      expect(localState.changedFiles.length).toBe(0);
     });
+
+    it('removes all changes of a file if a file is deleted and a new file with same content is added', () => {
+      stagedFile.deleted = true;
+      unstagedFile.tempFile = true;
+      unstagedFile.content = 'original content';
+
+      mutation(localState, unstagedFile.path);
+
+      expect(localState.stagedFiles.length).toBe(0);
+      expect(localState.changedFiles.length).toBe(0);
+
+      expect(localState.entries.file).toEqual(
+        expect.objectContaining({
+          content: 'original content',
+          deleted: false,
+          tempFile: false,
+        }),
+      );
+    });
+
+    it('merges deleted and added file into a changed file if the contents differ', () => {
+      stagedFile.deleted = true;
+      unstagedFile.tempFile = true;
+      unstagedFile.content = 'hello';
+
+      mutation(localState, unstagedFile.path);
+
+      expect(localState.stagedFiles.length).toBe(mutation === mutations.STAGE_CHANGE ? 1 : 0);
+      expect(localState.changedFiles.length).toBe(mutation === mutations.STAGE_CHANGE ? 0 : 1);
+
+      expect(unstagedFile).toEqual(
+        expect.objectContaining({
+          content: 'hello',
+          staged: mutation === mutations.STAGE_CHANGE,
+          deleted: false,
+          tempFile: false,
+          changed: true,
+        }),
+      );
+    });
+
+    it('does not remove file from stagedFiles and changedFiles if the file was renamed, even if the contents are equal', () => {
+      unstagedFile.content = 'original content';
+      unstagedFile.prevPath = 'old_file';
+
+      mutation(localState, unstagedFile.path);
+
+      expect(localState.entries.file).toEqual(
+        expect.objectContaining({
+          content: 'original content',
+          staged: mutation === mutations.STAGE_CHANGE,
+          changed: false,
+          prevPath: 'old_file',
+        }),
+      );
+
+      expect(localState.stagedFiles.length).toBe(mutation === mutations.STAGE_CHANGE ? 1 : 0);
+      expect(localState.changedFiles.length).toBe(mutation === mutations.STAGE_CHANGE ? 0 : 1);
+    });
+
+    if (mutation === mutations.STAGE_CHANGE) {
+      it('adds file into stagedFiles array', () => {
+        localState.stagedFiles.length = 0;
+
+        mutation(localState, unstagedFile.path);
+
+        expect(localState.stagedFiles.length).toBe(1);
+        expect(localState.stagedFiles[0]).toEqual(unstagedFile);
+      });
+
+      it('updates stagedFile if it is already staged', () => {
+        unstagedFile.raw = 'testing 123';
+
+        mutation(localState, unstagedFile.path);
+
+        expect(localState.stagedFiles.length).toBe(1);
+        expect(localState.stagedFiles[0].raw).toEqual('testing 123');
+      });
+    } else {
+      it('removes file from stagedFiles array', () => {
+        mutation(localState, unstagedFile.path);
+
+        expect(localState.stagedFiles.length).toBe(0);
+        expect(localState.changedFiles.length).toBe(1);
+      });
+    }
   });
 
   describe('TOGGLE_FILE_CHANGED', () => {

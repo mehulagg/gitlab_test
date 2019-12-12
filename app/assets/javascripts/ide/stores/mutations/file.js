@@ -166,12 +166,16 @@ export default {
   },
   [types.STAGE_CHANGE](state, path) {
     const stagedFile = state.stagedFiles.find(f => f.path === path);
+    const diff = getDiffInfo(state, path);
 
     Object.assign(state, {
       changedFiles: state.changedFiles.filter(f => f.path !== path),
       entries: Object.assign(state.entries, {
         [path]: Object.assign(state.entries[path], {
-          staged: true,
+          staged: diff.exists,
+          changed: diff.changed,
+          tempFile: diff.tempFile,
+          deleted: diff.deleted,
         }),
       }),
     });
@@ -187,10 +191,17 @@ export default {
         }),
       });
     }
+
+    if (!diff.exists) {
+      Object.assign(state, {
+        stagedFiles: state.stagedFiles.filter(f => f.path !== path),
+      });
+    }
   },
   [types.UNSTAGE_CHANGE](state, path) {
     const changedFile = state.changedFiles.find(f => f.path === path);
     const stagedFile = state.stagedFiles.find(f => f.path === path);
+    const diff = getDiffInfo(state, path);
 
     if (!changedFile && stagedFile) {
       Object.assign(state.entries[path], {
@@ -206,11 +217,20 @@ export default {
       });
     }
 
+    if (!diff.exists) {
+      Object.assign(state, {
+        changedFiles: state.changedFiles.filter(f => f.path !== path),
+      });
+    }
+
     Object.assign(state, {
       stagedFiles: state.stagedFiles.filter(f => f.path !== path),
       entries: Object.assign(state.entries, {
         [path]: Object.assign(state.entries[path], {
           staged: false,
+          changed: diff.changed,
+          tempFile: diff.tempFile,
+          deleted: diff.deleted,
         }),
       }),
     });
