@@ -39,6 +39,12 @@ export default {
       message: this.currentMessage,
       modalId: 'set-user-status-modal',
       noEmoji: true,
+      modalPrimary: {
+        text: s__('SetStatusModal|Set status'),
+      },
+      modalCancel: {
+        text: s__('SetStatusModal|Remove status'),
+      },
     };
   },
   computed: {
@@ -160,10 +166,9 @@ export default {
   <gl-modal
     :title="s__('SetStatusModal|Set a status')"
     :modal-id="modalId"
-    :ok-title="s__('SetStatusModal|Set status')"
-    :cancel-title="s__('SetStatusModal|Remove status')"
-    ok-variant="success"
     modal-class="set-user-status-modal"
+    :modal-action-primary="modalPrimary"
+    :modal-action-cancel="modalCancel"
     @shown="setupEmojiListAndAutocomplete"
     @hide="hideEmojiMenu"
     @ok="setStatus"
