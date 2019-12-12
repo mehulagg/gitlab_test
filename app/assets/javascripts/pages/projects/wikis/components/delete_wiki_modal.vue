@@ -27,6 +27,15 @@ export default {
       default: '',
     },
   },
+  data() {
+    return {
+      modalPrimary: {
+        text: s__('WikiPageConfirmDelete|Delete page'),
+        attributes: [{ variant: 'danger' }],
+      },
+      modalCancel: { text: s__('Cancel') },
+    };
+  },
   computed: {
     modalId() {
       return 'delete-wiki-modal';
@@ -57,10 +66,10 @@ export default {
     <button v-gl-modal="modalId" type="button" class="btn btn-danger">{{ __('Delete') }}</button>
     <gl-modal
       :title="title"
-      :ok-title="s__('WikiPageConfirmDelete|Delete page')"
       :modal-id="modalId"
       title-tag="h4"
-      ok-variant="danger"
+      :modal-action-primary="modalPrimary"
+      :modal-action-cancel="modalCancel"
       @ok="onSubmit"
     >
       {{ message }}
