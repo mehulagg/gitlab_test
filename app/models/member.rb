@@ -283,6 +283,15 @@ class Member < ApplicationRecord
     end
   end
 
+  def last_moved_into_paid_seat
+    entity_type = source_type == "Namespace" ? "Group" : "Project"
+    events = SecurityEvent.select("details", "created_at").where(entity_type: entity_type, entity_id: source_id).as_json
+
+    event = events.select { |e| e["details"][:target_id] == id && e["details"][:add].present? }.min_by { |fe| fe["created_at"] }
+
+    event["created_at"]
+  end
+
   def real_source_type
     source_type
   end
