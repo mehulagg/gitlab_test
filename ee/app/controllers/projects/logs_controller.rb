@@ -38,16 +38,16 @@ module Projects
         }
 
         deployment_platform = e.deployment_platform
-        if deployment_platform
-          item[:es_enabled] = !!deployment_platform.elastic_stack_client
+        next item if deployment_platform.nil?
 
-          pods = deployment_platform.kubeclient.get_pods(namespace: e.deployment_namespace)
-          item[:pods] = pods.map do |pod|
-            {
-              name: pod.metadata.name,
-              containers: pod.spec.containers.map(&:name)
-            }
-          end
+        item[:es_enabled] = !!deployment_platform.elastic_stack_client
+
+        pods = deployment_platform.kubeclient.get_pods(namespace: e.deployment_namespace)
+        item[:pods] = pods.map do |pod|
+          {
+            name: pod.metadata.name,
+            containers: pod.spec.containers.map(&:name)
+          }
         end
 
         item
