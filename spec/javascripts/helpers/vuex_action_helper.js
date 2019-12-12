@@ -10,6 +10,7 @@ const noop = () => {};
  * @param {Array} [expectedMutations=[]] mutations expected to be committed
  * @param {Array} [expectedActions=[]] actions expected to be dispatched
  * @param {Function} [done=noop] to be executed after the tests
+ * @param {Object} [store] If store is passed, all actions and mutations will call through.
  * @return {Promise}
  *
  * @example
@@ -47,6 +48,7 @@ export default (
   expectedMutations = [],
   expectedActions = [],
   done = noop,
+  store = null,
 ) => {
   const mutations = [];
   const actions = [];
@@ -60,6 +62,9 @@ export default (
     }
 
     mutations.push(mutation);
+
+    // if a store is passed, callThrough
+    if (store) store.commit(type, mutationPayload);
   };
 
   // mock dispatch
@@ -71,6 +76,9 @@ export default (
     }
 
     actions.push(dispatchedAction);
+
+    // if a store is passed, callThrough
+    if (store) store.dispatch(type, actionPayload);
   };
 
   const validateResults = () => {
