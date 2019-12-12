@@ -16,6 +16,7 @@ describe Epic do
     it { is_expected.to belong_to(:parent) }
     it { is_expected.to have_many(:epic_issues) }
     it { is_expected.to have_many(:children) }
+    it { is_expected.to have_many(:user_mentions).class_name("EpicUserMention") }
   end
 
   describe 'validations' do
@@ -98,46 +99,6 @@ describe Epic do
 
     it 'orders by relative_position ASC' do
       expect(epics(:relative_position)).to eq([epic2, epic3, epic1, epic4])
-    end
-  end
-
-  describe '.groups_user_can_read_epics' do
-    let_it_be(:private_group) { create(:group, :private) }
-    let_it_be(:epic) { create(:epic, group: private_group) }
-
-    subject do
-      epics = described_class.where(id: epic.id)
-      described_class.groups_user_can_read_epics(epics, user)
-    end
-
-    it 'does not return inaccessible groups' do
-      expect(subject).to be_empty
-    end
-
-    context 'with authorized user' do
-      before do
-        private_group.add_developer(user)
-      end
-
-      context 'with epics enabled' do
-        before do
-          stub_licensed_features(epics: true)
-        end
-
-        it 'returns epic groups user can access' do
-          expect(subject).to eq [private_group]
-        end
-      end
-
-      context 'with epics are disabled' do
-        before do
-          stub_licensed_features(epics: false)
-        end
-
-        it 'returns an empty list' do
-          expect(subject).to be_empty
-        end
-      end
     end
   end
 

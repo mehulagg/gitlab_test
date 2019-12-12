@@ -41,6 +41,7 @@ class License < ApplicationRecord
   ].freeze
 
   EEP_FEATURES = EES_FEATURES + %i[
+    adjourned_deletion_for_projects_and_groups
     admin_audit_log
     auditor_user
     batch_comments
@@ -95,6 +96,7 @@ class License < ApplicationRecord
     scoped_labels
     service_desk
     smartcard_auth
+    group_timelogs
     type_of_work_analytics
     unprotection_restrictions
     ci_project_subscriptions
@@ -105,14 +107,13 @@ class License < ApplicationRecord
     cluster_health
     container_scanning
     dast
-    dependency_list
     dependency_scanning
     epics
     group_ip_restriction
     incident_management
     insights
-    licenses_list
     license_management
+    personal_access_token_expiration_policy
     pod_logs
     prometheus_alerts
     pseudonymizer

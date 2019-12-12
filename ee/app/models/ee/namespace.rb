@@ -25,6 +25,8 @@ module EE
     prepended do
       include EachBatch
 
+      attr_writer :root_ancestor
+
       belongs_to :plan
 
       has_one :namespace_statistics
@@ -110,6 +112,7 @@ module EE
       ::Feature.enabled?(feature, self) ||
         (::Feature.enabled?(feature) && feature_available?(feature))
     end
+    alias_method :alpha_feature_available?, :beta_feature_available?
 
     # Checks features (i.e. https://about.gitlab.com/pricing/) availabily
     # for a given Namespace plan. This method should consider ancestor groups

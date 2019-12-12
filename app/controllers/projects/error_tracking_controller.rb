@@ -55,6 +55,7 @@ class Projects::ErrorTrackingController < Projects::ApplicationController
 
     render json: {
       errors: serialize_errors(result[:issues]),
+      pagination: result[:pagination],
       external_url: service.external_url
     }
   end
@@ -76,8 +77,10 @@ class Projects::ErrorTrackingController < Projects::ApplicationController
 
     return if handle_errors(result)
 
+    result_with_syntax_highlight = Gitlab::ErrorTracking::StackTraceHighlightDecorator.decorate(result[:latest_event])
+
     render json: {
-      error: serialize_error_event(result[:latest_event])
+      error: serialize_error_event(result_with_syntax_highlight)
     }
   end
 
@@ -111,7 +114,7 @@ class Projects::ErrorTrackingController < Projects::ApplicationController
   end
 
   def list_issues_params
-    params.permit([:search_term, :sort])
+    params.permit(:search_term, :sort, :cursor)
   end
 
   def list_projects_params

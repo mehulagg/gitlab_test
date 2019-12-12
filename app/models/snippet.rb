@@ -37,6 +37,7 @@ class Snippet < ApplicationRecord
   belongs_to :project
 
   has_many :notes, as: :noteable, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
+  has_many :user_mentions, class_name: "SnippetUserMention"
 
   delegate :name, :email, to: :author, prefix: true, allow_nil: true
 
@@ -46,6 +47,18 @@ class Snippet < ApplicationRecord
     length: { maximum: 255 }
 
   validates :content, presence: true
+  validates :content,
+            length: {
+              maximum: ->(_) { Gitlab::CurrentSettings.snippet_size_limit },
+              message: -> (_, data) do
+                current_value = ActiveSupport::NumberHelper.number_to_human_size(data[:value].size)
+                max_size = ActiveSupport::NumberHelper.number_to_human_size(Gitlab::CurrentSettings.snippet_size_limit)
+
+                _("is too long (%{current_value}). The maximum size is %{max_size}.") % { current_value: current_value, max_size: max_size }
+              end
+            },
+            if: :content_changed?
+
   validates :visibility_level, inclusion: { in: Gitlab::VisibilityLevel.values }
 
   # Scopes
@@ -56,6 +69,8 @@ class Snippet < ApplicationRecord
   scope :fresh, -> { order("created_at DESC") }
   scope :inc_author, -> { includes(:author) }
   scope :inc_relations_for_view, -> { includes(author: :status) }
+
+  attr_mentionable :description
 
   participant :author
   participant :notes_with_associations

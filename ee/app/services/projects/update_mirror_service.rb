@@ -6,6 +6,10 @@ module Projects
     UpdateError = Class.new(Error)
 
     def execute
+      unless can?(current_user, :access_git)
+        return error('The mirror user is not allowed to perform any git operations.')
+      end
+
       unless project.mirror?
         return success
       end
@@ -47,7 +51,7 @@ module Projects
         local_branch = local_branches[name]
 
         if local_branch.nil?
-          result = CreateBranchService.new(project, current_user).execute(name, upstream_branch.dereferenced_target.sha, create_master_if_empty: false)
+          result = ::Branches::CreateService.new(project, current_user).execute(name, upstream_branch.dereferenced_target.sha, create_master_if_empty: false)
           if result[:status] == :error
             errors << result[:message]
           end

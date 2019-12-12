@@ -142,7 +142,7 @@ describe User, :do_not_mock_admin_mode do
           expect(user.namespace).to receive(:any_project_has_container_registry_tags?).and_return(true)
           user.username = 'new_path'
           expect(user).to be_invalid
-          expect(user.errors.messages[:username].first).to match('cannot be changed if a personal project has container registry tags')
+          expect(user.errors.messages[:username].first).to eq(_('cannot be changed if a personal project has container registry tags.'))
         end
       end
 
@@ -527,6 +527,35 @@ describe User, :do_not_mock_admin_mode do
 
         expect(described_class.by_username('CAMELCASED'))
           .to contain_exactly(user)
+      end
+    end
+
+    describe '.with_expiring_and_not_notified_personal_access_tokens' do
+      let_it_be(:user1) { create(:user) }
+      let_it_be(:user2) { create(:user) }
+      let_it_be(:user3) { create(:user) }
+
+      let_it_be(:expired_token) { create(:personal_access_token, user: user1, expires_at: 2.days.ago) }
+      let_it_be(:revoked_token) { create(:personal_access_token, user: user1, revoked: true) }
+      let_it_be(:valid_token_and_notified) { create(:personal_access_token, user: user2, expires_at: 2.days.from_now, expire_notification_delivered: true) }
+      let_it_be(:valid_token1) { create(:personal_access_token, user: user2, expires_at: 2.days.from_now) }
+      let_it_be(:valid_token2) { create(:personal_access_token, user: user2, expires_at: 2.days.from_now) }
+      let(:users) { described_class.with_expiring_and_not_notified_personal_access_tokens(from) }
+
+      context 'in one day' do
+        let(:from) { 1.day.from_now }
+
+        it "doesn't include an user" do
+          expect(users).to be_empty
+        end
+      end
+
+      context 'in three days' do
+        let(:from) { 3.days.from_now }
+
+        it 'only includes user2' do
+          expect(users).to contain_exactly(user2)
+        end
       end
     end
   end
@@ -2810,6 +2839,7 @@ describe User, :do_not_mock_admin_mode do
 
       context 'when admin mode is enabled' do
         before do
+          Gitlab::Auth::CurrentUserMode.new(user).request_admin_mode!
           Gitlab::Auth::CurrentUserMode.new(user).enable_admin_mode!(password: user.password)
         end
 
@@ -3184,7 +3214,7 @@ describe User, :do_not_mock_admin_mode do
 
             it 'causes the user save to fail' do
               expect(user.update(username: new_username)).to be_falsey
-              expect(user.namespace.errors.messages[:path].first).to eq('has already been taken')
+              expect(user.namespace.errors.messages[:path].first).to eq(_('has already been taken'))
             end
 
             it 'adds the namespace errors to the user' do

@@ -61,6 +61,9 @@ GET /projects
 | `id_after`                    | integer | no | Limit results to projects with IDs greater than the specified ID |
 | `id_before`                   | integer | no | Limit results to projects with IDs less than the specified ID |
 
+NOTE: **Note:**
+This endpoint supports [keyset pagination](README.md#keyset-based-pagination) for selected `order_by` options.
+
 When `simple=true` or the user is unauthenticated this returns something like:
 
 ```json
@@ -238,6 +241,19 @@ When the user is authenticated and `simple` is not set this returns something li
     "remove_source_branch_after_merge": false,
     "request_access_enabled": false,
     "merge_method": "merge",
+    "auto_devops_enabled": true,
+    "auto_devops_deploy_strategy": "continuous",
+    "repository_storage": "default",
+    "approvals_before_merge": 0,
+    "mirror": false,
+    "mirror_user_id": 45,
+    "mirror_trigger_builds": false,
+    "only_mirror_protected_branches": false,
+    "mirror_overwrites_diverged_branches": false,
+    "external_authorization_classification_label": null,
+    "packages_enabled": true,
+    "service_desk_enabled": false,
+    "service_desk_address": null,
     "statistics": {
       "commit_count": 12,
       "storage_size": 2066080,
@@ -308,6 +324,9 @@ GET /users/:user_id/projects
 | `min_access_level` | integer | no | Limit by current user minimal [access level](members.md) |
 | `id_after`                    | integer | no | Limit results to projects with IDs greater than the specified ID |
 | `id_before`                   | integer | no | Limit results to projects with IDs less than the specified ID |
+
+NOTE: **Note:**
+This endpoint supports [keyset pagination](README.md#keyset-based-pagination) for selected `order_by` options.
 
 ```json
 [
@@ -451,6 +470,19 @@ GET /users/:user_id/projects
     "remove_source_branch_after_merge": false,
     "request_access_enabled": false,
     "merge_method": "merge",
+    "auto_devops_enabled": true,
+    "auto_devops_deploy_strategy": "continuous",
+    "repository_storage": "default",
+    "approvals_before_merge": 0,
+    "mirror": false,
+    "mirror_user_id": 45,
+    "mirror_trigger_builds": false,
+    "only_mirror_protected_branches": false,
+    "mirror_overwrites_diverged_branches": false,
+    "external_authorization_classification_label": null,
+    "packages_enabled": true,
+    "service_desk_enabled": false,
+    "service_desk_address": null,
     "statistics": {
       "commit_count": 12,
       "storage_size": 2066080,
@@ -643,6 +675,19 @@ Example response:
     "remove_source_branch_after_merge": false,
     "request_access_enabled": false,
     "merge_method": "merge",
+    "auto_devops_enabled": true,
+    "auto_devops_deploy_strategy": "continuous",
+    "repository_storage": "default",
+    "approvals_before_merge": 0,
+    "mirror": false,
+    "mirror_user_id": 45,
+    "mirror_trigger_builds": false,
+    "only_mirror_protected_branches": false,
+    "mirror_overwrites_diverged_branches": false,
+    "external_authorization_classification_label": null,
+    "packages_enabled": true,
+    "service_desk_enabled": false,
+    "service_desk_address": null,
     "statistics": {
       "commit_count": 12,
       "storage_size": 2066080,
@@ -771,6 +816,19 @@ GET /projects/:id
   "printing_merge_requests_link_enabled": true,
   "request_access_enabled": false,
   "merge_method": "merge",
+  "auto_devops_enabled": true,
+  "auto_devops_deploy_strategy": "continuous",
+  "repository_storage": "default",
+  "approvals_before_merge": 0,
+  "mirror": false,
+  "mirror_user_id": 45,
+  "mirror_trigger_builds": false,
+  "only_mirror_protected_branches": false,
+  "mirror_overwrites_diverged_branches": false,
+  "external_authorization_classification_label": null,
+  "packages_enabled": true,
+  "service_desk_enabled": false,
+  "service_desk_address": null,
   "statistics": {
     "commit_count": 37,
     "storage_size": 1038090,

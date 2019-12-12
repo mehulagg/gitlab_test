@@ -2,10 +2,10 @@ import Vuex from 'vuex';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import { GlLoadingIcon } from '@gitlab/ui';
 import { TEST_HOST } from 'spec/test_constants';
+import Mousetrap from 'mousetrap';
 import App from '~/diffs/components/app.vue';
 import NoChanges from '~/diffs/components/no_changes.vue';
 import DiffFile from '~/diffs/components/diff_file.vue';
-import Mousetrap from 'mousetrap';
 import CompareVersions from '~/diffs/components/compare_versions.vue';
 import HiddenFilesWarning from '~/diffs/components/hidden_files_warning.vue';
 import CommitWidget from '~/diffs/components/commit_widget.vue';
@@ -41,6 +41,7 @@ describe('diffs/components/app', () => {
         changesEmptyStateIllustration: '',
         dismissEndpoint: '',
         showSuggestPopover: true,
+        useSingleDiffStyle: false,
         ...props,
       },
       store,
@@ -77,16 +78,17 @@ describe('diffs/components/app', () => {
       spyOn(wrapper.vm, 'startRenderDiffsQueue');
     });
 
-    it('calls fetchDiffFiles if diffsBatchLoad is not enabled', () => {
+    it('calls fetchDiffFiles if diffsBatchLoad is not enabled', done => {
       wrapper.vm.glFeatures.diffsBatchLoad = false;
       wrapper.vm.fetchData(false);
 
       expect(wrapper.vm.fetchDiffFiles).toHaveBeenCalled();
-      wrapper.vm.$nextTick(() => {
-        expect(wrapper.vm.setDiscussions).toHaveBeenCalled();
+      setTimeout(() => {
         expect(wrapper.vm.startRenderDiffsQueue).toHaveBeenCalled();
         expect(wrapper.vm.fetchDiffFilesMeta).not.toHaveBeenCalled();
         expect(wrapper.vm.fetchDiffFilesBatch).not.toHaveBeenCalled();
+
+        done();
       });
     });
 
@@ -97,7 +99,6 @@ describe('diffs/components/app', () => {
 
       expect(wrapper.vm.fetchDiffFiles).toHaveBeenCalled();
       wrapper.vm.$nextTick(() => {
-        expect(wrapper.vm.setDiscussions).toHaveBeenCalled();
         expect(wrapper.vm.startRenderDiffsQueue).toHaveBeenCalled();
         expect(wrapper.vm.fetchDiffFilesMeta).not.toHaveBeenCalled();
         expect(wrapper.vm.fetchDiffFilesBatch).not.toHaveBeenCalled();
@@ -110,7 +111,6 @@ describe('diffs/components/app', () => {
 
       expect(wrapper.vm.fetchDiffFiles).not.toHaveBeenCalled();
       wrapper.vm.$nextTick(() => {
-        expect(wrapper.vm.setDiscussions).toHaveBeenCalled();
         expect(wrapper.vm.startRenderDiffsQueue).toHaveBeenCalled();
         expect(wrapper.vm.fetchDiffFilesMeta).toHaveBeenCalled();
         expect(wrapper.vm.fetchDiffFilesBatch).toHaveBeenCalled();

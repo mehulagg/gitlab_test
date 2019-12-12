@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import component from 'ee/vue_shared/security_reports/components/modal.vue';
 import createState from 'ee/vue_shared/security_reports/store/state';
+import SolutionCard from 'ee/vue_shared/security_reports/components/solution_card.vue';
 import { mount, shallowMount } from '@vue/test-utils';
 
 describe('Security Reports modal', () => {
@@ -21,6 +22,7 @@ describe('Security Reports modal', () => {
         propsData.modal.vulnerability.dismissalFeedback = {
           author: { username: 'jsmith', name: 'John Smith' },
           pipeline: { id: '123', path: '#' },
+          created_at: new Date().toString(),
         };
         mountComponent({ propsData }, mount);
       });
@@ -36,6 +38,26 @@ describe('Security Reports modal', () => {
       });
     });
 
+    describe('with about to be dismissed issue', () => {
+      beforeEach(() => {
+        const propsData = {
+          modal: createState().modal,
+          canDismissVulnerability: true,
+        };
+        propsData.modal.vulnerability.dismissalFeedback = {
+          author: { username: 'jsmith', name: 'John Smith' },
+          pipeline: { id: '123', path: '#' },
+        };
+        mountComponent({ propsData }, mount);
+      });
+
+      it('renders dismissal author and hides associated pipeline', () => {
+        expect(wrapper.text().trim()).toContain('John Smith');
+        expect(wrapper.text().trim()).toContain('@jsmith');
+        expect(wrapper.text().trim()).not.toContain('#123');
+      });
+    });
+
     describe('with not dismissed issue', () => {
       beforeEach(() => {
         const propsData = {
@@ -45,8 +67,8 @@ describe('Security Reports modal', () => {
         mountComponent({ propsData }, mount);
       });
 
-      it('renders the footer', () => {
-        expect(wrapper.classes('modal-hide-footer')).toBe(false);
+      it('allows the vulnerability to be dismissed', () => {
+        expect(wrapper.find({ ref: 'footer' }).props('canDismissVulnerability')).toBe(true);
       });
     });
 
@@ -116,6 +138,29 @@ describe('Security Reports modal', () => {
         );
       });
     });
+
+    describe('with a resolved issue', () => {
+      beforeEach(() => {
+        const propsData = {
+          modal: createState().modal,
+          canCreateIssue: true,
+          canCreateMergeRequest: true,
+          canDismissVulnerability: true,
+        };
+        propsData.modal.vulnerability.remediations = [{ diff: '123' }];
+        propsData.modal.isResolved = true;
+        mountComponent({ propsData });
+      });
+
+      it('disallows any actions in the footer', () => {
+        expect(wrapper.find({ ref: 'footer' }).props()).toMatchObject({
+          canCreateIssue: false,
+          canCreateMergeRequest: false,
+          canDownloadPatch: false,
+          canDismissVulnerability: false,
+        });
+      });
+    });
   });
 
   describe('without permissions', () => {
@@ -126,8 +171,13 @@ describe('Security Reports modal', () => {
       mountComponent({ propsData });
     });
 
-    it('does not display the footer', () => {
-      expect(wrapper.classes('modal-hide-footer')).toBe(true);
+    it('disallows any actions in the footer', () => {
+      expect(wrapper.find({ ref: 'footer' }).props()).toMatchObject({
+        canCreateIssue: false,
+        canCreateMergeRequest: false,
+        canDownloadPatch: false,
+        canDismissVulnerability: false,
+      });
     });
   });
 
@@ -216,8 +266,13 @@ describe('Security Reports modal', () => {
       mountComponent({ propsData });
     });
 
-    it('does not display the footer', () => {
-      expect(wrapper.classes('modal-hide-footer')).toBe(true);
+    it('disallows any actions in the footer', () => {
+      expect(wrapper.find({ ref: 'footer' }).props()).toMatchObject({
+        canCreateIssue: false,
+        canCreateMergeRequest: false,
+        canDownloadPatch: false,
+        canDismissVulnerability: false,
+      });
     });
   });
 
@@ -270,7 +325,7 @@ describe('Security Reports modal', () => {
       propsData.modal.vulnerability.solution = solution;
       mountComponent({ propsData }, mount);
 
-      const solutionCard = wrapper.find('.js-solution-card');
+      const solutionCard = wrapper.find(SolutionCard);
 
       expect(solutionCard.exists()).toBe(true);
       expect(solutionCard.text()).toContain(solution);
@@ -282,13 +337,15 @@ describe('Security Reports modal', () => {
         modal: createState().modal,
       };
       const summary = 'Upgrade to 123';
-      propsData.modal.vulnerability.remediations = [{ summary }];
+      const diff = 'foo';
+      propsData.modal.vulnerability.remediations = [{ summary, diff }];
       mountComponent({ propsData }, mount);
 
-      const solutionCard = wrapper.find('.js-solution-card');
+      const solutionCard = wrapper.find(SolutionCard);
 
       expect(solutionCard.exists()).toBe(true);
       expect(solutionCard.text()).toContain(summary);
+      expect(solutionCard.props('hasDownload')).toBe(true);
       expect(wrapper.contains('hr')).toBe(false);
     });
 
@@ -298,7 +355,7 @@ describe('Security Reports modal', () => {
       };
       mountComponent({ propsData }, mount);
 
-      const solutionCard = wrapper.find('.js-solution-card');
+      const solutionCard = wrapper.find(SolutionCard);
 
       expect(solutionCard.exists()).toBe(true);
       expect(wrapper.contains('hr')).toBe(false);

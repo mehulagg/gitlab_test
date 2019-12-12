@@ -1,9 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import MockAdapter from 'axios-mock-adapter';
-import { GlModal } from '@gitlab/ui';
+import { GlModal, GlButton } from '@gitlab/ui';
 import Dashboard from 'ee/monitoring/components/dashboard.vue';
-import { createStore } from '~/monitoring/stores';
-import axios from '~/lib/utils/axios_utils';
 import {
   metricsGroupsAPIResponse,
   mockApiEndpoint,
@@ -12,6 +10,9 @@ import {
 } from 'spec/monitoring/mock_data';
 import propsData from 'spec/monitoring/components/dashboard_spec';
 import CustomMetricsFormFields from 'ee/custom_metrics/components/custom_metrics_form_fields.vue';
+import Tracking from '~/tracking';
+import { createStore } from '~/monitoring/stores';
+import axios from '~/lib/utils/axios_utils';
 import * as types from '~/monitoring/stores/mutation_types';
 
 const localVue = createLocalVue();
@@ -20,13 +21,18 @@ describe('Dashboard', () => {
   let Component;
   let mock;
   let store;
-  let vm;
+  let wrapper;
+
+  const findAddMetricButton = () => wrapper.vm.$refs.addMetricBtn;
 
   const createComponent = (props = {}) => {
-    vm = shallowMount(localVue.extend(Component), {
+    wrapper = shallowMount(localVue.extend(Component), {
       propsData: {
         ...propsData,
         ...props,
+      },
+      stubs: {
+        GlButton,
       },
       store,
       sync: false,
@@ -71,48 +77,93 @@ describe('Dashboard', () => {
   }
 
   describe('add custom metrics', () => {
+    const defaultProps = {
+      customMetricsPath: '/endpoint',
+      hasMetrics: true,
+      documentationPath: '/path/to/docs',
+      settingsPath: '/path/to/settings',
+      clustersPath: '/path/to/clusters',
+      projectPath: '/path/to/project',
+      metricsEndpoint: mockApiEndpoint,
+      tagsPath: '/path/to/tags',
+      emptyGettingStartedSvgPath: '/path/to/getting-started.svg',
+      emptyLoadingSvgPath: '/path/to/loading.svg',
+      emptyNoDataSvgPath: '/path/to/no-data.svg',
+      emptyNoDataSmallSvgPath: '/path/to/no-data-small.svg',
+      emptyUnableToConnectSvgPath: '/path/to/unable-to-connect.svg',
+      environmentsEndpoint: '/root/hello-prometheus/environments/35',
+      currentEnvironmentName: 'production',
+      prometheusAlertsAvailable: true,
+      alertsEndpoint: '/endpoint',
+    };
+
     describe('when not available', () => {
       beforeEach(() => {
         createComponent({
           customMetricsAvailable: false,
-          customMetricsPath: '/endpoint',
-          hasMetrics: true,
-          prometheusAlertsAvailable: true,
-          alertsEndpoint: '/endpoint',
+          ...defaultProps,
         });
       });
 
       it('does not render add button on the dashboard', () => {
-        expect(vm.element.querySelector('.js-add-metric-button')).toBe(null);
+        expect(findAddMetricButton()).toBeUndefined();
       });
     });
 
     describe('when available', () => {
+      let origPage;
+
       beforeEach(done => {
+        spyOn(Tracking, 'event');
+
         createComponent({
           customMetricsAvailable: true,
-          customMetricsPath: '/endpoint',
-          hasMetrics: true,
-          prometheusAlertsAvailable: true,
-          alertsEndpoint: '/endpoint',
+          ...defaultProps,
         });
 
-        setupComponentStore(vm);
+        setupComponentStore(wrapper);
 
-        vm.vm.$nextTick(done);
+        origPage = document.body.dataset.page;
+        document.body.dataset.page = 'projects:environments:metrics';
+
+        wrapper.vm.$nextTick(done);
+      });
+
+      afterEach(() => {
+        document.body.dataset.page = origPage;
       });
 
       it('renders add button on the dashboard', () => {
-        expect(vm.element.querySelector('.js-add-metric-button').innerText).toContain('Add metric');
+        expect(findAddMetricButton()).toBeDefined();
       });
 
       it('uses modal for custom metrics form', () => {
-        expect(vm.find(GlModal).exists()).toBe(true);
-        expect(vm.find(GlModal).attributes().modalid).toBe('add-metric');
+        expect(wrapper.find(GlModal).exists()).toBe(true);
+        expect(wrapper.find(GlModal).attributes().modalid).toBe('add-metric');
+      });
+
+      it('adding new metric is tracked', done => {
+        const submitButton = wrapper.vm.$refs.submitCustomMetricsFormBtn;
+        wrapper.setData({ formIsValid: true });
+        wrapper.vm.$nextTick(() => {
+          submitButton.$el.click();
+          wrapper.vm.$nextTick(() => {
+            expect(Tracking.event).toHaveBeenCalledWith(
+              document.body.dataset.page,
+              'click_button',
+              {
+                label: 'add_new_metric',
+                property: 'modal',
+                value: undefined,
+              },
+            );
+            done();
+          });
+        });
       });
 
       it('renders custom metrics form fields', () => {
-        expect(vm.find(CustomMetricsFormFields).exists()).toBe(true);
+        expect(wrapper.find(CustomMetricsFormFields).exists()).toBe(true);
       });
     });
   });

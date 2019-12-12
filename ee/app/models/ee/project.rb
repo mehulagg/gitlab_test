@@ -11,6 +11,7 @@ module EE
     extend ::Gitlab::Cache::RequestCache
     include ::Gitlab::Utils::StrongMemoize
     include ::EE::GitlabRoutingHelper # rubocop: disable Cop/InjectEnterpriseEditionModule
+    include IgnorableColumns
 
     GIT_LFS_DOWNLOAD_OPERATION = 'download'.freeze
 
@@ -23,10 +24,7 @@ module EE
       include DeprecatedApprovalsBeforeMerge
       include UsageStatistics
 
-      self.ignored_columns += %i[
-        mirror_last_update_at
-        mirror_last_successful_update_at
-      ]
+      ignore_columns :mirror_last_update_at, :mirror_last_successful_update_at, remove_after: '2019-12-15', remove_with: '12.6'
 
       before_save :set_override_pull_mirror_available, unless: -> { ::Gitlab::CurrentSettings.mirror_available }
       before_save :set_next_execution_timestamp_to_now, if: ->(project) { project.mirror? && project.mirror_changed? && project.import_state }
@@ -193,6 +191,19 @@ module EE
         joins('LEFT JOIN services ON services.project_id = projects.id AND services.type = \'GitlabSlackApplicationService\' AND services.active IS true')
           .where('services.id IS NULL')
       end
+
+      def inner_join_design_management
+        join_statement =
+          arel_table
+            .join(DesignManagement::Design.arel_table, Arel::Nodes::InnerJoin)
+            .on(arel_table[:id].eq(DesignManagement::Design.arel_table[:project_id]))
+
+        joins(join_statement.join_sources)
+      end
+
+      def count_designs
+        inner_join_design_management.distinct.count
+      end
     end
 
     def can_store_security_reports?
@@ -286,6 +297,7 @@ module EE
       ::Feature.enabled?(feature, self) ||
         (::Feature.enabled?(feature) && feature_available?(feature))
     end
+    alias_method :alpha_feature_available?, :beta_feature_available?
 
     def push_audit_events_enabled?
       ::Feature.enabled?(:repository_push_audit_event, self)
@@ -379,6 +391,7 @@ module EE
       default_issues_tracker? || jira_tracker_active?
     end
 
+    # TODO: Clean up this method in the https://gitlab.com/gitlab-org/gitlab/issues/33329
     def approvals_before_merge
       return 0 unless feature_available?(:merge_request_approvers)
 
@@ -387,24 +400,24 @@ module EE
 
     def visible_approval_rules
       strong_memoize(:visible_approval_rules) do
-        visible_regular_approval_rules + approval_rules.report_approver
+        visible_user_defined_rules + approval_rules.report_approver
       end
     end
 
-    def visible_regular_approval_rules
-      strong_memoize(:visible_regular_approval_rules) do
-        regular_rules = approval_rules.regular.order(:id)
+    def visible_user_defined_rules
+      strong_memoize(:visible_user_defined_rules) do
+        rules = approval_rules.regular_or_any_approver.order(rule_type: :desc, id: :asc)
 
-        next regular_rules.take(1) unless multiple_approval_rules_available?
+        next rules.take(1) unless multiple_approval_rules_available?
 
-        regular_rules
+        rules
       end
     end
 
+    # TODO: Clean up this method in the https://gitlab.com/gitlab-org/gitlab/issues/33329
     def min_fallback_approvals
       strong_memoize(:min_fallback_approvals) do
-        visible_regular_approval_rules.map(&:approvals_required).max ||
-          approvals_before_merge.to_i
+        visible_user_defined_rules.map(&:approvals_required).max.to_i
       end
     end
 
@@ -650,16 +663,24 @@ module EE
         # hashed storage requirement for existing design management projects.
         # See https://gitlab.com/gitlab-org/gitlab/issues/13428#note_238729038
         (hashed_storage?(:repository) || ::Feature.disabled?(:design_management_require_hashed_storage, self, default_enabled: true)) &&
-        # Check both feature availability on the license, as well as the feature
-        # flag, because we don't want to enable design_management by default on
-        # on prem installs yet.
-        # See https://gitlab.com/gitlab-org/gitlab/issues/13709
-        feature_available?(:design_management) &&
-        ::Feature.enabled?(:design_management_flag, self, default_enabled: true)
+        feature_available?(:design_management)
     end
 
     def design_repository
-      @design_repository ||= DesignManagement::Repository.new(self)
+      strong_memoize(:design_repository) do
+        DesignManagement::Repository.new(self)
+      end
+    end
+
+    override(:expire_caches_before_rename)
+    def expire_caches_before_rename(old_path)
+      super
+
+      design = ::Repository.new("#{old_path}#{EE::Gitlab::GlRepository::DESIGN.path_suffix}", self)
+
+      if design.exists?
+        design.before_delete
+      end
     end
 
     def alerts_service_available?
@@ -693,6 +714,10 @@ module EE
       return false unless feature_available?(:packages)
 
       packages.where(package_type: package_type).exists?
+    end
+
+    def license_compliance
+      strong_memoize(:license_compliance) { SCA::LicenseCompliance.new(self) }
     end
 
     private

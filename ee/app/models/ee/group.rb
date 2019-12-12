@@ -13,6 +13,7 @@ module EE
       include Vulnerable
       include TokenAuthenticatable
       include InsightsFeature
+      include HasTimelogsReport
 
       add_authentication_token_field :saml_discovery_token, unique: false, token_generator: -> { Devise.friendly_token(8) }
 
@@ -57,17 +58,13 @@ module EE
       validate :custom_project_templates_group_allowed, if: :custom_project_templates_group_id_changed?
 
       scope :aimed_for_deletion, -> (date) { joins(:deletion_schedule).where('group_deletion_schedules.marked_for_deletion_on <= ?', date) }
+      scope :with_deletion_schedule, -> { preload(:deletion_schedule) }
 
       scope :where_group_links_with_provider, ->(provider) do
         joins(:ldap_group_links).where(ldap_group_links: { provider: provider })
       end
 
-      scope :with_project_templates, -> do
-        joins("INNER JOIN projects ON projects.namespace_id = namespaces.custom_project_templates_group_id")
-          .distinct
-      end
-
-      scope :with_project_templates_optimized, -> { where.not(custom_project_templates_group_id: nil) }
+      scope :with_project_templates, -> { where.not(custom_project_templates_group_id: nil) }
 
       scope :with_custom_file_templates, -> do
         preload(
@@ -75,6 +72,15 @@ module EE
           projects: :route,
           shared_projects: :route
         ).where.not(file_template_project_id: nil)
+      end
+
+      scope :for_epics, ->(epics) do
+        if ::Feature.enabled?(:optimized_groups_user_can_read_epics_method)
+          epics_query = epics.select(:group_id)
+          joins("INNER JOIN (#{epics_query.to_sql}) as epics on epics.group_id = namespaces.id")
+        else
+          where(id: epics.select(:group_id))
+        end
       end
 
       state_machine :ldap_sync_status, namespace: :ldap_sync, initial: :ready do
@@ -116,6 +122,29 @@ module EE
           group.ldap_sync_last_update_at = DateTime.now
           group.save
         end
+      end
+    end
+
+    class_methods do
+      def groups_user_can_read_epics(groups, user, same_root: false)
+        groups = ::Gitlab::GroupPlansPreloader.new.preload(groups)
+
+        # if we are sure that all groups have the same root group, we can
+        # preset root_ancestor for all of them to avoid an additional SQL query
+        # done for each group permission check:
+        # https://gitlab.com/gitlab-org/gitlab/issues/11539
+        preset_root_ancestor_for(groups) if same_root && ::Feature.enabled?(:preset_group_root)
+
+        DeclarativePolicy.user_scope do
+          groups.select { |group| Ability.allowed?(user, :read_epic, group) }
+        end
+      end
+
+      def preset_root_ancestor_for(groups)
+        return groups if groups.size < 2
+
+        root = groups.first.root_ancestor
+        groups.drop(1).each { |group| group.root_ancestor = root }
       end
     end
 
@@ -246,6 +275,12 @@ module EE
     override :supports_events?
     def supports_events?
       feature_available?(:epics)
+    end
+
+    def marked_for_deletion?
+      return false unless feature_available?(:adjourned_deletion_for_projects_and_groups)
+
+      marked_for_deletion_on.present?
     end
 
     private

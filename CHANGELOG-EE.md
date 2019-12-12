@@ -1,5 +1,35 @@
 Please view this file on the master branch, on stable branches it's out of date.
 
+## 12.5.4
+
+### Security (1 change)
+
+- Fix stale Elasticsearch permissions when moving group from public group to private parent group.
+
+
+## 12.5.3
+
+### Performance (1 change)
+
+- Geo - Improve query performance to determine job artifacts to sync when selective sync is enabled. !19583
+
+### Other (1 change)
+
+- Geo - Does not schedule duplicated jobs while backfilling uploads, LFS objects and job artifacts. !20324
+
+
+## 12.5.1
+
+### Security (6 changes)
+
+- Protect Jira integration endpoints from guest users.
+- Fix private comment Elasticsearch leak on project search scope.
+- Filter snippet search results by feature visibility.
+- Hide AWS secret on Admin Integration page.
+- Fail pull mirror when mirror user is blocked.
+- Prevent IDOR when adding users to protected environments.
+
+
 ## 12.5.0
 
 ### Security (5 changes)
@@ -85,6 +115,10 @@ Please view this file on the master branch, on stable branches it's out of date.
 - Remove plaintext tokens for feature flags clients. !18923
 - Remove IIFEs from jira_connect.js file. !19248 (nuwe1)
 
+
+## 12.4.5
+
+- No changes.
 
 ## 12.4.3
 
@@ -222,6 +256,25 @@ Please view this file on the master branch, on stable branches it's out of date.
 - Updated sidebar navigation icons to be horizontally centered when bar is condensed. !16820
 - Pin major version of SAST analyzers. !17110
 - Docs for protected branch code owner approval API. !17132
+
+
+## 12.3.9
+
+### Security (1 change)
+
+- Fix stale Elasticsearch permissions when moving group from public group to private parent group.
+
+
+## 12.3.7
+
+### Security (6 changes)
+
+- Protect Jira integration endpoints from guest users.
+- Fix private comment Elasticsearch leak on project search scope.
+- Filter snippet search results by feature visibility.
+- Hide AWS secret on Admin Integration page.
+- Fail pull mirror when mirror user is blocked.
+- Prevent IDOR when adding users to protected environments.
 
 
 ## 12.3.4

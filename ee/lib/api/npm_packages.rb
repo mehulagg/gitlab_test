@@ -28,6 +28,7 @@ module API
     params do
       requires :package_name, type: String, desc: 'Package name'
     end
+    route_setting :authentication, job_token_allowed: true
     get 'packages/npm/*package_name', format: false, requirements: NPM_ENDPOINT_REQUIREMENTS do
       package_name = params[:package_name]
 
@@ -39,7 +40,7 @@ module API
       packages = ::Packages::NpmPackagesFinder
         .new(project, package_name).execute
 
-      present NpmPackagePresenter.new(project, package_name, packages),
+      present NpmPackagePresenter.new(package_name, packages),
         with: EE::API::Entities::NpmPackage
     end
 
@@ -58,6 +59,7 @@ module API
         requires :package_name, type: String, desc: 'Package name'
         requires :file_name, type: String, desc: 'Package file name'
       end
+      route_setting :authentication, job_token_allowed: true
       get ':id/packages/npm/*package_name/-/*file_name', format: false do
         authorize_read_package!(user_project)
 

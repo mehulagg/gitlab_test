@@ -3,6 +3,9 @@ import * as types from './mutation_types';
 import { transformRawStages } from '../utils';
 
 export default {
+  [types.SET_FEATURE_FLAGS](state, featureFlags) {
+    state.featureFlags = featureFlags;
+  },
   [types.SET_SELECTED_GROUP](state, group) {
     state.selectedGroup = convertObjectPropsToCamelCase(group, { deep: true });
     state.selectedProjectIds = [];
@@ -10,16 +13,20 @@ export default {
   [types.SET_SELECTED_PROJECTS](state, projectIds) {
     state.selectedProjectIds = projectIds;
   },
-  [types.SET_SELECTED_STAGE_ID](state, stageId) {
-    state.selectedStageId = stageId;
+  [types.SET_SELECTED_STAGE](state, rawData) {
+    state.selectedStage = convertObjectPropsToCamelCase(rawData);
   },
   [types.SET_DATE_RANGE](state, { startDate, endDate }) {
     state.startDate = startDate;
     state.endDate = endDate;
   },
+  [types.UPDATE_SELECTED_DURATION_CHART_STAGES](state, updatedDurationStageData) {
+    state.durationData = updatedDurationStageData;
+  },
   [types.REQUEST_CYCLE_ANALYTICS_DATA](state) {
     state.isLoading = true;
-    state.isAddingCustomStage = false;
+    state.isCreatingCustomStage = false;
+    state.isEditingCustomStage = false;
   },
   [types.RECEIVE_CYCLE_ANALYTICS_DATA_SUCCESS](state) {
     state.errorCode = null;
@@ -69,11 +76,20 @@ export default {
       labelIds: [],
     };
   },
+  [types.SHOW_CUSTOM_STAGE_FORM](state) {
+    state.isCreatingCustomStage = true;
+    state.customStageFormInitData = {};
+  },
+  [types.EDIT_CUSTOM_STAGE](state) {
+    state.isEditingCustomStage = true;
+  },
   [types.HIDE_CUSTOM_STAGE_FORM](state) {
-    state.isAddingCustomStage = false;
+    state.isEditingCustomStage = false;
+    state.isCreatingCustomStage = false;
+    state.customStageFormInitData = {};
   },
   [types.SHOW_CUSTOM_STAGE_FORM](state) {
-    state.isAddingCustomStage = true;
+    state.isCreatingCustomStage = true;
   },
   [types.RECEIVE_SUMMARY_DATA_ERROR](state) {
     state.summary = [];
@@ -116,11 +132,6 @@ export default {
     state.customStageFormEvents = events.map(ev =>
       convertObjectPropsToCamelCase(ev, { deep: true }),
     );
-
-    if (state.stages.length) {
-      const { id } = state.stages[0];
-      state.selectedStageId = id;
-    }
   },
   [types.REQUEST_TASKS_BY_TYPE_DATA](state) {
     state.isLoadingChartData = true;
@@ -146,11 +157,23 @@ export default {
   },
   [types.RECEIVE_UPDATE_STAGE_RESPONSE](state) {
     state.isLoading = false;
+    state.isSavingCustomStage = false;
   },
   [types.REQUEST_REMOVE_STAGE](state) {
     state.isLoading = true;
   },
   [types.RECEIVE_REMOVE_STAGE_RESPONSE](state) {
     state.isLoading = false;
+  },
+  [types.REQUEST_DURATION_DATA](state) {
+    state.isLoadingDurationChart = true;
+  },
+  [types.RECEIVE_DURATION_DATA_SUCCESS](state, data) {
+    state.durationData = data;
+    state.isLoadingDurationChart = false;
+  },
+  [types.RECEIVE_DURATION_DATA_ERROR](state) {
+    state.durationData = [];
+    state.isLoadingDurationChart = false;
   },
 };

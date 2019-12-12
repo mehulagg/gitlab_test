@@ -1,12 +1,12 @@
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex';
-import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
+import { GlLoadingIcon } from '@gitlab/ui';
+import Mousetrap from 'mousetrap';
 import Icon from '~/vue_shared/components/icon.vue';
 import { __ } from '~/locale';
 import createFlash from '~/flash';
-import { GlLoadingIcon } from '@gitlab/ui';
 import PanelResizer from '~/vue_shared/components/panel_resizer.vue';
-import Mousetrap from 'mousetrap';
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import eventHub from '../../notes/event_hub';
 import CompareVersions from './compare_versions.vue';
 import DiffFile from './diff_file.vue';
@@ -144,6 +144,9 @@ export default {
     isLimitedContainer() {
       return !this.showTreeList && !this.isParallelView && !this.isFluidLayout;
     },
+    shouldSetDiscussions() {
+      return this.isNotesFetched && !this.assignedDiscussions && !this.isLoading;
+    },
   },
   watch: {
     diffViewType() {
@@ -160,6 +163,11 @@ export default {
     },
     isLoading: 'adjustView',
     showTreeList: 'adjustView',
+    shouldSetDiscussions(newVal) {
+      if (newVal) {
+        this.setDiscussions();
+      }
+    },
   },
   mounted() {
     this.setBaseConfig({
@@ -169,6 +177,7 @@ export default {
       projectPath: this.projectPath,
       dismissEndpoint: this.dismissEndpoint,
       showSuggestPopover: this.showSuggestPopover,
+      useSingleDiffStyle: this.glFeatures.singleMrDiffView,
     });
 
     if (this.shouldShow) {
@@ -214,26 +223,28 @@ export default {
     isLatestVersion() {
       return window.location.search.indexOf('diff_id') === -1;
     },
+    startDiffRendering() {
+      requestIdleCallback(
+        () => {
+          this.startRenderDiffsQueue();
+        },
+        { timeout: 1000 },
+      );
+    },
     fetchData(toggleTree = true) {
       if (this.isLatestVersion() && this.glFeatures.diffsBatchLoad) {
         this.fetchDiffFilesMeta()
           .then(() => {
             if (toggleTree) this.hideTreeListIfJustOneFile();
+
+            this.startDiffRendering();
           })
           .catch(() => {
             createFlash(__('Something went wrong on our end. Please try again!'));
           });
 
         this.fetchDiffFilesBatch()
-          .then(() => {
-            requestIdleCallback(
-              () => {
-                this.setDiscussions();
-                this.startRenderDiffsQueue();
-              },
-              { timeout: 1000 },
-            );
-          })
+          .then(() => this.startDiffRendering())
           .catch(() => {
             createFlash(__('Something went wrong on our end. Please try again!'));
           });
@@ -246,7 +257,6 @@ export default {
 
             requestIdleCallback(
               () => {
-                this.setDiscussions();
                 this.startRenderDiffsQueue();
               },
               { timeout: 1000 },
@@ -262,7 +272,7 @@ export default {
       }
     },
     setDiscussions() {
-      if (this.isNotesFetched && !this.assignedDiscussions && !this.isLoading) {
+      if (this.shouldSetDiscussions) {
         this.assignedDiscussions = true;
 
         requestIdleCallback(

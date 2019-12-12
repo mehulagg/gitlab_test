@@ -364,7 +364,7 @@ Gitlab.ee do
   # To ensure acceptable performance we only allow feature to be used with
   # multithreaded web-server Puma. This will be removed once download logic is moved
   # to GitLab workhorse
-  Settings.dependency_proxy['enabled'] = false unless defined?(::Puma)
+  Settings.dependency_proxy['enabled'] = false unless Gitlab::Runtime.puma?
 end
 
 #
@@ -407,6 +407,9 @@ Settings.cron_jobs['repository_check_worker']['job_class'] = 'RepositoryCheck::D
 Settings.cron_jobs['admin_email_worker'] ||= Settingslogic.new({})
 Settings.cron_jobs['admin_email_worker']['cron'] ||= '0 0 * * 0'
 Settings.cron_jobs['admin_email_worker']['job_class'] = 'AdminEmailWorker'
+Settings.cron_jobs['personal_access_tokens_expiring_worker'] ||= Settingslogic.new({})
+Settings.cron_jobs['personal_access_tokens_expiring_worker']['cron'] ||= '0 1 * * *'
+Settings.cron_jobs['personal_access_tokens_expiring_worker']['job_class'] = 'PersonalAccessTokens::ExpiringWorker'
 Settings.cron_jobs['repository_archive_cache_worker'] ||= Settingslogic.new({})
 Settings.cron_jobs['repository_archive_cache_worker']['cron'] ||= '0 * * * *'
 Settings.cron_jobs['repository_archive_cache_worker']['job_class'] = 'RepositoryArchiveCacheWorker'
@@ -466,6 +469,9 @@ Settings.cron_jobs['namespaces_prune_aggregation_schedules_worker']['cron'] ||= 
 Settings.cron_jobs['namespaces_prune_aggregation_schedules_worker']['job_class'] = 'Namespaces::PruneAggregationSchedulesWorker'
 
 Gitlab.ee do
+  Settings.cron_jobs['adjourned_group_deletion_worker'] ||= Settingslogic.new({})
+  Settings.cron_jobs['adjourned_group_deletion_worker']['cron'] ||= '0 3 * * *'
+  Settings.cron_jobs['adjourned_group_deletion_worker']['job_class'] = 'AdjournedGroupDeletionWorker'
   Settings.cron_jobs['clear_shared_runners_minutes_worker'] ||= Settingslogic.new({})
   Settings.cron_jobs['clear_shared_runners_minutes_worker']['cron'] ||= '0 0 1 * *'
   Settings.cron_jobs['clear_shared_runners_minutes_worker']['job_class'] = 'ClearSharedRunnersMinutesWorker'
@@ -645,6 +651,7 @@ Settings.rack_attack.git_basic_auth['ip_whitelist'] ||= %w{127.0.0.1}
 Settings.rack_attack.git_basic_auth['maxretry'] ||= 10
 Settings.rack_attack.git_basic_auth['findtime'] ||= 1.minute
 Settings.rack_attack.git_basic_auth['bantime'] ||= 1.hour
+Settings.rack_attack['admin_area_protected_paths_enabled'] ||= false
 
 #
 # Gitaly

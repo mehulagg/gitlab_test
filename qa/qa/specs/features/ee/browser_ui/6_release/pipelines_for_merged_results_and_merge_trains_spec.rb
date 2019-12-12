@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Release', :docker do
+  # Failure issue: https://gitlab.com/gitlab-org/gitlab/issues/36824
+  context 'Release', :docker, :quarantine do
     describe 'Pipelines for merged results and merge trains' do
       before(:context) do
         @project = Resource::Project.fabricate_via_api! do |project|
@@ -30,8 +31,7 @@ module QA
       end
 
       before do
-        Runtime::Browser.visit(:gitlab, Page::Main::Login)
-        Page::Main::Login.perform(&:sign_in_using_credentials)
+        Flow::Login.sign_in
 
         @project.visit!
 
@@ -75,9 +75,7 @@ module QA
           show.merge_immediately
         end
 
-        merged = Support::Retrier.retry_until(reload_page: page) do
-          page.has_content?('The changes were merged')
-        end
+        merged = Page::MergeRequest::Show.perform(&:merged?)
 
         expect(merged).to be_truthy, "Expected content 'The changes were merged' but it did not appear."
       end
@@ -116,7 +114,7 @@ module QA
         # automatically refresh, so we reload if the merge status
         # doesn't update quickly.
         merged = Support::Retrier.retry_until(reload_page: page) do
-          page.has_content?('The changes were merged')
+          Page::MergeRequest::Show.perform(&:merged?)
         end
 
         expect(merged).to be_truthy, "Expected content 'The changes were merged' but it did not appear."

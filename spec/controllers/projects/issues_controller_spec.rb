@@ -170,7 +170,7 @@ describe Projects::IssuesController do
     it 'redirects to signin if not logged in' do
       get :new, params: { namespace_id: project.namespace, project_id: project }
 
-      expect(flash[:alert]).to eq 'You need to sign in or sign up before continuing.'
+      expect(flash[:alert]).to eq I18n.t('devise.failure.unauthenticated')
       expect(response).to redirect_to(new_user_session_path)
     end
 
@@ -926,7 +926,7 @@ describe Projects::IssuesController do
       it 'sets a flash message' do
         post_issue(title: 'Hello')
 
-        expect(flash[:notice]).to eq('Resolved all discussions.')
+        expect(flash[:notice]).to eq(_('Resolved all discussions.'))
       end
 
       describe "resolving a single discussion" do
@@ -940,7 +940,7 @@ describe Projects::IssuesController do
         end
 
         it 'sets a flash message that one discussion was resolved' do
-          expect(flash[:notice]).to eq('Resolved 1 discussion.')
+          expect(flash[:notice]).to eq(_('Resolved 1 discussion.'))
         end
       end
     end
@@ -1314,7 +1314,7 @@ describe Projects::IssuesController do
       it "returns 302 for project members with developer role" do
         import_csv
 
-        expect(flash[:notice]).to include('Your issues are being imported')
+        expect(flash[:notice]).to eq(_("Your issues are being imported. Once finished, you'll get a confirmation email."))
         expect(response).to redirect_to(project_issues_path(project))
       end
 
@@ -1325,7 +1325,7 @@ describe Projects::IssuesController do
 
         import_csv
 
-        expect(flash[:alert]).to include('File upload error.')
+        expect(flash[:alert]).to include(_('File upload error.'))
         expect(response).to redirect_to(project_issues_path(project))
       end
     end
@@ -1433,6 +1433,43 @@ describe Projects::IssuesController do
           create_list(:discussion_note_on_issue, 2, :system, noteable: issue, project: issue.project, note: cross_reference)
 
           expect { get :discussions, params: { namespace_id: project.namespace, project_id: project, id: issue.iid } }.not_to exceed_query_limit(control_count)
+        end
+      end
+
+      context 'private project' do
+        let!(:branch_note) { create(:discussion_note_on_issue, :system, noteable: issue, project: project) }
+        let!(:commit_note) { create(:discussion_note_on_issue, :system, noteable: issue, project: project) }
+        let!(:branch_note_meta) { create(:system_note_metadata, note: branch_note, action: "branch") }
+        let!(:commit_note_meta) { create(:system_note_metadata, note: commit_note, action: "commit") }
+
+        context 'user is allowed access' do
+          before do
+            project.add_user(user, :maintainer)
+          end
+
+          it 'displays all available notes' do
+            get :discussions, params: { namespace_id: project.namespace, project_id: project, id: issue.iid }
+
+            expect(json_response.length).to eq(3)
+          end
+        end
+
+        context 'user is a guest' do
+          let(:json_response_note_ids) do
+            json_response.collect { |discussion| discussion["notes"] }.flatten
+              .collect { |note| note["id"].to_i }
+          end
+
+          before do
+            project.add_guest(user)
+          end
+
+          it 'does not display notes w/type listed in TYPES_RESTRICTED_BY_ACCESS_LEVEL' do
+            get :discussions, params: { namespace_id: project.namespace, project_id: project, id: issue.iid }
+
+            expect(json_response.length).to eq(2)
+            expect(json_response_note_ids).not_to include(branch_note.id)
+          end
         end
       end
     end

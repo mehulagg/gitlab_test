@@ -31,67 +31,53 @@ describe API::ConanPackages do
   end
 
   describe 'GET /api/v4/packages/conan/v1/ping' do
-    context 'feature flag disabled' do
-      before do
-        stub_feature_flags(conan_package_registry: false)
-      end
+    it 'responds with 401 Unauthorized when no token provided' do
+      get api('/packages/conan/v1/ping')
 
+      expect(response).to have_gitlab_http_status(:unauthorized)
+    end
+
+    it 'responds with 200 OK when valid token is provided' do
+      jwt = build_jwt(personal_access_token)
+      get api('/packages/conan/v1/ping'), headers: build_auth_headers(jwt.encoded)
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(response.headers['X-Conan-Server-Capabilities']).to eq("")
+    end
+
+    it 'responds with 401 Unauthorized when invalid access token ID is provided' do
+      jwt = build_jwt(double(id: 12345), user_id: personal_access_token.user_id)
+      get api('/packages/conan/v1/ping'), headers: build_auth_headers(jwt.encoded)
+
+      expect(response).to have_gitlab_http_status(:unauthorized)
+    end
+
+    it 'responds with 401 Unauthorized when invalid user is provided' do
+      jwt = build_jwt(personal_access_token, user_id: 12345)
+      get api('/packages/conan/v1/ping'), headers: build_auth_headers(jwt.encoded)
+
+      expect(response).to have_gitlab_http_status(:unauthorized)
+    end
+
+    it 'responds with 401 Unauthorized when the provided JWT is signed with different secret' do
+      jwt = build_jwt(personal_access_token, secret: SecureRandom.base64(32))
+      get api('/packages/conan/v1/ping'), headers: build_auth_headers(jwt.encoded)
+
+      expect(response).to have_gitlab_http_status(:unauthorized)
+    end
+
+    it 'responds with 401 Unauthorized when invalid JWT is provided' do
+      get api('/packages/conan/v1/ping'), headers: build_auth_headers('invalid-jwt')
+
+      expect(response).to have_gitlab_http_status(:unauthorized)
+    end
+
+    context 'packages feature disabled' do
       it 'responds with 404 Not Found' do
+        stub_packages_setting(enabled: false)
         get api('/packages/conan/v1/ping')
 
         expect(response).to have_gitlab_http_status(:not_found)
-      end
-    end
-
-    context 'feature flag enabled' do
-      it 'responds with 401 Unauthorized when no token provided' do
-        get api('/packages/conan/v1/ping')
-
-        expect(response).to have_gitlab_http_status(:unauthorized)
-      end
-
-      it 'responds with 200 OK when valid token is provided' do
-        jwt = build_jwt(personal_access_token)
-        get api('/packages/conan/v1/ping'), headers: build_auth_headers(jwt.encoded)
-
-        expect(response).to have_gitlab_http_status(:ok)
-        expect(response.headers['X-Conan-Server-Capabilities']).to eq("")
-      end
-
-      it 'responds with 401 Unauthorized when invalid access token ID is provided' do
-        jwt = build_jwt(double(id: 12345), user_id: personal_access_token.user_id)
-        get api('/packages/conan/v1/ping'), headers: build_auth_headers(jwt.encoded)
-
-        expect(response).to have_gitlab_http_status(:unauthorized)
-      end
-
-      it 'responds with 401 Unauthorized when invalid user is provided' do
-        jwt = build_jwt(personal_access_token, user_id: 12345)
-        get api('/packages/conan/v1/ping'), headers: build_auth_headers(jwt.encoded)
-
-        expect(response).to have_gitlab_http_status(:unauthorized)
-      end
-
-      it 'responds with 401 Unauthorized when the provided JWT is signed with different secret' do
-        jwt = build_jwt(personal_access_token, secret: SecureRandom.base64(32))
-        get api('/packages/conan/v1/ping'), headers: build_auth_headers(jwt.encoded)
-
-        expect(response).to have_gitlab_http_status(:unauthorized)
-      end
-
-      it 'responds with 401 Unauthorized when invalid JWT is provided' do
-        get api('/packages/conan/v1/ping'), headers: build_auth_headers('invalid-jwt')
-
-        expect(response).to have_gitlab_http_status(:unauthorized)
-      end
-
-      context 'packages feature disabled' do
-        it 'responds with 404 Not Found' do
-          stub_packages_setting(enabled: false)
-          get api('/packages/conan/v1/ping')
-
-          expect(response).to have_gitlab_http_status(:not_found)
-        end
       end
     end
   end
@@ -434,6 +420,8 @@ describe API::ConanPackages do
           project.add_maintainer(user)
         end
 
+        it_behaves_like 'a gitlab tracking event', described_class.name, 'delete_package'
+
         it 'deletes a package' do
           expect { subject }.to change { Packages::Package.count }.from(2).to(1)
         end
@@ -546,6 +534,12 @@ describe API::ConanPackages do
       it_behaves_like 'an internal project with packages'
       it_behaves_like 'a private project with packages'
       it_behaves_like 'a project is not found'
+
+      context 'tracking the conan_package.tgz download' do
+        let(:package_file) { package.package_files.find_by(file_name: ::Packages::ConanFileMetadatum::PACKAGE_BINARY) }
+
+        it_behaves_like 'a gitlab tracking event', described_class.name, 'pull_package'
+      end
     end
   end
 
@@ -783,6 +777,11 @@ describe API::ConanPackages do
 
       it_behaves_like 'rejects invalid recipe'
       it_behaves_like 'uploads a package file'
+      context 'tracking the conan_package.tgz upload' do
+        let(:file_name) { ::Packages::ConanFileMetadatum::PACKAGE_BINARY }
+
+        it_behaves_like 'a gitlab tracking event', described_class.name, 'push_package'
+      end
     end
 
     def temp_file(package_tmp)

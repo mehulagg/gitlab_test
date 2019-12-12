@@ -26,7 +26,7 @@ describe Gitlab::GitalyClient do
 
     context 'running in Unicorn' do
       before do
-        stub_const('Unicorn', 1)
+        allow(Gitlab::Runtime).to receive(:unicorn?).and_return(true)
       end
 
       it { expect(subject.long_timeout).to eq(55) }
@@ -34,7 +34,7 @@ describe Gitlab::GitalyClient do
 
     context 'running in Puma' do
       before do
-        stub_const('Puma', 1)
+        allow(Gitlab::Runtime).to receive(:puma?).and_return(true)
       end
 
       it { expect(subject.long_timeout).to eq(55) }
@@ -55,7 +55,9 @@ describe Gitlab::GitalyClient do
     it 'returns an empty string when the storage is not found in the response' do
       response = double("response")
       allow(response).to receive(:storage_statuses).and_return([])
-      allow_any_instance_of(Gitlab::GitalyClient::ServerService).to receive(:info).and_return(response)
+      allow_next_instance_of(Gitlab::GitalyClient::ServerService) do |instance|
+        allow(instance).to receive(:info).and_return(response)
+      end
 
       expect(described_class.filesystem_id('default')).to eq(nil)
     end

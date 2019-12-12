@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Gcp Cluster', :js do
+describe 'Gcp Cluster', :js, :do_not_mock_admin_mode do
   include GoogleApi::CloudPlatformHelpers
 
   let(:project) { create(:project) }
@@ -187,6 +187,30 @@ describe 'Gcp Cluster', :js do
       wait_for_requests
 
       click_link 'Add Kubernetes cluster'
+
+      expect(page).not_to have_css('.gcp-signup-offer')
+    end
+  end
+
+  context 'when third party offers are disabled' do
+    let(:admin) { create(:admin) }
+    before do
+      stub_env('IN_MEMORY_APPLICATION_SETTINGS', 'false')
+      sign_in(admin)
+      gitlab_enable_admin_mode_sign_in(admin)
+      visit integrations_admin_application_settings_path
+    end
+
+    it 'user does not see the offer' do
+      page.within('.as-third-party-offers') do
+        click_button 'Expand'
+        check 'Do not display offers from third parties within GitLab'
+        click_button 'Save changes'
+      end
+
+      expect(page).to have_content "Application settings saved successfully"
+
+      visit project_clusters_path(project)
 
       expect(page).not_to have_css('.gcp-signup-offer')
     end

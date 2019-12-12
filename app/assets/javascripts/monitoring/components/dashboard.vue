@@ -1,6 +1,6 @@
 <script>
 import _ from 'underscore';
-import { mapActions, mapState } from 'vuex';
+import { mapActions, mapState, mapGetters } from 'vuex';
 import VueDraggable from 'vuedraggable';
 import {
   GlButton,
@@ -11,25 +11,21 @@ import {
   GlModalDirective,
   GlTooltipDirective,
 } from '@gitlab/ui';
+import PanelType from 'ee_else_ce/monitoring/components/panel_type.vue';
 import { s__ } from '~/locale';
 import createFlash from '~/flash';
 import Icon from '~/vue_shared/components/icon.vue';
 import { getParameterValues, mergeUrlParams, redirectTo } from '~/lib/utils/url_utility';
 import invalidUrl from '~/lib/utils/invalid_url';
-import PanelType from 'ee_else_ce/monitoring/components/panel_type.vue';
 import DateTimePicker from './date_time_picker/date_time_picker.vue';
-import MonitorTimeSeriesChart from './charts/time_series.vue';
-import MonitorSingleStatChart from './charts/single_stat.vue';
 import GraphGroup from './graph_group.vue';
 import EmptyState from './empty_state.vue';
 import TrackEventDirective from '~/vue_shared/directives/track_event';
-import { getTimeDiff, isValidDate, downloadCSVOptions, generateLinkToChartOptions } from '../utils';
+import { getTimeDiff, isValidDate, getAddMetricTrackingOptions } from '../utils';
 
 export default {
   components: {
     VueDraggable,
-    MonitorTimeSeriesChart,
-    MonitorSingleStatChart,
     PanelType,
     GraphGroup,
     EmptyState,
@@ -100,6 +96,10 @@ export default {
       required: true,
     },
     emptyNoDataSvgPath: {
+      type: String,
+      required: true,
+    },
+    emptyNoDataSmallSvgPath: {
       type: String,
       required: true,
     },
@@ -180,11 +180,11 @@ export default {
       'showEmptyState',
       'environments',
       'deploymentData',
-      'metricsWithData',
       'useDashboardEndpoint',
       'allDashboards',
       'additionalPanelTypesEnabled',
     ]),
+    ...mapGetters('monitoringDashboard', ['metricsWithData']),
     firstDashboard() {
       return this.environmentsEndpoint.length > 0 && this.allDashboards.length > 0
         ? this.allDashboards[0]
@@ -252,27 +252,17 @@ export default {
       'setEndpoints',
       'setPanelGroupMetrics',
     ]),
-    chartsWithData(charts) {
-      return charts.filter(chart =>
-        chart.metrics.some(metric => this.metricsWithData.includes(metric.metric_id)),
-      );
-    },
-    updateMetrics(key, metrics) {
+    updatePanels(key, panels) {
       this.setPanelGroupMetrics({
-        metrics,
+        panels,
         key,
       });
     },
-    removeMetric(key, metrics, graphIndex) {
+    removePanel(key, panels, graphIndex) {
       this.setPanelGroupMetrics({
-        metrics: metrics.filter((v, i) => i !== graphIndex),
+        panels: panels.filter((v, i) => i !== graphIndex),
         key,
       });
-    },
-    removeGraph(metrics, graphIndex) {
-      // At present graphs will not be removed, they should removed using the vuex store
-      // See https://gitlab.com/gitlab-org/gitlab/issues/27835
-      metrics.splice(graphIndex, 1);
     },
     showInvalidDateError() {
       createFlash(s__('Metrics|Link contains an invalid time window.'));
@@ -295,13 +285,12 @@ export default {
       this.$refs.customMetricsForm.submit();
     },
     groupHasData(group) {
-      return this.chartsWithData(group.metrics).length > 0;
+      return this.metricsWithData(group.key).length > 0;
     },
     onDateTimePickerApply(timeWindowUrlParams) {
       return redirectTo(mergeUrlParams(timeWindowUrlParams, window.location.href));
     },
-    downloadCSVOptions,
-    generateLinkToChartOptions,
+    getAddMetricTrackingOptions,
   },
   addMetric: {
     title: s__('Metrics|Add metric'),
@@ -393,9 +382,10 @@ export default {
             </gl-button>
             <gl-button
               v-if="addingMetricsAvailable"
+              ref="addMetricBtn"
               v-gl-modal="$options.addMetric.modalId"
               variant="outline-success"
-              class="mr-2 mt-1 js-add-metric-button"
+              class="mr-2 mt-1"
             >
               {{ $options.addMetric.title }}
             </gl-button>
@@ -415,6 +405,8 @@ export default {
               <div slot="modal-footer">
                 <gl-button @click="hideAddMetricModal">{{ __('Cancel') }}</gl-button>
                 <gl-button
+                  ref="submitCustomMetricsFormBtn"
+                  v-track-event="getAddMetricTrackingOptions()"
                   :disabled="!formIsValid"
                   variant="success"
                   @click="submitCustomMetricsForm"
@@ -454,42 +446,61 @@ export default {
         :key="`${groupData.group}.${groupData.priority}`"
         :name="groupData.group"
         :show-panels="showPanels"
-        :collapse-group="groupHasData(groupData)"
+        :collapse-group="!groupHasData(groupData)"
       >
-        <vue-draggable
-          :value="groupData.metrics"
-          group="metrics-dashboard"
-          :component-data="{ attrs: { class: 'row mx-0 w-100' } }"
-          :disabled="!isRearrangingPanels"
-          @input="updateMetrics(groupData.key, $event)"
-        >
-          <div
-            v-for="(graphData, graphIndex) in groupData.metrics"
-            :key="`panel-type-${graphIndex}`"
-            class="col-12 col-lg-6 px-2 mb-2 draggable"
-            :class="{ 'draggable-enabled': isRearrangingPanels }"
+        <div v-if="groupHasData(groupData)">
+          <vue-draggable
+            :value="groupData.panels"
+            group="metrics-dashboard"
+            :component-data="{ attrs: { class: 'row mx-0 w-100' } }"
+            :disabled="!isRearrangingPanels"
+            @input="updatePanels(groupData.key, $event)"
           >
-            <div class="position-relative draggable-panel js-draggable-panel">
-              <div
-                v-if="isRearrangingPanels"
-                class="draggable-remove js-draggable-remove p-2 w-100 position-absolute d-flex justify-content-end"
-                @click="removeGraph(groupData.metrics, graphIndex)"
-              >
-                <a class="mx-2 p-2 draggable-remove-link" :aria-label="__('Remove')"
-                  ><icon name="close"
-                /></a>
-              </div>
+            <div
+              v-for="(graphData, graphIndex) in groupData.panels"
+              :key="`panel-type-${graphIndex}`"
+              class="col-12 col-lg-6 px-2 mb-2 draggable"
+              :class="{ 'draggable-enabled': isRearrangingPanels }"
+            >
+              <div class="position-relative draggable-panel js-draggable-panel">
+                <div
+                  v-if="isRearrangingPanels"
+                  class="draggable-remove js-draggable-remove p-2 w-100 position-absolute d-flex justify-content-end"
+                  @click="removePanel(groupData.key, groupData.panels, graphIndex)"
+                >
+                  <a class="mx-2 p-2 draggable-remove-link" :aria-label="__('Remove')"
+                    ><icon name="close"
+                  /></a>
+                </div>
 
-              <panel-type
-                :clipboard-text="generateLink(groupData.group, graphData.title, graphData.y_label)"
-                :graph-data="graphData"
-                :alerts-endpoint="alertsEndpoint"
-                :prometheus-alerts-available="prometheusAlertsAvailable"
-                :index="`${index}-${graphIndex}`"
-              />
+                <panel-type
+                  :clipboard-text="
+                    generateLink(groupData.group, graphData.title, graphData.y_label)
+                  "
+                  :graph-data="graphData"
+                  :alerts-endpoint="alertsEndpoint"
+                  :prometheus-alerts-available="prometheusAlertsAvailable"
+                  :index="`${index}-${graphIndex}`"
+                />
+              </div>
             </div>
-          </div>
-        </vue-draggable>
+          </vue-draggable>
+        </div>
+        <div v-else class="py-5 col col-sm-10 col-md-8 col-lg-7 col-xl-6">
+          <empty-state
+            ref="empty-group"
+            selected-state="noDataGroup"
+            :documentation-path="documentationPath"
+            :settings-path="settingsPath"
+            :clusters-path="clustersPath"
+            :empty-getting-started-svg-path="emptyGettingStartedSvgPath"
+            :empty-loading-svg-path="emptyLoadingSvgPath"
+            :empty-no-data-svg-path="emptyNoDataSvgPath"
+            :empty-no-data-small-svg-path="emptyNoDataSmallSvgPath"
+            :empty-unable-to-connect-svg-path="emptyUnableToConnectSvgPath"
+            :compact="true"
+          />
+        </div>
       </graph-group>
     </div>
     <empty-state
@@ -501,6 +512,7 @@ export default {
       :empty-getting-started-svg-path="emptyGettingStartedSvgPath"
       :empty-loading-svg-path="emptyLoadingSvgPath"
       :empty-no-data-svg-path="emptyNoDataSvgPath"
+      :empty-no-data-small-svg-path="emptyNoDataSmallSvgPath"
       :empty-unable-to-connect-svg-path="emptyUnableToConnectSvgPath"
       :compact="smallEmptyState"
     />

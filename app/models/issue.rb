@@ -14,6 +14,7 @@ class Issue < ApplicationRecord
   include TimeTrackable
   include ThrottledTouch
   include LabelEventable
+  include IgnorableColumns
 
   DueDateStruct                   = Struct.new(:title, :name).freeze
   NoDueDate                       = DueDateStruct.new('No Due Date', '0').freeze
@@ -41,6 +42,8 @@ class Issue < ApplicationRecord
   has_many :issue_assignees
   has_many :assignees, class_name: "User", through: :issue_assignees
   has_many :zoom_meetings
+  has_many :user_mentions, class_name: "IssueUserMention"
+  has_one :sentry_issue
 
   validates :project, presence: true
 
@@ -68,8 +71,7 @@ class Issue < ApplicationRecord
 
   scope :counts_by_state, -> { reorder(nil).group(:state_id).count }
 
-  # Only remove after 2019-12-22 and with %12.7
-  self.ignored_columns += %i[state]
+  ignore_column :state, remove_with: '12.7', remove_after: '2019-12-22'
 
   after_commit :expire_etag_cache
   after_save :ensure_metrics, unless: :imported?

@@ -111,10 +111,37 @@ Hard-coded HTML is valid, although it's discouraged to be used while we have `/h
 
 GitLab ensures that the Markdown used across all documentation is consistent, as
 well as easy to review and maintain, by [testing documentation changes](index.md#testing) with
-[`markdownlint`](index.md#markdownlint). This lint test fails when any document has an issue
+[markdownlint](index.md#markdownlint). This lint test fails when any document has an issue
 with Markdown formatting that may cause the page to render incorrectly within GitLab.
 It will also fail when a document is using non-standard Markdown (which may render
 correctly, but is not the current standard for GitLab documentation).
+
+#### Markdown rule `MD044/proper-names` (capitalization)
+
+A rule that could cause confusion is `MD044/proper-names`, as it might not be immediately
+clear what caused markdownlint to fail, or how to correct the failure. This rule
+checks a list of known words, listed in the `.markdownlint.json` file in each project,
+to verify that proper capitalization and backticks are used. Words in backticks will
+be ignored by markdownlint.
+
+In general, product names should follow the exact capitalization of the official names
+of the products, protocols, etc.
+
+Some examples that will fail if incorrect capitalization is used:
+
+- MinIO (needs capital `IO`)
+- NGINX (needs all capitals)
+- runit (needs lowercase `r`)
+
+Additionally, commands, parameters, values, filenames, etc. must be included in backticks.
+For example:
+
+- "Change the `needs` keyword in your `.gitlab.yml`..."
+  - `needs` is a parameter, and `.gitlab.yml` is a file, so both need backticks. Additionally,
+    `.gitlab.yml` will fail markdownlint without backticks as it does not have capital G or L.
+- "Run `git clone` to clone a Git repository..."
+  - `git clone` is a command, so it must be lowercase, while Git is the product, so
+    it must have a capital G.
 
 ## Structure
 
@@ -212,7 +239,7 @@ Do not include the same information in multiple places. [Link to a SSOT instead.
 
 - Use inclusive language and avoid jargon, as well as uncommon
   words. The docs should be clear and easy to understand.
-- Write in the 3rd person (use "we," "you," "us," "one," instead of "I" or "me").
+- Do not write in the first person singular. Instead of "I" or "me," use "we," "you," "us," or "one."
 - Be clear, concise, and stick to the goal of the doc.
 - Write in US English with US grammar.
 - Capitalize "G" and "L" in GitLab.
@@ -230,18 +257,23 @@ Do not include the same information in multiple places. [Link to a SSOT instead.
     "Create a new merge request for Z."
 
 - Avoid use of the future tense:
-  - Instead of, "After you execute this command, the result will be displayed," say "After you execute this command, the result is displayed."
+  - Instead of "after you execute this command, GitLab will display the result", use "after you execute this command, GitLab displays the result".
   - Only use the future tense to convey when the action or result will actually occur at a future time.
 - Do not use contractions:
-  - Instead of "don't," "can't," "doesn't," and so on, say "do not," "cannot," or "does not."
+  - Instead of "don't," "can't," "doesn't," and so on, use "do not," "cannot," or "does not."
   - Possible exceptions are cases when a more familiar tone is desired, such as a blog post or other casual context.
 - Do not use slashes to clump different words together or as a replacement for the word "or":
-  - Instead of "and/or," consider saying "or," or use another sensible construction.
+  - Instead of "and/or," consider using "or," or use another sensible construction.
   - Other examples include "clone/fetch," author/assignee," and "namespace/repository name." Break apart any such instances in an appropriate way.
   - Exceptions to this rule include commonly accepted technical terms such as CI/CD, TCP/IP, and so on.
 - Do not use "may" and "might" interchangeably:
   - Use "might" to indicate the probability of something occurring. "If you skip this step, the import process might fail."
   - Use "may" to indicate giving permission for someone to do something, or consider using "can" instead. "You may select either option on this screen." Or, "you can select either option on this screen."
+- We recommend avoiding Latin abbreviations, such as "e.g.," "i.e.," or "etc.,"
+as even native users of English might misunderstand them.
+  - Instead of "i.e.", use "that is."
+  - Instead of "e.g.", use "for example."
+  - Instead of "etc.", either use "and so on" or consider editing it out, since it can be vague.
 
 ## Text
 
@@ -699,7 +731,7 @@ nicely on different mobile devices.
 ## Code blocks
 
 - Always wrap code added to a sentence in inline code blocks (`` ` ``).
-  E.g., `.gitlab-ci.yml`, `git add .`, `CODEOWNERS`, `only: master`.
+  E.g., `.gitlab-ci.yml`, `git add .`, `CODEOWNERS`, `only: [master]`.
   File names, commands, entries, and anything that refers to code should be added to code blocks.
   To make things easier for the user, always add a full code block for things that can be
   useful to copy and paste, as they can easily do it with the button on code blocks.

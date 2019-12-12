@@ -1,9 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
 import { setTestTimeout } from 'helpers/timeout';
-import { createStore } from '~/monitoring/stores';
 import { GlLink } from '@gitlab/ui';
 import { GlAreaChart, GlLineChart, GlChartSeriesLabel } from '@gitlab/ui/dist/charts';
 import { shallowWrapperContainsSlotText } from 'helpers/vue_test_utils_helper';
+import { createStore } from '~/monitoring/stores';
 import TimeSeries from '~/monitoring/components/charts/time_series.vue';
 import * as types from '~/monitoring/stores/mutation_types';
 import {
@@ -45,10 +45,11 @@ describe('Time series component', () => {
 
     store.commit(`monitoringDashboard/${types.RECEIVE_DEPLOYMENTS_DATA_SUCCESS}`, deploymentData);
 
-    // Mock data contains 2 panels, pick the first one
+    // Mock data contains 2 panel groups, with 1 and 2 panels respectively
     store.commit(`monitoringDashboard/${types.SET_QUERY_RESULT}`, mockedQueryResultPayload);
 
-    [mockGraphData] = store.state.monitoringDashboard.dashboard.panel_groups[0].metrics;
+    // Pick the second panel group and the first panel in it
+    [mockGraphData] = store.state.monitoringDashboard.dashboard.panel_groups[1].panels;
 
     makeTimeSeriesChart = (graphData, type) =>
       shallowMount(TimeSeries, {
@@ -235,7 +236,7 @@ describe('Time series component', () => {
         });
 
         it('utilizes all data points', () => {
-          const { values } = mockGraphData.queries[0].result[0];
+          const { values } = mockGraphData.metrics[0].result[0];
 
           expect(chartData.length).toBe(1);
           expect(seriesData().data.length).toBe(values.length);

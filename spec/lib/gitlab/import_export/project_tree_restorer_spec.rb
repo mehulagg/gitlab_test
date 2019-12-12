@@ -31,9 +31,6 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
 
         project_tree_restorer = described_class.new(user: @user, shared: @shared, project: @project)
 
-        expect(Gitlab::ImportExport::RelationFactory).to receive(:create).with(hash_including(excluded_keys: ['whatever'])).and_call_original.at_least(:once)
-        allow(project_tree_restorer).to receive(:excluded_keys_for_relation).and_return(['whatever'])
-
         @restored_project_json = project_tree_restorer.restore
       end
     end
@@ -237,6 +234,12 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
         expect(meetings.first.url).to eq('https://zoom.us/j/123456789')
       end
 
+      it 'restores sentry issues' do
+        sentry_issue = @project.issues.first.sentry_issue
+
+        expect(sentry_issue.sentry_issue_identifier).to eq(1234567891)
+      end
+
       context 'Merge requests' do
         it 'always has the new project as a target' do
           expect(MergeRequest.find_by_title('MR1').target_project).to eq(@project)
@@ -362,7 +365,7 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
         expect(restored_project_json).to eq(true)
       end
 
-      it_behaves_like 'restores project correctly',
+      it_behaves_like 'restores project successfully',
                       issues: 1,
                       labels: 2,
                       label_with_priorities: 'A project label',
@@ -375,7 +378,7 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
           create(:ci_build, token: 'abcd')
         end
 
-        it_behaves_like 'restores project correctly',
+        it_behaves_like 'restores project successfully',
                         issues: 1,
                         labels: 2,
                         label_with_priorities: 'A project label',
@@ -452,7 +455,7 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
         expect(restored_project_json).to eq(true)
       end
 
-      it_behaves_like 'restores project correctly',
+      it_behaves_like 'restores project successfully',
                       issues: 2,
                       labels: 2,
                       label_with_priorities: 'A project label',
@@ -557,8 +560,9 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
 
   context 'Minimal JSON' do
     let(:project) { create(:project) }
+    let(:user) { create(:user) }
     let(:tree_hash) { { 'visibility_level' => visibility } }
-    let(:restorer) { described_class.new(user: nil, shared: shared, project: project) }
+    let(:restorer) { described_class.new(user: user, shared: shared, project: project) }
 
     before do
       expect(restorer).to receive(:read_tree_hash) { tree_hash }
@@ -630,6 +634,46 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
             expect(restorer.project.visibility_level).to eq(Gitlab::VisibilityLevel::PRIVATE)
           end
         end
+      end
+    end
+  end
+
+  context 'JSON with invalid records' do
+    subject(:restored_project_json) { project_tree_restorer.restore }
+
+    let(:user) { create(:user) }
+    let!(:project) { create(:project, :builds_disabled, :issues_disabled, name: 'project', path: 'project') }
+    let(:project_tree_restorer) { described_class.new(user: user, shared: shared, project: project) }
+    let(:correlation_id) { 'my-correlation-id' }
+
+    before do
+      setup_import_export_config('with_invalid_records')
+
+      # Import is running from the rake task, `correlation_id` is not assigned
+      expect(Labkit::Correlation::CorrelationId).to receive(:new_id).and_return(correlation_id)
+      subject
+    end
+
+    context 'when failures occur because a relation fails to be processed' do
+      it_behaves_like 'restores project successfully',
+        issues: 0,
+        labels: 0,
+        label_with_priorities: nil,
+        milestones: 1,
+        first_issue_labels: 0,
+        services: 0,
+        import_failures: 1
+
+      it 'records the failures in the database' do
+        import_failure = ImportFailure.last
+
+        expect(import_failure.project_id).to eq(project.id)
+        expect(import_failure.relation_key).to eq('milestones')
+        expect(import_failure.relation_index).to be_present
+        expect(import_failure.exception_class).to eq('ActiveRecord::RecordInvalid')
+        expect(import_failure.exception_message).to be_present
+        expect(import_failure.correlation_id_value).to eq('my-correlation-id')
+        expect(import_failure.created_at).to be_present
       end
     end
   end

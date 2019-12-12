@@ -6,12 +6,6 @@ class ApplicationSetting < ApplicationRecord
   include TokenAuthenticatable
   include ChronicDurationAttribute
 
-  # Only remove this >= %12.6 and >= 2019-12-01
-  self.ignored_columns += %i[
-      pendo_enabled
-      pendo_url
-    ]
-
   add_authentication_token_field :runners_registration_token, encrypted: -> { Feature.enabled?(:application_settings_tokens_optional_encryption, default_enabled: true) ? :optional : :required }
   add_authentication_token_field :health_check_access_token
   add_authentication_token_field :static_objects_external_storage_auth_token
@@ -229,6 +223,8 @@ class ApplicationSetting < ApplicationRecord
   validates :push_event_activities_limit,
             numericality: { greater_than_or_equal_to: 0 }
 
+  validates :snippet_size_limit, numericality: { only_integer: true, greater_than: 0 }
+
   SUPPORTED_KEY_TYPES.each do |type|
     validates :"#{type}_key_restriction", presence: true, key_restriction: { type: type }
   end
@@ -313,29 +309,25 @@ class ApplicationSetting < ApplicationRecord
                  algorithm: 'aes-256-cbc',
                  insecure_mode: true
 
-  attr_encrypted :external_auth_client_key,
-                 mode: :per_attribute_iv,
-                 key: Settings.attr_encrypted_db_key_base_truncated,
-                 algorithm: 'aes-256-gcm',
-                 encode: true
+  private_class_method def self.encryption_options_base_truncated_aes_256_gcm
+    {
+      mode: :per_attribute_iv,
+      key: Settings.attr_encrypted_db_key_base_truncated,
+      algorithm: 'aes-256-gcm',
+      encode: true
+    }
+  end
 
-  attr_encrypted :external_auth_client_key_pass,
-                 mode: :per_attribute_iv,
-                 key: Settings.attr_encrypted_db_key_base_truncated,
-                 algorithm: 'aes-256-gcm',
-                 encode: true
-
-  attr_encrypted :lets_encrypt_private_key,
-                 mode: :per_attribute_iv,
-                 key: Settings.attr_encrypted_db_key_base_truncated,
-                 algorithm: 'aes-256-gcm',
-                 encode: true
-
-  attr_encrypted :eks_secret_access_key,
-                 mode: :per_attribute_iv,
-                 key: Settings.attr_encrypted_db_key_base_truncated,
-                 algorithm: 'aes-256-gcm',
-                 encode: true
+  attr_encrypted :external_auth_client_key, encryption_options_base_truncated_aes_256_gcm
+  attr_encrypted :external_auth_client_key_pass, encryption_options_base_truncated_aes_256_gcm
+  attr_encrypted :lets_encrypt_private_key, encryption_options_base_truncated_aes_256_gcm
+  attr_encrypted :eks_secret_access_key, encryption_options_base_truncated_aes_256_gcm
+  attr_encrypted :akismet_api_key, encryption_options_base_truncated_aes_256_gcm
+  attr_encrypted :elasticsearch_aws_secret_access_key, encryption_options_base_truncated_aes_256_gcm
+  attr_encrypted :recaptcha_private_key, encryption_options_base_truncated_aes_256_gcm
+  attr_encrypted :recaptcha_site_key, encryption_options_base_truncated_aes_256_gcm
+  attr_encrypted :slack_app_secret, encryption_options_base_truncated_aes_256_gcm
+  attr_encrypted :slack_app_verification_token, encryption_options_base_truncated_aes_256_gcm
 
   before_validation :ensure_uuid!
 

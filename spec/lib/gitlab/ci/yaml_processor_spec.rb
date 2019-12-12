@@ -239,6 +239,21 @@ module Gitlab
             end
           end
         end
+
+        describe 'resource group' do
+          context 'when resource group is defined' do
+            let(:config) do
+              YAML.dump(rspec: {
+                script:   'test',
+                resource_group: 'iOS'
+              })
+            end
+
+            it 'has the attributes' do
+              expect(subject[:resource_group_key]).to eq 'iOS'
+            end
+          end
+        end
       end
 
       describe '#stages_attributes' do
@@ -1525,8 +1540,48 @@ module Gitlab
               name: "test1",
               options: { script: ["test"] },
               needs_attributes: [
-                { name: "build1" },
-                { name: "build2" }
+                { name: "build1", artifacts: true },
+                { name: "build2", artifacts: true }
+              ],
+              when: "on_success",
+              allow_failure: false,
+              yaml_variables: []
+            )
+          end
+        end
+
+        context 'needs two builds' do
+          let(:needs) do
+            [
+              { job: 'parallel', artifacts: false },
+              { job: 'build1',   artifacts: true },
+              'build2'
+            ]
+          end
+
+          it "does create jobs with valid specification" do
+            expect(subject.builds.size).to eq(7)
+            expect(subject.builds[0]).to eq(
+              stage: "build",
+              stage_idx: 1,
+              name: "build1",
+              options: {
+                script: ["test"]
+              },
+              when: "on_success",
+              allow_failure: false,
+              yaml_variables: []
+            )
+            expect(subject.builds[4]).to eq(
+              stage: "test",
+              stage_idx: 2,
+              name: "test1",
+              options: { script: ["test"] },
+              needs_attributes: [
+                { name: "parallel 1/2", artifacts: false },
+                { name: "parallel 2/2", artifacts: false },
+                { name: "build1", artifacts: true },
+                { name: "build2", artifacts: true }
               ],
               when: "on_success",
               allow_failure: false,
@@ -1546,8 +1601,37 @@ module Gitlab
               name: "test1",
               options: { script: ["test"] },
               needs_attributes: [
-                { name: "parallel 1/2" },
-                { name: "parallel 2/2" }
+                { name: "parallel 1/2", artifacts: true },
+                { name: "parallel 2/2", artifacts: true }
+              ],
+              when: "on_success",
+              allow_failure: false,
+              yaml_variables: []
+            )
+          end
+        end
+
+        context 'needs dependencies artifacts' do
+          let(:needs) do
+            [
+              "build1",
+              { job: "build2" },
+              { job: "parallel", artifacts: true }
+            ]
+          end
+
+          it "does create jobs with valid specification" do
+            expect(subject.builds.size).to eq(7)
+            expect(subject.builds[4]).to eq(
+              stage: "test",
+              stage_idx: 2,
+              name: "test1",
+              options: { script: ["test"] },
+              needs_attributes: [
+                { name: "build1", artifacts: true },
+                { name: "build2", artifacts: true },
+                { name: "parallel 1/2", artifacts: true },
+                { name: "parallel 2/2", artifacts: true }
               ],
               when: "on_success",
               allow_failure: false,
@@ -1639,6 +1723,7 @@ module Gitlab
 
       describe "Hidden jobs" do
         let(:config_processor) { Gitlab::Ci::YamlProcessor.new(config) }
+
         subject { config_processor.stage_builds_attributes("test") }
 
         shared_examples 'hidden_job_handling' do
@@ -1683,6 +1768,7 @@ module Gitlab
 
       describe "YAML Alias/Anchor" do
         let(:config_processor) { Gitlab::Ci::YamlProcessor.new(config) }
+
         subject { config_processor.stage_builds_attributes("build") }
 
         shared_examples 'job_templates_handling' do
@@ -1780,7 +1866,7 @@ module Gitlab
           config = YAML.dump({ rspec: { script: "test", tags: "mysql" } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec tags should be an array of strings")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec:tags config should be an array of strings")
         end
 
         it "returns errors if before_script parameter is invalid" do
@@ -2128,7 +2214,7 @@ module Gitlab
         context "when the tags parameter is invalid" do
           let(:content) { YAML.dump({ rspec: { script: "test", tags: "mysql" } }) }
 
-          it { is_expected.to eq "jobs:rspec tags should be an array of strings" }
+          it { is_expected.to eq "jobs:rspec:tags config should be an array of strings" }
         end
 
         context "when YAML content is empty" do

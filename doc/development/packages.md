@@ -23,19 +23,12 @@ The goal of the Package group is to build a set of features that, within three y
 | [Bower](https://gitlab.com/gitlab-org/gitlab/issues/36888) | Boost your front end development by hosting your own Bower components.  |
 | [Chef](https://gitlab.com/gitlab-org/gitlab/issues/36889) | Configuration management with Chef using all the benefits of a repository manager. |
 | [CocoaPods](https://gitlab.com/gitlab-org/gitlab/issues/36890) | Speed up development with Xcode and CocoaPods. |
-| [Conan](https://docs.gitlab.com/ee/user/packages/conan_repository/) *12.6+* | A standardized way to share and version control C/C++ libraries across projects. |
 | [Conda](https://gitlab.com/gitlab-org/gitlab/issues/36891) | Secure and private local Conda repositories. |
 | [CRAN](https://gitlab.com/gitlab-org/gitlab/issues/36892) | Deploy and resolve CRAN packages for the R language. |
 | [Debian](https://gitlab.com/gitlab-org/gitlab/issues/5835) | Host and provision Debian packages. |
-| [Docker](https://docs.gitlab.com/ee/user/packages/container_registry/) *8.8+* | Host your own secure private Docker registries and proxy external Docker registries such as Docker Hub. |
 | [Go](https://gitlab.com/gitlab-org/gitlab/issues/9773) | Resolve Go dependencies from and publish your Go packages to GitLab.  |
-| [Helm](https://gitlab.com/gitlab-org/gitlab/issues/18997) | Manage your Helm Charts in GitLab and gain control over deployments to your Kubernetes cluster. |
-| [Maven](https://docs.gitlab.com/ee/user/packages/maven_repository/index.html) *11.3+*| The GitLab Maven Repository enables every project in GitLab to have its own space to store Maven packages. |
-| [npm](https://docs.gitlab.com/ee/user/packages/npm_registry/index.html) *11.7+* | Host your own node.js packages. |
-| [NuGet](https://gitlab.com/gitlab-org/gitlab/issues/20050) *Planned for 12.7*| Host NuGet packages in GitLab, and pull libraries into your various Visual Studio .NET applications. |
 | [Opkg](https://gitlab.com/gitlab-org/gitlab/issues/36894) | Optimize your work with OpenWrt using Opkg repositories. |
 | [P2](https://gitlab.com/gitlab-org/gitlab/issues/36895) | Host all your Eclipse plugins in your own GitLab P2 repository. |
-| [PHP Composer](https://gitlab.com/gitlab-org/gitlab/issues/15886) | Provision Composer packages from GitLab and access Packagist and other remote Composer metadata repositories. |
 | [Puppet](https://gitlab.com/gitlab-org/gitlab/issues/36897) | Configuration management meets repository management with Puppet repositories. |
 | [PyPi](https://gitlab.com/gitlab-org/gitlab/issues/10483) | Host PyPi distributions. |
 | [RPM](https://gitlab.com/gitlab-org/gitlab/issues/5932) | Distribute RPMs directly from GitLab. |
@@ -73,6 +66,29 @@ PUT https://gitlab.com/api/v4/projects/<your_project_id>/packages/npm/
 ```
 
 Group-level and instance-level endpoints are good to have but are optional.
+
+### Remote hierarchy
+
+Packages are scoped within various levels of access, which is generally configured by setting your remote. A
+remote endpoint may be set at the project level, meaning when installing packages, only packages belonging to that
+project will be visible. Alternatively, a group-level endpoint may be used to allow visibility to all packages
+within a given group. Lastly, an instance-level endpoint can be used to allow visibility to all packages within an
+entire GitLab instance.
+
+Using group and project level endpoints will allow for more flexibility in package naming, however, more remotes
+will have to be managed. Using instance level endpoints requires [stricter naming conventions](#naming-conventions).
+
+The current state of existing package registries availability is:
+
+| Repository Type | Project Level | Group Level | Instance Level |
+|-----------------|---------------|-------------|----------------|
+| Maven           | Yes           | Yes         | Yes            |
+| Conan           | No - [open issue](https://gitlab.com/gitlab-org/gitlab/issues/11679) | No - [open issue](https://gitlab.com/gitlab-org/gitlab/issues/11679) | Yes |
+| NPM             | No - [open issue](https://gitlab.com/gitlab-org/gitlab/issues/36853) | Yes | No - [open issue](https://gitlab.com/gitlab-org/gitlab/issues/36853) |
+
+NOTE: **Note:** NPM is currently a hybrid of the instance level and group level.
+It is using the top-level group or namespace as the defining portion of the name
+(for example, `@my-group-name/my-package-name`).
 
 ## Naming conventions
 

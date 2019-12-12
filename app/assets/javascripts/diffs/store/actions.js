@@ -1,6 +1,6 @@
 import Vue from 'vue';
-import axios from '~/lib/utils/axios_utils';
 import Cookies from 'js-cookie';
+import axios from '~/lib/utils/axios_utils';
 import createFlash from '~/flash';
 import { s__ } from '~/locale';
 import { handleLocationHash, historyPushState, scrollToElement } from '~/lib/utils/common_utils';
@@ -46,6 +46,7 @@ export const setBaseConfig = ({ commit }, options) => {
     projectPath,
     dismissEndpoint,
     showSuggestPopover,
+    useSingleDiffStyle,
   } = options;
   commit(types.SET_BASE_CONFIG, {
     endpoint,
@@ -54,11 +55,15 @@ export const setBaseConfig = ({ commit }, options) => {
     projectPath,
     dismissEndpoint,
     showSuggestPopover,
+    useSingleDiffStyle,
   });
 };
 
 export const fetchDiffFiles = ({ state, commit }) => {
   const worker = new TreeWorker();
+  const urlParams = {
+    w: state.showWhitespace ? '0' : '1',
+  };
 
   commit(types.SET_LOADING, true);
 
@@ -69,9 +74,10 @@ export const fetchDiffFiles = ({ state, commit }) => {
   });
 
   return axios
-    .get(mergeUrlParams({ w: state.showWhitespace ? '0' : '1' }, state.endpoint))
+    .get(mergeUrlParams(urlParams, state.endpoint))
     .then(res => {
       commit(types.SET_LOADING, false);
+
       commit(types.SET_MERGE_REQUEST_DIFFS, res.data.merge_request_diffs || []);
       commit(types.SET_DIFF_DATA, res.data);
 
@@ -119,7 +125,7 @@ export const fetchDiffFilesMeta = ({ commit, state }) => {
     .get(state.endpointMetadata)
     .then(({ data }) => {
       const strippedData = { ...data };
-      strippedData.diff_files = [];
+      delete strippedData.diff_files;
       commit(types.SET_LOADING, false);
       commit(types.SET_MERGE_REQUEST_DIFFS, data.merge_request_diffs || []);
       commit(types.SET_DIFF_DATA, strippedData);

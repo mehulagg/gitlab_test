@@ -15,6 +15,7 @@ module QA
   #
   module Flow
     autoload :Login, 'qa/flow/login'
+    autoload :Project, 'qa/flow/project'
   end
 
   ##
@@ -33,6 +34,8 @@ module QA
     autoload :Fixtures, 'qa/runtime/fixtures'
     autoload :Logger, 'qa/runtime/logger'
     autoload :GPG, 'qa/runtime/gpg'
+    autoload :MailHog, 'qa/runtime/mail_hog'
+    autoload :IPAddress, 'qa/runtime/ip_address'
 
     module API
       autoload :Client, 'qa/runtime/api/client'
@@ -130,6 +133,7 @@ module QA
         autoload :Kubernetes, 'qa/scenario/test/integration/kubernetes'
         autoload :Mattermost, 'qa/scenario/test/integration/mattermost'
         autoload :ObjectStorage, 'qa/scenario/test/integration/object_storage'
+        autoload :SMTP, 'qa/scenario/test/integration/smtp'
       end
 
       module Sanity
@@ -422,6 +426,7 @@ module QA
       autoload :Maven, 'qa/service/docker_run/maven'
       autoload :NodeJs, 'qa/service/docker_run/node_js'
       autoload :GitlabRunner, 'qa/service/docker_run/gitlab_runner'
+      autoload :MailHog, 'qa/service/docker_run/mail_hog'
     end
   end
 
