@@ -4,7 +4,7 @@
 %li.group-row{ class: ('no-description' if group.description.blank?) }
   .stats
     %span
-      = sprite_icon('bookmark', size: 48)
+      = sprite_icon('bookmark', size: 16)
       = number_with_delimiter(group.projects.non_archived.count)
 
     %span
