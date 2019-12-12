@@ -16,9 +16,6 @@ describe Gitlab::QA::Component::Staging do
 
     describe '#revision' do
       context 'when it is an auto-deploy release' do
-        let(:response) do
-        end
-
         it 'retrieves the revision from the version API' do
           request = stub_request(:get, version_api_url).to_return(api_response('12.3.0-pre')).times(1)
           expect(subject.tag_end).to eq('20920f8074a')
