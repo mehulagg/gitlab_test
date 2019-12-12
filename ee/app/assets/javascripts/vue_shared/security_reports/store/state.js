@@ -1,4 +1,4 @@
-import { __, s__ } from '~/locale';
+import { __ } from '~/locale';
 
 export default () => ({
   blobPath: {
@@ -65,7 +65,7 @@ export default () => ({
     data: {
       description: {
         value: null,
-        text: s__('ciReport|Description'),
+        text: __('Description'),
         isLink: false,
       },
       url: {
@@ -77,52 +77,52 @@ export default () => ({
       file: {
         value: null,
         url: null,
-        text: s__('ciReport|File'),
+        text: __('File'),
         isLink: true,
       },
       identifiers: {
         value: [],
-        text: s__('ciReport|Identifiers'),
+        text: __('Identifiers'),
         isLink: false,
       },
       severity: {
         value: null,
-        text: s__('ciReport|Severity'),
+        text: __('Severity'),
         isLink: false,
       },
       confidence: {
         value: null,
-        text: s__('ciReport|Confidence'),
+        text: __('Confidence'),
         isLink: false,
       },
       className: {
         value: null,
-        text: s__('ciReport|Class'),
+        text: __('Class'),
         isLink: false,
       },
       methodName: {
         value: null,
-        text: s__('ciReport|Method'),
+        text: __('Method'),
         isLink: false,
       },
       image: {
         value: null,
-        text: s__('ciReport|Image'),
+        text: __('Image'),
         isLink: false,
       },
       namespace: {
         value: null,
-        text: s__('ciReport|Namespace'),
+        text: __('Namespace'),
         isLink: false,
       },
       links: {
         value: [],
-        text: s__('ciReport|Links'),
+        text: __('Links'),
         isLink: false,
       },
       instances: {
         value: [],
-        text: s__('ciReport|Instances'),
+        text: __('Instances'),
         isLink: false,
       },
     },

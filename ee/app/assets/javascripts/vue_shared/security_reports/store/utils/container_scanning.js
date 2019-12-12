@@ -1,7 +1,7 @@
 import { SEVERITY_LEVELS } from 'ee/security_dashboard/store/constants';
 import sha1 from 'sha1';
 import _ from 'underscore';
-import { s__, sprintf } from '~/locale';
+import { __, sprintf } from '~/locale';
 import { enrichVulnerabilityWithFeedback } from '../utils';
 
 /*
@@ -35,7 +35,7 @@ export const formatContainerScanningDescription = ({
     generated = namespace;
   }
 
-  return sprintf(s__('ciReport|%{namespace} is affected by %{vulnerability}.'), {
+  return sprintf(__('%{namespace} is affected by %{vulnerability}.'), {
     namespace: generated,
     vulnerability,
   });
@@ -43,7 +43,7 @@ export const formatContainerScanningDescription = ({
 
 export const formatContainerScanningMessage = ({ vulnerability, featurename }) => {
   if (featurename) {
-    return sprintf(s__('ciReport|%{vulnerability} in %{featurename}'), {
+    return sprintf(__('%{vulnerability} in %{featurename}'), {
       vulnerability,
       featurename,
     });
@@ -55,20 +55,20 @@ export const formatContainerScanningSolution = ({ fixedby, featurename, featurev
   if (!_.isEmpty(fixedby)) {
     if (!_.isEmpty(featurename)) {
       if (!_.isEmpty(featureversion)) {
-        return sprintf(s__('ciReport|Upgrade %{name} from %{version} to %{fixed}.'), {
+        return sprintf(__('Upgrade %{name} from %{version} to %{fixed}.'), {
           name: featurename,
           version: featureversion,
           fixed: fixedby,
         });
       }
 
-      return sprintf(s__('ciReport|Upgrade %{name} to %{fixed}.'), {
+      return sprintf(__('Upgrade %{name} to %{fixed}.'), {
         name: featurename,
         fixed: fixedby,
       });
     }
 
-    return sprintf(s__('ciReport|Upgrade to %{fixed}.'), {
+    return sprintf(__('Upgrade to %{fixed}.'), {
       fixed: fixedby,
     });
   }

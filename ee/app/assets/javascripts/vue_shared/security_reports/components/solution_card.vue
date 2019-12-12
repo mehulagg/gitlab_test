@@ -71,7 +71,7 @@ export default {
     <div v-if="solutionText" class="card-body d-flex align-items-center">
       <div class="col-2 d-flex align-items-center pl-0">
         <div class="circle-icon-container" aria-hidden="true"><icon name="bulb" /></div>
-        <strong class="text-right flex-grow-1">{{ s__('ciReport|Solution') }}:</strong>
+        <strong class="text-right flex-grow-1">{{ __('Solution') }}:</strong>
       </div>
       <span class="col-10 flex-shrink-1 pl-0">{{ solutionText }}</span>
     </div>
@@ -80,8 +80,8 @@ export default {
         <em class="text-secondary">
           <template v-if="showCreateMergeRequestMsg">
             {{
-              s__(
-                'ciReport|Create a merge request to implement this solution, or download and apply the patch manually.',
+              __(
+                'Create a merge request to implement this solution, or download and apply the patch manually.',
               )
             }}
           </template>
@@ -91,7 +91,7 @@ export default {
             :href="helpPath"
             class="js-link-vulnerabilityFeedbackHelpPath"
           >
-            {{ s__('ciReport|Learn more about interacting with security reports') }}
+            {{ __('Learn more about interacting with security reports') }}
             <icon :size="16" name="external-link" class="align-text-top" />
           </a>
         </em>

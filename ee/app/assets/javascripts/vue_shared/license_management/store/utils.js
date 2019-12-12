@@ -128,8 +128,8 @@ export const parseLicenseReportMetrics = (headMetrics, baseMetrics, managedLicen
 
 export const getPackagesString = (packages, truncate, maxPackages) => {
   const translatedMessage = n__(
-    'ciReport|Used by %{packagesString}',
-    'ciReport|Used by %{packagesString}, and %{lastPackage}',
+    'Used by %{packagesString}',
+    'Used by %{packagesString}, and %{lastPackage}',
     packages.length,
   );
 

@@ -1,4 +1,4 @@
-import { sprintf, s__ } from '~/locale';
+import { sprintf, __ } from '~/locale';
 
 // Securely open external links in a new tab.
 function getLinkStartTag(url) {
@@ -12,11 +12,11 @@ export default {
   computed: {
     sastPopover() {
       return {
-        title: s__(
-          'ciReport|Static Application Security Testing (SAST) detects known vulnerabilities in your source code.',
+        title: __(
+          'Static Application Security Testing (SAST) detects known vulnerabilities in your source code.',
         ),
         content: sprintf(
-          s__('ciReport|%{linkStartTag}Learn more about SAST %{linkEndTag}'),
+          __('%{linkStartTag}Learn more about SAST %{linkEndTag}'),
           {
             linkStartTag: getLinkStartTag(this.sastHelpPath),
             linkEndTag,
@@ -27,11 +27,9 @@ export default {
     },
     sastContainerPopover() {
       return {
-        title: s__(
-          'ciReport|Container scanning detects known vulnerabilities in your docker images.',
-        ),
+        title: __('Container scanning detects known vulnerabilities in your docker images.'),
         content: sprintf(
-          s__('ciReport|%{linkStartTag}Learn more about Container Scanning %{linkEndTag}'),
+          __('%{linkStartTag}Learn more about Container Scanning %{linkEndTag}'),
           {
             linkStartTag: getLinkStartTag(this.sastContainerHelpPath),
             linkEndTag,
@@ -42,11 +40,11 @@ export default {
     },
     dastPopover() {
       return {
-        title: s__(
-          'ciReport|Dynamic Application Security Testing (DAST) detects known vulnerabilities in your web application.',
+        title: __(
+          'Dynamic Application Security Testing (DAST) detects known vulnerabilities in your web application.',
         ),
         content: sprintf(
-          s__('ciReport|%{linkStartTag}Learn more about DAST %{linkEndTag}'),
+          __('%{linkStartTag}Learn more about DAST %{linkEndTag}'),
           {
             linkStartTag: getLinkStartTag(this.dastHelpPath),
             linkEndTag,
@@ -57,11 +55,11 @@ export default {
     },
     dependencyScanningPopover() {
       return {
-        title: s__(
-          "ciReport|Dependency Scanning detects known vulnerabilities in your source code's dependencies.",
+        title: __(
+          "Dependency Scanning detects known vulnerabilities in your source code's dependencies.",
         ),
         content: sprintf(
-          s__('ciReport|%{linkStartTag}Learn more about Dependency Scanning %{linkEndTag}'),
+          __('%{linkStartTag}Learn more about Dependency Scanning %{linkEndTag}'),
           {
             linkStartTag: getLinkStartTag(this.dependencyScanningHelpPath),
             linkEndTag,

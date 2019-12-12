@@ -156,7 +156,7 @@ export default {
           :href="licenseManagementSettingsPath"
           class="btn btn-default btn-sm js-manage-licenses"
         >
-          {{ s__('ciReport|Manage licenses') }}
+          {{ __('Manage licenses') }}
         </a>
         <a
           v-if="fullReportPath"
@@ -164,7 +164,7 @@ export default {
           target="_blank"
           class="btn btn-default btn-sm js-full-report"
         >
-          {{ s__('ciReport|View full report') }} <icon :size="16" name="external-link" />
+          {{ __('View full report') }} <icon :size="16" name="external-link" />
         </a>
       </div>
     </report-section>

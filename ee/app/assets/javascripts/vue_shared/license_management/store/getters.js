@@ -1,4 +1,4 @@
-import { n__, s__, sprintf } from '~/locale';
+import { n__, __, sprintf } from '~/locale';
 import { parseLicenseReportMetrics } from './utils';
 import { LICENSE_APPROVAL_STATUS } from '../constants';
 
@@ -16,14 +16,14 @@ export const licenseSummaryText = (state, getters) => {
     (state.baseReport && state.baseReport.licenses && state.baseReport.licenses.length);
 
   if (getters.isLoading) {
-    return sprintf(s__('ciReport|Loading %{reportName} report'), {
-      reportName: s__('License Compliance'),
+    return sprintf(__('Loading %{reportName} report'), {
+      reportName: __('License Compliance'),
     });
   }
 
   if (state.loadLicenseReportError) {
-    return sprintf(s__('ciReport|Failed to load %{reportName} report'), {
-      reportName: s__('License Compliance'),
+    return sprintf(__('Failed to load %{reportName} report'), {
+      reportName: __('License Compliance'),
     });
   }
 
@@ -33,37 +33,35 @@ export const licenseSummaryText = (state, getters) => {
     if (!baseReportHasLicenses) {
       return getters.reportContainsBlacklistedLicense
         ? n__(
-            'LicenseCompliance|License Compliance detected %d license for the source branch only; approval required',
-            'LicenseCompliance|License Compliance detected %d licenses for the source branch only; approval required',
+            'License Compliance detected %d license for the source branch only; approval required',
+            'License Compliance detected %d licenses for the source branch only; approval required',
             licenseReportLength,
           )
         : n__(
-            'LicenseCompliance|License Compliance detected %d license for the source branch only',
-            'LicenseCompliance|License Compliance detected %d licenses for the source branch only',
+            'License Compliance detected %d license for the source branch only',
+            'License Compliance detected %d licenses for the source branch only',
             licenseReportLength,
           );
     }
 
     return getters.reportContainsBlacklistedLicense
       ? n__(
-          'LicenseCompliance|License Compliance detected %d new license; approval required',
-          'LicenseCompliance|License Compliance detected %d new licenses; approval required',
+          'License Compliance detected %d new license; approval required',
+          'License Compliance detected %d new licenses; approval required',
           licenseReportLength,
         )
       : n__(
-          'LicenseCompliance|License Compliance detected %d new license',
-          'LicenseCompliance|License Compliance detected %d new licenses',
+          'License Compliance detected %d new license',
+          'License Compliance detected %d new licenses',
           licenseReportLength,
         );
   }
 
   if (!baseReportHasLicenses) {
-    return s__(
-      'LicenseCompliance|License Compliance detected no licenses for the source branch only',
-    );
+    return __('License Compliance detected no licenses for the source branch only');
   }
 
-  return s__('LicenseCompliance|License Compliance detected no new licenses');
+  return __('License Compliance detected no new licenses');
 };
 
 export const reportContainsBlacklistedLicense = (_state, getters) =>

@@ -1,5 +1,5 @@
 <script>
-import { s__, sprintf } from '~/locale';
+import { __, sprintf } from '~/locale';
 import { getPackagesString } from '../store/utils';
 
 export default {
@@ -23,7 +23,7 @@ export default {
     remainingPackages() {
       const { packages } = this;
       if (packages.length > this.displayPackageCount) {
-        return sprintf(s__('ciReport|%{remainingPackagesCount} more'), {
+        return sprintf(__('%{remainingPackagesCount} more'), {
           remainingPackagesCount: packages.length - this.displayPackageCount,
         });
       }

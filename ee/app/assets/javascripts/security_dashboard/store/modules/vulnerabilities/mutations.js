@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import getFileLocation from 'ee/vue_shared/security_reports/store/utils/get_file_location';
-import { s__, __ } from '~/locale';
+import { __ } from '~/locale';
 import { visitUrl } from '~/lib/utils/url_utility';
 import * as types from './mutation_types';
 import { DAYS } from './constants';
@@ -183,11 +183,7 @@ export default {
   [types.RECEIVE_DISMISS_VULNERABILITY_ERROR](state) {
     state.isDismissingVulnerability = false;
     Vue.set(state.modal, 'isDismissingVulnerability', false);
-    Vue.set(
-      state.modal,
-      'error',
-      s__('Security Reports|There was an error dismissing the vulnerability.'),
-    );
+    Vue.set(state.modal, 'error', __('There was an error dismissing the vulnerability.'));
   },
   [types.REQUEST_ADD_DISMISSAL_COMMENT](state) {
     state.isDismissingVulnerability = true;
@@ -208,7 +204,7 @@ export default {
   [types.RECEIVE_ADD_DISMISSAL_COMMENT_ERROR](state) {
     state.isDismissingVulnerability = false;
     Vue.set(state.modal, 'isDismissingVulnerability', false);
-    Vue.set(state.modal, 'error', s__('Security Reports|There was an error adding the comment.'));
+    Vue.set(state.modal, 'error', __('There was an error adding the comment.'));
   },
   [types.REQUEST_DELETE_DISMISSAL_COMMENT](state) {
     state.isDismissingVulnerability = true;
@@ -227,7 +223,7 @@ export default {
   [types.RECEIVE_DELETE_DISMISSAL_COMMENT_ERROR](state) {
     state.isDismissingVulnerability = false;
     Vue.set(state.modal, 'isDismissingVulnerability', false);
-    Vue.set(state.modal, 'error', s__('Security Reports|There was an error deleting the comment.'));
+    Vue.set(state.modal, 'error', __('There was an error deleting the comment.'));
   },
   [types.REQUEST_REVERT_DISMISSAL](state) {
     state.isDismissingVulnerability = true;
@@ -246,11 +242,7 @@ export default {
   [types.RECEIVE_REVERT_DISMISSAL_ERROR](state) {
     state.isDismissingVulnerability = false;
     Vue.set(state.modal, 'isDismissingVulnerability', false);
-    Vue.set(
-      state.modal,
-      'error',
-      s__('Security Reports|There was an error reverting the dismissal.'),
-    );
+    Vue.set(state.modal, 'error', __('There was an error reverting the dismissal.'));
   },
   [types.SHOW_DISMISSAL_DELETE_BUTTONS](state) {
     Vue.set(state.modal, 'isShowingDeleteButtons', true);
@@ -270,11 +262,7 @@ export default {
   [types.RECEIVE_CREATE_MERGE_REQUEST_ERROR](state) {
     state.isCreatingIssue = false;
     Vue.set(state.modal, 'isCreatingMergeRequest', false);
-    Vue.set(
-      state.modal,
-      'error',
-      s__('security Reports|There was an error creating the merge request'),
-    );
+    Vue.set(state.modal, 'error', __('There was an error creating the merge request'));
   },
   [types.OPEN_DISMISSAL_COMMENT_BOX](state) {
     Vue.set(state.modal, 'isCommentingOnDismissal', true);

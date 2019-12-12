@@ -2,7 +2,7 @@
 import { GlButton } from '@gitlab/ui';
 import DismissButton from 'ee/vue_shared/security_reports/components/dismiss_button.vue';
 import SplitButton from 'ee/vue_shared/security_reports/components/split_button.vue';
-import { s__ } from '~/locale';
+import { __ } from '~/locale';
 import LoadingButton from '~/vue_shared/components/loading_button.vue';
 
 export default {
@@ -53,20 +53,20 @@ export default {
     actionButtons() {
       const buttons = [];
       const issueButton = {
-        name: s__('ciReport|Create issue'),
-        tagline: s__('ciReport|Investigate this vulnerability by creating an issue'),
+        name: __('Create issue'),
+        tagline: __('Investigate this vulnerability by creating an issue'),
         isLoading: this.modal.isCreatingNewIssue,
         action: 'createNewIssue',
       };
       const MRButton = {
-        name: s__('ciReport|Resolve with merge request'),
-        tagline: s__('ciReport|Automatically apply the patch in a new branch'),
+        name: __('Resolve with merge request'),
+        tagline: __('Automatically apply the patch in a new branch'),
         isLoading: this.modal.isCreatingMergeRequest,
         action: 'createMergeRequest',
       };
       const DownloadButton = {
-        name: s__('ciReport|Download patch to resolve'),
-        tagline: s__('ciReport|Download the patch to apply it manually'),
+        name: __('Download patch to resolve'),
+        tagline: __('Download the patch to apply it manually'),
         action: 'downloadPatch',
       };
 

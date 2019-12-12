@@ -2,7 +2,7 @@ import $ from 'jquery';
 import downloadPatchHelper from 'ee/vue_shared/security_reports/store/utils/download_patch_helper';
 import axios from '~/lib/utils/axios_utils';
 import { parseIntPagination, normalizeHeaders } from '~/lib/utils/common_utils';
-import { s__, sprintf } from '~/locale';
+import { __, sprintf } from '~/locale';
 import createFlash from '~/flash';
 import toast from '~/vue_shared/plugins/global_toast';
 import * as types from './mutation_types';
@@ -141,7 +141,7 @@ export const receiveCreateIssueError = ({ commit }, { flashError }) => {
 
   if (flashError) {
     createFlash(
-      s__('Security Reports|There was an error creating the issue.'),
+      __('There was an error creating the issue.'),
       'alert',
       document.querySelector('.ci-table'),
     );
@@ -160,10 +160,8 @@ export const dismissVulnerability = (
 
   const toastMsg = sprintf(
     dismissedVulnerabilitiesHidden
-      ? s__(
-          "Security Reports|Dismissed '%{vulnerabilityName}'. Turn off the hide dismissed toggle to view.",
-        )
-      : s__("Security Reports|Dismissed '%{vulnerabilityName}'"),
+      ? __("Dismissed '%{vulnerabilityName}'. Turn off the hide dismissed toggle to view.")
+      : __("Dismissed '%{vulnerabilityName}'"),
     {
       vulnerabilityName: vulnerability.name,
     },
@@ -171,7 +169,7 @@ export const dismissVulnerability = (
   const toastOptions = dismissedVulnerabilitiesHidden
     ? {
         action: {
-          text: s__('Security Reports|Undo dismiss'),
+          text: __('Undo dismiss'),
           onClick: (e, toastObject) => {
             if (vulnerability.dismissal_feedback) {
               dispatch('undoDismiss', { vulnerability })
@@ -228,7 +226,7 @@ export const receiveDismissVulnerabilityError = ({ commit }, { flashError }) => 
   commit(types.RECEIVE_DISMISS_VULNERABILITY_ERROR);
   if (flashError) {
     createFlash(
-      s__('Security Reports|There was an error dismissing the vulnerability.'),
+      __('There was an error dismissing the vulnerability.'),
       'alert',
       document.querySelector('.ci-table'),
     );
@@ -244,10 +242,10 @@ export const addDismissalComment = ({ dispatch }, { vulnerability, comment }) =>
     dismissal_feedback.comment_details && dismissal_feedback.comment_details.comment;
 
   const toastMsg = editingDismissalContent
-    ? sprintf(s__("Security Reports|Comment edited on '%{vulnerabilityName}'"), {
+    ? sprintf(__("Comment edited on '%{vulnerabilityName}'"), {
         vulnerabilityName: vulnerability.name,
       })
-    : sprintf(s__("Security Reports|Comment added to '%{vulnerabilityName}'"), {
+    : sprintf(__("Comment added to '%{vulnerabilityName}'"), {
         vulnerabilityName: vulnerability.name,
       });
 
@@ -272,7 +270,7 @@ export const deleteDismissalComment = ({ dispatch }, { vulnerability }) => {
 
   const { dismissal_feedback } = vulnerability;
   const url = `${vulnerability.create_vulnerability_feedback_dismissal_path}/${dismissal_feedback.id}`;
-  const toastMsg = sprintf(s__("Security Reports|Comment deleted on '%{vulnerabilityName}'"), {
+  const toastMsg = sprintf(__("Comment deleted on '%{vulnerabilityName}'"), {
     vulnerabilityName: vulnerability.name,
   });
 
@@ -354,7 +352,7 @@ export const receiveUndoDismissError = ({ commit }, { flashError }) => {
   commit(types.RECEIVE_REVERT_DISMISSAL_ERROR);
   if (flashError) {
     createFlash(
-      s__('Security Reports|There was an error reverting this dismissal.'),
+      __('There was an error reverting this dismissal.'),
       'alert',
       document.querySelector('.ci-table'),
     );
@@ -417,7 +415,7 @@ export const receiveCreateMergeRequestError = ({ commit }, { flashError }) => {
 
   if (flashError) {
     createFlash(
-      s__('Security Reports|There was an error creating the merge request.'),
+      __('There was an error creating the merge request.'),
       'alert',
       document.querySelector('.ci-table'),
     );

@@ -71,7 +71,7 @@ export default {
           )
         "
         :primary-button-link="dashboardDocumentation"
-        :primary-button-text="s__('Security Reports|Learn more about setting up your dashboard')"
+        :primary-button-text="__('Learn more about setting up your dashboard')"
       />
     </template>
   </security-dashboard>

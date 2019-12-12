@@ -2,7 +2,7 @@ import Vue from 'vue';
 import component from 'ee/vue_shared/security_reports/components/solution_card.vue';
 import { trimText } from 'helpers/text_helper';
 import { shallowMount } from '@vue/test-utils';
-import { s__ } from '~/locale';
+import { __ } from '~/locale';
 
 describe('Solution Card', () => {
   const Component = Vue.extend(component);
@@ -84,7 +84,7 @@ describe('Solution Card', () => {
 
         it('renders the learn more about remediation solutions', () => {
           expect(wrapper.find('.card-footer').text()).toContain(
-            s__('ciReport|Learn more about interacting with security reports'),
+            __('Learn more about interacting with security reports'),
           );
         });
 
@@ -95,8 +95,8 @@ describe('Solution Card', () => {
 
         it('renders the create a merge request to implement this solution message', () => {
           expect(wrapper.find('.card-footer').text()).toContain(
-            s__(
-              'ciReport|Create a merge request to implement this solution, or download and apply the patch manually.',
+            __(
+              'Create a merge request to implement this solution, or download and apply the patch manually.',
             ),
           );
         });
@@ -105,20 +105,20 @@ describe('Solution Card', () => {
       describe('without download patch', () => {
         it('renders the learn more about remediation solutions', () => {
           expect(wrapper.find('.card-footer').text()).toContain(
-            s__('ciReport|Learn more about interacting with security reports'),
+            __('Learn more about interacting with security reports'),
           );
         });
 
         it('does not render the download and apply solution message', () => {
           expect(wrapper.find('.card-footer').text()).not.toContain(
-            s__('ciReport|Download and apply the patch manually to resolve.'),
+            __('Download and apply the patch manually to resolve.'),
           );
         });
 
         it('does not render the create a merge request to implement this solution message', () => {
           expect(wrapper.find('.card-footer').text()).not.toContain(
-            s__(
-              'ciReport|Create a merge request to implement this solution, or download and apply the patch manually.',
+            __(
+              'Create a merge request to implement this solution, or download and apply the patch manually.',
             ),
           );
         });

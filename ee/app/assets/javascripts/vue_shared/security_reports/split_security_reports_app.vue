@@ -1,7 +1,7 @@
 <script>
 import { mapActions, mapState } from 'vuex';
 import { componentNames } from 'ee/reports/components/issue_body';
-import { s__, sprintf, n__ } from '~/locale';
+import { __, sprintf, n__ } from '~/locale';
 import createFlash from '~/flash';
 import ReportSection from '~/reports/components/report_section.vue';
 import IssueModal from './components/modal.vue';
@@ -176,7 +176,7 @@ export default {
       this.setSastHeadPath(this.sastHeadPath);
 
       this.fetchSastReports().catch(() =>
-        createFlash(s__('ciReport|There was an error loading SAST report')),
+        createFlash(__('There was an error loading SAST report')),
       );
     }
 
@@ -184,7 +184,7 @@ export default {
       this.setDependencyScanningHeadPath(this.dependencyScanningHeadPath);
 
       this.fetchDependencyScanningReports().catch(() =>
-        createFlash(s__('ciReport|There was an error loading dependency scanning report')),
+        createFlash(__('There was an error loading dependency scanning report')),
       );
     }
 
@@ -192,7 +192,7 @@ export default {
       this.setSastContainerHeadPath(this.sastContainerHeadPath);
 
       this.fetchSastContainerReports().catch(() =>
-        createFlash(s__('ciReport|There was an error loading container scanning report')),
+        createFlash(__('There was an error loading container scanning report')),
       );
     }
 
@@ -200,7 +200,7 @@ export default {
       this.setDastHeadPath(this.dastHeadPath);
 
       this.fetchDastReports().catch(() =>
-        createFlash(s__('ciReport|There was an error loading DAST report')),
+        createFlash(__('There was an error loading DAST report')),
       );
     }
   },
@@ -241,14 +241,14 @@ export default {
     }),
     summaryTextBuilder(reportType, issuesCount = 0) {
       if (issuesCount === 0) {
-        return sprintf(s__('ciReport|%{reportType} detected no vulnerabilities'), {
+        return sprintf(__('%{reportType} detected no vulnerabilities'), {
           reportType,
         });
       }
       return sprintf(
         n__(
-          'ciReport|%{reportType} detected %{vulnerabilityCount} vulnerability',
-          'ciReport|%{reportType} detected %{vulnerabilityCount} vulnerabilities',
+          '%{reportType} detected %{vulnerabilityCount} vulnerability',
+          '%{reportType} detected %{vulnerabilityCount} vulnerabilities',
           issuesCount,
         ),
         { reportType, vulnerabilityCount: issuesCount },

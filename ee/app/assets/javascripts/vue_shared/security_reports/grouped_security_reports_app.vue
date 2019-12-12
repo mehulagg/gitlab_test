@@ -353,7 +353,7 @@ export default {
         target="_blank"
         class="btn btn-default btn-sm float-right append-right-default"
       >
-        <span>{{ s__('ciReport|View full report') }}</span>
+        <span>{{ __('View full report') }}</span>
         <icon :size="16" name="external-link" />
       </a>
     </div>

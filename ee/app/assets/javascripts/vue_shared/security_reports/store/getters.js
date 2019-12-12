@@ -1,4 +1,4 @@
-import { s__, sprintf } from '~/locale';
+import { __, sprintf } from '~/locale';
 import { countIssues, groupedTextBuilder, statusIcon, groupedReportText } from './utils';
 import { LOADING, ERROR, SUCCESS } from './constants';
 import messages from './messages';
@@ -36,7 +36,7 @@ export const summaryCounts = state =>
   );
 
 export const groupedSummaryText = (state, getters) => {
-  const reportType = s__('ciReport|Security scanning');
+  const reportType = __('Security scanning');
 
   // All reports are loading
   if (getters.areAllReportsLoading) {
@@ -45,7 +45,7 @@ export const groupedSummaryText = (state, getters) => {
 
   // All reports returned error
   if (getters.allReportsHaveError) {
-    return s__('ciReport|Security scanning failed loading any results');
+    return __('Security scanning failed loading any results');
   }
 
   const { added, fixed, existing, dismissed } = getters.summaryCounts;
@@ -53,11 +53,11 @@ export const groupedSummaryText = (state, getters) => {
   let status = '';
 
   if (getters.areReportsLoading && getters.anyReportHasError) {
-    status = s__('ciReport|(is loading, errors when loading results)');
+    status = __('(is loading, errors when loading results)');
   } else if (getters.areReportsLoading && !getters.anyReportHasError) {
-    status = s__('ciReport|(is loading)');
+    status = __('(is loading)');
   } else if (!getters.areReportsLoading && getters.anyReportHasError) {
-    status = s__('ciReport|(errors when loading results)');
+    status = __('(errors when loading results)');
   }
 
   /*

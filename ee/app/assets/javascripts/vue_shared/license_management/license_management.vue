@@ -48,11 +48,9 @@ export default {
       this.formIsOpen = false;
     },
   },
-  emptyMessage: s__(
-    'LicenseCompliance|There are currently no approved or blacklisted licenses in this project.',
-  ),
+  emptyMessage: s__('There are currently no approved or blacklisted licenses in this project.'),
   emptySearchMessage: s__(
-    'LicenseCompliance|There are currently no approved or blacklisted licenses that match in this project.',
+    'There are currently no approved or blacklisted licenses that match in this project.',
   ),
 };
 </script>
@@ -76,7 +74,7 @@ export default {
           data-qa-selector="license_add_button"
           @click="openAddLicenseForm"
         >
-          {{ s__('LicenseCompliance|Add a license') }}
+          {{ __('Add a license') }}
         </gl-button>
       </template>
 

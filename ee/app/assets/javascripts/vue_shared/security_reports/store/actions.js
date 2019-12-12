@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import axios from '~/lib/utils/axios_utils';
-import { s__, sprintf } from '~/locale';
+import { __, sprintf } from '~/locale';
 import { visitUrl } from '~/lib/utils/url_utility';
 import toast from '~/vue_shared/plugins/global_toast';
 import * as types from './mutation_types';
@@ -291,7 +291,7 @@ export const receiveDismissVulnerabilityError = ({ commit }, error) =>
 export const dismissVulnerability = ({ state, dispatch }, comment) => {
   dispatch('requestDismissVulnerability');
 
-  const toastMsg = sprintf(s__("Security Reports|Dismissed '%{vulnerabilityName}'"), {
+  const toastMsg = sprintf(__("Dismissed '%{vulnerabilityName}'"), {
     vulnerabilityName: state.modal.vulnerability.name,
   });
 
@@ -321,7 +321,7 @@ export const dismissVulnerability = ({ state, dispatch }, comment) => {
     .catch(() => {
       dispatch(
         'receiveDismissVulnerabilityError',
-        s__('ciReport|There was an error dismissing the vulnerability. Please try again.'),
+        __('There was an error dismissing the vulnerability. Please try again.'),
       );
     });
 };
@@ -337,10 +337,10 @@ export const addDismissalComment = ({ state, dispatch }, { comment }) => {
     dismissalFeedback.comment_details && dismissalFeedback.comment_details.comment;
 
   const toastMsg = editingDismissalContent
-    ? sprintf(s__("Security Reports|Comment edited on '%{vulnerabilityName}'"), {
+    ? sprintf(__("Comment edited on '%{vulnerabilityName}'"), {
         vulnerabilityName: vulnerability.name,
       })
-    : sprintf(s__("Security Reports|Comment added to '%{vulnerabilityName}'"), {
+    : sprintf(__("Comment added to '%{vulnerabilityName}'"), {
         vulnerabilityName: vulnerability.name,
       });
 
@@ -356,10 +356,7 @@ export const addDismissalComment = ({ state, dispatch }, { comment }) => {
       toast(toastMsg);
     })
     .catch(() => {
-      dispatch(
-        'receiveAddDismissalCommentError',
-        s__('Security Reports|There was an error adding the comment.'),
-      );
+      dispatch('receiveAddDismissalCommentError', __('There was an error adding the comment.'));
     });
 };
 
@@ -369,7 +366,7 @@ export const deleteDismissalComment = ({ state, dispatch }) => {
   const { vulnerability } = state.modal;
   const { dismissalFeedback } = vulnerability;
   const url = `${state.createVulnerabilityFeedbackDismissalPath}/${dismissalFeedback.id}`;
-  const toastMsg = sprintf(s__("Security Reports|Comment deleted on '%{vulnerabilityName}'"), {
+  const toastMsg = sprintf(__("Comment deleted on '%{vulnerabilityName}'"), {
     vulnerabilityName: vulnerability.name,
   });
 
@@ -386,7 +383,7 @@ export const deleteDismissalComment = ({ state, dispatch }) => {
     .catch(() => {
       dispatch(
         'receiveDeleteDismissalCommentError',
-        s__('Security Reports|There was an error deleting the comment.'),
+        __('There was an error deleting the comment.'),
       );
     });
 };
@@ -438,7 +435,7 @@ export const revertDismissVulnerability = ({ state, dispatch }) => {
     .catch(() =>
       dispatch(
         'receiveDismissVulnerabilityError',
-        s__('ciReport|There was an error reverting the dismissal. Please try again.'),
+        __('There was an error reverting the dismissal. Please try again.'),
       ),
     );
 };
@@ -477,7 +474,7 @@ export const createNewIssue = ({ state, dispatch }) => {
     .catch(() =>
       dispatch(
         'receiveCreateIssueError',
-        s__('ciReport|There was an error creating the issue. Please try again.'),
+        __('There was an error creating the issue. Please try again.'),
       ),
     );
 };
@@ -505,7 +502,7 @@ export const createMergeRequest = ({ state, dispatch }) => {
     .catch(() => {
       dispatch(
         'receiveCreateMergeRequestError',
-        s__('ciReport|There was an error creating the merge request. Please try again.'),
+        __('There was an error creating the merge request. Please try again.'),
       );
     });
 };

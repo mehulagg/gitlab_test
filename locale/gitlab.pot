@@ -296,6 +296,18 @@ msgstr ""
 msgid "%{level_name} is not allowed since the fork source project has lower visibility."
 msgstr ""
 
+msgid "%{linkStartTag}Learn more about Container Scanning %{linkEndTag}"
+msgstr ""
+
+msgid "%{linkStartTag}Learn more about DAST %{linkEndTag}"
+msgstr ""
+
+msgid "%{linkStartTag}Learn more about Dependency Scanning %{linkEndTag}"
+msgstr ""
+
+msgid "%{linkStartTag}Learn more about SAST %{linkEndTag}"
+msgstr ""
+
 msgid "%{link_start}Read more%{link_end} about role permissions"
 msgstr ""
 
@@ -315,6 +327,9 @@ msgid "%{mergeLength}/%{usersLength} can merge"
 msgstr ""
 
 msgid "%{mrText}, this issue will be closed automatically."
+msgstr ""
+
+msgid "%{namespace} is affected by %{vulnerability}."
 msgstr ""
 
 msgid "%{name} contained %{resultsString}"
@@ -345,6 +360,72 @@ msgid "%{releases} release"
 msgid_plural "%{releases} releases"
 msgstr[0] ""
 msgstr[1] ""
+
+msgid "%{remainingPackagesCount} more"
+msgstr ""
+
+msgid "%{reportType} %{status} detected %{dismissedCount} dismissed vulnerability"
+msgid_plural "%{reportType} %{status} detected %{dismissedCount} dismissed vulnerabilities"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "%{reportType} %{status} detected %{dismissedCount} dismissed vulnerability for the source branch only"
+msgid_plural "%{reportType} %{status} detected %{dismissedCount} dismissed vulnerabilities for the source branch only"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "%{reportType} %{status} detected %{fixedCount} fixed vulnerability"
+msgid_plural "%{reportType} %{status} detected %{fixedCount} fixed vulnerabilities"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "%{reportType} %{status} detected %{fixedCount} fixed, and %{dismissedCount} dismissed vulnerabilities"
+msgstr ""
+
+msgid "%{reportType} %{status} detected %{newCount} new vulnerability"
+msgid_plural "%{reportType} %{status} detected %{newCount} new vulnerabilities"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "%{reportType} %{status} detected %{newCount} new, %{fixedCount} fixed, and %{dismissedCount} dismissed vulnerabilities"
+msgstr ""
+
+msgid "%{reportType} %{status} detected %{newCount} new, and %{dismissedCount} dismissed vulnerabilities"
+msgstr ""
+
+msgid "%{reportType} %{status} detected %{newCount} new, and %{dismissedCount} dismissed vulnerabilities for the source branch only"
+msgstr ""
+
+msgid "%{reportType} %{status} detected %{newCount} new, and %{fixedCount} fixed vulnerabilities"
+msgstr ""
+
+msgid "%{reportType} %{status} detected %{newCount} vulnerability for the source branch only"
+msgid_plural "%{reportType} %{status} detected %{newCount} vulnerabilities for the source branch only"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "%{reportType} %{status} detected no new vulnerabilities"
+msgstr ""
+
+msgid "%{reportType} %{status} detected no vulnerabilities"
+msgstr ""
+
+msgid "%{reportType} %{status} detected no vulnerabilities for the source branch only"
+msgstr ""
+
+msgid "%{reportType} detected %{vulnerabilityCount} vulnerability"
+msgid_plural "%{reportType} detected %{vulnerabilityCount} vulnerabilities"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "%{reportType} detected no vulnerabilities"
+msgstr ""
+
+msgid "%{reportType} is loading"
+msgstr ""
+
+msgid "%{reportType}: Loading resulted in an error"
+msgstr ""
 
 msgid "%{service_title} activated."
 msgstr ""
@@ -447,6 +528,9 @@ msgstr ""
 msgid "%{verb} %{time_spent_value} spent time."
 msgstr ""
 
+msgid "%{vulnerability} in %{featurename}"
+msgstr ""
+
 msgid "'%{level}' is not a valid visibility level"
 msgstr ""
 
@@ -473,7 +557,16 @@ msgstr ""
 msgid "(check progress)"
 msgstr ""
 
+msgid "(errors when loading results)"
+msgstr ""
+
 msgid "(external source)"
+msgstr ""
+
+msgid "(is loading)"
+msgstr ""
+
+msgid "(is loading, errors when loading results)"
 msgstr ""
 
 msgid "(removed)"
@@ -980,6 +1073,9 @@ msgstr ""
 msgid "Add a homepage to your wiki that contains information about your project and GitLab will display it here instead of this message."
 msgstr ""
 
+msgid "Add a license"
+msgstr ""
+
 msgid "Add a link"
 msgstr ""
 
@@ -1035,6 +1131,9 @@ msgid "Add label(s)"
 msgstr ""
 
 msgid "Add license"
+msgstr ""
+
+msgid "Add licenses manually to approve or blacklist"
 msgstr ""
 
 msgid "Add list"
@@ -2016,7 +2115,16 @@ msgstr ""
 msgid "Approve a merge request"
 msgstr ""
 
+msgid "Approve license"
+msgstr ""
+
+msgid "Approve license?"
+msgstr ""
+
 msgid "Approve the current merge request."
+msgstr ""
+
+msgid "Approved"
 msgstr ""
 
 msgid "Approved the current merge request."
@@ -2401,6 +2509,9 @@ msgstr ""
 msgid "Automatic certificate management using Let's Encrypt"
 msgstr ""
 
+msgid "Automatically apply the patch in a new branch"
+msgstr ""
+
 msgid "Automatically marked as default internal user"
 msgstr ""
 
@@ -2639,6 +2750,18 @@ msgid "Bitbucket Server Import"
 msgstr ""
 
 msgid "Bitbucket import"
+msgstr ""
+
+msgid "Blacklist"
+msgstr ""
+
+msgid "Blacklist license"
+msgstr ""
+
+msgid "Blacklist license?"
+msgstr ""
+
+msgid "Blacklisted"
 msgstr ""
 
 msgid "Blocked"
@@ -4501,6 +4624,15 @@ msgstr ""
 msgid "Comment & unresolve thread"
 msgstr ""
 
+msgid "Comment added to '%{vulnerabilityName}'"
+msgstr ""
+
+msgid "Comment deleted on '%{vulnerabilityName}'"
+msgstr ""
+
+msgid "Comment edited on '%{vulnerabilityName}'"
+msgstr ""
+
 msgid "Comment form position"
 msgstr ""
 
@@ -4632,6 +4764,9 @@ msgstr ""
 msgid "Complete"
 msgstr ""
 
+msgid "Confidence"
+msgstr ""
+
 msgid "Confidential"
 msgstr ""
 
@@ -4756,6 +4891,12 @@ msgid "Container registry images"
 msgstr ""
 
 msgid "Container registry is not enabled on this GitLab instance. Ask an administrator to enable it in order for AutoDevOps to work."
+msgstr ""
+
+msgid "Container scanning"
+msgstr ""
+
+msgid "Container scanning detects known vulnerabilities in your docker images."
 msgstr ""
 
 msgid "ContainerRegistry|Container Registry"
@@ -5046,6 +5187,9 @@ msgid "Create a local proxy for storing frequently used upstream images. %{link_
 msgstr ""
 
 msgid "Create a merge request"
+msgstr ""
+
+msgid "Create a merge request to implement this solution, or download and apply the patch manually."
 msgstr ""
 
 msgid "Create a new branch"
@@ -5485,6 +5629,9 @@ msgstr ""
 msgid "CycleAnalytics|stage dropdown"
 msgstr ""
 
+msgid "DAST"
+msgstr ""
+
 msgid "DNS"
 msgstr ""
 
@@ -5768,6 +5915,9 @@ msgstr ""
 msgid "Dependency Scanning"
 msgstr ""
 
+msgid "Dependency Scanning detects known vulnerabilities in your source code's dependencies."
+msgstr ""
+
 msgid "Dependency proxy"
 msgstr ""
 
@@ -5775,6 +5925,9 @@ msgid "Dependency proxy URL"
 msgstr ""
 
 msgid "Dependency proxy feature is limited to public groups for now."
+msgstr ""
+
+msgid "Dependency scanning"
 msgstr ""
 
 msgid "DependencyProxy|Toggle Dependency Proxy"
@@ -6200,7 +6353,16 @@ msgstr ""
 msgid "Dismiss trial promotion"
 msgstr ""
 
+msgid "Dismiss vulnerability"
+msgstr ""
+
 msgid "Dismissed"
+msgstr ""
+
+msgid "Dismissed '%{vulnerabilityName}'"
+msgstr ""
+
+msgid "Dismissed '%{vulnerabilityName}'. Turn off the hide dismissed toggle to view."
 msgstr ""
 
 msgid "Dismissed at %{projectLink}"
@@ -6293,7 +6455,13 @@ msgstr ""
 msgid "Download license"
 msgstr ""
 
+msgid "Download patch to resolve"
+msgstr ""
+
 msgid "Download source code"
+msgstr ""
+
+msgid "Download the patch to apply it manually"
 msgstr ""
 
 msgid "Download this directory"
@@ -6324,6 +6492,9 @@ msgid "During this process, you’ll be asked for URLs from GitLab’s side. Use
 msgstr ""
 
 msgid "Dynamic Application Security Testing (DAST)"
+msgstr ""
+
+msgid "Dynamic Application Security Testing (DAST) detects known vulnerabilities in your web application."
 msgstr ""
 
 msgid "Each Runner can be in one of the following states and/or belong to one of the following types:"
@@ -7452,6 +7623,9 @@ msgid "Failed to get ref."
 msgstr ""
 
 msgid "Failed to install."
+msgstr ""
+
+msgid "Failed to load %{reportName} report"
 msgstr ""
 
 msgid "Failed to load emoji list."
@@ -9292,6 +9466,9 @@ msgstr ""
 msgid "Helps reduce request volume for protected paths"
 msgstr ""
 
+msgid "Here you can approve or blacklist licenses for this project. Using %{ci} or %{license} will allow you to see if there are any unmanaged licenses and approve or blacklist them in merge request."
+msgstr ""
+
 msgid "Hi %{username}!"
 msgstr ""
 
@@ -9456,6 +9633,9 @@ msgstr ""
 msgid "Identifier"
 msgstr ""
 
+msgid "Identifiers"
+msgstr ""
+
 msgid "Identify areas of the codebase associated with a lot of churn, which can indicate potential code hotspots."
 msgstr ""
 
@@ -9511,6 +9691,9 @@ msgid "If your HTTP repository is not publicly accessible, add your credentials.
 msgstr ""
 
 msgid "Iglu registry URL (optional)"
+msgstr ""
+
+msgid "Image"
 msgstr ""
 
 msgid "ImageDiffViewer|2-up"
@@ -9779,6 +9962,9 @@ msgstr ""
 msgid "Instance license"
 msgstr ""
 
+msgid "Instances"
+msgstr ""
+
 msgid "Integrations"
 msgstr ""
 
@@ -9858,6 +10044,9 @@ msgid "Invalid server response"
 msgstr ""
 
 msgid "Invalid two-factor code."
+msgstr ""
+
+msgid "Investigate this vulnerability by creating an issue"
 msgstr ""
 
 msgid "Invitation"
@@ -10444,6 +10633,12 @@ msgstr ""
 msgid "Learn more about group-level project templates"
 msgstr ""
 
+msgid "Learn more about interacting with security reports"
+msgstr ""
+
+msgid "Learn more about setting up your dashboard"
+msgstr ""
+
 msgid "Learn more about signing commits"
 msgstr ""
 
@@ -10489,108 +10684,39 @@ msgstr ""
 msgid "License Compliance"
 msgstr ""
 
+msgid "License Compliance detected %d license for the source branch only"
+msgid_plural "License Compliance detected %d licenses for the source branch only"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "License Compliance detected %d license for the source branch only; approval required"
+msgid_plural "License Compliance detected %d licenses for the source branch only; approval required"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "License Compliance detected %d new license"
+msgid_plural "License Compliance detected %d new licenses"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "License Compliance detected %d new license; approval required"
+msgid_plural "License Compliance detected %d new licenses; approval required"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "License Compliance detected no licenses for the source branch only"
+msgstr ""
+
+msgid "License Compliance detected no new licenses"
+msgstr ""
+
+msgid "License details"
+msgstr ""
+
+msgid "License name"
+msgstr ""
+
 msgid "License-Check"
-msgstr ""
-
-msgid "LicenseCompliance|Add a license"
-msgstr ""
-
-msgid "LicenseCompliance|Add licenses manually to approve or blacklist"
-msgstr ""
-
-msgid "LicenseCompliance|Approve"
-msgstr ""
-
-msgid "LicenseCompliance|Approve license"
-msgstr ""
-
-msgid "LicenseCompliance|Approve license?"
-msgstr ""
-
-msgid "LicenseCompliance|Approved"
-msgstr ""
-
-msgid "LicenseCompliance|Blacklist"
-msgstr ""
-
-msgid "LicenseCompliance|Blacklist license"
-msgstr ""
-
-msgid "LicenseCompliance|Blacklist license?"
-msgstr ""
-
-msgid "LicenseCompliance|Blacklisted"
-msgstr ""
-
-msgid "LicenseCompliance|Cancel"
-msgstr ""
-
-msgid "LicenseCompliance|Here you can approve or blacklist licenses for this project. Using %{ci} or %{license} will allow you to see if there are any unmanaged licenses and approve or blacklist them in merge request."
-msgstr ""
-
-msgid "LicenseCompliance|License"
-msgstr ""
-
-msgid "LicenseCompliance|License Compliance"
-msgstr ""
-
-msgid "LicenseCompliance|License Compliance detected %d license for the source branch only"
-msgid_plural "LicenseCompliance|License Compliance detected %d licenses for the source branch only"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "LicenseCompliance|License Compliance detected %d license for the source branch only; approval required"
-msgid_plural "LicenseCompliance|License Compliance detected %d licenses for the source branch only; approval required"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "LicenseCompliance|License Compliance detected %d new license"
-msgid_plural "LicenseCompliance|License Compliance detected %d new licenses"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "LicenseCompliance|License Compliance detected %d new license; approval required"
-msgid_plural "LicenseCompliance|License Compliance detected %d new licenses; approval required"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "LicenseCompliance|License Compliance detected no licenses for the source branch only"
-msgstr ""
-
-msgid "LicenseCompliance|License Compliance detected no new licenses"
-msgstr ""
-
-msgid "LicenseCompliance|License details"
-msgstr ""
-
-msgid "LicenseCompliance|License name"
-msgstr ""
-
-msgid "LicenseCompliance|Packages"
-msgstr ""
-
-msgid "LicenseCompliance|Remove license"
-msgstr ""
-
-msgid "LicenseCompliance|Remove license?"
-msgstr ""
-
-msgid "LicenseCompliance|Submit"
-msgstr ""
-
-msgid "LicenseCompliance|There are currently no approved or blacklisted licenses in this project."
-msgstr ""
-
-msgid "LicenseCompliance|There are currently no approved or blacklisted licenses that match in this project."
-msgstr ""
-
-msgid "LicenseCompliance|This license already exists in this project."
-msgstr ""
-
-msgid "LicenseCompliance|URL"
-msgstr ""
-
-msgid "LicenseCompliance|You are about to remove the license, %{name}, from this project."
 msgstr ""
 
 msgid "Licensed Features"
@@ -10676,6 +10802,9 @@ msgstr ""
 msgid "LinkedPipelines|%{counterLabel} more downstream pipelines"
 msgstr ""
 
+msgid "Links"
+msgstr ""
+
 msgid "List"
 msgstr ""
 
@@ -10701,6 +10830,9 @@ msgid "List your Bitbucket Server repositories"
 msgstr ""
 
 msgid "Live preview"
+msgstr ""
+
+msgid "Loading %{reportName} report"
 msgstr ""
 
 msgid "Loading contribution stats for group members"
@@ -10860,6 +10992,9 @@ msgid "Manage group labels"
 msgstr ""
 
 msgid "Manage labels"
+msgstr ""
+
+msgid "Manage licenses"
 msgstr ""
 
 msgid "Manage project labels"
@@ -11617,6 +11752,9 @@ msgstr ""
 msgid "Name:"
 msgstr ""
 
+msgid "Namespace"
+msgstr ""
+
 msgid "Namespaces to index"
 msgstr ""
 
@@ -12309,6 +12447,9 @@ msgid "Only ‘Reporter’ roles and above on tiers Premium / Silver and above c
 msgstr ""
 
 msgid "Oops, are you sure?"
+msgstr ""
+
+msgid "Oops, something doesn't seem right."
 msgstr ""
 
 msgid "Open"
@@ -14886,6 +15027,12 @@ msgstr ""
 msgid "Remove group"
 msgstr ""
 
+msgid "Remove license"
+msgstr ""
+
+msgid "Remove license?"
+msgstr ""
+
 msgid "Remove milestone"
 msgstr ""
 
@@ -15235,6 +15382,9 @@ msgstr ""
 msgid "Resolve thread"
 msgstr ""
 
+msgid "Resolve with merge request"
+msgstr ""
+
 msgid "Resolved"
 msgstr ""
 
@@ -15448,6 +15598,9 @@ msgid "SAML SSO for %{group_name}"
 msgstr ""
 
 msgid "SAML for %{group_name}"
+msgstr ""
+
+msgid "SAST"
 msgstr ""
 
 msgid "SHA256"
@@ -15781,67 +15934,22 @@ msgstr ""
 msgid "Security Dashboard|Issue Created"
 msgstr ""
 
-msgid "Security Reports|Comment added to '%{vulnerabilityName}'"
-msgstr ""
-
-msgid "Security Reports|Comment deleted on '%{vulnerabilityName}'"
-msgstr ""
-
-msgid "Security Reports|Comment edited on '%{vulnerabilityName}'"
-msgstr ""
-
-msgid "Security Reports|Create issue"
-msgstr ""
-
-msgid "Security Reports|Dismiss vulnerability"
-msgstr ""
-
-msgid "Security Reports|Dismissed '%{vulnerabilityName}'"
-msgstr ""
-
-msgid "Security Reports|Dismissed '%{vulnerabilityName}'. Turn off the hide dismissed toggle to view."
-msgstr ""
-
 msgid "Security Reports|Either you don't have permission to view this dashboard or the dashboard has not been setup. Please check your permission settings with your administrator or check your dashboard configurations to proceed."
 msgstr ""
 
 msgid "Security Reports|Learn more about setting up your dashboard"
 msgstr ""
 
-msgid "Security Reports|More info"
-msgstr ""
-
-msgid "Security Reports|Oops, something doesn't seem right."
-msgstr ""
-
-msgid "Security Reports|There was an error adding the comment."
-msgstr ""
-
-msgid "Security Reports|There was an error creating the issue."
-msgstr ""
-
-msgid "Security Reports|There was an error creating the merge request."
-msgstr ""
-
-msgid "Security Reports|There was an error deleting the comment."
-msgstr ""
-
-msgid "Security Reports|There was an error dismissing the vulnerability."
-msgstr ""
-
-msgid "Security Reports|There was an error reverting the dismissal."
-msgstr ""
-
-msgid "Security Reports|There was an error reverting this dismissal."
-msgstr ""
-
-msgid "Security Reports|Undo dismiss"
-msgstr ""
-
 msgid "Security configuration help link"
 msgstr ""
 
 msgid "Security dashboard"
+msgstr ""
+
+msgid "Security scanning"
+msgstr ""
+
+msgid "Security scanning failed loading any results"
 msgstr ""
 
 msgid "SecurityConfiguration|Configured"
@@ -16345,6 +16453,9 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
+msgid "Severity"
+msgstr ""
+
 msgid "Share"
 msgstr ""
 
@@ -16603,6 +16714,9 @@ msgid "SnippetsEmptyState|They can be either public or private."
 msgstr ""
 
 msgid "Snowplow"
+msgstr ""
+
+msgid "Solution"
 msgstr ""
 
 msgid "Some email servers do not support overriding the email sender name. Enable this option to include the name of the author of the issue, merge request or comment in the email body instead."
@@ -17127,6 +17241,9 @@ msgstr ""
 msgid "Static Application Security Testing (SAST)"
 msgstr ""
 
+msgid "Static Application Security Testing (SAST) detects known vulnerabilities in your source code."
+msgstr ""
+
 msgid "Statistics"
 msgstr ""
 
@@ -17194,6 +17311,9 @@ msgid "Subgroups and projects"
 msgstr ""
 
 msgid "Subkeys"
+msgstr ""
+
+msgid "Submit"
 msgstr ""
 
 msgid "Submit as spam"
@@ -18028,6 +18148,12 @@ msgstr ""
 msgid "The value lying at the midpoint of a series of observed values. E.g., between 3, 5, 9, the median is 5. Between 3, 5, 7, 8, the median is (5+7)/2 = 6."
 msgstr ""
 
+msgid "There are currently no approved or blacklisted licenses in this project."
+msgstr ""
+
+msgid "There are currently no approved or blacklisted licenses that match in this project."
+msgstr ""
+
 msgid "There are no GPG keys associated with this account."
 msgstr ""
 
@@ -18109,10 +18235,37 @@ msgstr ""
 msgid "There was an error adding a To Do."
 msgstr ""
 
+msgid "There was an error adding the comment."
+msgstr ""
+
 msgid "There was an error creating the issue"
 msgstr ""
 
+msgid "There was an error creating the issue."
+msgstr ""
+
+msgid "There was an error creating the issue. Please try again."
+msgstr ""
+
+msgid "There was an error creating the merge request"
+msgstr ""
+
+msgid "There was an error creating the merge request."
+msgstr ""
+
+msgid "There was an error creating the merge request. Please try again."
+msgstr ""
+
 msgid "There was an error deleting the To Do."
+msgstr ""
+
+msgid "There was an error deleting the comment."
+msgstr ""
+
+msgid "There was an error dismissing the vulnerability."
+msgstr ""
+
+msgid "There was an error dismissing the vulnerability. Please try again."
 msgstr ""
 
 msgid "There was an error fetching configuration for charts"
@@ -18136,6 +18289,18 @@ msgstr ""
 msgid "There was an error gathering the chart data"
 msgstr ""
 
+msgid "There was an error loading DAST report"
+msgstr ""
+
+msgid "There was an error loading SAST report"
+msgstr ""
+
+msgid "There was an error loading container scanning report"
+msgstr ""
+
+msgid "There was an error loading dependency scanning report"
+msgstr ""
+
 msgid "There was an error loading users activity calendar."
 msgstr ""
 
@@ -18149,6 +18314,15 @@ msgid "There was an error resetting group pipeline minutes."
 msgstr ""
 
 msgid "There was an error resetting user pipeline minutes."
+msgstr ""
+
+msgid "There was an error reverting the dismissal."
+msgstr ""
+
+msgid "There was an error reverting the dismissal. Please try again."
+msgstr ""
+
+msgid "There was an error reverting this dismissal."
 msgstr ""
 
 msgid "There was an error saving your changes."
@@ -18413,6 +18587,9 @@ msgid "This job requires manual intervention to start. Before starting this job,
 msgstr ""
 
 msgid "This job will automatically run after its timer finishes. Often they are used for incremental roll-out deploys to production environments. When unscheduled it converts into a manual action."
+msgstr ""
+
+msgid "This license already exists in this project."
 msgstr ""
 
 msgid "This may expose confidential information as the selected fork is in another namespace that can have other members."
@@ -19235,6 +19412,9 @@ msgstr ""
 msgid "Undo"
 msgstr ""
 
+msgid "Undo dismiss"
+msgstr ""
+
 msgid "Unfortunately, your email message to GitLab could not be processed."
 msgstr ""
 
@@ -19409,7 +19589,16 @@ msgstr ""
 msgid "Updating"
 msgstr ""
 
+msgid "Upgrade %{name} from %{version} to %{fixed}."
+msgstr ""
+
+msgid "Upgrade %{name} to %{fixed}."
+msgstr ""
+
 msgid "Upgrade plan to unlock Canary Deployments feature"
+msgstr ""
+
+msgid "Upgrade to %{fixed}."
 msgstr ""
 
 msgid "Upgrade your plan"
@@ -19573,6 +19762,11 @@ msgstr ""
 
 msgid "Use your smart card to authenticate with the LDAP server."
 msgstr ""
+
+msgid "Used by %{packagesString}"
+msgid_plural "Used by %{packagesString}, and %{lastPackage}"
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "Used by members to sign in to your group in GitLab"
 msgstr ""
@@ -19997,6 +20191,9 @@ msgid "View file @ "
 msgstr ""
 
 msgid "View full dashboard"
+msgstr ""
+
+msgid "View full report"
 msgstr ""
 
 msgid "View group labels"
@@ -20485,6 +20682,9 @@ msgid "Yesterday"
 msgstr ""
 
 msgid "You"
+msgstr ""
+
+msgid "You are about to remove the license, %{name}, from this project."
 msgstr ""
 
 msgid "You are an admin, which means granting access to <strong>%{client_name}</strong> will allow them to interact with GitLab as an admin as well. Proceed with caution."
@@ -21069,99 +21269,6 @@ msgstr ""
 msgid "cannot merge"
 msgstr ""
 
-msgid "ciReport|%{linkStartTag}Learn more about Container Scanning %{linkEndTag}"
-msgstr ""
-
-msgid "ciReport|%{linkStartTag}Learn more about DAST %{linkEndTag}"
-msgstr ""
-
-msgid "ciReport|%{linkStartTag}Learn more about Dependency Scanning %{linkEndTag}"
-msgstr ""
-
-msgid "ciReport|%{linkStartTag}Learn more about SAST %{linkEndTag}"
-msgstr ""
-
-msgid "ciReport|%{namespace} is affected by %{vulnerability}."
-msgstr ""
-
-msgid "ciReport|%{remainingPackagesCount} more"
-msgstr ""
-
-msgid "ciReport|%{reportType} %{status} detected %{dismissedCount} dismissed vulnerability"
-msgid_plural "ciReport|%{reportType} %{status} detected %{dismissedCount} dismissed vulnerabilities"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "ciReport|%{reportType} %{status} detected %{dismissedCount} dismissed vulnerability for the source branch only"
-msgid_plural "ciReport|%{reportType} %{status} detected %{dismissedCount} dismissed vulnerabilities for the source branch only"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "ciReport|%{reportType} %{status} detected %{fixedCount} fixed vulnerability"
-msgid_plural "ciReport|%{reportType} %{status} detected %{fixedCount} fixed vulnerabilities"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "ciReport|%{reportType} %{status} detected %{fixedCount} fixed, and %{dismissedCount} dismissed vulnerabilities"
-msgstr ""
-
-msgid "ciReport|%{reportType} %{status} detected %{newCount} new vulnerability"
-msgid_plural "ciReport|%{reportType} %{status} detected %{newCount} new vulnerabilities"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "ciReport|%{reportType} %{status} detected %{newCount} new, %{fixedCount} fixed, and %{dismissedCount} dismissed vulnerabilities"
-msgstr ""
-
-msgid "ciReport|%{reportType} %{status} detected %{newCount} new, and %{dismissedCount} dismissed vulnerabilities"
-msgstr ""
-
-msgid "ciReport|%{reportType} %{status} detected %{newCount} new, and %{dismissedCount} dismissed vulnerabilities for the source branch only"
-msgstr ""
-
-msgid "ciReport|%{reportType} %{status} detected %{newCount} new, and %{fixedCount} fixed vulnerabilities"
-msgstr ""
-
-msgid "ciReport|%{reportType} %{status} detected %{newCount} vulnerability for the source branch only"
-msgid_plural "ciReport|%{reportType} %{status} detected %{newCount} vulnerabilities for the source branch only"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "ciReport|%{reportType} %{status} detected no new vulnerabilities"
-msgstr ""
-
-msgid "ciReport|%{reportType} %{status} detected no vulnerabilities"
-msgstr ""
-
-msgid "ciReport|%{reportType} %{status} detected no vulnerabilities for the source branch only"
-msgstr ""
-
-msgid "ciReport|%{reportType} detected %{vulnerabilityCount} vulnerability"
-msgid_plural "ciReport|%{reportType} detected %{vulnerabilityCount} vulnerabilities"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "ciReport|%{reportType} detected no vulnerabilities"
-msgstr ""
-
-msgid "ciReport|%{reportType} is loading"
-msgstr ""
-
-msgid "ciReport|%{reportType}: Loading resulted in an error"
-msgstr ""
-
-msgid "ciReport|%{vulnerability} in %{featurename}"
-msgstr ""
-
-msgid "ciReport|(errors when loading results)"
-msgstr ""
-
-msgid "ciReport|(is loading)"
-msgstr ""
-
-msgid "ciReport|(is loading, errors when loading results)"
-msgstr ""
-
 msgid "ciReport|All confidence levels"
 msgstr ""
 
@@ -21174,31 +21281,10 @@ msgstr ""
 msgid "ciReport|All severities"
 msgstr ""
 
-msgid "ciReport|Automatically apply the patch in a new branch"
-msgstr ""
-
-msgid "ciReport|Class"
-msgstr ""
-
 msgid "ciReport|Code quality"
 msgstr ""
 
-msgid "ciReport|Confidence"
-msgstr ""
-
 msgid "ciReport|Container Scanning"
-msgstr ""
-
-msgid "ciReport|Container scanning"
-msgstr ""
-
-msgid "ciReport|Container scanning detects known vulnerabilities in your docker images."
-msgstr ""
-
-msgid "ciReport|Create a merge request to implement this solution, or download and apply the patch manually."
-msgstr ""
-
-msgid "ciReport|Create issue"
 msgstr ""
 
 msgid "ciReport|DAST"
@@ -21207,61 +21293,13 @@ msgstr ""
 msgid "ciReport|Dependency Scanning"
 msgstr ""
 
-msgid "ciReport|Dependency Scanning detects known vulnerabilities in your source code's dependencies."
-msgstr ""
-
-msgid "ciReport|Dependency scanning"
-msgstr ""
-
-msgid "ciReport|Description"
-msgstr ""
-
-msgid "ciReport|Download patch to resolve"
-msgstr ""
-
-msgid "ciReport|Download the patch to apply it manually"
-msgstr ""
-
-msgid "ciReport|Dynamic Application Security Testing (DAST) detects known vulnerabilities in your web application."
-msgstr ""
-
 msgid "ciReport|Failed to load %{reportName} report"
-msgstr ""
-
-msgid "ciReport|File"
 msgstr ""
 
 msgid "ciReport|Fixed:"
 msgstr ""
 
-msgid "ciReport|Identifiers"
-msgstr ""
-
-msgid "ciReport|Image"
-msgstr ""
-
-msgid "ciReport|Instances"
-msgstr ""
-
-msgid "ciReport|Investigate this vulnerability by creating an issue"
-msgstr ""
-
-msgid "ciReport|Learn more about interacting with security reports"
-msgstr ""
-
-msgid "ciReport|Links"
-msgstr ""
-
 msgid "ciReport|Loading %{reportName} report"
-msgstr ""
-
-msgid "ciReport|Manage licenses"
-msgstr ""
-
-msgid "ciReport|Method"
-msgstr ""
-
-msgid "ciReport|Namespace"
 msgstr ""
 
 msgid "ciReport|No changes to code quality"
@@ -21273,66 +21311,7 @@ msgstr ""
 msgid "ciReport|Performance metrics"
 msgstr ""
 
-msgid "ciReport|Resolve with merge request"
-msgstr ""
-
 msgid "ciReport|SAST"
-msgstr ""
-
-msgid "ciReport|Security scanning"
-msgstr ""
-
-msgid "ciReport|Security scanning failed loading any results"
-msgstr ""
-
-msgid "ciReport|Severity"
-msgstr ""
-
-msgid "ciReport|Solution"
-msgstr ""
-
-msgid "ciReport|Static Application Security Testing (SAST) detects known vulnerabilities in your source code."
-msgstr ""
-
-msgid "ciReport|There was an error creating the issue. Please try again."
-msgstr ""
-
-msgid "ciReport|There was an error creating the merge request. Please try again."
-msgstr ""
-
-msgid "ciReport|There was an error dismissing the vulnerability. Please try again."
-msgstr ""
-
-msgid "ciReport|There was an error loading DAST report"
-msgstr ""
-
-msgid "ciReport|There was an error loading SAST report"
-msgstr ""
-
-msgid "ciReport|There was an error loading container scanning report"
-msgstr ""
-
-msgid "ciReport|There was an error loading dependency scanning report"
-msgstr ""
-
-msgid "ciReport|There was an error reverting the dismissal. Please try again."
-msgstr ""
-
-msgid "ciReport|Upgrade %{name} from %{version} to %{fixed}."
-msgstr ""
-
-msgid "ciReport|Upgrade %{name} to %{fixed}."
-msgstr ""
-
-msgid "ciReport|Upgrade to %{fixed}."
-msgstr ""
-
-msgid "ciReport|Used by %{packagesString}"
-msgid_plural "ciReport|Used by %{packagesString}, and %{lastPackage}"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "ciReport|View full report"
 msgstr ""
 
 msgid "comment"
@@ -22041,9 +22020,6 @@ msgid "reset it."
 msgstr ""
 
 msgid "score"
-msgstr ""
-
-msgid "security Reports|There was an error creating the merge request"
 msgstr ""
 
 msgid "severity|Critical"

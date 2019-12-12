@@ -2,7 +2,7 @@ import sha1 from 'sha1';
 import _ from 'underscore';
 import axios from 'axios';
 import { stripHtml } from '~/lib/utils/text_utility';
-import { n__, s__, sprintf } from '~/locale';
+import { n__, __, sprintf } from '~/locale';
 import Poll from '~/lib/utils/poll';
 import httpStatusCodes from '~/lib/utils/http_status';
 
@@ -281,74 +281,74 @@ export const groupedTextBuilder = ({
     if (added && !dismissed) {
       // added
       baseString = n__(
-        'ciReport|%{reportType} %{status} detected %{newCount} vulnerability for the source branch only',
-        'ciReport|%{reportType} %{status} detected %{newCount} vulnerabilities for the source branch only',
+        '%{reportType} %{status} detected %{newCount} vulnerability for the source branch only',
+        '%{reportType} %{status} detected %{newCount} vulnerabilities for the source branch only',
         added,
       );
     } else if (!added && dismissed) {
       // dismissed
       baseString = n__(
-        'ciReport|%{reportType} %{status} detected %{dismissedCount} dismissed vulnerability for the source branch only',
-        'ciReport|%{reportType} %{status} detected %{dismissedCount} dismissed vulnerabilities for the source branch only',
+        '%{reportType} %{status} detected %{dismissedCount} dismissed vulnerability for the source branch only',
+        '%{reportType} %{status} detected %{dismissedCount} dismissed vulnerabilities for the source branch only',
         dismissed,
       );
     } else if (added && dismissed) {
       // added & dismissed
-      baseString = s__(
-        'ciReport|%{reportType} %{status} detected %{newCount} new, and %{dismissedCount} dismissed vulnerabilities for the source branch only',
+      baseString = __(
+        '%{reportType} %{status} detected %{newCount} new, and %{dismissedCount} dismissed vulnerabilities for the source branch only',
       );
     } else {
       // no vulnerabilities
-      baseString = s__(
-        'ciReport|%{reportType} %{status} detected no vulnerabilities for the source branch only',
+      baseString = __(
+        '%{reportType} %{status} detected no vulnerabilities for the source branch only',
       );
     }
   } else if (paths.head || paths.diffEndpoint) {
     if (added && !fixed && !dismissed) {
       // added
       baseString = n__(
-        'ciReport|%{reportType} %{status} detected %{newCount} new vulnerability',
-        'ciReport|%{reportType} %{status} detected %{newCount} new vulnerabilities',
+        '%{reportType} %{status} detected %{newCount} new vulnerability',
+        '%{reportType} %{status} detected %{newCount} new vulnerabilities',
         added,
       );
     } else if (!added && fixed && !dismissed) {
       // fixed
       baseString = n__(
-        'ciReport|%{reportType} %{status} detected %{fixedCount} fixed vulnerability',
-        'ciReport|%{reportType} %{status} detected %{fixedCount} fixed vulnerabilities',
+        '%{reportType} %{status} detected %{fixedCount} fixed vulnerability',
+        '%{reportType} %{status} detected %{fixedCount} fixed vulnerabilities',
         fixed,
       );
     } else if (!added && !fixed && dismissed) {
       // dismissed
       baseString = n__(
-        'ciReport|%{reportType} %{status} detected %{dismissedCount} dismissed vulnerability',
-        'ciReport|%{reportType} %{status} detected %{dismissedCount} dismissed vulnerabilities',
+        '%{reportType} %{status} detected %{dismissedCount} dismissed vulnerability',
+        '%{reportType} %{status} detected %{dismissedCount} dismissed vulnerabilities',
         dismissed,
       );
     } else if (added && fixed && !dismissed) {
       // added & fixed
-      baseString = s__(
-        'ciReport|%{reportType} %{status} detected %{newCount} new, and %{fixedCount} fixed vulnerabilities',
+      baseString = __(
+        '%{reportType} %{status} detected %{newCount} new, and %{fixedCount} fixed vulnerabilities',
       );
     } else if (added && !fixed && dismissed) {
       // added & dismissed
-      baseString = s__(
-        'ciReport|%{reportType} %{status} detected %{newCount} new, and %{dismissedCount} dismissed vulnerabilities',
+      baseString = __(
+        '%{reportType} %{status} detected %{newCount} new, and %{dismissedCount} dismissed vulnerabilities',
       );
     } else if (!added && fixed && dismissed) {
       // fixed & dismissed
-      baseString = s__(
-        'ciReport|%{reportType} %{status} detected %{fixedCount} fixed, and %{dismissedCount} dismissed vulnerabilities',
+      baseString = __(
+        '%{reportType} %{status} detected %{fixedCount} fixed, and %{dismissedCount} dismissed vulnerabilities',
       );
     } else if (added && fixed && dismissed) {
       // added & fixed & dismissed
-      baseString = s__(
-        'ciReport|%{reportType} %{status} detected %{newCount} new, %{fixedCount} fixed, and %{dismissedCount} dismissed vulnerabilities',
+      baseString = __(
+        '%{reportType} %{status} detected %{newCount} new, %{fixedCount} fixed, and %{dismissedCount} dismissed vulnerabilities',
       );
     } else if (existing) {
-      baseString = s__('ciReport|%{reportType} %{status} detected no new vulnerabilities');
+      baseString = __('%{reportType} %{status} detected no new vulnerabilities');
     } else {
-      baseString = s__('ciReport|%{reportType} %{status} detected no vulnerabilities');
+      baseString = __('%{reportType} %{status} detected no vulnerabilities');
     }
   }
 

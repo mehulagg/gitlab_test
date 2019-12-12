@@ -29,8 +29,8 @@ export default {
     },
   },
   LICENSE_APPROVAL_STATUS,
-  [LICENSE_APPROVAL_STATUS.APPROVED]: s__('LicenseCompliance|Approved'),
-  [LICENSE_APPROVAL_STATUS.BLACKLISTED]: s__('LicenseCompliance|Blacklisted'),
+  [LICENSE_APPROVAL_STATUS.APPROVED]: s__('Approved'),
+  [LICENSE_APPROVAL_STATUS.BLACKLISTED]: s__('Blacklisted'),
   computed: {
     approveIconClass() {
       return this.license.approvalStatus === LICENSE_APPROVAL_STATUS.APPROVED
