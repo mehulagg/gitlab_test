@@ -320,58 +320,103 @@ describe('Multi-file store actions', () => {
     });
   });
 
-  describe('stageAllChanges', () => {
-    it('adds all files from changedFiles to stagedFiles', done => {
-      const openFile = { ...file(), path: 'test' };
+  describe('stageAllChanges and unstageAllChanges', () => {
+    let openFile;
+    let stagedFile;
+    beforeEach(() => {
+      openFile = { ...file('test'), content: 'changed test', raw: 'test' };
+      stagedFile = { ...file('test2'), content: 'changed test2', raw: 'test2' };
 
-      store.state.openFiles.push(openFile);
-      store.state.stagedFiles.push(openFile);
-      store.state.changedFiles.push(openFile, file('new'));
+      store.state.openFiles = [openFile];
+      store.state.changedFiles = [openFile];
+      store.state.stagedFiles = [stagedFile];
 
-      testAction(
-        stageAllChanges,
-        null,
-        store.state,
-        [
+      store.state.entries = {
+        [openFile.path]: { ...openFile },
+        [stagedFile.path]: { ...stagedFile },
+      };
+    });
+
+    describe('stageAllChanges', () => {
+      it('adds all files from changedFiles to stagedFiles', done => {
+        const mutations = [
           { type: types.SET_LAST_COMMIT_MSG, payload: '' },
           { type: types.STAGE_CHANGE, payload: store.state.changedFiles[0].path },
-          { type: types.STAGE_CHANGE, payload: store.state.changedFiles[1].path },
-        ],
-        [
+        ];
+
+        testAction(stageAllChanges, null, store.state, mutations, jasmine.any(Object), done);
+      });
+
+      it('opens pending tab if a change exists in that file', done => {
+        const expectedActions = [
           {
             type: 'openPendingTab',
-            payload: { file: openFile, keyPrefix: 'staged' },
+            payload: { file: { ...openFile, staged: true, changed: true }, keyPrefix: 'staged' },
           },
-        ],
-        done,
-      );
+        ];
+
+        testAction(
+          stageAllChanges,
+          null,
+          store.state,
+          jasmine.any(Object),
+          expectedActions,
+          done,
+          store,
+        );
+      });
+
+      it('does not open pending tab if no change exists in that file', done => {
+        store.state.entries[openFile.path].content = 'test';
+        store.state.stagedFiles = [openFile];
+        store.state.changedFiles = [store.state.entries[openFile.path]];
+
+        testAction(stageAllChanges, null, store.state, jasmine.any(Object), [], done, store);
+      });
     });
-  });
 
-  describe('unstageAllChanges', () => {
-    it('removes all files from stagedFiles after unstaging', done => {
-      const openFile = { ...file(), path: 'test' };
-
-      store.state.openFiles.push(openFile);
-      store.state.changedFiles.push(openFile);
-      store.state.stagedFiles.push(openFile, file('new'));
-
-      testAction(
-        unstageAllChanges,
-        null,
-        store.state,
-        [
+    describe('unstageAllChanges', () => {
+      it('removes all files from stagedFiles after unstaging', done => {
+        const mutations = [
           { type: types.UNSTAGE_CHANGE, payload: store.state.stagedFiles[0].path },
-          { type: types.UNSTAGE_CHANGE, payload: store.state.stagedFiles[1].path },
-        ],
-        [
+        ];
+
+        testAction(
+          unstageAllChanges,
+          null,
+          store.state,
+          mutations,
+          jasmine.any(Object),
+          done,
+          store,
+        );
+      });
+
+      it('opens pending tab if a change exists in that file', done => {
+        const expectedActions = [
           {
             type: 'openPendingTab',
             payload: { file: openFile, keyPrefix: 'unstaged' },
           },
-        ],
-        done,
-      );
+        ];
+
+        testAction(
+          unstageAllChanges,
+          null,
+          store.state,
+          jasmine.any(Object),
+          expectedActions,
+          done,
+          store,
+        );
+      });
+
+      it('does not open pending tab if no change exists in that file', done => {
+        store.state.entries[openFile.path].content = 'test';
+        store.state.stagedFiles = [openFile];
+        store.state.changedFiles = [store.state.entries[openFile.path]];
+        testAction(unstageAllChanges, null, store.state, jasmine.any(Object), [], done, store);
+      });
     });
   });
 

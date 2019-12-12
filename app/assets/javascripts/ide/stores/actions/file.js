@@ -225,9 +225,9 @@ export const stageChange = ({ commit, state, dispatch }, path) => {
     eventHub.$emit(`editor.update.model.new.content.staged-${stagedFile.key}`, stagedFile.content);
   }
 
-  if (openFile && openFile.active) {
     const file = state.stagedFiles.find(f => f.path === path);
 
+  if (openFile && openFile.active && file) {
     dispatch('openPendingTab', {
       file,
       keyPrefix: stageKeys.staged,
@@ -240,9 +240,9 @@ export const unstageChange = ({ commit, dispatch, state }, path) => {
 
   commit(types.UNSTAGE_CHANGE, path);
 
-  if (openFile && openFile.active) {
     const file = state.changedFiles.find(f => f.path === path);
 
+  if (openFile && openFile.active && file) {
     dispatch('openPendingTab', {
       file,
       keyPrefix: stageKeys.unstaged,
