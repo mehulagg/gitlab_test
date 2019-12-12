@@ -44,7 +44,7 @@ describe PostReceive do
       before do
         allow_any_instance_of(Gitlab::GitPostReceive).to receive(:identify).and_return(empty_project.owner)
         # Need to mock here so we can expect calls on project
-        allow(Gitlab::GlRepository).to receive(:parse).and_return([empty_project, Gitlab::GlRepository::PROJECT])
+        allow(Gitlab::GlRepository).to receive(:parse).and_return([empty_project, empty_project, Gitlab::GlRepository::PROJECT])
       end
 
       it 'expire the status cache' do
@@ -97,7 +97,7 @@ describe PostReceive do
 
       before do
         allow_any_instance_of(Gitlab::GitPostReceive).to receive(:identify).and_return(project.owner)
-        allow(Gitlab::GlRepository).to receive(:parse).and_return([project, Gitlab::GlRepository::PROJECT])
+        allow(Gitlab::GlRepository).to receive(:parse).and_return([project, project, Gitlab::GlRepository::PROJECT])
       end
 
       shared_examples 'updating remote mirrors' do
@@ -176,7 +176,7 @@ describe PostReceive do
         end
 
         before do
-          expect(Gitlab::GlRepository).to receive(:parse).and_return([project, Gitlab::GlRepository::PROJECT])
+          expect(Gitlab::GlRepository).to receive(:parse).and_return([project, project, Gitlab::GlRepository::PROJECT])
         end
 
         it 'does not expire branches cache' do
@@ -256,7 +256,7 @@ describe PostReceive do
 
     before do
       # Need to mock here so we can expect calls on project
-      allow(Gitlab::GlRepository).to receive(:parse).and_return([project, Gitlab::GlRepository::WIKI])
+      allow(Gitlab::GlRepository).to receive(:parse).and_return([project, project, Gitlab::GlRepository::WIKI])
     end
 
     it 'updates project activity' do

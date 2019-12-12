@@ -51,7 +51,6 @@ module Repositories
           return # Allow access
         end
       elsif http_download_allowed?
-
         @authentication_result = Gitlab::Auth::Result.new(nil, project, :none, [:download_code])
 
         return # Allow access
@@ -81,7 +80,7 @@ module Repositories
     end
 
     def parse_repo_path
-      @project, @repo_type, @redirected_path = Gitlab::RepoPath.parse("#{params[:namespace_id]}/#{params[:repository_id]}")
+      @container, @project, @repo_type, @redirected_path = Gitlab::RepoPath.parse("#{params[:namespace_id]}/#{params[:repository_id]}")
     end
 
     def render_missing_personal_access_token
@@ -93,7 +92,7 @@ module Repositories
 
     def repository
       strong_memoize(:repository) do
-        repo_type.repository_for(project)
+        repo_type.repository_for(@container)
       end
     end
 
@@ -117,7 +116,7 @@ module Repositories
     def http_download_allowed?
       Gitlab::ProtocolAccess.allowed?('http') &&
       download_request? &&
-      project && Guest.can?(:download_code, project)
+      (project && Guest.can?(:download_code, project) || @container.is_a?(PersonalSnippet))
     end
   end
 end

@@ -9,7 +9,7 @@ class PostReceive
   weight 5
 
   def perform(gl_repository, identifier, changes, push_options = {})
-    project, repo_type = Gitlab::GlRepository.parse(gl_repository)
+    _, project, repo_type = Gitlab::GlRepository.parse(gl_repository)
 
     if project.nil?
       log("Triggered hook for non-existing project with gl_repository \"#{gl_repository}\"")

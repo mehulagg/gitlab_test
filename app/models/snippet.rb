@@ -15,7 +15,8 @@ class Snippet < ApplicationRecord
   include Gitlab::SQL::Pattern
   include FromUnion
   include IgnorableColumns
-
+  include Gitlab::Utils::StrongMemoize
+  include Gitlab::Routing
   extend ::Gitlab::Utils::Override
 
   ignore_column :storage_version, remove_with: '12.9', remove_after: '2020-03-22'
@@ -44,6 +45,7 @@ class Snippet < ApplicationRecord
   has_many :user_mentions, class_name: "SnippetUserMention"
 
   delegate :name, :email, to: :author, prefix: true, allow_nil: true
+  delegate :base_dir, :disk_path, to: :storage
 
   validates :author, presence: true
   validates :title, presence: true, length: { maximum: 255 }
@@ -64,6 +66,9 @@ class Snippet < ApplicationRecord
             if: :content_changed?
 
   validates :visibility_level, inclusion: { in: Gitlab::VisibilityLevel.values }
+  validates :repository_storage,
+            presence: true,
+            inclusion: { in: ->(_object) { Gitlab.config.repositories.storages.keys } }
 
   # Scopes
   scope :are_internal, -> { where(visibility_level: Snippet::INTERNAL) }
@@ -252,6 +257,28 @@ class Snippet < ApplicationRecord
     options[:except] << :secret_token
 
     super
+  end
+
+  def repository
+    @repository ||= Snippets::Repository.new(self)
+  end
+
+  def storage
+    @storage ||= Storage::HashedSnippet.new(self)
+  end
+
+  # This is the full_path used to identify the path of
+  # the snippet repository
+  def full_path
+    return unless persisted?
+
+    path = if project_id?
+             project_snippet_path(project, self)
+           else
+             snippet_path(self)
+           end
+
+    path.delete_prefix('/')
   end
 
   class << self

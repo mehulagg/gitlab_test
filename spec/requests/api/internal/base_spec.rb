@@ -6,6 +6,10 @@ describe API::Internal::Base do
   set(:user) { create(:user) }
   let(:key) { create(:key, user: user) }
   set(:project) { create(:project, :repository, :wiki_repo) }
+
+  let_it_be(:personal_snippet) { create(:personal_snippet, :repository, author: user) }
+  let_it_be(:project_snippet) { create(:project_snippet, :repository, author: user, project: project) }
+
   let(:secret_token) { Gitlab::Shell.secret_token }
   let(:gl_repository) { "project-#{project.id}" }
   let(:reference_counter) { double('ReferenceCounter') }
@@ -268,7 +272,7 @@ describe API::Internal::Base do
       end
 
       context 'with env passed as a JSON' do
-        let(:gl_repository) { Gitlab::GlRepository::WIKI.identifier_for_repositorable(project) }
+        let(:gl_repository) { Gitlab::GlRepository::WIKI.identifier_for_container(project) }
 
         it 'sets env in RequestStore' do
           obj_dir_relative = './objects'
@@ -308,6 +312,54 @@ describe API::Internal::Base do
           expect(json_response["status"]).to be_truthy
           expect(json_response["gl_project_path"]).to eq(project.wiki.full_path)
           expect(json_response["gl_repository"]).to eq("wiki-#{project.id}")
+          expect(user.reload.last_activity_on).to eql(Date.today)
+        end
+      end
+
+      context 'git push with personal snippet' do
+        it 'responds with success' do
+          push(key, personal_snippet)
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response["status"]).to be_truthy
+          expect(json_response["gl_project_path"]).to eq(personal_snippet.repository.full_path)
+          expect(json_response["gl_repository"]).to eq("snippet-#{personal_snippet.id}")
+          expect(user.reload.last_activity_on).to be_nil
+        end
+      end
+
+      context 'git pull with personal snippet' do
+        it 'responds with success' do
+          pull(key, personal_snippet)
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response["status"]).to be_truthy
+          expect(json_response["gl_project_path"]).to eq(personal_snippet.repository.full_path)
+          expect(json_response["gl_repository"]).to eq("snippet-#{personal_snippet.id}")
+          expect(user.reload.last_activity_on).to eql(Date.today)
+        end
+      end
+
+      context 'git push with project snippet' do
+        it 'responds with success' do
+          push(key, project_snippet)
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response["status"]).to be_truthy
+          expect(json_response["gl_project_path"]).to eq(project_snippet.repository.full_path)
+          expect(json_response["gl_repository"]).to eq("snippet-#{project_snippet.id}")
+          expect(user.reload.last_activity_on).to be_nil
+        end
+      end
+
+      context 'git pull with project snippet' do
+        it 'responds with success' do
+          pull(key, project_snippet)
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response["status"]).to be_truthy
+          expect(json_response["gl_project_path"]).to eq(project_snippet.repository.full_path)
+          expect(json_response["gl_repository"]).to eq("snippet-#{project_snippet.id}")
           expect(user.reload.last_activity_on).to eql(Date.today)
         end
       end
@@ -1021,11 +1073,9 @@ describe API::Internal::Base do
     end
 
     context 'when project is nil' do
-      let(:gl_repository) { 'project-foo' }
+      let(:gl_repository) { personal_snippet.repository.gl_repository }
 
       it 'does not try to notify that project moved' do
-        allow(Gitlab::GlRepository).to receive(:parse).and_return([nil, Gitlab::GlRepository::PROJECT])
-
         expect(Gitlab::Checks::ProjectMoved).not_to receive(:fetch_message)
 
         post api('/internal/post_receive'), params: valid_params
@@ -1054,9 +1104,9 @@ describe API::Internal::Base do
   def gl_repository_for(project_or_wiki)
     case project_or_wiki
     when ProjectWiki
-      Gitlab::GlRepository::WIKI.identifier_for_repositorable(project_or_wiki.project)
+      Gitlab::GlRepository::WIKI.identifier_for_container(project_or_wiki.project)
     when Project
-      Gitlab::GlRepository::PROJECT.identifier_for_repositorable(project_or_wiki)
+      Gitlab::GlRepository::PROJECT.identifier_for_container(project_or_wiki)
     else
       nil
     end

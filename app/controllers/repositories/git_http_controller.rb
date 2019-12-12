@@ -84,7 +84,7 @@ module Repositories
     end
 
     def access
-      @access ||= access_klass.new(access_actor, project, 'http',
+      @access ||= access_klass.new(access_actor, @container, 'http',
         authentication_abilities: authentication_abilities,
         namespace_path: params[:namespace_id],
         project_path: project_path,
@@ -99,7 +99,10 @@ module Repositories
 
     def access_check
       access.check(git_command, Gitlab::GitAccess::ANY)
-      @project ||= access.project
+
+      unless @container
+        @project = @container = access.project
+      end
     end
 
     def access_klass

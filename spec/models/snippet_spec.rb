@@ -525,4 +525,30 @@ describe Snippet do
       snippet.to_json(params)
     end
   end
+
+  describe '#repository' do
+    let(:snippet) { build(:personal_snippet, :repository) }
+
+    it 'returns valid repo' do
+      expect(snippet.repository).to be_kind_of(Repository)
+    end
+  end
+
+  describe '#full_path' do
+    context 'with ProjectSnippet' do
+      it 'returns valid full_path' do
+        snippet = create(:project_snippet)
+
+        expect(snippet.full_path).to eq "#{snippet.project.full_path}/snippets/#{snippet.id}"
+      end
+    end
+
+    context 'with PersonalSnippet' do
+      it 'returns valid full_path' do
+        snippet = create(:personal_snippet)
+
+        expect(snippet.full_path).to eq "snippets/#{snippet.id}"
+      end
+    end
+  end
 end

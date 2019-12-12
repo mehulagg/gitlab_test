@@ -43,11 +43,11 @@ module Gitlab
     PUSH_COMMANDS = %w{git-receive-pack}.freeze
     ALL_COMMANDS = DOWNLOAD_COMMANDS + PUSH_COMMANDS
 
-    attr_reader :actor, :project, :protocol, :authentication_abilities, :namespace_path, :project_path, :redirected_path, :auth_result_type, :changes, :logger
+    attr_reader :actor, :protocol, :container, :authentication_abilities, :namespace_path, :project_path, :redirected_path, :auth_result_type, :changes, :logger
 
-    def initialize(actor, project, protocol, authentication_abilities:, namespace_path: nil, project_path: nil, redirected_path: nil, auth_result_type: nil)
-      @actor    = actor
-      @project  = project
+    def initialize(actor, container, protocol, authentication_abilities:, namespace_path: nil, project_path: nil, redirected_path: nil, auth_result_type: nil)
+      @actor = actor
+      @container = container
       @protocol = protocol
       @authentication_abilities = authentication_abilities
       @namespace_path = namespace_path
@@ -108,6 +108,10 @@ module Gitlab
 
     def protocol_allowed?
       Gitlab::ProtocolAccess.allowed?(protocol)
+    end
+
+    def project
+      container
     end
 
     private
@@ -220,16 +224,16 @@ module Gitlab
         visibility_level: Gitlab::VisibilityLevel::PRIVATE
       }
 
-      project = Projects::CreateService.new(user, project_params).execute
+      new_project = Projects::CreateService.new(user, project_params).execute
 
-      unless project.saved?
-        raise ProjectCreationError, "Could not create project: #{project.errors.full_messages.join(', ')}"
+      unless new_project.saved?
+        raise ProjectCreationError, "Could not create project: #{new_project.errors.full_messages.join(', ')}"
       end
 
-      @project = project
-      user_access.project = @project
+      @container = new_project
+      user_access.project = @container
 
-      Checks::ProjectCreated.new(project, user, protocol).add_message
+      Checks::ProjectCreated.new(@container, user, protocol).add_message
     end
 
     def check_repository_existence!

@@ -6,6 +6,8 @@ describe Repositories::GitHttpController do
   include GitHttpHelpers
 
   let_it_be(:project) { create(:project, :public, :repository) }
+  let_it_be(:personal_snippet) { create(:personal_snippet, :public) }
+  let_it_be(:project_snippet) { create(:project_snippet, :public, project: project) }
 
   let(:namespace_id) { project.namespace.to_param }
   let(:repository_id) { project.path + '.git' }
@@ -141,6 +143,36 @@ describe Repositories::GitHttpController do
     it_behaves_like 'access checker class' do
       let(:expected_class) { Gitlab::GitAccess }
       let(:expected_object) { project }
+    end
+  end
+
+  context 'when repository container is a personal snippet' do
+    let(:namespace_id) { 'snippets' }
+    let(:repository_id) { personal_snippet.to_param + '.git' }
+
+    before do
+      allow(controller).to receive(:basic_auth_provided?).and_return(true)
+      allow(controller).to receive(:handle_basic_authentication).and_return(true)
+      allow(controller).to receive(:user_name_and_password).and_return(%w(foo bar))
+    end
+
+    it_behaves_like 'info_refs behavior'
+    it_behaves_like 'git_upload_pack behavior', false
+    it_behaves_like 'access checker class' do
+      let(:expected_class) { Gitlab::GitAccessSnippet }
+      let(:expected_object) { personal_snippet }
+    end
+  end
+
+  context 'when repository container is a project snippet' do
+    let(:namespace_id) { project.full_path + '/snippets' }
+    let(:repository_id) { project_snippet.to_param + '.git' }
+
+    it_behaves_like 'info_refs behavior'
+    it_behaves_like 'git_upload_pack behavior', false
+    it_behaves_like 'access checker class' do
+      let(:expected_class) { Gitlab::GitAccessSnippet }
+      let(:expected_object) { project_snippet }
     end
   end
 end
