@@ -8,12 +8,12 @@ import { transformDesignUpload } from './transformations';
  * @param {Object} data
  * @param {Function} transform
  */
-const updateCache = (store, query, data, transform) => {
+export const updateCache = (store, query, data, transform) => {
   const cacheData = store.readQuery(query);
   const newCacheData = transform(query, cacheData, data);
   store.writeQuery(newCacheData);
 };
 
-export const afterDesignUpload = (store, query, data) => {
-  updateCache(store, query, data, transformDesignUpload);
+export const cacheDesignUpload = (store, query, designUpload) => {
+  updateCache(store, query, designUpload, transformDesignUpload);
 };
