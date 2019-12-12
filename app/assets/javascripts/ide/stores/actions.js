@@ -132,10 +132,14 @@ export const stageAllChanges = ({ state, commit, dispatch }) => {
 
   state.changedFiles.forEach(file => commit(types.STAGE_CHANGE, file.path));
 
-  dispatch('openPendingTab', {
-    file: state.stagedFiles.find(f => f.path === openFile.path),
-    keyPrefix: stageKeys.staged,
-  });
+  const file = state.stagedFiles.find(f => f.path === openFile.path);
+
+  if (file) {
+    dispatch('openPendingTab', {
+      file,
+      keyPrefix: stageKeys.staged,
+    });
+  }
 };
 
 export const unstageAllChanges = ({ state, commit, dispatch }) => {
@@ -143,10 +147,14 @@ export const unstageAllChanges = ({ state, commit, dispatch }) => {
 
   state.stagedFiles.forEach(file => commit(types.UNSTAGE_CHANGE, file.path));
 
-  dispatch('openPendingTab', {
-    file: state.changedFiles.find(f => f.path === openFile.path),
-    keyPrefix: stageKeys.unstaged,
-  });
+  const file = state.changedFiles.find(f => f.path === openFile.path);
+
+  if (file) {
+    dispatch('openPendingTab', {
+      file,
+      keyPrefix: stageKeys.unstaged,
+    });
+  }
 };
 
 export const updateViewer = ({ commit }, viewer) => {

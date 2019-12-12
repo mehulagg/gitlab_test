@@ -1,0 +1,5 @@
+---
+title: "!21542 Part 2: Call openPendingTab only if the open file has change"
+merge_request: 21675
+author:
+type: fixed
