@@ -1561,6 +1561,13 @@ class Project < ApplicationRecord
     wiki.repository_exists?
   end
 
+  def snippet_repository(snippet)
+    return unless Feature.enabled?(:version_snippets, self)
+
+    @snippet_repositories ||= {}
+    @snippet_repositories[snippet] ||= Snippets::Repository.new(self, snippet)
+  end
+
   # update visibility_level of forks
   def update_forks_visibility_level
     return if unlink_forks_upon_visibility_decrease_enabled?

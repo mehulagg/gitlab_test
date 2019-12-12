@@ -22,6 +22,21 @@ class Snippet < ApplicationRecord
 
   redact_field :description
 
+  # Hashed Storage versions handle rolling out new storage to project and dependents models:
+  # nil: legacy
+  # 1: repository
+  # 2: attachments
+  # LATEST_STORAGE_VERSION = 2
+  # HASHED_STORAGE_FEATURES = {
+  #   repository: 1,
+  #   # attachments: 2
+  # }.freeze
+
+  # default_value_for(:repository_storage) { Gitlab::CurrentSettings.pick_repository_storage }
+
+  # Storage specific hooks
+  # after_initialize :use_hashed_storage
+
   # Aliases to make application_helper#edited_time_ago_with_tooltip helper work properly with snippets.
   # See https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/10392/diffs#note_28719102
   alias_attribute :last_edited_at, :updated_at
@@ -40,6 +55,7 @@ class Snippet < ApplicationRecord
   has_many :user_mentions, class_name: "SnippetUserMention"
 
   delegate :name, :email, to: :author, prefix: true, allow_nil: true
+  # delegate :base_dir, :disk_path, to: :storage
 
   validates :author, presence: true
   validates :title, presence: true, length: { maximum: 255 }
@@ -250,6 +266,12 @@ class Snippet < ApplicationRecord
     options[:except] << :secret_token
 
     super
+  end
+
+  def repository
+    # return unless Feature.enabled?(:version_snippets, project)
+
+    project&.snippet_repository(self)
   end
 
   class << self

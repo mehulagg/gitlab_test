@@ -14,20 +14,20 @@ module Gitlab
         # type.
         # We'll always try to find a project with an empty suffix (for the
         # `Gitlab::GlRepository::PROJECT` type.
-        next unless project_path.end_with?(type.path_suffix)
+        next unless suffix = project_path.match(type.path_regex)
 
-        project, was_redirected = find_project(project_path.chomp(type.path_suffix))
+        project, was_redirected = find_project(project_path.chomp(suffix[0]))
         redirected_path = project_path if was_redirected
 
         # If we found a matching project, then the type was matched, no need to
         # continue looking.
-        return [project, type, redirected_path] if project
+        return [project, type, redirected_path, suffix[1]] if project
       end
 
       # When a project did not exist, the parsed repo_type would be empty.
       # In that case, we want to continue with a regular project repository. As we
       # could create the project if the user pushing is allowed to do so.
-      [nil, Gitlab::GlRepository.default_type, nil]
+      [nil, Gitlab::GlRepository.default_type, nil, nil]
     end
 
     def self.find_project(project_path)

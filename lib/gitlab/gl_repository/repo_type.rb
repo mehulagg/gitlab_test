@@ -5,12 +5,14 @@ module Gitlab
     class RepoType
       attr_reader :name,
                   :access_checker_class,
-                  :repository_accessor
+                  :repository_accessor,
+                  :collection
 
-      def initialize(name:, access_checker_class:, repository_accessor:)
+      def initialize(name:, access_checker_class:, repository_accessor:, collection: false)
         @name = name
         @access_checker_class = access_checker_class
         @repository_accessor = repository_accessor
+        @collection = collection
       end
 
       def identifier_for_subject(subject)
@@ -30,8 +32,18 @@ module Gitlab
         self == PROJECT
       end
 
+      def snippet?
+        self == SNIPPET
+      end
+
       def path_suffix
         project? ? "" : ".#{name}"
+      end
+
+      def path_regex
+        return /$/ if project?
+
+        Regexp.new("\\.(#{name}#{'-\\d+' if collection})$")
       end
 
       def repository_for(subject)

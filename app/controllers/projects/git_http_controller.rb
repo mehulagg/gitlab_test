@@ -75,7 +75,7 @@ class Projects::GitHttpController < Projects::GitHttpClientController
   end
 
   def enqueue_fetch_statistics_update
-    return if wiki?
+    return if wiki? || snippet?
     return unless project.daily_statistics_enabled?
 
     ProjectDailyStatisticsWorker.perform_async(project.id)

@@ -3,9 +3,9 @@
 module API
   module Helpers
     module InternalHelpers
-      attr_reader :redirected_path
+      attr_reader :redirected_path, :suffix
 
-      delegate :wiki?, to: :repo_type
+      delegate :wiki?, :snippet?, to: :repo_type
 
       def actor
         @actor ||= Support::GitAccessActor.from_params(params)
@@ -106,9 +106,9 @@ module API
       def set_project
         if params[:gl_repository]
           @project, @repo_type = Gitlab::GlRepository.parse(params[:gl_repository])
-          @redirected_path = nil
+          @redirected_path = @suffix = nil
         else
-          @project, @repo_type, @redirected_path = Gitlab::RepoPath.parse(params[:project])
+          @project, @repo_type, @redirected_path, @suffix = Gitlab::RepoPath.parse(params[:project])
         end
       end
       # rubocop:enable Gitlab/ModuleWithInstanceVariables
@@ -116,25 +116,19 @@ module API
       # Project id to pass between components that don't share/don't have
       # access to the same filesystem mounts
       def gl_repository
+        return suffix if snippet?
+
         repo_type.identifier_for_subject(project)
       end
 
       def gl_project_path
-        if wiki?
-          project.wiki.full_path
-        else
-          project.full_path
-        end
+        repository.full_path
       end
 
       # Return the repository depending on whether we want the wiki or the
       # regular repository
       def repository
-        if repo_type.wiki?
-          project.wiki.repository
-        else
-          project.repository
-        end
+        @repository ||= repo_type.repository_for(snippet || project)
       end
 
       # Return the Gitaly Address if it is enabled
@@ -147,6 +141,16 @@ module API
           token: Gitlab::GitalyClient.token(project.repository_storage),
           features: Feature::Gitaly.server_feature_flags
         }
+      end
+
+      def snippet
+        @snippet ||= begin
+          return unless snippet?
+
+          snippet_id = repo_type.fetch_id(suffix)
+          project&.snippets&.find_by_id(snippet_id)
+          # SnippetsFinder.new(actor.user, project: project, ids: snippet_id).execute.first
+        end
       end
     end
   end

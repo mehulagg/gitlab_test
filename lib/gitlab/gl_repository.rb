@@ -14,10 +14,17 @@ module Gitlab
       access_checker_class: Gitlab::GitAccessWiki,
       repository_accessor: -> (project) { project.wiki.repository }
     ).freeze
+    SNIPPET = RepoType.new(
+      name: :snippet,
+      access_checker_class: Gitlab::GitAccessSnippet,
+      repository_accessor: -> (snippet) { snippet.repository },
+      collection: true
+    ).freeze
 
     TYPES = {
       PROJECT.name.to_s => PROJECT,
-      WIKI.name.to_s => WIKI
+      WIKI.name.to_s => WIKI,
+      SNIPPET.name.to_s => SNIPPET
     }.freeze
 
     def self.types
@@ -33,9 +40,14 @@ module Gitlab
         raise ArgumentError, "Invalid GL Repository \"#{gl_repository}\""
       end
 
-      project = Project.find_by_id(subject_id)
+      object =
+        if type == SNIPPET
+          ProjectSnippet.find_by_id(subject_id)
+        else
+          Project.find_by_id(subject_id)
+        end
 
-      [project, type]
+      [object, type]
     end
 
     def self.default_type

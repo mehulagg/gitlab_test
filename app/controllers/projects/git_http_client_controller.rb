@@ -78,7 +78,7 @@ class Projects::GitHttpClientController < Projects::ApplicationController
   end
 
   def parse_repo_path
-    @project, @repo_type, @redirected_path = Gitlab::RepoPath.parse("#{params[:namespace_id]}/#{params[:project_id]}")
+    @project, @repo_type, @redirected_path, @suffix = Gitlab::RepoPath.parse("#{params[:namespace_id]}/#{params[:project_id]}")
   end
 
   def render_missing_personal_access_token
@@ -89,11 +89,27 @@ class Projects::GitHttpClientController < Projects::ApplicationController
   end
 
   def repository
-    repo_type.repository_for(project)
+    render_404 if snippet? && !snippet
+
+    repo_type.repository_for(snippet || project)
   end
 
   def wiki?
     repo_type.wiki?
+  end
+
+  def snippet?
+    repo_type.snippet?
+  end
+
+  def snippet
+    strong_memoize(:snippet) do
+      next unless snippet?
+
+      snippet_id = repo_type.fetch_id(@suffix)
+      project&.snippets&.find_by_id(snippet_id)
+      # SnippetsFinder.new(authenticated_user, project: project, ids: snippet_id).execute.first
+    end
   end
 
   def repo_type
