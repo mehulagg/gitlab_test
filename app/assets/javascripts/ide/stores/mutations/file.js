@@ -1,5 +1,5 @@
 import * as types from '../mutation_types';
-import { sortTree } from '../utils';
+import { sortTree, getDiffInfo, isFileDeletedAndReadded } from '../utils';
 import { diffModes } from '../../constants';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 
@@ -55,26 +55,29 @@ export default {
     });
   },
   [types.SET_FILE_RAW_DATA](state, { file, raw }) {
+    const fileDeletedAndReadded = isFileDeletedAndReadded(state, file.path);
     const openPendingFile = state.openFiles.find(
-      f => f.path === file.path && f.pending && !(f.tempFile && !f.prevPath),
+      f =>
+        f.path === file.path && f.pending && !(f.tempFile && !f.prevPath && !fileDeletedAndReadded),
     );
+    const stagedFile = state.stagedFiles.find(f => f.path === file.path);
 
-    if (file.tempFile && file.content === '') {
-      Object.assign(state.entries[file.path], {
-        content: raw,
-      });
+    if (file.tempFile && file.content === '' && !fileDeletedAndReadded) {
+      Object.assign(state.entries[file.path], { content: raw });
+    } else if (fileDeletedAndReadded) {
+      Object.assign(stagedFile, { raw });
     } else {
-      Object.assign(state.entries[file.path], {
-        raw,
-      });
+      Object.assign(state.entries[file.path], { raw });
     }
 
     if (!openPendingFile) return;
 
     if (!openPendingFile.tempFile) {
       openPendingFile.raw = raw;
-    } else if (openPendingFile.tempFile) {
+    } else if (openPendingFile.tempFile && !fileDeletedAndReadded) {
       openPendingFile.content = raw;
+    } else if (fileDeletedAndReadded) {
+      Object.assign(stagedFile, { raw });
     }
   },
   [types.SET_FILE_BASE_RAW_DATA](state, { file, baseRaw }) {

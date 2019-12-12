@@ -184,6 +184,8 @@ describe('IDE store file actions', () => {
       localFile = file(`newCreate-${Math.random()}`);
       store.state.entries[localFile.path] = localFile;
 
+      store.state.stagedFiles = [];
+
       store.state.currentProjectId = 'test/test';
       store.state.currentBranchId = 'master';
 
@@ -196,6 +198,55 @@ describe('IDE store file actions', () => {
           },
         },
       };
+    });
+
+    describe('call to service', () => {
+      const callExpectation = (done, serviceCalled) => {
+        store
+          .dispatch('getFileData', { path: localFile.path })
+          .then(() => {
+            if (serviceCalled) {
+              expect(service.getFileData).toHaveBeenCalled();
+            } else {
+              expect(service.getFileData).not.toHaveBeenCalled();
+            }
+
+            done();
+          })
+          .catch(done.fail);
+      };
+
+      beforeEach(() => {
+        service.getFileData.and.callFake(() => new Promise(resolve => resolve()));
+      });
+
+      it("isn't called if file.raw exists", done => {
+        localFile.raw = 'raw data';
+        callExpectation(done);
+      });
+
+      it("isn't called if file is a tempFile", done => {
+        localFile.raw = '';
+        localFile.tempFile = true;
+        callExpectation(done);
+      });
+
+      it('is called if file is a tempFile but also renamed', done => {
+        localFile.raw = '';
+        localFile.tempFile = true;
+        localFile.prevPath = 'old_path';
+        callExpectation(done, true);
+      });
+
+      it('is called if tempFile but file was deleted and readded', done => {
+        localFile.raw = '';
+        localFile.tempFile = true;
+        localFile.prevPath = 'old_path';
+
+        store.state.stagedFiles = [{ ...localFile, deleted: true }];
+
+        callExpectation(done, true);
+      });
     });
 
     describe('success', () => {
