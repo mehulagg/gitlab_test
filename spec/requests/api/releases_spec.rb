@@ -304,10 +304,10 @@ describe API::Releases do
           it "exposes tag and commit" do
             create(:release,
                    project: project,
-                   tag: 'v0.1',
+                   tag: 'v0.2',
                    author: maintainer,
                    created_at: 2.days.ago)
-            get api("/projects/#{project.id}/releases/v0.1", guest)
+            get api("/projects/#{project.id}/releases/v0.2", guest)
 
             expect(response).to match_response_schema('public_api/v4/release')
           end

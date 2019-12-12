@@ -6,7 +6,7 @@ describe 'projects/tags/index.html.haml' do
   let(:project)  { create(:project, :repository) }
   let(:tags)     { TagsFinder.new(project.repository, {}).execute }
   let(:git_tag)  { project.repository.tags.last }
-  let(:release)  { create(:release, project: project, sha: git_tag.target_commit.sha) }
+  let(:release)  { create(:release, :with_set_tag, project: project, sha: git_tag.target_commit.sha) }
   let(:pipeline) { create(:ci_pipeline, :success, project: project, ref: git_tag.name, sha: release.sha) }
 
   before do

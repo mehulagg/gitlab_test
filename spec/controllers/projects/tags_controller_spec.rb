@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe Projects::TagsController do
   let(:project) { create(:project, :public, :repository) }
-  let!(:release) { create(:release, project: project) }
+  let!(:release) { create(:release, :with_set_tag, project: project) }
   let!(:invalid_release) { create(:release, project: project, tag: 'does-not-exist') }
 
   describe 'GET index' do

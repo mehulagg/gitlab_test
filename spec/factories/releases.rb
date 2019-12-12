@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :release do
-    tag { "v1.1.0" }
+    sequence(:tag) { |n| "v1.#{n}.0" }
     sha { 'b83d6e391c22777fca1ed3012fce84f633d7fed0' }
     name { tag }
     description { "Awesome release" }
@@ -13,6 +13,10 @@ FactoryBot.define do
     trait :legacy do
       sha { nil }
       author { nil }
+    end
+
+    trait :with_set_tag do
+      tag { 'v1.1.0' }
     end
 
     trait :with_evidence do

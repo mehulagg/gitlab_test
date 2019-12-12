@@ -5,7 +5,7 @@ require 'spec_helper'
 describe Projects::Tags::ReleasesController do
   let!(:project) { create(:project, :repository) }
   let!(:user)    { create(:user) }
-  let!(:release) { create(:release, project: project) }
+  let!(:release) { create(:release, :with_set_tag, project: project) }
   let!(:tag)     { release.tag }
 
   before do
