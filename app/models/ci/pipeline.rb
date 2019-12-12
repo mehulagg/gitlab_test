@@ -205,6 +205,7 @@ module Ci
     end
 
     scope :internal, -> { where(source: internal_sources) }
+    scope :no_child, -> { where.not(source: :parent_pipeline) }
     scope :ci_sources, -> { where(config_source: ::Ci::PipelineEnums.ci_config_sources_values) }
     scope :for_user, -> (user) { where(user: user) }
     scope :for_sha, -> (sha) { where(sha: sha) }
