@@ -296,14 +296,12 @@ def lint_commits(mr, commits)
   failed_message_intro = 'One or more commit messages do'
   if squash?(mr)
     failed_message_intro = "This MR's title does"
-    failed = [lint_mr_title(mr["title"])]
+    failed = lint_mr_title(mr["title"])
   else
-    failed = commits.select do |commit|
-      lint_commit(commit)
-    end
+    failed = commits.any? { |commit| lint_commit(commit) }
   end
 
-  if failed.any?
+  if failed
     markdown(<<~MARKDOWN)
       ## Commit message standards
 
