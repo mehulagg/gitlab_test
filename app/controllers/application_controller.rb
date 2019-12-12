@@ -481,6 +481,10 @@ class ApplicationController < ActionController::Base
     request.format.json?
   end
 
+  def js_request?
+    request.format.js?
+  end
+
   def should_enforce_terms?
     return false unless Gitlab::CurrentSettings.current_application_settings.enforce_terms
 

@@ -16,7 +16,7 @@ module Gitlab
 
       i = 0
       blame.each do |commit, line|
-        commit = Commit.new(commit, project)
+        commit = Commit.new(commit, repositorable)
         commit.lazy_author # preload author
 
         sha = commit.sha
@@ -47,12 +47,12 @@ module Gitlab
       @highlighted_lines ||= @blob.present.highlight.lines
     end
 
-    def project
-      commit.project
+    def repositorable
+      commit.repositorable
     end
 
     def repository
-      project.repository
+      repositorable.repository
     end
   end
 end

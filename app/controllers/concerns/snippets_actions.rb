@@ -12,18 +12,22 @@ module SnippetsActions
 
     workhorse_set_content_type!
 
+    if Feature.enabled?(:version_snippets, current_user)
+      content = @blob.data
+      filename = @blob.name.gsub(/[^a-zA-Z0-9_\-\.]+/, '')
+    else
+      content = @snippet.content
+      filename = @snippet.sanitized_file_name
+    end
+
     send_data(
-      convert_line_endings(@snippet.content),
+      convert_line_endings(content),
       type: 'text/plain; charset=utf-8',
       disposition: disposition,
-      filename: @snippet.sanitized_file_name
+      filename: filename
     )
   end
   # rubocop:enable Gitlab/ModuleWithInstanceVariables
-
-  def js_request?
-    request.format.js?
-  end
 
   private
 

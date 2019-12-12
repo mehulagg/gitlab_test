@@ -6,41 +6,87 @@ describe SnippetsHelper do
   include Gitlab::Routing
   include IconsHelper
 
-  let_it_be(:public_personal_snippet) { create(:personal_snippet, :public) }
-  let_it_be(:public_project_snippet) { create(:project_snippet, :public) }
+  let_it_be(:user) { create(:user) }
+  let_it_be(:personal_snippet) { create(:personal_snippet, :public, :repository, author: user) }
+  let_it_be(:project_snippet) { create(:project_snippet, :public, :repository, author: user) }
+
+  before do
+    allow(helper).to receive(:current_user).and_return(user)
+  end
 
   describe '#embedded_raw_snippet_button' do
-    subject { embedded_raw_snippet_button.to_s }
+    subject { helper.embedded_raw_snippet_button(snippet.blob) }
 
-    it 'returns view raw button of embedded snippets for personal snippets' do
-      @snippet = create(:personal_snippet, :public)
-      expect(subject).to eq(download_link("http://test.host/snippets/#{@snippet.id}/raw"))
+    context 'personal snippets' do
+      let(:snippet) { personal_snippet}
+
+      it 'returns blob raw button of embedded snippets' do
+        expect(subject).to eq(download_link("http://test.host/snippets/#{snippet.id}/blobs/filename-1.rb/raw"))
+      end
+
+      context 'when feature flag :version_snippets is disabled' do
+        it 'returns raw button of the whole embedded snippet' do
+          stub_feature_flags(version_snippets: false)
+
+          expect(subject).to eq(download_link("http://test.host/snippets/#{snippet.id}/raw"))
+        end
+      end
     end
 
-    it 'returns view raw button of embedded snippets for project snippets' do
-      @snippet = create(:project_snippet, :public)
+    context 'project snippets' do
+      let(:snippet) { project_snippet}
 
-      expect(subject).to eq(download_link("http://test.host/#{@snippet.project.path_with_namespace}/snippets/#{@snippet.id}/raw"))
+      it 'returns view raw button of embedded snippets' do
+        expect(subject).to eq(download_link("http://test.host/#{snippet.project.path_with_namespace}/snippets/#{snippet.id}/blobs/filename-2.rb/raw"))
+      end
+
+      context 'when feature flag :version_snippets is disabled' do
+        it 'returns raw button of the whole embedded snippet' do
+          stub_feature_flags(version_snippets: false)
+
+          expect(subject).to eq(download_link("http://test.host/#{snippet.project.path_with_namespace}/snippets/#{snippet.id}/raw"))
+        end
+      end
     end
 
     def download_link(url)
-      "<a class=\"btn\" target=\"_blank\" rel=\"noopener noreferrer\" title=\"Open raw\" href=\"#{url}\">#{external_snippet_icon('doc-code')}</a>"
+      "<a class=\"btn\" target=\"_blank\" title=\"Open raw\" rel=\"noopener noreferrer\" href=\"#{url}\">#{external_snippet_icon('doc-code')}</a>"
     end
   end
 
   describe '#embedded_snippet_download_button' do
-    subject { embedded_snippet_download_button }
+    subject { helper.embedded_snippet_download_button(snippet.blob) }
 
-    it 'returns download button of embedded snippets for personal snippets' do
-      @snippet = create(:personal_snippet, :public)
+    context 'personal snippets' do
+      let(:snippet) { personal_snippet}
 
-      expect(subject).to eq(download_link("http://test.host/snippets/#{@snippet.id}/raw"))
+      it 'returns download button of embedded snippets' do
+        expect(subject).to eq(download_link("http://test.host/snippets/#{snippet.id}/blobs/filename-1.rb/raw"))
+      end
+
+      context 'when feature flag :version_snippets is disabled' do
+        it 'returns download button of the whole embedded snippet' do
+          stub_feature_flags(version_snippets: false)
+
+          expect(subject).to eq(download_link("http://test.host/snippets/#{snippet.id}/raw"))
+        end
+      end
     end
 
-    it 'returns download button of embedded snippets for project snippets' do
-      @snippet = create(:project_snippet, :public)
+    context 'project snippets' do
+      let(:snippet) { project_snippet}
 
-      expect(subject).to eq(download_link("http://test.host/#{@snippet.project.path_with_namespace}/snippets/#{@snippet.id}/raw"))
+      it 'returns download button of embedded snippets for project snippets' do
+        expect(subject).to eq(download_link("http://test.host/#{snippet.project.path_with_namespace}/snippets/#{snippet.id}/blobs/filename-2.rb/raw"))
+      end
+
+      context 'when feature flag :version_snippets is disabled' do
+        it 'returns download button of the whole embedded snippet' do
+          stub_feature_flags(version_snippets: false)
+
+          expect(subject).to eq(download_link("http://test.host/#{snippet.project.path_with_namespace}/snippets/#{snippet.id}/raw"))
+        end
+      end
     end
 
     def download_link(url)
@@ -48,11 +94,91 @@ describe SnippetsHelper do
     end
   end
 
-  describe '#snippet_embed_tag' do
-    subject { snippet_embed_tag(snippet) }
+  describe '#download_raw_snippet_button' do
+    subject { helper.download_raw_snippet_button(snippet.blob) }
 
     context 'personal snippets' do
-      let(:snippet) { public_personal_snippet }
+      let(:snippet) { personal_snippet}
+
+      it 'returns download button for blob' do
+        expect(subject).to eq(button_link("/snippets/#{snippet.id}/blobs/filename-1.rb/raw?inline=false", icon('download')))
+      end
+
+      context 'when feature flag :version_snippets is disabled' do
+        it 'returns download button for snippet' do
+          stub_feature_flags(version_snippets: false)
+
+          expect(subject).to eq(button_link("/snippets/#{snippet.id}/raw?inline=false", icon('download')))
+        end
+      end
+    end
+
+    context 'project snippets' do
+      let(:snippet) { project_snippet}
+
+      it 'returns download button for blob' do
+        expect(subject).to eq(button_link("/#{snippet.project.path_with_namespace}/snippets/#{snippet.id}/blobs/filename-2.rb/raw?inline=false", icon('download')))
+      end
+
+      context 'when feature flag :version_snippets is disabled' do
+        it 'returns download button for snippet' do
+          stub_feature_flags(version_snippets: false)
+
+          expect(subject).to eq(button_link("/#{snippet.project.path_with_namespace}/snippets/#{snippet.id}/raw?inline=false", icon('download')))
+        end
+      end
+    end
+
+    def button_link(url, icon)
+      "<a class=\"btn btn-sm has-tooltip\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Download\" title=\"Download\" data-container=\"body\" href=\"#{url}\">#{icon}</a>"
+    end
+  end
+
+  describe '#open_raw_snippet_button' do
+    subject { helper.open_raw_snippet_button(snippet.blob) }
+
+    context 'personal snippets' do
+      let(:snippet) { personal_snippet}
+
+      it 'returns download button for blob' do
+        expect(subject).to eq(button_link("/snippets/#{snippet.id}/blobs/filename-1.rb/raw", sprite_icon('doc-code')))
+      end
+
+      context 'when feature flag :version_snippets is disabled' do
+        it 'returns download button for snippet' do
+          stub_feature_flags(version_snippets: false)
+
+          expect(subject).to eq(button_link("/snippets/#{snippet.id}/raw", sprite_icon('doc-code')))
+        end
+      end
+    end
+
+    context 'project snippets' do
+      let(:snippet) { project_snippet}
+
+      it 'returns download button for blob' do
+        expect(subject).to eq(button_link("/#{snippet.project.path_with_namespace}/snippets/#{snippet.id}/blobs/filename-2.rb/raw", sprite_icon('doc-code')))
+      end
+
+      context 'when feature flag :version_snippets is disabled' do
+        it 'returns download button for snippet' do
+          stub_feature_flags(version_snippets: false)
+
+          expect(subject).to eq(button_link("/#{snippet.project.path_with_namespace}/snippets/#{snippet.id}/raw", sprite_icon('doc-code')))
+        end
+      end
+    end
+
+    def button_link(url, icon)
+      "<a class=\"btn btn-sm has-tooltip\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Open raw\" title=\"Open raw\" data-container=\"body\" href=\"#{url}\">#{icon}</a>"
+    end
+  end
+
+  describe '#snippet_embed_tag' do
+    subject { helper.snippet_embed_tag(snippet) }
+
+    context 'personal snippets' do
+      let(:snippet) { personal_snippet }
 
       context 'public' do
         it 'returns a script tag with the snippet full url' do
@@ -62,7 +188,7 @@ describe SnippetsHelper do
     end
 
     context 'project snippets' do
-      let(:snippet) { public_project_snippet }
+      let(:snippet) { project_snippet }
 
       it 'returns a script tag with the snippet full url' do
         expect(subject).to eq(script_embed("http://test.host/#{snippet.project.path_with_namespace}/snippets/#{snippet.id}"))
@@ -74,34 +200,10 @@ describe SnippetsHelper do
     end
   end
 
-  describe '#download_raw_snippet_button' do
-    subject { download_raw_snippet_button(snippet) }
-
-    context 'with personal snippet' do
-      let(:snippet) { public_personal_snippet }
-
-      it 'returns the download button' do
-        expect(subject).to eq(download_link("/snippets/#{snippet.id}/raw"))
-      end
-    end
-
-    context 'with project snippet' do
-      let(:snippet) { public_project_snippet }
-
-      it 'returns the download button' do
-        expect(subject).to eq(download_link("/#{snippet.project.path_with_namespace}/snippets/#{snippet.id}/raw"))
-      end
-    end
-
-    def download_link(url)
-      "<a target=\"_blank\" rel=\"noopener noreferrer\" class=\"btn btn-sm has-tooltip\" title=\"Download\" data-container=\"body\" href=\"#{url}?inline=false\"><i aria-hidden=\"true\" data-hidden=\"true\" class=\"fa fa-download\"></i></a>"
-    end
-  end
-
   describe '#snippet_badge' do
     let(:snippet) { build(:personal_snippet, visibility) }
 
-    subject { snippet_badge(snippet) }
+    subject { helper.snippet_badge(snippet) }
 
     context 'when snippet is private' do
       let(:visibility) { :private }
@@ -129,10 +231,10 @@ describe SnippetsHelper do
   end
 
   describe '#snippet_embed_input' do
-    subject { snippet_embed_input(snippet) }
+    subject { helper.snippet_embed_input(snippet) }
 
     context 'with PersonalSnippet' do
-      let(:snippet) { public_personal_snippet }
+      let(:snippet) { personal_snippet }
 
       it 'returns the input component' do
         expect(subject).to eq embed_input(snippet_url(snippet))
@@ -140,7 +242,7 @@ describe SnippetsHelper do
     end
 
     context 'with ProjectSnippet' do
-      let(:snippet) { public_project_snippet }
+      let(:snippet) { project_snippet }
 
       it 'returns the input component' do
         expect(subject).to eq embed_input(project_snippet_url(snippet.project, snippet))

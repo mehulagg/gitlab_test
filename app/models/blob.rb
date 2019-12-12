@@ -65,7 +65,10 @@ class Blob < SimpleDelegator
     BlobViewer::YarnLock
   ].freeze
 
-  attr_reader :project
+  attr_reader :repositorable
+
+  delegate :repository, to: :repositorable, allow_nil: true
+  delegate :project, to: :repository, allow_nil: true
 
   # Wrap a Gitlab::Git::Blob object, or return nil when given nil
   #
@@ -77,22 +80,22 @@ class Blob < SimpleDelegator
   #
   #     blob = Blob.decorate(nil)
   #     puts "truthy" if blob # No output
-  def self.decorate(blob, project = nil)
+  def self.decorate(blob, repositorable = nil)
     return if blob.nil?
 
-    new(blob, project)
+    new(blob, repositorable)
   end
 
-  def self.lazy(project, commit_id, path)
-    BatchLoader.for([commit_id, path]).batch(key: project.repository) do |items, loader, args|
+  def self.lazy(repositorable, commit_id, path)
+    BatchLoader.for([commit_id, path]).batch(key: repositorable.repository) do |items, loader, args|
       args[:key].blobs_at(items).each do |blob|
         loader.call([blob.commit_id, blob.path], blob) if blob
       end
     end
   end
 
-  def initialize(blob, project = nil)
-    @project = project
+  def initialize(blob, repositorable = nil)
+    @repositorable = repositorable
 
     super(blob)
   end
@@ -116,7 +119,7 @@ class Blob < SimpleDelegator
   def load_all_data!
     # Endpoint needed: https://gitlab.com/gitlab-org/gitaly/issues/756
     Gitlab::GitalyClient.allow_n_plus_1_calls do
-      super(project.repository) if project
+      super(repository) if repositorable
     end
   end
 
@@ -126,7 +129,7 @@ class Blob < SimpleDelegator
 
   def external_storage_error?
     if external_storage == :lfs
-      !project&.lfs_enabled?
+      !(repositorable.respond_to?(:lfs_enabled?) && repositorable&.lfs_enabled?)
     else
       false
     end

@@ -68,9 +68,6 @@ class SnippetsController < ApplicationController
   end
 
   def show
-    blob = @snippet.blob
-    conditionally_expand_blob(blob)
-
     @note = Note.new(noteable: @snippet)
     @noteable = @snippet
 
@@ -83,7 +80,16 @@ class SnippetsController < ApplicationController
       end
 
       format.json do
-        render_blob_json(blob)
+        # We don't need to support this action when the flag is enabled
+        if Feature.disabled?(:version_snippets, current_user)
+          blob = @snippet.blob
+
+          conditionally_expand_blob(blob)
+
+          render_blob_json(blob)
+        else
+          head :not_found
+        end
       end
 
       format.js do
@@ -108,6 +114,17 @@ class SnippetsController < ApplicationController
                   status: :found,
                   alert: service_response.message
     end
+  end
+
+  def raw
+    # When accessing the raw action of the snippet
+    # we return the first blob we find in the repository
+    if Feature.enabled?(:version_snippets, current_user)
+      # FIXME this is inefficient
+      @blob = snippet.blobs.first
+    end
+
+    super
   end
 
   protected

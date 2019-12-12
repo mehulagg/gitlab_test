@@ -530,7 +530,7 @@ describe Snippet do
     let(:snippet) { build(:personal_snippet, :repository) }
 
     it 'returns valid repo' do
-      expect(snippet.repository).to be_kind_of(Repository)
+      expect(snippet.repository).to be_kind_of(Snippets::Repository)
     end
   end
 
@@ -549,6 +549,34 @@ describe Snippet do
 
         expect(snippet.full_path).to eq "snippets/#{snippet.id}"
       end
+    end
+  end
+
+  describe '#empty_repo?' do
+    context 'when the repo does not exist' do
+      let(:snippet) { build_stubbed(:personal_snippet) }
+
+      it 'returns true' do
+        expect(snippet.empty_repo?).to be(true)
+      end
+    end
+
+    context 'when the repo exists' do
+      let(:snippet) { create(:personal_snippet, :repository) }
+      let(:empty_snippet) { create(:personal_snippet, :empty_repo) }
+
+      it { expect(empty_snippet.empty_repo?).to be(true) }
+      it { expect(snippet.empty_repo?).to be(false) }
+    end
+  end
+
+  describe '#commits_by' do
+    let(:snippet) { create(:personal_snippet, :repository) }
+    let(:commits) { snippet.repository.commits('HEAD', limit: 3).commits }
+    let(:commit_shas) { commits.map(&:id) }
+
+    it 'retrieves several commits from the repository by oid' do
+      expect(snippet.commits_by(oids: commit_shas)).to eq commits
     end
   end
 end

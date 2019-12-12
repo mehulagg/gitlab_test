@@ -333,6 +333,12 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           get :raw
           post :mark_as_spam
         end
+
+        resources :blobs, only: [:show], controller: 'snippets/blobs', constraints: { id: /.+/ } do
+          member do
+            get :raw
+          end
+        end
       end
 
       namespace :prometheus do

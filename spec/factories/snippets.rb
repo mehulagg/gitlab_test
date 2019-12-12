@@ -29,6 +29,12 @@ FactoryBot.define do
           refs: TestEnv::BRANCH_SHA)
       end
     end
+
+    trait :empty_repo do
+      after(:create) do |snippet|
+        raise "Failed to create repository!" unless snippet.repository.create_if_not_exists
+      end
+    end
   end
 
   factory :project_snippet, parent: :snippet, class: :ProjectSnippet do

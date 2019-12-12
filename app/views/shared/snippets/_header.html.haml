@@ -27,6 +27,9 @@
       %textarea.hidden.js-task-list-field
         = @snippet.description
 
+  - if Feature.enabled?(:version_snippets, current_user)
+    = render 'award_emoji/awards_block', awardable: @snippet, inline: true
+
   - if @snippet.updated_at != @snippet.created_at
     = edited_time_ago_with_tooltip(@snippet, placement: 'bottom', exclude_author: true)
 

@@ -1,13 +1,16 @@
-- blob = @snippet.blob
-.js-file-title.file-title-flex-parent
-  = render 'projects/blob/header_content', blob: blob
+- if Feature.enabled?(:version_snippets, current_user)
+  - viewer_params = { controller: 'snippets/blobs', action: 'show', id: blob.path, snippet_id: @snippet.id}
 
-  .file-actions.d-none.d-sm-block
-    = render 'projects/blob/viewer_switcher', blob: blob
+%article.file-holder.snippet-file-content
+  .js-file-title.file-title-flex-parent
+    = render 'projects/blob/header_content', blob: blob
 
-    .btn-group{ role: "group" }<
-      = copy_blob_source_button(blob)
-      = open_raw_blob_button(blob)
-      = download_raw_snippet_button(@snippet)
+    .file-actions.d-none.d-sm-block
+      = render 'projects/blob/viewer_switcher', blob: blob
 
-= render 'projects/blob/content', blob: blob
+      .btn-group{ role: "group" }<
+        = copy_blob_source_button(blob)
+        = open_raw_snippet_button(blob)
+        = download_raw_snippet_button(blob)
+
+  = render 'projects/blob/content', blob: blob, blob_path: blob.path, viewer_params: viewer_params

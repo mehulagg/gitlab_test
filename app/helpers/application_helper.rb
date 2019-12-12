@@ -55,7 +55,7 @@ module ApplicationHelper
   end
 
   def last_commit(project)
-    if project.repo_exists?
+    if project.repository_exists?
       time_ago_with_tooltip(project.repository.commit.committed_date)
     else
       'Never'

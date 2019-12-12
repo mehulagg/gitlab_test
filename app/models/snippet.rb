@@ -17,6 +17,7 @@ class Snippet < ApplicationRecord
   include IgnorableColumns
   include Gitlab::Utils::StrongMemoize
   include Gitlab::Routing
+  include Repositorable
   extend ::Gitlab::Utils::Override
 
   ignore_column :storage_version, remove_with: '12.9', remove_after: '2020-03-22'
@@ -200,7 +201,11 @@ class Snippet < ApplicationRecord
   end
 
   def blob
-    @blob ||= Blob.decorate(SnippetBlob.new(self), nil)
+    @blob ||= Blob.decorate(SnippetBlob.new(self), self)
+  end
+
+  def blobs
+    repository.ls_files(repository.root_ref).map { |file| Blob.lazy(self, repository.root_ref, file) }
   end
 
   def hook_attrs

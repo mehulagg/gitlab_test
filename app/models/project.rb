@@ -4,7 +4,6 @@ require 'carrierwave/orm/activerecord'
 
 class Project < ApplicationRecord
   include Gitlab::ConfigHelper
-  include Gitlab::ShellAdapter
   include Gitlab::VisibilityLevel
   include AccessRequestable
   include Avatarable
@@ -32,6 +31,7 @@ class Project < ApplicationRecord
   include OptionallySearch
   include FromUnion
   include IgnorableColumns
+  include Repositorable
   extend Gitlab::Cache::RequestCache
 
   extend Gitlab::ConfigHelper
@@ -753,10 +753,6 @@ class Project < ApplicationRecord
     Feature.enabled?(:unlink_fork_network_upon_visibility_decrease, self, default_enabled: true)
   end
 
-  def empty_repo?
-    repository.empty?
-  end
-
   def team
     @team ||= ProjectTeam.new(self)
   end
@@ -782,18 +778,6 @@ class Project < ApplicationRecord
 
     @images = container_repositories.to_a.any?(&:has_tags?) ||
       has_root_container_repository_tags?
-  end
-
-  def commit(ref = 'HEAD')
-    repository.commit(ref)
-  end
-
-  def commit_by(oid:)
-    repository.commit_by(oid: oid)
-  end
-
-  def commits_by(oids:)
-    repository.commits_by(oids: oids)
   end
 
   # ref can't be HEAD, can only be branch/tag name
@@ -1336,27 +1320,8 @@ class Project < ApplicationRecord
     services.public_send(hooks_scope).any? # rubocop:disable GitlabSecurity/PublicSend
   end
 
-  def valid_repo?
-    repository.exists?
-  rescue
-    errors.add(:path, _('Invalid repository path'))
-    false
-  end
-
   def url_to_repo
     gitlab_shell.url_to_repo(full_path)
-  end
-
-  def repo_exists?
-    strong_memoize(:repo_exists) do
-      repository.exists?
-    rescue
-      false
-    end
-  end
-
-  def root_ref?(branch)
-    repository.root_ref == branch
   end
 
   def ssh_url_to_repo
@@ -1517,15 +1482,6 @@ class Project < ApplicationRecord
     end
   end
 
-  def default_branch
-    @default_branch ||= repository.root_ref
-  end
-
-  def reload_default_branch
-    @default_branch = nil
-    default_branch
-  end
-
   def visibility_level_field
     :visibility_level
   end
@@ -1560,10 +1516,6 @@ class Project < ApplicationRecord
 
   def ensure_repository
     create_repository(force: true) unless repository_exists?
-  end
-
-  def repository_exists?
-    !!repository.exists?
   end
 
   def wiki_repository_exists?

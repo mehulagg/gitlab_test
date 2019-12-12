@@ -514,7 +514,7 @@ describe Project do
 
   describe 'Respond to' do
     it { is_expected.to respond_to(:url_to_repo) }
-    it { is_expected.to respond_to(:repo_exists?) }
+    it { is_expected.to respond_to(:repository_exists?) }
     it { is_expected.to respond_to(:execute_hooks) }
     it { is_expected.to respond_to(:owner) }
     it { is_expected.to respond_to(:path_with_namespace) }

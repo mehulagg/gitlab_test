@@ -128,7 +128,7 @@ class Repository
     commits = Gitlab::Git::Commit.batch_by_oid(raw_repository, oids)
 
     if commits.present?
-      Commit.decorate(commits, project)
+      Commit.decorate(commits, repositorable)
     else
       []
     end
@@ -159,14 +159,14 @@ class Repository
     }
 
     commits = Gitlab::Git::Commit.where(options)
-    commits = Commit.decorate(commits, project) if commits.present?
+    commits = Commit.decorate(commits, repositorable) if commits.present?
 
-    CommitCollection.new(project, commits, ref)
+    CommitCollection.new(repositorable, commits, ref)
   end
 
   def commits_between(from, to)
     commits = Gitlab::Git::Commit.between(raw_repository, from, to)
-    commits = Commit.decorate(commits, project) if commits.present?
+    commits = Commit.decorate(commits, repositorable) if commits.present?
     commits
   end
 
@@ -174,7 +174,7 @@ class Repository
   def new_commits(newrev)
     commits = raw.new_commits(newrev)
 
-    ::Commit.decorate(commits, project)
+    ::Commit.decorate(commits, repositorable)
   end
 
   # Gitaly migration: https://gitlab.com/gitlab-org/gitaly/issues/384
@@ -186,7 +186,7 @@ class Repository
     commits = raw_repository.find_commits_by_message(query, ref, path, limit, offset).map do |c|
       commit(c)
     end
-    CommitCollection.new(project, commits, ref)
+    CommitCollection.new(repositorable, commits, ref)
   end
 
   def find_branch(name)
@@ -495,7 +495,7 @@ class Repository
   end
 
   def blob_at(sha, path)
-    blob = Blob.decorate(raw_repository.blob_at(sha, path), project)
+    blob = Blob.decorate(raw_repository.blob_at(sha, path), repositorable)
 
     # Don't attempt to return a special result if there is no blob at all
     return unless blob
@@ -517,7 +517,7 @@ class Repository
   def blobs_at(items)
     return [] unless exists?
 
-    raw_repository.batch_blobs(items).map { |blob| Blob.decorate(blob, project) }
+    raw_repository.batch_blobs(items).map { |blob| Blob.decorate(blob, repositorable) }
   end
 
   def root_ref
@@ -695,13 +695,13 @@ class Repository
     commits = raw_repository.list_last_commits_for_tree(sha, path, offset: offset, limit: limit)
 
     commits.each do |path, commit|
-      commits[path] = ::Commit.new(commit, project)
+      commits[path] = ::Commit.new(commit, repositorable)
     end
   end
 
   def last_commit_for_path(sha, path)
     commit = raw_repository.last_commit_for_path(sha, path)
-    ::Commit.new(commit, project) if commit
+    ::Commit.new(commit, repositorable) if commit
   end
 
   def last_commit_id_for_path(sha, path)
@@ -866,7 +866,7 @@ class Repository
 
   def revert(
     user, commit, branch_name, message,
-    start_branch_name: nil, start_project: project)
+    start_branch_name: nil, start_project: repositorable)
 
     with_cache_hooks do
       raw_repository.revert(
@@ -882,7 +882,7 @@ class Repository
 
   def cherry_pick(
     user, commit, branch_name, message,
-    start_branch_name: nil, start_project: project)
+    start_branch_name: nil, start_project: repositorable)
 
     with_cache_hooks do
       raw_repository.cherry_pick(

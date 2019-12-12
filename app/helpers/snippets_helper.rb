@@ -11,14 +11,16 @@ module SnippetsHelper
     end
   end
 
-  def download_raw_snippet_button(snippet)
-    link_to(icon('download'),
-            gitlab_raw_snippet_path(snippet, inline: false),
-            target: '_blank',
-            rel: 'noopener noreferrer',
-            class: "btn btn-sm has-tooltip",
-            title: 'Download',
-            data: { container: 'body' })
+  def download_raw_snippet_button(blob)
+    raw_button('Download', icon('download'), flag_blob_snippet_url(blob, only_path: true, inline: false))
+  end
+
+  def open_raw_snippet_button(blob)
+    return if blob.empty? || blob.binary? || blob.stored_externally?
+
+    raw_button(_('Open raw'),
+               sprite_icon('doc-code'),
+               external_storage_url_or_path(flag_blob_snippet_url(blob, only_path: true)))
   end
 
   # Return the path of a snippets index for a user or for a project
@@ -140,24 +142,43 @@ module SnippetsHelper
     end
   end
 
-  def embedded_raw_snippet_button
-    blob = @snippet.blob
+  def embedded_raw_snippet_button(blob)
     return if blob.empty? || blob.binary? || blob.stored_externally?
 
-    link_to(external_snippet_icon('doc-code'),
-            gitlab_raw_snippet_url(@snippet),
-            class: 'btn',
-            target: '_blank',
-            rel: 'noopener noreferrer',
-            title: 'Open raw')
+    embed_button(_('Open raw'), external_snippet_icon('doc-code'), flag_blob_snippet_url(blob))
   end
 
-  def embedded_snippet_download_button
-    link_to(external_snippet_icon('download'),
-            gitlab_raw_snippet_url(@snippet, inline: false),
+  def embedded_snippet_download_button(blob)
+    embed_button('Download', external_snippet_icon('download'), flag_blob_snippet_url(blob, inline: false))
+  end
+
+  private
+
+  def embed_button(title, icon, url)
+    link_to(icon,
+            url,
             class: 'btn',
             target: '_blank',
-            title: 'Download',
+            title: title,
             rel: 'noopener noreferrer')
+  end
+
+  def raw_button(title, icon, url)
+    link_to(icon,
+            url,
+            class: 'btn btn-sm has-tooltip',
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            aria: { label: title },
+            title: title,
+            data: { container: 'body' })
+  end
+
+  def flag_blob_snippet_url(blob, args = {})
+    if Feature.enabled?(:version_snippets, current_user)
+      gitlab_raw_snippet_blob_url(blob, args)
+    else
+      gitlab_raw_snippet_url(blob.repositorable, args)
+    end
   end
 end

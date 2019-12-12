@@ -10,10 +10,13 @@
   = render 'shared/snippets/header'
 
   .personal-snippets
-    %article.file-holder.snippet-file-content
-      = render 'shared/snippets/blob'
+    - if Feature.enabled?(:version_snippets, current_user) && @snippet.repository.exists?
+      = render partial: 'shared/snippets/blob', collection: @snippet.blobs, as: :blob
+    - else
+      = render 'shared/snippets/blob', blob: @snippet.blob
 
-    .row-content-block.top-block.content-component-block
-      = render 'award_emoji/awards_block', awardable: @snippet, inline: true
+    - if Feature.disabled?(:version_snippets, current_user)
+      .row-content-block.top-block.content-component-block
+        = render 'award_emoji/awards_block', awardable: @snippet, inline: true
 
     #notes.limited-width-notes= render "shared/notes/notes_with_form", :autocomplete => false

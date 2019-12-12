@@ -14,6 +14,12 @@ resources :snippets, concerns: :awardable do
         delete :delete_attachment
       end
     end
+
+    resources :blobs, only: [:show] do
+      member do
+        get :raw
+      end
+    end
   end
 end
 
