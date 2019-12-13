@@ -20,6 +20,7 @@ module Security
 
     # @return [Array<Hash>] collection of found dependencies
     def execute
+      # authorize read_dependencies
       collection = init_collection
       collection = filter_by_package_manager(collection)
       collection = filter_by_vulnerable(collection)

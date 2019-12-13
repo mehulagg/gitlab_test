@@ -5,7 +5,7 @@ module Types
     class DependencyType < BaseObject
       graphql_name 'Dependency'
 
-      # authorize :read_dependencies
+      # mount on project
 
       field :name, GraphQL::STRING_TYPE, null: true,
             description: 'Name of a dependency'
@@ -24,11 +24,11 @@ module Types
       #       resolve: -> (dependency, _, _) do
       #       end
 
-      # field :vulnerabilities, [::Types::Security::Vulnerability], null: true,
-      #       description: 'Vulnerabilities associated with a dependency',
-      #       resolve: -> (dependency, _args, _ctx) do
-      #           dependency[:vulnerabilities]
-      # end
+      field :vulnerabilities, [::Types::Security::VulnerabilityType], null: true,
+            description: 'Vulnerabilities associated with a dependency',
+            resolve: -> (dependency, _args, _ctx) do
+              dependency[:vulnerabilities]
+            end
     end
   end
 end
