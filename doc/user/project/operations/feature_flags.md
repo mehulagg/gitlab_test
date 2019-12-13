@@ -133,6 +133,18 @@ CAUTION: **Caution:**
 The Unleash client **must** be given a user ID for the feature to be enabled for
 target users. See the [Ruby example](#ruby-application-example) below.
 
+## Override Toggle
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/13416) in GitLab 12.7.
+
+The override toggle functions as a global shutoff switch for a feature flag.
+
+If the toggle is off, then the feature flag is disabled for every environment. This overrides any settings for environment specs.
+
+For a feature to be enabled for a given environment, the matching environment spec must be enabled, and the override toggle must be enabled.
+
+![Feature flag specs list](img/specs_list_v12_6.png)
+
 ## Integrating with your application
 
 In order to use Feature Flags, you need to first
