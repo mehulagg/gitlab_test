@@ -1,4 +1,4 @@
-export const transformDesignUpload = (query, cacheData, designManagementUpload) => {
+export const transformDesignUpload = (cacheData, designUploadData) => {
   const newDesigns = cacheData.project.issue.designCollection.designs.edges.reduce(
     (acc, design) => {
       if (!acc.find(d => d.filename === design.node.filename)) {
@@ -7,11 +7,11 @@ export const transformDesignUpload = (query, cacheData, designManagementUpload) 
 
       return acc;
     },
-    designManagementUpload.designs,
+    designUploadData.designs,
   );
 
   let newVersionNode;
-  const findNewVersions = designManagementUpload.designs.find(design => design.versions);
+  const findNewVersions = designUploadData.designs.find(design => design.versions);
 
   if (findNewVersions) {
     const findNewVersionsEdges = findNewVersions.versions.edges;
@@ -42,14 +42,11 @@ export const transformDesignUpload = (query, cacheData, designManagementUpload) 
   };
 
   return {
-    ...query,
-    data: {
-      project: {
-        ...cacheData.project,
-        issue: {
-          ...cacheData.project.issue,
-          designCollection: updatedDesigns,
-        },
+    project: {
+      ...cacheData.project,
+      issue: {
+        ...cacheData.project.issue,
+        designCollection: updatedDesigns,
       },
     },
   };
