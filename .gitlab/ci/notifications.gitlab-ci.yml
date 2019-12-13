@@ -15,6 +15,11 @@ schedule:package-and-qa:notify-failure:
   extends:
     - .only:variables_refs-canonical-dot-com-schedules
     - .notify
+  # disable notifications in this branch scheduled pipelines
+  #  to avoid spam in `#qa-master`
+  except:
+    refs:
+      - discover-flaky-tests-in-master
   script:
     - 'export NOTIFICATION_MESSAGE=":skull_and_crossbones: Scheduled QA against master failed! :skull_and_crossbones: See ${CI_PIPELINE_URL}. For downstream pipelines, see ${COMMIT_NOTES_URL}"'
     - 'notify_on_job_failure schedule:package-and-qa qa-master "${NOTIFICATION_MESSAGE}" ci_failing'
