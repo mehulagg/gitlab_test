@@ -50,6 +50,10 @@ export default {
       activated: this.initialActivated,
       loadingActivated: false,
       authorizationKey: this.initialAuthorizationKey,
+      modalPrimary: {
+        text: this.$options.RESET_KEY,
+        attributes: [{ variant: 'danger' }],
+      },
     };
   },
   computed: {
@@ -152,9 +156,8 @@ export default {
       <gl-button v-gl-modal.authKeyModal class="mt-2">{{ $options.RESET_KEY }}</gl-button>
       <gl-modal
         modal-id="authKeyModal"
+        :modal-action-primary="modalPrimary"
         :title="$options.RESET_KEY"
-        :ok-title="$options.RESET_KEY"
-        ok-variant="danger"
         @ok="resetKey"
       >
         {{
