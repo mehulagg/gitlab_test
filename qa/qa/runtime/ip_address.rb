@@ -18,7 +18,7 @@ module QA
                        raise HostUnreachableError, "#{PUBLIC_IP_ADDRESS_API} is unreachable" unless response.code == Support::Api::HTTP_STATUS_OK
 
                        response.body
-                     elsif page.current_host.include?('localhost')
+                     elsif Scenario.gitlab_address.include?('localhost')
                        LOOPBACK_ADDRESS
                      else
                        Socket.ip_address_list.detect { |intf| intf.ipv4_private? }.ip_address
