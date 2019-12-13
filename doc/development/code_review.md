@@ -133,6 +133,9 @@ their merge requests. Thus, before assigning an MR to a reviewer, make sure it:
 - Has a [milestone](https://gitlab.com/groups/gitlab-org/-/milestones) set
 - Is properly [labelled](https://docs.gitlab.com/ee/development/contributing/issue_workflow.html#labels)
 
+If you're unsure as to what metadata is appropriate for your merge request,
+feel free to ask a [Merge Request coach](https://about.gitlab.com/company/team/?department=merge-request-coach) for some guidance.
+
 ### The responsibility of the reviewer
 
 [Review the merge request](#reviewing-code) thoroughly. When you are confident
