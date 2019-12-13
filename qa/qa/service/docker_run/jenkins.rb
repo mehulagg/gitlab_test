@@ -17,8 +17,7 @@ module QA
         end
 
         def port
-          # Runtime::Scenario.gitlab_address.include?('localhost') ? '8080' : '80'
-          '80'
+          Runtime::Scenario.gitlab_address.include?('localhost') ? '8080' : '80'
         end
 
         def host_name
