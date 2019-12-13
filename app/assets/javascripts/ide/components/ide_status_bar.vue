@@ -29,6 +29,22 @@ export default {
     ...mapState(['currentBranchId', 'currentProjectId']),
     ...mapGetters(['currentProject', 'lastCommit']),
     ...mapState('pipelines', ['latestPipeline']),
+    userAvatar() {
+      if(
+        this.latestPipeline
+        && this.latestPipeline.commit.author_gravatar_url
+      )
+        return this.latestPipeline.commit.author_gravatar_url
+
+      if(
+        this.lastCommit
+        && this.lastCommit.author_email === gon.current_user_email
+      ) return gon.current_user_avatar_url
+
+      // If nothing sticks, make sure to return undefined
+      // so the avatar components defaults can properly kick in.
+      return undefined
+    }
   },
   watch: {
     lastCommit() {
@@ -107,7 +123,7 @@ export default {
       <user-avatar-image
         css-classes="ide-status-avatar"
         :size="18"
-        :img-src="latestPipeline && latestPipeline.commit.author_gravatar_url"
+        :img-src="userAvatar"
         :img-alt="lastCommit.author_name"
         :tooltip-text="lastCommit.author_name"
       />
