@@ -100,6 +100,15 @@ describe ApprovalRules::ParamsFilteringService do
 
           expect(rule[:name]).to eq('All Members')
         end
+
+        it 'removes rule type for empty rule_type' do
+          approval_rules_attributes.first[:rule_type] = ''
+
+          params = service.execute
+          rule = params[:approval_rules_attributes].first
+
+          expect(rule).not_to have_key(:rule_type)
+        end
       end
     end
 

@@ -47,9 +47,13 @@ module ApprovalRules
         rule_attributes[:user_ids] = provided_user_ids & visible_user_ids
       end
 
+      return if rule_attributes[:rule_type].nil?
+
       if rule_attributes[:rule_type] == 'any_approver'
         rule_attributes[:name] = ApprovalRuleLike::ALL_MEMBERS
       end
+
+      rule_attributes.delete(:rule_type) if rule_attributes[:rule_type].empty?
     end
 
     # Append hidden groups to params to prevent them from being removed,
