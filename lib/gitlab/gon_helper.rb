@@ -37,6 +37,7 @@ module Gitlab
         gon.current_username = current_user.username
         gon.current_user_fullname = current_user.name
         gon.current_user_avatar_url = current_user.avatar_url
+        gon.current_user_email = current_user.email
       end
 
       # Initialize gon.features with any flags that should be
