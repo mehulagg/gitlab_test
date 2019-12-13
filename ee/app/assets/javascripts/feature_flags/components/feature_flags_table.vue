@@ -32,6 +32,10 @@ export default {
     return {
       deleteFeatureFlagUrl: null,
       deleteFeatureFlagName: null,
+      modalPrimary: {
+        text: s__('FeatureFlags|Delete feature flag'),
+        attributes: [{ variant: 'danger' }],
+      },
     };
   },
   computed: {
@@ -205,10 +209,9 @@ export default {
 
     <gl-modal
       :title="modalTitle"
-      :ok-title="s__('FeatureFlags|Delete feature flag')"
       :modal-id="modalId"
+      :modal-action-primary="modalPrimary"
       title-tag="h4"
-      ok-variant="danger"
       @ok="onSubmit"
     >
       {{ deleteModalMessage }}
