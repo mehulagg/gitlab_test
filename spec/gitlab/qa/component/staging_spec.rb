@@ -14,7 +14,7 @@ describe Gitlab::QA::Component::Staging do
       { body: { 'version': version, 'revision': '20920f8074a' }.to_json }
     end
 
-    describe '#revision' do
+    describe '#tag_end' do
       context 'when it is an auto-deploy release' do
         it 'retrieves the revision from the version API' do
           request = stub_request(:get, version_api_url).to_return(api_response('12.3.0-pre')).times(1)
