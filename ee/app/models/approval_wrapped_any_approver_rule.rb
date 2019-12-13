@@ -3,7 +3,7 @@
 # A common state computation interface to wrap around any_approver rule
 class ApprovalWrappedAnyApproverRule < ApprovalWrappedRule
   def name
-    'All Members'
+    ''
   end
 
   def approved_approvers

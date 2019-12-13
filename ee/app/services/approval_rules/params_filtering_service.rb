@@ -47,7 +47,9 @@ module ApprovalRules
         rule_attributes[:user_ids] = provided_user_ids & visible_user_ids
       end
 
-      if rule_attributes[:group_ids].blank? && rule_attributes[:user_ids].blank?
+      if rule_attributes[:group_ids].blank? && rule_attributes[:user_ids].blank? &&
+          rule_attributes[:name].blank? # TODO: remove it when https://gitlab.com/gitlab-org/gitlab/issues/55264 is resolved
+
         rule_attributes[:rule_type] = :any_approver
         rule_attributes[:name] = ApprovalRuleLike::ALL_MEMBERS
       end
