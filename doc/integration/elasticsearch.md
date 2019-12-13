@@ -131,6 +131,50 @@ total are being tracked in [epic &153](https://gitlab.com/groups/gitlab-org/-/ep
 
 ## Enabling Elasticsearch
 
+Before you can start using **Advanced Global Search** in GitLab, you need to perform these steps:
+
+1. [Creating a GitLab index](#creating-a-gitlab-index)
+1. **Optional:** [Limiting namespaces and projects](#limiting-namespaces-and-projects)
+1. [Adding GitLab's data to the index](#adding-gitlabs-data-to-the-index)
+1. [Enabling Advanced Global Search](#enabling-advanced-global-search)
+
+### Creating a GitLab index
+
+1. Navigate to **Admin Area > Elasticsearch > GitLab index**.
+1. Click on **Create GitLab index**.
+   1. Enter at least a **Name** for your index, and the **URLs** for your Elasticsearch cluster.
+   1. The following settings are available:
+
+      | Parameter                                             | Editable after creation | Description |
+      | ----------------------------------------------------- | ----------------------- | ----------- |
+      | `Name`                                                | Yes                     | Display name for the index. The internal index name will be automatically generated. |
+      | `URLs`                                                | Yes                     | The URL(s) to use for connecting to Elasticsearch. Use a comma-separated list to support clustering (e.g., `http://host1, https://host2:9200`). If your Elasticsearch instance is password protected, pass the `username:password` in the URL (e.g., `http://<username>:<password>@<elastic_host>:9200/`). |
+      | `Number of shards`                                    | No                      | Elasticsearch indexes are split into multiple shards for performance reasons. In general, larger indexes need to have more shards. Changes to this value do not take effect until the index is recreated. You can read more about tradeoffs in the [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-create-index.html#create-index-settings) |
+      | `Number of replicas`                                  | No                      | Each Elasticsearch shard can have a number of replicas. These are a complete copy of the shard, and can provide increased query performance or resilience against hardware failure. Increasing this value will greatly increase total disk space required by the index. |
+      | `Using AWS hosted Elasticsearch with IAM credentials` | Yes                     | Sign your Elasticsearch requests using [AWS IAM authorization](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html) or [AWS EC2 Instance Profile Credentials](https://docs.aws.amazon.com/codedeploy/latest/userguide/getting-started-create-iam-instance-profile.html#getting-started-create-iam-instance-profile-cli). The policies must be configured to allow `es:*` actions. |
+      | `AWS Region`                                          | Yes                     | The AWS region your Elasticsearch service is located in. |
+      | `AWS Access Key ID`                                   | Yes                     | The AWS access key. |
+      | `AWS Secret Access Key`                               | Yes                     | The AWS secret access key. |
+
+   1. Click on **Create GitLab index**.
+
+### Adding GitLab's data to the index
+
+1. Navigate to **Admin Area > Elasticsearch > GitLab index**.
+1. Click on **Resume indexing** to enable indexing for data that is newly added or changed.
+1. Click on **Reindex** to start a full reindexing of your existing data.
+   1. You can follow the progress of the indexing by navigating to **Admin Area > Monitoring > Background Jobs > Queues > `elastic_full_index`**.
+
+### Enabling Advanced Global Search
+
+1. Navigate to **Admin Area > Elasticsearch > GitLab index**.
+   1. Click on **Use as search source** next to the index you want to use for searching.
+1. Navigate to **Admin Area > Elasticsearch > Settings**.
+   1. Check the box **Advanced Global Search enabled**.
+   1. Click on **Save changes**.
+
+## Outdated docs for old admin UI
+
 In order to enable Elasticsearch, you need to have admin access. Navigate to
 **Admin Area** (wrench icon), then **Settings > Integrations** and expand the **Elasticsearch** section.
 
