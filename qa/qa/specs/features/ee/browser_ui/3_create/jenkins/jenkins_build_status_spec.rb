@@ -4,6 +4,8 @@ require 'securerandom'
 module QA
   context 'Create', :docker do
     describe 'Jenkins integration' do
+      include QA::Runtime::IPAddress
+
       let(:project_name) { "project_with_jenkins_#{SecureRandom.hex(4)}" }
 
       let(:project) do
@@ -15,9 +17,25 @@ module QA
       end
 
       before do
+        current_ip_address = fetch_current_ip_address
+        QA::Runtime::Logger.info "Current IP address: #{current_ip_address}"
+        puts "Current IP address: #{current_ip_address}"
+
         jenkins_server = run_jenkins_server
 
         Vendor::Jenkins::Page::Base.host = jenkins_server.host_address
+
+        puts "jenkins_server.host_address: #{jenkins_server.host_address}"
+        QA::Runtime::Logger.info "jenkins_server.host_address: #{jenkins_server.host_address}"
+
+        puts "Sleeping....."
+        QA::Runtime::Logger.info "Sleeping....."
+
+        sleep 3600 # Temporary: Sleep for 1 hour
+
+        puts "Awake....."
+        QA::Runtime::Logger.info "Awake....."
+
 
         Runtime::Env.personal_access_token ||= fabricate_personal_access_token
 
