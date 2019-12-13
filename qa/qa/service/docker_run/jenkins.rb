@@ -9,20 +9,23 @@ module QA
         def initialize
           @image = 'registry.gitlab.com/gitlab-org/gitlab-qa/jenkins-gitlab:version1'
           @name = 'jenkins-server'
-          @port = '8080'
           super()
         end
 
         def host_address
-          "http://#{host_name}:#{@port}"
+          "http://#{host_name}:#{port}"
+        end
+
+        def port
+          Runtime::Scenario.gitlab_address.include?('localhost') ? '8080' : '80'
         end
 
         def host_name
           if Runtime::Scenario.gitlab_address.include?('localhost')
-            'localhost'
-          # elsif QA::Runtime::Env.running_in_ci? && !URI.parse(Runtime::Scenario.gitlab_address).host.include?('test') # Running in CI against static env
-          #   fetch_current_ip_address
-          # else
+            # 'localhost'
+            # elsif QA::Runtime::Env.running_in_ci? && !URI.parse(Runtime::Scenario.gitlab_address).host.include?('test') # Running in CI against static env
+            #   fetch_current_ip_address
+            # else
             super
           end
         end
@@ -34,7 +37,7 @@ module QA
             --hostname #{host_name}
             --name #{@name}
             --env JENKINS_HOME=jenkins_home
-            --publish #{@port}:8080
+            --publish #{port}:8080
             --publish 50000:50000
             #{@image}
           CMD
