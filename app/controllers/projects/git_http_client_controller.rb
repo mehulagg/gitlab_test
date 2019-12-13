@@ -2,6 +2,7 @@
 
 class Projects::GitHttpClientController < Projects::ApplicationController
   include ActionController::HttpAuthentication::Basic
+  include Gitlab::Utils::StrongMemoize
   include KerberosSpnegoHelper
 
   attr_reader :authentication_result, :redirected_path
