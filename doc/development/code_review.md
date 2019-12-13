@@ -130,7 +130,7 @@ This
 Additionally, it's the author's responsibility to set the correct metadata on
 their merge requests. Thus, before assigning an MR to a reviewer, make sure it:
 
-- Has a milestone set
+- Has a [milestone](https://gitlab.com/groups/gitlab-org/-/milestones) set
 - Is properly [labelled](https://docs.gitlab.com/ee/development/contributing/issue_workflow.html#labels)
 
 ### The responsibility of the reviewer
