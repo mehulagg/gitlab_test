@@ -39,6 +39,7 @@
       - /^security\//
       - merge_requests
       - tags
+      - discover-flaky-tests-in-master # FIXME: https://gitlab.com/gitlab-org/gitlab/issues/39358, do not merge this
 
 .only:variables-canonical-dot-com:
   only:
