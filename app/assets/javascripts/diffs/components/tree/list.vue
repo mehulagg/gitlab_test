@@ -3,8 +3,7 @@ import { mapActions, mapGetters, mapState } from 'vuex';
 import { GlTooltipDirective } from '@gitlab/ui';
 import { s__, sprintf } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
-import FileRow from '~/vue_shared/components/file_row.vue';
-import FileRowStats from './file_row_stats.vue';
+import FileRow from './row.vue';
 
 export default {
   directives: {
@@ -47,9 +46,6 @@ export default {
 
         return acc;
       }, []);
-    },
-    fileRowExtraComponent() {
-      return this.hideFileStats ? null : FileRowStats;
     },
   },
   methods: {
@@ -96,9 +92,6 @@ export default {
           :key="file.key"
           :file="file"
           :level="0"
-          :hide-extra-on-tree="true"
-          :extra-component="fileRowExtraComponent"
-          :show-changed-icon="true"
           @toggleTreeOpen="toggleTreeOpen"
           @clickFile="scrollToFile"
         />

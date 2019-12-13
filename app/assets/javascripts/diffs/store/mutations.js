@@ -294,8 +294,8 @@ export default {
     state.highlightedRow = lineCode;
   },
   [types.SET_TREE_DATA](state, { treeEntries, tree }) {
-    state.treeEntries = treeEntries;
-    state.tree = tree;
+    state.treeEntries = Object.freeze(JSON.parse(JSON.stringify(treeEntries)));
+    state.tree = Object.freeze(JSON.parse(JSON.stringify(tree)));
   },
   [types.SET_RENDER_TREE_LIST](state, renderTreeList) {
     state.renderTreeList = renderTreeList;

@@ -45,23 +45,23 @@ export default {
       validator: value => validSizes.includes(value),
     },
   },
-
-  computed: {
-    spriteHref() {
-      return `${iconsPath}#${this.name}`;
-    },
-    iconTestClass() {
-      return `ic-${this.name}`;
-    },
-    iconSizeClass() {
-      return this.size ? `s${this.size}` : '';
-    },
-  },
+  iconsPath,
 };
 </script>
 
-<template>
-  <svg :class="[iconSizeClass, iconTestClass]" aria-hidden="true" v-on="$listeners">
-    <use v-bind="{ 'xlink:href': spriteHref }" />
+<template functional>
+  <svg
+    v-bind="data.attrs"
+    :class="[
+      props.size ? `s${props.size}` : null,
+      `ic-${props.name}`,
+      data.class,
+      data.staticClass,
+    ]"
+    aria-hidden="true"
+    v-on="$listeners"
+  >
+    {{ data }}
+    <use v-bind="{ 'xlink:href': `${$options.iconsPath}#${props.name}` }" />
   </svg>
 </template>

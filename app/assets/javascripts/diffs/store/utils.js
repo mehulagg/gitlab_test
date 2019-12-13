@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import { truncatePathMiddleToLength } from '~/lib/utils/text_utility';
+import { getCommitIconMap } from '~/ide/utils';
 import { diffModes, diffViewerModes } from '~/ide/constants';
 import {
   LINE_POSITION_LEFT,
@@ -385,9 +386,7 @@ export const generateTreeList = files => {
 
           if (type === 'blob') {
             Object.assign(entry, {
-              changed: true,
-              tempFile: file.new_file,
-              deleted: file.deleted_file,
+              icon: getCommitIconMap(file).icon,
               fileHash: file.file_hash,
               addedLines: file.added_lines,
               removedLines: file.removed_lines,

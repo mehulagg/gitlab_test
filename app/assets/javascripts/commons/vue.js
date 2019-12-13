@@ -5,4 +5,6 @@ if (process.env.NODE_ENV !== 'production') {
   Vue.config.productionTip = false;
 }
 
+Vue.config.performance = true;
+
 Vue.use(GlFeatureFlagsPlugin);
