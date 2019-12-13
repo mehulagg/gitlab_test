@@ -62,20 +62,8 @@ module Gitlab
             Runtime::Env.require_qa_access_token!
           end
 
-          def official?
-            Release::DEV_OFFICIAL_TAG_REGEX.match?(version)
-          end
-
           def tag_end
             official? ? version : revision
-          end
-
-          def revision
-            api_get!.fetch('revision')
-          end
-
-          def version
-            api_get!.fetch('version')
           end
 
           def major_minor_revision
@@ -87,6 +75,18 @@ module Gitlab
           end
 
           private
+
+          def official?
+            Release::DEV_OFFICIAL_TAG_REGEX.match?(version)
+          end
+
+          def revision
+            api_get!.fetch('revision')
+          end
+
+          def version
+            api_get!.fetch('version')
+          end
 
           def api_get!
             @response_body ||= # rubocop:disable Naming/MemoizedInstanceVariableName
