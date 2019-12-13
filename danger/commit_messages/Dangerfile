@@ -330,7 +330,7 @@ end
 def lint_commits(mr, commits)
   if squash?(mr) && lint_mr_title(mr["title"])
     fail_message("This MR's title does not meet our Git commit message standards.")
-  elsif commits.any? { |commit| lint_commit(commit) }
+  elsif !squash?(mr) && commits.any? { |commit| lint_commit(commit) }
     fail_message('One or more commit messages do not meet our Git commit message standards.')
   end
 end
