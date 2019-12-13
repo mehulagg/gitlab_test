@@ -29,6 +29,14 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      modalPrimary: {
+        text: this.modalActionText,
+        attributes: [{ variant: 'secondary' }],
+      },
+    };
+  },
   computed: {
     allLicenses() {
       return Array.isArray(this.licenses) ? this.licenses : [];
@@ -85,9 +93,7 @@ export default {
         v-if="hasLicensesInModal"
         :title="title"
         :modal-id="modalId"
-        :ok-title="modalActionText"
-        ok-only
-        ok-variant="secondary"
+        :modal-action-primary="modalPrimary"
       >
         <h5>{{ __('Licenses') }}</h5>
         <ul class="list-unstyled">

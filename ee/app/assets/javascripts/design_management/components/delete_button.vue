@@ -36,6 +36,10 @@ export default {
   data() {
     return {
       modalId: _.uniqueId('design-deletion-confirmation-'),
+      modalPrimary: {
+        text: s__('DesignManagement|Delete'),
+        attributes: [{ variant: 'danger' }],
+      },
     };
   },
 };
@@ -46,8 +50,7 @@ export default {
     <gl-modal
       :modal-id="modalId"
       :title="s__('DesignManagement|Delete designs confirmation')"
-      :ok-title="s__('DesignManagement|Delete')"
-      ok-variant="danger"
+      :modal-action-primary="modalPrimary"
       @ok="$emit('deleteSelectedDesigns')"
     >
       <p>{{ s__('DesignManagement|Are you sure you want to delete the selected designs?') }}</p>

@@ -20,6 +20,14 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      modalPrimary: {
+        text: s__('Metrics|Delete metric'),
+        attributes: [{ variant: 'danger' }],
+      },
+    };
+  },
   methods: {
     onSubmit() {
       this.$refs.form.submit();
@@ -36,9 +44,8 @@ export default {
     <gl-button v-gl-modal="$options.modalId" variant="danger"> {{ __('Delete') }} </gl-button>
     <gl-modal
       :title="s__('Metrics|Delete metric?')"
-      :ok-title="s__('Metrics|Delete metric')"
       :modal-id="$options.modalId"
-      ok-variant="danger"
+      :modal-action-primary="modalPrimary"
       @ok="onSubmit"
     >
       {{ $options.descriptionText }}
