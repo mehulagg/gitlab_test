@@ -14,6 +14,17 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      modalPrimary: {
+        text: __('Remove approvers'),
+        attributes: [{ variant: 'danger' }],
+      },
+      modalCancel: {
+        text: __('Cancel'),
+      },
+    };
+  },
   computed: {
     ...mapState('deleteModal', {
       rule: 'data',
@@ -60,10 +71,9 @@ export default {
   <gl-modal-vuex
     modal-module="deleteModal"
     :modal-id="modalId"
+    :modal-action-primary="modalPrimary"
+    :modal-action-cancel="modalCancel"
     :title="__('Remove approvers?')"
-    :ok-title="__('Remove approvers')"
-    ok-variant="remove"
-    :cancel-title="__('Cancel')"
     @ok.prevent="submit"
   >
     <p v-html="message"></p>

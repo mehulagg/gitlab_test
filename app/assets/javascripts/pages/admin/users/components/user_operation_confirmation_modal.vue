@@ -37,6 +37,14 @@ export default {
       default: 'put',
     },
   },
+  data() {
+    return {
+      modalPrimary: {
+        text: this.action,
+        attributes: [{ variant: 'warning' }],
+      },
+    };
+  },
   computed: {
     modalTitle() {
       return sprintf(this.title, { username: this.username });
@@ -55,10 +63,9 @@ export default {
 <template>
   <gl-modal
     ref="modal"
+    :modal-action-primary="modalPrimary"
     modal-id="user-operation-modal"
     :title="modalTitle"
-    ok-variant="warning"
-    :ok-title="action"
     @ok="submit"
   >
     <form ref="form" :action="url" method="post">

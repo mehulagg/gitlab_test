@@ -55,6 +55,14 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      modalPrimary: {
+        text: this.title,
+        attributes: [{ variant: 'danger' }],
+      },
+    };
+  },
   computed: {
     title() {
       return sprintf(s__('ClusterIntegration|Uninstall %{appTitle}'), {
@@ -86,9 +94,7 @@ export default {
 </script>
 <template>
   <gl-modal
-    ok-variant="danger"
-    cancel-variant="light"
-    :ok-title="title"
+    :modal-action-primary="modalPrimary"
     :modal-id="modalId"
     :title="title"
     @ok="confirmUninstall()"

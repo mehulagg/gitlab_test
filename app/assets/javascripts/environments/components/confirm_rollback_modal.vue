@@ -22,7 +22,14 @@ export default {
       required: true,
     },
   },
-
+  data() {
+    return {
+      modalPrimary: {
+        text: this.modalActionText,
+        attributes: [{ variant: 'danger' }],
+      },
+    };
+  },
   computed: {
     modalTitle() {
       const title = this.environment.isLastDeployment
@@ -98,9 +105,8 @@ export default {
 <template>
   <gl-modal
     :title="modalTitle"
+    :modal-action-primary="modalPrimary"
     modal-id="confirm-rollback-modal"
-    :ok-title="modalActionText"
-    ok-variant="danger"
     @ok="onOk"
   >
     <p v-html="modalText"></p>

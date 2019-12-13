@@ -14,6 +14,14 @@ export default {
   directives: {
     'gl-modal': GlModalDirective,
   },
+  data() {
+    return {
+      modalPrimary: {
+        text: s__('BatchComments|Delete all pending comments'),
+        attributes: [{ variant: 'danger' }, { class: 'qa-modal-delete-pending-comments' }],
+      },
+    };
+  },
   computed: {
     ...mapGetters(['isNotesFetched']),
     ...mapState('batchComments', ['isDiscarding']),
@@ -58,10 +66,9 @@ export default {
     </nav>
     <gl-modal
       :title="s__('BatchComments|Discard review?')"
-      :ok-title="s__('BatchComments|Delete all pending comments')"
       :modal-id="$options.modalId"
+      :modal-action-primary="modalPrimary"
       title-tag="h4"
-      ok-variant="danger qa-modal-delete-pending-comments"
       @ok="discardReview"
     >
       <p v-html="$options.text"></p>

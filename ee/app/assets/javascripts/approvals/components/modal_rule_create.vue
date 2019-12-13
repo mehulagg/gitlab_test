@@ -15,6 +15,16 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      modalPrimary: {
+        text: this.title,
+      },
+      modalCancel: {
+        text: __('Cancel'),
+      },
+    };
+  },
   computed: {
     ...mapState('createModal', {
       rule: 'data',
@@ -33,12 +43,11 @@ export default {
 
 <template>
   <gl-modal-vuex
+    :modal-action-primary="modalPrimary"
+    :modal-action-cancel="modalCancel"
     modal-module="createModal"
     :modal-id="modalId"
     :title="title"
-    :ok-title="title"
-    ok-variant="success"
-    :cancel-title="__('Cancel')"
     @ok.prevent="submit"
   >
     <rule-form ref="form" :init-rule="rule" />
