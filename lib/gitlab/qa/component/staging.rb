@@ -30,7 +30,10 @@ module Gitlab
             #  - https://gitlab.com/gitlab-org/quality/staging/issues/56
             #  - https://gitlab.com/gitlab-org/release/framework/issues/421
             #  - https://gitlab.com/gitlab-org/gitlab-qa/issues/398
-            Support::DevEEQAImage.new.retrieve_image_from_container_registry!(staging_revision)
+            #
+            # For official builds (currently deployed on preprod) we use the version
+            # string e.g. '12.5.4-ee' for tag matching
+            Support::DevEEQAImage.new.retrieve_image_from_container_registry!(tag_end)
           else
             # Auto-deploy builds have a tag formatted like 12.0.12345+5159f2949cb.59c9fa631
             # but the version api returns a semver version like 12.0.1
@@ -46,8 +49,8 @@ module Gitlab
           self::ADDRESS
         end
 
-        def self.staging_revision
-          @staging_revision ||= Version.new(address).revision
+        def self.tag_end
+          @tag_end ||= Version.new(address).tag_end
         end
 
         class Version
@@ -59,8 +62,8 @@ module Gitlab
             Runtime::Env.require_qa_access_token!
           end
 
-          def revision
-            api_get!.fetch('revision')
+          def tag_end
+            official? ? version : revision
           end
 
           def major_minor_revision
@@ -72,6 +75,18 @@ module Gitlab
           end
 
           private
+
+          def official?
+            Release::DEV_OFFICIAL_TAG_REGEX.match?(version)
+          end
+
+          def revision
+            api_get!.fetch('revision')
+          end
+
+          def version
+            api_get!.fetch('version')
+          end
 
           def api_get!
             @response_body ||= # rubocop:disable Naming/MemoizedInstanceVariableName
