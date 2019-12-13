@@ -92,6 +92,16 @@ describe ApprovalRules::ParamsFilteringService do
           expect(rule[:rule_type]).to eq(:any_approver)
           expect(rule[:name]).to eq('All Members')
         end
+
+        it 'does not set rule type for existing project rules' do
+          approval_rules_attributes.first[:approval_project_rule_id] = 1
+
+          params = service.execute
+          rule = params[:approval_rules_attributes].first
+
+          expect(rule[:rule_type]).not_to eq(:any_approver)
+          expect(rule[:name]).not_to eq('All Members')
+        end
       end
     end
 
