@@ -68,7 +68,7 @@ export default {
     // In both cases we should render the defaultAvatarUrl
     sanitizedSource() {
       // Don't allow null in here and check for a proper length
-      if(typeof this.imgSrc !== 'string' || this.imgSrc.trim().length > 0)
+      if(typeof this.imgSrc !== 'string' || this.imgSrc.trim().length === 0)
         return defaultAvatarUrl
 
       // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
