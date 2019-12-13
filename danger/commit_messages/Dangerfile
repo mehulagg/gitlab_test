@@ -292,48 +292,46 @@ def lint_mr_title(mr_title)
   failures
 end
 
+def fail_message(intro)
+  markdown(<<~MARKDOWN)
+    ## Commit message standards
+
+    #{intro}
+    For more information on how to write a good commit message, take a look at
+    [How to Write a Git Commit Message](#{URL_GIT_COMMIT}).
+
+    Here is an example of a good commit message:
+
+        Reject ruby interpolation in externalized strings
+
+        When using ruby interpolation in externalized strings, they can't be
+        detected. Which means they will never be presented to be translated.
+
+        To mix variables into translations we need to use `sprintf`
+        instead.
+
+        Instead of:
+
+            _("Hello \#{subject}")
+
+        Use:
+
+            _("Hello %{subject}") % { subject: 'world' }
+
+    This is an example of a bad commit message:
+
+        updated README.md
+
+    This commit message is bad because although it tells us that README.md is
+    updated, it doesn't tell us why or how it was updated.
+  MARKDOWN
+end
+
 def lint_commits(mr, commits)
-  failed_message_intro = 'One or more commit messages do'
-  if squash?(mr)
-    failed_message_intro = "This MR's title does"
-    failed = lint_mr_title(mr["title"])
-  else
-    failed = commits.any? { |commit| lint_commit(commit) }
-  end
-
-  if failed
-    markdown(<<~MARKDOWN)
-      ## Commit message standards
-
-      #{failed_message_intro} not meet our Git commit message standards.
-      For more information on how to write a good commit message, take a look at
-      [How to Write a Git Commit Message](#{URL_GIT_COMMIT}).
-
-      Here is an example of a good commit message:
-
-          Reject ruby interpolation in externalized strings
-
-          When using ruby interpolation in externalized strings, they can't be
-          detected. Which means they will never be presented to be translated.
-
-          To mix variables into translations we need to use `sprintf`
-          instead.
-
-          Instead of:
-
-              _("Hello \#{subject}")
-
-          Use:
-
-              _("Hello %{subject}") % { subject: 'world' }
-
-      This is an example of a bad commit message:
-
-          updated README.md
-
-      This commit message is bad because although it tells us that README.md is
-      updated, it doesn't tell us why or how it was updated.
-    MARKDOWN
+  if squash?(mr) && lint_mr_title(mr["title"])
+    fail_message("This MR's title does not meet our Git commit message standards.")
+  elsif commits.any? { |commit| lint_commit(commit) }
+    fail_message('One or more commit messages do not meet our Git commit message standards.')
   end
 end
 
