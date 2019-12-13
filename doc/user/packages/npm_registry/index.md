@@ -23,7 +23,19 @@ You should then be able to see the **Packages** section on the left sidebar.
 Before proceeding to authenticating with the GitLab NPM Registry, you should
 get familiar with the package naming convention.
 
-## Package naming convention
+## Set up your development environment
+
+- Make sure npm is installed, link to npm setup and
+  - `npm version` and show screenshot of success
+- We will be updating the .npmrc file
+
+## Create a package
+
+- Walk the user through creating their first npm package, include screenshots
+- Give example snippets they can copy along the way
+- In the UI, we could even have it scoped for them
+
+### Package naming convention
 
 **Packages must be scoped in the root namespace of the project**. The package
 name may be anything but it is preferred that the project name be used unless
@@ -57,7 +69,63 @@ If you update the root namespace of a project with NPM packages, your changes wi
 Now, you can configure your project to authenticate with the GitLab NPM
 Registry.
 
-## Authenticating to the GitLab NPM Registry
+## Set GitLab as your npm remote
+- Have the user update their .npmrc file with their 
+- If this can be done via CLI, we should just include a snippet and allow them to do it
+
+## Publish your package to GitLab
+- I think this is where we would introduce authentication, but maybe in the simplest way possible. Then we can go into more detail below?
+- Have the user update their .npmrc with 
+- Include screen shots and snippets
+
+```
+; Add token for uploading to the registry. Replace <your_project_id>
+; with the project you want your package to be uploaded to.
+//gitlab.com/api/v4/projects/<your_project_id>/packages/npm/:_authToken=<your_token>
+```
+Replace `<your_project_id>` with your project ID which can be found on the home page
+of your project and `<your_token>` with your personal access token.
+
+If you have a self-hosted GitLab installation, replace `gitlab.com` with your
+domain name.
+
+You should now be able to upload NPM packages to your project.
+
+## Install a package from GitLab
+- Have the user update their .npmrc with the relevant info
+- Include screenshots/examples/snippets
+
+```
+; Add the token for the scoped packages URL. This will allow you to download
+; `@foo/` packages from private projects.
+//gitlab.com/api/v4/packages/npm/:_authToken=<your_token>
+```
+Replace `<your_project_id>` with your project ID which can be found on the home page
+of your project and `<your_token>` with your personal access token.
+
+If you have a self-hosted GitLab installation, replace `gitlab.com` with your
+domain name.
+
+You should now be able to download NPM packages from your project.
+
+## Using CI/CD to publish or download packages
+- Link to template
+- Include basic pipeline for uploading and downloading a generic package
+- Maybe show how npm packages can be cached as part of pipeline
+- Include screenshots
+
+## Using the Package Registry user interface
+- Overview of package registry UI
+- Highlight package details
+- Deleting a package
+
+## The difference between project, group and instance level endpoints
+- Some helpful summary
+- Example of how to pull a package from another project/group
+
+## Then we can get into some of the more complicated details below?
+
+### Authenticating to the GitLab NPM Registry
 
 If a project is private or you want to upload an NPM package to GitLab,
 credentials will need to be provided for authentication. Support is available for [personal access tokens](../../profile/personal_access_tokens.md)
@@ -167,22 +235,6 @@ more than once, even if it has been deleted.
 
 If you attempt to publish a package with a name that already exists within
 a given scope, you will receive a `403 Forbidden!` error.
-
-## NPM dependencies metadata
-
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/11867) in GitLab Premium 12.6.
-
-Starting from GitLab 12.6, new packages published to the GitLab NPM Registry expose the following attributes to the NPM client:
-
-- name
-- version
-- dist-tags
-- dependencies
-  - dependencies
-  - devDependencies
-  - bundleDependencies
-  - peerDependencies
-  - deprecated
 
 ## Troubleshooting
 
