@@ -64,6 +64,7 @@
       - tags
       - /^[\d-]+-stable(-ee)?$/
       - /^\d+-\d+-auto-deploy-\d+$/
+      - discover-flaky-tests-in-master # FIXME: https://gitlab.com/gitlab-org/gitlab/issues/39358, do not merge this
 
 .only:kubernetes:
   only:
