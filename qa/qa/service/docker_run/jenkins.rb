@@ -17,7 +17,8 @@ module QA
         end
 
         def port
-          Runtime::Scenario.gitlab_address.include?('localhost') ? '8080' : '80'
+          # Runtime::Scenario.gitlab_address.include?('localhost') ? '8080' : '80'
+          '80'
         end
 
         def host_name
@@ -25,7 +26,7 @@ module QA
             # 'localhost'
             # elsif QA::Runtime::Env.running_in_ci? && !URI.parse(Runtime::Scenario.gitlab_address).host.include?('test') # Running in CI against static env
             #   fetch_current_ip_address
-            # else
+          else
             super
           end
         end
