@@ -7,6 +7,7 @@ const INPUT_NAME = 'merge_request[approval_rules_attributes][][name]';
 const INPUT_APPROVALS_REQUIRED = 'merge_request[approval_rules_attributes][][approvals_required]';
 const INPUT_USER_IDS = 'merge_request[approval_rules_attributes][][user_ids][]';
 const INPUT_GROUP_IDS = 'merge_request[approval_rules_attributes][][group_ids][]';
+const INPUT_RULE_TYPE = 'merge_request[approval_rules_attributes][][rule_type]';
 const INPUT_DELETE = 'merge_request[approval_rules_attributes][][_destroy]';
 const INPUT_REMOVE_HIDDEN_GROUPS =
   'merge_request[approval_rules_attributes][][remove_hidden_groups]';
@@ -27,6 +28,7 @@ export default {
   INPUT_APPROVALS_REQUIRED,
   INPUT_USER_IDS,
   INPUT_GROUP_IDS,
+  INPUT_RULE_TYPE,
   INPUT_DELETE,
   INPUT_REMOVE_HIDDEN_GROUPS,
   INPUT_FALLBACK_APPROVALS_REQUIRED,
@@ -93,6 +95,7 @@ export default {
         :name="$options.INPUT_REMOVE_HIDDEN_GROUPS"
         type="hidden"
       />
+      <input :value="rule.ruleType" :name="$options.INPUT_RULE_TYPE" type="hidden" />
     </div>
   </div>
 </template>

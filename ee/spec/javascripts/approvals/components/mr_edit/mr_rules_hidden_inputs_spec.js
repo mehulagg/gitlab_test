@@ -15,6 +15,7 @@ const {
   INPUT_APPROVALS_REQUIRED,
   INPUT_USER_IDS,
   INPUT_GROUP_IDS,
+  INPUT_RULE_TYPE,
   INPUT_DELETE,
   INPUT_REMOVE_HIDDEN_GROUPS,
   INPUT_FALLBACK_APPROVALS_REQUIRED,
@@ -127,6 +128,7 @@ describe('EE Approvlas MRRulesHiddenInputs', () => {
           { name: INPUT_NAME, value: rule.name },
           ...TEST_USERS.map(({ id }) => ({ name: INPUT_USER_IDS, value: id.toString() })),
           ...TEST_GROUPS.map(({ id }) => ({ name: INPUT_GROUP_IDS, value: id.toString() })),
+          { name: INPUT_RULE_TYPE, value: rule.ruleType },
         ]);
       });
 
