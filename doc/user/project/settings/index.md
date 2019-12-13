@@ -20,15 +20,32 @@ Adjust your project's name, description, avatar, [default branch](../repository/
 
 The project description also partially supports [standard Markdown](../../markdown.md#standard-markdown-and-extensions-in-gitlab). You can use [emphasis](../../markdown.md#emphasis), [links](../../markdown.md#links), and [line-breaks](../../markdown.md#line-breaks) to add more context to the project description.
 
-### Sharing and permissions
+### Visibility, features, and permissions
 
-Set up your project's access, [visibility](../../../public_access/public_access.md), and enable [Container Registry](../../packages/container_registry/index.md) for your projects:
+In your project, under **Settings** > **General**, 
+you can set up **Visibility, project feaures, permissions** 
 
-![projects sharing permissions](img/sharing_and_permissions_settings_v12_3.png)
+![projects sharing permissions](img/sharing_and_permissions_settings_v12_6.png)
+
+The following table briefly describes the options shown in this screen, with links for more
+information:
+
+| Option                     | Description        | 
+|:---------------------------|:-------------------|
+| **Project Visibility**     | See [Visibility of Projects](../../../public_access.md)                 |
+| 443              | 443                |
+| 22               | 22                 |
+| 5432             |                    |
+
 
 CAUTION: **Caution:**
 [Reducing a project's visibility level](../../../public_access/public_access.md#reducing-visibility)
-will remove the fork relationship between the project and any forked project.
+will remove the relationship between the project and any forked project.
+
+
+
+Set up your project's access, [visibility](../../../public_access/public_access.md),
+and enable [Container Registry](../../packages/container_registry/index.md) for your projects:
 
 If Issues are disabled, or you can't access Issues because you're not a project member, then Labels and Milestones
 links will be missing from the sidebar UI.
