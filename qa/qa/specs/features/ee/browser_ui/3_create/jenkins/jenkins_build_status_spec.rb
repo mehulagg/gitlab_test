@@ -31,7 +31,7 @@ module QA
         puts "Sleeping....."
         QA::Runtime::Logger.info "Sleeping....."
 
-        sleep 3600 # Temporary: Sleep for 1 hour
+        sleep 300 # Temporary: Sleep for 5 minutes
 
         puts "Awake....."
         QA::Runtime::Logger.info "Awake....."
