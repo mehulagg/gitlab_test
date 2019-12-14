@@ -924,6 +924,7 @@ class Repository
 
   def ancestor?(ancestor_id, descendant_id)
     return false if ancestor_id.nil? || descendant_id.nil?
+    return true if ancestor_id == descendant_id
 
     counter = Gitlab::Metrics.counter(
       :repository_ancestor_calls_total,

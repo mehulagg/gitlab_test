@@ -2382,6 +2382,10 @@ describe Repository do
       expect(repository.ancestor?(ancestor.id, commit.id)).to eq(true)
     end
 
+    it 'same commit is an ancestor' do
+      expect(repository.ancestor?(commit.id, commit.id)).to eq(true)
+    end
+
     it 'is not an ancestor' do
       expect(repository.ancestor?(commit.id, ancestor.id)).to eq(false)
     end
@@ -2406,6 +2410,12 @@ describe Repository do
     it_behaves_like '#ancestor?'
 
     context 'caching', :request_store, :clean_gitlab_redis_cache do
+      it 'does not call out to Gitaly when the IDs are the same' do
+        expect(repository.raw_repository).not_to receive(:ancestor?)
+
+        repository.ancestor?(commit.id, commit.id)
+      end
+
       it 'only calls out to Gitaly once' do
         expect(repository.raw_repository).to receive(:ancestor?).once
 
