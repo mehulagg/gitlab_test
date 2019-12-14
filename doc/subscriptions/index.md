@@ -235,6 +235,12 @@ main quota. Additional minutes:
 Each month, any minutes that you used will be deducted from your balance of additional minutes.
 Put another way, the number of minutes used and available will reflect your *current* month's usage and availability.
 
+For example:
+- February 15: A group buys 4000 minutes. The count reads 0/4000 minutes.
+- February 28: The group has used 1500 minutes. The count reads 1500/4000 minutes.
+- March 1: The counter reads: 0/2500 minutes.
+
+##### Purchasing Additional Minutes
 In order to purchase additional minutes, you should follow these steps:
 
 1. Go to **Group > Settings > Pipelines quota**. Once you are on that page, click on **Buy additional minutes**.
