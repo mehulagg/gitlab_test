@@ -8,6 +8,7 @@ module EE
         extend ActiveSupport::Concern
 
         prepended do
+          before_action :log_access_ci_cd_settings, only: :show
           before_action :assign_variables_to_gon, only: :show
           before_action :define_protected_env_variables, only: :show
         end
@@ -20,6 +21,19 @@ module EE
           end
 
           super
+        end
+
+        def log_audit_event(message:)
+          AuditEvents::CustomAuditEventService.new(
+            current_user,
+            project,
+            request.remote_ip,
+            message
+          ).for_project.security_event
+        end
+
+        def log_access_ci_cd_settings
+          log_audit_event(message: 'Accessed CI/CD settings')
         end
 
         private

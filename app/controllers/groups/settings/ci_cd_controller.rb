@@ -73,3 +73,5 @@ module Groups
     end
   end
 end
+
+Groups::Settings::CiCdController.prepend_if_ee('EE::Groups::Settings::CiCdController')

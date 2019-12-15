@@ -1,0 +1,5 @@
+---
+title: Add audit log entry when CI/CD settings are accessed
+merge_request: 21790
+author:
+type: added
