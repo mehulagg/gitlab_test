@@ -58,6 +58,7 @@ From there, you can see the following actions:
 - Request access enabled/disabled
 - 2FA enforcement/grace period changed
 - Roles allowed to create project changed
+- Accessed CI/CD settings page of the group
 
 Group events can also be accessed via the [Group Audit Events API](../api/audit_events.md#group-audit-events-starter)
 
@@ -80,6 +81,7 @@ From there, you can see the following actions:
 - Project was archived
 - Project was unarchived
 - Added/removed/updated protected branches
+- Accessed CI/CD settings page of the project
 
 ### Instance events **(PREMIUM ONLY)**
 
