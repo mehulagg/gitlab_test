@@ -1,5 +1,5 @@
-import { transformDesignUpload } from 'ee/design_management/graphql/cache/transformations';
-import { designUploadTransformation } from '../mock_data';
+import transformDesignUpload from 'ee/design_management/graphql/cache/transforms';
+import designUploadTransformation from '../mock_data';
 import mockDesign from '../../mock_data/design';
 
 describe('Apollo cache transformations', () => {

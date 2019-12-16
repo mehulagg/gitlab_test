@@ -1,4 +1,4 @@
-import { updateCache } from 'ee/design_management/graphql/cache/mutations';
+import updateCache from 'ee/design_management/graphql/cache';
 
 const mockStore = {
   readQuery: jest.fn(),
