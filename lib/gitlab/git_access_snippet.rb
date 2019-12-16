@@ -7,28 +7,14 @@ module Gitlab
       write_to_snippet: "You are not allowed to write to this project's snippet."
     }.freeze
 
-    def guest_can_read_snippet?
-      Guest.can?(:read_project_snippet, project)
-    end
+    def check(cmd, _changes)
+      binding.pry
+      # unless geo?
+      #   check_protocol!
+      #   check_can_create_design!
+      # end
 
-    def user_can_read_snippet?
-      authentication_abilities.include?(:read_project_snippet) && user_access.can_do_action?(:read_project_snippet)
-    end
-
-    def check_change_access!
-      unless user_access.can_do_action?(:create_project_snippet)
-        raise UnauthorizedError, ERROR_MESSAGES[:write_to_snippet]
-      end
-
-      if Gitlab::Database.read_only?
-        raise UnauthorizedError, push_to_read_only_message
-      end
-
-      true
-    end
-
-    def push_to_read_only_message
-      ERROR_MESSAGES[:read_only]
+      success_result(cmd)
     end
 
     private
