@@ -14,17 +14,26 @@ module Gitlab
       access_checker_class: Gitlab::GitAccessWiki,
       repository_accessor: -> (project) { project.wiki.repository }
     ).freeze
-    SNIPPET = RepoType.new(
-      name: :snippet,
+    PERSONAL_SNIPPET = RepoType.new(
+      name: :personal_snippet,
       access_checker_class: Gitlab::GitAccessSnippet,
       repository_accessor: -> (snippet) { snippet.repository },
-      collection: true
+      collection: true,
+      prefix: :snippet
+    ).freeze
+    PROJECT_SNIPPET = RepoType.new(
+      name: :project_snippet,
+      access_checker_class: Gitlab::GitAccessSnippet,
+      repository_accessor: -> (snippet) { snippet.repository },
+      collection: true,
+      prefix: :snippet
     ).freeze
 
     TYPES = {
       PROJECT.name.to_s => PROJECT,
       WIKI.name.to_s => WIKI,
-      SNIPPET.name.to_s => SNIPPET
+      PERSONAL_SNIPPET.name.to_s => PERSONAL_SNIPPET,
+      PROJECT_SNIPPET.name.to_s => PROJECT_SNIPPET
     }.freeze
 
     def self.types
@@ -41,8 +50,8 @@ module Gitlab
       end
 
       object =
-        if type == SNIPPET
-          ProjectSnippet.find_by_id(subject_id)
+        if type == PERSONAL_SNIPPET || type == PROJECT_SNIPPET
+          Snippet.find_by_id(subject_id)
         else
           Project.find_by_id(subject_id)
         end

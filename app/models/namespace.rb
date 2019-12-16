@@ -16,6 +16,10 @@ class Namespace < ApplicationRecord
   # The number 20 was taken based on maximum nesting level of
   # Android repo (15) + some extra backup.
   NUMBER_OF_ANCESTORS_ALLOWED = 20
+  LATEST_STORAGE_VERSION = 2
+  HASHED_STORAGE_FEATURES = {
+    repository: 1
+  }.freeze
 
   cache_markdown_field :description, pipeline: :description
 
@@ -49,9 +53,13 @@ class Namespace < ApplicationRecord
   validate :nesting_level_allowed
 
   validates_associated :runners
+  validates :repository_storage,
+  presence: true,
+  inclusion: { in: ->(_object) { Gitlab.config.repositories.storages.keys } }
 
   delegate :name, to: :owner, allow_nil: true, prefix: true
   delegate :avatar_url, to: :owner, allow_nil: true
+  delegate :base_dir, :disk_path, to: :storage
 
   after_commit :refresh_access_of_projects_invited_groups, on: :update, if: -> { previous_changes.key?('share_with_group_lock') }
 
@@ -322,6 +330,25 @@ class Namespace < ApplicationRecord
     self_and_ancestors(hierarchy_order: :asc)
       .find { |n| !n.read_attribute(name).nil? }
       .try(name)
+  end
+
+  def storage
+    @storage ||=
+      if hashed_storage?(:repository)
+        Storage::HashedNamespace.new(self)
+      else
+        self
+      end
+  end
+
+  def hashed_storage?(feature)
+    raise ArgumentError, _("Invalid feature") unless HASHED_STORAGE_FEATURES.include?(feature)
+
+    self.storage_version && self.storage_version >= HASHED_STORAGE_FEATURES[feature]
+  end
+
+  def legacy_storage?
+    [nil, 0].include?(self.storage_version)
   end
 
   private

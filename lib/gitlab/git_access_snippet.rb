@@ -8,7 +8,6 @@ module Gitlab
     }.freeze
 
     def check(cmd, _changes)
-      binding.pry
       # unless geo?
       #   check_protocol!
       #   check_can_create_design!

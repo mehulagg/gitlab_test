@@ -1125,6 +1125,10 @@ class Repository
     Gitlab::Git::Blob.batch_metadata(raw, references).map { |raw_blob| Blob.decorate(raw_blob) }
   end
 
+  def subject
+    project
+  end
+
   private
 
   # TODO Generice finder, later split this on finders by Ref or Oid

@@ -96,6 +96,10 @@ module Namespaces
       repo_type.repository_for(snippet || project)
     end
 
+    def wiki?
+      repo_type.snippet?
+    end
+
     def snippet?
       repo_type.snippet?
     end
@@ -105,8 +109,7 @@ module Namespaces
         next unless snippet?
 
         snippet_id = repo_type.fetch_id(@suffix)
-        project&.snippets&.find_by_id(snippet_id)
-        # SnippetsFinder.new(authenticated_user, project: project, ids: snippet_id).execute.first
+        Snippet.find_by_id(snippet_id)
       end
     end
 

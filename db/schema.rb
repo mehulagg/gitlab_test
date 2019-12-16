@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_08_071112) do
+ActiveRecord::Schema.define(version: 2019_12_16_105149) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -2672,6 +2672,8 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
     t.integer "max_pages_size"
     t.integer "max_artifacts_size"
     t.boolean "mentions_disabled"
+    t.string "repository_storage", limit: 255, default: "default", null: false
+    t.integer "storage_version", default: 2, null: false
     t.index ["created_at"], name: "index_namespaces_on_created_at"
     t.index ["custom_project_templates_group_id", "type"], name: "index_namespaces_on_custom_project_templates_group_id_and_type", where: "(custom_project_templates_group_id IS NOT NULL)"
     t.index ["file_template_project_id"], name: "index_namespaces_on_file_template_project_id"

@@ -269,9 +269,13 @@ class Snippet < ApplicationRecord
   end
 
   def repository
-    # return unless Feature.enabled?(:version_snippets, project)
+    return unless Feature.enabled?(:version_snippets)
 
-    project&.snippet_repository(self)
+    @repository ||= begin
+      Snippets::Repository.new(self)
+
+      # project&.snippet_repository(self)
+    end
   end
 
   class << self

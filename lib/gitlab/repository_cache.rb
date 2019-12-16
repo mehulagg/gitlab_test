@@ -7,7 +7,7 @@ module Gitlab
 
     def initialize(repository, extra_namespace: nil, backend: Rails.cache)
       @repository = repository
-      @namespace = "#{repository.full_path}:#{repository.project.id}"
+      @namespace = "#{repository.full_path}:#{repository.subject.id}"
       @namespace = "#{@namespace}:#{extra_namespace}" if extra_namespace
       @backend = backend
     end

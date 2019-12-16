@@ -6,21 +6,23 @@ module Gitlab
       attr_reader :name,
                   :access_checker_class,
                   :repository_accessor,
-                  :collection
+                  :collection,
+                  :prefix
 
-      def initialize(name:, access_checker_class:, repository_accessor:, collection: false)
+      def initialize(name:, access_checker_class:, repository_accessor:, prefix: nil, collection: false)
         @name = name
         @access_checker_class = access_checker_class
         @repository_accessor = repository_accessor
         @collection = collection
+        @prefix = prefix || name
       end
 
       def identifier_for_subject(subject)
-        "#{name}-#{subject.id}"
+        "#{prefix}-#{subject.id}"
       end
 
       def fetch_id(identifier)
-        match = /\A#{name}-(?<id>\d+)\z/.match(identifier)
+        match = /\A#{prefix}-(?<id>\d+)\z/.match(identifier)
         match[:id] if match
       end
 
@@ -33,17 +35,17 @@ module Gitlab
       end
 
       def snippet?
-        self == SNIPPET
+        self == PROJECT_SNIPPET || self == PERSONAL_SNIPPET
       end
 
       def path_suffix
-        project? ? "" : ".#{name}"
+        project? ? "" : ".#{prefix}"
       end
 
       def path_regex
         return /$/ if project?
 
-        Regexp.new("\\.(#{name}#{'-\\d+' if collection})$")
+        Regexp.new("\\.(#{prefix}#{'-\\d+' if collection})$")
       end
 
       def repository_for(subject)

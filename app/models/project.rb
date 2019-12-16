@@ -1563,10 +1563,13 @@ class Project < ApplicationRecord
 
   def snippet_repository(snippet)
     return unless Feature.enabled?(:version_snippets, self)
+    return unless snippet.project == self
 
     @snippet_repositories ||= {}
-    @snippet_repositories[snippet] ||= Snippets::Repository.new(self, snippet)
+    @snippet_repositories[snippet] ||= snippet.repository
   end
+
+
 
   # update visibility_level of forks
   def update_forks_visibility_level

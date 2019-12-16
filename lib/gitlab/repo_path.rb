@@ -36,6 +36,10 @@ module Gitlab
 
       [project, was_redirected]
     end
+
+    def self.find_snippet(snippet_id)
+      Snippet.find(snippet_id)
+    end
   end
 end
 
