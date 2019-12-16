@@ -8,19 +8,19 @@ import { projectData } from '../mock_data';
 
 describe('ideStatusBar', () => {
   let vm;
-  const email = 'jdoe@gitlab.com'
-  const avatarUrl = 'a/b/c/abc.jpg'
+  const email = 'jdoe@gitlab.com';
+  const avatarUrl = 'a/b/c/abc.jpg';
 
   beforeAll(() => {
     window.gon = {
       current_user_email: email,
-      current_user_avatar_url: avatarUrl
-    }
-  })
+      current_user_avatar_url: avatarUrl,
+    };
+  });
 
   afterAll(() => {
-    window.gon = {}
-  })
+    window.gon = {};
+  });
 
   beforeEach(() => {
     const Component = Vue.extend(ideStatusBar);
@@ -39,28 +39,25 @@ describe('ideStatusBar', () => {
   });
 
   describe('computed:', () => {
-    describe('userAvatar',() => {
-
-
+    describe('userAvatar', () => {
       it('returns undefined by default', () => {
-        expect(vm.userAvatar).toBe(undefined)
-      })
+        expect(vm.userAvatar).toBe(undefined);
+      });
 
       it('should return the latestPipeline.commit.author_gravatar_url if present', () => {
         // Have to set the right data set directly using the store so it's taken into account by Vue
         Vue.set(vm.$store.state.pipelines, 'latestPipeline', {
-          commit: { author_gravatar_url: avatarUrl }
-        })
+          commit: { author_gravatar_url: avatarUrl },
+        });
 
-        expect(vm.userAvatar).toBe(avatarUrl)
-      })
+        expect(vm.userAvatar).toBe(avatarUrl);
+      });
 
       it('should check lastCommit email matching the current user to receive the right image', () => {
-
         // Have to set the right data set directly using the store so it's taken into account by Vue
-        Vue.set(vm.$store.state.projects.abcproject.branches.master.commit, 'author_email', email)
+        Vue.set(vm.$store.state.projects.abcproject.branches.master.commit, 'author_email', email);
 
-        expect(vm.lastCommit.author_email).toBe(email)
+        expect(vm.lastCommit.author_email).toBe(email);
 
         // vm.$nextTick()
         //   .then(() => {
@@ -71,10 +68,9 @@ describe('ideStatusBar', () => {
         //   })
         //   .then(done)
         //   .catch(done.fail)
-
-      })
-    })
-  })
+      });
+    });
+  });
 
   it('renders the statusbar', () => {
     expect(vm.$el.className).toBe('ide-status-bar');

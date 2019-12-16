@@ -68,14 +68,14 @@ export default {
     // In both cases we should render the defaultAvatarUrl
     sanitizedSource() {
       // Don't allow null in here and check for a proper length
-      if(typeof this.imgSrc !== 'string' || this.imgSrc.trim().length === 0)
-        return defaultAvatarUrl
+      if (typeof this.imgSrc !== 'string' || this.imgSrc.trim().length === 0)
+        return defaultAvatarUrl;
 
       // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
-      if(this.imgSrc.startsWith('data:') && !this.imgSrc.includes('?'))
-        return `${this.imgSrc}?width=${this.size}`
+      if (this.imgSrc.startsWith('data:') && !this.imgSrc.includes('?'))
+        return `${this.imgSrc}?width=${this.size}`;
 
-      return this.imgSrc
+      return this.imgSrc;
     },
     resultantSrcAttribute() {
       return this.lazy ? placeholderImage : this.sanitizedSource;

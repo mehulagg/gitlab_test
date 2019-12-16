@@ -30,21 +30,16 @@ export default {
     ...mapGetters(['currentProject', 'lastCommit']),
     ...mapState('pipelines', ['latestPipeline']),
     userAvatar() {
-      if(
-        this.latestPipeline
-        && this.latestPipeline.commit.author_gravatar_url
-      )
-        return this.latestPipeline.commit.author_gravatar_url
+      if (this.latestPipeline && this.latestPipeline.commit.author_gravatar_url)
+        return this.latestPipeline.commit.author_gravatar_url;
 
-      if(
-        this.lastCommit
-        && this.lastCommit.author_email === gon.current_user_email
-      ) return gon.current_user_avatar_url
+      if (this.lastCommit && this.lastCommit.author_email === gon.current_user_email)
+        return gon.current_user_avatar_url;
 
       // If nothing sticks, make sure to return undefined
       // so the avatar components defaults can properly kick in.
-      return undefined
-    }
+      return undefined;
+    },
   },
   watch: {
     lastCommit() {
