@@ -157,7 +157,6 @@ module Gitlab
       def legacy_trigger?
         @relation_name == :'Ci::Trigger' && @relation_hash['owner_id'].nil?
       end
-<<<<<<< HEAD
 
       def preload_keys(object, references, value)
         return object unless value
@@ -173,8 +172,6 @@ module Gitlab
 
         object
       end
-=======
->>>>>>> Group Import relations & sub groups
     end
   end
 end

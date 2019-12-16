@@ -76,27 +76,28 @@ module Gitlab
 
         save_id_mapping(relation_key, data_hash, relation_object)
       rescue => e
-        # re-raise if not project. TBD: Add group support
-        raise e unless importable_class == Project
+        scope = importable_class == Project ? @importable.group : @importable
 
         # re-raise if not enabled
-        raise e unless Feature.enabled?(:import_graceful_failures, @importable.group, default_enabled: true)
+        raise e unless Feature.enabled?(:import_graceful_failures, scope, default_enabled: true)
 
         log_import_failure(relation_key, relation_index, e)
       end
 
       def log_import_failure(relation_key, relation_index, exception)
         Gitlab::ErrorTracking.track_exception(exception,
-          project_id: @importable.id, relation_key: relation_key, relation_index: relation_index)
+          importable_column_name.to_sym => @importable.id, relation_key: relation_key, relation_index: relation_index)
 
-        ImportFailure.create(
-          project: @importable,
+        import_failure_params = {
+          importable_class_sym => @importable,
           relation_key: relation_key,
           relation_index: relation_index,
           exception_class: exception.class.to_s,
           exception_message: exception.message.truncate(255),
           correlation_id_value: Labkit::Correlation::CorrelationId.current_or_new_id
-        )
+        }
+
+        ImportFailure.create(import_failure_params)
       end
 
       # Older, serialized CI pipeline exports may only have a
@@ -217,8 +218,16 @@ module Gitlab
         @importable.class
       end
 
+      def importable_class_name
+        @importable.class.to_s.downcase
+      end
+
       def importable_class_sym
-        importable_class.to_s.downcase.to_sym
+        importable_class_name.to_sym
+      end
+
+      def importable_column_name
+        importable_class_name.concat('_id')
       end
 
       # A Hash of the imported merge request ID -> imported ID.

@@ -73,4 +73,36 @@ describe Gitlab::ImportExport::GroupTreeRestorer do
       end
     end
   end
+
+  context 'JSON with invalid records' do
+    subject(:restored_group_json) { group_tree_restorer.restore }
+
+    let(:user) { create(:user) }
+    let!(:group) { create(:group, name: 'group2', path: 'group2') }
+    let(:group_tree_restorer) { described_class.new(user: user, shared: shared, group: group) }
+
+    before do
+      setup_import_export_config('group_exports/with_invalid_records')
+
+      subject
+    end
+
+    context 'when failures occur because a relation fails to be processed' do
+      it 'restores models based on JSON' do
+        expect(subject).to be_truthy
+      end
+
+      it 'records the failures in the database' do
+        import_failure = group.import_failures.last
+
+        expect(import_failure.group_id).to eq(group.id)
+        expect(import_failure.relation_key).to eq('labels')
+        expect(import_failure.relation_index).to be_present
+        expect(import_failure.exception_class).to eq('ActiveRecord::RecordInvalid')
+        expect(import_failure.exception_message).to be_present
+        expect(import_failure.correlation_id_value).to be_present
+        expect(import_failure.created_at).to be_present
+      end
+    end
+  end
 end

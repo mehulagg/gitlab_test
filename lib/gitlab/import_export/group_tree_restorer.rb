@@ -7,7 +7,7 @@ module Gitlab
       attr_reader :shared
       attr_reader :group
 
-      def initialize(user:, shared:, group:, group_hash:)
+      def initialize(user:, shared:, group:, group_hash: nil)
         @path          = File.join(shared.export_path, 'group.json')
         @user          = user
         @shared        = shared
