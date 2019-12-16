@@ -49,6 +49,10 @@ export default {
         },
         false,
       ),
+      modalPrimary: {
+        text: __('Reset authorization key'),
+        attributes: [{ variant: 'danger' }],
+      },
     };
   },
   methods: {
@@ -102,8 +106,7 @@ export default {
         <gl-modal
           modal-id="authKeyModal"
           :title="__('Reset authorization key?')"
-          :ok-title="__('Reset authorization key')"
-          ok-variant="danger"
+          :modal-action-primary="modalPrimary"
           @ok="resetKey"
         >
           {{

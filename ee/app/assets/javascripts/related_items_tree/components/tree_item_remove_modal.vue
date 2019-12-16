@@ -13,6 +13,14 @@ export default {
   components: {
     GlModal,
   },
+  data() {
+    return {
+      modalPrimary: {
+        text: __('Remove'),
+        attributes: [{ variant: 'danger' }],
+      },
+    };
+  },
   computed: {
     ...mapState(['parentItem', 'removeItemModalProps']),
     removeItemType() {
@@ -56,8 +64,7 @@ export default {
   <gl-modal
     :modal-id="$options.itemRemoveModalId"
     :title="modalTitle"
-    :ok-title="__('Remove')"
-    ok-variant="danger"
+    :modal-action-primary="modalPrimary"
     no-fade
     @ok="
       removeItem({
