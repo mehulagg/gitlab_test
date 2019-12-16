@@ -134,85 +134,23 @@ describe Gitlab::Kubernetes::Helm::PatchCommand do
     end
   end
 
-  describe '#pod_name' do
-    subject { patch_command.pod_name }
-
-    it { is_expected.to eq 'install-app-name' }
-  end
-
   context 'when there is no version' do
     let(:version) { nil }
 
     it { expect { patch_command }.to raise_error(ArgumentError, 'version is required') }
   end
 
-  describe '#rbac?' do
-    subject { patch_command.rbac? }
+  describe '#pod_name' do
+    subject { patch_command.pod_name }
 
-    context 'rbac is enabled' do
-      let(:rbac) { true }
-
-      it { is_expected.to be_truthy }
-    end
-
-    context 'rbac is not enabled' do
-      let(:rbac) { false }
-
-      it { is_expected.to be_falsey }
-    end
+    it { is_expected.to eq 'install-app-name' }
   end
 
-  describe '#pod_resource' do
-    subject { patch_command.pod_resource }
-
-    context 'rbac is enabled' do
-      let(:rbac) { true }
-
-      it 'generates a pod that uses the tiller serviceAccountName' do
-        expect(subject.spec.serviceAccountName).to eq('tiller')
-      end
-    end
-
-    context 'rbac is not enabled' do
-      let(:rbac) { false }
-
-      it 'generates a pod that uses the default serviceAccountName' do
-        expect(subject.spec.serviceAcccountName).to be_nil
-      end
-    end
+  it_behaves_like 'rbac aware helm command' do
+    let(:command) { patch_command }
   end
 
-  describe '#config_map_resource' do
-    let(:metadata) do
-      {
-        name: "values-content-configuration-app-name",
-        namespace: 'gitlab-managed-apps',
-        labels: { name: "values-content-configuration-app-name" }
-      }
-    end
-
-    let(:resource) { ::Kubeclient::Resource.new(metadata: metadata, data: files) }
-
-    subject { patch_command.config_map_resource }
-
-    it 'returns a KubeClient resource with config map content for the application' do
-      is_expected.to eq(resource)
-    end
-  end
-
-  describe '#service_account_resource' do
-    subject { patch_command.service_account_resource }
-
-    it 'returns nothing' do
-      is_expected.to be_nil
-    end
-  end
-
-  describe '#cluster_role_binding_resource' do
-    subject { patch_command.cluster_role_binding_resource }
-
-    it 'returns nothing' do
-      is_expected.to be_nil
-    end
+  it_behaves_like 'non-initializing helm command' do
+    let(:command) { patch_command }
   end
 end

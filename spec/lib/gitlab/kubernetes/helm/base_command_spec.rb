@@ -3,6 +3,10 @@
 require 'spec_helper'
 
 describe Gitlab::Kubernetes::Helm::BaseCommand do
+  subject(:base_command) do
+    test_class.new(rbac)
+  end
+
   let(:application) { create(:clusters_applications_helm) }
   let(:rbac) { false }
 
@@ -30,35 +34,17 @@ describe Gitlab::Kubernetes::Helm::BaseCommand do
     end
   end
 
-  let(:base_command) do
-    test_class.new(rbac)
-  end
-
-  subject { base_command }
-
   it_behaves_like 'helm commands' do
     let(:commands) { '' }
-  end
-
-  describe '#pod_resource' do
-    subject { base_command.pod_resource }
-
-    it 'returns a kubeclient resoure with pod content for application' do
-      is_expected.to be_an_instance_of ::Kubeclient::Resource
-    end
-
-    context 'when rbac is true' do
-      let(:rbac) { true }
-
-      it 'also returns a kubeclient resource' do
-        is_expected.to be_an_instance_of ::Kubeclient::Resource
-      end
-    end
   end
 
   describe '#pod_name' do
     subject { base_command.pod_name }
 
     it { is_expected.to eq('install-test-class-name') }
+  end
+
+  it_behaves_like 'rbac aware helm command' do
+    let(:command) { base_command }
   end
 end
