@@ -1,4 +1,4 @@
-export const transformDesignUpload = (cacheData, designUploadData) => {
+const transformDesignUpload = (cacheData, designUploadData) => {
   const newDesigns = cacheData.project.issue.designCollection.designs.edges.reduce(
     (acc, design) => {
       if (!acc.find(d => d.filename === design.node.filename)) {
@@ -51,3 +51,5 @@ export const transformDesignUpload = (cacheData, designUploadData) => {
     },
   };
 };
+
+export default transformDesignUpload;

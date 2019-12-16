@@ -12,7 +12,8 @@ import permissionsQuery from '../graphql/queries/permissions.query.graphql';
 import projectQuery from '../graphql/queries/project.query.graphql';
 import allDesignsMixin from '../mixins/all_designs';
 import { UPLOAD_DESIGN_ERROR, designDeletionError } from '../utils/error_messages';
-import { cacheDesignUpload } from '../graphql/cache/mutations';
+import updateCache from '../graphql/cache';
+import transformDesignUpload from '../graphql/cache/transforms';
 import { designUploadOptimisticResponse } from '../utils/design_management_utils';
 
 const MAXIMUM_FILE_UPLOAD_LIMIT = 10;
@@ -141,7 +142,7 @@ export default {
         data: { designManagementUpload },
       },
     ) {
-      cacheDesignUpload(store, this.projectQueryBody, designManagementUpload);
+      updateCache(store, designManagementUpload, this.projectQueryBody, transformDesignUpload);
     },
     onUploadDesignDone() {
       this.resetFilesToBeSaved();

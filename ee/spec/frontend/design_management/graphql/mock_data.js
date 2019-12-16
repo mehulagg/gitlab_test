@@ -1,6 +1,6 @@
 import design from '../mock_data/design';
 
-export const designUploadTransformation = {
+const designUploadTransformation = {
   project: {
     __typename: 'Project',
     issue: {
@@ -21,3 +21,5 @@ export const designUploadTransformation = {
     },
   },
 };
+
+export default designUploadTransformation;
