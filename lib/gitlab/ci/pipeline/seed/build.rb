@@ -63,6 +63,7 @@ module Gitlab
               .deep_merge(pipeline_attributes)
               .deep_merge(rules_attributes)
               .deep_merge(cache_attributes)
+              .deep_merge(metadata_attributes)
           end
 
           def bridge?
@@ -138,6 +139,14 @@ module Gitlab
             return {} unless @using_rules
 
             rules_result.build_attributes
+          end
+
+          def metadata_attributes
+            {
+              metadata: {
+                execution_method: @needs_attributes.present? ? :needs_execution : :stage_execution,
+              }
+            }
           end
 
           def rules_result

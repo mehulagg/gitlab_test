@@ -19,6 +19,8 @@ module Ci
       delegate :has_exposed_artifacts?, to: :metadata, prefix: false, allow_nil: true
       delegate :environment_auto_stop_in, to: :metadata, prefix: false, allow_nil: true
       before_create :ensure_metadata
+
+      accepts_nested_attributes_for :metadata, update_only: true
     end
 
     def ensure_metadata

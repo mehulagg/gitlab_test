@@ -8,6 +8,7 @@ FactoryBot.define do
     sha { '97de212e80737a608d939f648d959671fb0a0142' }
     status { 'pending' }
     add_attribute(:protected) { false }
+    schema_version { :schema_v1 }
 
     project
 

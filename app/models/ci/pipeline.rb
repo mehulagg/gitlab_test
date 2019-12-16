@@ -81,6 +81,8 @@ module Ci
     validate :valid_commit_sha, unless: :importing?
     validates :source, exclusion: { in: %w(unknown), unless: :importing? }, on: :create
 
+    validates :schema_version, presence: { unless: :importing? }
+
     after_create :keep_around_commits, unless: :importing?
 
     # We use `Ci::PipelineEnums.sources` here so that EE can more easily extend
@@ -88,6 +90,11 @@ module Ci
     enum_with_nil source: ::Ci::PipelineEnums.sources
 
     enum_with_nil config_source: ::Ci::PipelineEnums.config_sources
+
+    enum_with_nil schema_version: {
+      schema_unknown: nil,
+      schema_v1: 1
+    }
 
     # We use `Ci::PipelineEnums.failure_reasons` here so that EE can more easily
     # extend this `Hash` with new values.
@@ -456,6 +463,10 @@ module Ci
     # Use constructs like: `pipeline.commit.present?`
     def commit
       @commit ||= Commit.lazy(project, sha)
+    end
+
+    def supports_execution_style?
+      schema_version.to_i > self.class.schema_versions[:schema_v1]
     end
 
     def stuck?

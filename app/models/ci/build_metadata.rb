@@ -10,6 +10,7 @@ module Ci
     include Presentable
     include ChronicDurationAttribute
     include Gitlab::Utils::StrongMemoize
+    include Importable
 
     self.table_name = 'ci_builds_metadata'
 
@@ -20,6 +21,8 @@ module Ci
 
     validates :build, presence: true
 
+    validates :execution_method, presence: { unless: :importing? }
+
     serialize :config_options, Serializers::JSON # rubocop:disable Cop/ActiveRecordSerialize
     serialize :config_variables, Serializers::JSON # rubocop:disable Cop/ActiveRecordSerialize
 
@@ -28,6 +31,11 @@ module Ci
     scope :scoped_build, -> { where('ci_builds_metadata.build_id = ci_builds.id') }
     scope :with_interruptible, -> { where(interruptible: true) }
     scope :with_exposed_artifacts, -> { where(has_exposed_artifacts: true) }
+
+    enum execution_method: {
+      stage_execution: 1,
+      needs_execution: 2
+    }
 
     enum timeout_source: {
         unknown_timeout_source: 1,

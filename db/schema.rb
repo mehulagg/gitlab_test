@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_08_071112) do
+ActiveRecord::Schema.define(version: 2019_12_16_143528) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -351,7 +351,6 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
     t.string "sourcegraph_url", limit: 255
     t.boolean "sourcegraph_public_only", default: true, null: false
     t.bigint "snippet_size_limit", default: 52428800, null: false
-    t.integer "minimum_password_length", default: 8, null: false
     t.text "encrypted_akismet_api_key"
     t.string "encrypted_akismet_api_key_iv", limit: 255
     t.text "encrypted_elasticsearch_aws_secret_access_key"
@@ -364,6 +363,7 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
     t.string "encrypted_slack_app_secret_iv", limit: 255
     t.text "encrypted_slack_app_verification_token"
     t.string "encrypted_slack_app_verification_token_iv", limit: 255
+    t.integer "minimum_password_length", default: 8, null: false
     t.index ["custom_project_templates_group_id"], name: "index_application_settings_on_custom_project_templates_group_id"
     t.index ["file_template_project_id"], name: "index_application_settings_on_file_template_project_id"
     t.index ["instance_administration_project_id"], name: "index_applicationsettings_on_instance_administration_project_id"
@@ -686,9 +686,11 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
     t.integer "upstream_pipeline_id"
     t.bigint "resource_group_id"
     t.datetime_with_timezone "waiting_for_resource_at"
+    t.boolean "processing"
     t.index ["artifacts_expire_at"], name: "index_ci_builds_on_artifacts_expire_at", where: "(artifacts_file <> ''::text)"
     t.index ["auto_canceled_by_id"], name: "index_ci_builds_on_auto_canceled_by_id"
     t.index ["commit_id", "artifacts_expire_at", "id"], name: "index_ci_builds_on_commit_id_and_artifacts_expireatandidpartial", where: "(((type)::text = 'Ci::Build'::text) AND ((retried = false) OR (retried IS NULL)) AND ((name)::text = ANY (ARRAY[('sast'::character varying)::text, ('dependency_scanning'::character varying)::text, ('sast:container'::character varying)::text, ('container_scanning'::character varying)::text, ('dast'::character varying)::text])))"
+    t.index ["commit_id", "processing"], name: "index_ci_builds_on_commit_id_and_processing", where: "(processing IS TRUE)"
     t.index ["commit_id", "stage_idx", "created_at"], name: "index_ci_builds_on_commit_id_and_stage_idx_and_created_at"
     t.index ["commit_id", "status", "type"], name: "index_ci_builds_on_commit_id_and_status_and_type"
     t.index ["commit_id", "type", "name", "ref"], name: "index_ci_builds_on_commit_id_and_type_and_name_and_ref"
@@ -723,6 +725,7 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
     t.jsonb "config_variables"
     t.boolean "has_exposed_artifacts"
     t.string "environment_auto_stop_in", limit: 255
+    t.integer "execution_method"
     t.index ["build_id"], name: "index_ci_builds_metadata_on_build_id", unique: true
     t.index ["build_id"], name: "index_ci_builds_metadata_on_build_id_and_has_exposed_artifacts", where: "(has_exposed_artifacts IS TRUE)"
     t.index ["build_id"], name: "index_ci_builds_metadata_on_build_id_and_interruptible", where: "(interruptible = true)"
@@ -858,6 +861,7 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
     t.binary "source_sha"
     t.binary "target_sha"
     t.bigint "external_pull_request_id"
+    t.integer "schema_version"
     t.index ["auto_canceled_by_id"], name: "index_ci_pipelines_on_auto_canceled_by_id"
     t.index ["external_pull_request_id"], name: "index_ci_pipelines_on_external_pull_request_id", where: "(external_pull_request_id IS NOT NULL)"
     t.index ["merge_request_id"], name: "index_ci_pipelines_on_merge_request_id", where: "(merge_request_id IS NOT NULL)"
