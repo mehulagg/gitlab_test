@@ -33,6 +33,8 @@ module Ci
       scheduler_failure: 2
     }.freeze
 
+    DEGRADATION_THRESHOLD_VARIABLE_NAME = "DEGRADATION_THRESHOLD".freeze
+
     has_one :deployment, as: :deployable, class_name: 'Deployment'
     has_one :resource, class_name: 'Ci::Resource', inverse_of: :build
     has_many :trace_sections, class_name: 'Ci::BuildTraceSection'
@@ -938,6 +940,11 @@ module Ci
       update_columns(
         status: :failed,
         failure_reason: :data_integrity_failure)
+    end
+
+    def degradation_threshold
+      var = yaml_variables.find { |v| v[:key] == DEGRADATION_THRESHOLD_VARIABLE_NAME }
+      var[:value]&.to_i if var
     end
 
     private

@@ -99,6 +99,33 @@ describe MergeRequestWidgetEntity do
     end
   end
 
+  describe 'degradation_threshold' do
+    let!(:head_pipeline) { create(:ci_empty_pipeline, project: project) }
+
+    before do
+      allow(merge_request).to receive_messages(
+        base_pipeline: pipeline,
+        head_pipeline: head_pipeline
+      )
+
+      allow(head_pipeline).to receive(:available_licensed_report_type?).and_return(true)
+
+      create(
+        :ee_ci_build,
+        :performance,
+        pipeline: head_pipeline,
+        yaml_variables: [
+          { key: 'FOO', value: 'BAR' },
+          { key: 'DEGRADATION_THRESHOLD', value: '5' }
+        ]
+      )
+    end
+
+    it "returns the value from the head pipeline's performance build" do
+      expect(subject.as_json[:performance][:degradation_threshold]).to eq(5)
+    end
+  end
+
   describe '#license_management', :request_store do
     before do
       allow(merge_request).to receive_messages(
