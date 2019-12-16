@@ -1,0 +1,5 @@
+---
+title: Move project issues routes under /-/ scope
+merge_request: 21846
+author:
+type: deprecated
