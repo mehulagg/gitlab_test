@@ -20,9 +20,6 @@ export default {
         text: __('Remove approvers'),
         attributes: [{ variant: 'danger' }],
       },
-      modalCancel: {
-        text: __('Cancel'),
-      },
     };
   },
   computed: {
@@ -72,7 +69,6 @@ export default {
     modal-module="deleteModal"
     :modal-id="modalId"
     :modal-action-primary="modalPrimary"
-    :modal-action-cancel="modalCancel"
     :title="__('Remove approvers?')"
     @ok.prevent="submit"
   >

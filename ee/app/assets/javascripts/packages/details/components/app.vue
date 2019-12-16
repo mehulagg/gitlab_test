@@ -84,9 +84,6 @@ export default {
         text: __('Delete'),
         attributes: [{ variant: 'danger' }, { 'data-method': 'delete' }, { to: this.destroyPath }],
       },
-      modalCancel: {
-        text: __('Cancel'),
-      },
     };
   },
   computed: {
@@ -257,7 +254,6 @@ export default {
       ref="deleteModal"
       class="js-delete-modal"
       modal-id="delete-modal"
-      :modal-action-cancel="modalCancel"
       :modal-action-primary="modalPrimary"
     >
       <template #modal-title>{{ $options.i18n.deleteModalTitle }}</template>

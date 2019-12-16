@@ -26,9 +26,6 @@ export default {
   data() {
     return {
       approvalPassword: '',
-      modalCancel: {
-        text: s__('Cancel'),
-      },
       modalPrimary: {
         text: s__('Approve'),
       },
@@ -58,7 +55,6 @@ export default {
     :title="s__('Enter your password to approve')"
     modal-class="js-mr-approvals-modal"
     :modal-action-primary="modalPrimary"
-    :modal-action-cancel="modalCancel"
     @ok="approve"
     @hide="onHide"
     @show="onShow"

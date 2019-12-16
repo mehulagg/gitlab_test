@@ -172,9 +172,6 @@ export default {
       isRearrangingPanels: false,
       hasValidDates: true,
       timeWindows: {},
-      modalCancel: {
-        text: __('Cancel'),
-      },
       modalPrimary: {
         text: __('Save changes'),
         attributes: [this.setPrimaryActionDisabled()],
@@ -435,7 +432,6 @@ export default {
               ref="addMetricModal"
               :modal-id="$options.addMetric.modalId"
               :title="$options.addMetric.title"
-              :modal-action-cancel="modalCancel"
               :modal-action-primary="modalPrimary"
               @primary="submitCustomMetricsForm"
             >

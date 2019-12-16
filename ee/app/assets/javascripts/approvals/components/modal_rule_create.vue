@@ -20,9 +20,6 @@ export default {
       modalPrimary: {
         text: this.title,
       },
-      modalCancel: {
-        text: __('Cancel'),
-      },
     };
   },
   computed: {
@@ -44,7 +41,6 @@ export default {
 <template>
   <gl-modal-vuex
     :modal-action-primary="modalPrimary"
-    :modal-action-cancel="modalCancel"
     modal-module="createModal"
     :modal-id="modalId"
     :title="title"

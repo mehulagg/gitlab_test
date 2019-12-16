@@ -50,9 +50,6 @@ export default {
         text: this.action,
       },
       primaryAttrs: { variant: 'danger' },
-      modalCancel: {
-        text: s__('Cancel'),
-      },
       modalSecondary: {
         text: this.secondaryAction,
       },
@@ -121,7 +118,6 @@ export default {
     modal-id="delete-user-modal"
     :title="modalTitle"
     kind="danger"
-    :modal-action-cancel="modalCancel"
     :modal-action-primary="{ ...modalPrimary, attributes: [primaryAttrs, submitHandler] }"
     :modal-action-secondary="{ ...modalSecondary, attributes: [secondaryAttrs, submitHandler] }"
     @ok="onSubmit"

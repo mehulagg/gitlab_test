@@ -33,7 +33,6 @@ export default {
         text: s__('WikiPageConfirmDelete|Delete page'),
         attributes: [{ variant: 'danger' }],
       },
-      modalCancel: { text: s__('Cancel') },
     };
   },
   computed: {
@@ -69,7 +68,6 @@ export default {
       :modal-id="modalId"
       title-tag="h4"
       :modal-action-primary="modalPrimary"
-      :modal-action-cancel="modalCancel"
       @ok="onSubmit"
     >
       {{ message }}
