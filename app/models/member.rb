@@ -287,9 +287,18 @@ class Member < ApplicationRecord
     entity_type = source_type == "Namespace" ? "Group" : "Project"
     events = SecurityEvent.select("details", "created_at").where(entity_type: entity_type, entity_id: source_id).as_json
 
-    event = events.select { |e| e["details"][:target_id] == id && e["details"][:add].present? }.max_by { |fe| fe["created_at"] }
+    event = events.select { |e| e["details"][:target_id] == id && (e["details"][:add].present? && !e["details"][:as].include?('Guest')) || (e["details"][:change].present? && !e["details"][:to].include?('Guest')) }.max_by { |fe| fe["created_at"] }
 
-    event["created_at"]
+    event ? event["created_at"] : nil
+  end
+
+  def last_moved_from_paid_seat
+    entity_type = source_type == "Namespace" ? "Group" : "Project"
+    events = SecurityEvent.select("details", "created_at").where(entity_type: entity_type, entity_id: source_id).as_json
+
+    event = events.select { |e| e["details"][:target_id] == id && (e["details"][:remove].present? && e["details"][:as].include?('Guest')) || (e["details"][:change].present? && !e["details"][:from].include?('Guest')) }.max_by { |fe| fe["created_at"] }
+
+    event ? event["created_at"] : nil
   end
 
   def real_source_type

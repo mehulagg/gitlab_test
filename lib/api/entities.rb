@@ -378,6 +378,8 @@ module API
       expose :user, merge: true, using: UserBasic
       expose :access_level
       expose :expires_at
+      expose :last_moved_into_paid_seat
+      expose :last_moved_from_paid_seat
     end
 
     class AccessRequester < Grape::Entity
