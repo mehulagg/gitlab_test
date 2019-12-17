@@ -697,7 +697,7 @@ describe Project do
         let(:project) { create(:project, :repository) }
 
         it 'returns the README' do
-          expect(project.readme_url).to eq("#{project.web_url}/blob/master/README.md")
+          expect(project.readme_url).to eq("#{project.web_url}/-/blob/master/README.md")
         end
       end
     end
@@ -1786,11 +1786,11 @@ describe Project do
     end
   end
 
-  describe '.including_namespace_and_owner' do
+  describe '.eager_load_namespace_and_owner' do
     it 'eager loads the namespace and namespace owner' do
       create(:project)
 
-      row = described_class.eager_load_namespace_and_owner.to_a.first
+      row = described_class.eager_load_namespace_and_owner.first
       recorder = ActiveRecord::QueryRecorder.new { row.namespace.owner }
 
       expect(recorder.count).to be_zero

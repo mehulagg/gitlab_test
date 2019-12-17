@@ -410,6 +410,14 @@ The API can be explored interactively using the [GraphiQL IDE](../index.md#graph
 | `errors` | String! => Array | Reasons why the mutation failed. |
 | `issue` | Issue | The issue after mutation |
 
+### IssueSetWeightPayload
+
+| Name  | Type  | Description |
+| ---   |  ---- | ----------  |
+| `clientMutationId` | String | A unique identifier for the client performing the mutation. |
+| `errors` | String! => Array | Reasons why the mutation failed. |
+| `issue` | Issue | The issue after mutation |
+
 ### Label
 
 | Name  | Type  | Description |
@@ -420,6 +428,14 @@ The API can be explored interactively using the [GraphiQL IDE](../index.md#graph
 | `title` | String! | Content of the label |
 | `color` | String! | Background color of the label |
 | `textColor` | String! | Text color of the label |
+
+### MarkAsSpamSnippetPayload
+
+| Name  | Type  | Description |
+| ---   |  ---- | ----------  |
+| `clientMutationId` | String | A unique identifier for the client performing the mutation. |
+| `errors` | String! => Array | Reasons why the mutation failed. |
+| `snippet` | Snippet | The snippet after mutation |
 
 ### MergeRequest
 
@@ -834,6 +850,7 @@ The API can be explored interactively using the [GraphiQL IDE](../index.md#graph
 | `readSnippet` | Boolean! | Whether or not a user can perform `read_snippet` on this resource |
 | `updateSnippet` | Boolean! | Whether or not a user can perform `update_snippet` on this resource |
 | `adminSnippet` | Boolean! | Whether or not a user can perform `admin_snippet` on this resource |
+| `reportSnippet` | Boolean! | Whether or not a user can perform `report_snippet` on this resource |
 
 ### Submodule
 

@@ -23,7 +23,6 @@ module Ci
     belongs_to :runner
     belongs_to :trigger_request
     belongs_to :erased_by, class_name: 'User'
-    belongs_to :resource_group, class_name: 'Ci::ResourceGroup', inverse_of: :builds
 
     RUNNER_FEATURES = {
       upload_multiple_artifacts: -> (build) { build.publishes_artifacts_reports? },
@@ -35,7 +34,6 @@ module Ci
     }.freeze
 
     has_one :deployment, as: :deployable, class_name: 'Deployment'
-    has_one :resource, class_name: 'Ci::Resource', inverse_of: :build
     has_many :trace_sections, class_name: 'Ci::BuildTraceSection'
     has_many :trace_chunks, class_name: 'Ci::BuildTraceChunk', foreign_key: :build_id
 
@@ -289,7 +287,7 @@ module Ci
         begin
           build.deployment.drop!
         rescue => e
-          Gitlab::Sentry.track_and_raise_for_dev_exception(e, build_id: build.id)
+          Gitlab::ErrorTracking.track_and_raise_for_dev_exception(e, build_id: build.id)
         end
 
         true
@@ -441,15 +439,6 @@ module Ci
 
     def has_environment?
       environment.present?
-    end
-
-    def requires_resource?
-      Feature.enabled?(:ci_resource_group, project) &&
-        self.resource_group_id.present? && resource.nil?
-    end
-
-    def retains_resource?
-      self.resource_group_id.present? && resource.present?
     end
 
     def starts_environment?
@@ -773,6 +762,10 @@ module Ci
       Gitlab::Ci::Build::Credentials::Factory.new(self).create!
     end
 
+    def all_dependencies
+      (dependencies + cross_dependencies).uniq
+    end
+
     def dependencies
       return [] if empty_dependencies?
 
@@ -791,6 +784,10 @@ module Ci
       # if both needs and dependencies are used,
       # the end result will be an intersection between them
       depended_jobs
+    end
+
+    def cross_dependencies
+      []
     end
 
     def empty_dependencies?
@@ -898,7 +895,7 @@ module Ci
     def each_report(report_types)
       job_artifacts_for_types(report_types).each do |report_artifact|
         report_artifact.each_blob do |blob|
-          yield report_artifact.file_type, blob
+          yield report_artifact.file_type, blob, report_artifact
         end
       end
     end

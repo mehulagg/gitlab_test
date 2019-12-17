@@ -5,6 +5,7 @@ require 'spec_helper'
 describe EventsHelper do
   describe '#event_commit_title' do
     let(:message) { 'foo & bar ' + 'A' * 70 + '\n' + 'B' * 80 }
+
     subject { helper.event_commit_title(message) }
 
     it 'returns the first line, truncated to 70 chars' do
@@ -115,7 +116,7 @@ describe EventsHelper do
     it 'returns a merge request url' do
       event.target = create(:note_on_merge_request, note: 'LGTM!')
 
-      expect(subject).to eq("#{project_base_url}/merge_requests/#{event.note_target.iid}#note_#{event.target.id}")
+      expect(subject).to eq("#{project_base_url}/-/merge_requests/#{event.note_target.iid}#note_#{event.target.id}")
     end
   end
 end

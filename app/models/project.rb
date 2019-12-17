@@ -285,7 +285,6 @@ class Project < ApplicationRecord
   has_many :pipeline_schedules, class_name: 'Ci::PipelineSchedule'
   has_many :project_deploy_tokens
   has_many :deploy_tokens, through: :project_deploy_tokens
-  has_many :resource_groups, class_name: 'Ci::ResourceGroup', inverse_of: :project
 
   has_one :auto_devops, class_name: 'ProjectAutoDevops', inverse_of: :project, autosave: true
   has_many :custom_attributes, class_name: 'ProjectCustomAttribute'
@@ -335,7 +334,7 @@ class Project < ApplicationRecord
   delegate :add_guest, :add_reporter, :add_developer, :add_maintainer, :add_role, to: :team
   delegate :add_master, to: :team # @deprecated
   delegate :group_runners_enabled, :group_runners_enabled=, :group_runners_enabled?, to: :ci_cd_settings
-  delegate :root_ancestor, to: :namespace, allow_nil: true
+  delegate :root_ancestor, :actual_limits, to: :namespace, allow_nil: true
   delegate :last_pipeline, to: :commit, allow_nil: true
   delegate :external_dashboard_url, to: :metrics_setting, allow_nil: true, prefix: true
   delegate :default_git_depth, :default_git_depth=, to: :ci_cd_settings, prefix: :ci
@@ -409,6 +408,7 @@ class Project < ApplicationRecord
   scope :for_milestones, ->(ids) { joins(:milestones).where('milestones.id' => ids).distinct }
   scope :with_push, -> { joins(:events).where('events.action = ?', Event::PUSHED) }
   scope :with_project_feature, -> { joins('LEFT JOIN project_features ON projects.id = project_features.project_id') }
+  scope :inc_routes, -> { includes(:route, namespace: :route) }
   scope :with_statistics, -> { includes(:statistics) }
   scope :with_service, ->(service) { joins(service).eager_load(service) }
   scope :with_shared_runners, -> { where(shared_runners_enabled: true) }
@@ -741,7 +741,7 @@ class Project < ApplicationRecord
   end
 
   def unlink_forks_upon_visibility_decrease_enabled?
-    Feature.enabled?(:unlink_fork_network_upon_visibility_decrease, self)
+    Feature.enabled?(:unlink_fork_network_upon_visibility_decrease, self, default_enabled: true)
   end
 
   def empty_repo?

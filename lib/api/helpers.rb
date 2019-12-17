@@ -213,9 +213,9 @@ module API
       unauthorized! unless Devise.secure_compare(secret_token, input)
     end
 
-    def authenticated_with_full_private_access!
+    def authenticated_with_can_read_all_resources!
       authenticate!
-      forbidden! unless current_user.full_private_access?
+      forbidden! unless current_user.can_read_all_resources?
     end
 
     def authenticated_as_admin!
@@ -384,8 +384,8 @@ module API
     def handle_api_exception(exception)
       if report_exception?(exception)
         define_params_for_grape_middleware
-        Gitlab::Sentry.with_context(current_user) do
-          Gitlab::Sentry.track_exception(exception, params)
+        Gitlab::ErrorTracking.with_context(current_user) do
+          Gitlab::ErrorTracking.track_exception(exception, params)
         end
       end
 

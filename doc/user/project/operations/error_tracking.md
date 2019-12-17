@@ -45,7 +45,7 @@ The Error Tracking list may be found at **Operations > Error Tracking** in your 
 Errors can be filtered by title or sorted by Frequency, First Seen or Last Seen. Errors are always sorted in descending order by the field specified.
 You can view recent searches in the dropdown next to the search input. Recent searches are stored locally in your browser.
 
-![Error Tracking list](img/error_tracking_list.png)
+![Error Tracking list](img/error_tracking_list_v12_6.png)
 
 ## Error Details
 

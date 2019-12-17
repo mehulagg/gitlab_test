@@ -16,8 +16,7 @@ module Gitlab
           ALLOWED_KEYS = %i[tags script only except rules type image services
                             allow_failure type stage when start_in artifacts cache
                             dependencies before_script needs after_script variables
-                            environment coverage retry parallel extends interruptible timeout
-                            resource_group].freeze
+                            environment coverage retry parallel extends interruptible timeout].freeze
 
           REQUIRED_BY_NEEDS = %i[stage].freeze
 
@@ -49,7 +48,6 @@ module Gitlab
               validates :dependencies, array_of_strings: true
               validates :extends, array_of_strings_or_string: true
               validates :rules, array_of_hashes: true
-              validates :resource_group, type: String
             end
 
             validates :start_in, duration: { limit: '1 week' }, if: :delayed?
@@ -120,7 +118,7 @@ module Gitlab
 
           entry :only, Entry::Policy,
             description: 'Refs policy this job will be executed for.',
-            default: Entry::Policy::DEFAULT_ONLY,
+            default: ::Gitlab::Ci::Config::Entry::Policy::DEFAULT_ONLY,
             inherit: false
 
           entry :except, Entry::Policy,
@@ -136,7 +134,7 @@ module Gitlab
 
           entry :needs, Entry::Needs,
             description: 'Needs configuration for this job.',
-            metadata: { allowed_needs: %i[job] },
+            metadata: { allowed_needs: %i[job cross_dependency] },
             inherit: false
 
           entry :variables, Entry::Variables,
@@ -158,7 +156,7 @@ module Gitlab
 
           attributes :script, :tags, :allow_failure, :when, :dependencies,
                      :needs, :retry, :parallel, :extends, :start_in, :rules,
-                     :interruptible, :timeout, :resource_group
+                     :interruptible, :timeout
 
           def self.matching?(name, config)
             !name.to_s.start_with?('.') &&
@@ -177,11 +175,18 @@ module Gitlab
 
               @entries.delete(:type)
 
-              # This is something of a hack, see issue for details:
-              # https://gitlab.com/gitlab-org/gitlab/issues/31685
-              if !only_defined? && has_rules?
-                @entries.delete(:only)
-                @entries.delete(:except)
+              has_workflow_rules = deps&.workflow&.has_rules?
+
+              # If workflow:rules: or rules: are used
+              # they are considered not compatible
+              # with `only/except` defaults
+              #
+              # Context: https://gitlab.com/gitlab-org/gitlab/merge_requests/21742
+              if has_rules? || has_workflow_rules
+                # Remove only/except defaults
+                # defaults are not considered as defined
+                @entries.delete(:only) unless only_defined?
+                @entries.delete(:except) unless except_defined?
               end
             end
           end
@@ -238,8 +243,7 @@ module Gitlab
               artifacts: artifacts_value,
               after_script: after_script_value,
               ignore: ignored?,
-              needs: needs_defined? ? needs_value : nil,
-              resource_group: resource_group }
+              needs: needs_defined? ? needs_value : nil }
           end
         end
       end

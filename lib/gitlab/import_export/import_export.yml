@@ -203,8 +203,6 @@ excluded_attributes:
     - :artifacts_metadata_store
     - :artifacts_size
     - :commands
-    - :resource_group_id
-    - :waiting_for_resource_at
   push_event_payload:
     - :event_id
   project_badges:
@@ -222,6 +220,8 @@ excluded_attributes:
     - :encrypted_token
     - :encrypted_token_iv
     - :enabled
+  service_desk_setting:
+    - :outgoing_name
 
 methods:
   notes:
@@ -274,7 +274,7 @@ ee:
               - :push_event_payload
         - design_versions:
           - actions:
-            - :design # Duplicate export of issues.designs in order to link the record to both Issue and DesignVersion
+            - :design # Duplicate export of issues.designs in order to link the record to both Issue and Action
       - protected_branches:
         - :unprotect_access_levels
       - protected_environments:

@@ -35,7 +35,6 @@ function factory(propsData = {}) {
 describe('Repository table row component', () => {
   afterEach(() => {
     vm.destroy();
-    jest.clearAllMocks();
   });
 
   it('renders table row', () => {
@@ -84,7 +83,7 @@ describe('Repository table row component', () => {
     vm.trigger('click');
 
     if (pushes) {
-      expect($router.push).toHaveBeenCalledWith({ path: '/tree/master/test' });
+      expect($router.push).toHaveBeenCalledWith({ path: '/-/tree/master/test' });
     } else {
       expect($router.push).not.toHaveBeenCalled();
     }

@@ -26,7 +26,7 @@ describe Gitlab::GitalyClient do
 
     context 'running in Unicorn' do
       before do
-        allow(Gitlab::Runtime).to receive(:unicorn?).and_return(true)
+        stub_const('Unicorn', 1)
       end
 
       it { expect(subject.long_timeout).to eq(55) }
@@ -34,7 +34,7 @@ describe Gitlab::GitalyClient do
 
     context 'running in Puma' do
       before do
-        allow(Gitlab::Runtime).to receive(:puma?).and_return(true)
+        stub_const('Puma', 1)
       end
 
       it { expect(subject.long_timeout).to eq(55) }
@@ -86,7 +86,7 @@ describe Gitlab::GitalyClient do
 
   describe '.stub_certs' do
     it 'skips certificates if OpenSSLError is raised and report it' do
-      expect(Gitlab::Sentry)
+      expect(Gitlab::ErrorTracking)
         .to receive(:track_and_raise_for_dev_exception)
         .with(
           a_kind_of(OpenSSL::X509::CertificateError),

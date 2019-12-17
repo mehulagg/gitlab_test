@@ -20,10 +20,6 @@ module QA
       before do
         @executor = "qa-runner-#{Time.now.to_i}"
 
-        # Handle WIP Job Logs flag - https://gitlab.com/gitlab-org/gitlab/issues/31162
-        @job_log_json_flag_enabled = Runtime::Feature.enabled?('job_log_json')
-        Runtime::Feature.disable('job_log_json') if @job_log_json_flag_enabled
-
         Runtime::Browser.visit(:gitlab, Page::Main::Login)
         Page::Main::Login.perform(&:sign_in_using_credentials)
 
@@ -76,7 +72,8 @@ module QA
         end
       end
 
-      it 'displays security reports in the project security dashboard' do
+      # Failure issue: https://gitlab.com/gitlab-org/gitlab/issues/34342
+      it 'displays security reports in the project security dashboard', :quarantine do
         Page::Project::Menu.perform(&:click_project)
         Page::Project::Menu.perform(&:click_on_security_dashboard)
 

@@ -1135,6 +1135,7 @@ PUT /projects/:id
 | `only_mirror_protected_branches` | boolean | no | **(STARTER)** Only mirror protected branches |
 | `mirror_overwrites_diverged_branches` | boolean | no | **(STARTER)** Pull mirror overwrites diverged branches |
 | `packages_enabled` | boolean | no | **(PREMIUM ONLY)** Enable or disable packages repository feature |
+| `service_desk_enabled` | boolean | no | **(PREMIUM ONLY)** Enable or disable service desk feature |
 
 NOTE: **Note:** If your HTTP repository is not publicly accessible,
 add authentication information to the URL: `https://username:password@gitlab.company.com/group/project.git`
@@ -1712,10 +1713,27 @@ Example response:
 
 ## Remove project
 
-Removes a project including all associated resources (issues, merge requests etc).
+This endpoint either:
+
+- Removes a project including all associated resources (issues, merge requests etc).
+- From GitLab 12.6 on Premium or higher tiers, marks a project for deletion. Actual
+  deletion happens after number of days specified in
+  [instance settings](../user/admin_area/settings/visibility_and_access_controls.md#project-deletion-adjourned-period-premium-only).
 
 ```
 DELETE /projects/:id
+```
+
+| Attribute | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `id` | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) |
+
+## Restore project marked for deletion **(PREMIUM)**
+
+Restores project marked for deletion.
+
+```
+POST /projects/:id/restore
 ```
 
 | Attribute | Type | Required | Description |

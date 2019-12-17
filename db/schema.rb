@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_08_071112) do
+ActiveRecord::Schema.define(version: 2019_12_16_183532) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -351,6 +351,7 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
     t.string "sourcegraph_url", limit: 255
     t.boolean "sourcegraph_public_only", default: true, null: false
     t.bigint "snippet_size_limit", default: 52428800, null: false
+    t.integer "minimum_password_length", default: 8, null: false
     t.text "encrypted_akismet_api_key"
     t.string "encrypted_akismet_api_key_iv", limit: 255
     t.text "encrypted_elasticsearch_aws_secret_access_key"
@@ -683,8 +684,6 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
     t.datetime_with_timezone "scheduled_at"
     t.string "token_encrypted"
     t.integer "upstream_pipeline_id"
-    t.bigint "resource_group_id"
-    t.datetime_with_timezone "waiting_for_resource_at"
     t.index ["artifacts_expire_at"], name: "index_ci_builds_on_artifacts_expire_at", where: "(artifacts_file <> ''::text)"
     t.index ["auto_canceled_by_id"], name: "index_ci_builds_on_auto_canceled_by_id"
     t.index ["commit_id", "artifacts_expire_at", "id"], name: "index_ci_builds_on_commit_id_and_artifacts_expireatandidpartial", where: "(((type)::text = 'Ci::Build'::text) AND ((retried = false) OR (retried IS NULL)) AND ((name)::text = ANY (ARRAY[('sast'::character varying)::text, ('dependency_scanning'::character varying)::text, ('sast:container'::character varying)::text, ('container_scanning'::character varying)::text, ('dast'::character varying)::text])))"
@@ -694,11 +693,11 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
     t.index ["commit_id", "type", "ref"], name: "index_ci_builds_on_commit_id_and_type_and_ref"
     t.index ["name"], name: "index_ci_builds_on_name_for_security_products_values", where: "((name)::text = ANY (ARRAY[('container_scanning'::character varying)::text, ('dast'::character varying)::text, ('dependency_scanning'::character varying)::text, ('license_management'::character varying)::text, ('sast'::character varying)::text]))"
     t.index ["project_id", "id"], name: "index_ci_builds_on_project_id_and_id"
+    t.index ["project_id", "name", "ref"], name: "index_ci_builds_on_project_id_and_name_and_ref", where: "(((type)::text = 'Ci::Build'::text) AND ((status)::text = 'success'::text) AND ((retried = false) OR (retried IS NULL)))"
     t.index ["project_id", "status"], name: "index_ci_builds_project_id_and_status_for_live_jobs_partial2", where: "(((type)::text = 'Ci::Build'::text) AND ((status)::text = ANY (ARRAY[('running'::character varying)::text, ('pending'::character varying)::text, ('created'::character varying)::text])))"
     t.index ["project_id"], name: "index_ci_builds_on_project_id_for_successfull_pages_deploy", where: "(((type)::text = 'GenericCommitStatus'::text) AND ((stage)::text = 'deploy'::text) AND ((name)::text = 'pages:deploy'::text) AND ((status)::text = 'success'::text))"
     t.index ["protected"], name: "index_ci_builds_on_protected"
     t.index ["queued_at"], name: "index_ci_builds_on_queued_at"
-    t.index ["resource_group_id", "id"], name: "index_for_resource_group", where: "(resource_group_id IS NOT NULL)"
     t.index ["runner_id"], name: "index_ci_builds_on_runner_id"
     t.index ["scheduled_at"], name: "partial_index_ci_builds_on_scheduled_at_with_scheduled_jobs", where: "((scheduled_at IS NOT NULL) AND ((type)::text = 'Ci::Build'::text) AND ((status)::text = 'scheduled'::text))"
     t.index ["stage_id", "stage_idx"], name: "tmp_build_stage_position_index", where: "(stage_idx IS NOT NULL)"
@@ -871,23 +870,6 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
     t.index ["project_id"], name: "index_ci_pipelines_on_project_id"
     t.index ["status"], name: "index_ci_pipelines_on_status"
     t.index ["user_id"], name: "index_ci_pipelines_on_user_id"
-  end
-
-  create_table "ci_resource_groups", force: :cascade do |t|
-    t.datetime_with_timezone "created_at", null: false
-    t.datetime_with_timezone "updated_at", null: false
-    t.bigint "project_id", null: false
-    t.string "key", limit: 255, null: false
-    t.index ["project_id", "key"], name: "index_ci_resource_groups_on_project_id_and_key", unique: true
-  end
-
-  create_table "ci_resources", force: :cascade do |t|
-    t.datetime_with_timezone "created_at", null: false
-    t.datetime_with_timezone "updated_at", null: false
-    t.bigint "resource_group_id", null: false
-    t.bigint "build_id"
-    t.index ["build_id"], name: "index_ci_resources_on_build_id"
-    t.index ["resource_group_id", "build_id"], name: "index_ci_resources_on_resource_group_id_and_build_id", unique: true
   end
 
   create_table "ci_runner_namespaces", id: :serial, force: :cascade do |t|
@@ -1236,11 +1218,11 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
 
   create_table "commit_user_mentions", force: :cascade do |t|
     t.integer "note_id", null: false
-    t.binary "commit_id", null: false
     t.integer "mentioned_users_ids", array: true
     t.integer "mentioned_projects_ids", array: true
     t.integer "mentioned_groups_ids", array: true
-    t.index ["commit_id", "note_id"], name: "commit_user_mentions_on_commit_id_and_note_id_index"
+    t.string "commit_id", null: false
+    t.index ["commit_id", "note_id"], name: "commit_id_and_note_id_index"
     t.index ["note_id"], name: "index_commit_user_mentions_on_note_id", unique: true
   end
 
@@ -1376,9 +1358,11 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
     t.index ["id"], name: "partial_index_deployments_for_legacy_successful_deployments", where: "((finished_at IS NULL) AND (status = 2))"
     t.index ["project_id", "id"], name: "index_deployments_on_project_id_and_id", order: { id: :desc }
     t.index ["project_id", "iid"], name: "index_deployments_on_project_id_and_iid", unique: true
+    t.index ["project_id", "ref"], name: "index_deployments_on_project_id_and_ref"
     t.index ["project_id", "status", "created_at"], name: "index_deployments_on_project_id_and_status_and_created_at"
     t.index ["project_id", "status"], name: "index_deployments_on_project_id_and_status"
     t.index ["project_id", "updated_at", "id"], name: "index_deployments_on_project_id_and_updated_at_and_id", order: { updated_at: :desc, id: :desc }
+    t.index ["project_id"], name: "partial_index_deployments_for_project_id_and_tag", where: "(tag IS TRUE)"
   end
 
   create_table "description_versions", force: :cascade do |t|
@@ -2234,6 +2218,7 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
     t.index ["fingerprint"], name: "index_keys_on_fingerprint", unique: true
     t.index ["fingerprint_sha256"], name: "index_keys_on_fingerprint_sha256"
     t.index ["id", "type"], name: "index_on_deploy_keys_id_and_type_and_public", unique: true, where: "(public = true)"
+    t.index ["last_used_at"], name: "index_keys_on_last_used_at", order: "DESC NULLS LAST"
     t.index ["user_id"], name: "index_keys_on_user_id"
   end
 
@@ -2845,6 +2830,13 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
     t.index ["project_id", "token_encrypted"], name: "index_feature_flags_clients_on_project_id_and_token_encrypted", unique: true
   end
 
+  create_table "packages_build_infos", force: :cascade do |t|
+    t.integer "package_id", null: false
+    t.integer "pipeline_id"
+    t.index ["package_id"], name: "index_packages_build_infos_on_package_id", unique: true
+    t.index ["pipeline_id"], name: "index_packages_build_infos_on_pipeline_id"
+  end
+
   create_table "packages_conan_file_metadata", force: :cascade do |t|
     t.bigint "package_file_id", null: false
     t.datetime_with_timezone "created_at", null: false
@@ -2996,6 +2988,7 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
     t.integer "ci_active_pipelines", default: 0, null: false
     t.integer "ci_pipeline_size", default: 0, null: false
     t.integer "ci_active_jobs", default: 0, null: false
+    t.integer "project_hooks", default: 0, null: false
     t.index ["plan_id"], name: "index_plan_limits_on_plan_id", unique: true
   end
 
@@ -3671,6 +3664,7 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
 
   create_table "service_desk_settings", primary_key: "project_id", id: :bigint, default: nil, force: :cascade do |t|
     t.string "issue_template_key", limit: 255
+    t.string "outgoing_name", limit: 255
   end
 
   create_table "services", id: :serial, force: :cascade do |t|
@@ -4401,7 +4395,6 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
   add_foreign_key "ci_builds", "ci_pipelines", column: "auto_canceled_by_id", name: "fk_a2141b1522", on_delete: :nullify
   add_foreign_key "ci_builds", "ci_pipelines", column: "commit_id", name: "fk_d3130c9a7f", on_delete: :cascade
   add_foreign_key "ci_builds", "ci_pipelines", column: "upstream_pipeline_id", name: "fk_87f4cefcda", on_delete: :cascade
-  add_foreign_key "ci_builds", "ci_resource_groups", column: "resource_group_id", name: "fk_6661f4f0e8", on_delete: :nullify
   add_foreign_key "ci_builds", "ci_stages", column: "stage_id", name: "fk_3a9eaa254d", on_delete: :cascade
   add_foreign_key "ci_builds", "projects", name: "fk_befce0568a", on_delete: :cascade
   add_foreign_key "ci_builds_metadata", "ci_builds", column: "build_id", on_delete: :cascade
@@ -4422,9 +4415,6 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
   add_foreign_key "ci_pipelines", "external_pull_requests", name: "fk_190998ef09", on_delete: :nullify
   add_foreign_key "ci_pipelines", "merge_requests", name: "fk_a23be95014", on_delete: :cascade
   add_foreign_key "ci_pipelines", "projects", name: "fk_86635dbd80", on_delete: :cascade
-  add_foreign_key "ci_resource_groups", "projects", on_delete: :cascade
-  add_foreign_key "ci_resources", "ci_builds", column: "build_id", on_delete: :nullify
-  add_foreign_key "ci_resources", "ci_resource_groups", column: "resource_group_id", on_delete: :cascade
   add_foreign_key "ci_runner_namespaces", "ci_runners", column: "runner_id", on_delete: :cascade
   add_foreign_key "ci_runner_namespaces", "namespaces", on_delete: :cascade
   add_foreign_key "ci_runner_projects", "projects", name: "fk_4478a6f1e4", on_delete: :cascade
@@ -4643,6 +4633,8 @@ ActiveRecord::Schema.define(version: 2019_12_08_071112) do
   add_foreign_key "operations_feature_flag_scopes", "operations_feature_flags", column: "feature_flag_id", on_delete: :cascade
   add_foreign_key "operations_feature_flags", "projects", on_delete: :cascade
   add_foreign_key "operations_feature_flags_clients", "projects", on_delete: :cascade
+  add_foreign_key "packages_build_infos", "ci_pipelines", column: "pipeline_id", on_delete: :nullify
+  add_foreign_key "packages_build_infos", "packages_packages", column: "package_id", on_delete: :cascade
   add_foreign_key "packages_conan_file_metadata", "packages_package_files", column: "package_file_id", on_delete: :cascade
   add_foreign_key "packages_conan_metadata", "packages_packages", column: "package_id", on_delete: :cascade
   add_foreign_key "packages_dependency_links", "packages_dependencies", column: "dependency_id", on_delete: :cascade

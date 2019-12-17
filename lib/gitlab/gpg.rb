@@ -110,7 +110,7 @@ module Gitlab
         folder_contents = Dir.children(tmp_dir)
         # This means we left a GPG-agent process hanging. Logging the problem in
         # sentry will make this more visible.
-        Gitlab::Sentry.track_and_raise_for_dev_exception(e,
+        Gitlab::ErrorTracking.track_and_raise_for_dev_exception(e,
                                        issue_url: 'https://gitlab.com/gitlab-org/gitlab/issues/20918',
                                        tmp_dir: tmp_dir, contents: folder_contents)
       end
@@ -135,7 +135,7 @@ module Gitlab
     end
 
     def cleanup_time
-      Gitlab::Runtime.sidekiq? ? BG_CLEANUP_RUNTIME_S : FG_CLEANUP_RUNTIME_S
+      Sidekiq.server? ? BG_CLEANUP_RUNTIME_S : FG_CLEANUP_RUNTIME_S
     end
 
     def tmp_keychains_created

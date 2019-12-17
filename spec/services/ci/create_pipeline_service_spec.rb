@@ -528,7 +528,7 @@ describe Ci::CreatePipelineService do
         end
 
         it 'logs error' do
-          expect(Gitlab::Sentry).to receive(:track_exception).and_call_original
+          expect(Gitlab::ErrorTracking).to receive(:track_exception).and_call_original
 
           execute_service
         end
@@ -613,7 +613,7 @@ describe Ci::CreatePipelineService do
       end
 
       it 'logs error' do
-        expect(Gitlab::Sentry).to receive(:track_exception).and_call_original
+        expect(Gitlab::ErrorTracking).to receive(:track_exception).and_call_original
 
         execute_service
       end
@@ -910,44 +910,6 @@ describe Ci::CreatePipelineService do
           expect(pipeline).to be_persisted
           expect(rspec_job.options_retry_max).to eq 2
           expect(rspec_job.options_retry_when).to eq ['runner_system_failure']
-        end
-      end
-    end
-
-    context 'with resource group' do
-      context 'when resource group is defined' do
-        before do
-          config = YAML.dump(
-            test: { stage: 'test', script: 'ls', resource_group: resource_group_key }
-          )
-
-          stub_ci_pipeline_yaml_file(config)
-        end
-
-        let(:resource_group_key) { 'iOS' }
-
-        it 'persists the association correctly' do
-          result = execute_service
-          deploy_job = result.builds.find_by_name!(:test)
-          resource_group = project.resource_groups.find_by_key!(resource_group_key)
-
-          expect(result).to be_persisted
-          expect(deploy_job.resource_group.key).to eq(resource_group_key)
-          expect(project.resource_groups.count).to eq(1)
-          expect(resource_group.builds.count).to eq(1)
-          expect(resource_group.resources.count).to eq(1)
-          expect(resource_group.resources.first.build).to eq(nil)
-        end
-
-        context 'when resourc group key includes predefined variables' do
-          let(:resource_group_key) { '$CI_COMMIT_REF_NAME-$CI_JOB_NAME' }
-
-          it 'interpolates the variables into the key correctly' do
-            result = execute_service
-
-            expect(result).to be_persisted
-            expect(project.resource_groups.exists?(key: 'master-test')).to eq(true)
-          end
         end
       end
     end

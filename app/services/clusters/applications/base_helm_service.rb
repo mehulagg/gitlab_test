@@ -21,7 +21,7 @@ module Clusters
           group_ids: app.cluster.group_ids
         }
 
-        Gitlab::Sentry.track_exception(error, meta)
+        Gitlab::ErrorTracking.track_exception(error, meta)
       end
 
       def log_event(event)
@@ -61,8 +61,8 @@ module Clusters
         @update_command ||= app.update_command
       end
 
-      def upgrade_command(new_values = "")
-        app.upgrade_command(new_values)
+      def patch_command(new_values = "")
+        app.patch_command(new_values)
       end
     end
   end

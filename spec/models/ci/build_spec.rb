@@ -815,6 +815,27 @@ describe Ci::Build do
         it { is_expected.to contain_exactly(build, rspec_test, rubocop_test, staging) }
       end
     end
+
+    describe '#all_dependencies' do
+      let!(:final_build) do
+        create(:ci_build,
+          pipeline: pipeline, name: 'deploy',
+          stage_idx: 3, stage: 'deploy'
+        )
+      end
+
+      subject { final_build.all_dependencies }
+
+      it 'returns dependencies and cross_dependencies' do
+        dependencies = [1, 2, 3]
+        cross_dependencies = [3, 4]
+
+        allow(final_build).to receive(:dependencies).and_return(dependencies)
+        allow(final_build).to receive(:cross_dependencies).and_return(cross_dependencies)
+
+        is_expected.to match(a_collection_containing_exactly(1, 2, 3, 4))
+      end
+    end
   end
 
   describe '#triggered_by?' do
@@ -1272,68 +1293,6 @@ describe Ci::Build do
         end
 
         it { is_expected.to be_falsey }
-      end
-    end
-
-    describe '#requires_resource?' do
-      subject { build.requires_resource? }
-
-      context 'when build needs a resource from a resource group' do
-        let(:resource_group) { create(:ci_resource_group, project: project) }
-        let(:build) { create(:ci_build, resource_group: resource_group, project: project) }
-
-        context 'when build has not retained a resource' do
-          it { is_expected.to eq(true) }
-        end
-
-        context 'when build has retained a resource' do
-          before do
-            resource_group.retain_resource_for(build)
-          end
-
-          it { is_expected.to eq(false) }
-
-          context 'when ci_resource_group feature flag is disabled' do
-            before do
-              stub_feature_flags(ci_resource_group: false)
-            end
-
-            it { is_expected.to eq(false) }
-          end
-        end
-      end
-
-      context 'when build does not need a resource from a resource group' do
-        let(:build) { create(:ci_build, project: project) }
-
-        it { is_expected.to eq(false) }
-      end
-    end
-
-    describe '#retains_resource?' do
-      subject { build.retains_resource? }
-
-      context 'when build needs a resource from a resource group' do
-        let(:resource_group) { create(:ci_resource_group, project: project) }
-        let(:build) { create(:ci_build, resource_group: resource_group, project: project) }
-
-        context 'when build has retained a resource' do
-          before do
-            resource_group.retain_resource_for(build)
-          end
-
-          it { is_expected.to eq(true) }
-        end
-
-        context 'when build has not retained a resource' do
-          it { is_expected.to eq(false) }
-        end
-      end
-
-      context 'when build does not need a resource from a resource group' do
-        let(:build) { create(:ci_build, project: project) }
-
-        it { is_expected.to eq(false) }
       end
     end
 
@@ -2366,6 +2325,7 @@ describe Ci::Build do
           { key: 'CI_COMMIT_BEFORE_SHA', value: build.before_sha, public: true, masked: false },
           { key: 'CI_COMMIT_REF_NAME', value: build.ref, public: true, masked: false },
           { key: 'CI_COMMIT_REF_SLUG', value: build.ref_slug, public: true, masked: false },
+          { key: 'CI_COMMIT_BRANCH', value: build.ref, public: true, masked: false },
           { key: 'CI_COMMIT_MESSAGE', value: pipeline.git_commit_message, public: true, masked: false },
           { key: 'CI_COMMIT_TITLE', value: pipeline.git_commit_title, public: true, masked: false },
           { key: 'CI_COMMIT_DESCRIPTION', value: pipeline.git_commit_description, public: true, masked: false },
@@ -2587,6 +2547,19 @@ describe Ci::Build do
       end
 
       it { is_expected.to include(job_variable) }
+    end
+
+    context 'when build is for branch' do
+      let(:branch_variable) do
+        { key: 'CI_COMMIT_BRANCH', value: 'master', public: true, masked: false }
+      end
+
+      before do
+        build.update(tag: false)
+        pipeline.update(tag: false)
+      end
+
+      it { is_expected.to include(branch_variable) }
     end
 
     context 'when build is for tag' do
@@ -3522,7 +3495,7 @@ describe Ci::Build do
       end
 
       it 'can drop the build' do
-        expect(Gitlab::Sentry).to receive(:track_and_raise_for_dev_exception)
+        expect(Gitlab::ErrorTracking).to receive(:track_and_raise_for_dev_exception)
 
         expect { build.drop! }.not_to raise_error
 

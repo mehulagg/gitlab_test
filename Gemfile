@@ -102,7 +102,7 @@ gem 'hashie-forbidden_attributes'
 gem 'kaminari', '~> 1.0'
 
 # HAML
-gem 'hamlit', '~> 2.10.0'
+gem 'hamlit', '~> 2.11.0'
 
 # Files attachments
 gem 'carrierwave', '~> 1.3'
@@ -417,7 +417,7 @@ end
 
 gem 'octokit', '~> 4.9'
 
-gem 'mail_room', '~> 0.9.1'
+gem 'mail_room', '~> 0.10.0'
 
 gem 'email_reply_trimmer', '~> 0.1'
 gem 'html2text'

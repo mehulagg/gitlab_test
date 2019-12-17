@@ -364,7 +364,7 @@ Gitlab.ee do
   # To ensure acceptable performance we only allow feature to be used with
   # multithreaded web-server Puma. This will be removed once download logic is moved
   # to GitLab workhorse
-  Settings.dependency_proxy['enabled'] = false unless Gitlab::Runtime.puma?
+  Settings.dependency_proxy['enabled'] = false unless defined?(::Puma)
 end
 
 #
@@ -475,6 +475,9 @@ Gitlab.ee do
   Settings.cron_jobs['clear_shared_runners_minutes_worker'] ||= Settingslogic.new({})
   Settings.cron_jobs['clear_shared_runners_minutes_worker']['cron'] ||= '0 0 1 * *'
   Settings.cron_jobs['clear_shared_runners_minutes_worker']['job_class'] = 'ClearSharedRunnersMinutesWorker'
+  Settings.cron_jobs['adjourned_projects_deletion_cron_worker'] ||= Settingslogic.new({})
+  Settings.cron_jobs['adjourned_projects_deletion_cron_worker']['cron'] ||= '0 4 * * *'
+  Settings.cron_jobs['adjourned_projects_deletion_cron_worker']['job_class'] = 'AdjournedProjectsDeletionCronWorker'
   Settings.cron_jobs['geo_file_download_dispatch_worker'] ||= Settingslogic.new({})
   Settings.cron_jobs['geo_file_download_dispatch_worker']['cron'] ||= '*/1 * * * *'
   Settings.cron_jobs['geo_file_download_dispatch_worker']['job_class'] ||= 'Geo::FileDownloadDispatchWorker'

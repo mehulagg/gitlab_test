@@ -1767,6 +1767,7 @@ describe Project do
 
   describe '#object_pool_missing?' do
     let(:pool) { create(:pool_repository, :ready) }
+
     subject { create(:project, :repository, pool_repository: pool) }
 
     it 'returns true when object pool is missing' do
@@ -2254,6 +2255,7 @@ describe Project do
       context 'when number of days is set to more than 0' do
         it 'returns true' do
           stub_application_setting(deletion_adjourned_period: 1)
+
           expect(project.adjourned_deletion?).to eq(true)
         end
       end
@@ -2261,6 +2263,7 @@ describe Project do
       context 'when number of days is set to 0' do
         it 'returns false' do
           stub_application_setting(deletion_adjourned_period: 0)
+
           expect(project.adjourned_deletion?).to eq(false)
         end
       end
