@@ -7,6 +7,10 @@ module Ci
         true
       end
 
+      def persisted?
+        true
+      end
+
       def keys(relation)
         []
       end
@@ -16,7 +20,7 @@ module Ci
       end
 
       def data(model)
-        model.raw_data
+        model.raw_data&.force_encoding(Encoding::BINARY)
       end
 
       def set_data(model, data)

@@ -7,8 +7,15 @@ module Ci
         object_store.enabled
       end
 
+      def persisted?
+        true
+      end
+
       def data(model)
         connection.get_object(bucket_name, key(model))[:body]
+      rescue Excon::Error::NotFound
+        # If the data store is :fog and the file does not exist in the object storage,
+        # this method returns nil.
       end
 
       def set_data(model, data)

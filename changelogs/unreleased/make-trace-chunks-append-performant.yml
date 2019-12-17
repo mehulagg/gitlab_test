@@ -1,0 +1,5 @@
+---
+title: Make trace chunks append to be performant
+merge_request:
+author:
+type: performance

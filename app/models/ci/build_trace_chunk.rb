@@ -63,7 +63,7 @@ module Ci
     ##
     # Data is memoized for optimizing #size and #end_offset
     def data
-      @data ||= get_data.to_s
+      @data ||= data_from_store.to_s
     end
 
     def truncate(offset = 0)
@@ -75,18 +75,21 @@ module Ci
 
     def append(new_data, offset)
       raise ArgumentError, 'New data is missing' unless new_data
-      raise ArgumentError, 'Offset is out of range' if offset > size || offset < 0
+      raise ArgumentError, "Offset is out of range" if offset > size || offset < 0
       raise ArgumentError, 'Chunk size overflow' if CHUNK_SIZE < (offset + new_data.bytesize)
 
       in_lock(*lock_params) do # Write operation is atomic
-        unsafe_set_data!(data.byteslice(0, offset) + new_data)
+        unsafe_set_data!(new_data, offset)
       end
 
       schedule_to_persist if full?
     end
 
     def size
-      data&.bytesize.to_i
+      # We first prefer to get a cached data length
+      # We then try to get the length of data without fetching the data
+      # Otherwise, we fallback to getting data, and getting the length then
+      @size ||= @data&.bytesize || length_from_store || data&.bytesize.to_i
     end
 
     def start_offset
@@ -112,32 +115,52 @@ module Ci
     def unsafe_persist_to!(new_store)
       return if data_store == new_store.to_s
 
-      current_data = get_data
+      current_data = data_from_store
 
       unless current_data&.bytesize.to_i == CHUNK_SIZE
         raise FailedToPersistDataError, 'Data is not fulfilled in a bucket'
       end
 
-      old_store_class = self.class.get_store_class(data_store)
+      old_store_class = store_class
 
       self.raw_data = nil
       self.data_store = new_store
-      unsafe_set_data!(current_data)
+      unsafe_set_data!(current_data, 0)
 
       old_store_class.delete_data(self)
     end
 
-    def get_data
-      self.class.get_store_class(data_store).data(self)&.force_encoding(Encoding::BINARY) # Redis/Database return UTF-8 string as default
-    rescue Excon::Error::NotFound
-      # If the data store is :fog and the file does not exist in the object storage, this method returns nil.
+    def length_from_store
+      store_class.length(self) if store_class.respond_to?(:length)
     end
 
-    def unsafe_set_data!(value)
-      raise ArgumentError, 'New data size exceeds chunk size' if value.bytesize > CHUNK_SIZE
+    def data_from_store
+      store_class.data(self)
+   end
 
-      self.class.get_store_class(data_store).set_data(self, value)
-      @data = value
+    def unsafe_set_data!(value, offset = 0)
+      raise ArgumentError, 'New data size exceeds chunk size' if offset + value.bytesize > CHUNK_SIZE
+
+      done =
+        if store_class.respond_to?(:append_data)
+          # if store_class support append, prefer to use it
+          store_class.append_data(self, value, offset)
+        end
+
+      unless done
+        # if store does not support append, fetch data
+        # and set the whole item at once
+        if offset.nonzero?
+          value = data.byteslice(0, offset) + value
+          offset = 0
+        end
+
+        store_class.set_data(self, value)
+      end
+
+      # invalidate cache
+      clear_cache
+      @data = value if offset.zero?
 
       save! if changed?
     end
@@ -149,7 +172,7 @@ module Ci
     end
 
     def data_persisted?
-      !redis?
+      store_class.persisted?
     end
 
     def full?
@@ -161,6 +184,15 @@ module Ci
        { ttl: WRITE_LOCK_TTL,
          retries: WRITE_LOCK_RETRY,
          sleep_sec: WRITE_LOCK_SLEEP }]
+    end
+
+    def store_class
+      self.class.get_store_class(data_store)
+    end
+
+    def clear_cache
+      @data = nil
+      @size = nil
     end
   end
 end

@@ -451,7 +451,7 @@ describe Ci::BuildTraceChunk, :clean_gitlab_redis_shared_state do
             expect(build_trace_chunk.redis?).to be_truthy
             expect(Ci::BuildTraceChunks::Redis.new.data(build_trace_chunk)).to eq(data)
             expect(Ci::BuildTraceChunks::Database.new.data(build_trace_chunk)).to be_nil
-            expect { Ci::BuildTraceChunks::Fog.new.data(build_trace_chunk) }.to raise_error(Excon::Error::NotFound)
+            expect(Ci::BuildTraceChunks::Fog.new.data(build_trace_chunk)).to be_nil
 
             subject
 
@@ -473,7 +473,7 @@ describe Ci::BuildTraceChunk, :clean_gitlab_redis_shared_state do
             expect(build_trace_chunk.redis?).to be_truthy
             expect(Ci::BuildTraceChunks::Redis.new.data(build_trace_chunk)).to eq(data)
             expect(Ci::BuildTraceChunks::Database.new.data(build_trace_chunk)).to be_nil
-            expect { Ci::BuildTraceChunks::Fog.new.data(build_trace_chunk) }.to raise_error(Excon::Error::NotFound)
+            expect(Ci::BuildTraceChunks::Fog.new.data(build_trace_chunk)).to be_nil
           end
         end
       end
@@ -500,7 +500,7 @@ describe Ci::BuildTraceChunk, :clean_gitlab_redis_shared_state do
             expect(build_trace_chunk.database?).to be_truthy
             expect(Ci::BuildTraceChunks::Redis.new.data(build_trace_chunk)).to be_nil
             expect(Ci::BuildTraceChunks::Database.new.data(build_trace_chunk)).to eq(data)
-            expect { Ci::BuildTraceChunks::Fog.new.data(build_trace_chunk) }.to raise_error(Excon::Error::NotFound)
+            expect(Ci::BuildTraceChunks::Fog.new.data(build_trace_chunk)).to be_nil
 
             subject
 
@@ -522,7 +522,7 @@ describe Ci::BuildTraceChunk, :clean_gitlab_redis_shared_state do
             expect(build_trace_chunk.database?).to be_truthy
             expect(Ci::BuildTraceChunks::Redis.new.data(build_trace_chunk)).to be_nil
             expect(Ci::BuildTraceChunks::Database.new.data(build_trace_chunk)).to eq(data)
-            expect { Ci::BuildTraceChunks::Fog.new.data(build_trace_chunk) }.to raise_error(Excon::Error::NotFound)
+            expect(Ci::BuildTraceChunks::Fog.new.data(build_trace_chunk)).to be_nil
           end
         end
       end
