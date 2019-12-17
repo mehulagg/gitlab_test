@@ -58,16 +58,7 @@ module QA
 
       def wait_for_deployment
         Page::Project::Menu.perform(&:click_ci_cd_pipelines)
-        Page::Project::Pipeline::Index.perform(&:click_on_latest_pipeline)
-
-        Page::Project::Pipeline::Show.perform do |pipeline|
-          pipeline.click_job('production')
-        end
-
-        Page::Project::Job::Show.perform do |job|
-          expect(job).to be_successful(timeout: 600)
-        end
-
+        Page::Project::Pipeline::Index.perform(&:wait_for_latest_pipeline_success)
         Page::Project::Menu.perform(&:go_to_operations_metrics)
       end
 
