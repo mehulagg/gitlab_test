@@ -77,11 +77,11 @@ module Projects
       end
 
       def new_dashboard_path
-        params[:file_content] || File.join(USER_DASHBOARDS_DIR, params.require(:file_name))
+        File.join(USER_DASHBOARDS_DIR, params.require(:file_name))
       end
 
       def new_dashboard_content
-        File.read params.require(:dashboard)
+        params[:file_content] || File.read(params.require(:dashboard))
       end
 
       def validate_dashboard_template!
