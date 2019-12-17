@@ -23,17 +23,12 @@ module EE
           super
         end
 
-        def log_audit_event(message:)
-          AuditEvents::CustomAuditEventService.new(
+        def log_access_ci_cd_settings
+          AuditEvents::CiCdSettingsAccessedAuditEventService.new(
             current_user,
             project,
-            request.remote_ip,
-            message
+            request.remote_ip
           ).for_project.security_event
-        end
-
-        def log_access_ci_cd_settings
-          log_audit_event(message: 'Accessed CI/CD settings')
         end
 
         private
