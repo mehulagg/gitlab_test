@@ -215,7 +215,7 @@ describe Projects::PerformanceMonitoring::DashboardsController do
                 start_branch: 'master',
                 encoding: 'text',
                 file_path: ".gitlab/dashboards/#{file_name}",
-                file_content: File.read('config/prometheus/common_metrics.yml')
+                file_content: File.read('config/prometheus/common_metrics.yml').to_yaml
               }
 
               service_instance = instance_double(::Files::UpdateService)

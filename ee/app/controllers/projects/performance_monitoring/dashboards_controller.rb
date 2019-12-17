@@ -6,7 +6,7 @@ module Projects
       include BlobHelper
 
       before_action :check_repository_available!
-      before_action :validate_dashboard_template!
+      before_action :validate_dashboard_template!, on: :create
       before_action :authorize_push!
 
       USER_DASHBOARDS_DIR = ::Metrics::Dashboard::ProjectDashboardService::DASHBOARD_ROOT
@@ -65,7 +65,7 @@ module Projects
         {
           commit_message: commit_message,
           file_path: new_dashboard_path,
-          file_content: new_dashboard_content,
+          file_content: update_dashboard_content || new_dashboard_content,
           encoding: 'text',
           branch_name: branch,
           start_branch: repository.branch_exists?(branch) ? branch : project.default_branch
@@ -81,11 +81,17 @@ module Projects
       end
 
       def new_dashboard_content
-        params[:file_content] || File.read(params.require(:dashboard))
+        File.read params.require(:dashboard)
       end
 
       def validate_dashboard_template!
         access_denied! unless DASHBOARD_TEMPLATES[params.require(:dashboard)]
+      end
+
+      def update_dashboard_content
+        return unless params[:file_content]
+
+        params[:file_content].to_yaml
       end
     end
   end
