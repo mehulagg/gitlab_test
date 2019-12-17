@@ -12,6 +12,7 @@ module EE
     include ::Gitlab::Utils::StrongMemoize
     include ::EE::GitlabRoutingHelper # rubocop: disable Cop/InjectEnterpriseEditionModule
     include IgnorableColumns
+    include ::Geo::Replicable
 
     GIT_LFS_DOWNLOAD_OPERATION = 'download'.freeze
 
@@ -180,6 +181,18 @@ module EE
       accepts_nested_attributes_for :incident_management_setting, update_only: true
 
       alias_attribute :fallback_approvals_required, :approvals_before_merge
+
+      geo_replicable :project do |blueprint|
+        blueprint.trackable = ::Geo::Trackable::ProjectRepository
+      end
+
+      geo_replicable :wiki do |blueprint|
+        blueprint.trackable = ::Geo::Trackable::WikiRepository
+      end
+
+      geo_replicable :design do |blueprint|
+        blueprint.trackable = ::Geo::Trackable::GitRepository
+      end
     end
 
     class_methods do
@@ -272,6 +285,12 @@ module EE
 
     def link_pool_repository
       super
+
+      if ::Feature.enabled?(:geo_json_events, self)
+        geo_updated!(:project)
+        return
+      end
+
       repository.log_geo_updated_event
     end
 
@@ -592,6 +611,14 @@ module EE
     override :after_import
     def after_import
       super
+
+      if ::Feature.enabled?(:geo_json_events, self)
+        geo_updated!(:project)
+        geo_updated!(:wiki)
+        geo_updated!(:design)
+        return
+      end
+
       repository.log_geo_updated_event
       wiki.repository.log_geo_updated_event
       design_repository.log_geo_updated_event

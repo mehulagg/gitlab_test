@@ -90,6 +90,10 @@ module Geo
       includes(reflections.keys)
     end
 
+    def self.json_event!(attributes)
+      create!(json: attributes)
+    end
+
     def event
       repository_created_event ||
         repository_updated_event ||

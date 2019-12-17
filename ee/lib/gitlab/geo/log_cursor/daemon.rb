@@ -89,6 +89,8 @@ module Gitlab
         end
 
         def handle_single_event(event_log)
+          return process_json_event(event_log) if event_log.payload
+
           event = event_log.event
 
           # If a project is deleted, the event log and its associated event data
@@ -111,6 +113,10 @@ module Gitlab
         rescue NoMethodError => e
           logger.error(e.message)
           raise e
+        end
+
+        def process_json_event(event_log)
+          Events::JsonEvent.new(payload, logger).process
         end
 
         def event_klass_for(event)
