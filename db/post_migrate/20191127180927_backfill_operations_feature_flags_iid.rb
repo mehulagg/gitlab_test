@@ -5,8 +5,6 @@ class BackfillOperationsFeatureFlagsIid < ActiveRecord::Migration[5.2]
 
   DOWNTIME = false
 
-  # disable_ddl_transaction!
-
   ###
   # This should update about 500 rows on gitlab.com
   # https://gitlab.com/gitlab-org/gitlab/merge_requests/20871#note_251723686
@@ -17,29 +15,22 @@ class BackfillOperationsFeatureFlagsIid < ActiveRecord::Migration[5.2]
   # https://gitlab.com/gitlab-org/gitlab/merge_requests/20871#note_255449819
   ###
   def up
-    execute('LOCK operations_feature_flags')
-
-    execute('UPDATE operations_feature_flags SET iid = NULL')
-
     sql = <<-END
       UPDATE operations_feature_flags
       SET iid = feature_flags_with_calculated_iid.iid_num
       FROM (
-        SELECT id, rank() OVER (PARTITION BY project_id ORDER BY id ASC) AS iid_num FROM operations_feature_flags
+        SELECT id, ROW_NUMBER() OVER (PARTITION BY project_id ORDER BY iid, id ASC NULLS LAST) AS iid_num FROM operations_feature_flags
       ) AS feature_flags_with_calculated_iid
       WHERE operations_feature_flags.id = feature_flags_with_calculated_iid.id
     END
 
     execute(sql)
 
-    # insert_sql = <<-END
-    #   INSERT INTO internal_ids (project_id, usage, last_value)
-    #   SELECT project_id, 6, MAX(iid)
-    #   FROM operations_feature_flags
-    #   GROUP BY project_id
-    # END
-    #
-    # execute(insert_sql)
+    delete_internal_ids_sql = <<-END
+      DELETE FROM internal_ids WHERE usage = 6
+    END
+
+    execute(delete_internal_ids_sql)
   end
 
   def down
