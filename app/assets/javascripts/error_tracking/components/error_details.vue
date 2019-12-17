@@ -106,6 +106,9 @@ export default {
       this.issueCreationInProgress = true;
       this.$refs.sentryIssueForm.submit();
     },
+    ignoreIssue() {
+      console.log('hello');
+    },
     formatDate(date) {
       return `${this.timeFormatted(date)} (${dateFormat(date, 'UTC:yyyy-mm-dd h:MM:ssTT Z')})`;
     },
@@ -121,24 +124,34 @@ export default {
     <div v-else-if="showDetails" class="error-details">
       <div class="top-area align-items-center justify-content-between py-3">
         <span v-if="!loadingStacktrace && stacktrace" v-html="reported"></span>
-        <form ref="sentryIssueForm" :action="projectIssuesPath" method="POST">
-          <gl-form-input class="hidden" name="issue[title]" :value="issueTitle" />
-          <input name="issue[description]" :value="issueDescription" type="hidden" />
-          <gl-form-input
-            :value="error.id"
-            class="hidden"
-            name="issue[sentry_issue_attributes][sentry_issue_identifier]"
-          />
-          <gl-form-input :value="csrfToken" class="hidden" name="authenticity_token" />
+        <div class="d-flex flex-row">
           <loading-button
-            v-if="!error.gitlab_issue"
-            class="btn-success"
-            :label="__('Create issue')"
-            :loading="issueCreationInProgress"
-            data-qa-selector="create_issue_button"
-            @click="createIssue"
+            v-if="!error.ignored"
+            class="btn-secondary mr-3"
+            :label="__('Ignore')"
+            :loading="true"
+            data-qa-selector="ignore_issue_button"
+            @click="ignoreIssue"
           />
-        </form>
+          <form ref="sentryIssueForm" :action="projectIssuesPath" method="POST">
+            <gl-form-input class="hidden" name="issue[title]" :value="issueTitle" />
+            <input name="issue[description]" :value="issueDescription" type="hidden" />
+            <gl-form-input
+              :value="error.id"
+              class="hidden"
+              name="issue[sentry_issue_attributes][sentry_issue_identifier]"
+            />
+            <gl-form-input :value="csrfToken" class="hidden" name="authenticity_token" />
+            <loading-button
+              v-if="!error.gitlab_issue"
+              class="btn-success"
+              :label="__('Create issue')"
+              :loading="issueCreationInProgress"
+              data-qa-selector="create_issue_button"
+              @click="createIssue"
+            />
+          </form>
+        </div>
       </div>
       <div>
         <tooltip-on-truncate :title="error.title" truncate-target="child" placement="top">
