@@ -288,9 +288,9 @@ class Member < ApplicationRecord
     events = SecurityEvent.select("details", "created_at").where(entity_type: entity_type, entity_id: source_id).as_json
 
     selected_events = events.select do |e|
-      e["details"][:target_id] == id &&
-      (e["details"][:add].present? && !e["details"][:as].include?('Guest')) ||
-      (e["details"][:change].present? && !e["details"][:to].include?('Guest'))
+      e["details"][:target_id] == self.id &&
+      ((e["details"][:add].present? && !e["details"][:as].include?('Guest')) ||
+      (e["details"][:change].present? && !e["details"][:to].include?('Guest')))
     end
 
     event = selected_events.max_by { |fe| fe["created_at"] }
@@ -304,8 +304,8 @@ class Member < ApplicationRecord
 
     selected_events = events.select do |e|
       e["details"][:target_id] == id &&
-      (e["details"][:remove].present? && e["details"][:as].include?('Guest')) ||
-      (e["details"][:change].present? && e["details"][:to].include?('Guest'))
+      ((e["details"][:remove].present? && e["details"][:as].include?('Guest')) ||
+      (e["details"][:change].present? && e["details"][:to].include?('Guest')))
     end
 
     event = selected_events.max_by { |selected| selected["created_at"] }
