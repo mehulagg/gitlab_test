@@ -15,16 +15,16 @@ module Gitlab
           oid: oid,
           limit: limit
         )
-        response = GitalyClient.call(@gitaly_repo.storage_name, :blob_service, :get_blob, request, timeout: GitalyClient.fast_timeout)
 
         data = []
         blob = nil
-        response.each do |msg|
+
+        GitalyClient.streaming_call(@gitaly_repo.storage_name, :blob_service, :get_blob, request, timeout: GitalyClient.fast_timeout) do |response|
           if blob.nil?
-            blob = msg
+            blob = response
           end
 
-          data << msg.data
+          data << response.data
         end
 
         return if blob.oid.blank?
@@ -65,7 +65,7 @@ module Gitlab
           limit: limit
         )
 
-        response = GitalyClient.call(
+        response = GitalyClient.streaming_call(
           @gitaly_repo.storage_name,
           :blob_service,
           :get_blobs,
