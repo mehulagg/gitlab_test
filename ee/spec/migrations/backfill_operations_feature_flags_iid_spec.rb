@@ -63,58 +63,6 @@ describe BackfillOperationsFeatureFlagsIid, :migration do
     expect(flag_b.iid).to eq(1)
   end
 
-  it 'generates iids properly for feature flags created after the migration' do
-    project = setup
-
-    disable_migrations_output { migrate! }
-
-    flag = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'other_flag')
-
-    expect(flag.iid).to eq(1)
-  end
-
-  it 'generates iids properly for feature flags created after the migration when flags are backfilled' do
-    project = setup
-    flag_a = flags.create!(project_id: project.id, active: true, name: 'test_flag')
-
-    disable_migrations_output { migrate! }
-
-    flag_b = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'other_flag')
-
-    expect(flag_a.reload.iid).to eq(1)
-    expect(flag_b.iid).to eq(2)
-  end
-
-  it 'generates iids properly for feature flags created after the migration when a flag is created post deploy but before the migration' do
-    project = setup
-    flag_a = flags.create!(project_id: project.id, active: true, name: 'flag_a')
-    flag_b = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_b')
-
-    disable_migrations_output { migrate! }
-
-    flag_c = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_c')
-
-    expect(flag_a.reload.iid).to eq(2)
-    expect(flag_b.reload.iid).to eq(1)
-    expect(flag_c.iid).to eq(3)
-  end
-
-  it 'generates iids properly for flags created after the migration across multiple projects' do
-    project_a = setup
-    project_b = setup
-    flags.create!(project_id: project_a.id, active: true, name: 'first_flag')
-    flags.create!(project_id: project_b.id, active: true, name: 'flag')
-    flags.create!(project_id: project_b.id, active: true, name: 'another_flag')
-
-    disable_migrations_output { migrate! }
-
-    flag_a = Operations::FeatureFlag.create!(project_id: project_a.id, active: true, name: 'second_flag')
-    flag_b = Operations::FeatureFlag.create!(project_id: project_b.id, active: true, name: 'last_flag')
-
-    expect(flag_a.iid).to eq(2)
-    expect(flag_b.iid).to eq(3)
-  end
-
   it 'does not change the iid for a flag created post deploy but before the migration runs' do
     project = setup
     flag = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'test_flag')
@@ -153,7 +101,45 @@ describe BackfillOperationsFeatureFlagsIid, :migration do
     expect(flag_d.reload.iid).to eq(1)
   end
 
-  it 'successfully creates a new flag after the migration when a flag is created before the migration' do
+  it 'generates iids properly for feature flags created after the migration' do
+    project = setup
+
+    disable_migrations_output { migrate! }
+
+    flag = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'other_flag')
+
+    expect(flag.iid).to eq(1)
+  end
+
+  it 'generates iids properly for feature flags created after the migration when flags are backfilled' do
+    project = setup
+    flag_a = flags.create!(project_id: project.id, active: true, name: 'test_flag')
+
+    disable_migrations_output { migrate! }
+
+    flag_b = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'other_flag')
+
+    expect(flag_a.reload.iid).to eq(1)
+    expect(flag_b.iid).to eq(2)
+  end
+
+  it 'generates iids properly for flags created after the migration across multiple projects' do
+    project_a = setup
+    project_b = setup
+    flags.create!(project_id: project_a.id, active: true, name: 'first_flag')
+    flags.create!(project_id: project_b.id, active: true, name: 'flag')
+    flags.create!(project_id: project_b.id, active: true, name: 'another_flag')
+
+    disable_migrations_output { migrate! }
+
+    flag_a = Operations::FeatureFlag.create!(project_id: project_a.id, active: true, name: 'second_flag')
+    flag_b = Operations::FeatureFlag.create!(project_id: project_b.id, active: true, name: 'last_flag')
+
+    expect(flag_a.iid).to eq(2)
+    expect(flag_b.iid).to eq(3)
+  end
+
+  it 'generates iids properly for feature flags created after the migration when a flag is created post deploy but before the migration' do
     project = setup
     flag_a = flags.create!(project_id: project.id, active: true, name: 'flag_a')
     flag_b = flags.create!(project_id: project.id, active: true, name: 'flag_b')
@@ -171,7 +157,7 @@ describe BackfillOperationsFeatureFlagsIid, :migration do
     expect(flag_e.iid).to eq(5)
   end
 
-  it 'successfully creates a flag after the migration when a record with an iid and a record without an iid are inserted before the migration' do
+  it 'generates iids properly for a flag after the migration when a record with an iid and a record without an iid are inserted before the migration' do
     project = setup
     flag_a = flags.create!(project_id: project.id, active: true, name: 'flag_a')
     flag_b = flags.create!(project_id: project.id, active: true, name: 'flag_b')
