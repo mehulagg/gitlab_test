@@ -27,7 +27,7 @@ class BackfillOperationsFeatureFlagsIid < ActiveRecord::Migration[5.2]
     execute(sql)
 
     delete_internal_ids_sql = <<-END
-      DELETE FROM internal_ids WHERE usage = 6
+      DELETE FROM internal_ids WHERE project_id IN (SELECT DISTINCT(project_id) FROM operations_feature_flags) AND usage = 6
     END
 
     execute(delete_internal_ids_sql)
