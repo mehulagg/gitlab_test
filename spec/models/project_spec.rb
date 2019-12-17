@@ -1716,7 +1716,7 @@ describe Project do
       expect(described_class.search(project.path.upcase)).to eq([project])
     end
 
-    context 'by full path' do
+    context 'when include_namespace is true' do
       let_it_be(:group) { create(:group) }
       let_it_be(:project) { create(:project, group: group) }
 
@@ -1726,11 +1726,11 @@ describe Project do
         end
 
         it 'returns projects that match the group path' do
-          expect(described_class.search(group.path)).to eq([project])
+          expect(described_class.search(group.path, include_namespace: true)).to eq([project])
         end
 
         it 'returns projects that match the full path' do
-          expect(described_class.search(project.full_path)).to eq([project])
+          expect(described_class.search(project.full_path, include_namespace: true)).to eq([project])
         end
       end
 
@@ -1740,11 +1740,11 @@ describe Project do
         end
 
         it 'returns no results when searching by group path' do
-          expect(described_class.search(group.path)).to be_empty
+          expect(described_class.search(group.path, include_namespace: true)).to be_empty
         end
 
         it 'returns no results when searching by full path' do
-          expect(described_class.search(project.full_path)).to be_empty
+          expect(described_class.search(project.full_path, include_namespace: true)).to be_empty
         end
       end
     end
