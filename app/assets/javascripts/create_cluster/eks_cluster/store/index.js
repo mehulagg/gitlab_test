@@ -6,17 +6,12 @@ import state from './state';
 
 import clusterDropdownStore from './cluster_dropdown';
 
-import {
-  fetchRoles,
-  fetchRegions,
-  fetchKeyPairs,
-  fetchVpcs,
-  fetchSubnets,
-  fetchSecurityGroups,
-} from '../services/aws_services_facade';
+import awsServicesFactory from '../services/aws_services_facade';
 
-const createStore = ({ initialState }) =>
-  new Vuex.Store({
+const createStore = ({ initialState, apiPaths }) => {
+  const awsServices = awsServicesFactory(apiPaths);
+
+  return new Vuex.Store({
     actions,
     getters,
     mutations,
@@ -24,33 +19,34 @@ const createStore = ({ initialState }) =>
     modules: {
       roles: {
         namespaced: true,
-        ...clusterDropdownStore({ fetchFn: fetchRoles }),
+        ...clusterDropdownStore(awsServices.fetchRoles),
       },
       regions: {
         namespaced: true,
-        ...clusterDropdownStore({ fetchFn: fetchRegions }),
+        ...clusterDropdownStore(awsServices.fetchRegions),
       },
       keyPairs: {
         namespaced: true,
-        ...clusterDropdownStore({ fetchFn: fetchKeyPairs }),
+        ...clusterDropdownStore(awsServices.fetchKeyPairs),
       },
       vpcs: {
         namespaced: true,
-        ...clusterDropdownStore({ fetchFn: fetchVpcs }),
+        ...clusterDropdownStore(awsServices.fetchVpcs),
       },
       subnets: {
         namespaced: true,
-        ...clusterDropdownStore({ fetchFn: fetchSubnets }),
+        ...clusterDropdownStore(awsServices.fetchSubnets),
       },
       securityGroups: {
         namespaced: true,
-        ...clusterDropdownStore({ fetchFn: fetchSecurityGroups }),
+        ...clusterDropdownStore(awsServices.fetchSecurityGroups),
       },
       instanceTypes: {
         namespaced: true,
-        ...clusterDropdownStore({ initialState: { items: initialState.instanceTypes } }),
+        ...clusterDropdownStore(awsServices.fetchInstanceTypes),
       },
     },
   });
+};
 
 export default createStore;

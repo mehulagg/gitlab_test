@@ -28,7 +28,7 @@ export default {
   },
   data() {
     return {
-      roleArn: this.$store.state.roleArn,
+      roleArn: '',
     };
   },
   computed: {

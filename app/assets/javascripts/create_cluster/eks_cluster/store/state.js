@@ -12,8 +12,6 @@ export default () => ({
   accountId: '',
   externalId: '',
 
-  roleArn: '',
-
   clusterName: '',
   environmentScope: '*',
   kubernetesVersion,

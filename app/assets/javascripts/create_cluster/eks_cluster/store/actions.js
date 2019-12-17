@@ -1,8 +1,6 @@
 import * as types from './mutation_types';
-import { setAWSConfig } from '../services/aws_services_facade';
 import axios from '~/lib/utils/axios_utils';
 import createFlash from '~/flash';
-import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 
 const getErrorMessage = data => {
   const errorKey = Object.keys(data)[0];
@@ -30,7 +28,7 @@ export const createRole = ({ dispatch, state: { createRolePath } }, payload) => 
       role_arn: payload.roleArn,
       role_external_id: payload.externalId,
     })
-    .then(({ data }) => dispatch('createRoleSuccess', convertObjectPropsToCamelCase(data)))
+    .then(() => dispatch('createRoleSuccess'))
     .catch(error => dispatch('createRoleError', { error }));
 };
 
@@ -38,8 +36,7 @@ export const requestCreateRole = ({ commit }) => {
   commit(types.REQUEST_CREATE_ROLE);
 };
 
-export const createRoleSuccess = ({ commit }, awsCredentials) => {
-  setAWSConfig({ awsCredentials });
+export const createRoleSuccess = ({ commit }) => {
   commit(types.CREATE_ROLE_SUCCESS);
 };
 
@@ -120,3 +117,9 @@ export const setInstanceType = ({ commit }, payload) => {
 export const setNodeCount = ({ commit }, payload) => {
   commit(types.SET_NODE_COUNT, payload);
 };
+
+export const signOut = ({ commit, state: { signOutPath } }) =>
+  axios
+    .delete(signOutPath)
+    .then(() => commit(types.SIGN_OUT))
+    .catch(({ response: { data } }) => createFlash(getErrorMessage(data)));

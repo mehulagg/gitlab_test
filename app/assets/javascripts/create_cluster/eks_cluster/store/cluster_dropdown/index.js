@@ -3,11 +3,11 @@ import actions from './actions';
 import mutations from './mutations';
 import state from './state';
 
-const createStore = ({ fetchFn, initialState }) => ({
+const createStore = fetchFn => ({
   actions: actions(fetchFn),
   getters,
   mutations,
-  state: Object.assign(state(), initialState || {}),
+  state: state(),
 });
 
 export default createStore;
