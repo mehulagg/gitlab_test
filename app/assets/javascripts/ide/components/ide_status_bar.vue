@@ -6,13 +6,13 @@ import icon from '~/vue_shared/components/icon.vue';
 import tooltip from '~/vue_shared/directives/tooltip';
 import timeAgoMixin from '~/vue_shared/mixins/timeago';
 import CiIcon from '../../vue_shared/components/ci_icon.vue';
-import userAvatarImage from '../../vue_shared/components/user_avatar/user_avatar_image.vue';
 import { rightSidebarViews } from '../constants';
+import { GlAvatar } from '@gitlab/ui';
 
 export default {
   components: {
     icon,
-    userAvatarImage,
+    GlAvatar,
     CiIcon,
     IdeStatusList,
   },
@@ -115,12 +115,11 @@ export default {
         >{{ lastCommit.short_id }}</a
       >
       by
-      <user-avatar-image
-        css-classes="ide-status-avatar"
+      <gl-avatar
+        class="ide-status-avatar"
         :size="18"
-        :img-src="userAvatar"
-        :img-alt="lastCommit.author_name"
-        :tooltip-text="lastCommit.author_name"
+        :src="userAvatar"
+        :alt="lastCommit.author_name"
       />
       {{ lastCommit.author_name }}
       <time
