@@ -514,6 +514,9 @@ Gitlab.ee do
   Settings.cron_jobs['ldap_sync_worker'] ||= Settingslogic.new({})
   Settings.cron_jobs['ldap_sync_worker']['cron'] ||= '30 1 * * *'
   Settings.cron_jobs['ldap_sync_worker']['job_class'] = 'LdapSyncWorker'
+  Settings.cron_jobs['operations_feature_flags_iid_backfill_worker'] ||= Settingslogic.new({})
+  Settings.cron_jobs['operations_feature_flags_iid_backfill_worker']['cron'] ||= '*/5 * * * *'
+  Settings.cron_jobs['operations_feature_flags_iid_backfill_worker']['job_class'] ||= 'OperationsFeatureFlagsIidBackfillWorker'
   Settings.cron_jobs['pseudonymizer_worker'] ||= Settingslogic.new({})
   Settings.cron_jobs['pseudonymizer_worker']['cron'] ||= '0 23 * * *'
   Settings.cron_jobs['pseudonymizer_worker']['job_class'] ||= 'PseudonymizerWorker'

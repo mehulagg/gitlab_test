@@ -4,6 +4,8 @@ class OperationsFeatureFlagsIidBackfillWorker
   include ApplicationWorker
   include CronjobQueue
 
+  feature_category :operations_feature_flags
+
   # rubocop: disable CodeReuse/ActiveRecord
   def perform
     Operations::FeatureFlag.where(iid: nil).find_each do |flag|
