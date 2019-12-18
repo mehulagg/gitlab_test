@@ -72,9 +72,10 @@ export default {
         return defaultAvatarUrl;
 
       // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
-      if (this.imgSrc.startsWith('data:') && !this.imgSrc.includes('?')) return this.imgSrc;
+      if (!this.imgSrc.startsWith('data:') && !this.imgSrc.includes('?'))
+        return `${this.imgSrc}?width=${this.size}`;
 
-      return `${this.imgSrc}?width=${this.size}`;
+      return this.imgSrc;
     },
     resultantSrcAttribute() {
       return this.lazy ? placeholderImage : this.sanitizedSource;
