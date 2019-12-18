@@ -20053,9 +20053,6 @@ msgstr ""
 msgid "View open merge request"
 msgstr ""
 
-msgid "View previous app"
-msgstr ""
-
 msgid "View project labels"
 msgstr ""
 

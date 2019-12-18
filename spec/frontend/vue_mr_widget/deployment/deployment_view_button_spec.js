@@ -45,8 +45,8 @@ describe('Deployment View App button', () => {
         });
       });
 
-      it('shows View Previous app', () => {
-        expect(wrapper.find(ReviewAppLink).text()).toContain('View previous app');
+      it('shows View app', () => {
+        expect(wrapper.find(ReviewAppLink).text()).toContain('View app');
       });
     });
   });
