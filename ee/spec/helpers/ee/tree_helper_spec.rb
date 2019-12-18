@@ -6,7 +6,7 @@ describe TreeHelper do
   let(:project) { create(:project, :repository) }
 
   describe '#tree_content_data' do
-    let(:logs_path) { "#{project.full_path}/refs/master/logs_tree/" }
+    let(:logs_path) { "#{project.full_path}/-/refs/master/logs_tree/" }
     let(:path) { '.gitlab/template_test' }
 
     context 'when file locks is available' do

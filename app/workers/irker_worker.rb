@@ -124,7 +124,7 @@ class IrkerWorker
   def compare_url(data, repo_path)
     sha1 = Commit.truncate_sha(data['before'])
     sha2 = Commit.truncate_sha(data['after'])
-    compare_url = "#{Gitlab.config.gitlab.url}/#{repo_path}/compare" \
+    compare_url = "#{Gitlab.config.gitlab.url}/#{repo_path}/-/compare" \
                   "/#{sha1}...#{sha2}"
     colorize_url compare_url
   end

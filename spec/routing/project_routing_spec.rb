@@ -128,6 +128,10 @@ describe 'project routing' do
     it 'to #resolve' do
       expect(get('/projects/1')).to route_to('projects#resolve', id: '1')
     end
+
+    it 'to #refs' do
+      expect(get('/gitlab/gitlabhq/refs')).to route_to('projects#refs', namespace_id: 'gitlab', id: 'gitlabhq')
+    end
   end
 
   # members_namespace_project_autocomplete_sources_path        GET /:project_id/autocomplete_sources/members(.:format)        projects/autocomplete_sources#members
@@ -190,24 +194,26 @@ describe 'project routing' do
     end
 
     it 'to #archive_alternative' do
-      expect(get('/gitlab/gitlabhq/repository/archive')).to route_to('projects/repositories#archive', namespace_id: 'gitlab', project_id: 'gitlabhq', append_sha: true)
+      expect(get('/gitlab/gitlabhq/-/repository/archive')).to route_to('projects/repositories#archive', namespace_id: 'gitlab', project_id: 'gitlabhq', append_sha: true)
     end
 
     it 'to #archive_deprecated' do
-      expect(get('/gitlab/gitlabhq/repository/master/archive')).to route_to('projects/repositories#archive', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'master', append_sha: true)
+      expect(get('/gitlab/gitlabhq/-/repository/master/archive')).to route_to('projects/repositories#archive', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'master', append_sha: true)
     end
 
     it 'to #archive_deprecated format:zip' do
-      expect(get('/gitlab/gitlabhq/repository/master/archive.zip')).to route_to('projects/repositories#archive', namespace_id: 'gitlab', project_id: 'gitlabhq', format: 'zip', id: 'master', append_sha: true)
+      expect(get('/gitlab/gitlabhq/-/repository/master/archive.zip')).to route_to('projects/repositories#archive', namespace_id: 'gitlab', project_id: 'gitlabhq', format: 'zip', id: 'master', append_sha: true)
     end
 
     it 'to #archive_deprecated format:tar.bz2' do
-      expect(get('/gitlab/gitlabhq/repository/master/archive.tar.bz2')).to route_to('projects/repositories#archive', namespace_id: 'gitlab', project_id: 'gitlabhq', format: 'tar.bz2', id: 'master', append_sha: true)
+      expect(get('/gitlab/gitlabhq/-/repository/master/archive.tar.bz2')).to route_to('projects/repositories#archive', namespace_id: 'gitlab', project_id: 'gitlabhq', format: 'tar.bz2', id: 'master', append_sha: true)
     end
 
     it 'to #archive_deprecated with "/" in route' do
-      expect(get('/gitlab/gitlabhq/repository/improve/awesome/archive')).to route_to('projects/repositories#archive', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'improve/awesome', append_sha: true)
+      expect(get('/gitlab/gitlabhq/-/repository/improve/awesome/archive')).to route_to('projects/repositories#archive', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'improve/awesome', append_sha: true)
     end
+
+    it_behaves_like 'redirecting a legacy project path', "/gitlab/gitlabhq/repository/archive", "/gitlab/gitlabhq/-/repository/archive"
   end
 
   describe Projects::BranchesController, 'routing' do
@@ -269,20 +275,20 @@ describe 'project routing' do
   #  logs_file_project_ref GET    /:project_id/refs/:id/logs_tree/:path(.:format) refs#logs_tree
   describe Projects::RefsController, 'routing' do
     it 'to #switch' do
-      expect(get('/gitlab/gitlabhq/refs/switch')).to route_to('projects/refs#switch', namespace_id: 'gitlab', project_id: 'gitlabhq')
+      expect(get('/gitlab/gitlabhq/-/refs/switch')).to route_to('projects/refs#switch', namespace_id: 'gitlab', project_id: 'gitlabhq')
     end
 
     it 'to #logs_tree' do
-      expect(get('/gitlab/gitlabhq/refs/stable/logs_tree')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'stable')
-      expect(get('/gitlab/gitlabhq/refs/feature%2345/logs_tree')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'feature#45')
-      expect(get('/gitlab/gitlabhq/refs/feature%2B45/logs_tree')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'feature+45')
-      expect(get('/gitlab/gitlabhq/refs/feature@45/logs_tree')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'feature@45')
-      expect(get('/gitlab/gitlabhq/refs/stable/logs_tree/foo/bar/baz')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'stable', path: 'foo/bar/baz')
-      expect(get('/gitlab/gitlabhq/refs/feature%2345/logs_tree/foo/bar/baz')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'feature#45', path: 'foo/bar/baz')
-      expect(get('/gitlab/gitlabhq/refs/feature%2B45/logs_tree/foo/bar/baz')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'feature+45', path: 'foo/bar/baz')
-      expect(get('/gitlab/gitlabhq/refs/feature@45/logs_tree/foo/bar/baz')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'feature@45', path: 'foo/bar/baz')
-      expect(get('/gitlab/gitlabhq/refs/stable/logs_tree/files.scss')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'stable', path: 'files.scss')
-      assert_routing({ path: "/gitlab/gitlabhq/refs/stable/logs_tree/new%0A%0Aline.txt",
+      expect(get('/gitlab/gitlabhq/-/refs/stable/logs_tree')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'stable')
+      expect(get('/gitlab/gitlabhq/-/refs/feature%2345/logs_tree')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'feature#45')
+      expect(get('/gitlab/gitlabhq/-/refs/feature%2B45/logs_tree')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'feature+45')
+      expect(get('/gitlab/gitlabhq/-/refs/feature@45/logs_tree')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'feature@45')
+      expect(get('/gitlab/gitlabhq/-/refs/stable/logs_tree/foo/bar/baz')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'stable', path: 'foo/bar/baz')
+      expect(get('/gitlab/gitlabhq/-/refs/feature%2345/logs_tree/foo/bar/baz')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'feature#45', path: 'foo/bar/baz')
+      expect(get('/gitlab/gitlabhq/-/refs/feature%2B45/logs_tree/foo/bar/baz')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'feature+45', path: 'foo/bar/baz')
+      expect(get('/gitlab/gitlabhq/-/refs/feature@45/logs_tree/foo/bar/baz')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'feature@45', path: 'foo/bar/baz')
+      expect(get('/gitlab/gitlabhq/-/refs/stable/logs_tree/files.scss')).to route_to('projects/refs#logs_tree', namespace_id: 'gitlab', project_id: 'gitlabhq', id: 'stable', path: 'files.scss')
+      assert_routing({ path: "/gitlab/gitlabhq/-/refs/stable/logs_tree/new%0A%0Aline.txt",
                        method: :get },
                      { controller: 'projects/refs', action: 'logs_tree',
                        namespace_id: 'gitlab', project_id: 'gitlabhq',
@@ -686,17 +692,19 @@ describe 'project routing' do
   #       project_compare        /:project_id/compare/:from...:to(.:format) compare#show {from: /.+/, to: /.+/, id: /[^\/]+/, project_id: /[^\/]+/}
   describe Projects::CompareController, 'routing' do
     it 'to #index' do
-      expect(get('/gitlab/gitlabhq/compare')).to route_to('projects/compare#index', namespace_id: 'gitlab', project_id: 'gitlabhq')
+      expect(get('/gitlab/gitlabhq/-/compare')).to route_to('projects/compare#index', namespace_id: 'gitlab', project_id: 'gitlabhq')
     end
 
     it 'to #compare' do
-      expect(post('/gitlab/gitlabhq/compare')).to route_to('projects/compare#create', namespace_id: 'gitlab', project_id: 'gitlabhq')
+      expect(post('/gitlab/gitlabhq/-/compare')).to route_to('projects/compare#create', namespace_id: 'gitlab', project_id: 'gitlabhq')
     end
 
     it 'to #show' do
-      expect(get('/gitlab/gitlabhq/compare/master...stable')).to     route_to('projects/compare#show', namespace_id: 'gitlab', project_id: 'gitlabhq', from: 'master', to: 'stable')
-      expect(get('/gitlab/gitlabhq/compare/issue/1234...stable')).to route_to('projects/compare#show', namespace_id: 'gitlab', project_id: 'gitlabhq', from: 'issue/1234', to: 'stable')
+      expect(get('/gitlab/gitlabhq/-/compare/master...stable')).to     route_to('projects/compare#show', namespace_id: 'gitlab', project_id: 'gitlabhq', from: 'master', to: 'stable')
+      expect(get('/gitlab/gitlabhq/-/compare/issue/1234...stable')).to route_to('projects/compare#show', namespace_id: 'gitlab', project_id: 'gitlabhq', from: 'issue/1234', to: 'stable')
     end
+
+    it_behaves_like 'redirecting a legacy project path', '/gitlab/gitlabhq/compare/master...stable', '/gitlab/gitlabhq/-/compare/master...stable'
   end
 
   describe Projects::NetworkController, 'routing' do

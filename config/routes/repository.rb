@@ -39,7 +39,7 @@ scope format: false do
     end
   end
 
-  scope path: '-', constraints: { id: Gitlab::PathRegex.git_reference_regex } do
+  scope constraints: { id: Gitlab::PathRegex.git_reference_regex } do
     resources :network, only: [:show]
 
     resources :graphs, only: [:show] do
@@ -65,7 +65,7 @@ scope format: false do
     resources :protected_tags, only: [:index, :show, :create, :update, :destroy]
   end
 
-  scope path: '-', constraints: { id: /[^\0]+/ } do
+  scope constraints: { id: /[^\0]+/ } do
     scope controller: :blob do
       get '/new/*id', action: :new, as: :new_blob
       post '/create/*id', action: :create, as: :create_blob

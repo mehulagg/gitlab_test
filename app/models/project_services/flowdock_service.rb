@@ -37,7 +37,7 @@ class FlowdockService < Service
       repo: project.repository,
       repo_url: "#{Gitlab.config.gitlab.url}/#{project.full_path}",
       commit_url: "#{Gitlab.config.gitlab.url}/#{project.full_path}/commit/%s",
-      diff_url: "#{Gitlab.config.gitlab.url}/#{project.full_path}/compare/%s...%s"
+      diff_url: "#{Gitlab.config.gitlab.url}/#{project.full_path}/-/compare/%s...%s"
     )
   end
 end

@@ -91,7 +91,7 @@ module ChatMessage
     end
 
     def compare_url
-      "#{project_url}/compare/#{before}...#{after}"
+      "#{project_url}/-/compare/#{before}...#{after}"
     end
 
     def ref_link

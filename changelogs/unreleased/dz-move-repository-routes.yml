@@ -1,0 +1,5 @@
+---
+title: Move all repository routes under - scope
+merge_request: 21998
+author:
+type: deprecated

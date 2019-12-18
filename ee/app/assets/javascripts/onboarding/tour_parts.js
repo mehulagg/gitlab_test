@@ -148,7 +148,7 @@ const GUIDED_GITLAB_TOUR = [
   },
   {
     forUrl: ({ projectFullPath }) =>
-      new RegExp(`${projectFullPath}/compare/master\\.\\.\\..+$`, ''),
+      new RegExp(`${projectFullPath}/-/compare/master\\.\\.\\..+$`, ''),
     getHelpContent: () => [
       {
         text: s__(

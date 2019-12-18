@@ -123,7 +123,7 @@ class HipchatService < Service
       message << "pushed to #{ref_type} <a href=\""\
                   "#{project.web_url}/commits/#{CGI.escape(ref)}\">#{ref}</a> "
       message << "of <a href=\"#{project.web_url}\">#{project.full_name.gsub!(/\s/, '')}</a> "
-      message << "(<a href=\"#{project.web_url}/compare/#{before}...#{after}\">Compare changes</a>)"
+      message << "(<a href=\"#{project.web_url}/-/compare/#{before}...#{after}\">Compare changes</a>)"
 
       push[:commits].take(MAX_COMMITS).each do |commit|
         message << "<br /> - #{render_line(commit[:message])} (<a href=\"#{commit[:url]}\">#{commit[:id][0..5]}</a>)"

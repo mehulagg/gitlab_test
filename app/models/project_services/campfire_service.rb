@@ -94,7 +94,7 @@ class CampfireService < Service
       message << "removed branch #{ref} \n"
     else
       message << "pushed #{push[:total_commits_count]} commits to #{ref}. "
-      message << "#{project.web_url}/compare/#{before}...#{after}"
+      message << "#{project.web_url}/-/compare/#{before}...#{after}"
     end
 
     message.join
