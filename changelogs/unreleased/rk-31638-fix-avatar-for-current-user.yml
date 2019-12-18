@@ -1,5 +1,5 @@
 ---
 title: Fixing Avatar in WebIDE Statusbar showing wrong Avatar for current_user
 merge_request: 21757
-author: Roman Kuba
+author:
 type: fixed
