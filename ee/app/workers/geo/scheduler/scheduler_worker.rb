@@ -4,17 +4,16 @@ module Geo
   module Scheduler
     class SchedulerWorker
       include ApplicationWorker
+      prepend Reenqueuer
       include GeoQueue
-      include ExclusiveLeaseGuard
       include ::Gitlab::Geo::LogHelpers
       include ::Gitlab::Utils::StrongMemoize
       include GeoBackoffDelay
 
       DB_RETRIEVE_BATCH_SIZE = 1000
-      LEASE_TIMEOUT = 60.minutes
-      RUN_TIME = 60.minutes.to_i
+      LEASE_TIMEOUT = 10.minutes
 
-      attr_reader :pending_resources, :scheduled_jobs, :start_time, :loops
+      attr_reader :pending_resources, :scheduled_jobs
 
       def initialize
         @pending_resources = []
@@ -25,53 +24,36 @@ module Geo
       #
       # 1. Load a batch of IDs that we need to schedule (DB_RETRIEVE_BATCH_SIZE) into a pending list.
       # 2. Schedule them so that at most `max_capacity` are running at once.
-      # 3. When a slot frees, schedule another job.
-      # 4. When we have drained the pending list, load another batch into memory, and schedule the
-      #    remaining jobs, excluding ones in progress.
-      # 5. Quit when we have scheduled all jobs or exceeded MAX_RUNTIME.
       def perform
-        @start_time = Time.now.utc
-        @loops = 0
+        log_info('Started scheduler')
 
-        # Prevent multiple Sidekiq workers from attempting to schedule jobs
-        try_obtain_lease do
-          log_info('Started scheduler')
-          reason = :unknown
+        return quit(:node_disabled) unless node_enabled?
+        return quit(:skipped)       if should_be_skipped?
 
-          begin
-            reason = loop do
-              break :node_disabled unless node_enabled?
-              break :skipped       if should_be_skipped?
+        update_jobs_in_progress # set scheduled_jobs
+        update_pending_resources
+        schedule_jobs
 
-              update_jobs_in_progress
-              update_pending_resources
+        return quit(:no_more_work)  if no_more_work?
 
-              break :over_time if over_time?
-              break :complete unless resources_remain?
+        true
+      rescue => err
+        log_error(err.message)
 
-              # If we're still under the limit after refreshing from the DB, we
-              # can end after scheduling the remaining transfers.
-              last_batch = reload_queue?
-              schedule_jobs
-              @loops += 1
-
-              break :last_batch if last_batch
-              break :lease_lost unless renew_lease!
-
-              sleep(1)
-            end
-          rescue => err
-            reason = :error
-            log_error(err.message)
-            raise err
-          ensure
-            duration = Time.now.utc - start_time
-            log_info('Finished scheduler', total_loops: loops, duration: duration, reason: reason)
-          end
-        end
+        raise err
       end
 
       private
+
+      def quit(reason = :unknown)
+        log_info("Quitting", reason: reason)
+
+        false
+      end
+
+      def no_more_work?
+        pending_resources.empty? && scheduled_jobs.empty?
+      end
 
       # Subclasses should override this method to provide additional metadata
       # in log messages
@@ -93,22 +75,6 @@ module Geo
 
       def max_capacity
         raise NotImplementedError
-      end
-
-      def run_time
-        RUN_TIME
-      end
-
-      def reload_queue?
-        pending_resources.size < max_capacity
-      end
-
-      def resources_remain?
-        !pending_resources.empty?
-      end
-
-      def over_time?
-        (Time.now.utc - start_time) >= run_time
       end
 
       def should_apply_backoff?
@@ -169,10 +135,8 @@ module Geo
       end
 
       def update_pending_resources
-        if reload_queue?
-          @pending_resources = load_pending_resources
-          set_backoff_time! if should_apply_backoff?
-        end
+        @pending_resources = load_pending_resources
+        set_backoff_time! if should_apply_backoff?
       end
 
       def schedule_jobs
@@ -184,7 +148,7 @@ module Geo
         scheduled = to_schedule.map { |args| schedule_job(*args) }.compact
         scheduled_jobs.concat(scheduled)
 
-        log_info("Loop #{loops}", enqueued: scheduled.length, pending: pending_resources.length, scheduled: scheduled_jobs.length, capacity: capacity)
+        log_info("#schedule_jobs finished", enqueued: scheduled.length, pending: pending_resources.length, scheduled: scheduled_jobs.length, capacity: capacity)
       end
 
       def scheduled_job_ids
