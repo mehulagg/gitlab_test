@@ -1,19 +1,19 @@
 <script>
 /* This is a re-usable vue component for rendering a user avatar that
-  does not need to link to the user's profile. The image and an optional
-  tooltip can be configured by props passed to this component.
+    does not need to link to the user's profile. The image and an optional
+    tooltip can be configured by props passed to this component.
 
-  Sample configuration:
+    Sample configuration:
 
-  <user-avatar-image
-    :lazy="true"
-    :img-src="userAvatarSrc"
-    :img-alt="tooltipText"
-    :tooltip-text="tooltipText"
-    tooltip-placement="top"
-  />
+    <user-avatar-image
+      :lazy="true"
+      :img-src="userAvatarSrc"
+      :img-alt="tooltipText"
+      :tooltip-text="tooltipText"
+      tooltip-placement="top"
+    />
 
-*/
+  */
 
 import { GlTooltip } from '@gitlab/ui';
 import defaultAvatarUrl from 'images/no_avatar.png';
@@ -72,10 +72,9 @@ export default {
         return defaultAvatarUrl;
 
       // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
-      if (this.imgSrc.startsWith('data:') && !this.imgSrc.includes('?'))
-        return `${this.imgSrc}?width=${this.size}`;
+      if (this.imgSrc.startsWith('data:') && !this.imgSrc.includes('?')) return this.imgSrc;
 
-      return this.imgSrc;
+      return `${this.imgSrc}?width=${this.size}`;
     },
     resultantSrcAttribute() {
       return this.lazy ? placeholderImage : this.sanitizedSource;
