@@ -53,8 +53,10 @@ module QA
         Page::Search::Results.perform do |results|
           results.switch_to_projects
 
-          expect(results).to have_content("Advanced search functionality is enabled")
-          expect(results).to have_project(@project.name)
+          results.retry_on_exception(reload: true, sleep_interval: 10) do
+            expect(results).to have_content("Advanced search functionality is enabled")
+            expect(results).to have_project(@project.name)
+          end
         end
       end
     end
