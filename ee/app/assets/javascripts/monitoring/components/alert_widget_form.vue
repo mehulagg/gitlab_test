@@ -84,6 +84,10 @@ export default {
       prometheusMetricId: null,
       selectedAlert: {},
       alertQuery: '',
+      modalPrimary: {
+        text: this.submitActionText,
+        attributes: [{ variant: this.submitVariant }, this.setPrimaryActionDisabled()],
+      },
     };
   },
   computed: {
@@ -120,6 +124,9 @@ export default {
     },
     submitActionText() {
       return SUBMIT_ACTION_TEXT[this.submitAction];
+    },
+    submitVariant() {
+      return submitAction === 'delete' ? 'danger' : 'success';
     },
     submitButtonClass() {
       return SUBMIT_BUTTON_CLASS[this.submitAction];
@@ -177,6 +184,9 @@ export default {
       this.prometheusMetricId = null;
       this.selectedAlert = {};
     },
+    setPrimaryActionDisabled() {
+      return this.formDisabled ? { disabled: true } : null;
+    },
   },
   alertQueryText: {
     label: __('Query'),
@@ -194,9 +204,7 @@ export default {
     ref="alertModal"
     :title="dropdownTitle"
     :modal-id="modalId"
-    :ok-variant="submitAction === 'delete' ? 'danger' : 'success'"
-    :ok-title="submitActionText"
-    :ok-disabled="formDisabled"
+    :modal-action-primary="modalPrimary"
     @ok="handleSubmit"
     @hidden="handleHidden"
   >

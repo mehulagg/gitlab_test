@@ -53,6 +53,14 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      modalPrimary: {
+        text: this.$options.addProjectsModalSubmit,
+        attributes: [this.setPrimaryActionDisabled()],
+      },
+    };
+  },
   computed: {
     ...mapState([
       'projects',
@@ -107,6 +115,9 @@ export default {
     projectClicked(project) {
       this.toggleSelectedProject(project);
     },
+    setPrimaryActionDisabled() {
+      return this.okDisabled ? { disabled: true } : null;
+    },
   },
 };
 </script>
@@ -116,9 +127,7 @@ export default {
     <gl-modal
       :modal-id="$options.modalId"
       :title="$options.addProjectsModalHeader"
-      :ok-title="$options.addProjectsModalSubmit"
-      :ok-disabled="okDisabled"
-      ok-variant="success"
+      :modal-action-primary="modalPrimary"
       @hidden="onModalHidden"
       @ok="onOk"
     >

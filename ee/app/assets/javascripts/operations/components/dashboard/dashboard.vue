@@ -37,6 +37,14 @@ export default {
     },
   },
   modalId: 'add-projects-modal',
+  data() {
+    return {
+      modalPrimary: {
+        text: s__('OperationsDashboard|Add projects'),
+        attributes: [this.setPrimaryActionDisabled()],
+      },
+    };
+  },
   computed: {
     ...mapState([
       'isLoadingProjects',
@@ -98,6 +106,9 @@ export default {
     projectClicked(project) {
       this.toggleSelectedProject(project);
     },
+    setPrimaryActionDisabled() {
+      return this.okDisabled ? { disabled: true } : null;
+    },
   },
 };
 </script>
@@ -107,9 +118,7 @@ export default {
     <gl-modal
       :modal-id="$options.modalId"
       :title="s__('OperationsDashboard|Add projects')"
-      :ok-title="s__('OperationsDashboard|Add projects')"
-      :ok-disabled="okDisabled"
-      ok-variant="success"
+      :modal-action-primary="modalPrimary"
       @cancel="onCancel"
       @ok="onOk"
     >
