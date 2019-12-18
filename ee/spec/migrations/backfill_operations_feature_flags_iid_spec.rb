@@ -63,44 +63,6 @@ describe BackfillOperationsFeatureFlagsIid, :migration do
     expect(flag_b.iid).to eq(1)
   end
 
-  it 'does not change the iid for a flag created post deploy but before the migration runs' do
-    project = setup
-    flag = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'test_flag')
-
-    disable_migrations_output { migrate! }
-
-    expect(flag.reload.iid).to eq(1)
-  end
-
-  it 'backfills when a flag is created post deploy but before the migration runs with other flags already in the database' do
-    project = setup
-    flag_a = flags.create!(project_id: project.id, active: true, name: 'flag_a')
-    flag_b = flags.create!(project_id: project.id, active: true, name: 'flag_b')
-    flag_c = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_c')
-
-    disable_migrations_output { migrate! }
-
-    expect(flag_a.reload.iid).to eq(2)
-    expect(flag_b.reload.iid).to eq(3)
-    expect(flag_c.reload.iid).to eq(1)
-  end
-
-  it 'backfills when flags are created post deploy but before the migration runs across multiple projects' do
-    project_a = setup
-    project_b = setup
-    flag_a = flags.create!(project_id: project_a.id, active: true, name: 'flag_a')
-    flag_b = flags.create!(project_id: project_b.id, active: true, name: 'flag_b')
-    flag_c = Operations::FeatureFlag.create!(project_id: project_a.id, active: true, name: 'flag_c')
-    flag_d = Operations::FeatureFlag.create!(project_id: project_b.id, active: true, name: 'flag_d')
-
-    disable_migrations_output { migrate! }
-
-    expect(flag_a.reload.iid).to eq(2)
-    expect(flag_b.reload.iid).to eq(2)
-    expect(flag_c.reload.iid).to eq(1)
-    expect(flag_d.reload.iid).to eq(1)
-  end
-
   it 'generates iids properly for feature flags created after the migration' do
     project = setup
 
@@ -139,118 +101,6 @@ describe BackfillOperationsFeatureFlagsIid, :migration do
     expect(flag_b.iid).to eq(3)
   end
 
-  it 'generates iids properly for feature flags created after the migration when a flag is created post deploy but before the migration' do
-    project = setup
-    flag_a = flags.create!(project_id: project.id, active: true, name: 'flag_a')
-    flag_b = flags.create!(project_id: project.id, active: true, name: 'flag_b')
-    flag_c = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_c')
-
-    disable_migrations_output { migrate! }
-
-    flag_d = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_d')
-    flag_e = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_e')
-
-    expect(flag_a.reload.iid).to eq(2)
-    expect(flag_b.reload.iid).to eq(3)
-    expect(flag_c.reload.iid).to eq(1)
-    expect(flag_d.iid).to eq(4)
-    expect(flag_e.iid).to eq(5)
-  end
-
-  it 'generates iids properly for a flag after the migration when a record with an iid and a record without an iid are inserted before the migration' do
-    project = setup
-    flag_a = flags.create!(project_id: project.id, active: true, name: 'flag_a')
-    flag_b = flags.create!(project_id: project.id, active: true, name: 'flag_b')
-    flag_c = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_c')
-    flag_d = flags.create!(project_id: project.id, active: true, name: 'flag_d')
-
-    disable_migrations_output { migrate! }
-
-    flag_e = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_e')
-
-    expect(flag_a.reload.iid).to eq(2)
-    expect(flag_b.reload.iid).to eq(3)
-    expect(flag_c.reload.iid).to eq(1)
-    expect(flag_d.reload.iid).to eq(4)
-    expect(flag_e.iid).to eq(5)
-  end
-
-  it 'backfills when flags are created post deploy but before the migration runs across multiple projects' do
-    project_a = setup
-    project_b = setup
-    flag_a = flags.create!(project_id: project_a.id, active: true, name: 'flag_a')
-    flag_b = flags.create!(project_id: project_b.id, active: true, name: 'flag_b')
-    flag_c = Operations::FeatureFlag.create!(project_id: project_a.id, active: true, name: 'flag_c')
-    flag_d = Operations::FeatureFlag.create!(project_id: project_b.id, active: true, name: 'flag_d')
-
-    disable_migrations_output { migrate! }
-
-    flag_e = Operations::FeatureFlag.create!(project_id: project_a.id, active: true, name: 'flag_e')
-    flag_f = Operations::FeatureFlag.create!(project_id: project_b.id, active: true, name: 'flag_f')
-    flag_g = Operations::FeatureFlag.create!(project_id: project_a.id, active: true, name: 'flag_g')
-
-    expect(flag_a.reload.iid).to eq(2)
-    expect(flag_b.reload.iid).to eq(2)
-    expect(flag_c.reload.iid).to eq(1)
-    expect(flag_d.reload.iid).to eq(1)
-    expect(flag_e.iid).to eq(3)
-    expect(flag_f.iid).to eq(3)
-    expect(flag_g.iid).to eq(4)
-  end
-
-  it 'backfills when a flag is created and deleted post deploy but before the migration runs with other flags already in the database' do
-    project = setup
-    flag_a = flags.create!(project_id: project.id, active: true, name: 'flag_a')
-    flag_b = flags.create!(project_id: project.id, active: true, name: 'flag_b')
-    flag_c = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_c')
-    flag_c.delete
-
-    expect(flags.count).to eq(2)
-
-    disable_migrations_output { migrate! }
-
-    expect(flag_a.reload.iid).to eq(1)
-    expect(flag_b.reload.iid).to eq(2)
-  end
-
-  it 'successfully creates a new flag after the migration when a flag is created and deleted before the migration' do
-    project = setup
-    flag_a = flags.create!(project_id: project.id, active: true, name: 'flag_a')
-    flag_b = flags.create!(project_id: project.id, active: true, name: 'flag_b')
-    flag_c = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_c')
-    flag_c.delete
-
-    expect(flags.count).to eq(2)
-
-    disable_migrations_output { migrate! }
-
-    flag_d = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_d')
-
-    expect(flag_a.reload.iid).to eq(1)
-    expect(flag_b.reload.iid).to eq(2)
-    expect(flag_d.iid).to eq(3)
-  end
-
-  it 'successfully creates a new flag after the migration when a flag is created and deleted and then another flag is created before the migration' do
-    project = setup
-    flag_a = flags.create!(project_id: project.id, active: true, name: 'flag_a')
-    flag_b = flags.create!(project_id: project.id, active: true, name: 'flag_b')
-    flag_c = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_c')
-    flag_c.delete
-    flag_d = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_d')
-
-    expect(flags.count).to eq(3)
-
-    disable_migrations_output { migrate! }
-
-    flag_e = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_e')
-
-    expect(flag_a.reload.iid).to eq(2)
-    expect(flag_b.reload.iid).to eq(3)
-    expect(flag_d.reload.iid).to eq(1)
-    expect(flag_e.iid).to eq(4)
-  end
-
   it 'does not change an iid for an issue' do
     project = setup
     flag = flags.create!(project_id: project.id, active: true, name: 'test_flag')
@@ -280,5 +130,220 @@ describe BackfillOperationsFeatureFlagsIid, :migration do
     expect(merge_request_b.reload.iid).to eq(2)
     expect(internal_id.reload.usage).to eq(1)
     expect(internal_id.last_value).to eq(2)
+  end
+
+  context 'when the new code creates a flag post deploy but before the migration runs' do
+    it 'does not change the flag iid' do
+      project = setup
+      flag = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'test_flag')
+
+      disable_migrations_output { migrate! }
+
+      expect(flag.reload.iid).to eq(1)
+    end
+
+    it 'backfills flags already in the database' do
+      project = setup
+      flag_a = flags.create!(project_id: project.id, active: true, name: 'flag_a')
+      flag_b = flags.create!(project_id: project.id, active: true, name: 'flag_b')
+      flag_c = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_c')
+
+      disable_migrations_output { migrate! }
+
+      expect(flag_a.reload.iid).to eq(2)
+      expect(flag_b.reload.iid).to eq(3)
+      expect(flag_c.reload.iid).to eq(1)
+    end
+
+    it 'backfills flags across multiple projects' do
+      project_a = setup
+      project_b = setup
+      flag_a = flags.create!(project_id: project_a.id, active: true, name: 'flag_a')
+      flag_b = flags.create!(project_id: project_b.id, active: true, name: 'flag_b')
+      flag_c = Operations::FeatureFlag.create!(project_id: project_a.id, active: true, name: 'flag_c')
+      flag_d = Operations::FeatureFlag.create!(project_id: project_b.id, active: true, name: 'flag_d')
+
+      disable_migrations_output { migrate! }
+
+      expect(flag_a.reload.iid).to eq(2)
+      expect(flag_b.reload.iid).to eq(2)
+      expect(flag_c.reload.iid).to eq(1)
+      expect(flag_d.reload.iid).to eq(1)
+    end
+
+    it 'generates iids properly for feature flags created after the migration' do
+      project = setup
+      flag_a = flags.create!(project_id: project.id, active: true, name: 'flag_a')
+      flag_b = flags.create!(project_id: project.id, active: true, name: 'flag_b')
+      flag_c = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_c')
+
+      disable_migrations_output { migrate! }
+
+      flag_d = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_d')
+      flag_e = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_e')
+
+      expect(flag_a.reload.iid).to eq(2)
+      expect(flag_b.reload.iid).to eq(3)
+      expect(flag_c.reload.iid).to eq(1)
+      expect(flag_d.iid).to eq(4)
+      expect(flag_e.iid).to eq(5)
+    end
+
+    it 'backfills flags and properly generates iids for new flags across multiple projects' do
+      project_a = setup
+      project_b = setup
+      flag_a = flags.create!(project_id: project_a.id, active: true, name: 'flag_a')
+      flag_b = flags.create!(project_id: project_b.id, active: true, name: 'flag_b')
+      flag_c = Operations::FeatureFlag.create!(project_id: project_a.id, active: true, name: 'flag_c')
+      flag_d = Operations::FeatureFlag.create!(project_id: project_b.id, active: true, name: 'flag_d')
+
+      disable_migrations_output { migrate! }
+
+      flag_e = Operations::FeatureFlag.create!(project_id: project_a.id, active: true, name: 'flag_e')
+      flag_f = Operations::FeatureFlag.create!(project_id: project_b.id, active: true, name: 'flag_f')
+      flag_g = Operations::FeatureFlag.create!(project_id: project_a.id, active: true, name: 'flag_g')
+
+      expect(flag_a.reload.iid).to eq(2)
+      expect(flag_b.reload.iid).to eq(2)
+      expect(flag_c.reload.iid).to eq(1)
+      expect(flag_d.reload.iid).to eq(1)
+      expect(flag_e.iid).to eq(3)
+      expect(flag_f.iid).to eq(3)
+      expect(flag_g.iid).to eq(4)
+    end
+  end
+
+  context 'when the new code creates a flag and then old code creates a flag post deploy but before the migration runs' do
+    it 'backfills flags' do
+      project = setup
+      flag_a = flags.create!(project_id: project.id, active: true, name: 'flag_a')
+      flag_b = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_c')
+      flag_c = flags.create!(project_id: project.id, active: true, name: 'flag_d')
+
+      disable_migrations_output { migrate! }
+
+      expect(flag_a.reload.iid).to eq(2)
+      expect(flag_b.reload.iid).to eq(1)
+      expect(flag_c.reload.iid).to eq(3)
+    end
+
+    it 'generates an iid for a new flag after the migration' do
+      project = setup
+      flag_a = flags.create!(project_id: project.id, active: true, name: 'flag_a')
+      flag_b = flags.create!(project_id: project.id, active: true, name: 'flag_b')
+      flag_c = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_c')
+      flag_d = flags.create!(project_id: project.id, active: true, name: 'flag_d')
+
+      disable_migrations_output { migrate! }
+
+      flag_e = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_e')
+
+      expect(flag_a.reload.iid).to eq(2)
+      expect(flag_b.reload.iid).to eq(3)
+      expect(flag_c.reload.iid).to eq(1)
+      expect(flag_d.reload.iid).to eq(4)
+      expect(flag_e.iid).to eq(5)
+    end
+  end
+
+  context 'when the new code creates and deletes a flag post deploy but before the migration runs' do
+    it 'backfills flags already in the database' do
+      project = setup
+      flag_a = flags.create!(project_id: project.id, active: true, name: 'flag_a')
+      flag_b = flags.create!(project_id: project.id, active: true, name: 'flag_b')
+      flag_c = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_c')
+      flag_c.delete
+
+      disable_migrations_output { migrate! }
+
+      expect(flag_a.reload.iid).to eq(1)
+      expect(flag_b.reload.iid).to eq(2)
+    end
+
+    it 'successfully creates a new flag after the migration' do
+      project = setup
+      flag_a = flags.create!(project_id: project.id, active: true, name: 'flag_a')
+      flag_b = flags.create!(project_id: project.id, active: true, name: 'flag_b')
+      flag_c = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_c')
+      flag_c.delete
+
+      disable_migrations_output { migrate! }
+
+      flag_d = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_d')
+
+      expect(flag_a.reload.iid).to eq(1)
+      expect(flag_b.reload.iid).to eq(2)
+      expect(flag_d.iid).to eq(3)
+    end
+  end
+
+  context 'when the new code creates and deletes a flag and old code creates a flag post deploy but before the migration runs' do
+    it 'backfills flags' do
+      project = setup
+      flag_a = flags.create!(project_id: project.id, active: true, name: 'flag_a')
+      flag_b = flags.create!(project_id: project.id, active: true, name: 'flag_b')
+      flag_c = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_c')
+      flag_c.delete
+      flag_d = flags.create!(project_id: project.id, active: true, name: 'flag_d')
+
+      disable_migrations_output { migrate! }
+
+      expect(flag_a.reload.iid).to eq(1)
+      expect(flag_b.reload.iid).to eq(2)
+      expect(flag_d.reload.iid).to eq(3)
+    end
+
+    it 'successfully creates a new flag after the migration' do
+      project = setup
+      flag_a = flags.create!(project_id: project.id, active: true, name: 'flag_a')
+      flag_b = flags.create!(project_id: project.id, active: true, name: 'flag_b')
+      flag_c = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_c')
+      flag_c.delete
+      flag_d = flags.create!(project_id: project.id, active: true, name: 'flag_d')
+
+      disable_migrations_output { migrate! }
+
+      flag_e = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_e')
+
+      expect(flag_a.reload.iid).to eq(1)
+      expect(flag_b.reload.iid).to eq(2)
+      expect(flag_d.reload.iid).to eq(3)
+      expect(flag_e.iid).to eq(4)
+    end
+  end
+
+  context 'when the new code creates and deletes a flag and then creates another flag post deploy but before the migration runs' do
+    it 'successfully generates an iid for a new flag after the migration' do
+      project = setup
+      flag_a = flags.create!(project_id: project.id, active: true, name: 'flag_a')
+      flag_b = flags.create!(project_id: project.id, active: true, name: 'flag_b')
+      flag_c = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_c')
+      flag_c.delete
+      flag_d = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_d')
+
+      disable_migrations_output { migrate! }
+
+      expect(flag_a.reload.iid).to eq(2)
+      expect(flag_b.reload.iid).to eq(3)
+      expect(flag_d.reload.iid).to eq(1)
+    end
+
+    it 'successfully generates an iid for a new flag after the migration' do
+      project = setup
+      flag_a = flags.create!(project_id: project.id, active: true, name: 'flag_a')
+      flag_b = flags.create!(project_id: project.id, active: true, name: 'flag_b')
+      flag_c = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_c')
+      flag_c.delete
+      flag_d = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_d')
+
+      disable_migrations_output { migrate! }
+
+      flag_e = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_e')
+
+      expect(flag_a.reload.iid).to eq(2)
+      expect(flag_b.reload.iid).to eq(3)
+      expect(flag_d.reload.iid).to eq(1)
+      expect(flag_e.iid).to eq(4)
+    end
   end
 end
