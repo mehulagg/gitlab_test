@@ -39,6 +39,7 @@ module Ci
     has_many :variables, class_name: 'Ci::PipelineVariable'
     has_many :deployments, through: :builds
     has_many :environments, -> { distinct }, through: :deployments
+    has_many :results, through: :builds
 
     # Merge requests for which the current pipeline is running against
     # the merge request's latest commit.

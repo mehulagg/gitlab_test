@@ -125,6 +125,7 @@ module API
     mount ::API::Issues
     mount ::API::JobArtifacts
     mount ::API::Jobs
+    mount ::API::Results
     mount ::API::Keys
     mount ::API::Labels
     mount ::API::Lint

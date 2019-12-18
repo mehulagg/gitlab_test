@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../qa'
+require_relative 'formatters/gitlab_result_formatter'
 require 'rspec/retry'
 
 if ENV['CI'] && QA::Runtime::Env.knapsack? && !ENV['NO_KNAPSACK']
@@ -68,4 +69,6 @@ RSpec.configure do |config|
       example.run_with_retry retry: retry_times
     end
   end
+
+  config.add_formatter GitlabResultFormatter
 end

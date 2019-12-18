@@ -1456,6 +1456,15 @@ module API
       expose :artifacts_expire_at
     end
 
+    class Result < Grape::Entity
+      expose :id
+      expose :name
+      expose :result
+      [:field1, :field2, :field3, :field4, :field5, :field6, :field7, :field8, :field9, :field10].each do |f|
+        expose f
+      end
+    end
+
     class JobBasicWithProject < JobBasic
       expose :project, with: ProjectIdentity
     end

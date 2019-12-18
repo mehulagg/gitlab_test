@@ -1,0 +1,19 @@
+- add_to_breadcrumbs "##{@build.id}", namespace_project_job_path
+- breadcrumb_title 'Results'
+- page_title "#{@build.name}", _("Results")
+
+.container.col-lg-12
+  .row
+    .col-lg-11
+      %h1 Results
+    .col-lg-1= link_to _('New result'), new_namespace_project_result_path(@project), class: 'btn btn-success'
+
+- if @results.any?
+  #job-results.container-fluid.col-lg-12
+    - @results.each do |result|
+      .row
+        .col-sm-1= result.result
+        .col-sm-11= link_to result.name, namespace_project_result_path(@project.namespace, @project.id,  result)
+- else
+  %div= "No results for job #{@build.id}"
+

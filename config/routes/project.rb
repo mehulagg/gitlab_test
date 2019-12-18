@@ -59,6 +59,8 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             get :raw
             get :terminal
             get '/terminal.ws/authorize', to: 'jobs#terminal_websocket_authorize', format: false
+
+            resources :results, constraints: { id: /\d+/ }
           end
 
           resource :artifacts, only: [] do

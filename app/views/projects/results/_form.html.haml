@@ -1,0 +1,3 @@
+= form_for @result do |f|
+  = f.text_field :name, required: true, maxlength: 255, autofocus: true,
+    autocomplete: 'off', class: 'form-control pad', placeholder: _('Title'), dir: 'auto'
