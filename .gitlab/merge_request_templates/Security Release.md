@@ -17,6 +17,7 @@ See [the general developer security release guidelines](https://gitlab.com/gitla
 - [ ] Milestone is set for the version this merge request applies to. A closed milestone can be assigned via [quick actions].
 - [ ] Title of this merge request is the same as for all backports.
 - [ ] A [CHANGELOG entry](https://docs.gitlab.com/ee/development/changelog.html) is added without a `merge_request` value, with `type` set to `security`
+- [ ] For the MR targeting `master`, ping appsec team member who created the issue and ask for a non-blocking review with `Please review this MR`
 - [ ] Assign to a reviewer and maintainer, per our [Code Review process].
 - [ ] If this merge request targets `master`, ensure it's approved according to our [Approval Guidelines].
 - [ ] Merge request _must not_ close the corresponding security issue, _unless_ it targets `master`.
@@ -26,6 +27,8 @@ See [the general developer security release guidelines](https://gitlab.com/gitla
 ## Reviewer checklist
 
 - [ ] Correct milestone is applied and the title is matching across all backports
+
+## Maintainer checklist
 - [ ] Assigned to `@gitlab-release-tools-bot` with passing CI pipelines
 
 /label ~security
