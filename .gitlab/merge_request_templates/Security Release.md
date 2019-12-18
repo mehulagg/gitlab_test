@@ -25,11 +25,15 @@ manually merging CE into EE is no longer required.
 - [ ] A [CHANGELOG entry](https://docs.gitlab.com/ee/development/changelog.html) is added without a `merge_request` value, with `type` set to `security`
 - [ ] Add a link to this MR in the `links` section of related issue
 - [ ] Set up an EE MR (always required for CE merge requests): EE_MR_LINK_HERE
-- [ ] Assign to a reviewer (that is not a release manager)
+- [ ] Ping appsec team member who created the issue and ask for a non-blocking review with `Please review this MR`
+- [ ] Assign to a reviewer
+- [ ] Assign to a maintainer
 
 ## Reviewer checklist
 
 - [ ] Correct milestone is applied and the title is matching across all backports
+
+## Maintainer checklist
 - [ ] Assigned to `@gitlab-release-tools-bot` with passing CI pipelines
 
 /label ~security
