@@ -5,6 +5,18 @@ class BackfillOperationsFeatureFlagsIid < ActiveRecord::Migration[5.2]
 
   DOWNTIME = false
 
+  disable_ddl_transaction!
+
+  class OperationsFeatureFlag < ActiveRecord::Base
+    include AtomicInternalId
+    self.table_name = 'operations_feature_flags'
+    self.inheritance_column = :_type_disabled
+
+    belongs_to :project
+
+    has_internal_id :iid, scope: :project, init: ->(s) { s&.project&.operations_feature_flags&.maximum(:iid) }
+  end
+
   ###
   # This should update about 500 rows on gitlab.com
   # https://gitlab.com/gitlab-org/gitlab/merge_requests/20871#note_251723686
@@ -15,22 +27,12 @@ class BackfillOperationsFeatureFlagsIid < ActiveRecord::Migration[5.2]
   # https://gitlab.com/gitlab-org/gitlab/merge_requests/20871#note_255449819
   ###
   def up
-    sql = <<-END
-      UPDATE operations_feature_flags
-      SET iid = feature_flags_with_calculated_iid.iid_num
-      FROM (
-        SELECT id, ROW_NUMBER() OVER (PARTITION BY project_id ORDER BY iid, id ASC NULLS LAST) AS iid_num FROM operations_feature_flags
-      ) AS feature_flags_with_calculated_iid
-      WHERE operations_feature_flags.id = feature_flags_with_calculated_iid.id
-    END
+    return unless Gitlab.ee?
 
-    execute(sql)
-
-    delete_internal_ids_sql = <<-END
-      DELETE FROM internal_ids WHERE project_id IN (SELECT DISTINCT(project_id) FROM operations_feature_flags) AND usage = 6
-    END
-
-    execute(delete_internal_ids_sql)
+    OperationsFeatureFlag.where(iid: nil).find_each do |flag|
+      flag.ensure_project_iid!
+      flag.save
+    end
   end
 
   def down

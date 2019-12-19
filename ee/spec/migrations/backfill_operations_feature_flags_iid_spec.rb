@@ -256,8 +256,8 @@ describe BackfillOperationsFeatureFlagsIid, :migration do
 
       disable_migrations_output { migrate! }
 
-      expect(flag_a.reload.iid).to eq(1)
-      expect(flag_b.reload.iid).to eq(2)
+      expect(flag_a.reload.iid).to eq(2)
+      expect(flag_b.reload.iid).to eq(3)
     end
 
     it 'successfully creates a new flag after the migration' do
@@ -271,9 +271,9 @@ describe BackfillOperationsFeatureFlagsIid, :migration do
 
       flag_d = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_d')
 
-      expect(flag_a.reload.iid).to eq(1)
-      expect(flag_b.reload.iid).to eq(2)
-      expect(flag_d.iid).to eq(3)
+      expect(flag_a.reload.iid).to eq(2)
+      expect(flag_b.reload.iid).to eq(3)
+      expect(flag_d.iid).to eq(4)
     end
   end
 
@@ -288,9 +288,9 @@ describe BackfillOperationsFeatureFlagsIid, :migration do
 
       disable_migrations_output { migrate! }
 
-      expect(flag_a.reload.iid).to eq(1)
-      expect(flag_b.reload.iid).to eq(2)
-      expect(flag_d.reload.iid).to eq(3)
+      expect(flag_a.reload.iid).to eq(2)
+      expect(flag_b.reload.iid).to eq(3)
+      expect(flag_d.reload.iid).to eq(4)
     end
 
     it 'successfully creates a new flag after the migration' do
@@ -305,10 +305,10 @@ describe BackfillOperationsFeatureFlagsIid, :migration do
 
       flag_e = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_e')
 
-      expect(flag_a.reload.iid).to eq(1)
-      expect(flag_b.reload.iid).to eq(2)
-      expect(flag_d.reload.iid).to eq(3)
-      expect(flag_e.iid).to eq(4)
+      expect(flag_a.reload.iid).to eq(2)
+      expect(flag_b.reload.iid).to eq(3)
+      expect(flag_d.reload.iid).to eq(4)
+      expect(flag_e.iid).to eq(5)
     end
   end
 
@@ -323,9 +323,9 @@ describe BackfillOperationsFeatureFlagsIid, :migration do
 
       disable_migrations_output { migrate! }
 
-      expect(flag_a.reload.iid).to eq(2)
-      expect(flag_b.reload.iid).to eq(3)
-      expect(flag_d.reload.iid).to eq(1)
+      expect(flag_a.reload.iid).to eq(3)
+      expect(flag_b.reload.iid).to eq(4)
+      expect(flag_d.reload.iid).to eq(2)
     end
 
     it 'successfully generates an iid for a new flag after the migration' do
@@ -340,10 +340,10 @@ describe BackfillOperationsFeatureFlagsIid, :migration do
 
       flag_e = Operations::FeatureFlag.create!(project_id: project.id, active: true, name: 'flag_e')
 
-      expect(flag_a.reload.iid).to eq(2)
-      expect(flag_b.reload.iid).to eq(3)
-      expect(flag_d.reload.iid).to eq(1)
-      expect(flag_e.iid).to eq(4)
+      expect(flag_a.reload.iid).to eq(3)
+      expect(flag_b.reload.iid).to eq(4)
+      expect(flag_d.reload.iid).to eq(2)
+      expect(flag_e.iid).to eq(5)
     end
   end
 end
