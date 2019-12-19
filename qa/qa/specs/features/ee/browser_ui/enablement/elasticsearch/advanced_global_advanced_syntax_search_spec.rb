@@ -5,11 +5,17 @@ module QA
     # Failure issue: https://gitlab.com/gitlab-org/gitlab/issues/43732
     describe 'Elasticsearch advanced global search with advanced syntax', :orchestrated, :elasticsearch, :requires_admin, :quarantine do
       let(:project_name_suffix) { SecureRandom.hex(8) }
+      let(:project_file_name) { 'elasticsearch.rb' }
+      let(:project_file_content) { "elasticsearch: #{SecureRandom.hex(8)}" }
+      let(:project) do
+        Resource::Project.fabricate_via_api! do |project|
+          project.add_name_uuid = false
+          project.name = "es-adv-global-search-#{project_name_suffix}1"
+          project.description = "This is a unique project description #{project_name_suffix}2"
+        end
+      end
 
-      before do
-        @project_file_name = 'elasticsearch.rb'
-        @project_file_content = "elasticsearch: #{SecureRandom.hex(8)}"
-
+      before(:context) do
         QA::EE::Resource::Settings::Elasticsearch.fabricate_via_api! do |es|
           es.user = QA::Resource::User.new.tap do |user|
             user.username = QA::Runtime::User.admin_username
@@ -19,17 +25,13 @@ module QA
         end
 
         Runtime::Search.elasticsearch_responding?
+      end
 
-        @project = Resource::Project.fabricate_via_api! do |project|
-          project.add_name_uuid = false
-          project.name = "es-adv-global-search-#{project_name_suffix}1"
-          project.description = "This is a unique project description #{project_name_suffix}2"
-        end
-
+      before do
         Resource::Repository::ProjectPush.fabricate! do |push|
-          push.project = @project
-          push.file_name = @project_file_name
-          push.file_content = @project_file_content
+          push.project = project
+          push.file_name = project_file_name
+          push.file_content = project_file_content
         end
 
         Flow::Login.sign_in
@@ -55,7 +57,7 @@ module QA
 
           results.retry_on_exception(reload: true, sleep_interval: 10) do
             expect(results).to have_content("Advanced search functionality is enabled")
-            expect(results).to have_project(@project.name)
+            expect(results).to have_project(project.name)
           end
         end
       end
