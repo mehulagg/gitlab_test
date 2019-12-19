@@ -57,6 +57,7 @@ docs lint:
   script:
     - scripts/lint-doc.sh
     # Lint Markdown
+    - yarn global add markdownlint-cli@latest
     - markdownlint --config .markdownlint.json 'doc/**/*.md'
     # Prepare docs for build
     - mv doc/ /tmp/gitlab-docs/content/$DOCS_GITLAB_REPO_SUFFIX
