@@ -79,12 +79,11 @@ describe('Visual Review App Link', () => {
     });
 
     it('with review app link', () => {
-      expect(
-        wrapper
-          .find(GlModal)
-          .find('a.js-review-app-link')
-          .attributes('href'),
-      ).toEqual(propsData.link);
+      const {
+        attributes: [{ to: linkAddress }],
+      } = wrapper.find(GlModal).props('modalActionPrimary');
+
+      expect(linkAddress).toEqual(propsData.link);
     });
 
     it('tracks an event when review app link is clicked', () => {

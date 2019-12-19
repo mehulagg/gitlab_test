@@ -40,6 +40,7 @@ export default {
           { rel: 'noopener noreferrer nofollow' },
           { 'data-track-event': 'open_review_app' },
           { 'data-track-label': 'review_app' },
+          { class: 'js-review-app-link' },
         ],
       },
     };
