@@ -32,7 +32,7 @@ export default {
   data() {
     return {
       modalPrimary: {
-        text: this.modalActionText,
+        text: s__('Modal|Close'),
         attributes: [{ variant: 'secondary' }],
       },
     };
@@ -55,9 +55,6 @@ export default {
     },
     modalId() {
       return uniqueId(MODAL_ID_PREFIX);
-    },
-    modalActionText() {
-      return s__('Modal|Close');
     },
     modalButtonText() {
       const { remainingLicensesCount } = this;
