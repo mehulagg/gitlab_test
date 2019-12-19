@@ -34,6 +34,16 @@ make a few changes to your `gdk/gitlab/config/gitlab.yml` file.
   # Then in gitlab-qa:
   $ exe/gitlab-qa Test::Instance::Any gitlab/gitlab-ce:your-custom-tag http://192.168.0.12:3000 -- qa/specs/features/browser_ui/1_manage/login/log_in_spec.rb
   ```
+  
+### Running EE tests
+
+When running EE tests you'll need to have a license available. GitLab engineers can [request a license](https://about.gitlab.com/handbook/developer-onboarding/#working-on-gitlab-ee).
+
+Once you have the license file you can export it as an environment variable and then `gitlab-qa` can use it. If you do so it will be installed automatically by the QA framework.
+
+```
+export EE_LICENSE=$(cat /path/to/gitlab_license)
+```
 
 ## Run Geo QA tests against your Geo GDK setup
 
