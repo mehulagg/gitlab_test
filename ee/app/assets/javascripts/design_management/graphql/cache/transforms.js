@@ -156,3 +156,58 @@ export const transformNewDiscussionComment = (cacheData, { createNote, discussio
     },
   };
 };
+
+export const transformNewImageDiffNote = (cacheData, createImageDiffNote) => {
+  const newDiscussion = {
+    __typename: 'DiscussionEdge',
+    node: {
+      // False positive i18n lint: https://gitlab.com/gitlab-org/frontend/eslint-plugin-i18n/issues/26
+      // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
+      __typename: 'Discussion',
+      id: createImageDiffNote.note.discussion.id,
+      replyId: createImageDiffNote.note.discussion.replyId,
+      notes: {
+        __typename: 'NoteConnection',
+        edges: [
+          {
+            __typename: 'NoteEdge',
+            node: createImageDiffNote.note,
+          },
+        ],
+      },
+    },
+  };
+
+  const design = extractDesign(cacheData);
+  const updatedDiscussions = [...design.discussions.edges, newDiscussion];
+
+  const updatedDesign = {
+    __typename: 'DesignEdge',
+    node: {
+      ...design,
+      discussions: {
+        ...design.discussions,
+        edges: updatedDiscussions,
+      },
+      notesCount: design.notesCount + 1,
+    },
+  };
+
+  const updatedDesigns = {
+    ...cacheData.project.issue.designCollection.designs,
+    edges: [updatedDesign, ...cacheData.project.issue.designCollection.designs.edges.slice(1)],
+  };
+
+  return {
+    project: {
+      ...cacheData.project,
+      issue: {
+        ...cacheData.project.issue,
+        designCollection: {
+          ...cacheData.project.issue.designCollection,
+          designs: updatedDesigns,
+        },
+      },
+    },
+  };
+};

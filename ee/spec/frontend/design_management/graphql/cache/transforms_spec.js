@@ -3,16 +3,19 @@ import {
   transformDesignDeletion,
   transformNewVersion,
   transformNewDiscussionComment,
+  transformNewImageDiffNote,
 } from 'ee/design_management/graphql/cache/transforms';
 import {
   designUploadTransformation,
   designDeletionTransformation,
   newVersionTransformation,
   newDiscussionCommentTransformation,
+  newImageDiffNoteTransformation,
 } from '../mock_data';
 import mockDesign from '../../mock_data/design';
 import mockVersion from '../../mock_data/version';
 import mockNote from '../../mock_data/note';
+import mockDiffNote from '../../mock_data/diff_note';
 
 describe('Apollo cache transformations', () => {
   describe('Design upload', () => {
@@ -178,6 +181,45 @@ describe('Apollo cache transformations', () => {
       expect(transformed).not.toEqual(cacheData);
       expect(cacheData).toEqual(cacheData);
       expect(newCommentData).toEqual(newCommentData);
+    });
+  });
+
+  describe('New image diff note', () => {
+    const cacheData = {
+      project: {
+        __typename: 'Project',
+        issue: {
+          __typename: 'Issue',
+          designCollection: {
+            __typename: 'DesignCollection',
+            designs: {
+              edges: [
+                {
+                  __typename: 'DesignEdge',
+                  node: mockDesign,
+                },
+              ],
+              __typename: 'DesignConnection',
+            },
+            versions: {
+              edges: [],
+              __typename: 'DesignVersionConnection',
+            },
+          },
+        },
+      },
+    };
+
+    it('produces the correct transformation', () => {
+      const transformed = transformNewImageDiffNote(cacheData, mockDiffNote);
+      expect(transformed).toEqual(newImageDiffNoteTransformation);
+    });
+    it('transform does not mutate input data', () => {
+      const transformed = transformNewImageDiffNote(cacheData, mockDiffNote);
+
+      expect(transformed).not.toEqual(cacheData);
+      expect(cacheData).toEqual(cacheData);
+      expect(mockDiffNote).toEqual(mockDiffNote);
     });
   });
 });

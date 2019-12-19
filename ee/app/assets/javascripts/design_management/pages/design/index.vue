@@ -18,13 +18,14 @@ import {
   extractDesign,
   extractParticipants,
 } from '../../utils/design_management_utils';
-import { updateStoreAfterAddImageDiffNote } from '../../utils/cache_update';
 import {
   ADD_DISCUSSION_COMMENT_ERROR,
   DESIGN_NOT_FOUND_ERROR,
   DESIGN_NOT_EXIST_ERROR,
   designDeletionError,
 } from '../../utils/error_messages';
+import updateCache from '../../graphql/cache';
+import { transformNewImageDiffNote } from '../../graphql/cache/transforms';
 
 export default {
   components: {
@@ -153,11 +154,11 @@ export default {
         data: { createImageDiffNote },
       },
     ) {
-      updateStoreAfterAddImageDiffNote(
+      updateCache(
         store,
         createImageDiffNote,
-        getDesignQuery,
-        this.designVariables,
+        { query: getDesignQuery, variables: this.designVariables },
+        transformNewImageDiffNote,
       );
     },
     onQueryError(message) {
