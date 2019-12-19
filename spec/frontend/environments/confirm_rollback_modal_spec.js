@@ -28,10 +28,11 @@ describe('Confirm Rollback Modal Component', () => {
       },
     });
     const modal = component.find(GlModal);
+    const { text: primaryBtnText } = modal.props('modalActionPrimary');
 
     expect(modal.attributes('title')).toContain('Rollback');
     expect(modal.attributes('title')).toContain('test');
-    expect(modal.attributes('ok-title')).toBe('Rollback');
+    expect(primaryBtnText).toBe('Rollback');
     expect(modal.text()).toContain('commit abc0123');
     expect(modal.text()).toContain('Are you sure you want to continue?');
   });
@@ -46,10 +47,11 @@ describe('Confirm Rollback Modal Component', () => {
       },
     });
     const modal = component.find(GlModal);
+    const { text: primaryBtnText } = modal.props('modalActionPrimary');
 
     expect(modal.attributes('title')).toContain('Re-deploy');
     expect(modal.attributes('title')).toContain('test');
-    expect(modal.attributes('ok-title')).toBe('Re-deploy');
+    expect(primaryBtnText).toBe('Re-deploy');
     expect(modal.text()).toContain('commit abc0123');
     expect(modal.text()).toContain('Are you sure you want to continue?');
   });

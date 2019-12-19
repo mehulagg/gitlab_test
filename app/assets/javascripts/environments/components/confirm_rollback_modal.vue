@@ -25,7 +25,7 @@ export default {
   data() {
     return {
       modalPrimary: {
-        text: this.modalActionText,
+        text: this.modalActionText(),
         attributes: [{ variant: 'danger' }],
       },
     };
@@ -79,12 +79,6 @@ export default {
         false,
       );
     },
-
-    modalActionText() {
-      return this.environment.isLastDeployment
-        ? s__('Environments|Re-deploy')
-        : s__('Environments|Rollback');
-    },
   },
 
   methods: {
@@ -98,6 +92,12 @@ export default {
       }
 
       return '';
+    },
+
+    modalActionText() {
+      return this.environment.isLastDeployment
+        ? s__('Environments|Re-deploy')
+        : s__('Environments|Rollback');
     },
   },
 };
