@@ -109,28 +109,33 @@ export const transformNewDiscussionComment = (cacheData, { createNote, discussio
     },
   ];
 
-  const updatedDiscussions = [
-    ...design.discussions.edges.slice(0, currentDiscussionIndex),
-    {
-      ...currentDiscussion,
-      node: {
-        ...currentDiscussion.node,
-        notes: {
-          ...currentDiscussion.notes,
-          edges: updatedDiscussionNotes,
-        },
+  const updatedDiscussion = {
+    ...currentDiscussion,
+    node: {
+      ...currentDiscussion.node,
+      notes: {
+        ...currentDiscussion.node.notes,
+        edges: updatedDiscussionNotes,
       },
     },
+  };
+
+  const updatedDiscussions = [
+    ...design.discussions.edges.slice(0, currentDiscussionIndex),
+    updatedDiscussion,
     ...design.discussions.edges.slice(currentDiscussionIndex + 1),
   ];
 
   const updatedDesign = {
-    ...design,
-    discussions: {
-      ...design.discussions,
-      edges: updatedDiscussions,
+    __typename: 'DesignEdge',
+    node: {
+      ...design,
+      discussions: {
+        ...design.discussions,
+        edges: updatedDiscussions,
+      },
+      notesCount: design.notesCount + 1,
     },
-    notesCount: design.notesCount + 1,
   };
 
   const updatedDesigns = {

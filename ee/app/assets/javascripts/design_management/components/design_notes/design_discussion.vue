@@ -54,12 +54,15 @@ export default {
         discussionId: this.discussion.id,
       };
     },
-    designVariables() {
+    designQueryBody() {
       return {
-        fullPath: this.projectPath,
-        iid: this.issueIid,
-        filenames: [this.$route.params.id],
-        atVersion: this.designsVersion,
+        query: getDesignQuery,
+        variables: {
+          fullPath: this.projectPath,
+          iid: this.issueIid,
+          filenames: [this.$route.params.id],
+          atVersion: this.designsVersion,
+        },
       };
     },
   },
@@ -73,7 +76,7 @@ export default {
       updateCache(
         store,
         { createNote, discussionId: this.discussion.id },
-        getDesignQuery,
+        this.designQueryBody,
         transformNewDiscussionComment,
       );
     },
