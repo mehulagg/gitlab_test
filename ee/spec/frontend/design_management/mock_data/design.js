@@ -24,6 +24,7 @@ export default {
       ],
     },
   },
+  notesCount: 1,
   discussions: {
     edges: [
       {

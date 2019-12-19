@@ -2,17 +2,20 @@ import {
   transformDesignUpload,
   transformDesignDeletion,
   transformNewVersion,
+  transformNewDiscussionComment,
 } from 'ee/design_management/graphql/cache/transforms';
 import {
   designUploadTransformation,
   designDeletionTransformation,
   newVersionTransformation,
+  newDiscussionCommentTransformation,
 } from '../mock_data';
 import mockDesign from '../../mock_data/design';
 import mockVersion from '../../mock_data/version';
+import mockNote from '../../mock_data/note';
 
 describe('Apollo cache transformations', () => {
-  describe('Design Upload', () => {
+  describe('Design upload', () => {
     const cacheData = {
       project: {
         __typename: 'Project',
@@ -48,7 +51,7 @@ describe('Apollo cache transformations', () => {
     });
   });
 
-  describe('Design Delete', () => {
+  describe('Design delete', () => {
     const cacheData = {
       project: {
         __typename: 'Project',
@@ -124,6 +127,57 @@ describe('Apollo cache transformations', () => {
       expect(transformed).not.toEqual(cacheData);
       expect(cacheData).toEqual(cacheData);
       expect(newVersion).toEqual(newVersion);
+    });
+  });
+
+  describe('New discussion comment', () => {
+    const cacheData = {
+      project: {
+        __typename: 'Project',
+        issue: {
+          __typename: 'Issue',
+          designCollection: {
+            __typename: 'DesignCollection',
+            designs: {
+              edges: [
+                {
+                  __typename: 'DesignEdge',
+                  node: mockDesign,
+                },
+              ],
+              __typename: 'DesignConnection',
+            },
+            versions: {
+              edges: [],
+              __typename: 'DesignVersionConnection',
+            },
+          },
+        },
+      },
+    };
+
+    it('produces the correct transformation', () => {
+      const newCommentData = {
+        createNote: {
+          note: mockNote,
+        },
+        discussionId: 'discussion-id',
+      };
+      const transformed = transformNewDiscussionComment(cacheData, newCommentData);
+      expect(transformed).toEqual(newDiscussionCommentTransformation);
+    });
+    it('transform does not mutate input data', () => {
+      const newCommentData = {
+        createNote: {
+          note: mockNote,
+        },
+        discussionId: 'discussion-id',
+      };
+      const transformed = transformNewDiscussionComment(cacheData, newCommentData);
+
+      expect(transformed).not.toEqual(cacheData);
+      expect(cacheData).toEqual(cacheData);
+      expect(newCommentData).toEqual(newCommentData);
     });
   });
 });

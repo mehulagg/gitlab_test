@@ -6,7 +6,8 @@ import createNoteMutation from '../../graphql/mutations/createNote.mutation.grap
 import getDesignQuery from '../../graphql/queries/getDesign.query.graphql';
 import DesignNote from './design_note.vue';
 import DesignReplyForm from './design_reply_form.vue';
-import { updateStoreAfterAddDiscussionComment } from '../../utils/cache_update';
+import updateCache from '../../graphql/cache';
+import { transformNewDiscussionComment } from '../../graphql/cache/transforms';
 
 export default {
   components: {
@@ -69,12 +70,11 @@ export default {
         data: { createNote },
       },
     ) {
-      updateStoreAfterAddDiscussionComment(
+      updateCache(
         store,
-        createNote,
+        { createNote, discussionId: this.discussion.id },
         getDesignQuery,
-        this.designVariables,
-        this.discussion.id,
+        transformNewDiscussionComment,
       );
     },
     onDone() {

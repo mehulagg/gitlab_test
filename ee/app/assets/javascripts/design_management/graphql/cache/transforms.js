@@ -1,3 +1,5 @@
+import { extractCurrentDiscussionIndex, extractDesign } from '../../utils/design_management_utils';
+
 export const transformDesignUpload = (cacheData, designUploadData) => {
   const newDesigns = cacheData.project.issue.designCollection.designs.edges.reduce(
     (acc, design) => {
@@ -88,6 +90,62 @@ export const transformDesignDeletion = (cacheData, deletedDesigns) => {
             ...cacheData.project.issue.designCollection.designs,
             edges: [...updatedDesignList],
           },
+        },
+      },
+    },
+  };
+};
+
+export const transformNewDiscussionComment = (cacheData, { createNote, discussionId }) => {
+  const design = extractDesign(cacheData);
+  const currentDiscussionIndex = extractCurrentDiscussionIndex(design.discussions, discussionId);
+  const currentDiscussion = design.discussions.edges[currentDiscussionIndex];
+
+  const updatedDiscussionNotes = [
+    ...currentDiscussion.node.notes.edges,
+    {
+      __typename: 'NoteEdge',
+      node: createNote.note,
+    },
+  ];
+
+  const updatedDiscussions = [
+    ...design.discussions.edges.slice(0, currentDiscussionIndex),
+    {
+      ...currentDiscussion,
+      node: {
+        ...currentDiscussion.node,
+        notes: {
+          ...currentDiscussion.notes,
+          edges: updatedDiscussionNotes,
+        },
+      },
+    },
+    ...design.discussions.edges.slice(currentDiscussionIndex + 1),
+  ];
+
+  const updatedDesign = {
+    ...design,
+    discussions: {
+      ...design.discussions,
+      edges: updatedDiscussions,
+    },
+    notesCount: design.notesCount + 1,
+  };
+
+  const updatedDesigns = {
+    ...cacheData.project.issue.designCollection.designs,
+    edges: [updatedDesign, ...cacheData.project.issue.designCollection.designs.edges.slice(1)],
+  };
+
+  return {
+    project: {
+      ...cacheData.project,
+      issue: {
+        ...cacheData.project.issue,
+        designCollection: {
+          ...cacheData.project.issue.designCollection,
+          designs: updatedDesigns,
         },
       },
     },

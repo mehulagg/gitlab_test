@@ -32,6 +32,15 @@ export const extractDiscussions = discussions =>
 export const extractCurrentDiscussion = (discussions, id) =>
   discussions.edges.find(({ node }) => node.id === id);
 
+/**
+ * Returns the index of a discussion with the given id within discussions array
+ *
+ * @param {Array} discussions
+ */
+
+export const extractCurrentDiscussionIndex = (discussions, id) =>
+  discussions.edges.findIndex(({ node }) => node.id === id);
+
 export const findVersionId = id => (id.match('::Version/(.+$)') || [])[1];
 
 export const findNoteId = id => (id.match('DiffNote/(.+$)') || [])[1];
