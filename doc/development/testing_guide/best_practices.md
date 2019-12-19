@@ -90,6 +90,7 @@ writing one](testing_levels.md#consider-not-writing-a-system-test)!
   `Model.count` increased by one.
 - It's ok to look for DOM elements but don't abuse it since it makes the tests
   more brittle
+- Avoid using `data-qa-selector` for locating elements as they are meant for End to End (e2e) tests. There is a risk that those selectors would be changed in an e2e test MR where unit tests are not run resulting in a broken master.
 
 #### Debugging Capybara
 
