@@ -13,7 +13,7 @@ import projectQuery from '../graphql/queries/project.query.graphql';
 import allDesignsMixin from '../mixins/all_designs';
 import { UPLOAD_DESIGN_ERROR, designDeletionError } from '../utils/error_messages';
 import updateCache from '../graphql/cache';
-import transformDesignUpload from '../graphql/cache/transforms';
+import { transformDesignUpload } from '../graphql/cache/transforms';
 import { designUploadOptimisticResponse } from '../utils/design_management_utils';
 
 const MAXIMUM_FILE_UPLOAD_LIMIT = 10;

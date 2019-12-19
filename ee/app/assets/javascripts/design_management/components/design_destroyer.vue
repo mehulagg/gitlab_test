@@ -2,7 +2,8 @@
 import { ApolloMutation } from 'vue-apollo';
 import projectQuery from '../graphql/queries/project.query.graphql';
 import destroyDesignMutation from '../graphql/mutations/destroyDesign.mutation.graphql';
-import { updateStoreAfterDesignsDelete } from '../utils/cache_update';
+import updateCache from '../graphql/cache';
+import { transformDesignDeletion, transformNewVersion } from '../graphql/cache/transforms';
 
 export default {
   components: {
@@ -34,15 +35,11 @@ export default {
     updateStoreAfterDelete(
       store,
       {
-        data: { designManagementDelete },
+        data: { designManagementDelete, version },
       },
     ) {
-      updateStoreAfterDesignsDelete(
-        store,
-        designManagementDelete,
-        this.projectQueryBody,
-        this.filenames,
-      );
+      updateCache(store, designManagementDelete, this.projectQueryBody, transformDesignDeletion);
+      updateCache(store, version, this.projectQueryBody, transformNewVersion);
     },
   },
   destroyDesignMutation,

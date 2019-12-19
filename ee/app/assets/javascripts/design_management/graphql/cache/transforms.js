@@ -1,4 +1,4 @@
-const transformDesignUpload = (cacheData, designUploadData) => {
+export const transformDesignUpload = (cacheData, designUploadData) => {
   const newDesigns = cacheData.project.issue.designCollection.designs.edges.reduce(
     (acc, design) => {
       if (!acc.find(d => d.filename === design.node.filename)) {
@@ -52,4 +52,44 @@ const transformDesignUpload = (cacheData, designUploadData) => {
   };
 };
 
-export default transformDesignUpload;
+export const transformNewVersion = (cacheData, newVersion) => {
+  const newEdge = { node: newVersion, __typename: 'DesignVersionEdge' };
+
+  return {
+    project: {
+      ...cacheData.project,
+      issue: {
+        ...cacheData.project.issue,
+        designCollection: {
+          ...cacheData.project.issue.designCollection,
+          versions: {
+            ...cacheData.project.issue.designCollection.versions,
+            edges: [newEdge, ...cacheData.project.issue.designCollection.versions.edges],
+          },
+        },
+      },
+    },
+  };
+};
+
+export const transformDesignDeletion = (cacheData, deletedDesigns) => {
+  const updatedDesignList = cacheData.project.issue.designCollection.designs.edges.filter(
+    ({ node }) => !deletedDesigns.includes(node.filename),
+  );
+
+  return {
+    project: {
+      ...cacheData.project,
+      issue: {
+        ...cacheData.project.issue,
+        designCollection: {
+          ...cacheData.project.issue.designCollection,
+          designs: {
+            ...cacheData.project.issue.designCollection.designs,
+            edges: [...updatedDesignList],
+          },
+        },
+      },
+    },
+  };
+};
