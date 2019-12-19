@@ -1,15 +1,16 @@
 <script>
-import { GlTooltip } from '@gitlab/ui';
+import { GlLabel } from '@gitlab/ui';
 
 export default {
   components: {
-    GlTooltip,
+    GlLabel,
   },
   props: {
     label: {
       type: Object,
       required: true,
     },
+    // TODO: update gitlab-ui and remove style and color prop
     labelStyle: {
       type: Object,
       required: true,
@@ -23,12 +24,10 @@ export default {
 </script>
 
 <template>
-  <a ref="regularLabelRef" :href="labelFilterUrl">
-    <span :style="labelStyle" class="badge color-label">
-      {{ label.title }}
-    </span>
-    <gl-tooltip :target="() => $refs.regularLabelRef" placement="top" boundary="viewport">
-      {{ label.description }}
-    </gl-tooltip>
-  </a>
+  <gl-label
+    :target="labelFilterUrl"
+    :background-color="label.color"
+    :title="label.title"
+    :description="label.description"
+  />
 </template>
