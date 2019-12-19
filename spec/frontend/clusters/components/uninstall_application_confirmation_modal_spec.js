@@ -26,7 +26,8 @@ describe('UninstallApplicationConfirmationModal', () => {
   });
 
   it(`renders a modal with an ok button labeled "Uninstall ${appTitle}"`, () => {
-    expect(wrapper.find(GlModal).attributes('ok-title')).toEqual(`Uninstall ${appTitle}`);
+    const { text: primaryBtnText } = wrapper.find(GlModal).props('modalActionPrimary');
+    expect(primaryBtnText).toEqual(`Uninstall ${appTitle}`);
   });
 
   describe('when ok button is clicked', () => {
