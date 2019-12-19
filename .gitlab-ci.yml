@@ -57,6 +57,8 @@ check:rspec:
     expire_in: 10d
     paths:
       - ./gitlab-qa-run-*
+    reports:
+      junit: gitlab-qa-run-*/**/rspec-*.xml
 
 .ce-qa:
   only:
@@ -713,29 +715,6 @@ ee:smtp:
     - .ee-qa
     - .rspec-report-opts
 
-.report-base:
-  image: ruby:2.6-alpine
-  variables:
-    BASE_ARTIFACT_URL: "${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/file/"
-    COMBINED_REPORT: combined-report.html
-  artifacts:
-    when: always
-    paths:
-      - gitlab-qa-run-*
-      - combined-report.html
-    reports:
-      junit: gitlab-qa-run-*/**/rspec-*.xml
-  allow_failure: true
-  when: always
-  before_script:
-    - apk add --update build-base libxml2-dev libxslt-dev git && rm -rf /var/cache/apk/*
-    - gem install nokogiri gitlab --no-document
-    - cd gitlab-qa-run-*/gitlab-*
-    - ARTIFACT_DIRS=$(pwd |rev| awk -F / '{print $1,$2}' | rev | sed s_\ _/_)
-    - cd -
-    - '[[ -f $COMBINED_REPORT ]] || echo "{}" > ${COMBINED_REPORT}'
-    - bin/merge_html_reports ${COMBINED_REPORT} ${BASE_ARTIFACT_URL}${ARTIFACT_DIRS} gitlab-qa-run-*/**/rspec-*.htm
-
 .notify_upstream_commit:
   stage: notify
   except:
@@ -745,7 +724,6 @@ ee:smtp:
 
 notify_upstream_commit:success:
   extends:
-    - .report-base
     - .notify_upstream_commit
   script:
     - bin/notify_upstream_commit success ${COMBINED_REPORT}
@@ -753,7 +731,6 @@ notify_upstream_commit:success:
 
 notify_upstream_commit:failure:
   extends:
-    - .report-base
     - .notify_upstream_commit
   script:
     - bin/notify_upstream_commit failure ${COMBINED_REPORT}
