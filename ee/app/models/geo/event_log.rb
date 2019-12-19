@@ -11,6 +11,7 @@ module Geo
                        Geo::RepositoryDeletedEvent
                        Geo::RepositoryRenamedEvent
                        Geo::RepositoriesChangedEvent
+                       Geo::RepositoryMovedEvent
                        Geo::ResetChecksumEvent
                        Geo::HashedStorageMigratedEvent
                        Geo::HashedStorageAttachmentsEvent

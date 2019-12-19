@@ -1688,6 +1688,7 @@ ActiveRecord::Schema.define(version: 2020_01_17_112554) do
     t.bigint "reset_checksum_event_id"
     t.bigint "cache_invalidation_event_id"
     t.bigint "container_repository_updated_event_id"
+    t.bigint "repository_moved_event_id"
     t.index ["cache_invalidation_event_id"], name: "index_geo_event_log_on_cache_invalidation_event_id", where: "(cache_invalidation_event_id IS NOT NULL)"
     t.index ["container_repository_updated_event_id"], name: "index_geo_event_log_on_container_repository_updated_event_id"
     t.index ["hashed_storage_attachments_event_id"], name: "index_geo_event_log_on_hashed_storage_attachments_event_id", where: "(hashed_storage_attachments_event_id IS NOT NULL)"
@@ -1697,6 +1698,7 @@ ActiveRecord::Schema.define(version: 2020_01_17_112554) do
     t.index ["repositories_changed_event_id"], name: "index_geo_event_log_on_repositories_changed_event_id", where: "(repositories_changed_event_id IS NOT NULL)"
     t.index ["repository_created_event_id"], name: "index_geo_event_log_on_repository_created_event_id", where: "(repository_created_event_id IS NOT NULL)"
     t.index ["repository_deleted_event_id"], name: "index_geo_event_log_on_repository_deleted_event_id", where: "(repository_deleted_event_id IS NOT NULL)"
+    t.index ["repository_moved_event_id"], name: "index_geo_event_log_on_repository_moved_event_id", where: "(repository_moved_event_id IS NOT NULL)"
     t.index ["repository_renamed_event_id"], name: "index_geo_event_log_on_repository_renamed_event_id", where: "(repository_renamed_event_id IS NOT NULL)"
     t.index ["repository_updated_event_id"], name: "index_geo_event_log_on_repository_updated_event_id", where: "(repository_updated_event_id IS NOT NULL)"
     t.index ["reset_checksum_event_id"], name: "index_geo_event_log_on_reset_checksum_event_id", where: "(reset_checksum_event_id IS NOT NULL)"
@@ -1851,6 +1853,13 @@ ActiveRecord::Schema.define(version: 2020_01_17_112554) do
     t.text "deleted_wiki_path"
     t.text "deleted_project_name", null: false
     t.index ["project_id"], name: "index_geo_repository_deleted_events_on_project_id"
+  end
+
+  create_table "geo_repository_moved_events", force: :cascade do |t|
+    t.bigint "project_id"
+    t.text "old_repository_storage", null: false
+    t.text "new_repository_storage", null: false
+    t.index ["project_id"], name: "index_geo_repository_moved_events_on_project_id"
   end
 
   create_table "geo_repository_renamed_events", force: :cascade do |t|
@@ -4618,6 +4627,7 @@ ActiveRecord::Schema.define(version: 2020_01_17_112554) do
   add_foreign_key "geo_event_log", "geo_repositories_changed_events", column: "repositories_changed_event_id", name: "fk_4a99ebfd60", on_delete: :cascade
   add_foreign_key "geo_event_log", "geo_repository_created_events", column: "repository_created_event_id", name: "fk_9b9afb1916", on_delete: :cascade
   add_foreign_key "geo_event_log", "geo_repository_deleted_events", column: "repository_deleted_event_id", name: "fk_c4b1c1f66e", on_delete: :cascade
+  add_foreign_key "geo_event_log", "geo_repository_moved_events", column: "repository_moved_event_id", name: "fk_geo_event_log_on_repository_moved_event_id", on_delete: :cascade
   add_foreign_key "geo_event_log", "geo_repository_renamed_events", column: "repository_renamed_event_id", name: "fk_86c84214ec", on_delete: :cascade
   add_foreign_key "geo_event_log", "geo_repository_updated_events", column: "repository_updated_event_id", name: "fk_78a6492f68", on_delete: :cascade
   add_foreign_key "geo_event_log", "geo_reset_checksum_events", column: "reset_checksum_event_id", name: "fk_cff7185ad2", on_delete: :cascade
