@@ -566,9 +566,10 @@ group.members_with_parents.count
 parent.members_with_descendants.count
 ```
 
-### Disable group access requests for public and internal groups
+### Disable group access requests
 
 ```ruby
+# This works for groups with public or internal visibility
 Group.all.each do |g|
   g.request_access_enabled = 0
   g.save!
