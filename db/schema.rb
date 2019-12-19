@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_16_183532) do
+ActiveRecord::Schema.define(version: 2019_12_19_142133) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -1952,6 +1952,14 @@ ActiveRecord::Schema.define(version: 2019_12_16_183532) do
     t.date "marked_for_deletion_on", null: false
     t.index ["marked_for_deletion_on"], name: "index_group_deletion_schedules_on_marked_for_deletion_on"
     t.index ["user_id"], name: "index_group_deletion_schedules_on_user_id"
+  end
+
+  create_table "group_deploy_tokens", force: :cascade do |t|
+    t.bigint "group_id", null: false
+    t.bigint "deploy_token_id", null: false
+    t.datetime_with_timezone "created_at", null: false
+    t.index ["deploy_token_id"], name: "index_group_deploy_tokens_on_deploy_token_id"
+    t.index ["group_id", "deploy_token_id"], name: "index_group_deploy_tokens_on_group_id_and_deploy_token_id", unique: true
   end
 
   create_table "group_group_links", force: :cascade do |t|
@@ -4539,6 +4547,8 @@ ActiveRecord::Schema.define(version: 2019_12_16_183532) do
   add_foreign_key "group_custom_attributes", "namespaces", column: "group_id", on_delete: :cascade
   add_foreign_key "group_deletion_schedules", "namespaces", column: "group_id", on_delete: :cascade
   add_foreign_key "group_deletion_schedules", "users", name: "fk_11e3ebfcdd", on_delete: :cascade
+  add_foreign_key "group_deploy_tokens", "deploy_tokens", name: "fk_6477b01f6b", on_delete: :cascade
+  add_foreign_key "group_deploy_tokens", "namespaces", column: "group_id", name: "fk_61a572b41a", on_delete: :cascade
   add_foreign_key "group_group_links", "namespaces", column: "shared_group_id", on_delete: :cascade
   add_foreign_key "group_group_links", "namespaces", column: "shared_with_group_id", on_delete: :cascade
   add_foreign_key "identities", "saml_providers", name: "fk_aade90f0fc", on_delete: :cascade
