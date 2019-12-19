@@ -35,11 +35,16 @@ export default {
     updateStoreAfterDelete(
       store,
       {
-        data: { designManagementDelete, version },
+        data: { designManagementDelete },
       },
     ) {
-      updateCache(store, designManagementDelete, this.projectQueryBody, transformDesignDeletion);
-      updateCache(store, version, this.projectQueryBody, transformNewVersion);
+      updateCache(store, this.filenames, this.projectQueryBody, transformDesignDeletion);
+      updateCache(
+        store,
+        designManagementDelete.version,
+        this.projectQueryBody,
+        transformNewVersion,
+      );
     },
   },
   destroyDesignMutation,
