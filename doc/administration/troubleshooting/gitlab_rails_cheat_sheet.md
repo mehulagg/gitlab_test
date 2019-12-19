@@ -566,6 +566,13 @@ group.members_with_parents.count
 parent.members_with_descendants.count
 ```
 
+```ruby
+Group.all.each do |g|
+  g.request_access_enabled = 0
+  g.save!
+end
+```
+
 ### Delete a group
 
 ```ruby
