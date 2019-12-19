@@ -30,6 +30,7 @@ module Projects
       if result
         mark_old_paths_for_archive
 
+        log_storage_update_event(old_storage: project.repository_storage, new_storage: new_repository_storage_key)
         project.update(repository_storage: new_repository_storage_key, repository_read_only: false)
         project.leave_pool_repository
         project.track_project_repository
@@ -41,6 +42,15 @@ module Projects
     end
 
     private
+
+    def log_storage_update_event(old_storage:, new_storage:)
+      log_info("Project #{project.full_path} was relocated from storage: #{old_storage} to #{new_storage}")
+      log_geo_event(old_storage: old_storage, new_storage: new_storage)
+    end
+
+    def log_geo_event(old_storage:, new_storage:)
+      Geo::RepositoryMovedEventStore.new(project, old_storage: old_storage, new_storage: new_storage).create!
+    end
 
     def mirror_repository(new_storage_key, type: Gitlab::GlRepository::PROJECT)
       return false unless wait_for_pushes(type)

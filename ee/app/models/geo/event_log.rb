@@ -44,6 +44,10 @@ module Geo
       class_name: 'Geo::RepositoriesChangedEvent',
       foreign_key: :repositories_changed_event_id
 
+    belongs_to :repository_moved_event,
+      class_name: 'Geo::RepositoryMovedEvent',
+      foreign_key: :repository_moved_event_id
+
     belongs_to :hashed_storage_migrated_event,
       class_name: 'Geo::HashedStorageMigratedEvent',
       foreign_key: :hashed_storage_migrated_event_id
