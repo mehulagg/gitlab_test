@@ -1,5 +1,6 @@
 <script>
 import { GlButton, GlModal, GlModalDirective } from '@gitlab/ui';
+import { s__ } from '~/locale';
 import _ from 'underscore';
 
 export default {
