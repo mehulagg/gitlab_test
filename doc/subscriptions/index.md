@@ -233,7 +233,9 @@ main quota. Additional minutes:
 - Roll over month to month.
 
 Each month, any minutes that you used will be deducted from your balance of additional minutes.
-Put another way, the number of minutes used and available will reflect your *current* month's usage and availability.
+Therefore, the number of minutes used and available will reflect your *current*
+month's usage and availability. Purchased remaining minutes not used in the
+current month will be rolled out over to the next month.
 
 For example:
 - February 15: A group buys 4000 minutes. The count reads 0/4000 minutes.
