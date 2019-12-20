@@ -242,7 +242,8 @@ For example:
 - February 28: The group has used 1500 minutes. The count reads 1500/4000 minutes.
 - March 1: The counter reads: 0/2500 minutes.
 
-##### Purchasing Additional Minutes
+##### Purchasing additional minutes
+
 In order to purchase additional minutes, you should follow these steps:
 
 1. Go to **Group > Settings > Pipelines quota**. Once you are on that page, click on **Buy additional minutes**.
