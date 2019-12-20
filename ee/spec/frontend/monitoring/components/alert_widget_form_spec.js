@@ -51,13 +51,15 @@ describe('AlertWidgetForm', () => {
   it('disables the form when disabled prop is set', () => {
     createComponent({ disabled: true });
 
-    expect(modal().attributes('ok-disabled')).toBe('true');
+    const { attributes } = modal().props('modalActionPrimary');
+    expect(attributes[1].disabled).toBe(true);
   });
 
   it('disables the form if no query is selected', () => {
     createComponent();
 
-    expect(modal().attributes('ok-disabled')).toBe('true');
+    const { attributes } = modal().props('modalActionPrimary');
+    expect(attributes[1].disabled).toBe(true);
   });
 
   it('shows correct title and button text', () => {

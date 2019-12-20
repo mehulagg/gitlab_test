@@ -185,7 +185,7 @@ export default {
       this.selectedAlert = {};
     },
     setPrimaryActionDisabled() {
-      return this.formDisabled ? { disabled: true } : null;
+      return !this.formDisabled ? { disabled: true } : null;
     },
   },
   alertQueryText: {
