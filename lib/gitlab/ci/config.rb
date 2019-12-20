@@ -25,11 +25,10 @@ module Gitlab
           @context.set_deadline(TIMEOUT_SECONDS)
         end
 
-        @config = expand_config(config)
+        @raw_config = config
 
-        @root = Entry::Root.new(@config)
+        @root = Entry::Root.new(expanded_config)
         @root.compose!
-
       rescue *rescue_errors => e
         raise Config::ConfigError, e.message
       end
@@ -63,28 +62,32 @@ module Gitlab
 
       private
 
-      def expand_config(config)
-        build_config(config)
-
-      rescue Gitlab::Config::Loader::Yaml::DataTooLargeError => e
-        track_and_raise_for_dev_exception(e)
-        raise Config::ConfigError, e.message
-
-      rescue Gitlab::Ci::Config::External::Context::TimeoutError => e
-        track_and_raise_for_dev_exception(e)
-        raise Config::ConfigError, TIMEOUT_MESSAGE
+      def expanded_config
+        begin
+          if Feature.enabled?(:ci_pre_post_pipeline_stages, @context.project, default_enabled: true)
+            Config::EdgeStagesInjector.new(extended_config).to_hash
+          else
+            extended_config
+          end
+        rescue Gitlab::Config::Loader::Yaml::DataTooLargeError => e
+          track_and_raise_for_dev_exception(e)
+          raise Config::ConfigError, e.message
+        rescue Gitlab::Ci::Config::External::Context::TimeoutError => e
+          track_and_raise_for_dev_exception(e)
+          raise Config::ConfigError, TIMEOUT_MESSAGE
+        end
       end
 
-      def build_config(config)
-        initial_config = Gitlab::Config::Loader::Yaml.new(config).load!
-        initial_config = Config::External::Processor.new(initial_config, @context).perform
-        initial_config = Config::Extendable.new(initial_config).to_hash
+      def extended_config
+        Config::Extendable.new(processed_with_external_config).to_h
+      end
 
-        if Feature.enabled?(:ci_pre_post_pipeline_stages, @context.project, default_enabled: true)
-          initial_config = Config::EdgeStagesInjector.new(initial_config).to_hash
-        end
+      def processed_with_external_config
+        Config::External::Processor.new(loaded_config, @context).perform
+      end
 
-        initial_config
+      def loaded_config
+        Gitlab::Config::Loader::Yaml.new(@raw_config).load!
       end
 
       def build_context(project:, sha:, user:)
