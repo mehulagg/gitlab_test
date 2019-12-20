@@ -4,19 +4,16 @@ module Gitlab
   module Ci
     class Config
       class Extendable
-        include Enumerable
 
         ExtensionError = Class.new(StandardError)
 
         def initialize(hsh)
           @hash = hsh.to_h.deep_dup
 
-          each { |entry| entry.extend! if entry.extensible? }
-        end
 
-        def each
           @hash.each_key do |key|
-            yield Extendable::Entry.new(key, @hash)
+            entry = Extendable::Entry.new(key, @hash)
+            entry.extend! if entry.extensible?
           end
         end
 
