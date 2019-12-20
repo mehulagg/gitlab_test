@@ -347,6 +347,13 @@ RSpec.configure do |config|
   config.append_after do
     Gitlab::Database.reset_open_transactions_baseline
   end
+
+  config.before(:each) do
+    allow(Addrinfo).to receive(:getaddrinfo).and_call_original
+    allow(Addrinfo).to receive(:getaddrinfo)
+      .with(anything, anything, nil, :STREAM)
+      .and_return([Addrinfo.ip("127.0.0.1")])
+  end
 end
 
 # add simpler way to match asset paths containing digest strings
