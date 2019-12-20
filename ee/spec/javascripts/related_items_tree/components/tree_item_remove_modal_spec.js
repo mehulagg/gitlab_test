@@ -130,8 +130,8 @@ describe('RelatedItemsTree', () => {
 
         expect(modal.isVisible()).toBe(true);
         expect(modal.attributes('modalid')).toBe('item-remove-confirmation');
-        expect(modal.attributes('ok-title')).toBe('Remove');
-        expect(modal.attributes('ok-variant')).toBe('danger');
+        expect(modal.props('modalActionPrimary').text).toBe('Remove');
+        expect(modal.props('modalActionPrimary').attributes[0].variant).toBe('danger');
       });
     });
   });

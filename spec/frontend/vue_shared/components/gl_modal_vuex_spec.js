@@ -30,6 +30,9 @@ describe('GlModalVuex', () => {
     const propsData = {
       modalId: TEST_MODAL_ID,
       modalModule: TEST_MODULE,
+      modalPrimary: {
+        text: 'Primary Action',
+      },
       ...options.propsData,
     };
 

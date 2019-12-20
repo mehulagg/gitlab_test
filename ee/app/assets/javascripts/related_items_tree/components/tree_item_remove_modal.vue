@@ -4,7 +4,7 @@ import _ from 'underscore';
 
 import { GlModal } from '@gitlab/ui';
 
-import { sprintf } from '~/locale';
+import { sprintf, __ } from '~/locale';
 
 import { ChildType, RemoveItemModalProps, itemRemoveModalId } from '../constants';
 
