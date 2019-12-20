@@ -30,6 +30,14 @@ describe Gitlab::QA::Component::Staging do
           expect(request).to have_been_requested
         end
       end
+
+      context 'when it is an RC release' do
+        it 'retrieves the version from the version API' do
+          request = stub_request(:get, version_api_url).to_return(api_response('12.6.0-rc42-ee')).times(1)
+          expect(subject.tag_end).to eq('12.6.0-rc42-ee')
+          expect(request).to have_been_requested
+        end
+      end
     end
 
     describe '#major_minor_revision' do
