@@ -6,39 +6,39 @@ module Gitlab
     # Base GitLab CI Configuration facade
     #
     class Config
+      include Gitlab::Utils::StrongMemoize
+
       ConfigError = Class.new(StandardError)
       TIMEOUT_SECONDS = 30.seconds
       TIMEOUT_MESSAGE = 'Resolving config took longer than expected'
 
       RESCUE_ERRORS = [
         Gitlab::Config::Loader::FormatError,
-        Extendable::ExtensionError,
         External::Processor::IncludeError
       ].freeze
 
       attr_reader :root
 
       def initialize(config, project: nil, sha: nil, user: nil)
-        @context = build_context(project: project, sha: sha, user: user)
+        @raw_config = config
+        @context    = build_context(project: project, sha: sha, user: user)
 
         if Feature.enabled?(:ci_limit_yaml_expansion, project, default_enabled: true)
           @context.set_deadline(TIMEOUT_SECONDS)
         end
 
-        @raw_config = config
-
         @root = Entry::Root.new(expanded_config)
-        @root.compose!
+        @root.compose! if valid?
       rescue *rescue_errors => e
         raise Config::ConfigError, e.message
       end
 
       def valid?
-        @root.valid?
+        errors.none? && root.valid?
       end
 
       def errors
-        @root.errors
+        config_extendable.errors + @root.errors
       end
 
       def to_hash
@@ -79,7 +79,13 @@ module Gitlab
       end
 
       def extended_config
-        Config::Extendable.new(processed_with_external_config).to_h
+        config_extendable.to_hash
+      end
+
+      def config_extendable
+        strong_memoize(:config_extendable) do
+          Config::Extendable.new(processed_with_external_config)
+        end
       end
 
       def processed_with_external_config
