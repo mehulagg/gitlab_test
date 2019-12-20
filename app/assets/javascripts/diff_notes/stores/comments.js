@@ -1,4 +1,4 @@
-/* eslint-disable camelcase, no-restricted-syntax, guard-for-in */
+/* eslint-disable babel/camelcase, no-restricted-syntax, guard-for-in */
 /* global DiscussionModel */
 
 import Vue from 'vue';

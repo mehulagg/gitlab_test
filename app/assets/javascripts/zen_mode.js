@@ -1,4 +1,4 @@
-/* eslint-disable consistent-return, camelcase, class-methods-use-this */
+/* eslint-disable consistent-return, babel/camelcase, class-methods-use-this */
 
 // Zen Mode (full screen) textarea
 //

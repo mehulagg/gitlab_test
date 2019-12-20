@@ -1,4 +1,4 @@
-/* eslint-disable func-names, consistent-return, camelcase */
+/* eslint-disable func-names, consistent-return, babel/camelcase */
 
 import $ from 'jquery';
 import { __ } from '../locale';

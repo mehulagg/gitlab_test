@@ -1,4 +1,4 @@
-/* eslint-disable func-names, no-underscore-dangle, one-var, no-cond-assign, no-return-assign, no-else-return, camelcase, no-lonely-if, guard-for-in, no-restricted-syntax, consistent-return, no-param-reassign, no-loop-func */
+/* eslint-disable func-names, no-underscore-dangle, one-var, no-cond-assign, no-return-assign, no-else-return, babel/camelcase, no-lonely-if, guard-for-in, no-restricted-syntax, consistent-return, no-param-reassign, no-loop-func */
 
 import $ from 'jquery';
 import _ from 'underscore';

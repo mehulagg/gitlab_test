@@ -1,4 +1,4 @@
-/* eslint-disable camelcase, guard-for-in, no-restricted-syntax */
+/* eslint-disable babel/camelcase, guard-for-in, no-restricted-syntax */
 /* global NoteModel */
 
 import $ from 'jquery';
