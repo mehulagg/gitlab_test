@@ -22,16 +22,16 @@ module Gitlab
       }xi
 
       # Official dev tag example:
-      #  12.5.4-ee
-      # |------|--|
-      #   |      |
-      #   |      |
-      #   |      |
-      #   |   edition
+      #  12.5.4(-rc42)-ee
+      # |-------------|--|
+      #   |             |
+      #   |             |
+      #   |             |
+      #   |          edition
       # version
       DEV_OFFICIAL_TAG_REGEX = /
         \A
-          (?<version>\d+\.\d+.\d+)-(?<edition>ce|ee)
+          (?<version>\d+\.\d+.\d+(?:-rc\d+)?)-(?<edition>ce|ee)
         \z
       /xi
 
