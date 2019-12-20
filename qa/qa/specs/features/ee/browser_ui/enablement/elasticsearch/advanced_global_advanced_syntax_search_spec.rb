@@ -48,6 +48,8 @@ module QA
       end
 
       def expect_search_to_find_project(search_term)
+        expect(Runtime::Search.found_project?(project, search_term)).to be true
+
         Page::Main::Menu.perform do |menu|
           menu.search_for(search_term)
         end
