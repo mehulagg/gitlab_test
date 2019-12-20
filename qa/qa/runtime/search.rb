@@ -18,7 +18,7 @@ module QA
         project = Resource::Project.fabricate_via_api! do |project|
           project.name = "project-to-search-#{search_term}1"
         end
-        Resource::Repository::Commit.fabricate_via_api! do |commit|
+        commit = Resource::Repository::Commit.fabricate_via_api! do |commit|
           commit.project = project
           commit.commit_message = content
           commit.add_files(
@@ -31,9 +31,35 @@ module QA
           )
         end
 
-        QA::Support::Retrier.retry_on_exception(max_attempts: 6, sleep_interval: 10) do
-          search('commits', "commit*#{search_term}") && search('projects', "to-search*#{search_term}1")
+        QA::Support::Retrier.retry_until(max_attempts: 3, sleep_interval: 10) do
+          QA::Support::Retrier.retry_on_exception(max_attempts: 3, sleep_interval: 10) do
+            found_commit?(commit, "commit*#{search_term}") && found_project?(project, "to-search*#{search_term}1")
+          end
         end
+      end
+
+      def find_commits(search_term)
+        search('commits', search_term)
+      end
+
+      def find_projects(search_term)
+        search('projects', search_term)
+      end
+
+      def found_commit?(commit, search_term)
+        result = find_commits(search_term)
+        return false unless result && result.any? { |c| c[:message] == commit.commit_message }
+
+        QA::Runtime::Logger.debug("Found commit '#{commit.commit_message} (#{commit.short_id})' via '#{search_term}'")
+        true
+      end
+
+      def found_project?(project, search_term)
+        result = find_projects(search_term)
+        return false unless result && result.any? { |p| p[:name] == project.name }
+
+        QA::Runtime::Logger.debug("Found project '#{project.name}' via '#{search_term}'")
+        true
       end
 
       private
@@ -49,8 +75,7 @@ module QA
           raise ElasticSearchServerError, msg
         end
 
-        QA::Runtime::Logger.debug("Found '#{term}'...")
-        true
+        parse_body(response)
       end
 
       def api_client
