@@ -3,6 +3,7 @@ import * as types from './mutation_types';
 import createFlash from '~/flash';
 import Poll from '~/lib/utils/poll';
 import { __ } from '~/locale';
+import axios from '~/lib/utils/axios_utils'; // TODO: Uncomment when backend merged
 
 let stackTracePoll;
 let detailPoll;
@@ -58,6 +59,19 @@ export function startPollingStacktrace({ commit }, endpoint) {
   });
 
   stackTracePoll.makeRequest();
+}
+
+export function ignoreError({ commit }, endpoint, id) {
+  commit(types.REQUEST_IGNORE_ERROR);
+
+  axios
+    .PUT(`${endpoint}/${id}`, { ignored: 'true' })
+    .then(() => {
+      // navigate to list page
+    })
+    .catch(() => {
+      commit(types.RECEIVE_IGNORE_ERROR);
+    });
 }
 
 export default () => {};
