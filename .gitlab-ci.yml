@@ -721,6 +721,8 @@ ee:smtp:
     variables:
       - $TOP_UPSTREAM_SOURCE_PROJECT == null
       - $TOP_UPSTREAM_SOURCE_SHA == null
+  before_script:
+    - gem install gitlab --no-document
 
 notify_upstream_commit:success:
   extends:
