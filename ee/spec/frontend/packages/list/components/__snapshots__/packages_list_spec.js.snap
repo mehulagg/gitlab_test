@@ -292,6 +292,7 @@ exports[`packages_list renders 1`] = `
   />
    
   <glmodal-stub
+    modalactioncancel="[object Object]"
     modalactionprimary="[object Object]"
     modalactionsecondary="[object Object]"
     modalclass=""
