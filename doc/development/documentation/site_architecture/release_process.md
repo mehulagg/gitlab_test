@@ -147,20 +147,16 @@ dropdown will be one or more releases behind. Remember that the new changes of
 the dropdown are included in the unmerged `release-X-Y` branch.
 
 The content of `content/_data/versions.yaml` needs to change for all online
-versions:
+versions Run the raketask that will create all the respective merge requests needed to
+update the dropdowns and will be set to automatically be merged when their
+pipelines succeed.
 
-1. Before creating the merge request, [disable the scheduled pipeline](https://gitlab.com/gitlab-org/gitlab-docs/pipeline_schedules/228/edit)
-   by unchecking the "Active" option. Since all steps must run in sequence, we need
-   to do this to avoid race conditions in the event some previous versions are
-   updated before the release merge request is merged.
-1. Run the raketask that will create all the respective merge requests needed to
-   update the dropdowns and will be set to automatically be merged when their
-   pipelines succeed. The `release-X-Y` branch needs to be present locally,
-   otherwise the raketask will fail:
+NOTE: **Note:**
+The `release-X-Y` branch needs to be present locally, otherwise the raketask will fail.
 
-   ```sh
-   ./bin/rake release:dropdowns
-   ```
+```sh
+./bin/rake release:dropdowns
+```
 
 Once all are merged, proceed to the following and final step.
 
@@ -176,8 +172,9 @@ you need to only babysit the pipelines and make sure they don't fail:
 1. Check the [pipelines page](https://gitlab.com/gitlab-org/gitlab-docs/pipelines)
    and make sure all stable branches have green pipelines.
 1. After all the pipelines of the online versions succeed, merge the release merge request.
-1. Finally, re-activate the [scheduled pipeline](https://gitlab.com/gitlab-org/gitlab-docs/pipeline_schedules/228/edit),
-   save it, and hit the play button to get it started.
+1. Manually run the ["Build docker images weekly" scheduled pipeline](https://gitlab.com/gitlab-org/gitlab-docs/pipeline_schedules).
+   This is needed so that the `image:docs-latest` image is built that will
+   contain all the updated versions.
 
 Once the scheduled pipeline succeeds, the docs site will be deployed with all
 new versions online.
