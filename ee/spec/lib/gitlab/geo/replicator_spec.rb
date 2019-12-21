@@ -35,6 +35,25 @@ describe Gitlab::Geo::Replicator do
       end
     end
 
+    context 'model DSL' do
+      class DummyModel
+        include ActiveModel::Model
+        include Gitlab::Geo::Replicator::ModelIntegration
+
+        with_geo_replicator DummyReplicator
+      end
+
+      subject { DummyModel.new }
+
+      it 'adds replicator method to the model' do
+        expect(subject).respond_to? :replicator
+      end
+
+      it 'instantiates a replicator into the model' do
+        expect(subject.replicator).to be_a(DummyReplicator)
+      end
+    end
+
     describe '#publish' do
       subject { DummyReplicator.new }
 
