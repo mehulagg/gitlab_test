@@ -9,9 +9,9 @@ class ContainerRepositoryReplicator < Gitlab::Geo::Replicator
 
   protected
 
-  def publish_updated(model:)
+  def publish_updated(repository:)
     # TODO: move EventStore logic to the replicator
     # This will allow us to have less classes to implement for each event
-    Geo::ContainerRepositoryUpdatedEventStore.new(model).create!
+    Geo::ContainerRepositoryUpdatedEventStore.new(repository).create!
   end
 end

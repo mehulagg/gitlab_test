@@ -34,11 +34,9 @@ module EE
       def log_geo_event(project)
         project.design_repository.replicate_delete if project.design_repository.exists?
 
-        ::Geo::RepositoryDeletedEventStore.new(
-          project,
-          repo_path: repo_path,
-          wiki_path: wiki_path
-        ).create!
+        ProjectRepositoryReplicator.new(project).publish(:deleted,
+                                                         repo_path: repo_path,
+                                                         wiki_path: wiki_path)
       end
 
       # Removes physical repository in a Geo replicated secondary node

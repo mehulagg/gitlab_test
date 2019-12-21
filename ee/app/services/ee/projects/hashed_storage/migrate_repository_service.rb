@@ -9,13 +9,15 @@ module EE
         override :execute
         def execute
           super do
-            ::Geo::HashedStorageMigratedEventStore.new(
-              project,
-              old_storage_version: old_storage_version,
-              old_disk_path: old_disk_path,
-              old_wiki_disk_path: old_wiki_disk_path
-            ).create!
+            replicator.publish(:project_storage_migrated,
+                               old_storage_version: old_storage_version,
+                               old_disk_path: old_disk_path,
+                               old_wiki_disk_path: old_wiki_disk_path)
           end
+        end
+
+        def replicator
+          HashedStorageReplicator.new(model: project)
         end
       end
     end

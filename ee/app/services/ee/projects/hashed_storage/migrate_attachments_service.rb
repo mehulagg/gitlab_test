@@ -11,12 +11,14 @@ module EE
           super do
             break true if skipped?
 
-            ::Geo::HashedStorageAttachmentsEventStore.new(
-              project,
-              old_attachments_path: old_disk_path,
-              new_attachments_path: new_disk_path
-            ).create!
+            replicator.publish(:attachments_storage_migrated,
+                               old_attachments_path: old_disk_path,
+                               new_attachments_path: new_disk_path)
           end
+        end
+
+        def replicator
+          HashedStorageReplicator.new(model: project)
         end
       end
     end

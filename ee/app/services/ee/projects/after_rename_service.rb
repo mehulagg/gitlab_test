@@ -8,10 +8,13 @@ module EE::Projects::AfterRenameService
   def rename_or_migrate_repository!
     super
 
-    ::Geo::RepositoryRenamedEventStore.new(
-      project,
-      old_path: path_before,
-      old_path_with_namespace: full_path_before
-    ).create!
+    replicator.publish(:renamed, old_path: path_before,
+                       old_path_with_namespace: full_path_before)
+  end
+
+  private
+
+  def replicator
+    ProjectRepositoryReplicator.new(project)
   end
 end

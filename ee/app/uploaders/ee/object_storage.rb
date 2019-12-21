@@ -12,7 +12,7 @@ module EE
       private
 
       def log_geo_deleted_event(_migrated_file)
-        upload.log_geo_deleted_event
+        upload.replicator.publish :deleted
       end
     end
   end

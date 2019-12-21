@@ -9,14 +9,14 @@ module EE
     extend ActiveSupport::Concern
 
     prepended do
-      after_destroy :log_geo_deleted_event
+      include ::Gitlab::Geo::Replicator::ModelIntegration
+
+      with_geo_replicator UploadReplicator
+
+      after_destroy { replicator.publish :deleted }
 
       scope :for_model, ->(model) { where(model_id: model.id, model_type: model.class.name) }
       scope :syncable, -> { with_files_stored_locally }
-    end
-
-    def log_geo_deleted_event
-      ::Geo::UploadDeletedEventStore.new(self).create!
     end
   end
 end

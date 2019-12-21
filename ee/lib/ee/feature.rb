@@ -32,7 +32,7 @@ module EE
       private
 
       def log_geo_event(key)
-        Geo::CacheInvalidationEventStore.new(cache_store.key_for(key)).create!
+        ContainerRepositoryReplicator.new.publish(:invalidated, cache_key: cache_store.key_for(key))
       end
 
       def cache_store

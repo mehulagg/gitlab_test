@@ -13,14 +13,16 @@ module EE
 
         EE::Audit::ProjectChangesAuditor.new(current_user, project).execute
 
-        ::Geo::RepositoryRenamedEventStore.new(
-          project,
-          old_path: project.path,
-          old_path_with_namespace: @old_path # rubocop:disable Gitlab/ModuleWithInstanceVariables
-        ).create!
+        replicator.publish(:renamed, old_path: project.path,
+                           old_path_with_namespace: @old_path) # rubocop:disable Gitlab/ModuleWithInstanceVariables
+      end
+
+      def replicator
+        ProjectRepositoryReplicator.new(project)
       end
 
       override :transfer
+
       def transfer(project)
         if project.feature_available?(:packages) && project.has_packages?(:npm) && !new_namespace_has_same_root?(project)
           raise ::Projects::TransferService::TransferError.new(s_("TransferProject|Root namespace can't be updated if project has NPM packages"))

@@ -9,7 +9,12 @@ module EE
     extend ActiveSupport::Concern
 
     prepended do
-      after_destroy :log_geo_deleted_event
+      include ::Gitlab::Geo::Replicator::ModelIntegration
+
+      with_geo_replicator JobArtifactReplicator
+
+      after_destroy { replicator.publish :deleted }
+
 
       SECURITY_REPORT_FILE_TYPES = %w[sast dependency_scanning container_scanning dast].freeze
       LICENSE_MANAGEMENT_REPORT_FILE_TYPES = %w[license_management].freeze
@@ -50,10 +55,6 @@ module EE
       scope :metrics_reports, -> do
         with_file_types(METRICS_REPORT_FILE_TYPES)
       end
-    end
-
-    def log_geo_deleted_event
-      ::Geo::JobArtifactDeletedEventStore.new(self).create!
     end
   end
 end

@@ -19,7 +19,7 @@ module ContainerRegistry
     def handle_event(event)
       return unless manifest_push?(event) || manifest_delete?(event)
 
-      ::Geo::ContainerRepositoryUpdatedEventStore.new(find_repository!(event)).create!
+      replicator.publish(:updated, repository: find_repository!(event))
     end
 
     def manifest_push?(event)
@@ -36,6 +36,10 @@ module ContainerRegistry
       repository_name = event['target']['repository']
       path = ContainerRegistry::Path.new(repository_name)
       ContainerRepository.find_by_path!(path)
+    end
+
+    def replicator
+      HashedStorageReplicator.new
     end
   end
 end

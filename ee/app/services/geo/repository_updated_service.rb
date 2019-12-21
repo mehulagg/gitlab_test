@@ -31,9 +31,14 @@ module Geo
     delegate :repository_state, to: :project
 
     def create_repository_updated_event!
-      Geo::RepositoryUpdatedEventStore.new(
-        project, refs: refs, changes: changes, source: source
-      ).create!
+      replicator.publish(:updated,
+                         refs: refs,
+                         changes: changes,
+                         source: source)
+    end
+
+    def replicator
+      ProjectRepositoryReplicator.new(project)
     end
 
     def design?

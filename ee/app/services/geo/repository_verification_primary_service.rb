@@ -10,12 +10,16 @@ module Geo
       verify_checksum(:repository, project.repository)
       verify_checksum(:wiki, project.wiki.repository)
 
-      Geo::ResetChecksumEventStore.new(project).create!
+      replicator.publish(:reset_checksum)
     end
 
     private
 
     attr_reader :project
+
+    def replicator
+      ProjectRepositoryReplicator.new(project)
+    end
 
     def verify_checksum(type, repository)
       checksum = calculate_checksum(repository)

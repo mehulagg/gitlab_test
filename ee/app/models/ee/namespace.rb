@@ -82,11 +82,10 @@ module EE
 
       if succeeded
         all_projects.each do |project|
-          ::Geo::RepositoryRenamedEventStore.new(
-            project,
-            old_path: project.path,
-            old_path_with_namespace: old_path_with_namespace_for(project)
-          ).create!
+          project_replicator = ProjectRepositoryReplicator.new(project)
+          project_replicator.publish(:renamed,
+                                     old_path: project.path,
+                                     old_path_with_namespace: old_path_with_namespace_for(project))
         end
       end
 

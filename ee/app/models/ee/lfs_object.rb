@@ -12,14 +12,13 @@ module EE
 
     prepended do
       include ObjectStorable
+      include ::Gitlab::Geo::Replicator::ModelIntegration
 
-      after_destroy :log_geo_deleted_event
+      with_geo_replicator LfsObjectReplicator
+
+      after_destroy { replicator.publish :deleted }
 
       scope :project_id_in, ->(ids) { joins(:projects).merge(::Project.id_in(ids)) }
-    end
-
-    def log_geo_deleted_event
-      ::Geo::LfsObjectDeletedEventStore.new(self).create!
     end
   end
 end
