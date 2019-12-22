@@ -24,20 +24,32 @@ module QA
         end
       end
 
-      def retry_until(max_attempts: 3, reload_page: nil, sleep_interval: 0, exit_on_failure: false)
+      def retry_until(max_attempts: 3, reload_page: nil, sleep_interval: 0, exit_on_failure: false, retry_on_exception: false)
         QA::Runtime::Logger.debug("with retry_until: max_attempts #{max_attempts}; sleep_interval #{sleep_interval}; reload_page:#{reload_page}")
         attempts = 0
 
         while attempts < max_attempts
-          QA::Runtime::Logger.debug("Attempt number #{attempts + 1}")
-          result = yield
-          return result if result
+          begin
+            QA::Runtime::Logger.debug("Attempt number #{attempts + 1}")
+            result = yield
+            return result if result
 
-          sleep sleep_interval
+            sleep sleep_interval
+            reload_page.refresh if reload_page
+            attempts += 1
+          rescue StandardError, RSpec::Expectations::ExpectationNotMetError
+            raise unless retry_on_exception
 
-          reload_page.refresh if reload_page
+            attempts += 1
+            if attempts < max_attempts
+              sleep sleep_interval
+              reload_page.refresh if reload_page
 
-          attempts += 1
+              retry
+            else
+              raise
+            end
+          end
         end
 
         if exit_on_failure

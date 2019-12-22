@@ -13,26 +13,29 @@ module QA
       def elasticsearch_responding?
         QA::Runtime::Logger.debug("Attempting to search via Elasticsearch...")
 
-        search_term = SecureRandom.hex(8)
-        content = "Elasticsearch test commit #{search_term}"
-        project = Resource::Project.fabricate_via_api! do |project|
-          project.name = "project-to-search-#{search_term}1"
-        end
-        commit = Resource::Repository::Commit.fabricate_via_api! do |commit|
-          commit.project = project
-          commit.commit_message = content
-          commit.add_files(
-            [
-              {
-                file_path: 'test.txt',
-                content: content
-              }
-            ]
-          )
-        end
+        QA::Support::Retrier.retry_until(max_attempts: 3, exit_on_failure: true, retry_on_exception: true) do
+          search_term = SecureRandom.hex(8)
 
-        QA::Support::Retrier.retry_until(max_attempts: 3, sleep_interval: 10) do
-          QA::Support::Retrier.retry_on_exception(max_attempts: 3, sleep_interval: 10) do
+          QA::Runtime::Logger.debug("Creating commit and project including search term '#{search_term}'...")
+
+          content = "Elasticsearch test commit #{search_term}"
+          project = Resource::Project.fabricate_via_api! do |project|
+            project.name = "project-to-search-#{search_term}1"
+          end
+          commit = Resource::Repository::Commit.fabricate_via_api! do |commit|
+            commit.project = project
+            commit.commit_message = content
+            commit.add_files(
+              [
+                {
+                  file_path: 'test.txt',
+                  content: content
+                }
+              ]
+            )
+          end
+
+          QA::Support::Retrier.retry_until(max_attempts: 5, sleep_interval: 10, exit_on_failure: true, retry_on_exception: true) do
             found_commit?(commit, "commit*#{search_term}") && found_project?(project, "to-search*#{search_term}1")
           end
         end

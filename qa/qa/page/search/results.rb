@@ -19,11 +19,11 @@ module QA::Page
       end
 
       def switch_to_code
-        click_element(:code_tab)
+        switch_to_tab(:code_tab)
       end
 
       def switch_to_projects
-        click_element(:projects_tab)
+        switch_to_tab(:projects_tab)
       end
 
       def has_file_in_project?(file_name, project_name)
@@ -40,6 +40,15 @@ module QA::Page
 
       def has_project?(project_name)
         has_element?(:project, project_name: project_name)
+      end
+
+      private
+
+      def switch_to_tab(tab)
+        retry_until do
+          click_element(tab)
+          has_active_element?(tab)
+        end
       end
     end
   end
