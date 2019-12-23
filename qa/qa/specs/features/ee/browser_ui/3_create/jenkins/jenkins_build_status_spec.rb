@@ -2,7 +2,7 @@
 require 'securerandom'
 
 module QA
-  context 'Create', :docker do
+  context 'Create', :docker, :jenkins do
     describe 'Jenkins integration' do
       include QA::Runtime::IPAddress
 
@@ -31,7 +31,7 @@ module QA
         puts "Sleeping....."
         QA::Runtime::Logger.info "Sleeping....."
 
-        sleep 300 # Temporary: Sleep for 5 minutes
+        sleep 600 # Temporary: Sleep for 10 minutes
 
         puts "Awake....."
         QA::Runtime::Logger.info "Awake....."
