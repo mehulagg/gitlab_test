@@ -16,7 +16,7 @@ module Projects
       }.freeze
 
       def create
-        result = ::Files::CreateService.new(project, current_user, dashboard_attrs).execute
+        result = ::Files::CreateService.new(project, current_user, create_dashboard_attrs).execute
 
         if result[:status] == :success
           respond_success
@@ -26,7 +26,7 @@ module Projects
       end
 
       def update
-        result = ::Files::UpdateService.new(project, current_user, dashboard_attrs).execute
+        result = ::Files::UpdateService.new(project, current_user, update_dashboard_attrs).execute
 
         if result[:status] == :success
           respond_success
@@ -61,11 +61,22 @@ module Projects
         params.require(:branch)
       end
 
-      def dashboard_attrs
+      def create_dashboard_attrs
         {
           commit_message: commit_message,
           file_path: new_dashboard_path,
-          file_content: update_dashboard_content || new_dashboard_content,
+          file_content: new_dashboard_content,
+          encoding: 'text',
+          branch_name: branch,
+          start_branch: repository.branch_exists?(branch) ? branch : project.default_branch
+        }
+      end
+
+      def update_dashboard_attrs
+        {
+          commit_message: commit_message,
+          file_path: new_dashboard_path,
+          file_content: update_dashboard_content,
           encoding: 'text',
           branch_name: branch,
           start_branch: repository.branch_exists?(branch) ? branch : project.default_branch
@@ -89,9 +100,7 @@ module Projects
       end
 
       def update_dashboard_content
-        return unless params[:file_content]
-
-        params[:file_content].to_yaml
+        params.require(:file_content).to_yaml
       end
     end
   end

@@ -294,7 +294,17 @@ describe Projects::PerformanceMonitoring::DashboardsController do
             let(:branch) { nil }
 
             it 'raises ActionController::ParameterMissing' do
-              expect { post :create, params: params }.to raise_error ActionController::ParameterMissing
+              expect { post :update, params: params }.to raise_error ActionController::ParameterMissing
+            end
+          end
+
+          context 'missing file content' do
+            before do
+              params.delete(:file_content)
+            end
+
+            it 'raises ActionController::ParameterMissing' do
+              expect { post :update, params: params }.to raise_error ActionController::ParameterMissing
             end
           end
         end
