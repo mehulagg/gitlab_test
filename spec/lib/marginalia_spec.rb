@@ -116,7 +116,7 @@ describe 'Marginalia spec' do
       {
         "application"       => "sidekiq",
         "job_class"         => "MarginaliaTestJob",
-        "line"              => "/spec/support/sidekiq_middleware.rb",
+        "line"              => "/db/fixtures/sidekiq_middleware.rb",
         "correlation_id"    => sidekiq_job['correlation_id'],
         "jid"               => sidekiq_job['jid']
       }

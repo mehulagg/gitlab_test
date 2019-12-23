@@ -1,4 +1,6 @@
-require './spec/support/sidekiq_middleware'
+# frozen_string_literal: true
+
+require './db/fixtures/sidekiq_middleware'
 require './spec/support/helpers/test_env'
 
 class Gitlab::Seeder::CycleAnalytics
