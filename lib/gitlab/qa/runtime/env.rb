@@ -101,7 +101,7 @@ module Gitlab
           vars = {}
 
           ENV_VARIABLES.each do |name, attribute|
-            # Variables that are overriden in the environment take precedence
+            # Variables that are overridden in the environment take precedence
             # over the defaults specified by the QA runtime.
             value = env_value_if_defined(name) || send(attribute) # rubocop:disable GitlabSecurity/PublicSend
             vars[name] = value if value
