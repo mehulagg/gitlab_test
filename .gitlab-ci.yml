@@ -728,14 +728,14 @@ notify_upstream_commit:success:
   extends:
     - .notify_upstream_commit
   script:
-    - bin/notify_upstream_commit success ${COMBINED_REPORT}
+    - bin/notify_upstream_commit success
   when: on_success
 
 notify_upstream_commit:failure:
   extends:
     - .notify_upstream_commit
   script:
-    - bin/notify_upstream_commit failure ${COMBINED_REPORT}
+    - bin/notify_upstream_commit failure
   when: on_failure
 
 # This job requires the `GITLAB_QA_ACCESS_TOKEN` and `GITLAB_QA_DEV_ACCESS_TOKEN`
