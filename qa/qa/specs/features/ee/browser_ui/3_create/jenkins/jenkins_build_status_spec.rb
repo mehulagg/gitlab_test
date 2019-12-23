@@ -2,7 +2,7 @@
 require 'securerandom'
 
 module QA
-  context 'Create', :docker, :jenkins do
+  context 'Create', :docker do
     describe 'Jenkins integration' do
       include QA::Runtime::IPAddress
 
