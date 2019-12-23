@@ -1,0 +1,47 @@
+Run options: include {:focus=>true}
+
+All examples were filtered out; ignoring {:focus=>true}
+
+==> Setting up Gitaly...
+Checking gitaly-ruby Gemfile...
+Checking gitaly-ruby bundle...
+The Gemfile's dependencies are satisfied
+Trying to connect to gitaly: ... OK
+    Gitaly set up in 0.56654986 seconds...
+
+==> Setting up GitLab Elasticsearch Indexer...
+    GitLab Elasticsearch Indexer set up in 8.0851e-05 seconds...
+...F..F........................FF..................................
+
+Failures:
+
+  1) Gitlab::UrlBlocker#validate! when the URL hostname is a domain when domain cannot be resolved raises an error
+     Failure/Error: expect { subject }.to raise_error(described_class::BlockedUrlError)
+       expected Gitlab::UrlBlocker::BlockedUrlError but nothing was raised
+     # ./spec/lib/gitlab/url_blocker_spec.rb:62:in `block (5 levels) in <top (required)>'
+
+  2) Gitlab::UrlBlocker#validate! when the URL hostname is an IP address when the address is invalid raises an error
+     Failure/Error: expect { subject }.to raise_error(described_class::BlockedUrlError)
+       expected Gitlab::UrlBlocker::BlockedUrlError but nothing was raised
+     # ./spec/lib/gitlab/url_blocker_spec.rb:89:in `block (5 levels) in <top (required)>'
+
+  3) Gitlab::UrlBlocker#blocked_url? blocks urls with invalid ip address
+     Failure/Error: expect(described_class).to be_blocked_url('http://8.8.8.8.8')
+       expected `Gitlab::UrlBlocker.blocked_url?("http://8.8.8.8.8")` to return true, got false
+     # ./spec/lib/gitlab/url_blocker_spec.rb:622:in `block (3 levels) in <top (required)>'
+
+  4) Gitlab::UrlBlocker#blocked_url? blocks urls whose hostname cannot be resolved
+     Failure/Error: expect(described_class).to be_blocked_url('http://foobar.x')
+       expected `Gitlab::UrlBlocker.blocked_url?("http://foobar.x")` to return true, got false
+     # ./spec/lib/gitlab/url_blocker_spec.rb:628:in `block (3 levels) in <top (required)>'
+
+Finished in 16.15 seconds (files took 17.23 seconds to load)
+67 examples, 4 failures
+
+Failed examples:
+
+rspec ./spec/lib/gitlab/url_blocker_spec.rb:59 # Gitlab::UrlBlocker#validate! when the URL hostname is a domain when domain cannot be resolved raises an error
+rspec ./spec/lib/gitlab/url_blocker_spec.rb:86 # Gitlab::UrlBlocker#validate! when the URL hostname is an IP address when the address is invalid raises an error
+rspec ./spec/lib/gitlab/url_blocker_spec.rb:619 # Gitlab::UrlBlocker#blocked_url? blocks urls with invalid ip address
+rspec ./spec/lib/gitlab/url_blocker_spec.rb:625 # Gitlab::UrlBlocker#blocked_url? blocks urls whose hostname cannot be resolved
+

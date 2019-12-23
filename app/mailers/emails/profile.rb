@@ -33,10 +33,11 @@ module Emails
     end
     # rubocop: enable CodeReuse/ActiveRecord
 
-    def access_token_about_to_expire_email(user)
-      return unless user
+    def access_token_about_to_expire_email(user_id)
+      @user = User.find_by(id: user_id)
 
-      @user = user
+      return unless @user
+
       @target_url = profile_personal_access_tokens_url
       @days_to_expire = PersonalAccessToken::DAYS_TO_EXPIRE
 

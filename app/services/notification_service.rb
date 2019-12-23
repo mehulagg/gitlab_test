@@ -63,7 +63,7 @@ class NotificationService
   def access_token_about_to_expire(user)
     return unless user.can?(:receive_notifications)
 
-    mailer.access_token_about_to_expire_email(user).deliver_later
+    mailer.access_token_about_to_expire_email(user.id).deliver_later
   end
 
   # When create an issue we should send an email to:

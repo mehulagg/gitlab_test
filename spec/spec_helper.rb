@@ -353,6 +353,11 @@ RSpec.configure do |config|
     allow(Addrinfo).to receive(:getaddrinfo)
       .with(anything, anything, nil, :STREAM)
       .and_return([Addrinfo.ip("127.0.0.1")])
+
+    allow(Gitlab::UrlBlocker).to receive(:validate_localhost) { true }
+    allow(Gitlab::UrlBlocker).to receive(:validate_loopback) { true }
+    allow(Gitlab::UrlBlocker).to receive(:validate_local_network) { true }
+    allow(Gitlab::UrlBlocker).to receive(:validate_link_local) { true }
   end
 end
 
