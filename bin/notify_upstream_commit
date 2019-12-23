@@ -10,7 +10,7 @@ Gitlab.configure do |config|
 end
 
 class CommitComment
-  def self.post!(status, report_file_name)
+  def self.post!(status)
     unless ENV['TOP_UPSTREAM_SOURCE_SHA']
       puts "The 'TOP_UPSTREAM_SOURCE_SHA' environment variable is missing, cannot post a comment on a missing upstream commit."
       return
@@ -40,8 +40,6 @@ class CommitComment
       top_upstream_source_sha,
       <<~COMMENT
         The [`gitlab-qa` downstream pipeline](#{ENV['CI_PIPELINE_URL']}) #{status_with_icon}.
-
-        You can download a report of the test results: [`#{report_file_name}`](#{ENV['CI_JOB_URL']}/artifacts/raw/#{report_file_name})
       COMMENT
     )
   rescue Gitlab::Error::Error => error
@@ -50,9 +48,7 @@ class CommitComment
 end
 
 status = ARGV.shift.to_s.strip
-report_file_name = ARGV.shift.to_s.strip
 
 abort "Please provide a status!" if status == ''
-abort "Please provide a file name for the report!" if report_file_name == ''
 
-CommitComment.post!(status.to_sym, report_file_name)
+CommitComment.post!(status.to_sym)
