@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'rest-client'
 
 module QA
   module Support
@@ -9,50 +10,50 @@ module QA
       HTTP_STATUS_ACCEPTED = 202
 
       def post(url, payload)
-        ::RestClient::Request.execute(
+        RestClient::Request.execute(
           method: :post,
           url: url,
           payload: payload,
           verify_ssl: false)
-      rescue ::RestClient::ExceptionWithResponse => e
+      rescue RestClient::ExceptionWithResponse => e
         return_response_or_raise(e)
       end
 
       def get(url, raw_response: false)
-        ::RestClient::Request.execute(
+        RestClient::Request.execute(
           method: :get,
           url: url,
           verify_ssl: false,
           raw_response: raw_response)
-      rescue ::RestClient::ExceptionWithResponse => e
+      rescue RestClient::ExceptionWithResponse => e
         return_response_or_raise(e)
       end
 
       def put(url, payload)
-        ::RestClient::Request.execute(
+        RestClient::Request.execute(
           method: :put,
           url: url,
           payload: payload,
           verify_ssl: false)
-      rescue ::RestClient::ExceptionWithResponse => e
+      rescue RestClient::ExceptionWithResponse => e
         return_response_or_raise(e)
       end
 
       def delete(url)
-        ::RestClient::Request.execute(
+        RestClient::Request.execute(
           method: :delete,
           url: url,
           verify_ssl: false)
-      rescue ::RestClient::ExceptionWithResponse => e
+      rescue RestClient::ExceptionWithResponse => e
         return_response_or_raise(e)
       end
 
       def head(url)
-        ::RestClient::Request.execute(
+        RestClient::Request.execute(
           method: :head,
           url: url,
           verify_ssl: false)
-      rescue ::RestClient::ExceptionWithResponse => e
+      rescue RestClient::ExceptionWithResponse => e
         return_response_or_raise(e)
       end
 
