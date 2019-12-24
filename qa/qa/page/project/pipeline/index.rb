@@ -7,6 +7,10 @@ module QA::Page
         element :pipeline_link, 'class="js-pipeline-url-link' # rubocop:disable QA/ElementWithPattern
       end
 
+      view 'app/assets/javascripts/pipelines/components/nav_controls.vue' do
+        element :run_pipeline_button, required: true
+      end
+
       view 'app/assets/javascripts/pipelines/components/pipelines_table_row.vue' do
         element :pipeline_commit_status
         element :pipeline_retry_button
@@ -39,6 +43,10 @@ module QA::Page
           click_element :pipeline_retry_button
           wait_for_latest_pipeline_success
         end
+      end
+
+      def go_to_new_pipeline_page
+        click_element :run_pipeline_button, Page::Project::Pipeline::New
       end
     end
   end

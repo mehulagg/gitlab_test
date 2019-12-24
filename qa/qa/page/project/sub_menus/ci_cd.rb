@@ -17,7 +17,7 @@ module QA
 
           def click_ci_cd_pipelines
             within_sidebar do
-              click_element :link_pipelines
+              click_element :link_pipelines, Page::Project::Pipeline::Index
             end
           end
         end

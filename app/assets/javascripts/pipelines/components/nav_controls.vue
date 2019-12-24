@@ -47,6 +47,7 @@ export default {
       :href="newPipelinePath"
       variant="success"
       class="js-run-pipeline"
+      data-qa-selector="run_pipeline_button"
     >
       {{ s__('Pipelines|Run Pipeline') }}
     </gl-button>

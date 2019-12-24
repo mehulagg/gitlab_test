@@ -72,7 +72,7 @@ export default {
 </script>
 
 <template>
-  <header class="page-content-header ci-header-container">
+  <header class="page-content-header ci-header-container" data-qa-selector="pipeline_header">
     <section class="header-main-content">
       <ci-icon-badge :status="status" />
 
