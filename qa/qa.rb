@@ -67,6 +67,7 @@ module QA
     autoload :Project, 'qa/resource/project'
     autoload :Label, 'qa/resource/label'
     autoload :MergeRequest, 'qa/resource/merge_request'
+    autoload :Pipeline, 'qa/resource/pipeline'
     autoload :ProjectImportedFromGithub, 'qa/resource/project_imported_from_github'
     autoload :MergeRequestFromFork, 'qa/resource/merge_request_from_fork'
     autoload :DeployKey, 'qa/resource/deploy_key'
