@@ -11,6 +11,10 @@ module EE
 
         field :service_desk_address, GraphQL::STRING_TYPE, null: true,
           description: 'E-mail address of the service desk.'
+
+        field :dependencies, ::Types::Security::DependencyType, null: true,
+          description: 'Components used by the project',
+          resolver: ::Resolvers::Security::DependencyResolver
       end
     end
   end
