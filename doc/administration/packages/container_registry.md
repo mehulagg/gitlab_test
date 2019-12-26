@@ -398,6 +398,9 @@ To configure the `s3` storage driver in Omnibus:
 
 1. Save the file and [reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
+NOTE: **Note:**
+`your-s3-bucket` should only be the name of a bucket that exists, and can't include subdirectories.
+
 **Installations from source**
 
 Configuring the storage driver is done in your registry config YML file created
@@ -408,9 +411,9 @@ when you [deployed your docker registry](https://docs.docker.com/registry/deploy
 ```yml
 storage:
   s3:
-    accesskey: 'AKIAKIAKI'
-    secretkey: 'secret123'
-    bucket: 'gitlab-registry-bucket-AKIAKIAKI'
+    accesskey: 's3-access-key'
+    secretkey: 's3-secret-key-for-access-key'
+    bucket: 'your-s3-bucket'
     region: 'your-s3-region'
     regionendpoint: 'your-s3-regionendpoint'
   cache:
@@ -419,10 +422,13 @@ storage:
     enabled: true
 ```
 
+NOTE: **Note:**
+`your-s3-bucket` should only be the name of a bucket that exists, and can't include subdirectories.
+
 ## Change the registry's internal port
 
 NOTE: **Note:**
-This is not to be confused with the port that GitLab itself uses to expose
+This is not to be confcused with the port that GitLab itself uses to expose
 the Registry to the world.
 
 The Registry server listens on localhost at port `5000` by default,
