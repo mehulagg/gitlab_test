@@ -6,7 +6,6 @@ Retriable.configure do |config|
     rand_factor: 0.0,
     on: [
       ActiveRecord::StatementInvalid,
-      ActiveRecord::QueryCanceled,
       GRPC::DeadlineExceeded
     ]
   }

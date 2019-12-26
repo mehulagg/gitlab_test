@@ -49,7 +49,6 @@ describe Gitlab::ImportExport::RelationTreeRestorer do
     where(:exception) do
       [
         ActiveRecord::StatementInvalid,
-        ActiveRecord::QueryCanceled,
         GRPC::DeadlineExceeded
       ]
     end
