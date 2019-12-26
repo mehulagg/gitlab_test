@@ -21,5 +21,13 @@ describe Gitlab::Ci::Parsers do
         expect { subject }.to raise_error(Gitlab::Ci::Parsers::ParserNotFoundError)
       end
     end
+
+    context 'with license scanning file' do
+      let(:file_type) { 'license_scanning' }
+
+      it 'fabricates the License Compliance class' do
+        is_expected.to be_a(described_class::LicenseCompliance::LicenseScanning)
+      end
+    end
   end
 end
