@@ -1,15 +1,24 @@
-%div
-  = render 'devise/shared/tab_single', tab_title: 'Two-Factor Authentication'
-  .login-box
-    .login-body
-      - if current_user.two_factor_otp_enabled?
-        = form_tag(admin_session_path, method: :post, html: { class: "edit_user gl-show-field-errors js-2fa-form #{'hidden' if current_user.two_factor_u2f_enabled?}" }) do
-          %div
-            = label_tag :otp_attempt, _('Two-Factor Authentication code')
-            = text_field_tag :otp_attempt, nil, class: 'form-control', required: true, autofocus: true, autocomplete: 'off', title: _('This field is required.')
-            %p.form-text.text-muted.hint Enter the code from the two-factor app on your mobile device. If you've lost your device, you may enter one of your recovery codes.
-            .prepend-top-20
-              = submit_tag "Verify code", class: "btn btn-success"
+- @hide_breadcrumbs = true
+- page_title _('Enter 2FA for Admin Mode')
 
-      - if current_user.two_factor_u2f_enabled?
-        = render "u2f/authenticate", locals: { params: params, resource: resource, resource_name: resource_name }
+.row.justify-content-center
+  .col-6.new-session-forms-container
+    .login-page
+      #signin-container
+        = render 'admin/sessions/tabs_normal'
+        .tab-content
+          - if current_user.two_factor_otp_enabled?
+            .login-box.tab-pane.active{ id: 'login-pane', role: 'tabpanel' }
+              .login-body
+                = form_tag(admin_session_path, method: :post, html: { class: "edit_user gl-show-field-errors js-2fa-form #{'hidden' if current_user.two_factor_u2f_enabled?}" }) do
+                  .form-group
+                    = label_tag :otp_attempt, _('Two-Factor Authentication code')
+                    = text_field_tag :otp_attempt, nil, class: 'form-control', required: true, autofocus: true, autocomplete: 'off', title: _('This field is required.')
+                    %p.form-text.text-muted.hint Enter the code from the two-factor app on your mobile device. If you've lost your device, you may enter one of your recovery codes.
+
+                    .submit-container.move-submit-down
+                      = submit_tag 'Verify code', class: 'btn btn-success'
+
+          - if current_user.two_factor_u2f_enabled?
+            .clearfix
+              = render 'u2f/authenticate', locals: { params: params, resource: resource, resource_name: resource_name }

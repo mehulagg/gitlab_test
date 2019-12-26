@@ -97,7 +97,7 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
       log_audit_event(current_user, with: oauth['provider'])
 
       if Feature.enabled?(:user_mode_in_session)
-        return admin_mode_flow if current_user_mode.admin_mode_requested?
+        return admin_mode_flow(auth_module::User) if current_user_mode.admin_mode_requested?
       end
 
       identity_linker ||= auth_module::IdentityLinker.new(current_user, oauth, session)
@@ -245,11 +245,17 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
     end
   end
 
-  def admin_mode_flow
-    if omniauth_identity_matches_current_user?
-      current_user_mode.enable_admin_mode!(skip_password_validation: true)
+  def admin_mode_flow(auth_user_class)
+    auth_user = build_auth_user(auth_user_class)
 
-      redirect_to stored_location_for(:redirect) || admin_root_path, notice: _('Admin mode enabled')
+    if omniauth_identity_matches_current_user?
+      if current_user.two_factor_enabled? && !auth_user.bypass_two_factor?
+        prompt_for_two_factor_admin_mode(current_user)
+      else
+        current_user_mode.enable_admin_mode!(skip_password_validation: true)
+
+        redirect_to stored_location_for(:redirect) || admin_root_path, notice: _('Admin mode enabled')
+      end
     else
       fail_admin_mode_invalid_credentials
     end
@@ -261,6 +267,11 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
   def fail_admin_mode_invalid_credentials
     redirect_to new_admin_session_path, alert: _('Invalid login or password')
+  end
+
+  def prompt_for_two_factor_admin_mode(user)
+    session[:otp_user_id] = user.id
+    render 'admin/sessions/two_factor', layout: 'application'
   end
 end
 
