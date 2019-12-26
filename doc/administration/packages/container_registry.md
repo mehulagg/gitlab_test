@@ -428,7 +428,7 @@ NOTE: **Note:**
 ## Change the registry's internal port
 
 NOTE: **Note:**
-This is not to be confcused with the port that GitLab itself uses to expose
+This is not to be confused with the port that GitLab itself uses to expose
 the Registry to the world.
 
 The Registry server listens on localhost at port `5000` by default,
