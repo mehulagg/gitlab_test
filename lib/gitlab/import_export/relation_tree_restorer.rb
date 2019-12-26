@@ -71,7 +71,10 @@ module Gitlab
         return if importable_class == Project && group_model?(relation_object)
 
         relation_object.assign_attributes(importable_class_sym => @importable)
-        relation_object.save!
+
+        with_retry(relation_key, relation_index) do
+          relation_object.save!
+        end
 
         save_id_mapping(relation_key, data_hash, relation_object)
       rescue => e
@@ -81,18 +84,40 @@ module Gitlab
         log_import_failure(relation_key, relation_index, e)
       end
 
-      def log_import_failure(relation_key, relation_index, exception)
-        Gitlab::ErrorTracking.track_exception(exception,
-          project_id: @importable.id, relation_key: relation_key, relation_index: relation_index)
+      def with_retry(relation_key, relation_index)
+        retry_count = 0
+        retry_exception = nil
 
-        ImportFailure.create(
+        on_retry = proc do |exception, retry_number|
+          retry_count = retry_number
+          retry_exception = exception
+        end
+
+        Retriable.with_context(:relation_import, on_retry: on_retry) do
+          yield
+        end
+      rescue => e
+        log_import_failure(relation_key, relation_index, e, retry_count, ImportFailure.retry_statuses[:failed])
+      else
+        log_import_failure(relation_key, relation_index, retry_exception, retry_count, ImportFailure.retry_statuses[:success]) if retry_count > 0
+      end
+
+      def log_import_failure(relation_key, relation_index, exception, retry_count = 0, retry_status = 0)
+        extra = { project_id: @importable.id, relation_key: relation_key, relation_index: relation_index }
+        extra = extra.merge(retry_count: retry_count, retry_status: ImportFailure.retry_statuses.key(retry_status)) if retry_count.to_i > 0
+        Gitlab::ErrorTracking.track_exception(exception, extra)
+
+        import_failure = ImportFailure.find_or_initialize_by(
           project: @importable,
           relation_key: relation_key,
           relation_index: relation_index,
-          exception_class: exception.class.to_s,
-          exception_message: exception.message.truncate(255),
-          correlation_id_value: Labkit::Correlation::CorrelationId.current_or_new_id
+          exception_class: exception.class.to_s
         )
+        import_failure.retry_count = retry_count
+        import_failure.retry_status = retry_status
+        import_failure.exception_message = exception.message.truncate(255)
+        import_failure.correlation_id_value = Labkit::Correlation::CorrelationId.current_or_new_id
+        import_failure.save
       end
 
       # Older, serialized CI pipeline exports may only have a
