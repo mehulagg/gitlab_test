@@ -14,7 +14,7 @@ module QA
           QA::EE::Resource::Settings::Elasticsearch.fabricate_via_browser_ui!
         end
 
-        Runtime::Search.elasticsearch_responding?
+        Runtime::Search.assert_elasticsearch_responding
 
         @project = Resource::Project.fabricate_via_api! do |project|
           project.name = project_name
@@ -30,6 +30,8 @@ module QA
       end
 
       it 'tests reindexing after push' do
+        expect { Runtime::Search.find_code(@project_file_name, @project_file_content) }.not_to raise_error
+
         QA::Page::Main::Menu.perform do |menu|
           menu.search_for(@project_file_content)
         end
@@ -55,6 +57,8 @@ module QA
           ide.create_new_file_from_template template[:file_name], template[:name]
           ide.commit_changes
         end
+
+        expect { Runtime::Search.find_code(template[:file_name], content[0..33]) }.not_to raise_error
 
         Page::Main::Menu.perform(&:go_to_groups)
 

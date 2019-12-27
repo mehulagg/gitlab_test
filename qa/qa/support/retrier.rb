@@ -53,8 +53,7 @@ module QA
         end
 
         if exit_on_failure
-          QA::Runtime::Logger.debug("Raising exception after #{max_attempts} attempts")
-          raise
+          raise "Raising exception after #{max_attempts} attempts"
         end
 
         false

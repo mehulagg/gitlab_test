@@ -24,7 +24,7 @@ module QA
           es.api_client = Runtime::API::Client.as_admin
         end
 
-        Runtime::Search.elasticsearch_responding?
+        Runtime::Search.assert_elasticsearch_responding
       end
 
       before do
@@ -48,7 +48,7 @@ module QA
       end
 
       def expect_search_to_find_project(search_term)
-        expect(Runtime::Search.found_project?(project, search_term)).to be true
+        expect { Runtime::Search.find_project(project, search_term) }.not_to raise_error
 
         Page::Main::Menu.perform do |menu|
           menu.search_for(search_term)
