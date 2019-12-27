@@ -7495,6 +7495,9 @@ msgstr ""
 msgid "Ensure your %{linkStart}environment is part of the deploy stage%{linkEnd} of your CI pipeline to track deployments to your cluster."
 msgstr ""
 
+msgid "Enter 2FA for Admin Mode"
+msgstr ""
+
 msgid "Enter Admin Mode"
 msgstr ""
 
@@ -21036,6 +21039,9 @@ msgid "Twitter"
 msgstr ""
 
 msgid "Two-Factor Authentication"
+msgstr ""
+
+msgid "Two-Factor Authentication code"
 msgstr ""
 
 msgid "Two-factor Authentication"

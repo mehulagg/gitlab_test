@@ -70,7 +70,6 @@ class Admin::SessionsController < ApplicationController
   def authenticate_with_two_factor
     user = self.resource = current_user
     return locked_user_redirect(user) unless user.can?(:log_in)
-
   end
 
   def user_params
