@@ -14,4 +14,6 @@
 
           - if current_user.two_factor_u2f_enabled?
             .clearfix
-              = render 'u2f/authenticate', locals: { params: params, resource: resource, resource_name: resource_name }
+            .login-box.tab-pane.active{ id: 'login-pane', role: 'tabpanel' }
+              .login-body
+                = render 'admin/sessions/two_factor_u2f'
