@@ -5,7 +5,7 @@
   .col-6.new-session-forms-container
     .login-page
       #signin-container
-        = render 'admin/sessions/tabs_normal'
+        = render 'admin/sessions/tabs_normal', tab_title: _('Enter Admin Mode')
         .tab-content
           - if !current_user.require_password_creation_for_web?
             .login-box.tab-pane.active{ id: 'login-pane', role: 'tabpanel' }
