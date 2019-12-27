@@ -118,7 +118,7 @@ FactoryBot.define do
 
       after(:build) do |artifact, _|
         artifact.file = fixture_file_upload(
-            Rails.root.join('ee/spec/fixtures/security_reports/master/gl-license-management-report.json'), 'application/json')
+          Rails.root.join('ee/spec/fixtures/security_reports/master/gl-license-management-report.json'), 'application/json')
       end
     end
 
