@@ -8,7 +8,7 @@ class AddRetryStatusToImportFailures < ActiveRecord::Migration[5.2]
   disable_ddl_transaction!
 
   def up
-    add_column_with_default(:import_failures, :retry_status, :integer, default: 0)
+    add_column_with_default(:import_failures, :retry_status, :integer, default: 0, limit: 2)
   end
 
   def down

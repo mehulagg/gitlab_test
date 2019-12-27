@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Retriable.configure do |config|
   config.contexts[:relation_import] = {
     tries: 3,
