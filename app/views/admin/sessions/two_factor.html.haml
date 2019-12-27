@@ -10,7 +10,7 @@
           - if current_user.two_factor_otp_enabled?
             .login-box.tab-pane.active{ id: 'login-pane', role: 'tabpanel' }
               .login-body
-                = render 'admin/sessions/two_factor_base'
+                = render 'admin/sessions/two_factor_otp'
 
           - if current_user.two_factor_u2f_enabled?
             .clearfix
