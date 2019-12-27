@@ -114,6 +114,26 @@ ee:sanity-framework:
     - .high-capacity
     - .ee-qa
 
+ce:custom:
+  script:
+    - exe/gitlab-qa ${QA_SCENARIO:=Test::Instance::Image} ${RELEASE:=CE} -- ${QA_TESTS} ${QA_RSPEC_TAGS} $RSPEC_REPORT_OPTS
+  extends:
+    - .test
+    - .high-capacity
+    - .ce-qa
+    - .rspec-report-opts
+  when: manual
+
+ee:custom:
+  script:
+    - exe/gitlab-qa ${QA_SCENARIO:=Test::Instance::Image} ${RELEASE:=EE} -- ${QA_TESTS} ${QA_RSPEC_TAGS} $RSPEC_REPORT_OPTS
+  extends:
+    - .test
+    - .high-capacity
+    - .ee-qa
+    - .rspec-report-opts
+  when: manual
+
 ce:instance:
   script:
     - exe/gitlab-qa Test::Instance::Image ${RELEASE:=CE} -- $RSPEC_REPORT_OPTS
