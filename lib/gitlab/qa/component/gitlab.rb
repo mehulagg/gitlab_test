@@ -12,7 +12,7 @@ module Gitlab
         include Scenario::Actable
 
         attr_reader :release, :docker
-        attr_accessor :volumes, :network, :environment, :tls
+        attr_accessor :volumes, :network, :environment, :tls, :disable_animations
         attr_writer :name, :relative_path, :exec_commands
 
         def_delegators :release, :tag, :image, :edition
@@ -25,6 +25,7 @@ module Gitlab
           @environment = {}
           @volumes = {}
           @network_aliases = []
+          @disable_animations = true
 
           @volumes[CERTIFICATES_PATH] = SSL_PATH
 
@@ -87,11 +88,17 @@ module Gitlab
         alias_method :launch_and_teardown_instance, :instance
 
         def prepare
+          setup_disable_animations if disable_animations
+
           @docker.pull(image, tag) unless Runtime::Env.skip_pull?
 
           return if @docker.network_exists?(network)
 
           @docker.network_create(network)
+        end
+
+        def setup_disable_animations
+          @environment['GITLAB_OMNIBUS_CONFIG'] = "gitlab_rails['gitlab_disable_animations'] = true; #{@environment['GITLAB_OMNIBUS_CONFIG'] || ''}"
         end
 
         def start # rubocop:disable Metrics/AbcSize

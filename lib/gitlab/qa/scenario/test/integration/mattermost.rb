@@ -14,7 +14,7 @@ module Gitlab
 
                 gitlab.add_network_alias(mattermost_hostname)
                 gitlab.omnibus_config = <<~OMNIBUS
-                  mattermost_external_url '#{mattermost_external_url}'
+                  mattermost_external_url '#{mattermost_external_url}';
                 OMNIBUS
 
                 gitlab.instance do
