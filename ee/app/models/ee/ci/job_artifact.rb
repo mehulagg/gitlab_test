@@ -12,7 +12,7 @@ module EE
       after_destroy :log_geo_deleted_event
 
       SECURITY_REPORT_FILE_TYPES = %w[sast dependency_scanning container_scanning dast].freeze
-      LICENSE_MANAGEMENT_REPORT_FILE_TYPES = %w[license_management license_scanning].freeze
+      LICENSE_SCANNING_REPORT_FILE_TYPES = %w[license_management license_scanning].freeze
       DEPENDENCY_LIST_REPORT_FILE_TYPES = %w[dependency_scanning].freeze
       METRICS_REPORT_FILE_TYPES = %w[metrics].freeze
       CONTAINER_SCANNING_REPORT_TYPES = %w[container_scanning].freeze
@@ -28,7 +28,7 @@ module EE
       end
 
       scope :license_management_reports, -> do
-        with_file_types(LICENSE_MANAGEMENT_REPORT_FILE_TYPES)
+        with_file_types(LICENSE_SCANNING_REPORT_FILE_TYPES)
       end
 
       scope :dependency_list_reports, -> do
