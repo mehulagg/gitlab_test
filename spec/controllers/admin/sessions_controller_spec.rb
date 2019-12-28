@@ -116,6 +116,92 @@ describe Admin::SessionsController, :do_not_mock_admin_mode do
           expect(controller.current_user_mode.admin_mode?).to be(false)
         end
       end
+
+      context 'when using two-factor authentication via OTP' do
+        let(:user) { create(:admin, :two_factor) }
+
+        def authenticate_2fa(params)
+          post(:create, params: params, session: { otp_user_id: user.id })
+        end
+
+        it 'requests two factor after a valid password is provided' do
+          expect(controller.current_user_mode.admin_mode?).to be(false)
+
+          # triggering the auth form will request admin mode
+          get :new
+          post :create, params: { password: user.password }
+
+          expect(response).to render_template('admin/sessions/two_factor')
+          expect(controller.current_user_mode.admin_mode?).to be(false)
+        end
+
+        it 'can login with valid otp' do
+          expect(controller.current_user_mode.admin_mode?).to be(false)
+
+          controller.store_location_for(:redirect, admin_root_path)
+          controller.current_user_mode.request_admin_mode!
+
+          authenticate_2fa(otp_attempt: user.current_otp)
+
+          expect(response).to redirect_to admin_root_path
+          expect(controller.current_user_mode.admin_mode?).to be(true)
+        end
+
+        it 'cannot login with invalid otp' do
+          expect(controller.current_user_mode.admin_mode?).to be(false)
+
+          controller.current_user_mode.request_admin_mode!
+          authenticate_2fa(otp_attempt: 'invalid')
+
+          expect(response).to render_template('admin/sessions/two_factor')
+          expect(controller.current_user_mode.admin_mode?).to be(false)
+        end
+      end
+
+      context 'when using two-factor authentication via U2F' do
+        let(:user) { create(:admin, :two_factor_via_u2f) }
+
+        def authenticate_2fa_u2f(params)
+          post(:create, params: params, session: { otp_user_id: user.id })
+        end
+
+        it 'requests two factor after a valid password is provided' do
+          expect(controller.current_user_mode.admin_mode?).to be(false)
+
+          # triggering the auth form will request admin mode
+          get :new
+          post :create, params: { password: user.password }
+
+          expect(response).to render_template('admin/sessions/two_factor')
+          expect(controller.current_user_mode.admin_mode?).to be(false)
+        end
+
+        it 'can login with valid auth' do
+          allow(U2fRegistration).to receive(:authenticate).and_return(true)
+
+          expect(controller.current_user_mode.admin_mode?).to be(false)
+
+          controller.store_location_for(:redirect, admin_root_path)
+          controller.current_user_mode.request_admin_mode!
+
+          authenticate_2fa_u2f(login: user.username, device_response: '{}')
+
+          expect(response).to redirect_to admin_root_path
+          expect(controller.current_user_mode.admin_mode?).to be(true)
+        end
+
+        it 'cannot login with invalid auth' do
+          allow(U2fRegistration).to receive(:authenticate).and_return(false)
+
+          expect(controller.current_user_mode.admin_mode?).to be(false)
+
+          controller.current_user_mode.request_admin_mode!
+          authenticate_2fa_u2f(login: user.username, device_response: '{}')
+
+          expect(response).to render_template('admin/sessions/two_factor')
+          expect(controller.current_user_mode.admin_mode?).to be(false)
+        end
+      end
     end
   end
 

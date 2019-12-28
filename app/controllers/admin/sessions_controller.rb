@@ -74,7 +74,7 @@ class Admin::SessionsController < ApplicationController
     elsif current_user && current_user.valid_password?(user_params[:password])
       prompt_for_two_factor(user)
     else
-      locked_user_redirect(user)
+      invalid_login_redirect(user)
     end
   end
 
