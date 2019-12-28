@@ -7,6 +7,7 @@
 
 %script#js-authenticate-u2f-error{ type: "text/template" }
   %div
+    -# haml-lint:disable NoPlainNodes
     %p <%= error_message %> (#{_("error code:")} <%= error_code %>)
     %a.btn.btn-block.btn-warning#js-u2f-try-again= _("Try again?")
 
