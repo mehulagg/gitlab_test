@@ -22,14 +22,6 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      modalPrimary: {
-        text: this.modalActionText(),
-        attributes: [{ variant: 'danger' }],
-      },
-    };
-  },
   computed: {
     modalTitle() {
       const title = this.environment.isLastDeployment
@@ -79,6 +71,17 @@ export default {
         false,
       );
     },
+    modalActionText() {
+      return this.environment.isLastDeployment
+        ? s__('Environments|Re-deploy')
+        : s__('Environments|Rollback');
+    },
+    modalPrimary() {
+      return {
+        text: this.modalActionText,
+        attributes: [{ variant: 'danger' }],
+      };
+    },
   },
 
   methods: {
@@ -92,12 +95,6 @@ export default {
       }
 
       return '';
-    },
-
-    modalActionText() {
-      return this.environment.isLastDeployment
-        ? s__('Environments|Re-deploy')
-        : s__('Environments|Rollback');
     },
   },
 };
