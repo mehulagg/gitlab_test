@@ -64,7 +64,8 @@ describe('AlertWidgetForm', () => {
 
   it('shows correct title and button text', () => {
     expect(modalTitle()).toBe('Add alert');
-    expect(submitText()).toBe('Add');
+    const { text } = modal().props('modalActionPrimary');
+    expect(text).toBe('Add');
   });
 
   it('emits a "create" event when form submitted without existing alert', () => {
@@ -110,7 +111,8 @@ describe('AlertWidgetForm', () => {
 
     it('updates button text', () => {
       expect(modalTitle()).toBe('Edit alert');
-      expect(submitText()).toBe('Delete');
+      const { text } = modal().props('modalActionPrimary');
+      expect(text).toBe('Delete');
     });
 
     it('emits "delete" event when form values unchanged', () => {

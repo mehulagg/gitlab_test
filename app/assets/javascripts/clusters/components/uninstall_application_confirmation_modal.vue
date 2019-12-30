@@ -55,15 +55,12 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      modalPrimary: {
-        text: this.title(),
-        attributes: [{ variant: 'danger' }],
-      },
-    };
-  },
   computed: {
+    title() {
+      return sprintf(s__('ClusterIntegration|Uninstall %{appTitle}'), {
+        appTitle: this.applicationTitle,
+      });
+    },
     warningText() {
       return sprintf(
         s__('ClusterIntegration|You are about to uninstall %{appTitle} from your cluster.'),
@@ -78,16 +75,17 @@ export default {
     modalId() {
       return `uninstall-${this.application}`;
     },
+    modalPrimary() {
+      return {
+        text: this.title,
+        attributes: [{ variant: 'danger' }],
+      };
+    },
   },
   methods: {
     confirmUninstall() {
       this.trackUninstallButtonClick(this.application);
       this.$emit('confirm');
-    },
-    title() {
-      return sprintf(s__('ClusterIntegration|Uninstall %{appTitle}'), {
-        appTitle: this.applicationTitle,
-      });
     },
   },
 };
@@ -96,7 +94,7 @@ export default {
   <gl-modal
     :modal-action-primary="modalPrimary"
     :modal-id="modalId"
-    :title="title()"
+    :title="title"
     @ok="confirmUninstall()"
   >
     {{ warningText }} <span v-html="customAppWarningText"></span>
