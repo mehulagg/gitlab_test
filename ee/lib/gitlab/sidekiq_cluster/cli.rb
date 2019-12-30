@@ -117,8 +117,8 @@ module Gitlab
             @requested_processes = procs.to_i
           end
 
-          opt.on('-P', '--pidfile PATH', 'Path to the PID file') do |pid|
-            @pidfile = pid
+          opt.on('-P', '--pidfile PATH', 'Path to the PID file') do |pidfile|
+            @pidfile = pidfile
           end
 
           opt.on('-r', '--require PATH', 'Location of the Rails application') do |path|
