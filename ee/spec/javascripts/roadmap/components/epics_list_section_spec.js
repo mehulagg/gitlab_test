@@ -244,7 +244,7 @@ describe('EpicsListSectionComponent', () => {
         showBottomShadow: true,
       });
 
-      expect(wrapper.find('.scroll-bottom-shadow').exists()).toBe(true);
+      expect(wrapper.find('.epic-scroll-bottom-shadow').isVisible()).toBe(true);
     });
   });
 });

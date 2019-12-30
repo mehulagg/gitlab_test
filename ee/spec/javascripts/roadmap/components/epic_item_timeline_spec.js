@@ -15,6 +15,7 @@ const createComponent = ({
   timeframe = mockTimeframeMonths,
   timeframeItem = mockTimeframeMonths[0],
   epic = mockEpic,
+  timeframeString = '',
 }) => {
   const Component = Vue.extend(epicItemTimelineComponent);
 
@@ -23,6 +24,7 @@ const createComponent = ({
     timeframe,
     timeframeItem,
     epic,
+    timeframeString,
   });
 };
 
@@ -34,12 +36,10 @@ describe('EpicItemTimelineComponent', () => {
   });
 
   describe('computed', () => {
-    beforeEach(() => {
-      vm = createComponent({});
-    });
-
     describe('epicStartDateValues', () => {
       it('returns object containing date parts from epic.startDate', () => {
+        vm = createComponent({});
+
         expect(vm.epicStartDateValues).toEqual(
           jasmine.objectContaining({
             day: mockEpic.startDate.getDay(),
@@ -54,6 +54,8 @@ describe('EpicItemTimelineComponent', () => {
 
     describe('epicEndDateValues', () => {
       it('returns object containing date parts from epic.endDate', () => {
+        vm = createComponent({});
+
         expect(vm.epicEndDateValues).toEqual(
           jasmine.objectContaining({
             day: mockEpic.endDate.getDay(),
@@ -65,6 +67,60 @@ describe('EpicItemTimelineComponent', () => {
         );
       });
     });
+
+    describe('epicTotalWeight', () => {
+      it('returns the correct percentage of completed to total weights', () => {
+        vm = createComponent({});
+
+        expect(vm.epicTotalWeight).toBe(5);
+      });
+
+      it('returns undefined if weights information is not present', () => {
+        vm = createComponent({
+          epic: Object.assign({}, mockEpic, {
+            descendantWeightSum: undefined,
+          }),
+        });
+
+        expect(vm.epicTotalWeight).toBe(undefined);
+      });
+    });
+
+    describe('epicWeightPercentage', () => {
+      it('returns the correct percentage of completed to total weights', () => {
+        vm = createComponent({});
+
+        expect(vm.epicWeightPercentage).toBe(60);
+      });
+
+      it('returns 0 when there is no total weight', () => {
+        vm = createComponent({
+          epic: Object.assign({}, mockEpic, {
+            descendantWeightSum: undefined,
+          }),
+        });
+
+        expect(vm.epicWeightPercentage).toBe(0);
+      });
+    });
+
+    describe('popoverWeightText', () => {
+      it('returns a description of the weight completed', () => {
+        vm = createComponent({});
+
+        expect(vm.popoverWeightText).toBe('3 of 5 weight completed');
+      });
+
+      it('returns a description with no numbers for weight completed when there is no weights information', () => {
+        vm = createComponent({
+          epic: Object.assign({}, mockEpic, {
+            descendantWeightSum: undefined,
+          }),
+        });
+
+        expect(vm.popoverWeightText).toBe('- of - weight completed');
+      });
+    });
   });
 
   describe('template', () => {
@@ -74,13 +130,13 @@ describe('EpicItemTimelineComponent', () => {
       expect(vm.$el.classList.contains('epic-timeline-cell')).toBe(true);
     });
 
-    it('renders timeline bar element with class `timeline-bar` and class `timeline-bar-wrapper` as container element', () => {
+    it('renders timeline bar element with class `epic-bar` and class `epic-bar-wrapper` as container element', () => {
       vm = createComponent({
         epic: Object.assign({}, mockEpic, { startDate: mockTimeframeMonths[1] }),
         timeframeItem: mockTimeframeMonths[1],
       });
 
-      expect(vm.$el.querySelector('.timeline-bar-wrapper .timeline-bar')).not.toBeNull();
+      expect(vm.$el.querySelector('.epic-bar-wrapper .epic-bar')).not.toBeNull();
     });
 
     it('renders timeline bar with calculated `width` and `left` properties applied via style attribute', () => {
@@ -90,41 +146,29 @@ describe('EpicItemTimelineComponent', () => {
           endDate: new Date(2018, 1, 15),
         }),
       });
-      const timelineBarEl = vm.$el.querySelector('.timeline-bar-wrapper .timeline-bar');
+      const timelineBarEl = vm.$el.querySelector('.epic-bar-wrapper .epic-bar');
 
       expect(timelineBarEl.getAttribute('style')).toContain('width');
       expect(timelineBarEl.getAttribute('style')).toContain('left: 0px;');
     });
 
-    it('renders timeline bar with `start-date-undefined` class when Epic startDate is undefined', done => {
+    it('renders component with the description in the epic bar', () => {
       vm = createComponent({
-        epic: Object.assign({}, mockEpic, {
-          startDateUndefined: true,
-          startDate: mockTimeframeMonths[0],
-        }),
+        epic: Object.assign({}, mockEpic, { startDate: mockTimeframeMonths[1] }),
+        timeframeItem: mockTimeframeMonths[1],
       });
-      const timelineBarEl = vm.$el.querySelector('.timeline-bar-wrapper .timeline-bar');
 
-      vm.$nextTick(() => {
-        expect(timelineBarEl.classList.contains('start-date-undefined')).toBe(true);
-        done();
-      });
+      expect(vm.$el.querySelector('.epic-bar').textContent).toContain(mockEpic.description);
     });
 
-    it('renders timeline bar with `end-date-undefined` class when Epic endDate is undefined', done => {
+    it('renders component with a popover that contains the timeframe and the weight completed', () => {
+      const timeframeString = 'Jul 10, 2017 – Jun 2, 2018';
       vm = createComponent({
-        epic: Object.assign({}, mockEpic, {
-          startDate: mockTimeframeMonths[0],
-          endDateUndefined: true,
-          endDate: mockTimeframeMonths[mockTimeframeMonths.length - 1],
-        }),
+        timeframeString,
       });
-      const timelineBarEl = vm.$el.querySelector('.timeline-bar-wrapper .timeline-bar');
 
-      vm.$nextTick(() => {
-        expect(timelineBarEl.classList.contains('end-date-undefined')).toBe(true);
-        done();
-      });
+      expect(vm.$el.textContent).toContain(timeframeString);
+      expect(vm.$el.textContent).toContain('3 of 5 weight completed');
     });
   });
 });

@@ -161,6 +161,10 @@ export default {
         class="epic-timeline-cell"
       ></span>
     </div>
-    <div v-show="showBottomShadow" :style="shadowCellStyles" class="scroll-bottom-shadow"></div>
+    <div
+      v-show="showBottomShadow"
+      :style="shadowCellStyles"
+      class="epic-scroll-bottom-shadow"
+    ></div>
   </div>
 </template>

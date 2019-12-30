@@ -1,16 +1,27 @@
 <script>
-import tooltip from '~/vue_shared/directives/tooltip';
+import { GlPopover, GlProgressBar } from '@gitlab/ui';
+import { __, sprintf } from '~/locale';
+import icon from '~/vue_shared/components/icon.vue';
 
 import QuartersPresetMixin from '../mixins/quarters_preset_mixin';
 import MonthsPresetMixin from '../mixins/months_preset_mixin';
 import WeeksPresetMixin from '../mixins/weeks_preset_mixin';
 
-import { TIMELINE_CELL_MIN_WIDTH, PRESET_TYPES } from '../constants';
+import {
+  EPIC_DETAILS_CELL_WIDTH,
+  TIMELINE_CELL_MIN_WIDTH,
+  PERCENTAGE,
+  PRESET_TYPES,
+  SMALL_TIMELINE_BAR,
+  VERY_SMALL_TIMELINE_BAR,
+} from '../constants';
 
 export default {
   cellWidth: TIMELINE_CELL_MIN_WIDTH,
-  directives: {
-    tooltip,
+  components: {
+    icon,
+    GlPopover,
+    GlProgressBar,
   },
   mixins: [QuartersPresetMixin, MonthsPresetMixin, WeeksPresetMixin],
   props: {
@@ -28,6 +39,10 @@ export default {
     },
     epic: {
       type: Object,
+      required: true,
+    },
+    timeframeString: {
+      type: String,
       required: true,
     },
   },
@@ -82,23 +97,98 @@ export default {
       }
       return barStyles;
     },
+    epicBarInnerStyle() {
+      if (this.$root.$el) {
+        return {
+          maxWidth: `${this.$root.$el.clientWidth - EPIC_DETAILS_CELL_WIDTH}px`,
+        };
+      }
+
+      return {};
+    },
+    timelineBarWidth() {
+      if (this.hasStartDate) {
+        if (this.presetType === PRESET_TYPES.QUARTERS) {
+          return this.getTimelineBarWidthForQuarters();
+        } else if (this.presetType === PRESET_TYPES.MONTHS) {
+          return this.getTimelineBarWidthForMonths();
+        } else if (this.presetType === PRESET_TYPES.WEEKS) {
+          return this.getTimelineBarWidthForWeeks();
+        }
+      }
+      return Infinity;
+    },
+    isTimelineBarWidthSmall() {
+      return this.timelineBarWidth < SMALL_TIMELINE_BAR;
+    },
+    isTimelineBarWidthVerySmall() {
+      return this.timelineBarWidth < VERY_SMALL_TIMELINE_BAR;
+    },
+    epicTotalWeight() {
+      if (this.epic.descendantWeightSum) {
+        const { openedIssues, closedIssues } = this.epic.descendantWeightSum;
+        return openedIssues + closedIssues;
+      }
+      return undefined;
+    },
+    epicWeightPercentage() {
+      return this.epicTotalWeight
+        ? Math.round(
+            (this.epic.descendantWeightSum.closedIssues / this.epicTotalWeight) * PERCENTAGE,
+          )
+        : 0;
+    },
+    popoverWeightText() {
+      if (this.epic.descendantWeightSum) {
+        return sprintf(__('%{completedWeight} of %{totalWeight} weight completed'), {
+          completedWeight: this.epic.descendantWeightSum.closedIssues,
+          totalWeight: this.epicTotalWeight,
+        });
+      }
+      return __('- of - weight completed');
+    },
   },
 };
 </script>
 
 <template>
   <span class="epic-timeline-cell" data-qa-selector="epic_timeline_cell">
-    <div class="timeline-bar-wrapper">
+    <div class="epic-bar-wrapper">
       <a
         v-if="hasStartDate"
+        :id="`epic-bar-${epic.id}`"
         :href="epic.webUrl"
-        :class="{
-          'start-date-undefined': epic.startDateUndefined,
-          'end-date-undefined': epic.endDateUndefined,
-        }"
         :style="timelineBarStyles"
-        class="timeline-bar"
-      ></a>
+        class="epic-bar"
+      >
+        <div class="epic-bar-inner" :style="epicBarInnerStyle">
+          <gl-progress-bar
+            class="epic-bar-progress append-bottom-2"
+            :value="epicWeightPercentage"
+          />
+
+          <div v-if="isTimelineBarWidthVerySmall" class="m-0">.</div>
+          <div v-else-if="isTimelineBarWidthSmall" class="m-0">...</div>
+          <div v-else class="d-flex">
+            <span class="flex-grow-1 text-nowrap text-truncate append-right-16">{{
+              epic.description
+            }}</span>
+            <span class="d-flex align-items-center text-nowrap">
+              <icon class="append-right-2" :size="16" name="weight" />
+              {{ epicWeightPercentage }}%
+            </span>
+          </div>
+        </div>
+      </a>
+      <gl-popover
+        :target="`epic-bar-${epic.id}`"
+        :title="epic.description"
+        triggers="hover focus"
+        placement="right"
+      >
+        <p class="text-secondary m-0" v-html="timeframeString"></p>
+        <p class="m-0">{{ popoverWeightText }}</p>
+      </gl-popover>
     </div>
   </span>
 </template>

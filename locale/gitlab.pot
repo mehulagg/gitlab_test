@@ -192,6 +192,9 @@ msgstr ""
 msgid "%{commit_author_link} authored %{commit_timeago}"
 msgstr ""
 
+msgid "%{completedWeight} of %{totalWeight} weight completed"
+msgstr ""
+
 msgid "%{cores} cores"
 msgstr ""
 
@@ -515,6 +518,9 @@ msgid "- User"
 msgid_plural "- Users"
 msgstr[0] ""
 msgstr[1] ""
+
+msgid "- of - weight completed"
+msgstr ""
 
 msgid "- show less"
 msgstr ""
@@ -8999,10 +9005,16 @@ msgstr ""
 msgid "Group: %{name}"
 msgstr ""
 
+msgid "GroupRoadmap|%{dateWord} &ndash; No end date"
+msgstr ""
+
 msgid "GroupRoadmap|%{startDateInWords} &ndash; %{endDateInWords}"
 msgstr ""
 
 msgid "GroupRoadmap|From %{dateWord}"
+msgstr ""
+
+msgid "GroupRoadmap|No start date &ndash; %{dateWord}"
 msgstr ""
 
 msgid "GroupRoadmap|Something went wrong while fetching epics"
