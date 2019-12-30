@@ -46,14 +46,6 @@ export default {
   data() {
     return {
       enteredUsername: '',
-      modalPrimary: {
-        text: this.action,
-      },
-      primaryAttrs: { variant: 'danger' },
-      modalSecondary: {
-        text: this.secondaryAction,
-      },
-      secondaryAttrs: { variant: 'warning' },
     };
   },
   computed: {
@@ -87,6 +79,18 @@ export default {
     submitHandler() {
       return this.enteredUsername === this.username ? null : { disabled: true };
     },
+    modalPrimary() {
+      return {
+        text: this.action,
+        attributes: [{ variant: 'danger' }, this.submitHandler],
+      };
+    },
+    modalSecondary() {
+      return {
+        text: this.secondaryAction,
+        attributes: [{ variant: 'warning' }, this.submitHandler],
+      };
+    },
   },
   methods: {
     show() {
@@ -118,8 +122,8 @@ export default {
     modal-id="delete-user-modal"
     :title="modalTitle"
     kind="danger"
-    :modal-action-primary="{ ...modalPrimary, attributes: [primaryAttrs, submitHandler] }"
-    :modal-action-secondary="{ ...modalSecondary, attributes: [secondaryAttrs, submitHandler] }"
+    :modal-action-primary="modalPrimary"
+    :modal-action-secondary="modalSecondary"
     @ok="onSubmit"
     @cancel="onCancel"
     @close="onSecondaryAction"
