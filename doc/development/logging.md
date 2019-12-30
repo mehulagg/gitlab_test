@@ -127,6 +127,44 @@ importer progresses. Here's what to do:
    logger.info(message: "Import error", error_code: 1, error: "I/O failure")
    ```
 
+## Multi-destination Logging
+
+It is helpful to have logging in multiple formats, e.g. unstructured, text format and structured, JSON format.
+
+### How to use multi-destination logging
+
+Create a new logger class, inheriting from `MultiDestinationLogger` and add an array of loggers to the `loggers` method, like so,
+
+```ruby
+module Gitlab
+  class FancyMultiLogger < Gitlab::MultiDestinationLogger
+    def self.loggers
+      @loggers ||= [
+        Gitlab::UnstructuredLogger,
+        Gitlab::StructuredLogger]
+    end
+  end
+
+  class UnstructuredLogger < ::Logger
+  ...
+  end
+
+  class StructuredLogger < ::JsonLogger
+  ...
+  end
+end
+```
+
+You can now call the usual logging methods on this multi-logger, e.g.
+
+```ruby
+FancyMultiLogger.info(message: "Information")
+```
+
+and this will get logged twice, through each of the `FancyMultiLogger.loggers`.
+
+You can specify one of the loggers as a `primary_logger`, to read latest logs from, for example. By default, the first specified logger, is set as the primary logger.
+
 ## Exception Handling
 
 It often happens that you catch the exception and want to track it.
