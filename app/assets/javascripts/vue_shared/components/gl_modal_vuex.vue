@@ -18,6 +18,10 @@ export default {
       type: String,
       required: true,
     },
+    modalPrimary: {
+      type: Object,
+      required: true,
+    },
   },
   computed: {
     ...mapState({
@@ -60,6 +64,7 @@ export default {
   <gl-modal
     v-bind="attrs"
     :modal-id="modalId"
+    :modal-action-primary="modalPrimary"
     v-on="$listeners"
     @shown="syncShow"
     @hidden="syncHide"

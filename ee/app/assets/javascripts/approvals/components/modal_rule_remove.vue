@@ -17,7 +17,7 @@ export default {
   data() {
     return {
       modalPrimary: {
-        text: __('Remove approvers'),
+        text: s__('Remove approvers'),
         attributes: [{ variant: 'danger' }],
       },
     };
@@ -68,8 +68,8 @@ export default {
   <gl-modal-vuex
     modal-module="deleteModal"
     :modal-id="modalId"
-    :modal-action-primary="modalPrimary"
-    :title="__('Remove approvers?')"
+    :modal-primary="modalPrimary"
+    :title="s__('Remove approvers?')"
     @ok.prevent="submit"
   >
     <p v-html="message"></p>

@@ -40,7 +40,7 @@ export default {
 
 <template>
   <gl-modal-vuex
-    :modal-action-primary="modalPrimary"
+    :modal-primary="modalPrimary"
     modal-module="createModal"
     :modal-id="modalId"
     :title="title"
