@@ -36,7 +36,11 @@ module Gitlab
 
         option_parser.parse!(argv)
 
-        queue_groups = build_queue_groups(argv)
+        all_queues = SidekiqConfig.worker_queues(@rails_path)
+        parsed_queues = SidekiqCluster.parse_queues(argv)
+        assert_valid_options(parsed_queues)
+
+        queue_groups = build_queue_groups(all_queues, parsed_queues)
 
         @logger.info("Starting cluster with #{queue_groups.length} processes")
 
@@ -50,16 +54,26 @@ module Gitlab
         start_loop
       end
 
-      def build_queue_groups(argv)
+      # some options cannot be combined; these are rejected here
+      def assert_valid_options(parsed_queues)
+        if @num_workers && @negate_queues
+          raise CommandError.new "Cannot combine the -w and -n switches"
+        end
+
+        if @num_workers && parsed_queues.any?
+          raise CommandError.new "The -w switch does not support queue grouping"
+        end
+      end
+
+      def build_queue_groups(all_queues, parsed_queues)
         queue_groups = []
-        all_queues = SidekiqConfig.worker_queues(@rails_path)
 
         if @num_workers
           # with the -w switch, each worker process will operate on all queues
           @num_workers.times { queue_groups << all_queues }
         else
           # otherwise, parse queue groups from CLI and dynamically determine process count
-          queue_groups = SidekiqCluster.parse_queues(argv).map do |queues|
+          queue_groups = parsed_queues.map do |queues|
             SidekiqConfig.expand_queues(queues, all_queues)
           end
 

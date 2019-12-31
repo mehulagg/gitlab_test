@@ -17,9 +17,9 @@ describe Gitlab::SidekiqCluster::CLI do
 
     context 'with arguments' do
       before do
-        expect(cli).to receive(:write_pid)
-        expect(cli).to receive(:trap_signals)
-        expect(cli).to receive(:start_loop)
+        allow(cli).to receive(:write_pid)
+        allow(cli).to receive(:trap_signals)
+        allow(cli).to receive(:start_loop)
       end
 
       context 'when worker count is set explicitly' do
@@ -30,6 +30,14 @@ describe Gitlab::SidekiqCluster::CLI do
                                               .and_return([])
 
           cli.run(%w(-w 2))
+        end
+
+        it 'fails when trying to combine with -n' do
+          expect { cli.run(%w(-w 2 -n)) }.to raise_error(described_class::CommandError)
+        end
+
+        it 'fails when trying to pass queue groups as well' do
+          expect { cli.run(%w(foo,bar -w 2)) }.to raise_error(described_class::CommandError)
         end
       end
 
