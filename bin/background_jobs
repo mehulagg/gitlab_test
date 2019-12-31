@@ -8,9 +8,7 @@ rails_env=${RAILS_ENV:-development}
 
 warn()
 {
-  echo '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
   echo "$@" 1>&2
-  echo '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 }
 
 deprecation_notice() 
@@ -18,7 +16,7 @@ deprecation_notice()
   target=$1
   alternative=$2
   warn "
-  NOTE:
+  !! NOTE !!
   The '$target' task is deprecated and will be removed soon.
   Use $alternative instead.
   "
@@ -26,6 +24,7 @@ deprecation_notice()
 
 gdk_notice() {
   warn "
+  !! NOTE !!
   GitLab developers are encouraged to rely on the GDK and runit for process management.
   If you find yourself starting and stopping sidekiq regularly, you should consider
   using the GDK instead.
