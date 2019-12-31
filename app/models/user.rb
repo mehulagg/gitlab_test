@@ -237,15 +237,15 @@ class User < ApplicationRecord
   enum role: [:software_developer, :development_team_lead, :devops_engineer, :systems_administrator, :security_analyst, :data_analyst, :product_manager, :product_designer, :other], _suffix: true
 
   delegate :path, to: :namespace, allow_nil: true, prefix: true
-  delegate :notes_filter_for, to: :user_preference
-  delegate :set_notes_filter, to: :user_preference
-  delegate :first_day_of_week, :first_day_of_week=, to: :user_preference
-  delegate :timezone, :timezone=, to: :user_preference
-  delegate :time_display_relative, :time_display_relative=, to: :user_preference
-  delegate :time_format_in_24h, :time_format_in_24h=, to: :user_preference
+  delegate :first_day_of_week, :first_day_of_week=,               to: :user_preference
+  delegate :notes_filter_for,                                     to: :user_preference
+  delegate :set_notes_filter,                                     to: :user_preference
+  delegate :setup_for_company, :setup_for_company=,               to: :user_preference
   delegate :show_whitespace_in_diffs, :show_whitespace_in_diffs=, to: :user_preference
-  delegate :sourcegraph_enabled, :sourcegraph_enabled=, to: :user_preference
-  delegate :setup_for_company, :setup_for_company=, to: :user_preference
+  delegate :sourcegraph_enabled, :sourcegraph_enabled=,           to: :user_preference
+  delegate :time_display_relative, :time_display_relative=,       to: :user_preference
+  delegate :time_format_in_24h, :time_format_in_24h=,             to: :user_preference
+  delegate :timezone, :timezone=,                                 to: :user_preference
 
   accepts_nested_attributes_for :user_preference, update_only: true
 
