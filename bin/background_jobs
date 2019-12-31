@@ -57,7 +57,7 @@ killall()
 
 start()
 {
-  sidekiq_processes=${1:-2}
+  num_workers=${1:-2}
   cmd="exec"
   chpst=$(which chpst)
 
@@ -66,7 +66,7 @@ start()
     cmd="${cmd} ${chpst} -P"
   fi
 
-  ${cmd} ee/bin/sidekiq-cluster -p $sidekiq_processes -P $sidekiq_pidfile -e $rails_env
+  ${cmd} ee/bin/sidekiq-cluster -w $num_workers -P $sidekiq_pidfile -e $rails_env
 }
 
 load_ok()

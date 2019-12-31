@@ -22,12 +22,26 @@ describe Gitlab::SidekiqCluster::CLI do
         expect(cli).to receive(:start_loop)
       end
 
-      it 'starts the Sidekiq workers' do
-        expect(Gitlab::SidekiqCluster).to receive(:start)
-                                            .with([['foo']], default_options)
-                                            .and_return([])
+      context 'when worker count is set explicitly' do
+        it 'starts as many Sidekiq workers on all queues' do
+          expect(Gitlab::SidekiqConfig).to receive(:worker_queues).and_return(%w(foo bar baz))
+          expect(Gitlab::SidekiqCluster).to receive(:start)
+                                              .with([%w(foo bar baz), %w(foo bar baz)], default_options)
+                                              .and_return([])
 
-        cli.run(%w(foo))
+          cli.run(%w(-w 2))
+        end
+      end
+
+      context 'when worker count is determined from queue groups' do
+        it 'starts a Sidekiq worker for each group' do
+          expect(Gitlab::SidekiqConfig).to receive(:worker_queues).and_return(%w(foo bar baz))
+          expect(Gitlab::SidekiqCluster).to receive(:start)
+                                              .with([%w(foo), %w(bar baz)], default_options)
+                                              .and_return([])
+
+          cli.run(%w(foo bar,baz))
+        end
       end
 
       context 'with --negate flag' do

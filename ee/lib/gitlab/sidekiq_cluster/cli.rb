@@ -16,7 +16,7 @@ module Gitlab
         @pidfile = nil
         @interval = 5
         @alive = true
-        @requested_processes = nil
+        @num_workers = nil
         @processes = []
         @logger = Logger.new(log_output)
         @rails_path = Dir.pwd
@@ -39,9 +39,9 @@ module Gitlab
         all_queues = SidekiqConfig.worker_queues(@rails_path)
 
         queue_groups = []
-        if @requested_processes
+        if @num_workers
           # with the -p switch, each process will operate on all queues
-          @requested_processes.times { queue_groups << all_queues }
+          @num_workers.times { queue_groups << all_queues }
         else
           # otherwise, parse queue groups from CLI and dynamically determine process count
           queue_groups = SidekiqCluster.parse_queues(argv).map do |queues|
@@ -113,8 +113,8 @@ module Gitlab
             @environment = env
           end
 
-          opt.on('-p', '--processes INT', 'Number of processes to start. If set, [QUEUE]s will be ignored and all processes will operate on all queues.') do |procs|
-            @requested_processes = procs.to_i
+          opt.on('-w', '--workers INT', 'Number of worker processes to start. If set, [QUEUE]s will be ignored and all workers will operate on all queues.') do |int|
+            @num_workers = int.to_i
           end
 
           opt.on('-P', '--pidfile PATH', 'Path to the PID file') do |pidfile|
