@@ -8,10 +8,33 @@ rails_env=${RAILS_ENV:-development}
 
 warn()
 {
+  echo '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
   echo "$@" 1>&2
+  echo '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 }
 
-read_sidekiq_pid() {
+deprecation_notice() 
+{
+  target=$1
+  alternative=$2
+  warn "
+  NOTE:
+  The '$target' task is deprecated and will be removed soon.
+  Use $alternative instead.
+  "
+}
+
+gdk_notice() {
+  warn "
+  GitLab developers are encouraged to rely on the GDK and runit for process management.
+  If you find yourself starting and stopping sidekiq regularly, you should consider
+  using the GDK instead.
+  More information here: https://gitlab.com/gitlab-org/gitlab-development-kit/
+  "
+}
+
+read_sidekiq_pid() 
+{
   if [ ! -f $sidekiq_pidfile ]; then
     warn "No pidfile found at $sidekiq_pidfile; is Sidekiq running?"
     return
@@ -23,8 +46,9 @@ read_sidekiq_pid() {
 stop()
 {
   sidekiq_pid=$(read_sidekiq_pid)
-  [ ! $sidekiq_pid ] && exit 1
-  kill -TERM $sidekiq_pid
+  if [ $sidekiq_pid ]; then
+    kill -TERM $sidekiq_pid
+  fi
 }
 
 killall()
@@ -34,7 +58,6 @@ killall()
 
 start()
 {
-  shift # remove self
   sidekiq_processes=${1:-2}
   cmd="exec"
   chpst=$(which chpst)
@@ -65,23 +88,39 @@ load_ok()
 
 case "$1" in
   stop)
+    deprecation_notice $1 "a process supervisor"
+    gdk_notice
     stop
     ;;
   start)
+    shift
+    start $@
+    ;;
+  start_no_deamonize)
+    deprecation_notice $1 "'start'"
+    shift
     start $@
     ;;
   start_foreground)
-    warn '--'
-    warn "NOTE: The start_foreground task is deprecated and will be removed soon. Use 'start' instead."
-    warn '--'
+    deprecation_notice $1 "'start'"
+    shift
     start $@
     ;;
+  restart)
+    deprecation_notice $1 "'stop', then restart manually or use a process supervisor"
+    gdk_notice
+    stop
+    ;;
   killall)
+    deprecation_notice $1 "a process supervisor"
+    gdk_notice
     killall
     ;;
   load_ok)
+    deprecation_notice $1 "a process supervisor"
+    gdk_notice
     load_ok
     ;;
   *)
-    echo "Usage: RAILS_ENV=<env> $0 {stop|start <num_workers>|killall|load_ok}"
+    echo "Usage: RAILS_ENV=<env> $0 start <num_workers>"
 esac
