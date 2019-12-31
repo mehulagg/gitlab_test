@@ -36,11 +36,26 @@ module Gitlab
 
         option_parser.parse!(argv)
 
+        queue_groups = build_queue_groups(argv)
+
+        @logger.info("Starting cluster with #{queue_groups.length} processes")
+
+        @processes = SidekiqCluster.start(queue_groups, env: @environment, directory: @rails_path,
+          max_concurrency: @max_concurrency, dryrun: @dryrun)
+
+        return if @dryrun
+
+        write_pid
+        trap_signals
+        start_loop
+      end
+
+      def build_queue_groups(argv)
+        queue_groups = []
         all_queues = SidekiqConfig.worker_queues(@rails_path)
 
-        queue_groups = []
         if @num_workers
-          # with the -p switch, each process will operate on all queues
+          # with the -w switch, each worker process will operate on all queues
           @num_workers.times { queue_groups << all_queues }
         else
           # otherwise, parse queue groups from CLI and dynamically determine process count
@@ -53,16 +68,7 @@ module Gitlab
           end
         end
 
-        @logger.info("Starting cluster with #{queue_groups.length} processes")
-
-        @processes = SidekiqCluster.start(queue_groups, env: @environment, directory: @rails_path,
-          max_concurrency: @max_concurrency, dryrun: @dryrun)
-
-        return if @dryrun
-
-        write_pid
-        trap_signals
-        start_loop
+        queue_groups
       end
 
       def write_pid
@@ -125,7 +131,7 @@ module Gitlab
             @rails_path = path
           end
 
-          opt.on('-n', '--negate', 'Run workers for all queues in sidekiq_queues.yml except the given ones. Has no effect when -p is passed.') do
+          opt.on('-n', '--negate', 'Run workers for all queues in sidekiq_queues.yml except the given ones. Has no effect when -w is passed.') do
             @negate_queues = true
           end
 
