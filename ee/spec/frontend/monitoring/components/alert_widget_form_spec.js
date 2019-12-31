@@ -35,7 +35,6 @@ describe('AlertWidgetForm', () => {
 
   const modal = () => wrapper.find(GlModal);
   const modalTitle = () => modal().attributes('title');
-  const submitText = () => modal().attributes('ok-title');
   const e = {
     preventDefault: jest.fn(),
   };

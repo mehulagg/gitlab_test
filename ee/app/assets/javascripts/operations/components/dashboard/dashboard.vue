@@ -2,6 +2,7 @@
 import _ from 'underscore';
 import { mapState, mapActions } from 'vuex';
 import { GlModal, GlModalDirective, GlButton, GlDashboardSkeleton } from '@gitlab/ui';
+import { s__ } from '~/locale';
 import VueDraggable from 'vuedraggable';
 import ProjectSelector from '~/vue_shared/components/project_selector/project_selector.vue';
 import DashboardProject from './project.vue';
