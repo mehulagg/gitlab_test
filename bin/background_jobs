@@ -11,10 +11,20 @@ warn()
   echo "$@" 1>&2
 }
 
+read_sidekiq_pid() {
+  if [ ! -f $sidekiq_pidfile ]; then
+    warn "No pidfile found at $sidekiq_pidfile; is Sidekiq running?"
+    return
+  fi
+
+  cat $sidekiq_pidfile
+}
+
 stop()
 {
-  [ -f $sidekiq_pidfile ] || (warn "No pidfile found at $sidekiq_pidfile; is sidekiq running?" && exit 1) 
-  cat $sidekiq_pidfile | xargs kill -TERM 
+  sidekiq_pid=$(read_sidekiq_pid)
+  [ ! $sidekiq_pid ] && exit 1
+  kill -TERM $sidekiq_pid
 }
 
 killall()
@@ -39,7 +49,7 @@ start()
 
 load_ok()
 {
-  sidekiq_pid=$(cat $sidekiq_pidfile)
+  sidekiq_pid=$(read_sidekiq_pid)
   if [ -z "$sidekiq_pid" ] ; then
     warn "Could not find a PID in $sidekiq_pidfile"
     exit 0
