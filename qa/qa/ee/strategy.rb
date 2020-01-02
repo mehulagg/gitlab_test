@@ -11,6 +11,8 @@ module QA
       end
 
       def perform_before_hooks
+        return if QA::Runtime::Scenario.attributes[:dry_run]
+
         # Without a license, perform the CE before hooks only.
         unless ENV['EE_LICENSE']
           QA::CE::Strategy.perform_before_hooks

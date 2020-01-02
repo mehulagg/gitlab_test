@@ -46,6 +46,8 @@ module QA
           tags_for_rspec.push(%W[--tag ~requires_#{key}]) unless QA::Runtime::Env.can_test? key
         end
 
+        tags_for_rspec.push('--dry-run') if Runtime::Scenario.attributes[:dry_run]
+
         tags_for_rspec
       end
 

@@ -9,6 +9,7 @@ module QA
       attribute :enable_feature, '--enable-feature FEATURE_FLAG', 'Enable a feature before running tests'
       attribute :parallel, '--parallel', 'Execute tests in parallel'
       attribute :loop, '--loop', 'Execute test repeatedly'
+      attribute :dry_run, '--dry-run', 'Passes `--dry-run` to RSpec allowing tests to be listed without running them'
     end
   end
 end
