@@ -22,11 +22,13 @@ describe Deployments::AfterCreateService do
       tag: false,
       environment: 'production',
       options: { environment: options },
-      project: project)
+      project: project,
+      **extra_params)
   end
 
   let(:deployment) { job.deployment }
   let(:environment) { deployment.environment }
+  let(:extra_params) { {} }
 
   subject(:service) { described_class.new(deployment) }
 
@@ -117,9 +119,8 @@ describe Deployments::AfterCreateService do
     end
 
     context 'when auto_stop_in are used' do
-      let(:options) do
-        { name: 'production', auto_stop_in: '1 day' }
-      end
+      let(:options) { { name: 'production' } }
+      let(:extra_params) { { environment_auto_stop_in: '1 day' } }
 
       it 'renews auto stop at' do
         Timecop.freeze do

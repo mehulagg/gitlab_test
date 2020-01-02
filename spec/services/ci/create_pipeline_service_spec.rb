@@ -797,7 +797,8 @@ describe Ci::CreatePipelineService do
         result = execute_service
 
         expect(result).to be_persisted
-        expect(result.builds.first.options[:environment][:auto_stop_in]).to eq('1 day')
+        expect(result.builds.first.options[:environment][:auto_stop_in]).to be_nil
+        expect(result.builds.first.environment_auto_stop_in).to eq('1 day')
       end
     end
 

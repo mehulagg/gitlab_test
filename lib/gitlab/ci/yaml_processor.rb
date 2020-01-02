@@ -56,6 +56,7 @@ module Gitlab
           allow_failure: job[:ignore],
           when: job[:when] || 'on_success',
           environment: job[:environment_name],
+          environment_auto_stop_in: environment_auto_stop_in(job),
           coverage_regex: job[:coverage],
           yaml_variables: transform_to_yaml_variables(job_variables(name)),
           needs_attributes: job.dig(:needs, :job),
@@ -157,6 +158,12 @@ module Gitlab
         variables.to_h.map do |key, value|
           { key: key.to_s, value: value, public: true }
         end
+      end
+
+      def environment_auto_stop_in(job)
+        return unless job[:environment].is_a?(Hash)
+
+        job[:environment].delete(:auto_stop_in)
       end
 
       def validate_job_stage!(name, job)

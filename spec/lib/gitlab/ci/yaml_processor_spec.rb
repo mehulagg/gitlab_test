@@ -1420,6 +1420,23 @@ module Gitlab
           end
         end
 
+        context 'when auto_stop_in is specified' do
+          let(:environment) do
+            {
+              name: 'production',
+              url: 'http://production.gitlab.com',
+              auto_stop_in: '1 day'
+            }
+          end
+
+          it 'returns production and URL' do
+            expect(builds.size).to eq(1)
+            expect(builds.first[:environment]).to eq(environment[:name])
+            expect(builds.first[:options]).to include(environment: environment.except(:auto_stop_in))
+            expect(builds.first[:environment_auto_stop_in]).to eq(environment[:auto_stop_in])
+          end
+        end
+
         context 'when on_stop is specified' do
           let(:review) { { stage: 'deploy', script: 'test', environment: { name: 'review', on_stop: 'close_review' } } }
           let(:config) { { review: review, close_review: close_review }.compact }

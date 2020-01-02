@@ -51,7 +51,6 @@ module Ci
       ensure_metadata.tap do |metadata|
         # Store presence of exposed artifacts in build metadata to make it easier to query
         metadata.has_exposed_artifacts = value&.dig(:artifacts, :expose_as).present?
-        metadata.environment_auto_stop_in = value&.dig(:environment, :auto_stop_in)
       end
     end
 
@@ -65,6 +64,10 @@ module Ci
 
     def interruptible=(value)
       ensure_metadata.interruptible = value
+    end
+
+    def environment_auto_stop_in=(value)
+      ensure_metadata.environment_auto_stop_in = value
     end
 
     private

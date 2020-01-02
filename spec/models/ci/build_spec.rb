@@ -4266,7 +4266,7 @@ describe Ci::Build do
     subject { build.environment_auto_stop_in }
 
     context 'when build option has environment auto_stop_in' do
-      let(:build) { create(:ci_build, options: { environment: { name: 'test', auto_stop_in: '1 day' } }) }
+      let(:build) { create(:ci_build, environment_auto_stop_in: '1 day', options: { environment: { name: 'test' } }) }
 
       it { is_expected.to eq('1 day') }
     end
