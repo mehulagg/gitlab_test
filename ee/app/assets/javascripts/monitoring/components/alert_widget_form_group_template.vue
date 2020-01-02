@@ -7,7 +7,7 @@ import {
   GlDropdown,
   GlDropdownItem,
 } from '@gitlab/ui';
-import _ from 'underscore';
+import { mapState, mapActions } from 'vuex';
 import { __, s__ } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
 import { alertsValidator, queriesValidator } from '../validators';
@@ -53,14 +53,13 @@ export default {
   data() {
     return {
       operators: OPERATORS,
-      operator: null,
-      threshold: null,
-      prometheusMetricId: null,
+      // prometheusMetricId: null,
       selectedAlert: {},
       alertQuery: '',
     };
   },
   computed: {
+    ...mapState('monitoringDashboard', ['alertsVuex']),
     isValidQuery() {
       // TODO: Add query validation check (most likely via http request)
       return this.alertQuery.length ? true : null;
@@ -77,54 +76,33 @@ export default {
     currentQuery() {
       return this.relevantQueries.find(query => query.metricId === this.prometheusMetricId) || {};
     },
-  },
-  watch: {
-    alertsToManage() {
-      this.resetAlertData();
+    alert() {
+      return this.alertsVuex[this.templateId];
+    },
+    threshold: {
+      get() {
+        return this.alert.threshold;
+      },
+      set(value) {
+        this.updateAlertForm({ index: this.templateId, threshold: value });
+      },
+    },
+    prometheusMetricId: {
+      get() {
+        return this.alert.prometheusMetricId;
+      },
+      set(value) {
+        this.updateAlertForm({ index: this.templateId, prometheusMetricId: value });
+      },
     },
   },
   methods: {
-    updateOperator(selectedOperator) {
-      this.operator = selectedOperator;
-      this.$emit('update-operator', {
-        operator: selectedOperator,
-        groupId: this.templateId,
-      });
-    },
-    updateThreshold() {
-      this.$emit('update-threshold', {
-        threshold: this.threshold,
-        groupId: this.templateId,
-      });
-    },
+    ...mapActions('monitoringDashboard', ['updateAlertForm', 'addAlertToDelete']),
     selectQuery(queryId) {
-      const existingAlertPath = _.findKey(this.alertsToManage, alert => alert.metricId === queryId);
-      const existingAlert = this.alertsToManage[existingAlertPath];
-
-      if (existingAlert) {
-        this.selectedAlert = existingAlert;
-        this.operator = existingAlert.operator;
-        this.threshold = existingAlert.threshold;
-      } else {
-        this.selectedAlert = {};
-        this.operator = this.operators.greaterThan;
-        this.threshold = null;
-      }
+      // const existingAlertPath = _.findKey(this.alertsToManage, alert => alert.metricId === queryId);
+      // const existingAlert = this.alertsToManage[existingAlertPath];
 
       this.prometheusMetricId = queryId;
-      this.$emit('update-alert-data', {
-        data: {
-          prometheusMetricId: this.prometheusMetricId,
-          alert: this.selectedAlert,
-        },
-        groupId: this.templateId,
-      });
-    },
-    resetAlertData() {
-      this.operator = null;
-      this.threshold = null;
-      this.prometheusMetricId = null;
-      this.selectedAlert = {};
     },
   },
   alertQueryText: {
@@ -138,76 +116,109 @@ export default {
 };
 </script>
 <template>
-  <div class="alert-form">
-    <gl-form-group
-      v-if="supportsComputedAlerts"
-      :label="$options.alertQueryText.label"
-      label-for="alert-query-input"
-      :valid-feedback="$options.alertQueryText.validFeedback"
-      :invalid-feedback="$options.alertQueryText.invalidFeedback"
-      :state="isValidQuery"
-    >
-      <gl-form-input id="alert-query-input" v-model.trim="alertQuery" :state="isValidQuery" />
-      <template #description>
-        <div class="d-flex align-items-center">
-          {{ __('Single or combined queries') }}
-          <icon
-            v-gl-tooltip-directive="$options.alertQueryText.descriptionTooltip"
-            name="question"
-            class="prepend-left-4"
-          />
+  <div class="row">
+    <div class="col-12">
+      <div class="alert-form">
+        <label class="d-block col-form-label">{{ s__('Query') }}</label>
+        <div v-if="supportsComputedAlerts" class="row">
+          <div class="9">
+            <gl-form-group
+              :label="$options.alertQueryText.label"
+              label-for="alert-query-input"
+              :valid-feedback="$options.alertQueryText.validFeedback"
+              :invalid-feedback="$options.alertQueryText.invalidFeedback"
+              :state="isValidQuery"
+            >
+              <gl-form-input
+                id="alert-query-input"
+                v-model.trim="alertQuery"
+                :state="isValidQuery"
+              />
+              <template #description>
+                <div class="d-flex align-items-center">
+                  {{ __('Single or combined queries') }}
+                  <icon
+                    v-gl-tooltip-directive="$options.alertQueryText.descriptionTooltip"
+                    name="question"
+                    class="prepend-left-4"
+                  />
+                </div>
+              </template>
+            </gl-form-group>
+          </div>
         </div>
-      </template>
-    </gl-form-group>
-    <gl-form-group v-else label-for="alert-query-dropdown" :label="$options.alertQueryText.label">
-      <gl-dropdown
-        id="alert-query-dropdown"
-        :text="queryDropdownLabel"
-        toggle-class="dropdown-menu-toggle"
-      >
-        <gl-dropdown-item
-          v-for="query in relevantQueries"
-          :key="query.metricId"
-          @click="selectQuery(query.metricId)"
-        >
-          {{ query.label }}
-        </gl-dropdown-item>
-      </gl-dropdown>
-    </gl-form-group>
-    <gl-button-group class="mb-2" :label="s__('PrometheusAlerts|Operator')">
-      <gl-button
-        :class="{ active: operator === operators.greaterThan }"
-        :disabled="formDisabled"
-        type="button"
-        @click="updateOperator(operators.greaterThan)"
-      >
-        {{ operators.greaterThan }}
-      </gl-button>
-      <gl-button
-        :class="{ active: operator === operators.equalTo }"
-        :disabled="formDisabled"
-        type="button"
-        @click="updateOperator(operators.equalTo)"
-      >
-        {{ operators.equalTo }}
-      </gl-button>
-      <gl-button
-        :class="{ active: operator === operators.lessThan }"
-        :disabled="formDisabled"
-        type="button"
-        @click="updateOperator(operators.lessThan)"
-      >
-        {{ operators.lessThan }}
-      </gl-button>
-    </gl-button-group>
-    <gl-form-group :label="s__('PrometheusAlerts|Threshold')" label-for="alerts-threshold">
-      <gl-form-input
-        id="alerts-threshold"
-        v-model.number="threshold"
-        :disabled="formDisabled"
-        type="number"
-        @input="updateThreshold"
-      />
-    </gl-form-group>
+        <div v-else class="row">
+          <div class="col-9">
+            <gl-form-group>
+              <gl-dropdown
+                id="alert-query-dropdown"
+                :text="queryDropdownLabel"
+                toggle-class="dropdown-menu-toggle"
+              >
+                <gl-dropdown-item
+                  v-for="query in relevantQueries"
+                  :key="query.metricId"
+                  @click="selectQuery(query.metricId)"
+                >
+                  {{ query.label }}
+                </gl-dropdown-item>
+              </gl-dropdown>
+            </gl-form-group>
+          </div>
+          <div class="col-3">
+            <gl-button
+              id="delete-metric-group"
+              variant="danger"
+              class="pull-right"
+              @click="addAlertToDelete(templateId)"
+            >
+              <icon name="remove" />
+            </gl-button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-9">
+            <gl-button-group class="mb-2" :label="s__('PrometheusAlerts|Operator')">
+              <gl-button
+                :class="{ active: alert.operator === operators.greaterThan }"
+                :disabled="formDisabled"
+                type="button"
+                @click="updateAlertForm({ index: templateId, operator: operators.greaterThan })"
+              >
+                {{ operators.greaterThan }}
+              </gl-button>
+              <gl-button
+                :class="{ active: alert.operator === operators.equalTo }"
+                :disabled="formDisabled"
+                type="button"
+                @click="updateAlertForm({ index: templateId, operator: operators.equalTo })"
+              >
+                {{ operators.equalTo }}
+              </gl-button>
+              <gl-button
+                :class="{ active: alert.operator === operators.lessThan }"
+                :disabled="formDisabled"
+                type="button"
+                @click="updateAlertForm({ index: templateId, operator: operators.lessThan })"
+              >
+                {{ operators.lessThan }}
+              </gl-button>
+            </gl-button-group>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-9">
+            <gl-form-group :label="s__('PrometheusAlerts|Threshold')" label-for="alerts-threshold">
+              <gl-form-input
+                id="alerts-threshold"
+                v-model.number="threshold"
+                :disabled="formDisabled"
+                type="number"
+              />
+            </gl-form-group>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>

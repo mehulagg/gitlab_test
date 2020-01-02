@@ -1,5 +1,6 @@
 <script>
 import { GlBadge, GlLoadingIcon, GlModalDirective } from '@gitlab/ui';
+import { mapActions } from 'vuex';
 import { s__, sprintf } from '~/locale';
 import createFlash from '~/flash';
 import Icon from '~/vue_shared/components/icon.vue';
@@ -64,13 +65,21 @@ export default {
   },
   created() {
     this.service = new AlertsService({ alertsEndpoint: this.alertsEndpoint });
+    // this.filterQueriesWithAlerts(this.relevantQueries);
     this.fetchAlertData();
   },
   methods: {
+    ...mapActions('monitoringDashboard', [
+      'fetchAlertsVuex',
+      'filterQueriesWithAlerts',
+      'resetAlertForm',
+    ]),
     fetchAlertData() {
       this.isLoading = true;
 
       const queriesWithAlerts = this.relevantQueries.filter(query => query.alert_path);
+
+      this.fetchAlertsVuex(queriesWithAlerts);
 
       return Promise.all(
         queriesWithAlerts.map(query =>
@@ -100,6 +109,7 @@ export default {
       return `${alertQuery.label} ${alert.operator} ${alert.threshold}`;
     },
     showModal() {
+      this.resetAlertForm();
       this.$root.$emit('bv::show::modal', this.modalId);
     },
     hideModal() {
@@ -124,27 +134,6 @@ export default {
           this.isLoading = false;
         });
     },
-    handleMultipleCreate(alerts = []) {
-      // TODO: Use multiple promises to handle this
-      this.isLoading = true;
-      const newAlert = {
-        operator: alerts[0].operator,
-        threshold: alerts[0].threshold,
-        prometheus_metric_id: alerts[0].prometheus_metric_id,
-      };
-
-      this.service
-        .createAlert(newAlert)
-        .then(alertAttributes => {
-          this.setAlert(alertAttributes, alerts[0].prometheus_metric_id);
-          this.isLoading = false;
-          this.hideModal();
-        })
-        .catch(() => {
-          this.errorMessage = s__('PrometheusAlerts|Error creating alert');
-          this.isLoading = false;
-        });
-    },
     handleUpdate({ alert, operator, threshold }) {
       const updatedAlert = { operator, threshold };
       this.isLoading = true;
@@ -160,12 +149,13 @@ export default {
           this.isLoading = false;
         });
     },
-    handleDelete({ alert }) {
+    handleDelete(alert) {
       this.isLoading = true;
       this.service
         .deleteAlert(alert)
         .then(() => {
           this.removeAlert(alert);
+          // Remove this until all alerts are deleted
           this.isLoading = false;
           this.hideModal();
         })
@@ -208,7 +198,6 @@ export default {
       @delete="handleDelete"
       @cancel="hideModal"
       @setAction="handleSetApiAction"
-      @createMultiple="handleMultipleCreate"
     />
   </div>
 </template>

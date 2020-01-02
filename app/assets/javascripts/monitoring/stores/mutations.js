@@ -5,6 +5,7 @@ import { normalizeMetric, normalizeQueryResult } from './utils';
 import { BACKOFF_TIMEOUT } from '../../lib/utils/common_utils';
 import { metricStates } from '../constants';
 import httpStatusCodes from '~/lib/utils/http_status';
+import alertMutations from './mutations/alerts';
 
 const normalizePanelMetrics = (metrics, defaultLabel) =>
   metrics.map(metric => ({
@@ -195,4 +196,5 @@ export default {
     const panelGroup = state.dashboard.panel_groups.find(pg => payload.key === pg.key);
     panelGroup.panels = payload.panels;
   },
+  ...alertMutations,
 };

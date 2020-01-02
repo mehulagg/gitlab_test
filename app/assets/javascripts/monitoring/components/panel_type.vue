@@ -1,5 +1,5 @@
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 import _ from 'underscore';
 import {
   GlDropdown,
@@ -87,6 +87,7 @@ export default {
     },
   },
   methods: {
+    ...mapActions('monitoringDashboard', ['resetAlertForm']),
     getGraphAlerts(queries) {
       if (!this.allAlerts) return {};
       const metricIdsForChart = queries.map(q => q.metricId);
@@ -161,7 +162,11 @@ export default {
         >
           {{ __('Generate link to chart') }}
         </gl-dropdown-item>
-        <gl-dropdown-item v-if="alertWidgetAvailable" v-gl-modal="`alert-modal-${index}`">
+        <gl-dropdown-item
+          v-if="alertWidgetAvailable"
+          v-gl-modal="`alert-modal-${index}`"
+          @click="resetAlertForm"
+        >
           {{ __('Alerts') }}
         </gl-dropdown-item>
       </gl-dropdown>

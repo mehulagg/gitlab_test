@@ -226,6 +226,7 @@ export default {
       currentDashboard: this.currentDashboard,
       projectPath: this.projectPath,
     });
+    this.setAlertsEndpoint(this.alertsEndpoint);
   },
   mounted() {
     if (!this.hasMetrics) {
@@ -243,6 +244,7 @@ export default {
       'setGettingStartedEmptyState',
       'setEndpoints',
       'setPanelGroupMetrics',
+      'setAlertsEndpoint',
     ]),
     updatePanels(key, panels) {
       this.setPanelGroupMetrics({
