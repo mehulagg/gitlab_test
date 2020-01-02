@@ -66,11 +66,9 @@ module Gitlab
       end
 
       def build_queue_groups(all_queues, parsed_queues)
-        queue_groups = []
-
         if @num_workers
           # with the -w switch, each worker process will operate on all queues
-          @num_workers.times { queue_groups << all_queues }
+          Array.new(@num_workers) { all_queues }
         else
           # otherwise, parse queue groups from CLI and dynamically determine process count
           queue_groups = parsed_queues.map do |queues|
@@ -78,11 +76,11 @@ module Gitlab
           end
 
           if @negate_queues
-            queue_groups.map! { |queues| all_queues - queues }
+            queue_groups.map { |queues| all_queues - queues }
+          else
+            queue_groups
           end
         end
-
-        queue_groups
       end
 
       def write_pid
