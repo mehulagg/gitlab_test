@@ -3,6 +3,7 @@
 cd $(dirname $0)/..
 app_root=$(pwd)
 sidekiq_pidfile="$app_root/tmp/pids/sidekiq-cluster.pid"
+sidekiq_logfile="$app_root/log/sidekiq.log"
 gitlab_user=$(ls -l config.ru | awk '{print $3}')
 rails_env=${RAILS_ENV:-development}
 
@@ -69,6 +70,12 @@ start()
   ${cmd} ee/bin/sidekiq-cluster -w $num_workers -P $sidekiq_pidfile -e $rails_env
 }
 
+start_silent()
+{
+  warn "Sidekiq output will be written to $sidekiq_logfile"
+  start $@ >> $sidekiq_logfile 2>&1
+}
+
 load_ok()
 {
   sidekiq_pid=$(read_sidekiq_pid)
@@ -87,18 +94,19 @@ load_ok()
 
 case "$1" in
   stop)
-    deprecation_notice $1 "a process supervisor"
-    gdk_notice
     stop
     ;;
   start)
     shift
     start $@
     ;;
-  start_no_deamonize)
-    deprecation_notice $1 "'start'"
+  start_silent)
     shift
-    start $@
+    start_silent $@
+    ;;
+  start_background)
+    shift
+    start_silent &
     ;;
   start_foreground)
     deprecation_notice $1 "'start'"
@@ -121,5 +129,5 @@ case "$1" in
     load_ok
     ;;
   *)
-    echo "Usage: RAILS_ENV=<env> $0 start <num_workers>"
+    echo "Usage: RAILS_ENV=<env> $0 [start|start_silent|start_background|stop] <num_workers>"
 esac
