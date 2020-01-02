@@ -10,6 +10,7 @@ module QA
       attribute :disable_feature, '--disable-feature FEATURE_FLAG', 'Disable a feature before running tests'
       attribute :parallel, '--parallel', 'Execute tests in parallel'
       attribute :loop, '--loop', 'Execute test repeatedly'
+      attribute :dry_run, '--dry-run', 'Passes `--dry-run` to RSpec allowing tests to be listed without running them'
     end
   end
 end

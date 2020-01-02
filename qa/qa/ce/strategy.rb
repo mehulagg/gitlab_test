@@ -10,6 +10,8 @@ module QA
       end
 
       def perform_before_hooks
+        return if QA::Runtime::Scenario.attributes[:dry_run]
+
         # The login page could take some time to load the first time it is visited.
         # We visit the login page and wait for it to properly load only once before the tests.
         QA::Support::Retrier.retry_on_exception do
