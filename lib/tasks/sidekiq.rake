@@ -11,7 +11,7 @@ namespace :sidekiq do
 
   desc "GitLab | Start sidekiq in the foreround (logs to STDOUT)"
   task :start_foreground do
-    system(*%w(bin/background_jobs start))
+    system(*%w(bin/background_jobs start_foreground))
   end
 
   desc "GitLab | Start sidekiq in the foreground (logs to log/sidekiq.log)"

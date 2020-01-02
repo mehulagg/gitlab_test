@@ -109,7 +109,6 @@ case "$1" in
     start_silent &
     ;;
   start_foreground)
-    deprecation_notice $1 "'start'"
     shift
     start $@
     ;;
@@ -129,5 +128,5 @@ case "$1" in
     load_ok
     ;;
   *)
-    echo "Usage: RAILS_ENV=<env> $0 [start|start_silent|start_background|stop] <num_workers>"
+    echo "Usage: RAILS_ENV=<env> $0 [start_foreground|start_background|start_silent|stop] <num_workers>"
 esac
