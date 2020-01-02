@@ -263,7 +263,7 @@ module Gitlab
         end
 
         def log
-          Gitlab::AppLogger
+          Gitlab::AppMultiLogger
         end
 
         def oauth_provider_disabled?

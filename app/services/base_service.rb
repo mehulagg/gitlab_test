@@ -22,11 +22,11 @@ class BaseService
   end
 
   def log_info(message)
-    Gitlab::AppLogger.info message
+    Gitlab::AppMultiLogger.info message
   end
 
   def log_error(message)
-    Gitlab::AppLogger.error message
+    Gitlab::AppMultiLogger.error message
   end
 
   def system_hook_service

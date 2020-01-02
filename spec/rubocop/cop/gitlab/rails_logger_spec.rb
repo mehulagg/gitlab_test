@@ -29,7 +29,7 @@ describe RuboCop::Cop::Gitlab::RailsLogger do
   end
 
   it 'does not flag the use of Rails.logger with a constant that is not Rails' do
-    inspect_source("AppLogger.error('some error')")
+    inspect_source("AppMultiLogger.error('some error')")
 
     expect(cop.offenses.size).to eq(0)
   end

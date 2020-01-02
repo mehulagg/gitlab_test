@@ -147,7 +147,7 @@ describe Projects::ImportService do
             expect_any_instance_of(Gitlab::Shell).to receive(:import_repository).and_return(true)
             expect_any_instance_of(Gitlab::BitbucketImport::Importer).to receive(:execute).and_return(true)
             expect_any_instance_of(Projects::LfsPointers::LfsImportService).to receive(:execute).and_return(status: :error, message: error_message)
-            expect(Gitlab::AppLogger).to receive(:error).with("The Lfs import process failed. #{error_message}")
+            expect(Gitlab::AppMultiLogger).to receive(:error).with("The Lfs import process failed. #{error_message}")
 
             subject.execute
           end
@@ -229,7 +229,7 @@ describe Projects::ImportService do
 
             allow(Gitlab::GithubImport::ParallelImporter).to receive(:imports_repository?).and_return(false)
             expect_any_instance_of(Projects::LfsPointers::LfsImportService).to receive(:execute).and_return(status: :error, message: error_message)
-            expect(Gitlab::AppLogger).to receive(:error).with("The Lfs import process failed. #{error_message}")
+            expect(Gitlab::AppMultiLogger).to receive(:error).with("The Lfs import process failed. #{error_message}")
 
             subject.execute
           end

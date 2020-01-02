@@ -23,7 +23,7 @@ module Ci
     attr_reader :pipeline, :current_user
 
     def logger
-      Gitlab::AppLogger
+      Gitlab::AppMultiLogger
     end
   end
 end

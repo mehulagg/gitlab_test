@@ -16,7 +16,7 @@ module RuboCop
         #   Rails.logger.error("Project #{project.full_path} could not be saved")
         #
         #   # good
-        #   Gitlab::AppLogger.error("Project %{project_path} could not be saved" % { project_path: project.full_path })
+        #   Gitlab::AppMultiLogger.error("Project %{project_path} could not be saved" % { project_path: project.full_path })
         MSG = 'Use a structured JSON logger instead of `Rails.logger`. ' \
           'https://docs.gitlab.com/ee/development/logging.html'.freeze
 

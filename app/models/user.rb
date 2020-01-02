@@ -1234,7 +1234,7 @@ class User < ApplicationRecord
   # rubocop: enable CodeReuse/ServiceClass
 
   def log_info(message)
-    Gitlab::AppLogger.info message
+    Gitlab::AppMultiLogger.info message
   end
 
   # rubocop: disable CodeReuse/ServiceClass
@@ -1518,7 +1518,7 @@ class User < ApplicationRecord
 
   # override, from Devise
   def lock_access!
-    Gitlab::AppLogger.info("Account Locked: username=#{username}")
+    Gitlab::AppMultiLogger.info("Account Locked: username=#{username}")
     super
   end
 

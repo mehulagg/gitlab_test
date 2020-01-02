@@ -10,7 +10,7 @@ class Admin::LogsController < Admin::ApplicationController
 
   def loggers
     @loggers ||= [
-      Gitlab::AppLogger,
+      Gitlab::AppMultiLogger,
       Gitlab::GitLogger,
       Gitlab::EnvironmentLogger,
       Gitlab::SidekiqLogger,

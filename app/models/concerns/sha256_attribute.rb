@@ -34,7 +34,7 @@ module Sha256Attribute
         raise ArgumentError.new("sha256_attribute #{name.inspect} is invalid since the column type is not :binary")
       end
     rescue => error
-      Gitlab::AppLogger.error "Sha256Attribute initialization: #{error.message}"
+      Gitlab::AppMultiLogger.error "Sha256Attribute initialization: #{error.message}"
       raise
     end
 

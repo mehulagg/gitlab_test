@@ -59,7 +59,7 @@ describe Ci::PlayManualStageService, '#execute' do
     end
 
     it 'logs the error' do
-      expect(Gitlab::AppLogger).to receive(:error)
+      expect(Gitlab::AppMultiLogger).to receive(:error)
         .exactly(stage.builds.manual.count)
 
       service.execute(stage)

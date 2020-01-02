@@ -72,7 +72,7 @@ class SessionsController < Devise::SessionsController
   end
 
   def destroy
-    Gitlab::AppLogger.info("User Logout: username=#{current_user.username} ip=#{request.remote_ip}")
+    Gitlab::AppMultiLogger.info("User Logout: username=#{current_user.username} ip=#{request.remote_ip}")
     super
     # hide the signed_out notice
     flash[:notice] = nil
@@ -138,7 +138,7 @@ class SessionsController < Devise::SessionsController
   end
 
   def log_failed_login
-    Gitlab::AppLogger.info("Failed Login: username=#{user_params[:login]} ip=#{request.remote_ip}")
+    Gitlab::AppMultiLogger.info("Failed Login: username=#{user_params[:login]} ip=#{request.remote_ip}")
   end
 
   def action_new_and_failed_login?
@@ -255,7 +255,7 @@ class SessionsController < Devise::SessionsController
   end
 
   def log_audit_event(user, resource, options = {})
-    Gitlab::AppLogger.info("Successful Login: username=#{resource.username} ip=#{request.remote_ip} method=#{options[:with]} admin=#{resource.admin?}")
+    Gitlab::AppMultiLogger.info("Successful Login: username=#{resource.username} ip=#{request.remote_ip} method=#{options[:with]} admin=#{resource.admin?}")
     AuditEventService.new(user, user, options)
       .for_authentication.security_event
   end

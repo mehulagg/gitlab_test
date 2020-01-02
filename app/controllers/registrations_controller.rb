@@ -109,7 +109,7 @@ class RegistrationsController < Devise::RegistrationsController
   end
 
   def after_sign_up_path_for(user)
-    Gitlab::AppLogger.info(user_created_message(confirmed: user.confirmed?))
+    Gitlab::AppMultiLogger.info(user_created_message(confirmed: user.confirmed?))
 
     return users_sign_up_welcome_path if experiment_enabled?(:signup_flow)
 
@@ -117,7 +117,7 @@ class RegistrationsController < Devise::RegistrationsController
   end
 
   def after_inactive_sign_up_path_for(resource)
-    Gitlab::AppLogger.info(user_created_message)
+    Gitlab::AppMultiLogger.info(user_created_message)
     Feature.enabled?(:soft_email_confirmation) ? dashboard_projects_path : users_almost_there_path
   end
 

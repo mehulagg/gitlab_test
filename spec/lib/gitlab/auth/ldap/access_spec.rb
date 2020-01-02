@@ -48,7 +48,7 @@ describe Gitlab::Auth::LDAP::Access do
       end
 
       it 'logs the reason' do
-        expect(Gitlab::AppLogger).to receive(:info).with(
+        expect(Gitlab::AppMultiLogger).to receive(:info).with(
           "LDAP account \"123456\" does not exist anymore, " \
           "blocking GitLab user \"#{user.name}\" (#{user.email})"
         )
@@ -79,7 +79,7 @@ describe Gitlab::Auth::LDAP::Access do
         end
 
         it 'logs the reason' do
-          expect(Gitlab::AppLogger).to receive(:info).with(
+          expect(Gitlab::AppMultiLogger).to receive(:info).with(
             "LDAP account \"123456\" is disabled in Active Directory, " \
             "blocking GitLab user \"#{user.name}\" (#{user.email})"
           )
@@ -123,7 +123,7 @@ describe Gitlab::Auth::LDAP::Access do
           end
 
           it 'logs the reason' do
-            expect(Gitlab::AppLogger).to receive(:info).with(
+            expect(Gitlab::AppMultiLogger).to receive(:info).with(
               "LDAP account \"123456\" is not disabled anymore, " \
               "unblocking GitLab user \"#{user.name}\" (#{user.email})"
             )
@@ -163,7 +163,7 @@ describe Gitlab::Auth::LDAP::Access do
           end
 
           it 'logs the reason' do
-            expect(Gitlab::AppLogger).to receive(:info).with(
+            expect(Gitlab::AppMultiLogger).to receive(:info).with(
               "LDAP account \"123456\" does not exist anymore, " \
               "blocking GitLab user \"#{user.name}\" (#{user.email})"
             )
@@ -185,7 +185,7 @@ describe Gitlab::Auth::LDAP::Access do
           end
 
           it 'logs the reason' do
-            expect(Gitlab::AppLogger).to receive(:info).with(
+            expect(Gitlab::AppMultiLogger).to receive(:info).with(
               "LDAP account \"123456\" is available again, " \
               "unblocking GitLab user \"#{user.name}\" (#{user.email})"
             )

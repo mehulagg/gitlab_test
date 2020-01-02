@@ -99,7 +99,7 @@ module Projects
       if result[:status] == :error
         # To avoid aborting the importing process, we silently fail
         # if any exception raises.
-        Gitlab::AppLogger.error("The Lfs import process failed. #{result[:message]}")
+        Gitlab::AppMultiLogger.error("The Lfs import process failed. #{result[:message]}")
       end
     end
 

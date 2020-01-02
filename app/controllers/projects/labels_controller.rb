@@ -126,8 +126,8 @@ class Projects::LabelsController < Projects::ApplicationController
         end
       end
     rescue ActiveRecord::RecordInvalid => e
-      Gitlab::AppLogger.error "Failed to promote label \"#{@label.title}\" to group label"
-      Gitlab::AppLogger.error e
+      Gitlab::AppMultiLogger.error "Failed to promote label \"#{@label.title}\" to group label"
+      Gitlab::AppMultiLogger.error e
 
       respond_to do |format|
         format.html do

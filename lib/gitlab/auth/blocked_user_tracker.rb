@@ -10,7 +10,7 @@ module Gitlab
       def log_activity!
         return unless @user.blocked?
 
-        Gitlab::AppLogger.info <<~INFO
+        Gitlab::AppMultiLogger.info <<~INFO
           "Failed login for blocked user: user=#{@user.username} ip=#{@auth.request.ip}")
         INFO
 

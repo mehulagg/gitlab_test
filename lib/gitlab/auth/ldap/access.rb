@@ -94,12 +94,12 @@ module Gitlab
           user.ldap_block
 
           if provider
-            Gitlab::AppLogger.info(
+            Gitlab::AppMultiLogger.info(
               "LDAP account \"#{ldap_identity.extern_uid}\" #{reason}, " \
               "blocking GitLab user \"#{user.name}\" (#{user.email})"
             )
           else
-            Gitlab::AppLogger.info(
+            Gitlab::AppMultiLogger.info(
               "Account is not provided by LDAP, " \
               "blocking GitLab user \"#{user.name}\" (#{user.email})"
             )
@@ -109,7 +109,7 @@ module Gitlab
         def unblock_user(user, reason)
           user.activate
 
-          Gitlab::AppLogger.info(
+          Gitlab::AppMultiLogger.info(
             "LDAP account \"#{ldap_identity.extern_uid}\" #{reason}, " \
             "unblocking GitLab user \"#{user.name}\" (#{user.email})"
           )

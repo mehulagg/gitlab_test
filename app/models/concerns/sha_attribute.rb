@@ -34,7 +34,7 @@ module ShaAttribute
         raise ArgumentError.new("sha_attribute #{name.inspect} is invalid since the column type is not :binary")
       end
     rescue => error
-      Gitlab::AppLogger.error "ShaAttribute initialization: #{error.message}"
+      Gitlab::AppMultiLogger.error "ShaAttribute initialization: #{error.message}"
       raise
     end
 

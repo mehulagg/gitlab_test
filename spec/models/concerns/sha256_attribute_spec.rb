@@ -67,7 +67,7 @@ describe Sha256Attribute do
 
           expect(model).not_to receive(:columns)
           expect(model).not_to receive(:attribute)
-          expect(Gitlab::AppLogger).to receive(:error)
+          expect(Gitlab::AppMultiLogger).to receive(:error)
 
           expect { model.sha256_attribute(:name) }.to raise_error(ActiveRecord::NoDatabaseError)
         end

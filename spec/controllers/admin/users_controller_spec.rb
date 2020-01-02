@@ -373,7 +373,7 @@ describe Admin::UsersController do
       end
 
       it 'logs the beginning of the impersonation event' do
-        expect(Gitlab::AppLogger).to receive(:info).with("User #{admin.username} has started impersonating #{user.username}").and_call_original
+        expect(Gitlab::AppMultiLogger).to receive(:info).with("User #{admin.username} has started impersonating #{user.username}").and_call_original
 
         post :impersonate, params: { id: user.username }
       end

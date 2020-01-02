@@ -8,7 +8,7 @@ module Projects
       def initialize(project, old_disk_path, logger: nil)
         @project = project
         @old_disk_path = old_disk_path
-        @logger = logger || Gitlab::AppLogger
+        @logger = logger || Gitlab::AppMultiLogger
       end
 
       def execute

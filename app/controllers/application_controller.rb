@@ -525,7 +525,7 @@ class ApplicationController < ActionController::Base
   end
 
   def log_impersonation_event
-    Gitlab::AppLogger.info("User #{impersonator.username} has stopped impersonating #{impersonated_user.username}")
+    Gitlab::AppMultiLogger.info("User #{impersonator.username} has stopped impersonating #{impersonated_user.username}")
   end
 
   def impersonator

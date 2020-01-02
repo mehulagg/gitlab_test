@@ -11,7 +11,7 @@ describe Gitlab::AppMultiLogger, :request_store do
     subject.info('hello world')
   end
 
-  it 'logs info to AppLogger and AppJsonLogger' do
+  it 'logs info to AppTextLogger and AppJsonLogger' do
     expect(Gitlab::AppTextLogger).to receive(:build).and_call_original
     expect(Gitlab::AppJsonLogger).to receive(:build).and_call_original
 

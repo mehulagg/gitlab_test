@@ -9,6 +9,6 @@ rescue Gitlab::Runtime::IdentificationError => e
   If you continue to see this error, please file an issue via
   https://gitlab.com/gitlab-org/gitlab/issues/new
   NOTICE
-  Gitlab::AppLogger.error(message)
+  Gitlab::AppMultiLogger.error(message)
   Gitlab::ErrorTracking.track_exception(e)
 end

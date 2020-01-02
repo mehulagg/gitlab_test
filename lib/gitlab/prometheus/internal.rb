@@ -28,7 +28,7 @@ module Gitlab
       def self.listen_address
         Gitlab.config.prometheus.listen_address.to_s if Gitlab.config.prometheus
       rescue Settingslogic::MissingSetting
-        Gitlab::AppLogger.error('Prometheus listen_address is not present in config/gitlab.yml')
+        Gitlab::AppMultiLogger.error('Prometheus listen_address is not present in config/gitlab.yml')
 
         nil
       end
@@ -36,7 +36,7 @@ module Gitlab
       def self.prometheus_enabled?
         Gitlab.config.prometheus.enable if Gitlab.config.prometheus
       rescue Settingslogic::MissingSetting
-        Gitlab::AppLogger.error('prometheus.enable is not present in config/gitlab.yml')
+        Gitlab::AppMultiLogger.error('prometheus.enable is not present in config/gitlab.yml')
 
         false
       end

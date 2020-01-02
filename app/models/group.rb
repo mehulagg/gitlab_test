@@ -282,13 +282,13 @@ class Group < Namespace
   end
 
   def post_create_hook
-    Gitlab::AppLogger.info("Group \"#{name}\" was created")
+    Gitlab::AppMultiLogger.info("Group \"#{name}\" was created")
 
     system_hook_service.execute_hooks_for(self, :create)
   end
 
   def post_destroy_hook
-    Gitlab::AppLogger.info("Group \"#{name}\" was removed")
+    Gitlab::AppMultiLogger.info("Group \"#{name}\" was removed")
 
     system_hook_service.execute_hooks_for(self, :destroy)
   end

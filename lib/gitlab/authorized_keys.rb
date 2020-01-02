@@ -9,7 +9,7 @@ module Gitlab
     # Initializes the class
     #
     # @param [Gitlab::Logger] logger
-    def initialize(logger = Gitlab::AppLogger)
+    def initialize(logger = Gitlab::AppMultiLogger)
       @logger = logger
     end
 

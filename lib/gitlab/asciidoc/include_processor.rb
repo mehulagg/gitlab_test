@@ -10,7 +10,7 @@ module Gitlab
       extend ::Gitlab::Utils::Override
 
       def initialize(context)
-        super(logger: Gitlab::AppLogger)
+        super(logger: Gitlab::AppMultiLogger)
 
         @context = context
         @repository = context[:project].try(:repository)

@@ -14,9 +14,9 @@ module Groups
             group.refresh_members_authorized_projects
           end
 
-          Gitlab::AppLogger.info("GroupGroupLinks with ids: #{links.map(&:id)} have been deleted.")
+          Gitlab::AppMultiLogger.info("GroupGroupLinks with ids: #{links.map(&:id)} have been deleted.")
         rescue => ex
-          Gitlab::AppLogger.error(ex)
+          Gitlab::AppMultiLogger.error(ex)
 
           raise
         end

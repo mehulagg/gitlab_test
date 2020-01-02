@@ -102,7 +102,7 @@ module Projects
     end
 
     def log_completion
-      Gitlab::AppLogger.info(
+      Gitlab::AppMultiLogger.info(
         "Project #{project.id} has been renamed from " \
           "#{full_path_before} to #{full_path_after}"
       )
@@ -133,7 +133,7 @@ module Projects
     def rename_failed!
       error = "Repository #{full_path_before} could not be renamed to #{full_path_after}"
 
-      Gitlab::AppLogger.error(error)
+      Gitlab::AppMultiLogger.error(error)
 
       raise RenameFailedError.new(error)
     end

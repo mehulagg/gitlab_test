@@ -35,7 +35,7 @@ describe RegistrationsController do
         user_params = { user: attributes_for(:user) }
         allow_any_instance_of(EE::RecaptchaExperimentHelper).to receive(:show_recaptcha_sign_up?).and_return(true)
 
-        expect(Gitlab::AppLogger).to receive(:info).with(/\AUser Created: .+experiment_growth_recaptcha\?true\z/).and_call_original
+        expect(Gitlab::AppMultiLogger).to receive(:info).with(/\AUser Created: .+experiment_growth_recaptcha\?true\z/).and_call_original
 
         post :create, params: user_params
       end

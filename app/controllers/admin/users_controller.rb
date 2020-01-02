@@ -254,7 +254,7 @@ class Admin::UsersController < Admin::ApplicationController
   end
 
   def log_impersonation_event
-    Gitlab::AppLogger.info(_("User %{current_user_username} has started impersonating %{username}") % { current_user_username: current_user.username, username: user.username })
+    Gitlab::AppMultiLogger.info(_("User %{current_user_username} has started impersonating %{username}") % { current_user_username: current_user.username, username: user.username })
   end
 end
 

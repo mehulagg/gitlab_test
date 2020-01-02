@@ -28,7 +28,7 @@ class Import::BaseController < ApplicationController
 
     group.errors.any? ? current_user.namespace : group
   rescue => e
-    Gitlab::AppLogger.error(e)
+    Gitlab::AppMultiLogger.error(e)
 
     current_user.namespace
   end

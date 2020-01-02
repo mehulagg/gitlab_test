@@ -58,7 +58,7 @@ module AuthenticatesWithTwoFactor
       sign_in(user, message: :two_factor_authenticated, event: :authentication)
     else
       user.increment_failed_attempts!
-      Gitlab::AppLogger.info("Failed Login: user=#{user.username} ip=#{request.remote_ip} method=OTP")
+      Gitlab::AppMultiLogger.info("Failed Login: user=#{user.username} ip=#{request.remote_ip} method=OTP")
       flash.now[:alert] = _('Invalid two-factor code.')
       prompt_for_two_factor(user)
     end
@@ -75,7 +75,7 @@ module AuthenticatesWithTwoFactor
       sign_in(user, message: :two_factor_authenticated, event: :authentication)
     else
       user.increment_failed_attempts!
-      Gitlab::AppLogger.info("Failed Login: user=#{user.username} ip=#{request.remote_ip} method=U2F")
+      Gitlab::AppMultiLogger.info("Failed Login: user=#{user.username} ip=#{request.remote_ip} method=U2F")
       flash.now[:alert] = _('Authentication via U2F device failed.')
       prompt_for_two_factor(user)
     end

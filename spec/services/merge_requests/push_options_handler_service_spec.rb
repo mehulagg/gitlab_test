@@ -727,8 +727,8 @@ describe MergeRequests::PushOptionsHandlerService do
       expect(service.errors).to eq(['An unknown error occurred'])
     end
 
-    it 'writes to Gitlab::AppLogger' do
-      expect(Gitlab::AppLogger).to receive(:error).with(exception)
+    it 'writes to Gitlab::AppMultiLogger' do
+      expect(Gitlab::AppMultiLogger).to receive(:error).with(exception)
 
       run_service_with_exception
     end
