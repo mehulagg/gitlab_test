@@ -32,6 +32,21 @@ GitLab can scan and report any vulnerabilities found in your project.
 | [Security Dashboard](security_dashboard/index.md) **(ULTIMATE)**             | View vulnerabilities in all your projects and groups.                  |
 | [Static Application Security Testing (SAST)](sast/index.md) **(ULTIMATE)**   | Analyze source code for known vulnerabilities.                         |
 
+## Enabling Security Jobs
+
+For GitLab 12.7 and later, to enable all scanners, you can
+[include](../../ci/yaml/README.md#includetemplate) the
+[`All-Security-Checks.gitlab-ci.yml` template](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/All-Security-Checks.gitlab-ci.yml)
+that's provided as a part of your GitLab installation as a convenience to
+include all the scanner templates.
+
+Add the following to your `.gitlab-ci.yml` file:
+
+```yaml
+include:
+  template: All-Security-Checks.gitlab-ci.yml
+```
+
 ## Maintenance and update of the vulnerabilities database
 
 The various scanning tools and the vulnerabilities database are updated regularly.
