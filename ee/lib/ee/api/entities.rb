@@ -818,6 +818,11 @@ module EE
         expose :dist_tags, merge: true
       end
 
+      class ComposerPackage < Grape::Entity
+        expose :name
+        expose :versions
+      end
+
       class Package < Grape::Entity
         include ::API::Helpers::RelatedResourcesHelpers
         extend EntityHelpers
