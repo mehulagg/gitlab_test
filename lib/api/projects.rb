@@ -90,7 +90,6 @@ module API
       def present_projects(projects, options = {})
         projects = reorder_projects(projects)
         projects = apply_filters(projects)
-        projects = paginate(projects)
         projects, options = with_custom_attributes(projects, options)
 
         options = options.reverse_merge(
@@ -100,6 +99,9 @@ module API
           license: false
         )
         options[:with] = Entities::BasicProjectDetails if params[:simple]
+
+        # Pagination must come last after all filters have been applied
+        projects = paginate(projects)
 
         present options[:with].prepare_relation(projects, options), options
       end
