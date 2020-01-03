@@ -84,10 +84,6 @@ export default {
       prometheusMetricId: null,
       selectedAlert: {},
       alertQuery: '',
-      modalPrimary: {
-        text: this.submitActionText,
-        attributes: [{ variant: this.submitVariant }, this.setPrimaryActionDisabled()],
-      },
     };
   },
   computed: {
@@ -126,7 +122,7 @@ export default {
       return SUBMIT_ACTION_TEXT[this.submitAction];
     },
     submitVariant() {
-      return submitAction === 'delete' ? 'danger' : 'success';
+      return this.submitAction === 'delete' ? 'danger' : 'success';
     },
     submitButtonClass() {
       return SUBMIT_BUTTON_CLASS[this.submitAction];
@@ -138,6 +134,12 @@ export default {
       return this.submitAction === 'create'
         ? s__('PrometheusAlerts|Add alert')
         : s__('PrometheusAlerts|Edit alert');
+    },
+    modalPrimary() {
+      return {
+        text: this.submitActionText,
+        attributes: [{ variant: this.submitVariant }, { disabled: this.formDisabled }],
+      };
     },
   },
   watch: {
@@ -183,9 +185,6 @@ export default {
       this.threshold = null;
       this.prometheusMetricId = null;
       this.selectedAlert = {};
-    },
-    setPrimaryActionDisabled() {
-      return !this.formDisabled ? { disabled: true } : null;
     },
   },
   alertQueryText: {
