@@ -62,6 +62,7 @@ sast:
     DOCKER_TLS_CERTDIR: ""
     SAST_BRAKEMAN_LEVEL: 2
     SAST_EXCLUDED_PATHS: qa,spec,doc,ee/spec
+    SAST_ANALYZER_IMAGE_TAG: bbabel
   allow_failure: true
   services:
     - docker:stable-dind
