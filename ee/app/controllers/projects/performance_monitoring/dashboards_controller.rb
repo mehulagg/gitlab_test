@@ -99,8 +99,12 @@ module Projects
         access_denied! unless DASHBOARD_TEMPLATES[params.require(:dashboard)]
       end
 
+      def update_dashboard_params
+        params.permit(file_content: [:dashboard, panel_groups: [:group, :priority, panels: [:type, :title, :y_label, :weight, metrics: [:id, :unit, :label, :query, :query_range]]]])
+      end
+
       def update_dashboard_content
-        params.require(:file_content).to_yaml
+        update_dashboard_params[:file_content].to_hash.to_yaml
       end
     end
   end

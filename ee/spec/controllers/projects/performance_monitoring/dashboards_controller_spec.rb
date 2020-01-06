@@ -188,13 +188,33 @@ describe Projects::PerformanceMonitoring::DashboardsController do
         sign_in(user)
       end
 
+      let(:file_content) do
+        {
+          "dashboard" => "Dashboard Title",
+          "panel_groups" => [{
+            "group" => "Group Title",
+            "panels" => [{
+              "type" => "area-chart",
+              "title" => "Chart Title",
+              "y_label" => "Y-Axis",
+              "metrics" => [{
+                "id" => "metric_of_ages",
+                "unit" => "count",
+                "label" => "Metric of Ages",
+                "query_range" => "http_requests_total"
+              }]
+            }]
+          }]
+        }
+      end
+
       let(:params) do
         {
           namespace_id: namespace,
           project_id: project,
           dashboard: dashboard,
           file_name: file_name,
-          file_content: File.read('config/prometheus/common_metrics.yml'),
+          file_content: file_content,
           commit_message: commit_message,
           branch: branch,
           format: :json
@@ -215,7 +235,7 @@ describe Projects::PerformanceMonitoring::DashboardsController do
                 start_branch: 'master',
                 encoding: 'text',
                 file_path: ".gitlab/dashboards/#{file_name}",
-                file_content: File.read('config/prometheus/common_metrics.yml').to_yaml
+                file_content: file_content.to_yaml
               }
 
               service_instance = instance_double(::Files::UpdateService)
@@ -292,16 +312,6 @@ describe Projects::PerformanceMonitoring::DashboardsController do
 
           context 'missing branch' do
             let(:branch) { nil }
-
-            it 'raises ActionController::ParameterMissing' do
-              expect { post :update, params: params }.to raise_error ActionController::ParameterMissing
-            end
-          end
-
-          context 'missing file content' do
-            before do
-              params.delete(:file_content)
-            end
 
             it 'raises ActionController::ParameterMissing' do
               expect { post :update, params: params }.to raise_error ActionController::ParameterMissing
