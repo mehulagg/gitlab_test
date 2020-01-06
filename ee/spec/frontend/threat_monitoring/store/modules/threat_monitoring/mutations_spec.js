@@ -102,7 +102,8 @@ describe('Threat Monitoring mutations', () => {
     it('sets wafStatistics according to the payload', () => {
       expect(state.wafStatistics).toEqual({
         totalTraffic: mockWafStatisticsResponse.total_traffic,
-        anomalousTraffic: mockWafStatisticsResponse.anomalous_traffic,
+        trafficAllowed: mockWafStatisticsResponse.traffic_allowed,
+        trafficBlocked: mockWafStatisticsResponse.traffic_blocked,
         history: mockWafStatisticsResponse.history,
       });
     });
