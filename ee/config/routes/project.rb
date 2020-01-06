@@ -81,6 +81,10 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
 
         resources :audit_events, only: [:index]
+
+        namespace :analytics do
+          resource :code_review, only: [:show], controller: :code_review
+        end
       end
       # End of the /-/ scope.
 
