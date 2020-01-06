@@ -1,5 +1,5 @@
 ---
-title: Add the All-Security-Checks.gitlab-ci.yml CI template.
+title: Add the All-Security-Jobs.gitlab-ci.yml CI template.
 merge_request: 22410
 author:
 type: added
