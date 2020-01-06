@@ -705,9 +705,9 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@gitlab/eslint-config@https://gitlab.com/gitlab-org/gitlab-eslint-config.git#optional-chaining-camelcase":
+"@gitlab/eslint-config@https://gitlab.com/gitlab-org/gitlab-eslint-config.git#3cab5fd80c86e91742a797699b2ad847f8889fac":
   version "2.0.0"
-  resolved "https://gitlab.com/gitlab-org/gitlab-eslint-config.git#884bdff5220bdd87b52ec7c7f18e1fcdd3b3ab2e"
+  resolved "https://gitlab.com/gitlab-org/gitlab-eslint-config.git#3cab5fd80c86e91742a797699b2ad847f8889fac"
   dependencies:
     babel-eslint "^10.0.1"
     eslint-config-airbnb-base "^13.1.0"

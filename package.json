@@ -143,7 +143,7 @@
   },
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.5.0",
-    "@gitlab/eslint-config": "https://gitlab.com/gitlab-org/gitlab-eslint-config.git#optional-chaining-camelcase",
+    "@gitlab/eslint-config": "https://gitlab.com/gitlab-org/gitlab-eslint-config.git#3cab5fd80c86e91742a797699b2ad847f8889fac",
     "@gitlab/eslint-plugin-i18n": "^1.1.0",
     "@gitlab/eslint-plugin-vue-i18n": "^1.2.0",
     "@vue/test-utils": "^1.0.0-beta.25",
