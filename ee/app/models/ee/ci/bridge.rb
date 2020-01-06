@@ -51,7 +51,7 @@ module EE
       def schedule_downstream_pipeline!
         raise InvalidBridgeTypeError unless downstream_project
 
-        ::Ci::CreateCrossProjectPipelineWorker.perform_async(self.id)
+        ::Ci::CreateDownstreamPipelineWorker.perform_async(self.id)
       end
 
       def subscribe_to_upstream!

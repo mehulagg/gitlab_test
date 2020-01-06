@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class CreateCrossProjectPipelineWorker
+  class CreateDownstreamPipelineWorker
     include ::ApplicationWorker
     include ::PipelineQueue
 
@@ -9,7 +9,7 @@ module Ci
 
     def perform(bridge_id)
       ::Ci::Bridge.find_by_id(bridge_id).try do |bridge|
-        ::Ci::CreateCrossProjectPipelineService
+        ::Ci::CreateDownstreamPipelineService
           .new(bridge.project, bridge.user)
           .execute(bridge)
       end

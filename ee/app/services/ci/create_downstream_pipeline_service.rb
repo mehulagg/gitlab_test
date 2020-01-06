@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  # TODO: rename this (and worker) to CreateDownstreamPipelineService
-  class CreateCrossProjectPipelineService < ::BaseService
+  class CreateDownstreamPipelineService < ::BaseService
     include Gitlab::Utils::StrongMemoize
 
     def execute(bridge)
