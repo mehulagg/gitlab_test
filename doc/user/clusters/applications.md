@@ -451,6 +451,7 @@ Supported applications:
 
 - [Ingress](#install-ingress-using-gitlab-ci)
 - [Sentry](#install-sentry-using-gitlab-ci)
+- [Cilium](#install-cilium-using-gitlab-ci)
 
 ### Usage
 
@@ -562,6 +563,45 @@ ingress:
 # See https://github.com/helm/charts/tree/master/stable/postgresql#upgrade for more info
 postgresql:
   postgresqlPassword: example-postgresql-password
+```
+
+### Install Cilium using GitLab CI
+
+> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/merge_requests/22) in GitLab 12.7.
+
+[Cilium](https://cilium.io/) is a networking plugin for Kubernetes that you can use to implement support for [NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/network-policies/) resources.
+
+Enable Cilium in the `.gitlab/managed-apps/config.yaml` file to install it:
+
+```yaml
+clusterType: gke or eks
+
+cilium:
+  installed: true
+```
+
+`clusterType` variable enables recommended helm variables for the corresponding cluster type. You can check recommended variables in the official documentation:
+
+- [Google GKE](https://cilium.readthedocs.io/en/stable/gettingstarted/k8s-install-gke/#prepare-deploy-cilium)
+- [AWS EKS](https://cilium.readthedocs.io/en/stable/gettingstarted/k8s-install-eks/#prepare-deploy-cilium)
+
+You can customize Cilium's helm variables by defining `.gitlab/managed-apps/cilium/values.yaml` file in your cluster management project. Refer to the [chart](https://github.com/cilium/cilium/tree/master/install/kubernetes/cilium) for the available configuration options.
+
+CAUTION: **Caution:**
+Installation and removal of the Cilium [requires restart](https://cilium.readthedocs.io/en/stable/gettingstarted/k8s-install-gke/#restart-remaining-pods) of all affected pods to ensure that they are [managed](https://cilium.readthedocs.io/en/stable/troubleshooting/#ensure-pod-is-managed-by-cilium) by correct networking plugin.
+
+By default drop log for traffic a logged out by the `cilium-monitor` sidecar container. You can check these logs via:
+
+```bash
+kubectl -n gitlab-managed-apps logs cilium-XXXX cilium-monitor
+```
+
+Drop logging can be disabled via `.gitlab/managed-apps/cilium/values.yaml`:
+
+```yml
+agent:
+  monitor:
+    enabled: false
 ```
 
 ## Upgrading applications
