@@ -277,6 +277,43 @@ CAUTION: **Caution:**
 Variables having names starting with these prefixes will **not** be propagated to the SAST Docker container and/or
 analyzer containers: `DOCKER_`, `CI`, `GITLAB_`, `FF_`, `HOME`, `PWD`, `OLDPWD`, `PATH`, `SHLVL`, `HOSTNAME`.
 
+## Running SAST Scanning in an offline air-gapped installation
+
+SAST Scanning can be executed on an offline air-gapped GitLab Ultimate installation using the following process:
+
+1. Host SAST docker images on a local Docker container registry:
+  - [registry.gitlab.com/gitlab-org/security-products/sast:$SAST_VERSION](https://gitlab.com/gitlab-org/security-products/sast/container_registry)
+1. Host SAST analyzer images on a local Docker container registry:
+  - registry.gitlab.com/gitlab-org/security-products/analyzers/bandit:2
+  - registry.gitlab.com/gitlab-org/security-products/analyzers/brakeman:2
+  - registry.gitlab.com/gitlab-org/security-products/analyzers/eslint:2
+  - registry.gitlab.com/gitlab-org/security-products/analyzers/flawfinder:2
+  - registry.gitlab.com/gitlab-org/security-products/analyzers/go-ast-scanner:2
+  - registry.gitlab.com/gitlab-org/security-products/analyzers/gosec:2
+  - registry.gitlab.com/gitlab-org/security-products/analyzers/kubesec:2
+  - registry.gitlab.com/gitlab-org/security-products/analyzers/nodejs-scan:2
+  - registry.gitlab.com/gitlab-org/security-products/analyzers/phpcs-security-audit:2
+  - registry.gitlab.com/gitlab-org/security-products/analyzers/pmd-apex:2
+  - registry.gitlab.com/gitlab-org/security-products/analyzers/secrets:2
+  - registry.gitlab.com/gitlab-org/security-products/analyzers/security-code-scan:2
+  - registry.gitlab.com/gitlab-org/security-products/analyzers/sobelow:2
+  - registry.gitlab.com/gitlab-org/security-products/analyzers/spotbugs:2
+  - registry.gitlab.com/gitlab-org/security-products/analyzers/tslint:2
+1. [Override the default SAST template] to refer to the Docker images hosted on your local Docker container registry.
+
+  ```yaml
+  variables:
+     SAST_ANALYZER_IMAGE_PREFIX: "<registry>/analyzers"
+     SAST_ANALYZER_IMAGES: "<registry>/analyzers/bandit,<registry>/analyzers/brakeman,<registry>/analyzers/gosec,<registry>/analyzers/spotbugs,<registry>/analyzers/flawfinder,<registry>/analyzers/phpcs-security-audit,<registry>/analyzers/security-code-scan,<registry>/analyzers/nodejs-scan,<registry>/analyzers/eslint,<registry>/analyzers/tslint,<registry>/analyzers/secrets,<registry>/analyzers/sobelow,<registry>/analyzers/pmd-apex,<registry>/analyzers/kubesec"
+  ```
+
+1. Change the path used to `docker run` the SAST image in `.gitlab-ci.yml`:
+
+```diff
+- "registry.gitlab.com/gitlab-org/security-products/sast:$SAST_VERSION" /app/bin/run /code
++ "<registry>/sast:$SAST_VERSION" /app/bin/run code
+```
+
 ## Reports JSON format
 
 CAUTION: **Caution:**
