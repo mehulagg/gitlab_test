@@ -230,10 +230,46 @@ describe QA::Runtime::Env do
     end
   end
 
-  describe '.require_admin_access_token!' do
-    it 'raises ArgumentError if GITLAB_QA_ADMIN_ACCESS_TOKEN is not specified' do
-      stub_env('GITLAB_QA_ADMIN_ACCESS_TOKEN', nil)
+  describe '.admin_personal_access_token' do
+    around do |example|
+      described_class.instance_variable_set(:@admin_personal_access_token, nil)
+      example.run
+      described_class.instance_variable_set(:@admin_personal_access_token, nil)
+    end
 
+    context 'when GITLAB_QA_ADMIN_ACCESS_TOKEN is set' do
+      before do
+        stub_env('GITLAB_QA_ADMIN_ACCESS_TOKEN', 'a_token_too')
+      end
+
+      it 'returns specified token from env' do
+        expect(described_class.admin_personal_access_token).to eq 'a_token_too'
+      end
+    end
+
+    context 'when @admin_personal_access_token is set' do
+      before do
+        described_class.admin_personal_access_token = 'another_token'
+      end
+
+      it 'returns the instance variable value' do
+        expect(described_class.admin_personal_access_token).to eq 'another_token'
+      end
+    end
+  end
+
+  describe '.require_admin_access_token!' do
+    around do |example|
+      described_class.instance_variable_set(:@admin_personal_access_token, nil)
+      example.run
+      described_class.instance_variable_set(:@admin_personal_access_token, nil)
+    end
+
+    before do
+      stub_env('GITLAB_QA_ADMIN_ACCESS_TOKEN', nil)
+    end
+
+    it 'raises ArgumentError if GITLAB_QA_ADMIN_ACCESS_TOKEN is not specified' do
       expect { described_class.require_admin_access_token! }.to raise_error(ArgumentError)
     end
 
@@ -332,6 +368,17 @@ describe QA::Runtime::Env do
 
         expect(described_class.remote_grid).to eq('http://localhost:4444/wd/hub')
       end
+    end
+  end
+
+  describe '.specs_hostname' do
+    it 'defaults to localhost if not specified' do
+      expect(described_class.specs_hostname).to eq('localhost')
+    end
+
+    it 'can be set' do
+      stub_env('QA_SPECS_HOSTNAME', 'TEST')
+      expect(described_class.specs_hostname).to eq('TEST')
     end
   end
 end

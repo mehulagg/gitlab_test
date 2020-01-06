@@ -14,7 +14,10 @@ module QA
         end
 
         def setup
-          shell "k3d create --workers 1 --name #{cluster_name} --wait 0"
+          k3d_command = %W[k3d create --workers 1 --name #{cluster_name} --wait 0]
+          k3d_command << %W[--api-port #{Runtime::Env.specs_hostname}:6443] if Runtime::Env.running_in_ci?
+
+          shell(k3d_command.join(' '))
 
           @old_kubeconfig = ENV['KUBECONFIG']
           ENV['KUBECONFIG'] = fetch_kubeconfig

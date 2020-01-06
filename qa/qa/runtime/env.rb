@@ -7,7 +7,7 @@ module QA
     module Env
       extend self
 
-      attr_writer :personal_access_token, :ldap_username, :ldap_password
+      attr_writer :personal_access_token, :admin_personal_access_token, :ldap_username, :ldap_password
 
       ENV_VARIABLES = Gitlab::QA::Runtime::Env::ENV_VARIABLES
 
@@ -31,7 +31,7 @@ module QA
       end
 
       def admin_personal_access_token
-        ENV['GITLAB_QA_ADMIN_ACCESS_TOKEN']
+        @admin_personal_access_token ||= ENV['GITLAB_QA_ADMIN_ACCESS_TOKEN']
       end
 
       def debug?
@@ -287,6 +287,10 @@ module QA
 
       def mailhog_hostname
         ENV['MAILHOG_HOSTNAME']
+      end
+
+      def specs_hostname
+        ENV.fetch('QA_SPECS_HOSTNAME', 'localhost')
       end
 
       private
