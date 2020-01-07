@@ -77,6 +77,8 @@ module QA
 
         def sign_out
           retry_until do
+            break true unless signed_in?
+
             within_user_menu do
               click_element :sign_out_link
             end

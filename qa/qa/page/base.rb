@@ -128,8 +128,8 @@ module QA
         element.select value
       end
 
-      def has_active_element?(name)
-        has_element?(name, class: 'active')
+      def has_active_element?(name, **kwargs)
+        has_element?(name, class: 'active', **kwargs)
       end
 
       def has_element?(name, **kwargs)

@@ -20,7 +20,7 @@ module QA
 
           content = "Elasticsearch test commit #{search_term}"
           project = Resource::Project.fabricate_via_api! do |project|
-            project.name = "project-to-search-#{search_term}1"
+            project.name = "project-to-search-#{search_term}"
           end
           commit = Resource::Repository::Commit.fabricate_via_api! do |commit|
             commit.project = project
@@ -36,7 +36,7 @@ module QA
           end
 
           find_commit(commit, "commit*#{search_term}")
-          find_project(project, "to-search*#{search_term}1")
+          find_project(project, "to-search*#{search_term}")
         end
       end
 
