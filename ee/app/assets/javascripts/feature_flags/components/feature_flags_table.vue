@@ -32,10 +32,6 @@ export default {
     return {
       deleteFeatureFlagUrl: null,
       deleteFeatureFlagName: null,
-      modalPrimary: {
-        text: s__('FeatureFlags|Delete feature flag'),
-        attributes: [{ variant: 'danger' }],
-      },
     };
   },
   computed: {
@@ -44,6 +40,12 @@ export default {
     },
     hasIIDs() {
       return this.glFeatures.featureFlagIID;
+    },
+    modalPrimary() {
+      return {
+        text: s__('FeatureFlags|Delete feature flag'),
+        attributes: [{ variant: 'danger' }],
+      };
     },
     modalTitle() {
       return sprintf(

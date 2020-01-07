@@ -39,17 +39,21 @@ export default {
       message: this.currentMessage,
       modalId: 'set-user-status-modal',
       noEmoji: true,
-      modalPrimary: {
-        text: s__('SetStatusModal|Set status'),
-      },
-      modalCancel: {
-        text: s__('SetStatusModal|Remove status'),
-      },
     };
   },
   computed: {
     isDirty() {
       return this.message.length || this.emoji.length;
+    },
+    modalPrimary() {
+      return {
+        text: s__('SetStatusModal|Set status'),
+      };
+    },
+    modalCancel() {
+      return {
+        text: s__('SetStatusModal|Remove status'),
+      };
     },
   },
   mounted() {

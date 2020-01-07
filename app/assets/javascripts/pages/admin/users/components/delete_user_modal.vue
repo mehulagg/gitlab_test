@@ -76,19 +76,19 @@ export default {
     secondaryButtonLabel() {
       return s__('AdminUsers|Block user');
     },
-    submitHandler() {
-      return this.enteredUsername === this.username ? null : { disabled: true };
+    canSubmit() {
+      return this.enteredUsername === this.username;
     },
     modalPrimary() {
       return {
         text: this.action,
-        attributes: [{ variant: 'danger' }, this.submitHandler],
+        attributes: [{ variant: 'danger' }, { disabled: !this.canSubmit }],
       };
     },
     modalSecondary() {
       return {
         text: this.secondaryAction,
-        attributes: [{ variant: 'warning' }, this.submitHandler],
+        attributes: [{ variant: 'warning' }, { disabled: !this.canSubmit }],
       };
     },
   },

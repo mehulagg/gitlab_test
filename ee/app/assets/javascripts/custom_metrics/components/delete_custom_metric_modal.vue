@@ -20,13 +20,13 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      modalPrimary: {
+  computed: {
+    modalPrimary() {
+      return {
         text: s__('Metrics|Delete metric'),
         attributes: [{ variant: 'danger' }],
-      },
-    };
+      };
+    },
   },
   methods: {
     onSubmit() {

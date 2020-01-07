@@ -27,14 +27,6 @@ export default {
       default: '',
     },
   },
-  data() {
-    return {
-      modalPrimary: {
-        text: s__('WikiPageConfirmDelete|Delete page'),
-        attributes: [{ variant: 'danger' }],
-      },
-    };
-  },
   computed: {
     modalId() {
       return 'delete-wiki-modal';
@@ -50,6 +42,12 @@ export default {
         },
         false,
       );
+    },
+    modalPrimary() {
+      return {
+        text: s__('WikiPageConfirmDelete|Delete page'),
+        attributes: [{ variant: 'danger' }],
+      };
     },
   },
   methods: {

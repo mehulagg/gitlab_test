@@ -26,10 +26,14 @@ export default {
   data() {
     return {
       approvalPassword: '',
-      modalPrimary: {
-        text: s__('Approve'),
-      },
     };
+  },
+  computed: {
+    modalPrimary() {
+      return {
+        text: s__('Approve'),
+      };
+    },
   },
   methods: {
     approve(event) {

@@ -37,11 +37,15 @@ export default {
   data() {
     return {
       modalId: _.uniqueId('design-deletion-confirmation-'),
-      modalPrimary: {
+    };
+  },
+  computed: {
+    modalPrimary() {
+      return {
         text: s__('DesignManagement|Delete'),
         attributes: [{ variant: 'danger' }],
-      },
-    };
+      };
+    },
   },
 };
 </script>

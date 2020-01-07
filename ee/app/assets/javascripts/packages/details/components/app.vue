@@ -78,14 +78,6 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      modalPrimary: {
-        text: __('Delete'),
-        attributes: [{ variant: 'danger' }, { 'data-method': 'delete' }, { to: this.destroyPath }],
-      },
-    };
-  },
   computed: {
     isNpmPackage() {
       return this.packageEntity.package_type === PackageType.NPM;
@@ -152,6 +144,12 @@ export default {
         size: this.formatSize(x.size),
         created: x.created_at,
       }));
+    },
+    modalPrimary() {
+      return {
+        text: __('Delete'),
+        attributes: [{ variant: 'danger' }, { 'data-method': 'delete' }, { to: this.destroyPath }],
+      };
     },
   },
   methods: {

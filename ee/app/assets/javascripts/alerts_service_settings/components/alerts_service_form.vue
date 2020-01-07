@@ -50,10 +50,6 @@ export default {
       activated: this.initialActivated,
       loadingActivated: false,
       authorizationKey: this.initialAuthorizationKey,
-      modalPrimary: {
-        text: this.$options.RESET_KEY,
-        attributes: [{ variant: 'danger' }],
-      },
     };
   },
   computed: {
@@ -78,6 +74,12 @@ export default {
       const learnMoreDesc = this.learnMoreDescription ? ` ${this.learnMoreDescription}` : '';
 
       return `${desc}${learnMoreDesc}`;
+    },
+    modalPrimary() {
+      return {
+        text: this.$options.RESET_KEY,
+        attributes: [{ variant: 'danger' }],
+      };
     },
   },
   watch: {

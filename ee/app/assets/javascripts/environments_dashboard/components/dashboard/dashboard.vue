@@ -53,14 +53,6 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      modalPrimary: {
-        text: this.$options.addProjectsModalSubmit,
-        attributes: [this.setPrimaryActionDisabled()],
-      },
-    };
-  },
   computed: {
     ...mapState([
       'projects',
@@ -78,6 +70,12 @@ export default {
     },
     okDisabled() {
       return _.isEmpty(this.selectedProjects);
+    },
+    modalPrimary() {
+      return {
+        text: this.$options.addProjectsModalSubmit,
+        attributes: [{ disabled: this.okDisabled }],
+      };
     },
   },
   created() {
@@ -114,9 +112,6 @@ export default {
     },
     projectClicked(project) {
       this.toggleSelectedProject(project);
-    },
-    setPrimaryActionDisabled() {
-      return this.okDisabled ? { disabled: true } : null;
     },
   },
 };

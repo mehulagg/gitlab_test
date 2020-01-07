@@ -14,18 +14,16 @@ export default {
   directives: {
     'gl-modal': GlModalDirective,
   },
-  data() {
-    return {
-      modalPrimary: {
-        text: s__('BatchComments|Delete all pending comments'),
-        attributes: [{ variant: 'danger' }, { class: 'qa-modal-delete-pending-comments' }],
-      },
-    };
-  },
   computed: {
     ...mapGetters(['isNotesFetched']),
     ...mapState('batchComments', ['isDiscarding']),
     ...mapGetters('batchComments', ['draftsCount']),
+    modalPrimary() {
+      return {
+        text: s__('BatchComments|Delete all pending comments'),
+        attributes: [{ variant: 'danger' }, { class: 'qa-modal-delete-pending-comments' }],
+      };
+    },
   },
   watch: {
     isNotesFetched() {

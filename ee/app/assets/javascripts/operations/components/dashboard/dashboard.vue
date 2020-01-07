@@ -38,14 +38,6 @@ export default {
     },
   },
   modalId: 'add-projects-modal',
-  data() {
-    return {
-      modalPrimary: {
-        text: s__('OperationsDashboard|Add projects'),
-        attributes: [this.setPrimaryActionDisabled()],
-      },
-    };
-  },
   computed: {
     ...mapState([
       'isLoadingProjects',
@@ -68,6 +60,12 @@ export default {
     },
     okDisabled() {
       return _.isEmpty(this.selectedProjects);
+    },
+    modalPrimary() {
+      return {
+        text: s__('OperationsDashboard|Add projects'),
+        attributes: [{ disabled: this.okDisabled }],
+      };
     },
   },
   created() {
@@ -106,9 +104,6 @@ export default {
     },
     projectClicked(project) {
       this.toggleSelectedProject(project);
-    },
-    setPrimaryActionDisabled() {
-      return this.okDisabled ? { disabled: true } : null;
     },
   },
 };

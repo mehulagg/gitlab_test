@@ -37,17 +37,15 @@ export default {
       default: 'put',
     },
   },
-  data() {
-    return {
-      modalPrimary: {
-        text: this.action,
-        attributes: [{ variant: 'warning' }],
-      },
-    };
-  },
   computed: {
     modalTitle() {
       return sprintf(this.title, { username: this.username });
+    },
+    modalPrimary() {
+      return {
+        text: this.action,
+        attributes: [{ variant: 'warning' }],
+      };
     },
   },
   methods: {

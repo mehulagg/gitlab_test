@@ -49,11 +49,15 @@ export default {
         },
         false,
       ),
-      modalPrimary: {
+    };
+  },
+  computed: {
+    modalPrimary() {
+      return {
         text: __('Reset authorization key'),
         attributes: [{ variant: 'danger' }],
-      },
-    };
+      };
+    },
   },
   methods: {
     resetKey() {

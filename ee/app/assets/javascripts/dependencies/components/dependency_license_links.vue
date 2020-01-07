@@ -29,14 +29,6 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      modalPrimary: {
-        text: s__('Modal|Close'),
-        attributes: [{ variant: 'secondary' }],
-      },
-    };
-  },
   computed: {
     allLicenses() {
       return Array.isArray(this.licenses) ? this.licenses : [];
@@ -61,6 +53,12 @@ export default {
       return sprintf(s__('Dependencies|%{remainingLicensesCount} more'), {
         remainingLicensesCount,
       });
+    },
+    modalPrimary() {
+      return {
+        text: s__('Modal|Close'),
+        attributes: [{ variant: 'secondary' }],
+      };
     },
   },
 };

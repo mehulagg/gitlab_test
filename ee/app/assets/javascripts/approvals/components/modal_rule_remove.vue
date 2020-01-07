@@ -14,14 +14,6 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      modalPrimary: {
-        text: s__('Remove approvers'),
-        attributes: [{ variant: 'danger' }],
-      },
-    };
-  },
   computed: {
     ...mapState('deleteModal', {
       rule: 'data',
@@ -53,6 +45,12 @@ export default {
       );
 
       return `${removeWarning} ${revokeWarning}`;
+    },
+    modalPrimary() {
+      return {
+        text: s__('Remove approvers'),
+        attributes: [{ variant: 'danger' }],
+      };
     },
   },
   methods: {

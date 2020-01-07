@@ -32,7 +32,11 @@ export default {
   data() {
     return {
       modalId: 'visual-review-app-info',
-      modalPrimary: {
+    };
+  },
+  computed: {
+    modalPrimary() {
+      return {
         text: s__('VisualReviewApp|Open review app'),
         attributes: [
           { to: this.link },
@@ -42,10 +46,8 @@ export default {
           { 'data-track-label': 'review_app' },
           { class: 'js-review-app-link' },
         ],
-      },
-    };
-  },
-  computed: {
+      };
+    },
     copyToClipboard() {
       return {
         script: s__('VisualReviewApp|Copy script'),

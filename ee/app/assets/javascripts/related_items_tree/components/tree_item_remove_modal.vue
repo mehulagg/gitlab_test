@@ -13,18 +13,16 @@ export default {
   components: {
     GlModal,
   },
-  data() {
-    return {
-      modalPrimary: {
-        text: __('Remove'),
-        attributes: [{ variant: 'danger' }],
-      },
-    };
-  },
   computed: {
     ...mapState(['parentItem', 'removeItemModalProps']),
     removeItemType() {
       return this.removeItemModalProps.item.type;
+    },
+    modalPrimary() {
+      return {
+        text: __('Remove'),
+        attributes: [{ variant: 'danger' }],
+      };
     },
     modalTitle() {
       return this.removeItemType ? RemoveItemModalProps[this.removeItemType].title : '';

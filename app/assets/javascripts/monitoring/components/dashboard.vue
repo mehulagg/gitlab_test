@@ -172,10 +172,6 @@ export default {
       isRearrangingPanels: false,
       hasValidDates: true,
       timeWindows: {},
-      modalPrimary: {
-        text: __('Save changes'),
-        attributes: [this.setPrimaryActionDisabled()],
-      },
     };
   },
   computed: {
@@ -217,6 +213,12 @@ export default {
         this.selectedDashboard.can_edit ||
         this.externalDashboardUrl.length
       );
+    },
+    modalPrimary() {
+      return {
+        text: __('Save changes'),
+        attributes: [{ disabled: !this.formIsValid }],
+      };
     },
   },
   created() {
@@ -322,9 +324,6 @@ export default {
     collapseGroup(groupKey) {
       // Collapse group if no data is available
       return !this.getMetricStates(groupKey).includes(metricStates.OK);
-    },
-    setPrimaryActionDisabled() {
-      return !this.formIsValid ? { disabled: true } : null;
     },
     getAddMetricTrackingOptions,
     downloadCSVOptions,

@@ -15,19 +15,17 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      modalPrimary: {
-        text: this.title,
-      },
-    };
-  },
   computed: {
     ...mapState('createModal', {
       rule: 'data',
     }),
     title() {
       return this.rule ? __('Update approval rule') : __('Add approval rule');
+    },
+    modalPrimary() {
+      return {
+        text: this.title,
+      };
     },
   },
   methods: {
