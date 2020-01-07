@@ -3279,7 +3279,6 @@ ActiveRecord::Schema.define(version: 2020_01_23_155929) do
   create_table "project_statistics_events", force: :cascade do |t|
     t.bigint "project_statistics_id", null: false
     t.bigint "build_artifacts_size", default: 0, null: false
-    t.datetime "created_at", null: false
     t.index ["project_statistics_id"], name: "index_project_statistics_events_on_project_statistics_id"
   end
 
