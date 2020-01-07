@@ -42,9 +42,9 @@ The current stages are:
 ## Default image
 
 The default image is currently
-`registry.gitlab.com/gitlab-org/gitlab-build-images:ruby-2.6.3-golang-1.12-git-2.24-lfs-2.9-chrome-73.0-node-12.x-yarn-1.16-postgresql-9.6-graphicsmagick-1.3.33`.
+`registry.gitlab.com/gitlab-org/gitlab-build-images:ruby-2.6.5-golang-1.12-git-2.24-lfs-2.9-chrome-73.0-node-12.x-yarn-1.16-postgresql-9.6-graphicsmagick-1.3.33`.
 
-It includes Ruby 2.6.3, Go 1.12, Git 2.24, Git LFS 2.9, Chrome 73, Node 12, Yarn 1.16,
+It includes Ruby 2.6.5, Go 1.12, Git 2.24, Git LFS 2.9, Chrome 73, Node 12, Yarn 1.16,
 PostgreSQL 9.6, and Graphics Magick 1.3.33.
 
 The images used in our pipelines are configured in the
@@ -156,7 +156,7 @@ This is similar to the `.only:variables-canonical-dot-com` + `.except:refs-maste
 CI definitions:
 
 ```yaml
-.if-canonical-gitlab-and-merge-request: &if-canonical-gitlab-and-merge-request
+.if-canonical-gitlab-merge-request: &if-canonical-gitlab-merge-request
   if: '$CI_SERVER_HOST == "gitlab.com" && $CI_PROJECT_NAMESPACE =~ /^gitlab-org($|\/)/ && $CI_MERGE_REQUEST_IID'
 ```
 
@@ -210,9 +210,7 @@ graph RL;
   M[coverage];
   N[pages];
   O[static-analysis];
-  P["schedule:package-and-qa<br/>(master schedule only)"];
   Q[package-and-qa];
-  R[package-and-qa-manual];
   S["RSpec<br/>(e.g. rspec unit pg9)"]
   T[retrieve-tests-metadata];
 
@@ -259,20 +257,11 @@ subgraph "`review` stage"
 subgraph "`qa` stage"
     Q --> |needs| C;
     Q --> |needs| F;
-    R --> |needs| C;
-    R --> |needs| F;
-    P --> |needs| C;
-    P --> |needs| F;
     review-qa-smoke -.-> |needs and depends on| G;
     review-qa-all -.-> |needs and depends on| G;
     review-performance -.-> |needs and depends on| G;
     X2["schedule:review-performance<br/>(master only)"] -.-> |needs and depends on| G2;
     dast -.-> |needs and depends on| G;
-    end
-
-subgraph "`notification` stage"
-    NOTIFICATION1["schedule:package-and-qa:notify-success<br>(on_success)"] -.-> |needs| P;
-    NOTIFICATION2["schedule:package-and-qa:notify-failure<br>(on_failure)"] -.-> |needs| P;
     end
 
 subgraph "`post-test` stage"

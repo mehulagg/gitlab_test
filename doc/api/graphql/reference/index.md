@@ -35,14 +35,14 @@ The API can be explored interactively using the [GraphiQL IDE](../index.md#graph
 
 | Name  | Type  | Description |
 | ---   |  ---- | ----------  |
-| `id` | ID! |  |
-| `sha` | String! | Last commit sha for entry |
-| `name` | String! |  |
-| `type` | EntryType! |  |
-| `path` | String! |  |
-| `flatPath` | String! |  |
-| `webUrl` | String |  |
-| `lfsOid` | String |  |
+| `id` | ID! | ID of the entry |
+| `sha` | String! | Last commit sha for the entry |
+| `name` | String! | Name of the entry |
+| `type` | EntryType! | Type of tree entry |
+| `path` | String! | Path of the entry |
+| `flatPath` | String! | Flat path of the entry |
+| `webUrl` | String | Web URL of the blob |
+| `lfsOid` | String | LFS ID of the blob |
 
 ### Commit
 
@@ -316,6 +316,17 @@ The API can be explored interactively using the [GraphiQL IDE](../index.md#graph
 | ---   |  ---- | ----------  |
 | `clientMutationId` | String | A unique identifier for the client performing the mutation. |
 | `errors` | String! => Array | Reasons why the mutation failed. |
+
+### GrafanaIntegration
+
+| Name  | Type  | Description |
+| ---   |  ---- | ----------  |
+| `id` | ID! | Internal ID of the Grafana integration |
+| `grafanaUrl` | String! | Url for the Grafana host for the Grafana integration |
+| `token` | String! | API token for the Grafana integration |
+| `enabled` | Boolean! | Indicates whether Grafana integration is enabled |
+| `createdAt` | Time! | Timestamp of the issue's creation |
+| `updatedAt` | Time! | Timestamp of the issue's last activity |
 
 ### Group
 
@@ -693,6 +704,7 @@ The API can be explored interactively using the [GraphiQL IDE](../index.md#graph
 | `onlyAllowMergeIfAllDiscussionsAreResolved` | Boolean | Indicates if merge requests of the project can only be merged when all the discussions are resolved |
 | `printingMergeRequestLinkEnabled` | Boolean | Indicates if a link to create or view a merge request should display after a push to Git repositories of the project from the command line |
 | `removeSourceBranchAfterMerge` | Boolean | Indicates if `Delete source branch` option should be enabled by default for all new merge requests of the project |
+| `autocloseReferencedIssues` | Boolean | Indicates if issues referenced by merge requests and commits within the default branch are closed automatically |
 | `namespace` | Namespace | Namespace of the project |
 | `group` | Group | Group of the project |
 | `statistics` | ProjectStatistics | Statistics of the project |
@@ -700,6 +712,7 @@ The API can be explored interactively using the [GraphiQL IDE](../index.md#graph
 | `mergeRequest` | MergeRequest | A single merge request of the project |
 | `issue` | Issue | A single issue of the project |
 | `sentryDetailedError` | SentryDetailedError | Detailed version of a Sentry error on the project |
+| `grafanaIntegration` | GrafanaIntegration | Grafana integration details for the project |
 | `serviceDeskEnabled` | Boolean | Indicates if the project has service desk enabled. |
 | `serviceDeskAddress` | String | E-mail address of the service desk. |
 
@@ -856,14 +869,14 @@ The API can be explored interactively using the [GraphiQL IDE](../index.md#graph
 
 | Name  | Type  | Description |
 | ---   |  ---- | ----------  |
-| `id` | ID! |  |
-| `sha` | String! | Last commit sha for entry |
-| `name` | String! |  |
-| `type` | EntryType! |  |
-| `path` | String! |  |
-| `flatPath` | String! |  |
-| `webUrl` | String |  |
-| `treeUrl` | String |  |
+| `id` | ID! | ID of the entry |
+| `sha` | String! | Last commit sha for the entry |
+| `name` | String! | Name of the entry |
+| `type` | EntryType! | Type of tree entry |
+| `path` | String! | Path of the entry |
+| `flatPath` | String! | Flat path of the entry |
+| `webUrl` | String | Web URL for the sub-module |
+| `treeUrl` | String | Tree URL for the sub-module |
 
 ### TaskCompletionStatus
 
@@ -938,13 +951,13 @@ The API can be explored interactively using the [GraphiQL IDE](../index.md#graph
 
 | Name  | Type  | Description |
 | ---   |  ---- | ----------  |
-| `id` | ID! |  |
-| `sha` | String! | Last commit sha for entry |
-| `name` | String! |  |
-| `type` | EntryType! |  |
-| `path` | String! |  |
-| `flatPath` | String! |  |
-| `webUrl` | String |  |
+| `id` | ID! | ID of the entry |
+| `sha` | String! | Last commit sha for the entry |
+| `name` | String! | Name of the entry |
+| `type` | EntryType! | Type of tree entry |
+| `path` | String! | Path of the entry |
+| `flatPath` | String! | Flat path of the entry |
+| `webUrl` | String | Web URL for the tree entry (directory) |
 
 ### UpdateEpicPayload
 

@@ -2381,6 +2381,9 @@ msgstr ""
 msgid "Auto-cancel redundant, pending pipelines"
 msgstr ""
 
+msgid "Auto-close referenced issues on default branch"
+msgstr ""
+
 msgid "AutoDevOps|Auto DevOps"
 msgstr ""
 
@@ -2565,6 +2568,9 @@ msgid "BambooService|Bamboo root URL like https://bamboo.example.com"
 msgstr ""
 
 msgid "BambooService|You must set up automatic revision labeling and a repository trigger in Bamboo."
+msgstr ""
+
+msgid "Batch operations"
 msgstr ""
 
 msgid "BatchComments|Delete all pending comments"
@@ -3848,6 +3854,9 @@ msgstr ""
 msgid "ClusterIntegration|Enable Cloud Run on GKE (beta)"
 msgstr ""
 
+msgid "ClusterIntegration|Enable Web Application Firewall"
+msgstr ""
+
 msgid "ClusterIntegration|Enable or disable GitLab's connection to your Kubernetes cluster."
 msgstr ""
 
@@ -4032,6 +4041,9 @@ msgid "ClusterIntegration|Learn more about %{help_link_start_machine_type}machin
 msgstr ""
 
 msgid "ClusterIntegration|Learn more about %{help_link_start}zones%{help_link_end}."
+msgstr ""
+
+msgid "ClusterIntegration|Learn more about %{startLink}ModSecurity%{endLink}"
 msgstr ""
 
 msgid "ClusterIntegration|Learn more about %{startLink}Regions %{externalLinkIcon}%{endLink}."
@@ -5508,9 +5520,6 @@ msgstr ""
 msgid "CycleAnalyticsStage|Plan"
 msgstr ""
 
-msgid "CycleAnalyticsStage|Production"
-msgstr ""
-
 msgid "CycleAnalyticsStage|Review"
 msgstr ""
 
@@ -5518,6 +5527,9 @@ msgid "CycleAnalyticsStage|Staging"
 msgstr ""
 
 msgid "CycleAnalyticsStage|Test"
+msgstr ""
+
+msgid "CycleAnalyticsStage|Total"
 msgstr ""
 
 msgid "CycleAnalyticsStage|is not available for the selected group"
@@ -10068,6 +10080,9 @@ msgstr ""
 msgid "Issues closed"
 msgstr ""
 
+msgid "Issues referenced by merge requests and commits within the default branch will be closed automatically"
+msgstr ""
+
 msgid "Issues with comments, merge requests with diffs and comments, labels, milestones, snippets, and other project entities"
 msgstr ""
 
@@ -13299,7 +13314,10 @@ msgstr ""
 msgid "Preferences|Project overview content"
 msgstr ""
 
-msgid "Preferences|Show whitespace in diffs"
+msgid "Preferences|Render whitespace characters in the Web IDE"
+msgstr ""
+
+msgid "Preferences|Show whitespace changes in diffs"
 msgstr ""
 
 msgid "Preferences|Sourcegraph"
@@ -13822,9 +13840,6 @@ msgid "Project URL"
 msgstr ""
 
 msgid "Project access must be granted explicitly to each user."
-msgstr ""
-
-msgid "Project already created"
 msgstr ""
 
 msgid "Project already deleted"
@@ -15429,6 +15444,12 @@ msgid "Resume"
 msgstr ""
 
 msgid "Resume replication"
+msgstr ""
+
+msgid "Resync"
+msgstr ""
+
+msgid "Resync all designs"
 msgstr ""
 
 msgid "Retry"
@@ -18158,6 +18179,9 @@ msgstr ""
 msgid "The time taken by each data entry gathered by that stage."
 msgstr ""
 
+msgid "The total stage shows the time it takes between creating an issue and deploying the code to production. The data will be automatically added once you have completed the full idea to production cycle."
+msgstr ""
+
 msgid "The unique identifier for the Geo node. Must match `geo_node_name` if it is set in gitlab.rb, otherwise it must match `external_url` with a trailing slash"
 msgstr ""
 
@@ -18324,6 +18348,9 @@ msgid "There was an error saving your notification settings."
 msgstr ""
 
 msgid "There was an error subscribing to this label."
+msgstr ""
+
+msgid "There was an error syncing the Design Repositories."
 msgstr ""
 
 msgid "There was an error trying to validate your query"
@@ -18689,10 +18716,16 @@ msgstr ""
 msgid "ThreatMonitoring|A Web Application Firewall (WAF) provides monitoring and rules to protect production applications. GitLab adds the modsecurity WAF plug-in when you install the Ingress app in your Kubernetes cluster."
 msgstr ""
 
+msgid "ThreatMonitoring|Anomalous Requests"
+msgstr ""
+
 msgid "ThreatMonitoring|At this time, threat monitoring only supports WAF data."
 msgstr ""
 
 msgid "ThreatMonitoring|Environment"
+msgstr ""
+
+msgid "ThreatMonitoring|Requests"
 msgstr ""
 
 msgid "ThreatMonitoring|Something went wrong, unable to fetch WAF statistics"
@@ -18710,7 +18743,10 @@ msgstr ""
 msgid "ThreatMonitoring|Threat Monitoring help page link"
 msgstr ""
 
-msgid "ThreatMonitoring|View WAF documentation"
+msgid "ThreatMonitoring|Time"
+msgstr ""
+
+msgid "ThreatMonitoring|Total Requests"
 msgstr ""
 
 msgid "ThreatMonitoring|Web Application Firewall not enabled"
@@ -19144,9 +19180,6 @@ msgid "Total"
 msgstr ""
 
 msgid "Total Contributions"
-msgstr ""
-
-msgid "Total Time"
 msgstr ""
 
 msgid "Total artifacts size: %{total_size}"
@@ -20423,6 +20456,9 @@ msgstr ""
 msgid "When a runner is locked, it cannot be assigned to other projects"
 msgstr ""
 
+msgid "When enabled, any user visiting %{host} will be able to create an account."
+msgstr ""
+
 msgid "When enabled, users cannot use GitLab until the terms have been accepted."
 msgstr ""
 
@@ -21201,6 +21237,9 @@ msgstr ""
 msgid "already being used for another group or project milestone."
 msgstr ""
 
+msgid "already has a \"created\" issue link"
+msgstr ""
+
 msgid "already shared with this group"
 msgstr ""
 
@@ -21314,14 +21353,6 @@ msgid "ciReport|%{reportType} %{status} detected no vulnerabilities"
 msgstr ""
 
 msgid "ciReport|%{reportType} %{status} detected no vulnerabilities for the source branch only"
-msgstr ""
-
-msgid "ciReport|%{reportType} detected %{vulnerabilityCount} vulnerability"
-msgid_plural "ciReport|%{reportType} detected %{vulnerabilityCount} vulnerabilities"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "ciReport|%{reportType} detected no vulnerabilities"
 msgstr ""
 
 msgid "ciReport|%{reportType} is loading"
@@ -21481,18 +21512,6 @@ msgid "ciReport|There was an error creating the merge request. Please try again.
 msgstr ""
 
 msgid "ciReport|There was an error dismissing the vulnerability. Please try again."
-msgstr ""
-
-msgid "ciReport|There was an error loading DAST report"
-msgstr ""
-
-msgid "ciReport|There was an error loading SAST report"
-msgstr ""
-
-msgid "ciReport|There was an error loading container scanning report"
-msgstr ""
-
-msgid "ciReport|There was an error loading dependency scanning report"
 msgstr ""
 
 msgid "ciReport|There was an error reverting the dismissal. Please try again."
@@ -21676,6 +21695,9 @@ msgid "from"
 msgstr ""
 
 msgid "group"
+msgstr ""
+
+msgid "has already been linked to another vulnerability"
 msgstr ""
 
 msgid "has already been taken"
@@ -22111,6 +22133,9 @@ msgstr ""
 msgid "needs to be between 10 minutes and 1 month"
 msgstr ""
 
+msgid "never expires"
+msgstr ""
+
 msgid "new merge request"
 msgstr ""
 
@@ -22391,6 +22416,12 @@ msgid "vulnerability|dismissed"
 msgstr ""
 
 msgid "with %{additions} additions, %{deletions} deletions."
+msgstr ""
+
+msgid "with expiry changing from %{old_expiry} to %{new_expiry}"
+msgstr ""
+
+msgid "with expiry remaining unchanged at %{old_expiry}"
 msgstr ""
 
 msgid "yaml invalid"

@@ -71,17 +71,44 @@ type AwardEmoji {
 }
 
 type Blob implements Entry {
+  """
+  Flat path of the entry
+  """
   flatPath: String!
+
+  """
+  ID of the entry
+  """
   id: ID!
+
+  """
+  LFS ID of the blob
+  """
   lfsOid: String
+
+  """
+  Name of the entry
+  """
   name: String!
+
+  """
+  Path of the entry
+  """
   path: String!
 
   """
-  Last commit sha for entry
+  Last commit sha for the entry
   """
   sha: String!
+
+  """
+  Type of tree entry
+  """
   type: EntryType!
+
+  """
+  Web URL of the blob
+  """
   webUrl: String
 }
 
@@ -1290,15 +1317,34 @@ type DiscussionEdge {
 }
 
 interface Entry {
+  """
+  Flat path of the entry
+  """
   flatPath: String!
+
+  """
+  ID of the entry
+  """
   id: ID!
+
+  """
+  Name of the entry
+  """
   name: String!
+
+  """
+  Path of the entry
+  """
   path: String!
 
   """
-  Last commit sha for entry
+  Last commit sha for the entry
   """
   sha: String!
+
+  """
+  Type of tree entry
+  """
   type: EntryType!
 }
 
@@ -2227,6 +2273,38 @@ type EpicTreeReorderPayload {
   Reasons why the mutation failed.
   """
   errors: [String!]!
+}
+
+type GrafanaIntegration {
+  """
+  Timestamp of the issue's creation
+  """
+  createdAt: Time!
+
+  """
+  Indicates whether Grafana integration is enabled
+  """
+  enabled: Boolean!
+
+  """
+  Url for the Grafana host for the Grafana integration
+  """
+  grafanaUrl: String!
+
+  """
+  Internal ID of the Grafana integration
+  """
+  id: ID!
+
+  """
+  API token for the Grafana integration
+  """
+  token: String!
+
+  """
+  Timestamp of the issue's last activity
+  """
+  updatedAt: Time!
 }
 
 type Group {
@@ -4532,6 +4610,11 @@ type Project {
   archived: Boolean
 
   """
+  Indicates if issues referenced by merge requests and commits within the default branch are closed automatically
+  """
+  autocloseReferencedIssues: Boolean
+
+  """
   URL to avatar image file of the project
   """
   avatarUrl: String
@@ -4565,6 +4648,11 @@ type Project {
   Full path of the project
   """
   fullPath: ID!
+
+  """
+  Grafana integration details for the project
+  """
+  grafanaIntegration: GrafanaIntegration
 
   """
   Group of the project
@@ -5857,17 +5945,44 @@ type SnippetPermissions {
 }
 
 type Submodule implements Entry {
+  """
+  Flat path of the entry
+  """
   flatPath: String!
+
+  """
+  ID of the entry
+  """
   id: ID!
+
+  """
+  Name of the entry
+  """
   name: String!
+
+  """
+  Path of the entry
+  """
   path: String!
 
   """
-  Last commit sha for entry
+  Last commit sha for the entry
   """
   sha: String!
+
+  """
+  Tree URL for the sub-module
+  """
   treeUrl: String
+
+  """
+  Type of tree entry
+  """
   type: EntryType!
+
+  """
+  Web URL for the sub-module
+  """
   webUrl: String
 }
 
@@ -6256,6 +6371,9 @@ type ToggleAwardEmojiPayload {
 }
 
 type Tree {
+  """
+  Blobs of the tree
+  """
   blobs(
     """
     Returns the elements in the list that come after the specified cursor.
@@ -6282,6 +6400,10 @@ type Tree {
   Last commit for the tree
   """
   lastCommit: Commit
+
+  """
+  Sub-modules of the tree
+  """
   submodules(
     """
     Returns the elements in the list that come after the specified cursor.
@@ -6303,6 +6425,10 @@ type Tree {
     """
     last: Int
   ): SubmoduleConnection!
+
+  """
+  Trees of the tree
+  """
   trees(
     """
     Returns the elements in the list that come after the specified cursor.
@@ -6330,16 +6456,39 @@ type Tree {
 Represents a directory
 """
 type TreeEntry implements Entry {
+  """
+  Flat path of the entry
+  """
   flatPath: String!
+
+  """
+  ID of the entry
+  """
   id: ID!
+
+  """
+  Name of the entry
+  """
   name: String!
+
+  """
+  Path of the entry
+  """
   path: String!
 
   """
-  Last commit sha for entry
+  Last commit sha for the entry
   """
   sha: String!
+
+  """
+  Type of tree entry
+  """
   type: EntryType!
+
+  """
+  Web URL for the tree entry (directory)
+  """
   webUrl: String
 }
 

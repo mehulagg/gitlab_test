@@ -142,7 +142,7 @@ gem 'gitlab-markup', '~> 1.7.0'
 gem 'github-markup', '~> 1.7.0', require: 'github/markup'
 gem 'commonmarker', '~> 0.20'
 gem 'RedCloth', '~> 4.3.2'
-gem 'rdoc', '~> 6.0'
+gem 'rdoc', '~> 6.1.2'
 gem 'org-ruby', '~> 0.9.12'
 gem 'creole', '~> 0.5.0'
 gem 'wikicloth', '0.8.1'
@@ -386,6 +386,10 @@ group :development, :test do
   gem 'simple_po_parser', '~> 1.1.2', require: false
 
   gem 'timecop', '~> 0.8.0'
+
+  gem 'png_quantizator', '~> 0.2.1', require: false
+
+  gem 'parallel', '~> 1.17.0', require: false
 end
 
 # Gems required in omnibus-gitlab pipeline

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_01_02_170221) do
+ActiveRecord::Schema.define(version: 2020_01_06_085831) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -1460,6 +1460,7 @@ ActiveRecord::Schema.define(version: 2020_01_02_170221) do
     t.datetime_with_timezone "created_at", null: false
     t.datetime_with_timezone "updated_at", null: false
     t.integer "namespace_id"
+    t.index ["created_at"], name: "index_elasticsearch_indexed_namespaces_on_created_at"
     t.index ["namespace_id"], name: "index_elasticsearch_indexed_namespaces_on_namespace_id", unique: true
   end
 
@@ -2938,12 +2939,6 @@ ActiveRecord::Schema.define(version: 2020_01_02_170221) do
     t.index ["package_id", "file_name"], name: "index_packages_package_files_on_package_id_and_file_name"
   end
 
-  create_table "packages_package_tags", force: :cascade do |t|
-    t.integer "package_id", null: false
-    t.string "name", limit: 255, null: false
-    t.index ["package_id"], name: "index_packages_package_tags_on_package_id"
-  end
-
   create_table "packages_packages", force: :cascade do |t|
     t.integer "project_id", null: false
     t.datetime_with_timezone "created_at", null: false
@@ -2954,6 +2949,15 @@ ActiveRecord::Schema.define(version: 2020_01_02_170221) do
     t.index ["name"], name: "index_packages_packages_on_name_trigram", opclass: :gin_trgm_ops, using: :gin
     t.index ["project_id", "name", "version", "package_type"], name: "idx_packages_packages_on_project_id_name_version_package_type"
     t.index ["project_id"], name: "index_packages_packages_on_project_id"
+  end
+
+  create_table "packages_tags", force: :cascade do |t|
+    t.integer "package_id", null: false
+    t.string "name", limit: 255, null: false
+    t.datetime_with_timezone "created_at", null: false
+    t.datetime_with_timezone "updated_at", null: false
+    t.index ["package_id", "updated_at"], name: "index_packages_tags_on_package_id_and_updated_at", order: { updated_at: :desc }
+    t.index ["package_id"], name: "index_packages_tags_on_package_id"
   end
 
   create_table "pages_domain_acme_orders", force: :cascade do |t|
@@ -3344,6 +3348,7 @@ ActiveRecord::Schema.define(version: 2020_01_02_170221) do
     t.boolean "remove_source_branch_after_merge"
     t.date "marked_for_deletion_at"
     t.integer "marked_for_deletion_by_user_id"
+    t.boolean "autoclose_referenced_issues"
     t.index "lower((name)::text)", name: "index_projects_on_lower_name"
     t.index ["created_at", "id"], name: "index_projects_on_created_at_and_id"
     t.index ["creator_id"], name: "index_projects_on_creator_id"
@@ -3803,6 +3808,8 @@ ActiveRecord::Schema.define(version: 2020_01_02_170221) do
     t.string "encrypted_secret_token", limit: 255
     t.string "encrypted_secret_token_iv", limit: 255
     t.boolean "secret", default: false, null: false
+    t.string "repository_storage", limit: 255, default: "default", null: false
+    t.integer "storage_version", default: 2, null: false
     t.index ["author_id"], name: "index_snippets_on_author_id"
     t.index ["content"], name: "index_snippets_on_content_trigram", opclass: :gin_trgm_ops, using: :gin
     t.index ["created_at"], name: "index_snippets_on_created_at"
@@ -4038,6 +4045,7 @@ ActiveRecord::Schema.define(version: 2020_01_02_170221) do
     t.boolean "show_whitespace_in_diffs", default: true, null: false
     t.boolean "sourcegraph_enabled"
     t.boolean "setup_for_company"
+    t.boolean "render_whitespace_in_code"
     t.index ["user_id"], name: "index_user_preferences_on_user_id", unique: true
   end
 
@@ -4702,8 +4710,8 @@ ActiveRecord::Schema.define(version: 2020_01_02_170221) do
   add_foreign_key "packages_dependency_links", "packages_packages", column: "package_id", on_delete: :cascade
   add_foreign_key "packages_maven_metadata", "packages_packages", column: "package_id", name: "fk_be88aed360", on_delete: :cascade
   add_foreign_key "packages_package_files", "packages_packages", column: "package_id", name: "fk_86f0f182f8", on_delete: :cascade
-  add_foreign_key "packages_package_tags", "packages_packages", column: "package_id", on_delete: :cascade
   add_foreign_key "packages_packages", "projects", on_delete: :cascade
+  add_foreign_key "packages_tags", "packages_packages", column: "package_id", on_delete: :cascade
   add_foreign_key "pages_domain_acme_orders", "pages_domains", on_delete: :cascade
   add_foreign_key "pages_domains", "projects", name: "fk_ea2f6dfc6f", on_delete: :cascade
   add_foreign_key "path_locks", "projects", name: "fk_5265c98f24", on_delete: :cascade

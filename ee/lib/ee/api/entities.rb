@@ -865,6 +865,10 @@ module EE
         expose :dist_tags, as: 'dist-tags'
       end
 
+      class NpmPackageTag < Grape::Entity
+        expose :dist_tags, merge: true
+      end
+
       class Package < Grape::Entity
         include ::API::Helpers::RelatedResourcesHelpers
         extend EntityHelpers
@@ -977,6 +981,12 @@ module EE
         expose :vulnerability_link_type do |related_issue|
           ::Vulnerabilities::IssueLink.link_types.key(related_issue.vulnerability_link_type)
         end
+      end
+
+      class VulnerabilityIssueLink < Grape::Entity
+        expose :vulnerability, using: ::EE::API::Entities::Vulnerability
+        expose :issue, using: ::API::Entities::IssueBasic
+        expose :link_type
       end
     end
   end

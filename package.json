@@ -43,7 +43,7 @@
     "@gitlab/ui": "8.10.0",
     "@gitlab/visual-review-tools": "1.5.1",
     "@sentry/browser": "^5.10.2",
-    "@sourcegraph/code-host-integration": "^0.0.16",
+    "@sourcegraph/code-host-integration": "^0.0.18",
     "apollo-cache-inmemory": "^1.6.3",
     "apollo-client": "^2.6.4",
     "apollo-link": "^1.2.11",
@@ -146,7 +146,7 @@
     "@gitlab/eslint-config": "^2.0.0",
     "@gitlab/eslint-plugin-i18n": "^1.1.0",
     "@gitlab/eslint-plugin-vue-i18n": "^1.2.0",
-    "@vue/test-utils": "^1.0.0-beta.25",
+    "@vue/test-utils": "^1.0.0-beta.30",
     "axios-mock-adapter": "^1.15.0",
     "babel-jest": "^24.1.0",
     "babel-plugin-dynamic-import-node": "^2.2.0",
@@ -201,7 +201,7 @@
   },
   "resolutions": {
     "vue-jest/ts-jest": "24.0.0",
-    "monaco-editor" : "0.18.1"
+    "monaco-editor": "0.18.1"
   },
   "engines": {
     "node": ">=8.10.0",
