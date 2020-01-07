@@ -20,6 +20,10 @@ module Projects
         end
       end
 
+      def show
+        render :index
+      end
+
       def destroy
         DeleteContainerRepositoryWorker.perform_async(current_user.id, image.id)
         track_event(:delete_repository)

@@ -21,7 +21,7 @@ export default function createRouter(base, store) {
       },
       {
         name: 'details',
-        path: '/details/:id',
+        path: '/:id',
         component: Details,
       },
     ],
