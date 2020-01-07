@@ -32,10 +32,10 @@ GitLab can scan and report any vulnerabilities found in your project.
 | [Security Dashboard](security_dashboard/index.md) **(ULTIMATE)**             | View vulnerabilities in all your projects and groups.                  |
 | [Static Application Security Testing (SAST)](sast/index.md) **(ULTIMATE)**   | Analyze source code for known vulnerabilities.                         |
 
-## Enabling Security Jobs
+## Enabling all security jobs
+> Introduced in GitLab 12.7
 
-For GitLab 12.7 and later, you can
-[include](../../ci/yaml/README.md#includetemplate) the
+[Include](../../ci/yaml/README.md#includetemplate) the
 [`All-Security-Jobs.gitlab-ci.yml` template](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/All-Security-Jobs.gitlab-ci.yml)
 that's provided as a part of your GitLab installation as a convenience to
 include the scanner templates for Container Scanning, Dependency Scanning (+Dependency List), DAST, License Compliance, and SAST.
