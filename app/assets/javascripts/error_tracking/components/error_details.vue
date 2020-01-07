@@ -39,6 +39,10 @@ export default {
       type: String,
       required: true,
     },
+    projectPath: {
+      type: String,
+      required: true,
+    },
     csrfToken: {
       type: String,
       required: true,
@@ -206,7 +210,7 @@ export default {
 
         <template v-if="showStacktrace">
           <h3 class="my-4">{{ __('Stack trace') }}</h3>
-          <stacktrace :entries="stacktrace" />
+          <stacktrace :entries="stacktrace" :project-path="projectPath" />
         </template>
       </div>
     </div>

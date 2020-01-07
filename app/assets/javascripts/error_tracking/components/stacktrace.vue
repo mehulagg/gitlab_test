@@ -10,6 +10,10 @@ export default {
       type: Array,
       required: true,
     },
+    projectPath: {
+      type: String,
+      required: true,
+    },
   },
   methods: {
     isFirstEntry(index) {
@@ -24,6 +28,7 @@ export default {
     <stack-trace-entry
       v-for="(entry, index) in entries"
       :key="`stacktrace-entry-${index}`"
+      :project-path="projectPath"
       :lines="entry.context"
       :file-path="entry.filename"
       :error-line="entry.lineNo"

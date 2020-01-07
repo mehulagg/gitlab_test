@@ -10,11 +10,16 @@ export default {
     ClipboardButton,
     FileIcon,
     Icon,
+    GlLink,
   },
   directives: {
     GlTooltip,
   },
   props: {
+    projectPath: {
+      type: String,
+      required: true,
+    },
     lines: {
       type: Array,
       required: true,

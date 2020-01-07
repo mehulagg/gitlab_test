@@ -13,10 +13,16 @@ export default () => {
     store,
     render(createElement) {
       const domEl = document.querySelector(this.$options.el);
-      const { issueDetailsPath, issueStackTracePath, projectIssuesPath } = domEl.dataset;
+      const {
+        projectPath,
+        issueDetailsPath,
+        issueStackTracePath,
+        projectIssuesPath,
+      } = domEl.dataset;
 
       return createElement('error-details', {
         props: {
+          projectPath,
           issueDetailsPath,
           issueStackTracePath,
           projectIssuesPath,
