@@ -17,7 +17,7 @@ module Gitlab
               gitlab.omnibus_config = <<~OMNIBUS
                     gitlab_rails['smtp_enable'] = true;
                     gitlab_rails['smtp_address'] = '#{mail_hog.hostname}';
-                    gitlab_rails['smtp_port'] = 1025
+                    gitlab_rails['smtp_port'] = 1025;
               OMNIBUS
             end
 

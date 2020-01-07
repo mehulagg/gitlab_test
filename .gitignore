@@ -8,6 +8,8 @@
 /spec/reports/
 /tmp/
 /.idea
+.ruby-version
+.ruby-gemset
 
 # ignore built gems
 *.gem
