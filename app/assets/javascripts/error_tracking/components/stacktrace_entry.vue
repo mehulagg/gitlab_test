@@ -1,5 +1,5 @@
 <script>
-import { GlTooltip } from '@gitlab/ui';
+import { GlLink, GlTooltip } from '@gitlab/ui';
 import { __, sprintf } from '~/locale';
 import ClipboardButton from '~/vue_shared/components/clipboard_button.vue';
 import FileIcon from '~/vue_shared/components/file_icon.vue';
@@ -55,6 +55,9 @@ export default {
     };
   },
   computed: {
+    blamefile() {
+      return `${this.projectPath}/blame/master/${this.filePath}`;
+    },
     hasCode() {
       return Boolean(this.lines.length);
     },
@@ -119,6 +122,7 @@ export default {
           css-class="btn-default btn-transparent btn-clipboard position-static"
         />
         <span v-if="!hasCode" class="text-tertiary">{{ noCodeFn }}{{ noCodeLine }}</span>
+        <gl-link :href="blamefile">{{ __('View File') }}</gl-link>
       </div>
     </div>
 
