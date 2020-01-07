@@ -31,6 +31,17 @@ export default {
     showPopover() {
       return this.showResolveButton && this.mr.sourceBranchProtected;
     },
+    rebaseText() {
+      return sprintf(
+        s__(`mrWidget|Fast-forward merge is not possible, and conflicts cannot be resolved automatically.
+To merge this request, first %{rebaseLinkStart}rebase locally%{rebaseLinkEnd}.`),
+        {
+          rebaseLinkStart: '<a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing" target="_blank" rel="noopener noreferrer">',
+          rebaseLinkEnd: '</a>',
+        },
+        false,
+      );
+    },
   },
   mounted() {
     if (this.showPopover) {
@@ -72,12 +83,7 @@ export default {
     <status-icon :show-disabled-button="true" status="warning" />
 
     <div class="media-body space-children">
-      <span v-if="mr.shouldBeRebased" class="bold">
-        {{
-          s__(`mrWidget|Fast-forward merge is not possible.
-To merge this request, first rebase locally.`)
-        }}
-      </span>
+      <span v-if="mr.shouldBeRebased" class="bold" v-html="rebaseText"></span>
       <template v-else>
         <span class="bold">
           {{ s__('mrWidget|There are merge conflicts') }}<span v-if="!mr.canMerge">.</span>
