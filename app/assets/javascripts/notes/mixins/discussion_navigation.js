@@ -45,11 +45,15 @@ export default {
     },
 
     jumpToDiscussion(discussion) {
+      // eslint-disable-next-line camelcase
+      const diffSha = discussion?.position?.head_sha || '';
+      const disuccsionSha = this.$store.state.diffs.mergeRequestDiff.short_commit_sha;
+      const discussionOnCurrentDiff = diffSha.includes(disuccsionSha);
       const { id, diff_discussion: isDiffDiscussion } = discussion;
       if (id) {
         const activeTab = window.mrTabs.currentAction;
 
-        if (activeTab === 'diffs' && isDiffDiscussion) {
+        if (activeTab === 'diffs' && isDiffDiscussion && discussionOnCurrentDiff) {
           this.diffsJump(id);
         } else if (activeTab === 'show') {
           this.discussionJump(id);
