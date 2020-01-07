@@ -193,11 +193,10 @@ export const findUnresolvedDiscussionIdNeighbor = (state, getters) => ({
 // Gets the ID of the discussion following the one provided, respecting order (diff or date)
 // @param {Boolean} discussionId - id of the current discussion
 // @param {Boolean} diffOrder - is ordered by diff?
-export const nextUnresolvedDiscussionId = (state, getters) => (discussionId, diffOrder) => {
-  return discussionId
+export const nextUnresolvedDiscussionId = (state, getters) => (discussionId, diffOrder) =>
+  discussionId
     ? getters.findUnresolvedDiscussionIdNeighbor({ discussionId, diffOrder, step: 1 })
     : getters.firstUnresolvedDiscussionId(diffOrder);
-};
 
 export const previousUnresolvedDiscussionId = (state, getters) => (discussionId, diffOrder) => {
   return discussionId
