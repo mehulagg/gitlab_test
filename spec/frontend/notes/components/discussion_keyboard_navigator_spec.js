@@ -61,7 +61,7 @@ describe('notes/components/discussion_keyboard_navigator', () => {
       createComponent({ propsData: { isDiffView } });
     });
 
-    it('calls jumpToNextDiscussion when pressing `n`', () => {
+    it('calls jumpToNextUnresolvedDiscussion when pressing `n`', () => {
       Mousetrap.trigger('n');
 
       expect(wrapper.vm.jumpToDiscussion).toHaveBeenCalledWith(
@@ -70,7 +70,7 @@ describe('notes/components/discussion_keyboard_navigator', () => {
       expect(wrapper.vm.currentDiscussionId).toEqual(expectedNextId);
     });
 
-    it('calls jumpToPreviousDiscussion when pressing `p`', () => {
+    it('calls jumpToPreviousUnresolvedDiscussion when pressing `p`', () => {
       Mousetrap.trigger('p');
 
       expect(wrapper.vm.jumpToDiscussion).toHaveBeenCalledWith(
@@ -94,13 +94,13 @@ describe('notes/components/discussion_keyboard_navigator', () => {
       expect(Mousetrap.unbind).toHaveBeenCalledWith('p');
     });
 
-    it('does not call jumpToNextDiscussion when pressing `n`', () => {
+    it('does not call jumpToNextUnresolvedDiscussion when pressing `n`', () => {
       Mousetrap.trigger('n');
 
       expect(wrapper.vm.jumpToDiscussion).not.toHaveBeenCalled();
     });
 
-    it('does not call jumpToNextDiscussion when pressing `p`', () => {
+    it('does not call jumpToNextUnresolvedDiscussion when pressing `p`', () => {
       Mousetrap.trigger('p');
 
       expect(wrapper.vm.jumpToDiscussion).not.toHaveBeenCalled();

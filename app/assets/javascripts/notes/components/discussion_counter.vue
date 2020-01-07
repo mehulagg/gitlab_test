@@ -1,5 +1,5 @@
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapGetters } from 'vuex';
 import { GlTooltipDirective } from '@gitlab/ui';
 import Icon from '~/vue_shared/components/icon.vue';
 import discussionNavigation from '../mixins/discussion_navigation';
@@ -17,9 +17,7 @@ export default {
       'getUserData',
       'getNoteableData',
       'resolvableDiscussionsCount',
-      'nextUnresolvedDiscussionId',
       'unresolvedDiscussionsCount',
-      'getDiscussion',
     ]),
     isLoggedIn() {
       return this.getUserData.id;
@@ -35,17 +33,6 @@ export default {
     },
     resolvedDiscussionsCount() {
       return this.resolvableDiscussionsCount - this.unresolvedDiscussionsCount;
-    },
-  },
-  methods: {
-    ...mapActions(['expandDiscussion']),
-    jumpToFirstUnresolvedDiscussion() {
-      const diffTab = window.mrTabs.currentAction === 'diffs';
-      const discussionId =
-        this.nextUnresolvedDiscussionId(null, diffTab) ||
-        this.nextUnresolvedDiscussionId(null, !diffTab);
-      const firstDiscussion = this.getDiscussion(discussionId);
-      this.jumpToDiscussion(firstDiscussion);
     },
   },
 };
@@ -84,9 +71,9 @@ export default {
       <div v-if="isLoggedIn && !allResolved" class="btn-group btn-group-sm" role="group">
         <button
           v-gl-tooltip
-          title="Jump to first unresolved thread"
+          title="Jump to next unresolved thread"
           class="btn btn-default discussion-next-btn"
-          @click="jumpToFirstUnresolvedDiscussion"
+          @click="jumpToNextUnresolvedDiscussion"
         >
           <icon name="comment-next" />
         </button>

@@ -1,8 +1,26 @@
+import { mapActions, mapState, mapGetters } from 'vuex';
 import { scrollToElement } from '~/lib/utils/common_utils';
 import eventHub from '../../notes/event_hub';
 
 export default {
+  data() {
+    return {
+      currentDiscussionId: null,
+    };
+  },
+  computed: {
+    ...mapGetters([
+      'nextUnresolvedDiscussionId',
+      'previousUnresolvedDiscussionId',
+      'getDiscussion',
+    ]),
+    ...mapState({ activeTab: state => state.page.activeTab }),
+    isDiffTab() {
+      return this.activeTab === 'diffs';
+    },
+  },
   methods: {
+    ...mapActions(['expandDiscussion']),
     diffsJump(id) {
       const selector = `ul.notes[data-discussion-id="${id}"]`;
 
@@ -45,10 +63,9 @@ export default {
     },
 
     jumpToDiscussion(discussion) {
-      // eslint-disable-next-line camelcase
-      const diffSha = discussion?.position?.head_sha || '';
-      const disuccsionSha = this.$store.state.diffs.mergeRequestDiff?.short_commit_sha || null;
-      const discussionOnCurrentDiff = diffSha.includes(disuccsionSha);
+      const { head_sha: diffSha } = discussion?.position || { head_sha: '' };
+      const { short_commit_sha: discussionSha } = this.$store.state.diffs.mergeRequestDiff || {};
+      const discussionOnCurrentDiff = diffSha.includes(discussionSha);
       const { id, diff_discussion: isDiffDiscussion } = discussion;
       if (id) {
         const activeTab = window.mrTabs.currentAction;
@@ -60,6 +77,26 @@ export default {
         } else {
           this.switchToDiscussionsTabAndJumpTo(id);
         }
+      }
+    },
+    jumpToNextUnresolvedDiscussion() {
+      const nextId =
+        this.nextUnresolvedDiscussionId(this.currentDiscussionId, this.isDiffView) ||
+        this.nextUnresolvedDiscussionId(this.currentDiscussionId, !this.isDiffView);
+      const nextDiscussion = this.getDiscussion(nextId);
+      if (nextDiscussion) {
+        this.jumpToDiscussion(nextDiscussion);
+        this.currentDiscussionId = nextId;
+      }
+    },
+    jumpToPreviousUnresolvedDiscussion() {
+      const prevId =
+        this.previousUnresolvedDiscussionId(this.currentDiscussionId, this.isDiffView) ||
+        this.previousUnresolvedDiscussionId(this.currentDiscussionId, !this.isDiffView);
+      const prevDiscussion = this.getDiscussion(prevId);
+      if (prevDiscussion) {
+        this.jumpToDiscussion(prevDiscussion);
+        this.currentDiscussionId = prevId;
       }
     },
   },
