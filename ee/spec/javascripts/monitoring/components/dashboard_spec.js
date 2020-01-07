@@ -143,10 +143,9 @@ describe('Dashboard', () => {
       });
 
       it('adding new metric is tracked', done => {
-        const submitButton = wrapper.vm.$refs.submitCustomMetricsFormBtn;
         wrapper.setData({ formIsValid: true });
         wrapper.vm.$nextTick(() => {
-          submitButton.$el.click();
+          wrapper.find(GlModal).vm.$emit('ok');
           wrapper.vm.$nextTick(() => {
             expect(Tracking.event).toHaveBeenCalledWith(
               document.body.dataset.page,

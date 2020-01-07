@@ -216,7 +216,7 @@ export default {
     },
     modalPrimary() {
       return {
-        text: __('Save changes'),
+        text: s__('Save changes'),
         attributes: [{ disabled: !this.formIsValid }],
       };
     },
