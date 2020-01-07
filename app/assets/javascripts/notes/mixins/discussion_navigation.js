@@ -64,7 +64,7 @@ export default {
 
     jumpToDiscussion(discussion) {
       const { head_sha: diffSha } = discussion?.position || { head_sha: '' };
-      const { short_commit_sha: discussionSha } = this.$store.state.diffs.mergeRequestDiff || {};
+      const { short_commit_sha: discussionSha } = this.$store.state.diffs?.mergeRequestDiff || {};
       const discussionOnCurrentDiff = diffSha.includes(discussionSha);
       const { id, diff_discussion: isDiffDiscussion } = discussion;
       if (id) {

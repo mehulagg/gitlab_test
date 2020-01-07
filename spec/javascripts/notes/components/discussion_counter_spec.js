@@ -25,7 +25,7 @@ describe('DiscussionCounter component', () => {
   });
 
   describe('methods', () => {
-    describe('jumpToFirstUnresolvedDiscussion', () => {
+    describe('jumpToNextUnresolvedDiscussion', () => {
       it('expands unresolved discussion', () => {
         window.mrTabs.currentAction = 'show';
 
@@ -49,7 +49,7 @@ describe('DiscussionCounter component', () => {
           ...store.state,
           discussions,
         });
-        vm.jumpToFirstUnresolvedDiscussion();
+        vm.jumpToNextUnresolvedDiscussion();
 
         expect(vm.expandDiscussion).toHaveBeenCalledWith({ discussionId: firstDiscussionId });
       });
@@ -78,7 +78,7 @@ describe('DiscussionCounter component', () => {
           ...store.state,
           discussions,
         });
-        vm.jumpToFirstUnresolvedDiscussion();
+        vm.jumpToNextUnresolvedDiscussion();
 
         expect(vm.switchToDiscussionsTabAndJumpTo).toHaveBeenCalledWith(unresolvedId);
       });
