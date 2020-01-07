@@ -47,7 +47,7 @@ export default {
     jumpToDiscussion(discussion) {
       // eslint-disable-next-line camelcase
       const diffSha = discussion?.position?.head_sha || '';
-      const disuccsionSha = this.$store.state.diffs.mergeRequestDiff.short_commit_sha;
+      const disuccsionSha = this.$store.state.diffs.mergeRequestDiff?.short_commit_sha || null;
       const discussionOnCurrentDiff = diffSha.includes(disuccsionSha);
       const { id, diff_discussion: isDiffDiscussion } = discussion;
       if (id) {

@@ -36,16 +36,24 @@ export default {
   methods: {
     ...mapActions(['expandDiscussion']),
     jumpToNextDiscussion() {
-      const nextId = this.nextUnresolvedDiscussionId(this.currentDiscussionId, this.isDiffView);
+      const nextId =
+        this.nextUnresolvedDiscussionId(this.currentDiscussionId, this.isDiffView) ||
+        this.nextUnresolvedDiscussionId(this.currentDiscussionId, !this.isDiffView);
       const nextDiscussion = this.getDiscussion(nextId);
-      this.jumpToDiscussion(nextDiscussion);
-      this.currentDiscussionId = nextId;
+      if (nextDiscussion) {
+        this.jumpToDiscussion(nextDiscussion);
+        this.currentDiscussionId = nextId;
+      }
     },
     jumpToPreviousDiscussion() {
-      const prevId = this.previousUnresolvedDiscussionId(this.currentDiscussionId, this.isDiffView);
+      const prevId =
+        this.previousUnresolvedDiscussionId(this.currentDiscussionId, this.isDiffView) ||
+        this.previousUnresolvedDiscussionId(this.currentDiscussionId, !this.isDiffView);
       const prevDiscussion = this.getDiscussion(prevId);
-      this.jumpToDiscussion(prevDiscussion);
-      this.currentDiscussionId = prevId;
+      if (prevDiscussion) {
+        this.jumpToDiscussion(prevDiscussion);
+        this.currentDiscussionId = prevId;
+      }
     },
   },
   render() {

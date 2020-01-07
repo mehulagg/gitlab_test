@@ -17,7 +17,7 @@ export default {
       'getUserData',
       'getNoteableData',
       'resolvableDiscussionsCount',
-      'firstUnresolvedDiscussionId',
+      'nextUnresolvedDiscussionId',
       'unresolvedDiscussionsCount',
       'getDiscussion',
     ]),
@@ -42,7 +42,8 @@ export default {
     jumpToFirstUnresolvedDiscussion() {
       const diffTab = window.mrTabs.currentAction === 'diffs';
       const discussionId =
-        this.firstUnresolvedDiscussionId(diffTab) || this.firstUnresolvedDiscussionId();
+        this.nextUnresolvedDiscussionId(null, diffTab) ||
+        this.nextUnresolvedDiscussionId(null, !diffTab);
       const firstDiscussion = this.getDiscussion(discussionId);
       this.jumpToDiscussion(firstDiscussion);
     },
