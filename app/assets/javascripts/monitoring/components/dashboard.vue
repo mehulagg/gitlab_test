@@ -285,11 +285,6 @@ export default {
     toggleRearrangingPanels() {
       this.isRearrangingPanels = !this.isRearrangingPanels;
     },
-    onSidebarMutation() {
-      setTimeout(() => {
-        this.elWidth = this.$el.clientWidth;
-      }, sidebarAnimationDuration);
-    },
     setFormValidity(isValid) {
       this.formIsValid = isValid;
     },
@@ -326,8 +321,6 @@ export default {
       return !this.getMetricStates(groupKey).includes(metricStates.OK);
     },
     getAddMetricTrackingOptions,
-    downloadCSVOptions,
-    generateLinkToChartOptions,
   },
   addMetric: {
     title: s__('Metrics|Add metric'),
