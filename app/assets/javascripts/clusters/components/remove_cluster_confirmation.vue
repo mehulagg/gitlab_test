@@ -90,6 +90,25 @@ export default {
     canSubmit() {
       return this.enteredClusterName === this.clusterName;
     },
+    modalPrimaryAction() {
+      return this.confirmCleanup ? true : false;
+    },
+    modalPrimary() {
+      return {
+        text: s__('ClusterIntegration|Remove integration and resources'),
+        attributes: [{ variant: 'danger' }, { disabled: !this.canSubmit }],
+      };
+    },
+    modalSecondary() {
+      if (this.confirmCleanup) {
+        return {
+          text: s__('ClusterIntegration|Remove integration'),
+          attributes: [{ variant: 'warning' }, { disabled: !this.canSubmit }],
+        };
+      } else {
+        return null;
+      }
+    },
   },
   methods: {
     handleClickRemoveCluster(cleanup = false) {
@@ -123,7 +142,12 @@ export default {
       size="lg"
       modal-id="delete-cluster-modal"
       :title="modalTitle"
+      :modal-action-primary="modalPrimary"
+      :modal-action-secondary="modalSecondary"
       kind="danger"
+      @ok="handleSubmit(modalPrimaryAction)"
+      @secondary="handleSubmit"
+      @cancel="handleCancel"
     >
       <template>
         <p>{{ warningMessage }}</p>
@@ -146,22 +170,6 @@ export default {
             'ClusterIntegration|If you do not wish to delete all associated GitLab resources, you can simply remove the integration.',
           )
         }}</span>
-      </template>
-      <template slot="modal-footer">
-        <gl-button variant="secondary" @click="handleCancel">{{ s__('Cancel') }}</gl-button>
-        <template v-if="confirmCleanup">
-          <gl-button :disabled="!canSubmit" variant="warning" @click="handleSubmit">{{
-            s__('ClusterIntegration|Remove integration')
-          }}</gl-button>
-          <gl-button :disabled="!canSubmit" variant="danger" @click="handleSubmit(true)">{{
-            s__('ClusterIntegration|Remove integration and resources')
-          }}</gl-button>
-        </template>
-        <template v-else>
-          <gl-button :disabled="!canSubmit" variant="danger" @click="handleSubmit">{{
-            s__('ClusterIntegration|Remove integration')
-          }}</gl-button>
-        </template>
       </template>
     </gl-modal>
   </div>

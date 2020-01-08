@@ -30,6 +30,12 @@ export default {
     isStaged() {
       return !this.activeFile.changed && this.activeFile.staged;
     },
+    modalPrimary() {
+      return {
+        text: __('Discard changes'),
+        attributes: [{ variant: 'danger' }],
+      };
+    },
   },
   methods: {
     ...mapActions(['stageChange', 'unstageChange', 'discardFileChanges']),
@@ -82,10 +88,8 @@ export default {
     </div>
     <gl-modal
       ref="discardModal"
-      ok-variant="danger"
-      cancel-variant="light"
-      :ok-title="__('Discard changes')"
       :modal-id="discardModalId"
+      :modal-action-primary="modalPrimary"
       :title="discardModalTitle"
       @ok="discardFileChanges(activeFile.path)"
     >

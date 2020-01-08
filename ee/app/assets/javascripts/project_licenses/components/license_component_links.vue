@@ -48,8 +48,11 @@ export default {
         remainingComponentsCount,
       });
     },
-    modalActionText() {
-      return s__('Modal|Close');
+    modalPrimary() {
+      return {
+        text: s__('Modal|Close'),
+        attributes: [{ variant: 'secondary' }],
+      };
     },
   },
 };
@@ -81,9 +84,7 @@ export default {
       v-if="hasComponentsInModal"
       :title="title"
       :modal-id="modalId"
-      :ok-title="modalActionText"
-      ok-only
-      ok-variant="secondary"
+      :modal-action-primary="modalPrimary"
     >
       <h5>{{ s__('Licenses|Components') }}</h5>
       <ul class="list-unstyled overflow-auto mh-50vh">

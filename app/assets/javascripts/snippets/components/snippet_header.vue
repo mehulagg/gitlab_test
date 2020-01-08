@@ -119,13 +119,20 @@ export default {
           return 'earth';
       }
     },
+    modalPrimary() {
+      return {
+        text: __('Delete snippet'),
+        attributes: [
+          { variant: 'danger' },
+          { disabled: this.isDeleting },
+          { ' data-qa-selector': 'delete_snippet_button' },
+        ],
+      };
+    },
   },
   methods: {
     redirectToSnippets() {
       window.location.pathname = 'dashboard/snippets';
-    },
-    closeDeleteModal() {
-      this.$refs.deleteModal.hide();
     },
     showDeleteModal() {
       this.$refs.deleteModal.show();
@@ -211,7 +218,13 @@ export default {
       </div>
     </div>
 
-    <gl-modal ref="deleteModal" modal-id="delete-modal" title="Example title">
+    <gl-modal
+      ref="deleteModal"
+      :modal-action-primary="modalPrimary"
+      modal-id="delete-modal"
+      title="Example title"
+      @ok="deleteSnippet"
+    >
       <template #modal-title>{{ __('Delete snippet?') }}</template>
 
       <gl-alert v-if="errorMessage" variant="danger" class="mb-2" @dismiss="errorMessage = ''">{{
@@ -223,19 +236,6 @@ export default {
           ><strong>{{ snippet.title }}</strong></template
         >
       </gl-sprintf>
-
-      <template #modal-footer>
-        <gl-button @click="closeDeleteModal">{{ __('Cancel') }}</gl-button>
-        <gl-button
-          variant="danger"
-          :disabled="isDeleting"
-          data-qa-selector="delete_snippet_button"
-          @click="deleteSnippet"
-        >
-          <gl-loading-icon v-if="isDeleting" inline />
-          {{ __('Delete snippet') }}
-        </gl-button>
-      </template>
     </gl-modal>
   </div>
 </template>

@@ -55,6 +55,12 @@ export default {
     nodes() {
       return this.store.getNodes();
     },
+    modalPrimary() {
+      return {
+        text: this.modalActionLabel,
+        attributes: [{ variant: this.modalKind }],
+      };
+    },
   },
   created() {
     eventHub.$on('pollNodeDetails', this.initNodeDetailsPolling);
@@ -224,8 +230,7 @@ export default {
     <gl-modal
       :modal-id="modalId"
       :title="modalTitle"
-      :ok-variant="modalKind"
-      :ok-title="modalActionLabel"
+      :modal-action-primary="modalPrimary"
       @cancel="hideNodeActionModal"
       @ok="handleNodeAction"
     >

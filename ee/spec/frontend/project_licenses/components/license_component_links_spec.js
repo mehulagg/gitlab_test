@@ -157,7 +157,7 @@ describe('LicenseComponentLinks component', () => {
   it('assigns the correct action button text to the modal', () => {
     factory({ numComponents: 3 });
 
-    expect(wrapper.find(GlModal).attributes('ok-title')).toEqual('Close');
+    expect(wrapper.find(GlModal).props('modalActionPrimary').text).toEqual('Close');
   });
 
   it.each`
