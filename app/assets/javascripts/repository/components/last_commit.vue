@@ -104,7 +104,10 @@ export default {
       </span>
       <div class="commit-detail flex-list">
         <div class="commit-content qa-commit-content">
-          <gl-link :href="commit.webUrl" class="commit-row-message item-title">
+          <gl-link
+            :href="commit.webUrl"
+            :class="{ 'no-commit-message': !commit.message }"
+            class="commit-row-message item-title">
             {{ commit.title }}
           </gl-link>
           <gl-button
