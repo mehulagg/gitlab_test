@@ -21,7 +21,9 @@ module Gitlab
         RelationRenameService.rename(@tree_hash)
 
         if relation_tree_restorer.restore
-          @project.merge_requests.set_latest_merge_request_diff_ids!
+          import_failure_service.with_retry do
+            @project.merge_requests.set_latest_merge_request_diff_ids!
+          end
 
           true
         else
@@ -33,6 +35,10 @@ module Gitlab
       end
 
       private
+
+      def import_failure_service
+        @import_failure_service ||= ImportFailureService.new(@project)
+      end
 
       def read_tree_hash
         json = IO.read(@path)

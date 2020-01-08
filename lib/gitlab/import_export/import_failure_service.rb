@@ -13,7 +13,7 @@ module Gitlab
           ImportFailure.column_names.include?(importable_column_name)
       end
 
-      def with_retry(relation_key, relation_index)
+      def with_retry(relation_key = nil, relation_index = nil)
         on_retry = -> (exception, retry_count, *_args) do
           log_import_failure(relation_key, relation_index, exception, retry_count)
         end

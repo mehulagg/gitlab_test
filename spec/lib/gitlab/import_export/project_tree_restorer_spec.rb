@@ -395,6 +395,45 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
                         milestones: 1,
                         first_issue_labels: 1
       end
+
+      context 'when post import fails' do
+        context 'when retry succeed' do
+          before do
+            response_values = [:raise, true]
+
+            allow(MergeRequest).to receive(:set_latest_merge_request_diff_ids!).exactly(2).times do
+              value = response_values.shift
+              value == :raise ? raise(ActiveRecord::QueryCanceled) : value
+            end
+          end
+
+          it 'records the retry status and count in the database' do
+            project_tree_restorer.restore
+
+            import_failure = ImportFailure.last
+
+            expect(import_failure.retry_count).to eq(1)
+          end
+        end
+
+        context 'when retry fails' do
+          let(:maximum_retry_count) do
+            Retriable.config.tries
+          end
+
+          before do
+            allow(MergeRequest).to receive(:set_latest_merge_request_diff_ids!).and_raise(ActiveRecord::QueryCanceled)
+          end
+
+          it 'records the retry status and count in the database' do
+            project_tree_restorer.restore
+
+            import_failure = ImportFailure.last
+
+            expect(import_failure.retry_count).to eq(maximum_retry_count)
+          end
+        end
+      end
     end
 
     context 'when the project has overridden params in import data' do
