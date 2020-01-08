@@ -75,7 +75,7 @@ export default {
     },
     filePath() {
       if (this.diffFile.submodule) {
-        return `${this.diffFile.file_path} @ ${truncateSha(this.diffFile.blob.id)}`;
+        return `${this.diffFile.file_path} @ ${truncateSha(this.diffFile.blob_id)}`;
       }
 
       if (this.diffFile.deleted_file) {
@@ -225,7 +225,7 @@ export default {
     >
       <diff-stats :added-lines="diffFile.added_lines" :removed-lines="diffFile.removed_lines" />
       <div class="btn-group" role="group">
-        <template v-if="diffFile.blob && diffFile.blob.readable_text">
+        <template v-if="diffFile.readable_text">
           <span v-gl-tooltip.hover :title="s__('MergeRequests|Toggle comments for this file')">
             <gl-button
               ref="toggleDiscussionsButton"

@@ -53,7 +53,13 @@ class DiffFileBaseEntity < Grape::Entity
     options[:environment].external_url_for(diff_file.new_path, diff_file.content_sha)
   end
 
-  expose :blob, using: BlobEntity
+  expose :readable_text do |diff_file|
+    diff_file.blob&.readable_text?
+  end
+
+  expose :blob_id, if: -> (diff_file, _) { diff_file.submodule? } do |diff_file|
+    diff_file.blob&.id
+  end
 
   expose :can_modify_blob do |diff_file|
     merge_request = options[:merge_request]

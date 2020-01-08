@@ -59,7 +59,7 @@ export default {
         (this.file.highlighted_diff_lines &&
           this.file.parallel_diff_lines &&
           this.file.parallel_diff_lines.length > 0) ||
-        !this.file.blob.readable_text
+        !this.file.readable_text
       );
     },
     isFileTooLarge() {
