@@ -125,6 +125,11 @@ describe API::Issues do
         expect_paginated_array_response([issue.id, closed_issue.id])
       end
 
+      it 'responds with a 401 instead of the specified issue' do
+        get api("/issues/#{issue.id}")
+        expect(response).to have_http_status(401)
+      end
+
       context 'issues_statistics' do
         it 'returns authentication error without any scope' do
           get api('/issues_statistics')
@@ -350,6 +355,20 @@ describe API::Issues do
         get api('/issues', user), params: { search: issue.description }
 
         expect_paginated_array_response(issue.id)
+      end
+
+      it 'returns the user\'s specified issue' do
+        get api("/issues/#{issue.id}", user)
+        expect(response).to have_http_status(200)
+        expect(json_response.empty?).to be false
+        expect(json_response["title"]).to eq issue.title
+      end
+
+      it 'returns another user\'s specified issue' do
+        get api("/issues/#{issue.id}", user2)
+        expect(response).to have_http_status(200)
+        expect(json_response.empty?).to be false
+        expect(json_response["title"]).to eq issue.title
       end
 
       context 'filtering before a specific date' do
