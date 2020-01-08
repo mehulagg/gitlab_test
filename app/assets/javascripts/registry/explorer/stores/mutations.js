@@ -13,6 +13,10 @@ export default {
     state.images = images;
   },
 
+  [types.SET_TAGS_LIST_SUCCESS](state, tags) {
+    state.tags = tags;
+  },
+
   [types.SET_MAIN_LOADING](state, isLoading) {
     state.isLoading = isLoading;
   },
@@ -20,5 +24,10 @@ export default {
   [types.SET_PAGINATION](state, headers) {
     const normalizedHeaders = normalizeHeaders(headers);
     state.pagination = parseIntPagination(normalizedHeaders);
+  },
+
+  [types.SET_TAGS_PAGINATION](state, headers) {
+    const normalizedHeaders = normalizeHeaders(headers);
+    state.tagsPagination = parseIntPagination(normalizedHeaders);
   },
 };

@@ -23,6 +23,10 @@ export default function createRouter(base, store) {
         name: 'details',
         path: '/:id',
         component: Details,
+        beforeEnter: (to, from, next) => {
+          store.dispatch('requestTagsList', { id: to.params.id });
+          next();
+        },
       },
     ],
   });
