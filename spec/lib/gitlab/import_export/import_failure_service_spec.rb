@@ -13,74 +13,31 @@ describe Gitlab::ImportExport::ImportFailureService do
     let(:standard_error_message) { "StandardError message" }
     let(:exception) { StandardError.new(standard_error_message) }
     let(:correlation_id) { 'my-correlation-id' }
+    let(:retry_count) { 2 }
+    let(:log_import_failure) do
+      subject.log_import_failure(relation_key, relation_index, exception, retry_count)
+    end
 
     before do
       # Import is running from the rake task, `correlation_id` is not assigned
-      expect(Labkit::Correlation::CorrelationId).to receive(:new_id).and_return(correlation_id)
+      allow(Labkit::Correlation::CorrelationId).to receive(:current_or_new_id).and_return(correlation_id)
     end
 
-    context 'when retry_count is 0' do
-      let(:log_import_failure) do
-        subject.log_import_failure(relation_key, relation_index, exception)
-      end
+    context 'when importable is a group' do
+      let(:importable) { create(:group) }
 
-      it 'tracks error' do
-        extra = { project_id: importable.id, relation_key: relation_key, relation_index: relation_index }
-
-        expect(Gitlab::ErrorTracking).to receive(:track_exception).with(exception, extra)
-
-        log_import_failure
-      end
-
-      it 'saves data to ImportFailure' do
-        log_import_failure
-
-        import_failure = ImportFailure.last
-
-        expect(import_failure.relation_key).to eq(relation_key)
-        expect(import_failure.relation_index).to eq(relation_index)
-        expect(import_failure.exception_class).to eq('StandardError')
-        expect(import_failure.exception_message).to eq(standard_error_message)
-        expect(import_failure.correlation_id_value).to eq('my-correlation-id')
-        expect(import_failure.retry_count).to eq(0)
-        expect(import_failure.retry_status).to eq('not_triggered')
-        expect(import_failure.created_at).to be_present
-      end
+      it_behaves_like 'log import failure', :group_id
     end
 
-    context 'when retry_count is greater then 0' do
-      let(:retry_count) { 3 }
-      let(:retry_status) { ImportFailure.retry_statuses[:failed] }
-      let(:retry_status_key) { 'failed' }
-      let(:log_import_failure) do
-        subject.log_import_failure(relation_key, relation_index, exception, retry_count, retry_status)
-      end
+    context 'when importable is a project' do
+      it_behaves_like 'log import failure', :project_id
+    end
 
-      it 'tracks error' do
-        extra = { project_id: importable.id,
-                  relation_key: relation_key,
-                  relation_index: relation_index,
-                  retry_count: retry_count,
-                  retry_status: retry_status_key }
+    context 'when importable is not supported by ImportFailure' do
+      let(:importable) { create(:merge_request) }
 
-        expect(Gitlab::ErrorTracking).to receive(:track_exception).with(exception, extra)
-
-        subject.log_import_failure(relation_key, relation_index, exception, retry_count, retry_status)
-      end
-
-      it 'saves data to ImportFailure' do
-        log_import_failure
-
-        import_failure = ImportFailure.last
-
-        expect(import_failure.relation_key).to eq(relation_key)
-        expect(import_failure.relation_index).to eq(relation_index)
-        expect(import_failure.exception_class).to eq('StandardError')
-        expect(import_failure.exception_message).to eq(standard_error_message)
-        expect(import_failure.correlation_id_value).to eq('my-correlation-id')
-        expect(import_failure.retry_count).to eq(retry_count)
-        expect(import_failure.retry_status).to eq(retry_status_key)
-        expect(import_failure.created_at).to be_present
+      it 'raise exception' do
+        expect { subject }.to raise_exception(RuntimeError, 'ImportFailure source column: merge_request_id is missing')
       end
     end
   end
@@ -92,16 +49,11 @@ describe Gitlab::ImportExport::ImportFailureService do
       end
     end
 
-    where(:exception) do
-      [
-        ActiveRecord::StatementInvalid,
-        GRPC::DeadlineExceeded
-      ]
-    end
+    where(:exception) { Gitlab::ImportExport::ImportFailureService::RETRIABLE_EXCEPTIONS }
 
     with_them do
       context "when #{params[:exception]} is raised" do
-        context 'when retry succeed' do
+        context 'when retry succeeds' do
           before do
             response_values = [:raise, true]
 
@@ -111,38 +63,43 @@ describe Gitlab::ImportExport::ImportFailureService do
             end
           end
 
-          it 'retries 1 times' do
+          it 'retries 1 time' do
             expect(label).to receive(:save!).exactly(2).times
 
             perform_retry
           end
 
-          it 'log import failure with correct params' do
-            retry_status = ImportFailure.retry_statuses[:success]
-
-            expect(subject).to receive(:log_import_failure).with(relation_key, relation_index, instance_of(exception), 1, retry_status)
+          it 'retries and logs import failure once with correct params' do
+            expect(subject).to receive(:log_import_failure).with(relation_key, relation_index, instance_of(exception), 1)
 
             perform_retry
           end
         end
 
-        context 'when retry fails' do
+        context 'when retry continues to fail with intermittent errors' do
+          let(:maximum_retry_count) do
+            Retriable.config.tries
+          end
+
           before do
-            allow(label).to receive(:save!).and_raise(exception)
+            allow(label).to receive(:save!).and_raise(exception.new)
           end
 
-          it 'retries 3 times' do
-            expect(label).to receive(:save!).exactly(3).times
+          it 'retries the number of times allowed and raise exception', :aggregate_failures do
+            expect(label).to receive(:save!).exactly(maximum_retry_count).times
 
-            perform_retry
+            expect { perform_retry }.to raise_exception(exception)
           end
 
-          it 'log import failure with correct params' do
-            retry_status = ImportFailure.retry_statuses[:failed]
+          it 'logs import failure each time and raise exception', :aggregate_failures do
+            expect(label).to receive(:save!).exactly(maximum_retry_count).times
+            maximum_retry_count.times do |index|
+              retry_count = index + 1
 
-            expect(subject).to receive(:log_import_failure).with(relation_key, relation_index, instance_of(exception), 3, retry_status)
+              expect(subject).to receive(:log_import_failure).with(relation_key, relation_index, instance_of(exception), retry_count)
+            end
 
-            perform_retry
+            expect { perform_retry }.to raise_exception(exception)
           end
         end
       end

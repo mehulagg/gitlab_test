@@ -2,7 +2,8 @@
 
 class ImportFailure < ApplicationRecord
   belongs_to :project
-  enum retry_status: { not_triggered: 0, failed: 1, success: 2 }
+  belongs_to :group
 
-  validates :project, presence: true
+  validates :project, presence: true, unless: :group
+  validates :group, presence: true, unless: :project
 end
