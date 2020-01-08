@@ -24,7 +24,16 @@ Server-side Git hooks are typically placed in the repository's `hooks`
 subdirectory. In GitLab, hook directories are symlinked to the GitLab Shell
 `hooks` directory for ease of maintenance between GitLab Shell upgrades.
 Custom hooks are implemented differently, but the behavior is exactly the same
-once the hook is created. Follow the steps below to set up a custom hook for a
+once the hook is created.
+
+NOTE: **Note:**
+If you are using [hashed storage](repository_storage_types.html#hashed-storage), the project's
+repository directory might not exactly match the instructions above. In this case, to find the
+repository directory for a project, open the Admin panel on your instance, go to **Projects**, and
+select the project for which you would like to add a hook. You can find the path to the project's
+repository under **Gitaly relative path** on that page.
+
+Follow the steps below to set up a custom hook for a
 repository:
 
 1. Pick a project that needs a custom Git hook.
@@ -42,10 +51,8 @@ repository:
    type. For example, if the script is in Ruby the shebang will probably be
    `#!/usr/bin/env ruby`.
 
-That's it! Assuming the hook code is properly implemented the hook will fire
+That's it! Assuming the hook code is properly implemented, the hook will run
 as appropriate.
-
-> If you are using [hashed storage](https://docs.gitlab.com/ee/administration/repository_storage_types.html#hashed-storage), you may find that the project's repository directory does not exactly match the instructions above. In this case, you can find the repository directory for a project by opening the Admin panel on your instance, going to **Projects**, and selecting the project for which you'd like to add a hook. You can find the path to its repository under "Gitaly relative path" on this page.
 
 ## Set a global Git hook for all repositories
 
