@@ -148,7 +148,12 @@ export default {
     modalPrimary() {
       return {
         text: __('Delete'),
-        attributes: [{ variant: 'danger' }, { 'data-method': 'delete' }, { to: this.destroyPath }],
+        attributes: [
+          { variant: 'danger' },
+          { 'data-method': 'delete' },
+          { to: this.destroyPath },
+          { 'data-qa-selector': 'delete_modal_button' },
+        ],
       };
     },
   },
