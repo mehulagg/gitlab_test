@@ -107,7 +107,8 @@ export default {
           <gl-link
             :href="commit.webUrl"
             :class="{ 'no-commit-message': !commit.message }"
-            class="commit-row-message item-title">
+            class="commit-row-message item-title"
+          >
             {{ commit.title }}
           </gl-link>
           <gl-button
