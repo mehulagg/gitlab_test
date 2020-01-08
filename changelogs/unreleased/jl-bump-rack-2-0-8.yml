@@ -1,0 +1,5 @@
+---
+title: Bump rack to 2.0.8 and associated dependencies
+merge_request:
+author: joshlambert
+type: security
