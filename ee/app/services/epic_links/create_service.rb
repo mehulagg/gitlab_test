@@ -7,10 +7,22 @@ module EpicLinks
         return error('Epic hierarchy level too deep', 409)
       end
 
+      if render_epic_already_ancestor_error?
+        return error('The epic to be added as child is already an ancestor', 409)
+      end
+
       super
     end
 
     private
+
+    def render_epic_already_ancestor_error?
+      return false if referenced_issuables.empty?
+
+      referenced_issuables.all? do |referenced_epic|
+        referenced_epic.children.include?(issuable)
+      end
+    end
 
     def affected_epics(epics)
       [issuable, epics].flatten.uniq

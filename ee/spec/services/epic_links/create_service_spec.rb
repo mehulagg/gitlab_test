@@ -121,7 +121,13 @@ describe EpicLinks::CreateService do
 
             subject { add_epic([valid_reference]) }
 
-            include_examples 'returns not found error'
+            it 'returns an error' do
+              expect(subject).to eq(message: 'The epic to be added as child is already an ancestor', status: :error, http_status: 409)
+            end
+
+            it 'no relationship is created' do
+              expect { subject }.not_to change { epic.children.count }
+            end
           end
 
           context 'when new child epic is an ancestor of the given parent' do
