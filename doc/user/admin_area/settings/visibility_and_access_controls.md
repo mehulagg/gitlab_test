@@ -55,7 +55,9 @@ By default, project marked for deletion will be permanently removed after 7 days
 
 To change this period:
 
-1. Select the desired option.
+1. Within the Admin Area, go to Settings > General
+1. Click Expand for Visibility and access control
+1. Change desired period in Default deletion adjourned period
 1. Click **Save changes**.
 
 ## Default project visibility
