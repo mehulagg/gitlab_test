@@ -222,7 +222,7 @@ describe MergeRequests::RefreshService do
           end
         end
 
-        context "when branch pipeline was created before a detaced merge request pipeline has been created" do
+        context "when branch pipeline was created before a detached merge request pipeline has been created" do
           before do
             create(:ci_pipeline, project: @merge_request.source_project,
                                  sha: @merge_request.diff_head_sha,
