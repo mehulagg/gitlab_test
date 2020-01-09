@@ -19,11 +19,11 @@ module SystemCheck
       end
 
       def show_error
-        configured_name = GeoNode.current_node_name
+        machine_geo_node_name = GeoNode.current_node_name
         db_names = GeoNode.all.map(&:name)
 
         try_fixing_it(
-          "You could add or update a Geo node database record, setting the name to match this machine's Geo node name \"#{configured_name}\".",
+          "You could add or update a Geo node database record, setting the name to match this machine's Geo node name \"#{machine_geo_node_name}\".",
           "Or you could set this machine's Geo node name to match the name of an existing database record: \"#{db_names.join('", "')}\""
         )
 
