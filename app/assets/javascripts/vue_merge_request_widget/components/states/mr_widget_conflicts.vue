@@ -28,19 +28,25 @@ export default {
     showResolveButton() {
       return this.mr.conflictResolutionPath && this.mr.canPushToSourceBranch;
     },
+    showMergeLocalButton() {
+      return this.mr.canMerge && !this.mr.shouldBeRebased;
+    },
     showPopover() {
       return this.showResolveButton && this.mr.sourceBranchProtected;
     },
-    rebaseText() {
-      return sprintf(
-        s__(`mrWidget|Fast-forward merge is not possible, and conflicts cannot be resolved automatically.
-To merge this request, first %{rebaseLinkStart}rebase locally%{rebaseLinkEnd}.`),
-        {
-          rebaseLinkStart: '<a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing" target="_blank" rel="noopener noreferrer">',
-          rebaseLinkEnd: '</a>',
-        },
-        false,
-      );
+    conflictsMessage() {
+      if (this.mr.shouldBeRebased) {
+        return this.showResolveButton
+          ? s__(`mrWidget|There are merge conflicts which cannot be resolved automatically.`)
+          : s__(
+              `mrWidget|There are merge conflicts which cannot be resolved automatically. Please resolve the conflicts locally.`,
+            );
+      }
+
+      return this.canMerge
+        ? s__('mrWidget|There are merge conflicts.')
+        : s__(`mrWidget|There are merge conflicts. Resolve these conflicts or ask someone
+            with write access to this repository to merge it locally`);
     },
   },
   mounted() {
@@ -82,36 +88,25 @@ To merge this request, first %{rebaseLinkStart}rebase locally%{rebaseLinkEnd}.`)
   <div class="mr-widget-body media">
     <status-icon :show-disabled-button="true" status="warning" />
 
-    <div class="media-body space-children">
-      <span v-if="mr.shouldBeRebased" class="bold" v-html="rebaseText"></span>
-      <template v-else>
-        <span class="bold">
-          {{ s__('mrWidget|There are merge conflicts') }}<span v-if="!mr.canMerge">.</span>
-          <span v-if="!mr.canMerge">
-            {{
-              s__(`mrWidget|Resolve these conflicts or ask someone
-            with write access to this repository to merge it locally`)
-            }}
-          </span>
-        </span>
-        <span v-if="showResolveButton" ref="popover">
-          <a
-            :href="mr.conflictResolutionPath"
-            :disabled="mr.sourceBranchProtected"
-            class="js-resolve-conflicts-button btn btn-default btn-sm"
-          >
-            {{ s__('mrWidget|Resolve conflicts') }}
-          </a>
-        </span>
-        <button
-          v-if="mr.canMerge"
-          class="js-merge-locally-button btn btn-default btn-sm"
-          data-toggle="modal"
-          data-target="#modal_merge_info"
+    <div class="media media-body space-children">
+      <span class="bold mr-auto" v-text="conflictsMessage"></span>
+      <span v-if="showResolveButton" ref="popover">
+        <a
+          :href="mr.conflictResolutionPath"
+          :disabled="showPopover"
+          class="js-resolve-conflicts-button btn btn-default btn-sm"
         >
-          {{ s__('mrWidget|Merge locally') }}
-        </button>
-      </template>
+          {{ s__('mrWidget|Resolve conflicts') }}
+        </a>
+      </span>
+      <button
+        v-if="showMergeLocalButton"
+        class="js-merge-locally-button btn btn-default btn-sm"
+        data-toggle="modal"
+        data-target="#modal_merge_info"
+      >
+        {{ s__('mrWidget|Merge locally') }}
+      </button>
     </div>
   </div>
 </template>

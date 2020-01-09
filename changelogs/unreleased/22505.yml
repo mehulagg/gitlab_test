@@ -1,5 +1,5 @@
 ---
-title: "Improve rebase message to clarify why rebase button is not offered"
+title: "Improve conflicts message and show resolve button with fast-forward only Merge Requests"
 merge_request: 22505
 author: Ben Bodenmiller
 type: changed

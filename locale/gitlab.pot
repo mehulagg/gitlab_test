@@ -22028,9 +22028,6 @@ msgstr ""
 msgid "mrWidget|Failed to load deployment statistics"
 msgstr ""
 
-msgid "mrWidget|Fast-forward merge is not possible, and conflicts cannot be resolved automatically. To merge this request, first %{rebaseLinkStart}rebase locally%{rebaseLinkEnd}."
-msgstr ""
-
 msgid "mrWidget|Fork merge requests do not create merge request pipelines which validate a post merge result"
 msgstr ""
 
@@ -22109,9 +22106,6 @@ msgstr ""
 msgid "mrWidget|Resolve conflicts"
 msgstr ""
 
-msgid "mrWidget|Resolve these conflicts or ask someone with write access to this repository to merge it locally"
-msgstr ""
-
 msgid "mrWidget|Revert"
 msgstr ""
 
@@ -22154,7 +22148,16 @@ msgstr ""
 msgid "mrWidget|The source branch will not be deleted"
 msgstr ""
 
-msgid "mrWidget|There are merge conflicts"
+msgid "mrWidget|There are merge conflicts which cannot be resolved automatically."
+msgstr ""
+
+msgid "mrWidget|There are merge conflicts which cannot be resolved automatically. Please resolve the conflicts locally."
+msgstr ""
+
+msgid "mrWidget|There are merge conflicts."
+msgstr ""
+
+msgid "mrWidget|There are merge conflicts. Resolve these conflicts or ask someone with write access to this repository to merge it locally"
 msgstr ""
 
 msgid "mrWidget|There are unresolved threads. Please resolve these threads"
