@@ -32,9 +32,13 @@ module ApprovalRules
     def filter_eligible_protected_branches!
       return unless params.key?(:protected_branch_ids)
 
+      protected_branch_ids = params.delete(:protected_branch_ids)
+
+      return unless project.multiple_approval_rules_available?
+
       params[:protected_branches] =
         ProtectedBranch
-          .id_in(params.delete(:protected_branch_ids))
+          .id_in(protected_branch_ids)
           .for_project(project)
     end
   end

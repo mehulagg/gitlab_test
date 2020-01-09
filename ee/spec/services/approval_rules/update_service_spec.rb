@@ -150,15 +150,28 @@ describe ApprovalRules::UpdateService do
         ).execute
       end
 
-      it 'associates the approval rule to the protected branch' do
-        expect(subject[:status]).to eq(:success)
-        expect(subject[:rule].protected_branches).to eq([protected_branch])
+      context 'and multiple approval rules is enabled' do
+        before do
+          stub_licensed_features(multiple_approval_rules: true)
+        end
+
+        it 'associates the approval rule to the protected branch' do
+          expect(subject[:status]).to eq(:success)
+          expect(subject[:rule].protected_branches).to eq([protected_branch])
+        end
+
+        context 'but protected branch is for another project' do
+          let(:another_project) { create(:project) }
+          let(:protected_branch) { create(:protected_branch, project: another_project) }
+
+          it 'does not associate the approval rule to the protected branch' do
+            expect(subject[:status]).to eq(:success)
+            expect(subject[:rule].protected_branches).to be_empty
+          end
+        end
       end
 
-      context 'but protected branch is for another project' do
-        let(:another_project) { create(:project) }
-        let(:protected_branch) { create(:protected_branch, project: another_project) }
-
+      context 'and multiple approval rules is disabled' do
         it 'does not associate the approval rule to the protected branch' do
           expect(subject[:status]).to eq(:success)
           expect(subject[:rule].protected_branches).to be_empty

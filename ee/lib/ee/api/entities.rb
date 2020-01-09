@@ -421,7 +421,7 @@ module EE
       end
 
       class ProjectApprovalRule < ApprovalRule
-        expose :protected_branches, using: ::API::Entities::ProtectedBranch
+        expose :protected_branches, using: ::API::Entities::ProtectedBranch, if: -> (rule, _) { rule.project.multiple_approval_rules_available? }
       end
 
       class MergeRequestApprovalRule < ApprovalRule

@@ -49,6 +49,7 @@ shared_examples_for 'an API endpoint for creating project approval rule' do
       let(:protected_branches) { Array.new(2).map { create(:protected_branch, project: project) } }
 
       before do
+        stub_licensed_features(multiple_approval_rules: true)
         post api(url, current_user), params: params.merge(protected_branch_ids: protected_branches.map(&:id))
       end
 
@@ -84,6 +85,7 @@ shared_examples_for 'an API endpoint for updating project approval rule' do
       let(:protected_branches) { Array.new(2).map { create(:protected_branch, project: project) } }
 
       before do
+        stub_licensed_features(multiple_approval_rules: true)
         put api(url, current_user), params: { protected_branch_ids: protected_branches.map(&:id) }
       end
 
