@@ -95,16 +95,19 @@ class a {
 }
 ```
 
-## Use ParseInt
+## Converting Strings to Numbers
 
-Use `ParseInt` when converting a numeric string into a number.
+Use `ParseInt` or `Number` when converting a numeric string into a number. When using `ParseInt`, you must include a radix as a second argument or eslint will warn you.
 
 ```javascript
 // bad
-Number('10')
+parseInt('10');
 
 // good
 parseInt('10', 10);
+
+// good
+Number('10');
 ```
 
 ## CSS Selectors - Use `js-` prefix
