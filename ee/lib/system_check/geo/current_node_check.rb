@@ -13,6 +13,8 @@ module SystemCheck
       end
 
       def check?
+        RequestStore.delete('geo_node:current_node_name')
+
         GeoNode.current_node.present?
       end
 
