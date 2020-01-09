@@ -414,7 +414,9 @@ You need the below inside your instance and acessible across the instance (for e
 - Container Registry (GitLab integration or other)
 - Ability to import images from external sources  (registry.gitlab.com) to docker registry inside the air gap
 - [SAST Requirements](https://docs.gitlab.com/ee/user/application_security/sast/#requirements)
--  Docker images:
+- Host SAST docker images on a local Docker container registry:
+  - [registry.gitlab.com/gitlab-org/security-products/sast:$SAST_VERSION](https://gitlab.com/gitlab-org/security-products/sast/container_registry)
+  -  Docker images:
   - docker:stable
   - docker:stable-dind
   - [registry.gitlab.com/gitlab-org/security-products/sast:$SAST_VERSION](https://gitlab.com/gitlab-org/security-products/sast/container_registry)
