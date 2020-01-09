@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_01_08_155731) do
+ActiveRecord::Schema.define(version: 2020_01_09_085206) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -431,6 +431,13 @@ ActiveRecord::Schema.define(version: 2020_01_08_155731) do
     t.integer "group_id", null: false
     t.index ["approval_project_rule_id", "group_id"], name: "index_approval_project_rules_groups_1", unique: true
     t.index ["group_id"], name: "index_approval_project_rules_groups_2"
+  end
+
+  create_table "approval_project_rules_protected_branches", force: :cascade do |t|
+    t.bigint "approval_project_rule_id", null: false
+    t.bigint "protected_branch_id", null: false
+    t.index ["approval_project_rule_id", "protected_branch_id"], name: "index_approval_project_rules_protected_branches_unique", unique: true
+    t.index ["protected_branch_id"], name: "index_approval_project_rules_protected_branches_pb_id"
   end
 
   create_table "approval_project_rules_users", force: :cascade do |t|
@@ -4427,6 +4434,8 @@ ActiveRecord::Schema.define(version: 2020_01_08_155731) do
   add_foreign_key "approval_project_rules", "projects", on_delete: :cascade
   add_foreign_key "approval_project_rules_groups", "approval_project_rules", on_delete: :cascade
   add_foreign_key "approval_project_rules_groups", "namespaces", column: "group_id", on_delete: :cascade
+  add_foreign_key "approval_project_rules_protected_branches", "approval_project_rules", on_delete: :cascade
+  add_foreign_key "approval_project_rules_protected_branches", "protected_branches", on_delete: :cascade
   add_foreign_key "approval_project_rules_users", "approval_project_rules", on_delete: :cascade
   add_foreign_key "approval_project_rules_users", "users", on_delete: :cascade
   add_foreign_key "approvals", "merge_requests", name: "fk_310d714958", on_delete: :cascade
