@@ -28,7 +28,7 @@ once the hook is created.
 
 NOTE: **Note:**
 If you are using [hashed storage](repository_storage_types.html#hashed-storage), the project's
-repository directory might not exactly match the instructions above. In this case, to find the
+repository directory might not exactly match the instructions below. In this case, to find the
 repository directory for a project, open the Admin panel on your instance, go to **Projects**, and
 select the project for which you would like to add a hook. You can find the path to the project's
 repository under **Gitaly relative path** on that page.
