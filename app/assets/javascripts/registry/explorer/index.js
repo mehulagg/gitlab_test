@@ -11,9 +11,10 @@ export default () => {
   if (!el) {
     return null;
   }
-  const { projectPath } = el.dataset;
+  const { projectPath, endpoint } = el.dataset;
+  const base = projectPath ? `${projectPath}/container_registry` : endpoint.replace('.json', '');
   const store = createStore();
-  const router = createRouter(`${projectPath}/container_registry`, store);
+  const router = createRouter(base, store);
   store.dispatch('setInitialState', el.dataset);
 
   return new Vue({

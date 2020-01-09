@@ -43,9 +43,9 @@ export const requestImagesList = ({ dispatch, state }, pagination = {}) => {
     });
 };
 
-export const requestTagsList = ({ dispatch, state }, { pagination = {}, id }) => {
+export const requestTagsList = ({ dispatch }, { pagination = {}, id }) => {
   dispatch('setLoading', true);
-  const url = `/${state.config.projectPath}/registry/repository/${id}/tags/?format=json`;
+  const url = window.atob(id);
 
   const { page = DEFAULT_PAGE, perPage = DEFAULT_PAGE_SIZE } = pagination;
   return axios

@@ -16,9 +16,14 @@ module Groups
 
             render json: ContainerRepositoriesSerializer
               .new(current_user: current_user)
+              .with_pagination(request, response)
               .represent_read_only(@images)
           end
         end
+      end
+
+      def show
+        render :index
       end
 
       private
