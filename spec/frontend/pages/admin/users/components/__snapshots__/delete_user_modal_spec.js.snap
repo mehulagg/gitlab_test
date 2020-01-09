@@ -1,7 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`User Operation confirmation modal renders modal with form included 1`] = `
-<div>
+<gl-modal-stub
+  kind="danger"
+  modalactioncancel="[object Object]"
+  modalactionprimary="[object Object]"
+  modalactionsecondary="[object Object]"
+  modalclass=""
+  modalid="delete-user-modal"
+  title="title"
+  titletag="h4"
+>
   <p>
     content
   </p>
@@ -37,5 +46,5 @@ exports[`User Operation confirmation modal renders modal with form included 1`] 
       value=""
     />
   </form>
-</div>
+</gl-modal-stub>
 `;

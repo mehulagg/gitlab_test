@@ -1,7 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
-import { GlButton, GlFormInput } from '@gitlab/ui';
+import { GlModal, GlFormInput } from '@gitlab/ui';
 import DeleteUserModal from '~/pages/admin/users/components/delete_user_modal.vue';
-import ModalStub from './stubs/modal_stub';
 
 const TEST_DELETE_USER_URL = 'delete-url';
 const TEST_BLOCK_USER_URL = 'block-url';
@@ -11,19 +10,16 @@ describe('User Operation confirmation modal', () => {
   let wrapper;
   let formSubmitSpy;
 
-  const findButton = variant =>
-    wrapper
-      .findAll(GlButton)
-      .filter(w => w.attributes('variant') === variant)
-      .at(0);
   const findForm = () => wrapper.find('form');
   const findUsernameInput = () => wrapper.find(GlFormInput);
-  const findPrimaryButton = () => findButton('danger');
-  const findSecondaryButton = () => findButton('warning');
+  const findModal = () => wrapper.find(GlModal);
   const findAuthenticityToken = () => new FormData(findForm().element).get('authenticity_token');
   const getUsername = () => findUsernameInput().attributes('value');
   const getMethodParam = () => new FormData(findForm().element).get('_method');
   const getFormAction = () => findForm().attributes('action');
+  const findActionAttribute = (action, attr) => findModal().vm[action].attributes.find(a => !!a[attr])
+  const primaryButtonDisabled = () => findActionAttribute('modalActionPrimary', 'disabled');
+  const secondaryButtonDisabled = () => findActionAttribute('modalActionSecondary', 'disabled');
 
   const setUsername = username => {
     findUsernameInput().vm.$emit('input', username);
@@ -44,9 +40,6 @@ describe('User Operation confirmation modal', () => {
         blockUserUrl: TEST_BLOCK_USER_URL,
         csrfToken: TEST_CSRF,
         ...props,
-      },
-      stubs: {
-        GlModal: ModalStub,
       },
       sync: false,
     });
@@ -72,8 +65,8 @@ describe('User Operation confirmation modal', () => {
     });
 
     it('has disabled buttons', () => {
-      expect(findPrimaryButton().attributes('disabled')).toBeTruthy();
-      expect(findSecondaryButton().attributes('disabled')).toBeTruthy();
+      expect(primaryButtonDisabled()).toBeTruthy();
+      expect(secondaryButtonDisabled()).toBeTruthy();
     });
   });
 
@@ -90,8 +83,8 @@ describe('User Operation confirmation modal', () => {
     });
 
     it('has disabled buttons', () => {
-      expect(findPrimaryButton().attributes('disabled')).toBeTruthy();
-      expect(findSecondaryButton().attributes('disabled')).toBeTruthy();
+      expect(primaryButtonDisabled()).toBeTruthy();
+      expect(secondaryButtonDisabled()).toBeTruthy();
     });
   });
 
@@ -108,13 +101,13 @@ describe('User Operation confirmation modal', () => {
     });
 
     it('has enabled buttons', () => {
-      expect(findPrimaryButton().attributes('disabled')).toBeFalsy();
-      expect(findSecondaryButton().attributes('disabled')).toBeFalsy();
+      expect(primaryButtonDisabled()).toBeFalsy();
+      expect(secondaryButtonDisabled()).toBeFalsy();
     });
 
     describe('when primary action is submitted', () => {
       beforeEach(() => {
-        findPrimaryButton().vm.$emit('click');
+        wrapper.vm.onSubmit();
 
         return wrapper.vm.$nextTick();
       });
@@ -133,7 +126,7 @@ describe('User Operation confirmation modal', () => {
 
     describe('when secondary action is submitted', () => {
       beforeEach(() => {
-        findSecondaryButton().vm.$emit('click');
+        wrapper.vm.onSecondaryAction();
 
         return wrapper.vm.$nextTick();
       });
