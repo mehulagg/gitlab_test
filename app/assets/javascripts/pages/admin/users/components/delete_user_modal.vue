@@ -1,12 +1,11 @@
 <script>
 import _ from 'underscore';
-import { GlModal, GlButton, GlFormInput } from '@gitlab/ui';
+import { GlModal, GlFormInput } from '@gitlab/ui';
 import { s__, sprintf } from '~/locale';
 
 export default {
   components: {
     GlModal,
-    GlButton,
     GlFormInput,
   },
   props: {
