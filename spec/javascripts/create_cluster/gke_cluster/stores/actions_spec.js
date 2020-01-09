@@ -2,7 +2,13 @@ import testAction from 'spec/helpers/vuex_action_helper';
 import * as actions from '~/create_cluster/gke_cluster/store/actions';
 import { createStore } from '~/create_cluster/gke_cluster/store';
 import { gapi } from '../helpers';
-import { selectedProjectMock, selectedZoneMock, selectedMachineTypeMock } from '../mock_data';
+import {
+  selectedProjectMock,
+  selectedZoneMock,
+  selectedNetworkMock,
+  selectedSubnetworkMock,
+  selectedMachineTypeMock,
+} from '../mock_data';
 
 describe('GCP Cluster Dropdown Store Actions', () => {
   let store;
@@ -31,6 +37,32 @@ describe('GCP Cluster Dropdown Store Actions', () => {
         selectedZoneMock,
         { selectedZone: '' },
         [{ type: 'SET_ZONE', payload: selectedZoneMock }],
+        [],
+        done,
+      );
+    });
+  });
+
+  describe('setNetwork', () => {
+    it('should set network', done => {
+      testAction(
+        actions.setNetwork,
+        selectedNetworkMock,
+        { selectedNetwork: '' },
+        [{ type: 'SET_NETWORK', payload: selectedNetworkMock }],
+        [],
+        done,
+      );
+    });
+  });
+
+  describe('setSubnetwork', () => {
+    it('should set network', done => {
+      testAction(
+        actions.setSubnetwork,
+        selectedSubnetworkMock,
+        { selectedNetwork: '' },
+        [{ type: 'SET_SUBNETWORK', payload: selectedSubnetworkMock }],
         [],
         done,
       );

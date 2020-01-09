@@ -5,6 +5,8 @@ import {
   selectedZoneMock,
   selectedMachineTypeMock,
   gapiProjectsResponseMock,
+  selectedNetworkMock,
+  selectedSubnetworkMock,
   gapiZonesResponseMock,
   gapiMachineTypesResponseMock,
 } from '../mock_data';
@@ -52,6 +54,22 @@ describe('GCP Cluster Dropdown Store Mutations', () => {
       store.commit(types.SET_MACHINE_TYPE, machineTypeToSelect);
 
       expect(store.state.selectedMachineType).toEqual(selectedMachineTypeMock);
+    });
+  });
+
+  describe('SET_NETWORK', () => {
+    it('should set GCP network as selectedNetwork', () => {
+      store.commit(types.SET_NETWORK, selectedNetworkMock);
+
+      expect(store.state.selectedNetwork).toEqual(selectedNetworkMock);
+    });
+  });
+
+  describe('SET_SUBNETWORK', () => {
+    it('should set GCP subnetwork as selectedSubnetwork', () => {
+      store.commit(types.SET_SUBNETWORK, selectedSubnetworkMock);
+
+      expect(store.state.selectedSubnetwork).toEqual(selectedSubnetworkMock);
     });
   });
 
