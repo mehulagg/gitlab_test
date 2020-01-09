@@ -227,7 +227,7 @@ This lets you take advantage of related features such as:
 - [Admin groups](../../../integration/saml.md#admin-groups).
 - [Auditor groups](../../../integration/saml.md#auditor-groups).
 
-To do so you'll need to enable the `group_saml` OmniAuth provider. This can be done from:
+To proceed with configuration, you'll need to enable the `group_saml` OmniAuth provider. This can be done from:
 
 - `gitlab.rb` for GitLab Omnibus installations.
 - `gitlab/config/gitlab.yml` for source installations.
