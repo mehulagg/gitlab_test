@@ -399,6 +399,62 @@ CI/CD configuration file to turn it on. Results are available in the SAST report
 
 GitLab currently includes [Gitleaks](https://github.com/zricethezav/gitleaks) and [TruffleHog](https://github.com/dxa4481/truffleHog) checks.
 
+###  Running SAST in an offline installation
+
+The below instructuins are for anyone wishing to run SAST in a self-managed instance that has limited, restricted, or intermittant access to external resources. Some people refer to this as an air-gapped installation.
+
+#### Pre-Requisties that you must have inside your instance installation:
+
+Please work with your IT staff to get temporary access to download these resources, or establish alternate ways (external drives, network shares, etc) you can bring these resources in.
+
+You need the below inside your instance and acessible across the instance (for example as part of a Local Area Network).
+
+- GitLab
+- GitLab Runner
+- Container Registry (GitLab integration or other)
+- Ability to import images from external sources  (registry.gitlab.com) to docker registry inside the air gap
+- [SAST Requirements](https://docs.gitlab.com/ee/user/application_security/sast/#requirements)
+-  Docker images:
+  - docker:stable
+  - docker:stable-dind
+  - registry.gitlab.com/gitlab-org/security-products/sast:$SAST_VERSION
+- It's a hard requirement to be able to pull a docker image from your internal registry and use it in the CI job. If one gets an x509: certificate signed by unknown authority error, when trying to pull a local image currently, this won't work.
+
+#### Getting all the analyzers
+
+You also need SAST [analyzer images](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/SAST.gitlab-ci.yml#L9) available inside the air gap.
+
+For full functionality this requires these images from registry.gitlab.com inside your air gap:
+ - registry.gitlab.com/gitlab-org/security-products/analyzers/bandit:2
+ - registry.gitlab.com/gitlab-org/security-products/analyzers/brakeman:2
+ - registry.gitlab.com/gitlab-org/security-products/analyzers/eslint:2
+ - registry.gitlab.com/gitlab-org/security-products/analyzers/find-sec-bugs:2
+ - registry.gitlab.com/gitlab-org/security-products/analyzers/find-sec-bugs-gradle:2
+ - registry.gitlab.com/gitlab-org/security-products/analyzers/find-sec-bugs-groovy:2
+ - registry.gitlab.com/gitlab-org/security-products/analyzers/find-sec-bugs-sbt:2
+ - registry.gitlab.com/gitlab-org/security-products/analyzers/flawfinder:2
+ - registry.gitlab.com/gitlab-org/security-products/analyzers/go-ast-scanner:2
+ - registry.gitlab.com/gitlab-org/security-products/analyzers/gosec:2
+ - registry.gitlab.com/gitlab-org/security-products/analyzers/kubesec:2
+ - registry.gitlab.com/gitlab-org/security-products/analyzers/nodejs-scan:2
+ - registry.gitlab.com/gitlab-org/security-products/analyzers/phpcs-security-audit:2
+ - registry.gitlab.com/gitlab-org/security-products/analyzers/pmd-apex:2
+ - registry.gitlab.com/gitlab-org/security-products/analyzers/secrets:2
+ - registry.gitlab.com/gitlab-org/security-products/analyzers/security-code-scan:2
+ - registry.gitlab.com/gitlab-org/security-products/analyzers/sobelow:2
+ - registry.gitlab.com/gitlab-org/security-products/analyzers/spotbugs:2
+ - registry.gitlab.com/gitlab-org/security-products/analyzers/tslint:2
+
+#### Set your variables
+
+Modify SAST.gitlab-ci.yml#L47 in the CI job to use your local (air gap) registry and resources
+variables:
+- SAST_ANALYZER_IMAGE_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
++ SAST_ANALYZER_IMAGE_PREFIX: "<registry>/analyzers"
++ SAST_ANALYZER_IMAGES: "<registry>/analyzers/bandit,<registry>/analyzers/brakeman,<registry>/analyzers/gosec,<registry>/analyzers/spotbugs,<registry>/analyzers/flawfinder,<registry>/analyzers/phpcs-security-audit,<registry>/analyzers/security-code-scan,<registry>/analyzers/nodejs-scan,<registry>/analyzers/eslint,<registry>/analyzers/tslint,<registry>/analyzers/secrets,<registry>/analyzers/sobelow,<registry>/analyzers/pmd-apex,<registry>/analyzers/kubesec"
+- "registry.gitlab.com/gitlab-org/security-products/sast:$SAST_VERSION" /app/bin/run /code
++ "<registry>/sast:$SAST_VERSION" /app/bin/run code
+
 ## Security Dashboard
 
 The Security Dashboard is a good place to get an overview of all the security
