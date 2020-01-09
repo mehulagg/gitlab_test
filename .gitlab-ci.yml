@@ -124,6 +124,17 @@ ce:custom:
     - .rspec-report-opts
   when: manual
 
+ce:custom-parallel:
+  script:
+    - exe/gitlab-qa ${QA_SCENARIO:=Test::Instance::Image} ${RELEASE:=CE} -- ${QA_TESTS} ${QA_RSPEC_TAGS} $RSPEC_REPORT_OPTS
+  extends:
+    - .test
+    - .high-capacity
+    - .ce-qa
+    - .rspec-report-opts
+  when: manual
+  parallel: 10
+
 ee:custom:
   script:
     - exe/gitlab-qa ${QA_SCENARIO:=Test::Instance::Image} ${RELEASE:=EE} -- ${QA_TESTS} ${QA_RSPEC_TAGS} $RSPEC_REPORT_OPTS
@@ -133,6 +144,17 @@ ee:custom:
     - .ee-qa
     - .rspec-report-opts
   when: manual
+
+ee:custom-parallel:
+  script:
+    - exe/gitlab-qa ${QA_SCENARIO:=Test::Instance::Image} ${RELEASE:=EE} -- ${QA_TESTS} ${QA_RSPEC_TAGS} $RSPEC_REPORT_OPTS
+  extends:
+    - .test
+    - .high-capacity
+    - .ee-qa
+    - .rspec-report-opts
+  when: manual
+  parallel: 10
 
 ce:instance:
   script:
