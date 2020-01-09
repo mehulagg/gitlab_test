@@ -178,6 +178,15 @@ module API
       expose :only_protected_branches
     end
 
+    class ContainerExpirationPolicy < Grape::Entity
+      expose :cadence
+      expose :enabled
+      expose :keep_n
+      expose :older_than
+      expose :name_regex
+      expose :next_run_at
+    end
+
     class ProjectImportStatus < ProjectIdentity
       expose :import_status
 
@@ -276,6 +285,8 @@ module API
       expose :owner, using: Entities::UserBasic, unless: ->(project, options) { project.group }
       expose :resolve_outdated_diff_discussions
       expose :container_registry_enabled
+      expose :container_expiration_policy, using: Entities::ContainerExpirationPolicy,
+        if: -> (project, _) { project.container_expiration_policy }
 
       # Expose old field names with the new permissions methods to keep API compatible
       # TODO: remove in API v5, replaced by *_access_level
@@ -341,6 +352,7 @@ module API
         # MR describing the solution: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/20555
         super(projects_relation).preload(:group)
                                 .preload(:ci_cd_settings)
+                                .preload(:container_expiration_policy)
                                 .preload(:auto_devops)
                                 .preload(project_group_links: { group: :route },
                                          fork_network: :root_project,
@@ -1329,6 +1341,30 @@ module API
       expose :password_authentication_enabled_for_web, as: :password_authentication_enabled
       expose :password_authentication_enabled_for_web, as: :signin_enabled
       expose :allow_local_requests_from_web_hooks_and_services, as: :allow_local_requests_from_hooks_and_services
+    end
+
+    class Appearance < Grape::Entity
+      expose :title
+      expose :description
+
+      expose :logo do |appearance, options|
+        appearance.logo.url
+      end
+
+      expose :header_logo do |appearance, options|
+        appearance.header_logo.url
+      end
+
+      expose :favicon do |appearance, options|
+        appearance.favicon.url
+      end
+
+      expose :new_project_guidelines
+      expose :header_message
+      expose :footer_message
+      expose :message_background_color
+      expose :message_font_color
+      expose :email_header_and_footer_enabled
     end
 
     # deprecated old Release representation

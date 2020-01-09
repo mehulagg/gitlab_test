@@ -14,6 +14,7 @@ describe API::ProjectPackages do
 
   describe 'GET /projects/:id/packages' do
     let(:url) { "/projects/#{project.id}/packages" }
+    let(:package_schema) { 'public_api/v4/packages/packages' }
 
     subject { get api(url) }
 
@@ -41,6 +42,18 @@ describe API::ProjectPackages do
           it_behaves_like 'returns packages', :project, :reporter
           it_behaves_like 'rejects packages access', :project, :no_type, :not_found
           it_behaves_like 'rejects packages access', :project, :guest, :forbidden
+
+          context 'user is a maintainer' do
+            before do
+              project.add_maintainer(user)
+            end
+
+            it 'returns the destroy url' do
+              subject
+
+              expect(json_response.first['_links']).to include('delete_api_path')
+            end
+          end
         end
       end
 
@@ -153,6 +166,19 @@ describe API::ProjectPackages do
           end
 
           it_behaves_like 'destroy url'
+        end
+
+        context 'with build info' do
+          let!(:package1) { create(:npm_package, :with_build, project: project) }
+
+          it 'returns the build info' do
+            project.add_developer(user)
+
+            get api(package_url, user)
+
+            expect(response).to have_gitlab_http_status(200)
+            expect(response).to match_response_schema('public_api/v4/packages/package_with_build', dir: 'ee')
+          end
         end
       end
     end

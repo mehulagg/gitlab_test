@@ -40,8 +40,7 @@ to `127.0.0.1`, `::1` and `0.0.0.0`, as well as IPv4 `10.0.0.0/8`, `172.16.0.0/1
 
 This behavior can be overridden by enabling the option *"Allow requests to the
 local network from web hooks and services"* in the *"Outbound requests"* section
-inside the Admin area under **Settings**
-(`/admin/application_settings/network`):
+inside the **Admin Area > Settings** (`/admin/application_settings/network`):
 
 ![Outbound requests admin settings](img/outbound_requests_section_v12_2.png)
 
@@ -61,7 +60,7 @@ and expand **Outbound requests**:
 
 ![Outbound local requests whitelist](img/whitelist.png)
 
-The whilelist entries can be separated by semicolons, commas or whitespaces
+The whitelist entries can be separated by semicolons, commas or whitespaces
 (including newlines) and be in different formats like hostnames, IP addresses and/or
 IP ranges. IPv6 is supported. Hostnames that contain unicode characters should
 use IDNA encoding.

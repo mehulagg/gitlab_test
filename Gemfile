@@ -129,9 +129,9 @@ gem 'unf', '~> 0.1.4'
 gem 'seed-fu', '~> 2.3.7'
 
 # Search
-gem 'elasticsearch-model', '~> 0.1.9'
-gem 'elasticsearch-rails', '~> 0.1.9', require: 'elasticsearch/rails/instrumentation'
-gem 'elasticsearch-api',   '5.0.3'
+gem 'elasticsearch-model', '~> 6.1'
+gem 'elasticsearch-rails', '~> 6.1', require: 'elasticsearch/rails/instrumentation'
+gem 'elasticsearch-api',   '~> 6.8'
 gem 'aws-sdk'
 gem 'faraday_middleware-aws-signers-v4'
 
@@ -327,7 +327,7 @@ group :metrics do
   gem 'influxdb', '~> 0.2', require: false
 
   # Prometheus
-  gem 'prometheus-client-mmap', '~> 0.9.10'
+  gem 'prometheus-client-mmap', '~> 0.10.0'
   gem 'raindrops', '~> 0.18'
 end
 
@@ -389,7 +389,7 @@ group :development, :test do
 
   gem 'png_quantizator', '~> 0.2.1', require: false
 
-  gem 'parallel', '~> 1.17.0', require: false
+  gem 'parallel', '~> 1.19', require: false
 end
 
 # Gems required in omnibus-gitlab pipeline

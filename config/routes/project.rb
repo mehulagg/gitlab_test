@@ -259,6 +259,10 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           end
         end
 
+        namespace :performance_monitoring do
+          resources :dashboards, only: [:create]
+        end
+
         namespace :error_tracking do
           resources :projects, only: :index
         end
@@ -343,7 +347,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         draw :merge_requests
       end
 
-      resources :pipelines, only: [:index, :new, :create, :show] do
+      resources :pipelines, only: [:index, :new, :create, :show, :destroy] do
         collection do
           resource :pipelines_settings, path: 'settings', only: [:show, :update]
           get :charts

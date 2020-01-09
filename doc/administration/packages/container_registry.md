@@ -98,7 +98,7 @@ There are two ways you can configure the Registry's external domain. Either:
   for that domain.
 
 Since the container Registry requires a TLS certificate, in the end it all boils
-down to how easy or pricey is to get a new one.
+down to how easy or pricey it is to get a new one.
 
 Please take this into consideration before configuring the Container Registry
 for the first time.
@@ -398,6 +398,9 @@ To configure the `s3` storage driver in Omnibus:
 
 1. Save the file and [reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
+NOTE: **Note:**
+`your-s3-bucket` should only be the name of a bucket that exists, and can't include subdirectories.
+
 **Installations from source**
 
 Configuring the storage driver is done in your registry config YML file created
@@ -408,9 +411,9 @@ when you [deployed your docker registry](https://docs.docker.com/registry/deploy
 ```yml
 storage:
   s3:
-    accesskey: 'AKIAKIAKI'
-    secretkey: 'secret123'
-    bucket: 'gitlab-registry-bucket-AKIAKIAKI'
+    accesskey: 's3-access-key'
+    secretkey: 's3-secret-key-for-access-key'
+    bucket: 'your-s3-bucket'
     region: 'your-s3-region'
     regionendpoint: 'your-s3-regionendpoint'
   cache:
@@ -418,6 +421,9 @@ storage:
   delete:
     enabled: true
 ```
+
+NOTE: **Note:**
+`your-s3-bucket` should only be the name of a bucket that exists, and can't include subdirectories.
 
 ## Change the registry's internal port
 
@@ -625,7 +631,7 @@ mounting the docker-daemon and setting `privileged = false` in the Runner's
 
 ```toml
   [runners.docker]
-    image = "ruby:2.1"
+    image = "ruby:2.6"
     privileged = false
     volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/cache"]
 ```

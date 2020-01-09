@@ -830,7 +830,7 @@ In the example above, a pipeline could fail due to changes to a file in `service
 A later commit could then be pushed that does not include any changes to this file,
 but includes changes to the `Dockerfile`, and this pipeline could pass because it is only
 testing the changes to the `Dockerfile`. GitLab checks the **most recent pipeline**,
-that **passed**, and will show the merge request as mergable, despite the earlier
+that **passed**, and will show the merge request as mergeable, despite the earlier
 failed pipeline caused by a change that was not yet corrected.
 
 With this configuration, care must be taken to check that the most recent pipeline
@@ -2313,6 +2313,23 @@ This example creates three paths of execution:
 - Related to the above, stages must be explicitly defined for all jobs
   that have the keyword `needs:` or are referred to by one.
 
+##### Changing the `needs:` job limit
+
+The maximum number of jobs that can be defined within `needs:` defaults to 10, but
+can be changed to 50 via a feature flag. To change the limit to 50,
+[start a Rails console session](https://docs.gitlab.com/omnibus/maintenance/#starting-a-rails-console-session)
+and run:
+
+```ruby
+Feature::disable(:ci_dag_limit_needs)
+```
+
+To set it back to 10, run the opposite command:
+
+```ruby
+Feature::enable(:ci_dag_limit_needs)
+```
+
 #### Artifact downloads with `needs`
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/14311) in GitLab v12.6.
@@ -3628,7 +3645,7 @@ having their own custom `script` defined:
 
 ```yaml
 .job_template: &job_definition  # Hidden key that defines an anchor named 'job_definition'
-  image: ruby:2.1
+  image: ruby:2.6
   services:
     - postgres
     - redis
@@ -3650,13 +3667,13 @@ given hash into the current one", and `*` includes the named anchor
 
 ```yaml
 .job_template:
-  image: ruby:2.1
+  image: ruby:2.6
   services:
     - postgres
     - redis
 
 test1:
-  image: ruby:2.1
+  image: ruby:2.6
   services:
     - postgres
     - redis
@@ -3664,7 +3681,7 @@ test1:
     - test1 project
 
 test2:
-  image: ruby:2.1
+  image: ruby:2.6
   services:
     - postgres
     - redis

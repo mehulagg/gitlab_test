@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :ee_ci_job_artifact, class: ::Ci::JobArtifact, parent: :ci_job_artifact do
+  factory :ee_ci_job_artifact, class: '::Ci::JobArtifact', parent: :ci_job_artifact do
     trait :sast do
       file_type { :sast }
       file_format { :raw }
@@ -104,6 +104,16 @@ FactoryBot.define do
 
     trait :license_management do
       file_type { :license_management }
+      file_format { :raw }
+
+      after(:build) do |artifact, _|
+        artifact.file = fixture_file_upload(
+          Rails.root.join('ee/spec/fixtures/security_reports/master/gl-license-management-report.json'), 'application/json')
+      end
+    end
+
+    trait :license_scanning do
+      file_type { :license_scanning }
       file_format { :raw }
 
       after(:build) do |artifact, _|

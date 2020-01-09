@@ -269,6 +269,7 @@ module EE
 
       class RelatedIssue < ::API::Entities::Issue
         expose :issue_link_id
+        expose :issue_link_type, as: :link_type
       end
 
       class LinkedEpic < Grape::Entity
@@ -395,6 +396,7 @@ module EE
       class IssueLink < Grape::Entity
         expose :source, as: :source_issue, using: ::API::Entities::IssueBasic
         expose :target, as: :target_issue, using: ::API::Entities::IssueBasic
+        expose :link_type
       end
 
       class SpecialBoardFilter < Grape::Entity
@@ -873,6 +875,10 @@ module EE
         include ::API::Helpers::RelatedResourcesHelpers
         extend EntityHelpers
 
+        class BuildInfo < Grape::Entity
+          expose :pipeline_id
+        end
+
         expose :id
         expose :name
         expose :version
@@ -889,6 +895,15 @@ module EE
         end
 
         expose :created_at
+        expose :project_id, if: ->(_, opts) { opts[:group] }
+        expose :project_path, if: ->(obj, opts) { opts[:group] && Ability.allowed?(opts[:user], :read_project, obj.project) }
+        expose :build_info, using: BuildInfo
+
+        private
+
+        def project_path
+          object.project.full_path
+        end
       end
 
       class PackageFile < Grape::Entity
