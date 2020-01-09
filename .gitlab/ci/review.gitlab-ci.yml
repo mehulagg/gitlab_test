@@ -153,7 +153,7 @@ schedule:review-build-cng:
     - deploy || (display_deployment_debug && exit 1)
   artifacts:
     paths: [review_app_url.txt]
-    expire_in: 2 days
+    expire_in: 7 days
     when: always
 
 review-deploy:
