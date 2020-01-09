@@ -401,7 +401,7 @@ GitLab currently includes [Gitleaks](https://github.com/zricethezav/gitleaks) an
 
 ###  Running SAST in an offline installation
 
-The below instructuins are for anyone wishing to run SAST in a self-managed instance that has limited, restricted, or intermittant access to external resources. Some people refer to this as an air-gapped installation.
+The below instructions are for anyone wishing to run SAST in a self-managed instance that has limited, restricted, or intermittent access to external resources. Some people refer to this as an air-gapped installation.
 
 #### Pre-Requisties that you must have inside your instance installation:
 
