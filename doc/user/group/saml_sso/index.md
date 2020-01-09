@@ -215,7 +215,7 @@ For example, to unlink the `MyOrg` account, the following **Disconnect** button 
 | Issuer | How GitLab identifies itself to the identity provider. Also known as a "Relying party trust identifier". |
 | Certificate fingerprint | Used to confirm that communications over SAML are secure by checking that the server is signing communications with the correct certificate. Also known as a certificate thumbprint. |
 
-## Configuring a GitLab instance
+## Configuring on a self-managed GitLab instance
 
 For self-managed GitLab instances we recommend using
 [instance-wide SAML OmniAuth Provider](../../../integration/saml.md).
