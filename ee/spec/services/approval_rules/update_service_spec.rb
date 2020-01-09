@@ -5,9 +5,9 @@ require 'spec_helper'
 describe ApprovalRules::UpdateService do
   let(:project) { create(:project) }
   let(:user) { project.creator }
+  let(:approval_rule) { target.approval_rules.create(name: 'foo') }
 
   shared_examples 'editable' do
-    let(:approval_rule) { target.approval_rules.create(name: 'foo') }
     let(:new_approvers) { create_list(:user, 2) }
     let(:new_groups) { create_list(:group, 2, :private) }
 
@@ -138,6 +138,33 @@ describe ApprovalRules::UpdateService do
     let(:target) { project }
 
     it_behaves_like "editable"
+
+    context 'when protected_branch_ids param is present' do
+      let(:protected_branch) { create(:protected_branch, project: target) }
+
+      subject do
+        described_class.new(
+          approval_rule,
+          user,
+          protected_branch_ids: [protected_branch.id]
+        ).execute
+      end
+
+      it 'associates the approval rule to the protected branch' do
+        expect(subject[:status]).to eq(:success)
+        expect(subject[:rule].protected_branches).to eq([protected_branch])
+      end
+
+      context 'but protected branch is for another project' do
+        let(:another_project) { create(:project) }
+        let(:protected_branch) { create(:protected_branch, project: another_project) }
+
+        it 'does not associate the approval rule to the protected branch' do
+          expect(subject[:status]).to eq(:success)
+          expect(subject[:rule].protected_branches).to be_empty
+        end
+      end
+    end
   end
 
   context 'when target is merge request' do

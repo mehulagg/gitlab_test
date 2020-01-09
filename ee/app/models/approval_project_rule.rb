@@ -4,6 +4,7 @@ class ApprovalProjectRule < ApplicationRecord
   include ApprovalRuleLike
 
   belongs_to :project
+  has_and_belongs_to_many :protected_branches
 
   enum rule_type: {
     regular: 0,
