@@ -38,6 +38,9 @@ type AddAwardEmojiPayload {
   errors: [String!]!
 }
 
+"""
+An emoji awarded by a user.
+"""
 type AwardEmoji {
   """
   The emoji description
@@ -529,9 +532,12 @@ type CreateSnippetPayload {
   snippet: Snippet
 }
 
-type Design implements Noteable {
+"""
+A single design
+"""
+type Design implements DesignFields & Noteable {
   """
-  Diff refs of the design
+  The diff refs for this design
   """
   diffRefs: DiffRefs!
 
@@ -561,33 +567,32 @@ type Design implements Noteable {
   ): DiscussionConnection!
 
   """
-  Type of change made to the design at the version specified by the `atVersion`
-  argument if supplied. Defaults to the latest version
+  How this design was changed in the current version
   """
   event: DesignVersionEvent!
 
   """
-  Filename of the design file
+  The filename of the design
   """
   filename: String!
 
   """
-  Full path of the design file
+  The full path to the design file
   """
   fullPath: String!
 
   """
-  ID of the design
+  The ID of this design
   """
   id: ID!
 
   """
-  Image of the design
+  The URL of the image
   """
   image: String!
 
   """
-  Issue associated with the design
+  The issue the design belongs to
   """
   issue: Issue!
 
@@ -617,17 +622,17 @@ type Design implements Noteable {
   ): NoteConnection!
 
   """
-  Total count of user-created notes for the design
+  The total count of user-created notes for this design
   """
   notesCount: Int!
 
   """
-  Project associated with the design
+  The project the design belongs to
   """
   project: Project!
 
   """
-  All versions related to the design, ordered newest first
+  All versions related to this design ordered newest first
   """
   versions(
     """
@@ -652,6 +657,9 @@ type Design implements Noteable {
   ): DesignVersionConnection!
 }
 
+"""
+A collection of designs.
+"""
 type DesignCollection {
   """
   All designs for the design collection
@@ -763,6 +771,53 @@ type DesignEdge {
   The item at the end of the edge.
   """
   node: Design
+}
+
+interface DesignFields {
+  """
+  The diff refs for this design
+  """
+  diffRefs: DiffRefs!
+
+  """
+  How this design was changed in the current version
+  """
+  event: DesignVersionEvent!
+
+  """
+  The filename of the design
+  """
+  filename: String!
+
+  """
+  The full path to the design file
+  """
+  fullPath: String!
+
+  """
+  The ID of this design
+  """
+  id: ID!
+
+  """
+  The URL of the image
+  """
+  image: String!
+
+  """
+  The issue the design belongs to
+  """
+  issue: Issue!
+
+  """
+  The total count of user-created notes for this design
+  """
+  notesCount: Int!
+
+  """
+  The project the design belongs to
+  """
+  project: Project!
 }
 
 """
@@ -933,7 +988,7 @@ type DesignVersionEdge {
 }
 
 """
-Mutation event of a Design within a Version
+Mutation event of a design within a version
 """
 enum DesignVersionEvent {
   """
@@ -1357,6 +1412,9 @@ enum EntryType {
   tree
 }
 
+"""
+Represents an epic.
+"""
 type Epic implements Noteable {
   """
   Author of the epic
@@ -1715,6 +1773,9 @@ type EpicConnection {
   pageInfo: PageInfo!
 }
 
+"""
+Counts of descendent epics.
+"""
 type EpicDescendantCount {
   """
   Number of closed sub-epics
@@ -1752,6 +1813,9 @@ type EpicEdge {
   node: Epic
 }
 
+"""
+Relationship between an epic and an issue
+"""
 type EpicIssue implements Noteable {
   """
   Assignees of the issue
@@ -2200,7 +2264,7 @@ enum EpicSort {
 }
 
 """
-State of a GitLab epic
+State of an epic.
 """
 enum EpicState {
   all
@@ -2209,20 +2273,23 @@ enum EpicState {
 }
 
 """
-State event of a GitLab Epic
+State event of an epic
 """
 enum EpicStateEvent {
   """
-  Close the Epic
+  Close the epic
   """
   CLOSE
 
   """
-  Reopen the Epic
+  Reopen the epic
   """
   REOPEN
 }
 
+"""
+A node of an epic tree.
+"""
 input EpicTreeNodeFieldsInputType {
   """
   The id of the epic_issue or issue that the actual epic or issue is switched with

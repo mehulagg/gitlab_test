@@ -98,7 +98,7 @@ There are two ways you can configure the Registry's external domain. Either:
   for that domain.
 
 Since the container Registry requires a TLS certificate, in the end it all boils
-down to how easy or pricey is to get a new one.
+down to how easy or pricey it is to get a new one.
 
 Please take this into consideration before configuring the Container Registry
 for the first time.
@@ -631,7 +631,7 @@ mounting the docker-daemon and setting `privileged = false` in the Runner's
 
 ```toml
   [runners.docker]
-    image = "ruby:2.1"
+    image = "ruby:2.6"
     privileged = false
     volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/cache"]
 ```
