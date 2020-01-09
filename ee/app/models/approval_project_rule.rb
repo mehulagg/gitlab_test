@@ -18,6 +18,14 @@ class ApprovalProjectRule < ApplicationRecord
 
   validates :name, uniqueness: { scope: :project_id }
 
+  def self.applicable_to_branch(branch)
+    includes(:protected_branches).select do |rule|
+      next true if rule.protected_branches.empty?
+
+      rule.protected_branches.matching(branch).any?
+    end
+  end
+
   def source_rule
     nil
   end

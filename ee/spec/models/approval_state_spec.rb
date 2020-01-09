@@ -1380,4 +1380,79 @@ describe ApprovalState do
       end
     end
   end
+
+  describe '#user_defined_rules' do
+    context 'when approval rules are not overwritten' do
+      let!(:project_rule) { create(:approval_project_rule, project: project) }
+      let!(:another_project_rule) { create(:approval_project_rule, project: project) }
+
+      context 'and multiple approval rules is disabled' do
+        it 'returns the first rule' do
+          expect(subject.user_defined_rules.map(&:approval_rule)).to match_array([
+            project_rule
+          ])
+        end
+      end
+
+      context 'and multiple approval rules is enabled' do
+        before do
+          stub_licensed_features(multiple_approval_rules: true)
+        end
+
+        it 'returns the rules as is' do
+          expect(subject.user_defined_rules.map(&:approval_rule)).to match_array([
+            project_rule,
+            another_project_rule
+          ])
+        end
+
+        context 'and rules are scoped by protected branches' do
+          let(:protected_branch) { create(:protected_branch, project: project, name: 'stable-*') }
+          let(:another_protected_branch) { create(:protected_branch, project: project, name: '*-stable') }
+
+          before do
+            merge_request.update!(target_branch: 'stable-1')
+            another_project_rule.update!(protected_branches: [protected_branch])
+            project_rule.update!(protected_branches: [another_protected_branch])
+          end
+
+          it 'returns the rules that are applicable to the merge request target branch' do
+            expect(subject.user_defined_rules.map(&:approval_rule)).to match_array([
+              another_project_rule
+            ])
+          end
+        end
+      end
+    end
+
+    context 'when approval rules are overwritten' do
+      let!(:mr_rule) { create(:approval_merge_request_rule, merge_request: merge_request) }
+      let!(:another_mr_rule) { create(:approval_merge_request_rule, merge_request: merge_request) }
+
+      before do
+        project.update!(disable_overriding_approvers_per_merge_request: false)
+      end
+
+      context 'when multiple approval rules is disabled' do
+        it 'returns the first rule' do
+          expect(subject.user_defined_rules.map(&:approval_rule)).to match_array([
+            mr_rule
+          ])
+        end
+      end
+
+      context 'when multiple approval rules is enabled' do
+        before do
+          stub_licensed_features(multiple_approval_rules: true)
+        end
+
+        it 'returns the rules as is' do
+          expect(subject.user_defined_rules.map(&:approval_rule)).to match_array([
+            mr_rule,
+            another_mr_rule
+          ])
+        end
+      end
+    end
+  end
 end

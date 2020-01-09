@@ -157,7 +157,7 @@ class ApprovalState
       if approval_rules_overwritten?
         user_defined_merge_request_rules
       else
-        project.visible_user_defined_rules.map do |rule|
+        project.visible_user_defined_rules(merge_request.target_branch).map do |rule|
           ApprovalWrappedRule.wrap(merge_request, rule)
         end
       end
