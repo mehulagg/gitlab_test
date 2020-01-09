@@ -3,7 +3,9 @@ export default {};
 </script>
 
 <template>
-  <div>
-    <router-view />
+  <div class="position-relative">
+    <transition name="slide">
+      <router-view />
+    </transition>
   </div>
 </template>

@@ -10,6 +10,8 @@ import {
   DELETE_TAG_ERROR_MESSAGE,
   DELETE_TAGS_SUCCESS_MESSAGE,
   DELETE_TAGS_ERROR_MESSAGE,
+  DELETE_IMAGE_ERROR_MESSAGE,
+  DELETE_IMAGE_SUCCESS_MESSAGE,
 } from '../constants';
 
 export const setInitialState = ({ commit }, data) => commit(types.SET_INITIAL_STATE, data);
@@ -27,7 +29,6 @@ export const receiveTagsListSuccess = ({ commit }, { data, headers }) => {
 
 export const requestImagesList = ({ dispatch, state }, pagination = {}) => {
   dispatch('setLoading', true);
-
   const { page = DEFAULT_PAGE, perPage = DEFAULT_PAGE_SIZE } = pagination;
   return axios
     .get(state.config.endpoint, { params: { page, per_page: perPage } })
@@ -86,7 +87,7 @@ export const requestDeleteTags = ({ dispatch, state }, { ids, imageId }) => {
       createFlash(DELETE_TAGS_SUCCESS_MESSAGE, 'success');
       dispatch('requestTagsList', { pagination: state.tagsPagination, id: imageId });
     })
-    .catch(e => {
+    .catch(() => {
       createFlash(DELETE_TAGS_ERROR_MESSAGE);
     })
     .finally(() => {
@@ -94,19 +95,21 @@ export const requestDeleteTags = ({ dispatch, state }, { ids, imageId }) => {
     });
 };
 
-// export const requestDeleteImage = ({ dispatch }, { projectId, packageId }) => {
-//   dispatch('setLoading', true);
-//   return Api.deleteProjectPackage(projectId, packageId)
-//     .then(() => {
-//       dispatch('requestImagesList');
-//       createFlash(DELETE_PACKAGE_SUCCESS_MESSAGE, 'success');
-//     })
-//     .catch(() => {
-//       createFlash(DELETE_PACKAGE_ERROR_MESSAGE);
-//     })
-//     .finally(() => {
-//       dispatch('setLoading', false);
-//     });
-// };
+export const requestDeleteImage = ({ dispatch, state }, destroyPath) => {
+  dispatch('setLoading', true);
+  return axios
+    .delete(destroyPath)
+    .then(() => {
+      dispatch('requestImagesList', { pagination: state.pagination });
+      createFlash(DELETE_IMAGE_SUCCESS_MESSAGE, 'success');
+    })
+    .catch(e => {
+      console.log(e);
+      createFlash(DELETE_IMAGE_ERROR_MESSAGE);
+    })
+    .finally(() => {
+      dispatch('setLoading', false);
+    });
+};
 
 export default () => {};

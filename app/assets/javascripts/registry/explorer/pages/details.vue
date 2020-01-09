@@ -178,7 +178,13 @@ export default {
 </script>
 
 <template>
-  <div class="my-3">
+  <div class="my-3 position-absolute w-100 slide-enter-to-element">
+    <div class="d-flex prepend-top-8 align-items-center">
+      <gl-button :to="{ name: 'list' }" size="sm" class="append-right-default">
+        <gl-icon name="angle-left" />
+      </gl-button>
+      <h4>{{ s__('ContainerRegistry|Tag details') }}</h4>
+    </div>
     <gl-loading-icon v-if="isLoading" />
     <template v-else>
       <gl-table :items="tags" :fields="fields" stacked="md">

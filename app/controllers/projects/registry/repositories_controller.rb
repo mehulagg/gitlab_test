@@ -15,6 +15,7 @@ module Projects
           format.json do
             render json: ContainerRepositoriesSerializer
               .new(project: project, current_user: current_user)
+              .with_pagination(request, response)
               .represent(@images)
           end
         end

@@ -1,21 +1,52 @@
 <script>
-import { mapState } from 'vuex';
-import { GlLoadingIcon, GlEmptyState, GlPaginatedList } from '@gitlab/ui';
+import { mapState, mapActions } from 'vuex';
+import {
+  GlLoadingIcon,
+  GlEmptyState,
+  GlPagination,
+  GlTooltipDirective,
+  GlButton,
+  GlIcon,
+  GlModal,
+} from '@gitlab/ui';
+import { s__, sprintf } from '~/locale';
+import Tracking from '~/tracking';
+import ClipboardButton from '~/vue_shared/components/clipboard_button.vue';
 import ProjectEmptyState from '../components/project_empty_state.vue';
 import GroupEmptyState from '../components/group_empty_state.vue';
-import { s__, sprintf } from '~/locale';
 
 export default {
   name: 'RegistryListApp',
   components: {
     GlEmptyState,
     GlLoadingIcon,
-    GlPaginatedList,
+    GlPagination,
     ProjectEmptyState,
     GroupEmptyState,
+    ClipboardButton,
+    GlButton,
+    GlIcon,
+    GlModal,
+  },
+  directives: {
+    GlTooltip: GlTooltipDirective,
+  },
+  mixins: [Tracking.mixin()],
+  data() {
+    return {
+      itemToDelete: {},
+    };
   },
   computed: {
-    ...mapState(['config', 'isLoading', 'images']),
+    ...mapState(['config', 'isLoading', 'images', 'pagination']),
+    currentPage: {
+      get() {
+        return this.pagination.page;
+      },
+      set(page) {
+        this.requestImagesList({ page });
+      },
+    },
     dockerConnectionErrorText() {
       return sprintf(
         s__(`ContainerRegistry|We are having trouble connecting to Docker, which could be due to an
@@ -52,10 +83,22 @@ export default {
       );
     },
   },
+  methods: {
+    ...mapActions(['requestImagesList', 'requestDeleteImage']),
+    deleteImage(item) {
+      this.itemToDelete = item;
+      this.$refs.deleteModal.show();
+    },
+    handleDeleteRepository() {
+      this.track('confirm_delete');
+      this.requestDeleteImage(this.itemToDelete.destroy_path);
+      this.itemToDelete = {};
+    },
+  },
 };
 </script>
 <template>
-  <div>
+  <div class="position-absolute w-100 slide-enter-from-element">
     <gl-empty-state
       v-if="config.characterError"
       :title="s__('ContainerRegistry|Docker connection error')"
@@ -71,15 +114,70 @@ export default {
     <div v-else-if="!isLoading && images.length">
       <h4>{{ s__('ContainerRegistry|Container Registry') }}</h4>
       <p v-html="introText"></p>
-      <gl-paginated-list :list="images" :filterable="false" :filter="() => true">
-        <template #default="{ listItem }">
-          <router-link :to="{ name: 'details', params: { id: listItem.id } }">
-            {{ listItem.path }}
-          </router-link>
-        </template>
-      </gl-paginated-list>
+
+      <div class="d-flex flex-column">
+        <div
+          v-for="(listItem, index) in images"
+          :key="index"
+          :class="{
+            'd-flex justify-content-between align-items-center py-2 border-bottom': true,
+            'border-top': index === 0,
+          }"
+        >
+          <div>
+            <router-link :to="{ name: 'details', params: { id: listItem.id } }">
+              {{ listItem.path }}
+            </router-link>
+            <clipboard-button
+              v-if="listItem.location"
+              :text="listItem.location"
+              :title="listItem.location"
+              css-class="btn-default btn-transparent btn-clipboard"
+            />
+          </div>
+          <div class="controls d-none d-sm-block">
+            <gl-button
+              v-gl-tooltip
+              :title="s__('ContainerRegistry|Remove repository')"
+              :aria-label="s__('ContainerRegistry|Remove repository')"
+              class="btn-inverted"
+              variant="danger"
+              @click="deleteImage(listItem)"
+            >
+              <gl-icon name="remove" />
+            </gl-button>
+          </div>
+        </div>
+      </div>
+      <gl-pagination
+        v-model="currentPage"
+        :per-page="pagination.perPage"
+        :total-items="pagination.total"
+        align="center"
+        class="w-100 mt-2"
+      />
     </div>
     <project-empty-state v-else-if="!config.isGroupPage" />
     <group-empty-state v-else-if="config.isGroupPage" />
+    <gl-modal
+      ref="deleteModal"
+      modal-id="delete-image-modal"
+      ok-variant="danger"
+      @ok="handleDeleteRepository"
+      @cancel="track('cancel_delete')"
+    >
+      <template v-slot:modal-title>{{ s__('ContainerRegistry|Remove repository') }}</template>
+      <p
+        v-html="
+          sprintf(
+            s__(
+              'ContainerRegistry|You are about to remove repository <b>%{title}</b>. Once you confirm, this repository will be permanently deleted.',
+            ),
+            { title: itemToDelete.path },
+          )
+        "
+      ></p>
+      <template v-slot:modal-ok>{{ __('Remove') }}</template>
+    </gl-modal>
   </div>
 </template>

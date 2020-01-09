@@ -6,14 +6,16 @@ export const FETCH_IMAGES_LIST_ERROR_MESSAGE = __(
 export const FETCH_TAGS_LIST_ERROR_MESSAGE = __(
   'Something went wrong while fetching the tags list.',
 );
-export const FETCH_PACKAGE_ERROR_MESSAGE = __('Something went wrong while fetching the package.');
+
+export const DELETE_IMAGE_ERROR_MESSAGE = __('Something went wrong while deleting the image.');
+export const DELETE_IMAGE_SUCCESS_MESSAGE = __('Image deleted successfully');
 export const DELETE_TAG_ERROR_MESSAGE = __('Something went wrong while deleting the tag.');
 export const DELETE_TAG_SUCCESS_MESSAGE = __('Tag deleted successfully');
 export const DELETE_TAGS_ERROR_MESSAGE = __('Something went wrong while deleting the tags.');
 export const DELETE_TAGS_SUCCESS_MESSAGE = __('Tags deleted successfully');
 
 export const DEFAULT_PAGE = 1;
-export const DEFAULT_PAGE_SIZE = 20;
+export const DEFAULT_PAGE_SIZE = 10;
 
 export const GROUP_PAGE_TYPE = 'groups';
 
