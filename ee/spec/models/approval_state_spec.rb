@@ -1452,6 +1452,27 @@ describe ApprovalState do
             another_mr_rule
           ])
         end
+
+        context 'and rules have source rules that are scoped by protected branches' do
+          let(:source_rule) { create(:approval_project_rule, project: project) }
+          let(:another_source_rule) { create(:approval_project_rule, project: project) }
+          let(:protected_branch) { create(:protected_branch, project: project, name: 'stable-*') }
+          let(:another_protected_branch) { create(:protected_branch, project: project, name: '*-stable') }
+
+          before do
+            merge_request.update!(target_branch: 'stable-1')
+            source_rule.update!(protected_branches: [protected_branch])
+            another_source_rule.update!(protected_branches: [another_protected_branch])
+            mr_rule.update!(approval_project_rule: another_source_rule)
+            another_mr_rule.update!(approval_project_rule: source_rule)
+          end
+
+          it 'returns the rules that are applicable to the merge request target branch' do
+            expect(subject.user_defined_rules.map(&:approval_rule)).to match_array([
+              another_mr_rule
+            ])
+          end
+        end
       end
     end
   end

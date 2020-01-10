@@ -157,7 +157,7 @@ class ApprovalState
       if approval_rules_overwritten?
         user_defined_merge_request_rules
       else
-        project.visible_user_defined_rules(merge_request.target_branch).map do |rule|
+        project.visible_user_defined_rules(target_branch).map do |rule|
           ApprovalWrappedRule.wrap(merge_request, rule)
         end
       end
@@ -201,9 +201,15 @@ class ApprovalState
 
   def wrapped_rules
     strong_memoize(:wrapped_rules) do
-      merge_request.approval_rules.map do |rule|
+      merge_request.approval_rules.applicable_to_branch(target_branch).map do |rule|
         ApprovalWrappedRule.wrap(merge_request, rule)
       end
+    end
+  end
+
+  def target_branch
+    strong_memoize(:target_branch) do
+      merge_request.target_branch
     end
   end
 end

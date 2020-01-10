@@ -148,7 +148,7 @@ describe ApprovalProjectRule do
     end
   end
 
-  describe '::applicable_to_branch' do
+  describe '.applicable_to_branch' do
     let!(:rule) { create(:approval_project_rule) }
     let(:branch) { 'stable' }
 
