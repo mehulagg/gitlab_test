@@ -17,13 +17,19 @@ const PIXEL_TOLERANCE = 0.2;
 const urlToImage = url =>
   new Promise(resolve => {
     const img = new Image();
-    img.onload = function() {
+    img.onload = () => {
       resolve(img);
     };
     img.src = url;
   });
 
 describe('common_utils', () => {
+  let testContext;
+
+  beforeEach(() => {
+    testContext = {};
+  });
+
   describe('parseUrl', () => {
     it('returns an anchor tag with url', () => {
       expect(commonUtils.parseUrl('/some/absolute/url').pathname).toContain('some/absolute/url');
@@ -87,13 +93,11 @@ describe('common_utils', () => {
 
   describe('handleLocationHash', () => {
     beforeEach(() => {
-      spyOn(window.document, 'getElementById').and.callThrough();
-      jasmine.clock().install();
+      jest.spyOn(window.document, 'getElementById');
     });
 
     afterEach(() => {
       window.history.pushState({}, null, '');
-      jasmine.clock().uninstall();
     });
 
     function expectGetElementIdToHaveBeenCalledWith(elementId) {
@@ -162,7 +166,7 @@ describe('common_utils', () => {
     });
 
     it('scrolls to element with offset from navbar', () => {
-      spyOn(window, 'scrollBy').and.callThrough();
+      jest.spyOn(window, 'scrollBy');
       document.body.innerHTML += `
         <div id="parent">
           <div class="navbar-gitlab" style="position: fixed; top: 0; height: 50px;"></div>
@@ -173,7 +177,7 @@ describe('common_utils', () => {
 
       window.history.pushState({}, null, '#test');
       commonUtils.handleLocationHash();
-      jasmine.clock().tick(1);
+      jest.advanceTimersByTime(1);
 
       expectGetElementIdToHaveBeenCalledWith('test');
       expectGetElementIdToHaveBeenCalledWith('user-content-test');
@@ -191,12 +195,12 @@ describe('common_utils', () => {
     });
 
     it('should call pushState with the correct path', () => {
-      spyOn(window.history, 'pushState');
+      jest.spyOn(window.history, 'pushState').mockImplementation(() => {});
 
       commonUtils.historyPushState('newpath?page=2');
 
       expect(window.history.pushState).toHaveBeenCalled();
-      expect(window.history.pushState.calls.allArgs()[0][2]).toContain('newpath?page=2');
+      expect(window.history.pushState.mock.calls[0][2]).toContain('newpath?page=2');
     });
   });
 
@@ -238,7 +242,7 @@ describe('common_utils', () => {
 
   describe('debounceByAnimationFrame', () => {
     it('debounces a function to allow a maximum of one call per animation frame', done => {
-      const spy = jasmine.createSpy('spy');
+      const spy = jest.fn();
       const debouncedSpy = commonUtils.debounceByAnimationFrame(spy);
       window.requestAnimationFrame(() => {
         debouncedSpy();
@@ -302,25 +306,23 @@ describe('common_utils', () => {
   });
 
   describe('normalizeCRLFHeaders', () => {
-    beforeEach(function() {
-      this.CLRFHeaders =
+    beforeEach(() => {
+      testContext.CLRFHeaders =
         'a-header: a-value\nAnother-Header: ANOTHER-VALUE\nLaSt-HeAdEr: last-VALUE';
-      spyOn(String.prototype, 'split').and.callThrough();
-      this.normalizeCRLFHeaders = commonUtils.normalizeCRLFHeaders(this.CLRFHeaders);
+      jest.spyOn(String.prototype, 'split');
+      testContext.normalizeCRLFHeaders = commonUtils.normalizeCRLFHeaders(testContext.CLRFHeaders);
     });
 
-    it('should split by newline', function() {
+    it('should split by newline', () => {
       expect(String.prototype.split).toHaveBeenCalledWith('\n');
     });
 
-    it('should split by colon+space for each header', function() {
-      expect(String.prototype.split.calls.allArgs().filter(args => args[0] === ': ').length).toBe(
-        3,
-      );
+    it('should split by colon+space for each header', () => {
+      expect(String.prototype.split.mock.calls.filter(args => args[0] === ': ').length).toBe(3);
     });
 
-    it('should return a normalized headers object', function() {
-      expect(this.normalizeCRLFHeaders).toEqual({
+    it('should return a normalized headers object', () => {
+      expect(testContext.normalizeCRLFHeaders).toEqual({
         'A-HEADER': 'a-value',
         'ANOTHER-HEADER': 'ANOTHER-VALUE',
         'LAST-HEADER': 'last-VALUE',
@@ -386,7 +388,7 @@ describe('common_utils', () => {
 
   describe('contentTop', () => {
     it('does not add height for fileTitle or compareVersionsHeader if screen is too small', () => {
-      spyOn(breakpointInstance, 'isDesktop').and.returnValue(false);
+      jest.spyOn(breakpointInstance, 'isDesktop').mockReturnValue(false);
 
       setFixtures(`
         <div class="diff-file file-title-flex-parent">
@@ -401,13 +403,15 @@ describe('common_utils', () => {
     });
 
     it('adds height for fileTitle and compareVersionsHeader screen is large enough', () => {
-      spyOn(breakpointInstance, 'isDesktop').and.returnValue(true);
+      jest.spyOn(breakpointInstance, 'isDesktop').mockReturnValue(true);
 
       setFixtures(`
-        <div class="diff-file file-title-flex-parent">
-          blah blah blah
+        <div class="diff-file">
+          <div class="file-title-flex-parent" style="height: 14px;">
+            blah blah blah
+          </div>
         </div>
-        <div class="mr-version-controls">
+        <div class="mr-version-controls" style="height: 4px;">
           more blah blah blah
         </div>
       `);
@@ -448,8 +452,7 @@ describe('common_utils', () => {
   describe('backOff', () => {
     beforeEach(() => {
       // shortcut our timeouts otherwise these tests will take a long time to finish
-      const origSetTimeout = window.setTimeout;
-      spyOn(window, 'setTimeout').and.callFake(cb => origSetTimeout(cb, 0));
+      jest.spyOn(window, 'setTimeout').mockImplementation(cb => setImmediate(cb));
     });
 
     it('solves the promise from the callback', done => {
@@ -507,7 +510,7 @@ describe('common_utils', () => {
             .catch(done.fail),
         )
         .then(respBackoff => {
-          const timeouts = window.setTimeout.calls.allArgs().map(([, timeout]) => timeout);
+          const timeouts = window.setTimeout.mock.calls.map(([, timeout]) => timeout);
 
           expect(timeouts).toEqual([2000, 4000]);
           expect(respBackoff).toBe(expectedResponseValue);
@@ -520,7 +523,7 @@ describe('common_utils', () => {
       commonUtils
         .backOff(next => next(), 64000)
         .catch(errBackoffResp => {
-          const timeouts = window.setTimeout.calls.allArgs().map(([, timeout]) => timeout);
+          const timeouts = window.setTimeout.mock.calls.map(([, timeout]) => timeout);
 
           expect(timeouts).toEqual([2000, 4000, 8000, 16000, 32000, 32000]);
           expect(errBackoffResp instanceof Error).toBe(true);
@@ -573,7 +576,7 @@ describe('common_utils', () => {
   });
 
   describe('createOverlayIcon', () => {
-    it('should return the favicon with the overlay', done => {
+    fit('should return the favicon with the overlay', done => {
       commonUtils
         .createOverlayIcon(faviconDataUrl, overlayDataUrl)
         .then(url => Promise.all([urlToImage(url), urlToImage(faviconWithOverlayDataUrl)]))
@@ -937,14 +940,14 @@ describe('common_utils', () => {
     it('returns object with matching props based on `query` & `searchSpace` params', () => {
       // String `omnis` is found only in `title` prop so return just that
       expect(commonUtils.searchBy('omnis', searchSpace)).toEqual(
-        jasmine.objectContaining({
+        expect.objectContaining({
           title: searchSpace.title,
         }),
       );
 
       // String `1` is found in both `iid` and `reference` props so return both
       expect(commonUtils.searchBy('1', searchSpace)).toEqual(
-        jasmine.objectContaining({
+        expect.objectContaining({
           iid: searchSpace.iid,
           reference: searchSpace.reference,
         }),
@@ -952,7 +955,7 @@ describe('common_utils', () => {
 
       // String `/epics/1` is found in `url` prop so return just that
       expect(commonUtils.searchBy('/epics/1', searchSpace)).toEqual(
-        jasmine.objectContaining({
+        expect.objectContaining({
           url: searchSpace.url,
         }),
       );

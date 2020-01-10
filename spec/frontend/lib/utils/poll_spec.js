@@ -5,13 +5,13 @@ import { successCodes } from '~/lib/utils/http_status';
 
 const waitForAllCallsToFinish = (service, waitForCount, successCallback) => {
   const timer = () => {
-    setTimeout(() => {
-      if (service.fetch.calls.count() === waitForCount) {
+    setImmediate(() => {
+      if (service.fetch.mock.calls.length === waitForCount) {
         successCallback();
       } else {
         timer();
       }
-    }, 0);
+    });
   };
 
   timer();
@@ -23,12 +23,18 @@ function mockServiceCall(service, response, shouldFail = false) {
 
   if (!responseObject.headers) responseObject.headers = {};
 
-  service.fetch.and.callFake(action.bind(Promise, responseObject));
+  service.fetch.mockImplementation(action.bind(Promise, responseObject));
 }
 
 describe('Poll', () => {
-  const service = jasmine.createSpyObj('service', ['fetch']);
-  const callbacks = jasmine.createSpyObj('callbacks', ['success', 'error', 'notification']);
+  const service = {
+    fetch: jest.fn(),
+  };
+  const callbacks = {
+    success: jest.fn(),
+    error: jest.fn(),
+    notification: jest.fn(),
+  };
 
   function setup() {
     return new Poll({
@@ -41,10 +47,7 @@ describe('Poll', () => {
   }
 
   afterEach(() => {
-    callbacks.success.calls.reset();
-    callbacks.error.calls.reset();
-    callbacks.notification.calls.reset();
-    service.fetch.calls.reset();
+    jest.clearAllMocks();
   });
 
   it('calls the success callback when no header for interval is provided', done => {
@@ -114,7 +117,7 @@ describe('Poll', () => {
         waitForAllCallsToFinish(service, 2, () => {
           Polling.stop();
 
-          expect(service.fetch.calls.count()).toEqual(2);
+          expect(service.fetch.mock.calls.length).toEqual(2);
           expect(service.fetch).toHaveBeenCalledWith({ page: 1 });
           expect(callbacks.success).toHaveBeenCalled();
           expect(callbacks.error).not.toHaveBeenCalled();
@@ -139,12 +142,12 @@ describe('Poll', () => {
         errorCallback: callbacks.error,
       });
 
-      spyOn(Polling, 'stop').and.callThrough();
+      jest.spyOn(Polling, 'stop');
 
       Polling.makeRequest();
 
       waitForAllCallsToFinish(service, 1, () => {
-        expect(service.fetch.calls.count()).toEqual(1);
+        expect(service.fetch.mock.calls.length).toEqual(1);
         expect(service.fetch).toHaveBeenCalledWith({ page: 1 });
         expect(Polling.stop).toHaveBeenCalled();
 
@@ -155,8 +158,6 @@ describe('Poll', () => {
 
   describe('enable', () => {
     it('should enable polling upon a response', done => {
-      jasmine.clock().install();
-
       const Polling = new Poll({
         resource: service,
         method: 'fetch',
@@ -169,13 +170,12 @@ describe('Poll', () => {
         response: { status: 200, headers: { 'poll-interval': 1 } },
       });
 
-      jasmine.clock().tick(1);
-      jasmine.clock().uninstall();
+      jest.advanceTimersByTime(1);
 
       waitForAllCallsToFinish(service, 1, () => {
         Polling.stop();
 
-        expect(service.fetch.calls.count()).toEqual(1);
+        expect(service.fetch.mock.calls.length).toEqual(1);
         expect(service.fetch).toHaveBeenCalledWith({ page: 4 });
         expect(Polling.options.data).toEqual({ page: 4 });
         done();
@@ -193,23 +193,23 @@ describe('Poll', () => {
         data: { page: 1 },
         successCallback: () => {
           Polling.stop();
-          setTimeout(() => {
+          setImmediate(() => {
             Polling.restart({ data: { page: 4 } });
-          }, 0);
+          });
         },
         errorCallback: callbacks.error,
       });
 
-      spyOn(Polling, 'stop').and.callThrough();
-      spyOn(Polling, 'enable').and.callThrough();
-      spyOn(Polling, 'restart').and.callThrough();
+      jest.spyOn(Polling, 'stop');
+      jest.spyOn(Polling, 'enable');
+      jest.spyOn(Polling, 'restart');
 
       Polling.makeRequest();
 
       waitForAllCallsToFinish(service, 2, () => {
         Polling.stop();
 
-        expect(service.fetch.calls.count()).toEqual(2);
+        expect(service.fetch.mock.calls.length).toEqual(2);
         expect(service.fetch).toHaveBeenCalledWith({ page: 4 });
         expect(Polling.stop).toHaveBeenCalled();
         expect(Polling.enable).toHaveBeenCalled();

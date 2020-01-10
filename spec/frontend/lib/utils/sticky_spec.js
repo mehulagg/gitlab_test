@@ -40,7 +40,7 @@ describe('sticky', () => {
 
   describe('when not stuck', () => {
     it('removes is-stuck class', () => {
-      spyOn(el.classList, 'remove').and.callThrough();
+      jest.spyOn(el.classList, 'remove');
 
       isSticky(el, 0, el.offsetTop);
       isSticky(el, 0, 0);
