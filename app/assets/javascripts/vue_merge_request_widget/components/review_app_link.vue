@@ -22,7 +22,7 @@ export default {
   },
   computed: {
     linkText() {
-      return this.isCurrent ? __('View app') : __('View app');
+      return __('View app');
     },
   },
 };
