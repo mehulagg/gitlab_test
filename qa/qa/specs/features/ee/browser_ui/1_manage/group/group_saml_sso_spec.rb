@@ -21,7 +21,7 @@ module QA
       end
 
       context 'Non enforced SSO' do
-        it 'User logs in to group with SAML SSO', quarantine: 'https://gitlab.com/gitlab-org/gitlab/issues/55242' do
+        it 'User logs in to group with SAML SSO' do
           Page::Group::Menu.perform(&:go_to_saml_sso_group_settings)
 
           managed_group_url = EE::Page::Group::Settings::SamlSSO.perform do |saml_sso|
@@ -75,7 +75,7 @@ module QA
         end
       end
 
-      context 'Enforced SSO', quarantine: 'https://gitlab.com/gitlab-org/gitlab/issues/39607' do
+      context 'Enforced SSO' do
         let(:developer_user) { Resource::User.fabricate_via_api! }
         let(:owner_user) { Resource::User.fabricate_via_api! }
 
@@ -183,7 +183,10 @@ module QA
               Runtime::Feature.enable_and_verify(flag)
             end
 
-            @managed_group_url = setup_and_enable_group_managed_accounts
+            Support::Retrier.retry_until(raise_on_failure: true) do
+              @managed_group_url = setup_and_enable_group_managed_accounts
+              group_managed_accounts_setup?
+            end
 
             Page::Main::Menu.perform(&:sign_out_if_signed_in)
             logout_from_idp
@@ -321,6 +324,18 @@ module QA
 
           saml_sso.user_login_url_link_text
         end
+      end
+    end
+
+    def group_managed_accounts_setup?
+      QA::Runtime::Logger.info("Verifying if group managed accounts is setup correctly")
+
+      @group.visit!
+
+      Page::Group::Menu.perform(&:go_to_saml_sso_group_settings)
+
+      EE::Page::Group::Settings::SamlSSO.perform do |saml_sso|
+        saml_sso.enforce_sso_enabled? && saml_sso.group_managed_accounts_enabled?
       end
     end
 
