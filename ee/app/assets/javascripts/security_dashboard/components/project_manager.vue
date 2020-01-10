@@ -62,6 +62,7 @@ export default {
             :show-loading-indicator="isSearchingProjects"
             :show-minimum-search-query-message="messages.minimumQuery"
             :show-search-error-message="messages.searchError"
+            :total-results="projectSearchResults.length"
             @searched="searched"
             @projectClicked="projectClicked"
           />

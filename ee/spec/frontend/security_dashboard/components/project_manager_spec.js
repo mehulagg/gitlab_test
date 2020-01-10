@@ -148,6 +148,14 @@ describe('Project Manager component', () => {
       expect(getProjectList().props('projects')).toBe(projects);
     });
 
+    it('passes the total number of results to the project selector', () => {
+      const projectSearchResults = [{}];
+
+      factory({ state: { projectSearchResults } });
+
+      expect(getProjectSelector().props('totalResults')).toBe(projectSearchResults.length);
+    });
+
     it.each([false, true])(
       'passes showLoadingIndicator = %p to the project-list component',
       isUpdatingProjects => {
