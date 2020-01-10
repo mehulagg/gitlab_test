@@ -50,13 +50,11 @@ const createComponent = ({
     store,
     stubs: {
       'tree-item': true,
-      'gl-button': GlButton,
     },
     propsData: {
       parentItem,
       children,
     },
-    sync: false,
   });
 };
 
@@ -350,13 +348,13 @@ describe('RelatedItemsTree', () => {
       });
 
       it('renders `Show more` link', () => {
-        expect(wrapper.find('button').text()).toBe('Show more');
+        expect(wrapper.find(GlButton).text()).toBe('Show more');
       });
 
       it('calls `handleShowMoreClick` when `Show more` link is clicked', () => {
         spyOn(wrapper.vm, 'handleShowMoreClick');
 
-        wrapper.find('button').trigger('click');
+        wrapper.find(GlButton).vm.$emit('click');
 
         expect(wrapper.vm.handleShowMoreClick).toHaveBeenCalled();
       });

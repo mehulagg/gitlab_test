@@ -22,7 +22,7 @@ There are two kinds of repository mirroring supported by GitLab:
 When the mirror repository is updated, all new branches, tags, and commits will be visible in the
 project's activity feed.
 
-Users with at least [developer access](../../permissions.md) to the project can also force an
+Users with at least [Developer access](../../permissions.md) to the project can also force an
 immediate update, unless:
 
 - The mirror is already being updated.
@@ -408,8 +408,8 @@ Note that this sample has a few limitations:
   - It does not regard different types of authentication mechanisms for the mirror.
   - It does not work with forced updates (rewriting history).
   - Only branches that match the `whitelisted` patterns will be proxy pushed.
-- The script circumvents the git hook quarantine environment because the update of `$TARGET_REPO`
-  is seen as a ref update and git will complain about it.
+- The script circumvents the Git hook quarantine environment because the update of `$TARGET_REPO`
+  is seen as a ref update and Git will complain about it.
 
 ### Mirroring with Perforce Helix via Git Fusion **(STARTER)**
 

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 FactoryBot.define do
-  factory :package, class: Packages::Package do
+  factory :package, class: 'Packages::Package' do
     project
     name { 'my/company/app/my-app' }
-    version { '1.0-SNAPSHOT' }
+    sequence(:version) { |n| "1.#{n}-SNAPSHOT" }
     package_type { 'maven' }
 
     factory :maven_package do
@@ -28,6 +28,18 @@ FactoryBot.define do
       after :create do |package|
         create :package_file, :npm, package: package
       end
+
+      trait :with_build do
+        after :create do |package|
+          create :package_build_info, package: package, pipeline: create(:ci_build, user: package.project.creator).pipeline
+        end
+      end
+    end
+
+    factory :nuget_package do
+      sequence(:name) { |n| "NugetPackage#{n}"}
+      version { '1.0.0' }
+      package_type { :nuget }
     end
 
     factory :conan_package do
@@ -53,7 +65,10 @@ FactoryBot.define do
     end
   end
 
-  factory :package_file, class: Packages::PackageFile do
+  factory :package_build_info, class: 'Packages::BuildInfo' do
+  end
+
+  factory :package_file, class: 'Packages::PackageFile' do
     package
 
     factory :conan_package_file do
@@ -160,7 +175,7 @@ FactoryBot.define do
     end
   end
 
-  factory :maven_metadatum, class: Packages::MavenMetadatum do
+  factory :maven_metadatum, class: 'Packages::MavenMetadatum' do
     package
     path { 'my/company/app/my-app/1.0-SNAPSHOT' }
     app_group { 'my.company.app' }
@@ -168,13 +183,13 @@ FactoryBot.define do
     app_version { '1.0-SNAPSHOT' }
   end
 
-  factory :conan_metadatum, class: Packages::ConanMetadatum do
+  factory :conan_metadatum, class: 'Packages::ConanMetadatum' do
     package
     package_username { 'username' }
     package_channel { 'stable' }
   end
 
-  factory :conan_file_metadatum, class: Packages::ConanFileMetadatum do
+  factory :conan_file_metadatum, class: 'Packages::ConanFileMetadatum' do
     package_file
     recipe_revision { '0' }
 
@@ -187,5 +202,21 @@ FactoryBot.define do
       package_revision { '0' }
       conan_package_reference { '123456789' }
     end
+  end
+
+  factory :packages_dependency, class: 'Packages::Dependency' do
+    sequence(:name) { |n| "@test/package-#{n}"}
+    sequence(:version_pattern) { |n| "~6.2.#{n}" }
+  end
+
+  factory :packages_dependency_link, class: 'Packages::DependencyLink' do
+    package
+    dependency { create(:packages_dependency) }
+    dependency_type { :dependencies }
+  end
+
+  factory :packages_tag, class: 'Packages::Tag' do
+    package
+    sequence(:name) { |n| "tag-#{n}"}
   end
 end

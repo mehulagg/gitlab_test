@@ -14,18 +14,20 @@ export default () => ({
   isEmptyStage: false,
   errorCode: null,
 
-  isAddingCustomStage: false,
   isSavingCustomStage: false,
+  isCreatingCustomStage: false,
+  isEditingCustomStage: false,
 
   selectedGroup: null,
   selectedProjectIds: [],
-  selectedStageId: null,
+  selectedStage: null,
 
   currentStageEvents: [],
 
   stages: [],
   summary: [],
   labels: [],
+  medians: {},
 
   customStageFormEvents: [],
   tasksByType: {

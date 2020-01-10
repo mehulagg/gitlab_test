@@ -219,7 +219,7 @@ namespace :geo do
     abort GEO_LICENSE_ERROR_TEXT unless Gitlab::Geo.license_allows?
 
     ActiveRecord::Base.transaction do
-      primary_node = Gitlab::Geo.primary_node
+      primary_node = GeoNode.primary_node
 
       unless primary_node
         abort 'The primary is not set'
@@ -227,7 +227,7 @@ namespace :geo do
 
       primary_node.destroy
 
-      current_node = Gitlab::Geo.current_node
+      current_node = GeoNode.current_node
 
       unless current_node.secondary?
         abort 'This is not a secondary node'
@@ -339,12 +339,10 @@ namespace :geo do
       puts using_percentage(current_node_status.container_repositories_synced_in_percentage)
     end
 
-    if Feature.enabled?(:enable_geo_design_sync)
-      print 'Design repositories: '.rjust(GEO_STATUS_COLUMN_WIDTH)
-      show_failed_value(current_node_status.design_repositories_failed_count)
-      print "#{current_node_status.design_repositories_synced_count || 0}/#{current_node_status.design_repositories_count || 0} "
-      puts using_percentage(current_node_status.design_repositories_synced_in_percentage)
-    end
+    print 'Design repositories: '.rjust(GEO_STATUS_COLUMN_WIDTH)
+    show_failed_value(current_node_status.design_repositories_failed_count)
+    print "#{current_node_status.design_repositories_synced_count || 0}/#{current_node_status.design_repositories_count || 0} "
+    puts using_percentage(current_node_status.design_repositories_synced_in_percentage)
 
     if Gitlab::CurrentSettings.repository_checks_enabled
       print 'Repositories Checked: '.rjust(GEO_STATUS_COLUMN_WIDTH)

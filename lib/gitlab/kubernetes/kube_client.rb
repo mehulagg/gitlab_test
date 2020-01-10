@@ -17,6 +17,7 @@ module Gitlab
         core: { group: 'api', version: 'v1' },
         rbac: { group: 'apis/rbac.authorization.k8s.io', version: 'v1' },
         extensions: { group: 'apis/extensions', version: 'v1beta1' },
+        istio: { group: 'apis/networking.istio.io', version: 'v1alpha3' },
         knative: { group: 'apis/serving.knative.dev', version: 'v1alpha1' }
       }.freeze
 
@@ -56,7 +57,6 @@ module Gitlab
       # group client
       delegate :create_cluster_role_binding,
         :get_cluster_role_binding,
-        :get_cluster_role_bindings,
         :update_cluster_role_binding,
         to: :rbac_client
 
@@ -65,13 +65,6 @@ module Gitlab
       delegate :create_role,
       :get_role,
       :update_role,
-      to: :rbac_client
-
-      # RBAC methods delegates to the apis/rbac.authorization.k8s.io api
-      # group client
-      delegate :create_cluster_role,
-      :get_cluster_role,
-      :update_cluster_role,
       to: :rbac_client
 
       # RBAC methods delegates to the apis/rbac.authorization.k8s.io api
@@ -90,6 +83,13 @@ module Gitlab
       delegate :get_pod_log,
         :watch_pod_log,
         to: :core_client
+
+      # Gateway methods delegate to the apis/networking.istio.io api
+      # group client
+      delegate :create_gateway,
+        :get_gateway,
+        :update_gateway,
+        to: :istio_client
 
       attr_reader :api_prefix, :kubeclient_options
 

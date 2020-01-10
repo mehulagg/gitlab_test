@@ -8,6 +8,8 @@ import {
   nestQueryStringKeys,
   flattenDurationChartData,
   getDurationChartData,
+  transformRawStages,
+  isPersistedStage,
 } from 'ee/analytics/cycle_analytics/utils';
 import {
   customStageEvents as events,
@@ -19,6 +21,8 @@ import {
   durationChartPlottableData,
   startDate,
   endDate,
+  issueStage,
+  rawCustomStage,
 } from './mock_data';
 
 const labelEvents = [labelStartEvent, labelStopEvent].map(i => i.identifier);
@@ -151,6 +155,48 @@ describe('Cycle analytics utils', () => {
       const plottableData = getDurationChartData(transformedDurationData, startDate, endDate);
 
       expect(plottableData).toStrictEqual(durationChartPlottableData);
+    });
+  });
+
+  describe('transformRawStages', () => {
+    it('retains all the stage properties', () => {
+      const transformed = transformRawStages([issueStage, rawCustomStage]);
+      expect(transformed).toMatchSnapshot();
+    });
+
+    it('converts object properties from snake_case to camelCase', () => {
+      const [transformedCustomStage] = transformRawStages([rawCustomStage]);
+      expect(transformedCustomStage).toMatchObject({
+        endEventIdentifier: 'issue_first_added_to_board',
+        startEventIdentifier: 'issue_first_mentioned_in_commit',
+      });
+    });
+
+    it('sets the slug to the value of the stage id', () => {
+      const transformed = transformRawStages([issueStage, rawCustomStage]);
+      transformed.forEach(t => {
+        expect(t.slug).toEqual(t.id);
+      });
+    });
+
+    it('sets the name to the value of the stage title if its not set', () => {
+      const transformed = transformRawStages([issueStage, rawCustomStage]);
+      transformed.forEach(t => {
+        expect(t.name.length > 0).toBe(true);
+        expect(t.name).toEqual(t.title);
+      });
+    });
+  });
+
+  describe('isPersistedStage', () => {
+    it.each`
+      custom   | id                    | expected
+      ${true}  | ${'this-is-a-string'} | ${true}
+      ${true}  | ${42}                 | ${true}
+      ${false} | ${42}                 | ${true}
+      ${false} | ${'this-is-a-string'} | ${false}
+    `('with custom=$custom and id=$id', ({ custom, id, expected }) => {
+      expect(isPersistedStage({ custom, id })).toEqual(expected);
     });
   });
 });

@@ -610,6 +610,7 @@ describe Ci::Build do
 
     context 'artifacts archive is a zip file and metadata exists' do
       let(:build) { create(:ci_build, :artifacts) }
+
       it { is_expected.to be_truthy }
     end
   end
@@ -813,6 +814,27 @@ describe Ci::Build do
 
       context 'when nor dependencies or needs are defined' do
         it { is_expected.to contain_exactly(build, rspec_test, rubocop_test, staging) }
+      end
+    end
+
+    describe '#all_dependencies' do
+      let!(:final_build) do
+        create(:ci_build,
+          pipeline: pipeline, name: 'deploy',
+          stage_idx: 3, stage: 'deploy'
+        )
+      end
+
+      subject { final_build.all_dependencies }
+
+      it 'returns dependencies and cross_dependencies' do
+        dependencies = [1, 2, 3]
+        cross_dependencies = [3, 4]
+
+        allow(final_build).to receive(:dependencies).and_return(dependencies)
+        allow(final_build).to receive(:cross_dependencies).and_return(cross_dependencies)
+
+        is_expected.to match(a_collection_containing_exactly(1, 2, 3, 4))
       end
     end
   end
@@ -1032,7 +1054,7 @@ describe Ci::Build do
   end
 
   describe 'state transition as a deployable' do
-    let!(:build) { create(:ci_build, :with_deployment, :start_review_app) }
+    let!(:build) { create(:ci_build, :with_deployment, :start_review_app, project: project, pipeline: pipeline) }
     let(:deployment) { build.deployment }
     let(:environment) { deployment.environment }
 
@@ -1093,6 +1115,60 @@ describe Ci::Build do
 
       it 'transits deployment status to canceled' do
         expect(deployment).to be_canceled
+      end
+    end
+  end
+
+  describe 'state transition with resource group' do
+    let(:resource_group) { create(:ci_resource_group, project: project) }
+
+    context 'when build status is created' do
+      let(:build) { create(:ci_build, :created, project: project, resource_group: resource_group) }
+
+      it 'is waiting for resource when build is enqueued' do
+        expect(Ci::ResourceGroups::AssignResourceFromResourceGroupWorker).to receive(:perform_async).with(resource_group.id)
+
+        expect { build.enqueue! }.to change { build.status }.from('created').to('waiting_for_resource')
+
+        expect(build.waiting_for_resource_at).not_to be_nil
+      end
+
+      context 'when build is waiting for resource' do
+        before do
+          build.update_column(:status, 'waiting_for_resource')
+        end
+
+        it 'is enqueued when build requests resource' do
+          expect { build.enqueue_waiting_for_resource! }.to change { build.status }.from('waiting_for_resource').to('pending')
+        end
+
+        it 'releases a resource when build finished' do
+          expect(build.resource_group).to receive(:release_resource_from).with(build).and_call_original
+          expect(Ci::ResourceGroups::AssignResourceFromResourceGroupWorker).to receive(:perform_async).with(build.resource_group_id)
+
+          build.enqueue_waiting_for_resource!
+          build.success!
+        end
+
+        context 'when build has prerequisites' do
+          before do
+            allow(build).to receive(:any_unmet_prerequisites?) { true }
+          end
+
+          it 'is preparing when build is enqueued' do
+            expect { build.enqueue_waiting_for_resource! }.to change { build.status }.from('waiting_for_resource').to('preparing')
+          end
+        end
+
+        context 'when there are no available resources' do
+          before do
+            resource_group.assign_resource_to(create(:ci_build))
+          end
+
+          it 'stays as waiting for resource when build requests resource' do
+            expect { build.enqueue_waiting_for_resource }.not_to change { build.status }
+          end
+        end
       end
     end
   end
@@ -1387,6 +1463,7 @@ describe Ci::Build do
 
         describe '#erased?' do
           let!(:build) { create(:ci_build, :trace_artifact, :success, :artifacts) }
+
           subject { build.erased? }
 
           context 'job has not been erased' do
@@ -1448,6 +1525,7 @@ describe Ci::Build do
   describe '#first_pending' do
     let!(:first) { create(:ci_build, pipeline: pipeline, status: 'pending', created_at: Date.yesterday) }
     let!(:second) { create(:ci_build, pipeline: pipeline, status: 'pending') }
+
     subject { described_class.first_pending }
 
     it { is_expected.to be_a(described_class) }
@@ -1529,6 +1607,12 @@ describe Ci::Build do
 
         context 'when build is created' do
           let(:build) { create(:ci_build, :created) }
+
+          it { is_expected.to be_cancelable }
+        end
+
+        context 'when build is waiting for resource' do
+          let(:build) { create(:ci_build, :waiting_for_resource) }
 
           it { is_expected.to be_cancelable }
         end
@@ -2275,6 +2359,7 @@ describe Ci::Build do
           { key: 'CI_BUILD_STAGE', value: 'test', public: true, masked: false },
           { key: 'CI', value: 'true', public: true, masked: false },
           { key: 'GITLAB_CI', value: 'true', public: true, masked: false },
+          { key: 'CI_SERVER_URL', value: Gitlab.config.gitlab.url, public: true, masked: false },
           { key: 'CI_SERVER_HOST', value: Gitlab.config.gitlab.host, public: true, masked: false },
           { key: 'CI_SERVER_NAME', value: 'GitLab', public: true, masked: false },
           { key: 'CI_SERVER_VERSION', value: Gitlab::VERSION, public: true, masked: false },
@@ -2304,6 +2389,7 @@ describe Ci::Build do
           { key: 'CI_COMMIT_BEFORE_SHA', value: build.before_sha, public: true, masked: false },
           { key: 'CI_COMMIT_REF_NAME', value: build.ref, public: true, masked: false },
           { key: 'CI_COMMIT_REF_SLUG', value: build.ref_slug, public: true, masked: false },
+          { key: 'CI_COMMIT_BRANCH', value: build.ref, public: true, masked: false },
           { key: 'CI_COMMIT_MESSAGE', value: pipeline.git_commit_message, public: true, masked: false },
           { key: 'CI_COMMIT_TITLE', value: pipeline.git_commit_title, public: true, masked: false },
           { key: 'CI_COMMIT_DESCRIPTION', value: pipeline.git_commit_description, public: true, masked: false },
@@ -2525,6 +2611,19 @@ describe Ci::Build do
       end
 
       it { is_expected.to include(job_variable) }
+    end
+
+    context 'when build is for branch' do
+      let(:branch_variable) do
+        { key: 'CI_COMMIT_BRANCH', value: 'master', public: true, masked: false }
+      end
+
+      before do
+        build.update(tag: false)
+        pipeline.update(tag: false)
+      end
+
+      it { is_expected.to include(branch_variable) }
     end
 
     context 'when build is for tag' do
@@ -3460,7 +3559,7 @@ describe Ci::Build do
       end
 
       it 'can drop the build' do
-        expect(Gitlab::Sentry).to receive(:track_exception)
+        expect(Gitlab::ErrorTracking).to receive(:track_and_raise_for_dev_exception)
 
         expect { build.drop! }.not_to raise_error
 
@@ -3859,7 +3958,7 @@ describe Ci::Build do
     end
 
     context 'when build is a last deployment' do
-      let(:build) { create(:ci_build, :success, environment: 'production') }
+      let(:build) { create(:ci_build, :success, environment: 'production', pipeline: pipeline, project: project) }
       let(:environment) { create(:environment, name: 'production', project: build.project) }
       let!(:deployment) { create(:deployment, :success, environment: environment, project: environment.project, deployable: build) }
 
@@ -3867,7 +3966,7 @@ describe Ci::Build do
     end
 
     context 'when there is a newer build with deployment' do
-      let(:build) { create(:ci_build, :success, environment: 'production') }
+      let(:build) { create(:ci_build, :success, environment: 'production', pipeline: pipeline, project: project) }
       let(:environment) { create(:environment, name: 'production', project: build.project) }
       let!(:deployment) { create(:deployment, :success, environment: environment, project: environment.project, deployable: build) }
       let!(:last_deployment) { create(:deployment, :success, environment: environment, project: environment.project) }
@@ -3876,7 +3975,7 @@ describe Ci::Build do
     end
 
     context 'when build with deployment has failed' do
-      let(:build) { create(:ci_build, :failed, environment: 'production') }
+      let(:build) { create(:ci_build, :failed, environment: 'production', pipeline: pipeline, project: project) }
       let(:environment) { create(:environment, name: 'production', project: build.project) }
       let!(:deployment) { create(:deployment, :success, environment: environment, project: environment.project, deployable: build) }
 
@@ -3884,7 +3983,7 @@ describe Ci::Build do
     end
 
     context 'when build with deployment is running' do
-      let(:build) { create(:ci_build, environment: 'production') }
+      let(:build) { create(:ci_build, environment: 'production', pipeline: pipeline, project: project) }
       let(:environment) { create(:environment, name: 'production', project: build.project) }
       let!(:deployment) { create(:deployment, :success, environment: environment, project: environment.project, deployable: build) }
 

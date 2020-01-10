@@ -34,7 +34,6 @@ describe('Release block', () => {
           ...featureFlags,
         },
       },
-      sync: false,
     });
 
     return wrapper.vm.$nextTick();
@@ -68,7 +67,7 @@ describe('Release block', () => {
     });
 
     it('renders release date', () => {
-      expect(wrapper.text()).toContain(timeagoMixin.methods.timeFormated(release.released_at));
+      expect(wrapper.text()).toContain(timeagoMixin.methods.timeFormatted(release.released_at));
     });
 
     it('renders number of assets provided', () => {
@@ -271,7 +270,7 @@ describe('Release block', () => {
 
         expect(milestoneLink.attributes('href')).toBe(milestone.web_url);
 
-        expect(milestoneLink.attributes('data-original-title')).toBe(milestone.description);
+        expect(milestoneLink.attributes('title')).toBe(milestone.description);
       });
     });
 

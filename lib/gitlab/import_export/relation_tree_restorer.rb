@@ -82,11 +82,8 @@ module Gitlab
       end
 
       def log_import_failure(relation_key, relation_index, exception)
-        Gitlab::Sentry.track_acceptable_exception(
-          exception,
-          extra: { project_id: @importable.id,
-                   relation_key: relation_key,
-                   relation_index: relation_index })
+        Gitlab::ErrorTracking.track_exception(exception,
+          project_id: @importable.id, relation_key: relation_key, relation_index: relation_index)
 
         ImportFailure.create(
           project: @importable,
@@ -94,7 +91,7 @@ module Gitlab
           relation_index: relation_index,
           exception_class: exception.class.to_s,
           exception_message: exception.message.truncate(255),
-          correlation_id_value: Labkit::Correlation::CorrelationId.current_id
+          correlation_id_value: Labkit::Correlation::CorrelationId.current_or_new_id
         )
       end
 

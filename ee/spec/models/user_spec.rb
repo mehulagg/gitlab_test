@@ -228,11 +228,11 @@ describe User do
     end
   end
 
-  describe '#full_private_access?' do
+  describe '#can_read_all_resources?' do
     it 'returns true for auditor user' do
       user = build(:user, :auditor)
 
-      expect(user.full_private_access?).to be_truthy
+      expect(user.can_read_all_resources?).to be_truthy
     end
   end
 
@@ -657,6 +657,7 @@ describe User do
 
     context 'namespace with input name exists' do
       let(:name) { 'Disney' }
+
       before do
         create(:user, name: 'disney')
       end
@@ -670,6 +671,7 @@ describe User do
 
     context 'namespace with input name and suffix exists' do
       let(:name) { 'Disney' }
+
       before do
         create(:user, name: 'disney')
         create(:user, name: 'disney1')
@@ -695,6 +697,34 @@ describe User do
         username = described_class.username_suggestion(name)
 
         expect(username).to eq('')
+      end
+    end
+  end
+
+  describe '#security_dashboard_project_ids' do
+    let(:project) { create(:project) }
+
+    context 'when the user can read all resources' do
+      it "returns the ids for all of the user's security dashboard projects" do
+        admin = create(:admin)
+        auditor = create(:auditor)
+
+        admin.security_dashboard_projects << project
+        auditor.security_dashboard_projects << project
+
+        expect(admin.security_dashboard_project_ids).to eq([project.id])
+        expect(auditor.security_dashboard_project_ids).to eq([project.id])
+      end
+    end
+
+    context 'when the user cannot read all resources' do
+      it 'returns the ids for security dashboard projects visible to the user' do
+        user = create(:user)
+        member_project = create(:project)
+        member_project.add_developer(user)
+        user.security_dashboard_projects << [project, member_project]
+
+        expect(user.security_dashboard_project_ids).to eq([member_project.id])
       end
     end
   end

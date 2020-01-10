@@ -1,10 +1,8 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
+import { TEST_HOST } from 'spec/test_constants';
 import createStore from '~/notes/stores';
 import noteActions from '~/notes/components/note_actions.vue';
-import { TEST_HOST } from 'spec/test_constants';
 import { userDataMock } from '../../../../spec/frontend/notes/mock_data';
-
-const localVue = createLocalVue();
 
 describe('noteActions', () => {
   let wrapper;
@@ -12,11 +10,9 @@ describe('noteActions', () => {
   let props;
 
   const createWrapper = propsData =>
-    shallowMount(localVue.extend(noteActions), {
+    shallowMount(noteActions, {
       store,
       propsData,
-      localVue,
-      sync: false,
       attachToDocument: true,
     });
 
@@ -53,7 +49,7 @@ describe('noteActions', () => {
       const resolveButton = wrapper.find({ ref: 'resolveButton' });
 
       expect(resolveButton.exists()).toBe(true);
-      expect(resolveButton.attributes('data-original-title')).toEqual('Thread stays unresolved');
+      expect(resolveButton.attributes('title')).toEqual('Thread stays unresolved');
     });
   });
 });

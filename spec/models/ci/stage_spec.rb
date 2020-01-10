@@ -65,7 +65,7 @@ describe Ci::Stage, :models do
       it 'updates stage status correctly' do
         expect { stage.update_status }
           .to change { stage.reload.status }
-          .to 'running'
+          .to eq 'running'
       end
     end
 
@@ -89,7 +89,7 @@ describe Ci::Stage, :models do
       it 'updates status to skipped' do
         expect { stage.update_status }
           .to change { stage.reload.status }
-          .to 'skipped'
+          .to eq 'skipped'
       end
     end
 
@@ -105,11 +105,23 @@ describe Ci::Stage, :models do
       end
     end
 
+    context 'when build is waiting for resource' do
+      before do
+        create(:ci_build, :waiting_for_resource, stage_id: stage.id)
+      end
+
+      it 'updates status to waiting for resource' do
+        expect { stage.update_status }
+          .to change { stage.reload.status }
+          .to 'waiting_for_resource'
+      end
+    end
+
     context 'when stage is skipped because is empty' do
       it 'updates status to skipped' do
         expect { stage.update_status }
           .to change { stage.reload.status }
-          .to 'skipped'
+          .to eq('skipped')
       end
     end
 
@@ -146,6 +158,7 @@ describe Ci::Stage, :models do
 
     let(:user) { create(:user) }
     let(:stage) { create(:ci_stage_entity, status: :created) }
+
     subject { stage.detailed_status(user) }
 
     where(:statuses, :label) do
@@ -171,7 +184,7 @@ describe Ci::Stage, :models do
       end
 
       it 'has a correct label' do
-        expect(subject.label).to eq label.to_s
+        expect(subject.label).to eq(label.to_s)
       end
     end
 
@@ -187,7 +200,7 @@ describe Ci::Stage, :models do
       end
 
       it 'is passed with warnings' do
-        expect(subject.label).to eq 'passed with warnings'
+        expect(subject.label).to eq s_('CiStatusLabel|passed with warnings')
       end
     end
   end

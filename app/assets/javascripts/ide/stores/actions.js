@@ -17,10 +17,18 @@ export const setInitialData = ({ commit }, data) => commit(types.SET_INITIAL_DAT
 
 export const discardAllChanges = ({ state, commit, dispatch }) => {
   state.changedFiles.forEach(file => {
-    commit(types.DISCARD_FILE_CHANGES, file.path);
+    if (file.tempFile || file.prevPath) dispatch('closeFile', file);
 
     if (file.tempFile) {
-      dispatch('closeFile', file.path);
+      dispatch('deleteEntry', file.path);
+    } else if (file.prevPath) {
+      dispatch('renameEntry', {
+        path: file.path,
+        name: file.prevName,
+        parentPath: file.prevParentPath,
+      });
+    } else {
+      commit(types.DISCARD_FILE_CHANGES, file.path);
     }
   });
 
@@ -102,6 +110,7 @@ export const createTempEntry = (
       commit(types.ADD_FILE_TO_CHANGED, file.path);
       dispatch('setFileActive', file.path);
       dispatch('triggerFilesChange');
+      dispatch('burstUnusedSeal');
     }
 
     if (parentPath && !state.entries[parentPath].opened) {
@@ -125,28 +134,40 @@ export const scrollToTab = () => {
   });
 };
 
-export const stageAllChanges = ({ state, commit, dispatch }) => {
+export const stageAllChanges = ({ state, commit, dispatch, getters }) => {
   const openFile = state.openFiles[0];
 
   commit(types.SET_LAST_COMMIT_MSG, '');
 
-  state.changedFiles.forEach(file => commit(types.STAGE_CHANGE, file.path));
+  state.changedFiles.forEach(file =>
+    commit(types.STAGE_CHANGE, { path: file.path, diffInfo: getters.getDiffInfo(file.path) }),
+  );
 
-  dispatch('openPendingTab', {
-    file: state.stagedFiles.find(f => f.path === openFile.path),
-    keyPrefix: stageKeys.staged,
-  });
+  const file = getters.getStagedFile(openFile.path);
+
+  if (file) {
+    dispatch('openPendingTab', {
+      file,
+      keyPrefix: stageKeys.staged,
+    });
+  }
 };
 
-export const unstageAllChanges = ({ state, commit, dispatch }) => {
+export const unstageAllChanges = ({ state, commit, dispatch, getters }) => {
   const openFile = state.openFiles[0];
 
-  state.stagedFiles.forEach(file => commit(types.UNSTAGE_CHANGE, file.path));
+  state.stagedFiles.forEach(file =>
+    commit(types.UNSTAGE_CHANGE, { path: file.path, diffInfo: getters.getDiffInfo(file.path) }),
+  );
 
-  dispatch('openPendingTab', {
-    file: state.changedFiles.find(f => f.path === openFile.path),
-    keyPrefix: stageKeys.unstaged,
-  });
+  const file = getters.getChangedFile(openFile.path);
+
+  if (file) {
+    dispatch('openPendingTab', {
+      file,
+      keyPrefix: stageKeys.unstaged,
+    });
+  }
 };
 
 export const updateViewer = ({ commit }, viewer) => {
@@ -214,7 +235,9 @@ export const deleteEntry = ({ commit, dispatch, state }, path) => {
     dispatch('deleteEntry', prevPath);
     return;
   }
-  if (state.unusedSeal) dispatch('burstUnusedSeal');
+
+  dispatch('burstUnusedSeal');
+
   if (entry.opened) dispatch('closeFile', entry);
 
   if (isTree) {
@@ -259,6 +282,7 @@ export const renameEntry = ({ dispatch, commit, state }, { path, name, parentPat
       commit(types.REMOVE_FILE_FROM_STAGED_AND_CHANGED, newEntry);
     } else if (!isInChanges) {
       commit(types.ADD_FILE_TO_CHANGED, newPath);
+      dispatch('burstUnusedSeal');
     }
 
     if (!newEntry.tempFile) {

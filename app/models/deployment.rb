@@ -23,6 +23,8 @@ class Deployment < ApplicationRecord
 
   validates :sha, presence: true
   validates :ref, presence: true
+  validate :valid_sha, on: :create
+  validate :valid_ref, on: :create
 
   delegate :name, to: :environment, prefix: true
 
@@ -210,11 +212,44 @@ class Deployment < ApplicationRecord
 
     # We don't use `Gitlab::Database.bulk_insert` here so that we don't need to
     # first pluck lots of IDs into memory.
+    #
+    # We also ignore any duplicates so this method can be called multiple times
+    # for the same deployment, only inserting any missing merge requests.
     DeploymentMergeRequest.connection.execute(<<~SQL)
       INSERT INTO #{DeploymentMergeRequest.table_name}
       (merge_request_id, deployment_id)
       #{select}
+      ON CONFLICT DO NOTHING
     SQL
+  end
+
+  # Changes the status of a deployment and triggers the correspinding state
+  # machine events.
+  def update_status(status)
+    case status
+    when 'running'
+      run
+    when 'success'
+      succeed
+    when 'failed'
+      drop
+    when 'canceled'
+      cancel
+    else
+      raise ArgumentError, "The status #{status.inspect} is invalid"
+    end
+  end
+
+  def valid_sha
+    return if project&.commit(sha)
+
+    errors.add(:sha, _('The commit does not exist'))
+  end
+
+  def valid_ref
+    return if project&.commit(ref)
+
+    errors.add(:ref, _('The branch or tag does not exist'))
   end
 
   private

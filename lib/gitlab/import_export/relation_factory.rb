@@ -34,16 +34,18 @@ module Gitlab
 
       PROJECT_REFERENCES = %w[project_id source_project_id target_project_id].freeze
 
+      GROUP_REFERENCES = %w[group_id].freeze
+
       BUILD_MODELS = %i[Ci::Build commit_status].freeze
 
       IMPORTED_OBJECT_MAX_RETRIES = 5.freeze
 
-      EXISTING_OBJECT_CHECK = %i[milestone milestones label labels project_label project_labels group_label group_labels project_feature merge_request ProjectCiCdSetting].freeze
+      EXISTING_OBJECT_CHECK = %i[milestone milestones label labels project_label project_labels group_label group_labels project_feature merge_request ProjectCiCdSetting container_expiration_policy].freeze
 
       TOKEN_RESET_MODELS = %i[Project Namespace Ci::Trigger Ci::Build Ci::Runner ProjectHook].freeze
 
       # This represents all relations that have unique key on `project_id`
-      UNIQUE_RELATIONS = %i[project_feature ProjectCiCdSetting].freeze
+      UNIQUE_RELATIONS = %i[project_feature ProjectCiCdSetting container_expiration_policy].freeze
 
       def self.create(*args)
         new(*args).create
@@ -89,7 +91,13 @@ module Gitlab
 
         setup_models
 
-        generate_imported_object
+        object = generate_imported_object
+
+        # We preload the project, user, and group to re-use objects
+        object = preload_keys(object, PROJECT_REFERENCES, @project)
+        object = preload_keys(object, GROUP_REFERENCES, @project.group)
+        object = preload_keys(object, USER_REFERENCES, @user)
+        object
       end
 
       def self.overrides
@@ -120,6 +128,21 @@ module Gitlab
 
         reset_tokens!
         remove_encrypted_attributes!
+      end
+
+      def preload_keys(object, references, value)
+        return object unless value
+
+        references.each do |key|
+          attribute = "#{key.delete_suffix('_id')}=".to_sym
+          next unless object.respond_to?(key) && object.respond_to?(attribute)
+
+          if object.read_attribute(key) == value&.id
+            object.public_send(attribute, value) # rubocop:disable GitlabSecurity/PublicSend
+          end
+        end
+
+        object
       end
 
       def update_user_references

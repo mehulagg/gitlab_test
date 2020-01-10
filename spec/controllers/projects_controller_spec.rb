@@ -289,6 +289,36 @@ describe ProjectsController do
           .not_to exceed_query_limit(2).for_query(expected_query)
       end
     end
+
+    context 'lfs_blob_ids instance variable' do
+      let(:project) { create(:project, :public, :repository) }
+
+      before do
+        sign_in(user)
+      end
+
+      context 'with vue tree view enabled' do
+        before do
+          get :show, params: { namespace_id: project.namespace, id: project }
+        end
+
+        it 'is not set' do
+          expect(assigns[:lfs_blob_ids]).to be_nil
+        end
+      end
+
+      context 'with vue tree view disabled' do
+        before do
+          stub_feature_flags(vue_file_list: false)
+
+          get :show, params: { namespace_id: project.namespace, id: project }
+        end
+
+        it 'is set' do
+          expect(assigns[:lfs_blob_ids]).not_to be_nil
+        end
+      end
+    end
   end
 
   describe 'GET edit' do
@@ -506,7 +536,7 @@ describe ProjectsController do
           expect { update_project path: 'renamed_path' }
             .not_to change { project.reload.path }
 
-          expect(controller).to set_flash.now[:alert].to(/container registry tags/)
+          expect(controller).to set_flash.now[:alert].to(s_('UpdateProject|Cannot rename project because it contains container registry tags!'))
           expect(response).to have_gitlab_http_status(200)
         end
       end
@@ -645,7 +675,7 @@ describe ProjectsController do
 
         expect(project.namespace).to eq(old_namespace)
         expect(response).to have_gitlab_http_status(200)
-        expect(flash[:alert]).to eq 'Please select a new namespace for your project.'
+        expect(flash[:alert]).to eq s_('TransferProject|Please select a new namespace for your project.')
       end
     end
   end
@@ -797,7 +827,7 @@ describe ProjectsController do
               format: :js)
 
           expect(forked_project.reload.forked?).to be_falsey
-          expect(flash[:notice]).to eq('The fork relationship has been removed.')
+          expect(flash[:notice]).to eq(s_('The fork relationship has been removed.'))
           expect(response).to render_template(:remove_fork)
         end
       end

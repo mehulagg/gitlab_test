@@ -77,29 +77,9 @@ describe Group do
       let_it_be(:epic1) { create(:epic) }
       let_it_be(:epic2) { create(:epic) }
 
-      shared_examples '.for_epics examples' do
-        it 'returns groups only for selected epics' do
-          epics = ::Epic.where(id: epic1)
-          expect(described_class.for_epics(epics)).to contain_exactly(epic1.group)
-        end
-      end
-
-      context 'with `optimized_groups_user_can_read_epics_method` feature flag' do
-        before do
-          stub_feature_flags(optimized_groups_user_can_read_epics_method: flag_state)
-        end
-
-        context 'enabled' do
-          let(:flag_state) { true }
-
-          include_examples '.for_epics examples'
-        end
-
-        context 'disabled' do
-          let(:flag_state) { false }
-
-          include_examples '.for_epics examples'
-        end
+      it 'returns groups only for selected epics' do
+        epics = ::Epic.where(id: epic1)
+        expect(described_class.for_epics(epics)).to contain_exactly(epic1.group)
       end
     end
   end
@@ -253,46 +233,29 @@ describe Group do
         end
       end
 
-      context 'with `preset_group_root` feature flag disabled' do
-        before do
-          stub_feature_flags(preset_group_root: false)
-        end
+      context 'when same_root is false' do
+        let(:params) { { same_root: false } }
 
+        # extra 6 queries:
+        # * getting root_ancestor
+        # * getting root ancestor's saml_provider
+        # * check if group has projects
+        # * max_member_access_for_user_from_shared_groups
+        # * max_member_access_for_user
+        # * self_and_ancestors_ids
         it_behaves_like 'group root ancestor' do
-          let(:params) { {} }
           let(:extra_query_count) { 6 }
         end
       end
 
-      context 'with `preset_group_root` feature flag enabled' do
-        before do
-          stub_feature_flags(preset_group_root: true)
-        end
+      context 'when same_root is true' do
+        let(:params) { { same_root: true } }
 
-        context 'when same_root is false' do
-          let(:params) { { same_root: false } }
-
-          # extra 6 queries:
-          # * getting root_ancestor
-          # * getting root ancestor's saml_provider
-          # * check if group has projects
-          # * max_member_access_for_user_from_shared_groups
-          # * max_member_access_for_user
-          # * self_and_ancestors_ids
-          it_behaves_like 'group root ancestor' do
-            let(:extra_query_count) { 6 }
-          end
-        end
-
-        context 'when same_root is true' do
-          let(:params) { { same_root: true } }
-
-          # avoids 2 queries from the list above:
-          # * getting root ancestor
-          # * getting root ancestor's saml_provider
-          it_behaves_like 'group root ancestor' do
-            let(:extra_query_count) { 4 }
-          end
+        # avoids 2 queries from the list above:
+        # * getting root ancestor
+        # * getting root ancestor's saml_provider
+        it_behaves_like 'group root ancestor' do
+          let(:extra_query_count) { 4 }
         end
       end
     end
@@ -607,8 +570,8 @@ describe Group do
     end
   end
 
-  describe '#beta_feature_available?' do
-    it_behaves_like 'an entity with beta feature support' do
+  describe '#alpha/beta_feature_available?' do
+    it_behaves_like 'an entity with alpha/beta feature support' do
       let(:entity) { group }
     end
   end

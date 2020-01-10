@@ -6,7 +6,10 @@ describe('DismissalButton', () => {
   let wrapper;
 
   const mountComponent = options => {
-    wrapper = mount(component, { sync: false, attachToDocument: true, ...options });
+    wrapper = mount(component, {
+      attachToDocument: true,
+      ...options,
+    });
   };
 
   describe('With a non-dismissed vulnerability', () => {
@@ -23,7 +26,9 @@ describe('DismissalButton', () => {
 
     it('should emit dismiss vulnerabilty when clicked', () => {
       wrapper.find(LoadingButton).trigger('click');
-      expect(wrapper.emitted().dismissVulnerability).toBeTruthy();
+      return wrapper.vm.$nextTick().then(() => {
+        expect(wrapper.emitted().dismissVulnerability).toBeTruthy();
+      });
     });
 
     it('should render the dismiss with comment button', () => {
@@ -32,7 +37,9 @@ describe('DismissalButton', () => {
 
     it('should emit openDismissalCommentBox when clicked', () => {
       wrapper.find('.js-dismiss-with-comment').trigger('click');
-      expect(wrapper.emitted().openDismissalCommentBox).toBeTruthy();
+      return wrapper.vm.$nextTick().then(() => {
+        expect(wrapper.emitted().openDismissalCommentBox).toBeTruthy();
+      });
     });
   });
 
@@ -50,7 +57,9 @@ describe('DismissalButton', () => {
 
     it('should emit revertDismissVulnerabilty when clicked', () => {
       wrapper.find(LoadingButton).trigger('click');
-      expect(wrapper.emitted().revertDismissVulnerability).toBeTruthy();
+      return wrapper.vm.$nextTick().then(() => {
+        expect(wrapper.emitted().revertDismissVulnerability).toBeTruthy();
+      });
     });
 
     it('should not render the dismiss with comment button', () => {

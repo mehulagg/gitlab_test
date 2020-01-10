@@ -152,9 +152,7 @@ class Note < ApplicationRecord
   scope :for_note_or_capitalized_note, ->(text) { where(note: [text, text.capitalize]) }
   scope :like_note_or_capitalized_note, ->(text) { where('(note LIKE ? OR note LIKE ?)', text, text.capitalize) }
 
-  after_initialize :ensure_discussion_id
   before_validation :nullify_blank_type, :nullify_blank_line_code
-  before_validation :set_discussion_id, on: :create
   after_save :keep_around_commit, if: :for_project_noteable?, unless: :importing?
   after_save :expire_etag_cache, unless: :importing?
   after_save :touch_noteable, unless: :importing?
@@ -394,7 +392,7 @@ class Note < ApplicationRecord
 
   # See `Discussion.override_discussion_id` for details.
   def discussion_id(noteable = nil)
-    discussion_class(noteable).override_discussion_id(self) || super()
+    discussion_class(noteable).override_discussion_id(self) || super() || ensure_discussion_id
   end
 
   # Returns a discussion containing just this note.
@@ -499,7 +497,17 @@ class Note < ApplicationRecord
     project
   end
 
+  def user_mentions
+    noteable.user_mentions.where(note: self)
+  end
+
   private
+
+  # Using this method followed by a call to `save` may result in ActiveRecord::RecordNotUnique exception
+  # in a multithreaded environment. Make sure to use it within a `safe_ensure_unique` block.
+  def model_user_mention
+    user_mentions.first_or_initialize
+  end
 
   def system_note_viewable_by?(user)
     return true unless system_note_metadata
@@ -523,17 +531,13 @@ class Note < ApplicationRecord
   end
 
   def ensure_discussion_id
-    return unless self.persisted?
-    # Needed in case the SELECT statement doesn't ask for `discussion_id`
-    return unless self.has_attribute?(:discussion_id)
-    return if self.discussion_id
+    return if self.attribute_present?(:discussion_id)
 
-    set_discussion_id
-    update_column(:discussion_id, self.discussion_id)
+    self.discussion_id = derive_discussion_id
   end
 
-  def set_discussion_id
-    self.discussion_id ||= discussion_class.discussion_id(self)
+  def derive_discussion_id
+    discussion_class.discussion_id(self)
   end
 
   def all_referenced_mentionables_allowed?(user)

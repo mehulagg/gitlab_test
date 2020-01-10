@@ -1,12 +1,12 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import { GlButton } from '@gitlab/ui';
 
 import RelatedItemsTreeHeader from 'ee/related_items_tree/components/related_items_tree_header.vue';
-import Icon from '~/vue_shared/components/icon.vue';
 import createDefaultStore from 'ee/related_items_tree/store';
 import * as epicUtils from 'ee/related_items_tree/utils/epic_utils';
 import { issuableTypesMap } from 'ee/related_issues/constants';
 import EpicActionsSplitButton from 'ee/related_items_tree/components/epic_actions_split_button.vue';
+import Icon from '~/vue_shared/components/icon.vue';
 
 import {
   mockParentItem,
@@ -15,7 +15,6 @@ import {
 
 const createComponent = ({ slots } = {}) => {
   const store = createDefaultStore();
-  const localVue = createLocalVue();
   const children = epicUtils.processQueryResponse(mockQueryResponse.data.group);
 
   store.dispatch('setInitialParentItem', mockParentItem);
@@ -32,8 +31,6 @@ const createComponent = ({ slots } = {}) => {
 
   return shallowMount(RelatedItemsTreeHeader, {
     attachToDocument: true,
-    sync: false,
-    localVue,
     store,
     slots,
   });

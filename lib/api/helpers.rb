@@ -213,9 +213,9 @@ module API
       unauthorized! unless Devise.secure_compare(secret_token, input)
     end
 
-    def authenticated_with_full_private_access!
+    def authenticated_with_can_read_all_resources!
       authenticate!
-      forbidden! unless current_user.full_private_access?
+      forbidden! unless current_user.can_read_all_resources?
     end
 
     def authenticated_as_admin!
@@ -363,6 +363,10 @@ module API
       render_api_error!('204 No Content', 204)
     end
 
+    def created!
+      render_api_error!('201 Created', 201)
+    end
+
     def accepted!
       render_api_error!('202 Accepted', 202)
     end
@@ -384,8 +388,9 @@ module API
     def handle_api_exception(exception)
       if report_exception?(exception)
         define_params_for_grape_middleware
-        Gitlab::Sentry.context(current_user)
-        Gitlab::Sentry.track_acceptable_exception(exception, extra: params)
+        Gitlab::ErrorTracking.with_context(current_user) do
+          Gitlab::ErrorTracking.track_exception(exception, params)
+        end
       end
 
       # This is used with GrapeLogging::Loggers::ExceptionLogger

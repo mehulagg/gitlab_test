@@ -3,6 +3,7 @@ require 'spec_helper'
 
 describe API::ConanPackages do
   include WorkhorseHelpers
+  include EE::PackagesManagerApiSpecHelpers
 
   let(:package) { create(:conan_package) }
   let_it_be(:personal_access_token) { create(:personal_access_token) }
@@ -11,6 +12,8 @@ describe API::ConanPackages do
 
   let(:base_secret) { SecureRandom.base64(64) }
   let(:auth_token) { personal_access_token.token }
+  let(:job) { create(:ci_build, user: user) }
+  let(:job_token) { job.token }
 
   let(:headers) do
     { 'HTTP_AUTHORIZATION' => ActionController::HttpAuthentication::Basic.encode_credentials('foo', auth_token) }
@@ -31,67 +34,61 @@ describe API::ConanPackages do
   end
 
   describe 'GET /api/v4/packages/conan/v1/ping' do
-    context 'feature flag disabled' do
-      before do
-        stub_feature_flags(conan_package_registry: false)
-      end
+    it 'responds with 401 Unauthorized when no token provided' do
+      get api('/packages/conan/v1/ping')
 
+      expect(response).to have_gitlab_http_status(:unauthorized)
+    end
+
+    it 'responds with 200 OK when valid token is provided' do
+      jwt = build_jwt(personal_access_token)
+      get api('/packages/conan/v1/ping'), headers: build_token_auth_header(jwt.encoded)
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(response.headers['X-Conan-Server-Capabilities']).to eq("")
+    end
+
+    it 'responds with 200 OK when valid job token is provided' do
+      jwt = build_jwt_from_job(job)
+      get api('/packages/conan/v1/ping'), headers: build_token_auth_header(jwt.encoded)
+
+      expect(response).to have_gitlab_http_status(:ok)
+      expect(response.headers['X-Conan-Server-Capabilities']).to eq("")
+    end
+
+    it 'responds with 401 Unauthorized when invalid access token ID is provided' do
+      jwt = build_jwt(double(id: 12345), user_id: personal_access_token.user_id)
+      get api('/packages/conan/v1/ping'), headers: build_token_auth_header(jwt.encoded)
+
+      expect(response).to have_gitlab_http_status(:unauthorized)
+    end
+
+    it 'responds with 401 Unauthorized when invalid user is provided' do
+      jwt = build_jwt(personal_access_token, user_id: 12345)
+      get api('/packages/conan/v1/ping'), headers: build_token_auth_header(jwt.encoded)
+
+      expect(response).to have_gitlab_http_status(:unauthorized)
+    end
+
+    it 'responds with 401 Unauthorized when the provided JWT is signed with different secret' do
+      jwt = build_jwt(personal_access_token, secret: SecureRandom.base64(32))
+      get api('/packages/conan/v1/ping'), headers: build_token_auth_header(jwt.encoded)
+
+      expect(response).to have_gitlab_http_status(:unauthorized)
+    end
+
+    it 'responds with 401 Unauthorized when invalid JWT is provided' do
+      get api('/packages/conan/v1/ping'), headers: build_token_auth_header('invalid-jwt')
+
+      expect(response).to have_gitlab_http_status(:unauthorized)
+    end
+
+    context 'packages feature disabled' do
       it 'responds with 404 Not Found' do
+        stub_packages_setting(enabled: false)
         get api('/packages/conan/v1/ping')
 
         expect(response).to have_gitlab_http_status(:not_found)
-      end
-    end
-
-    context 'feature flag enabled' do
-      it 'responds with 401 Unauthorized when no token provided' do
-        get api('/packages/conan/v1/ping')
-
-        expect(response).to have_gitlab_http_status(:unauthorized)
-      end
-
-      it 'responds with 200 OK when valid token is provided' do
-        jwt = build_jwt(personal_access_token)
-        get api('/packages/conan/v1/ping'), headers: build_auth_headers(jwt.encoded)
-
-        expect(response).to have_gitlab_http_status(:ok)
-        expect(response.headers['X-Conan-Server-Capabilities']).to eq("")
-      end
-
-      it 'responds with 401 Unauthorized when invalid access token ID is provided' do
-        jwt = build_jwt(double(id: 12345), user_id: personal_access_token.user_id)
-        get api('/packages/conan/v1/ping'), headers: build_auth_headers(jwt.encoded)
-
-        expect(response).to have_gitlab_http_status(:unauthorized)
-      end
-
-      it 'responds with 401 Unauthorized when invalid user is provided' do
-        jwt = build_jwt(personal_access_token, user_id: 12345)
-        get api('/packages/conan/v1/ping'), headers: build_auth_headers(jwt.encoded)
-
-        expect(response).to have_gitlab_http_status(:unauthorized)
-      end
-
-      it 'responds with 401 Unauthorized when the provided JWT is signed with different secret' do
-        jwt = build_jwt(personal_access_token, secret: SecureRandom.base64(32))
-        get api('/packages/conan/v1/ping'), headers: build_auth_headers(jwt.encoded)
-
-        expect(response).to have_gitlab_http_status(:unauthorized)
-      end
-
-      it 'responds with 401 Unauthorized when invalid JWT is provided' do
-        get api('/packages/conan/v1/ping'), headers: build_auth_headers('invalid-jwt')
-
-        expect(response).to have_gitlab_http_status(:unauthorized)
-      end
-
-      context 'packages feature disabled' do
-        it 'responds with 404 Not Found' do
-          stub_packages_setting(enabled: false)
-          get api('/packages/conan/v1/ping')
-
-          expect(response).to have_gitlab_http_status(:not_found)
-        end
       end
     end
   end
@@ -150,25 +147,45 @@ describe API::ConanPackages do
 
           payload = JSONWebToken::HMACToken.decode(
             response.body, jwt_secret).first
-          expect(payload['pat']).to eq(personal_access_token.id)
-          expect(payload['u']).to eq(personal_access_token.user_id)
+          expect(payload['access_token']).to eq(personal_access_token.id)
+          expect(payload['user_id']).to eq(personal_access_token.user_id)
 
           duration = payload['exp'] - payload['iat']
           expect(duration).to eq(1.hour)
         end
       end
     end
+
+    context 'with valid job token' do
+      let(:auth_token) { job_token }
+
+      it 'responds with 200' do
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+      end
+    end
   end
 
   describe 'GET /api/v4/packages/conan/v1/users/check_credentials' do
-    it 'responds with a 200 OK' do
+    it 'responds with a 200 OK with PAT' do
       get api('/packages/conan/v1/users/check_credentials'), headers: headers
 
       expect(response).to have_gitlab_http_status(:ok)
     end
 
+    context 'with job token' do
+      let(:auth_token) { job_token }
+
+      it 'responds with a 200 OK with job token' do
+        get api('/packages/conan/v1/users/check_credentials'), headers: headers
+
+        expect(response).to have_gitlab_http_status(:ok)
+      end
+    end
+
     it 'responds with a 401 Unauthorized when an invalid token is used' do
-      get api('/packages/conan/v1/users/check_credentials'), headers: build_auth_headers('invalid-token')
+      get api('/packages/conan/v1/users/check_credentials'), headers: build_token_auth_header('invalid-token')
 
       expect(response).to have_gitlab_http_status(:unauthorized)
     end
@@ -273,7 +290,7 @@ describe API::ConanPackages do
 
   context 'recipe endpoints' do
     let(:jwt) { build_jwt(personal_access_token) }
-    let(:headers) { build_auth_headers(jwt.encoded) }
+    let(:headers) { build_token_auth_header(jwt.encoded) }
     let(:conan_package_reference) { '123456789' }
     let(:presenter) { double('ConanPackagePresenter') }
 
@@ -445,7 +462,7 @@ describe API::ConanPackages do
 
   context 'file endpoints' do
     let(:jwt) { build_jwt(personal_access_token) }
-    let(:headers) { build_auth_headers(jwt.encoded) }
+    let(:headers) { build_token_auth_header(jwt.encoded) }
     let(:recipe_path) { package.conan_recipe_path }
 
     shared_examples 'denies download with no token' do
@@ -561,7 +578,7 @@ describe API::ConanPackages do
     let(:jwt) { build_jwt(personal_access_token) }
     let(:workhorse_token) { JWT.encode({ 'iss' => 'gitlab-workhorse' }, Gitlab::Workhorse.secret, 'HS256') }
     let(:workhorse_header) { { 'GitLab-Workhorse' => '1.0', Gitlab::Workhorse::INTERNAL_API_REQUEST_HEADER => workhorse_token } }
-    let(:headers_with_token) { build_auth_headers(jwt.encoded).merge(workhorse_header) }
+    let(:headers_with_token) { build_token_auth_header(jwt.encoded).merge(workhorse_header) }
     let(:recipe_path) { "foo/bar/#{project.full_path.tr('/', '+')}/baz"}
 
     shared_examples 'uploads a package file' do
@@ -660,17 +677,7 @@ describe API::ConanPackages do
           end
         end
 
-        context 'and background upload enabled' do
-          before do
-            stub_package_file_object_storage(background_upload: true)
-          end
-
-          it 'schedules migration of file to object storage' do
-            expect(ObjectStorage::BackgroundMoveWorker).to receive(:perform_async).with('Packages::PackageFileUploader', 'Packages::PackageFile', :file, kind_of(Numeric))
-
-            subject
-          end
-        end
+        it_behaves_like 'background upload schedules a file migration'
       end
     end
 
@@ -797,26 +804,5 @@ describe API::ConanPackages do
         it_behaves_like 'a gitlab tracking event', described_class.name, 'push_package'
       end
     end
-
-    def temp_file(package_tmp)
-      upload_path = ::Packages::PackageFileUploader.workhorse_local_upload_path
-      file_path = "#{upload_path}/#{package_tmp}"
-
-      FileUtils.mkdir_p(upload_path)
-      File.write(file_path, 'test')
-
-      UploadedFile.new(file_path, filename: File.basename(file_path))
-    end
-  end
-
-  def build_jwt(personal_access_token, secret: jwt_secret, user_id: nil)
-    JSONWebToken::HMACToken.new(secret).tap do |jwt|
-      jwt['pat'] = personal_access_token.id
-      jwt['u'] = user_id || personal_access_token.user_id
-    end
-  end
-
-  def build_auth_headers(token)
-    { 'HTTP_AUTHORIZATION' => "Bearer #{token}" }
   end
 end

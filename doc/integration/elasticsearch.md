@@ -36,18 +36,20 @@ it yourself or by using the
 service. Running Elasticsearch on the same server as GitLab is not recommended
 and it will likely cause performance degradation on the GitLab installation.
 
+NOTE: **Note:**
+**For a single node Elasticsearch cluster the functional cluster health status will be yellow** (will never be green) because the primary shard is allocated but replicas can not be as there is no other node to which Elasticsearch can assign a replica.
+
 Once the data is added to the database or repository and [Elasticsearch is
-enabled in the admin area](#enabling-elasticsearch) the search index will be
+enabled in the Admin Area](#enabling-elasticsearch) the search index will be
 updated automatically.
 
-## Elasticsearch repository indexer (beta)
+## Elasticsearch repository indexer
 
-In order to improve Elasticsearch indexing performance, GitLab has made available a [new indexer written in Go](https://gitlab.com/gitlab-org/gitlab-elasticsearch-indexer).
-This will replace the included Ruby indexer in the future but should be considered beta software for now, so there may be some bugs.
+For indexing Git repository data, GitLab uses an [indexer written in Go](https://gitlab.com/gitlab-org/gitlab-elasticsearch-indexer).
 
-The Elasticsearch Go indexer is included in Omnibus for GitLab 11.8 and newer.
-
-To use the new Elasticsearch indexer included in Omnibus, check the box "Use the new repository indexer (beta)"  when [enabling the Elasticsearch integration](#enabling-elasticsearch).
+The Go indexer was included in Omnibus GitLab 11.8 as an optional replacement to a
+Ruby-based indexer. [Since GitLab v12.3](https://gitlab.com/gitlab-org/gitlab/issues/6481),
+all indexing is done by the Go indexer, and the Ruby indexer is removed.
 
 If you would like to use the Elasticsearch Go indexer with a source installation or an older version of GitLab, please follow the instructions below.
 
@@ -139,7 +141,6 @@ The following Elasticsearch settings are available:
 | Parameter                                             | Description |
 | ----------------------------------------------------- | ----------- |
 | `Elasticsearch indexing`                              | Enables/disables Elasticsearch indexing. You may want to enable indexing but disable search in order to give the index time to be fully completed, for example. Also, keep in mind that this option doesn't have any impact on existing data, this only enables/disables background indexer which tracks data changes. So by enabling this you will not get your existing data indexed, use special rake task for that as explained in [Adding GitLab's data to the Elasticsearch index](#adding-gitlabs-data-to-the-elasticsearch-index). |
-| `Use the new repository indexer (beta)`               | Perform repository indexing using [GitLab Elasticsearch Indexer](https://gitlab.com/gitlab-org/gitlab-elasticsearch-indexer). |
 | `Search with Elasticsearch enabled`                   | Enables/disables using Elasticsearch in search. |
 | `URL`                                                 | The URL to use for connecting to Elasticsearch. Use a comma-separated list to support clustering (e.g., `http://host1, https://host2:9200`). If your Elasticsearch instance is password protected, pass the `username:password` in the URL (e.g., `http://<username>:<password>@<elastic_host>:9200/`). |
 | `Number of Elasticsearch shards`                      | Elasticsearch indexes are split into multiple shards for performance reasons. In general, larger indexes need to have more shards. Changes to this value do not take effect until the index is recreated. You can read more about tradeoffs in the [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-create-index.html#create-index-settings) |
@@ -200,10 +201,9 @@ To backfill existing data, you can use one of the methods below to index it in b
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/15390) in [GitLab Starter](https://about.gitlab.com/pricing/) 12.3.
 
-To index via the admin area:
+To index via the Admin Area:
 
-1. Navigate to the **Admin Area** (wrench icon), then **Settings > Integrations** and expand the **Elasticsearch** section.
-1. [Enable **Elasticsearch indexing** and configure your host and port](#enabling-elasticsearch).
+1. [Configure your Elasticsearch host and port](#enabling-elasticsearch).
 1. Create empty indexes using one of the following commands:
 
    ```sh
@@ -214,7 +214,8 @@ To index via the admin area:
    bundle exec rake gitlab:elastic:create_empty_index RAILS_ENV=production
    ```
 
-1. Click **Index all projects**.
+1. [Enable **Elasticsearch indexing**](#enabling-elasticsearch).
+1. Click **Index all projects** in **Admin Area > Settings > Integrations > Elasticsearch**.
 1. Click **Check progress** in the confirmation message to see the status of the background jobs.
 1. Personal snippets need to be indexed manually by running one of these commands:
 
@@ -257,7 +258,7 @@ Performing asynchronous indexing will generate a lot of Sidekiq jobs.
 Make sure to prepare for this task by either [Horizontally Scaling](../administration/high_availability/README.md#basic-scaling)
 or creating [extra Sidekiq processes](../administration/operations/extra_sidekiq_processes.md)
 
-1. [Enable **Elasticsearch indexing** and configure your host and port](#enabling-elasticsearch).
+1. [Configure your Elasticsearch host and port](#enabling-elasticsearch).
 1. Create empty indexes using one of the following commands:
 
    ```sh
@@ -268,12 +269,13 @@ or creating [extra Sidekiq processes](../administration/operations/extra_sidekiq
    bundle exec rake gitlab:elastic:create_empty_index RAILS_ENV=production
    ```
 
+1. [Enable **Elasticsearch indexing**](#enabling-elasticsearch).
 1. Indexing large Git repositories can take a while. To speed up the process, you
    can temporarily disable auto-refreshing and replicating. In our experience, you can expect a 20%
    decrease in indexing time. We'll enable them when indexing is done. This step is optional!
 
    ```bash
-   curl --request PUT localhost:9200/gitlab-production/_settings --data '{
+   curl --request PUT localhost:9200/gitlab-production/_settings --header 'Content-Type: application/json' --data '{
        "index" : {
            "refresh_interval" : "-1",
            "number_of_replicas" : 0
@@ -355,7 +357,7 @@ or creating [extra Sidekiq processes](../administration/operations/extra_sidekiq
 1. Enable replication and refreshing again after indexing (only if you previously disabled it):
 
    ```bash
-   curl --request PUT localhost:9200/gitlab-production/_settings --data '{
+   curl --request PUT localhost:9200/gitlab-production/_settings --header 'Content-Type: application/json' ---data '{
        "index" : {
            "number_of_replicas" : 1,
            "refresh_interval" : "1s"
@@ -367,7 +369,7 @@ or creating [extra Sidekiq processes](../administration/operations/extra_sidekiq
    For Elasticsearch 6.x, the index should be in read-only mode before proceeding with the force merge:
 
    ```bash
-   curl --request PUT localhost:9200/gitlab-production/_settings --data '{
+   curl --request PUT localhost:9200/gitlab-production/_settings ---header 'Content-Type: application/json' --data '{
      "settings": {
        "index.blocks.write": true
      } }'
@@ -376,13 +378,13 @@ or creating [extra Sidekiq processes](../administration/operations/extra_sidekiq
    Then, initiate the force merge:
 
    ```bash
-   curl --request POST 'http://localhost:9200/gitlab-production/_forcemerge?max_num_segments=5'
+   curl --request POST 'localhost:9200/gitlab-production/_forcemerge?max_num_segments=5'
    ```
 
    After this, if your index is in read-only mode, switch back to read-write:
 
    ```bash
-   curl --request PUT localhost:9200/gitlab-production/_settings --data '{
+   curl --request PUT localhost:9200/gitlab-production/_settings ---header 'Content-Type: application/json' --data '{
      "settings": {
        "index.blocks.write": false
      } }'
@@ -470,7 +472,7 @@ However, some larger installations may wish to tune the merge policy settings:
 - Consider reducing the `index.merge.policy.max_merged_segment` size from the default 5 GB to maybe 2 GB or 3 GB.  Merging only happens when a segment has at least 50% deletions.  Smaller segment sizes will allow merging to happen more frequently.
 
   ```bash
-  curl --request PUT http://localhost:9200/gitlab-production/_settings --data '{
+  curl --request PUT localhost:9200/gitlab-production/_settings ---header 'Content-Type: application/json' --data '{
     "index" : {
       "merge.policy.max_merged_segment": "2gb"
     }
@@ -480,7 +482,7 @@ However, some larger installations may wish to tune the merge policy settings:
 - You can also adjust `index.merge.policy.reclaim_deletes_weight`, which controls how aggressively deletions are targeted.  But this can lead to costly merge decisions, so we recommend not changing this unless you understand the tradeoffs.
 
   ```bash
-  curl --request PUT http://localhost:9200/gitlab-production/_settings --data '{
+  curl --request PUT localhost:9200/gitlab-production/_settings ---header 'Content-Type: application/json' --data '{
     "index" : {
       "merge.policy.reclaim_deletes_weight": "3.0"
     }
@@ -524,7 +526,7 @@ Here are some common pitfalls and how to overcome them:
 
   ```ruby
   u = User.find_by_username('your-username')
-  s = SearchService.new(u, {:search => 'search_term', :scope => ‘blobs’})
+  s = SearchService.new(u, {:search => 'search_term', :scope => 'blobs'})
   pp s.search_objects.to_a
   ```
 
@@ -592,6 +594,23 @@ Here are some common pitfalls and how to overcome them:
   AWS has [fixed limits](https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/aes-limits.html)
   for this setting ("Maximum Size of HTTP Request Payloads"), based on the size of
   the underlying instance.
+  
+- **My single node Elasticsearch cluster status never goes from `yellow` to `green` even though everything seems to be running properly**
+
+  **For a single node Elasticsearch cluster the functional cluster health status will be yellow** (will never be green) because the primary shard is allocated but replicas can not be as there is no other node to which Elasticsearch can assign a replica. This also applies if you are using using the
+[Amazon Elasticsearch](https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/aes-handling-errors.html#aes-handling-errors-yellow-cluster-status) service.
+
+  CAUTION: **Warning**: Setting the number of replicas to `0` is not something that we recommend (this is not allowed in the GitLab Elasticsearch Integration menu). If you are planning to add more Elasticsearch nodes (for a total of more than 1 Elasticsearch) the number of replicas will need to be set to an integer value larger than `0`. Failure to do so will result in lack of redundancy (losing one node will corrupt the index).
+
+  If you have a **hard requirement to have a green status for your single node Elasticsearch cluster**, please make sure you understand the risks outlined in the previous paragraph and then simply run the following query to set the number of replicas to `0`(the cluster will no longer try to create any shard replicas):
+
+  ```bash
+  curl --request PUT localhost:9200/gitlab-production/_settings --header 'Content-Type: application/json' --data '{
+  "index" : {
+     "number_of_replicas" : 0
+    }
+  }'
+  ```
 
 ### Reverting to basic search
 

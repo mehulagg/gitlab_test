@@ -21,7 +21,7 @@ module QA
       end
 
       context 'Non enforced SSO' do
-        it 'User logs in to group with SAML SSO' do
+        it 'User logs in to group with SAML SSO', quarantine: 'https://gitlab.com/gitlab-org/gitlab/issues/55242' do
           Page::Group::Menu.perform(&:go_to_saml_sso_group_settings)
 
           managed_group_url = EE::Page::Group::Settings::SamlSSO.perform do |saml_sso|
@@ -75,7 +75,7 @@ module QA
         end
       end
 
-      context 'Enforced SSO' do
+      context 'Enforced SSO', quarantine: 'https://gitlab.com/gitlab-org/gitlab/issues/39607' do
         let(:developer_user) { Resource::User.fabricate_via_api! }
         let(:owner_user) { Resource::User.fabricate_via_api! }
 
@@ -320,6 +320,8 @@ module QA
     end
 
     def remove_user_if_exists(username_or_email)
+      QA::Runtime::Logger.debug("Removing user \"#{username_or_email}\" via API")
+
       response = parse_body(get Runtime::API::Request.new(@api_client, "/users?search=#{username_or_email}").url)
 
       delete Runtime::API::Request.new(@api_client, "/users/#{response.first[:id]}").url if response.any?
@@ -350,7 +352,7 @@ module QA
 
       page.visit Runtime::Scenario.gitlab_address
 
-      Support::Retrier.retry_until(exit_on_failure: true) do
+      Support::Retrier.retry_until(raise_on_failure: true) do
         Page::Main::Menu.perform(&:sign_out_if_signed_in)
         !Page::Main::Menu.perform(&:signed_in?)
       end

@@ -68,6 +68,12 @@ describe Notify do
         issue.update!(service_desk_reply_to: 'service.desk@example.com')
       end
 
+      def expect_sender(username)
+        sender = subject.header[:from].addrs[0]
+        expect(sender.display_name).to eq(username)
+        expect(sender.address).to eq(gitlab_sender)
+      end
+
       describe 'thank you email' do
         subject { described_class.service_desk_thank_you_email(issue.id) }
 
@@ -83,6 +89,26 @@ describe Notify do
             is_expected.to have_body_text("Thank you for your support request! We are tracking your request as ticket #{issue.to_reference}, and will respond as soon as we can.")
           end
         end
+
+        it 'uses service bot name by default' do
+          expect_sender(User.support_bot.name)
+        end
+
+        context 'when custom outgoing name is set' do
+          let_it_be(:settings) { create(:service_desk_setting, project: project, outgoing_name: 'some custom name') }
+
+          it 'uses custom name in "from" header' do
+            expect_sender('some custom name')
+          end
+        end
+
+        context 'when custom outgoing name is empty' do
+          let_it_be(:settings) { create(:service_desk_setting, project: project, outgoing_name: '') }
+
+          it 'uses service bot name' do
+            expect_sender(User.support_bot.name)
+          end
+        end
       end
 
       describe 'new note email' do
@@ -94,6 +120,10 @@ describe Notify do
 
         it 'has the correct recipient' do
           is_expected.to deliver_to('service.desk@example.com')
+        end
+
+        it 'uses author\'s name in "from" header' do
+          expect_sender(first_note.author.name)
         end
 
         it 'has the correct subject and body' do
@@ -122,6 +152,7 @@ describe Notify do
 
       describe 'that are approved' do
         let(:last_approver) { create(:user) }
+
         subject { described_class.approved_merge_request_email(recipient.id, merge_request.id, last_approver.id) }
 
         before do
@@ -185,6 +216,7 @@ describe Notify do
 
       describe 'that are unapproved' do
         let(:last_unapprover) { create(:user) }
+
         subject { described_class.unapproved_merge_request_email(recipient.id, merge_request.id, last_unapprover.id) }
 
         before do
@@ -239,6 +271,7 @@ describe Notify do
     context 'for merge requests without assignee' do
       describe 'that are unapproved' do
         let(:last_unapprover) { create(:user) }
+
         subject { described_class.unapproved_merge_request_email(recipient.id, merge_request_without_assignee.id, last_unapprover.id) }
 
         before do

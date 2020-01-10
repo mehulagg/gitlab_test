@@ -63,6 +63,20 @@ describe Commit do
     end
   end
 
+  describe '#diff_refs' do
+    it 'is equal to itself' do
+      expect(commit.diff_refs).to eq(commit.diff_refs)
+    end
+
+    context 'from a factory' do
+      let(:commit) { create(:commit) }
+
+      it 'is equal to itself' do
+        expect(commit.diff_refs).to eq(commit.diff_refs)
+      end
+    end
+  end
+
   describe '#author', :request_store do
     it 'looks up the author in a case-insensitive way' do
       user = create(:user, email: commit.author_email.upcase)
@@ -375,6 +389,17 @@ eos
 
       expect(commit.closes_issues).to include(issue)
       expect(commit.closes_issues).to include(other_issue)
+    end
+
+    it 'ignores referenced issues when auto-close is disabled' do
+      project.update!(autoclose_referenced_issues: false)
+
+      allow(commit).to receive_messages(
+        safe_message: "Fixes ##{issue.iid}",
+        committer_email: committer.email
+      )
+
+      expect(commit.closes_issues).to be_empty
     end
   end
 

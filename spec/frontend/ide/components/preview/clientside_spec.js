@@ -54,7 +54,6 @@ describe('IDE clientside preview', () => {
     });
 
     wrapper = shallowMount(Clientside, {
-      sync: false,
       store,
       localVue,
     });
@@ -66,10 +65,6 @@ describe('IDE clientside preview', () => {
 
   afterAll(() => {
     jest.useRealTimers();
-  });
-
-  beforeEach(() => {
-    jest.clearAllMocks();
   });
 
   afterEach(() => {

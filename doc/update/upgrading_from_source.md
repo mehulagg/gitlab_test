@@ -23,6 +23,17 @@ guide links by version.
 If you are changing from GitLab Community Edition to GitLab Enterprise Edition, see
 the [Upgrading from CE to EE](upgrading_from_ce_to_ee.md) documentation.
 
+## Upgrading to a new major version
+
+Major versions are reserved for backwards incompatible changes. We recommend that
+you first upgrade to the latest available minor version within your major version.
+Please follow the [Upgrade Recommendations](../policy/maintenance.md#upgrade-recommendations)
+to identify the ideal upgrade path.
+
+Before upgrading to a new major version, you should ensure that any background
+migration jobs from previous releases have been completed. To see the current size of the `background_migration` queue,
+[Check for background migrations before upgrading](README.md#checking-for-background-migrations-before-upgrading).
+
 ## Guidelines for all versions
 
 This section contains all the steps necessary to upgrade Community Edition or
@@ -56,9 +67,9 @@ Download Ruby and compile it:
 
 ```bash
 mkdir /tmp/ruby && cd /tmp/ruby
-curl --remote-name --progress https://cache.ruby-lang.org/pub/ruby/2.6/ruby-2.6.3.tar.gz
-echo '2347ed6ca5490a104ebd5684d2b9b5eefa6cd33c  ruby-2.6.3.tar.gz' | shasum -c - && tar xzf ruby-2.6.3.tar.gz
-cd ruby-2.6.3
+curl --remote-name --progress https://cache.ruby-lang.org/pub/ruby/2.6/ruby-2.6.5.tar.gz
+echo '1416ce288fb8bfeae07a12b608540318c9cace71  ruby-2.6.5.tar.gz' | shasum -c - && tar xzf ruby-2.6.5.tar.gz
+cd ruby-2.6.5
 
 ./configure --disable-install-rdoc
 make

@@ -1,6 +1,7 @@
 import Vuex from 'vuex';
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import MockAdapter from 'axios-mock-adapter';
+import { GlToggle } from '@gitlab/ui';
 import Form from 'ee/feature_flags/components/form.vue';
 import editModule from 'ee/feature_flags/store/modules/edit';
 import EditFeatureFlag from 'ee/feature_flags/components/edit_feature_flag.vue';
@@ -21,7 +22,7 @@ describe('Edit feature flag form', () => {
   });
 
   const factory = () => {
-    wrapper = shallowMount(localVue.extend(EditFeatureFlag), {
+    wrapper = shallowMount(EditFeatureFlag, {
       localVue,
       propsData: {
         endpoint: `${TEST_HOST}/feature_flags.json'`,
@@ -34,7 +35,6 @@ describe('Edit feature flag form', () => {
         },
       },
       store,
-      sync: false,
     });
   };
 
@@ -44,7 +44,7 @@ describe('Edit feature flag form', () => {
     mock.onGet(`${TEST_HOST}/feature_flags.json'`).replyOnce(200, {
       id: 21,
       iid: 5,
-      active: false,
+      active: true,
       created_at: '2019-01-17T17:27:39.778Z',
       updated_at: '2019-01-17T17:27:39.778Z',
       name: 'feature_flag',
@@ -74,6 +74,14 @@ describe('Edit feature flag form', () => {
 
   it('should display the iid', () => {
     expect(wrapper.find('h3').text()).toContain('^5');
+  });
+
+  it('should render the toggle', () => {
+    expect(wrapper.find(GlToggle).exists()).toBe(true);
+  });
+
+  it('should set the value of the toggle to whether or not the flag is active', () => {
+    expect(wrapper.find(GlToggle).props('value')).toBe(true);
   });
 
   describe('with error', () => {

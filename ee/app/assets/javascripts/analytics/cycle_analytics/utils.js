@@ -1,9 +1,10 @@
+import { isString, isNumber } from 'underscore';
+import dateFormat from 'dateformat';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 import { convertToSnakeCase } from '~/lib/utils/text_utility';
 import { newDate, dayAfter, secondsToDays } from '~/lib/utils/datetime_utility';
-import { isString } from 'underscore';
-import dateFormat from 'dateformat';
 import { dateFormats } from '../shared/constants';
+import { STAGE_NAME } from './constants';
 
 const EVENT_TYPE_LABEL = 'label';
 
@@ -32,14 +33,49 @@ export const isLabelEvent = (labelEvents = [], ev = null) =>
 export const getLabelEventsIdentifiers = (events = []) =>
   events.filter(ev => ev.type && ev.type === EVENT_TYPE_LABEL).map(i => i.identifier);
 
+/**
+ * Checks if the specified stage is in memory or persisted to storage based on the id
+ *
+ * Default cycle analytics stages are initially stored in memory, when they are first
+ * created the id for the stage is the name of the stage in lowercase. This string id
+ * is used to fetch stage data (events, median calculation)
+ *
+ * When either a custom stage is created or an edit is made to a default stage then the
+ * default stages get persisted to storage and will have a numeric id. The new numeric
+ * id should then be used to access stage data
+ *
+ */
+export const isPersistedStage = ({ custom, id }) => custom || isNumber(id);
+
+/**
+ * Returns the the correct slug to use for a stage
+ * default stages use the snakecased title of the stage, while custom
+ * stages will have a numeric id
+ *
+ * @param {Object} obj
+ * @param {string} obj.title - title of the stage
+ * @param {number} obj.id - numerical object id available for custom stages
+ * @param {boolean} obj.custom - boolean flag indicating a custom stage
+ * @returns {(number|string)} Returns a numerical id for customs stages and string for default stages
+ */
+const stageUrlSlug = ({ id, title, custom = false }) => {
+  if (custom) return id;
+  // We still use 'production' as the id to access this stage, even though the title is 'Total'
+  return title.toLowerCase() === STAGE_NAME.TOTAL
+    ? STAGE_NAME.PRODUCTION
+    : convertToSnakeCase(title);
+};
+
 export const transformRawStages = (stages = []) =>
-  stages
-    .map(({ title, ...rest }) => ({
-      ...convertObjectPropsToCamelCase(rest, { deep: true }),
-      slug: convertToSnakeCase(title),
-      title,
-    }))
-    .sort((a, b) => a.id > b.id);
+  stages.map(({ id, title, name = '', custom = false, ...rest }) => ({
+    ...convertObjectPropsToCamelCase(rest, { deep: true }),
+    id,
+    title,
+    custom,
+    slug: isPersistedStage({ custom, id }) ? id : stageUrlSlug({ custom, id, title }),
+    // the name field is used to create a stage, but the get request returns title
+    name: name.length ? name : title,
+  }));
 
 export const nestQueryStringKeys = (obj = null, targetKey = '') => {
   if (!obj || !isString(targetKey) || !targetKey.length) return {};

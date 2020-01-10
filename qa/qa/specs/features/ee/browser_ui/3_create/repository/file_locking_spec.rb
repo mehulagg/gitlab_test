@@ -59,6 +59,7 @@ module QA
         end
       end
 
+      # Known issue: https://gitlab.com/gitlab-org/gitlab/issues/40125
       it 'creates a merge request and fails to merge' do
         push branch: 'test', as_user: @user_one
 
@@ -73,6 +74,7 @@ module QA
         click_lock
         sign_out_and_sign_in_as user: @user_one
         try_to_merge merge_request: merge_request
+        Page::MergeRequest::Show.perform(&:wait_for_merge_request_error_message)
         expect(page).to have_text("locked by #{admin_username}")
       end
 

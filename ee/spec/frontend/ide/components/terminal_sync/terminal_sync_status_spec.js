@@ -35,10 +35,9 @@ describe('ee/ide/components/terminal_sync/terminal_sync_status', () => {
       },
     });
 
-    wrapper = shallowMount(localVue.extend(TerminalSyncStatus), {
+    wrapper = shallowMount(TerminalSyncStatus, {
       attachToDocument: true,
       localVue,
-      sync: false,
       store,
     });
   };
@@ -77,7 +76,7 @@ describe('ee/ide/components/terminal_sync/terminal_sync_status', () => {
     });
 
     it('shows message', () => {
-      expect(wrapper.attributes('data-original-title')).toContain(statusMessage);
+      expect(wrapper.attributes('title')).toContain(statusMessage);
     });
 
     if (!icon) {

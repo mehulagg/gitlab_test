@@ -1,11 +1,7 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import { GlButton, GlLink } from '@gitlab/ui';
 
-import Icon from '~/vue_shared/components/icon.vue';
-import ItemMilestone from '~/vue_shared/components/issue/issue_milestone.vue';
-import ItemDueDate from '~/boards/components/issue_due_date.vue';
 import ItemWeight from 'ee/boards/components/issue_card_weight.vue';
-import ItemAssignees from '~/vue_shared/components/issue/issue_assignees.vue';
 
 import TreeItemBody from 'ee/related_items_tree/components/tree_item_body.vue';
 import StateTooltip from 'ee/related_items_tree/components/state_tooltip.vue';
@@ -14,6 +10,10 @@ import createDefaultStore from 'ee/related_items_tree/store';
 import * as epicUtils from 'ee/related_items_tree/utils/epic_utils';
 import { ChildType, ChildState } from 'ee/related_items_tree/constants';
 import { PathIdSeparator } from 'ee/related_issues/constants';
+import ItemAssignees from '~/vue_shared/components/issue/issue_assignees.vue';
+import ItemDueDate from '~/boards/components/issue_due_date.vue';
+import ItemMilestone from '~/vue_shared/components/issue/issue_milestone.vue';
+import Icon from '~/vue_shared/components/icon.vue';
 
 import {
   mockParentItem,
@@ -27,8 +27,6 @@ const mockItem = Object.assign({}, mockIssue1, {
   pathIdSeparator: PathIdSeparator.Issue,
   assignees: epicUtils.extractIssueAssignees(mockIssue1.assignees),
 });
-
-const localVue = createLocalVue();
 
 const createComponent = (parentItem = mockParentItem, item = mockItem) => {
   const store = createDefaultStore();
@@ -48,8 +46,6 @@ const createComponent = (parentItem = mockParentItem, item = mockItem) => {
 
   return shallowMount(TreeItemBody, {
     attachToDocument: true,
-    sync: false,
-    localVue,
     store,
     propsData: {
       parentItem,
@@ -343,7 +339,7 @@ describe('RelatedItemsTree', () => {
       it('renders item path', () => {
         const pathEl = wrapper.find('.path-id-text');
 
-        expect(pathEl.attributes('data-original-title')).toBe('gitlab-org/gitlab-shell');
+        expect(pathEl.attributes('title')).toBe('gitlab-org/gitlab-shell');
         expect(pathEl.text()).toBe('gitlab-org/gitlab-shell');
       });
 
@@ -381,7 +377,7 @@ describe('RelatedItemsTree', () => {
         const removeButton = wrapper.find(GlButton);
 
         expect(removeButton.isVisible()).toBe(true);
-        expect(removeButton.attributes('data-original-title')).toBe('Remove');
+        expect(removeButton.attributes('title')).toBe('Remove');
       });
     });
   });

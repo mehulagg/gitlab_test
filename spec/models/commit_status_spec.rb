@@ -312,6 +312,72 @@ describe CommitStatus do
     end
   end
 
+  describe '.for_ref' do
+    subject { described_class.for_ref('bb').order(:id) }
+
+    let(:statuses) do
+      [create_status(ref: 'aa'),
+       create_status(ref: 'bb'),
+       create_status(ref: 'cc')]
+    end
+
+    it 'returns statuses with the specified ref' do
+      is_expected.to eq(statuses.values_at(1))
+    end
+  end
+
+  describe '.by_name' do
+    subject { described_class.by_name('bb').order(:id) }
+
+    let(:statuses) do
+      [create_status(name: 'aa'),
+       create_status(name: 'bb'),
+       create_status(name: 'cc')]
+    end
+
+    it 'returns statuses with the specified name' do
+      is_expected.to eq(statuses.values_at(1))
+    end
+  end
+
+  describe '.for_project_paths' do
+    subject do
+      described_class
+        .for_project_paths(paths)
+        .order(:id)
+    end
+
+    context 'with a single path' do
+      let(:other_project) { create(:project, :repository) }
+      let(:paths) { other_project.full_path }
+
+      let(:other_pipeline) do
+        create(:ci_pipeline, project: other_project, sha: other_project.commit.id)
+      end
+
+      let(:statuses) do
+        [create_status(pipeline: pipeline),
+         create_status(pipeline: other_pipeline)]
+      end
+
+      it 'returns statuses for other_project' do
+        is_expected.to eq(statuses.values_at(1))
+      end
+    end
+
+    context 'with array of paths' do
+      let(:paths) { [project.full_path] }
+
+      let(:statuses) do
+        [create_status(pipeline: pipeline)]
+      end
+
+      it 'returns statuses for project' do
+        is_expected.to eq(statuses.values_at(0))
+      end
+    end
+  end
+
   describe '.status' do
     context 'when there are multiple statuses present' do
       before do
@@ -568,6 +634,30 @@ describe CommitStatus do
     end
   end
 
+  describe '#all_met_to_become_pending?' do
+    subject { commit_status.all_met_to_become_pending? }
+
+    let(:commit_status) { create(:commit_status) }
+
+    it { is_expected.to eq(true) }
+
+    context 'when build requires a resource' do
+      before do
+        allow(commit_status).to receive(:requires_resource?) { true }
+      end
+
+      it { is_expected.to eq(false) }
+    end
+
+    context 'when build has a prerequisite' do
+      before do
+        allow(commit_status).to receive(:any_unmet_prerequisites?) { true }
+      end
+
+      it { is_expected.to eq(false) }
+    end
+  end
+
   describe '#enqueue' do
     let!(:current_time) { Time.new(2018, 4, 5, 14, 0, 0) }
 
@@ -584,12 +674,6 @@ describe CommitStatus do
 
     context 'when initial state is :created' do
       let(:commit_status) { create(:commit_status, :created) }
-
-      it_behaves_like 'commit status enqueued'
-    end
-
-    context 'when initial state is :preparing' do
-      let(:commit_status) { create(:commit_status, :preparing) }
 
       it_behaves_like 'commit status enqueued'
     end

@@ -1,10 +1,10 @@
 import Vue from 'vue';
+import mountComponent from 'helpers/vue_mount_component_helper';
+import { shallowMount } from '@vue/test-utils';
 import applications from '~/clusters/components/applications.vue';
 import { CLUSTER_TYPE } from '~/clusters/constants';
-import mountComponent from 'helpers/vue_mount_component_helper';
 import { APPLICATIONS_MOCK_STATE } from '../services/mock_data';
 import eventHub from '~/clusters/event_hub';
-import { shallowMount } from '@vue/test-utils';
 import KnativeDomainEditor from '~/clusters/components/knative_domain_editor.vue';
 import CrossplaneProviderStack from '~/clusters/components/crossplane_provider_stack.vue';
 
@@ -190,6 +190,7 @@ describe('Applications', () => {
                 title: 'Ingress',
                 status: 'installed',
                 externalHostname: 'localhost.localdomain',
+                modsecurity_enabled: false,
               },
               helm: { title: 'Helm Tiller' },
               cert_manager: { title: 'Cert-Manager' },
@@ -473,7 +474,12 @@ describe('Applications', () => {
         vm = mountComponent(Applications, {
           applications: {
             ...APPLICATIONS_MOCK_STATE,
-            ingress: { title: 'Ingress', status: 'installed', externalIp: '1.1.1.1' },
+            ingress: {
+              title: 'Ingress',
+              status: 'installed',
+              externalIp: '1.1.1.1',
+              modsecurity_enabled: false,
+            },
             elastic_stack: { title: 'Elastic Stack', status: 'installed', kibana_hostname: '' },
           },
         });

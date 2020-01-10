@@ -31,7 +31,6 @@ describe('EE Approvlas MRRulesHiddenInputs', () => {
     wrapper = shallowMount(localVue.extend(MRRulesHiddenInputs), {
       localVue,
       store: new Vuex.Store(store),
-      sync: false,
     });
   };
 
@@ -63,7 +62,7 @@ describe('EE Approvlas MRRulesHiddenInputs', () => {
     it('is empty', () => {
       factory();
 
-      expect(wrapper.html()).toBeUndefined();
+      expect(wrapper.isEmpty()).toBe(true);
     });
   });
 

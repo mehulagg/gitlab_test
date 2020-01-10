@@ -119,6 +119,7 @@ The following table lists available parameters for jobs:
 | [`pages`](#pages)                                  | Upload the result of a job to use with GitLab Pages.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | [`variables`](#variables)                          | Define job variables on a job level.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | [`interruptible`](#interruptible)                  | Defines if a job can be canceled when made redundant by a newer run.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| [`resource_group`](#resource_group)                | Limit job concurrency.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 
 NOTE: **Note:**
 Parameters `types` and `type` are [deprecated](#deprecated-parameters).
@@ -135,7 +136,9 @@ The following job parameters can be defined inside a `default:` block:
 - [`services`](#services)
 - [`before_script`](#before_script-and-after_script)
 - [`after_script`](#before_script-and-after_script)
+- [`tags`](#tags)
 - [`cache`](#cache)
+- [`artifacts`](#artifacts)
 - [`retry`](#retry)
 - [`timeout`](#timeout)
 - [`interruptible`](#interruptible)
@@ -292,6 +295,10 @@ Scripts specified in `after_script` are executed in a new shell, separate from a
   - Command aliases and variables exported in `script` scripts.
   - Changes outside of the working tree (depending on the Runner executor), like
     software installed by a `before_script` or `script` script.
+- Have a separate timeout, which is hard coded to 5 minutes. See
+  [related issue](https://gitlab.com/gitlab-org/gitlab-runner/issues/2716) for details.
+- Do not affect the job's exit code. If the `script` section succeeds and the
+  `after_script` times out or fails, the job will exit with code `0` (`Job Succeeded`).
 
 It's possible to overwrite a globally defined `before_script` or `after_script`
 if you set it per-job:
@@ -464,7 +471,9 @@ Jobs will run on your own Runners in parallel only if:
 ### `only`/`except` (basic)
 
 NOTE: **Note:**
-These parameters will soon be [deprecated](https://gitlab.com/gitlab-org/gitlab/issues/27449) in favor of [`rules`](#rules) as it offers a more powerful syntax.
+The [`rules`](#rules) syntax is now the preferred method of setting job policies.
+`only` and `except` are [candidates for deprecation](https://gitlab.com/gitlab-org/gitlab/issues/27449),
+and may be removed in the future.
 
 `only` and `except` are two parameters that set a job policy to limit when
 jobs are created:
@@ -720,7 +729,18 @@ Learn more about [variables expressions](../variables/README.md#environment-vari
 Using the `changes` keyword with `only` or `except` makes it possible to define if
 a job should be created based on files modified by a Git push event.
 
-For example:
+This means the `only:changes` policy is useful for pipelines where:
+
+- `$CI_PIPELINE_SOURCE == 'push'`
+- `$CI_PIPELINE_SOURCE == 'merge_request_event'`
+- `$CI_PIPELINE_SOURCE == 'external_pull_request_event'`
+
+If there is no Git push event, such as for pipelines with
+[sources other than the three above](../variables/predefined_variables.html#variables-reference),
+`changes` cannot determine if a given file is new or old, and will always
+return true.
+
+A basic example of using `only: changes`:
 
 ```yaml
 docker build:
@@ -821,7 +841,7 @@ In the example above, a pipeline could fail due to changes to a file in `service
 A later commit could then be pushed that does not include any changes to this file,
 but includes changes to the `Dockerfile`, and this pipeline could pass because it is only
 testing the changes to the `Dockerfile`. GitLab checks the **most recent pipeline**,
-that **passed**, and will show the merge request as mergable, despite the earlier
+that **passed**, and will show the merge request as mergeable, despite the earlier
 failed pipeline caused by a change that was not yet corrected.
 
 With this configuration, care must be taken to check that the most recent pipeline
@@ -901,8 +921,9 @@ at all, the behavior defaults to `job:when`, which continues to default to
 
 #### `rules:changes`
 
-`changes` works exactly the same way as [`only`/`except`](#onlychangesexceptchanges),
-accepting an array of paths.
+`rules: changes` works exactly the same way as `only: changes` and `except: changes`,
+accepting an array of paths. Similarly, it will always return true if there is no
+Git push event. See [`only/except: changes`](#onlychangesexceptchanges) for more information.
 
 For example:
 
@@ -1019,6 +1040,33 @@ Additional job configuration may be added to rules in the future. If something
 useful isn't available, please
 [open an issue](https://gitlab.com/gitlab-org/gitlab/issues).
 
+### `workflow:rules`
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/29654) in GitLab 12.5
+
+The top-level `workflow:` key applies to the entirety of a pipeline, and will
+determine whether or not a pipeline is created. It currently accepts a single
+`rules:` key that operates similarly to [`rules:` defined within jobs](#rules),
+enabling dynamic configuration of the pipeline.
+
+The configuration options currently available for `workflow:rules` are:​
+
+- [`if`](#rulesif): Define a rule.
+- [`when`](#when): May be set to `always` or `never` only. If not provided, the default value is `always`​.
+
+The list of `if` rules is evaluated until a single one is matched. If none
+match, the last `when` will be used:
+
+```yaml
+workflow:
+  rules:
+    - if: $CI_COMMIT_REF_NAME =~ /-wip$/
+      when: never
+    - if: $CI_COMMIT_TAG
+      when: never
+    - when: always
+```
+
 ### `tags`
 
 `tags` is used to select specific Runners from the list of all Runners that are
@@ -1113,6 +1161,8 @@ failure.
 1. `always` - execute job regardless of the status of jobs from prior stages.
 1. `manual` - execute job manually (added in GitLab 8.10). Read about
     [manual actions](#whenmanual) below.
+1. `delayed` - execute job after a certain period (added in GitLab 11.14).
+    Read about [delayed actions](#whendelayed) below.
 
 For example:
 
@@ -1455,7 +1505,7 @@ For more information, see
 NOTE: **Note:**
 Kubernetes configuration is not supported for Kubernetes clusters
 that are [managed by GitLab](../../user/project/clusters/index.md#gitlab-managed-clusters).
-To follow progress on support for Gitlab-managed clusters, see the
+To follow progress on support for GitLab-managed clusters, see the
 [relevant issue](https://gitlab.com/gitlab-org/gitlab/issues/38054).
 
 #### Dynamic environments
@@ -1513,8 +1563,10 @@ globally and all jobs will use that definition.
 
 #### `cache:paths`
 
-Use the `paths` directive to choose which files or directories will be cached. You can only specify paths within your `$CI_PROJECT_DIR`.
-Wildcards can be used that follow the [glob](https://en.wikipedia.org/wiki/Glob_(programming)) patterns and [filepath.Match](https://golang.org/pkg/path/filepath/#Match).
+Use the `paths` directive to choose which files or directories will be cached. Paths
+are relative to the project directory (`$CI_PROJECT_DIR`) and cannot directly link outside it.
+Wildcards can be used that follow the [glob](https://en.wikipedia.org/wiki/Glob_(programming))
+patterns and [filepath.Match](https://golang.org/pkg/path/filepath/#Match).
 
 Cache all files in `binaries` that end in `.apk` and the `.config` file:
 
@@ -1743,8 +1795,9 @@ be available for download in the GitLab UI.
 
 #### `artifacts:paths`
 
-You can only use paths that are within the local working copy.
-Wildcards can be used that follow the [glob](https://en.wikipedia.org/wiki/Glob_(programming)) patterns and [filepath.Match](https://golang.org/pkg/path/filepath/#Match).
+Paths are relative to the project directory (`$CI_PROJECT_DIR`) and cannot directly
+link outside it. Wildcards can be used that follow the [glob](https://en.wikipedia.org/wiki/Glob_(programming))
+patterns and [filepath.Match](https://golang.org/pkg/path/filepath/#Match).
 
 To restrict which jobs a specific job will fetch artifacts from, see [dependencies](#dependencies).
 
@@ -2256,11 +2309,11 @@ This example creates three paths of execution:
   pipeline will be created with YAML error.
 - We are temporarily limiting the maximum number of jobs that a single job can
   need in the `needs:` array:
-  - For GitLab.com, the limit is five. For more information, see our
+  - For GitLab.com, the limit is ten. For more information, see our
     [infrastructure issue](https://gitlab.com/gitlab-com/gl-infra/infrastructure/issues/7541).
   - For self-managed instances, the limit is:
-    - Five by default (`ci_dag_limit_needs` feature flag is enabled).
-    - 50 if the `ci_dag_limit_needs` feature flag is disabled.
+    - 10, if the `ci_dag_limit_needs` feature flag is enabled (default).
+    - 50, if the `ci_dag_limit_needs` feature flag is disabled.
 - It is impossible for now to have `needs: []` (empty needs), the job always needs to
   depend on something, unless this is the job in the first stage. However, support for
   an empty needs array [is planned](https://gitlab.com/gitlab-org/gitlab/issues/30631).
@@ -2271,6 +2324,23 @@ This example creates three paths of execution:
   current stage is not possible either, but support [is planned](https://gitlab.com/gitlab-org/gitlab/issues/30632).
 - Related to the above, stages must be explicitly defined for all jobs
   that have the keyword `needs:` or are referred to by one.
+
+##### Changing the `needs:` job limit
+
+The maximum number of jobs that can be defined within `needs:` defaults to 10, but
+can be changed to 50 via a feature flag. To change the limit to 50,
+[start a Rails console session](https://docs.gitlab.com/omnibus/maintenance/#starting-a-rails-console-session)
+and run:
+
+```ruby
+Feature::disable(:ci_dag_limit_needs)
+```
+
+To set it back to 10, run the opposite command:
+
+```ruby
+Feature::enable(:ci_dag_limit_needs)
+```
 
 #### Artifact downloads with `needs`
 
@@ -2440,12 +2510,13 @@ sequentially from `job_name 1/N` to `job_name N/N`.
 
 For every job, `CI_NODE_INDEX` and `CI_NODE_TOTAL` [environment variables](../variables/README.md#predefined-environment-variables) are set.
 
-Marking a job to be run in parallel requires only a simple addition to your configuration file:
+Marking a job to be run in parallel requires adding `parallel` to your configuration
+file. For example:
 
-```diff
- test:
-   script: rspec
-+  parallel: 5
+```yaml
+test:
+  script: rspec
+  parallel: 5
 ```
 
 TIP: **Tip:**
@@ -2493,7 +2564,7 @@ triggers being used.
 
 #### Simple `trigger` syntax
 
-The most simple way to configure a downstream trigger to use `trigger` keyword
+The simplest way to configure a downstream trigger is to use `trigger` keyword
 with a full path to a downstream project:
 
 ```yaml
@@ -2525,7 +2596,7 @@ staging:
 
 It is possible to mirror the status from a triggered pipeline:
 
-```
+```yaml
 trigger_job:
   trigger:
     project: my/project
@@ -2534,7 +2605,7 @@ trigger_job:
 
 It is possible to mirror the status from an upstream pipeline:
 
-```
+```yaml
 upstream_bridge:
   stage: test
   needs:
@@ -2592,6 +2663,39 @@ In the example above, a new pipeline run will cause an existing running pipeline
 
 NOTE: **Note:**
 Once an uninterruptible job is running, the pipeline will never be canceled, regardless of the final job's state.
+
+### `resource_group`
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/15536) in GitLab 12.7.
+
+Sometimes running multiples jobs or pipelines at the same time in an environment
+can lead to errors during the deployment.
+
+To avoid these errors, the `resource_group` attribute can be used to ensure that
+the Runner will not run certain jobs simultaneously.
+
+When the `resource_group` key is defined in a job in `.gitlab-ci.yml`,
+job runs are mutually exclusive across different pipelines in the same project.
+If multiple jobs belonging to the same resource group are enqueued simultaneously,
+only one of them will be picked by the Runner, and the other jobs will wait until the
+`resource_group` is free.
+
+Here is a simple example:
+
+```yaml
+deploy-to-production:
+  script: deploy
+  resource_group: production
+```
+
+In this case, if a `deploy-to-production` job is running in a pipeline, and a new
+`deploy-to-production` job is created in a different pipeline, it will not run until
+the currently running/pending `deploy-to-production` job is finished. As a result,
+you can ensure that concurrent deployments will never happen to the production environment.
+
+There can be multiple `resource_group`s defined per environment. A good use case for this
+is when deploying to physical devices. You may have more than one physical device, and each
+one can be deployed to, but there can be only one deployment per device at any given time.
 
 ### `include`
 
@@ -3248,7 +3352,7 @@ There are three possible values: `none`, `normal`, and `recursive`:
 - `normal` means that only the top-level submodules will be included. It is
   equivalent to:
 
-  ```
+  ```shell
   git submodule sync
   git submodule update --init
   ```
@@ -3258,7 +3362,7 @@ There are three possible values: `none`, `normal`, and `recursive`:
   GitLab Runner with an executor not based on Docker, make sure the Git version
   meets that requirement. It is equivalent to:
 
-  ```
+  ```shell
   git submodule sync --recursive
   git submodule update --init --recursive
   ```
@@ -3519,7 +3623,7 @@ Read more about the various [YAML features](https://learnxinyminutes.com/docs/ya
 If you want to temporarily 'disable' a job, rather than commenting out all the
 lines where the job is defined:
 
-```
+```yaml
 #hidden_job:
 #  script:
 #    - run test
@@ -3553,7 +3657,7 @@ having their own custom `script` defined:
 
 ```yaml
 .job_template: &job_definition  # Hidden key that defines an anchor named 'job_definition'
-  image: ruby:2.1
+  image: ruby:2.6
   services:
     - postgres
     - redis
@@ -3575,13 +3679,13 @@ given hash into the current one", and `*` includes the named anchor
 
 ```yaml
 .job_template:
-  image: ruby:2.1
+  image: ruby:2.6
   services:
     - postgres
     - redis
 
 test1:
-  image: ruby:2.1
+  image: ruby:2.6
   services:
     - postgres
     - redis
@@ -3589,7 +3693,7 @@ test1:
     - test1 project
 
 test2:
-  image: ruby:2.1
+  image: ruby:2.6
   services:
     - postgres
     - redis
@@ -3659,6 +3763,10 @@ test:mysql:
 ```
 
 You can see that the hidden keys are conveniently used as templates.
+
+NOTE: **Note:**
+You can't use YAML anchors across multiple files when leveraging the [`include`](#include)
+feature. Anchors are only valid within the file they were defined in.
 
 ## Triggers
 

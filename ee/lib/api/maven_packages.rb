@@ -169,7 +169,7 @@ module API
       end
       route_setting :authentication, job_token_allowed: true
       put ':id/packages/maven/*path/:file_name/authorize', requirements: MAVEN_ENDPOINT_REQUIREMENTS do
-        authorize_create_package!
+        authorize_create_package!(user_project)
 
         require_gitlab_workhorse!
         Gitlab::Workhorse.verify_api_request!(headers)
@@ -195,7 +195,7 @@ module API
       end
       route_setting :authentication, job_token_allowed: true
       put ':id/packages/maven/*path/:file_name', requirements: MAVEN_ENDPOINT_REQUIREMENTS do
-        authorize_create_package!
+        authorize_create_package!(user_project)
         require_gitlab_workhorse!
 
         file_name, format = extract_format(params[:file_name])
@@ -204,7 +204,7 @@ module API
         bad_request!('Missing package file!') unless uploaded_file
 
         package = ::Packages::FindOrCreateMavenPackageService
-          .new(user_project, current_user, params).execute
+          .new(user_project, current_user, params.merge(build: current_authenticated_job)).execute
 
         case format
         when 'sha1'

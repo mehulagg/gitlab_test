@@ -35,6 +35,7 @@ describe Ci::Pipeline, :mailer do
   it { is_expected.to have_one(:source_pipeline) }
   it { is_expected.to have_one(:triggered_by_pipeline) }
   it { is_expected.to have_one(:source_job) }
+  it { is_expected.to have_one(:pipeline_config) }
 
   it { is_expected.to validate_presence_of(:sha) }
   it { is_expected.to validate_presence_of(:status) }
@@ -599,6 +600,7 @@ describe Ci::Pipeline, :mailer do
         CI_COMMIT_BEFORE_SHA
         CI_COMMIT_REF_NAME
         CI_COMMIT_REF_SLUG
+        CI_COMMIT_BRANCH
         CI_COMMIT_MESSAGE
         CI_COMMIT_TITLE
         CI_COMMIT_DESCRIPTION
@@ -1748,7 +1750,7 @@ describe Ci::Pipeline, :mailer do
     subject { described_class.bridgeable_statuses }
 
     it { is_expected.to be_an(Array) }
-    it { is_expected.not_to include('created', 'preparing', 'pending') }
+    it { is_expected.not_to include('created', 'waiting_for_resource', 'preparing', 'pending') }
   end
 
   describe '#status', :sidekiq_might_not_need_inline do
@@ -1757,6 +1759,17 @@ describe Ci::Pipeline, :mailer do
     end
 
     subject { pipeline.reload.status }
+
+    context 'on waiting for resource' do
+      before do
+        allow(build).to receive(:requires_resource?) { true }
+        allow(Ci::ResourceGroups::AssignResourceFromResourceGroupWorker).to receive(:perform_async)
+
+        build.enqueue
+      end
+
+      it { is_expected.to eq('waiting_for_resource') }
+    end
 
     context 'on prepare' do
       before do
@@ -1894,7 +1907,7 @@ describe Ci::Pipeline, :mailer do
       let(:pipeline) { create(:ci_pipeline, status: :created) }
 
       it 'returns detailed status for created pipeline' do
-        expect(subject.text).to eq 'created'
+        expect(subject.text).to eq s_('CiStatusText|created')
       end
     end
 
@@ -1902,7 +1915,7 @@ describe Ci::Pipeline, :mailer do
       let(:pipeline) { create(:ci_pipeline, status: :pending) }
 
       it 'returns detailed status for pending pipeline' do
-        expect(subject.text).to eq 'pending'
+        expect(subject.text).to eq s_('CiStatusText|pending')
       end
     end
 
@@ -1910,7 +1923,7 @@ describe Ci::Pipeline, :mailer do
       let(:pipeline) { create(:ci_pipeline, status: :running) }
 
       it 'returns detailed status for running pipeline' do
-        expect(subject.text).to eq 'running'
+        expect(subject.text).to eq s_('CiStatus|running')
       end
     end
 
@@ -1918,7 +1931,7 @@ describe Ci::Pipeline, :mailer do
       let(:pipeline) { create(:ci_pipeline, status: :success) }
 
       it 'returns detailed status for successful pipeline' do
-        expect(subject.text).to eq 'passed'
+        expect(subject.text).to eq s_('CiStatusText|passed')
       end
     end
 
@@ -1926,7 +1939,7 @@ describe Ci::Pipeline, :mailer do
       let(:pipeline) { create(:ci_pipeline, status: :failed) }
 
       it 'returns detailed status for failed pipeline' do
-        expect(subject.text).to eq 'failed'
+        expect(subject.text).to eq s_('CiStatusText|failed')
       end
     end
 
@@ -1934,7 +1947,7 @@ describe Ci::Pipeline, :mailer do
       let(:pipeline) { create(:ci_pipeline, status: :canceled) }
 
       it 'returns detailed status for canceled pipeline' do
-        expect(subject.text).to eq 'canceled'
+        expect(subject.text).to eq s_('CiStatusText|canceled')
       end
     end
 
@@ -1942,7 +1955,7 @@ describe Ci::Pipeline, :mailer do
       let(:pipeline) { create(:ci_pipeline, status: :skipped) }
 
       it 'returns detailed status for skipped pipeline' do
-        expect(subject.text).to eq 'skipped'
+        expect(subject.text).to eq s_('CiStatusText|skipped')
       end
     end
 
@@ -1950,7 +1963,7 @@ describe Ci::Pipeline, :mailer do
       let(:pipeline) { create(:ci_pipeline, status: :manual) }
 
       it 'returns detailed status for blocked pipeline' do
-        expect(subject.text).to eq 'blocked'
+        expect(subject.text).to eq s_('CiStatusText|blocked')
       end
     end
 
@@ -1962,7 +1975,7 @@ describe Ci::Pipeline, :mailer do
       end
 
       it 'retruns detailed status for successful pipeline with warnings' do
-        expect(subject.label).to eq 'passed with warnings'
+        expect(subject.label).to eq(s_('CiStatusLabel|passed with warnings'))
       end
     end
   end

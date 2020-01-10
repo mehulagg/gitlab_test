@@ -620,7 +620,7 @@ describe Projects::MergeRequestsController do
       end
 
       it "prevents deletion if destroy_confirm is not set" do
-        expect(Gitlab::Sentry).to receive(:track_acceptable_exception).and_call_original
+        expect(Gitlab::ErrorTracking).to receive(:track_exception).and_call_original
 
         delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: merge_request.iid }
 
@@ -629,7 +629,7 @@ describe Projects::MergeRequestsController do
       end
 
       it "prevents deletion in JSON format if destroy_confirm is not set" do
-        expect(Gitlab::Sentry).to receive(:track_acceptable_exception).and_call_original
+        expect(Gitlab::ErrorTracking).to receive(:track_exception).and_call_original
 
         delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: merge_request.iid, format: 'json' }
 
@@ -1287,19 +1287,6 @@ describe Projects::MergeRequestsController do
         .and_call_original
 
       get_ci_environments_status(environment_target: 'merge_commit')
-    end
-
-    context 'when the deployment_merge_requests_widget feature flag is disabled' do
-      it 'uses the deployments retrieved using CI builds' do
-        stub_feature_flags(deployment_merge_requests_widget: false)
-
-        expect(EnvironmentStatus)
-          .to receive(:after_merge_request)
-          .with(merge_request, user)
-          .and_call_original
-
-        get_ci_environments_status(environment_target: 'merge_commit')
-      end
     end
 
     def get_ci_environments_status(extra_params = {})

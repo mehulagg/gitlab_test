@@ -3,15 +3,15 @@ import * as types from 'ee/analytics/cycle_analytics/store/mutation_types';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 
 import {
-  cycleAnalyticsData,
-  rawEvents,
+  summaryData,
+  rawIssueEvents,
   issueEvents as transformedEvents,
   issueStage,
   planStage,
   codeStage,
   stagingStage,
   reviewStage,
-  productionStage,
+  totalStage,
   groupLabels,
   startDate,
   endDate,
@@ -33,8 +33,9 @@ describe('Cycle analytics mutations', () => {
 
   it.each`
     mutation                                       | stateKey                    | value
-    ${types.HIDE_CUSTOM_STAGE_FORM}                | ${'isAddingCustomStage'}    | ${false}
-    ${types.SHOW_CUSTOM_STAGE_FORM}                | ${'isAddingCustomStage'}    | ${true}
+    ${types.HIDE_CUSTOM_STAGE_FORM}                | ${'isCreatingCustomStage'}  | ${false}
+    ${types.SHOW_CUSTOM_STAGE_FORM}                | ${'isCreatingCustomStage'}  | ${true}
+    ${types.EDIT_CUSTOM_STAGE}                     | ${'isEditingCustomStage'}   | ${true}
     ${types.REQUEST_STAGE_DATA}                    | ${'isLoadingStage'}         | ${true}
     ${types.RECEIVE_STAGE_DATA_ERROR}              | ${'isEmptyStage'}           | ${true}
     ${types.RECEIVE_STAGE_DATA_ERROR}              | ${'isLoadingStage'}         | ${false}
@@ -57,6 +58,8 @@ describe('Cycle analytics mutations', () => {
     ${types.RECEIVE_REMOVE_STAGE_RESPONSE}         | ${'isLoading'}              | ${false}
     ${types.REQUEST_DURATION_DATA}                 | ${'isLoadingDurationChart'} | ${true}
     ${types.RECEIVE_DURATION_DATA_ERROR}           | ${'isLoadingDurationChart'} | ${false}
+    ${types.REQUEST_STAGE_MEDIANS}                 | ${'medians'}                | ${{}}
+    ${types.RECEIVE_STAGE_MEDIANS_ERROR}           | ${'medians'}                | ${{}}
   `('$mutation will set $stateKey=$value', ({ mutation, stateKey, value }) => {
     mutations[mutation](state);
 
@@ -69,13 +72,12 @@ describe('Cycle analytics mutations', () => {
     ${types.SET_SELECTED_GROUP}                    | ${{ fullPath: 'cool-beans' }} | ${{ selectedGroup: { fullPath: 'cool-beans' }, selectedProjectIds: [] }}
     ${types.SET_SELECTED_PROJECTS}                 | ${[606, 707, 808, 909]}       | ${{ selectedProjectIds: [606, 707, 808, 909] }}
     ${types.SET_DATE_RANGE}                        | ${{ startDate, endDate }}     | ${{ startDate, endDate }}
-    ${types.SET_SELECTED_STAGE_ID}                 | ${'first-stage'}              | ${{ selectedStageId: 'first-stage' }}
+    ${types.SET_SELECTED_STAGE}                    | ${{ id: 'first-stage' }}      | ${{ selectedStage: { id: 'first-stage' } }}
     ${types.UPDATE_SELECTED_DURATION_CHART_STAGES} | ${transformedDurationData}    | ${{ durationData: transformedDurationData }}
   `(
     '$mutation with payload $payload will update state with $expectedState',
     ({ mutation, payload, expectedState }) => {
       state = {
-        endpoints: { cycleAnalyticsData: '/fake/api' },
         selectedGroup: { fullPath: 'rad-stage' },
       };
       mutations[mutation](state, payload);
@@ -86,7 +88,7 @@ describe('Cycle analytics mutations', () => {
 
   describe(`${types.RECEIVE_STAGE_DATA_SUCCESS}`, () => {
     it('will set the currentStageEvents state item with the camelCased events', () => {
-      mutations[types.RECEIVE_STAGE_DATA_SUCCESS](state, { events: rawEvents });
+      mutations[types.RECEIVE_STAGE_DATA_SUCCESS](state, rawIssueEvents);
 
       expect(state.currentStageEvents).toEqual(transformedEvents);
     });
@@ -98,7 +100,7 @@ describe('Cycle analytics mutations', () => {
     });
 
     it('will set isEmptyStage=false if currentStageEvents.length > 0', () => {
-      mutations[types.RECEIVE_STAGE_DATA_SUCCESS](state, { events: rawEvents });
+      mutations[types.RECEIVE_STAGE_DATA_SUCCESS](state, rawIssueEvents);
 
       expect(state.isEmptyStage).toEqual(false);
     });
@@ -154,15 +156,9 @@ describe('Cycle analytics mutations', () => {
       });
 
       it('will convert the stats object to stages', () => {
-        [issueStage, planStage, codeStage, stagingStage, reviewStage, productionStage].forEach(
-          stage => {
-            expect(state.stages).toContainEqual(stage);
-          },
-        );
-      });
-
-      it('will set the selectedStageId to the id of the first stage', () => {
-        expect(state.selectedStageId).toEqual('issue');
+        [issueStage, planStage, codeStage, stagingStage, reviewStage, totalStage].forEach(stage => {
+          expect(state.stages).toContainEqual(stage);
+        });
       });
     });
   });
@@ -170,56 +166,14 @@ describe('Cycle analytics mutations', () => {
   describe(`${types.RECEIVE_SUMMARY_DATA_SUCCESS}`, () => {
     beforeEach(() => {
       state = { stages: [{ slug: 'plan' }, { slug: 'issue' }, { slug: 'test' }] };
-      mutations[types.RECEIVE_SUMMARY_DATA_SUCCESS](state, {
-        ...cycleAnalyticsData,
-        summary: [{ value: 0, title: 'New Issues' }, { value: 0, title: 'Deploys' }],
-        stats: [
-          {
-            name: 'issue',
-            value: '1 day ago',
-          },
-          {
-            name: 'plan',
-            value: '6 months ago',
-          },
-          {
-            name: 'test',
-            value: null,
-          },
-        ],
-      });
+      mutations[types.RECEIVE_SUMMARY_DATA_SUCCESS](state, summaryData);
     });
 
     it('will set each summary item with a value of 0 to "-"', () => {
       expect(state.summary).toEqual([
-        { value: '-', title: 'New Issues' },
+        { value: 3, title: 'New Issues' },
         { value: '-', title: 'Deploys' },
       ]);
-    });
-
-    it('will set the median value for each stage', () => {
-      expect(state.stages).toEqual([
-        { slug: 'plan', value: '6 months ago' },
-        { slug: 'issue', value: '1 day ago' },
-        { slug: 'test', value: null },
-      ]);
-    });
-
-    describe('with hidden stages', () => {
-      const mockStages = customizableStagesAndEvents.stages;
-
-      beforeEach(() => {
-        mockStages[0].hidden = true;
-
-        mutations[types.RECEIVE_GROUP_STAGES_AND_EVENTS_SUCCESS](state, {
-          ...customizableStagesAndEvents.events,
-          stages: mockStages,
-        });
-      });
-
-      it('will only return stages that are not hidden', () => {
-        expect(state.stages.map(({ id }) => id)).not.toContain(mockStages[0].id);
-      });
     });
   });
 
@@ -260,6 +214,21 @@ describe('Cycle analytics mutations', () => {
 
       expect(stateWithData.isLoadingDurationChart).toBe(false);
       expect(stateWithData.durationData).toBe(transformedDurationData);
+    });
+  });
+
+  describe(`${types.RECEIVE_STAGE_MEDIANS_SUCCESS}`, () => {
+    it('sets each id as a key in the median object with the corresponding value', () => {
+      const stateWithData = {
+        medians: {},
+      };
+
+      mutations[types.RECEIVE_STAGE_MEDIANS_SUCCESS](stateWithData, [
+        { id: 1, value: 20 },
+        { id: 2, value: 10 },
+      ]);
+
+      expect(stateWithData.medians).toEqual({ '1': 20, '2': 10 });
     });
   });
 });

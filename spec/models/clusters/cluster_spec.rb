@@ -674,7 +674,8 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
 
   describe '#kubernetes_namespace_for' do
     let(:cluster) { create(:cluster, :group) }
-    let(:environment) { create(:environment) }
+    let(:environment) { create(:environment, last_deployable: build) }
+    let(:build) { create(:ci_build) }
 
     subject { cluster.kubernetes_namespace_for(environment) }
 
@@ -682,16 +683,15 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
       expect(Clusters::KubernetesNamespaceFinder).to receive(:new)
         .with(cluster, project: environment.project, environment_name: environment.name)
         .and_return(double(execute: persisted_namespace))
+
+      allow(build).to receive(:expanded_kubernetes_namespace)
+        .and_return(ci_configured_namespace)
     end
 
-    context 'a persisted namespace exists' do
-      let(:persisted_namespace) { create(:cluster_kubernetes_namespace) }
-
-      it { is_expected.to eq persisted_namespace.namespace }
-    end
-
-    context 'no persisted namespace exists' do
+    context 'no persisted namespace exists and namespace is not specified in CI template' do
       let(:persisted_namespace) { nil }
+      let(:ci_configured_namespace) { nil }
+
       let(:namespace_generator) { double }
       let(:default_namespace) { 'a-default-namespace' }
 
@@ -705,6 +705,27 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
       end
 
       it { is_expected.to eq default_namespace }
+    end
+
+    context 'persisted namespace exists' do
+      let(:persisted_namespace) { create(:cluster_kubernetes_namespace) }
+      let(:ci_configured_namespace) { nil }
+
+      it { is_expected.to eq persisted_namespace.namespace }
+    end
+
+    context 'namespace is specified in CI template' do
+      let(:persisted_namespace) { nil }
+      let(:ci_configured_namespace) { 'ci-configured-namespace' }
+
+      it { is_expected.to eq ci_configured_namespace }
+    end
+
+    context 'persisted namespace exists and namespace is also specifed in CI template' do
+      let(:persisted_namespace) { create(:cluster_kubernetes_namespace) }
+      let(:ci_configured_namespace) { 'ci-configured-namespace' }
+
+      it { is_expected.to eq persisted_namespace.namespace }
     end
   end
 
@@ -983,8 +1004,8 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
         it { is_expected.to eq(connection_status: :unknown_failure) }
 
         it 'notifies Sentry' do
-          expect(Gitlab::Sentry).to receive(:track_acceptable_exception)
-            .with(instance_of(StandardError), hash_including(extra: { cluster_id: cluster.id }))
+          expect(Gitlab::ErrorTracking).to receive(:track_exception)
+            .with(instance_of(StandardError), hash_including(cluster_id: cluster.id))
 
           subject
         end

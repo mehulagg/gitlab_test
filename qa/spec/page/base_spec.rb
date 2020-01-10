@@ -69,11 +69,11 @@ describe QA::Page::Base do
       it 'does not refresh' do
         expect(subject).not_to receive(:refresh)
 
-        subject.wait(max: 0.01) { true }
+        subject.wait(max: 0.01, raise_on_failure: false) { true }
       end
 
       it 'returns true' do
-        expect(subject.wait(max: 0.1) { true }).to be_truthy
+        expect(subject.wait(max: 0.1, raise_on_failure: false) { true }).to be_truthy
       end
     end
 
@@ -81,13 +81,29 @@ describe QA::Page::Base do
       it 'refreshes' do
         expect(subject).to receive(:refresh).at_least(:once)
 
-        subject.wait(max: 0.01) { false }
+        subject.wait(max: 0.01, raise_on_failure: false) { false }
       end
 
       it 'returns false' do
         allow(subject).to receive(:refresh)
 
-        expect(subject.wait(max: 0.01) { false }).to be_falsey
+        expect(subject.wait(max: 0.01, raise_on_failure: false) { false }).to be_falsey
+      end
+    end
+  end
+
+  describe '#all_elements' do
+    before do
+      allow(subject).to receive(:all)
+    end
+
+    it 'raises an error if count or minimum are not specified' do
+      expect { subject.all_elements(:foo) }.to raise_error ArgumentError
+    end
+
+    it 'does not raise an error if :minimum, :maximum, :count, or :between is specified' do
+      [:minimum, :maximum, :count, :between].each do |param|
+        expect { subject.all_elements(:foo, param => 1) }.not_to raise_error
       end
     end
   end

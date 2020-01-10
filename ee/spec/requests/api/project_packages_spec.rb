@@ -14,6 +14,7 @@ describe API::ProjectPackages do
 
   describe 'GET /projects/:id/packages' do
     let(:url) { "/projects/#{project.id}/packages" }
+    let(:package_schema) { 'public_api/v4/packages/packages' }
 
     subject { get api(url) }
 
@@ -41,6 +42,18 @@ describe API::ProjectPackages do
           it_behaves_like 'returns packages', :project, :reporter
           it_behaves_like 'rejects packages access', :project, :no_type, :not_found
           it_behaves_like 'rejects packages access', :project, :guest, :forbidden
+
+          context 'user is a maintainer' do
+            before do
+              project.add_maintainer(user)
+            end
+
+            it 'returns the destroy url' do
+              subject
+
+              expect(json_response.first['_links']).to include('delete_api_path')
+            end
+          end
         end
       end
 
@@ -71,6 +84,24 @@ describe API::ProjectPackages do
   end
 
   describe 'GET /projects/:id/packages/:package_id' do
+    subject { get api(package_url, user) }
+
+    shared_examples 'no destroy url' do
+      it 'returns no destroy url' do
+        subject
+
+        expect(json_response['_links']).not_to include('delete_api_path')
+      end
+    end
+
+    shared_examples 'destroy url' do
+      it 'returns destroy url' do
+        subject
+
+        expect(json_response['_links']['delete_api_path']).to be_present
+      end
+    end
+
     context 'packages feature enabled' do
       before do
         stub_licensed_features(packages: true)
@@ -78,7 +109,7 @@ describe API::ProjectPackages do
 
       context 'project is public' do
         it 'returns 200 and the package information' do
-          get api(package_url, user)
+          subject
 
           expect(response).to have_gitlab_http_status(200)
           expect(response).to match_response_schema('public_api/v4/packages/package', dir: 'ee')
@@ -95,6 +126,8 @@ describe API::ProjectPackages do
 
           expect(response).to have_gitlab_http_status(404)
         end
+
+        it_behaves_like 'no destroy url'
       end
 
       context 'project is private' do
@@ -107,18 +140,45 @@ describe API::ProjectPackages do
         end
 
         it 'returns 404 for a user without access to the project' do
-          get api(package_url, user)
+          subject
 
           expect(response).to have_gitlab_http_status(404)
         end
 
-        it 'returns 200 and the package information' do
-          project.add_developer(user)
+        context 'user is a developer' do
+          before do
+            project.add_developer(user)
+          end
 
-          get api(package_url, user)
+          it 'returns 200 and the package information' do
+            subject
 
-          expect(response).to have_gitlab_http_status(200)
-          expect(response).to match_response_schema('public_api/v4/packages/package', dir: 'ee')
+            expect(response).to have_gitlab_http_status(200)
+            expect(response).to match_response_schema('public_api/v4/packages/package', dir: 'ee')
+          end
+
+          it_behaves_like 'no destroy url'
+        end
+
+        context 'user is a maintainer' do
+          before do
+            project.add_maintainer(user)
+          end
+
+          it_behaves_like 'destroy url'
+        end
+
+        context 'with build info' do
+          let!(:package1) { create(:npm_package, :with_build, project: project) }
+
+          it 'returns the build info' do
+            project.add_developer(user)
+
+            get api(package_url, user)
+
+            expect(response).to have_gitlab_http_status(200)
+            expect(response).to match_response_schema('public_api/v4/packages/package_with_build', dir: 'ee')
+          end
         end
       end
     end
@@ -129,7 +189,7 @@ describe API::ProjectPackages do
       end
 
       it 'returns 403' do
-        get api(package_url, user)
+        subject
 
         expect(response).to have_gitlab_http_status(403)
       end

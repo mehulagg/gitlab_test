@@ -290,6 +290,7 @@ export CI_RUNNER_ID="10"
 export CI_RUNNER_DESCRIPTION="my runner"
 export CI_RUNNER_TAGS="docker, linux"
 export CI_SERVER="yes"
+export CI_SERVER_URL="https://example.com"
 export CI_SERVER_HOST="example.com"
 export CI_SERVER_NAME="GitLab"
 export CI_SERVER_REVISION="70606bf"
@@ -673,6 +674,8 @@ Running on runner-8a2f473d-project-1796893-concurrent-0 via runner-8a2f473d-mach
 ++ CI_PROJECT_DIR=/builds/gitlab-examples/ci-debug-trace
 ++ export CI_SERVER=yes
 ++ CI_SERVER=yes
+++ export CI_SERVER_URL=https://example.com:3000
+++ CI_SERVER_URL=https://example.com:3000
 ++ export 'CI_SERVER_HOST=example.com'
 ++ CI_SERVER_HOST='example.com'
 ++ export 'CI_SERVER_NAME=GitLab CI'
@@ -699,8 +702,8 @@ Running on runner-8a2f473d-project-1796893-concurrent-0 via runner-8a2f473d-mach
 ++ CI_JOB_ID=7046507
 ++ export CI_JOB_TOKEN=xxxxxxxxxxxxxxxxxxxx
 ++ CI_JOB_TOKEN=xxxxxxxxxxxxxxxxxxxx
-++ export CI_COMMIT_REF=dd648b2e48ce6518303b0bb580b2ee32fadaf045
-++ CI_COMMIT_REF=dd648b2e48ce6518303b0bb580b2ee32fadaf045
+++ export CI_COMMIT_SHA=dd648b2e48ce6518303b0bb580b2ee32fadaf045
+++ CI_COMMIT_SHA=dd648b2e48ce6518303b0bb580b2ee32fadaf045
 ++ export CI_COMMIT_BEFORE_SHA=dd648b2e48ce6518303b0bb580b2ee32fadaf045
 ++ CI_COMMIT_BEFORE_SHA=dd648b2e48ce6518303b0bb580b2ee32fadaf045
 ++ export CI_COMMIT_REF_NAME=master
@@ -709,6 +712,8 @@ Running on runner-8a2f473d-project-1796893-concurrent-0 via runner-8a2f473d-mach
 ++ CI_JOB_NAME=debug_trace
 ++ export CI_JOB_STAGE=test
 ++ CI_JOB_STAGE=test
+++ export CI_SERVER_URL=https://example.com:3000
+++ CI_SERVER_URL=https://example.com:3000
 ++ export CI_SERVER_HOST=example.com
 ++ CI_SERVER_HOST=example.com
 ++ export CI_SERVER_NAME=GitLab

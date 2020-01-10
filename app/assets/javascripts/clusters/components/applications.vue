@@ -19,7 +19,6 @@ import applicationRow from './application_row.vue';
 import clipboardButton from '../../vue_shared/components/clipboard_button.vue';
 import KnativeDomainEditor from './knative_domain_editor.vue';
 import { CLUSTER_TYPE, PROVIDER_TYPE, APPLICATION_STATUS, INGRESS } from '../constants';
-import LoadingButton from '~/vue_shared/components/loading_button.vue';
 import eventHub from '~/clusters/event_hub';
 import CrossplaneProviderStack from './crossplane_provider_stack.vue';
 
@@ -27,7 +26,6 @@ export default {
   components: {
     applicationRow,
     clipboardButton,
-    LoadingButton,
     GlLoadingIcon,
     KnativeDomainEditor,
     CrossplaneProviderStack,
@@ -54,6 +52,11 @@ export default {
       default: '',
     },
     ingressDnsHelpPath: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    ingressModSecurityHelpPath: {
       type: String,
       required: false,
       default: '',
@@ -114,6 +117,9 @@ export default {
     ingressInstalled() {
       return this.applications.ingress.status === APPLICATION_STATUS.INSTALLED;
     },
+    ingressEnableModsecurity() {
+      return this.applications.ingress.modsecurity_enabled;
+    },
     ingressExternalEndpoint() {
       return this.applications.ingress.externalIp || this.applications.ingress.externalHostname;
     },
@@ -129,6 +135,18 @@ export default {
     enableClusterApplicationElasticStack() {
       return gon.features && gon.features.enableClusterApplicationElasticStack;
     },
+    ingressModSecurityDescription() {
+      const escapedUrl = _.escape(this.ingressModSecurityHelpPath);
+
+      return sprintf(
+        s__('ClusterIntegration|Learn more about %{startLink}ModSecurity%{endLink}'),
+        {
+          startLink: `<a href="${escapedUrl}" target="_blank" rel="noopener noreferrer">`,
+          endLink: '</a>',
+        },
+        false,
+      );
+    },
     ingressDescription() {
       return sprintf(
         _.escape(
@@ -137,9 +155,9 @@ export default {
           ),
         ),
         {
-          pricingLink: `<strong><a href="https://cloud.google.com/compute/pricing#lb"
+          pricingLink: `<a href="https://cloud.google.com/compute/pricing#lb"
               target="_blank" rel="noopener noreferrer">
-              ${_.escape(s__('ClusterIntegration|pricing'))}</a></strong>`,
+              ${_.escape(s__('ClusterIntegration|pricing'))}</a>`,
         },
         false,
       );
@@ -313,6 +331,9 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
         :request-reason="applications.ingress.requestReason"
         :installed="applications.ingress.installed"
         :install-failed="applications.ingress.installFailed"
+        :install-application-request-params="{
+          modsecurity_enabled: applications.ingress.modsecurity_enabled,
+        }"
         :uninstallable="applications.ingress.uninstallable"
         :uninstall-successful="applications.ingress.uninstallSuccessful"
         :uninstall-failed="applications.ingress.uninstallFailed"
@@ -327,6 +348,26 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
                         centralizing a number of services into a single entrypoint.`)
             }}
           </p>
+
+          <template>
+            <div class="form-group">
+              <div class="form-check form-check-inline">
+                <input
+                  v-model="applications.ingress.modsecurity_enabled"
+                  :disabled="ingressInstalled"
+                  type="checkbox"
+                  autocomplete="off"
+                  class="form-check-input"
+                />
+                <label class="form-check-label label-bold" for="ingress-enable-modsecurity">
+                  {{ s__('ClusterIntegration|Enable Web Application Firewall') }}
+                </label>
+              </div>
+              <p class="form-text text-muted">
+                <strong v-html="ingressModSecurityDescription"></strong>
+              </p>
+            </div>
+          </template>
 
           <template v-if="ingressInstalled">
             <div class="form-group">
@@ -377,7 +418,9 @@ Crossplane runs inside your Kubernetes cluster and supports secure connectivity 
             </p>
           </template>
           <template v-if="!ingressInstalled">
-            <div class="bs-callout bs-callout-info" v-html="ingressDescription"></div>
+            <div class="bs-callout bs-callout-info">
+              <strong v-html="ingressDescription"></strong>
+            </div>
           </template>
         </div>
       </application-row>

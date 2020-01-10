@@ -14,7 +14,6 @@ const localVue = createLocalVue();
 localVue.use(Vuex);
 
 describe('dashboard', () => {
-  const Component = localVue.extend(component);
   let actionSpies;
   const store = createStore();
   let wrapper;
@@ -38,7 +37,7 @@ describe('dashboard', () => {
       emptyDashboardHelpPath: '/help/user/operations_dashboard/index.html',
     };
 
-    wrapper = shallowMount(Component, {
+    wrapper = shallowMount(component, {
       propsData,
       localVue,
       store,
@@ -109,6 +108,7 @@ describe('dashboard', () => {
     describe('project selector modal', () => {
       beforeEach(() => {
         wrapper.find(GlButton).trigger('click');
+        return wrapper.vm.$nextTick();
       });
 
       it('should fire the add projects action on ok', () => {
@@ -143,7 +143,10 @@ describe('dashboard', () => {
 
       it('should get the page info from the state', () => {
         store.state.pageInfo = { totalResults: 100 };
-        expect(wrapper.find(ProjectSelector).props('totalResults')).toBe(100);
+
+        return wrapper.vm.$nextTick().then(() => {
+          expect(wrapper.find(ProjectSelector).props('totalResults')).toBe(100);
+        });
       });
     });
   });

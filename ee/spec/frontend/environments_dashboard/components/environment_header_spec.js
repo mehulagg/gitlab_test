@@ -1,13 +1,10 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import { GlLink, GlBadge } from '@gitlab/ui';
 import component from 'ee/environments_dashboard/components/dashboard/environment_header.vue';
 import Icon from '~/vue_shared/components/icon.vue';
 import ReviewAppLink from '~/vue_merge_request_widget/components/review_app_link.vue';
 
-const localVue = createLocalVue();
-
 describe('Environment Header', () => {
-  const Component = localVue.extend(component);
   let wrapper;
   let propsData;
 
@@ -27,11 +24,9 @@ describe('Environment Header', () => {
 
   describe('renders name and link to app', () => {
     beforeEach(() => {
-      wrapper = shallowMount(Component, {
-        sync: false,
+      wrapper = shallowMount(component, {
         attachToDocument: true,
         propsData,
-        localVue,
       });
     });
 
@@ -64,11 +59,9 @@ describe('Environment Header', () => {
       propsData.environment.within_folder = true;
       propsData.environment.name = 'review/testing';
 
-      wrapper = shallowMount(Component, {
-        sync: false,
+      wrapper = shallowMount(component, {
         attachToDocument: true,
         propsData,
-        localVue,
       });
     });
 
@@ -79,9 +72,7 @@ describe('Environment Header', () => {
 
     it('shows an icon stating the environment is one of many in a folder', () => {
       expect(wrapper.find(Icon).attributes('name')).toBe('information');
-      expect(wrapper.find(Icon).attributes('data-original-title')).toMatch(
-        /last updated environment/,
-      );
+      expect(wrapper.find(Icon).attributes('title')).toMatch(/last updated environment/);
     });
 
     it('matches the snapshot', () => {
@@ -93,11 +84,9 @@ describe('Environment Header', () => {
     beforeEach(() => {
       propsData.hasErrors = true;
 
-      wrapper = shallowMount(Component, {
-        sync: false,
+      wrapper = shallowMount(component, {
         attachToDocument: true,
         propsData,
-        localVue,
       });
     });
 
@@ -110,11 +99,9 @@ describe('Environment Header', () => {
     beforeEach(() => {
       propsData.hasPipelineFailed = true;
 
-      wrapper = shallowMount(Component, {
-        sync: false,
+      wrapper = shallowMount(component, {
         attachToDocument: true,
         propsData,
-        localVue,
       });
     });
 

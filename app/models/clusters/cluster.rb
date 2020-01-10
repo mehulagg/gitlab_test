@@ -249,14 +249,9 @@ module Clusters
     end
 
     def kubernetes_namespace_for(environment)
-      project = environment.project
-      persisted_namespace = Clusters::KubernetesNamespaceFinder.new(
-        self,
-        project: project,
-        environment_name: environment.name
-      ).execute
-
-      persisted_namespace&.namespace || Gitlab::Kubernetes::DefaultNamespace.new(self, project: project).from_environment_slug(environment.slug)
+      managed_namespace(environment) ||
+        ci_configured_namespace(environment) ||
+        default_namespace(environment)
     end
 
     def allow_user_defined_namespace?
@@ -308,6 +303,25 @@ module Clusters
       end
     end
 
+    def managed_namespace(environment)
+      Clusters::KubernetesNamespaceFinder.new(
+        self,
+        project: environment.project,
+        environment_name: environment.name
+      ).execute&.namespace
+    end
+
+    def ci_configured_namespace(environment)
+      environment.last_deployable&.expanded_kubernetes_namespace
+    end
+
+    def default_namespace(environment)
+      Gitlab::Kubernetes::DefaultNamespace.new(
+        self,
+        project: environment.project
+      ).from_environment_slug(environment.slug)
+    end
+
     def instance_domain
       @instance_domain ||= Gitlab::CurrentSettings.auto_devops_domain
     end
@@ -321,7 +335,7 @@ module Clusters
     rescue Kubeclient::HttpError => e
       kubeclient_error_status(e.message)
     rescue => e
-      Gitlab::Sentry.track_acceptable_exception(e, extra: { cluster_id: id })
+      Gitlab::ErrorTracking.track_exception(e, cluster_id: id)
 
       :unknown_failure
     else

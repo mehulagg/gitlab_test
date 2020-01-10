@@ -9,10 +9,49 @@ describe('GeoDesigns Store Mutations', () => {
     state = createState();
   });
 
+  describe('SET_FILTER', () => {
+    const testValue = 2;
+
+    beforeEach(() => {
+      state.currentFilterIndex = 1;
+      state.currentPage = 2;
+
+      mutations[types.SET_FILTER](state, testValue);
+    });
+
+    it('sets the currentFilterIndex state key', () => {
+      expect(state.currentFilterIndex).toEqual(testValue);
+    });
+
+    it('resets the page to 1', () => {
+      expect(state.currentPage).toEqual(1);
+    });
+  });
+
+  describe('SET_SEARCH', () => {
+    const testValue = 'test search';
+
+    beforeEach(() => {
+      state.currentPage = 2;
+
+      mutations[types.SET_SEARCH](state, testValue);
+    });
+
+    it('sets the searchFilter state key', () => {
+      expect(state.searchFilter).toEqual(testValue);
+    });
+
+    it('resets the page to 1', () => {
+      expect(state.currentPage).toEqual(1);
+    });
+  });
+
   describe('SET_PAGE', () => {
-    it('sets the page to the correct page', () => {
-      mutations[types.SET_PAGE](state, 2);
-      expect(state.currentPage).toEqual(2);
+    it('sets the currentPage state key', () => {
+      const testValue = 2;
+
+      mutations[types.SET_PAGE](state, testValue);
+      expect(state.currentPage).toEqual(testValue);
     });
   });
 
@@ -77,6 +116,25 @@ describe('GeoDesigns Store Mutations', () => {
       mutations[types.RECEIVE_DESIGNS_ERROR](state);
       expect(state.pageSize).toEqual(0);
       expect(state.totalDesigns).toEqual(0);
+    });
+  });
+
+  describe.each`
+    mutation                                           | loadingBefore | loadingAfter
+    ${types.REQUEST_INITIATE_ALL_DESIGN_SYNCS}         | ${false}      | ${true}
+    ${types.RECEIVE_INITIATE_ALL_DESIGN_SYNCS_SUCCESS} | ${true}       | ${false}
+    ${types.RECEIVE_INITIATE_ALL_DESIGN_SYNCS_ERROR}   | ${true}       | ${false}
+    ${types.REQUEST_INITIATE_DESIGN_SYNC}              | ${false}      | ${true}
+    ${types.RECEIVE_INITIATE_DESIGN_SYNC_SUCCESS}      | ${true}       | ${false}
+    ${types.RECEIVE_INITIATE_DESIGN_SYNC_ERROR}        | ${true}       | ${false}
+  `(`Sync Mutations: `, ({ mutation, loadingBefore, loadingAfter }) => {
+    describe(`${mutation}`, () => {
+      it(`sets isLoading to ${loadingAfter}`, () => {
+        state.isLoading = loadingBefore;
+
+        mutations[mutation](state);
+        expect(state.isLoading).toEqual(loadingAfter);
+      });
     });
   });
 });

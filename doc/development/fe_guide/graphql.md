@@ -39,43 +39,31 @@ To distinguish queries from mutations and fragments, the following naming conven
 - `addUser.mutation.graphql` for mutations;
 - `basicUser.fragment.graphql` for fragments.
 
-GraphQL:
-
-- Queries are stored in `(ee/)app/assets/javascripts/` under the feature. For example, `respository/queries`. Frontend components can use these stored queries.
-- Mutations are stored in
-  `(ee/)app/assets/javascripts/<subfolders>/<name of mutation>.mutation.graphql`.
-
 ### Fragments
 
-Fragments are a way to make your complex GraphQL queries more readable and re-usable.
-They can be stored in a separate file and imported.
+Fragments are a way to make your complex GraphQL queries more readable and re-usable. Here is an example of GraphQL fragment:
 
-For example, a fragment that references another fragment:
-
-```ruby
-fragment BaseEpic on Epic {
+```javascript
+fragment DesignListItem on Design {
   id
-  iid
-  title
-  webPath
-  relativePosition
-  userPermissions {
-    adminEpic
-    createEpic
-  }
+  image
+  event
+  filename
+  notesCount
 }
+```
 
-fragment EpicNode on Epic {
-  ...BaseEpic
-  state
-  reference(full: true)
-  relationPath
-  createdAt
-  closedAt
-  hasChildren
-  hasIssues
-  group {
-    fullPath
+Fragments can be stored in separate files, imported and used in queries, mutations or other fragments.
+
+```javascript
+#import "./designList.fragment.graphql"
+#import "./diffRefs.fragment.graphql"
+
+fragment DesignItem on Design {
+  ...DesignListItem
+  fullPath
+  diffRefs {
+    ...DesignDiffRefs
   }
 }
 ```
@@ -121,17 +109,16 @@ import createDefaultClient from '~/lib/graphql';
 Vue.use(VueApollo);
 
 const defaultClient = createDefaultClient({
-  Query: {
-    ...
-  },
-  Mutations: {
-    ...
-  },
+  resolvers: {}
 });
 
 defaultClient.cache.writeData({
   data: {
-    isLoading: true,
+    user: {
+      name: 'John',
+      surname: 'Doe',
+      age: 30
+    },
   },
 });
 
@@ -140,9 +127,90 @@ const apolloProvider = new VueApollo({
 });
 ```
 
+We can query local data with `@client` Apollo directive:
+
+```javascript
+// user.query.graphql
+
+query User {
+  user @client {
+    name
+    surname
+    age
+  }
+}
+```
+
+Along with creating local data, we can also extend existing GraphQL types with `@client` fields. This is extremely useful when we need to mock an API responses for fields not yet added to our GraphQL API.
+
+#### Mocking API response with local Apollo cache
+
+Using local Apollo Cache is handy when we have a need to mock some GraphQL API responses, queries or mutations locally (e.g. when they're still not added to our actual API).
+
+For example, we have a [fragment](#fragments) on `DesignVersion` used in our queries:
+
+```
+fragment VersionListItem on DesignVersion {
+  id
+  sha
+}
+```
+
+We need to fetch also version author and the 'created at' property to display them in the versions dropdown but these changes are still not implemented in our API. We can change the existing fragment to get a mocked response for these new fields:
+
+```
+fragment VersionListItem on DesignVersion {
+  id
+  sha
+  author @client {
+    avatarUrl
+    name
+  }
+  createdAt @client
+}
+```
+
+Now Apollo will try to find a _resolver_ for every field marked with `@client` directive. Let's create a resolver for `DesignVersion` type (why `DesignVersion`? because our fragment was created on this type).
+
+```javascript
+// resolvers.js
+
+const resolvers = {
+  DesignVersion: {
+    author: () => ({
+      avatarUrl:
+        'https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon',
+      name: 'Administrator',
+      __typename: 'User',
+    }),
+    createdAt: () => '2019-11-13T16:08:11Z',
+  },
+};
+
+export default resolvers;
+```
+
+We need to pass resolvers object to our existing Apollo Client:
+
+```javascript
+// graphql.js
+
+import createDefaultClient from '~/lib/graphql';
+import resolvers from './graphql/resolvers';
+
+const defaultClient = createDefaultClient(
+  {},
+  resolvers,
+);
+```
+
+Now every single time on attempt to fetch a version, our client will fetch `id` and `sha` from the remote API endpoint and will assign our hardcoded values to `author` and `createdAt` version properties. With this data, frontend developers are able to work on UI part without being blocked by backend. When actual response is added to the API, a custom local resolver can be removed fast and the only change to query/fragment is `@client` directive removal.
+
 Read more about local state management with Apollo in the [Vue Apollo documentation](https://vue-apollo.netlify.com/guide/local-state.html#local-state).
 
 ### Testing
+
+#### Mocking response as component data
 
 With [Vue test utils][vue-test-utils] it is easy to quickly test components that
 fetch GraphQL queries. The simplest way is to use `shallowMount` and then set
@@ -158,7 +226,100 @@ it('tests apollo component', () => {
 });
 ```
 
-Another possible way is testing queries with mocked GraphQL schema. Read more about this way in [Vue Apollo testing documentation](https://vue-apollo.netlify.com/guide/testing.html#tests-with-mocked-graqhql-schema)
+#### Testing loading state
+
+If we need to test how our component renders when results from the GraphQL API are still loading, we can mock a loading state into respective Apollo queries/mutations:
+
+```javascript
+  function createComponent({
+    loading = false,
+  } = {}) {
+    const $apollo = {
+      queries: {
+        designs: {
+          loading,
+        },
+    };
+
+    wrapper = shallowMount(Index, {
+      sync: false,
+      mocks: { $apollo }
+    });
+  }
+
+  it('renders loading icon', () => {
+  createComponent({ loading: true });
+
+  expect(wrapper.element).toMatchSnapshot();
+})
+```
+
+#### Testing Apollo components
+
+If we use `ApolloQuery` or `ApolloMutation` in our components, in order to test their functionality we need to add a stub first:
+
+```javascript
+import { ApolloMutation } from 'vue-apollo';
+
+function createComponent(props = {}) {
+  wrapper = shallowMount(MyComponent, {
+    sync: false,
+    propsData: {
+      ...props,
+    },
+    stubs: {
+      ApolloMutation,
+    },
+  });
+}
+```
+
+`ApolloMutation` component exposes `mutate` method via scoped slot. If we want to test this method, we need to add it to mocks:
+
+```javascript
+const mutate = jest.fn(() => Promise.resolve());
+const $apollo = {
+  mutate,
+};
+
+function createComponent(props = {}) {
+  wrapper = shallowMount(MyComponent, {
+    sync: false,
+    propsData: {
+      ...props,
+    },
+    stubs: {
+      ApolloMutation,
+    },
+    mocks: {
+      $apollo:
+    }
+  });
+}
+```
+
+Then we can check if `mutate` is called with correct variables:
+
+```javascript
+const mutationVariables = {
+  mutation: createNoteMutation,
+  update: expect.anything(),
+  variables: {
+    input: {
+      noteableId: 'noteable-id',
+      body: 'test',
+      discussionId: '0',
+    },
+  },
+};
+
+it('calls mutation on submitting form ', () => {
+  createComponent()
+  findReplyForm().vm.$emit('submitForm');
+
+  expect(mutate).toHaveBeenCalledWith(mutationVariables);
+});
+```
 
 ## Usage outside of Vue
 

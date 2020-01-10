@@ -53,6 +53,7 @@ describe Gitlab::ProjectSearchResults do
 
     context "when #{entity_type} is disabled" do
       let(:project) { disabled_project }
+
       it "hides #{blob_kind} from members" do
         project.add_reporter(user)
 
@@ -85,8 +86,7 @@ describe Gitlab::ProjectSearchResults do
     it "loads all blobs for path matches in single batch" do
       expect(Gitlab::Git::Blob).to receive(:batch).once.and_call_original
 
-      expected = project.repository.search_files_by_name(query, 'master')
-      expect(results.map(&:path)).to include(*expected)
+      results.map(&:data)
     end
 
     it 'finds by content' do

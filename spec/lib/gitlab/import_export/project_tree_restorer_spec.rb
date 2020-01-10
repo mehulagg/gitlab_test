@@ -234,6 +234,22 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
         expect(meetings.first.url).to eq('https://zoom.us/j/123456789')
       end
 
+      it 'restores sentry issues' do
+        sentry_issue = @project.issues.first.sentry_issue
+
+        expect(sentry_issue.sentry_issue_identifier).to eq(1234567891)
+      end
+
+      it 'restores container_expiration_policy' do
+        policy = Project.find_by_path('project').container_expiration_policy
+
+        aggregate_failures do
+          expect(policy).to be_an_instance_of(ContainerExpirationPolicy)
+          expect(policy).to be_persisted
+          expect(policy.cadence).to eq('3month')
+        end
+      end
+
       context 'Merge requests' do
         it 'always has the new project as a target' do
           expect(MergeRequest.find_by_title('MR1').target_project).to eq(@project)
@@ -638,12 +654,11 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
     let(:user) { create(:user) }
     let!(:project) { create(:project, :builds_disabled, :issues_disabled, name: 'project', path: 'project') }
     let(:project_tree_restorer) { described_class.new(user: user, shared: shared, project: project) }
-    let(:correlation_id) { 'my-correlation-id' }
 
     before do
       setup_import_export_config('with_invalid_records')
 
-      Labkit::Correlation::CorrelationId.use_id(correlation_id) { subject }
+      subject
     end
 
     context 'when failures occur because a relation fails to be processed' do
@@ -664,7 +679,7 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
         expect(import_failure.relation_index).to be_present
         expect(import_failure.exception_class).to eq('ActiveRecord::RecordInvalid')
         expect(import_failure.exception_message).to be_present
-        expect(import_failure.correlation_id_value).to eq('my-correlation-id')
+        expect(import_failure.correlation_id_value).not_to be_empty
         expect(import_failure.created_at).to be_present
       end
     end

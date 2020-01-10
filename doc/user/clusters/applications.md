@@ -35,7 +35,7 @@ The following applications can be installed:
 
 - [Helm](#helm)
 - [Ingress](#ingress)
-- [Cert-Manager](#cert-manager)
+- [cert-manager](#cert-manager)
 - [Prometheus](#prometheus)
 - [GitLab Runner](#gitlab-runner)
 - [JupyterHub](#jupyterhub)
@@ -73,13 +73,13 @@ Installing Helm as a GitLab-managed App behind a proxy is not supported,
 but a [workaround](../../topics/autodevops/index.md#installing-helm-behind-a-proxy)
 is available.
 
-### Cert-Manager
+### cert-manager
 
 > Introduced in GitLab 11.6 for project- and group-level clusters.
 
-[Cert-Manager](https://docs.cert-manager.io/en/latest/) is a native
+[cert-manager](https://docs.cert-manager.io/en/latest/) is a native
 Kubernetes certificate management controller that helps with issuing
-certificates. Installing Cert-Manager on your cluster will issue a
+certificates. Installing cert-manager on your cluster will issue a
 certificate by [Let's Encrypt](https://letsencrypt.org/) and ensure that
 certificates are valid and up-to-date.
 
@@ -91,13 +91,13 @@ The chart used to install this application depends on the version of GitLab used
 - GitLab 12.2 and older, the [stable/cert-manager](https://github.com/helm/charts/tree/master/stable/cert-manager)
   chart was used.
 
-If you have installed Cert-Manager prior to GitLab 12.3, Let's Encrypt will
-[block requests from older versions of Cert-Manager](https://community.letsencrypt.org/t/blocking-old-cert-manager-versions/98753).
+If you have installed cert-manager prior to GitLab 12.3, Let's Encrypt will
+[block requests from older versions of cert-manager](https://community.letsencrypt.org/t/blocking-old-cert-manager-versions/98753).
 
 To resolve this:
 
-1. Uninstall Cert-Manager (consider [backing up any additional configuration](https://docs.cert-manager.io/en/latest/tasks/backup-restore-crds.html)).
-1. Install Cert-Manager again.
+1. Uninstall cert-manager (consider [backing up any additional configuration](https://docs.cert-manager.io/en/latest/tasks/backup-restore-crds.html)).
+1. Install cert-manager again.
 
 ### GitLab Runner
 
@@ -248,10 +248,10 @@ use an A record. If your external endpoint is a hostname, use a CNAME record.
 
 #### Web Application Firewall (ModSecurity)
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/65192) in GitLab 12.3 (enabled using `ingress_modsecurity` [feature flag](../../development/feature_flags/development.md#enabling-a-feature-flag-in-development)).
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/21966) in GitLab 12.7.
 
 Out of the box, GitLab provides you real-time security monitoring with
-[`modsecurity`](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#modsecurity)
+[ModSecurity](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#modsecurity).
 
 Modsecurity is a toolkit for real-time web application monitoring, logging,
 and access control. With GitLab's offering, the [OWASP's Core Rule Set](https://www.modsecurity.org/CRS/Documentation/), which provides generic attack detection capabilities,
@@ -267,22 +267,18 @@ This feature:
   kubectl -n gitlab-managed-apps exec -it $(kubectl get pods -n gitlab-managed-apps | grep 'ingress-controller' | awk '{print $1}') -- tail -f /var/log/modsec/audit.log
   ```
 
-There is a small performance overhead by enabling `modsecurity`. If this is
-considered significant for your application, you can either:
+To enable ModSecurity, check the **Enable Web Application Firewall** checkbox
+when installing your [Ingress application](#ingress).
 
-- Disable ModSecurity's rule engine for your deployed application by setting
-  [the deployment variable](../../topics/autodevops/index.md)
-  `AUTO_DEVOPS_MODSECURITY_SEC_RULE_ENGINE` to `Off`. This will prevent ModSecurity from
-  processing any requests for the given application or environment.
-- Toggle the feature flag to false by running the following command within your
-  instance's Rails console:
+There is a small performance overhead by enabling ModSecurity. If this is
+considered significant for your application, you can disable ModSecurity's
+rule engine for your deployed application by setting
+[the deployment variable](../../topics/autodevops/index.md)
+`AUTO_DEVOPS_MODSECURITY_SEC_RULE_ENGINE` to `Off`. This will prevent ModSecurity
+from processing any requests for the given application or environment.
 
-  ```ruby
-  Feature.disable(:ingress_modsecurity)
-  ```
-
-Once disabled, you must [uninstall](#uninstalling-applications) and reinstall your Ingress
-application for the changes to take effect.
+To permanently disable it, you must [uninstall](#uninstalling-applications) and
+reinstall your Ingress application for the changes to take effect.
 
 ### JupyterHub
 
@@ -450,8 +446,14 @@ install using Helm `values.yaml` files.
 Supported applications:
 
 - [Ingress](#install-ingress-using-gitlab-ci)
+- [cert-manager](#install-cert-manager-using-gitlab-ci)
+- [Sentry](#install-sentry-using-gitlab-ci)
 
 ### Usage
+
+You can find and import all the files referenced below
+in the [example cluster applications
+project](https://gitlab.com/gitlab-org/cluster-integration/example-cluster-applications/).
 
 To install applications using GitLab CI:
 
@@ -481,7 +483,7 @@ applications you have configured.
 
 ### Install Ingress using GitLab CI
 
-To install ingress, define the `.gitlab/managed-apps/config.yaml` file
+To install Ingress, define the `.gitlab/managed-apps/config.yaml` file
 with:
 
 ```yaml
@@ -497,6 +499,104 @@ You can customize the installation of Ingress by defining
 management project. Refer to the
 [chart](https://github.com/helm/charts/tree/master/stable/nginx-ingress)
 for the available configuration options.
+
+### Install cert-manager using GitLab CI
+
+cert-manager is installed using GitLab CI by defining configuration in
+`.gitlab/managed-apps/config.yaml`.
+
+cert-manager:
+
+- Is installed into the `gitlab-managed-apps` namespace of your cluster.
+- Can be installed with or without a default [Let's Encrypt `ClusterIssuer`](https://cert-manager.io/docs/configuration/acme/), which requires an
+  email address to be specified. The email address is used by Let's Encrypt to
+  contact you about expiring certificates and issues related to your account.
+
+The following configuration is required to install cert-manager using GitLab CI:
+
+```yaml
+certManager:
+  installed: true
+  letsEncryptClusterIssuer:
+    installed: true
+    email: "user@example.com"
+```
+
+The following installs cert-manager using GitLab CI without the default `ClusterIssuer`:
+
+```yaml
+certManager:
+  installed: true
+  letsEncryptClusterIssuer:
+    installed: false
+```
+
+You can customize the installation of Ingress by defining
+`.gitlab/managed-apps/cert-manager/values.yaml` file in your cluster
+management project. Refer to the
+[chart](https://hub.helm.sh/charts/jetstack/cert-manager) for the
+available configuration options.
+
+### Install Sentry using GitLab CI
+
+NOTE: **Note:**
+The Sentry Helm chart [recommends](https://github.com/helm/charts/blob/f6e5784f265dd459c5a77430185d0302ed372665/stable/sentry/values.yaml#L284-L285) at least 3GB of available RAM for database migrations.
+
+To install Sentry, define the `.gitlab/managed-apps/config.yaml` file
+with:
+
+```yaml
+sentry:
+  installed: true
+```
+
+Sentry will then be installed into the `gitlab-managed-apps` namespace
+of your cluster.
+
+You can customize the installation of Sentry by defining
+`.gitlab/managed-apps/sentry/values.yaml` file in your cluster
+management project. Refer to the
+[chart](https://github.com/helm/charts/tree/master/stable/sentry)
+for the available configuration options.
+
+We recommend you pay close attention to the following configuration options:
+
+- `email`. Needed to invite users to your Sentry instance and to send error emails.
+- `user`. Where you can set the login credentials for the default admin user.
+- `postgresql`. For a PostgreSQL password that can be used when running future updates.
+
+NOTE: **Note:**
+When upgrading it is important to provide the existing PostgreSQL password (given using the `postgresql.postgresqlPassword` key) or you will receive authentication errors. See the [PostgreSQL chart documentation](https://github.com/helm/charts/tree/master/stable/postgresql#upgrade) for more information.
+
+Here is an example configuration for Sentry:
+
+```yaml
+# Admin user to create
+user:
+  # Indicated to create the admin user or not,
+  # Default is true as the initial installation.
+  create: true
+  email: "<your email>"
+  password: "<your password>"
+
+email:
+  from_address: "<your from email>"
+  host: smtp
+  port: 25
+  use_tls: false
+  user: "<your email username>"
+  password: "<your email password>"
+  enable_replies: false
+
+ingress:
+  enabled: true
+  hostname: "<sentry.example.com>"
+
+# Needs to be here between runs.
+# See https://github.com/helm/charts/tree/master/stable/postgresql#upgrade for more info
+postgresql:
+  postgresqlPassword: example-postgresql-password
+```
 
 ## Upgrading applications
 
@@ -531,7 +631,7 @@ The applications below can be uninstalled.
 
 | Application | GitLab version | Notes |
 | ----------- | -------------- | ----- |
-| Cert-Manager | 12.2+         | The associated private key will be deleted and cannot be restored. Deployed applications will continue to use HTTPS, but certificates will not be renewed. Before uninstalling, you may wish to [back up your configuration](https://docs.cert-manager.io/en/latest/tasks/backup-restore-crds.html) or [revoke your certificates](https://letsencrypt.org/docs/revoking/). |
+| cert-manager | 12.2+         | The associated private key will be deleted and cannot be restored. Deployed applications will continue to use HTTPS, but certificates will not be renewed. Before uninstalling, you may wish to [back up your configuration](https://docs.cert-manager.io/en/latest/tasks/backup-restore-crds.html) or [revoke your certificates](https://letsencrypt.org/docs/revoking/). |
 | GitLab Runner  | 12.2+         | Any running pipelines will be canceled. |
 | Helm  | 12.2+         | The associated Tiller pod, the `gitlab-managed-apps` namespace, and all of its resources will be deleted and cannot be restored. |
 | Ingress  | 12.1+         | The associated load balancer and IP will be deleted and cannot be restored. Furthermore, it can only be uninstalled if JupyterHub is not installed. |
@@ -539,6 +639,7 @@ The applications below can be uninstalled.
 | Knative  | 12.1+         | The associated IP will be deleted and cannot be restored. |
 | Prometheus  | 11.11+         | All data will be deleted and cannot be restored. |
 | Crossplane  | 12.5+         | All data will be deleted and cannot be restored. |
+| Sentry  | 12.6+         | The PostgreSQL persistent volume will remain and should be manually removed for complete uninstall.  |
 
 To uninstall an application:
 

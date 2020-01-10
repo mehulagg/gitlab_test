@@ -29,7 +29,7 @@ module Gitlab
     PEM_REGEX = /\-+BEGIN CERTIFICATE\-+.+?\-+END CERTIFICATE\-+/m.freeze
     SERVER_VERSION_FILE = 'GITALY_SERVER_VERSION'
     MAXIMUM_GITALY_CALLS = 30
-    CLIENT_NAME = (Sidekiq.server? ? 'gitlab-sidekiq' : 'gitlab-web').freeze
+    CLIENT_NAME = (Gitlab::Runtime.sidekiq? ? 'gitlab-sidekiq' : 'gitlab-web').freeze
     GITALY_METADATA_FILENAME = '.gitaly-metadata'
 
     MUTEX = Mutex.new
@@ -67,8 +67,7 @@ module Gitlab
         File.read(cert_file).scan(PEM_REGEX).map do |cert|
           OpenSSL::X509::Certificate.new(cert).to_pem
         rescue OpenSSL::OpenSSLError => e
-          Rails.logger.error "Could not load certificate #{cert_file} #{e}" # rubocop:disable Gitlab/RailsLogger
-          Gitlab::Sentry.track_exception(e, extra: { cert_file: cert_file })
+          Gitlab::ErrorTracking.track_and_raise_for_dev_exception(e, cert_file: cert_file)
           nil
         end.compact
       end.uniq.join("\n")
@@ -180,7 +179,7 @@ module Gitlab
       self.query_time += duration
       if Gitlab::PerformanceBar.enabled_for_request?
         add_call_details(feature: "#{service}##{rpc}", duration: duration, request: request_hash, rpc: rpc,
-                         backtrace: Gitlab::Profiler.clean_backtrace(caller))
+                         backtrace: Gitlab::BacktraceCleaner.clean_backtrace(caller))
       end
     end
 
@@ -383,15 +382,11 @@ module Gitlab
     end
 
     def self.long_timeout
-      if web_app_server?
+      if Gitlab::Runtime.web_server?
         default_timeout
       else
         6.hours
       end
-    end
-
-    def self.web_app_server?
-      defined?(::Unicorn) || defined?(::Puma)
     end
 
     def self.storage_metadata_file_path(storage)
@@ -443,7 +438,7 @@ module Gitlab
     def self.count_stack
       return unless Gitlab::SafeRequestStore.active?
 
-      stack_string = Gitlab::Profiler.clean_backtrace(caller).drop(1).join("\n")
+      stack_string = Gitlab::BacktraceCleaner.clean_backtrace(caller).drop(1).join("\n")
 
       Gitlab::SafeRequestStore[:stack_counter] ||= Hash.new
 

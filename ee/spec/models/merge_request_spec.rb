@@ -335,6 +335,7 @@ describe MergeRequest do
     let(:project) { create(:project, :repository) }
     let(:current_user) { project.users.take }
     let(:merge_request) { create(:merge_request, source_project: project) }
+
     subject { merge_request.calculate_reactive_cache(service_class_name, current_user&.id) }
 
     context 'when given a known service class name' do
@@ -713,6 +714,7 @@ describe MergeRequest do
 
     context 'when using approvals' do
       let(:user) { create(:user) }
+
       before do
         allow(subject).to receive(:mergeable_state?).and_return(true)
 
@@ -741,6 +743,14 @@ describe MergeRequest do
       end
 
       it { is_expected.to be_truthy }
+    end
+
+    context 'when the merge request was on a merge train' do
+      let(:merge_request) do
+        create(:merge_request, :on_train, status: 'merged', source_project: project, target_project: project)
+      end
+
+      it { is_expected.to be_falsy }
     end
 
     context 'when the merge request is not on a merge train' do

@@ -12,7 +12,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           constraints: { project_id: Gitlab::PathRegex.project_route_regex },
           module: :projects,
           as: :project) do
-
       # Begin of the /-/ scope.
       # Use this scope for all new project routes.
       scope '-' do
@@ -65,16 +64,13 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           resources :dashboards, only: [:create]
         end
 
-        resources :licenses, only: [:index, :create, :update], controller: 'security/licenses'
+        resources :licenses, only: [:index, :create, :update]
 
-        resources :environments, only: [] do
-          member do
-            get :logs
-            get '/pods/(:pod_name)/containers/(:container_name)/logs', to: 'environments#k8s_pod_logs', as: :k8s_pod_logs
-          end
+        resource :threat_monitoring, only: [:show], controller: :threat_monitoring
 
+        resources :logs, only: [:index] do
           collection do
-            get :logs, action: :logs_redirect
+            get :k8s
           end
         end
 
@@ -140,36 +136,18 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       get '/service_desk' => 'service_desk#show', as: :service_desk
       put '/service_desk' => 'service_desk#update', as: :service_desk_refresh
 
-      resources :merge_requests, only: [], constraints: { id: /\d+/ } do
-        member do
-          get '/descriptions/:version_id/diff', action: :description_diff, as: :description_diff
-          get :metrics_reports
-          get :license_management_reports
-          get :container_scanning_reports
-          get :dependency_scanning_reports
-          get :sast_reports
-          get :dast_reports
+      # Unscoped route. It will be replaced with redirect to /-/merge_requests/
+      # Issue https://gitlab.com/gitlab-org/gitlab/issues/118849
+      draw :merge_requests_ee
 
-          get :approvals
-          post :approvals, action: :approve
-          delete :approvals, action: :unapprove
-
-          post :rebase
-        end
-
-        resources :approvers, only: :destroy
-        delete 'approvers', to: 'approvers#destroy_via_user_id', as: :approver_via_user_id
-        resources :approver_groups, only: :destroy
-
-        scope module: :merge_requests do
-          resources :drafts, only: [:index, :update, :create, :destroy] do
-            collection do
-              post :publish
-              delete :discard
-            end
-          end
-        end
+      # To ensure an old unscoped routing is used for the UI we need to
+      # add prefix 'as' to the scope routing and place it below original MR routing.
+      # Issue https://gitlab.com/gitlab-org/gitlab/issues/118849
+      scope '-', as: 'scoped' do
+        draw :merge_requests_ee
       end
+
+      post '/restore' => '/projects#restore', as: :restore
 
       resources :approvers, only: :destroy
       resources :approver_groups, only: :destroy
@@ -192,18 +170,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         resource :dashboard, only: [:show], controller: :dashboard
         resource :configuration, only: [:show], controller: :configuration
 
-        resources :dependencies, only: [:index]
-        resources :licenses, only: [:index, :update]
-        # We have to define both legacy and new routes for Vulnerability Findings
-        # because they are loaded upon application initialization and preloaded by
-        # web server.
-        # TODO: remove this comment and `resources :vulnerabilities` when applicable
-        # see https://gitlab.com/gitlab-org/gitlab/issues/33488
-        resources :vulnerabilities, only: [:index] do
-          collection do
-            get :summary
-          end
-        end
         resources :vulnerability_findings, only: [:index] do
           collection do
             get :summary
@@ -213,9 +179,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
       resources :vulnerability_feedback, only: [:index, :create, :update, :destroy], constraints: { id: /\d+/ }
 
-      resource :dependencies, only: [:show]
-      resource :licenses, only: [:show]
-
+      resources :dependencies, only: [:index]
       # All new routes should go under /-/ scope.
       # Look for scope '-' at the top of the file.
       # rubocop: enable Cop/PutProjectRoutesUnderScope

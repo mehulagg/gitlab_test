@@ -11,10 +11,10 @@ describe API::Deployments do
   end
 
   describe 'GET /projects/:id/deployments' do
-    let(:project) { create(:project) }
+    let(:project) { create(:project, :repository) }
     let!(:deployment_1) { create(:deployment, :success, project: project, iid: 11, ref: 'master', created_at: Time.now, updated_at: Time.now) }
-    let!(:deployment_2) { create(:deployment, :success, project: project, iid: 12, ref: 'feature', created_at: 1.day.ago, updated_at: 2.hours.ago) }
-    let!(:deployment_3) { create(:deployment, :success, project: project, iid: 8, ref: 'patch', created_at: 2.days.ago, updated_at: 1.hour.ago) }
+    let!(:deployment_2) { create(:deployment, :success, project: project, iid: 12, ref: 'master', created_at: 1.day.ago, updated_at: 2.hours.ago) }
+    let!(:deployment_3) { create(:deployment, :success, project: project, iid: 8, ref: 'master', created_at: 2.days.ago, updated_at: 1.hour.ago) }
 
     context 'as member of the project' do
       it 'returns projects deployments sorted by id asc' do
@@ -147,7 +147,7 @@ describe API::Deployments do
         expect(response).to have_gitlab_http_status(500)
       end
 
-      it 'links any merged merge requests to the deployment' do
+      it 'links any merged merge requests to the deployment', :sidekiq_inline do
         mr = create(
           :merge_request,
           :merged,
@@ -199,7 +199,7 @@ describe API::Deployments do
         expect(json_response['ref']).to eq('master')
       end
 
-      it 'links any merged merge requests to the deployment' do
+      it 'links any merged merge requests to the deployment', :sidekiq_inline do
         mr = create(
           :merge_request,
           :merged,
@@ -345,36 +345,26 @@ describe API::Deployments do
 
   context 'prevent N + 1 queries' do
     context 'when the endpoint returns multiple records' do
-      let(:project) { create(:project) }
+      let(:project) { create(:project, :repository) }
+      let!(:deployment) { create(:deployment, :success, project: project) }
 
-      def create_record
-        create(:deployment, :success, project: project)
-      end
+      subject { get api("/projects/#{project.id}/deployments?order_by=updated_at&sort=asc", user) }
 
-      def request_with_query_count
-        ActiveRecord::QueryRecorder.new { trigger_request }.count
-      end
-
-      def trigger_request
-        get api("/projects/#{project.id}/deployments?order_by=updated_at&sort=asc", user)
-      end
-
-      before do
-        create_record
-      end
-
-      it 'succeeds' do
-        trigger_request
+      it 'succeeds', :aggregate_failures do
+        subject
 
         expect(response).to have_gitlab_http_status(200)
-
         expect(json_response.size).to eq(1)
       end
 
-      it 'does not increase the query count' do
-        expect { create_record }.not_to change { request_with_query_count }
+      context 'with 10 more records' do
+        it 'does not increase the query count', :aggregate_failures do
+          create_list(:deployment, 10, :success, project: project)
 
-        expect(json_response.size).to eq(2)
+          expect { subject }.not_to be_n_plus_1_query
+
+          expect(json_response.size).to eq(11)
+        end
       end
     end
   end

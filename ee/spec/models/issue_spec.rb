@@ -67,19 +67,29 @@ describe Issue do
       end
     end
 
-    describe '.in_epics' do
+    context 'epics' do
       let_it_be(:epic1) { create(:epic) }
       let_it_be(:epic2) { create(:epic) }
       let_it_be(:epic_issue1) { create(:epic_issue, epic: epic1) }
       let_it_be(:epic_issue2) { create(:epic_issue, epic: epic2) }
+      let_it_be(:issue_no_epic) { create(:issue) }
 
       before do
         stub_licensed_features(epics: true)
       end
 
-      it 'returns only issues in selected epics' do
-        expect(described_class.count).to eq 2
-        expect(described_class.in_epics([epic1])).to eq [epic_issue1.issue]
+      describe '.no_epic' do
+        it 'returns only issues without an epic assigned' do
+          expect(described_class.count).to eq 3
+          expect(described_class.no_epic).to eq [issue_no_epic]
+        end
+      end
+
+      describe '.in_epics' do
+        it 'returns only issues in selected epics' do
+          expect(described_class.count).to eq 3
+          expect(described_class.in_epics([epic1])).to eq [epic_issue1.issue]
+        end
       end
     end
   end
@@ -116,6 +126,7 @@ describe Issue do
     it { is_expected.to have_many(:vulnerability_links).class_name('Vulnerabilities::IssueLink').inverse_of(:issue) }
     it { is_expected.to have_many(:related_vulnerabilities).through(:vulnerability_links).source(:vulnerability) }
     it { is_expected.to belong_to(:promoted_to_epic).class_name('Epic') }
+    it { is_expected.to have_many(:resource_weight_events) }
 
     describe 'versions.most_recent' do
       it 'returns the most recent version' do
@@ -159,6 +170,13 @@ describe Issue do
     it 'returns only authorized related issues for given user' do
       expect(authorized_issue_a.related_issues(user))
           .to contain_exactly(authorized_issue_b, authorized_issue_c)
+    end
+
+    it 'returns issues with valid issue_link_type' do
+      link_types = authorized_issue_a.related_issues(user).map(&:issue_link_type)
+
+      expect(link_types).not_to be_empty
+      expect(link_types).not_to include(nil)
     end
 
     describe 'when a user cannot read cross project' do
@@ -259,6 +277,7 @@ describe Issue do
 
   describe '#promoted?' do
     let(:issue) { create(:issue) }
+
     subject { issue.promoted? }
 
     context 'issue not promoted' do
@@ -480,6 +499,7 @@ describe Issue do
 
   describe 'current designs' do
     let(:issue) { create(:issue) }
+
     subject { issue.designs.current }
 
     context 'an issue has no designs' do
@@ -508,6 +528,35 @@ describe Issue do
       let!(:design_c) { create(:design, :with_file, issue: issue) }
 
       it { is_expected.to contain_exactly(design_a, design_c) }
+    end
+  end
+
+  describe "#issue_link_type" do
+    let(:issue) { build(:issue) }
+
+    it 'returns nil for a regular issue' do
+      expect(issue.issue_link_type).to be_nil
+    end
+
+    where(:id, :issue_link_source_id, :issue_link_type_value, :expected) do
+      1 | 1   | 0 | 'relates_to'
+      1 | 1   | 1 | 'blocks'
+      1 | 2   | 3 | 'relates_to'
+      1 | 2   | 1 | 'is_blocked_by'
+      1 | 2   | 2 | 'blocks'
+    end
+
+    with_them do
+      let(:issue) { build(:issue) }
+      subject { issue.issue_link_type }
+
+      before do
+        allow(issue).to receive(:id).and_return(id)
+        allow(issue).to receive(:issue_link_source_id).and_return(issue_link_source_id)
+        allow(issue).to receive(:issue_link_type_value).and_return(issue_link_type_value)
+      end
+
+      it { is_expected.to eq(expected) }
     end
   end
 end

@@ -1,5 +1,9 @@
 # Grafana Configuration
 
+CAUTION: **InfluxDB is deprecated in favor of Prometheus:**
+InfluxDB support is scheduled to be removed in GitLab 13.0.
+You are advised to use [Prometheus](../prometheus/index.md) instead.
+
 [Grafana](https://grafana.com/) is a tool that allows you to visualize time
 series metrics through graphs and dashboards. It supports several backend
 data stores, including InfluxDB. GitLab writes performance data to InfluxDB
@@ -109,14 +113,14 @@ repository for more information on this process.
 
 If you have set up Grafana, you can enable a link to access it easily from the sidebar:
 
-1. Go to the admin area under **Settings > Metrics and profiling**
-   and expand "Metrics - Grafana".
+1. Go to the **Admin Area > Settings > Metrics and profiling**.
+1. Expand **Metrics - Grafana**.
 1. Check the "Enable access to Grafana" checkbox.
 1. If Grafana is enabled through Omnibus GitLab and on the same server,
    leave "Grafana URL" unchanged. In any other case, enter the full URL
    path of the Grafana instance.
 1. Click **Save changes**.
-1. The new link will be available in the admin area under **Monitoring > Metrics Dashboard**.
+1. The new link will be available in the **Admin Area > Monitoring > Metrics Dashboard**.
 
 ## Security Update
 
@@ -152,7 +156,7 @@ For more information and further mitigation details, please refer to our [blog p
 
 Read more on:
 
-- [Introduction to GitLab Performance Monitoring](introduction.md)
+- [Introduction to GitLab Performance Monitoring](index.md)
 - [GitLab Configuration](gitlab_configuration.md)
 - [InfluxDB Installation/Configuration](influxdb_configuration.md)
 - [InfluxDB Schema](influxdb_schema.md)

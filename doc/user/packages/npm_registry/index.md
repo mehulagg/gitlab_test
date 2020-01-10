@@ -122,7 +122,7 @@ Then, you could run `npm publish` either locally or via GitLab CI/CD:
 
 - **GitLab CI/CD:** Set an `NPM_TOKEN` [variable](../../../ci/variables/README.md)
   under your project's **Settings > CI/CD > Variables**.
-  
+
 ### Authenticating with a CI job token
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/9104) in GitLab Premium 12.5.
@@ -130,12 +130,12 @@ Then, you could run `npm publish` either locally or via GitLab CI/CD:
 If you’re using NPM with GitLab CI/CD, a CI job token can be used instead of a personal access token.
 The token will inherit the permissions of the user that generates the pipeline.
 
-Add a corresponding section to your `.npmrc` file:  
+Add a corresponding section to your `.npmrc` file:
 
 ```ini
 @foo:registry=https://gitlab.com/api/v4/packages/npm/
-//gitlab.com/api/v4/packages/npm/:_authToken=${env.CI_JOB_TOKEN}
-//gitlab.com/api/v4/projects/{env.CI_PROJECT_ID>/packages/npm/:_authToken=${env.CI_JOB_TOKEN}
+//gitlab.com/api/v4/packages/npm/:_authToken=${CI_JOB_TOKEN}
+//gitlab.com/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${CI_JOB_TOKEN}
 ```
 
 ## Uploading packages
@@ -226,3 +226,43 @@ And the `.npmrc` file should look like:
 //gitlab.com/api/v4/packages/npm/:_authToken=<your_oauth_token>
 @foo:registry=https://gitlab.com/api/v4/packages/npm/
 ```
+
+## NPM dependencies metadata
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/11867) in GitLab Premium 12.6.
+
+Starting from GitLab 12.6, new packages published to the GitLab NPM Registry expose the following attributes to the NPM client:
+
+- name
+- version
+- dist-tags
+- dependencies
+  - dependencies
+  - devDependencies
+  - bundleDependencies
+  - peerDependencies
+  - deprecated
+
+## NPM distribution tags
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/9425) in GitLab Premium 12.7.
+
+Dist Tags for newly published packages are supported, and they follow NPM's convention where they are optional, and each tag can only be assigned to 1 package at
+You can add [distribution tags](https://docs.npmjs.com/cli/dist-tag) for newly
+published packages. They follow NPM's convention where they are optional, and
+each tag can only be assigned to one package at a time. The latest tag is added
+by default when a package is published without a tag. The same goes to installing
+a package without specifying the tag or version.
+
+Examples of the supported `dist-tag` commands and using tags in general:
+
+```sh
+npm publish @scope/package --tag               # Publish new package with new tag
+npm dist-tag add @scope/package@version my-tag # Add a tag to an existing package
+npm dist-tag ls @scope/package                 # List all tags under the package
+npm dist-tag rm @scope/package@version my-tag  # Delete a tag from the package
+npm install @scope/package@my-tag              # Install a specific tag
+```
+
+CAUTION: **Warning:**
+Due to a bug in NPM 6.9.0, deleting dist tags fails. Make sure your NPM version is greater than 6.9.1.

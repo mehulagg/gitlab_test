@@ -110,6 +110,10 @@ class User < ApplicationRecord
            through: :group_members,
            source: :group
   alias_attribute :masters_groups, :maintainers_groups
+  has_many :reporter_developer_maintainer_owned_groups,
+           -> { where(members: { access_level: [Gitlab::Access::REPORTER, Gitlab::Access::DEVELOPER, Gitlab::Access::MAINTAINER, Gitlab::Access::OWNER] }) },
+           through: :group_members,
+           source: :group
 
   # Projects
   has_many :groups_projects,          through: :groups, source: :projects
@@ -242,6 +246,7 @@ class User < ApplicationRecord
   delegate :show_whitespace_in_diffs, :show_whitespace_in_diffs=, to: :user_preference
   delegate :sourcegraph_enabled, :sourcegraph_enabled=, to: :user_preference
   delegate :setup_for_company, :setup_for_company=, to: :user_preference
+  delegate :render_whitespace_in_code, :render_whitespace_in_code=, to: :user_preference
 
   accepts_nested_attributes_for :user_preference, update_only: true
 
@@ -377,6 +382,11 @@ class User < ApplicationRecord
   # Class methods
   #
   class << self
+    # Devise method overridden to allow support for dynamic password lengths
+    def password_length
+      Gitlab::CurrentSettings.minimum_password_length..Devise.password_length.max
+    end
+
     # Devise method overridden to allow sign in with email or username
     def find_for_database_authentication(warden_conditions)
       conditions = warden_conditions.dup
@@ -996,8 +1006,12 @@ class User < ApplicationRecord
     @ldap_identity ||= identities.find_by(["provider LIKE ?", "ldap%"])
   end
 
+  def matches_identity?(provider, extern_uid)
+    identities.where(provider: provider, extern_uid: extern_uid).exists?
+  end
+
   def project_deploy_keys
-    DeployKey.in_projects(authorized_projects.select(:id)).distinct(:id)
+    @project_deploy_keys ||= DeployKey.in_projects(authorized_projects.select(:id)).distinct(:id)
   end
 
   def highest_role
@@ -1314,7 +1328,7 @@ class User < ApplicationRecord
         .select('ci_runners.*')
 
       group_runners = Ci::RunnerNamespace
-        .where(namespace_id: owned_or_maintainers_groups.select(:id))
+        .where(namespace_id: owned_groups.select(:id))
         .joins(:runner)
         .select('ci_runners.*')
 
@@ -1460,9 +1474,7 @@ class User < ApplicationRecord
     self.admin = (new_level == 'admin')
   end
 
-  # Does the user have access to all private groups & projects?
-  # Overridden in EE to also check auditor?
-  def full_private_access?
+  def can_read_all_resources?
     can?(:read_all_resources)
   end
 

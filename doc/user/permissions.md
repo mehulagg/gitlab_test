@@ -46,10 +46,11 @@ The following table depicts the various user permission levels in a project.
 | Download project                                  | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | Leave comments                                    | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | View Insights charts **(ULTIMATE)**               | ✓       | ✓          | ✓           | ✓        | ✓      |
-| View approved/blacklisted licenses **(ULTIMATE)** | ✓       | ✓          | ✓           | ✓        | ✓      |
+| View approved/blacklisted licenses **(ULTIMATE)** | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | View License Compliance reports **(ULTIMATE)**    | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | View Security reports **(ULTIMATE)**              | ✓ (*3*) | ✓          | ✓           | ✓        | ✓      |
 | View Dependency list **(ULTIMATE)**               | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
+| View License list **(ULTIMATE)**                  | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | View licenses in Dependency list **(ULTIMATE)**   | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | View [Design Management](project/issues/design_management.md) pages **(PREMIUM)** | ✓       | ✓          | ✓           | ✓        | ✓      |
 | View project code                                 | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
@@ -252,7 +253,7 @@ project and should only have access to that project.
 
 External users:
 
-- Cannot create groups or projects.
+- Cannot create groups, projects, or personal snippets.
 - Can only access projects to which they are explicitly granted access,
   thus hiding all other internal or private ones from them (like being
   logged out).
@@ -273,14 +274,14 @@ External users still count towards a license seat.
 An administrator can flag a user as external by either of the following methods:
 
 - Either [through the API](../api/users.md#user-modification).
-- Or by navigating to the **Admin area > Overview > Users** to create a new user
+- Or by navigating to the **Admin Area > Overview > Users** to create a new user
   or edit an existing one. There, you will find the option to flag the user as
   external.
 
 ### Setting new users to external
 
 By default, new users are not set as external users. This behavior can be changed
-by an administrator under the **Admin Area > Settings > General > Account and limit** page.
+by an administrator on the **Admin Area > Settings > General** page, under **Account and limit**.
 
 If you change the default behavior of creating new users as external, you will
 have the option to narrow it down by defining a set of internal users.

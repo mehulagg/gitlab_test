@@ -257,8 +257,8 @@ When adding a custom domain, users will be required to prove they own it by
 adding a GitLab-controlled verification code to the DNS records for that domain.
 
 If your userbase is private or otherwise trusted, you can disable the
-verification requirement. Navigate to `Admin area ➔ Settings` and uncheck
-**Require users to prove ownership of custom domains** in the Pages section.
+verification requirement. Navigate to **Admin Area > Settings > Preferences** and
+uncheck **Require users to prove ownership of custom domains** in the **Pages** section.
 This setting is enabled by default.
 
 ### Let's Encrypt integration
@@ -305,7 +305,7 @@ Pages access control is disabled by default. To enable it:
    ```
 
 1. [Reconfigure GitLab][reconfigure].
-1. Users can now configure it in their [projects' settings](../../user/project/pages/introduction.md#gitlab-pages-access-control-core).
+1. Users can now configure it in their [projects' settings](../../user/project/pages/pages_access_control.md).
 
 ### Running behind a proxy
 
@@ -395,9 +395,25 @@ Omnibus GitLab 11.1.
 
 ## Set maximum pages size
 
-The maximum size of the unpacked archive per project can be configured in the
-Admin area under the Application settings in the **Maximum size of pages (MB)**.
+You can configure the maximum size of the unpacked archive per project in
+**Admin Area > Settings > Preferences > Pages**, in **Maximum size of pages (MB)**.
 The default is 100MB.
+
+### Override maximum pages size per project or group **(PREMIUM ONLY)**
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/16610) in GitLab 12.7.
+
+To override the global maximum pages size for a specific project:
+
+1. Navigate to your project's **Settings > Pages** page.
+1. Edit the **Maximum size of pages**.
+1. Click **Save changes**.
+
+To override the global maximum pages size for a specific group:
+
+1. Navigate to your group's **Settings > General** page and expand **Pages**.
+1. Edit the **Maximum size of pages**.
+1. Click **Save changes**.
 
 ## Running GitLab Pages on a separate server
 
@@ -500,6 +516,7 @@ then you must use the following procedure to configure [access control](#access-
 
    ```ruby
    gitlab_pages['gitlab_server'] = "https://<your-gitlab-server-URL>"
+   gitlab_pages['access_control'] = true
    ```
 
 1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.

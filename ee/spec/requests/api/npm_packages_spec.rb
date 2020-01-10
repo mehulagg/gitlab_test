@@ -36,6 +36,11 @@ describe API::NpmPackages do
 
   describe 'GET /api/v4/packages/npm/*package_name' do
     let(:package) { create(:npm_package, project: project) }
+    let!(:package_dependency_link1) { create(:packages_dependency_link, package: package, dependency_type: :dependencies) }
+    let!(:package_dependency_link2) { create(:packages_dependency_link, package: package, dependency_type: :devDependencies) }
+    let!(:package_dependency_link3) { create(:packages_dependency_link, package: package, dependency_type: :bundleDependencies) }
+    let!(:package_dependency_link4) { create(:packages_dependency_link, package: package, dependency_type: :peerDependencies) }
+    let!(:package_dependency_link5) { create(:packages_dependency_link, package: package, dependency_type: :deprecated) }
 
     context 'a public project' do
       it 'returns the package info without oauth token' do
@@ -195,6 +200,17 @@ describe API::NpmPackages do
 
             expect(response).to have_gitlab_http_status(400)
           end
+
+          context 'with empty versions' do
+            let(:params) { upload_params(package_name).merge!(versions: {}) }
+
+            it 'throws a 400 error' do
+              expect { upload_package_with_token(package_name, params) }
+              .not_to change { project.packages.count }
+
+              expect(response).to have_gitlab_http_status(400)
+            end
+          end
         end
 
         context 'invalid package name' do
@@ -218,6 +234,7 @@ describe API::NpmPackages do
           expect { upload_package_with_token(package_name, params) }
             .to change { project.packages.count }.by(1)
             .and change { Packages::PackageFile.count }.by(1)
+            .and change { Packages::Tag.count }.by(1)
 
           expect(response).to have_gitlab_http_status(200)
         end
@@ -228,6 +245,27 @@ describe API::NpmPackages do
             .and change { Packages::PackageFile.count }.by(1)
 
           expect(response).to have_gitlab_http_status(200)
+        end
+
+        context 'with an authenticated job token' do
+          let!(:job) { create(:ci_build, user: user) }
+
+          before do
+            Grape::Endpoint.before_each do |endpoint|
+              expect(endpoint).to receive(:current_authenticated_job) { job }
+            end
+          end
+
+          after do
+            Grape::Endpoint.before_each nil
+          end
+
+          it 'creates the package metadata' do
+            upload_package_with_token(package_name, params)
+
+            expect(response).to have_gitlab_http_status(200)
+            expect(project.reload.packages.find(json_response['id']).build_info.pipeline).to eq job.pipeline
+          end
         end
       end
 
@@ -241,6 +279,36 @@ describe API::NpmPackages do
             .not_to change { project.packages.count }
 
           expect(response).to have_gitlab_http_status(403)
+        end
+      end
+
+      context 'with dependencies' do
+        let(:package_name) { "@#{group.path}/my_package_name" }
+        let(:params) { upload_params(package_name, 'npm/payload_with_duplicated_packages.json') }
+
+        it 'creates npm package with file and dependencies' do
+          expect { upload_package_with_token(package_name, params) }
+            .to change { project.packages.count }.by(1)
+            .and change { Packages::PackageFile.count }.by(1)
+            .and change { Packages::Dependency.count}.by(4)
+            .and change { Packages::DependencyLink.count}.by(7)
+
+          expect(response).to have_gitlab_http_status(200)
+        end
+
+        context 'with existing dependencies' do
+          before do
+            name = "@#{group.path}/existing_package"
+            upload_package_with_token(name, upload_params(name, 'npm/payload_with_duplicated_packages.json'))
+          end
+
+          it 'reuses them' do
+            expect { upload_package_with_token(package_name, params) }
+              .to change { project.packages.count }.by(1)
+              .and change { Packages::PackageFile.count }.by(1)
+              .and not_change { Packages::Dependency.count}
+              .and change { Packages::DependencyLink.count}.by(7)
+          end
         end
       end
     end
@@ -257,10 +325,181 @@ describe API::NpmPackages do
       upload_package(package_name, params.merge(job_token: job.token))
     end
 
-    def upload_params(package_name)
+    def upload_params(package_name, file = 'npm/payload.json')
       JSON.parse(
-        fixture_file('npm/payload.json', dir: 'ee')
+        fixture_file(file, dir: 'ee')
           .gsub('@root/npm-test', package_name))
+    end
+  end
+
+  describe 'GET /api/v4/packages/npm/-/package/*package_name/dist-tags' do
+    let(:package) { create(:npm_package, project: project) }
+    let!(:package_tag1) { create(:packages_tag, package: package) }
+    let!(:package_tag2) { create(:packages_tag, package: package) }
+    let(:package_name) { package.name }
+    let(:user) { create(:user) }
+    let(:url) { "/packages/npm/-/package/#{package_name}/dist-tags" }
+
+    subject { get api(url) }
+
+    context 'with packages feature enabled' do
+      before do
+        stub_licensed_features(packages: true)
+      end
+
+      context 'with public project' do
+        context 'with authenticated user' do
+          subject { get api(url, user) }
+
+          it_behaves_like 'returns package tags', :maintainer
+          it_behaves_like 'returns package tags', :developer
+          it_behaves_like 'returns package tags', :reporter
+          it_behaves_like 'returns package tags', :guest
+        end
+
+        context 'with unauthenticated user' do
+          it_behaves_like 'returns package tags', :no_type
+        end
+      end
+
+      context 'with private project' do
+        let(:project) { create(:project, :private) }
+
+        context 'with authenticated user' do
+          subject { get api(url, user) }
+
+          it_behaves_like 'returns package tags', :maintainer
+          it_behaves_like 'returns package tags', :developer
+          it_behaves_like 'returns package tags', :reporter
+          it_behaves_like 'rejects package tags access', :guest, :forbidden
+        end
+
+        context 'with unauthenticated user' do
+          it_behaves_like 'rejects package tags access', :no_type, :forbidden
+        end
+      end
+    end
+
+    context 'with packages feature disabled' do
+      before do
+        stub_licensed_features(packages: false)
+      end
+
+      it_behaves_like 'rejects package tags access', :no_type, :forbidden
+    end
+  end
+
+  describe 'PUT /api/v4/packages/npm/-/package/*package_name/dist-tags/:tag' do
+    let(:package) { create(:npm_package, project: project) }
+    let(:package_name) { package.name }
+    let(:user) { create(:user) }
+    let(:tag_name) { 'test' }
+    let(:version) { package.version }
+    let(:url) { "/packages/npm/-/package/#{package_name}/dist-tags/#{tag_name}" }
+
+    subject { put api(url), env: { 'api.request.body': version } }
+
+    context 'with packages feature enabled' do
+      before do
+        stub_licensed_features(packages: true)
+      end
+
+      context 'with public project' do
+        context 'with authenticated user' do
+          subject { put api(url, user), env: { 'api.request.body': version } }
+
+          it_behaves_like 'create package tag', :maintainer
+          it_behaves_like 'create package tag', :developer
+          it_behaves_like 'rejects package tags access', :reporter, :forbidden
+          it_behaves_like 'rejects package tags access', :guest, :forbidden
+        end
+
+        context 'with unauthenticated user' do
+          it_behaves_like 'rejects package tags access', :no_type, :unauthorized
+        end
+      end
+
+      context 'with private project' do
+        let(:project) { create(:project, :private) }
+
+        context 'with authenticated user' do
+          subject { put api(url, user), env: { 'api.request.body': version } }
+
+          it_behaves_like 'create package tag', :maintainer
+          it_behaves_like 'create package tag', :developer
+          it_behaves_like 'rejects package tags access', :reporter, :forbidden
+          it_behaves_like 'rejects package tags access', :guest, :forbidden
+        end
+
+        context 'with unauthenticated user' do
+          it_behaves_like 'rejects package tags access', :no_type, :unauthorized
+        end
+      end
+    end
+
+    context 'with packages feature disabled' do
+      before do
+        stub_licensed_features(packages: false)
+      end
+
+      it_behaves_like 'rejects package tags access', :no_type, :unauthorized
+    end
+  end
+
+  describe 'DELETE /api/v4/packages/npm/-/package/*package_name/dist-tags/:tag' do
+    let(:package) { create(:npm_package, project: project) }
+    let(:package_tag) { create(:packages_tag, package: package) }
+    let(:user) { create(:user) }
+    let(:package_name) { package.name }
+    let(:tag_name) { package_tag.name }
+    let(:url) { "/packages/npm/-/package/#{package_name}/dist-tags/#{tag_name}" }
+
+    subject { delete api(url) }
+
+    context 'with packages feature enabled' do
+      before do
+        stub_licensed_features(packages: true)
+      end
+
+      context 'with public project' do
+        context 'with authenticated user' do
+          subject { delete api(url, user) }
+
+          it_behaves_like 'delete package tag', :maintainer
+          it_behaves_like 'rejects package tags access', :developer, :forbidden
+          it_behaves_like 'rejects package tags access', :reporter, :forbidden
+          it_behaves_like 'rejects package tags access', :guest, :forbidden
+        end
+
+        context 'with unauthenticated user' do
+          it_behaves_like 'rejects package tags access', :no_type, :unauthorized
+        end
+      end
+
+      context 'with private project' do
+        let(:project) { create(:project, :private) }
+
+        context 'with authenticated user' do
+          subject { delete api(url, user) }
+
+          it_behaves_like 'delete package tag', :maintainer
+          it_behaves_like 'rejects package tags access', :developer, :forbidden
+          it_behaves_like 'rejects package tags access', :reporter, :forbidden
+          it_behaves_like 'rejects package tags access', :guest, :forbidden
+        end
+
+        context 'with unauthenticated user' do
+          it_behaves_like 'rejects package tags access', :no_type, :unauthorized
+        end
+      end
+    end
+
+    context 'with packages feature disabled' do
+      before do
+        stub_licensed_features(packages: false)
+      end
+
+      it_behaves_like 'rejects package tags access', :no_type, :unauthorized
     end
   end
 
@@ -270,5 +509,9 @@ describe API::NpmPackages do
     expect(response).to match_response_schema('public_api/v4/packages/npm_package', dir: 'ee')
     expect(json_response['name']).to eq(package.name)
     expect(json_response['versions'][package.version]).to match_schema('public_api/v4/packages/npm_package_version', dir: 'ee')
+    NpmPackagePresenter::NPM_VALID_DEPENDENCY_TYPES.each do |dependency_type|
+      expect(json_response.dig('versions', package.version, dependency_type.to_s)).to be_any
+    end
+    expect(json_response['dist-tags']).to match_schema('public_api/v4/packages/npm_package_tags', dir: 'ee')
   end
 end

@@ -37,7 +37,6 @@ describe('issue_comment_form component', () => {
         noteableType,
       },
       store,
-      sync: false,
       attachToDocument: true,
     });
   };
@@ -50,7 +49,6 @@ describe('issue_comment_form component', () => {
   afterEach(() => {
     axiosMock.restore();
     wrapper.destroy();
-    jest.clearAllMocks();
   });
 
   describe('user is logged in', () => {
