@@ -30,21 +30,25 @@ module QA
               fill_element :certificate_fingerprint_field, fingerprint
             end
 
-            def enforce_sso
-              Support::Retrier.retry_until(sleep_interval: 1.0, raise_on_failure: true) do
-                click_element :enforced_sso_toggle_button unless find_element(:enforced_sso_toggle_button)[:class].include?('is-checked')
-                find_element(:enforced_sso_toggle_button)[:class].include?('is-checked')
-              end
-            end
-
             def has_enforce_sso_button?
               has_element?(:enforced_sso_toggle_button, wait: 1.0)
             end
 
+            def enforce_sso_enabled?
+              find_element(:enforced_sso_toggle_button)[:class].include?('is-checked')
+            end
+
+            def enforce_sso
+              Support::Retrier.retry_until(sleep_interval: 1.0, raise_on_failure: true) do
+                click_element :enforced_sso_toggle_button unless enforce_sso_enabled?
+                enforce_sso_enabled?
+              end
+            end
+
             def disable_enforce_sso
               Support::Retrier.retry_until(sleep_interval: 1.0, raise_on_failure: true) do
-                click_element :enforced_sso_toggle_button if find_element(:enforced_sso_toggle_button)[:class].include?('is-checked')
-                !find_element(:enforced_sso_toggle_button)[:class].include?('is-checked')
+                click_element :enforced_sso_toggle_button if enforce_sso_enabled?
+                !enforce_sso_enabled?
               end
             end
 
@@ -52,17 +56,21 @@ module QA
               has_element?(:group_managed_accounts_toggle_button, wait: 1.0)
             end
 
+            def group_managed_accounts_enabled?
+              find_element(:group_managed_accounts_toggle_button)[:class].include?('is-checked')
+            end
+
             def enable_group_managed_accounts
               Support::Retrier.retry_until(sleep_interval: 1.0, raise_on_failure: true) do
-                click_element :group_managed_accounts_toggle_button unless find_element(:group_managed_accounts_toggle_button)[:class].include?('is-checked')
-                find_element(:group_managed_accounts_toggle_button)[:class].include?('is-checked')
+                click_element :group_managed_accounts_toggle_button unless group_managed_accounts_enabled?
+                group_managed_accounts_enabled?
               end
             end
 
             def disable_group_managed_accounts
               Support::Retrier.retry_until(sleep_interval: 1.0, raise_on_failure: true) do
-                click_element :group_managed_accounts_toggle_button if find_element(:group_managed_accounts_toggle_button)[:class].include?('is-checked')
-                !find_element(:group_managed_accounts_toggle_button)[:class].include?('is-checked')
+                click_element :group_managed_accounts_toggle_button if group_managed_accounts_enabled?
+                !group_managed_accounts_enabled?
               end
             end
 
