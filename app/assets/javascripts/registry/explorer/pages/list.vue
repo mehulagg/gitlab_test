@@ -141,6 +141,7 @@ export default {
           <div class="controls d-none d-sm-block">
             <gl-button
               v-gl-tooltip
+              :disabled="!listItem.destroy_path"
               :title="s__('ContainerRegistry|Remove repository')"
               :aria-label="s__('ContainerRegistry|Remove repository')"
               class="btn-inverted"

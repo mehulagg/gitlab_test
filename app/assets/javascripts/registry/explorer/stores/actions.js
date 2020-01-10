@@ -103,8 +103,7 @@ export const requestDeleteImage = ({ dispatch, state }, destroyPath) => {
       dispatch('requestImagesList', { pagination: state.pagination });
       createFlash(DELETE_IMAGE_SUCCESS_MESSAGE, 'success');
     })
-    .catch(e => {
-      console.log(e);
+    .catch(() => {
       createFlash(DELETE_IMAGE_ERROR_MESSAGE);
     })
     .finally(() => {
