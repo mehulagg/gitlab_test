@@ -1,0 +1,20 @@
+query groupMilestones(
+  $fullPath: ID!
+) {
+  group(fullPath: $fullPath) {
+    id
+    name
+    milestones (startDate: $startDate) {
+      edges {
+        node {
+          id
+          description
+          title
+          state
+          dueDate
+          startDate
+        }
+      }
+    }
+  }
+}

@@ -17,6 +17,7 @@ export default () => ({
   extendedTimeframe: [],
   presetType: '',
   sortedBy: '',
+  milestones: [],
   bufferSize: 0,
 
   // UI Flags
@@ -27,4 +28,5 @@ export default () => ({
   epicsFetchForTimeframeInProgress: false,
   epicsFetchFailure: false,
   epicsFetchResultEmpty: false,
+  milestonesFetchInProgress: false,
 });

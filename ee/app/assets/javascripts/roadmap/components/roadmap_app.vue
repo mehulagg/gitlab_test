@@ -40,6 +40,7 @@ export default {
       fetchEpicsForTimeframeFn: roadmapGraphQL
         ? this.fetchEpicsForTimeframeGQL
         : this.fetchEpicsForTimeframe,
+      
     };
   },
   computed: {
@@ -73,6 +74,7 @@ export default {
   },
   mounted() {
     this.fetchEpicsFn();
+    this.fetchMilestones();
   },
   methods: {
     ...mapActions([
@@ -83,6 +85,7 @@ export default {
       'fetchEpicsForTimeframeGQL',
       'extendTimeframe',
       'refreshEpicDates',
+      'fetchMilestones',
     ]),
     /**
      * Once timeline is expanded (either with prepend or append)

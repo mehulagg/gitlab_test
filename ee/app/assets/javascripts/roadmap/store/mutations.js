@@ -51,6 +51,17 @@ export default {
     state.timeframe.push(...extendedTimeframe);
   },
 
+  [types.REQUEST_MILESTONES](state) {
+    state.milestonesFetchInProgress = true;
+  },
+  [types.RECEIVE_MILESTONES_SUCCESS](state, milestones) {
+    state.milestones = milestones;
+    state.milestonesFetchInProgress = false;
+  },
+  [types.RECEIVE_MILESTONES_FAILURE](state) {
+    state.milestonesFetchInProgress = false;
+  },
+
   [types.SET_BUFFER_SIZE](state, bufferSize) {
     state.bufferSize = bufferSize;
   },

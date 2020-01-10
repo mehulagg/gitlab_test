@@ -3,6 +3,8 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import { createUploadLink } from 'apollo-upload-client';
 import { ApolloLink } from 'apollo-link';
 import { BatchHttpLink } from 'apollo-link-batch-http';
+import { SchemaLink } from 'apollo-link-schema';
+import { makeExecutableSchema } from 'graphql-tools';
 import csrf from '~/lib/utils/csrf';
 
 export const fetchPolicies = {
@@ -49,5 +51,84 @@ export default (resolvers = {}, config = {}) => {
         fetchPolicy: config.fetchPolicy || fetchPolicies.CACHE_FIRST,
       },
     },
+  });
+};
+
+export const createMockClient = (resolvers = {}, config = {}) => {
+  const typeDefs = `
+    type Milestone {
+      id: ID!
+      description: String
+      title: String!
+      state: String!
+      dueDate: String
+      startDate: String
+    }
+
+    type MilestoneEdge {
+      node: Milestone!
+    }
+
+    type MilestoneConnection {
+      edges: [MilestoneEdge!]!
+    }
+
+    type Group {
+      id: ID!
+      name: String!
+      milestones: MilestoneConnection!
+    }
+
+    type Query {
+      group: Group 
+    }
+  `;
+
+  resolvers = {
+    Query: {
+      group: () => ({
+        id: '123',
+        name: 'Group name',
+        milestones: {
+          edges: [
+            {
+              node: {
+                id: '1',
+                title: 'Milestone 1',
+                state: 'active',
+                dueDate: '2020-02-03T10:15:30Z',
+                startDate: '2020-01-03T10:15:30Z',
+              },
+            },
+            {
+              node: {
+                id: '2',
+                title: 'Milestone 2',
+                state: 'active',
+                dueDate: '2020-02-15T10:15:30Z',
+                startDate: '2020-01-17T10:15:30Z',
+              },
+            },
+          ],
+        },
+      }),
+    },
+  };
+
+  const executableSchema = makeExecutableSchema({
+    typeDefs,
+    resolvers,
+  });
+
+  const link = new SchemaLink({ schema: executableSchema });
+
+  return new ApolloClient({
+    link,
+    cache: new InMemoryCache({
+      ...config.cacheConfig,
+      freezeResults: config.assumeImmutableResults,
+    }),
+    resolvers,
+    assumeImmutableResults: config.assumeImmutableResults,
   });
 };
