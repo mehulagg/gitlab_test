@@ -41,7 +41,8 @@ module Git
         current_user.id,
         oldrev,
         newrev,
-        ref
+        ref,
+        push_options: params[:push_options]
       )
     end
 

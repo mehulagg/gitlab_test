@@ -11,7 +11,7 @@ class UpdateMergeRequestsWorker # rubocop:disable Scalability/IdempotentWorker
   LOG_TIME_THRESHOLD = 90 # seconds
 
   # rubocop: disable CodeReuse/ActiveRecord
-  def perform(project_id, user_id, oldrev, newrev, ref)
+  def perform(project_id, user_id, oldrev, newrev, ref, service_params)
     project = Project.find_by(id: project_id)
     return unless project
 
@@ -20,7 +20,7 @@ class UpdateMergeRequestsWorker # rubocop:disable Scalability/IdempotentWorker
 
     # TODO: remove this benchmarking when we have rich logging
     time = Benchmark.measure do
-      MergeRequests::RefreshService.new(project, user).execute(oldrev, newrev, ref)
+      MergeRequests::RefreshService.new(project, user, service_params.deep_symbolize_keys).execute(oldrev, newrev, ref)
     end
 
     args_log = [
