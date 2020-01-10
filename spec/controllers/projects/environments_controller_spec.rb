@@ -733,6 +733,16 @@ describe Projects::EnvironmentsController do
     end
   end
 
+  describe 'DELETE #destroy' do
+    it 'responds with 302 and destroys the environment' do
+      delete :destroy, params: environment_params
+
+      expect(response).to have_gitlab_http_status(:found)
+
+      expect(Environment.find_by_id(environment.id)).to eq(nil)
+    end
+  end
+
   def environment_params(opts = {})
     opts.reverse_merge(namespace_id: project.namespace,
                        project_id: project,

@@ -7,9 +7,9 @@ class Projects::EnvironmentsController < Projects::ApplicationController
   before_action :authorize_read_environment!
   before_action :authorize_create_environment!, only: [:new, :create]
   before_action :authorize_stop_environment!, only: [:stop]
-  before_action :authorize_update_environment!, only: [:edit, :update, :cancel_auto_stop]
+  before_action :authorize_update_environment!, only: [:edit, :update, :cancel_auto_stop, :destroy]
   before_action :authorize_admin_environment!, only: [:terminal, :terminal_websocket_authorize]
-  before_action :environment, only: [:show, :edit, :update, :stop, :terminal, :terminal_websocket_authorize, :metrics, :cancel_auto_stop]
+  before_action :environment, only: [:show, :edit, :update, :destroy, :stop, :terminal, :terminal_websocket_authorize, :metrics, :cancel_auto_stop]
   before_action :verify_api_request!, only: :terminal_websocket_authorize
   before_action :expire_etag_cache, only: [:index], unless: -> { request.format.json? }
   before_action only: [:metrics, :additional_metrics, :metrics_dashboard] do
@@ -193,6 +193,12 @@ class Projects::EnvironmentsController < Projects::ApplicationController
         render json: environment_names, status: environment_names.any? ? :ok : :no_content
       end
     end
+  end
+
+  def destroy
+    @environment.destroy
+
+    redirect_to project_environments_url(project), status: :found
   end
 
   private

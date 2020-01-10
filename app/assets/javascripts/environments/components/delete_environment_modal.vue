@@ -2,7 +2,6 @@
 import { GlTooltipDirective } from '@gitlab/ui';
 import GlModal from '~/vue_shared/components/gl_modal.vue';
 import { s__, sprintf } from '~/locale';
-import LoadingButton from '~/vue_shared/components/loading_button.vue';
 import eventHub from '../event_hub';
 
 export default {
@@ -11,7 +10,6 @@ export default {
 
   components: {
     GlModal,
-    LoadingButton,
   },
 
   directives: {
@@ -29,7 +27,7 @@ export default {
     confirmDeleteMessage() {
       return sprintf(
         s__(
-          `Environments|Deleting the '%{environmentName}' environment cannot be undone. Are you sure?`,
+          `Environments|Deleting the '%{environmentName}' environment cannot be undone. Do you want to delete it anyway?`,
         ),
         {
           environmentName: this.environment.name,
@@ -57,13 +55,12 @@ export default {
     <template slot="header">
       <h4 class="modal-title d-flex mw-100">
         {{ __('Delete') }}
-        <span v-gl-tooltip :title="environment.name" class="text-truncate ml-1 mr-1 flex-fill">{{
-          environment.name
-        }}</span>
-        ?
+        <span v-gl-tooltip :title="environment.name" class="text-truncate mx-1 flex-fill">
+          {{ environment.name }}?
+        </span>
       </h4>
     </template>
 
-    <p v-html="confirmDeleteMessage"></p>
+    <p>{{ confirmDeleteMessage }}</p>
   </gl-modal>
 </template>

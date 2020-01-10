@@ -7456,6 +7456,9 @@ msgstr ""
 msgid "Environments|An error occurred while canceling the auto stop, please try again"
 msgstr ""
 
+msgid "Environments|An error occurred while deleting the environment. Please check that the environment is stopped, then try again."
+msgstr ""
+
 msgid "Environments|An error occurred while fetching the environments."
 msgstr ""
 
@@ -7481,6 +7484,18 @@ msgid "Environments|Auto stops %{auto_stop_time}"
 msgstr ""
 
 msgid "Environments|Commit"
+msgstr ""
+
+msgid "Environments|Delete"
+msgstr ""
+
+msgid "Environments|Delete environment"
+msgstr ""
+
+msgid "Environments|Deleting the '%{environmentName}' environment cannot be undone. Do you want to delete it anyway?"
+msgstr ""
+
+msgid "Environments|Deleting the '%{environment_name}' environment cannot be undone.  Do you want to delete it anyway?"
 msgstr ""
 
 msgid "Environments|Deploy to..."

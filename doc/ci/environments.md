@@ -691,19 +691,17 @@ runs once every hour. This means environments will not be stopped at the exact
 timestamp as the specified period, but will be stopped when the hourly cron worker
 detects expired environments.
 
-### Deleting an environment
+#### Delete a stopped environment
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/31032) in GitLab 12.3.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/22629) in GitLab 12.9.
 
-You can delete stopped environments in one of two ways.
+You can delete [stopped environments](#stopping-an-environment) in one of two ways.
 
-The first way is to access the **Delete** button by viewing the list of
-**Stopped** environments.
+To view the list of **Stopped** environments, navigate to **Operations > Environments**
+and click the **Stopped** tab.
 
-  1. Navigate to **Operations > Environments**.
-  1. Click the **Stopped** tab to access the list of stopped environments.
-  1. Click the **Delete** button that appears next to the environment you want to delete.
-  1. Finally, confirm your chosen environment in the modal that appears to delete it.
+From there, you can click the **Delete** button directly, or you can click the
+environment name to see its details and **Delete** it from there.
 
 The second way is to access the **Delete** button by viewing the details for a
 stopped environment.
@@ -713,6 +711,7 @@ stopped environment.
   1. Click on the **Delete** button that appears at the top for all stopped environments.
   1. Finally, confirm your chosen environment in the modal that appears to delete it.
 
+Environments can also be deleted by using the [Environments API](../api/environments.md#delete-an-environment).
 
 ### Grouping similar environments
 

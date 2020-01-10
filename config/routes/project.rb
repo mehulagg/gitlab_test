@@ -220,7 +220,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           resources :functions, only: [:index]
         end
 
-        resources :environments, except: [:destroy] do
+        resources :environments do
           member do
             post :stop
             post :cancel_auto_stop
@@ -228,6 +228,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             get :metrics
             get :additional_metrics
             get :metrics_dashboard
+            delete :destroy
 
             # This route is also defined in gitlab-workhorse. Make sure to update accordingly.
             get '/terminal.ws/authorize', to: 'environments#terminal_websocket_authorize', format: false

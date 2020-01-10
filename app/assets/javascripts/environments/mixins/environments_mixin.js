@@ -141,17 +141,17 @@ export default {
     deleteEnvironment(environment) {
       const endpoint = environment.delete_path;
       const errorMessage = s__(
-        'Environments|An error occurred while deleting the environment, please try again',
+        'Environments|An error occurred while deleting the environment. Please check that the environment is stopped, then try again.',
       );
 
       this.service
         .deleteAction(endpoint)
         .then(() => {
-          // Reload to as a first solution to bust the ETag cache
+          // Reload as a first solution to bust the ETag cache
           window.location.reload();
         })
         .catch(() => {
-          Flash(errorMessage || s__('Environments|An error occurred while making the request.'));
+          Flash(errorMessage);
         });
     },
 

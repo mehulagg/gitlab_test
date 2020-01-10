@@ -16,8 +16,8 @@ import ExternalUrlComponent from './environment_external_url.vue';
 import MonitoringButtonComponent from './environment_monitoring.vue';
 import PinComponent from './environment_pin.vue';
 import DeleteComponent from './environment_delete.vue';
-import RollbackComponent from './environment_rollback.vue';
 import StopComponent from './environment_stop.vue';
+import RollbackComponent from './environment_rollback.vue';
 import TerminalButtonComponent from './environment_terminal_button.vue';
 
 /**
@@ -31,14 +31,10 @@ export default {
     ActionsComponent,
     CommitComponent,
     ExternalUrlComponent,
-<<<<<<< HEAD
     Icon,
     MonitoringButtonComponent,
     PinComponent,
-=======
-    StopComponent,
     DeleteComponent,
->>>>>>> Adds environments delete button and modal
     RollbackComponent,
     StopComponent,
     TerminalButtonComponent,
@@ -124,7 +120,7 @@ export default {
      * @returns {Boolean}
      */
     canDeleteEnvironment() {
-      return this.model && !this.model.can_stop && this.model.can_update && this.model.delete_path;
+      return Boolean(this.model && this.model.can_delete && this.model.delete_path);
     },
 
     /**
