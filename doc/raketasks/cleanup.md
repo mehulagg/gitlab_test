@@ -3,7 +3,7 @@
 ## Remove unreferenced LFS files from filesystem
 
 When you remove LFS files from repository history they become orphan
-and they consume the disk space. With this rake task you can remove invalid references from the database
+and they consume disk space. With this rake task you can remove invalid references from the database
 that will allow to garbage-collect LFS files.
 
 ```
