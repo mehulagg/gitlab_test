@@ -181,6 +181,10 @@
     align-items: center;
   }
 
+  .no-commit-message {
+    font-style: italic;
+  }
+
   .committer {
     color: $gl-text-color-tertiary;
 

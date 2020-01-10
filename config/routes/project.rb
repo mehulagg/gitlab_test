@@ -259,10 +259,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           end
         end
 
-        namespace :performance_monitoring do
-          resources :dashboards, only: [:create]
-        end
-
         namespace :error_tracking do
           resources :projects, only: :index
         end
