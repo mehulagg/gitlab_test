@@ -2,11 +2,21 @@
 
 # Add capabilities to increment a numeric model attribute efficiently by
 # using CQRS. When an attribute is incremented by a value, the increment
-# is logged to a separate events table. When reading the attribute it reads
-# the value of the attribute from the model plus the sum of all logged
-# events.
+# is logged to a separate events table. When reading the attribute we can
+# choose whether to:
+# 1. Read the value persisted in the database. This is faster but less
+#    accurate because it can take up to CONSOLIDATION_DELAY to be
+#    updated. Use this unless frequent accuracy is required.
 #
-# Periodically we consolidate the logged events into the origin attribute
+#   project_statistics.commit_count
+#
+# 2. Read the value persisted in the database including logged events.
+#    This is more accurate but slower to compute because it includes the
+#    sum of the logged events.
+#
+#  project_statistics.accurate_commit_count
+#
+# Periodically, we consolidate the logged events into the origin attribute
 # and delete them from the associcate events table.
 #
 # In order to use this module you need to ensure that an associate events
@@ -18,7 +28,7 @@
 #    storage_size (bigint),
 #    ...
 #  )
-# To make `commit_count` and `storagee_size` as counter attributes we need
+# To make `commit_count` and `storage_size` as counter attributes we need
 # to ensure that an events table exists with the following schema:
 #  project_statistics_events (
 #    project_statistics_id (reference)
@@ -78,7 +88,7 @@ module CounterAttribute
     end
 
     counter_events.create!(attribute => increment)
-    ConsolidateCountersWorker.perform_in(CONSOLIDATION_DELAY, self.class.name)
+    ConsolidateCountersWorker.perform_exclusively_in(CONSOLIDATION_DELAY, self.class.name)
   end
 
   class_methods do
@@ -89,21 +99,11 @@ module CounterAttribute
     def counter_attribute(attribute)
       counter_attributes << attribute
 
-      define_method(attribute) do
+      define_method("accurate_#{attribute}") do
         return super() unless counter_attributes_enabled?
 
         self[attribute] + counter_events.sum(attribute)
       end
-
-      # TODO: Disable setter method to ensure the attribute is read-only
-      # Uncomment this once the update strategy has fully been migrated to use
-      # the more efficient CounterAttribute.
-      #
-      # define_method("#{attribute}=") do |value|
-      #   return super(value) unless counter_attributes_enabled?
-
-      #   raise NoMethodError, "Attribute '#{attribute}' is read only"
-      # end
     end
 
     def counter_attributes

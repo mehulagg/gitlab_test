@@ -24,7 +24,7 @@ shared_examples_for CounterAttribute do |counter_attributes|
 
   shared_examples 'logs a new event' do
     it 'in the events table' do
-      expect(ConsolidateCountersWorker).to receive(:perform_in).and_return(nil)
+      expect(ConsolidateCountersWorker).to receive(:perform_in).once.and_return(nil)
       expect { subject.increment_counter!(:build_artifacts_size, 17) }
         .to change { ProjectStatisticsEvent.count }.by(1)
 
@@ -36,6 +36,12 @@ shared_examples_for CounterAttribute do |counter_attributes|
 
   counter_attributes.each do |attribute|
     describe attribute do
+      before do
+        Gitlab::Redis::SharedState.with do |redis|
+          redis.del("consolidate-counters:scheduling:ProjectStatistics")
+        end
+      end
+
       describe "#increment_counter!" do
         it_behaves_like 'logs a new event'
 
@@ -67,21 +73,33 @@ shared_examples_for CounterAttribute do |counter_attributes|
 
           expect { subject.increment_counter(:unknown_attribute, 10) }.to raise_error(CounterAttribute::UnknownAttributeError)
         end
+
+        it 'schedules the worker once on multiple increments' do
+          expect(ConsolidateCountersWorker).to receive(:perform_in).once.and_return(nil)
+
+          subject.increment_counter(attribute, 10)
+          subject.increment_counter(attribute, -40)
+        end
       end
 
-      # TODO: Enable these examples once the update strategy has fully been migrated to use
-      # the more efficient CounterAttribute.
-      describe "##{attribute}=" do
-        xit 'raises an error as setter method is disabled' do
-          expect { subject.send("#{attribute}=", 1) }
-            .to raise_error(NoMethodError)
-            .with_message("Attribute '#{attribute}' is read only")
+      describe "accurate_#{attribute}" do
+        before do
+          subject.update_column(attribute, 100)
         end
 
-        xit 'raises an error when updating the attribute using ActiveRecord #update' do
-          expect { subject.update(attribute => 1) }
-            .to raise_error(NoMethodError)
-            .with_message("Attribute '#{attribute}' is read only")
+        context 'when there are no pending events' do
+          it 'reads the value from the model table' do
+            expect(subject.send("accurate_#{attribute}")).to eq(100)
+          end
+        end
+
+        context 'when there are pending events' do
+          it 'reads the value from the model table and sums the pending events' do
+            subject.increment_counter(attribute, 10)
+            subject.increment_counter(attribute, -40)
+
+            expect(subject.send("accurate_#{attribute}")).to eq(70)
+          end
         end
       end
 
@@ -97,12 +115,11 @@ shared_examples_for CounterAttribute do |counter_attributes|
         end
 
         context 'when there are pending events' do
-          it 'reads the value from the model table and sums the pending events' do
-            expect(ConsolidateCountersWorker).to receive(:perform_in).twice.and_return(nil)
+          it 'reads the value from the model table without including events' do
             subject.increment_counter(attribute, 10)
             subject.increment_counter(attribute, -40)
 
-            expect(subject.send(attribute)).to eq(70)
+            expect(subject.send(attribute)).to eq(100)
           end
         end
       end
