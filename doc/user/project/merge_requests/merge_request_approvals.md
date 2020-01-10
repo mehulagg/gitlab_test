@@ -77,6 +77,8 @@ request approval rules:
 1. Give the approval rule a name that describes the set of approvers selected.
 1. Click **Add approval rule** to submit the new rule.
 
+**Note:** on GitLab.com, you can only add a group as approver if you're member of that group or the group is public.
+
    ![Approvals premium project edit](img/approvals_premium_project_edit_v12_5.png)
 
 ## Multiple approval rules **(PREMIUM)**
