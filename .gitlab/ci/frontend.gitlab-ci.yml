@@ -142,7 +142,6 @@ compile-assets pull-cache foss:
     - date
     - scripts/gitaly-test-spawn
     - date
-    - bundle exec rake karma
 
 karma:
   extends: .karma-base
@@ -170,7 +169,6 @@ karma-foss:
     - date
     - bundle exec rake frontend:fixtures
     - date
-    - yarn jest --ci --coverage
   cache:
     key: jest
     paths:
