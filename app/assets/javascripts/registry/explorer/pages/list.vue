@@ -94,8 +94,8 @@ export default {
       this.requestDeleteImage(this.itemToDelete.destroy_path);
       this.itemToDelete = {};
     },
-    btoa(value) {
-      return window.btoa(value);
+    encodeListItem({ tags_path }) {
+      return window.btoa(tags_path);
     },
   },
 };
@@ -128,7 +128,7 @@ export default {
           }"
         >
           <div>
-            <router-link :to="{ name: 'details', params: { id: btoa(listItem.tags_path) } }">
+            <router-link :to="{ name: 'details', params: { id: encodeListItem(listItem) } }">
               {{ listItem.path }}
             </router-link>
             <clipboard-button

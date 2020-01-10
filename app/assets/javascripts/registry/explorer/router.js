@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+import { __ } from '~/locale';
 import List from './pages/list.vue';
 import Details from './pages/details.vue';
 
@@ -14,6 +15,9 @@ export default function createRouter(base, store) {
         name: 'list',
         path: '/',
         component: List,
+        meta: {
+          name: __('Container Registry'),
+        },
         beforeEnter: (to, from, next) => {
           store.dispatch('requestImagesList');
           next();
@@ -23,6 +27,9 @@ export default function createRouter(base, store) {
         name: 'details',
         path: '/:id',
         component: Details,
+        meta: {
+          name: __('Tags'),
+        },
         beforeEnter: (to, from, next) => {
           store.dispatch('requestTagsList', { id: to.params.id });
           next();

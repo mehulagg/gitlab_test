@@ -183,7 +183,7 @@ export default {
       <gl-button :to="{ name: 'list' }" size="sm" class="append-right-default">
         <gl-icon name="angle-left" />
       </gl-button>
-      <h4>{{ s__('ContainerRegistry|Tag details') }}</h4>
+      <h4>{{ s__('ContainerRegistry|Tags') }}</h4>
     </div>
     <gl-loading-icon v-if="isLoading" />
     <template v-else>
