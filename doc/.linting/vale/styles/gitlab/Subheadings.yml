@@ -1,0 +1,8 @@
+extends: capitalization
+message: "'%s' should use sentence-style capitalization."
+level: suggestion
+scope: heading
+match: $sentence
+exceptions:
+  - GitLab
+  

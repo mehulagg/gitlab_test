@@ -1,0 +1,10 @@
+---
+extends: existence
+message: 'Use plural pronouns (we, you, us, one) instead of first-person singular pronouns like “%s.”'
+link: https://docs.openstack.org/contributor-guide/writing-style/general-writing-guidelines.html#write-in-second-person
+level: warning
+ignorecase: true
+tokens:
+  - we
+  - I
+

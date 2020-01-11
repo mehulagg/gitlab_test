@@ -1,0 +1,12 @@
+---
+# Modified from https://github.com/testthedocs/vale-styles/blob/master/TheEconomist/Punctuation.yml
+extends: substitution
+message: Use '%s' instead of '%s', or rewrite to remove the need entirely
+level: error
+scope: text
+ignorecase: false
+nonword: true
+swap:
+  e\.g\.: for example
+  i\.e\.: that is
+  etc\.: and so on

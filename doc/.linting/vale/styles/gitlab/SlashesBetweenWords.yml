@@ -1,0 +1,7 @@
+---
+extends: existence
+message: "Do not combine multiple words with slashes: '%s'"
+ignorecase: true
+level: error
+tokens:
+  - '\w+/\w+'
