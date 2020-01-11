@@ -4,6 +4,7 @@ import _ from 'underscore';
 import { sprintf, __ } from '~/locale';
 import ApproversList from './approvers_list.vue';
 import ApproversSelect from './approvers_select.vue';
+import BranchesSelect from './branches_select.vue';
 import { TYPE_USER, TYPE_GROUP, TYPE_HIDDEN_GROUPS } from '../constants';
 
 const DEFAULT_NAME = 'Default';
@@ -14,12 +15,17 @@ export default {
   components: {
     ApproversList,
     ApproversSelect,
+    BranchesSelect,
   },
   props: {
     initRule: {
       type: Object,
       required: false,
       default: null,
+    },
+    isMrEdit: {
+      type: Boolean,
+      default: true,
     },
   },
   data() {
@@ -29,6 +35,8 @@ export default {
       minApprovalsRequired: 0,
       approvers: [],
       approversToAdd: [],
+      branches: [],
+      branchesToAdd: [],
       showValidation: false,
       isFallback: false,
       containsHiddenGroups: false,
@@ -57,11 +65,17 @@ export default {
         return {};
       }
 
-      return {
+      const invalidObject = {
         name: this.invalidName,
         approvalsRequired: this.invalidApprovalsRequired,
         approvers: this.invalidApprovers,
       };
+
+      if (!this.isMrEdit) {
+        invalidObject.branches = this.invalidBranches;
+      }
+
+      return invalidObject;
     },
     invalidName() {
       if (!this.isMultiSubmission) {
@@ -91,6 +105,14 @@ export default {
       }
 
       return !this.approvers.length ? __('Please select and add a member') : '';
+    },
+    invalidBranches() {
+      if (this.isMrEdit || !this.branches.length) return '';
+
+      const protectedBranchIds = new Set(this.settings.protectedBranches.map(x => x.id));
+      const validIds = this.branches.filter(id => protectedBranchIds.has(id));
+
+      return !validIds.length ? __('Please select a valid target branch') : '';
     },
     isValid() {
       return Object.keys(this.validation).every(key => !this.validation[key]);
@@ -122,12 +144,16 @@ export default {
         userRecords: this.users,
         groupRecords: this.groups,
         removeHiddenGroups: this.removeHiddenGroups,
+        protectedBranchIds: this.branches,
       };
     },
   },
   watch: {
     approversToAdd(value) {
       this.approvers.push(value[0]);
+    },
+    branchesToAdd(value) {
+      this.branches = value ? [value] : [];
     },
   },
   methods: {
@@ -266,6 +292,27 @@ export default {
           <span class="invalid-feedback">{{ validation.approvalsRequired }}</span>
         </label>
       </div>
+    </div>
+    <div v-if="!isMrEdit && settings.allowMultiRule" class="form-group">
+      <label class="label-bold">{{ s__('ApprovalRule|Target branch') }}</label>
+      <div class="d-flex align-items-start">
+        <div
+          class="w-100 select2-container-wrap js-branches-select-wrap"
+          :class="{ 'is-invalid': !!validation.branches }"
+        >
+          <branches-select
+            v-model="branchesToAdd"
+            :project-id="settings.projectId"
+            :init-rule="initRule"
+          />
+          <div :class="{ 'invalid-feedback': !!validation.branches }">
+            {{ validation.branches }}
+          </div>
+        </div>
+      </div>
+      <p class="text-muted">
+        {{ __('Apply this approval rule to any branch or a specific protected branch.') }}
+      </p>
     </div>
     <div class="form-group">
       <label class="label-bold">{{ s__('ApprovalRule|Approvers') }}</label>

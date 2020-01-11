@@ -4,6 +4,7 @@ import { createStoreOptions } from 'ee/approvals/stores';
 import projectSettingsModule from 'ee/approvals/stores/modules/project_settings';
 import ProjectRules from 'ee/approvals/components/project_settings/project_rules.vue';
 import RuleInput from 'ee/approvals/components/mr_edit/rule_input.vue';
+import RuleBranches from 'ee/approvals/components/rule_branches.vue';
 import UserAvatarList from '~/vue_shared/components/user_avatar/user_avatar_list.vue';
 import { createProjectRules } from '../../mocks';
 
@@ -18,10 +19,13 @@ const getRowData = tr => {
   const name = findCell(tr, 'name');
   const members = findCell(tr, 'members');
   const approvalsRequired = findCell(tr, 'approvals-required');
+  const branches = findCell(tr, 'branches');
+
   return {
     name: name.text(),
     approvers: members.find(UserAvatarList).props('items'),
     approvalsRequired: approvalsRequired.find(RuleInput).props('rule').approvalsRequired,
+    branches: branches.find(RuleBranches).props('rule').protectedBranches,
   };
 };
 
@@ -51,6 +55,13 @@ describe('Approvals ProjectRules', () => {
       store.state.settings.allowMultiRule = true;
     });
 
+    it('should render branches rule', () => {
+      factory();
+      const branchRow = wrapper.find('.js-branches');
+
+      expect(branchRow.exists()).toBe(true);
+    });
+
     it('renders row for each rule', () => {
       factory();
 
@@ -62,6 +73,7 @@ describe('Approvals ProjectRules', () => {
           name: rule.name,
           approvers: rule.approvers,
           approvalsRequired: rule.approvalsRequired,
+          branches: rule.protectedBranches,
         })),
       );
     });
@@ -87,6 +99,13 @@ describe('Approvals ProjectRules', () => {
       factory();
 
       row = wrapper.find('tbody tr');
+    });
+
+    it('should not render branches rule', () => {
+      factory();
+      const branchRow = wrapper.find('.js-branches');
+
+      expect(branchRow.exists()).toBe(false);
     });
 
     it('does not render name', () => {

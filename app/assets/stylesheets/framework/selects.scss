@@ -8,6 +8,16 @@
   }
 }
 
+.select2-container-wrap.is-invalid {
+  .select2-choice {
+    border-color: $red-500;
+  }
+
+  .invalid-feedback {
+    display: block;
+  }
+}
+
 .select2-container,
 .select2-container.select2-drop-above {
   .select2-choice {
@@ -63,6 +73,7 @@
       display: block;
     }
 
+    .select2-choice,
     .select2-choices {
       border-color: $red-500;
     }

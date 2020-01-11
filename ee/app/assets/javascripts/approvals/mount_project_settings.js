@@ -16,6 +16,7 @@ export default function mountProjectSettingsApprovals(el) {
     ...el.dataset,
     prefix: 'project-settings',
     allowMultiRule: parseBoolean(el.dataset.allowMultiRule),
+    protectedBranches: gon.protected_branches,
   });
 
   return new Vue({

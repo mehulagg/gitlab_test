@@ -2,12 +2,14 @@
 import { mapActions } from 'vuex';
 import { GlButton } from '@gitlab/ui';
 import RuleInput from './rule_input.vue';
+import RuleBranches from '../rule_branches.vue';
 import EmptyRuleName from '../empty_rule_name.vue';
 
 export default {
   components: {
     RuleInput,
     EmptyRuleName,
+    RuleBranches,
     GlButton,
   },
   props: {
@@ -43,6 +45,9 @@ export default {
   <tr>
     <td colspan="2">
       <empty-rule-name :eligible-approvers-docs-path="eligibleApproversDocsPath" />
+    </td>
+    <td v-if="!isMrEdit && allowMultiRule">
+      <rule-branches :rule="rule" />
     </td>
     <td class="js-approvals-required">
       <rule-input :rule="rule" :is-mr-edit="isMrEdit" />

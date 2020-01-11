@@ -7,6 +7,7 @@ import Rules from '../rules.vue';
 import RuleControls from '../rule_controls.vue';
 import EmptyRule from '../mr_edit/empty_rule.vue';
 import RuleInput from '../mr_edit/rule_input.vue';
+import RuleBranches from '../rule_branches.vue';
 
 export default {
   components: {
@@ -15,6 +16,7 @@ export default {
     UserAvatarList,
     EmptyRule,
     RuleInput,
+    RuleBranches,
   },
   computed: {
     ...mapState(['settings']),
@@ -91,12 +93,13 @@ export default {
 
 <template>
   <rules :rules="rules">
-    <template slot="thead" slot-scope="{ name, members, approvalsRequired }">
+    <template slot="thead" slot-scope="{ name, members, approvalsRequired, branches }">
       <tr class="d-none d-sm-table-row">
         <th class="w-25">{{ hasNamedRule ? name : members }}</th>
         <th :class="settings.allowMultiRule ? 'w-50 d-none d-sm-table-cell' : 'w-75'">
           <span v-if="hasNamedRule">{{ members }}</span>
         </th>
+        <th v-if="settings.allowMultiRule">{{ branches }}</th>
         <th>{{ approvalsRequired }}</th>
         <th></th>
       </tr>
@@ -118,6 +121,9 @@ export default {
           </td>
           <td class="js-members" :class="settings.allowMultiRule ? 'd-none d-sm-table-cell' : null">
             <user-avatar-list :items="rule.approvers" :img-size="24" empty-text="" />
+          </td>
+          <td v-if="settings.allowMultiRule" class="js-branches">
+            <rule-branches :rule="rule" />
           </td>
           <td class="js-approvals-required">
             <rule-input :rule="rule" />

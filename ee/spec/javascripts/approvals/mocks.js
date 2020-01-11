@@ -5,9 +5,24 @@ export const createProjectRules = () => [
     approvalsRequired: 2,
     approvers: [{ id: 7 }, { id: 8 }],
     ruleType: 'regular',
+    protectedBranches: [],
   },
-  { id: 2, name: 'Ipsum', approvalsRequired: 0, approvers: [{ id: 9 }], ruleType: 'regular' },
-  { id: 3, name: 'Dolarsit', approvalsRequired: 3, approvers: [], ruleType: 'regular' },
+  {
+    id: 2,
+    name: 'Ipsum',
+    approvalsRequired: 0,
+    approvers: [{ id: 9 }],
+    ruleType: 'regular',
+    protectedBranches: [{ id: 1, name: 'master' }],
+  },
+  {
+    id: 3,
+    name: 'Dolarsit',
+    approvalsRequired: 3,
+    approvers: [],
+    ruleType: 'regular',
+    protectedBranches: [{ id: 1, name: 'ipsem' }],
+  },
 ];
 
 export const createMRRule = () => ({
