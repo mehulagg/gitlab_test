@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/stanhu/bootsnap.git
+  revision: 0de36eeb27fa868a323a57a4c63de640809267db
+  branch: sh-use-glibc-version-ruby-platform
+  specs:
+    bootsnap (1.4.5)
+      msgpack (~> 1.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -110,8 +118,6 @@ GEM
     binding_ninja (0.2.3)
     binding_of_caller (0.8.0)
       debug_inspector (>= 0.0.1)
-    bootsnap (1.4.5)
-      msgpack (~> 1.0)
     bootstrap_form (4.2.0)
       actionpack (>= 5.0)
       activemodel (>= 5.0)
@@ -1149,7 +1155,7 @@ DEPENDENCIES
   benchmark-memory (~> 0.1)
   better_errors (~> 2.5.0)
   binding_of_caller (~> 0.8.0)
-  bootsnap (~> 1.4)
+  bootsnap!
   bootstrap_form (~> 4.2.0)
   brakeman (~> 4.2)
   browser (~> 2.5)
