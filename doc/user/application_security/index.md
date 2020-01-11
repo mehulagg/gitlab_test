@@ -33,6 +33,7 @@ GitLab can scan and report any vulnerabilities found in your project.
 | [Static Application Security Testing (SAST)](sast/index.md) **(ULTIMATE)**   | Analyze source code for known vulnerabilities.                         |
 
 ## Enabling all security jobs
+
 > Introduced in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.7.
 
 [Include](../../ci/yaml/README.md#includetemplate) the
