@@ -145,6 +145,19 @@ describe Project do
         expect(project.container_expiration_policy).to be_persisted
       end
 
+      it 'skips creating a container expiration policy' do
+        project_without_container_expiration_policy = create(:project, :without_container_expiration_policy)
+
+        expect(project_without_container_expiration_policy.container_expiration_policy).to be_nil
+
+        # Test that :without_container_expiration_policy trait does not affect
+        # other projects
+        project = create(:project)
+
+        expect(project.container_expiration_policy).to be_an_instance_of(ContainerExpirationPolicy)
+        expect(project.container_expiration_policy).to be_persisted
+      end
+
       it 'automatically creates a Pages metadata row' do
         project = create(:project)
 

@@ -138,8 +138,12 @@ FactoryBot.define do
     end
 
     trait :without_container_expiration_policy do
-      after(:build) do |project|
-        project.class.skip_callback(:create, :after, :create_container_expiration_policy, raise: false)
+      after(:build) do
+        Project.skip_callback(:create, :after, :create_container_expiration_policy)
+      end
+
+      after(:create) do
+        Project.set_callback(:create, :after, :create_container_expiration_policy)
       end
     end
 
