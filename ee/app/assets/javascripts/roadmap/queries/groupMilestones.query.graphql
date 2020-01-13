@@ -13,6 +13,7 @@ query groupMilestones(
           state
           dueDate
           startDate
+          webUrl
         }
       }
     }

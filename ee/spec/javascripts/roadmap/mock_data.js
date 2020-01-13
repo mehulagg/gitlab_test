@@ -360,3 +360,34 @@ export const mockEpicChildEpicsQueryResponse = {
     },
   },
 };
+
+export const mockGroupMilestonesQueryResponse = {
+  data: {
+    group: {
+      id: 'gid://gitlab/Group/2',
+      name: 'Gitlab Org',
+      milestones: {
+        edges: [
+          {
+            node: {
+              id: 'gid://gitlab/Milestone/40',
+              title: 'Marketing milestone',
+              startDate: '2017-12-25',
+              dueDate: '2018-03-09',
+              webUrl: '/groups/gitlab-org/marketing/-/milestones/1',
+            },
+          },
+          {
+            node: {
+              id: 'gid://gitlab/Milestone/41',
+              title: 'Another marketing',
+              startDate: '2017-12-26',
+              dueDate: '2018-03-10',
+              webUrl: '/groups/gitlab-org/marketing/-/milestones/2',
+            },
+          },
+        ],
+      },
+    },
+  },
+};

@@ -63,6 +63,7 @@ export const createMockClient = (resolvers = {}, config = {}) => {
       state: String!
       dueDate: String
       startDate: String
+      webUrl: String
     }
 
     type MilestoneEdge {
@@ -103,10 +104,20 @@ export const createMockClient = (resolvers = {}, config = {}) => {
             {
               node: {
                 id: '2',
-                title: 'Milestone 2',
+                title: 'Milestone 2 blablablablablablabla',
                 state: 'active',
                 dueDate: '2020-02-15T10:15:30Z',
                 startDate: '2020-01-17T10:15:30Z',
+              },
+            },
+            {
+              node: {
+                id: '3',
+                title: 'Milestone 3',
+                state: 'active',
+                dueDate: '2020-03-09T10:15:30Z',
+                startDate: '2020-02-10T10:15:30Z',
+                webUrl: 'www.google.com',
               },
             },
           ],

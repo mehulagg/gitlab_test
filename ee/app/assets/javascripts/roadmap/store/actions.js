@@ -1,9 +1,10 @@
 import flash from '~/flash';
 import { s__ } from '~/locale';
 import axios from '~/lib/utils/axios_utils';
-import { createMockClient } from '~/lib/graphql.js';
+import { createMockClient } from '~/lib/graphql';
 
 import * as epicUtils from '../utils/epic_utils';
+import * as milestoneUtils from '../utils/milestone_utils';
 import * as roadmapItemUtils from '../utils/roadmap_item_utils';
 import {
   getEpicsPathForPreset,
@@ -200,9 +201,7 @@ export const refreshEpicDates = ({ commit, state, getters }) => {
   commit(types.SET_EPICS, epics);
 };
 
-export const fetchGroupMilestones = (
-  { fullPath },
-) => {
+export const fetchGroupMilestones = ({ fullPath }) => {
   const query = groupMilestones;
   const variables = {
     fullPath,
@@ -217,9 +216,8 @@ export const fetchGroupMilestones = (
     })
     .then(({ data }) => {
       const { group } = data;
-      let edges;
 
-      edges = (group.milestones && group.milestones.edges) || [];
+      const edges = (group.milestones && group.milestones.edges) || [];
 
       return milestoneUtils.extractGroupMilestones(edges);
     });
@@ -234,33 +232,36 @@ export const fetchMilestones = ({ state, dispatch }) => {
     .then(rawMilestones => {
       dispatch('receiveMilestonesSuccess', { rawMilestones });
     })
-    .catch(() => dispatch('receiveMilestonesFailure'));
+    .catch(error => {
+      console.log('ERROR', error);
+      dispatch('receiveMilestonesFailure');
+    });
 };
 
 export const receiveMilestonesSuccess = (
   { commit, state, getters },
-  { milestones },
+  { rawMilestones, newMilestone }, // timeframeExtended
 ) => {
-  // const milestones = rawMilestones.reduce((filteredMilestones, epic) => {
-  //   const formattedEpic = epicUtils.formatEpicDetails(
-  //     epic,
-  //     getters.timeframeStartDate,
-  //     getters.timeframeEndDate,
-  //   );
-  //   // Exclude any Milestone that has invalid dates
-  //   // or is already present in Roadmap timeline
-  //   if (
-  //     filteredMilestones.startDate.getTime() <= filteredMilestones.endDate.getTime() &&
-  //     state.milestoneIds.indexOf(formattedMilestone.id) < 0
-  //   ) {
-  //     Object.assign(formattedMilestone, {
-  //       newMilestone,
-  //     });
-  //     filteredMilestones.push(formattedMilestone);
-  //     commit(types.UPDATE_MILESTONE_IDS, formattedMilestone.id);
-  //   }
-  //   return filteredMilestones;
-  // }, []);
+  const milestones = rawMilestones.reduce((filteredMilestones, milestone) => {
+    const formattedMilestone = roadmapItemUtils.formatRoadmapItemDetails(
+      milestone,
+      getters.timeframeStartDate,
+      getters.timeframeEndDate,
+    );
+    // Exclude any Milestone that has invalid dates
+    // or is already present in Roadmap timeline
+    if (
+      formattedMilestone.startDate.getTime() <= formattedMilestone.endDate.getTime() &&
+      state.milestoneIds.indexOf(formattedMilestone.id) < 0
+    ) {
+      Object.assign(formattedMilestone, {
+        newMilestone,
+      });
+      filteredMilestones.push(formattedMilestone);
+      commit(types.UPDATE_MILESTONE_IDS, formattedMilestone.id);
+    }
+    return filteredMilestones;
+  }, []);
 
   commit(types.RECEIVE_MILESTONES_SUCCESS, milestones);
 };

@@ -1,5 +1,5 @@
 /**
- * Returns array of epics extracted from GraphQL response
+ * Returns array of milestones extracted from GraphQL response
  * discarding the `edges`->`node` nesting
  *
  * @param {Object} group

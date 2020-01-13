@@ -40,13 +40,13 @@ export default {
       fetchEpicsForTimeframeFn: roadmapGraphQL
         ? this.fetchEpicsForTimeframeGQL
         : this.fetchEpicsForTimeframe,
-      
     };
   },
   computed: {
     ...mapState([
       'currentGroupId',
       'epics',
+      'milestones',
       'timeframe',
       'extendedTimeframe',
       'windowResizeInProgress',
@@ -144,6 +144,7 @@ export default {
       v-if="showRoadmap"
       :preset-type="presetType"
       :epics="epics"
+      :milestones="milestones"
       :timeframe="timeframe"
       :current-group-id="currentGroupId"
       @onScrollToStart="handleScrollToExtend"

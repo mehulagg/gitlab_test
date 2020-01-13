@@ -7,12 +7,14 @@ import { EXTEND_AS } from '../constants';
 import eventHub from '../event_hub';
 
 import epicsListSection from './epics_list_section.vue';
+import milestonesListSection from './milestones_list_section.vue';
 import roadmapTimelineSection from './roadmap_timeline_section.vue';
 
 export default {
   components: {
     GlSkeletonLoading,
     epicsListSection,
+    milestonesListSection,
     roadmapTimelineSection,
   },
   props: {
@@ -21,6 +23,10 @@ export default {
       required: true,
     },
     epics: {
+      type: Array,
+      required: true,
+    },
+    milestones: {
       type: Array,
       required: true,
     },
@@ -84,6 +90,12 @@ export default {
       :preset-type="presetType"
       :epics="epics"
       :timeframe="timeframe"
+    />
+    <milestones-list-section
+      :preset-type="presetType"
+      :milestones="milestones"
+      :timeframe="timeframe"
+      :current-group-id="currentGroupId"
     />
     <div v-if="!epics.length" class="skeleton-loader js-skeleton-loader">
       <div v-for="n in 10" :key="n" class="mt-2">
