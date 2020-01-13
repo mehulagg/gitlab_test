@@ -100,9 +100,21 @@ module CounterAttribute
       counter_attributes << attribute
 
       define_method("accurate_#{attribute}") do
-        return super() unless counter_attributes_enabled?
+        return read_attribute(attribute) unless counter_attributes_enabled?
 
-        self[attribute] + counter_events.sum(attribute)
+        results = self.class
+          .left_outer_joins(:counter_events)
+          .where(self.class.arel_table[:id].eq(id))
+          .select("#{self.class.table_name}.#{attribute} + COALESCE(SUM(#{self.class.counter_attribute_events_table}.#{attribute}), 0) AS actual_value")
+          .group(self.class.arel_table[attribute], self.class.arel_table[:id])
+
+        results.first['actual_value']
+        # results into:
+        # SELECT project_statistics.build_artifacts_size + COALESCE(SUM(project_statistics_events.build_artifacts_size), 0) AS actual_value
+        # FROM "project_statistics"
+        # LEFT OUTER JOIN "project_statistics_events" ON "project_statistics_events"."project_statistics_id" = "project_statistics"."id"
+        # WHERE "project_statistics"."id" = 10
+        # GROUP BY "project_statistics"."build_artifacts_size", "project_statistics"."id"
       end
     end
 
