@@ -419,7 +419,6 @@ You need the below inside your instance and acessible across the instance (for e
   -  Docker images:
   - docker:stable
   - docker:stable-dind
-  - [registry.gitlab.com/gitlab-org/security-products/sast:$SAST_VERSION](https://gitlab.com/gitlab-org/security-products/sast/container_registry)
 - It's a hard requirement to be able to pull a docker image from your internal registry and use it in the CI job. If one gets an x509: certificate signed by unknown authority error, when trying to pull a local image currently, this won't work.
 
 #### Getting all the analyzers
