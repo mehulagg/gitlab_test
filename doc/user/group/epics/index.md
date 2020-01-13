@@ -142,7 +142,7 @@ If your epic contains one or more [child epics](#multi-level-child-epics) which
 have a [start or due date](#start-date-and-due-date), a
 [roadmap](../roadmap/index.md) view of the child epics is listed under the parent epic.
 
-![Child epics roadmap](img/epic_view_roadmap_v12.6.png)
+![Child epics roadmap](img/epic_view_roadmap_v12_7.png)
 
 ## Reordering issues and child epics
 
