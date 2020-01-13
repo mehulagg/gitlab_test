@@ -50,7 +50,7 @@ namespace :gitlab do
       else
         # Add post-migrate paths to ensure we mark all migrations as up
         Gitlab::Database.add_post_migrate_path_to_rails(force: true)
-        Rake::Task['db:schema:load'].invoke
+        Rake::Task['db:structure:load'].invoke
         Rake::Task['db:seed_fu'].invoke
       end
     end
