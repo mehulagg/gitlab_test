@@ -399,7 +399,7 @@ CI/CD configuration file to turn it on. Results are available in the SAST report
 
 GitLab currently includes [Gitleaks](https://github.com/zricethezav/gitleaks) and [TruffleHog](https://github.com/dxa4481/truffleHog) checks.
 
-###  Running SAST in an offline installation
+###  Running SAST in an offline air-gapped installation
 
 The below instructions are for anyone wishing to run SAST in a self-managed instance that has limited, restricted, or intermittent access to external resources. Some people refer to this as an air-gapped installation.
 
