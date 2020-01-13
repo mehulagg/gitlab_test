@@ -3,7 +3,6 @@ import 'mousetrap';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import Vuex from 'vuex';
 import DiscussionKeyboardNavigator from '~/notes/components/discussion_keyboard_navigator.vue';
-import notesModule from '~/notes/stores/modules';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
