@@ -1528,7 +1528,6 @@ ActiveRecord::Schema.define(version: 2020_01_08_233040) do
   end
 
   create_table "epics", id: :serial, force: :cascade do |t|
-    t.integer "milestone_id"
     t.integer "group_id", null: false
     t.integer "author_id", null: false
     t.integer "assignee_id"
@@ -1566,7 +1565,6 @@ ActiveRecord::Schema.define(version: 2020_01_08_233040) do
     t.index ["end_date"], name: "index_epics_on_end_date"
     t.index ["group_id"], name: "index_epics_on_group_id"
     t.index ["iid"], name: "index_epics_on_iid"
-    t.index ["milestone_id"], name: "index_milestone"
     t.index ["parent_id"], name: "index_epics_on_parent_id"
     t.index ["start_date"], name: "index_epics_on_start_date"
     t.index ["start_date_sourcing_epic_id"], name: "index_epics_on_start_date_sourcing_epic_id", where: "(start_date_sourcing_epic_id IS NOT NULL)"
@@ -4557,7 +4555,6 @@ ActiveRecord::Schema.define(version: 2020_01_08_233040) do
   add_foreign_key "epics", "epics", column: "due_date_sourcing_epic_id", name: "fk_013c9f36ca", on_delete: :nullify
   add_foreign_key "epics", "epics", column: "parent_id", name: "fk_25b99c1be3", on_delete: :cascade
   add_foreign_key "epics", "epics", column: "start_date_sourcing_epic_id", name: "fk_9d480c64b2", on_delete: :nullify
-  add_foreign_key "epics", "milestones", on_delete: :nullify
   add_foreign_key "epics", "namespaces", column: "group_id", name: "fk_f081aa4489", on_delete: :cascade
   add_foreign_key "epics", "users", column: "assignee_id", name: "fk_dccd3f98fc", on_delete: :nullify
   add_foreign_key "epics", "users", column: "author_id", name: "fk_3654b61b03", on_delete: :cascade
