@@ -424,7 +424,7 @@ You need the below inside your instance and acessible across the instance (for e
 
 #### Getting all the analyzers
 
-You also need SAST [analyzer images](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/SAST.gitlab-ci.yml#L9) available inside the air gap.
+You also need SAST [analyzer images](https://gitlab.com/gitlab-org/gitlab/blob/0137d0ae6b2e85c58dd02e6f2cacf47d678ead0f/lib/gitlab/ci/templates/Security/SAST.gitlab-ci.yml#L9) available inside the air gap.
 
 For full functionality this requires these images from registry.gitlab.com inside your air gap:
  - registry.gitlab.com/gitlab-org/security-products/analyzers/bandit:2
