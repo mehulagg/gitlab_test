@@ -232,7 +232,7 @@ export default function dropzoneInput(form) {
   };
 
   addFileToForm = path => {
-    $(form).append(`<input type="hidden" name="files[]" value="${_.escape(path)}">`);
+    $(form).append(`<input type="hide" name="files[]" value="${_.escape(path)}">`);
   };
 
   getFilename = e => {

@@ -1,10 +1,13 @@
 <script>
 /* eslint-disable @gitlab/vue-i18n/no-bare-strings */
-import { GlLink } from '@gitlab/ui';
+import Icon from '~/vue_shared/components/icon.vue';
+import { GlLoadingIcon, GlLink } from '@gitlab/ui';
 
 export default {
   components: {
     GlLink,
+    Icon,
+    GlLoadingIcon,
   },
   props: {
     markdownDocsPath: {
@@ -49,30 +52,26 @@ export default {
         are supported
       </template>
     </div>
-    <span v-if="canAttachFile" class="uploading-container">
-      <span class="uploading-progress-container hide">
-        <i class="fa fa-file-image-o toolbar-button-icon" aria-hidden="true"></i>
+    <span v-if="canAttachFile" class="uploading-container d-flex align-items-center">
+      <span class="uploading-progress-container hide d-flex align-items-center">
+        <icon name="doc-image" :size="16" class="append-right-4" />
         <span class="attaching-file-message"></span>
         <span class="uploading-progress">0%</span>
-        <span class="uploading-spinner">
-          <i class="fa fa-spinner fa-spin toolbar-button-icon" aria-hidden="true"></i>
-        </span>
+        <gl-loading-icon size="sm" class="uploading-spinner"/>
       </span>
-      <span class="uploading-error-container hide">
-        <span class="uploading-error-icon">
-          <i class="fa fa-file-image-o toolbar-button-icon" aria-hidden="true"></i>
-        </span>
+      <span class="uploading-error-container hide d-flex align-items-center">
+        <icon name="doc-image" :size="16" class="append-right-4 uploading-error-icon" />
         <span class="uploading-error-message"></span>
         <button class="retry-uploading-link" type="button">{{ __('Try again') }}</button> or
         <button class="attach-new-file markdown-selector" type="button">
           {{ __('attach a new file') }}
         </button>
       </span>
-      <button class="markdown-selector button-attach-file btn-link" tabindex="-1" type="button">
-        <i class="fa fa-file-image-o toolbar-button-icon" aria-hidden="true"></i
-        ><span class="text-attach-file">{{ __('Attach a file') }}</span>
+      <button class="markdown-selector button-attach-file btn-link d-flex align-items-center" tabindex="-1" type="button">
+        <icon name="doc-image" :size="16" class="append-right-4" />
+        <span class="text-attach-file">{{ __('Attach a file') }}</span>
       </button>
-      <button class="btn btn-default btn-sm hide button-cancel-uploading-files" type="button">
+      <button class="btn btn-default btn-sm hide button-cancel-uploading-files prepend-left-8" type="button">
         {{ __('Cancel') }}
       </button>
     </span>
