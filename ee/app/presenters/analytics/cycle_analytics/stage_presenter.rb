@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Analytics
-  module CycleAnalytics
+  module ValueStreamAnalytics
     class StagePresenter < Gitlab::View::Presenter::Delegated
       DEFAULT_STAGE_ATTRIBUTES = {
         issue: {

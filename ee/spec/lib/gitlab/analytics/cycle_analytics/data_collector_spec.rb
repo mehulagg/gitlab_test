@@ -351,14 +351,14 @@ describe Gitlab::Analytics::CycleAnalytics::DataCollector do
     end
   end
 
-  context 'when `Analytics::CycleAnalytics::ProjectStage` is given' do
+  context 'when `Analytics::ValueStreamAnalytics::ProjectStage` is given' do
     it_behaves_like 'test various start and end event combinations' do
       let_it_be(:project) { create(:project, :repository, group: create(:group)) }
       let_it_be(:label) { create(:group_label, group: project.group) }
       let_it_be(:other_label) { create(:group_label, group: project.group) }
 
       let(:stage) do
-        Analytics::CycleAnalytics::ProjectStage.new(
+        Analytics::ValueStreamAnalytics::ProjectStage.new(
           name: 'My Stage',
           project: project,
           start_event_identifier: start_event_identifier,
@@ -372,7 +372,7 @@ describe Gitlab::Analytics::CycleAnalytics::DataCollector do
     end
   end
 
-  context 'when `Analytics::CycleAnalytics::GroupStage` is given' do
+  context 'when `Analytics::ValueStreamAnalytics::GroupStage` is given' do
     it_behaves_like 'test various start and end event combinations' do
       let_it_be(:group) { create(:group) }
       let_it_be(:project) { create(:project, :repository, group: group) }
@@ -380,7 +380,7 @@ describe Gitlab::Analytics::CycleAnalytics::DataCollector do
       let_it_be(:other_label) { create(:group_label, group: group) }
 
       let(:stage) do
-        Analytics::CycleAnalytics::GroupStage.new(
+        Analytics::ValueStreamAnalytics::GroupStage.new(
           name: 'My Stage',
           group: group,
           start_event_identifier: start_event_identifier,
@@ -399,7 +399,7 @@ describe Gitlab::Analytics::CycleAnalytics::DataCollector do
       let(:project2) { create(:project, :repository, group: group) }
 
       let(:stage) do
-        Analytics::CycleAnalytics::GroupStage.new(
+        Analytics::ValueStreamAnalytics::GroupStage.new(
           name: 'My Stage',
           group: group,
           start_event_identifier: :merge_request_created,
