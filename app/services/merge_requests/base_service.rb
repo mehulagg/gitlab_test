@@ -85,7 +85,7 @@ module MergeRequests
     end
 
     def create_pipeline_for(merge_request, user)
-      MergeRequests::CreatePipelineService.new(project, user, params).execute(merge_request, save_config_errors: false)
+      MergeRequests::CreatePipelineService.new(project, user, params.slice(:push_options)).execute(merge_request, save_config_errors: false)
     end
 
     def can_use_merge_request_ref?(merge_request)
