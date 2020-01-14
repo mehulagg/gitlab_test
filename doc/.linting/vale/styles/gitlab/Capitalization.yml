@@ -1,0 +1,41 @@
+extends: capitalization
+message: "Is '%s' capitalized correctly?"
+level: warning
+scope: sentence
+# $title, $sentence, $lower, $upper, or a pattern.
+match: $sentence
+exceptions:
+
+  # GitLab product names
+  - Geo # GitLab Geo
+  - GitLab
+  - LFS # Git LFS
+  - Monitor # GitLab Monitor
+  - Omnibus # Omnibus GitLab
+  - Operator # GitLab Operator
+  - Pages # GitLab Pages
+  - Rails # GitLab Rails, also from Ruby on Rails
+  - Runner # GitLab Runner
+  - Shell # GitLab Shell
+  - Workhorse # GitLab Workhorse
+
+  # Products or services GitLab references in documentation
+  - Auth # Ultra Auth
+  - Cloud # Jira Cloud
+  - Encrypt # Let's Encrypt
+  - Ingress # NGINX Ingress
+  - Jira # Jira Cloud, Jira Server
+  - Let's # Let's Encrypt
+  - macOS
+  - Mojave
+  - NGINX # NGINX Ingress
+  - OAuth
+  - Power-Ups # Trello Power-Ups
+  - Ruby
+  - Server # Jira Server
+  - Trello # Trello Power-Ups
+  - Ultra # Ultra Auth
+
+  # Words that appear in GitLab documentation
+  - NOTE
+

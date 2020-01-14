@@ -5,6 +5,5 @@ link: https://docs.openstack.org/contributor-guide/writing-style/general-writing
 level: warning
 ignorecase: true
 tokens:
-  - we
   - I
 
