@@ -154,14 +154,6 @@ describe Git::BranchPushService, services: true do
 
       execute_service(project, user, oldrev: blankrev, newrev: 'newrev', ref: ref)
     end
-
-    it "passes push_options to the worker" do
-      expect(UpdateMergeRequestsWorker)
-        .to receive(:perform_async)
-        .with(project.id, user.id, blankrev, 'newrev', ref, { push_options: { 'ci' => { 'skip' => true } } })
-
-      described_class.new(project, user, change: { oldrev: blankrev, newrev: 'newrev', ref: ref }, push_options: { 'ci' => { 'skip' => true } }).execute
-    end
   end
 
   describe "Updates git attributes" do

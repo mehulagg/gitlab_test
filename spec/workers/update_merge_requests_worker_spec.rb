@@ -16,12 +16,11 @@ describe UpdateMergeRequestsWorker do
     let(:ref)    { "refs/heads/test" }
 
     def perform
-      subject.perform(project.id, user.id, oldrev, newrev, ref, { 'push_options' => { 'ci' => { 'skip' => true } } })
+      subject.perform(project.id, user.id, oldrev, newrev, ref)
     end
 
     it 'executes MergeRequests::RefreshService with expected values' do
-      expect_next_instance_of(MergeRequests::RefreshService, project, user,
-                              { push_options: { ci: { skip: true } } }) do |refresh_service|
+      expect_next_instance_of(MergeRequests::RefreshService, project, user) do |refresh_service|
         expect(refresh_service).to receive(:execute).with(oldrev, newrev, ref)
       end
 
