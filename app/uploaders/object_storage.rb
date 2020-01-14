@@ -329,6 +329,7 @@ module ObjectStorage
       # when direct upload is enabled, always store on remote storage
       if self.class.object_store_enabled? && self.class.direct_upload_enabled?
         self.object_store = Store::REMOTE
+        persist_object_store!
       end
 
       super
