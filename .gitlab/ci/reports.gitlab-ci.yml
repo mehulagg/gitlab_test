@@ -48,8 +48,6 @@ code_quality:
 # We need to duplicate this job's definition because it seems it's impossible to
 # override an included `only.refs`.
 # See https://gitlab.com/gitlab-org/gitlab/issues/31371.
-# Once https://gitlab.com/gitlab-org/gitlab/merge_requests/16487 will be deployed
-# to GitLab.com, we should be able to use the template and set SAST_DISABLE_DIND: "true".
 sast:
   extends:
     - .default-retry
@@ -60,6 +58,11 @@ sast:
   variables:
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: ""
+    SAST_ANALYZER_IMAGE_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
+    SAST_ANALYZER_IMAGE_TAG: 2
+    SAST_DEFAULT_ANALYZERS: "bandit, brakeman, gosec, spotbugs, flawfinder, phpcs-security-audit, security-code-scan, nodejs-scan, eslint, tslint, secrets, sobelow, pmd-apex, kubesec"
+    SAST_DISABLE_DIND: "true"
+    SCAN_KUBERNETES_MANIFESTS: "true"
     SAST_BRAKEMAN_LEVEL: 2
     SAST_EXCLUDED_PATHS: qa,spec,doc,ee/spec
   allow_failure: true
@@ -73,52 +76,17 @@ sast:
           export DOCKER_HOST='tcp://localhost:2375'
         fi
       fi
-    - | # this is required to avoid undesirable reset of Docker image ENV variables being set on build stage
-      function propagate_env_vars() {
-        CURRENT_ENV=$(printenv)
-
-        for VAR_NAME; do
-          echo $CURRENT_ENV | grep "${VAR_NAME}=" > /dev/null && echo "--env $VAR_NAME "
-        done
-      }
+    - |
+      printenv | grep -E '^(DOCKER_|CI|GITLAB_|FF_|HOME|PWD|OLDPWD|PATH|SHLVL|HOSTNAME)' | cut -d'=' -f1 | \
+        (while IFS='\\n' read -r VAR; do unset -v "$VAR"; done; /bin/printenv > .env)
     - |
       docker run \
-        $(propagate_env_vars \
-          SAST_BANDIT_EXCLUDED_PATHS \
-          SAST_ANALYZER_IMAGES \
-          SAST_ANALYZER_IMAGE_PREFIX \
-          SAST_ANALYZER_IMAGE_TAG \
-          SAST_DEFAULT_ANALYZERS \
-          SAST_PULL_ANALYZER_IMAGES \
-          SAST_BRAKEMAN_LEVEL \
-          SAST_FLAWFINDER_LEVEL \
-          SAST_GITLEAKS_ENTROPY_LEVEL \
-          SAST_GOSEC_LEVEL \
-          SAST_EXCLUDED_PATHS \
-          SAST_DOCKER_CLIENT_NEGOTIATION_TIMEOUT \
-          SAST_PULL_ANALYZER_IMAGE_TIMEOUT \
-          SAST_RUN_ANALYZER_TIMEOUT \
-          SAST_JAVA_VERSION \
-          ANT_HOME \
-          ANT_PATH \
-          GRADLE_PATH \
-          JAVA_OPTS \
-          JAVA_PATH \
-          JAVA_8_VERSION \
-          JAVA_11_VERSION \
-          MAVEN_CLI_OPTS \
-          MAVEN_PATH \
-          MAVEN_REPO_PATH \
-          SBT_PATH \
-          FAIL_NEVER \
-        ) \
+        --env-file .env \
         --volume "$PWD:/code" \
         --volume /var/run/docker.sock:/var/run/docker.sock \
         "registry.gitlab.com/gitlab-org/security-products/sast:$SAST_VERSION" /app/bin/run /code
   artifacts:
     expire_in: 7 days
-    paths:
-      - gl-sast-report.json
     reports:
       sast: gl-sast-report.json
   dependencies: []
@@ -128,6 +96,66 @@ sast:
   except:
     variables:
       - $SAST_DISABLED
+      - $SAST_DISABLE_DIND == 'true'
+
+.sast-analyzer:
+  extends: sast
+  services: []
+  except:
+    variables:
+      - $SAST_DISABLED
+      - $SAST_DISABLE_DIND == 'false'
+  script:
+    - /analyzer run
+
+brakeman-sast:
+  extends: .sast-analyzer
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/brakeman:$SAST_ANALYZER_IMAGE_TAG"
+  only:
+    variables:
+      - $GITLAB_FEATURES =~ /\bsast\b/ &&
+          $SAST_DEFAULT_ANALYZERS =~ /brakeman/ &&
+          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /ruby/
+
+eslint-sast:
+  extends: .sast-analyzer
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/eslint:$SAST_ANALYZER_IMAGE_TAG"
+  only:
+    variables:
+      - $GITLAB_FEATURES =~ /\bsast\b/ &&
+          $SAST_DEFAULT_ANALYZERS =~ /eslint/ &&
+          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /javascript/
+
+kubesec-sast:
+  extends: .sast-analyzer
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/kubesec:$SAST_ANALYZER_IMAGE_TAG"
+  only:
+    variables:
+      - $GITLAB_FEATURES =~ /\bsast\b/ &&
+          $SAST_DEFAULT_ANALYZERS =~ /kubesec/ &&
+          $SCAN_KUBERNETES_MANIFESTS == 'true'
+
+nodejs-scan-sast:
+  extends: .sast-analyzer
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/nodejs-scan:$SAST_ANALYZER_IMAGE_TAG"
+  only:
+    variables:
+      - $GITLAB_FEATURES =~ /\bsast\b/ &&
+          $SAST_DEFAULT_ANALYZERS =~ /nodejs-scan/ &&
+          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /javascript/
+
+secrets-sast:
+  extends: .sast-analyzer
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/secrets:$SAST_ANALYZER_IMAGE_TAG"
+  only:
+    variables:
+      - $GITLAB_FEATURES =~ /\bsast\b/ &&
+          $SAST_DEFAULT_ANALYZERS =~ /secrets/
 
 # We need to duplicate this job's definition because it seems it's impossible to
 # override an included `only.refs`.
