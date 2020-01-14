@@ -5,7 +5,7 @@ require 'spec_helper'
 describe Analytics::CycleAnalytics::Stages::DeleteService do
   let_it_be(:group, refind: true) { create(:group) }
   let_it_be(:user, refind: true) { create(:user) }
-  let_it_be(:stage, refind: true) { create(:cycle_analytics_group_stage, group: group) }
+  let_it_be(:stage, refind: true) { create(:value_stream_analytics_group_stage, group: group) }
   let(:params) { { id: stage.id } }
 
   subject { described_class.new(parent: group, params: params, current_user: user).execute }
@@ -31,7 +31,7 @@ describe Analytics::CycleAnalytics::Stages::DeleteService do
   end
 
   context 'disallows deletion when default stage is given' do
-    let_it_be(:stage, refind: true) { create(:cycle_analytics_group_stage, group: group, custom: false) }
+    let_it_be(:stage, refind: true) { create(:value_stream_analytics_group_stage, group: group, custom: false) }
 
     it { expect(subject).not_to be_success }
     it { expect(subject.http_status).to eq(:forbidden) }

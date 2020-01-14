@@ -22,7 +22,7 @@ describe Analytics::CycleAnalytics::GroupStage do
   context 'relative positioning' do
     it_behaves_like 'a class that supports relative positioning' do
       let(:parent) { create(:group) }
-      let(:factory) { :cycle_analytics_group_stage }
+      let(:factory) { :value_stream_analytics_group_stage }
       let(:default_params) { { group: parent } }
     end
   end

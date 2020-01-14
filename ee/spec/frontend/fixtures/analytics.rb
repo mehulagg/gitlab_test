@@ -71,7 +71,7 @@ describe 'Analytics (JavaScript fixtures)', :sidekiq_inline do
   end
 
   def additional_cycle_analytics_metrics
-    create(:cycle_analytics_group_stage, parent: group)
+    create(:value_stream_analytics_group_stage, parent: group)
 
     update_metrics
 
