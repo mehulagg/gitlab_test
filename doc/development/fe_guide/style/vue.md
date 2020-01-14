@@ -165,26 +165,6 @@ Please check this [rules](https://github.com/vuejs/eslint-plugin-vue#bulb-rules)
    }
    ```
 
-1. Required key should always be provided when declaring a prop
-
-   ```javascript
-   // bad
-   props: {
-     foo: {
-       type: String,
-     }
-   }
-
-   // good
-   props: {
-     foo: {
-       type: String,
-       required: false,
-       default: 'bar'
-     }
-   }
-   ```
-
 1. Default key should be provided if the prop is not required.
    _Note:_ There are some scenarios where we need to check for the existence of the property.
    On those a default key should not be provided.
