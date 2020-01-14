@@ -605,13 +605,13 @@ describe('Epic Store Actions', () => {
 
   describe('saveDate', () => {
     let mock;
-    const mockUpdateEpicMutationRes = {
-      updateEpic: {
-        clientMutationId: null,
-        errors: [],
-        __typename: 'UpdateEpicPayload',
-      },
-    };
+    // const mockUpdateEpicMutationRes = {
+    //   updateEpic: {
+    //     clientMutationId: null,
+    //     errors: [],
+    //     __typename: 'UpdateEpicPayload',
+    //   },
+    // };
 
     const data = {
       dateType: dateTypes.start,
@@ -629,11 +629,11 @@ describe('Epic Store Actions', () => {
 
     it('dispatches requestEpicDateSave and requestEpicDateSaveSuccess when request is successful', done => {
       mock.onPut(/(.*)/).replyOnce(200, {});
-      spyOn(epicUtils.gqClient, 'mutate').and.returnValue(
-        Promise.resolve({
-          data: mockUpdateEpicMutationRes,
-        }),
-      );
+      // spyOn(epicUtils.gqClient, 'mutate').and.returnValue(
+      //   Promise.resolve({
+      //     data: mockUpdateEpicMutationRes,
+      //   }),
+      // );
 
       testAction(
         actions.saveDate,
@@ -656,16 +656,16 @@ describe('Epic Store Actions', () => {
 
     it('dispatches requestEpicDateSave and requestEpicDateSaveFailure when request fails', done => {
       mock.onPut(/(.*)/).replyOnce(500, {});
-      spyOn(epicUtils.gqClient, 'mutate').and.returnValue(
-        Promise.resolve({
-          data: {
-            updateEpic: {
-              ...mockUpdateEpicMutationRes,
-              errors: [{ foo: 'bar' }],
-            },
-          },
-        }),
-      );
+      // spyOn(epicUtils.gqClient, 'mutate').and.returnValue(
+      //   Promise.resolve({
+      //     data: {
+      //       updateEpic: {
+      //         ...mockUpdateEpicMutationRes,
+      //         errors: [{ foo: 'bar' }],
+      //       },
+      //     },
+      //   }),
+      // );
 
       testAction(
         actions.saveDate,
@@ -683,6 +683,54 @@ describe('Epic Store Actions', () => {
           },
         ],
         done,
+      );
+    });
+
+    it('calls `axios.put` with request body containing start date related payload when called with `dateType` as `start`', () => {
+      spyOn(axios, 'put').and.callFake(() => new Promise(() => {}));
+
+      actions.saveDate(
+        {
+          state: { endpoint: '/foo/bar' },
+          dispatch: () => {},
+        },
+        {
+          dateType: dateTypes.start,
+          newDate: '2018-1-1',
+          dateTypeIsFixed: true,
+        },
+      );
+
+      expect(axios.put).toHaveBeenCalledWith(
+        '/foo/bar',
+        jasmine.objectContaining({
+          start_date_is_fixed: true,
+          start_date_fixed: '2018-1-1',
+        }),
+      );
+    });
+
+    it('calls `axios.put` with request body containing due date related payload when called with `dateType` as `due`', () => {
+      spyOn(axios, 'put').and.callFake(() => new Promise(() => {}));
+
+      actions.saveDate(
+        {
+          state: { endpoint: '/foo/bar' },
+          dispatch: () => {},
+        },
+        {
+          dateType: dateTypes.due,
+          newDate: '2018-1-1',
+          dateTypeIsFixed: true,
+        },
+      );
+
+      expect(axios.put).toHaveBeenCalledWith(
+        '/foo/bar',
+        jasmine.objectContaining({
+          due_date_is_fixed: true,
+          due_date_fixed: '2018-1-1',
+        }),
       );
     });
   });
@@ -769,13 +817,13 @@ describe('Epic Store Actions', () => {
 
   describe('toggleEpicSubscription', () => {
     let mock;
-    const mockEpicSetSubscriptionRes = {
-      epicSetSubscription: {
-        clientMutationId: null,
-        errors: [],
-        __typename: 'EpicSetSubscriptionPayload',
-      },
-    };
+    // const mockEpicSetSubscriptionRes = {
+    //   epicSetSubscription: {
+    //     clientMutationId: null,
+    //     errors: [],
+    //     __typename: 'EpicSetSubscriptionPayload',
+    //   },
+    // };
     const stateSubscribed = {
       subscribed: false,
     };
@@ -791,11 +839,11 @@ describe('Epic Store Actions', () => {
     describe('success', () => {
       it('dispatches requestEpicSubscriptionToggle and requestEpicSubscriptionToggleSuccess with param `subscribed` when request is complete', done => {
         mock.onPost(/(.*)/).replyOnce(200, {});
-        spyOn(epicUtils.gqClient, 'mutate').and.returnValue(
-          Promise.resolve({
-            data: mockEpicSetSubscriptionRes,
-          }),
-        );
+        // spyOn(epicUtils.gqClient, 'mutate').and.returnValue(
+        //   Promise.resolve({
+        //     data: mockEpicSetSubscriptionRes,
+        //   }),
+        // );
 
         testAction(
           actions.toggleEpicSubscription,
@@ -819,16 +867,16 @@ describe('Epic Store Actions', () => {
     describe('failure', () => {
       it('dispatches requestEpicSubscriptionToggle and requestEpicSubscriptionToggleFailure when request fails', done => {
         mock.onPost(/(.*)/).replyOnce(500, {});
-        spyOn(epicUtils.gqClient, 'mutate').and.returnValue(
-          Promise.resolve({
-            data: {
-              epicSetSubscription: {
-                ...mockEpicSetSubscriptionRes,
-                errors: [{ foo: 'bar' }],
-              },
-            },
-          }),
-        );
+        // spyOn(epicUtils.gqClient, 'mutate').and.returnValue(
+        //   Promise.resolve({
+        //     data: {
+        //       epicSetSubscription: {
+        //         ...mockEpicSetSubscriptionRes,
+        //         errors: [{ foo: 'bar' }],
+        //       },
+        //     },
+        //   }),
+        // );
 
         testAction(
           actions.toggleEpicSubscription,
