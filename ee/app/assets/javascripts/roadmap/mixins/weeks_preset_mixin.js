@@ -31,6 +31,17 @@ export default {
       return this.endDateValues.time <= lastDayOfWeek.getTime();
     },
     /**
+     * Check if current milestone begins before current week and ends after current week (timeline cell)
+     */
+    isTimeframeBetweenStartandEndForWeek(timeframeItem) {
+      const firstDayOfWeek = timeframeItem;
+      const lastDayOfWeek = this.getLastDayOfWeek(timeframeItem);
+      return (
+        this.startDateValues.time < firstDayOfWeek.getTime() &&
+        this.endDateValues.time > lastDayOfWeek.getTime()
+      );
+    },
+    /**
      * Return timeline bar width for current week (timeline cell) based on
      * cellWidth, days in week (7) and day of the week (non-zero based index)
      */

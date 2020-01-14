@@ -232,10 +232,7 @@ export const fetchMilestones = ({ state, dispatch }) => {
     .then(rawMilestones => {
       dispatch('receiveMilestonesSuccess', { rawMilestones });
     })
-    .catch(error => {
-      console.log('ERROR', error);
-      dispatch('receiveMilestonesFailure');
-    });
+    .catch(() => dispatch('receiveMilestonesFailure'));
 };
 
 export const receiveMilestonesSuccess = (

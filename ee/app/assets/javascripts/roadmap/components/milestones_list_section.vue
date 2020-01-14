@@ -1,22 +1,17 @@
 <script>
 import { mapState, mapActions } from 'vuex';
-import VirtualList from 'vue-virtual-scroll-list';
-
-import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 
 import eventHub from '../event_hub';
 
-import { EPIC_DETAILS_CELL_WIDTH, TIMELINE_CELL_MIN_WIDTH, EPIC_ITEM_HEIGHT } from '../constants';
+import { EPIC_DETAILS_CELL_WIDTH, EPIC_ITEM_HEIGHT, TIMELINE_CELL_MIN_WIDTH } from '../constants';
 
 import MilestoneTimeline from './milestone_timeline.vue';
 
 export default {
-  epicItemHeight: EPIC_ITEM_HEIGHT,
+  MilestoneTimeline,
   components: {
-    VirtualList,
     MilestoneTimeline,
   },
-  mixins: [glFeatureFlagsMixin()],
   props: {
     presetType: {
       type: String,
@@ -111,19 +106,7 @@ export default {
 
 <template>
   <div :style="sectionContainerStyles" class="milestones-list-section">
-    <template v-if="glFeatures.roadmapBufferedRendering">
-      <virtual-list
-        v-if="milestones.length"
-        :size="$options.epicItemHeight"
-        :remain="bufferSize"
-        :bench="bufferSize"
-        :scrollelement="roadmapShellEl"
-        :item="$options.MilestoneItem"
-        :itemcount="milestones.length"
-        :itemprops="getMilestoneItemProps"
-      />
-    </template>
-    <template v-else>
+    <template>
       <div class="milestones-list-title">{{ __('Milestones') }}</div>
       <div class="milestones-list-items">
         <milestone-timeline

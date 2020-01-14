@@ -58,11 +58,16 @@ export default {
     state.milestonesFetchInProgress = true;
   },
   [types.RECEIVE_MILESTONES_SUCCESS](state, milestones) {
-    state.milestones = milestones;
     state.milestonesFetchInProgress = false;
+    state.milestonesFetchResultEmpty = milestones.length === 0;
+
+    if (!state.milestonesFetchResultEmpty) {
+      state.milestones = milestones;
+    }
   },
   [types.RECEIVE_MILESTONES_FAILURE](state) {
     state.milestonesFetchInProgress = false;
+    state.milestonesFetchFailure = true;
   },
 
   [types.SET_BUFFER_SIZE](state, bufferSize) {

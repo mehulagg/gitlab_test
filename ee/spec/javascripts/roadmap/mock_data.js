@@ -361,6 +361,21 @@ export const mockEpicChildEpicsQueryResponse = {
   },
 };
 
+export const mockMilestone = {
+  id: 1,
+  iid: 1,
+  description:
+    'Explicabo et soluta minus praesentium minima ab et voluptatem. Quas architecto vero corrupti voluptatibus labore accusantium consectetur. Aliquam aut impedit voluptates illum molestias aut harum. Aut non odio praesentium aut.\n\nQuo asperiores aliquid sed nobis. Omnis sint iste provident numquam. Qui voluptatem tempore aut aut voluptas dolorem qui.\n\nEst est nemo quod est. Odit modi eos natus cum illo aut. Expedita nostrum ea est omnis magnam ut eveniet maxime. Itaque ipsam provident minima et occaecati ut. Dicta est perferendis sequi perspiciatis rerum voluptatum deserunt.',
+  title:
+    'Cupiditate exercitationem unde harum reprehenderit maxime eius velit recusandae incidunt quia.',
+  groupId: 2,
+  groupName: 'Gitlab Org',
+  groupFullName: 'Gitlab Org',
+  startDate: new Date('2017-07-10'),
+  endDate: new Date('2018-06-02'),
+  webUrl: '/groups/gitlab-org/-/milestones/1',
+};
+
 export const mockGroupMilestonesQueryResponse = {
   data: {
     group: {

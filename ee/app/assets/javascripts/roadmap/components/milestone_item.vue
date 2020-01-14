@@ -1,11 +1,15 @@
 <script>
+import { s__, sprintf } from '~/locale';
+
 import { GlPopover } from '@gitlab/ui';
 
 import QuartersPresetMixin from '../mixins/quarters_preset_mixin';
 import MonthsPresetMixin from '../mixins/months_preset_mixin';
 import WeeksPresetMixin from '../mixins/weeks_preset_mixin';
 
-import { TIMELINE_CELL_MIN_WIDTH, PRESET_TYPES } from '../constants';
+import { TIMELINE_CELL_MIN_WIDTH, PRESET_TYPES, SCROLL_BAR_SIZE } from '../constants';
+
+import { dateInWords } from '~/lib/utils/datetime_utility';
 
 export default {
   cellWidth: TIMELINE_CELL_MIN_WIDTH,
@@ -31,9 +35,13 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      hoverStyles: {},
+    };
+  },
   computed: {
-    // TODO: Mixins should be more generic - currently specific to epics
-    epicStartDateValues() {
+    startDateValues() {
       const { startDate } = this.milestone;
 
       return {
@@ -44,7 +52,7 @@ export default {
         time: startDate.getTime(),
       };
     },
-    epicEndDateValues() {
+    endDateValues() {
       const { endDate } = this.milestone;
 
       return {
@@ -65,6 +73,15 @@ export default {
       }
       return false;
     },
+    isCurrent() {
+      if (this.presetType === PRESET_TYPES.MONTHS) {
+        return this.isTimeframeBetweenStartandEndForMonth(this.timeframeItem)
+      }
+      else if (this.presetType === PRESET_TYPES.WEEKS) {
+        return this.isTimeframeBetweenStartandEndForWeek(this.timeframeItem);
+      }
+      return false;
+    },
     timelineBarStyles() {
       let barStyles = {};
 
@@ -82,27 +99,93 @@ export default {
           )}`;
         } else if (this.presetType === PRESET_TYPES.WEEKS) {
           // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
-          barStyles = `width: ${this.getTimelineBarWidthForWeeks()}px; ${this.getTimelineBarStartOffsetForWeeks()}`;
+          barStyles = `width: ${this.getTimelineBarWidthForWeeks()}px; ${this.getTimelineBarStartOffsetForWeeks(this.milestone)}`;
         }
       }
       return barStyles;
+    },
+    /**
+     * In case Milestone start date is out of range
+     * we need to use original date instead of proxy date
+     */
+    startDate() {
+      if (this.milestone.startDateOutOfRange) {
+        return this.milestone.originalStartDate;
+      }
+
+      return this.milestone.startDate;
+    },
+    /**
+     * In case Milestone end date is out of range
+     * we need to use original date instead of proxy date
+     */
+    endDate() {
+      if (this.milestone.endDateOutOfRange) {
+        return this.milestone.originalEndDate;
+      }
+      return this.milestone.endDate;
+    },
+    /**
+     * Compose timeframe string to show on UI
+     * based on start and end date availability
+     */
+    timeframeString() {
+      if (this.milestone.startDateUndefined) {
+        return sprintf(s__('GroupRoadmap|Until %{dateWord}'), {
+          dateWord: dateInWords(this.endDate, true),
+        });
+      } else if (this.milestone.endDateUndefined) {
+        return sprintf(s__('GroupRoadmap|From %{dateWord}'), {
+          dateWord: dateInWords(this.startDate, true),
+        });
+      }
+
+      // In case both start and end date fall in same year
+      // We should hide year from start date
+      const startDateInWords = dateInWords(
+        this.startDate,
+        true,
+        this.startDate.getFullYear() === this.endDate.getFullYear(),
+      );
+
+      const endDateInWords = dateInWords(this.endDate, true);
+      return sprintf(s__('GroupRoadmap|%{startDateInWords} - %{endDateInWords}'), {
+        startDateInWords,
+        endDateInWords,
+      });
+    },
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.hoverStyles = this.getHoverStyles();
+    });
+  },
+  methods: {
+    getHoverStyles() {
+      const elHeight = this.$root.$el.getBoundingClientRect().y;
+      return {
+        height: `calc(100vh - ${elHeight + SCROLL_BAR_SIZE}px)`,
+      };
     },
   },
 };
 </script>
 
 <template>
-  <div v-if="hasStartDate" :id="`milestone-item-${milestone.id}`" class="timeline-bar-wrapper">
+  <!-- <div v-if="isCurrent" class="timeline-extra-cell" /> -->
+  <div v-if="hasStartDate" class="timeline-bar-wrapper" :style="timelineBarStyles">
     <a
+      :id="`milestone-item-${milestone.id}`"
       :href="milestone.webUrl"
       :class="{
         'start-date-undefined': milestone.startDateUndefined,
         'end-date-undefined': milestone.endDateUndefined,
       }"
-      :style="timelineBarStyles"
-      class="timeline-bar"
+      class="milestone-item-details"
     >
+      <span class="timeline-bar"></span>
       <span class="milestone-item-title">{{ milestone.title }}</span>
+      <div class="milestone-start-and-end" :style="hoverStyles"></div>
     </a>
     <gl-popover
       :target="`milestone-item-${milestone.id}`"
@@ -111,8 +194,9 @@ export default {
       triggers="hover"
       :title="milestone.title"
     >
+      <!-- TODO - Add group, subgroup or project  -->
       <!-- TODO - move timeframeString epic function to util for reusability  -->
-      Temporary
+      {{ timeframeString }}
     </gl-popover>
   </div>
 </template>

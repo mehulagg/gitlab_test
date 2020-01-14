@@ -408,54 +408,85 @@ html.group-epics-roadmap-html {
       border-bottom: $border-style;
       box-sizing: border-box;
       vertical-align: top;
+      max-width: $timeline-cell-width;
+    }
 
-      .milestone-item-title {
-        position: absolute;
-        bottom: 4px;
-        font-weight: 600;
-        max-width: 100%;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-      }
+    .milestone-item-title {
+      display: block;
+      position: relative;
+      top: 6px;
+      font-weight: 600;
+      max-width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      color: $gray-700;
+    }
 
-      .timeline-bar-wrapper {
+    .timeline-bar-wrapper {
+      position: relative;
+      height: $item-height;
+
+      .milestone-start-and-end {
+        display: none;
+        background-color: transparent;
+        pointer-events: none;
+        border-left: 2px dashed $gray-900;
+        border-right: 2px dashed $gray-900;
         position: relative;
-        height: $item-height;
+        top: 10px;
       }
 
-      .timeline-bar {
-        position: absolute;
-        top: 30px;
-        background-color: $gray-700;
-        color: $gray-700;
-        height: 2px;
-        will-change: width, left;
+      .milestone-item-details {
+        display: block;
+        position: relative;
 
         &:hover {
-          background-color: $gray-900;
           color: $gray-900;
-        }
+          text-decoration: none;
 
-        &::before {
-          content: '';
-          position: absolute;
-          top: -3px;
-          width: 2px;
-          height: 8px;
-          background-color: $gray-700;
+          .milestone-start-and-end {
+            display: block;
+          }
         }
+      }
+    }
 
-        &::after {
-          content: '';
-          position: absolute;
-          top: -3px;
-          right: -7px;
-          width: 8px;
-          height: 8px;
-          border: 2px solid $gray-700;
-          border-radius: 4px;
-        }
+    .timeline-extra-cell {
+      height: $item-height;
+    }
+
+    .timeline-bar {
+      position: absolute;
+      width: 100%;
+      top: 30px;
+      background-color: $gray-700;
+      color: $gray-700;
+      height: 2px;
+      will-change: width, left;
+
+      &:hover {
+        background-color: $gray-900;
+      }
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: -3px;
+        width: 2px;
+        height: 8px;
+        background-color: $gray-700;
+      }
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: -3px;
+        right: -7px;
+        width: 8px;
+        height: 8px;
+        border: 2px solid $gray-700;
+        border-radius: 4px;
       }
     }
   }

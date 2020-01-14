@@ -11,8 +11,6 @@ describe('extractGroupMilestones', () => {
     expect(extractedMilestones[0]).toEqual(
       jasmine.objectContaining({
         ...edges[0].node,
-        groupName: edges[0].node.group.name,
-        groupFullName: edges[0].node.group.fullName,
       }),
     );
   });

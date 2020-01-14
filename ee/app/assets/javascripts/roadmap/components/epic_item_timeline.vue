@@ -87,9 +87,7 @@ export default {
           )}`;
         } else if (this.presetTypeWeeks) {
           // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
-          barStyles = `width: ${this.getTimelineBarWidthForWeeks()}px; ${this.getTimelineBarStartOffsetForWeeks(
-            this.epic,
-          )}`;
+          barStyles = `width: ${this.getTimelineBarWidthForWeeks()}px; ${this.getTimelineBarStartOffsetForWeeks(this.epic)}`;
         }
       }
       return barStyles;

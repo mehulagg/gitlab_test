@@ -55,6 +55,9 @@ export default {
       'epicsFetchResultEmpty',
       'epicsFetchFailure',
       'isChildEpics',
+      'milestonesFetchInProgress',
+      'milestonesFetchResultEmpty',
+      'milestonesFetchFailure',
     ]),
     timeframeStart() {
       return this.timeframe[0];
@@ -68,7 +71,10 @@ export default {
         !this.windowResizeInProgress &&
         !this.epicsFetchFailure &&
         !this.epicsFetchInProgress &&
-        !this.epicsFetchResultEmpty
+        !this.milestonesFetchInProgress &&
+        !this.milestonesFetchFailure && (
+        !this.epicsFetchResultEmpty ||
+        !this.milestonesFetchResultEmpty)
       );
     },
   },
@@ -139,7 +145,7 @@ export default {
 </script>
 
 <template>
-  <div :class="{ 'overflow-reset': epicsFetchResultEmpty }" class="roadmap-container">
+  <div :class="{ 'overflow-reset': epicsFetchResultEmpty && milestonesFetchResultEmpty }" class="roadmap-container">
     <roadmap-shell
       v-if="showRoadmap"
       :preset-type="presetType"
@@ -151,7 +157,7 @@ export default {
       @onScrollToEnd="handleScrollToExtend"
     />
     <epics-list-empty
-      v-if="epicsFetchResultEmpty"
+      v-if="epicsFetchResultEmpty && milestonesFetchResultEmpty"
       :preset-type="presetType"
       :timeframe-start="timeframeStart"
       :timeframe-end="timeframeEnd"

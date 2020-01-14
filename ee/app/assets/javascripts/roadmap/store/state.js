@@ -30,4 +30,6 @@ export default () => ({
   epicsFetchFailure: false,
   epicsFetchResultEmpty: false,
   milestonesFetchInProgress: false,
+  milestonesFetchFailure: false,
+  milestonesFetchResultEmpty: false,
 });
