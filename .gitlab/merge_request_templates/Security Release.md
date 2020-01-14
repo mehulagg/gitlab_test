@@ -24,11 +24,8 @@ See [the general developer security release guidelines](https://gitlab.com/gitla
 
 **Note:** Reviewer/maintainer should not be a Release Manager
 
-## Reviewer checklist
-
-- [ ] Correct milestone is applied and the title is matching across all backports
-
 ## Maintainer checklist
+- [ ] Correct milestone is applied and the title is matching across all backports
 - [ ] Assigned to `@gitlab-release-tools-bot` with passing CI pipelines
 
 /label ~security
