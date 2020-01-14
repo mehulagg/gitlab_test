@@ -8,7 +8,7 @@ describe Gitlab::Analytics::CycleAnalytics::BaseQueryBuilder do
   let_it_be(:mr2) { create(:merge_request, target_project: project, source_project: project, allow_broken: true, created_at: 1.month.ago) }
   let(:params) { {} }
   let(:records) do
-    stage = build(:cycle_analytics_project_stage, {
+    stage = build(:value_stream_analytics_project_stage, {
       start_event_identifier: :merge_request_created,
       end_event_identifier: :merge_request_merged,
       project: project

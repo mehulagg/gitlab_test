@@ -94,7 +94,7 @@ describe Analytics::CycleAnalytics::Stages::UpdateService do
   end
 
   context 'when updating a custom stage' do
-    let_it_be(:stage) { create(:cycle_analytics_group_stage, group: group) }
+    let_it_be(:stage) { create(:value_stream_analytics_group_stage, group: group) }
     let(:params) { { id: stage.id, name: 'my new stage name' } }
 
     it { expect(subject).to be_success }
@@ -113,9 +113,9 @@ describe Analytics::CycleAnalytics::Stages::UpdateService do
   end
 
   context 'when positioning a stage' do
-    let!(:first_stage) { create(:cycle_analytics_group_stage, group: group, relative_position: 10) }
-    let!(:middle_stage) { create(:cycle_analytics_group_stage, group: group, relative_position: 11) }
-    let!(:last_stage) { create(:cycle_analytics_group_stage, group: group, relative_position: 12) }
+    let!(:first_stage) { create(:value_stream_group_stage, group: group, relative_position: 10) }
+    let!(:middle_stage) { create(:value_stream_group_stage, group: group, relative_position: 11) }
+    let!(:last_stage) { create(:value_streams_group_stage, group: group, relative_position: 12) }
 
     context 'when moving the stage down' do
       before do
@@ -164,7 +164,7 @@ describe Analytics::CycleAnalytics::Stages::UpdateService do
     context 'when `move_before_id` points to a stage within a different group' do
       before do
         params[:id] = last_stage.id
-        params[:move_before_id] = create(:cycle_analytics_group_stage, group: create(:group)).id
+        params[:move_before_id] = create(:value_stream_analytics_group_stage, group: create(:group)).id
       end
 
       it { expect { subject }.to raise_error(ActiveRecord::RecordNotFound) }
