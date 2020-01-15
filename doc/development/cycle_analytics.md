@@ -232,7 +232,7 @@ SELECT (START_EVENT_TIME-END_EVENT_TIME) as duration, END_EVENT.timestamp
 - Rails Controller (`Analytics::ValueStreamAnalytics` module): Cycle analytics exposes its data via JSON endpoints, implemented within the `analytics` workspace. Configuring the stages are also implements JSON endpoints (CRUD).
 - Services (`Analytics::ValueStreamAnalytics` module): All `Stage` related actions will be delegated to respective service objects.
 - Models (`Analytics::ValueStreamAnalytics` module): Models are used to persist the `Stage` objects `ProjectStage` and `GroupStage`.
-- Feature classes (`Gitlab::Analytics::CycleAnalytics` module):
+- Feature classes (`Gitlab::Analytics::ValueStreamAnalytics` module):
   - Responsible for composing queries and define feature specific busines logic.
   - `DataCollector`, `Event`, `StageEvents`, etc.
 

@@ -36,7 +36,7 @@ module Analytics
       end
 
       def request_params
-        @request_params ||= Gitlab::Analytics::CycleAnalytics::RequestParams.new(allowed_params)
+        @request_params ||= Gitlab::Analytics::ValueStreamAnalytics::RequestParams.new(allowed_params)
       end
 
       def allowed_params

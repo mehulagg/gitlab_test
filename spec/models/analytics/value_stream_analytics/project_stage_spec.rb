@@ -10,7 +10,7 @@ describe Analytics::ValueStreamAnalytics::ProjectStage do
   it 'default stages must be valid' do
     project = create(:project)
 
-    Gitlab::Analytics::CycleAnalytics::DefaultStages.all.each do |params|
+    Gitlab::Analytics::ValueStreamAnalytics::DefaultStages.all.each do |params|
       stage = described_class.new(params.merge(project: project))
       expect(stage).to be_valid
     end

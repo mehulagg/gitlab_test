@@ -47,7 +47,7 @@ module Analytics
         end
 
         def build_default_stages
-          Gitlab::Analytics::CycleAnalytics::DefaultStages.all.map do |params|
+          Gitlab::Analytics::ValueStreamAnalytics::DefaultStages.all.map do |params|
             parent.cycle_analytics_stages.build(params)
           end
         end

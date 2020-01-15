@@ -29,7 +29,7 @@ describe Analytics::ValueStreamAnalytics::StagesController do
       subject
 
       response_start_events = json_response['stages'].map { |s| s['start_event_identifier'] }
-      start_events = Gitlab::Analytics::CycleAnalytics::DefaultStages.all.map { |s| s['start_event_identifier'] }
+      start_events = Gitlab::Analytics::ValueStreamAnalytics::DefaultStages.all.map { |s| s['start_event_identifier'] }
 
       expect(response_start_events).to eq(start_events)
     end
@@ -38,7 +38,7 @@ describe Analytics::ValueStreamAnalytics::StagesController do
       subject
 
       response_event_names = json_response['events'].map { |s| s['name'] }
-      event_names = Gitlab::Analytics::CycleAnalytics::StageEvents.events.map(&:name)
+      event_names = Gitlab::Analytics::ValueStreamAnalytics::StageEvents.events.map(&:name)
 
       expect(response_event_names).to eq(event_names)
     end
@@ -177,7 +177,7 @@ describe Analytics::ValueStreamAnalytics::StagesController do
 
     context 'when default stage id is passed' do
       before do
-        params[:id] = Gitlab::Analytics::CycleAnalytics::DefaultStages.names.first
+        params[:id] = Gitlab::Analytics::ValueStreamAnalytics::DefaultStages.names.first
       end
 
       it 'fails with `forbidden` response' do
@@ -220,7 +220,7 @@ describe Analytics::ValueStreamAnalytics::StagesController do
 
       it 'matches the response schema' do
         fake_result = [double(MergeRequest, duration_in_seconds: 10, finished_at: Time.now)]
-        expect_any_instance_of(Gitlab::Analytics::CycleAnalytics::DataForDurationChart).to receive(:load).and_return(fake_result)
+        expect_any_instance_of(Gitlab::Analytics::ValueStreamAnalytics::DataForDurationChart).to receive(:load).and_return(fake_result)
 
         subject
 

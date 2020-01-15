@@ -11,7 +11,7 @@ module CycleAnalytics
     end
 
     def summary
-      @summary ||= ::Gitlab::CycleAnalytics::GroupStageSummary.new(group, options: options).data
+      @summary ||= ::Gitlab::ValueStreamAnalytics::GroupStageSummary.new(group, options: options).data
     end
 
     def permissions(*)

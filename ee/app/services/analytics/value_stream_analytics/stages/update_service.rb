@@ -41,7 +41,7 @@ module Analytics
         end
 
         def default_stage?
-          Gitlab::Analytics::CycleAnalytics::DefaultStages.names.include?(params[:id])
+          Gitlab::Analytics::ValueStreamAnalytics::DefaultStages.names.include?(params[:id])
         end
 
         # rubocop: disable CodeReuse/ActiveRecord

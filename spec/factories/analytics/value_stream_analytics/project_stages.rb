@@ -8,8 +8,8 @@ FactoryBot.define do
     issue_stage
 
     trait :issue_stage do
-      start_event_identifier { Gitlab::Analytics::CycleAnalytics::StageEvents::IssueCreated.identifier }
-      end_event_identifier { Gitlab::Analytics::CycleAnalytics::StageEvents::IssueStageEnd.identifier }
+      start_event_identifier { Gitlab::Analytics::ValueStreamAnalytics::StageEvents::IssueCreated.identifier }
+      end_event_identifier { Gitlab::Analytics::ValueStreamAnalytics::StageEvents::IssueStageEnd.identifier }
     end
   end
 end

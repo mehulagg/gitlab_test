@@ -45,7 +45,7 @@ describe Analytics::ValueStreamAnalytics::Stages::CreateService do
   describe 'persistence of default stages' do
     let(:persisted_stages) { group.cycle_analytics_stages }
     let(:customized_stages) { group.cycle_analytics_stages.where(custom: true) }
-    let(:default_stages) { Gitlab::Analytics::CycleAnalytics::DefaultStages.all }
+    let(:default_stages) { Gitlab::Analytics::ValueStreamAnalytics::DefaultStages.all }
     let(:expected_stage_count) { default_stages.count + customized_stages.count }
 
     context 'when creating custom stages' do

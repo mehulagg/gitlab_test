@@ -68,11 +68,11 @@ module Analytics
       end
 
       def request_params
-        @request_params ||= Gitlab::Analytics::CycleAnalytics::RequestParams.new(data_collector_params)
+        @request_params ||= Gitlab::Analytics::ValueStreamAnalytics::RequestParams.new(data_collector_params)
       end
 
       def data_collector
-        @data_collector ||= Gitlab::Analytics::CycleAnalytics::DataCollector.new(stage: stage, params: {
+        @data_collector ||= Gitlab::Analytics::ValueStreamAnalytics::DataCollector.new(stage: stage, params: {
           current_user: current_user,
           from: request_params.created_after,
           to: request_params.created_before,

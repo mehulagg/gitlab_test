@@ -20,7 +20,7 @@ describe Analytics::ValueStreamAnalytics::Stages::ListService do
   it_behaves_like 'permission check for cycle analytics stage services', :cycle_analytics_for_groups
 
   it 'returns only the default stages' do
-    expect(stages.size).to eq(Gitlab::Analytics::CycleAnalytics::DefaultStages.all.size)
+    expect(stages.size).to eq(Gitlab::Analytics::ValueStreamAnalytics::DefaultStages.all.size)
   end
 
   it 'provides the default stages as non-persisted objects' do

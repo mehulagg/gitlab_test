@@ -17,7 +17,7 @@ module Gitlab
           .merge(system_usage_data)
           .merge(features_usage_data)
           .merge(components_usage_data)
-          .merge(cycle_analytics_usage_data)
+          .merge(vs_analytics_usage_data)
       end
 
       def to_json(force_refresh: false)
@@ -117,8 +117,8 @@ module Gitlab
       # rubocop: enable CodeReuse/ActiveRecord
       # rubocop: enable Metrics/AbcSize
 
-      def cycle_analytics_usage_data
-        Gitlab::CycleAnalytics::UsageData.new.to_json
+      def vs_analytics_usage_data
+        Gitlab::ValueStreamAnalytics::UsageData.new.to_json
       end
 
       def features_usage_data

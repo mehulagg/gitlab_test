@@ -141,7 +141,7 @@ describe 'Analytics (JavaScript fixtures)', :sidekiq_inline do
       stub_licensed_features(cycle_analytics_for_groups: true)
 
       # Persist the default stages
-      Gitlab::Analytics::CycleAnalytics::DefaultStages.all.map do |params|
+      Gitlab::Analytics::ValueStreamAnalytics::DefaultStages.all.map do |params|
         group.cycle_analytics_stages.build(params).save!
       end
 
@@ -159,7 +159,7 @@ describe 'Analytics (JavaScript fixtures)', :sidekiq_inline do
       expect(response).to be_successful
     end
 
-    Gitlab::Analytics::CycleAnalytics::DefaultStages.all.each do |stage|
+    Gitlab::Analytics::ValueStreamAnalytics::DefaultStages.all.each do |stage|
       it "analytics/cycle_analytics/stages/#{stage[:name]}/records.json" do
         stage_id = group.cycle_analytics_stages.find_by(name: stage[:name]).id
         get(:records, params: params.merge({ id: stage_id }), format: :json)

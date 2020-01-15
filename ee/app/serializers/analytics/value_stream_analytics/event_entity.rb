@@ -25,7 +25,7 @@ module Analytics
       end
 
       def pairing_rules
-        Gitlab::Analytics::CycleAnalytics::StageEvents.pairing_rules
+        Gitlab::Analytics::ValueStreamAnalytics::StageEvents.pairing_rules
       end
     end
   end

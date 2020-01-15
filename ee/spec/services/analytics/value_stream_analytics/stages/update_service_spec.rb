@@ -5,7 +5,7 @@ require 'spec_helper'
 describe Analytics::ValueStreamAnalytics::Stages::UpdateService do
   let_it_be(:group, refind: true) { create(:group) }
   let_it_be(:user, refind: true) { create(:user) }
-  let(:default_stages) { Gitlab::Analytics::CycleAnalytics::DefaultStages.all }
+  let(:default_stages) { Gitlab::Analytics::ValueStreamAnalytics::DefaultStages.all }
   let(:params) { {} }
   let(:persisted_stages) { group.reload.cycle_analytics_stages.ordered }
 

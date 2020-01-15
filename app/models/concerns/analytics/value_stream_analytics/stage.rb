@@ -12,7 +12,7 @@ module Analytics
         belongs_to :end_event_label, class_name: 'GroupLabel', optional: true
 
         validates :name, presence: true
-        validates :name, exclusion: { in: Gitlab::Analytics::CycleAnalytics::DefaultStages.names }, if: :custom?
+        validates :name, exclusion: { in: Gitlab::Analytics::ValueStreamAnalytics::DefaultStages.names }, if: :custom?
         validates :start_event_identifier, presence: true
         validates :end_event_identifier, presence: true
         validates :start_event_label, presence: true, if: :start_event_label_based?
@@ -20,8 +20,8 @@ module Analytics
         validate :validate_stage_event_pairs
         validate :validate_labels
 
-        enum start_event_identifier: Gitlab::Analytics::CycleAnalytics::StageEvents.to_enum, _prefix: :start_event_identifier
-        enum end_event_identifier: Gitlab::Analytics::CycleAnalytics::StageEvents.to_enum, _prefix: :end_event_identifier
+        enum start_event_identifier: Gitlab::Analytics::ValueStreamAnalytics::StageEvents.to_enum, _prefix: :start_event_identifier
+        enum end_event_identifier: Gitlab::Analytics::ValueStreamAnalytics::StageEvents.to_enum, _prefix: :end_event_identifier
 
         alias_attribute :custom_stage?, :custom
         scope :default_stages, -> { where(custom: false) }
@@ -39,13 +39,13 @@ module Analytics
 
       def start_event
         strong_memoize(:start_event) do
-          Gitlab::Analytics::CycleAnalytics::StageEvents[start_event_identifier].new(params_for_start_event)
+          Gitlab::Analytics::ValueStreamAnalytics::StageEvents[start_event_identifier].new(params_for_start_event)
         end
       end
 
       def end_event
         strong_memoize(:end_event) do
-          Gitlab::Analytics::CycleAnalytics::StageEvents[end_event_identifier].new(params_for_end_event)
+          Gitlab::Analytics::ValueStreamAnalytics::StageEvents[end_event_identifier].new(params_for_end_event)
         end
       end
 
@@ -105,7 +105,7 @@ module Analytics
       end
 
       def pairing_rules
-        Gitlab::Analytics::CycleAnalytics::StageEvents.pairing_rules
+        Gitlab::Analytics::ValueStreamAnalytics::StageEvents.pairing_rules
       end
 
       def validate_labels

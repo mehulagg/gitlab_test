@@ -3,11 +3,11 @@
 require 'spec_helper'
 
 describe Analytics::ValueStreamAnalytics::StagePresenter do
-  let(:default_stage_params) { Gitlab::Analytics::CycleAnalytics::DefaultStages.params_for_issue_stage }
+  let(:default_stage_params) { Gitlab::Analytics::ValueStreamAnalytics::DefaultStages.params_for_issue_stage }
   let(:default_stage) { Analytics::ValueStreamAnalytics::ProjectStage.new(default_stage_params) }
   let(:custom_stage) { Analytics::ValueStreamAnalytics::ProjectStage.new(name: 'Hello') }
 
-  let(:old_issue_stage_implementation) { Gitlab::CycleAnalytics::IssueStage.new(options: {}) }
+  let(:old_issue_stage_implementation) { Gitlab::ValueStreamAnalytics::IssueStage.new(options: {}) }
 
   describe '#title' do
     it 'returns the pre-defined title for the default stage' do
