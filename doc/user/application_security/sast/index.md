@@ -456,6 +456,11 @@ Then update the path used to `docker run` the SAST image `.gitlab-ci.yml` to poi
 ```diff
 - "registry.gitlab.com/gitlab-org/security-products/sast:$SAST_VERSION" /app/bin/run /code
 + "<registry>/sast:$SAST_VERSION" /app/bin/run code
+
+You need to do this because you need to have customized the template "source" for the sast job so that it will not try to pull the SAST image from registry.gitlab.com, which is inaccessible inside the offline environment.
+
+[See the referenced line](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/SAST.gitlab-ci.yml#L47)
+
 ```
 
 ## Security Dashboard
