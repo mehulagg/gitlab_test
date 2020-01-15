@@ -105,6 +105,9 @@ class License < ApplicationRecord
   ]
   EEP_FEATURES.freeze
 
+  # NOTE: license_management is deprecated
+  # It will be removed in 13.0
+  # We keep it in order to not break anything
   EEU_FEATURES = EEP_FEATURES + %i[
     cluster_health
     container_scanning
@@ -115,6 +118,7 @@ class License < ApplicationRecord
     group_ip_restriction
     incident_management
     insights
+    license_management
     license_scanning
     personal_access_token_expiration_policy
     pod_logs
